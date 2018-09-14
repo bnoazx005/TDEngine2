@@ -1,0 +1,11 @@
+.vs/
+[Oo]bj/
+[Bb]in/
+tmp/
+Release/
+Debug/
+
+TODO
+  
+*.opensdf
+*.sdf
