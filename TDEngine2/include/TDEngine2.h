@@ -6,5 +6,9 @@
 
 #pragma once
 
+///core
+#include "core\IEngineCore.h"
+
 ///utils
 #include "utils\Types.h"
+#include "utils\Config.h"
