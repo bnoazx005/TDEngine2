@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClInclude Include="include\core\IEngineCore.h" />
     <ClInclude Include="include\core\IEngineSubsystem.h" />
+    <ClInclude Include="include\core\IWindowSystem.h" />
     <ClInclude Include="include\TDEngine2.h" />
     <ClInclude Include="include\utils\Config.h" />
     <ClInclude Include="include\utils\Types.h" />

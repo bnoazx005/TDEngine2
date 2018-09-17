@@ -6,5 +6,6 @@
     <ClInclude Include="include\core\IEngineCore.h" />
     <ClInclude Include="include\utils\Config.h" />
     <ClInclude Include="include\core\IEngineSubsystem.h" />
+    <ClInclude Include="include\core\IWindowSystem.h" />
   </ItemGroup>
 </Project>
