@@ -8,6 +8,7 @@
 
 ///core
 #include "core\IEngineCore.h"
+#include "core\IEngineSubsystem.h"
 
 ///utils
 #include "utils\Types.h"
