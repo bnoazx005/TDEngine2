@@ -9,6 +9,10 @@
 ///core
 #include "core\IEngineCore.h"
 #include "core\IEngineSubsystem.h"
+#include "core\IWindowSystem.h"
+
+///platform
+#include "platform\win32\CWin32WindowSystem.h"
 
 ///utils
 #include "utils\Types.h"

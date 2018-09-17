@@ -47,7 +47,7 @@ namespace TDEngine2
 				in other possible way, true in other cases
 			*/
 
-			virtual bool Update() = 0;
+			virtual bool Run() = 0;
 
 			/*!
 				\brief The method stops the engine's main loop

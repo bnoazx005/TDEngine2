@@ -48,6 +48,7 @@ namespace TDEngine2
 		RC_OK,							/// Normal execution
 		RC_FAIL,						/// An execution failed at some point
 		RC_INVALID_ARGS,				/// Some of input arguments are invalid or incorrect
+		RC_OUT_OF_MEMORY,				/// Couldn't allocate enough memory to store an object
 		RC_UNKNOWN						/// Some unrecognized error
 	};
 
@@ -64,5 +65,19 @@ namespace TDEngine2
 		EST_GRAPHICS_CONTEXT,			/// A subsystem represents a low-level graphics layer (wrappers for D3D, OGL, etc)
 		//EST_FILE_SYSTEM,
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
+	};
+
+
+	/*!
+		enum E_PARAMETERS
+
+		\brief The enumeration is a list of available features that could be enabled/disabled
+	*/
+
+	enum E_PARAMETERS: U8
+	{
+		P_FULLSCREEN = 0x1,				/// Enables full-screen mode
+		P_VSYNC      = 0x2,				/// Enables vertical synchronization
+		P_RESIZEABLE = 0x4,				/// Determines will be a window resizeable or not
 	};
 }
