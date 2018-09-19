@@ -117,7 +117,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	bool CWin32WindowSystem::Run()
+	bool CWin32WindowSystem::Run(const std::function<void()>& onFrameUpdate)
 	{
 		if (!mIsInitialized)
 		{
@@ -137,7 +137,7 @@ namespace TDEngine2
 			}
 			else
 			{
-				/// \todo add invokation of OnUpdate here
+				onFrameUpdate();
 			}
 		}
 

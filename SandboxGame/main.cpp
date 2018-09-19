@@ -14,7 +14,15 @@ int main(int argc, char** argv)
 
 	IWindowSystem* pWindow = TDEngine2::CreateWin32WindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE, result);
 
-	pWindow->Run();
+	pWindow->Run([&pWindow]() 
+	{
+		/// render's code here
+
+		if (GetKeyState(VK_ESCAPE) & 0x8000)
+		{
+			pWindow->Quit();
+		}
+	});
 
 	pWindow->Free();
 

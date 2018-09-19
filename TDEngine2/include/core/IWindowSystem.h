@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "IEngineSubsystem.h"
 #include <string>
+#include <functional>
 
 
 namespace TDEngine2
@@ -43,11 +44,13 @@ namespace TDEngine2
 			/*!
 				\brief The method processes a window's update (executing messages, redraw content)
 
+				\param[in] onFrameUpdate A callback that is invoked every time, when the window doesn't process a message
+
 				\return The method returns false, if Quit method was invoked or the window was closed
 				in other possible way, true in other cases
 			*/
 
-			TDE2_API virtual bool Run() = 0;
+			TDE2_API virtual bool Run(const std::function<void()>& onFrameUpdate) = 0;
 
 			/*!
 				\brief The method stops the engine's main loop
