@@ -21,10 +21,10 @@ namespace TDEngine2
 		create and manage application's windows
 	*/
 
-	class TDE2_API IWindowSystem : public IEngineSubsystem
+	class IWindowSystem : public IEngineSubsystem
 	{
 		public:
-			virtual ~IWindowSystem() = default;
+			TDE2_API virtual ~IWindowSystem() = default;
 
 			/*!
 				\brief The method initializes a main window
@@ -38,7 +38,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE Init(const std::string& name, U32 width, U32 height, U32 flags = 0x0) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(const std::string& name, U32 width, U32 height, U32 flags = 0x0) = 0;
 
 			/*!
 				\brief The method processes a window's update (executing messages, redraw content)
@@ -47,7 +47,7 @@ namespace TDEngine2
 				in other possible way, true in other cases
 			*/
 
-			virtual bool Run() = 0;
+			TDE2_API virtual bool Run() = 0;
 
 			/*!
 				\brief The method stops the engine's main loop
@@ -55,10 +55,10 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE Quit() = 0;
+			TDE2_API virtual E_RESULT_CODE Quit() = 0;
 		protected:
-			IWindowSystem() = default;
-			IWindowSystem(const IWindowSystem& windowSystem) = delete;
-			virtual IWindowSystem& operator= (IWindowSystem& windowSystem) = delete;
+			TDE2_API IWindowSystem() = default;
+			TDE2_API IWindowSystem(const IWindowSystem& windowSystem) = delete;
+			TDE2_API virtual IWindowSystem& operator= (IWindowSystem& windowSystem) = delete;
 	};
 }

@@ -20,7 +20,7 @@ namespace TDEngine2
 		The subsystem term includes low-level graphics context, window creation and etc.
 	*/
 
-	class TDE2_API IEngineSubsystem
+	class IEngineSubsystem
 	{
 		public:
 			/*!
@@ -29,7 +29,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE Free() = 0;
+			TDE2_API virtual E_RESULT_CODE Free() = 0;
 
 			/*!
 				\brief The method returns a type of the subsystem
@@ -37,7 +37,7 @@ namespace TDEngine2
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
 			*/
 
-			virtual E_ENGINE_SUBSYSTEM_TYPE GetType() const = 0;
+			TDE2_API virtual E_ENGINE_SUBSYSTEM_TYPE GetType() const = 0;
 		protected:
 			IEngineSubsystem() = default;
 			IEngineSubsystem(const IEngineSubsystem& subsystem) = delete;

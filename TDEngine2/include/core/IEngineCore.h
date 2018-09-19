@@ -25,10 +25,10 @@ namespace TDEngine2
 				- specify a way of register/unregister callbacks
 	*/
 
-	class TDE2_API IEngineCore
+	class IEngineCore
 	{
 		public:
-			virtual ~IEngineCore() = default;
+			TDE2_API virtual ~IEngineCore() = default;
 
 			/*!
 				\brief The method initializes the object
@@ -36,7 +36,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE Init() = 0;
+			TDE2_API virtual E_RESULT_CODE Init() = 0;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -44,7 +44,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE Free() = 0;
+			TDE2_API virtual E_RESULT_CODE Free() = 0;
 
 			/*!
 				\brief The method starts up the engine
@@ -55,7 +55,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE Run() = 0;
+			TDE2_API virtual E_RESULT_CODE Run() = 0;
 
 			/*!
 				\brief The method stops the engine's main loop
@@ -63,7 +63,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE Quit() = 0;
+			TDE2_API virtual E_RESULT_CODE Quit() = 0;
 
 			/*!
 				\brief The method registers a specified interface as an engine's subsystem of
@@ -74,7 +74,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE RegisterSubsystem(const IEngineSubsystem* pSubsystem) = 0;
+			TDE2_API virtual E_RESULT_CODE RegisterSubsystem(const IEngineSubsystem* pSubsystem) = 0;
 
 			/*!
 				\brief The method unregisters specified type of a subsystem
@@ -84,7 +84,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			virtual E_RESULT_CODE UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType) = 0;
+			TDE2_API virtual E_RESULT_CODE UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType) = 0;
 		protected:
 			IEngineCore() = default;
 			IEngineCore(const IEngineCore& engineCore) = delete;

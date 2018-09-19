@@ -24,7 +24,7 @@ namespace TDEngine2
 		\brief The class provides methods for a window system, which works under Windows
 	*/
 
-	class TDE2_API CWin32WindowSystem : public IWindowSystem
+	class CWin32WindowSystem : public IWindowSystem
 	{
 		public:
 			/*!
@@ -36,7 +36,7 @@ namespace TDEngine2
 			friend TDE2_API IWindowSystem* CreateWin32WindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
 
 		public:
-			virtual ~CWin32WindowSystem();
+			TDE2_API virtual ~CWin32WindowSystem();
 
 			/*!
 				\brief The method initializes a main window
@@ -50,7 +50,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE Init(const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
+			TDE2_API E_RESULT_CODE Init(const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -58,7 +58,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE Free() override;
+			TDE2_API E_RESULT_CODE Free() override;
 			
 			/*!
 				\brief The method processes a window's update (executing messages, redraw content)
@@ -67,7 +67,7 @@ namespace TDEngine2
 				in other possible way, true in other cases
 			*/
 
-			bool Run() override;
+			TDE2_API bool Run() override;
 
 			/*!
 				\brief The method stops the engine's main loop
@@ -75,7 +75,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE Quit() override;
+			TDE2_API E_RESULT_CODE Quit() override;
 
 
 			/*!
@@ -84,14 +84,14 @@ namespace TDEngine2
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
 			*/
 
-			E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
+			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
 		protected:
-			CWin32WindowSystem();
+			TDE2_API CWin32WindowSystem();
 
-			CWin32WindowSystem(const CWin32WindowSystem& windowSystem) = delete;
-			virtual CWin32WindowSystem& operator= (CWin32WindowSystem& windowSystem) = delete;
+			TDE2_API CWin32WindowSystem(const CWin32WindowSystem& windowSystem) = delete;
+			TDE2_API virtual CWin32WindowSystem& operator= (CWin32WindowSystem& windowSystem) = delete;
 
-			static LRESULT CALLBACK _wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+			TDE2_API static LRESULT CALLBACK _wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		protected:
 			HWND        mWindowHandler;
 			HINSTANCE   mInstanceHandler;
