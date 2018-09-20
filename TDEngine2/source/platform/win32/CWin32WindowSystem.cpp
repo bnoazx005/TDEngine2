@@ -37,6 +37,8 @@ namespace TDEngine2
 
 		mInstanceHandler = GetModuleHandle(nullptr);
 
+		memset(&mInternalDataObject, 0, sizeof(mInternalDataObject));
+
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(wc));
 
@@ -79,6 +81,9 @@ namespace TDEngine2
 		ShowWindow(mWindowHandler, SW_SHOW);
 		UpdateWindow(mWindowHandler);
 		
+		mInternalDataObject.mWindowHandler         = mWindowHandler;
+		mInternalDataObject.mWindowInstanceHandler = mInstanceHandler;
+
 		SetProp(mWindowHandler, mAppWinProcParamName, this); //attach the window's object as the window's parameter
 
 		/// \todo add invokation of user's OnInit method here
@@ -159,6 +164,21 @@ namespace TDEngine2
 	E_ENGINE_SUBSYSTEM_TYPE CWin32WindowSystem::GetType() const
 	{
 		return EST_WINDOW;
+	}
+
+	const TWindowSystemInternalData& CWin32WindowSystem::GetInternalData() const
+	{
+		return mInternalDataObject;
+	}
+
+	U32 CWin32WindowSystem::GetWidth() const
+	{
+		return mWidth;
+	}
+
+	U32 CWin32WindowSystem::GetHeight() const
+	{
+		return mHeight;
 	}
 
 

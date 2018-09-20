@@ -10,6 +10,10 @@
 
 #include <cstdint>
 
+#if defined(TDE2_USE_WIN32PLATFORM)
+#include <Windows.h>
+#endif
+
 
 namespace TDEngine2
 {	
@@ -80,4 +84,27 @@ namespace TDEngine2
 		P_VSYNC      = 0x2,				/// Enables vertical synchronization
 		P_RESIZEABLE = 0x4,				/// Determines will be a window resizeable or not
 	};
+
+
+	/// Try to infer a type TWindowSystemInternalData, that should be used to store internal window's data based on specific platform
+
+#if defined(TDE2_USE_WIN32PLATFORM)
+
+	/*!
+		struct TWin32InternalWindowData
+
+		\brief The structure contains handlers that are used to work with a window
+	*/
+
+	typedef struct TWin32InternalWindowData
+	{
+		HWND      mWindowHandler;
+		HINSTANCE mWindowInstanceHandler;
+	} TWin32InternalWindowData;
+
+	typedef TWin32InternalWindowData TWindowSystemInternalData; 
+#else
+	typedef void* TWindowSystemInternalData;
+#endif
+
 }

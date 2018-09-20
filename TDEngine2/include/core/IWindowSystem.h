@@ -59,6 +59,32 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Quit() = 0;
+
+			/*!
+				\brief The method returns an object that contains internal handlers that are used by the system.
+
+				The structure of the object and its members can vary on different platforms.
+
+				return The method returns an object that contains internal handlers that are used by the system
+			*/
+
+			TDE2_API virtual const TWindowSystemInternalData& GetInternalData() const = 0;
+
+			/*!
+				\brief The method returns a width of a window
+
+				\return The method returns a width of a window
+			*/
+
+			TDE2_API virtual U32 GetWidth() const = 0;
+
+			/*!
+				\brief The method returns a height of a window
+
+				\return The method returns a height of a window
+			*/
+
+			TDE2_API virtual U32 GetHeight() const = 0;
 		protected:
 			TDE2_API IWindowSystem() = default;
 			TDE2_API IWindowSystem(const IWindowSystem& windowSystem) = delete;

@@ -87,6 +87,32 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
+
+			/*!
+				\brief The method returns an object that contains internal handlers that are used by the system.
+
+				The structure of the object and its members can vary on different platforms.
+
+				return The method returns an object that contains internal handlers that are used by the system
+			*/
+
+			TDE2_API const TWindowSystemInternalData& GetInternalData() const override;
+
+			/*!
+				\brief The method returns a width of a window
+
+				\return The method returns a width of a window
+			*/
+
+			TDE2_API U32 GetWidth() const override;
+
+			/*!
+				\brief The method returns a height of a window
+
+				\return The method returns a height of a window
+			*/
+
+			TDE2_API U32 GetHeight() const override;
 		protected:
 			TDE2_API CWin32WindowSystem();
 
@@ -95,15 +121,16 @@ namespace TDEngine2
 
 			TDE2_API static LRESULT CALLBACK _wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		protected:
-			HWND        mWindowHandler;
-			HINSTANCE   mInstanceHandler;
-			U32         mWidth;
-			U32         mHeight;
-			U32         mSetupFlags;
-			std::string mWindowName;
-			std::string mWindowClassName;
-			bool        mIsInitialized;
-			static C8   mAppWinProcParamName[];
+			HWND                     mWindowHandler;
+			HINSTANCE                mInstanceHandler;
+			U32                      mWidth;
+			U32                      mHeight;
+			U32                      mSetupFlags;
+			std::string              mWindowName;
+			std::string              mWindowClassName;
+			bool                     mIsInitialized;
+			static C8                mAppWinProcParamName[];
+			TWin32InternalWindowData mInternalDataObject;
 	};
 
 
