@@ -8,8 +8,12 @@
 #pragma once
 
 
+#include "Config.h"
 #include <cstdint>
-#include <variant>
+
+#if _HAS_CXX17	/// use variant only if C++17's implementation is available, otherwise use stardard unions
+	#include <variant>
+#endif
 
 #if defined(TDE2_USE_WIN32PLATFORM)
 #include <Windows.h>
@@ -141,8 +145,16 @@ namespace TDEngine2
 		/// \todo preliminary declaration of a type, should be completed later 
 	} TOGLInternalData, *TOGLInternalDataPtr;
 
+	#if _HAS_CXX17
+		typedef std::variant<TD3D11CtxInternalData, TOGLInternalData> TGraphicsCtxInternalData;
+	#else
+		typedef union TGraphicsCtxInternalData
+		{
+			TD3D11CtxInternalData mD3D11;
+			TOGLInternalData      mOGL;
+		} TGraphicsCtxInternalData, *TGraphicsCtxInternalDataPtr;
+	#endif
 
-	typedef std::variant<TD3D11CtxInternalData, TOGLInternalData> TGraphicsCtxInternalData;
 #else
 #endif
 

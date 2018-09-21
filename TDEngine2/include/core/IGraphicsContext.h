@@ -13,6 +13,9 @@
 
 namespace TDEngine2
 {
+	class IWindowSystem;
+
+
 	/*!
 		interface IGraphicsContext
 
