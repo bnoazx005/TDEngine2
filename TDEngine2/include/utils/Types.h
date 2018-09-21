@@ -9,6 +9,7 @@
 
 
 #include <cstdint>
+#include <variant>
 
 #if defined(TDE2_USE_WIN32PLATFORM)
 #include <Windows.h>
@@ -105,6 +106,44 @@ namespace TDEngine2
 	typedef TWin32InternalWindowData TWindowSystemInternalData; 
 #else
 	typedef void* TWindowSystemInternalData;
+#endif
+
+
+	/// Try to infer a type TGraphicsCtxInternalData 
+
+#if defined(TDE2_USE_WIN32PLATFORM)
+
+#include <d3d11.h>
+
+
+	/*!
+		struct TD3D11CtxInternalData
+
+		\brief The structure contains pointers to ID3D11Device and ID3D11DeviceContext, that are used
+		to work with graphics
+	*/
+
+	typedef struct TD3D11CtxInternalData
+	{
+		ID3D11Device*        mp3dDevice;
+		ID3D11DeviceContext* mp3dDeviceContext;
+	} TD3D11CtxInternalData, *TD3D11CtxInternalDataPtr;
+
+
+	/*!
+		struct TOGLCtxInternalData
+
+		\brief The structure contains handlers of graphics context that are associated with OGL system
+	*/
+
+	typedef struct TOGLInternalData
+	{
+		/// \todo preliminary declaration of a type, should be completed later 
+	} TOGLInternalData, *TOGLInternalDataPtr;
+
+
+	typedef std::variant<TD3D11CtxInternalData, TOGLInternalData> TGraphicsCtxInternalData;
+#else
 #endif
 
 }

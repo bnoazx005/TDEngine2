@@ -10,6 +10,7 @@
 #include "core\IEngineCore.h"
 #include "core\IEngineSubsystem.h"
 #include "core\IWindowSystem.h"
+#include "core\IGraphicsContext.h"
 
 ///platform
 #include "platform\win32\CWin32WindowSystem.h"

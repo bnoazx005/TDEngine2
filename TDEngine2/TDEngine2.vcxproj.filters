@@ -8,6 +8,7 @@
     <ClInclude Include="include\core\IEngineSubsystem.h" />
     <ClInclude Include="include\core\IWindowSystem.h" />
     <ClInclude Include="include\platform\win32\CWin32WindowSystem.h" />
+    <ClInclude Include="include\core\IGraphicsContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />

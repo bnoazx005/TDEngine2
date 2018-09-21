@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\tmp\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)deps\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="include\core\IEngineCore.h" />
     <ClInclude Include="include\core\IEngineSubsystem.h" />
+    <ClInclude Include="include\core\IGraphicsContext.h" />
     <ClInclude Include="include\core\IWindowSystem.h" />
     <ClInclude Include="include\platform\win32\CWin32WindowSystem.h" />
     <ClInclude Include="include\TDEngine2.h" />
