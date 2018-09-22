@@ -86,6 +86,9 @@ namespace TDEngine2
 
 		SetProp(mWindowHandler, mAppWinProcParamName, this); //attach the window's object as the window's parameter
 
+		/// try to get a device context's handler
+		mInternalDataObject.mDeviceContextHandler = GetDC(mWindowHandler);
+
 		/// \todo add invokation of user's OnInit method here
 
 		mIsInitialized = true;

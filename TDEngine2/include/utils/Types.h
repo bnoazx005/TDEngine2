@@ -105,6 +105,7 @@ namespace TDEngine2
 	{
 		HWND      mWindowHandler;
 		HINSTANCE mWindowInstanceHandler;
+		HDC       mDeviceContextHandler;
 	} TWin32InternalWindowData;
 
 	typedef TWin32InternalWindowData TWindowSystemInternalData; 
