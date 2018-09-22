@@ -10,9 +10,11 @@
     <ClInclude Include="include\platform\win32\CWin32WindowSystem.h" />
     <ClInclude Include="include\core\IGraphicsContext.h" />
     <ClInclude Include="include\graphics\d3d11\CD3D11GraphicsContext.h" />
+    <ClInclude Include="include\graphics\ogl\COGLGraphicsContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />
     <ClCompile Include="source\graphics\d3d11\CD3D11GraphicsContext.cpp" />
+    <ClCompile Include="source\graphics\ogl\COGLGraphicsContext.cpp" />
   </ItemGroup>
 </Project>

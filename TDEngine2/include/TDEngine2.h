@@ -14,6 +14,7 @@
 
 ///graphics
 #include "graphics\d3d11\CD3D11GraphicsContext.h"
+#include "graphics\ogl\COGLGraphicsContext.h"
 
 ///platform
 #include "platform\win32\CWin32WindowSystem.h"
