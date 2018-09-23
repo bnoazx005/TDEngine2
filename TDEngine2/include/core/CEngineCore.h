@@ -21,6 +21,8 @@ namespace TDEngine2
 	class CEngineCore: public IEngineCore
 	{
 		public:
+			friend TDE2_API IEngineCore* CreateEngineCore(E_RESULT_CODE& result);
+		public:
 			TDE2_API virtual ~CEngineCore();
 
 			/*!
@@ -88,4 +90,14 @@ namespace TDEngine2
 			bool              mIsInitialized;
 			IEngineSubsystem* mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 	};
+
+
+	/*!
+		\brief A factory function for creation objects of CEngineCore's type.
+		SHOULDN'T be used by its own!
+
+		\return A pointer to CEngineCore's implementation
+	*/
+
+	TDE2_API IEngineCore* CreateEngineCore(E_RESULT_CODE& result);
 }

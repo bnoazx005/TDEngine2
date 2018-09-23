@@ -12,6 +12,8 @@
 #include "core\IWindowSystem.h"
 #include "core\IGraphicsContext.h"
 #include "core\CEngineCore.h"
+#include "core\IEngineCoreBuilder.h"
+#include "core\CDefaultEngineCoreBuilder.h"
 
 ///graphics
 #include "graphics\d3d11\CD3D11GraphicsContext.h"

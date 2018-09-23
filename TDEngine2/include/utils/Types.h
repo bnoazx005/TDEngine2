@@ -78,6 +78,20 @@ namespace TDEngine2
 
 
 	/*!
+		enum E_GRAPHICS_CONTEXT__GAPI_TYPE
+
+		\brief The enumeration contains all avaiable GAPI that existing graphics context supports
+	*/
+
+	enum E_GRAPHICS_CONTEXT_GAPI_TYPE: U8
+	{
+		GCGT_DIRECT3D11,	/// Direct3D 11.0 and above
+		GCGT_OPENGL3X,		/// OpenGL of version 3.0 and above
+		GCGT_UNKNOWN
+	};
+
+
+	/*!
 		enum E_PARAMETERS
 
 		\brief The enumeration is a list of available features that could be enabled/disabled

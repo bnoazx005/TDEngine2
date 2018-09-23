@@ -12,26 +12,23 @@ int main(int argc, char** argv)
 {
 	E_RESULT_CODE result = RC_OK;
 
-	IWindowSystem* pWindow = TDEngine2::CreateWin32WindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE, result);
+	IEngineCoreBuilder* pEngineCoreBuilder = CreateDefaultEngineCoreBuilder(CreateEngineCore, result);
 
-	IGraphicsContext* pGraphicsContext = TDEngine2::CreateOGLGraphicsContext(pWindow, CreateWin32GLContextFactory, result);
-
-	pWindow->Run([&pWindow, &pGraphicsContext]()
+	if (result != RC_OK)
 	{
-		/// render's code here
-		pGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
+		return -1;
+	}
 
-		if (GetKeyState(VK_ESCAPE) & 0x8000)
-		{
-			pWindow->Quit();
-		}
+	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
+	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_OPENGL3X);
 
-		pGraphicsContext->Present();
-	});
+	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
 
+	pEngineCoreBuilder->Free();
 
-	pGraphicsContext->Free();
-	pWindow->Free();
+	pEngineCore->Run();
+
+	pEngineCore->Free();
 
 	return 0;
 }

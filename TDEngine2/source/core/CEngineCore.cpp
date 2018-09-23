@@ -37,6 +37,8 @@ namespace TDEngine2
 
 		mIsInitialized = false;
 
+		delete this;
+
 		return RC_OK;
 	}
 
@@ -54,6 +56,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));
 		
 		return RC_OK;
@@ -109,5 +112,22 @@ namespace TDEngine2
 
 	void CEngineCore::_onFrameUpdateCallback()
 	{
+	}
+	
+
+	IEngineCore* CreateEngineCore(E_RESULT_CODE& result)
+	{
+		IEngineCore* pEngineCore = new (std::nothrow) CEngineCore();
+
+		if (!pEngineCore)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pEngineCore->Init();
+
+		return pEngineCore;
 	}
 }

@@ -15,6 +15,8 @@
     <ClInclude Include="include\graphics\ogl\win32\CWin32GLContextFactory.h" />
     <ClInclude Include="include\utils\Color.h" />
     <ClInclude Include="include\core\CEngineCore.h" />
+    <ClInclude Include="include\core\IEngineCoreBuilder.h" />
+    <ClInclude Include="include\core\CDefaultEngineCoreBuilder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />
@@ -22,5 +24,6 @@
     <ClCompile Include="source\graphics\ogl\COGLGraphicsContext.cpp" />
     <ClCompile Include="source\graphics\ogl\win32\CWin32GLContextFactory.cpp" />
     <ClCompile Include="source\core\CEngineCore.cpp" />
+    <ClCompile Include="source\core\CDefaultEngineCoreBuilder.cpp" />
   </ItemGroup>
 </Project>
