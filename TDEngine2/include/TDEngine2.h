@@ -11,6 +11,7 @@
 #include "core\IEngineSubsystem.h"
 #include "core\IWindowSystem.h"
 #include "core\IGraphicsContext.h"
+#include "core\CEngineCore.h"
 
 ///graphics
 #include "graphics\d3d11\CD3D11GraphicsContext.h"

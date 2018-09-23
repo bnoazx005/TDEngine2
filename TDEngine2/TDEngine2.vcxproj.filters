@@ -14,11 +14,13 @@
     <ClInclude Include="include\graphics\ogl\IOGLContextFactory.h" />
     <ClInclude Include="include\graphics\ogl\win32\CWin32GLContextFactory.h" />
     <ClInclude Include="include\utils\Color.h" />
+    <ClInclude Include="include\core\CEngineCore.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />
     <ClCompile Include="source\graphics\d3d11\CD3D11GraphicsContext.cpp" />
     <ClCompile Include="source\graphics\ogl\COGLGraphicsContext.cpp" />
     <ClCompile Include="source\graphics\ogl\win32\CWin32GLContextFactory.cpp" />
+    <ClCompile Include="source\core\CEngineCore.cpp" />
   </ItemGroup>
 </Project>

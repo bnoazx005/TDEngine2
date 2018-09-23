@@ -1,34 +1,27 @@
 /*!
-	\file IEngineCore.h
-	\date 16.09.2018
+	\file CEngineCore.h
+	\date 32.09.2018
 	\authors Kasimov Ildar
 */
-
 #pragma once
 
 
-#include "./../utils/Config.h"
-#include "./../utils/Types.h"
+#include "IEngineCore.h"
 
 
 namespace TDEngine2
 {
-	class IEngineSubsystem;
-
-
 	/*!
-		interface IEngineCore
+		class CEngineCore
 
-		\brief The interface represents a functionality of a core object in the engine.
-
-		\todo	- specify Init's arguments list
-				- specify a way of register/unregister callbacks
+		\brief The main class in the engine. It's literally gather all subsystems
+		in a single place.
 	*/
 
-	class IEngineCore
+	class CEngineCore: public IEngineCore
 	{
 		public:
-			TDE2_API virtual ~IEngineCore() = default;
+			TDE2_API virtual ~CEngineCore();
 
 			/*!
 				\brief The method initializes the object
@@ -36,7 +29,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
+			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -44,7 +37,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Free() = 0;
+			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method starts up the engine
@@ -55,7 +48,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Run() = 0;
+			TDE2_API E_RESULT_CODE Run() override;
 
 			/*!
 				\brief The method stops the engine's main loop
@@ -63,7 +56,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Quit() = 0;
+			TDE2_API E_RESULT_CODE Quit() override;
 
 			/*!
 				\brief The method registers a specified interface as an engine's subsystem of
@@ -74,7 +67,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RegisterSubsystem(IEngineSubsystem* pSubsystem) = 0;
+			TDE2_API E_RESULT_CODE RegisterSubsystem(IEngineSubsystem* pSubsystem) override;
 
 			/*!
 				\brief The method unregisters specified type of a subsystem
@@ -84,10 +77,15 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType) = 0;
+			TDE2_API E_RESULT_CODE UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType) override;
 		protected:
-			TDE2_API IEngineCore() = default;
-			TDE2_API IEngineCore(const IEngineCore& engineCore) = delete;
-			TDE2_API virtual IEngineCore& operator= (IEngineCore& engineCore) = delete;
+			TDE2_API CEngineCore();
+			TDE2_API CEngineCore(const CEngineCore& engineCore) = delete;
+			TDE2_API virtual CEngineCore& operator= (CEngineCore& engineCore) = delete;
+
+			TDE2_API void _onFrameUpdateCallback();
+		protected:
+			bool              mIsInitialized;
+			IEngineSubsystem* mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 	};
 }
