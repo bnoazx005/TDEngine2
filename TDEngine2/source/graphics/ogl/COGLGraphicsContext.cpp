@@ -81,6 +81,12 @@ namespace TDEngine2
 		return RC_FAIL;
 	}
 	
+	void COGLGraphicsContext::ClearBackBuffer(const TColor32F& color)
+	{
+		glClearColor(color.r, color.g, color.b, color.a);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
 	void COGLGraphicsContext::Present()
 	{
 		SwapBuffers(mWindowInternalData.mDeviceContextHandler);

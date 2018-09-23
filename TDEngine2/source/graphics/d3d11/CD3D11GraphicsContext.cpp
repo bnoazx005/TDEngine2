@@ -22,6 +22,11 @@ namespace TDEngine2
 	{
 		return RC_FAIL;
 	}
+	
+	void CD3D11GraphicsContext::ClearBackBuffer(const TColor32F& color)
+	{
+		/// \todo not implemented yet
+	}
 
 	void CD3D11GraphicsContext::Present()
 	{

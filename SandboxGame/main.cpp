@@ -19,6 +19,7 @@ int main(int argc, char** argv)
 	pWindow->Run([&pWindow, &pGraphicsContext]()
 	{
 		/// render's code here
+		pGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
 
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 		{

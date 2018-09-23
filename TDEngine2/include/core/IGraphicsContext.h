@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "IEngineSubsystem.h"
+#include "./../utils/Color.h"
 
 
 namespace TDEngine2
@@ -20,6 +21,9 @@ namespace TDEngine2
 		interface IGraphicsContext
 
 		\brief The interface represents functionality of a low-level wrapper over GAPI
+
+		\todo More proper set up of context's initial state should be done (depth/stencil buffer configuration,
+		MSAA, etc)
 	*/
 
 	class IGraphicsContext : public IEngineSubsystem
@@ -36,6 +40,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(const IWindowSystem* pWindowSystem) = 0;
+
+			/*!
+				\brief The method clears up back buffer with specified color
+
+				\param[in] color The new color of a back buffer
+			*/
+
+			TDE2_API virtual void ClearBackBuffer(const TColor32F& color) = 0;
 
 			/*!
 				\brief The method swaps a current buffer with a back one

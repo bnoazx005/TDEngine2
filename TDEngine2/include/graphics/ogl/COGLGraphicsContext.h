@@ -54,6 +54,14 @@ namespace TDEngine2
 		TDE2_API E_RESULT_CODE Free() override;
 
 		/*!
+			\brief The method clears up back buffer with specified color
+
+			\param[in] color The new color of a back buffer
+		*/
+
+		TDE2_API void ClearBackBuffer(const TColor32F& color) override;	
+
+		/*!
 			\brief The method swaps a current buffer with a back one
 		*/
 
