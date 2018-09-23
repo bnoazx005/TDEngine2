@@ -14,7 +14,11 @@ int main(int argc, char** argv)
 
 	IWindowSystem* pWindow = TDEngine2::CreateWin32WindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE, result);
 
-	pWindow->Run([&pWindow]() 
+	IGraphicsContext* pGraphicsContext = TDEngine2::CreateOGLGraphicsContext(pWindow, CreateWin32GLContextFactory, result);
+
+	TWin32InternalWindowData internalWindowData = pWindow->GetInternalData();
+
+	pWindow->Run([&pWindow, &internalWindowData]() 
 	{
 		/// render's code here
 
@@ -22,8 +26,12 @@ int main(int argc, char** argv)
 		{
 			pWindow->Quit();
 		}
+
+		SwapBuffers(internalWindowData.mDeviceContextHandler);
 	});
 
+
+	pGraphicsContext->Free();
 	pWindow->Free();
 
 	return 0;

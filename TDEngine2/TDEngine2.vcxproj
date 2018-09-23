@@ -72,7 +72,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\tmp\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)deps\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)deps\glew-2.1.0\include\;$(ProjectDir)deps\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)deps\glew-2.1.0\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
@@ -137,6 +138,8 @@
     <ClInclude Include="include\core\IWindowSystem.h" />
     <ClInclude Include="include\graphics\d3d11\CD3D11GraphicsContext.h" />
     <ClInclude Include="include\graphics\ogl\COGLGraphicsContext.h" />
+    <ClInclude Include="include\graphics\ogl\IOGLContextFactory.h" />
+    <ClInclude Include="include\graphics\ogl\win32\CWin32GLContextFactory.h" />
     <ClInclude Include="include\platform\win32\CWin32WindowSystem.h" />
     <ClInclude Include="include\TDEngine2.h" />
     <ClInclude Include="include\utils\Config.h" />
@@ -145,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="source\graphics\d3d11\CD3D11GraphicsContext.cpp" />
     <ClCompile Include="source\graphics\ogl\COGLGraphicsContext.cpp" />
+    <ClCompile Include="source\graphics\ogl\win32\CWin32GLContextFactory.cpp" />
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

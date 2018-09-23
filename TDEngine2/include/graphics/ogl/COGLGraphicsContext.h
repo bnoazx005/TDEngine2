@@ -11,17 +11,27 @@
 
 namespace TDEngine2
 {
+	class IOGLContextFactory;
+
+	/// A pointer to function that creates GL context based on platform
+	typedef IOGLContextFactory* (*TCreateGLContextFactoryCallback)(const IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+
+
 	/*!
 		class COGLGraphicsContext
 
 		\brief The class is an implementation of IGraphicsContext interface that
 		wraps up low-level calls of OpenGL library
+
+		\todo Not the best idea to pass GL context's factory function into constructor was used, should resolve this injection
+		some another way
 	*/
 
 	class COGLGraphicsContext : public IGraphicsContext
 	{
 	public:
-		friend TDE2_API IGraphicsContext* CreateOGLGraphicsContext(const IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+		friend TDE2_API IGraphicsContext* CreateOGLGraphicsContext(const IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, 
+																	E_RESULT_CODE& result);
 	public:
 		TDE2_API virtual ~COGLGraphicsContext();
 
@@ -61,12 +71,14 @@ namespace TDEngine2
 
 		TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
 	protected:
-		TDE2_API COGLGraphicsContext();
+		TDE2_API COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 		TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;
 		TDE2_API virtual COGLGraphicsContext& operator= (COGLGraphicsContext& graphicsCtx) = delete;
 	protected:
-		TGraphicsCtxInternalData mInternalDataObject;
-		bool                     mIsInitialized;
+		TGraphicsCtxInternalData        mInternalDataObject;
+		bool                            mIsInitialized;
+		IOGLContextFactory*             mGLContextFactory;
+		TCreateGLContextFactoryCallback mGLContextFactoryCallback;
 	};
 
 
@@ -76,5 +88,6 @@ namespace TDEngine2
 		\return A pointer to OGLGraphicsContext's implementation
 	*/
 
-	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(const IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(const IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback,
+														E_RESULT_CODE& result);
 }
