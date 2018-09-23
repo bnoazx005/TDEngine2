@@ -13,6 +13,7 @@
     <ClInclude Include="include\graphics\ogl\COGLGraphicsContext.h" />
     <ClInclude Include="include\graphics\ogl\IOGLContextFactory.h" />
     <ClInclude Include="include\graphics\ogl\win32\CWin32GLContextFactory.h" />
+    <ClInclude Include="include\utils\Color.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />
