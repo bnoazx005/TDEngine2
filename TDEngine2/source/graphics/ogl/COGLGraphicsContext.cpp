@@ -34,6 +34,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
+		mWindowInternalData = pWindowSystem->GetInternalData();
+
 		/// creating GL context
 		mGLContextFactory = mGLContextFactoryCallback(pWindowSystem, result);
 
@@ -77,6 +79,11 @@ namespace TDEngine2
 		delete this;
 
 		return RC_FAIL;
+	}
+	
+	void COGLGraphicsContext::Present()
+	{
+		SwapBuffers(mWindowInternalData.mDeviceContextHandler);
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const

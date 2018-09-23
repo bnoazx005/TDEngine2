@@ -38,6 +38,12 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(const IWindowSystem* pWindowSystem) = 0;
 
 			/*!
+				\brief The method swaps a current buffer with a back one
+			*/
+
+			TDE2_API virtual void Present() = 0;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

@@ -23,6 +23,11 @@ namespace TDEngine2
 		return RC_FAIL;
 	}
 
+	void CD3D11GraphicsContext::Present()
+	{
+		/// \todo not implemented yet
+	}
+
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

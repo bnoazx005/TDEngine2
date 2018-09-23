@@ -54,6 +54,12 @@ namespace TDEngine2
 		TDE2_API E_RESULT_CODE Free() override;
 
 		/*!
+			\brief The method swaps a current buffer with a back one
+		*/
+
+		TDE2_API void Present() override;
+
+		/*!
 			\brief The method returns an object that contains internal handlers that are used by the system.
 
 			The structure of the object and its members can vary on different platforms.
@@ -79,6 +85,7 @@ namespace TDEngine2
 		bool                            mIsInitialized;
 		IOGLContextFactory*             mGLContextFactory;
 		TCreateGLContextFactoryCallback mGLContextFactoryCallback;
+		TWindowSystemInternalData       mWindowInternalData;
 	};
 
 

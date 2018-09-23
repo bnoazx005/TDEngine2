@@ -16,9 +16,7 @@ int main(int argc, char** argv)
 
 	IGraphicsContext* pGraphicsContext = TDEngine2::CreateOGLGraphicsContext(pWindow, CreateWin32GLContextFactory, result);
 
-	TWin32InternalWindowData internalWindowData = pWindow->GetInternalData();
-
-	pWindow->Run([&pWindow, &internalWindowData]() 
+	pWindow->Run([&pWindow, &pGraphicsContext]()
 	{
 		/// render's code here
 
@@ -27,7 +25,7 @@ int main(int argc, char** argv)
 			pWindow->Quit();
 		}
 
-		SwapBuffers(internalWindowData.mDeviceContextHandler);
+		pGraphicsContext->Present();
 	});
 
 
