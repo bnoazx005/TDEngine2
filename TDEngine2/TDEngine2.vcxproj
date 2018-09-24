@@ -138,6 +138,7 @@
     <ClInclude Include="include\core\CEngineCore.h" />
     <ClInclude Include="include\core\IEngineCore.h" />
     <ClInclude Include="include\core\IEngineCoreBuilder.h" />
+    <ClInclude Include="include\core\IEngineListener.h" />
     <ClInclude Include="include\core\IEngineSubsystem.h" />
     <ClInclude Include="include\core\IGraphicsContext.h" />
     <ClInclude Include="include\core\IWindowSystem.h" />

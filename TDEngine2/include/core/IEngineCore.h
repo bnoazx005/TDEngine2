@@ -14,6 +14,7 @@
 namespace TDEngine2
 {
 	class IEngineSubsystem;
+	class IEngineListener;
 
 
 	/*!
@@ -85,6 +86,36 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType) = 0;
+			
+			/*!
+				\brief The method registers a specified engine's listener
+
+				\param[in] pSubsystem A pointer to listener's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterListener(IEngineListener* pListener) = 0;
+
+			/*!
+				\brief The method unregisters a specified engine's listener
+
+				\param[in] pSubsystem A pointer to listener's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE UnregisterListener(IEngineListener* pListener) = 0;
+
+			/*!
+				\brief The method returns a pointer to a subsystem of specified type
+
+				\param[in] type A type of a subsystem which should be returned
+
+				\returns The method returns a pointer to a subsystem of specified type
+			*/
+
+			TDE2_API virtual IEngineSubsystem* GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const = 0;
 		protected:
 			TDE2_API IEngineCore() = default;
 			TDE2_API IEngineCore(const IEngineCore& engineCore) = delete;

@@ -9,5 +9,9 @@
     <ClCompile Include="main.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="source\CCustomEngineListener.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\CCustomEngineListener.h" />
   </ItemGroup>
 </Project>

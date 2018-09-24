@@ -1,4 +1,5 @@
 #include <iostream>
+#include "include/CCustomEngineListener.h"
 #include <TDEngine2.h>
 
 
@@ -26,9 +27,15 @@ int main(int argc, char** argv)
 
 	pEngineCoreBuilder->Free();
 
-	pEngineCore->Run();
+	IEngineListener* pCustomListener = new CCustomEngineListener();
 
+	pEngineCore->RegisterListener(pCustomListener);
+
+	pEngineCore->Run();
+	
 	pEngineCore->Free();
+
+	delete pCustomListener;
 
 	return 0;
 }
