@@ -15,6 +15,7 @@ namespace TDEngine2
 {
 	class IEngineSubsystem;
 	class IEngineListener;
+	class ILogger;
 
 
 	/*!
@@ -116,6 +117,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IEngineSubsystem* GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const = 0;
+
+			/*!
+				\brief The method returns a pointer to a main logger of an engine if 
+				_DEBUG flag is defined. Otherwise method always return nullptr.
+
+				\returns The method returns a pointer to a main logger of an engine
+			*/
+
+			TDE2_API virtual ILogger* GetLogger() const = 0;
 		protected:
 			TDE2_API IEngineCore() = default;
 			TDE2_API IEngineCore(const IEngineCore& engineCore) = delete;

@@ -7,8 +7,7 @@ namespace TDEngine2
 	{
 	}
 
-	CFileLogger::CFileLogger(const std::string& path):
-		mIsInitialized(false)
+	CFileLogger::CFileLogger(const std::string& path)
 	{
 		mOutputLog.open(path.c_str());
 	}
@@ -19,20 +18,13 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFileLogger::Free()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		if (!mOutputLog.is_open())
 		{
 			return RC_FAIL;
 		}
 
 		mOutputLog.close();
-
-		mIsInitialized = false;
-
+		
 		return RC_OK;
 	}
 
@@ -53,7 +45,7 @@ namespace TDEngine2
 
 	void CFileLogger::_logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message)
 	{
-		if (!mIsInitialized || !mOutputLog.is_open())
+		if (!mOutputLog.is_open())
 		{
 			return;
 		}

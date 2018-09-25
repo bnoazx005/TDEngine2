@@ -124,6 +124,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IEngineSubsystem* GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const override;
+
+			/*!
+				\brief The method returns a pointer to a main logger of an engine
+
+				\returns The method returns a pointer to a main logger of an engine
+			*/
+
+			TDE2_API ILogger* GetLogger() const override;
 		protected:
 			TDE2_API CEngineCore();
 			TDE2_API CEngineCore(const CEngineCore& engineCore) = delete;

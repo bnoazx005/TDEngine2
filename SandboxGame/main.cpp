@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_OPENGL3X);
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
-
+	
 	pEngineCoreBuilder->Free();
 
 	IEngineListener* pCustomListener = new CCustomEngineListener();

@@ -52,7 +52,6 @@ namespace TDEngine2
 
 			TDE2_API void _logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message);
 		protected:
-			bool          mIsInitialized;
 			std::ofstream mOutputLog;
 	};
 

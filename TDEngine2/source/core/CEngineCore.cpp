@@ -180,6 +180,15 @@ namespace TDEngine2
 		return mSubsystems[type];
 	}
 
+	ILogger* CEngineCore::GetLogger() const
+	{
+#if defined (_DEBUG)
+		return MainLogger;
+#else
+		return nullptr;
+#endif
+	}
+
 	void CEngineCore::_onFrameUpdateCallback()
 	{
 		_onNotifyEngineListeners(EET_ONUPDATE);
