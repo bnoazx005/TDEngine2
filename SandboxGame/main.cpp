@@ -12,7 +12,7 @@ using namespace TDEngine2;
 int main(int argc, char** argv)
 {
 	E_RESULT_CODE result = RC_OK;
-
+	
 	IEngineCoreBuilder* pEngineCoreBuilder = CreateDefaultEngineCoreBuilder(CreateEngineCore, result);
 
 	if (result != RC_OK)

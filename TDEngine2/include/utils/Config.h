@@ -33,4 +33,7 @@ namespace TDEngine2
 	#if defined(_WIN32)
 		#define TDE2_USE_WIN32PLATFORM
 	#endif
+
+	/// Main logger's settings
+	#define MAIN_LOGGER_FILEPATH "TDEngine.log"
 }

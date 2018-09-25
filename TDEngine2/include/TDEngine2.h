@@ -29,3 +29,5 @@
 #include "utils\Types.h"
 #include "utils\Config.h"
 #include "utils\Color.h"
+#include "utils\ILogger.h"
+#include "utils\CFileLogger.h"

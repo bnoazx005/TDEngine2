@@ -2,6 +2,7 @@
 #include "./../../include/core/IEngineSubsystem.h"
 #include "./../../include/core/IWindowSystem.h"
 #include "./../../include/core/IEngineListener.h"
+#include "./../../include/utils/CFileLogger.h"
 
 
 namespace TDEngine2
@@ -40,6 +41,13 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+#if defined (_DEBUG)
+		if (MainLogger->Free() != RC_OK)
+		{
+			return RC_FAIL;
+		}
+#endif
 
 		mIsInitialized = false;
 
