@@ -9,6 +9,9 @@
 using namespace TDEngine2;
 
 
+class CTransform : public CBaseComponent<CTransform> {};
+
+
 int main(int argc, char** argv)
 {
 	E_RESULT_CODE result = RC_OK;
@@ -27,6 +30,14 @@ int main(int argc, char** argv)
 	
 	pEngineCoreBuilder->Free();
 
+	IWorld* pWorld = CreateWorld(result);
+
+	CEntity* e = pWorld->CreateEntity();
+
+	e->AddComponent<CTransform>();
+	
+	pWorld->Free();
+
 	IEngineListener* pCustomListener = new CCustomEngineListener();
 
 	pEngineCore->RegisterListener(pCustomListener);
@@ -34,7 +45,7 @@ int main(int argc, char** argv)
 	pEngineCore->Run();
 	
 	pEngineCore->Free();
-
+	
 	delete pCustomListener;
 
 	return 0;

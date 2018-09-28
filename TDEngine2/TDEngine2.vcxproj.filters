@@ -22,6 +22,16 @@
     <ClInclude Include="include\utils\CFileLogger.h" />
     <ClInclude Include="include\core\IBaseObject.h" />
     <ClInclude Include="include\core\CBaseObject.h" />
+    <ClInclude Include="include\ecs\CEntity.h" />
+    <ClInclude Include="include\ecs\CEntityManager.h" />
+    <ClInclude Include="include\ecs\CComponentManager.h" />
+    <ClInclude Include="include\ecs\IComponent.h" />
+    <ClInclude Include="include\ecs\CBaseComponent.h" />
+    <ClInclude Include="include\ecs\ISystem.h" />
+    <ClInclude Include="include\ecs\ISystemManager.h" />
+    <ClInclude Include="include\ecs\IWorld.h" />
+    <ClInclude Include="include\ecs\CWorld.h" />
+    <ClInclude Include="include\ecs\CSystemManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />
@@ -32,5 +42,10 @@
     <ClCompile Include="source\core\CDefaultEngineCoreBuilder.cpp" />
     <ClCompile Include="source\utils\CFileLogger.cpp" />
     <ClCompile Include="source\core\CBaseObject.cpp" />
+    <ClCompile Include="source\ecs\CEntity.cpp" />
+    <ClCompile Include="source\ecs\CEntityManager.cpp" />
+    <ClCompile Include="source\ecs\CComponentManager.cpp" />
+    <ClCompile Include="source\ecs\CWorld.cpp" />
+    <ClCompile Include="source\ecs\CSystemManager.cpp" />
   </ItemGroup>
 </Project>

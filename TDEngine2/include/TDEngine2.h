@@ -18,6 +18,18 @@
 #include "core\IBaseObject.h"
 #include "core\CBaseObject.h"
 
+///ecs
+#include "ecs\CEntity.h"
+#include "ecs\CEntityManager.h"
+#include "ecs\CComponentManager.h"
+#include "ecs\IComponent.h"
+#include "ecs\CBaseComponent.h"
+#include "ecs\ISystem.h"
+#include "ecs\ISystemManager.h"
+#include "ecs\CSystemManager.h"
+#include "ecs\IWorld.h"
+#include "ecs\CWorld.h"
+
 ///graphics
 #include "graphics\d3d11\CD3D11GraphicsContext.h"
 #include "graphics\ogl\COGLGraphicsContext.h"

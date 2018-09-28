@@ -10,6 +10,7 @@
 
 #include "Config.h"
 #include <cstdint>
+#include <limits>
 
 #if _HAS_CXX17	/// use variant only if C++17's implementation is available, otherwise use stardard unions
 	#include <variant>
@@ -58,6 +59,7 @@ namespace TDEngine2
 		RC_FAIL,						/// An execution failed at some point
 		RC_INVALID_ARGS,				/// Some of input arguments are invalid or incorrect
 		RC_OUT_OF_MEMORY,				/// Couldn't allocate enough memory to store an object
+		RC_NOT_IMPLEMENTED_YET,			/// A function or a method has no implementation yet
 		RC_UNKNOWN						/// Some unrecognized error
 	};
 
@@ -172,4 +174,17 @@ namespace TDEngine2
 
 #else
 #endif
+
+
+	/// Entity-Component-System's types declarations
+
+
+	typedef U32 TEntityId; ///< A type of entity's identifier
+
+	constexpr TEntityId InvalidEntityId = (std::numeric_limits<TEntityId>::max)(); ///< Invalid value for TEntityId type
+
+	
+	typedef U32 TComponentTypeId; ///< A type of a component
+
+	constexpr TComponentTypeId InvalidComponentType = (std::numeric_limits<TEntityId>::max)(); ///< Invalid value for TComponentTypeId type
 }
