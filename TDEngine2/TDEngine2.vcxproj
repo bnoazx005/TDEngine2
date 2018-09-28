@@ -134,8 +134,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\core\CBaseObject.h" />
     <ClInclude Include="include\core\CDefaultEngineCoreBuilder.h" />
     <ClInclude Include="include\core\CEngineCore.h" />
+    <ClInclude Include="include\core\IBaseObject.h" />
     <ClInclude Include="include\core\IEngineCore.h" />
     <ClInclude Include="include\core\IEngineCoreBuilder.h" />
     <ClInclude Include="include\core\IEngineListener.h" />
@@ -155,6 +157,7 @@
     <ClInclude Include="include\utils\Types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\core\CBaseObject.cpp" />
     <ClCompile Include="source\core\CDefaultEngineCoreBuilder.cpp" />
     <ClCompile Include="source\core\CEngineCore.cpp" />
     <ClCompile Include="source\graphics\d3d11\CD3D11GraphicsContext.cpp" />

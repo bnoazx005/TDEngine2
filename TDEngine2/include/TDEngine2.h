@@ -15,6 +15,8 @@
 #include "core\IEngineCoreBuilder.h"
 #include "core\CDefaultEngineCoreBuilder.h"
 #include "core\IEngineListener.h"
+#include "core\IBaseObject.h"
+#include "core\CBaseObject.h"
 
 ///graphics
 #include "graphics\d3d11\CD3D11GraphicsContext.h"

@@ -20,6 +20,8 @@
     <ClInclude Include="include\core\IEngineListener.h" />
     <ClInclude Include="include\utils\ILogger.h" />
     <ClInclude Include="include\utils\CFileLogger.h" />
+    <ClInclude Include="include\core\IBaseObject.h" />
+    <ClInclude Include="include\core\CBaseObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />
@@ -29,5 +31,6 @@
     <ClCompile Include="source\core\CEngineCore.cpp" />
     <ClCompile Include="source\core\CDefaultEngineCoreBuilder.cpp" />
     <ClCompile Include="source\utils\CFileLogger.cpp" />
+    <ClCompile Include="source\core\CBaseObject.cpp" />
   </ItemGroup>
 </Project>
