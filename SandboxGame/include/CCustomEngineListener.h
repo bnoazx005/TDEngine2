@@ -5,6 +5,7 @@
 #include <core\IEngineListener.h>
 #include <core\IEngineCore.h>
 #include <core\IGraphicsContext.h>
+#include <core\IWindowSystem.h>
 
 
 class CCustomEngineListener: public TDEngine2::IEngineListener
@@ -48,4 +49,6 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
 
 		TDEngine2::IGraphicsContext* mpGraphicsContext;
+
+		TDEngine2::IWindowSystem*    mpWindowSystem;
 };

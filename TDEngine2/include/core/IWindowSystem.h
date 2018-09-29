@@ -64,6 +64,16 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Quit() = 0;
 
 			/*!
+				\brief The method changes a window's title
+
+				\param[in] title A new title's value 
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetTitle(const std::string& title) = 0;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.
@@ -96,6 +106,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual ITimer* GetTimer() const = 0;
+
+			/*!
+				\brief The method returns a window's title
+
+				\returns The method returns a window's title
+			*/
+
+			TDE2_API virtual const std::string& GetTitle() const = 0;
 		protected:
 			TDE2_API IWindowSystem() = default;
 			TDE2_API IWindowSystem(const IWindowSystem& windowSystem) = delete;

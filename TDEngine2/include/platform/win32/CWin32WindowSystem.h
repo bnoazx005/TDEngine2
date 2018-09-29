@@ -79,6 +79,15 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Quit() override;
 
+			/*!
+				\brief The method changes a window's title
+
+				\param[in] title A new title's value
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetTitle(const std::string& title) override;
 
 			/*!
 				\brief The method returns a type of the subsystem
@@ -121,6 +130,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API ITimer* GetTimer() const override;
+
+			/*!
+				\brief The method returns a window's title
+
+				\returns The method returns a window's title
+			*/
+
+			TDE2_API const std::string& GetTitle() const override;
 		protected:
 			TDE2_API CWin32WindowSystem();
 

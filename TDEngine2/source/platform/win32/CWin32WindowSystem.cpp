@@ -186,6 +186,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CWin32WindowSystem::SetTitle(const std::string& title)
+	{
+		mWindowName = title;
+
+		if (!SetWindowText(mWindowHandler, mWindowName.c_str()))
+		{
+			return RC_FAIL;
+		}
+
+		return RC_OK;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CWin32WindowSystem::GetType() const
 	{
 		return EST_WINDOW;
@@ -209,6 +221,11 @@ namespace TDEngine2
 	ITimer* CWin32WindowSystem::GetTimer() const
 	{
 		return mpTimer;
+	}
+
+	const std::string& CWin32WindowSystem::GetTitle() const
+	{
+		return mWindowName;
 	}
 
 
