@@ -113,6 +113,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetHeight() const override;
+
+			/*!
+				\brief The method returns a pointer to a in-engine timer
+
+				\returns The method returns a pointer to a in-engine timer
+			*/
+
+			TDE2_API ITimer* GetTimer() const override;
 		protected:
 			TDE2_API CWin32WindowSystem();
 
@@ -131,6 +139,7 @@ namespace TDEngine2
 			bool                     mIsInitialized;
 			static C8                mAppWinProcParamName[];
 			TWin32InternalWindowData mInternalDataObject;
+			ITimer*                  mpTimer;
 	};
 
 

@@ -132,6 +132,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API ILogger* GetLogger() const override;
+
+			/*!
+				\brief The method returns a pointer to a in-engine timer
+
+				\returns The method returns a pointer to a in-engine timer
+			*/
+
+			TDE2_API ITimer* GetTimer() const override;
 		protected:
 			TDE2_API CEngineCore();
 			TDE2_API CEngineCore(const CEngineCore& engineCore) = delete;

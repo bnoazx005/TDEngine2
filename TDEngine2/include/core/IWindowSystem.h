@@ -15,6 +15,9 @@
 
 namespace TDEngine2
 {
+	class ITimer;
+
+
 	/*!
 		interface IWindowSystem
 
@@ -85,6 +88,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetHeight() const = 0;
+
+			/*!
+				\brief The method returns a pointer to a in-engine timer
+
+				\returns The method returns a pointer to a in-engine timer
+			*/
+
+			TDE2_API virtual ITimer* GetTimer() const = 0;
 		protected:
 			TDE2_API IWindowSystem() = default;
 			TDE2_API IWindowSystem(const IWindowSystem& windowSystem) = delete;

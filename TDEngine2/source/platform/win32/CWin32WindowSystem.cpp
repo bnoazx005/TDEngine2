@@ -1,4 +1,5 @@
 #include "./../../../include/platform/win32/CWin32WindowSystem.h"
+#include "./../../../include/platform/win32/CWin32Timer.h"
 
 
 #if defined(TDE2_USE_WIN32PLATFORM)
@@ -91,6 +92,17 @@ namespace TDEngine2
 
 		/// \todo add invokation of user's OnInit method here
 
+		E_RESULT_CODE result = RC_OK;
+
+		/// CWin32Timer's initialization
+
+		mpTimer = CreateWin32Timer(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 		
 		return RC_OK;
@@ -117,6 +129,14 @@ namespace TDEngine2
 		RemoveProp(mWindowHandler, mAppWinProcParamName);
 
 		/// \todo add invokation of OnFree user's method here
+
+		E_RESULT_CODE result = RC_OK;
+
+		/// CWin32Timer's destruction
+		if ((result = mpTimer->Free()) != RC_OK)
+		{
+			return result;
+		}
 
 		mIsInitialized = false;
 
@@ -145,6 +165,8 @@ namespace TDEngine2
 			}
 			else
 			{
+				mpTimer->Tick();
+
 				onFrameUpdate();
 			}
 		}
@@ -182,6 +204,11 @@ namespace TDEngine2
 	U32 CWin32WindowSystem::GetHeight() const
 	{
 		return mHeight;
+	}
+
+	ITimer* CWin32WindowSystem::GetTimer() const
+	{
+		return mpTimer;
 	}
 
 

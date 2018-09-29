@@ -16,6 +16,7 @@ namespace TDEngine2
 	class IEngineSubsystem;
 	class IEngineListener;
 	class ILogger;
+	class ITimer;
 
 
 	/*!
@@ -126,6 +127,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual ILogger* GetLogger() const = 0;
+
+			/*!
+				\brief The method returns a pointer to a in-engine timer
+
+				\returns The method returns a pointer to a in-engine timer
+			*/
+
+			TDE2_API virtual ITimer* GetTimer() const = 0;
 		protected:
 			TDE2_API IEngineCore() = default;
 			TDE2_API IEngineCore(const IEngineCore& engineCore) = delete;

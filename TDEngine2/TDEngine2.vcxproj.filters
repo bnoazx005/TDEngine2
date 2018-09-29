@@ -32,6 +32,8 @@
     <ClInclude Include="include\ecs\IWorld.h" />
     <ClInclude Include="include\ecs\CWorld.h" />
     <ClInclude Include="include\ecs\CSystemManager.h" />
+    <ClInclude Include="include\utils\ITimer.h" />
+    <ClInclude Include="include\platform\win32\CWin32Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\platform\win32\CWin32WindowSystem.cpp" />
@@ -47,5 +49,6 @@
     <ClCompile Include="source\ecs\CComponentManager.cpp" />
     <ClCompile Include="source\ecs\CWorld.cpp" />
     <ClCompile Include="source\ecs\CSystemManager.cpp" />
+    <ClCompile Include="source\platform\win32\CWin32Timer.cpp" />
   </ItemGroup>
 </Project>

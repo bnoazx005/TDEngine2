@@ -189,6 +189,18 @@ namespace TDEngine2
 #endif
 	}
 
+	ITimer* CEngineCore::GetTimer() const
+	{
+		IWindowSystem* pWindowSystem = dynamic_cast<IWindowSystem*>(mSubsystems[EST_WINDOW]);
+		
+		if (!pWindowSystem)
+		{
+			return nullptr;
+		}
+
+		return pWindowSystem->GetTimer();
+	}
+
 	void CEngineCore::_onFrameUpdateCallback()
 	{
 		_onNotifyEngineListeners(EET_ONUPDATE);

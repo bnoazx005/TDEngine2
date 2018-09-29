@@ -38,6 +38,7 @@
 
 ///platform
 #include "platform\win32\CWin32WindowSystem.h"
+#include "platform\win32\CWin32Timer.h"
 
 ///utils
 #include "utils\Types.h"
@@ -45,3 +46,4 @@
 #include "utils\Color.h"
 #include "utils\ILogger.h"
 #include "utils\CFileLogger.h"
+#include "utils\ITimer.h"
