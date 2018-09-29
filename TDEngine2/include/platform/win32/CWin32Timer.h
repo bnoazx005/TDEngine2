@@ -85,7 +85,7 @@ namespace TDEngine2
 			LARGE_INTEGER mCurrTime;
 			LARGE_INTEGER mStartTime;
 			LARGE_INTEGER mStopTime;
-			LARGE_INTEGER mFrequency;
+			F32           mFrequency;
 			F32           mDeltaTime;
 	};
 

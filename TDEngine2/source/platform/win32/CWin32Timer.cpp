@@ -18,10 +18,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!QueryPerformanceFrequency(&mFrequency))
+		LARGE_INTEGER frequency { 0 };
+
+		if (!QueryPerformanceFrequency(&frequency))
 		{
 			return RC_FAIL;
 		}
+
+		mFrequency = 1.0f / frequency.QuadPart;
 
 		mDeltaTime = 0.0f;
 
@@ -61,11 +65,11 @@ namespace TDEngine2
 
 	void CWin32Timer::Tick()
 	{
-		mPrevTime = mCurrTime;
+		memcpy(&mPrevTime, &mCurrTime, sizeof(LARGE_INTEGER));
 
 		QueryPerformanceCounter(&mCurrTime);
 
-		mDeltaTime = (mCurrTime.QuadPart - mPrevTime.QuadPart) / mFrequency.QuadPart;
+		mDeltaTime = (mCurrTime.QuadPart - mPrevTime.QuadPart) * mFrequency;
 	}
 	
 	F32 CWin32Timer::GetDeltaTime() const
