@@ -1,5 +1,6 @@
 #include "./../../include/ecs/CEntityManager.h"
 #include "./../../include/ecs/CComponentManager.h"
+#include "./../../include/ecs/CEntity.h"
 
 
 namespace TDEngine2

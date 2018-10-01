@@ -8,14 +8,14 @@
 
 
 #include "./../core/CBaseObject.h"
-#include "CEntity.h"
+#include "CComponentManager.h"
 #include <vector>
 #include <list>
 
 
 namespace TDEngine2
 {
-	class CComponentManager;
+	class CEntity;
 
 	/*!
 		class CEntityManager
@@ -108,10 +108,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API T* AddComponent(TEntityId id)
-			{
-				return mpComponentManager->CreateComponent<T>(id);
-			}
+			TDE2_API T* AddComponent(TEntityId id);
 
 			/*!
 				\brief The method remove a component of specified T type
@@ -120,10 +117,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API E_RESULT_CODE RemoveComponent(TEntityId id)
-			{
-				return mpComponentManager->RemoveComponent<T>(id);
-			}
+			TDE2_API E_RESULT_CODE RemoveComponent(TEntityId id);
 
 			/*!
 				\brief The method removes all components that are related with the entity
@@ -141,10 +135,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API T* GetComponent(TEntityId id)
-			{
-				return mpComponentManager->GetComponent<T>(id);
-			}
+			TDE2_API T* GetComponent(TEntityId id);
 		protected:
 			TDE2_API CEntityManager();
 			TDE2_API virtual ~CEntityManager() = default;
@@ -156,6 +147,25 @@ namespace TDEngine2
 			TEntityId             mNextIdValue;
 			CComponentManager*    mpComponentManager;
 	};
+	
+
+	template <typename T>
+	TDE2_API T* CEntityManager::AddComponent(TEntityId id)
+	{
+		return mpComponentManager->CreateComponent<T>(id);
+	}
+
+	template <typename T>
+	TDE2_API E_RESULT_CODE CEntityManager::RemoveComponent(TEntityId id)
+	{
+		return mpComponentManager->RemoveComponent<T>(id);
+	}
+
+	template <typename T>
+	TDE2_API T* CEntityManager::GetComponent(TEntityId id)
+	{
+		return mpComponentManager->GetComponent<T>(id);
+	}
 
 
 	/*!

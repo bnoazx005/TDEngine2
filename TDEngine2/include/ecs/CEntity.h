@@ -8,7 +8,7 @@
 
 
 #include "./../core/CBaseObject.h"
-//#include "CEntityManager.h"
+#include "CEntityManager.h"
 
 
 namespace TDEngine2
@@ -68,10 +68,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API T* AddComponent()
-			{
-				return mpEntityManager->AddComponent<T>(mId);
-			}
+			TDE2_API T* AddComponent();
 
 			/*!
 				\brief The method remove a component of specified T type
@@ -80,10 +77,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API E_RESULT_CODE RemoveComponent()
-			{
-				return mpEntityManager->RemoveComponent<T>(mId);
-			}
+			TDE2_API E_RESULT_CODE RemoveComponent();
 
 			/*!
 				\brief The method removes all components that are related with the entity
@@ -101,10 +95,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API T* GetComponent()
-			{
-				return mpEntityManager->GetComponent<T>(mId);
-			}
+			TDE2_API T* GetComponent();
 
 			/*!
 				\brief The method returns an entity's id
@@ -122,6 +113,25 @@ namespace TDEngine2
 			CEntityManager* mpEntityManager;
 			TEntityId       mId;
 	};
+
+
+	template <typename T>
+	TDE2_API T* CEntity::AddComponent()
+	{
+		return mpEntityManager->AddComponent<T>(mId);
+	}
+
+	template <typename T>
+	TDE2_API E_RESULT_CODE CEntity::RemoveComponent()
+	{
+		return mpEntityManager->RemoveComponent<T>(mId);
+	}
+
+	template <typename T>
+	TDE2_API T* CEntity::GetComponent()
+	{
+		return mpEntityManager->GetComponent<T>(mId);
+	}
 
 
 	/*!
