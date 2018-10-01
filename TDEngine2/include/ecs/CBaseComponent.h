@@ -102,15 +102,11 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-
-	template<typename T>
-	TComponentTypeId CBaseComponent<T>::mComponentTypeId = GenerateTypeId();
-
-
+	
 	/*!
-		\brief The function generates a new type's identifier each call
+	\brief The function generates a new type's identifier each call
 
-		\return A value of component's type
+	\return A value of component's type
 	*/
 
 	static TComponentTypeId GenerateTypeId()
@@ -119,4 +115,7 @@ namespace TDEngine2
 
 		return mCounter++;
 	}
+
+	template<typename T>
+	TComponentTypeId CBaseComponent<T>::mComponentTypeId = GenerateTypeId();
 }
