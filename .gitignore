@@ -12,6 +12,11 @@ TODO
 *.sdf
 *.log
 
+*.sln
+*.user
+*.filters
+*.vcxproj
+
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
