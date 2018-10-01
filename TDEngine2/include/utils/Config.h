@@ -36,4 +36,8 @@ namespace TDEngine2
 
 	/// Main logger's settings
 	#define MAIN_LOGGER_FILEPATH "TDEngine.log"
+
+
+	/// Math configurable constants
+	constexpr float FloatEpsilon = 1e-3f;
 }

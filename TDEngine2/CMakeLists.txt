@@ -51,6 +51,8 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/ILogger.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/ITimer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/Types.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector3.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector4.h"
 	)
 
 set(TDENGINE2_SOURCES
@@ -67,7 +69,9 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/ogl/win32/CWin32GLContextFactory.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32WindowSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32Timer.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CFileLogger.cpp")
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CFileLogger.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector3.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector4.cpp")
 
 source_group("includes" FILES ${TDENGINE2_HEADERS})
 source_group("sources" FILES ${TDENGINE2_SOURCES})
