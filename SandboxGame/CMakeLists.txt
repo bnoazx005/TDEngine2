@@ -8,6 +8,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
 
 set(EXECUTABLE_NAME "SandboxGame")
 
+if (NOT DEFINED ${TDENGINE2_LIBRARY_NAME})
+	set(TDENGINE2_LIBRARY_NAME "TDEngine2")
+endif ()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # attach TDEngine2
@@ -59,4 +63,4 @@ endif (UNIX)
 
 add_executable("${EXECUTABLE_NAME}" ${SOURCES} ${HEADERS})
 
-target_link_libraries("${EXECUTABLE_NAME}" )
+target_link_libraries("${EXECUTABLE_NAME}" ${TDENGINE2_LIBRARY_NAME})
