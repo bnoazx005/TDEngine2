@@ -92,6 +92,11 @@ namespace TDEngine2
 		SwapBuffers(mWindowInternalData.mDeviceContextHandler);
 	}
 
+	void COGLGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
+	{
+		glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
+	}
+
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

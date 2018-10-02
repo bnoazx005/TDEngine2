@@ -68,6 +68,19 @@ namespace TDEngine2
 		TDE2_API void Present() override;
 
 		/*!
+			\brief The method sets up a viewport's parameters
+
+			\param[in] x x position of left hand side of a viewport
+			\param[in] y y position of left bottom corner of a viewport
+			\param[in] width width of a viewport
+			\param[in] height height of a viewport
+			\param[in] minDepth minimum depth of a viewport
+			\param[in] maxDepth maximum depth of a viewport
+		*/
+
+		TDE2_API void SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth) override;
+
+		/*!
 			\brief The method returns an object that contains internal handlers that are used by the system.
 
 			The structure of the object and its members can vary on different platforms.

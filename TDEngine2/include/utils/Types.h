@@ -60,6 +60,7 @@ namespace TDEngine2
 		RC_INVALID_ARGS,				/// Some of input arguments are invalid or incorrect
 		RC_OUT_OF_MEMORY,				/// Couldn't allocate enough memory to store an object
 		RC_NOT_IMPLEMENTED_YET,			/// A function or a method has no implementation yet
+		RC_GAPI_IS_NOT_SUPPORTED,		/// A GAPI is not supported on a platform
 		RC_UNKNOWN						/// Some unrecognized error
 	};
 
@@ -101,9 +102,10 @@ namespace TDEngine2
 
 	enum E_PARAMETERS: U8
 	{
-		P_FULLSCREEN = 0x1,				/// Enables full-screen mode
-		P_VSYNC      = 0x2,				/// Enables vertical synchronization
-		P_RESIZEABLE = 0x4,				/// Determines will be a window resizeable or not
+		P_FULLSCREEN                = 0x1,				/// Enables full-screen mode
+		P_VSYNC                     = 0x2,				/// Enables vertical synchronization
+		P_RESIZEABLE                = 0x4,				/// Determines will be a window resizeable or not
+		P_HARDWARE_GAMMA_CORRECTION = 0x8,				/// Enables a hardware gamma correction (sRGB back buffer) if it's supported on by a video card
 	};
 
 
