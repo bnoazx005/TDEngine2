@@ -138,6 +138,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const std::string& GetTitle() const override;
+
+			/*!
+				\brief The method returns current set flags
+
+				\return The method returns current set flags
+			*/
+
+			TDE2_API U32 GetFlags() const override;
 		protected:
 			TDE2_API CWin32WindowSystem();
 

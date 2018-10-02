@@ -228,6 +228,10 @@ namespace TDEngine2
 		return mWindowName;
 	}
 
+	U32 CWin32WindowSystem::GetFlags() const
+	{
+		return mSetupFlags;
+	}
 
 	LRESULT CALLBACK CWin32WindowSystem::_wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{

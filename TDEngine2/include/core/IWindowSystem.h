@@ -102,7 +102,7 @@ namespace TDEngine2
 			/*!
 				\brief The method returns a pointer to a in-engine timer
 
-				\returns The method returns a pointer to a in-engine timer
+				\return The method returns a pointer to a in-engine timer
 			*/
 
 			TDE2_API virtual ITimer* GetTimer() const = 0;
@@ -110,10 +110,18 @@ namespace TDEngine2
 			/*!
 				\brief The method returns a window's title
 
-				\returns The method returns a window's title
+				\return The method returns a window's title
 			*/
 
 			TDE2_API virtual const std::string& GetTitle() const = 0;
+
+			/*!
+				\brief The method returns current set flags
+
+				\return The method returns current set flags
+			*/
+
+			TDE2_API virtual U32 GetFlags() const = 0;
 		protected:
 			TDE2_API IWindowSystem() = default;
 			TDE2_API IWindowSystem(const IWindowSystem& windowSystem) = delete;
