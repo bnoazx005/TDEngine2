@@ -51,6 +51,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/ILogger.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/ITimer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/Types.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/Utils.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector3.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector4.h"
 	)
