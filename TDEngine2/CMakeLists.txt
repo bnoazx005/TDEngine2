@@ -12,8 +12,7 @@ endif ()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# set up GLEW 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0/include")
+# set up GLEW library's directory
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0/lib")
 
 
@@ -40,9 +39,15 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ISystemManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/IWorld.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/d3d11/CD3D11GraphicsContext.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/d3d11/CD3D11Buffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/d3d11/CD3D11Mappings.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/d3d11/CD3D11IndexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ogl/win32/CWin32GLContextFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ogl/COGLGraphicsContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ogl/IOGLContextFactory.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IBuffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IVertexBuffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IIndexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32WindowSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32Timer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CFileLogger.h"
@@ -66,6 +71,9 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CSystemManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CWorld.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/d3d11/CD3D11GraphicsContext.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/d3d11/CD3D11Buffer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/d3d11/CD3D11Mappings.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/d3d11/CD3D11IndexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/ogl/COGLGraphicsContext.cpp"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/ogl/win32/CWin32GLContextFactory.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32WindowSystem.cpp"
@@ -109,6 +117,9 @@ endif (UNIX)
 
 
 add_library("${TDENGINE2_LIBRARY_NAME}" SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS})
+
+#set up GLEW headers
+target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0/include")
 
 # disable the <libname>_EXPORTS
 set_target_properties(${TDENGINE2_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")

@@ -16,8 +16,12 @@
 	#include <variant>
 #endif
 
-#if defined(TDE2_USE_WIN32PLATFORM)
-#include <Windows.h>
+/// include platform specific headers
+#if defined (TDE2_USE_WIN32PLATFORM)
+	#include <Windows.h>
+	#include <d3d11.h>
+	#include <GL/glew.h>
+#else
 #endif
 
 
@@ -136,8 +140,6 @@ namespace TDEngine2
 
 #if defined(TDE2_USE_WIN32PLATFORM)
 
-#include <d3d11.h>
-
 
 	/*!
 		struct TD3D11CtxInternalData
@@ -173,6 +175,24 @@ namespace TDEngine2
 			TOGLInternalData      mOGL;
 		} TGraphicsCtxInternalData, *TGraphicsCtxInternalDataPtr;
 	#endif
+
+#else
+#endif
+
+
+	/// Try to infer a type TGraphicsCtxInternalData 
+#if defined (TDE2_USE_WIN32PLATFORM)
+	/*!
+		union TBufferInternalData
+
+		\brief The union contains low-level handlers to a buffer depending on used GAPI
+	*/
+
+	typedef union TBufferInternalData
+	{
+		ID3D11Buffer* mpD3D11Buffer;
+		GLuint        mGLBuffer;
+	} TBufferInternalData, *TBufferInternalDataPtr;
 
 #else
 #endif
