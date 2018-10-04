@@ -8,6 +8,8 @@
 
 #include "IEngineCore.h"
 #include <vector>
+#include <string>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -35,7 +37,11 @@ namespace TDEngine2
 				EET_ONFREE
 			};
 
-			typedef std::vector<IEngineListener*> TListenersArray;
+			typedef std::vector<IEngineListener*>                          TListenersArray;
+
+			typedef std::unordered_map<std::string, IPlugin*>              TPluginsMap;
+
+			typedef std::unordered_map<std::string, TSharedLibraryHandler> TLibrariesMap;
 		public:
 			TDE2_API virtual ~CEngineCore();
 
@@ -116,6 +122,46 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE UnregisterListener(IEngineListener* pListener) override;
 
 			/*!
+				\brief The method load a specified plugin
+
+				\param[in] filename A filename of a shared library with a plugin's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE LoadPlugin(const std::string& filename) override;
+
+			/*!
+				\brief The method unload a specified plugin
+
+				\param[in] filename A filename of a shared library with a plugin's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE UnloadPlugin(const std::string& filename) override;
+
+			/*!
+				\brief The method registers a specified plugin
+
+				\param[in] pPlugin A pointer to IPlugin's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RegisterPlugin(IPlugin* pPlugin) override;
+
+				/*!
+				\brief The method unregisters a specified plugin
+
+				\param[in] pPlugin A pointer to IPlugin's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE UnregisterPlugin(IPlugin* pPlugin) override;
+
+			/*!
 				\brief The method returns a pointer to a subsystem of specified type
 
 				\param[in] type A type of a subsystem which should be returned
@@ -153,6 +199,9 @@ namespace TDEngine2
 			IEngineSubsystem* mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 
 			TListenersArray   mEngineListeners;
+
+			TPluginsMap       mLoadedPlugins;
+			TLibrariesMap     mLoadedLibraries;
 	};
 
 

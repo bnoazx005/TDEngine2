@@ -3,6 +3,7 @@
 #include "./../../include/core/IWindowSystem.h"
 #include "./../../include/core/IEngineListener.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/core/IPlugin.h"
 
 
 namespace TDEngine2
@@ -168,6 +169,48 @@ namespace TDEngine2
 		mEngineListeners.erase(entityIter);
 
 		return RC_OK;
+	}
+
+
+	E_RESULT_CODE CEngineCore::LoadPlugin(const std::string& filename)
+	{
+		if (filename.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		IPlugin* pPluginInstance = mLoadedPlugins[filename];
+
+		if (pPluginInstance)
+		{
+			return RC_FAIL;
+		}
+
+		//TSharedLibraryHandler pluginLibrary = 
+		
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CEngineCore::UnloadPlugin(const std::string& filename)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CEngineCore::RegisterPlugin(IPlugin* pPlugin)
+	{
+		if (!pPlugin)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		/// \todo add checking up of engine's version with the value that are stored within the plugin
+		
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CEngineCore::UnregisterPlugin(IPlugin* pPlugin)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	IEngineSubsystem* CEngineCore::GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const

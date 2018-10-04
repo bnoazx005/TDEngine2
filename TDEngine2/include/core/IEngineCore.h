@@ -17,6 +17,7 @@ namespace TDEngine2
 	class IEngineListener;
 	class ILogger;
 	class ITimer;
+	class IPlugin;
 
 
 	/*!
@@ -92,7 +93,7 @@ namespace TDEngine2
 			/*!
 				\brief The method registers a specified engine's listener
 
-				\param[in] pSubsystem A pointer to listener's implementation
+				\param[in] pListener A pointer to listener's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
@@ -102,12 +103,52 @@ namespace TDEngine2
 			/*!
 				\brief The method unregisters a specified engine's listener
 
-				\param[in] pSubsystem A pointer to listener's implementation
+				\param[in] pListener A pointer to listener's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API virtual E_RESULT_CODE UnregisterListener(IEngineListener* pListener) = 0;
+
+			/*!
+				\brief The method load a specified plugin
+
+				\param[in] filename A filename of a shared library with a plugin's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE LoadPlugin(const std::string& filename) = 0;
+
+			/*!
+				\brief The method unload a specified plugin
+
+				\param[in] filename A filename of a shared library with a plugin's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE UnloadPlugin(const std::string& filename) = 0;
+
+			/*!
+				\brief The method registers a specified plugin
+
+				\param[in] pPlugin A pointer to IPlugin's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterPlugin(IPlugin* pPlugin) = 0;
+
+			/*!
+				\brief The method unregisters a specified plugin
+
+				\param[in] pPlugin A pointer to IPlugin's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE UnregisterPlugin(IPlugin* pPlugin) = 0;
 
 			/*!
 				\brief The method returns a pointer to a subsystem of specified type

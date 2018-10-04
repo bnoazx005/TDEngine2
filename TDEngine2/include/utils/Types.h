@@ -65,6 +65,7 @@ namespace TDEngine2
 		RC_OUT_OF_MEMORY,				/// Couldn't allocate enough memory to store an object
 		RC_NOT_IMPLEMENTED_YET,			/// A function or a method has no implementation yet
 		RC_GAPI_IS_NOT_SUPPORTED,		/// A GAPI is not supported on a platform
+		RC_PLUGIN_IS_NOT_SUPPORTED,		/// Incompatible version of a plugin, or it was built with different version of the engine's library
 		RC_UNKNOWN						/// Some unrecognized error
 	};
 
@@ -223,4 +224,11 @@ namespace TDEngine2
 		U32         mPluginVersion;		///< Plugin's version low 16 high bits refer to a major part, low 16 bits refer to a minor part
 		U32         mEngineVersion;		///< A version of the engine, which a plugin uses
 	} TPluginInfo, *TPluginInfoPtr;
+
+
+#if defined (TDE2_USE_WIN32PLATFORM)
+	typedef HMODULE TSharedLibraryHandler;
+#else
+	typedef void*   TSharedLibraryHandler;
+#endif
 }
