@@ -1,6 +1,7 @@
 #include "./../../include/core/CDefaultEngineCoreBuilder.h"
 #include "./../../include/core/CEngineCore.h"
 #include "./../../include/platform/win32/CWin32WindowSystem.h"
+#include "./../../include/core/IPlugin.h"
 //#include "./../../include/graphics/d3d11/CD3D11GraphicsContext.h"
 //#include "./../../include/graphics/ogl/COGLGraphicsContext.h"
 //#include "./../../include/graphics/ogl/win32/CWin32GLContextFactory.h"
@@ -72,42 +73,30 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-
-		return RC_NOT_IMPLEMENTED_YET;
-
-		/*IGraphicsContext* pGraphicsContext = nullptr;
-
+				
 		E_RESULT_CODE result = RC_OK;
 
 		switch (type)
 		{
 #if defined(TDE2_USE_WIN32PLATFORM)
 			case GCGT_DIRECT3D11:																	/// try to create D3D11 Graphics context
-				pGraphicsContext = CreateD3D11GraphicsContext(mpWindowSystemInstance, result);
-
-				if (result != RC_OK)
+				if ((result = mpEngineCoreInstance->LoadPlugin("D3D11GraphicsContext")) != RC_OK)
 				{
 					return result;
 				}
 				break;
 #endif
 			case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
-#if defined (TDE2_USE_WIN32PLATFORM)
-				pGraphicsContext = CreateOGLGraphicsContext(mpWindowSystemInstance, CreateWin32GLContextFactory, result);
-#else
-				return RC_FAIL;	/// \todo The engine doesn't support other platforms by now
-#endif
-
-				if (result != RC_OK)
+				if ((result = mpEngineCoreInstance->LoadPlugin("OGLGraphicsContext")) != RC_OK)
 				{
 					return result;
 				}
 				break;
 			default:
 				return RC_FAIL;
-		}*/
+		}
 
-		//return mpEngineCoreInstance->RegisterSubsystem(pGraphicsContext);
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags)

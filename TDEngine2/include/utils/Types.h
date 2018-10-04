@@ -66,6 +66,7 @@ namespace TDEngine2
 		RC_NOT_IMPLEMENTED_YET,			/// A function or a method has no implementation yet
 		RC_GAPI_IS_NOT_SUPPORTED,		/// A GAPI is not supported on a platform
 		RC_PLUGIN_IS_NOT_SUPPORTED,		/// Incompatible version of a plugin, or it was built with different version of the engine's library
+		RC_FILE_NOT_FOUND,				/// The engine can't find specified file in a file system
 		RC_UNKNOWN						/// Some unrecognized error
 	};
 
@@ -225,10 +226,14 @@ namespace TDEngine2
 		U32         mEngineVersion;		///< A version of the engine, which a plugin uses
 	} TPluginInfo, *TPluginInfoPtr;
 
+	
+	typedef U32 TDynamicLibraryHandler; ///< A type of dynamic library's handler
+
+	constexpr TDynamicLibraryHandler InvalidDynamicLibHandlerValue = (std::numeric_limits<TDynamicLibraryHandler>::max)();
 
 #if defined (TDE2_USE_WIN32PLATFORM)
-	typedef HMODULE TSharedLibraryHandler;
+	typedef HMODULE TDynamicLibrary;
 #else
-	typedef void*   TSharedLibraryHandler;
+	typedef void* TDynamicLibrary;
 #endif
 }

@@ -16,6 +16,7 @@
 namespace TDEngine2
 {
 	class ITimer;
+	class IDLLManager;
 
 
 	/*!
@@ -122,6 +123,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetFlags() const = 0;
+
+			/*!
+				\brief The method returns a pointer to IDLLManager's implementation
+
+				\return The method returns a pointer to IDLLManager's implementation
+			*/
+
+			TDE2_API virtual IDLLManager* GetDLLManagerInstance() const = 0;
 		protected:
 			TDE2_API IWindowSystem() = default;
 			TDE2_API IWindowSystem(const IWindowSystem& windowSystem) = delete;

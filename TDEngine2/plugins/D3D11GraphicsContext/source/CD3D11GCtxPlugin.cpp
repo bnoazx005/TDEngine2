@@ -1,6 +1,8 @@
 #include "./../include/CD3D11GCtxPlugin.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
+#include "./../include/CD3D11GraphicsContext.h"
+#include <core/IWindowSystem.h>
 
 
 namespace TDEngine2
@@ -22,7 +24,19 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		/// \todo Implement plugin's registration
+		E_RESULT_CODE result = RC_OK;
+
+		mpGraphicsContext = CreateD3D11GraphicsContext(dynamic_cast<const IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+		
+		if ((result = pEngineCore->RegisterSubsystem(mpGraphicsContext)) != RC_OK)
+		{
+			return result;
+		}
 
 		mIsInitialized = true;
 
@@ -57,7 +71,7 @@ namespace TDEngine2
 }
 
 
-extern "C" TDE2_API TDEngine2::IPlugin* CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result)
+extern "C" TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result)
 {
 	TDEngine2::CD3D11GCtxPlugin* pPluginInstance = new (std::nothrow) TDEngine2::CD3D11GCtxPlugin();
 

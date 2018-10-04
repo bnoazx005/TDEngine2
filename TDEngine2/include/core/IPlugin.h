@@ -47,7 +47,13 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPlugin)
 	};
+
+
+	typedef TDE2_API TDEngine2::IPlugin* (TDE2_APIENTRY *TCreatePluginCallback)(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
 }
+
+
+#define TDE2_CREATE_PLUGIN_FUNC_NAME "CreatePlugin"
 
 
 /*!
@@ -57,4 +63,4 @@ namespace TDEngine2
 	\return A pointer to IPlugin's implementation
 */
 
-extern "C" TDE2_API TDEngine2::IPlugin* CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
+extern "C" TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);

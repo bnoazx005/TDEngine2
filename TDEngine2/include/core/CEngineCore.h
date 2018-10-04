@@ -14,6 +14,10 @@
 
 namespace TDEngine2
 {
+	class IDLLManager;
+	class IWindowSystem;
+
+
 	/*!
 		class CEngineCore
 
@@ -37,11 +41,9 @@ namespace TDEngine2
 				EET_ONFREE
 			};
 
-			typedef std::vector<IEngineListener*>                          TListenersArray;
+			typedef std::vector<IEngineListener*>             TListenersArray;
 
-			typedef std::unordered_map<std::string, IPlugin*>              TPluginsMap;
-
-			typedef std::unordered_map<std::string, TSharedLibraryHandler> TLibrariesMap;
+			typedef std::unordered_map<std::string, IPlugin*> TPluginsMap;
 		public:
 			TDE2_API virtual ~CEngineCore();
 
@@ -124,7 +126,7 @@ namespace TDEngine2
 			/*!
 				\brief The method load a specified plugin
 
-				\param[in] filename A filename of a shared library with a plugin's implementation
+				\param[in] filename A filename (WITHOUT extension) of a shared library with a plugin's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
@@ -134,33 +136,13 @@ namespace TDEngine2
 			/*!
 				\brief The method unload a specified plugin
 
-				\param[in] filename A filename of a shared library with a plugin's implementation
+				\param[in] filename A filename (WITHOUT extension) of a shared library with a plugin's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API E_RESULT_CODE UnloadPlugin(const std::string& filename) override;
-
-			/*!
-				\brief The method registers a specified plugin
-
-				\param[in] pPlugin A pointer to IPlugin's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE RegisterPlugin(IPlugin* pPlugin) override;
-
-				/*!
-				\brief The method unregisters a specified plugin
-
-				\param[in] pPlugin A pointer to IPlugin's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE UnregisterPlugin(IPlugin* pPlugin) override;
-
+						
 			/*!
 				\brief The method returns a pointer to a subsystem of specified type
 
@@ -194,6 +176,8 @@ namespace TDEngine2
 			TDE2_API void _onFrameUpdateCallback();
 
 			TDE2_API E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
+
+			TDE2_API IDLLManager* _getDLLManagerInstance(const IWindowSystem* pWindowSystem);
 		protected:
 			bool              mIsInitialized;
 			IEngineSubsystem* mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
@@ -201,7 +185,8 @@ namespace TDEngine2
 			TListenersArray   mEngineListeners;
 
 			TPluginsMap       mLoadedPlugins;
-			TLibrariesMap     mLoadedLibraries;
+
+			IDLLManager*      mpDLLManager;
 	};
 
 

@@ -146,6 +146,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetFlags() const override;
+
+			/*!
+				\brief The method returns a pointer to IDLLManager's implementation
+
+				\return The method returns a pointer to IDLLManager's implementation
+			*/
+
+			TDE2_API IDLLManager* GetDLLManagerInstance() const override;
 		protected:
 			TDE2_API CWin32WindowSystem();
 
@@ -156,15 +164,23 @@ namespace TDEngine2
 		protected:
 			HWND                     mWindowHandler;
 			HINSTANCE                mInstanceHandler;
+
 			U32                      mWidth;
 			U32                      mHeight;
 			U32                      mSetupFlags;
+
 			std::string              mWindowName;
 			std::string              mWindowClassName;
+
 			bool                     mIsInitialized;
+			
 			static C8                mAppWinProcParamName[];
+
 			TWin32InternalWindowData mInternalDataObject;
+
 			ITimer*                  mpTimer;
+
+			IDLLManager*             mpDLLManager;
 	};
 
 

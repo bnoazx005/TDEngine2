@@ -4,6 +4,7 @@
 #include "./../../include/core/IEngineListener.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/core/IPlugin.h"
+#include "./../../include/core/IDLLManager.h"
 
 
 namespace TDEngine2
@@ -25,6 +26,8 @@ namespace TDEngine2
 		}
 
 		memset(&mSubsystems, 0, sizeof(mSubsystems));
+
+		mpDLLManager = nullptr;
 
 		mIsInitialized = true;
 
@@ -127,7 +130,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
 	{
-		return RC_OK;
+		/// \todo Implement UnregisterSubsystem method
+
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	E_RESULT_CODE CEngineCore::RegisterListener(IEngineListener* pListener)
@@ -179,6 +184,15 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		/// \todo check up filename's ending 
+
+		IDLLManager* pDllManager = _getDLLManagerInstance(dynamic_cast<const IWindowSystem*>(mSubsystems[EST_WINDOW]));
+
+		if (!pDllManager)
+		{
+			return RC_FAIL;
+		}
+
 		IPlugin* pPluginInstance = mLoadedPlugins[filename];
 
 		if (pPluginInstance)
@@ -186,33 +200,69 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		//TSharedLibraryHandler pluginLibrary = 
+		E_RESULT_CODE result = RC_OK;
+
+		TDynamicLibraryHandler libraryHandler = pDllManager->Load(filename, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TCreatePluginCallback pCreatePluginCallback = (TCreatePluginCallback)pDllManager->GetSymbol(libraryHandler, TDE2_CREATE_PLUGIN_FUNC_NAME);
 		
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pCreatePluginCallback)
+		{
+			return RC_FAIL;
+		}
+
+		IPlugin* pLoadedPlugin = pCreatePluginCallback(this, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mLoadedPlugins[filename] = pLoadedPlugin;
+		
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CEngineCore::UnloadPlugin(const std::string& filename)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
-	}
-
-	E_RESULT_CODE CEngineCore::RegisterPlugin(IPlugin* pPlugin)
-	{
-		if (!pPlugin)
+		if (filename.empty())
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		/// \todo add checking up of engine's version with the value that are stored within the plugin
-		
-		return RC_NOT_IMPLEMENTED_YET;
-	}
+		/// \todo check up filename's ending 
 
-	E_RESULT_CODE CEngineCore::UnregisterPlugin(IPlugin* pPlugin)
-	{
-		return RC_NOT_IMPLEMENTED_YET;
-	}
+		IDLLManager* pDllManager = _getDLLManagerInstance(dynamic_cast<const IWindowSystem*>(mSubsystems[EST_WINDOW]));
 
+		if (!pDllManager)
+		{
+			return RC_FAIL;
+		}
+
+		IPlugin* pPluginInstance = mLoadedPlugins[filename];
+
+		if (!pPluginInstance)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = pPluginInstance->Free()) != RC_OK)
+		{
+			return result;
+		}
+
+		mLoadedPlugins[filename] = nullptr;
+
+		return RC_OK;
+	}
+	
 	IEngineSubsystem* CEngineCore::GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
 	{
 		if (type == EST_UNKNOWN)
@@ -285,6 +335,21 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	IDLLManager* CEngineCore::_getDLLManagerInstance(const IWindowSystem* pWindowSystem)
+	{
+		if (!pWindowSystem && !mpDLLManager)
+		{
+			return nullptr;
+		}
+
+		if (!mpDLLManager)
+		{
+			mpDLLManager = pWindowSystem->GetDLLManagerInstance();
+		}
+
+		return mpDLLManager;
 	}
 	
 

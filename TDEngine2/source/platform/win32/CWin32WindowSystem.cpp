@@ -1,5 +1,6 @@
 #include "./../../../include/platform/win32/CWin32WindowSystem.h"
 #include "./../../../include/platform/win32/CWin32Timer.h"
+#include "./../../../include/platform/win32/CWin32DLLManager.h"
 
 
 #if defined(TDE2_USE_WIN32PLATFORM)
@@ -103,6 +104,15 @@ namespace TDEngine2
 			return result;
 		}
 
+		/// CWin32DLLManager's initialization
+
+		mpDLLManager = CreateWin32DLLManager(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 		
 		return RC_OK;
@@ -134,6 +144,12 @@ namespace TDEngine2
 
 		/// CWin32Timer's destruction
 		if ((result = mpTimer->Free()) != RC_OK)
+		{
+			return result;
+		}
+
+		/// CWin32DLLManager's destruction
+		if ((result = mpDLLManager->Free()) != RC_OK)
 		{
 			return result;
 		}
@@ -231,6 +247,11 @@ namespace TDEngine2
 	U32 CWin32WindowSystem::GetFlags() const
 	{
 		return mSetupFlags;
+	}
+
+	IDLLManager* CWin32WindowSystem::GetDLLManagerInstance() const
+	{
+		return mpDLLManager;
 	}
 
 	LRESULT CALLBACK CWin32WindowSystem::_wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

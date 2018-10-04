@@ -28,6 +28,8 @@ namespace TDEngine2
 		#define TDE2_API 
 	#endif
 
+	#define TDE2_APIENTRY __cdecl
+
 	/// Platform-specific macroses are used to configure build in compile time
 
 	#if defined(_WIN32)

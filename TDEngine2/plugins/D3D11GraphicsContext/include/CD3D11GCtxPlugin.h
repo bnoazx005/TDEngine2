@@ -26,7 +26,7 @@ namespace TDEngine2
 	class CD3D11GCtxPlugin : public IPlugin
 	{
 		public:
-			friend TDE2_API TDEngine2::IPlugin* ::CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
+			friend TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY ::CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a plugin

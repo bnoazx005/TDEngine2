@@ -1,6 +1,9 @@
 #include "./../include/COGLGCtxPlugin.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
+#include "./../include/COGLGraphicsContext.h"
+#include "./../include/win32/CWin32GLContextFactory.h"
+#include <core/IWindowSystem.h>
 
 
 namespace TDEngine2
@@ -22,7 +25,27 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		/// \todo Implement plugin's registration
+		E_RESULT_CODE result = RC_OK;
+		
+		TCreateGLContextFactoryCallback pGLContextFactoryCallback = nullptr;
+
+#if defined (TDE2_USE_WIN32PLATFORM)
+		pGLContextFactoryCallback = CreateWin32GLContextFactory;
+#else
+		/// \todo Implement callback assigment for other platforms
+#endif
+
+		mpGraphicsContext = CreateOGLGraphicsContext(dynamic_cast<const IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), pGLContextFactoryCallback, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = pEngineCore->RegisterSubsystem(mpGraphicsContext)) != RC_OK)
+		{
+			return result;
+		}
 
 		mIsInitialized = true;
 
@@ -57,7 +80,7 @@ namespace TDEngine2
 }
 
 
-extern "C" TDE2_API TDEngine2::IPlugin* CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result)
+extern "C" TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result)
 {
 	TDEngine2::COGLGCtxPlugin* pPluginInstance = new (std::nothrow) TDEngine2::COGLGCtxPlugin();
 

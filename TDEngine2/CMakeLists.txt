@@ -29,6 +29,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IGraphicsContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IWindowSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IPlugin.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IDLLManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBaseComponent.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CComponentManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CEntity.h"
@@ -44,6 +45,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IIndexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32WindowSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32Timer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32DLLManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CFileLogger.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/Color.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/Config.h"
@@ -66,6 +68,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CWorld.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32WindowSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32Timer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32DLLManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CFileLogger.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector3.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector4.cpp")
