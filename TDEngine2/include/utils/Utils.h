@@ -85,4 +85,27 @@ namespace TDEngine2
 
 		return pObject->Free();
 	}
+
+
+	/*!
+		\brief The macros is used to declare protected members of interfaces, which
+		should use two-step initialization technique
+	*/
+
+	#define DECLARE_INTERFACE_PROTECTED_MEMBERS(Type)		\
+		TDE2_API Type() = default;							\
+		TDE2_API ~Type() = default;							\
+		TDE2_API Type(const Type&) = delete;				\
+		TDE2_API Type& operator= (Type&) = delete;
+
+	/*!
+		\brief The macros is used to declare protected members of interfaces' implementations, which
+		should use two-step initialization technique
+	*/
+
+	#define DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(Type)		\
+		TDE2_API Type();										\
+		TDE2_API ~Type() = default;								\
+		TDE2_API Type(const Type&) = delete;					\
+		TDE2_API Type& operator= (Type&) = delete;
 }

@@ -2,6 +2,9 @@ cmake_minimum_required (VERSION 2.8)
 
 project (TDEngine2 CXX)
 
+option(BUILD_D3D11_GCTX_PLUGIN "Build D3D11 Graphics context plugin" ON)
+option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
@@ -11,9 +14,6 @@ if (NOT DEFINED ${TDENGINE2_LIBRARY_NAME})
 endif ()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-# set up GLEW library's directory
-link_directories("${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0/lib")
 
 
 set(TDENGINE2_HEADERS
@@ -28,6 +28,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IEngineSubsystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IGraphicsContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IWindowSystem.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IPlugin.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBaseComponent.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CComponentManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CEntity.h"
@@ -38,13 +39,6 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ISystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ISystemManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/IWorld.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/d3d11/CD3D11GraphicsContext.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/d3d11/CD3D11Buffer.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/d3d11/CD3D11Mappings.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/d3d11/CD3D11IndexBuffer.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ogl/win32/CWin32GLContextFactory.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ogl/COGLGraphicsContext.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ogl/IOGLContextFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IVertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IIndexBuffer.h"
@@ -70,12 +64,6 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CEntityManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CSystemManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CWorld.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/d3d11/CD3D11GraphicsContext.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/d3d11/CD3D11Buffer.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/d3d11/CD3D11Mappings.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/d3d11/CD3D11IndexBuffer.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/ogl/COGLGraphicsContext.cpp"	
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/ogl/win32/CWin32GLContextFactory.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32WindowSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32Timer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CFileLogger.cpp"
@@ -118,8 +106,11 @@ endif (UNIX)
 
 add_library("${TDENGINE2_LIBRARY_NAME}" SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS})
 
+# disable the <libname>_EXPORTS
+set_target_properties(${TDENGINE2_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
+
 #set up GLEW headers
 target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0/include")
 
-# disable the <libname>_EXPORTS
-set_target_properties(${TDENGINE2_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
+#build plugins
+add_subdirectory(plugins)

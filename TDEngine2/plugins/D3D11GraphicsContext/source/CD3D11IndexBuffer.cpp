@@ -1,6 +1,6 @@
-#include "./../../../include/graphics/d3d11/CD3D11IndexBuffer.h"
-#include "./../../../include/core/IGraphicsContext.h"
-#include "./../../../include/graphics/d3d11/CD3D11Buffer.h"
+#include "./../include/CD3D11IndexBuffer.h"
+#include "./../include/CD3D11Buffer.h"
+#include <core/IGraphicsContext.h>
 #include <memory>
 
 
@@ -9,7 +9,7 @@
 namespace TDEngine2
 {
 	CD3D11IndexBuffer::CD3D11IndexBuffer() :
-		CBaseObject()
+		mIsInitialized(false)
 	{
 	}
 

@@ -1,6 +1,6 @@
-#include "./../../../include/graphics/d3d11/CD3D11Buffer.h"
-#include "./../../../include/graphics/d3d11/CD3D11Mappings.h"
-#include "./../../../include/core/IGraphicsContext.h"
+#include "./../include/CD3D11Buffer.h"
+#include "./../include/CD3D11Mappings.h"
+#include <core/IGraphicsContext.h>
 #include <memory>
 
 
@@ -8,8 +8,8 @@
 
 namespace TDEngine2
 {
-	CD3D11Buffer::CD3D11Buffer() :
-		CBaseObject()
+	CD3D11Buffer::CD3D11Buffer():
+		mIsInitialized(false)
 	{
 	}
 

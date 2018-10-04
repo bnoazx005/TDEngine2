@@ -17,6 +17,7 @@
 #include "core/IEngineListener.h"
 #include "core/IBaseObject.h"
 #include "core/CBaseObject.h"
+#include "core/IPlugin.h"
 
 ///ecs
 #include "ecs/CEntity.h"
@@ -31,15 +32,9 @@
 #include "ecs/CWorld.h"
 
 ///graphics
-#include "graphics/d3d11/CD3D11GraphicsContext.h"
-#include "graphics/ogl/COGLGraphicsContext.h"
-#include "graphics/ogl/IOGLContextFactory.h"
-#include "graphics/ogl/win32/CWin32GLContextFactory.h"
 #include "graphics/IBuffer.h"
 #include "graphics/IVertexBuffer.h"
 #include "graphics/IIndexBuffer.h"
-#include "graphics/d3d11/CD3D11Mappings.h"
-#include "graphics/d3d11/CD3D11Buffer.h"
 
 ///math
 #include "math/TVector3.h"

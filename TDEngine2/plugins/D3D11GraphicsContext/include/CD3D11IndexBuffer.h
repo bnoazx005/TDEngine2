@@ -1,5 +1,5 @@
 /*!
-	\file CD3D11Buffer.h
+	\file CD3D11IndexBuffer.h
 	\date 03.10.2018
 	\authors Kasimov Ildar
 */
@@ -7,54 +7,45 @@
 #pragma once
 
 
-#include "./../IBuffer.h"
-#include "./../../core/CBaseObject.h"
+#include <graphics/IIndexBuffer.h>
+#include <core/IBaseObject.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
 
-
 namespace TDEngine2
 {
-	/*!
-		\brief The enumeration contains all possible types, how CD3D11Buffer can be used
-	*/
-
-	enum E_BUFFER_TYPE
-	{
-		BT_VERTEX_BUFFER,			///< A buffer will be used as vertex buffer
-		BT_INDEX_BUFFER,			///< A buffer will be used as index buffer
-		BT_CONSTANT_BUFFER			///< A buffer will be used as constant buffer
-	};
+	class IBuffer;
+	class IGraphicsContext;
 
 
 	/*!
-		class CD3D11Buffer
+		class IIndexBuffer
 
-		\brief The class is an implementation of a common D3D11 buffer, which 
-		can be used in different 
+		\brief The interface describes a functionality of a hardware index buffer
 	*/
 
-	class CD3D11Buffer : public CBaseObject, public IBuffer
+
+	class CD3D11IndexBuffer : public IIndexBuffer, public virtual IBaseObject
 	{
 		public:
-			friend TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
-														U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+			friend TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
+																 U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
 
 				\param[in] pGraphicsContext A pointer to implementation of IGraphicsContext interface
 				\param[in] usageType A usage type of a buffer
-				\param[in] bufferType A type of a buffer
 				\param[in] totalBufferSize Total size of a buffer
+				\param[in] indexFormatType A value, which defines single index's stride size
 				\param[in] pDataPtr A pointer to data that will initialize a buffer
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize, 
-										void* pDataPtr);
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
+										E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -117,39 +108,25 @@ namespace TDEngine2
 
 			TDE2_API U32 GetSize() const override;
 		protected:
-			TDE2_API CD3D11Buffer();
-			TDE2_API ~CD3D11Buffer() = default;
-			TDE2_API CD3D11Buffer(const CD3D11Buffer&) = delete;
-			TDE2_API CD3D11Buffer& operator= (CD3D11Buffer&) = delete;
+			TDE2_API CD3D11IndexBuffer();
+			TDE2_API virtual ~CD3D11IndexBuffer() = default;
+			TDE2_API CD3D11IndexBuffer(const CD3D11IndexBuffer&) = delete;
+			TDE2_API virtual CD3D11IndexBuffer& operator= (CD3D11IndexBuffer&) = delete;
 		protected:
-			ID3D11DeviceContext *    mp3dDeviceContext;
-
-			ID3D11Buffer*            mpBufferInstance;
-			
-			U32                      mBufferSize;
-
-			U32                      mElementStrideSize;
-
-			E_BUFFER_USAGE_TYPE      mBufferUsageType;
-
-			E_BUFFER_TYPE            mBufferType;
-
-			U32                      mAccessFlags;
-
-			D3D11_MAPPED_SUBRESOURCE mMappedBufferData;
-
-			TBufferInternalData      mBufferInternalData;
+			bool                mIsInitialized;
+			IBuffer*            mpBufferImpl;
+			E_INDEX_FORMAT_TYPE mIndexFormatType;
 	};
 
 
 	/*!
-		\brief A factory function for creation objects of CD3D11GraphicsContext's type
+		\brief A factory function for creation objects of CD3D11IndexBuffer's type
 
-		\return A pointer to CD3D11GraphicsContext's implementation
+		\return A pointer to CD3D11IndexBuffer's implementation
 	*/
 
-	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
-										U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+	TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
+												  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
 }
 
 #endif

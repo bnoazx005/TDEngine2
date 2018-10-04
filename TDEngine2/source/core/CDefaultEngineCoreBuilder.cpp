@@ -1,9 +1,9 @@
 #include "./../../include/core/CDefaultEngineCoreBuilder.h"
 #include "./../../include/core/CEngineCore.h"
 #include "./../../include/platform/win32/CWin32WindowSystem.h"
-#include "./../../include/graphics/d3d11/CD3D11GraphicsContext.h"
-#include "./../../include/graphics/ogl/COGLGraphicsContext.h"
-#include "./../../include/graphics/ogl/win32/CWin32GLContextFactory.h"
+//#include "./../../include/graphics/d3d11/CD3D11GraphicsContext.h"
+//#include "./../../include/graphics/ogl/COGLGraphicsContext.h"
+//#include "./../../include/graphics/ogl/win32/CWin32GLContextFactory.h"
 #include <memory>
 
 
@@ -73,7 +73,9 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		IGraphicsContext* pGraphicsContext = nullptr;
+		return RC_NOT_IMPLEMENTED_YET;
+
+		/*IGraphicsContext* pGraphicsContext = nullptr;
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -103,9 +105,9 @@ namespace TDEngine2
 				break;
 			default:
 				return RC_FAIL;
-		}
+		}*/
 
-		return mpEngineCoreInstance->RegisterSubsystem(pGraphicsContext);
+		//return mpEngineCoreInstance->RegisterSubsystem(pGraphicsContext);
 	}
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags)

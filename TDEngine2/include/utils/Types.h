@@ -20,7 +20,7 @@
 #if defined (TDE2_USE_WIN32PLATFORM)
 	#include <Windows.h>
 	#include <d3d11.h>
-	#include <GL/glew.h>
+	#include <gl/glew.h>
 #else
 #endif
 
@@ -209,4 +209,18 @@ namespace TDEngine2
 	typedef U32 TComponentTypeId; ///< A type of a component
 
 	constexpr TComponentTypeId InvalidComponentType = (std::numeric_limits<TEntityId>::max)(); ///< Invalid value for TComponentTypeId type
+
+
+	/*!
+		structure TPluginInfo
+
+		\brief The structure contains an information about a plugin
+	*/
+
+	typedef struct TPluginInfo
+	{
+		std::string mName;				///< A name of a plugin
+		U32         mPluginVersion;		///< Plugin's version low 16 high bits refer to a major part, low 16 bits refer to a minor part
+		U32         mEngineVersion;		///< A version of the engine, which a plugin uses
+	} TPluginInfo, *TPluginInfoPtr;
 }

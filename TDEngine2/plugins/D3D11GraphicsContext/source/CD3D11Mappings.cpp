@@ -1,4 +1,4 @@
-#include "./../../../include/graphics/d3d11/CD3D11Mappings.h"
+#include "./../include/CD3D11Mappings.h"
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)

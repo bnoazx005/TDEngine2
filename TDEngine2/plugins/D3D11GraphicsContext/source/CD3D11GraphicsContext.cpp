@@ -1,5 +1,5 @@
-#include "./../../../include/graphics/d3d11/CD3D11GraphicsContext.h"
-#include "./../../../include/core/IWindowSystem.h"
+#include "./../include/CD3D11GraphicsContext.h"
+#include <core/IWindowSystem.h>
 
 
 #if defined(TDE2_USE_WIN32PLATFORM)

@@ -6,7 +6,7 @@
 #pragma once
 
 
-#include "./../../core/IGraphicsContext.h"
+#include <core/IGraphicsContext.h>
 
 
 namespace TDEngine2

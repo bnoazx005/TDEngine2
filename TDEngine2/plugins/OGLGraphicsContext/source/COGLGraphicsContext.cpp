@@ -1,7 +1,7 @@
-#include "./../../../include/graphics/ogl/COGLGraphicsContext.h"
-#include "./../../../include/core/IWindowSystem.h"
-#include "./../../../include/graphics/ogl/IOGLContextFactory.h"
-#include <gl\glew.h>
+#include "./../include/COGLGraphicsContext.h"
+#include "./../include/IOGLContextFactory.h"
+#include <core/IWindowSystem.h>
+#include <gl/glew.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)

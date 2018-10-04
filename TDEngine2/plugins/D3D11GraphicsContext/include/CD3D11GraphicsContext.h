@@ -6,7 +6,7 @@
 #pragma once
 
 
-#include "./../../core/IGraphicsContext.h"
+#include <core/IGraphicsContext.h>
 
 
 #if defined(TDE2_USE_WIN32PLATFORM) /// Used only on Windows platform
