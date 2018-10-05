@@ -9,6 +9,7 @@
 
 #include "./../utils/Config.h"
 #include "./../utils/Types.h"
+#include <string>
 
 
 namespace TDEngine2

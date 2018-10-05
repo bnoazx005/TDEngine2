@@ -11,6 +11,7 @@
 #include "Config.h"
 #include <cstdint>
 #include <limits>
+#include <string>
 
 #if _HAS_CXX17	/// use variant only if C++17's implementation is available, otherwise use stardard unions
 	#include <variant>
