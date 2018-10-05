@@ -1,13 +1,13 @@
 /*!
-	\file CD3D11IndexBuffer.h
-	\date 03.10.2018
+	\file CD3D11VertexBuffer.h
+	\date 05.10.2018
 	\authors Kasimov Ildar
 */
 
 #pragma once
 
 
-#include <graphics/IIndexBuffer.h>
+#include <graphics/IVertexBuffer.h>
 #include <core/IBaseObject.h>
 
 
@@ -20,17 +20,17 @@ namespace TDEngine2
 
 
 	/*!
-		class CD3D11IndexBuffer
+		class CD3D11VertexBuffer
 
-		\brief The class implements a functionality of a hardware index buffer for D3D11 GAPI
+		\brief The class implements a functionality of a hardware vertex buffer for D3D11 GAPI
 	*/
 
 
-	class CD3D11IndexBuffer : public IIndexBuffer, public virtual IBaseObject
+	class CD3D11VertexBuffer : public IVertexBuffer, public virtual IBaseObject
 	{
 		public:
-			friend TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																 U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+			friend TDE2_API IVertexBuffer* CreateD3D11VertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, 
+																   U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -44,8 +44,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
-										E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr) override;
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -108,22 +107,21 @@ namespace TDEngine2
 
 			TDE2_API U32 GetSize() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11IndexBuffer)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexBuffer)
 		protected:
 			bool                mIsInitialized;
 			IBuffer*            mpBufferImpl;
-			E_INDEX_FORMAT_TYPE mIndexFormatType;
 	};
 
 
 	/*!
-		\brief A factory function for creation objects of CD3D11IndexBuffer's type
+	\brief A factory function for creation objects of CD3D11VertexBuffer's type
 
-		\return A pointer to CD3D11IndexBuffer's implementation
+	\return A pointer to CD3D11VertexBuffer's implementation
 	*/
 
-	TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-												  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+	TDE2_API IVertexBuffer* CreateD3D11VertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
+												    U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
 }
 
 #endif

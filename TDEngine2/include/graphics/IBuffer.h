@@ -9,6 +9,7 @@
 
 #include "./../core/IBaseObject.h"
 #include "./../utils/Types.h"
+#include "./../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -106,9 +107,6 @@ namespace TDEngine2
 
 			TDE2_API virtual U32 GetSize() const = 0;
 		protected:
-			TDE2_API IBuffer() = default;
-			TDE2_API virtual ~IBuffer() = default;
-			TDE2_API IBuffer(const IBuffer&) = delete;
-			TDE2_API virtual IBuffer& operator= (IBuffer&) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBuffer)
 	};
 }

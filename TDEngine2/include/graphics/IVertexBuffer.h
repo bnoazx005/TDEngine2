@@ -38,9 +38,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, 
 												void* pDataPtr) = 0;
 		protected:
-			TDE2_API IVertexBuffer() = default;
-			TDE2_API virtual ~IVertexBuffer() = default;
-			TDE2_API IVertexBuffer(const IVertexBuffer&) = delete;
-			TDE2_API virtual IVertexBuffer& operator= (IVertexBuffer&) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IVertexBuffer)
 	};
 }

@@ -18,6 +18,7 @@ set(D3D11_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Mappings.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11IndexBuffer.h"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GCtxPlugin.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11VertexBuffer.h"
 	)
 
 set(D3D11_GCTX_SOURCES
@@ -26,6 +27,7 @@ set(D3D11_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Mappings.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11IndexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11GCtxPlugin.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11VertexBuffer.cpp"
 	)
 
 source_group("includes" FILES ${D3D11_GCTX_HEADERS})

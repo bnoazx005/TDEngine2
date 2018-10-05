@@ -117,10 +117,7 @@ namespace TDEngine2
 
 			TDE2_API U32 GetSize() const override;
 		protected:
-			TDE2_API CD3D11Buffer();
-			TDE2_API ~CD3D11Buffer() = default;
-			TDE2_API CD3D11Buffer(const CD3D11Buffer&) = delete;
-			TDE2_API CD3D11Buffer& operator= (CD3D11Buffer&) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Buffer)
 		protected:
 			bool                     mIsInitialized;
 

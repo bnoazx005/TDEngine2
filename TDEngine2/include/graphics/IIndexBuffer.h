@@ -54,9 +54,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
 												E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr) = 0;
 		protected:
-			TDE2_API IIndexBuffer() = default;
-			TDE2_API virtual ~IIndexBuffer() = default;
-			TDE2_API IIndexBuffer(const IIndexBuffer&) = delete;
-			TDE2_API virtual IIndexBuffer& operator= (IIndexBuffer&) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IIndexBuffer)
 	};
 }
