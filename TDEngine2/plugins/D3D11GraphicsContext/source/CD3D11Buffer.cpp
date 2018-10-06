@@ -174,18 +174,25 @@ namespace TDEngine2
 	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
 										U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
 	{
-		CD3D11Buffer* pGraphicsContextInstance = new (std::nothrow) CD3D11Buffer();
+		CD3D11Buffer* pBufferInstance = new (std::nothrow) CD3D11Buffer();
 
-		if (!pGraphicsContextInstance)
+		if (!pBufferInstance)
 		{
 			result = RC_OUT_OF_MEMORY;
 
 			return nullptr;
 		}
 
-		result = pGraphicsContextInstance->Init(pGraphicsContext, usageType, bufferType, totalBufferSize, pDataPtr);
+		result = pBufferInstance->Init(pGraphicsContext, usageType, bufferType, totalBufferSize, pDataPtr);
 
-		return dynamic_cast<IBuffer*>(pGraphicsContextInstance);
+		if (result != RC_OK)
+		{
+			delete pBufferInstance;
+
+			pBufferInstance = nullptr;
+		}
+
+		return dynamic_cast<IBuffer*>(pBufferInstance);
 	}
 }
 

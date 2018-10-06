@@ -19,12 +19,20 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGraphicsContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/IOGLContextFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGCtxPlugin.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLBuffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLVertexBuffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLMappings.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLIndexBuffer.h"
 	)
 
 set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLGraphicsContext.cpp"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/win32/CWin32GLContextFactory.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLGCtxPlugin.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLBuffer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLVertexBuffer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLMappings.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLIndexBuffer.cpp"
 	)
 
 source_group("includes" FILES ${OGL_GCTX_HEADERS})

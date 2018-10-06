@@ -1,20 +1,18 @@
-#include "./../include/CD3D11IndexBuffer.h"
-#include "./../include/CD3D11Buffer.h"
+#include "./../include/COGLIndexBuffer.h"
+#include "./../include/COGLBuffer.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
 
-#if defined (TDE2_USE_WIN32PLATFORM)
-
 namespace TDEngine2
 {
-	CD3D11IndexBuffer::CD3D11IndexBuffer() :
+	COGLIndexBuffer::COGLIndexBuffer() :
 		mIsInitialized(false)
 	{
 	}
 
-	E_RESULT_CODE CD3D11IndexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
-										  E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr)
+	E_RESULT_CODE COGLIndexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
+										E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -25,7 +23,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpBufferImpl = CreateD3D11Buffer(pGraphicsContext, usageType, BT_INDEX_BUFFER, totalBufferSize, pDataPtr, result);
+		mpBufferImpl = CreateOGLBuffer(pGraphicsContext, usageType, COGLBuffer::BT_INDEX_BUFFER, totalBufferSize, pDataPtr, result);
 
 		if (result != RC_OK)
 		{
@@ -37,7 +35,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11IndexBuffer::Free()
+	E_RESULT_CODE COGLIndexBuffer::Free()
 	{
 		if (!mIsInitialized)
 		{
@@ -58,41 +56,41 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11IndexBuffer::Map(E_BUFFER_MAP_TYPE mapType)
+	E_RESULT_CODE COGLIndexBuffer::Map(E_BUFFER_MAP_TYPE mapType)
 	{
 		return mpBufferImpl->Map(mapType);
 	}
 
-	void CD3D11IndexBuffer::Unmap()
+	void COGLIndexBuffer::Unmap()
 	{
 		return mpBufferImpl->Unmap();
 	}
 
-	E_RESULT_CODE CD3D11IndexBuffer::Write(const void* pData, U32 size)
+	E_RESULT_CODE COGLIndexBuffer::Write(const void* pData, U32 size)
 	{
 		return mpBufferImpl->Write(pData, size);
 	}
 
-	void* CD3D11IndexBuffer::Read()
+	void* COGLIndexBuffer::Read()
 	{
 		return mpBufferImpl->Read();
 	}
 
-	const TBufferInternalData& CD3D11IndexBuffer::GetInternalData() const
+	const TBufferInternalData& COGLIndexBuffer::GetInternalData() const
 	{
 		return mpBufferImpl->GetInternalData();
 	}
 
-	U32 CD3D11IndexBuffer::GetSize() const
+	U32 COGLIndexBuffer::GetSize() const
 	{
 		return mpBufferImpl->GetSize();
 	}
 
 
-	TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-												  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
+	TDE2_API IIndexBuffer* CreateOGLIndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
+		U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
 	{
-		CD3D11IndexBuffer* pIndexBufferInstance = new (std::nothrow) CD3D11IndexBuffer();
+		COGLIndexBuffer* pIndexBufferInstance = new (std::nothrow) COGLIndexBuffer();
 
 		if (!pIndexBufferInstance)
 		{
@@ -113,5 +111,3 @@ namespace TDEngine2
 		return dynamic_cast<IIndexBuffer*>(pIndexBufferInstance);
 	}
 }
-
-#endif
