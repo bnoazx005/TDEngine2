@@ -36,6 +36,7 @@
 #include "graphics/IBuffer.h"
 #include "graphics/IVertexBuffer.h"
 #include "graphics/IIndexBuffer.h"
+#include "graphics/IConstantBuffer.h"
 
 ///math
 #include "math/TVector3.h"

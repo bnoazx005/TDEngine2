@@ -1,56 +1,48 @@
 /*!
-	\file COGLBuffer.h
-	\date 06.10.2018
+	\file COGLConstantBuffer.h
+	\date 07.10.2018
 	\authors Kasimov Ildar
 */
 
 #pragma once
 
 
-#include <graphics/IBuffer.h>
+#include <graphics/IConstantBuffer.h>
 #include <core/IBaseObject.h>
 
 
 namespace TDEngine2
 {
-	/*!
-		class COGLBuffer
+	class IBuffer;
+	class IGraphicsContext;
 
-		\brief The class is an implementation of a common OGL buffer, which
-		can be used in different
+
+	/*!
+		class COGLConstantBuffer
+
+		\brief The class implements a functionality of a hardware uniform buffer for OGL GAPI
 	*/
 
-	class COGLBuffer : public virtual IBaseObject, public IBuffer
+
+	class COGLConstantBuffer : public IConstantBuffer, public virtual IBaseObject
 	{
 		public:
-			/*!
-				\brief The enumeration contains all possible types, how COGLBuffer can be used
-			*/
-
-			enum E_BUFFER_TYPE
-			{
-				BT_VERTEX_BUFFER,			///< A buffer will be used as vertex buffer
-				BT_INDEX_BUFFER,			///< A buffer will be used as index buffer
-				BT_CONSTANT_BUFFER,			///< A buffer will be used as uniforms buffer object
-			};
-		public:
-			friend TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
-				U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+			friend TDE2_API IConstantBuffer* CreateOGLConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
+																	 U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
 
 				\param[in] pGraphicsContext A pointer to implementation of IGraphicsContext interface
 				\param[in] usageType A usage type of a buffer
-				\param[in] bufferType A type of a buffer
 				\param[in] totalBufferSize Total size of a buffer
+				\param[in] indexFormatType A value, which defines single index's stride size
 				\param[in] pDataPtr A pointer to data that will initialize a buffer
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize,
-				void* pDataPtr);
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -113,34 +105,19 @@ namespace TDEngine2
 
 			TDE2_API U32 GetSize() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLBuffer)
-
-			TDE2_API GLenum _getBufferType(E_BUFFER_TYPE type) const;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLConstantBuffer)
 		protected:
-			bool                     mIsInitialized;
-
-			GLuint                   mBufferHandler;
-
-			U32                      mBufferSize;
-
-			U32                      mElementStrideSize;
-
-			E_BUFFER_USAGE_TYPE      mBufferUsageType;
-
-			E_BUFFER_TYPE            mBufferType;
-
-			void*                    mpMappedBufferData;
-
-			TBufferInternalData      mBufferInternalData;
+			bool     mIsInitialized;
+			IBuffer* mpBufferImpl;
 	};
 
 
 	/*!
-		\brief A factory function for creation objects of COGLGraphicsContext's type
+		\brief A factory function for creation objects of COGLConstantBuffer's type
 
-		\return A pointer to COGLGraphicsContext's implementation
+		\return A pointer to COGLConstantBuffer's implementation
 	*/
 
-	TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, COGLBuffer::E_BUFFER_TYPE bufferType,
-									  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+	TDE2_API IConstantBuffer* CreateOGLConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
+													  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
 }

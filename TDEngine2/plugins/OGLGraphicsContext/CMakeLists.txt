@@ -23,6 +23,7 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLVertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLMappings.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLIndexBuffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLConstantBuffer.h"
 	)
 
 set(OGL_GCTX_SOURCES
@@ -33,6 +34,7 @@ set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLVertexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLMappings.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLIndexBuffer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLConstantBuffer.cpp"
 	)
 
 source_group("includes" FILES ${OGL_GCTX_HEADERS})
