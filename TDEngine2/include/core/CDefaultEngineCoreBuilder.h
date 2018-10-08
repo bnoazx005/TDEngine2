@@ -62,6 +62,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE ConfigureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags) override;
 
 			/*!
+				\brief The method tries to configure a file system based on current data that is stored in Config.h
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ConfigureFileSystem() override;
+
+			/*!
 				\brief The method returns a configured instances of an engine core
 
 				\return The method returns a configured instances of an engine core

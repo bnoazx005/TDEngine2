@@ -82,7 +82,7 @@ namespace TDEngine2
 	{
 		EST_WINDOW,						/// A subsystem that responsible for windows' management (creation, etc)
 		EST_GRAPHICS_CONTEXT,			/// A subsystem represents a low-level graphics layer (wrappers for D3D, OGL, etc)
-		//EST_FILE_SYSTEM,
+		EST_FILE_SYSTEM,				/// A subsystem represents a virtual file system that the engine uses
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 

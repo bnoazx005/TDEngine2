@@ -2,9 +2,8 @@
 #include "./../../include/core/CEngineCore.h"
 #include "./../../include/platform/win32/CWin32WindowSystem.h"
 #include "./../../include/core/IPlugin.h"
-//#include "./../../include/graphics/d3d11/CD3D11GraphicsContext.h"
-//#include "./../../include/graphics/ogl/COGLGraphicsContext.h"
-//#include "./../../include/graphics/ogl/win32/CWin32GLContextFactory.h"
+#include "./../../include/core/IFileSystem.h"
+#include "./../../include/platform/win32/CWin32FileSystem.h"
 #include <memory>
 
 
@@ -121,6 +120,30 @@ namespace TDEngine2
 #endif
 
 		return mpEngineCoreInstance->RegisterSubsystem(mpWindowSystemInstance);
+	}
+
+	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureFileSystem()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IEngineSubsystem* pFileSystem = nullptr;
+		
+#if defined (TDE2_USE_WIN32PLATFORM)
+		pFileSystem = dynamic_cast<IEngineSubsystem*>(CreateWin32FileSystem(result));
+#else
+#endif
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+		
+		return mpEngineCoreInstance->RegisterSubsystem(pFileSystem);
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()

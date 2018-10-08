@@ -23,6 +23,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
+	pEngineCoreBuilder->ConfigureFileSystem();
 	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
 	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_DIRECT3D11);
 
@@ -43,6 +44,18 @@ int main(int argc, char** argv)
 	pEngineCore->RegisterListener(pCustomListener);
 
 	pEngineCore->Run();
+	
+	IFileSystem* pFileSystem = dynamic_cast<IFileSystem*>(pEngineCore->GetSubsystem(EST_FILE_SYSTEM));
+
+	pFileSystem->Mount(pFileSystem->GetCurrDirectory() + "\\data", "\\foo");
+	pFileSystem->Mount(pFileSystem->GetCurrDirectory() + "\\test", "\\test\\.\\..");
+
+	std::string path = pFileSystem->ResolveVirtualPath("\\");
+	path = pFileSystem->ResolveVirtualPath("\\foo.txt");
+	path = pFileSystem->ResolveVirtualPath("\\foo");
+	path = pFileSystem->ResolveVirtualPath(".\\foo\\text.txt");
+	path = pFileSystem->ResolveVirtualPath("\\foo\\text.txt");
+	path = pFileSystem->ResolveVirtualPath("\\foo\\.\\..\\text");
 	
 	pEngineCore->Free();
 	

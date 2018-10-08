@@ -8,6 +8,7 @@
 
 
 #include "./../utils/Config.h"
+#include "./../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -39,8 +40,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_ENGINE_SUBSYSTEM_TYPE GetType() const = 0;
 		protected:
-			IEngineSubsystem() = default;
-			IEngineSubsystem(const IEngineSubsystem& subsystem) = delete;
-			virtual IEngineSubsystem& operator= (IEngineSubsystem& subsystem) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEngineSubsystem)
 	};
 }

@@ -19,6 +19,8 @@
 #include "core/CBaseObject.h"
 #include "core/IPlugin.h"
 #include "core/IDLLManager.h"
+#include "core/IFileSystem.h"
+#include "core/IFile.h"
 
 ///ecs
 #include "ecs/CEntity.h"
@@ -45,6 +47,8 @@
 #include "platform/win32/CWin32WindowSystem.h"
 #include "platform/win32/CWin32Timer.h"
 #include "platform/win32/CWin32DLLManager.h"
+#include "platform/win32/CWin32FileSystem.h"
+#include "platform/CTextFileReader.h"
 
 ///utils
 #include "utils/Types.h"
