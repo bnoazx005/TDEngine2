@@ -44,6 +44,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static D3D11_USAGE GetUsageType(E_BUFFER_USAGE_TYPE type);
+
+			/*!
+				\brief The function maps an internal format type into DXGI_FORMAT
+
+				\param[in] format An internal format
+
+				\return A value of DXGI_FORMAT type
+			*/
+
+			TDE2_API static DXGI_FORMAT GetDXGIFormat(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function returns a size of a specified format
+
+				\param[in] format An internal format
+
+				\return A size in bytes of a specified format
+			*/
+
+			TDE2_API static U32 GetFormatSize(E_FORMAT_TYPE format);
 	};
 }
 

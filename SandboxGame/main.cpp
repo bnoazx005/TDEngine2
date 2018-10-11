@@ -56,6 +56,9 @@ int main(int argc, char** argv)
 	path = pFileSystem->ResolveVirtualPath(".\\foo\\text.txt");
 	path = pFileSystem->ResolveVirtualPath("\\foo\\text.txt");
 	path = pFileSystem->ResolveVirtualPath("\\foo\\.\\..\\text");
+
+	TVertDeclElementDesc desc;
+	desc.mOGL.mFormatType = FT_UNKNOWN;
 	
 	pEngineCore->Free();
 	

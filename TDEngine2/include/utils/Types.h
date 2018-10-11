@@ -237,4 +237,94 @@ namespace TDEngine2
 #else
 	typedef void* TDynamicLibrary;
 #endif
+
+
+	/*!
+		enumeration E_VERTEX_ELEMENT_SEMANTIC_TYPE
+
+		\brief E_VERTEX_ELEMENT_SEMANTIC_TYPE is an enumeration that contains all types, which can be assigned to
+		a single vertex's element and used by a shader program (especially for D3D11)
+	*/
+
+	enum E_VERTEX_ELEMENT_SEMANTIC_TYPE: U32
+	{
+		VEST_POSITION,
+		VEST_NORMAL,
+		VEST_TEXCOORDS,
+		VEST_BINORMAL,
+		VEST_TANGENT,
+		VEST_COLOR,
+		VEST_UNKNOWN
+	};
+
+
+	/*!
+		enumeration E_FORMAT_TYPE
+
+		\brief The enumeration contains all available formats, which are used by the engine
+	*/
+
+	enum E_FORMAT_TYPE: U32
+	{
+		FT_FLOAT1,
+		FT_FLOAT2,
+		FT_FLOAT3,
+		FT_FLOAT4,
+		FT_SHORT1,
+		FT_SHORT2,
+		FT_SHORT3,
+		FT_SHORT4,
+		FT_USHORT1,
+		FT_USHORT2,
+		FT_USHORT3,
+		FT_USHORT4,
+		FT_UINT1,
+		FT_UINT2,
+		FT_UINT3,
+		FT_UINT4,
+		FT_SINT1,
+		FT_SINT2,
+		FT_SINT3,
+		FT_SINT4,
+		FT_UBYTE1,
+		FT_UBYTE2,
+		FT_UBYTE3,
+		FT_UBYTE4,
+		FT_BYTE1,
+		FT_BYTE2,
+		FT_BYTE3,
+		FT_BYTE4,
+		FT_NORM_SHORT1,
+		FT_NORM_SHORT2,
+		FT_NORM_SHORT3,
+		FT_NORM_SHORT4,
+		FT_NORM_USHORT1,
+		FT_NORM_USHORT2,
+		FT_NORM_USHORT3,
+		FT_NORM_USHORT4,
+		FT_NORM_UINT1,
+		FT_NORM_UINT2,
+		FT_NORM_UINT3,
+		FT_NORM_UINT4,
+		FT_NORM_SINT1,
+		FT_NORM_SINT2,
+		FT_NORM_SINT3,
+		FT_NORM_SINT4,
+		FT_NORM_UBYTE1,
+		FT_NORM_UBYTE2,
+		FT_NORM_UBYTE3,
+		FT_NORM_UBYTE4,
+		FT_NORM_BYTE1,
+		FT_NORM_BYTE2,
+		FT_NORM_BYTE3,
+		FT_NORM_BYTE4_SRGB,
+		FT_NORM_BYTE4,
+		FT_D32,
+		FT_FLOAT1_TYPELESS,
+		FT_FLOAT2_TYPELESS,
+		FT_FLOAT3_TYPELESS,
+		FT_FLOAT4_TYPELESS,
+		FT_UBYTE8_BGRA_UNORM,
+		FT_UNKNOWN
+	};
 }

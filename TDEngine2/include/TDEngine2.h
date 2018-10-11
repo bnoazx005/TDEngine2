@@ -39,6 +39,7 @@
 #include "graphics/IVertexBuffer.h"
 #include "graphics/IIndexBuffer.h"
 #include "graphics/IConstantBuffer.h"
+#include "graphics/IVertexDeclaration.h"
 
 ///math
 #include "math/TVector3.h"
