@@ -14,7 +14,7 @@ TDEngine 2 is a cross-platform game engine.
 
 * Effective memory management (in future);
 
-* Modularity and plugins support;
+* Extensibility, Modularity and plugins support;
 
 * Toolset (including resource editor, scene editor, exporters and etc) (in future).
 
@@ -26,14 +26,25 @@ Studio 2017, but it will be successfully built with 2015 version as well (in pla
 a support of g++ compiler). 
 
 To generate the basic Visual Studio's solution of the engine's SDK you should run the following 
-command in a console:
-cmake -G "Visual Studio 201X"
+commands in a console (the instructions are correct if you are within root directory of the project):
+```console
+mkdir build
+cd build
+cmake .. -G "Visual Studio 201X"
+```
 where X is 5 or 7.
 
 If everything went ok you've got a solution of the entire SDK (including sample project, 
 which is called SandboxGame). For now you can compile it either using Visual Studio IDE,
 or a console's command:
+```console
 cmake --build .
+```
 All executables can be found within /bin directory. Note. To speed up building process you can
 exclude a part of built-in plugins, which 
-aren't needed you. 
+aren't needed you.
+
+### Getting Started
+
+(soon)
+
