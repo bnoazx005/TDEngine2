@@ -34,6 +34,9 @@ namespace TDEngine2
 
 	#if defined(_WIN32)
 		#define TDE2_USE_WIN32PLATFORM
+	#elif defined(__unix__) || defined(__unix) || defined(unix)
+		#define TDE2_USE_UNIXPLATFORM
+	#else
 	#endif
 
 	/// Main logger's settings

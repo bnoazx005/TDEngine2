@@ -50,6 +50,10 @@
 #include "platform/win32/CWin32DLLManager.h"
 #include "platform/win32/CWin32FileSystem.h"
 #include "platform/CTextFileReader.h"
+#include "platform/unix/CUnixWindowSystem.h"
+#include "platform/unix/CUnixDLLManager.h"
+#include "platform/unix/CUnixFileSystem.h"
+#include "platform/unix/CUnixTimer.h"
 
 ///utils
 #include "utils/Types.h"

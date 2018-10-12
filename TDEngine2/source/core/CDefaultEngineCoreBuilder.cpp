@@ -4,6 +4,7 @@
 #include "./../../include/core/IPlugin.h"
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/platform/win32/CWin32FileSystem.h"
+#include "./../../include/platform/unix/CUnixWindowSystem.h"
 #include <memory>
 
 
@@ -111,13 +112,15 @@ namespace TDEngine2
 
 #if defined (TDE2_USE_WIN32PLATFORM)																/// Win32 Platform
 		mpWindowSystemInstance = CreateWin32WindowSystem(name, width, height, flags, result);
+#elif defined (TDE2_USE_UNIXPLATFORM)
+		mpWindowSystemInstance = CreateUnixWindowSystem(name, width, height, flags, result);
+#else
+#endif
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
-#else
-#endif
 
 		return mpEngineCoreInstance->RegisterSubsystem(mpWindowSystemInstance);
 	}
