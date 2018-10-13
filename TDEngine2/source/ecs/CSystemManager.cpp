@@ -1,6 +1,7 @@
 #include "./../../include/ecs/CSystemManager.h"
 #include "./../../include/ecs/ISystem.h"
 #include "./../../include/ecs/IWorld.h"
+#include <algorithm>
 
 
 namespace TDEngine2

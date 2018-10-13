@@ -10,10 +10,6 @@ namespace TDEngine2
 	{
 	}
 
-	CUnixWindowSystem::~CUnixWindowSystem()
-	{
-	}
-
 	E_RESULT_CODE CUnixWindowSystem::Init(const std::string& name, U32 width, U32 height, U32 flags)
 	{
 		if (mIsInitialized)

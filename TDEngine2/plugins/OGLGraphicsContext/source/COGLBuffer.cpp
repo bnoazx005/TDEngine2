@@ -2,6 +2,7 @@
 #include "./../include/COGLMappings.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
+#include <cstring>
 
 
 namespace TDEngine2

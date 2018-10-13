@@ -1,7 +1,7 @@
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/IOGLContextFactory.h"
 #include <core/IWindowSystem.h>
-#include <gl/glew.h>
+#include <GL/glew.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -58,7 +58,6 @@ namespace TDEngine2
 		
 		if (err != GLEW_OK)
 		{
-			MessageBox(0, (const char*)glewGetErrorString(err), 0, 0);
 			return RC_FAIL;
 		}
 
@@ -89,7 +88,10 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::Present()
 	{
+#if defined (TDE2_USE_WIN32PLATFORM)
 		SwapBuffers(mWindowInternalData.mDeviceContextHandler);
+#else
+#endif
 	}
 
 	void COGLGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)

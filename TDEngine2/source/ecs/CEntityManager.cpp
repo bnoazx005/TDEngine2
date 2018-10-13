@@ -122,7 +122,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEntityManager::DestroyAll()
+	E_RESULT_CODE CEntityManager::DestroyAllEntities()
 	{
 		E_RESULT_CODE result = RC_OK;
 

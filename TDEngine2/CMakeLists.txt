@@ -128,5 +128,13 @@ set_target_properties(${TDENGINE2_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
 #set up GLEW headers
 target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0/include")
 
+if (UNIX)
+FIND_PACKAGE(X11 REQUIRED)	# include X11 library
+
+target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${X11_INCLUDE_DIR}")
+target_link_libraries("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${X11_LIBRARIES}")
+
+endif (UNIX)
+
 #build plugins
 add_subdirectory(plugins)

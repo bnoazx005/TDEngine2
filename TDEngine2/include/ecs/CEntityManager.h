@@ -89,7 +89,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE DestroyAll();
+			TDE2_API E_RESULT_CODE DestroyAllEntities();
 
 			/*!
 				\brief The method destroys all created entities and

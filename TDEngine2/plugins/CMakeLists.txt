@@ -5,7 +5,13 @@ cmake_minimum_required (VERSION 2.8)
 #
 
 #if (BUILD_D3D11_GCTX_PLUGIN)
-	add_subdirectory(D3D11GraphicsContext)
+	if (MSVC)
+		message(STATUS "D3D11GraphicsContext's compilation is enabled")
+
+		add_subdirectory(D3D11GraphicsContext)
+	else()
+		message(STATUS "D3D11GraphicsContext's compilation is disabled")
+	endif (MSVC)
 #endif (BUILD_D3D11_GCTX_PLUGIN)
 
 #if (BUILD_GL3_0_GCTX_PLUGIN)

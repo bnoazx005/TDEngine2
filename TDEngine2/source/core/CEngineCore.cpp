@@ -5,6 +5,8 @@
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/core/IPlugin.h"
 #include "./../../include/core/IDLLManager.h"
+#include <cstring>
+#include <algorithm>
 
 
 namespace TDEngine2

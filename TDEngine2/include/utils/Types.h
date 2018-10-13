@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <limits>
 #include <string>
+#include <GL/glew.h>
 
 #if _HAS_CXX17	/// use variant only if C++17's implementation is available, otherwise use stardard unions
 	#include <variant>
@@ -21,7 +22,8 @@
 #if defined (TDE2_USE_WIN32PLATFORM)
 	#include <Windows.h>
 	#include <d3d11.h>
-	#include <gl/glew.h>
+#elif defined (TDE2_USE_UNIXPLATFORM)
+	#include <X11/Xlib.h>
 #else
 #endif
 
@@ -134,6 +136,22 @@ namespace TDEngine2
 	} TWin32InternalWindowData;
 
 	typedef TWin32InternalWindowData TWindowSystemInternalData; 
+#elif defined (TDE2_USE_UNIXPLATFORM)
+
+	/*!
+		struct TUnixInternalWindowData
+
+		\brief The structure contains handlers that are used to work with a window
+	*/
+
+	typedef struct TUnixInternalWindowData
+	{
+		Display* mpDisplayHandler;
+		Window   mRootWindowHandler;
+		Window   mWindowHandler;
+	} TUnixInternalWindowData;
+
+	typedef TUnixInternalWindowData TWindowSystemInternalData; 
 #else
 	typedef void* TWindowSystemInternalData;
 #endif
@@ -179,6 +197,19 @@ namespace TDEngine2
 		} TGraphicsCtxInternalData, *TGraphicsCtxInternalDataPtr;
 	#endif
 
+#elif defined (TDE2_USE_UNIXPLATFORM)
+	/*!
+		struct TOGLCtxInternalData
+
+		\brief The structure contains handlers of graphics context that are associated with OGL system
+	*/
+
+	typedef struct TOGLInternalData
+	{
+		/// \todo preliminary declaration of a type, should be completed later 
+	} TOGLInternalData, *TOGLInternalDataPtr;
+
+	typedef TOGLInternalData TGraphicsCtxInternalData;
 #else
 #endif
 
@@ -196,7 +227,17 @@ namespace TDEngine2
 		ID3D11Buffer* mpD3D11Buffer;
 		GLuint        mGLBuffer;
 	} TBufferInternalData, *TBufferInternalDataPtr;
+#elif defined (TDE2_USE_UNIXPLATFORM)
+	/*!
+		union TBufferInternalData
 
+		\brief The union contains low-level handlers to a buffer depending on used GAPI
+	*/
+
+	typedef struct TBufferInternalData
+	{
+		GLuint mGLBuffer;
+	} TBufferInternalData, *TBufferInternalDataPtr;
 #else
 #endif
 

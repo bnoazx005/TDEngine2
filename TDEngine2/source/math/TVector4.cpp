@@ -1,5 +1,6 @@
 #include "./../../include/math/TVector4.h"
 #include "./../../include/math/TVector3.h"
+#include <cmath>
 
 
 namespace TDEngine2

@@ -24,7 +24,12 @@ namespace TDEngine2
 	*/
 
 	template <typename I, typename T, typename... TArgs>
-	TDE2_API std::enable_if_t<std::is_base_of_v<I, T>, I*> Create(TArgs&&... args, E_RESULT_CODE& result)
+#if _HAS_CXX17
+	TDE2_API std::enable_if_t<std::is_base_of_v<I, T>, I*>
+#else
+	TDE2_API typename std::enable_if<std::is_base_of<I, T>::value, I*>::type
+#endif 
+	Create(TArgs&&... args, E_RESULT_CODE& result)
 	{
 		I* pInstance = new (std::nothrow) T();
 
@@ -51,7 +56,12 @@ namespace TDEngine2
 	*/
 
 	template <typename I, typename T>
-	TDE2_API std::enable_if_t<std::is_base_of_v<I, T>, I*> Create(E_RESULT_CODE& result)
+#if _HAS_CXX17
+	TDE2_API std::enable_if_t<std::is_base_of_v<I, T>, I*> 
+#else
+	TDE2_API typename std::enable_if<std::is_base_of<I, T>::value, I*>::type 
+#endif
+	Create(E_RESULT_CODE& result)
 	{
 		I* pInstance = new (std::nothrow) T();
 

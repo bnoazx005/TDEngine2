@@ -1,11 +1,11 @@
 #pragma once
 
 
-#include <utils\Types.h>
-#include <core\IEngineListener.h>
-#include <core\IEngineCore.h>
-#include <core\IGraphicsContext.h>
-#include <core\IWindowSystem.h>
+#include <utils/Types.h>
+#include <core/IEngineListener.h>
+#include <core/IEngineCore.h>
+#include <core/IGraphicsContext.h>
+#include <core/IWindowSystem.h>
 
 
 class CCustomEngineListener: public TDEngine2::IEngineListener

@@ -14,7 +14,6 @@
 
 #include "./../../core/CBaseObject.h"
 #include "./../../utils/ITimer.h"
-#include <Windows.h>
 
 
 namespace TDEngine2

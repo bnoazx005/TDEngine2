@@ -13,12 +13,16 @@ namespace TDEngine2
 	/// Macroses' definitions to handle exporting objects
 
 	#if defined(_WIN32) || defined(_MSC_VER)
+		#define TDE2_APIENTRY __cdecl					///< Calling convention for VS
+
 		#if defined(TDE2_DLLIMPORT)
 			#define TDE2_API __declspec(dllimport)
 		#else
 			#define TDE2_API __declspec(dllexport)
 		#endif
-	#elif defined(__GNUC__)	
+	#elif defined(__GNUC__)
+		#define TDE2_APIENTRY __attribute__((cdecl))	///< Calling convention for GNUC
+
 		#if defined(TDE2_DLLIMPORT)
 			#define TDE2_API 
 		#else
@@ -28,8 +32,6 @@ namespace TDEngine2
 		#define TDE2_API 
 	#endif
 
-	#define TDE2_APIENTRY __cdecl
-
 	/// Platform-specific macroses are used to configure build in compile time
 
 	#if defined(_WIN32)
@@ -38,6 +40,8 @@ namespace TDEngine2
 		#define TDE2_USE_UNIXPLATFORM
 	#else
 	#endif
+
+	#define GLEW_NO_GLU ///< Disable GLU 
 
 	/// Main logger's settings
 	#define MAIN_LOGGER_FILEPATH "TDEngine.log"
