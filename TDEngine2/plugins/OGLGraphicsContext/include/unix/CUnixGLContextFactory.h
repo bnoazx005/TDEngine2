@@ -1,6 +1,6 @@
 /*!
-	\file CWin32GLContextFactory.h
-	\date 23.09.2018
+	\file CUnixGLContextFactory.h
+	\date 13.10.2018
 	\authors Kasimov Ildar
 */
 #pragma once
@@ -10,23 +10,32 @@
 #include <utils/Utils.h>
 
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_UNIXPLATFORM)
 
 
 namespace TDEngine2
 {
 	/*!
-		class CWin32GLContextFactory
+		\brief A factory function for creation objects of CUnixGLContextFactory's type
 
-		\brief The implementation of IOGLContextFactory for Win32 platform
+		\return A pointer to CUnixGLContextFactory's implementation
 	*/
 
-	class CWin32GLContextFactory: public IOGLContextFactory
+	TDE2_API IOGLContextFactory* CreateUnixGLContextFactory(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+
+
+	/*!
+		class CUnixGLContextFactory
+
+		\brief The implementation of IOGLContextFactory for UNIX platform
+	*/
+
+	class CUnixGLContextFactory : public IOGLContextFactory
 	{
 		public:
-			friend TDE2_API IOGLContextFactory* CreateWin32GLContextFactory(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+			friend TDE2_API IOGLContextFactory* CreateUnixGLContextFactory(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
 		protected:
-			typedef TOGLCtxHandler (APIENTRY *TWGLCreateContextWithAttribsCallback)(HDC, HGLRC, const int *);
+			typedef GLXContext (*TGLXCreateContextAttribsARBCallback)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 		public:
 			/*!
 				\brief The method initializes an object's state
@@ -71,23 +80,13 @@ namespace TDEngine2
 
 			TDE2_API TOGLCtxHandler GetContext() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWin32GLContextFactory)
-
-			TDE2_API TOGLCtxHandler _getTempContext(const HDC& hdc, E_RESULT_CODE& result);
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixGLContextFactory)
 		protected:
 			TOGLCtxHandler mCurrGLHandler;
-			HDC            mDeviceContextHandler;
+			Display*       mpDisplayHandler;
+			Window         mWindowHandler;
 			bool           mIsInitialized;
 	};
-
-
-	/*!
-		\brief A factory function for creation objects of CWin32GLContextFactory's type
-
-		\return A pointer to CWin32GLContextFactory's implementation
-	*/
-
-	TDE2_API IOGLContextFactory* CreateWin32GLContextFactory(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
 }
 
 #endif

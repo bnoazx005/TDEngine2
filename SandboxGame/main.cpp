@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 
 	pEngineCoreBuilder->ConfigureFileSystem();
 	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
-	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_DIRECT3D11);
+	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_OPENGL3X);
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
 	
@@ -47,19 +47,16 @@ int main(int argc, char** argv)
 	
 	IFileSystem* pFileSystem = dynamic_cast<IFileSystem*>(pEngineCore->GetSubsystem(EST_FILE_SYSTEM));
 
-	pFileSystem->Mount(pFileSystem->GetCurrDirectory() + "\\data", "\\foo");
-	pFileSystem->Mount(pFileSystem->GetCurrDirectory() + "\\test", "\\test\\.\\..");
+	//pFileSystem->Mount(pFileSystem->GetCurrDirectory() + "\\data", "\\foo");
+	//pFileSystem->Mount(pFileSystem->GetCurrDirectory() + "\\test", "\\test\\.\\..");
 
-	std::string path = pFileSystem->ResolveVirtualPath("\\");
-	path = pFileSystem->ResolveVirtualPath("\\foo.txt");
-	path = pFileSystem->ResolveVirtualPath("\\foo");
-	path = pFileSystem->ResolveVirtualPath(".\\foo\\text.txt");
-	path = pFileSystem->ResolveVirtualPath("\\foo\\text.txt");
-	path = pFileSystem->ResolveVirtualPath("\\foo\\.\\..\\text");
+	//std::string path = pFileSystem->ResolveVirtualPath("\\");
+	//path = pFileSystem->ResolveVirtualPath("\\foo.txt");
+	//path = pFileSystem->ResolveVirtualPath("\\foo");
+	//path = pFileSystem->ResolveVirtualPath(".\\foo\\text.txt");
+	//path = pFileSystem->ResolveVirtualPath("\\foo\\text.txt");
+	//path = pFileSystem->ResolveVirtualPath("\\foo\\.\\..\\text");
 
-	TVertDeclElementDesc desc;
-	desc.mOGL.mFormatType = FT_UNKNOWN;
-	
 	pEngineCore->Free();
 	
 	delete pCustomListener;

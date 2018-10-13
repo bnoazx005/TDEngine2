@@ -87,7 +87,7 @@ namespace TDEngine2
 				break;
 #endif
 			case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
-				if ((result = mpEngineCoreInstance->LoadPlugin("OGLGraphicsContext")) != RC_OK)
+				if ((result = mpEngineCoreInstance->LoadPlugin("GLGraphicsContext")) != RC_OK)
 				{
 					return result;
 				}

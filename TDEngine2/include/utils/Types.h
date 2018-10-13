@@ -149,6 +149,7 @@ namespace TDEngine2
 		Display* mpDisplayHandler;
 		Window   mRootWindowHandler;
 		Window   mWindowHandler;
+		I32      mScreenId;
 	} TUnixInternalWindowData;
 
 	typedef TUnixInternalWindowData TWindowSystemInternalData; 
@@ -275,6 +276,8 @@ namespace TDEngine2
 
 #if defined (TDE2_USE_WIN32PLATFORM)
 	typedef HMODULE TDynamicLibrary;
+#elif defined (TDE2_USE_WIN32PLATFORM)
+	typedef void* TDynamicLibrary;
 #else
 	typedef void* TDynamicLibrary;
 #endif

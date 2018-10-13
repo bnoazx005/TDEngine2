@@ -8,6 +8,10 @@
 
 #include <utils/Types.h>
 
+#if defined (TDE2_USE_UNIXPLATFORM)
+#include <GL/glxew.h>
+#endif
+
 
 namespace TDEngine2
 {
@@ -16,6 +20,8 @@ namespace TDEngine2
 	
 #if defined(TDE2_USE_WIN32PLATFORM)
 	typedef HGLRC TOGLCtxHandler;
+#elif defined (TDE2_USE_UNIXPLATFORM)
+	typedef GLXContext TOGLCtxHandler;
 #else
 	typedef void* TOGLCtxHandler;
 #endif
@@ -35,7 +41,7 @@ namespace TDEngine2
 		public:
 			TDE2_API virtual ~IOGLContextFactory() = default;
 
-			TDE2_API virtual E_RESULT_CODE Init(const IWindowSystem* pWindowSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IWindowSystem* pWindowSystem) = 0;
 
 			/*!
 				\brief The method frees all memory occupied by the object

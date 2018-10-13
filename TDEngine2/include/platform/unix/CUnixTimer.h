@@ -14,6 +14,7 @@
 
 #include "./../../core/CBaseObject.h"
 #include "./../../utils/ITimer.h"
+#include <sys/time.h>
 
 
 namespace TDEngine2
@@ -85,7 +86,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixTimer)
 		protected:
-			F32 mDeltaTime;
+			timeval mPrevTime;
+			timeval mCurrTime;
+			timeval mStartTime;
+			timeval mStopTime;
+			F32     mDeltaTime;
 	};
 }
 

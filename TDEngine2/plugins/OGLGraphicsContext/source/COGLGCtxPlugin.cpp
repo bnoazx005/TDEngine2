@@ -3,6 +3,7 @@
 #include <core/IGraphicsContext.h>
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/win32/CWin32GLContextFactory.h"
+#include "./../include/unix/CUnixGLContextFactory.h"
 #include <core/IWindowSystem.h>
 
 
@@ -31,11 +32,13 @@ namespace TDEngine2
 
 #if defined (TDE2_USE_WIN32PLATFORM)
 		pGLContextFactoryCallback = CreateWin32GLContextFactory;
+#elif defined (TDE2_USE_UNIXPLATFORM)
+		pGLContextFactoryCallback = CreateUnixGLContextFactory;
 #else
 		/// \todo Implement callback assigment for other platforms
 #endif
 
-		mpGraphicsContext = CreateOGLGraphicsContext(dynamic_cast<const IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), pGLContextFactoryCallback, result);
+		mpGraphicsContext = CreateOGLGraphicsContext(dynamic_cast<IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), pGLContextFactoryCallback, result);
 
 		if (result != RC_OK)
 		{

@@ -96,6 +96,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetTitle(const std::string& title) override;
 
 			/*!
+				\brief The method proceeds creation of a window if OpenGL is needed
+
+				\param[in] pVisualInfo An information about needed parameters for a window
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE EnableOpenGL(XVisualInfo* pVisualInfo);
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
@@ -162,6 +172,8 @@ namespace TDEngine2
 			TDE2_API IDLLManager* GetDLLManagerInstance() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixWindowSystem)
+
+			TDE2_API E_RESULT_CODE _createWindow();
 		protected:
 			Display*                  mpDisplayHandler;
 
@@ -178,7 +190,7 @@ namespace TDEngine2
 			bool                      mIsInitialized;
 			
 			TWindowSystemInternalData mInternalDataObject;
-
+			
 			ITimer*                   mpTimer;
 
 			IDLLManager*              mpDLLManager;

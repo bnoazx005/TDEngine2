@@ -32,6 +32,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IDLLManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IFileSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IFile.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CBaseFileSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBaseComponent.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CComponentManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CEntity.h"
@@ -71,6 +72,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CBaseObject.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CDefaultEngineCoreBuilder.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CEngineCore.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CBaseFileSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CComponentManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CEntity.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CEntityManager.cpp"
@@ -81,6 +83,9 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32DLLManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32FileSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/unix/CUnixWindowSystem.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/unix/CUnixDLLManager.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/unix/CUnixTimer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/unix/CUnixFileSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/CTextFileReader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CFileLogger.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector3.cpp"
@@ -133,7 +138,6 @@ FIND_PACKAGE(X11 REQUIRED)	# include X11 library
 
 target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${X11_INCLUDE_DIR}")
 target_link_libraries("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${X11_LIBRARIES}")
-
 endif (UNIX)
 
 #build plugins

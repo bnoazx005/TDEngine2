@@ -16,6 +16,7 @@ link_directories("${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/lib")
 
 set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/win32/CWin32GLContextFactory.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/unix/CUnixGLContextFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGraphicsContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/IOGLContextFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGCtxPlugin.h"
@@ -29,6 +30,7 @@ set(OGL_GCTX_HEADERS
 set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLGraphicsContext.cpp"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/win32/CWin32GLContextFactory.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/unix/CUnixGLContextFactory.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLGCtxPlugin.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLVertexBuffer.cpp"

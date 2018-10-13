@@ -18,7 +18,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11GraphicsContext::Init(const IWindowSystem* pWindowSystem)
+	E_RESULT_CODE CD3D11GraphicsContext::Init(IWindowSystem* pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
@@ -312,7 +312,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(const IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
 	{
 		IGraphicsContext* pGraphicsContextInstance = new (std::nothrow) CD3D11GraphicsContext();
 

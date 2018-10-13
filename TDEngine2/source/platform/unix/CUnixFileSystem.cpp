@@ -1,4 +1,4 @@
-#include "./../../../include/platform/win32/CWin32FileSystem.h"
+#include "./../../../include/platform/unix/CUnixFileSystem.h"
 #include "./../../../include/core/IFile.h"
 #include "./../../../include/platform/CTextFileReader.h"
 #include <algorithm>
@@ -11,18 +11,18 @@
 
 namespace TDEngine2
 {
-	C8 CWin32FileSystem::mPathSeparator = '\\';
+	C8 CUnixFileSystem::mPathSeparator = '/';
 
-	C8 CWin32FileSystem::mAltPathSeparator = '/';
+	C8 CUnixFileSystem::mAltPathSeparator = '\\';
 	
-	C8 CWin32FileSystem::mForbiddenChars[]{ '<', '>', '*', '?',  '|', '\"', ':', '\0' };
+	C8 CUnixFileSystem::mForbiddenChars[]{ '<', '>', '*', '?',  '|', '\"', ':', '\0' };
 
-	CWin32FileSystem::CWin32FileSystem() :
+	CUnixFileSystem::CUnixFileSystem():
 		CBaseFileSystem()
 	{
 	}
-
-	std::string CWin32FileSystem::ResolveVirtualPath(const std::string& path) const
+	
+	std::string CUnixFileSystem::ResolveVirtualPath(const std::string& path) const
 	{
 		std::string unifiedPath = _unifyPathView(path);
 
@@ -35,7 +35,7 @@ namespace TDEngine2
 		{
 			return this->GetCurrDirectory();
 		}
-		
+
 		U32 prevDirectoryPos = 0;
 		U32 currDirectoryPos = 0;
 		U32 unchechedPathPos = 0;
@@ -77,8 +77,8 @@ namespace TDEngine2
 
 		return lastMatchPart + unifiedPath.substr(unchechedPathPos, unifiedPath.length() - unchechedPathPos);
 	}
-	
-	std::string CWin32FileSystem::_unifyPathView(const std::string& path, bool isVirtualPath) const
+
+	std::string CUnixFileSystem::_unifyPathView(const std::string& path, bool isVirtualPath) const
 	{
 		if (path.empty())
 		{
@@ -103,25 +103,25 @@ namespace TDEngine2
 		return unifiedPath;
 	}
 
-	bool CWin32FileSystem::_isPathValid(const std::string& path, bool isVirtualPath) const
+	bool CUnixFileSystem::_isPathValid(const std::string& path, bool isVirtualPath) const
 	{
-		bool isPathEmpty                = path.empty();
-		bool pathContainsForbiddenChars = (path.find(mForbiddenChars, 0, sizeof(mForbiddenChars) / sizeof(mForbiddenChars[0])) != std::string::npos) && (path.find(':') != 1);
-		bool virtualPathContainsDots    = isVirtualPath && path.find('.') != std::string::npos;
-		
+		bool isPathEmpty = path.empty();
+		bool pathContainsForbiddenChars = (path.find(mForbiddenChars, 0, sizeof(mForbiddenChars) / sizeof(mForbiddenChars[0])) != std::string::npos);
+		bool virtualPathContainsDots = isVirtualPath && path.find('.') != std::string::npos;
+
 		return !isPathEmpty && !pathContainsForbiddenChars && !virtualPathContainsDots;
 	}
 
-	E_RESULT_CODE CWin32FileSystem::_onInit()
+	E_RESULT_CODE CUnixFileSystem::_onInit()
 	{
 		/// mount a root directory
 		return Mount(this->GetCurrDirectory(), std::string(1, mPathSeparator));
 	}
 
 
-	TDE2_API IFileSystem* CreateWin32FileSystem(E_RESULT_CODE& result)
+	TDE2_API IFileSystem* CreateUnixFileSystem(E_RESULT_CODE& result)
 	{
-		CWin32FileSystem* pFileSystemInstance = new (std::nothrow) CWin32FileSystem();
+		CUnixFileSystem* pFileSystemInstance = new (std::nothrow) CUnixFileSystem();
 
 		if (!pFileSystemInstance)
 		{

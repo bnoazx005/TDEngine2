@@ -21,6 +21,7 @@
 #include "core/IDLLManager.h"
 #include "core/IFileSystem.h"
 #include "core/IFile.h"
+#include "core/CBaseFileSystem.h"
 
 ///ecs
 #include "ecs/CEntity.h"

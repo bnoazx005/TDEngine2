@@ -16,12 +16,8 @@ namespace TDEngine2
 		mIsInitialized(false)
 	{
 	}
-
-	CWin32GLContextFactory::~CWin32GLContextFactory()
-	{
-	}
-
-	E_RESULT_CODE CWin32GLContextFactory::Init(const IWindowSystem* pWindowSystem)
+	
+	E_RESULT_CODE CWin32GLContextFactory::Init(IWindowSystem* pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
@@ -187,9 +183,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IOGLContextFactory* CreateWin32GLContextFactory(const IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IOGLContextFactory* CreateWin32GLContextFactory(IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
 	{
-		IOGLContextFactory* pGLContextFactory = new (std::nothrow) CWin32GLContextFactory();
+		CWin32GLContextFactory* pGLContextFactory = new (std::nothrow) CWin32GLContextFactory();
 
 		if (!pGLContextFactory)
 		{
@@ -200,7 +196,14 @@ namespace TDEngine2
 
 		result = pGLContextFactory->Init(pWindowSystem);
 
-		return pGLContextFactory;
+		if (result != RC_OK)
+		{
+			delete pGLContextFactory;
+
+			pGLContextFactory = nullptr;
+		}
+
+		return dynamic_cast<IOGLContextFactory*>(pGLContextFactory);
 	}
 }
 

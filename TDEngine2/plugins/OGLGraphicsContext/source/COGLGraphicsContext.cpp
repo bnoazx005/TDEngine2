@@ -1,11 +1,14 @@
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/IOGLContextFactory.h"
 #include <core/IWindowSystem.h>
-#include <GL/glew.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
+	#include <GL/glew.h>
 	#pragma comment(lib, "glew32.lib")
+#elif defined (TDE2_USE_UNIXPLATFORM)
+	#include <GL/glxew.h>
+#else
 #endif
 
 
@@ -20,7 +23,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::Init(const IWindowSystem* pWindowSystem)
+	E_RESULT_CODE COGLGraphicsContext::Init(IWindowSystem* pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
@@ -37,14 +40,14 @@ namespace TDEngine2
 		mWindowInternalData = pWindowSystem->GetInternalData();
 
 		/// creating GL context
-		mGLContextFactory = mGLContextFactoryCallback(pWindowSystem, result);
+		mpGLContextFactory = mGLContextFactoryCallback(pWindowSystem, result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		result = mGLContextFactory->SetContext();
+		result = mpGLContextFactory->SetContext();
 
 		if (result != RC_OK)
 		{
@@ -73,6 +76,13 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = mpGLContextFactory->Free()) != RC_OK)
+		{
+			return result;
+		}
+
 		mIsInitialized = false;
 
 		delete this;
@@ -90,6 +100,8 @@ namespace TDEngine2
 	{
 #if defined (TDE2_USE_WIN32PLATFORM)
 		SwapBuffers(mWindowInternalData.mDeviceContextHandler);
+#elif defined (TDE2_USE_UNIXPLATFORM)
+		glXSwapBuffers(mWindowInternalData.mpDisplayHandler, mWindowInternalData.mWindowHandler);
 #else
 #endif
 	}
@@ -110,7 +122,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(const IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
+	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
 	{
 		IGraphicsContext* pGraphicsContextInstance = new (std::nothrow) COGLGraphicsContext(glContextFactoryCallback);
 

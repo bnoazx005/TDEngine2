@@ -26,7 +26,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpGraphicsContext = CreateD3D11GraphicsContext(dynamic_cast<const IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), result);
+		mpGraphicsContext = CreateD3D11GraphicsContext(dynamic_cast<IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), result);
 
 		if (result != RC_OK)
 		{
