@@ -8,6 +8,7 @@
 
 
 #include "./../utils/Types.h"
+#include "./../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -30,9 +31,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Free() = 0;
 		protected:
-			TDE2_API IBaseObject() = default;
-			TDE2_API virtual ~IBaseObject() = default;
-			TDE2_API IBaseObject(const IBaseObject& obj) = delete;
-			TDE2_API virtual IBaseObject& operator= (IBaseObject& obj) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBaseObject)
 	};
 }

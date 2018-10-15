@@ -6,7 +6,7 @@
 
 #if defined(TDE2_USE_UNIXPLATFORM)
 
-#include <gl/glxew.h>
+#include <GL/glxew.h>
 #include <X11/Xlib.h>
 
 
@@ -37,7 +37,7 @@ namespace TDEngine2
 
 		mWindowHandler = winData.mWindowHandler;
 
-		I32 screenId = windData.mScreenId;
+		I32 screenId = winData.mScreenId;
 
 		if (!mpDisplayHandler)
 		{
@@ -62,7 +62,14 @@ namespace TDEngine2
 
 		I32 frameBuffersCount = 0;
 
-		GLXFBConfig* frameBufferConfig = glXChooseFBConfig(mpDisplayHandler, screenId, glxAttribs, &frameBuffersCount);
+		PFNGLXCHOOSEFBCONFIGPROC pGLXChooseFBConfig = (PFNGLXCHOOSEFBCONFIGPROC)glXGetProcAddressARB((const GLubyte*)"glXChooseFBConfig");
+		
+		if (!pGLXChooseFBConfig)
+		{
+			return RC_FAIL;
+		}
+
+		GLXFBConfig* frameBufferConfig = pGLXChooseFBConfig(mpDisplayHandler, screenId, glxAttribs, &frameBuffersCount);
 
 		if (!frameBufferConfig)
 		{
@@ -73,9 +80,17 @@ namespace TDEngine2
 
 		XFree(frameBufferConfig);
 
-		XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(mpDisplayHandler, currentFrameBuffer);
+		PFNGLXGETVISUALFROMFBCONFIGPROC pGLXGetVisualFromFBConfig = 
+										(PFNGLXGETVISUALFROMFBCONFIGPROC)glXGetProcAddressARB((const GLubyte*)"glXGetVisualFromFBConfig");
 
-		if (!pVisualInfo || (screenId != visual->screen))
+		if (!pGLXGetVisualFromFBConfig)
+		{
+			return RC_FAIL;
+		}
+
+		XVisualInfo* pVisualInfo = pGLXGetVisualFromFBConfig(mpDisplayHandler, currentFrameBuffer);
+
+		if (!pVisualInfo || (screenId != pVisualInfo->screen))
 		{
 			return RC_FAIL;
 		}
@@ -90,24 +105,36 @@ namespace TDEngine2
 		mWindowHandler = winData.mWindowHandler;
 
 		// create and set context
-		TGLXCreateContextAttribsARBCallback glXCreateContextAttribsARB = 
+		TGLXCreateContextAttribsARBCallback pGLXCreateContextAttribsARB = 
 							(TGLXCreateContextAttribsARBCallback)glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
+
+		if (!pGLXCreateContextAttribsARB)
+		{
+			return RC_FAIL;
+		}
 
 		I32 attributes[] = 
 		{
 			GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
-			GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+			GLX_CONTEXT_MINOR_VERSION_ARB, 0,
 			GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
 			None
 		};
 		
-		mCurrGLHandler = glXCreateContextAttribsARB(mpDisplayHandler, currentFrameBuffer, 0, true, attributes);
+		mCurrGLHandler = pGLXCreateContextAttribsARB(mpDisplayHandler, currentFrameBuffer, 0, true, attributes);
 
 		if ((result = SetContext()) != RC_OK)
 		{
 			return result;
 		}
 		
+		if (glxewInit() != GLEW_NO_ERROR)
+		{
+			return RC_FAIL;
+		}
+
+		XFree(pVisualInfo);
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -120,10 +147,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		if (!glXDestroyContext(mpDisplayHandler, mCurrGLHandler))
-		{
-			return RC_FAIL;
-		}
+		glXDestroyContext(mpDisplayHandler, mCurrGLHandler);
 
 		mIsInitialized = false;
 
@@ -134,7 +158,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUnixGLContextFactory::SetContext()
 	{
-		if (!glXMakeCurrent(mDeviceContextHandler, mWindowHandler, mCurrGLHandler))
+		if (!glXMakeCurrent(mpDisplayHandler, mWindowHandler, mCurrGLHandler))
 		{
 			return RC_FAIL;
 		}
@@ -144,7 +168,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUnixGLContextFactory::ResetContext()
 	{
-		if (!glXMakeCurrent(mDeviceContextHandler, NULL, NULL))
+		if (!glXMakeCurrent(mpDisplayHandler, NULL, NULL))
 		{
 			return RC_FAIL;
 		}

@@ -1,5 +1,6 @@
 #include "./../../../include/platform/unix/CUnixTimer.h"
 #include <memory>
+#include <cstring>
 
 
 #if defined (TDE2_USE_UNIXPLATFORM)

@@ -29,10 +29,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Free() = 0;
 		protected:
-			TDE2_API CBaseObject();
-			TDE2_API virtual ~CBaseObject() = default;
-			TDE2_API CBaseObject(const CBaseObject& obj) = delete;
-			TDE2_API virtual CBaseObject& operator= (CBaseObject& obj) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)
 		protected:
 			bool mIsInitialized;
 	};

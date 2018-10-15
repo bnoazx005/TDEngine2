@@ -2,7 +2,7 @@
 #include "./../../../include/platform/unix/CUnixDLLManager.h"
 #include "./../../../include/platform/unix/CUnixTimer.h"
 #include <cstring>
-
+#include <iostream>
 
 #if defined (TDE2_USE_UNIXPLATFORM)
 
@@ -27,6 +27,8 @@ namespace TDEngine2
 
 		mSetupFlags = flags;
 
+		mIsRunning = true;
+
 		mpDisplayHandler = XOpenDisplay(nullptr);
 
 		if (!mpDisplayHandler)
@@ -42,8 +44,9 @@ namespace TDEngine2
 		mInternalDataObject.mRootWindowHandler = mRootWindowHandler;
 		mInternalDataObject.mScreenId          = screenId;
 
-		/// CUnixTimer's initialization
+		E_RESULT_CODE result = RC_OK;
 
+		/// CUnixTimer's initialization
 		mpTimer = CreateUnixTimer(result);
 
 		if (result != RC_OK)
@@ -83,15 +86,12 @@ namespace TDEngine2
 
 	bool CUnixWindowSystem::Run(const std::function<void()>& onFrameUpdate)
 	{
-		if (!mIsInitialized)
-		{
-			return false;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
 		if (!mIsInitialized)
 		{
+			///< Late initialization of a window. This case happens only if
+			/// OpenGL context wasn't created
 			if ((result = _createWindow()) != RC_OK)
 			{
 				return result;
@@ -111,7 +111,13 @@ namespace TDEngine2
 
 		while (mIsRunning)
 		{
-			XNextEvent(mpDisplayHandler, &currEvent);
+			if (XPending(mpDisplayHandler) > 0)
+			{
+				/// \todo implement proper event handling
+				XNextEvent(mpDisplayHandler, &currEvent);
+			}
+
+			onFrameUpdate();
 
 			mpTimer->Tick();
 		}
@@ -133,7 +139,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUnixWindowSystem::SetTitle(const std::string& title)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!XStoreName(mpDisplayHandler, mWindowHandler, title.c_str()))
+		{
+			return RC_FAIL;
+		}
+
+		return RC_OK;
 	}
 
 	TDE2_API E_RESULT_CODE CUnixWindowSystem::EnableOpenGL(XVisualInfo* pVisualInfo)
@@ -146,22 +162,20 @@ namespace TDEngine2
 		XSetWindowAttributes windowAttributes;
 		memset(&windowAttributes, 0, sizeof(windowAttributes));
 
-		windowAttribs.border_pixel      = BlackPixel(display, screenId);
-		windowAttribs.background_pixel  = WhitePixel(display, screenId);
-		windowAttribs.override_redirect = true;
-		windowAttribs.colormap          = XCreateColormap(display, mRootWindowHandler, pVisualInfo->visual, AllocNone);
-		windowAttribs.event_mask        = ExposureMask;
+		windowAttributes.border_pixel      = BlackPixel(mpDisplayHandler, mInternalDataObject.mScreenId);
+		windowAttributes.background_pixel  = WhitePixel(mpDisplayHandler, mInternalDataObject.mScreenId);
+		windowAttributes.override_redirect = true;
+		windowAttributes.colormap          = XCreateColormap(mpDisplayHandler, mRootWindowHandler, pVisualInfo->visual, AllocNone);
+		windowAttributes.event_mask        = ExposureMask;
 
 		mWindowHandler = XCreateWindow(mpDisplayHandler, mRootWindowHandler, 0, 0, mWidth, mHeight, 0, pVisualInfo->depth, InputOutput, 
 									   pVisualInfo->visual, CWBackPixel | CWColormap | CWBorderPixel | CWEventMask, &windowAttributes);
 
 		mInternalDataObject.mWindowHandler = mWindowHandler;
 
-		XFree(pVisualInfo);
-
 		mIsInitialized = true;
 
-		return RC_OK;
+		return SetTitle(mWindowName);
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CUnixWindowSystem::GetType() const
@@ -206,14 +220,15 @@ namespace TDEngine2
 
 	TDE2_API E_RESULT_CODE CUnixWindowSystem::_createWindow()
 	{
-		mWindowHandler = XCreateSimpleWindow(mpDisplayHandler, mRootWindowHandler, 0, 0, width, height, 1, BlackPixel(mpDisplayHandler, screenId),
-											 WhitePixel(mpDisplayHandler, screenId));
+		mWindowHandler = XCreateSimpleWindow(mpDisplayHandler, mRootWindowHandler, 0, 0, mWidth, mHeight, 1, 
+											 BlackPixel(mpDisplayHandler, mInternalDataObject.mScreenId),
+											 WhitePixel(mpDisplayHandler, mInternalDataObject.mScreenId));
 
 		mInternalDataObject.mWindowHandler = mWindowHandler;
 		
 		mIsInitialized = true;
 
-		return RC_OK;
+		return SetTitle(mWindowName);
 	}
 
 	TDE2_API IWindowSystem* CreateUnixWindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)

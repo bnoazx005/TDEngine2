@@ -37,10 +37,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mWindowInternalData = pWindowSystem->GetInternalData();
-
 		/// creating GL context
 		mpGLContextFactory = mGLContextFactoryCallback(pWindowSystem, result);
+
+		///< Should be called after initialization of GL context factory, because the latter
+		/// can initialize a window object (i.e this feature is used on UNIX platform)
+		mWindowInternalData = pWindowSystem->GetInternalData();
 
 		if (result != RC_OK)
 		{

@@ -75,12 +75,30 @@ endif (UNIX)
 
 add_library("${OGL_GCTX_LIBRARY_NAME}" SHARED ${OGL_GCTX_SOURCES} ${OGL_GCTX_HEADERS})
 
+SET_TARGET_PROPERTIES("${OGL_GCTX_LIBRARY_NAME}" PROPERTIES PREFIX "")
+
 #set up TDEngine2 headers
 target_include_directories("${OGL_GCTX_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
 
-#set up GLEW headers
-target_include_directories("${OGL_GCTX_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
+if (MSVC)
+	#set up GLEW headers
+	target_include_directories("${OGL_GCTX_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
+endif ()
 
+if (UNIX)
+	find_package(GLEW 2.1 REQUIRED)
+	
+	if (GLEW_FOUND)
+	message (STATUS $ENV{GLEW_LOCATION})
+		target_include_directories("${OGL_GCTX_LIBRARY_NAME}" PUBLIC ${GLEW_INCLUDE_DIRS})
+		set_target_properties("${OGL_GCTX_LIBRARY_NAME}" PROPERTIES LINK_FLAGS "-Wl,-rpath,/usr/lib64/")
+		target_link_libraries("${OGL_GCTX_LIBRARY_NAME}" ${GLEW_LIBRARIES})
+	endif()
+endif ()
 
 # disable the <libname>_EXPORTS
 set_target_properties(${OGL_GCTX_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
+
+if (UNIX)
+	install (TARGETS ${OGL_GCTX_LIBRARY_NAME} DESTINATION "/usr/lib/TDEngine2/plugins")
+endif ()

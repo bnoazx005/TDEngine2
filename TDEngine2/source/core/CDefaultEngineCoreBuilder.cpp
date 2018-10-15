@@ -87,7 +87,14 @@ namespace TDEngine2
 				break;
 #endif
 			case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
-				if ((result = mpEngineCoreInstance->LoadPlugin("GLGraphicsContext")) != RC_OK)
+				#if defined (TDE2_USE_WIN32PLATFORM)
+					result = mpEngineCoreInstance->LoadPlugin("GLGraphicsContext");
+				#elif defined (TDE2_USE_UNIXPLATFORM)
+					result = mpEngineCoreInstance->LoadPlugin("./GLGraphicsContext");
+				#else
+				#endif
+
+				if (result != RC_OK)
 				{
 					return result;
 				}

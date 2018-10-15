@@ -3,8 +3,9 @@
 #include <TDEngine2.h>
 
 
-#pragma comment(lib, "TDEngine2.lib")
-
+#if defined (TDE2_USE_WIN32PLATFORM)
+	#pragma comment(lib, "TDEngine2.lib")
+#endif
 
 using namespace TDEngine2;
 
