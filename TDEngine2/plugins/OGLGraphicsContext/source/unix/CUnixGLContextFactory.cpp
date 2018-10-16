@@ -104,6 +104,8 @@ namespace TDEngine2
 
 		mWindowHandler = winData.mWindowHandler;
 
+		/// \todo add creation of legacy context if the new one is not supported by a hardware
+
 		// create and set context
 		TGLXCreateContextAttribsARBCallback pGLXCreateContextAttribsARB = 
 							(TGLXCreateContextAttribsARBCallback)glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
