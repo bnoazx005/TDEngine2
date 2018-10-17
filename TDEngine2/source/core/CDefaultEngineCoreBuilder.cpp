@@ -5,6 +5,7 @@
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/platform/win32/CWin32FileSystem.h"
 #include "./../../include/platform/unix/CUnixWindowSystem.h"
+#include "./../../include/core/CResourceManager.h"
 #include <memory>
 
 
@@ -154,6 +155,25 @@ namespace TDEngine2
 		}
 		
 		return mpEngineCoreInstance->RegisterSubsystem(pFileSystem);
+	}
+
+	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureResourceManager()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IEngineSubsystem* pResourceManager = CreateResourceManager(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+		
+		return mpEngineCoreInstance->RegisterSubsystem(pResourceManager);
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()

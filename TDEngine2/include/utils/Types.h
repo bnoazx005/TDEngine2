@@ -85,6 +85,7 @@ namespace TDEngine2
 		EST_WINDOW,						/// A subsystem that responsible for windows' management (creation, etc)
 		EST_GRAPHICS_CONTEXT,			/// A subsystem represents a low-level graphics layer (wrappers for D3D, OGL, etc)
 		EST_FILE_SYSTEM,				/// A subsystem represents a virtual file system that the engine uses
+		EST_RESOURCE_MANAGER,			/// A subsystem represents root resource manager
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 
@@ -370,5 +371,62 @@ namespace TDEngine2
 		FT_FLOAT4_TYPELESS,
 		FT_UBYTE8_BGRA_UNORM,
 		FT_UNKNOWN
+	};
+
+
+	/*!
+		\brief Resource manager's types section
+	*/
+
+	typedef U32 TResourceId; ///< Unique resource identifier that is used for a cross-referencing
+
+	constexpr TResourceId InvalidResourceId = 0;
+
+	/*!
+		enum E_RESOURCE_STATE_TYPE
+
+		\brief The enumeration contains all possible states' types, in which a resource can stay
+	*/
+
+	enum E_RESOURCE_STATE_TYPE : U8
+	{
+		RST_LOADING,		///< A resource is loading at the time
+		RST_LOADED,			///< A resource is loaded and ready to use
+		RST_UNLOADED,		///< A resource is unloaded from memory, but can be loaded again
+		RST_PENDING,		///< An initial state of any resource
+	};
+
+
+	typedef U32 TResourceLoaderId; ///< A resource loader's identifier
+
+	constexpr TResourceLoaderId InvalidResourceLoaderId = 0;
+
+
+	/*!
+		structure TRegisterLoaderResult
+
+		\brief The structure is used as compound result type of RegisterLoader method of IResourceManager
+	*/
+
+	typedef struct TRegisterLoaderResult
+	{
+		E_RESULT_CODE                      mResultCode;
+
+		TResourceLoaderId                  mResourceLoaderId;
+
+		static const TRegisterLoaderResult mInvalidValue;
+	} TRegisterLoaderResult;
+
+
+	/*!
+		enum E_RESOURCE_ACCESS_TYPE
+
+		\brief The enumeration contains types of a resource's access
+	*/
+
+	enum E_RESOURCE_ACCESS_TYPE : U8
+	{
+		RAT_BLOCKING,			///< An executation within a particular thread will be freezed until a resource will be loaded
+		RAT_STREAMING,			///< A resource's loading will be executed asynchronously, if the resource isn't loaded yet the default variant of it will be returned and updated later
 	};
 }

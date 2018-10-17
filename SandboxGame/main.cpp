@@ -25,6 +25,7 @@ int main(int argc, char** argv)
 	}
 
 	pEngineCoreBuilder->ConfigureFileSystem();
+	pEngineCoreBuilder->ConfigureResourceManager();
 	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
 	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_OPENGL3X);
 
@@ -58,6 +59,8 @@ int main(int argc, char** argv)
 	//path = pFileSystem->ResolveVirtualPath("\\foo\\text.txt");
 	//path = pFileSystem->ResolveVirtualPath("\\foo\\.\\..\\text");
 
+	IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
+	
 	pEngineCore->Free();
 	
 	delete pCustomListener;

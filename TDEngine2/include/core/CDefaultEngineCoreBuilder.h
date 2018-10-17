@@ -70,6 +70,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE ConfigureFileSystem() override;
 
 			/*!
+				\brief The method tries to configure a resource manager 
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ConfigureResourceManager() override;
+
+			/*!
 				\brief The method returns a configured instances of an engine core
 
 				\return The method returns a configured instances of an engine core

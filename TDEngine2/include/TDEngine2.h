@@ -22,6 +22,12 @@
 #include "core/IFileSystem.h"
 #include "core/IFile.h"
 #include "core/CBaseFileSystem.h"
+#include "core/IResource.h"
+#include "core/CBaseResource.h"
+#include "core/IResourceManager.h"
+#include "core/IResourceLoader.h"
+#include "core/CResourceManager.h"
+#include "core/IResourceHandler.h"
 
 ///ecs
 #include "ecs/CEntity.h"
