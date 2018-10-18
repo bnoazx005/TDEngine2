@@ -8,6 +8,7 @@
 
 #include "./../utils/Types.h"
 #include <string>
+#include <thread>
 
 
 namespace TDEngine2
@@ -79,6 +80,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE ConfigureResourceManager() = 0;
+
+			/*!
+				\brief The method tries to configure a job manager
+
+				\param[in] maxNumOfThreads A number of worker threads
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ConfigureJobManager(U32 maxNumOfThreads = std::thread::hardware_concurrency() - 1) = 0;
 
 			/*!
 				\brief The method returns a configured instances of an engine core

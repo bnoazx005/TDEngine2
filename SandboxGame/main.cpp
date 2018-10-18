@@ -24,6 +24,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
+	pEngineCoreBuilder->ConfigureJobManager();
 	pEngineCoreBuilder->ConfigureFileSystem();
 	pEngineCoreBuilder->ConfigureResourceManager();
 	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);

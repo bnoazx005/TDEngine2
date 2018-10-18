@@ -6,6 +6,7 @@
 #include "./../../include/platform/win32/CWin32FileSystem.h"
 #include "./../../include/platform/unix/CUnixWindowSystem.h"
 #include "./../../include/core/CResourceManager.h"
+#include "./../../include/core/CBaseJobManager.h"
 #include <memory>
 
 
@@ -174,6 +175,28 @@ namespace TDEngine2
 		}
 		
 		return mpEngineCoreInstance->RegisterSubsystem(pResourceManager);
+	}
+
+	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureJobManager(U32 maxNumOfThreads)
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+		
+#if defined (TDE2_USE_WIN32PLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
+		IEngineSubsystem* pJobManager = CreateBaseJobManager(maxNumOfThreads, result);
+#else
+#endif
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		return mpEngineCoreInstance->RegisterSubsystem(pJobManager);
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()

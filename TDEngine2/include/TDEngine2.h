@@ -28,6 +28,8 @@
 #include "core/IResourceLoader.h"
 #include "core/CResourceManager.h"
 #include "core/IResourceHandler.h"
+#include "core/IJobManager.h"
+#include "core/CBaseJobManager.h"
 
 ///ecs
 #include "ecs/CEntity.h"

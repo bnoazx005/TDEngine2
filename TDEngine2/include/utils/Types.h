@@ -86,6 +86,7 @@ namespace TDEngine2
 		EST_GRAPHICS_CONTEXT,			/// A subsystem represents a low-level graphics layer (wrappers for D3D, OGL, etc)
 		EST_FILE_SYSTEM,				/// A subsystem represents a virtual file system that the engine uses
 		EST_RESOURCE_MANAGER,			/// A subsystem represents root resource manager
+		EST_JOB_MANAGER,				/// A subsytem represents a thread pool
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 
