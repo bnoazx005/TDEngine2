@@ -314,7 +314,7 @@ namespace TDEngine2
 
 	TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
 	{
-		IGraphicsContext* pGraphicsContextInstance = new (std::nothrow) CD3D11GraphicsContext();
+		CD3D11GraphicsContext* pGraphicsContextInstance = new (std::nothrow) CD3D11GraphicsContext();
 
 		if (!pGraphicsContextInstance)
 		{
@@ -325,7 +325,14 @@ namespace TDEngine2
 
 		result = pGraphicsContextInstance->Init(pWindowSystem);
 
-		return pGraphicsContextInstance;
+		if (result != RC_OK)
+		{
+			delete pGraphicsContextInstance;
+
+			pGraphicsContextInstance = nullptr;
+		}
+
+		return dynamic_cast<IGraphicsContext*>(pGraphicsContextInstance);
 	}
 }
 

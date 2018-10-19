@@ -207,7 +207,7 @@ namespace TDEngine2
 	
 	TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, E_RESULT_CODE& result)
 	{
-		IEngineCoreBuilder* pEngineCoreBuilder = new (std::nothrow) CDefaultEngineCoreBuilder();
+		CDefaultEngineCoreBuilder* pEngineCoreBuilder = new (std::nothrow) CDefaultEngineCoreBuilder();
 
 		if (!pEngineCoreBuilder)
 		{
@@ -218,6 +218,13 @@ namespace TDEngine2
 
 		result = pEngineCoreBuilder->Init(pEngineCoreFactoryCallback);
 
-		return pEngineCoreBuilder;
+		if (result != RC_OK)
+		{
+			delete pEngineCoreBuilder;
+
+			pEngineCoreBuilder = nullptr;
+		}
+
+		return dynamic_cast<IEngineCoreBuilder*>(pEngineCoreBuilder);
 	}
 }

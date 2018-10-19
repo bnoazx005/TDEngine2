@@ -73,7 +73,7 @@ namespace TDEngine2
 #if _HAS_CXX17
 			std::enable_if_t<std::is_base_of_v<IResource, T>,IResourceHandler*>
 #else
-			std::enable_if<std::is_base_of<IResource, T>::value, IResourceHandler*>::type
+			typename std::enable_if<std::is_base_of<IResource, T>::value, IResourceHandler*>::type
 #endif
 			Load(const std::string& name)
 			{

@@ -103,6 +103,13 @@ namespace TDEngine2
 	{
 		CBaseJobManager* pJobManagerInstance = new (std::nothrow) CBaseJobManager();
 
+		if (!pJobManagerInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
 		result = pJobManagerInstance->Init(maxNumOfThreads);
 
 		if (result != RC_OK)

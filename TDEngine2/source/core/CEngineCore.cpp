@@ -357,7 +357,7 @@ namespace TDEngine2
 
 	IEngineCore* CreateEngineCore(E_RESULT_CODE& result)
 	{
-		IEngineCore* pEngineCore = new (std::nothrow) CEngineCore();
+		CEngineCore* pEngineCore = new (std::nothrow) CEngineCore();
 
 		if (!pEngineCore)
 		{
@@ -368,6 +368,13 @@ namespace TDEngine2
 
 		result = pEngineCore->Init();
 
-		return pEngineCore;
+		if (result != RC_OK)
+		{
+			delete pEngineCore;
+
+			pEngineCore = nullptr;
+		}
+
+		return dynamic_cast<IEngineCore*>(pEngineCore);
 	}
 }

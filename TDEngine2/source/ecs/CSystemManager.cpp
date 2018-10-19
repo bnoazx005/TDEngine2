@@ -131,7 +131,7 @@ namespace TDEngine2
 
 	ISystemManager* CreateSystemManager(E_RESULT_CODE& result)
 	{
-		ISystemManager* pSysManager = new (std::nothrow) CSystemManager();
+		CSystemManager* pSysManager = new (std::nothrow) CSystemManager();
 
 		if (!pSysManager)
 		{
@@ -142,6 +142,13 @@ namespace TDEngine2
 
 		result = pSysManager->Init();
 
-		return pSysManager;
+		if (result != RC_OK)
+		{
+			delete pSysManager;
+
+			pSysManager = nullptr;
+		}
+
+		return dynamic_cast<ISystemManager*>(pSysManager);
 	}
 }

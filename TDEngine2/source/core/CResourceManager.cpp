@@ -119,6 +119,13 @@ namespace TDEngine2
 	{
 		CResourceManager* pResourceManagerInstance = new (std::nothrow) CResourceManager();
 
+		if (!pResourceManagerInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
 		result = pResourceManagerInstance->Init();
 
 		if (result != RC_OK)

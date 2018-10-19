@@ -127,7 +127,7 @@ namespace TDEngine2
 
 	IWorld* CreateWorld(E_RESULT_CODE& result)
 	{
-		IWorld* pWorld = new (std::nothrow) CWorld();
+		CWorld* pWorld = new (std::nothrow) CWorld();
 
 		if (!pWorld)
 		{
@@ -138,6 +138,13 @@ namespace TDEngine2
 
 		result = pWorld->Init();
 
-		return pWorld;
+		if (result != RC_OK)
+		{
+			delete pWorld;
+
+			pWorld = nullptr;
+		}
+
+		return dynamic_cast<IWorld*>(pWorld);
 	}
 }

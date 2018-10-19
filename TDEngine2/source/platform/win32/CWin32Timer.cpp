@@ -80,7 +80,7 @@ namespace TDEngine2
 
 	ITimer* CreateWin32Timer(E_RESULT_CODE& result)
 	{
-		ITimer* pTimer = new (std::nothrow) CWin32Timer();
+		CWin32Timer* pTimer = new (std::nothrow) CWin32Timer();
 
 		if (!pTimer)
 		{
@@ -91,7 +91,14 @@ namespace TDEngine2
 
 		result = pTimer->Init();
 
-		return pTimer;
+		if (result != RC_OK)
+		{
+			delete pTimer;
+
+			pTimer = nullptr;
+		}
+
+		return dynamic_cast<ITimer*>(pTimer);
 	}
 }
 

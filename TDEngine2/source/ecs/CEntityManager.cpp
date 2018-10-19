@@ -171,6 +171,13 @@ namespace TDEngine2
 
 		result = pEntityManager->Init(pComponentManager);
 
+		if (result != RC_OK)
+		{
+			delete pEntityManager;
+
+			pEntityManager = nullptr;
+		}
+
 		return pEntityManager;
 	}
 }

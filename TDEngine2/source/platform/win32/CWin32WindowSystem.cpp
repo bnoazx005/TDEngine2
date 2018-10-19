@@ -278,7 +278,7 @@ namespace TDEngine2
 
 	TDE2_API IWindowSystem* CreateWin32WindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
 	{
-		IWindowSystem* pWindowSystemInstance = new (std::nothrow) CWin32WindowSystem();
+		CWin32WindowSystem* pWindowSystemInstance = new (std::nothrow) CWin32WindowSystem();
 
 		if (!pWindowSystemInstance)
 		{
@@ -289,7 +289,14 @@ namespace TDEngine2
 
 		result = pWindowSystemInstance->Init(name, width, height, flags);
 
-		return pWindowSystemInstance;
+		if (result != RC_OK)
+		{
+			delete pWindowSystemInstance;
+
+			pWindowSystemInstance = nullptr;
+		}
+
+		return dynamic_cast<IWindowSystem*>(pWindowSystemInstance);
 	}
 }
 

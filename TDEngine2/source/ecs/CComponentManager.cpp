@@ -122,6 +122,13 @@ namespace TDEngine2
 
 		result = pComponentManager->Init();
 
+		if (result != RC_OK)
+		{
+			delete pComponentManager;
+
+			pComponentManager = nullptr;
+		}
+
 		return pComponentManager;
 	}
 }

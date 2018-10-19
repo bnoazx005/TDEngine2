@@ -79,6 +79,13 @@ namespace TDEngine2
 
 		result = pEntity->Init(id, pEntityManager);
 
+		if (result != RC_OK)
+		{
+			delete pEntity;
+
+			pEntity = nullptr;
+		}
+
 		return pEntity;
 	}
 }
