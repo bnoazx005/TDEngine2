@@ -12,6 +12,8 @@
 namespace TDEngine2
 {
 	class IWindowSystem;
+	class IJobManager;
+
 
 	/*!
 		class CDefaultEngineCoreBuilder
@@ -102,6 +104,7 @@ namespace TDEngine2
 			bool           mIsInitialized;
 			IEngineCore*   mpEngineCoreInstance;
 			IWindowSystem* mpWindowSystemInstance;
+			IJobManager*   mpJobManagerInstance;
 	};
 
 

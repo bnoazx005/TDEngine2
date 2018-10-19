@@ -1,5 +1,6 @@
 #include "./../../include/core/CResourceManager.h"
 #include "./../../include/core/IResourceLoader.h"
+#include "./../../include/core/IJobManager.h"
 
 
 namespace TDEngine2
@@ -9,12 +10,21 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CResourceManager::Init()
+	E_RESULT_CODE CResourceManager::Init(IJobManager* pJobManager)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		if (!pJobManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpJobManager = pJobManager;
 
 		/// \todo implement Init of CResourceManager
 
@@ -25,6 +35,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::Free()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -39,6 +51,8 @@ namespace TDEngine2
 
 	TRegisterLoaderResult CResourceManager::RegisterLoader(const IResourceLoader* pResourceLoader)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized || !pResourceLoader)
 		{
 			return TRegisterLoaderResult::mInvalidValue;
@@ -76,6 +90,8 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CResourceManager::UnregisterLoader(const TResourceLoaderId& resourceLoaderId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -104,18 +120,22 @@ namespace TDEngine2
 
 	IResource* CResourceManager::GetResourceByHandler(const IResourceHandler* pResourceHandler) const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		/// \todo implement the method
 		return nullptr;
 	}
 
 	IResourceHandler* CResourceManager::_loadResource(U32 resourceTypeId, const std::string& name)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		/// \todo implement the method
 		return nullptr;
 	}
 
 
-	IResourceManager* CreateResourceManager(E_RESULT_CODE& result)
+	IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result)
 	{
 		CResourceManager* pResourceManagerInstance = new (std::nothrow) CResourceManager();
 
@@ -126,7 +146,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pResourceManagerInstance->Init();
+		result = pResourceManagerInstance->Init(pJobManager);
 
 		if (result != RC_OK)
 		{

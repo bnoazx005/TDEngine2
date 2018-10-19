@@ -7,13 +7,14 @@
 #include "./../../include/platform/unix/CUnixWindowSystem.h"
 #include "./../../include/core/CResourceManager.h"
 #include "./../../include/core/CBaseJobManager.h"
+#include "./../../include/core/IJobManager.h"
 #include <memory>
 
 
 namespace TDEngine2
 {
 	CDefaultEngineCoreBuilder::CDefaultEngineCoreBuilder():
-		mIsInitialized(false), mpEngineCoreInstance(nullptr)
+		mIsInitialized(false), mpEngineCoreInstance(nullptr), mpWindowSystemInstance(nullptr), mpJobManagerInstance(nullptr)
 	{
 	}
 
@@ -160,14 +161,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureResourceManager()
 	{
-		if (!mIsInitialized)
+		if (!mIsInitialized || !mpJobManagerInstance)
 		{
 			return RC_FAIL;
 		}
 
 		E_RESULT_CODE result = RC_OK;
 
-		IEngineSubsystem* pResourceManager = CreateResourceManager(result);
+		IEngineSubsystem* pResourceManager = CreateResourceManager(mpJobManagerInstance, result);
 
 		if (result != RC_OK)
 		{
@@ -195,6 +196,8 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		mpJobManagerInstance = dynamic_cast<IJobManager*>(pJobManager);
 
 		return mpEngineCoreInstance->RegisterSubsystem(pJobManager);
 	}

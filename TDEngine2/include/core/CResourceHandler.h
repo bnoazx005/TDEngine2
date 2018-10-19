@@ -9,6 +9,7 @@
 
 #include "IResourceHandler.h"
 #include "CBaseObject.h"
+#include <mutex>
 
 
 namespace TDEngine2
@@ -81,7 +82,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceHandler)
 		protected:
-			IResourceManager* mpResourceManager;
-			TResourceId       mResourceId;
+			IResourceManager*  mpResourceManager;
+			TResourceId        mResourceId;
+			mutable std::mutex mMutex;
 	};
 }

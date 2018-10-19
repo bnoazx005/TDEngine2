@@ -12,6 +12,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceHandler::Init(IResourceManager* pResourceManager, TResourceId id)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
@@ -33,6 +35,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceHandler::Free()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -47,6 +51,8 @@ namespace TDEngine2
 
 	IResource* CResourceHandler::Get(E_RESOURCE_ACCESS_TYPE type)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		IResource* pResource = mpResourceManager->GetResourceByHandler(this);
 
 		if (type == RAT_STREAMING)
@@ -63,6 +69,7 @@ namespace TDEngine2
 
 	void CResourceHandler::OnLoaded(const std::function<void(IResource*)>& onLoadedCallback)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
 		/// \todo implement the method
 	}
 

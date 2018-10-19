@@ -10,6 +10,7 @@
 #include "IResourceManager.h"
 #include <unordered_map>
 #include <vector>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -20,10 +21,14 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CResourceManager's type.
 
+		\param[in] pJobManager A pointer to IJobManager's implementation
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
 		\return A pointer to CResourceManager's implementation
 	*/
 
-	TDE2_API IResourceManager* CreateResourceManager(E_RESULT_CODE& result);
+	TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -35,7 +40,7 @@ namespace TDEngine2
 	class CResourceManager : public IResourceManager
 	{
 		public:
-			friend TDE2_API IResourceManager* CreateResourceManager(E_RESULT_CODE& result);
+			friend TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
 		protected:
 			typedef std::unordered_map<U32, TResourceLoaderId> TResourceLoadersMap;
 
@@ -46,10 +51,12 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an inner state of a resource manager
 
+				\param[in] pJobManager A pointer to IJobManager's implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init() override;
+			TDE2_API E_RESULT_CODE Init(IJobManager* pJobManager) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -109,5 +116,9 @@ namespace TDEngine2
 			TResourceLoadersArray mRegistredResourceLoaders; 
 
 			TFreeEntriesRegistry  mFreeLoadersEntriesRegistry;
+
+			IJobManager*          mpJobManager;
+
+			mutable std::mutex    mMutex;
 	};
 }
