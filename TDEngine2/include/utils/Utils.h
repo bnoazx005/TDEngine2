@@ -164,5 +164,5 @@ namespace TDEngine2
 	};
 
 	template <typename TGroup>
-	std::atomic<U32> TTypeRegistry<TGroup>::mCounter { 0 };
+	std::atomic<U32> TTypeRegistry<TGroup>::mCounter = 0;
 }
