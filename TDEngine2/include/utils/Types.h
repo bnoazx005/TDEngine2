@@ -87,6 +87,7 @@ namespace TDEngine2
 		EST_FILE_SYSTEM,				/// A subsystem represents a virtual file system that the engine uses
 		EST_RESOURCE_MANAGER,			/// A subsystem represents root resource manager
 		EST_JOB_MANAGER,				/// A subsytem represents a thread pool
+		EST_PLUGIN_MANAGER,				/// A subsystem represents a plugin manager
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 

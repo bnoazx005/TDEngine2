@@ -203,97 +203,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-
-	E_RESULT_CODE CEngineCore::LoadPlugin(const std::string& filename)
-	{
-		//std::lock_guard<std::mutex> lock(mMutex);
-
-		if (filename.empty())
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		/// \todo check up filename's ending 
-
-		IDLLManager* pDllManager = _getDLLManagerInstance(dynamic_cast<const IWindowSystem*>(mSubsystems[EST_WINDOW]));
-
-		if (!pDllManager)
-		{
-			return RC_FAIL;
-		}
-
-		IPlugin* pPluginInstance = mLoadedPlugins[filename];
-
-		if (pPluginInstance)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		TDynamicLibraryHandler libraryHandler = pDllManager->Load(filename, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		TCreatePluginCallback pCreatePluginCallback = (TCreatePluginCallback)pDllManager->GetSymbol(libraryHandler, TDE2_CREATE_PLUGIN_FUNC_NAME);
-		
-		if (!pCreatePluginCallback)
-		{
-			return RC_FAIL;
-		}
-
-		IPlugin* pLoadedPlugin = pCreatePluginCallback(this, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mLoadedPlugins[filename] = pLoadedPlugin;
-		
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CEngineCore::UnloadPlugin(const std::string& filename)
-	{
-		//std::lock_guard<std::mutex> lock(mMutex);
-
-		if (filename.empty())
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		/// \todo check up filename's ending 
-
-		IDLLManager* pDllManager = _getDLLManagerInstance(dynamic_cast<const IWindowSystem*>(mSubsystems[EST_WINDOW]));
-
-		if (!pDllManager)
-		{
-			return RC_FAIL;
-		}
-
-		IPlugin* pPluginInstance = mLoadedPlugins[filename];
-
-		if (!pPluginInstance)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = pPluginInstance->Free()) != RC_OK)
-		{
-			return result;
-		}
-
-		mLoadedPlugins[filename] = nullptr;
-
-		return RC_OK;
-	}
-	
 	IEngineSubsystem* CEngineCore::GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
 	{
 		//std::lock_guard<std::mutex> lock(mMutex);
@@ -386,21 +295,6 @@ namespace TDEngine2
 		mSubsystems[subsystemType] = nullptr;
 
 		return pEngineSubsystem->Free();
-	}
-
-	IDLLManager* CEngineCore::_getDLLManagerInstance(const IWindowSystem* pWindowSystem)
-	{
-		if (!pWindowSystem && !mpDLLManager)
-		{
-			return nullptr;
-		}
-
-		if (!mpDLLManager)
-		{
-			mpDLLManager = pWindowSystem->GetDLLManagerInstance();
-		}
-
-		return mpDLLManager;
 	}
 	
 

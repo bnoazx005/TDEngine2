@@ -112,26 +112,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE UnregisterListener(IEngineListener* pListener) = 0;
 
 			/*!
-				\brief The method load a specified plugin
-
-				\param[in] filename A filename (WITHOUT extension) of a shared library with a plugin's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE LoadPlugin(const std::string& filename) = 0;
-
-			/*!
-				\brief The method unload a specified plugin
-
-				\param[in] filename A filename (WITHOUT extension) of a shared library with a plugin's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE UnloadPlugin(const std::string& filename) = 0;
-			
-			/*!
 				\brief The method returns a pointer to a subsystem of specified type
 
 				\param[in] type A type of a subsystem which should be returned

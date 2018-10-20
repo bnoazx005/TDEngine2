@@ -27,6 +27,7 @@ int main(int argc, char** argv)
 	pEngineCoreBuilder->ConfigureFileSystem();
 	pEngineCoreBuilder->ConfigureResourceManager();
 	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
+	pEngineCoreBuilder->ConfigurePluginManager();
 	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_OPENGL3X);
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();

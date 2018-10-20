@@ -13,6 +13,7 @@ namespace TDEngine2
 {
 	class IWindowSystem;
 	class IJobManager;
+	class IPluginManager;
 
 
 	/*!
@@ -88,6 +89,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE ConfigureJobManager(U32 maxNumOfThreads) override;
+			
+			/*!
+				\brief The method tries to configure a plugin manager
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ConfigurePluginManager() override;
 
 			/*!
 				\brief The method returns a configured instances of an engine core
@@ -101,10 +110,11 @@ namespace TDEngine2
 			TDE2_API CDefaultEngineCoreBuilder(const CDefaultEngineCoreBuilder& builder) = delete;
 			TDE2_API virtual CDefaultEngineCoreBuilder& operator= (CDefaultEngineCoreBuilder& builder) = delete;
 		protected:
-			bool           mIsInitialized;
-			IEngineCore*   mpEngineCoreInstance;
-			IWindowSystem* mpWindowSystemInstance;
-			IJobManager*   mpJobManagerInstance;
+			bool            mIsInitialized;
+			IEngineCore*    mpEngineCoreInstance;
+			IWindowSystem*  mpWindowSystemInstance;
+			IJobManager*    mpJobManagerInstance;
+			IPluginManager* mpPluginManagerInstance;
 	};
 
 

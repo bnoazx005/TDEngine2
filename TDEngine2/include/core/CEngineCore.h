@@ -43,8 +43,6 @@ namespace TDEngine2
 			};
 
 			typedef std::vector<IEngineListener*>             TListenersArray;
-
-			typedef std::unordered_map<std::string, IPlugin*> TPluginsMap;
 		public:
 			TDE2_API virtual ~CEngineCore();
 
@@ -125,26 +123,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE UnregisterListener(IEngineListener* pListener) override;
 
 			/*!
-				\brief The method load a specified plugin
-
-				\param[in] filename A filename (WITHOUT extension) of a shared library with a plugin's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE LoadPlugin(const std::string& filename) override;
-
-			/*!
-				\brief The method unload a specified plugin
-
-				\param[in] filename A filename (WITHOUT extension) of a shared library with a plugin's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE UnloadPlugin(const std::string& filename) override;
-						
-			/*!
 				\brief The method returns a pointer to a subsystem of specified type
 
 				\param[in] type A type of a subsystem which should be returned
@@ -177,9 +155,7 @@ namespace TDEngine2
 			TDE2_API void _onFrameUpdateCallback();
 
 			TDE2_API E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
-
-			TDE2_API IDLLManager* _getDLLManagerInstance(const IWindowSystem* pWindowSystem);
-
+			
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 		protected:
 			bool               mIsInitialized;
@@ -187,8 +163,6 @@ namespace TDEngine2
 			IEngineSubsystem*  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 
 			TListenersArray    mEngineListeners;
-
-			TPluginsMap        mLoadedPlugins;
 
 			IDLLManager*       mpDLLManager;
 

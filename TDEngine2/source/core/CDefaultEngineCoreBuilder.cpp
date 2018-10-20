@@ -8,13 +8,15 @@
 #include "./../../include/core/CResourceManager.h"
 #include "./../../include/core/CBaseJobManager.h"
 #include "./../../include/core/IJobManager.h"
+#include "./../../include/core/CBasePluginManager.h"
 #include <memory>
 
 
 namespace TDEngine2
 {
 	CDefaultEngineCoreBuilder::CDefaultEngineCoreBuilder():
-		mIsInitialized(false), mpEngineCoreInstance(nullptr), mpWindowSystemInstance(nullptr), mpJobManagerInstance(nullptr)
+		mIsInitialized(false), mpEngineCoreInstance(nullptr), mpWindowSystemInstance(nullptr), mpJobManagerInstance(nullptr),
+		mpPluginManagerInstance(nullptr)
 	{
 	}
 
@@ -72,7 +74,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureGraphicsContext(E_GRAPHICS_CONTEXT_GAPI_TYPE type)
 	{
-		if (!mIsInitialized)
+		if (!mIsInitialized || !mpPluginManagerInstance)
 		{
 			return RC_FAIL;
 		}
@@ -83,7 +85,7 @@ namespace TDEngine2
 		{
 #if defined(TDE2_USE_WIN32PLATFORM)
 			case GCGT_DIRECT3D11:																	/// try to create D3D11 Graphics context
-				if ((result = mpEngineCoreInstance->LoadPlugin("D3D11GraphicsContext")) != RC_OK)
+				if ((result = mpPluginManagerInstance->LoadPlugin("D3D11GraphicsContext")) != RC_OK)
 				{
 					return result;
 				}
@@ -91,9 +93,9 @@ namespace TDEngine2
 #endif
 			case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
 				#if defined (TDE2_USE_WIN32PLATFORM)
-					result = mpEngineCoreInstance->LoadPlugin("GLGraphicsContext");
+					result = mpPluginManagerInstance->LoadPlugin("GLGraphicsContext");
 				#elif defined (TDE2_USE_UNIXPLATFORM)
-					result = mpEngineCoreInstance->LoadPlugin("./GLGraphicsContext");
+					result = mpPluginManagerInstance->LoadPlugin("./GLGraphicsContext");
 				#else
 				#endif
 
@@ -200,6 +202,30 @@ namespace TDEngine2
 		mpJobManagerInstance = dynamic_cast<IJobManager*>(pJobManager);
 
 		return mpEngineCoreInstance->RegisterSubsystem(pJobManager);
+	}
+
+	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigurePluginManager()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+#if defined (TDE2_USE_WIN32PLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
+		IEngineSubsystem* pPluginManager = CreateBasePluginManager(mpEngineCoreInstance, result);
+#else
+#endif
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mpPluginManagerInstance = dynamic_cast<IPluginManager*>(pPluginManager);
+		
+		return mpEngineCoreInstance->RegisterSubsystem(pPluginManager);
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()

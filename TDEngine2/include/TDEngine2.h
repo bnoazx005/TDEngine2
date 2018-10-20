@@ -30,6 +30,8 @@
 #include "core/IResourceHandler.h"
 #include "core/IJobManager.h"
 #include "core/CBaseJobManager.h"
+#include "core/IPluginManager.h"
+#include "core/CBasePluginManager.h"
 
 ///ecs
 #include "ecs/CEntity.h"
