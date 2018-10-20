@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -178,15 +179,20 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
 
 			TDE2_API IDLLManager* _getDLLManagerInstance(const IWindowSystem* pWindowSystem);
+
+			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 		protected:
-			bool              mIsInitialized;
-			IEngineSubsystem* mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
+			bool               mIsInitialized;
 
-			TListenersArray   mEngineListeners;
+			IEngineSubsystem*  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 
-			TPluginsMap       mLoadedPlugins;
+			TListenersArray    mEngineListeners;
 
-			IDLLManager*      mpDLLManager;
+			TPluginsMap        mLoadedPlugins;
+
+			IDLLManager*       mpDLLManager;
+
+			mutable std::mutex mMutex; ///< \todo the mutex doesn't use in the code, should be fixed later!
 	};
 
 

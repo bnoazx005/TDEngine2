@@ -22,6 +22,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::Init()
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		if (mIsInitialized)
 		{
 			return RC_OK;
@@ -38,6 +40,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::Free()
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -46,6 +50,17 @@ namespace TDEngine2
 		if (_onNotifyEngineListeners(EET_ONFREE) != RC_OK)
 		{
 			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		/// frees memory from all subsystems
+		for (IEngineSubsystem* pCurrSubsystem : mSubsystems)
+		{
+			if ((result = UnregisterSubsystem(pCurrSubsystem->GetType())) != RC_OK)
+			{
+				return result;
+			}
 		}
 
 #if defined (_DEBUG)
@@ -89,6 +104,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::Quit()
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -113,16 +130,20 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::RegisterSubsystem(IEngineSubsystem* pSubsystem)
 	{
-		E_ENGINE_SUBSYSTEM_TYPE subsystemType = EST_UNKNOWN;
+		//std::lock_guard<std::mutex> lock(mMutex);
 
+		E_ENGINE_SUBSYSTEM_TYPE subsystemType = EST_UNKNOWN;
+		
 		if (!pSubsystem || ((subsystemType = pSubsystem->GetType()) == EST_UNKNOWN))
 		{
 			return RC_FAIL;
 		}
 
-		if (mSubsystems[subsystemType])
+		E_RESULT_CODE result = _unregisterSubsystem(subsystemType);
+
+		if (result != RC_OK && mSubsystems[subsystemType])
 		{
-			/// \todo check up is choosen slot free, if not print warning and try to free the memory it stores
+			return result;
 		}
 
 		mSubsystems[subsystemType] = pSubsystem;
@@ -132,13 +153,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
 	{
-		/// \todo Implement UnregisterSubsystem method
+		//std::lock_guard<std::mutex> lock(mMutex);
 
-		return RC_NOT_IMPLEMENTED_YET;
+		return _unregisterSubsystem(subsystemType);
 	}
 
 	E_RESULT_CODE CEngineCore::RegisterListener(IEngineListener* pListener)
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pListener)
 		{
 			return RC_INVALID_ARGS;
@@ -161,6 +184,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::UnregisterListener(IEngineListener* pListener)
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pListener)
 		{
 			return RC_INVALID_ARGS;
@@ -181,6 +206,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::LoadPlugin(const std::string& filename)
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		if (filename.empty())
 		{
 			return RC_INVALID_ARGS;
@@ -232,6 +259,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::UnloadPlugin(const std::string& filename)
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		if (filename.empty())
 		{
 			return RC_INVALID_ARGS;
@@ -267,6 +296,8 @@ namespace TDEngine2
 	
 	IEngineSubsystem* CEngineCore::GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		if (type == EST_UNKNOWN)
 		{
 			return nullptr;
@@ -277,6 +308,8 @@ namespace TDEngine2
 
 	ILogger* CEngineCore::GetLogger() const
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 #if defined (_DEBUG)
 		return MainLogger;
 #else
@@ -286,6 +319,8 @@ namespace TDEngine2
 
 	ITimer* CEngineCore::GetTimer() const
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		IWindowSystem* pWindowSystem = dynamic_cast<IWindowSystem*>(mSubsystems[EST_WINDOW]);
 		
 		if (!pWindowSystem)
@@ -337,6 +372,20 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CEngineCore::_unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
+	{
+		IEngineSubsystem* pEngineSubsystem = mSubsystems[subsystemType];
+
+		if (!pEngineSubsystem)
+		{
+			return RC_FAIL;
+		}
+
+		mSubsystems[subsystemType] = nullptr;
+
+		return pEngineSubsystem->Free();
 	}
 
 	IDLLManager* CEngineCore::_getDLLManagerInstance(const IWindowSystem* pWindowSystem)

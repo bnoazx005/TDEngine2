@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 
 	IJobManager* pJobManager = dynamic_cast<IJobManager*>(pEngineCore->GetSubsystem(EST_JOB_MANAGER));
 
-	CFileLogger* pFileLogger = new CFileLogger("log.txt");
+	/*CFileLogger* pFileLogger = new CFileLogger("log.txt");
 	
 	IJob* t1 = new TJob<CFileLogger*>([](CFileLogger* pFileLogger)
 	{
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 	pJobManager->SubmitJob(t2);
 	
 	delete t1;
-	delete t2;
+	delete t2;*/
 
 	pEngineCore->Free();
 	
