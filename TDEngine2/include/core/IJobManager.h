@@ -36,7 +36,7 @@ namespace TDEngine2
 	{
 		protected:
 			typedef std::function<void(TArgs...)> TJobCallback;
-			typedef std::tuple<TArgs...>          TArguments;
+			typedef std::tuple<TArgs...>        TArguments;
 		public:
 			/*!
 				\brief The main constructor of the type
@@ -45,7 +45,7 @@ namespace TDEngine2
 				\param[in] args An arguments that should be passed into a job
 			*/
 
-			TDE2_API TJob(const TJobCallback& callback, TArgs&&... args);
+			TDE2_API TJob(const TJobCallback& callback, TArgs... args);
 
 			/*!
 				\brief The operator executes current job
@@ -59,7 +59,7 @@ namespace TDEngine2
 
 	
 	template <typename... TArgs>
-	TJob<TArgs...>::TJob(const TJobCallback& callback, TArgs&&... args) :
+	TJob<TArgs...>::TJob(const TJobCallback& callback, TArgs... args) :
 		mJobCallback(callback), mArguments(args...)
 	{
 	}
@@ -67,7 +67,7 @@ namespace TDEngine2
 	template <typename... TArgs>
 	void TJob<TArgs...>::operator() ()
 	{
-		mJobCallback(mArguments);
+		mJobCallback(std::get<TArgs>(mArguments)...);
 	}
 	
 

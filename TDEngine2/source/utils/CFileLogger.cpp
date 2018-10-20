@@ -18,6 +18,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFileLogger::Free()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mOutputLog.is_open())
 		{
 			return RC_FAIL;
@@ -45,6 +47,8 @@ namespace TDEngine2
 
 	void CFileLogger::_logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mOutputLog.is_open())
 		{
 			return;

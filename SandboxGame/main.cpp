@@ -2,7 +2,6 @@
 #include "include/CCustomEngineListener.h"
 #include <TDEngine2.h>
 
-
 #if defined (TDE2_USE_WIN32PLATFORM)
 	#pragma comment(lib, "TDEngine2.lib")
 #endif
@@ -61,7 +60,33 @@ int main(int argc, char** argv)
 	//path = pFileSystem->ResolveVirtualPath("\\foo\\.\\..\\text");
 
 	IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
+
+	IJobManager* pJobManager = dynamic_cast<IJobManager*>(pEngineCore->GetSubsystem(EST_JOB_MANAGER));
+
+	CFileLogger* pFileLogger = new CFileLogger("log.txt");
 	
+	IJob* t1 = new TJob<CFileLogger*>([](CFileLogger* pFileLogger)
+	{
+		for (int i = 0; i < 1000; ++i)
+		{
+			pFileLogger->LogMessage("t1 message...");
+		}
+	}, pFileLogger);
+
+	IJob* t2 = new TJob<CFileLogger*>([](CFileLogger* pFileLogger)
+	{
+		for (int i = 0; i < 1000; ++i)
+		{
+			pFileLogger->LogMessage("t2 message...");
+		}
+	}, pFileLogger);
+
+	pJobManager->SubmitJob(t1);
+	pJobManager->SubmitJob(t2);
+	
+	delete t1;
+	delete t2;
+
 	pEngineCore->Free();
 	
 	delete pCustomListener;

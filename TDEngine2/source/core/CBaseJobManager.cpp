@@ -89,7 +89,7 @@ namespace TDEngine2
 					return;
 				}
 
-				pJob = std::move(mJobs.front());
+				pJob = mJobs.front();
 
 				mJobs.pop();
 			}

@@ -8,6 +8,7 @@
 
 #include "ILogger.h"
 #include <fstream>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -52,7 +53,9 @@ namespace TDEngine2
 
 			TDE2_API void _logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message);
 		protected:
-			std::ofstream mOutputLog;
+			std::ofstream      mOutputLog;
+
+			mutable std::mutex mMutex;
 	};
 
 
