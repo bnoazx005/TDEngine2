@@ -126,7 +126,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		if (!DestroyWindow(mWindowHandler))
+		if (DestroyWindow(mWindowHandler))
 		{
 			return RC_FAIL;
 		}

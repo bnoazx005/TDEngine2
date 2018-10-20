@@ -14,6 +14,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <memory>
 
 
 namespace TDEngine2
@@ -39,8 +40,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IJobManager* CreateBaseJobManager(U32 maxNumOfThreads, E_RESULT_CODE& result);
 		protected:
-			typedef std::vector<std::thread> TThreadsArray;
-			typedef std::queue<IJob*>        TJobQueue;
+			typedef std::vector<std::thread>          TThreadsArray;
+			typedef std::queue<std::unique_ptr<IJob>> TJobQueue;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -59,18 +60,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
-				\brief The method pushes specified job into a queue for an execution
-
-				\param[in] pJob A pointer to IJob's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE SubmitJob(IJob* pJob) override;
-
-			
+						
 			/*!
 				\brief The method returns a type of the subsystem
 
@@ -82,6 +72,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseJobManager)
 
 			TDE2_API void _executeTasksLoop();
+
+			TDE2_API E_RESULT_CODE _submitJob(std::unique_ptr<IJob> pJob) override;
 		protected:
 			bool                    mIsInitialized;
 

@@ -26,7 +26,7 @@ namespace TDEngine2
 
 		if (mIsInitialized)
 		{
-			return RC_OK;
+			return RC_FAIL;
 		}
 
 		memset(&mSubsystems, 0, sizeof(mSubsystems));

@@ -11,6 +11,7 @@
 #include "IEngineSubsystem.h"
 #include "./../utils/Utils.h"
 #include <functional>
+#include <memory>
 
 
 namespace TDEngine2
@@ -36,7 +37,7 @@ namespace TDEngine2
 	{
 		protected:
 			typedef std::function<void(TArgs...)> TJobCallback;
-			typedef std::tuple<TArgs...>        TArguments;
+			typedef std::tuple<TArgs...>          TArguments;
 		public:
 			/*!
 				\brief The main constructor of the type
@@ -98,8 +99,14 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SubmitJob(IJob* pJob) = 0;
+			template <typename... TArgs>
+			TDE2_API E_RESULT_CODE SubmitJob(std::function<void (TArgs...)> jobCallback, TArgs... args)
+			{
+				return _submitJob(std::make_unique<TJob<TArgs...>>(jobCallback, std::forward<TArgs>(args)...));
+			}
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IJobManager)
+
+			TDE2_API virtual E_RESULT_CODE _submitJob(std::unique_ptr<IJob> pJob) = 0;
 	};
 }

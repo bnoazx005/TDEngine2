@@ -27,7 +27,7 @@ namespace TDEngine2
 	{
 		if (mIsInitialized)
 		{
-			return RC_OK;
+			return RC_FAIL;
 		}
 		
 		if (!mGLContextFactoryCallback)
@@ -75,7 +75,7 @@ namespace TDEngine2
 	{
 		if (!mIsInitialized)
 		{
-			return RC_OK;
+			return RC_FAIL;
 		}
 
 		E_RESULT_CODE result = RC_OK;
@@ -89,7 +89,7 @@ namespace TDEngine2
 
 		delete this;
 
-		return RC_FAIL;
+		return RC_OK;
 	}
 	
 	void COGLGraphicsContext::ClearBackBuffer(const TColor32F& color)

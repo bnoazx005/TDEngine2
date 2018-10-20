@@ -35,18 +35,20 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::Free()
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
-		if (!mIsInitialized)
 		{
-			return RC_FAIL;
+			std::lock_guard<std::mutex> lock(mMutex);
+
+			if (!mIsInitialized)
+			{
+				return RC_FAIL;
+			}
+
+			mIsInitialized = false;
 		}
 
 		delete this;
 
-		mIsInitialized = false;
-
-		return RC_FAIL;
+		return RC_OK;
 	}
 
 	TRegisterLoaderResult CResourceManager::RegisterLoader(const IResourceLoader* pResourceLoader)

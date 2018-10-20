@@ -36,6 +36,10 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mIsRunning = false;
+
+		mHasNewJobAdded.notify_all();
+
 		// wait for all working threads
 		for (std::thread& currThread : mWorkerThreads)
 		{
@@ -51,23 +55,7 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-
-	E_RESULT_CODE CBaseJobManager::SubmitJob(IJob* pJob)
-	{
-		if (!pJob)
-		{
-			return RC_INVALID_ARGS;
-		}
-		
-		std::lock_guard<std::mutex> lock(mQueueMutex);
-
-		mJobs.push(pJob);
-
-		mHasNewJobAdded.notify_one();
-
-		return RC_OK;
-	}
-
+	
 	E_ENGINE_SUBSYSTEM_TYPE CBaseJobManager::GetType() const
 	{
 		return EST_JOB_MANAGER;
@@ -75,7 +63,7 @@ namespace TDEngine2
 
 	void CBaseJobManager::_executeTasksLoop()
 	{
-		IJob* pJob;
+		std::unique_ptr<IJob> pJob;
 
 		while (true)
 		{
@@ -89,13 +77,29 @@ namespace TDEngine2
 					return;
 				}
 
-				pJob = mJobs.front();
+				pJob = std::move(mJobs.front());
 
 				mJobs.pop();
 			}
 
 			(*pJob)();
 		}
+	}
+
+	E_RESULT_CODE CBaseJobManager::_submitJob(std::unique_ptr<IJob> pJob)
+	{
+		if (!pJob)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		std::lock_guard<std::mutex> lock(mQueueMutex);
+
+		mJobs.emplace(std::move(pJob));
+
+		mHasNewJobAdded.notify_one();
+
+		return RC_OK;
 	}
 
 

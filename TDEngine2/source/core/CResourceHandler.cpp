@@ -35,16 +35,18 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceHandler::Free()
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
-		if (!mIsInitialized)
 		{
-			return RC_FAIL;
+			std::lock_guard<std::mutex> lock(mMutex);
+
+			if (!mIsInitialized)
+			{
+				return RC_FAIL;
+			}
+
+			mIsInitialized = false;
 		}
 
 		delete this;
-
-		mIsInitialized = false;
 
 		return RC_OK;
 	}
