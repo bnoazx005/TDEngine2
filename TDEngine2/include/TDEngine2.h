@@ -65,6 +65,7 @@
 #include "platform/unix/CUnixDLLManager.h"
 #include "platform/unix/CUnixFileSystem.h"
 #include "platform/unix/CUnixTimer.h"
+#include "platform/CConfigFileReader.h"
 
 ///utils
 #include "utils/Types.h"

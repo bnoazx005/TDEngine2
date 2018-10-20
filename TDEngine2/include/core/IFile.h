@@ -111,6 +111,85 @@ namespace TDEngine2
 
 
 	/*!
+		interface IConfigFileReader
+
+		\brief The interface describes a functionality of a config file's reader.
+
+		\todo UTF-8 and UTF-16 support is needed
+	*/
+
+	class IConfigFileReader : public virtual IFileReader
+	{
+		public:
+			/*!
+				\brief The method try to read integer value with specified name inside a group. Otherwise, it
+				will return a default value
+
+				\param[in] group A group's name
+
+				\param[in] paramName A parameter's name
+
+				\param[in] defaultValue A default value, which will be returned if the specified parameter doesn't exists
+
+				\return The method try to read integer value with specified name inside a group. Otherwise, it
+				will return a default value
+			*/
+
+			TDE2_API virtual I32 GetInt(const std::string& group, const std::string& paramName, I32 defaultValue = 0) = 0;
+
+			/*!
+				\brief The method try to read integer value with specified name inside a group. Otherwise, it
+				will return a default value
+
+				\param[in] group A group's name
+
+				\param[in] paramName A parameter's name
+
+				\param[in] defaultValue A default value, which will be returned if the specified parameter doesn't exists
+
+				\return The method try to read integer value with specified name inside a group. Otherwise, it
+				will return a default value
+			*/
+
+			TDE2_API virtual F32 GetFloat(const std::string& group, const std::string& paramName, F32 defaultValue = 0.0f) = 0;
+
+			/*!
+				\brief The method try to read integer value with specified name inside a group. Otherwise, it
+				will return a default value
+
+				\param[in] group A group's name
+
+				\param[in] paramName A parameter's name
+
+				\param[in] defaultValue A default value, which will be returned if the specified parameter doesn't exists
+
+				\return The method try to read integer value with specified name inside a group. Otherwise, it
+				will return a default value
+			*/
+
+			TDE2_API virtual bool GetBool(const std::string& group, const std::string& paramName, bool defaultValue = false) = 0;
+
+			/*!
+				\brief The method try to read integer value with specified name inside a group. Otherwise, it
+				will return a default value
+
+				\param[in] group A group's name
+
+				\param[in] paramName A parameter's name
+
+				\param[in] defaultValue A default value, which will be returned if the specified parameter doesn't exists
+
+				\return The method try to read integer value with specified name inside a group. Otherwise, it
+				will return a default value
+			*/
+
+			TDE2_API virtual std::string GetString(const std::string& group, const std::string& paramName, std::string defaultValue = "") = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IConfigFileReader)
+	};
+
+
+	/*!
 		interface IFileWriter
 
 		\brief The interface describes a functionality of a file writer

@@ -82,6 +82,9 @@ int main(int argc, char** argv)
 		}
 	}, pFileLogger);
 	
+	IConfigFileReader* pConfigFile = dynamic_cast<IConfigFileReader*>(CreateConfigFileReader(pFileSystem, "engine.cfg", result));
+	auto p = pConfigFile->GetBool("script", "shared_state");
+
 	pEngineCore->Free();
 	
 	delete pCustomListener;
