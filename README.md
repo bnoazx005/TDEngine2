@@ -8,10 +8,16 @@ TDEngine 2 is a cross-platform game engine.
 
 1. [Current Goals](#current-goals)
 2. [How to Build](#how-to-build)
+
     2.1 [Visual Studio (Win32)](#vs-win32)
+
     2.2 [Make Utility (UNIX)](#make-unix)
+
     2.3 [Compilation](#compilation)
+    
 3. [Getting Started](#getting-started)
+
+***
 
 ### Current Goals:<a name="current-goals"></a>
 
