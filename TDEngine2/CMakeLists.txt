@@ -65,6 +65,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32FileSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/CTextFileReader.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/CConfigFileReader.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/CBaseFile.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/unix/CUnixWindowSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/unix/CUnixDLLManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/unix/CUnixFileSystem.h"

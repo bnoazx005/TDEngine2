@@ -9,6 +9,9 @@
 #include "./../../include/core/CBaseJobManager.h"
 #include "./../../include/core/IJobManager.h"
 #include "./../../include/core/CBasePluginManager.h"
+#include "./../../include/platform/unix/CUnixFileSystem.h"
+#include "./../../include/platform/CTextFileReader.h"
+#include "./../../include/platform/CConfigFileReader.h"
 #include <memory>
 
 
@@ -146,19 +149,25 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IEngineSubsystem* pFileSystem = nullptr;
+		IFileSystem* pFileSystem = nullptr;
 		
 #if defined (TDE2_USE_WIN32PLATFORM)
-		pFileSystem = dynamic_cast<IEngineSubsystem*>(CreateWin32FileSystem(result));
+		pFileSystem = CreateWin32FileSystem(result);
+#elif defined (TDE2_USE_UNIXPLATFORM)
+		pFileSystem = CreateUnixFileSystem(result);
 #else
 #endif
+		
+		/// register known file types factories
+		pFileSystem->RegisterFileFactory<CTextFileReader>(CreateTextFileReader);
+		pFileSystem->RegisterFileFactory<CConfigFileReader>(CreateConfigFileReader);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 		
-		return mpEngineCoreInstance->RegisterSubsystem(pFileSystem);
+		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(pFileSystem));
 	}
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureResourceManager()

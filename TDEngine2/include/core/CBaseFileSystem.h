@@ -11,6 +11,7 @@
 #include "IFileSystem.h"
 #include <unordered_map>
 #include <vector>
+#include <list>
 
 
 namespace TDEngine2
@@ -34,6 +35,12 @@ namespace TDEngine2
 			typedef std::unordered_map<std::string, TFileHandler>             TFilesHashMap;
 
 			typedef std::vector<IFile*>                                       TFilesArray;
+
+			typedef std::unordered_map<U32, U32>                              TFileFactoriesRegistry;
+
+			typedef std::vector<TCreateFileCallback>                          TFileFactories;
+
+			typedef std::list<U32>                                            TFreeEntitiesRegistry;
 		public:
 			/*!
 				\brief The method initializes a file system's object
@@ -85,17 +92,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual std::string ResolveVirtualPath(const std::string& path) const = 0;
-
-			/*!
-				\brief The method creates a new reader for a text files
-
-				\param[in] filename A string that contains a path to a file
-				\param[out] result An output of a function, which contains a result of its execution
-
-				\return A pointer to a new allocated ITextFileReader's instance
-			*/
-
-			TDE2_API ITextFileReader* CreateTextFileReader(const std::string& filename, E_RESULT_CODE& result) override;
 
 			/*!
 				\brief The method closes specified file
@@ -150,13 +146,25 @@ namespace TDEngine2
 			TDE2_API virtual bool _isPathValid(const std::string& path, bool isVirtualPath = false) const = 0;
 
 			TDE2_API virtual E_RESULT_CODE _onInit() = 0;
+
+			TDE2_API IFile* _createFile(U32 typeId, const std::string& filename, E_RESULT_CODE& result) override;
+
+			TDE2_API E_RESULT_CODE _registerFileFactory(U32 typeId, TCreateFileCallback pCreateFileCallback) override;
+
+			TDE2_API E_RESULT_CODE _unregisterFileFactory(U32 typeId) override;
 		protected:
-			TFilesArray        mActiveFiles;
+			TFilesArray            mActiveFiles;
 
-			TVirtualPathsMap   mVirtualPathsMap;
+			TVirtualPathsMap       mVirtualPathsMap;
 
-			TFilesHashMap      mFilesMap;
+			TFilesHashMap          mFilesMap;
 
-			static std::string mInvalidPath;
+			TFileFactoriesRegistry mFileFactoriesMap;
+
+			TFileFactories         mFileFactories;
+
+			TFreeEntitiesRegistry  mFileFactoriesFreeSlots;
+
+			static std::string     mInvalidPath;
 	};
 }

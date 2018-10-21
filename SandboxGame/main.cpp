@@ -81,8 +81,8 @@ int main(int argc, char** argv)
 			pFileLogger->LogMessage("t2 message...");
 		}
 	}, pFileLogger);
-	
-	IConfigFileReader* pConfigFile = dynamic_cast<IConfigFileReader*>(CreateConfigFileReader(pFileSystem, "engine.cfg", result));
+
+	IConfigFileReader* pConfigFile = pFileSystem->Create<CConfigFileReader>("engine.cfg", result);
 	auto p = pConfigFile->GetBool("script", "shared_state");
 
 	pEngineCore->Free();

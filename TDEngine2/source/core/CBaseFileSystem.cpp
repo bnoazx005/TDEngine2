@@ -101,39 +101,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	ITextFileReader* CBaseFileSystem::CreateTextFileReader(const std::string& filename, E_RESULT_CODE& result)
-	{
-		if (!mIsInitialized)
-		{
-			result = RC_FAIL;
-
-			return nullptr;
-		}
-
-		if (!_isPathValid(filename))
-		{
-			result = RC_INVALID_ARGS;
-
-			return nullptr;
-		}
-
-		IFileReader* pTextFileReader = TDEngine2::CreateTextFileReader(this, filename, result);
-
-		if (result != RC_OK)
-		{
-			return nullptr;
-		}
-
-		result = _registerFileEntry(pTextFileReader);
-
-		if (result != RC_OK)
-		{
-			return nullptr;
-		}
-
-		return dynamic_cast<ITextFileReader*>(pTextFileReader);
-	}
-
 	E_RESULT_CODE CBaseFileSystem::CloseFile(IFile* pFile)
 	{
 		if (!mIsInitialized)
@@ -223,6 +190,103 @@ namespace TDEngine2
 		mActiveFiles.push_back(pFileEntry);
 
 		mFilesMap[pFileEntry->GetFilename()] = hashValue;
+
+		return RC_OK;
+	}
+
+	IFile* CBaseFileSystem::_createFile(U32 typeId, const std::string& filename, E_RESULT_CODE& result)
+	{
+		if (!mIsInitialized)
+		{
+			result = RC_FAIL;
+
+			return nullptr;
+		}
+
+		if (!_isPathValid(filename))
+		{
+			result = RC_INVALID_ARGS;
+
+			return nullptr;
+		}
+
+		///try to find the file's factory
+		TCreateFileCallback pFileFactory = mFileFactories[typeId];
+
+		if (!pFileFactory)
+		{
+			result = RC_FAIL;
+
+			return nullptr;
+		}
+
+		IFile* pNewFileInstance = pFileFactory(this, filename, result);
+
+		if (result != RC_OK)
+		{
+			return nullptr;
+		}
+
+		result = _registerFileEntry(pNewFileInstance);
+
+		if (result != RC_OK)
+		{
+			return nullptr;
+		}
+
+		return pNewFileInstance;
+	}
+	
+	E_RESULT_CODE CBaseFileSystem::_registerFileFactory(U32 typeId, TCreateFileCallback pCreateFileCallback)
+	{
+		if (!pCreateFileCallback) /// \todo check typeId equals to InvalidTypeId
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (mFileFactoriesMap[typeId])
+		{
+			return RC_FAIL;
+		}
+
+		if (mFileFactoriesFreeSlots.empty())
+		{
+			U32 nextSlotHash = mFileFactories.size();
+
+			mFileFactories.push_back(pCreateFileCallback);
+
+			mFileFactoriesMap[typeId] = nextSlotHash;
+
+			return RC_OK;
+		}
+
+		U32 nextSlotHash = mFileFactoriesFreeSlots.front();
+
+		mFileFactoriesFreeSlots.pop_front();
+
+		mFileFactories[nextSlotHash] = pCreateFileCallback;
+
+		mFileFactoriesMap[typeId] = nextSlotHash;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseFileSystem::_unregisterFileFactory(U32 typeId)
+	{
+		if (mFileFactoriesMap[typeId])
+		{
+			return RC_OK;
+		}
+
+		TFileFactoriesRegistry::const_iterator fileFactoryEntryIter = mFileFactoriesMap.find(typeId);
+
+		U32 hashValue = (*fileFactoryEntryIter).second;
+
+		mFileFactories[hashValue] = nullptr;
+
+		mFileFactoriesFreeSlots.push_back(hashValue);
+
+		mFileFactoriesMap.erase(fileFactoryEntryIter);
 
 		return RC_OK;
 	}

@@ -105,7 +105,7 @@ namespace TDEngine2
 
 	#define DECLARE_INTERFACE_PROTECTED_MEMBERS(Type)		\
 		TDE2_API Type() = default;							\
-		TDE2_API ~Type() = default;							\
+		TDE2_API virtual ~Type() = default;					\
 		TDE2_API Type(const Type&) = delete;				\
 		TDE2_API Type& operator= (Type&) = delete;
 
@@ -116,7 +116,7 @@ namespace TDEngine2
 
 	#define DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(Type)		\
 		TDE2_API Type();										\
-		TDE2_API ~Type() = default;								\
+		TDE2_API virtual ~Type() = default;						\
 		TDE2_API Type(const Type&) = delete;					\
 		TDE2_API Type& operator= (Type&) = delete;
 

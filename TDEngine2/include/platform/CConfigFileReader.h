@@ -7,7 +7,7 @@
 #pragma once
 
 
-#include "./../core/IFile.h"
+#include "CBaseFile.h"
 #include <fstream>
 #include <unordered_map>
 
@@ -22,7 +22,7 @@ namespace TDEngine2
 		\return A pointer to CConfigFileReader's implementation
 	*/
 
-	TDE2_API IFileReader* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
 
 
 	/*!
@@ -31,32 +31,13 @@ namespace TDEngine2
 		\brief The class represents a base reader of config files
 	*/
 
-	class CConfigFileReader : public IConfigFileReader
+	class CConfigFileReader : public IConfigFileReader, public CBaseFile<CConfigFileReader>
 	{
 		public:
-			friend TDE2_API IFileReader* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+			friend TDE2_API IFile* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
 		protected:
 			typedef std::unordered_map<std::string, std::unordered_map<std::string, std::string>> TConfigParamsMap;
 		public:
-			/*!
-				\brief The method opens specified file
-
-				\param[in,out] pFileSystem A pointer to implementation of IFileSystem
-				\param[in] filename A name of a file
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Open(IFileSystem* pFileSystem, const std::string& filename) override;
-
-			/*!
-				\brief The method closes current opened file
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Close() override;
-
 			/*!
 				\brief The method try to read integer value with specified name inside a group. Otherwise, it
 				will return a default value
@@ -120,33 +101,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::string GetString(const std::string& group, const std::string& paramName, std::string defaultValue = "") override;
-
-			/*!
-				\brief The method returns a name of a file
-
-				\return The method returns a name of a file
-			*/
-
-			TDE2_API std::string GetFilename() const override;
-			
-			/*!
-				\brief The method returns true if a file is opened
-
-				\return The method returns true if a file is opened
-			*/
-
-			TDE2_API bool IsOpen() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConfigFileReader)
 
 			TDE2_API E_RESULT_CODE _parseFileUntilParam(const std::string& group, const std::string& paramName, TConfigParamsMap& paramsMap, std::string& value);
+
+			TDE2_API E_RESULT_CODE _onFree() override;
 		protected:
-			std::ifstream    mFile;
-
-			std::string      mName;
-
-			IFileSystem*     mpFileSystemInstance;
-
 			TConfigParamsMap mParamsMap;
 	};
 }

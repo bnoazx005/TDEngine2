@@ -9,54 +9,7 @@ namespace TDEngine2
 	CConfigFileReader::CConfigFileReader()
 	{
 	}
-
-	E_RESULT_CODE CConfigFileReader::Open(IFileSystem* pFileSystem, const std::string& filename)
-	{
-		if (!pFileSystem)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		if (mFile.is_open())
-		{
-			return RC_FAIL;
-		}
-
-		mFile.open(filename, std::ios::in);
-
-		if (!mFile.is_open())
-		{
-			return RC_FILE_NOT_FOUND;
-		}
-
-		mName = filename;
-
-		mpFileSystemInstance = pFileSystem;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CConfigFileReader::Close()
-	{
-		if (!mFile.is_open())
-		{
-			return RC_FAIL;
-		}
-
-		mFile.close();
-
-		E_RESULT_CODE result = mpFileSystemInstance->CloseFile(this);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		delete this;
-
-		return RC_OK;
-	}
-
+	
 	I32 CConfigFileReader::GetInt(const std::string& group, const std::string& paramName, I32 defaultValue)
 	{
 		std::string resultValue;
@@ -105,16 +58,6 @@ namespace TDEngine2
 		}
 
 		return resultValue;
-	}
-
-	std::string CConfigFileReader::GetFilename() const
-	{
-		return mName;
-	}
-
-	bool CConfigFileReader::IsOpen() const
-	{
-		return mFile.is_open();
 	}
 
 	E_RESULT_CODE CConfigFileReader::_parseFileUntilParam(const std::string& group, const std::string& paramName, TConfigParamsMap& paramsMap, std::string& value)
@@ -182,8 +125,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CConfigFileReader::_onFree()
+	{
+		return RC_OK;
+	}
 
-	IFileReader* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+
+	IFile* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
 	{
 		CConfigFileReader* pFileInstance = new (std::nothrow) CConfigFileReader();
 
@@ -203,6 +151,6 @@ namespace TDEngine2
 			pFileInstance = nullptr;
 		}
 
-		return dynamic_cast<IFileReader*>(pFileInstance);
+		return dynamic_cast<IFile*>(pFileInstance);
 	}
 }
