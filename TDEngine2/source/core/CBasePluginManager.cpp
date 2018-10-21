@@ -3,6 +3,7 @@
 #include "./../../include/core/IDLLManager.h"
 #include "./../../include/core/IEngineCore.h"
 #include "./../../include/core/IWindowSystem.h"
+#include "./../../include/utils/CFileLogger.h"
 
 
 namespace TDEngine2
@@ -40,6 +41,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 		
+		LOG_MESSAGE("[Plugin Manager] The plugin manager was initialized")
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -55,6 +58,8 @@ namespace TDEngine2
 		mIsInitialized = false;
 
 		delete this;
+
+		LOG_MESSAGE("[Plugin Manager] The plugin manager was destroyed")
 
 		return RC_OK;
 	}
@@ -89,6 +94,8 @@ namespace TDEngine2
 			return result;
 		}
 
+		LOG_MESSAGE("[Plugin Manager] The plugin manager tries to load a plugin (" + filename + ") ...");
+
 		TCreatePluginCallback pCreatePluginCallback = (TCreatePluginCallback)mpDLLManager->GetSymbol(libraryHandler, TDE2_CREATE_PLUGIN_FUNC_NAME);
 
 		if (!pCreatePluginCallback)
@@ -100,10 +107,14 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
+			LOG_MESSAGE(std::string("[Plugin Manager] Can't load the plugin, error has happened (" + std::to_string(result) + ")"));
+
 			return result;
 		}
 
 		mLoadedPlugins[filename] = pLoadedPlugin;
+
+		LOG_MESSAGE("[Plugin Manager] The plugin was successfully loaded (" + filename + ")");
 
 		return RC_OK;
 	}
@@ -137,6 +148,8 @@ namespace TDEngine2
 		}
 
 		mLoadedPlugins[filename] = nullptr;
+
+		LOG_MESSAGE("[Plugin Manager] The plugin was successfully unloaded (" + filename + ")");
 
 		return RC_OK;
 	}

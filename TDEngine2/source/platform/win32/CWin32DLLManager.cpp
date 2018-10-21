@@ -1,4 +1,5 @@
 #include "./../../../include/platform/win32/CWin32DLLManager.h"
+#include "./../../../include/utils/CFileLogger.h"
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -18,6 +19,8 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = true;
+
+		LOG_MESSAGE("[Win32 DLL Manager] The Win32 DLL manager was successfully initialized");
 
 		return RC_OK;
 	}
@@ -39,6 +42,8 @@ namespace TDEngine2
 		delete this;
 
 		mIsInitialized = false;
+
+		LOG_MESSAGE("[Win32 DLL Manager] The Win32 DLL manager was successfully destroyed");
 
 		return RC_OK;
 	}
@@ -95,6 +100,8 @@ namespace TDEngine2
 			}
 		}
 
+		LOG_MESSAGE("[Win32 DLL Manager] A new dll file was successfully loaded (" + filenameWithExt + ")");
+
 		return loadedLibraryHandler;
 	}
 
@@ -125,6 +132,8 @@ namespace TDEngine2
 
 		// add current handler into the list of free handlers
 		mFreeHandlersList.push_back(libraryHandler);
+
+		LOG_MESSAGE("[Win32 DLL Manager] The existing dll file was unloaded (" + filename + ")");
 
 		return RC_OK;
 	}
@@ -168,7 +177,7 @@ namespace TDEngine2
 
 		// add current handler into the list of free handlers
 		mFreeHandlersList.push_back(libraryHandler);
-
+		
 		return RC_OK;
 	}
 

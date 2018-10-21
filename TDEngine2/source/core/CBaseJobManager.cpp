@@ -1,4 +1,5 @@
 #include "./../../include/core/CBaseJobManager.h"
+#include "./../../include/utils/CFileLogger.h"
 
 
 namespace TDEngine2
@@ -26,6 +27,9 @@ namespace TDEngine2
 
 		mIsInitialized = true;
 
+		LOG_MESSAGE("[Job Manager] The job manager was successfully initialized...");
+		LOG_MESSAGE("[Job Manager] " + std::to_string(mNumOfThreads) + " threads were created");
+
 		return RC_OK;
 	}
 	
@@ -52,6 +56,9 @@ namespace TDEngine2
 		delete this;
 
 		mIsInitialized = false;
+
+		LOG_MESSAGE("[Job Manager] The job manager was successfully destroyed");
+
 
 		return RC_OK;
 	}

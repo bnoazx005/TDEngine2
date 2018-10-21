@@ -1,4 +1,5 @@
 #include "./../../../include/platform/unix/CUnixDLLManager.h"
+#include "./../../../include/utils/CFileLogger.h"
 
 
 #if defined (TDE2_USE_UNIXPLATFORM)
@@ -22,6 +23,8 @@ namespace TDEngine2
 
 		mIsInitialized = true;
 
+		LOG_MESSAGE("[UNIX DLL Manager] The UNIX DLL manager was successfully initialized");
+
 		return RC_OK;
 	}
 
@@ -42,6 +45,8 @@ namespace TDEngine2
 		delete this;
 
 		mIsInitialized = false;
+
+		LOG_MESSAGE("[UNIX DLL Manager] The UNIX DLL manager was successfully destroyed");
 
 		return RC_OK;
 	}
@@ -97,7 +102,9 @@ namespace TDEngine2
 				mFreeHandlersList.pop_front();
 			}
 		}
-
+		
+		LOG_MESSAGE("[UNIX DLL Manager] A new dll file was successfully loaded (" + filenameWithExt + ")");
+		
 		return loadedLibraryHandler;
 	}
 
@@ -128,6 +135,8 @@ namespace TDEngine2
 
 		// add current handler into the list of free handlers
 		mFreeHandlersList.push_back(libraryHandler);
+
+		LOG_MESSAGE("[UNIX DLL Manager] The existing dll file was unloaded (" + filename + ")");
 
 		return RC_OK;
 	}

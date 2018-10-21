@@ -46,6 +46,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
+		LOG_MESSAGE("[UNIX Window System] The window system was successfully initialized");
+
 		/// CUnixTimer's initialization
 		mpTimer = CreateUnixTimer(result);
 
@@ -80,6 +82,8 @@ namespace TDEngine2
 		mIsInitialized = false;
 
 		delete this;
+
+		LOG_MESSAGE("[UNIX Window System] The window system was successfully destroyed");
 
 		return RC_OK;
 	}
@@ -122,6 +126,8 @@ namespace TDEngine2
 			mpTimer->Tick();
 		}
 
+		LOG_MESSAGE("[UNIX Window System] The main loop's execution was interrupted");
+
 		return true;
 	}
 
@@ -133,6 +139,8 @@ namespace TDEngine2
 		}
 
 		mIsRunning = false;
+
+		LOG_MESSAGE("[UNIX Window System] The quit signal was received");
 
 		return RC_OK;
 	}
@@ -148,6 +156,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		//LOG_MESSAGE("[UNIX Window System] The window's title was changed. The new value is (" + title + ")");
 
 		return RC_OK;
 	}
@@ -174,6 +184,8 @@ namespace TDEngine2
 		mInternalDataObject.mWindowHandler = mWindowHandler;
 
 		mIsInitialized = true;
+
+		LOG_MESSAGE("[UNIX Window System] The window with OpenGL support was created");
 
 		return SetTitle(mWindowName);
 	}
@@ -227,6 +239,8 @@ namespace TDEngine2
 		mInternalDataObject.mWindowHandler = mWindowHandler;
 		
 		mIsInitialized = true;
+
+		LOG_MESSAGE("[UNIX Window System] A simple window was created (OpenGL is disabled)");
 
 		return SetTitle(mWindowName);
 	}

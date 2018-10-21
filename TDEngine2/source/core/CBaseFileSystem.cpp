@@ -1,6 +1,7 @@
 #include "./../../../include/core/CBaseFileSystem.h"
 #include "./../../../include/core/IFile.h"
 #include "./../../../include/platform/CTextFileReader.h"
+#include "./../../../include/utils/CFileLogger.h"
 #include <algorithm>
 #if _HAS_CXX17
 #include <filesystem>
@@ -27,6 +28,8 @@ namespace TDEngine2
 
 		mIsInitialized = true;
 
+		LOG_MESSAGE("[File System] The file system  was successfully initialized");
+
 		return _onInit();
 	}
 
@@ -49,6 +52,8 @@ namespace TDEngine2
 		mIsInitialized = false;
 
 		delete this;
+
+		LOG_MESSAGE("[File System] The file system  was successfully destroyed");
 
 		return RC_OK;
 	}
@@ -77,6 +82,8 @@ namespace TDEngine2
 
 		mVirtualPathsMap[unifiedAliasPath] = unifiedPath;
 
+		LOG_MESSAGE("[File System] A new virtual path was mounted (" + unifiedPath + " -> " + unifiedAliasPath + ")");
+
 		return RC_OK;
 	}
 
@@ -97,6 +104,8 @@ namespace TDEngine2
 		}
 
 		mVirtualPathsMap.erase(existedEntryIter);
+
+		LOG_MESSAGE("[File System] Existing virtual path was unmounted (" + unifiedAliasPath + ")");
 
 		return RC_OK;
 	}
@@ -128,6 +137,8 @@ namespace TDEngine2
 		mFilesMap.erase(entryHashIter);
 
 		mActiveFiles[hashValue] = nullptr;
+
+		LOG_MESSAGE("[File System] Existing file descriptor was closed (" + filename + ")");
 
 		return RC_OK;
 	}
@@ -190,7 +201,7 @@ namespace TDEngine2
 		mActiveFiles.push_back(pFileEntry);
 
 		mFilesMap[pFileEntry->GetFilename()] = hashValue;
-
+		
 		return RC_OK;
 	}
 
@@ -234,6 +245,8 @@ namespace TDEngine2
 			return nullptr;
 		}
 
+		LOG_MESSAGE("[File System] A new file descriptor was created by the manager (" + filename + ")");
+
 		return pNewFileInstance;
 	}
 	
@@ -257,6 +270,8 @@ namespace TDEngine2
 
 			mFileFactoriesMap[typeId] = nextSlotHash;
 
+			LOG_MESSAGE("[File System] A new file factory was registred by the manager");
+
 			return RC_OK;
 		}
 
@@ -267,6 +282,8 @@ namespace TDEngine2
 		mFileFactories[nextSlotHash] = pCreateFileCallback;
 
 		mFileFactoriesMap[typeId] = nextSlotHash;
+
+		LOG_MESSAGE("[File System] A new file factory was registred by the manager");
 
 		return RC_OK;
 	}
@@ -287,6 +304,8 @@ namespace TDEngine2
 		mFileFactoriesFreeSlots.push_back(hashValue);
 
 		mFileFactoriesMap.erase(fileFactoryEntryIter);
+
+		LOG_MESSAGE("[File System] Existing file factory was unregistred by the manager");
 
 		return RC_OK;
 	}

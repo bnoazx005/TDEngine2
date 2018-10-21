@@ -1,6 +1,7 @@
 #include "./../../../include/platform/win32/CWin32WindowSystem.h"
 #include "./../../../include/platform/win32/CWin32Timer.h"
 #include "./../../../include/platform/win32/CWin32DLLManager.h"
+#include "./../../../include/utils/CFileLogger.h"
 
 
 #if defined(TDE2_USE_WIN32PLATFORM)
@@ -92,6 +93,8 @@ namespace TDEngine2
 		mInternalDataObject.mDeviceContextHandler = GetDC(mWindowHandler);
 
 		/// \todo add invokation of user's OnInit method here
+		
+		LOG_MESSAGE("[Win32 Window System] The window system was successfully initialized");
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -158,6 +161,8 @@ namespace TDEngine2
 
 		delete this;
 
+		LOG_MESSAGE("[Win32 Window System] The window system was successfully destroyed");
+
 		return RC_OK;
 	}
 
@@ -187,6 +192,8 @@ namespace TDEngine2
 			}
 		}
 
+		LOG_MESSAGE("[Win32 Window System] The main loop's execution was interrupted");
+
 		return true;
 	}
 
@@ -199,6 +206,8 @@ namespace TDEngine2
 
 		PostQuitMessage(0);
 
+		LOG_MESSAGE("[Win32 Window System] The quit signal was received");
+
 		return RC_OK;
 	}
 
@@ -210,6 +219,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		//LOG_MESSAGE("[Win32 Window System] The window's title was changed. The new values is (" + title + ")");
 
 		return RC_OK;
 	}

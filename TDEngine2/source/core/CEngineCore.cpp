@@ -35,6 +35,8 @@ namespace TDEngine2
 
 		mIsInitialized = true;
 
+		LOG_MESSAGE("[Engine Core] The engine's core starts to work...");
+
 		return RC_OK;
 	}
 
@@ -53,6 +55,9 @@ namespace TDEngine2
 		}
 
 		E_RESULT_CODE result = RC_OK;
+
+
+		LOG_MESSAGE("[Engine Core] Clear the subsystems registry...");
 
 		/// frees memory from all subsystems
 		for (IEngineSubsystem* pCurrSubsystem : mSubsystems)
@@ -73,6 +78,8 @@ namespace TDEngine2
 		mIsInitialized = false;
 
 		delete this;
+
+		LOG_MESSAGE("[Engine Core] The engine's core was successfully finalized");
 
 		return RC_OK;
 	}
@@ -95,6 +102,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		LOG_MESSAGE("[Engine Core] The engine's core begins to execute the main loop...");
 
 		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));
@@ -125,6 +134,8 @@ namespace TDEngine2
 			return result;
 		}
 
+		LOG_MESSAGE("[Engine Core] A signal to quit was received");
+
 		return RC_OK;
 	}
 
@@ -147,6 +158,8 @@ namespace TDEngine2
 		}
 
 		mSubsystems[subsystemType] = pSubsystem;
+		
+		LOG_MESSAGE("[Engine Core] A new subsystem was successfully registred");
 
 		return RC_OK;
 	}
@@ -179,6 +192,8 @@ namespace TDEngine2
 
 		mEngineListeners.push_back(pListener);
 
+		LOG_MESSAGE("[Engine Core] A new listener was successfully registred");
+
 		return RC_OK;
 	}
 
@@ -199,6 +214,8 @@ namespace TDEngine2
 		}
 
 		mEngineListeners.erase(entityIter);
+
+		LOG_MESSAGE("[Engine Core] The new listener was successfully unregistred");
 
 		return RC_OK;
 	}
@@ -293,6 +310,8 @@ namespace TDEngine2
 		}
 
 		mSubsystems[subsystemType] = nullptr;
+
+		LOG_MESSAGE("[Engine Core] The subsystem was successfully unregistred");
 
 		return pEngineSubsystem->Free();
 	}
