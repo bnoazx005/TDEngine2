@@ -28,16 +28,6 @@ namespace TDEngine2
 	{
 		public:
 			/*!
-				\brief The method initializes an inner state of an object
-				
-				\param[in] pResourceManager A pointer to IResourceManager's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager) = 0;
-
-			/*!
 				\brief The method loads data into the specified resource based on its
 				internal information
 
