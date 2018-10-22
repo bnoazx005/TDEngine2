@@ -79,6 +79,9 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/Utils.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector3.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector4.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TMatrix3.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TMatrix4.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TQuaternion.h"
 	)
 
 set(TDENGINE2_SOURCES
@@ -108,7 +111,11 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CFileLogger.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/Types.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector3.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector4.cpp")
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector4.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TMatrix3.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TMatrix4.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TQuaternion.cpp"
+	)
 
 source_group("includes" FILES ${TDENGINE2_HEADERS})
 source_group("sources" FILES ${TDENGINE2_SOURCES})

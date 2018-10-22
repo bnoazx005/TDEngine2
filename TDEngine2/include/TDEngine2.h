@@ -54,6 +54,10 @@
 
 ///math
 #include "math/TVector3.h"
+#include "math/TVector4.h"
+#include "math/TMatrix3.h"
+#include "math/TMatrix4.h"
+#include "math/TQuaternion.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"
