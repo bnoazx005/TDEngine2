@@ -9,6 +9,7 @@
 
 #include <utils/Types.h>
 #include "CD3D11Buffer.h"
+#include <string>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -64,6 +65,19 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static U32 GetFormatSize(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function returns a string that contains a target version and type of a shader specific
+				for D3D11
+
+				\param[in] stageType A type of a shader
+				\param[in] version A version of a shader
+
+				\return The function returns a string that contains a target version and type of a shader specific
+				for D3D11
+			*/
+
+			TDE2_API static std::string GetShaderTargetVerStr(E_SHADER_STAGE_TYPE stageType, E_SHADER_TARGET_VERSION version);
 	};
 }
 

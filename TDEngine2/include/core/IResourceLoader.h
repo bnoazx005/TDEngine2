@@ -50,4 +50,39 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceLoader)
 	};
+
+
+	class IGraphicsContext;
+	class IFileSystem;
+	class IShaderCompiler;
+
+
+	/*!
+		interface IShaderLoader
+
+		\brief The interface describes a functionality of a shaders loader
+	*/
+
+	class IShaderLoader : public IResourceLoader
+	{
+		public:
+			/*!
+				\brief The method initializes an inner state of an object
+				
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+				\param[in, out] pFileSystem A pointer to IFileSystem's implementation
+
+				\param[in] pShaderCompiler A pointer to IShaderCompiler's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+			
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
+												const IShaderCompiler* pShaderCompiler) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShaderLoader)
+	};
 }

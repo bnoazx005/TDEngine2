@@ -221,6 +221,36 @@ namespace TDEngine2
 
 		return 0;
 	}
+
+	std::string CD3D11Mappings::GetShaderTargetVerStr(E_SHADER_STAGE_TYPE stageType, E_SHADER_TARGET_VERSION version)
+	{
+		std::string result;
+
+		switch (stageType)
+		{
+			case SST_VERTEX:
+				result = "VS_";
+				break;
+			case SST_PIXEL:
+				result = "PS_";
+				break;
+			case SST_GEOMETRY:
+				result = "GS_";
+				break;
+		}
+
+		switch (version)
+		{
+			case STV_3_0:
+				return result + "3_0";
+			case STV_4_0:
+				return result + "4_0";
+			case STV_5_0:
+				return result + "5_0";
+		}
+
+		return "";
+	}
 }
 
 #endif

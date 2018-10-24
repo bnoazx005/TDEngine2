@@ -21,6 +21,8 @@ set(D3D11_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11VertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11ConstantBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11VertexDeclaration.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Shader.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11ShaderCompiler.h"
 	)
 
 set(D3D11_GCTX_SOURCES
@@ -32,6 +34,8 @@ set(D3D11_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11VertexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11ConstantBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11VertexDeclaration.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Shader.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11ShaderCompiler.cpp"
 	)
 
 source_group("includes" FILES ${D3D11_GCTX_HEADERS})
@@ -78,3 +82,6 @@ target_include_directories("${D3D11_GCTX_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_
 
 # disable the <libname>_EXPORTS
 set_target_properties(${D3D11_GCTX_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
+
+# bad decision to create a circular dependency TODO: dettach the plugin from TDEngine2
+target_link_libraries(${D3D11_GCTX_LIBRARY_NAME} PUBLIC "${TDENGINE2_LIBRARY_NAME}")

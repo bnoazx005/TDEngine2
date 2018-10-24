@@ -25,6 +25,7 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLMappings.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLIndexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLConstantBuffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLShader.h"
 	)
 
 set(OGL_GCTX_SOURCES
@@ -102,3 +103,6 @@ set_target_properties(${OGL_GCTX_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
 if (UNIX)
 	install (TARGETS ${OGL_GCTX_LIBRARY_NAME} DESTINATION "/usr/lib/TDEngine2/plugins")
 endif ()
+
+# bad decision to create a circular dependency TODO: dettach the plugin from TDEngine2
+target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${TDENGINE2_LIBRARY_NAME}")

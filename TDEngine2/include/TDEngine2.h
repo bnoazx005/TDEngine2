@@ -51,6 +51,10 @@
 #include "graphics/IIndexBuffer.h"
 #include "graphics/IConstantBuffer.h"
 #include "graphics/IVertexDeclaration.h"
+#include "graphics/IShader.h"
+#include "graphics/CBaseShader.h"
+#include "graphics/IShaderCompiler.h"
+#include "graphics/CBaseShaderLoader.h"
 
 ///math
 #include "math/TVector3.h"

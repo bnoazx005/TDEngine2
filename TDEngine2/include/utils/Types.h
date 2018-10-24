@@ -27,6 +27,8 @@
 #else
 #endif
 
+#include <vector>
+
 
 namespace TDEngine2
 {	
@@ -430,5 +432,67 @@ namespace TDEngine2
 	{
 		RAT_BLOCKING,			///< An executation within a particular thread will be freezed until a resource will be loaded
 		RAT_STREAMING,			///< A resource's loading will be executed asynchronously, if the resource isn't loaded yet the default variant of it will be returned and updated later
+	};
+
+
+	/*!
+		struct TShaderCompilerResult
+
+		\brief The structure is used as compound result type of Compile method of IShaderCompiler
+	*/
+
+	typedef struct TShaderCompilerResult
+	{
+		E_RESULT_CODE                      mResultCode;
+
+		std::vector<U8>                    mVSByteCode;
+
+		std::vector<U8>                    mPSByteCode;
+
+		std::vector<U8>                    mGSByteCode;
+
+		static const TShaderCompilerResult mInvalidValue;
+
+		/*!
+			Default constructor
+		*/
+
+		TDE2_API TShaderCompilerResult();
+
+		/*!
+			\brief This constructor is used when some error occured and it should
+			be returned
+
+			\param[in] errorCode An argument, which contains error message
+		*/
+
+		TDE2_API TShaderCompilerResult(E_RESULT_CODE errorCode);
+	} TShaderCompilerResult, *TShaderCompilerResultPtr;
+	
+
+	/*!
+		enumeration E_SHADER_STAGE_TYPE
+
+		\brief The enumeration contains types of shaders
+	*/
+
+	enum E_SHADER_STAGE_TYPE
+	{
+		SST_VERTEX,
+		SST_PIXEL,
+		SST_GEOMETRY
+	};
+
+	/*!
+		enum E_SHADER_TARGET_VERSION
+
+		\brief The enumeration contains target versions that shaders support
+	*/
+
+	enum E_SHADER_TARGET_VERSION
+	{
+		STV_3_0,
+		STV_4_0,
+		STV_5_0,
 	};
 }
