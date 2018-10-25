@@ -25,12 +25,18 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of a shader
 
-				\param[in] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+				\param[in] name A resource's name
+
+				\param[in] id An identifier of a resource
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id) override;
 
 			/*!
 				\brief The method compiles specified source code into shader's bytecode using IShaderCompiler's

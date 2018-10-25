@@ -36,7 +36,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE LoadResource(IResource* pResource) = 0;
+			TDE2_API virtual E_RESULT_CODE LoadResource(IResource* pResource) const = 0;
 
 			/*!
 				\brief The method returns an identifier of a resource's type, which

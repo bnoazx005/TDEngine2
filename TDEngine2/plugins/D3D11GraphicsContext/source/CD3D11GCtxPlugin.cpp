@@ -3,6 +3,11 @@
 #include <core/IGraphicsContext.h>
 #include "./../include/CD3D11GraphicsContext.h"
 #include <core/IWindowSystem.h>
+#include <core/IResourceManager.h>
+#include "./../include/CD3D11Shader.h"
+#include <graphics/CBaseShaderLoader.h>
+#include <core/IFileSystem.h>
+#include "./../include/CD3D11ShaderCompiler.h"
 
 
 namespace TDEngine2
@@ -38,6 +43,16 @@ namespace TDEngine2
 			return result;
 		}
 
+		if ((result = _registerFactories(pEngineCore)) != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = _registerResourceLoaders(pEngineCore)) != RC_OK)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -67,6 +82,61 @@ namespace TDEngine2
 	const TPluginInfo& CD3D11GCtxPlugin::GetInfo() const
 	{
 		return mPluginInfo;
+	}
+
+	E_RESULT_CODE CD3D11GCtxPlugin::_registerFactories(IEngineCore* pEngineCore)
+	{
+		IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
+
+		if (!pResourceManager)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IResourceFactory* pShaderFactoryInstance = CreateD3D11ShaderFactory(mpGraphicsContext, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TRegisterFactoryResult registerResult = pResourceManager->RegisterFactory(pShaderFactoryInstance);
+
+		return registerResult.mResultCode;
+	}
+
+	E_RESULT_CODE CD3D11GCtxPlugin::_registerResourceLoaders(IEngineCore* pEngineCore)
+	{
+		IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
+
+		IFileSystem* pFileSystem = dynamic_cast<IFileSystem*>(pEngineCore->GetSubsystem(EST_FILE_SYSTEM));
+
+		if (!pResourceManager || !pFileSystem)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IShaderCompiler* pShaderCompilerInstance = CreateD3D11ShaderCompiler(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		IResourceLoader* pShaderLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext, pFileSystem, pShaderCompilerInstance, result);
+		
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TRegisterLoaderResult registerResult = pResourceManager->RegisterLoader(pShaderLoaderInstance);
+
+		return registerResult.mResultCode;
 	}
 }
 

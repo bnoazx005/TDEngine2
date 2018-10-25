@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 	pEngineCoreBuilder->ConfigureResourceManager();
 	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
 	pEngineCoreBuilder->ConfigurePluginManager();
-	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_OPENGL3X);
+	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_DIRECT3D11);
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
 	
@@ -61,6 +61,8 @@ int main(int argc, char** argv)
 	//path = pFileSystem->ResolveVirtualPath("\\foo\\.\\..\\text");
 
 	IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
+
+	auto pShaderHandler = pResourceManager->Load<CBaseShader>("test.shader");
 
 	IJobManager* pJobManager = dynamic_cast<IJobManager*>(pEngineCore->GetSubsystem(EST_JOB_MANAGER));
 

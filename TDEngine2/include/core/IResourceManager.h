@@ -108,7 +108,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE UnregisterFactory(const TResourceFactoryId& resourceFactoryId) = 0;
 			
 			/*!
-			\brief The method creates a new instance of specified type
+			\brief The method creates a new instance of specified type. If there is existing resource of type T with
+			specified name it will be returned as a result
 
 			\param[in] pParams A parameters of a creating instance
 
@@ -136,11 +137,31 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IResource* GetResourceByHandler(const IResourceHandler* pResourceHandler) const = 0;
+
+			/*!
+				\brief The method returns a pointer to IResourceLoader, which is a loader of specific type of resources
+				
+				\return The method returns a pointer to IResourceLoader, which is a loader of specific type of resources
+			*/
+			
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IResource, T>, const IResourceLoader*>
+#else
+			typename std::enable_if<std::is_base_of<IResource, T>::value, const IResourceLoader*>::type
+#endif
+			GetResourceLoader() const
+			{
+				return _getResourceLoader(T::GetTypeId());
+			}
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)
 
 			TDE2_API virtual IResourceHandler* _loadResource(U32 resourceTypeId, const std::string& name) = 0;
 
 			TDE2_API virtual IResourceHandler* _createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams) = 0;
+
+			TDE2_API virtual const IResourceLoader* _getResourceLoader(U32 resourceTypeId) const = 0;
 	};
 }

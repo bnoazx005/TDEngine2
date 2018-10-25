@@ -55,7 +55,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseShaderLoader::LoadResource(IResource* pResource)
+	E_RESULT_CODE CBaseShaderLoader::LoadResource(IResource* pResource) const
 	{
 		if (!mIsInitialized)
 		{
@@ -73,6 +73,11 @@ namespace TDEngine2
 
 		/// load source code
 		ITextFileReader* pShaderFileReader = dynamic_cast<ITextFileReader*>(mpFileSystem->Create<CTextFileReader>(pResource->GetName(), result));
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
 
 		std::string shaderSourceCode = pShaderFileReader->ReadToEnd();
 

@@ -1,5 +1,6 @@
 #include "./../include/CD3D11Shader.h"
 #include "./../include/CD3D11GraphicsContext.h"
+#include <graphics/CBaseShader.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -7,8 +8,13 @@
 namespace TDEngine2
 {
 	CD3D11Shader::CD3D11Shader() :
-		CBaseShader()
+		CBaseShader(), mpVertexShader(nullptr), mpPixelShader(nullptr), mpGeometryShader(nullptr)
 	{
+	}
+
+	E_RESULT_CODE CD3D11Shader::Unload()
+	{
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerResult& shaderBytecode)
@@ -59,6 +65,31 @@ namespace TDEngine2
 	}
 
 
+	TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+										TResourceId id, E_RESULT_CODE& result)
+	{
+		CD3D11Shader* pShaderInstance = new (std::nothrow) CD3D11Shader();
+
+		if (!pShaderInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pShaderInstance->Init(pResourceManager, pGraphicsContext, name, id);
+
+		if (result != RC_OK)
+		{
+			delete pShaderInstance;
+
+			pShaderInstance = nullptr;
+		}
+
+		return pShaderInstance;
+	}
+
+
 	CD3D11ShaderFactory::CD3D11ShaderFactory() :
 		mIsInitialized(false)
 	{
@@ -70,6 +101,13 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		if (!pGraphicsContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
 		
@@ -93,6 +131,13 @@ namespace TDEngine2
 	IResource* CD3D11ShaderFactory::Create(const TBaseResourceParameters* pParams) const
 	{
 		return nullptr;
+	}
+
+	IResource* CD3D11ShaderFactory::CreateDefault(const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		return dynamic_cast<IResource*>(CreateD3D11Shader(params.mpResourceManager, mpGraphicsContext, params.mName, params.mId, result));
 	}
 
 	U32 CD3D11ShaderFactory::GetResourceTypeId() const

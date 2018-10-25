@@ -19,7 +19,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!pResourceManager || (id == InvalidResourceId))
+		if (!pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -47,6 +47,15 @@ namespace TDEngine2
 		}
 
 		delete this;
+
+		return RC_OK;
+	}
+	
+	E_RESULT_CODE CResourceHandler::SetResourceId(TResourceId id)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		mResourceId = id;
 
 		return RC_OK;
 	}

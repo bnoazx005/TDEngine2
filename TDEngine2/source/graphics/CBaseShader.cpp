@@ -9,11 +9,13 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseShader::Init(IGraphicsContext* pGraphicsContext)
+	E_RESULT_CODE CBaseShader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id)
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = _init(pResourceManager, name, id);
+
+		if (result != RC_OK)
 		{
-			return RC_FAIL;
+			return result;
 		}
 
 		if (!pGraphicsContext)

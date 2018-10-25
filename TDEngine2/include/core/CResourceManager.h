@@ -11,11 +11,13 @@
 #include <unordered_map>
 #include <vector>
 #include <mutex>
+#include <list>
 
 
 namespace TDEngine2
 {
-	class CResourceHandler;
+	class IResourceHandler;
+	class IResource;
 
 
 	/*!
@@ -42,15 +44,23 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
 		protected:
-			typedef std::unordered_map<U32, TResourceLoaderId>  TResourceLoadersMap;
+			typedef std::unordered_map<U32, TResourceLoaderId>   TResourceLoadersMap;
 
-			typedef std::vector<const IResourceLoader*>         TResourceLoadersArray;
+			typedef std::vector<const IResourceLoader*>          TResourceLoadersArray;
 
-			typedef std::list<U32>                              TFreeEntriesRegistry;
+			typedef std::list<U32>                               TFreeEntriesRegistry;
 
-			typedef std::unordered_map<U32, TResourceFactoryId> TResourceFactoriesMap;
+			typedef std::unordered_map<U32, TResourceFactoryId>  TResourceFactoriesMap;
 
-			typedef std::vector<const IResourceFactory*>        TResourceFactoriesArray;
+			typedef std::vector<const IResourceFactory*>         TResourceFactoriesArray;
+
+			typedef std::unordered_map<std::string, TResourceId> TResourcesMap;
+
+			typedef std::vector<IResource*>                      TResourcesArray;
+			
+			typedef std::unordered_map<TResourceId, U32>         TResourceHandlersMap;
+			
+			typedef std::vector<IResourceHandler*>               TResourceHandlersArray;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -135,6 +145,14 @@ namespace TDEngine2
 			TDE2_API IResourceHandler* _loadResource(U32 resourceTypeId, const std::string& name) override;
 
 			TDE2_API IResourceHandler* _createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams) override;
+
+			TDE2_API IResourceHandler* _createOrGetResourceHandler(TResourceId resourceId);
+
+			TDE2_API E_RESULT_CODE _freeResourceHandler(TResourceId resourceId);
+
+			TDE2_API const IResourceLoader* _getResourceLoader(U32 resourceTypeId) const override;
+
+			TDE2_API TResourceId _getFreeResourceId();
 		protected:
 			bool                    mIsInitialized;
 
@@ -149,6 +167,18 @@ namespace TDEngine2
 			TResourceFactoriesArray mRegistredResourceFactories;
 
 			TFreeEntriesRegistry    mFreeFactoriesEntriesRegistry;
+
+			TResourcesMap           mResourcesMap;
+
+			TResourcesArray         mResources;
+
+			TFreeEntriesRegistry    mFreeResourcesEntriesRegistry;
+
+			TResourceHandlersMap    mResourceHandlersMap;
+
+			TResourceHandlersArray  mResourceHandlersArray;
+
+			TFreeEntriesRegistry    mFreeResourceHandlersRegistry;
 
 			IJobManager*            mpJobManager;
 

@@ -2,6 +2,9 @@
 #include "./../../include/core/IResourceLoader.h"
 #include "./../../include/core/IJobManager.h"
 #include "./../../include/core/IResourceFactory.h"
+#include "./../../include/core/CResourceHandler.h"
+#include "./../../include/core/IResource.h"
+#include <memory>
 
 
 namespace TDEngine2
@@ -27,7 +30,16 @@ namespace TDEngine2
 
 		mpJobManager = pJobManager;
 
-		/// \todo implement Init of CResourceManager
+		E_RESULT_CODE result = RC_OK;
+
+		IResourceHandler* pInvalidResourceHandler = CreateResourceHandler(this, InvalidResourceId, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mResourceHandlersArray.push_back(pInvalidResourceHandler);
 
 		mIsInitialized = true;
 
@@ -78,6 +90,8 @@ namespace TDEngine2
 
 			mRegistredResourceLoaders.push_back(pResourceLoader);
 
+			mResourceLoadersMap[resourceTypeId] = existingDuplicateId;
+
 			return { RC_OK, existingDuplicateId };
 		}
 
@@ -87,6 +101,8 @@ namespace TDEngine2
 		mFreeLoadersEntriesRegistry.pop_front();
 
 		mRegistredResourceLoaders[existingDuplicateId - 1] = pResourceLoader;
+
+		mResourceLoadersMap[resourceTypeId] = existingDuplicateId;
 
 		return { RC_OK, existingDuplicateId };
 	}
@@ -149,6 +165,8 @@ namespace TDEngine2
 			existingDuplicateId = mRegistredResourceFactories.size() + 1;
 
 			mRegistredResourceFactories.push_back(pResourceFactory);
+			
+			mResourceFactoriesMap[resourceTypeId] = existingDuplicateId;
 
 			result.mResourceFactoryId = existingDuplicateId;
 
@@ -161,6 +179,8 @@ namespace TDEngine2
 		mFreeFactoriesEntriesRegistry.pop_front();
 
 		mRegistredResourceFactories[existingDuplicateId - 1] = pResourceFactory;
+
+		mResourceFactoriesMap[resourceTypeId] = existingDuplicateId;
 
 		result.mResourceFactoryId = existingDuplicateId;
 
@@ -207,16 +227,154 @@ namespace TDEngine2
 
 	IResourceHandler* CResourceManager::_loadResource(U32 resourceTypeId, const std::string& name)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		TResourceId resourceId = mResourcesMap[name];
 
-		/// \todo implement the method
-		return nullptr;
+		IResource* pResource = nullptr;
+
+		IResourceHandler* pResourceHandler = nullptr;
+
+		if (resourceId != InvalidResourceId) /// needed resource already exists
+		{
+			pResourceHandler = _createOrGetResourceHandler(resourceId);
+
+			if (pResource->GetState() == RST_PENDING)
+			{
+				pResource->Load(); /// \todo move loading in the background thread
+			}
+
+			return pResourceHandler;
+		}
+
+		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
+
+		if (factoryIdIter == mResourceFactoriesMap.cend())
+		{
+			return mResourceHandlersArray[0]; /// return invalid handler
+		}
+
+		const IResourceFactory* pResourceFactory = mRegistredResourceFactories[(*factoryIdIter).second - 1];
+			
+		resourceId = _getFreeResourceId();
+
+		mResourcesMap[name] = resourceId;
+			
+		pResource = pResourceFactory->CreateDefault({ this, name, resourceId });
+
+		mResources[resourceId - 1] = pResource;
+
+		pResourceHandler = _createOrGetResourceHandler(resourceId);
+
+		pResource->Load(); /// \todo move loading in the background thread
+
+		return pResourceHandler;
 	}
 
 	IResourceHandler* CResourceManager::_createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams)
 	{
-		/// \todo implement the method
+		if (!pParams || pParams->mpResourceManager)
+		{
+			return mResourceHandlersArray[0]; ///< contains InvalidResoucreHandler
+		}
+
+		TResourceId id = mResourcesMap[pParams->mName];
+
+		if (id != InvalidResourceId)
+		{
+			return mResourceHandlersArray[0];
+		}
+
 		return nullptr;
+	}
+
+	IResourceHandler* CResourceManager::_createOrGetResourceHandler(TResourceId resourceId)
+	{
+		U32 handlerHashValue = mResourceHandlersMap[resourceId];
+
+		if (handlerHashValue) /// just return existing handler
+		{
+			return mResourceHandlersArray[handlerHashValue];
+		}
+
+		IResourceHandler* pNewHandlerInstance = nullptr;
+
+		E_RESULT_CODE result = RC_OK;
+
+		if (mFreeResourceHandlersRegistry.empty())
+		{
+			handlerHashValue = mResourceHandlersArray.size();
+
+			pNewHandlerInstance = CreateResourceHandler(this, resourceId, result);
+
+			if (result != RC_OK)
+			{
+				return mResourceHandlersArray[0]; /// invalid handler
+			}
+
+			mResourceHandlersArray.push_back(pNewHandlerInstance);
+
+			return pNewHandlerInstance;
+		}
+
+		/// reuse existing handler just reset it
+		handlerHashValue = mFreeResourceHandlersRegistry.front();
+
+		mFreeResourceHandlersRegistry.pop_front();
+
+		pNewHandlerInstance = mResourceHandlersArray[handlerHashValue];
+
+		pNewHandlerInstance->SetResourceId(resourceId);
+
+		return pNewHandlerInstance;
+	}
+	
+	E_RESULT_CODE CResourceManager::_freeResourceHandler(TResourceId resourceId)
+	{
+		U32 handlerHashValue = mResourceHandlersMap[resourceId];
+
+		if (!handlerHashValue) /// there is no handler associated with resourceId
+		{
+			return RC_FAIL;
+		}
+
+		IResourceHandler* pNewHandlerInstance = mResourceHandlersArray[handlerHashValue];
+
+		pNewHandlerInstance->SetResourceId(InvalidEntityId);
+
+		mFreeResourceHandlersRegistry.push_back(handlerHashValue);
+
+		return RC_OK;
+	}
+
+	TResourceId CResourceManager::_getFreeResourceId()
+	{
+		TResourceId resourceId = InvalidResourceId;
+
+		if (mFreeResourcesEntriesRegistry.empty())
+		{
+			resourceId = mResources.size() + 1;
+
+			mResources.push_back(nullptr);
+
+			return resourceId;
+		}
+
+		resourceId = mFreeResourcesEntriesRegistry.front();
+
+		mFreeResourcesEntriesRegistry.pop_front();
+
+		return resourceId;
+	}
+
+	const IResourceLoader* CResourceManager::_getResourceLoader(U32 resourceTypeId) const
+	{
+		auto resourceLoaderIdIter = mResourceLoadersMap.find(resourceTypeId);
+
+		if (resourceLoaderIdIter == mResourceLoadersMap.cend())
+		{
+			return nullptr;
+		}
+
+		return mRegistredResourceLoaders[resourceLoaderIdIter->second - 1];
 	}
 
 

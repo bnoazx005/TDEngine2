@@ -61,6 +61,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
+				\brief The method sets up a new resource's identifier
+
+				\param[in] id A new identifier's value
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetResourceId(TResourceId id) override;
+
+			/*!
 				\brief The method returns a raw pointer to a resource it's binded to
 
 				\param[in] type A type of an access to a resource (can be blocking or asynchronous). Use

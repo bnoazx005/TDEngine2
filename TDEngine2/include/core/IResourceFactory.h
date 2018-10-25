@@ -15,6 +15,10 @@
 
 namespace TDEngine2
 {
+	class IResourceManager;
+	class IGraphicsContext;
+
+
 	/*!
 		struct TBaseResourceParameters
 
@@ -25,10 +29,24 @@ namespace TDEngine2
 
 	typedef struct TBaseResourceParameters
 	{
-		std::string mName;
+		IResourceManager* mpResourceManager;
 
-		TResourceId mId;
+		std::string       mName;
+					      
+		TResourceId       mId;
 	} TBaseResourceParameters, *TBaseResourceParametersPtr;
+
+
+	/*!
+		struct TShaderParameters
+
+		\brief The stucture contains fields for creation IShader objects
+	*/
+
+	typedef struct TShaderParameters: TBaseResourceParameters
+	{
+		IGraphicsContext* mpGraphicsContext;
+	} TShaderParameters, *TShaderParametersPtr;
 
 
 	/*!
@@ -49,6 +67,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IResource* Create(const TBaseResourceParameters* pParams) const = 0;
+
+			/*!
+				\brief The method creates a new instance of a resource based on passed parameters
+
+				\param[in] pParams An object that contains parameters that are needed for the resource's creation
+
+				\return A pointer to a new instance of IResource type
+			*/
+
+			TDE2_API virtual IResource* CreateDefault(const TBaseResourceParameters& params) const = 0;
 
 			/*!
 				\brief The method returns an identifier of a resource's type, which

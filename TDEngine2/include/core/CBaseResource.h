@@ -10,6 +10,8 @@
 #include "IResource.h"
 #include "CBaseObject.h"
 #include "./../utils/Utils.h"
+#include "IResourceManager.h"
+#include "IResourceLoader.h"
 
 
 namespace TDEngine2
@@ -47,7 +49,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Unload() override;
+			TDE2_API virtual E_RESULT_CODE Unload() = 0;
 
 			/*!
 				\brief The method returns an identifier of a resource
@@ -83,11 +85,13 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseResource)
 
-			virtual TDE2_API E_RESULT_CODE _init(const std::string& name, TResourceId id);
+			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name, TResourceId id);
 		protected:
 			static U32               mTypeId;					///< The value of mTypeId is same for all resources of T type
 
 			static const TResourceId mInvalidResourceId;
+
+			IResourceManager*        mpResourceManager;
 
 			std::string              mName;						///< The name's value is unique for each resource
 
@@ -121,15 +125,21 @@ namespace TDEngine2
 	template <typename T>
 	TDE2_API E_RESULT_CODE CBaseResource<T>::Load()
 	{
-		return RC_NOT_IMPLEMENTED_YET;
-	}
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
 
-	template <typename T>
-	TDE2_API E_RESULT_CODE CBaseResource<T>::Unload()
-	{
-		return RC_NOT_IMPLEMENTED_YET;
-	}
+		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<T>();
 
+		if (!pResourceLoader)
+		{
+			return RC_FAIL;
+		}
+
+		return pResourceLoader->LoadResource(this);
+	}
+	
 	template <typename T>
 	TDE2_API TResourceId CBaseResource<T>::GetId() const
 	{
@@ -155,17 +165,19 @@ namespace TDEngine2
 	}
 
 	template <typename T>
-	TDE2_API E_RESULT_CODE CBaseResource<T>::_init(const std::string& name, TResourceId id)
+	TDE2_API E_RESULT_CODE CBaseResource<T>::_init(IResourceManager* pResourceManager, const std::string& name, TResourceId id)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (name.empty() || id == InvalidResourceId)
+		if (!pResourceManager || name.empty() || id == InvalidResourceId)
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpResourceManager = pResourceManager;
 
 		mName = name;
 

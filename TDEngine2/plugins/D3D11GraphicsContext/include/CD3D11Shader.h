@@ -10,6 +10,7 @@
 #include <graphics/CBaseShader.h>
 #include <utils/Config.h>
 #include <core/IResourceFactory.h>
+#include <string>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -19,8 +20,28 @@
 
 namespace TDEngine2
 {
+	class IResourceManager;
 	class IGraphicsContext;
 
+
+	/*!
+		\brief A factory function for creation objects of CD3D11Shader's type
+
+		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
+
+		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+		\param[in] name A resource's name
+
+		\param[in] id An identifier of a resource
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CD3D11Shader's implementation
+	*/
+
+	TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, 
+										TResourceId id, E_RESULT_CODE& result);
 
 	/*!
 		class CD3D11Shader
@@ -28,9 +49,19 @@ namespace TDEngine2
 		\brief The class is a common implementation for all platforms
 	*/
 
-	class CD3D11Shader : public IShader, public CBaseShader
+	class CD3D11Shader : public CBaseShader
 	{
 		public:
+			friend TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+													   TResourceId id, E_RESULT_CODE& result);
+		public:
+			/*!
+				\brief The method unloads resource data from memory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Unload() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Shader)
 
@@ -96,6 +127,16 @@ namespace TDEngine2
 			TDE2_API IResource* Create(const TBaseResourceParameters* pParams) const override;
 
 			/*!
+				\brief The method creates a new instance of a resource based on passed parameters
+
+				\param[in] pParams An object that contains parameters that are needed for the resource's creation
+
+				\return A pointer to a new instance of IResource type
+			*/
+
+			TDE2_API IResource* CreateDefault(const TBaseResourceParameters& params) const override;
+
+			/*!
 				\brief The method returns an identifier of a resource's type, which
 				the factory serves
 
@@ -107,7 +148,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderFactory)
 		protected:
-			bool mIsInitialized;
+			bool              mIsInitialized;
+
+			IGraphicsContext* mpGraphicsContext;
 	};
 }
 
