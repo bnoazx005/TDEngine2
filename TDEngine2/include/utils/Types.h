@@ -422,6 +422,27 @@ namespace TDEngine2
 	} TRegisterLoaderResult;
 
 
+	typedef U32 TResourceFactoryId; ///< A resource factory's identifier
+
+	constexpr TResourceFactoryId InvalidResourceFactoryId = 0;
+
+
+	/*!
+		structure TRegisterFactoryResult
+
+		\brief The structure is used as compound result type of RegisterFactory method of IResourceManager
+	*/
+
+	typedef struct TRegisterFactoryResult
+	{
+		E_RESULT_CODE                       mResultCode;
+
+		TResourceFactoryId                  mResourceFactoryId;
+
+		static const TRegisterFactoryResult mInvalidValue;
+	} TRegisterFactoryResult;
+
+
 	/*!
 		enum E_RESOURCE_ACCESS_TYPE
 

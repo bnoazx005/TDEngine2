@@ -1,6 +1,7 @@
 #include "./../../include/core/CResourceManager.h"
 #include "./../../include/core/IResourceLoader.h"
 #include "./../../include/core/IJobManager.h"
+#include "./../../include/core/IResourceFactory.h"
 
 
 namespace TDEngine2
@@ -115,6 +116,82 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	TRegisterFactoryResult CResourceManager::RegisterFactory(const IResourceFactory* pResourceFactory)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		TRegisterFactoryResult result;
+
+		if (!mIsInitialized || !pResourceFactory)
+		{
+			result.mResultCode = RC_INVALID_ARGS;
+
+			return result;
+		}
+
+		result.mResultCode = RC_OK;
+
+		U32 resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
+
+		TResourceFactoryId existingDuplicateId = mResourceFactoriesMap[resourceTypeId];
+
+		// if the duplicate exists, just return it
+		if (existingDuplicateId != InvalidResourceFactoryId)
+		{
+			result.mResourceFactoryId = existingDuplicateId;
+
+			return result;
+		}
+
+		// there is no empty slots in the array, so allocate a new one
+		if (mFreeFactoriesEntriesRegistry.empty())
+		{
+			existingDuplicateId = mRegistredResourceFactories.size() + 1;
+
+			mRegistredResourceFactories.push_back(pResourceFactory);
+
+			result.mResourceFactoryId = existingDuplicateId;
+
+			return result;
+		}
+
+		// just reuse existing nullptr slot
+		existingDuplicateId = mFreeFactoriesEntriesRegistry.front() + 1;
+
+		mFreeFactoriesEntriesRegistry.pop_front();
+
+		mRegistredResourceFactories[existingDuplicateId - 1] = pResourceFactory;
+
+		result.mResourceFactoryId = existingDuplicateId;
+
+		return result;
+	}
+
+	E_RESULT_CODE CResourceManager::UnregisterFactory(const TResourceFactoryId& resourceFactoryId)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (resourceFactoryId == InvalidResourceFactoryId || resourceFactoryId > mRegistredResourceFactories.size())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const IResourceFactory* pResourceFactory = mRegistredResourceFactories[resourceFactoryId - 1];
+
+		U32 resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this factory
+
+		mRegistredResourceFactories[resourceFactoryId - 1] = nullptr;
+
+		mResourceFactoriesMap.erase(resourceTypeId);
+
+		return RC_OK;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CResourceManager::GetType() const
 	{
 		return EST_RESOURCE_MANAGER;
@@ -132,6 +209,12 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		/// \todo implement the method
+		return nullptr;
+	}
+
+	IResourceHandler* CResourceManager::_createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams)
+	{
 		/// \todo implement the method
 		return nullptr;
 	}

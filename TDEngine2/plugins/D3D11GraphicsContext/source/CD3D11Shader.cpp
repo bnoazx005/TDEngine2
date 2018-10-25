@@ -57,6 +57,72 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+
+	CD3D11ShaderFactory::CD3D11ShaderFactory() :
+		mIsInitialized(false)
+	{
+	}
+
+	E_RESULT_CODE CD3D11ShaderFactory::Init(IGraphicsContext* pGraphicsContext)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = true;
+		
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11ShaderFactory::Free()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = false;
+
+		delete this;
+
+		return RC_OK;
+	}
+
+	IResource* CD3D11ShaderFactory::Create(const TBaseResourceParameters* pParams) const
+	{
+		return nullptr;
+	}
+
+	U32 CD3D11ShaderFactory::GetResourceTypeId() const
+	{
+		return CD3D11Shader::GetTypeId();
+	}
+
+
+	TDE2_API IResourceFactory* CreateD3D11ShaderFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	{
+		CD3D11ShaderFactory* pShaderFactoryInstance = new (std::nothrow) CD3D11ShaderFactory();
+
+		if (!pShaderFactoryInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pShaderFactoryInstance->Init(pGraphicsContext);
+
+		if (result != RC_OK)
+		{
+			delete pShaderFactoryInstance;
+
+			pShaderFactoryInstance = nullptr;
+		}
+
+		return pShaderFactoryInstance;
+	}
 }
 
 #endif

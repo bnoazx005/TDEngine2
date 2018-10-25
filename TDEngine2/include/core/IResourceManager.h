@@ -20,6 +20,9 @@ namespace TDEngine2
 	class IResourceHandler;
 	class IResourceLoader;
 	class IJobManager;
+	class IResourceFactory;
+
+	struct TBaseResourceParameters;
 
 
 	/*!
@@ -84,6 +87,47 @@ namespace TDEngine2
 			}
 
 			/*!
+				\brief The method registers specified resource factory within a manager
+
+				\param[in] pResourceFactory A pointer to IResourceFactory's implementation
+
+				\return The method returns an object, which contains a status of method's execution and
+				an identifier of the registred factory
+			*/
+
+			TDE2_API virtual TRegisterFactoryResult RegisterFactory(const IResourceFactory* pResourceFactory) = 0;
+
+			/*!
+				\brief The method unregisters a resource factory with the specified identifier
+
+				\param[in] resourceFactoryId An identifier of a resource factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE UnregisterFactory(const TResourceFactoryId& resourceFactoryId) = 0;
+			
+			/*!
+			\brief The method creates a new instance of specified type
+
+			\param[in] pParams A parameters of a creating instance
+
+			\return A pointer to IResourceHandler, which encapsulates direct access to the resource
+			*/
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+				std::enable_if_t<std::is_base_of_v<IResource, T>, IResourceHandler*>
+#else
+				typename std::enable_if<std::is_base_of<IResource, T>::value, IResourceHandler*>::type
+#endif
+				Create(const TBaseResourceParameters* pParams)
+			{
+				return _createResource(T::GetTypeId(), pParams);
+			}
+
+			/*!
 				\brief The method returns a raw pointer to a resource based on specified handler
 
 				\param[in] pResourceHandler A pointer to a resource's handler
@@ -96,5 +140,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)
 
 			TDE2_API virtual IResourceHandler* _loadResource(U32 resourceTypeId, const std::string& name) = 0;
+
+			TDE2_API virtual IResourceHandler* _createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams) = 0;
 	};
 }

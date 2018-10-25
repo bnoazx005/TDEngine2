@@ -44,6 +44,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CBaseJobManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IPluginManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CBasePluginManager.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IResourceFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBaseComponent.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CComponentManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CEntity.h"

@@ -32,6 +32,7 @@
 #include "core/CBaseJobManager.h"
 #include "core/IPluginManager.h"
 #include "core/CBasePluginManager.h"
+#include "core/IResourceFactory.h"
 
 ///ecs
 #include "ecs/CEntity.h"

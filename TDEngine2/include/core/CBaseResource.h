@@ -83,7 +83,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseResource)
 
-			virtual TDE2_API E_RESULT_CODE _init();
+			virtual TDE2_API E_RESULT_CODE _init(const std::string& name, TResourceId id);
 		protected:
 			static U32               mTypeId;					///< The value of mTypeId is same for all resources of T type
 
@@ -155,12 +155,21 @@ namespace TDEngine2
 	}
 
 	template <typename T>
-	TDE2_API E_RESULT_CODE CBaseResource<T>::_init()
+	TDE2_API E_RESULT_CODE CBaseResource<T>::_init(const std::string& name, TResourceId id)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		if (name.empty() || id == InvalidResourceId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mName = name;
+
+		mId = id;
 
 		mIsInitialized = true;
 

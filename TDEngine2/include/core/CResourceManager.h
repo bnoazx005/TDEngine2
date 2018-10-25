@@ -42,11 +42,15 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
 		protected:
-			typedef std::unordered_map<U32, TResourceLoaderId> TResourceLoadersMap;
+			typedef std::unordered_map<U32, TResourceLoaderId>  TResourceLoadersMap;
 
-			typedef std::vector<const IResourceLoader*>        TResourceLoadersArray;
+			typedef std::vector<const IResourceLoader*>         TResourceLoadersArray;
 
-			typedef std::list<U32>                             TFreeEntriesRegistry;
+			typedef std::list<U32>                              TFreeEntriesRegistry;
+
+			typedef std::unordered_map<U32, TResourceFactoryId> TResourceFactoriesMap;
+
+			typedef std::vector<const IResourceFactory*>        TResourceFactoriesArray;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -88,6 +92,27 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE UnregisterLoader(const TResourceLoaderId& resourceLoaderId) override;
 			
 			/*!
+				\brief The method registers specified resource factory within a manager
+
+				\param[in] pResourceFactory A pointer to IResourceFactory's implementation
+
+				\return The method returns an object, which contains a status of method's execution and
+				an identifier of the registred factory
+			*/
+
+			TDE2_API TRegisterFactoryResult RegisterFactory(const IResourceFactory* pResourceFactory) override;
+
+			/*!
+				\brief The method unregisters a resource factory with the specified identifier
+
+				\param[in] resourceFactoryId An identifier of a resource factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE UnregisterFactory(const TResourceFactoryId& resourceFactoryId) override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
@@ -108,17 +133,25 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceManager)
 
 			TDE2_API IResourceHandler* _loadResource(U32 resourceTypeId, const std::string& name) override;
+
+			TDE2_API IResourceHandler* _createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams) override;
 		protected:
-			bool                  mIsInitialized;
+			bool                    mIsInitialized;
 
-			TResourceLoadersMap   mResourceLoadersMap;
+			TResourceLoadersMap     mResourceLoadersMap;
 
-			TResourceLoadersArray mRegistredResourceLoaders; 
+			TResourceLoadersArray   mRegistredResourceLoaders; 
 
-			TFreeEntriesRegistry  mFreeLoadersEntriesRegistry;
+			TFreeEntriesRegistry    mFreeLoadersEntriesRegistry;
 
-			IJobManager*          mpJobManager;
+			TResourceFactoriesMap   mResourceFactoriesMap;
 
-			mutable std::mutex    mMutex;
+			TResourceFactoriesArray mRegistredResourceFactories;
+
+			TFreeEntriesRegistry    mFreeFactoriesEntriesRegistry;
+
+			IJobManager*            mpJobManager;
+
+			mutable std::mutex      mMutex;
 	};
 }
