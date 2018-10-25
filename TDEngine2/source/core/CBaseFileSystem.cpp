@@ -264,24 +264,24 @@ namespace TDEngine2
 
 		if (mFileFactoriesFreeSlots.empty())
 		{
-			U32 nextSlotHash = mFileFactories.size();
+			U32 nextSlotHash = mFileFactories.size() + 1;
 
 			mFileFactories.push_back(pCreateFileCallback);
 
-			mFileFactoriesMap[typeId] = nextSlotHash;
+			mFileFactoriesMap[typeId] = nextSlotHash - 1;
 
-			LOG_MESSAGE("[File System] A new file factory was registred by the manager");
+			LOG_MESSAGE("[File System] A new file factory was registred by the manager (TypeID : " + std::to_string(typeId) + ")");
 
 			return RC_OK;
 		}
 
-		U32 nextSlotHash = mFileFactoriesFreeSlots.front();
+		U32 nextSlotHash = mFileFactoriesFreeSlots.front() + 1;
 
 		mFileFactoriesFreeSlots.pop_front();
 
 		mFileFactories[nextSlotHash] = pCreateFileCallback;
 
-		mFileFactoriesMap[typeId] = nextSlotHash;
+		mFileFactoriesMap[typeId] = nextSlotHash - 1;
 
 		LOG_MESSAGE("[File System] A new file factory was registred by the manager");
 
@@ -299,9 +299,9 @@ namespace TDEngine2
 
 		U32 hashValue = (*fileFactoryEntryIter).second;
 
-		mFileFactories[hashValue] = nullptr;
+		mFileFactories[hashValue - 1] = nullptr;
 
-		mFileFactoriesFreeSlots.push_back(hashValue);
+		mFileFactoriesFreeSlots.push_back(hashValue - 1);
 
 		mFileFactoriesMap.erase(fileFactoryEntryIter);
 
