@@ -27,8 +27,6 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, E_RESULT_CODE& result);
 		public:
-			TDE2_API virtual ~CDefaultEngineCoreBuilder();
-
 			/*!
 				\brief The method initialized the builder's object
 
@@ -106,9 +104,7 @@ namespace TDEngine2
 
 			TDE2_API IEngineCore* GetEngineCore() override;
 		protected:
-			TDE2_API CDefaultEngineCoreBuilder();
-			TDE2_API CDefaultEngineCoreBuilder(const CDefaultEngineCoreBuilder& builder) = delete;
-			TDE2_API virtual CDefaultEngineCoreBuilder& operator= (CDefaultEngineCoreBuilder& builder) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDefaultEngineCoreBuilder)
 		protected:
 			bool            mIsInitialized;
 			IEngineCore*    mpEngineCoreInstance;

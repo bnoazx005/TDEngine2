@@ -23,10 +23,6 @@ namespace TDEngine2
 	{
 	}
 
-	CDefaultEngineCoreBuilder::~CDefaultEngineCoreBuilder()
-	{
-	}
-
 	/*!
 		\brief The method initialized the builder's object
 

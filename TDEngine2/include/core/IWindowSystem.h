@@ -8,6 +8,7 @@
 
 
 #include "./../utils/Types.h"
+#include "./../utils/Utils.h"
 #include "IEngineSubsystem.h"
 #include <string>
 #include <functional>
@@ -29,8 +30,6 @@ namespace TDEngine2
 	class IWindowSystem : public IEngineSubsystem
 	{
 		public:
-			TDE2_API virtual ~IWindowSystem() = default;
-
 			/*!
 				\brief The method initializes a main window
 
@@ -132,8 +131,6 @@ namespace TDEngine2
 
 			TDE2_API virtual IDLLManager* GetDLLManagerInstance() const = 0;
 		protected:
-			TDE2_API IWindowSystem() = default;
-			TDE2_API IWindowSystem(const IWindowSystem& windowSystem) = delete;
-			TDE2_API virtual IWindowSystem& operator= (IWindowSystem& windowSystem) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IWindowSystem)
 	};
 }

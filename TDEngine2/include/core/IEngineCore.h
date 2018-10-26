@@ -9,6 +9,7 @@
 
 #include "./../utils/Config.h"
 #include "./../utils/Types.h"
+#include "./../utils/Utils.h"
 #include <string>
 
 
@@ -33,8 +34,6 @@ namespace TDEngine2
 	class IEngineCore
 	{
 		public:
-			TDE2_API virtual ~IEngineCore() = default;
-
 			/*!
 				\brief The method initializes the object
 
@@ -138,8 +137,6 @@ namespace TDEngine2
 
 			TDE2_API virtual ITimer* GetTimer() const = 0;
 		protected:
-			TDE2_API IEngineCore() = default;
-			TDE2_API IEngineCore(const IEngineCore& engineCore) = delete;
-			TDE2_API virtual IEngineCore& operator= (IEngineCore& engineCore) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEngineCore)
 	};
 }

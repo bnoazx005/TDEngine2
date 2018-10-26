@@ -44,8 +44,6 @@ namespace TDEngine2
 
 			typedef std::vector<IEngineListener*>             TListenersArray;
 		public:
-			TDE2_API virtual ~CEngineCore();
-
 			/*!
 				\brief The method initializes the object
 
@@ -148,9 +146,7 @@ namespace TDEngine2
 
 			TDE2_API ITimer* GetTimer() const override;
 		protected:
-			TDE2_API CEngineCore();
-			TDE2_API CEngineCore(const CEngineCore& engineCore) = delete;
-			TDE2_API virtual CEngineCore& operator= (CEngineCore& engineCore) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEngineCore)
 
 			TDE2_API void _onFrameUpdateCallback();
 

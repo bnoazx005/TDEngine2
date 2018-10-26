@@ -7,6 +7,7 @@
 
 
 #include "./../utils/Types.h"
+#include "./../utils/Utils.h"
 #include <string>
 #include <thread>
 
@@ -28,9 +29,7 @@ namespace TDEngine2
 
 	class IEngineCoreBuilder
 	{
-		public:
-			TDE2_API virtual ~IEngineCoreBuilder() = default;
-			
+		public:			
 			/*!
 				\brief The method initialized the builder's object
 
@@ -108,8 +107,6 @@ namespace TDEngine2
 
 			TDE2_API virtual IEngineCore* GetEngineCore() = 0;
 		protected:
-			TDE2_API IEngineCoreBuilder() = default;
-			TDE2_API IEngineCoreBuilder(const IEngineCoreBuilder& builder) = delete;
-			TDE2_API virtual IEngineCoreBuilder& operator= (IEngineCoreBuilder& builder) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEngineCoreBuilder)
 	};
 }

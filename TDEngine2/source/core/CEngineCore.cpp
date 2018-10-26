@@ -15,11 +15,7 @@ namespace TDEngine2
 		mIsInitialized(false)
 	{
 	}
-
-	CEngineCore::~CEngineCore()
-	{
-	}
-
+	
 	E_RESULT_CODE CEngineCore::Init()
 	{
 		//std::lock_guard<std::mutex> lock(mMutex);

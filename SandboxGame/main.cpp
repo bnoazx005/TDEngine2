@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
 	IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
 
-	auto pShaderHandler = pResourceManager->Load<CBaseShader>("test.shader");
+	auto pShaderHandler = pResourceManager->Load<CD3D11Shader>("test.shader");
 
 	IJobManager* pJobManager = dynamic_cast<IJobManager*>(pEngineCore->GetSubsystem(EST_JOB_MANAGER));
 
