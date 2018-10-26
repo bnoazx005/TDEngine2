@@ -145,7 +145,7 @@ namespace TDEngine2
 
 			static TDE2_API U32 GetTypeId()
 			{
-				return ++mCounter;
+				return mCounter++;
 			}
 
 			/*!
@@ -160,7 +160,7 @@ namespace TDEngine2
 			}
 		private:
 			static std::atomic<U32> mCounter;
-			static const U32        mInvalidTypeIdValue { 0 };
+			static const U32        mInvalidTypeIdValue { (std::numeric_limits<U32>::max)() };
 	};
 
 	template <typename TGroup>

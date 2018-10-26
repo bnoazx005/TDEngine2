@@ -192,5 +192,5 @@ namespace TDEngine2
 	const TResourceId CBaseResource<T>::mInvalidResourceId { 0 };
 
 	template <typename T>
-	U32 CBaseResource<T>::mTypeId { TTypeRegistry<T>::GetTypeId() }; ///< Compile-time generation of a type's id
+	U32 CBaseResource<T>::mTypeId { TTypeRegistry<IResource>::GetTypeId() }; ///< Compile-time generation of a type's id
 }

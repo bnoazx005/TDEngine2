@@ -161,5 +161,5 @@ namespace TDEngine2
 	}
 
 	template <typename T>
-	U32 CBaseFile<T>::mTypeId = TTypeRegistry<T>::GetTypeId(); ///< Compile-time generation of a type's id
+	U32 CBaseFile<T>::mTypeId = TTypeRegistry<IFile>::GetTypeId(); ///< Compile-time generation of a type's id
 }
