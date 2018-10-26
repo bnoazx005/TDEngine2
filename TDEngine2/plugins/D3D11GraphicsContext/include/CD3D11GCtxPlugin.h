@@ -7,6 +7,17 @@
 #pragma once
 
 
+#include "CD3D11Buffer.h"
+#include "CD3D11ConstantBuffer.h"
+#include "CD3D11GraphicsContext.h"
+#include "CD3D11IndexBuffer.h"
+#include "CD3D11Mappings.h"
+#include "CD3D11Shader.h"
+#include "CD3D11ShaderCompiler.h"
+#include "CD3D11VertexBuffer.h"
+#include "CD3D11VertexDeclaration.h"
+
+
 #include <core/IPlugin.h>
 
 

@@ -85,3 +85,13 @@
 #include "utils/CFileLogger.h"
 #include "utils/ITimer.h"
 #include "utils/Utils.h"
+
+/// D3D11GraphicsContext plugin's header
+#if defined (TDE2_BUILD_D3D11_GCTX_PLUGIN)
+	#include "./../plugins/D3D11GraphicsContext/include/CD3D11GCtxPlugin.h"
+#endif
+
+/// OGLGraphicsContext plugin's header
+#if defined (TDE2_BUILD_OGL_GCTX_PLUGIN)
+	#include "./../plugins/OGLGraphicsContext/include/COGLGCtxPlugin.h"
+#endif

@@ -7,6 +7,18 @@
 #pragma once
 
 
+#include "unix/CUnixGLContextFactory.h"
+#include "win32/CWin32GLContextFactory.h"
+#include "COGLBuffer.h"
+#include "COGLConstantBuffer.h"
+#include "COGLGraphicsContext.h"
+#include "COGLIndexBuffer.h"
+#include "COGLMappings.h"
+#include "COGLShader.h"
+#include "COGLVertexBuffer.h"
+#include "IOGLContextFactory.h"
+
+
 #include <core/IPlugin.h>
 
 

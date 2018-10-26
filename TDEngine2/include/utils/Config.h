@@ -36,8 +36,13 @@ namespace TDEngine2
 
 	#if defined(_WIN32)
 		#define TDE2_USE_WIN32PLATFORM
+
+		#define TDE2_BUILD_D3D11_GCTX_PLUGIN
+		#define TDE2_BUILD_OGL_GCTX_PLUGIN
 	#elif defined(__unix__) || defined(__unix) || defined(unix)
 		#define TDE2_USE_UNIXPLATFORM
+
+		#define TDE2_BUILD_OGL_GCTX_PLUGIN
 	#else
 	#endif
 
