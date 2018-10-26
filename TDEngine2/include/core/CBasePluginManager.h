@@ -83,6 +83,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE UnloadPlugin(const std::string& filename) override;
 			
 			/*!
+				\brief The method unloads all loaded plugins from memory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE UnloadAllPlugins() override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value

@@ -57,6 +57,13 @@ namespace TDEngine2
 
 		mIsInitialized = false;
 
+		E_RESULT_CODE result = UnloadAllPlugins();
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
 		delete this;
 
 		LOG_MESSAGE("[Plugin Manager] The plugin manager was destroyed")
@@ -152,6 +159,28 @@ namespace TDEngine2
 		LOG_MESSAGE("[Plugin Manager] The plugin was successfully unloaded (" + filename + ")");
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CBasePluginManager::UnloadAllPlugins()
+	{
+		E_RESULT_CODE result     = RC_OK;
+		E_RESULT_CODE currResult = RC_OK;
+
+		TPluginsMap::iterator currPluginIter = mLoadedPlugins.begin();
+
+		while (currPluginIter != mLoadedPlugins.end())
+		{
+			currResult = UnloadPlugin((*currPluginIter).first);
+
+			if (currResult != RC_OK)
+			{
+				result = currResult;
+			}
+
+			++currPluginIter;
+		}
+
+		return result;
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CBasePluginManager::GetType() const

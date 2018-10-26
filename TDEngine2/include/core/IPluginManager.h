@@ -49,7 +49,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE LoadPlugin(const std::string& filename) = 0;
 
 			/*!
-				\brief The method unload a specified plugin
+				\brief The method unloads a specified plugin
 
 				\param[in] filename A filename (WITHOUT extension) of a shared library with a plugin's implementation
 
@@ -57,6 +57,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE UnloadPlugin(const std::string& filename) = 0;
+
+			/*!
+				\brief The method unloads all loaded plugins from memory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE UnloadAllPlugins() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPluginManager)
 	};

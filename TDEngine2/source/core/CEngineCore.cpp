@@ -56,12 +56,26 @@ namespace TDEngine2
 		LOG_MESSAGE("[Engine Core] Clear the subsystems registry...");
 
 		/// frees memory from all subsystems
+		E_ENGINE_SUBSYSTEM_TYPE currSubsystemType;
+
 		for (IEngineSubsystem* pCurrSubsystem : mSubsystems)
 		{
-			if ((result = UnregisterSubsystem(pCurrSubsystem->GetType())) != RC_OK)
+			currSubsystemType = pCurrSubsystem->GetType();
+
+			if (currSubsystemType == EST_PLUGIN_MANAGER)
+			{
+				continue;
+			}
+
+			if ((result = UnregisterSubsystem(currSubsystemType)) != RC_OK)
 			{
 				return result;
 			}
+		}
+
+		if ((result = UnregisterSubsystem(EST_PLUGIN_MANAGER)) != RC_OK)
+		{
+			return result;
 		}
 
 #if defined (_DEBUG)
