@@ -19,9 +19,11 @@ namespace TDEngine2
 		\brief The class is a common implementation for all platforms
 	*/
 	
-	class CBaseShader: public IShader, public CBaseResource<CBaseShader>
+	class CBaseShader: public IShader, public CBaseResource
 	{
 		public:
+			TDE2_REGISTER_TYPE(CBaseShader)
+
 			/*!
 				\brief The method initializes an internal state of a shader
 

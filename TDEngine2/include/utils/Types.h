@@ -54,6 +54,12 @@ namespace TDEngine2
 	typedef char16_t C16;
 	typedef char32_t C32;
 
+
+	typedef U32 TypeId;
+
+	constexpr TypeId InvalidTypeId = 0;
+
+
 	/// Error codes
 
 	/*!

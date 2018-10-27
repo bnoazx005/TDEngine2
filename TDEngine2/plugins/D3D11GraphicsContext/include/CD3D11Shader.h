@@ -55,6 +55,16 @@ namespace TDEngine2
 			friend TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 													   TResourceId id, E_RESULT_CODE& result);
 		public:
+			TDE2_REGISTER_TYPE(CD3D11Shader)
+
+			/*!
+				\brief The method loads resource data into memory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load() override;
+
 			/*!
 				\brief The method unloads resource data from memory
 

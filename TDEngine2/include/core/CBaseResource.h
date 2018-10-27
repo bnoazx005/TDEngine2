@@ -23,10 +23,11 @@ namespace TDEngine2
 		All concrete types of resources should derive it.
 	*/
 
-	template <typename T>
 	class CBaseResource: public IResource, public CBaseObject
 	{
 		public:
+			TDE2_REGISTER_TYPE(CBaseResource)
+
 			/*!
 				\brief The method frees all memory occupied by the object
 
@@ -41,7 +42,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Load() override;
+			TDE2_API virtual E_RESULT_CODE Load() = 0;
 
 			/*!
 				\brief The method unloads resource data from memory
@@ -74,21 +75,11 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESOURCE_STATE_TYPE GetState() const override;
-
-			/*!
-				\brief The static method returns the type's identifier
-
-				\return The static method returns the type's identifier
-			*/
-
-			static TDE2_API U32 GetTypeId();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseResource)
 
 			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name, TResourceId id);
 		protected:
-			static U32               mTypeId;					///< The value of mTypeId is same for all resources of T type
-
 			static const TResourceId mInvalidResourceId;
 
 			IResourceManager*        mpResourceManager;
@@ -99,98 +90,4 @@ namespace TDEngine2
 
 			E_RESOURCE_STATE_TYPE    mState;
 	};
-
-
-	template <typename T>
-	CBaseResource<T>::CBaseResource():
-		CBaseObject(), mId(mInvalidResourceId), mState(RST_PENDING)
-	{
-	}
-
-	template <typename T>
-	TDE2_API E_RESULT_CODE CBaseResource<T>::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		delete this;
-
-		mIsInitialized = false;
-
-		return RC_OK;
-	}
-
-	template <typename T>
-	TDE2_API E_RESULT_CODE CBaseResource<T>::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<T>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		return pResourceLoader->LoadResource(this);
-	}
-	
-	template <typename T>
-	TDE2_API TResourceId CBaseResource<T>::GetId() const
-	{
-		return mId;
-	}
-
-	template <typename T>
-	TDE2_API std::string CBaseResource<T>::GetName() const
-	{
-		return mName;
-	}
-
-	template <typename T>
-	TDE2_API E_RESOURCE_STATE_TYPE CBaseResource<T>::GetState() const
-	{
-		return mState;
-	}
-
-	template <typename T>
-	TDE2_API U32 CBaseResource<T>::GetTypeId()
-	{
-		return mTypeId;
-	}
-
-	template <typename T>
-	TDE2_API E_RESULT_CODE CBaseResource<T>::_init(IResourceManager* pResourceManager, const std::string& name, TResourceId id)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (!pResourceManager || name.empty() || id == InvalidResourceId)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpResourceManager = pResourceManager;
-
-		mName = name;
-
-		mId = id;
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	template <typename T>
-	const TResourceId CBaseResource<T>::mInvalidResourceId { 0 };
-
-	template <typename T>
-	U32 CBaseResource<T>::mTypeId { TTypeRegistry<IResource>::GetTypeId() }; ///< Compile-time generation of a type's id
 }

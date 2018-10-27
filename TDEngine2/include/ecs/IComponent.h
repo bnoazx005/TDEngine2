@@ -8,6 +8,7 @@
 
 
 #include "./../core/CBaseObject.h"
+#include "./../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -24,9 +25,6 @@ namespace TDEngine2
 	{
 		public:
 		protected:
-			TDE2_API IComponent() = default;
-			TDE2_API virtual ~IComponent() = default;
-			TDE2_API IComponent(const IComponent& component) = delete;
-			TDE2_API virtual IComponent& operator=(const IComponent& component) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComponent)
 	};
 }

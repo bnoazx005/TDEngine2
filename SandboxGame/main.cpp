@@ -9,7 +9,7 @@
 using namespace TDEngine2;
 
 
-class CTransform : public CBaseComponent<CTransform> {};
+class CTransform : public CBaseComponent { public : TDE2_REGISTER_TYPE(CTransform) };
 
 
 int main(int argc, char** argv)

@@ -10,22 +10,25 @@
 #include "./../core/IFile.h"
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
-#include "./../core/IFileSystem.h"
+#include <fstream>
 
 
 namespace TDEngine2
 {
+	class IFileSystem;
+
+
 	/*!
 		class CBaseFile
 
-		\brief The class implements a common functionality of IFile interface.
-		All implementations should inherit this one to provide a proper type counting.
+		\brief The class implements a common functionality of IFile interface
 	*/
 
-	template <typename T>
 	class CBaseFile: public virtual IFile
 	{
 		public:
+			TDE2_REGISTER_TYPE(CBaseFile)
+
 			/*!
 				\brief The method opens specified file
 
@@ -60,106 +63,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool IsOpen() const override;
-
-			/*!
-				\brief The static method returns the type's identifier
-
-				\return The static method returns the type's identifier
-			*/
-
-			TDE2_API static U32 GetTypeId();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFile)
 
 			TDE2_API virtual E_RESULT_CODE _onFree() = 0;
 		protected:
-			static U32    mTypeId;					///< The value of mTypeId is same for all resources of T type
-
 			std::ifstream mFile;
 
 			std::string   mName;
 
 			IFileSystem*  mpFileSystemInstance;
 	};
-
-
-	template <typename T>
-	CBaseFile<T>::CBaseFile()
-	{
-	}
-
-	template <typename T>
-	E_RESULT_CODE CBaseFile<T>::Open(IFileSystem* pFileSystem, const std::string& filename)
-	{
-		if (!pFileSystem)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		if (mFile.is_open())
-		{
-			return RC_FAIL;
-		}
-
-		mFile.open(filename, std::ios::in);
-
-		if (!mFile.is_open())
-		{
-			return RC_FILE_NOT_FOUND;
-		}
-
-		mName = filename;
-
-		mpFileSystemInstance = pFileSystem;
-
-		return RC_OK;
-	}
-
-	template <typename T>
-	E_RESULT_CODE CBaseFile<T>::Close()
-	{
-		if (!mFile.is_open())
-		{
-			return RC_FAIL;
-		}
-
-		mFile.close();
-
-		E_RESULT_CODE result = mpFileSystemInstance->CloseFile(this);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = _onFree()) != RC_OK)
-		{
-			return result;
-		}
-
-		delete this;
-
-		return RC_OK;
-	}
-
-	template <typename T>
-	std::string CBaseFile<T>::GetFilename() const
-	{
-		return mName;
-	}
-
-	template <typename T>
-	bool CBaseFile<T>::IsOpen() const
-	{
-		return mFile.is_open();
-	}
-
-	template <typename T>
-	U32 CBaseFile<T>::GetTypeId()
-	{
-		return mTypeId;
-	}
-
-	template <typename T>
-	U32 CBaseFile<T>::mTypeId = TTypeRegistry<IFile>::GetTypeId(); ///< Compile-time generation of a type's id
 }

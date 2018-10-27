@@ -31,13 +31,15 @@ namespace TDEngine2
 		\brief The class represents a base reader of config files
 	*/
 
-	class CConfigFileReader : public IConfigFileReader, public CBaseFile<CConfigFileReader>
+	class CConfigFileReader : public IConfigFileReader, public CBaseFile
 	{
 		public:
 			friend TDE2_API IFile* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
 		protected:
 			typedef std::unordered_map<std::string, std::unordered_map<std::string, std::string>> TConfigParamsMap;
 		public:
+			TDE2_REGISTER_TYPE(CConfigFileReader)
+
 			/*!
 				\brief The method try to read integer value with specified name inside a group. Otherwise, it
 				will return a default value

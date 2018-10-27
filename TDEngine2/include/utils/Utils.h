@@ -120,49 +120,43 @@ namespace TDEngine2
 		TDE2_API Type(const Type&) = delete;					\
 		TDE2_API Type& operator= (Type&) = delete;
 
-	
-	/*!
-		struct TTypeRegistry
 
-		\brief The structure is used to provide a functionality of
-		types counting. Use TGroup parameter of the template as a group
-		identifier. TTypeRegistry<IComponent> will be iterate over
-		types, which are related to IComponent.
+	/*!
+		\brief The method computes 32 bits hash based on an input string's value.
+		The underlying algorithm's description can be found here
+		http://www.cse.yorku.ca/~oz/hash.html
+
+		\param[in] pStr An input string
+
+		\return 32 bits hash of the input string
 	*/
 
-	template <typename TGroup>
-	struct TTypeRegistry
+	constexpr U32 ComputeHash(const C8* pStr)
 	{
-		public:
-			/*!
-				\brief The method returns a new type's identifier
-				based on TGroup parameter. For the same TGroup the method
-				returns mCounter + 1, the new TGroup parameter resets
-				mCounter's value
+		U32 hashValue = 5381;
 
-				\return The method returns a new type's identifier
-			*/
+		C8 c = 0;
 
-			static TDE2_API U32 GetTypeId()
-			{
-				return mCounter++;
-			}
+		while ((c = *pStr++) != 0)
+		{
+			hashValue = ((hashValue << 5) + hashValue) + c; /* hash * 33 + c */
+		}
 
-			/*!
-				\brief The method returns an invalid type's id
+		return hashValue;
+	}
 
-				\return The method returns an invalid type's id
-			*/
 
-			static TDE2_API U32 GetInvalidTypeIdValue()
-			{
-				return mInvalidTypeIdValue;
-			}
-		private:
-			static std::atomic<U32> mCounter;
-			static const U32        mInvalidTypeIdValue { (std::numeric_limits<U32>::max)() };
-	};
+	/*!
+		\brief The macro is used to provide type counting mechanism
 
-	template <typename TGroup>
-	std::atomic<U32> TTypeRegistry<TGroup>::mCounter = 0;
+		All countable types should register themselves using it
+	*/
+
+	#define TDE2_REGISTER_TYPE(Type)								\
+		static TypeId GetTypeId()									\
+		{															\
+			static constexpr TypeId typeId = ComputeHash(#Type);	\
+			return typeId;											\
+		}
+
 }

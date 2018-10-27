@@ -221,8 +221,17 @@ namespace TDEngine2
 			return nullptr;
 		}
 
+		TFileFactoriesRegistry::const_iterator fileFactoryIter = mFileFactoriesMap.find(typeId);
+
+		if (fileFactoryIter == mFileFactoriesMap.cend())
+		{
+			result = RC_INVALID_ARGS;
+
+			return nullptr;
+		}
+
 		///try to find the file's factory
-		TCreateFileCallback pFileFactory = mFileFactories[typeId];
+		TCreateFileCallback pFileFactory = mFileFactories[(*fileFactoryIter).second];
 
 		if (!pFileFactory)
 		{
@@ -257,7 +266,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		if (mFileFactoriesMap[typeId])
+		TFileFactoriesRegistry::const_iterator factoryIter = mFileFactoriesMap.find(typeId);
+
+		if (factoryIter != mFileFactoriesMap.cend())
 		{
 			return RC_FAIL;
 		}
@@ -290,12 +301,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseFileSystem::_unregisterFileFactory(U32 typeId)
 	{
-		if (mFileFactoriesMap[typeId])
-		{
-			return RC_OK;
-		}
-
 		TFileFactoriesRegistry::const_iterator fileFactoryEntryIter = mFileFactoriesMap.find(typeId);
+
+		if (fileFactoryEntryIter == mFileFactoriesMap.cend())
+		{
+			return RC_FAIL;
+		}
 
 		U32 hashValue = (*fileFactoryEntryIter).second;
 

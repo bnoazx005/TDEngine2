@@ -12,6 +12,23 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CD3D11Shader::Load()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseShader>();
+
+		if (!pResourceLoader)
+		{
+			return RC_FAIL;
+		}
+
+		return pResourceLoader->LoadResource(this);
+	}
+
 	E_RESULT_CODE CD3D11Shader::Unload()
 	{
 		return RC_NOT_IMPLEMENTED_YET;

@@ -36,7 +36,7 @@ namespace TDEngine2
 
 			typedef std::vector<IFile*>                                       TFilesArray;
 
-			typedef std::unordered_map<U32, U32>                              TFileFactoriesRegistry;
+			typedef std::unordered_map<TypeId, U32>                           TFileFactoriesRegistry;
 
 			typedef std::vector<TCreateFileCallback>                          TFileFactories;
 

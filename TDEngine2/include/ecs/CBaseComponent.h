@@ -29,10 +29,11 @@ namespace TDEngine2
 		The following statement is needed to implement proper registration of component's type
 	*/
 
-	template <typename T>
 	class CBaseComponent: public IComponent, public CBaseObject
 	{
 		public:
+			TDE2_REGISTER_TYPE(CBaseComponent)
+
 			/*!
 				\brief The method initializes an entity
 
@@ -48,61 +49,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
-
-			static TComponentTypeId GetTypeId()
-			{
-				return mComponentTypeId;
-			}
 		protected:
-			TDE2_API CBaseComponent();
-			TDE2_API virtual ~CBaseComponent() = default;
-			TDE2_API CBaseComponent(const CBaseComponent& component) = delete;
-			TDE2_API virtual CBaseComponent& operator=(const CBaseComponent& component) = delete;
-		protected:
-			static TComponentTypeId mComponentTypeId;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponent)
 	};
-
-
-	template<typename T>
-	CBaseComponent<T>::CBaseComponent() :
-		CBaseObject()
-	{
-	}
-
-	template<typename T>
-	E_RESULT_CODE CBaseComponent<T>::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	/*!
-	\brief The method frees all memory occupied by the object
-
-	\return RC_OK if everything went ok, or some other code, which describes an error
-	*/
-
-	template<typename T>
-	E_RESULT_CODE CBaseComponent<T>::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-	
-	template<typename T>
-	TComponentTypeId CBaseComponent<T>::mComponentTypeId = TTypeRegistry<IComponent>::GetTypeId();
 }

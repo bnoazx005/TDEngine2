@@ -28,11 +28,13 @@ namespace TDEngine2
 		\brief The class represents a base reader of text files
 	*/
 
-	class CTextFileReader: public ITextFileReader, public CBaseFile<CTextFileReader>
+	class CTextFileReader: public ITextFileReader, public CBaseFile
 	{
 		public:
 			friend TDE2_API IFile* CreateTextFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
 		public:
+			TDE2_REGISTER_TYPE(CTextFileReader)
+
 			/*!
 				\brief The method reads a single line within a text file and moves a carret to
 				next one
