@@ -229,13 +229,13 @@ namespace TDEngine2
 		switch (stageType)
 		{
 			case SST_VERTEX:
-				result = "VS_";
+				result = "vs_";
 				break;
 			case SST_PIXEL:
-				result = "PS_";
+				result = "ps_";
 				break;
 			case SST_GEOMETRY:
-				result = "GS_";
+				result = "gs_";
 				break;
 		}
 

@@ -91,7 +91,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderCompiler)
 
 			TDE2_API TCompileShaderStageResult _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const std::string& entryPointName,
-																   E_SHADER_TARGET_VERSION targetVersion) const;
+																   const TDefinesMap& shaderDefinesMap, E_SHADER_TARGET_VERSION targetVersion) const;
 
 			TDE2_API const C8* _getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const;
 
@@ -99,19 +99,17 @@ namespace TDEngine2
 
 			TDE2_API std::string _removeComments(const std::string& sourceCode) const;
 
-			TDE2_API TShaderDefineDesc _processDefineStmt(const std::vector<std::string>& tokens, const std::vector<std::string>::const_iterator& tokenIter) const;
+			TDE2_API TDefinesMap _processDefines(const std::string& sourceCode) const;
 
 			TDE2_API E_SHADER_TARGET_VERSION _getTargetVersionFromStr(const std::string& ver) const;
+
+			TDE2_API bool _isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const TShaderMetadata& shaderMeta) const;
 		protected:
 			bool             mIsInitialized;
 
 			static U32       mMaxStepsCount; ///< The value is used within _removeComments to bound a maximum number of steps of an automata
 
-			static const C8* mVSEntryPointDefineName;
-
-			static const C8* mPSEntryPointDefineName;
-
-			static const C8* mGSEntryPointDefineName;
+			static const C8* mEntryPointsDefineNames[3];
 
 			static const C8* mTargetVersionDefineName;
 	};

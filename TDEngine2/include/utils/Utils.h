@@ -128,21 +128,14 @@ namespace TDEngine2
 
 		\param[in] pStr An input string
 
+		\param[in] hash The argument is used to store current hash value during a recursion
+
 		\return 32 bits hash of the input string
 	*/
 
-	constexpr U32 ComputeHash(const C8* pStr)
+	constexpr U32 ComputeHash(const C8* pStr, U32 hash = 5381)
 	{
-		U32 hashValue = 5381;
-
-		C8 c = 0;
-
-		while ((c = *pStr++) != 0)
-		{
-			hashValue = ((hashValue << 5) + hashValue) + c; /* hash * 33 + c */
-		}
-
-		return hashValue;
+		return (*pStr != 0) ? ComputeHash(pStr + 1, ((hash << 5) + hash) + *pStr) : hash;
 	}
 
 

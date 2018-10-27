@@ -18,11 +18,7 @@ namespace TDEngine2
 {
 	U32 CD3D11ShaderCompiler::mMaxStepsCount = 1000;
 
-	const C8* CD3D11ShaderCompiler::mVSEntryPointDefineName  = "VERTEX_ENTRY";
-
-	const C8* CD3D11ShaderCompiler::mPSEntryPointDefineName  = "PIXEL_ENTRY";
-
-	const C8* CD3D11ShaderCompiler::mGSEntryPointDefineName  = "GEOMETRY_ENTRY";
+	const C8* CD3D11ShaderCompiler::mEntryPointsDefineNames[3] = { "VERTEX_ENTRY", "PIXEL_ENTRY", "GEOMETRY_ENTRY" };
 
 	const C8* CD3D11ShaderCompiler::mTargetVersionDefineName = "TARGET";
 
@@ -70,44 +66,55 @@ namespace TDEngine2
 		/// parse source code to get a meta information about it
 		TShaderMetadata shaderMetadata = _parseShader(source);
 		
-		/// try to compile a vertex shader
-		TCompileShaderStageResult vertexShaderOutput = _compileShaderStage(SST_VERTEX, source, shaderMetadata.mVertexShaderEntrypointName, 
-																		   shaderMetadata.mTargetVersion);
-
-		if (vertexShaderOutput.mResultCode != RC_OK)
+		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
 		{
-			return TShaderCompilerResult(vertexShaderOutput.mResultCode);
+			/// try to compile a vertex shader
+			TCompileShaderStageResult vertexShaderOutput = _compileShaderStage(SST_VERTEX, source, shaderMetadata.mVertexShaderEntrypointName,
+																			   shaderMetadata.mDefines, shaderMetadata.mTargetVersion);
+
+			if (vertexShaderOutput.mResultCode != RC_OK)
+			{
+				return TShaderCompilerResult(vertexShaderOutput.mResultCode);
+			}
+
+			result.mVSByteCode = std::move(vertexShaderOutput.mByteCode);
 		}
 
-		result.mVSByteCode = std::move(vertexShaderOutput.mByteCode);
+		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
+		{
+			/// try to compile a pixel shader
+			TCompileShaderStageResult pixelShaderOutput = _compileShaderStage(SST_PIXEL, source, shaderMetadata.mPixelShaderEntrypointName,
+																			  shaderMetadata.mDefines, shaderMetadata.mTargetVersion);
 
-		/// try to compile a pixel shader
-		TCompileShaderStageResult pixelShaderOutput = _compileShaderStage(SST_PIXEL, source, shaderMetadata.mPixelShaderEntrypointName,
-																		  shaderMetadata.mTargetVersion);
+			if (pixelShaderOutput.mResultCode != RC_OK)
+			{
+				return TShaderCompilerResult(pixelShaderOutput.mResultCode);
+			}
+
+			result.mPSByteCode = std::move(pixelShaderOutput.mByteCode);
+		}
 		
-		if (pixelShaderOutput.mResultCode != RC_OK)
+		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
 		{
-			return TShaderCompilerResult(pixelShaderOutput.mResultCode);
+			/// try to compile a geometry shader
+			TCompileShaderStageResult geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, source, shaderMetadata.mGeometryShaderEntrypointName,
+																				 shaderMetadata.mDefines, shaderMetadata.mTargetVersion);
+
+			if (geometryShaderOutput.mResultCode != RC_OK)
+			{
+				return TShaderCompilerResult(geometryShaderOutput.mResultCode);
+			}
+
+			result.mPSByteCode = std::move(geometryShaderOutput.mByteCode);
 		}
-
-		result.mPSByteCode = std::move(pixelShaderOutput.mByteCode);
-		
-		/// try to compile a geometry shader
-		TCompileShaderStageResult geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, source, shaderMetadata.mGeometryShaderEntrypointName,
-																			 shaderMetadata.mTargetVersion);
-
-		if (geometryShaderOutput.mResultCode != RC_OK)
-		{
-			return TShaderCompilerResult(geometryShaderOutput.mResultCode);
-		}
-
-		result.mPSByteCode = std::move(geometryShaderOutput.mByteCode);
 
 		return result;
 	}
 
 	CD3D11ShaderCompiler::TCompileShaderStageResult CD3D11ShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, 
-																							  const std::string& entryPointName, E_SHADER_TARGET_VERSION targetVersion) const
+																							  const std::string& entryPointName, 
+																							  const CD3D11ShaderCompiler::TDefinesMap& shaderDefinesMap,
+																							  E_SHADER_TARGET_VERSION targetVersion) const
 	{
 		TCompileShaderStageResult result;
 
@@ -119,12 +126,17 @@ namespace TDEngine2
 		//enable only needed stage within the source code with a preprocessor
 		D3D_SHADER_MACRO defines[] =
 		{
-			{ _getShaderStageDefineName(shaderStage), "1" }
+			{ _getShaderStageDefineName(SST_VERTEX), shaderStage == SST_VERTEX ? "1" : "0" },
+			{ _getShaderStageDefineName(SST_PIXEL), shaderStage == SST_PIXEL ? "1" : "0" },
+			{ _getShaderStageDefineName(SST_GEOMETRY), shaderStage == SST_GEOMETRY ? "1" : "0" },
+			{ nullptr, nullptr }
 		};
+
+		U32 flags = D3DCOMPILE_DEBUG;
 
 		if (FAILED(D3DCompile(source.c_str(), source.length(), nullptr, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 							  entryPointName.c_str(), CD3D11Mappings::GetShaderTargetVerStr(shaderStage, targetVersion).c_str(),
-							  0x0, 0x0, &pBytecodeBuffer, &pErrorBuffer)))
+							  flags, 0x0, &pBytecodeBuffer, &pErrorBuffer)))
 		{
 			result.mResultCode = RC_FAIL;
 
@@ -133,9 +145,10 @@ namespace TDEngine2
 
 		U32 size = pBytecodeBuffer->GetBufferSize();
 
-		const U8* pBuffer = static_cast<const U8*>(pBytecodeBuffer->GetBufferPointer());
+		U8* pBuffer = static_cast<U8*>(pBytecodeBuffer->GetBufferPointer());
 
-		result.mByteCode.resize(size);
+		result.mByteCode.reserve(size);
+
 		std::copy(pBuffer, pBuffer + size, std::back_inserter(result.mByteCode));
 
 		result.mResultCode = RC_OK;
@@ -164,32 +177,11 @@ namespace TDEngine2
 
 		std::string processedSourceCode = _removeComments(sourceCode);
 
-		std::istringstream sourceCodeStream(sourceCode);
+		extractedMetadata.mDefines = _processDefines(processedSourceCode);
 
-		/// split source code into tokens
-		std::vector<std::string> tokens(std::istream_iterator<std::string>{ sourceCodeStream }, std::istream_iterator<std::string>());
-		
-		U32 tokensCount = tokens.size();
-
-		std::string currToken;
-		
-		auto iter = tokens.cbegin();
-
-		while (iter != tokens.cend())
-		{
-			currToken = *iter;
-
-			if (currToken == "#define")
-			{
-				extractedMetadata.mDefines.emplace(_processDefineStmt(tokens, ++iter));
-			}
-
-			++iter;
-		}
-
-		extractedMetadata.mVertexShaderEntrypointName   = extractedMetadata.mDefines[mVSEntryPointDefineName];
-		extractedMetadata.mPixelShaderEntrypointName    = extractedMetadata.mDefines[mPSEntryPointDefineName];
-		extractedMetadata.mGeometryShaderEntrypointName = extractedMetadata.mDefines[mGSEntryPointDefineName];
+		extractedMetadata.mVertexShaderEntrypointName   = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_VERTEX]];
+		extractedMetadata.mPixelShaderEntrypointName    = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_PIXEL]];
+		extractedMetadata.mGeometryShaderEntrypointName = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_GEOMETRY]];
 
 		///\todo implement convertation of a version string into E_SHADER_TARGET_VERSION enum's value
 		extractedMetadata.mTargetVersion = _getTargetVersionFromStr(extractedMetadata.mDefines[mTargetVersionDefineName]);
@@ -215,84 +207,149 @@ namespace TDEngine2
 			return result;
 		}), processedSourceCode.end());
 
-		/// remove spaces between # and preprocessor directives
-		bool isPrevChHash = false;
-
-		processedSourceCode.erase(std::remove_if(processedSourceCode.begin(), processedSourceCode.end(), [&isPrevChHash](C8 ch) 
-		{
-			bool isCurrChHash = (ch == '#');
-
-			isPrevChHash = isCurrChHash;
-
-			return std::isspace(ch) && isPrevChHash;
-		}), processedSourceCode.end());
-
 		U32 firstPos  = 0;
 		U32 secondPos = 0;
 		
 		/// remove single-line comments
-		while ((firstPos = processedSourceCode.find_first_of("//")) != std::string::npos)
+		while ((firstPos = processedSourceCode.find("//")) != std::string::npos)
 		{
-			secondPos = (processedSourceCode.find_first_of('\n', firstPos) == std::string::npos) ? processedSourceCode.find_first_of('\r', firstPos) : std::string::npos;
-
+			secondPos = processedSourceCode.find_first_of("\n\r", firstPos);
+			
 			if (secondPos == std::string::npos)
 			{
-				continue;
+				processedSourceCode = processedSourceCode.substr(0, firstPos);
+				
+				break;
 			}
-
+			
 			processedSourceCode = processedSourceCode.substr(0, firstPos) + processedSourceCode.substr(secondPos + 1, processedSourceCode.length() - secondPos);
 		}
 
-		/// remove multi-line C style comments (use a finite state machine for this)
+		/// remove multi-line C style comments
 
-		U8 state        = 0; // could be 0 is an open comment state, 1 is any char within the block or a new comment block, 2 is nested comment block state
-		U8 stepsCounter = 0;
+		U16 stepsCounter = 0;
+		
+		U8 numOfNestedCommentsBlocks = 0;
 
-		while ((stepsCounter++ <= mMaxStepsCount) && ((state == 0) && (firstPos = processedSourceCode.find_first_of("/*") != std::string::npos)))
+		U32 thirdPos;
+		U32 seekPos;
+
+		std::string::const_iterator iter = processedSourceCode.cbegin();
+
+		while ((stepsCounter++ <= mMaxStepsCount) && 
+			   ((firstPos = processedSourceCode.find("/*")) != std::string::npos))
 		{
-			state = 1;
+			++numOfNestedCommentsBlocks;
 
-			if ((secondPos = processedSourceCode.find_first_of("*/", firstPos + 1)) != std::string::npos)
+			seekPos = firstPos + 2;
+
+			do
 			{
-				state = 0;
+				secondPos = processedSourceCode.find("*/", seekPos);
+				thirdPos  = processedSourceCode.find("/*", seekPos);
 
-				/// cut current string
-				processedSourceCode = processedSourceCode.substr(0, firstPos) + processedSourceCode.substr(secondPos + 1, processedSourceCode.length() - secondPos);
-
-				break;
-			}
-
-			if ((secondPos = processedSourceCode.find_first_of("/*", firstPos + 1)) != std::string::npos)
-			{
-				state = 2;
-
-				if (processedSourceCode.find_first_of("*/", secondPos + 1) != std::string::npos)
+				if (secondPos < thirdPos)
 				{
-					state = 1;
+					--numOfNestedCommentsBlocks;
+
+					seekPos = secondPos + 2;
 
 					continue;
 				}
+
+				if (thirdPos < secondPos)
+				{
+					++numOfNestedCommentsBlocks;
+
+					seekPos = thirdPos + 2;
+
+					continue;
+				}
+			} 
+			while (seekPos < processedSourceCode.length() && numOfNestedCommentsBlocks > 0);
+			
+			if (secondPos != std::string::npos)
+			{
+				processedSourceCode = processedSourceCode.substr(0, firstPos) + processedSourceCode.substr(secondPos + 2, processedSourceCode.length() - secondPos - 2);
+			}
+			else
+			{
+				processedSourceCode = processedSourceCode.substr(0, firstPos);
 			}
 		}
 
 		return processedSourceCode;
 	}
 
-	CD3D11ShaderCompiler::TShaderDefineDesc CD3D11ShaderCompiler::_processDefineStmt(const std::vector<std::string>& tokens,
-																					 const std::vector<std::string>::const_iterator& tokenIter) const
+	CD3D11ShaderCompiler::TDefinesMap CD3D11ShaderCompiler::_processDefines(const std::string& sourceCode) const
 	{		
-		std::string defineName = *tokenIter;
+		TDefinesMap defines;
 
-		auto iter = tokenIter + 1;
+		U32 firstPos  = 0;
+		U32 secondPos = 0;
+		U32 nextPos   = 0;
 
-		std::string defineValue;
+		std::string currLine;
+		std::string currDefineName;
+		std::string currDefineValue;
 
-		while ((iter != tokens.cend()) && (*iter != "\n"))
+		/// By now it supports single line only macro
+		/// \todo Multi-line macro support should be implemented
+
+		while ((firstPos = sourceCode.find_first_of("#", nextPos)) != std::string::npos)
 		{
-			defineValue.append(*iter);
+			nextPos = firstPos + 1;
+
+			/// if it's a define directive try to parse
+			firstPos = sourceCode.find("define", nextPos);
+
+			if (firstPos == std::string::npos)
+			{
+				continue;
+			}
+
+			/// extract the line with the definition
+			secondPos = sourceCode.find_first_of('\n', nextPos);
+
+			nextPos = secondPos + 1;
+
+			currLine = sourceCode.substr(firstPos + 6, secondPos - firstPos - 6); /// 6 is a length of "define" keyword
+
+			/// extract name 
+			firstPos = currLine.find_first_not_of(' ');
+			
+			if (firstPos == std::string::npos)
+			{
+				continue;
+			}
+
+			secondPos = currLine.find_first_of(' ', firstPos);
+
+			if (secondPos == std::string::npos)
+			{
+				secondPos = currLine.find_first_of(')', firstPos);
+
+				if (secondPos == std::string::npos)
+				{
+					currDefineName = currLine.substr(firstPos, currLine.length() - firstPos);
+
+					defines.emplace(currDefineName, "1"); // assign a default value
+
+					continue;
+				}
+			}
+
+			++secondPos;
+
+			currDefineName = currLine.substr(firstPos, secondPos - firstPos - 1);
+
+			/// extract value, if it doesn't exists the value is set to 1 by default
+			currDefineValue = currLine.substr(secondPos, currLine.length() - secondPos);
+			
+			defines.emplace(currDefineName, currDefineValue);
 		}
 
-		return std::make_pair(defineName, defineValue);
+		return defines;
 	}
 
 	E_SHADER_TARGET_VERSION CD3D11ShaderCompiler::_getTargetVersionFromStr(const std::string& ver) const
@@ -309,7 +366,20 @@ namespace TDEngine2
 
 		return STV_5_0;
 	}
-		
+
+	bool CD3D11ShaderCompiler::_isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const CD3D11ShaderCompiler::TShaderMetadata& shaderMeta) const
+	{
+		TDefinesMap::const_iterator defineIter = shaderMeta.mDefines.find(mEntryPointsDefineNames[shaderStage]);
+
+		if (defineIter == shaderMeta.mDefines.cend() || 
+			defineIter->second.empty())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 
 	TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(E_RESULT_CODE& result)
 	{
