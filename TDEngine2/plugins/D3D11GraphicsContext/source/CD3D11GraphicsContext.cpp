@@ -93,6 +93,12 @@ namespace TDEngine2
 		/// set up a default viewport
 		SetViewport(0.0f, 0.0f, width, height, 0.0f, 1.0f);
 
+#if _HAS_CXX17
+		mInternalDataObject = TD3D11CtxInternalData { mp3dDevice, mp3dDeviceContext };
+#else
+		mInternalDataObject.mD3D11 = { mp3dDevice, mp3dDeviceContext };
+#endif
+
 		mIsInitialized = true;
 
 		return RC_OK;
