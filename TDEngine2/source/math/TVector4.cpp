@@ -118,29 +118,29 @@ namespace TDEngine2
 	}
 
 
-	float Dot(const TVector4& lvec4, const TVector4& rvec4)
+	F32 Dot(const TVector4& lvec4, const TVector4& rvec4)
 	{
 		return lvec4.x * rvec4.x + lvec4.y * rvec4.y + lvec4.z * rvec4.z + lvec4.w * rvec4.w;
 	}
 
 	TVector4 Normalize(const TVector4& vec4)
 	{
-		float x = vec4.x;
-		float y = vec4.y;
-		float z = vec4.z;
-		float w = vec4.w;
+		F32 x = vec4.x;
+		F32 y = vec4.y;
+		F32 z = vec4.z;
+		F32 w = vec4.w;
 
-		float invLength = 1.0f / sqrtf(x * x + y * y + z * z + w * w);
+		F32 invLength = 1.0f / sqrtf(x * x + y * y + z * z + w * w);
 
 		return TVector4(x * invLength, y * invLength, z * invLength, w * invLength);
 	}
 
-	float Length(const TVector4& vec4)
+	F32 Length(const TVector4& vec4)
 	{
-		float x = vec4.x;
-		float y = vec4.y;
-		float z = vec4.z;
-		float w = vec4.w;
+		F32 x = vec4.x;
+		F32 y = vec4.y;
+		F32 z = vec4.z;
+		F32 w = vec4.w;
 
 		return sqrtf(x * x + y * y + z * z + w * w);
 	}

@@ -1,5 +1,6 @@
 #include "./../../include/math/TQuaternion.h"
 #include <math.h>
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -75,5 +76,80 @@ namespace TDEngine2
 		q.w = 0.0f;
 
 		return *this;
+	}
+
+
+	TDE2_API TQuaternion operator+ (const TQuaternion& q1, const TQuaternion& q2)
+	{
+		return TQuaternion(q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w);
+	}
+
+	TDE2_API TQuaternion operator- (const TQuaternion& q1, const TQuaternion& q2)
+	{
+		return TQuaternion(q1.x - q2.x, q1.y - q2.y, q1.z - q2.z, q1.w - q2.w);
+	}
+
+	TDE2_API TQuaternion operator* (const TQuaternion& q1, const TQuaternion& q2)
+	{
+		F32 w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
+
+		F32 x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;
+		F32 y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
+		F32 z = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w;
+
+		return TQuaternion(x, y, z, w);
+	}
+
+	TDE2_API TQuaternion operator* (F32 scalar, const TQuaternion& q)
+	{
+		return TQuaternion(q.x * scalar, q.y * scalar, q.z * scalar, q.w * scalar);
+	}
+
+	TDE2_API TQuaternion operator* (const TQuaternion& q, F32 scalar)
+	{
+		return TQuaternion(q.x * scalar, q.y * scalar, q.z * scalar, q.w * scalar);
+	}
+
+
+	TDE2_API TQuaternion Conjugate(const TQuaternion& q)
+	{
+		return TQuaternion(-q.x, -q.y, -q.z, q.w);
+	}
+	
+	TDE2_API F32 Length(const TQuaternion& q)
+	{
+		return sqrtf(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+	}
+
+	TDE2_API TQuaternion Normalize(const TQuaternion& q)
+	{
+		F32 invLength = 1.0f / sqrtf(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+
+		return TQuaternion(q.x * invLength, q.y * invLength, q.z * invLength, q.w * invLength);
+	}
+
+	TDE2_API TQuaternion Inverse(const TQuaternion& q)
+	{
+		F32 invNorm = 1.0f / (q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+		
+		return TQuaternion(-q.x * invNorm, -q.y * invNorm, -q.z * invNorm, q.w * invNorm);
+	}
+
+	TDE2_API TQuaternion Lerp(const TQuaternion& q1, const TQuaternion& q2, F32 t)
+	{
+		t = (std::max)((std::min)(1.0f, t), 0.0f); // clamp t to range [0; 1]
+
+		return (1 - t) * q1 + t * q2;
+	}
+
+	TDE2_API TQuaternion Slerp(const TQuaternion& q1, const TQuaternion& q2, F32 t)
+	{
+		t = (std::max)((std::min)(1.0f, t), 0.0f); // clamp t to range [0; 1]
+
+		F32 theta = 1.0f / cosf(q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w);
+
+		F32 sinTheta = sinf(theta);
+
+		return (sinf(theta * (1.0f - t)) / sinTheta) * q1 + (sinf(theta * t) / sinTheta) * q2;
 	}
 }

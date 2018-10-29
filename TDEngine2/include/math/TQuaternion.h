@@ -79,4 +79,82 @@ namespace TDEngine2
 	/// TQuaternion's predefined constants
 	static const TQuaternion ZeroQuaternion = TQuaternion();
 	static const TQuaternion UnitQuaternion = TQuaternion(0.0f, 0.0f, 0.0f, 1.0f);
+
+
+	/// TQuaternion's operators
+
+	TDE2_API TQuaternion operator+ (const TQuaternion& q1, const TQuaternion& q2);
+
+	TDE2_API TQuaternion operator- (const TQuaternion& q1, const TQuaternion& q2);
+
+	TDE2_API TQuaternion operator* (const TQuaternion& q1, const TQuaternion& q2);
+
+	TDE2_API TQuaternion operator* (F32 scalar, const TQuaternion& q);
+
+	TDE2_API TQuaternion operator* (const TQuaternion& q, F32 scalar);
+
+
+	/*!
+		\brief The method computes a conjugate quaternion to specified one
+
+		\param[in] An input quaternion
+
+		\return The method returns a quaternion that conjugated to specified one
+	*/
+
+	TDE2_API TQuaternion Conjugate(const TQuaternion& q);
+
+	/*!
+		\brief The method returns a length of a quaternion
+
+		\param[in] An input quaternion
+		
+		\return The method returns a length of specified quaternion
+	*/
+
+	TDE2_API F32 Length(const TQuaternion& q);
+
+	/*!
+		\brief The method normalizes specified quaternion
+
+		\param[in] An input quaternion
+
+		\return Normalized quaternion (||q|| = 1, where ||.|| means length)
+	*/
+
+	TDE2_API TQuaternion Normalize(const TQuaternion& q);
+
+	/*!
+		\brief The method computes an inversed quaternion to a given one
+
+		\param[in] An input quaternion
+
+		\return The method returns an inversed quaternion based on the input
+	*/
+
+	TDE2_API TQuaternion Inverse(const TQuaternion& q);
+
+	/*!
+		\brief The method computes a mid quaternion based via linear interpolation algorithm
+		and specified parameter t. The following formula is used q' = (1 - t) q1 + t q2
+
+		\param[in] An input quaternion
+
+		\return The method returns a lineary interpolated quaternion 
+	*/
+
+	TDE2_API TQuaternion Lerp(const TQuaternion& q1, const TQuaternion& q2, F32 t);
+
+	/*!
+		\brief The method computes a mid quaternion based via spherical linear interpolation algorithm
+		and specified parameter t. The following formula is used 
+		q' = [sin [Theta(1 - t)] / sin Theta] q1 + [Sin [Theta t] / Sin Theta] q2, where
+		Theta = cos ^ -1 (q1 . q2)
+
+		\param[in] An input quaternion
+
+		\return The method returns a lineary interpolated quaternion
+	*/
+
+	TDE2_API TQuaternion Slerp(const TQuaternion& q1, const TQuaternion& q2, F32 t);
 }

@@ -25,7 +25,7 @@ namespace TDEngine2
 
 	typedef struct TVector4
 	{
-		float x, y, z, w;
+		F32 x, y, z, w;
 
 		TDE2_API TVector4();
 
@@ -36,7 +36,7 @@ namespace TDEngine2
 			\param[in] initializer A value, which will be assigned to all the components
 		*/
 
-		TDE2_API TVector4(float initializer);
+		TDE2_API TVector4(F32 initializer);
 
 		/*!
 			\brief Simple copy constructor
@@ -57,14 +57,14 @@ namespace TDEngine2
 			\param[in] pArray An array contains components' values
 		*/
 
-		TDE2_API TVector4(const float pArray[4]);
+		TDE2_API TVector4(const F32 pArray[4]);
 
 		/*!
 			\brief The constructor with separate arguments for
 			components initialization
 		*/
 
-		TDE2_API TVector4(float x, float y, float z, float w);
+		TDE2_API TVector4(F32 x, F32 y, F32 z, F32 w);
 
 		/*!
 			\brief The constructor, which uses a 3d vector and w value
@@ -74,7 +74,7 @@ namespace TDEngine2
 			\param[in] w A homogeneous coordinate
 		*/
 
-		TDE2_API TVector4(const TVector3& vec3, float w);
+		TDE2_API TVector4(const TVector3& vec3, F32 w);
 
 		/*!
 			\brief Assigment operator for TVector4
@@ -100,9 +100,9 @@ namespace TDEngine2
 
 	TDE2_API TVector4 operator- (const TVector4& lvec4, const TVector4& rvec4);
 
-	TDE2_API TVector4 operator* (const TVector4& lvec4, const float& coeff);
+	TDE2_API TVector4 operator* (const TVector4& lvec4, const F32& coeff);
 	
-	TDE2_API TVector4 operator* (const float& coeff, const TVector4& lvec4);
+	TDE2_API TVector4 operator* (const F32& coeff, const TVector4& lvec4);
 
 	TDE2_API TVector4 operator* (const TVector4& lvec4, const TVector4& rvec4);
 
@@ -124,7 +124,7 @@ namespace TDEngine2
 		dot = lvec4.x * rvec4.x + lvec4.y * rvec4.y + lvec4.z * rvec4.z + lvec4.w * rvec4.w
 	*/
 
-	TDE2_API float Dot(const TVector4& lvec4, const TVector4& rvec4);
+	TDE2_API F32 Dot(const TVector4& lvec4, const TVector4& rvec4);
 
 	/*!
 		\brief The method returns a length of a vector
@@ -134,7 +134,7 @@ namespace TDEngine2
 		\return The method returns a length of a vector
 	*/
 
-	TDE2_API float Length(const TVector4& vec4);
+	TDE2_API F32 Length(const TVector4& vec4);
 
 	/*!
 		\brief The method returns a normalized copy of a specified vector

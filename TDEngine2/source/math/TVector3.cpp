@@ -69,22 +69,22 @@ namespace TDEngine2
 
 	TVector3 operator* (const TVector3& lvec3, const TVector3& rvec3)
 	{
-		float lx = lvec3.x, ly = lvec3.y, lz = lvec3.z;
-		float rx = rvec3.x, ry = rvec3.y, rz = rvec3.z;
+		F32 lx = lvec3.x, ly = lvec3.y, lz = lvec3.z;
+		F32 rx = rvec3.x, ry = rvec3.y, rz = rvec3.z;
 
-		float x = ly * rz - lz * ry;
-		float y = lz * rx - lx * rz;
-		float z = lx * ry - ly * rx;
+		F32 x = ly * rz - lz * ry;
+		F32 y = lz * rx - lx * rz;
+		F32 z = lx * ry - ly * rx;
 
 		return TVector3(x, y, z);
 	}
 
-	TVector3 operator* (const TVector3& lvec3, const float& coeff)
+	TVector3 operator* (const TVector3& lvec3, const F32& coeff)
 	{
 		return TVector3(lvec3.x * coeff, lvec3.y * coeff, lvec3.z * coeff);
 	}
 
-	TVector3 operator* (const float& coeff, const TVector3& lvec3)
+	TVector3 operator* (const F32& coeff, const TVector3& lvec3)
 	{
 		return TVector3(lvec3.x * coeff, lvec3.y * coeff, lvec3.z * coeff);
 	}
@@ -118,27 +118,27 @@ namespace TDEngine2
 		return lvec3 * rvec3;
 	}
 
-	float Dot(const TVector3& lvec3, const TVector3& rvec3)
+	F32 Dot(const TVector3& lvec3, const TVector3& rvec3)
 	{
 		return lvec3.x * rvec3.x + lvec3.y * rvec3.y + lvec3.z * rvec3.z;
 	}
 
 	TVector3 Normalize(const TVector3& vec3)
 	{
-		float x = vec3.x;
-		float y = vec3.y;
-		float z = vec3.z;
+		F32 x = vec3.x;
+		F32 y = vec3.y;
+		F32 z = vec3.z;
 
-		float invLength = 1.0f / sqrtf(x * x + y * y + z * z);
+		F32 invLength = 1.0f / sqrtf(x * x + y * y + z * z);
 
 		return TVector3(x * invLength, y * invLength, z * invLength);
 	}
 
-	float Length(const TVector3& vec3)
+	F32 Length(const TVector3& vec3)
 	{
-		float x = vec3.x;
-		float y = vec3.y;
-		float z = vec3.z;
+		F32 x = vec3.x;
+		F32 y = vec3.y;
+		F32 z = vec3.z;
 
 		return sqrtf(x * x + y * y + z * z);
 	}
@@ -148,7 +148,7 @@ namespace TDEngine2
 		return TVector3(-vec3.x, -vec3.y, -vec3.z);
 	}
 
-	TVector3 Scale(const TVector3& vec3, const float& coeff)
+	TVector3 Scale(const TVector3& vec3, const F32& coeff)
 	{
 		return TVector3(coeff * vec3.x, coeff * vec3.y, coeff * vec3.z);
 	}

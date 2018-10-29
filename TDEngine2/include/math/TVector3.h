@@ -20,7 +20,7 @@ namespace TDEngine2
 
 	typedef struct TVector3
 	{
-		float x, y, z;
+		F32 x, y, z;
 
 		TDE2_API TVector3();
 
@@ -31,7 +31,7 @@ namespace TDEngine2
 			\param[in] initializer A value, which will be assigned to all the components
 		*/
 
-		TDE2_API TVector3(float initializer);
+		TDE2_API TVector3(F32 initializer);
 
 		/*!
 			\brief Simple copy constructor
@@ -52,14 +52,14 @@ namespace TDEngine2
 			\param[in] pArray An array contains components' values
 		*/
 
-		TDE2_API TVector3(const float pArray[3]);
+		TDE2_API TVector3(const F32 pArray[3]);
 
 		/*!
 			\brief The constructor with separate arguments for 
 			components initialization
 		*/
 
-		TDE2_API TVector3(float x, float y, float z);
+		TDE2_API TVector3(F32 x, F32 y, F32 z);
 
 		/*!
 			\brief Assigment operator for TVector3
@@ -94,9 +94,9 @@ namespace TDEngine2
 
 	TDE2_API TVector3 operator* (const TVector3& lvec3, const TVector3& rvec3);
 
-	TDE2_API TVector3 operator* (const TVector3& lvec3, const float& coeff);
+	TDE2_API TVector3 operator* (const TVector3& lvec3, const F32& coeff);
 
-	TDE2_API TVector3 operator* (const float& coeff, const TVector3& lvec3);
+	TDE2_API TVector3 operator* (const F32& coeff, const TVector3& lvec3);
 
 	TDE2_API bool operator== (const TVector3& lvec3, const TVector3& rvec3);
 
@@ -127,7 +127,7 @@ namespace TDEngine2
 		dot = lvec3.x * rvec3.x + lvec3.y * rvec3.y + lvec3.z * rvec3.z
 	*/
 
-	TDE2_API float Dot(const TVector3& lvec3, const TVector3& rvec3);
+	TDE2_API F32 Dot(const TVector3& lvec3, const TVector3& rvec3);
 
 	/*!
 		\brief The method returns a length of a vector
@@ -137,7 +137,7 @@ namespace TDEngine2
 		\return The method returns a length of a vector
 	*/
 
-	TDE2_API float Length(const TVector3& vec3);
+	TDE2_API F32 Length(const TVector3& vec3);
 
 	/*!
 		\brief The method returns a normalized copy of a specified vector
@@ -168,7 +168,7 @@ namespace TDEngine2
 		\return The result, which equals to (vec3.x * coeff, vec3.y * coeff, vec3.z * coeff)
 	*/
 
-	TDE2_API TVector3 Scale(const TVector3& vec3, const float& coeff);
+	TDE2_API TVector3 Scale(const TVector3& vec3, const F32& coeff);
 
 	/*!
 		\brief The method multiplies two vectors component-wise
