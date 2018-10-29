@@ -43,7 +43,7 @@ namespace TDEngine2
 			return defaultValue;
 		}
 
-		std::transform(resultValue.begin(), resultValue.end(), resultValue.begin(), std::tolower);
+		std::transform(resultValue.begin(), resultValue.end(), resultValue.begin(), [](U8 ch) { return std::tolower(ch); });
 
 		return (resultValue == "true" || resultValue == "1") ? true : false;
 	}
@@ -89,7 +89,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			currReadLine.erase(std::remove_if(currReadLine.begin(), currReadLine.end(), std::isspace), currReadLine.end()); ///< remove whitespaces
+			currReadLine.erase(std::remove_if(currReadLine.begin(), currReadLine.end(), [](U8 ch) { return std::isspace(ch); }), currReadLine.end()); ///< remove whitespaces
 
 			if ((firstDelimPos = currReadLine.find_first_of('[')) != std::string::npos) /// found a group
 			{

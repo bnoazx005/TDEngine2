@@ -70,7 +70,7 @@ namespace TDEngine2
 		without DEBUG flag the macros will be skipped
 	*/
 
-#if defined(_DEBUG)
+#if TDE2_DEBUG_MODE
 
 	#define LOG_MESSAGE(message)				\
 		if (MainLogger)							\

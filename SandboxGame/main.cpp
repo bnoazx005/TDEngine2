@@ -62,27 +62,27 @@ int main(int argc, char** argv)
 
 	IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
 
-	auto pShaderHandler = pResourceManager->Load<CD3D11Shader>("test.shader");
+	auto pShaderHandler = pResourceManager->Load<CBaseShader>("test.shader");
 
 	IJobManager* pJobManager = dynamic_cast<IJobManager*>(pEngineCore->GetSubsystem(EST_JOB_MANAGER));
 
 	CFileLogger* pFileLogger = new CFileLogger("log.txt");
 	
-	pJobManager->SubmitJob<CFileLogger*>([](CFileLogger* pFileLogger) 
+	pJobManager->SubmitJob<CFileLogger*>(std::function<void (CFileLogger*)>([](CFileLogger* pFileLogger) 
 	{
 		for (int i = 0; i < 1000; ++i)
 		{
 			pFileLogger->LogMessage("t1 message...");
 		}
-	}, pFileLogger);
+	}), pFileLogger);
 
-	pJobManager->SubmitJob<CFileLogger*>([](CFileLogger* pFileLogger)
+	pJobManager->SubmitJob<CFileLogger*>(std::function<void(CFileLogger*)>([](CFileLogger* pFileLogger)
 	{
 		for (int i = 0; i < 1000; ++i)
 		{
 			pFileLogger->LogMessage("t2 message...");
 		}
-	}, pFileLogger);
+	}), pFileLogger);
 
 	IConfigFileReader* pConfigFile = pFileSystem->Create<CConfigFileReader>("engine.cfg", result);
 	auto p = pConfigFile->GetBool("script", "shared_state");

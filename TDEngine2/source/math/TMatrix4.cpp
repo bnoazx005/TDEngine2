@@ -1,5 +1,7 @@
 #include "./../../include/math/TMatrix4.h"
 #include "./../../include/math/TMatrix3.h"
+#include <cstring>
+#include <cmath>
 
 
 namespace TDEngine2

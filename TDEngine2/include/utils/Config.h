@@ -46,6 +46,8 @@ namespace TDEngine2
 	#else
 	#endif
 
+	#define TDE2_DEBUG_MODE !NDEBUG
+
 	#define GLEW_NO_GLU ///< Disable GLU 
 
 	/// Main logger's settings

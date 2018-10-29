@@ -437,7 +437,7 @@ namespace TDEngine2
 
 			currLine = sourceCode.substr(firstPos + 7, secondPos - firstPos - 7); // 7 is a length of "cbuffer" keyword
 
-			currLine.erase(std::remove_if(currLine.begin(), currLine.end(), std::isspace), currLine.end()); // remove all whitespaces
+			currLine.erase(std::remove_if(currLine.begin(), currLine.end(), [](U8 ch) { return std::isspace(ch); }), currLine.end()); // remove all whitespaces
 
 			// find delimiter :
 			firstPos = currLine.find_first_of(':');

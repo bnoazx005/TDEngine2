@@ -14,6 +14,7 @@ sudo apt-get update -qq
 sudo apt-get install -qq g++-7
 sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
 
+sudo apte-get install -qq build-essential xorg-dev libgl1-mesa-dev libglew-dev
 
 CMAKE_VERSION=3.3.2
 CMAKE_VERSION_DIR=v3.3
