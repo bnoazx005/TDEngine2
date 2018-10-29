@@ -1,8 +1,10 @@
 #include "./../../../include/platform/unix/CUnixWindowSystem.h"
 #include "./../../../include/platform/unix/CUnixDLLManager.h"
 #include "./../../../include/platform/unix/CUnixTimer.h"
+#include "./../../../include/utils/CFileLogger.h"
 #include <cstring>
 #include <iostream>
+
 
 #if defined (TDE2_USE_UNIXPLATFORM)
 
