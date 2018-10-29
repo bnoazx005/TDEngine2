@@ -72,10 +72,40 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Unload() override;
+
+			/*!
+				\brief The method writes data into an internal uniforms buffer with specified register
+
+				\param[in] slot A slot specifies a uniforms buffer, in which data will be written
+
+				\param[in] pData A pointer to data that should be written into a buffer
+
+				\param[in] dataSize A size of data in bytes
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize) override;
+
+			/*!
+				\brief The method writes data into a user-defined uniforms buffer with specified register
+
+				\param[in] slot A slot specifies a uniforms buffer
+
+				\param[in] pData A pointer to data that should be written into a buffer
+
+				\param[in] dataSize A size of data in bytes
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Shader)
 
 			TDE2_API E_RESULT_CODE _createInternalHandlers(const TShaderCompilerResult& shaderBytecode) override;
+
+			TDE2_API E_RESULT_CODE _createUniformBuffers(const TShaderCompilerResult& shaderBytecode);
 		protected:
 			ID3D11VertexShader*   mpVertexShader;
 			ID3D11PixelShader*    mpPixelShader;

@@ -56,6 +56,7 @@
 #include "graphics/CBaseShader.h"
 #include "graphics/IShaderCompiler.h"
 #include "graphics/CBaseShaderLoader.h"
+#include "graphics/TInternalUniformsBufferData.h"
 
 ///math
 #include "math/TVector3.h"

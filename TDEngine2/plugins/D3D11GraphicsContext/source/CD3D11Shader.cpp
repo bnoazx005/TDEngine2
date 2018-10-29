@@ -78,7 +78,26 @@ namespace TDEngine2
 			}
 		}
 
+		return _createUniformBuffers(shaderBytecode);
+	}
+
+	E_RESULT_CODE CD3D11Shader::_createUniformBuffers(const TShaderCompilerResult& shaderBytecode)
+	{
+		auto uniformBuffersInfo = shaderBytecode.mUniformBuffersInfo;
+
+		//first 4 buffers for internal usage only
+
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11Shader::SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CD3D11Shader::SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 

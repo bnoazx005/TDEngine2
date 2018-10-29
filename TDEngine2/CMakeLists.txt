@@ -64,6 +64,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CBaseShader.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IShaderCompiler.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CBaseShaderLoader.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/TInternalUniformsBufferData.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32WindowSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32Timer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32DLLManager.h"

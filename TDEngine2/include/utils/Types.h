@@ -28,6 +28,7 @@
 #endif
 
 #include <vector>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -470,15 +471,17 @@ namespace TDEngine2
 
 	typedef struct TShaderCompilerResult
 	{
-		E_RESULT_CODE                      mResultCode;
+		E_RESULT_CODE                                               mResultCode;
+										                            
+		std::vector<U8>                                             mVSByteCode;
+										                            
+		std::vector<U8>                                             mPSByteCode;
 
-		std::vector<U8>                    mVSByteCode;
+		std::vector<U8>                                             mGSByteCode;
 
-		std::vector<U8>                    mPSByteCode;
+		std::unordered_map<U8, std::unordered_map<std::string, U8>> mUniformBuffersInfo;
 
-		std::vector<U8>                    mGSByteCode;
-
-		static const TShaderCompilerResult mInvalidValue;
+		static const TShaderCompilerResult                          mInvalidValue;
 
 		/*!
 			Default constructor
@@ -521,5 +524,22 @@ namespace TDEngine2
 		STV_3_0,
 		STV_4_0,
 		STV_5_0,
+	};
+
+
+	/*!
+		enum E_INTERNAL_UNIFORM_BUFFER_REGISTERS
+
+		\brief The enumeration contains all available registers of uniforms buffers
+		that are marked for internal usage by the engine
+	*/
+
+	enum E_INTERNAL_UNIFORM_BUFFER_REGISTERS : U8
+	{
+		IUBR_PER_FRAME,			///< This uniforms buffer is updated each frame
+		IUBR_PER_OBJECT,		///< This uniforms buffer is unique for each model
+		IUBR_RARE_UDATED,		///< This uniforms buffer contains rare updating values 
+		IUBR_CONSTANTS,			///< This uniforms buffer contains in-engine constants (like Pi, Epsilon, etc)
+		IUBR_LAST_USED_SLOT = IUBR_CONSTANTS
 	};
 }

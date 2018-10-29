@@ -9,10 +9,14 @@
 
 #include "./../core/CBaseResource.h"
 #include "IShader.h"
+#include <vector>
 
 
 namespace TDEngine2
 {
+	class IBuffer;
+
+
 	/*!
 		class CBaseShader
 
@@ -21,6 +25,8 @@ namespace TDEngine2
 	
 	class CBaseShader: public IShader, public CBaseResource
 	{
+		protected:
+			typedef std::vector<IBuffer*> TUniformBuffersArray;
 		public:
 			TDE2_REGISTER_TYPE(CBaseShader)
 
@@ -56,8 +62,10 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TShaderCompilerResult& shaderBytecode) = 0;
 		protected:
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext*    mpGraphicsContext;
 
-			std::string       mSourceCode;
+			std::string          mSourceCode;
+
+			TUniformBuffersArray mUniformBuffers;
 	};
 }

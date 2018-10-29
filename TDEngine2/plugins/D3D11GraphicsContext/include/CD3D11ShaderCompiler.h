@@ -39,10 +39,12 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(E_RESULT_CODE& result);
-		public:
-			typedef std::pair<std::string, std::string>          TShaderDefineDesc;
+		protected:
+			typedef std::pair<std::string, std::string>                         TShaderDefineDesc;
 
-			typedef std::unordered_map<std::string, std::string> TDefinesMap;
+			typedef std::unordered_map<std::string, std::string>                TDefinesMap;
+
+			typedef std::unordered_map<U8, std::unordered_map<std::string, U8>> TUniformBuffersMap;
 
 			typedef struct TShaderMetadata
 			{
@@ -53,6 +55,8 @@ namespace TDEngine2
 				E_SHADER_TARGET_VERSION mTargetVersion;
 
 				TDefinesMap             mDefines;
+
+				TUniformBuffersMap      mUniformBuffers;
 			} TShaderMetadata;
 
 			typedef struct TCompileShaderStageResult
@@ -100,6 +104,8 @@ namespace TDEngine2
 			TDE2_API std::string _removeComments(const std::string& sourceCode) const;
 
 			TDE2_API TDefinesMap _processDefines(const std::string& sourceCode) const;
+
+			TDE2_API TUniformBuffersMap _processCBuffersDecls(const std::string& sourceCode) const;
 
 			TDE2_API E_SHADER_TARGET_VERSION _getTargetVersionFromStr(const std::string& ver) const;
 
