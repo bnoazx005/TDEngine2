@@ -1,8 +1,12 @@
 # TDEngine 2
 
-[![Build status](https://ci.appveyor.com/api/projects/status/dyp34r05yfxii09m?svg=true)](https://ci.appveyor.com/project/bnoazx005/tdengine2)
-
 TDEngine 2 is a cross-platform game engine.
+
+| Platform (Compiler) | Build status  |
+|--|--|
+| Win32 (Visual Studio 2015 / 2017) |[![Build status](https://ci.appveyor.com/api/projects/status/dyp34r05yfxii09m?svg=true)](https://ci.appveyor.com/project/bnoazx005/tdengine2) |
+| UNIX (g++ / clang) |[![Build Status](https://travis-ci.org/bnoazx005/TDEngine2.svg)](https://travis-ci.org/bnoazx005/TDEngine2) |
+
 
 ## Table of contents
 
