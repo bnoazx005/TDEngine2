@@ -9,9 +9,6 @@
 using namespace TDEngine2;
 
 
-class CTransform : public CBaseComponent { public : TDE2_REGISTER_TYPE(CTransform) };
-
-
 int main(int argc, char** argv)
 {
 	E_RESULT_CODE result = RC_OK;

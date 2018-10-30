@@ -8,7 +8,7 @@
 
 
 #include "./../core/CBaseObject.h"
-#include "CComponentManager.h"
+#include "IComponentManager.h"
 #include <vector>
 #include <list>
 
@@ -29,7 +29,7 @@ namespace TDEngine2
 	class CEntityManager: public CBaseObject
 	{
 		public:
-			friend TDE2_API CEntityManager* CreateEntityManager(CComponentManager* pComponentManager, E_RESULT_CODE& result);
+			friend TDE2_API CEntityManager* CreateEntityManager(IComponentManager* pComponentManager, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an entity manager's instance
@@ -39,7 +39,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(CComponentManager* pComponentManager);
+			TDE2_API virtual E_RESULT_CODE Init(IComponentManager* pComponentManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -145,7 +145,7 @@ namespace TDEngine2
 			std::vector<CEntity*> mActiveEntities;
 			std::list<CEntity*>   mDestroyedEntities;
 			TEntityId             mNextIdValue;
-			CComponentManager*    mpComponentManager;
+			IComponentManager*    mpComponentManager;
 	};
 	
 
@@ -174,5 +174,5 @@ namespace TDEngine2
 		\return A pointer to CEntityManager's implementation
 	*/
 
-	TDE2_API CEntityManager* CreateEntityManager(CComponentManager* pComponentManager, E_RESULT_CODE& result);
+	TDE2_API CEntityManager* CreateEntityManager(IComponentManager* pComponentManager, E_RESULT_CODE& result);
 }

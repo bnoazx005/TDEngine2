@@ -16,7 +16,7 @@ namespace TDEngine2
 	class ISystem;
 	class CEntity;
 	class CEntityManager;
-	class CComponentManager;
+	class IComponentManager;
 	class ISystemManager;
 
 
@@ -144,7 +144,7 @@ namespace TDEngine2
 			TDE2_API CWorld& operator=(const CWorld& world) = delete;
 		protected:
 			CEntityManager*    mpEntityManager;
-			CComponentManager* mpComponentManager;
+			IComponentManager* mpComponentManager;
 			ISystemManager*    mpSystemManager;
 	};
 

@@ -8,14 +8,18 @@
 
 
 #include "./../core/CBaseObject.h"
-#include "IComponent.h"
+#include "./../ecs/IComponentManager.h"
 #include <vector>
 #include <list>
 #include <unordered_map>
+#include "./../utils/Utils.h"
 
 
 namespace TDEngine2
 {
+	class IComponent;
+	class IComponentFactory;
+
 
 	/*!
 		class CComponentManager
@@ -24,15 +28,21 @@ namespace TDEngine2
 		creates, destroys and stores all components in the engine
 	*/
 
-	class CComponentManager : public CBaseObject
+	class CComponentManager : public CBaseObject, public IComponentManager
 	{
 		public:
-			friend TDE2_API CComponentManager* CreateComponentManager(E_RESULT_CODE& result);
+			friend TDE2_API IComponentManager* CreateComponentManager(E_RESULT_CODE& result);
 		protected:
 			typedef std::unordered_map<TComponentTypeId, std::unordered_map<TEntityId, U32>> TComponentEntityMap;
 			typedef std::unordered_map<TEntityId, std::unordered_map<TComponentTypeId, U32>> TEntityComponentMap;
 			
 			constexpr static U32 mInvalidMapValue = 0;
+
+			typedef std::unordered_map<TypeId, U32>       TComponentFactoriesMap;
+
+			typedef std::vector<const IComponentFactory*> TComponentFactoriesArray;
+
+			typedef std::list<U32>                        TFreeEntitiesRegistry;
 		public:
 			/*!
 				\brief The method initializes a component manager's instance
@@ -40,7 +50,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init();
+			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -51,114 +61,15 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
-				\brief The method creates a new component and connects it with
-				the entity
+				\brief The method registers specified resource factory within a manager
 
-				\return A pointer to a component, or nullptr if some error has occured
+				\param[in] pFactory A pointer to IComponentFactory's implementation
+
+				\return The method returns an object, which contains a status of method's execution and
+				an identifier of the registred factory
 			*/
 
-			template <typename T>
-			TDE2_API T* CreateComponent(TEntityId id)
-			{
-				TComponentTypeId componentType = T::GetTypeId();
-
-				T* pNewComponent = GetComponent<T>(id);
-
-				if (pNewComponent)
-				{
-					return pNewComponent;
-				}
-
-				pNewComponent = new T();
-
-				mActiveComponents.push_back(pNewComponent);
-
-				size_t hash = mActiveComponents.size();
-
-				mComponentEntityMap[componentType][id] = hash;
-				mEntityComponentMap[id][componentType] = hash;
-
-				return pNewComponent;
-			}
-
-			/*!
-				\brief The method removes a component of specified T type.
-				This method doesn't free the memory that is occupied by a component.
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			template <typename T>
-			TDE2_API E_RESULT_CODE RemoveComponent(TEntityId id)
-			{
-				TComponentTypeId componentType = T::GetTypeId();
-
-				U32 targetEntityComponentHash = mEntityComponentMap[id][componentType];
-
-				if (targetEntityComponentHash == mInvalidMapValue)
-				{
-					return RC_FAIL;
-				}
-
-				IComponent* pComponent = mActiveComponents[--targetEntityComponentHash];
-
-				if (!pComponent)
-				{
-					return RC_FAIL;
-				}
-
-				mActiveComponents[targetEntityComponentHash] = nullptr;
-
-				mDestroyedComponents.push_back(pComponent);
-
-				// mark handlers as invalid
-				mEntityComponentMap[id][componentType] = 0;
-				mComponentEntityMap[componentType][id] = 0;
-
-				return RC_OK;
-			}
-
-			/*!
-			\brief The method removes a component of specified T type and
-			frees the memory occupied by it
-
-			\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			template <typename T>
-			TDE2_API E_RESULT_CODE RemoveComponentImmediately(TEntityId id)
-			{
-				TComponentTypeId componentType = T::GetTypeId();
-
-				U32 targetEntityComponentHash = mEntityComponentMap[id][componentType];
-
-				if (targetEntityComponentHash == mInvalidMapValue)
-				{
-					return RC_FAIL;
-				}
-
-				IComponent* pComponent = mActiveComponents[--targetEntityComponentHash];
-
-				if (!pComponent)
-				{
-					return RC_FAIL;
-				}
-
-				mActiveComponents[targetEntityComponentHash] = nullptr;
-
-				E_RESULT_CODE result = RC_OK;
-
-				if ((result = pComponent->Free()) != RC_OK)
-				{
-					return result;
-				}
-
-				// mark handlers as invalid
-				mEntityComponentMap[id][componentType] = 0;
-				mComponentEntityMap[componentType][id] = 0;
-
-				return RC_OK;
-			}
+			TDE2_API E_RESULT_CODE RegisterFactory(const IComponentFactory* pFactory) override;
 
 			/*!
 				\brief The method removes all components that are related with the entity.
@@ -167,7 +78,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RemoveComponents(TEntityId id);
+			TDE2_API E_RESULT_CODE RemoveComponents(TEntityId id) override;
 
 			/*!
 			\brief The method removes all components that are related with the entity and
@@ -176,47 +87,38 @@ namespace TDEngine2
 			\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RemoveComponentsImmediately(TEntityId id);
-
-			/*!
-				\brief The method returns a pointer to a component of specified type T
-
-				\return The method returns a pointer to a component of specified type T, or nullptr if there is no
-				attached component of desired type.
-			*/
-
-			template <typename T>
-			TDE2_API T* GetComponent(TEntityId id)
-			{
-				TComponentTypeId componentType = T::GetTypeId();
-
-				U32 hashValue = mComponentEntityMap[componentType][id];
-
-				if (hashValue == mInvalidMapValue)
-				{
-					return nullptr;
-				}
-
-				return dynamic_cast<T*>(mActiveComponents[hashValue - 1]);
-			}
+			TDE2_API E_RESULT_CODE RemoveComponentsImmediately(TEntityId id) override;
 		protected:
-			TDE2_API CComponentManager();
-			TDE2_API virtual ~CComponentManager() = default;
-			TDE2_API CComponentManager(const CComponentManager& componentManager) = delete;
-			TDE2_API virtual CComponentManager& operator= (CComponentManager& componentManager) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
+
+			TDE2_API E_RESULT_CODE _unregisterFactory(TypeId typeId) override;
+
+			TDE2_API IComponent* _createComponent(TypeId componentTypeId, TEntityId entityId) override;
+
+			TDE2_API IComponent* _getComponent(TypeId componentTypeId, TEntityId entityId) override;
+
+			TDE2_API E_RESULT_CODE _removeComponent(TypeId componentTypeId, TEntityId entityId) override;
+
+			TDE2_API E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) override;
 		protected:
 			TComponentEntityMap      mComponentEntityMap;
 			TEntityComponentMap      mEntityComponentMap;
 			std::vector<IComponent*> mActiveComponents;
 			std::list<IComponent*>   mDestroyedComponents;
+
+			TComponentFactoriesMap   mComponentFactoriesMap;
+
+			TComponentFactoriesArray mComponentFactories; 
+			
+			TFreeEntitiesRegistry    mFreeComponentFactoriesRegistry;
 	};
 
 
 	/*!
 		\brief A factory function for creation objects of CComponentManager's type.
 
-		\return A pointer to CComponentManager's implementation
+		\return A pointer to IComponentManager's implementation
 	*/
 
-	TDE2_API CComponentManager* CreateComponentManager(E_RESULT_CODE& result);
+	TDE2_API IComponentManager* CreateComponentManager(E_RESULT_CODE& result);
 }

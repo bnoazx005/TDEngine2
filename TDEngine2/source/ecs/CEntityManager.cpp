@@ -1,5 +1,4 @@
 #include "./../../include/ecs/CEntityManager.h"
-#include "./../../include/ecs/CComponentManager.h"
 #include "./../../include/ecs/CEntity.h"
 
 
@@ -10,7 +9,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CEntityManager::Init(CComponentManager* pComponentManager)
+	E_RESULT_CODE CEntityManager::Init(IComponentManager* pComponentManager)
 	{
 		if (mIsInitialized)
 		{
@@ -158,7 +157,7 @@ namespace TDEngine2
 	}
 	
 
-	CEntityManager* CreateEntityManager(CComponentManager* pComponentManager, E_RESULT_CODE& result)
+	CEntityManager* CreateEntityManager(IComponentManager* pComponentManager, E_RESULT_CODE& result)
 	{
 		CEntityManager* pEntityManager = new (std::nothrow) CEntityManager();
 

@@ -55,6 +55,10 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ISystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ISystemManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/IWorld.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ITransform.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CTransform.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/IComponentFactory.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/IComponentManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IVertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IIndexBuffer.h"
@@ -106,6 +110,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CSystemManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CWorld.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CBaseComponent.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CTransform.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseShader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseShaderLoader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32WindowSystem.cpp"
@@ -176,6 +181,8 @@ if (UNIX)
 
 	target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${X11_INCLUDE_DIR}")
 	target_link_libraries("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${X11_LIBRARIES}")
+
+	target_link_libraries("${TDENGINE2_LIBRARY_NAME}" PUBLIC pthread)
 endif ()
 
 #build plugins

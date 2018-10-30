@@ -268,6 +268,11 @@ namespace TDEngine2
 	constexpr TComponentTypeId InvalidComponentType = (std::numeric_limits<TEntityId>::max)(); ///< Invalid value for TComponentTypeId type
 
 
+	typedef U32 TComponentFactoryId; 
+
+	constexpr TComponentFactoryId InvalidComponentFactoryId = 0;
+
+
 	/*!
 		structure TPluginInfo
 
