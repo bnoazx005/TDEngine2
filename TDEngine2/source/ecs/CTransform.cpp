@@ -4,7 +4,7 @@
 namespace TDEngine2
 {
 	CTransform::CTransform() :
-		CBaseComponent()
+		CBaseComponent(), mTransform(IdentityMatrix4), mHasChanged(true)
 	{
 	}
 
@@ -92,5 +92,87 @@ namespace TDEngine2
 		}
 
 		return pTransformInstance;
+	}
+
+
+	CTransformFactory::CTransformFactory():
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CTransformFactory::Init()
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CTransformFactory::Free()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = false;
+
+		delete this;
+
+		return RC_OK;
+	}
+
+	IComponent* CTransformFactory::Create(const TBaseComponentParameters* pParams) const
+	{
+		if (!pParams)
+		{
+			return nullptr;
+		}
+
+		const TTransformParameters* transformParams = static_cast<const TTransformParameters*>(pParams);
+
+		E_RESULT_CODE result = RC_OK;
+
+		return CreateTransform(transformParams->mPosition, transformParams->mRotation, transformParams->mScale, result);
+	}
+
+	IComponent* CTransformFactory::CreateDefault(const TBaseComponentParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		return CreateTransform(ZeroVector3, UnitQuaternion, TVector3(1.0f, 1.0f, 1.0f), result);
+	}
+
+	TypeId CTransformFactory::GetComponentTypeId() const
+	{
+		return CTransform::GetTypeId();
+	}
+
+
+	IComponentFactory* CreateTransformFactory(E_RESULT_CODE& result)
+	{
+		CTransformFactory* pTransformFactoryInstance = new (std::nothrow) CTransformFactory();
+
+		if (!pTransformFactoryInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pTransformFactoryInstance->Init();
+
+		if (result != RC_OK)
+		{
+			delete pTransformFactoryInstance;
+
+			pTransformFactoryInstance = nullptr;
+		}
+
+		return pTransformFactoryInstance;
 	}
 }

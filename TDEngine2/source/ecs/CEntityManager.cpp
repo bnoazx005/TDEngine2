@@ -1,5 +1,6 @@
 #include "./../../include/ecs/CEntityManager.h"
 #include "./../../include/ecs/CEntity.h"
+#include "./../../include/ecs/CTransform.h"
 
 
 namespace TDEngine2
@@ -70,6 +71,9 @@ namespace TDEngine2
 		}
 		
 		mActiveEntities[mNextIdValue++] = pEntity;
+
+		/// create basic component CTransform
+		pEntity->AddComponent<CTransform>();
 		
 		return pEntity;
 	}

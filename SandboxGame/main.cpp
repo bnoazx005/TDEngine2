@@ -34,9 +34,7 @@ int main(int argc, char** argv)
 	IWorld* pWorld = CreateWorld(result);
 
 	CEntity* e = pWorld->CreateEntity();
-
-	e->AddComponent<CTransform>();
-	
+		
 	pWorld->Free();
 
 	IEngineListener* pCustomListener = new CCustomEngineListener();

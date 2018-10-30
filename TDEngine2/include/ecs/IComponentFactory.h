@@ -8,6 +8,8 @@
 
 
 #include "./../core/IBaseObject.h"
+#include "./../math/TVector3.h"
+#include "./../math/TQuaternion.h"
 
 
 namespace TDEngine2
@@ -24,6 +26,22 @@ namespace TDEngine2
 	typedef struct TBaseComponentParameters
 	{
 	} TBaseComponentParameters, *TBaseComponentParametersPtr;
+
+
+	/*!
+		struct TTransformParameters
+
+		\brief The structure contains parameters for creation of CTransform
+	*/
+
+	typedef struct TTransformParameters: public TBaseComponentParameters
+	{
+		TVector3    mPosition;
+
+		TQuaternion mRotation;
+
+		TVector3    mScale;
+	} TTransformParameters;
 
 
 	/*!

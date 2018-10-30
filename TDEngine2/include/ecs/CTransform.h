@@ -9,6 +9,8 @@
 
 #include "CBaseComponent.h"
 #include "ITransform.h"
+#include "IComponentFactory.h"
+#include "./../math/TMatrix4.h"
 
 
 namespace TDEngine2
@@ -128,5 +130,81 @@ namespace TDEngine2
 			TQuaternion mRotation;
 
 			TVector3    mScale;
+
+			TMatrix4    mTransform;
+
+			bool        mHasChanged;
+	};
+
+
+	/*!
+		\brief A factory function for creation objects of CTransformFactory's type.
+		
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CTransformFactory's implementation
+	*/
+
+	TDE2_API IComponentFactory* CreateTransformFactory(E_RESULT_CODE& result);
+
+
+	/*!
+		class CTransformFactory
+
+		\brief The class is factory facility to create a new objects of CTransform type
+	*/
+
+	class CTransformFactory: public ITransformFactory, public CBaseObject
+	{
+		public:
+			friend TDE2_API IComponentFactory* CreateTransformFactory(E_RESULT_CODE& result);
+		public:
+			/*!
+				\brief The method initializes an internal state of a factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init() override;
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method creates a new instance of a component based on passed parameters
+
+				\param[in] pParams An object that contains parameters that are needed for the component's creation
+
+				\return A pointer to a new instance of IComponent type
+			*/
+
+			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;
+
+			/*!
+				\brief The method creates a new instance of a component based on passed parameters
+
+				\param[in] pParams An object that contains parameters that are needed for the component's creation
+
+				\return A pointer to a new instance of IComponent type
+			*/
+
+			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;
+
+			/*!
+				\brief The method returns an identifier of a component's type, which
+				the factory serves
+
+				\return The method returns an identifier of a component's type, which
+				the factory serves
+			*/
+
+			TDE2_API TypeId GetComponentTypeId() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransformFactory)
 	};
 }

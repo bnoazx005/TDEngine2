@@ -1,6 +1,7 @@
 #include "./../../include/ecs/CComponentManager.h"
 #include "./../../include/ecs/IComponentFactory.h"
 #include "./../../include/ecs/IComponent.h"
+#include "./../../include/ecs/CTransform.h"
 
 
 namespace TDEngine2
@@ -16,10 +17,19 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-
+				
 		mIsInitialized = true;
 
-		return RC_OK;
+		E_RESULT_CODE result = RC_OK;
+
+		IComponentFactory* pTransformFactory = CreateTransformFactory(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		return RegisterFactory(pTransformFactory);
 	}
 
 	E_RESULT_CODE CComponentManager::Free()
@@ -30,6 +40,13 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = false;
+
+		E_RESULT_CODE result = _unregisterFactory(CTransform::GetTypeId());
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
 
 		delete this;
 
@@ -171,6 +188,11 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CComponentManager::RegisterFactory(const IComponentFactory* pFactory)
 	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
 		if (!pFactory)
 		{
 			return RC_INVALID_ARGS;
@@ -184,7 +206,7 @@ namespace TDEngine2
 		{
 			hashValue = mComponentFactories.size();
 
-			mComponentFactories[hashValue] = pFactory;
+			mComponentFactories.push_back(pFactory);
 
 			mComponentFactoriesMap[componentTypeId] = hashValue;
 
@@ -245,7 +267,8 @@ namespace TDEngine2
 
 		const IComponentFactory* pComponentFactory = mComponentFactories[(*factoryIdIter).second];
 
-		pNewComponent = pComponentFactory->Create({});  /// \todo implement arguments passing
+		//pNewComponent = pComponentFactory->Create(std::make_unique);  /// \todo implement arguments passing
+		pNewComponent = pComponentFactory->CreateDefault({});
 
 		mActiveComponents.push_back(pNewComponent);
 
