@@ -152,4 +152,18 @@ namespace TDEngine2
 
 		return (sinf(theta * (1.0f - t)) / sinTheta) * q1 + (sinf(theta * t) / sinTheta) * q2;
 	}
+
+	TMatrix4 RotationMatrix(const TQuaternion& q)
+	{
+		F32 squaredX = q.x * q.x;
+		F32 squaredY = q.y * q.y;
+		F32 squaredZ = q.z * q.z;
+
+		F32 elements[16] { 1.0f - 2.0f * (squaredY - squaredZ), 2.0f * (q.x * q.y - q.w * q.z), 2.0f * (q.x * q.z + q.w * q.y), 0.0f,
+						   2.0f * (q.x * q.y - q.w * q.z), 1.0f - 2.0f * (squaredX - squaredZ), 2.0f * (q.y * q.z - q.w * q.x), 0.0f,
+						   2.0f * (q.x * q.z - q.w * q.y), 2.0f * (q.y * q.z + q.w * q.x), 1.0f - 2.0f * (squaredX - squaredY), 0.0f,
+						   0.0f, 0.0f, 0.0f, 1.0f };
+
+		return TMatrix4(elements);
+	}
 }

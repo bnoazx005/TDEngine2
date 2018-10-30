@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "TVector3.h"
+#include "TMatrix4.h"
 
 
 namespace TDEngine2
@@ -157,4 +158,14 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TQuaternion Slerp(const TQuaternion& q1, const TQuaternion& q2, F32 t);
+
+	/*!
+		\brief The method converts a given quaternion to a matrix 4x4
+		
+		\param[in] An input quaternion
+
+		\return The method returns a rotation matrix 4x4 which was computed from a given quaternion
+	*/
+
+	TDE2_API TMatrix4 RotationMatrix(const TQuaternion& q);
 }
