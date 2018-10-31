@@ -33,6 +33,9 @@
 #include "core/IPluginManager.h"
 #include "core/CBasePluginManager.h"
 #include "core/IResourceFactory.h"
+#include "core/memory/IAllocator.h"
+#include "core/memory/CBaseAllocator.h"
+#include "core/memory/CLinearAllocator.h"
 
 ///ecs
 #include "ecs/CEntity.h"

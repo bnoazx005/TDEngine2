@@ -83,7 +83,17 @@ int main(int argc, char** argv)
 	auto p = pConfigFile->GetBool("script", "shared_state");
 
 	pEngineCore->Free();
-	
+
+	U32 memorySize = 1024 * 1024 * 512; //512 Mb
+
+	U8* pMemoryBlock = new U8[memorySize];
+
+	IAllocator* pAllocator = CreateLinearAllocator(memorySize, pMemoryBlock, result);
+
+	auto t = pAllocator->Allocate(sizeof(TBaseResourceParameters), 4);
+
+	delete[] pMemoryBlock;
+
 	delete pCustomListener;
 
 	return 0;
