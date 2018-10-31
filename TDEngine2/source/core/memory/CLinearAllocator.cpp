@@ -1,4 +1,5 @@
 #include "./../../../include/core/memory/CLinearAllocator.h"
+#include <cstring>
 
 
 namespace TDEngine2

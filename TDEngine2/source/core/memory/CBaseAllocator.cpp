@@ -83,7 +83,10 @@ namespace TDEngine2
 			
 			padding += alignment * (headerSize / alignment);
 
-			if (headerSize % alignment > 0) padding += alignment;
+			if (headerSize % alignment > 0)
+			{
+				padding += alignment;
+			}
 		}
 
 		return padding;

@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 
 	U8* pMemoryBlock = new U8[memorySize];
 
-	IAllocator* pAllocator = CreateLinearAllocator(memorySize, pMemoryBlock, result);
+	IAllocator* pAllocator = CreateStackAllocator(memorySize, pMemoryBlock, result);
 
 	auto t = pAllocator->Allocate(sizeof(TBaseResourceParameters), 4);
 

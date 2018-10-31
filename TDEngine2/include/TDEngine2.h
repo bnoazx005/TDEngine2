@@ -36,6 +36,8 @@
 #include "core/memory/IAllocator.h"
 #include "core/memory/CBaseAllocator.h"
 #include "core/memory/CLinearAllocator.h"
+#include "core/memory/CStackAllocator.h"
+#include "core/memory/CPoolAllocator.h"
 
 ///ecs
 #include "ecs/CEntity.h"
