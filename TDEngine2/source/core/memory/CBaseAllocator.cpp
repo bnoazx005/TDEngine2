@@ -1,4 +1,5 @@
 #include "./../../../include/core/memory/CBaseAllocator.h"
+#include <cstring>
 
 
 namespace TDEngine2
@@ -63,12 +64,12 @@ namespace TDEngine2
 
 	TDE2_API void* CBaseAllocator::GetAlignedAddress(void* pAddress, U8 alignment)
 	{
-		return reinterpret_cast<void*>((reinterpret_cast<U32>(pAddress) + static_cast<U32>(alignment - 1)) & static_cast<U32>(~(alignment - 1)));
+		return reinterpret_cast<void*>((reinterpret_cast<U32Ptr>(pAddress) + static_cast<U32Ptr>(alignment - 1)) & static_cast<U32Ptr>(~(alignment - 1)));
 	}
 
 	TDE2_API U8 CBaseAllocator::GetPadding(void* pAddress, U8 alignment)
 	{
-		U8 padding = alignment - (reinterpret_cast<U32>(pAddress) & static_cast<U32>(alignment - 1));
+		U8 padding = alignment - (reinterpret_cast<U32Ptr>(pAddress) & static_cast<U32Ptr>(alignment - 1));
 
 		return padding == alignment ? 0 : padding;
 	}

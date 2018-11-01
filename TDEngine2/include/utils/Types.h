@@ -61,6 +61,9 @@ namespace TDEngine2
 	constexpr TypeId InvalidTypeId = 0;
 
 
+	/// Pointer type
+	typedef uintptr_t U32Ptr;
+
 	/// Error codes
 
 	/*!

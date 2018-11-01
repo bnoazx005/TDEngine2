@@ -65,7 +65,7 @@ namespace TDEngine2
 	{
 		U8 padding = CBaseAllocator::GetPadding(mpMemoryBlock, mObjectAlignment);
 
-		mppNextFreeBlock = reinterpret_cast<void**>(reinterpret_cast<U32>(mpMemoryBlock) + static_cast<U32>(mObjectAlignment));
+		mppNextFreeBlock = reinterpret_cast<void**>(reinterpret_cast<U32Ptr>(mpMemoryBlock) + static_cast<U32Ptr>(mObjectAlignment));
 
 		U32 numOfObjects = (mTotalMemorySize - padding) / mObjectSize;
 
@@ -73,7 +73,7 @@ namespace TDEngine2
 
 		for (U32 i = 0; i < numOfObjects - 1; ++i)
 		{
-			*pCurrBlock = reinterpret_cast<void*>(reinterpret_cast<U32>(pCurrBlock) + mObjectSize);
+			*pCurrBlock = reinterpret_cast<void*>(reinterpret_cast<U32Ptr>(pCurrBlock) + mObjectSize);
 
 			pCurrBlock = reinterpret_cast<void**>(*pCurrBlock);
 		}

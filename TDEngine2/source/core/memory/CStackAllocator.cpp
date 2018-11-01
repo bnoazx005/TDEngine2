@@ -57,11 +57,11 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		TAllocHeaderPtr allocHeader = (TAllocHeaderPtr)(reinterpret_cast<U32>(pObjectPtr) - static_cast<U32>(mHeaderSize));
+		TAllocHeaderPtr allocHeader = (TAllocHeaderPtr)(reinterpret_cast<U32Ptr>(pObjectPtr) - static_cast<U32Ptr>(mHeaderSize));
 
-		mUsedMemorySize -= allocHeader->mPadding + (reinterpret_cast<U32>(mpCurrPos) - reinterpret_cast<U32>(pObjectPtr));
+		mUsedMemorySize -= allocHeader->mPadding + (reinterpret_cast<U32Ptr>(mpCurrPos) - reinterpret_cast<U32Ptr>(pObjectPtr));
 
-		mpCurrPos = reinterpret_cast<void*>(reinterpret_cast<U32>(pObjectPtr) - static_cast<U32>(allocHeader->mPadding));
+		mpCurrPos = reinterpret_cast<void*>(reinterpret_cast<U32Ptr>(pObjectPtr) - static_cast<U32Ptr>(allocHeader->mPadding));
 
 		--mAllocationsCount;
 
