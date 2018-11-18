@@ -32,7 +32,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		U32 alignedAddress = reinterpret_cast<U32Ptr>(mpCurrPos) + padding;
+		U32Ptr alignedAddress = reinterpret_cast<U32Ptr>(mpCurrPos) + padding;
 
 		mpCurrPos = reinterpret_cast<void*>(alignedAddress + size);
 

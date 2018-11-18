@@ -153,6 +153,21 @@ namespace TDEngine2
 			U32 mAllocationsCount;
 
 			U8* mpMemoryBlock;
-
 	};
+
+
+	/*!
+		\brief The function allocates a new chunk of aligned memory of given size
+
+		\param[in, out] pAllocator A pointer to an allocator's implementation
+
+		\param[in] size A memory's size
+
+		\param[in] alignment An alignment of a memory block
+
+		\return The method returns a pointer to an allocated memory block. If pAlignment equals to nullptr
+		or there is no free space within memory then nullptr will be returned
+	*/
+
+	TDE2_API void* AllocateMemory(IAllocator* pAllocator, U32 size, U32 alignment);
 }

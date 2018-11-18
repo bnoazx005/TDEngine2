@@ -92,4 +92,15 @@ namespace TDEngine2
 
 		return padding;
 	}
+
+
+	TDE2_API void* AllocateMemory(IAllocator* pAllocator, U32 size, U32 alignment)
+	{
+		if (!pAllocator)
+		{
+			return nullptr;
+		}
+
+		return pAllocator->Allocate(size, alignment);
+	}
 }
