@@ -35,6 +35,8 @@ int main(int argc, char** argv)
 	IWorld* pWorld = CreateWorld(result);
 
 	CEntity* e = pWorld->CreateEntity();
+
+	auto sprite = e->AddComponent<CQuadSprite>();
 		
 	pWorld->Free();
 

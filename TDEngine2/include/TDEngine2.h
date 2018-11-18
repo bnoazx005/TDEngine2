@@ -69,6 +69,8 @@
 #include "graphics/IShaderCompiler.h"
 #include "graphics/CBaseShaderLoader.h"
 #include "graphics/TInternalUniformsBufferData.h"
+#include "graphics/ISprite.h"
+#include "graphics/CQuadSprite.h"
 
 ///math
 #include "math/TVector3.h"
