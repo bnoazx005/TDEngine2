@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
+#include "./../ecs/IComponentFactory.h"
 
 
 namespace TDEngine2
@@ -23,7 +24,34 @@ namespace TDEngine2
 	class ISprite
 	{
 		public:
+			/*!
+				\brief The method initializes an internal state of a quad sprite
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISprite)
+	};
+
+
+	/*!
+		interface ISpriteFactory
+
+		\brief The interface represents a functionality of a factory of ISprite objects
+	*/
+
+	class ISpriteFactory : public IComponentFactory
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of a factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init() = 0;
+		protected:
 	};
 }

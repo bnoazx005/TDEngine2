@@ -2,6 +2,7 @@
 #include "./../../include/ecs/IComponentFactory.h"
 #include "./../../include/ecs/IComponent.h"
 #include "./../../include/ecs/CTransform.h"
+#include "./../../include/graphics/CQuadSprite.h"
 
 
 namespace TDEngine2
@@ -19,17 +20,8 @@ namespace TDEngine2
 		}
 				
 		mIsInitialized = true;
-
-		E_RESULT_CODE result = RC_OK;
-
-		IComponentFactory* pTransformFactory = CreateTransformFactory(result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		return RegisterFactory(pTransformFactory);
+		
+		return _registerBuiltinComponentFactories();
 	}
 
 	E_RESULT_CODE CComponentManager::Free()
@@ -39,14 +31,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mIsInitialized = false;
+		E_RESULT_CODE result = RC_OK;
 
-		E_RESULT_CODE result = _unregisterFactory(CTransform::GetTypeId());
-
-		if (result != RC_OK)
+		if ((result = _unregisterBuiltinComponentFactories()))
 		{
 			return result;
 		}
+
+		mIsInitialized = false;
 
 		delete this;
 
@@ -290,6 +282,61 @@ namespace TDEngine2
 		}
 
 		return mActiveComponents[hashValue - 1];
+	}
+
+	E_RESULT_CODE CComponentManager::_registerBuiltinComponentFactories()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto builtinComponentFactories =
+		{
+			CreateTransformFactory,
+			CreateQuadSpriteFactory
+		};
+
+		IComponentFactory* pCurrFactory = nullptr;
+
+		for (auto pCurrFactoryCallback : builtinComponentFactories)
+		{
+			IComponentFactory* pCurrFactory = pCurrFactoryCallback(result);
+
+			if (result != RC_OK)
+			{
+				return result;
+			}
+
+			if ((result = RegisterFactory(pCurrFactory)) != RC_OK)
+			{
+				return result;
+			}
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CComponentManager::_unregisterBuiltinComponentFactories()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TypeId builtinComponentTypes[] =
+		{
+			CTransform::GetTypeId(),
+			CQuadSprite::GetTypeId()
+		};
+
+		IComponentFactory* pCurrFactory = nullptr;
+
+		for (TypeId currComponentType : builtinComponentTypes)
+		{
+			result = _unregisterFactory(currComponentType);
+
+			if (result != RC_OK)
+			{
+				return result;
+			}
+		}
+
+		return RC_OK;
 	}
 
 

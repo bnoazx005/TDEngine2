@@ -100,6 +100,10 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _removeComponent(TypeId componentTypeId, TEntityId entityId) override;
 
 			TDE2_API E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) override;
+
+			TDE2_API E_RESULT_CODE _registerBuiltinComponentFactories();
+
+			TDE2_API E_RESULT_CODE _unregisterBuiltinComponentFactories();
 		protected:
 			TComponentEntityMap      mComponentEntityMap;
 			TEntityComponentMap      mEntityComponentMap;

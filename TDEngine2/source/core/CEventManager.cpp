@@ -1,5 +1,6 @@
 #include "./../../include/core/CEventManager.h"
 #include "./../../include/core/Event.h"
+#include <algorithm>
 
 
 namespace TDEngine2

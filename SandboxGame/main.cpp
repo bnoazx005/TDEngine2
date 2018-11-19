@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	CEntity* e = pWorld->CreateEntity();
 
 	auto sprite = e->AddComponent<CQuadSprite>();
-		
+	
 	pWorld->Free();
 
 	IEngineListener* pCustomListener = new CCustomEngineListener();

@@ -100,6 +100,7 @@
 #include "utils/CFileLogger.h"
 #include "utils/ITimer.h"
 #include "utils/Utils.h"
+#include "utils/CResult.h"
 
 /// D3D11GraphicsContext plugin's header
 #if defined (TDE2_BUILD_D3D11_GCTX_PLUGIN)
