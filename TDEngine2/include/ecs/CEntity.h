@@ -8,6 +8,7 @@
 
 
 #include "./../core/CBaseObject.h"
+#include "./../utils/Utils.h"
 #include "CEntityManager.h"
 
 
@@ -104,13 +105,19 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TEntityId GetId() const;
+
+			TDE2_API virtual bool operator== (const CEntity* pEntity) const;
+
+			TDE2_API virtual bool operator!= (const CEntity* pEntity) const;
+
+			TDE2_API virtual bool operator== (TEntityId otherId) const;
+
+			TDE2_API virtual bool operator!= (TEntityId otherId) const;
 		protected:
-			TDE2_API CEntity();
-			TDE2_API virtual ~CEntity() = default;
-			TDE2_API CEntity(const CEntity& entity) = delete;
-			TDE2_API virtual CEntity& operator= (CEntity& entity) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntity)
 		protected:
 			CEntityManager* mpEntityManager;
+
 			TEntityId       mId;
 	};
 

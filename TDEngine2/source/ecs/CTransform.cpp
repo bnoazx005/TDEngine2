@@ -20,7 +20,7 @@ namespace TDEngine2
 		mRotation = rotation;
 
 		mScale = scale;
-
+		
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -33,26 +33,36 @@ namespace TDEngine2
 		mRotation = UnitQuaternion;
 
 		mScale = TVector3(1.0f, 1.0f, 1.0f);
+
+		mHasChanged = true;
 	}
 
 	void CTransform::SetPosition(const TVector3& position)
 	{
 		mPosition = position;
+
+		mHasChanged = true;
 	}
 
 	void CTransform::SetRotation(const TVector3& eulerAngles)
 	{
 		mRotation = TQuaternion(eulerAngles);
+
+		mHasChanged = true;
 	}
 
 	void CTransform::SetRotation(const TQuaternion& q)
 	{
 		mRotation = q;
+
+		mHasChanged = true;
 	}
 
 	void CTransform::SetScale(const TVector3& scale)
 	{
 		mScale = scale;
+
+		mHasChanged = true;
 	}
 
 	const TVector3& CTransform::GetPosition() const
@@ -68,6 +78,11 @@ namespace TDEngine2
 	const TVector3& CTransform::GetScale() const
 	{
 		return mScale;
+	}
+	
+	bool CTransform::HasChanged() const
+	{
+		return mHasChanged;
 	}
 
 

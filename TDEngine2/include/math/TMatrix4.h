@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "TVector4.h"
+#include "TVector3.h"
 
 
 namespace TDEngine2
@@ -159,4 +160,24 @@ namespace TDEngine2
 	*/
 
 	TDE2_API F32 Det(const TMatrix4& mat4);
+
+	/*!
+		\brief The function computes translation matrix for a given shift
+
+		\param[in] t A 3d vector that contains shift values
+
+		\return The function computes translation matrix 
+	*/
+
+	TDE2_API TMatrix4 TranslationMatrix(const TVector3& t);
+
+	/*!
+		\brief The function computes a matrix of nonuniform scaling
+
+		\param[in] s A 3d vector that contains scaling coefficient that are relative to XYZ axis
+
+		\return The function computes a matrix of nonuniform scaling
+	*/
+
+	TDE2_API TMatrix4 ScaleMatrix(const TVector3& s);
 }

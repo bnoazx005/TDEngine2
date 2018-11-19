@@ -101,6 +101,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TVector3& GetScale() const = 0;
+
+			/*!
+				\brief The method returns true if a state of a component was changed
+
+				\return The method returns true if a state of a component was changed
+			*/
+
+			TDE2_API virtual bool HasChanged() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITransform)
 	};

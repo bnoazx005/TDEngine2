@@ -271,4 +271,20 @@ namespace TDEngine2
 
 		return mat4.m[0][0] * minorDet00 - mat4.m[0][1] * minorDet01 + mat4.m[0][2] * minorDet02 - mat4.m[0][2] * minorDet03;
 	}
+
+	TDE2_API TMatrix4 TranslationMatrix(const TVector3& t)
+	{
+		TMatrix4 translationMat(IdentityMatrix4);
+
+		translationMat.m[0][3] = t.x;
+		translationMat.m[1][3] = t.y;
+		translationMat.m[2][3] = t.z;
+
+		return translationMat;
+	}
+
+	TDE2_API TMatrix4 ScaleMatrix(const TVector3& s)
+	{
+		return TMatrix4(TVector4(s, 1.0f));
+	}
 }

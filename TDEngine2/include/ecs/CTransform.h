@@ -122,6 +122,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TVector3& GetScale() const override;
+
+			/*!
+				\brief The method returns true if a state of a component was changed
+
+				\return The method returns true if a state of a component was changed
+			*/
+
+			TDE2_API bool HasChanged() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransform)
 		protected:

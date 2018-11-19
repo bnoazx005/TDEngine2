@@ -65,6 +65,36 @@ namespace TDEngine2
 		return mId;
 	}
 
+	bool CEntity::operator== (const CEntity* pEntity) const
+	{
+		if (!pEntity)
+		{
+			return false;
+		}
+
+		return mId == pEntity->mId;
+	}
+
+	bool CEntity::operator!= (const CEntity* pEntity) const
+	{
+		if (!pEntity)
+		{
+			return false;
+		}
+
+		return mId != pEntity->mId;
+	}
+
+	bool CEntity::operator== (TEntityId otherId) const
+	{
+		return mId == otherId;
+	}
+
+	bool CEntity::operator!= (TEntityId otherId) const
+	{
+		return mId != otherId;
+	}
+
 
 	CEntity* CreateEntity(TEntityId id, CEntityManager* pEntityManager, E_RESULT_CODE& result)
 	{
