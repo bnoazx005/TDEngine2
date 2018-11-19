@@ -12,6 +12,7 @@
 #include "./../../include/platform/unix/CUnixFileSystem.h"
 #include "./../../include/platform/CTextFileReader.h"
 #include "./../../include/platform/CConfigFileReader.h"
+#include "./../../include/core/CEventManager.h"
 #include <memory>
 
 
@@ -231,6 +232,25 @@ namespace TDEngine2
 		mpPluginManagerInstance = dynamic_cast<IPluginManager*>(pPluginManager);
 		
 		return mpEngineCoreInstance->RegisterSubsystem(pPluginManager);
+	}
+
+	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureEventManager()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IEngineSubsystem* pEventManager = CreateEventManager(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+		
+		return mpEngineCoreInstance->RegisterSubsystem(pEventManager);
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()

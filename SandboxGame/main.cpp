@@ -22,6 +22,7 @@ int main(int argc, char** argv)
 
 	pEngineCoreBuilder->ConfigureJobManager();
 	pEngineCoreBuilder->ConfigureFileSystem();
+	pEngineCoreBuilder->ConfigureEventManager();
 	pEngineCoreBuilder->ConfigureResourceManager();
 	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
 	pEngineCoreBuilder->ConfigurePluginManager();

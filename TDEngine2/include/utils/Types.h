@@ -100,6 +100,7 @@ namespace TDEngine2
 		EST_RESOURCE_MANAGER,			/// A subsystem represents root resource manager
 		EST_JOB_MANAGER,				/// A subsytem represents a thread pool
 		EST_PLUGIN_MANAGER,				/// A subsystem represents a plugin manager
+		EST_EVENT_MANAGER,				/// A subsystem provides a centralized event bus
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 
@@ -550,4 +551,9 @@ namespace TDEngine2
 		IUBR_CONSTANTS,			///< This uniforms buffer contains in-engine constants (like Pi, Epsilon, etc)
 		IUBR_LAST_USED_SLOT = IUBR_CONSTANTS
 	};
+
+
+	typedef U32 TEventListenerId;
+
+	constexpr TEventListenerId BroadcastListenersIdValue = (std::numeric_limits<TEventListenerId>::max)();
 }
