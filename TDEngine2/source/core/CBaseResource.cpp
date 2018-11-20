@@ -15,9 +15,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		delete this;
+		E_RESULT_CODE result = Reset();
 
-		mIsInitialized = false;
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		delete this;
 
 		return RC_OK;
 	}

@@ -45,6 +45,14 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Unload() = 0;
 
 			/*!
+				\brief The method resets current internal data of a resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Reset() = 0;
+
+			/*!
 				\brief The method returns an identifier of a resource
 
 				\return The method returns an identifier of a resource

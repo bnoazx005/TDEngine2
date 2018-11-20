@@ -71,6 +71,10 @@
 #include "graphics/TInternalUniformsBufferData.h"
 #include "graphics/ISprite.h"
 #include "graphics/CQuadSprite.h"
+#include "graphics/ITexture.h"
+#include "graphics/ITexture2D.h"
+#include "graphics/ITextureCube.h"
+#include "graphics/CBaseTexture2D.h"
 
 ///math
 #include "math/TVector3.h"
@@ -78,6 +82,7 @@
 #include "math/TMatrix3.h"
 #include "math/TMatrix4.h"
 #include "math/TQuaternion.h"
+#include "math/TRect.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"

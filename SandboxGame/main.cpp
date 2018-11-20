@@ -62,6 +62,8 @@ int main(int argc, char** argv)
 
 	auto pShaderHandler = pResourceManager->Load<CBaseShader>("test.shader");
 
+	auto pTextureHandler = pResourceManager->Load<CBaseTexture2D>("test.jpg");
+
 	IJobManager* pJobManager = dynamic_cast<IJobManager*>(pEngineCore->GetSubsystem(EST_JOB_MANAGER));
 
 	CFileLogger* pFileLogger = new CFileLogger("log.txt");

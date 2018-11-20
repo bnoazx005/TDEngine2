@@ -251,6 +251,77 @@ namespace TDEngine2
 
 		return "";
 	}
+
+	U32 CD3D11Mappings::GetNumOfChannelsOfFormat(E_FORMAT_TYPE format)
+	{
+		switch (format)
+		{
+			case FT_BYTE1:
+			case FT_NORM_BYTE1:
+			case FT_UBYTE1:
+			case FT_NORM_UBYTE1:
+			case FT_FLOAT1:
+			case FT_D32:
+			case FT_SHORT1:
+			case FT_NORM_SHORT1:
+			case FT_USHORT1:
+			case FT_NORM_USHORT1:
+			case FT_UINT1:
+			case FT_NORM_UINT1:
+			case FT_SINT1:
+			case FT_NORM_SINT1:
+				return 1;
+			case FT_BYTE2:
+			case FT_NORM_BYTE2:
+			case FT_UBYTE2:
+			case FT_NORM_UBYTE2:
+			case FT_FLOAT2:
+			case FT_FLOAT2_TYPELESS:
+			case FT_SHORT2:
+			case FT_NORM_SHORT2:
+			case FT_USHORT2:
+			case FT_NORM_USHORT2:
+			case FT_UINT2:
+			case FT_NORM_UINT2:
+			case FT_SINT2:
+			case FT_NORM_SINT2:
+				return 2;
+			case FT_BYTE3:
+			case FT_NORM_BYTE3:
+			case FT_UBYTE3:
+			case FT_NORM_UBYTE3:
+			case FT_FLOAT3:
+			case FT_FLOAT3_TYPELESS:
+			case FT_SHORT3:
+			case FT_NORM_SHORT3:
+			case FT_USHORT3:
+			case FT_NORM_USHORT3:
+			case FT_UINT3:
+			case FT_NORM_UINT3:
+			case FT_SINT3:
+			case FT_NORM_SINT3:
+				return 3;
+			case FT_BYTE4:
+			case FT_NORM_BYTE4:
+			case FT_UBYTE4:
+			case FT_NORM_UBYTE4:
+			case FT_NORM_BYTE4_SRGB:
+			case FT_UBYTE8_BGRA_UNORM:
+			case FT_SHORT4:
+			case FT_NORM_SHORT4:
+			case FT_SINT4:
+			case FT_NORM_SINT4:
+			case FT_UINT4:
+			case FT_NORM_UINT4:
+			case FT_USHORT4:
+			case FT_NORM_USHORT4:
+			case FT_FLOAT4:
+			case FT_FLOAT4_TYPELESS:
+				return 4;
+		}
+
+		return 0;
+	}
 }
 
 #endif

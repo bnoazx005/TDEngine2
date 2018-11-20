@@ -34,6 +34,37 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
+	E_RESULT_CODE CD3D11Shader::Reset()
+	{
+		mIsInitialized = false;
+
+		if (mpVertexShader)
+		{
+			if (FAILED(mpVertexShader->Release()))
+			{
+				return RC_FAIL;
+			}
+		}
+
+		if (mpPixelShader)
+		{
+			if (FAILED(mpVertexShader->Release()))
+			{
+				return RC_FAIL;
+			}
+		}
+
+		if (mpGeometryShader)
+		{
+			if (FAILED(mpVertexShader->Release()))
+			{
+				return RC_FAIL;
+			}
+		}
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerResult& shaderBytecode)
 	{
 		U32 bytecodeSize = shaderBytecode.mVSByteCode.size();
@@ -178,7 +209,7 @@ namespace TDEngine2
 
 	U32 CD3D11ShaderFactory::GetResourceTypeId() const
 	{
-		return CD3D11Shader::GetTypeId();
+		return CBaseShader::GetTypeId();
 	}
 
 

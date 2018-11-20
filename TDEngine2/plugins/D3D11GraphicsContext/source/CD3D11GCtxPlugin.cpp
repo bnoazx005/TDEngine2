@@ -8,6 +8,8 @@
 #include <graphics/CBaseShaderLoader.h>
 #include <core/IFileSystem.h>
 #include "./../include/CD3D11ShaderCompiler.h"
+#include <graphics/CBaseTexture2D.h>
+#include "./../include/CD3D11Texture2D.h"
 
 
 namespace TDEngine2
@@ -95,14 +97,28 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IResourceFactory* pShaderFactoryInstance = CreateD3D11ShaderFactory(mpGraphicsContext, result);
+		IResourceFactory* pFactoryInstance = CreateD3D11ShaderFactory(mpGraphicsContext, result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		TRegisterFactoryResult registerResult = pResourceManager->RegisterFactory(pShaderFactoryInstance);
+		TRegisterFactoryResult registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
+
+		if (registerResult.mResultCode != RC_OK)
+		{
+			return registerResult.mResultCode;
+		}
+
+		pFactoryInstance = CreateD3D11Texture2DFactory(mpGraphicsContext, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
 
 		return registerResult.mResultCode;
 	}
@@ -127,14 +143,28 @@ namespace TDEngine2
 			return result;
 		}
 
-		IResourceLoader* pShaderLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext, pFileSystem, pShaderCompilerInstance, result);
+		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext, pFileSystem, pShaderCompilerInstance, result);
 		
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		TRegisterLoaderResult registerResult = pResourceManager->RegisterLoader(pShaderLoaderInstance);
+		TRegisterLoaderResult registerResult = pResourceManager->RegisterLoader(pLoaderInstance);
+
+		if (registerResult.mResultCode != RC_OK)
+		{
+			return registerResult.mResultCode;
+		}
+
+		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		registerResult = pResourceManager->RegisterLoader(pLoaderInstance);
 
 		return registerResult.mResultCode;
 	}

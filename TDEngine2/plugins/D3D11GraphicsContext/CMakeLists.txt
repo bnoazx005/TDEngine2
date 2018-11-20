@@ -23,6 +23,7 @@ set(D3D11_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11VertexDeclaration.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Shader.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11ShaderCompiler.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Texture2D.h"
 	)
 
 set(D3D11_GCTX_SOURCES
@@ -36,6 +37,7 @@ set(D3D11_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11VertexDeclaration.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Shader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11ShaderCompiler.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Texture2D.cpp"
 	)
 
 source_group("includes" FILES ${D3D11_GCTX_HEADERS})

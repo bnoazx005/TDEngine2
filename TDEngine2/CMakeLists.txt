@@ -79,6 +79,10 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/TInternalUniformsBufferData.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ISprite.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CQuadSprite.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ITexture.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ITexture2D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ITextureCube.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CBaseTexture2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32WindowSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32Timer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32DLLManager.h"
@@ -103,6 +107,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TMatrix3.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TMatrix4.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TQuaternion.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TRect.h"
 	)
 
 set(TDENGINE2_SOURCES
@@ -130,6 +135,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseShader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseShaderLoader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CQuadSprite.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseTexture2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32WindowSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32Timer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32DLLManager.cpp"
@@ -202,6 +208,9 @@ if (UNIX)
 
 	target_link_libraries("${TDENGINE2_LIBRARY_NAME}" PUBLIC pthread)
 endif ()
+
+#set up stb library headers
+target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/stb")
 
 #build plugins
 add_subdirectory(plugins)

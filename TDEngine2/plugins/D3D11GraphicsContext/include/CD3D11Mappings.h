@@ -78,6 +78,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static std::string GetShaderTargetVerStr(E_SHADER_STAGE_TYPE stageType, E_SHADER_TARGET_VERSION version);
+
+			/*!
+				\brief The functiona returns a number of channels for a given format type
+
+				\param[in] format A specific format of a texture
+
+				\return The functiona returns a number of channels for a given format type
+			*/
+
+			TDE2_API static U32 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
 	};
 }
 

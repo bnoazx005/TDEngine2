@@ -74,6 +74,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Unload() override;
 
 			/*!
+				\brief The method resets current internal data of a resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Reset() override;
+
+			/*!
 				\brief The method writes data into an internal uniforms buffer with specified register
 
 				\param[in] slot A slot specifies a uniforms buffer, in which data will be written
