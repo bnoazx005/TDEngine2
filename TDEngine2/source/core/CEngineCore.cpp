@@ -169,7 +169,7 @@ namespace TDEngine2
 
 		mSubsystems[subsystemType] = pSubsystem;
 		
-		LOG_MESSAGE("[Engine Core] A new subsystem was successfully registred");
+		LOG_MESSAGE("[Engine Core] A new subsystem was successfully registered");
 
 		return RC_OK;
 	}
@@ -202,7 +202,7 @@ namespace TDEngine2
 
 		mEngineListeners.push_back(pListener);
 
-		LOG_MESSAGE("[Engine Core] A new listener was successfully registred");
+		LOG_MESSAGE("[Engine Core] A new listener was successfully registered");
 
 		return RC_OK;
 	}
@@ -225,7 +225,7 @@ namespace TDEngine2
 
 		mEngineListeners.erase(entityIter);
 
-		LOG_MESSAGE("[Engine Core] The new listener was successfully unregistred");
+		LOG_MESSAGE("[Engine Core] The new listener was successfully unregistered");
 
 		return RC_OK;
 	}
@@ -321,7 +321,7 @@ namespace TDEngine2
 
 		mSubsystems[subsystemType] = nullptr;
 
-		LOG_MESSAGE("[Engine Core] The subsystem was successfully unregistred");
+		LOG_MESSAGE("[Engine Core] The subsystem was successfully unregistered");
 
 		return pEngineSubsystem->Free();
 	}

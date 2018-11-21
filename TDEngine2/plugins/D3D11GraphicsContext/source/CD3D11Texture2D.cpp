@@ -97,7 +97,7 @@ namespace TDEngine2
 #else
 		mp3dDevice = graphicsInternalData.mD3D11.mp3dDevice;
 
-		mp3dDeviceContext = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDeviceContext;
+		mp3dDeviceContext = graphicsInternalData.mD3D11.mp3dDeviceContext;
 #endif
 
 		D3D11_TEXTURE2D_DESC textureDesc;
