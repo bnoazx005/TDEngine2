@@ -113,50 +113,6 @@ namespace TDEngine2
 
 
 	/*!
-		class CBasicResult<T, E>
-
-		\brief The class contains a common logic of all result types
-	*/
-
-	template <typename T, typename E>
-	class CBasicResult
-	{
-		public:
-		protected:
-			CBasicResult() = default;
-
-			CBasicResult(bool hasError):
-				mHasError(hasError)
-			{
-			}
-
-			/*!
-				\brief The method returns true if a result object contains some useful data
-
-				\return The method returns true if a result object contains some useful data
-			*/
-
-			bool IsOk() const
-			{
-				return mHasError;
-			}
-
-			/*!
-				\brief The method returns true if a result object contains some error
-
-				\return The method returns true if a result object contains some error
-			*/
-
-			bool HasError() const
-			{
-				return mHasError;
-			}
-		protected:
-			bool mHasError;
-	};
-
-
-	/*!
 		class CResult<T, E>
 
 		\brief The class is a main type for error handling that the engine provides
@@ -166,15 +122,17 @@ namespace TDEngine2
 	*/
 
 	template <typename T, typename E>
-	class CResult: public CBasicResult<T, E>
+	class CResult
 	{
 		public:
-			CResult(const TOkValue<T>& okValue)
+			CResult(const TOkValue<T>& okValue):
+				mHasError(false)
 			{
 				mStorage.mData = okValue.mData;
 			}
 
-			CResult(const TErrorValue<E>& errValue)
+			CResult(const TErrorValue<E>& errValue):
+				mHasError(true)
 			{
 				mStorage.mError = errValue.mError;
 			}
@@ -252,22 +210,46 @@ namespace TDEngine2
 
 				return *this;
 			}
+
+			/*!
+				\brief The method returns true if a result object contains some useful data
+
+				\return The method returns true if a result object contains some useful data
+			*/
+
+			bool IsOk() const
+			{
+				return mHasError;
+			}
+
+			/*!
+				\brief The method returns true if a result object contains some error
+
+				\return The method returns true if a result object contains some error
+			*/
+
+			bool HasError() const
+			{
+				return mHasError;
+			}
 		protected:
 			CResult():
-				CBasicResult(true)
+				mHasError(true)
 			{
 			}
 		protected:
 			TBasicResultStorage<T, E> mStorage;
+
+			bool                      mHasError;
 	};
 
 
 	template <typename E>
-	class CResult<void, E> : public CBasicResult<void, E>
+	class CResult<void, E>
 	{
 		public:
 			CResult() :
-				CBasicResult(false)
+				mHasError(false)
 			{
 			}
 
@@ -299,8 +281,32 @@ namespace TDEngine2
 
 				return *this;
 			}
+
+			/*!
+				\brief The method returns true if a result object contains some useful data
+
+				\return The method returns true if a result object contains some useful data
+			*/
+
+			bool IsOk() const
+			{
+				return mHasError;
+			}
+
+			/*!
+				\brief The method returns true if a result object contains some error
+
+				\return The method returns true if a result object contains some error
+			*/
+
+			bool HasError() const
+			{
+				return mHasError;
+			}
 		protected:
 			TBasicResultStorage<void, E> mStorage;
+
+			bool                         mHasError;
 	};
 
 
