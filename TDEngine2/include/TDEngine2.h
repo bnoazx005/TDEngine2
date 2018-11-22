@@ -87,6 +87,7 @@
 #include "math/TMatrix4.h"
 #include "math/TQuaternion.h"
 #include "math/TRect.h"
+#include "math/MathUtils.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"

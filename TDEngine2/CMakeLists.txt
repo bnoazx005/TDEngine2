@@ -112,6 +112,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TMatrix4.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TQuaternion.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TRect.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/MathUtils.h"
 	)
 
 set(TDENGINE2_SOURCES
