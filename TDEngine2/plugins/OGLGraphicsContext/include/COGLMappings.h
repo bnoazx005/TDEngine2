@@ -9,6 +9,7 @@
 
 #include <utils/Types.h>
 #include <graphics/IBuffer.h>
+#include <GL/glew.h>
 
 
 namespace TDEngine2
@@ -42,5 +43,25 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static GLenum GetBufferMapAccessType(E_BUFFER_MAP_TYPE type);
+
+			/*!
+				\brief The function maps an internal format type into OpenGL internal format
+
+				\param[in] format An internal format
+
+				\return A value of internal GL format
+			*/
+
+			TDE2_API static GLint GetInternalFormat(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function maps an internal format type into pixel data's format
+
+				\param[in] format An internal format
+
+				\return A value of pixel data's format
+			*/
+
+			TDE2_API static GLenum GetPixelDataFormat(E_FORMAT_TYPE format);
 	};
 }

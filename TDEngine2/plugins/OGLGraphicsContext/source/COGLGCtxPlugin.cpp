@@ -5,6 +5,7 @@
 #include "./../include/win32/CWin32GLContextFactory.h"
 #include "./../include/unix/CUnixGLContextFactory.h"
 #include <core/IWindowSystem.h>
+#include <core/IFileSystem.h>
 
 
 namespace TDEngine2
@@ -50,6 +51,16 @@ namespace TDEngine2
 			return result;
 		}
 
+		if ((result = _registerFactories(pEngineCore)) != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = _registerResourceLoaders(pEngineCore)) != RC_OK)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -64,10 +75,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
+		/// mpGraphicsContext's memory has already released at this moment
+/*
 		if ((result = mpGraphicsContext->Free()) != RC_OK)
 		{
 			return result;
-		}
+		}*/
 
 		delete this;
 
@@ -79,6 +92,59 @@ namespace TDEngine2
 	const TPluginInfo& COGLGCtxPlugin::GetInfo() const
 	{
 		return mPluginInfo;
+	}
+
+	E_RESULT_CODE COGLGCtxPlugin::_registerFactories(IEngineCore* pEngineCore)
+	{
+		IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
+
+		if (!pResourceManager)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IResourceFactory* pFactoryInstance = CreateOGLTexture2DFactory(mpGraphicsContext, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TRegisterFactoryResult registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
+
+		return registerResult.mResultCode;
+	}
+
+	E_RESULT_CODE COGLGCtxPlugin::_registerResourceLoaders(IEngineCore* pEngineCore)
+	{
+		IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
+
+		IFileSystem* pFileSystem = dynamic_cast<IFileSystem*>(pEngineCore->GetSubsystem(EST_FILE_SYSTEM));
+
+		if (!pResourceManager || !pFileSystem)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+		
+		IResourceLoader* pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TRegisterLoaderResult registerResult = pResourceManager->RegisterLoader(pLoaderInstance);
+
+		if (registerResult.mResultCode != RC_OK)
+		{
+			return registerResult.mResultCode;
+		}
+
+		return registerResult.mResultCode;
 	}
 }
 

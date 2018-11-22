@@ -120,7 +120,7 @@ namespace TDEngine2
 				return DXGI_FORMAT_R32G32B32A32_TYPELESS;
 			case FT_D32:
 				return DXGI_FORMAT_D32_FLOAT;
-			case FT_UBYTE8_BGRA_UNORM:
+			case FT_UBYTE4_BGRA_UNORM:
 				return DXGI_FORMAT_B8G8R8A8_UNORM;
 		}
 
@@ -155,7 +155,7 @@ namespace TDEngine2
 			case FT_UBYTE4:
 			case FT_NORM_UBYTE4:
 			case FT_NORM_BYTE4_SRGB:
-			case FT_UBYTE8_BGRA_UNORM:
+			case FT_UBYTE4_BGRA_UNORM:
 				return 4 * sizeof(unsigned char);
 			case FT_FLOAT1:
 			case FT_D32:
@@ -306,7 +306,7 @@ namespace TDEngine2
 			case FT_UBYTE4:
 			case FT_NORM_UBYTE4:
 			case FT_NORM_BYTE4_SRGB:
-			case FT_UBYTE8_BGRA_UNORM:
+			case FT_UBYTE4_BGRA_UNORM:
 			case FT_SHORT4:
 			case FT_NORM_SHORT4:
 			case FT_SINT4:

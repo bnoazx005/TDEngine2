@@ -26,6 +26,7 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLIndexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLConstantBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLShader.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLTexture2D.h"
 	)
 
 set(OGL_GCTX_SOURCES
@@ -38,6 +39,7 @@ set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLMappings.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLIndexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLConstantBuffer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLTexture2D.cpp"
 	)
 
 source_group("includes" FILES ${OGL_GCTX_HEADERS})
