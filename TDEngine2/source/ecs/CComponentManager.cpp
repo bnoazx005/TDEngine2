@@ -3,6 +3,8 @@
 #include "./../../include/ecs/IComponent.h"
 #include "./../../include/ecs/CTransform.h"
 #include "./../../include/graphics/CQuadSprite.h"
+#include "./../../include/graphics/CPerspectiveCamera.h"
+#include "./../../include/graphics/COrthoCamera.h"
 
 
 namespace TDEngine2
@@ -291,7 +293,10 @@ namespace TDEngine2
 		auto builtinComponentFactories =
 		{
 			CreateTransformFactory,
-			CreateQuadSpriteFactory
+			CreateQuadSpriteFactory,
+			CreatePerspectiveCameraFactory,
+			CreateOrthoCameraFactory
+			//etc
 		};
 
 		IComponentFactory* pCurrFactory = nullptr;
@@ -321,7 +326,10 @@ namespace TDEngine2
 		TypeId builtinComponentTypes[] =
 		{
 			CTransform::GetTypeId(),
-			CQuadSprite::GetTypeId()
+			CQuadSprite::GetTypeId(),
+			CPerspectiveCamera::GetTypeId(),
+			COrthoCamera::GetTypeId()
+			//etc
 		};
 
 		IComponentFactory* pCurrFactory = nullptr;

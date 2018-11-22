@@ -75,6 +75,10 @@
 #include "graphics/ITexture2D.h"
 #include "graphics/ITextureCube.h"
 #include "graphics/CBaseTexture2D.h"
+#include "graphics/ICamera.h"
+#include "graphics/CBaseCamera.h"
+#include "graphics/CPerspectiveCamera.h"
+#include "graphics/COrthoCamera.h"
 
 ///math
 #include "math/TVector3.h"
