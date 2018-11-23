@@ -44,14 +44,18 @@ namespace TDEngine2
 
 		mSourceCode = sourceCode;
 
-		TShaderCompilerResult compilerOutput = pShaderCompiler->Compile(sourceCode);
+		TResult<TShaderCompilerOutput*> compilerOutput = pShaderCompiler->Compile(sourceCode);
 
-		if (compilerOutput.mResultCode != RC_OK)
+		if (compilerOutput.HasError())
 		{
-			return compilerOutput.mResultCode;
+			return compilerOutput.GetError();
 		}
 
-		E_RESULT_CODE result = _createInternalHandlers(compilerOutput); /// reimplement this method in a derived class to do some extra work
+		TShaderCompilerOutput* pCompilerData = compilerOutput.Get();
+
+		E_RESULT_CODE result = _createInternalHandlers(pCompilerData); /// reimplement this method in a derived class to do some extra work
+
+		delete pCompilerData;
 
 		if (result != RC_OK)
 		{

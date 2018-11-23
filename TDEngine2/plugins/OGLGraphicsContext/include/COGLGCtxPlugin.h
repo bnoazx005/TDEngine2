@@ -15,6 +15,7 @@
 #include "COGLIndexBuffer.h"
 #include "COGLMappings.h"
 #include "COGLShader.h"
+#include "COGLShaderCompiler.h"
 #include "COGLVertexBuffer.h"
 #include "IOGLContextFactory.h"
 #include "COGLTexture2D.h"

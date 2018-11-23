@@ -473,43 +473,6 @@ namespace TDEngine2
 
 
 	/*!
-		struct TShaderCompilerResult
-
-		\brief The structure is used as compound result type of Compile method of IShaderCompiler
-	*/
-
-	typedef struct TShaderCompilerResult
-	{
-		E_RESULT_CODE                                               mResultCode;
-										                            
-		std::vector<U8>                                             mVSByteCode;
-										                            
-		std::vector<U8>                                             mPSByteCode;
-
-		std::vector<U8>                                             mGSByteCode;
-
-		std::unordered_map<U8, std::unordered_map<std::string, U8>> mUniformBuffersInfo;
-
-		static const TShaderCompilerResult                          mInvalidValue;
-
-		/*!
-			Default constructor
-		*/
-
-		TDE2_API TShaderCompilerResult();
-
-		/*!
-			\brief This constructor is used when some error occured and it should
-			be returned
-
-			\param[in] errorCode An argument, which contains error message
-		*/
-
-		TDE2_API TShaderCompilerResult(E_RESULT_CODE errorCode);
-	} TShaderCompilerResult, *TShaderCompilerResultPtr;
-	
-
-	/*!
 		enumeration E_SHADER_STAGE_TYPE
 
 		\brief The enumeration contains types of shaders
@@ -523,16 +486,16 @@ namespace TDEngine2
 	};
 
 	/*!
-		enum E_SHADER_TARGET_VERSION
+		enum E_SHADER_FEATURE_LEVEL
 
-		\brief The enumeration contains target versions that shaders support
+		\brief The enumeration contains a list of available shaders feature sets
 	*/
 
-	enum E_SHADER_TARGET_VERSION
+	enum E_SHADER_FEATURE_LEVEL
 	{
-		STV_3_0,
-		STV_4_0,
-		STV_5_0,
+		SFL_3_0,	///< Corresponds to SM 3.0 (D3D) and 150 (GL)
+		SFL_4_0,	///< Corresponds to SM 4.0 (D3D) and 330 (GL)
+		SFL_5_0,	///< Corresponds to SM 5.0 (D3D) and 420 (GL)
 	};
 
 

@@ -6,6 +6,7 @@
 #include "./../include/unix/CUnixGLContextFactory.h"
 #include <core/IWindowSystem.h>
 #include <core/IFileSystem.h>
+#include <graphics/CBaseShaderLoader.h>
 
 
 namespace TDEngine2
@@ -96,7 +97,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IResourceFactory* pFactoryInstance = CreateOGLTexture2DFactory(mpGraphicsContext, result);
+		IResourceFactory* pFactoryInstance = CreateOGLShaderFactory(mpGraphicsContext, result);
 
 		if (result != RC_OK)
 		{
@@ -104,6 +105,20 @@ namespace TDEngine2
 		}
 
 		TRegisterFactoryResult registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
+
+		if (registerResult.mResultCode != RC_OK)
+		{
+			return registerResult.mResultCode;
+		}
+
+		pFactoryInstance = CreateOGLTexture2DFactory(mpGraphicsContext, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
 
 		return registerResult.mResultCode;
 	}
@@ -121,7 +136,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 		
-		IResourceLoader* pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
+		IShaderCompiler* pShaderCompilerInstance = CreateOGLShaderCompiler(pFileSystem, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext, pFileSystem, pShaderCompilerInstance, result);
 
 		if (result != RC_OK)
 		{
@@ -134,6 +156,15 @@ namespace TDEngine2
 		{
 			return registerResult.mResultCode;
 		}
+
+		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		registerResult = pResourceManager->RegisterLoader(pLoaderInstance);
 
 		return registerResult.mResultCode;
 	}

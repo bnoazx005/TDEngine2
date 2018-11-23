@@ -14,6 +14,8 @@
 
 namespace TDEngine2
 {
+	struct TShaderCompilerOutput;
+
 	class IBuffer;
 
 
@@ -60,7 +62,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShader)
 
-			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TShaderCompilerResult& shaderBytecode) = 0;
+			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) = 0;
 		protected:
 			IGraphicsContext*    mpGraphicsContext;
 

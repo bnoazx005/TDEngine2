@@ -77,7 +77,7 @@ namespace TDEngine2
 				for D3D11
 			*/
 
-			TDE2_API static std::string GetShaderTargetVerStr(E_SHADER_STAGE_TYPE stageType, E_SHADER_TARGET_VERSION version);
+			TDE2_API static std::string GetShaderTargetVerStr(E_SHADER_STAGE_TYPE stageType, E_SHADER_FEATURE_LEVEL version);
 
 			/*!
 				\brief The functiona returns a number of channels for a given format type

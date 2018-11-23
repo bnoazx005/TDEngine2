@@ -7,9 +7,7 @@
 #pragma once
 
 
-#include <graphics/IShaderCompiler.h>
-#include <utils/Utils.h>
-#include <utils/Types.h>
+#include <graphics/CBaseShaderCompiler.h>
 #include <vector>
 #include <unordered_map>
 
@@ -19,14 +17,34 @@
 namespace TDEngine2
 {
 	/*!
+		struct TD3D11ShaderCompilerOutput
+
+		\brief The structure contains shader compiler's output data for D3D11 GAPI
+	*/
+
+	typedef struct TD3D11ShaderCompilerOutput: public TShaderCompilerOutput
+	{
+		virtual ~TD3D11ShaderCompilerOutput() = default;
+
+		std::vector<U8> mVSByteCode;
+
+		std::vector<U8> mPSByteCode;
+
+		std::vector<U8> mGSByteCode;
+	} TD3D11ShaderCompilerOutput, *TD3D11ShaderCompilerOutputPtr;
+
+
+	/*!
 		\brief A factory function for creation objects of CD3D11ShaderCompiler's type
 		
+		\param[in, out] pFileSystem A pointer to IFileSystem implementation
+
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CD3D11ShaderCompiler's implementation
 	*/
 
-	TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(E_RESULT_CODE& result);
+	TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -35,89 +53,33 @@ namespace TDEngine2
 		\brief The class represents main compiler of shaders for D3D11 GAPI
 	*/
 
-	class CD3D11ShaderCompiler: public IShaderCompiler
+	class CD3D11ShaderCompiler: public CBaseShaderCompiler
 	{
 		public:
-			friend TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(E_RESULT_CODE& result);
-		protected:
-			typedef std::pair<std::string, std::string>                         TShaderDefineDesc;
-
-			typedef std::unordered_map<std::string, std::string>                TDefinesMap;
-
-			typedef std::unordered_map<U8, std::unordered_map<std::string, U8>> TUniformBuffersMap;
-
-			typedef struct TShaderMetadata
-			{
-				std::string             mVertexShaderEntrypointName;
-				std::string             mPixelShaderEntrypointName;
-				std::string             mGeometryShaderEntrypointName;
-
-				E_SHADER_TARGET_VERSION mTargetVersion;
-
-				TDefinesMap             mDefines;
-
-				TUniformBuffersMap      mUniformBuffers;
-			} TShaderMetadata;
-
-			typedef struct TCompileShaderStageResult
-			{
-				E_RESULT_CODE   mResultCode;
-							    
-				std::vector<U8> mByteCode;
-			} TCompileShaderStageResult;
-		public:
-			/*!
-				\brief The method initializes an initial state of a compiler
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
+			friend TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
-				\brief The method compiles specified source code into the bytecode representation
+				\brief The method compiles specified source code into the bytecode representation.
+				Note that the method allocates memory for TShaderCompilerOutput object on heap so it should be
+				released manually
 
 				\param[in] source A string that contains a source code of a shader
 
-				\return An object that contains a result code and an array of bytes
+				\return An object that contains either bytecode or some error code. Note that the
+				method allocates memory for TShaderCompilerOutput object on heap so it should be
+				released manually
 			*/
 
-			TDE2_API TShaderCompilerResult Compile(const std::string& source) const override;
+			TDE2_API TResult<TShaderCompilerOutput*> Compile(const std::string& source) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderCompiler)
 
-			TDE2_API TCompileShaderStageResult _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const std::string& entryPointName,
-																   const TDefinesMap& shaderDefinesMap, E_SHADER_TARGET_VERSION targetVersion) const;
+			TDE2_API TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const std::string& entryPointName,
+																   const TDefinesMap& shaderDefinesMap, E_SHADER_FEATURE_LEVEL targetVersion) const;
 
-			TDE2_API const C8* _getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const;
+			TDE2_API TUniformBuffersMap _processUniformBuffersDecls(const std::string& sourceCode) const override;
 
-			TDE2_API TShaderMetadata _parseShader(const std::string& sourceCode) const;
-
-			TDE2_API std::string _removeComments(const std::string& sourceCode) const;
-
-			TDE2_API TDefinesMap _processDefines(const std::string& sourceCode) const;
-
-			TDE2_API TUniformBuffersMap _processCBuffersDecls(const std::string& sourceCode) const;
-
-			TDE2_API E_SHADER_TARGET_VERSION _getTargetVersionFromStr(const std::string& ver) const;
-
-			TDE2_API bool _isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const TShaderMetadata& shaderMeta) const;
-		protected:
-			bool             mIsInitialized;
-
-			static U32       mMaxStepsCount; ///< The value is used within _removeComments to bound a maximum number of steps of an automata
-
-			static const C8* mEntryPointsDefineNames[3];
-
-			static const C8* mTargetVersionDefineName;
+			TDE2_API E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const override;
 	};
 }
 

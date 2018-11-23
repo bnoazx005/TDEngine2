@@ -1,7 +1,9 @@
 #include "./../include/CD3D11Shader.h"
 #include "./../include/CD3D11GraphicsContext.h"
 #include "./../include/CD3D11Utils.h"
+#include "./../include/CD3D11ShaderCompiler.h"
 #include <graphics/CBaseShader.h>
+#include <graphics/IShaderCompiler.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -51,9 +53,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerResult& shaderBytecode)
+	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
-		U32 bytecodeSize = shaderBytecode.mVSByteCode.size();
+		const TD3D11ShaderCompilerOutput* pD3D11ShaderCompilerData = dynamic_cast<const TD3D11ShaderCompilerOutput*>(pCompilerData);
+
+		if (!pD3D11ShaderCompilerData)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		U32 bytecodeSize = pD3D11ShaderCompilerData->mVSByteCode.size();
 
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
 
@@ -67,40 +76,40 @@ namespace TDEngine2
 
 		if (bytecodeSize > 0) /// create a vertex shader
 		{
-			if (FAILED(p3dDevice->CreateVertexShader(&shaderBytecode.mVSByteCode[0], bytecodeSize, nullptr, &mpVertexShader)))
+			if (FAILED(p3dDevice->CreateVertexShader(&pD3D11ShaderCompilerData->mVSByteCode[0], bytecodeSize, nullptr, &mpVertexShader)))
 			{
 				return RC_FAIL;
 			}
 		}
 
 		/// create a pixel shader
-		bytecodeSize = shaderBytecode.mPSByteCode.size();
+		bytecodeSize = pD3D11ShaderCompilerData->mPSByteCode.size();
 
 		if (bytecodeSize > 0)
 		{
-			if (FAILED(p3dDevice->CreatePixelShader(&shaderBytecode.mPSByteCode[0], bytecodeSize, nullptr, &mpPixelShader)))
+			if (FAILED(p3dDevice->CreatePixelShader(&pD3D11ShaderCompilerData->mPSByteCode[0], bytecodeSize, nullptr, &mpPixelShader)))
 			{
 				return RC_FAIL;
 			}
 		}
 
 		/// create a geometry shader
-		bytecodeSize = shaderBytecode.mGSByteCode.size();
+		bytecodeSize = pD3D11ShaderCompilerData->mGSByteCode.size();
 
 		if (bytecodeSize > 0)
 		{
-			if (FAILED(p3dDevice->CreateGeometryShader(&shaderBytecode.mGSByteCode[0], bytecodeSize, nullptr, &mpGeometryShader)))
+			if (FAILED(p3dDevice->CreateGeometryShader(&pD3D11ShaderCompilerData->mGSByteCode[0], bytecodeSize, nullptr, &mpGeometryShader)))
 			{
 				return RC_FAIL;
 			}
 		}
 
-		return _createUniformBuffers(shaderBytecode);
+		return _createUniformBuffers(pCompilerData);
 	}
 
-	E_RESULT_CODE CD3D11Shader::_createUniformBuffers(const TShaderCompilerResult& shaderBytecode)
+	E_RESULT_CODE CD3D11Shader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
-		auto uniformBuffersInfo = shaderBytecode.mUniformBuffersInfo;
+		auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
 		//first 4 buffers for internal usage only
 

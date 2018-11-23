@@ -111,9 +111,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Shader)
 
-			TDE2_API E_RESULT_CODE _createInternalHandlers(const TShaderCompilerResult& shaderBytecode) override;
+			TDE2_API E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
 
-			TDE2_API E_RESULT_CODE _createUniformBuffers(const TShaderCompilerResult& shaderBytecode);
+			TDE2_API E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
 		protected:
 			ID3D11VertexShader*   mpVertexShader;
 			ID3D11PixelShader*    mpPixelShader;

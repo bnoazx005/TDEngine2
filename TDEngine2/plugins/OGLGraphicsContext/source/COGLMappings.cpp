@@ -162,4 +162,19 @@ namespace TDEngine2
 
 		return GL_DEPTH_STENCIL;
 	}
+
+	GLenum COGLMappings::GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType)
+	{
+		switch (shaderStageType)
+		{
+			case SST_VERTEX:
+				return GL_VERTEX_SHADER;
+			case SST_PIXEL:
+				return GL_FRAGMENT_SHADER;
+			case SST_GEOMETRY:
+				return GL_GEOMETRY_SHADER;
+		}
+
+		return 0;
+	}
 }

@@ -100,6 +100,14 @@ namespace TDEngine2
 	template <typename T, typename E>
 	union TBasicResultStorage
 	{
+		TBasicResultStorage()
+		{
+		}
+
+		~TBasicResultStorage()
+		{
+		}
+
 		T mData;
 
 		E mError;
@@ -108,6 +116,14 @@ namespace TDEngine2
 	template <typename E>
 	union TBasicResultStorage<void, E>
 	{
+		TBasicResultStorage()
+		{
+		}
+		
+		~TBasicResultStorage()
+		{
+		}
+
 		E mError;
 	};
 
@@ -135,6 +151,18 @@ namespace TDEngine2
 				mHasError(true)
 			{
 				mStorage.mError = errValue.mError;
+			}
+
+			CResult(const CResult<T, E>& result):
+				mHasError(result.mHasError)
+			{
+				mStorage = result.mStorage;
+			}
+
+			CResult(CResult<T, E>&& result) :
+				mHasError(result.mHasError)
+			{
+				mStorage = result.mStorage;
 			}
 
 			~CResult()
@@ -169,6 +197,16 @@ namespace TDEngine2
 				}
 
 				return *this;
+			}
+
+			E GetError() const
+			{
+				if (!mHasError)
+				{
+					Panic("Try to get error when it doesn't exist");
+				}
+
+				return mStorage.mError;
 			}
 
 			template <typename U>
