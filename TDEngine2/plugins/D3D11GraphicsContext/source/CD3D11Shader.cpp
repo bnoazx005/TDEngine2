@@ -1,5 +1,6 @@
 #include "./../include/CD3D11Shader.h"
 #include "./../include/CD3D11GraphicsContext.h"
+#include "./../include/CD3D11Utils.h"
 #include <graphics/CBaseShader.h>
 
 
@@ -38,28 +39,13 @@ namespace TDEngine2
 	{
 		mIsInitialized = false;
 
-		if (mpVertexShader)
-		{
-			if (FAILED(mpVertexShader->Release()))
-			{
-				return RC_FAIL;
-			}
-		}
+		E_RESULT_CODE result = RC_OK;
 
-		if (mpPixelShader)
+		if ((result = SafeReleaseCOMPtr<ID3D11VertexShader>(&mpVertexShader)) != RC_OK		||
+			(result = SafeReleaseCOMPtr<ID3D11PixelShader>(&mpPixelShader)) != RC_OK		||
+			(result = SafeReleaseCOMPtr<ID3D11GeometryShader>(&mpGeometryShader)) != RC_OK)
 		{
-			if (FAILED(mpVertexShader->Release()))
-			{
-				return RC_FAIL;
-			}
-		}
-
-		if (mpGeometryShader)
-		{
-			if (FAILED(mpVertexShader->Release()))
-			{
-				return RC_FAIL;
-			}
+			return result;
 		}
 
 		return RC_OK;

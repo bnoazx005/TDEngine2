@@ -1,4 +1,5 @@
 #include "./../include/CD3D11GraphicsContext.h"
+#include "./../include/CD3D11Utils.h"
 #include <core/IWindowSystem.h>
 
 
@@ -111,34 +112,16 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (FAILED(mp3dDevice->Release()))
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
 
-		if (FAILED(mp3dDeviceContext->Release()))
+		if ((result = SafeReleaseCOMPtr<ID3D11Device>(&mp3dDevice)) != RC_OK							||
+			(result = SafeReleaseCOMPtr<ID3D11DeviceContext>(&mp3dDeviceContext)) != RC_OK				||
+			(result = SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView)) != RC_OK	||
+			(result = SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer)) != RC_OK		||
+			(result = SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView)) != RC_OK			||
+			(result = SafeReleaseCOMPtr<IDXGISwapChain>(&mpSwapChain)) != RC_OK)
 		{
-			return RC_FAIL;
-		}
-
-		if (FAILED(mpDefaultDepthStencilView->Release()))
-		{
-			return RC_FAIL;
-		}
-
-		if (FAILED(mpDefaultDepthStencilBuffer->Release()))
-		{
-			return RC_FAIL;
-		}
-
-		if (FAILED(mpBackBufferView->Release()))
-		{
-			return RC_FAIL;
-		}
-
-		if (FAILED(mpSwapChain->Release()))
-		{
-			return RC_FAIL;
+			return result;
 		}
 
 #if _DEBUG
@@ -146,7 +129,10 @@ namespace TDEngine2
 		{
 			mpDebuggerInstance->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 
-			mpDebuggerInstance->Release();
+			if ((result = SafeReleaseCOMPtr<ID3D11Debug>(&mpDebuggerInstance)) != RC_OK)
+			{
+				return result;
+			}
 		}
 #endif
 

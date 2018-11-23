@@ -1,6 +1,7 @@
 #include "./../include/CD3D11Texture2D.h"
 #include "./../include/CD3D11GraphicsContext.h"
 #include "./../include/CD3D11Mappings.h"
+#include "./../include/CD3D11Utils.h"
 #include <cstring>
 
 
@@ -39,24 +40,12 @@ namespace TDEngine2
 	{
 		mIsInitialized = false;
 
-		if (mpTexture)
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = SafeReleaseCOMPtr<ID3D11Texture2D>(&mpTexture)) != RC_OK ||
+			(result = SafeReleaseCOMPtr<ID3D11ShaderResourceView>(&mpShaderTextureView)) != RC_OK)
 		{
-			if (FAILED(mpTexture->Release()))
-			{
-				return RC_FAIL;
-			}
-
-			mpTexture = nullptr;
-		}
-
-		if (mpShaderTextureView)
-		{
-			if (FAILED(mpShaderTextureView->Release()))
-			{
-				return RC_FAIL;
-			}
-
-			mpShaderTextureView = nullptr;
+			return result;
 		}
 
 		return RC_OK;

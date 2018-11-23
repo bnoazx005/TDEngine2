@@ -73,15 +73,6 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		/// mpGraphicsContext's memory has already released at this moment
-/*
-		if ((result = mpGraphicsContext->Free()) != RC_OK)
-		{
-			return result;
-		}*/
-
 		delete this;
 
 		mIsInitialized = false;

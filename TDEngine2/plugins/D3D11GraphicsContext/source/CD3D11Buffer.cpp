@@ -1,5 +1,6 @@
 #include "./../include/CD3D11Buffer.h"
 #include "./../include/CD3D11Mappings.h"
+#include "./../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -91,9 +92,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (FAILED(mpBufferInstance->Release()))
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = SafeReleaseCOMPtr<ID3D11Buffer>(&mpBufferInstance)) != RC_OK)
 		{
-			return RC_FAIL;
+			return result;
 		}
 
 		delete this;
