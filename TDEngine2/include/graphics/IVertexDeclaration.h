@@ -14,33 +14,21 @@
 namespace TDEngine2
 {
 	/*!
-		union TVertDeclElementDesc
+		struct TVertDeclElementDesc
 
 		\brief The union contains fields that are needed to 
 		create a new element withit an object of IVertexDeclaration type
 	*/
 
-	typedef union TVertDeclElementDesc
+	typedef struct TVertDeclElementDesc
 	{
-#if defined (TDE2_USE_WIN32PLATFORM)
-		typedef struct TD3D11VertDeclElementDesc
-		{
-			U32                     mInputSlot;
-			E_VERTEX_ELEMENT_SEMANTIC_TYPE mSemanticType;
-			E_FORMAT_TYPE           mFormatType;
-		} TD3D11VertDeclElementDesc;
+		E_FORMAT_TYPE                  mFormatType;
 
-		TD3D11VertDeclElementDesc mD3D11;
-#endif
+		U32                            mSource;		// for D3D this value means an input slot's index, an implementation for OGL ignores this attribute
 
-		typedef struct TOGLVertDeclElementDesc
-		{
-			E_FORMAT_TYPE mFormatType;
-		} TOGLVertDeclElementDesc;
-
-		TOGLVertDeclElementDesc mOGL;
-	} TElementDesc, *TElementDescPtr;
-
+		E_VERTEX_ELEMENT_SEMANTIC_TYPE mSemanticType;
+	} TVertDeclElementDesc, *TVertDeclElementDescPtr;
+	
 
 	/*!
 		interface IVertexDeclaration
@@ -63,7 +51,7 @@ namespace TDEngine2
 			/*!
 				\brief The method adds a new element within existing declaration
 
-				\param[in] A union object that contains element's parameters
+				\param[in] elementDesc An object that contains element's parameters
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/

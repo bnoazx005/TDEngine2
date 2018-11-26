@@ -19,6 +19,7 @@
 #include "COGLVertexBuffer.h"
 #include "IOGLContextFactory.h"
 #include "COGLTexture2D.h"
+#include "COGLVertexDeclaration.h"
 
 
 #include <core/IPlugin.h>

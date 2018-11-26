@@ -10,6 +10,7 @@
 #include "Types.h"
 #include <string>
 #include <functional>
+#include <stdexcept>
 
 
 namespace TDEngine2
@@ -190,6 +191,8 @@ namespace TDEngine2
 				}
 
 				Panic("Try to get value that doesn't exist");
+
+				throw std::runtime_error("Try to get value that doesn't exist");
 			}
 
 			T GetOrDefault(const T& defaultValue) const
@@ -231,6 +234,8 @@ namespace TDEngine2
 				}
 
 				Panic("Try to map value that doesn't exist");
+
+				throw std::runtime_error("Try to map value that doesn't exist");
 			}
 
 			template <typename U>
@@ -242,6 +247,8 @@ namespace TDEngine2
 				}
 
 				Panic("Try to map error's value when the result's object contains data");
+
+				throw std::runtime_error("Try to map error's value when the result's object contains data");
 			}
 			
 			CResult<T, E> operator= (const TOkValue<T>& okValue)
@@ -322,6 +329,8 @@ namespace TDEngine2
 				}
 
 				Panic("Try to map error's value when the result's object contains data");
+
+				throw std::runtime_error("Try to map error's value when the result's object contains data");
 			}
 
 			CResult<void, E> operator= (const TErrorValue<E>& errValue)

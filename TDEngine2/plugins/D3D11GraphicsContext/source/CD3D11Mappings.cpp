@@ -322,6 +322,27 @@ namespace TDEngine2
 
 		return 0;
 	}
+	
+	const C8* CD3D11Mappings::GetSemanticTypeName(E_VERTEX_ELEMENT_SEMANTIC_TYPE semanticType)
+	{
+		switch (semanticType)
+		{
+			case VEST_POSITION:
+				return "POSITION";
+			case VEST_NORMAL:
+				return "NORMAL";
+			case VEST_TEXCOORDS:
+				return "TEXCOORDS";
+			case VEST_BINORMAL:
+				return "BINORMAL";
+			case VEST_TANGENT:
+				return "TANGENT";
+			case VEST_COLOR:
+				return "COLOR";
+		}
+
+		return "UNKNOWN";
+	}
 }
 
 #endif

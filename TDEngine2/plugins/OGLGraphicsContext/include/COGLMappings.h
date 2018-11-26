@@ -73,5 +73,47 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static GLenum GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType);
+			
+			/*!
+				\brief The function returns a number of channels for a given format type
+
+				\param[in] format A specific format of a texture
+
+				\return The functiona returns a number of channels for a given format type
+			*/
+
+			TDE2_API static U32 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function returns a base type, which lies in format's specification
+
+				\param[in] format A specific format of a texture
+
+				\return The function returns a base type, which lies in format's specification
+			*/
+
+			TDE2_API static GLenum GetBaseTypeOfFormat(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function returns a size of a specified format
+
+				\param[in] format An internal format
+
+				\return A size in bytes of a specified format
+			*/
+
+			TDE2_API static GLsizei GetFormatSize(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function is a predicate that returns true if a given format is normalized,
+				false in other cases
+
+				\param[in] format An internal format
+
+				\return The function is a predicate that returns true if a given format is normalized,
+				false in other cases
+			*/
+
+			TDE2_API static bool IsFormatNormalized(E_FORMAT_TYPE format);
 	};
 }

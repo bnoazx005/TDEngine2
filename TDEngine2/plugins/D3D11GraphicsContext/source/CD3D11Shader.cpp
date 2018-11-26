@@ -4,6 +4,7 @@
 #include "./../include/CD3D11ShaderCompiler.h"
 #include <graphics/CBaseShader.h>
 #include <graphics/IShaderCompiler.h>
+#include <cstring>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -50,6 +51,13 @@ namespace TDEngine2
 			return result;
 		}
 
+		if (mVertexShaderBytecode.mpBytecode)
+		{
+			delete[] mVertexShaderBytecode.mpBytecode;
+
+			mVertexShaderBytecode.mpBytecode = nullptr;
+		}
+
 		return RC_OK;
 	}
 
@@ -61,9 +69,15 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
-
+		
 		U32 bytecodeSize = pD3D11ShaderCompilerData->mVSByteCode.size();
 
+		mVertexShaderBytecode.mpBytecode = new U8[bytecodeSize];
+		
+		mVertexShaderBytecode.mLength = bytecodeSize;
+
+		memcpy(mVertexShaderBytecode.mpBytecode, &pD3D11ShaderCompilerData->mVSByteCode[0], bytecodeSize * sizeof(U8));
+		
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
 
 		ID3D11Device* p3dDevice = nullptr;
@@ -124,6 +138,11 @@ namespace TDEngine2
 	E_RESULT_CODE CD3D11Shader::SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize)
 	{
 		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	const TShaderBytecodeDesc& CD3D11Shader::GetVertexShaderBytecode() const
+	{
+		return mVertexShaderBytecode;
 	}
 
 

@@ -80,14 +80,24 @@ namespace TDEngine2
 			TDE2_API static std::string GetShaderTargetVerStr(E_SHADER_STAGE_TYPE stageType, E_SHADER_FEATURE_LEVEL version);
 
 			/*!
-				\brief The functiona returns a number of channels for a given format type
+				\brief The function returns a number of channels for a given format type
 
 				\param[in] format A specific format of a texture
 
-				\return The functiona returns a number of channels for a given format type
+				\return The function returns a number of channels for a given format type
 			*/
 
 			TDE2_API static U32 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function returns a name of a given semantic type
+
+				\param[in] semanticType A semantic type of a single vertex
+
+				\return The function returns a name of a given semantic type
+			*/
+
+			TDE2_API static const C8* GetSemanticTypeName(E_VERTEX_ELEMENT_SEMANTIC_TYPE semanticType);
 	};
 }
 

@@ -80,6 +80,7 @@
 #include "graphics/CPerspectiveCamera.h"
 #include "graphics/COrthoCamera.h"
 #include "graphics/CBaseShaderCompiler.h"
+#include "graphics/CVertexDeclaration.h"
 
 ///math
 #include "math/TVector3.h"

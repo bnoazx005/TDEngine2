@@ -25,6 +25,18 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The structure describes a common representation of a shader's bytecode
+	*/
+
+	struct TShaderBytecodeDesc
+	{
+		U8* mpBytecode;
+
+		U32 mLength;
+	};
+
+
+	/*!
 		\brief A factory function for creation objects of CD3D11Shader's type
 
 		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
@@ -108,6 +120,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize) override;
+
+			/*!
+				\brief The method returns a bytecode of a vertex shader, or nullptr if a shader hasn't compiled yet
+
+				\return The method returns a bytecode of a vertex shader, or nullptr if a shader hasn't compiled yet
+			*/
+
+			TDE2_API const TShaderBytecodeDesc& GetVertexShaderBytecode() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Shader)
 
@@ -116,8 +136,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
 		protected:
 			ID3D11VertexShader*   mpVertexShader;
+			
 			ID3D11PixelShader*    mpPixelShader;
+
 			ID3D11GeometryShader* mpGeometryShader;
+
+			TShaderBytecodeDesc   mVertexShaderBytecode;
 	};
 
 
