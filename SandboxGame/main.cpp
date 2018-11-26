@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 	pEngineCoreBuilder->ConfigureResourceManager();
 	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
 	pEngineCoreBuilder->ConfigurePluginManager();
-	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_OPENGL3X);
+	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_DIRECT3D11);
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
 	
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 
 	IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
 
-	auto pShaderHandler = pResourceManager->Load<CBaseShader>("testGLShader.shader");
+	auto pShaderHandler = pResourceManager->Load<CBaseShader>("testDXShader.shader");
 
 	auto pTextureHandler = pResourceManager->Load<CBaseTexture2D>("test.jpg");
 

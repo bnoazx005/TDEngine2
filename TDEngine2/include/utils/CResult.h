@@ -104,6 +104,16 @@ namespace TDEngine2
 		{
 		}
 
+		TBasicResultStorage(const TOkValue<T>& okValue)
+		{
+			new (&mData) T(okValue.mData);
+		}
+
+		TBasicResultStorage(const TErrorValue<E>& errValue)
+		{
+			new (&mError) E(errValue.mError);
+		}
+
 		~TBasicResultStorage()
 		{
 		}
@@ -118,6 +128,11 @@ namespace TDEngine2
 	{
 		TBasicResultStorage()
 		{
+		}
+
+		TBasicResultStorage(const TErrorValue<E>& errValue)
+		{
+			new (&mError) E(errValue.mError);
 		}
 		
 		~TBasicResultStorage()
@@ -142,15 +157,13 @@ namespace TDEngine2
 	{
 		public:
 			CResult(const TOkValue<T>& okValue):
-				mHasError(false)
+				mHasError(false), mStorage(okValue)
 			{
-				mStorage.mData = okValue.mData;
 			}
 
 			CResult(const TErrorValue<E>& errValue):
-				mHasError(true)
+				mHasError(true), mStorage(errValue)
 			{
-				mStorage.mError = errValue.mError;
 			}
 
 			CResult(const CResult<T, E>& result):
@@ -291,9 +304,9 @@ namespace TDEngine2
 			{
 			}
 
-			CResult(const TErrorValue<E>& errValue)
+			CResult(const TErrorValue<E>& errValue):
+				mHasError(true), mStorage(errValue)
 			{
-				mStorage.mError = errValue.mError;
 			}
 
 			~CResult()

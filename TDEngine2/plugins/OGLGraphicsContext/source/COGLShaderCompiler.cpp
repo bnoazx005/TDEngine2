@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include <string>
 #include <GL/glew.h>
+#include <cstring>
 
 
 namespace TDEngine2
