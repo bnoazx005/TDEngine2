@@ -55,5 +55,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextFileReader)
 
 			TDE2_API E_RESULT_CODE _onFree() override;
+		protected:
+			std::string mCachedData;
 	};
 }

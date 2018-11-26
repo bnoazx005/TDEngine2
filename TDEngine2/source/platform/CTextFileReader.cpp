@@ -1,6 +1,7 @@
 #include "./../../include/platform/CTextFileReader.h"
 #include<vector>
 #include "./../../include/core/IFileSystem.h"
+#include <sstream>
 
 
 namespace TDEngine2
@@ -30,19 +31,16 @@ namespace TDEngine2
 			return "";
 		}
 
-		mFile.seekg(0, std::ios::end);
+		if (!mCachedData.empty())
+		{
+			return mCachedData;
+		}
 
-		U32 fileLength = mFile.tellg();
+		std::stringstream strBuffer;
 
-		mFile.seekg(0, std::ios::beg);
+		strBuffer << mFile.rdbuf();
 
-		std::string textData;
-
-		textData.resize(fileLength);
-		
-		mFile.read(&textData[0], fileLength);
-
-		return textData;
+		return (mCachedData = strBuffer.str());
 	}
 
 	E_RESULT_CODE CTextFileReader::_onFree()
