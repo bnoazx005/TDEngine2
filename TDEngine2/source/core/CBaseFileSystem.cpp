@@ -154,6 +154,11 @@ namespace TDEngine2
 
 		for (IFile* pCurrFile : mActiveFiles)
 		{
+			if (!pCurrFile) /// if pCurrFile is nullptr then it has already closed manually
+			{
+				continue;
+			}
+
 			result = pCurrFile->Close();
 
 			if (result != RC_OK)
