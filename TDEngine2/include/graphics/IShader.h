@@ -58,14 +58,26 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode) = 0;
 
 			/*!
+				\brief The method binds a shader to a rendering pipeline
+			*/
+
+			TDE2_API virtual void Bind() = 0;
+
+			/*!
+				\brief The method rejects a shader from a rendering pipeline
+			*/
+
+			TDE2_API virtual void Unbind() = 0;
+
+			/*!
 				\brief The method writes data into an internal uniforms buffer with specified register
 
 				\param[in] slot A slot specifies a uniforms buffer, in which data will be written
 
 				\param[in] pData A pointer to data that should be written into a buffer
-
+				
 				\param[in] dataSize A size of data in bytes
-
+				
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 

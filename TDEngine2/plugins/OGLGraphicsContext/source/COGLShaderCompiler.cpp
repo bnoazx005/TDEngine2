@@ -31,7 +31,9 @@ namespace TDEngine2
 		std::string processedSourceCode = _removeComments(_preprocessShaderSource(_removeComments(source)));
 		
 		/// parse source code to get a meta information about it
-		TShaderMetadata shaderMetadata = _parseShader(processedSourceCode);
+		CTokenizer tokenizer(processedSourceCode);
+
+		TShaderMetadata shaderMetadata = _parseShader(tokenizer);
 
 		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
 
@@ -168,47 +170,14 @@ namespace TDEngine2
 	}
 
 
-	COGLShaderCompiler::TUniformBuffersMap COGLShaderCompiler::_processUniformBuffersDecls(const std::string& sourceCode) const
+	COGLShaderCompiler::TUniformBuffersMap COGLShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
 	{
-		TUniformBuffersMap uniformBuffersDecls;
+		TUniformBuffersMap uniformBuffersDecls = CBaseShaderCompiler::_processUniformBuffersDecls(structsMap, tokenizer);
 
-		U32 firstPos = 0;
-		U32 secondPos = 0;
-		U32 seekPos = 0;
+		std::string currToken;
+		std::string nextToken;
 
-		U8 currSlotIndex = IUBR_LAST_USED_SLOT + 1; // b0 - b3 for internal usage only
-
-		std::string currLine;
-		std::string currBufferName;
-
-		/// extract different shader regions bounds (vertex, pixel, geometry)	
-		U32 vertexShaderRegionStartPos   = sourceCode.find(std::string("#if ").append(_getShaderStageDefineName(SST_VERTEX)));
-		U32 pixelShaderRegionStartPos    = sourceCode.find(std::string("#if ").append(_getShaderStageDefineName(SST_PIXEL)));
-		U32 geometryShaderRegionStartPos = sourceCode.find(std::string("#if ").append(_getShaderStageDefineName(SST_GEOMETRY)));
-
-		std::tuple<U32, U32> vertexShaderRegion   = std::make_tuple(vertexShaderRegionStartPos, sourceCode.find("#endif", vertexShaderRegionStartPos));
-		std::tuple<U32, U32> pixelShaderRegion    = std::make_tuple(pixelShaderRegionStartPos, sourceCode.find("#endif", pixelShaderRegionStartPos));
-		std::tuple<U32, U32> geometryShaderRegion = std::make_tuple(geometryShaderRegionStartPos, sourceCode.find("#endif", geometryShaderRegionStartPos));
-
-		auto getShaderType = [&vertexShaderRegion, &pixelShaderRegion, &geometryShaderRegion](U32 bufferPos) -> U8
-		{
-			if (bufferPos > std::get<0>(vertexShaderRegion) && bufferPos < std::get<1>(vertexShaderRegion))
-			{
-				return SST_VERTEX;
-			}
-
-			if (bufferPos > std::get<0>(pixelShaderRegion) && bufferPos < std::get<1>(pixelShaderRegion))
-			{
-				return SST_PIXEL;
-			}
-
-			if (bufferPos > std::get<0>(geometryShaderRegion) && bufferPos < std::get<1>(geometryShaderRegion))
-			{
-				return SST_GEOMETRY;
-			}
-
-			return SST_GEOMETRY + 1;
-		};
+		std::string bufferName;
 
 		std::unordered_set<U8> usedBufferSlots{ IUBR_PER_FRAME, IUBR_PER_OBJECT, IUBR_RARE_UDATED, IUBR_CONSTANTS };
 
@@ -231,41 +200,40 @@ namespace TDEngine2
 			return slotIndex;
 		};
 
-		U8 currShaderRegion = 0;
-		
-		while ((firstPos = sourceCode.find("uniform", seekPos)) != std::string::npos)
+		while (tokenizer.HasNext())
 		{
-			seekPos = firstPos + 7; // 7 is a length of "uniform" keyword
+			currToken = tokenizer.GetCurrToken();
 
-			secondPos = sourceCode.find_first_of(';', firstPos);
-
-			if (secondPos == std::string::npos)
+			if (currToken != "uniform")
 			{
+				currToken = tokenizer.GetNextToken();
+
 				continue;
 			}
 
-			seekPos = secondPos;
+			bufferName = tokenizer.GetNextToken();
 
-			currLine = sourceCode.substr(firstPos + 7, secondPos - firstPos - 7); // 7 is a length of "uniform" keyword
-
-			/// check is this a buffer or just a single variable
-			firstPos = currLine.find_first_of('{');
-
-			if (firstPos == std::string::npos)
+			if ((nextToken = tokenizer.GetNextToken()) == ";") /// found buffer's declaration without a body
 			{
-				continue; /// this is a variable, we work only with buffers
+				uniformBuffersDecls.insert({ bufferName,{ getCurrentOrNextFreeBufferSlot(0), 0 } });
+
+				continue;
+			}
+			
+			if (nextToken == "{")
+			{
+				uniformBuffersDecls.insert({ bufferName,{ getCurrentOrNextFreeBufferSlot(0), _getPaddedStructSize(structsMap, tokenizer) } });
 			}
 
-			/// retrieve buffer's name
-			currBufferName = currLine.substr(0, firstPos - 1);
+			while ((nextToken = tokenizer.GetCurrToken()) != ";" && tokenizer.HasNext())
+			{
+				nextToken = tokenizer.GetNextToken();
+			}
 
-			/// remove all whitespaces
-			currBufferName.erase(std::remove_if(currBufferName.begin(), currBufferName.end(), [](C8 ch) { return std::isspace(ch); }), currBufferName.end());
-
-			currSlotIndex = getCurrentOrNextFreeBufferSlot(0); // if slot is already in use find another free
-
-			uniformBuffersDecls[currShaderRegion][currBufferName] = currSlotIndex;
+			nextToken = tokenizer.GetNextToken();
 		}
+
+		tokenizer.Reset();
 
 		return uniformBuffersDecls;
 	}
@@ -361,6 +329,46 @@ namespace TDEngine2
 		newSourceCode.append(source.substr(endPos, source.length() - endPos));
 
 		return newSourceCode;
+	}
+	
+	U32 COGLShaderCompiler::_getBuiltinTypeSize(const std::string& type) const
+	{
+		U32 pos = type.find_first_of("1234");
+
+		U32 size = 1;
+
+		if (pos != std::string::npos)
+		{
+			switch (type[pos])
+			{
+			case '2':
+				size = 2;
+				break;
+			case '3':
+				size = 3;
+				break;
+			case '4':
+				size = 4;
+				break;
+			}
+		}
+
+		std::string baseType = type.substr(0, pos);
+
+		if (baseType == "double" || baseType == "dvec")
+		{
+			return size * 8; // 8 is sizeof(double) in HLSL
+		}
+		else if (baseType == "mat") /// matrix wtih single precision floating-point elements
+		{
+			return size * size * 4;
+		}
+		else if (baseType == "dmat") /// matrix wtih double precision floating-point elements
+		{
+			return size * size * 8;
+		}
+
+		return size * 4; // other types sizes equal to 4 bytes
 	}
 
 

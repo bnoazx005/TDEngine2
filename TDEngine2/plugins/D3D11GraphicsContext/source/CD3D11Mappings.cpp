@@ -12,7 +12,7 @@ namespace TDEngine2
 		switch (type)
 		{
 			case BUT_DYNAMIC:
-				accessFlags |= D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+				accessFlags |= D3D11_CPU_ACCESS_WRITE;
 				break;
 		}
 

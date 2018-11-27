@@ -32,9 +32,11 @@ namespace TDEngine2
 		}
 		
 		std::string processedSourceCode = _removeComments(source);
+		
+		CTokenizer tokenizer(processedSourceCode);
 
 		/// parse source code to get a meta information about it
-		TShaderMetadata shaderMetadata = _parseShader(processedSourceCode);
+		TShaderMetadata shaderMetadata = _parseShader(tokenizer);
 
 		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
 
@@ -124,48 +126,15 @@ namespace TDEngine2
 		return TOkValue<std::vector<U8>>(byteCodeArray);
 	}
 
-	CD3D11ShaderCompiler::TUniformBuffersMap CD3D11ShaderCompiler::_processUniformBuffersDecls(const std::string& sourceCode) const
+	CD3D11ShaderCompiler::TUniformBuffersMap CD3D11ShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
 	{
-		TUniformBuffersMap uniformBuffersDecls;
+		TUniformBuffersMap uniformBuffersDecls = CBaseShaderCompiler::_processUniformBuffersDecls(structsMap, tokenizer);
 
-		U32 firstPos  = 0;
-		U32 secondPos = 0;
-		U32 seekPos   = 0;
+		std::string currToken;
+		std::string nextToken;
 
-		U8 currSlotIndex = IUBR_LAST_USED_SLOT + 1; // b0 - b3 for internal usage only
-
-		std::string currLine;
-		std::string currBufferName;
-
-		/// extract different shader regions bounds (vertex, pixel, geometry)	
-		U32 vertexShaderRegionStartPos   = sourceCode.find(std::string("#if ").append(_getShaderStageDefineName(SST_VERTEX)));
-		U32 pixelShaderRegionStartPos    = sourceCode.find(std::string("#if ").append(_getShaderStageDefineName(SST_PIXEL)));
-		U32 geometryShaderRegionStartPos = sourceCode.find(std::string("#if ").append(_getShaderStageDefineName(SST_GEOMETRY)));
-
-		std::tuple<U32, U32> vertexShaderRegion   = std::make_tuple(vertexShaderRegionStartPos, sourceCode.find("#endif", vertexShaderRegionStartPos));
-		std::tuple<U32, U32> pixelShaderRegion    = std::make_tuple(pixelShaderRegionStartPos, sourceCode.find("#endif", pixelShaderRegionStartPos));
-		std::tuple<U32, U32> geometryShaderRegion = std::make_tuple(geometryShaderRegionStartPos, sourceCode.find("#endif", geometryShaderRegionStartPos));
-
-		auto getShaderType = [&vertexShaderRegion, &pixelShaderRegion, &geometryShaderRegion](U32 bufferPos) -> U8
-		{
-			if (bufferPos > std::get<0>(vertexShaderRegion) && bufferPos < std::get<1>(vertexShaderRegion))
-			{
-				return SST_VERTEX;
-			}
-
-			if (bufferPos > std::get<0>(pixelShaderRegion) && bufferPos < std::get<1>(pixelShaderRegion))
-			{
-				return SST_PIXEL;
-			}
-
-			if (bufferPos > std::get<0>(geometryShaderRegion) && bufferPos < std::get<1>(geometryShaderRegion))
-			{
-				return SST_GEOMETRY;
-			}
-
-			return SST_GEOMETRY + 1;
-		};
-		
+		std::string bufferName;
+				
 		std::unordered_set<U8> usedBufferSlots { IUBR_PER_FRAME, IUBR_PER_OBJECT, IUBR_RARE_UDATED, IUBR_CONSTANTS };
 
 		/*!
@@ -187,47 +156,62 @@ namespace TDEngine2
 			return slotIndex;
 		};
 
-		U8 currShaderRegion = 0;
+		U8 currSlotIndex = 0;
 
-		while ((firstPos = sourceCode.find("cbuffer", seekPos)) != std::string::npos)
+		while (tokenizer.HasNext())
 		{
-			seekPos = firstPos + 7; // 7 is a length of "cbuffer" keyword
+			currToken = tokenizer.GetCurrToken();
 
-			secondPos = sourceCode.find_first_of("{\n", firstPos);
-
-			if (secondPos == std::string::npos)
+			if (currToken != "cbuffer")
 			{
+				currToken = tokenizer.GetNextToken();
 
 				continue;
 			}
 
-			currLine = sourceCode.substr(firstPos + 7, secondPos - firstPos - 7); // 7 is a length of "cbuffer" keyword
+			bufferName = tokenizer.GetNextToken();
 
-			currLine.erase(std::remove_if(currLine.begin(), currLine.end(), [](U8 ch) { return std::isspace(ch); }), currLine.end()); // remove all whitespaces
-
-			// find delimiter :
-			firstPos = currLine.find_first_of(':');
-
-			currBufferName = currLine.substr(0, firstPos);
-
-			currShaderRegion = getShaderType(firstPos);
-
-			if (firstPos == std::string::npos) // cbufer's declaration contains name only
+			if ((nextToken = tokenizer.GetNextToken()) == ";") /// found cbuffer's declaration without a body
 			{
-				currSlotIndex = 0; // if a user didn't specify particular register just find first free slot
-			}
-			else
-			{
-				firstPos  = currLine.find("(b");
-				secondPos = currLine.find_first_of(",)", firstPos);
+				uniformBuffersDecls.insert({ bufferName, { getCurrentOrNextFreeBufferSlot(0), 0 } });
 
-				currSlotIndex = std::stoi(currLine.substr(firstPos + 2, secondPos - firstPos - 2));
+				continue;
 			}
 
-			currSlotIndex = getCurrentOrNextFreeBufferSlot(currSlotIndex); // if slot is already in use find another free
+			if ((nextToken == ":") &&
+				(tokenizer.Peek(1) == "register") &&
+				(tokenizer.Peek(2) == "(")) /// found register(b#) decl
+			{
+				nextToken = tokenizer.SeekByOffset(3);
 
-			uniformBuffersDecls[currShaderRegion][currBufferName] = currSlotIndex;
+				if (nextToken[0] != 'b')
+				{
+					continue;
+				}
+
+				currSlotIndex = std::atoi(nextToken.substr(1, nextToken.length()).c_str());
+
+				do
+				{
+					nextToken = tokenizer.GetNextToken();
+				} 
+				while (nextToken != "{" && tokenizer.HasNext());
+			}
+			
+			if (nextToken == "{")
+			{
+				uniformBuffersDecls.insert({ bufferName, { getCurrentOrNextFreeBufferSlot(currSlotIndex), _getPaddedStructSize(structsMap, tokenizer) }});
+			}
+			
+			while ((nextToken = tokenizer.GetCurrToken()) != ";" && tokenizer.HasNext())
+			{
+				nextToken = tokenizer.GetNextToken();
+			}
+
+			nextToken = tokenizer.GetNextToken();
 		}
+
+		tokenizer.Reset();
 
 		return uniformBuffersDecls;
 	}
@@ -245,6 +229,46 @@ namespace TDEngine2
 		}
 
 		return SFL_5_0;
+	}
+
+	U32 CD3D11ShaderCompiler::_getBuiltinTypeSize(const std::string& type) const
+	{
+		U32 pos = type.find_first_of("1234");
+		
+		U32 size = 1;
+
+		std::string baseType = type.substr(0, pos);
+		
+		U32 currPos = 0;
+
+		while ((pos = type.find_first_of("1234", currPos)) != std::string::npos)
+		{
+			switch (type[pos])
+			{
+				case '2':
+					size *= 2;
+					break;
+				case '3':
+					size *= 3;
+					break;
+				case '4':
+					size *= 4;
+					break;
+			}
+
+			currPos = pos + 1;
+		}
+		
+		if (baseType == "double")
+		{
+			return size * 8; // 8 is sizeof(double) in HLSL
+		}
+		else if (baseType == "half")
+		{
+			return size * 2; // 2 is sizeof(half) in HLSL
+		}
+			
+		return size * 4; // other types sizes equal to 4 bytes
 	}
 
 

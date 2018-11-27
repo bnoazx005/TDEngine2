@@ -21,6 +21,20 @@ namespace TDEngine2
 
 
 	/*!
+		struct TUniformBufferDesc
+
+		\brief The structure contains an information about a uniform buffer
+	*/
+
+	typedef struct TUniformBufferDesc
+	{
+		U8  mSlot;
+
+		U32 mSize;
+	} TUniformBufferDesc, *TUniformBufferDescPtr;
+
+
+	/*!
 		struct TShaderCompilerOutput
 
 		\brief The structure contains shader compiler's output data
@@ -30,7 +44,7 @@ namespace TDEngine2
 	{
 		virtual ~TShaderCompilerOutput() = default;
 
-		std::unordered_map<U8, std::unordered_map<std::string, U8>> mUniformBuffersInfo; /// first key is shader stage, the second is buffer's name, the value is the buffer's slot index 
+		std::unordered_map<std::string, TUniformBufferDesc> mUniformBuffersInfo; /// first key is a buffer's name, the value is the buffer's slot index and its size
 	} TShaderCompilerOutput, *TShaderCompilerOutputPtr;
 
 

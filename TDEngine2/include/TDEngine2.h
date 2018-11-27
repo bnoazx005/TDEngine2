@@ -68,7 +68,6 @@
 #include "graphics/CBaseShader.h"
 #include "graphics/IShaderCompiler.h"
 #include "graphics/CBaseShaderLoader.h"
-#include "graphics/TInternalUniformsBufferData.h"
 #include "graphics/ISprite.h"
 #include "graphics/CQuadSprite.h"
 #include "graphics/ITexture.h"
@@ -81,6 +80,7 @@
 #include "graphics/COrthoCamera.h"
 #include "graphics/CBaseShaderCompiler.h"
 #include "graphics/CVertexDeclaration.h"
+#include "graphics/InternalShaderData.h"
 
 ///math
 #include "math/TVector3.h"

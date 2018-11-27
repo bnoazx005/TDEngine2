@@ -1,6 +1,7 @@
 #include "./../../include/graphics/CBaseShaderCompiler.h"
 #include "./../../include/graphics/IShader.h"
 #include "./../../include/core/IFileSystem.h"
+#include "./../../include/graphics/InternalShaderData.h"
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -17,6 +18,110 @@ namespace TDEngine2
 
 	const C8* CBaseShaderCompiler::mTargetVersionDefineName = "TARGET";
 
+
+	std::string CBaseShaderCompiler::CTokenizer::mEmptyStr = "";
+
+	CBaseShaderCompiler::CTokenizer::CTokenizer(const std::string& str):
+		mCurrPos(0), mSourceStr(str)
+	{
+		const std::string& delims     = "\n\t ";
+		const std::string& specDelims = "{}(),;:";
+		const std::string& allDelims  = delims + specDelims;
+
+		U32 pos     = 0;
+		U32 currPos = 0;
+
+		std::string currToken;
+
+		while ((currPos < str.length()) && ((pos = str.find_first_of(allDelims, currPos)) != std::string::npos))
+		{
+			currToken = std::move(str.substr(currPos, pos - currPos));
+
+			if (!currToken.empty())
+			{
+				mTokens.emplace_back(std::move(currToken));
+			}
+
+			if (specDelims.find_first_of(str[pos]) != std::string::npos)
+			{
+				mTokens.emplace_back(std::move(str.substr(pos, 1)));
+			}
+
+			currPos = pos + 1;
+		}
+	}
+	
+	CBaseShaderCompiler::CTokenizer::CTokenizer(const CBaseShaderCompiler::CTokenizer& tokenizer):
+		mTokens(tokenizer.mTokens), mCurrPos(tokenizer.mCurrPos), mSourceStr(tokenizer.mSourceStr)
+	{
+	}
+
+	CBaseShaderCompiler::CTokenizer::CTokenizer(CBaseShaderCompiler::CTokenizer&& tokenizer):
+		mTokens(std::move(tokenizer.mTokens)), mCurrPos(tokenizer.mCurrPos), mSourceStr(std::move(tokenizer.mSourceStr))
+	{
+	}
+
+	CBaseShaderCompiler::CTokenizer::~CTokenizer()
+	{
+		mTokens.clear();
+	}
+
+	const std::string& CBaseShaderCompiler::CTokenizer::GetCurrToken() const
+	{
+		return mTokens[mCurrPos];
+	}
+
+	const std::string& CBaseShaderCompiler::CTokenizer::Peek(U32 offset) const
+	{
+		U32 pos = mCurrPos + offset;
+
+		if (pos >= mTokens.size())
+		{
+			return mEmptyStr;
+		}
+
+		return mTokens[mCurrPos + offset];
+	}
+
+	const std::string& CBaseShaderCompiler::CTokenizer::GetNextToken()
+	{
+		if (mCurrPos + 1 >= mTokens.size())
+		{
+			return mEmptyStr;
+		}
+
+		return mTokens[++mCurrPos];
+	}
+
+	bool CBaseShaderCompiler::CTokenizer::HasNext() const
+	{
+		return mCurrPos + 1 < mTokens.size();
+	}
+
+	void CBaseShaderCompiler::CTokenizer::Reset()
+	{
+		mCurrPos = 0;
+	}
+
+	const std::string& CBaseShaderCompiler::CTokenizer::SeekByOffset(U32 offset)
+	{
+		U32 pos = mCurrPos + offset;
+
+		if (pos >= mTokens.size())
+		{
+			return mEmptyStr;
+		}
+
+		mCurrPos = pos;
+
+		return mTokens[mCurrPos];
+	}
+
+	const std::string& CBaseShaderCompiler::CTokenizer::GetSourceStr() const
+	{
+		return mSourceStr;
+	}
+		
 
 	CBaseShaderCompiler::CBaseShaderCompiler() :
 		mIsInitialized(false)
@@ -71,13 +176,15 @@ namespace TDEngine2
 		return nullptr;
 	}
 
-	CBaseShaderCompiler::TShaderMetadata CBaseShaderCompiler::_parseShader(const std::string& sourceCode) const
+	CBaseShaderCompiler::TShaderMetadata CBaseShaderCompiler::_parseShader(CTokenizer& tokenizer) const
 	{
 		TShaderMetadata extractedMetadata {};
 		
-		extractedMetadata.mDefines = _processDefines(sourceCode);
+		extractedMetadata.mDefines = _processDefines(tokenizer.GetSourceStr());
 
-		extractedMetadata.mUniformBuffers = _processUniformBuffersDecls(sourceCode);
+		extractedMetadata.mStructDeclsMap = _processStructDecls(tokenizer);
+		
+		extractedMetadata.mUniformBuffers = _processUniformBuffersDecls(extractedMetadata.mStructDeclsMap, tokenizer);
 
 		extractedMetadata.mVertexShaderEntrypointName   = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_VERTEX]];
 		extractedMetadata.mPixelShaderEntrypointName    = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_PIXEL]];
@@ -92,6 +199,9 @@ namespace TDEngine2
 	std::string CBaseShaderCompiler::_removeComments(const std::string& sourceCode) const
 	{
 		std::string processedSourceCode = sourceCode;
+
+		/// replace \t with ' '
+		std::replace_if(processedSourceCode.begin(), processedSourceCode.end(), [](C8 ch) { return ch == '\t'; }, ' ');
 
 		/// remove extra whitespaces
 		bool isPrevChSpace = false;
@@ -267,5 +377,114 @@ namespace TDEngine2
 	const C8* CBaseShaderCompiler::_getTargetVersionDefineName() const
 	{
 		return mTargetVersionDefineName;
+	}
+
+	CBaseShaderCompiler::TStructDeclsMap CBaseShaderCompiler::_processStructDecls(CTokenizer& tokenizer) const
+	{
+		TStructDeclsMap structDeclsMap;
+
+		std::string currToken;
+		std::string nextToken;
+
+		std::string structName;
+		std::string structBody;
+
+		U8 nestedBlocks = 0;
+
+		while (tokenizer.HasNext())
+		{
+			currToken = tokenizer.GetCurrToken();
+
+			if (currToken != "struct")
+			{
+				currToken = tokenizer.GetNextToken();
+
+				continue;
+			}
+
+			structName = tokenizer.GetNextToken();
+
+			if ((nextToken = tokenizer.GetNextToken()) == ";") /// forward declaration
+			{
+				structDeclsMap[currToken] = 0;
+
+				continue;
+			}
+
+			if (nextToken == "{")
+			{
+				structDeclsMap[structName] = _getPaddedStructSize(structDeclsMap, tokenizer);
+			}
+		}
+		
+		tokenizer.Reset();
+
+		return structDeclsMap;
+	}
+
+	U32 CBaseShaderCompiler::_getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
+	{
+		U32 totalStructSize = 0;
+
+		std::string currToken;
+
+		TStructDeclsMap::const_iterator existingTypeIter;
+		
+		while (tokenizer.HasNext())
+		{
+			currToken = tokenizer.GetNextToken();
+
+			if (currToken == "}")
+			{
+				while (currToken != ";" && tokenizer.HasNext())
+				{
+					currToken = tokenizer.GetNextToken(); 
+				}
+				
+				break;
+			}
+
+			/// if the custom type already exists just add its size
+			if ((existingTypeIter = structsMap.find(currToken)) != structsMap.cend())
+			{
+				totalStructSize += (*existingTypeIter).second;
+
+				continue;
+			}
+
+			if (currToken == "struct")
+			{
+				do
+				{
+					currToken = tokenizer.GetNextToken();
+				} 
+				while (currToken != "{" && tokenizer.HasNext());
+
+				totalStructSize += _getPaddedStructSize(structsMap, tokenizer);
+
+				continue;
+			}
+
+			/// extract type of a member and compute its padded size
+			totalStructSize += _getBuiltinTypeSize(currToken);
+
+			do
+			{
+				currToken = tokenizer.GetNextToken();
+			} 
+			while (currToken != ";" && tokenizer.HasNext());
+		}
+
+		return (totalStructSize + 15) & -16; /// compute padding
+	}
+
+	CBaseShaderCompiler::TUniformBuffersMap CBaseShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
+	{
+		/// declare internal engine's buffers
+
+		return { { "TDEngine2PerFrame", { IUBR_PER_FRAME, sizeof(TPerFrameShaderData) } },
+				 { "TDEngine2PerObject", { IUBR_PER_OBJECT, sizeof(TPerObjectShaderData) } },
+				 { "TDEngine2RareUpdate",{ IUBR_RARE_UDATED, sizeof(TRareUpdateShaderData) } },
+				 { "TDEngine2Constants", { IUBR_CONSTANTS, sizeof(TConstantShaderData) } } };
 	}
 }

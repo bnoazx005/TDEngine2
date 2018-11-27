@@ -1,6 +1,7 @@
 #include "./../include/COGLShader.h"
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/COGLShaderCompiler.h"
+#include "./../include/COGLConstantBuffer.h"
 #include <graphics/CBaseShader.h>
 
 
@@ -46,8 +47,25 @@ namespace TDEngine2
 				return RC_FAIL;
 			}
 		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = _freeUniformBuffers()) != RC_OK)
+		{
+			return result;
+		}
 				
 		return RC_OK;
+	}
+
+	void COGLShader::Bind()
+	{
+		glUseProgram(mShaderHandler);
+	}
+
+	void COGLShader::Unbind()
+	{
+		glUseProgram(0);
 	}
 
 	E_RESULT_CODE COGLShader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
@@ -191,19 +209,20 @@ namespace TDEngine2
 	{
 		auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
-		//first 4 buffers for internal usage only
+		TUniformBufferDesc currDesc;
+
+		E_RESULT_CODE result = RC_OK;
+
+		mUniformBuffers.resize(uniformBuffersInfo.size());
+
+		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
+		{
+			currDesc = (*iter).second;
+
+			mUniformBuffers[currDesc.mSlot] = CreateOGLConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+		}
 
 		return RC_OK;
-	}
-
-	E_RESULT_CODE COGLShader::SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize)
-	{
-		return RC_NOT_IMPLEMENTED_YET;
-	}
-
-	E_RESULT_CODE COGLShader::SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize)
-	{
-		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 

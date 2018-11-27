@@ -83,8 +83,10 @@ namespace TDEngine2
 
 			TDE2_API std::string _injectInternalDefines(E_SHADER_STAGE_TYPE shaderStage, const std::string& source) const;
 
-			TDE2_API TUniformBuffersMap _processUniformBuffersDecls(const std::string& sourceCode) const override;
+			TDE2_API TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const override;
 
 			TDE2_API E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const override;
+
+			TDE2_API U32 _getBuiltinTypeSize(const std::string& type) const override;
 	};
 }

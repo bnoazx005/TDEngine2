@@ -2,6 +2,7 @@
 #include "./../include/CD3D11GraphicsContext.h"
 #include "./../include/CD3D11Utils.h"
 #include "./../include/CD3D11ShaderCompiler.h"
+#include "./../include/CD3D11ConstantBuffer.h"
 #include <graphics/CBaseShader.h>
 #include <graphics/IShaderCompiler.h>
 #include <cstring>
@@ -12,7 +13,7 @@
 namespace TDEngine2
 {
 	CD3D11Shader::CD3D11Shader() :
-		CBaseShader(), mpVertexShader(nullptr), mpPixelShader(nullptr), mpGeometryShader(nullptr)
+		CBaseShader(), mp3dDeviceContext(nullptr), mpVertexShader(nullptr), mpPixelShader(nullptr), mpGeometryShader(nullptr)
 	{
 	}
 
@@ -50,6 +51,11 @@ namespace TDEngine2
 		{
 			return result;
 		}
+		
+		if ((result = _freeUniformBuffers()) != RC_OK)
+		{
+			return result;
+		}
 
 		if (mVertexShaderBytecode.mpBytecode)
 		{
@@ -58,7 +64,39 @@ namespace TDEngine2
 			mVertexShaderBytecode.mpBytecode = nullptr;
 		}
 
+		mp3dDeviceContext = nullptr;
+
 		return RC_OK;
+	}
+
+	void CD3D11Shader::Bind()
+	{
+		if (!mp3dDeviceContext || !mIsInitialized)
+		{
+			return;
+		}
+
+		if (mpVertexShader)
+		{
+			mp3dDeviceContext->VSSetShader(mpVertexShader, nullptr, 0);
+		}
+
+		if (mpPixelShader)
+		{
+			mp3dDeviceContext->PSSetShader(mpPixelShader, nullptr, 0);
+		}
+
+		if (mpGeometryShader)
+		{
+			mp3dDeviceContext->GSSetShader(mpGeometryShader, nullptr, 0);
+		}
+	}
+
+	void CD3D11Shader::Unbind()
+	{
+		mp3dDeviceContext->VSSetShader(nullptr, nullptr, 0);
+		mp3dDeviceContext->PSSetShader(nullptr, nullptr, 0);
+		mp3dDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	}
 
 	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
@@ -84,8 +122,12 @@ namespace TDEngine2
 
 #if _HAS_CXX17
 		p3dDevice = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDevice;
+
+		mp3dDeviceContext = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDeviceContext;
 #else
 		p3dDevice = graphicsInternalData.mD3D11.mp3dDevice;
+
+		mp3dDeviceContext = graphicsInternalData.mD3D11.mp3dDevice.mp3dDeviceContext;
 #endif
 
 		if (bytecodeSize > 0) /// create a vertex shader
@@ -125,21 +167,22 @@ namespace TDEngine2
 	{
 		auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
-		//first 4 buffers for internal usage only
+		TUniformBufferDesc currDesc;
+
+		E_RESULT_CODE result = RC_OK;
+
+		mUniformBuffers.resize(uniformBuffersInfo.size());
+
+		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
+		{
+			currDesc = (*iter).second;
+
+			mUniformBuffers[currDesc.mSlot] = CreateD3D11ConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+		}
 
 		return RC_OK;
 	}
-
-	E_RESULT_CODE CD3D11Shader::SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize)
-	{
-		return RC_NOT_IMPLEMENTED_YET;
-	}
-
-	E_RESULT_CODE CD3D11Shader::SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize)
-	{
-		return RC_NOT_IMPLEMENTED_YET;
-	}
-
+	
 	const TShaderBytecodeDesc& CD3D11Shader::GetVertexShaderBytecode() const
 	{
 		return mVertexShaderBytecode;

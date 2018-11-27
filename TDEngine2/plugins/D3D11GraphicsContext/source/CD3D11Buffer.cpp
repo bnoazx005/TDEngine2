@@ -49,7 +49,7 @@ namespace TDEngine2
 
 		U32 bufferCreationFlags = 0x0;
 
-		switch (usageType)
+		switch (mBufferType)
 		{
 			case BT_VERTEX_BUFFER:
 				bufferCreationFlags = D3D11_BIND_VERTEX_BUFFER;

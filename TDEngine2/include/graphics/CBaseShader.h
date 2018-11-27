@@ -16,7 +16,7 @@ namespace TDEngine2
 {
 	struct TShaderCompilerOutput;
 
-	class IBuffer;
+	class IConstantBuffer;
 
 
 	/*!
@@ -27,8 +27,6 @@ namespace TDEngine2
 	
 	class CBaseShader: public IShader, public CBaseResource
 	{
-		protected:
-			typedef std::vector<IBuffer*> TUniformBuffersArray;
 		public:
 			TDE2_REGISTER_TYPE(CBaseShader)
 
@@ -59,15 +57,53 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode) override;
+
+			/*!
+				\brief The method unloads resource data from memory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Unload() override;
+
+			/*!
+				\brief The method writes data into an internal uniforms buffer with specified register
+
+				\param[in] slot A slot specifies a uniforms buffer, in which data will be written
+
+				\param[in] pData A pointer to data that should be written into a buffer
+
+				\param[in] dataSize A size of data in bytes
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize) override;
+
+			/*!
+				\brief The method writes data into a user-defined uniforms buffer with specified register
+
+				\param[in] slot A slot specifies a uniforms buffer
+
+				\param[in] pData A pointer to data that should be written into a buffer
+
+				\param[in] dataSize A size of data in bytes
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShader)
 
 			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) = 0;
+
+			TDE2_API virtual E_RESULT_CODE _freeUniformBuffers();
 		protected:
-			IGraphicsContext*    mpGraphicsContext;
+			IGraphicsContext*             mpGraphicsContext;
 
-			std::string          mSourceCode;
+			std::string                   mSourceCode;
 
-			TUniformBuffersArray mUniformBuffers;
+			std::vector<IConstantBuffer*> mUniformBuffers;
 	};
 }

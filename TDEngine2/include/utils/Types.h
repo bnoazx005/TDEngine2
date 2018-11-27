@@ -515,6 +515,8 @@ namespace TDEngine2
 		IUBR_LAST_USED_SLOT = IUBR_CONSTANTS
 	};
 
+	constexpr U8 MaxNumberOfUserConstantBuffers = 10;
+
 
 	typedef U32 TEventListenerId;
 
