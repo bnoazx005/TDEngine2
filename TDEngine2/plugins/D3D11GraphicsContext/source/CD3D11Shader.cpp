@@ -127,7 +127,7 @@ namespace TDEngine2
 #else
 		p3dDevice = graphicsInternalData.mD3D11.mp3dDevice;
 
-		mp3dDeviceContext = graphicsInternalData.mD3D11.mp3dDevice.mp3dDeviceContext;
+		mp3dDeviceContext = graphicsInternalData.mD3D11.mp3dDeviceContext;
 #endif
 
 		if (bytecodeSize > 0) /// create a vertex shader

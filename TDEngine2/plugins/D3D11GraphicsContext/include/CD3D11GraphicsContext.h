@@ -66,6 +66,42 @@ namespace TDEngine2
 			TDE2_API void SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth) override;
 
 			/*!
+				\brief The method computes a perspective projection matrix specific for a graphics context
+
+				\param[in] fov A field of view
+
+				\param[in] aspect An aspect ratio of a screen
+
+				\param[in] zn A z value of a near clip plance
+
+				\param[in] zf A z value of a far clip plane
+
+				\return The method computes a perspective projection matrix specific for a graphics context
+			*/
+
+			TDE2_API TMatrix4 CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf) override;
+
+			/*!
+				\brief The method computes an orthographic projection matrix specific for a graphics context
+
+				\param[in] left X coordinate of a left corner of a screen
+
+				\param[in] top Y coordinate of a left top corner of a screen
+
+				\param[in] right X coordinate of a right corner of a screen
+
+				\param[in] bottom Y coordinate of a right bottom corner of a screen
+
+				\param[in] zn A z value of a near clip plance
+
+				\param[in] zf A z value of a far clip plane
+
+				\return The method computes a orthographic projection matrix specific for a graphics context
+			*/
+
+			TDE2_API TMatrix4 CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf) override;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

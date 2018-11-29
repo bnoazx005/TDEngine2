@@ -180,4 +180,50 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TMatrix4 ScaleMatrix(const TVector3& s);
+
+	/*!
+		\brief The function computes GAPI independed matrix of a perspective projection	
+		
+		\param[in] fov A field of view
+
+		\param[in] aspect An aspect ratio of a screen
+
+		\param[in] zn A z value of a near clip plance
+
+		\param[in] zf A z value of a far clip plane
+
+		\param[in] zNDCMin A minimal value along Z axis within NDC
+
+		\param[in] zNDCMax A maximum value  along Z axis within NDC
+
+		\return The function computes GAPI independed matrix of a perspective projection	
+	*/
+
+	TDE2_API TMatrix4 PerspectiveProj(F32 fov, F32 aspect, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax);
+
+	/*!
+		\brief The function computes GAPI independed matrix of an orthographic projection
+
+		\param[in] left X coordinate of a left corner of a screen
+
+		\param[in] top Y coordinate of a left top corner of a screen
+
+		\param[in] right X coordinate of a right corner of a screen
+
+		\param[in] bottom Y coordinate of a right bottom corner of a screen
+
+		\param[in] zn A z value of a near clip plance
+
+		\param[in] zf A z value of a far clip plane
+
+		\param[in] zNDCMin A minimal value along Z axis within NDC
+
+		\param[in] zNDCMax A maximum value  along Z axis within NDC
+
+		\param[in] handedness Equals to 1 for a right-handed, -1 for a left-handed
+
+		\return The function computes GAPI independed matrix of a orthographic projection
+	*/
+
+	TDE2_API TMatrix4 OrthographicProj(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax, F32 handedness);
 }

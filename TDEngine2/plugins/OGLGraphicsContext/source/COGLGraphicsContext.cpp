@@ -113,6 +113,16 @@ namespace TDEngine2
 		glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 	}
 
+	TMatrix4 COGLGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
+	{
+		return PerspectiveProj(fov, aspect, zn, zf, -1.0f, 1.0f);
+	}
+
+	TMatrix4 COGLGraphicsContext::CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf)
+	{
+		return OrthographicProj(left, top, right, bottom, zn, zf, -1.0f, 1.0f, 1.0f);
+	}
+
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;
