@@ -139,6 +139,8 @@ namespace TDEngine2
 				return GL_ARRAY_BUFFER;
 			case BT_INDEX_BUFFER:
 				return GL_ELEMENT_ARRAY_BUFFER;
+			case BT_CONSTANT_BUFFER:
+				return GL_UNIFORM_BUFFER;
 		}
 
 		return 0;

@@ -211,16 +211,16 @@ namespace TDEngine2
 				continue;
 			}
 
-			bufferName = tokenizer.GetNextToken();
-
-			if ((nextToken = tokenizer.GetNextToken()) == ";") /// found buffer's declaration without a body
+			if (tokenizer.Peek(3) == ";") /// single uniform variable has found, we're interested only in buffers
 			{
-				uniformBuffersDecls.insert({ bufferName,{ getCurrentOrNextFreeBufferSlot(0), 0 } });
+				tokenizer.SeekByOffset(4);
 
 				continue;
 			}
-			
-			if (nextToken == "{")
+
+			bufferName = tokenizer.GetNextToken();
+									
+			if ((nextToken = tokenizer.GetNextToken()) == "{")
 			{
 				uniformBuffersDecls.insert({ bufferName,{ getCurrentOrNextFreeBufferSlot(0), _getPaddedStructSize(structsMap, tokenizer) } });
 			}
@@ -341,15 +341,15 @@ namespace TDEngine2
 		{
 			switch (type[pos])
 			{
-			case '2':
-				size = 2;
-				break;
-			case '3':
-				size = 3;
-				break;
-			case '4':
-				size = 4;
-				break;
+				case '2':
+					size = 2;
+					break;
+				case '3':
+					size = 3;
+					break;
+				case '4':
+					size = 4;
+					break;
 			}
 		}
 
