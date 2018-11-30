@@ -1,11 +1,7 @@
 #pragma once
 
 
-#include <utils/Types.h>
-#include <core/IEngineListener.h>
-#include <core/IEngineCore.h>
-#include <core/IGraphicsContext.h>
-#include <core/IWindowSystem.h>
+#include <TDEngine2.h>
 
 
 class CCustomEngineListener: public TDEngine2::IEngineListener
@@ -46,9 +42,19 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 
 		void SetEngineInstance(TDEngine2::IEngineCore* pEngineCore) override;
 	protected:
-		TDEngine2::IEngineCore*      mpEngineCoreInstance;
+		TDEngine2::IEngineCore*            mpEngineCoreInstance;
 
-		TDEngine2::IGraphicsContext* mpGraphicsContext;
+		TDEngine2::IGraphicsContext*       mpGraphicsContext;
 
-		TDEngine2::IWindowSystem*    mpWindowSystem;
+		TDEngine2::IWindowSystem*          mpWindowSystem;
+
+		TDEngine2::IResourceManager*       mpResourceManager;
+
+		TDEngine2::IGraphicsObjectManager* mpGraphicsObjectManager;
+
+		TDEngine2::IResourceHandler*       mpShader;
+		
+		TDEngine2::IVertexBuffer*          mpVertexBuffer;
+
+		TDEngine2::IIndexBuffer*           mpIndexBuffer;
 };

@@ -16,6 +16,7 @@
 namespace TDEngine2
 {
 	class IWindowSystem;
+	class IGraphicsObjectManager;
 
 
 	/*!
@@ -30,8 +31,6 @@ namespace TDEngine2
 	class IGraphicsContext : public IEngineSubsystem
 	{
 		public:
-			TDE2_API virtual ~IGraphicsContext() = default;
-
 			/*!
 				\brief The method initializes an initial state of the object
 
@@ -115,9 +114,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TGraphicsCtxInternalData& GetInternalData() const = 0;
+
+			/*!
+				\brief The method returns a pointer to IGraphicsObjectManager implementation
+
+				\return The method returns a pointer to IGraphicsObjectManager implementation
+			*/
+
+			TDE2_API virtual IGraphicsObjectManager* GetGraphicsObjectManager() const = 0;
 		protected:
-			TDE2_API IGraphicsContext() = default;
-			TDE2_API IGraphicsContext(const IGraphicsContext& graphicsCtx) = delete;
-			TDE2_API virtual IGraphicsContext& operator= (IGraphicsContext& graphicsCtx) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsContext)
 	};
 }

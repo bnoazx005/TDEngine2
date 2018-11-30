@@ -31,73 +31,14 @@ int main(int argc, char** argv)
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
 	
 	pEngineCoreBuilder->Free();
-
-	IWorld* pWorld = CreateWorld(result);
-
-	CEntity* e = pWorld->CreateEntity();
-
-	auto sprite = e->AddComponent<CQuadSprite>();
 	
-	pWorld->Free();
-
 	IEngineListener* pCustomListener = new CCustomEngineListener();
 
 	pEngineCore->RegisterListener(pCustomListener);
 
 	pEngineCore->Run();
 	
-	IFileSystem* pFileSystem = dynamic_cast<IFileSystem*>(pEngineCore->GetSubsystem(EST_FILE_SYSTEM));
-
-	//pFileSystem->Mount(pFileSystem->GetCurrDirectory() + "\\data", "\\foo");
-	//pFileSystem->Mount(pFileSystem->GetCurrDirectory() + "\\test", "\\test\\.\\..");
-
-	//std::string path = pFileSystem->ResolveVirtualPath("\\");
-	//path = pFileSystem->ResolveVirtualPath("\\foo.txt");
-	//path = pFileSystem->ResolveVirtualPath("\\foo");
-	//path = pFileSystem->ResolveVirtualPath(".\\foo\\text.txt");
-	//path = pFileSystem->ResolveVirtualPath("\\foo\\text.txt");
-	//path = pFileSystem->ResolveVirtualPath("\\foo\\.\\..\\text");
-
-	IResourceManager* pResourceManager = dynamic_cast<IResourceManager*>(pEngineCore->GetSubsystem(EST_RESOURCE_MANAGER));
-
-	auto pShaderHandler = pResourceManager->Load<CBaseShader>("testGLShader.shader");
-
-	auto pTextureHandler = pResourceManager->Load<CBaseTexture2D>("test.jpg");
-
-	IJobManager* pJobManager = dynamic_cast<IJobManager*>(pEngineCore->GetSubsystem(EST_JOB_MANAGER));
-
-	CFileLogger* pFileLogger = new CFileLogger("log.txt");
-	
-	pJobManager->SubmitJob<CFileLogger*>(std::function<void (CFileLogger*)>([](CFileLogger* pFileLogger) 
-	{
-		for (int i = 0; i < 1000; ++i)
-		{
-			pFileLogger->LogMessage("t1 message...");
-		}
-	}), pFileLogger);
-
-	pJobManager->SubmitJob<CFileLogger*>(std::function<void(CFileLogger*)>([](CFileLogger* pFileLogger)
-	{
-		for (int i = 0; i < 1000; ++i)
-		{
-			pFileLogger->LogMessage("t2 message...");
-		}
-	}), pFileLogger);
-
-	IConfigFileReader* pConfigFile = pFileSystem->Create<CConfigFileReader>("engine.cfg", result);
-	auto p = pConfigFile->GetBool("script", "shared_state");
-
 	pEngineCore->Free();
-
-	U32 memorySize = 1024 * 1024 * 512; //512 Mb
-
-	U8* pMemoryBlock = new U8[memorySize];
-
-	IAllocator* pAllocator = CreateStackAllocator(memorySize, pMemoryBlock, result);
-
-	auto t = pAllocator->Allocate(sizeof(TBaseResourceParameters), 4);
-
-	delete[] pMemoryBlock;
 
 	delete pCustomListener;
 

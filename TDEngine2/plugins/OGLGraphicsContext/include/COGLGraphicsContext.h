@@ -133,6 +133,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
+
+			/*!
+				\brief The method returns a pointer to IGraphicsObjectManager implementation
+
+				\return The method returns a pointer to IGraphicsObjectManager implementation
+			*/
+
+			TDE2_API IGraphicsObjectManager* GetGraphicsObjectManager() const override;
 		protected:
 			TDE2_API COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 			TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;
@@ -143,6 +151,8 @@ namespace TDEngine2
 			IOGLContextFactory*             mpGLContextFactory;
 			TCreateGLContextFactoryCallback mGLContextFactoryCallback;
 			TWindowSystemInternalData       mWindowInternalData;
+
+			IGraphicsObjectManager*         mpGraphicsObjectManager;
 	};
 
 

@@ -1,5 +1,6 @@
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/IOGLContextFactory.h"
+#include "./../include/COGLGraphicsObjectManager.h"
 #include <core/IWindowSystem.h>
 
 
@@ -66,6 +67,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mpGraphicsObjectManager = CreateOGLGraphicsObjectManager(this, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 		
 		return RC_OK;
@@ -83,6 +91,14 @@ namespace TDEngine2
 		if ((result = mpGLContextFactory->Free()) != RC_OK)
 		{
 			return result;
+		}
+
+		if (mpGraphicsObjectManager)
+		{
+			if ((result = mpGraphicsObjectManager->Free()) != RC_OK)
+			{
+				return result;
+			}
 		}
 
 		mIsInitialized = false;
@@ -131,6 +147,11 @@ namespace TDEngine2
 	E_ENGINE_SUBSYSTEM_TYPE COGLGraphicsContext::GetType() const
 	{
 		return EST_GRAPHICS_CONTEXT;
+	}
+	
+	IGraphicsObjectManager* COGLGraphicsContext::GetGraphicsObjectManager() const
+	{
+		return mpGraphicsObjectManager;
 	}
 
 

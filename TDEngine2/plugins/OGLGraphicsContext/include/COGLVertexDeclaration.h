@@ -37,7 +37,7 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IVertexDeclaration* CreateOGLVertexDeclaration(E_RESULT_CODE& result);
-
+		public:
 			/*!
 				\brief The method creates a VAO for specified vertex declaration and binds it
 				to a given vertex buffer
@@ -48,7 +48,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<GLuint> GetVertexArrayObject(const IVertexBuffer* pVertexBuffer);
-		public:
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
 	};

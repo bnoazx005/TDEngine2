@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
+#include "./../core/IBaseObject.h"
 
 
 namespace TDEngine2
@@ -37,7 +38,7 @@ namespace TDEngine2
 		stores an information about a single vertex's structure
 	*/
 
-	class IVertexDeclaration
+	class IVertexDeclaration: public virtual IBaseObject
 	{
 		public:
 			/*!

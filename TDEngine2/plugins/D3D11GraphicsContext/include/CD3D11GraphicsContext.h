@@ -18,8 +18,6 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
 		public:
-			TDE2_API virtual ~CD3D11GraphicsContext();
-
 			/*!
 				\brief The method initializes an initial state of the object
 
@@ -118,10 +116,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
+
+			/*!
+				\brief The method returns a pointer to IGraphicsObjectManager implementation
+
+				\return The method returns a pointer to IGraphicsObjectManager implementation
+			*/
+
+			TDE2_API IGraphicsObjectManager* GetGraphicsObjectManager() const override;
 		protected:
-			TDE2_API CD3D11GraphicsContext();
-			TDE2_API CD3D11GraphicsContext(const CD3D11GraphicsContext& graphicsCtx) = delete;
-			TDE2_API virtual CD3D11GraphicsContext& operator= (CD3D11GraphicsContext& graphicsCtx) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsContext)
 
 			TDE2_API E_RESULT_CODE _createSwapChain(const IWindowSystem* pWindowSystem, ID3D11Device* p3dDevice);
 
@@ -148,6 +152,8 @@ namespace TDEngine2
 			#endif
 
 			bool                     mIsVSyncEnabled;
+
+			IGraphicsObjectManager*  mpGraphicsObjectManager;
 	};
 
 

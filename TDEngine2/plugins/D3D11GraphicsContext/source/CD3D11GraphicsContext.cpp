@@ -1,5 +1,6 @@
 #include "./../include/CD3D11GraphicsContext.h"
 #include "./../include/CD3D11Utils.h"
+#include "./../include/CD3D11GraphicsObjectManager.h"
 #include <core/IWindowSystem.h>
 
 
@@ -14,11 +15,7 @@ namespace TDEngine2
 		mIsInitialized(false)
 	{
 	}
-
-	CD3D11GraphicsContext::~CD3D11GraphicsContext()
-	{
-	}
-
+	
 	E_RESULT_CODE CD3D11GraphicsContext::Init(IWindowSystem* pWindowSystem)
 	{
 		if (mIsInitialized)
@@ -100,6 +97,13 @@ namespace TDEngine2
 		mInternalDataObject.mD3D11 = { mp3dDevice, mp3dDeviceContext };
 #endif
 
+		mpGraphicsObjectManager = CreateD3D11GraphicsObjectManager(this, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -135,6 +139,14 @@ namespace TDEngine2
 			}
 		}
 #endif
+
+		if (mpGraphicsObjectManager)
+		{
+			if ((result = mpGraphicsObjectManager->Free()) != RC_OK)
+			{
+				return result;
+			}
+		}
 
 		delete this;
 
@@ -189,6 +201,11 @@ namespace TDEngine2
 	E_ENGINE_SUBSYSTEM_TYPE CD3D11GraphicsContext::GetType() const
 	{
 		return EST_GRAPHICS_CONTEXT;
+	}
+
+	IGraphicsObjectManager* CD3D11GraphicsContext::GetGraphicsObjectManager() const
+	{
+		return mpGraphicsObjectManager;
 	}
 
 	E_RESULT_CODE CD3D11GraphicsContext::_createSwapChain(const IWindowSystem* pWindowSystem, ID3D11Device* p3dDevice)

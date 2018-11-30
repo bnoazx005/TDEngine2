@@ -81,6 +81,8 @@
 #include "graphics/CBaseShaderCompiler.h"
 #include "graphics/CVertexDeclaration.h"
 #include "graphics/InternalShaderData.h"
+#include "graphics/IGraphicsObjectManager.h"
+#include "graphics/CBaseGraphicsObjectManager.h"
 
 ///math
 #include "math/TVector3.h"
