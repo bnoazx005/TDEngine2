@@ -29,6 +29,8 @@ namespace TDEngine2
 			return result;
 		}
 
+		mp3dDeviceContext = dynamic_cast<CD3D11Buffer*>(mpBufferImpl)->GetDeviceContext();
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -74,6 +76,37 @@ namespace TDEngine2
 	{
 		return mpBufferImpl->Read();
 	}
+
+	void CD3D11ConstantBuffer::Bind(U32 slot)
+	{
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
+		ID3D11Buffer* pInternalBuffer = mpBufferImpl->GetInternalData().mpD3D11Buffer;
+
+		mp3dDeviceContext->VSGetConstantBuffers(mCurrUsedSlot, 1, &pInternalBuffer);
+		mp3dDeviceContext->PSGetConstantBuffers(mCurrUsedSlot, 1, &pInternalBuffer);
+		mp3dDeviceContext->GSGetConstantBuffers(mCurrUsedSlot, 1, &pInternalBuffer);
+
+		mCurrUsedSlot = slot;
+	}
+
+	void CD3D11ConstantBuffer::Unbind()
+	{
+		if (!mIsInitialized || !mCurrUsedSlot)
+		{
+			return;
+		}
+		
+		/*mp3dDeviceContext->VSGetConstantBuffers(mCurrUsedSlot, 1, nullptr);
+		mp3dDeviceContext->PSGetConstantBuffers(mCurrUsedSlot, 1, nullptr);
+		mp3dDeviceContext->GSGetConstantBuffers(mCurrUsedSlot, 1, nullptr);
+*/
+		mCurrUsedSlot = 0;
+	}
+
 
 	const TBufferInternalData& CD3D11ConstantBuffer::GetInternalData() const
 	{

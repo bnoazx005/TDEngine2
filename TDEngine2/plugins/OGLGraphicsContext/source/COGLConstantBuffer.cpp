@@ -73,6 +73,30 @@ namespace TDEngine2
 		return mpBufferImpl->Read();
 	}
 
+	void COGLConstantBuffer::Bind(U32 slot)
+	{
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
+		mCurrUsedSlot = slot;
+
+		glBindBufferBase(GL_UNIFORM_BUFFER, slot, mpBufferImpl->GetInternalData().mGLBuffer);
+	}
+
+	void COGLConstantBuffer::Unbind()
+	{
+		if (!mIsInitialized && !mCurrUsedSlot)
+		{
+			return;
+		}
+
+		glBindBufferBase(GL_UNIFORM_BUFFER, mCurrUsedSlot, 0);
+
+		mCurrUsedSlot = 0;
+	}
+
 	const TBufferInternalData& COGLConstantBuffer::GetInternalData() const
 	{
 		return mpBufferImpl->GetInternalData();

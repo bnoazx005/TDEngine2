@@ -90,6 +90,20 @@ namespace TDEngine2
 			TDE2_API void* Read() override;
 
 			/*!
+				\brief The method binds a constant buffer to a given slot
+
+				\param[in] slot An index of a slot, in which the constant buffer will be binded to
+			*/
+
+			TDE2_API void Bind(U32 slot) override;
+
+			/*!
+				\brief The method unbinds a constant buffer from rendering pipeline
+			*/
+
+			TDE2_API void Unbind() override;
+
+			/*!
 				\brief The method returns an internal data of a buffer, which
 				contains low-level platform specific buffer's handlers
 
@@ -109,8 +123,13 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ConstantBuffer)
 		protected:
-			bool     mIsInitialized;
-			IBuffer* mpBufferImpl;
+			ID3D11DeviceContext* mp3dDeviceContext;
+			
+			bool                 mIsInitialized;
+
+			IBuffer*             mpBufferImpl;
+
+			U32                  mCurrUsedSlot;
 	};
 
 

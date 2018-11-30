@@ -116,6 +116,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetSize() const override;
+
+			/*!
+				\brief The method returns a pointer to ID3D11DeviceContext implementation
+
+				\return The method returns a pointer to ID3D11DeviceContext implementation
+			*/
+
+			TDE2_API ID3D11DeviceContext* GetDeviceContext() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Buffer)
 		protected:

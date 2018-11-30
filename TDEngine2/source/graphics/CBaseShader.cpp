@@ -73,7 +73,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShader::SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize)
 	{
-		IBuffer* pCurrUniformBuffer = mUniformBuffers[slot];
+		IConstantBuffer* pCurrUniformBuffer = mUniformBuffers[slot];
 
 		if (!pCurrUniformBuffer)
 		{
@@ -93,6 +93,8 @@ namespace TDEngine2
 		}
 
 		pCurrUniformBuffer->Unmap();
+
+		_bindUniformBuffer(slot, pCurrUniformBuffer);
 
 		return RC_OK;
 	}
@@ -107,7 +109,7 @@ namespace TDEngine2
 		U32 goalSlot = IUBR_LAST_USED_SLOT + 1 + slot;
 
 		/// \todo add checking for sizes of input data
-		IBuffer* pCurrUniformBuffer = mUniformBuffers[goalSlot];
+		IConstantBuffer* pCurrUniformBuffer = mUniformBuffers[goalSlot];
 
 		if (!pCurrUniformBuffer)
 		{
@@ -127,6 +129,8 @@ namespace TDEngine2
 		}
 
 		pCurrUniformBuffer->Unmap();
+
+		_bindUniformBuffer(slot, pCurrUniformBuffer);
 
 		return RC_OK;
 	}

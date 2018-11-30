@@ -37,6 +37,20 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr) = 0;
+
+			/*!
+				\brief The method binds a constant buffer to a given slot
+
+				\param[in] slot An index of a slot, in which the constant buffer will be binded to
+			*/
+
+			TDE2_API virtual void Bind(U32 slot) = 0;
+
+			/*!
+				\brief The method unbinds a constant buffer from rendering pipeline
+			*/
+
+			TDE2_API virtual void Unbind() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IConstantBuffer)
 	};

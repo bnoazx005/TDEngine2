@@ -99,6 +99,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) = 0;
 
 			TDE2_API virtual E_RESULT_CODE _freeUniformBuffers();
+
+			TDE2_API virtual void _bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer) = 0;
 		protected:
 			IGraphicsContext*             mpGraphicsContext;
 

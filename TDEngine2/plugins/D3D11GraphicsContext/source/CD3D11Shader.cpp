@@ -94,9 +94,9 @@ namespace TDEngine2
 
 	void CD3D11Shader::Unbind()
 	{
-		mp3dDeviceContext->VSSetShader(nullptr, nullptr, 0);
+		/*mp3dDeviceContext->VSSetShader(nullptr, nullptr, 0);
 		mp3dDeviceContext->PSSetShader(nullptr, nullptr, 0);
-		mp3dDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		mp3dDeviceContext->GSSetShader(nullptr, nullptr, 0);*/
 	}
 
 	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
@@ -173,11 +173,15 @@ namespace TDEngine2
 
 		mUniformBuffers.resize(uniformBuffersInfo.size());
 
+		IConstantBuffer* pConstantBuffer = nullptr;
+
 		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
 		{
 			currDesc = (*iter).second;
 
-			mUniformBuffers[currDesc.mSlot] = CreateD3D11ConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+			pConstantBuffer = CreateD3D11ConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+
+			mUniformBuffers[currDesc.mSlot] = pConstantBuffer;
 		}
 
 		return RC_OK;
@@ -186,6 +190,11 @@ namespace TDEngine2
 	const TShaderBytecodeDesc& CD3D11Shader::GetVertexShaderBytecode() const
 	{
 		return mVertexShaderBytecode;
+	}
+
+	void CD3D11Shader::_bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer)
+	{
+		pBuffer->Bind(slot);
 	}
 
 
