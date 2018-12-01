@@ -89,6 +89,17 @@ namespace TDEngine2
 			TDE2_API void* Read() override;
 
 			/*!
+				\brief The method binds current vertex buffer to a rendering pipeline
+
+				\param[in] slot A binding slot's index
+
+				\param[in] offset An offset in bytes from a beginning of a vertex buffer, from
+				which the data should be read
+			*/
+
+			TDE2_API void Bind(U32 slot, U32 offset) override;
+
+			/*!
 				\brief The method links current vertex buffer with a VAO 
 
 				\param[in] vaoHandler An identifier of a VAO

@@ -90,12 +90,25 @@ namespace TDEngine2
 			TDE2_API void* Read() override;
 
 			/*!
+				\brief The method binds current vertex buffer to a rendering pipeline
+
+				\param[in] slot A binding slot's index
+
+				\param[in] offset An offset in bytes from a beginning of a vertex buffer, from
+				which the data should be read
+			*/
+
+			TDE2_API void Bind(U32 slot, U32 offset) override;
+
+			/*!
 				\brief The method links current vertex buffer with a given input layout
 
 				\param[in] pInputLayout A pointer to ID3D11InputLayout object
+
+				\param[in] stride A size of a single vertex element in bytes
 			*/
 
-			TDE2_API void SetInputLayout(ID3D11InputLayout* pInputLayout);
+			TDE2_API void SetInputLayout(ID3D11InputLayout* pInputLayout, U32 stride);
 
 			/*!
 				\brief The method returns an internal data of a buffer, which
@@ -117,11 +130,17 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexBuffer)
 		protected:
-			bool                mIsInitialized;
+			ID3D11DeviceContext* mp3dDeviceContext;
 
-			IBuffer*            mpBufferImpl;
+			bool                 mIsInitialized;
 
-			ID3D11InputLayout*  mpInputLayout;
+			IBuffer*             mpBufferImpl;
+
+			ID3D11InputLayout*   mpInputLayout;
+			
+			ID3D11Buffer*        mpInternalVertexBuffer;
+
+			U32                  mVertexStride;
 	};
 
 

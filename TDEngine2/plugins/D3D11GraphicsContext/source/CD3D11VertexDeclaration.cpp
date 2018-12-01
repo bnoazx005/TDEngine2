@@ -80,7 +80,7 @@ namespace TDEngine2
 			return;
 		}
 
-		pD3D11VertexBuffer->SetInputLayout(mpInputLayout);
+		pD3D11VertexBuffer->SetInputLayout(mpInputLayout, GetStrideSize());
 	}
 
 

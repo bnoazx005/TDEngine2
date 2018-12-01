@@ -5,13 +5,20 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	mpShader = mpResourceManager->Load<TDEngine2::CBaseShader>("testGLShader.shader");
 
-	mpVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(TDEngine2::BUT_DEFAULT, 100, nullptr).Get();
+	TDEngine2::F32 vertices[] = 
+	{
+		-0.5f, -0.5f, 3.0f,
+		0.5f, -0.5f, 3.0f,
+		0.0f, 0.5f, 3.0f,
+	};
+
+	mpVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(TDEngine2::BUT_DEFAULT, 100, vertices).Get();
 
 	mpIndexBuffer = mpGraphicsObjectManager->CreateIndexBuffer(TDEngine2::BUT_DEFAULT, TDEngine2::IFT_INDEX16, 100, nullptr).Get();
 	
-	TDEngine2::COGLVertexDeclaration* pVertexDeclaration = dynamic_cast<TDEngine2::COGLVertexDeclaration*>(mpGraphicsObjectManager->CreateVertexDeclaration().Get());
+	TDEngine2::IVertexDeclaration* pVertexDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 	
-	pVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
+	pVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT3, 0, TDEngine2::VEST_POSITION });
 
 	pVertexDeclaration->Bind(mpGraphicsContext, mpVertexBuffer, dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING)));
 
@@ -22,7 +29,9 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	mpGraphicsContext->ClearBackBuffer(TDEngine2::TColor32F(0.0, 0.0, 0.5f, 1.0));
 
+	dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->Bind();
 
+	mpVertexBuffer->Bind(0, 0);
 
 	mpGraphicsContext->Present();
 

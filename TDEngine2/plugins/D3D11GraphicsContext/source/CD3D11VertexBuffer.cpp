@@ -29,6 +29,18 @@ namespace TDEngine2
 			return result;
 		}
 
+		TD3D11CtxInternalData internalD3D11Data;
+
+#if _HAS_CXX17
+		internalD3D11Data = std::get<TD3D11CtxInternalData>(pGraphicsContext->GetInternalData());
+#else
+		internalD3D11Data = pGraphicsContext->GetInternalData().mD3D11;
+#endif
+
+		mp3dDeviceContext = internalD3D11Data.mp3dDeviceContext;
+
+		mpInternalVertexBuffer = mpBufferImpl->GetInternalData().mpD3D11Buffer; /// cache ID3D11Buffer to avoid extra calls in Bind method
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -75,9 +87,18 @@ namespace TDEngine2
 		return mpBufferImpl->Read();
 	}
 
-	void CD3D11VertexBuffer::SetInputLayout(ID3D11InputLayout* pInputLayout)
+	void CD3D11VertexBuffer::Bind(U32 slot, U32 offset)
+	{
+		mp3dDeviceContext->IASetVertexBuffers(slot, 1, &mpInternalVertexBuffer, &mVertexStride, &offset);
+		
+		mp3dDeviceContext->IASetInputLayout(mpInputLayout);
+	}
+
+	void CD3D11VertexBuffer::SetInputLayout(ID3D11InputLayout* pInputLayout, U32 stride)
 	{
 		mpInputLayout = pInputLayout;
+
+		mVertexStride = stride;
 	}
 
 	const TBufferInternalData& CD3D11VertexBuffer::GetInternalData() const
