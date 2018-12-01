@@ -24,7 +24,7 @@ namespace TDEngine2
 
 		glBindVertexArray(vaoHandler);
 
-		glBindBuffer(GL_VERTEX_ARRAY, pVertexBuffer->GetInternalData().mGLBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, pVertexBuffer->GetInternalData().mGLBuffer);
 
 		if (glGetError() != GL_NO_ERROR)
 		{
