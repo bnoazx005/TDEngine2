@@ -222,7 +222,14 @@ namespace TDEngine2
 									
 			if ((nextToken = tokenizer.GetNextToken()) == "{")
 			{
-				uniformBuffersDecls[bufferName] = { getCurrentOrNextFreeBufferSlot(0), _getPaddedStructSize(structsMap, tokenizer) };
+				if (uniformBuffersDecls.find(bufferName) == uniformBuffersDecls.cend())
+				{
+					uniformBuffersDecls[bufferName] = { getCurrentOrNextFreeBufferSlot(0), _getPaddedStructSize(structsMap, tokenizer) };
+				}
+				else
+				{
+					uniformBuffersDecls[bufferName].mSize = _getPaddedStructSize(structsMap, tokenizer);
+				}
 			}
 
 			while ((nextToken = tokenizer.GetCurrToken()) != ";" && tokenizer.HasNext())

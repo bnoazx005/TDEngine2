@@ -219,10 +219,22 @@ namespace TDEngine2
 
 	IResource* CResourceManager::GetResourceByHandler(const IResourceHandler* pResourceHandler) const
 	{
+		if (!pResourceHandler)
+		{
+			return nullptr;
+		}
+
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		/// \todo implement the method
-		return nullptr;
+		TResourceId resourceId = pResourceHandler->GetResourceId();
+
+		if (resourceId == InvalidResourceId ||
+			resourceId >= mResources.size() + 1)
+		{
+			return nullptr;
+		}
+
+		return mResources[resourceId - 1];
 	}
 
 	IResourceHandler* CResourceManager::_loadResource(U32 resourceTypeId, const std::string& name)

@@ -78,6 +78,11 @@ namespace TDEngine2
 		return pResource;
 	}
 
+	TResourceId CResourceHandler::GetResourceId() const
+	{
+		return mResourceId;
+	}
+
 	void CResourceHandler::OnLoaded(const std::function<void(IResource*)>& onLoadedCallback)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

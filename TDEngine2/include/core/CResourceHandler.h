@@ -83,6 +83,14 @@ namespace TDEngine2
 			TDE2_API IResource* Get(E_RESOURCE_ACCESS_TYPE type) override;
 
 			/*!
+				\brief The method returns an identifier of a binded resource
+
+				\return The method returns an identifier of a binded resource
+			*/
+
+			TDE2_API TResourceId GetResourceId() const override;
+
+			/*!
 				\brief The method executes specified callback when a binded resource is fully loaded
 
 				\param[in] onLoadedCallback A callback, which will be executed when a resource will be fully loaded

@@ -10,6 +10,32 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CBaseShader::Load()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseShader>();
+
+		if (!pResourceLoader)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mState = RST_LOADED;
+
+		return result;
+	}
+
 	E_RESULT_CODE CBaseShader::Unload()
 	{
 		return Reset();
