@@ -90,6 +90,14 @@ namespace TDEngine2
 			TDE2_API void* Read() override;
 
 			/*!
+				\brief The method links current vertex buffer with a given input layout
+
+				\param[in] pInputLayout A pointer to ID3D11InputLayout object
+			*/
+
+			TDE2_API void SetInputLayout(ID3D11InputLayout* pInputLayout);
+
+			/*!
 				\brief The method returns an internal data of a buffer, which
 				contains low-level platform specific buffer's handlers
 
@@ -110,7 +118,10 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexBuffer)
 		protected:
 			bool                mIsInitialized;
+
 			IBuffer*            mpBufferImpl;
+
+			ID3D11InputLayout*  mpInputLayout;
 	};
 
 

@@ -48,6 +48,19 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<GLuint> GetVertexArrayObject(const IVertexBuffer* pVertexBuffer);
+
+			/*!
+				\brief The method creates an internal handlers for a vertex declaration and binds it
+				to a rendering pipeline
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+				\param[in, out] pVertexBuffer A pointer to IVertexBuffer implementation
+
+				\param[in, out] pShader A pointer to IShader implementation
+			*/
+
+			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
 	};

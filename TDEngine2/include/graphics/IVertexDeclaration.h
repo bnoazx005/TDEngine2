@@ -14,6 +14,11 @@
 
 namespace TDEngine2
 {
+	class IGraphicsContext;
+	class IShader;
+	class IVertexBuffer;
+
+
 	/*!
 		struct TVertDeclElementDesc
 
@@ -68,6 +73,19 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE RemoveElement(U32 index) = 0;
+
+			/*!
+				\brief The method creates an internal handlers for a vertex declaration and binds it
+				to a rendering pipeline
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+				\param[in, out] pVertexBuffer A pointer to IVertexBuffer implementation
+
+				\param[in, out] pShader A pointer to IShader implementation
+			*/
+
+			TDE2_API virtual void Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader) = 0;
 
 			/*!
 				\brief The method returns current number of elements within the declaration

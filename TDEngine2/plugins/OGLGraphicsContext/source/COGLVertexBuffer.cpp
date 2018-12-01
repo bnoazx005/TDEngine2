@@ -73,6 +73,11 @@ namespace TDEngine2
 		return mpBufferImpl->Read();
 	}
 
+	void COGLVertexBuffer::SetVAOHandler(GLuint vaoHandler)
+	{
+		mVAOHandler = vaoHandler;
+	}
+
 	const TBufferInternalData& COGLVertexBuffer::GetInternalData() const
 	{
 		return mpBufferImpl->GetInternalData();

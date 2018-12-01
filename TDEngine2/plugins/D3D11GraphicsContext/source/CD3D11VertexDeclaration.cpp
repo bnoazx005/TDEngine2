@@ -1,7 +1,10 @@
 #include "./../include/CD3D11VertexDeclaration.h"
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11Shader.h"
+#include "./../include/CD3D11VertexBuffer.h"
 #include <core/IGraphicsContext.h>
+#include <graphics/IShader.h>
+#include <graphics/IVertexBuffer.h>
 #include <unordered_map>
 
 
@@ -10,7 +13,7 @@
 namespace TDEngine2
 {
 	CD3D11VertexDeclaration::CD3D11VertexDeclaration() :
-		CVertexDeclaration()
+		CVertexDeclaration(), mpInputLayout(nullptr)
 	{
 	}
 
@@ -61,6 +64,23 @@ namespace TDEngine2
 		}
 
 		return TOkValue<ID3D11InputLayout*>(pInputLayout);
+	}
+
+	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader)
+	{
+		if (!mpInputLayout)
+		{
+			mpInputLayout = GetInputLayoutByShader(pGraphicsContext, pShader).Get();
+		}
+
+		CD3D11VertexBuffer* pD3D11VertexBuffer = dynamic_cast<CD3D11VertexBuffer*>(pVertexBuffer);
+
+		if (!pD3D11VertexBuffer)
+		{
+			return;
+		}
+
+		pD3D11VertexBuffer->SetInputLayout(mpInputLayout);
 	}
 
 

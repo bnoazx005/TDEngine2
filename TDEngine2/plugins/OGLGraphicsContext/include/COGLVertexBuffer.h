@@ -9,6 +9,7 @@
 
 #include <graphics/IVertexBuffer.h>
 #include <core/IBaseObject.h>
+#include <GL/glew.h>
 
 
 namespace TDEngine2
@@ -88,6 +89,14 @@ namespace TDEngine2
 			TDE2_API void* Read() override;
 
 			/*!
+				\brief The method links current vertex buffer with a VAO 
+
+				\param[in] vaoHandler An identifier of a VAO
+			*/
+
+			TDE2_API void SetVAOHandler(GLuint vaoHandler);
+
+			/*!
 				\brief The method returns an internal data of a buffer, which
 				contains low-level platform specific buffer's handlers
 
@@ -108,7 +117,10 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexBuffer)
 		protected:
 			bool     mIsInitialized;
+
 			IBuffer* mpBufferImpl;
+
+			GLuint   mVAOHandler;
 	};
 
 

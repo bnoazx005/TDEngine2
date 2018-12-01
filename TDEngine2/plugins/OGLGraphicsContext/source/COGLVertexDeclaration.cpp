@@ -1,5 +1,6 @@
 #include "./../include/COGLVertexDeclaration.h"
 #include "./../include/COGLMappings.h"
+#include "./../include/COGLVertexBuffer.h"
 #include <graphics/IVertexBuffer.h>
 
 
@@ -56,6 +57,20 @@ namespace TDEngine2
 		glBindVertexArray(0);
 
 		return TOkValue<GLuint>(vaoHandler);
+	}
+
+	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader)
+	{
+		GLuint vaoHandler = GetVertexArrayObject(pVertexBuffer).Get();
+
+		COGLVertexBuffer* pGLVertexBuffer = dynamic_cast<COGLVertexBuffer*>(pVertexBuffer);
+
+		if (!pGLVertexBuffer)
+		{
+			return;
+		}
+
+		pGLVertexBuffer->SetVAOHandler(vaoHandler);
 	}
 
 

@@ -9,7 +9,7 @@
 namespace TDEngine2
 {
 	CD3D11VertexBuffer::CD3D11VertexBuffer() :
-		mIsInitialized(false)
+		mIsInitialized(false), mpInputLayout(nullptr)
 	{
 	}
 
@@ -73,6 +73,11 @@ namespace TDEngine2
 	void* CD3D11VertexBuffer::Read()
 	{
 		return mpBufferImpl->Read();
+	}
+
+	void CD3D11VertexBuffer::SetInputLayout(ID3D11InputLayout* pInputLayout)
+	{
+		mpInputLayout = pInputLayout;
 	}
 
 	const TBufferInternalData& CD3D11VertexBuffer::GetInternalData() const

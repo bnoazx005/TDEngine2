@@ -13,6 +13,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	
 	pVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 
+	pVertexDeclaration->Bind(mpGraphicsContext, mpVertexBuffer, dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING)));
+
 	return TDEngine2::RC_OK;
 }
 
