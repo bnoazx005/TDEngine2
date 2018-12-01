@@ -145,11 +145,23 @@ namespace TDEngine2
 		All countable types should register themselves using it
 	*/
 
+#if defined (_MSC_VER)
+	#define TDE2_REGISTER_TYPE(Type)								\
+		static TypeId GetTypeId()									\
+		{															\
+			__pragma(warning(push))									\
+			__pragma(warning(disable:4307))							\
+			static constexpr TypeId typeId = ComputeHash(#Type);	\
+			__pragma(warning(pop))									\
+			return typeId;											\
+		}
+#else
 	#define TDE2_REGISTER_TYPE(Type)								\
 		static TypeId GetTypeId()									\
 		{															\
 			static constexpr TypeId typeId = ComputeHash(#Type);	\
 			return typeId;											\
 		}
+#endif
 
 }
