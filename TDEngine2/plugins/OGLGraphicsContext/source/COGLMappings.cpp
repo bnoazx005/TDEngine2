@@ -415,4 +415,21 @@ namespace TDEngine2
 
 		return false;
 	}
+
+	GLenum COGLMappings::GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType)
+	{
+		switch (topologyType)
+		{
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_POINT_LIST:
+				return GL_POINTS;
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST:
+				return GL_LINES;
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST:
+				return GL_TRIANGLES;
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_STRIP:
+				return GL_TRIANGLE_STRIP;
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_FAN:
+				return GL_TRIANGLE_FAN;
+		}
+	}
 }

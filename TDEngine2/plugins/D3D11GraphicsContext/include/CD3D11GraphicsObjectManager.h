@@ -96,8 +96,6 @@ namespace TDEngine2
 			TDE2_API TResult<IVertexDeclaration*> CreateVertexDeclaration() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsObjectManager)
-		protected:
-			IGraphicsContext* mpGraphicsContext;
 	};
 }
 

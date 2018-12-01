@@ -31,6 +31,8 @@ namespace TDEngine2
 		U8  mSlot;
 
 		U32 mSize;
+
+		U32 mBufferIndex; /// for OpenGL usage only
 	} TUniformBufferDesc, *TUniformBufferDescPtr;
 
 

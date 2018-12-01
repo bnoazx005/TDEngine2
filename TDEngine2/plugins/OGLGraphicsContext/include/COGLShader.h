@@ -11,6 +11,7 @@
 #include <utils/Config.h>
 #include <core/IResourceFactory.h>
 #include <string>
+#include <unordered_map>
 #include <GL/glew.h>
 
 
@@ -50,6 +51,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 													 TResourceId id, E_RESULT_CODE& result);
+		protected:
+			typedef std::unordered_map<U32, U32> TUniformBuffersMap;
 		public:
 			TDE2_REGISTER_TYPE(COGLShader)
 
@@ -81,7 +84,9 @@ namespace TDEngine2
 
 			TDE2_API void _bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer) override;
 		protected:
-			GLuint mShaderHandler;
+			GLuint             mShaderHandler;
+
+			TUniformBuffersMap mUniformBuffersMap;
 	};
 
 

@@ -9,6 +9,7 @@
 
 #include <utils/Types.h>
 #include "CD3D11Buffer.h"
+#include <core/IGraphicsContext.h>
 #include <string>
 
 
@@ -98,6 +99,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static const C8* GetSemanticTypeName(E_VERTEX_ELEMENT_SEMANTIC_TYPE semanticType);
+
+			/*!
+				\brief The function maps internal engine topology's type into Direct3D11 specific value
+
+				\param[in] topologyType An internal engine representation of a primitive topology
+
+				\return A primitive topology's value which is D3D11 specific
+			*/
+
+			TDE2_API static D3D11_PRIMITIVE_TOPOLOGY GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
 	};
 }
 

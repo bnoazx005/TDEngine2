@@ -1,5 +1,6 @@
 #include "./../../include/graphics/CBaseGraphicsObjectManager.h"
 #include "./../../include/graphics/IVertexDeclaration.h"
+#include "./../../include/core/IGraphicsContext.h"
 
 
 namespace TDEngine2

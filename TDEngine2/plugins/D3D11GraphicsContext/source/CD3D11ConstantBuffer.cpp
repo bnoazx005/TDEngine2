@@ -86,9 +86,9 @@ namespace TDEngine2
 
 		ID3D11Buffer* pInternalBuffer = mpBufferImpl->GetInternalData().mpD3D11Buffer;
 
-		mp3dDeviceContext->VSGetConstantBuffers(mCurrUsedSlot, 1, &pInternalBuffer);
-		mp3dDeviceContext->PSGetConstantBuffers(mCurrUsedSlot, 1, &pInternalBuffer);
-		mp3dDeviceContext->GSGetConstantBuffers(mCurrUsedSlot, 1, &pInternalBuffer);
+		mp3dDeviceContext->VSSetConstantBuffers(slot, 1, &pInternalBuffer);
+		mp3dDeviceContext->PSSetConstantBuffers(slot, 1, &pInternalBuffer);
+		mp3dDeviceContext->GSSetConstantBuffers(slot, 1, &pInternalBuffer);
 
 		mCurrUsedSlot = slot;
 	}

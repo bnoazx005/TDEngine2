@@ -28,6 +28,8 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
+			mState = RST_PENDING;
+
 			return result;
 		}
 
@@ -113,7 +115,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if ((result = pCurrUniformBuffer->Write(pData, sizeof(dataSize))) != RC_OK)
+		if ((result = pCurrUniformBuffer->Write(pData, dataSize)) != RC_OK)
 		{
 			return result;
 		}
@@ -149,7 +151,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if ((result = pCurrUniformBuffer->Write(pData, sizeof(dataSize))) != RC_OK)
+		if ((result = pCurrUniformBuffer->Write(pData, dataSize)) != RC_OK)
 		{
 			return result;
 		}

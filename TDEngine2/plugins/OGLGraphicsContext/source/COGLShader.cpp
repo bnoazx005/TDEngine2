@@ -198,6 +198,8 @@ namespace TDEngine2
 			currDesc = (*iter).second;
 
 			mUniformBuffers[currDesc.mSlot] = CreateOGLConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+
+			mUniformBuffersMap[currDesc.mSlot] = glGetUniformBlockIndex(mShaderHandler, (*iter).first.c_str());
 		}
 
 		return RC_OK;
@@ -207,7 +209,7 @@ namespace TDEngine2
 	{
 		pBuffer->Bind(slot);
 
-		glUniformBlockBinding(mShaderHandler, slot, slot);
+		glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[slot], slot);
 	}
 
 

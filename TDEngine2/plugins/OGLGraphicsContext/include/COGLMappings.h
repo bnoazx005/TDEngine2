@@ -9,6 +9,7 @@
 
 #include <utils/Types.h>
 #include <graphics/IBuffer.h>
+#include <core/IGraphicsContext.h>
 #include <GL/glew.h>
 
 
@@ -115,5 +116,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static bool IsFormatNormalized(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function maps internal engine topology's type into OpenGL specific value
+
+				\param[in] topologyType An internal engine representation of a primitive topology
+				
+				\return A primitive topology's value which is OpenGL specific
+			*/
+
+			TDE2_API static GLenum GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
 	};
 }

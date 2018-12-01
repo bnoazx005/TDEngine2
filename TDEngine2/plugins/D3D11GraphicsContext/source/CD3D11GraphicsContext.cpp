@@ -1,6 +1,7 @@
 #include "./../include/CD3D11GraphicsContext.h"
 #include "./../include/CD3D11Utils.h"
 #include "./../include/CD3D11GraphicsObjectManager.h"
+#include "./../include/CD3D11Mappings.h"
 #include <core/IWindowSystem.h>
 
 
@@ -191,6 +192,13 @@ namespace TDEngine2
 	TMatrix4 CD3D11GraphicsContext::CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf)
 	{
 		return OrthographicProj(left, top, right, bottom, zn, zf, 0.0f, 1.0f, -1.0f);
+	}
+
+	void CD3D11GraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
+	{
+		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));
+
+		mp3dDeviceContext->Draw(numOfVertices, startVertex);
 	}
 
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const

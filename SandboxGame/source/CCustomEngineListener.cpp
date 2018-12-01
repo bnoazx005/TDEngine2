@@ -5,11 +5,11 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	mpShader = mpResourceManager->Load<TDEngine2::CBaseShader>("testGLShader.shader");
 
-	TDEngine2::F32 vertices[] = 
+	TDEngine2::TVector4 vertices[] = 
 	{
-		-0.5f, -0.5f, 3.0f,
-		0.5f, -0.5f, 3.0f,
-		0.0f, 0.5f, 3.0f,
+		TDEngine2::TVector4(-0.5f, -0.5f, 1.0f, 1.0f),
+		TDEngine2::TVector4(0.5f, -0.5f, 1.0f, 1.0f),
+		TDEngine2::TVector4(0.0f, 0.5f, 1.0f, 1.0f),
 	};
 
 	mpVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(TDEngine2::BUT_DEFAULT, 100, vertices).Get();
@@ -18,7 +18,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	
 	TDEngine2::IVertexDeclaration* pVertexDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 	
-	pVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT3, 0, TDEngine2::VEST_POSITION });
+	pVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 
 	pVertexDeclaration->Bind(mpGraphicsContext, mpVertexBuffer, dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING)));
 
@@ -31,7 +31,15 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 	dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->Bind();
 
+	TDEngine2::TPerFrameShaderData data;
+	data.mProjMatrix = mpGraphicsContext->CalcPerspectiveMatrix(3.14 * 0.5f, 1.0f, 1.0f, 1000.0f);
+	data.mViewMatrix = TDEngine2::IdentityMatrix4;
+
+	dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->SetInternalUniformsBuffer(TDEngine2::IUBR_PER_FRAME, reinterpret_cast<const TDEngine2::U8*>(&data), sizeof(data));
+
 	mpVertexBuffer->Bind(0, 0);
+
+	mpGraphicsContext->Draw(TDEngine2::E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST, 0, 3);
 
 	mpGraphicsContext->Present();
 

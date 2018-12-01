@@ -3,6 +3,7 @@
 #include "./../include/CD3D11IndexBuffer.h"
 #include "./../include/CD3D11ConstantBuffer.h"
 #include "./../include/CD3D11VertexDeclaration.h"
+#include <core/IGraphicsContext.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)

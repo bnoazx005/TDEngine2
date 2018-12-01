@@ -117,6 +117,18 @@ namespace TDEngine2
 			TDE2_API TMatrix4 CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf) override;
 
 			/*!
+				\brief The method sends a command to a GPU to draw current attached graphics data
+
+				\param[in] topology A primitive topology's type
+
+				\param[in] startVertex An index of a vertex within a vertex buffer
+
+				\param[in] numOfVertices A total number of vertices should be drawn
+			*/
+
+			TDE2_API void Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices) override;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

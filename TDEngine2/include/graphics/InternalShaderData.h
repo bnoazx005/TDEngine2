@@ -21,7 +21,9 @@ namespace TDEngine2
 
 	typedef struct TPerFrameShaderData
 	{
-		TMatrix4 mUnused;
+		TMatrix4 mProjMatrix;
+
+		TMatrix4 mViewMatrix;
 	} TPerFrameShaderData, *TPerFrameShaderDataPtr;
 
 

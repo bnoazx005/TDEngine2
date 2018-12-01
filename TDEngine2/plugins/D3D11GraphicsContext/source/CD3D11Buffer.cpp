@@ -80,6 +80,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mBufferInternalData.mpD3D11Buffer = mpBufferInstance;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -156,6 +158,8 @@ namespace TDEngine2
 		}
 
 		memcpy(pMappedBufferDataPtr, pData, size);
+
+		return RC_OK;
 	}
 
 	void* CD3D11Buffer::Read()

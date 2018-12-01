@@ -1,6 +1,7 @@
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/IOGLContextFactory.h"
 #include "./../include/COGLGraphicsObjectManager.h"
+#include "./../include/COGLMappings.h"
 #include <core/IWindowSystem.h>
 
 
@@ -137,6 +138,11 @@ namespace TDEngine2
 	TMatrix4 COGLGraphicsContext::CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf)
 	{
 		return OrthographicProj(left, top, right, bottom, zn, zf, -1.0f, 1.0f, 1.0f);
+	}
+
+	void COGLGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
+	{
+		glDrawArrays(COGLMappings::GetPrimitiveTopology(topology), startVertex, numOfVertices);
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
