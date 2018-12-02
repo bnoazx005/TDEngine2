@@ -10,6 +10,7 @@
 #include <utils/Types.h>
 #include <graphics/IBuffer.h>
 #include <core/IGraphicsContext.h>
+#include <graphics/IIndexBuffer.h>
 #include <GL/glew.h>
 
 
@@ -126,5 +127,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static GLenum GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
+
+			/*!
+				\brief The function maps internal index format into OpenGL specific type
+
+				\param[in] indexFormatType An internal type that represents a format of an index
+
+				\return An OpenGL format of an index
+			*/
+
+			TDE2_API static GLenum GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
 	};
 }

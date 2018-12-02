@@ -115,6 +115,18 @@ namespace TDEngine2
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
+	void COGLGraphicsContext::ClearDepthBuffer(F32 value)
+	{
+		glClearDepthf(value);
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+	
+	void COGLGraphicsContext::ClearStencilBuffer(U8 value)
+	{
+		glClearStencil(value);
+		glClear(GL_STENCIL_BUFFER_BIT);
+	}
+
 	void COGLGraphicsContext::Present()
 	{
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -143,6 +155,11 @@ namespace TDEngine2
 	void COGLGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		glDrawArrays(COGLMappings::GetPrimitiveTopology(topology), startVertex, numOfVertices);
+	}
+
+	void COGLGraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
+	{
+		glDrawElements(COGLMappings::GetPrimitiveTopology(topology), numOfIndices, COGLMappings::GetIndexFormat(indexFormatType), 0);
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const

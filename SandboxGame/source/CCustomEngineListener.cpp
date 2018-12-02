@@ -3,13 +3,13 @@
 
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 {
-	mpShader = mpResourceManager->Load<TDEngine2::CBaseShader>("testGLShader.shader");
+	mpShader = mpResourceManager->Load<TDEngine2::CBaseShader>("testDXShader.shader");
 
 	TDEngine2::TVector4 vertices[] = 
 	{
-		TDEngine2::TVector4(-0.5f, -0.5f, 1.0f, 1.0f),
-		TDEngine2::TVector4(0.5f, -0.5f, 1.0f, 1.0f),
-		TDEngine2::TVector4(0.0f, 0.5f, 1.0f, 1.0f),
+		TDEngine2::TVector4(-0.5f, -0.5f, 0.0f, 1.0f),
+		TDEngine2::TVector4(0.0f, 0.5f, 0.0f, 1.0f),
+		TDEngine2::TVector4(0.5f, -0.5f, 0.0f, 1.0f),
 	};
 
 	mpVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(TDEngine2::BUT_DEFAULT, 100, vertices).Get();
@@ -28,11 +28,12 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	mpGraphicsContext->ClearBackBuffer(TDEngine2::TColor32F(0.0, 0.0, 0.5f, 1.0));
+	mpGraphicsContext->ClearDepthBuffer(1.0f);
 
 	dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->Bind();
 
 	TDEngine2::TPerFrameShaderData data;
-	data.mProjMatrix = mpGraphicsContext->CalcPerspectiveMatrix(3.14 * 0.5f, 1.0f, 1.0f, 1000.0f);
+	data.mProjMatrix = mpGraphicsContext->CalcPerspectiveMatrix(3.14 * 0.5f, 1.0f, 0.1f, 1000.0f);
 	data.mViewMatrix = TDEngine2::IdentityMatrix4;
 
 	dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->SetInternalUniformsBuffer(TDEngine2::IUBR_PER_FRAME, reinterpret_cast<const TDEngine2::U8*>(&data), sizeof(data));

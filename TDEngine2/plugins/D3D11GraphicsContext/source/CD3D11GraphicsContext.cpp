@@ -163,6 +163,16 @@ namespace TDEngine2
 		mp3dDeviceContext->ClearRenderTargetView(mpBackBufferView, clearColorArray);
 	}
 
+	void CD3D11GraphicsContext::ClearDepthBuffer(F32 value)
+	{
+		mp3dDeviceContext->ClearDepthStencilView(mpDefaultDepthStencilView, D3D11_CLEAR_DEPTH, value, 0);
+	}
+
+	void CD3D11GraphicsContext::ClearStencilBuffer(U8 value)
+	{
+		mp3dDeviceContext->ClearDepthStencilView(mpDefaultDepthStencilView, D3D11_CLEAR_STENCIL, 0.0f, value);
+	}
+
 	void CD3D11GraphicsContext::Present()
 	{
 		mpSwapChain->Present(mIsVSyncEnabled, 0);
@@ -199,6 +209,13 @@ namespace TDEngine2
 		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));
 
 		mp3dDeviceContext->Draw(numOfVertices, startVertex);
+	}
+
+	void CD3D11GraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
+	{
+		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));
+
+		mp3dDeviceContext->DrawIndexed(numOfIndices, startIndex, baseVertex);
 	}
 
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const

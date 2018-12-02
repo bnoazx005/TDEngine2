@@ -432,4 +432,17 @@ namespace TDEngine2
 				return GL_TRIANGLE_FAN;
 		}
 	}
+
+	GLenum COGLMappings::GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType)
+	{
+		switch (indexFormatType)
+		{
+			case IFT_INDEX16:
+				return GL_UNSIGNED_SHORT;
+			case IFT_INDEX32:
+				return GL_UNSIGNED_INT;
+		}
+
+		return 0;
+	}
 }
