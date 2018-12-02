@@ -199,7 +199,7 @@ namespace TDEngine2
 		\return The function computes GAPI independed matrix of a perspective projection	
 	*/
 
-	TDE2_API TMatrix4 PerspectiveProj(F32 fov, F32 aspect, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax);
+	TDE2_API TMatrix4 PerspectiveProj(F32 fov, F32 aspect, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax, F32 handedness);
 
 	/*!
 		\brief The function computes GAPI independed matrix of an orthographic projection

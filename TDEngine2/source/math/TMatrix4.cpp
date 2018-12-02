@@ -288,18 +288,18 @@ namespace TDEngine2
 		return TMatrix4(TVector4(s, 1.0f));
 	}
 
-	TDE2_API TMatrix4 PerspectiveProj(F32 fov, F32 aspect, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax)
+	TDE2_API TMatrix4 PerspectiveProj(F32 fov, F32 aspect, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax, F32 handedness)
 	{
 		TMatrix4 projMatrix;
 
-		F32 d = 1.0f / tanf(fov);
+		F32 d = 1.0f / tanf(fov * 0.5f);
 
 		F32 dz = zn - zf;
 
 		projMatrix.m[0][0] = d / aspect;
 		projMatrix.m[1][1] = d;
-		projMatrix.m[2][2] = (zNDCMax * zf - zNDCMin * zn) / dz;
-		projMatrix.m[2][3] = zn * zf * (zNDCMax - zNDCMin) / dz;
+		projMatrix.m[2][2] = handedness * (zNDCMax * zf - zNDCMin * zn) / dz;
+		projMatrix.m[2][3] = handedness * zn * zf * (zNDCMax - zNDCMin) / dz;
 
 		projMatrix.m[3][2] = -1.0f;
 

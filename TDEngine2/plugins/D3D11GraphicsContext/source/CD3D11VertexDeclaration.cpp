@@ -42,6 +42,8 @@ namespace TDEngine2
 
 		std::unordered_map<E_VERTEX_ELEMENT_SEMANTIC_TYPE, U32> usedSemanticIndex;
 		
+		U32 currOffset = 0;
+
 		/// fill in elements vector
 		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter)
 		{
@@ -49,11 +51,13 @@ namespace TDEngine2
 			currElement.SemanticIndex        = usedSemanticIndex[(*iter).mSemanticType]++;
 			currElement.Format               = CD3D11Mappings::GetDXGIFormat((*iter).mFormatType);
 			currElement.InputSlot            = (*iter).mSource;
-			currElement.AlignedByteOffset    = 0;
+			currElement.AlignedByteOffset    = currOffset;
 			currElement.InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
 			currElement.InstanceDataStepRate = 0;
 
 			elements.push_back(currElement);
+
+			currOffset += CD3D11Mappings::GetFormatSize((*iter).mFormatType);
 		}
 
 		TShaderBytecodeDesc vsBytecodeDesc = pD3D11Shader->GetVertexShaderBytecode();

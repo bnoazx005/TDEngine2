@@ -4,6 +4,14 @@
 #include <TDEngine2.h>
 
 
+struct TVertex
+{
+	TDEngine2::TVector4 mPos;
+
+	TDEngine2::TVector4 mColor;
+};
+
+
 class CCustomEngineListener: public TDEngine2::IEngineListener
 {
 	public:

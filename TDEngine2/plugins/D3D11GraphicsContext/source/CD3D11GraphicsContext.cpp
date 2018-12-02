@@ -196,7 +196,7 @@ namespace TDEngine2
 	
 	TMatrix4 CD3D11GraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
 	{
-		return PerspectiveProj(fov, aspect, zn, zf, 0.0f, 1.0f);
+		return PerspectiveProj(fov, aspect, zn, zf, 0.0f, 1.0f, -1.0f);
 	}
 
 	TMatrix4 CD3D11GraphicsContext::CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf)
