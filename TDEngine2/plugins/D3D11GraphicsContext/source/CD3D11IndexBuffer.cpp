@@ -109,6 +109,11 @@ namespace TDEngine2
 	{
 		return mpBufferImpl->GetSize();
 	}
+	
+	E_INDEX_FORMAT_TYPE CD3D11IndexBuffer::GetIndexFormat() const
+	{
+		return mIndexFormatType;
+	}
 
 
 	TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,

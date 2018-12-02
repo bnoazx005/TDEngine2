@@ -115,6 +115,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetSize() const override;
+
+			/*!
+				\brief The method returns a format of a single stored index
+
+				\return The method returns a format of a single stored index
+			*/
+
+			TDE2_API E_INDEX_FORMAT_TYPE GetIndexFormat() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11IndexBuffer)
 		protected:

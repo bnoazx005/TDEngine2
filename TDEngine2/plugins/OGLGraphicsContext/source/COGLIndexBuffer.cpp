@@ -91,6 +91,11 @@ namespace TDEngine2
 		return mpBufferImpl->GetSize();
 	}
 
+	E_INDEX_FORMAT_TYPE COGLIndexBuffer::GetIndexFormat() const
+	{
+		return mIndexFormatType;
+	}
+
 
 	TDE2_API IIndexBuffer* CreateOGLIndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
 		U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)

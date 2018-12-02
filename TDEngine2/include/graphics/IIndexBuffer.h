@@ -61,6 +61,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void Bind(U32 offset) = 0;
+
+			/*!
+				\brief The method returns a format of a single stored index
+
+				\return The method returns a format of a single stored index
+			*/
+
+			TDE2_API virtual E_INDEX_FORMAT_TYPE GetIndexFormat() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IIndexBuffer)
 	};
