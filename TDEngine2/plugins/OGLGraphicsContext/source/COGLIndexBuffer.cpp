@@ -76,6 +76,11 @@ namespace TDEngine2
 		return mpBufferImpl->Read();
 	}
 
+	void COGLIndexBuffer::Bind(U32 offset)
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mpBufferImpl->GetInternalData().mGLBuffer);
+	}
+
 	const TBufferInternalData& COGLIndexBuffer::GetInternalData() const
 	{
 		return mpBufferImpl->GetInternalData();

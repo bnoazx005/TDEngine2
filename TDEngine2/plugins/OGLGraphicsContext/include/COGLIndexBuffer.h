@@ -89,6 +89,14 @@ namespace TDEngine2
 			TDE2_API void* Read() override;
 
 			/*!
+				\brief The method binds current index buffer to a rendering pipeline
+
+				\param[in] offset An offset in bytes from the first index in a buffer
+			*/
+
+			TDE2_API void Bind(U32 offset) override;
+
+			/*!
 				\brief The method returns an internal data of a buffer, which
 				contains low-level platform specific buffer's handlers
 

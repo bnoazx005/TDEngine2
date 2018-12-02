@@ -10,6 +10,7 @@
 #include <utils/Types.h>
 #include "CD3D11Buffer.h"
 #include <core/IGraphicsContext.h>
+#include <graphics/IIndexBuffer.h>
 #include <string>
 
 
@@ -109,6 +110,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static D3D11_PRIMITIVE_TOPOLOGY GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
+			
+			/*!
+				\brief The function maps internal index format into OpenGL specific type
+
+				\param[in] indexFormatType An internal type that represents a format of an index
+
+				\return An OpenGL format of an index
+			*/
+
+			TDE2_API static DXGI_FORMAT GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
 	};
 }
 

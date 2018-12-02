@@ -32,6 +32,18 @@ namespace TDEngine2
 			return result;
 		}
 
+		TD3D11CtxInternalData internalD3D11Data;
+
+#if _HAS_CXX17
+		internalD3D11Data = std::get<TD3D11CtxInternalData>(pGraphicsContext->GetInternalData());
+#else
+		internalD3D11Data = pGraphicsContext->GetInternalData().mD3D11;
+#endif
+
+		mp3dDeviceContext = internalD3D11Data.mp3dDeviceContext;
+
+		mpInternalIndexBuffer = mpBufferImpl->GetInternalData().mpD3D11Buffer; /// cache ID3D11Buffer to avoid extra calls in Bind method
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -76,6 +88,16 @@ namespace TDEngine2
 	void* CD3D11IndexBuffer::Read()
 	{
 		return mpBufferImpl->Read();
+	}
+
+	void CD3D11IndexBuffer::Bind(U32 offset)
+	{
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
+		mp3dDeviceContext->IASetIndexBuffer(mpInternalIndexBuffer, DXGI_FORMAT_UNKNOWN, offset);
 	}
 
 	const TBufferInternalData& CD3D11IndexBuffer::GetInternalData() const

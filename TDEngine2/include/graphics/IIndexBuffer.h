@@ -53,6 +53,14 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
 												E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr) = 0;
+
+			/*!
+				\brief The method binds current index buffer to a rendering pipeline
+
+				\param[in] offset An offset in bytes from the first index in a buffer
+			*/
+
+			TDE2_API virtual void Bind(U32 offset) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IIndexBuffer)
 	};

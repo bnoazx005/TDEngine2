@@ -360,6 +360,19 @@ namespace TDEngine2
 				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
 		}
 	}
+
+	DXGI_FORMAT CD3D11Mappings::GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType)
+	{
+		switch (indexFormatType)
+		{
+			case IFT_INDEX16:
+				return DXGI_FORMAT_R16_UINT;
+			case IFT_INDEX32:
+				return DXGI_FORMAT_R32_UINT;
+		}
+
+		return DXGI_FORMAT_UNKNOWN;
+	}
 }
 
 #endif
