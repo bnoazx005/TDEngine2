@@ -331,7 +331,8 @@ namespace TDEngine2
 
 		newSourceCode = source.substr(0, endPos);
 
-		newSourceCode.append("\n#define ").append(_getShaderStageDefineName(shaderStage)).append(" 1\n");
+		newSourceCode.append("\n#define ").append(_getShaderStageDefineName(shaderStage)).append(" 1\n")
+					 .append("\n#define ").append("TDE2_GLSL_SHADER\n");
 
 		newSourceCode.append(source.substr(endPos, source.length() - endPos));
 

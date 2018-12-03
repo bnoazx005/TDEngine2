@@ -88,9 +88,9 @@ namespace TDEngine2
 	}
 
 	TResult<std::vector<U8>> CD3D11ShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, 
-																							  const std::string& entryPointName, 
-																							  const CD3D11ShaderCompiler::TDefinesMap& shaderDefinesMap,
-																							  E_SHADER_FEATURE_LEVEL targetVersion) const
+																	   const std::string& entryPointName, 
+																	   const CD3D11ShaderCompiler::TDefinesMap& shaderDefinesMap,
+																	   E_SHADER_FEATURE_LEVEL targetVersion) const
 	{
 		std::vector<U8> byteCodeArray;
 
@@ -100,6 +100,7 @@ namespace TDEngine2
 		//enable only needed stage within the source code with a preprocessor
 		D3D_SHADER_MACRO defines[] =
 		{
+			{ "TDE2_HLSL_SHADER", "1" },
 			{ _getShaderStageDefineName(SST_VERTEX), shaderStage == SST_VERTEX ? "1" : "0" },
 			{ _getShaderStageDefineName(SST_PIXEL), shaderStage == SST_PIXEL ? "1" : "0" },
 			{ _getShaderStageDefineName(SST_GEOMETRY), shaderStage == SST_GEOMETRY ? "1" : "0" },
