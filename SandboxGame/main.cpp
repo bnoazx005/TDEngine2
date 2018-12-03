@@ -30,6 +30,14 @@ int main(int argc, char** argv)
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
 	
+	IWorld* pWorld = CreateWorld(result);
+
+	auto entity = pWorld->CreateEntity();
+
+	entity->AddComponent<CQuadSprite>();
+
+	pWorld->Free();
+
 	pEngineCoreBuilder->Free();
 	
 	IEngineListener* pCustomListener = new CCustomEngineListener();

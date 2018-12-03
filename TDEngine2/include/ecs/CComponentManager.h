@@ -12,6 +12,7 @@
 #include <vector>
 #include <list>
 #include <unordered_map>
+#include <functional>
 #include "./../utils/Utils.h"
 
 
@@ -34,15 +35,18 @@ namespace TDEngine2
 			friend TDE2_API IComponentManager* CreateComponentManager(E_RESULT_CODE& result);
 		protected:
 			typedef std::unordered_map<TComponentTypeId, std::unordered_map<TEntityId, U32>> TComponentEntityMap;
+
 			typedef std::unordered_map<TEntityId, std::unordered_map<TComponentTypeId, U32>> TEntityComponentMap;
-			
-			constexpr static U32 mInvalidMapValue = 0;
 
-			typedef std::unordered_map<TypeId, U32>       TComponentFactoriesMap;
+			typedef std::unordered_map<TComponentTypeId, U32>                                TComponentHashTable;
 
-			typedef std::vector<const IComponentFactory*> TComponentFactoriesArray;
+			typedef std::unordered_map<TComponentTypeId, U32>                                TComponentFactoriesMap;
 
-			typedef std::list<U32>                        TFreeEntitiesRegistry;
+			typedef std::vector<const IComponentFactory*>                                    TComponentFactoriesArray;
+
+			typedef std::list<U32>                                                           TFreeEntitiesRegistry;
+
+			typedef std::vector<std::vector<IComponent*>>                                    TComponentsMatrix;
 		public:
 			/*!
 				\brief The method initializes a component manager's instance
@@ -101,13 +105,23 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) override;
 
+			TDE2_API E_RESULT_CODE _removeComponentWithAction(TypeId componentTypeId, TEntityId entityId,
+															  const std::function<E_RESULT_CODE(IComponent*&)>& action);
+
+			TDE2_API E_RESULT_CODE _removeComponentsWithAction(TEntityId entityId, const std::function<E_RESULT_CODE(IComponent*&)>& action);
+			
 			TDE2_API E_RESULT_CODE _registerBuiltinComponentFactories();
 
 			TDE2_API E_RESULT_CODE _unregisterBuiltinComponentFactories();
 		protected:
 			TComponentEntityMap      mComponentEntityMap;
+
 			TEntityComponentMap      mEntityComponentMap;
-			std::vector<IComponent*> mActiveComponents;
+
+			TComponentHashTable      mComponentsHashTable;
+
+			TComponentsMatrix        mActiveComponents;
+
 			std::list<IComponent*>   mDestroyedComponents;
 
 			TComponentFactoriesMap   mComponentFactoriesMap;

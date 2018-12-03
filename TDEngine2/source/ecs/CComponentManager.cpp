@@ -20,9 +20,9 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-				
+
 		mIsInitialized = true;
-		
+
 		return _registerBuiltinComponentFactories();
 	}
 
@@ -49,101 +49,101 @@ namespace TDEngine2
 
 	E_RESULT_CODE CComponentManager::_removeComponent(TypeId componentTypeId, TEntityId entityId)
 	{
-		U32 targetEntityComponentHash = mEntityComponentMap[entityId][componentTypeId];
+		IComponent* pRemovedComponent = nullptr;
 
-		if (targetEntityComponentHash == mInvalidMapValue)
+		E_RESULT_CODE result = _removeComponentWithAction(componentTypeId, entityId, [&pRemovedComponent](IComponent*& pComponent) -> E_RESULT_CODE
 		{
-			return RC_FAIL;
-		}
+			pRemovedComponent = pComponent;
 
-		IComponent* pComponent = mActiveComponents[--targetEntityComponentHash];
+			return RC_OK;
+		});
 
-		if (!pComponent)
-		{
-			return RC_FAIL;
-		}
-
-		mActiveComponents[targetEntityComponentHash] = nullptr;
-
-		mDestroyedComponents.push_back(pComponent);
-
-		// mark handlers as invalid
-		mEntityComponentMap[entityId][componentTypeId] = 0;
-		mComponentEntityMap[componentTypeId][entityId] = 0;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CComponentManager::_removeComponentImmediately(TypeId componentTypeId, TEntityId entityId)
-	{
-		U32 targetEntityComponentHash = mEntityComponentMap[entityId][componentTypeId];
-
-		if (targetEntityComponentHash == mInvalidMapValue)
-		{
-			return RC_FAIL;
-		}
-
-		IComponent* pComponent = mActiveComponents[--targetEntityComponentHash];
-
-		if (!pComponent)
-		{
-			return RC_FAIL;
-		}
-
-		mActiveComponents[targetEntityComponentHash] = nullptr;
-
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = pComponent->Free()) != RC_OK)
+		if (result != RC_OK)
 		{
 			return result;
 		}
 
+		mDestroyedComponents.push_back(pRemovedComponent);
+
+		return result;
+	}
+
+	E_RESULT_CODE CComponentManager::_removeComponentImmediately(TypeId componentTypeId, TEntityId entityId)
+	{
+		return _removeComponentWithAction(componentTypeId, entityId, [](IComponent*& pComponent) -> E_RESULT_CODE
+		{
+			return pComponent->Free();
+		});
+	}
+
+
+	E_RESULT_CODE CComponentManager::_removeComponentWithAction(TypeId componentTypeId, TEntityId entityId,
+																const std::function<E_RESULT_CODE(IComponent*&)>& action)
+	{
+		U32 targetEntityComponentHash = mComponentEntityMap[componentTypeId][entityId];
+
+		if (!targetEntityComponentHash || (mComponentsHashTable.find(componentTypeId) == mComponentsHashTable.cend()))
+		{
+			return RC_FAIL;
+		}
+
+		U32 componentHashValue = mComponentsHashTable[componentHashValue];
+
+		IComponent* pComponent = mActiveComponents[componentHashValue][targetEntityComponentHash - 1];
+
+		if (!pComponent)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = action(pComponent);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mActiveComponents[targetEntityComponentHash][targetEntityComponentHash - 1] = nullptr;
+		
 		// mark handlers as invalid
-		mEntityComponentMap[entityId][componentTypeId] = 0;
 		mComponentEntityMap[componentTypeId][entityId] = 0;
+		mEntityComponentMap[entityId][componentTypeId] = 0;
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CComponentManager::RemoveComponents(TEntityId id)
 	{
-		auto entityComponentsListIter = mEntityComponentMap.find(id);
+		std::vector<IComponent*> removedComponents;
 
-		if (entityComponentsListIter == mEntityComponentMap.end())
+		E_RESULT_CODE result = _removeComponentsWithAction(id, [&removedComponents](IComponent*& pComponent) -> E_RESULT_CODE
 		{
-			return RC_FAIL;
+			removedComponents.push_back(pComponent);
+
+			return RC_OK;
+		});
+
+		if (result != RC_OK)
+		{
+			return result;
 		}
 
-		auto entityComponentsList = (*entityComponentsListIter).second;
+		mDestroyedComponents.insert(mDestroyedComponents.end(), removedComponents.begin(), removedComponents.end());
 
-		IComponent* pCurrComponent = nullptr;
-
-		TComponentTypeId componentType = 0;
-		U32 hashValue = 0;
-
-		for (auto& currEntityComponentPair : entityComponentsList)
-		{
-			componentType = currEntityComponentPair.first;
-			hashValue     = currEntityComponentPair.second - 1;
-			
-			pCurrComponent = mActiveComponents[hashValue];
-
-			mActiveComponents[hashValue] = nullptr;
-
-			mDestroyedComponents.push_back(pCurrComponent);
-			
-			// mark handlers as invalid
-			mEntityComponentMap[id][componentType] = 0;
-			mComponentEntityMap[componentType][id] = 0;
-		}
-
-		return RC_OK;
+		return result;
 	}
 
 	E_RESULT_CODE CComponentManager::RemoveComponentsImmediately(TEntityId id)
 	{
-		auto entityComponentsListIter = mEntityComponentMap.find(id);
+		return _removeComponentsWithAction(id, [](IComponent*& pComponent) -> E_RESULT_CODE
+		{
+			return pComponent->Free();
+		});
+	}
+
+	E_RESULT_CODE CComponentManager::_removeComponentsWithAction(TEntityId entityId, const std::function<E_RESULT_CODE(IComponent*&)>& action)
+	{
+		auto entityComponentsListIter = mEntityComponentMap.find(entityId);
 
 		if (entityComponentsListIter == mEntityComponentMap.end())
 		{
@@ -155,7 +155,10 @@ namespace TDEngine2
 		IComponent* pCurrComponent = nullptr;
 
 		TComponentTypeId componentType = 0;
+
 		U32 hashValue = 0;
+
+		U32 componentTypeHashValue = 0;
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -164,20 +167,23 @@ namespace TDEngine2
 			componentType = currEntityComponentPair.first;
 			hashValue = currEntityComponentPair.second - 1;
 
-			pCurrComponent = mActiveComponents[hashValue];
+			componentTypeHashValue = mComponentsHashTable[componentType];
 
-			mActiveComponents[hashValue] = nullptr;
+			pCurrComponent = mActiveComponents[componentTypeHashValue][hashValue];
 
-			// free memory
-			if ((result = pCurrComponent->Free()) != RC_OK)
+			if ((result = action(pCurrComponent)) != RC_OK)
 			{
 				return result;
 			}
 
+			mActiveComponents[componentTypeHashValue][hashValue] = nullptr;
+			
 			// mark handlers as invalid
-			mEntityComponentMap[id][componentType] = 0;
-			mComponentEntityMap[componentType][id] = 0;
+			mEntityComponentMap[entityId][componentType] = 0;
+			mComponentEntityMap[componentType][entityId] = 0;
 		}
+
+		return RC_OK;
 	}
 	
 	E_RESULT_CODE CComponentManager::RegisterFactory(const IComponentFactory* pFactory)
@@ -263,10 +269,21 @@ namespace TDEngine2
 
 		//pNewComponent = pComponentFactory->Create(std::make_unique);  /// \todo implement arguments passing
 		pNewComponent = pComponentFactory->CreateDefault({});
+		
+		auto componentTypeHashIter = mComponentsHashTable.find(componentTypeId);
 
-		mActiveComponents.push_back(pNewComponent);
+		if (componentTypeHashIter == mComponentsHashTable.end()) /// allocate space for a new group
+		{
+			mComponentsHashTable[componentTypeId] = mActiveComponents.size();
 
-		size_t hash = mActiveComponents.size();
+			mActiveComponents.emplace_back();
+		}
+		
+		std::vector<IComponent*>& componentsGroup = mActiveComponents[mComponentsHashTable[componentTypeId]];
+
+		componentsGroup.push_back(pNewComponent);
+
+		size_t hash = componentsGroup.size();
 
 		mComponentEntityMap[componentTypeId][entityId] = hash;
 		mEntityComponentMap[entityId][componentTypeId] = hash;
@@ -276,14 +293,16 @@ namespace TDEngine2
 
 	IComponent* CComponentManager::_getComponent(TypeId componentTypeId, TEntityId entityId)
 	{
-		U32 hashValue = mComponentEntityMap[componentTypeId][entityId];
-
-		if (hashValue == mInvalidMapValue)
+		U32 instanceHashValue = mComponentEntityMap[componentTypeId][entityId];
+		
+		if (!instanceHashValue || (mComponentsHashTable.find(componentTypeId) == mComponentsHashTable.cend()))
 		{
 			return nullptr;
 		}
 
-		return mActiveComponents[hashValue - 1];
+		U32 componentTypeHashValue = mComponentsHashTable[componentTypeId];
+
+		return mActiveComponents[componentTypeHashValue][instanceHashValue - 1];
 	}
 
 	E_RESULT_CODE CComponentManager::_registerBuiltinComponentFactories()
