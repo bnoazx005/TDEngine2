@@ -9,6 +9,7 @@
 
 #include "IComponent.h"
 #include "./../core/CBaseObject.h"
+#include <vector>
 
 
 namespace TDEngine2
@@ -40,8 +41,100 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Free() override;
+			TDE2_API E_RESULT_CODE Free();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponent)
+	};
+
+
+	/*!
+		class CComponentIterator
+
+		\brief The class is a common implementation of a one way iterator over IComponent collection
+	*/
+
+	class CComponentIterator
+	{
+		protected:
+			typedef std::vector<IComponent*> TComponentsArray;
+		public:
+			static CComponentIterator mInvalidIterator;
+		public:
+			/*!
+				\brief The constructor creates a correct iterator using begin and end iterators of a collection
+				and index that specifies an initial offset from the beginning
+
+				\param[in, out] components An array of components
+
+				\param[in] index An offset from a beginning of a collection where a result iterator
+				will be placed at
+			*/
+
+			TDE2_API CComponentIterator(TComponentsArray& components, U32 index);
+
+			TDE2_API ~CComponentIterator();
+
+			/*!
+				\brief The method increments current iterator so it point to next
+				entity within a collection
+
+				\return A reference to an iterator to next entity within a collection
+			*/
+
+			TDE2_API CComponentIterator& Next();
+
+			/*!
+				\brief The method is a predicate that is true if there is at least one
+				entity next to the current position of the iterator
+
+				\return The method returns true if there is at least one
+				entity next to the current position of the iterator
+			*/
+
+			TDE2_API bool HasNext() const;
+
+			/*!
+				\brief The method resets current state of the iterator to the beginnning of
+				a collection
+			*/
+
+			TDE2_API void Reset();
+
+			/*!
+				\brief The method returns an entity that is pointed by the iterator
+
+				\return  The method returns a pointer to specific IComponent that is pointed by the iterator
+			*/
+
+			TDE2_API IComponent* Get() const;
+
+			/*!
+				\brief The method returns an entity that is pointed by the iterator
+
+				\return  The method returns a pointer to specific IComponent that is pointed by the iterator
+			*/
+
+			TDE2_API IComponent* operator* () const;
+
+			/*!
+				\brief The method increments current iterator so it point to next
+				entity within a collection
+
+				\return A reference to an iterator to next entity within a collection
+			*/
+
+			TDE2_API CComponentIterator& operator++ ();
+
+			TDE2_API bool operator== (const CComponentIterator& iter) const;
+
+			TDE2_API bool operator!= (const CComponentIterator& iter) const;
+		protected:
+			TDE2_API CComponentIterator();
+		protected:
+			TComponentsArray::iterator mBegin;
+
+			TComponentsArray::iterator mEnd;
+
+			U32                        mCurrIndex;
 	};
 }

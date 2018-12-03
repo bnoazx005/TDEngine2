@@ -2,6 +2,7 @@
 #include "./../../include/ecs/IComponentFactory.h"
 #include "./../../include/ecs/IComponent.h"
 #include "./../../include/ecs/CTransform.h"
+#include "./../../include/ecs/CBaseComponent.h"
 #include "./../../include/graphics/CQuadSprite.h"
 #include "./../../include/graphics/CPerspectiveCamera.h"
 #include "./../../include/graphics/COrthoCamera.h"
@@ -364,6 +365,35 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	CComponentIterator CComponentManager::FindComponentsOfType(TypeId typeId)
+	{
+		if (mComponentsHashTable.find(typeId) == mComponentsHashTable.cend())
+		{
+			return CComponentIterator::mInvalidIterator;
+		}
+
+		U32 componentTypeHashValue = mComponentsHashTable[typeId];
+		
+		return CComponentIterator(mActiveComponents[componentTypeHashValue], 0);
+	}
+
+	void CComponentManager::ForEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action)
+	{
+		if (mComponentsHashTable.find(componentTypeId) == mComponentsHashTable.cend())
+		{
+			return;
+		}
+
+		U32 componentTypeHashValue = mComponentsHashTable[componentTypeId];
+
+		auto componentsGroup = mComponentEntityMap[componentTypeId];
+
+		for (auto iter = componentsGroup.begin(); iter != componentsGroup.end(); ++iter)
+		{
+			action((*iter).first, mActiveComponents[componentTypeHashValue][(*iter).second - 1]);
+		}
 	}
 
 

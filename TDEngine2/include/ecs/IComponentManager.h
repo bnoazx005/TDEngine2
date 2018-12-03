@@ -9,11 +9,12 @@
 
 #include "./../core/IBaseObject.h"
 #include "./../utils/Utils.h"
+#include "CBaseComponent.h"
+#include <functional>
 
 
 namespace TDEngine2
 {
-	class IComponent;
 	class IComponentFactory;
 
 
@@ -149,6 +150,44 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE RemoveComponentsImmediately(TEntityId id) = 0;
+			
+			/*!
+				\brief The method returns a one way iterator to an array of components of specified type
+
+				\return The method returns a one way iterator to an array of components of specified type
+			*/
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IComponent, T>, CComponentIterator>
+#else
+			typename std::enable_if<std::is_base_of<IComponent, T>::value, CComponentIterator>::type
+#endif
+			FindComponentsOfType()
+			{
+				return FindComponentsOfType(T::GetTypeId());
+			}
+			
+			/*!
+				\brief The method returns a one way iterator to an array of components of specified type
+
+				\param[in] typeId A type of a component
+
+				\return The method returns a one way iterator to an array of components of specified type
+			*/
+
+			TDE2_API virtual CComponentIterator FindComponentsOfType(TComponentTypeId typeId) = 0;
+
+			/*!
+				\brief The method iterates over each entity, which has specified component
+
+				\param[in] componentTypeId A type of a component
+
+				\param[in] action A callback that will be executed for each entity
+			*/
+
+			TDE2_API virtual void ForEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
 
 			/*!
 				\brief The method returns a pointer to a component of specified type T

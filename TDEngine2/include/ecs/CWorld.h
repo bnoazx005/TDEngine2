@@ -18,6 +18,7 @@ namespace TDEngine2
 	class CEntityManager;
 	class IComponentManager;
 	class ISystemManager;
+	class IComponentIterator;
 
 
 	/*!
@@ -138,13 +139,16 @@ namespace TDEngine2
 
 			TDE2_API void Update(float dt) override;
 		protected:
-			TDE2_API CWorld();
-			TDE2_API ~CWorld() = default;
-			TDE2_API CWorld(const CWorld& world) = delete;
-			TDE2_API CWorld& operator=(const CWorld& world) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWorld)
+
+			TDE2_API CComponentIterator _findComponentsOfType(TypeId typeId) override;
+
+			TDE2_API void _forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) override;
 		protected:
 			CEntityManager*    mpEntityManager;
+
 			IComponentManager* mpComponentManager;
+
 			ISystemManager*    mpSystemManager;
 	};
 

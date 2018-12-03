@@ -123,6 +123,16 @@ namespace TDEngine2
 	{
 		mpSystemManager->Update(this, dt);
 	}
+
+	CComponentIterator CWorld::_findComponentsOfType(TypeId typeId)
+	{
+		return mpComponentManager->FindComponentsOfType(typeId);
+	}
+
+	void CWorld::_forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action)
+	{
+		mpComponentManager->ForEach(componentTypeId, action);
+	}
 	
 
 	IWorld* CreateWorld(E_RESULT_CODE& result)

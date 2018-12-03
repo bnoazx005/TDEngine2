@@ -13,7 +13,9 @@
 #include <list>
 #include <unordered_map>
 #include <functional>
+#include <memory>
 #include "./../utils/Utils.h"
+#include "IComponent.h"
 
 
 namespace TDEngine2
@@ -92,6 +94,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE RemoveComponentsImmediately(TEntityId id) override;
+
+			/*!
+				\brief The method returns a one way iterator to an array of components of specified type
+
+				\param[in] typeId A type of a component
+
+				\return The method returns a one way iterator to an array of components of specified type
+			*/
+
+			TDE2_API CComponentIterator FindComponentsOfType(TypeId typeId) override;
+
+			/*!
+				\brief The method iterates over each entity, which has specified component
+
+				\param[in] componentTypeId A type of a component
+
+				\param[in] action A callback that will be executed for each entity
+			*/
+
+			TDE2_API void ForEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
 

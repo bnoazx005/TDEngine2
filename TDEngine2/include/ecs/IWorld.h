@@ -8,13 +8,17 @@
 
 
 #include "./../core/IBaseObject.h"
+#include "./../utils/Utils.h"
+#include "CBaseComponent.h"
+#include <functional>
 
 
 namespace TDEngine2
 {
 	class ISystem;
-	class IWorld;
 	class CEntity;
+	class IComponent;
+	class IComponentIterator;
 
 
 	/*!
@@ -116,6 +120,44 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE DeactivateSystem(ISystem* pSystem) = 0;
 
 			/*!
+				\brief The method returns a one way iterator to an array of components of specified type
+
+				\return The method returns a one way iterator to an array of components of specified type
+			*/
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+				std::enable_if_t<std::is_base_of_v<IComponent, T>, CComponentIterator>
+#else
+				typename std::enable_if<std::is_base_of<IComponent, T>::value, CComponentIterator>::type
+#endif
+				FindComponentsOfType()
+			{
+				return _findComponentsOfType(T::GetTypeId());
+			}
+
+			/*!
+			\brief The method iterates over each entity, which has specified component
+
+			\param[in] componentTypeId A type of a component
+
+			\param[in] action A callback that will be executed for each entity
+			*/
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IComponent, T>, void>
+#else
+			typename std::enable_if<std::is_base_of<IComponent, T>::value, void>::type
+#endif
+			ForEach(const std::function<void(TEntityId entityId, IComponent* pComponent)>& action)
+			{
+				return _forEach(T::GetTypeId(), action);
+			}
+
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 
@@ -124,9 +166,10 @@ namespace TDEngine2
 
 			TDE2_API virtual void Update(float dt) = 0;
 		protected:
-			TDE2_API IWorld() = default;
-			TDE2_API virtual ~IWorld() = default;
-			TDE2_API IWorld(const IWorld& world) = delete;
-			TDE2_API virtual IWorld& operator=(const IWorld& world) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IWorld)
+
+			TDE2_API virtual CComponentIterator _findComponentsOfType(TypeId typeId) = 0;
+
+			TDE2_API virtual void _forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
 	};
 }
