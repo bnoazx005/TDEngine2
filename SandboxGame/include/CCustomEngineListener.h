@@ -65,4 +65,6 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 		TDEngine2::IVertexBuffer*          mpVertexBuffer;
 
 		TDEngine2::IIndexBuffer*           mpIndexBuffer;
+
+		TDEngine2::IWorld*                 mpWorld;
 };

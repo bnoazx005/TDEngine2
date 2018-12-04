@@ -32,7 +32,7 @@ namespace TDEngine2
 				\param[in] dt A delta time's value
 			*/
 
-			TDE2_API virtual void Update(IWorld* pWorld, float dt) = 0;
+			TDE2_API virtual void Update(IWorld* pWorld, F32 dt) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystem)
 	};

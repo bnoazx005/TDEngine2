@@ -1,6 +1,8 @@
 #include "./../../include/ecs/CSystemManager.h"
 #include "./../../include/ecs/ISystem.h"
 #include "./../../include/ecs/IWorld.h"
+#include "./../../include/ecs/CTransformSystem.h"
+#include "./../../include/ecs/CSpriteRendererSystem.h"
 #include <algorithm>
 
 
@@ -18,7 +20,33 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
+		ISystem* pTransformSystem = CreateTransformSystem(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mBuiltinSystems.push_back(pTransformSystem);
+
+		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mBuiltinSystems.push_back(pSpriteRendererSystem);
+
 		mIsInitialized = true;
+		
+		/// register builtin systems
+		for (auto iter = mBuiltinSystems.begin(); iter != mBuiltinSystems.end(); ++iter)
+		{
+			RegisterSystem(*iter);
+		}
 
 		return RC_OK;
 	}
@@ -30,7 +58,19 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		/// \todo add memory release code
+		E_RESULT_CODE result = RC_OK;
+
+		ISystem* pCurrSystem = nullptr;
+
+		for (auto iter = mBuiltinSystems.begin(); iter != mBuiltinSystems.end(); ++iter)
+		{
+			pCurrSystem = (*iter);
+
+			if (!pCurrSystem || ((result = UnregisterSystemImmediately(pCurrSystem)) != RC_OK))
+			{
+				return result;
+			}
+		}
 
 		mIsInitialized = false;
 

@@ -106,12 +106,15 @@ namespace TDEngine2
 				\param[in] dt A delta time's value
 			*/
 
-			TDE2_API void Update(IWorld* pWorld, float dt) override;
+			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSystemManager)
 		protected:
 			std::vector<ISystem*> mpActiveSystems;
+
 			std::list<ISystem*>   mpDeactivatedSystems;
+
+			std::vector<ISystem*> mBuiltinSystems;
 	};
 
 

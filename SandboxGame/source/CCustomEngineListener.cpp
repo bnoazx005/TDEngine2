@@ -23,11 +23,22 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	pVertexDeclaration->Bind(mpGraphicsContext, mpVertexBuffer, dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING)));
 
-	return TDEngine2::RC_OK;
+	TDEngine2::E_RESULT_CODE result = TDEngine2::RC_OK;
+
+	mpWorld = TDEngine2::CreateWorld(result);
+
+	for (TDEngine2::I32 i = 0; i < 50; ++i)
+	{
+		mpWorld->CreateEntity();
+	}
+
+	return result;
 }
 
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
+	mpWorld->Update(dt);
+
 	mpGraphicsContext->ClearBackBuffer(TDEngine2::TColor32F(0.0, 0.0, 0.5f, 1.0));
 	mpGraphicsContext->ClearDepthBuffer(1.0f);
 
@@ -52,6 +63,13 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnFree()
 {
+	TDEngine2::E_RESULT_CODE result = mpWorld->Free();
+
+	if (result != TDEngine2::RC_OK)
+	{
+		return result;
+	}
+
 	return TDEngine2::RC_OK;
 }
 

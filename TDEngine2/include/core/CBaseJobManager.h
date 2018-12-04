@@ -44,7 +44,7 @@ namespace TDEngine2
 			typedef std::queue<std::unique_ptr<IJob>> TJobQueue;
 		public:
 			/*!
-				\brief The method initializes an inner state of a resource manager
+				\brief The method initializes an inner state of a manager
 
 				\param[in] maxNumOfThreads A maximum number of threads that will be created and processed by the manager
 

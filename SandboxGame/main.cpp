@@ -30,29 +30,6 @@ int main(int argc, char** argv)
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
 	
-	IWorld* pWorld = CreateWorld(result);
-
-	auto entity = pWorld->CreateEntity();
-
-	for (int i = 0; i < 49; ++i)
-		pWorld->CreateEntity();
-
-	entity->AddComponent<CQuadSprite>();
-
-	CComponentIterator c = pWorld->FindComponentsOfType<CTransform>();
-
-	while (c.HasNext())
-	{
-		++c;
-	}
-
-	/*pWorld->ForEach<CTransform>([](TEntityId entity, IComponent* pComponent)
-	{
-		std::cout << "entity : " << entity << "\n";
-	});*/
-	
-	pWorld->Free();
-
 	pEngineCoreBuilder->Free();
 	
 	IEngineListener* pCustomListener = new CCustomEngineListener();

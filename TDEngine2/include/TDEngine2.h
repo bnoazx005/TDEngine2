@@ -57,6 +57,8 @@
 #include "ecs/CTransform.h"
 #include "ecs/IComponentFactory.h"
 #include "ecs/IComponentManager.h"
+#include "ecs/CTransformSystem.h"
+#include "ecs/CSpriteRendererSystem.h"
 
 ///graphics
 #include "graphics/IBuffer.h"
