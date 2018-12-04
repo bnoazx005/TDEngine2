@@ -56,7 +56,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 	mpGraphicsContext->Present();
 
-	mpWindowSystem->SetTitle(std::to_string(mpWindowSystem->GetTimer()->GetDeltaTime()));
+	mpWindowSystem->SetTitle(std::to_string(dt));
 
 	return TDEngine2::RC_OK;
 }

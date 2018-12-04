@@ -17,6 +17,7 @@ namespace TDEngine2
 {
 	class IDLLManager;
 	class IWindowSystem;
+	class ITimer;
 
 
 	/*!
@@ -159,6 +160,8 @@ namespace TDEngine2
 			IEngineSubsystem*  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 
 			TListenersArray    mEngineListeners;
+
+			ITimer*            mpInternalTimer;
 
 			IDLLManager*       mpDLLManager;
 

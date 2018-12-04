@@ -5,6 +5,7 @@
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/core/IPlugin.h"
 #include "./../../include/core/IDLLManager.h"
+#include "./../../include/utils/ITimer.h"
 #include <cstring>
 #include <algorithm>
 
@@ -112,6 +113,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		mpInternalTimer = pWindowSystem->GetTimer();
 
 		LOG_MESSAGE("[Engine Core] The engine's core begins to execute the main loop...");
 
@@ -294,7 +297,7 @@ namespace TDEngine2
 					resultCode = pListener->OnStart();
 					break;
 				case EET_ONUPDATE:
-					resultCode = pListener->OnUpdate(0.0f /*! \todo replace with delta time's value */);
+					resultCode = pListener->OnUpdate(mpInternalTimer->GetDeltaTime());
 					break;
 				case EET_ONFREE:
 					resultCode = pListener->OnFree();
