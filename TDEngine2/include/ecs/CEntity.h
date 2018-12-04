@@ -10,6 +10,7 @@
 #include "./../core/CBaseObject.h"
 #include "./../utils/Utils.h"
 #include "CEntityManager.h"
+#include <string>
 
 
 namespace TDEngine2
@@ -27,15 +28,21 @@ namespace TDEngine2
 	class CEntity : public CBaseObject
 	{
 		public:
-			friend TDE2_API CEntity* CreateEntity(TEntityId id, CEntityManager* pEntityManager, E_RESULT_CODE& result);
+			friend TDE2_API CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an entity
 
+				\param[in] id Unique identifier of an entity
+
+				\param[in] name A name of an entity
+
+				\param[in, out] pEntityManager A pointer to CEntityManager class
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(TEntityId id, CEntityManager* pEntityManager);
+			TDE2_API virtual E_RESULT_CODE Init(TEntityId id, const std::string& name, CEntityManager* pEntityManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -53,6 +60,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void SetId(TEntityId id);
+
+			/*!
+				\brief The method sets up a name of an entity
+
+				\param[in] name A new name of the entity
+			*/
+
+			TDE2_API virtual void SetName(const std::string& name);
 
 			/*!
 				\brief The method resets current state of an entity
@@ -106,6 +121,14 @@ namespace TDEngine2
 
 			TDE2_API virtual TEntityId GetId() const;
 
+			/*!
+				\brief The method returns a name of an entity
+
+				\return The method returns a name of an entity
+			*/
+
+			TDE2_API virtual const std::string& GetName() const;
+
 			TDE2_API virtual bool operator== (const CEntity* pEntity) const;
 
 			TDE2_API virtual bool operator!= (const CEntity* pEntity) const;
@@ -119,6 +142,8 @@ namespace TDEngine2
 			CEntityManager* mpEntityManager;
 
 			TEntityId       mId;
+
+			std::string     mName;
 	};
 
 
@@ -147,5 +172,5 @@ namespace TDEngine2
 		\return A pointer to CEntity's implementation
 	*/
 
-	TDE2_API CEntity* CreateEntity(TEntityId id, CEntityManager* pEntityManager, E_RESULT_CODE& result);
+	TDE2_API CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result);
 }

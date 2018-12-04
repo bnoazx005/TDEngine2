@@ -8,6 +8,7 @@
 
 
 #include "./../core/IBaseObject.h"
+#include "./../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -33,9 +34,6 @@ namespace TDEngine2
 
 			TDE2_API virtual void Update(IWorld* pWorld, float dt) = 0;
 		protected:
-			TDE2_API ISystem() = default;
-			TDE2_API virtual ~ISystem() = default;
-			TDE2_API ISystem(const ISystem& system) = delete;
-			TDE2_API virtual ISystem& operator=(const ISystem& system) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystem)
 	};
 }

@@ -58,6 +58,16 @@ namespace TDEngine2
 			TDE2_API CEntity* CreateEntity() override;
 
 			/*!
+				\brief The method creates a new instance of CEntity
+
+				\param[in] name A name of an entity
+
+				\return A pointer to a new instance of CEntity, nullptr may be returned
+			*/
+
+			TDE2_API CEntity* CreateEntity(const std::string& name) override;
+
+			/*!
 				\brief The method destroys specified entity.
 				Note that the entity won't be deleted, it will be
 				reused later, so a pointer will be valid.

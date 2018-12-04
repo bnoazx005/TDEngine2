@@ -10,7 +10,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CEntity::Init(TEntityId id, CEntityManager* pEntityManager)
+	E_RESULT_CODE CEntity::Init(TEntityId id, const std::string& name, CEntityManager* pEntityManager)
 	{
 		if (!pEntityManager)
 		{
@@ -25,6 +25,8 @@ namespace TDEngine2
 		mpEntityManager = pEntityManager;
 
 		mId = id;
+
+		mName = name;
 
 		mIsInitialized = true;
 
@@ -50,6 +52,11 @@ namespace TDEngine2
 		mId = id;
 	}
 
+	void CEntity::SetName(const std::string& name)
+	{
+		mName = name;
+	}
+
 	void CEntity::Reset()
 	{
 		mId = InvalidEntityId;
@@ -63,6 +70,11 @@ namespace TDEngine2
 	TEntityId CEntity::GetId() const
 	{
 		return mId;
+	}
+
+	const std::string& CEntity::GetName() const
+	{
+		return mName;
 	}
 
 	bool CEntity::operator== (const CEntity* pEntity) const
@@ -96,7 +108,7 @@ namespace TDEngine2
 	}
 
 
-	CEntity* CreateEntity(TEntityId id, CEntityManager* pEntityManager, E_RESULT_CODE& result)
+	CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result)
 	{
 		CEntity* pEntity = new (std::nothrow) CEntity();
 
@@ -107,7 +119,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pEntity->Init(id, pEntityManager);
+		result = pEntity->Init(id, name, pEntityManager);
 
 		if (result != RC_OK)
 		{

@@ -84,6 +84,11 @@ namespace TDEngine2
 		return mpEntityManager->Create();
 	}
 
+	CEntity* CWorld::CreateEntity(const std::string& name)
+	{
+		return mpEntityManager->Create(name);
+	}
+
 	E_RESULT_CODE CWorld::Destroy(CEntity* pEntity)
 	{
 		return mpEntityManager->Destroy(pEntity);

@@ -11,6 +11,7 @@
 #include "./../utils/Utils.h"
 #include "CBaseComponent.h"
 #include <functional>
+#include <string>
 
 
 namespace TDEngine2
@@ -45,6 +46,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual CEntity* CreateEntity() = 0;
+
+			/*!
+				\brief The method creates a new instance of CEntity
+				
+				\param[in] name A name of an entity
+
+				\return A pointer to a new instance of CEntity, nullptr may be returned
+			*/
+
+			TDE2_API virtual CEntity* CreateEntity(const std::string& name) = 0;
 
 			/*!
 				\brief The method destroys specified entity.

@@ -56,7 +56,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		CEntity* pEntity = CreateEntity(mNextIdValue, this, result);
+		CEntity* pEntity = CreateEntity(mNextIdValue, _constructDefaultEntityName(mNextIdValue), this, result);
 
 		if (result != RC_OK)
 		{
@@ -75,6 +75,32 @@ namespace TDEngine2
 		/// create basic component CTransform
 		pEntity->AddComponent<CTransform>();
 		
+		return pEntity;
+	}
+
+	CEntity* CEntityManager::Create(const std::string& name)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		CEntity* pEntity = CreateEntity(mNextIdValue, name, this, result);
+
+		if (result != RC_OK)
+		{
+			return nullptr;
+		}
+
+		size_t currStorageSize = mActiveEntities.size();
+
+		if (mNextIdValue + 1 >= currStorageSize)
+		{
+			mActiveEntities.resize(currStorageSize + 10); /// \todo 10 is just a magic constant that should be replaced in some way
+		}
+
+		mActiveEntities[mNextIdValue++] = pEntity;
+
+		/// create basic component CTransform
+		pEntity->AddComponent<CTransform>();
+
 		return pEntity;
 	}
 
@@ -158,6 +184,11 @@ namespace TDEngine2
 	E_RESULT_CODE CEntityManager::RemoveComponents(TEntityId id)
 	{
 		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	std::string CEntityManager::_constructDefaultEntityName(U32 id) const
+	{
+		return std::move(std::string("Entity").append(std::to_string(id)));
 	}
 	
 

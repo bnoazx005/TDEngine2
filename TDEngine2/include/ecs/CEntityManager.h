@@ -8,9 +8,11 @@
 
 
 #include "./../core/CBaseObject.h"
+#include "./../utils/Utils.h"
 #include "IComponentManager.h"
 #include <vector>
 #include <list>
+#include <string>
 
 
 namespace TDEngine2
@@ -56,6 +58,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API CEntity* Create();
+
+			/*!
+				\brief The method creates a new instance of CEntity
+
+				\param[in] name A name of an entity
+
+				\return A pointer to a new instance of CEntity, nullptr may be returned
+			*/
+
+			TDE2_API CEntity* Create(const std::string& name);
 
 			/*!
 				\brief The method destroys specified entity.
@@ -137,10 +149,9 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API T* GetComponent(TEntityId id);
 		protected:
-			TDE2_API CEntityManager();
-			TDE2_API virtual ~CEntityManager() = default;
-			TDE2_API CEntityManager(const CEntityManager& entityMgr) = delete;
-			TDE2_API virtual CEntityManager& operator= (CEntityManager& entityMgr) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntityManager)
+
+			std::string _constructDefaultEntityName(U32 id) const;
 		protected:
 			std::vector<CEntity*> mActiveEntities;
 			std::list<CEntity*>   mDestroyedEntities;

@@ -8,6 +8,7 @@
 
 
 #include "./../core/CBaseObject.h"
+#include "./../utils/Utils.h"
 #include "ISystemManager.h"
 #include <vector>
 #include <list>
@@ -107,10 +108,7 @@ namespace TDEngine2
 
 			TDE2_API void Update(IWorld* pWorld, float dt) override;
 		protected:
-			TDE2_API CSystemManager();
-			TDE2_API ~CSystemManager() = default;
-			TDE2_API CSystemManager(const CSystemManager& systemManager) = delete;
-			TDE2_API CSystemManager& operator=(const CSystemManager& systemManager) = delete;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSystemManager)
 		protected:
 			std::vector<ISystem*> mpActiveSystems;
 			std::list<ISystem*>   mpDeactivatedSystems;
