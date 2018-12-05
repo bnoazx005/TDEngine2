@@ -12,6 +12,7 @@
 #include "CBaseComponent.h"
 #include <functional>
 #include <string>
+#include <vector>
 
 
 namespace TDEngine2
@@ -169,6 +170,31 @@ namespace TDEngine2
 			}
 
 			/*!
+				\brief The method returns an array of entities identifiers, which have all of
+				specified components
+
+				\return The method returns an array of entities identifiers, which have all of
+				specified components
+			*/
+
+			template <typename... TArgs>
+			TDE2_API std::vector<TEntityId> FindEntitiesWithComponents()
+			{
+				/// \todo this implementation is not safe enough, another solution should be found instead
+				return _findEntitiesWithComponents({ { TArgs::GetTypeId()... } });
+			}
+
+			/*!
+				\brief The method seeks out an entity and either return it or return nullptr
+
+				\param[in] entityId Unique entity's identifier
+
+				\return The method seeks out an entity and either return it or return nullptr
+			*/
+
+			TDE2_API virtual CEntity* FindEntity(TEntityId entityId) const = 0;
+			
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 
@@ -182,5 +208,7 @@ namespace TDEngine2
 			TDE2_API virtual CComponentIterator _findComponentsOfType(TypeId typeId) = 0;
 
 			TDE2_API virtual void _forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
+
+			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TComponentTypeId>& types) = 0;
 	};
 }

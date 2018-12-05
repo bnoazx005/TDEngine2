@@ -396,6 +396,40 @@ namespace TDEngine2
 		}
 	}
 
+	std::vector<TEntityId> CComponentManager::FindEntitiesWithComponents(const std::vector<TComponentTypeId>& types)
+	{
+		std::vector<TEntityId> filter;
+
+		std::unordered_map<TComponentTypeId, U32> entityComponentsTable;
+
+		bool containsAll = false;
+
+		for (auto entityComponentsTablePair : mEntityComponentMap)
+		{
+			entityComponentsTable = entityComponentsTablePair.second;
+
+			containsAll = true;
+
+			for (auto typeIter = types.cbegin(); typeIter != types.cend(); ++typeIter)
+			{
+				containsAll = containsAll && (entityComponentsTable.find(*typeIter) != entityComponentsTable.cend());
+
+				if (!containsAll) /// an early interruption of the loop if one of operands is false
+				{
+					break;
+				}
+			}
+
+			if (!containsAll)
+			{
+				continue;
+			}
+
+			filter.push_back(entityComponentsTablePair.first);
+		}
+
+		return std::move(filter);
+	}
 
 	IComponentManager* CreateComponentManager(E_RESULT_CODE& result)
 	{

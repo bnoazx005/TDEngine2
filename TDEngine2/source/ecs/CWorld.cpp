@@ -123,6 +123,11 @@ namespace TDEngine2
 	{
 		return mpSystemManager->DeactivateSystem(pSystem);
 	}
+
+	CEntity* CWorld::FindEntity(TEntityId entityId) const
+	{
+		return mpEntityManager->GetEntity(entityId);
+	}
 	
 	void CWorld::Update(float dt)
 	{
@@ -137,6 +142,11 @@ namespace TDEngine2
 	void CWorld::_forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action)
 	{
 		mpComponentManager->ForEach(componentTypeId, action);
+	}
+
+	std::vector<TEntityId> CWorld::_findEntitiesWithComponents(const std::vector<TComponentTypeId>& types)
+	{
+		return mpComponentManager->FindEntitiesWithComponents(types);
 	}
 	
 

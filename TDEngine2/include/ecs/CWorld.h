@@ -139,6 +139,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE DeactivateSystem(ISystem* pSystem) override;
+			
+			/*!
+				\brief The method seeks out an entity and either return it or return nullptr
+
+				\param[in] entityId Unique entity's identifier
+
+				\return The method seeks out an entity and either return it or return nullptr
+			*/
+
+			TDE2_API CEntity* FindEntity(TEntityId entityId) const override;
 
 			/*!
 				\brief The main method that should be implemented in all derived classes.
@@ -154,6 +164,8 @@ namespace TDEngine2
 			TDE2_API CComponentIterator _findComponentsOfType(TypeId typeId) override;
 
 			TDE2_API void _forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) override;
+
+			TDE2_API std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TComponentTypeId>& types) override;
 		protected:
 			CEntityManager*    mpEntityManager;
 

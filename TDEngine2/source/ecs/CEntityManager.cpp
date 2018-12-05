@@ -186,6 +186,16 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
+	CEntity* CEntityManager::GetEntity(TEntityId entityId) const
+	{
+		if (entityId >= mActiveEntities.size())
+		{
+			return nullptr;
+		}
+
+		return mActiveEntities[entityId];
+	}
+
 	std::string CEntityManager::_constructDefaultEntityName(U32 id) const
 	{
 		return std::move(std::string("Entity").append(std::to_string(id)));

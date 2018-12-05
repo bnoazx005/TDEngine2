@@ -114,6 +114,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void ForEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) override;
+			
+			/*!
+				\brief The method returns an array of entities identifiers, which have all of
+				specified components
+
+				\param[in] types An array that contains types identifiers that an entity should have
+
+				\return The method returns an array of entities identifiers, which have all of
+				specified components
+			*/
+
+			TDE2_API std::vector<TEntityId> FindEntitiesWithComponents(const std::vector<TComponentTypeId>& types) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
 

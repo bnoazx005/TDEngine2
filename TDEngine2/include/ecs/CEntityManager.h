@@ -148,6 +148,16 @@ namespace TDEngine2
 
 			template <typename T>
 			TDE2_API T* GetComponent(TEntityId id);
+
+			/*!
+				\brief The method seeks out an entity and either return it or return nullptr
+
+				\param[in] entityId Unique entity's identifier
+
+				\return The method seeks out an entity and either return it or return nullptr
+			*/
+
+			TDE2_API CEntity* GetEntity(TEntityId entityId) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntityManager)
 

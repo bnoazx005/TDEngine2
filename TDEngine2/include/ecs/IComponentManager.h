@@ -11,6 +11,7 @@
 #include "./../utils/Utils.h"
 #include "CBaseComponent.h"
 #include <functional>
+#include <vector>
 
 
 namespace TDEngine2
@@ -188,6 +189,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void ForEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
+
+			/*!
+				\brief The method returns an array of entities identifiers, which have all of
+				specified components
+
+				\param[in] types An array that contains types identifiers that an entity should have
+
+				\return The method returns an array of entities identifiers, which have all of
+				specified components
+			*/
+
+			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithComponents(const std::vector<TComponentTypeId>& types) = 0;
 
 			/*!
 				\brief The method returns a pointer to a component of specified type T

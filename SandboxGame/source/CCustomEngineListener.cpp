@@ -25,10 +25,14 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	for (TDEngine2::I32 i = 0; i < 50; ++i)
+	for (TDEngine2::I32 i = 0; i < 10; ++i)
 	{
-		mpWorld->CreateEntity();
+		auto pEntity = mpWorld->CreateEntity();
+
+		pEntity->AddComponent<TDEngine2::CQuadSprite>();
 	}
+
+	auto t = mpWorld->FindEntitiesWithComponents<TDEngine2::CTransform, TDEngine2::CQuadSprite>();
 
 	return TDEngine2::RC_OK;
 }

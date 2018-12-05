@@ -1,5 +1,8 @@
 #include "./../../include/ecs/CSpriteRendererSystem.h"
 #include "./../../include/ecs/IWorld.h"
+#include "./../../include/graphics/CQuadSprite.h"
+#include "./../../include/ecs/CEntity.h"
+#include "./../../include/ecs/CTransform.h"
 
 
 namespace TDEngine2
@@ -37,7 +40,39 @@ namespace TDEngine2
 
 	void CSpriteRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		pWorld->ForEach<CQuadSprite>([&pWorld](TEntityId entityId, IComponent* pComponent)
+		{
+			CEntity* pEntity = pWorld->FindEntity(entityId);
+
+			if (!pEntity)
+			{
+				return;
+			}
+
+			CQuadSprite* pSprite = dynamic_cast<CQuadSprite*>(pComponent);
+
+			CTransform* pTransform = pEntity->GetComponent<CTransform>();
+
+			// send sprite to one of batches based on (graphics layer / static / etc)
+		});
+
+
 		/// \todo implement this method
+
+		/*
+		pseudocode of the logic:
+
+		foreach(IGraphicsLayer pCurrLayer in mGraphicsLayers) {
+			ISprite[] pSprites = FindSpritesWithLayer(pCurrLayer);
+
+			pSprites = SortByMaterials(pSprites);
+
+			foreach(ISprite pCurrSprite in pSprites) {
+				DrawBatchIfChanged(pSprite->mMaterial);
+
+				AddToBatch(pSprite);
+			}
+		}*/
 	}
 
 
