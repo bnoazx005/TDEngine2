@@ -155,9 +155,26 @@ namespace TDEngine2
 			__pragma(warning(pop))									\
 			return typeId;											\
 		}
+
+	#define TDE2_REGISTER_VIRTUAL_TYPE(Type)						\
+		virtual TypeId GetTypeId() const							\
+		{															\
+			__pragma(warning(push))									\
+			__pragma(warning(disable:4307))							\
+			static constexpr TypeId typeId = ComputeHash(#Type);	\
+			__pragma(warning(pop))									\
+			return typeId;											\
+		}
 #else
 	#define TDE2_REGISTER_TYPE(Type)								\
 		static TypeId GetTypeId()									\
+		{															\
+			static constexpr TypeId typeId = ComputeHash(#Type);	\
+			return typeId;											\
+		}
+
+#define TDE2_REGISTER_VIRTUAL_TYPE(Type)							\
+		virtual TypeId GetTypeId() const							\
 		{															\
 			static constexpr TypeId typeId = ComputeHash(#Type);	\
 			return typeId;											\

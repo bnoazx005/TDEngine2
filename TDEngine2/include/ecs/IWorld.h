@@ -21,6 +21,7 @@ namespace TDEngine2
 	class CEntity;
 	class IComponent;
 	class IComponentIterator;
+	class IEventManager;
 
 
 	/*!
@@ -35,10 +36,12 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes a world's instance
 
+				\param[in, out] A pointer to IEventManager implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IEventManager* pEventManager) = 0;
 
 			/*!
 				\brief The method creates a new instance of CEntity

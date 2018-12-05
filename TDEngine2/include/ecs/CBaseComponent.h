@@ -9,6 +9,7 @@
 
 #include "IComponent.h"
 #include "./../core/CBaseObject.h"
+#include "./../core/Event.h"
 #include <vector>
 
 
@@ -137,4 +138,46 @@ namespace TDEngine2
 
 			U32                        mCurrIndex;
 	};
+
+
+	/*!
+		struct TOnComponentCreatedEvent
+
+		\brief The structure represents an event which occurs
+		when a new component was created
+	*/
+
+	typedef struct TOnComponentCreatedEvent: TBaseEvent
+	{
+		virtual ~TOnComponentCreatedEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnComponentCreatedEvent)
+
+		REGISTER_EVENT_TYPE(TOnComponentCreatedEvent)
+			
+		TEntityId        mEntityId;
+
+		TComponentTypeId mCreatedComponentTypeId;
+	} TOnComponentCreatedEvent, *TOnComponentCreatedEventPtr;
+
+
+	/*!
+		struct TOnComponentRemovedEvent
+
+		\brief The structure represents an event which occurs
+		when some component was removed from an entity
+	*/
+
+	typedef struct TOnComponentRemovedEvent : TBaseEvent
+	{
+		virtual ~TOnComponentRemovedEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnComponentRemovedEvent)
+
+		REGISTER_EVENT_TYPE(TOnComponentRemovedEvent)
+		
+		TEntityId        mEntityId;
+
+		TComponentTypeId mRemovedComponentTypeId;
+	} TOnComponentRemovedEvent, *TOnComponentRemovedEventPtr;
 }

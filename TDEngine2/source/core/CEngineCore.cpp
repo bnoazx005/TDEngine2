@@ -7,6 +7,7 @@
 #include "./../../include/core/IDLLManager.h"
 #include "./../../include/utils/ITimer.h"
 #include "./../../include/ecs/CWorld.h"
+#include "./../../include/core/IEventManager.h"
 #include <cstring>
 #include <algorithm>
 
@@ -30,16 +31,7 @@ namespace TDEngine2
 		memset(&mSubsystems, 0, sizeof(mSubsystems));
 
 		mpDLLManager = nullptr;
-
-		E_RESULT_CODE result = RC_OK;
-
-		mpWorldInstance = CreateWorld(result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
+		
 		mIsInitialized = true;
 		
 		LOG_MESSAGE("[Engine Core] The engine's core starts to work...");
@@ -114,6 +106,17 @@ namespace TDEngine2
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+		
+		IEventManager* pEventManager = dynamic_cast<IEventManager*>(mSubsystems[EST_EVENT_MANAGER]);
+
+		mpWorldInstance = CreateWorld(pEventManager, result);
+
+		if (result != RC_OK)
+		{
+			return result;
 		}
 
 		if (_onNotifyEngineListeners(EET_ONSTART) != RC_OK)

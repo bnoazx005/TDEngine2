@@ -36,42 +36,38 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEventManager::Subscribe(IEventHandler* pEventListener)
+	E_RESULT_CODE CEventManager::Subscribe(TypeId eventType, IEventHandler* pEventListener)
 	{
 		if (!pEventListener)
 		{
 			return RC_INVALID_ARGS;
 		}
-
-		TypeId eventTypeId = pEventListener->GetEventTypeId();
-
-		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(eventTypeId);
+		
+		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(eventType);
 
 		if (handlersGroupIter == mListenersMap.cend()) /// create a new group if it doesn't exists yet
 		{
 			E_RESULT_CODE result = RC_OK;
 
-			if ((result = _createNewListenersGroup(eventTypeId)) != RC_OK)
+			if ((result = _createNewListenersGroup(eventType)) != RC_OK)
 			{
 				return result;
 			}
 		}
 
-		mListeners[(*handlersGroupIter).second].push_back(pEventListener);
+		mListeners[mListenersMap[eventType]].push_back(pEventListener);
 
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEventManager::Unsubscribe(IEventHandler* pEventListener)
+	E_RESULT_CODE CEventManager::Unsubscribe(TypeId eventType, IEventHandler* pEventListener)
 	{
 		if (!pEventListener)
 		{
 			return RC_INVALID_ARGS;
 		}
-
-		TypeId eventTypeId = pEventListener->GetEventTypeId();
-
-		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(eventTypeId);
+		
+		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(eventType);
 
 		if (handlersGroupIter == mListenersMap.cend())
 		{
@@ -106,7 +102,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(pEvent->GetTypeId());
+		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(pEvent->GetEventType());
 
 		if (handlersGroupIter == mListenersMap.cend())
 		{

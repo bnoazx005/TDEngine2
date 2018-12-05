@@ -252,7 +252,7 @@ namespace TDEngine2
 		
 		return mpEngineCoreInstance->RegisterSubsystem(pEventManager);
 	}
-
+	
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()
 	{
 		return mpEngineCoreInstance;

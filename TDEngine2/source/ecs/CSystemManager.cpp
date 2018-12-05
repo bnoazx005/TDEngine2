@@ -3,22 +3,39 @@
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CTransformSystem.h"
 #include "./../../include/ecs/CSpriteRendererSystem.h"
+#include "./../../include/utils/Utils.h"
+#include "./../../include/core/IEventManager.h"
+#include "./../../include/ecs/CEntity.h"
+#include "./../../include/ecs/CBaseComponent.h"
 #include <algorithm>
 
 
 namespace TDEngine2
 {
 	CSystemManager::CSystemManager() :
-		CBaseObject()
+		CBaseObject(), mpEventManager(nullptr)
 	{
 	}
 
-	E_RESULT_CODE CSystemManager::Init()
+	E_RESULT_CODE CSystemManager::Init(IEventManager* pEventManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		if (!pEventManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpEventManager = pEventManager;
+
+		/// subscribe the manager onto events of ECS
+		mpEventManager->Subscribe(TOnEntityCreatedEvent::GetTypeId(), this);
+		mpEventManager->Subscribe(TOnEntityRemovedEvent::GetTypeId(), this);
+		mpEventManager->Subscribe(TOnComponentCreatedEvent::GetTypeId(), this);
+		mpEventManager->Subscribe(TOnComponentRemovedEvent::GetTypeId(), this);
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -168,8 +185,17 @@ namespace TDEngine2
 		}
 	}
 
+	E_RESULT_CODE CSystemManager::OnEvent(const TBaseEvent* pEvent)
+	{
+		return RC_OK;
+	}
 
-	ISystemManager* CreateSystemManager(E_RESULT_CODE& result)
+	TEventListenerId CSystemManager::GetListenerId() const
+	{
+		return GetTypeId();
+	}
+
+	ISystemManager* CreateSystemManager(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
 		CSystemManager* pSysManager = new (std::nothrow) CSystemManager();
 
@@ -180,7 +206,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pSysManager->Init();
+		result = pSysManager->Init(pEventManager);
 
 		if (result != RC_OK)
 		{

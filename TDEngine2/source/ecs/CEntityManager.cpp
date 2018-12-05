@@ -1,28 +1,31 @@
 #include "./../../include/ecs/CEntityManager.h"
 #include "./../../include/ecs/CEntity.h"
 #include "./../../include/ecs/CTransform.h"
+#include "./../../include/core/IEventManager.h"
 
 
 namespace TDEngine2
 {
 	CEntityManager::CEntityManager() :
-		CBaseObject()
+		CBaseObject(), mpEventManager(nullptr)
 	{
 	}
 
-	E_RESULT_CODE CEntityManager::Init(IComponentManager* pComponentManager)
+	E_RESULT_CODE CEntityManager::Init(IEventManager* pEventManager, IComponentManager* pComponentManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pComponentManager)
+		if (!pComponentManager || !pEventManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpComponentManager = pComponentManager;
+
+		mpEventManager = pEventManager;
 
 		mNextIdValue = 0;
 
@@ -54,54 +57,12 @@ namespace TDEngine2
 
 	CEntity* CEntityManager::Create()
 	{
-		E_RESULT_CODE result = RC_OK;
-
-		CEntity* pEntity = CreateEntity(mNextIdValue, _constructDefaultEntityName(mNextIdValue), this, result);
-
-		if (result != RC_OK)
-		{
-			return nullptr;
-		}
-
-		size_t currStorageSize = mActiveEntities.size();
-
-		if (mNextIdValue + 1 >= currStorageSize)
-		{
-			mActiveEntities.resize(currStorageSize + 10); /// \todo 10 is just a magic constant that should be replaced in some way
-		}
-		
-		mActiveEntities[mNextIdValue++] = pEntity;
-
-		/// create basic component CTransform
-		pEntity->AddComponent<CTransform>();
-		
-		return pEntity;
+		return _createEntity(_constructDefaultEntityName(mNextIdValue));
 	}
 
 	CEntity* CEntityManager::Create(const std::string& name)
 	{
-		E_RESULT_CODE result = RC_OK;
-
-		CEntity* pEntity = CreateEntity(mNextIdValue, name, this, result);
-
-		if (result != RC_OK)
-		{
-			return nullptr;
-		}
-
-		size_t currStorageSize = mActiveEntities.size();
-
-		if (mNextIdValue + 1 >= currStorageSize)
-		{
-			mActiveEntities.resize(currStorageSize + 10); /// \todo 10 is just a magic constant that should be replaced in some way
-		}
-
-		mActiveEntities[mNextIdValue++] = pEntity;
-
-		/// create basic component CTransform
-		pEntity->AddComponent<CTransform>();
-
-		return pEntity;
+		return _createEntity(name);
 	}
 
 	E_RESULT_CODE CEntityManager::Destroy(CEntity* pEntity)
@@ -200,9 +161,41 @@ namespace TDEngine2
 	{
 		return std::move(std::string("Entity").append(std::to_string(id)));
 	}
+
+	CEntity* CEntityManager::_createEntity(const std::string& name)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		CEntity* pEntity = CreateEntity(mNextIdValue, name, this, result);
+		
+		if (result != RC_OK)
+		{
+			return nullptr;
+		}
+
+		size_t currStorageSize = mActiveEntities.size();
+
+		if (mNextIdValue + 1 >= currStorageSize)
+		{
+			mActiveEntities.resize(currStorageSize + 10); /// \todo 10 is just a magic constant that should be replaced in some way
+		}
+		
+		TOnEntityCreatedEvent onEntityCreated;
+
+		onEntityCreated.mCreatedEntityId = mNextIdValue;
+
+		mActiveEntities[mNextIdValue++] = pEntity;
+
+		/// create basic component CTransform
+		pEntity->AddComponent<CTransform>();
+		
+		mpEventManager->Notify(&onEntityCreated);
+
+		return pEntity;
+	}
 	
 
-	CEntityManager* CreateEntityManager(IComponentManager* pComponentManager, E_RESULT_CODE& result)
+	CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, E_RESULT_CODE& result)
 	{
 		CEntityManager* pEntityManager = new (std::nothrow) CEntityManager();
 
@@ -213,7 +206,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pEntityManager->Init(pComponentManager);
+		result = pEntityManager->Init(pEventManager, pComponentManager);
 
 		if (result != RC_OK)
 		{

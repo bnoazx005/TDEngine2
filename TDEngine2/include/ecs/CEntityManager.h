@@ -18,6 +18,24 @@
 namespace TDEngine2
 {
 	class CEntity;
+	class IEventManager;
+	class CEntityManager;
+
+
+	/*!
+		\brief A factory function for creation objects of CEntityManager's type.
+
+		\param[in, out] pEventManager A pointer to IEventManager implementation
+
+		\param[in, out] pComponentManager A pointer to IComponentManager implementation
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CEntityManager's implementation
+	*/
+
+	TDE2_API CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, E_RESULT_CODE& result);
+
 
 	/*!
 		class CEntityManager
@@ -31,17 +49,19 @@ namespace TDEngine2
 	class CEntityManager: public CBaseObject
 	{
 		public:
-			friend TDE2_API CEntityManager* CreateEntityManager(IComponentManager* pComponentManager, E_RESULT_CODE& result);
+			friend TDE2_API CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an entity manager's instance
 
-				\param[in] pComponentManager A pointer to a component manager's instance
+				\param[in, out] pEventManager A pointer to IEventManager implementation
+
+				\param[in, out] pComponentManager A pointer to a component manager's instance
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IComponentManager* pComponentManager);
+			TDE2_API virtual E_RESULT_CODE Init(IEventManager* pEventManager, IComponentManager* pComponentManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -162,11 +182,18 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntityManager)
 
 			std::string _constructDefaultEntityName(U32 id) const;
+
+			TDE2_API CEntity* _createEntity(const std::string& name);
 		protected:
 			std::vector<CEntity*> mActiveEntities;
+
 			std::list<CEntity*>   mDestroyedEntities;
+
 			TEntityId             mNextIdValue;
+
 			IComponentManager*    mpComponentManager;
+
+			IEventManager*        mpEventManager;
 	};
 	
 
@@ -187,13 +214,4 @@ namespace TDEngine2
 	{
 		return mpComponentManager->GetComponent<T>(id);
 	}
-
-
-	/*!
-		\brief A factory function for creation objects of CEntityManager's type.
-
-		\return A pointer to CEntityManager's implementation
-	*/
-
-	TDE2_API CEntityManager* CreateEntityManager(IComponentManager* pComponentManager, E_RESULT_CODE& result);
 }

@@ -14,6 +14,18 @@
 namespace TDEngine2
 {
 	/*!
+		\brief The macro is used to declare virtual method for
+		event's type retrieving
+	*/
+
+	#define REGISTER_EVENT_TYPE(Type)		\
+		virtual TypeId GetEventType() const \
+		{									\
+			return Type::GetTypeId();		\
+		}
+
+
+	/*!
 		type TBaseEvent
 
 		\brief The s describes a functionality of an event
@@ -21,9 +33,13 @@ namespace TDEngine2
 
 	typedef struct TBaseEvent
 	{
+		virtual ~TBaseEvent() = default;
+
 		TDE2_REGISTER_TYPE(TBaseEvent)
 
-		TEventListenerId mReceiverId;		///< Receiver's id, use BroadcastListenersIdValue for event's broadcasting
+		REGISTER_EVENT_TYPE(TBaseEvent)
+
+		TEventListenerId mReceiverId = BroadcastListenersIdValue;		///< Receiver's id, use BroadcastListenersIdValue for event's broadcasting
 	} TBaseEvent, *TBaseEventPtr;
 
 
@@ -45,17 +61,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) = 0;
-
-			/*!
-				\brief The method returns an identifier of an event's type, which
-				the handler listens to
-
-				\return The method returns an identifier of an event's type, which
-				the handler listens to
-			*/
-
-			TDE2_API virtual TypeId GetEventTypeId() const = 0;
-
+			
 			/*!
 				\brief The method returns an identifier of a listener
 

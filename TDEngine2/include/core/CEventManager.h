@@ -63,22 +63,26 @@ namespace TDEngine2
 			/*!
 				\brief The method registers a new subscriber into a list of subscribers
 
+				\param[in] eventType A type of event that a subscriber want to listen to
+
 				\param[in, out] pEventListener A pointer to implementation of a specific event listener
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Subscribe(IEventHandler* pEventListener) override;
+			TDE2_API E_RESULT_CODE Subscribe(TypeId eventType, IEventHandler* pEventListener) override;
 
 			/*!
 				\brief The method unregisters a given subscriber from a list of subscribers
 
+				\param[in] eventType A type of an event
+
 				\param[in, out] pEventListener A pointer to implementation of a specific event listener
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Unsubscribe(IEventHandler* pEventListener) override;
+			TDE2_API E_RESULT_CODE Unsubscribe(TypeId eventType, IEventHandler* pEventListener) override;
 
 			/*!
 				\brief The method broadcasts a given event to its listeners

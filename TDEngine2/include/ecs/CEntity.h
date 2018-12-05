@@ -10,6 +10,7 @@
 #include "./../core/CBaseObject.h"
 #include "./../utils/Utils.h"
 #include "CEntityManager.h"
+#include "./../core/Event.h"
 #include <string>
 
 
@@ -173,4 +174,42 @@ namespace TDEngine2
 	*/
 
 	TDE2_API CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result);
+
+
+	/*!
+		struct TOnEntityCreatedEvent
+
+		\brief The structure represents an event which occurs 
+		when a new entity was created
+	*/
+
+	typedef struct TOnEntityCreatedEvent: TBaseEvent
+	{
+		virtual ~TOnEntityCreatedEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnEntityCreatedEvent)
+
+		REGISTER_EVENT_TYPE(TOnEntityCreatedEvent)
+
+		TEntityId mCreatedEntityId;
+	} TOnEntityCreatedEvent, *TOnEntityCreatedEventPtr;
+
+	
+	/*!
+		struct TOnEntityRemovedEvent
+
+		\brief The structure represents an event which occurs
+		when an entity was removed
+	*/
+
+	typedef struct TOnEntityRemovedEvent: TBaseEvent
+	{
+		virtual ~TOnEntityRemovedEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnEntityRemovedEvent)
+
+		REGISTER_EVENT_TYPE(TOnEntityRemovedEvent)
+
+		TEntityId mRemovedEntityId;
+	} TOnEntityRemovedEvent, *TOnEntityRemovedEventPtr;
 }

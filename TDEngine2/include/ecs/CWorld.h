@@ -22,6 +22,19 @@ namespace TDEngine2
 
 
 	/*!
+		\brief A factory function for creation objects of CWorld's type.
+
+		\param[in, out] pEventManager A pointer to IEventManager implementation
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CWorld's implementation
+	*/
+
+	TDE2_API IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result);
+
+
+	/*!
 		interface CWorld
 
 		\brief The class is a main scene object, which
@@ -31,15 +44,17 @@ namespace TDEngine2
 	class CWorld : public CBaseObject, public IWorld
 	{
 		public:
-			friend TDE2_API IWorld* CreateWorld(E_RESULT_CODE& result);
+			friend TDE2_API IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes a world's instance
 
+				\param[in, out] A pointer to IEventManager implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init() override;
+			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -172,14 +187,7 @@ namespace TDEngine2
 			IComponentManager* mpComponentManager;
 
 			ISystemManager*    mpSystemManager;
+
+			IEventManager*     mpEventManager;
 	};
-
-
-	/*!
-		\brief A factory function for creation objects of CWorld's type.
-
-		\return A pointer to CWorld's implementation
-	*/
-
-	TDE2_API IWorld* CreateWorld(E_RESULT_CODE& result);
 }

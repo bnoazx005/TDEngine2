@@ -4,20 +4,26 @@
 #include "./../../include/ecs/CEntityManager.h"
 #include "./../../include/ecs/CComponentManager.h"
 #include "./../../include/ecs/CSystemManager.h"
+#include "./../../include/core/IEventManager.h"
 
 
 namespace TDEngine2
 {
 	CWorld::CWorld():
-		CBaseObject()
+		CBaseObject(), mpEventManager(nullptr)
 	{
 	}
 
-	E_RESULT_CODE CWorld::Init()
+	E_RESULT_CODE CWorld::Init(IEventManager* pEventManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
+		}
+
+		if (!pEventManager)
+		{
+			return RC_INVALID_ARGS;
 		}
 		
 		E_RESULT_CODE result = RC_OK;
@@ -29,19 +35,21 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpEntityManager = CreateEntityManager(mpComponentManager, result);
+		mpEntityManager = CreateEntityManager(pEventManager, mpComponentManager, result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 		
-		mpSystemManager = CreateSystemManager(result);
+		mpSystemManager = CreateSystemManager(pEventManager, result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
+
+		mpEventManager = pEventManager;
 
 		mIsInitialized = true;
 
@@ -150,7 +158,7 @@ namespace TDEngine2
 	}
 	
 
-	IWorld* CreateWorld(E_RESULT_CODE& result)
+	IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
 		CWorld* pWorld = new (std::nothrow) CWorld();
 
@@ -161,7 +169,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pWorld->Init();
+		result = pWorld->Init(pEventManager);
 
 		if (result != RC_OK)
 		{
