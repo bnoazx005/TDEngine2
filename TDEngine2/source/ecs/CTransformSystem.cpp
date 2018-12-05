@@ -41,8 +41,19 @@ namespace TDEngine2
 		pWorld->ForEach<CTransform>([](TEntityId entityId, IComponent* pComponent)
 		{
 			auto pTransform = dynamic_cast<CTransform*>(pComponent);
+
+			if (!pTransform->HasChanged())
+			{
+				return;
+			}
 			
-			/// \todo implement logic of CTranform update
+			const TMatrix4& localToWorldMatrix = (TranslationMatrix(pTransform->GetPosition()) * 
+												  RotationMatrix(pTransform->GetRotation())) * 
+												  ScaleMatrix(pTransform->GetScale());
+
+			pTransform->SetTransform(localToWorldMatrix);
+
+			/// \todo Implement parent-to-child relationship's update
 		});
 	}
 

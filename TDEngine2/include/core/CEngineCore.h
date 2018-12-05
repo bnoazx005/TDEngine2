@@ -146,6 +146,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API ITimer* GetTimer() const override;
+
+			/*!
+				\brief The method returns a pointer to IWorld implementation
+
+				\return The method returns a pointer to IWorld implementation
+			*/
+
+			TDE2_API IWorld* GetWorldInstance() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEngineCore)
 
@@ -164,6 +172,8 @@ namespace TDEngine2
 			ITimer*            mpInternalTimer;
 
 			IDLLManager*       mpDLLManager;
+
+			IWorld*            mpWorldInstance;
 
 			mutable std::mutex mMutex; ///< \todo the mutex doesn't use in the code, should be fixed later!
 	};

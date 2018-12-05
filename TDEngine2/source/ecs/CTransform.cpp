@@ -4,7 +4,7 @@
 namespace TDEngine2
 {
 	CTransform::CTransform() :
-		CBaseComponent(), mTransform(IdentityMatrix4), mHasChanged(true)
+		CBaseComponent(), mLocalToWorldMatrix(IdentityMatrix4), mHasChanged(true)
 	{
 	}
 
@@ -65,6 +65,11 @@ namespace TDEngine2
 		mHasChanged = true;
 	}
 
+	void CTransform::SetTransform(const TMatrix4& transform)
+	{
+		mLocalToWorldMatrix = transform;
+	}
+
 	const TVector3& CTransform::GetPosition() const
 	{
 		return mPosition;
@@ -78,6 +83,11 @@ namespace TDEngine2
 	const TVector3& CTransform::GetScale() const
 	{
 		return mScale;
+	}
+
+	const TMatrix4& CTransform::GetTransform() const
+	{
+		return mLocalToWorldMatrix;
 	}
 	
 	bool CTransform::HasChanged() const

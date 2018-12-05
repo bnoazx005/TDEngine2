@@ -6,6 +6,7 @@
 #include "./../../include/core/IPlugin.h"
 #include "./../../include/core/IDLLManager.h"
 #include "./../../include/utils/ITimer.h"
+#include "./../../include/ecs/CWorld.h"
 #include <cstring>
 #include <algorithm>
 
@@ -30,8 +31,17 @@ namespace TDEngine2
 
 		mpDLLManager = nullptr;
 
-		mIsInitialized = true;
+		E_RESULT_CODE result = RC_OK;
 
+		mpWorldInstance = CreateWorld(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mIsInitialized = true;
+		
 		LOG_MESSAGE("[Engine Core] The engine's core starts to work...");
 
 		return RC_OK;
@@ -53,7 +63,11 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-
+		if ((result = mpWorldInstance->Free()) != RC_OK)
+		{
+			return result;
+		}
+		
 		LOG_MESSAGE("[Engine Core] Clear the subsystems registry...");
 
 		/// frees memory from all subsystems
@@ -270,6 +284,11 @@ namespace TDEngine2
 		return pWindowSystem->GetTimer();
 	}
 
+	IWorld* CEngineCore::GetWorldInstance() const
+	{
+		return mpWorldInstance;
+	}
+
 	void CEngineCore::_onFrameUpdateCallback()
 	{
 		_onNotifyEngineListeners(EET_ONUPDATE);
@@ -284,6 +303,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE resultCode = RC_OK;
 
+		F32 dt = 0.0f;
+
 		for (IEngineListener* pListener : mEngineListeners)
 		{
 			if (!pListener)
@@ -297,7 +318,11 @@ namespace TDEngine2
 					resultCode = pListener->OnStart();
 					break;
 				case EET_ONUPDATE:
-					resultCode = pListener->OnUpdate(mpInternalTimer->GetDeltaTime());
+					dt = mpInternalTimer->GetDeltaTime();
+
+					mpWorldInstance->Update(dt);
+
+					resultCode = pListener->OnUpdate(dt);
 					break;
 				case EET_ONFREE:
 					resultCode = pListener->OnFree();

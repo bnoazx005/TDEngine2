@@ -100,6 +100,14 @@ namespace TDEngine2
 			TDE2_API void SetScale(const TVector3& scale) override;
 
 			/*!
+				\brief The method sets up a world transform
+
+				\param[in] transform matrix 4x4 that specifies local to world transformation
+			*/
+
+			TDE2_API void SetTransform(const TMatrix4& transform) override;
+
+			/*!
 				\brief The method returns a global position's value
 
 				\return The method returns a global position's value
@@ -124,6 +132,14 @@ namespace TDEngine2
 			TDE2_API const TVector3& GetScale() const override;
 
 			/*!
+				\brief The method returns local to world matrix
+
+				\return The method returns local to world matrix
+			*/
+
+			TDE2_API const TMatrix4& GetTransform() const override;
+
+			/*!
 				\brief The method returns true if a state of a component was changed
 
 				\return The method returns true if a state of a component was changed
@@ -139,7 +155,7 @@ namespace TDEngine2
 
 			TVector3    mScale;
 
-			TMatrix4    mTransform;
+			TMatrix4    mLocalToWorldMatrix;
 
 			bool        mHasChanged;
 	};

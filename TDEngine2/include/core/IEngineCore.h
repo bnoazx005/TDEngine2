@@ -20,6 +20,7 @@ namespace TDEngine2
 	class ILogger;
 	class ITimer;
 	class IPlugin;
+	class IWorld;
 
 
 	/*!
@@ -136,6 +137,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual ITimer* GetTimer() const = 0;
+
+			/*!
+				\brief The method returns a pointer to IWorld implementation
+
+				\return The method returns a pointer to IWorld implementation
+			*/
+
+			TDE2_API virtual IWorld* GetWorldInstance() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEngineCore)
 	};

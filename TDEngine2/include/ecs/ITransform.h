@@ -79,6 +79,14 @@ namespace TDEngine2
 			TDE2_API virtual void SetScale(const TVector3& scale) = 0;
 
 			/*!
+				\brief The method sets up a world transform
+
+				\param[in] transform matrix 4x4 that specifies local to world transformation
+			*/
+
+			TDE2_API virtual void SetTransform(const TMatrix4& transform) = 0;
+
+			/*!
 				\brief The method returns a global position's value
 
 				\return The method returns a global position's value
@@ -101,6 +109,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TVector3& GetScale() const = 0;
+
+			/*!
+				\brief The method returns local to world matrix
+
+				\return The method returns local to world matrix
+			*/
+
+			TDE2_API virtual const TMatrix4& GetTransform() const = 0;
 
 			/*!
 				\brief The method returns true if a state of a component was changed
