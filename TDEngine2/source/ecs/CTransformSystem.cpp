@@ -1,6 +1,7 @@
 #include "./../../include/ecs/CTransformSystem.h"
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CTransform.h"
+#include "./../../include/ecs/CEntity.h"
 
 
 namespace TDEngine2
@@ -34,6 +35,27 @@ namespace TDEngine2
 		delete this;
 
 		return RC_OK;
+	}
+
+	void CTransformSystem::InjectBindings(IWorld* pWorld)
+	{
+		mTransforms.clear();
+
+		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform>();
+
+		CEntity* pCurrEntity = nullptr;
+
+		for (auto iter = entities.begin(); iter != entities.end(); ++iter)
+		{
+			pCurrEntity = pWorld->FindEntity(*iter);
+
+			if (!pCurrEntity)
+			{
+				continue;
+			}
+
+			mTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
+		}
 	}
 
 	void CTransformSystem::Update(IWorld* pWorld, F32 dt)

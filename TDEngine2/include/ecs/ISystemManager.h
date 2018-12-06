@@ -31,12 +31,14 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes a ISystemManager's instance
 
+				\param[in, out] pWorld A pointer to IWorld implementation
+
 				\param[in, out] pEventManager A pointer to IEventManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IEventManager* pEventManager) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IWorld* pWorld, IEventManager* pEventManager) = 0;
 
 			/*!
 				\brief The method registers specified system

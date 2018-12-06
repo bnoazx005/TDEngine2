@@ -13,24 +13,26 @@
 namespace TDEngine2
 {
 	CSystemManager::CSystemManager() :
-		CBaseObject(), mpEventManager(nullptr)
+		CBaseObject(), mpEventManager(nullptr), mpWorld(nullptr)
 	{
 	}
 
-	E_RESULT_CODE CSystemManager::Init(IEventManager* pEventManager)
+	E_RESULT_CODE CSystemManager::Init(IWorld* pWorld, IEventManager* pEventManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pEventManager)
+		if (!pEventManager || !pWorld)
 		{
 			return RC_INVALID_ARGS;
 		}
+		
+		mpWorld = pWorld;
 
 		mpEventManager = pEventManager;
-
+		
 		/// subscribe the manager onto events of ECS
 		mpEventManager->Subscribe(TOnEntityCreatedEvent::GetTypeId(), this);
 		mpEventManager->Subscribe(TOnEntityRemovedEvent::GetTypeId(), this);
@@ -187,6 +189,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSystemManager::OnEvent(const TBaseEvent* pEvent)
 	{
+		for (ISystem* pCurrSystem : mpActiveSystems)
+		{
+			pCurrSystem->InjectBindings(mpWorld);
+		}
+
 		return RC_OK;
 	}
 
@@ -195,7 +202,7 @@ namespace TDEngine2
 		return GetTypeId();
 	}
 
-	ISystemManager* CreateSystemManager(IEventManager* pEventManager, E_RESULT_CODE& result)
+	ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
 		CSystemManager* pSysManager = new (std::nothrow) CSystemManager();
 
@@ -206,7 +213,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pSysManager->Init(pEventManager);
+		result = pSysManager->Init(pWorld, pEventManager);
 
 		if (result != RC_OK)
 		{

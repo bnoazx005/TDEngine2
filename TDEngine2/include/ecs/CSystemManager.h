@@ -24,6 +24,8 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CSystemManager's type.
 
+		\param[in, out] pWorld A pointer to IWorld implementation
+
 		\param[in, out] pEventManager A pointer to IEventManager implementation
 		
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -31,7 +33,7 @@ namespace TDEngine2
 		\return A pointer to CSystemManager's implementation
 	*/
 
-	TDE2_API ISystemManager* CreateSystemManager(IEventManager* pEventManager, E_RESULT_CODE& result);
+	TDE2_API ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -44,19 +46,21 @@ namespace TDEngine2
 	class CSystemManager : public CBaseObject, public ISystemManager, public IEventHandler
 	{
 		public:
-			friend TDE2_API ISystemManager* CreateSystemManager(IEventManager* pEventManager, E_RESULT_CODE& result);
+			friend TDE2_API ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(CSystemManager)
 
 			/*!
 				\brief The method initializes a ISystemManager's instance
 
+				\param[in, out] pWorld A pointer to IWorld implementation
+
 				\param[in, out] pEventManager A pointer to IEventManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager) override;
+			TDE2_API E_RESULT_CODE Init(IWorld* pWorld, IEventManager* pEventManager) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -153,5 +157,7 @@ namespace TDEngine2
 			std::vector<ISystem*> mBuiltinSystems;
 
 			IEventManager*        mpEventManager;
+
+			IWorld*               mpWorld;
 	};
 }

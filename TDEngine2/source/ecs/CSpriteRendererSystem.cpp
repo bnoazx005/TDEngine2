@@ -38,25 +38,33 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CSpriteRendererSystem::Update(IWorld* pWorld, F32 dt)
+	void CSpriteRendererSystem::InjectBindings(IWorld* pWorld)
 	{
-		pWorld->ForEach<CQuadSprite>([&pWorld](TEntityId entityId, IComponent* pComponent)
-		{
-			CEntity* pEntity = pWorld->FindEntity(entityId);
+		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite>();
 
-			if (!pEntity)
+		mTransforms.clear();
+		
+		mSprites.clear();
+
+		CEntity* pCurrEntity = nullptr;
+
+		for (auto iter = entities.begin(); iter != entities.end(); ++iter)
+		{
+			pCurrEntity = pWorld->FindEntity(*iter);
+
+			if (!pCurrEntity)
 			{
-				return;
+				continue;
 			}
 
-			CQuadSprite* pSprite = dynamic_cast<CQuadSprite*>(pComponent);
+			mTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
 
-			CTransform* pTransform = pEntity->GetComponent<CTransform>();
+			mSprites.push_back(pCurrEntity->GetComponent<CQuadSprite>());
+		}
+	}
 
-			// send sprite to one of batches based on (graphics layer / static / etc)
-		});
-
-
+	void CSpriteRendererSystem::Update(IWorld* pWorld, F32 dt)
+	{
 		/// \todo implement this method
 
 		/*

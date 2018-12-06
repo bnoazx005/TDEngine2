@@ -42,7 +42,7 @@ namespace TDEngine2
 			return result;
 		}
 		
-		mpSystemManager = CreateSystemManager(pEventManager, result);
+		mpSystemManager = CreateSystemManager(this, pEventManager, result);
 
 		if (result != RC_OK)
 		{

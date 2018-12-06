@@ -78,10 +78,20 @@ namespace TDEngine2
 		{
 			return result;
 		}
+		
+		TEntityId id = pEntity->GetId();
 
-		mActiveEntities[pEntity->GetId()] = nullptr;
+		TOnEntityRemovedEvent onEntityRemoved;
+		
+		onEntityRemoved.mRemovedEntityId = id;
+
+		mActiveEntities[id] = nullptr;
 
 		mDestroyedEntities.push_back(pEntity);
+
+		mEntitiesHashTable.erase(id);
+
+		mpEventManager->Notify(&onEntityRemoved);
 
 		return RC_OK;
 	}
@@ -100,15 +110,25 @@ namespace TDEngine2
 			return result;
 		}
 
+		TEntityId id = pEntity->GetId();
+
+		TOnEntityRemovedEvent onEntityRemoved;
+
+		onEntityRemoved.mRemovedEntityId = id;
+
 		result = pEntity->Free();
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
+				
+		mActiveEntities[id] = nullptr;
 
-		mActiveEntities[pEntity->GetId()] = nullptr;
+		mEntitiesHashTable.erase(id);
 		
+		mpEventManager->Notify(&onEntityRemoved);
+
 		return RC_OK;
 	}
 
@@ -144,17 +164,19 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::RemoveComponents(TEntityId id)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		return mpComponentManager->RemoveComponents(id);
 	}
 
 	CEntity* CEntityManager::GetEntity(TEntityId entityId) const
 	{
-		if (entityId >= mActiveEntities.size())
+		TEntitiesHashTable::const_iterator entityIter = mEntitiesHashTable.find(entityId);
+
+		if (entityIter == mEntitiesHashTable.cend())
 		{
 			return nullptr;
 		}
 
-		return mActiveEntities[entityId];
+		return mActiveEntities[(*entityIter).second];
 	}
 
 	std::string CEntityManager::_constructDefaultEntityName(U32 id) const
@@ -184,6 +206,8 @@ namespace TDEngine2
 
 		onEntityCreated.mCreatedEntityId = mNextIdValue;
 
+		mEntitiesHashTable[mNextIdValue] = mNextIdValue;
+
 		mActiveEntities[mNextIdValue++] = pEntity;
 
 		/// create basic component CTransform
@@ -192,6 +216,26 @@ namespace TDEngine2
 		mpEventManager->Notify(&onEntityCreated);
 
 		return pEntity;
+	}
+
+	void CEntityManager::_notifyOnAddComponent(TEntityId entityId, TComponentTypeId componentTypeId)
+	{
+		TOnComponentCreatedEvent onComponentCreated;
+
+		onComponentCreated.mEntityId               = entityId;
+		onComponentCreated.mCreatedComponentTypeId = componentTypeId;
+
+		mpEventManager->Notify(&onComponentCreated);
+	}
+
+	void CEntityManager::_notifyOnRemovedComponent(TEntityId entityId, TComponentTypeId componentTypeId)
+	{
+		TOnComponentRemovedEvent onComponentRemoved;
+
+		onComponentRemoved.mEntityId               = entityId;
+		onComponentRemoved.mRemovedComponentTypeId = componentTypeId;
+
+		mpEventManager->Notify(&onComponentRemoved);
 	}
 	
 

@@ -25,6 +25,14 @@ namespace TDEngine2
 	{
 		public:
 			/*!
+				\brief The method inject components array into a system
+				
+				\param[in] pWorld A pointer to a main scene's object
+			*/
+
+			TDE2_API virtual void InjectBindings(IWorld* pWorld) = 0;
+
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 

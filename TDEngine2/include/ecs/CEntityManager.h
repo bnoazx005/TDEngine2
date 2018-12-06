@@ -13,6 +13,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -50,6 +51,8 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, E_RESULT_CODE& result);
+		protected:
+			typedef std::unordered_map<TEntityId, U32> TEntitiesHashTable;
 		public:
 			/*!
 				\brief The method initializes an entity manager's instance
@@ -184,10 +187,16 @@ namespace TDEngine2
 			std::string _constructDefaultEntityName(U32 id) const;
 
 			TDE2_API CEntity* _createEntity(const std::string& name);
+
+			TDE2_API void _notifyOnAddComponent(TEntityId entityId, TComponentTypeId componentTypeId);
+
+			TDE2_API void _notifyOnRemovedComponent(TEntityId entityId, TComponentTypeId componentTypeId);
 		protected:
 			std::vector<CEntity*> mActiveEntities;
 
 			std::list<CEntity*>   mDestroyedEntities;
+
+			TEntitiesHashTable    mEntitiesHashTable;
 
 			TEntityId             mNextIdValue;
 
@@ -200,12 +209,16 @@ namespace TDEngine2
 	template <typename T>
 	TDE2_API T* CEntityManager::AddComponent(TEntityId id)
 	{
+		_notifyOnAddComponent(id, T::GetTypeId());
+
 		return mpComponentManager->CreateComponent<T>(id);
 	}
 
 	template <typename T>
 	TDE2_API E_RESULT_CODE CEntityManager::RemoveComponent(TEntityId id)
 	{
+		_notifyOnRemoveComponent(id, T::GetTypeId());
+
 		return mpComponentManager->RemoveComponent<T>(id);
 	}
 

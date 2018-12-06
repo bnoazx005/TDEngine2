@@ -13,6 +13,10 @@
 
 namespace TDEngine2
 {
+	class CTransform;
+	class CQuadSprite;
+
+
 	/*!
 		\brief A factory function for creation objects of CSpriteRendererSystem's type.
 
@@ -52,6 +56,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
+				\brief The method inject components array into a system
+
+				\param[in] pWorld A pointer to a main scene's object
+			*/
+
+			TDE2_API void InjectBindings(IWorld* pWorld) override;
+
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 
@@ -63,5 +75,9 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSpriteRendererSystem)
+		protected:
+			std::vector<CTransform*>  mTransforms;
+
+			std::vector<CQuadSprite*> mSprites;
 	};
 }
