@@ -10,6 +10,7 @@
 #include "./../include/CD3D11ShaderCompiler.h"
 #include <graphics/CBaseTexture2D.h>
 #include "./../include/CD3D11Texture2D.h"
+#include "./../include/CD3D11RenderTarget.h"
 
 
 namespace TDEngine2
@@ -90,6 +91,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
+		/// Register a factory of shaders
 		IResourceFactory* pFactoryInstance = CreateD3D11ShaderFactory(mpGraphicsContext, result);
 
 		if (result != RC_OK)
@@ -104,7 +106,18 @@ namespace TDEngine2
 			return registerResult.mResultCode;
 		}
 
+		/// Register a factory of 2D textures
 		pFactoryInstance = CreateD3D11Texture2DFactory(mpGraphicsContext, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
+
+		/// Try to register a factory of render target objects
+		pFactoryInstance = CreateD3D11RenderTargetFactory(mpGraphicsContext, result);
 
 		if (result != RC_OK)
 		{

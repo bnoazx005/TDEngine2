@@ -18,6 +18,7 @@
 #include "CD3D11VertexDeclaration.h"
 #include "CD3D11Texture2D.h"
 #include "CD3D11GraphicsObjectManager.h"
+#include "CD3D11RenderTarget.h"
 
 
 #include <core/IPlugin.h>

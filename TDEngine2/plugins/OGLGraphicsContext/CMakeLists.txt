@@ -30,6 +30,7 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLShaderCompiler.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLVertexDeclaration.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGraphicsObjectManager.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLRenderTarget.h"
 	)
 
 set(OGL_GCTX_SOURCES
@@ -47,6 +48,7 @@ set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLShaderCompiler.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLVertexDeclaration.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLGraphicsObjectManager.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLRenderTarget.cpp"
 	)
 
 source_group("includes" FILES ${OGL_GCTX_HEADERS})

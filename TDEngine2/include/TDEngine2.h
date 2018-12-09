@@ -87,6 +87,8 @@
 #include "graphics/InternalShaderData.h"
 #include "graphics/IGraphicsObjectManager.h"
 #include "graphics/CBaseGraphicsObjectManager.h"
+#include "graphics/IRenderTarget.h"
+#include "graphics/CBaseRenderTarget.h"
 
 ///math
 #include "math/TVector3.h"

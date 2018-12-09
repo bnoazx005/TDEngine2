@@ -21,6 +21,7 @@
 #include "COGLTexture2D.h"
 #include "COGLVertexDeclaration.h"
 #include "COGLGraphicsObjectManager.h"
+#include "COGLRenderTarget.h"
 
 
 #include <core/IPlugin.h>

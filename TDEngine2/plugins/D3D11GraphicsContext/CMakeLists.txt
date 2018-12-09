@@ -26,6 +26,7 @@ set(D3D11_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Texture2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Utils.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GraphicsObjectManager.h"	
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11RenderTarget.h"	
 	)
 
 set(D3D11_GCTX_SOURCES
@@ -41,6 +42,7 @@ set(D3D11_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11ShaderCompiler.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Texture2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11GraphicsObjectManager.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11RenderTarget.cpp"
 	)
 
 source_group("includes" FILES ${D3D11_GCTX_HEADERS})
