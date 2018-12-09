@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
+	pEngineCoreBuilder->ConfigureMemoryManager(DefaultGlobalMemoryBlockSize);
 	pEngineCoreBuilder->ConfigureJobManager();
 	pEngineCoreBuilder->ConfigureFileSystem();
 	pEngineCoreBuilder->ConfigureEventManager();
@@ -29,7 +30,7 @@ int main(int argc, char** argv)
 	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_DIRECT3D11);
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
-	
+
 	pEngineCoreBuilder->Free();
 	
 	IEngineListener* pCustomListener = new CCustomEngineListener();

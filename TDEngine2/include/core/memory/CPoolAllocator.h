@@ -8,6 +8,7 @@
 
 
 #include "CBaseAllocator.h"
+#include "./../../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -43,6 +44,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IAllocator* CreatePoolAllocator(U32 objectSize, U32 objectAlignment, U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
 		public:
+			TDE2_REGISTER_TYPE(CPoolAllocator)
+
 			/*!
 				\brief The method initializes an internal state of an allocator
 

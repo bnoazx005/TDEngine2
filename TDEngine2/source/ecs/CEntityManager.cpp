@@ -138,6 +138,11 @@ namespace TDEngine2
 
 		for (CEntity* pEntity : mActiveEntities)
 		{
+			if (!pEntity)
+			{
+				continue;
+			}
+
 			if ((result = Destroy(pEntity)) != RC_OK)
 			{
 				return result;
@@ -153,6 +158,11 @@ namespace TDEngine2
 
 		for (CEntity* pEntity : mActiveEntities)
 		{
+			if (!pEntity)
+			{
+				continue;
+			}
+
 			if ((result = DestroyImmediately(pEntity)) != RC_OK)
 			{
 				return result;

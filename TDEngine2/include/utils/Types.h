@@ -101,6 +101,7 @@ namespace TDEngine2
 		EST_JOB_MANAGER,				/// A subsytem represents a thread pool
 		EST_PLUGIN_MANAGER,				/// A subsystem represents a plugin manager
 		EST_EVENT_MANAGER,				/// A subsystem provides a centralized event bus
+		EST_MEMORY_MANAGER,				/// A subsystem represents a global memory manager
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 

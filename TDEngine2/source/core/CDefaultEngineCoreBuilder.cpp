@@ -13,6 +13,7 @@
 #include "./../../include/platform/CTextFileReader.h"
 #include "./../../include/platform/CConfigFileReader.h"
 #include "./../../include/core/CEventManager.h"
+#include "./../../include/core/memory/CMemoryManager.h"
 #include <memory>
 
 
@@ -253,6 +254,25 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(pEventManager);
 	}
 	
+	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureMemoryManager(U32 totalMemorySize)
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IEngineSubsystem* pMemoryManager = CreateMemoryManager(totalMemorySize, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		return mpEngineCoreInstance->RegisterSubsystem(pMemoryManager);
+	}
+
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()
 	{
 		return mpEngineCoreInstance;

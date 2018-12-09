@@ -8,6 +8,7 @@
 
 
 #include "CBaseAllocator.h"
+#include "./../../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -41,6 +42,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IAllocator* CreateLinearAllocator(U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
 		public:
+			TDE2_REGISTER_TYPE(CLinearAllocator)
+
 			/*!
 				\brief The method initializes an internal state of an allocator
 

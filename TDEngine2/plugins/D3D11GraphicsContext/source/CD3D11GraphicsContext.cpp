@@ -153,7 +153,7 @@ namespace TDEngine2
 
 		mIsInitialized = false;
 
-		return RC_FAIL;
+		return RC_OK;
 	}
 	
 	void CD3D11GraphicsContext::ClearBackBuffer(const TColor32F& color)

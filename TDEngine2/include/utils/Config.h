@@ -56,4 +56,7 @@ namespace TDEngine2
 
 	/// Math configurable constants
 	constexpr float FloatEpsilon = 1e-3f;
+
+	///< Memory manager configuration
+	constexpr size_t DefaultGlobalMemoryBlockSize = 1024 * 1024 * 512; /// 512 Mib
 }

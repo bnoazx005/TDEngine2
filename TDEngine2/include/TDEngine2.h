@@ -38,6 +38,8 @@
 #include "core/memory/CLinearAllocator.h"
 #include "core/memory/CStackAllocator.h"
 #include "core/memory/CPoolAllocator.h"
+#include "core/memory/IMemoryManager.h"
+#include "core/memory/CMemoryManager.h"
 #include "core/Event.h"
 #include "core/IEventManager.h"
 #include "core/CEventManager.h"

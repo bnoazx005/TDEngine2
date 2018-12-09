@@ -8,6 +8,7 @@
 
 
 #include "CBaseAllocator.h"
+#include "./../../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -45,6 +46,8 @@ namespace TDEngine2
 				U8 mPadding;
 			} TAllocHeader, *TAllocHeaderPtr;
 		public:
+			TDE2_REGISTER_TYPE(CStackAllocator)
+
 			/*!
 				\brief The method initializes an internal state of an allocator
 
