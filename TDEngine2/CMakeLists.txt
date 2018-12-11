@@ -97,6 +97,12 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CBaseGraphicsObjectManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IRenderTarget.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CBaseRenderTarget.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IRenderable.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IRenderer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CForwardRenderer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CRenderQueue.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IGraphicsLayersInfo.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CGraphicsLayersInfo.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32WindowSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32Timer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32DLLManager.h"
@@ -161,6 +167,9 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CVertexDeclaration.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseGraphicsObjectManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseRenderTarget.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CForwardRenderer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CRenderQueue.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CGraphicsLayersInfo.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32WindowSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32Timer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32DLLManager.cpp"
@@ -243,3 +252,9 @@ add_subdirectory(plugins)
 if (UNIX)
 	install (TARGETS ${TDENGINE2_LIBRARY_NAME} DESTINATION "/usr/lib/TDEngine2")
 endif ()
+
+# copy the engine's dll into /tests subdirectory for its testing
+add_custom_command(TARGET ${TDENGINE2_LIBRARY_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	"$<TARGET_FILE:${TDENGINE2_LIBRARY_NAME}>"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../tests/bin/")

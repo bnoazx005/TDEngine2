@@ -32,8 +32,6 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 		pEntity->AddComponent<TDEngine2::CQuadSprite>();
 	}
 
-	auto t = mpWorld->FindEntitiesWithComponents<TDEngine2::CTransform, TDEngine2::CQuadSprite>();
-
 	return TDEngine2::RC_OK;
 }
 

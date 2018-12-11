@@ -6,6 +6,7 @@
 #include <graphics/IShader.h>
 #include <graphics/IVertexBuffer.h>
 #include <unordered_map>
+#include <climits>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -43,17 +44,35 @@ namespace TDEngine2
 		std::unordered_map<E_VERTEX_ELEMENT_SEMANTIC_TYPE, U32> usedSemanticIndex;
 		
 		U32 currOffset = 0;
+		
+		U32 currInstancingElementIndex = (std::numeric_limits<U32>::max)();
+		U32 currInstancesPerData       = 0;
+
+		TInstancingInfoArray::const_iterator instancingIter = mInstancingInfo.cbegin();
+
+		if (!mInstancingInfo.empty())
+		{
+			std::tie(currInstancingElementIndex, currInstancesPerData) = *instancingIter;
+		}
+		
+		U32 currIndex = 0;
 
 		/// fill in elements vector
-		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter)
+		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter, ++currIndex)
 		{
+			/// a new instancing division has found
+			if ((currIndex == currInstancingElementIndex) && (instancingIter + 1 != mInstancingInfo.cend()))
+			{
+				std::tie(currInstancingElementIndex, currInstancesPerData) = *(++instancingIter); /// retrieve next division's info
+			}
+
 			currElement.SemanticName         = CD3D11Mappings::GetSemanticTypeName((*iter).mSemanticType);
 			currElement.SemanticIndex        = usedSemanticIndex[(*iter).mSemanticType]++;
 			currElement.Format               = CD3D11Mappings::GetDXGIFormat((*iter).mFormatType);
 			currElement.InputSlot            = (*iter).mSource;
 			currElement.AlignedByteOffset    = currOffset;
-			currElement.InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
-			currElement.InstanceDataStepRate = 0;
+			currElement.InputSlotClass       = (*iter).mIsPerInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+			currElement.InstanceDataStepRate = currInstancesPerData;
 
 			elements.push_back(currElement);
 

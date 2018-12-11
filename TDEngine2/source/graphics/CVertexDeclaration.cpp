@@ -47,6 +47,20 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CVertexDeclaration::AddInstancingDivisor(U32 index, U32 instancesPerData)
+	{
+		if (index >= mInstancingInfo.size() ||
+			index >= mElements.size() ||
+			(!mInstancingInfo.empty() && index < std::get<0/* element's index */>(mInstancingInfo.back()))) /// account correct ordering (from least to greatest)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mInstancingInfo.emplace_back(index, instancesPerData);
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CVertexDeclaration::RemoveElement(U32 index)
 	{
 		if (index >= mElements.size())
@@ -64,13 +78,13 @@ namespace TDEngine2
 		return mElements.size();
 	}
 
-	U32 CVertexDeclaration::GetStrideSize() const
+	U32 CVertexDeclaration::GetStrideSize(U32 sourceIndex) const
 	{
 		U32 totalStrideSize = 0;
-
+		
 		for (auto currElement : mElements)
 		{
-			totalStrideSize += _getFormatSize(currElement.mFormatType);
+			totalStrideSize = (currElement.mSource == sourceIndex) ? (totalStrideSize + _getFormatSize(currElement.mFormatType)) : totalStrideSize;
 		}
 
 		return totalStrideSize;

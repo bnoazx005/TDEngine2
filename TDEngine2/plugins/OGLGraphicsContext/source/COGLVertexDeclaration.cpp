@@ -2,6 +2,7 @@
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLVertexBuffer.h"
 #include <graphics/IVertexBuffer.h>
+#include <climits>
 
 
 namespace TDEngine2
@@ -37,10 +38,30 @@ namespace TDEngine2
 		E_FORMAT_TYPE currFormat = FT_UNKNOWN;
 
 		U32 currOffset = 0;
+		
+		U32 instanceDivisorIndex = (std::numeric_limits<U32>::max)();
+		U32 instancesPerData     = 0;
 
-		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter)
+		TInstancingInfoArray::const_iterator instancingInfoIter = mInstancingInfo.cbegin();
+
+		if (!mInstancingInfo.empty())
+		{
+			std::tie(instanceDivisorIndex, instancesPerData) = *instancingInfoIter;
+		}
+
+		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter, ++currIndex)
 		{
 			currFormat = (*iter).mFormatType;
+
+			/// instancing is used
+			if ((instanceDivisorIndex == currIndex) && (instancingInfoIter + 1 != mInstancingInfo.cend()))
+			{
+				glVertexAttribDivisor(instanceDivisorIndex, instancesPerData);
+
+				std::tie(instanceDivisorIndex, instancesPerData) = *(++instancingInfoIter); /// retrieve next division's info
+
+				currOffset = 0; /// reset the offset if a new division began
+			}
 			
 			glVertexAttribPointer(currIndex, COGLMappings::GetNumOfChannelsOfFormat(currFormat),
 								  COGLMappings::GetBaseTypeOfFormat(currFormat),
@@ -48,8 +69,8 @@ namespace TDEngine2
 								  COGLMappings::GetFormatSize(currFormat), reinterpret_cast<void*>(currOffset));
 
 			currOffset += COGLMappings::GetFormatSize(currFormat);
-
-			glEnableVertexAttribArray(currIndex++);
+			
+			glEnableVertexAttribArray(currIndex);
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

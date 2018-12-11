@@ -17,6 +17,7 @@
 #include "./../../include/core/memory/CLinearAllocator.h"
 #include "./../../include/core/memory/CPoolAllocator.h"
 #include "./../../include/core/memory/CStackAllocator.h"
+#include "./../../include/graphics/CForwardRenderer.h"
 #include <memory>
 
 
@@ -256,6 +257,29 @@ namespace TDEngine2
 		
 		return mpEngineCoreInstance->RegisterSubsystem(pEventManager);
 	}
+
+	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureRenderer()
+	{
+		if (!mIsInitialized || !mpMemoryManagerInstance)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		U8 renderQueuesCount = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP) + 1;
+
+		IAllocator* pAllocator = mpMemoryManagerInstance->CreateAllocator<CStackAllocator>(renderQueuesCount * PerRenderQueueMemoryBlockSize, "Renderer");
+
+		IEngineSubsystem* pRenderer = CreateForwardRenderer(pAllocator, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		return mpEngineCoreInstance->RegisterSubsystem(pRenderer);
+	}
 	
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureMemoryManager(U32 totalMemorySize)
 	{
@@ -266,7 +290,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IMemoryManager* pMemoryManager = CreateMemoryManager(totalMemorySize, result);
+		mpMemoryManagerInstance = CreateMemoryManager(totalMemorySize, result);
 
 		if (result != RC_OK)
 		{
@@ -293,13 +317,13 @@ namespace TDEngine2
 				return result;
 			}
 
-			if ((result = pMemoryManager->RegisterFactory(pAllocatorFactory)) != RC_OK)
+			if ((result = mpMemoryManagerInstance->RegisterFactory(pAllocatorFactory)) != RC_OK)
 			{
 				return result;
 			}
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(pMemoryManager);
+		return mpEngineCoreInstance->RegisterSubsystem(mpMemoryManagerInstance);
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()

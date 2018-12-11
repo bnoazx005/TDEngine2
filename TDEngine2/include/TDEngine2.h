@@ -89,6 +89,12 @@
 #include "graphics/CBaseGraphicsObjectManager.h"
 #include "graphics/IRenderTarget.h"
 #include "graphics/CBaseRenderTarget.h"
+#include "graphics/IRenderable.h"
+#include "graphics/IRenderer.h"
+#include "graphics/CForwardRenderer.h"
+#include "graphics/CRenderQueue.h"
+#include "graphics/IGraphicsLayersInfo.h"
+#include "graphics/CGraphicsLayersInfo.h"
 
 ///math
 #include "math/TVector3.h"

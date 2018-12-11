@@ -10,3 +10,4 @@ set(TDENGINE2_LIBRARY_NAME "TDEngine2")
 
 add_subdirectory(TDEngine2)
 add_subdirectory(SandboxGame)
+add_subdirectory(tests)

@@ -8,6 +8,9 @@
 #include "./../../include/utils/ITimer.h"
 #include "./../../include/ecs/CWorld.h"
 #include "./../../include/core/IEventManager.h"
+#include "./../../include/ecs/CSpriteRendererSystem.h"
+#include "./../../include/graphics/IRenderer.h"
+#include "./../../include/core/IGraphicsContext.h"
 #include <cstring>
 #include <algorithm>
 
@@ -115,6 +118,24 @@ namespace TDEngine2
 		mpWorldInstance = CreateWorld(pEventManager, result);
 
 		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		IRenderer* pRenderer = dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]);
+
+		const IGraphicsContext* pGraphicsCtx = dynamic_cast<const IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]);
+
+		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsCtx->GetGraphicsObjectManager();
+
+		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(pGraphicsObjectManager, pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SPRITES), result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = mpWorldInstance->RegisterSystem(pSpriteRendererSystem)) != RC_OK)
 		{
 			return result;
 		}

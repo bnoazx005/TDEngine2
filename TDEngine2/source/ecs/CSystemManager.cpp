@@ -50,15 +50,6 @@ namespace TDEngine2
 
 		mBuiltinSystems.push_back(pTransformSystem);
 
-		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mBuiltinSystems.push_back(pSpriteRendererSystem);
-
 		mIsInitialized = true;
 		
 		/// register builtin systems

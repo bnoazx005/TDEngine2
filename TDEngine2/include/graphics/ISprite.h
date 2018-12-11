@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
 #include "./../ecs/IComponentFactory.h"
+#include "./../graphics/IRenderable.h"
 
 
 namespace TDEngine2
@@ -21,7 +22,7 @@ namespace TDEngine2
 		By now only in plans only quad sprites support
 	*/
 
-	class ISprite
+	class ISprite: public IRenderable
 	{
 		public:
 			/*!
