@@ -104,4 +104,61 @@ namespace TDEngine2
 
 		return dynamic_cast<IAllocator*>(pPoolAllocatorInstance);
 	}
+
+
+	CPoolAllocatorFactory::CPoolAllocatorFactory() :
+		CBaseAllocatorFactory()
+	{
+	}
+
+	TResult<IAllocator*> CPoolAllocatorFactory::Create(const TBaseAllocatorParams* pParams) const
+	{
+		const TPoolAllocatorParams* pPoolParams = dynamic_cast<const TPoolAllocatorParams*>(pParams);
+
+		if (!pPoolParams)
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IAllocator* pAllocator = CreatePoolAllocator(pPoolParams->mPerObjectSize, pPoolParams->mObjectAlignment, 
+													 pPoolParams->mMemoryBlockSize, pPoolParams->mpMemoryBlock, result);
+
+		if (result != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		return TOkValue<IAllocator*>(pAllocator);
+	}
+
+	TypeId CPoolAllocatorFactory::GetAllocatorType() const
+	{
+		return CPoolAllocator::GetTypeId();
+	}
+
+
+	TDE2_API IAllocatorFactory* CreatePoolAllocatorFactory(E_RESULT_CODE& result)
+	{
+		CPoolAllocatorFactory* pPoolAllocatorFactoryInstance = new (std::nothrow) CPoolAllocatorFactory();
+
+		if (!pPoolAllocatorFactoryInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pPoolAllocatorFactoryInstance->Init();
+
+		if (result != RC_OK)
+		{
+			delete pPoolAllocatorFactoryInstance;
+
+			pPoolAllocatorFactoryInstance = nullptr;
+		}
+
+		return dynamic_cast<IAllocatorFactory*>(pPoolAllocatorFactoryInstance);
+	}
 }

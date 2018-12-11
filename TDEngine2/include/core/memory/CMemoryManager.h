@@ -10,6 +10,7 @@
 #include "IMemoryManager.h"
 #include <vector>
 #include <tuple>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -39,6 +40,8 @@ namespace TDEngine2
 			friend TDE2_API IMemoryManager* CreateMemoryManager(U32 totalMemorySize, E_RESULT_CODE& result);
 		public:
 			typedef std::vector<std::tuple<const C8*, void*>> TMemoryBlocksTable;
+
+			typedef std::unordered_map<TypeId, const IAllocatorFactory*> TAllocatorFactoryHashTable;
 		public:
 			/*!
 				\brief The method initializes an internal state of an allocator
@@ -57,6 +60,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method registers a given factory object within the manager
+
+				\param[in] pAllocatorFactory A pointer to IAlocatorFactory implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RegisterFactory(const IAllocatorFactory* pAllocatorFactory) override;
 
 			/*!
 				\brief The method allocates a new piece of memory from the global storage
@@ -91,13 +104,19 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryManager)
 
 			TDE2_API void _checkUpMemoryLeaks();
+
+			TDE2_API E_RESULT_CODE _unregisterFactory(TypeId factoryTypeId) override;
+
+			TDE2_API IAllocator* _createAllocator(TypeId allocatorTypeId, U32 size, const C8* userName) override;
 		protected:
-			bool               mIsInitialized;
+			bool                       mIsInitialized;
 
-			U8*                mpGlobalMemoryBlock;
+			U8*                        mpGlobalMemoryBlock;
 
-			IAllocator*        mpGlobalAllocator;
+			IAllocator*                mpGlobalAllocator;
 
-			TMemoryBlocksTable mAllocatedBlocks;
+			TMemoryBlocksTable         mAllocatedBlocks;
+
+			TAllocatorFactoryHashTable mAllocatorFactories;
 	};
 }

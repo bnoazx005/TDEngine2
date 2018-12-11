@@ -103,4 +103,36 @@ namespace TDEngine2
 
 		return pAllocator->Allocate(size, alignment);
 	}
+
+
+	CBaseAllocatorFactory::CBaseAllocatorFactory():
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CBaseAllocatorFactory::Init()
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseAllocatorFactory::Free()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = false;
+
+		delete this;
+
+		return RC_OK;
+	}
 }

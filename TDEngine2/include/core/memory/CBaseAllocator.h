@@ -170,4 +170,33 @@ namespace TDEngine2
 	*/
 
 	TDE2_API void* AllocateMemory(IAllocator* pAllocator, U32 size, U32 alignment);
+
+
+	/*!
+		class CBaseAllocatorFactory
+
+		\brief The abstract class is used to derive new types of allocators' factories
+	*/
+
+	class CBaseAllocatorFactory : public CBaseObject, public IAllocatorFactory
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of an allocator factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init() override;
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAllocatorFactory)
+	};
 }

@@ -96,4 +96,58 @@ namespace TDEngine2
 
 		return dynamic_cast<IAllocator*>(pStackAllocatorInstance);
 	}
+
+
+	CStackAllocatorFactory::CStackAllocatorFactory() :
+		CBaseAllocatorFactory()
+	{
+	}
+
+	TResult<IAllocator*> CStackAllocatorFactory::Create(const TBaseAllocatorParams* pParams) const
+	{
+		if (!pParams)
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IAllocator* pAllocator = CreateStackAllocator(pParams->mMemoryBlockSize, pParams->mpMemoryBlock, result);
+
+		if (result != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		return TOkValue<IAllocator*>(pAllocator);
+	}
+	
+	TypeId CStackAllocatorFactory::GetAllocatorType() const
+	{
+		return CStackAllocator::GetTypeId();
+	}
+
+
+	TDE2_API IAllocatorFactory* CreateStackAllocatorFactory(E_RESULT_CODE& result)
+	{
+		CStackAllocatorFactory* pStackAllocatorFactoryInstance = new (std::nothrow) CStackAllocatorFactory();
+
+		if (!pStackAllocatorFactoryInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pStackAllocatorFactoryInstance->Init();
+
+		if (result != RC_OK)
+		{
+			delete pStackAllocatorFactoryInstance;
+
+			pStackAllocatorFactoryInstance = nullptr;
+		}
+
+		return dynamic_cast<IAllocatorFactory*>(pStackAllocatorFactoryInstance);
+	}
 }

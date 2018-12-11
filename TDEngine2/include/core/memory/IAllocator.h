@@ -9,6 +9,7 @@
 
 #include "./../IBaseObject.h"
 #include "./../../utils/Utils.h"
+#include "./../../utils/CResult.h"
 
 
 namespace TDEngine2
@@ -90,5 +91,63 @@ namespace TDEngine2
 			TDE2_API virtual U32 GetAllocationsCount() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAllocator)
+	};
+
+
+	/*!
+		struct TBaseAllocatorParams
+
+		\brief The structure contains common parameters that are used to
+		initialize a new allocator's instance
+	*/
+
+	typedef struct TBaseAllocatorParams
+	{
+		virtual ~TBaseAllocatorParams() = default;
+
+		U32 mMemoryBlockSize;
+
+		U8* mpMemoryBlock;
+	} TBaseAllocatorParams, *TBaseAllocatorParamsPtr;
+
+
+	/*!
+		interface IAllocatorFactory
+
+		\brief The interface represents a factory of IAllocator objects.
+		The interface is used to create new allocators using the custom memory manager
+		which is defined in CMemoryManager.h file.
+	*/
+
+	class IAllocatorFactory: public virtual IBaseObject
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of an allocator factory
+				
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init() = 0;
+			
+			/*!
+				\brief The method creates a new instance of an allocator with a given parameters
+
+				\param[in] pParams Parameters that are used for initialization of the allocator's instance
+
+				\return Either a pointer to a new created IAllocator or an error code
+			*/
+
+			TDE2_API virtual TResult<IAllocator*> Create(const TBaseAllocatorParams* pParams) const = 0;
+
+			/*!
+				\brief The method returns a type of an allocator that are created by the factory
+
+				\return The method returns a type of an allocator that are created by the factory
+			*/
+
+			TDE2_API virtual TypeId GetAllocatorType() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAllocatorFactory)
 	};
 }

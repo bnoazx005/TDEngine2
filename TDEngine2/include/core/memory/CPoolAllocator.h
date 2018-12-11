@@ -101,4 +101,64 @@ namespace TDEngine2
 
 			void** mppNextFreeBlock;
 	};
+
+
+	/*!
+		struct TPoolAllocatorParams
+
+		\brief The structure contains parameters that are needed for
+		CPoolAllocator's initialization
+	*/
+
+	typedef struct TPoolAllocatorParams: TBaseAllocatorParams
+	{
+		U32 mPerObjectSize;
+
+		U32 mObjectAlignment;
+	} TPoolAllocatorParams, *TPoolAllocatorParamsPtr;
+
+
+	/*!
+		\brief A factory function for creation objects of CPoolAllocatorFactory's type
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CPoolAllocatorFactory's implementation
+	*/
+
+	TDE2_API IAllocatorFactory* CreatePoolAllocatorFactory(E_RESULT_CODE& result);
+
+
+	/*!
+		class CPoolAllocatorFactory
+
+		\brief The class is an implementation of IAllocatorFactory for CPoolAllocator
+		type
+	*/
+
+	class CPoolAllocatorFactory : public CBaseAllocatorFactory
+	{
+		public:
+			friend TDE2_API IAllocatorFactory* CreatePoolAllocatorFactory(E_RESULT_CODE& result);
+		public:
+			/*!
+			\brief The method creates a new instance of an allocator with a given parameters
+
+			\param[in] pParams Parameters that are used for initialization of the allocator's instance
+
+			\return Either a pointer to a new created IAllocator or an error code
+			*/
+
+			TDE2_API TResult<IAllocator*> Create(const TBaseAllocatorParams* pParams) const override;
+
+			/*!
+				\brief The method returns a type of an allocator that are created by the factory
+
+				\return The method returns a type of an allocator that are created by the factory
+			*/
+
+			TDE2_API TypeId GetAllocatorType() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPoolAllocatorFactory)
+	};
 }

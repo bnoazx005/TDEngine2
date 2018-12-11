@@ -82,4 +82,58 @@ namespace TDEngine2
 
 		return dynamic_cast<IAllocator*>(pLinearAllocatorInstance);
 	}
+
+
+	CLinearAllocatorFactory::CLinearAllocatorFactory():
+		CBaseAllocatorFactory()
+	{
+	}
+
+	TResult<IAllocator*> CLinearAllocatorFactory::Create(const TBaseAllocatorParams* pParams) const
+	{
+		if (!pParams)
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IAllocator* pAllocator = CreateLinearAllocator(pParams->mMemoryBlockSize, pParams->mpMemoryBlock, result);
+
+		if (result != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		return TOkValue<IAllocator*>(pAllocator);
+	}
+
+	TypeId CLinearAllocatorFactory::GetAllocatorType() const
+	{
+		return CLinearAllocator::GetTypeId();
+	}
+
+
+	TDE2_API IAllocatorFactory* CreateLinearAllocatorFactory(E_RESULT_CODE& result)
+	{
+		CLinearAllocatorFactory* pLinearAllocatorFactoryInstance = new (std::nothrow) CLinearAllocatorFactory();
+
+		if (!pLinearAllocatorFactoryInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pLinearAllocatorFactoryInstance->Init();
+
+		if (result != RC_OK)
+		{
+			delete pLinearAllocatorFactoryInstance;
+
+			pLinearAllocatorFactoryInstance = nullptr;
+		}
+
+		return dynamic_cast<IAllocatorFactory*>(pLinearAllocatorFactoryInstance);
+	}
 }

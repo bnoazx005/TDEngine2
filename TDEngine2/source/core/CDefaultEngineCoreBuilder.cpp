@@ -14,6 +14,9 @@
 #include "./../../include/platform/CConfigFileReader.h"
 #include "./../../include/core/CEventManager.h"
 #include "./../../include/core/memory/CMemoryManager.h"
+#include "./../../include/core/memory/CLinearAllocator.h"
+#include "./../../include/core/memory/CPoolAllocator.h"
+#include "./../../include/core/memory/CStackAllocator.h"
 #include <memory>
 
 
@@ -263,11 +266,37 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IEngineSubsystem* pMemoryManager = CreateMemoryManager(totalMemorySize, result);
+		IMemoryManager* pMemoryManager = CreateMemoryManager(totalMemorySize, result);
 
 		if (result != RC_OK)
 		{
 			return result;
+		}
+
+		/// register built in factories
+
+		auto allocatorFactoriesCallback = 
+		{
+			CreateLinearAllocatorFactory,
+			CreateStackAllocatorFactory,
+			CreatePoolAllocatorFactory
+		};
+
+		IAllocatorFactory* pAllocatorFactory = nullptr;
+
+		for (auto currFactoryCallback : allocatorFactoriesCallback)
+		{
+			pAllocatorFactory = currFactoryCallback(result);
+
+			if (result != RC_OK)
+			{
+				return result;
+			}
+
+			if ((result = pMemoryManager->RegisterFactory(pAllocatorFactory)) != RC_OK)
+			{
+				return result;
+			}
 		}
 
 		return mpEngineCoreInstance->RegisterSubsystem(pMemoryManager);

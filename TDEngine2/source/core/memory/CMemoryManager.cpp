@@ -69,6 +69,32 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CMemoryManager::RegisterFactory(const IAllocatorFactory* pAllocatorFactory)
+	{
+		if (!pAllocatorFactory)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TypeId allocatorType = pAllocatorFactory->GetAllocatorType();
+
+		const IAllocatorFactory* pFactoryIter = mAllocatorFactories[allocatorType];
+
+		E_RESULT_CODE result = RC_OK;
+
+		if (pFactoryIter) /// if there is already attached factory, firstly we should unregister it
+		{
+			if ((result = _unregisterFactory(allocatorType)) != RC_OK)
+			{
+				return result;
+			}
+		}
+
+		mAllocatorFactories[allocatorType] = pAllocatorFactory;
+
+		return RC_OK;
+	}
+
 	void* CMemoryManager::Allocate(U32 size, const C8* userName)
 	{
 		void* pMemoryBlock = mpGlobalAllocator->Allocate(size, __alignof(U8));
@@ -142,6 +168,39 @@ namespace TDEngine2
 
 			LOG_WARNING(message);
 		}
+	}
+
+	E_RESULT_CODE CMemoryManager::_unregisterFactory(TypeId factoryTypeId)
+	{
+		TAllocatorFactoryHashTable::const_iterator factoryIter = mAllocatorFactories.find(factoryTypeId);
+
+		if (factoryIter == mAllocatorFactories.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mAllocatorFactories.erase(factoryIter);
+
+		return RC_OK;
+	}
+
+	IAllocator* CMemoryManager::_createAllocator(TypeId allocatorTypeId, U32 size, const C8* userName)
+	{
+		const IAllocatorFactory* pAllocatorFactory = mAllocatorFactories[allocatorTypeId];
+
+		if (!pAllocatorFactory)
+		{
+			return nullptr;
+		}
+
+		TBaseAllocatorParams params;
+		
+		params.mMemoryBlockSize = size;
+		params.mpMemoryBlock    = static_cast<U8*>(Allocate(size, userName));
+
+		TResult<IAllocator*> result = pAllocatorFactory->Create(&params);
+
+		return result.Get();
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CMemoryManager::GetType() const
