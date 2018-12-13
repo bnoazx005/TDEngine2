@@ -162,6 +162,43 @@ namespace TDEngine2
 			TDE2_API void DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices) override;
 
 			/*!
+				\brief The method sends a command to a GPU to draw current attached graphics data that uses instancing
+
+				\param[in] topology A primitive topology's type
+
+				\param[in] startVertex An index of a vertex within a vertex buffer
+
+				\param[in] verticesPerInstance A number of vertices per instance
+
+				\param[in] startInstance An offset value which is added to every index before read the data
+
+				\param[in] numOfInstances A total number of instances should be drawn
+			*/
+
+			TDE2_API void DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances) override;
+
+			/*!
+				\brief The method sends a command to a GPU to draw current attached graphics data that uses instancing
+
+				\param[in] topology A primitive topology's type
+
+				\param[in] indexFormatType A format of a single index
+
+				\param[in] baseVertex A value that will be added to each index
+
+				\param[in] startIndex A first index that will be read by GPU
+
+				\param[in] startInstance An offset value which is added to every index before read the data
+
+				\param[in] indicesPerInstance A number of indices per instance
+
+				\param[in] numOfInstances A total number of instances should be drawn
+			*/
+
+			TDE2_API void DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
+											   U32 startInstance, U32 indicesPerInstance, U32 numOfInstances) override;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

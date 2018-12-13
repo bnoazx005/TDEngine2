@@ -162,6 +162,17 @@ namespace TDEngine2
 		glDrawElements(COGLMappings::GetPrimitiveTopology(topology), numOfIndices, COGLMappings::GetIndexFormat(indexFormatType), 0);
 	}
 
+	void COGLGraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
+	{
+		glDrawArraysInstanced(COGLMappings::GetPrimitiveTopology(topology), startVertex, verticesPerInstance, numOfInstances);
+	}
+
+	void COGLGraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
+												   U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
+	{
+		glDrawElementsInstanced(COGLMappings::GetPrimitiveTopology(topology), indicesPerInstance, COGLMappings::GetIndexFormat(indexFormatType), 0, numOfInstances);
+	}
+
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

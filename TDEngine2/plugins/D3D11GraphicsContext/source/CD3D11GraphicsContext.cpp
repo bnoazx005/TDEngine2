@@ -218,6 +218,21 @@ namespace TDEngine2
 		mp3dDeviceContext->DrawIndexed(numOfIndices, startIndex, baseVertex);
 	}
 
+	void CD3D11GraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
+	{
+		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));
+
+		mp3dDeviceContext->DrawInstanced(verticesPerInstance, numOfInstances, startVertex, startInstance);
+	}
+
+	void CD3D11GraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
+													 U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
+	{
+		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));
+
+		mp3dDeviceContext->DrawIndexedInstanced(indicesPerInstance, numOfInstances, startIndex, baseVertex, startInstance);
+	}
+
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;
