@@ -18,11 +18,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../TDEngine2/include")
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/../bin")
 
-
-# attach Catch2
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/catch/")
-
-
 set(HEADERS )
 
 set(SOURCES
@@ -61,7 +56,6 @@ if (UNIX)
 	endif()
 endif (UNIX)
 
-
 add_executable("${EXECUTABLE_NAME}" ${SOURCES} ${HEADERS})
 
 if (UNIX)
@@ -69,3 +63,20 @@ if (UNIX)
 endif ()
 
 target_link_libraries("${EXECUTABLE_NAME}" ${TDENGINE2_LIBRARY_NAME})
+
+find_package(Catch2 REQUIRED)
+
+target_link_libraries("${EXECUTABLE_NAME}" Catch2::Catch2)
+
+include(CTest)
+include(Catch)
+
+catch_discover_tests("${EXECUTABLE_NAME}")
+include(ParseAndAddCatchTests)
+ParseAndAddCatchTests("${EXECUTABLE_NAME}")
+
+# copy the engine's dll into /tests subdirectory for its testing
+add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	"$<TARGET_FILE:${TDENGINE2_LIBRARY_NAME}>"
+	"$<TARGET_FILE_DIR:${EXECUTABLE_NAME}>")

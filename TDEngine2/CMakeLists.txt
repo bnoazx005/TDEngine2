@@ -254,7 +254,7 @@ if (UNIX)
 endif ()
 
 # copy the engine's dll into /tests subdirectory for its testing
-add_custom_command(TARGET ${TDENGINE2_LIBRARY_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	"$<TARGET_FILE:${TDENGINE2_LIBRARY_NAME}>"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../tests/bin/")
+#add_custom_command(TARGET ${TDENGINE2_LIBRARY_NAME} POST_BUILD
+#	COMMAND ${CMAKE_COMMAND} -E copy
+#	"$<TARGET_FILE:${TDENGINE2_LIBRARY_NAME}>"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/../tests/bin/")

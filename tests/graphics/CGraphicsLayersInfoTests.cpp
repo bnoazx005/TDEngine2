@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <TDEngine2.h>
 #include <climits>
 #include <tuple>

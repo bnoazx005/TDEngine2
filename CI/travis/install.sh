@@ -28,3 +28,15 @@ wget --quiet $CMAKE_URL
 mkdir -p $CMAKE_DIR
 tar --strip-components=1 -xzf $CMAKE_TAR -C $CMAKE_DIR
 export PATH=$CMAKE_DIR/bin:$PATH
+
+#install git
+sudo add-apt-repository -y ppa:git-core/ppa
+sudo apt-get update
+sudo apt-get install --only-upgrade -y git
+
+CATCH2_REPO_URL=https://github.com/catchorg/Catch2.git
+
+git clone %CATCH2_REPO_URL
+cd Catch2
+cmake -Bbuild -H. -DBUILD_TESTING=OFF
+sudo cmake --build build/ --target install
