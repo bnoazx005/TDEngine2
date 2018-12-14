@@ -36,7 +36,8 @@ sudo apt-get install --only-upgrade -y git
 
 CATCH2_REPO_URL=https://github.com/catchorg/Catch2.git
 
-git clone %CATCH2_REPO_URL
+git clone $CATCH2_REPO_URL
 cd Catch2
 cmake -Bbuild -H. -DBUILD_TESTING=OFF
 sudo cmake --build build/ --target install
+rm -r build/

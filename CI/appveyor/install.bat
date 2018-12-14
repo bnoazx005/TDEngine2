@@ -58,3 +58,4 @@ git clone %CATCH2_REPO_URL%
 cd Catch2
 cmake -Bbuild -H. -DBUILD_TESTING=OFF
 cmake --build build/ --target install
+rm -r build/
