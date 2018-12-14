@@ -36,7 +36,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVertexDeclaration::AddElement(const TVertDeclElementDesc& elementDesc)
 	{
-		if (elementDesc.mSemanticType >= FT_UNKNOWN ||
+		if (elementDesc.mSemanticType >= VEST_UNKNOWN ||
 			elementDesc.mFormatType >= FT_UNKNOWN)
 		{
 			return RC_INVALID_ARGS;

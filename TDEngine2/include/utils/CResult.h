@@ -277,7 +277,7 @@ namespace TDEngine2
 
 			bool IsOk() const
 			{
-				return mHasError;
+				return !mHasError;
 			}
 
 			/*!
