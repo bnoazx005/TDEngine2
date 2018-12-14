@@ -18,6 +18,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../TDEngine2/include")
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/../bin")
 
+# include Catch2
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/lib/Catch2/contrib/")
+add_subdirectory(lib/Catch2)
+
 set(HEADERS )
 
 set(SOURCES
@@ -26,7 +30,6 @@ set(SOURCES
 
 source_group("includes" FILES ${HEADERS})
 source_group("sources" FILES ${SOURCES})
-
 
 if (MSVC) 	#cl.exe compiler's options
 
@@ -50,9 +53,12 @@ if (UNIX)
 	CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX14)
 
 	if(COMPILER_SUPPORTS_CXX14)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+		message(STATUS "C++14 is enabled")
+
+		set(CMAKE_CXX_STANDARD 14)
+		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 	else()
-	message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+		message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 	endif()
 endif (UNIX)
 
@@ -63,9 +69,6 @@ if (UNIX)
 endif ()
 
 target_link_libraries("${EXECUTABLE_NAME}" ${TDENGINE2_LIBRARY_NAME})
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/lib/Catch2/contrib/")
-add_subdirectory(lib/Catch2)
 
 target_link_libraries("${EXECUTABLE_NAME}" Catch2::Catch2)
 
