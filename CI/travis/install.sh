@@ -16,8 +16,8 @@ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
 
 sudo apt-get install -qq build-essential xorg-dev libgl1-mesa-dev libglew-dev
 
-CMAKE_VERSION=3.3.2
-CMAKE_VERSION_DIR=v3.3
+CMAKE_VERSION=3.10.1
+CMAKE_VERSION_DIR=v3.10
 
 CMAKE_OS=Linux-x86_64
 CMAKE_TAR=cmake-$CMAKE_VERSION-$CMAKE_OS.tar.gz

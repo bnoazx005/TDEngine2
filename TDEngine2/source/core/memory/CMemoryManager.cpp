@@ -101,7 +101,7 @@ namespace TDEngine2
 
 		mAllocatedBlocks.emplace_back(userName, pMemoryBlock);
 
-		std::string message = std::move("[Memory manager] A new piece of memory was allocated ( allocation-size : ");
+		std::string message = "[Memory manager] A new piece of memory was allocated ( allocation-size : ";
 
 		message.append(std::to_string(size / 1024)).
 				append(" KiB; user : ").
@@ -159,7 +159,7 @@ namespace TDEngine2
 		{
 			std::tie(userName, pUsedMemoryBlock) = *iter;
 
-			message = std::move("[Memory manager] A memory leak was detected (user : ");
+			message = "[Memory manager] A memory leak was detected (user : ";
 			
 			message.append(!userName ? "unknown" : userName).
 					append("; address : ").
