@@ -51,11 +51,3 @@ set CMAKE_BUILD_FLAGS= ^
     /nologo ^
     /verbosity:minimal ^
     /consoleloggerparameters:Summary
-
-set CATCH2_REPO_URL=https://github.com/catchorg/Catch2.git
-
-git clone %CATCH2_REPO_URL%
-cd Catch2
-cmake -Bbuild -H. -DBUILD_TESTING=OFF
-cmake --build build/ --target install
-rm -r build/

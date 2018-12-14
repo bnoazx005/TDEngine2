@@ -64,7 +64,8 @@ endif ()
 
 target_link_libraries("${EXECUTABLE_NAME}" ${TDENGINE2_LIBRARY_NAME})
 
-find_package(Catch2 REQUIRED)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/lib/Catch2/contrib/")
+add_subdirectory(lib/Catch2)
 
 target_link_libraries("${EXECUTABLE_NAME}" Catch2::Catch2)
 
