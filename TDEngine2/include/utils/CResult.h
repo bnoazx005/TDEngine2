@@ -271,12 +271,12 @@ namespace TDEngine2
 
 		E GetError() const
 		{
-			return mValue.mError;
+			return mError;
 		}
 
 		CBasicResultStorage<void, E> operator= (const TErrorValue<E>& errValue)
 		{
-			mValue = errValue.mError;
+			mError = errValue.mError;
 
 			mIsInitialized = true;
 
@@ -294,7 +294,7 @@ namespace TDEngine2
 
 			if (mHasError)
 			{
-				mValue.mError.~E();
+				mError.~E();
 
 				return;
 			}
