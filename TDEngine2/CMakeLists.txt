@@ -55,6 +55,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/Event.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IEventManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CEventManager.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IInputContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBaseComponent.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CComponentManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CEntity.h"

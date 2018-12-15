@@ -123,6 +123,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE ConfigureRenderer() override;
+
+			/*!
+				\brief The method tries to configure a low-level input context
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ConfigureInputContext() override;
 			
 			/*!
 				\brief The method returns a configured instances of an engine core

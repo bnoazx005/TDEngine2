@@ -18,6 +18,7 @@
 #include "./../../include/core/memory/CPoolAllocator.h"
 #include "./../../include/core/memory/CStackAllocator.h"
 #include "./../../include/graphics/CForwardRenderer.h"
+#include "./../../include/core/IInputContext.h"
 #include <memory>
 
 
@@ -324,6 +325,25 @@ namespace TDEngine2
 		}
 
 		return mpEngineCoreInstance->RegisterSubsystem(mpMemoryManagerInstance);
+	}
+
+	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureInputContext()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+		
+#if defined(TDE2_USE_WIN32PLATFORM)
+		if ((result = mpPluginManagerInstance->LoadPlugin("DirectInputContext")) != RC_OK)
+		{
+			return result;
+		}
+#endif
+
+		return RC_FAIL;
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()

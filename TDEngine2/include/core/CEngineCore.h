@@ -18,6 +18,7 @@ namespace TDEngine2
 	class IDLLManager;
 	class IWindowSystem;
 	class ITimer;
+	class IInputContext;
 
 
 	/*!
@@ -174,6 +175,8 @@ namespace TDEngine2
 			IDLLManager*       mpDLLManager;
 
 			IWorld*            mpWorldInstance;
+
+			IInputContext*     mpInputContext;
 
 			mutable std::mutex mMutex; ///< \todo the mutex doesn't use in the code, should be fixed later!
 	};

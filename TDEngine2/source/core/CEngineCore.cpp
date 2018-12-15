@@ -11,6 +11,7 @@
 #include "./../../include/ecs/CSpriteRendererSystem.h"
 #include "./../../include/graphics/IRenderer.h"
 #include "./../../include/core/IGraphicsContext.h"
+#include "./../../include/core/IInputContext.h"
 #include <cstring>
 #include <algorithm>
 
@@ -70,6 +71,11 @@ namespace TDEngine2
 
 		for (IEngineSubsystem* pCurrSubsystem : mSubsystems)
 		{
+			if (!pCurrSubsystem)
+			{
+				continue;
+			}
+
 			currSubsystemType = pCurrSubsystem->GetType();
 
 			if (currSubsystemType == EST_PLUGIN_MANAGER)
@@ -153,6 +159,8 @@ namespace TDEngine2
 		}
 
 		mpInternalTimer = pWindowSystem->GetTimer();
+
+		mpInputContext = dynamic_cast<IInputContext*>(mSubsystems[EST_INPUT_CONTEXT]);
 
 		LOG_MESSAGE("[Engine Core] The engine's core begins to execute the main loop...");
 
@@ -315,6 +323,11 @@ namespace TDEngine2
 
 	void CEngineCore::_onFrameUpdateCallback()
 	{
+		if (mpInputContext)
+		{
+			mpInputContext->Update();
+		}
+
 		_onNotifyEngineListeners(EET_ONUPDATE);
 	}
 

@@ -27,6 +27,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+		
+		mpEngineCoreInstance = pEngineCore;
 
 		E_RESULT_CODE result = RC_OK;
 		

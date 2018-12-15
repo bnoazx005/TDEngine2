@@ -1,4 +1,5 @@
 #include "./../include/CCustomEngineListener.h"
+#include <iostream>
 
 
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
@@ -55,6 +56,11 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	mpGraphicsContext->Present();
 
 	mpWindowSystem->SetTitle(std::to_string(dt));
+
+	if (dynamic_cast<TDEngine2::IInputContext*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_INPUT_CONTEXT))->IsMouseButtonPressed(0))
+	{
+		std::cout << "pressed\n";
+	}
 
 	return TDEngine2::RC_OK;
 }

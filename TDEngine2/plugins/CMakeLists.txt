@@ -9,6 +9,10 @@ cmake_minimum_required (VERSION 2.8)
 		message(STATUS "D3D11GraphicsContext's compilation is enabled")
 
 		add_subdirectory(D3D11GraphicsContext)
+
+		message(STATUS "DirectInputContext's compileation is enabled")
+
+		add_subdirectory(DirectInputContext)
 	else()
 		message(STATUS "D3D11GraphicsContext's compilation is disabled")
 	endif (MSVC)

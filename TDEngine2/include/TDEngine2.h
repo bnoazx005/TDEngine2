@@ -43,6 +43,7 @@
 #include "core/Event.h"
 #include "core/IEventManager.h"
 #include "core/CEventManager.h"
+#include "core/IInputContext.h"
 
 ///ecs
 #include "ecs/CEntity.h"

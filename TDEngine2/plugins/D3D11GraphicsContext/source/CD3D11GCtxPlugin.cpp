@@ -32,6 +32,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mpEngineCoreInstance = pEngineCore;
+
 		E_RESULT_CODE result = RC_OK;
 
 		mpGraphicsContext = CreateD3D11GraphicsContext(dynamic_cast<IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), result);
