@@ -92,55 +92,221 @@ namespace TDEngine2
 
 
 	/*!
-		union TBasicResultStorage
+		class CBasicResultStorage
 
-		\brief The union represents a basic storage of a result value. It could be
+		\brief The class represents a basic storage of a result value. It could be
 		either some useful data, or an error's object
 	*/
 
 	template <typename T, typename E>
-	union TBasicResultStorage
+	class CBasicResultStorage
 	{
-		TBasicResultStorage()
-		{
-		}
+		public:
+			CBasicResultStorage():
+				mHasError(false), mIsInitialized(false)
+			{
+			}
 
-		TBasicResultStorage(const TOkValue<T>& okValue)
-		{
-			new (&mData) T(okValue.mData);
-		}
+			CBasicResultStorage(const TOkValue<T>& okValue):
+				mHasError(false), mIsInitialized(true)
+			{
+				new (&mValue.mData) T(okValue.mData);
+			}
 
-		TBasicResultStorage(const TErrorValue<E>& errValue)
-		{
-			new (&mError) E(errValue.mError);
-		}
+			CBasicResultStorage(const TErrorValue<E>& errValue) :
+				mHasError(true), mIsInitialized(true)
+			{
+				new (&mValue.mError) E(errValue.mError);
+			}
 
-		~TBasicResultStorage()
-		{
-		}
+			CBasicResultStorage(const CBasicResultStorage<T, E>& storage):
+				mHasError(storage.mHasError), mIsInitialized(storage.mIsInitialized)
+			{
+				_initialize(storage);
+			}
 
-		T mData;
+			CBasicResultStorage(CBasicResultStorage<T, E>&& storage) :
+				mHasError(storage.mHasError), mIsInitialized(storage.mIsInitialized)
+			{
+				_initialize(storage);
+			}
 
-		E mError;
+			~CBasicResultStorage()
+			{
+				_release();
+			}
+
+			T GetData() const
+			{
+				return mValue.mData;
+			}
+
+			E GetError() const
+			{
+				return mValue.mError;
+			}
+
+			CBasicResultStorage<T, E> operator= (const TOkValue<T>& okValue)
+			{
+				new (&mValue.mData) T(okValue.mData);
+
+				mIsInitialized = true;
+
+				mHasError = false;
+
+				return *this;
+			}
+
+			CBasicResultStorage<T, E> operator= (const TErrorValue<E>& errValue)
+			{
+				new (&mValue.mError) E(errValue.mError);
+
+				mIsInitialized = true;
+
+				mHasError = true;
+
+				return *this;
+			}
+		protected:
+			union TVariantStorage
+			{
+				TVariantStorage() {}
+
+				~TVariantStorage() {}
+
+				T mData;
+
+				E mError;
+			} mValue;
+		protected:
+			void _release()
+			{
+				if (!mIsInitialized)
+				{
+					return;
+				}
+
+				if (mHasError)
+				{
+					mValue.mError.~E();
+					
+					return;
+				}
+
+				mValue.mData.~T();
+
+				mHasError = false;
+			}
+
+			void _initialize(const CBasicResultStorage<T, E>& storage)
+			{
+				if (storage.mHasError)
+				{
+					new (&mValue.mError) E(storage.mValue.mError);
+
+					return;
+				}
+
+				new (&mValue.mData) T(storage.mValue.mData);
+
+				mIsInitialized = true;
+			}
+
+			void _initialize(CBasicResultStorage<T, E>&& storage)
+			{
+				if (storage.mHasError)
+				{
+					new (&mValue.mError) E(storage.mValue.mError);
+					
+					storage.mHasError      = false;
+					storage.mIsInitialized = false;
+					
+					memset(&mValue.mError, 0, sizeof(mValue.mError));
+
+					return;
+				}
+
+				new (&mValue.mData) T(storage.mValue.mData);
+				
+				storage.mHasError = false;
+				storage.mIsInitialized = false;
+
+				memset(&mValue.mData, 0, sizeof(mValue.mData));
+
+				mIsInitialized = true;
+			}
+		protected:
+			bool mIsInitialized;
+
+			bool mHasError;
 	};
 
 	template <typename E>
-	union TBasicResultStorage<void, E>
+	class CBasicResultStorage<void, E>
 	{
-		TBasicResultStorage()
+	public:
+		CBasicResultStorage() :
+			mHasError(false), mIsInitialized(false)
 		{
 		}
 
-		TBasicResultStorage(const TErrorValue<E>& errValue)
-		{
-			new (&mError) E(errValue.mError);
-		}
-		
-		~TBasicResultStorage()
+		CBasicResultStorage(const TErrorValue<E>& errValue) :
+			mHasError(true), mIsInitialized(true), mError(errValue.mError)
 		{
 		}
 
-		E mError;
+		CBasicResultStorage(const CBasicResultStorage<void, E>& storage) :
+			mHasError(storage.mHasError), mIsInitialized(storage.mIsInitialized), mError(storage.mError)
+		{
+		}
+
+		CBasicResultStorage(CBasicResultStorage<void, E>&& storage) :
+			mHasError(storage.mHasError), mIsInitialized(storage.mIsInitialized), mError(storage.mError)
+		{
+		}
+
+		~CBasicResultStorage()
+		{
+		}
+
+		E GetError() const
+		{
+			return mValue.mError;
+		}
+
+		CBasicResultStorage<void, E> operator= (const TErrorValue<E>& errValue)
+		{
+			mValue = errValue.mError;
+
+			mIsInitialized = true;
+
+			mHasError = true;
+
+			return *this;
+		}
+	protected:
+		void _release()
+		{
+			if (!mIsInitialized)
+			{
+				return;
+			}
+
+			if (mHasError)
+			{
+				mValue.mError.~E();
+
+				return;
+			}
+
+			mHasError = false;
+		}
+	protected:
+		bool mIsInitialized;
+
+		bool mHasError;
+
+		E    mError;
 	};
 
 
@@ -168,15 +334,13 @@ namespace TDEngine2
 			}
 
 			CResult(const CResult<T, E>& result):
-				mHasError(result.mHasError)
+				mHasError(result.mHasError), mStorage(result.mStorage)
 			{
-				mStorage = result.mStorage;
 			}
 
 			CResult(CResult<T, E>&& result) :
-				mHasError(result.mHasError)
+				mHasError(result.mHasError), mStorage(result.mStorage)
 			{
-				mStorage = result.mStorage;
 			}
 
 			~CResult()
@@ -187,7 +351,7 @@ namespace TDEngine2
 			{
 				if (!mHasError)
 				{
-					return mStorage.mData;
+					return mStorage.GetData();
 				}
 
 				Panic("Try to get value that doesn't exist");
@@ -199,7 +363,7 @@ namespace TDEngine2
 			{
 				if (!mHasError)
 				{
-					return mStorage.mData;
+					return mStorage.GetData();
 				}
 
 				return defaultValue;
@@ -209,7 +373,7 @@ namespace TDEngine2
 			{
 				if (!mHasError)
 				{
-					return callback(mStorage.mData);
+					return callback(mStorage.GetData());
 				}
 
 				return *this;
@@ -222,7 +386,7 @@ namespace TDEngine2
 					Panic("Try to get error when it doesn't exist");
 				}
 
-				return mStorage.mError;
+				return mStorage.GetError();
 			}
 
 			template <typename U>
@@ -230,7 +394,7 @@ namespace TDEngine2
 			{
 				if (!mHasError)
 				{
-					return converter(mStorage.mData);
+					return converter(mStorage.GetData());
 				}
 
 				Panic("Try to map value that doesn't exist");
@@ -243,7 +407,7 @@ namespace TDEngine2
 			{
 				if (mHasError)
 				{
-					return converter(mStorage.mError);
+					return converter(mStorage.GetError());
 				}
 
 				Panic("Try to map error's value when the result's object contains data");
@@ -253,7 +417,7 @@ namespace TDEngine2
 			
 			CResult<T, E> operator= (const TOkValue<T>& okValue)
 			{
-				mStorage.mData = okValue.mValue;
+				mStorage = okValue;
 
 				mHasError = false;
 
@@ -262,7 +426,7 @@ namespace TDEngine2
 
 			CResult<T, E> operator= (const TErrorValue<E>& errValue)
 			{
-				mStorage.mError = errValue.mError;
+				mStorage = errValue;
 
 				mHasError = true;
 
@@ -296,7 +460,7 @@ namespace TDEngine2
 			{
 			}
 		protected:
-			TBasicResultStorage<T, E> mStorage;
+			CBasicResultStorage<T, E> mStorage;
 
 			bool                      mHasError;
 	};
@@ -335,7 +499,7 @@ namespace TDEngine2
 
 			CResult<void, E> operator= (const TErrorValue<E>& errValue)
 			{
-				mStorage.mError = errValue.mError;
+				mStorage = errValue;
 
 				mHasError = true;
 
@@ -364,7 +528,7 @@ namespace TDEngine2
 				return mHasError;
 			}
 		protected:
-			TBasicResultStorage<void, E> mStorage;
+			CBasicResultStorage<void, E> mStorage;
 
 			bool                         mHasError;
 	};
