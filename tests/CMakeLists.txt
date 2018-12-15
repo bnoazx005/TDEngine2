@@ -77,8 +77,6 @@ include(CTest)
 include(Catch)
 
 catch_discover_tests("${EXECUTABLE_NAME}")
-include(ParseAndAddCatchTests)
-ParseAndAddCatchTests("${EXECUTABLE_NAME}")
 
 # copy the engine's dll into /tests subdirectory for its testing
 add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
