@@ -14,10 +14,12 @@
 #if defined (TDE2_USE_WIN32PLATFORM)
 
 #include <dinput.h>
+#include <Xinput.h>
 
 
 #pragma comment(lib, "dinput8")
 #pragma comment(lib, "dxguid")
+#pragma comment(lib, "xinput")
 
 
 namespace TDEngine2

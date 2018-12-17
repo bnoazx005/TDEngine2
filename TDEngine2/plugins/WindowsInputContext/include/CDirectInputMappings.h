@@ -35,6 +35,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static U16 GetKeyCode(E_KEYCODES keyCode);
+
+			/*!
+				\brief The method converts the internal value of E_GAMEPAD_BUTTONS into XInput specific one
+
+				\param[in] button A button's index
+				
+				\return A value of a button that is specific for XInput library
+			*/
+
+			TDE2_API static U16 GetGamepadButton(E_GAMEPAD_BUTTONS button);
 	};
 }
 

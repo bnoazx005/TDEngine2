@@ -254,6 +254,43 @@ namespace TDEngine2
 
 		return 0;
 	}
+
+	U16 CDirectInputMappings::GetGamepadButton(E_GAMEPAD_BUTTONS button)
+	{
+		switch (button)
+		{
+			case E_GAMEPAD_BUTTONS::GB_UP:
+				return 0x1;
+			case E_GAMEPAD_BUTTONS::GB_DOWN:
+				return 0x2;
+			case E_GAMEPAD_BUTTONS::GB_LEFT:
+				return 0x4; 
+			case E_GAMEPAD_BUTTONS::GB_RIGHT:
+				return 0x8; 
+			case E_GAMEPAD_BUTTONS::GB_START:
+				return 0x10;
+			case E_GAMEPAD_BUTTONS::GB_BACK:
+				return 0x20;
+			case E_GAMEPAD_BUTTONS::GB_LTHUMB:
+				return 0x40; 
+			case E_GAMEPAD_BUTTONS::GB_RTHUMB:
+				return 0x80;
+			case E_GAMEPAD_BUTTONS::GB_LSHOULDER:
+				return 0x100; 
+			case E_GAMEPAD_BUTTONS::GB_RSHOULDER:
+				return 0x200;
+			case E_GAMEPAD_BUTTONS::GB_A:
+				return 0x1000; 
+			case E_GAMEPAD_BUTTONS::GB_B:
+				return 0x2000; 
+			case E_GAMEPAD_BUTTONS::GB_X:
+				return 0x4000; 
+			case E_GAMEPAD_BUTTONS::GB_Y:
+				return 0x8000;
+		}
+
+		return 0x0;
+	}
 }
 
 #endif

@@ -64,6 +64,23 @@ namespace TDEngine2
 
 
 	/*!
+		enum class E_GAMEPAD_BUTTONS
+
+		\brief The enumeration contains all available buttons that all XInput compatible gamepads have
+	*/
+
+	enum class E_GAMEPAD_BUTTONS
+	{
+		GB_UP, GB_LEFT, GB_RIGHT, GB_DOWN,
+		GB_START,
+		GB_BACK,
+		GB_LTHUMB, GB_RTHUMB,
+		GB_LSHOULDER, GB_RSHOULDER,
+		GB_A, GB_B, GB_X, GB_Y
+	};
+
+
+	/*!
 		interface IInputContext
 
 		\brief The interface represents a low-level input system that

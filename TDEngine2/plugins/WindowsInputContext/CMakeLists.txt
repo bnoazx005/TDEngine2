@@ -20,6 +20,7 @@ set(WIN_INPUT_CTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CKeyboard.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CMouse.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CDirectInputMappings.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CGamepad.h"
 	)
 
 set(WIN_INPUT_CTX_SOURCES
@@ -29,6 +30,7 @@ set(WIN_INPUT_CTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CKeyboard.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CMouse.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CDirectInputMappings.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CGamepad.cpp"
 	)
 
 source_group("includes" FILES ${WIN_INPUT_CTX_HEADERS})
