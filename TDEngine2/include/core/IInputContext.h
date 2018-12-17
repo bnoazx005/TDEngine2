@@ -90,7 +90,21 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Update() = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IInputContext)
+	};
 
+
+	/*!
+		interface IDesktopInputContext
+
+		\brief The interface describes a common functionality of a basic input context
+		that is targeted for desktops
+	*/
+
+	class IDesktopInputContext: public IInputContext
+	{
+		public:
 			/*!
 				\brief The method polls input devices and checks up has some key been pressed
 
@@ -104,7 +118,7 @@ namespace TDEngine2
 
 				\param[in] keyCode A key's code
 			*/
-			
+
 			TDE2_API virtual bool IsKey(E_KEYCODES keyCode) = 0;
 
 			/*!
@@ -147,6 +161,6 @@ namespace TDEngine2
 
 			TDE2_API virtual TVector3 GetMousePosition() const = 0;
 		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IInputContext)
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDesktopInputContext)
 	};
 }

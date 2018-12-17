@@ -1,4 +1,4 @@
-#include "./../include/CDirectInputContext.h"
+#include "./../include/CWindowsInputContext.h"
 #include <core/IWindowSystem.h>
 #include "./../include/CKeyboard.h"
 #include "./../include/CMouse.h"
@@ -8,12 +8,12 @@
 
 namespace TDEngine2
 {
-	CDirectInputContext::CDirectInputContext():
+	CWindowsInputContext::CWindowsInputContext():
 		mIsInitialized(false)
 	{
 	}
 
-	E_RESULT_CODE CDirectInputContext::Init(IWindowSystem* pWindowSystem)
+	E_RESULT_CODE CWindowsInputContext::Init(IWindowSystem* pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
@@ -49,7 +49,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDirectInputContext::Free()
+	E_RESULT_CODE CWindowsInputContext::Free()
 	{
 		if (!mIsInitialized)
 		{
@@ -80,7 +80,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDirectInputContext::Update()
+	E_RESULT_CODE CWindowsInputContext::Update()
 	{
 		mpKeyboardDevice->Update();
 
@@ -89,52 +89,52 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	bool CDirectInputContext::IsKeyPressed(E_KEYCODES keyCode)
+	bool CWindowsInputContext::IsKeyPressed(E_KEYCODES keyCode)
 	{
 		return mpKeyboardDevice->IsKeyPressed(keyCode);
 	}
 
-	bool CDirectInputContext::IsKey(E_KEYCODES keyCode)
+	bool CWindowsInputContext::IsKey(E_KEYCODES keyCode)
 	{
 		return mpKeyboardDevice->IsKey(keyCode);
 	}
 
-	bool CDirectInputContext::IsKeyUnpressed(E_KEYCODES keyCode)
+	bool CWindowsInputContext::IsKeyUnpressed(E_KEYCODES keyCode)
 	{
 		return mpKeyboardDevice->IsKeyUnpressed(keyCode);
 	}
 
-	bool CDirectInputContext::IsMouseButtonPressed(U8 button)
+	bool CWindowsInputContext::IsMouseButtonPressed(U8 button)
 	{
 		return mpMouseDevice->IsButtonPressed(button);
 	}
 
-	bool CDirectInputContext::IsMouseButton(U8 button)
+	bool CWindowsInputContext::IsMouseButton(U8 button)
 	{
 		return mpMouseDevice->IsButton(button);
 	}
 
-	bool CDirectInputContext::IsMouseButtonUnpressed(U8 button)
+	bool CWindowsInputContext::IsMouseButtonUnpressed(U8 button)
 	{
 		return mpMouseDevice->IsButtonUnpressed(button);
 	}
 
-	TVector3 CDirectInputContext::GetMousePosition() const
+	TVector3 CWindowsInputContext::GetMousePosition() const
 	{
 		return mpMouseDevice->GetMousePosition();
 	}
 
-	E_ENGINE_SUBSYSTEM_TYPE CDirectInputContext::GetType() const
+	E_ENGINE_SUBSYSTEM_TYPE CWindowsInputContext::GetType() const
 	{
 		return EST_INPUT_CONTEXT;
 	}
 
-	const TInternalInputData& CDirectInputContext::GetInternalHandler() const
+	const TInternalInputData& CWindowsInputContext::GetInternalHandler() const
 	{
 		return mInternalData;
 	}
 
-	E_RESULT_CODE CDirectInputContext::_createInputInternalHandler(HINSTANCE windowHandler)
+	E_RESULT_CODE CWindowsInputContext::_createInputInternalHandler(HINSTANCE windowHandler)
 	{
 		HRESULT internalResult = DirectInput8Create(windowHandler, DIRECTINPUT_VERSION, IID_IDirectInput8, reinterpret_cast<void**>(&mpInput), nullptr);
 
@@ -146,7 +146,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDirectInputContext::_releaseInternalHandler()
+	E_RESULT_CODE CWindowsInputContext::_releaseInternalHandler()
 	{
 		if (mpInput && FAILED(mpInput->Release()))
 		{
@@ -157,9 +157,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IInputContext* CreateDirectInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IInputContext* CreateWindowsInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
 	{
-		CDirectInputContext* pInputContextInstance = new (std::nothrow) CDirectInputContext();
+		CWindowsInputContext* pInputContextInstance = new (std::nothrow) CWindowsInputContext();
 
 		if (!pInputContextInstance)
 		{

@@ -57,7 +57,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 	mpWindowSystem->SetTitle(std::to_string(dt));
 
-	if (dynamic_cast<TDEngine2::IInputContext*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_INPUT_CONTEXT))->IsMouseButtonPressed(0))
+	if (dynamic_cast<TDEngine2::IDesktopInputContext*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_INPUT_CONTEXT))->IsMouseButtonPressed(0))
 	{
 		std::cout << "pressed\n";
 	}

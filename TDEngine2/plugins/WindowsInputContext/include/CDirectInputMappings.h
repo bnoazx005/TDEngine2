@@ -8,7 +8,7 @@
 
 
 #include <utils/Types.h>
-#include "CDirectInputContext.h"
+#include "CWindowsInputContext.h"
 
 
 #if defined(TDE2_USE_WIN32PLATFORM)

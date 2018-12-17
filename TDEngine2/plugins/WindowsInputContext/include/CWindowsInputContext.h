@@ -1,5 +1,5 @@
 /*!
-	/file CDirectInputContext.h
+	/file CWindowsInputContext.h
 	/date 15.12.2018
 	/authors Kasimov Ildar
 */
@@ -41,29 +41,29 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of CDirectInputContext's type
+		\brief A factory function for creation objects of CWindowsInputContext's type
 
 		\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CDirectInputContext's implementation
+		\return A pointer to CWindowsInputContext's implementation
 	*/
 
-	TDE2_API IInputContext* CreateDirectInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IInputContext* CreateWindowsInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
 
 
 	/*!
-		class CDirectInputContext
+		class CWindowsInputContext
 
 		\brief The class is an implementation of a low-level input context based
-		on DirectInput API
+		on DirectInput and XInput APIs
 	*/
 
-	class CDirectInputContext : public IInputContext
+	class CWindowsInputContext : public IDesktopInputContext
 	{
 		public:
-			friend TDE2_API IInputContext* CreateDirectInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+			friend TDE2_API IInputContext* CreateWindowsInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of an input context
@@ -163,7 +163,7 @@ namespace TDEngine2
 
 			TDE2_API const TInternalInputData& GetInternalHandler() const;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDirectInputContext)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWindowsInputContext)
 
 			TDE2_API virtual E_RESULT_CODE _createInputInternalHandler(HINSTANCE windowHandler);
 

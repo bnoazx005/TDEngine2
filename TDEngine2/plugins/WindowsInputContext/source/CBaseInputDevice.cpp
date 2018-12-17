@@ -18,14 +18,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		CDirectInputContext* pDirectInputContext = dynamic_cast<CDirectInputContext*>(pInputContext);
+		CWindowsInputContext* pWinInputContext = dynamic_cast<CWindowsInputContext*>(pInputContext);
 
-		if (!pDirectInputContext)
+		if (!pWinInputContext)
 		{
 			return RC_INVALID_ARGS;
 		}
 				
-		E_RESULT_CODE result = _createInternalHandlers(pDirectInputContext->GetInternalHandler());
+		E_RESULT_CODE result = _createInternalHandlers(pWinInputContext->GetInternalHandler());
 
 		if (result != RC_OK)
 		{

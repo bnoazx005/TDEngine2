@@ -337,7 +337,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 		
 #if defined(TDE2_USE_WIN32PLATFORM)
-		if ((result = mpPluginManagerInstance->LoadPlugin("DirectInputContext")) != RC_OK)
+		if ((result = mpPluginManagerInstance->LoadPlugin("WindowsInputContext")) != RC_OK)
 		{
 			return result;
 		}

@@ -1,18 +1,18 @@
-#include "./../include/CDirectInputCtxPlugin.h"
+#include "./../include/CWindowsInputCtxPlugin.h"
 #include <core/IEngineCore.h>
 #include <core/IInputContext.h>
 #include <core/IWindowSystem.h>
-#include "./../include/CDirectInputContext.h"
+#include "./../include/CWindowsInputContext.h"
 
 
 namespace TDEngine2
 {
-	CDirectInputCtxPlugin::CDirectInputCtxPlugin():
+	CWindowsInputCtxPlugin::CWindowsInputCtxPlugin():
 		mIsInitialized(false)
 	{
 	}
 
-	E_RESULT_CODE CDirectInputCtxPlugin::Init(IEngineCore* pEngineCore)
+	E_RESULT_CODE CWindowsInputCtxPlugin::Init(IEngineCore* pEngineCore)
 	{
 		if (mIsInitialized)
 		{
@@ -28,7 +28,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpInputContext = CreateDirectInputContext(dynamic_cast<IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), result);
+		mpInputContext = CreateWindowsInputContext(dynamic_cast<IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), result);
 
 		if (result != RC_OK)
 		{
@@ -45,7 +45,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDirectInputCtxPlugin::Free()
+	E_RESULT_CODE CWindowsInputCtxPlugin::Free()
 	{
 		if (!mIsInitialized)
 		{
@@ -59,7 +59,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	const TPluginInfo& CDirectInputCtxPlugin::GetInfo() const
+	const TPluginInfo& CWindowsInputCtxPlugin::GetInfo() const
 	{
 		return mPluginInfo;
 	}
@@ -68,7 +68,7 @@ namespace TDEngine2
 
 extern "C" TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result)
 {
-	TDEngine2::CDirectInputCtxPlugin* pPluginInstance = new (std::nothrow) TDEngine2::CDirectInputCtxPlugin();
+	TDEngine2::CWindowsInputCtxPlugin* pPluginInstance = new (std::nothrow) TDEngine2::CWindowsInputCtxPlugin();
 
 	if (!pPluginInstance)
 	{

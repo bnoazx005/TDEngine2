@@ -10,11 +10,13 @@ cmake_minimum_required (VERSION 2.8)
 
 		add_subdirectory(D3D11GraphicsContext)
 
-		message(STATUS "DirectInputContext's compileation is enabled")
+		message(STATUS "WindowsInputContext's compilation is enabled")
 
-		add_subdirectory(DirectInputContext)
+		add_subdirectory(WindowsInputContext)
 	else()
 		message(STATUS "D3D11GraphicsContext's compilation is disabled")
+
+		message(STATUS "WindowsInputContext's compilation is disabled")
 	endif (MSVC)
 #endif (BUILD_D3D11_GCTX_PLUGIN)
 

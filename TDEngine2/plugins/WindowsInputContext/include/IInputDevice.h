@@ -11,7 +11,7 @@
 #include <utils/Utils.h>
 #include <core/IBaseObject.h>
 #include <math/TVector3.h>
-#include "CDirectInputContext.h"
+#include "CWindowsInputContext.h"
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)

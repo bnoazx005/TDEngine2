@@ -1,13 +1,10 @@
 /*!
-	\file CDirectInputCtxPlugin.h
+	\file CWindowsInputCtxPlugin.h
 	\date 15.12.2018
 	\authors Kasimov Ildar
 */
 
 #pragma once
-
-
-#include "CDirectInputContext.h"
 
 
 #include <core/IPlugin.h>
@@ -20,13 +17,13 @@ namespace TDEngine2
 
 
 	/*!
-		class CDirectInputCtxPlugin
+		class CWindowsInputCtxPlugin
 
 		\brief The class implements a plugin, which provides
 		a support of a DirectInput API based input context
 	*/
 
-	class CDirectInputCtxPlugin : public IPlugin
+	class CWindowsInputCtxPlugin : public IPlugin
 	{
 		public:
 			friend TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY::CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
@@ -58,7 +55,7 @@ namespace TDEngine2
 
 			TDE2_API const TPluginInfo& GetInfo() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDirectInputCtxPlugin)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWindowsInputCtxPlugin)
 		protected:
 			bool              mIsInitialized;
 
