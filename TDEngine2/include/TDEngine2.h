@@ -98,6 +98,7 @@
 #include "graphics/CGraphicsLayersInfo.h"
 
 ///math
+#include "math/TVector2.h"
 #include "math/TVector3.h"
 #include "math/TVector4.h"
 #include "math/TMatrix3.h"
