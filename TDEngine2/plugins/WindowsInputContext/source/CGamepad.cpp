@@ -36,13 +36,32 @@ namespace TDEngine2
 			}
 		}
 
-		if (gamepadId > XUSER_MAX_COUNT)
+		if (gamepadId >= XUSER_MAX_COUNT)
 		{
 			return RC_FAIL;
 		}
 
 		mGamepadId = gamepadId;
 		
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CGamepad::Init(IInputContext* pInputContext, U8 gamepadId)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (gamepadId >= XUSER_MAX_COUNT)
+		{
+			return RC_INVALID_ARGS;
+		}
+		
+		mGamepadId = gamepadId;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -109,9 +128,34 @@ namespace TDEngine2
 	{
 		return mCurrGamepadState.Gamepad.bRightTrigger / 255.0f;
 	}
+
+	TVector2 CGamepad::GetLThumbShiftVec() const
+	{
+		return _filterStickRawData(mCurrGamepadState.Gamepad.sThumbLX, mCurrGamepadState.Gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+	}
+
+	TVector2 CGamepad::GetRThumbShiftVec() const
+	{
+		return _filterStickRawData(mCurrGamepadState.Gamepad.sThumbRX, mCurrGamepadState.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+	}
+
+	TVector2 CGamepad::_filterStickRawData(U16 x, U16 y, U16 deadzoneValue) const
+	{
+		TVector2 shiftVec(static_cast<F32>(x), static_cast<F32>(y));
+
+		if (Dot(shiftVec, shiftVec) < deadzoneValue * deadzoneValue) // Dot(x, x) is a squared length of x, if the offset doesn't exceed the specified dead zone we reset it
+		{
+			return ZeroVector2;
+		}
+
+		/// compute percentage 
+		F32 percentage = (Length(shiftVec) - deadzoneValue) / ((std::numeric_limits<U16>::max)() - deadzoneValue);
+
+		return Normalize(shiftVec) * percentage;
+	}
 	
 
-	TDE2_API IInputDevice* CreateGamepadDevice(IInputContext* pInputContext, E_RESULT_CODE& result)
+	TDE2_API IInputDevice* CreateGamepadDevice(IInputContext* pInputContext, U8 gamepadId, E_RESULT_CODE& result)
 	{
 		CGamepad* pGamepadInstance = new (std::nothrow) CGamepad();
 
@@ -122,7 +166,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pGamepadInstance->Init(pInputContext);
+		result = pGamepadInstance->Init(pInputContext, gamepadId);
 
 		if (result != RC_OK)
 		{

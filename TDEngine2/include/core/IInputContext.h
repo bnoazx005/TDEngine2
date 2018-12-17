@@ -10,12 +10,14 @@
 #include "./../utils/Utils.h"
 #include "./../utils/Types.h"
 #include "IEngineSubsystem.h"
+#include "./../math/TVector2.h"
 #include "./../math/TVector3.h"
 
 
 namespace TDEngine2
 {
 	class IWindowSystem;
+	class IGamepad;
 
 
 	/*!
@@ -177,6 +179,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TVector3 GetMousePosition() const = 0;
+
+			/*!
+				\brief The method return a pointer to IGamepad implementation
+
+				\param[in] gamepadId An identifier of a gamepad
+
+				\return The method return a pointer to IGamepad implementation
+			*/
+
+			TDE2_API virtual IGamepad* GetGamepad(U8 gamepadId) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDesktopInputContext)
 	};

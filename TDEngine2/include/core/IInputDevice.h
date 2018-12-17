@@ -7,20 +7,16 @@
 #pragma once
 
 
-#include <utils/Types.h>
-#include <utils/Utils.h>
-#include <core/IBaseObject.h>
-#include <math/TVector3.h>
-#include "CWindowsInputContext.h"
+#include "./../utils/Types.h"
+#include "./../utils/Utils.h"
+#include "./../core/IBaseObject.h"
+#include "./../math/TVector2.h"
+#include "./../math/TVector3.h"
+#include "IInputContext.h"
 
-
-#if defined (TDE2_USE_WIN32PLATFORM)
 
 namespace TDEngine2
 {
-	class IInputContext;
-
-
 	/*!
 		interface IInputDevice
 
@@ -145,6 +141,18 @@ namespace TDEngine2
 	{
 		public:
 			/*!
+				\brief The method initializes an initial state of an input device
+
+				\param[in, out] pInputContext A pointer to IInputContext implementation
+
+				\param[in] gamepadId An identifier of a gamepad
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IInputContext* pInputContext, U8 gamepadId) = 0;
+
+			/*!
 				\brief The method polls input devices and checks up has some button been pressed
 
 				\param[in] button A button's index
@@ -186,12 +194,26 @@ namespace TDEngine2
 
 			TDE2_API virtual F32 GetRTriggerValue() const = 0;
 			
-			//TDE2_API TVector2 GetLThumbShiftVec() const = 0;
+			/*!
+				\brief The method returns a vector which represents a left 
+				thumb stick's offset from its origin position
 
-			//TDE2_API TVector2 GetRThumbShiftVec() const = 0;
+				\return The method returns a vector which represents a left
+				thumb stick's offset from its origin position
+			*/
+
+			TDE2_API virtual TVector2 GetLThumbShiftVec() const = 0;
+
+			/*!
+				\brief The method returns a vector which represents a right 
+				thumb stick's offset from its origin position
+
+				\return The method returns a vector which represents a right
+				thumb stick's offset from its origin position
+			*/
+
+			TDE2_API virtual TVector2 GetRThumbShiftVec() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGamepad)
 	};
 }
-
-#endif

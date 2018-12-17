@@ -44,6 +44,7 @@
 #include "core/IEventManager.h"
 #include "core/CEventManager.h"
 #include "core/IInputContext.h"
+#include "core/IInputDevice.h"
 
 ///ecs
 #include "ecs/CEntity.h"

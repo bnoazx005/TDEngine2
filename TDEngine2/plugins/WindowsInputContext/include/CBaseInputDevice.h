@@ -7,8 +7,9 @@
 #pragma once
 
 
-#include "IInputDevice.h"
+#include <core/IInputDevice.h>
 #include <core/CBaseObject.h>
+#include "CWindowsInputContext.h"
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)

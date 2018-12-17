@@ -2,6 +2,7 @@
 #include <core/IWindowSystem.h>
 #include "./../include/CKeyboard.h"
 #include "./../include/CMouse.h"
+#include "./../include/CGamepad.h"
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -44,6 +45,16 @@ namespace TDEngine2
 			return result;
 		}
 
+		for (U8 i = 0; i < mMaxNumOfGamepads; ++i)
+		{
+			mpGamepads[i] = dynamic_cast<IGamepad*>(CreateGamepadDevice(this, i, result));
+
+			if (result != RC_OK)
+			{
+				return result;
+			}
+		}
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -73,6 +84,23 @@ namespace TDEngine2
 			return result;
 		}
 
+		IGamepad* pCurrGamepad = nullptr;
+
+		for (U8 i = 0; i < mMaxNumOfGamepads; ++i)
+		{
+			pCurrGamepad = mpGamepads[i];
+
+			if (!pCurrGamepad)
+			{
+				continue;
+			}
+
+			if ((result = pCurrGamepad->Free()) != RC_OK)
+			{
+				return result;
+			}
+		}
+
 		mIsInitialized = false;
 
 		delete this;
@@ -82,9 +110,28 @@ namespace TDEngine2
 
 	E_RESULT_CODE CWindowsInputContext::Update()
 	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
 		mpKeyboardDevice->Update();
 
 		mpMouseDevice->Update();
+
+		IGamepad* pCurrGamepad = nullptr;
+
+		for (U8 i = 0; i < mMaxNumOfGamepads; ++i)
+		{
+			pCurrGamepad = mpGamepads[i];
+
+			if (!pCurrGamepad)
+			{
+				continue;
+			}
+
+			pCurrGamepad->Update();
+		}
 
 		return RC_OK;
 	}
@@ -132,6 +179,16 @@ namespace TDEngine2
 	const TInternalInputData& CWindowsInputContext::GetInternalHandler() const
 	{
 		return mInternalData;
+	}
+
+	IGamepad* CWindowsInputContext::GetGamepad(U8 gamepadId) const
+	{
+		if (gamepadId >= mMaxNumOfGamepads)
+		{
+			return nullptr;
+		}
+
+		return mpGamepads[gamepadId];
 	}
 
 	E_RESULT_CODE CWindowsInputContext::_createInputInternalHandler(HINSTANCE windowHandler)

@@ -26,6 +26,7 @@ namespace TDEngine2
 {
 	class IKeyboard;
 	class IMouse;
+	class IGamepad;
 
 
 	/*!
@@ -164,12 +165,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TInternalInputData& GetInternalHandler() const;
+			
+			/*!
+				\brief The method return a pointer to IGamepad implementation
+
+				\param[in] gamepadId An identifier of a gamepad
+
+				\return The method return a pointer to IGamepad implementation
+			*/
+
+			TDE2_API IGamepad* GetGamepad(U8 gamepadId) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWindowsInputContext)
 
-			TDE2_API virtual E_RESULT_CODE _createInputInternalHandler(HINSTANCE windowHandler);
+			TDE2_API E_RESULT_CODE _createInputInternalHandler(HINSTANCE windowHandler);
 
-			TDE2_API virtual E_RESULT_CODE _releaseInternalHandler();
+			TDE2_API E_RESULT_CODE _releaseInternalHandler();
 		protected:
 			bool               mIsInitialized;
 
@@ -178,6 +189,10 @@ namespace TDEngine2
 			IKeyboard*         mpKeyboardDevice;
 
 			IMouse*            mpMouseDevice;
+
+			static const U8    mMaxNumOfGamepads = XUSER_MAX_COUNT;
+
+			IGamepad*          mpGamepads[mMaxNumOfGamepads];
 
 			TInternalInputData mInternalData;
 	};

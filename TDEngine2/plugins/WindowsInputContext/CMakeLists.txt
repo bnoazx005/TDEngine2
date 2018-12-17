@@ -15,7 +15,6 @@ set(WININPUT_CONTEXT_LIBRARY_NAME "WindowsInputContext")
 set(WIN_INPUT_CTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CWindowsInputCtxPlugin.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CWindowsInputContext.h"	
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/IInputDevice.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CBaseInputDevice.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CKeyboard.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CMouse.h"

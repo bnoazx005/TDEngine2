@@ -8,8 +8,7 @@
 
 
 #include <core/CBaseObject.h>
-#include "IInputDevice.h"
-
+#include <core/IInputDevice.h>
 
 #if defined (TDE2_USE_WIN32PLATFORM)
 
@@ -23,12 +22,14 @@ namespace TDEngine2
 
 		\param[in, out] pInputContext A pointer to IInputContext implementation
 
+		\param[in] gamepadId An identifier of a gamepad
+
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CGamepad's implementation
 	*/
 
-	TDE2_API IInputDevice* CreateGamepadDevice(IInputContext* pInputContext, E_RESULT_CODE& result);
+	TDE2_API IInputDevice* CreateGamepadDevice(IInputContext* pInputContext, U8 gamepadId, E_RESULT_CODE& result);
 
 
 	/*!
@@ -40,8 +41,20 @@ namespace TDEngine2
 	class CGamepad : public CBaseObject, public IGamepad
 	{
 		public:
-			friend TDE2_API IInputDevice* CreateGamepadDevice(IInputContext* pInputContext, E_RESULT_CODE& result);
+			friend TDE2_API IInputDevice* CreateGamepadDevice(IInputContext* pInputContext, U8 gamepadId, E_RESULT_CODE& result);
 		public:
+			/*!
+				\brief The method initializes an initial state of an input device
+
+				\param[in, out] pInputContext A pointer to IInputContext implementation
+
+				\param[in] gamepadId An identifier of a gamepad
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext, U8 gamepadId) override;
+
 			/*!
 				\brief The method initializes an initial state of a keyboard device
 
@@ -109,8 +122,30 @@ namespace TDEngine2
 			*/
 
 			TDE2_API F32 GetRTriggerValue() const override;
+
+			/*!
+				\brief The method returns a vector which represents a left
+				thumb stick's offset from its origin position
+
+				\return The method returns a vector which represents a left
+				thumb stick's offset from its origin position
+			*/
+
+			TDE2_API TVector2 GetLThumbShiftVec() const override;
+
+			/*!
+				\brief The method returns a vector which represents a right
+				thumb stick's offset from its origin position
+
+				\return The method returns a vector which represents a right
+				thumb stick's offset from its origin position
+			*/
+
+			TDE2_API TVector2 GetRThumbShiftVec() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGamepad)
+
+			TDE2_API TVector2 _filterStickRawData(U16 x, U16 y, U16 deadzoneValue) const;
 		protected:
 			XINPUT_STATE mPrevGamepadState;
 
