@@ -481,12 +481,16 @@ namespace TDEngine2
 		\brief The enumeration contains types of shaders
 	*/
 
-	enum E_SHADER_STAGE_TYPE
+	enum E_SHADER_STAGE_TYPE: U8
 	{
 		SST_VERTEX,
 		SST_PIXEL,
 		SST_GEOMETRY
 	};
+
+	constexpr U8 MaxNumOfShaderStages = static_cast<U8>(SST_GEOMETRY) + 1;
+
+
 
 	/*!
 		enum E_SHADER_FEATURE_LEVEL
@@ -519,6 +523,20 @@ namespace TDEngine2
 	};
 
 	constexpr U8 MaxNumberOfUserConstantBuffers = 10;
+
+
+	/*!
+		struct TUserUniformBufferData
+
+		\brief The structure contains a data that used to describe a user defined uniform buffer
+	*/
+
+	typedef struct TUserUniformBufferData
+	{
+		U8* mpUniformBufferData;
+
+		U32 mUniformBufferSize;
+	} TUserUniformBufferData, *TUserUniformBufferDataPtr;
 
 
 	typedef U32 TEventListenerId;

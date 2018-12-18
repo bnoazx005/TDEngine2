@@ -97,6 +97,8 @@
 #include "graphics/CRenderQueue.h"
 #include "graphics/IGraphicsLayersInfo.h"
 #include "graphics/CGraphicsLayersInfo.h"
+#include "graphics/IMaterial.h"
+#include "graphics/CBaseMaterial.h"
 
 ///math
 #include "math/TVector2.h"
