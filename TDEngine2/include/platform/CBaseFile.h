@@ -68,10 +68,12 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _onFree() = 0;
 		protected:
-			std::ifstream mFile;
+			mutable std::fstream mFile;				/// \note mutable specifier is used because of a call of tellg() within GetPosition() const may fails
 
-			std::string   mName;
+			std::string          mName;
 
-			IFileSystem*  mpFileSystemInstance;
+			IFileSystem*         mpFileSystemInstance;
+
+			U32                  mCreationFlags;
 	};
 }

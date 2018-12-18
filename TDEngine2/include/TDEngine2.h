@@ -122,6 +122,8 @@
 #include "platform/unix/CUnixTimer.h"
 #include "platform/CConfigFileReader.h"
 #include "platform/CBaseFile.h"
+#include "platform/CBinaryFileReader.h"
+#include "platform/CBinaryFileWriter.h"
 
 ///utils
 #include "utils/Types.h"

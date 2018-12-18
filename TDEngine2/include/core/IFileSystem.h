@@ -18,7 +18,6 @@
 namespace TDEngine2
 {
 	class IFile;
-	class ITextFileReader;
 	
 
 	/*!

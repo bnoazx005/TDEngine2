@@ -190,14 +190,125 @@ namespace TDEngine2
 
 
 	/*!
+		interface ITextFileReader
+
+		\brief The interface describes a functionality of a binary file's reader
+	*/
+
+	class IBinaryFileReader : public virtual IFileReader
+	{
+		public:
+			/*!
+				\brief The method reads a continuous block of a file of specified size
+				into a given buffer
+
+				\param[out] pBuffer A buffer which will keep the read block of a file
+
+				\paramp[in] bufferSize A size of a block that should be read
+				
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Read(U8*& pBuffer, U32 bufferSize) = 0;
+
+			/*!
+				\brief The method sets up a position of a file pointer
+
+				\param[in] pos A new position of a file pointer
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetPosition(U32 pos) = 0;
+
+			/*!
+				\brief The method is a predicate that returns true if the end of a file has reached
+				
+				\return The method is a predicate that returns true if the end of a file has reached
+			*/
+
+			TDE2_API virtual bool IsEOF() const = 0;
+
+			/*!
+				\brief The method returns a current position of a file pointer
+				
+				\return The method returns a current position of a file pointer
+			*/
+
+			TDE2_API virtual U32 GetPosition() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryFileReader)
+	};
+
+
+	/*!
 		interface IFileWriter
 
 		\brief The interface describes a functionality of a file writer
 	*/
 
-	class IFileWriter : public virtual IFile
+	class IFileWriter: public virtual IFile
 	{
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileWriter)
+	};
+
+
+	/*!
+		interface IBinaryFileWriter
+
+		\brief The interface represents a functionality of binary file writer
+	*/
+
+	class IBinaryFileWriter: public IFileWriter
+	{
+		public:
+			/*!
+				\brief The method writes data of specified size into a file
+
+				\param[in] pBuffer A pointer to data's buffer
+
+				\param[in] bufferSize A size in bytes of data should be written
+				
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Write(const U8* pBuffer, U32 bufferSize) = 0;
+
+			/*!
+				\brief The method writes all unsaved buffer data into the destination file
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Flush() = 0;
+
+			/*!
+				\brief The method sets up a position of a file pointer
+
+				\param[in] pos A new position of a file pointer
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetPosition(U32 pos) = 0;
+
+			/*!
+				\brief The method is a predicate that returns true if the end of a file has reached
+
+				\return The method is a predicate that returns true if the end of a file has reached
+			*/
+
+			TDE2_API virtual bool IsEOF() const = 0;
+
+			/*!
+				\brief The method returns a current position of a file pointer
+
+				\return The method returns a current position of a file pointer
+			*/
+
+			TDE2_API virtual U32 GetPosition() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryFileWriter)
 	};
 }

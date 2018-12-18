@@ -12,6 +12,8 @@
 #include "./../../include/platform/unix/CUnixFileSystem.h"
 #include "./../../include/platform/CTextFileReader.h"
 #include "./../../include/platform/CConfigFileReader.h"
+#include "./../../include/platform/CBinaryFileReader.h"
+#include "./../../include/platform/CBinaryFileWriter.h"
 #include "./../../include/core/CEventManager.h"
 #include "./../../include/core/memory/CMemoryManager.h"
 #include "./../../include/core/memory/CLinearAllocator.h"
@@ -162,10 +164,10 @@ namespace TDEngine2
 #endif
 		
 		/// register known file types factories
-		pFileSystem->RegisterFileFactory<CTextFileReader>(CreateTextFileReader);
-		pFileSystem->RegisterFileFactory<CConfigFileReader>(CreateConfigFileReader);
-
-		if (result != RC_OK)
+		if (((result = pFileSystem->RegisterFileFactory<CTextFileReader>(CreateTextFileReader)) != RC_OK) ||
+			((result = pFileSystem->RegisterFileFactory<CConfigFileReader>(CreateConfigFileReader)) != RC_OK) ||
+			((result = pFileSystem->RegisterFileFactory<CBinaryFileReader>(CreateBinaryFileReader)) != RC_OK) ||
+			((result = pFileSystem->RegisterFileFactory<CBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK))
 		{
 			return result;
 		}

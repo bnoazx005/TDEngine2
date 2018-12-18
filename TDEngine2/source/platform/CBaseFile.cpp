@@ -5,7 +5,8 @@
 namespace TDEngine2
 {
 
-	CBaseFile::CBaseFile()
+	CBaseFile::CBaseFile():
+		mCreationFlags(std::ios::in)
 	{
 	}
 
@@ -21,7 +22,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mFile.open(filename, std::ios::in);
+		mFile.open(filename, mCreationFlags);
 
 		if (!mFile.is_open())
 		{
