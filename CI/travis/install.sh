@@ -34,8 +34,4 @@ mkdir -p $GLEW_DIR
 unzip $GLEW_ARCHIVE -d .
 
 #build GLEW
-cd $GLEW_DIR
-
-make
-sudo make install
-make clean
+pushd $GLEW_DIR && make && sudo make install && make clean && popd
