@@ -1,13 +1,5 @@
 #!/bin/bash
 
-wget --quiet $LLVM_SRC_URL
-mkdir -p llvm
-tar --strip-components=1 -xf $LLVM_SRC_TAR -C llvm
-
-wget --quiet $LLVM_BIN_URL
-tar --strip-components=2 -xf $LLVM_BIN_TAR $LLVM_BIN_TAR_SUBDIR/bin/llvm-tblgen
-
-
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 sudo apt-get update -qq
 
@@ -39,7 +31,7 @@ GLEW_DIR=$(pwd)/glew-$GLEW_VERSION
 
 wget --quiet $GLEW_URL
 mkdir -p $GLEW_DIR
-unzip $GLEW_ARCHIVE -d $GLEW_DIR
+unzip $GLEW_ARCHIVE -d .
 
 #build GLEW
 cd $GLEW_DIR
