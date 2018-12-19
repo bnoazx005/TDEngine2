@@ -209,7 +209,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Read(void*& pBuffer, U32 bufferSize) = 0;
+			TDE2_API virtual E_RESULT_CODE Read(void* pBuffer, U32 bufferSize) = 0;
 
 			/*!
 				\brief The method sets up a position of a file pointer
