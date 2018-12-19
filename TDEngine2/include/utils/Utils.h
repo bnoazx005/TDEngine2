@@ -181,4 +181,47 @@ namespace TDEngine2
 		}
 #endif
 
+
+	/*!
+		\brief Endianness helper functions
+	*/
+
+	/*!
+		\brief The function returns type of bytes order which is used on this host machine
+
+		\return The function returns either ET_LITTLE_ENDIAN or ET_BIG_ENDIAN based on which one is used
+		on the host
+	*/
+
+	TDE2_API E_ENDIAN_TYPE GetHostEndianType();
+
+	/*!
+		\brief The function swaps the order of bytes of a given value, type of which is represented as a word
+
+		\param[in] value Any U16 value
+
+		\return The U16 value with swapped order of bytes
+	*/
+
+	TDE2_API U16 Swap2Bytes(U16 value);
+
+	/*!
+		\brief The function swaps the order of bytes of a given value, type of which is a double word
+
+		\param[in] value Any U32 value
+
+		\return The U32 value with swapped order of bytes
+	*/
+
+	TDE2_API U32 Swap4Bytes(U32 value);
+
+	/*!
+		\brief The function swaps the order of bytes of a given value, type of which is a U64
+
+		\param[in] value Any U64 value
+
+		\return The U64 value with swapped order of bytes
+	*/
+
+	TDE2_API U64 Swap8Bytes(U64 value);
 }

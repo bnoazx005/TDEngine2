@@ -74,6 +74,6 @@ namespace TDEngine2
 
 			IFileSystem*         mpFileSystemInstance;
 
-			U32                  mCreationFlags;
+			std::ios::openmode   mCreationFlags;
 	};
 }

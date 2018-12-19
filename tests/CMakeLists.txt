@@ -27,6 +27,7 @@ set(HEADERS )
 set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CGraphicsLayersInfoTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/CResultTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/utils/UtilsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
 source_group("includes" FILES ${HEADERS})

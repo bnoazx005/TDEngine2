@@ -542,4 +542,18 @@ namespace TDEngine2
 	typedef U32 TEventListenerId;
 
 	constexpr TEventListenerId BroadcastListenersIdValue = (std::numeric_limits<TEventListenerId>::max)();
+
+
+	/*!
+		enum class E_ENDIAN_TYPE
+
+		\brief The enumeration contains a different types of endianness
+	*/
+
+	enum class E_ENDIAN_TYPE: U8
+	{
+		ET_LITTLE_ENDIAN,
+		ET_BIG_ENDIAN,
+		ET_NATIVE_ENDIAN	///< The following value is used to determine whether the native endianness is used for the host machine
+	};
 }
