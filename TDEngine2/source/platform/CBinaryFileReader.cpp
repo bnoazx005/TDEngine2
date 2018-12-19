@@ -10,8 +10,20 @@ namespace TDEngine2
 		mCreationFlags = std::ios::in | std::ios::binary;
 	}
 
-	E_RESULT_CODE CBinaryFileReader::Read(U8*& pBuffer, U32 bufferSize)
+	E_RESULT_CODE CBinaryFileReader::Read(void*& pBuffer, U32 bufferSize)
 	{
+		if (!pBuffer)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mFile.read(static_cast<C8*>(pBuffer), bufferSize);
+
+		if (mFile.bad() || mFile.fail())
+		{
+			return RC_FAIL;
+		}
+
 		return RC_OK;
 	}
 

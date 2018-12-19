@@ -10,7 +10,7 @@ namespace TDEngine2
 		mCreationFlags = std::ios::out | std::ios::binary;
 	}
 
-	E_RESULT_CODE CBinaryFileWriter::Write(const U8* pBuffer, U32 bufferSize)
+	E_RESULT_CODE CBinaryFileWriter::Write(const void* pBuffer, U32 bufferSize)
 	{
 		if (!mFile.is_open())
 		{
