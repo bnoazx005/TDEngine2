@@ -67,7 +67,7 @@ namespace TDEngine2
 		return mDeltaTime;
 	}
 
-	F32 CWin32Timer::GetCurrTime() const
+	F32 CUnixTimer::GetCurrTime() const
 	{
 		return (mCurrTime.tv_sec - mStartTime.tv_sec) * 1000.0f + (mCurrTime.tv_usec - mStartTime.tv_usec) / 1000.0f;
 	}
