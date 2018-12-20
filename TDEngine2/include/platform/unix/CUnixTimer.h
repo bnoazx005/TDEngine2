@@ -83,6 +83,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API F32 GetDeltaTime() const override;
+
+			/*!
+				\brief The method returns elapsed time since a timer was started
+
+				\return The method returns elapsed time since a timer was started
+			*/
+
+			TDE2_API F32 GetCurrTime() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixTimer)
 		protected:

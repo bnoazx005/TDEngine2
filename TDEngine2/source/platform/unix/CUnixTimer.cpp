@@ -58,11 +58,18 @@ namespace TDEngine2
 		gettimeofday(&mCurrTime, NULL);
 
 		mDeltaTime = (mCurrTime.tv_sec - mPrevTime.tv_sec) * 1000.0f + (mCurrTime.tv_usec - mPrevTime.tv_usec) / 1000.0f;
+
+		mDeltaTime = mDeltaTime > 1.0f ? DefaultFrameRate : mDeltaTime; /// delta's top bound is used to prevent too large values
 	}
 
 	F32 CUnixTimer::GetDeltaTime() const
 	{
 		return mDeltaTime;
+	}
+
+	F32 CWin32Timer::GetCurrTime() const
+	{
+		return (mCurrTime.tv_sec - mStartTime.tv_sec) * 1000.0f + (mCurrTime.tv_usec - mStartTime.tv_usec) / 1000.0f;
 	}
 
 

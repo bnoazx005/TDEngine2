@@ -68,13 +68,21 @@ namespace TDEngine2
 
 			/*!
 				\brief The method returns a time's value, which has passed
-				between two frames
+				between two frames in seconds
 
 				\return The method returns a time's value, which has passed
-				between two frames
+				between two frames in seconds
 			*/
 
 			TDE2_API F32 GetDeltaTime() const override;
+
+			/*!
+				\brief The method returns elapsed time since a timer was started in seconds
+
+				\return The method returns elapsed time since a timer was started in seconds
+			*/
+
+			TDE2_API F32 GetCurrTime() const override;
 		protected:
 			TDE2_API CWin32Timer();
 			TDE2_API ~CWin32Timer() = default;

@@ -8,10 +8,14 @@
 
 
 #include "./../core/IBaseObject.h"
+#include "./../utils/Utils.h"
 
 
 namespace TDEngine2
 {
+	constexpr F32 DefaultFrameRate = 1.0f / 60.0f;
+
+
 	/*!
 		interface ITimer
 
@@ -51,17 +55,22 @@ namespace TDEngine2
 
 			/*!
 				\brief The method returns a time's value, which has passed
-				between two frames
+				between two frames in seconds
 
 				\return The method returns a time's value, which has passed
 				between two frames
 			*/
 
 			TDE2_API virtual F32 GetDeltaTime() const = 0;
+
+			/*!
+				\brief The method returns elapsed time since a timer was started in seconds
+
+				\return The method returns elapsed time since a timer was started in seconds
+			*/
+
+			TDE2_API virtual F32 GetCurrTime() const = 0;
 		protected:
-			TDE2_API ITimer() = default;
-			TDE2_API virtual ~ITimer() = default;
-			TDE2_API ITimer(const ITimer& timer) = delete;
-			TDE2_API virtual ITimer& operator=(const ITimer& timer) = delete;
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITimer)
 	};
 }

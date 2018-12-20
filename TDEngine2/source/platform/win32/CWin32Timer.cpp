@@ -70,11 +70,18 @@ namespace TDEngine2
 		QueryPerformanceCounter(&mCurrTime);
 
 		mDeltaTime = (mCurrTime.QuadPart - mPrevTime.QuadPart) * mFrequency;
+		
+		mDeltaTime = mDeltaTime > 1.0f ? DefaultFrameRate : mDeltaTime; /// delta's top bound is used to prevent too large values
 	}
 	
 	F32 CWin32Timer::GetDeltaTime() const
 	{
 		return mDeltaTime;
+	}
+
+	F32 CWin32Timer::GetCurrTime() const
+	{
+		return (mCurrTime.QuadPart - mStartTime.QuadPart) * mFrequency;
 	}
 
 
