@@ -480,11 +480,14 @@ namespace TDEngine2
 
 	CBaseShaderCompiler::TUniformBuffersMap CBaseShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
 	{
-		/// declare internal engine's buffers
+		/// declare internal engine's buffers;
 
-		return { { "TDEngine2PerFrame", { IUBR_PER_FRAME, sizeof(TPerFrameShaderData) } },
-				 { "TDEngine2PerObject", { IUBR_PER_OBJECT, sizeof(TPerObjectShaderData) } },
-				 { "TDEngine2RareUpdate",{ IUBR_RARE_UDATED, sizeof(TRareUpdateShaderData) } },
-				 { "TDEngine2Constants", { IUBR_CONSTANTS, sizeof(TConstantShaderData) } } };
+		return
+			{ 
+				{ "TDEngine2PerFrame", { IUBR_PER_FRAME, sizeof(TPerFrameShaderData), E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL } },
+				{ "TDEngine2PerObject", { IUBR_PER_OBJECT, sizeof(TPerObjectShaderData), E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL} },
+				{ "TDEngine2RareUpdate",{ IUBR_RARE_UDATED, sizeof(TRareUpdateShaderData), E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL} },
+				{ "TDEngine2Constants", { IUBR_CONSTANTS, sizeof(TConstantShaderData), E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL} }
+			};
 	}
 }

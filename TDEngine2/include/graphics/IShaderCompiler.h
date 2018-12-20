@@ -21,6 +21,21 @@ namespace TDEngine2
 
 
 	/*!
+		enum class E_UNIFORM_BUFFER_DESC_FLAGS
+
+		\brief The enumeration contains all available flags that can be assigned to a buffer's description
+	*/
+
+	enum class E_UNIFORM_BUFFER_DESC_FLAGS: U32
+	{
+		UBDF_INTERNAL = 0x1,		///< The flag shows whether the uniform buffer is internal or it's available for user 
+		UBDF_EMPTY    = 0x0
+	};
+
+	DECLARE_BITMASK_OPERATORS(E_UNIFORM_BUFFER_DESC_FLAGS)
+
+
+	/*!
 		struct TUniformBufferDesc
 
 		\brief The structure contains an information about a uniform buffer
@@ -28,11 +43,13 @@ namespace TDEngine2
 
 	typedef struct TUniformBufferDesc
 	{
-		U8  mSlot;
+		U8                          mSlot;
 
-		U32 mSize;
+		U32                         mSize;
 
-		U32 mBufferIndex; /// for OpenGL usage only
+		E_UNIFORM_BUFFER_DESC_FLAGS mFlags;			/// The field is used to provide additional information about a buffer
+
+		U32                         mBufferIndex; /// for OpenGL usage only
 	} TUniformBufferDesc, *TUniformBufferDescPtr;
 
 

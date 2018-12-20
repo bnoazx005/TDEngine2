@@ -140,7 +140,7 @@ namespace TDEngine2
 			case IUBR_RARE_UDATED:
 				return BUT_DYNAMIC;
 			case IUBR_CONSTANTS:
-				return BUT_STATIC;
+				return BUT_DEFAULT;
 		}
 
 		return BUT_DEFAULT;

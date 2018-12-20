@@ -4,6 +4,8 @@
 
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 {
+	TDEngine2::E_RESULT_CODE result = TDEngine2::RC_OK;
+
 	mpShader = mpResourceManager->Load<TDEngine2::CBaseShader>("testDXShader.shader");
 
 	TVertex vertices[] = 
@@ -33,6 +35,13 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 		pEntity->AddComponent<TDEngine2::CQuadSprite>();
 	}
 
+	mpGlobalShaderProperties = TDEngine2::CreateGlobalShaderProperties(mpGraphicsObjectManager, result);
+
+	if (result != TDEngine2::RC_OK)
+	{
+		return result;
+	}
+
 	return TDEngine2::RC_OK;
 }
 
@@ -47,8 +56,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	data.mProjMatrix = mpGraphicsContext->CalcPerspectiveMatrix(3.14 * 0.5f, mpWindowSystem->GetWidth() / (TDEngine2::F32)mpWindowSystem->GetHeight(), 1.0f, 1000.0f);
 	data.mViewMatrix = TDEngine2::IdentityMatrix4;
 
-	dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->SetInternalUniformsBuffer(TDEngine2::IUBR_PER_FRAME, reinterpret_cast<const TDEngine2::U8*>(&data), sizeof(data));
-
+	mpGlobalShaderProperties->SetInternalUniformsBuffer(TDEngine2::IUBR_PER_FRAME, reinterpret_cast<const TDEngine2::U8*>(&data), sizeof(data));
+	
 	mpVertexBuffer->Bind(0, 0);
 
 	mpGraphicsContext->Draw(TDEngine2::E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST, 0, 3);

@@ -3,6 +3,7 @@
 #include "./../include/COGLShaderCompiler.h"
 #include "./../include/COGLConstantBuffer.h"
 #include <graphics/CBaseShader.h>
+#include <cassert>
 
 
 namespace TDEngine2
@@ -191,17 +192,35 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mUniformBuffers.resize(uniformBuffersInfo.size());
+		mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
+
+		/*!
+			In nutshell, we store mappings from (engine slot -> internal GLSL buffer id) within mUniformBuffersMap for both internal and user-defined uniform buffers.
+			But only user's buffers are processed by the shader itself, therefore we create only them and store into mUniformBuffers
+		*/
 
 		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
 		{
 			currDesc = (*iter).second;
 
-			mUniformBuffers[currDesc.mSlot] = CreateOGLConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
-
 			mUniformBuffersMap[currDesc.mSlot] = glGetUniformBlockIndex(mShaderHandler, (*iter).first.c_str());
-		}
 
+			/// skip internal buffer's creation, because they are created separately by IGlobalShaderProperties implementation
+			if ((currDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
+			{
+				/// bind this shader to internal uniform buffers here, so it can access right here
+
+				glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[currDesc.mSlot], currDesc.mSlot);
+
+				continue;
+			}
+			
+			assert((currDesc.mSlot - TotalNumberOfInternalConstantBuffers) >= 0);
+
+			/// the offset is used because the shaders doesn't store internal buffer by themselves
+			mUniformBuffers[currDesc.mSlot - TotalNumberOfInternalConstantBuffers] = CreateOGLConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+		}
+		
 		return RC_OK;
 	}
 

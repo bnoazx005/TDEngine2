@@ -86,7 +86,7 @@ namespace TDEngine2
 		protected:
 			GLuint             mShaderHandler;
 
-			TUniformBuffersMap mUniformBuffersMap;
+			TUniformBuffersMap mUniformBuffersMap; ///< \note the hash table stores information about buffers indices that were assigned to them by GLSL compiler
 	};
 
 

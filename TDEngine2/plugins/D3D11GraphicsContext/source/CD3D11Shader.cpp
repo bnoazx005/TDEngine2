@@ -6,6 +6,7 @@
 #include <graphics/CBaseShader.h>
 #include <graphics/IShaderCompiler.h>
 #include <cstring>
+#include <cassert>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -149,17 +150,26 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mUniformBuffers.resize(uniformBuffersInfo.size());
+		mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
 
 		IConstantBuffer* pConstantBuffer = nullptr;
 
+		/// here only user uniforms buffers are created
 		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
 		{
 			currDesc = (*iter).second;
 
+			/// skip internal buffers, because they are created separately by IGlobalShaderProperties implementation
+			if ((currDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
+			{
+				continue;
+			}
+
 			pConstantBuffer = CreateD3D11ConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
 
-			mUniformBuffers[currDesc.mSlot] = pConstantBuffer;
+			assert((currDesc.mSlot - TotalNumberOfInternalConstantBuffers) >= 0);
+
+			mUniformBuffers[currDesc.mSlot - TotalNumberOfInternalConstantBuffers] = pConstantBuffer; // the offset is used because the shaders doesn't store internal buffer by themselves
 		}
 
 		return RC_OK;

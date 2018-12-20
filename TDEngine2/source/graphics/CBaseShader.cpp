@@ -98,9 +98,15 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-
-	E_RESULT_CODE CBaseShader::SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize)
+	
+	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize)
 	{
+		if (slot >= MaxNumberOfUserConstantBuffers)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		/// \todo add checking for sizes of input data
 		IConstantBuffer* pCurrUniformBuffer = mUniformBuffers[slot];
 
 		if (!pCurrUniformBuffer)
@@ -122,43 +128,8 @@ namespace TDEngine2
 
 		pCurrUniformBuffer->Unmap();
 
-		_bindUniformBuffer(slot, pCurrUniformBuffer);
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize)
-	{
-		if (slot >= MaxNumberOfUserConstantBuffers)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		U32 goalSlot = IUBR_LAST_USED_SLOT + 1 + slot;
-
-		/// \todo add checking for sizes of input data
-		IConstantBuffer* pCurrUniformBuffer = mUniformBuffers[goalSlot];
-
-		if (!pCurrUniformBuffer)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pCurrUniformBuffer->Map(BMT_WRITE_DISCARD);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = pCurrUniformBuffer->Write(pData, dataSize)) != RC_OK)
-		{
-			return result;
-		}
-
-		pCurrUniformBuffer->Unmap();
-
-		_bindUniformBuffer(slot, pCurrUniformBuffer);
+		/// \note add the offset because all user-defined buffers go after the internal ones
+		_bindUniformBuffer(TotalNumberOfInternalConstantBuffers + slot, pCurrUniformBuffer);
 
 		return RC_OK;
 	}
