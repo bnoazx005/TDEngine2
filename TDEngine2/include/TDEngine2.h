@@ -99,6 +99,8 @@
 #include "graphics/CGraphicsLayersInfo.h"
 #include "graphics/IMaterial.h"
 #include "graphics/CBaseMaterial.h"
+#include "graphics/IGlobalShaderProperties.h"
+#include "graphics/CGlobalShaderProperties.h"
 
 ///math
 #include "math/TVector2.h"

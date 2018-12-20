@@ -522,6 +522,9 @@ namespace TDEngine2
 		IUBR_LAST_USED_SLOT = IUBR_CONSTANTS
 	};
 
+
+	constexpr U8 TotalNumberOfInternalConstantBuffers = static_cast<U8>(IUBR_LAST_USED_SLOT) + 1;
+
 	constexpr U8 MaxNumberOfUserConstantBuffers = 10;
 
 
