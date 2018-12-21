@@ -224,112 +224,115 @@ namespace TDEngine2
 	*/
 
 	TDE2_API U64 Swap8Bytes(U64 value);
+}
 
 
-	/*!
-		\brief Scoped enums helpers
-	*/
+/*!
+	\brief Scoped enums helpers
 
-	/*!
-		struct TUsesBitmaskOperator
+	\note Declared out of TDEngine2 namespace to provide an access to them
+	from applications that will use the engine
+*/
 
-		\brief The structure is used to implement SFINAE concept
-		which shows whether the type uses bitmasks operators or not
-	*/
-
-	template <typename T>
+/*!
 	struct TUsesBitmaskOperator
-	{
-		static const bool mValue = false;
+
+	\brief The structure is used to implement SFINAE concept
+	which shows whether the type uses bitmasks operators or not
+*/
+
+template <typename T>
+struct TUsesBitmaskOperator
+{
+	static const bool mValue = false;
+};
+
+/*!
+	\brief The macro is used to enable the bitmask operator's overloading for
+	the given enumeration's type
+*/
+
+#define TDE2_DECLARE_BITMASK_OPERATORS(EnumType)	\
+	template <>										\
+	struct TUsesBitmaskOperator<EnumType>			\
+	{												\
+		static const bool mValue = true;			\
 	};
 
-	/*!
-		\brief The macro is used to enable the bitmask operator's overloading for
-		the given enumeration's type
-	*/
 
-#define DECLARE_BITMASK_OPERATORS(EnumType) \
-	template <>								\
-	struct TUsesBitmaskOperator<EnumType>	\
-	{										\
-		static const bool mValue = true;	\
-	};
+/*!
+	\brief The function is an overloading of bitmask | operator for enumerations that
+	provide TUsesBitmaskOperator concept
 
+	\param[in] left Left operand
 
-	/*!
-		\brief The function is an overloading of bitmask | operator for enumerations that
-		provide TUsesBitmaskOperator concept
+	\param[in] right Right operand
 
-		\param[in] left Left operand
+	\return The function returns Enum's value which is a disjunction of left and right values
+*/
 
-		\param[in] right Right operand
-
-		\return The function returns Enum's value which is a disjunction of left and right values
-	*/
-
-	template <typename Enum>
-	TDE2_API 
+template <typename Enum>
+TDE2_API
 #if _HAS_CXX17
-	std::enable_if_t<TUsesBitmaskOperator<Enum>::mValue, Enum>
+std::enable_if_t<TUsesBitmaskOperator<Enum>::mValue, Enum>
 #else
-	typename std::enable_if<TUsesBitmaskOperator<Enum>::mValue, Enum>::type
+typename std::enable_if<TUsesBitmaskOperator<Enum>::mValue, Enum>::type
 #endif 
-	operator| (Enum left, Enum right)
-	{
-		using baseType = typename std::underlying_type<Enum>::type;
+operator| (Enum left, Enum right)
+{
+	using baseType = typename std::underlying_type<Enum>::type;
 
-		return static_cast<Enum>(static_cast<baseType>(left) | static_cast<baseType>(right));
-	}
+	return static_cast<Enum>(static_cast<baseType>(left) | static_cast<baseType>(right));
+}
 
 
-	/*!
-		\brief The function is an overloading of bitmask & operator for enumerations that
-		provide TUsesBitmaskOperator concept
+/*!
+	\brief The function is an overloading of bitmask & operator for enumerations that
+	provide TUsesBitmaskOperator concept
 
-		\param[in] left Left operand
+	\param[in] left Left operand
 
-		\param[in] right Right operand
+	\param[in] right Right operand
 
-		\return The function returns Enum's value which is a conjunction of left and right values
-	*/
+	\return The function returns Enum's value which is a conjunction of left and right values
+*/
 
-	template <typename Enum>
-	TDE2_API
+template <typename Enum>
+TDE2_API
 #if _HAS_CXX17
-		std::enable_if_t<TUsesBitmaskOperator<Enum>::mValue, Enum>
+std::enable_if_t<TUsesBitmaskOperator<Enum>::mValue, Enum>
 #else
-		typename std::enable_if<TUsesBitmaskOperator<Enum>::mValue, Enum>::type
+typename std::enable_if<TUsesBitmaskOperator<Enum>::mValue, Enum>::type
 #endif 
-	operator& (Enum left, Enum right)
-	{
-		using baseType = typename std::underlying_type<Enum>::type;
+operator& (Enum left, Enum right)
+{
+	using baseType = typename std::underlying_type<Enum>::type;
 
-		return static_cast<Enum>(static_cast<baseType>(left) & static_cast<baseType>(right));
-	}
+	return static_cast<Enum>(static_cast<baseType>(left) & static_cast<baseType>(right));
+}
 
 
-	/*!
-		\brief The function is an overloading of bitmask ^ operator for enumerations that
-		provide TUsesBitmaskOperator concept
+/*!
+	\brief The function is an overloading of bitmask ^ operator for enumerations that
+	provide TUsesBitmaskOperator concept
 
-		\param[in] left Left operand
+	\param[in] left Left operand
 
-		\param[in] right Right operand
+	\param[in] right Right operand
 
-		\return The function returns Enum's value which is a XOR product of left and right values
-	*/
+	\return The function returns Enum's value which is a XOR product of left and right values
+*/
 
-	template <typename Enum>
-	TDE2_API
+template <typename Enum>
+TDE2_API
 #if _HAS_CXX17
-		std::enable_if_t<TUsesBitmaskOperator<Enum>::mValue, Enum>
+std::enable_if_t<TUsesBitmaskOperator<Enum>::mValue, Enum>
 #else
-		typename std::enable_if<TUsesBitmaskOperator<Enum>::mValue, Enum>::type
+typename std::enable_if<TUsesBitmaskOperator<Enum>::mValue, Enum>::type
 #endif 
-		operator^ (Enum left, Enum right)
-	{
-		using baseType = typename std::underlying_type<Enum>::type;
+operator^ (Enum left, Enum right)
+{
+	using baseType = typename std::underlying_type<Enum>::type;
 
-		return static_cast<Enum>(static_cast<baseType>(left) ^ static_cast<baseType>(right));
-	}
+	return static_cast<Enum>(static_cast<baseType>(left) ^ static_cast<baseType>(right));
 }
