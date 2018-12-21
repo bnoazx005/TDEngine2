@@ -139,12 +139,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IResource* GetResourceByHandler(const IResourceHandler* pResourceHandler) const;
+
+			/*!
+				\brief The method returns an identifier of a resource with a given name. If there is no
+				specified resource method returns TInvalidResourceId
+
+				\param[in] name A name of a resource
+
+				\return The method returns an identifier of a resource with a given name. If there is no
+				specified resource method returns TInvalidResourceId
+			*/
+
+			TDE2_API TResourceId GetResourceId(const std::string& name) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceManager)
 
 			TDE2_API IResourceHandler* _loadResource(U32 resourceTypeId, const std::string& name) override;
 
-			TDE2_API IResourceHandler* _createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams) override;
+			TDE2_API IResourceHandler* _createResource(U32 resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
 
 			TDE2_API IResourceHandler* _createOrGetResourceHandler(TResourceId resourceId);
 

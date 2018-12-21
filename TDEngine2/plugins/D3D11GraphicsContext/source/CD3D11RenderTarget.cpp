@@ -140,8 +140,7 @@ namespace TDEngine2
 
 
 	TDE2_API IRenderTarget* CreateD3D11RenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-													TResourceId id, U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount,
-													U32 samplesCount, U32 samplingQuality, E_RESULT_CODE& result)
+													const TRenderTargetParameters& params, E_RESULT_CODE& result)
 	{
 		CD3D11RenderTarget* pRenderTargetInstance = new (std::nothrow) CD3D11RenderTarget();
 
@@ -152,8 +151,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pRenderTargetInstance->Init(pResourceManager, pGraphicsContext, name, id, width, height, format,
-											 mipLevelsCount, samplesCount, samplingQuality);
+		result = pRenderTargetInstance->Init(pResourceManager, pGraphicsContext, name, params);
 
 		if (result != RC_OK)
 		{
@@ -171,17 +169,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11RenderTargetFactory::Init(IGraphicsContext* pGraphicsContext)
+	E_RESULT_CODE CD3D11RenderTargetFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpResourceManager = pResourceManager;
 
 		mpGraphicsContext = pGraphicsContext;
 
@@ -204,18 +204,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IResource* CD3D11RenderTargetFactory::Create(const TBaseResourceParameters* pParams) const
+	IResource* CD3D11RenderTargetFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TRenderTargetParameters* pTexParams = static_cast<const TRenderTargetParameters*>(pParams);
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
 
-		return dynamic_cast<IResource*>(CreateD3D11RenderTarget(pTexParams->mpResourceManager, pTexParams->mpGraphicsContext, pTexParams->mName, pTexParams->mId,
-																pTexParams->mWidth, pTexParams->mHeight, pTexParams->mFormat, pTexParams->mNumOfMipLevels,
-																pTexParams->mNumOfSamples, pTexParams->mSamplingQuality, result));
+		return dynamic_cast<IResource*>(CreateD3D11RenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
-	IResource* CD3D11RenderTargetFactory::CreateDefault(const TBaseResourceParameters& params) const
+	IResource* CD3D11RenderTargetFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -228,7 +226,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateD3D11RenderTargetFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	TDE2_API IResourceFactory* CreateD3D11RenderTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		CD3D11RenderTargetFactory* pRenderTargetFactoryInstance = new (std::nothrow) CD3D11RenderTargetFactory();
 
@@ -239,7 +237,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pRenderTargetFactoryInstance->Init(pGraphicsContext);
+		result = pRenderTargetFactoryInstance->Init(pResourceManager, pGraphicsContext);
 
 		if (result != RC_OK)
 		{

@@ -32,8 +32,7 @@ namespace TDEngine2
 		\return A pointer to CBaseMaterial's implementation
 	*/
 
-	TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-										   TResourceId id, E_RESULT_CODE& result);
+	TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
 
 
 	/*!
@@ -54,13 +53,11 @@ namespace TDEngine2
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 				\param[in] name A resource's name
-
-				\param[in] id An identifier of a resource
-
+				
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
 
 			/*!
 				\brief The method loads resource data into memory

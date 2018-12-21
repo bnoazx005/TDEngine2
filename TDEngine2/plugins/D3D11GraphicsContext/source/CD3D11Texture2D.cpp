@@ -133,8 +133,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ITexture2D* CreateD3D11Texture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-											  TResourceId id, E_RESULT_CODE& result)
+	TDE2_API ITexture2D* CreateD3D11Texture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
 		CD3D11Texture2D* pTexture2DInstance = new (std::nothrow) CD3D11Texture2D();
 
@@ -145,7 +144,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pTexture2DInstance->Init(pResourceManager, pGraphicsContext, name, id);
+		result = pTexture2DInstance->Init(pResourceManager, pGraphicsContext, name);
 
 		if (result != RC_OK)
 		{
@@ -158,8 +157,7 @@ namespace TDEngine2
 	}
 
 	TDE2_API ITexture2D* CreateD3D11Texture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-											  TResourceId id, U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount,
-											  U32 samplesCount, U32 samplingQuality, E_RESULT_CODE& result)
+											  const TTexture2DParameters& params, E_RESULT_CODE& result)
 	{
 		CD3D11Texture2D* pTexture2DInstance = new (std::nothrow) CD3D11Texture2D();
 
@@ -170,8 +168,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pTexture2DInstance->Init(pResourceManager, pGraphicsContext, name, id, width, height, format, 
-										  mipLevelsCount, samplesCount, samplingQuality);
+		result = pTexture2DInstance->Init(pResourceManager, pGraphicsContext, name, params);
 
 		if (result != RC_OK)
 		{
@@ -189,17 +186,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11Texture2DFactory::Init(IGraphicsContext* pGraphicsContext)
+	E_RESULT_CODE CD3D11Texture2DFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpResourceManager = pResourceManager;
 
 		mpGraphicsContext = pGraphicsContext;
 
@@ -222,24 +221,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IResource* CD3D11Texture2DFactory::Create(const TBaseResourceParameters* pParams) const
+	IResource* CD3D11Texture2DFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TTexture2DParameters* pTexParams = static_cast<const TTexture2DParameters*>(pParams);
+		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
 
-		return dynamic_cast<IResource*>(CreateD3D11Texture2D(pTexParams->mpResourceManager, pTexParams->mpGraphicsContext, pTexParams->mName, pTexParams->mId,
-															 pTexParams->mWidth, pTexParams->mHeight, pTexParams->mFormat, pTexParams->mNumOfMipLevels, 
-															 pTexParams->mNumOfSamples, pTexParams->mSamplingQuality, result));
+		return dynamic_cast<IResource*>(CreateD3D11Texture2D(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
-	IResource* CD3D11Texture2DFactory::CreateDefault(const TBaseResourceParameters& params) const
+	IResource* CD3D11Texture2DFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
 		// create blank texture, which sizes equals to 2 x 2 pixels of RGBA format
-		return dynamic_cast<IResource*>(CreateD3D11Texture2D(params.mpResourceManager, mpGraphicsContext, params.mName, params.mId, 
-															 2, 2, FT_NORM_UBYTE4, 1, 1, 0, result));
+		return dynamic_cast<IResource*>(CreateD3D11Texture2D(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
 	}
 
 	U32 CD3D11Texture2DFactory::GetResourceTypeId() const
@@ -248,7 +244,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateD3D11Texture2DFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	TDE2_API IResourceFactory* CreateD3D11Texture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		CD3D11Texture2DFactory* pTexture2DFactoryInstance = new (std::nothrow) CD3D11Texture2DFactory();
 
@@ -259,7 +255,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pTexture2DFactoryInstance->Init(pGraphicsContext);
+		result = pTexture2DFactoryInstance->Init(pResourceManager, pGraphicsContext);
 
 		if (result != RC_OK)
 		{

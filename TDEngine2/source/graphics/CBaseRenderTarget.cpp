@@ -3,15 +3,25 @@
 
 namespace TDEngine2
 {
+	/*!
+		\note The declaration of TRenderTargetParameters is placed at IRenderTarget.h
+	*/
+
+	TRenderTargetParameters::TRenderTargetParameters(U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) :
+		mWidth(width), mHeight(height), mFormat(format), mNumOfMipLevels(mipLevelsCount), mNumOfSamples(samplesCount), mSamplingQuality(samplingQuality)
+	{
+	}
+
+
 	CBaseRenderTarget::CBaseRenderTarget() :
 		CBaseResource()
 	{
 	}
 	
-	E_RESULT_CODE CBaseRenderTarget::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id,
-										  U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
+	E_RESULT_CODE CBaseRenderTarget::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, 
+										  const TRenderTargetParameters& params)
 	{
-		E_RESULT_CODE result = _init(pResourceManager, name, id);
+		E_RESULT_CODE result = _init(pResourceManager, name);
 
 		if (result != RC_OK)
 		{
@@ -25,17 +35,12 @@ namespace TDEngine2
 
 		mpGraphicsContext = pGraphicsContext;
 
-		mWidth = width;
-
-		mHeight = height;
-
-		mFormat = format;
-
-		mNumOfMipLevels = mipLevelsCount;
-
-		mNumOfSamples = samplesCount;
-
-		mSamplingQuality = samplingQuality;
+		mWidth           = params.mWidth;
+		mHeight          = params.mHeight;
+		mFormat          = params.mFormat;
+		mNumOfMipLevels  = params.mNumOfMipLevels;
+		mNumOfSamples    = params.mNumOfSamples;
+		mSamplingQuality = params.mSamplingQuality;
 
 		mIsInitialized = true;
 

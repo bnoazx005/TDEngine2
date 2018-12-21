@@ -9,14 +9,24 @@
 
 namespace TDEngine2
 {
+	/*!
+		\note The declaration of TTexture2DParameters is placed at ITexture2D.h
+	*/
+
+	TTexture2DParameters::TTexture2DParameters(U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality):
+		mWidth(width), mHeight(height), mFormat(format), mNumOfMipLevels(mipLevelsCount), mNumOfSamples(samplesCount), mSamplingQuality(samplingQuality)
+	{
+	}
+
+
 	CBaseTexture2D::CBaseTexture2D() :
 		CBaseResource()
 	{
 	}
 
-	E_RESULT_CODE CBaseTexture2D::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id)
+	E_RESULT_CODE CBaseTexture2D::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name)
 	{
-		E_RESULT_CODE result = _init(pResourceManager, name, id);
+		E_RESULT_CODE result = _init(pResourceManager, name);
 
 		if (result != RC_OK)
 		{
@@ -35,10 +45,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseTexture2D::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id,
-									   U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
+	E_RESULT_CODE CBaseTexture2D::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, const TTexture2DParameters& params)
 	{
-		E_RESULT_CODE result = _init(pResourceManager, name, id);
+		E_RESULT_CODE result = _init(pResourceManager, name);
 
 		if (result != RC_OK)
 		{
@@ -51,18 +60,13 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext = pGraphicsContext;
-
-		mWidth = width;
-
-		mHeight = height;
-
-		mFormat = format;
-
-		mNumOfMipLevels = mipLevelsCount;
-
-		mNumOfSamples = samplesCount;
-
-		mSamplingQuality = samplingQuality;
+		
+		mWidth           = params.mWidth;
+		mHeight          = params.mHeight;
+		mFormat          = params.mFormat;
+		mNumOfMipLevels  = params.mNumOfMipLevels;
+		mNumOfSamples    = params.mNumOfSamples;
+		mSamplingQuality = params.mSamplingQuality;
 
 		mIsInitialized = true;
 
@@ -172,9 +176,9 @@ namespace TDEngine2
 
 		/// create new internal texture
 		ITexture2D* pTextureResource = dynamic_cast<ITexture2D*>(pResource);
-
-		result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), pResource->GetId(), 
-										width, height, internalFormat, 1, 1, 0); /// \todo replace magic constants with proper computations
+		
+		/// \todo replace magic constants with proper computations
+		result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), { static_cast<U32>(width), static_cast<U32>(height), internalFormat, 1, 1, 0 });
 
 		if (result != RC_OK)
 		{

@@ -94,7 +94,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		/// Register a factory of shaders
-		IResourceFactory* pFactoryInstance = CreateD3D11ShaderFactory(mpGraphicsContext, result);
+		IResourceFactory* pFactoryInstance = CreateD3D11ShaderFactory(pResourceManager, mpGraphicsContext, result);
 
 		if (result != RC_OK)
 		{
@@ -109,7 +109,7 @@ namespace TDEngine2
 		}
 
 		/// Register a factory of 2D textures
-		pFactoryInstance = CreateD3D11Texture2DFactory(mpGraphicsContext, result);
+		pFactoryInstance = CreateD3D11Texture2DFactory(pResourceManager, mpGraphicsContext, result);
 
 		if (result != RC_OK)
 		{
@@ -119,7 +119,7 @@ namespace TDEngine2
 		registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
 
 		/// Try to register a factory of render target objects
-		pFactoryInstance = CreateD3D11RenderTargetFactory(mpGraphicsContext, result);
+		pFactoryInstance = CreateD3D11RenderTargetFactory(pResourceManager, mpGraphicsContext, result);
 
 		if (result != RC_OK)
 		{

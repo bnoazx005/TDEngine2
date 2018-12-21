@@ -21,16 +21,13 @@ namespace TDEngine2
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 		\param[in] name A resource's name
-
-		\param[in] id An identifier of a resource
-
+		
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to COGLTexture2D's implementation
 	*/
 
-	TDE2_API ITexture2D* CreateOGLTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-											TResourceId id, E_RESULT_CODE& result);
+	TDE2_API ITexture2D* CreateOGLTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
 
 	/*!
 		\brief A factory function for creation objects of COGLTexture2D's type
@@ -41,19 +38,7 @@ namespace TDEngine2
 
 		\param[in] name A resource's name
 
-		\param[in] id An identifier of a resource
-
-		\param[in] width Texture's width
-
-		\param[in] height Texture's height
-
-		\param[in] format Texture's format
-
-		\param[in] mipLevelsCount An amount of levels, which represents a texture with different quality
-
-		\param[in] samplesCount A number of multisamples per pixel
-
-		\param[in] samplingQuality An image quality level
+		\param[in] params Additional parameters of a texture
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
@@ -61,8 +46,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API ITexture2D* CreateOGLTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-											  TResourceId id, U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount,
-											  U32 samplesCount, U32 samplingQuality, E_RESULT_CODE& result);
+											const TTexture2DParameters& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -74,12 +58,10 @@ namespace TDEngine2
 	class COGLTexture2D : public CBaseTexture2D
 	{
 		public:
-			friend TDE2_API ITexture2D* CreateOGLTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-														   TResourceId id, E_RESULT_CODE& result);
+			friend TDE2_API ITexture2D* CreateOGLTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
 
 			friend TDE2_API ITexture2D* CreateOGLTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-														   TResourceId id, U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount,
-														   U32 samplesCount, U32 samplingQuality, E_RESULT_CODE& result);
+														   const TTexture2DParameters& params, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(COGLTexture2D)
 
@@ -131,6 +113,8 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of COGLTexture2DFactory's type
 
+		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -138,7 +122,7 @@ namespace TDEngine2
 		\return A pointer to COGLTexture2DFactory's implementation
 	*/
 
-	TDE2_API IResourceFactory* CreateOGLTexture2DFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	TDE2_API IResourceFactory* CreateOGLTexture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -151,17 +135,19 @@ namespace TDEngine2
 	class COGLTexture2DFactory : public ITexture2DFactory
 	{
 		public:
-			friend TDE2_API IResourceFactory* CreateOGLTexture2DFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+			friend TDE2_API IResourceFactory* CreateOGLTexture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a shader factory
 
-				\param[in] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -174,22 +160,26 @@ namespace TDEngine2
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
 
-				\param[in] pParams An object that contains parameters that are needed for the resource's creation
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
 
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API IResource* Create(const TBaseResourceParameters* pParams) const override;
+			TDE2_API IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
 
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
 
-				\param[in] pParams An object that contains parameters that are needed for the resource's creation
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
 
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API IResource* CreateDefault(const TBaseResourceParameters& params) const override;
+			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
 
 			/*!
 				\brief The method returns an identifier of a resource's type, which
@@ -204,6 +194,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLTexture2DFactory)
 		protected:
 			bool              mIsInitialized;
+
+			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;
 	};

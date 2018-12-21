@@ -9,7 +9,6 @@
 
 #include <graphics/CBaseShader.h>
 #include <utils/Config.h>
-#include <core/IResourceFactory.h>
 #include <string>
 #include <unordered_map>
 #include <GL/glew.h>
@@ -29,16 +28,13 @@ namespace TDEngine2
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 		\param[in] name A resource's name
-
-		\param[in] id An identifier of a resource
-
+		
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to COGLShader's implementation
 	*/
 
-	TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-									  TResourceId id, E_RESULT_CODE& result);
+	TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
 
 	/*!
 		class COGLShader
@@ -49,8 +45,7 @@ namespace TDEngine2
 	class COGLShader : public CBaseShader
 	{
 		public:
-			friend TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-													 TResourceId id, E_RESULT_CODE& result);
+			friend TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
 		protected:
 			typedef std::unordered_map<U32, U32> TUniformBuffersMap;
 		public:
@@ -93,6 +88,8 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of COGLShaderFactory's type
 
+		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -100,7 +97,7 @@ namespace TDEngine2
 		\return A pointer to COGLShaderFactory's implementation
 	*/
 
-	TDE2_API IResourceFactory* CreateOGLShaderFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	TDE2_API IResourceFactory* CreateOGLShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -113,17 +110,19 @@ namespace TDEngine2
 	class COGLShaderFactory : public IShaderFactory
 	{
 		public:
-			friend TDE2_API IResourceFactory* CreateOGLShaderFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+			friend TDE2_API IResourceFactory* CreateOGLShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a shader factory
 
-				\param[in] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -136,22 +135,26 @@ namespace TDEngine2
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
 
-				\param[in] pParams An object that contains parameters that are needed for the resource's creation
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
 
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API IResource* Create(const TBaseResourceParameters* pParams) const override;
+			TDE2_API IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
 
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
 
-				\param[in] pParams An object that contains parameters that are needed for the resource's creation
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
 
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API IResource* CreateDefault(const TBaseResourceParameters& params) const override;
+			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
 
 			/*!
 				\brief The method returns an identifier of a resource's type, which
@@ -166,6 +169,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLShaderFactory)
 		protected:
 			bool              mIsInitialized;
+
+			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;
 	};

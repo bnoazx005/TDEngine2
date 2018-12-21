@@ -237,6 +237,23 @@ namespace TDEngine2
 		return mResources[resourceId - 1];
 	}
 
+	TResourceId CResourceManager::GetResourceId(const std::string& name) const
+	{
+		if (name.empty())
+		{
+			return InvalidResourceId;
+		}
+
+		TResourcesMap::const_iterator resourceIter = mResourcesMap.find(name);
+
+		if (resourceIter == mResourcesMap.cend())
+		{
+			return InvalidResourceId;
+		}
+
+		return (*resourceIter).second;
+	}
+
 	IResourceHandler* CResourceManager::_loadResource(U32 resourceTypeId, const std::string& name)
 	{
 		TResourceId resourceId = mResourcesMap[name];
@@ -270,7 +287,7 @@ namespace TDEngine2
 
 		mResourcesMap[name] = resourceId;
 			
-		pResource = pResourceFactory->CreateDefault({ this, name, resourceId });
+		pResource = pResourceFactory->CreateDefault(name, {});
 
 		mResources[resourceId - 1] = pResource;
 
@@ -281,16 +298,11 @@ namespace TDEngine2
 		return pResourceHandler;
 	}
 
-	IResourceHandler* CResourceManager::_createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams)
+	IResourceHandler* CResourceManager::_createResource(U32 resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
 	{
-		if (!pParams || pParams->mpResourceManager)
-		{
-			return mResourceHandlersArray[0]; ///< contains InvalidResoucreHandler
-		}
+		TResourceId id = GetResourceId(name);
 
-		TResourceId id = mResourcesMap[pParams->mName];
-
-		if (id != InvalidResourceId)
+		if (id == InvalidResourceId)
 		{
 			return mResourceHandlersArray[0];
 		}

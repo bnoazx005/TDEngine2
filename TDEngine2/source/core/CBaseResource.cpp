@@ -42,14 +42,14 @@ namespace TDEngine2
 		return mState;
 	}
 
-	TDE2_API E_RESULT_CODE CBaseResource::_init(IResourceManager* pResourceManager, const std::string& name, TResourceId id)
+	TDE2_API E_RESULT_CODE CBaseResource::_init(IResourceManager* pResourceManager, const std::string& name)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pResourceManager || name.empty() || id == InvalidResourceId)
+		if (!pResourceManager || name.empty())
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -58,7 +58,7 @@ namespace TDEngine2
 
 		mName = name;
 
-		mId = id;
+		mId = mpResourceManager->GetResourceId(mName); /// \todo Should a resource store mId at all?
 
 		mIsInitialized = true;
 

@@ -37,13 +37,11 @@ namespace TDEngine2
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 				\param[in] name A resource's name
-
-				\param[in] id An identifier of a resource
-
+				
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
 	};

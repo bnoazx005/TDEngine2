@@ -232,8 +232,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-		TResourceId id, E_RESULT_CODE& result)
+	TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
 		COGLShader* pShaderInstance = new (std::nothrow) COGLShader();
 
@@ -244,7 +243,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pShaderInstance->Init(pResourceManager, pGraphicsContext, name, id);
+		result = pShaderInstance->Init(pResourceManager, pGraphicsContext, name);
 
 		if (result != RC_OK)
 		{
@@ -262,17 +261,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLShaderFactory::Init(IGraphicsContext* pGraphicsContext)
+	E_RESULT_CODE COGLShaderFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpResourceManager = pResourceManager;
 
 		mpGraphicsContext = pGraphicsContext;
 
@@ -295,16 +296,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IResource* COGLShaderFactory::Create(const TBaseResourceParameters* pParams) const
+	IResource* COGLShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		return nullptr;
 	}
 
-	IResource* COGLShaderFactory::CreateDefault(const TBaseResourceParameters& params) const
+	IResource* COGLShaderFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		return dynamic_cast<IResource*>(CreateOGLShader(params.mpResourceManager, mpGraphicsContext, params.mName, params.mId, result));
+		return dynamic_cast<IResource*>(CreateOGLShader(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
 	U32 COGLShaderFactory::GetResourceTypeId() const
@@ -313,7 +314,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateOGLShaderFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	TDE2_API IResourceFactory* CreateOGLShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		COGLShaderFactory* pShaderFactoryInstance = new (std::nothrow) COGLShaderFactory();
 
@@ -324,7 +325,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pShaderFactoryInstance->Init(pGraphicsContext);
+		result = pShaderFactoryInstance->Init(pResourceManager, pGraphicsContext);
 
 		if (result != RC_OK)
 		{

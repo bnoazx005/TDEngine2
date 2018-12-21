@@ -43,9 +43,9 @@ namespace TDEngine2
 		return Reset();
 	}
 
-	E_RESULT_CODE CBaseShader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id)
+	E_RESULT_CODE CBaseShader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name)
 	{
-		E_RESULT_CODE result = _init(pResourceManager, name, id);
+		E_RESULT_CODE result = _init(pResourceManager, name);
 
 		if (result != RC_OK)
 		{

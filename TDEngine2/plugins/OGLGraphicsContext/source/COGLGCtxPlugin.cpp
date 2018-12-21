@@ -99,7 +99,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IResourceFactory* pFactoryInstance = CreateOGLShaderFactory(mpGraphicsContext, result);
+		IResourceFactory* pFactoryInstance = CreateOGLShaderFactory(pResourceManager, mpGraphicsContext, result);
 
 		if (result != RC_OK)
 		{
@@ -113,7 +113,7 @@ namespace TDEngine2
 			return registerResult.mResultCode;
 		}
 
-		pFactoryInstance = CreateOGLTexture2DFactory(mpGraphicsContext, result);
+		pFactoryInstance = CreateOGLTexture2DFactory(pResourceManager, mpGraphicsContext, result);
 
 		if (result != RC_OK)
 		{

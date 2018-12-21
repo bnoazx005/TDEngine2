@@ -186,8 +186,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-										TResourceId id, E_RESULT_CODE& result)
+	TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
 		CD3D11Shader* pShaderInstance = new (std::nothrow) CD3D11Shader();
 
@@ -198,7 +197,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pShaderInstance->Init(pResourceManager, pGraphicsContext, name, id);
+		result = pShaderInstance->Init(pResourceManager, pGraphicsContext, name);
 
 		if (result != RC_OK)
 		{
@@ -216,17 +215,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11ShaderFactory::Init(IGraphicsContext* pGraphicsContext)
+	E_RESULT_CODE CD3D11ShaderFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpResourceManager = pResourceManager;
 
 		mpGraphicsContext = pGraphicsContext;
 
@@ -249,16 +250,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IResource* CD3D11ShaderFactory::Create(const TBaseResourceParameters* pParams) const
+	IResource* CD3D11ShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		return nullptr;
 	}
 
-	IResource* CD3D11ShaderFactory::CreateDefault(const TBaseResourceParameters& params) const
+	IResource* CD3D11ShaderFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		return dynamic_cast<IResource*>(CreateD3D11Shader(params.mpResourceManager, mpGraphicsContext, params.mName, params.mId, result));
+		return dynamic_cast<IResource*>(CreateD3D11Shader(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
 	U32 CD3D11ShaderFactory::GetResourceTypeId() const
@@ -267,7 +268,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateD3D11ShaderFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	TDE2_API IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		CD3D11ShaderFactory* pShaderFactoryInstance = new (std::nothrow) CD3D11ShaderFactory();
 
@@ -278,7 +279,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pShaderFactoryInstance->Init(pGraphicsContext);
+		result = pShaderFactoryInstance->Init(pResourceManager, pGraphicsContext);
 
 		if (result != RC_OK)
 		{

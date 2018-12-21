@@ -86,7 +86,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseResource)
 
-			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name, TResourceId id);
+			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name);
 		protected:
 			static const TResourceId mInvalidResourceId;
 

@@ -81,8 +81,7 @@ namespace TDEngine2
 
 
 	TDE2_API IRenderTarget* CreateOGLRenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-												  TResourceId id, U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount,
-												  U32 samplesCount, U32 samplingQuality, E_RESULT_CODE& result)
+												  const TRenderTargetParameters& params, E_RESULT_CODE& result)
 	{
 		COGLRenderTarget* pRenderTargetInstance = new (std::nothrow) COGLRenderTarget();
 
@@ -93,8 +92,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pRenderTargetInstance->Init(pResourceManager, pGraphicsContext, name, id, width, height, format,
-											 mipLevelsCount, samplesCount, samplingQuality);
+		result = pRenderTargetInstance->Init(pResourceManager, pGraphicsContext, name, params);
 
 		if (result != RC_OK)
 		{
@@ -112,17 +110,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLRenderTargetFactory::Init(IGraphicsContext* pGraphicsContext)
+	E_RESULT_CODE COGLRenderTargetFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpResourceManager = pResourceManager;
 
 		mpGraphicsContext = pGraphicsContext;
 
@@ -145,18 +145,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IResource* COGLRenderTargetFactory::Create(const TBaseResourceParameters* pParams) const
+	IResource* COGLRenderTargetFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TRenderTargetParameters* pTexParams = static_cast<const TRenderTargetParameters*>(pParams);
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
 
-		return dynamic_cast<IResource*>(CreateOGLRenderTarget(pTexParams->mpResourceManager, pTexParams->mpGraphicsContext, pTexParams->mName, pTexParams->mId,
-															  pTexParams->mWidth, pTexParams->mHeight, pTexParams->mFormat, pTexParams->mNumOfMipLevels,
-															  pTexParams->mNumOfSamples, pTexParams->mSamplingQuality, result));
+		return dynamic_cast<IResource*>(CreateOGLRenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
-	IResource* COGLRenderTargetFactory::CreateDefault(const TBaseResourceParameters& params) const
+	IResource* COGLRenderTargetFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 		
@@ -169,7 +167,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateOGLRenderTargetFactory(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	TDE2_API IResourceFactory* CreateOGLRenderTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		COGLRenderTargetFactory* pRenderTargetFactoryInstance = new (std::nothrow) COGLRenderTargetFactory();
 
@@ -180,7 +178,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pRenderTargetFactoryInstance->Init(pGraphicsContext);
+		result = pRenderTargetFactoryInstance->Init(pResourceManager, pGraphicsContext);
 
 		if (result != RC_OK)
 		{

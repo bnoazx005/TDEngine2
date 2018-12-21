@@ -17,6 +17,7 @@ namespace TDEngine2
 {
 	class IResourceManager;
 	class IGraphicsContext;
+	class IResource;
 
 
 	/*!
@@ -29,24 +30,8 @@ namespace TDEngine2
 
 	typedef struct TBaseResourceParameters
 	{
-		IResourceManager* mpResourceManager;
-
-		std::string       mName;
-					      
-		TResourceId       mId;
+		TDE2_API virtual ~TBaseResourceParameters() = default;
 	} TBaseResourceParameters, *TBaseResourceParametersPtr;
-
-
-	/*!
-		struct TShaderParameters
-
-		\brief The stucture contains fields for creation IShader objects
-	*/
-
-	typedef struct TShaderParameters: TBaseResourceParameters
-	{
-		IGraphicsContext* mpGraphicsContext;
-	} TShaderParameters, *TShaderParametersPtr;
 
 
 	/*!
@@ -61,22 +46,26 @@ namespace TDEngine2
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
 
-				\param[in] pParams An object that contains parameters that are needed for the resource's creation
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
 
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API virtual IResource* Create(const TBaseResourceParameters* pParams) const = 0;
+			TDE2_API virtual IResource* Create(const std::string& name, const TBaseResourceParameters& params) const = 0;
 
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
 
-				\param[in] pParams An object that contains parameters that are needed for the resource's creation
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
 
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API virtual IResource* CreateDefault(const TBaseResourceParameters& params) const = 0;
+			TDE2_API virtual IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const = 0;
 
 			/*!
 				\brief The method returns an identifier of a resource's type, which
@@ -89,22 +78,5 @@ namespace TDEngine2
 			TDE2_API virtual U32 GetResourceTypeId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceFactory)
-	};
-
-
-	class IShaderFactory: public IResourceFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a shader factory
-
-				\param[in] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShaderFactory)
 	};
 }

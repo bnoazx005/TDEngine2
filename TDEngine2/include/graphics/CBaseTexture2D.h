@@ -37,12 +37,10 @@ namespace TDEngine2
 
 				\param[in] name A resource's name
 
-				\param[in] id An identifier of a resource
-				
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
 
 			/*!
 				\brief The method initializes an internal state of a 2d texture. The overloaded version of
@@ -54,25 +52,13 @@ namespace TDEngine2
 
 				\param[in] name A resource's name
 
-				\param[in] id An identifier of a resource
-
-				\param[in] width Texture's width
-
-				\param[in] height Texture's height
-
-				\param[in] format Texture's format
-
-				\param[in] mipLevelsCount An amount of levels, which represents a texture with different quality
-
-				\param[in] samplesCount A number of multisamples per pixel
-
-				\param[in] samplingQuality An image quality level
+				\param[in] params Additional parameters of a texture
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id,
-										U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+										const TTexture2DParameters& params) override;
 
 			/*!
 				\brief The method returns a width of a texture

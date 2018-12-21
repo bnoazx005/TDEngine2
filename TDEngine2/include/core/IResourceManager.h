@@ -12,6 +12,7 @@
 #include "./../utils/Utils.h"
 #include "IResourceHandler.h"
 #include <type_traits>
+#include <string>
 
 
 namespace TDEngine2
@@ -108,12 +109,14 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE UnregisterFactory(const TResourceFactoryId& resourceFactoryId) = 0;
 			
 			/*!
-			\brief The method creates a new instance of specified type. If there is existing resource of type T with
-			specified name it will be returned as a result
+				\brief The method creates a new instance of specified type. If there is existing resource of type T with
+				specified name it will be returned as a result
 
-			\param[in] pParams A parameters of a creating instance
+				\param[in] name A name of a resource that will be created
 
-			\return A pointer to IResourceHandler, which encapsulates direct access to the resource
+				\param[in] params A parameters of a creating instance
+
+				\return A pointer to IResourceHandler, which encapsulates direct access to the resource
 			*/
 
 			template <typename T>
@@ -123,9 +126,9 @@ namespace TDEngine2
 #else
 				typename std::enable_if<std::is_base_of<IResource, T>::value, IResourceHandler*>::type
 #endif
-				Create(const TBaseResourceParameters* pParams)
+				Create(const std::string& name, const TBaseResourceParameters& params)
 			{
-				return _createResource(T::GetTypeId(), pParams);
+				return _createResource(T::GetTypeId(), name, params);
 			}
 
 			/*!
@@ -155,12 +158,24 @@ namespace TDEngine2
 			{
 				return _getResourceLoader(T::GetTypeId());
 			}
+
+			/*!
+				\brief The method returns an identifier of a resource with a given name. If there is no
+				specified resource method returns TInvalidResourceId
+
+				\param[in] name A name of a resource
+
+				\return The method returns an identifier of a resource with a given name. If there is no
+				specified resource method returns TInvalidResourceId
+			*/
+
+			TDE2_API virtual TResourceId GetResourceId(const std::string& name) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)
 
 			TDE2_API virtual IResourceHandler* _loadResource(U32 resourceTypeId, const std::string& name) = 0;
 
-			TDE2_API virtual IResourceHandler* _createResource(U32 resourceTypeId, const TBaseResourceParameters* pParams) = 0;
+			TDE2_API virtual IResourceHandler* _createResource(U32 resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
 
 			TDE2_API virtual const IResourceLoader* _getResourceLoader(U32 resourceTypeId) const = 0;
 	};

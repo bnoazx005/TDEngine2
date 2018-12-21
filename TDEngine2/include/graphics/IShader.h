@@ -9,6 +9,7 @@
 
 #include "./../utils/Utils.h"
 #include "./../utils/Types.h"
+#include "./../core/IResourceFactory.h"
 #include <string>
 
 
@@ -37,13 +38,11 @@ namespace TDEngine2
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
 				\param[in] name A resource's name
-
-				\param[in] id An identifier of a resource
-
+				
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, TResourceId id) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
 
 			/*!
 				\brief The method compiles specified source code into shader's bytecode using IShaderCompiler's 
@@ -84,5 +83,41 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShader)
+	};
+
+
+	/*!
+		struct TShaderParameters
+
+		\brief The stucture contains fields for creation IShader objects
+	*/
+
+	typedef struct TShaderParameters : TBaseResourceParameters
+	{
+	} TShaderParameters, *TShaderParametersPtr;
+
+
+	/*!
+		interface IShaderFactory
+
+		\brief The interface describes a functionality of IShader objects' factory
+	*/
+
+	class IShaderFactory : public IResourceFactory
+	{
+		public:
+			/*!
+			\brief The method initializes an internal state of a shader factory
+
+			\param[in] pResourceManager A pointer to IResourceManager's implementation
+
+			\param[in] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShaderFactory)
 	};
 }
