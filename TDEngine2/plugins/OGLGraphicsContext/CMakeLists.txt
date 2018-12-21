@@ -1,13 +1,16 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.8)
 
 project (GLGraphicsContext CXX)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if (NOT DEFINED ${TDENGINE2_LIBRARY_NAME})
+	set(TDENGINE2_LIBRARY_NAME "TDEngine2")
+endif ()
 
 set(OGL_GCTX_LIBRARY_NAME "GLGraphicsContext")
 
@@ -88,26 +91,25 @@ if (UNIX)
 endif (UNIX)
 
 
-add_library("${OGL_GCTX_LIBRARY_NAME}" SHARED ${OGL_GCTX_SOURCES} ${OGL_GCTX_HEADERS})
+add_library(${OGL_GCTX_LIBRARY_NAME} SHARED ${OGL_GCTX_SOURCES} ${OGL_GCTX_HEADERS})
 
-SET_TARGET_PROPERTIES("${OGL_GCTX_LIBRARY_NAME}" PROPERTIES PREFIX "")
+SET_TARGET_PROPERTIES(${OGL_GCTX_LIBRARY_NAME} PROPERTIES PREFIX "")
 
 #set up TDEngine2 headers
-target_include_directories("${OGL_GCTX_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
+target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
 
 if (MSVC)
 	#set up GLEW headers
-	target_include_directories("${OGL_GCTX_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
+	target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
 endif ()
 
 if (UNIX)
 	find_package(GLEW 2.1 REQUIRED)
 	
 	if (GLEW_FOUND)
-	message (STATUS $ENV{GLEW_LOCATION})
-		target_include_directories("${OGL_GCTX_LIBRARY_NAME}" PUBLIC ${GLEW_INCLUDE_DIRS})
-		set_target_properties("${OGL_GCTX_LIBRARY_NAME}" PROPERTIES LINK_FLAGS "-Wl,-rpath,/usr/lib64/")
-		target_link_libraries("${OGL_GCTX_LIBRARY_NAME}" ${GLEW_LIBRARIES})
+		target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC ${GLEW_INCLUDE_DIRS})
+		set_target_properties(${OGL_GCTX_LIBRARY_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath,/usr/lib64/")
+		target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC ${GLEW_LIBRARIES})
 	endif()
 endif ()
 
@@ -119,4 +121,4 @@ if (UNIX)
 endif ()
 
 # bad decision to create a circular dependency TODO: dettach the plugin from TDEngine2
-target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${TDENGINE2_LIBRARY_NAME}")
+target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})

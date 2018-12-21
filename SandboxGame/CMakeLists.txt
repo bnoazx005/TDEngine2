@@ -1,10 +1,10 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.8)
 
 project (SandboxGame CXX)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>")
 
 set(EXECUTABLE_NAME "SandboxGame")
 
@@ -51,18 +51,19 @@ if (UNIX)
 
 	CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX14)
 
-	if(COMPILER_SUPPORTS_CXX14)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+	if(COMPILER_SUPPORTS_CXX14)		
+		set(CMAKE_CXX_STANDARD 14)
+		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 	else()
-	message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+		message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 	endif()
 endif (UNIX)
 
 
-add_executable("${EXECUTABLE_NAME}" ${SOURCES} ${HEADERS})
+add_executable(${EXECUTABLE_NAME} ${SOURCES} ${HEADERS})
 
 if (UNIX)
-	set_target_properties("${EXECUTABLE_NAME}" PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
+	set_target_properties(${EXECUTABLE_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
 endif ()
 
-target_link_libraries("${EXECUTABLE_NAME}" ${TDENGINE2_LIBRARY_NAME})
+target_link_libraries(${EXECUTABLE_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})

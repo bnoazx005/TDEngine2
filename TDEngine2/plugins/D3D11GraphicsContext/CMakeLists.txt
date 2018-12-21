@@ -1,13 +1,16 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.8)
 
 project (D3D11GraphicsContext CXX)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if (NOT DEFINED ${TDENGINE2_LIBRARY_NAME})
+	set(TDENGINE2_LIBRARY_NAME "TDEngine2")
+endif ()
 
 set(D3D11_GCTX_LIBRARY_NAME "D3D11GraphicsContext")
 
@@ -62,36 +65,17 @@ if (MSVC) 	#cl.exe compiler's options
 
 endif(MSVC)
 
-if (UNIX)
 
-	message(STATUS "UNIX system has detected...")
-
-	include(CheckCXXCompilerFlag)
-
-	CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX14)
-
-	if(COMPILER_SUPPORTS_CXX14)
-	 	message(STATUS "C++14 is enabled")
-
-		set(CMAKE_CXX_STANDARD 14)
-		set(CMAKE_CXX_STANDARD_REQUIRED ON)
-	else()
-	  message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
-	endif()
-
-endif (UNIX)
-
-
-add_library("${D3D11_GCTX_LIBRARY_NAME}" SHARED ${D3D11_GCTX_SOURCES} ${D3D11_GCTX_HEADERS})
+add_library(${D3D11_GCTX_LIBRARY_NAME} SHARED ${D3D11_GCTX_SOURCES} ${D3D11_GCTX_HEADERS})
 
 #set up TDEngine2 headers
-target_include_directories("${D3D11_GCTX_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
+target_include_directories(${D3D11_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
 
 #set up GLEW headers
-target_include_directories("${D3D11_GCTX_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
+target_include_directories(${D3D11_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
 
 # disable the <libname>_EXPORTS
 set_target_properties(${D3D11_GCTX_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
 
 # bad decision to create a circular dependency TODO: dettach the plugin from TDEngine2
-target_link_libraries(${D3D11_GCTX_LIBRARY_NAME} PUBLIC "${TDENGINE2_LIBRARY_NAME}")
+target_link_libraries(${D3D11_GCTX_LIBRARY_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})

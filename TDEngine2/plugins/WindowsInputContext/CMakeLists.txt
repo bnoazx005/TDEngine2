@@ -1,13 +1,16 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.8)
 
 project (WindowsInputContext CXX)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/$<CONFIGURATION>")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if (NOT DEFINED ${TDENGINE2_LIBRARY_NAME})
+	set(TDENGINE2_LIBRARY_NAME "TDEngine2")
+endif ()
 
 set(WININPUT_CONTEXT_LIBRARY_NAME "WindowsInputContext")
 
@@ -49,13 +52,13 @@ if (MSVC) 	#cl.exe compiler's options
 
 endif(MSVC)
 
-add_library("${WININPUT_CONTEXT_LIBRARY_NAME}" SHARED ${WIN_INPUT_CTX_SOURCES} ${WIN_INPUT_CTX_HEADERS})
+add_library(${WININPUT_CONTEXT_LIBRARY_NAME} SHARED ${WIN_INPUT_CTX_SOURCES} ${WIN_INPUT_CTX_HEADERS})
 
 #set up TDEngine2 headers
-target_include_directories("${WININPUT_CONTEXT_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
+target_include_directories(${WININPUT_CONTEXT_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
 
 # disable the <libname>_EXPORTS
 set_target_properties(${WININPUT_CONTEXT_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
 
 # bad decision to create a circular dependency TODO: dettach the plugin from TDEngine2
-target_link_libraries(${WININPUT_CONTEXT_LIBRARY_NAME} PUBLIC "${TDENGINE2_LIBRARY_NAME}")
+target_link_libraries(${WININPUT_CONTEXT_LIBRARY_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})

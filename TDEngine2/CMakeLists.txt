@@ -1,13 +1,16 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.8)
 
 project (TDEngine2 CXX)
 
+# The options which are related with plugins are placed here
+option(IS_PLUGIN_BUILDING_ENABLED "The option shows whether plugins should be built or not" ON)
 option(BUILD_D3D11_GCTX_PLUGIN "Build D3D11 Graphics context plugin" ON)
+option(BUILD_WINDOWS_INPUTCTX_PLUGIN "Build Windows input context plugin" ON)
 option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
 
 if (NOT DEFINED ${TDENGINE2_LIBRARY_NAME})
 	set(TDENGINE2_LIBRARY_NAME "TDEngine2")
@@ -211,6 +214,8 @@ source_group("sources" FILES ${TDENGINE2_SOURCES})
 
 
 if (MSVC) 	#cl.exe compiler's options
+	message(STATUS "Windows system has detected...")
+
 	#Debug compiler's options
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++17 /MDd /W3 /GS /Zc:inline /Od /Gm /Zi  /Zc:wchar_t")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /RTC1 /Gd /Oy- /EHsc /nologo /diagnostics:classic /errorReport:prompt /sdl /permissive- /analyze-")
@@ -239,40 +244,43 @@ if (UNIX)
 endif ()
 
 
-add_library("${TDENGINE2_LIBRARY_NAME}" SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS})
+add_library(${TDENGINE2_LIBRARY_NAME} SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS})
 
 if (UNIX)
 	# disable lib prefix
-	SET_TARGET_PROPERTIES("${TDENGINE2_LIBRARY_NAME}" PROPERTIES PREFIX "")
+	SET_TARGET_PROPERTIES(${TDENGINE2_LIBRARY_NAME} PROPERTIES PREFIX "")
 endif ()
 
 # disable the <libname>_EXPORTS
 set_target_properties(${TDENGINE2_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
 
 #set up GLEW headers
-target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0/include")
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0/include")
 
 if (UNIX)
 	FIND_PACKAGE(X11 REQUIRED)	# include X11 library
 
-	target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${X11_INCLUDE_DIR}")
-	target_link_libraries("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${X11_LIBRARIES}")
+	target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC ${X11_INCLUDE_DIR})
+	target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${X11_LIBRARIES})
 
-	target_link_libraries("${TDENGINE2_LIBRARY_NAME}" PUBLIC pthread)
+	target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC pthread)
 endif ()
 
 #set up stb library headers
-target_include_directories("${TDENGINE2_LIBRARY_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/stb")
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/stb")
 
 #build plugins
-add_subdirectory(plugins)
+if (IS_PLUGIN_BUILDING_ENABLED)
+	add_subdirectory(plugins)
+endif ()
 
 if (UNIX)
 	install (TARGETS ${TDENGINE2_LIBRARY_NAME} DESTINATION "/usr/lib/TDEngine2")
 endif ()
 
 # copy the engine's dll into /tests subdirectory for its testing
-#add_custom_command(TARGET ${TDENGINE2_LIBRARY_NAME} POST_BUILD
-#	COMMAND ${CMAKE_COMMAND} -E copy
-#	"$<TARGET_FILE:${TDENGINE2_LIBRARY_NAME}>"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/../tests/bin/")
+add_custom_command(TARGET ${TDENGINE2_LIBRARY_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_SOURCE_DIR}/../${TDENGINE2_TESTS_NAME}/bin/$<CONFIGURATION>/"
+	COMMAND ${CMAKE_COMMAND} -E copy
+	"$<TARGET_FILE:${TDENGINE2_LIBRARY_NAME}>"
+	"${PROJECT_SOURCE_DIR}/../${TDENGINE2_TESTS_NAME}/bin/$<CONFIGURATION>/")

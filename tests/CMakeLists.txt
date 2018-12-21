@@ -1,18 +1,26 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.8)
 
 project (tests CXX)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+option(IS_TESTING_ENABLED "The option turns on/off tests" ON)
 
-set(EXECUTABLE_NAME "tests")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/$<CONFIGURATION>")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/$<CONFIGURATION>")
 
 if (NOT DEFINED ${TDENGINE2_LIBRARY_NAME})
 	set(TDENGINE2_LIBRARY_NAME "TDEngine2")
 endif ()
 
+if (NOT DEFINED ${TDENGINE2_TESTS_NAME})
+	set(TDENGINE2_TESTS_NAME "tests")
+endif ()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+if (IS_TESTING_ENABLED)
+	enable_testing()
+endif ()
 
 # attach TDEngine2
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../TDEngine2/include")
@@ -65,23 +73,15 @@ if (UNIX)
 	endif()
 endif (UNIX)
 
-add_executable("${EXECUTABLE_NAME}" ${SOURCES} ${HEADERS})
+add_executable(${TDENGINE2_TESTS_NAME} ${SOURCES} ${HEADERS})
 
 if (UNIX)
-	set_target_properties("${EXECUTABLE_NAME}" PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
+	set_target_properties(${TDENGINE2_TESTS_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
 endif ()
 
-target_link_libraries("${EXECUTABLE_NAME}" ${TDENGINE2_LIBRARY_NAME})
-
-target_link_libraries("${EXECUTABLE_NAME}" Catch2::Catch2)
+target_link_libraries(${TDENGINE2_TESTS_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME} Catch2::Catch2)
 
 include(CTest)
 include(Catch)
 
-catch_discover_tests("${EXECUTABLE_NAME}")
-
-# copy the engine's dll into /tests subdirectory for its testing
-add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	"$<TARGET_FILE:${TDENGINE2_LIBRARY_NAME}>"
-	"$<TARGET_FILE_DIR:${EXECUTABLE_NAME}>")
+catch_discover_tests(${TDENGINE2_TESTS_NAME})
