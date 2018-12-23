@@ -25,6 +25,12 @@ namespace TDEngine2
 
 	TDE2_API void Panic(const std::string& message);
 
+	/*!
+		\brief The macro is used to terminate application if some fail occurs
+	*/
+
+#define PANIC_ON_FAILURE(expr) if ((expr) != RC_OK) { Panic(#expr); }
+
 
 	/*!
 		struct TOkValue<T>

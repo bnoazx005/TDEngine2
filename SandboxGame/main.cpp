@@ -20,16 +20,16 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	pEngineCoreBuilder->ConfigureMemoryManager(DefaultGlobalMemoryBlockSize);
-	pEngineCoreBuilder->ConfigureJobManager();
-	pEngineCoreBuilder->ConfigureFileSystem();
-	pEngineCoreBuilder->ConfigureEventManager();
-	pEngineCoreBuilder->ConfigureResourceManager();
-	pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE);
-	pEngineCoreBuilder->ConfigurePluginManager();
-	pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_DIRECT3D11);
-	pEngineCoreBuilder->ConfigureInputContext();
-	pEngineCoreBuilder->ConfigureRenderer();
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureMemoryManager(DefaultGlobalMemoryBlockSize));
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureJobManager());
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureFileSystem());
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureEventManager());
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureResourceManager());
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE));
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigurePluginManager());
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_DIRECT3D11));
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureInputContext());
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureRenderer());
 
 	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
 
