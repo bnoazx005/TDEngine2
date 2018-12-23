@@ -32,12 +32,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		result = _acquireDevice();
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
+		_acquireDevice();
 
 		mIsInitialized = true;
 

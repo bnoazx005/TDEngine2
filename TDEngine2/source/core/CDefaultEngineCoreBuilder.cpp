@@ -345,7 +345,7 @@ namespace TDEngine2
 		}
 #endif
 
-		return RC_FAIL;
+		return RC_OK;
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()
