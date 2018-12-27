@@ -1,5 +1,6 @@
 #include "./../include/CD3D11IndexBuffer.h"
 #include "./../include/CD3D11Buffer.h"
+#include "./../include/CD3D11Mappings.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -97,7 +98,7 @@ namespace TDEngine2
 			return;
 		}
 
-		mp3dDeviceContext->IASetIndexBuffer(mpInternalIndexBuffer, DXGI_FORMAT_UNKNOWN, offset);
+		mp3dDeviceContext->IASetIndexBuffer(mpInternalIndexBuffer, CD3D11Mappings::GetIndexFormat(mIndexFormatType), offset);
 	}
 
 	const TBufferInternalData& CD3D11IndexBuffer::GetInternalData() const
