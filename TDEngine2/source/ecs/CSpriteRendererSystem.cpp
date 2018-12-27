@@ -9,6 +9,10 @@
 #include "./../../include/graphics/IIndexBuffer.h"
 #include "./../../include/graphics/IVertexDeclaration.h"
 #include "./../../include/graphics/CGraphicsLayersInfo.h"
+#include "./../../include/core/IGraphicsContext.h"
+#include "./../../include/graphics/IRenderer.h"
+#include "./../../include/core/IResourceHandler.h"
+#include "./../../include/core/IResourceManager.h"
 
 
 namespace TDEngine2
@@ -19,19 +23,23 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSpriteRendererSystem::Init(IGraphicsObjectManager* pGraphicsObjectManager, CRenderQueue* pRenderQueue)
+	E_RESULT_CODE CSpriteRendererSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pRenderQueue || !pGraphicsObjectManager)
+		if (!pGraphicsObjectManager || !pRenderer)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpRenderQueue = pRenderQueue;
+		mpRenderer = pRenderer;
+
+		mpRenderQueue = mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SPRITES);
+
+		mpResourceManager = mpRenderer->GetResourceManager();
 
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
@@ -61,6 +69,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 		
 		mpGraphicsLayers = CreateGraphicsLayersInfo(result);
+		mpGraphicsLayers->AddLayer(4.0f, "Layer1");
 
 		if (result != RC_OK)
 		{
@@ -120,11 +129,17 @@ namespace TDEngine2
 
 	void CSpriteRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		TDrawIndexedInstancedCommandPtr pCurrCommand = nullptr;
+		TDrawIndexedInstancedCommand* pCurrCommand = nullptr;
 
 		CTransform* pCurrTransform = nullptr;
 
 		CQuadSprite* pCurrSprite = nullptr;
+
+		U32 groupKey = 0x0;
+		
+		IResourceHandler* pCurrMaterialHandler = nullptr;
+
+		std::string currMaterialName;
 
 		for (I32 i = 0; i < mSprites.size(); ++i)
 		{
@@ -135,10 +150,34 @@ namespace TDEngine2
 			/// accumulate instancing data
 
 			/// if current vertex buffer is filled up send it to the renderer
+			
+			currMaterialName = pCurrSprite->GetMaterialName();
 
-			pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>(0); /// \todo replace 0 with correct computation of a group's identifier
+			groupKey = _computeSpriteCommandKey(mpResourceManager->GetResourceId(currMaterialName), mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
+
+			/*pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>(groupKey);
+
+			pCurrCommand->mpVertexBuffer      = mpSpriteVertexBuffer;
+			pCurrCommand->mpIndexBuffer       = mpSpriteIndexBuffer;
+			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrCommand->mIndicesPerInstance = 6;
+			pCurrCommand->mBaseVertexIndex    = 0;
+			pCurrCommand->mStartIndex         = 0;
+			pCurrCommand->mStartInstance      = 0;
+			pCurrCommand->mNumOfInstances     = 0;/// assign number of sprites in a batch
+			pCurrCommand->mpInstancingBuffer  = nullptr; /// assign accumulated data of a batch*/
+
+			TDrawIndexedCommand* pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(groupKey);
+
+			pCurrCommand->mpVertexBuffer      = mpSpriteVertexBuffer;
+			pCurrCommand->mpIndexBuffer       = mpSpriteIndexBuffer;
+			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrCommand->mStartIndex         = 0;
+			pCurrCommand->mNumOfIndices       = 6;
+			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
+			pCurrCommand->mMaterialName       = currMaterialName;
 		}
-
+		
 		/*
 		pseudocode of the logic:
 
@@ -155,8 +194,13 @@ namespace TDEngine2
 		}*/
 	}
 
+	U32 CSpriteRendererSystem::_computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId)
+	{
+		return materialId << 16 | graphicsLayerId;
+	}
 
-	TDE2_API ISystem* CreateSpriteRendererSystem(IGraphicsObjectManager* pGraphicsObjectManager, CRenderQueue* pRenderQueue, E_RESULT_CODE& result)
+
+	TDE2_API ISystem* CreateSpriteRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
 		CSpriteRendererSystem* pSystemInstance = new (std::nothrow) CSpriteRendererSystem();
 
@@ -167,7 +211,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pSystemInstance->Init(pGraphicsObjectManager, pRenderQueue);
+		result = pSystemInstance->Init(pRenderer, pGraphicsObjectManager);
 
 		if (result != RC_OK)
 		{

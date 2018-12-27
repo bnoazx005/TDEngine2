@@ -45,9 +45,28 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init() override;
+
+			/*!
+				\brief The method sets up an identifier fo a material that will be used for the sprite
+
+				\param[in] materialName A string that contains material's name
+
+				\param[in] materialId An identifier of a material
+			*/
+
+			TDE2_API void SetMaterialName(const std::string& materialName) override;
+
+			/*!
+					\brief The method returns an identifier of used material
+
+					\return The method returns an identifier of used material
+			*/
+
+			TDE2_API const std::string& GetMaterialName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CQuadSprite)
 		protected:
+			std::string mMaterialName;
 			/*!
 				\todo a sprite should contains
 				- ref to atlas 

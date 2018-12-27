@@ -4,7 +4,7 @@
 namespace TDEngine2
 {
 	CQuadSprite::CQuadSprite() :
-		CBaseComponent()
+		CBaseComponent(), mMaterialName()
 	{
 	}
 
@@ -18,6 +18,16 @@ namespace TDEngine2
 		mIsInitialized = true;
 
 		return RC_OK;
+	}
+
+	void CQuadSprite::SetMaterialName(const std::string& materialName)
+	{
+		mMaterialName = materialName;
+	}
+
+	const std::string& CQuadSprite::GetMaterialName() const
+	{
+		return mMaterialName;
 	}
 
 
