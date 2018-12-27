@@ -266,6 +266,8 @@ namespace TDEngine2
 		{
 			pResourceHandler = _createOrGetResourceHandler(resourceId);
 
+			pResource = mResources[resourceId - 1];
+
 			if (pResource->GetState() == RST_PENDING)
 			{
 				pResource->Load(); /// \todo move loading in the background thread
@@ -300,14 +302,38 @@ namespace TDEngine2
 
 	IResourceHandler* CResourceManager::_createResource(U32 resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
 	{
-		TResourceId id = GetResourceId(name);
+		TResourceId resourceId = GetResourceId(name);
 
-		if (id == InvalidResourceId)
+		if (resourceId != InvalidResourceId)
 		{
-			return mResourceHandlersArray[0];
+			return mResourceHandlersArray[resourceId];
 		}
 
-		return nullptr;
+		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
+
+		if (factoryIdIter == mResourceFactoriesMap.cend())
+		{
+			return mResourceHandlersArray[0]; /// return invalid handler
+		}
+
+		const IResourceFactory* pResourceFactory = mRegistredResourceFactories[(*factoryIdIter).second - 1];
+		
+		IResource* pResource = nullptr;
+
+		IResourceHandler* pResourceHandler = nullptr;
+
+		resourceId = _getFreeResourceId();
+
+		mResourcesMap[name] = resourceId;
+		
+		/// \todo move it to a background thread
+		pResource = pResourceFactory->Create(name, params);
+
+		mResources[resourceId - 1] = pResource;
+
+		pResourceHandler = _createOrGetResourceHandler(resourceId);
+
+		return pResourceHandler;
 	}
 
 	IResourceHandler* CResourceManager::_createOrGetResourceHandler(TResourceId resourceId)
