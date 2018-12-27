@@ -134,7 +134,7 @@ namespace TDEngine2
 
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsCtx->GetGraphicsObjectManager();
 
-		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(pGraphicsObjectManager, pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SPRITES), result);
+		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(pRenderer, pGraphicsObjectManager, result);
 
 		if (result != RC_OK)
 		{
@@ -329,6 +329,13 @@ namespace TDEngine2
 		}
 
 		_onNotifyEngineListeners(EET_ONUPDATE);
+
+		IRenderer* pRenderer = dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]);
+
+		if (pRenderer)
+		{
+			pRenderer->Draw();
+		}
 	}
 
 	E_RESULT_CODE CEngineCore::_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType)

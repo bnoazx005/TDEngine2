@@ -133,7 +133,8 @@ namespace TDEngine2
 	{
 		/// all the buffers except IUBR_CONSTANTS can be updated at any moment, IUBR_CONSTANTS buffer is attached on application's start
 
-		switch (slot)
+		return BUT_DYNAMIC;
+		/*switch (slot)
 		{
 			case IUBR_PER_FRAME:
 			case IUBR_PER_OBJECT:
@@ -143,7 +144,7 @@ namespace TDEngine2
 				return BUT_DEFAULT;
 		}
 
-		return BUT_DEFAULT;
+		return BUT_DEFAULT;*/
 	}
 
 	U32 CGlobalShaderProperties::_getInternalBufferSize(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot)

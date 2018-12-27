@@ -348,4 +348,21 @@ namespace TDEngine2
 
 		return static_cast<Enum>(static_cast<baseType>(left) ^ static_cast<baseType>(right));
 	}
+
+
+	/*!
+		\brief String utils
+		\todo Temporarily they are placed here, should be moved later
+	*/
+
+
+#if defined (_MSC_VER)
+	#define TDE2_STRING_ID(Str)				\
+		__pragma(warning(push))				\
+		__pragma(warning(disable:4307))		\
+		(TDEngine2::ComputeHash(Str))		\
+		__pragma(warning(pop))
+#else
+	#define TDE2_STRING_ID(Str) (TDEngine2::ComputeHash(Str))
+#endif
 }

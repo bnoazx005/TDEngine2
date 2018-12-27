@@ -21,6 +21,9 @@
 #include "./../../include/core/memory/CStackAllocator.h"
 #include "./../../include/graphics/CForwardRenderer.h"
 #include "./../../include/core/IInputContext.h"
+#include "./../../include/graphics/CBaseMaterial.h"
+#include "./../../include/core/IGraphicsContext.h"
+#include "./../../include/utils/CFileLogger.h"
 #include <memory>
 
 
@@ -28,7 +31,7 @@ namespace TDEngine2
 {
 	CDefaultEngineCoreBuilder::CDefaultEngineCoreBuilder():
 		mIsInitialized(false), mpEngineCoreInstance(nullptr), mpWindowSystemInstance(nullptr), mpJobManagerInstance(nullptr),
-		mpPluginManagerInstance(nullptr)
+		mpPluginManagerInstance(nullptr), mpGraphicsContextInstance(nullptr), mpResourceManagerInstance(nullptr)
 	{
 	}
 
@@ -116,6 +119,8 @@ namespace TDEngine2
 				return RC_FAIL;
 		}
 
+		mpGraphicsContextInstance = dynamic_cast<IGraphicsContext*>(mpEngineCoreInstance->GetSubsystem(EST_GRAPHICS_CONTEXT));
+
 		return RC_OK;
 	}
 
@@ -153,45 +158,43 @@ namespace TDEngine2
 		}
 
 		E_RESULT_CODE result = RC_OK;
-
-		IFileSystem* pFileSystem = nullptr;
-		
+				
 #if defined (TDE2_USE_WIN32PLATFORM)
-		pFileSystem = CreateWin32FileSystem(result);
+		mpFileSystemInstance = CreateWin32FileSystem(result);
 #elif defined (TDE2_USE_UNIXPLATFORM)
-		pFileSystem = CreateUnixFileSystem(result);
+		mpFileSystemInstance = CreateUnixFileSystem(result);
 #else
 #endif
 		
 		/// register known file types factories
-		if (((result = pFileSystem->RegisterFileFactory<CTextFileReader>(CreateTextFileReader)) != RC_OK) ||
-			((result = pFileSystem->RegisterFileFactory<CConfigFileReader>(CreateConfigFileReader)) != RC_OK) ||
-			((result = pFileSystem->RegisterFileFactory<CBinaryFileReader>(CreateBinaryFileReader)) != RC_OK) ||
-			((result = pFileSystem->RegisterFileFactory<CBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK))
+		if (((result = mpFileSystemInstance->RegisterFileFactory<CTextFileReader>(CreateTextFileReader)) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<CConfigFileReader>(CreateConfigFileReader)) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<CBinaryFileReader>(CreateBinaryFileReader)) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<CBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK))
 		{
 			return result;
 		}
 		
-		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(pFileSystem));
+		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(mpFileSystemInstance));
 	}
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureResourceManager()
 	{
-		if (!mIsInitialized || !mpJobManagerInstance)
+		if (!mIsInitialized || !mpJobManagerInstance || !mpFileSystemInstance)
 		{
 			return RC_FAIL;
 		}
 
 		E_RESULT_CODE result = RC_OK;
 
-		IEngineSubsystem* pResourceManager = CreateResourceManager(mpJobManagerInstance, result);
+		mpResourceManagerInstance = CreateResourceManager(mpJobManagerInstance, result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
-		
-		return mpEngineCoreInstance->RegisterSubsystem(pResourceManager);
+
+		return mpEngineCoreInstance->RegisterSubsystem(mpResourceManagerInstance);
 	}
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureJobManager(U32 maxNumOfThreads)
@@ -263,18 +266,16 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureRenderer()
 	{
-		if (!mIsInitialized || !mpMemoryManagerInstance)
+		if (!mIsInitialized || !mpMemoryManagerInstance || !mpGraphicsContextInstance || !mpResourceManagerInstance)
 		{
 			return RC_FAIL;
 		}
 
 		E_RESULT_CODE result = RC_OK;
+		
+		IAllocator* pAllocator = mpMemoryManagerInstance->CreateAllocator<CStackAllocator>(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize, "Renderer");
 
-		U8 renderQueuesCount = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP) + 1;
-
-		IAllocator* pAllocator = mpMemoryManagerInstance->CreateAllocator<CStackAllocator>(renderQueuesCount * PerRenderQueueMemoryBlockSize, "Renderer");
-
-		IEngineSubsystem* pRenderer = CreateForwardRenderer(pAllocator, result);
+		IEngineSubsystem* pRenderer = CreateForwardRenderer(mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, result);
 
 		if (result != RC_OK)
 		{
@@ -350,7 +351,56 @@ namespace TDEngine2
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()
 	{
+		E_RESULT_CODE result = _registerBuiltinInfrastructure();
+
+		if (result != RC_OK)
+		{
+			LOG_WARNING("[Default Engine Core Builder] Couldn't register built-in types for the resource manager");
+
+			return mpEngineCoreInstance;
+		}
+
 		return mpEngineCoreInstance;
+	}
+
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_registerBuiltinInfrastructure()
+	{
+		if (!mpResourceManagerInstance)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		/// Register builtin factories for IResourceManager
+
+		/// register material loader
+		IResourceLoader* pResourceLoader = CreateBaseMaterialLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if (mpResourceManagerInstance->RegisterLoader(pResourceLoader).mResultCode != RC_OK)
+		{
+			return RC_FAIL;
+		};
+
+		/// register material factory
+		IResourceFactory* pResourceFactory = CreateBaseMaterialFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if (mpResourceManagerInstance->RegisterFactory(pResourceFactory).mResultCode != RC_OK)
+		{
+			return RC_FAIL;
+		};
+
+		return RC_OK;
 	}
 
 	

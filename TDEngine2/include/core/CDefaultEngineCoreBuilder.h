@@ -15,6 +15,9 @@ namespace TDEngine2
 	class IJobManager;
 	class IPluginManager;
 	class IMemoryManager;
+	class IGraphicsContext;
+	class IFileSystem;
+	class IResourceManager;
 
 
 	/*!
@@ -141,18 +144,26 @@ namespace TDEngine2
 			TDE2_API IEngineCore* GetEngineCore() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDefaultEngineCoreBuilder)
+
+			TDE2_API E_RESULT_CODE _registerBuiltinInfrastructure();
 		protected:
-			bool            mIsInitialized;
+			bool              mIsInitialized;
 
-			IEngineCore*    mpEngineCoreInstance;
+			IEngineCore*      mpEngineCoreInstance;
 
-			IWindowSystem*  mpWindowSystemInstance;
+			IWindowSystem*    mpWindowSystemInstance;
 
-			IJobManager*    mpJobManagerInstance;
+			IJobManager*      mpJobManagerInstance;
 
-			IPluginManager* mpPluginManagerInstance;
+			IPluginManager*   mpPluginManagerInstance;
 			
-			IMemoryManager* mpMemoryManagerInstance;
+			IMemoryManager*   mpMemoryManagerInstance;
+
+			IGraphicsContext* mpGraphicsContextInstance;
+
+			IFileSystem*      mpFileSystemInstance;
+
+			IResourceManager* mpResourceManagerInstance;
 	};
 
 

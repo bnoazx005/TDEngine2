@@ -1,4 +1,5 @@
 #include "./../include/CCustomEngineListener.h"
+#include <TDEngine2.h>
 #include <iostream>
 
 
@@ -27,12 +28,20 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	pVertexDeclaration->Bind(mpGraphicsContext, mpVertexBuffer, dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING)));
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
+	
+	auto pMaterial = mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", TDEngine2::TMaterialParameters{ "testDXShader.shader" });
 
 	for (TDEngine2::I32 i = 0; i < 10; ++i)
 	{
 		auto pEntity = mpWorld->CreateEntity();
 
-		pEntity->AddComponent<TDEngine2::CQuadSprite>();
+		auto pTransform = pEntity->GetComponent<TDEngine2::CTransform>();
+
+		pTransform->SetPosition(pTransform->GetPosition() + TDEngine2::TVector3(0.0f, 0.0f, rand() % 10));
+
+		auto pSprite = pEntity->AddComponent<TDEngine2::CQuadSprite>();
+
+		pSprite->SetMaterialName("NewMaterial.material");
 	}
 
 	mpGlobalShaderProperties = TDEngine2::CreateGlobalShaderProperties(mpGraphicsObjectManager, result);
@@ -47,30 +56,13 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
-	mpGraphicsContext->ClearBackBuffer(TDEngine2::TColor32F(0.0, 0.0, 0.5f, 1.0));
-	mpGraphicsContext->ClearDepthBuffer(1.0f);
-
-	dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->Bind();
-
-	TDEngine2::TPerFrameShaderData data;
-	data.mProjMatrix = mpGraphicsContext->CalcPerspectiveMatrix(3.14 * 0.5f, mpWindowSystem->GetWidth() / (TDEngine2::F32)mpWindowSystem->GetHeight(), 1.0f, 1000.0f);
-	data.mViewMatrix = TDEngine2::IdentityMatrix4;
-
-	mpGlobalShaderProperties->SetInternalUniformsBuffer(TDEngine2::IUBR_PER_FRAME, reinterpret_cast<const TDEngine2::U8*>(&data), sizeof(data));
-	
-	mpVertexBuffer->Bind(0, 0);
-
-	mpGraphicsContext->Draw(TDEngine2::E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST, 0, 3);
-
-	mpGraphicsContext->Present();
-
 	mpWindowSystem->SetTitle(std::to_string(dt));
 
 	if (dynamic_cast<TDEngine2::IDesktopInputContext*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_INPUT_CONTEXT))->IsMouseButtonPressed(0))
 	{
 		std::cout << "pressed\n";
 	}
-
+	
 	return TDEngine2::RC_OK;
 }
 
