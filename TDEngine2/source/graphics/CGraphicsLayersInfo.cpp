@@ -56,14 +56,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	U32 CGraphicsLayersInfo::GetLayerIndex(F32 depthValue) const
+	U16 CGraphicsLayersInfo::GetLayerIndex(F32 depthValue) const
 	{
 		if (mGraphicsLayers.empty())
 		{
 			return 0; /// there is the only one layer, so return it
 		}
 
-		U32 layerId = 0;
+		U16 layerId = 0;
 
 		F32 rightLayerBorderValue = 0.0f;
 

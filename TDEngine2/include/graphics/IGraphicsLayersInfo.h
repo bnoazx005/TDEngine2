@@ -52,7 +52,7 @@ namespace TDEngine2
 				\return The method returns an information a given depthValue belongs to
 			*/
 
-			TDE2_API virtual U32 GetLayerIndex(F32 depthValue) const = 0;
+			TDE2_API virtual U16 GetLayerIndex(F32 depthValue) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsLayersInfo)
 	};

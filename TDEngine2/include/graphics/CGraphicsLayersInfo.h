@@ -76,7 +76,7 @@ namespace TDEngine2
 				\return The method returns an information a given depthValue belongs to
 			*/
 
-			TDE2_API U32 GetLayerIndex(F32 depthValue) const override;
+			TDE2_API U16 GetLayerIndex(F32 depthValue) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGraphicsLayersInfo)
 		protected:
