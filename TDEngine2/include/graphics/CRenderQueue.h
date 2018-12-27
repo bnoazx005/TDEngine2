@@ -14,6 +14,7 @@
 #include "./../core/memory/IAllocator.h"
 #include <vector>
 #include <tuple>
+#include <string>
 
 
 namespace TDEngine2
@@ -21,51 +22,134 @@ namespace TDEngine2
 	class IVertexBuffer;
 	class IAllocator;
 	class CRenderQueue;
+	class IRenderer;
+	class IVertexDeclaration;
+	class IResourceManager;
 
 
 	typedef struct TRenderCommand
 	{
-		virtual ~TRenderCommand() = default;
+		TDE2_API virtual ~TRenderCommand() = default;
+
+		/*!
+			\brief The method submits a command to a rendering pipeline
+
+			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+			\param[in, out] pResourceManager A pointer to IResourceManager implementation
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API virtual E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) = 0;
+
+		E_PRIMITIVE_TOPOLOGY_TYPE mPrimitiveType;
+
+		IVertexBuffer*            mpVertexBuffer;
+
+		IVertexDeclaration*       mpVertexDeclaration;
+
+		std::string               mMaterialName;
 	} TRenderCommand, *TRenderCommandPtr;
 
 
 	typedef struct TDrawCommand: TRenderCommand
 	{
-		U32                       mNumOfVertices;
+		/*!
+			\brief The method submits a command to a rendering pipeline
 
-		U32                       mStartVertex;
+			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 
-		E_PRIMITIVE_TOPOLOGY_TYPE mPrimitiveType;
+			\param[in, out] pResourceManager A pointer to IResourceManager implementation
 
-		IVertexBuffer*            mpVertexBuffer;
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) override;
+
+		U32 mNumOfVertices;
+
+		U32 mStartVertex;
 	} TDrawCommand, *TDrawCommandPtr;
 
 
 	typedef struct TDrawIndexedCommand: TRenderCommand
 	{
-		U32                       mNumOfIndices;
+		/*!
+			\brief The method submits a command to a rendering pipeline
 
-		U32                       mStartIndex;
+			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 
-		U32                       mStartVertex;
+			\param[in, out] pResourceManager A pointer to IResourceManager implementation
 
-		E_PRIMITIVE_TOPOLOGY_TYPE mPrimitiveType;
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
 
-		IVertexBuffer*            mpVertexBuffer;
+		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) override;
 
-		IIndexBuffer*             mpIndexBuffer;
+		U32           mNumOfIndices;
+
+		U32           mStartIndex;
+
+		U32           mStartVertex;
+
+		IIndexBuffer* mpIndexBuffer;
 	} TDrawIndexedCommand, *TDrawIndexedCommandPtr;
 
 
 	typedef struct TDrawInstancedCommand: TRenderCommand
 	{
+		/*!
+			\brief The method submits a command to a rendering pipeline
 
+			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+			\param[in, out] pResourceManager A pointer to IResourceManager implementation
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) override;
+
+		U32            mStartVertex;
+
+		U32            mVerticesPerInstance;
+
+		U32            mStartInstance;
+
+		U32            mNumOfInstances;
+
+		IVertexBuffer* mpInstancingBuffer;		
 	} TDrawInstancedCommand, *TDrawInstancedCommandPtr;
 
 
 	typedef struct TDrawIndexedInstancedCommand: TRenderCommand
 	{
+		/*!
+			\brief The method submits a command to a rendering pipeline
 
+			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+			\param[in, out] pResourceManager A pointer to IResourceManager implementation
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) override;
+
+		U32            mBaseVertexIndex;
+
+		U32            mStartIndex;
+
+		U32            mStartInstance;
+
+		U32            mIndicesPerInstance;
+
+		U32            mNumOfInstances;
+
+		IIndexBuffer*  mpIndexBuffer;
+
+		IVertexBuffer* mpInstancingBuffer;
 	} TDrawIndexedInstancedCommand, *TDrawIndexedInstancedCommandPtr;
 
 
@@ -94,6 +178,44 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API CRenderQueue* CreateRenderQueue(IAllocator* pTempAllocator, E_RESULT_CODE& result);
+		protected:
+			typedef std::vector<std::tuple<U32, TRenderCommand*>> TCommandsArray;
+		public:
+			/*!
+				class CRenderQueueIterator
+
+				\brief The class implements a one-way iterator over draw commands that are stored
+				within a render queue
+			*/
+
+			class CRenderQueueIterator
+			{
+				public:
+					TDE2_API CRenderQueueIterator(TCommandsArray& commandsBuffer, U32 initialIndex = 0);
+					TDE2_API CRenderQueueIterator(const CRenderQueueIterator& iter);
+					TDE2_API CRenderQueueIterator(CRenderQueueIterator&& iter);
+					TDE2_API ~CRenderQueueIterator() = default;
+
+					TDE2_API TRenderCommand* GetNext();
+
+					TDE2_API bool HasNext() const;
+
+					TDE2_API void Reset();
+
+					TDE2_API TRenderCommand* Get() const;
+
+					TDE2_API CRenderQueueIterator& operator++();
+
+					TDE2_API CRenderQueueIterator& operator++(int);
+					
+					TDE2_API TRenderCommand* operator*() const;
+				protected:
+					TDE2_API CRenderQueueIterator() = default;
+				protected:
+					TCommandsArray* mpTargetCollection;
+
+					U32             mCurrCommandIndex;
+			};
 		public:
 			/*!
 				\brief The method initializes an internal state of a queue
@@ -130,17 +252,47 @@ namespace TDEngine2
 					return nullptr;
 				}
 
-				TRenderCommand* pRenderCommand = new (mpTempAllocator->Allocate(sizeof(T), __alignof(T))) T(); /// \todo Replace the allocation with a helper function's invokation
+				T* pRenderCommand = new (mpTempAllocator->Allocate(sizeof(T), __alignof(T))) T(); /// \todo Replace the allocation with a helper function's invokation
 
-				mCommandsBuffer.emplace_back(groupKey, pRenderCommand);
+				mCommandsBuffer.emplace_back(groupKey, dynamic_cast<TRenderCommand*>(pRenderCommand));
 
-				return dynamic_cast<T*>(pRenderCommand);
+				return pRenderCommand;
 			}
+
+			/*!
+				\brief The method clears up the existing list of commands
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Clear();
+
+			/*!
+				\brief The method sorts existing commands in buffer based on their group keys
+			*/
+
+			TDE2_API void Sort();
+
+			/*!
+				\brief The method returns true if a command buffer does not contain any draw command
+
+				\return The method returns true if a command buffer does not contain any draw command
+			*/
+
+			TDE2_API bool IsEmpty() const;
+
+			/*!
+				\brief The method creates a new iterator that points to the beginning of the commands buffer and returns it
+
+				\return The method creates a new iterator that points to the beginning of the commands buffer and returns it
+			*/
+
+			TDE2_API CRenderQueueIterator GetIterator();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRenderQueue)
 		protected:
-			std::vector<std::tuple<U32, TRenderCommand*>> mCommandsBuffer;
+			TCommandsArray mCommandsBuffer;
 
-			IAllocator*                  mpTempAllocator;
+			IAllocator*    mpTempAllocator;
 	};
 }

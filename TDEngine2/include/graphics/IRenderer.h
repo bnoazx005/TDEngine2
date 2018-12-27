@@ -14,10 +14,11 @@
 
 namespace TDEngine2
 {
-	class IRenderable;
+	class IGraphicsContext;
 	class ICamera;
 	class CRenderQueue;
 	class IAllocator;
+	class IResourceManager;
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -27,8 +28,11 @@ namespace TDEngine2
 		RQG_SPRITES,
 		RQG_DEBUG,
 		RQG_OVERLAY,
-		RQG_LAST_GROUP
+		RQG_LAST_GROUP  = RQG_OVERLAY,
+		RQG_FIRST_GROUP = RQG_OPAQUE_GEOMETRY
 	};
+
+	constexpr U8 NumOfRenderQueuesGroup = static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP) + 1;
 
 
 	/*!
@@ -43,23 +47,25 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of a renderer
 				
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
+
 				\param[in, out] pTempAllocator A pointer to IAllocator object which will be used
 				for temporary allocations
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IAllocator* pTempAllocator) = 0;
-
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator) = 0;
+			
 			/*!
-				\brief The method submits a given renderable into the renderer
+				\brief The method sends all accumulated commands into GPU driver
 
-				\param[in] group A group's identifier value
-
-				\param[in] pRenderable A  pointer to IRenderable implementation
+				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual void SubmitToRender(U8 group, const IRenderable* pRenderable) = 0;
+			TDE2_API virtual E_RESULT_CODE Draw() = 0;
 
 			/*!
 				\brief The method attaches a camera to the renderer
@@ -78,6 +84,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual CRenderQueue* GetRenderQueue(E_RENDER_QUEUE_GROUP queueType) const = 0;
+
+			/*!
+				\brief The method returns a pointer to an instance of IResourceManager which is attached to
+				the renderer
+
+				\return The method returns a pointer to an instance of IResourceManager which is attached to
+				the renderer
+			*/
+
+			TDE2_API virtual IResourceManager* GetResourceManager() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRenderer)
 	};

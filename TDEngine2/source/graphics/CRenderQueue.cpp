@@ -1,8 +1,116 @@
 #include "./../../include/graphics/CRenderQueue.h"
+#include "./../../include/graphics/IRenderer.h"
+#include "./../../include/graphics/IVertexDeclaration.h"
+#include "./../../include/graphics/IVertexBuffer.h"
+#include "./../../include/graphics/IIndexBuffer.h"
+#include "./../../include/core/IResourceManager.h"
+#include "./../../include/core/IResource.h"
+#include "./../../include/core/IResourceHandler.h"
+#include "./../../include/graphics/CBaseMaterial.h"
+#include "./../../include/graphics/IShader.h"
+#include <algorithm>
 
 
 namespace TDEngine2
 {
+	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	{
+		mpVertexDeclaration->Bind(pGraphicsContext, mpVertexBuffer, nullptr);
+
+
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	{
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->Load<CBaseMaterial>(mMaterialName)->Get(RAT_BLOCKING));
+		
+		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
+
+		mpVertexDeclaration->Bind(pGraphicsContext, mpVertexBuffer, pAttachedShader);
+
+		pMaterial->Bind();
+
+		mpVertexBuffer->Bind(0, 0); /// \todo replace magic constants
+
+		mpIndexBuffer->Bind(0);
+		
+		pGraphicsContext->DrawIndexed(mPrimitiveType, mpIndexBuffer->GetIndexFormat(), mStartVertex, mStartIndex, mNumOfIndices);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE TDrawInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	{
+		return RC_OK;
+	}
+
+
+	CRenderQueue::CRenderQueueIterator::CRenderQueueIterator(TCommandsArray& commandsBuffer, U32 initialIndex) :
+		mpTargetCollection(&commandsBuffer), mCurrCommandIndex(initialIndex)
+	{
+	}
+
+	CRenderQueue::CRenderQueueIterator::CRenderQueueIterator(const CRenderQueueIterator& iter) :
+		mpTargetCollection(iter.mpTargetCollection), mCurrCommandIndex(iter.mCurrCommandIndex)
+	{
+	}
+
+	CRenderQueue::CRenderQueueIterator::CRenderQueueIterator(CRenderQueueIterator&& iter):
+		mpTargetCollection(iter.mpTargetCollection), mCurrCommandIndex(iter.mCurrCommandIndex)
+	{
+		iter.mpTargetCollection = nullptr;
+		iter.mCurrCommandIndex  = 0;
+	}
+
+	TRenderCommand* CRenderQueue::CRenderQueueIterator::GetNext()
+	{
+		return std::get<TRenderCommand*>((*mpTargetCollection)[++mCurrCommandIndex]);
+	}
+
+	bool CRenderQueue::CRenderQueueIterator::HasNext() const
+	{
+		return (mCurrCommandIndex + 1) < mpTargetCollection->size();
+	}
+
+	void CRenderQueue::CRenderQueueIterator::Reset()
+	{
+		mCurrCommandIndex = 0;
+	}
+
+	TRenderCommand* CRenderQueue::CRenderQueueIterator::Get() const
+	{
+		return std::get<TRenderCommand*>((*mpTargetCollection)[mCurrCommandIndex]);
+	}
+	
+	CRenderQueue::CRenderQueueIterator& CRenderQueue::CRenderQueueIterator::operator++()
+	{
+		++mCurrCommandIndex;
+
+		return *this;
+	}
+
+	CRenderQueue::CRenderQueueIterator& CRenderQueue::CRenderQueueIterator::operator++(int)
+	{
+		CRenderQueueIterator oldIter(*this);
+
+		++mCurrCommandIndex;
+
+		return oldIter;
+	}
+
+	TRenderCommand* CRenderQueue::CRenderQueueIterator::operator*() const
+	{
+		return std::get<TRenderCommand*>((*mpTargetCollection)[mCurrCommandIndex]);
+	}
+
+
 	CRenderQueue::CRenderQueue():
 		CBaseObject()
 	{
@@ -39,6 +147,31 @@ namespace TDEngine2
 		delete this;
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CRenderQueue::Clear()
+	{
+		mCommandsBuffer.clear();
+
+		return mpTempAllocator->Clear();
+	}
+
+	void CRenderQueue::Sort()
+	{
+		std::sort(mCommandsBuffer.begin(), mCommandsBuffer.end(), [](const std::tuple<U32, TRenderCommand*>& left, const std::tuple<U32, TRenderCommand*>& right)
+		{
+			return std::get<U32>(left) > std::get<U32>(right);
+		});
+	}
+
+	bool CRenderQueue::IsEmpty() const
+	{
+		return mCommandsBuffer.empty();
+	}
+
+	CRenderQueue::CRenderQueueIterator CRenderQueue::GetIterator()
+	{
+		return CRenderQueueIterator(mCommandsBuffer);
 	}
 
 

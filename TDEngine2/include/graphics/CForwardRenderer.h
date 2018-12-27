@@ -14,8 +14,15 @@
 
 namespace TDEngine2
 {
+	class IGlobalShaderProperties;
+
+
 	/*!
 		\brief A factory function for creation objects of CForwardRenderer's type
+
+		\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+		\param[in, out] pGraphicsContext A pointer to IResourceManager implementation
 
 		\param[in, out] pTempAllocator A pointer to IAllocator object which will be used
 		for temporary allocations
@@ -25,7 +32,7 @@ namespace TDEngine2
 		\return A pointer to CForwardRenderer's implementation
 	*/
 
-	TDE2_API IRenderer* CreateForwardRenderer(IAllocator* pTempAllocator, E_RESULT_CODE& result);
+	TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, E_RESULT_CODE& result);
 
 
 	/*!
@@ -37,10 +44,14 @@ namespace TDEngine2
 	class CForwardRenderer : public IRenderer
 	{
 		public:
-			friend TDE2_API IRenderer* CreateForwardRenderer(IAllocator* pTempAllocator, E_RESULT_CODE& result);
+			friend TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a renderer
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+				\param[in, out] pGraphicsContext A pointer to IResourceManager implementation
 
 				\param[in, out] pTempAllocator A pointer to IAllocator object which will be used
 				for temporary allocations
@@ -48,7 +59,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IAllocator* pTempAllocator) override;
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator) override;
 			
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -57,16 +68,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
-			
+
 			/*!
-				\brief The method submits a given renderable into the renderer
+				\brief The method sends all accumulated commands into GPU driver
 
-				\param[in] group A group's identifier value
-
-				\param[in] pRenderable A  pointer to IRenderable implementation
+				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API void SubmitToRender(U8 group, const IRenderable* pRenderable) override;
+			TDE2_API E_RESULT_CODE Draw() override;
 
 			/*!
 				\brief The method attaches a camera to the renderer
@@ -93,15 +102,35 @@ namespace TDEngine2
 			*/
 
 			TDE2_API CRenderQueue* GetRenderQueue(E_RENDER_QUEUE_GROUP queueType) const override;
+
+			/*!
+				\brief The method returns a pointer to an instance of IResourceManager which is attached to
+				the renderer
+
+				\return The method returns a pointer to an instance of IResourceManager which is attached to
+				the renderer
+			*/
+
+			TDE2_API IResourceManager* GetResourceManager() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CForwardRenderer)
+
+			TDE2_API void _submitToDraw(CRenderQueue* pRenderQueue);
+
+			TDE2_API void _prepareFrame();
 		protected:
-			bool           mIsInitialized;
+			bool                     mIsInitialized;
+							         
+			IGraphicsContext*        mpGraphicsContext;
+							         
+			IResourceManager*        mpResourceManager;
+							         
+			const ICamera*           mpMainCamera;
+							         
+			CRenderQueue*            mpRenderQueues[NumOfRenderQueuesGroup];
+							         
+			IAllocator*              mpTempAllocator;
 
-			const ICamera* mpMainCamera;
-
-			CRenderQueue*  mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP)];
-
-			IAllocator*    mpTempAllocator;
+			IGlobalShaderProperties* mpGlobalShaderProperties;
 	};
 }
