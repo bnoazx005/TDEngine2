@@ -2,10 +2,24 @@
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
+#include "./../../include/platform/CBinaryFileReader.h"
+#include "./../../include/graphics/CBaseShader.h"
+#include "./../../include/core/IResourceHandler.h"
+#include <cstring>
 
 
 namespace TDEngine2
 {
+	/*!
+		\note The declaration of TMaterialParameters is placed at IMaterial.h
+	*/
+
+	TMaterialParameters::TMaterialParameters(const std::string& shaderName):
+		mShaderName(shaderName)
+	{
+	}
+
+
 	CBaseMaterial::CBaseMaterial() :
 		CBaseResource()
 	{
@@ -24,6 +38,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpGraphicsContext = pGraphicsContext;
 		
 		mIsInitialized = true;
 
@@ -66,6 +82,75 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseMaterial::Reset()
 	{
 		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	void CBaseMaterial::SetShader(const std::string& shaderName)
+	{
+		//mpShader = mpResourceManager->Create<CBaseShader>(&shaderParams);
+		mpShader = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
+	}
+
+	void CBaseMaterial::Bind()
+	{
+		dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->Bind();
+	}
+
+	IResourceHandler* CBaseMaterial::GetShaderHandler() const
+	{
+		return mpShader;
+	}
+
+
+	TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
+	{
+		CBaseMaterial* pMaterialInstance = new (std::nothrow) CBaseMaterial();
+
+		if (!pMaterialInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pMaterialInstance->Init(pResourceManager, pGraphicsContext, name);
+
+		if (result != RC_OK)
+		{
+			delete pMaterialInstance;
+
+			pMaterialInstance = nullptr;
+		}
+
+		return pMaterialInstance;
+	}
+
+
+	TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+										   const TMaterialParameters& params, E_RESULT_CODE& result)
+	{
+		CBaseMaterial* pMaterialInstance = new (std::nothrow) CBaseMaterial();
+
+		if (!pMaterialInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pMaterialInstance->Init(pResourceManager, pGraphicsContext, name);
+		
+		if (result != RC_OK)
+		{
+			delete pMaterialInstance;
+
+			pMaterialInstance = nullptr;
+		}
+		else
+		{
+			pMaterialInstance->SetShader(params.mShaderName);
+		}
+
+		return pMaterialInstance;
 	}
 	
 
@@ -118,14 +203,68 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		/// \todo implement the method
+		E_RESULT_CODE result = RC_OK;
+
+		IBinaryFileReader* pMaterialFile = dynamic_cast<IBinaryFileReader*>(mpFileSystem->Create<CBinaryFileReader>(pResource->GetName(), result));
 		
-		return RC_NOT_IMPLEMENTED_YET;
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		/// try to read the file's header
+		TBaseMaterialFileHeader header = _readMaterialFileHeader(pMaterialFile).Get();
+
+		if ((result = pMaterialFile->Close()) != RC_OK)
+		{
+			return result;
+		}
+
+		return RC_OK;
 	}
 
 	U32 CBaseMaterialLoader::GetResourceTypeId() const
 	{
 		return CBaseMaterial::GetTypeId();
+	}
+
+	TResult<TBaseMaterialFileHeader> CBaseMaterialLoader::_readMaterialFileHeader(IBinaryFileReader* pFileReader) const
+	{
+		TBaseMaterialFileHeader header;
+
+		memset(&header, 0, sizeof(TBaseMaterialFileHeader));
+
+		E_RESULT_CODE result = RC_OK;
+
+		/// read the file's header
+		if ((result = pFileReader->Read(static_cast<void*>(header.mTag), sizeof(C8) * BaseMaterialFileTagLength)) != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		if (strncmp(header.mTag, "MAT", BaseMaterialFileTagLength))
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		/// read endianness of the file
+		if ((result = pFileReader->Read(static_cast<void*>(&header.mEndianType), sizeof(U8))) != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		/// read offsets' values of data blocks
+		if ((result = pFileReader->Read(static_cast<void*>(&header.mShaderEntriesBlockOffset), sizeof(U8))) != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		if ((result = pFileReader->Read(static_cast<void*>(&header.mMaterialPropertiesBlockOffset), sizeof(U8))) != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		return TOkValue<TBaseMaterialFileHeader>(header);
 	}
 
 
@@ -150,5 +289,91 @@ namespace TDEngine2
 		}
 
 		return pMaterialLoaderInstance;
+	}
+
+
+	CBaseMaterialFactory::CBaseMaterialFactory():
+		mIsInitialized(false)
+	{
+	}
+
+	E_RESULT_CODE CBaseMaterialFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pGraphicsContext || !pResourceManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
+
+		mpGraphicsContext = pGraphicsContext;
+		
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseMaterialFactory::Free()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = false;
+
+		delete this;
+
+		return RC_OK;
+	}
+
+	IResource* CBaseMaterialFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		const TMaterialParameters& matParams = dynamic_cast<const TMaterialParameters&>(params);
+
+		return dynamic_cast<IResource*>(CreateBaseMaterial(mpResourceManager, mpGraphicsContext, name, matParams, result));
+	}
+
+	IResource* CBaseMaterialFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		return dynamic_cast<IResource*>(CreateBaseMaterial(mpResourceManager, mpGraphicsContext, name, result));
+	}
+
+	U32 CBaseMaterialFactory::GetResourceTypeId() const
+	{
+		return CBaseMaterial::GetTypeId();
+	}
+
+
+	TDE2_API IResourceFactory* CreateBaseMaterialFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	{
+		CBaseMaterialFactory* pMaterialFactoryInstance = new (std::nothrow) CBaseMaterialFactory();
+
+		if (!pMaterialFactoryInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pMaterialFactoryInstance->Init(pResourceManager, pGraphicsContext);
+
+		if (result != RC_OK)
+		{
+			delete pMaterialFactoryInstance;
+
+			pMaterialFactoryInstance = nullptr;
+		}
+
+		return pMaterialFactoryInstance;
 	}
 }
