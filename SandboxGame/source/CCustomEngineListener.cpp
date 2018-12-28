@@ -37,13 +37,16 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 		auto pTransform = pEntity->GetComponent<TDEngine2::CTransform>();
 
-		pTransform->SetPosition(pTransform->GetPosition() + TDEngine2::TVector3(0.0f, 0.0f, rand() % 10));
+		pTransform->SetPosition(pTransform->GetPosition() + TDEngine2::TVector3(rand() % 5 - 2.0f, rand() % 5, rand() % 10));
 
 		auto pSprite = pEntity->AddComponent<TDEngine2::CQuadSprite>();
 
 		pSprite->SetMaterialName("NewMaterial.material");
 	}
 
+	TDEngine2::CEntity* pCameraEntity = mpWorld->CreateEntity("Camera");
+	auto pCamera = pCameraEntity->AddComponent<TDEngine2::CPerspectiveCamera>();
+	
 	mpGlobalShaderProperties = TDEngine2::CreateGlobalShaderProperties(mpGraphicsObjectManager, result);
 
 	if (result != TDEngine2::RC_OK)

@@ -62,6 +62,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(F32 fov, F32 aspect, F32 zn, F32 zf) override;
 
 			/*!
+				\brief The method implements "visitor" pattern approach. We compute projection
+				matrix based on a type of a camera, but the computations are executed by ICameraSystem
+
+				\param[in] pCameraSystem A pointer to ICameraSystem implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ComputeProjectionMatrix(const ICameraSystem* pCameraSystem) override;
+
+			/*!
 				\brief The method sets up a field of view of a camera
 
 				\param[in] fov A field of view of a camera
@@ -76,7 +87,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void SetAspect(F32 aspect) override;
-
+			
 			/*!
 				\brief The method returns a camera's field of view
 

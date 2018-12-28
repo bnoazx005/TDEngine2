@@ -1,4 +1,5 @@
 #include "./../../include/graphics/COrthoCamera.h"
+#include "./../../include/ecs/ICameraSystem.h"
 
 
 namespace TDEngine2
@@ -23,6 +24,16 @@ namespace TDEngine2
 		mIsInitialized = true;
 
 		return RC_OK;
+	}
+	
+	E_RESULT_CODE COrthoCamera::ComputeProjectionMatrix(const ICameraSystem* pCameraSystem)
+	{
+		if (!pCameraSystem)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pCameraSystem->ComputeOrthographicProjection(this);
 	}
 
 	void COrthoCamera::SetWidth(F32 width)

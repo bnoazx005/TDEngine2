@@ -63,6 +63,8 @@
 #include "ecs/IComponentManager.h"
 #include "ecs/CTransformSystem.h"
 #include "ecs/CSpriteRendererSystem.h"
+#include "ecs/ICameraSystem.h"
+#include "ecs/CCameraSystem.h"
 
 ///graphics
 #include "graphics/IBuffer.h"

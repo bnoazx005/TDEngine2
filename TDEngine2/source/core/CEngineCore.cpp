@@ -12,6 +12,7 @@
 #include "./../../include/graphics/IRenderer.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IInputContext.h"
+#include "./../../include/ecs/CCameraSystem.h"
 #include <cstring>
 #include <algorithm>
 
@@ -130,10 +131,18 @@ namespace TDEngine2
 
 		IRenderer* pRenderer = dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]);
 
-		const IGraphicsContext* pGraphicsCtx = dynamic_cast<const IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]);
+		IGraphicsContext* pGraphicsCtx = dynamic_cast<IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]);
 
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsCtx->GetGraphicsObjectManager();
 
+		IWindowSystem* pWindowSystem = dynamic_cast<IWindowSystem*>(mSubsystems[EST_WINDOW]);
+
+		if (!pWindowSystem)
+		{
+			return RC_FAIL;
+		}
+
+		/// \todo refactor and clean up the initialization of built-in systems
 		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(pRenderer, pGraphicsObjectManager, result);
 
 		if (result != RC_OK)
@@ -146,14 +155,19 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (_onNotifyEngineListeners(EET_ONSTART) != RC_OK)
+		ISystem* pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsCtx, result);
+
+		if (result != RC_OK)
 		{
-			return RC_FAIL;
+			return result;
 		}
 
-		IWindowSystem* pWindowSystem = dynamic_cast<IWindowSystem*>(mSubsystems[EST_WINDOW]);
+		if ((result = mpWorldInstance->RegisterSystem(pCameraSystem)) != RC_OK)
+		{
+			return result;
+		}
 
-		if (!pWindowSystem)
+		if (_onNotifyEngineListeners(EET_ONSTART) != RC_OK)
 		{
 			return RC_FAIL;
 		}

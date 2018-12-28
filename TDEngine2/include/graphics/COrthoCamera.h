@@ -62,6 +62,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(F32 width, F32 height, F32 zn, F32 zf) override;
 
 			/*!
+				\brief The method implements "visitor" pattern approach. We compute projection
+				matrix based on a type of a camera, but the computations are executed by ICameraSystem
+
+				\param[in] pCameraSystem A pointer to ICameraSystem implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ComputeProjectionMatrix(const ICameraSystem* pCameraSystem) override;
+
+			/*!
 				\brief The method specifies a camera viewport's width
 
 				\param[in] width A camera's width

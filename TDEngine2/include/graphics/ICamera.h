@@ -14,6 +14,9 @@
 
 namespace TDEngine2
 {
+	class ICameraSystem;
+
+
 	/*!
 		struct TBaseCameraParameters
 
@@ -38,6 +41,17 @@ namespace TDEngine2
 	{
 		public:
 			/*!
+				\brief The method implements "visitor" pattern approach. We compute projection
+				matrix based on a type of a camera, but the computations are executed by ICameraSystem
+
+				\param[in] pCameraSystem A pointer to ICameraSystem implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ComputeProjectionMatrix(const ICameraSystem* pCameraSystem) = 0;
+
+			/*!
 				\brief The method sets up a position of a near clip plane along Z axis
 
 				\param[in] zn A position of a near clip plane on Z axis
@@ -54,6 +68,22 @@ namespace TDEngine2
 			TDE2_API virtual void SetFarPlane(F32 zf) = 0;
 
 			/*!
+				\brief The method specifies a projection matrix for a camera
+
+				\param[in] projMatrix A projection matrix
+			*/
+
+			TDE2_API virtual void SetProjMatrix(const TMatrix4& projMatrix) = 0;
+
+			/*!
+				\brief The method specifies a view matrix for a camera
+
+				\param[in] viewMatrix A view matrix
+			*/
+
+			TDE2_API virtual void SetViewMatrix(const TMatrix4& viewMatrix) = 0;
+
+			/*!
 				\brief The method returns a position of a near clip plane on Z axis
 
 				\return The method returns a position of a near clip plane on Z axis
@@ -68,6 +98,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual F32 GetFarPlane() const = 0;
+			
+			/*!
+				\brief The method returns a projection matrix of a camera
+
+				\return The method returns a projection matrix of a camera
+			*/
+
+			TDE2_API virtual const TMatrix4& GetProjMatrix() const = 0;
+
+			/*!
+				\brief The method returns a view matrix of a camera
+
+				\return The method returns a view matrix of a camera
+			*/
+
+			TDE2_API virtual const TMatrix4& GetViewMatrix() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICamera)
 	};

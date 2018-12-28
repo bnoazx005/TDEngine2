@@ -9,6 +9,7 @@
 
 #include "ICamera.h"
 #include "./../ecs/CBaseComponent.h"
+#include "./../math/TMatrix4.h"
 
 
 namespace TDEngine2
@@ -43,6 +44,22 @@ namespace TDEngine2
 			TDE2_API void SetFarPlane(F32 zf) override;
 
 			/*!
+				\brief The method specifies a projection matrix for a camera
+
+				\param[in] projMatrix A projection matrix
+			*/
+
+			TDE2_API void SetProjMatrix(const TMatrix4& projMatrix) override;
+
+			/*!
+				\brief The method specifies a view matrix for a camera
+
+				\param[in] viewMatrix A view matrix
+			*/
+
+			TDE2_API void SetViewMatrix(const TMatrix4& viewMatrix) override;
+
+			/*!
 				\brief The method returns a position of a near clip plane on Z axis
 
 				\return The method returns a position of a near clip plane on Z axis
@@ -57,11 +74,31 @@ namespace TDEngine2
 			*/
 
 			TDE2_API F32 GetFarPlane() const override;
+
+			/*!
+				\brief The method returns a projection matrix of a camera
+
+				\return The method returns a projection matrix of a camera
+			*/
+
+			TDE2_API const TMatrix4& GetProjMatrix() const override;
+
+			/*!
+				\brief The method returns a view matrix of a camera
+
+				\return The method returns a view matrix of a camera
+			*/
+
+			TDE2_API const TMatrix4& GetViewMatrix() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCamera)
 		protected:
-			F32 mZNear;
+			F32      mZNear;
 
-			F32 mZFar;
+			F32      mZFar;
+
+			TMatrix4 mProjMatrix;
+
+			TMatrix4 mViewMatrix;
 	};
 }
