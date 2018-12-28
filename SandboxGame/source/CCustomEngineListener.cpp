@@ -44,10 +44,13 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 		pSprite->SetMaterialName("NewMaterial.material");
 	}
 
-	TDEngine2::CEntity* pCameraEntity = mpWorld->CreateEntity("Camera");
-	auto pCamera = pCameraEntity->AddComponent<TDEngine2::CPerspectiveCamera>();
+	mpCameraEntity = mpWorld->CreateEntity("Camera");
+
+	mpCameraEntity->AddComponent<TDEngine2::CPerspectiveCamera>();
 	
 	mpGlobalShaderProperties = TDEngine2::CreateGlobalShaderProperties(mpGraphicsObjectManager, result);
+
+	mpInputContext = dynamic_cast<TDEngine2::IDesktopInputContext*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_INPUT_CONTEXT));
 
 	if (result != TDEngine2::RC_OK)
 	{
@@ -61,9 +64,31 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	mpWindowSystem->SetTitle(std::to_string(dt));
 
-	if (dynamic_cast<TDEngine2::IDesktopInputContext*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_INPUT_CONTEXT))->IsMouseButtonPressed(0))
+	if (mpInputContext->IsMouseButtonPressed(0))
 	{
 		std::cout << "pressed\n";
+	}
+
+	TDEngine2::CTransform* pCameraTransform = mpCameraEntity->GetComponent<TDEngine2::CTransform>();
+
+	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_W))
+	{
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::UpVector3);
+	}
+
+	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_S))
+	{
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * TDEngine2::UpVector3);
+	}
+
+	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_A))
+	{
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * TDEngine2::RightVector3);
+	}
+
+	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_D))
+	{
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::RightVector3);
 	}
 	
 	return TDEngine2::RC_OK;

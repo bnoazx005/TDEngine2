@@ -28,12 +28,15 @@ namespace TDEngine2
 
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 
+		\param[in, out] pRenderer A pointer to IRenderer implementation
+
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CCameraSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateCameraSystem(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateCameraSystem(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
+										 IRenderer* pRenderer, E_RESULT_CODE& result);
 
 
 	/*!
@@ -45,7 +48,8 @@ namespace TDEngine2
 	class CCameraSystem : public CBaseObject, public ICameraSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateCameraSystem(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateCameraSystem(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
+														IRenderer* pRenderer, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -54,10 +58,12 @@ namespace TDEngine2
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 
+				\param[in, out] pRenderer A pointer to IRenderer implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext) override;
+			TDE2_API E_RESULT_CODE Init(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IRenderer* pRenderer) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -105,6 +111,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE ComputeOrthographicProjection(IOrthoCamera* pCamera) const override;
+			
+			/*!
+				\brief The method sets up a main camera from which the scene will be rendered
+
+				\param[in] pCamera A pointer to ICamera component
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetMainCamera(const ICamera* pCamera) override;
+
+			/*!
+				\brief The method returns a pointer to a main camera from which the scene is rendered
+
+				\brief The method returns a pointer to a main camera from which the scene is rendered
+			*/
+
+			TDE2_API const ICamera* GetMainCamera() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCameraSystem)
 		protected:
@@ -115,5 +139,9 @@ namespace TDEngine2
 			IGraphicsContext*         mpGraphicsContext;
 
 			const IWindowSystem*      mpWindowSystem;
+
+			IRenderer*                mpRenderer;
+
+			const ICamera*            mpMainCamera;
 	};
 }

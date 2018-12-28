@@ -155,7 +155,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		ISystem* pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsCtx, result);
+		ISystem* pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsCtx, pRenderer, result);
 
 		if (result != RC_OK)
 		{
