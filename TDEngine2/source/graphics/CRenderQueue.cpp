@@ -8,21 +8,22 @@
 #include "./../../include/core/IResourceHandler.h"
 #include "./../../include/graphics/CBaseMaterial.h"
 #include "./../../include/graphics/IShader.h"
+#include "./../../include/graphics/IGlobalShaderProperties.h"
 #include <algorithm>
 
 
 namespace TDEngine2
 {
-	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
 		mpVertexDeclaration->Bind(pGraphicsContext, mpVertexBuffer, nullptr);
-
-
-
-		return RC_OK;
+		
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
-	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	
+
+	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
 		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->Load<CBaseMaterial>(mMaterialName)->Get(RAT_BLOCKING));
 		
@@ -35,20 +36,22 @@ namespace TDEngine2
 		mpVertexBuffer->Bind(0, 0); /// \todo replace magic constants
 
 		mpIndexBuffer->Bind(0);
+
+		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 		
 		pGraphicsContext->DrawIndexed(mPrimitiveType, mpIndexBuffer->GetIndexFormat(), mStartVertex, mStartIndex, mNumOfIndices);
 
 		return RC_OK;
 	}
 
-	E_RESULT_CODE TDrawInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	E_RESULT_CODE TDrawInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		return RC_OK;
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
-	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		return RC_OK;
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 
@@ -76,7 +79,7 @@ namespace TDEngine2
 
 	bool CRenderQueue::CRenderQueueIterator::HasNext() const
 	{
-		return (mCurrCommandIndex + 1) < mpTargetCollection->size();
+		return (mCurrCommandIndex + 1) <= mpTargetCollection->size();
 	}
 
 	void CRenderQueue::CRenderQueueIterator::Reset()

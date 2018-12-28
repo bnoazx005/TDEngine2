@@ -107,7 +107,7 @@ namespace TDEngine2
 			{ nullptr, nullptr }
 		};
 
-		U32 flags = D3DCOMPILE_DEBUG;
+		U32 flags = D3DCOMPILE_DEBUG | D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
 
 		if (FAILED(D3DCompile(source.c_str(), source.length(), nullptr, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 							  entryPointName.c_str(), CD3D11Mappings::GetShaderTargetVerStr(shaderStage, targetVersion).c_str(),

@@ -12,6 +12,7 @@
 #include "./../core/CBaseObject.h"
 #include "./../core/IGraphicsContext.h"
 #include "./../core/memory/IAllocator.h"
+#include "InternalShaderData.h"
 #include <vector>
 #include <tuple>
 #include <string>
@@ -25,6 +26,7 @@ namespace TDEngine2
 	class IRenderer;
 	class IVertexDeclaration;
 	class IResourceManager;
+	class IGlobalShaderProperties;
 
 
 	typedef struct TRenderCommand
@@ -38,10 +40,12 @@ namespace TDEngine2
 
 			\param[in, out] pResourceManager A pointer to IResourceManager implementation
 
+			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API virtual E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) = 0;
+		TDE2_API virtual E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) = 0;
 
 		E_PRIMITIVE_TOPOLOGY_TYPE mPrimitiveType;
 
@@ -50,6 +54,8 @@ namespace TDEngine2
 		IVertexDeclaration*       mpVertexDeclaration;
 
 		std::string               mMaterialName;
+
+		TPerObjectShaderData      mObjectData;
 	} TRenderCommand, *TRenderCommandPtr;
 
 
@@ -62,10 +68,12 @@ namespace TDEngine2
 
 			\param[in, out] pResourceManager A pointer to IResourceManager implementation
 
+			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) override;
+		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
 
 		U32 mNumOfVertices;
 
@@ -82,10 +90,12 @@ namespace TDEngine2
 
 			\param[in, out] pResourceManager A pointer to IResourceManager implementation
 
+			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) override;
+		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
 
 		U32           mNumOfIndices;
 
@@ -106,10 +116,12 @@ namespace TDEngine2
 
 			\param[in, out] pResourceManager A pointer to IResourceManager implementation
 
+			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) override;
+		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
 
 		U32            mStartVertex;
 
@@ -132,10 +144,12 @@ namespace TDEngine2
 
 			\param[in, out] pResourceManager A pointer to IResourceManager implementation
 
+			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager) override;
+		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
 
 		U32            mBaseVertexIndex;
 

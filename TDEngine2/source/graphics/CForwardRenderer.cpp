@@ -183,7 +183,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			pCurrDrawCommand->Submit(mpGraphicsContext, mpResourceManager);
+			pCurrDrawCommand->Submit(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties);
 		}
 	}
 
@@ -191,17 +191,14 @@ namespace TDEngine2
 	{
 		///set up global shader properties for TPerFrameShaderData buffer
 		TPerFrameShaderData perFrameShaderData;
-
-		perFrameShaderData.mProjMatrix = mpGraphicsContext->CalcPerspectiveMatrix(3.14 * 0.5f, 800.0 / 600.0, 1.0f, 1000.0f);
-		perFrameShaderData.mViewMatrix = TDEngine2::IdentityMatrix4;
+		
+		if (mpMainCamera)
+		{
+			perFrameShaderData.mProjMatrix = mpMainCamera->GetProjMatrix();
+			perFrameShaderData.mViewMatrix = mpMainCamera->GetViewMatrix();
+		}
 
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));
-
-		/// \todo replace this hacky code with proper initialization of TPerObjectShaderData
-		TDEngine2::TPerObjectShaderData object;
-		object.mUnused = Transpose(TranslationMatrix(TDEngine2::TVector3(0.0f, 0.0f, 2.0f)));
-
-		mpGlobalShaderProperties->SetInternalUniformsBuffer(TDEngine2::IUBR_PER_OBJECT, reinterpret_cast<const TDEngine2::U8*>(&object), sizeof(object));
 
 		mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
