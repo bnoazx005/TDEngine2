@@ -2,6 +2,8 @@
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CEntity.h"
 #include "./../../include/graphics/CBaseCamera.h"
+#include "./../../include/graphics/CPerspectiveCamera.h"
+#include "./../../include/graphics/COrthoCamera.h"
 #include "./../../include/ecs/CTransform.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IWindowSystem.h"
@@ -51,7 +53,8 @@ namespace TDEngine2
 
 	void CCameraSystem::InjectBindings(IWorld* pWorld)
 	{
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CBaseCamera>();
+		std::vector<TEntityId> perspectiveCameras  = pWorld->FindEntitiesWithComponents<CTransform, CPerspectiveCamera>();
+		std::vector<TEntityId> orthographicCameras = pWorld->FindEntitiesWithComponents<CTransform, COrthoCamera>();
 
 		mCamerasTransforms.clear();
 
@@ -59,7 +62,23 @@ namespace TDEngine2
 
 		CEntity* pCurrEntity = nullptr;
 
-		for (auto iter = entities.begin(); iter != entities.end(); ++iter)
+		/// \todo refactor and clean up this code after refactoring Typing system
+		for (auto iter = perspectiveCameras.begin(); iter != perspectiveCameras.end(); ++iter)
+		{
+			pCurrEntity = pWorld->FindEntity(*iter);
+
+			if (!pCurrEntity)
+			{
+				continue;
+			}
+
+			mCamerasTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
+
+			mCameras.push_back(pCurrEntity->GetComponent<CPerspectiveCamera>());
+		}
+
+		/// \todo refactor and clean up this code after refactoring Typing system
+		for (auto iter = orthographicCameras.begin(); iter != orthographicCameras.end(); ++iter)
 		{
 			pCurrEntity = pWorld->FindEntity(*iter);
 

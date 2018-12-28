@@ -209,17 +209,26 @@ namespace TDEngine2
 	template <typename T>
 	TDE2_API T* CEntityManager::AddComponent(TEntityId id)
 	{
+		T* componentInstance = mpComponentManager->CreateComponent<T>(id);
+
 		_notifyOnAddComponent(id, T::GetTypeId());
 
-		return mpComponentManager->CreateComponent<T>(id);
+		return componentInstance;
 	}
 
 	template <typename T>
 	TDE2_API E_RESULT_CODE CEntityManager::RemoveComponent(TEntityId id)
 	{
+		E_RESULT_CODE result = mpComponentManager->RemoveComponent<T>(id);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
 		_notifyOnRemoveComponent(id, T::GetTypeId());
 
-		return mpComponentManager->RemoveComponent<T>(id);
+		return result;
 	}
 
 	template <typename T>
