@@ -145,7 +145,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGamepad)
 
-			TDE2_API TVector2 _filterStickRawData(U16 x, U16 y, U16 deadzoneValue) const;
+			TDE2_API TVector2 _filterStickRawData(I16 x, I16 y, U16 deadzoneValue) const;
 		protected:
 			XINPUT_STATE mPrevGamepadState;
 

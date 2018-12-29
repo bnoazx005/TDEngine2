@@ -92,6 +92,8 @@ namespace TDEngine2
 
 		if (XInputGetState(mGamepadId, &mCurrGamepadState) != ERROR_SUCCESS)
 		{
+			memset(&mCurrGamepadState, 0, sizeof(XINPUT_STATE));
+
 			return RC_FAIL;
 		}
 
@@ -139,7 +141,7 @@ namespace TDEngine2
 		return _filterStickRawData(mCurrGamepadState.Gamepad.sThumbRX, mCurrGamepadState.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 	}
 
-	TVector2 CGamepad::_filterStickRawData(U16 x, U16 y, U16 deadzoneValue) const
+	TVector2 CGamepad::_filterStickRawData(I16 x, I16 y, U16 deadzoneValue) const
 	{
 		TVector2 shiftVec(static_cast<F32>(x), static_cast<F32>(y));
 
