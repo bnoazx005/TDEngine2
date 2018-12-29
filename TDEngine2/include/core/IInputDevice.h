@@ -20,8 +20,7 @@ namespace TDEngine2
 	/*!
 		interface IInputDevice
 
-		\brief The interface describes a functionality of an input device which
-		is based on IDirectInputDevice's API
+		\brief The interface describes a functionality of an input device
 	*/
 
 	class IInputDevice: public virtual IBaseObject

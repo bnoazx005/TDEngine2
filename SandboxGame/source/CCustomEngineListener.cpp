@@ -71,6 +71,10 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 	TDEngine2::CTransform* pCameraTransform = mpCameraEntity->GetComponent<TDEngine2::CTransform>();
 
+	TDEngine2::TVector2 lThumbShift = mpInputContext->GetGamepad(0)->GetLThumbShiftVec();
+		
+	//pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::TVector3(lThumbShift.x, lThumbShift.y, 0.0f));
+
 	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_W))
 	{
 		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::UpVector3);

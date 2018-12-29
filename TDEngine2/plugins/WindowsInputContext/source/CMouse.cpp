@@ -51,7 +51,7 @@ namespace TDEngine2
 
 		if (FAILED(internalResult = mpInputDevice->GetDeviceState(sizeof(DIMOUSESTATE2), &mCurrMouseState)))
 		{
-			if (internalResult == DIERR_INPUTLOST)
+			if (internalResult == DIERR_INPUTLOST || internalResult == DIERR_NOTACQUIRED)
 			{
 				return _acquireDevice(); /// reacquire the device if an access to it has been lost
 			}

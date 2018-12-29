@@ -62,7 +62,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseInputDevice::_acquireDevice()
 	{
-		if (FAILED(mpInputDevice->Acquire()))
+		HRESULT internalResult = S_OK;
+
+		if (FAILED(internalResult = mpInputDevice->Acquire()))
 		{
 			return RC_FAIL;
 		}
