@@ -362,6 +362,8 @@ namespace TDEngine2
 
 			mResourceHandlersArray.push_back(pNewHandlerInstance);
 
+			mResourceHandlersMap[resourceId] = handlerHashValue;
+
 			return pNewHandlerInstance;
 		}
 
@@ -373,6 +375,8 @@ namespace TDEngine2
 		pNewHandlerInstance = mResourceHandlersArray[handlerHashValue];
 
 		pNewHandlerInstance->SetResourceId(resourceId);
+
+		mResourceHandlersMap[resourceId] = handlerHashValue;
 
 		return pNewHandlerInstance;
 	}

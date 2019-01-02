@@ -225,7 +225,7 @@ namespace TDEngine2
 			pCurrCommand->mStartInstance      = 0;
 			pCurrCommand->mNumOfInstances     = currBatchEntry.mInstancesData.size();/// assign number of sprites in a batch
 			pCurrCommand->mpInstancingBuffer  = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
-			pCurrCommand->mMaterialName       = currBatchEntry.mMaterialName;
+			pCurrCommand->mMaterialName       = std::move(currBatchEntry.mMaterialName);
 			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
 			pCurrCommand->mObjectData.mUnused = IdentityMatrix4;
 
