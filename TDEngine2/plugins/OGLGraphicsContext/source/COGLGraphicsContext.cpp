@@ -188,6 +188,10 @@ namespace TDEngine2
 		return mpGraphicsObjectManager;
 	}
 
+	F32 COGLGraphicsContext::GetPositiveZAxisDirection() const
+	{
+		return -1.0f;
+	}
 
 	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
 	{

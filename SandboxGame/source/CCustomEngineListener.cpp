@@ -7,29 +7,20 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = TDEngine2::RC_OK;
 
-	mpShader = mpResourceManager->Load<TDEngine2::CBaseShader>("testDXShader.shader");
-
-	TVertex vertices[] = 
-	{
-		{TDEngine2::TVector4(-0.5f, -0.5f, 1.0f, 1.0f), TDEngine2::TVector4(1.0f, 0.0f, 0.0f, 1.0f) },
-		{TDEngine2::TVector4(0.0f, 0.5f, 1.0f, 1.0f), TDEngine2::TVector4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{TDEngine2::TVector4(0.5f, -0.5f, 1.0f, 1.0f), TDEngine2::TVector4(0.0f, 0.0f, 1.0f, 1.0f) }
-	};
-
-	mpVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(TDEngine2::BUT_DEFAULT, 100, vertices).Get();
-
-	mpIndexBuffer = mpGraphicsObjectManager->CreateIndexBuffer(TDEngine2::BUT_DEFAULT, TDEngine2::IFT_INDEX16, 100, nullptr).Get();
-	
-	TDEngine2::IVertexDeclaration* pVertexDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
-	
-	pVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-	pVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
-
-	pVertexDeclaration->Bind(mpGraphicsContext, mpVertexBuffer, dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING)));
-
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
-	auto pMaterial = mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", TDEngine2::TMaterialParameters{ "testDXShader.shader" });
+	auto pMaterial = mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", TDEngine2::TMaterialParameters{ "testGLShader.shader" });
+
+	const TDEngine2::TColor32F colors[] =
+	{
+		{ 1.0f, 0.0f, 0.0f, 1.0f },
+		{ 0.0f, 1.0f, 0.0f, 1.0f },
+		{ 0.0f, 0.0f, 1.0f, 1.0f },
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
+		{ 0.0f, 1.0f, 1.0f, 1.0f },
+		{ 1.0f, 0.0f, 1.0f, 1.0f },
+		{ 1.0f, 1.0f, 0.0f, 1.0f },
+	};
 
 	for (TDEngine2::I32 i = 0; i < 10; ++i)
 	{
@@ -40,6 +31,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 		pTransform->SetPosition(pTransform->GetPosition() + TDEngine2::TVector3(rand() % 5 - 2.0f, rand() % 5, rand() % 10));
 
 		auto pSprite = pEntity->AddComponent<TDEngine2::CQuadSprite>();
+
+		pSprite->SetColor(colors[rand() % 7]);
 
 		pSprite->SetMaterialName("NewMaterial.material");
 	}

@@ -118,6 +118,7 @@ namespace TDEngine2
 			viewMatrix.m[3][0] *= -1.0f;
 			viewMatrix.m[3][1] *= -1.0f;
 			viewMatrix.m[3][2] *= -1.0f;
+			viewMatrix.m[2][2] *= mpGraphicsContext->GetPositiveZAxisDirection();
 
 			pCurrCamera->SetViewMatrix(viewMatrix);
 

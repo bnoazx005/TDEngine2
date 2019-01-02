@@ -223,6 +223,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IGraphicsObjectManager* GetGraphicsObjectManager() const override;
+
+			/*!
+				\brief The method returns 1 if a Z axis is collinear to (0; 0; 1) direction, -1 in other case
+
+				\return The method returns 1 if a Z axis is collinear to (0; 0; 1) direction, -1 in other case
+			*/
+
+			TDE2_API F32 GetPositiveZAxisDirection() const override;
 		protected:
 			TDE2_API COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 			TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;

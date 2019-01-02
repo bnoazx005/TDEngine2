@@ -46,24 +46,26 @@ namespace TDEngine2
 		mpSpriteVertexDeclaration = pGraphicsObjectManager->CreateVertexDeclaration().Get();
 
 		/// pre allocated temporary buffer for batching sprites instancing data
-		for (U32 i = 0; i < PreCreatedNumOfVertexBuffers; ++i)
-		{
-			mSpritesPerInstanceData.push_back(pGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, SpriteInstanceDataBufferSize, nullptr).Get());
-		}
+		_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
 
 		/// \todo Replace this hardcoded part with proper vertex data's creationg
 		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
+		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
+		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
+		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
+		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
+		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_COLOR, true });
+		mpSpriteVertexDeclaration->AddInstancingDivisor(1, 1);
 
 		TVector4 vertices[] =
 		{
-			TVector4(-0.5f, 0.5f, 0.0f, 1.0f), TVector4(1.0f, 0.0f, 0.0f, 1.0f),
-			TVector4(0.5f, 0.5f, 0.0f, 1.0f), TVector4(0.0f, 1.0f, 0.0f, 1.0f),
-			TVector4(-0.5f, -0.5f, 0.0f, 1.0f), TVector4(0.0f, 0.0f, 1.0f, 1.0f),
-			TVector4(0.5f, -0.5f, 0.0f, 1.0f), TVector4(1.0f, 0.0f, 0.0f, 1.0f),
+			TVector4(-0.5f, 0.5f, 0.0f, 1.0f), 
+			TVector4(0.5f, 0.5f, 0.0f, 1.0f),
+			TVector4(-0.5f, -0.5f, 0.0f, 1.0f),
+			TVector4(0.5f, -0.5f, 0.0f, 1.0f),
 		};
 
-		mpSpriteVertexBuffer = pGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TVector4) * 8, &vertices[0]).Get();
+		mpSpriteVertexBuffer = pGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TVector4) * 4, &vertices[0]).Get();
 		
 		mpSpriteIndexBuffer = pGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, IFT_INDEX16, sizeof(U16) * 6, mSpriteFaces).Get();
 
@@ -142,33 +144,45 @@ namespace TDEngine2
 
 		std::string currMaterialName;
 
+		/// allocate memory for vertex buffers that will store instances data if it's not allocated yet
+		if (mSpritesPerInstanceData.empty())
+		{
+			_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
+		}
+		
 		for (I32 i = 0; i < mSprites.size(); ++i)
 		{
 			pCurrTransform = mTransforms[i];
 
 			pCurrSprite = mSprites[i];
 
-			/// accumulate instancing data
-
-			/// if current vertex buffer is filled up send it to the renderer
-			
 			currMaterialName = pCurrSprite->GetMaterialName();
 
 			groupKey = _computeSpriteCommandKey(mpResourceManager->GetResourceId(currMaterialName), mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
+			
+			TBatchEntry& currBatchEntry = mBatches[groupKey];
 
-			/*pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>(groupKey);
+			currBatchEntry.mMaterialName = currMaterialName;
 
-			pCurrCommand->mpVertexBuffer      = mpSpriteVertexBuffer;
-			pCurrCommand->mpIndexBuffer       = mpSpriteIndexBuffer;
-			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCurrCommand->mIndicesPerInstance = 6;
-			pCurrCommand->mBaseVertexIndex    = 0;
-			pCurrCommand->mStartIndex         = 0;
-			pCurrCommand->mStartInstance      = 0;
-			pCurrCommand->mNumOfInstances     = 0;/// assign number of sprites in a batch
-			pCurrCommand->mpInstancingBuffer  = nullptr; /// assign accumulated data of a batch*/
+			currBatchEntry.mInstancesData.push_back({ Transpose(pCurrTransform->GetTransform()), pCurrSprite->GetColor() });
 
-			TDrawIndexedCommand* pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(groupKey);
+			/// accumulate instancing data if there is no free space within current buffer get a new one
+			/*!
+				pseudocode of the code
+
+				if (pCurrBatchVertexBuffer->HasFreeSpace()) {
+					pCurrBatchVertexBuffer->Append(pCurrPrite->GetInstanceData);
+				}
+				else {
+					auto drawCommand = pRenderQueue->AddCommand<TDrawInstancedIndexed>();
+
+					drawCommand->buffer = pCurrBatchVertexBuffer;
+
+					pCurrBatchVertexBuffer = mSpritesBuffersPool.next();
+				}
+			*/
+			
+			/*TDrawIndexedCommand* pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(groupKey);
 
 			pCurrCommand->mpVertexBuffer      = mpSpriteVertexBuffer;
 			pCurrCommand->mpIndexBuffer       = mpSpriteIndexBuffer;
@@ -177,28 +191,59 @@ namespace TDEngine2
 			pCurrCommand->mNumOfIndices       = 6;
 			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
 			pCurrCommand->mMaterialName       = currMaterialName;
-			pCurrCommand->mObjectData.mUnused = Transpose(pCurrTransform->GetTransform()); /// \todo transpose make the code works on direct3d, but we should find better cross-API solution
+			pCurrCommand->mObjectData.mUnused = Transpose(pCurrTransform->GetTransform()); /// \todo transpose make the code works on direct3d, but we should find better cross-API solution*/
 		}
 		
-		/*
-		pseudocode of the logic:
+		U32 currInstancesBufferIndex = 0;
 
-		foreach(IGraphicsLayer pCurrLayer in mGraphicsLayers) {
-			ISprite[] pSprites = FindSpritesWithLayer(pCurrLayer);
+		IVertexBuffer* pCurrBatchInstancesBuffer = nullptr;
 
-			pSprites = SortByMaterials(pSprites);
+		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
+		{
+			pCurrBatchInstancesBuffer = mSpritesPerInstanceData[currInstancesBufferIndex++];
 
-			foreach(ISprite pCurrSprite in pSprites) {
-				DrawBatchIfChanged(pSprite->mMaterial);
+			TBatchEntry& currBatchEntry = (*iter).second;
 
-				AddToBatch(pSprite);
+			U32 currBatchSize = currBatchEntry.mInstancesData.size() * sizeof(TSpriteInstanceData);
+
+			if (currBatchSize <= SpriteInstanceDataBufferSize)
+			{
+				pCurrBatchInstancesBuffer->Map(BMT_WRITE_DISCARD);
+				pCurrBatchInstancesBuffer->Write(&currBatchEntry.mInstancesData[0], currBatchSize);
+				pCurrBatchInstancesBuffer->Unmap();
+
 			}
-		}*/
+
+			pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before
+
+			pCurrCommand->mpVertexBuffer      = mpSpriteVertexBuffer;
+			pCurrCommand->mpIndexBuffer       = mpSpriteIndexBuffer;
+			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrCommand->mIndicesPerInstance = 6;
+			pCurrCommand->mBaseVertexIndex    = 0;
+			pCurrCommand->mStartIndex         = 0;
+			pCurrCommand->mStartInstance      = 0;
+			pCurrCommand->mNumOfInstances     = currBatchEntry.mInstancesData.size();/// assign number of sprites in a batch
+			pCurrCommand->mpInstancingBuffer  = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
+			pCurrCommand->mMaterialName       = currBatchEntry.mMaterialName;
+			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
+			pCurrCommand->mObjectData.mUnused = IdentityMatrix4;
+
+			currBatchEntry.mInstancesData.clear();
+		}
 	}
 
 	U32 CSpriteRendererSystem::_computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId)
 	{
 		return materialId << 16 | graphicsLayerId;
+	}
+
+	void CSpriteRendererSystem::_initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers)
+	{
+		for (U32 i = 0; i < numOfBuffers; ++i)
+		{
+			mSpritesPerInstanceData.push_back(pGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, SpriteInstanceDataBufferSize, nullptr).Get());
+		}
 	}
 
 

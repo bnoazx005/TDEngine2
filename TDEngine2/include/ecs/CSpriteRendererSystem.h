@@ -10,6 +10,10 @@
 #include "ISystem.h"
 #include "./../core/CBaseObject.h"
 #include <vector>
+#include <tuple>
+#include <unordered_map>
+#include "./../math/TMatrix4.h"
+#include "./../utils/Color.h"
 
 
 namespace TDEngine2
@@ -51,6 +55,22 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateSpriteRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+		protected:
+			typedef struct TSpriteInstanceData
+			{
+				TMatrix4  mModelMat;
+
+				TColor32F mColor;
+			} TSpriteInstanceData, *TSpriteInstanceDataPtr;
+
+			typedef struct TBatchEntry
+			{
+				std::vector<TSpriteInstanceData> mInstancesData;
+				
+				std::string                      mMaterialName;
+			} TBatchEntry, *TBatchEntryPtr;
+
+			typedef std::unordered_map<U32, TBatchEntry> TBatchesBuffer;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -94,6 +114,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSpriteRendererSystem)
 
 			TDE2_API U32 _computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId);
+
+			TDE2_API void _initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers);
 		protected:
 			std::vector<CTransform*>    mTransforms;
 
@@ -118,5 +140,7 @@ namespace TDEngine2
 			U16                         mSpriteFaces[6];
 
 			IGraphicsLayersInfo*        mpGraphicsLayers;
+
+			TBatchesBuffer              mBatches;
 	};
 }

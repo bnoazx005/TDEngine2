@@ -222,6 +222,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IGraphicsObjectManager* GetGraphicsObjectManager() const = 0;
+
+			/*!
+				\brief The method returns 1 if a Z axis is collinear to (0; 0; 1) direction, -1 in other case
+
+				\return The method returns 1 if a Z axis is collinear to (0; 0; 1) direction, -1 in other case
+			*/
+
+			TDE2_API virtual float GetPositiveZAxisDirection() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsContext)
 	};

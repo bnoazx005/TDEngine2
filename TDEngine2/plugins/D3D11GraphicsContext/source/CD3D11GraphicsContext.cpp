@@ -247,6 +247,11 @@ namespace TDEngine2
 	{
 		return mpGraphicsObjectManager;
 	}
+	
+	F32 CD3D11GraphicsContext::GetPositiveZAxisDirection() const
+	{
+		return 1.0f;
+	}
 
 	E_RESULT_CODE CD3D11GraphicsContext::_createSwapChain(const IWindowSystem* pWindowSystem, ID3D11Device* p3dDevice)
 	{

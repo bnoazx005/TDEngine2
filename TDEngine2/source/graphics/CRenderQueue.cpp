@@ -16,7 +16,7 @@ namespace TDEngine2
 {
 	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		mpVertexDeclaration->Bind(pGraphicsContext, mpVertexBuffer, nullptr);
+		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, nullptr);
 		
 		return RC_NOT_IMPLEMENTED_YET;
 	}
@@ -29,11 +29,11 @@ namespace TDEngine2
 		
 		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
 
-		mpVertexDeclaration->Bind(pGraphicsContext, mpVertexBuffer, pAttachedShader);
+		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
 		pMaterial->Bind();
 
-		mpVertexBuffer->Bind(0, 0); /// \todo replace magic constants
+		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
 
 		mpIndexBuffer->Bind(0);
 
@@ -51,7 +51,25 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->Load<CBaseMaterial>(mMaterialName)->Get(RAT_BLOCKING));
+
+		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
+
+		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader);
+
+		pMaterial->Bind();
+
+		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+		mpInstancingBuffer->Bind(1, 0, mpVertexDeclaration->GetStrideSize(1));
+
+		mpIndexBuffer->Bind(0);
+
+		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
+
+		pGraphicsContext->DrawIndexedInstanced(mPrimitiveType, mpIndexBuffer->GetIndexFormat(), mBaseVertexIndex, mStartIndex, 
+											   mStartInstance, mIndicesPerInstance, mNumOfInstances);
+
+		return RC_OK;
 	}
 
 
