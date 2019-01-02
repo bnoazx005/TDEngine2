@@ -25,9 +25,19 @@ namespace TDEngine2
 		mMaterialName = materialName;
 	}
 
+	void CQuadSprite::SetColor(const TColor32F& color)
+	{
+		mColor = color;
+	}
+
 	const std::string& CQuadSprite::GetMaterialName() const
 	{
 		return mMaterialName;
+	}
+
+	const TColor32F& CQuadSprite::GetColor() const
+	{
+		return mColor;
 	}
 
 

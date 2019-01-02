@@ -11,6 +11,7 @@
 #include "./../utils/Utils.h"
 #include "./../ecs/IComponentFactory.h"
 #include "./../graphics/IRenderable.h"
+#include "./../utils/Color.h"
 #include <string>
 
 
@@ -45,12 +46,28 @@ namespace TDEngine2
 			TDE2_API virtual void SetMaterialName(const std::string& materialName) = 0;
 
 			/*!
+				\brief The method sets up a color for a sprite
+
+				\param[in] color A color that will be specified for a sprite
+			*/
+
+			TDE2_API virtual void SetColor(const TColor32F& color) = 0;
+
+			/*!
 				\brief The method returns an identifier of used material
 
 				\return The method returns an identifier of used material
 			*/
 
 			TDE2_API virtual const std::string& GetMaterialName() const = 0;
+
+			/*!
+				\brief The method returns a color of a sprite
+
+				\return The method returns a color of a sprite
+			*/
+
+			TDE2_API virtual const TColor32F& GetColor() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISprite)
 	};

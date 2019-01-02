@@ -57,16 +57,34 @@ namespace TDEngine2
 			TDE2_API void SetMaterialName(const std::string& materialName) override;
 
 			/*!
+				\brief The method sets up a color for a sprite
+
+				\param[in] color A color that will be specified for a sprite
+			*/
+
+			TDE2_API void SetColor(const TColor32F& color) override;
+
+			/*!
 					\brief The method returns an identifier of used material
 
 					\return The method returns an identifier of used material
 			*/
 
 			TDE2_API const std::string& GetMaterialName() const override;
+
+			/*!
+				\brief The method returns a color of a sprite
+
+				\return The method returns a color of a sprite
+			*/
+
+			TDE2_API const TColor32F& GetColor() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CQuadSprite)
 		protected:
 			std::string mMaterialName;
+
+			TColor32F   mColor;
 			/*!
 				\todo a sprite should contains
 				- ref to atlas 
