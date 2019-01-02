@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureFileSystem());
 	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureEventManager());
 	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureResourceManager());
-	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE));
+	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureWindowSystem("Sandbox Game", 800, 600, P_RESIZEABLE | P_ZBUFFER_ENABLED));
 	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigurePluginManager());
 	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureGraphicsContext(GCGT_OPENGL3X));
 	PANIC_ON_FAILURE(pEngineCoreBuilder->ConfigureInputContext());

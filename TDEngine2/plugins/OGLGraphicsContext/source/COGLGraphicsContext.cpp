@@ -75,6 +75,15 @@ namespace TDEngine2
 			return result;
 		}
 
+		U32 creationFlags = pWindowSystem->GetFlags();
+
+		/// Enable a depth buffer if it's needed
+		if (creationFlags & P_ZBUFFER_ENABLED)
+		{
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LESS);
+		}
+
 		mIsInitialized = true;
 		
 		return RC_OK;
@@ -144,7 +153,7 @@ namespace TDEngine2
 
 	TMatrix4 COGLGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
 	{
-		return PerspectiveProj(fov, aspect, zn, zf, -1.0f, 1.0f, 1.0f);
+		return PerspectiveProj(fov, aspect, zn, zf, 1.0f, -1.0f, 1.0f);
 	}
 
 	TMatrix4 COGLGraphicsContext::CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf)

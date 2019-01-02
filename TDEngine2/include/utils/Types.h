@@ -134,6 +134,7 @@ namespace TDEngine2
 		P_VSYNC                     = 0x2,				/// Enables vertical synchronization
 		P_RESIZEABLE                = 0x4,				/// Determines will be a window resizeable or not
 		P_HARDWARE_GAMMA_CORRECTION = 0x8,				/// Enables a hardware gamma correction (sRGB back buffer) if it's supported on by a video card
+		P_ZBUFFER_ENABLED           = 0x10,				/// Enables a depth buffer (it's disabled by default)
 	};
 
 
