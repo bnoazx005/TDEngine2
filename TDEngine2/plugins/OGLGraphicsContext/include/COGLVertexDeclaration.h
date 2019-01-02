@@ -42,12 +42,12 @@ namespace TDEngine2
 				\brief The method creates a VAO for specified vertex declaration and binds it
 				to a given vertex buffer
 
-				\param[in] pVertexBuffer A pointer to implementation of a vertex buffer
+				\param[in] pVertexBuffersArray An array of  IVertexBuffer implementations
 
 				\return An object that contains either a handler of created VAO or an error code
 			*/
 
-			TDE2_API TResult<GLuint> GetVertexArrayObject(const IVertexBuffer* pVertexBuffer);
+			TDE2_API TResult<GLuint> GetVertexArrayObject(const std::vector<IVertexBuffer*>& pVertexBuffersArray);
 
 			/*!
 				\brief The method creates an internal handlers for a vertex declaration and binds it
@@ -55,12 +55,12 @@ namespace TDEngine2
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 
-				\param[in, out] pVertexBuffer A pointer to IVertexBuffer implementation
+				\param[in, out] pVertexBuffersArray An array of  IVertexBuffer implementations
 
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader) override;
+			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const std::vector<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
 	};

@@ -332,7 +332,7 @@ namespace TDEngine2
 			case VEST_NORMAL:
 				return "NORMAL";
 			case VEST_TEXCOORDS:
-				return "TEXCOORDS";
+				return "TEXCOORD";
 			case VEST_BINORMAL:
 				return "BINORMAL";
 			case VEST_TANGENT:

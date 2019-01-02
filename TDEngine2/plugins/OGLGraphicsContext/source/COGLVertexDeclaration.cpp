@@ -12,9 +12,9 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<GLuint> COGLVertexDeclaration::GetVertexArrayObject(const IVertexBuffer* pVertexBuffer)
+	TResult<GLuint> COGLVertexDeclaration::GetVertexArrayObject(const std::vector<IVertexBuffer*>& pVertexBuffersArray)
 	{
-		if (!pVertexBuffer)
+		if (!pVertexBuffersArray.empty())
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
@@ -25,7 +25,10 @@ namespace TDEngine2
 
 		glBindVertexArray(vaoHandler);
 
-		glBindBuffer(GL_ARRAY_BUFFER, pVertexBuffer->GetInternalData().mGLBuffer);
+		for (auto iter = pVertexBuffersArray.cbegin(); iter != pVertexBuffersArray.cend(); ++iter)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, (*iter)->GetInternalData().mGLBuffer);
+		}
 
 		if (glGetError() != GL_NO_ERROR)
 		{
@@ -80,18 +83,32 @@ namespace TDEngine2
 		return TOkValue<GLuint>(vaoHandler);
 	}
 
-	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader)
+	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const std::vector<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
 	{
-		GLuint vaoHandler = GetVertexArrayObject(pVertexBuffer).Get();
+		GLuint vaoHandler = GetVertexArrayObject(pVertexBuffersArray).Get();
+		
+		//CD3D11VertexBuffer* pD3D11VertexBuffer = nullptr;
 
-		COGLVertexBuffer* pGLVertexBuffer = dynamic_cast<COGLVertexBuffer*>(pVertexBuffer);
+		//for (auto iter = pVertexBuffersArray.begin(); iter != pVertexBuffersArray.end(); ++iter)
+		//{
+		//	pD3D11VertexBuffer = dynamic_cast<CD3D11VertexBuffer*>(*iter);
 
-		if (!pGLVertexBuffer)
-		{
-			return;
-		}
+		//	if (!pD3D11VertexBuffer)
+		//	{
+		//		return;
+		//	}
 
-		pGLVertexBuffer->SetVAOHandler(vaoHandler);
+		//	//pD3D11VertexBuffer->SetInputLayout
+		//}
+
+		//if (!pD3D11VertexBuffer)
+		//{
+		//	return;
+		//}
+
+		//pGLVertexBuffer->SetVAOHandler(vaoHandler);
+
+		glBindVertexArray(vaoHandler);
 	}
 
 

@@ -63,12 +63,12 @@ namespace TDEngine2
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 
-				\param[in, out] pVertexBuffer A pointer to IVertexBuffer implementation
+				\param[in, out] pVertexBuffersArray An array of  IVertexBuffer implementations
 
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader) override;
+			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const std::vector<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexDeclaration)
 		protected:

@@ -60,10 +60,23 @@ namespace TDEngine2
 		/// fill in elements vector
 		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter, ++currIndex)
 		{
+			currElement.InstanceDataStepRate = (*iter).mIsPerInstanceData ? currElement.InstanceDataStepRate : 0;
+
 			/// a new instancing division has found
-			if ((currIndex == currInstancingElementIndex) && (instancingIter + 1 != mInstancingInfo.cend()))
+			if ((currIndex == currInstancingElementIndex) /*&& (instancingIter + 1 != mInstancingInfo.cend())*/)
 			{
-				std::tie(currInstancingElementIndex, currInstancesPerData) = *(++instancingIter); /// retrieve next division's info
+				currOffset = 0;
+
+				currElement.InstanceDataStepRate = currInstancesPerData;
+
+				if (instancingIter + 1 == mInstancingInfo.cend())
+				{
+					currInstancingElementIndex = (std::numeric_limits<U32>::max)();
+				}
+				else
+				{
+					std::tie(currInstancingElementIndex, currInstancesPerData) = *(++instancingIter); /// retrieve next division's info
+				}
 			}
 
 			currElement.SemanticName         = CD3D11Mappings::GetSemanticTypeName((*iter).mSemanticType);
@@ -72,7 +85,6 @@ namespace TDEngine2
 			currElement.InputSlot            = (*iter).mSource;
 			currElement.AlignedByteOffset    = currOffset;
 			currElement.InputSlotClass       = (*iter).mIsPerInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
-			currElement.InstanceDataStepRate = currInstancesPerData;
 
 			elements.push_back(currElement);
 
@@ -89,21 +101,22 @@ namespace TDEngine2
 		return TOkValue<ID3D11InputLayout*>(pInputLayout);
 	}
 
-	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader)
+	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const std::vector<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
 	{
 		if (!mpInputLayout)
 		{
 			mpInputLayout = GetInputLayoutByShader(pGraphicsContext, pShader).Get();
 		}
 
-		CD3D11VertexBuffer* pD3D11VertexBuffer = dynamic_cast<CD3D11VertexBuffer*>(pVertexBuffer);
+		ID3D11DeviceContext* p3dDeviceContext = nullptr;
 
-		if (!pD3D11VertexBuffer)
-		{
-			return;
-		}
+#if _HAS_CXX17
+		p3dDeviceContext = std::get<TD3D11CtxInternalData>(pGraphicsContext->GetInternalData()).mp3dDeviceContext;
+#else
+		p3dDeviceContext = pGraphicsContext->GetInternalData().mD3D11.mp3dDeviceContext;
+#endif
 
-		pD3D11VertexBuffer->SetInputLayout(mpInputLayout, GetStrideSize());
+		p3dDeviceContext->IASetInputLayout(mpInputLayout);
 	}
 
 

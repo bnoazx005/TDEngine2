@@ -96,9 +96,11 @@ namespace TDEngine2
 
 				\param[in] offset An offset in bytes from a beginning of a vertex buffer, from
 				which the data should be read
+
+				\param[in] stride A size of a single vertex entry
 			*/
 
-			TDE2_API void Bind(U32 slot, U32 offset) override;
+			TDE2_API void Bind(U32 slot, U32 offset, U32 stride) override;
 
 			/*!
 				\brief The method links current vertex buffer with a given input layout

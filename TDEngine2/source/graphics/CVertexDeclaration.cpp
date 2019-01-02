@@ -49,8 +49,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVertexDeclaration::AddInstancingDivisor(U32 index, U32 instancesPerData)
 	{
-		if (index >= mInstancingInfo.size() ||
-			index >= mElements.size() ||
+		if (index >= mElements.size() ||
 			(!mInstancingInfo.empty() && index < std::get<0/* element's index */>(mInstancingInfo.back()))) /// account correct ordering (from least to greatest)
 		{
 			return RC_INVALID_ARGS;

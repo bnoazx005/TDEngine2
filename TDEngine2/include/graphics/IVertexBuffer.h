@@ -45,9 +45,11 @@ namespace TDEngine2
 
 				\param[in] offset An offset in bytes from a beginning of a vertex buffer, from
 				which the data should be read
+
+				\param[in] stride A size of a single vertex entry
 			*/
 
-			TDE2_API virtual void Bind(U32 slot, U32 offset) = 0;
+			TDE2_API virtual void Bind(U32 slot, U32 offset, U32 stride) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IVertexBuffer)
 	};

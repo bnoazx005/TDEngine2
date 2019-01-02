@@ -87,11 +87,9 @@ namespace TDEngine2
 		return mpBufferImpl->Read();
 	}
 
-	void CD3D11VertexBuffer::Bind(U32 slot, U32 offset)
+	void CD3D11VertexBuffer::Bind(U32 slot, U32 offset, U32 stride)
 	{
-		mp3dDeviceContext->IASetVertexBuffers(slot, 1, &mpInternalVertexBuffer, &mVertexStride, &offset);
-		
-		mp3dDeviceContext->IASetInputLayout(mpInputLayout);
+		mp3dDeviceContext->IASetVertexBuffers(slot, 1, &mpInternalVertexBuffer, &stride, &offset);
 	}
 
 	void CD3D11VertexBuffer::SetInputLayout(ID3D11InputLayout* pInputLayout, U32 stride)

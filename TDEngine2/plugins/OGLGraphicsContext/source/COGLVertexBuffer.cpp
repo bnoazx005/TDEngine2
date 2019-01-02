@@ -73,9 +73,9 @@ namespace TDEngine2
 		return mpBufferImpl->Read();
 	}
 
-	void COGLVertexBuffer::Bind(U32 slot, U32 offset)
+	void COGLVertexBuffer::Bind(U32 slot, U32 offset, U32 stride)
 	{
-		glBindVertexArray(mVAOHandler);
+		glBindBuffer(GL_ARRAY_BUFFER, mpBufferImpl->GetInternalData().mGLBuffer);
 	}
 
 	void COGLVertexBuffer::SetVAOHandler(GLuint vaoHandler)

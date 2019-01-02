@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
 #include "./../core/IBaseObject.h"
+#include <vector>
 
 
 namespace TDEngine2
@@ -97,12 +98,12 @@ namespace TDEngine2
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 
-				\param[in, out] pVertexBuffer A pointer to IVertexBuffer implementation
+				\param[in, out] pVertexBuffersArray An array of  IVertexBuffer implementations
 
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			TDE2_API virtual void Bind(IGraphicsContext* pGraphicsContext, IVertexBuffer* pVertexBuffer, IShader* pShader) = 0;
+			TDE2_API virtual void Bind(IGraphicsContext* pGraphicsContext, const std::vector<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader) = 0;
 
 			/*!
 				\brief The method returns current number of elements within the declaration
