@@ -178,7 +178,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent);
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
 
 			/*!
 				\brief The method returns an identifier of a listener
@@ -186,7 +186,17 @@ namespace TDEngine2
 				\return The method returns an identifier of a listener
 			*/
 
-			TDE2_API TEventListenerId GetListenerId() const;
+			TDE2_API TEventListenerId GetListenerId() const override;
+
+			/*!
+				\brief The method returns an object of TRect type which contains
+				information about sizes of the window and its position
+
+				\return The method returns an object of TRect type which contains
+				information about sizes of the window and its position
+			*/
+
+			TDE2_API TRectU32 GetWindowRect() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWin32WindowSystem)
 
@@ -196,8 +206,14 @@ namespace TDEngine2
 			HINSTANCE                mInstanceHandler;
 
 			U32                      mWidth;
+
 			U32                      mHeight;
+
 			U32                      mSetupFlags;
+
+			U32                      mWindowXPos;
+
+			U32                      mWindowYPos;
 
 			std::string              mWindowName;
 			std::string              mWindowClassName;

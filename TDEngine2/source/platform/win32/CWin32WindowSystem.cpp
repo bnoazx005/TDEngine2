@@ -34,6 +34,7 @@ namespace TDEngine2
 		mpEventManager = pEventManager;
 		
 		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this); /// the window also listens to its own events to properly update internal data outside of _wndProc
+		mpEventManager->Subscribe(TOnWindowMoved::GetTypeId(), this);
 
 		mWindowName      = name;
 		mWindowClassName = mWindowName + "Class";
@@ -78,7 +79,10 @@ namespace TDEngine2
 			mHeight = GetSystemMetrics(SM_CYSCREEN);
 		}
 
-		mWindowHandler = CreateWindow(mWindowClassName.c_str(), mWindowName.c_str(), style, CW_USEDEFAULT, CW_USEDEFAULT, 
+		mWindowXPos = CW_USEDEFAULT;
+		mWindowYPos = CW_USEDEFAULT;
+
+		mWindowHandler = CreateWindow(mWindowClassName.c_str(), mWindowName.c_str(), style, mWindowXPos, mWindowYPos, 
 									  mWidth, mHeight, nullptr, nullptr, mInstanceHandler, nullptr);
 
 		if (!mWindowHandler)
@@ -277,22 +281,39 @@ namespace TDEngine2
 
 	E_RESULT_CODE CWin32WindowSystem::OnEvent(const TBaseEvent* pEvent)
 	{
-		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		TypeId eventTypeId = pEvent->GetEventType();
+
+		if (eventTypeId == TOnWindowResized::GetTypeId())
 		{
+			const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+
+			mWidth  = pOnWindowResizedEvent->mWidth;
+			mHeight = pOnWindowResizedEvent->mHeight;
+
 			return RC_OK;
 		}
 
-		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+		if (eventTypeId == TOnWindowMoved::GetTypeId())
+		{
+			const TOnWindowMoved* pOnWindowMovedEvent = dynamic_cast<const TOnWindowMoved*>(pEvent);
 
-		mWidth  = pOnWindowResizedEvent->mWidth;
-		mHeight = pOnWindowResizedEvent->mHeight;
+			mWindowXPos = pOnWindowMovedEvent->mX;
+			mWindowYPos = pOnWindowMovedEvent->mY;
 
+			return RC_OK;
+		}
+		
 		return RC_OK;
 	}
 
 	TEventListenerId CWin32WindowSystem::GetListenerId() const
 	{
 		return GetTypeId();
+	}
+
+	TRectU32 CWin32WindowSystem::GetWindowRect() const
+	{
+		return { mWindowXPos, mWindowYPos, mWidth, mHeight };
 	}
 
 
@@ -308,6 +329,8 @@ namespace TDEngine2
 		IEventManager* pEventManager = pWinSystem->GetEventManager();
 		
 		TOnWindowResized onResizedEvent;
+
+		TOnWindowMoved onMovedEvent;
 
 		switch (uMsg)
 		{
@@ -326,6 +349,12 @@ namespace TDEngine2
 									append(std::to_string(onResizedEvent.mHeight)).
 									append(")"));
 
+				break;
+			case WM_MOVE:
+				onMovedEvent.mX = lParam & (0x0000FFFF);
+				onMovedEvent.mY = (lParam & (0xFFFF0000)) >> 16;
+
+				pEventManager->Notify(&onMovedEvent);
 				break;
 			default:
 				return DefWindowProc(hWnd, uMsg, wParam, lParam);

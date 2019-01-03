@@ -243,6 +243,43 @@ namespace TDEngine2
 	IEventManager* CUnixWindowSystem::GetEventManager() const
 	{
 		return mpEventManager;
+	}			
+
+	E_RESULT_CODE CUnixWindowSystem::OnEvent(const TBaseEvent* pEvent)
+	{
+		TypeId eventTypeId = pEvent->GetEventType();
+
+		if (eventTypeId == TOnWindowResized::GetTypeId())
+		{
+			const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+
+			mWidth  = pOnWindowResizedEvent->mWidth;
+			mHeight = pOnWindowResizedEvent->mHeight;
+
+			return RC_OK;
+		}
+
+		if (eventTypeId == TOnWindowMoved::GetTypeId())
+		{
+			const TOnWindowMoved* pOnWindowMovedEvent = dynamic_cast<const TOnWindowMoved*>(pEvent);
+
+			mWindowXPos = pOnWindowMovedEvent->mX;
+			mWindowYPos = pOnWindowMovedEvent->mY;
+
+			return RC_OK;
+		}
+
+		return RC_OK;
+	}
+
+	TEventListenerId CUnixWindowSystem::GetListenerId() const
+	{
+		return GetTypeId();
+	}
+
+	TRectU32 CUnixWindowSystem::GetWindowRect() const
+	{
+		return { mWindowXPos, mWindowYPos, mWidth, mHeight };
 	}
 
 	TDE2_API E_RESULT_CODE CUnixWindowSystem::_createWindow()

@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
 #include "IEngineSubsystem.h"
+#include "./../math/TRect.h"
 #include "Event.h"
 #include <string>
 #include <functional>
@@ -41,6 +42,28 @@ namespace TDEngine2
 
 		U32 mHeight;
 	} TOnWindowResized, *TOnWindowResizedPtr;
+
+
+	/*!
+		struct TOnWindowMoved
+
+		\brief The structure represents an event which occurs
+		when a window was moved. mX and mY members represents a 
+		coordinates of top-left corner of a client area
+	*/
+
+	typedef struct TOnWindowMoved : TBaseEvent
+	{
+		virtual ~TOnWindowMoved() = default;
+
+		TDE2_REGISTER_TYPE(TOnWindowMoved)
+
+		REGISTER_EVENT_TYPE(TOnWindowMoved)
+
+		U32 mX;
+
+		U32 mY;
+	} TOnWindowMoved, *TOnWindowMovedPtr;
 
 
 	/*!
@@ -166,6 +189,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IEventManager* GetEventManager() const = 0;
+
+			/*!
+				\brief The method returns an object of TRect type which contains
+				information about sizes of the window and its position
+
+				\return The method returns an object of TRect type which contains
+				information about sizes of the window and its position
+			*/
+
+			TDE2_API virtual TRectU32 GetWindowRect() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IWindowSystem)
 	};

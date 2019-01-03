@@ -9,6 +9,7 @@
 
 #include "./../../utils/Config.h"
 #include "./../../utils/Utils.h"
+#include "./../../core/Event.h"
 
 #if defined(TDE2_USE_UNIXPLATFORM)
 
@@ -33,7 +34,7 @@ namespace TDEngine2
 		\brief The class provides methods for a window system, which works under a UNIX platform
 	*/
 
-	class CUnixWindowSystem : public IWindowSystem
+	class CUnixWindowSystem : public IWindowSystem, public IEventHandler
 	{
 		public:
 			/*!
@@ -44,6 +45,8 @@ namespace TDEngine2
 
 			friend TDE2_API IWindowSystem* CreateUnixWindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
 		public:
+			TDE2_REGISTER_TYPE(CUnixWindowSystem)
+
 			/*!
 				\brief The method initializes a main window
 
@@ -184,6 +187,34 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IEventManager* GetEventManager() const override;
+
+			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const override;
+
+			/*!
+				\brief The method returns an object of TRect type which contains
+				information about sizes of the window and its position
+
+				\return The method returns an object of TRect type which contains
+				information about sizes of the window and its position
+			*/
+
+			TDE2_API TRectU32 GetWindowRect() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixWindowSystem)
 
@@ -196,8 +227,14 @@ namespace TDEngine2
 			Window                    mWindowHandler;
 
 			U32                       mWidth;
+			
 			U32                       mHeight;
+
 			U32                       mSetupFlags;
+
+			U32                       mWindowXPos;
+
+			U32                       mWindowYPos;
 
 			std::string               mWindowName;
 
