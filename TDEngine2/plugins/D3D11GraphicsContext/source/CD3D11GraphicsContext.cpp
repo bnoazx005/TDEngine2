@@ -2,6 +2,7 @@
 #include "./../include/CD3D11Utils.h"
 #include "./../include/CD3D11GraphicsObjectManager.h"
 #include "./../include/CD3D11Mappings.h"
+#include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 
 
@@ -104,6 +105,15 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		mpEventManager = pWindowSystem->GetEventManager();
+
+		if (!mpEventManager)
+		{
+			return RC_FAIL;
+		}
+
+		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this);
 
 		mIsInitialized = true;
 
@@ -253,6 +263,58 @@ namespace TDEngine2
 		return 1.0f;
 	}
 
+	E_RESULT_CODE CD3D11GraphicsContext::OnEvent(const TBaseEvent* pEvent)
+	{
+		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		{
+			return RC_OK;
+		}
+
+		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+
+		HRESULT internalResult = S_OK;
+
+		E_RESULT_CODE result = RC_OK;
+
+		U32 width  = pOnWindowResizedEvent->mWidth;
+		U32 height = pOnWindowResizedEvent->mHeight;
+
+		if (mpSwapChain)
+		{
+			mp3dDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+
+			SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView);
+			SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView);
+			SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer);
+
+			if (FAILED(internalResult = mpSwapChain->ResizeBuffers(2, width, height, mCurrBackBufferFormat, 0x0)))
+			{
+				return RC_FAIL;
+			}
+
+			if ((result = _createBackBuffer(mpSwapChain, mp3dDevice)) != RC_OK)
+			{
+				return result;
+			}
+
+			if ((result = _createDepthBuffer(width, height, mpSwapChain, mp3dDevice, &mpDefaultDepthStencilView, &mpDefaultDepthStencilBuffer)) != RC_OK)
+			{
+				return result;
+			}
+
+			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpDefaultDepthStencilView);
+		}
+
+		SetViewport(0.0f, 0.0f, static_cast<F32>(width), static_cast<F32>(height), 0.0f, 1.0f);
+		
+		return RC_OK;
+	}
+
+	TEventListenerId CD3D11GraphicsContext::GetListenerId() const
+	{
+		return GetTypeId();
+	}
+
 	E_RESULT_CODE CD3D11GraphicsContext::_createSwapChain(const IWindowSystem* pWindowSystem, ID3D11Device* p3dDevice)
 	{
 		DXGI_SWAP_CHAIN_DESC swapChainDesc;
@@ -268,13 +330,15 @@ namespace TDEngine2
 		UINT width  = pWindowSystem->GetWidth();
 		UINT height = pWindowSystem->GetHeight();
 
+		mCurrBackBufferFormat = (applicationFlags & P_HARDWARE_GAMMA_CORRECTION) ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
+
 		swapChainDesc.BufferDesc.Width                   = width;
 		swapChainDesc.BufferDesc.Height                  = height;
 		swapChainDesc.BufferDesc.RefreshRate.Numerator   = 60;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		swapChainDesc.BufferDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
 		swapChainDesc.BufferDesc.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swapChainDesc.BufferDesc.Format                  = (applicationFlags & P_HARDWARE_GAMMA_CORRECTION) ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapChainDesc.BufferDesc.Format                  = mCurrBackBufferFormat;
 		swapChainDesc.OutputWindow                       = hwnd;
 		swapChainDesc.Windowed                           = !(applicationFlags & P_FULLSCREEN);
 		swapChainDesc.Flags                              = 0;

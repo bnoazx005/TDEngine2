@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
 #include "IEngineSubsystem.h"
+#include "Event.h"
 #include <string>
 #include <functional>
 
@@ -18,6 +19,28 @@ namespace TDEngine2
 {
 	class ITimer;
 	class IDLLManager;
+	class IEventManager;
+
+
+	/*!
+		struct TOnWindowResized
+
+		\brief The structure represents an event which occurs
+		when a sizes of a window were changed
+	*/
+
+	typedef struct TOnWindowResized : TBaseEvent
+	{
+		virtual ~TOnWindowResized() = default;
+
+		TDE2_REGISTER_TYPE(TOnWindowResized)
+
+		REGISTER_EVENT_TYPE(TOnWindowResized)
+
+		U32 mWidth;
+
+		U32 mHeight;
+	} TOnWindowResized, *TOnWindowResizedPtr;
 
 
 	/*!
@@ -33,16 +56,21 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes a main window
 
+				\param[in, out] pEventManager A pointer to IEventManager implementation
+
 				\param[in] name A name of a main window
+
 				\param[in] width A window's width
+
 				\param[in] height A window's height
+
 				\param[in] flags An additional flags (bitwise value) lets configure
 				additional settings of a window is created
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(const std::string& name, U32 width, U32 height, U32 flags = 0x0) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) = 0;
 
 			/*!
 				\brief The method processes a window's update (executing messages, redraw content)
@@ -130,6 +158,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IDLLManager* GetDLLManagerInstance() const = 0;
+
+			/*!
+				\brief The method returns a pointer to IEventManager implementation
+
+				\return The method returns a pointer to IEventManager implementation
+			*/
+
+			TDE2_API virtual IEventManager* GetEventManager() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IWindowSystem)
 	};

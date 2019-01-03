@@ -7,11 +7,14 @@
 
 
 #include <core/IGraphicsContext.h>
+#include <core/Event.h>
 
 
 namespace TDEngine2
 {
 	class IOGLContextFactory;
+	class IEventManager;
+
 
 	/// A pointer to function that creates GL context based on platform
 	typedef IOGLContextFactory* (*TCreateGLContextFactoryCallback)(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
@@ -27,13 +30,13 @@ namespace TDEngine2
 		some another way
 	*/
 
-	class COGLGraphicsContext : public IGraphicsContext
+	class COGLGraphicsContext : public IGraphicsContext, public IEventHandler
 	{
 		public:
 			friend TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, 
 																		E_RESULT_CODE& result);
 		public:
-			TDE2_API virtual ~COGLGraphicsContext();
+			TDE2_REGISTER_TYPE(COGLGraphicsContext)
 
 			/*!
 				\brief The method initializes an initial state of the object
@@ -231,10 +234,29 @@ namespace TDEngine2
 			*/
 
 			TDE2_API F32 GetPositiveZAxisDirection() const override;
+
+			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent);
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const;
 		protected:
 			TDE2_API COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 			TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;
 			TDE2_API virtual COGLGraphicsContext& operator= (COGLGraphicsContext& graphicsCtx) = delete;
+			TDE2_API virtual ~COGLGraphicsContext();
 		protected:
 			TGraphicsCtxInternalData        mInternalDataObject;
 			bool                            mIsInitialized;
@@ -243,6 +265,8 @@ namespace TDEngine2
 			TWindowSystemInternalData       mWindowInternalData;
 
 			IGraphicsObjectManager*         mpGraphicsObjectManager;
+
+			IEventManager*                  mpEventManager;
 	};
 
 

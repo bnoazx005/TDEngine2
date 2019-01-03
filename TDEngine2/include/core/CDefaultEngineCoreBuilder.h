@@ -18,6 +18,7 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IFileSystem;
 	class IResourceManager;
+	class IEventManager;
 
 
 	/*!
@@ -164,6 +165,8 @@ namespace TDEngine2
 			IFileSystem*      mpFileSystemInstance;
 
 			IResourceManager* mpResourceManagerInstance;
+
+			IEventManager*    mpEventManagerInstance;
 	};
 
 

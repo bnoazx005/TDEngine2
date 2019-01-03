@@ -2,6 +2,8 @@
 #include "./../../../include/platform/win32/CWin32Timer.h"
 #include "./../../../include/platform/win32/CWin32DLLManager.h"
 #include "./../../../include/utils/CFileLogger.h"
+#include "./../../../include/core/IEventManager.h"
+#include <string>
 
 
 #if defined(TDE2_USE_WIN32PLATFORM)
@@ -17,18 +19,21 @@ namespace TDEngine2
 	{
 	}
 
-	CWin32WindowSystem::~CWin32WindowSystem()
-	{
-	}
-
-	E_RESULT_CODE CWin32WindowSystem::Init(const std::string& name, U32 width, U32 height, U32 flags)
+	E_RESULT_CODE CWin32WindowSystem::Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		mIsInitialized = true;
+		if (!pEventManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+		
+		mpEventManager = pEventManager;
+		
+		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this); /// the window also listens to its own events to properly update internal data outside of _wndProc
 
 		mWindowName      = name;
 		mWindowClassName = mWindowName + "Class";
@@ -265,6 +270,32 @@ namespace TDEngine2
 		return mpDLLManager;
 	}
 
+	IEventManager* CWin32WindowSystem::GetEventManager() const
+	{
+		return mpEventManager;
+	}
+
+	E_RESULT_CODE CWin32WindowSystem::OnEvent(const TBaseEvent* pEvent)
+	{
+		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		{
+			return RC_OK;
+		}
+
+		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+
+		mWidth  = pOnWindowResizedEvent->mWidth;
+		mHeight = pOnWindowResizedEvent->mHeight;
+
+		return RC_OK;
+	}
+
+	TEventListenerId CWin32WindowSystem::GetListenerId() const
+	{
+		return GetTypeId();
+	}
+
+
 	LRESULT CALLBACK CWin32WindowSystem::_wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		IWindowSystem* pWinSystem = static_cast<IWindowSystem*>(GetProp(hWnd, CWin32WindowSystem::mAppWinProcParamName));
@@ -273,11 +304,28 @@ namespace TDEngine2
 		{
 			return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
+
+		IEventManager* pEventManager = pWinSystem->GetEventManager();
 		
+		TOnWindowResized onResizedEvent;
+
 		switch (uMsg)
 		{
 			case WM_DESTROY:
 				PostQuitMessage(0);
+				break;
+			case WM_SIZE:
+				onResizedEvent.mWidth  = lParam & (0x0000FFFF);
+				onResizedEvent.mHeight = (lParam & (0xFFFF0000)) >> 16;
+
+				pEventManager->Notify(&onResizedEvent);
+
+				LOG_MESSAGE(std::string("[Win32 Window System] The window's sizes were changed (width: ").
+									append(std::to_string(onResizedEvent.mWidth)).
+									append(", height: ").
+									append(std::to_string(onResizedEvent.mHeight)).
+									append(")"));
+
 				break;
 			default:
 				return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -287,7 +335,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IWindowSystem* CreateWin32WindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
+	TDE2_API IWindowSystem* CreateWin32WindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
 	{
 		CWin32WindowSystem* pWindowSystemInstance = new (std::nothrow) CWin32WindowSystem();
 
@@ -298,7 +346,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pWindowSystemInstance->Init(name, width, height, flags);
+		result = pWindowSystemInstance->Init(pEventManager, name, width, height, flags);
 
 		if (result != RC_OK)
 		{

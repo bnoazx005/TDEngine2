@@ -2,6 +2,7 @@
 #include "./../include/IOGLContextFactory.h"
 #include "./../include/COGLGraphicsObjectManager.h"
 #include "./../include/COGLMappings.h"
+#include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 
 
@@ -32,6 +33,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 		
+		if (!pWindowSystem)
+		{
+			return RC_INVALID_ARGS;
+		}
+
 		if (!mGLContextFactoryCallback)
 		{
 			return RC_FAIL;
@@ -83,6 +89,15 @@ namespace TDEngine2
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LESS);
 		}
+
+		mpEventManager = pWindowSystem->GetEventManager();
+
+		if (!mpEventManager)
+		{
+			return RC_FAIL;
+		}
+
+		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this);
 
 		mIsInitialized = true;
 		
@@ -201,6 +216,26 @@ namespace TDEngine2
 	{
 		return -1.0f;
 	}
+
+	E_RESULT_CODE COGLGraphicsContext::OnEvent(const TBaseEvent* pEvent)
+	{
+		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		{
+			return RC_OK;
+		}
+
+		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+
+		SetViewport(0.0f, 0.0f, static_cast<F32>(pOnWindowResizedEvent->mWidth), static_cast<F32>(pOnWindowResizedEvent->mHeight), 0.0f, 1.0f);
+
+		return RC_OK;
+	}
+
+	TEventListenerId COGLGraphicsContext::GetListenerId() const
+	{
+		return GetTypeId();
+	}
+
 
 	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
 	{

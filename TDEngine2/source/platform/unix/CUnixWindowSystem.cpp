@@ -2,6 +2,7 @@
 #include "./../../../include/platform/unix/CUnixDLLManager.h"
 #include "./../../../include/platform/unix/CUnixTimer.h"
 #include "./../../../include/utils/CFileLogger.h"
+#include "./../../../include/core/IEventManager.h"
 #include <cstring>
 #include <iostream>
 
@@ -15,11 +16,16 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CUnixWindowSystem::Init(const std::string& name, U32 width, U32 height, U32 flags)
+	E_RESULT_CODE CUnixWindowSystem::Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
+		}
+
+		if (!pEventManager)
+		{
+			return RC_INVALID_ARGS;
 		}
 		
 		mWindowName = name;
@@ -30,6 +36,8 @@ namespace TDEngine2
 		mSetupFlags = flags;
 
 		mIsRunning = true;
+
+		mpEventManager = pEventManager;
 
 		mpDisplayHandler = XOpenDisplay(nullptr);
 
@@ -232,6 +240,11 @@ namespace TDEngine2
 		return mpDLLManager;
 	}
 
+	IEventManager* CUnixWindowSystem::GetEventManager() const
+	{
+		return mpEventManager;
+	}
+
 	TDE2_API E_RESULT_CODE CUnixWindowSystem::_createWindow()
 	{
 		mWindowHandler = XCreateSimpleWindow(mpDisplayHandler, mRootWindowHandler, 0, 0, mWidth, mHeight, 1, 
@@ -247,7 +260,7 @@ namespace TDEngine2
 		return SetTitle(mWindowName);
 	}
 
-	TDE2_API IWindowSystem* CreateUnixWindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
+	TDE2_API IWindowSystem* CreateUnixWindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
 	{
 		CUnixWindowSystem* pWindowSystemInstance = new (std::nothrow) CUnixWindowSystem();
 
@@ -258,7 +271,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pWindowSystemInstance->Init(name, width, height, flags);
+		result = pWindowSystemInstance->Init(pEventManager, name, width, height, flags);
 
 		if (result != RC_OK)
 		{

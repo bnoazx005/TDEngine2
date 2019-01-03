@@ -25,7 +25,7 @@ namespace TDEngine2
 		\return A pointer to CUnixWindowSystem's implementation
 	*/
 
-	TDE2_API IWindowSystem* CreateUnixWindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
+	TDE2_API IWindowSystem* CreateUnixWindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
 
 	/*!
 		class CUnixWindowSystem
@@ -42,21 +42,27 @@ namespace TDEngine2
 				\return A pointer to CUnixWindowSystem's implementation
 			*/
 
-			friend TDE2_API IWindowSystem* CreateUnixWindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
+			friend TDE2_API IWindowSystem* CreateUnixWindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes a main window
 
+				\param[in, out] pEventManager A pointer to IEventManager implementation
+
 				\param[in] name A name of a main window
+
 				\param[in] width A window's width
+
 				\param[in] height A window's height
+
 				\param[in] flags An additional flags (bitwise value) lets configure
+
 				additional settings of a window is created
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
+			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -170,6 +176,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IDLLManager* GetDLLManagerInstance() const override;
+
+			/*!
+				\brief The method returns a pointer to IEventManager implementation
+
+				\return The method returns a pointer to IEventManager implementation
+			*/
+
+			TDE2_API IEventManager* GetEventManager() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixWindowSystem)
 
@@ -196,6 +210,8 @@ namespace TDEngine2
 			IDLLManager*              mpDLLManager;
 
 			volatile bool             mIsRunning;
+
+			IEventManager*            mpEventManager;
 	};
 }
 

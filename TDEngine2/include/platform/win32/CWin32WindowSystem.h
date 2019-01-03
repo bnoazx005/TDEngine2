@@ -8,6 +8,7 @@
 
 
 #include "./../../utils/Config.h"
+#include "./../../core/Event.h"
 
 #if defined(TDE2_USE_WIN32PLATFORM) /// use
 
@@ -24,7 +25,7 @@ namespace TDEngine2
 		\brief The class provides methods for a window system, which works under Windows
 	*/
 
-	class CWin32WindowSystem : public IWindowSystem
+	class CWin32WindowSystem : public IWindowSystem, public IEventHandler
 	{
 		public:
 			/*!
@@ -33,24 +34,30 @@ namespace TDEngine2
 				\return A pointer to CWin32WindowSystem's implementation
 			*/
 
-			friend TDE2_API IWindowSystem* CreateWin32WindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
+			friend TDE2_API IWindowSystem* CreateWin32WindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
 
 		public:
-			TDE2_API virtual ~CWin32WindowSystem();
-
+			TDE2_REGISTER_TYPE(CWin32WindowSystem)
+				
 			/*!
 				\brief The method initializes a main window
 
+				\param[in, out] pEventManager A pointer to IEventManager implementation
+
 				\param[in] name A name of a main window
+
 				\param[in] width A window's width
+
 				\param[in] height A window's height
+
 				\param[in] flags An additional flags (bitwise value) lets configure
+
 				additional settings of a window is created
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
+			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -154,11 +161,34 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IDLLManager* GetDLLManagerInstance() const override;
-		protected:
-			TDE2_API CWin32WindowSystem();
 
-			TDE2_API CWin32WindowSystem(const CWin32WindowSystem& windowSystem) = delete;
-			TDE2_API virtual CWin32WindowSystem& operator= (CWin32WindowSystem& windowSystem) = delete;
+			/*!
+				\brief The method returns a pointer to IEventManager implementation
+
+				\return The method returns a pointer to IEventManager implementation
+			*/
+
+			TDE2_API IEventManager* GetEventManager() const override;
+
+			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent);
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWin32WindowSystem)
 
 			TDE2_API static LRESULT CALLBACK _wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		protected:
@@ -181,6 +211,8 @@ namespace TDEngine2
 			ITimer*                  mpTimer;
 
 			IDLLManager*             mpDLLManager;
+
+			IEventManager*           mpEventManager;
 	};
 
 
@@ -190,7 +222,7 @@ namespace TDEngine2
 		\return A pointer to CWin32WindowSystem's implementation
 	*/
 
-	TDE2_API IWindowSystem* CreateWin32WindowSystem(const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
+	TDE2_API IWindowSystem* CreateWin32WindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
 }
 
 #endif

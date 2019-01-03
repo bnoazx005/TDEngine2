@@ -126,7 +126,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags)
 	{
-		if (!mIsInitialized)
+		if (!mIsInitialized || !mpEventManagerInstance)
 		{
 			return RC_FAIL;
 		}
@@ -136,9 +136,9 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WIN32PLATFORM)																/// Win32 Platform
-		mpWindowSystemInstance = CreateWin32WindowSystem(name, width, height, flags, result);
+		mpWindowSystemInstance = CreateWin32WindowSystem(mpEventManagerInstance, name, width, height, flags, result);
 #elif defined (TDE2_USE_UNIXPLATFORM)
-		mpWindowSystemInstance = CreateUnixWindowSystem(name, width, height, flags, result);
+		mpWindowSystemInstance = CreateUnixWindowSystem(mpEventManagerInstance, name, width, height, flags, result);
 #else
 #endif
 
@@ -254,14 +254,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IEngineSubsystem* pEventManager = CreateEventManager(result);
+		mpEventManagerInstance = CreateEventManager(result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 		
-		return mpEngineCoreInstance->RegisterSubsystem(pEventManager);
+		return mpEngineCoreInstance->RegisterSubsystem(mpEventManagerInstance);
 	}
 
 	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureRenderer()
