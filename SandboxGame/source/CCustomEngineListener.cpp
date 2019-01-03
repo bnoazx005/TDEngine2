@@ -67,6 +67,10 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	TDEngine2::TVector2 lThumbShift = mpInputContext->GetGamepad(0)->GetLThumbShiftVec();
 
 	std::cout << lThumbShift.x << " " << lThumbShift.y << std::endl;
+
+	auto ms = mpInputContext->GetMousePosition();
+
+	std::cout << "dx: " << ms.x << "; dy: " << ms.y << "\n";
 	
 	pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::TVector3(lThumbShift.x, lThumbShift.y, 0.0f));
 

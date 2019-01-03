@@ -8,6 +8,7 @@
 
 
 #include "CBaseInputDevice.h"
+#include <math/TRect.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -19,12 +20,14 @@ namespace TDEngine2
 
 		\param[in, out] pInputContext A pointer to IInputContext implementation
 
+		\param[in] windowRect An object that contains bounds of a window (x, y, width, height)
+
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CMouse's implementation
 	*/
 
-	TDE2_API IInputDevice* CreateMouseDevice(IInputContext* pInputContext, E_RESULT_CODE& result);
+	TDE2_API IInputDevice* CreateMouseDevice(IInputContext* pInputContext, const TRectU32& windowRect, E_RESULT_CODE& result);
 
 
 	/*!
@@ -36,7 +39,7 @@ namespace TDEngine2
 	class CMouse : public CBaseInputDevice, public IMouse
 	{
 		public:
-			friend TDE2_API IInputDevice* CreateMouseDevice(IInputContext* pInputContext, E_RESULT_CODE& result);
+			friend TDE2_API IInputDevice* CreateMouseDevice(IInputContext* pInputContext, const TRectU32& windowRect, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method updates the current state of a device
@@ -71,12 +74,31 @@ namespace TDEngine2
 			TDE2_API bool IsButtonUnpressed(U8 button) override;
 
 			/*!
+				\brief The method sets up bounds of a window, which will be used to compute a mouse
+				position relative to the window
+
+				\param[in] windowRect An object that contains bounds of a window (x, y, width, height)
+			*/
+
+			TDE2_API void SetWindowBounds(const TRectU32& windowRect);
+
+			/*!
 				\brief The method returns a position of a cursor
 
 				\return The method returns a position of a cursor
 			*/
 
 			TDE2_API TVector3 GetMousePosition() const override;
+
+			/*!
+				\brief The method returns a 3d vector that's composed from
+				shift values of each mouse axis
+
+				\return The method returns a 3d vector that's composed from
+				shift values of each mouse axis
+			*/
+
+			TDE2_API TVector3 GetMouseShiftVec() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMouse)
 
@@ -85,6 +107,8 @@ namespace TDEngine2
 			DIMOUSESTATE2 mPrevMouseState;
 
 			DIMOUSESTATE2 mCurrMouseState;
+
+			TRectU32      mWindowBounds;
 	};
 }
 

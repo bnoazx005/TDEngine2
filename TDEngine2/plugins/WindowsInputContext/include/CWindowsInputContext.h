@@ -151,6 +151,16 @@ namespace TDEngine2
 			TDE2_API TVector3 GetMousePosition() const override;
 
 			/*!
+				\brief The method returns a 3d vector that's composed from
+				shift values of each mouse axis
+
+				\return The method returns a 3d vector that's composed from
+				shift values of each mouse axis
+			*/
+
+			TDE2_API TVector3 GetMouseShiftVec() const override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value

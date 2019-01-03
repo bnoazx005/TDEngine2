@@ -38,7 +38,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpMouseDevice = dynamic_cast<IMouse*>(CreateMouseDevice(this, result));
+		mpMouseDevice = dynamic_cast<IMouse*>(CreateMouseDevice(this, pWindowSystem->GetWindowRect(), result));
 
 		if (result != RC_OK)
 		{
@@ -169,6 +169,11 @@ namespace TDEngine2
 	TVector3 CWindowsInputContext::GetMousePosition() const
 	{
 		return mpMouseDevice->GetMousePosition();
+	}
+
+	TVector3 CWindowsInputContext::GetMouseShiftVec() const
+	{
+		return mpMouseDevice->GetMouseShiftVec();
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CWindowsInputContext::GetType() const

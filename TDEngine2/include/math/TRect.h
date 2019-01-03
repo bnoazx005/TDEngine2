@@ -21,6 +21,11 @@ namespace TDEngine2
 	template <typename T>
 	struct TRect
 	{
+		TRect():
+			left(0), top(0), right(0), bottom(0)
+		{
+		}
+
 		TRect(T left, T top, T right, T bottom):
 			left(left), top(top), right(right), bottom(bottom)
 		{

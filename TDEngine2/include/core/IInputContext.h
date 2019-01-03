@@ -179,6 +179,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TVector3 GetMousePosition() const = 0;
+			
+			/*!
+				\brief The method returns a 3d vector that's composed from
+				shift values of each mouse axis
+
+				\return The method returns a 3d vector that's composed from
+				shift values of each mouse axis
+			*/
+
+			TDE2_API virtual TVector3 GetMouseShiftVec() const = 0;
 
 			/*!
 				\brief The method return a pointer to IGamepad implementation

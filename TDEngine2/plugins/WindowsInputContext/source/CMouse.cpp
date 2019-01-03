@@ -58,7 +58,7 @@ namespace TDEngine2
 
 			return RC_FAIL;
 		}
-
+		
 		return RC_OK;
 	}
 
@@ -94,11 +94,28 @@ namespace TDEngine2
 
 	TVector3 CMouse::GetMousePosition() const
 	{
-		return {};
+		POINT cursorPos;
+
+		GetCursorPos(&cursorPos);
+
+		F32 x = static_cast<F32>(/*mWindowBounds.left + */cursorPos.x);
+		F32 y = static_cast<F32>(/*mWindowBounds.top - */cursorPos.y);
+
+		return { x, y, 0.0f };
+	}
+
+	TVector3 CMouse::GetMouseShiftVec() const
+	{
+		return { static_cast<F32>(mCurrMouseState.lX), static_cast<F32>(mCurrMouseState.lY), static_cast<F32>(mCurrMouseState.lZ) };
+	}
+
+	void CMouse::SetWindowBounds(const TRectU32& windowRect)
+	{
+		memcpy(&mWindowBounds, &windowRect, sizeof(TRectU32));
 	}
 
 
-	TDE2_API IInputDevice* CreateMouseDevice(IInputContext* pInputContext, E_RESULT_CODE& result)
+	TDE2_API IInputDevice* CreateMouseDevice(IInputContext* pInputContext, const TRectU32& windowRect, E_RESULT_CODE& result)
 	{
 		CMouse* pMouseInstance = new (std::nothrow) CMouse();
 
@@ -117,6 +134,8 @@ namespace TDEngine2
 
 			pMouseInstance = nullptr;
 		}
+
+		pMouseInstance->SetWindowBounds(windowRect);
 
 		return dynamic_cast<IInputDevice*>(pMouseInstance);
 	}
