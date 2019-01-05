@@ -98,8 +98,18 @@ namespace TDEngine2
 
 		GetCursorPos(&cursorPos);
 
-		F32 x = static_cast<F32>(/*mWindowBounds.left + */cursorPos.x);
-		F32 y = static_cast<F32>(/*mWindowBounds.top - */cursorPos.y);
+		HWND hwnd = mpWinInputContext->GetInternalHandler().mWindowHandler;
+
+		ScreenToClient(hwnd, &cursorPos); /// convert screen coordinates into client area's ones
+
+		RECT windowBounds;
+
+		GetClientRect(hwnd, &windowBounds);
+		
+		F32 x = static_cast<F32>(cursorPos.x);
+		
+		/// convert from space where the origin is placed at left top corner to a space with the origin at left bottom corner
+		F32 y = static_cast<F32>(windowBounds.bottom - cursorPos.y);
 
 		return { x, y, 0.0f };
 	}
@@ -108,14 +118,9 @@ namespace TDEngine2
 	{
 		return { static_cast<F32>(mCurrMouseState.lX), static_cast<F32>(mCurrMouseState.lY), static_cast<F32>(mCurrMouseState.lZ) };
 	}
+	
 
-	void CMouse::SetWindowBounds(const TRectU32& windowRect)
-	{
-		memcpy(&mWindowBounds, &windowRect, sizeof(TRectU32));
-	}
-
-
-	TDE2_API IInputDevice* CreateMouseDevice(IInputContext* pInputContext, const TRectU32& windowRect, E_RESULT_CODE& result)
+	TDE2_API IInputDevice* CreateMouseDevice(IInputContext* pInputContext, E_RESULT_CODE& result)
 	{
 		CMouse* pMouseInstance = new (std::nothrow) CMouse();
 
@@ -134,9 +139,7 @@ namespace TDEngine2
 
 			pMouseInstance = nullptr;
 		}
-
-		pMouseInstance->SetWindowBounds(windowRect);
-
+		
 		return dynamic_cast<IInputDevice*>(pMouseInstance);
 	}
 }

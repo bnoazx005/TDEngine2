@@ -38,7 +38,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpMouseDevice = dynamic_cast<IMouse*>(CreateMouseDevice(this, pWindowSystem->GetWindowRect(), result));
+		mpMouseDevice = dynamic_cast<IMouse*>(CreateMouseDevice(this, result));
 
 		if (result != RC_OK)
 		{

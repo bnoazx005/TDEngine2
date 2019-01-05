@@ -24,6 +24,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpWinInputContext = pWinInputContext;
 				
 		E_RESULT_CODE result = _createInternalHandlers(pWinInputContext->GetInternalHandler());
 

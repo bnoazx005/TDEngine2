@@ -49,7 +49,9 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TInternalInputData& params) = 0;
 		protected:
-			IDirectInputDevice8* mpInputDevice;
+			IDirectInputDevice8*  mpInputDevice;
+
+			CWindowsInputContext* mpWinInputContext;
 	};
 }
 
