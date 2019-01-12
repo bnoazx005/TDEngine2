@@ -82,6 +82,10 @@ namespace TDEngine2
 			TDE2_API E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const override;
 
 			TDE2_API U32 _getBuiltinTypeSize(const std::string& type) const override;
+
+			TDE2_API TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const override;
+
+			TDE2_API E_SHADER_RESOURCE_TYPE _isShaderResourceType(const std::string& token) const;
 	};
 }
 

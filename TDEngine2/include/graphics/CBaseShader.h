@@ -28,6 +28,8 @@ namespace TDEngine2
 	class CBaseShader: public IShader, public CBaseResource
 	{
 		public:
+			typedef std::unordered_map<std::string, U8> TTexturesHashTable;
+		public:
 			TDE2_REGISTER_TYPE(CBaseShader)
 
 			/*!
@@ -85,6 +87,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize) override;
+
+			/*!
+				\brief The method assigns a given texture to a given resource's name
+
+				\param[in] resourceName A name of a resource within a shader's code
+
+				\param[in, out] pTexture A pointer to ITexture implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShader)
 
@@ -93,11 +107,17 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _freeUniformBuffers();
 
 			TDE2_API virtual void _bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer) = 0;
+
+			TDE2_API E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData);
 		protected:
 			IGraphicsContext*             mpGraphicsContext;
 
 			std::string                   mSourceCode;
 
 			std::vector<IConstantBuffer*> mUniformBuffers;
+
+			TTexturesHashTable            mTexturesHashTable;
+
+			std::vector<ITexture*>        mpTextures;
 	};
 }

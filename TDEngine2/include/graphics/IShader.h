@@ -18,6 +18,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 	class IShaderCompiler;
+	class ITexture;
 
 
 	/*!
@@ -81,6 +82,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize) = 0;
+
+			/*!
+				\brief The method assigns a given texture to a given resource's name
+
+				\param[in] resourceName A name of a resource within a shader's code
+
+				\param[in, out] pTexture A pointer to ITexture implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShader)
 	};

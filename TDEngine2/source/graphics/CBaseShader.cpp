@@ -86,8 +86,18 @@ namespace TDEngine2
 		}
 
 		TShaderCompilerOutput* pCompilerData = compilerOutput.Get();
-
+		
 		E_RESULT_CODE result = _createInternalHandlers(pCompilerData); /// reimplement this method in a derived class to do some extra work
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = _createTexturesHashTable(pCompilerData)) != RC_OK)
+		{
+			return result;
+		}
 
 		delete pCompilerData;
 
@@ -134,6 +144,25 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBaseShader::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
+	{
+		if (resourceName.empty() || !pTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto hashIter = mTexturesHashTable.find(resourceName);
+
+		if (hashIter == mTexturesHashTable.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mpTextures[hashIter->second] = pTexture;
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CBaseShader::_freeUniformBuffers()
 	{
 		E_RESULT_CODE result      = RC_OK;
@@ -159,5 +188,30 @@ namespace TDEngine2
 		}
 
 		return result;
+	}
+
+	E_RESULT_CODE CBaseShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
+	{
+		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
+
+		if (shaderResourcesMap.empty())
+		{
+			return RC_OK;
+		}
+
+		U8 currSlotIndex = 0;
+		
+		for (auto currShaderResourceInfo : shaderResourcesMap)
+		{
+			currSlotIndex = currShaderResourceInfo.second.mSlot;
+
+			mTexturesHashTable[currShaderResourceInfo.first] = currSlotIndex;
+
+			mpTextures.resize(currSlotIndex + 1);
+
+			mpTextures[currSlotIndex] = nullptr;
+		}
+
+		return RC_OK;
 	}
 }

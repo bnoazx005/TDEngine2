@@ -379,6 +379,17 @@ namespace TDEngine2
 		return size * 4; // other types sizes equal to 4 bytes
 	}
 
+	COGLShaderCompiler::TShaderResourcesMap COGLShaderCompiler::_processShaderResourcesDecls(CTokenizer& tokenizer) const
+	{
+		TShaderResourcesMap shaderResources{};
+
+		/// \todo implement the method
+
+		tokenizer.Reset();
+
+		return shaderResources;
+	}
+
 
 	TDE2_API IShaderCompiler* CreateOGLShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{

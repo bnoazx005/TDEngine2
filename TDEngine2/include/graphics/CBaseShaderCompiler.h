@@ -27,13 +27,15 @@ namespace TDEngine2
 	class CBaseShaderCompiler : public IShaderCompiler
 	{
 		protected:
-			typedef std::pair<std::string, std::string>                         TShaderDefineDesc;
+			typedef std::pair<std::string, std::string>                  TShaderDefineDesc;
 
-			typedef std::unordered_map<std::string, std::string>                TDefinesMap;
+			typedef std::unordered_map<std::string, std::string>         TDefinesMap;
 
-			typedef std::unordered_map<std::string, U32>                        TStructDeclsMap;
+			typedef std::unordered_map<std::string, U32>                 TStructDeclsMap;
 
-			typedef std::unordered_map<std::string, TUniformBufferDesc>         TUniformBuffersMap;
+			typedef std::unordered_map<std::string, TUniformBufferDesc>  TUniformBuffersMap;
+
+			typedef std::unordered_map<std::string, TShaderResourceDesc> TShaderResourcesMap;
 		
 			typedef struct TShaderMetadata
 			{
@@ -48,6 +50,8 @@ namespace TDEngine2
 				TStructDeclsMap         mStructDeclsMap;
 
 				TUniformBuffersMap      mUniformBuffers;
+
+				TShaderResourcesMap     mShaderResources;
 			} TShaderMetadata;
 
 			/*!
@@ -131,6 +135,8 @@ namespace TDEngine2
 			TDE2_API virtual bool _isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const TShaderMetadata& shaderMeta) const;
 
 			TDE2_API const C8* _getTargetVersionDefineName() const;
+
+			TDE2_API virtual TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const = 0;
 		protected:
 			bool             mIsInitialized;
 

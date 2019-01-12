@@ -36,6 +36,38 @@ namespace TDEngine2
 
 
 	/*!
+		enum class E_SHADER_RESOURCE_TYPE
+
+		\brief The enumeration contains a list of all available shader resources types
+	*/
+
+	enum class E_SHADER_RESOURCE_TYPE : U8
+	{
+		SRT_TEXTURE2D,
+		SRT_TEXTURE3D,
+		SRT_TEXTURE2D_ARRAY,
+		SRT_TEXTURECUBE,
+		SRT_SAMPLER_STATE,
+		SRT_UNKNOWN
+	};
+
+
+	/*!
+		struct TShaderResourceDesc
+
+		\brief The structure contains an information that describes a shader resource 
+	*/
+
+
+	typedef struct TShaderResourceDesc
+	{
+		E_SHADER_RESOURCE_TYPE mType;
+
+		U8                     mSlot;
+	} TShaderResourceDesc, *TShaderResourceDescPtr;
+
+
+	/*!
 		struct TUniformBufferDesc
 
 		\brief The structure contains an information about a uniform buffer
@@ -63,7 +95,9 @@ namespace TDEngine2
 	{
 		virtual ~TShaderCompilerOutput() = default;
 
-		std::unordered_map<std::string, TUniformBufferDesc> mUniformBuffersInfo; /// first key is a buffer's name, the value is the buffer's slot index and its size
+		std::unordered_map<std::string, TUniformBufferDesc>  mUniformBuffersInfo; /// first key is a buffer's name, the value is the buffer's slot index and its size
+
+		std::unordered_map<std::string, TShaderResourceDesc> mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource  
 	} TShaderCompilerOutput, *TShaderCompilerOutputPtr;
 
 
