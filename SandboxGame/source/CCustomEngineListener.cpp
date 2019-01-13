@@ -49,7 +49,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		return result;
 	}
-
+	
 	return TDEngine2::RC_OK;
 }
 

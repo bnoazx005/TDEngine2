@@ -373,6 +373,62 @@ namespace TDEngine2
 
 		return DXGI_FORMAT_UNKNOWN;
 	}
+
+	D3D11_FILTER CD3D11Mappings::GetFilterType(U32 filterValue)
+	{
+		U32 minFilterType = (filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIN_MASK));
+		U32 magFilterType = (filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MAG_MASK));
+		U32 mipFilterType = (filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIP_MASK));
+		
+		if (minFilterType == static_cast<U32>(E_FILTER_TYPE::FT_POINT) && magFilterType == minFilterType && mipFilterType == minFilterType)
+		{
+			return D3D11_FILTER_MIN_MAG_MIP_POINT;
+		}
+
+		if (minFilterType == static_cast<U32>(E_FILTER_TYPE::FT_POINT) && magFilterType == minFilterType && mipFilterType == static_cast<U32>(E_FILTER_TYPE::FT_BILINEAR))
+		{
+			return D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+		}
+		
+		if (minFilterType == static_cast<U32>(E_FILTER_TYPE::FT_POINT) && magFilterType == static_cast<U32>(E_FILTER_TYPE::FT_BILINEAR) && mipFilterType == magFilterType)
+		{
+			return D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+		}
+
+		if (minFilterType == static_cast<U32>(E_FILTER_TYPE::FT_BILINEAR) && magFilterType == static_cast<U32>(E_FILTER_TYPE::FT_POINT) && mipFilterType == magFilterType)
+		{
+			return D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+		}
+
+		if (minFilterType == static_cast<U32>(E_FILTER_TYPE::FT_BILINEAR) && magFilterType == minFilterType && mipFilterType == static_cast<U32>(E_FILTER_TYPE::FT_POINT))
+		{
+			return D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		}
+
+		if (minFilterType == static_cast<U32>(E_FILTER_TYPE::FT_BILINEAR) && magFilterType == minFilterType && mipFilterType == minFilterType)
+		{
+			return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		}
+		
+		return D3D11_FILTER_MIN_MAG_MIP_POINT; /// point filter is used by default
+	}
+
+	D3D11_TEXTURE_ADDRESS_MODE CD3D11Mappings::GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode)
+	{
+		switch (addressMode)
+		{
+			case E_ADDRESS_MODE_TYPE::AMT_BORDER:
+				return D3D11_TEXTURE_ADDRESS_BORDER;
+			case E_ADDRESS_MODE_TYPE::AMT_CLAMP:
+				return D3D11_TEXTURE_ADDRESS_CLAMP;
+			case E_ADDRESS_MODE_TYPE::AMT_MIRROR:
+				return D3D11_TEXTURE_ADDRESS_MIRROR;
+			case E_ADDRESS_MODE_TYPE::AMT_WRAP:
+				return D3D11_TEXTURE_ADDRESS_WRAP;
+		}
+
+		return D3D11_TEXTURE_ADDRESS_WRAP;
+	}
 }
 
 #endif

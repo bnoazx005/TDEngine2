@@ -112,14 +112,34 @@ namespace TDEngine2
 			TDE2_API static D3D11_PRIMITIVE_TOPOLOGY GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
 			
 			/*!
-				\brief The function maps internal index format into OpenGL specific type
+				\brief The function maps internal index format into Direct3D11 specific type
 
 				\param[in] indexFormatType An internal type that represents a format of an index
 
-				\return An OpenGL format of an index
+				\return A Direct3D11 format of an index
 			*/
 
 			TDE2_API static DXGI_FORMAT GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
+
+			/*!
+				\brief The function maps an internal filter's value into Direct3D11 specific one
+
+				\param[in] filterValue An internal value which represents a filter's type
+
+				\return A D3D11 specific filter's type
+			*/
+
+			TDE2_API static D3D11_FILTER GetFilterType(U32 filterValue);
+
+			/*!
+				\brief The function maps an internal address mode's type into Direct3D11 specific one
+
+				\param[in] addressMode An internal type which represents an addressing mode
+
+				\return A value of D3D11_TEXTURE_ADDRESS_MODE type which is equivalent of a given one
+			*/
+
+			TDE2_API static D3D11_TEXTURE_ADDRESS_MODE GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
 	};
 }
 

@@ -42,8 +42,13 @@ namespace TDEngine2
 		{
 			return result;
 		}
-
+		
 		if ((result = _freeVertexDeclarations()) != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = _freeTextureSamplers()) != RC_OK)
 		{
 			return result;
 		}
@@ -121,6 +126,9 @@ namespace TDEngine2
 			}
 		}
 
+		mBuffersArray.clear();
+		mFreeBuffersSlots.clear();
+
 		return totalResult;
 	}
 
@@ -145,6 +153,9 @@ namespace TDEngine2
 				totalResult = result;
 			}
 		}
+
+		mVertexDeclarationsArray.clear();
+		mFreeVertDeclsSlots.clear();
 
 		return totalResult;
 	}

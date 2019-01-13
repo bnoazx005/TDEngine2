@@ -9,6 +9,7 @@
 
 #include <graphics/CBaseGraphicsObjectManager.h>
 #include <unordered_map>
+#include <vector>
 
 
 namespace TDEngine2
@@ -36,6 +37,8 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IGraphicsObjectManager* CreateOGLGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+		protected:
+			typedef std::vector<GLuint> TTextureSamplersArray;
 		public:
 			/*!
 				\brief The method is a factory for creation objects of IVertexBuffer's type
@@ -91,9 +94,31 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<IVertexDeclaration*> CreateVertexDeclaration() override;
+
+			/*!
+				\brief The method is a factory for creation of texture samplers objects
+
+				\param[in] samplerDesc A structure that contains parameters which will be assigned to a new created sampler
+
+				\return The result object contains either an identifier of created sampler or an error code
+			*/
+
+			TDE2_API TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) override;
+
+			/*!
+				\brief The method returns a handler of a texture sampler which is related with a given identifier
+
+				\param[in] texSamplerId An identifier of a texture sampler
+
+				\return Either a handler of a texture sampler or an error code
+			*/
+
+			TDE2_API TResult<GLuint> GetTextureSampler(TTextureSamplerId texSamplerId) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLGraphicsObjectManager)
+
+			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
 		protected:
-			IGraphicsContext* mpGraphicsContext;
+			TTextureSamplersArray mTextureSamplersArray;
 	};
 }

@@ -445,4 +445,119 @@ namespace TDEngine2
 
 		return 0;
 	}
+
+	GLint COGLMappings::GetMinFilterType(U32 filterValue)
+	{
+		E_FILTER_TYPE minFilterType = static_cast<E_FILTER_TYPE>(filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIN_MASK));
+		E_FILTER_TYPE mipFilterType = static_cast<E_FILTER_TYPE>(filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIP_MASK));
+
+		if (mipFilterType == E_FILTER_TYPE::FT_UNUSED)
+		{
+			switch (minFilterType)
+			{
+				case E_FILTER_TYPE::FT_POINT:
+					return GL_NEAREST;
+				case E_FILTER_TYPE::FT_BILINEAR:
+					return GL_LINEAR;
+				case E_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
+					return 0x0;
+				default:
+					return GL_NEAREST;
+			}
+		}
+
+		switch (minFilterType)
+		{
+			case E_FILTER_TYPE::FT_BILINEAR:
+				switch (mipFilterType)
+				{
+					case E_FILTER_TYPE::FT_BILINEAR:
+						return GL_LINEAR_MIPMAP_LINEAR;
+					case E_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
+						return 0x0;
+					default:
+						return GL_LINEAR_MIPMAP_NEAREST;
+				}
+			case E_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
+				return 0x0;
+			default:
+				switch (mipFilterType)
+				{
+					case E_FILTER_TYPE::FT_BILINEAR:
+						return GL_NEAREST_MIPMAP_LINEAR;
+					case E_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
+						return 0x0;
+					default:
+						return GL_NEAREST_MIPMAP_NEAREST;
+				}
+		}
+
+		return GL_NEAREST;
+	}
+
+	GLint COGLMappings::GetMagFilterType(U32 filterValue)
+	{
+		E_FILTER_TYPE magFilterType = static_cast<E_FILTER_TYPE>(filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MAG_MASK));
+		E_FILTER_TYPE mipFilterType = static_cast<E_FILTER_TYPE>(filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIP_MASK));
+
+		if (mipFilterType == E_FILTER_TYPE::FT_UNUSED)
+		{
+			switch (magFilterType)
+			{
+				case E_FILTER_TYPE::FT_POINT:
+					return GL_NEAREST;
+				case E_FILTER_TYPE::FT_BILINEAR:
+					return GL_LINEAR;
+				case E_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
+					return 0x0;
+				default:
+					return GL_NEAREST;
+			}
+		}
+
+		switch (magFilterType)
+		{
+			case E_FILTER_TYPE::FT_BILINEAR:
+				switch (mipFilterType)
+				{
+					case E_FILTER_TYPE::FT_BILINEAR:
+						return GL_LINEAR_MIPMAP_LINEAR;
+					case E_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
+						return 0x0;
+					default:
+						return GL_LINEAR_MIPMAP_NEAREST;
+				}
+			case E_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
+				return 0x0;
+			default:
+				switch (mipFilterType)
+				{
+					case E_FILTER_TYPE::FT_BILINEAR:
+						return GL_NEAREST_MIPMAP_LINEAR;
+					case E_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
+						return 0x0;
+					default:
+						return GL_NEAREST_MIPMAP_NEAREST;
+				}
+		}
+
+		return GL_NEAREST;
+	}
+
+	GLint COGLMappings::GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode)
+	{
+		switch (addressMode)
+		{
+			case E_ADDRESS_MODE_TYPE::AMT_BORDER:
+				return GL_CLAMP_TO_BORDER;
+			case E_ADDRESS_MODE_TYPE::AMT_CLAMP:
+				return GL_CLAMP_TO_EDGE;
+			case E_ADDRESS_MODE_TYPE::AMT_MIRROR:
+				return GL_MIRRORED_REPEAT;
+			case E_ADDRESS_MODE_TYPE::AMT_WRAP:
+				return GL_REPEAT;
+		}
+
+		return GL_REPEAT;
+	}
 }

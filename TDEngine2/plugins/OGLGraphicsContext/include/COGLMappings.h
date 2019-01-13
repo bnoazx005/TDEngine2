@@ -137,5 +137,35 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static GLenum GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
+
+			/*!
+				\brief The function maps an internal minification filter's value into OpenGL specific one
+
+				\param[in] filterValue An internal value which represents a filter's type
+
+				\return A OpenGL specific filter's type
+			*/
+
+			TDE2_API static GLint GetMinFilterType(U32 filterValue);
+
+			/*!
+				\brief The function maps an internal magnification filter's value into OpenGL specific one
+
+				\param[in] filterValue An internal value which represents a filter's type
+
+				\return A OpenGL specific filter's type
+			*/
+
+			TDE2_API static GLint GetMagFilterType(U32 filterValue);
+
+			/*!
+				\brief The function maps an internal address mode's type into OpenGL specific one
+
+				\param[in] addressMode An internal type which represents an addressing mode
+
+				\return A value of OpenGL type which is equivalent of a given one
+			*/
+
+			TDE2_API static GLint GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
 	};
 }

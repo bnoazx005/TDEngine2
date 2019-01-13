@@ -560,4 +560,65 @@ namespace TDEngine2
 		ET_BIG_ENDIAN,
 		ET_NATIVE_ENDIAN	///< The following value is used to determine whether the native endianness is used for the host machine
 	};
+
+
+	typedef U32 TTextureSamplerId; ///< The type represents an identifier of a texture sampler object
+
+	constexpr TTextureSamplerId InvalidTextureSamplerId = (std::numeric_limits<TTextureSamplerId>::max)();
+
+
+	/*!
+		enum class E_ADDRESS_MODE_TYPE
+
+		\brief The enumeration contains all available types of addressing modes
+	*/
+
+	enum class E_ADDRESS_MODE_TYPE
+	{
+		AMT_BORDER,
+		AMT_CLAMP,
+		AMT_MIRROR,
+		AMT_WRAP,
+	};
+
+
+	/*!
+		struct TTextureSamplerDesc
+
+		\brief The structure contains an information about a sampler object that is needed for its creation
+	*/
+
+	typedef struct TTextureSamplerDesc
+	{
+		U32                 mFilterFlags;
+
+		E_ADDRESS_MODE_TYPE mUAddressMode;
+
+		E_ADDRESS_MODE_TYPE mVAddressMode;
+
+		E_ADDRESS_MODE_TYPE mWAddressMode;
+	} TTextureSamplerDesc, *TTextureSamplerDescPtr;
+
+
+	enum class E_FILTER_FLAGS_MASKS : U32
+	{
+		FFM_FILTER_MIN_MASK = 0xFF,
+		FFM_FILTER_MAG_MASK = 0xFF00,
+		FFM_FILTER_MIP_MASK = 0xFF0000
+	};
+
+
+	/*!
+		enum class E_FILTER_TYPE
+
+		\brief The enumeration contains all available types of sampler's filters
+	*/
+
+	enum class E_FILTER_TYPE : U8
+	{
+		FT_POINT,
+		FT_BILINEAR,
+		FT_ANISOTROPIC,
+		FT_UNUSED = 0x0
+	};
 }

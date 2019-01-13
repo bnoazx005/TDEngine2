@@ -202,6 +202,16 @@ namespace TDEngine2
 											   U32 startInstance, U32 indicesPerInstance, U32 numOfInstances) override;
 
 			/*!
+				\brief The method binds a given texture sampler to a specified slot
+
+				\param[in] slot An input slot's index
+
+				\param[in] samplerId An identifier of a texture sampler
+			*/
+
+			TDE2_API void BindTextureSampler(U32 slot, TTextureSamplerId samplerId) override;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

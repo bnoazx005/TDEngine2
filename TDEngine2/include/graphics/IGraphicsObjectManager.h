@@ -98,6 +98,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<IVertexDeclaration*> CreateVertexDeclaration() = 0;
+
+			/*!
+				\brief The method is a factory for creation of texture samplers objects
+
+				\param[in] samplerDesc A structure that contains parameters which will be assigned to a new created sampler
+
+				\return The result object contains either an identifier of created sampler or an error code
+			*/
+
+			TDE2_API virtual TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsObjectManager)
 	};

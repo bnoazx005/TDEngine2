@@ -3,6 +3,7 @@
 #include "./../include/CD3D11IndexBuffer.h"
 #include "./../include/CD3D11ConstantBuffer.h"
 #include "./../include/CD3D11VertexDeclaration.h"
+#include "./../include/CD3D11Mappings.h"
 #include <core/IGraphicsContext.h>
 
 
@@ -78,6 +79,76 @@ namespace TDEngine2
 		_insertVertexDeclaration(pNewVertDecl);
 
 		return TOkValue<IVertexDeclaration*>(pNewVertDecl);
+	}
+
+	TResult<TTextureSamplerId> CD3D11GraphicsObjectManager::CreateTextureSampler(const TTextureSamplerDesc& samplerDesc)
+	{
+		ID3D11SamplerState* pNewTextureSampler = nullptr;
+
+		D3D11_SAMPLER_DESC samplerDescInfo;
+
+		memset(&samplerDescInfo, 0, sizeof(samplerDescInfo));
+
+		samplerDescInfo.AddressU = CD3D11Mappings::GetTextureAddressMode(samplerDesc.mUAddressMode);
+		samplerDescInfo.AddressV = CD3D11Mappings::GetTextureAddressMode(samplerDesc.mVAddressMode);
+		samplerDescInfo.AddressW = CD3D11Mappings::GetTextureAddressMode(samplerDesc.mWAddressMode);
+		samplerDescInfo.Filter   = CD3D11Mappings::GetFilterType(samplerDesc.mFilterFlags);
+		samplerDescInfo.MaxLOD   = D3D11_FLOAT32_MAX;
+
+		ID3D11Device* p3dDevice = nullptr;
+
+#if _HAS_CXX17
+		p3dDevice = std::get<TD3D11CtxInternalData>(mpGraphicsContext->GetInternalData()).mp3dDevice;
+#else
+		p3dDevice = mpGraphicsContext->GetInternalData().mD3D11.mp3dDevice;
+#endif
+		
+		if (!p3dDevice)
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+		
+		if (FAILED(p3dDevice->CreateSamplerState(&samplerDescInfo, &pNewTextureSampler)))
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		U32 samplerId = mpTextureSamplersArray.size();
+
+		mpTextureSamplersArray.push_back(pNewTextureSampler);
+
+		return TOkValue<TTextureSamplerId>(samplerId);
+	}
+
+	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
+	{
+		if (texSamplerId <= mpTextureSamplersArray.size())
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		return TOkValue<ID3D11SamplerState*>(mpTextureSamplersArray[texSamplerId]);
+	}
+
+	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeTextureSamplers()
+	{
+		ID3D11SamplerState* pCurrSamplerState = nullptr;
+		
+		for (TTextureSamplersArray::iterator iter = mpTextureSamplersArray.begin(); iter != mpTextureSamplersArray.end(); ++iter)
+		{
+			pCurrSamplerState = (*iter);
+
+			if (!pCurrSamplerState)
+			{
+				continue;
+			}
+
+			pCurrSamplerState->Release();
+		}
+
+		mpTextureSamplersArray.clear();
+
+		return RC_OK;
 	}
 
 

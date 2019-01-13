@@ -197,6 +197,13 @@ namespace TDEngine2
 		glDrawElementsInstanced(COGLMappings::GetPrimitiveTopology(topology), indicesPerInstance, COGLMappings::GetIndexFormat(indexFormatType), 0, numOfInstances);
 	}
 
+	void COGLGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
+	{
+		GLuint internalSamplerId = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetTextureSampler(samplerId).Get();
+
+		glBindSampler(slot, internalSamplerId);
+	}
+
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

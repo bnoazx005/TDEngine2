@@ -243,6 +243,15 @@ namespace TDEngine2
 		mp3dDeviceContext->DrawIndexedInstanced(indicesPerInstance, numOfInstances, startIndex, baseVertex, startInstance);
 	}
 
+	void CD3D11GraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
+	{
+		ID3D11SamplerState* pSamplerState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetTextureSampler(samplerId).Get();
+
+		mp3dDeviceContext->VSSetSamplers(slot, 1, &pSamplerState);
+		mp3dDeviceContext->PSSetSamplers(slot, 1, &pSamplerState);
+		mp3dDeviceContext->GSSetSamplers(slot, 1, &pSamplerState);
+	}
+
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

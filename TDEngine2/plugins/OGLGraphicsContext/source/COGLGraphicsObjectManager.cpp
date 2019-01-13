@@ -3,6 +3,7 @@
 #include "./../include/COGLIndexBuffer.h"
 #include "./../include/COGLConstantBuffer.h"
 #include "./../include/COGLVertexDeclaration.h"
+#include "./../include/COGLMappings.h"
 
 
 namespace TDEngine2
@@ -75,6 +76,54 @@ namespace TDEngine2
 		_insertVertexDeclaration(pNewVertDecl);
 
 		return TOkValue<IVertexDeclaration*>(pNewVertDecl);
+	}
+
+	TResult<TTextureSamplerId> COGLGraphicsObjectManager::CreateTextureSampler(const TTextureSamplerDesc& samplerDesc)
+	{
+		GLuint samplerHandler = 0x0;
+
+		glGenSamplers(1, &samplerHandler);
+
+		if (glGetError() != GL_NO_ERROR)
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+		
+		glSamplerParameteri(samplerHandler, GL_TEXTURE_WRAP_S, COGLMappings::GetTextureAddressMode(samplerDesc.mUAddressMode));
+		glSamplerParameteri(samplerHandler, GL_TEXTURE_WRAP_T, COGLMappings::GetTextureAddressMode(samplerDesc.mVAddressMode));
+		glSamplerParameteri(samplerHandler, GL_TEXTURE_WRAP_R, COGLMappings::GetTextureAddressMode(samplerDesc.mWAddressMode));
+		glSamplerParameteri(samplerHandler, GL_TEXTURE_MAG_FILTER, COGLMappings::GetMagFilterType(samplerDesc.mFilterFlags));
+		glSamplerParameteri(samplerHandler, GL_TEXTURE_MIN_FILTER, COGLMappings::GetMinFilterType(samplerDesc.mFilterFlags));
+
+		U32 samplerId = mTextureSamplersArray.size();
+
+		mTextureSamplersArray.push_back(samplerHandler);
+
+		return TOkValue<TTextureSamplerId>(samplerId);
+	}
+
+	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
+	{
+		if (texSamplerId <= mTextureSamplersArray.size())
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		return TOkValue<GLuint>(mTextureSamplersArray[texSamplerId]);
+	}
+
+	E_RESULT_CODE COGLGraphicsObjectManager::_freeTextureSamplers()
+	{
+		glDeleteSamplers(mTextureSamplersArray.size(), &mTextureSamplersArray[0]);
+		
+		if (glGetError() != GL_NO_ERROR)
+		{
+			return RC_FAIL;
+		}
+
+		mTextureSamplersArray.clear();
+
+		return RC_OK;
 	}
 
 

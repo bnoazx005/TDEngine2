@@ -9,6 +9,7 @@
 
 #include <graphics/CBaseGraphicsObjectManager.h>
 #include <unordered_map>
+#include <vector>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -39,6 +40,8 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+		protected:
+			typedef std::vector<ID3D11SamplerState*> TTextureSamplersArray;
 		public:
 			/*!
 				\brief The method is a factory for creation objects of IVertexBuffer's type
@@ -94,8 +97,32 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<IVertexDeclaration*> CreateVertexDeclaration() override;
+
+			/*!
+				\brief The method is a factory for creation of texture samplers objects
+
+				\param[in] samplerDesc A structure that contains parameters which will be assigned to a new created sampler
+
+				\return The result object contains either an identifier of created sampler or an error code
+			*/
+
+			TDE2_API TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) override;
+
+			/*!
+				\brief The method returns a pointer to ID3D11SamplerState which is related with a given identifier
+
+				\param[in] texSamplerId An identifier of a texture sampler
+
+				\return Either a pointer to ID3D11SamplerState object or an error code
+			*/
+
+			TDE2_API TResult<ID3D11SamplerState*> GetTextureSampler(TTextureSamplerId texSamplerId) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsObjectManager)
+			
+			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
+		protected:			
+			TTextureSamplersArray mpTextureSamplersArray;
 	};
 }
 

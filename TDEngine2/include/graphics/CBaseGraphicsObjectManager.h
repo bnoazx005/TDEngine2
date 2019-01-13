@@ -58,6 +58,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _freeBuffers();
 
 			TDE2_API E_RESULT_CODE _freeVertexDeclarations();
+
+			TDE2_API virtual E_RESULT_CODE _freeTextureSamplers() = 0;
 		protected:
 			IGraphicsContext*        mpGraphicsContext;
 
