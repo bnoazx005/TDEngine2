@@ -71,6 +71,14 @@ namespace TDEngine2
 			TDE2_REGISTER_TYPE(CD3D11Texture2D)
 
 			/*!
+				\brief The method binds a texture object to a given slot
+
+				\param[in] slot Slot's index
+			*/
+
+			TDE2_API void Bind(U32 slot) override;
+
+			/*!
 				\brief The method loads resource data into memory
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

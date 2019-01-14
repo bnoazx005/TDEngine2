@@ -63,6 +63,14 @@ namespace TDEngine2
 	{
 		public:
 			/*!
+				\brief The method binds a texture object to a given slot
+
+				\param[in] slot Slot's index
+			*/
+
+			TDE2_API virtual void Bind(U32 slot) = 0;
+
+			/*!
 				\brief The method initializes an internal state of a 2d texture. The method 
 				is used when we want just to load texture's data from some storage. In this 
 				case all the parameters will be executed automatically. To create a new blank

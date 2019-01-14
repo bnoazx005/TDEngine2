@@ -67,6 +67,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 	mpGraphicsContext->BindTextureSampler(0, mTextureSampler);
 	
+	dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.png")->Get(TDEngine2::RAT_BLOCKING))->Bind(0);
+
 	if (mpInputContext->IsMouseButtonPressed(0))
 	{
 		std::cout << "pressed\n";

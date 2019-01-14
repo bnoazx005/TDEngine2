@@ -10,6 +10,11 @@ namespace TDEngine2
 	{
 	}
 
+	void COGLTexture2D::Bind(U32 slot)
+	{
+		/// \todo implement the method
+	}
+
 	E_RESULT_CODE COGLTexture2D::Load()
 	{
 		if (!mIsInitialized)

@@ -14,6 +14,13 @@ namespace TDEngine2
 	{
 	}
 
+	void CD3D11Texture2D::Bind(U32 slot)
+	{
+		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
+		mp3dDeviceContext->PSSetShaderResources(slot, 1, &mpShaderTextureView);
+		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);
+	}
+
 	E_RESULT_CODE CD3D11Texture2D::Load()
 	{
 		if (!mIsInitialized)
@@ -28,7 +35,18 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		return pResourceLoader->LoadResource(this);
+		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
+
+		if (result != RC_OK)
+		{
+			mState = RST_PENDING;
+
+			return result;
+		}
+
+		mState = RST_LOADED;
+
+		return result;
 	}
 
 	E_RESULT_CODE CD3D11Texture2D::Unload()
