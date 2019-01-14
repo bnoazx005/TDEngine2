@@ -49,6 +49,14 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		return result;
 	}
+
+	TDEngine2::TTextureSamplerDesc textureSamplerDesc;
+
+	textureSamplerDesc.mUAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;
+	textureSamplerDesc.mVAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;
+	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;
+
+	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
 	
 	return TDEngine2::RC_OK;
 }
@@ -57,6 +65,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	mpWindowSystem->SetTitle(std::to_string(dt));
 
+	mpGraphicsContext->BindTextureSampler(0, mTextureSampler);
+	
 	if (mpInputContext->IsMouseButtonPressed(0))
 	{
 		std::cout << "pressed\n";

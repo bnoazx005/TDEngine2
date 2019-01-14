@@ -122,7 +122,7 @@ namespace TDEngine2
 
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
-		if (texSamplerId <= mpTextureSamplersArray.size())
+		if (texSamplerId >= mpTextureSamplersArray.size())
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}

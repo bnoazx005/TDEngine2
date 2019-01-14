@@ -104,7 +104,7 @@ namespace TDEngine2
 
 	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
-		if (texSamplerId <= mTextureSamplersArray.size())
+		if (texSamplerId >= mTextureSamplersArray.size())
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}

@@ -73,4 +73,6 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 		TDEngine2::CEntity*                 mpCameraEntity;
 
 		TDEngine2::IDesktopInputContext*    mpInputContext;
+
+		TDEngine2::TTextureSamplerId        mTextureSampler;
 };

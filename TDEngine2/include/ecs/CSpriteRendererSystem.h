@@ -13,6 +13,7 @@
 #include <tuple>
 #include <unordered_map>
 #include "./../math/TMatrix4.h"
+#include "./../math/TVector2.h"
 #include "./../utils/Color.h"
 
 
@@ -56,6 +57,13 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ISystem* CreateSpriteRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
 		protected:
+			typedef struct TSpriteVertex
+			{
+				TVector4 mPosition;
+
+				TVector2 mUVs;
+			} TSpriteVertex, *TSpriteVertexPtr;
+
 			typedef struct TSpriteInstanceData
 			{
 				TMatrix4  mModelMat;

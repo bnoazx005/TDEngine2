@@ -50,22 +50,23 @@ namespace TDEngine2
 
 		/// \todo Replace this hardcoded part with proper vertex data's creationg
 		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
+		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
 		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
 		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
 		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
 		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
 		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_COLOR, true });
-		mpSpriteVertexDeclaration->AddInstancingDivisor(1, 1);
+		mpSpriteVertexDeclaration->AddInstancingDivisor(2, 1);
 
-		TVector4 vertices[] =
+		TSpriteVertex vertices[] =
 		{
-			TVector4(-0.5f, 0.5f, 0.0f, 1.0f), 
-			TVector4(0.5f, 0.5f, 0.0f, 1.0f),
-			TVector4(-0.5f, -0.5f, 0.0f, 1.0f),
-			TVector4(0.5f, -0.5f, 0.0f, 1.0f),
+			{ TVector4(-0.5f, 0.5f, 0.0f, 1.0f), TVector2(0.0f, 0.0f) },
+			{ TVector4(0.5f, 0.5f, 0.0f, 1.0f), TVector2(1.0f, 0.0f) },
+			{ TVector4(-0.5f, -0.5f, 0.0f, 1.0f), TVector2(0.0f, 1.0f) },
+			{ TVector4(0.5f, -0.5f, 0.0f, 1.0f), TVector2(1.0f, 1.0f) }
 		};
 
-		mpSpriteVertexBuffer = pGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TVector4) * 4, &vertices[0]).Get();
+		mpSpriteVertexBuffer = pGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TSpriteVertex) * 4, &vertices[0]).Get();
 		
 		mpSpriteIndexBuffer = pGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, IFT_INDEX16, sizeof(U16) * 6, mSpriteFaces).Get();
 
