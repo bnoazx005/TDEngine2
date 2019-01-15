@@ -5,6 +5,7 @@
 #include "./../../include/platform/CBinaryFileReader.h"
 #include "./../../include/graphics/CBaseShader.h"
 #include "./../../include/core/IResourceHandler.h"
+#include "./../../include/graphics/ITexture.h"
 #include <cstring>
 
 
@@ -92,7 +93,31 @@ namespace TDEngine2
 
 	void CBaseMaterial::Bind()
 	{
-		dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING))->Bind();
+		IShader* pShaderInstance = dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING));
+
+		if (!pShaderInstance)
+		{
+			return;
+		}
+
+		for (auto iter = mpAssignedTextures.cbegin(); iter != mpAssignedTextures.cend(); ++iter)
+		{
+			pShaderInstance->SetTextureResource(iter->first, iter->second);
+		}
+
+		pShaderInstance->Bind();
+	}
+
+	E_RESULT_CODE CBaseMaterial::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
+	{
+		if (resourceName.empty() || !pTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpAssignedTextures[resourceName] = pTexture;
+
+		return RC_OK;
 	}
 
 	IResourceHandler* CBaseMaterial::GetShaderHandler() const

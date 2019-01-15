@@ -52,6 +52,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CD3D11RenderTarget::Bind(U32 slot)
+	{
+		/// \todo implement the method
+	}
+
 	E_RESULT_CODE CD3D11RenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																	U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
 	{

@@ -50,6 +50,14 @@ namespace TDEngine2
 																   const TRenderTargetParameters& params, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(CD3D11RenderTarget)
+				
+			/*!
+				\brief The method binds a texture object to a given slot
+
+				\param[in] slot Slot's index
+			*/
+
+			TDE2_API void Bind(U32 slot) override;
 
 			/*!
 				\brief The method loads resource data into memory

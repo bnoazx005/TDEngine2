@@ -50,6 +50,8 @@ namespace TDEngine2
 
 	void CD3D11Shader::Bind()
 	{
+		CBaseShader::Bind();
+
 		if (!mp3dDeviceContext || !mIsInitialized)
 		{
 			return;

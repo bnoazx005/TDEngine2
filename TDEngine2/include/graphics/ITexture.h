@@ -24,6 +24,14 @@ namespace TDEngine2
 	{
 		public:
 			/*!
+				\brief The method binds a texture object to a given slot
+
+				\param[in] slot Slot's index
+			*/
+
+			TDE2_API virtual void Bind(U32 slot) = 0;
+
+			/*!
 				\brief The method returns a width of a texture
 
 				\return The method returns a width of a texture

@@ -9,7 +9,11 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
-	auto pMaterial = mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", TDEngine2::TMaterialParameters{ "testDXShader.shader" });
+	TDEngine2::IMaterial* pMaterial = dynamic_cast<TDEngine2::IMaterial*>(
+										mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", 
+																							TDEngine2::TMaterialParameters{ "testDXShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
+
+	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.png")->Get(TDEngine2::RAT_BLOCKING)));
 
 	const TDEngine2::TColor32F colors[] =
 	{
@@ -67,8 +71,6 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 	mpGraphicsContext->BindTextureSampler(0, mTextureSampler);
 	
-	dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.png")->Get(TDEngine2::RAT_BLOCKING))->Bind(0);
-
 	if (mpInputContext->IsMouseButtonPressed(0))
 	{
 		std::cout << "pressed\n";

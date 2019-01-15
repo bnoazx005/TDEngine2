@@ -59,6 +59,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode) override;
 
 			/*!
+				\brief The method binds a shader to a rendering pipeline
+			*/
+
+			TDE2_API void Bind() override;
+
+			/*!
 				\brief The method loads resource data into memory
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

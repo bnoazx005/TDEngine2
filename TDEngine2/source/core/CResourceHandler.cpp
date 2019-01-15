@@ -66,7 +66,7 @@ namespace TDEngine2
 
 		IResource* pResource = mpResourceManager->GetResourceByHandler(this);
 
-		if (type == RAT_STREAMING)
+		if (type == RAT_STREAMING || pResource->GetState() == RST_PENDING)
 		{
 			return pResource;
 		}

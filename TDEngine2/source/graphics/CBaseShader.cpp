@@ -1,6 +1,7 @@
 #include "./../../include/graphics/CBaseShader.h"
 #include "./../../include/graphics/IShaderCompiler.h"
 #include "./../../include/graphics/IConstantBuffer.h"
+#include "./../../include/graphics/ITexture.h"
 
 
 namespace TDEngine2
@@ -142,6 +143,23 @@ namespace TDEngine2
 		_bindUniformBuffer(TotalNumberOfInternalConstantBuffers + slot, pCurrUniformBuffer);
 
 		return RC_OK;
+	}
+
+	void CBaseShader::Bind()
+	{
+		ITexture* pCurrTexture = nullptr;
+
+		for (U32 i = 0; i < mpTextures.size(); ++i)
+		{
+			pCurrTexture = mpTextures[i];
+
+			if (!pCurrTexture)
+			{
+				continue;
+			}
+
+			pCurrTexture->Bind(i);
+		}
 	}
 
 	E_RESULT_CODE CBaseShader::SetTextureResource(const std::string& resourceName, ITexture* pTexture)

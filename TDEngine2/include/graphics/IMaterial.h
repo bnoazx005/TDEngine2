@@ -20,6 +20,7 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IFileSystem;
 	class IResourceHandler;
+	class ITexture;
 
 
 	/*!
@@ -80,6 +81,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void Bind() = 0;
+			
+			/*!
+				\brief The method assigns a given texture to a given resource's name
+
+				\param[in] resourceName A name of a resource within a shader's code
+
+				\param[in, out] pTexture A pointer to ITexture implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) = 0;
 
 			/*!
 				\brief The method returns a pointer to IResourceHandler of an attached shader

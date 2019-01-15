@@ -11,6 +11,7 @@
 #include "./../core/CBaseResource.h"
 #include "./../utils/CResult.h"
 #include <string>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -153,6 +154,8 @@ namespace TDEngine2
 
 			friend TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 														  const TMaterialParameters& params, E_RESULT_CODE& result);
+		protected:
+			typedef std::unordered_map<std::string, ITexture*> TTexturesHashTable;
 		public:
 			TDE2_REGISTER_TYPE(CBaseMaterial)
 
@@ -209,6 +212,18 @@ namespace TDEngine2
 			TDE2_API void Bind() override;
 
 			/*!
+				\brief The method assigns a given texture to a given resource's name
+
+				\param[in] resourceName A name of a resource within a shader's code
+
+				\param[in, out] pTexture A pointer to ITexture implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
+
+			/*!
 				\brief The method returns a pointer to IResourceHandler of an attached shader
 
 				\return The method returns a pointer to IResourceHandler of an attached shader
@@ -223,6 +238,8 @@ namespace TDEngine2
 			IResourceHandler*      mpShader;
 
 			TUserUniformBufferData mpUserUniformsData[MaxNumberOfUserConstantBuffers];
+
+			TTexturesHashTable     mpAssignedTextures;
 	};
 
 

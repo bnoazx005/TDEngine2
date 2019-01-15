@@ -39,6 +39,8 @@ namespace TDEngine2
 
 	void COGLShader::Bind()
 	{
+		CBaseShader::Bind();
+
 		glUseProgram(mShaderHandler);
 	}
 

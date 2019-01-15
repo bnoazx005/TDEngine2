@@ -48,6 +48,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
+	void COGLRenderTarget::Bind(U32 slot)
+	{
+		/// \todo implement the method
+	}
+	
 	E_RESULT_CODE COGLRenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																  U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
 	{
