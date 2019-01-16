@@ -65,7 +65,7 @@ namespace TDEngine2
 		glBindTexture(GL_TEXTURE_2D, mTextureHandler);
 		
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
-		glTexSubImage2D(GL_TEXTURE_2D, 0, regionRect.left, regionRect.top, regionRect.right, regionRect.bottom, 
+		glTexSubImage2D(GL_TEXTURE_2D, 0, regionRect.x, regionRect.y, regionRect.width, regionRect.height, 
 						COGLMappings::GetPixelDataFormat(mFormat), GL_UNSIGNED_BYTE, pData);
 
 		if (glGetError() != GL_NO_ERROR)

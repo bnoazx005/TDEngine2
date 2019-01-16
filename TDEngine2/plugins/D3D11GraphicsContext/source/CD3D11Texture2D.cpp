@@ -78,16 +78,16 @@ namespace TDEngine2
 
 		D3D11_BOX region;
 
-		region.left   = regionRect.left;
-		region.right  = regionRect.right;
-		region.top    = regionRect.top;
-		region.bottom = regionRect.bottom;
+		region.left   = regionRect.x;
+		region.right  = regionRect.y;
+		region.top    = regionRect.height;
+		region.bottom = regionRect.width;
 		region.back   = 1;
 		region.front  = 0;
 
-		U32 rowPitch = regionRect.right * CD3D11Mappings::GetNumOfChannelsOfFormat(mFormat);
+		U32 rowPitch = regionRect.x * CD3D11Mappings::GetNumOfChannelsOfFormat(mFormat);
 
-		mp3dDeviceContext->UpdateSubresource(mpTexture, 0, &region, pData, rowPitch, rowPitch * regionRect.bottom);
+		mp3dDeviceContext->UpdateSubresource(mpTexture, 0, &region, pData, rowPitch, rowPitch * regionRect.height);
 
 		return RC_OK;
 	}
