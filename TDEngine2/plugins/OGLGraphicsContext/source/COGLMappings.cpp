@@ -154,8 +154,6 @@ namespace TDEngine2
 			case FT_UINT4:
 			case FT_SINT4:
 				return GL_RGBA;
-				return GL_R8;
-				return GL_RG8;
 			case FT_UBYTE4_BGRA_UNORM:
 				return  GL_BGRA;
 		}

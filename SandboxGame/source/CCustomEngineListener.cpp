@@ -11,7 +11,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	
 	TDEngine2::IMaterial* pMaterial = dynamic_cast<TDEngine2::IMaterial*>(
 										mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", 
-																							TDEngine2::TMaterialParameters{ "testDXShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
+																							TDEngine2::TMaterialParameters{ "testGLShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
 
 	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.png")->Get(TDEngine2::RAT_BLOCKING)));
 

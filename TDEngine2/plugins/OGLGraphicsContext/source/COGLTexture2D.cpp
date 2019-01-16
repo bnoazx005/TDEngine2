@@ -12,7 +12,9 @@ namespace TDEngine2
 
 	void COGLTexture2D::Bind(U32 slot)
 	{
-		/// \todo implement the method
+		glActiveTexture(GL_TEXTURE0 + slot);
+
+		glBindTexture(GL_TEXTURE_2D, mTextureHandler);
 	}
 
 	E_RESULT_CODE COGLTexture2D::Load()
@@ -90,7 +92,8 @@ namespace TDEngine2
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, mipLevelsCount);
-		
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_NEVER);
+				
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
 		glTexImage2D(GL_TEXTURE_2D, 0, COGLMappings::GetInternalFormat(format), width, height, 0, 
 					 COGLMappings::GetPixelDataFormat(format), GL_UNSIGNED_BYTE, nullptr);

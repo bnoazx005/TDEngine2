@@ -2,6 +2,7 @@
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/COGLShaderCompiler.h"
 #include "./../include/COGLConstantBuffer.h"
+#include <graphics/ITexture.h>
 #include <graphics/CBaseShader.h>
 #include <cassert>
 
@@ -182,7 +183,7 @@ namespace TDEngine2
 				return RC_FAIL;
 			}
 		}
-
+		
 		return _createUniformBuffers(pCompilerData);
 	}
 
@@ -231,6 +232,41 @@ namespace TDEngine2
 		pBuffer->Bind(slot);
 
 		glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[slot], slot);
+	}
+	
+	E_RESULT_CODE COGLShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
+	{
+		glUseProgram(mShaderHandler);
+
+		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
+
+		if (shaderResourcesMap.empty())
+		{
+			return RC_OK;
+		}
+
+		U8 currSlotIndex = 0;
+
+		const C8* currName;
+
+		for (auto currShaderResourceInfo : shaderResourcesMap)
+		{
+			currName = currShaderResourceInfo.first.c_str();
+
+			currSlotIndex = glGetUniformLocation(mShaderHandler, currName);
+
+			mTexturesHashTable[currName] = currSlotIndex;
+
+			glUniform1i(currSlotIndex, currShaderResourceInfo.second.mSlot);
+
+			mpTextures.resize(currSlotIndex + 1);
+
+			mpTextures[currSlotIndex] = nullptr;
+		}
+
+		glUseProgram(0);
+
+		return RC_OK;
 	}
 
 

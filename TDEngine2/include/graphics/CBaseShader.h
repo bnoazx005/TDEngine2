@@ -104,7 +104,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
+			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShader)
 
@@ -114,7 +114,7 @@ namespace TDEngine2
 
 			TDE2_API virtual void _bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer) = 0;
 
-			TDE2_API E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData);
+			TDE2_API virtual E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData);
 		protected:
 			IGraphicsContext*             mpGraphicsContext;
 

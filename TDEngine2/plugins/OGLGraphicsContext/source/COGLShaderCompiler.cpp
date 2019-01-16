@@ -76,7 +76,8 @@ namespace TDEngine2
 			pResult->mGeometryShaderHandler = geometryShaderOutput.Get();
 		}
 
-		pResult->mUniformBuffersInfo = std::move(shaderMetadata.mUniformBuffers);
+		pResult->mUniformBuffersInfo  = std::move(shaderMetadata.mUniformBuffers);
+		pResult->mShaderResourcesInfo = std::move(shaderMetadata.mShaderResources);
 		
 		return TOkValue<TShaderCompilerOutput*>(pResult);
 	}
@@ -383,11 +384,55 @@ namespace TDEngine2
 	{
 		TShaderResourcesMap shaderResources{};
 
-		/// \todo implement the method
+		std::string currToken;
+
+		E_SHADER_RESOURCE_TYPE currType = E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN;
+
+		U8 currSlotIndex = 0;
+
+		while (tokenizer.HasNext())
+		{
+			currToken = tokenizer.GetCurrToken();
+
+			if ((currType = _isShaderResourceType(currToken)) == E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN)
+			{
+				tokenizer.GetNextToken();
+
+				continue;
+			}
+
+			/// found a shader resource
+			currToken = tokenizer.GetNextToken();
+
+			shaderResources[currToken] = { currType, currSlotIndex++ };
+		}
 
 		tokenizer.Reset();
 
 		return shaderResources;
+	}
+
+	E_SHADER_RESOURCE_TYPE COGLShaderCompiler::_isShaderResourceType(const std::string& token) const
+	{
+		static const std::unordered_map<std::string, E_SHADER_RESOURCE_TYPE> shaderResourcesMap
+		{
+			{ "sampler2D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D },
+			{ "isampler2D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D },
+			{ "usampler2D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D },
+			{ "sampler2DArray", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY },
+			{ "isampler2DArray", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY },
+			{ "usampler2DArray", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY },
+			{ "sampler3D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D },
+			{ "isampler3D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D },
+			{ "usampler3D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D },
+			{ "samplerCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
+			{ "isamplerCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
+			{ "usamplerCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
+		};
+
+		auto result = shaderResourcesMap.find(token);
+
+		return (result == shaderResourcesMap.cend()) ? E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN : result->second;
 	}
 
 
