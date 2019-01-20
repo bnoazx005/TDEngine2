@@ -205,91 +205,10 @@ namespace TDEngine2
 		/// replace \t with ' '
 		std::replace_if(processedSourceCode.begin(), processedSourceCode.end(), [](C8 ch) { return ch == '\t'; }, ' ');
 
-		/// remove extra whitespaces
-		bool isPrevChSpace = false;
+		processedSourceCode = CStringUtils::RemoveExtraWhitespaces(processedSourceCode);
+		processedSourceCode = CStringUtils::RemoveSingleLineComments(processedSourceCode);
 
-		processedSourceCode.erase(std::remove_if(processedSourceCode.begin(), processedSourceCode.end(), [&isPrevChSpace](C8 ch)
-		{
-			bool isCurrChSpace = std::isspace(ch);
-
-			bool result = isCurrChSpace && isPrevChSpace;
-
-			isPrevChSpace = isCurrChSpace;
-
-			return result;
-		}), processedSourceCode.end());
-
-		U32 firstPos = 0;
-		U32 secondPos = 0;
-
-		/// remove single-line comments
-		while ((firstPos = processedSourceCode.find("//")) != std::string::npos)
-		{
-			secondPos = processedSourceCode.find_first_of("\n\r", firstPos);
-
-			if (secondPos == std::string::npos)
-			{
-				processedSourceCode = processedSourceCode.substr(0, firstPos);
-
-				break;
-			}
-
-			processedSourceCode = processedSourceCode.substr(0, firstPos) + processedSourceCode.substr(secondPos + 1, processedSourceCode.length() - secondPos);
-		}
-
-		/// remove multi-line C style comments
-
-		U16 stepsCounter = 0;
-
-		U8 numOfNestedCommentsBlocks = 0;
-
-		U32 thirdPos;
-		U32 seekPos;
-
-		std::string::const_iterator iter = processedSourceCode.cbegin();
-
-		while ((stepsCounter++ <= mMaxStepsCount) &&
-			((firstPos = processedSourceCode.find("/*")) != std::string::npos))
-		{
-			++numOfNestedCommentsBlocks;
-
-			seekPos = firstPos + 2;
-
-			do
-			{
-				secondPos = processedSourceCode.find("*/", seekPos);
-				thirdPos = processedSourceCode.find("/*", seekPos);
-
-				if (secondPos < thirdPos)
-				{
-					--numOfNestedCommentsBlocks;
-
-					seekPos = secondPos + 2;
-
-					continue;
-				}
-
-				if (thirdPos < secondPos)
-				{
-					++numOfNestedCommentsBlocks;
-
-					seekPos = thirdPos + 2;
-
-					continue;
-				}
-			} while (seekPos < processedSourceCode.length() && numOfNestedCommentsBlocks > 0);
-
-			if (secondPos != std::string::npos)
-			{
-				processedSourceCode = processedSourceCode.substr(0, firstPos) + processedSourceCode.substr(secondPos + 2, processedSourceCode.length() - secondPos - 2);
-			}
-			else
-			{
-				processedSourceCode = processedSourceCode.substr(0, firstPos);
-			}
-		}
-
-		return processedSourceCode;
+		return CStringUtils::RemoveMultiLineComments(processedSourceCode);	/// remove multi-line C style comments
 	}
 
 	CBaseShaderCompiler::TDefinesMap CBaseShaderCompiler::_processDefines(const std::string& sourceCode) const

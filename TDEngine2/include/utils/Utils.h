@@ -10,6 +10,7 @@
 #include "Types.h"
 #include <type_traits>
 #include <atomic>
+#include <string>
 
 
 namespace TDEngine2
@@ -365,4 +366,66 @@ namespace TDEngine2
 #else
 	#define TDE2_STRING_ID(Str) (TDEngine2::ComputeHash(Str))
 #endif
+
+
+	/*!
+		static class CStringUtils
+
+		\brief The static class is a bunch of helper methods which are indended
+		for strings processing
+	*/
+
+	class CStringUtils
+	{
+		public:
+			/*!
+				\brief The method processes a given string removing all single-line comments from it. The single-line comment's prefix
+				can be defined via commentPrefixStr argument
+
+				\param[in] source A processing string
+
+				\param[in] commentPrefixStr A string that defines a prefix of single-line comment (for C-like languages it's '//',
+				for Python '#' and etc) If the prefix is an empty string then source will be returned wihout any processing
+
+				\return A processed string with no single-line comments
+			*/
+
+			TDE2_API static std::string RemoveSingleLineComments(const std::string& source, const std::string& commentPrefixStr = "//");
+
+			/*!
+				\brief The method processes a given string removing all multi-line comments from it. The multi-line comment's prefix
+				and postfix can be defined via commentPrefixStr and commentPostfixStr arguments.
+
+				\param[in] source A processing string
+
+				\param[in] commentPrefixStr A string that defines a prefix of single-line comment.
+				If the prefix is an empty string then source will be returned wihout any processing
+
+				\param[in] commentPostfixStr A string that defines a postfix of single-line comment.
+				If the postfix is an empty string then source will be returned wihout any processing
+			*/
+
+			TDE2_API static std::string RemoveMultiLineComments(const std::string& source, const std::string& commentPrefixStr = "/*",
+																const std::string& commentPostfixStr = "*/");
+
+			/*!
+				\brief The method removes all extra whitespaces from a given string
+
+				\param[in] str A processing string
+
+				\return A processed string where a continuous sequence of whitespaces is replaced with a single one
+			*/
+
+			TDE2_API static std::string RemoveExtraWhitespaces(const std::string& str);
+
+			/*!
+				\brief The method returns an empty string
+
+				\return The method returns an empty string
+			*/
+
+			TDE2_API static std::string GetEmptyStr();
+		public:
+			TDE2_API static const std::string mEmptyStr;
+	};
 }
