@@ -100,12 +100,12 @@ namespace TDEngine2
 			return;
 		}
 
+		pShaderInstance->Bind();
+
 		for (auto iter = mpAssignedTextures.cbegin(); iter != mpAssignedTextures.cend(); ++iter)
 		{
 			pShaderInstance->SetTextureResource(iter->first, iter->second);
 		}
-
-		pShaderInstance->Bind();
 	}
 
 	E_RESULT_CODE CBaseMaterial::SetTextureResource(const std::string& resourceName, ITexture* pTexture)

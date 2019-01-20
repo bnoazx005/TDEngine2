@@ -94,6 +94,7 @@ namespace TDEngine2
 		glSamplerParameteri(samplerHandler, GL_TEXTURE_WRAP_R, COGLMappings::GetTextureAddressMode(samplerDesc.mWAddressMode));
 		glSamplerParameteri(samplerHandler, GL_TEXTURE_MAG_FILTER, COGLMappings::GetMagFilterType(samplerDesc.mFilterFlags));
 		glSamplerParameteri(samplerHandler, GL_TEXTURE_MIN_FILTER, COGLMappings::GetMinFilterType(samplerDesc.mFilterFlags));
+		glSamplerParameteri(samplerHandler, GL_TEXTURE_MIN_LOD, 0);
 
 		U32 samplerId = mTextureSamplersArray.size();
 

@@ -13,7 +13,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 										mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", 
 																							TDEngine2::TMaterialParameters{ "testGLShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
 
-	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.png")->Get(TDEngine2::RAT_BLOCKING)));
+	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.tga")->Get(TDEngine2::RAT_BLOCKING)));
 
 	const TDEngine2::TColor32F colors[] =
 	{
@@ -55,10 +55,14 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 
 	TDEngine2::TTextureSamplerDesc textureSamplerDesc;
-
+/*
 	textureSamplerDesc.mUAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;
 	textureSamplerDesc.mVAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;
-	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;
+	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;*/
+
+	textureSamplerDesc.mUAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+	textureSamplerDesc.mVAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
 
 	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
 	

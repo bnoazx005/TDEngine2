@@ -2,6 +2,7 @@
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/COGLShaderCompiler.h"
 #include "./../include/COGLConstantBuffer.h"
+#include "./../include/COGLUtils.h"
 #include <graphics/ITexture.h>
 #include <graphics/CBaseShader.h>
 #include <cassert>
@@ -20,12 +21,7 @@ namespace TDEngine2
 
 		if (mShaderHandler)
 		{
-			glDeleteShader(mShaderHandler);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				return RC_FAIL;
-			}
+			GL_SAFE_CALL(glDeleteShader(mShaderHandler));
 		}
 
 		E_RESULT_CODE result = RC_OK;
@@ -58,61 +54,31 @@ namespace TDEngine2
 
 		if (pOGLShaderCompilerData->mVertexShaderHandler)
 		{
-			glAttachShader(mShaderHandler, pOGLShaderCompilerData->mVertexShaderHandler);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				return RC_FAIL;
-			}
+			GL_SAFE_CALL(glAttachShader(mShaderHandler, pOGLShaderCompilerData->mVertexShaderHandler));
 		}
 
 		if (pOGLShaderCompilerData->mFragmentShaderHandler)
 		{
-			glAttachShader(mShaderHandler, pOGLShaderCompilerData->mFragmentShaderHandler);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				return RC_FAIL;
-			}
+			GL_SAFE_CALL(glAttachShader(mShaderHandler, pOGLShaderCompilerData->mFragmentShaderHandler));
 		}
 
 		if (pOGLShaderCompilerData->mGeometryShaderHandler)
 		{
-			glAttachShader(mShaderHandler, pOGLShaderCompilerData->mGeometryShaderHandler);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				return RC_FAIL;
-			}
+			GL_SAFE_CALL(glAttachShader(mShaderHandler, pOGLShaderCompilerData->mGeometryShaderHandler));
 		}
 
-		glLinkProgram(mShaderHandler);
-
-		if (glGetError() != GL_NO_ERROR)
-		{
-			return RC_FAIL;
-		}
+		GL_SAFE_CALL(glLinkProgram(mShaderHandler));
 
 		I32 isLinked = 0;
 		
-		glGetProgramiv(mShaderHandler, GL_LINK_STATUS, &isLinked);
-
-		if (glGetError() != GL_NO_ERROR)
-		{
-			return RC_FAIL;
-		}
+		GL_SAFE_CALL(glGetProgramiv(mShaderHandler, GL_LINK_STATUS, &isLinked))
 
 		if (!isLinked)
 		{
 			/// \todo reimplement error handling in other way
 			GLint messageLength = 0;
 
-			glGetProgramiv(mShaderHandler, GL_INFO_LOG_LENGTH, &messageLength);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				return RC_FAIL;
-			}
+			GL_SAFE_CALL(glGetProgramiv(mShaderHandler, GL_INFO_LOG_LENGTH, &messageLength));
 
 			std::vector<GLchar> tmpErrorMsgBuffer(messageLength);
 
@@ -121,67 +87,37 @@ namespace TDEngine2
 
 			std::string errorMessageStr(tmpErrorMsgBuffer.begin(), tmpErrorMsgBuffer.end());
 
-			glDeleteProgram(mShaderHandler);
+			GL_SAFE_CALL(glDeleteProgram(mShaderHandler));
 
 			if (pOGLShaderCompilerData->mVertexShaderHandler)
 			{
-				glDeleteShader(pOGLShaderCompilerData->mVertexShaderHandler);
-
-				if (glGetError() != GL_NO_ERROR)
-				{
-					return RC_FAIL;
-				}
+				GL_SAFE_CALL(glDeleteShader(pOGLShaderCompilerData->mVertexShaderHandler));
 			}
 
 			if (pOGLShaderCompilerData->mFragmentShaderHandler)
 			{
-				glDeleteShader(pOGLShaderCompilerData->mFragmentShaderHandler);
-
-				if (glGetError() != GL_NO_ERROR)
-				{
-					return RC_FAIL;
-				}
+				GL_SAFE_CALL(glDeleteShader(pOGLShaderCompilerData->mFragmentShaderHandler));
 			}
 
 			if (pOGLShaderCompilerData->mGeometryShaderHandler)
 			{
-				glDeleteShader(pOGLShaderCompilerData->mGeometryShaderHandler);
-
-				if (glGetError() != GL_NO_ERROR)
-				{
-					return RC_FAIL;
-				}
+				GL_SAFE_CALL(glDeleteShader(pOGLShaderCompilerData->mGeometryShaderHandler));
 			}
 		}
 
 		if (pOGLShaderCompilerData->mVertexShaderHandler)
 		{
-			glDetachShader(mShaderHandler, pOGLShaderCompilerData->mVertexShaderHandler);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				return RC_FAIL;
-			}
+			GL_SAFE_CALL(glDetachShader(mShaderHandler, pOGLShaderCompilerData->mVertexShaderHandler));
 		}
 
 		if (pOGLShaderCompilerData->mFragmentShaderHandler)
 		{
-			glDetachShader(mShaderHandler, pOGLShaderCompilerData->mFragmentShaderHandler);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				return RC_FAIL;
-			}
+			GL_SAFE_CALL(glDetachShader(mShaderHandler, pOGLShaderCompilerData->mFragmentShaderHandler));
 		}
 
 		if (pOGLShaderCompilerData->mGeometryShaderHandler)
 		{
-			glDetachShader(mShaderHandler, pOGLShaderCompilerData->mGeometryShaderHandler);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				return RC_FAIL;
-			}
+			GL_SAFE_CALL(glDetachShader(mShaderHandler, pOGLShaderCompilerData->mGeometryShaderHandler));
 		}
 		
 		return _createUniformBuffers(pCompilerData);
@@ -213,7 +149,7 @@ namespace TDEngine2
 			{
 				/// bind this shader to internal uniform buffers here, so it can access right here
 
-				glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[currDesc.mSlot], currDesc.mSlot);
+				GL_SAFE_CALL(glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[currDesc.mSlot], currDesc.mSlot));
 
 				continue;
 			}
@@ -236,7 +172,7 @@ namespace TDEngine2
 	
 	E_RESULT_CODE COGLShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
-		glUseProgram(mShaderHandler);
+		GL_SAFE_CALL(glUseProgram(mShaderHandler));
 
 		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
 
@@ -245,7 +181,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		U8 currSlotIndex = 0;
+		I16 currSlotIndex = 0;
 
 		const C8* currName;
 
@@ -255,9 +191,14 @@ namespace TDEngine2
 
 			currSlotIndex = glGetUniformLocation(mShaderHandler, currName);
 
+			if (currSlotIndex < 0)
+			{
+				continue;
+			}
+
 			mTexturesHashTable[currName] = currSlotIndex;
 
-			glUniform1i(currSlotIndex, currShaderResourceInfo.second.mSlot);
+			GL_SAFE_CALL(glUniform1i(currSlotIndex, currShaderResourceInfo.second.mSlot));
 
 			mpTextures.resize(currSlotIndex + 1);
 

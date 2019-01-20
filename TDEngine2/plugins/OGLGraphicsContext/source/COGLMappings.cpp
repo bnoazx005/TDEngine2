@@ -558,4 +558,25 @@ namespace TDEngine2
 
 		return GL_REPEAT;
 	}
+
+	E_RESULT_CODE COGLMappings::GetErrorCode(GLenum error)
+	{
+		switch (error)
+		{
+			case GL_INVALID_ENUM:
+				return RC_INVALID_ARGS;
+			case GL_INVALID_VALUE:
+				return RC_INVALID_ARGS;
+			case GL_OUT_OF_MEMORY:
+				return RC_OUT_OF_MEMORY;
+			case GL_INVALID_OPERATION:
+			case GL_STACK_OVERFLOW:
+			case GL_STACK_UNDERFLOW:
+			case GL_INVALID_FRAMEBUFFER_OPERATION:
+			case GL_CONTEXT_LOST:
+				return RC_FAIL;
+			case GL_NO_ERROR:
+				return RC_OK;
+		}
+	}
 }

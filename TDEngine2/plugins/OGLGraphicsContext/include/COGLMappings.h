@@ -167,5 +167,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static GLint GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
+
+			/*!
+				\brief The function maps GLenum error code into internal E_RESULT_CODE type
+
+				\param[in] error An error code of GLenum type
+
+				\return An error code of E_RESULT_CODE type which corresponds to a given one
+			*/
+
+			TDE2_API static E_RESULT_CODE GetErrorCode(GLenum error);
 	};
 }

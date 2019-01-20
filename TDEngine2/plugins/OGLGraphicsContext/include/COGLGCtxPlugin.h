@@ -22,6 +22,7 @@
 #include "COGLVertexDeclaration.h"
 #include "COGLGraphicsObjectManager.h"
 #include "COGLRenderTarget.h"
+#include "COGLUtils.h"
 
 
 #include <core/IPlugin.h>

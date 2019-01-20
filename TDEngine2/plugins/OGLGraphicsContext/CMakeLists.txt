@@ -34,6 +34,7 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLVertexDeclaration.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGraphicsObjectManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLRenderTarget.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLUtils.h"
 	)
 
 set(OGL_GCTX_SOURCES
