@@ -12,6 +12,7 @@
 #include <string>
 #include <GL/glew.h>
 #include <cstring>
+#include <iostream>
 
 
 namespace TDEngine2
@@ -27,20 +28,22 @@ namespace TDEngine2
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
-
-		std::string processedSourceCode = _removeComments(_preprocessShaderSource(_removeComments(source)));
 		
+		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, _injectInternalDefines(SST_VERTEX, source)).Get();
+
+		std::string preprocessedSource = preprocessorResult.mPreprocessedSource;
+
 		/// parse source code to get a meta information about it
-		CTokenizer tokenizer(processedSourceCode);
+		CTokenizer tokenizer(preprocessedSource);
 
-		TShaderMetadata shaderMetadata = _parseShader(tokenizer);
-
+		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable);
+		
 		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
 
 		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
 		{
 			/// try to compile a vertex shader
-			TResult<GLuint> vertexShaderOutput = _compileShaderStage(SST_VERTEX, processedSourceCode, shaderMetadata.mDefines);
+			TResult<GLuint> vertexShaderOutput = _compileShaderStage(SST_VERTEX, preprocessedSource, shaderMetadata.mDefines);
 
 			if (vertexShaderOutput.HasError())
 			{
@@ -53,7 +56,7 @@ namespace TDEngine2
 		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
 		{
 			/// try to compile a pixel shader
-			TResult<GLuint> pixelShaderOutput = _compileShaderStage(SST_PIXEL, processedSourceCode, shaderMetadata.mDefines);
+			TResult<GLuint> pixelShaderOutput = _compileShaderStage(SST_PIXEL, preprocessedSource, shaderMetadata.mDefines);
 
 			if (pixelShaderOutput.HasError())
 			{
@@ -66,7 +69,7 @@ namespace TDEngine2
 		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
 		{
 			/// try to compile a geometry shader
-			TResult<GLuint> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, processedSourceCode, shaderMetadata.mDefines);
+			TResult<GLuint> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, preprocessedSource, shaderMetadata.mDefines);
 
 			if (geometryShaderOutput.HasError())
 			{
@@ -142,35 +145,6 @@ namespace TDEngine2
 		return TOkValue<GLuint>(shaderHandler);
 	}
 	
-	COGLShaderCompiler::TDefinesMap COGLShaderCompiler::_processDefines(const std::string& sourceCode) const
-	{
-		TDefinesMap shaderDefinesMap = CBaseShaderCompiler::_processDefines(sourceCode);
-
-		U32 firstPos  = 0;
-		U32 secondPos = 0;
-		U32 currPos   = 0;
-
-		std::string versionStr;
-
-		while ((firstPos = sourceCode.find_first_of('#', currPos)) != std::string::npos)
-		{
-			currPos = firstPos + 1;
-
-			if ((secondPos = sourceCode.find("version", firstPos)) != std::string::npos)
-			{
-				/// 8 is "version" length + 1 space char
-				versionStr = sourceCode.substr(secondPos + 8, sourceCode.find_first_of('\n', secondPos) - secondPos - 8);
-
-				break;
-			}			
-		}
-
-		shaderDefinesMap[_getTargetVersionDefineName()] = versionStr;
-
-		return shaderDefinesMap;
-	}
-
-
 	COGLShaderCompiler::TUniformBuffersMap COGLShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
 	{
 		TUniformBuffersMap uniformBuffersDecls = CBaseShaderCompiler::_processUniformBuffersDecls(structsMap, tokenizer);
@@ -259,60 +233,6 @@ namespace TDEngine2
 		}
 
 		return SFL_5_0;
-	}
-
-	std::string COGLShaderCompiler::_preprocessShaderSource(const std::string& source) const
-	{
-		std::string preprocessedSource = source;
-		
-		U32 firstPos  = 0;
-		U32 secondPos = 0;
-		U32 currPos   = 0;
-
-		std::string headerFilename;
-
-		ITextFileReader* pCurrHeaderFile = nullptr;
-
-		E_RESULT_CODE result = RC_OK;
-
-		/// process #include directive
-		while ((firstPos = preprocessedSource.find('#', currPos)) != std::string::npos)
-		{
-			currPos = firstPos + 1;
-
-			if ((firstPos = preprocessedSource.find("include", firstPos)) == std::string::npos ||
-				(secondPos = preprocessedSource.find_first_of("<\"", firstPos)) == std::string::npos)
-			{
-				continue;
-			}
-
-			currPos = preprocessedSource.find_first_of(">\"\n", secondPos + 1);
-
-			headerFilename = preprocessedSource.substr(secondPos + 1, currPos - secondPos - 1); /// extract name without brackets
-
-			/// \todo implement absolute and relative paths based on the current shader's file
-			pCurrHeaderFile = mpFileSystem->Create<CTextFileReader>(headerFilename, result);
-
-			if (result != RC_OK)
-			{
-				if (pCurrHeaderFile)
-				{
-					pCurrHeaderFile->Close();
-				}
-
-				/// remove #include directive, which can't be loaded
-				preprocessedSource = preprocessedSource.substr(0, firstPos - 1) + 
-									 preprocessedSource.substr(currPos + 1, preprocessedSource.length() - currPos - 1);
-
-				continue;
-			}
-			
-			preprocessedSource = preprocessedSource.substr(0, firstPos - 1) +
-								 pCurrHeaderFile->ReadToEnd() +
-								 preprocessedSource.substr(currPos + 1, preprocessedSource.length() - currPos - 1);
-		}
-
-		return preprocessedSource;
 	}
 
 	std::string COGLShaderCompiler::_injectInternalDefines(E_SHADER_STAGE_TYPE shaderStage, const std::string& source) const
@@ -411,7 +331,7 @@ namespace TDEngine2
 
 		return shaderResources;
 	}
-
+	
 	E_SHADER_RESOURCE_TYPE COGLShaderCompiler::_isShaderResourceType(const std::string& token) const
 	{
 		static const std::unordered_map<std::string, E_SHADER_RESOURCE_TYPE> shaderResourcesMap

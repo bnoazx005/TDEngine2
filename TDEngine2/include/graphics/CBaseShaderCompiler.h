@@ -14,10 +14,134 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <map>
+#include <regex>
+#include <tuple>
 
 
 namespace TDEngine2
 {
+	/*!
+		class CTokenizer
+
+		\brief The class is used within CBaseShaderCompiler and its children to split
+		a string into a sequence of tokens
+	*/
+
+	class CTokenizer
+	{
+		public:
+			TDE2_API CTokenizer(const std::string& str, 
+								const std::string& delims = "\n\r\t ", 
+								const std::string& specDelims = "{}(),;:");
+
+			TDE2_API CTokenizer(const CTokenizer& tokenizer);
+			TDE2_API CTokenizer(CTokenizer&& tokenizer);
+			TDE2_API ~CTokenizer();
+
+			TDE2_API const std::string& GetCurrToken() const;
+
+			TDE2_API const std::string& Peek(U32 offset) const;
+
+			TDE2_API bool HasNext() const;
+
+			TDE2_API void Reset();
+
+			/*!
+				\brief The method parses a given source and pastes all tokens 
+				after a pointer
+
+				\param[in] source A shader's source code
+
+				\param[in] delims A string with delimiters
+
+				\param[in] specDelims A string with delimiters that are considered as tokens
+			*/
+
+			TDE2_API void ParseAndPaste(const std::string& source, const std::string& delims, const std::string& specDelims);
+
+			TDE2_API void RemoveCurrentToken();
+
+			TDE2_API E_RESULT_CODE RemoveRange(U32 count);
+
+			TDE2_API const std::string& SeekByOffset(U32 offset);
+
+			TDE2_API const std::string& GetNextToken();
+
+			TDE2_API std::string GetSourceStr() const;
+
+			TDE2_API U32 GetCurrPos() const;
+		private:
+			TDE2_API CTokenizer() = default;
+
+			TDE2_API std::vector<std::string> _tokenize(const std::string& str, const std::string& delims, const std::string& specDelims);
+		private:
+			static std::string       mEmptyStr;
+
+			std::vector<std::string> mTokens;
+			
+			U32                      mCurrPos;
+	};
+
+	
+	/*!
+		class CShaderPreprocessor
+
+		\brief The static class contains a bunch of methods that preprocesses shaders sources
+	*/
+
+	class CShaderPreprocessor
+	{
+		protected:
+			static std::regex mIncludePattern;
+
+			static std::regex mDefinePattern;
+		public:
+			typedef struct TDefineInfoDesc
+			{
+				std::vector<std::string> mArgs;
+
+				std::string              mValue;
+			} TDefineInfoDesc, *TDefineInfoDescPtr;
+
+			typedef std::unordered_map<std::string, TDefineInfoDesc> TDefinesMap;
+
+			typedef std::tuple<std::string, TDefineInfoDesc> TMacroDeclaration;
+
+			typedef struct TPreprocessorResult
+			{
+				std::string mPreprocessedSource;
+
+				TDefinesMap mDefinesTable;
+			}TPreprocessorResult, *TPreprocessorResultPtr;
+		public:
+			/*!
+				\brief The method preprocess a shader source
+
+				\param[in, out] pFileSystem A pointer to IFileSystem implementation
+
+				\param[in] source A string which contains a shader's source
+
+				\return The method returns either a preprocessed shader source or an error code
+			*/
+
+			TDE2_API static TResult<TPreprocessorResult> PreprocessSource(IFileSystem* pFileSystem, const std::string& source);
+	protected:
+			TDE2_API static std::string _removeComments(const std::string& source);
+
+			TDE2_API static std::string _expandInclusions(IFileSystem* pFileSystem, const std::string& source);
+
+			TDE2_API static TPreprocessorResult _expandMacros(const std::string& source);
+
+			TDE2_API static std::string _expandMacro(const std::string& source, const TDefinesMap& definesTable);
+
+			TDE2_API static TMacroDeclaration _parseMacroDeclaration(const std::string& declarationStr);
+
+			TDE2_API static std::string _evalFuncMacro(const TMacroDeclaration& macro, const std::string& args);
+	};
+
+
+
 	/*!
 		class CBaseShaderCompiler
 
@@ -27,10 +151,10 @@ namespace TDEngine2
 	class CBaseShaderCompiler : public IShaderCompiler
 	{
 		protected:
+			typedef CShaderPreprocessor::TDefinesMap                     TDefinesMap;
+
 			typedef std::pair<std::string, std::string>                  TShaderDefineDesc;
-
-			typedef std::unordered_map<std::string, std::string>         TDefinesMap;
-
+			
 			typedef std::unordered_map<std::string, U32>                 TStructDeclsMap;
 
 			typedef std::unordered_map<std::string, TUniformBufferDesc>  TUniformBuffersMap;
@@ -53,46 +177,6 @@ namespace TDEngine2
 
 				TShaderResourcesMap     mShaderResources;
 			} TShaderMetadata;
-
-			/*!
-				class CTokenizer
-
-				\brief The class is used within CBaseShaderCompiler and its children to split 
-				a string into a sequence of tokens
-			*/
-
-			class CTokenizer
-			{
-				public:
-					TDE2_API CTokenizer(const std::string& str);
-					TDE2_API CTokenizer(const CTokenizer& tokenizer);
-					TDE2_API CTokenizer(CTokenizer&& tokenizer);
-					TDE2_API ~CTokenizer();
-
-					TDE2_API const std::string& GetCurrToken() const;
-
-					TDE2_API const std::string& Peek(U32 offset) const;
-					
-					TDE2_API bool HasNext() const;
-
-					TDE2_API void Reset();
-
-					TDE2_API const std::string& SeekByOffset(U32 offset);
-
-					TDE2_API const std::string& GetNextToken();
-
-					TDE2_API const std::string& GetSourceStr() const;
-				private:
-					TDE2_API CTokenizer() = default;
-				private:
-					static std::string       mEmptyStr;
-
-					std::vector<std::string> mTokens;
-
-					const std::string&       mSourceStr;
-
-					U32                      mCurrPos;
-			};
 		public:
 			/*!
 				\brief The method initializes an initial state of a compiler
@@ -116,12 +200,8 @@ namespace TDEngine2
 
 			TDE2_API virtual const C8* _getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const;
 
-			TDE2_API virtual TShaderMetadata _parseShader(CTokenizer& tokenizer) const;
-
-			TDE2_API virtual std::string _removeComments(const std::string& sourceCode) const;
-
-			TDE2_API virtual TDefinesMap _processDefines(const std::string& sourceCode) const;
-
+			TDE2_API virtual TShaderMetadata _parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable) const;
+			
 			TDE2_API virtual TStructDeclsMap _processStructDecls(CTokenizer& tokenizer) const;
 
 			TDE2_API virtual U32 _getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const;

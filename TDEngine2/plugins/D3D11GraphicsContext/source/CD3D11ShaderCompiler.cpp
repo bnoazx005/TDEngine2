@@ -30,20 +30,22 @@ namespace TDEngine2
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
-		
-		std::string processedSourceCode = _removeComments(source);
-		
-		CTokenizer tokenizer(processedSourceCode);
+				
+		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, "#define TDE2_HLSL_SHADER\n" + source).Get();
+
+		std::string preprocessedSource = preprocessorResult.mPreprocessedSource;
+
+		CTokenizer tokenizer(preprocessedSource);
 
 		/// parse source code to get a meta information about it
-		TShaderMetadata shaderMetadata = _parseShader(tokenizer);
+		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable);
 
 		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
 
 		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
 		{
 			/// try to compile a vertex shader
-			TResult<std::vector<U8>> vertexShaderOutput = _compileShaderStage(SST_VERTEX, processedSourceCode, shaderMetadata.mVertexShaderEntrypointName,
+			TResult<std::vector<U8>> vertexShaderOutput = _compileShaderStage(SST_VERTEX, preprocessedSource, shaderMetadata.mVertexShaderEntrypointName,
 				shaderMetadata.mDefines, shaderMetadata.mFeatureLevel);
 
 			if (vertexShaderOutput.HasError())
@@ -57,7 +59,7 @@ namespace TDEngine2
 		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
 		{
 			/// try to compile a pixel shader
-			TResult<std::vector<U8>> pixelShaderOutput = _compileShaderStage(SST_PIXEL, processedSourceCode, shaderMetadata.mPixelShaderEntrypointName,
+			TResult<std::vector<U8>> pixelShaderOutput = _compileShaderStage(SST_PIXEL, preprocessedSource, shaderMetadata.mPixelShaderEntrypointName,
 				shaderMetadata.mDefines, shaderMetadata.mFeatureLevel);
 
 			if (pixelShaderOutput.HasError())
@@ -71,7 +73,7 @@ namespace TDEngine2
 		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
 		{
 			/// try to compile a geometry shader
-			TResult<std::vector<U8>> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, processedSourceCode, shaderMetadata.mGeometryShaderEntrypointName,
+			TResult<std::vector<U8>> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, preprocessedSource, shaderMetadata.mGeometryShaderEntrypointName,
 				shaderMetadata.mDefines, shaderMetadata.mFeatureLevel);
 
 			if (geometryShaderOutput.HasError())
@@ -319,7 +321,7 @@ namespace TDEngine2
 
 		return (result == shaderResourcesMap.cend()) ? E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN : result->second;
 	}
-
+	
 
 	TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{

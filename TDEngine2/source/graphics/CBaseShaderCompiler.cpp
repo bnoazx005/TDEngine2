@@ -2,76 +2,47 @@
 #include "./../../include/graphics/IShader.h"
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/graphics/InternalShaderData.h"
+#include "./../../include/platform/CTextFileReader.h"
 #include <algorithm>
 #include <cctype>
 #include <vector>
 #include <sstream>
 #include <iterator>
 #include <unordered_set>
+#include <stack>
 
 
 namespace TDEngine2
 {
-	U32 CBaseShaderCompiler::mMaxStepsCount = 1000;
+	std::string CTokenizer::mEmptyStr = "";
 
-	const C8* CBaseShaderCompiler::mEntryPointsDefineNames[3] = { "VERTEX_ENTRY", "PIXEL_ENTRY", "GEOMETRY_ENTRY" };
-
-	const C8* CBaseShaderCompiler::mTargetVersionDefineName = "TARGET";
-
-
-	std::string CBaseShaderCompiler::CTokenizer::mEmptyStr = "";
-
-	CBaseShaderCompiler::CTokenizer::CTokenizer(const std::string& str):
-		mCurrPos(0), mSourceStr(str)
+	CTokenizer::CTokenizer(const std::string& str, const std::string& delims, const std::string& specDelims) :
+		mCurrPos(0)
 	{
-		const std::string& delims     = "\n\t ";
-		const std::string& specDelims = "{}(),;:";
-		const std::string& allDelims  = delims + specDelims;
-
-		U32 pos     = 0;
-		U32 currPos = 0;
-
-		std::string currToken;
-
-		while ((currPos < str.length()) && ((pos = str.find_first_of(allDelims, currPos)) != std::string::npos))
-		{
-			currToken = std::move(str.substr(currPos, pos - currPos));
-
-			if (!currToken.empty())
-			{
-				mTokens.emplace_back(std::move(currToken));
-			}
-
-			if (specDelims.find_first_of(str[pos]) != std::string::npos)
-			{
-				mTokens.emplace_back(std::move(str.substr(pos, 1)));
-			}
-
-			currPos = pos + 1;
-		}
+		mTokens = _tokenize(str, delims, specDelims);
 	}
-	
-	CBaseShaderCompiler::CTokenizer::CTokenizer(const CBaseShaderCompiler::CTokenizer& tokenizer):
-		mTokens(tokenizer.mTokens), mCurrPos(tokenizer.mCurrPos), mSourceStr(tokenizer.mSourceStr)
+
+	CTokenizer::CTokenizer(const CTokenizer& tokenizer) :
+		mTokens(tokenizer.mTokens), mCurrPos(tokenizer.mCurrPos)
 	{
 	}
 
-	CBaseShaderCompiler::CTokenizer::CTokenizer(CBaseShaderCompiler::CTokenizer&& tokenizer):
-		mTokens(std::move(tokenizer.mTokens)), mCurrPos(tokenizer.mCurrPos), mSourceStr(std::move(tokenizer.mSourceStr))
+	CTokenizer::CTokenizer(CTokenizer&& tokenizer) :
+		mTokens(std::move(tokenizer.mTokens)), mCurrPos(tokenizer.mCurrPos)
 	{
 	}
 
-	CBaseShaderCompiler::CTokenizer::~CTokenizer()
+	CTokenizer::~CTokenizer()
 	{
 		mTokens.clear();
 	}
 
-	const std::string& CBaseShaderCompiler::CTokenizer::GetCurrToken() const
+	const std::string& CTokenizer::GetCurrToken() const
 	{
 		return mTokens[mCurrPos];
 	}
 
-	const std::string& CBaseShaderCompiler::CTokenizer::Peek(U32 offset) const
+	const std::string& CTokenizer::Peek(U32 offset) const
 	{
 		U32 pos = mCurrPos + offset;
 
@@ -83,7 +54,7 @@ namespace TDEngine2
 		return mTokens[mCurrPos + offset];
 	}
 
-	const std::string& CBaseShaderCompiler::CTokenizer::GetNextToken()
+	const std::string& CTokenizer::GetNextToken()
 	{
 		if (mCurrPos + 1 >= mTokens.size())
 		{
@@ -93,17 +64,49 @@ namespace TDEngine2
 		return mTokens[++mCurrPos];
 	}
 
-	bool CBaseShaderCompiler::CTokenizer::HasNext() const
+	bool CTokenizer::HasNext() const
 	{
 		return mCurrPos + 1 < mTokens.size();
 	}
 
-	void CBaseShaderCompiler::CTokenizer::Reset()
+	void CTokenizer::RemoveCurrentToken()
+	{
+		if (mTokens.empty())
+		{
+			return;
+		}
+
+		mTokens.erase(mTokens.begin() + mCurrPos);
+	}
+
+	E_RESULT_CODE CTokenizer::RemoveRange(U32 count)
+	{
+		if (mCurrPos + count >= mTokens.size())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mTokens.erase(mTokens.begin() + mCurrPos, mTokens.begin() + mCurrPos + count);
+	}
+
+	void CTokenizer::ParseAndPaste(const std::string& source, const std::string& delims, const std::string& specDelims)
+	{
+		if (source.empty())
+		{
+			return;
+		}
+
+		std::vector<std::string> tokens = _tokenize(source, delims, specDelims);
+
+		mTokens.insert(mTokens.begin() + mCurrPos, tokens.begin(), tokens.end());
+	}
+
+	void CTokenizer::Reset()
 	{
 		mCurrPos = 0;
 	}
 
-	const std::string& CBaseShaderCompiler::CTokenizer::SeekByOffset(U32 offset)
+	const std::string& CTokenizer::SeekByOffset(U32 offset)
 	{
 		U32 pos = mCurrPos + offset;
 
@@ -117,11 +120,439 @@ namespace TDEngine2
 		return mTokens[mCurrPos];
 	}
 
-	const std::string& CBaseShaderCompiler::CTokenizer::GetSourceStr() const
+	std::string CTokenizer::GetSourceStr() const
 	{
-		return mSourceStr;
+		std::string source;
+
+		for (auto iter = mTokens.cbegin(); iter != mTokens.cend(); ++iter)
+		{
+			source += (*iter);
+		}
+
+		return source;
 	}
+
+	U32 CTokenizer::GetCurrPos() const
+	{
+		return mCurrPos;
+	}
+
+	std::vector<std::string> CTokenizer::_tokenize(const std::string& str, const std::string& delims, const std::string& specDelims)
+	{
+		const std::string& allDelims = delims + specDelims;
+
+		std::string::size_type pos     = 0;
+		std::string::size_type currPos = 0;
+
+		std::string currToken;
+
+		std::vector<std::string> tokens;
+
+		while ((currPos < str.length()) && ((pos = str.find_first_of(allDelims, currPos)) != std::string::npos))
+		{
+			currToken = std::move(str.substr(currPos, pos - currPos));
+
+			if (!currToken.empty())
+			{
+				tokens.emplace_back(std::move(currToken));
+			}
+
+			if (specDelims.find_first_of(str[pos]) != std::string::npos)
+			{
+				tokens.emplace_back(std::move(str.substr(pos, 1)));
+			}
+
+			currPos = pos + 1;
+		}
+
+		/// insert last token if it wasn't pushed back before
+		if (currPos != str.length())
+		{
+			tokens.emplace_back(std::move(str.substr(currPos, str.length() - currPos)));
+		}
+
+		return std::move(tokens);
+	}
+
+
+	std::regex CShaderPreprocessor::mIncludePattern { "#\\s*include\\s+(<|\")(.*?)(>|\")" };
+
+	std::regex CShaderPreprocessor::mDefinePattern { "#\\s*define\\s+(.*?)\\s+(.*?)\n" };
+
+	TResult<CShaderPreprocessor::TPreprocessorResult> CShaderPreprocessor::PreprocessSource(IFileSystem* pFileSystem, const std::string& source)
+	{
+		if (!pFileSystem)
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		if (source.empty())
+		{
+			return TOkValue<CShaderPreprocessor::TPreprocessorResult>({});
+		}
+
+		TPreprocessorResult processingResult = _expandMacros(_expandInclusions(pFileSystem, _removeComments(source)));
+
+		return TOkValue<TPreprocessorResult>(processingResult);
+	}
+
+	std::string CShaderPreprocessor::_removeComments(const std::string& source)
+	{
+		return CStringUtils::RemoveMultiLineComments(CStringUtils::RemoveSingleLineComments(CStringUtils::RemoveExtraWhitespaces(source)));
+	}
+
+	std::string CShaderPreprocessor::_expandInclusions(IFileSystem* pFileSystem, const std::string& source)
+	{
+		std::string includingFilename;	
+
+		std::smatch matches;
+
+		E_RESULT_CODE result = RC_OK;
+
+		CTextFileReader* pCurrIncludeFile = nullptr;
+
+		std::string processingSource { source };
+
+		std::string::size_type pos = 0;
+
+		while (std::regex_search(processingSource, matches, mIncludePattern))
+		{
+			if (includingFilename == matches[2]) /// stop search if we get a same substring more that two times
+			{
+				break;
+			}
+
+			includingFilename = matches[2];
+
+			pCurrIncludeFile = pFileSystem->Create<CTextFileReader>(includingFilename, result);
+
+			if (result != RC_OK)
+			{
+				/// can't find file just leave this directive without changes
+
+				continue;
+			}
+
+			pos = matches.position();
+
+			pCurrIncludeFile->ReadToEnd();
+
+			processingSource = processingSource.substr(0, pos) +
+							   _removeComments(pCurrIncludeFile->ReadToEnd()) +
+							   processingSource.substr(pos + matches.length(), processingSource.length() - pos - matches.length());
+
+			pCurrIncludeFile->Close();
+		}
+
+		return processingSource;
+	}
+
+	CShaderPreprocessor::TPreprocessorResult CShaderPreprocessor::_expandMacros(const std::string& source)
+	{
+		std::string::size_type pos  = 0;
+		std::string::size_type pos2 = 0;
+
+		auto getNextChar = [&source, &pos]() -> C8
+		{
+			return (++pos < source.length()) ? source[pos] : '\0';
+		};
+
+		std::string processedSource;
+		std::string currFrame;	/// contains either directive name or a current read substring
+		std::string macroName;
+		std::string macroValue;
+
+		C8 currCh;
+
+		TDefinesMap defines {};
+
+		std::stack<bool> frameStack; /// contains information about current group's inclusion via result of #if #ifndef and #ifdef
 		
+		frameStack.push(true); /// default field of view
+		
+		bool wasIfConditionaryBlock = false; /// \note we don't skip #if block so, the flag is used to add #endif if the corresponding #if has appeared
+
+		while (pos < source.length())
+		{
+			currCh = source[pos];
+
+			if (currCh != '#')
+			{
+				pos2 = source.find_first_of("\n\r", pos); /// read line
+
+				currFrame = std::move(source.substr(pos, pos2 - pos + 1));
+
+				if (frameStack.top())
+				{
+					processedSource += _expandMacro(currFrame, defines);
+				}
+
+				pos = pos2 + 1;
+
+				currFrame.clear();
+
+				continue;
+			}
+
+			currFrame.push_back(currCh); /// push '#'
+
+			while (++pos < source.length() && std::isspace(currCh = source[pos]))
+			{
+			}
+
+			while (pos < source.length() && !std::isspace(currCh))
+			{
+				currFrame.push_back(currCh);
+				
+				currCh = source[++pos];
+			}
+
+			if (currFrame == "#define" && frameStack.top())
+			{
+				pos2 = source.find_first_of("\n\r", pos + 1);
+				
+				currFrame.clear();
+
+				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier and replacement-list
+								
+				pos = currFrame.find_first_of(' ');
+
+				auto defineDecl = _parseMacroDeclaration(currFrame);
+
+				defines.emplace(std::get<std::string>(defineDecl), std::get<TDefineInfoDesc>(defineDecl));
+				
+				currFrame.clear();
+
+				pos = pos2 + 1;
+
+				continue;
+			}
+
+			/// especial directive for OpenGL version of a preprocessor
+			if (currFrame == "#version")
+			{
+				pos2 = source.find_first_of("\n\r", pos + 1);
+
+				currFrame.clear();
+
+				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier and replacement-list
+
+				defines["TARGET"] = { {}, currFrame };
+
+				processedSource += "#version " + currFrame + "\n";
+
+				currFrame.clear();
+
+				pos = pos2 + 1;
+
+				continue;
+			}
+
+			if (currFrame == "#undef" && frameStack.top())
+			{
+				pos2 = source.find_first_of("\n\r", pos + 1);
+				
+				currFrame.clear();
+
+				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
+
+				defines.erase(currFrame);
+
+				currFrame.clear();
+
+				pos = pos2;
+
+				continue;
+			}
+
+			if (currFrame == "#ifndef" && frameStack.top())
+			{
+				pos2 = source.find_first_of("\n\r", pos + 1);
+
+				currFrame.clear();
+
+				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
+
+				frameStack.push(defines.find(currFrame) == defines.cend());
+				
+				currFrame.clear();
+
+				pos = pos2 + 1;
+
+				continue;
+			}
+
+			if (currFrame == "#ifdef" && frameStack.top())
+			{
+				pos2 = source.find_first_of("\n\r", pos + 1);
+
+				currFrame.clear();
+
+				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
+
+				frameStack.push(defines.find(currFrame) != defines.cend());
+				
+				currFrame.clear();
+
+				pos = pos2 + 1;
+
+				continue;
+			}
+
+			if (currFrame == "#if")
+			{
+				pos2 = source.find_first_of("\n\r", pos + 1);
+
+				currFrame.clear();
+
+				currFrame.append(source.substr(pos + 1, pos2 - pos)); /// contains identifier
+
+				processedSource += "#if " + currFrame;
+
+				frameStack.push(true); /// \todo now condition's result of #if is always true
+
+				wasIfConditionaryBlock = true;
+
+				currFrame.clear();
+
+				pos = pos2 + 1;
+
+				continue;
+			}
+
+			if (currFrame == "#endif")
+			{
+				if (wasIfConditionaryBlock)
+				{
+					processedSource += "#endif\n";
+
+					wasIfConditionaryBlock = false;
+				}
+
+				frameStack.pop();
+
+				currFrame.clear();
+
+				++pos;
+
+				continue;
+			}
+			
+			if (!frameStack.top()) /// just skip text which lies within a block with false condition within #if
+			{
+				++pos;
+
+				continue;
+			}
+			
+			processedSource += currFrame + ' ';
+
+			currFrame.clear();
+
+			++pos;
+		}
+
+		return { processedSource, defines };
+	}
+
+	std::string CShaderPreprocessor::_expandMacro(const std::string& source, const TDefinesMap& definesTable)
+	{
+		if (definesTable.empty())
+		{
+			return source;
+		}
+
+		std::string::size_type pos          = 0;
+		std::string::size_type startArgsPos = 0;
+		std::string::size_type endArgsPos   = 0;
+
+		std::string processedSource { source };
+		std::string currMacroIdentifier;
+		std::string evaluatedStr;
+
+		TDefineInfoDesc currMacroDesc;
+		
+		for (auto currMacroEntity : definesTable)
+		{
+			currMacroIdentifier = currMacroEntity.first;
+
+			currMacroDesc = currMacroEntity.second;
+
+			/// simple identifier
+			while (currMacroDesc.mArgs.empty() && (pos = processedSource.find(currMacroIdentifier)) != std::string::npos)
+			{
+				processedSource = processedSource.substr(0, pos) + 
+								  currMacroDesc.mValue + 
+								  processedSource.substr(pos + currMacroIdentifier.length(), processedSource.length() - pos - currMacroIdentifier.length());
+			}
+
+			/// function-like macro
+			while (!currMacroDesc.mArgs.empty() && (pos = processedSource.find(currMacroIdentifier)) != std::string::npos)
+			{
+				startArgsPos = processedSource.find_first_of('(', pos);
+				endArgsPos   = processedSource.find_first_of(')', startArgsPos);
+
+				evaluatedStr = _evalFuncMacro(currMacroEntity, processedSource.substr(startArgsPos + 1, endArgsPos - 1 - startArgsPos));
+
+				processedSource = processedSource.substr(0, pos) + evaluatedStr + processedSource.substr(endArgsPos + 1, processedSource.length() - endArgsPos);
+			}
+		}
+
+		return processedSource;
+	}
+
+	CShaderPreprocessor::TMacroDeclaration CShaderPreprocessor::_parseMacroDeclaration(const std::string& declarationStr)
+	{
+		std::string::size_type pos  = 0;
+		std::string::size_type pos2 = 0;
+
+		/// declaration contains only identifier
+		if ((pos = declarationStr.find_first_of(' ')) == std::string::npos)
+		{
+			return { declarationStr, { {}, "1" } };
+		}
+
+		/// simple identifier with a replacement value
+		if ((pos2 = declarationStr.find_first_of(')')) == std::string::npos)
+		{
+			return { declarationStr.substr(0, pos), { {}, declarationStr.substr(pos + 1, declarationStr.length() - pos - 1) } };
+		}
+
+		pos = declarationStr.find_first_of('(');
+
+		std::string identifierPart = declarationStr.substr(0, pos);
+		std::string argsPart       = CStringUtils::RemoveWhitespaces(declarationStr.substr(pos + 1, pos2 - pos - 1));
+		std::string valuePart      = declarationStr.substr(pos2 + 2, declarationStr.length() - pos2 - 2);
+
+		return { identifierPart , { CStringUtils::Split(argsPart, ","), valuePart } };
+	}
+
+	std::string CShaderPreprocessor::_evalFuncMacro(const TMacroDeclaration& macro, const std::string& args)
+	{
+		std::vector<std::string> separateArgs = CStringUtils::Split(CStringUtils::RemoveWhitespaces(args), ",");
+		std::vector<std::string> argsNames    = std::get<TDefineInfoDesc>(macro).mArgs;
+
+		std::string resultStr = std::get<TDefineInfoDesc>(macro).mValue;
+		
+		std::string::size_type pos = 0;
+
+		for (U32 i = 0; i < separateArgs.size(); ++i)
+		{
+			while ((pos = resultStr.find(argsNames[i])) != std::string::npos)
+			{
+				resultStr = resultStr.substr(0, pos) + separateArgs[i] + resultStr.substr(pos + argsNames[i].length(), resultStr.length() - pos - argsNames[i].length());
+			}
+		}
+
+		return resultStr;
+	}
+
+
+	U32 CBaseShaderCompiler::mMaxStepsCount = 1000;
+
+	const C8* CBaseShaderCompiler::mEntryPointsDefineNames[3] = { "VERTEX_ENTRY", "PIXEL_ENTRY", "GEOMETRY_ENTRY" };
+
+	const C8* CBaseShaderCompiler::mTargetVersionDefineName = "TARGET";		
 
 	CBaseShaderCompiler::CBaseShaderCompiler() :
 		mIsInitialized(false)
@@ -176,11 +607,11 @@ namespace TDEngine2
 		return nullptr;
 	}
 
-	CBaseShaderCompiler::TShaderMetadata CBaseShaderCompiler::_parseShader(CTokenizer& tokenizer) const
+	CBaseShaderCompiler::TShaderMetadata CBaseShaderCompiler::_parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable) const
 	{
 		TShaderMetadata extractedMetadata {};
 		
-		extractedMetadata.mDefines = _processDefines(tokenizer.GetSourceStr());
+		extractedMetadata.mDefines = definesTable;
 
 		extractedMetadata.mStructDeclsMap = _processStructDecls(tokenizer);
 		
@@ -188,98 +619,14 @@ namespace TDEngine2
 
 		extractedMetadata.mShaderResources = _processShaderResourcesDecls(tokenizer);
 
-		extractedMetadata.mVertexShaderEntrypointName   = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_VERTEX]];
-		extractedMetadata.mPixelShaderEntrypointName    = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_PIXEL]];
-		extractedMetadata.mGeometryShaderEntrypointName = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_GEOMETRY]];
+		extractedMetadata.mVertexShaderEntrypointName   = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_VERTEX]].mValue;
+		extractedMetadata.mPixelShaderEntrypointName    = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_PIXEL]].mValue;
+		extractedMetadata.mGeometryShaderEntrypointName = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_GEOMETRY]].mValue;
 
 		///\todo implement convertation of a version string into E_SHADER_TARGET_VERSION enum's value
-		extractedMetadata.mFeatureLevel = _getTargetVersionFromStr(extractedMetadata.mDefines[mTargetVersionDefineName]);
+		extractedMetadata.mFeatureLevel = _getTargetVersionFromStr(extractedMetadata.mDefines[mTargetVersionDefineName].mValue);
 
 		return extractedMetadata;
-	}
-
-	std::string CBaseShaderCompiler::_removeComments(const std::string& sourceCode) const
-	{
-		std::string processedSourceCode = sourceCode;
-
-		/// replace \t with ' '
-		std::replace_if(processedSourceCode.begin(), processedSourceCode.end(), [](C8 ch) { return ch == '\t'; }, ' ');
-
-		processedSourceCode = CStringUtils::RemoveExtraWhitespaces(processedSourceCode);
-		processedSourceCode = CStringUtils::RemoveSingleLineComments(processedSourceCode);
-
-		return CStringUtils::RemoveMultiLineComments(processedSourceCode);	/// remove multi-line C style comments
-	}
-
-	CBaseShaderCompiler::TDefinesMap CBaseShaderCompiler::_processDefines(const std::string& sourceCode) const
-	{
-		TDefinesMap defines;
-
-		U32 firstPos = 0;
-		U32 secondPos = 0;
-		U32 nextPos = 0;
-
-		std::string currLine;
-		std::string currDefineName;
-		std::string currDefineValue;
-
-		/// By now it supports single line only macro
-		/// \todo Multi-line macro support should be implemented
-
-		while ((firstPos = sourceCode.find_first_of("#", nextPos)) != std::string::npos)
-		{
-			nextPos = firstPos + 1;
-
-			/// if it's a define directive try to parse
-			firstPos = sourceCode.find("define", nextPos);
-
-			if (firstPos == std::string::npos)
-			{
-				continue;
-			}
-
-			/// extract the line with the definition
-			secondPos = sourceCode.find_first_of('\n', nextPos);
-
-			nextPos = secondPos + 1;
-
-			currLine = sourceCode.substr(firstPos + 6, secondPos - firstPos - 6); /// 6 is a length of "define" keyword
-
-																				  /// extract name 
-			firstPos = currLine.find_first_not_of(' ');
-
-			if (firstPos == std::string::npos)
-			{
-				continue;
-			}
-
-			secondPos = currLine.find_first_of(' ', firstPos);
-
-			if (secondPos == std::string::npos)
-			{
-				secondPos = currLine.find_first_of(')', firstPos);
-
-				if (secondPos == std::string::npos)
-				{
-					currDefineName = currLine.substr(firstPos, currLine.length() - firstPos);
-
-					defines.emplace(currDefineName, "1"); // assign a default value
-
-					continue;
-				}
-			}
-
-			++secondPos;
-
-			currDefineName = currLine.substr(firstPos, secondPos - firstPos - 1);
-
-			/// extract value, if it doesn't exists the value is set to 1 by default
-			currDefineValue = currLine.substr(secondPos, currLine.length() - secondPos);
-
-			defines.emplace(currDefineName, currDefineValue);
-		}
-
-		return defines;
 	}
 
 	bool CBaseShaderCompiler::_isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const CBaseShaderCompiler::TShaderMetadata& shaderMeta) const
@@ -287,7 +634,7 @@ namespace TDEngine2
 		TDefinesMap::const_iterator defineIter = shaderMeta.mDefines.find(mEntryPointsDefineNames[shaderStage]);
 
 		if (defineIter == shaderMeta.mDefines.cend() ||
-			defineIter->second.empty())
+			defineIter->second.mValue.empty())
 		{
 			return false;
 		}
