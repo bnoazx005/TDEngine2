@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <atomic>
 #include <string>
+#include <vector>
 
 
 namespace TDEngine2
@@ -417,6 +418,28 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static std::string RemoveExtraWhitespaces(const std::string& str);
+
+			/*!
+				\brief The method removew all whitespacesfrom a give string
+
+				\param[in] str A processing string
+
+				\return A processed string without spaces
+			*/
+
+			TDE2_API static std::string RemoveWhitespaces(const std::string& str);
+
+			/*!
+				\brief The method splits a given string into an array of substring which are separated with given delimiters
+
+				\param[in] str An original string
+
+				\param[in] delims A string contains delimiters
+
+				\return An array of substring that are separated with delimiters
+			*/
+
+			TDE2_API static std::vector<std::string> Split(const std::string& str, const std::string& delims);
 
 			/*!
 				\brief The method returns an empty string

@@ -66,4 +66,29 @@ TEST_CASE("CStringUtils Tests")
 
 		REQUIRE(CStringUtils::RemoveMultiLineComments(actualStr) == expectedStr);
 	}
+
+	SECTION("Split_PassStringWithDelimiters_ReturnsVectorOfStrings")
+	{
+		std::string str = "1 2 3 4 5";
+
+		std::vector<std::string> expectedResult { "1", "2", "3", "4", "5" };
+
+		std::vector<std::string> actualResult = CStringUtils::Split(str, " ");
+
+		REQUIRE(expectedResult.size() == actualResult.size());
+
+		for (U32 i = 0; i < expectedResult.size(); ++i)
+		{
+			REQUIRE(expectedResult[i] == actualResult[i]);
+		}
+	}
+
+	SECTION("Split_PassEmptyString_ReturnsEmptyVector")
+	{
+		std::string str = CStringUtils::GetEmptyStr();
+		
+		std::vector<std::string> actualResult = CStringUtils::Split(str, " ");
+
+		REQUIRE(0 == actualResult.size());
+	}
 }

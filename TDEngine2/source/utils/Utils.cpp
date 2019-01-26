@@ -42,8 +42,8 @@ namespace TDEngine2
 			return source;
 		}
 
-		U32 startPos = 0;
-		U32 endPos   = 0;
+		std::string::size_type startPos = 0;
+		std::string::size_type endPos   = 0;
 
 		std::string processedStr { source };
 
@@ -56,7 +56,7 @@ namespace TDEngine2
 				return source.substr(0, startPos); /// assume that the rest part is a comment
 			}
 
-			processedStr = processedStr.substr(0, startPos).append(processedStr.substr(endPos + 1, processedStr.length() - endPos));
+			processedStr = processedStr.substr(0, startPos) + processedStr.substr(endPos + 1, processedStr.length() - endPos);
 		}
 
 		return processedStr;
@@ -70,16 +70,16 @@ namespace TDEngine2
 			return source;
 		}
 
-		U32 firstPos  = 0;
-		U32 secondPos = 0;
-		U32 thirdPos  = 0;
+		std::string::size_type firstPos  = 0;
+		std::string::size_type secondPos = 0;
+		std::string::size_type thirdPos  = 0;
 		
 		const U32 commentPrefixLength  = commentPrefixStr.length();
 		const U32 commentPostfixLength = commentPostfixStr.length();
 
 		U8 numOfNestedCommentsBlocks = 0;
 
-		U32 seekPos;
+		std::string::size_type seekPos;
 		
 		std::string processedStr { source };
 
@@ -120,7 +120,7 @@ namespace TDEngine2
 
 			if (numOfNestedCommentsBlocks == 0)
 			{
-				processedStr = processedStr.substr(0, firstPos).append(processedStr.substr(secondPos + commentPostfixLength, processedStr.length() - secondPos - commentPostfixLength));
+				processedStr = processedStr.substr(0, firstPos) + processedStr.substr(secondPos + commentPostfixLength, processedStr.length() - secondPos - commentPostfixLength);
 			}
 			else
 			{
@@ -149,6 +149,48 @@ namespace TDEngine2
 		}), processedStr.end());
 
 		return processedStr;
+	}
+
+	std::string CStringUtils::RemoveWhitespaces(const std::string& str)
+	{
+		std::string processedStr{ str };
+
+		processedStr.erase(std::remove_if(processedStr.begin(), processedStr.end(), [](C8 ch)
+		{
+			return std::isspace(ch);
+		}), processedStr.end());
+
+		return processedStr;
+	}
+	
+	std::vector<std::string> CStringUtils::Split(const std::string& str, const std::string& delims)
+	{
+		std::string::size_type pos     = 0;
+		std::string::size_type currPos = 0;
+
+		std::string currToken;
+
+		std::vector<std::string> tokens;
+
+		while ((currPos < str.length()) && ((pos = str.find_first_of(delims, currPos)) != std::string::npos))
+		{
+			currToken = std::move(str.substr(currPos, pos - currPos));
+
+			if (!currToken.empty())
+			{
+				tokens.emplace_back(std::move(currToken));
+			}
+			
+			currPos = pos + 1;
+		}
+
+		/// insert last token if it wasn't pushed back before
+		if (currPos != str.length())
+		{
+			tokens.emplace_back(std::move(str.substr(currPos, str.length() - currPos)));
+		}
+
+		return std::move(tokens);
 	}
 
 	std::string CStringUtils::GetEmptyStr()
