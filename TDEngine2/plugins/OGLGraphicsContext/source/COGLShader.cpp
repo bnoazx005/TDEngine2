@@ -196,13 +196,13 @@ namespace TDEngine2
 				continue;
 			}
 
-			mTexturesHashTable[currName] = currSlotIndex;
+			mTexturesHashTable[currName] = currShaderResourceInfo.second.mSlot;
 
 			GL_SAFE_CALL(glUniform1i(currSlotIndex, currShaderResourceInfo.second.mSlot));
 
-			mpTextures.resize(currSlotIndex + 1);
+			mpTextures.resize(currShaderResourceInfo.second.mSlot + 1);
 
-			mpTextures[currSlotIndex] = nullptr;
+			mpTextures[currShaderResourceInfo.second.mSlot] = nullptr;
 		}
 
 		glUseProgram(0);

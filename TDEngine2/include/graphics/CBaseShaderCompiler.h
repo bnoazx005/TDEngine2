@@ -104,9 +104,11 @@ namespace TDEngine2
 				std::string              mValue;
 			} TDefineInfoDesc, *TDefineInfoDescPtr;
 
-			typedef std::unordered_map<std::string, TDefineInfoDesc> TDefinesMap;
+			typedef std::unordered_map<std::string, TDefineInfoDesc> TDefinesMap;	
 
-			typedef std::tuple<std::string, TDefineInfoDesc> TMacroDeclaration;
+			typedef std::tuple<std::string, TDefineInfoDesc>         TMacroDeclaration;
+
+			typedef std::vector<TMacroDeclaration>                   TDefinesOrderedArray;
 
 			typedef struct TPreprocessorResult
 			{
@@ -133,11 +135,13 @@ namespace TDEngine2
 
 			TDE2_API static TPreprocessorResult _expandMacros(const std::string& source);
 
-			TDE2_API static std::string _expandMacro(const std::string& source, const TDefinesMap& definesTable);
+			TDE2_API static std::string _expandMacro(const std::string& source, const TDefinesOrderedArray& definesTable);
 
 			TDE2_API static TMacroDeclaration _parseMacroDeclaration(const std::string& declarationStr);
 
 			TDE2_API static std::string _evalFuncMacro(const TMacroDeclaration& macro, const std::string& args);
+
+			TDE2_API static TDefinesMap _buildDefinesTable(const TDefinesOrderedArray& definesArray);
 	};
 
 

@@ -486,7 +486,8 @@ namespace TDEngine2
 	{
 		SST_VERTEX,
 		SST_PIXEL,
-		SST_GEOMETRY
+		SST_GEOMETRY,
+		SST_NONE
 	};
 
 	constexpr U8 MaxNumOfShaderStages = static_cast<U8>(SST_GEOMETRY) + 1;

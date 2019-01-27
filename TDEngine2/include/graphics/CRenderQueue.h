@@ -220,7 +220,7 @@ namespace TDEngine2
 
 					TDE2_API CRenderQueueIterator& operator++();
 
-					TDE2_API CRenderQueueIterator& operator++(int);
+					TDE2_API CRenderQueueIterator operator++(int);
 					
 					TDE2_API TRenderCommand* operator*() const;
 				protected:

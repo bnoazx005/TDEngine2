@@ -10,6 +10,7 @@
 #include <iterator>
 #include <unordered_set>
 #include <stack>
+#include <iostream>
 
 
 namespace TDEngine2
@@ -264,7 +265,15 @@ namespace TDEngine2
 
 		C8 currCh;
 
-		TDefinesMap defines {};
+		TDefinesOrderedArray defines {};
+
+		auto isDefined = [&defines] (const std::string& name) -> bool
+		{
+			return defines.cend() != std::find_if(defines.cbegin(), defines.cend(), [&name](const TMacroDeclaration& decl)
+			{
+				return std::get<std::string>(decl) == name;
+			});
+		};
 
 		std::stack<bool> frameStack; /// contains information about current group's inclusion via result of #if #ifndef and #ifdef
 		
@@ -317,9 +326,7 @@ namespace TDEngine2
 								
 				pos = currFrame.find_first_of(' ');
 
-				auto defineDecl = _parseMacroDeclaration(currFrame);
-
-				defines.emplace(std::get<std::string>(defineDecl), std::get<TDefineInfoDesc>(defineDecl));
+				defines.emplace_back(_parseMacroDeclaration(currFrame));
 				
 				currFrame.clear();
 
@@ -337,7 +344,7 @@ namespace TDEngine2
 
 				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier and replacement-list
 
-				defines["TARGET"] = { {}, currFrame };
+				defines.push_back({ "TARGET", { {}, currFrame }});
 
 				processedSource += "#version " + currFrame + "\n";
 
@@ -356,7 +363,10 @@ namespace TDEngine2
 
 				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
 
-				defines.erase(currFrame);
+				defines.erase(std::find_if(defines.cbegin(), defines.cend(), [&currFrame](const TMacroDeclaration& decl)
+				{
+					return std::get<std::string>(decl) == currFrame;
+				}));
 
 				currFrame.clear();
 
@@ -373,7 +383,7 @@ namespace TDEngine2
 
 				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
 
-				frameStack.push(defines.find(currFrame) == defines.cend());
+				frameStack.push(!isDefined(currFrame));
 				
 				currFrame.clear();
 
@@ -390,7 +400,7 @@ namespace TDEngine2
 
 				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
 
-				frameStack.push(defines.find(currFrame) != defines.cend());
+				frameStack.push(isDefined(currFrame));
 				
 				currFrame.clear();
 
@@ -452,10 +462,10 @@ namespace TDEngine2
 			++pos;
 		}
 
-		return { processedSource, defines };
+		return { processedSource, CShaderPreprocessor::_buildDefinesTable(defines) };
 	}
 
-	std::string CShaderPreprocessor::_expandMacro(const std::string& source, const TDefinesMap& definesTable)
+	std::string CShaderPreprocessor::_expandMacro(const std::string& source, const TDefinesOrderedArray& definesTable)
 	{
 		if (definesTable.empty())
 		{
@@ -474,9 +484,9 @@ namespace TDEngine2
 		
 		for (auto currMacroEntity : definesTable)
 		{
-			currMacroIdentifier = currMacroEntity.first;
+			currMacroIdentifier = std::get<std::string>(currMacroEntity);
 
-			currMacroDesc = currMacroEntity.second;
+			currMacroDesc = std::get<TDefineInfoDesc>(currMacroEntity);
 
 			/// simple identifier
 			while (currMacroDesc.mArgs.empty() && (pos = processedSource.find(currMacroIdentifier)) != std::string::npos)
@@ -545,6 +555,31 @@ namespace TDEngine2
 		}
 
 		return resultStr;
+	}
+
+	CShaderPreprocessor::TDefinesMap CShaderPreprocessor::_buildDefinesTable(const TDefinesOrderedArray& definesArray)
+	{
+		TDefinesMap definesTable {};
+
+		if (definesArray.empty())
+		{
+			return definesTable;
+		}
+
+		std::string currMacroIdentifier;
+
+		TDefineInfoDesc currMacroDesc;
+		
+		for (auto currMacroEntity : definesArray)
+		{
+			currMacroIdentifier = std::get<std::string>(currMacroEntity);
+
+			currMacroDesc = std::get<TDefineInfoDesc>(currMacroEntity);
+
+			definesTable.emplace(currMacroIdentifier, currMacroDesc);
+		}
+
+		return definesTable;
 	}
 
 

@@ -12,7 +12,6 @@
 #include <string>
 #include <GL/glew.h>
 #include <cstring>
-#include <iostream>
 
 
 namespace TDEngine2
@@ -29,7 +28,7 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 		
-		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, _injectInternalDefines(SST_VERTEX, source)).Get();
+		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, _injectInternalDefines(SST_NONE, source)).Get();
 
 		std::string preprocessedSource = preprocessorResult.mPreprocessedSource;
 
@@ -136,7 +135,7 @@ namespace TDEngine2
 			glGetShaderInfoLog(shaderHandler, messageLength, &messageLength, &tmpErrorMsgBuffer[0]);
 			
 			std::string errorMessageStr(tmpErrorMsgBuffer.begin(), tmpErrorMsgBuffer.end());
-
+			
 			glDeleteShader(shaderHandler);
 
 			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
@@ -252,8 +251,12 @@ namespace TDEngine2
 
 		newSourceCode = source.substr(0, endPos);
 
-		newSourceCode.append("\n#define ").append(_getShaderStageDefineName(shaderStage)).append(" 1\n")
-					 .append("\n#define ").append("TDE2_GLSL_SHADER\n");
+		if (shaderStage != SST_NONE)
+		{
+			newSourceCode.append("\n#define ").append(_getShaderStageDefineName(shaderStage)).append(" 1\n");
+		}
+
+		newSourceCode.append("\n#define ").append("TDE2_GLSL_SHADER\n");
 
 		newSourceCode.append(source.substr(endPos, source.length() - endPos));
 

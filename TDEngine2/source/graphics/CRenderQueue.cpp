@@ -117,7 +117,7 @@ namespace TDEngine2
 		return *this;
 	}
 
-	CRenderQueue::CRenderQueueIterator& CRenderQueue::CRenderQueueIterator::operator++(int)
+	CRenderQueue::CRenderQueueIterator CRenderQueue::CRenderQueueIterator::operator++(int)
 	{
 		CRenderQueueIterator oldIter(*this);
 
