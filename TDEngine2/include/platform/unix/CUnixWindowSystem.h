@@ -219,6 +219,16 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixWindowSystem)
 
 			TDE2_API E_RESULT_CODE _createWindow();
+
+			TDE2_API void _processEvents();
+
+			TDE2_API void _sendWindowResizedEvent(U32 width, U32 height);
+
+			TDE2_API void _sendWindowMovedEvent(U32 x, U32 y);
+
+			TDE2_API void _setFullscreenMode(bool value);
+
+			TDE2_API void _disableWindowResizing();
 		protected:
 			Display*                  mpDisplayHandler;
 

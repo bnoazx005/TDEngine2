@@ -78,8 +78,6 @@ namespace TDEngine2
 
 		GLXFBConfig currentFrameBuffer = frameBufferConfig[0];
 
-		XFree(frameBufferConfig);
-
 		PFNGLXGETVISUALFROMFBCONFIGPROC pGLXGetVisualFromFBConfig = 
 										(PFNGLXGETVISUALFROMFBCONFIGPROC)glXGetProcAddressARB((const GLubyte*)"glXGetVisualFromFBConfig");
 
@@ -136,6 +134,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		XFree(frameBufferConfig);
 		XFree(pVisualInfo);
 
 		mIsInitialized = true;

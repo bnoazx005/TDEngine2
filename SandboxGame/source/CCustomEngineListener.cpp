@@ -75,43 +75,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 	mpGraphicsContext->BindTextureSampler(0, mTextureSampler);
 	
-	if (mpInputContext->IsMouseButtonPressed(0))
-	{
-		std::cout << "pressed\n";
-	}
-
 	TDEngine2::CTransform* pCameraTransform = mpCameraEntity->GetComponent<TDEngine2::CTransform>();
 
-	TDEngine2::TVector2 lThumbShift = mpInputContext->GetGamepad(0)->GetLThumbShiftVec();
-
-	std::cout << lThumbShift.x << " " << lThumbShift.y << std::endl;
-
-	auto ms = mpInputContext->GetMousePosition();
-
-	std::cout << "dx: " << ms.x << "; dy: " << ms.y << "\n";
-	
-	pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::TVector3(lThumbShift.x, lThumbShift.y, 0.0f));
-
-	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_W))
-	{
-		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::UpVector3);
-	}
-
-	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_S))
-	{
-		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * TDEngine2::UpVector3);
-	}
-
-	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_A))
-	{
-		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * TDEngine2::RightVector3);
-	}
-
-	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_D))
-	{
-		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::RightVector3);
-	}
-	
 	return TDEngine2::RC_OK;
 }
 
