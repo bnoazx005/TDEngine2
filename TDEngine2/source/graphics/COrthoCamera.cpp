@@ -131,7 +131,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		/// \todo refactor this fragment
-		return CreateOrthoCamera(640.0f, 480.0f, 1.0f, 1000.0f, result);
+		return CreateOrthoCamera(8.0f, 5.0f, 1.0f, 1000.0f, result);
 	}
 
 	TypeId COrthoCameraFactory::GetComponentTypeId() const

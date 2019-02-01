@@ -92,7 +92,7 @@ namespace TDEngine2
 
 			mCamerasTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
 
-			mCameras.push_back(pCurrEntity->GetComponent<CBaseCamera>());
+			mCameras.push_back(pCurrEntity->GetComponent<COrthoCamera>());
 		}
 
 		if (!mCameras.empty())	/// the first camera in the array is marked as main by default

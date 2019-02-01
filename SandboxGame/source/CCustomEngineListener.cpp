@@ -43,7 +43,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
 
-	mpCameraEntity->AddComponent<TDEngine2::CPerspectiveCamera>();
+	mpCameraEntity->AddComponent<TDEngine2::COrthoCamera>();
 	
 	mpGlobalShaderProperties = TDEngine2::CreateGlobalShaderProperties(mpGraphicsObjectManager, result);
 
