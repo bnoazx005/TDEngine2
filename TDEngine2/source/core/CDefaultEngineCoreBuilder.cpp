@@ -344,6 +344,11 @@ namespace TDEngine2
 		{
 			return result;
 		}
+#elif defined(TDE2_USE_UNIXPLATFORM)
+		if ((result = mpPluginManagerInstance->LoadPlugin("./UnixInputContext")) != RC_OK)
+		{
+			return result;
+		}
 #endif
 
 		return RC_OK;

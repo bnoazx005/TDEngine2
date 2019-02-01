@@ -7,6 +7,7 @@ option(IS_PLUGIN_BUILDING_ENABLED "The option shows whether plugins should be bu
 option(BUILD_D3D11_GCTX_PLUGIN "Build D3D11 Graphics context plugin" ON)
 option(BUILD_WINDOWS_INPUTCTX_PLUGIN "Build Windows input context plugin" ON)
 option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
+option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")

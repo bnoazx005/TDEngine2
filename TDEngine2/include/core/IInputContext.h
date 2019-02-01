@@ -62,6 +62,7 @@ namespace TDEngine2
 		KC_PRINT,
 		KC_SYSREQ,
 		KC_BREAK,
+		KC_NONE
 	};
 
 

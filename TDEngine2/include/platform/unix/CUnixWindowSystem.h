@@ -10,6 +10,8 @@
 #include "./../../utils/Config.h"
 #include "./../../utils/Utils.h"
 #include "./../../core/Event.h"
+#include <vector>
+#include <functional>
 
 #if defined(TDE2_USE_UNIXPLATFORM)
 

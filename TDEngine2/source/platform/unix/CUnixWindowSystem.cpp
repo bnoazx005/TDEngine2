@@ -4,7 +4,6 @@
 #include "./../../../include/utils/CFileLogger.h"
 #include "./../../../include/core/IEventManager.h"
 #include <cstring>
-#include <iostream>
 
 
 #if defined (TDE2_USE_UNIXPLATFORM)
@@ -117,7 +116,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		XSelectInput(mpDisplayHandler, mWindowHandler, StructureNotifyMask);
+		XSelectInput(mpDisplayHandler, mWindowHandler, StructureNotifyMask | KeyPressMask | KeyReleaseMask);
 
 		XClearWindow(mpDisplayHandler, mWindowHandler);	// clear the window
 
