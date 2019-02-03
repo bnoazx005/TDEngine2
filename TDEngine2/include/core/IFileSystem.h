@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
+#include "./../utils/CResult.h"
 #include "IEngineSubsystem.h"
 #include "IBaseObject.h"
 #include <string>
@@ -108,32 +109,46 @@ namespace TDEngine2
 			UnregisterFileFactory();
 
 			/*!
-				\brief The method creates a new file
+				\brief The method opens a file. If 'createIfDoesntExist' argument equals to true the method
+				will create a new file in a file system if latter doesn't exist. If the parameter
+				equals to false an error will be returned
 
 				\param[in] filename A string that contains a path to a file
-				\param[out] result An output of a function, which contains a result of its execution
+				\param[in] createIfDoesntExist If this argument equals to true the method
+				will create a new file in a file system if latter doesn't exist. If the parameter
+				equals to false an error will be returned
 
-				\return A pointer to a new allocated file instance
+				\return Either a handle of opened file or an error code
 			*/
 
 			template <typename T>
 			TDE2_API
 #if _HAS_CXX17
-			std::enable_if_t<std::is_base_of_v<IFile, T>, T*>
+			std::enable_if_t<std::is_base_of_v<IFile, T>, TResult<TFileEntryId>>
 #else
-			typename std::enable_if<std::is_base_of<IFile, T>::value, T*>::type
+			typename std::enable_if<std::is_base_of<IFile, T>::value, TResult<TFileEntryId>>::type
 #endif
-			Create(const std::string& filename, E_RESULT_CODE& result);
-
+			Open(const std::string& filename, bool createIfDoesntExist = false);
+			
 			/*!
-				\brief The method closes specified file (shouldn't be used explicitly, call Close method of IFile instead)
+				\brief The method closes a file with a given filename
 
-				\param[in] pFile A pointer to IFile's implementation
+				\param[in] filename A path to a file
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE CloseFile(IFile* pFile) = 0;
+			TDE2_API virtual E_RESULT_CODE CloseFile(const std::string& filename) = 0;
+
+			/*!
+				\brief The method closes a file with a given file's identifier
+
+				\param[in] fileId An identifier of a file
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE CloseFile(TFileEntryId fileId) = 0;
 
 			/*!
 				\brief The method closes all opened files
@@ -160,26 +175,45 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual std::string GetCurrDirectory() const = 0;
+
+			/*!
+				\brief The method returns a pointer of a file by its handle
+
+				\param[in] fileId An identifier of a file
+
+				\return A pointer to IFile implementation
+			*/
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IFile, T>, T*>
+#else
+			typename std::enable_if<std::is_base_of<IFile, T>::value, T*>::type
+#endif
+			Get(TFileEntryId fileId);
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileSystem)
 
-			TDE2_API virtual IFile* _createFile(U32 typeId, const std::string& filename, E_RESULT_CODE& result) = 0;
+			TDE2_API virtual TResult<TFileEntryId> _openFile(U32 typeId, const std::string& filename, bool createIfDoesntExist) = 0;
 
 			TDE2_API virtual E_RESULT_CODE _registerFileFactory(U32 typeId, TCreateFileCallback pCreateFileCallback) = 0;
 
 			TDE2_API virtual E_RESULT_CODE _unregisterFileFactory(U32 typeId) = 0;
+
+			TDE2_API virtual IFile* _getFile(TFileEntryId fileId) = 0;
 	};
 
 	
 	template <typename T>
 #if _HAS_CXX17
-	std::enable_if_t<std::is_base_of_v<IFile, T>, T*>
+	std::enable_if_t<std::is_base_of_v<IFile, T>, TResult<TFileEntryId>>
 #else
-	typename std::enable_if<std::is_base_of<IFile, T>::value, T*>::type
+	typename std::enable_if<std::is_base_of<IFile, T>::value, TResult<TFileEntryId>>::type
 #endif
-	IFileSystem::Create(const std::string& filename, E_RESULT_CODE& result)
+	IFileSystem::Open(const std::string& filename, bool createIfDoesntExist)
 	{
-		return dynamic_cast<T*>(_createFile(T::GetTypeId(), filename, result));
+		return _openFile(T::GetTypeId(), filename, createIfDoesntExist);
 	}
 
 	template <typename T>
@@ -202,5 +236,17 @@ namespace TDEngine2
 	IFileSystem::UnregisterFileFactory()
 	{
 		return _unregisterFileFactory(T::GetTypeId());
+	}
+
+	template <typename T>
+	TDE2_API
+#if _HAS_CXX17
+	std::enable_if_t<std::is_base_of_v<IFile, T>, T*>
+#else
+	typename std::enable_if<std::is_base_of<IFile, T>::value, T*>::type
+#endif
+	IFileSystem::Get(TFileEntryId fileId)
+	{
+		return dynamic_cast<T*>(_getFile(fileId));
 	}
 }

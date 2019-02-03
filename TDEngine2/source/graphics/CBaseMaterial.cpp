@@ -230,13 +230,15 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IBinaryFileReader* pMaterialFile = dynamic_cast<IBinaryFileReader*>(mpFileSystem->Create<CBinaryFileReader>(pResource->GetName(), result));
-		
-		if (result != RC_OK)
+		TResult<TFileEntryId> materialFileId = mpFileSystem->Open<CBinaryFileReader>(pResource->GetName());
+
+		if (materialFileId.HasError())
 		{
-			return result;
+			return materialFileId.GetError();
 		}
 
+		IBinaryFileReader* pMaterialFile = dynamic_cast<IBinaryFileReader*>(mpFileSystem->Get<CBinaryFileReader>(materialFileId.Get()));
+		
 		/// try to read the file's header
 		TBaseMaterialFileHeader header = _readMaterialFileHeader(pMaterialFile).Get();
 

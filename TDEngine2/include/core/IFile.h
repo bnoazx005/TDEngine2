@@ -38,6 +38,15 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Open(IFileSystem* pFileSystem, const std::string& filename) = 0;
 
 			/*!
+				\brief The method increment a value of the internal reference counter. You can ignore 
+				this method if you work in single-threaded manner. If you want to use an object from
+				another thread you should increment its counter to prevent non thread-safe deletion by
+				some of running threads.
+			*/
+
+			TDE2_API virtual void AddRef() = 0;
+
+			/*!
 				\brief The method closes current opened file
 				
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -60,6 +69,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool IsOpen() const = 0;
+
+			/*!
+				\brief The method returns true if the file is used within
+				the same thread in which it was created
+
+				\return The method returns true if the file is used within
+				the same thread in which it was created
+			*/
+
+			TDE2_API virtual bool IsParentThread() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFile)
 	};

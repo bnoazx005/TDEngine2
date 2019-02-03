@@ -626,5 +626,5 @@ namespace TDEngine2
 
 	typedef U32 TFileEntryId;
 
-	constexpr TFileEntryId InvalidFileEntryId = 0;
+	constexpr TFileEntryId InvalidFileEntryId = (std::numeric_limits<TFileEntryId>::max)();
 }

@@ -67,9 +67,7 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 		TDEngine2::IIndexBuffer*            mpIndexBuffer;
 
 		TDEngine2::IWorld*                  mpWorld;
-
-		TDEngine2::IGlobalShaderProperties* mpGlobalShaderProperties;
-
+		
 		TDEngine2::CEntity*                 mpCameraEntity;
 
 		TDEngine2::IDesktopInputContext*    mpInputContext;

@@ -225,7 +225,14 @@ namespace TDEngine2
 
 			includingFilename = matches[2];
 
-			pCurrIncludeFile = pFileSystem->Create<CTextFileReader>(includingFilename, result);
+			TResult<TFileEntryId> includeFileId = pFileSystem->Open<CTextFileReader>(includingFilename);
+
+			if (includeFileId.HasError())
+			{
+				continue;
+			}
+
+			pCurrIncludeFile = pFileSystem->Get<CTextFileReader>(includeFileId.Get());
 
 			if (result != RC_OK)
 			{

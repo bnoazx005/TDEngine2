@@ -5,6 +5,7 @@
 #include <algorithm>
 #if _HAS_CXX17
 #include <filesystem>
+#include <fstream>
 #else
 #include <fstream>
 #endif
@@ -60,6 +61,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseFileSystem::Mount(const std::string& path, const std::string& aliasPath)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -89,6 +92,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseFileSystem::Unmount(const std::string& aliasPath)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -110,41 +115,48 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	E_RESULT_CODE CBaseFileSystem::CloseFile(IFile* pFile)
+	E_RESULT_CODE CBaseFileSystem::CloseFile(const std::string& filename)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+		
+		return _closeFile(filename);
+	}
+
+	E_RESULT_CODE CBaseFileSystem::CloseFile(TFileEntryId fileId)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pFile)
+		if (fileId == InvalidFileEntryId)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		std::string filename = pFile->GetFilename();
+		TResult<IFile*> filePointer = mActiveFiles[fileId];
 
-		auto entryHashIter = mFilesMap.find(filename);
-
-		if (entryHashIter == mFilesMap.cend() ||	// there is no file's entry within the registry or its internal descriptor is still opened
-			pFile->IsOpen())
+		if (filePointer.HasError())
 		{
-			return RC_FAIL;
+			return filePointer.GetError();
 		}
 
-		U32 hashValue = (*entryHashIter).second;
+		IFile* pFileEntry = filePointer.Get();
 
-		mFilesMap.erase(entryHashIter);
-
-		mActiveFiles[hashValue] = nullptr;
-
-		LOG_MESSAGE("[File System] Existing file descriptor was closed (" + filename + ")");
-
-		return RC_OK;
+		return _closeFile(pFileEntry->GetFilename());
 	}
 
 	E_RESULT_CODE CBaseFileSystem::CloseAllFiles()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -152,8 +164,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		for (IFile* pCurrFile : mActiveFiles)
+		IFile* pCurrFile = nullptr;
+
+		for (U32 i = 0; i < mActiveFiles.GetSize(); ++i)
 		{
+			pCurrFile = mActiveFiles[i].Get();
+
 			if (!pCurrFile) /// if pCurrFile is nullptr then it has already closed manually
 			{
 				continue;
@@ -199,73 +215,72 @@ namespace TDEngine2
 		return EST_FILE_SYSTEM;
 	}
 
-	E_RESULT_CODE CBaseFileSystem::_registerFileEntry(IFile* pFileEntry)
+	TFileEntryId CBaseFileSystem::_registerFileEntry(IFile* pFileEntry)
 	{
-		U32 hashValue = mActiveFiles.size();
+		U32 fileEntryId = mActiveFiles.Add(pFileEntry);
 
-		mActiveFiles.push_back(pFileEntry);
-
-		mFilesMap[pFileEntry->GetFilename()] = hashValue;
+		mFilesMap[pFileEntry->GetFilename()] = fileEntryId;
 		
-		return RC_OK;
+		return fileEntryId;
 	}
 
-	IFile* CBaseFileSystem::_createFile(U32 typeId, const std::string& filename, E_RESULT_CODE& result)
+	TResult<TFileEntryId> CBaseFileSystem::_openFile(U32 typeId, const std::string& filename, bool createIfDoesntExist)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mIsInitialized)
 		{
-			result = RC_FAIL;
-
-			return nullptr;
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		if (!_isPathValid(filename))
 		{
-			result = RC_INVALID_ARGS;
-
-			return nullptr;
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		TFileFactoriesRegistry::const_iterator fileFactoryIter = mFileFactoriesMap.find(typeId);
 
 		if (fileFactoryIter == mFileFactoriesMap.cend())
 		{
-			result = RC_INVALID_ARGS;
-
-			return nullptr;
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		///try to find the file's factory
-		TCreateFileCallback pFileFactory = mFileFactories[(*fileFactoryIter).second];
+		TCreateFileCallback pFileFactory = mFileFactories[(*fileFactoryIter).second].Get();
 
 		if (!pFileFactory)
 		{
-			result = RC_FAIL;
-
-			return nullptr;
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}
+
+		/// create a file's entry on a disk if doesn't exist but a user asks for it
+		if (!FileExists(filename) && createIfDoesntExist)
+		{
+			LOG_MESSAGE("[File System] A new file was created (TypeID : " + std::to_string(typeId) + "; filename: " + filename + ")");
+
+			_createNewFile(filename);
+		}
+
+		E_RESULT_CODE result = RC_OK;
 
 		IFile* pNewFileInstance = pFileFactory(this, filename, result);
 
 		if (result != RC_OK)
 		{
-			return nullptr;
+			return TErrorValue<E_RESULT_CODE>(result);
 		}
 
-		result = _registerFileEntry(pNewFileInstance);
-
-		if (result != RC_OK)
-		{
-			return nullptr;
-		}
-
+		TFileEntryId newFileEntryId = _registerFileEntry(pNewFileInstance);
+		
 		LOG_MESSAGE("[File System] A new file descriptor was created by the manager (" + filename + ")");
 
-		return pNewFileInstance;
+		return TOkValue<TFileEntryId>(newFileEntryId);
 	}
 	
 	E_RESULT_CODE CBaseFileSystem::_registerFileFactory(U32 typeId, TCreateFileCallback pCreateFileCallback)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pCreateFileCallback) /// \todo check typeId equals to InvalidTypeId
 		{
 			return RC_INVALID_ARGS;
@@ -277,35 +292,18 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-
-		if (mFileFactoriesFreeSlots.empty())
-		{
-			U32 nextSlotHash = mFileFactories.size() + 1;
-
-			mFileFactories.push_back(pCreateFileCallback);
-
-			mFileFactoriesMap[typeId] = nextSlotHash - 1;
-
-			LOG_MESSAGE("[File System] A new file factory was registred by the manager (TypeID : " + std::to_string(typeId) + ")");
-
-			return RC_OK;
-		}
-
-		U32 nextSlotHash = mFileFactoriesFreeSlots.front() + 1;
-
-		mFileFactoriesFreeSlots.pop_front();
-
-		mFileFactories[nextSlotHash] = pCreateFileCallback;
-
-		mFileFactoriesMap[typeId] = nextSlotHash - 1;
-
-		LOG_MESSAGE("[File System] A new file factory was registred by the manager");
+		
+		mFileFactoriesMap[typeId] = mFileFactories.Add(pCreateFileCallback);
+		
+		LOG_MESSAGE("[File System] A new file factory was registred by the manager (TypeID : " + std::to_string(typeId) + ")");
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CBaseFileSystem::_unregisterFileFactory(U32 typeId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		TFileFactoriesRegistry::const_iterator fileFactoryEntryIter = mFileFactoriesMap.find(typeId);
 
 		if (fileFactoryEntryIter == mFileFactoriesMap.cend())
@@ -313,16 +311,69 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		U32 hashValue = (*fileFactoryEntryIter).second;
+		E_RESULT_CODE result = mFileFactories.RemoveAt(fileFactoryEntryIter->second);
 
-		mFileFactories[hashValue - 1] = nullptr;
+		if (result != RC_OK)
+		{
+			return result;
+		}
 
-		mFileFactoriesFreeSlots.push_back(hashValue - 1);
-
-		mFileFactoriesMap.erase(fileFactoryEntryIter);
-
-		LOG_MESSAGE("[File System] Existing file factory was unregistred by the manager");
+		LOG_MESSAGE("[File System] The folowing file factory was unregistred by the manager (TypeID : " + std::to_string(typeId) + ")");
 
 		return RC_OK;
+	}
+
+	IFile* CBaseFileSystem::_getFile(TFileEntryId fileId)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (fileId == InvalidFileEntryId)
+		{
+			return nullptr;
+		}
+
+		TResult<IFile*> filePointer = mActiveFiles[fileId];
+
+		if (filePointer.HasError())
+		{
+			return nullptr;
+		}
+
+		IFile* pFile = filePointer.Get();
+
+		/// to prevent deletion of a file by one thread when it can be used in another we need to increment its internal counter's value
+		/// later used should Close it. This action will decrement internal counter's value and may destroy the file.
+		if (!pFile->IsParentThread()) 
+		{
+			pFile->AddRef();
+		}
+
+		return pFile;
+	}
+
+	E_RESULT_CODE CBaseFileSystem::_closeFile(const std::string& filename)
+	{
+		auto entryHashIter = mFilesMap.find(filename);
+
+		if (entryHashIter == mFilesMap.cend())
+		{
+			return RC_FAIL;
+		}
+
+		TFileEntryId fileEntryId = (*entryHashIter).second;
+
+		mFilesMap.erase(entryHashIter);
+
+		mActiveFiles.RemoveAt(fileEntryId);
+
+		LOG_MESSAGE("[File System] Existing file descriptor was closed (" + filename + ")");
+
+		return RC_OK;
+	}
+
+	void CBaseFileSystem::_createNewFile(const std::string& filename)
+	{
+		std::ofstream newFileInstance(filename.c_str());
+		newFileInstance.close();
 	}
 }
