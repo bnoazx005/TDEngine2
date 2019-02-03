@@ -622,4 +622,9 @@ namespace TDEngine2
 		FT_ANISOTROPIC,
 		FT_UNUSED = 0x0
 	};
+
+
+	typedef U32 TFileEntryId;
+
+	constexpr TFileEntryId InvalidFileEntryId = 0;
 }

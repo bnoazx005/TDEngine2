@@ -138,6 +138,7 @@
 #include "utils/ITimer.h"
 #include "utils/Utils.h"
 #include "utils/CResult.h"
+#include "utils/CResourceContainer.h"
 
 /// D3D11GraphicsContext plugin's header
 #if defined (TDE2_BUILD_D3D11_GCTX_PLUGIN)
