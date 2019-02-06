@@ -19,6 +19,7 @@ endif ()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/deps/cmake-modules/")
 
 set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/TDEngine2.h"
@@ -248,6 +249,9 @@ if (UNIX)
 	endif()
 endif ()
 
+#build dependencies
+add_subdirectory(deps)
+
 
 add_library(${TDENGINE2_LIBRARY_NAME} SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS})
 
@@ -273,6 +277,10 @@ endif ()
 
 #set up stb library headers
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/stb")
+
+# link Box2D library
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Box2D/")
+target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Box2D/bin/$<CONFIGURATION>/Box2D${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
 #build plugins
 if (IS_PLUGIN_BUILDING_ENABLED)
