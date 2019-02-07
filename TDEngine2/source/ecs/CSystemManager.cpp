@@ -38,26 +38,9 @@ namespace TDEngine2
 		mpEventManager->Subscribe(TOnEntityRemovedEvent::GetTypeId(), this);
 		mpEventManager->Subscribe(TOnComponentCreatedEvent::GetTypeId(), this);
 		mpEventManager->Subscribe(TOnComponentRemovedEvent::GetTypeId(), this);
-
-		E_RESULT_CODE result = RC_OK;
-
-		ISystem* pTransformSystem = CreateTransformSystem(result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mBuiltinSystems.push_back(pTransformSystem);
-
+		
 		mIsInitialized = true;
 		
-		/// register builtin systems
-		for (auto iter = mBuiltinSystems.begin(); iter != mBuiltinSystems.end(); ++iter)
-		{
-			RegisterSystem(*iter);
-		}
-
 		return RC_OK;
 	}
 
@@ -69,17 +52,10 @@ namespace TDEngine2
 		}
 
 		E_RESULT_CODE result = RC_OK;
-
-		ISystem* pCurrSystem = nullptr;
-
-		for (auto iter = mBuiltinSystems.begin(); iter != mBuiltinSystems.end(); ++iter)
+		
+		while (!mpActiveSystems.empty())
 		{
-			pCurrSystem = (*iter);
-
-			if (!pCurrSystem || ((result = UnregisterSystemImmediately(pCurrSystem)) != RC_OK))
-			{
-				return result;
-			}
+			UnregisterSystemImmediately(mpActiveSystems.front().mSystemId);
 		}
 
 		mIsInitialized = false;
@@ -89,33 +65,124 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSystemManager::RegisterSystem(ISystem* pSystem)
+	TResult<TSystemId> CSystemManager::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)
 	{
 		if (!pSystem)
 		{
-			return RC_INVALID_ARGS;
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		auto duplicateIter = std::find(mpActiveSystems.begin(), mpActiveSystems.end(), pSystem);
+		auto duplicateIter = std::find_if(mpActiveSystems.begin(), mpActiveSystems.end(), [&pSystem](const TSystemDesc& sysDesc)
+		{
+			return sysDesc.mpSystem == pSystem;
+		});
 
 		if (duplicateIter != mpActiveSystems.end()) /// if there is a duplicate, just interrupt registration process
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		U32 lastUsedSystemId = mSystemsIdentifiersTable[priority];
+
+		++mSystemsIdentifiersTable[priority];
+
+		/// low bytes contains id, high bytes - priority
+		U32 internalSystemPriority = static_cast<U32>(priority) << 16 | lastUsedSystemId;
+
+		mpActiveSystems.push_back({ internalSystemPriority, pSystem });
+
+		return TOkValue<TSystemId>(internalSystemPriority);
+	}
+	
+	E_RESULT_CODE CSystemManager::UnregisterSystem(TSystemId systemId)
+	{
+		return _internalUnregisterSystem(systemId);
+	}
+
+	E_RESULT_CODE CSystemManager::UnregisterSystemImmediately(TSystemId systemId)
+	{
+		ISystem* pSystem = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), systemId)->mpSystem;
+
+		E_RESULT_CODE result = _internalUnregisterSystem(systemId);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		return pSystem->Free();
+	}
+
+	E_RESULT_CODE CSystemManager::ActivateSystem(TSystemId systemId)
+	{
+		auto targetSystemIter = _findSystemDesc(mpDeactivatedSystems.begin(), mpDeactivatedSystems.end(), systemId);
+
+		if (targetSystemIter == mpDeactivatedSystems.end())
 		{
 			return RC_FAIL;
 		}
 
-		mpActiveSystems.push_back(pSystem);
+		mpActiveSystems.emplace_back(*targetSystemIter);
+
+		mpDeactivatedSystems.erase(targetSystemIter);
 
 		return RC_OK;
 	}
-	
-	E_RESULT_CODE CSystemManager::UnregisterSystem(ISystem* pSystem)
+
+	E_RESULT_CODE CSystemManager::DeactivateSystem(TSystemId systemId)
 	{
-		if (!pSystem)
+		auto targetSystemIter = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), systemId);
+
+		if (targetSystemIter == mpActiveSystems.end())
+		{
+			return RC_FAIL;
+		}
+
+		mpDeactivatedSystems.emplace_back(*targetSystemIter);
+		mpActiveSystems.erase(targetSystemIter);
+
+		return RC_OK;
+	}
+
+	void CSystemManager::Update(IWorld* pWorld, float dt)
+	{
+		ISystem* pCurrSystem = nullptr;
+
+		for (auto currSystemDesc : mpActiveSystems)
+		{
+			pCurrSystem = currSystemDesc.mpSystem;
+
+			pCurrSystem->Update(pWorld, dt);
+		}
+	}
+
+	E_RESULT_CODE CSystemManager::OnEvent(const TBaseEvent* pEvent)
+	{
+		ISystem* pCurrSystem = nullptr;
+
+		for (auto currSystemDesc : mpActiveSystems)
+		{
+			pCurrSystem = currSystemDesc.mpSystem;
+
+			pCurrSystem->InjectBindings(mpWorld);
+		}
+
+		return RC_OK;
+	}
+
+	TEventListenerId CSystemManager::GetListenerId() const
+	{
+		return GetTypeId();
+	}
+
+	E_RESULT_CODE CSystemManager::_internalUnregisterSystem(TSystemId systemId)
+	{
+		if (systemId == InvalidSystemId)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		auto targetSystemIter = std::find(mpActiveSystems.begin(), mpActiveSystems.end(), pSystem);
+		auto targetSystemIter = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), systemId);
 
 		if (targetSystemIter == mpActiveSystems.end()) /// specified system is not registred yet
 		{
@@ -127,71 +194,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSystemManager::UnregisterSystemImmediately(ISystem* pSystem)
-	{
-		E_RESULT_CODE result = UnregisterSystem(pSystem);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		return pSystem->Free();
-	}
-
-	E_RESULT_CODE CSystemManager::ActivateSystem(ISystem* pSystem)
-	{
-		auto tagretSystemIter = std::find(mpDeactivatedSystems.begin(), mpDeactivatedSystems.end(), pSystem);
-
-		if (tagretSystemIter == mpDeactivatedSystems.end())
-		{
-			return RC_FAIL;
-		}
-
-		mpActiveSystems.push_back(pSystem);
-
-		mpDeactivatedSystems.erase(tagretSystemIter);
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CSystemManager::DeactivateSystem(ISystem* pSystem)
-	{
-		auto targetSystemIter = std::find(mpActiveSystems.begin(), mpActiveSystems.end(), pSystem);
-
-		if (targetSystemIter == mpActiveSystems.end())
-		{
-			return RC_FAIL;
-		}
-
-		mpDeactivatedSystems.push_back(pSystem);
-		mpActiveSystems.erase(targetSystemIter);
-
-		return RC_OK;
-	}
-
-	void CSystemManager::Update(IWorld* pWorld, float dt)
-	{
-		for (ISystem* pCurrSystem : mpActiveSystems)
-		{
-			pCurrSystem->Update(pWorld, dt);
-		}
-	}
-
-	E_RESULT_CODE CSystemManager::OnEvent(const TBaseEvent* pEvent)
-	{
-		for (ISystem* pCurrSystem : mpActiveSystems)
-		{
-			pCurrSystem->InjectBindings(mpWorld);
-		}
-
-		return RC_OK;
-	}
-
-	TEventListenerId CSystemManager::GetListenerId() const
-	{
-		return GetTypeId();
-	}
 
 	ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result)
 	{

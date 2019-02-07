@@ -9,6 +9,7 @@
 #include "./../../include/ecs/CWorld.h"
 #include "./../../include/core/IEventManager.h"
 #include "./../../include/ecs/CSpriteRendererSystem.h"
+#include "./../../include/ecs/CTransformSystem.h"
 #include "./../../include/graphics/IRenderer.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IInputContext.h"
@@ -142,6 +143,20 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		ISystem* pTransformUpdateSystem = CreateTransformSystem(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TResult<TSystemId> transformUpdateSystemIdResult = mpWorldInstance->RegisterSystem(pTransformUpdateSystem);
+
+		if (transformUpdateSystemIdResult.HasError())
+		{
+			return transformUpdateSystemIdResult.GetError();
+		}
+
 		/// \todo refactor and clean up the initialization of built-in systems
 		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(pRenderer, pGraphicsObjectManager, result);
 
@@ -150,9 +165,11 @@ namespace TDEngine2
 			return result;
 		}
 
-		if ((result = mpWorldInstance->RegisterSystem(pSpriteRendererSystem)) != RC_OK)
+		TResult<TSystemId> spriteRenderSystemIdResult = mpWorldInstance->RegisterSystem(pSpriteRendererSystem);
+
+		if (spriteRenderSystemIdResult.HasError())
 		{
-			return result;
+			return spriteRenderSystemIdResult.GetError();
 		}
 
 		ISystem* pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsCtx, pRenderer, result);
@@ -162,9 +179,11 @@ namespace TDEngine2
 			return result;
 		}
 
-		if ((result = mpWorldInstance->RegisterSystem(pCameraSystem)) != RC_OK)
+		TResult<TSystemId> cameraSystemIdResult = mpWorldInstance->RegisterSystem(pCameraSystem);
+
+		if (cameraSystemIdResult.HasError())
 		{
-			return result;
+			return cameraSystemIdResult.GetError();
 		}
 
 		if (_onNotifyEngineListeners(EET_ONSTART) != RC_OK)

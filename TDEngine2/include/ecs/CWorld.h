@@ -110,50 +110,53 @@ namespace TDEngine2
 
 				\param[in] A pointer to ISystem's implementation
 
-				\return RC_OK if everything went ok, or some other code, which describes an error
+				\param[in] priority A value that represents a priority of a system. Than higher
+				priority value then sooner a system will be executed
+
+				\return Either registered system's identifier or an error code
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterSystem(ISystem* pSystem) override;
+			TDE2_API TResult<TSystemId> RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority = E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY) override;
 
 			/*!
 				\brief The method unregisters specified system, but doesn't free its memory
 
-				\param[in] A pointer to ISystem's implementation
+				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE UnregisterSystem(ISystem* pSystem) override;
+			TDE2_API E_RESULT_CODE UnregisterSystem(TSystemId systemId) override;
 
 			/*!
 				\brief The method unregisters specified system and free its memory
 
-				\param[in] A pointer to ISystem's implementation
+				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE UnregisterSystemImmediately(ISystem* pSystem) override;
+			TDE2_API E_RESULT_CODE UnregisterSystemImmediately(TSystemId systemId) override;
 
 			/*!
 				\brief The method marks specified system as an active
 
-				\param[in] A pointer to ISystem's implementation
+				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE ActivateSystem(ISystem* pSystem) override;
+			TDE2_API E_RESULT_CODE ActivateSystem(TSystemId systemId) override;
 
 			/*!
 				\brief The method deactivates specified system
 
-				\param[in] A pointer to ISystem's implementation
+				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE DeactivateSystem(ISystem* pSystem) override;
+			TDE2_API E_RESULT_CODE DeactivateSystem(TSystemId systemId) override;
 			
 			/*!
 				\brief The method seeks out an entity and either return it or return nullptr

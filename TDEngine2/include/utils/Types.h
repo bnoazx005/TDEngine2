@@ -281,6 +281,26 @@ namespace TDEngine2
 	constexpr TComponentFactoryId InvalidComponentFactoryId = 0;
 
 
+	typedef U32 TSystemId;
+
+	constexpr TSystemId InvalidSystemId = (std::numeric_limits<TSystemId>::max)(); ///< Invalid value for TEntityId type
+
+
+	/*!
+		enum class E_SYSTEM_PRIORITY
+
+		\brief The enumeration contains all allowed priorities values
+	*/
+
+	enum class E_SYSTEM_PRIORITY : U8
+	{
+		SP_LOW_PRIORITY = 0x8,
+		SP_NORMAL_PRIORITY = 0x4,
+		SP_HIGH_PRIORITY = 0x2,
+		SP_HIGHEST_PRIORITY = 0x1
+	};
+
+
 	/*!
 		structure TPluginInfo
 

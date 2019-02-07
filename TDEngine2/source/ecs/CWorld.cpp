@@ -107,29 +107,29 @@ namespace TDEngine2
 		return mpEntityManager->DestroyImmediately(pEntity);
 	}
 	
-	E_RESULT_CODE CWorld::RegisterSystem(ISystem* pSystem)
+	TResult<TSystemId> CWorld::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)
 	{
-		return mpSystemManager->RegisterSystem(pSystem);
+		return mpSystemManager->RegisterSystem(pSystem, priority);
 	}
 		
-	E_RESULT_CODE CWorld::UnregisterSystem(ISystem* pSystem)
+	E_RESULT_CODE CWorld::UnregisterSystem(TSystemId systemId)
 	{
-		return mpSystemManager->UnregisterSystem(pSystem);
+		return mpSystemManager->UnregisterSystem(systemId);
 	}
 	
-	E_RESULT_CODE CWorld::UnregisterSystemImmediately(ISystem* pSystem)
+	E_RESULT_CODE CWorld::UnregisterSystemImmediately(TSystemId systemId)
 	{
-		return mpSystemManager->UnregisterSystemImmediately(pSystem);
+		return mpSystemManager->UnregisterSystemImmediately(systemId);
 	}
 	
-	E_RESULT_CODE CWorld::ActivateSystem(ISystem* pSystem)
+	E_RESULT_CODE CWorld::ActivateSystem(TSystemId systemId)
 	{
-		return mpSystemManager->ActivateSystem(pSystem);
+		return mpSystemManager->ActivateSystem(systemId);
 	}
 	
-	E_RESULT_CODE CWorld::DeactivateSystem(ISystem* pSystem)
+	E_RESULT_CODE CWorld::DeactivateSystem(TSystemId systemId)
 	{
-		return mpSystemManager->DeactivateSystem(pSystem);
+		return mpSystemManager->DeactivateSystem(systemId);
 	}
 
 	CEntity* CWorld::FindEntity(TEntityId entityId) const

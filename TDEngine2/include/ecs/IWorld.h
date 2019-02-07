@@ -9,6 +9,8 @@
 
 #include "./../core/IBaseObject.h"
 #include "./../utils/Utils.h"
+#include "./../utils/CResult.h"
+#include "./../utils/Types.h"
 #include "CBaseComponent.h"
 #include <functional>
 #include <string>
@@ -88,51 +90,54 @@ namespace TDEngine2
 				\brief The method registers specified system
 
 				\param[in] A pointer to ISystem's implementation
+				
+				\param[in] priority A value that represents a priority of a system. Than higher
+				priority value then sooner a system will be executed
 
-				\return RC_OK if everything went ok, or some other code, which describes an error
+				\return Either registered system's identifier or an error code
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RegisterSystem(ISystem* pSystem) = 0;
+			TDE2_API virtual TResult<TSystemId> RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority = E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY) = 0;
 
 			/*!
 				\brief The method unregisters specified system, but doesn't free its memory
 
-				\param[in] A pointer to ISystem's implementation
+				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE UnregisterSystem(ISystem* pSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE UnregisterSystem(TSystemId systemId) = 0;
 
 			/*!
 				\brief The method unregisters specified system and free its memory
 
-				\param[in] A pointer to ISystem's implementation
+				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE UnregisterSystemImmediately(ISystem* pSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE UnregisterSystemImmediately(TSystemId systemId) = 0;
 
 			/*!
 				\brief The method marks specified system as an active
 
-				\param[in] A pointer to ISystem's implementation
+				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE ActivateSystem(ISystem* pSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE ActivateSystem(TSystemId systemId) = 0;
 
 			/*!
 				\brief The method deactivates specified system
 
-				\param[in] A pointer to ISystem's implementation
+				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE DeactivateSystem(ISystem* pSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE DeactivateSystem(TSystemId systemId) = 0;
 
 			/*!
 				\brief The method returns a one way iterator to an array of components of specified type
