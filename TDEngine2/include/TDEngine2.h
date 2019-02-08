@@ -65,6 +65,7 @@
 #include "ecs/CSpriteRendererSystem.h"
 #include "ecs/ICameraSystem.h"
 #include "ecs/CCameraSystem.h"
+#include "ecs/CPhysics2DSystem.h"
 
 ///graphics
 #include "graphics/IBuffer.h"

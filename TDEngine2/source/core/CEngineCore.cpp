@@ -14,6 +14,7 @@
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/ecs/CCameraSystem.h"
+#include "./../../include/ecs/CPhysics2DSystem.h"
 #include <cstring>
 #include <algorithm>
 
@@ -130,12 +131,6 @@ namespace TDEngine2
 			return result;
 		}
 
-		IRenderer* pRenderer = dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]);
-
-		IGraphicsContext* pGraphicsCtx = dynamic_cast<IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]);
-
-		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsCtx->GetGraphicsObjectManager();
-
 		IWindowSystem* pWindowSystem = dynamic_cast<IWindowSystem*>(mSubsystems[EST_WINDOW]);
 
 		if (!pWindowSystem)
@@ -143,47 +138,10 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		ISystem* pTransformUpdateSystem = CreateTransformSystem(result);
-
-		if (result != RC_OK)
+		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem, dynamic_cast<IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]),
+											  dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]))) != RC_OK)
 		{
 			return result;
-		}
-
-		TResult<TSystemId> transformUpdateSystemIdResult = mpWorldInstance->RegisterSystem(pTransformUpdateSystem);
-
-		if (transformUpdateSystemIdResult.HasError())
-		{
-			return transformUpdateSystemIdResult.GetError();
-		}
-
-		/// \todo refactor and clean up the initialization of built-in systems
-		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(pRenderer, pGraphicsObjectManager, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		TResult<TSystemId> spriteRenderSystemIdResult = mpWorldInstance->RegisterSystem(pSpriteRendererSystem);
-
-		if (spriteRenderSystemIdResult.HasError())
-		{
-			return spriteRenderSystemIdResult.GetError();
-		}
-
-		ISystem* pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsCtx, pRenderer, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		TResult<TSystemId> cameraSystemIdResult = mpWorldInstance->RegisterSystem(pCameraSystem);
-
-		if (cameraSystemIdResult.HasError())
-		{
-			return cameraSystemIdResult.GetError();
 		}
 
 		if (_onNotifyEngineListeners(EET_ONSTART) != RC_OK)
@@ -429,6 +387,72 @@ namespace TDEngine2
 		LOG_MESSAGE("[Engine Core] The subsystem was successfully unregistered");
 
 		return pEngineSubsystem->Free();
+	}
+
+	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
+													   IRenderer* pRenderer)
+	{
+		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+		E_RESULT_CODE result = RC_OK;
+
+		ISystem* pTransformUpdateSystem = CreateTransformSystem(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TResult<TSystemId> transformUpdateSystemIdResult = pWorldInstance->RegisterSystem(pTransformUpdateSystem);
+
+		if (transformUpdateSystemIdResult.HasError())
+		{
+			return transformUpdateSystemIdResult.GetError();
+		}
+
+		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(pRenderer, pGraphicsObjectManager, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TResult<TSystemId> spriteRenderSystemIdResult = pWorldInstance->RegisterSystem(pSpriteRendererSystem);
+
+		if (spriteRenderSystemIdResult.HasError())
+		{
+			return spriteRenderSystemIdResult.GetError();
+		}
+
+		ISystem* pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TResult<TSystemId> cameraSystemIdResult = pWorldInstance->RegisterSystem(pCameraSystem);
+
+		if (cameraSystemIdResult.HasError())
+		{
+			return cameraSystemIdResult.GetError();
+		}
+
+		ISystem* pPhysics2DSystem = CreatePhysics2DSystem(result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TResult<TSystemId> physics2DSystemIdResult = pWorldInstance->RegisterSystem(pPhysics2DSystem);
+
+		if (physics2DSystemIdResult.HasError())
+		{
+			return physics2DSystemIdResult.GetError();
+		}
+
+		return RC_OK;
 	}
 	
 

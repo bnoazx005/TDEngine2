@@ -1,6 +1,6 @@
 /*!
 	\file CEngineCore.h
-	\date 32.09.2018
+	\date 23.09.2018
 	\authors Kasimov Ildar
 */
 #pragma once
@@ -19,6 +19,9 @@ namespace TDEngine2
 	class IWindowSystem;
 	class ITimer;
 	class IInputContext;
+	class IGraphicsContext;
+	class IRenderer;
+	class IWorld;
 
 
 	/*!
@@ -163,6 +166,9 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
 			
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
+
+			TDE2_API E_RESULT_CODE _registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
+														   IRenderer* pRenderer);
 		protected:
 			bool               mIsInitialized;
 
