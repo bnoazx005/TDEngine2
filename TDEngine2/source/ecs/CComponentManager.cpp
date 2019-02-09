@@ -6,6 +6,8 @@
 #include "./../../include/graphics/CQuadSprite.h"
 #include "./../../include/graphics/CPerspectiveCamera.h"
 #include "./../../include/graphics/COrthoCamera.h"
+#include "./../../include/physics/2D/CBoxCollisionObject2D.h"
+#include "./../../include/physics/2D/CCircleCollisionObject2D.h"
 
 
 namespace TDEngine2
@@ -315,7 +317,9 @@ namespace TDEngine2
 			CreateTransformFactory,
 			CreateQuadSpriteFactory,
 			CreatePerspectiveCameraFactory,
-			CreateOrthoCameraFactory
+			CreateOrthoCameraFactory,
+			CreateBoxCollisionObject2DFactory,
+			CreateCircleCollisionObject2DFactory,
 			//etc
 		};
 
@@ -348,7 +352,9 @@ namespace TDEngine2
 			CTransform::GetTypeId(),
 			CQuadSprite::GetTypeId(),
 			CPerspectiveCamera::GetTypeId(),
-			COrthoCamera::GetTypeId()
+			COrthoCamera::GetTypeId(),
+			CBoxCollisionObject2D::GetTypeId(),
+			CCircleCollisionObject2D::GetTypeId()
 			//etc
 		};
 

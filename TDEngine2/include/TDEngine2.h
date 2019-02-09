@@ -115,6 +115,12 @@
 #include "math/TRect.h"
 #include "math/MathUtils.h"
 
+///physics
+#include "physics/2D/ICollisionObject2D.h"
+#include "physics/2D/CBaseCollisionObject2D.h"
+#include "physics/2D/CBoxCollisionObject2D.h"
+#include "physics/2D/CCircleCollisionObject2D.h"
+
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"
 #include "platform/win32/CWin32Timer.h"

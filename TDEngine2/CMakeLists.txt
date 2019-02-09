@@ -147,6 +147,10 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TQuaternion.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TRect.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/MathUtils.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ICollisionObject2D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CBaseCollisionObject2D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CBoxCollisionObject2D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CCircleCollisionObject2D.h"
 	)
 
 set(TDENGINE2_SOURCES
@@ -215,6 +219,9 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TMatrix3.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TMatrix4.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TQuaternion.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CBaseCollisionObject2D.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CBoxCollisionObject2D.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CCircleCollisionObject2D.cpp"
 	)
 
 source_group("includes" FILES ${TDENGINE2_HEADERS})

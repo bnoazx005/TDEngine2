@@ -16,6 +16,8 @@
 namespace TDEngine2
 {
 	class CTransform;
+	class CBoxCollisionObject2D;
+	class CCircleCollisionObject2D;
 
 
 	/*!
@@ -39,6 +41,26 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreatePhysics2DSystem(E_RESULT_CODE& result);
+		public:
+			template <typename T>
+			struct TCollidersData
+			{
+				std::vector<CTransform*> mTransforms;
+
+				std::vector<T*>          mCollisionObjects;
+
+				std::vector<b2Body*>     mBodies;
+
+				void Clear()
+				{
+					mTransforms.clear();
+					mCollisionObjects.clear();
+					mBodies.clear();
+				}
+			};
+
+			typedef TCollidersData<CBoxCollisionObject2D>    TBoxCollidersData;
+			typedef TCollidersData<CCircleCollisionObject2D> TCircleCollidersData;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -76,6 +98,10 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics2DSystem)
+
+			TDE2_API b2Body* _createBoxPhysicsBody(const CTransform* pTransform, const CBoxCollisionObject2D* pBoxCollider);
+
+			TDE2_API b2Body* _createCirclePhysicsBody(const CTransform* pTransform, const CCircleCollisionObject2D* pBoxCollider);
 		protected:
 			static const TVector2    mDefaultGravity;
 
@@ -87,9 +113,9 @@ namespace TDEngine2
 
 			b2World*                 mpWorldInstance;
 
-			std::vector<CTransform*> mTransforms;
+			TBoxCollidersData        mBoxCollidersData;
 
-			//std::vector<CQuadSprite*>   mSprites;
+			TCircleCollidersData     mCircleCollidersData;
 
 			TVector2                 mCurrGravity;
 

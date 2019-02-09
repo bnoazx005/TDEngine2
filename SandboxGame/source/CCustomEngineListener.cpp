@@ -39,6 +39,10 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 		pSprite->SetColor(colors[rand() % 7]);
 
 		pSprite->SetMaterialName("NewMaterial.material");
+
+		auto pBoxCollision = pEntity->AddComponent<TDEngine2::CBoxCollisionObject2D>();
+		
+		pBoxCollision->GetCollisionType();
 	}
 
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
