@@ -137,16 +137,16 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-
-		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem, dynamic_cast<IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]),
-											  dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]))) != RC_OK)
-		{
-			return result;
-		}
-
+		
 		if (_onNotifyEngineListeners(EET_ONSTART) != RC_OK)
 		{
 			return RC_FAIL;
+		}
+
+		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem, dynamic_cast<IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]),
+			dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]))) != RC_OK)
+		{
+			return result;
 		}
 
 		mpInternalTimer = pWindowSystem->GetTimer();

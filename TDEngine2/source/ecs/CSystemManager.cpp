@@ -72,6 +72,9 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
+		/// inject bindings for the first time when the system is registered
+		pSystem->InjectBindings(mpWorld);
+
 		auto duplicateIter = std::find_if(mpActiveSystems.begin(), mpActiveSystems.end(), [&pSystem](const TSystemDesc& sysDesc)
 		{
 			return sysDesc.mpSystem == pSystem;
