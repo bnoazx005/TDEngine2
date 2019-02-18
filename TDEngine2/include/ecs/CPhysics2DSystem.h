@@ -8,6 +8,7 @@
 
 
 #include "ISystem.h"
+#include "./../physics/2D/ICollisionObjectsVisitor.h"
 #include "./../core/CBaseObject.h"
 #include "./../math/TVector2.h"
 #include "Box2D.h"
@@ -16,6 +17,7 @@
 namespace TDEngine2
 {
 	class CTransform;
+	class CBaseCollisionObject2D;
 	class CBoxCollisionObject2D;
 	class CCircleCollisionObject2D;
 
@@ -37,7 +39,7 @@ namespace TDEngine2
 		\brief The system implements an update step of 2D physics engine
 	*/
 
-	class CPhysics2DSystem: public ISystem, public CBaseObject
+	class CPhysics2DSystem: public ISystem, public ICollisionObjectsVisitor, public CBaseObject
 	{
 		public:
 			friend TDE2_API ISystem* CreatePhysics2DSystem(E_RESULT_CODE& result);
@@ -61,6 +63,7 @@ namespace TDEngine2
 
 			typedef TCollidersData<CBoxCollisionObject2D>    TBoxCollidersData;
 			typedef TCollidersData<CCircleCollisionObject2D> TCircleCollidersData;
+			typedef TCollidersData<CBaseCollisionObject2D>   TBaseCollidersData;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -96,12 +99,30 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			/*!
+				\brief The method returns a new created collision shape which is a box collider
+				
+				\param[in] box A reference to a box collision object
+
+				\return The method returns a new created collision shape which is a box collider
+			*/
+
+			TDE2_API b2PolygonShape CreateBoxCollisionShape(const CBoxCollisionObject2D& box) const override;
+
+			/*!
+				\brief The method returns a new created collision shape which is a circle collider
+
+				\param[in] circle A reference to a circle collision object
+
+				\return The method returns a new created collision shape which is a circle collider
+			*/
+
+			TDE2_API b2CircleShape CreateCircleCollisionShape(const CCircleCollisionObject2D& circle) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics2DSystem)
 
-			TDE2_API b2Body* _createBoxPhysicsBody(const CTransform* pTransform, const CBoxCollisionObject2D* pBoxCollider);
-
-			TDE2_API b2Body* _createCirclePhysicsBody(const CTransform* pTransform, const CCircleCollisionObject2D* pBoxCollider);
+			TDE2_API b2Body* _createPhysicsBody(const CTransform* pTransform, const CBaseCollisionObject2D* pCollider);
 		protected:
 			static const TVector2    mDefaultGravity;
 
@@ -113,9 +134,7 @@ namespace TDEngine2
 
 			b2World*                 mpWorldInstance;
 
-			TBoxCollidersData        mBoxCollidersData;
-
-			TCircleCollidersData     mCircleCollidersData;
+			TBaseCollidersData       mCollidersData;
 
 			TVector2                 mCurrGravity;
 

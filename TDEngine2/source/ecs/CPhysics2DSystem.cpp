@@ -69,7 +69,7 @@ namespace TDEngine2
 	{
 		std::vector<TEntityId> boxColliders = pWorld->FindEntitiesWithComponents<CTransform, CBoxCollisionObject2D>();
 		
-		mBoxCollidersData.Clear();
+		mCollidersData.Clear();
 
 		CEntity* pCurrEntity = nullptr;
 
@@ -90,14 +90,14 @@ namespace TDEngine2
 
 			pBoxCollisionObject = pCurrEntity->GetComponent<CBoxCollisionObject2D>();
 
-			mBoxCollidersData.mTransforms.push_back(pTransform);
-			mBoxCollidersData.mCollisionObjects.push_back(pBoxCollisionObject);
-			mBoxCollidersData.mBodies.push_back(_createBoxPhysicsBody(pTransform, pBoxCollisionObject));
+			mCollidersData.mTransforms.push_back(pTransform);
+			mCollidersData.mCollisionObjects.push_back(pBoxCollisionObject);
+			mCollidersData.mBodies.push_back(_createPhysicsBody(pTransform, pBoxCollisionObject));
 		}
 
 		std::vector<TEntityId> circleColliders = pWorld->FindEntitiesWithComponents<CTransform, CCircleCollisionObject2D>();
-
-		mCircleCollidersData.Clear();
+		
+		CCircleCollisionObject2D* pCircleCollisionObject = nullptr;
 		
 		for (auto iter = circleColliders.begin(); iter != circleColliders.end(); ++iter)
 		{
@@ -108,8 +108,13 @@ namespace TDEngine2
 				continue;
 			}
 
-			mCircleCollidersData.mTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
-			mCircleCollidersData.mCollisionObjects.push_back(pCurrEntity->GetComponent<CCircleCollisionObject2D>());
+			pTransform = pCurrEntity->GetComponent<CTransform>();
+
+			pCircleCollisionObject = pCurrEntity->GetComponent<CCircleCollisionObject2D>();
+
+			mCollidersData.mTransforms.push_back(pTransform);
+			mCollidersData.mCollisionObjects.push_back(pCircleCollisionObject);
+			mCollidersData.mBodies.push_back(_createPhysicsBody(pTransform, pCircleCollisionObject));
 		}
 	}
 
@@ -117,7 +122,7 @@ namespace TDEngine2
 	{
 		mpWorldInstance->Step(mCurrTimeStep, mCurrVelocityIterations, mCurrPositionIterations);
 
-		auto boxCollisionObjects = mBoxCollidersData.mBodies;
+		auto collisionObjects = mCollidersData.mBodies;
 
 		CTransform* pCurrTransform = nullptr;
 
@@ -127,13 +132,13 @@ namespace TDEngine2
 
 		b2Vec2 currBodyPosition;
 
-		auto transforms = mBoxCollidersData.mTransforms;
+		auto transforms = mCollidersData.mTransforms;
 
 		for (U32 i = 0; i < transforms.size(); ++i)
 		{
 			pCurrTransform = transforms[i];
 
-			pCurrBody = mBoxCollidersData.mBodies[i];
+			pCurrBody = mCollidersData.mBodies[i];
 			
 			currBodyPosition = pCurrBody->GetPosition();
 
@@ -145,13 +150,31 @@ namespace TDEngine2
 			pCurrTransform->SetPosition(currPosition);
 		}
 	}
+	
+	b2PolygonShape CPhysics2DSystem::CreateBoxCollisionShape(const CBoxCollisionObject2D& box) const
+	{
+		b2PolygonShape boxCollider;
 
-	b2Body* CPhysics2DSystem::_createBoxPhysicsBody(const CTransform* pTransform, const CBoxCollisionObject2D* pBoxCollider)
+		boxCollider.SetAsBox(box.GetWidth() * 0.5f, box.GetHeight() * 0.5f);
+		
+		return boxCollider;
+	}
+
+	b2CircleShape CPhysics2DSystem::CreateCircleCollisionShape(const CCircleCollisionObject2D& circle) const
+	{
+		b2CircleShape circleCollider;
+
+		circleCollider.m_radius = circle.GetRadius();
+
+		return circleCollider;
+	}
+
+	b2Body* CPhysics2DSystem::_createPhysicsBody(const CTransform* pTransform, const CBaseCollisionObject2D* pCollider)
 	{
 		TVector3 position = pTransform->GetPosition();
 		TVector3 scale    = pTransform->GetScale();
 
-		E_COLLISION_OBJECT_TYPE type = pBoxCollider->GetCollisionType();
+		E_COLLISION_OBJECT_TYPE type = pCollider->GetCollisionType();
 
 		b2BodyDef bodyDef;
 
@@ -177,10 +200,7 @@ namespace TDEngine2
 		bodyDef.allowSleep     = true;
 		bodyDef.awake          = true;
 		bodyDef.active         = true;
-
-		b2PolygonShape boxCollider;
-		boxCollider.SetAsBox(scale.x * 0.5f, scale.y * 0.5f);
-
+				
 		b2Body* pCreatedBody = mpWorldInstance->CreateBody(&bodyDef);
 
 		if (!pCreatedBody)
@@ -190,19 +210,19 @@ namespace TDEngine2
 
 		b2FixtureDef fixtureDef;
 
-		fixtureDef.shape    = &boxCollider;
 		fixtureDef.friction = 0.3f;
 		fixtureDef.density  = 1.0f;
 
-		pCreatedBody->CreateFixture(&fixtureDef);
+		pCollider->GetCollisionShape(this, [&fixtureDef, &pCreatedBody](const b2Shape* pShapeCollider)
+		{
+			fixtureDef.shape = pShapeCollider;
+
+			pCreatedBody->CreateFixture(&fixtureDef);
+		}); /// this invokation creates a new fixture object
 
 		return pCreatedBody;
 	}
 
-	b2Body* CPhysics2DSystem::_createCirclePhysicsBody(const CTransform* pTransform, const CCircleCollisionObject2D* pBoxCollider)
-	{
-		return nullptr;
-	}
 
 	TDE2_API ISystem* CreatePhysics2DSystem(E_RESULT_CODE& result)
 	{

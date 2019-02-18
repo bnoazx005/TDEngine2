@@ -151,6 +151,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CBaseCollisionObject2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CBoxCollisionObject2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CCircleCollisionObject2D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ICollisionObjectsVisitor.h"
 	)
 
 set(TDENGINE2_SOURCES

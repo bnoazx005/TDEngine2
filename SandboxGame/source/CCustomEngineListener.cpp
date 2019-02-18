@@ -41,10 +41,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 		pSprite->SetMaterialName("NewMaterial.material");
 
 		auto pBoxCollision = pEntity->AddComponent<TDEngine2::CBoxCollisionObject2D>();
-		
-		pBoxCollision->GetCollisionType();
 	}
-
+	
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
 
 	mpCameraEntity->AddComponent<TDEngine2::COrthoCamera>();

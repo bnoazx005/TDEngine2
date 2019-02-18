@@ -1,4 +1,5 @@
 #include "./../../../include/physics/2D/CCircleCollisionObject2D.h"
+#include "./../../../include/physics/2D/ICollisionObjectsVisitor.h"
 
 
 namespace TDEngine2
@@ -16,6 +17,16 @@ namespace TDEngine2
 	F32 CCircleCollisionObject2D::GetRadius() const
 	{
 		return mRadius;
+	}
+
+	void CCircleCollisionObject2D::GetCollisionShape(const ICollisionObjectsVisitor* pVisitor, const std::function<void(const b2Shape*)>& callback) const
+	{
+		if (!pVisitor)
+		{
+			return;
+		}
+
+		callback(&pVisitor->CreateCircleCollisionShape(*this));
 	}
 
 

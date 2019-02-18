@@ -1,4 +1,5 @@
 #include "./../../../include/physics/2D/CBoxCollisionObject2D.h"
+#include "./../../../include/physics/2D/ICollisionObjectsVisitor.h"
 
 
 namespace TDEngine2
@@ -26,6 +27,16 @@ namespace TDEngine2
 	F32 CBoxCollisionObject2D::GetHeight() const
 	{
 		return mHeight;
+	}
+	
+	void CBoxCollisionObject2D::GetCollisionShape(const ICollisionObjectsVisitor* pVisitor, const std::function<void(const b2Shape*)>& callback) const
+	{
+		if (!pVisitor)
+		{
+			return;
+		}
+		
+		callback(&pVisitor->CreateBoxCollisionShape(*this));
 	}
 
 

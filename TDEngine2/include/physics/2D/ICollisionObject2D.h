@@ -12,10 +12,15 @@
 #include "./../../math/TVector3.h"
 #include "./../../math/TQuaternion.h"
 #include "./../../ecs/IComponentFactory.h"
+#include <functional>
+#include "Box2D.h"
 
 
 namespace TDEngine2
 {
+	class ICollisionObjectsVisitor;
+
+
 	/*!
 		\brief The class contains all allowed types which a 2d collision object can have
 	*/
@@ -91,6 +96,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual F32 GetMass() const = 0;
+
+			/*!
+				\brief The method returns a rvalue reference to internal representation of a collision 
+				shape that is used by Box2D physics engine
+				
+				\param[in] pVisitor A pointer to implementation of ICollisionObjectsVisitor
+
+				\param[in] callback A callback that is called when a new definition of a shape was created
+			*/
+
+			TDE2_API virtual void GetCollisionShape(const ICollisionObjectsVisitor* pVisitor, const std::function<void(const b2Shape*)>& callback) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICollisionObject2D)
 	};

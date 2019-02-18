@@ -68,6 +68,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual F32 GetHeight() const;
+
+			/*!
+				\brief The method returns a rvalue reference to internal representation of a collision
+				shape that is used by Box2D physics engine
+
+				\param[in] pVisitor A pointer to implementation of ICollisionObjectsVisitor
+
+				\param[in] callback A callback that is called when a new definition of a shape was created
+			*/
+
+			TDE2_API void GetCollisionShape(const ICollisionObjectsVisitor* pVisitor, const std::function<void(const b2Shape*)>& callback) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoxCollisionObject2D)
 		protected:
