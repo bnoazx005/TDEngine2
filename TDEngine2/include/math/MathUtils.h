@@ -17,11 +17,16 @@ namespace TDEngine2
 		that are often used
 	*/
 
-	class CMathContants
+	class CMathConstants
 	{
-		constexpr static F32 Pi = 3.141592f;
+		public:
+			constexpr static F32 Pi      = 3.141592f;
 
-		constexpr static F32 Exp = 2.728281f;
+			constexpr static F32 Exp     = 2.728281f;
+
+			constexpr static F32 Deg2Rad = Pi / 180.0f;
+
+			constexpr static F32 Rad2Deg = 180.0f / Pi;
 	};
 
 

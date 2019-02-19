@@ -22,9 +22,9 @@ namespace TDEngine2
 
 	TQuaternion::TQuaternion(const TVector3& eulerAngles)
 	{
-		F32 yaw   = eulerAngles.x;
-		F32 roll  = eulerAngles.y;
-		F32 pitch = eulerAngles.z;
+		F32 yaw   = eulerAngles.z;
+		F32 roll  = eulerAngles.x;
+		F32 pitch = eulerAngles.y;
 
 		F32 cosYaw   = cosf(yaw * 0.5f);
 		F32 sinYaw   = sinf(yaw * 0.5f);
@@ -34,8 +34,8 @@ namespace TDEngine2
 		F32 sinPitch = sinf(pitch * 0.5f);
 
 		w = cosYaw * cosRoll * cosPitch + sinYaw * sinRoll * sinPitch;
-		x = cosYaw * sinRoll * cosPitch - sinYaw * cosRoll * sinPitch;
-		y = cosYaw * cosRoll * sinPitch + sinYaw * sinRoll * cosPitch;
+		x = cosYaw * sinRoll * cosPitch + sinYaw * cosRoll * sinPitch;
+		y = cosYaw * cosRoll * sinPitch - sinYaw * sinRoll * cosPitch;
 		z = sinYaw * cosRoll * cosPitch - cosYaw * sinRoll * sinPitch;
 	}
 
@@ -159,9 +159,9 @@ namespace TDEngine2
 		F32 squaredY = q.y * q.y;
 		F32 squaredZ = q.z * q.z;
 
-		F32 elements[16] { 1.0f - 2.0f * (squaredY - squaredZ), 2.0f * (q.x * q.y - q.w * q.z), 2.0f * (q.x * q.z + q.w * q.y), 0.0f,
-						   2.0f * (q.x * q.y - q.w * q.z), 1.0f - 2.0f * (squaredX - squaredZ), 2.0f * (q.y * q.z - q.w * q.x), 0.0f,
-						   2.0f * (q.x * q.z - q.w * q.y), 2.0f * (q.y * q.z + q.w * q.x), 1.0f - 2.0f * (squaredX - squaredY), 0.0f,
+		F32 elements[16] { 1.0f - 2.0f * (squaredY + squaredZ), 2.0f * (q.x * q.y - q.w * q.z), 2.0f * (q.x * q.z + q.w * q.y), 0.0f,
+						   2.0f * (q.x * q.y + q.w * q.z), 1.0f - 2.0f * (squaredX + squaredZ), 2.0f * (q.y * q.z - q.w * q.x), 0.0f,
+						   2.0f * (q.x * q.z - q.w * q.y), 2.0f * (q.y * q.z + q.w * q.x), 1.0f - 2.0f * (squaredX + squaredY), 0.0f,
 						   0.0f, 0.0f, 0.0f, 1.0f };
 
 		return TMatrix4(elements);
