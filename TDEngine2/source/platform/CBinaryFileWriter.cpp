@@ -12,6 +12,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBinaryFileWriter::Write(const void* pBuffer, U32 bufferSize)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mFile.is_open())
 		{
 			return RC_FAIL;
@@ -29,6 +31,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBinaryFileWriter::Flush()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		mFile.flush();
 
 		if (mFile.bad())
@@ -41,6 +45,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBinaryFileWriter::SetPosition(U32 pos)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		mFile.seekg(pos);
 
 		return RC_OK;
@@ -48,11 +54,15 @@ namespace TDEngine2
 
 	bool CBinaryFileWriter::IsEOF() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mFile.eof();
 	}
 
 	U32 CBinaryFileWriter::GetPosition() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return static_cast<U32>(mFile.tellg());
 	}
 

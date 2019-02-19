@@ -12,6 +12,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBinaryFileReader::Read(void* pBuffer, U32 bufferSize)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pBuffer)
 		{
 			return RC_INVALID_ARGS;
@@ -29,6 +31,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBinaryFileReader::SetPosition(U32 pos)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		mFile.seekg(pos);
 
 		return RC_OK;
@@ -36,11 +40,15 @@ namespace TDEngine2
 
 	bool CBinaryFileReader::IsEOF() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mFile.eof();
 	}
 
 	U32 CBinaryFileReader::GetPosition() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return static_cast<U32>(mFile.tellg());
 	}
 

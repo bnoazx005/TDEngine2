@@ -26,7 +26,9 @@ namespace TDEngine2
 			return;
 		}
 
-		callback(&pVisitor->CreateCircleCollisionShape(*this));
+		b2CircleShape circleShape = pVisitor->CreateCircleCollisionShape(*this);
+
+		callback(&circleShape);
 	}
 
 

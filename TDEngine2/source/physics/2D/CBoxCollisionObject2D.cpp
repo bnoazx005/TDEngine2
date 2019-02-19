@@ -36,7 +36,9 @@ namespace TDEngine2
 			return;
 		}
 		
-		callback(&pVisitor->CreateBoxCollisionShape(*this));
+		b2PolygonShape boxShape = pVisitor->CreateBoxCollisionShape(*this);
+
+		callback(&boxShape);
 	}
 
 

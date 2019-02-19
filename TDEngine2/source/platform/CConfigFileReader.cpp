@@ -62,6 +62,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CConfigFileReader::_parseFileUntilParam(const std::string& group, const std::string& paramName, TConfigParamsMap& paramsMap, std::string& value)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mFile.is_open() || group.empty() || paramName.empty())
 		{
 			return RC_FAIL;

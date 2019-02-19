@@ -12,6 +12,8 @@ namespace TDEngine2
 	
 	std::string CTextFileReader::ReadLine()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mFile.is_open())
 		{
 			return "";
@@ -26,6 +28,8 @@ namespace TDEngine2
 
 	std::string CTextFileReader::ReadToEnd()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mFile.is_open())
 		{
 			return "";
