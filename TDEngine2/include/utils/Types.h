@@ -444,44 +444,12 @@ namespace TDEngine2
 	typedef U32 TResourceLoaderId; ///< A resource loader's identifier
 
 	constexpr TResourceLoaderId InvalidResourceLoaderId = 0;
-
-
-	/*!
-		structure TRegisterLoaderResult
-
-		\brief The structure is used as compound result type of RegisterLoader method of IResourceManager
-	*/
-
-	typedef struct TRegisterLoaderResult
-	{
-		E_RESULT_CODE                      mResultCode;
-
-		TResourceLoaderId                  mResourceLoaderId;
-
-		static const TRegisterLoaderResult mInvalidValue;
-	} TRegisterLoaderResult;
-
+	
 
 	typedef U32 TResourceFactoryId; ///< A resource factory's identifier
 
 	constexpr TResourceFactoryId InvalidResourceFactoryId = 0;
-
-
-	/*!
-		structure TRegisterFactoryResult
-
-		\brief The structure is used as compound result type of RegisterFactory method of IResourceManager
-	*/
-
-	typedef struct TRegisterFactoryResult
-	{
-		E_RESULT_CODE                       mResultCode;
-
-		TResourceFactoryId                  mResourceFactoryId;
-
-		static const TRegisterFactoryResult mInvalidValue;
-	} TRegisterFactoryResult;
-
+	
 
 	/*!
 		enum E_RESOURCE_ACCESS_TYPE

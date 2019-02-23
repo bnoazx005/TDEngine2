@@ -12,6 +12,7 @@
 #include "./../utils/Utils.h"
 #include "IResourceManager.h"
 #include "IResourceLoader.h"
+#include <mutex>
 
 
 namespace TDEngine2
@@ -97,5 +98,7 @@ namespace TDEngine2
 			TResourceId              mId;						///< The id's value is unique for each resource. Used for cross-referencing
 
 			E_RESOURCE_STATE_TYPE    mState;
+
+			mutable std::mutex       mMutex;
 	};
 }

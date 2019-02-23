@@ -387,9 +387,11 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (mpResourceManagerInstance->RegisterLoader(pResourceLoader).mResultCode != RC_OK)
+		TResult<TResourceLoaderId> loaderRegistrationResult = mpResourceManagerInstance->RegisterLoader(pResourceLoader);
+
+		if (loaderRegistrationResult.HasError())
 		{
-			return RC_FAIL;
+			return loaderRegistrationResult.GetError();
 		};
 
 		/// register material factory
@@ -400,9 +402,11 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (mpResourceManagerInstance->RegisterFactory(pResourceFactory).mResultCode != RC_OK)
+		TResult<TResourceFactoryId> factoryRegistrationResult = mpResourceManagerInstance->RegisterFactory(pResourceFactory);
+
+		if (factoryRegistrationResult.HasError())
 		{
-			return RC_FAIL;
+			return factoryRegistrationResult.GetError();
 		};
 
 		return RC_OK;

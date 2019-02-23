@@ -101,11 +101,11 @@ namespace TDEngine2
 			return result;
 		}
 
-		TRegisterFactoryResult registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
+		TResult<TResourceFactoryId> shaderFactoryResult = pResourceManager->RegisterFactory(pFactoryInstance);
 
-		if (registerResult.mResultCode != RC_OK)
+		if (shaderFactoryResult.HasError())
 		{
-			return registerResult.mResultCode;
+			return shaderFactoryResult.GetError();
 		}
 
 		/// Register a factory of 2D textures
@@ -116,7 +116,12 @@ namespace TDEngine2
 			return result;
 		}
 
-		registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
+		TResult<TResourceFactoryId> textureFactoryResult = pResourceManager->RegisterFactory(pFactoryInstance);
+
+		if (textureFactoryResult.HasError())
+		{
+			return textureFactoryResult.GetError();
+		}
 
 		/// Try to register a factory of render target objects
 		pFactoryInstance = CreateD3D11RenderTargetFactory(pResourceManager, mpGraphicsContext, result);
@@ -126,9 +131,14 @@ namespace TDEngine2
 			return result;
 		}
 
-		registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
+		TResult<TResourceFactoryId> renderTargetResult = pResourceManager->RegisterFactory(pFactoryInstance);
 
-		return registerResult.mResultCode;
+		if (renderTargetResult.HasError())
+		{
+			return renderTargetResult.GetError();
+		}
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CD3D11GCtxPlugin::_registerResourceLoaders(IEngineCore* pEngineCore)
@@ -158,11 +168,11 @@ namespace TDEngine2
 			return result;
 		}
 
-		TRegisterLoaderResult registerResult = pResourceManager->RegisterLoader(pLoaderInstance);
+		TResult<TResourceLoaderId> shaderLoaderResult = pResourceManager->RegisterLoader(pLoaderInstance);
 
-		if (registerResult.mResultCode != RC_OK)
+		if (shaderLoaderResult.HasError())
 		{
-			return registerResult.mResultCode;
+			return shaderLoaderResult.GetError();
 		}
 
 		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
@@ -172,9 +182,14 @@ namespace TDEngine2
 			return result;
 		}
 
-		registerResult = pResourceManager->RegisterLoader(pLoaderInstance);
+		TResult<TResourceLoaderId> textureLoaderId = pResourceManager->RegisterLoader(pLoaderInstance);
 
-		return registerResult.mResultCode;
+		if (textureLoaderId.HasError())
+		{
+			return textureLoaderId.GetError();
+		}
+
+		return RC_OK;
 	}
 }
 

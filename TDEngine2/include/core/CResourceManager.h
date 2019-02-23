@@ -8,6 +8,7 @@
 
 
 #include "IResourceManager.h"
+#include "./../utils/CResourceContainer.h"
 #include <unordered_map>
 #include <vector>
 #include <mutex>
@@ -45,22 +46,20 @@ namespace TDEngine2
 			friend TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
 		protected:
 			typedef std::unordered_map<U32, TResourceLoaderId>   TResourceLoadersMap;
-
-			typedef std::vector<const IResourceLoader*>          TResourceLoadersArray;
-
-			typedef std::list<U32>                               TFreeEntriesRegistry;
+			
+			typedef CResourceContainer<const IResourceLoader*>   TResourceLoadersContainer;
 
 			typedef std::unordered_map<U32, TResourceFactoryId>  TResourceFactoriesMap;
-
-			typedef std::vector<const IResourceFactory*>         TResourceFactoriesArray;
+			
+			typedef CResourceContainer<const IResourceFactory*>  TResourceFactoriesContainer;
 
 			typedef std::unordered_map<std::string, TResourceId> TResourcesMap;
 
-			typedef std::vector<IResource*>                      TResourcesArray;
+			typedef CResourceContainer<IResource*>               TResourcesContainer;
 			
 			typedef std::unordered_map<TResourceId, U32>         TResourceHandlersMap;
 			
-			typedef std::vector<IResourceHandler*>               TResourceHandlersArray;
+			typedef CResourceContainer<IResourceHandler*>        TResourceHandlersContainer;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -89,7 +88,7 @@ namespace TDEngine2
 				an identifier of the registred loader
 			*/
 
-			TDE2_API TRegisterLoaderResult RegisterLoader(const IResourceLoader* pResourceLoader) override;
+			TDE2_API TResult<TResourceLoaderId> RegisterLoader(const IResourceLoader* pResourceLoader) override;
 
 			/*!
 				\brief The method unregisters a resource loader with the specified identifier
@@ -110,7 +109,7 @@ namespace TDEngine2
 				an identifier of the registred factory
 			*/
 
-			TDE2_API TRegisterFactoryResult RegisterFactory(const IResourceFactory* pResourceFactory) override;
+			TDE2_API TResult<TResourceFactoryId> RegisterFactory(const IResourceFactory* pResourceFactory) override;
 
 			/*!
 				\brief The method unregisters a resource factory with the specified identifier
@@ -163,37 +162,27 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _freeResourceHandler(TResourceId resourceId);
 
 			TDE2_API const IResourceLoader* _getResourceLoader(U32 resourceTypeId) const override;
-
-			TDE2_API TResourceId _getFreeResourceId();
 		protected:
-			bool                    mIsInitialized;
+			bool                        mIsInitialized;
 
-			TResourceLoadersMap     mResourceLoadersMap;
+			TResourceLoadersMap         mResourceLoadersMap;
 
-			TResourceLoadersArray   mRegistredResourceLoaders; 
+			TResourceLoadersContainer   mRegisteredResourceLoaders;
 
-			TFreeEntriesRegistry    mFreeLoadersEntriesRegistry;
+			TResourceFactoriesMap       mResourceFactoriesMap;
 
-			TResourceFactoriesMap   mResourceFactoriesMap;
+			TResourceFactoriesContainer mRegisteredResourceFactories;
 
-			TResourceFactoriesArray mRegistredResourceFactories;
+			TResourcesMap               mResourcesMap;
 
-			TFreeEntriesRegistry    mFreeFactoriesEntriesRegistry;
+			TResourcesContainer         mResources;
 
-			TResourcesMap           mResourcesMap;
+			TResourceHandlersMap        mResourceHandlersMap;
 
-			TResourcesArray         mResources;
+			TResourceHandlersContainer  mResourceHandlers;
 
-			TFreeEntriesRegistry    mFreeResourcesEntriesRegistry;
+			IJobManager*                mpJobManager;
 
-			TResourceHandlersMap    mResourceHandlersMap;
-
-			TResourceHandlersArray  mResourceHandlersArray;
-
-			TFreeEntriesRegistry    mFreeResourceHandlersRegistry;
-
-			IJobManager*            mpJobManager;
-
-			mutable std::mutex      mMutex;
+			mutable std::mutex          mMutex;
 	};
 }

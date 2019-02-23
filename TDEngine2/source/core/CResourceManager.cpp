@@ -39,7 +39,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mResourceHandlersArray.push_back(pInvalidResourceHandler);
+		mResourceHandlers.Add(pInvalidResourceHandler);
 
 		mIsInitialized = true;
 
@@ -64,13 +64,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TRegisterLoaderResult CResourceManager::RegisterLoader(const IResourceLoader* pResourceLoader)
+	TResult<TResourceLoaderId> CResourceManager::RegisterLoader(const IResourceLoader* pResourceLoader)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (!mIsInitialized || !pResourceLoader)
 		{
-			return TRegisterLoaderResult::mInvalidValue;
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		U32 resourceTypeId = pResourceLoader->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
@@ -80,31 +80,13 @@ namespace TDEngine2
 		// if the duplicate exists, just return it
 		if (existingDuplicateId != InvalidResourceLoaderId)
 		{
-			return { RC_OK, existingDuplicateId };
+			return TOkValue<TResourceLoaderId>(existingDuplicateId);
 		}
 
-		// there is no empty slots in the array, so allocate a new one
-		if (mFreeLoadersEntriesRegistry.empty())
-		{
-			existingDuplicateId = mRegistredResourceLoaders.size() + 1;
-
-			mRegistredResourceLoaders.push_back(pResourceLoader);
-
-			mResourceLoadersMap[resourceTypeId] = existingDuplicateId;
-
-			return { RC_OK, existingDuplicateId };
-		}
-
-		// just reuse existing nullptr slot
-		existingDuplicateId = mFreeLoadersEntriesRegistry.front() + 1;
-
-		mFreeLoadersEntriesRegistry.pop_front();
-
-		mRegistredResourceLoaders[existingDuplicateId - 1] = pResourceLoader;
-
+		existingDuplicateId = mRegisteredResourceLoaders.Add(pResourceLoader) + 1;
 		mResourceLoadersMap[resourceTypeId] = existingDuplicateId;
 
-		return { RC_OK, existingDuplicateId };
+		return TOkValue<TResourceLoaderId>(existingDuplicateId);
 	}
 	
 	E_RESULT_CODE CResourceManager::UnregisterLoader(const TResourceLoaderId& resourceLoaderId)
@@ -116,37 +98,38 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (resourceLoaderId == InvalidResourceLoaderId || resourceLoaderId > mRegistredResourceLoaders.size())
+		if (resourceLoaderId == InvalidResourceLoaderId)
 		{
 			return RC_INVALID_ARGS;
 		}
 		
-		const IResourceLoader* pResourceLoader = mRegistredResourceLoaders[resourceLoaderId - 1];
+		TResult<const IResourceLoader*> result = mRegisteredResourceLoaders[resourceLoaderId - 1];
+
+		if (result.HasError())
+		{
+			return result.GetError();
+		}
+
+		const IResourceLoader* pResourceLoader = result.Get();
 
 		U32 resourceTypeId = pResourceLoader->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
 
-		mRegistredResourceLoaders[resourceLoaderId - 1] = nullptr;
+		mRegisteredResourceLoaders.RemoveAt(resourceLoaderId);
 
 		mResourceLoadersMap.erase(resourceTypeId);
 
 		return RC_OK;
 	}
 
-	TRegisterFactoryResult CResourceManager::RegisterFactory(const IResourceFactory* pResourceFactory)
+	TResult<TResourceFactoryId> CResourceManager::RegisterFactory(const IResourceFactory* pResourceFactory)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-
-		TRegisterFactoryResult result;
-
+		
 		if (!mIsInitialized || !pResourceFactory)
 		{
-			result.mResultCode = RC_INVALID_ARGS;
-
-			return result;
+			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
-
-		result.mResultCode = RC_OK;
-
+		
 		U32 resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
 
 		TResourceFactoryId existingDuplicateId = mResourceFactoriesMap[resourceTypeId];
@@ -154,37 +137,13 @@ namespace TDEngine2
 		// if the duplicate exists, just return it
 		if (existingDuplicateId != InvalidResourceFactoryId)
 		{
-			result.mResourceFactoryId = existingDuplicateId;
-
-			return result;
+			return TOkValue<TResourceFactoryId>(existingDuplicateId);
 		}
-
-		// there is no empty slots in the array, so allocate a new one
-		if (mFreeFactoriesEntriesRegistry.empty())
-		{
-			existingDuplicateId = mRegistredResourceFactories.size() + 1;
-
-			mRegistredResourceFactories.push_back(pResourceFactory);
-			
-			mResourceFactoriesMap[resourceTypeId] = existingDuplicateId;
-
-			result.mResourceFactoryId = existingDuplicateId;
-
-			return result;
-		}
-
-		// just reuse existing nullptr slot
-		existingDuplicateId = mFreeFactoriesEntriesRegistry.front() + 1;
-
-		mFreeFactoriesEntriesRegistry.pop_front();
-
-		mRegistredResourceFactories[existingDuplicateId - 1] = pResourceFactory;
-
+		
+		existingDuplicateId = mRegisteredResourceFactories.Add(pResourceFactory) + 1;
 		mResourceFactoriesMap[resourceTypeId] = existingDuplicateId;
 
-		result.mResourceFactoryId = existingDuplicateId;
-
-		return result;
+		return TOkValue<TResourceFactoryId>(existingDuplicateId);
 	}
 
 	E_RESULT_CODE CResourceManager::UnregisterFactory(const TResourceFactoryId& resourceFactoryId)
@@ -196,16 +155,23 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (resourceFactoryId == InvalidResourceFactoryId || resourceFactoryId > mRegistredResourceFactories.size())
+		if (resourceFactoryId == InvalidResourceFactoryId || resourceFactoryId > mRegisteredResourceFactories.GetSize())
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		const IResourceFactory* pResourceFactory = mRegistredResourceFactories[resourceFactoryId - 1];
+		TResult<const IResourceFactory*> result = mRegisteredResourceFactories[resourceFactoryId - 1];
+
+		if (result.HasError())
+		{
+			return result.GetError();
+		}
+
+		const IResourceFactory* pResourceFactory = result.Get();
 
 		U32 resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this factory
 
-		mRegistredResourceFactories[resourceFactoryId - 1] = nullptr;
+		mRegisteredResourceFactories.RemoveAt(resourceFactoryId - 1);
 
 		mResourceFactoriesMap.erase(resourceTypeId);
 
@@ -229,12 +195,12 @@ namespace TDEngine2
 		TResourceId resourceId = pResourceHandler->GetResourceId();
 
 		if (resourceId == InvalidResourceId ||
-			resourceId >= mResources.size() + 1)
+			resourceId >= mResources.GetSize() + 1)
 		{
 			return nullptr;
 		}
 
-		return mResources[resourceId - 1];
+		return mResources[resourceId - 1].GetOrDefault(nullptr);
 	}
 
 	TResourceId CResourceManager::GetResourceId(const std::string& name) const
@@ -266,7 +232,7 @@ namespace TDEngine2
 		{
 			pResourceHandler = _createOrGetResourceHandler(resourceId);
 
-			pResource = mResources[resourceId - 1];
+			pResource = mResources[resourceId - 1].Get();
 
 			if (pResource->GetState() == RST_PENDING)
 			{
@@ -280,18 +246,16 @@ namespace TDEngine2
 
 		if (factoryIdIter == mResourceFactoriesMap.cend())
 		{
-			return mResourceHandlersArray[0]; /// return invalid handler
+			return mResourceHandlers[0].Get(); /// return invalid handler
 		}
 
-		const IResourceFactory* pResourceFactory = mRegistredResourceFactories[(*factoryIdIter).second - 1];
-			
-		resourceId = _getFreeResourceId();
-
-		mResourcesMap[name] = resourceId;
+		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[(*factoryIdIter).second - 1].Get();
 			
 		pResource = pResourceFactory->CreateDefault(name, {});
 
-		mResources[resourceId - 1] = pResource;
+		resourceId = mResources.Add(pResource) + 1;
+
+		mResourcesMap[name] = resourceId;
 
 		pResourceHandler = _createOrGetResourceHandler(resourceId);
 
@@ -306,30 +270,28 @@ namespace TDEngine2
 
 		if (resourceId != InvalidResourceId)
 		{
-			return mResourceHandlersArray[resourceId];
+			return mResourceHandlers[resourceId - 1].GetOrDefault(mResourceHandlers[0].Get());
 		}
 
 		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
 
 		if (factoryIdIter == mResourceFactoriesMap.cend())
 		{
-			return mResourceHandlersArray[0]; /// return invalid handler
+			return mResourceHandlers[0].Get(); /// return invalid handler
 		}
 
-		const IResourceFactory* pResourceFactory = mRegistredResourceFactories[(*factoryIdIter).second - 1];
+		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[(*factoryIdIter).second - 1].Get();
 		
 		IResource* pResource = nullptr;
 
 		IResourceHandler* pResourceHandler = nullptr;
-
-		resourceId = _getFreeResourceId();
-
-		mResourcesMap[name] = resourceId;
-		
+				
 		/// \todo move it to a background thread
 		pResource = pResourceFactory->Create(name, params);
+		
+		resourceId = mResources.Add(pResource) + 1;
 
-		mResources[resourceId - 1] = pResource;
+		mResourcesMap[name] = resourceId;
 
 		pResourceHandler = _createOrGetResourceHandler(resourceId);
 
@@ -342,39 +304,19 @@ namespace TDEngine2
 
 		if (handlerHashValue) /// just return existing handler
 		{
-			return mResourceHandlersArray[handlerHashValue];
+			return mResourceHandlers[handlerHashValue - 1].GetOrDefault(mResourceHandlers[0].Get());
 		}
-
-		IResourceHandler* pNewHandlerInstance = nullptr;
 
 		E_RESULT_CODE result = RC_OK;
 
-		if (mFreeResourceHandlersRegistry.empty())
+		IResourceHandler* pNewHandlerInstance = CreateResourceHandler(this, resourceId, result);
+		
+		if (result != RC_OK)
 		{
-			handlerHashValue = mResourceHandlersArray.size();
-
-			pNewHandlerInstance = CreateResourceHandler(this, resourceId, result);
-
-			if (result != RC_OK)
-			{
-				return mResourceHandlersArray[0]; /// invalid handler
-			}
-
-			mResourceHandlersArray.push_back(pNewHandlerInstance);
-
-			mResourceHandlersMap[resourceId] = handlerHashValue;
-
-			return pNewHandlerInstance;
+			return mResourceHandlers[0].Get(); /// invalid handler
 		}
 
-		/// reuse existing handler just reset it
-		handlerHashValue = mFreeResourceHandlersRegistry.front();
-
-		mFreeResourceHandlersRegistry.pop_front();
-
-		pNewHandlerInstance = mResourceHandlersArray[handlerHashValue];
-
-		pNewHandlerInstance->SetResourceId(resourceId);
+		handlerHashValue = mResourceHandlers.Add(pNewHandlerInstance) + 1;
 
 		mResourceHandlersMap[resourceId] = handlerHashValue;
 
@@ -390,35 +332,15 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		IResourceHandler* pNewHandlerInstance = mResourceHandlersArray[handlerHashValue];
+		IResourceHandler* pNewHandlerInstance = mResourceHandlers[handlerHashValue].Get();
 
 		pNewHandlerInstance->SetResourceId(InvalidEntityId);
 
-		mFreeResourceHandlersRegistry.push_back(handlerHashValue);
+		mResourceHandlers.RemoveAt(handlerHashValue);
 
 		return RC_OK;
 	}
-
-	TResourceId CResourceManager::_getFreeResourceId()
-	{
-		TResourceId resourceId = InvalidResourceId;
-
-		if (mFreeResourcesEntriesRegistry.empty())
-		{
-			resourceId = mResources.size() + 1;
-
-			mResources.push_back(nullptr);
-
-			return resourceId;
-		}
-
-		resourceId = mFreeResourcesEntriesRegistry.front();
-
-		mFreeResourcesEntriesRegistry.pop_front();
-
-		return resourceId;
-	}
-
+	
 	const IResourceLoader* CResourceManager::_getResourceLoader(U32 resourceTypeId) const
 	{
 		auto resourceLoaderIdIter = mResourceLoadersMap.find(resourceTypeId);
@@ -428,7 +350,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		return mRegistredResourceLoaders[resourceLoaderIdIter->second - 1];
+		return mRegisteredResourceLoaders[resourceLoaderIdIter->second - 1].GetOrDefault(nullptr);
 	}
 
 
