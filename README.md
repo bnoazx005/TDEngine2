@@ -1,4 +1,4 @@
-# TDEngine 2
+![TDEngine2](https://i.imgur.com/Q8QlaxD.png)
 
 TDEngine 2 is a cross-platform game engine.
 
@@ -10,16 +10,16 @@ TDEngine 2 is a cross-platform game engine.
 
 ## Table of contents
 
-1. [Current Goals](#current-goals)
-2. [How to Build](#how-to-build)
+1. ### [Current Goals](#current-goals)
+2. ### [How to Build](#how-to-build)
 
-    2.1 [Visual Studio (Win32)](#vs-win32)
+    ### 2.1 [Visual Studio (Win32)](#vs-win32)
 
-    2.2 [Make Utility (UNIX)](#make-unix)
+    ### 2.2 [Make Utility (UNIX)](#make-unix)
 
-    2.3 [Compilation](#compilation)
+    ### 2.3 [Compilation](#compilation)
     
-3. [Getting Started](#getting-started)
+3. ### [Getting Started](#getting-started)
 
 ***
 
