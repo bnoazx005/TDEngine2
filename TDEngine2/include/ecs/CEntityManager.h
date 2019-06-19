@@ -171,6 +171,15 @@ namespace TDEngine2
 
 			template <typename T>
 			TDE2_API T* GetComponent(TEntityId id);
+			
+			/*!
+				\brief The method checks up whether a given entity has a component of specified type or not
+
+				\return The method returns true if the entity has specified component and false in other cases
+			*/
+
+			template <typename T>
+			TDE2_API bool HasComponent(TEntityId id);
 
 			/*!
 				\brief The method seeks out an entity and either return it or return nullptr
@@ -235,5 +244,11 @@ namespace TDEngine2
 	TDE2_API T* CEntityManager::GetComponent(TEntityId id)
 	{
 		return mpComponentManager->GetComponent<T>(id);
+	}
+	
+	template <typename T>
+	TDE2_API bool CEntityManager::HasComponent(TEntityId id)
+	{
+		return mpComponentManager->HasComponent<T>(id);
 	}
 }

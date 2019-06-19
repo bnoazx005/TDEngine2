@@ -154,7 +154,7 @@ namespace TDEngine2
 
 	std::vector<TEntityId> CWorld::_findEntitiesWithComponents(const std::vector<TComponentTypeId>& types)
 	{
-		return mpComponentManager->FindEntitiesWithComponents(types);
+		return mpComponentManager->FindEntitiesWithAll(types);
 	}
 	
 
