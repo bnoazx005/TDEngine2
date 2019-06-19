@@ -203,6 +203,18 @@ namespace TDEngine2
 			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TComponentTypeId>& types) = 0;
 
 			/*!
+				\brief The method returns an array of entities identifiers, which have any of
+				specified components
+
+				\param[in] types An array that contains types identifiers that an entity should have
+
+				\return The method returns an array of entities identifiers, which have any of
+				specified components
+			*/
+
+			TDE2_API virtual std::vector<TEntityId> FintEntitiesWithAny(const std::vector<TComponentTypeId>& types) = 0;
+
+			/*!
 				\brief The method returns a pointer to a component of specified type T
 
 				\return The method returns a pointer to a component of specified type T, or nullptr if there is no
