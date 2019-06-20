@@ -200,7 +200,19 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithComponents(const std::vector<TComponentTypeId>& types) = 0;
+			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TComponentTypeId>& types) = 0;
+
+			/*!
+				\brief The method returns an array of entities identifiers, which have any of
+				specified components
+
+				\param[in] types An array that contains types identifiers that an entity should have
+
+				\return The method returns an array of entities identifiers, which have any of
+				specified components
+			*/
+
+			TDE2_API virtual std::vector<TEntityId> FintEntitiesWithAny(const std::vector<TComponentTypeId>& types) = 0;
 
 			/*!
 				\brief The method returns a pointer to a component of specified type T
@@ -220,6 +232,18 @@ namespace TDEngine2
 			{
 				return dynamic_cast<T*>(_getComponent(T::GetTypeId(), id));
 			}
+
+			/*!
+				\brief The method checks up whether a given entity has a component of specified type or not
+
+				\return The method returns true if the entity has specified component and false in other cases
+			*/
+
+			template <typename T>
+			TDE2_API bool HasComponent(TEntityId id)
+			{
+				return _hasComponent(T::GetTypeId(), id);
+			}
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComponentManager)
 
@@ -232,5 +256,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _removeComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 
 			TDE2_API virtual E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) = 0;
+
+			TDE2_API virtual bool _hasComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 	};
 }

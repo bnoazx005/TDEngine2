@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "IEngineSubsystem.h"
 #include "./../utils/Utils.h"
+#include "./../utils/CResult.h"
 #include "IResourceHandler.h"
 #include <type_traits>
 #include <string>
@@ -55,7 +56,7 @@ namespace TDEngine2
 				an identifier of the registred loader
 			*/
 
-			TDE2_API virtual TRegisterLoaderResult RegisterLoader(const IResourceLoader* pResourceLoader) = 0;
+			TDE2_API virtual TResult<TResourceLoaderId> RegisterLoader(const IResourceLoader* pResourceLoader) = 0;
 
 			/*!
 				\brief The method unregisters a resource loader with the specified identifier
@@ -96,7 +97,7 @@ namespace TDEngine2
 				an identifier of the registred factory
 			*/
 
-			TDE2_API virtual TRegisterFactoryResult RegisterFactory(const IResourceFactory* pResourceFactory) = 0;
+			TDE2_API virtual TResult<TResourceFactoryId> RegisterFactory(const IResourceFactory* pResourceFactory) = 0;
 
 			/*!
 				\brief The method unregisters a resource factory with the specified identifier
@@ -122,11 +123,11 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API
 #if _HAS_CXX17
-				std::enable_if_t<std::is_base_of_v<IResource, T>, IResourceHandler*>
+			std::enable_if_t<std::is_base_of_v<IResource, T>, IResourceHandler*>
 #else
-				typename std::enable_if<std::is_base_of<IResource, T>::value, IResourceHandler*>::type
+			typename std::enable_if<std::is_base_of<IResource, T>::value, IResourceHandler*>::type
 #endif
-				Create(const std::string& name, const TBaseResourceParameters& params)
+			Create(const std::string& name, const TBaseResourceParameters& params)
 			{
 				return _createResource(T::GetTypeId(), name, params);
 			}

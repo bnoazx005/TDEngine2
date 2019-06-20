@@ -125,7 +125,19 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API std::vector<TEntityId> FindEntitiesWithComponents(const std::vector<TComponentTypeId>& types) override;
+			TDE2_API std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TComponentTypeId>& types) override;
+
+			/*!
+				\brief The method returns an array of entities identifiers, which have any of
+				specified components
+
+				\param[in] types An array that contains types identifiers that an entity should have
+
+				\return The method returns an array of entities identifiers, which have any of
+				specified components
+			*/
+
+			TDE2_API std::vector<TEntityId> FintEntitiesWithAny(const std::vector<TComponentTypeId>& types) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
 
@@ -147,6 +159,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _registerBuiltinComponentFactories();
 
 			TDE2_API E_RESULT_CODE _unregisterBuiltinComponentFactories();
+
+			TDE2_API bool _hasComponent(TypeId componentTypeId, TEntityId entityId) override;
 		protected:
 			TComponentEntityMap      mComponentEntityMap;
 

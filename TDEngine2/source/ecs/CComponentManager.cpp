@@ -373,6 +373,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	bool CComponentManager::_hasComponent(TypeId componentTypeId, TEntityId entityId)
+	{
+		U32 instanceHashValue = mComponentEntityMap[componentTypeId][entityId];
+
+		return instanceHashValue && (mComponentsHashTable.find(componentTypeId) != mComponentsHashTable.cend());
+	}
+
 	CComponentIterator CComponentManager::FindComponentsOfType(TypeId typeId)
 	{
 		if (mComponentsHashTable.find(typeId) == mComponentsHashTable.cend())
@@ -402,7 +409,7 @@ namespace TDEngine2
 		}
 	}
 
-	std::vector<TEntityId> CComponentManager::FindEntitiesWithComponents(const std::vector<TComponentTypeId>& types)
+	std::vector<TEntityId> CComponentManager::FindEntitiesWithAll(const std::vector<TComponentTypeId>& types)
 	{
 		std::vector<TEntityId> filter;
 
@@ -432,6 +439,30 @@ namespace TDEngine2
 			}
 
 			filter.push_back(entityComponentsTablePair.first);
+		}
+
+		return std::move(filter);
+	}
+
+	std::vector<TEntityId> CComponentManager::FintEntitiesWithAny(const std::vector<TComponentTypeId>& types)
+	{
+		std::vector<TEntityId> filter;
+
+		std::unordered_map<TComponentTypeId, U32> entityComponentsTable;
+
+		for (auto entityComponentsTablePair : mEntityComponentMap)
+		{
+			entityComponentsTable = entityComponentsTablePair.second;
+			
+			for (auto typeIter = types.cbegin(); typeIter != types.cend(); ++typeIter)
+			{
+				if (entityComponentsTable.find(*typeIter) != entityComponentsTable.cend())
+				{
+					filter.push_back(entityComponentsTablePair.first);
+
+					break;
+				}
+			}
 		}
 
 		return std::move(filter);
