@@ -133,7 +133,7 @@ endif(MSVC)
 
 
 if (UNIX)
-	message(STATUS "UNIX system has detected...")
+	message(STATUS "[Box2D] UNIX system has detected...")
 
 	include(CheckCXXCompilerFlag)
 
@@ -153,6 +153,9 @@ endif (UNIX)
 add_library(${BOX2D_LIBRARY_NAME} STATIC ${MAIN_HEADER} ${COLLISION} ${DYNAMICS} ${COMMON} ${ROPE})
 
 target_include_directories(${BOX2D_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+SET_TARGET_PROPERTIES(${BOX2D_LIBRARY_NAME} PROPERTIES PREFIX "")
+set_property(TARGET ${BOX2D_LIBRARY_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # disable the <libname>_EXPORTS
 set_target_properties(${BOX2D_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
