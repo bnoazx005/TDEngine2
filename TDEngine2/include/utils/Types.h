@@ -615,4 +615,28 @@ namespace TDEngine2
 	typedef U32 TFileEntryId;
 
 	constexpr TFileEntryId InvalidFileEntryId = (std::numeric_limits<TFileEntryId>::max)();
+
+
+	/*!
+		struct TEngineSettings
+
+		\brief The structure contains all available settings that provide an ability of engine's tuning
+	*/
+
+	typedef struct TEngineSettings
+	{
+		E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType;
+
+		std::string                  mApplicationName;
+
+		U32                          mWindowWidth;
+
+		U32                          mWindowHeight;
+
+		U32                          mFlags;
+
+		U32                          mMaxNumOfWorkerThreads;
+
+		U32                          mTotalPreallocatedMemorySize;
+	} TEngineSettings, *TEngineSettingsPtr;
 }

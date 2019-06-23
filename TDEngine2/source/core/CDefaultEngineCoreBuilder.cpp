@@ -43,7 +43,7 @@ namespace TDEngine2
 		\return RC_OK if everything went ok, or some other code, which describes an error
 	*/
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback)
+	E_RESULT_CODE CDefaultEngineCoreBuilder::Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const TEngineSettings& settings)
 	{
 		if (mIsInitialized)
 		{
@@ -54,6 +54,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		memcpy(&mEngineSettings, &settings, sizeof(settings));
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -83,7 +85,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureGraphicsContext(E_GRAPHICS_CONTEXT_GAPI_TYPE type)
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureGraphicsContext(E_GRAPHICS_CONTEXT_GAPI_TYPE type)
 	{
 		if (!mIsInitialized || !mpPluginManagerInstance)
 		{
@@ -124,7 +126,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags)
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags)
 	{
 		if (!mIsInitialized || !mpEventManagerInstance)
 		{
@@ -150,7 +152,7 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(mpWindowSystemInstance);
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureFileSystem()
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureFileSystem()
 	{
 		if (!mIsInitialized)
 		{
@@ -178,7 +180,7 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(mpFileSystemInstance));
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureResourceManager()
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureResourceManager()
 	{
 		if (!mIsInitialized || !mpJobManagerInstance || !mpFileSystemInstance)
 		{
@@ -197,7 +199,7 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(mpResourceManagerInstance);
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureJobManager(U32 maxNumOfThreads)
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureJobManager(U32 maxNumOfThreads)
 	{
 		if (!mIsInitialized)
 		{
@@ -221,7 +223,7 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(pJobManager);
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigurePluginManager()
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configurePluginManager()
 	{
 		if (!mIsInitialized)
 		{
@@ -245,7 +247,7 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(pPluginManager);
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureEventManager()
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureEventManager()
 	{
 		if (!mIsInitialized)
 		{
@@ -264,7 +266,7 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(mpEventManagerInstance);
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureRenderer()
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureRenderer()
 	{
 		if (!mIsInitialized || !mpMemoryManagerInstance || !mpGraphicsContextInstance || !mpResourceManagerInstance)
 		{
@@ -285,7 +287,7 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(pRenderer);
 	}
 	
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureMemoryManager(U32 totalMemorySize)
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureMemoryManager(U32 totalMemorySize)
 	{
 		if (!mIsInitialized)
 		{
@@ -330,7 +332,7 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(mpMemoryManagerInstance);
 	}
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::ConfigureInputContext()
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_configureInputContext()
 	{
 		if (!mIsInitialized)
 		{
@@ -356,6 +358,17 @@ namespace TDEngine2
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()
 	{
+		PANIC_ON_FAILURE(_configureMemoryManager(mEngineSettings.mTotalPreallocatedMemorySize));
+		PANIC_ON_FAILURE(_configureJobManager(mEngineSettings.mMaxNumOfWorkerThreads));
+		PANIC_ON_FAILURE(_configureFileSystem());
+		PANIC_ON_FAILURE(_configureEventManager());
+		PANIC_ON_FAILURE(_configureResourceManager());
+		PANIC_ON_FAILURE(_configureWindowSystem(mEngineSettings.mApplicationName, mEngineSettings.mWindowWidth, mEngineSettings.mWindowHeight, mEngineSettings.mFlags));
+		PANIC_ON_FAILURE(_configurePluginManager());
+		PANIC_ON_FAILURE(_configureGraphicsContext(mEngineSettings.mGraphicsContextType));
+		PANIC_ON_FAILURE(_configureInputContext());
+		PANIC_ON_FAILURE(_configureRenderer());
+
 		E_RESULT_CODE result = _registerBuiltinInfrastructure();
 
 		if (result != RC_OK)
@@ -413,7 +426,7 @@ namespace TDEngine2
 	}
 
 	
-	TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, E_RESULT_CODE& result)
+	TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const TEngineSettings& settings, E_RESULT_CODE& result)
 	{
 		CDefaultEngineCoreBuilder* pEngineCoreBuilder = new (std::nothrow) CDefaultEngineCoreBuilder();
 
@@ -424,7 +437,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pEngineCoreBuilder->Init(pEngineCoreFactoryCallback);
+		result = pEngineCoreBuilder->Init(pEngineCoreFactoryCallback, settings);
 
 		if (result != RC_OK)
 		{
