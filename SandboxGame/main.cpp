@@ -14,16 +14,7 @@ int main(int argc, char** argv)
 {
 	E_RESULT_CODE result = RC_OK;
 	
-	TEngineSettings settings;
-	settings.mGraphicsContextType         = GCGT_OPENGL3X;
-	settings.mApplicationName             = "Sandbox Game";
-	settings.mWindowWidth                 = 800;
-	settings.mWindowHeight                = 600;
-	settings.mFlags                       = P_RESIZEABLE | P_ZBUFFER_ENABLED;
-	settings.mMaxNumOfWorkerThreads       = std::thread::hardware_concurrency() - 1;
-	settings.mTotalPreallocatedMemorySize = DefaultGlobalMemoryBlockSize;
-
-	IEngineCoreBuilder* pEngineCoreBuilder = CreateDefaultEngineCoreBuilder(CreateEngineCore, settings, result);
+	IEngineCoreBuilder* pEngineCoreBuilder = CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result);
 
 	if (result != RC_OK)
 	{

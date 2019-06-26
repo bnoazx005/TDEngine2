@@ -6,7 +6,8 @@
 
 namespace TDEngine2
 {
-	CConfigFileReader::CConfigFileReader()
+	CConfigFileReader::CConfigFileReader():
+		mCurrParsingGroup()
 	{
 	}
 	
@@ -19,7 +20,9 @@ namespace TDEngine2
 			return defaultValue;
 		}
 
-		return std::atoi(resultValue.c_str());
+		C8* ppStrEnd = nullptr;
+
+		return std::strtol(resultValue.c_str(), &ppStrEnd, 0);
 	}
 
 	F32 CConfigFileReader::GetFloat(const std::string& group, const std::string& paramName, F32 defaultValue)
@@ -80,7 +83,7 @@ namespace TDEngine2
 		U32 firstDelimPos  = 0;
 		U32 secondDelimPos = 0;
 
-		std::string currGroupName;
+		std::string currGroupName { mCurrParsingGroup };
 		std::string currParamName;
 		std::string currValueName;
 
@@ -100,7 +103,8 @@ namespace TDEngine2
 					continue; /// just skip a line with an error
 				}
 
-				currGroupName = currReadLine.substr(firstDelimPos + 1, secondDelimPos - firstDelimPos - 1);
+				mCurrParsingGroup = currReadLine.substr(firstDelimPos + 1, secondDelimPos - firstDelimPos - 1);
+				currGroupName     = mCurrParsingGroup;
 
 				continue;
 			}
@@ -129,6 +133,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CConfigFileReader::_onFree()
 	{
+		mCurrParsingGroup.clear();
+
 		return RC_OK;
 	}
 

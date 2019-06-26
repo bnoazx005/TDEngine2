@@ -451,4 +451,25 @@ namespace TDEngine2
 		public:
 			TDE2_API static const std::string mEmptyStr;
 	};
+
+
+	/*!
+		\brief The method converts a given value of E_GRAPHICS_CONTEXT_GAPI_TYPE enumeration type into a string
+
+		\param[in] graphicsContextType A value of E_GRAPHICS_CONTEXT_GAPI_TYPE type
+
+		\return The method converts a given value of E_GRAPHICS_CONTEXT_GAPI_TYPE enumeration type into a string
+	*/
+
+	TDE2_API std::string GraphicsContextTypeToString(E_GRAPHICS_CONTEXT_GAPI_TYPE graphicsContextType);
+
+	/*!
+		\brief The method converts a given string value into corresponding value of E_GRAPHICS_CONTEXT_GAPI_TYPE type
+
+		\param[in] value A string which contains one of type of a graphics context including \"d3d11\", \"gl3x\", etc
+		
+		\return The method returns a value of E_GRAPHICS_CONTEXT_GAPI_TYPE type based on a given string one
+	*/
+
+	TDE2_API E_GRAPHICS_CONTEXT_GAPI_TYPE StringToGraphicsContextType(const std::string& value);
 }

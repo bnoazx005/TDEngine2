@@ -111,5 +111,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _onFree() override;
 		protected:
 			TConfigParamsMap mParamsMap;
+
+			std::string      mCurrParsingGroup;
 	};
 }

@@ -199,4 +199,32 @@ namespace TDEngine2
 	}
 
 	const std::string CStringUtils::mEmptyStr {};
+
+
+	TDE2_API std::string GraphicsContextTypeToString(E_GRAPHICS_CONTEXT_GAPI_TYPE graphicsContextType)
+	{
+		switch (graphicsContextType)
+		{
+			case GCGT_DIRECT3D11:
+				return "d3d11";
+			case GCGT_OPENGL3X:
+				return "gl3x";
+		}
+
+		return "unknown";
+	}
+
+	TDE2_API E_GRAPHICS_CONTEXT_GAPI_TYPE StringToGraphicsContextType(const std::string& value)
+	{
+		if (value._Starts_with("d3d11"))
+		{
+			return GCGT_DIRECT3D11;
+		}
+		else if (value._Starts_with("gl3x"))
+		{
+			return GCGT_OPENGL3X;
+		}
+
+		return GCGT_UNKNOWN;
+	}
 }
