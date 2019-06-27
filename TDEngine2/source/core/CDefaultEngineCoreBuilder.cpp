@@ -25,6 +25,7 @@
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/utils/CFileLogger.h"
 #include <memory>
+#include <cstring>
 
 
 namespace TDEngine2
