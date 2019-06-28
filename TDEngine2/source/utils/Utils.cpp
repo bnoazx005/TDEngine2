@@ -216,11 +216,11 @@ namespace TDEngine2
 
 	TDE2_API E_GRAPHICS_CONTEXT_GAPI_TYPE StringToGraphicsContextType(const std::string& value)
 	{
-		if (value._Starts_with("d3d11"))
+		if (value.find("d3d11") != std::string::npos)
 		{
 			return GCGT_DIRECT3D11;
 		}
-		else if (value._Starts_with("gl3x"))
+		else if (value.find("gl3x") != std::string::npos)
 		{
 			return GCGT_OPENGL3X;
 		}
