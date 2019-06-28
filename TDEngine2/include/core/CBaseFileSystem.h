@@ -143,6 +143,33 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::string GetCurrDirectory() const override;
+
+			/*!
+				\brief The method sets up a pointer to IJobManager implementation within
+				the file manager.
+
+				\param[in] pJobManager A pointer to IJobManager implementation
+			*/
+
+			TDE2_API void SetJobManager(IJobManager* pJobManager) override;
+
+			/*!
+				\brief The method returns a pointer to IJobManager
+
+				\return The method returns a pointer to IJobManager
+			*/
+
+			TDE2_API IJobManager* GetJobManager() const override;
+
+			/*!
+				\brief The method tells whether asynchronous file input / output operations
+				are available for a user or not
+
+				\return The method returns true if asynchronous file I/O is available, false in
+				other cases
+			*/
+
+			TDE2_API bool IsStreamingEnabled() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFileSystem)
 
@@ -179,5 +206,7 @@ namespace TDEngine2
 			static std::string      mInvalidPath;
 
 			mutable std::mutex      mMutex;
+
+			IJobManager*            mpJobManager;
 	};
 }

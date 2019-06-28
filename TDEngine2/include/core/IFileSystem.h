@@ -19,6 +19,7 @@
 namespace TDEngine2
 {
 	class IFile;
+	class IJobManager;
 	
 
 	/*!
@@ -192,6 +193,33 @@ namespace TDEngine2
 			typename std::enable_if<std::is_base_of<IFile, T>::value, T*>::type
 #endif
 			Get(TFileEntryId fileId);
+
+			/*!
+				\brief The method sets up a pointer to IJobManager implementation within
+				the file manager.
+
+				\param[in] pJobManager A pointer to IJobManager implementation
+			*/
+
+			TDE2_API virtual void SetJobManager(IJobManager* pJobManager) = 0;
+
+			/*!
+				\brief The method returns a pointer to IJobManager
+
+				\return The method returns a pointer to IJobManager
+			*/
+
+			TDE2_API virtual IJobManager* GetJobManager() const = 0;
+
+			/*!
+				\brief The method tells whether asynchronous file input / output operations
+				are available for a user or not
+
+				\return The method returns true if asynchronous file I/O is available, false in
+				other cases
+			*/
+
+			TDE2_API virtual bool IsStreamingEnabled() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileSystem)
 

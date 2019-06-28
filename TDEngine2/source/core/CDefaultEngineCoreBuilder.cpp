@@ -370,6 +370,9 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configureInputContext());
 		PANIC_ON_FAILURE(_configureRenderer());
 
+		mpFileSystemInstance->SetJobManager(mpJobManagerInstance);
+		LOG_MESSAGE(std::string("[Default Engine Core Builder] Async file I/O operations status: ").append(mpFileSystemInstance->IsStreamingEnabled() ? "enabled" : "disabled"));
+
 		E_RESULT_CODE result = _registerBuiltinInfrastructure();
 
 		if (result != RC_OK)

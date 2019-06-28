@@ -2,6 +2,7 @@
 #include "./../../../include/core/IFile.h"
 #include "./../../../include/platform/CTextFileReader.h"
 #include "./../../../include/utils/CFileLogger.h"
+#include "./../../../include/core/IJobManager.h"
 #include <algorithm>
 #if _HAS_CXX17
 #include <filesystem>
@@ -16,7 +17,7 @@ namespace TDEngine2
 	std::string CBaseFileSystem::mInvalidPath = "";
 
 	CBaseFileSystem::CBaseFileSystem() :
-		CBaseObject()
+		CBaseObject(), mpJobManager(nullptr)
 	{
 	}
 
@@ -28,7 +29,7 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = true;
-
+		
 		LOG_MESSAGE("[File System] The file system  was successfully initialized");
 
 		return _onInit();
@@ -213,6 +214,21 @@ namespace TDEngine2
 	E_ENGINE_SUBSYSTEM_TYPE CBaseFileSystem::GetType() const
 	{
 		return EST_FILE_SYSTEM;
+	}
+
+	void CBaseFileSystem::SetJobManager(IJobManager* pJobManager)
+	{
+		mpJobManager = pJobManager;
+	}
+
+	IJobManager* CBaseFileSystem::GetJobManager() const
+	{
+		return mpJobManager;
+	}
+
+	bool CBaseFileSystem::IsStreamingEnabled() const
+	{
+		return mpJobManager != nullptr;
 	}
 
 	TFileEntryId CBaseFileSystem::_registerFileEntry(IFile* pFileEntry)

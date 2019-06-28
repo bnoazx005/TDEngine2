@@ -383,11 +383,14 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configureInputContext());
 		PANIC_ON_FAILURE(_configureRenderer());
 
+		mpFileSystemInstance->SetJobManager(mpJobManagerInstance);
+		LOG_MESSAGE(std::string("[ConfigFIleEngineCoreBuilder] Async file I/O operations status: ").append(mpFileSystemInstance->IsStreamingEnabled() ? "enabled" : "disabled"));
+
 		E_RESULT_CODE result = _registerBuiltinInfrastructure();
 
 		if (result != RC_OK)
 		{
-			LOG_WARNING("[Default Engine Core Builder] Couldn't register built-in types for the resource manager");
+			LOG_WARNING("[ConfigFIleEngineCoreBuilder] Couldn't register built-in types for the resource manager");
 
 			return mpEngineCoreInstance;
 		}
