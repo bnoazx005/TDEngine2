@@ -217,18 +217,35 @@ namespace TDEngine2
 	class IBinaryFileReader : public virtual IFileReader
 	{
 		public:
+			typedef void (*TSuccessReadCallback)(void* pBuffer);
+
+			typedef void (*TErrorReadCallback)(E_RESULT_CODE);
+		public:
 			/*!
 				\brief The method reads a continuous block of a file of specified size
 				into a given buffer
 
 				\param[out] pBuffer A buffer which will keep the read block of a file
 
-				\paramp[in] bufferSize A size of a block that should be read
+				\param[in] bufferSize A size of a block that should be read
 				
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Read(void* pBuffer, U32 bufferSize) = 0;
+
+			/*!
+				\brief The method asynchronously reads a continuous block of a file of specified size
+				into a given buffer
+
+				\param[in] size A size of a block that should be read
+
+				\param[in] successCallback A callback that will be called if everything went fine
+
+				\param[in] errorCallback A callback will be called if something went wrong
+			*/
+
+			TDE2_API virtual void ReadAsync(U32 size, const TSuccessReadCallback& successCallback, const TErrorReadCallback& errorCallback) = 0;
 
 			/*!
 				\brief The method sets up a position of a file pointer

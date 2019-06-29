@@ -49,6 +49,19 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Read(void* pBuffer, U32 bufferSize) override;
 
 			/*!
+				\brief The method asynchronously reads a continuous block of a file of specified size
+				into a given buffer
+
+				\param[in] size A size of a block that should be read
+
+				\param[in] successCallback A callback that will be called if everything went fine
+
+				\param[in] errorCallback A callback will be called if something went wrong
+			*/
+
+			TDE2_API void ReadAsync(U32 size, const TSuccessReadCallback& successCallback, const TErrorReadCallback& errorCallback) override;
+
+			/*!
 				\brief The method sets up a position of a file pointer
 
 				\param[in] pos A new position of a file pointer

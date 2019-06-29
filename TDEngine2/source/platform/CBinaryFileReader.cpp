@@ -1,5 +1,7 @@
 #include "./../../include/platform/CBinaryFileReader.h"
 #include "./../../include/core/IFileSystem.h"
+#include "./../../include/core/IJobManager.h"
+#include <functional>
 
 
 namespace TDEngine2
@@ -27,6 +29,39 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	void CBinaryFileReader::ReadAsync(U32 size, const TSuccessReadCallback& successCallback, const TErrorReadCallback& errorCallback)
+	{
+		if (!mpFileSystemInstance->IsStreamingEnabled())
+		{
+			errorCallback(RC_ASYNC_FILE_IO_IS_DISABLED);
+
+			return;
+		}
+
+		IJobManager* pJobManager = mpFileSystemInstance->GetJobManager();
+		
+		pJobManager->SubmitJob(std::function([successCallback, errorCallback](CBinaryFileReader* pFileReader, U32 size)
+		{
+			E_RESULT_CODE result = RC_OK;
+
+			C8* pBuffer = new C8[size];
+
+			if ((result = pFileReader->Read(pBuffer, size)) != RC_OK)
+			{
+				errorCallback(result);
+
+				delete[] pBuffer;
+
+				return;
+			}
+
+			successCallback(pBuffer);
+
+			delete[] pBuffer;
+			
+		}), this, size);
 	}
 
 	E_RESULT_CODE CBinaryFileReader::SetPosition(U32 pos)

@@ -69,15 +69,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto jobManager = dynamic_cast<TDEngine2::IJobManager*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_JOB_MANAGER));
 
 	auto fileSystem = dynamic_cast<TDEngine2::IFileSystem*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_FILE_SYSTEM));
-
-	TDEngine2::TFileEntryId newFile = fileSystem->Open<TDEngine2::CTextFileReader>("new.txt", true).GetOrDefault(TDEngine2::InvalidFileEntryId);
-
-	jobManager->SubmitJob<TDEngine2::IFileSystem*, TDEngine2::TFileEntryId>(std::function<void (TDEngine2::IFileSystem*, TDEngine2::TFileEntryId)>([](TDEngine2::IFileSystem* pFileSystem, TDEngine2::TFileEntryId fileId)
-	{
-		auto file = pFileSystem->Get<TDEngine2::CTextFileReader>(fileId);
-
-	}), fileSystem, newFile);
-
+	
 	return TDEngine2::RC_OK;
 }
 
