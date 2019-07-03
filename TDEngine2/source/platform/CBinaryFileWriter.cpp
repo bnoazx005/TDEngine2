@@ -1,5 +1,7 @@
 #include "./../../include/platform/CBinaryFileWriter.h"
 #include "./../../include/core/IFileSystem.h"
+#include "./../../include/core/IJobManager.h"
+#include <functional>
 
 
 namespace TDEngine2
@@ -27,6 +29,33 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	void CBinaryFileWriter::WriteAsync(const void* pBuffer, U32 bufferSize, const TSuccessWriteCallback& successCallback,
+		const TErrorWriteCallback& errorCallback)
+	{
+		if (!mpFileSystemInstance->IsStreamingEnabled())
+		{
+			errorCallback(RC_ASYNC_FILE_IO_IS_DISABLED);
+
+			return;
+		}
+
+		IJobManager* pJobManager = mpFileSystemInstance->GetJobManager();
+
+		/// \note Is it safe to work with pBuffer without lock
+		pJobManager->SubmitJob(std::function([successCallback, errorCallback, pBuffer](CBinaryFileWriter* pFileWriter, U32 size)
+		{
+			E_RESULT_CODE result = RC_OK;
+
+			if ((result = pFileWriter->Write(pBuffer, size)) != RC_OK)
+			{
+				errorCallback(result);
+			}
+
+			successCallback();
+
+		}), this, bufferSize);
 	}
 
 	E_RESULT_CODE CBinaryFileWriter::Flush()

@@ -299,6 +299,10 @@ namespace TDEngine2
 	class IBinaryFileWriter: public IFileWriter
 	{
 		public:
+			typedef void(*TSuccessWriteCallback)();
+
+			typedef void(*TErrorWriteCallback)(E_RESULT_CODE);
+		public:
 			/*!
 				\brief The method writes data of specified size into a file
 
@@ -310,6 +314,21 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Write(const void* pBuffer, U32 bufferSize) = 0;
+
+			/*!
+				\brief The method writes data in asynchronous manner into a given file
+
+				\param[in] pBuffer A pointer to data's buffer
+
+				\param[in] bufferSize A size in bytes of data should be written
+
+				\param[in] successCallback A callback that should be called when data was successfully written into the file
+
+				\param[in] errorCallback A callback that will be called when some error's happened during the process
+			*/
+
+			TDE2_API virtual void WriteAsync(const void* pBuffer, U32 bufferSize, const TSuccessWriteCallback& successCallback,
+											 const TErrorWriteCallback& errorCallback) = 0;
 
 			/*!
 				\brief The method writes all unsaved buffer data into the destination file

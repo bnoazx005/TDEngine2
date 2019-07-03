@@ -48,6 +48,21 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Write(const void* pBuffer, U32 bufferSize) override;
 
 			/*!
+				\brief The method writes data in asynchronous manner into a given file
+
+				\param[in] pBuffer A pointer to data's buffer
+
+				\param[in] bufferSize A size in bytes of data should be written
+
+				\param[in] successCallback A callback that should be called when data was successfully written into the file
+
+				\param[in] errorCallback A callback that will be called when some error's happened during the process
+			*/
+
+			TDE2_API void WriteAsync(const void* pBuffer, U32 bufferSize, const TSuccessWriteCallback& successCallback,
+									 const TErrorWriteCallback& errorCallback) override;
+
+			/*!
 				\brief The method writes all unsaved buffer data into the destination file
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
