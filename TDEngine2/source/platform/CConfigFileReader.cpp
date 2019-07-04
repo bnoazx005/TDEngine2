@@ -94,7 +94,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			currReadLine.erase(std::remove_if(currReadLine.begin(), currReadLine.end(), [](U8 ch) { return std::isspace(ch); }), currReadLine.end()); ///< remove whitespaces
+			currReadLine = _removeComments(currReadLine);
 
 			if ((firstDelimPos = currReadLine.find_first_of('[')) != std::string::npos) /// found a group
 			{
@@ -136,6 +136,18 @@ namespace TDEngine2
 		mCurrParsingGroup.clear();
 
 		return RC_OK;
+	}
+
+	std::string CConfigFileReader::_removeComments(const std::string& line)
+	{
+		std::string processedLine(line);
+
+		processedLine.erase(std::remove_if(processedLine.begin(), processedLine.end(), [](U8 ch) { return std::isspace(ch); }), processedLine.end()); ///< remove whitespaces
+
+		/// remove single line comments
+		std::string::size_type pos = processedLine.find('#');
+
+		return processedLine.substr(0, pos);
 	}
 
 
