@@ -42,7 +42,7 @@ namespace TDEngine2
 
 		IJobManager* pJobManager = mpFileSystemInstance->GetJobManager();
 		
-		pJobManager->SubmitJob(std::function([successCallback, errorCallback](CBinaryFileReader* pFileReader, U32 size)
+		pJobManager->SubmitJob(std::function<void(CBinaryFileReader*, U32)>([successCallback, errorCallback](CBinaryFileReader* pFileReader, U32 size)
 		{
 			E_RESULT_CODE result = RC_OK;
 
