@@ -8,6 +8,7 @@ option(BUILD_D3D11_GCTX_PLUGIN "Build D3D11 Graphics context plugin" ON)
 option(BUILD_WINDOWS_INPUTCTX_PLUGIN "Build Windows input context plugin" ON)
 option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
+option(IS_TOOLS_BUILDING_ENABLED "The option shows whether engine's toolset should be built or not" ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
@@ -299,6 +300,11 @@ target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_D
 #build plugins
 if (IS_PLUGIN_BUILDING_ENABLED)
 	add_subdirectory(plugins)
+endif ()
+
+#build engine's toolset
+if (IS_TOOLS_BUILDING_ENABLED)
+	add_subdirectory(tools)
 endif ()
 
 if (UNIX)
