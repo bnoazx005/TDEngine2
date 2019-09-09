@@ -62,7 +62,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = mpWorldInstance->Free()) != RC_OK)
+		if (mpWorldInstance && (result = mpWorldInstance->Free()) != RC_OK)
 		{
 			return result;
 		}

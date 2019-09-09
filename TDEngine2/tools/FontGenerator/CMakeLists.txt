@@ -16,10 +16,11 @@ set(TDE2_FONT_GENERATOR_NAME "TDE2FontGen")
 
 
 set(UTILITY_HEADERS
-	#"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GraphicsContext.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CUtilityListener.h"
 	)
 
 set(UTILITY_SOURCES
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CUtilityListener.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp"
 	)
 
