@@ -3,6 +3,12 @@
 #include "./../plugins/YAMLFormatSupport/include/CYAMLSupportPlugin.h"
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#pragma warning(push)
+#pragma warning(disable:4996)
+#include "./../deps/stb/stb_image_write.h"
+#pragma warning(pop)
+#include <memory>
 
 
 using namespace TDEngine2;
@@ -22,6 +28,27 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	{
 		return RC_FAIL;
 	}
+
+	// read ttf file
+	auto pFontFile = pFileSystem->Get<CBinaryFileReader>(pFileSystem->Open<CBinaryFileReader>("arial.ttf").Get());
+	
+	std::unique_ptr<U8[]> pFontBuffer(new U8[pFontFile->GetFileLength()]);
+
+	if (pFontFile->Read(pFontBuffer.get(), pFontFile->GetFileLength()) != RC_OK)
+	{
+		return RC_FAIL;
+	}
+
+	/// \note All the code below is just test environment which should be later replaced with proper solution
+	stbtt_fontinfo font;
+
+	stbtt_InitFont(&font, pFontBuffer.get(), stbtt_GetFontOffsetForIndex(pFontBuffer.get(), 0));
+
+
+
+	I32 width, height, xoff, yoff;
+	U8* pBitmap = stbtt_GetCodepointSDF(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), 'R', 10, 50, 1.0f, &width, &height, &xoff, &yoff);
+	stbi_write_png("glyph.png", width, height, 1, pBitmap, width);
 
 	return RC_OK;
 }
