@@ -105,6 +105,8 @@
 #include "graphics/CBaseMaterial.h"
 #include "graphics/IGlobalShaderProperties.h"
 #include "graphics/CGlobalShaderProperties.h"
+#include "graphics/ITextureAtlas.h"
+#include "graphics/CTextureAtlas.h"
 
 ///math
 #include "math/TVector2.h"
