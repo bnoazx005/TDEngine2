@@ -272,6 +272,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetPosition() const = 0;
+
+			/*!
+				\brief The method returns a total size of a file in bytes
+
+				\return The method returns a total size of a file in bytes
+			*/
+
+			TDE2_API virtual U64 GetFileLength() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryFileReader)
 	};

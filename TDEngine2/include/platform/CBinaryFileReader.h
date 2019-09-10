@@ -86,6 +86,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetPosition() const override;
+
+			/*!
+				\brief The method returns a total size of a file in bytes
+
+				\return The method returns a total size of a file in bytes
+			*/
+
+			TDE2_API U64 GetFileLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryFileReader)
 

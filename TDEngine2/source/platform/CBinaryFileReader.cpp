@@ -2,6 +2,7 @@
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/core/IJobManager.h"
 #include <functional>
+#include <limits>
 
 
 namespace TDEngine2
@@ -90,6 +91,23 @@ namespace TDEngine2
 	E_RESULT_CODE CBinaryFileReader::_onFree()
 	{
 		return RC_OK;
+	}
+
+	U64 CBinaryFileReader::GetFileLength() const
+	{
+		if (!mFile.is_open())
+		{
+			return 0;
+		}
+
+		mFile.ignore((std::numeric_limits<std::streamsize>::max)());
+
+		std::streamsize length = mFile.gcount();
+
+		mFile.clear();   // \note Since ignore will have set eof.
+		mFile.seekg(0, std::ios_base::beg);
+
+		return static_cast<U64>(length);
 	}
 
 
