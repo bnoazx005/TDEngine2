@@ -12,6 +12,7 @@
 #include <atomic>
 #include <string>
 #include <vector>
+#include <iostream>
 
 
 namespace TDEngine2
@@ -472,4 +473,17 @@ namespace TDEngine2
 	*/
 
 	TDE2_API E_GRAPHICS_CONTEXT_GAPI_TYPE StringToGraphicsContextType(const std::string& value);
+
+
+	/*!
+		\brief The following macro is used to mark some features as unimplemented. The invocations
+		of the macro will cause interruption of execution's process
+	*/
+
+#define TDE2_UNIMPLEMENTED()												\
+	do {																	\
+		std::cerr << "The feature is not implemented yet" << std::endl;		\
+		abort();															\
+	}																		\
+	while (0)
 }

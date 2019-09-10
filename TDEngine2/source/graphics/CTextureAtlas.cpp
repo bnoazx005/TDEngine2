@@ -2,6 +2,7 @@
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
+#include "./../../include/utils/Utils.h"
 
 
 namespace TDEngine2
@@ -89,21 +90,24 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTextureAtlas::Reset()
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 	
 	void CTextureAtlas::Bind(U32 slot)
 	{
-
+		TDE2_UNIMPLEMENTED();
 	}
 
 	U32 CTextureAtlas::GetWidth() const
 	{
+		TDE2_UNIMPLEMENTED();
 		return 0x0;
 	}
 
 	U32 CTextureAtlas::GetHeight() const
 	{
+		TDE2_UNIMPLEMENTED();
 		return 0x0;
 	}
 
