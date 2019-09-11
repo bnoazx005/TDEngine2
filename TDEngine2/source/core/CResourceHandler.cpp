@@ -89,6 +89,12 @@ namespace TDEngine2
 		/// \todo implement the method
 	}
 
+	bool CResourceHandler::IsValid() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return mResourceId != InvalidResourceId;
+	}
 
 	TDE2_API IResourceHandler* CreateResourceHandler(IResourceManager* pResourceManager, TResourceId id, E_RESULT_CODE& result)
 	{

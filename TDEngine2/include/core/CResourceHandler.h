@@ -97,6 +97,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void OnLoaded(const std::function<void(IResource*)>& onLoadedCallback) override;
+
+			/*!
+				\brief The predicate tells whether the handler stay in valid state or not
+
+				\return The method returns true if the handler points to valid resource, false in other cases
+			*/
+
+			TDE2_API bool IsValid() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceHandler)
 		protected:
