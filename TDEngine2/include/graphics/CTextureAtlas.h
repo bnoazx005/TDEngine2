@@ -9,12 +9,38 @@
 
 #include "ITextureAtlas.h"
 #include "./../core/CBaseResource.h"
+#include "./../math/TRect.h"
+#include <string>
+#include <unordered_map>
 
 
 namespace TDEngine2
 {
 	class IFileSystem;
 	class IGraphicsContext;
+	class IResourceHandler;
+
+
+	/*!
+		\brief A factory function for creation objects of CTextureAtlas's type
+
+		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
+
+		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+		\param[in] name A resource's name
+
+		\param[in] params A parameters of created material
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CTextureAtlas's implementation
+	*/
+
+	TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+											   const TTexture2DParameters& params, E_RESULT_CODE& result);
+
+
 
 
 	/*!
@@ -25,6 +51,11 @@ namespace TDEngine2
 
 	class CTextureAtlas : public ITextureAtlas, public CBaseResource
 	{
+		public:
+			friend TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+															  const TTexture2DParameters& params, E_RESULT_CODE& result);
+		public:
+			typedef std::unordered_map<std::string, TRectF32> TAtlasRegistry;
 		public:
 			TDE2_REGISTER_TYPE(CTextureAtlas)
 
@@ -108,6 +139,10 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextureAtlas)
 		protected:
 			IGraphicsContext* mpGraphicsContext;
+
+			IResourceHandler* mpTextureResource;
+
+			TAtlasRegistry    mAtlasEntities;
 	};
 
 

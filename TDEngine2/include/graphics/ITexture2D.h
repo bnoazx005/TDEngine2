@@ -37,7 +37,7 @@ namespace TDEngine2
 			\note TTexture2DParameters's definition is placed in CBaseTexture2D.cpp file
 		*/
 
-		TDE2_API TTexture2DParameters(U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality);
+		TDE2_API TTexture2DParameters(U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount = 1, U32 samplesCount = 1, U32 samplingQuality = 0);
 
 		U32           mWidth;
 

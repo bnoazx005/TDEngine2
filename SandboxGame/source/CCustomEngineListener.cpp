@@ -70,6 +70,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	auto fileSystem = dynamic_cast<TDEngine2::IFileSystem*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_FILE_SYSTEM));
 	
+	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas", TDEngine2::TTexture2DParameters(4096, 4096, TDEngine2::FT_NORM_UBYTE4));
+
 	return TDEngine2::RC_OK;
 }
 

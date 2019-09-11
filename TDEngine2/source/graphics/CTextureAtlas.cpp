@@ -3,12 +3,14 @@
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/utils/Utils.h"
+#include "./../../include/graphics/CBaseTexture2D.h"
+#include <assert.h>
 
 
 namespace TDEngine2
 {
 	CTextureAtlas::CTextureAtlas() :
-		CBaseResource()
+		CBaseResource(), mpTextureResource(nullptr)
 	{
 	}
 
@@ -49,6 +51,12 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext = pGraphicsContext;
+		
+		/// \note create a texture using the resource manager
+		if (!(mpTextureResource = pResourceManager->Create<CBaseTexture2D>(name + "_Tex", params))->IsValid())
+		{
+			return RC_FAIL;
+		}
 
 		mIsInitialized = true;
 
@@ -112,6 +120,31 @@ namespace TDEngine2
 	}
 
 
+	TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+												const TTexture2DParameters& params, E_RESULT_CODE& result)
+	{
+		CTextureAtlas* pTextureAtlasInstance = new (std::nothrow) CTextureAtlas();
+
+		if (!pTextureAtlasInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pTextureAtlasInstance->Init(pResourceManager, pGraphicsContext, name, params);
+
+		if (result != RC_OK)
+		{
+			delete pTextureAtlasInstance;
+
+			pTextureAtlasInstance = nullptr;
+		}
+
+		return pTextureAtlasInstance;
+	}
+
+
 	/*!
 		\brief CTextureAtlasLoader's definition
 	*/
@@ -165,6 +198,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		TDE2_UNIMPLEMENTED();
 		E_RESULT_CODE result = RC_OK;
 /*
 		TResult<TFileEntryId> materialFileId = mpFileSystem->Open<CBinaryFileReader>(pResource->GetName());
@@ -265,12 +299,16 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		return nullptr;
+		return dynamic_cast<IResource*>(CreateTextureAtlas(mpResourceManager, mpGraphicsContext, name, 
+														   dynamic_cast<const TTexture2DParameters&>(params), 
+														   result));
 	}
 
 	IResource* CTextureAtlasFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
+
+		TDE2_UNIMPLEMENTED();
 
 		return nullptr;
 	}

@@ -24,8 +24,10 @@
 #include "./../../include/graphics/CBaseMaterial.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/graphics/CTextureAtlas.h"
 #include <memory>
 #include <thread>
+#include <functional>
 
 
 namespace TDEngine2
@@ -405,11 +407,32 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
+		auto registerResourceType = [](IResourceManager* pResourceMgr, IResourceLoader* pLoader, IResourceFactory* pFactory) -> E_RESULT_CODE
+		{
+			/// \note register a loader
+			TResult<TResourceLoaderId> loaderRegistrationResult = pResourceMgr->RegisterLoader(pLoader);
 
+			if (loaderRegistrationResult.HasError())
+			{
+				return loaderRegistrationResult.GetError();
+			};
+
+			/// \note register resource's factory
+			TResult<TResourceFactoryId> factoryRegistrationResult = pResourceMgr->RegisterFactory(pFactory);
+
+			if (factoryRegistrationResult.HasError())
+			{
+				return factoryRegistrationResult.GetError();
+			};
+
+			return RC_OK;
+		};
+		
 		/// Register builtin factories for IResourceManager
 
-		/// register material loader
+		/// create material loader
+		E_RESULT_CODE result = RC_OK;
+
 		IResourceLoader* pResourceLoader = CreateBaseMaterialLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
 
 		if (result != RC_OK)
@@ -417,14 +440,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		TResult<TResourceLoaderId> loaderRegistrationResult = mpResourceManagerInstance->RegisterLoader(pResourceLoader);
-
-		if (loaderRegistrationResult.HasError())
-		{
-			return loaderRegistrationResult.GetError();
-		};
-
-		/// register material factory
+		/// create material factory
 		IResourceFactory* pResourceFactory = CreateBaseMaterialFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
 
 		if (result != RC_OK)
@@ -432,12 +448,31 @@ namespace TDEngine2
 			return result;
 		}
 
-		TResult<TResourceFactoryId> factoryRegistrationResult = mpResourceManagerInstance->RegisterFactory(pResourceFactory);
-
-		if (factoryRegistrationResult.HasError())
+		/// \note register a material type
+		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
 		{
-			return factoryRegistrationResult.GetError();
-		};
+			return result;
+		}
+
+		/// \note register texture atlas's infrastructure
+		pResourceLoader = CreateTextureAtlasLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		pResourceFactory = CreateTextureAtlasFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		{
+			return result;
+		}
 
 		return RC_OK;
 	}
