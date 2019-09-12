@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "TVector2.h"
+#include <tuple>
 
 
 namespace TDEngine2
@@ -22,25 +23,6 @@ namespace TDEngine2
 	template <typename T>
 	struct TRect
 	{
-		TRect():
-			x(0), y(0), width(0), height(0)
-		{
-		}
-
-		TRect(T x, T y, T width, T height):
-			x(x), y(y), width(width), height(height)
-		{
-		}
-		
-		TRect(TRect<T>&& rect):
-			x(rect.x), y(rect.y), width(rect.width), height(rect.height)
-		{
-			rect.x      = 0;
-			rect.y      = 0;
-			rect.width  = 0;
-			rect.height = 0;
-		}
-
 		T x, y, width, height;
 	};
 
@@ -65,6 +47,26 @@ namespace TDEngine2
 	TRect<T> operator+ (const TRect<T>& rect, const TVector2& translation)
 	{
 		return { rect.x + translation.x, rect.y + translation.y, rect.width, rect.height };
+	}
+
+
+	template <typename T>
+	bool operator== (const TRect<T>& leftRect, const TRect<T>& rightRect)
+	{
+		return (leftRect.x == rightRect.x) &&
+				(leftRect.y == rightRect.y) &&
+				(leftRect.width == rightRect.width) &&
+				(leftRect.height == rightRect.height);
+	}
+
+
+	template <typename T>
+	bool operator!= (const TRect<T>& leftRect, const TRect<T>& rightRect)
+	{
+		return (leftRect.x != rightRect.x) ||
+				(leftRect.y != rightRect.y) ||
+				(leftRect.width != rightRect.width) ||
+				(leftRect.height != rightRect.height);
 	}
 
 
@@ -148,5 +150,30 @@ namespace TDEngine2
 		normalizedPoint.y /= rect.height;
 
 		return normalizedPoint;
+	}
+
+	
+	/*!
+		\brief The function splits a single rectangle in two based on a given cutting line
+
+		\param[in] rect An original rectangle
+		\param[in] pos A position should be normalized relatively to rectangle
+		\param[in] isVertical A flag that defines a direction of spliting 
+
+		\return A tuple which consists of two rectangles
+	*/
+
+	template <typename T>
+	std::tuple<TRect<T>, TRect<T>> SplitRectWithLine(const TRect<T>& rect, const TVector2& pos, bool isVertical = false)
+	{
+		T ox = isVertical ? rect.x + pos.x : rect.x;
+		T oy = isVertical ? rect.y : rect.y + pos.y;
+
+		T firstRectWidth   = isVertical ? pos.x : rect.width;
+		T firstRectHeight  = isVertical ? rect.height - pos.y : pos.y;
+		T secondRectWidth  = isVertical ? rect.width - pos.x : rect.width;
+		T secondRectHeight = isVertical ? rect.height : rect.height - pos.y;
+
+		return { {rect.x, rect.y, firstRectWidth, firstRectHeight}, {ox, oy, secondRectWidth, secondRectHeight} };
 	}
 }

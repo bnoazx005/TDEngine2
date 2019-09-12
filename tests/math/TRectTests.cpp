@@ -59,4 +59,40 @@ TEST_CASE("TRect Tests")
 
 		REQUIRE(PointToNormalizedCoords(rect, internalPoint) == TVector2(0.5f, 0.5f));
 	}
+
+	SECTION("TestSplitRectWithLine_SplitVerticaly_ReturnsCorrectlySplittedRectangles")
+	{
+		TRectI32 sourceRect{ 0, 0, 4096, 4096 };
+
+		TRectI32 expectedRects[] = 
+		{
+			{ 0, 0, 1024, 4096 },
+			{ 1024, 0, 3072, 4096 }
+		};
+
+		TRectI32 firstRect, secondRect;
+
+		std::tie(firstRect, secondRect) = SplitRectWithLine(sourceRect, TVector2(1024, 0), true);
+
+		REQUIRE(firstRect == expectedRects[0]);
+		REQUIRE(secondRect == expectedRects[1]);
+	}
+
+	SECTION("TestSplitRectWithLine_SplitHorizontally_ReturnsCorrectlySplittedRectangles")
+	{
+		TRectI32 sourceRect{ 0, 0, 4096, 4096 };
+
+		TRectI32 expectedRects[] =
+		{
+			{ 0, 0, 4096, 1024 },
+			{ 0, 1024, 4096, 3072 }
+		};
+
+		TRectI32 firstRect, secondRect;
+
+		std::tie(firstRect, secondRect) = SplitRectWithLine(sourceRect, TVector2(0, 1024), false);
+
+		REQUIRE(firstRect == expectedRects[0]);
+		REQUIRE(secondRect == expectedRects[1]);
+	}
 }
