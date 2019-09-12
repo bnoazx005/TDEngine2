@@ -44,11 +44,25 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	stbtt_InitFont(&font, pFontBuffer.get(), stbtt_GetFontOffsetForIndex(pFontBuffer.get(), 0));
 
-
+	const std::string text{ "abcdefgACB" };
 
 	I32 width, height, xoff, yoff;
-	U8* pBitmap = stbtt_GetCodepointSDF(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), 'R', 10, 50, 1.0f, &width, &height, &xoff, &yoff);
-	stbi_write_png("glyph.png", width, height, 1, pBitmap, width);
+
+	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas", TDEngine2::TTexture2DParameters(4096, 4096, TDEngine2::FT_NORM_UBYTE1));
+	auto pTexAtlas = dynamic_cast<TDEngine2::ITextureAtlas*>(pTexAtlasHandler->Get(TDEngine2::RAT_BLOCKING));
+
+	for (auto ch : text)
+	{
+		U8* pBitmap = stbtt_GetCodepointSDF(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), ch, 10, 50, 1.0f, &width, &height, &xoff, &yoff);
+		std::string name = "";
+		name.push_back(ch);
+		name.append(".png");
+		//stbi_write_png(name.c_str(), width, height, 1, pBitmap, width);
+
+		assert(pTexAtlas->AddRawTexture(name, width, height, FT_NORM_UBYTE1, pBitmap) == RC_OK);
+	}
+
+	pTexAtlas->Bake();
 
 	return RC_OK;
 }

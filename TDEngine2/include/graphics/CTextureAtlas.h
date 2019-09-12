@@ -12,6 +12,8 @@
 #include "./../math/TRect.h"
 #include <string>
 #include <unordered_map>
+#include <vector>
+#include <limits>
 
 
 namespace TDEngine2
@@ -19,6 +21,7 @@ namespace TDEngine2
 	class IFileSystem;
 	class IGraphicsContext;
 	class IResourceHandler;
+	class ITexture2D;
 
 
 	/*!
@@ -54,8 +57,47 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 															  const TTexture2DParameters& params, E_RESULT_CODE& result);
+		protected:
+			struct TTextureAtlasEntry
+			{
+				struct TRawTextureData
+				{
+					const U8*     mpData;
+
+					E_FORMAT_TYPE mFormat;
+				};
+
+				std::string mName;
+						    
+				TRectI32    mRect;
+						    
+				bool        mIsRawData = false; ///< true means that mpData points to some object that's derived from CBaseTexture2D
+						    
+				bool        mIsPacked = false;
+
+				union 
+				{
+					TRawTextureData mRawTexture;
+
+					ITexture2D*     mpTexture;
+				} mData;
+			};
+
+			struct TAtlasAreaEntry
+			{
+				TRectI32                         mBounds;
+
+				U32                              mTextureEntryId = (std::numeric_limits<U32>::max)();
+
+				/// \todo: Replace this unique_ptr with custom allocator and raw pointers later
+				std::unique_ptr<TAtlasAreaEntry> mpLeft;
+
+				std::unique_ptr<TAtlasAreaEntry> mpRight;
+			};
 		public:
-			typedef std::unordered_map<std::string, TRectF32> TAtlasRegistry;
+			typedef std::vector<TTextureAtlasEntry>           TPendingDataArray;
+
+			typedef std::unordered_map<std::string, TRectI32> TAtlasRegistry;
 		public:
 			TDE2_REGISTER_TYPE(CTextureAtlas)
 
@@ -89,6 +131,32 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 										const TTexture2DParameters& params) override;
+		
+			/*!
+				\brief The method adds raw image data into the atlas. A raw data means that we use raw byte representation instead
+				of high-level texture API
+
+				\param[in] name An identifier of an image
+				\param[in] width A width of an image
+				\param[in] height A height of an image
+				\param[in] format A format of a single image's pixel
+				\param[in] pData A pointer to image's data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE AddRawTexture(const std::string& name, U32 width, U32 height, E_FORMAT_TYPE format, const U8* pData) override;
+
+
+			/*!
+				\brief The method finalizes the process of packing textures into the atlas.
+				You should call it after all textures added into the atlas. True will be returned
+				in case when there is no enough space for packing all textures
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Bake() override;
 
 			/*!
 				\brief The method returns a width of a texture
@@ -141,6 +209,8 @@ namespace TDEngine2
 			IGraphicsContext* mpGraphicsContext;
 
 			IResourceHandler* mpTextureResource;
+
+			TPendingDataArray mPendingData;
 
 			TAtlasRegistry    mAtlasEntities;
 	};

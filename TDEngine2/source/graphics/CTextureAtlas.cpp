@@ -4,7 +4,9 @@
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/utils/Utils.h"
 #include "./../../include/graphics/CBaseTexture2D.h"
-#include <assert.h>
+#include <cassert>
+#include <algorithm>
+#include <stack>
 
 
 namespace TDEngine2
@@ -100,6 +102,169 @@ namespace TDEngine2
 	{
 		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CTextureAtlas::AddRawTexture(const std::string& name, U32 width, U32 height, E_FORMAT_TYPE format, const U8* pData)
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (name.empty() || (format == FT_UNKNOWN) || !pData)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		/// \note check whether the texture's data is already within the atlas or not
+		if (std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&name](const TTextureAtlasEntry& entry)
+		{
+			return entry.mName == name;
+		}) != mPendingData.cend())
+		{
+			return RC_FAIL;
+		}
+
+		/// \note add a new entry
+		TRectI32 textureRect { 0, 0, width, height };
+
+		mPendingData.push_back({ name, textureRect, true, false, { { pData, format } } });
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CTextureAtlas::Bake()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		/// \note sort all entries by their sizes
+		std::sort(mPendingData.begin(), mPendingData.end(), [](const TTextureAtlasEntry& left, const TTextureAtlasEntry& right)
+		{
+			TRectI32 leftRect  = left.mRect;
+			TRectI32 rightRect = right.mRect;
+
+			return (leftRect.width > rightRect.width) && (leftRect.height > rightRect.height);
+		});
+
+		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
+
+		/// \note while there is enough space within the atlas pack next entry
+		TAtlasAreaEntry root { {0, 0, pAtlasInternalTexture->GetWidth(), pAtlasInternalTexture->GetHeight()} };
+		
+		std::stack<TAtlasAreaEntry*> areasToCheck;		
+
+		TAtlasAreaEntry* pCurrSubdivisionEntry = nullptr;
+		
+		auto dataIter = mPendingData.cbegin();
+
+		TRectI32 firstRect, secondRect;
+
+		bool hasInsertionFailed = false;
+
+		while (dataIter != mPendingData.cend())
+		{
+			areasToCheck.push(&root);
+
+			while (!areasToCheck.empty())
+			{
+				hasInsertionFailed = false;
+
+				pCurrSubdivisionEntry = areasToCheck.top();
+				areasToCheck.pop();
+
+				/// \note traverse down to leaves, 'cause the rect is already filled up
+				if (pCurrSubdivisionEntry->mTextureEntryId < (std::numeric_limits<U32>::max)())
+				{
+					areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
+					areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());
+
+					continue;
+				}
+
+				/// \note if current texture fits into the area, fill it up
+				if (pCurrSubdivisionEntry->mBounds.width >= dataIter->mRect.width &&
+					pCurrSubdivisionEntry->mBounds.height >= dataIter->mRect.height)
+				{
+					pCurrSubdivisionEntry->mTextureEntryId = std::distance(mPendingData.cbegin(), dataIter);
+
+					float dx = pCurrSubdivisionEntry->mBounds.width - dataIter->mRect.width;
+					float dy = pCurrSubdivisionEntry->mBounds.height - dataIter->mRect.height;
+
+					/// \note divide the area into sub areas based on filled space
+					std::tie(firstRect, secondRect) = SplitRectWithLine(pCurrSubdivisionEntry->mBounds,
+																		dx > dy ? TVector2(dataIter->mRect.width, 0.0f) : TVector2(0.0f, dataIter->mRect.height),
+																		dx > dy);
+
+					pCurrSubdivisionEntry->mpLeft  = std::make_unique<TAtlasAreaEntry>();
+					pCurrSubdivisionEntry->mpLeft->mBounds = firstRect;
+
+					pCurrSubdivisionEntry->mpRight = std::make_unique<TAtlasAreaEntry>();
+					pCurrSubdivisionEntry->mpRight->mBounds = secondRect;
+
+					++dataIter;
+
+					break;
+				}
+
+				hasInsertionFailed = true;
+			}
+
+			/// \note there is no enough free space in texture atlas anymore
+			if (areasToCheck.empty() && hasInsertionFailed)
+			{
+				break;
+			}
+
+			/// \note clean up the stack
+			while (!areasToCheck.empty())
+			{
+				areasToCheck.pop();
+			}
+		}
+
+		/// \note write down all data into atlas's texture
+		areasToCheck.push(&root);
+
+		TTextureAtlasEntry* pCurrTextureEntry = nullptr;
+
+		while (!areasToCheck.empty())
+		{
+			pCurrSubdivisionEntry = areasToCheck.top();
+			areasToCheck.pop();
+
+			if (pCurrSubdivisionEntry->mTextureEntryId == (std::numeric_limits<U32>::max)())
+			{
+				continue;
+			}
+
+			pCurrTextureEntry = &mPendingData[pCurrSubdivisionEntry->mTextureEntryId];
+
+			if (!pCurrTextureEntry->mIsRawData)
+			{
+				/// \note for now we support only raw textures
+				TDE2_UNIMPLEMENTED();
+			}
+
+			assert(pAtlasInternalTexture->WriteData({ pCurrSubdivisionEntry->mBounds.x, 
+													  pCurrSubdivisionEntry->mBounds.y, 
+													  pCurrTextureEntry->mRect.width,
+													  pCurrTextureEntry->mRect.height }, pCurrTextureEntry->mData.mRawTexture.mpData) == RC_OK);
+
+			if (pCurrSubdivisionEntry->mpLeft)
+			{
+				areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
+			}
+
+			if (pCurrSubdivisionEntry->mpRight)
+			{
+				areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());
+			}
+		}		
+
+		return hasInsertionFailed ? RC_FAIL : RC_OK;
 	}
 	
 	void CTextureAtlas::Bind(U32 slot)
