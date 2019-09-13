@@ -2,6 +2,7 @@
 #include "./../include/CD3D11GraphicsContext.h"
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11Utils.h"
+#include <utils/Utils.h>
 #include <cstring>
 
 
@@ -90,6 +91,12 @@ namespace TDEngine2
 		mp3dDeviceContext->UpdateSubresource(mpTexture, 0, &region, pData, rowPitch, rowPitch * regionRect.height);
 
 		return RC_OK;
+	}
+
+	std::unique_ptr<U8[]> CD3D11Texture2D::GetInternalData()
+	{
+		TDE2_UNIMPLEMENTED();
+		return {};
 	}
 
 	E_RESULT_CODE CD3D11Texture2D::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,

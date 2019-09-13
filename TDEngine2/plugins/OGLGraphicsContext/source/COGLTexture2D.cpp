@@ -2,6 +2,12 @@
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLUtils.h"
 #include <core/IResourceManager.h>
+#include <utils/Utils.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#pragma warning(push)
+#pragma warning(disable:4996)
+#include "./../deps/stb/stb_image_write.h"
+#pragma warning(pop)
 
 
 namespace TDEngine2
@@ -72,6 +78,23 @@ namespace TDEngine2
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		return RC_OK;
+	}
+
+	std::unique_ptr<U8[]> COGLTexture2D::GetInternalData()
+	{
+		std::unique_ptr<U8[]> pPixelData { new U8[mWidth * mHeight * COGLMappings::GetFormatSize(mFormat)] };
+
+		glBindTexture(GL_TEXTURE_2D, mTextureHandler);
+		glGetTexImage(GL_TEXTURE_2D, 0, COGLMappings::GetPixelDataFormat(mFormat), GL_UNSIGNED_BYTE, reinterpret_cast<void*>(pPixelData.get()));
+		
+		if (COGLMappings::GetErrorCode(glGetError()) != RC_OK)
+		{
+			return nullptr;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return std::move(pPixelData);
 	}
 
 	E_RESULT_CODE COGLTexture2D::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,

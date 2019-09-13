@@ -12,6 +12,7 @@
 #include "./../core/IResourceFactory.h"
 #include "./../math/TRect.h"
 #include <string>
+#include <memory>
 
 
 namespace TDEngine2
@@ -108,6 +109,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE WriteData(const TRectI32& regionRect, const U8* pData) = 0;
+
+			/*!
+				\brief The method returns an internal data that the texture stores. (The returned data is allocated
+				on heap so should be manually deleted later) For now we use std::unique_ptr instead
+
+				\return A pointer to texture's memory, which size equals to width * height * bytes_per_channel
+			*/
+
+			TDE2_API virtual std::unique_ptr<U8[]> GetInternalData() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITexture2D)
 	};

@@ -108,6 +108,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE WriteData(const TRectI32& regionRect, const U8* pData) override;
+
+			/*!
+				\brief The method returns an internal data that the texture stores. The returned data is allocated
+				on heap so should be manually deleted later
+
+				\return A pointer to texture's memory, which size equals to width * height * bytes_per_channel
+			*/
+
+			TDE2_API std::unique_ptr<U8[]> GetInternalData() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLTexture2D)
 
