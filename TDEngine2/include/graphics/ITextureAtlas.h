@@ -21,6 +21,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 	class IFileSystem;
+	class ITexture2D;
 
 	struct TTexture2DParameters;
 
@@ -89,6 +90,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Bake() = 0;
+
+			/*!
+				\brief The method returns a pointer to texture that is used with texture atlas
+
+				\return The method returns a pointer to texture that is used with texture atlas
+			*/
+
+			TDE2_API virtual ITexture2D* GetTexture() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITextureAtlas)
 	};

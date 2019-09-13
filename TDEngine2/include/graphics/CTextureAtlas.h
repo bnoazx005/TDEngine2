@@ -203,6 +203,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Bind(U32 slot) override;
+
+			/*!
+				\brief The method returns a pointer to texture that is used with texture atlas
+
+				\return The method returns a pointer to texture that is used with texture atlas
+			*/
+
+			TDE2_API ITexture2D* GetTexture() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextureAtlas)
 		protected:

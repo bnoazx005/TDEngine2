@@ -235,7 +235,7 @@ namespace TDEngine2
 			pCurrSubdivisionEntry = areasToCheck.top();
 			areasToCheck.pop();
 
-			if (pCurrSubdivisionEntry->mTextureEntryId == (std::numeric_limits<U32>::max)())
+			if (!pCurrSubdivisionEntry || pCurrSubdivisionEntry->mTextureEntryId == (std::numeric_limits<U32>::max)())
 			{
 				continue;
 			}
@@ -253,16 +253,11 @@ namespace TDEngine2
 													  pCurrTextureEntry->mRect.width,
 													  pCurrTextureEntry->mRect.height }, pCurrTextureEntry->mData.mRawTexture.mpData) == RC_OK);
 
-			if (pCurrSubdivisionEntry->mpLeft)
-			{
-				areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
-			}
-
-			if (pCurrSubdivisionEntry->mpRight)
-			{
-				areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());
-			}
+			areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
+			areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());
 		}		
+
+		auto pData = pAtlasInternalTexture->GetInternalData();
 
 		return hasInsertionFailed ? RC_FAIL : RC_OK;
 	}
@@ -282,6 +277,11 @@ namespace TDEngine2
 	{
 		TDE2_UNIMPLEMENTED();
 		return 0x0;
+	}
+
+	ITexture2D* CTextureAtlas::GetTexture() const
+	{
+		return dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
 	}
 
 
