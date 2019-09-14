@@ -48,7 +48,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	I32 width, height, xoff, yoff;
 
-	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas", TDEngine2::TTexture2DParameters(256, 256, TDEngine2::FT_NORM_UBYTE1));
+	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas", TDEngine2::TTexture2DParameters(512, 512, TDEngine2::FT_NORM_UBYTE1));
 	auto pTexAtlas = dynamic_cast<TDEngine2::ITextureAtlas*>(pTexAtlasHandler->Get(TDEngine2::RAT_BLOCKING));
 
 	for (auto ch : text)

@@ -7,6 +7,7 @@
 #include <cassert>
 #include <algorithm>
 #include <stack>
+#include <cmath>
 
 
 namespace TDEngine2
@@ -164,6 +165,14 @@ namespace TDEngine2
 
 		bool hasInsertionFailed = false;
 
+		auto calcMetric = [](const TRectI32& textureSizes, const TRectI32& areaSizes) -> F32
+		{
+			F32 dx = fabs(areaSizes.width - textureSizes.width);
+			F32 dy = fabs(areaSizes.height - textureSizes.height);
+
+			return sqrt(dx * dx + dy * dy);
+		};
+
 		while (dataIter != mPendingData.cend())
 		{
 			areasToCheck.push(&root);
@@ -178,8 +187,15 @@ namespace TDEngine2
 				/// \note traverse down to leaves, 'cause the rect is already filled up
 				if (pCurrSubdivisionEntry->mTextureEntryId < (std::numeric_limits<U32>::max)())
 				{
-					areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
-					areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());
+					auto pLeftChild  = pCurrSubdivisionEntry->mpLeft.get();
+					auto pRightChild = pCurrSubdivisionEntry->mpRight.get();
+
+					/// \note choose the branch based on minimal error between its sizes and sizes of an inserted texture
+					F32 leftChildMetric  = calcMetric(dataIter->mRect, pLeftChild->mBounds);
+					F32 rightChildMetric = calcMetric(dataIter->mRect, pRightChild->mBounds);
+
+					areasToCheck.push(leftChildMetric < rightChildMetric ? pRightChild : pLeftChild);
+					areasToCheck.push(leftChildMetric < rightChildMetric ? pLeftChild : pRightChild);
 
 					continue;
 				}
@@ -251,6 +267,7 @@ namespace TDEngine2
 			if (!pCurrTextureEntry->mIsRawData)
 			{
 				/// \note for now we support only raw textures
+				/// \todo implement support of CBaseTexture2D based textures
 				TDE2_UNIMPLEMENTED();
 			}
 
