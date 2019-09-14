@@ -42,10 +42,12 @@ namespace TDEngine2
 
 		#define TDE2_BUILD_D3D11_GCTX_PLUGIN
 		#define TDE2_BUILD_OGL_GCTX_PLUGIN
+		#define TDE2_BUILD_YAML_FORMAT_SUPPORT_PLUGIN
 	#elif defined(__unix__) || defined(__unix) || defined(unix)
 		#define TDE2_USE_UNIXPLATFORM
 
 		#define TDE2_BUILD_OGL_GCTX_PLUGIN
+		#define TDE2_BUILD_YAML_FORMAT_SUPPORT_PLUGIN
 	#else
 	#endif
 

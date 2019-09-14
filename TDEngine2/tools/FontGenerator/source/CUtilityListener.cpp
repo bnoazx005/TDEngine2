@@ -54,7 +54,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	for (auto ch : text)
 	{
 		//stbtt_GetCodepointBitmap(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), stbtt_ScaleForPixelHeight(&font, 24.0f), ch, &width, &height, &xoff, &yoff);
-		U8* pBitmap =  stbtt_GetCodepointSDF(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), ch, 10, 180, 36.0f, &width, &height, &xoff, &yoff);
+		U8* pBitmap =  stbtt_GetCodepointSDF(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), ch, 10, 200, 20.0f, &width, &height, &xoff, &yoff);
 		std::string name = "";
 		name.push_back(ch);
 		name.append(".png");
@@ -64,6 +64,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	}
 	
 	pTexAtlas->Bake();
+	pTexAtlas->Serialize(pFileSystem, "atlas.info");
 
 	auto pTexture = pTexAtlas->GetTexture();
 

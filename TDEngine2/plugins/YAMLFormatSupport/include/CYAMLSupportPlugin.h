@@ -6,8 +6,11 @@
 
 #pragma once
 
-
-#include <core/IPlugin.h>
+#if defined (TDE2_YAML_PLUGIN_STATIC) /// \note the macro means that the plugin will be used as a part of the engine not as dynamically linked plugin
+	#include "./../../include/core/IPlugin.h"
+#else
+	#include <core/IPlugin.h>
+#endif
 
 #include "IYAMLFile.h"
 #include "CYAMLFile.h"

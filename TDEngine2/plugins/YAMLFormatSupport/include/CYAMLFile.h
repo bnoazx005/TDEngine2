@@ -7,7 +7,12 @@
 #pragma once
 
 
-#include <platform/CBaseFile.h>
+#if defined (TDE2_YAML_PLUGIN_STATIC) /// \note the macro means that the plugin will be used as a part of the engine not as dynamically linked plugin
+	#include "./../../include/platform/CBaseFile.h"
+#else
+	#include <platform/CBaseFile.h>
+#endif
+
 #include "IYAMLFile.h"
 
 

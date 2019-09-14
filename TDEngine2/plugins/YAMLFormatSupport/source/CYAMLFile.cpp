@@ -20,7 +20,11 @@ namespace TDEngine2
 
 		try
 		{
-			Yaml::Serialize(object, mName);
+			std::string formattedOutput;
+
+			Yaml::Serialize(object, formattedOutput);
+			
+			mFile.write(formattedOutput.c_str(), formattedOutput.length());
 		}
 		catch (const Yaml::Exception e)
 		{

@@ -1,9 +1,14 @@
 #include "./../../include/graphics/CTextureAtlas.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/IFileSystem.h"
+#include "./../../include/core/CBaseFileSystem.h"
 #include "./../../include/utils/Utils.h"
 #include "./../../include/graphics/CBaseTexture2D.h"
+#define TDE2_YAML_PLUGIN_IMPLEMENTATION
+#define TDE2_YAML_PLUGIN_STATIC
+#include "./../../plugins/YAMLFormatSupport/include/CYAMLSupportPlugin.h"
+#undef TDE2_YAML_PLUGIN_STATIC
+#undef TDE2_YAML_PLUGIN_IMPLEMENTATION
 #include <cassert>
 #include <algorithm>
 #include <stack>
@@ -252,6 +257,8 @@ namespace TDEngine2
 
 		TTextureAtlasEntry* pCurrTextureEntry = nullptr;
 
+		TRectI32 textureRect;
+
 		while (!areasToCheck.empty())
 		{
 			pCurrSubdivisionEntry = areasToCheck.top();
@@ -271,16 +278,66 @@ namespace TDEngine2
 				TDE2_UNIMPLEMENTED();
 			}
 
-			assert(pAtlasInternalTexture->WriteData({ pCurrSubdivisionEntry->mBounds.x, 
-													  pCurrSubdivisionEntry->mBounds.y, 
-													  pCurrTextureEntry->mRect.width,
-													  pCurrTextureEntry->mRect.height }, pCurrTextureEntry->mData.mRawTexture.mpData) == RC_OK);
+			textureRect = { pCurrSubdivisionEntry->mBounds.x,
+							pCurrSubdivisionEntry->mBounds.y,
+							pCurrTextureEntry->mRect.width,
+							pCurrTextureEntry->mRect.height };
+
+			mAtlasEntities[pCurrTextureEntry->mName] = textureRect;
+
+			assert(pAtlasInternalTexture->WriteData(textureRect, pCurrTextureEntry->mData.mRawTexture.mpData) == RC_OK);
 
 			areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
 			areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());
 		}		
 
 		return hasInsertionFailed ? RC_FAIL : RC_OK;
+	}
+
+	E_RESULT_CODE CTextureAtlas::Serialize(IFileSystem* pFileSystem, const std::string& filename)
+	{
+		if (!pFileSystem || filename.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		/// \note try to create YAML file with the given name
+		auto pFile = pFileSystem->Get<CYAMLFileWriter>(pFileSystem->Open<CYAMLFileWriter>(filename, true).Get());
+
+		Yaml::Node textureAtlasDesc {};
+
+		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
+
+		textureAtlasDesc["name"]   = mName;
+		textureAtlasDesc["width"]  = std::to_string(pAtlasInternalTexture->GetWidth());
+		textureAtlasDesc["height"] = std::to_string(pAtlasInternalTexture->GetHeight());
+
+		auto& texturesList = textureAtlasDesc["textures_list"];
+
+		U32 i = 0;
+
+		TRectI32 currBounds;
+
+		for (auto currTextureEntity : mAtlasEntities)
+		{
+			currBounds = currTextureEntity.second;
+
+			auto& currTextureDesc = texturesList.PushBack();
+
+			currTextureDesc["name"] = currTextureEntity.first;			
+
+			auto& boundsData = currTextureDesc["bounds"];
+
+			boundsData["x"]      = std::to_string(currBounds.x);
+			boundsData["y"]      = std::to_string(currBounds.y);
+			boundsData["width"]  = std::to_string(currBounds.width);
+			boundsData["height"] = std::to_string(currBounds.height);
+		}
+
+		pFile->Serialize(textureAtlasDesc);
+		pFile->Close();
+
+		return RC_OK;
 	}
 	
 	void CTextureAtlas::Bind(U32 slot)

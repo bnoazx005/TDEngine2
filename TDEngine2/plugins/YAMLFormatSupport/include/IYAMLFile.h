@@ -7,8 +7,13 @@
 #pragma once
 
 
-#include <core/IFile.h>
-#include <utils/CResult.h>
+#if defined (TDE2_YAML_PLUGIN_STATIC) /// \note the macro means that the plugin will be used as a part of the engine not as dynamically linked plugin
+	#include "./../../include/core/IFile.h"
+	#include "./../../include/utils/CResult.h"
+#else
+	#include <core/IFile.h>
+	#include <utils/CResult.h>
+#endif
 
 
 namespace Yaml

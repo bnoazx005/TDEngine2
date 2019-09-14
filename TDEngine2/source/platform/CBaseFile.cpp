@@ -6,7 +6,7 @@ namespace TDEngine2
 {
 
 	CBaseFile::CBaseFile():
-		mCreationFlags(std::ios::in), mRefCounter(1)
+		mCreationFlags(std::ios::in|std::ios::out), mRefCounter(1)
 	{
 	}
 
