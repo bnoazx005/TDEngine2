@@ -3,11 +3,6 @@
 #include "./../include/COGLUtils.h"
 #include <core/IResourceManager.h>
 #include <utils/Utils.h>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#pragma warning(push)
-#pragma warning(disable:4996)
-#include "./../deps/stb/stb_image_write.h"
-#pragma warning(pop)
 
 
 namespace TDEngine2
@@ -65,6 +60,8 @@ namespace TDEngine2
 		}
 
 		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
 		GL_SAFE_CALL(glTexSubImage2D(GL_TEXTURE_2D, 0, regionRect.x, regionRect.y, regionRect.width, regionRect.height, 

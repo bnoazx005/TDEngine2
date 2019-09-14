@@ -4,6 +4,7 @@
 #include "./../include/CD3D11Utils.h"
 #include <utils/Utils.h>
 #include <cstring>
+#include <algorithm>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -80,9 +81,9 @@ namespace TDEngine2
 		D3D11_BOX region;
 
 		region.left   = regionRect.x;
-		region.right  = regionRect.width;
 		region.top    = regionRect.y;
-		region.bottom = regionRect.height;
+		region.right  = regionRect.x + regionRect.width;
+		region.bottom = regionRect.y + regionRect.height;
 		region.back   = 1;
 		region.front  = 0;
 

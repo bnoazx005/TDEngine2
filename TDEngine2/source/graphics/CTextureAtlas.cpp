@@ -148,7 +148,7 @@ namespace TDEngine2
 
 			return (leftRect.width > rightRect.width) && (leftRect.height > rightRect.height);
 		});
-
+		
 		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
 
 		/// \note while there is enough space within the atlas pack next entry
@@ -160,7 +160,7 @@ namespace TDEngine2
 		
 		auto dataIter = mPendingData.cbegin();
 
-		TRectI32 firstRect, secondRect;
+		TRectI32 firstRect, secondRect, thirdRect;
 
 		bool hasInsertionFailed = false;
 
@@ -193,10 +193,16 @@ namespace TDEngine2
 					float dx = pCurrSubdivisionEntry->mBounds.width - dataIter->mRect.width;
 					float dy = pCurrSubdivisionEntry->mBounds.height - dataIter->mRect.height;
 
+					bool isVerticalSlice = (dx > dy) || fabs(dx - dy) < 1e-3f;
+
 					/// \note divide the area into sub areas based on filled space
 					std::tie(firstRect, secondRect) = SplitRectWithLine(pCurrSubdivisionEntry->mBounds,
-																		dx > dy ? TVector2(dataIter->mRect.width, 0.0f) : TVector2(0.0f, dataIter->mRect.height),
-																		dx > dy);
+																		isVerticalSlice ? TVector2(dataIter->mRect.width, 0.0f) : TVector2(0.0f, dataIter->mRect.height),
+																		isVerticalSlice);
+					
+					std::tie(thirdRect, firstRect) = SplitRectWithLine(firstRect,
+																	   !isVerticalSlice ? TVector2(dataIter->mRect.width, 0.0f) : TVector2(0.0f, dataIter->mRect.height),
+																	   !isVerticalSlice);
 
 					pCurrSubdivisionEntry->mpLeft  = std::make_unique<TAtlasAreaEntry>();
 					pCurrSubdivisionEntry->mpLeft->mBounds = firstRect;
@@ -256,8 +262,6 @@ namespace TDEngine2
 			areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
 			areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());
 		}		
-
-		auto pData = pAtlasInternalTexture->GetInternalData();
 
 		return hasInsertionFailed ? RC_FAIL : RC_OK;
 	}

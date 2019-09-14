@@ -44,16 +44,17 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	stbtt_InitFont(&font, pFontBuffer.get(), stbtt_GetFontOffsetForIndex(pFontBuffer.get(), 0));
 
-	const std::string text{ "abcdefgACB" };
+	const std::string text{ "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.,!@#$%^&*()_=+" };
 
 	I32 width, height, xoff, yoff;
 
-	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas", TDEngine2::TTexture2DParameters(4096, 4096, TDEngine2::FT_NORM_UBYTE1));
+	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas", TDEngine2::TTexture2DParameters(256, 256, TDEngine2::FT_NORM_UBYTE1));
 	auto pTexAtlas = dynamic_cast<TDEngine2::ITextureAtlas*>(pTexAtlasHandler->Get(TDEngine2::RAT_BLOCKING));
 
 	for (auto ch : text)
 	{
-		U8* pBitmap = stbtt_GetCodepointSDF(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), ch, 10, 50, 1.0f, &width, &height, &xoff, &yoff);
+		//stbtt_GetCodepointBitmap(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), stbtt_ScaleForPixelHeight(&font, 24.0f), ch, &width, &height, &xoff, &yoff);
+		U8* pBitmap =  stbtt_GetCodepointSDF(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), ch, 10, 180, 36.0f, &width, &height, &xoff, &yoff);
 		std::string name = "";
 		name.push_back(ch);
 		name.append(".png");
@@ -61,9 +62,54 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 		assert(pTexAtlas->AddRawTexture(name, width, height, FT_NORM_UBYTE1, pBitmap) == RC_OK);
 	}
-
+	
 	pTexAtlas->Bake();
 
+	auto pTexture = pTexAtlas->GetTexture();
+
+	stbi_write_png("Atlas.png", pTexture->GetWidth(), pTexture->GetHeight(), 1, pTexture->GetInternalData().get(), pTexture->GetWidth());	
+
+	// NOTE: delete this code later
+	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
+
+	TDEngine2::IMaterial* pMaterial = dynamic_cast<TDEngine2::IMaterial*>(
+		mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material",
+			TDEngine2::TMaterialParameters{ "testGLShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
+
+	pMaterial->SetTextureResource("TextureAtlas", pTexture);
+
+	//for (TDEngine2::I32 i = 0; i < 10; ++i)
+	{
+		auto pEntity = pWorld->CreateEntity();
+
+		auto pTransform = pEntity->GetComponent<TDEngine2::CTransform>();
+
+		pTransform->SetScale(TVector3(4.0f));
+
+		auto pSprite = pEntity->AddComponent<TDEngine2::CQuadSprite>();
+		pSprite->SetColor(TColor32F(1.0f, 1.0f, 1.0f, 1.0f));
+
+		pSprite->SetMaterialName("NewMaterial.material");
+	}
+
+	CEntity* pCameraEntity = pWorld->CreateEntity("Camera");
+
+	pCameraEntity->AddComponent<TDEngine2::COrthoCamera>();
+
+	if (result != TDEngine2::RC_OK)
+	{
+		return result;
+	}
+
+	TDEngine2::TTextureSamplerDesc textureSamplerDesc;
+
+	textureSamplerDesc.mUAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+	textureSamplerDesc.mVAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+
+	auto textureSampler = mpGraphicsContext->GetGraphicsObjectManager()->CreateTextureSampler(textureSamplerDesc).Get();
+
+	mpGraphicsContext->BindTextureSampler(0, textureSampler);
 	return RC_OK;
 }
 
