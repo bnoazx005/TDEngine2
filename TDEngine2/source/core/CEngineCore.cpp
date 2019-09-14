@@ -81,7 +81,7 @@ namespace TDEngine2
 
 			currSubsystemType = pCurrSubsystem->GetType();
 
-			if (currSubsystemType == EST_PLUGIN_MANAGER)
+			if (currSubsystemType == EST_PLUGIN_MANAGER || currSubsystemType == EST_FILE_SYSTEM)
 			{
 				continue;
 			}
@@ -92,9 +92,15 @@ namespace TDEngine2
 			}
 		}
 
-		if ((result = UnregisterSubsystem(EST_PLUGIN_MANAGER)) != RC_OK)
+		/// \note these two subsystems should be destroyed in last moment and in coresponding order
+		auto latestFreedSubsystems = { EST_PLUGIN_MANAGER, EST_FILE_SYSTEM };
+		
+		for (auto currSubsystemType : latestFreedSubsystems)
 		{
-			return result;
+			if ((result = UnregisterSubsystem(currSubsystemType)) != RC_OK)
+			{
+				return result;
+			}
 		}
 
 #if defined (_DEBUG)

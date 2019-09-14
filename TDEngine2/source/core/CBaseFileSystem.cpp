@@ -156,8 +156,6 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseFileSystem::CloseAllFiles()
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;

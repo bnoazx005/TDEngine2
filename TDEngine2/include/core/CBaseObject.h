@@ -8,6 +8,7 @@
 
 
 #include "IBaseObject.h"
+#include <atomic>
 
 
 namespace TDEngine2
@@ -31,6 +32,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)
 		protected:
-			bool mIsInitialized;
+			std::atomic_bool mIsInitialized;
 	};
 }
