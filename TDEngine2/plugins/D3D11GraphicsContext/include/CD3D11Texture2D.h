@@ -8,6 +8,8 @@
 
 
 #include <graphics/CBaseTexture2D.h>
+#include <utils/CResult.h>
+#include <utils/Utils.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -17,6 +19,15 @@
 
 namespace TDEngine2
 {
+	enum E_D3D11_TEXTURE_ACCESS_TYPE: U32
+	{
+		DTAT_CPU_READ  = 0x1,
+		DTAT_CPU_WRITE = 0x2,
+		DTAT_GPU_READ  = 0x4,
+		DTAT_GPU_WRITE = 0x8,
+	};
+	
+	
 	/*!
 		\brief A factory function for creation objects of CD3D11Texture2D's type
 
@@ -129,6 +140,10 @@ namespace TDEngine2
 																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) override;
 
 			TDE2_API E_RESULT_CODE _createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount);
+
+			TDE2_API TResult<ID3D11Texture2D*> _createD3D11TextureResource(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
+																			U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, 
+																			U32 accessType = 0x0);
 		protected:
 			ID3D11Device*             mp3dDevice;
 								       

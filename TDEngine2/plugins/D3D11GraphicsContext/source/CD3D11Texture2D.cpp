@@ -95,12 +95,51 @@ namespace TDEngine2
 
 	std::unique_ptr<U8[]> CD3D11Texture2D::GetInternalData()
 	{
-		TDE2_UNIMPLEMENTED();
-		return {};
+		/// \note create temporary texture with D3D11_USAGE_STAGING flag
+		ID3D11Texture2D* pTempTexture = _createD3D11TextureResource(mpGraphicsContext, mWidth, mHeight, mFormat, mNumOfMipLevels, mNumOfSamples, mSamplingQuality, DTAT_CPU_READ).Get();
+
+		/// \note copy data from actual texture into helper one
+		mp3dDeviceContext->CopyResource(pTempTexture, mpTexture);
+
+		/// \note retrieve pointer to memory from temp texture
+		D3D11_MAPPED_SUBRESOURCE mappedData;
+
+		if (FAILED(mp3dDeviceContext->Map(pTempTexture, 0, D3D11_MAP_READ, 0x0, &mappedData)))
+		{
+			return {};
+		}
+
+		U64 size = mWidth * mHeight * CD3D11Mappings::GetFormatSize(mFormat);
+
+		std::unique_ptr<U8[]> pPixelsData{ new U8[size] };
+
+		memcpy(pPixelsData.get(), mappedData.pData, size);
+
+		mp3dDeviceContext->Unmap(pTempTexture, 0);
+
+		pTempTexture->Release();
+
+		return std::move(pPixelsData);
 	}
 
 	E_RESULT_CODE CD3D11Texture2D::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
+	{
+		auto textureResult = _createD3D11TextureResource(pGraphicsContext, width, height, format, mipLevelsCount, samplesCount, samplingQuality);
+
+		if (textureResult.HasError())
+		{
+			return textureResult.GetError();
+		}
+
+		mpTexture = textureResult.Get();
+
+		return _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);
+	}
+
+	TResult<ID3D11Texture2D*> CD3D11Texture2D::_createD3D11TextureResource(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
+																		   U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality,
+																		   U32 accessType)
 	{
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
 
@@ -118,6 +157,8 @@ namespace TDEngine2
 
 		memset(&textureDesc, 0, sizeof(textureDesc));
 
+		bool isCPUAccessible = (accessType & DTAT_CPU_READ);
+
 		textureDesc.Width              = width;
 		textureDesc.Height             = height;
 		textureDesc.Format             = CD3D11Mappings::GetDXGIFormat(format);
@@ -125,17 +166,19 @@ namespace TDEngine2
 		textureDesc.SampleDesc.Quality = samplingQuality;
 		textureDesc.MipLevels          = mipLevelsCount;
 		textureDesc.ArraySize          = 1; //single texture
-		textureDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE; /// default binding type for simple 2d textures
+		textureDesc.BindFlags          = isCPUAccessible ? 0x0 : D3D11_BIND_SHADER_RESOURCE; /// default binding type for simple 2d textures
 		textureDesc.CPUAccessFlags     = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
-		textureDesc.Usage              = D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
+		textureDesc.Usage              = isCPUAccessible ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
+
+		ID3D11Texture2D* pTexture = nullptr;
 
 		/// create blank texture with specified parameters
-		if (FAILED(mp3dDevice->CreateTexture2D(&textureDesc, nullptr, &mpTexture))) /// \todo Implement HRESULT -> E_RESULT_CODE converter function
+		if (FAILED(mp3dDevice->CreateTexture2D(&textureDesc, nullptr, &pTexture))) /// \todo Implement HRESULT -> E_RESULT_CODE converter function
 		{
-			return RC_FAIL;
+			return TErrorValue(RC_FAIL);
 		}
 
-		return _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);
+		return TOkValue(pTexture);
 	}
 
 	E_RESULT_CODE CD3D11Texture2D::_createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount)
