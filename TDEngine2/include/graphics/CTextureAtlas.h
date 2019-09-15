@@ -43,6 +43,22 @@ namespace TDEngine2
 	TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 											   const TTexture2DParameters& params, E_RESULT_CODE& result);
 
+	/*!
+		\brief A factory function for creation objects of CTextureAtlas's type
+
+		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
+
+		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+		\param[in] name A resource's name
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CTextureAtlas's implementation
+	*/
+
+	TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+											   E_RESULT_CODE& result);
 
 
 
@@ -57,6 +73,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 															  const TTexture2DParameters& params, E_RESULT_CODE& result);
+			friend TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+															  E_RESULT_CODE& result);
 		protected:
 			struct TTextureAtlasEntry
 			{
@@ -146,8 +164,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE AddRawTexture(const std::string& name, U32 width, U32 height, E_FORMAT_TYPE format, const U8* pData) override;
-
-
+			
 			/*!
 				\brief The method finalizes the process of packing textures into the atlas.
 				You should call it after all textures added into the atlas. True will be returned
@@ -168,6 +185,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Serialize(IFileSystem* pFileSystem, const std::string& filename) override;
+
+			/*!
+				\brief The method restores state of the texture atlas based on information from a given file
+
+				\param[in, out] pFileSystem A pointer to IFileSystem implementation
+				\param[in] filename A name of a file into which the data will be written
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) override;
 
 			/*!
 				\brief The method returns a width of a texture

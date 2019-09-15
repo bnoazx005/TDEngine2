@@ -158,7 +158,8 @@ namespace TDEngine2
 		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
 
 		/// \note while there is enough space within the atlas pack next entry
-		TAtlasAreaEntry root { {0, 0, pAtlasInternalTexture->GetWidth(), pAtlasInternalTexture->GetHeight()} };
+		TAtlasAreaEntry root;
+		root.mBounds = {0, 0, static_cast<I32>(pAtlasInternalTexture->GetWidth()), static_cast<I32>(pAtlasInternalTexture->GetHeight())};
 		
 		std::stack<TAtlasAreaEntry*> areasToCheck;		
 
@@ -314,8 +315,6 @@ namespace TDEngine2
 
 		auto& texturesList = textureAtlasDesc["textures_list"];
 
-		U32 i = 0;
-
 		TRectI32 currBounds;
 
 		for (auto currTextureEntity : mAtlasEntities)
@@ -336,6 +335,38 @@ namespace TDEngine2
 
 		pFile->Serialize(textureAtlasDesc);
 		pFile->Close();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CTextureAtlas::Deserialize(IFileSystem* pFileSystem, const std::string& filename)
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		TResult<TFileEntryId> fileReadingResult = pFileSystem->Open<CYAMLFileReader>(filename);
+
+		if (fileReadingResult.HasError())
+		{
+			return fileReadingResult.GetError();
+		}
+
+		auto pYAMLFileReader = pFileSystem->Get<CYAMLFileReader>(fileReadingResult.Get());
+
+		Yaml::Node atlasDataRoot;
+
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = pYAMLFileReader->Deserialize(atlasDataRoot)) != RC_OK)
+		{
+			return result;
+		}
+
+		pYAMLFileReader->Close();
+
+		TDE2_UNIMPLEMENTED();
 
 		return RC_OK;
 	}
@@ -376,6 +407,31 @@ namespace TDEngine2
 		}
 
 		result = pTextureAtlasInstance->Init(pResourceManager, pGraphicsContext, name, params);
+
+		if (result != RC_OK)
+		{
+			delete pTextureAtlasInstance;
+
+			pTextureAtlasInstance = nullptr;
+		}
+
+		return pTextureAtlasInstance;
+	}
+
+
+	TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+											   E_RESULT_CODE& result)
+	{
+		CTextureAtlas* pTextureAtlasInstance = new (std::nothrow) CTextureAtlas();
+
+		if (!pTextureAtlasInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pTextureAtlasInstance->Init(pResourceManager, pGraphicsContext, name);
 
 		if (result != RC_OK)
 		{
@@ -441,27 +497,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_UNIMPLEMENTED();
-		E_RESULT_CODE result = RC_OK;
-/*
-		TResult<TFileEntryId> materialFileId = mpFileSystem->Open<CBinaryFileReader>(pResource->GetName());
-
-		if (materialFileId.HasError())
-		{
-			return materialFileId.GetError();
-		}
-
-		IBinaryFileReader* pMaterialFile = dynamic_cast<IBinaryFileReader*>(mpFileSystem->Get<CBinaryFileReader>(materialFileId.Get()));
-
-		/// try to read the file's header
-		TTextureAtlasFileHeader header = _readMaterialFileHeader(pMaterialFile).Get();
-
-		if ((result = pMaterialFile->Close()) != RC_OK)
-		{
-			return result;
-		}*/
-
-		return RC_OK;
+		return dynamic_cast<ITextureAtlas*>(pResource)->Deserialize(mpFileSystem, pResource->GetName() + ".info");
 	}
 
 	U32 CTextureAtlasLoader::GetResourceTypeId() const
@@ -551,9 +587,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TDE2_UNIMPLEMENTED();
-
-		return nullptr;
+		return dynamic_cast<IResource*>(CreateTextureAtlas(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
 	U32 CTextureAtlasFactory::GetResourceTypeId() const

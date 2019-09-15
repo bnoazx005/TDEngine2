@@ -70,6 +70,10 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	stbi_write_png("Atlas.png", pTexture->GetWidth(), pTexture->GetHeight(), 1, pTexture->GetInternalData().get(), pTexture->GetWidth());	
 
+	/// TEST: load texture atlas from a file
+	auto pAtlasHandler = mpResourceManager->Load<CTextureAtlas>("atlas");
+	/// END TEST
+
 	// NOTE: delete this code later
 	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
 
