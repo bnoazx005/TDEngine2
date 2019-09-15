@@ -135,7 +135,9 @@ namespace TDEngine2
 		/// \note add a new entry
 		TRectI32 textureRect { 0, 0, width, height };
 
-		mPendingData.push_back({ name, textureRect, true, false, { { pData, format } } });
+		TTextureAtlasEntry rootEntry = { name, textureRect, true, false, { { pData, format } } };
+
+		mPendingData.push_back(rootEntry);
 
 		return RC_OK;
 	}
