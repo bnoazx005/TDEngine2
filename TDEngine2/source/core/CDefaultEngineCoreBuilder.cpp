@@ -14,6 +14,7 @@
 #include "./../../include/platform/CConfigFileReader.h"
 #include "./../../include/platform/CBinaryFileReader.h"
 #include "./../../include/platform/CBinaryFileWriter.h"
+#include "./../../include/platform/CImageFileWriter.h"
 #include "./../../include/core/CEventManager.h"
 #include "./../../include/core/memory/CMemoryManager.h"
 #include "./../../include/core/memory/CLinearAllocator.h"
@@ -173,7 +174,8 @@ namespace TDEngine2
 		if (((result = mpFileSystemInstance->RegisterFileFactory<CTextFileReader>(CreateTextFileReader)) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<CConfigFileReader>(CreateConfigFileReader)) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<CBinaryFileReader>(CreateBinaryFileReader)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<CBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK))
+			((result = mpFileSystemInstance->RegisterFileFactory<CBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<CImageFileWriter>(CreateImageFileWriter)) != RC_OK))
 		{
 			return result;
 		}

@@ -56,6 +56,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetHeight() const override;
+
+			/*!
+				\brief The method returns current format of the texture
+
+				\return The method returns current format of the texture
+			*/
+
+			TDE2_API E_FORMAT_TYPE GetFormat() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseRenderTarget)
 

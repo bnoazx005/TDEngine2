@@ -196,23 +196,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) override;
-
-			/*!
-				\brief The method returns a width of a texture
-
-				\return The method returns a width of a texture
-			*/
-
-			TDE2_API U32 GetWidth() const override;
-
-			/*!
-				\brief The method returns a height of a texture
-
-				\return The method returns a height of a texture
-			*/
-
-			TDE2_API U32 GetHeight() const override;
-			
+						
 			/*!
 				\brief The method loads resource data into memory
 
@@ -237,12 +221,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Reset() override;
 			
-			/*!
-				\brief The method binds a material to a rendering pipeline
-			*/
-
-			TDE2_API void Bind(U32 slot) override;
-
 			/*!
 				\brief The method returns a pointer to texture that is used with texture atlas
 

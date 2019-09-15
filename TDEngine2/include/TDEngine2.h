@@ -139,6 +139,7 @@
 #include "platform/CBaseFile.h"
 #include "platform/CBinaryFileReader.h"
 #include "platform/CBinaryFileWriter.h"
+#include "platform/CImageFileWriter.h"
 
 ///utils
 #include "utils/Types.h"

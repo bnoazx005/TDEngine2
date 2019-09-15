@@ -46,6 +46,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetHeight() const = 0;
+
+			/*!
+				\brief The method returns current format of the texture
+
+				\return The method returns current format of the texture
+			*/
+
+			TDE2_API virtual E_FORMAT_TYPE GetFormat() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITexture)
 	};

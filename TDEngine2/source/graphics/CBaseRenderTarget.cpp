@@ -57,4 +57,9 @@ namespace TDEngine2
 	{
 		return mHeight;
 	}
+
+	E_FORMAT_TYPE CBaseRenderTarget::GetFormat() const
+	{
+		return mFormat;
+	}
 }

@@ -4,6 +4,7 @@
 #include "./../../include/core/CBaseFileSystem.h"
 #include "./../../include/utils/Utils.h"
 #include "./../../include/graphics/CBaseTexture2D.h"
+#include "./../../include/platform/CImageFileWriter.h"
 #define TDE2_YAML_PLUGIN_IMPLEMENTATION
 #define TDE2_YAML_PLUGIN_STATIC
 #include "./../../plugins/YAMLFormatSupport/include/CYAMLSupportPlugin.h"
@@ -302,16 +303,23 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
+
+		/// \note save texture atlas into an image file
+		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
+		pFileSystem->Get<CImageFileWriter>(pFileSystem->Open<CImageFileWriter>(mName + "_Tex.png", true).Get())->Write(pAtlasInternalTexture);
+		
 		/// \note try to create YAML file with the given name
 		auto pFile = pFileSystem->Get<CYAMLFileWriter>(pFileSystem->Open<CYAMLFileWriter>(filename, true).Get());
 
 		Yaml::Node textureAtlasDesc {};
 
-		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
-
 		textureAtlasDesc["name"]   = mName;
-		textureAtlasDesc["width"]  = std::to_string(pAtlasInternalTexture->GetWidth());
-		textureAtlasDesc["height"] = std::to_string(pAtlasInternalTexture->GetHeight());
+
+		auto& textureResourceDesc = textureAtlasDesc["texture_resource"];
+		textureResourceDesc["width"]          = std::to_string(pAtlasInternalTexture->GetWidth());
+		textureResourceDesc["height"]         = std::to_string(pAtlasInternalTexture->GetHeight());
+		textureResourceDesc["channels_count"] = std::to_string(CFormatUtils::GetNumOfChannelsOfFormat(pAtlasInternalTexture->GetFormat()));
 
 		auto& texturesList = textureAtlasDesc["textures_list"];
 
@@ -366,26 +374,35 @@ namespace TDEngine2
 
 		pYAMLFileReader->Close();
 
-		TDE2_UNIMPLEMENTED();
+		/// \note load texture based on read parameters
+		mName = atlasDataRoot["name"].As<std::string>();
+
+		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
+		mpTextureResource = mpResourceManager->Load<CBaseTexture2D>(mName + "_Tex.png");
+
+		auto& texturesList = atlasDataRoot["textures_list"];
+
+		std::string currEntryName;
+
+		TRectI32 currBounds;
+
+		for (auto iter = texturesList.Begin(); iter != texturesList.End(); iter++)
+		{
+			auto& currEntryDesc = (*iter).second;
+
+			currEntryName = currEntryDesc["name"].As<std::string>();
+
+			auto& boundsData = currEntryDesc["bounds"];
+
+			currBounds.x      = boundsData["x"].As<I32>();
+			currBounds.y      = boundsData["y"].As<I32>();
+			currBounds.width  = boundsData["width"].As<I32>();
+			currBounds.height = boundsData["height"].As<I32>();
+
+			mAtlasEntities.insert({ currEntryName, currBounds });
+		}
 
 		return RC_OK;
-	}
-	
-	void CTextureAtlas::Bind(U32 slot)
-	{
-		TDE2_UNIMPLEMENTED();
-	}
-
-	U32 CTextureAtlas::GetWidth() const
-	{
-		TDE2_UNIMPLEMENTED();
-		return 0x0;
-	}
-
-	U32 CTextureAtlas::GetHeight() const
-	{
-		TDE2_UNIMPLEMENTED();
-		return 0x0;
 	}
 
 	ITexture2D* CTextureAtlas::GetTexture() const

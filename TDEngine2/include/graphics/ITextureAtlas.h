@@ -32,7 +32,7 @@ namespace TDEngine2
 		\brief The interface describes a common functionality of a texture atlases
 	*/
 
-	class ITextureAtlas: public ITexture
+	class ITextureAtlas
 	{
 		public:
 			/*!

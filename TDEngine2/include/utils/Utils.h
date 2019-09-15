@@ -486,4 +486,29 @@ namespace TDEngine2
 		abort();															\
 	}																		\
 	while (0)
+
+
+	class CFormatUtils
+	{
+		public:
+			/*!
+				\brief The function returns a size of a specified format
+
+				\param[in] format An internal format
+
+				\return A size in bytes of a specified format
+			*/
+
+			TDE2_API static U32 GetFormatSize(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function returns a number of channels for a given format type
+
+				\param[in] format A specific format of a texture
+
+				\return The functiona returns a number of channels for a given format type
+			*/
+
+			TDE2_API static U8 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
+	};
 }

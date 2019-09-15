@@ -374,4 +374,27 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryFileWriter)
 	};
+
+
+	/*!
+		interface IImageFileWriter
+
+		\brief The interface represents a functionality of image file writer
+	*/
+
+	class IImageFileWriter : public IFileWriter
+	{
+		public:
+			/*!
+				\brief The method writes image data into a file
+
+				\param[in, out] pTexture A pointer to ITexture2D implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Write(class ITexture2D* pTexture) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IImageFileWriter)
+	};
 }

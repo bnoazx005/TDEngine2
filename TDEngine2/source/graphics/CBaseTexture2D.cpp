@@ -84,6 +84,11 @@ namespace TDEngine2
 		return mHeight;
 	}
 
+	E_FORMAT_TYPE CBaseTexture2D::GetFormat() const
+	{
+		return mFormat;
+	}
+
 
 	CBaseTexture2DLoader::CBaseTexture2DLoader() :
 		mIsInitialized(false)
