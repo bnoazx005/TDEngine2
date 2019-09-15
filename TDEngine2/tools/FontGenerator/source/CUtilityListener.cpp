@@ -1,6 +1,6 @@
 #include "./../include/CUtilityListener.h"
-#define TDE2_YAML_PLUGIN_IMPLEMENTATION
-#include "./../plugins/YAMLFormatSupport/include/CYAMLSupportPlugin.h"
+//#define TDE2_YAML_PLUGIN_IMPLEMENTATION
+//#include "./../plugins/YAMLFormatSupport/include/CYAMLSupportPlugin.h"
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -20,14 +20,14 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	auto pFileSystem = dynamic_cast<TDEngine2::IFileSystem*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_FILE_SYSTEM));
 
-	auto pYamlFile = pFileSystem->Get<CYAMLFileReader>(pFileSystem->Open<CYAMLFileReader>("test.info").Get());
+	// auto pYamlFile = pFileSystem->Get<CYAMLFileReader>(pFileSystem->Open<CYAMLFileReader>("test.info").Get());
 
-	Yaml::Node root;
+	// Yaml::Node root;
 
-	if (pYamlFile->Deserialize(root) != RC_OK)
-	{
-		return RC_FAIL;
-	}
+	// if (pYamlFile->Deserialize(root) != RC_OK)
+	// {
+	// 	return RC_FAIL;
+	// }
 
 	// read ttf file
 	auto pFontFile = pFileSystem->Get<CBinaryFileReader>(pFileSystem->Open<CBinaryFileReader>("arial.ttf").Get());

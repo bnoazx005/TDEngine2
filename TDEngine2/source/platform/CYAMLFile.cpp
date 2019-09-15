@@ -1,5 +1,5 @@
-#include "./../include/CYAMLFile.h"
-#include "./../deps/yaml/Yaml.hpp"
+#include "./../../include/platform/CYAMLFile.h"
+#include "./../../deps/yaml/Yaml.cpp"
 
 
 namespace TDEngine2
@@ -9,7 +9,7 @@ namespace TDEngine2
 	{
 	}
 
-	TDE2_API E_RESULT_CODE CYAMLFileWriter::Serialize(Yaml::Node& object)
+	E_RESULT_CODE CYAMLFileWriter::Serialize(Yaml::Node& object)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 

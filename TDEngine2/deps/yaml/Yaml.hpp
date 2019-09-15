@@ -38,6 +38,10 @@ https://www.codeproject.com/Articles/28720/YAML-Parser-in-C
 #include <algorithm>
 #include <map>
 
+#if defined (None)
+    #undef None
+#endif
+
 /**
 * @breif Namespace wrapping mini-yaml classes.
 *

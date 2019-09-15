@@ -12,6 +12,12 @@
 #include <string>
 
 
+/// \note forward declaration for mini-yaml library
+namespace Yaml
+{
+	class Node;
+}
+
 namespace TDEngine2
 {
 	class IFileSystem;
@@ -396,5 +402,35 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Write(class ITexture2D* pTexture) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IImageFileWriter)
+	};
+
+
+	/*!
+		interface IYAMLFileWriter
+
+		\brief The interface represents a functionality of YAML file writer
+	*/
+
+	class IYAMLFileWriter : public IFileWriter
+	{
+		public:
+			TDE2_API virtual E_RESULT_CODE Serialize(Yaml::Node& object) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IYAMLFileWriter)
+	};
+
+
+	/*!
+		interface IYAMLFileReader
+
+		\brief The interface describes a functionality of YAML file reader
+	*/
+
+	class IYAMLFileReader : public IFileReader
+	{
+		public:
+			TDE2_API virtual E_RESULT_CODE Deserialize(Yaml::Node& outputObject) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IYAMLFileReader)
 	};
 }

@@ -7,13 +7,9 @@
 #pragma once
 
 
-#if defined (TDE2_YAML_PLUGIN_STATIC) /// \note the macro means that the plugin will be used as a part of the engine not as dynamically linked plugin
-	#include "./../../include/platform/CBaseFile.h"
-#else
-	#include <platform/CBaseFile.h>
-#endif
-
-#include "IYAMLFile.h"
+#include "./../core/IFile.h"
+#include "./../platform/CBaseFile.h"
+#include "./../../deps/yaml/Yaml.hpp"
 
 
 namespace TDEngine2
@@ -37,10 +33,6 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IFile* CreateYAMLFileWriter(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
-		public:
-			typedef void(*TSuccessWriteCallback)();
-
-			typedef void(*TErrorWriteCallback)(E_RESULT_CODE);
 		public:
 			TDE2_REGISTER_TYPE(CYAMLFileWriter)
 

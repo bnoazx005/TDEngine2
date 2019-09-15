@@ -5,11 +5,7 @@
 #include "./../../include/utils/Utils.h"
 #include "./../../include/graphics/CBaseTexture2D.h"
 #include "./../../include/platform/CImageFileWriter.h"
-#define TDE2_YAML_PLUGIN_IMPLEMENTATION
-#define TDE2_YAML_PLUGIN_STATIC
-#include "./../../plugins/YAMLFormatSupport/include/CYAMLSupportPlugin.h"
-#undef TDE2_YAML_PLUGIN_STATIC
-#undef TDE2_YAML_PLUGIN_IMPLEMENTATION
+#include "./../../include/platform/CYAMLFile.h"
 #include <cassert>
 #include <algorithm>
 #include <stack>
