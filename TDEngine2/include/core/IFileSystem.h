@@ -220,6 +220,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool IsStreamingEnabled() const = 0;
+
+			/*!
+				\brief The method extracts extension from a given path 
+
+				\param[in] path A string, which represents a valid file system path
+
+				\return The method extracts extension from a given path
+			*/
+
+			TDE2_API virtual std::string GetExtension(const std::string& path) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileSystem)
 

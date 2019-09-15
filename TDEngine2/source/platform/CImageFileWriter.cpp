@@ -9,15 +9,6 @@
 #include "./../../deps/stb/stb_image_write.h"
 #pragma warning(pop)
 #undef STB_IMAGE_WRITE_IMPLEMENTATION
-#if defined (TDE2_USE_UNIXPLATFORM)
-	#include <experimental/filesystem>
-
-	namespace fs = std::experimental::filesystem;
-#else
-	#include <filesystem>
-
-	namespace fs = std::filesystem;
-#endif
 #include <string>
 
 
@@ -90,7 +81,7 @@ namespace TDEngine2
 		E_IMAGE_FILE_TYPE imageType = E_IMAGE_FILE_TYPE::HDR;
 
 		/// \todo move this method into CBaseFileSystem's functionality
-		std::string fileExtension = fs::path(filename).extension().string();
+		std::string fileExtension = mpFileSystemInstance->GetExtension(filename);
 
 		if (fileExtension == ".png")
 		{

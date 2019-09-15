@@ -229,6 +229,17 @@ namespace TDEngine2
 		return mpJobManager != nullptr;
 	}
 
+	std::string CBaseFileSystem::GetExtension(const std::string& path) const
+	{
+#if _HAS_CXX17
+		return std::experimental::filesystem::path(path).extension().string();
+#else
+		std::string::size_type pos = path.find_last_of('.');
+
+		return (pos != std::string::npos) ? path.substr(pos) : "";
+#endif
+	}
+
 	TFileEntryId CBaseFileSystem::_registerFileEntry(IFile* pFileEntry)
 	{
 		U32 fileEntryId = mActiveFiles.Add(pFileEntry);
