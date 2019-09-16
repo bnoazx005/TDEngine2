@@ -29,14 +29,6 @@ I32 main(I32 argc, C8** argv)
 
 	pEngineCore->RegisterListener(pUtilityListener.get());
 
-	// \note load a plugin that enables YAML format's support
-	auto pPluginManager = dynamic_cast<IPluginManager*>(pEngineCore->GetSubsystem(EST_PLUGIN_MANAGER));
-	
-	if (pPluginManager->LoadPlugin("YAMLFormatSupport") != RC_OK)
-	{
-		return -1;
-	}
-
 	pEngineCore->Run();
 
 	pEngineCore->Free();
