@@ -242,6 +242,9 @@ source_group("sources" FILES ${TDENGINE2_SOURCES})
 
 if (MSVC) 	#cl.exe compiler's options
 	message(STATUS "Windows system has detected...")
+	
+	set(CMAKE_CXX_STANDARD 17)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 	#Debug compiler's options
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++17 /MDd /W3 /GS /Zc:inline /Od /Zi  /Zc:wchar_t")
