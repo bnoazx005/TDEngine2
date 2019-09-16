@@ -129,7 +129,7 @@ namespace TDEngine2
 		}
 
 		/// \note add a new entry
-		TRectI32 textureRect { 0, 0, width, height };
+		TRectI32 textureRect { 0, 0, static_cast<I32>(width), static_cast<I32>(height) };
 
 		TTextureAtlasEntry rootEntry = { name, textureRect, true, false, { { pData, format } } };
 
