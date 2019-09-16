@@ -86,20 +86,20 @@ namespace TDEngine2
 					E_FORMAT_TYPE mFormat;
 				};
 
+				TDE2_API TTextureAtlasEntry(const std::string& name, const TRectI32& rect, const TRawTextureData& texture);
+
 				std::string mName;
 						    
 				TRectI32    mRect;
 						    
 				bool        mIsRawData = false; ///< true means that mpData points to some object that's derived from CBaseTexture2D
 						    
-				bool        mIsPacked = false;
-
 				union 
 				{
 					TRawTextureData mRawTexture;
 
 					ITexture2D*     mpTexture;
-				} mData = { nullptr, FT_UNKNOWN };
+				} mData;
 			};
 
 			struct TAtlasAreaEntry

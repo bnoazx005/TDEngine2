@@ -14,6 +14,15 @@
 
 namespace TDEngine2
 {
+	CTextureAtlas::TTextureAtlasEntry::TTextureAtlasEntry(const std::string& name, const TRectI32& rect, const CTextureAtlas::TTextureAtlasEntry::TRawTextureData& texture):
+		mName(name),
+		mRect(rect),
+		mIsRawData(true)
+	{
+		mData.mRawTexture = texture;
+	}
+
+
 	CTextureAtlas::CTextureAtlas() :
 		CBaseResource(), mpTextureResource(nullptr)
 	{
@@ -130,9 +139,8 @@ namespace TDEngine2
 
 		/// \note add a new entry
 		TRectI32 textureRect { 0, 0, static_cast<I32>(width), static_cast<I32>(height) };
-		TTextureAtlasEntry::TRawTextureData rawTextureData { pData, format };
 
-		TTextureAtlasEntry rootEntry = { name, textureRect, true, false, rawTextureData };
+		TTextureAtlasEntry rootEntry { name, textureRect, { pData, format } };
 
 		mPendingData.push_back(rootEntry);
 
