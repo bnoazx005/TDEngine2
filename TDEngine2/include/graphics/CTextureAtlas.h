@@ -99,7 +99,7 @@ namespace TDEngine2
 					TRawTextureData mRawTexture;
 
 					ITexture2D*     mpTexture;
-				} mData;
+				} mData = { nullptr, FT_UNKNOWN };
 			};
 
 			struct TAtlasAreaEntry
