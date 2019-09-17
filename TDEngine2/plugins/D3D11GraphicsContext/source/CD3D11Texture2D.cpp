@@ -176,10 +176,10 @@ namespace TDEngine2
 		/// create blank texture with specified parameters
 		if (FAILED(mp3dDevice->CreateTexture2D(&textureDesc, nullptr, &pTexture))) /// \todo Implement HRESULT -> E_RESULT_CODE converter function
 		{
-			return TErrorValue(RC_FAIL);
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return TOkValue(pTexture);
+		return TOkValue<ID3D11Texture2D*>(pTexture);
 	}
 
 	E_RESULT_CODE CD3D11Texture2D::_createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount)

@@ -40,6 +40,8 @@ source_group("sources" FILES ${WIN_INPUT_CTX_SOURCES})
 
 
 if (MSVC) 	#cl.exe compiler's options
+	set(CMAKE_CXX_STANDARD 14)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 	#Debug compiler's options
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++17 /MDd /W3 /GS /Zc:inline /Od /Zi  /Zc:wchar_t")
