@@ -1,12 +1,13 @@
 #include "./../../include/graphics/CBaseGraphicsObjectManager.h"
 #include "./../../include/graphics/IVertexDeclaration.h"
 #include "./../../include/core/IGraphicsContext.h"
+#include "./../../include/graphics/CDebugUtility.h"
 
 
 namespace TDEngine2
 {
 	CBaseGraphicsObjectManager::CBaseGraphicsObjectManager() :
-		CBaseObject()
+		CBaseObject(), mpDebugUtility(nullptr)
 	{
 	}
 
@@ -38,17 +39,10 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = _freeBuffers()) != RC_OK)
-		{
-			return result;
-		}
-		
-		if ((result = _freeVertexDeclarations()) != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = _freeTextureSamplers()) != RC_OK)
+		if (((result = _freeBuffers()) != RC_OK)            ||
+			((result = _freeVertexDeclarations()) != RC_OK) ||
+			((result = _freeTextureSamplers()) != RC_OK)    ||
+			((result = mpDebugUtility->Free()) != RC_OK))
 		{
 			return result;
 		}
@@ -58,6 +52,30 @@ namespace TDEngine2
 		delete this;
 
 		return RC_OK;
+	}
+
+	TResult<IDebugUtility*> CBaseGraphicsObjectManager::CreateDebugUtility()
+	{
+		if (mpDebugUtility)
+		{
+			return TOkValue<IDebugUtility*>(mpDebugUtility);
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		mpDebugUtility = TDEngine2::CreateDebugUtility(this, result);
+
+		if (result != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		return TOkValue<IDebugUtility*>(mpDebugUtility);
+	}
+
+	IGraphicsContext* CBaseGraphicsObjectManager::GetGraphicsContext() const
+	{
+		return mpGraphicsContext;
 	}
 
 	void CBaseGraphicsObjectManager::_insertBuffer(IBuffer* pBuffer)

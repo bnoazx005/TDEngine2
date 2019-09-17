@@ -107,6 +107,8 @@
 #include "graphics/CGlobalShaderProperties.h"
 #include "graphics/ITextureAtlas.h"
 #include "graphics/CTextureAtlas.h"
+#include "graphics/IDebugUtility.h"
+#include "graphics/CDebugUtility.h"
 
 ///math
 #include "math/TVector2.h"

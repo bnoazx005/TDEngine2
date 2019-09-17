@@ -40,7 +40,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 		pSprite->SetMaterialName("NewMaterial.material");
 
-		auto pBoxCollision = pEntity->AddComponent<TDEngine2::CBoxCollisionObject2D>();
+		//auto pBoxCollision = pEntity->AddComponent<TDEngine2::CBoxCollisionObject2D>();
 	}
 	
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
@@ -111,6 +111,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::RightVector3);
 	}
 
+	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility().Get();
+	
 	return TDEngine2::RC_OK;
 }
 
