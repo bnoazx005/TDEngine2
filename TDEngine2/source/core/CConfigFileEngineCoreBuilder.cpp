@@ -27,6 +27,7 @@
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/graphics/CTextureAtlas.h"
+#include "./../../include/core/CFont.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -468,6 +469,26 @@ namespace TDEngine2
 		}
 
 		pResourceFactory = CreateTextureAtlasFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		{
+			return result;
+		}
+
+		/// \note register font's resource type
+		pResourceLoader = CreateFontLoader(mpResourceManagerInstance, mpFileSystemInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		pResourceFactory = CreateFontFactory(mpResourceManagerInstance, result);
 
 		if (result != RC_OK)
 		{

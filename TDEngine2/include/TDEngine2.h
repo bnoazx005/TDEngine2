@@ -46,6 +46,8 @@
 #include "core/IInputContext.h"
 #include "core/IInputDevice.h"
 #include "core/CConfigFileEngineCoreBuilder.h"
+#include "core/IFont.h"
+#include "core/CFont.h"
 
 ///ecs
 #include "ecs/CEntity.h"

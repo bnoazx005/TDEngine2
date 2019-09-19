@@ -68,6 +68,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	auto pTexture = pTexAtlas->GetTexture();
 
+	auto pFontResource = mpResourceManager->Load<CFont>("Arial");
+
 	/// TEST: load texture atlas from a file
 	//auto pAtlasHandler = mpResourceManager->Load<CTextureAtlas>("atlas");
 	/// END TEST
