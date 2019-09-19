@@ -22,6 +22,7 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IVertexDeclaration;
 	class IDebugUtility;
+	class IRenderer;
 
 
 	/*!
@@ -113,10 +114,12 @@ namespace TDEngine2
 			/*!
 				\brief The method is a factory for creation of a debug helper object
 
+				\param[in, out] pRenderer A pointer to implementation of IRenderer interface
+
 				\return The result object contains either a pointer to IDebugUtility or an error code
 			*/
 
-			TDE2_API virtual TResult<IDebugUtility*> CreateDebugUtility() = 0;
+			TDE2_API virtual TResult<IDebugUtility*> CreateDebugUtility(IRenderer* pRenderer) = 0;
 
 			/*!
 				\brief The method returns a pointer to IGraphicsContext

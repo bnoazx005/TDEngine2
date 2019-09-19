@@ -13,6 +13,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 										mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", 
 																							TDEngine2::TMaterialParameters{ "testGLShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
 
+	mpResourceManager->Create<TDEngine2::CBaseMaterial>("DebugMaterial.material", TDEngine2::TMaterialParameters{ "DebugGLShader.shader" });
+
 	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.tga")->Get(TDEngine2::RAT_BLOCKING)));
 
 	const TDEngine2::TColor32F colors[] =
@@ -111,7 +113,12 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::RightVector3);
 	}
 
-	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility().Get();
+	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(dynamic_cast<TDEngine2::IRenderer*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_RENDERER))).Get();
+	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawText({ 100, 100 }, "ddd", { 1.0f, 1.0f, 1.0f, 1.0f });
 	
 	return TDEngine2::RC_OK;
 }

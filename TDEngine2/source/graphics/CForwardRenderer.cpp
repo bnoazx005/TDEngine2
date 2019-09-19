@@ -8,6 +8,8 @@
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/graphics/CGlobalShaderProperties.h"
 #include "./../../include/graphics/InternalShaderData.h"
+#include "./../../include/graphics/CDebugUtility.h"
+#include "./../../include/graphics/IGraphicsObjectManager.h"
 
 
 namespace TDEngine2
@@ -67,7 +69,9 @@ namespace TDEngine2
 																											  append(")"));
 		}
 
-		mpGlobalShaderProperties = CreateGlobalShaderProperties(pGraphicsContext->GetGraphicsObjectManager(), result);
+		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+		mpGlobalShaderProperties = CreateGlobalShaderProperties(pGraphicsObjectManager, result);
 
 		/// \todo fill in data into TConstantsShaderData buffer
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_CONSTANTS, nullptr, 0);
@@ -76,6 +80,15 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(this);
+
+		if (debugUtilityResult.HasError())
+		{
+			return debugUtilityResult.GetError();
+		}
+
+		mpDebugUtility = debugUtilityResult.Get();
 
 		mIsInitialized = true;
 
@@ -145,6 +158,8 @@ namespace TDEngine2
 
 		mpGraphicsContext->Present();
 
+		mpDebugUtility->PostRender();
+
 		return RC_OK;
 	}
 
@@ -202,6 +217,8 @@ namespace TDEngine2
 
 		mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
+
+		mpDebugUtility->PreRender();
 	}
 
 

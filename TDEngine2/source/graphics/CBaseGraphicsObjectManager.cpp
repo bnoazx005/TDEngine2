@@ -2,6 +2,7 @@
 #include "./../../include/graphics/IVertexDeclaration.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/graphics/CDebugUtility.h"
+#include "./../../include/graphics/IRenderer.h"
 
 
 namespace TDEngine2
@@ -54,7 +55,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TResult<IDebugUtility*> CBaseGraphicsObjectManager::CreateDebugUtility()
+	TResult<IDebugUtility*> CBaseGraphicsObjectManager::CreateDebugUtility(IRenderer* pRenderer)
 	{
 		if (mpDebugUtility)
 		{
@@ -63,7 +64,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpDebugUtility = TDEngine2::CreateDebugUtility(this, result);
+		mpDebugUtility = TDEngine2::CreateDebugUtility(pRenderer, this, result);
 
 		if (result != RC_OK)
 		{

@@ -16,12 +16,23 @@ namespace TDEngine2
 {
 	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, nullptr);
-		
-		return RC_NOT_IMPLEMENTED_YET;
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->Load<CBaseMaterial>(mMaterialName)->Get(RAT_BLOCKING));
+
+		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
+
+		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
+
+		pMaterial->Bind();
+
+		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+
+		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
+
+		pGraphicsContext->Draw(mPrimitiveType, mStartVertex, mNumOfVertices);
+
+		return RC_OK;
 	}
 
-	
 
 	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{

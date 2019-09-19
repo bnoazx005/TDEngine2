@@ -15,6 +15,7 @@
 namespace TDEngine2
 {
 	class IGlobalShaderProperties;
+	class IDebugUtility;
 
 
 	/*!
@@ -132,5 +133,7 @@ namespace TDEngine2
 			IAllocator*              mpTempAllocator;
 
 			IGlobalShaderProperties* mpGlobalShaderProperties;
+
+			IDebugUtility*           mpDebugUtility;
 	};
 }
