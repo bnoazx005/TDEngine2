@@ -52,12 +52,13 @@ namespace TDEngine2
 			/*!
 				\brief The method is a factory for creation of a debug helper object
 
+				\param[in, out] pResourceManager A pointer to implementation of IResourceManager interface
 				\param[in, out] pRenderer A pointer to implementation of IRenderer interface
 
 				\return The result object contains either a pointer to IDebugUtility or an error code
 			*/
 
-			TDE2_API TResult<IDebugUtility*> CreateDebugUtility(IRenderer* pRenderer) override;
+			TDE2_API TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) override;
 
 			/*!
 				\brief The method returns a pointer to IGraphicsContext

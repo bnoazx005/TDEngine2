@@ -113,7 +113,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::RightVector3);
 	}
 
-	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(dynamic_cast<TDEngine2::IRenderer*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_RENDERER))).Get();
+	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, dynamic_cast<TDEngine2::IRenderer*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_RENDERER))).Get();
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });

@@ -81,7 +81,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(this);
+		auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(pResourceManager, this);
 
 		if (debugUtilityResult.HasError())
 		{

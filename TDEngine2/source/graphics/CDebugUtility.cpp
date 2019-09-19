@@ -4,6 +4,8 @@
 #include "./../../include/graphics/CRenderQueue.h"
 #include "./../../include/graphics/IVertexDeclaration.h"
 #include "./../../include/graphics/IVertexBuffer.h"
+#include "./../../include/core/IResourceManager.h"
+#include "./../../include/core/CFont.h"
 
 
 namespace TDEngine2
@@ -13,18 +15,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CDebugUtility::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
+	E_RESULT_CODE CDebugUtility::Init(IResourceManager* pResourceManager, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pRenderer || !pGraphicsObjectManager)
+		if (!pRenderer || !pGraphicsObjectManager || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
+		mpResourceManager       = pResourceManager;
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
 		mpRenderQueue = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG);
@@ -34,6 +37,8 @@ namespace TDEngine2
 		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
 		mpLinesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TVector3) * 4096, nullptr).Get();
+
+		mpSystemFont = mpResourceManager->Load<CFont>("Arial"); /// \note load system font, which is "Arial" font
 
 		mIsInitialized = true;
 
@@ -91,7 +96,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IDebugUtility* CreateDebugUtility(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
+	TDE2_API IDebugUtility* CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
 		CDebugUtility* pDebugUtilityInstance = new (std::nothrow) CDebugUtility();
 
@@ -102,7 +107,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pDebugUtilityInstance->Init(pRenderer, pGraphicsObjectManager);
+		result = pDebugUtilityInstance->Init(pResourceManager, pRenderer, pGraphicsObjectManager);
 
 		if (result != RC_OK)
 		{

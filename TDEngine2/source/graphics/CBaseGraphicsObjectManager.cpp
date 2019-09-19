@@ -55,7 +55,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TResult<IDebugUtility*> CBaseGraphicsObjectManager::CreateDebugUtility(IRenderer* pRenderer)
+	TResult<IDebugUtility*> CBaseGraphicsObjectManager::CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer)
 	{
 		if (mpDebugUtility)
 		{
@@ -64,7 +64,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpDebugUtility = TDEngine2::CreateDebugUtility(pRenderer, this, result);
+		mpDebugUtility = TDEngine2::CreateDebugUtility(pResourceManager, pRenderer, this, result);
 
 		if (result != RC_OK)
 		{

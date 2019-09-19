@@ -18,11 +18,13 @@ namespace TDEngine2
 	class CRenderQueue;
 	class IVertexDeclaration;
 	class IVertexBuffer;
+	class IResourceHandler;
 
 
 	/*!
 		\brief A factory function for creation objects of IDebugUtility's type.
 
+				\param[in, out] pResourceManager A pointer to implementation of IResourceManager interface
 		\param[in, out] pRenderer A pointer to implementation of IRenderer interface
 		\param[in, out] pGraphicsObjectManager A pointer to implementation of IGraphicsObjectManager interface
 
@@ -31,7 +33,8 @@ namespace TDEngine2
 		\return A pointer to IDebugUtility's implementation
 	*/
 
-	TDE2_API IDebugUtility* CreateDebugUtility(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+	TDE2_API IDebugUtility* CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer, 
+											   IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -44,7 +47,8 @@ namespace TDEngine2
 	class CDebugUtility : public IDebugUtility, public CBaseObject
 	{
 		public:
-			friend TDE2_API IDebugUtility* CreateDebugUtility(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+			friend TDE2_API IDebugUtility* CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer, 
+															  IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
 		public:
 			struct TLineVertex
 			{
@@ -55,13 +59,14 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an initial state of the object
 
+				\param[in, out] pResourceManager A pointer to implementation of IResourceManager interface
 				\param[in, out] pRenderer A pointer to implementation of IRenderer interface
 				\param[in, out] pGraphicsObjectManager A pointer to implementation of IGraphicsObjectManager interface
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -108,6 +113,8 @@ namespace TDEngine2
 		protected:
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
+			IResourceManager*        mpResourceManager;
+
 			CRenderQueue*            mpRenderQueue;
 
 			IVertexDeclaration*      mpLinesVertDeclaration;
@@ -115,5 +122,7 @@ namespace TDEngine2
 			IVertexBuffer*           mpLinesVertexBuffer;
 
 			std::vector<TLineVertex> mLinesDataBuffer;
+
+			IResourceHandler*        mpSystemFont;
 	};
 }

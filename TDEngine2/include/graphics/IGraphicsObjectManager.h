@@ -23,6 +23,7 @@ namespace TDEngine2
 	class IVertexDeclaration;
 	class IDebugUtility;
 	class IRenderer;
+	class IResourceManager;
 
 
 	/*!
@@ -119,7 +120,7 @@ namespace TDEngine2
 				\return The result object contains either a pointer to IDebugUtility or an error code
 			*/
 
-			TDE2_API virtual TResult<IDebugUtility*> CreateDebugUtility(IRenderer* pRenderer) = 0;
+			TDE2_API virtual TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) = 0;
 
 			/*!
 				\brief The method returns a pointer to IGraphicsContext

@@ -18,6 +18,7 @@
 
 namespace TDEngine2
 {
+	class IResourceManager;
 	class IRenderer;
 	class IGraphicsObjectManager;
 
@@ -36,13 +37,14 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an initial state of the object
 
+				\param[in, out] pResourceManager A pointer to implementation of IResourceManager interface
 				\param[in, out] pRenderer A pointer to implementation of IRenderer interface
 				\param[in, out] pGraphicsObjectManager A pointer to implementation of IGraphicsObjectManager interface
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager) = 0;
 
 			/*!
 				\brief The method adds a request to draw a line with a given parameters to rendering queue
