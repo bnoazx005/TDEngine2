@@ -14,6 +14,7 @@
 #include "./../core/IResourceFactory.h"
 #include "ITexture.h"
 #include "./../math/TRect.h"
+#include "./../utils/CResult.h"
 
 
 namespace TDEngine2
@@ -120,6 +121,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual ITexture2D* GetTexture() const = 0;
+
+			/*!
+				\brief The method returns non-normalized uv coordinates of a texture based on its name
+
+				\param[in] textureName A texture's name
+
+				\return Either an object that contains coordinates or an error code
+			*/
+
+			TDE2_API virtual TResult<TRectI32> GetTextureRect(const std::string& textureName) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITextureAtlas)
 	};

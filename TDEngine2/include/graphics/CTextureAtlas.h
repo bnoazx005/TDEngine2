@@ -229,6 +229,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API ITexture2D* GetTexture() const override;
+
+			/*!
+				\brief The method returns non-normalized uv coordinates of a texture based on its name
+
+				\param[in] textureName A texture's name
+
+				\return Either an object that contains coordinates or an error code
+			*/
+
+			TDE2_API TResult<TRectI32> GetTextureRect(const std::string& textureName) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextureAtlas)
 		protected:

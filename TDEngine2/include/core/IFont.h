@@ -19,6 +19,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 	class IFileSystem;
+	class ITexture2D;
 
 
 	/*!
@@ -62,6 +63,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) = 0;
+			
+			/*!
+				\brief The method returns a pointer to texture atlas that is linked with the font
+
+				\return The method returns a pointer to texture atlas that is linked with the font
+			*/
+
+			TDE2_API virtual ITexture2D* GetTexture() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFont)
 	};

@@ -98,9 +98,19 @@ namespace TDEngine2
 		/// \note read texture atlas that contains glyphs images
 		mpFontTextureAtlas = mpResourceManager->Load<CTextureAtlas>(fontDataRoot["atlas_resource_name"].As<std::string>());
 
-		TDE2_UNIMPLEMENTED();
+		/// \todo read glyphs parameters
 
 		return RC_OK;
+	}
+
+	ITexture2D* CFont::GetTexture() const
+	{
+		if (!mIsInitialized)
+		{
+			return nullptr;
+		}
+
+		return dynamic_cast<ITextureAtlas*>(mpFontTextureAtlas)->GetTexture();
 	}
 
 

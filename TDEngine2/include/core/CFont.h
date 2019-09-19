@@ -98,6 +98,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) override;
+
+			/*!
+				\brief The method returns a pointer to texture atlas that is linked with the font
+
+				\return The method returns a pointer to texture atlas that is linked with the font
+			*/
+
+			TDE2_API ITexture2D* GetTexture() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFont)
 		protected:

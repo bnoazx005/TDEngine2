@@ -417,6 +417,16 @@ namespace TDEngine2
 		return dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
 	}
 
+	TResult<TRectI32> CTextureAtlas::GetTextureRect(const std::string& textureName) const
+	{
+		if (mAtlasEntities.find(textureName) == mAtlasEntities.cend())
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return TOkValue<TRectI32>(mAtlasEntities.at(textureName));
+	}
+
 
 	TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 												const TTexture2DParameters& params, E_RESULT_CODE& result)
