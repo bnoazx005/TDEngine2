@@ -11,7 +11,10 @@
 #include "./../utils/Utils.h"
 #include "./../core/IResourceLoader.h"
 #include "./../core/IResourceFactory.h"
+#include "./../math/TVector2.h"
+#include "./../math/TVector4.h"
 #include <string>
+#include <vector>
 
 
 namespace TDEngine2
@@ -20,6 +23,7 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IFileSystem;
 	class ITexture2D;
+	class CU8String;
 
 
 	/*!
@@ -41,6 +45,8 @@ namespace TDEngine2
 
 	class IFont
 	{
+		public:
+			typedef std::vector<TVector4> TTextVertices;
 		public:
 			/*!
 				\brief The method initializes an internal state of a font
@@ -64,6 +70,17 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) = 0;
 			
+			/*!
+				\brief The method generates 2D mesh for a given text based on font's settings
+
+				\param[on] position A position of a top left corner of a text line
+				\param[on] text An input text that should be rendered
+
+				\return An array of vertices positions, each 4 forms a quad which is a single glyph
+			*/
+
+			TDE2_API virtual TTextVertices GenerateMesh(const TVector2& position, const CU8String& text) const = 0;
+
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font
 

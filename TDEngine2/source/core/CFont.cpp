@@ -4,6 +4,7 @@
 #include "./../../include/core/IResourceHandler.h"
 #include "./../../include/platform/CYAMLFile.h"
 #include "./../../include/graphics/CTextureAtlas.h"
+#include "./../../include/utils/CU8String.h"
 #include <cstring>
 
 
@@ -101,6 +102,25 @@ namespace TDEngine2
 		/// \todo read glyphs parameters
 
 		return RC_OK;
+	}
+
+	CFont::TTextVertices CFont::GenerateMesh(const TVector2& position, const CU8String& text) const
+	{
+		TTextVertices vertices;
+
+		TVector2 currPosition { position };
+
+		for (U32 i = 0; i < text.Length(); ++i)
+		{
+			vertices.push_back({ currPosition.x, currPosition.y, 0.0f, 0.0f });
+			vertices.push_back({ currPosition.x + 1.0f, currPosition.y, 1.0f, 0.0f });
+			vertices.push_back({ currPosition.x, currPosition.y + 1.0f, 0.0f, 1.0f });
+			vertices.push_back({ currPosition.x + 1.0f, currPosition.y + 1.0f, 1.0f, 1.0f });
+
+			currPosition = currPosition + TVector2 { 1.2f, 0.0f };
+		}
+
+		return vertices;
 	}
 
 	ITexture2D* CFont::GetTexture() const

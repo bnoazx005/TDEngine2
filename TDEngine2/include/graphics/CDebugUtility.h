@@ -18,6 +18,7 @@ namespace TDEngine2
 	class CRenderQueue;
 	class IVertexDeclaration;
 	class IVertexBuffer;
+	class IIndexBuffer;
 	class IResourceHandler;
 
 
@@ -54,6 +55,11 @@ namespace TDEngine2
 			{
 				TVector4  mPos;
 				TColor32F mColor;
+			};
+
+			struct TTextVertex
+			{
+				TVector4 mPosUV;
 			};
 		public:
 			/*!
@@ -110,6 +116,8 @@ namespace TDEngine2
 			TDE2_API void DrawText(const TVector2& screenPos, const CU8String& str, const TColor32F& color) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
+
+			TDE2_API std::vector<U16> _buildTextIndexBuffer(U32 textLength) const;
 		protected:
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
@@ -124,5 +132,13 @@ namespace TDEngine2
 			std::vector<TLineVertex> mLinesDataBuffer;
 
 			IResourceHandler*        mpSystemFont;
+
+			IVertexDeclaration*      mpTextVertDeclaration;
+
+			IVertexBuffer*           mpTextVertexBuffer;
+
+			IIndexBuffer*            mpTextIndexBuffer;
+
+			std::vector<TTextVertex> mTextDataBuffer;
 	};
 }

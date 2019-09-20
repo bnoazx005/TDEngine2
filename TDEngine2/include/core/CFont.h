@@ -100,6 +100,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) override;
 
 			/*!
+				\brief The method generates 2D mesh for a given text based on font's settings
+
+				\param[on] position A position of a top left corner of a text line
+				\param[on] text An input text that should be rendered
+
+				\return An array of vertices positions, each 4 forms a quad which is a single glyph
+			*/
+
+			TDE2_API TTextVertices GenerateMesh(const TVector2& position, const CU8String& text) const override;
+
+			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font
 
 				\return The method returns a pointer to texture atlas that is linked with the font
