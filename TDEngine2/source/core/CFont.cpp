@@ -106,18 +106,42 @@ namespace TDEngine2
 
 	CFont::TTextVertices CFont::GenerateMesh(const TVector2& position, const CU8String& text) const
 	{
+		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpFontTextureAtlas->Get(RAT_BLOCKING));
+
 		TTextVertices vertices;
 
 		TVector2 currPosition { position };
 
+		TRectF32 normalizedUVs;
+
+		F32 scale = 1.f;
+
+		U8C currCodePoint = 0x0;
+
+		F32 yOffset = 0.0f;
+
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
-			vertices.push_back({ currPosition.x, currPosition.y, 0.0f, 0.0f });
-			vertices.push_back({ currPosition.x + 1.0f, currPosition.y, 1.0f, 0.0f });
-			vertices.push_back({ currPosition.x, currPosition.y + 1.0f, 0.0f, 1.0f });
-			vertices.push_back({ currPosition.x + 1.0f, currPosition.y + 1.0f, 1.0f, 1.0f });
+			currCodePoint = text.At(i);
 
-			currPosition = currPosition + TVector2 { 1.2f, 0.0f };
+			if (currCodePoint != ' ')
+			{
+				auto result = pTextureAtlas->GetNormalizedTextureRect(UTF8CharToString(currCodePoint));
+
+				if (result.HasError())
+				{
+					continue;
+				}
+
+				normalizedUVs = result.Get();
+
+				vertices.push_back({ currPosition.x,         currPosition.y + yOffset,         normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
+				vertices.push_back({ currPosition.x + scale, currPosition.y + yOffset,         normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
+				vertices.push_back({ currPosition.x,         currPosition.y + scale + yOffset, normalizedUVs.x,                       normalizedUVs.y });
+				vertices.push_back({ currPosition.x + scale, currPosition.y + scale + yOffset, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
+			}			
+			
+			currPosition = currPosition + TVector2 { 0.5f * scale, 0.0f };
 		}
 
 		return vertices;

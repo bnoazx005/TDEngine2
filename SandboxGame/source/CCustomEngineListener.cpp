@@ -14,9 +14,16 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 																							TDEngine2::TMaterialParameters{ "testGLShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
 
 	mpResourceManager->Create<TDEngine2::CBaseMaterial>("DebugMaterial.material", TDEngine2::TMaterialParameters{ "DebugGLShader.shader" });
-	mpResourceManager->Create<TDEngine2::CBaseMaterial>("DebugTextMaterial.material", TDEngine2::TMaterialParameters{ "DebugTextGLShader.shader" });
+	
+	TDEngine2::IMaterial* pFontMaterial = dynamic_cast<TDEngine2::IMaterial*>(
+												mpResourceManager->Create<TDEngine2::CBaseMaterial>("DebugTextMaterial.material", 
+																							TDEngine2::TMaterialParameters{ "DebugTextGLShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
 
 	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.tga")->Get(TDEngine2::RAT_BLOCKING)));
+
+	auto pFontAtlas = dynamic_cast<TDEngine2::ITextureAtlas*>(mpResourceManager->Load<TDEngine2::CTextureAtlas>("atlas")->Get(TDEngine2::RAT_BLOCKING));
+
+	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
 	const TDEngine2::TColor32F colors[] =
 	{
@@ -119,7 +126,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-	pDebugUtility->DrawText({ 0, 0 }, "ddd", { 1.0f, 1.0f, 1.0f, 1.0f });
+	pDebugUtility->DrawText({ 0, 0 }, "Test sample", { 1.0f, 1.0f, 1.0f, 1.0f });
 	
 	return TDEngine2::RC_OK;
 }

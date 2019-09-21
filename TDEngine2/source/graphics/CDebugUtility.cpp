@@ -68,39 +68,46 @@ namespace TDEngine2
 
 	void CDebugUtility::PreRender()
 	{
-		mpLinesVertexBuffer->Map(BMT_WRITE_DISCARD);
-		mpLinesVertexBuffer->Write(&mLinesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
-		mpLinesVertexBuffer->Unmap();
+		if (!mLinesDataBuffer.empty())
+		{
+			mpLinesVertexBuffer->Map(BMT_WRITE_DISCARD);
+			mpLinesVertexBuffer->Write(&mLinesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
+			mpLinesVertexBuffer->Unmap();
 
-		auto pDrawLinesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(0);
+			auto pDrawLinesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(0);
 
-		pDrawLinesCommand->mpVertexBuffer      = mpLinesVertexBuffer;
-		pDrawLinesCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
-		pDrawLinesCommand->mMaterialName       = "DebugMaterial.material";
-		pDrawLinesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
-		pDrawLinesCommand->mNumOfVertices      = mLinesDataBuffer.size();
+			pDrawLinesCommand->mpVertexBuffer = mpLinesVertexBuffer;
+			pDrawLinesCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
+			pDrawLinesCommand->mMaterialName = "DebugMaterial.material";
+			pDrawLinesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
+			pDrawLinesCommand->mNumOfVertices = mLinesDataBuffer.size();
+		}
 
 		/// \note draw debug text onto the screen
-		mpTextVertexBuffer->Map(BMT_WRITE_DISCARD);
-		mpTextVertexBuffer->Write(&mTextDataBuffer[0], sizeof(TTextVertex) * mTextDataBuffer.size());
-		mpTextVertexBuffer->Unmap();
+		if (!mTextDataBuffer.empty())
+		{
+			mpTextVertexBuffer->Map(BMT_WRITE_DISCARD);
+			mpTextVertexBuffer->Write(&mTextDataBuffer[0], sizeof(TTextVertex) * mTextDataBuffer.size());
+			mpTextVertexBuffer->Unmap();
 
-		auto indices = _buildTextIndexBuffer(mTextDataBuffer.size() / 4);
+			auto indices = _buildTextIndexBuffer(mTextDataBuffer.size() / 4);
 
-		mpTextIndexBuffer->Map(BMT_WRITE_DISCARD);
-		mpTextIndexBuffer->Write(&indices[0], sizeof(U16) * indices.size());
-		mpTextIndexBuffer->Unmap();
+			mpTextIndexBuffer->Map(BMT_WRITE_DISCARD);
+			mpTextIndexBuffer->Write(&indices[0], sizeof(U16) * indices.size());
+			mpTextIndexBuffer->Unmap();
 
-		auto pDrawTextCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(1);
+			auto pDrawTextCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(1);
+
+			pDrawTextCommand->mpVertexBuffer = mpTextVertexBuffer;
+			pDrawTextCommand->mpIndexBuffer = mpTextIndexBuffer;
+			pDrawTextCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pDrawTextCommand->mMaterialName = "DebugTextMaterial.material";
+			pDrawTextCommand->mpVertexDeclaration = mpTextVertDeclaration;
+			pDrawTextCommand->mStartIndex = 0;
+			pDrawTextCommand->mStartVertex = 0;
+			pDrawTextCommand->mNumOfIndices = mTextDataBuffer.size() * 4;
+		}
 		
-		pDrawTextCommand->mpVertexBuffer      = mpTextVertexBuffer;
-		pDrawTextCommand->mpIndexBuffer       = mpTextIndexBuffer;
-		pDrawTextCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-		pDrawTextCommand->mMaterialName       = "DebugTextMaterial.material";
-		pDrawTextCommand->mpVertexDeclaration = mpTextVertDeclaration;
-		pDrawTextCommand->mStartIndex         = 0;
-		pDrawTextCommand->mStartVertex        = 0;
-		pDrawTextCommand->mNumOfIndices       = mTextDataBuffer.size() * 4;
 	}
 
 	void CDebugUtility::PostRender()
