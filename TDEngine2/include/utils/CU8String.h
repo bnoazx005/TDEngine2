@@ -23,6 +23,7 @@ namespace TDEngine2
 		The class is header only
 
 		\todo Add custom allocators instead of new usage
+		\todo Move the definition of the class into CU8String.cpp file
 	*/
 
 	class CU8String
@@ -52,6 +53,11 @@ namespace TDEngine2
 				mpBuffer = new C8[mCapacity];
 
 				memcpy(mpBuffer, str.mpBuffer, mCapacity);
+			}
+
+			CU8String(CU8String&& str) :
+				mpBuffer(str.mpBuffer), mCapacity(str.mCapacity), mBufferLength(str.mBufferLength), mHasChanged(true)
+			{
 			}
 
 			~CU8String()
@@ -91,35 +97,41 @@ namespace TDEngine2
 					return U8C();
 				}
 
-				U32 codePointLength = _getCharLength(mpBuffer[internalPos]);
+				U32 codePointLength = GetCharLength(mpBuffer[internalPos]);
 
 				U8C result = 0x0;
 
 				for (U32 i = 0; i < codePointLength; ++i)
 				{
-					result |= mpBuffer[internalPos + i] << 8 * (3 - i);
+					result |= (static_cast<U8>(mpBuffer[internalPos + codePointLength - i - 1]) << (8 * i));
 				}
 
 				return result;
 			}
-		protected:
-			U32 _getLength(const C8* pStr, U32 size) const
+
+			static U8 GetHighSignificantByte(U8C codePoint)
 			{
-				U32 length = 0;
+				U8 currByte = 0x0;
+				U8 i = 1;
 
-				U32 i = 0;
-
-				while (i < size)
+				while (!(currByte = static_cast<U8>(codePoint >> 8 * (4 - i))) && i <= 4)
 				{
-					i += _getCharLength(pStr[i]);
-
-					++length;
+					i += 1;
 				}
 
-				return length;
+				return currByte;
 			}
 
-			U32 _getCharLength(C8 ch) const
+			/*!
+				\brief The method returns a number of bytes which is occupied by the code point
+				with specified high byte
+
+				\param[in] ch A high byte of a code point
+
+				\return A number of bytes which the code point occupies
+			*/
+
+			static U32 GetCharLength(C8 ch)
 			{
 				if ((ch & 0xE0) == 0xC0)
 				{
@@ -136,6 +148,22 @@ namespace TDEngine2
 
 				return 1;
 			}
+		protected:
+			U32 _getLength(const C8* pStr, U32 size) const
+			{
+				U32 length = 0;
+
+				U32 i = 0;
+
+				while (i < size)
+				{
+					i += GetCharLength(pStr[i]);
+
+					++length;
+				}
+
+				return length;
+			}
 
 			U32 _getInternalCharPos(const C8* pStrBuffer, U32 bufferSize, U32 pos) const
 			{
@@ -143,7 +171,7 @@ namespace TDEngine2
 
 				for (int i = 0; i < pos && internalPos < bufferSize; ++i)
 				{
-					internalPos += _getCharLength(pStrBuffer[internalPos]);
+					internalPos += GetCharLength(pStrBuffer[internalPos]);
 				}
 
 				return internalPos;
@@ -162,5 +190,27 @@ namespace TDEngine2
 	inline U8C StringToUTF8Char(const char* pStr)
 	{
 		return CU8String(pStr).At(0);
+	}
+
+	inline std::string UTF8CharToString(U8C ch)
+	{
+		std::string str;
+
+		if (ch < 0x7F)
+		{
+			str.push_back(static_cast<C8>(ch));
+			return str;
+		}
+
+		U8 bytesCount = CU8String::GetCharLength(CU8String::GetHighSignificantByte(ch));
+		
+		for (U8 i = 0; i < bytesCount; ++i)
+		{
+			str.insert(str.begin(), ch & 0xFF);
+
+			ch >>= 8;
+		}
+
+		return str;
 	}
 }

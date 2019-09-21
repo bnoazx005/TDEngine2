@@ -39,4 +39,16 @@ TEST_CASE("CU8String Tests")
 		REQUIRE(str.Length() == 1);
 		REQUIRE(str.At(0) == StringToUTF8Char(u8"\u2660"));
 	}
+
+	SECTION("TestUTF8CharToString_PassASCIIChar_ReturnsStringWithSingleChar")
+	{
+		REQUIRE(UTF8CharToString('R') == "R");
+	}
+
+	SECTION("TestUTF8CharToString_PassUnicodeOnlyChar_ReturnsStringOfBytes")
+	{
+		auto str = u8"\u2660";
+
+		REQUIRE(UTF8CharToString(StringToUTF8Char(str)) == str);
+	}
 }
