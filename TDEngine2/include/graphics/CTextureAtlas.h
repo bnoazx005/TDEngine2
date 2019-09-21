@@ -239,8 +239,21 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<TRectI32> GetTextureRect(const std::string& textureName) const override;
+
+			/*!
+				\brief The method returns normalized uv coordinates of a texture based on its name,
+				each coordinate lies in range of 0 and 1
+
+				\param[in] textureName A texture's name
+
+				\return Either an object that contains coordinates or an error code
+			*/
+
+			TDE2_API TResult<TRectF32> GetNormalizedTextureRect(const std::string& textureName) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextureAtlas)
+
+			TDE2_API void _updateAtlasSizes(IResource* pTexture);
 		protected:
 			IGraphicsContext* mpGraphicsContext;
 
@@ -249,6 +262,10 @@ namespace TDEngine2
 			TPendingDataArray mPendingData;
 
 			TAtlasRegistry    mAtlasEntities;
+
+			U32               mWidth;
+
+			U32               mHeight;
 	};
 
 

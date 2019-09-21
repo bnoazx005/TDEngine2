@@ -131,6 +131,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<TRectI32> GetTextureRect(const std::string& textureName) const = 0;
+
+			/*!
+				\brief The method returns normalized uv coordinates of a texture based on its name,
+				each coordinate lies in range of 0 and 1
+
+				\param[in] textureName A texture's name
+
+				\return Either an object that contains coordinates or an error code
+			*/
+
+			TDE2_API virtual TResult<TRectF32> GetNormalizedTextureRect(const std::string& textureName) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITextureAtlas)
 	};

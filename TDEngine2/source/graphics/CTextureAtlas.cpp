@@ -387,6 +387,9 @@ namespace TDEngine2
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
 		mpTextureResource = mpResourceManager->Load<CBaseTexture2D>(mName + "_Tex.png");
 
+		/// \todo ansynchronously update sizes of the atlas when the texture has been loaded
+		_updateAtlasSizes(mpTextureResource->Get(RAT_BLOCKING));
+
 		auto& texturesList = atlasDataRoot["textures_list"];
 
 		std::string currEntryName;
@@ -425,6 +428,32 @@ namespace TDEngine2
 		}
 
 		return TOkValue<TRectI32>(mAtlasEntities.at(textureName));
+	}
+
+	TResult<TRectF32> CTextureAtlas::GetNormalizedTextureRect(const std::string& textureName) const
+	{
+		if (mAtlasEntities.find(textureName) == mAtlasEntities.cend())
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		TRectI32 nonNormalizedRect = mAtlasEntities.at(textureName);
+
+		F32 invWidth  = 1.0f / mWidth;
+		F32 invHeight = 1.0f / mHeight;
+
+		return TOkValue<TRectF32>({ nonNormalizedRect.x * invWidth, 
+									nonNormalizedRect.y * invHeight, 
+									nonNormalizedRect.width * invWidth, 
+									nonNormalizedRect.height * invHeight });
+	}
+
+	void CTextureAtlas::_updateAtlasSizes(IResource* pTexture)
+	{
+		ITexture2D* pTexture2D = dynamic_cast<ITexture2D*>(pTexture);
+
+		mWidth  = pTexture2D->GetWidth();
+		mHeight = pTexture2D->GetHeight();
 	}
 
 
