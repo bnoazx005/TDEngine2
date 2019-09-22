@@ -16,7 +16,7 @@ namespace TDEngine2
 {
 	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->Load<CBaseMaterial>(mMaterialName)->Get(RAT_BLOCKING));
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpMaterialHandler->Get(RAT_BLOCKING));
 
 		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
 
@@ -36,7 +36,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->Load<CBaseMaterial>(mMaterialName)->Get(RAT_BLOCKING));
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpMaterialHandler->Get(RAT_BLOCKING));
 		
 		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
 
@@ -62,7 +62,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->Load<CBaseMaterial>(mMaterialName)->Get(RAT_BLOCKING));
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpMaterialHandler->Get(RAT_BLOCKING));
 
 		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
 

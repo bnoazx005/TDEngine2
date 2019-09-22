@@ -13,6 +13,7 @@
 #include "./../../include/graphics/IRenderer.h"
 #include "./../../include/core/IResourceHandler.h"
 #include "./../../include/core/IResourceManager.h"
+#include "./../../include/graphics/CBaseMaterial.h"
 
 
 namespace TDEngine2
@@ -142,9 +143,7 @@ namespace TDEngine2
 		U32 groupKey = 0x0;
 		
 		IResourceHandler* pCurrMaterialHandler = nullptr;
-
-		std::string currMaterialName;
-
+		
 		/// allocate memory for vertex buffers that will store instances data if it's not allocated yet
 		if (mSpritesPerInstanceData.empty())
 		{
@@ -157,7 +156,7 @@ namespace TDEngine2
 
 			pCurrSprite = mSprites[i];
 
-			currMaterialName = pCurrSprite->GetMaterialName();
+			const std::string& currMaterialName = pCurrSprite->GetMaterialName();
 
 			groupKey = _computeSpriteCommandKey(mpResourceManager->GetResourceId(currMaterialName), mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
 			
@@ -226,7 +225,7 @@ namespace TDEngine2
 			pCurrCommand->mStartInstance      = 0;
 			pCurrCommand->mNumOfInstances     = currBatchEntry.mInstancesData.size();/// assign number of sprites in a batch
 			pCurrCommand->mpInstancingBuffer  = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
-			pCurrCommand->mMaterialName       = std::move(currBatchEntry.mMaterialName);
+			pCurrCommand->mpMaterialHandler   = mpResourceManager->Load<CBaseMaterial>(currBatchEntry.mMaterialName);
 			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
 			pCurrCommand->mObjectData.mUnused = IdentityMatrix4;
 

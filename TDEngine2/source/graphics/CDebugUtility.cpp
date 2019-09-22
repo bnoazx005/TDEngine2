@@ -6,7 +6,9 @@
 #include "./../../include/graphics/IVertexBuffer.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/CFont.h"
+#include "./../../include/graphics/CBaseMaterial.h"
 #include <algorithm>
+#include <iterator>
 
 
 namespace TDEngine2
@@ -45,7 +47,7 @@ namespace TDEngine2
 		mpTextVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 
 		mpTextVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TTextVertex) * 4096, nullptr).Get();
-		mpTextIndexBuffer  = mpGraphicsObjectManager->CreateIndexBuffer(BUT_DYNAMIC, TDEngine2::IFT_INDEX16, sizeof(U16) * 9072, nullptr).Get();
+		mpTextIndexBuffer  = mpGraphicsObjectManager->CreateIndexBuffer(BUT_DYNAMIC, TDEngine2::IFT_INDEX16, sizeof(U16) * 9072, &_buildTextIndexBuffer(2048)[0]).Get();
 
 		mIsInitialized = true;
 
@@ -78,7 +80,7 @@ namespace TDEngine2
 
 			pDrawLinesCommand->mpVertexBuffer = mpLinesVertexBuffer;
 			pDrawLinesCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
-			pDrawLinesCommand->mMaterialName = "DebugMaterial.material";
+			pDrawLinesCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>("DebugMaterial.material");
 			pDrawLinesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
 			pDrawLinesCommand->mNumOfVertices = mLinesDataBuffer.size();
 		}
@@ -90,18 +92,18 @@ namespace TDEngine2
 			mpTextVertexBuffer->Write(&mTextDataBuffer[0], sizeof(TTextVertex) * mTextDataBuffer.size());
 			mpTextVertexBuffer->Unmap();
 
-			auto indices = _buildTextIndexBuffer(mTextDataBuffer.size() / 4);
+			/*auto indices = _buildTextIndexBuffer(mTextDataBuffer.size() / 4);
 
 			mpTextIndexBuffer->Map(BMT_WRITE_DISCARD);
 			mpTextIndexBuffer->Write(&indices[0], sizeof(U16) * indices.size());
-			mpTextIndexBuffer->Unmap();
+			mpTextIndexBuffer->Unmap();*/
 
 			auto pDrawTextCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(1);
 
 			pDrawTextCommand->mpVertexBuffer = mpTextVertexBuffer;
 			pDrawTextCommand->mpIndexBuffer = mpTextIndexBuffer;
 			pDrawTextCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawTextCommand->mMaterialName = "DebugTextMaterial.material";
+			pDrawTextCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>("DebugTextMaterial.material");
 			pDrawTextCommand->mpVertexDeclaration = mpTextVertDeclaration;
 			pDrawTextCommand->mStartIndex = 0;
 			pDrawTextCommand->mStartVertex = 0;

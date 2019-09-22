@@ -27,6 +27,7 @@ namespace TDEngine2
 	class IVertexDeclaration;
 	class IResourceManager;
 	class IGlobalShaderProperties;
+	class IResourceHandler;
 
 
 	typedef struct TRenderCommand
@@ -53,7 +54,7 @@ namespace TDEngine2
 
 		IVertexDeclaration*       mpVertexDeclaration;
 
-		std::string               mMaterialName;
+		IResourceHandler*         mpMaterialHandler;
 
 		TPerObjectShaderData      mObjectData;
 	} TRenderCommand, *TRenderCommandPtr;
