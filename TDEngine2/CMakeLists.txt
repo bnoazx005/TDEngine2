@@ -150,6 +150,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CU8String.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CResult.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CResourceContainer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CContainers.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector2.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector3.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector4.h"

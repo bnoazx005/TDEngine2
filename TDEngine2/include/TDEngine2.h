@@ -156,6 +156,7 @@
 #include "utils/CResult.h"
 #include "utils/CResourceContainer.h"
 #include "utils/CU8String.h"
+#include "utils/CContainers.h"
 
 /// D3D11GraphicsContext plugin's header
 #if defined (TDE2_BUILD_D3D11_GCTX_PLUGIN)

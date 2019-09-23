@@ -14,6 +14,7 @@
 #include "./../../include/core/IResourceHandler.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/graphics/CBaseMaterial.h"
+#include "./../../include/core/memory/IAllocator.h"
 
 
 namespace TDEngine2
@@ -24,7 +25,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSpriteRendererSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
+	E_RESULT_CODE CSpriteRendererSystem::Init(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
 		if (mIsInitialized)
 		{
@@ -35,6 +36,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpTempAllocator = &allocator;
 
 		mpRenderer = pRenderer;
 
@@ -100,6 +103,13 @@ namespace TDEngine2
 			return result;
 		}
 
+		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
+		{
+			TBatchEntry& currBatchEntry = (*iter).second;
+
+			delete currBatchEntry.mpInstancesData;
+		}
+
 		mIsInitialized = false;
 
 		delete this;
@@ -141,57 +151,35 @@ namespace TDEngine2
 		CQuadSprite* pCurrSprite = nullptr;
 
 		U32 groupKey = 0x0;
-		
-		IResourceHandler* pCurrMaterialHandler = nullptr;
-		
+
 		/// allocate memory for vertex buffers that will store instances data if it's not allocated yet
 		if (mSpritesPerInstanceData.empty())
 		{
 			_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
 		}
-		
+
+		IResourceHandler* pCurrMaterialHandler = nullptr;
+
 		for (I32 i = 0; i < mSprites.size(); ++i)
 		{
 			pCurrTransform = mTransforms[i];
 
 			pCurrSprite = mSprites[i];
 
-			const std::string& currMaterialName = pCurrSprite->GetMaterialName();
+			pCurrMaterialHandler = mpResourceManager->Load<CBaseMaterial>(pCurrSprite->GetMaterialName());
 
-			groupKey = _computeSpriteCommandKey(mpResourceManager->GetResourceId(currMaterialName), mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
+			groupKey = _computeSpriteCommandKey(pCurrMaterialHandler->GetResourceId(), mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
 			
 			TBatchEntry& currBatchEntry = mBatches[groupKey];
 
-			currBatchEntry.mMaterialName = currMaterialName;
+			currBatchEntry.mpMaterialHandler = pCurrMaterialHandler;
 
-			currBatchEntry.mInstancesData.push_back({ Transpose(pCurrTransform->GetTransform()), pCurrSprite->GetColor() });
+			if (!currBatchEntry.mpInstancesData)
+			{
+				currBatchEntry.mpInstancesData = new CDynamicArray<TSpriteInstanceData>(*mpTempAllocator, 100);
+			}
 
-			/// accumulate instancing data if there is no free space within current buffer get a new one
-			/*!
-				pseudocode of the code
-
-				if (pCurrBatchVertexBuffer->HasFreeSpace()) {
-					pCurrBatchVertexBuffer->Append(pCurrPrite->GetInstanceData);
-				}
-				else {
-					auto drawCommand = pRenderQueue->AddCommand<TDrawInstancedIndexed>();
-
-					drawCommand->buffer = pCurrBatchVertexBuffer;
-
-					pCurrBatchVertexBuffer = mSpritesBuffersPool.next();
-				}
-			*/
-			
-			/*TDrawIndexedCommand* pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(groupKey);
-
-			pCurrCommand->mpVertexBuffer      = mpSpriteVertexBuffer;
-			pCurrCommand->mpIndexBuffer       = mpSpriteIndexBuffer;
-			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCurrCommand->mStartIndex         = 0;
-			pCurrCommand->mNumOfIndices       = 6;
-			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
-			pCurrCommand->mMaterialName       = currMaterialName;
-			pCurrCommand->mObjectData.mUnused = Transpose(pCurrTransform->GetTransform()); /// \todo transpose make the code works on direct3d, but we should find better cross-API solution*/
+			currBatchEntry.mpInstancesData->PushBack({ Transpose(pCurrTransform->GetTransform()), pCurrSprite->GetColor() });
 		}
 		
 		U32 currInstancesBufferIndex = 0;
@@ -204,12 +192,12 @@ namespace TDEngine2
 
 			TBatchEntry& currBatchEntry = (*iter).second;
 
-			U32 currBatchSize = currBatchEntry.mInstancesData.size() * sizeof(TSpriteInstanceData);
+			U32 currBatchSize = currBatchEntry.mpInstancesData->GetSize() * sizeof(TSpriteInstanceData);
 
 			if (currBatchSize <= SpriteInstanceDataBufferSize)
 			{
 				pCurrBatchInstancesBuffer->Map(BMT_WRITE_DISCARD);
-				pCurrBatchInstancesBuffer->Write(&currBatchEntry.mInstancesData[0], currBatchSize);
+				pCurrBatchInstancesBuffer->Write(&currBatchEntry.mpInstancesData[0], currBatchSize);
 				pCurrBatchInstancesBuffer->Unmap();
 
 			}
@@ -223,13 +211,13 @@ namespace TDEngine2
 			pCurrCommand->mBaseVertexIndex    = 0;
 			pCurrCommand->mStartIndex         = 0;
 			pCurrCommand->mStartInstance      = 0;
-			pCurrCommand->mNumOfInstances     = currBatchEntry.mInstancesData.size();/// assign number of sprites in a batch
+			pCurrCommand->mNumOfInstances     = currBatchEntry.mpInstancesData->GetSize();/// assign number of sprites in a batch
 			pCurrCommand->mpInstancingBuffer  = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
-			pCurrCommand->mpMaterialHandler   = mpResourceManager->Load<CBaseMaterial>(currBatchEntry.mMaterialName);
+			pCurrCommand->mpMaterialHandler   = currBatchEntry.mpMaterialHandler;
 			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
 			pCurrCommand->mObjectData.mUnused = IdentityMatrix4;
 
-			currBatchEntry.mInstancesData.clear();
+			currBatchEntry.mpInstancesData->Clear();
 		}
 	}
 
@@ -247,7 +235,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISystem* CreateSpriteRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateSpriteRendererSystem(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
 		CSpriteRendererSystem* pSystemInstance = new (std::nothrow) CSpriteRendererSystem();
 
@@ -258,7 +246,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pSystemInstance->Init(pRenderer, pGraphicsObjectManager);
+		result = pSystemInstance->Init(allocator, pRenderer, pGraphicsObjectManager);
 
 		if (result != RC_OK)
 		{

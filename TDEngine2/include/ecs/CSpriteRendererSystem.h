@@ -15,6 +15,7 @@
 #include "./../math/TMatrix4.h"
 #include "./../math/TVector2.h"
 #include "./../utils/Color.h"
+#include "./../utils/CContainers.h"
 
 
 namespace TDEngine2
@@ -29,10 +30,14 @@ namespace TDEngine2
 	class IGraphicsLayersInfo;
 	class IRenderer;
 	class IResourceManager;
+	class IResourceHandler;
+	class IAllocator;
 
 
 	/*!
 		\brief A factory function for creation objects of CSpriteRendererSystem's type.
+
+		\param[in, out] allocator A reference to IAllocator implementation
 
 		\param[in, out] pRenderer A pointer to IRenderer implementation
 
@@ -43,7 +48,7 @@ namespace TDEngine2
 		\return A pointer to CSpriteRendererSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateSpriteRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateSpriteRendererSystem(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -55,7 +60,7 @@ namespace TDEngine2
 	class CSpriteRendererSystem : public ISystem, public CBaseObject
 	{
 		public:
-			friend TDE2_API ISystem* CreateSpriteRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateSpriteRendererSystem(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
 		protected:
 			typedef struct TSpriteVertex
 			{
@@ -73,15 +78,18 @@ namespace TDEngine2
 
 			typedef struct TBatchEntry
 			{
-				std::vector<TSpriteInstanceData> mInstancesData;
+				//std::vector<TSpriteInstanceData> mInstancesData;
+				CDynamicArray<TSpriteInstanceData>* mpInstancesData;
 				
-				std::string                      mMaterialName;
+				IResourceHandler*                mpMaterialHandler;
 			} TBatchEntry, *TBatchEntryPtr;
 
 			typedef std::unordered_map<U32, TBatchEntry> TBatchesBuffer;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
+
+		\		param[in, out] allocator A reference to IAllocator implementation
 
 				\param[in, out] pRenderer A pointer to IRenderer implementation
 
@@ -90,7 +98,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager);
+			TDE2_API E_RESULT_CODE Init(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -125,6 +133,8 @@ namespace TDEngine2
 
 			TDE2_API void _initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers);
 		protected:
+			IAllocator*                 mpTempAllocator;
+
 			std::vector<CTransform*>    mTransforms;
 
 			std::vector<CQuadSprite*>   mSprites;

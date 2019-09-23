@@ -85,7 +85,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
-	mpWindowSystem->SetTitle(std::to_string(dt));
+	/*mpWindowSystem->SetTitle(std::to_string(dt));
 
 	mpGraphicsContext->BindTextureSampler(0, mTextureSampler);
 	
@@ -125,7 +125,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });*/
 //	pDebugUtility->DrawText({ 0, 0 }, "Test sample", { 1.0f, 1.0f, 1.0f, 1.0f });
 	
 	return TDEngine2::RC_OK;

@@ -22,6 +22,7 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IRenderer;
 	class IWorld;
+	class IMemoryManager;
 
 
 	/*!
@@ -168,7 +169,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 
 			TDE2_API E_RESULT_CODE _registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
-														   IRenderer* pRenderer);
+														   IRenderer* pRenderer, IMemoryManager* pMemoryManager);
 		protected:
 			bool               mIsInitialized;
 

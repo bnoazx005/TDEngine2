@@ -45,7 +45,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLinearAllocator::Deallocate(void* pObjectPtr)
 	{
-		return RC_FAIL;
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CLinearAllocator::Clear()

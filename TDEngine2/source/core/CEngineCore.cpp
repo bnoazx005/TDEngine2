@@ -15,6 +15,8 @@
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/ecs/CCameraSystem.h"
 #include "./../../include/ecs/CPhysics2DSystem.h"
+#include "./../../include/core/memory/IMemoryManager.h"
+#include "./../../include/core/memory/CLinearAllocator.h"
 #include <cstring>
 #include <algorithm>
 
@@ -149,8 +151,10 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem, dynamic_cast<IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]),
-			dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]))) != RC_OK)
+		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem, 
+											  dynamic_cast<IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]),
+											  dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]),
+											  dynamic_cast<IMemoryManager*>(mSubsystems[EST_MEMORY_MANAGER]))) != RC_OK)
 		{
 			return result;
 		}
@@ -396,7 +400,7 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
-													   IRenderer* pRenderer)
+													   IRenderer* pRenderer, IMemoryManager* pMemoryManager)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
@@ -416,7 +420,8 @@ namespace TDEngine2
 			return transformUpdateSystemIdResult.GetError();
 		}
 
-		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(pRenderer, pGraphicsObjectManager, result);
+		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
+																	pRenderer, pGraphicsObjectManager, result);
 
 		if (result != RC_OK)
 		{

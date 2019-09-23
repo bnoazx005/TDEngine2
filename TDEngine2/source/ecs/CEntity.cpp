@@ -79,22 +79,12 @@ namespace TDEngine2
 
 	bool CEntity::operator== (const CEntity* pEntity) const
 	{
-		if (!pEntity)
-		{
-			return false;
-		}
-
-		return mId == pEntity->mId;
+		return pEntity && (mId == pEntity->mId);
 	}
 
 	bool CEntity::operator!= (const CEntity* pEntity) const
 	{
-		if (!pEntity)
-		{
-			return false;
-		}
-
-		return mId != pEntity->mId;
+		return pEntity && (mId != pEntity->mId);
 	}
 
 	bool CEntity::operator== (TEntityId otherId) const
