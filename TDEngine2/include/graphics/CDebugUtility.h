@@ -140,5 +140,9 @@ namespace TDEngine2
 			IIndexBuffer*            mpTextIndexBuffer;
 
 			std::vector<TTextVertex> mTextDataBuffer;
+
+			const static std::string mDefaultDebugMaterialName;
+
+			const static std::string mTextMaterialName;
 	};
 }

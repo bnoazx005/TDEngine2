@@ -24,6 +24,8 @@ namespace TDEngine2
 			return result;
 		}
 
+		mLastGeneratedMesh.reserve(4 * 100); /// \note preallocate space for at least 100 letters
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -104,11 +106,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	CFont::TTextVertices CFont::GenerateMesh(const TVector2& position, const CU8String& text) const
+	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, const CU8String& text)
 	{
 		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpFontTextureAtlas->Get(RAT_BLOCKING));
-
-		TTextVertices vertices;
 
 		TVector2 currPosition { position };
 
@@ -135,16 +135,16 @@ namespace TDEngine2
 
 				normalizedUVs = result.Get();
 
-				vertices.push_back({ currPosition.x,         currPosition.y + yOffset,         normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
-				vertices.push_back({ currPosition.x + scale, currPosition.y + yOffset,         normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
-				vertices.push_back({ currPosition.x,         currPosition.y + scale + yOffset, normalizedUVs.x,                       normalizedUVs.y });
-				vertices.push_back({ currPosition.x + scale, currPosition.y + scale + yOffset, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
+				mLastGeneratedMesh.push_back({ currPosition.x,         currPosition.y + yOffset,         normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
+				mLastGeneratedMesh.push_back({ currPosition.x + scale, currPosition.y + yOffset,         normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
+				mLastGeneratedMesh.push_back({ currPosition.x,         currPosition.y + scale + yOffset, normalizedUVs.x,                       normalizedUVs.y });
+				mLastGeneratedMesh.push_back({ currPosition.x + scale, currPosition.y + scale + yOffset, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
 			}			
 			
 			currPosition = currPosition + TVector2 { 0.5f * scale, 0.0f };
 		}
 
-		return vertices;
+		return mLastGeneratedMesh;
 	}
 
 	ITexture2D* CFont::GetTexture() const

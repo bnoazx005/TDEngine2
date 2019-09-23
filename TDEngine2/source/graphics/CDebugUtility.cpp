@@ -13,6 +13,9 @@
 
 namespace TDEngine2
 {
+	const std::string CDebugUtility::mDefaultDebugMaterialName = "DebugMaterial.material";
+	const std::string CDebugUtility::mTextMaterialName         = "DebugTextMaterial.material";
+
 	CDebugUtility::CDebugUtility():
 		CBaseObject()
 	{
@@ -80,7 +83,7 @@ namespace TDEngine2
 
 			pDrawLinesCommand->mpVertexBuffer = mpLinesVertexBuffer;
 			pDrawLinesCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
-			pDrawLinesCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>("DebugMaterial.material");
+			pDrawLinesCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
 			pDrawLinesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
 			pDrawLinesCommand->mNumOfVertices = mLinesDataBuffer.size();
 		}
@@ -103,7 +106,7 @@ namespace TDEngine2
 			pDrawTextCommand->mpVertexBuffer = mpTextVertexBuffer;
 			pDrawTextCommand->mpIndexBuffer = mpTextIndexBuffer;
 			pDrawTextCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawTextCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>("DebugTextMaterial.material");
+			pDrawTextCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>(mTextMaterialName);
 			pDrawTextCommand->mpVertexDeclaration = mpTextVertDeclaration;
 			pDrawTextCommand->mStartIndex = 0;
 			pDrawTextCommand->mStartVertex = 0;
@@ -138,7 +141,7 @@ namespace TDEngine2
 
 		auto pSystemFontResource = dynamic_cast<IFont*>(mpSystemFont->Get(RAT_BLOCKING));
 
-		auto generatedMesh = pSystemFontResource->GenerateMesh(screenPos, str);
+		auto& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, str);
 
 		std::transform(generatedMesh.begin(), generatedMesh.end(), std::back_inserter(mTextDataBuffer), [](const TVector4& v)
 		{

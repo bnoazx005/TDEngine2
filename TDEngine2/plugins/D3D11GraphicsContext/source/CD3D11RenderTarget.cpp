@@ -33,7 +33,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11RenderTarget::Unload()
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		return Reset();
 	}
 
 	E_RESULT_CODE CD3D11RenderTarget::Reset()
@@ -222,7 +222,9 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		return nullptr;
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
+
+		return dynamic_cast<IResource*>(CreateD3D11RenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
 	U32 CD3D11RenderTargetFactory::GetResourceTypeId() const

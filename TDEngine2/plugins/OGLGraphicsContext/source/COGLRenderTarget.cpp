@@ -29,7 +29,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLRenderTarget::Unload()
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		return Reset();
 	}
 
 	E_RESULT_CODE COGLRenderTarget::Reset()
@@ -162,8 +162,10 @@ namespace TDEngine2
 	IResource* COGLRenderTargetFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
-		
-		return nullptr;
+
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
+
+		return dynamic_cast<IResource*>(CreateOGLRenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
 	U32 COGLRenderTargetFactory::GetResourceTypeId() const

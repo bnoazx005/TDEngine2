@@ -75,7 +75,7 @@ namespace TDEngine2
 				\return The method returns a resource's name
 			*/
 
-			TDE2_API std::string GetName() const override;
+			TDE2_API const std::string& GetName() const override;
 			
 			/*!
 				\brief The method returns current state, in which a resource stays

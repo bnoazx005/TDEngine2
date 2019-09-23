@@ -108,7 +108,7 @@ namespace TDEngine2
 				\return An array of vertices positions, each 4 forms a quad which is a single glyph
 			*/
 
-			TDE2_API TTextVertices GenerateMesh(const TVector2& position, const CU8String& text) const override;
+			TDE2_API const TTextVertices& GenerateMesh(const TVector2& position, const CU8String& text) override;
 
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font
@@ -121,6 +121,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFont)
 		protected:
 			IResourceHandler* mpFontTextureAtlas;
+
+			TTextVertices     mLastGeneratedMesh;
 	};
 
 

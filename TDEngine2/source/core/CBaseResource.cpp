@@ -32,7 +32,7 @@ namespace TDEngine2
 		return mId;
 	}
 
-	TDE2_API std::string CBaseResource::GetName() const
+	TDE2_API const std::string& CBaseResource::GetName() const
 	{
 		return mName;
 	}

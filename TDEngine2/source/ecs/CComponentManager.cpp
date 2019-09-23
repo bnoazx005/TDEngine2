@@ -401,7 +401,7 @@ namespace TDEngine2
 
 		U32 componentTypeHashValue = mComponentsHashTable[componentTypeId];
 
-		auto componentsGroup = mComponentEntityMap[componentTypeId];
+		auto& componentsGroup = mComponentEntityMap[componentTypeId];
 
 		for (auto iter = componentsGroup.begin(); iter != componentsGroup.end(); ++iter)
 		{

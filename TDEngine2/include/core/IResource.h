@@ -66,7 +66,7 @@ namespace TDEngine2
 				\return The method returns a resource's name
 			*/
 
-			TDE2_API virtual std::string GetName() const = 0;
+			TDE2_API virtual const std::string& GetName() const = 0;
 
 			/*!
 				\brief The method returns current state, in which a resource stays

@@ -79,7 +79,7 @@ namespace TDEngine2
 				\return An array of vertices positions, each 4 forms a quad which is a single glyph
 			*/
 
-			TDE2_API virtual TTextVertices GenerateMesh(const TVector2& position, const CU8String& text) const = 0;
+			TDE2_API virtual const TTextVertices& GenerateMesh(const TVector2& position, const CU8String& text) = 0;
 
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font
