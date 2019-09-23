@@ -47,7 +47,7 @@ namespace TDEngine2
 				\return An object that contains either a handler of created VAO or an error code
 			*/
 
-			TDE2_API TResult<GLuint> GetVertexArrayObject(const std::vector<IVertexBuffer*>& pVertexBuffersArray);
+			TDE2_API TResult<GLuint> GetVertexArrayObject(const CStaticArray<IVertexBuffer*>& pVertexBuffersArray);
 
 			/*!
 				\brief The method creates an internal handlers for a vertex declaration and binds it
@@ -60,7 +60,7 @@ namespace TDEngine2
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const std::vector<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader) override;
+			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
 	};

@@ -101,7 +101,7 @@ namespace TDEngine2
 		return TOkValue<ID3D11InputLayout*>(pInputLayout);
 	}
 
-	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const std::vector<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
+	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
 	{
 		if (!mpInputLayout)
 		{

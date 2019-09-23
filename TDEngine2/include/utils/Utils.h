@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cassert>
 
 
 namespace TDEngine2
@@ -511,4 +512,119 @@ namespace TDEngine2
 
 			TDE2_API static U8 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
 	};
+
+
+	/*!
+		class StaticArray
+
+		\brief The class is an implementation of fixed-size arrays the same
+		as std::array, but wihout specifying size as template argument, which
+		makes its usage within virtual methods impossible
+
+		It's better to consider this class as wrappen which is a so called "fat array pointer",
+		not an actual array
+	*/
+
+	template <typename T>
+	class CStaticArray
+	{
+		public:
+			typedef T            Type;
+			typedef unsigned int SizeType;
+		public:
+			CStaticArray() = delete;
+			CStaticArray(const CStaticArray<T>& arr);
+			CStaticArray(CStaticArray<T>&& arr);
+			CStaticArray(const Type* pBuffer, SizeType size);
+			CStaticArray(const std::initializer_list<Type>& elements);
+			~CStaticArray() = default;
+
+			inline SizeType GetSize() const;
+			inline bool IsEmpty() const;
+
+			inline Type& operator[](SizeType index);
+			inline const Type& operator[](SizeType index) const;
+
+			CStaticArray<T>& operator= (const CStaticArray<T>& arr);
+			CStaticArray<T>& operator= (CStaticArray<T>&& arr);
+		protected:
+			const Type* const mpBuffer;
+			const SizeType mSize;
+	};
+
+
+	template <typename T>
+	CStaticArray<T>::CStaticArray(const CStaticArray<T>& arr):
+		mpBuffer(arr.mpBuffer), mSize(arr.mSize)
+	{
+	}
+	
+	template <typename T>
+	CStaticArray<T>::CStaticArray(CStaticArray<T>&& arr) :
+		mpBuffer(arr.mpBuffer), mSize(arr.mSize)
+	{
+		arr.mpBuffer = nullptr;
+		arr.mSize = 0;
+	}
+
+	template <typename T>
+	CStaticArray<T>::CStaticArray(const CStaticArray<T>::Type* pBuffer, CStaticArray<T>::SizeType size) :
+		mpBuffer(pBuffer), mSize(size)
+	{
+	}
+
+	template <typename T>
+	CStaticArray<T>::CStaticArray(const std::initializer_list<Type>& elements) :
+		mpBuffer(elements.begin()), mSize(std::distance(elements.begin(), elements.end()))
+	{
+	}
+
+	template <typename T>
+	typename CStaticArray<T>::SizeType CStaticArray<T>::GetSize() const
+	{
+		return mSize;
+	}
+
+	template <typename T>
+	bool CStaticArray<T>::IsEmpty() const
+	{
+		return !mSize;
+	}
+
+	template <typename T>
+	typename const CStaticArray<T>::Type& CStaticArray<T>::operator[](SizeType index) const
+	{
+		assert(index >= 0 && index < mSize);
+
+		return mpBuffer[index];
+	}
+
+	template <typename T>
+	typename CStaticArray<T>::Type& CStaticArray<T>::operator[](SizeType index)
+	{
+		assert(index >= 0 && index < mSize);
+
+		return mpBuffer[index];
+	}
+
+	template <typename T>
+	CStaticArray<T>& CStaticArray<T>::operator= (const CStaticArray<T>& arr)
+	{
+		mpBuffer = arr.mpBuffer;
+		mSize = arr.mSize;
+
+		return *this;
+	}
+
+	template <typename T>
+	CStaticArray<T>& CStaticArray<T>::operator= (CStaticArray<T>&& arr)
+	{
+		mpBuffer = arr.mpBuffer;
+		mSize = arr.mSize;
+
+		arr.mpBuffer = nullptr;
+		arr.mSize = 0;
+
+		return *this;
+	}
 }

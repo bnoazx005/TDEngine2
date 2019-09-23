@@ -12,9 +12,9 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<GLuint> COGLVertexDeclaration::GetVertexArrayObject(const std::vector<IVertexBuffer*>& pVertexBuffersArray)
+	TResult<GLuint> COGLVertexDeclaration::GetVertexArrayObject(const CStaticArray<IVertexBuffer*>& pVertexBuffersArray)
 	{
-		if (pVertexBuffersArray.empty())
+		if (pVertexBuffersArray.IsEmpty())
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
@@ -50,7 +50,7 @@ namespace TDEngine2
 			std::tie(nextInstanceDivisorIndex, nextInstancesPerData) = *instancingInfoIter;
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, pVertexBuffersArray.front()->GetInternalData().mGLBuffer); /// bind the first VBO by default as a main vertex buffer
+		glBindBuffer(GL_ARRAY_BUFFER, pVertexBuffersArray[0]->GetInternalData().mGLBuffer); /// bind the first VBO by default as a main vertex buffer
 		
 		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter, ++currIndex)
 		{
@@ -102,7 +102,7 @@ namespace TDEngine2
 		return TOkValue<GLuint>(vaoHandler);
 	}
 
-	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const std::vector<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
+	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
 	{
 		glBindVertexArray(GetVertexArrayObject(pVertexBuffersArray).Get());
 	}
