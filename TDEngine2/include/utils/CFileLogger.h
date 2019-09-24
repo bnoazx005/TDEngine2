@@ -72,26 +72,38 @@ namespace TDEngine2
 
 #if TDE2_DEBUG_MODE
 
-	#define LOG_MESSAGE(message)				\
-		if (MainLogger)							\
-		{										\
-			MainLogger->LogMessage(message);	\
-		}										
+	#define LOG_MESSAGE(message)					\
+		do											\
+		{											\
+			if (MainLogger)							\
+			{										\
+				MainLogger->LogMessage(message);	\
+			}										\
+		}											\
+		while (false)
 
-	#define LOG_WARNING(message)				\
-		if (MainLogger)							\
-		{										\
-			MainLogger->LogWarning(message);	\
-		}									
+	#define LOG_WARNING(message)					\
+		do											\
+		{											\
+			if (MainLogger)							\
+			{										\
+				MainLogger->LogWarning(message);	\
+			}										\
+		}											\
+		while (false)
 
-	#define LOG_ERROR(message)					\
-		if (MainLogger)							\
-		{										\
-			MainLogger->LogError(message);		\
-		}										
+	#define LOG_ERROR(message)						\
+		do											\
+		{											\
+			if (MainLogger)							\
+			{										\
+				MainLogger->LogError(message);		\
+			}										\
+		}											\
+		while (false)
 #else
-	#define LOG_MESSAGE(message)
-	#define LOG_WARNING(message) 
-	#define LOG_ERROR(message)
+	#define LOG_MESSAGE(message) do {} while(false)
+	#define LOG_WARNING(message) do {} while(false)
+	#define LOG_ERROR(message)   do {} while(false)
 #endif
 }

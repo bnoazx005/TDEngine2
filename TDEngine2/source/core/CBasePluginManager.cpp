@@ -41,7 +41,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 		
-		LOG_MESSAGE("[Plugin Manager] The plugin manager was initialized")
+		LOG_MESSAGE("[Plugin Manager] The plugin manager was initialized");
 
 		mIsInitialized = true;
 
@@ -66,7 +66,7 @@ namespace TDEngine2
 
 		delete this;
 
-		LOG_MESSAGE("[Plugin Manager] The plugin manager was destroyed")
+		LOG_MESSAGE("[Plugin Manager] The plugin manager was destroyed");
 
 		return RC_OK;
 	}
