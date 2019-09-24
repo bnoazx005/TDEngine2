@@ -398,4 +398,19 @@ namespace TDEngine2
 
 		return 0;
 	}
+
+
+	/*!
+		\brief CDeferOperation's definition
+	*/
+
+	CDeferOperation::CDeferOperation(const TCallbackType& callback) :
+		mCallback(callback)
+	{
+	}
+
+	CDeferOperation::~CDeferOperation()
+	{
+		mCallback();
+	}
 }

@@ -14,6 +14,7 @@
 #include <vector>
 #include <iostream>
 #include <cassert>
+#include <functional>
 
 
 namespace TDEngine2
@@ -511,5 +512,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static U8 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
+	};
+
+
+	/*!
+		class CDeferOperation
+
+		\brief The class defines a scoped guard that invokes some operation
+		when it goes out of scope
+	*/
+
+	class CDeferOperation
+	{
+		public:
+			typedef std::function<void()> TCallbackType;
+		public:
+			TDE2_API CDeferOperation() = delete;
+			TDE2_API CDeferOperation(const TCallbackType& callback);
+
+			TDE2_API ~CDeferOperation();
+		private:
+			TCallbackType mCallback;
 	};
 }
