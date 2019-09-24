@@ -43,6 +43,8 @@ namespace TDEngine2
 
 			TDE2_API void LogMessage(const std::string& message) override;
 
+			TDE2_API void LogStatus(const std::string& message, const std::string& status, C8 delimiter, U16 delimitersCount);
+
 			TDE2_API void LogError(const std::string& message) override;
 
 			TDE2_API void LogWarning(const std::string& message) override;

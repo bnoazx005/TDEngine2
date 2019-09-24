@@ -35,6 +35,18 @@ namespace TDEngine2
 		_logMessageByType(LMT_MESSAGE, message);
 	}
 
+	void CFileLogger::LogStatus(const std::string& message, const std::string& status, C8 delimiter, U16 delimitersCount)
+	{
+		mOutputLog << message << " ";
+
+		for (U16 i = 0; i < delimitersCount; ++i)
+		{
+			mOutputLog << delimiter;
+		}
+
+		mOutputLog << " " << status << std::endl;
+	}
+
 	void CFileLogger::LogError(const std::string& message)
 	{
 		_logMessageByType(LMT_ERROR, message);
