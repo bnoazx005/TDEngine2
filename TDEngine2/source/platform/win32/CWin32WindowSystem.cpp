@@ -138,33 +138,15 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		if (DestroyWindow(mWindowHandler))
-		{
-			return RC_FAIL;
-		}
-
-		if (!UnregisterClass(mWindowClassName.c_str(), mInstanceHandler))
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = DestroyWindow(mWindowHandler) ? RC_FAIL : RC_OK;
+		result = result | (!UnregisterClass(mWindowClassName.c_str(), mInstanceHandler) ? RC_FAIL : RC_OK);
 
 		RemoveProp(mWindowHandler, mAppWinProcParamName);
 
 		/// \todo add invokation of OnFree user's method here
-
-		E_RESULT_CODE result = RC_OK;
-
-		/// CWin32Timer's destruction
-		if ((result = mpTimer->Free()) != RC_OK)
-		{
-			return result;
-		}
-
-		/// CWin32DLLManager's destruction
-		if ((result = mpDLLManager->Free()) != RC_OK)
-		{
-			return result;
-		}
+		
+		result = result | mpTimer->Free();
+		result = result | mpDLLManager->Free();
 
 		mIsInitialized = false;
 
@@ -228,8 +210,6 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-
-		//LOG_MESSAGE("[Win32 Window System] The window's title was changed. The new values is (" + title + ")");
 
 		return RC_OK;
 	}
