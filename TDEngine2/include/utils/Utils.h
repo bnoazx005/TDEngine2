@@ -276,6 +276,8 @@ namespace TDEngine2
 		};											\
 	}
 
+	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_RESULT_CODE);
+
 
 	/*!
 		\brief The function is an overloading of bitmask | operator for enumerations that
@@ -534,4 +536,7 @@ namespace TDEngine2
 		private:
 			TCallbackType mCallback;
 	};
+
+
+	TDE2_API std::string EngineSubsystemTypeToString(E_ENGINE_SUBSYSTEM_TYPE type);
 }

@@ -2,21 +2,21 @@
 #include "./../../include/core/IEngineSubsystem.h"
 #include "./../../include/core/IWindowSystem.h"
 #include "./../../include/core/IEngineListener.h"
-#include "./../../include/utils/CFileLogger.h"
+#include "./../../include/core/IEventManager.h"
 #include "./../../include/core/IPlugin.h"
 #include "./../../include/core/IDLLManager.h"
-#include "./../../include/utils/ITimer.h"
-#include "./../../include/ecs/CWorld.h"
-#include "./../../include/core/IEventManager.h"
-#include "./../../include/ecs/CSpriteRendererSystem.h"
-#include "./../../include/ecs/CTransformSystem.h"
-#include "./../../include/graphics/IRenderer.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IInputContext.h"
-#include "./../../include/ecs/CCameraSystem.h"
-#include "./../../include/ecs/CPhysics2DSystem.h"
 #include "./../../include/core/memory/IMemoryManager.h"
 #include "./../../include/core/memory/CLinearAllocator.h"
+#include "./../../include/ecs/CWorld.h"
+#include "./../../include/ecs/CSpriteRendererSystem.h"
+#include "./../../include/ecs/CTransformSystem.h"
+#include "./../../include/ecs/CCameraSystem.h"
+#include "./../../include/ecs/CPhysics2DSystem.h"
+#include "./../../include/graphics/IRenderer.h"
+#include "./../../include/utils/CFileLogger.h"
+#include "./../../include/utils/ITimer.h"
 #include <cstring>
 #include <algorithm>
 
@@ -24,24 +24,26 @@
 namespace TDEngine2
 {
 	CEngineCore::CEngineCore():
-		mIsInitialized(false)
+		mIsInitialized(false),
+		mpInternalTimer(nullptr),
+		mpDLLManager(nullptr),
+		mpWorldInstance(nullptr),
+		mpInputContext(nullptr)
 	{
 	}
 	
 	E_RESULT_CODE CEngineCore::Init()
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
-
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		memset(&mSubsystems, 0, sizeof(mSubsystems));
-
-		mpDLLManager = nullptr;
+		std::lock_guard<std::mutex> lock(mMutex);
 		
 		mIsInitialized = true;
+
+		memset(mSubsystems, 0, sizeof(mSubsystems));
 		
 		LOG_MESSAGE("[Engine Core] The engine's core starts to work...");
 
@@ -50,67 +52,23 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::Free()
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
-
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (_onNotifyEngineListeners(EET_ONFREE) != RC_OK)
 		{
-			return RC_FAIL;
-		}
+			E_RESULT_CODE result = _onNotifyEngineListeners(EET_ONFREE); ///< \note call user's code
 
-		E_RESULT_CODE result = RC_OK;
+			std::lock_guard<std::mutex> lock(mMutex);
 
-		if (mpWorldInstance && (result = mpWorldInstance->Free()) != RC_OK)
-		{
-			return result;
-		}
-		
-		LOG_MESSAGE("[Engine Core] Clear the subsystems registry...");
-
-		/// frees memory from all subsystems
-		E_ENGINE_SUBSYSTEM_TYPE currSubsystemType;
-
-		for (IEngineSubsystem* pCurrSubsystem : mSubsystems)
-		{
-			if (!pCurrSubsystem)
-			{
-				continue;
-			}
-
-			currSubsystemType = pCurrSubsystem->GetType();
-
-			if (currSubsystemType == EST_PLUGIN_MANAGER || currSubsystemType == EST_FILE_SYSTEM)
-			{
-				continue;
-			}
-
-			if ((result = UnregisterSubsystem(currSubsystemType)) != RC_OK)
-			{
-				return result;
-			}
-		}
-
-		/// \note these two subsystems should be destroyed in last moment and in coresponding order
-		auto latestFreedSubsystems = { EST_PLUGIN_MANAGER, EST_FILE_SYSTEM };
-		
-		for (auto currSubsystemType : latestFreedSubsystems)
-		{
-			if ((result = UnregisterSubsystem(currSubsystemType)) != RC_OK)
-			{
-				return result;
-			}
-		}
+			result = result | (mpWorldInstance ? mpWorldInstance->Free() : RC_FAIL);
+			result = result | _cleanUpSubsystems();
 
 #if defined (_DEBUG)
-		if (MainLogger->Free() != RC_OK)
-		{
-			return RC_FAIL;
-		}
+			result = result | MainLogger->Free();
 #endif
+		}
 
 		mIsInitialized = false;
 
@@ -127,41 +85,38 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+		
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		E_RESULT_CODE result = RC_OK;
-		
-		IEventManager* pEventManager = dynamic_cast<IEventManager*>(mSubsystems[EST_EVENT_MANAGER]);
 
-		mpWorldInstance = CreateWorld(pEventManager, result);
+		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
+
+		/// \note we can proceed if the window wasn't initialized properly or some error has happened within user's code
+		if (!pWindowSystem || (_onNotifyEngineListeners(EET_ONSTART) != RC_OK))
+		{
+			return RC_FAIL;
+		}
+
+		mpWorldInstance = CreateWorld(_getSubsystemAs<IEventManager>(EST_EVENT_MANAGER), result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		IWindowSystem* pWindowSystem = dynamic_cast<IWindowSystem*>(mSubsystems[EST_WINDOW]);
-
-		if (!pWindowSystem)
-		{
-			return RC_FAIL;
-		}
-		
-		if (_onNotifyEngineListeners(EET_ONSTART) != RC_OK)
-		{
-			return RC_FAIL;
-		}
-
+		/// \todo This is not critical error, but for now I leave it as is
 		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem, 
-											  dynamic_cast<IGraphicsContext*>(mSubsystems[EST_GRAPHICS_CONTEXT]),
-											  dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]),
-											  dynamic_cast<IMemoryManager*>(mSubsystems[EST_MEMORY_MANAGER]))) != RC_OK)
+											  _getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT),
+											  _getSubsystemAs<IRenderer>(EST_RENDERER),
+											  _getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER))) != RC_OK)
 		{
 			return result;
 		}
 
 		mpInternalTimer = pWindowSystem->GetTimer();
 
-		mpInputContext = dynamic_cast<IInputContext*>(mSubsystems[EST_INPUT_CONTEXT]);
+		mpInputContext = _getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT);
 
 		LOG_MESSAGE("[Engine Core] The engine's core begins to execute the main loop...");
 
@@ -173,35 +128,26 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::Quit()
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
-
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		IWindowSystem* pWindowSystem = dynamic_cast<IWindowSystem*>(mSubsystems[EST_WINDOW]);
+		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
 
 		if (!pWindowSystem)
 		{
 			return RC_FAIL;
 		}
 
-		if ((result = pWindowSystem->Quit()) != RC_OK)
-		{
-			return result;
-		}
-
 		LOG_MESSAGE("[Engine Core] A signal to quit was received");
 
-		return RC_OK;
+		return pWindowSystem->Quit();
 	}
 
 	E_RESULT_CODE CEngineCore::RegisterSubsystem(IEngineSubsystem* pSubsystem)
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		E_ENGINE_SUBSYSTEM_TYPE subsystemType = EST_UNKNOWN;
 		
@@ -212,38 +158,36 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = _unregisterSubsystem(subsystemType);
 
-		if (result != RC_OK && mSubsystems[subsystemType])
+		if (result != RC_OK)
 		{
 			return result;
 		}
 
 		mSubsystems[subsystemType] = pSubsystem;
-		
-		LOG_MESSAGE("[Engine Core] A new subsystem was successfully registered");
+
+		LOG_MESSAGE(std::string("[Engine Core] A new subsystem was successfully registered: ").append(EngineSubsystemTypeToString(pSubsystem->GetType())));
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CEngineCore::UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		return _unregisterSubsystem(subsystemType);
 	}
 
 	E_RESULT_CODE CEngineCore::RegisterListener(IEngineListener* pListener)
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (!pListener)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		/// prevent duplicating instances 
-		TListenersArray::const_iterator copyIter = std::find(mEngineListeners.cbegin(), mEngineListeners.cend(), pListener);
-
-		if (copyIter != mEngineListeners.cend())
+		/// prevent duplicating instances
+		if (std::find(mEngineListeners.cbegin(), mEngineListeners.cend(), pListener) != mEngineListeners.cend())
 		{
 			return RC_FAIL;
 		}
@@ -259,14 +203,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::UnregisterListener(IEngineListener* pListener)
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (!pListener)
 		{
 			return RC_INVALID_ARGS;
 		}
 		
-		TListenersArray::iterator entityIter = std::find(mEngineListeners.begin(), mEngineListeners.end(), pListener);
+		auto entityIter = std::find(mEngineListeners.begin(), mEngineListeners.end(), pListener);
 
 		if (entityIter == mEngineListeners.cend())
 		{
@@ -282,21 +226,19 @@ namespace TDEngine2
 
 	IEngineSubsystem* CEngineCore::GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
-
 		if (type == EST_UNKNOWN)
 		{
 			return nullptr;
 		}
+
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		return mSubsystems[type];
 	}
 
 	ILogger* CEngineCore::GetLogger() const
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
-
-#if defined (_DEBUG)
+#if defined(TDE2_DEBUG_MODE)
 		return MainLogger;
 #else
 		return nullptr;
@@ -305,20 +247,15 @@ namespace TDEngine2
 
 	ITimer* CEngineCore::GetTimer() const
 	{
-		//std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::mutex> lock(mMutex);
 
-		IWindowSystem* pWindowSystem = dynamic_cast<IWindowSystem*>(mSubsystems[EST_WINDOW]);
-		
-		if (!pWindowSystem)
-		{
-			return nullptr;
-		}
-
-		return pWindowSystem->GetTimer();
+		return mpInternalTimer;
 	}
 
 	IWorld* CEngineCore::GetWorldInstance() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpWorldInstance;
 	}
 
@@ -331,7 +268,7 @@ namespace TDEngine2
 
 		_onNotifyEngineListeners(EET_ONUPDATE);
 
-		IRenderer* pRenderer = dynamic_cast<IRenderer*>(mSubsystems[EST_RENDERER]);
+		IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER);
 
 		if (pRenderer)
 		{
@@ -346,7 +283,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		E_RESULT_CODE resultCode = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
 		F32 dt = 0.0f;
 
@@ -360,44 +297,25 @@ namespace TDEngine2
 			switch (eventType)
 			{
 				case EET_ONSTART:
-					resultCode = pListener->OnStart();
+					result = result | pListener->OnStart();
 					break;
 				case EET_ONUPDATE:
 					dt = mpInternalTimer->GetDeltaTime();
 
 					mpWorldInstance->Update(dt);
 
-					resultCode = pListener->OnUpdate(dt);
+					result = result | pListener->OnUpdate(dt);
 					break;
 				case EET_ONFREE:
-					resultCode = pListener->OnFree();
+					result = result | pListener->OnFree();
 					break;
 			}
-
-			if (resultCode != RC_OK)
-			{
-				return resultCode;
-			}
 		}
 
-		return RC_OK;
+		return result;
 	}
 
-	E_RESULT_CODE CEngineCore::_unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
-	{
-		IEngineSubsystem* pEngineSubsystem = mSubsystems[subsystemType];
-
-		if (!pEngineSubsystem)
-		{
-			return RC_FAIL;
-		}
-
-		mSubsystems[subsystemType] = nullptr;
-
-		LOG_MESSAGE("[Engine Core] The subsystem was successfully unregistered");
-
-		return pEngineSubsystem->Free();
-	}
+	/// \todo Refactor the method
 
 	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
 													   IRenderer* pRenderer, IMemoryManager* pMemoryManager)
@@ -422,7 +340,7 @@ namespace TDEngine2
 
 		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
 																	pRenderer, pGraphicsObjectManager, result);
-
+		
 		if (result != RC_OK)
 		{
 			return result;
@@ -464,6 +382,64 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CEngineCore::_unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
+	{
+		IEngineSubsystem* pEngineSubsystem = mSubsystems[subsystemType];
+
+		if (!pEngineSubsystem)
+		{
+			return RC_OK;
+		}
+
+		mSubsystems[subsystemType] = nullptr;
+
+		E_RESULT_CODE result = pEngineSubsystem->Free();
+
+		const static U16 statusStringLength = 32;
+
+		std::string subsystemName = std::move(std::string("[Engine Core] ").append(EngineSubsystemTypeToString(subsystemType)));
+
+		MainLogger->LogStatus(subsystemName, result != RC_OK ? "FAILED" : "OK", '.', statusStringLength - subsystemName.size());
+
+		return result;
+	}
+
+	E_RESULT_CODE CEngineCore::_cleanUpSubsystems()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		LOG_MESSAGE("[Engine Core] Clean up the subsystems registry...");
+
+		/// \note these two subsystems should be destroyed in last moment and in coresponding order
+		auto latestFreedSubsystems = { EST_PLUGIN_MANAGER, EST_FILE_SYSTEM, EST_MEMORY_MANAGER };
+
+		auto shouldSkipSubsystem = [&latestFreedSubsystems](const IEngineSubsystem* pCurrSubsystem)
+		{
+			return std::find_if(latestFreedSubsystems.begin(), latestFreedSubsystems.end(), [&pCurrSubsystem](E_ENGINE_SUBSYSTEM_TYPE type)
+			{
+				return pCurrSubsystem->GetType() == type;
+			}) != latestFreedSubsystems.end();
+		};
+
+		/// frees memory from all subsystems
+		for (IEngineSubsystem* pCurrSubsystem : mSubsystems)
+		{
+			if (!pCurrSubsystem || shouldSkipSubsystem(pCurrSubsystem))
+			{
+				continue;
+			}
+
+			result = _unregisterSubsystem(pCurrSubsystem->GetType());
+		}
+
+		for (auto currSubsystemType : latestFreedSubsystems)
+		{
+			result = _unregisterSubsystem(currSubsystemType);
+		}
+
+		return result;
 	}
 	
 

@@ -1,14 +1,22 @@
 #include "./../../include/core/CConfigFileEngineCoreBuilder.h"
 #include "./../../include/core/CEngineCore.h"
-#include "./../../include/platform/win32/CWin32WindowSystem.h"
 #include "./../../include/core/IPlugin.h"
 #include "./../../include/core/IFileSystem.h"
-#include "./../../include/platform/win32/CWin32FileSystem.h"
-#include "./../../include/platform/unix/CUnixWindowSystem.h"
 #include "./../../include/core/CResourceManager.h"
 #include "./../../include/core/CBaseJobManager.h"
 #include "./../../include/core/IJobManager.h"
 #include "./../../include/core/CBasePluginManager.h"
+#include "./../../include/core/CEventManager.h"
+#include "./../../include/core/memory/CMemoryManager.h"
+#include "./../../include/core/memory/CLinearAllocator.h"
+#include "./../../include/core/memory/CPoolAllocator.h"
+#include "./../../include/core/memory/CStackAllocator.h"
+#include "./../../include/core/IInputContext.h"
+#include "./../../include/core/IGraphicsContext.h"
+#include "./../../include/core/CFont.h"
+#include "./../../include/platform/win32/CWin32WindowSystem.h"
+#include "./../../include/platform/win32/CWin32FileSystem.h"
+#include "./../../include/platform/unix/CUnixWindowSystem.h"
 #include "./../../include/platform/unix/CUnixFileSystem.h"
 #include "./../../include/platform/CTextFileReader.h"
 #include "./../../include/platform/CConfigFileReader.h"
@@ -16,18 +24,10 @@
 #include "./../../include/platform/CBinaryFileWriter.h"
 #include "./../../include/platform/CImageFileWriter.h"
 #include "./../../include/platform/CYAMLFile.h"
-#include "./../../include/core/CEventManager.h"
-#include "./../../include/core/memory/CMemoryManager.h"
-#include "./../../include/core/memory/CLinearAllocator.h"
-#include "./../../include/core/memory/CPoolAllocator.h"
-#include "./../../include/core/memory/CStackAllocator.h"
 #include "./../../include/graphics/CForwardRenderer.h"
-#include "./../../include/core/IInputContext.h"
 #include "./../../include/graphics/CBaseMaterial.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/utils/CFileLogger.h"
 #include "./../../include/graphics/CTextureAtlas.h"
-#include "./../../include/core/CFont.h"
+#include "./../../include/utils/CFileLogger.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -36,8 +36,13 @@
 namespace TDEngine2
 {
 	CConfigFileEngineCoreBuilder::CConfigFileEngineCoreBuilder() :
-		mIsInitialized(false), mpEngineCoreInstance(nullptr), mpWindowSystemInstance(nullptr), mpJobManagerInstance(nullptr),
-		mpPluginManagerInstance(nullptr), mpGraphicsContextInstance(nullptr), mpResourceManagerInstance(nullptr)
+		mIsInitialized(false), 
+		mpEngineCoreInstance(nullptr), 
+		mpWindowSystemInstance(nullptr), 
+		mpJobManagerInstance(nullptr),
+		mpPluginManagerInstance(nullptr), 
+		mpGraphicsContextInstance(nullptr), 
+		mpResourceManagerInstance(nullptr)
 	{
 	}
 

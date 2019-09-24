@@ -413,4 +413,34 @@ namespace TDEngine2
 	{
 		mCallback();
 	}
+
+
+	std::string EngineSubsystemTypeToString(E_ENGINE_SUBSYSTEM_TYPE type)
+	{
+		switch (type)
+		{
+			case EST_WINDOW:
+				return "Window system";
+			case EST_GRAPHICS_CONTEXT:
+				return "Graphics Context";
+			case EST_FILE_SYSTEM:
+				return "File Manager";
+			case EST_RESOURCE_MANAGER:
+				return "Resource Manager";
+			case EST_JOB_MANAGER:
+				return "Job Manager";
+			case EST_PLUGIN_MANAGER:
+				return "Plugin Manager";
+			case EST_EVENT_MANAGER:
+				return "Events Manager";
+			case EST_MEMORY_MANAGER:
+				return "Memory Manager";
+			case EST_RENDERER:
+				return "Renderer system";
+			case EST_INPUT_CONTEXT:
+				return "Input Context";
+		}
+		
+		return "";
+	}
 }

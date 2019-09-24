@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include <mutex>
+#include <atomic>
 
 
 namespace TDEngine2
@@ -48,7 +49,7 @@ namespace TDEngine2
 				EET_ONFREE
 			};
 
-			typedef std::vector<IEngineListener*>             TListenersArray;
+			typedef std::vector<IEngineListener*> TListenersArray;
 		public:
 			/*!
 				\brief The method initializes the object
@@ -170,8 +171,18 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
 														   IRenderer* pRenderer, IMemoryManager* pMemoryManager);
+
+			TDE2_API E_RESULT_CODE _cleanUpSubsystems();
+
+			template <typename T>
+			TDE2_API T* _getSubsystemAs(E_ENGINE_SUBSYSTEM_TYPE type) const
+			{
+				static_assert(std::is_base_of_v<IEngineSubsystem, T>, "The given template argument isn't implement IEngineSubsystem interface");
+
+				return dynamic_cast<T*>(mSubsystems[type]);
+			}
 		protected:
-			bool               mIsInitialized;
+			std::atomic_bool   mIsInitialized;
 
 			IEngineSubsystem*  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 
