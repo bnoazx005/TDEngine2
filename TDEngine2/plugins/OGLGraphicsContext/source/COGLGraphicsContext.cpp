@@ -111,26 +111,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = mpGLContextFactory->Free()) != RC_OK)
-		{
-			return result;
-		}
-
-		if (mpGraphicsObjectManager)
-		{
-			if ((result = mpGraphicsObjectManager->Free()) != RC_OK)
-			{
-				return result;
-			}
-		}
+		E_RESULT_CODE result = mpGraphicsObjectManager->Free();
+		result = result | mpGLContextFactory->Free();
 
 		mIsInitialized = false;
 
 		delete this;
 
-		return RC_OK;
+		return result;
 	}
 	
 	void COGLGraphicsContext::ClearBackBuffer(const TColor32F& color)
@@ -246,7 +234,7 @@ namespace TDEngine2
 
 	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
 	{
-		IGraphicsContext* pGraphicsContextInstance = new (std::nothrow) COGLGraphicsContext(glContextFactoryCallback);
+		COGLGraphicsContext* pGraphicsContextInstance = new (std::nothrow) COGLGraphicsContext(glContextFactoryCallback);
 
 		if (!pGraphicsContextInstance)
 		{
@@ -257,6 +245,13 @@ namespace TDEngine2
 
 		result = pGraphicsContextInstance->Init(pWindowSystem);
 
-		return pGraphicsContextInstance;
+		if (result != RC_OK)
+		{
+			delete pGraphicsContextInstance;
+
+			pGraphicsContextInstance = nullptr;
+		}
+
+		return dynamic_cast<IGraphicsContext*>(pGraphicsContextInstance);
 	}
 }

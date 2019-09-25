@@ -38,21 +38,17 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
+		E_RESULT_CODE result = _freeBuffers();
 
-		if (((result = _freeBuffers()) != RC_OK)            ||
-			((result = _freeVertexDeclarations()) != RC_OK) ||
-			((result = _freeTextureSamplers()) != RC_OK)    ||
-			((result = mpDebugUtility->Free()) != RC_OK))
-		{
-			return result;
-		}
+		result = result | _freeVertexDeclarations();
+		result = result | _freeTextureSamplers();
+		result = result | mpDebugUtility->Free();
 
 		mIsInitialized = false;
 
 		delete this;
 
-		return RC_OK;
+		return result;
 	}
 
 	TResult<IDebugUtility*> CBaseGraphicsObjectManager::CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer)
@@ -127,10 +123,9 @@ namespace TDEngine2
 	{
 		IBuffer* pCurrBuffer = nullptr;
 
-		E_RESULT_CODE result      = RC_OK;
-		E_RESULT_CODE totalResult = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
-		for (TBuffersArray::iterator iter = mBuffersArray.begin(); iter != mBuffersArray.end(); ++iter)
+		for (auto iter = mBuffersArray.begin(); iter != mBuffersArray.end(); ++iter)
 		{
 			pCurrBuffer = (*iter);
 
@@ -139,26 +134,22 @@ namespace TDEngine2
 				continue;
 			}
 
-			if ((result = pCurrBuffer->Free()) != RC_OK)
-			{
-				totalResult = result;
-			}
+			result = result | pCurrBuffer->Free();
 		}
 
 		mBuffersArray.clear();
 		mFreeBuffersSlots.clear();
 
-		return totalResult;
+		return result;
 	}
 
 	E_RESULT_CODE CBaseGraphicsObjectManager::_freeVertexDeclarations()
 	{
 		IVertexDeclaration* pCurrVertDecl = nullptr;
 
-		E_RESULT_CODE result      = RC_OK;
-		E_RESULT_CODE totalResult = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
-		for (TVertexDeclarationsArray::iterator iter = mVertexDeclarationsArray.begin(); iter != mVertexDeclarationsArray.end(); ++iter)
+		for (auto iter = mVertexDeclarationsArray.begin(); iter != mVertexDeclarationsArray.end(); ++iter)
 		{
 			pCurrVertDecl = (*iter);
 
@@ -167,15 +158,12 @@ namespace TDEngine2
 				continue;
 			}
 
-			if ((result = pCurrVertDecl->Free()) != RC_OK)
-			{
-				totalResult = result;
-			}
+			result = result | pCurrVertDecl->Free();
 		}
 
 		mVertexDeclarationsArray.clear();
 		mFreeVertDeclsSlots.clear();
 
-		return totalResult;
+		return result;
 	}
 }

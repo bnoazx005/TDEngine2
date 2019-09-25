@@ -4,6 +4,7 @@
 #include "./../include/COGLConstantBuffer.h"
 #include "./../include/COGLVertexDeclaration.h"
 #include "./../include/COGLMappings.h"
+#include "./../include/COGLUtils.h"
 
 
 namespace TDEngine2
@@ -115,12 +116,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeTextureSamplers()
 	{
-		glDeleteSamplers(mTextureSamplersArray.size(), &mTextureSamplersArray[0]);
-		
-		if (glGetError() != GL_NO_ERROR)
+		if (mTextureSamplersArray.empty())
 		{
-			return RC_FAIL;
+			return RC_OK;
 		}
+
+		GL_SAFE_CALL(glDeleteSamplers(mTextureSamplersArray.size(), &mTextureSamplersArray[0]));
 
 		mTextureSamplersArray.clear();
 

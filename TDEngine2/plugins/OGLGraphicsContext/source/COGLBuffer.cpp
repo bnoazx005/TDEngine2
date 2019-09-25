@@ -1,5 +1,6 @@
 #include "./../include/COGLBuffer.h"
 #include "./../include/COGLMappings.h"
+#include "./../include/COGLUtils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 #include <cstring>
@@ -25,32 +26,13 @@ namespace TDEngine2
 
 		mBufferType = bufferType;
 
-		glGenBuffers(1, &mBufferHandler);
-
-		GLenum errorCode = 0;
-
-		if ((errorCode = glGetError()) != GL_NO_ERROR)
-		{
-			return RC_FAIL;	/// \todo implement mapping from OGL errors to engine's ones
-		}
+		GL_SAFE_CALL(glGenBuffers(1, &mBufferHandler));
 
 		GLenum glInternalBufferType = _getBufferType(bufferType);
 
-		glBindBuffer(glInternalBufferType, mBufferHandler);
-
-		if ((errorCode = glGetError()) != GL_NO_ERROR)
-		{
-			return RC_FAIL;	/// \todo implement mapping from OGL errors to engine's ones
-		}
-
-		glBufferData(glInternalBufferType, totalBufferSize, pDataPtr, COGLMappings::GetUsageType(usageType));
-
-		if ((errorCode = glGetError()) != GL_NO_ERROR)
-		{
-			return RC_FAIL;	/// \todo implement mapping from OGL errors to engine's ones
-		}
-
-		glBindBuffer(glInternalBufferType, 0);
+		GL_SAFE_CALL(glBindBuffer(glInternalBufferType, mBufferHandler));
+		GL_SAFE_CALL(glBufferData(glInternalBufferType, totalBufferSize, pDataPtr, COGLMappings::GetUsageType(usageType)));
+		GL_SAFE_CALL(glBindBuffer(glInternalBufferType, 0));
 
 		mBufferInternalData.mGLBuffer = mBufferHandler;
 
@@ -66,12 +48,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		glDeleteBuffers(1, &mBufferHandler);
-
-		if (glGetError() != GL_NO_ERROR)
-		{
-			return RC_FAIL;	/// \todo implement mapping from OGL errors to engine's ones
-		}
+		GL_SAFE_CALL(glDeleteBuffers(1, &mBufferHandler));
 
 		delete this;
 
@@ -82,12 +59,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLBuffer::Map(E_BUFFER_MAP_TYPE mapType)
 	{
-		glBindBuffer(_getBufferType(mBufferType), mBufferHandler);
-
-		if (glGetError() != GL_NO_ERROR)
-		{
-			return RC_FAIL;	/// \todo implement mapping from OGL errors to engine's ones
-		}
+		GL_SAFE_CALL(glBindBuffer(_getBufferType(mBufferType), mBufferHandler));
 
 		mpMappedBufferData = glMapBuffer(_getBufferType(mBufferType), COGLMappings::GetBufferMapAccessType(mapType));
 

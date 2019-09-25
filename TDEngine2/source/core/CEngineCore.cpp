@@ -91,18 +91,18 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
-
-		/// \note we can proceed if the window wasn't initialized properly or some error has happened within user's code
-		if (!pWindowSystem || (_onNotifyEngineListeners(EET_ONSTART) != RC_OK))
-		{
-			return RC_FAIL;
-		}
-
+		
 		mpWorldInstance = CreateWorld(_getSubsystemAs<IEventManager>(EST_EVENT_MANAGER), result);
 
 		if (result != RC_OK)
 		{
 			return result;
+		}
+		
+		/// \note we can proceed if the window wasn't initialized properly or some error has happened within user's code
+		if (!pWindowSystem || (_onNotifyEngineListeners(EET_ONSTART) != RC_OK))
+		{
+			return RC_FAIL;
 		}
 
 		/// \todo This is not critical error, but for now I leave it as is
@@ -231,7 +231,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		std::lock_guard<std::mutex> lock(mMutex);
+		//std::lock_guard<std::mutex> lock(mMutex);
 
 		return mSubsystems[type];
 	}
@@ -247,14 +247,14 @@ namespace TDEngine2
 
 	ITimer* CEngineCore::GetTimer() const
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		//std::lock_guard<std::mutex> lock(mMutex);
 
 		return mpInternalTimer;
 	}
 
 	IWorld* CEngineCore::GetWorldInstance() const
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		//std::lock_guard<std::mutex> lock(mMutex);
 
 		return mpWorldInstance;
 	}
