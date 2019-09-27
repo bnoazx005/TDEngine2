@@ -2,7 +2,6 @@
 #include <TDEngine2.h>
 #include <iostream>
 
-
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = TDEngine2::RC_OK;
@@ -85,7 +84,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
-	/*mpWindowSystem->SetTitle(std::to_string(dt));
+	mpWindowSystem->SetTitle(std::to_string(dt));
 
 	mpGraphicsContext->BindTextureSampler(0, mTextureSampler);
 	
@@ -120,8 +119,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	{
 		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::RightVector3);
 	}
-
-	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, dynamic_cast<TDEngine2::IRenderer*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_RENDERER))).Get();
+	
+	/*auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, dynamic_cast<TDEngine2::IRenderer*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_RENDERER))).Get();
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });

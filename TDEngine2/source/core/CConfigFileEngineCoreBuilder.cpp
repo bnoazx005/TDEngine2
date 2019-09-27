@@ -525,7 +525,7 @@ namespace TDEngine2
 		settings.mTotalPreallocatedMemorySize = pConfigFileReader->GetInt("memory", "total-preallocated-memory-size", DefaultGlobalMemoryBlockSize);
 		settings.mGraphicsContextType         = StringToGraphicsContextType(pConfigFileReader->GetString("graphics", "context-type", "unknown"));
 
-		pFileSystem->CloseFile(configFileHandle);
+		pConfigFileReader->Close();
 
 		return TOkValue<TEngineSettings>(settings);
 	}

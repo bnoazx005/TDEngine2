@@ -19,10 +19,16 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		GLuint vaoHandler = 0;
+		auto doesExistResult = _doesHandleExist(mVAOHandlesRegistry, pVertexBuffersArray);
+
+		if (doesExistResult.IsOk())
+		{
+			return doesExistResult;
+		}
+
+		GLuint vaoHandler = 0x0;
 
 		glGenVertexArrays(1, &vaoHandler);
-
 		glBindVertexArray(vaoHandler);
 		
 		if (glGetError() != GL_NO_ERROR)
@@ -50,7 +56,11 @@ namespace TDEngine2
 			std::tie(nextInstanceDivisorIndex, nextInstancesPerData) = *instancingInfoIter;
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, pVertexBuffersArray[0]->GetInternalData().mGLBuffer); /// bind the first VBO by default as a main vertex buffer
+		GLuint currBufferHandle = pVertexBuffersArray[0]->GetInternalData().mGLBuffer;
+
+		glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle); /// bind the first VBO by default as a main vertex buffer
+
+		TVAORegistryNode* pCurrNode = &mVAOHandlesRegistry.mChildren[currBufferHandle];
 		
 		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter, ++currIndex)
 		{
@@ -66,7 +76,10 @@ namespace TDEngine2
 				currOffset = 0; /// reset the current offset because of a new block begins
 
 				/// bind the buffer that is related with the group
-				glBindBuffer(GL_ARRAY_BUFFER, pVertexBuffersArray[(*iter).mSource]->GetInternalData().mGLBuffer);
+				currBufferHandle = pVertexBuffersArray[(*iter).mSource]->GetInternalData().mGLBuffer;
+				glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle);
+
+				pCurrNode = &pCurrNode->mChildren[currBufferHandle];
 
 				currInstanceDivisorIndex = nextInstanceDivisorIndex;
 				currInstancesPerData     = nextInstancesPerData;
@@ -95,6 +108,8 @@ namespace TDEngine2
 			glEnableVertexAttribArray(currIndex);
 		}
 
+		pCurrNode->mVAOHandle = vaoHandler;
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glBindVertexArray(0);
@@ -107,6 +122,26 @@ namespace TDEngine2
 		glBindVertexArray(GetVertexArrayObject(pVertexBuffersArray).Get());
 	}
 
+	TResult<GLuint> COGLVertexDeclaration::_doesHandleExist(const TVAORegistryNode& registry, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray) const
+	{
+		const TVAORegistryNode* pCurrNode = &registry;
+
+		U32 internalBufferHandle = 0x0;
+
+		for (U32 i = 0; i < pVertexBuffersArray.GetSize(); ++i)
+		{
+			internalBufferHandle = pVertexBuffersArray[i]->GetInternalData().mGLBuffer;
+
+			if (pCurrNode->mChildren.find(internalBufferHandle) == pCurrNode->mChildren.cend())
+			{
+				return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			}
+
+			pCurrNode = &pCurrNode->mChildren.at(internalBufferHandle);
+		}
+
+		return TOkValue<GLuint>(pCurrNode->mVAOHandle);
+	}
 
 	IVertexDeclaration* CreateOGLVertexDeclaration(E_RESULT_CODE& result)
 	{

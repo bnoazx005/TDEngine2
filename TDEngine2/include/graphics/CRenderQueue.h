@@ -16,6 +16,7 @@
 #include <vector>
 #include <tuple>
 #include <string>
+#include <type_traits>
 
 
 namespace TDEngine2
@@ -262,14 +263,18 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API T* SubmitDrawCommand(U32 groupKey)
 			{
+				static_assert(std::is_base_of_v<TRenderCommand, T>, "Invalid template argument's type. \"T\" should derive TRenderCommand type");
+
 				if (!mpTempAllocator)
 				{
 					return nullptr;
 				}
 
-				T* pRenderCommand = new (mpTempAllocator->Allocate(sizeof(T), __alignof(T))) T(); /// \todo Replace the allocation with a helper function's invokation
+				void* pMemoryBlock = mpTempAllocator->Allocate(sizeof(T), __alignof(T));
 
-				mCommandsBuffer.emplace_back(groupKey, dynamic_cast<TRenderCommand*>(pRenderCommand));
+				T* pRenderCommand = new (pMemoryBlock) T(); /// \todo Replace the allocation with a helper function's invokation
+
+				mCommandsBuffer.emplace_back(groupKey, pRenderCommand);
 
 				return pRenderCommand;
 			}

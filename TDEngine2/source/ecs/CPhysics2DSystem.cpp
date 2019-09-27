@@ -122,7 +122,7 @@ namespace TDEngine2
 	{
 		mpWorldInstance->Step(mCurrTimeStep, mCurrVelocityIterations, mCurrPositionIterations);
 
-		auto collisionObjects = mCollidersData.mBodies;
+		auto& collisionObjects = mCollidersData.mBodies;
 
 		CTransform* pCurrTransform = nullptr;
 
@@ -132,7 +132,7 @@ namespace TDEngine2
 
 		b2Vec2 currBodyPosition;
 
-		auto transforms = mCollidersData.mTransforms;
+		auto& transforms = mCollidersData.mTransforms;
 
 		for (U32 i = 0; i < transforms.size(); ++i)
 		{

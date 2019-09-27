@@ -186,20 +186,22 @@ namespace TDEngine2
 
 		IVertexBuffer* pCurrBatchInstancesBuffer = nullptr;
 
+		U64 instancesCount = 0;
+		
 		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
 		{
 			pCurrBatchInstancesBuffer = mSpritesPerInstanceData[currInstancesBufferIndex++];
 
 			TBatchEntry& currBatchEntry = (*iter).second;
 
-			U32 currBatchSize = currBatchEntry.mpInstancesData->GetSize() * sizeof(TSpriteInstanceData);
+			instancesCount    = currBatchEntry.mpInstancesData->GetSize();
+			U32 currBatchSize = instancesCount * sizeof(TSpriteInstanceData);
 
 			if (currBatchSize <= SpriteInstanceDataBufferSize)
 			{
 				pCurrBatchInstancesBuffer->Map(BMT_WRITE_DISCARD);
-				pCurrBatchInstancesBuffer->Write(&currBatchEntry.mpInstancesData[0], currBatchSize);
+				pCurrBatchInstancesBuffer->Write(&(*currBatchEntry.mpInstancesData)[0], currBatchSize);
 				pCurrBatchInstancesBuffer->Unmap();
-
 			}
 
 			pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before
@@ -211,7 +213,7 @@ namespace TDEngine2
 			pCurrCommand->mBaseVertexIndex    = 0;
 			pCurrCommand->mStartIndex         = 0;
 			pCurrCommand->mStartInstance      = 0;
-			pCurrCommand->mNumOfInstances     = currBatchEntry.mpInstancesData->GetSize();/// assign number of sprites in a batch
+			pCurrCommand->mNumOfInstances     = instancesCount;/// assign number of sprites in a batch
 			pCurrCommand->mpInstancingBuffer  = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
 			pCurrCommand->mpMaterialHandler   = currBatchEntry.mpMaterialHandler;
 			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;

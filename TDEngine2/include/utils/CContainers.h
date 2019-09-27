@@ -94,7 +94,7 @@ namespace TDEngine2
 	}
 
 	template <typename T>
-	typename const CStaticArray<T>::Type& CStaticArray<T>::operator[](SizeType index) const
+	const typename CStaticArray<T>::Type& CStaticArray<T>::operator[](SizeType index) const
 	{
 		assert(index >= 0 && index < mSize);
 
@@ -233,7 +233,7 @@ namespace TDEngine2
 	}
 
 	template <typename T>
-	typename const CDynamicArray<T>::Type& CDynamicArray<T>::operator[](SizeType index) const
+	const typename CDynamicArray<T>::Type& CDynamicArray<T>::operator[](SizeType index) const
 	{
 		assert(index >= 0 && index < mSize);
 

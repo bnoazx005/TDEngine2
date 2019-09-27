@@ -11,6 +11,7 @@
 #include <vector>
 #include <GL/glew.h>
 #include <utils/CResult.h>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -38,6 +39,13 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IVertexDeclaration* CreateOGLVertexDeclaration(E_RESULT_CODE& result);
 		public:
+			typedef struct TVAORegistryNode
+			{
+				GLuint                                    mVAOHandle;
+
+				std::unordered_map<U32, TVAORegistryNode> mChildren;
+			} TVAORegistryNode, *TVAORegistryNodePtr;
+		public:
 			/*!
 				\brief The method creates a VAO for specified vertex declaration and binds it
 				to a given vertex buffer
@@ -63,5 +71,9 @@ namespace TDEngine2
 			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
+
+			TDE2_API TResult<GLuint> _doesHandleExist(const TVAORegistryNode& registry, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray) const;
+		protected:
+			TVAORegistryNode mVAOHandlesRegistry;
 	};
 }

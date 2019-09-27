@@ -90,6 +90,19 @@ namespace TDEngine2
 
 		mpDebugUtility = debugUtilityResult.Get();
 
+		/*while (true)
+		{
+			auto queue = mpRenderQueues[(U32)E_RENDER_QUEUE_GROUP::RQG_SPRITES];
+
+			for (int i = 0; i < 1000; ++i)
+			{
+				auto c = queue->SubmitDrawCommand<TDrawIndexedInstancedCommand>(i);
+			}
+
+			queue->Sort();
+			queue->Clear();
+		}*/
+
 		mIsInitialized = true;
 
 		return RC_OK;

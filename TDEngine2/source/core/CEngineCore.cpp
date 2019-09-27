@@ -413,7 +413,7 @@ namespace TDEngine2
 		LOG_MESSAGE("[Engine Core] Clean up the subsystems registry...");
 
 		/// \note these two subsystems should be destroyed in last moment and in coresponding order
-		auto latestFreedSubsystems = { EST_PLUGIN_MANAGER, EST_FILE_SYSTEM, EST_MEMORY_MANAGER };
+		auto latestFreedSubsystems = { EST_PLUGIN_MANAGER, EST_FILE_SYSTEM, EST_MEMORY_MANAGER, EST_WINDOW };
 
 		auto shouldSkipSubsystem = [&latestFreedSubsystems](const IEngineSubsystem* pCurrSubsystem)
 		{
