@@ -263,7 +263,7 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API T* SubmitDrawCommand(U32 groupKey)
 			{
-				static_assert(std::is_base_of_v<TRenderCommand, T>, "Invalid template argument's type. \"T\" should derive TRenderCommand type");
+				static_assert(std::is_base_of<TRenderCommand, T>::value, "Invalid template argument's type. \"T\" should derive TRenderCommand type");
 
 				if (!mpTempAllocator)
 				{

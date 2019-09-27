@@ -177,7 +177,7 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API T* _getSubsystemAs(E_ENGINE_SUBSYSTEM_TYPE type) const
 			{
-				static_assert(std::is_base_of_v<IEngineSubsystem, T>, "The given template argument isn't implement IEngineSubsystem interface");
+				static_assert(std::is_base_of<IEngineSubsystem, T>::value, "The given template argument isn't implement IEngineSubsystem interface");
 
 				return dynamic_cast<T*>(mSubsystems[type]);
 			}
