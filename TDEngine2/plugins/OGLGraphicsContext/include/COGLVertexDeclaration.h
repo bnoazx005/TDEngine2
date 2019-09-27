@@ -41,9 +41,9 @@ namespace TDEngine2
 		public:
 			typedef struct TVAORegistryNode
 			{
-				GLuint                                    mVAOHandle;
+				GLuint                                                     mVAOHandle;
 
-				std::unordered_map<U32, TVAORegistryNode> mChildren;
+				std::unordered_map<U32, std::unique_ptr<TVAORegistryNode>> mChildren;
 			} TVAORegistryNode, *TVAORegistryNodePtr;
 		public:
 			/*!
@@ -73,7 +73,9 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
 
 			TDE2_API TResult<GLuint> _doesHandleExist(const TVAORegistryNode& registry, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray) const;
+
+			TDE2_API TVAORegistryNode* _insertNewNode(TVAORegistryNode* pCurrNode, U32 handle);
 		protected:
-			TVAORegistryNode mVAOHandlesRegistry;
+			TVAORegistryNode mRootNode;
 	};
 }

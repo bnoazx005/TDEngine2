@@ -19,7 +19,7 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		auto doesExistResult = _doesHandleExist(mVAOHandlesRegistry, pVertexBuffersArray);
+		auto doesExistResult = _doesHandleExist(mRootNode, pVertexBuffersArray);
 
 		if (doesExistResult.IsOk())
 		{
@@ -60,7 +60,7 @@ namespace TDEngine2
 
 		glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle); /// bind the first VBO by default as a main vertex buffer
 
-		TVAORegistryNode* pCurrNode = &mVAOHandlesRegistry.mChildren[currBufferHandle];
+		TVAORegistryNode* pCurrNode = _insertNewNode(&mRootNode, currBufferHandle);
 		
 		for (auto iter = mElements.cbegin(); iter != mElements.cend(); ++iter, ++currIndex)
 		{
@@ -79,7 +79,7 @@ namespace TDEngine2
 				currBufferHandle = pVertexBuffersArray[(*iter).mSource]->GetInternalData().mGLBuffer;
 				glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle);
 
-				pCurrNode = &pCurrNode->mChildren[currBufferHandle];
+				pCurrNode = _insertNewNode(pCurrNode, currBufferHandle);
 
 				currInstanceDivisorIndex = nextInstanceDivisorIndex;
 				currInstancesPerData     = nextInstancesPerData;
@@ -137,11 +137,24 @@ namespace TDEngine2
 				return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 			}
 
-			pCurrNode = &pCurrNode->mChildren.at(internalBufferHandle);
+			pCurrNode = pCurrNode->mChildren.at(internalBufferHandle).get();
 		}
 
 		return TOkValue<GLuint>(pCurrNode->mVAOHandle);
 	}
+
+	COGLVertexDeclaration::TVAORegistryNode* COGLVertexDeclaration::_insertNewNode(TVAORegistryNode* pCurrNode, U32 handle)
+	{
+		if (pCurrNode->mChildren.find(handle) != pCurrNode->mChildren.cend())
+		{
+			return pCurrNode->mChildren[handle].get();
+		}
+
+		pCurrNode->mChildren[handle] = std::make_unique<TVAORegistryNode>();
+
+		return pCurrNode->mChildren[handle].get();
+	}
+
 
 	IVertexDeclaration* CreateOGLVertexDeclaration(E_RESULT_CODE& result)
 	{
