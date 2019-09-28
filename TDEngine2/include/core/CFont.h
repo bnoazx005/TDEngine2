@@ -50,6 +50,8 @@ namespace TDEngine2
 		public:
 			friend 	TDE2_API IFont* CreateFontResource(IResourceManager* pResourceManager, const std::string& name, E_RESULT_CODE& result);
 		public:
+			typedef std::unordered_map<U8C, TFontGlyphInfo> TGlyphsMap;
+		public:
 			TDE2_REGISTER_TYPE(CFont)
 
 			/*!
@@ -89,6 +91,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Reset() override;
 
 			/*!
+				\brief The method saves current state of the object into some representation
+
+				\param[in, out] pFileSystem A pointer to IFileSystem implementation
+				\param[in] filename A name of a file into which the data will be written
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Serialize(IFileSystem* pFileSystem, const std::string& filename) override;
+
+			/*!
 				\brief The method restores state of the texture atlas based on information from a given file
 
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
@@ -98,6 +111,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) override;
+
+			/*!
+				\brief The method adds information about a single glyph into the font's resource
+
+				\param[in] codePoint A value of a glyph
+				\param[in] info A structure that contains glyph's metrics (advance, width, height, ...)
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info) override;
 
 			/*!
 				\brief The method generates 2D mesh for a given text based on font's settings
@@ -123,6 +147,8 @@ namespace TDEngine2
 			IResourceHandler* mpFontTextureAtlas;
 
 			TTextVertices     mLastGeneratedMesh;
+
+			TGlyphsMap        mGlyphsMap;
 	};
 
 

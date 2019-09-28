@@ -53,10 +53,14 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	I32 advance, leftBearing;
 
+	auto pFontResource = dynamic_cast<TDEngine2::IFont*>(mpResourceManager->Load<CFont>("Arial")->Get(RAT_BLOCKING));
+
+	F32 scale = stbtt_ScaleForPixelHeight(&font, 50.0f);
+
 	for (auto ch : text)
 	{
 		//stbtt_GetCodepointBitmap(&font, stbtt_ScaleForPixelHeight(&font, 24.0f), stbtt_ScaleForPixelHeight(&font, 24.0f), ch, &width, &height, &xoff, &yoff);
-		U8* pBitmap =  stbtt_GetCodepointSDF(&font, stbtt_ScaleForPixelHeight(&font, 50.0f), ch, 10, 200, 20.0f, &width, &height, &xoff, &yoff);
+		U8* pBitmap =  stbtt_GetCodepointSDF(&font, scale, ch, 10, 255, 20.0f, &width, &height, &xoff, &yoff);
 		std::string name = "";
 		name.push_back(ch);
 
@@ -65,14 +69,16 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		assert(pTexAtlas->AddRawTexture(name, width, height, FT_NORM_UBYTE1, pBitmap) == RC_OK);
 
 		stbtt_GetCodepointHMetrics(&font, ch, &advance, &leftBearing);
+
+		pFontResource->AddGlyphInfo(ch, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance });
 	}
 	
 	pTexAtlas->Bake();
 	pTexAtlas->Serialize(pFileSystem, "atlas.info");
 
-	auto pTexture = pTexAtlas->GetTexture();
+	pFontResource->Serialize(pFileSystem, "Arial.font");
 
-	auto pFontResource = mpResourceManager->Load<CFont>("Arial");
+	auto pTexture = pTexAtlas->GetTexture();
 
 	/// TEST: load texture atlas from a file
 	//auto pAtlasHandler = mpResourceManager->Load<CTextureAtlas>("atlas");

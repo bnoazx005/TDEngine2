@@ -68,6 +68,46 @@ namespace TDEngine2
 	{
 		return RC_NOT_IMPLEMENTED_YET;
 	}
+	
+	E_RESULT_CODE CFont::Serialize(IFileSystem* pFileSystem, const std::string& filename)
+	{
+		if (!pFileSystem || filename.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		/// \note try to create YAML file with the given name
+		auto pFile = pFileSystem->Get<CYAMLFileWriter>(pFileSystem->Open<CYAMLFileWriter>(filename, true).Get());
+
+		Yaml::Node fontDesc{};
+
+		fontDesc["name"] = mName;
+
+		auto& textureAtlasReference = fontDesc["texture_atlas_info"];
+		textureAtlasReference["path"] = dynamic_cast<IResource*>(mpFontTextureAtlas->Get(RAT_BLOCKING))->GetName();
+
+		// TODO: add scale's info
+		
+		auto& glyphsMapDesc = fontDesc["glyphs_map_desc"];
+
+		for (auto currMapEntry : mGlyphsMap)
+		{
+			auto& currGlyphDesc = glyphsMapDesc[std::to_string(currMapEntry.first)];
+			
+			auto& currInternalGlyphInfo = currMapEntry.second;
+
+			currGlyphDesc["width"] = std::to_string(currInternalGlyphInfo.mWidth);
+			currGlyphDesc["height"] = std::to_string(currInternalGlyphInfo.mHeight);
+			currGlyphDesc["xoffset"] = std::to_string(currInternalGlyphInfo.mXCenter);
+			currGlyphDesc["yoffset"] = std::to_string(currInternalGlyphInfo.mYCenter);
+			currGlyphDesc["advance"] = std::to_string(currInternalGlyphInfo.mAdvance);
+		}
+
+		E_RESULT_CODE result = pFile->Serialize(fontDesc);
+		result = result | pFile->Close();
+
+		return result;
+	}
 
 	E_RESULT_CODE CFont::Deserialize(IFileSystem* pFileSystem, const std::string& filename)
 	{
@@ -99,9 +139,26 @@ namespace TDEngine2
 		mName = fontDataRoot["name"].As<std::string>();
 
 		/// \note read texture atlas that contains glyphs images
-		mpFontTextureAtlas = mpResourceManager->Load<CTextureAtlas>(fontDataRoot["atlas_resource_name"].As<std::string>());
+		const auto& textureAtlasPath = fontDataRoot["texture_atlas_info"]["path"].As<std::string>();
+
+		if (!textureAtlasPath.empty())
+		{
+			mpFontTextureAtlas = mpResourceManager->Load<CTextureAtlas>(textureAtlasPath);
+		}
 
 		/// \todo read glyphs parameters
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CFont::AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info)
+	{
+		if (mGlyphsMap.find(codePoint) != mGlyphsMap.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mGlyphsMap.emplace(codePoint, info);
 
 		return RC_OK;
 	}
