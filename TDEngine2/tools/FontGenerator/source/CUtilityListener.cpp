@@ -56,6 +56,17 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	auto pFontResource = dynamic_cast<TDEngine2::IFont*>(mpResourceManager->Load<CFont>("Arial")->Get(RAT_BLOCKING));
 
 	F32 scale = stbtt_ScaleForPixelHeight(&font, 50.0f);
+	
+	int ascent, descent;
+	stbtt_GetFontVMetrics(&font, &ascent, &descent, 0);
+	ascent *= scale;
+	descent *= scale;
+	
+	I32 x0, y0, x1, y1;
+	stbtt_GetFontBoundingBox(&font, &x0, &y0, &x1, &y1);
+
+	auto w = scale*(x1 - x0);
+	auto h = scale*(y1 - y0);
 
 	for (auto ch : text)
 	{
@@ -69,7 +80,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		assert(pTexAtlas->AddRawTexture(name, width, height, FT_NORM_UBYTE1, pBitmap) == RC_OK);
 
 		stbtt_GetCodepointHMetrics(&font, ch, &advance, &leftBearing);
-
+		
 		pFontResource->AddGlyphInfo(ch, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance });
 	}
 	

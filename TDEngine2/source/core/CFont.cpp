@@ -5,6 +5,7 @@
 #include "./../../include/platform/CYAMLFile.h"
 #include "./../../include/graphics/CTextureAtlas.h"
 #include "./../../include/utils/CU8String.h"
+#include "./../../include/graphics/IDebugUtility.h"
 #include <cstring>
 
 
@@ -96,8 +97,8 @@ namespace TDEngine2
 			
 			auto& currInternalGlyphInfo = currMapEntry.second;
 
-			currGlyphDesc["width"] = std::to_string(currInternalGlyphInfo.mWidth);
-			currGlyphDesc["height"] = std::to_string(currInternalGlyphInfo.mHeight);
+			currGlyphDesc["width"]   = std::to_string(currInternalGlyphInfo.mWidth);
+			currGlyphDesc["height"]  = std::to_string(currInternalGlyphInfo.mHeight);
 			currGlyphDesc["xoffset"] = std::to_string(currInternalGlyphInfo.mXCenter);
 			currGlyphDesc["yoffset"] = std::to_string(currInternalGlyphInfo.mYCenter);
 			currGlyphDesc["advance"] = std::to_string(currInternalGlyphInfo.mAdvance);
@@ -146,7 +147,21 @@ namespace TDEngine2
 			mpFontTextureAtlas = mpResourceManager->Load<CTextureAtlas>(textureAtlasPath);
 		}
 
-		/// \todo read glyphs parameters
+		/// \note read glyphs parameters
+		auto& glyphsMapDesc = fontDataRoot["glyphs_map_desc"];
+
+		for (auto iter = glyphsMapDesc.Begin(); iter != glyphsMapDesc.End(); iter++)
+		{
+			auto& glyphDesc = (*iter).second;
+
+			auto& currGlyphMapEntry = mGlyphsMap[std::stoi((*iter).first)];
+
+			currGlyphMapEntry.mWidth   = glyphDesc["width"].As<U16>();
+			currGlyphMapEntry.mHeight  = glyphDesc["height"].As<U16>();
+			currGlyphMapEntry.mXCenter = glyphDesc["xoffset"].As<I16>();
+			currGlyphMapEntry.mYCenter = glyphDesc["yoffset"].As<I16>();
+			currGlyphMapEntry.mAdvance = glyphDesc["advance"].As<F32>();
+		}
 
 		return RC_OK;
 	}
@@ -163,19 +178,23 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, const CU8String& text)
+	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, const CU8String& text, IDebugUtility* pDebugUtility)
 	{
 		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpFontTextureAtlas->Get(RAT_BLOCKING));
 
-		TVector2 currPosition { position };
+		TVector2 currPosition{ position };
 
 		TRectF32 normalizedUVs;
 
-		F32 scale = 1.f;
+		F32 scale = .05f;
 
 		U8C currCodePoint = 0x0;
 
 		F32 yOffset = 0.0f;
+
+		TFontGlyphInfo* pCurrGlyphInfo = nullptr;
+
+		F32 x0, x1, y0, y1;
 
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
@@ -183,6 +202,8 @@ namespace TDEngine2
 
 			if (currCodePoint != ' ')
 			{
+				pCurrGlyphInfo = &mGlyphsMap[currCodePoint];
+
 				auto result = pTextureAtlas->GetNormalizedTextureRect(UTF8CharToString(currCodePoint));
 
 				if (result.HasError())
@@ -192,14 +213,38 @@ namespace TDEngine2
 
 				normalizedUVs = result.Get();
 
-				mLastGeneratedMesh.push_back({ currPosition.x,         currPosition.y + yOffset,         normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
-				mLastGeneratedMesh.push_back({ currPosition.x + scale, currPosition.y + yOffset,         normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
-				mLastGeneratedMesh.push_back({ currPosition.x,         currPosition.y + scale + yOffset, normalizedUVs.x,                       normalizedUVs.y });
-				mLastGeneratedMesh.push_back({ currPosition.x + scale, currPosition.y + scale + yOffset, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
-			}			
-			
-			currPosition = currPosition + TVector2 { 0.5f * scale, 0.0f };
+				/*x0 = currPosition.x + scale * pCurrGlyphInfo->mXCenter;
+				x1 = x0 + scale * pCurrGlyphInfo->mWidth;
+				y0 = currPosition.y - scale * (pCurrGlyphInfo->mYCenter);
+				y1 = y0 + scale * pCurrGlyphInfo->mHeight;
+
+				mLastGeneratedMesh.push_back({ x0, y0, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
+				mLastGeneratedMesh.push_back({ x1, y0, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
+				mLastGeneratedMesh.push_back({ x0, y1, normalizedUVs.x,                       normalizedUVs.y });
+				mLastGeneratedMesh.push_back({ x1, y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });*/
+
+				x0 = currPosition.x + scale * pCurrGlyphInfo->mXCenter;
+				y0 = currPosition.y + scale * ((pCurrGlyphInfo->mHeight - 9) / 63)*1/63/* + scale * (40 + pCurrGlyphInfo->mYCenter)*/;
+				x1 = scale * pCurrGlyphInfo->mWidth;
+				y1 = scale * (pCurrGlyphInfo->mHeight);
+
+				mLastGeneratedMesh.push_back({ x0,      y0,      normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
+				mLastGeneratedMesh.push_back({ x0 + x1, y0,      normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
+				mLastGeneratedMesh.push_back({ x0,      y0 + y1, normalizedUVs.x,                       normalizedUVs.y });
+				mLastGeneratedMesh.push_back({ x0 + x1, y0 + y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
+
+				//mLastGeneratedMesh.push_back({ x0, y0 + y1, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
+				//mLastGeneratedMesh.push_back({ x0 + x1, y0 + y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height  });
+				//mLastGeneratedMesh.push_back({ x0, y0, normalizedUVs.x, normalizedUVs.y });
+				//mLastGeneratedMesh.push_back({ x0 + x1, y0, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
+			}
+
+			currPosition = currPosition + TVector2{ scale * (currCodePoint != ' ' ? pCurrGlyphInfo->mAdvance : 20.0f), 0.0f };
 		}
+
+		pDebugUtility->DrawLine({ 0.0f, currPosition.y - scale * 9.0f, 0.5f }, { currPosition.x, currPosition.y - scale * 9.0f, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f });
+		pDebugUtility->DrawLine({ 0.0f, currPosition.y + scale * 40.0f, 0.5f }, { currPosition.x, currPosition.y + scale * 40.0f, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f });
+		pDebugUtility->DrawLine({ 0.0f, currPosition.y, 0.5f }, { currPosition.x, currPosition.y, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 
 		return mLastGeneratedMesh;
 	}

@@ -114,6 +114,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void DrawText(const TVector2& screenPos, const CU8String& str, const TColor32F& color) override;
+
+			/*!
+				\brief The method draws an axis-aligned cross with specified parameters
+
+				\param[in] position A position at which cross will be drawn
+				\param[in] size A size of a cross
+				\param[in] color A color of a cross
+			*/
+
+			TDE2_API void DrawCross(const TVector3& position, F32 size, const TColor32F& color) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 
@@ -140,6 +150,10 @@ namespace TDEngine2
 			IIndexBuffer*            mpTextIndexBuffer;
 
 			std::vector<TTextVertex> mTextDataBuffer;
+
+			std::vector<TLineVertex> mCrossesDataBuffer;
+
+			IVertexBuffer*           mpCrossesVertexBuffer;
 
 			const static std::string mDefaultDebugMaterialName;
 

@@ -52,6 +52,8 @@ namespace TDEngine2
 		mpTextVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TTextVertex) * 4096, nullptr).Get();
 		mpTextIndexBuffer  = mpGraphicsObjectManager->CreateIndexBuffer(BUT_DYNAMIC, TDEngine2::IFT_INDEX16, sizeof(U16) * 9072, &_buildTextIndexBuffer(2048)[0]).Get();
 
+		mpCrossesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * 4096, nullptr).Get();
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -88,6 +90,22 @@ namespace TDEngine2
 			pDrawLinesCommand->mNumOfVertices = mLinesDataBuffer.size();
 		}
 
+		/// \note draw crosses 
+		if (!mCrossesDataBuffer.empty())
+		{
+			mpCrossesVertexBuffer->Map(BMT_WRITE_DISCARD);
+			mpCrossesVertexBuffer->Write(&mCrossesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
+			mpCrossesVertexBuffer->Unmap();
+
+			auto pDrawCrossesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(1);
+
+			pDrawCrossesCommand->mpVertexBuffer = mpCrossesVertexBuffer;
+			pDrawCrossesCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
+			pDrawCrossesCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
+			pDrawCrossesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
+			pDrawCrossesCommand->mNumOfVertices = mCrossesDataBuffer.size();
+		}
+
 		/// \note draw debug text onto the screen
 		if (!mTextDataBuffer.empty())
 		{
@@ -95,13 +113,7 @@ namespace TDEngine2
 			mpTextVertexBuffer->Write(&mTextDataBuffer[0], sizeof(TTextVertex) * mTextDataBuffer.size());
 			mpTextVertexBuffer->Unmap();
 
-			/*auto indices = _buildTextIndexBuffer(mTextDataBuffer.size() / 4);
-
-			mpTextIndexBuffer->Map(BMT_WRITE_DISCARD);
-			mpTextIndexBuffer->Write(&indices[0], sizeof(U16) * indices.size());
-			mpTextIndexBuffer->Unmap();*/
-
-			auto pDrawTextCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(1);
+			auto pDrawTextCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(2);
 
 			pDrawTextCommand->mpVertexBuffer = mpTextVertexBuffer;
 			pDrawTextCommand->mpIndexBuffer = mpTextIndexBuffer;
@@ -110,7 +122,7 @@ namespace TDEngine2
 			pDrawTextCommand->mpVertexDeclaration = mpTextVertDeclaration;
 			pDrawTextCommand->mStartIndex = 0;
 			pDrawTextCommand->mStartVertex = 0;
-			pDrawTextCommand->mNumOfIndices = mTextDataBuffer.size() * 4;
+			pDrawTextCommand->mNumOfIndices = static_cast<U32>(mTextDataBuffer.size() * 1.5f); // \note 1.5 is hand-coded optimisation of 3 / 2 fracture
 		}
 		
 	}
@@ -119,6 +131,7 @@ namespace TDEngine2
 	{
 		mLinesDataBuffer.clear();
 		mTextDataBuffer.clear();
+		mCrossesDataBuffer.clear();
 	}
 
 	void CDebugUtility::DrawLine(const TVector3& start, const TVector3& end, const TColor32F& color)
@@ -141,12 +154,32 @@ namespace TDEngine2
 
 		auto pSystemFontResource = dynamic_cast<IFont*>(mpSystemFont->Get(RAT_BLOCKING));
 
-		auto& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, str);
+		auto& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, str, this);
 
 		std::transform(generatedMesh.begin(), generatedMesh.end(), std::back_inserter(mTextDataBuffer), [](const TVector4& v)
 		{
 			return TTextVertex { v };
 		});
+	}
+
+	void CDebugUtility::DrawCross(const TVector3& position, F32 size, const TColor32F& color)
+	{
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
+		auto createLine = [](std::vector<TLineVertex>& vertices, const TVector3& position, const TVector3& axis, F32 size, const TColor32F& color)
+		{
+			F32 halfSize = 0.5f * size;
+
+			vertices.push_back({ { position - axis * halfSize, 1.0f }, color });
+			vertices.push_back({ { position + axis * halfSize, 1.0f }, color });
+		};
+
+		createLine(mCrossesDataBuffer, position, RightVector3, size, color);
+		createLine(mCrossesDataBuffer, position, UpVector3, size, color);
+		createLine(mCrossesDataBuffer, position, ForwardVector3, size, color);
 	}
 
 	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const

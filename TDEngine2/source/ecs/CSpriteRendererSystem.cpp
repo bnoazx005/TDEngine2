@@ -187,7 +187,7 @@ namespace TDEngine2
 		IVertexBuffer* pCurrBatchInstancesBuffer = nullptr;
 
 		U64 instancesCount = 0;
-		
+
 		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
 		{
 			pCurrBatchInstancesBuffer = mSpritesPerInstanceData[currInstancesBufferIndex++];

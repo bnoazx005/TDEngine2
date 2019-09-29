@@ -68,6 +68,16 @@ namespace TDEngine2
 			TDE2_API virtual void DrawText(const TVector2& screenPos, const CU8String& str, const TColor32F& color) = 0;
 
 			/*!
+				\brief The method draws an axis-aligned cross with specified parameters
+
+				\param[in] position A position at which cross will be drawn
+				\param[in] size A size of a cross
+				\param[in] color A color of a cross
+			*/
+
+			TDE2_API virtual void DrawCross(const TVector3& position, F32 size, const TColor32F& color) = 0;
+
+			/*!
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 
