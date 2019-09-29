@@ -15,7 +15,6 @@ namespace TDEngine2
 	void COGLTexture2D::Bind(U32 slot)
 	{
 		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
-
 		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
 	}
 
@@ -81,8 +80,8 @@ namespace TDEngine2
 	{
 		std::unique_ptr<U8[]> pPixelData { new U8[mWidth * mHeight * COGLMappings::GetFormatSize(mFormat)] };
 
-		glBindTexture(GL_TEXTURE_2D, mTextureHandler);
-		glGetTexImage(GL_TEXTURE_2D, 0, COGLMappings::GetPixelDataFormat(mFormat), GL_UNSIGNED_BYTE, reinterpret_cast<void*>(pPixelData.get()));
+		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
+		GL_SAFE_VOID_CALL(glGetTexImage(GL_TEXTURE_2D, 0, COGLMappings::GetPixelDataFormat(mFormat), GL_UNSIGNED_BYTE, reinterpret_cast<void*>(pPixelData.get())));
 		
 		if (COGLMappings::GetErrorCode(glGetError()) != RC_OK)
 		{

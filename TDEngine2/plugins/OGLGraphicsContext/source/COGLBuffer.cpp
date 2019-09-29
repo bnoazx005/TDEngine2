@@ -59,7 +59,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLBuffer::Map(E_BUFFER_MAP_TYPE mapType)
 	{
-		GL_SAFE_CALL(glBindBuffer(_getBufferType(mBufferType), mBufferHandler));
+		/// \todo GL_SAFE_CALL wrapper causes GL_INVALID_VALUE is raised by RenderDoc
+		/// but everything works well in standalone mode and within MSVC
+		glBindBuffer(_getBufferType(mBufferType), mBufferHandler);
 
 		mpMappedBufferData = glMapBuffer(_getBufferType(mBufferType), COGLMappings::GetBufferMapAccessType(mapType));
 

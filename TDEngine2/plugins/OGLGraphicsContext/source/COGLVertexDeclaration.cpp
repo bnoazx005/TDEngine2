@@ -1,6 +1,7 @@
 #include "./../include/COGLVertexDeclaration.h"
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLVertexBuffer.h"
+#include "./../include/COGLUtils.h"
 #include <graphics/IVertexBuffer.h>
 #include <climits>
 
@@ -28,8 +29,8 @@ namespace TDEngine2
 
 		GLuint vaoHandler = 0x0;
 
-		glGenVertexArrays(1, &vaoHandler);
-		glBindVertexArray(vaoHandler);
+		GL_SAFE_VOID_CALL(glGenVertexArrays(1, &vaoHandler));
+		GL_SAFE_VOID_CALL(glBindVertexArray(vaoHandler));
 		
 		if (glGetError() != GL_NO_ERROR)
 		{
@@ -58,7 +59,7 @@ namespace TDEngine2
 
 		GLuint currBufferHandle = pVertexBuffersArray[0]->GetInternalData().mGLBuffer;
 
-		glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle); /// bind the first VBO by default as a main vertex buffer
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle)); /// bind the first VBO by default as a main vertex buffer
 
 		TVAORegistryNode* pCurrNode = _insertNewNode(&mRootNode, currBufferHandle);
 		
@@ -77,7 +78,7 @@ namespace TDEngine2
 
 				/// bind the buffer that is related with the group
 				currBufferHandle = pVertexBuffersArray[(*iter).mSource]->GetInternalData().mGLBuffer;
-				glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle);
+				GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle));
 
 				pCurrNode = _insertNewNode(pCurrNode, currBufferHandle);
 
@@ -119,7 +120,7 @@ namespace TDEngine2
 
 	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
 	{
-		glBindVertexArray(GetVertexArrayObject(pVertexBuffersArray).Get());
+		GL_SAFE_VOID_CALL(glBindVertexArray(GetVertexArrayObject(pVertexBuffersArray).Get()));
 	}
 
 	TResult<GLuint> COGLVertexDeclaration::_doesHandleExist(const TVAORegistryNode& registry, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray) const

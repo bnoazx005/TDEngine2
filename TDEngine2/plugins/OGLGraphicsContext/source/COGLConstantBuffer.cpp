@@ -1,5 +1,6 @@
 #include "./../include/COGLConstantBuffer.h"
 #include "./../include/COGLBuffer.h"
+#include "./../include/COGLUtils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -77,7 +78,7 @@ namespace TDEngine2
 
 		mCurrUsedSlot = slot;
 
-		glBindBufferBase(GL_UNIFORM_BUFFER, slot, mpBufferImpl->GetInternalData().mGLBuffer);
+		GL_SAFE_VOID_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, slot, mpBufferImpl->GetInternalData().mGLBuffer));
 	}
 
 	void COGLConstantBuffer::Unbind()
@@ -87,7 +88,7 @@ namespace TDEngine2
 			return;
 		}
 
-		glBindBufferBase(GL_UNIFORM_BUFFER, mCurrUsedSlot, 0);
+		GL_SAFE_VOID_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, mCurrUsedSlot, 0));
 
 		mCurrUsedSlot = 0;
 	}

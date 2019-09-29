@@ -12,6 +12,7 @@
 #include <core/IGraphicsContext.h>
 #include <graphics/IIndexBuffer.h>
 #include <GL/glew.h>
+#include <string>
 
 
 namespace TDEngine2
@@ -177,5 +178,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static E_RESULT_CODE GetErrorCode(GLenum error);
+
+			/*!
+				\brief The function converts internal OpenGL error's value into string representation
+
+				\param[in] error An error code of GLenum type
+
+				\return A string representation of OGL error
+			*/
+
+			TDE2_API static std::string ErrorCodeToString(GLenum error);
 	};
 }

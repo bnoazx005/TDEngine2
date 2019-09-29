@@ -1,5 +1,6 @@
 #include "./../include/COGLVertexBuffer.h"
 #include "./../include/COGLBuffer.h"
+#include "./../include/COGLUtils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -75,7 +76,7 @@ namespace TDEngine2
 
 	void COGLVertexBuffer::Bind(U32 slot, U32 offset, U32 stride)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, mpBufferImpl->GetInternalData().mGLBuffer);
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, mpBufferImpl->GetInternalData().mGLBuffer));
 	}
 
 	void COGLVertexBuffer::SetVAOHandler(GLuint vaoHandler)

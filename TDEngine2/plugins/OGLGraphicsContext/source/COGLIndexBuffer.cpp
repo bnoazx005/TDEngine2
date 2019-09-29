@@ -1,5 +1,6 @@
 #include "./../include/COGLIndexBuffer.h"
 #include "./../include/COGLBuffer.h"
+#include "./../include/COGLUtils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -78,7 +79,7 @@ namespace TDEngine2
 
 	void COGLIndexBuffer::Bind(U32 offset)
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mpBufferImpl->GetInternalData().mGLBuffer);
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mpBufferImpl->GetInternalData().mGLBuffer));
 	}
 
 	const TBufferInternalData& COGLIndexBuffer::GetInternalData() const

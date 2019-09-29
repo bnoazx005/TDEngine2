@@ -38,7 +38,7 @@ namespace TDEngine2
 	{
 		CBaseShader::Bind();
 
-		glUseProgram(mShaderHandler);
+		GL_SAFE_VOID_CALL(glUseProgram(mShaderHandler));
 	}
 
 	void COGLShader::Unbind()
@@ -167,7 +167,7 @@ namespace TDEngine2
 	{
 		pBuffer->Bind(slot);
 
-		glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[slot], slot);
+		GL_SAFE_VOID_CALL(glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[slot], slot))
 	}
 	
 	E_RESULT_CODE COGLShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
