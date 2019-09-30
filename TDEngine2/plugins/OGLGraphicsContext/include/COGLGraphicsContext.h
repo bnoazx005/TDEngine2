@@ -212,6 +212,14 @@ namespace TDEngine2
 			TDE2_API void BindTextureSampler(U32 slot, TTextureSamplerId samplerId) override;
 
 			/*!
+				\brief The method binds a given blend state to rendering pipeline
+
+				\param[in] blendStateId An identifier of a blend state
+			*/
+
+			TDE2_API void BindBlendState(TBlendStateId blendStateId) override;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

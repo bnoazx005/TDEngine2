@@ -252,6 +252,14 @@ namespace TDEngine2
 		mp3dDeviceContext->GSSetSamplers(slot, 1, &pSamplerState);
 	}
 
+	void CD3D11GraphicsContext::BindBlendState(TBlendStateId blendStateId)
+	{
+		ID3D11BlendState* pBlendState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetBlendState(blendStateId).Get();
+		
+		// \todo the second argument is not used now, but later it should be parametrized
+		mp3dDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xFFFFFFFF);
+	}
+
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

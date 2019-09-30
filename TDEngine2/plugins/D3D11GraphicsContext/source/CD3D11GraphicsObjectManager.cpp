@@ -120,6 +120,40 @@ namespace TDEngine2
 		return TOkValue<TTextureSamplerId>(samplerId);
 	}
 
+	TResult<TBlendStateId> CD3D11GraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
+	{
+		ID3D11Device* p3dDevice = nullptr;
+
+#if _HAS_CXX17
+		p3dDevice = std::get<TD3D11CtxInternalData>(mpGraphicsContext->GetInternalData()).mp3dDevice;
+#else
+		p3dDevice = mpGraphicsContext->GetInternalData().mD3D11.mp3dDevice;
+#endif
+
+		ID3D11BlendState* pBlendState = nullptr;
+
+		D3D11_BLEND_DESC desc;
+		desc.AlphaToCoverageEnable  = false;
+		desc.IndependentBlendEnable = false;
+		
+		D3D11_RENDER_TARGET_BLEND_DESC& rtBlendStateDesc = desc.RenderTarget[0];
+		rtBlendStateDesc.BlendEnable           = blendStateDesc.mIsEnabled;
+		rtBlendStateDesc.SrcBlend              = CD3D11Mappings::GetBlendFactorValue(blendStateDesc.mScrValue);
+		rtBlendStateDesc.DestBlend             = CD3D11Mappings::GetBlendFactorValue(blendStateDesc.mDestValue);
+		rtBlendStateDesc.BlendOp               = CD3D11Mappings::GetBlendOpType(blendStateDesc.mOpType);
+		rtBlendStateDesc.SrcBlendAlpha         = CD3D11Mappings::GetBlendFactorValue(blendStateDesc.mScrAlphaValue);
+		rtBlendStateDesc.DestBlendAlpha        = CD3D11Mappings::GetBlendFactorValue(blendStateDesc.mDestAlphaValue);
+		rtBlendStateDesc.BlendOpAlpha          = CD3D11Mappings::GetBlendOpType(blendStateDesc.mAlphaOpType);
+		rtBlendStateDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		if (FAILED(p3dDevice->CreateBlendState(&desc, &pBlendState)))
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return TOkValue<TBlendStateId>(mpBlendStates.Add(pBlendState));
+	}
+
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		if (texSamplerId >= mpTextureSamplersArray.size())
@@ -128,6 +162,11 @@ namespace TDEngine2
 		}
 
 		return TOkValue<ID3D11SamplerState*>(mpTextureSamplersArray[texSamplerId]);
+	}
+
+	TResult<ID3D11BlendState*> CD3D11GraphicsObjectManager::GetBlendState(TBlendStateId blendStateId) const
+	{
+		return mpBlendStates[blendStateId];
 	}
 
 	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeTextureSamplers()
@@ -147,6 +186,27 @@ namespace TDEngine2
 		}
 
 		mpTextureSamplersArray.clear();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeBlendStates()
+	{
+		ID3D11BlendState* pCurrBlendState = nullptr;
+
+		for (U32 i = 0; i < mpBlendStates.GetSize(); ++i)
+		{
+			pCurrBlendState = mpBlendStates[i].GetOrDefault(nullptr);
+
+			if (!pCurrBlendState)
+			{
+				continue;
+			}
+
+			pCurrBlendState->Release();
+		}
+
+		mpBlendStates.RemoveAll();
 
 		return RC_OK;
 	}

@@ -188,5 +188,27 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static std::string ErrorCodeToString(GLenum error);
+
+			/*!
+				\brief The function maps engine's value into internal OpenGL's value which defines a value
+				of a factor within the blending equation
+
+				\param[in] factor A factor's value which is the engine's specific one
+
+				\return An internal OpenGL's value which is equivalent for a given one
+			*/
+
+			TDE2_API static GLenum GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor);
+
+			/*!
+				\brief The function maps engine's value into internal OpenGL's value which defines 
+				a type of blending operation
+
+				\param[in] factor A type's value which is the engine's specific one
+
+				\return An internal OpenGL's value which is equivalent for a given one
+			*/
+
+			TDE2_API static GLenum GetBlendOpType(E_BLEND_OP_TYPE opType);
 	};
 }

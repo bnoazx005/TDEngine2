@@ -605,4 +605,51 @@ namespace TDEngine2
 		return "";
 	}
 
+	GLenum COGLMappings::GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor)
+	{
+		switch (factor)
+		{
+			case E_BLEND_FACTOR_VALUE::ZERO:
+				return GL_ZERO;
+			case E_BLEND_FACTOR_VALUE::ONE:
+				return GL_ONE;
+			case E_BLEND_FACTOR_VALUE::SOURCE_ALPHA:
+				return GL_SRC_ALPHA;
+			case E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA:
+				return GL_ONE_MINUS_SRC_ALPHA;
+			case E_BLEND_FACTOR_VALUE::DEST_ALPHA:
+				return GL_DST_ALPHA;
+			case E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_ALPHA:
+				return GL_ONE_MINUS_DST_ALPHA;
+			case E_BLEND_FACTOR_VALUE::CONSTANT_ALPHA:
+				return GL_CONSTANT_ALPHA;
+			case E_BLEND_FACTOR_VALUE::ONE_MINUS_CONSTANT_ALPHA:
+				return GL_ONE_MINUS_CONSTANT_ALPHA;
+			case E_BLEND_FACTOR_VALUE::SOURCE_COLOR:
+				return GL_SRC_COLOR;
+			case E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_COLOR:
+				return GL_ONE_MINUS_SRC_COLOR;
+			case E_BLEND_FACTOR_VALUE::DEST_COLOR:
+				return GL_DST_COLOR;
+			case E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_COLOR:
+				return GL_ONE_MINUS_DST_COLOR;
+		}
+
+		return GL_ZERO;
+	}
+
+	GLenum COGLMappings::GetBlendOpType(E_BLEND_OP_TYPE opType)
+	{
+		switch (opType)
+		{
+			case E_BLEND_OP_TYPE::ADD:
+				return GL_FUNC_ADD;
+			case E_BLEND_OP_TYPE::SUBT:
+				return GL_FUNC_SUBTRACT;
+			case E_BLEND_OP_TYPE::REVERSED_SUBT:
+				return GL_FUNC_REVERSE_SUBTRACT;
+		}
+
+		return GL_FUNC_ADD;
+	}
 }

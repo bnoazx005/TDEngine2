@@ -41,7 +41,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		protected:
-			typedef std::vector<ID3D11SamplerState*> TTextureSamplersArray;
+			typedef std::vector<ID3D11SamplerState*>      TTextureSamplersArray;
+			typedef CResourceContainer<ID3D11BlendState*> TBlendStatesArray;
 		public:
 			/*!
 				\brief The method is a factory for creation objects of IVertexBuffer's type
@@ -109,6 +110,16 @@ namespace TDEngine2
 			TDE2_API TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) override;
 
 			/*!
+				\brief The method creates a new blend state which is configured via given paramters
+
+				\param[in] blendStateDesc A structure that contains parameters which will be assigned to a new created state
+
+				\return The result object contains either an identifier of created blend state or an error code
+			*/
+
+			TDE2_API TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) override;
+
+			/*!
 				\brief The method returns a pointer to ID3D11SamplerState which is related with a given identifier
 
 				\param[in] texSamplerId An identifier of a texture sampler
@@ -117,12 +128,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<ID3D11SamplerState*> GetTextureSampler(TTextureSamplerId texSamplerId) const;
+
+			/*!
+				\brief The method returns a parameters of a blend state with a given identifier
+
+				\param[in] blendStateId An identifier of a blend state
+
+				\return Either a result object with state's object or an error code
+			*/
+
+			TDE2_API TResult<ID3D11BlendState*> GetBlendState(TBlendStateId blendStateId) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsObjectManager)
 			
 			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
+			TDE2_API E_RESULT_CODE _freeBlendStates() override;
 		protected:			
 			TTextureSamplersArray mpTextureSamplersArray;
+			TBlendStatesArray     mpBlendStates;
 	};
 }
 

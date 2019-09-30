@@ -113,6 +113,16 @@ namespace TDEngine2
 			TDE2_API virtual TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) = 0;
 
 			/*!
+				\brief The method creates a new blend state which is configured via given paramters
+
+				\param[in] blendStateDesc A structure that contains parameters which will be assigned to a new created state
+
+				\return The result object contains either an identifier of created blend state or an error code
+			*/
+
+			TDE2_API  virtual TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) = 0;
+
+			/*!
 				\brief The method is a factory for creation of a debug helper object
 
 				\param[in, out] pRenderer A pointer to implementation of IRenderer interface

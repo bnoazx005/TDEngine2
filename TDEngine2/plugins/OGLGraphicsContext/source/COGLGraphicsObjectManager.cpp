@@ -104,6 +104,11 @@ namespace TDEngine2
 		return TOkValue<TTextureSamplerId>(samplerId);
 	}
 
+	TResult<TBlendStateId> COGLGraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
+	{
+		return TOkValue<TBlendStateId>(mBlendStates.Add(blendStateDesc));
+	}
+
 	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		if (texSamplerId >= mTextureSamplersArray.size())
@@ -112,6 +117,11 @@ namespace TDEngine2
 		}
 
 		return TOkValue<GLuint>(mTextureSamplersArray[texSamplerId]);
+	}
+
+	TResult<TBlendStateDesc> COGLGraphicsObjectManager::GetBlendState(TBlendStateId blendStateId) const
+	{
+		return mBlendStates[blendStateId];
 	}
 
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeTextureSamplers()
@@ -125,6 +135,11 @@ namespace TDEngine2
 
 		mTextureSamplersArray.clear();
 
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsObjectManager::_freeBlendStates()
+	{
 		return RC_OK;
 	}
 

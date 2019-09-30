@@ -641,4 +641,69 @@ namespace TDEngine2
 
 		U32                          mTotalPreallocatedMemorySize;
 	} TEngineSettings, *TEngineSettingsPtr;
+
+
+	/*!
+		enum E_BLEND_FACTOR_VALUE
+
+		\brief The enumeration contains all possible values that can be used to
+		specify blending factor's value
+	*/
+
+	enum class E_BLEND_FACTOR_VALUE : U32
+	{
+		ZERO,
+		ONE,
+		SOURCE_ALPHA,
+		ONE_MINUS_SOURCE_ALPHA,
+		DEST_ALPHA,
+		ONE_MINUS_DEST_ALPHA,
+		CONSTANT_ALPHA,
+		ONE_MINUS_CONSTANT_ALPHA,
+		SOURCE_COLOR,
+		ONE_MINUS_SOURCE_COLOR,
+		DEST_COLOR,
+		ONE_MINUS_DEST_COLOR,
+	};
+
+
+	/*!
+		enum E_BLEND_OP_TYPE
+
+		\brief The enumeration defines all available modes in which blending operation
+		can be performed
+	*/
+
+	enum class E_BLEND_OP_TYPE : U32
+	{
+		ADD,
+		SUBT,
+		REVERSED_SUBT
+	};
+
+
+	/*!
+		struct TBlendStateDesc
+
+		\brief The structure contains all information that is needed to set up a blending state
+	*/
+
+	typedef struct TBlendStateDesc
+	{
+		bool                 mIsEnabled = false;
+
+		E_BLEND_FACTOR_VALUE mScrValue;
+		E_BLEND_FACTOR_VALUE mDestValue;
+		E_BLEND_OP_TYPE      mOpType;
+
+		E_BLEND_FACTOR_VALUE mScrAlphaValue;
+		E_BLEND_FACTOR_VALUE mDestAlphaValue;
+		E_BLEND_OP_TYPE      mAlphaOpType;
+
+	} TBlendStateDesc, *TBlendStateDescPtr;
+
+
+	typedef U32 TBlendStateId;
+
+	constexpr TBlendStateId InvalidBlendStateId = (std::numeric_limits<TBlendStateId>::max)();
 }

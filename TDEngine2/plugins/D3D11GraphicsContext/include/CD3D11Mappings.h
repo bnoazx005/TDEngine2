@@ -140,6 +140,28 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static D3D11_TEXTURE_ADDRESS_MODE GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
+
+			/*!
+				\brief The function maps engine's value into internal D3D11's value which defines a value
+				of a factor within the blending equation
+
+				\param[in] factor A factor's value which is the engine's specific one
+
+				\return An internal D3D11's value which is equivalent for a given one
+			*/
+
+			TDE2_API static D3D11_BLEND GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor);
+
+			/*!
+				\brief The function maps engine's value into internal D3D11's value which defines
+				a type of blending operation
+
+				\param[in] factor A type's value which is the engine's specific one
+
+				\return An internal D3D11's value which is equivalent for a given one
+			*/
+
+			TDE2_API static D3D11_BLEND_OP GetBlendOpType(E_BLEND_OP_TYPE opType);
 	};
 }
 

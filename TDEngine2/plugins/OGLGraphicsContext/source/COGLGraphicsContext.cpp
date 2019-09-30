@@ -192,6 +192,22 @@ namespace TDEngine2
 		glBindSampler(slot, internalSamplerId);
 	}
 
+	void COGLGraphicsContext::BindBlendState(TBlendStateId blendStateId)
+	{
+		const TBlendStateDesc& blendStateDesc = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetBlendState(blendStateId).Get();
+
+		auto stateFunction = blendStateDesc.mIsEnabled ? glEnable : glDisable;
+		stateFunction(GL_BLEND);
+
+		glBlendFuncSeparate(COGLMappings::GetBlendFactorValue(blendStateDesc.mScrValue),
+							COGLMappings::GetBlendFactorValue(blendStateDesc.mDestValue),
+							COGLMappings::GetBlendFactorValue(blendStateDesc.mScrAlphaValue),
+							COGLMappings::GetBlendFactorValue(blendStateDesc.mDestAlphaValue));
+
+		glBlendEquationSeparate(COGLMappings::GetBlendOpType(blendStateDesc.mOpType), 
+								COGLMappings::GetBlendOpType(blendStateDesc.mAlphaOpType));
+	}
+
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

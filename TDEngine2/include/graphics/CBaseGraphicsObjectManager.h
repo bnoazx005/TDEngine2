@@ -9,6 +9,7 @@
 
 #include "IGraphicsObjectManager.h"
 #include "./../core/CBaseObject.h"
+#include "./../utils/CResourceContainer.h"
 #include <vector>
 #include <list>
 
@@ -25,11 +26,11 @@ namespace TDEngine2
 	class CBaseGraphicsObjectManager : public IGraphicsObjectManager, public CBaseObject
 	{
 		protected:
-			typedef std::vector<IBuffer*>            TBuffersArray;
+			typedef std::vector<IBuffer*>               TBuffersArray;
 
-			typedef std::list<U32>                   TFreeEntitiesRegistry;
+			typedef std::list<U32>                      TFreeEntitiesRegistry;
 
-			typedef std::vector<IVertexDeclaration*> TVertexDeclarationsArray;
+			typedef std::vector<IVertexDeclaration*>    TVertexDeclarationsArray;
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -78,6 +79,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _freeVertexDeclarations();
 
 			TDE2_API virtual E_RESULT_CODE _freeTextureSamplers() = 0;
+
+			TDE2_API virtual E_RESULT_CODE _freeBlendStates() = 0;
 		protected:
 			IGraphicsContext*        mpGraphicsContext;
 

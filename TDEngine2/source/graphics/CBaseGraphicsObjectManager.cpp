@@ -42,6 +42,7 @@ namespace TDEngine2
 
 		result = result | _freeVertexDeclarations();
 		result = result | _freeTextureSamplers();
+		result = result | _freeBlendStates();
 		result = result | mpDebugUtility->Free();
 
 		mIsInitialized = false;
