@@ -84,7 +84,7 @@ namespace TDEngine2
 	static const TVector3 ZeroVector3    = TVector3();
 	static const TVector3 RightVector3   = TVector3(1.0f, 0.0f, 0.0f);
 	static const TVector3 UpVector3      = TVector3(0.0f, 1.0f, 0.0f);
-	static const TVector3 ForwardVector3 = TVector3(0.0f, 1.0f, 0.0f);
+	static const TVector3 ForwardVector3 = TVector3(0.0f, 0.0f, 1.0f);
 
 
 	///TVector3's operators overloading
