@@ -178,15 +178,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, const CU8String& text, IDebugUtility* pDebugUtility)
+	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text, IDebugUtility* pDebugUtility)
 	{
 		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpFontTextureAtlas->Get(RAT_BLOCKING));
 
 		TVector2 currPosition{ position };
 
 		TRectF32 normalizedUVs;
-
-		F32 scale = .05f;
 
 		U8C currCodePoint = 0x0;
 
@@ -195,6 +193,8 @@ namespace TDEngine2
 		TFontGlyphInfo* pCurrGlyphInfo = nullptr;
 
 		F32 x0, x1, y0, y1;
+
+		mLastGeneratedMesh.clear();
 
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
@@ -213,38 +213,19 @@ namespace TDEngine2
 
 				normalizedUVs = result.Get();
 
-				/*x0 = currPosition.x + scale * pCurrGlyphInfo->mXCenter;
-				x1 = x0 + scale * pCurrGlyphInfo->mWidth;
-				y0 = currPosition.y - scale * (pCurrGlyphInfo->mYCenter);
-				y1 = y0 + scale * pCurrGlyphInfo->mHeight;
-
-				mLastGeneratedMesh.push_back({ x0, y0, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
-				mLastGeneratedMesh.push_back({ x1, y0, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
-				mLastGeneratedMesh.push_back({ x0, y1, normalizedUVs.x,                       normalizedUVs.y });
-				mLastGeneratedMesh.push_back({ x1, y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });*/
-
 				x0 = currPosition.x + scale * pCurrGlyphInfo->mXCenter;
-				y0 = currPosition.y + scale * ((pCurrGlyphInfo->mHeight - 9) / 63)*1/63/* + scale * (40 + pCurrGlyphInfo->mYCenter)*/;
+				y0 = currPosition.y - scale * pCurrGlyphInfo->mYCenter;
 				x1 = scale * pCurrGlyphInfo->mWidth;
 				y1 = scale * (pCurrGlyphInfo->mHeight);
 
-				mLastGeneratedMesh.push_back({ x0,      y0,      normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
-				mLastGeneratedMesh.push_back({ x0 + x1, y0,      normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
-				mLastGeneratedMesh.push_back({ x0,      y0 + y1, normalizedUVs.x,                       normalizedUVs.y });
-				mLastGeneratedMesh.push_back({ x0 + x1, y0 + y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
-
-				//mLastGeneratedMesh.push_back({ x0, y0 + y1, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
-				//mLastGeneratedMesh.push_back({ x0 + x1, y0 + y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height  });
-				//mLastGeneratedMesh.push_back({ x0, y0, normalizedUVs.x, normalizedUVs.y });
-				//mLastGeneratedMesh.push_back({ x0 + x1, y0, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
+				mLastGeneratedMesh.push_back({ x0,      y0,      normalizedUVs.x,                       normalizedUVs.y });
+				mLastGeneratedMesh.push_back({ x0 + x1, y0,      normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
+				mLastGeneratedMesh.push_back({ x0,      y0 - y1, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
+				mLastGeneratedMesh.push_back({ x0 + x1, y0 - y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
 			}
 
 			currPosition = currPosition + TVector2{ scale * (currCodePoint != ' ' ? pCurrGlyphInfo->mAdvance : 20.0f), 0.0f };
 		}
-
-		pDebugUtility->DrawLine({ 0.0f, currPosition.y - scale * 9.0f, 0.5f }, { currPosition.x, currPosition.y - scale * 9.0f, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-		pDebugUtility->DrawLine({ 0.0f, currPosition.y + scale * 40.0f, 0.5f }, { currPosition.x, currPosition.y + scale * 40.0f, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-		pDebugUtility->DrawLine({ 0.0f, currPosition.y, 0.5f }, { currPosition.x, currPosition.y, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 
 		return mLastGeneratedMesh;
 	}

@@ -70,7 +70,7 @@ namespace TDEngine2
 	}
 
 	template <typename T>
-	CStaticArray<T>::CStaticArray(const CStaticArray<T>::Type* pBuffer, CStaticArray<T>::SizeType size) :
+	CStaticArray<T>::CStaticArray(const Type* pBuffer, SizeType size) :
 		mpBuffer(pBuffer), mSize(size)
 	{
 	}

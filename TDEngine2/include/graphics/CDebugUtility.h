@@ -109,11 +109,12 @@ namespace TDEngine2
 				only, use normal text rendering techniques for production
 
 				\param[in] start A screen-space position of a text
+				\param[in] scale A sizes of a text's mesh
 				\param[in] str A UTF-8 encoded string with text data
 				\param[in] color A text's color
 			*/
 
-			TDE2_API void DrawText(const TVector2& screenPos, const CU8String& str, const TColor32F& color) override;
+			TDE2_API void DrawText(const TVector2& screenPos, F32 scale, const CU8String& str, const TColor32F& color) override;
 
 			/*!
 				\brief The method draws an axis-aligned cross with specified parameters

@@ -126,7 +126,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	//pDebugUtility->DrawText({ 0, 0 }, "Test sample", { 1.0f, 1.0f, 1.0f, 1.0f });
-	pDebugUtility->DrawText({ 0, 0 }, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", { 1.0f, 1.0f, 1.0f, 1.0f });
+	pDebugUtility->DrawText({ 0, 0 }, 0.01f, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", { 1.0f, 1.0f, 1.0f, 1.0f });
 	pDebugUtility->DrawCross(TDEngine2::ZeroVector3, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
 
 	return TDEngine2::RC_OK;

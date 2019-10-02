@@ -7,6 +7,7 @@ namespace TDEngine2
 	CYAMLFileWriter::CYAMLFileWriter():
 		CBaseFile()
 	{
+		mCreationFlags |= std::ios::trunc;
 	}
 
 	E_RESULT_CODE CYAMLFileWriter::Serialize(Yaml::Node& object)
@@ -24,6 +25,7 @@ namespace TDEngine2
 
 			Yaml::Serialize(object, formattedOutput);
 			
+			mFile.seekg(std::ios::beg);
 			mFile.write(formattedOutput.c_str(), formattedOutput.length());
 		}
 		catch (const Yaml::Exception e)

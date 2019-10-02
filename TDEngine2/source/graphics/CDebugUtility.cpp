@@ -94,7 +94,7 @@ namespace TDEngine2
 		if (!mCrossesDataBuffer.empty())
 		{
 			mpCrossesVertexBuffer->Map(BMT_WRITE_DISCARD);
-			mpCrossesVertexBuffer->Write(&mCrossesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
+			mpCrossesVertexBuffer->Write(&mCrossesDataBuffer[0], sizeof(TLineVertex) * mCrossesDataBuffer.size());
 			mpCrossesVertexBuffer->Unmap();
 
 			auto pDrawCrossesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(1);
@@ -145,7 +145,7 @@ namespace TDEngine2
 		mLinesDataBuffer.push_back({ { end, 1.0f }, color });
 	}
 
-	void CDebugUtility::DrawText(const TVector2& screenPos, const CU8String& str, const TColor32F& color)
+	void CDebugUtility::DrawText(const TVector2& screenPos, F32 scale, const CU8String& str, const TColor32F& color)
 	{
 		if (!mpSystemFont->IsValid())
 		{
@@ -154,7 +154,7 @@ namespace TDEngine2
 
 		auto pSystemFontResource = dynamic_cast<IFont*>(mpSystemFont->Get(RAT_BLOCKING));
 
-		auto& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, str, this);
+		auto& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, scale, str, this);
 
 		std::transform(generatedMesh.begin(), generatedMesh.end(), std::back_inserter(mTextDataBuffer), [](const TVector4& v)
 		{
