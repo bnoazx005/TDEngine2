@@ -23,6 +23,7 @@
 #include "COGLGraphicsObjectManager.h"
 #include "COGLRenderTarget.h"
 #include "COGLUtils.h"
+#include "COGLCubemapTexture.h"
 
 
 #include <core/IPlugin.h>

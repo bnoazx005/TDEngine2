@@ -99,32 +99,30 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IResourceFactory* pFactoryInstance = CreateOGLShaderFactory(pResourceManager, mpGraphicsContext, result);
-
-		if (result != RC_OK)
+		auto factoryFunctions = 
 		{
-			return result;
-		}
+			CreateOGLShaderFactory,
+			CreateOGLTexture2DFactory,
+			CreateOGLCubemapTextureFactory,
+		};
 
-		TResult<TResourceFactoryId> shaderFactoryResult = pResourceManager->RegisterFactory(pFactoryInstance);
+		IResourceFactory* pFactoryInstance = nullptr;
 
-		if (shaderFactoryResult.HasError())
+		for (auto currFactoryCallback : factoryFunctions)
 		{
-			return shaderFactoryResult.GetError();
-		}
+			pFactoryInstance = currFactoryCallback(pResourceManager, mpGraphicsContext, result);
 
-		pFactoryInstance = CreateOGLTexture2DFactory(pResourceManager, mpGraphicsContext, result);
+			if (result != RC_OK)
+			{
+				return result;
+			}
 
-		if (result != RC_OK)
-		{
-			return result;
-		}
+			auto registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
 
-		TResult<TResourceFactoryId> textureFactoryResult = pResourceManager->RegisterFactory(pFactoryInstance);
-
-		if (textureFactoryResult.HasError())
-		{
-			return textureFactoryResult.GetError();
+			if (registerResult.HasError())
+			{
+				return registerResult.GetError();
+			}
 		}
 
 		return RC_OK;
@@ -141,6 +139,18 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		auto registerLoader = [](IResourceManager* pResourceManager, const IResourceLoader* pLoader) -> E_RESULT_CODE
+		{
+			auto registerResult = pResourceManager->RegisterLoader(pLoader);
+
+			if (registerResult.HasError())
+			{
+				return registerResult.GetError();
+			}
+
+			return RC_OK;
+		};
+
 		E_RESULT_CODE result = RC_OK;
 		
 		IShaderCompiler* pShaderCompilerInstance = CreateOGLShaderCompiler(pFileSystem, result);
@@ -152,30 +162,23 @@ namespace TDEngine2
 
 		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext, pFileSystem, pShaderCompilerInstance, result);
 
-		if (result != RC_OK)
+		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{
 			return result;
-		}
-
-		TResult<TResourceLoaderId> shaderLoaderResult = pResourceManager->RegisterLoader(pLoaderInstance);
-
-		if (shaderLoaderResult.HasError())
-		{
-			return shaderLoaderResult.GetError();
 		}
 
 		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
 
-		if (result != RC_OK)
+		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{
 			return result;
 		}
 
-		TResult<TResourceLoaderId> textureLoaderResult = pResourceManager->RegisterLoader(pLoaderInstance);
+		pLoaderInstance = CreateBaseCubemapTextureLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
 
-		if (textureLoaderResult.HasError())
+		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{
-			return textureLoaderResult.GetError();
+			return result;
 		}
 
 		return RC_OK;

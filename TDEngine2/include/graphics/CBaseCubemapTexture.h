@@ -22,68 +22,86 @@ namespace TDEngine2
 
 	class CBaseCubemapTexture : public ICubemapTexture, public CBaseResource
 	{
-	public:
-		TDE2_REGISTER_TYPE(CBaseCubemapTexture)
+		public:
+			TDE2_REGISTER_TYPE(CBaseCubemapTexture)
 
-		/*!
-			\brief The method initializes an internal state of a 2d texture. The method
-			is used when we want just to load texture's data from some storage. In this
-			case all the parameters will be executed automatically. To create a new blank
-			texture object use overloaded version of Init()
+			/*!
+				\brief The method initializes an internal state of a cubemap texture. The method
+				is used when we want just to load texture's data from some storage. In this
+				case all the parameters will be executed automatically. To create a new blank
+				texture object use overloaded version of Init()
 
-			\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
 
-			\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
-			\param[in] name A resource's name
+				\param[in] name A resource's name
 
-			\return RC_OK if everything went ok, or some other code, which describes an error
-		*/
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
 
-		TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
 
-		/*!
-			\brief The method returns a width of a texture
+			/*!
+				\brief The method initializes an internal state of a cubemap texture. The overloaded version of
+				Init method creates a new texture object within memory with given width, height and format
 
-			\return The method returns a width of a texture
-		*/
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
 
-		TDE2_API U32 GetWidth() const override;
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
 
-		/*!
-			\brief The method returns a height of a texture
+				\param[in] name A resource's name
 
-			\return The method returns a height of a texture
-		*/
+				\param[in] params Additional parameters of a texture
 
-		TDE2_API U32 GetHeight() const override;
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
 
-		/*!
-			\brief The method returns current format of the texture
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+										const TTexture2DParameters& params) override;
 
-			\return The method returns current format of the texture
-		*/
+			/*!
+				\brief The method returns a width of a texture
 
-		TDE2_API E_FORMAT_TYPE GetFormat() const override;
-	protected:
-		DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCubemapTexture)
+				\return The method returns a width of a texture
+			*/
 
-		TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																	 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) = 0;
-	protected:
-		IGraphicsContext* mpGraphicsContext;
+			TDE2_API U32 GetWidth() const override;
 
-		U32               mWidth;
+			/*!
+				\brief The method returns a height of a texture
 
-		U32               mHeight;
+				\return The method returns a height of a texture
+			*/
 
-		E_FORMAT_TYPE     mFormat;
+			TDE2_API U32 GetHeight() const override;
 
-		U32               mNumOfMipLevels;
+			/*!
+				\brief The method returns current format of the texture
 
-		U32               mNumOfSamples;
+				\return The method returns current format of the texture
+			*/
 
-		U32               mSamplingQuality;
+			TDE2_API E_FORMAT_TYPE GetFormat() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCubemapTexture)
+
+			TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
+																		 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) = 0;
+		protected:
+			IGraphicsContext* mpGraphicsContext;
+
+			U32               mWidth;
+
+			U32               mHeight;
+
+			E_FORMAT_TYPE     mFormat;
+
+			U32               mNumOfMipLevels;
+
+			U32               mNumOfSamples;
+
+			U32               mSamplingQuality;
 	};
 
 
@@ -116,6 +134,19 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IResourceLoader* CreateBaseCubemapTextureLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem,
 																			E_RESULT_CODE& result);
+		protected:
+			typedef struct TCubemapMetaInfo
+			{
+				E_FORMAT_TYPE mFormat;
+
+				U32           mWidth;
+
+				U32           mHeight;
+
+				U16           mMipLevelsCount;
+
+				std::string   mFaceTexturePaths[6];
+			} TCubemapMetaInfo;
 		public:
 			/*!
 				\brief The method initializes an inner state of an object
@@ -161,6 +192,10 @@ namespace TDEngine2
 			TDE2_API U32 GetResourceTypeId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCubemapTextureLoader)
+
+			TDE2_API TResult<TCubemapMetaInfo> _readCubemapInfo(const std::string& filename) const;
+
+			TDE2_API E_RESULT_CODE _loadFaceTexture(ICubemapTexture* pCubemapTexture, const TCubemapMetaInfo& info, E_CUBEMAP_FACE face) const;
 		protected:
 			bool              mIsInitialized;
 

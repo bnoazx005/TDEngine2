@@ -652,4 +652,25 @@ namespace TDEngine2
 
 		return GL_FUNC_ADD;
 	}
+
+	GLenum COGLMappings::GetCubemapFace(E_CUBEMAP_FACE faceType)
+	{
+		switch (faceType)
+		{
+			case E_CUBEMAP_FACE::POSITIVE_X:
+				return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			case E_CUBEMAP_FACE::NEGATIVE_X:
+				return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+			case E_CUBEMAP_FACE::POSITIVE_Y:
+				return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+			case E_CUBEMAP_FACE::NEGATIVE_Y:
+				return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+			case E_CUBEMAP_FACE::POSITIVE_Z:
+				return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+			case E_CUBEMAP_FACE::NEGATIVE_Z:
+				return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+		}
+
+		return 0x0;
+	}
 }

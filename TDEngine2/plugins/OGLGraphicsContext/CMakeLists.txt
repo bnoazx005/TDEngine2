@@ -35,6 +35,7 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGraphicsObjectManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLRenderTarget.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLUtils.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLCubemapTexture.h"
 	)
 
 set(OGL_GCTX_SOURCES
@@ -53,6 +54,7 @@ set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLVertexDeclaration.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLGraphicsObjectManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLRenderTarget.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLCubemapTexture.cpp"
 	)
 
 source_group("includes" FILES ${OGL_GCTX_HEADERS})

@@ -19,6 +19,7 @@
 #include "CD3D11Texture2D.h"
 #include "CD3D11GraphicsObjectManager.h"
 #include "CD3D11RenderTarget.h"
+#include "CD3D11CubemapTexture.h"
 
 
 #include <core/IPlugin.h>

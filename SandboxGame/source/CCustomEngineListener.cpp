@@ -79,6 +79,8 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	auto fileSystem = dynamic_cast<TDEngine2::IFileSystem*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_FILE_SYSTEM));
 
+	pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<TDEngine2::ICubemapTexture*>(mpResourceManager->Load<TDEngine2::CBaseCubemapTexture>("DefaultSkybox")->Get(TDEngine2::RAT_BLOCKING)));
+
 	return TDEngine2::RC_OK;
 }
 

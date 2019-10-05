@@ -11,6 +11,7 @@
 #include <graphics/IBuffer.h>
 #include <core/IGraphicsContext.h>
 #include <graphics/IIndexBuffer.h>
+#include <graphics/ICubemapTexture.h>
 #include <GL/glew.h>
 #include <string>
 
@@ -210,5 +211,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static GLenum GetBlendOpType(E_BLEND_OP_TYPE opType);
+			
+			/*!
+				\brief The function maps internal cubemap's face index into OpenGL specific one
+
+				\param[in] faceType An index of cubemap's face
+				
+				\return An internal OpenGL's value which is equivalent for a given one
+			*/
+
+			TDE2_API static GLenum GetCubemapFace(E_CUBEMAP_FACE faceType);
 	};
 }
