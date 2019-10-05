@@ -2,6 +2,7 @@
 #include "./../include/CD3D11GraphicsContext.h"
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11Utils.h"
+#include "./../include/CD3D11Texture2D.h"
 #include <utils/Utils.h>
 #include <cstring>
 #include <algorithm>
@@ -18,11 +19,9 @@ namespace TDEngine2
 
 	void CD3D11CubemapTexture::Bind(U32 slot)
 	{
-/*		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
+		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->PSSetShaderResources(slot, 1, &mpShaderTextureView);
-		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView)*/;
-
-		TDE2_UNIMPLEMENTED();
+		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);
 	}
 
 	E_RESULT_CODE CD3D11CubemapTexture::Load()
@@ -55,7 +54,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11CubemapTexture::Unload()
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		return Reset();
 	}
 
 	E_RESULT_CODE CD3D11CubemapTexture::Reset()
@@ -64,98 +63,107 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		TDE2_UNIMPLEMENTED();
-
-/*
-		if ((result = SafeReleaseCOMPtr<ID3D11CubemapTexture>(&mpTexture)) != RC_OK ||
+		if ((result = SafeReleaseCOMPtr<ID3D11Texture2D>(&mpTexture)) != RC_OK ||
 			(result = SafeReleaseCOMPtr<ID3D11ShaderResourceView>(&mpShaderTextureView)) != RC_OK)
 		{
 			return result;
-		}*/
+		}
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CD3D11CubemapTexture::WriteData(E_CUBEMAP_FACE face, const TRectI32& regionRect, const U8* pData)
 	{
-		TDE2_UNIMPLEMENTED();
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		D3D11_BOX region;
+
+		region.left   = regionRect.x;
+		region.top    = regionRect.y;
+		region.right  = regionRect.x + regionRect.width;
+		region.bottom = regionRect.y + regionRect.height;
+		region.back   = 1;
+		region.front  = 0;
+
+		U32 rowPitch = regionRect.width * CD3D11Mappings::GetNumOfChannelsOfFormat(mFormat);
+
+		mp3dDeviceContext->UpdateSubresource(mpTexture, D3D11CalcSubresource(0, CD3D11Mappings::GetCubemapFace(face), mNumOfMipLevels), &region, 
+											 pData, rowPitch, rowPitch * regionRect.height);
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CD3D11CubemapTexture::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-		U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
+																	  U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
 	{
-		TDE2_UNIMPLEMENTED();
+		auto textureResult = _createD3D11TextureResource(pGraphicsContext, width, height, format, mipLevelsCount, samplesCount, samplingQuality);
 
-		return RC_NOT_IMPLEMENTED_YET;
+		if (textureResult.HasError())
+		{
+			return textureResult.GetError();
+		}
 
-		//auto textureResult = _createD3D11TextureResource(pGraphicsContext, width, height, format, mipLevelsCount, samplesCount, samplingQuality);
+		mpTexture = textureResult.Get();
 
-		//if (textureResult.HasError())
-		//{
-		//	return textureResult.GetError();
-		//}
-
-		//mpTexture = textureResult.Get();
-
-		//return _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);
+		return _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);
 	}
-//
-//	TResult<ID3D11CubemapTexture*> CD3D11CubemapTexture::_createD3D11TextureResource(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-//		U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality,
-//		U32 accessType)
-//	{
-//		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
-//
-//#if _HAS_CXX17
-//		mp3dDevice = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDevice;
-//
-//		mp3dDeviceContext = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDeviceContext;
-//#else
-//		mp3dDevice = graphicsInternalData.mD3D11.mp3dDevice;
-//
-//		mp3dDeviceContext = graphicsInternalData.mD3D11.mp3dDeviceContext;
-//#endif
-//
-//		D3D11_CubemapTexture_DESC textureDesc;
-//
-//		memset(&textureDesc, 0, sizeof(textureDesc));
-//
-//		bool isCPUAccessible = (accessType & DTAT_CPU_READ);
-//
-//		textureDesc.Width = width;
-//		textureDesc.Height = height;
-//		textureDesc.Format = CD3D11Mappings::GetDXGIFormat(format);
-//		textureDesc.SampleDesc.Count = samplesCount;
-//		textureDesc.SampleDesc.Quality = samplingQuality;
-//		textureDesc.MipLevels = mipLevelsCount;
-//		textureDesc.ArraySize = 1; //single texture
-//		textureDesc.BindFlags = isCPUAccessible ? 0x0 : D3D11_BIND_SHADER_RESOURCE; /// default binding type for simple 2d textures
-//		textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
-//		textureDesc.Usage = isCPUAccessible ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
-//
-//		ID3D11CubemapTexture* pTexture = nullptr;
-//
-//		/// create blank texture with specified parameters
-//		if (FAILED(mp3dDevice->CreateCubemapTexture(&textureDesc, nullptr, &pTexture))) /// \todo Implement HRESULT -> E_RESULT_CODE converter function
-//		{
-//			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
-//		}
-//
-//		return TOkValue<ID3D11CubemapTexture*>(pTexture);
-//	}
-/*
+
+	TResult<ID3D11Texture2D*> CD3D11CubemapTexture::_createD3D11TextureResource(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
+																				U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality,
+																				U32 accessType)
+	{
+		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
+
+#if _HAS_CXX17
+		mp3dDevice        = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDevice;
+		mp3dDeviceContext = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDeviceContext;
+#else
+		mp3dDevice        = graphicsInternalData.mD3D11.mp3dDevice;
+		mp3dDeviceContext = graphicsInternalData.mD3D11.mp3dDeviceContext;
+#endif
+
+		D3D11_TEXTURE2D_DESC textureDesc;
+
+		memset(&textureDesc, 0, sizeof(textureDesc));
+
+		bool isCPUAccessible = (accessType & DTAT_CPU_READ);
+
+		textureDesc.Width              = width;
+		textureDesc.Height             = height;
+		textureDesc.Format             = CD3D11Mappings::GetDXGIFormat(format);
+		textureDesc.SampleDesc.Count   = samplesCount;
+		textureDesc.SampleDesc.Quality = samplingQuality;
+		textureDesc.MipLevels          = mipLevelsCount;
+		textureDesc.ArraySize          = 6; // this is a cubemap with 6 faces (textures)
+		textureDesc.BindFlags          = isCPUAccessible ? 0x0 : D3D11_BIND_SHADER_RESOURCE; /// default binding type for simple 2d textures
+		textureDesc.CPUAccessFlags     = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+		textureDesc.Usage              = isCPUAccessible ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
+		textureDesc.MiscFlags          = D3D11_RESOURCE_MISC_TEXTURECUBE;
+
+		ID3D11Texture2D* pTexture = nullptr;
+
+		/// create blank texture with specified parameters
+		if (FAILED(mp3dDevice->CreateTexture2D(&textureDesc, nullptr, &pTexture))) /// \todo Implement HRESULT -> E_RESULT_CODE converter function
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return TOkValue<ID3D11Texture2D*>(pTexture);
+	}
+
 	E_RESULT_CODE CD3D11CubemapTexture::_createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
 
 		memset(&viewDesc, 0, sizeof(viewDesc));
 
-		viewDesc.Format = CD3D11Mappings::GetDXGIFormat(format);
-		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_CubemapTexture;
+		viewDesc.Format        = CD3D11Mappings::GetDXGIFormat(format);
+		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 
-		viewDesc.CubemapTexture.MipLevels = mipLevelsCount;
+		viewDesc.TextureCube.MipLevels = mipLevelsCount;
 
 		if (FAILED(p3dDevice->CreateShaderResourceView(mpTexture, &viewDesc, &mpShaderTextureView)))
 		{
@@ -164,7 +172,7 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-*/
+
 
 	TDE2_API ICubemapTexture* CreateD3D11CubemapTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
@@ -259,24 +267,17 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TDE2_UNIMPLEMENTED();
+		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
 
-		return nullptr;
-//		const TCubemapTextureParameters& texParams = static_cast<const TCubemapTextureParameters&>(params);
-
-		//return dynamic_cast<IResource*>(CreateD3D11CubemapTexture(mpResourceManager, mpGraphicsContext, name, texParams, result));
+		return dynamic_cast<IResource*>(CreateD3D11CubemapTexture(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
 	IResource* CD3D11CubemapTextureFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
-
-		TDE2_UNIMPLEMENTED();
-
-		return nullptr;
-
+		
 		// create blank texture, which sizes equals to 2 x 2 pixels of RGBA format
-		//return dynamic_cast<IResource*>(CreateD3D11CubemapTexture(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
+		return dynamic_cast<IResource*>(CreateD3D11CubemapTexture(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
 	}
 
 	U32 CD3D11CubemapTextureFactory::GetResourceTypeId() const

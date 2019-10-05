@@ -11,6 +11,7 @@
 #include "CD3D11Buffer.h"
 #include <core/IGraphicsContext.h>
 #include <graphics/IIndexBuffer.h>
+#include <graphics/ICubemapTexture.h>
 #include <string>
 
 
@@ -162,6 +163,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static D3D11_BLEND_OP GetBlendOpType(E_BLEND_OP_TYPE opType);
+
+			/*!
+				\brief The function maps internal cubemap's face index into D3D11 specific one
+
+				\param[in] faceType An index of cubemap's face
+
+				\return An internal D3D11's value which is equivalent for a given one
+			*/
+
+			TDE2_API static D3D11_TEXTURECUBE_FACE GetCubemapFace(E_CUBEMAP_FACE faceType);
 	};
 }
 

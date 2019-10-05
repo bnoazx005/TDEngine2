@@ -93,49 +93,30 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		/// Register a factory of shaders
-		IResourceFactory* pFactoryInstance = CreateD3D11ShaderFactory(pResourceManager, mpGraphicsContext, result);
-
-		if (result != RC_OK)
+		auto factoryFunctions =
 		{
-			return result;
-		}
+			CreateD3D11ShaderFactory,
+			CreateD3D11Texture2DFactory,
+			CreateD3D11CubemapTextureFactory,
+		};
 
-		TResult<TResourceFactoryId> shaderFactoryResult = pResourceManager->RegisterFactory(pFactoryInstance);
+		IResourceFactory* pFactoryInstance = nullptr;
 
-		if (shaderFactoryResult.HasError())
+		for (auto currFactoryCallback : factoryFunctions)
 		{
-			return shaderFactoryResult.GetError();
-		}
+			pFactoryInstance = currFactoryCallback(pResourceManager, mpGraphicsContext, result);
 
-		/// Register a factory of 2D textures
-		pFactoryInstance = CreateD3D11Texture2DFactory(pResourceManager, mpGraphicsContext, result);
+			if (result != RC_OK)
+			{
+				return result;
+			}
 
-		if (result != RC_OK)
-		{
-			return result;
-		}
+			auto registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
 
-		TResult<TResourceFactoryId> textureFactoryResult = pResourceManager->RegisterFactory(pFactoryInstance);
-
-		if (textureFactoryResult.HasError())
-		{
-			return textureFactoryResult.GetError();
-		}
-
-		/// Try to register a factory of render target objects
-		pFactoryInstance = CreateD3D11RenderTargetFactory(pResourceManager, mpGraphicsContext, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		TResult<TResourceFactoryId> renderTargetResult = pResourceManager->RegisterFactory(pFactoryInstance);
-
-		if (renderTargetResult.HasError())
-		{
-			return renderTargetResult.GetError();
+			if (registerResult.HasError())
+			{
+				return registerResult.GetError();
+			}
 		}
 
 		return RC_OK;
@@ -152,6 +133,18 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		auto registerLoader = [](IResourceManager* pResourceManager, const IResourceLoader* pLoader) -> E_RESULT_CODE
+		{
+			auto registerResult = pResourceManager->RegisterLoader(pLoader);
+
+			if (registerResult.HasError())
+			{
+				return registerResult.GetError();
+			}
+
+			return RC_OK;
+		};
+
 		E_RESULT_CODE result = RC_OK;
 
 		IShaderCompiler* pShaderCompilerInstance = CreateD3D11ShaderCompiler(pFileSystem, result);
@@ -162,31 +155,24 @@ namespace TDEngine2
 		}
 
 		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext, pFileSystem, pShaderCompilerInstance, result);
-		
-		if (result != RC_OK)
+
+		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{
 			return result;
-		}
-
-		TResult<TResourceLoaderId> shaderLoaderResult = pResourceManager->RegisterLoader(pLoaderInstance);
-
-		if (shaderLoaderResult.HasError())
-		{
-			return shaderLoaderResult.GetError();
 		}
 
 		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
 
-		if (result != RC_OK)
+		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{
 			return result;
 		}
 
-		TResult<TResourceLoaderId> textureLoaderId = pResourceManager->RegisterLoader(pLoaderInstance);
+		pLoaderInstance = CreateBaseCubemapTextureLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
 
-		if (textureLoaderId.HasError())
+		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{
-			return textureLoaderId.GetError();
+			return result;
 		}
 
 		return RC_OK;

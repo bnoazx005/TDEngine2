@@ -122,17 +122,17 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount);
 
-			/*TDE2_API TResult<ID3D11CubemapTexture*> _createD3D11TextureResource(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																				U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality,
-																				U32 accessType = 0x0);*/
+			TDE2_API TResult<ID3D11Texture2D*> _createD3D11TextureResource(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
+																		   U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality,
+																		   U32 accessType = 0x0);
 		protected:
 			ID3D11Device*             mp3dDevice;
 
 			ID3D11DeviceContext*      mp3dDeviceContext;
-/*
-			ID3D11CubemapTexture*     mpTexture;
+								       
+			ID3D11Texture2D*          mpTexture;
 
-			ID3D11ShaderResourceView* mpShaderTextureView;*/
+			ID3D11ShaderResourceView* mpShaderTextureView;
 	};
 
 

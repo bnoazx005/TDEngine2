@@ -218,14 +218,10 @@ namespace TDEngine2
 	IResource* COGLCubemapTextureFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
+		
+		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
 
-		TDE2_UNIMPLEMENTED();
-
-		return nullptr;
-
-//		const TCubemapTextureParameters& texParams = static_cast<const TCubemapTextureParameters&>(params);
-
-		//return dynamic_cast<IResource*>(CreateOGLCubemapTexture(mpResourceManager, mpGraphicsContext, name, texParams, result));
+		return dynamic_cast<IResource*>(CreateOGLCubemapTexture(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
 	IResource* COGLCubemapTextureFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
