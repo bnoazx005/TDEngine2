@@ -399,6 +399,28 @@ namespace TDEngine2
 		return 0;
 	}
 
+	E_FORMAT_TYPE CFormatUtils::GetFormatFromString(const std::string& str)
+	{
+		static std::unordered_map<std::string, E_FORMAT_TYPE> formatsMap
+		{
+			{ "R8_UNORM" , FT_NORM_UBYTE1 },
+			{ "R8G8_UNORM" , FT_NORM_UBYTE2 },
+			{ "R8G8B8_UNORM" , FT_NORM_UBYTE3 },
+			{ "R8G8B8A8_UNORM" , FT_NORM_UBYTE4 },
+		};
+
+		if (formatsMap.find(str) == formatsMap.cend())
+		{
+			/// \todo not all values of E_FORMAT_TYPE are represented here
+
+			TDE2_UNIMPLEMENTED();
+
+			return FT_UNKNOWN;
+		}
+
+		return formatsMap.at(str);
+	}
+
 
 	/*!
 		\brief CDeferOperation's definition

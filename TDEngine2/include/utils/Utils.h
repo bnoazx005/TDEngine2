@@ -514,6 +514,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static U8 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function returns a format of E_FORMAT_TYPE which is parsed from
+				incoming string representation
+
+				\param[in] str A string that contains format's description
+
+				\return An internal representation of data format
+			*/
+
+			TDE2_API static E_FORMAT_TYPE GetFormatFromString(const std::string& str);
 	};
 
 
