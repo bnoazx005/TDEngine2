@@ -180,13 +180,13 @@ namespace TDEngine2
 #endif
 
 		/// register known file types factories
-		if (((result = mpFileSystemInstance->RegisterFileFactory<CTextFileReader>(CreateTextFileReader)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<CConfigFileReader>(CreateConfigFileReader)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<CBinaryFileReader>(CreateBinaryFileReader)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<CBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<CImageFileWriter>(CreateImageFileWriter)) != RC_OK)   ||
-			((result = mpFileSystemInstance->RegisterFileFactory<CYAMLFileReader>(CreateYAMLFileReader)) != RC_OK)     ||
-			((result = mpFileSystemInstance->RegisterFileFactory<CYAMLFileWriter>(CreateYAMLFileWriter)) != RC_OK))
+		if (((result = mpFileSystemInstance->RegisterFileFactory<ITextFileReader>(CreateTextFileReader)) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IConfigFileReader>(CreateConfigFileReader)) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileReader>(CreateBinaryFileReader)) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IImageFileWriter>(CreateImageFileWriter)) != RC_OK)   ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileReader>(CreateYAMLFileReader)) != RC_OK)     ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileWriter>(CreateYAMLFileWriter)) != RC_OK))
 		{
 			return result;
 		}
@@ -511,9 +511,9 @@ namespace TDEngine2
 
 	TResult<TEngineSettings> CConfigFileEngineCoreBuilder::_readConfigurationFile(IFileSystem* pFileSystem, const std::string& configFilename)
 	{
-		TFileEntryId configFileHandle = pFileSystem->Open<CConfigFileReader>(configFilename, false).Get();
+		TFileEntryId configFileHandle = pFileSystem->Open<IConfigFileReader>(configFilename, false).Get();
 
-		IConfigFileReader* pConfigFileReader = pFileSystem->Get<CConfigFileReader>(configFileHandle);
+		IConfigFileReader* pConfigFileReader = pFileSystem->Get<IConfigFileReader>(configFileHandle);
 
 		TEngineSettings settings;
 

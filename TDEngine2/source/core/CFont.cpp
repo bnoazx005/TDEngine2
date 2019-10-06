@@ -78,7 +78,7 @@ namespace TDEngine2
 		}
 
 		/// \note try to create YAML file with the given name
-		auto pFile = pFileSystem->Get<CYAMLFileWriter>(pFileSystem->Open<CYAMLFileWriter>(filename, true).Get());
+		auto pFile = pFileSystem->Get<IYAMLFileWriter>(pFileSystem->Open<IYAMLFileWriter>(filename, true).Get());
 
 		Yaml::Node fontDesc{};
 
@@ -117,14 +117,14 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		TResult<TFileEntryId> fileReadingResult = pFileSystem->Open<CYAMLFileReader>(filename);
+		TResult<TFileEntryId> fileReadingResult = pFileSystem->Open<IYAMLFileReader>(filename);
 
 		if (fileReadingResult.HasError())
 		{
 			return fileReadingResult.GetError();
 		}
 
-		auto pYAMLFileReader = pFileSystem->Get<CYAMLFileReader>(fileReadingResult.Get());
+		auto pYAMLFileReader = pFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
 
 		Yaml::Node fontDataRoot;
 

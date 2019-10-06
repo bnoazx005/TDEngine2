@@ -72,14 +72,14 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		/// load source code
-		TResult<TFileEntryId> shaderFileId = mpFileSystem->Open<CTextFileReader>(pResource->GetName());
+		TResult<TFileEntryId> shaderFileId = mpFileSystem->Open<ITextFileReader>(pResource->GetName());
 
 		if (shaderFileId.HasError())
 		{
 			return shaderFileId.GetError();
 		}
 
-		ITextFileReader* pShaderFileReader = dynamic_cast<ITextFileReader*>(mpFileSystem->Get<CTextFileReader>(shaderFileId.Get()));
+		ITextFileReader* pShaderFileReader = dynamic_cast<ITextFileReader*>(mpFileSystem->Get<ITextFileReader>(shaderFileId.Get()));
 		
 		std::string shaderSourceCode = pShaderFileReader->ReadToEnd();
 

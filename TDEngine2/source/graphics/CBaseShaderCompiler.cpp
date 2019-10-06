@@ -210,7 +210,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		CTextFileReader* pCurrIncludeFile = nullptr;
+		ITextFileReader* pCurrIncludeFile = nullptr;
 
 		std::string processingSource { source };
 
@@ -225,14 +225,14 @@ namespace TDEngine2
 
 			includingFilename = matches[2];
 
-			TResult<TFileEntryId> includeFileId = pFileSystem->Open<CTextFileReader>(includingFilename);
+			TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(includingFilename);
 
 			if (includeFileId.HasError())
 			{
 				continue;
 			}
 
-			pCurrIncludeFile = pFileSystem->Get<CTextFileReader>(includeFileId.Get());
+			pCurrIncludeFile = pFileSystem->Get<ITextFileReader>(includeFileId.Get());
 
 			if (result != RC_OK)
 			{

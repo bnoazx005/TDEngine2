@@ -114,6 +114,8 @@ namespace TDEngine2
 	class ITextFileReader : public virtual IFileReader
 	{
 		public:
+			TDE2_REGISTER_TYPE(ITextFileReader)
+
 			/*!
 				\brief The method reads a single line within a text file and moves a carret to
 				next one
@@ -146,6 +148,8 @@ namespace TDEngine2
 	class IConfigFileReader : public virtual IFileReader
 	{
 		public:
+			TDE2_REGISTER_TYPE(IConfigFileReader)
+
 			/*!
 				\brief The method try to read integer value with specified name inside a group. Otherwise, it
 				will return a default value
@@ -227,6 +231,8 @@ namespace TDEngine2
 
 			typedef void (*TErrorReadCallback)(E_RESULT_CODE);
 		public:
+			TDE2_REGISTER_TYPE(IBinaryFileReader)
+
 			/*!
 				\brief The method reads a continuous block of a file of specified size
 				into a given buffer
@@ -317,6 +323,8 @@ namespace TDEngine2
 
 			typedef void(*TErrorWriteCallback)(E_RESULT_CODE);
 		public:
+			TDE2_REGISTER_TYPE(IBinaryFileWriter)
+
 			/*!
 				\brief The method writes data of specified size into a file
 
@@ -391,6 +399,8 @@ namespace TDEngine2
 	class IImageFileWriter : public IFileWriter
 	{
 		public:
+			TDE2_REGISTER_TYPE(IImageFileWriter)
+
 			/*!
 				\brief The method writes image data into a file
 
@@ -414,6 +424,8 @@ namespace TDEngine2
 	class IYAMLFileWriter : public IFileWriter
 	{
 		public:
+			TDE2_REGISTER_TYPE(IYAMLFileWriter)
+
 			TDE2_API virtual E_RESULT_CODE Serialize(Yaml::Node& object) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IYAMLFileWriter)
@@ -429,6 +441,8 @@ namespace TDEngine2
 	class IYAMLFileReader : public IFileReader
 	{
 		public:
+			TDE2_REGISTER_TYPE(IYAMLFileReader)
+
 			TDE2_API virtual E_RESULT_CODE Deserialize(Yaml::Node& outputObject) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IYAMLFileReader)

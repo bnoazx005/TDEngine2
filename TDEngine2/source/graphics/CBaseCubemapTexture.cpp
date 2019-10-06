@@ -176,14 +176,14 @@ namespace TDEngine2
 
 	TResult<CBaseCubemapTextureLoader::TCubemapMetaInfo> CBaseCubemapTextureLoader::_readCubemapInfo(const std::string& filename) const
 	{
-		TResult<TFileEntryId> fileReadingResult = mpFileSystem->Open<CYAMLFileReader>(filename);
+		TResult<TFileEntryId> fileReadingResult = mpFileSystem->Open<IYAMLFileReader>(filename);
 
 		if (fileReadingResult.HasError())
 		{
 			return TErrorValue<E_RESULT_CODE>(fileReadingResult.GetError());
 		}
 
-		auto pYAMLFileReader = mpFileSystem->Get<CYAMLFileReader>(fileReadingResult.Get());
+		auto pYAMLFileReader = mpFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
 
 		Yaml::Node cubemapMetaInformation;
 

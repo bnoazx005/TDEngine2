@@ -4,7 +4,7 @@
 #include "./../../include/core/CBaseFileSystem.h"
 #include "./../../include/utils/Utils.h"
 #include "./../../include/graphics/CBaseTexture2D.h"
-#include "./../../include/platform/CImageFileWriter.h"
+#include "./../../include/core/IFile.h"
 #include "./../../include/platform/CYAMLFile.h"
 #include <cassert>
 #include <algorithm>
@@ -314,10 +314,10 @@ namespace TDEngine2
 
 		/// \note save texture atlas into an image file
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
-		pFileSystem->Get<CImageFileWriter>(pFileSystem->Open<CImageFileWriter>(mName + "_Tex.png", true).Get())->Write(pAtlasInternalTexture);
+		pFileSystem->Get<IImageFileWriter>(pFileSystem->Open<IImageFileWriter>(mName + "_Tex.png", true).Get())->Write(pAtlasInternalTexture);
 		
 		/// \note try to create YAML file with the given name
-		auto pFile = pFileSystem->Get<CYAMLFileWriter>(pFileSystem->Open<CYAMLFileWriter>(filename, true).Get());
+		auto pFile = pFileSystem->Get<IYAMLFileWriter>(pFileSystem->Open<IYAMLFileWriter>(filename, true).Get());
 
 		Yaml::Node textureAtlasDesc {};
 
@@ -361,14 +361,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TResult<TFileEntryId> fileReadingResult = pFileSystem->Open<CYAMLFileReader>(filename);
+		TResult<TFileEntryId> fileReadingResult = pFileSystem->Open<IYAMLFileReader>(filename);
 
 		if (fileReadingResult.HasError())
 		{
 			return fileReadingResult.GetError();
 		}
 
-		auto pYAMLFileReader = pFileSystem->Get<CYAMLFileReader>(fileReadingResult.Get());
+		auto pYAMLFileReader = pFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
 
 		Yaml::Node atlasDataRoot;
 
