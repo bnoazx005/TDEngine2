@@ -1,6 +1,6 @@
 image: Visual Studio 2017
 
-version: '1.2.{build}'
+version: '1.3.{build}'
 
 configuration:
 - Debug
@@ -24,3 +24,24 @@ build_script:
 
 test_script:
     - ctest -C %CONFIGURATION% --output-on-failure
+
+# artifacts:
+#     - path: TDEngine2_SDK.zip
+
+# after_build:
+#   #create zip archive with all the binaries and documentation
+#   7z a TDEngine2_SDK.zip %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.dll %APPVEYOR_BUILD_FOLDER%\README.md %APPVEYOR_BUILD_FOLDER%\LICENSE  %APPVEYOR_BUILD_FOLDER%\CHANGELOG.md
+
+# skip_tags: true
+
+# deploy:
+#   release: TDEngine2_SDK-v$(appveyor_build_version)
+#   description: ''
+#   provider: GitHub
+#   auth_token:
+#     secure: 1xPR+/5vbL2PEPkG/LtjPXkZqAfB6vZWxVrUCdr6afKZ9utwUA7n6mzDv7//N2gk
+#   artifact: /.*\.zip/            
+#   draft: false
+#   prerelease: false
+#   on:
+#     branch: master                 # release from master branch only
