@@ -138,6 +138,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IGraphicsContext* GetGraphicsContext() const = 0;
+
+			/*!
+				\brief The method returns a string which contains full source code of default shader that is specific
+				for the graphics context 
+
+				\return The method returns a string which contains full source code of default shader that is specific
+				for the graphics context 
+			*/
+
+			TDE2_API virtual std::string GetDefaultShaderCode() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsObjectManager)
 	};

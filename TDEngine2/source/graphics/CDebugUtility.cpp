@@ -88,6 +88,7 @@ namespace TDEngine2
 			pDrawLinesCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
 			pDrawLinesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
 			pDrawLinesCommand->mNumOfVertices = mLinesDataBuffer.size();
+			pDrawLinesCommand->mObjectData.mUnused = IdentityMatrix4;
 		}
 
 		/// \note draw crosses 
@@ -104,6 +105,7 @@ namespace TDEngine2
 			pDrawCrossesCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
 			pDrawCrossesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
 			pDrawCrossesCommand->mNumOfVertices = mCrossesDataBuffer.size();
+			pDrawCrossesCommand->mObjectData.mUnused = IdentityMatrix4;
 		}
 
 		/// \note draw debug text onto the screen
@@ -123,6 +125,7 @@ namespace TDEngine2
 			pDrawTextCommand->mStartIndex = 0;
 			pDrawTextCommand->mStartVertex = 0;
 			pDrawTextCommand->mNumOfIndices = static_cast<U32>(mTextDataBuffer.size() * 1.5f); // \note 1.5 is hand-coded optimisation of 3 / 2 fracture
+			pDrawTextCommand->mObjectData.mUnused = IdentityMatrix4;
 		}
 		
 	}

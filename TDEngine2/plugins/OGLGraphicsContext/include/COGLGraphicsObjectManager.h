@@ -135,6 +135,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<TBlendStateDesc> GetBlendState(TBlendStateId blendStateId) const;
+
+			/*!
+				\brief The method returns a string which contains full source code of default shader that is specific
+				for the graphics context
+
+				\return The method returns a string which contains full source code of default shader that is specific
+				for the graphics context
+			*/
+
+			TDE2_API std::string GetDefaultShaderCode() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLGraphicsObjectManager)
 

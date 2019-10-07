@@ -169,6 +169,32 @@ namespace TDEngine2
 		return mpBlendStates[blendStateId];
 	}
 
+	std::string CD3D11GraphicsObjectManager::GetDefaultShaderCode() const
+	{
+		return R"(
+			#define VERTEX_ENTRY mainVS
+			#define PIXEL_ENTRY mainPS
+
+			#include "TDEngine2Globals.inc"
+
+			#if VERTEX
+
+			float4 mainVS(float4 lPos : POSITION0): SV_POSITION
+			{
+				return mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
+			}
+
+			#endif
+
+			#if PIXEL
+
+			float4 mainPS(float4 wPos : SV_POSITION): SV_TARGET0
+			{
+				return float4(1.0, 0.0, 1.0, 1.0);
+			}
+			#endif)";
+	}
+
 	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeTextureSamplers()
 	{
 		ID3D11SamplerState* pCurrSamplerState = nullptr;

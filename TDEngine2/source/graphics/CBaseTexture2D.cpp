@@ -187,6 +187,8 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
+			/// \todo restore default 2x2 black texture if something went wrong
+
 			return result;
 		}
 

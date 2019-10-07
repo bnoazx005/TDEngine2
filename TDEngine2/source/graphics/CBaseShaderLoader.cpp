@@ -5,6 +5,8 @@
 #include "./../../include/platform/CTextFileReader.h"
 #include "./../../include/graphics/IShaderCompiler.h"
 #include "./../../include/core/IGraphicsContext.h"
+#include "./../../include/graphics/IGraphicsObjectManager.h"
+#include "./../../include/utils/CFileLogger.h"
 #include <string>
 
 
@@ -76,7 +78,10 @@ namespace TDEngine2
 
 		if (shaderFileId.HasError())
 		{
-			return shaderFileId.GetError();
+			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(pResource->GetName()).append("), load default one instead..."));
+
+			/// \note can't load file with the shader, so load default one
+			return pShader->Compile(mpShaderCompiler, mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode());
 		}
 
 		ITextFileReader* pShaderFileReader = dynamic_cast<ITextFileReader*>(mpFileSystem->Get<ITextFileReader>(shaderFileId.Get()));
@@ -91,7 +96,10 @@ namespace TDEngine2
 		/// parse it and compile needed variant
 		if ((result = pShader->Compile(mpShaderCompiler, shaderSourceCode)) != RC_OK)
 		{
-			return result;
+			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(pResource->GetName()).append("), load default one instead..."));
+
+			/// \note can't load file with the shader, so load default one
+			return pShader->Compile(mpShaderCompiler, mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode());
 		}
 
 		return result;
