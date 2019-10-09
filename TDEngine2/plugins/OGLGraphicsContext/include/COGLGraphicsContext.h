@@ -220,6 +220,14 @@ namespace TDEngine2
 			TDE2_API void BindBlendState(TBlendStateId blendStateId) override;
 
 			/*!
+				\brief The method binds a given render target object to rendering pipeline
+
+				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
+			*/
+
+			TDE2_API void BindRenderTarget(IRenderTarget* pRenderTarget) override;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

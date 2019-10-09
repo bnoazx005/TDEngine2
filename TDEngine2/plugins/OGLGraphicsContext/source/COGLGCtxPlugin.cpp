@@ -104,6 +104,7 @@ namespace TDEngine2
 			CreateOGLShaderFactory,
 			CreateOGLTexture2DFactory,
 			CreateOGLCubemapTextureFactory,
+			CreateOGLRenderTargetFactory
 		};
 
 		IResourceFactory* pFactoryInstance = nullptr;

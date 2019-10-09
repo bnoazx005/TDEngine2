@@ -98,6 +98,7 @@ namespace TDEngine2
 			CreateD3D11ShaderFactory,
 			CreateD3D11Texture2DFactory,
 			CreateD3D11CubemapTextureFactory,
+			CreateD3D11RenderTargetFactory
 		};
 
 		IResourceFactory* pFactoryInstance = nullptr;

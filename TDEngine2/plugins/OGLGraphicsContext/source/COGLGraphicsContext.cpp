@@ -2,6 +2,7 @@
 #include "./../include/IOGLContextFactory.h"
 #include "./../include/COGLGraphicsObjectManager.h"
 #include "./../include/COGLMappings.h"
+#include "./../include/COGLRenderTarget.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 
@@ -206,6 +207,17 @@ namespace TDEngine2
 
 		glBlendEquationSeparate(COGLMappings::GetBlendOpType(blendStateDesc.mOpType), 
 								COGLMappings::GetBlendOpType(blendStateDesc.mAlphaOpType));
+	}
+
+	void COGLGraphicsContext::BindRenderTarget(IRenderTarget* pRenderTarget)
+	{
+		if (!pRenderTarget)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			return;
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, dynamic_cast<COGLRenderTarget*>(pRenderTarget)->GetInternalHandler());
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const

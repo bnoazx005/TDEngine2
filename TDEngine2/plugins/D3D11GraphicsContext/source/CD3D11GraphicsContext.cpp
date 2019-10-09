@@ -2,6 +2,7 @@
 #include "./../include/CD3D11Utils.h"
 #include "./../include/CD3D11GraphicsObjectManager.h"
 #include "./../include/CD3D11Mappings.h"
+#include "./../include/CD3D11RenderTarget.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 
@@ -14,7 +15,7 @@
 namespace TDEngine2
 {
 	CD3D11GraphicsContext::CD3D11GraphicsContext() :
-		mIsInitialized(false)
+		mIsInitialized(false), mpPrevBufferView(nullptr), mpCurrDepthStencilView(nullptr)
 	{
 	}
 	
@@ -87,6 +88,9 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		mpCurrDepthStencilView = mpDefaultDepthStencilView;
+		mpPrevBufferView = mpBackBufferView;
 
 		mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpDefaultDepthStencilView);
 
@@ -175,12 +179,12 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::ClearDepthBuffer(F32 value)
 	{
-		mp3dDeviceContext->ClearDepthStencilView(mpDefaultDepthStencilView, D3D11_CLEAR_DEPTH, value, 0);
+		mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_DEPTH, value, 0);
 	}
 
 	void CD3D11GraphicsContext::ClearStencilBuffer(U8 value)
 	{
-		mp3dDeviceContext->ClearDepthStencilView(mpDefaultDepthStencilView, D3D11_CLEAR_STENCIL, 0.0f, value);
+		mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_STENCIL, 0.0f, value);
 	}
 
 	void CD3D11GraphicsContext::Present()
@@ -258,6 +262,21 @@ namespace TDEngine2
 		
 		// \todo the second argument is not used now, but later it should be parametrized
 		mp3dDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xFFFFFFFF);
+	}
+
+	void CD3D11GraphicsContext::BindRenderTarget(IRenderTarget* pRenderTarget)
+	{
+		if (!pRenderTarget)
+		{
+			mpBackBufferView = mpPrevBufferView;
+			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
+			return;
+		}
+
+		mpPrevBufferView = mpBackBufferView;
+		mpBackBufferView = dynamic_cast<CD3D11RenderTarget*>(pRenderTarget)->GetRenderTargetView();
+
+		mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
 	}
 
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const

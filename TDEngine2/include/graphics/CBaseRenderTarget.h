@@ -39,7 +39,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, 
-										const TRenderTargetParameters& params) override;
+										const TTexture2DParameters& params) override;
 
 			/*!
 				\brief The method returns a width of a texture

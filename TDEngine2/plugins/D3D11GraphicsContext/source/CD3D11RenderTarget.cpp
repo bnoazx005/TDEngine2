@@ -54,7 +54,14 @@ namespace TDEngine2
 
 	void CD3D11RenderTarget::Bind(U32 slot)
 	{
-		/// \todo implement the method
+		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
+		mp3dDeviceContext->PSSetShaderResources(slot, 1, &mpShaderTextureView);
+		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);
+	}
+
+	ID3D11RenderTargetView* CD3D11RenderTarget::GetRenderTargetView() const
+	{
+		return mpRenderTargetView;
 	}
 
 	E_RESULT_CODE CD3D11RenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
@@ -145,7 +152,7 @@ namespace TDEngine2
 
 
 	TDE2_API IRenderTarget* CreateD3D11RenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-													const TRenderTargetParameters& params, E_RESULT_CODE& result)
+													const TTexture2DParameters& params, E_RESULT_CODE& result)
 	{
 		CD3D11RenderTarget* pRenderTargetInstance = new (std::nothrow) CD3D11RenderTarget();
 
@@ -213,7 +220,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
+		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
 
 		return dynamic_cast<IResource*>(CreateD3D11RenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
@@ -222,7 +229,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
+		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
 
 		return dynamic_cast<IResource*>(CreateD3D11RenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}

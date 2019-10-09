@@ -3,23 +3,13 @@
 
 namespace TDEngine2
 {
-	/*!
-		\note The declaration of TRenderTargetParameters is placed at IRenderTarget.h
-	*/
-
-	TRenderTargetParameters::TRenderTargetParameters(U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) :
-		mWidth(width), mHeight(height), mFormat(format), mNumOfMipLevels(mipLevelsCount), mNumOfSamples(samplesCount), mSamplingQuality(samplingQuality)
-	{
-	}
-
-
 	CBaseRenderTarget::CBaseRenderTarget() :
 		CBaseResource()
 	{
 	}
 	
 	E_RESULT_CODE CBaseRenderTarget::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, 
-										  const TRenderTargetParameters& params)
+										  const TTexture2DParameters& params)
 	{
 		E_RESULT_CODE result = _init(pResourceManager, name);
 
