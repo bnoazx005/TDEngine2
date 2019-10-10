@@ -324,61 +324,28 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		ISystem* pTransformUpdateSystem = CreateTransformSystem(result);
-
-		if (result != RC_OK)
+		std::vector<ISystem*> builtinSystems 
 		{
-			return result;
-		}
+			CreateTransformSystem(result),
+			CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
+									   pRenderer, pGraphicsObjectManager, result),
+			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
+			CreatePhysics2DSystem(result),
+		};
 
-		TResult<TSystemId> transformUpdateSystemIdResult = pWorldInstance->RegisterSystem(pTransformUpdateSystem);
-
-		if (transformUpdateSystemIdResult.HasError())
+		for (ISystem* pCurrSystem : builtinSystems)
 		{
-			return transformUpdateSystemIdResult.GetError();
-		}
+			if (!pCurrSystem)
+			{
+				continue;
+			}
 
-		ISystem* pSpriteRendererSystem = CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
-																	pRenderer, pGraphicsObjectManager, result);
-		
-		if (result != RC_OK)
-		{
-			return result;
-		}
+			auto registeredSystemIdResult = pWorldInstance->RegisterSystem(pCurrSystem);
 
-		TResult<TSystemId> spriteRenderSystemIdResult = pWorldInstance->RegisterSystem(pSpriteRendererSystem);
-
-		if (spriteRenderSystemIdResult.HasError())
-		{
-			return spriteRenderSystemIdResult.GetError();
-		}
-
-		ISystem* pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		TResult<TSystemId> cameraSystemIdResult = pWorldInstance->RegisterSystem(pCameraSystem);
-
-		if (cameraSystemIdResult.HasError())
-		{
-			return cameraSystemIdResult.GetError();
-		}
-
-		ISystem* pPhysics2DSystem = CreatePhysics2DSystem(result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		TResult<TSystemId> physics2DSystemIdResult = pWorldInstance->RegisterSystem(pPhysics2DSystem);
-
-		if (physics2DSystemIdResult.HasError())
-		{
-			return physics2DSystemIdResult.GetError();
+			if (registeredSystemIdResult.HasError())
+			{
+				LOG_ERROR("[Engine Core] Could not register system");
+			}
 		}
 
 		return RC_OK;

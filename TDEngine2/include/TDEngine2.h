@@ -112,6 +112,9 @@
 #include "graphics/CTextureAtlas.h"
 #include "graphics/IDebugUtility.h"
 #include "graphics/CDebugUtility.h"
+#include "graphics/IMesh.h"
+#include "graphics/CStaticMesh.h"
+
 
 ///math
 #include "math/TVector2.h"

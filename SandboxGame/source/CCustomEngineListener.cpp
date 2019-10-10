@@ -82,7 +82,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<TDEngine2::ICubemapTexture*>(mpResourceManager->Load<TDEngine2::CBaseCubemapTexture>("DefaultSkybox")->Get(TDEngine2::RAT_BLOCKING)));
 
 	auto pRT = mpResourceManager->Create<TDEngine2::CBaseRenderTarget>("default-rt", TDEngine2::TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), TDEngine2::FT_NORM_UBYTE4, 1, 1, 0 });
-
+	//mpGraphicsContext->BindRenderTarget(dynamic_cast<TDEngine2::IRenderTarget*>(pRT->Get(TDEngine2::RAT_BLOCKING)));
 	return TDEngine2::RC_OK;
 }
 
