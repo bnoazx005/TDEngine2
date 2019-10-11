@@ -237,6 +237,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/Types.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CResult.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/Utils.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CU8String.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector2.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector3.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector4.cpp"
