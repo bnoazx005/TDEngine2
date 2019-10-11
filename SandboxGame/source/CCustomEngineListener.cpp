@@ -73,6 +73,10 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	textureSamplerDesc.mVAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
 	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
 
+	textureSamplerDesc.mFilterFlags = (TDEngine2::U32)TDEngine2::E_FILTER_TYPE::FT_BILINEAR << 16 | 
+									  (TDEngine2::U32)TDEngine2::E_FILTER_TYPE::FT_BILINEAR << 8  | 
+									  (TDEngine2::U32)TDEngine2::E_FILTER_TYPE::FT_BILINEAR;
+
 	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
 	
 	auto jobManager = dynamic_cast<TDEngine2::IJobManager*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_JOB_MANAGER));
@@ -129,7 +133,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-	pDebugUtility->DrawText({ 0, 0 }, 0.01f, "Test sample", { 1.0f, 1.0f, 1.0f, 1.0f });
+	pDebugUtility->DrawText({ 0, 0 }, 0.008f, "Test sample", { 1.0f, 1.0f, 1.0f, 1.0f });
 	pDebugUtility->DrawCross(TDEngine2::ZeroVector3, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
 
 	return TDEngine2::RC_OK;
