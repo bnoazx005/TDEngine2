@@ -114,6 +114,7 @@
 #include "graphics/CDebugUtility.h"
 #include "graphics/IMesh.h"
 #include "graphics/CStaticMesh.h"
+#include "graphics/VertexData.h"
 
 
 ///math

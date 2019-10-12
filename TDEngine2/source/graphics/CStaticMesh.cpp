@@ -20,6 +20,46 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CStaticMesh::AddPosition(const TVector4& pos)
+	{
+		mPositions.emplace_back(pos);
+	}
+
+	void CStaticMesh::AddNormal(const TVector4& normal)
+	{
+		mNormals.emplace_back(normal);
+	}
+
+	void CStaticMesh::AddTangent(const TVector4& tangent)
+	{
+		mTangents.emplace_back(tangent);
+	}
+
+	void CStaticMesh::AddTexCoord0(const TVector2& uv0)
+	{
+		mTexcoords0.emplace_back(uv0);
+	}
+
+	const CStaticMesh::TPositionsArray& CStaticMesh::GetPositionsArray() const
+	{
+		return mPositions;
+	}
+
+	const CStaticMesh::TNormalsArray& CStaticMesh::GetNormalsArray() const
+	{
+		return mNormals;
+	}
+
+	const CStaticMesh::TTangentsArray& CStaticMesh::GetTangentsArray() const
+	{
+		return mTangents;
+	}
+
+	const CStaticMesh::TTexcoordsArray& CStaticMesh::GetTexCoords0Array() const
+	{
+		return mTexcoords0;
+	}
+
 
 	IComponent* CreateStaticMesh(E_RESULT_CODE& result)
 	{

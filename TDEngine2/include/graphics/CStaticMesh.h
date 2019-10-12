@@ -25,9 +25,9 @@ namespace TDEngine2
 
 
 	/*!
-		interface ISprite
+		class CStaticMesh
 
-		\brief The interface describes a functionality of a static mesh
+		\brief The class describes a functionality of a static mesh
 	*/
 
 	class CStaticMesh: public IStaticMesh, public CBaseComponent
@@ -44,9 +44,53 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init() override;
+
+			/*!
+				\brief The method adds a new point into the array of mesh's positions
+
+				\param[in] pos A 3d point which represents a position of a mesh's vertex
+			*/
+
+			TDE2_API void AddPosition(const TVector4& pos) override;
+
+			/*!
+				\brief The method adds a new point into the array of mesh's normals
+
+				\param[in] normal A 3d vector which defines a normal
+			*/
+
+			TDE2_API void AddNormal(const TVector4& normal) override;
+
+			/*!
+				\brief The method adds a new point into the array of mesh's tangents
+
+				\param[in] tangent A 3d vector which defines a tangent vector
+			*/
+
+			TDE2_API void AddTangent(const TVector4& tangent) override;
+
+			/*!
+				\brief The method adds a new texture coordinates for first texture channel
+
+				\param[in] uv0 A 2d point which represents a texture coordinates
+			*/
+
+			TDE2_API void AddTexCoord0(const TVector2& uv0) override;
+
+			TDE2_API const TPositionsArray& GetPositionsArray() const override;
+			TDE2_API const TNormalsArray& GetNormalsArray() const override;
+			TDE2_API const TTangentsArray& GetTangentsArray() const override;
+			TDE2_API const TTexcoordsArray& GetTexCoords0Array() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
 		protected:
+			TPositionsArray mPositions;
+
+			TNormalsArray   mNormals;
+			
+			TTangentsArray  mTangents;
+
+			TTexcoordsArray mTexcoords0;
 	};
 
 
