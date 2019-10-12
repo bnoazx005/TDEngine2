@@ -14,6 +14,7 @@
 #include "./../../include/ecs/CTransformSystem.h"
 #include "./../../include/ecs/CCameraSystem.h"
 #include "./../../include/ecs/CPhysics2DSystem.h"
+#include "./../../include/ecs/CStaticMeshRendererSystem.h"
 #include "./../../include/graphics/IRenderer.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/utils/ITimer.h"
@@ -331,6 +332,7 @@ namespace TDEngine2
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreatePhysics2DSystem(result),
+			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 		};
 
 		for (ISystem* pCurrSystem : builtinSystems)

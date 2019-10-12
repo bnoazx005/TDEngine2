@@ -77,10 +77,19 @@ namespace TDEngine2
 
 			TDE2_API void AddTexCoord0(const TVector2& uv0) override;
 
+			/*!
+				\brief The method adds an information about a face into the internal array
+
+				\param[in] face An array with indices that form a face
+			*/
+
+			TDE2_API void AddFace(F32 face[3]) override;
+
 			TDE2_API const TPositionsArray& GetPositionsArray() const override;
 			TDE2_API const TNormalsArray& GetNormalsArray() const override;
 			TDE2_API const TTangentsArray& GetTangentsArray() const override;
 			TDE2_API const TTexcoordsArray& GetTexCoords0Array() const override;
+			TDE2_API const TIndicesArray& GetIndices() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
 		protected:
@@ -91,6 +100,8 @@ namespace TDEngine2
 			TTangentsArray  mTangents;
 
 			TTexcoordsArray mTexcoords0;
+
+			TIndicesArray   mIndices;
 	};
 
 

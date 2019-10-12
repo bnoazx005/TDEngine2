@@ -51,6 +51,9 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 		//auto pBoxCollision = pEntity->AddComponent<TDEngine2::CBoxCollisionObject2D>();
 	}
+
+	auto pMeshEntity = mpWorld->CreateEntity();
+	auto pMesh = pMeshEntity->AddComponent<TDEngine2::CStaticMesh>();
 	
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
 

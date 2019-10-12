@@ -40,6 +40,13 @@ namespace TDEngine2
 		mTexcoords0.emplace_back(uv0);
 	}
 
+	void CStaticMesh::AddFace(F32 face[3])
+	{
+		mIndices.push_back(face[0]);
+		mIndices.push_back(face[1]);
+		mIndices.push_back(face[2]);
+	}
+
 	const CStaticMesh::TPositionsArray& CStaticMesh::GetPositionsArray() const
 	{
 		return mPositions;
@@ -58,6 +65,11 @@ namespace TDEngine2
 	const CStaticMesh::TTexcoordsArray& CStaticMesh::GetTexCoords0Array() const
 	{
 		return mTexcoords0;
+	}
+
+	const CStaticMesh::TIndicesArray& CStaticMesh::GetIndices() const
+	{
+		return mIndices;
 	}
 
 

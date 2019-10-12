@@ -44,6 +44,7 @@ namespace TDEngine2
 			typedef std::vector<TVector4> TNormalsArray;
 			typedef std::vector<TVector4> TTangentsArray;
 			typedef std::vector<TVector2> TTexcoordsArray;
+			typedef std::vector<U32>      TIndicesArray;
 		public:
 			/*!
 				\brief The method initializes an internal state of a quad sprite
@@ -85,10 +86,19 @@ namespace TDEngine2
 
 			TDE2_API virtual void AddTexCoord0(const TVector2& uv0) = 0;
 
+			/*!
+				\brief The method adds an information about a face into the internal array
+
+				\param[in] face An array with indices that form a face
+			*/
+
+			TDE2_API virtual void AddFace(F32 face[3]) = 0;
+
 			TDE2_API virtual const TPositionsArray& GetPositionsArray() const = 0;
 			TDE2_API virtual const TNormalsArray& GetNormalsArray() const = 0;
 			TDE2_API virtual const TTangentsArray& GetTangentsArray() const = 0;
 			TDE2_API virtual const TTexcoordsArray& GetTexCoords0Array() const = 0;
+			TDE2_API virtual const TIndicesArray& GetIndices() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStaticMesh)
 	};

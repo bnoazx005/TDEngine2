@@ -69,6 +69,7 @@
 #include "ecs/ICameraSystem.h"
 #include "ecs/CCameraSystem.h"
 #include "ecs/CPhysics2DSystem.h"
+#include "ecs/CStaticMeshRendererSystem.h"
 
 ///graphics
 #include "graphics/IBuffer.h"
