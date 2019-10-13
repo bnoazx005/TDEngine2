@@ -11,7 +11,9 @@
 #include "./../utils/Utils.h"
 #include "./../math/TVector2.h"
 #include "./../math/TVector4.h"
-#include "./../ecs/IComponentFactory.h"
+#include "./../core/IResource.h"
+#include "./../core/IResourceFactory.h"
+#include "./../core/IResourceLoader.h"
 #include <string>
 #include <vector>
 
@@ -19,12 +21,23 @@
 namespace TDEngine2
 {
 	/*!
+		struct TMesh2DParameters
+
+		\brief The stucture contains fields for creation IMesh and its derived classes
+	*/
+
+	typedef struct TMeshParameters : TBaseResourceParameters
+	{
+	} TMeshParameters, *TMeshParametersPtr;
+
+
+	/*!
 		interface IMesh
 
 		\brief The interface describes a functionality of a common mesh
 	*/
 
-	class IMesh : public virtual IBaseObject
+	class IMesh
 	{
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMesh)
@@ -47,12 +60,30 @@ namespace TDEngine2
 			typedef std::vector<U32>      TIndicesArray;
 		public:
 			/*!
-				\brief The method initializes an internal state of a quad sprite
+				\brief The method initializes an internal state of a mesh object
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in] name A resource's name
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
+
+			/*!
+				\brief The method initializes an internal state of a mesh object
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in] name A resource's name
+				\param[in] params Additional parameters of a mesh
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+												const TMeshParameters& params) = 0;
 
 			/*!
 				\brief The method adds a new point into the array of mesh's positions
@@ -105,21 +136,50 @@ namespace TDEngine2
 
 
 	/*!
-		interface IStaticMeshFactory
+		interface IMeshLoader
 
-		\brief The interface represents a functionality of a factory of IStaticMesh objects
+		\brief The interface describes a functionality of a mesh loader
 	*/
 
-	class IStaticMeshFactory : public IComponentFactory
+	class IMeshLoader : public IResourceLoader
 	{
 		public:
 			/*!
-				\brief The method initializes an internal state of a factory
+				\brief The method initializes an inner state of an object
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pFileSystem A pointer to IFileSystem's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem) = 0;
 		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMeshLoader)
+	};
+
+
+	/*!
+		interface IStaticMeshFactory
+
+		\brief The interface represents a functionality of a factory of IMesh objects
+	*/
+
+	class IMeshFactory : public IResourceFactory
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of a shader factory
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMeshFactory)
 	};
 }

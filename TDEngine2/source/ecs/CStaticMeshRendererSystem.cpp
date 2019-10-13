@@ -51,7 +51,7 @@ namespace TDEngine2
 
 	void CStaticMeshRendererSystem::InjectBindings(IWorld* pWorld)
 	{
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMesh>();
+		/*std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMesh>();
 
 		mProcessingEntities.clear();
 
@@ -67,15 +67,15 @@ namespace TDEngine2
 			}
 
 			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CStaticMesh>() });
-		}
+		}*/
 	}
 
 	void CStaticMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		for (auto iter = mProcessingEntities.begin(); iter != mProcessingEntities.end(); ++iter)
-		{
-			// TODO:
-		}
+		//for (auto iter = mProcessingEntities.begin(); iter != mProcessingEntities.end(); ++iter)
+		//{
+		//	// TODO:
+		//}
 	}
 
 

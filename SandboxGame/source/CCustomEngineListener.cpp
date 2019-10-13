@@ -53,7 +53,6 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 
 	auto pMeshEntity = mpWorld->CreateEntity();
-	auto pMesh = pMeshEntity->AddComponent<TDEngine2::CStaticMesh>();
 	
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
 

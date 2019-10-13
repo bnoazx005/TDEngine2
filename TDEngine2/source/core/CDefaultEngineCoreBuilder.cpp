@@ -28,6 +28,7 @@
 #include "./../../include/graphics/CBaseMaterial.h"
 #include "./../../include/graphics/CTextureAtlas.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/graphics/CStaticMesh.h"
 #include <memory>
 #include <cstring>
 
@@ -476,6 +477,26 @@ namespace TDEngine2
 		}
 
 		pResourceFactory = CreateFontFactory(mpResourceManagerInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		{
+			return result;
+		}
+
+		/// \note register static mesh's resource type
+		pResourceLoader = CreateStaticMeshLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		pResourceFactory = CreateStaticMeshFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
 
 		if (result != RC_OK)
 		{

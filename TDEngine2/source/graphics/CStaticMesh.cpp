@@ -4,20 +4,85 @@
 namespace TDEngine2
 {
 	CStaticMesh::CStaticMesh() :
-		CBaseComponent()
+		CBaseResource()
 	{
 	}
 
-	E_RESULT_CODE CStaticMesh::Init()
+	E_RESULT_CODE CStaticMesh::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name)
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = _init(pResourceManager, name);
+
+		if (result != RC_OK)
 		{
-			return RC_FAIL;
+			return result;
+		}
+
+		if (!pGraphicsContext)
+		{
+			return RC_INVALID_ARGS;
 		}
 
 		mIsInitialized = true;
 
 		return RC_OK;
+	}
+	
+	E_RESULT_CODE CStaticMesh::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+									const TMeshParameters& params)
+	{
+		E_RESULT_CODE result = _init(pResourceManager, name);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if (!pGraphicsContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CStaticMesh::Load()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CStaticMesh>();
+
+		if (!pResourceLoader)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
+
+		if (result != RC_OK)
+		{
+			mState = RST_PENDING;
+
+			return result;
+		}
+
+		mState = RST_LOADED;
+
+		return result;
+	}
+
+	E_RESULT_CODE CStaticMesh::Unload()
+	{
+		return Reset();
+	}
+
+	E_RESULT_CODE CStaticMesh::Reset()
+	{
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	void CStaticMesh::AddPosition(const TVector4& pos)
@@ -73,41 +138,165 @@ namespace TDEngine2
 	}
 
 
-	IComponent* CreateStaticMesh(E_RESULT_CODE& result)
+	TDE2_API IStaticMesh* CreateStaticMesh(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
-		CStaticMesh* pStaticMeshInstance = new (std::nothrow) CStaticMesh();
+		CStaticMesh* pMaterialInstance = new (std::nothrow) CStaticMesh();
 
-		if (!pStaticMeshInstance)
+		if (!pMaterialInstance)
 		{
 			result = RC_OUT_OF_MEMORY;
 
 			return nullptr;
 		}
 
-		result = pStaticMeshInstance->Init();
+		result = pMaterialInstance->Init(pResourceManager, pGraphicsContext, name);
 
 		if (result != RC_OK)
 		{
-			delete pStaticMeshInstance;
+			delete pMaterialInstance;
 
-			pStaticMeshInstance = nullptr;
+			pMaterialInstance = nullptr;
 		}
 
-		return pStaticMeshInstance;
+		return pMaterialInstance;
 	}
 
 
-	CStaticMeshFactory::CStaticMeshFactory() :
-		CBaseObject()
+	TDE2_API IStaticMesh* CreateStaticMesh(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+										   const TMeshParameters& params, E_RESULT_CODE& result)
+	{
+		CStaticMesh* pMaterialInstance = new (std::nothrow) CStaticMesh();
+
+		if (!pMaterialInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pMaterialInstance->Init(pResourceManager, pGraphicsContext, name);
+
+		if (result != RC_OK)
+		{
+			delete pMaterialInstance;
+
+			pMaterialInstance = nullptr;
+		}
+		else
+		{
+			// \todo
+		}
+
+		return pMaterialInstance;
+	}
+
+
+	CStaticMeshLoader::CStaticMeshLoader() :
+		mIsInitialized(false)
 	{
 	}
 
-	E_RESULT_CODE CStaticMeshFactory::Init()
+	E_RESULT_CODE CStaticMeshLoader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		if (!pResourceManager || !pGraphicsContext || !pFileSystem)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
+
+		mpFileSystem = pFileSystem;
+
+		mpGraphicsContext = pGraphicsContext;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CStaticMeshLoader::Free()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = false;
+
+		delete this;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CStaticMeshLoader::LoadResource(IResource* pResource) const
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		TDE2_UNIMPLEMENTED();
+
+		return RC_OK;
+	}
+
+	U32 CStaticMeshLoader::GetResourceTypeId() const
+	{
+		return CStaticMesh::GetTypeId();
+	}
+
+
+	TDE2_API IResourceLoader* CreateStaticMeshLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
+	{
+		CStaticMeshLoader* pMaterialLoaderInstance = new (std::nothrow) CStaticMeshLoader();
+
+		if (!pMaterialLoaderInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pMaterialLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem);
+
+		if (result != RC_OK)
+		{
+			delete pMaterialLoaderInstance;
+
+			pMaterialLoaderInstance = nullptr;
+		}
+
+		return pMaterialLoaderInstance;
+	}
+
+
+	CStaticMeshFactory::CStaticMeshFactory() :
+		mIsInitialized(false)
+	{
+	}
+
+	E_RESULT_CODE CStaticMeshFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pGraphicsContext || !pResourceManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
+
+		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
 
@@ -128,53 +317,48 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IComponent* CStaticMeshFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TStaticMeshParameters* transformParams = static_cast<const TStaticMeshParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateStaticMesh(result);
-	}
-
-	IComponent* CStaticMeshFactory::CreateDefault(const TBaseComponentParameters& params) const
+	IResource* CStaticMeshFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		return CreateStaticMesh(result);
+		const TMeshParameters& matParams = dynamic_cast<const TMeshParameters&>(params);
+
+		return dynamic_cast<IResource*>(CreateStaticMesh(mpResourceManager, mpGraphicsContext, name, matParams, result));
 	}
 
-	TypeId CStaticMeshFactory::GetComponentTypeId() const
+	IResource* CStaticMeshFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		return dynamic_cast<IResource*>(CreateStaticMesh(mpResourceManager, mpGraphicsContext, name, result));
+	}
+
+	U32 CStaticMeshFactory::GetResourceTypeId() const
 	{
 		return CStaticMesh::GetTypeId();
 	}
 
 
-	IComponentFactory* CreateStaticMeshFactory(E_RESULT_CODE& result)
+	TDE2_API IResourceFactory* CreateStaticMeshFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		CStaticMeshFactory* pStaticMeshFactoryInstance = new (std::nothrow) CStaticMeshFactory();
+		CStaticMeshFactory* pMaterialFactoryInstance = new (std::nothrow) CStaticMeshFactory();
 
-		if (!pStaticMeshFactoryInstance)
+		if (!pMaterialFactoryInstance)
 		{
 			result = RC_OUT_OF_MEMORY;
 
 			return nullptr;
 		}
 
-		result = pStaticMeshFactoryInstance->Init();
+		result = pMaterialFactoryInstance->Init(pResourceManager, pGraphicsContext);
 
 		if (result != RC_OK)
 		{
-			delete pStaticMeshFactoryInstance;
+			delete pMaterialFactoryInstance;
 
-			pStaticMeshFactoryInstance = nullptr;
+			pMaterialFactoryInstance = nullptr;
 		}
 
-		return pStaticMeshFactoryInstance;
+		return pMaterialFactoryInstance;
 	}
 }
