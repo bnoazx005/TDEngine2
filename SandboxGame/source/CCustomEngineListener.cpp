@@ -49,9 +49,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 		auto pSprite = pEntity->AddComponent<CQuadSprite>();
 
-		pSprite->SetColor(colors[rand() % 7]);
-
 		pSprite->SetMaterialName("NewMaterial.material");
+		pSprite->SetColor(colors[rand() % 7]);
 
 		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
 	}
@@ -63,11 +62,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpCameraEntity->AddComponent<COrthoCamera>();
 	
 	mpInputContext = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>();
-
-	if (result != RC_OK)
-	{
-		return result;
-	}
 
 	TTextureSamplerDesc textureSamplerDesc;
 /*
@@ -85,10 +79,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
 	
-	auto jobManager = mpEngineCoreInstance->GetSubsystem<IJobManager>();
-
-	auto fileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
-
 	pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<ICubemapTexture*>(mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get(RAT_BLOCKING)));
 
 	auto pRT = mpResourceManager->Create<CBaseRenderTarget>("default-rt", TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), FT_NORM_UBYTE4, 1, 1, 0 });
@@ -98,8 +88,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
-	mpWindowSystem->SetTitle(std::to_string(dt));
-
 	mpGraphicsContext->BindTextureSampler(0, mTextureSampler);
 	
 	if (mpInputContext->IsMouseButtonPressed(0))
@@ -139,7 +127,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawLine(ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-	pDebugUtility->DrawText({ 0, 0 }, 0.008f, "Test sample", { 1.0f, 1.0f, 1.0f, 1.0f });
+	pDebugUtility->DrawText({ 0, 0 }, 0.008f, std::to_string(dt), { 1.0f, 1.0f, 1.0f, 1.0f });
 	pDebugUtility->DrawCross(ZeroVector3, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
 
 	return RC_OK;
