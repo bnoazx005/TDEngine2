@@ -110,6 +110,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Deallocate(void* pMemoryBlock) = 0;
+
+			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_MEMORY_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMemoryManager)
 

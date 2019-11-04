@@ -27,7 +27,7 @@ namespace TDEngine2
 
 		mpEngineCore = pEngineCore;
 
-		IWindowSystem* pWindowSystem = pEngineCore->GetSubsystem<IWindowSystem>(EST_WINDOW);
+		IWindowSystem* pWindowSystem = pEngineCore->GetSubsystem<IWindowSystem>();
 
 		if (!pWindowSystem)
 		{

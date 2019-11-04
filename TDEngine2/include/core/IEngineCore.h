@@ -115,8 +115,6 @@ namespace TDEngine2
 			/*!
 				\brief The method returns a pointer to a subsystem of specified type
 
-				\param[in] type A type of a subsystem which should be returned
-
 				\returns The method returns a pointer to a subsystem of specified type
 			*/
 
@@ -126,9 +124,9 @@ namespace TDEngine2
 #else
 			typename std::enable_if<std::is_base_of<IEngineSubsystem, T>::value, T*>::type
 #endif
-			GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
+			GetSubsystem() const
 			{
-				T* pInternalSystem = static_cast<T*>(_getSubsystem(type));
+				T* pInternalSystem = static_cast<T*>(_getSubsystem(T::GetTypeID()));
 
 				assert(pInternalSystem);
 				return pInternalSystem;

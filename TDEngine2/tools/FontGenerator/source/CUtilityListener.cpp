@@ -18,7 +18,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = RC_OK;
 
-	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IFileSystem>(TDEngine2::EST_FILE_SYSTEM);
+	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IFileSystem>();
 
 	// auto pYamlFile = pFileSystem->Get<CYAMLFileReader>(pFileSystem->Open<CYAMLFileReader>("test.info").Get());
 
@@ -160,9 +160,9 @@ void CUtilityListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCore)
 
 	mpEngineCoreInstance = pEngineCore;
 
-	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<TDEngine2::IGraphicsContext>(TDEngine2::EST_GRAPHICS_CONTEXT);
+	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<TDEngine2::IGraphicsContext>();
 
-	mpWindowSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IWindowSystem>(TDEngine2::EST_WINDOW);
+	mpWindowSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IWindowSystem>();
 
-	mpResourceManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IResourceManager>(TDEngine2::EST_RESOURCE_MANAGER);
+	mpResourceManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IResourceManager>();
 }

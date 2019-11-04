@@ -65,6 +65,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE UnloadAllPlugins() = 0;
+
+			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_PLUGIN_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPluginManager)
 	};

@@ -36,7 +36,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpGraphicsContext = CreateD3D11GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(EST_WINDOW), result);
+		mpGraphicsContext = CreateD3D11GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), result);
 
 		if (result != RC_OK)
 		{
@@ -84,7 +84,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GCtxPlugin::_registerFactories(IEngineCore* pEngineCore)
 	{
-		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>(EST_RESOURCE_MANAGER);
+		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>();
 
 		if (!pResourceManager)
 		{
@@ -125,9 +125,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GCtxPlugin::_registerResourceLoaders(IEngineCore* pEngineCore)
 	{
-		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>(EST_RESOURCE_MANAGER);
+		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>();
 
-		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>(EST_FILE_SYSTEM);
+		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
 
 		if (!pResourceManager || !pFileSystem)
 		{

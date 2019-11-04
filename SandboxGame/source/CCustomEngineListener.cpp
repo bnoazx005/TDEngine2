@@ -2,29 +2,33 @@
 #include <TDEngine2.h>
 #include <iostream>
 
-TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
+
+using namespace TDEngine2;
+
+
+E_RESULT_CODE CCustomEngineListener::OnStart()
 {
-	TDEngine2::E_RESULT_CODE result = TDEngine2::RC_OK;
+	E_RESULT_CODE result = RC_OK;
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
-	TDEngine2::IMaterial* pMaterial = dynamic_cast<TDEngine2::IMaterial*>(
-										mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material", 
-																							TDEngine2::TMaterialParameters{ "testGLShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
+	IMaterial* pMaterial = dynamic_cast<IMaterial*>(
+										mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", 
+																							TMaterialParameters{ "testGLShader.shader" })->Get(RAT_BLOCKING));
 
-	mpResourceManager->Create<TDEngine2::CBaseMaterial>("DebugMaterial.material", TDEngine2::TMaterialParameters{ "DebugGLShader.shader" });
+	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ "DebugGLShader.shader" });
 	
-	TDEngine2::IMaterial* pFontMaterial = dynamic_cast<TDEngine2::IMaterial*>(
-												mpResourceManager->Create<TDEngine2::CBaseMaterial>("DebugTextMaterial.material", 
-																							TDEngine2::TMaterialParameters{ "DebugTextGLShader.shader" })->Get(TDEngine2::RAT_BLOCKING));
+	IMaterial* pFontMaterial = dynamic_cast<IMaterial*>(
+												mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", 
+																							TMaterialParameters{ "DebugTextGLShader.shader" })->Get(RAT_BLOCKING));
 
-	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<TDEngine2::ITexture2D*>(mpResourceManager->Load<TDEngine2::CBaseTexture2D>("Tim.tga")->Get(TDEngine2::RAT_BLOCKING)));
+	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<ITexture2D*>(mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get(RAT_BLOCKING)));
 
-	auto pFontAtlas = dynamic_cast<TDEngine2::ITextureAtlas*>(mpResourceManager->Load<TDEngine2::CTextureAtlas>("atlas")->Get(TDEngine2::RAT_BLOCKING));
+	auto pFontAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->Load<CTextureAtlas>("atlas")->Get(RAT_BLOCKING));
 
 	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
-	const TDEngine2::TColor32F colors[] =
+	const TColor32F colors[] =
 	{
 		{ 1.0f, 0.0f, 0.0f, 1.0f },
 		{ 0.0f, 1.0f, 0.0f, 1.0f },
@@ -35,64 +39,64 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 		{ 1.0f, 1.0f, 0.0f, 1.0f },
 	};
 
-	for (TDEngine2::I32 i = 0; i < 10; ++i)
+	for (I32 i = 0; i < 10; ++i)
 	{
 		auto pEntity = mpWorld->CreateEntity();
 
-		auto pTransform = pEntity->GetComponent<TDEngine2::CTransform>();
+		auto pTransform = pEntity->GetComponent<CTransform>();
 
-		pTransform->SetPosition(pTransform->GetPosition() + TDEngine2::TVector3(rand() % 5 - 2.0f, rand() % 5, rand() % 10));
+		pTransform->SetPosition(pTransform->GetPosition() + TVector3(rand() % 5 - 2.0f, rand() % 5, rand() % 10));
 
-		auto pSprite = pEntity->AddComponent<TDEngine2::CQuadSprite>();
+		auto pSprite = pEntity->AddComponent<CQuadSprite>();
 
 		pSprite->SetColor(colors[rand() % 7]);
 
 		pSprite->SetMaterialName("NewMaterial.material");
 
-		//auto pBoxCollision = pEntity->AddComponent<TDEngine2::CBoxCollisionObject2D>();
+		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
 	}
 
 	auto pMeshEntity = mpWorld->CreateEntity();
 	
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
 
-	mpCameraEntity->AddComponent<TDEngine2::COrthoCamera>();
+	mpCameraEntity->AddComponent<COrthoCamera>();
 	
-	mpInputContext = mpEngineCoreInstance->GetSubsystem<TDEngine2::IDesktopInputContext>(TDEngine2::EST_INPUT_CONTEXT);
+	mpInputContext = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>();
 
-	if (result != TDEngine2::RC_OK)
+	if (result != RC_OK)
 	{
 		return result;
 	}
 
-	TDEngine2::TTextureSamplerDesc textureSamplerDesc;
+	TTextureSamplerDesc textureSamplerDesc;
 /*
-	textureSamplerDesc.mUAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;
-	textureSamplerDesc.mVAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;
-	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_WRAP;*/
+	textureSamplerDesc.mUAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
+	textureSamplerDesc.mVAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
+	textureSamplerDesc.mWAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;*/
 
-	textureSamplerDesc.mUAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
-	textureSamplerDesc.mVAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
-	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+	textureSamplerDesc.mUAddressMode = E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+	textureSamplerDesc.mVAddressMode = E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+	textureSamplerDesc.mWAddressMode = E_ADDRESS_MODE_TYPE::AMT_CLAMP;
 
-	textureSamplerDesc.mFilterFlags = (TDEngine2::U32)TDEngine2::E_FILTER_TYPE::FT_BILINEAR << 16 | 
-									  (TDEngine2::U32)TDEngine2::E_FILTER_TYPE::FT_BILINEAR << 8  | 
-									  (TDEngine2::U32)TDEngine2::E_FILTER_TYPE::FT_BILINEAR;
+	textureSamplerDesc.mFilterFlags = (U32)E_FILTER_TYPE::FT_BILINEAR << 16 | 
+									  (U32)E_FILTER_TYPE::FT_BILINEAR << 8  | 
+									  (U32)E_FILTER_TYPE::FT_BILINEAR;
 
 	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
 	
-	auto jobManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IJobManager>(TDEngine2::EST_JOB_MANAGER);
+	auto jobManager = mpEngineCoreInstance->GetSubsystem<IJobManager>();
 
-	auto fileSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IFileSystem>(TDEngine2::EST_FILE_SYSTEM);
+	auto fileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
 
-	pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<TDEngine2::ICubemapTexture*>(mpResourceManager->Load<TDEngine2::CBaseCubemapTexture>("DefaultSkybox")->Get(TDEngine2::RAT_BLOCKING)));
+	pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<ICubemapTexture*>(mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get(RAT_BLOCKING)));
 
-	auto pRT = mpResourceManager->Create<TDEngine2::CBaseRenderTarget>("default-rt", TDEngine2::TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), TDEngine2::FT_NORM_UBYTE4, 1, 1, 0 });
-	//mpGraphicsContext->BindRenderTarget(dynamic_cast<TDEngine2::IRenderTarget*>(pRT->Get(TDEngine2::RAT_BLOCKING)));
-	return TDEngine2::RC_OK;
+	auto pRT = mpResourceManager->Create<CBaseRenderTarget>("default-rt", TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), FT_NORM_UBYTE4, 1, 1, 0 });
+	//mpGraphicsContext->BindRenderTarget(dynamic_cast<IRenderTarget*>(pRT->Get(RAT_BLOCKING)));
+	return RC_OK;
 }
 
-TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
+E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	mpWindowSystem->SetTitle(std::to_string(dt));
 
@@ -103,50 +107,50 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		std::cout << "pressed\n";
 	}
 
-	TDEngine2::CTransform* pCameraTransform = mpCameraEntity->GetComponent<TDEngine2::CTransform>();
+	CTransform* pCameraTransform = mpCameraEntity->GetComponent<CTransform>();
 	
-	if (mpInputContext->IsKeyPressed(TDEngine2::E_KEYCODES::KC_ESCAPE))
+	if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE))
 	{
 		return mpEngineCoreInstance->Quit();
 	}
 
-	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_W))
+	if (mpInputContext->IsKey(E_KEYCODES::KC_W))
 	{
-		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::UpVector3);
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * UpVector3);
 	}
 
-	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_S))
+	if (mpInputContext->IsKey(E_KEYCODES::KC_S))
 	{
-		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * TDEngine2::UpVector3);
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * UpVector3);
 	}
 
-	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_A))
+	if (mpInputContext->IsKey(E_KEYCODES::KC_A))
 	{
-		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * TDEngine2::RightVector3);
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * RightVector3);
 	}
 
-	if (mpInputContext->IsKey(TDEngine2::E_KEYCODES::KC_D))
+	if (mpInputContext->IsKey(E_KEYCODES::KC_D))
 	{
-		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::RightVector3);
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * RightVector3);
 	}
 	
-	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<TDEngine2::IRenderer>(TDEngine2::EST_RENDERER)).Get();
-	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
+	pDebugUtility->DrawLine(ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawLine(ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawLine(ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawLine(ZeroVector3, { 10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawText({ 0, 0 }, 0.008f, "Test sample", { 1.0f, 1.0f, 1.0f, 1.0f });
-	pDebugUtility->DrawCross(TDEngine2::ZeroVector3, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
+	pDebugUtility->DrawCross(ZeroVector3, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
 
-	return TDEngine2::RC_OK;
+	return RC_OK;
 }
 
-TDEngine2::E_RESULT_CODE CCustomEngineListener::OnFree()
+E_RESULT_CODE CCustomEngineListener::OnFree()
 {
-	return TDEngine2::RC_OK;
+	return RC_OK;
 }
 
-void CCustomEngineListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCore)
+void CCustomEngineListener::SetEngineInstance(IEngineCore* pEngineCore)
 {
 	if (!pEngineCore)
 	{
@@ -155,11 +159,10 @@ void CCustomEngineListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCor
 
 	mpEngineCoreInstance = pEngineCore;
 
-	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<TDEngine2::IGraphicsContext>(TDEngine2::EST_GRAPHICS_CONTEXT);
+	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>();
+	mpWindowSystem    = mpEngineCoreInstance->GetSubsystem<IWindowSystem>();
+	mpResourceManager = mpEngineCoreInstance->GetSubsystem<IResourceManager>();
 
 	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
-	mpWindowSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IWindowSystem>(TDEngine2::EST_WINDOW);
-
-	mpResourceManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IResourceManager>(TDEngine2::EST_RESOURCE_MANAGER);
 }

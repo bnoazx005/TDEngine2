@@ -101,6 +101,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
+
+			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EVENT_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEventManager)
 

@@ -171,6 +171,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResourceId GetResourceId(const std::string& name) const = 0;
+
+			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_RESOURCE_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)
 

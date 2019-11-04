@@ -110,6 +110,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Update() = 0;
+
+			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_INPUT_CONTEXT; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IInputContext)
 	};
