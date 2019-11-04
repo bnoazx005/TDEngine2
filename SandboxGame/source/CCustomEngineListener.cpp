@@ -12,19 +12,17 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
-	IMaterial* pMaterial = dynamic_cast<IMaterial*>(
-										mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", 
-																							TMaterialParameters{ "testGLShader.shader" })->Get(RAT_BLOCKING));
+	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", 
+																	TMaterialParameters{ "testGLShader.shader" })->Get<IMaterial>(RAT_BLOCKING);
 
 	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ "DebugGLShader.shader" });
 	
-	IMaterial* pFontMaterial = dynamic_cast<IMaterial*>(
-												mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", 
-																							TMaterialParameters{ "DebugTextGLShader.shader" })->Get(RAT_BLOCKING));
+	IMaterial* pFontMaterial = mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", 
+																		TMaterialParameters{ "DebugTextGLShader.shader" })->Get<IMaterial>(RAT_BLOCKING);
 
-	pMaterial->SetTextureResource("TextureAtlas", dynamic_cast<ITexture2D*>(mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get(RAT_BLOCKING)));
+	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
 
-	auto pFontAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->Load<CTextureAtlas>("atlas")->Get(RAT_BLOCKING));
+	auto pFontAtlas = mpResourceManager->Load<CTextureAtlas>("atlas")->Get<ITextureAtlas>(RAT_BLOCKING);
 
 	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
@@ -61,7 +59,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpCameraEntity->AddComponent<COrthoCamera>();
 	
-	mpInputContext = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>();
 
 	TTextureSamplerDesc textureSamplerDesc;
 /*
@@ -79,7 +76,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
 	
-	pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<ICubemapTexture*>(mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get(RAT_BLOCKING)));
+	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
 
 	auto pRT = mpResourceManager->Create<CBaseRenderTarget>("default-rt", TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), FT_NORM_UBYTE4, 1, 1, 0 });
 	//mpGraphicsContext->BindRenderTarget(dynamic_cast<IRenderTarget*>(pRT->Get(RAT_BLOCKING)));
@@ -150,6 +147,7 @@ void CCustomEngineListener::SetEngineInstance(IEngineCore* pEngineCore)
 	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>();
 	mpWindowSystem    = mpEngineCoreInstance->GetSubsystem<IWindowSystem>();
 	mpResourceManager = mpEngineCoreInstance->GetSubsystem<IResourceManager>();
+	mpInputContext    = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>();
 
 	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 

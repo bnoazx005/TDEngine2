@@ -16,9 +16,9 @@ namespace TDEngine2
 {
 	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpMaterialHandler->Get(RAT_BLOCKING));
+		IMaterial* pMaterial = mpMaterialHandler->Get<IMaterial>(RAT_BLOCKING);
 
-		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
+		IShader* pAttachedShader = pMaterial->GetShaderHandler()->Get<IShader>(RAT_BLOCKING);
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
@@ -36,9 +36,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpMaterialHandler->Get(RAT_BLOCKING));
+		IMaterial* pMaterial = mpMaterialHandler->Get<IMaterial>(RAT_BLOCKING);
 		
-		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
+		IShader* pAttachedShader = pMaterial->GetShaderHandler()->Get<IShader>(RAT_BLOCKING);
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
@@ -62,9 +62,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpMaterialHandler->Get(RAT_BLOCKING));
+		IMaterial* pMaterial = mpMaterialHandler->Get<IMaterial>(RAT_BLOCKING);
 
-		IShader* pAttachedShader = dynamic_cast<IShader*>(pMaterial->GetShaderHandler()->Get(RAT_BLOCKING));
+		IShader* pAttachedShader = pMaterial->GetShaderHandler()->Get<IShader>(RAT_BLOCKING);
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader);
 

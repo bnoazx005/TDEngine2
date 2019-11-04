@@ -155,7 +155,7 @@ namespace TDEngine2
 			mpSystemFont = mpResourceManager->Load<CFont>("Arial");
 		}
 
-		auto pSystemFontResource = dynamic_cast<IFont*>(mpSystemFont->Get(RAT_BLOCKING));
+		auto pSystemFontResource = mpSystemFont->Get<IFont>(RAT_BLOCKING);
 
 		auto& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, scale, str, this);
 

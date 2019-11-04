@@ -10,12 +10,13 @@
 #include "./../utils/Types.h"
 #include "IBaseObject.h"
 #include "./../utils/Utils.h"
+#include "IResource.h"
 #include <functional>
+#include <cassert>
 
 
 namespace TDEngine2
 {
-	class IResource;
 	class IResourceManager;
 
 	
@@ -62,7 +63,16 @@ namespace TDEngine2
 				\return A raw pointer to a binded resource
 			*/
 
-			TDE2_API virtual IResource* Get(E_RESOURCE_ACCESS_TYPE type) = 0;
+			template <typename T>
+//#if _HAS_CXX17
+//			std::enable_if_t<std::is_base_of_v<IResource, T>, T*>
+//#else
+//			typename std::enable_if<std::is_base_of<IResource, T>::value, T*>::type
+//#endif
+			T* Get(E_RESOURCE_ACCESS_TYPE type)
+			{
+				return dynamic_cast<T*>(_getInternal(type));
+			}
 
 			/*!
 				\brief The method returns an identifier of a binded resource
@@ -89,5 +99,7 @@ namespace TDEngine2
 			TDE2_API virtual bool IsValid() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceHandler)
+
+			TDE2_API virtual IResource* _getInternal(E_RESOURCE_ACCESS_TYPE type) = 0;
 	};
 }

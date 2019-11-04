@@ -85,7 +85,7 @@ namespace TDEngine2
 		fontDesc["name"] = mName;
 
 		auto& textureAtlasReference = fontDesc["texture_atlas_info"];
-		textureAtlasReference["path"] = dynamic_cast<IResource*>(mpFontTextureAtlas->Get(RAT_BLOCKING))->GetName();
+		textureAtlasReference["path"] = mpFontTextureAtlas->Get<IResource>(RAT_BLOCKING)->GetName();
 
 		// TODO: add scale's info
 		
@@ -180,7 +180,7 @@ namespace TDEngine2
 
 	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text, IDebugUtility* pDebugUtility)
 	{
-		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpFontTextureAtlas->Get(RAT_BLOCKING));
+		auto pTextureAtlas = mpFontTextureAtlas->Get<ITextureAtlas>(RAT_BLOCKING);
 
 		TVector2 currPosition{ position };
 

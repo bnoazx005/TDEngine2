@@ -163,7 +163,7 @@ namespace TDEngine2
 			return (leftRect.width > rightRect.width) && (leftRect.height > rightRect.height);
 		});
 		
-		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
+		ITexture2D* pAtlasInternalTexture = mpTextureResource->Get<ITexture2D>(RAT_BLOCKING);
 
 		/// \note while there is enough space within the atlas pack next entry
 		TAtlasAreaEntry root;
@@ -310,7 +310,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
+		ITexture2D* pAtlasInternalTexture = mpTextureResource->Get<ITexture2D>(RAT_BLOCKING);
 
 		/// \note save texture atlas into an image file
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
@@ -388,7 +388,7 @@ namespace TDEngine2
 		mpTextureResource = mpResourceManager->Load<CBaseTexture2D>(mName + "_Tex.png");
 
 		/// \todo ansynchronously update sizes of the atlas when the texture has been loaded
-		_updateAtlasSizes(mpTextureResource->Get(RAT_BLOCKING));
+		_updateAtlasSizes(mpTextureResource->Get<IResource>(RAT_BLOCKING));
 
 		auto& texturesList = atlasDataRoot["textures_list"];
 
@@ -417,7 +417,7 @@ namespace TDEngine2
 
 	ITexture2D* CTextureAtlas::GetTexture() const
 	{
-		return dynamic_cast<ITexture2D*>(mpTextureResource->Get(RAT_BLOCKING));
+		return mpTextureResource->Get<ITexture2D>(RAT_BLOCKING);
 	}
 
 	TResult<TRectI32> CTextureAtlas::GetTextureRect(const std::string& textureName) const

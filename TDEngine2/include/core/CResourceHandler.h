@@ -71,18 +71,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetResourceId(TResourceId id) override;
 
 			/*!
-				\brief The method returns a raw pointer to a resource it's binded to
-
-				\param[in] type A type of an access to a resource (can be blocking or asynchronous). Use
-				RAT_BLOCKING to get result at the place of a call, or RAT_STREAMING to get high-quality
-				version of the resource when it'll be fully loaded into a memory
-
-				\return A raw pointer to a binded resource
-			*/
-
-			TDE2_API IResource* Get(E_RESOURCE_ACCESS_TYPE type) override;
-
-			/*!
 				\brief The method returns an identifier of a binded resource
 
 				\return The method returns an identifier of a binded resource
@@ -107,6 +95,18 @@ namespace TDEngine2
 			TDE2_API bool IsValid() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceHandler)
+
+			/*!
+				\brief The method returns a raw pointer to a resource it's binded to
+
+				\param[in] type A type of an access to a resource (can be blocking or asynchronous). Use
+				RAT_BLOCKING to get result at the place of a call, or RAT_STREAMING to get high-quality
+				version of the resource when it'll be fully loaded into a memory
+
+				\return A raw pointer to a binded resource
+			*/
+
+			TDE2_API IResource* _getInternal(E_RESOURCE_ACCESS_TYPE type) override;
 		protected:
 			IResourceManager*  mpResourceManager;
 			TResourceId        mResourceId;

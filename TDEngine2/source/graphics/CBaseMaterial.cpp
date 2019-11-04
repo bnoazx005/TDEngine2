@@ -93,7 +93,7 @@ namespace TDEngine2
 
 	void CBaseMaterial::Bind()
 	{
-		IShader* pShaderInstance = dynamic_cast<TDEngine2::IShader*>(mpShader->Get(TDEngine2::RAT_BLOCKING));
+		IShader* pShaderInstance = mpShader->Get<IShader>(TDEngine2::RAT_BLOCKING);
 
 		if (!pShaderInstance)
 		{

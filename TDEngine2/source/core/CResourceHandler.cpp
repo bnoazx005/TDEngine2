@@ -60,7 +60,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IResource* CResourceHandler::Get(E_RESOURCE_ACCESS_TYPE type)
+	IResource* CResourceHandler::_getInternal(E_RESOURCE_ACCESS_TYPE type)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
