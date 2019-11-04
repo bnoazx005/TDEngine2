@@ -58,7 +58,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpCameraEntity->AddComponent<TDEngine2::COrthoCamera>();
 	
-	mpInputContext = dynamic_cast<TDEngine2::IDesktopInputContext*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_INPUT_CONTEXT));
+	mpInputContext = mpEngineCoreInstance->GetSubsystem<TDEngine2::IDesktopInputContext>(TDEngine2::EST_INPUT_CONTEXT);
 
 	if (result != TDEngine2::RC_OK)
 	{
@@ -81,9 +81,9 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
 	
-	auto jobManager = dynamic_cast<TDEngine2::IJobManager*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_JOB_MANAGER));
+	auto jobManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IJobManager>(TDEngine2::EST_JOB_MANAGER);
 
-	auto fileSystem = dynamic_cast<TDEngine2::IFileSystem*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_FILE_SYSTEM));
+	auto fileSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IFileSystem>(TDEngine2::EST_FILE_SYSTEM);
 
 	pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<TDEngine2::ICubemapTexture*>(mpResourceManager->Load<TDEngine2::CBaseCubemapTexture>("DefaultSkybox")->Get(TDEngine2::RAT_BLOCKING)));
 
@@ -130,7 +130,7 @@ TDEngine2::E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * TDEngine2::RightVector3);
 	}
 	
-	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, dynamic_cast<TDEngine2::IRenderer*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_RENDERER))).Get();
+	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<TDEngine2::IRenderer>(TDEngine2::EST_RENDERER)).Get();
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(TDEngine2::ZeroVector3, { -10.0f, 10.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
@@ -155,11 +155,11 @@ void CCustomEngineListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCor
 
 	mpEngineCoreInstance = pEngineCore;
 
-	mpGraphicsContext = dynamic_cast<TDEngine2::IGraphicsContext*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_GRAPHICS_CONTEXT));
+	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<TDEngine2::IGraphicsContext>(TDEngine2::EST_GRAPHICS_CONTEXT);
 
 	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
-	mpWindowSystem = dynamic_cast<TDEngine2::IWindowSystem*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_WINDOW));
+	mpWindowSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IWindowSystem>(TDEngine2::EST_WINDOW);
 
-	mpResourceManager = dynamic_cast<TDEngine2::IResourceManager*>(mpEngineCoreInstance->GetSubsystem(TDEngine2::EST_RESOURCE_MANAGER));
+	mpResourceManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IResourceManager>(TDEngine2::EST_RESOURCE_MANAGER);
 }

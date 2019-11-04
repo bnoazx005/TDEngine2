@@ -133,7 +133,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mpGraphicsContextInstance = dynamic_cast<IGraphicsContext*>(mpEngineCoreInstance->GetSubsystem(EST_GRAPHICS_CONTEXT));
+		mpGraphicsContextInstance = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>(EST_GRAPHICS_CONTEXT);
 
 		return RC_OK;
 	}

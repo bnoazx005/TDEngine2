@@ -11,6 +11,7 @@
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
 #include <string>
+#include <cassert>
 
 
 namespace TDEngine2
@@ -119,7 +120,19 @@ namespace TDEngine2
 				\returns The method returns a pointer to a subsystem of specified type
 			*/
 
-			TDE2_API virtual IEngineSubsystem* GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const = 0;
+			template <typename T>
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IEngineSubsystem, T>, T*>
+#else
+			typename std::enable_if<std::is_base_of<IEngineSubsystem, T>::value, T*>::type
+#endif
+			GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
+			{
+				T* pInternalSystem = static_cast<T*>(_getSubsystem(type));
+
+				assert(pInternalSystem);
+				return pInternalSystem;
+			}
 
 			/*!
 				\brief The method returns a pointer to a main logger of an engine if 
@@ -147,5 +160,7 @@ namespace TDEngine2
 			TDE2_API virtual IWorld* GetWorldInstance() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEngineCore)
+
+			TDE2_API virtual IEngineSubsystem* _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const = 0;
 	};
 }

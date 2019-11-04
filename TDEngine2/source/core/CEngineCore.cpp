@@ -225,18 +225,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IEngineSubsystem* CEngineCore::GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
-	{
-		if (type == EST_UNKNOWN)
-		{
-			return nullptr;
-		}
-
-		//std::lock_guard<std::mutex> lock(mMutex);
-
-		return mSubsystems[type];
-	}
-
 	ILogger* CEngineCore::GetLogger() const
 	{
 #if defined(TDE2_DEBUG_MODE)
@@ -258,6 +246,18 @@ namespace TDEngine2
 		//std::lock_guard<std::mutex> lock(mMutex);
 
 		return mpWorldInstance;
+	}
+
+	IEngineSubsystem* CEngineCore::_getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
+	{
+		if (type == EST_UNKNOWN)
+		{
+			return nullptr;
+		}
+
+		//std::lock_guard<std::mutex> lock(mMutex);
+
+		return mSubsystems[type];
 	}
 
 	void CEngineCore::_onFrameUpdateCallback()

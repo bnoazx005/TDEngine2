@@ -128,16 +128,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE UnregisterListener(IEngineListener* pListener) override;
 
 			/*!
-				\brief The method returns a pointer to a subsystem of specified type
-
-				\param[in] type A type of a subsystem which should be returned
-
-				\returns The method returns a pointer to a subsystem of specified type
-			*/
-
-			TDE2_API IEngineSubsystem* GetSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const override;
-
-			/*!
 				\brief The method returns a pointer to a main logger of an engine
 
 				\returns The method returns a pointer to a main logger of an engine
@@ -162,6 +152,8 @@ namespace TDEngine2
 			TDE2_API IWorld* GetWorldInstance() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEngineCore)
+
+			TDE2_API IEngineSubsystem* _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const override;
 
 			TDE2_API void _onFrameUpdateCallback();
 
