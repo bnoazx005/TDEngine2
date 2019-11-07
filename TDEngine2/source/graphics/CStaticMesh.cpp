@@ -321,9 +321,9 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TMeshParameters& matParams = dynamic_cast<const TMeshParameters&>(params);
+		const TMeshParameters& meshParams = dynamic_cast<const TMeshParameters&>(params);
 
-		return dynamic_cast<IResource*>(CreateStaticMesh(mpResourceManager, mpGraphicsContext, name, matParams, result));
+		return dynamic_cast<IResource*>(CreateStaticMesh(mpResourceManager, mpGraphicsContext, name, meshParams, result));
 	}
 
 	IResource* CStaticMeshFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const

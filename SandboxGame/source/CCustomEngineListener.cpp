@@ -12,18 +12,16 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
-	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", 
-																	TMaterialParameters{ "testGLShader.shader" })->Get<IMaterial>(RAT_BLOCKING);
+	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ "testGLShader.shader" })->Get<IMaterial>(RAT_BLOCKING);
+	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
+	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
 
 	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ "DebugGLShader.shader" });
 	
 	IMaterial* pFontMaterial = mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", 
 																		TMaterialParameters{ "DebugTextGLShader.shader" })->Get<IMaterial>(RAT_BLOCKING);
 
-	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
-
 	auto pFontAtlas = mpResourceManager->Load<CTextureAtlas>("atlas")->Get<ITextureAtlas>(RAT_BLOCKING);
-
 	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
 	const TColor32F colors[] =
@@ -53,12 +51,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
 	}
 
-	auto pMeshEntity = mpWorld->CreateEntity();
-	
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
-
-	mpCameraEntity->AddComponent<COrthoCamera>();
-	
+	mpCameraEntity->AddComponent<COrthoCamera>();	
 
 	TTextureSamplerDesc textureSamplerDesc;
 /*
@@ -75,11 +69,16 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 									  (U32)E_FILTER_TYPE::FT_BILINEAR;
 
 	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
-	
-	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
 
 	auto pRT = mpResourceManager->Create<CBaseRenderTarget>("default-rt", TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), FT_NORM_UBYTE4, 1, 1, 0 });
 	//mpGraphicsContext->BindRenderTarget(dynamic_cast<IRenderTarget*>(pRT->Get(RAT_BLOCKING)));
+	auto pCubeMesh = mpResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{})->Get<CStaticMesh>(RAT_BLOCKING);
+
+	auto pMeshEntity = mpWorld->CreateEntity();
+	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
+	pMeshContainer->SetMaterialName("NewMaterial.material");
+	pMeshContainer->SetMeshName("Cube");	
+
 	return RC_OK;
 }
 
@@ -150,5 +149,4 @@ void CCustomEngineListener::SetEngineInstance(IEngineCore* pEngineCore)
 	mpInputContext    = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>();
 
 	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
-
 }

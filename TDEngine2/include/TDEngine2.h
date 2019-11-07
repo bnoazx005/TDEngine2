@@ -116,6 +116,8 @@
 #include "graphics/IMesh.h"
 #include "graphics/CStaticMesh.h"
 #include "graphics/VertexData.h"
+#include "graphics/IStaticMeshContainer.h"
+#include "graphics/CStaticMeshContainer.h"
 
 
 ///math

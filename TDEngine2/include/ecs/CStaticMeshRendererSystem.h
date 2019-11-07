@@ -18,7 +18,7 @@ namespace TDEngine2
 	class IRenderer;
 	class IGraphicsObjectManager;
 	class CTransform;
-	class CStaticMesh;
+	class CStaticMeshContainer;
 	class IWorld;
 	class CRenderQueue;
 
@@ -49,7 +49,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ISystem* CreateStaticMeshRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
 		public:
-			typedef std::vector<std::tuple<CTransform*, CStaticMesh*>> TEntitiesArray;
+			typedef std::vector<std::tuple<CTransform*, CStaticMeshContainer*>> TEntitiesArray;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system

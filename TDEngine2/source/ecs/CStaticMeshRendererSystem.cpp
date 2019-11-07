@@ -1,7 +1,7 @@
 #include "./../../include/ecs/CStaticMeshRendererSystem.h"
 #include "./../../include/graphics/IGraphicsObjectManager.h"
 #include "./../../include/graphics/IRenderer.h"
-#include "./../../include/graphics/CStaticMesh.h"
+#include "./../../include/graphics/CStaticMeshContainer.h"
 #include "./../../include/graphics/CRenderQueue.h"
 #include "./../../include/ecs/CTransform.h"
 #include "./../../include/ecs/IWorld.h"
@@ -51,7 +51,7 @@ namespace TDEngine2
 
 	void CStaticMeshRendererSystem::InjectBindings(IWorld* pWorld)
 	{
-		/*std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMesh>();
+		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMeshContainer>();
 
 		mProcessingEntities.clear();
 
@@ -66,16 +66,17 @@ namespace TDEngine2
 				continue;
 			}
 
-			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CStaticMesh>() });
-		}*/
+			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CStaticMeshContainer>() });
+		}
 	}
 
 	void CStaticMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		//for (auto iter = mProcessingEntities.begin(); iter != mProcessingEntities.end(); ++iter)
-		//{
-		//	// TODO:
-		//}
+		for (auto& iter : mProcessingEntities)
+		{
+			// TODO:
+			;
+		}
 	}
 
 
