@@ -39,9 +39,11 @@ namespace TDEngine2
 			\note TMaterialParameters's definition is placed in CBaseMaterial.cpp file
 		*/
 
-		TDE2_API TMaterialParameters(const std::string& shaderName);
+		TDE2_API TMaterialParameters(const std::string& shaderName, bool isTransparent = false);
 
 		std::string mShaderName;
+
+		bool mIsUseAlphaBlending = false;
 	} TMaterialParameters, *TMaterialParametersPtr;
 
 
@@ -95,12 +97,30 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) = 0;
 
 			/*!
+				\brief The method specifies whether the material should be transparent or not
+
+				\param[in] isTransparent A new state of the material
+			*/
+
+			TDE2_API virtual void SetTransparentState(bool isTransparent) = 0;
+
+			/*!
 				\brief The method returns a pointer to IResourceHandler of an attached shader
 
 				\return The method returns a pointer to IResourceHandler of an attached shader
 			*/
 
 			TDE2_API virtual IResourceHandler* GetShaderHandler() const = 0;
+
+			/*!
+				\brief The method returns true if the material's instance uses alpha blending
+				based transparency
+
+				\return The method returns true if the material's instance uses alpha blending
+				based transparency
+			*/
+
+			TDE2_API virtual bool IsTransparent() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
 	};

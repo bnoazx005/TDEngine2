@@ -12,14 +12,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
-	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ "testGLShader.shader" })->Get<IMaterial>(RAT_BLOCKING);
+	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ "testGLShader.shader", true })->Get<IMaterial>(RAT_BLOCKING);
 	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
 	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
 
 	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ "DebugGLShader.shader" });
 	
 	IMaterial* pFontMaterial = mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", 
-																		TMaterialParameters{ "DebugTextGLShader.shader" })->Get<IMaterial>(RAT_BLOCKING);
+																		TMaterialParameters{ "DebugTextGLShader.shader", true })->Get<IMaterial>(RAT_BLOCKING);
 
 	auto pFontAtlas = mpResourceManager->Load<CTextureAtlas>("atlas")->Get<ITextureAtlas>(RAT_BLOCKING);
 	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());

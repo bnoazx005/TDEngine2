@@ -206,6 +206,14 @@ namespace TDEngine2
 			TDE2_API void SetShader(const std::string& shaderName) override;
 
 			/*!
+				\brief The method specifies whether the material should be transparent or not
+
+				\param[in] isTransparent A new state of the material
+			*/
+
+			TDE2_API void SetTransparentState(bool isTransparent) override;
+
+			/*!
 				\brief The method binds a material to a rendering pipeline
 			*/
 
@@ -230,6 +238,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IResourceHandler* GetShaderHandler() const override;
+
+			/*!
+				\brief The method returns true if the material's instance uses alpha blending
+				based transparency
+
+				\return The method returns true if the material's instance uses alpha blending
+				based transparency
+			*/
+
+			TDE2_API bool IsTransparent() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 		protected:
@@ -240,6 +258,8 @@ namespace TDEngine2
 			TUserUniformBufferData mpUserUniformsData[MaxNumberOfUserConstantBuffers];
 
 			TTexturesHashTable     mpAssignedTextures;
+
+			bool                   mIsTransparent = false;
 	};
 
 

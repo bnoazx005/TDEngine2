@@ -15,8 +15,8 @@ namespace TDEngine2
 		\note The declaration of TMaterialParameters is placed at IMaterial.h
 	*/
 
-	TMaterialParameters::TMaterialParameters(const std::string& shaderName):
-		mShaderName(shaderName)
+	TMaterialParameters::TMaterialParameters(const std::string& shaderName, bool isTransparent):
+		mShaderName(shaderName), mIsUseAlphaBlending(isTransparent)
 	{
 	}
 
@@ -91,6 +91,11 @@ namespace TDEngine2
 		mpShader = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
 	}
 
+	void CBaseMaterial::SetTransparentState(bool isTransparent)
+	{
+		mIsTransparent = isTransparent;
+	}
+
 	void CBaseMaterial::Bind()
 	{
 		IShader* pShaderInstance = mpShader->Get<IShader>(TDEngine2::RAT_BLOCKING);
@@ -123,6 +128,11 @@ namespace TDEngine2
 	IResourceHandler* CBaseMaterial::GetShaderHandler() const
 	{
 		return mpShader;
+	}
+
+	bool CBaseMaterial::IsTransparent() const
+	{
+		return mIsTransparent;
 	}
 
 
@@ -173,6 +183,7 @@ namespace TDEngine2
 		else
 		{
 			pMaterialInstance->SetShader(params.mShaderName);
+			pMaterialInstance->SetTransparentState(params.mIsUseAlphaBlending);
 		}
 
 		return pMaterialInstance;
