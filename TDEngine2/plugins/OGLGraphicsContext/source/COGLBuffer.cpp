@@ -13,7 +13,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize, void* pDataPtr)
+	E_RESULT_CODE COGLBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -122,7 +122,7 @@ namespace TDEngine2
 
 
 	TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, COGLBuffer::E_BUFFER_TYPE bufferType,
-		U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
+		U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		COGLBuffer* pBufferInstance = new (std::nothrow) COGLBuffer();
 

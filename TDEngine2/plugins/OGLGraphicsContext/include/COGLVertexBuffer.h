@@ -29,7 +29,7 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IVertexBuffer* CreateOGLVertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
-																 U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+																 U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -43,7 +43,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr) override;
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -144,5 +144,5 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IVertexBuffer* CreateOGLVertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
-												  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+												  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
 }

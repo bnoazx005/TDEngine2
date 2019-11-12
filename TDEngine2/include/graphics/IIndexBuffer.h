@@ -52,7 +52,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
-												E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr) = 0;
+												E_INDEX_FORMAT_TYPE indexFormatType, const void* pDataPtr) = 0;
 
 			/*!
 				\brief The method binds current index buffer to a rendering pipeline

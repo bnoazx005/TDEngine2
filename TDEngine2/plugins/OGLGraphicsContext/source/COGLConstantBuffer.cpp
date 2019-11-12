@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLConstantBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr)
+	E_RESULT_CODE COGLConstantBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -105,7 +105,7 @@ namespace TDEngine2
 
 
 	TDE2_API IConstantBuffer* CreateOGLConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
-													  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
+													  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		COGLConstantBuffer* pConstantBufferInstance = new (std::nothrow) COGLConstantBuffer();
 

@@ -16,7 +16,7 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IVertexBuffer*> CD3D11GraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr)
+	TResult<IVertexBuffer*> CD3D11GraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -33,7 +33,7 @@ namespace TDEngine2
 	}
 
 	TResult<IIndexBuffer*> CD3D11GraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																		  U32 totalBufferSize, void* pDataPtr) 
+																		  U32 totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -49,7 +49,7 @@ namespace TDEngine2
 		return TOkValue<IIndexBuffer*>(pNewIndexBuffer);
 	}
 
-	TResult<IConstantBuffer*> CD3D11GraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr)
+	TResult<IConstantBuffer*> CD3D11GraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 

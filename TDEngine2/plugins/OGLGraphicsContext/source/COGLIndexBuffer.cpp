@@ -13,7 +13,7 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE COGLIndexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
-										E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr)
+										E_INDEX_FORMAT_TYPE indexFormatType, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -99,7 +99,7 @@ namespace TDEngine2
 
 
 	TDE2_API IIndexBuffer* CreateOGLIndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-		U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
+		U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		COGLIndexBuffer* pIndexBufferInstance = new (std::nothrow) COGLIndexBuffer();
 

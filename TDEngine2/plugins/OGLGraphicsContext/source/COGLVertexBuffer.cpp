@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLVertexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr)
+	E_RESULT_CODE COGLVertexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -96,7 +96,7 @@ namespace TDEngine2
 
 
 	TDE2_API IVertexBuffer* CreateOGLVertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
-												  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
+												  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		COGLVertexBuffer* pVertexBufferInstance = new (std::nothrow) COGLVertexBuffer();
 

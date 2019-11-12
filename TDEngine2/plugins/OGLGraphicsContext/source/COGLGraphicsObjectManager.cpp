@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IVertexBuffer*> COGLGraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr)
+	TResult<IVertexBuffer*> COGLGraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -31,7 +31,7 @@ namespace TDEngine2
 	}
 
 	TResult<IIndexBuffer*> COGLGraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																		U32 totalBufferSize, void* pDataPtr)
+																		U32 totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -47,7 +47,7 @@ namespace TDEngine2
 		return TOkValue<IIndexBuffer*>(pNewIndexBuffer);
 	}
 
-	TResult<IConstantBuffer*> COGLGraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr)
+	TResult<IConstantBuffer*> COGLGraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 

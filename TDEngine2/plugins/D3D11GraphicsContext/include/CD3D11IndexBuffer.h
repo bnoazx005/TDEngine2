@@ -30,7 +30,7 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																 U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+																 U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -45,7 +45,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
-										E_INDEX_FORMAT_TYPE indexFormatType, void* pDataPtr) override;
+										E_INDEX_FORMAT_TYPE indexFormatType, const void* pDataPtr) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -145,7 +145,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-												  U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result);
+												  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
 }
 
 #endif

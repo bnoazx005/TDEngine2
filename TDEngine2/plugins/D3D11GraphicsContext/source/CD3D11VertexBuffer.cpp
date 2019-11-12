@@ -13,7 +13,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11VertexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr)
+	E_RESULT_CODE CD3D11VertexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -111,7 +111,7 @@ namespace TDEngine2
 
 
 	TDE2_API IVertexBuffer* CreateD3D11VertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, 
-													U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
+													U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		CD3D11VertexBuffer* pVertexBufferInstance = new (std::nothrow) CD3D11VertexBuffer();
 

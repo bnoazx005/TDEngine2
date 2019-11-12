@@ -15,7 +15,7 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE CD3D11Buffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize, 
-									 void* pDataPtr)
+									 const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -184,7 +184,7 @@ namespace TDEngine2
 
 
 	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
-										U32 totalBufferSize, void* pDataPtr, E_RESULT_CODE& result)
+										U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		CD3D11Buffer* pBufferInstance = new (std::nothrow) CD3D11Buffer();
 

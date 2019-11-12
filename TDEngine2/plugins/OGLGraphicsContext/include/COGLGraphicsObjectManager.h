@@ -53,7 +53,7 @@ namespace TDEngine2
 				\return The result object contains either a pointer to IVertexBuffer or an error code
 			*/
 
-			TDE2_API TResult<IVertexBuffer*> CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr) override;
+			TDE2_API TResult<IVertexBuffer*> CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IIndexBuffer's type
@@ -70,7 +70,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<IIndexBuffer*> CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-				U32 totalBufferSize, void* pDataPtr) override;
+				U32 totalBufferSize, const void* pDataPtr) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IConstantBuffer's type
@@ -86,7 +86,7 @@ namespace TDEngine2
 				\return The result object contains either a pointer to IConstantBuffer or an error code
 			*/
 
-			TDE2_API TResult<IConstantBuffer*> CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, void* pDataPtr) override;
+			TDE2_API TResult<IConstantBuffer*> CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
