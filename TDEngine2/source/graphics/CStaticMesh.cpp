@@ -105,7 +105,7 @@ namespace TDEngine2
 		mTexcoords0.emplace_back(uv0);
 	}
 
-	void CStaticMesh::AddFace(F32 face[3])
+	void CStaticMesh::AddFace(const U32 face[3])
 	{
 		mIndices.push_back(face[0]);
 		mIndices.push_back(face[1]);
@@ -135,6 +135,87 @@ namespace TDEngine2
 	const CStaticMesh::TIndicesArray& CStaticMesh::GetIndices() const
 	{
 		return mIndices;
+	}
+
+	bool CStaticMesh::HasNormals() const
+	{
+		return mNormals.size();
+	}
+
+	bool CStaticMesh::HasTangents() const
+	{
+		return mTangents.size();
+	}
+
+	bool CStaticMesh::HasTexCoords0() const
+	{
+		return mTexcoords0.size();
+	}
+
+
+	IStaticMesh* CStaticMesh::CreateCube(IResourceManager* pResourceManager)
+	{
+		auto pCubeMeshResource = pResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{})->Get<CStaticMesh>(RAT_BLOCKING);
+
+		// clock-wise order is used, bottom face
+		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+
+		// top face
+		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+
+		// front face
+		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+
+		// back face
+		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+
+		// left face
+		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+
+		// right face
+		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+
+		static const U32 indices[] = 
+		{
+			0, 1, 2,
+			0, 2, 3,
+			4, 5, 6,
+			4, 6, 7,
+			8, 9, 10,
+			8, 10, 11,
+			12, 13, 14,
+			12, 14, 15,
+			16, 17, 18,
+			16, 18, 19,
+			20, 21, 22,
+			20, 22, 23,
+		};
+
+		for (U8 i = 0; i < 6; ++i)
+		{
+			pCubeMeshResource->AddFace(&indices[i]);
+			pCubeMeshResource->AddFace(&indices[i + 3]);
+		}
+
+		return pCubeMeshResource;
 	}
 
 

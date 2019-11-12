@@ -147,13 +147,27 @@ namespace TDEngine2
 				\param[in] face An array with indices that form a face
 			*/
 
-			TDE2_API void AddFace(F32 face[3]) override;
+			TDE2_API void AddFace(const U32 face[3]) override;
 
 			TDE2_API const TPositionsArray& GetPositionsArray() const override;
 			TDE2_API const TNormalsArray& GetNormalsArray() const override;
 			TDE2_API const TTangentsArray& GetTangentsArray() const override;
 			TDE2_API const TTexcoordsArray& GetTexCoords0Array() const override;
 			TDE2_API const TIndicesArray& GetIndices() const override;
+
+			TDE2_API bool HasNormals() const override;
+			TDE2_API bool HasTangents() const override;
+			TDE2_API bool HasTexCoords0() const override;
+
+			/*!
+				\brief The function creates a new static mesh resource which is a cube
+
+				\param[in, out] pResourceManager A pointer to IResourceManager
+
+				\return A pointer to static mesh of a cube
+			*/
+
+			TDE2_API static IStaticMesh* CreateCube(IResourceManager* pResourceManager);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
 		protected:

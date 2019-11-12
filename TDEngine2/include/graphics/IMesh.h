@@ -123,13 +123,17 @@ namespace TDEngine2
 				\param[in] face An array with indices that form a face
 			*/
 
-			TDE2_API virtual void AddFace(F32 face[3]) = 0;
+			TDE2_API virtual void AddFace(const U32 face[3]) = 0;
 
 			TDE2_API virtual const TPositionsArray& GetPositionsArray() const = 0;
 			TDE2_API virtual const TNormalsArray& GetNormalsArray() const = 0;
 			TDE2_API virtual const TTangentsArray& GetTangentsArray() const = 0;
 			TDE2_API virtual const TTexcoordsArray& GetTexCoords0Array() const = 0;
 			TDE2_API virtual const TIndicesArray& GetIndices() const = 0;
+
+			TDE2_API virtual bool HasNormals() const = 0;
+			TDE2_API virtual bool HasTangents() const = 0;
+			TDE2_API virtual bool HasTexCoords0() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStaticMesh)
 	};
