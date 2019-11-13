@@ -160,6 +160,15 @@ namespace TDEngine2
 			TDE2_API bool HasTexCoords0() const override;
 
 			/*!
+				\brief The method converts current data of the mesh's resource into
+				array of vertex entries like the following vertex | vertex | ... | vertex
+
+				\return An array that contains contiguous region of data
+			*/
+
+			TDE2_API std::vector<U8> ToArrayOfStructsDataLayout() const override;
+
+			/*!
 				\brief The function creates a new static mesh resource which is a cube
 
 				\param[in, out] pResourceManager A pointer to IResourceManager

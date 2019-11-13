@@ -134,6 +134,15 @@ namespace TDEngine2
 			TDE2_API virtual bool HasNormals() const = 0;
 			TDE2_API virtual bool HasTangents() const = 0;
 			TDE2_API virtual bool HasTexCoords0() const = 0;
+
+			/*!
+				\brief The method converts current data of the mesh's resource into
+				array of vertex entries like the following vertex | vertex | ... | vertex
+
+				\return An array that contains contiguous region of data
+			*/
+
+			TDE2_API virtual std::vector<U8> ToArrayOfStructsDataLayout() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStaticMesh)
 	};

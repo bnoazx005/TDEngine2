@@ -22,6 +22,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mState = RST_LOADED;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -41,6 +43,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mState = RST_LOADED;
 
 		mIsInitialized = true;
 
@@ -152,6 +156,30 @@ namespace TDEngine2
 		return mTexcoords0.size();
 	}
 
+	std::vector<U8> CStaticMesh::ToArrayOfStructsDataLayout() const
+	{
+		U32 strideSize = sizeof(TVector4);
+		strideSize += (true ?sizeof(TVector4) : 0.0f); // TODO: colors
+		strideSize += (HasTexCoords0() ? sizeof(TVector4) : 0.0f); // \note texcoords use float2, but we align them manually to float4
+		strideSize += (HasNormals() ? sizeof(TVector4) : 0.0f);
+		strideSize += (HasTangents() ? sizeof(TVector4) : 0.0f);
+
+		std::vector<U8> bytes(mPositions.size() * strideSize);
+
+		for (U32 i = 0, ptrPos = 0; i < mPositions.size(); ++i, ptrPos += strideSize)
+		{
+			// mandatory elements
+			memcpy(&bytes[ptrPos], &mPositions[i], sizeof(TVector4));
+			//memcpy(&bytes[i], &mPositions[i], sizeof(TVector4)); TODO: color
+
+			if (HasTexCoords0()) { memcpy(&bytes[ptrPos + 2 * sizeof(TVector4)], &mTexcoords0[i], sizeof(TVector2)); }
+			if (HasNormals()) { memcpy(&bytes[ptrPos + 3 * sizeof(TVector4)], &mNormals[i], sizeof(TVector4)); }
+			if (HasTangents()) { memcpy(&bytes[ptrPos + 4 * sizeof(TVector4)], &mTangents[i], sizeof(TVector4)); }
+		}
+
+		return bytes;
+	}
+
 
 	IStaticMesh* CStaticMesh::CreateCube(IResourceManager* pResourceManager)
 	{
@@ -209,10 +237,10 @@ namespace TDEngine2
 			20, 22, 23,
 		};
 
-		for (U8 i = 0; i < 6; ++i)
+		for (U8 i = 0, index = 0; i < 6; ++i, index += 6)
 		{
-			pCubeMeshResource->AddFace(&indices[i]);
-			pCubeMeshResource->AddFace(&indices[i + 3]);
+			pCubeMeshResource->AddFace(&indices[index]);
+			pCubeMeshResource->AddFace(&indices[index + 3]);
 		}
 
 		return pCubeMeshResource;
@@ -221,54 +249,54 @@ namespace TDEngine2
 
 	TDE2_API IStaticMesh* CreateStaticMesh(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
-		CStaticMesh* pMaterialInstance = new (std::nothrow) CStaticMesh();
+		CStaticMesh* pMeshInstance = new (std::nothrow) CStaticMesh();
 
-		if (!pMaterialInstance)
+		if (!pMeshInstance)
 		{
 			result = RC_OUT_OF_MEMORY;
 
 			return nullptr;
 		}
 
-		result = pMaterialInstance->Init(pResourceManager, pGraphicsContext, name);
+		result = pMeshInstance->Init(pResourceManager, pGraphicsContext, name);
 
 		if (result != RC_OK)
 		{
-			delete pMaterialInstance;
+			delete pMeshInstance;
 
-			pMaterialInstance = nullptr;
+			pMeshInstance = nullptr;
 		}
 
-		return pMaterialInstance;
+		return pMeshInstance;
 	}
 
 
 	TDE2_API IStaticMesh* CreateStaticMesh(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 										   const TMeshParameters& params, E_RESULT_CODE& result)
 	{
-		CStaticMesh* pMaterialInstance = new (std::nothrow) CStaticMesh();
+		CStaticMesh* pMeshInstance = new (std::nothrow) CStaticMesh();
 
-		if (!pMaterialInstance)
+		if (!pMeshInstance)
 		{
 			result = RC_OUT_OF_MEMORY;
 
 			return nullptr;
 		}
 
-		result = pMaterialInstance->Init(pResourceManager, pGraphicsContext, name);
+		result = pMeshInstance->Init(pResourceManager, pGraphicsContext, name);
 
 		if (result != RC_OK)
 		{
-			delete pMaterialInstance;
+			delete pMeshInstance;
 
-			pMaterialInstance = nullptr;
+			pMeshInstance = nullptr;
 		}
 		else
 		{
 			// \todo
 		}
 
-		return pMaterialInstance;
+		return pMeshInstance;
 	}
 
 
