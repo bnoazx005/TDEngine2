@@ -164,10 +164,6 @@ namespace TDEngine2
 		{
 			// \todo
 		});
-
-		// \todo firstly draw all opaque meshes
-		// \todo Sort all transparent meshes based on AABBs or distance to a camera
-		// \todo draw all transparent meshes
 	}
 
 	void CStaticMeshRendererSystem::_collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)

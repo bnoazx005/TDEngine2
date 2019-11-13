@@ -118,6 +118,14 @@ namespace TDEngine2
 			TDE2_API void AddPosition(const TVector4& pos) override;
 
 			/*!
+				\brief The method adds a new color for mesh's vertex
+
+				\param[in] color A color of a vertex
+			*/
+
+			TDE2_API void AddColor(const TColor32F& color) override;
+
+			/*!
 				\brief The method adds a new point into the array of mesh's normals
 
 				\param[in] normal A 3d vector which defines a normal
@@ -150,11 +158,13 @@ namespace TDEngine2
 			TDE2_API void AddFace(const U32 face[3]) override;
 
 			TDE2_API const TPositionsArray& GetPositionsArray() const override;
+			TDE2_API const TVertexColorArray& GetColorsArray() const override;
 			TDE2_API const TNormalsArray& GetNormalsArray() const override;
 			TDE2_API const TTangentsArray& GetTangentsArray() const override;
 			TDE2_API const TTexcoordsArray& GetTexCoords0Array() const override;
 			TDE2_API const TIndicesArray& GetIndices() const override;
 
+			TDE2_API bool HasColors() const override;
 			TDE2_API bool HasNormals() const override;
 			TDE2_API bool HasTangents() const override;
 			TDE2_API bool HasTexCoords0() const override;
@@ -180,15 +190,17 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
 		protected:
-			TPositionsArray mPositions;
+			TPositionsArray   mPositions;
 
-			TNormalsArray   mNormals;
+			TVertexColorArray mVertexColors;
+
+			TNormalsArray     mNormals;
 			
-			TTangentsArray  mTangents;
+			TTangentsArray    mTangents;
 
-			TTexcoordsArray mTexcoords0;
+			TTexcoordsArray   mTexcoords0;
 
-			TIndicesArray   mIndices;
+			TIndicesArray     mIndices;
 	};
 
 

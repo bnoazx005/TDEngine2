@@ -14,6 +14,7 @@
 #include "./../core/IResource.h"
 #include "./../core/IResourceFactory.h"
 #include "./../core/IResourceLoader.h"
+#include "./../utils/Color.h"
 #include <string>
 #include <vector>
 
@@ -53,11 +54,12 @@ namespace TDEngine2
 	class IStaticMesh : public IMesh
 	{
 		public:
-			typedef std::vector<TVector4> TPositionsArray;
-			typedef std::vector<TVector4> TNormalsArray;
-			typedef std::vector<TVector4> TTangentsArray;
-			typedef std::vector<TVector2> TTexcoordsArray;
-			typedef std::vector<U32>      TIndicesArray;
+			typedef std::vector<TVector4>  TPositionsArray;
+			typedef std::vector<TColor32F> TVertexColorArray;
+			typedef std::vector<TVector4>  TNormalsArray;
+			typedef std::vector<TVector4>  TTangentsArray;
+			typedef std::vector<TVector2>  TTexcoordsArray;
+			typedef std::vector<U32>       TIndicesArray;
 		public:
 			/*!
 				\brief The method initializes an internal state of a mesh object
@@ -94,6 +96,14 @@ namespace TDEngine2
 			TDE2_API virtual void AddPosition(const TVector4& pos) = 0;
 
 			/*!
+				\brief The method adds a new color for mesh's vertex
+
+				\param[in] color A color of a vertex
+			*/
+
+			TDE2_API virtual void AddColor(const TColor32F& color) = 0;
+
+			/*!
 				\brief The method adds a new point into the array of mesh's normals
 
 				\param[in] normal A 3d vector which defines a normal
@@ -126,11 +136,13 @@ namespace TDEngine2
 			TDE2_API virtual void AddFace(const U32 face[3]) = 0;
 
 			TDE2_API virtual const TPositionsArray& GetPositionsArray() const = 0;
+			TDE2_API virtual const TVertexColorArray& GetColorsArray() const = 0;
 			TDE2_API virtual const TNormalsArray& GetNormalsArray() const = 0;
 			TDE2_API virtual const TTangentsArray& GetTangentsArray() const = 0;
 			TDE2_API virtual const TTexcoordsArray& GetTexCoords0Array() const = 0;
 			TDE2_API virtual const TIndicesArray& GetIndices() const = 0;
 
+			TDE2_API virtual bool HasColors() const = 0;
 			TDE2_API virtual bool HasNormals() const = 0;
 			TDE2_API virtual bool HasTangents() const = 0;
 			TDE2_API virtual bool HasTexCoords0() const = 0;
