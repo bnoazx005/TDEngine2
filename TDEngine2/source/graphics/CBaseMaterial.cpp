@@ -136,6 +136,12 @@ namespace TDEngine2
 	}
 
 
+	bool CBaseMaterial::AlphaBasedMaterialComparator(const IMaterial* pLeft, const IMaterial* pRight)
+	{
+		return (!pLeft || pRight->IsTransparent()) || (pRight && !pLeft->IsTransparent());
+	}
+
+
 	TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
 		CBaseMaterial* pMaterialInstance = new (std::nothrow) CBaseMaterial();

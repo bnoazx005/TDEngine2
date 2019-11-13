@@ -21,6 +21,11 @@ namespace TDEngine2
 	class CStaticMeshContainer;
 	class IWorld;
 	class CRenderQueue;
+	class IResourceManager;
+	class IMaterial;
+	class IVertexBuffer;
+	class IIndexBuffer;
+	class IVertexDeclaration;
 
 
 	/*!
@@ -49,7 +54,16 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ISystem* CreateStaticMeshRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
 		public:
+			typedef struct TMeshBuffersEntry
+			{
+				IVertexBuffer*      mpVertexBuffer;
+				IIndexBuffer*       mpIndexBuffer;
+				IVertexDeclaration* mpVertexDecl;
+			};
+
 			typedef std::vector<std::tuple<CTransform*, CStaticMeshContainer*>> TEntitiesArray;
+			typedef std::vector<IMaterial*>                                     TMaterialsArray;
+			typedef std::vector<TMeshBuffersEntry>                              TMeshBuffersMap;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -91,12 +105,20 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMeshRendererSystem)
+
+			TDE2_API void _collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials);
 		protected:
-			TEntitiesArray mProcessingEntities;
+			TEntitiesArray          mProcessingEntities;
 
-			CRenderQueue* mpOpaqueRenderGroup;
-			CRenderQueue* mpTransparentRenderGroup;
+			IGraphicsObjectManager* mpGraphicsObjectManager;
 
+			IResourceManager*       mpResourceManager;
 
+			CRenderQueue*           mpOpaqueRenderGroup;
+			CRenderQueue*           mpTransparentRenderGroup;
+
+			TMaterialsArray         mCurrMaterialsArray;
+
+			TMeshBuffersMap         mMeshBuffersMap;
 	};
 }

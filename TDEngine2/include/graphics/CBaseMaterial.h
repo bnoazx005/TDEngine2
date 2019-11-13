@@ -248,6 +248,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool IsTransparent() const override;
+
+			/*!
+				\brief The static function is a helper which is used for sorting materials based on their type
+				either opaque or transparent 
+
+				\param[in] pLeft A pointer to IMaterial implementation
+				\param[in] pRight A pointer to IMaterial implementation
+
+				\return The function returns true if the pair is ordered correctly
+			*/
+
+			TDE2_API static bool AlphaBasedMaterialComparator(const IMaterial* pLeft, const IMaterial* pRight);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 		protected:

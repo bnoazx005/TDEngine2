@@ -72,11 +72,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	auto pRT = mpResourceManager->Create<CBaseRenderTarget>("default-rt", TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), FT_NORM_UBYTE4, 1, 1, 0 });
 	//mpGraphicsContext->BindRenderTarget(dynamic_cast<IRenderTarget*>(pRT->Get(RAT_BLOCKING)));
-	auto pCubeMesh = mpResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{})->Get<CStaticMesh>(RAT_BLOCKING);
+
+	auto pCubeMesh = CStaticMesh::CreateCube(mpResourceManager);
 
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
-	pMeshContainer->SetMaterialName("NewMaterial.material");
+	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");	
 
 	return RC_OK;

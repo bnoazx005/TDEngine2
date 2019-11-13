@@ -30,6 +30,11 @@ namespace TDEngine2
 		mMeshName = meshName;
 	}
 
+	void CStaticMeshContainer::SetSystemBuffersHandle(U32 handle)
+	{
+		mSystemBuffersHandle = handle;
+	}
+
 	const std::string& CStaticMeshContainer::GetMaterialName() const
 	{
 		return mMaterialName;
@@ -38,6 +43,11 @@ namespace TDEngine2
 	const std::string& CStaticMeshContainer::GetMeshName() const
 	{
 		return mMeshName;
+	}
+
+	U32 CStaticMeshContainer::GetSystemBuffersHandle() const
+	{
+		return mSystemBuffersHandle;
 	}
 
 

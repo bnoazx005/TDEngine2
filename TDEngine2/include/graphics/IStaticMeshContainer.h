@@ -51,6 +51,16 @@ namespace TDEngine2
 			TDE2_API virtual void SetMeshName(const std::string& meshName) = 0;
 
 			/*!
+				\brief The method sets up an internal handle which points to pair 
+				vertex and index buffers within system that renders static meshes
+
+				\param[in] handle An internal handle which points to pair 
+				vertex and index buffers within system that renders static meshes
+			*/
+
+			TDE2_API virtual void SetSystemBuffersHandle(U32 handle) = 0;
+
+			/*!
 				\brief The method returns an identifier of used material
 
 				\return The method returns an identifier of used material
@@ -65,6 +75,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const std::string& GetMeshName() const = 0;
+
+			/*!
+				\brief The method returns an internal handle which points to pair 
+				vertex and index buffers within system that renders static meshes
+			*/
+
+			TDE2_API virtual U32 GetSystemBuffersHandle() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStaticMeshContainer)
 	};
