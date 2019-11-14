@@ -50,7 +50,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
 	}
-
+	
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
 	mpCameraEntity->AddComponent<COrthoCamera>();	
 
