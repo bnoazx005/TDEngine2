@@ -201,9 +201,9 @@ namespace TDEngine2
 			*/
 
 			template <typename... TArgs>
-			TDE2_API TEntityId FindEntitiesWithAny()
+			TDE2_API std::vector<TEntityId> FindEntitiesWithAny()
 			{
-				return _findEntityWithAnyComponents({ { TArgs::GetTypeId()... } });
+				return _findEntitiesWithAnyComponents({ { TArgs::GetTypeId()... } });
 			}
 
 			/*!
