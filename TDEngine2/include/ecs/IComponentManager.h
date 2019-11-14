@@ -212,7 +212,7 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API virtual std::vector<TEntityId> FintEntitiesWithAny(const std::vector<TComponentTypeId>& types) = 0;
+			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TComponentTypeId>& types) = 0;
 
 			/*!
 				\brief The method returns a pointer to a component of specified type T

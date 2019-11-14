@@ -447,7 +447,7 @@ namespace TDEngine2
 		return std::move(filter);
 	}
 
-	std::vector<TEntityId> CComponentManager::FintEntitiesWithAny(const std::vector<TComponentTypeId>& types)
+	std::vector<TEntityId> CComponentManager::FindEntitiesWithAny(const std::vector<TComponentTypeId>& types)
 	{
 		std::vector<TEntityId> filter;
 

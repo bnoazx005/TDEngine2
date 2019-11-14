@@ -156,6 +156,11 @@ namespace TDEngine2
 	{
 		return mpComponentManager->FindEntitiesWithAll(types);
 	}
+
+	std::vector<TEntityId> CWorld::_findEntitiesWithAnyComponents(const std::vector<TComponentTypeId>& types)
+	{
+		return mpComponentManager->FindEntitiesWithAny(types);
+	}
 	
 
 	IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result)

@@ -137,7 +137,7 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API std::vector<TEntityId> FintEntitiesWithAny(const std::vector<TComponentTypeId>& types) override;
+			TDE2_API std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TComponentTypeId>& types) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
 

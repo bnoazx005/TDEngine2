@@ -193,6 +193,20 @@ namespace TDEngine2
 			}
 
 			/*!
+				\brief The method returns an array of entities identifiers, which have any component
+				from given arguments
+
+				\return The method returns an array of entities identifiers, which have any component
+				from given arguments
+			*/
+
+			template <typename... TArgs>
+			TDE2_API TEntityId FindEntitiesWithAny()
+			{
+				return _findEntityWithAnyComponents({ { TArgs::GetTypeId()... } });
+			}
+
+			/*!
 				\brief The method seeks out an entity and either return it or return nullptr
 
 				\param[in] entityId Unique entity's identifier
@@ -218,5 +232,7 @@ namespace TDEngine2
 			TDE2_API virtual void _forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
 
 			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TComponentTypeId>& types) = 0;
+
+			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TComponentTypeId>& types) = 0;
 	};
 }
