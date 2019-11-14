@@ -550,4 +550,27 @@ namespace TDEngine2
 
 
 	TDE2_API std::string EngineSubsystemTypeToString(E_ENGINE_SUBSYSTEM_TYPE type);
+
+
+	/*!
+		\brief The helper function is used to simplify code when it's needed to
+		store either a valid pointer or some default alternative one
+
+		\param[in] ptr A value should be stored
+		\param[in] defaultPtr A value that will be returned if value isn't valid
+
+		\return The function returns either a valid pointer or default one
+	*/
+
+	template <typename T>
+	TDE2_API
+#if _HAS_CXX17
+	std::enable_if_t<std::is_pointer<T>::value, T>
+#else
+	typename std::enable_if<std::is_pointer<T>::value, T>::type
+#endif  
+	GetValidPtrOrDefault(T ptr, T defaultPtr)
+	{
+		return ptr ? ptr : defaultPtr;
+	}
 }
