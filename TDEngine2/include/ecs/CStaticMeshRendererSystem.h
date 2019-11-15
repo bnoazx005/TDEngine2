@@ -29,6 +29,7 @@ namespace TDEngine2
 	class COrthoCamera;
 	class CPerspectiveCamera;
 	class CEntity;
+	class ICamera;
 
 
 	/*!
@@ -111,7 +112,8 @@ namespace TDEngine2
 
 			TDE2_API void _collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials);
 
-			TDE2_API void _populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial);
+			TDE2_API void _populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial,
+												  const ICamera* pCamera);
 
 			TDE2_API U32 _computeMeshCommandHash(TResourceId materialId, F32 distanceToCamera);
 		protected:

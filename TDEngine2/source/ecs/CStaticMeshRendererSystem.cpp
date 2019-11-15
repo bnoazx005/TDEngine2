@@ -81,21 +81,15 @@ namespace TDEngine2
 			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CStaticMeshContainer>() });
 		}
 
-		// \todo replace the code below with FindEntityWithAny method when it will be done
-		const auto& perspectiveCamerasEntities = pWorld->FindEntitiesWithComponents<CPerspectiveCamera>();
-		mpCameraEntity = !perspectiveCamerasEntities.empty() ? pWorld->FindEntity(perspectiveCamerasEntities.front()) : nullptr;
-
-		// \note try to find an orthographic camera
-		if (!mpCameraEntity)
-		{
-			const auto& orthoCamerasEntities = pWorld->FindEntitiesWithComponents<COrthoCamera>();
-			mpCameraEntity = !orthoCamerasEntities.empty() ? pWorld->FindEntity(orthoCamerasEntities.front()) : nullptr;
-		}
+		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
+		mpCameraEntity = !cameras.empty() ? pWorld->FindEntity(cameras.front()) : nullptr;
 	}
 
 	void CStaticMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		assert(mpCameraEntity);
+
+		ICamera* pCameraComponent = GetValidPtrOrDefault<ICamera*>(mpCameraEntity->GetComponent<CPerspectiveCamera>(), mpCameraEntity->GetComponent<COrthoCamera>());
 
 		// \note first pass (construct an array of materials)
 		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
@@ -107,15 +101,15 @@ namespace TDEngine2
 		});
 		
 		// \note construct commands for opaque geometry
-		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this](const IMaterial* pCurrMaterial)
+		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pCameraComponent](const IMaterial* pCurrMaterial)
 		{
-			_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, pCurrMaterial);
+			_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, pCurrMaterial, pCameraComponent);
 		});
 
 		// \note construct commands for transparent geometry
-		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this](const IMaterial* pCurrMaterial)
+		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pCameraComponent](const IMaterial* pCurrMaterial)
 		{
-			_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, pCurrMaterial);
+			_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, pCurrMaterial, pCameraComponent);
 		});
 	}
 
@@ -146,7 +140,8 @@ namespace TDEngine2
 		std::sort(usedMaterials.begin(), usedMaterials.end(), CBaseMaterial::AlphaBasedMaterialComparator);
 	}
 
-	void CStaticMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial)
+	void CStaticMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial,
+															const ICamera* pCamera)
 	{
 		auto iter = entities.begin();
 
@@ -155,6 +150,8 @@ namespace TDEngine2
 
 		TResourceId currMaterialId = pCastedMaterial->GetId();
 
+		auto&& viewMatrix = pCamera->GetViewMatrix();
+
 		// \note iterate over all entities with pCurrMaterial attached as main material
 		while ((iter = std::find_if(iter, entities.end(), [currMaterialId, &currMaterialName](auto&& entity)
 		{
@@ -162,6 +159,7 @@ namespace TDEngine2
 		})) != entities.end())
 		{
 			auto pStaticMeshContainer = std::get<CStaticMeshContainer*>(*iter);
+			auto pTransform           = std::get<CTransform*>(*iter);
 
 			auto pSharedMeshResource = mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName())->Get<IStaticMesh>(RAT_BLOCKING);
 
@@ -204,9 +202,12 @@ namespace TDEngine2
 
 			auto meshBuffersEntry = mMeshBuffersMap[pStaticMeshContainer->GetSystemBuffersHandle()];
 
+			auto&& objectTransformMatrix = pTransform->GetTransform();
+
+			F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
+
 			// create a command for the renderer
-			// \todo fix 0.0f replace it with correct distance to a camera
-			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(_computeMeshCommandHash(currMaterialId, 0.0f));
+			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(_computeMeshCommandHash(currMaterialId, distanceToCamera));
 
 			pCommand->mpVertexBuffer      = meshBuffersEntry.mpVertexBuffer;
 			pCommand->mpIndexBuffer       = meshBuffersEntry.mpIndexBuffer;
@@ -214,7 +215,7 @@ namespace TDEngine2
 			pCommand->mpVertexDeclaration = meshBuffersEntry.mpVertexDecl;
 			pCommand->mNumOfIndices       = pSharedMeshResource->GetIndices().size();
 			pCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCommand->mObjectData.mUnused = std::get<CTransform*>(*iter)->GetTransform();
+			pCommand->mObjectData.mUnused = objectTransformMatrix;
 
 			++iter;
 		}
