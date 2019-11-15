@@ -18,7 +18,7 @@ namespace TDEngine2
 
 
 	CPhysics2DSystem::CPhysics2DSystem() :
-		CBaseObject(), mpWorldInstance(nullptr)
+		CBaseSystem(), mpWorldInstance(nullptr)
 	{
 	}
 

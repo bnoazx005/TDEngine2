@@ -86,6 +86,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CCameraSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CPhysics2DSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CStaticMeshRendererSystem.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBaseSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IVertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IIndexBuffer.h"

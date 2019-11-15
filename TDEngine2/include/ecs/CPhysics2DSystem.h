@@ -7,9 +7,8 @@
 #pragma once
 
 
-#include "ISystem.h"
+#include "CBaseSystem.h"
 #include "./../physics/2D/ICollisionObjectsVisitor.h"
-#include "./../core/CBaseObject.h"
 #include "./../math/TVector2.h"
 #include "Box2D.h"
 
@@ -39,7 +38,7 @@ namespace TDEngine2
 		\brief The system implements an update step of 2D physics engine
 	*/
 
-	class CPhysics2DSystem: public ISystem, public ICollisionObjectsVisitor, public CBaseObject
+	class CPhysics2DSystem: public CBaseSystem, public ICollisionObjectsVisitor
 	{
 		public:
 			friend TDE2_API ISystem* CreatePhysics2DSystem(E_RESULT_CODE& result);

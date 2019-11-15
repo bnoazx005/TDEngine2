@@ -13,7 +13,7 @@
 namespace TDEngine2
 {
 	CCameraSystem::CCameraSystem() :
-		CBaseObject()
+		CBaseSystem()
 	{
 	}
 

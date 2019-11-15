@@ -7,7 +7,7 @@
 namespace TDEngine2
 {
 	CTransformSystem::CTransformSystem():
-		CBaseObject()
+		CBaseSystem()
 	{
 	}
 

@@ -9,7 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
-#include "./../core/CBaseObject.h"
+#include "CBaseSystem.h"
 #include "ICameraSystem.h"
 
 
@@ -45,7 +45,7 @@ namespace TDEngine2
 		\brief The class represents a system that updates cameras data
 	*/
 
-	class CCameraSystem : public CBaseObject, public ICameraSystem
+	class CCameraSystem : public CBaseSystem, public ICameraSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateCameraSystem(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 

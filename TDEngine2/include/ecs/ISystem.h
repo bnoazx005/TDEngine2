@@ -34,6 +34,13 @@ namespace TDEngine2
 
 			/*!
 				\brief The main method that should be implemented in all derived classes.
+				A user can place initialization logic within this method
+			*/
+
+			TDE2_API virtual void OnInit() = 0;
+
+			/*!
+				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 
 				\param[in] pWorld A pointer to a main scene's object
@@ -41,6 +48,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void Update(IWorld* pWorld, F32 dt) = 0;
+
+			/*!
+				\brief The method is invoked when the system is destroyed
+			*/
+
+			TDE2_API virtual void OnDestroy() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystem)
 	};

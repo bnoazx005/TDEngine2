@@ -7,8 +7,7 @@
 #pragma once
 
 
-#include "ISystem.h"
-#include "./../core/CBaseObject.h"
+#include "CBaseSystem.h"
 #include <vector>
 #include <tuple>
 
@@ -53,7 +52,7 @@ namespace TDEngine2
 		\brief The class is a system that processes IStaticMesh components
 	*/
 
-	class CStaticMeshRendererSystem : public ISystem, public CBaseObject
+	class CStaticMeshRendererSystem : public CBaseSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateStaticMeshRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);

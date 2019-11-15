@@ -29,7 +29,7 @@ namespace TDEngine2
 		updates cameras data
 	*/
 
-	class ICameraSystem : public ISystem
+	class ICameraSystem : public virtual ISystem
 	{
 		public:
 			/*!

@@ -20,7 +20,7 @@
 namespace TDEngine2
 {
 	CSpriteRendererSystem::CSpriteRendererSystem() :
-		CBaseObject(), mpRenderQueue(nullptr), mpSpriteVertexBuffer(nullptr), mpSpriteIndexBuffer(nullptr),
+		CBaseSystem(), mpRenderQueue(nullptr), mpSpriteVertexBuffer(nullptr), mpSpriteIndexBuffer(nullptr),
 		mpSpriteVertexDeclaration(nullptr), mSpriteFaces {0, 1, 2, 2, 1, 3}, mpGraphicsLayers(nullptr)
 	{
 	}

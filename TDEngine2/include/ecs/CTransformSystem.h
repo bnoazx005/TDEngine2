@@ -7,8 +7,7 @@
 #pragma once
 
 
-#include "ISystem.h"
-#include "./../core/CBaseObject.h"
+#include "CBaseSystem.h"
 #include <vector>
 
 
@@ -34,7 +33,7 @@ namespace TDEngine2
 		\brief The class is a system that processes ITransform components
 	*/
 
-	class CTransformSystem: public ISystem, public CBaseObject
+	class CTransformSystem: public CBaseSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateTransformSystem(E_RESULT_CODE& result);

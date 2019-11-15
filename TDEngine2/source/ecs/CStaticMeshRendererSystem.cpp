@@ -19,7 +19,7 @@
 namespace TDEngine2
 {
 	CStaticMeshRendererSystem::CStaticMeshRendererSystem() :
-		CBaseObject()
+		CBaseSystem()
 	{
 	}
 

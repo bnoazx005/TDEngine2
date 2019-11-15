@@ -7,8 +7,7 @@
 #pragma once
 
 
-#include "ISystem.h"
-#include "./../core/CBaseObject.h"
+#include "CBaseSystem.h"
 #include <vector>
 #include <tuple>
 #include <unordered_map>
@@ -57,7 +56,7 @@ namespace TDEngine2
 		\brief The class is a system that processes ISprite components
 	*/
 
-	class CSpriteRendererSystem : public ISystem, public CBaseObject
+	class CSpriteRendererSystem : public CBaseSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateSpriteRendererSystem(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
