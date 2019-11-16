@@ -95,6 +95,14 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE DeactivateSystem(TSystemId systemId) = 0;
 
 			/*!
+				\brief The method calls ISystem::OnInit method on each system that is currently active
+			
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE InitSystems() = 0;
+
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 
@@ -103,6 +111,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void Update(IWorld* pWorld, F32 dt) = 0;
+
+			/*!
+				\brief The method calls ISystem::OnDestroy method on each system
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE DestroySystems() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystemManager)
 	};

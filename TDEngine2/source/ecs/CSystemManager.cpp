@@ -147,6 +147,20 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSystemManager::InitSystems()
+	{
+		ISystem* pCurrSystem = nullptr;
+
+		for (auto currSystemDesc : mpActiveSystems)
+		{
+			pCurrSystem = currSystemDesc.mpSystem;
+
+			pCurrSystem->OnInit();
+		}
+
+		return RC_OK;
+	}
+
 	void CSystemManager::Update(IWorld* pWorld, float dt)
 	{
 		ISystem* pCurrSystem = nullptr;
@@ -157,6 +171,20 @@ namespace TDEngine2
 
 			pCurrSystem->Update(pWorld, dt);
 		}
+	}
+
+	E_RESULT_CODE CSystemManager::DestroySystems()
+	{
+		ISystem* pCurrSystem = nullptr;
+
+		for (auto currSystemDesc : mpActiveSystems)
+		{
+			pCurrSystem = currSystemDesc.mpSystem;
+
+			pCurrSystem->OnDestroy();
+		}
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CSystemManager::OnEvent(const TBaseEvent* pEvent)
