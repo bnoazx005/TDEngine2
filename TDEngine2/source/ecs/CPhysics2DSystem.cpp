@@ -4,6 +4,8 @@
 #include "./../../include/ecs/CTransform.h"
 #include "./../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "./../../include/physics/2D/CCircleCollisionObject2D.h"
+#include "./../../include/physics/2D/CTrigger2D.h"
+#include "./../../include/core/IEventManager.h"
 
 
 namespace TDEngine2
@@ -22,7 +24,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CPhysics2DSystem::Init()
+	E_RESULT_CODE CPhysics2DSystem::Init(IEventManager* pEventManager)
 	{
 		if (mIsInitialized)
 		{
@@ -30,13 +32,15 @@ namespace TDEngine2
 		}
 
 		mpWorldInstance = new b2World({ mDefaultGravity.x, mDefaultGravity.y });
+		mpWorldInstance->SetContactListener(mpContactsListener = new CTriggerContactsListener());
+
+		mpEventManager = pEventManager;
 
 		mCurrGravity = mDefaultGravity;
 
 		mCurrTimeStep = mDefaultTimeStep;
 
 		mCurrVelocityIterations = mDefaultVelocityIterations;
-
 		mCurrPositionIterations = mDefaultPositionIterations;
 
 		mIsInitialized = true;
@@ -58,6 +62,8 @@ namespace TDEngine2
 			mpWorldInstance = nullptr;
 		}
 		
+		delete mpContactsListener;
+
 		mIsInitialized = false;
 
 		delete this;
@@ -67,7 +73,7 @@ namespace TDEngine2
 
 	void CPhysics2DSystem::InjectBindings(IWorld* pWorld)
 	{
-		std::vector<TEntityId> boxColliders = pWorld->FindEntitiesWithComponents<CTransform, CBoxCollisionObject2D>();
+		auto&& interactiveEntities = pWorld->FindEntitiesWithAny<CBoxCollisionObject2D, CCircleCollisionObject2D, CTrigger2D>();
 		
 		mCollidersData.Clear();
 
@@ -75,46 +81,27 @@ namespace TDEngine2
 
 		CTransform* pTransform = nullptr;
 
-		CBoxCollisionObject2D* pBoxCollisionObject = nullptr;
+		CBaseCollisionObject2D* pCollisionObject = nullptr;
 
-		for (auto iter = boxColliders.begin(); iter != boxColliders.end(); ++iter)
+		b2Body* pCurrBody = nullptr;
+
+		for (TEntityId currEntityId : interactiveEntities)
 		{
-			pCurrEntity = pWorld->FindEntity(*iter);
-
-			if (!pCurrEntity)
+			if (!(pCurrEntity = pWorld->FindEntity(currEntityId)))
 			{
 				continue;
 			}
 
 			pTransform = pCurrEntity->GetComponent<CTransform>();
-
-			pBoxCollisionObject = pCurrEntity->GetComponent<CBoxCollisionObject2D>();
-
+			
 			mCollidersData.mTransforms.push_back(pTransform);
-			mCollidersData.mCollisionObjects.push_back(pBoxCollisionObject);
-			mCollidersData.mBodies.push_back(_createPhysicsBody(pTransform, pBoxCollisionObject));
-		}
+			mCollidersData.mCollisionObjects.push_back(pCollisionObject);
 
-		std::vector<TEntityId> circleColliders = pWorld->FindEntitiesWithComponents<CTransform, CCircleCollisionObject2D>();
-		
-		CCircleCollisionObject2D* pCircleCollisionObject = nullptr;
-		
-		for (auto iter = circleColliders.begin(); iter != circleColliders.end(); ++iter)
-		{
-			pCurrEntity = pWorld->FindEntity(*iter);
+			pCurrBody = _createPhysicsBody(pTransform, GetValidPtrOrDefault<CBaseCollisionObject2D*>(
+																pCurrEntity->GetComponent<CBoxCollisionObject2D>(), 
+																pCurrEntity->GetComponent<CCircleCollisionObject2D>()));
 
-			if (!pCurrEntity)
-			{
-				continue;
-			}
-
-			pTransform = pCurrEntity->GetComponent<CTransform>();
-
-			pCircleCollisionObject = pCurrEntity->GetComponent<CCircleCollisionObject2D>();
-
-			mCollidersData.mTransforms.push_back(pTransform);
-			mCollidersData.mCollisionObjects.push_back(pCircleCollisionObject);
-			mCollidersData.mBodies.push_back(_createPhysicsBody(pTransform, pCircleCollisionObject));
+			mCollidersData.mBodies.push_back(pCurrBody);
 		}
 	}
 
@@ -223,8 +210,23 @@ namespace TDEngine2
 		return pCreatedBody;
 	}
 
+	void CPhysics2DSystem::CTriggerContactsListener::BeginContact(b2Contact* contact)
+	{
+		if (!contact->GetFixtureA()->IsSensor() && !contact->GetFixtureB()->IsSensor())
+		{
+			return;
+		}
 
-	TDE2_API ISystem* CreatePhysics2DSystem(E_RESULT_CODE& result)
+		TDE2_UNIMPLEMENTED();
+	}
+
+	void CPhysics2DSystem::CTriggerContactsListener::EndContact(b2Contact* contact)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
+
+
+	TDE2_API ISystem* CreatePhysics2DSystem(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
 		CPhysics2DSystem* pSystemInstance = new (std::nothrow) CPhysics2DSystem();
 
@@ -235,7 +237,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pSystemInstance->Init();
+		result = pSystemInstance->Init(pEventManager);
 
 		if (result != RC_OK)
 		{

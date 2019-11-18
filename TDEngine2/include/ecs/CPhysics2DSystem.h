@@ -8,6 +8,7 @@
 
 
 #include "CBaseSystem.h"
+#include "./../core/Event.h"
 #include "./../physics/2D/ICollisionObjectsVisitor.h"
 #include "./../math/TVector2.h"
 #include "Box2D.h"
@@ -19,17 +20,21 @@ namespace TDEngine2
 	class CBaseCollisionObject2D;
 	class CBoxCollisionObject2D;
 	class CCircleCollisionObject2D;
+	class CTrigger2D;
+	class IEventManager;
 
 
 	/*!
 		\brief A factory function for creation objects of CPhysics2DSystem's type.
+
+		\param[in, out] pEventManager A pointer to IEventManager implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CPhysics2DSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreatePhysics2DSystem(E_RESULT_CODE& result);
+	TDE2_API ISystem* CreatePhysics2DSystem(IEventManager* pEventManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -41,7 +46,7 @@ namespace TDEngine2
 	class CPhysics2DSystem: public CBaseSystem, public ICollisionObjectsVisitor
 	{
 		public:
-			friend TDE2_API ISystem* CreatePhysics2DSystem(E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreatePhysics2DSystem(IEventManager* pEventManager, E_RESULT_CODE& result);
 		public:
 			template <typename T>
 			struct TCollidersData
@@ -50,6 +55,8 @@ namespace TDEngine2
 
 				std::vector<T*>          mCollisionObjects;
 
+				std::vector<CTrigger2D*> mTriggers;
+
 				std::vector<b2Body*>     mBodies;
 
 				void Clear()
@@ -57,7 +64,25 @@ namespace TDEngine2
 					mTransforms.clear();
 					mCollisionObjects.clear();
 					mBodies.clear();
+					mTriggers.clear();
 				}
+			};
+
+			/*!
+				class CContactsListener
+
+				\brief The class implements a listener of all contacts
+				that are occurs within b2World's instance
+			*/
+
+			class CTriggerContactsListener : public b2ContactListener
+			{
+				public:
+					/// Called when two fixtures begin to touch.
+					void BeginContact(b2Contact* contact) override;
+
+					/// Called when two fixtures cease to touch.
+					void EndContact(b2Contact* contact) override;
 			};
 
 			typedef TCollidersData<CBoxCollisionObject2D>    TBoxCollidersData;
@@ -67,10 +92,12 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an inner state of a system
 
+				\param[in, out] pEventManager A pointer to IEventManager implementation
+		
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init();
+			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -123,24 +150,64 @@ namespace TDEngine2
 
 			TDE2_API b2Body* _createPhysicsBody(const CTransform* pTransform, const CBaseCollisionObject2D* pCollider);
 		protected:
-			static const TVector2    mDefaultGravity;
+			static const TVector2 mDefaultGravity;
 
-			static const F32         mDefaultTimeStep;
+			static const F32      mDefaultTimeStep;
 
-			static const U32         mDefaultVelocityIterations;
+			static const U32      mDefaultVelocityIterations;
 
-			static const U32         mDefaultPositionIterations;
+			static const U32      mDefaultPositionIterations;
 
-			b2World*                 mpWorldInstance;
+			b2World*              mpWorldInstance;
 
-			TBaseCollidersData       mCollidersData;
+			b2ContactListener*    mpContactsListener;
 
-			TVector2                 mCurrGravity;
+			IEventManager*        mpEventManager;
 
-			F32                      mCurrTimeStep;
+			TBaseCollidersData    mCollidersData;
 
-			U32                      mCurrVelocityIterations;
+			TVector2              mCurrGravity;
 
-			U32                      mCurrPositionIterations;
+			F32                   mCurrTimeStep;
+
+			U32                   mCurrVelocityIterations;
+
+			U32                   mCurrPositionIterations;
 	};
+
+
+	/*!
+		struct TOnTrigger2DEnterEvent
+
+		\brief The structure represents an event which occurs
+		when some entity enters into a 2D trigger
+	*/
+
+	typedef struct TOnTrigger2DEnterEvent : TBaseEvent
+	{
+		virtual ~TOnTrigger2DEnterEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnTrigger2DEnterEvent)
+		REGISTER_EVENT_TYPE(TOnTrigger2DEnterEvent)
+
+		// \todo
+	} TOnTrigger2DEnterEvent, *TOnTrigger2DEnterEventPtr;
+
+
+	/*!
+		struct TOnTrigger2DExitEvent
+
+		\brief The structure represents an event which occurs
+		when some entity exits into a 2D trigger
+	*/
+
+	typedef struct TOnTrigger2DExitEvent : TBaseEvent
+	{
+		virtual ~TOnTrigger2DExitEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnTrigger2DExitEvent)
+		REGISTER_EVENT_TYPE(TOnTrigger2DExitEvent)
+
+		// \todo
+	} TOnTrigger2DExitEvent, *TOnTrigger2DExitEventPtr;
 }

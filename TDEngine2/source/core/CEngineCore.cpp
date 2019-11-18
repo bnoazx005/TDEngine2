@@ -110,7 +110,8 @@ namespace TDEngine2
 		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem, 
 											  _getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT),
 											  _getSubsystemAs<IRenderer>(EST_RENDERER),
-											  _getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER))) != RC_OK)
+											  _getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER),
+											  _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))) != RC_OK)
 		{
 			return result;
 		}
@@ -319,7 +320,7 @@ namespace TDEngine2
 	/// \todo Refactor the method
 
 	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
-													   IRenderer* pRenderer, IMemoryManager* pMemoryManager)
+													   IRenderer* pRenderer, IMemoryManager* pMemoryManager, IEventManager* pEventManager)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
@@ -331,7 +332,7 @@ namespace TDEngine2
 			CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
-			CreatePhysics2DSystem(result),
+			CreatePhysics2DSystem(pEventManager, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 		};
 

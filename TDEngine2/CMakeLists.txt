@@ -172,6 +172,8 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CBoxCollisionObject2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CCircleCollisionObject2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ICollisionObjectsVisitor.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ITrigger2D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CTrigger2D.h"
 	)
 
 set(TDENGINE2_SOURCES
@@ -254,6 +256,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CBaseCollisionObject2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CBoxCollisionObject2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CCircleCollisionObject2D.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CTrigger2D.cpp"
 	)
 
 source_group("includes" FILES ${TDENGINE2_HEADERS})

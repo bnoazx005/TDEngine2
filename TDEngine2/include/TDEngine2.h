@@ -137,6 +137,8 @@
 #include "physics/2D/CBoxCollisionObject2D.h"
 #include "physics/2D/CCircleCollisionObject2D.h"
 #include "physics/2D/ICollisionObjectsVisitor.h"
+#include "physics/2D/ITrigger2D.h"
+#include "physics/2D/CTrigger2D.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"

@@ -24,6 +24,7 @@ namespace TDEngine2
 	class IRenderer;
 	class IWorld;
 	class IMemoryManager;
+	class IEventManager;
 
 
 	/*!
@@ -162,7 +163,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 
 			TDE2_API E_RESULT_CODE _registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
-														   IRenderer* pRenderer, IMemoryManager* pMemoryManager);
+														   IRenderer* pRenderer, IMemoryManager* pMemoryManager, IEventManager* pEventManager);
 
 			TDE2_API E_RESULT_CODE _cleanUpSubsystems();
 

@@ -9,6 +9,7 @@
 #include "./../../include/graphics/CStaticMeshContainer.h"
 #include "./../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "./../../include/physics/2D/CCircleCollisionObject2D.h"
+#include "./../../include/physics/2D/CTrigger2D.h"
 
 
 namespace TDEngine2
@@ -321,6 +322,7 @@ namespace TDEngine2
 			CreateOrthoCameraFactory,
 			CreateBoxCollisionObject2DFactory,
 			CreateCircleCollisionObject2DFactory,
+			CreateTrigger2DFactory,
 			CreateStaticMeshContainerFactory,
 			//etc
 		};
@@ -357,6 +359,7 @@ namespace TDEngine2
 			COrthoCamera::GetTypeId(),
 			CBoxCollisionObject2D::GetTypeId(),
 			CCircleCollisionObject2D::GetTypeId(),
+			CTrigger2D::GetTypeId(),
 			CStaticMeshContainer::GetTypeId(),
 			//etc
 		};
