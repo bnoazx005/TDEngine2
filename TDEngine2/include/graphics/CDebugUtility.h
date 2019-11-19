@@ -125,6 +125,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void DrawCross(const TVector3& position, F32 size, const TColor32F& color) override;
+			
+			/*!
+				\brief The method draws a rectange on top of the screen. All coordinates of the rectangle
+				should be given in world space
+
+				\param[in] rect A rectangle should be drawn
+				\param[in] color A color of a cross of the rectangle
+			*/
+
+			TDE2_API void DrawRect(const TRectF32& rect, const TColor32F& color) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 

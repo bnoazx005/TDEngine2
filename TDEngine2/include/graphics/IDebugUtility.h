@@ -12,6 +12,7 @@
 #include "./../core/IBaseObject.h"
 #include "./../math/TVector2.h"
 #include "./../math/TVector3.h"
+#include "./../math/TRect.h"
 #include "./../utils/Color.h"
 #include "./../utils/CU8String.h"
 
@@ -77,6 +78,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void DrawCross(const TVector3& position, F32 size, const TColor32F& color) = 0;
+
+			/*!
+				\brief The method draws a rectange on top of the screen. All coordinates of the rectangle
+				should be given in world space
+
+				\param[in] rect A rectangle should be drawn
+				\param[in] color A color of a cross of the rectangle
+			*/
+
+			TDE2_API virtual void DrawRect(const TRectF32& rect, const TColor32F& color) = 0;
 
 			/*!
 				\brief The method prepares internal state of the helper before it will be actually rendered

@@ -185,6 +185,30 @@ namespace TDEngine2
 		createLine(mCrossesDataBuffer, position, ForwardVector3, size, color);
 	}
 
+	void CDebugUtility::DrawRect(const TRectF32& rect, const TColor32F& color)
+	{
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
+		// \note Top line
+		mLinesDataBuffer.push_back({ { rect.x, rect.y, 0.0f, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { rect.x + rect.width, rect.y, 0.0f, 1.0f }, color });
+
+		// \note Right line
+		mLinesDataBuffer.push_back({ { rect.x + rect.width, rect.y, 0.0f, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { rect.x + rect.width, rect.y + rect.height, 0.0f, 1.0f }, color });
+
+		// \note Bottom line
+		mLinesDataBuffer.push_back({ { rect.x + rect.width, rect.y + rect.height, 0.0f, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { rect.x, rect.y + rect.height, 0.0f, 1.0f }, color });
+
+		// \note Left line
+		mLinesDataBuffer.push_back({ { rect.x, rect.y + rect.height, 0.0f, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { rect.x, rect.y, 0.0f, 1.0f }, color });
+	}
+
 	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const
 	{
 		std::vector<U16> indices;
