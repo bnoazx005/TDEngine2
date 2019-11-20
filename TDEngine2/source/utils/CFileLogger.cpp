@@ -1,4 +1,5 @@
 #include "./../../include/utils/CFileLogger.h"
+#include <iostream>
 
 
 namespace TDEngine2
@@ -38,13 +39,16 @@ namespace TDEngine2
 	void CFileLogger::LogStatus(const std::string& message, const std::string& status, C8 delimiter, U16 delimitersCount)
 	{
 		mOutputLog << message << " ";
+		std::cout << message << " ";
 
 		for (U16 i = 0; i < delimitersCount; ++i)
 		{
 			mOutputLog << delimiter;
+			std::cout << delimiter;
 		}
 
 		mOutputLog << " " << status << std::endl;
+		std::cout << " " << status << std::endl;
 	}
 
 	void CFileLogger::LogError(const std::string& message)
@@ -72,15 +76,19 @@ namespace TDEngine2
 				break;
 			case LMT_WARNING:
 				mOutputLog << "!Warning: ";
+				std::cout << "!Warning: ";
 				break;
 			case LMT_ERROR:
 				mOutputLog << "!!!ERROR: ";
+				std::cout << "!!!ERROR: ";
 				break;
 		}
 
 		mOutputLog << message << std::endl;
+		std::cout << message << std::endl;
 
 		mOutputLog.flush();
+		std::cout.flush();
 	}
 
 
