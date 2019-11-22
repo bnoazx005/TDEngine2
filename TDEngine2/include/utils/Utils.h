@@ -573,4 +573,29 @@ namespace TDEngine2
 	{
 		return ptr ? ptr : defaultPtr;
 	}
+
+
+	/*!
+		\brief The helper function is a custom,fast implementation of dynamic_cast
+		operator which is based upon type_traits and static_cast. The main advantage over
+		dynamic_cast is compile time validation of casting operation
+
+		\param[in] pBase An input pointer to Base type
+
+		\return The function returns casted pointer to Derived type which is a child class
+		of Base type
+	*/
+
+	template <typename Derived, typename Base>
+	Derived PolymorphicCast(Base* pBase)
+	{
+		static_assert(std::is_base_of<Base,
+										std::conditional<std::is_pointer<Derived>::value,
+															std::remove_pointer<Derived>::type,
+															std::conditional<std::is_reference<Derived>::value,
+																				std::remove_reference<Derived>::type,
+																				Derived>>::type>::value, 
+																				"Invalid polymorphic cast");
+		return static_cast<Derived>(pBase);
+	}
 }
