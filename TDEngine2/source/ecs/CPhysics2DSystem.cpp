@@ -6,6 +6,7 @@
 #include "./../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "./../../include/physics/2D/CTrigger2D.h"
 #include "./../../include/core/IEventManager.h"
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -32,7 +33,7 @@ namespace TDEngine2
 		}
 
 		mpWorldInstance = new b2World({ mDefaultGravity.x, mDefaultGravity.y });
-		mpWorldInstance->SetContactListener(mpContactsListener = new CTriggerContactsListener());
+		mpWorldInstance->SetContactListener(mpContactsListener = new CTriggerContactsListener(pEventManager, mCollidersData.mBodies, mHandles2EntitiesMap));
 
 		mpEventManager = pEventManager;
 
@@ -75,6 +76,7 @@ namespace TDEngine2
 	{
 		auto&& interactiveEntities = pWorld->FindEntitiesWithAny<CBoxCollisionObject2D, CCircleCollisionObject2D, CTrigger2D>();
 		
+		mHandles2EntitiesMap.clear();
 		mCollidersData.Clear();
 
 		CEntity* pCurrEntity = nullptr;
@@ -85,6 +87,8 @@ namespace TDEngine2
 
 		b2Body* pCurrBody = nullptr;
 
+		CTrigger2D* pCurrTrigger = nullptr;
+
 		for (TEntityId currEntityId : interactiveEntities)
 		{
 			if (!(pCurrEntity = pWorld->FindEntity(currEntityId)))
@@ -92,16 +96,25 @@ namespace TDEngine2
 				continue;
 			}
 
+			mHandles2EntitiesMap[mCollidersData.mTransforms.size()] = currEntityId;
+
 			pTransform = pCurrEntity->GetComponent<CTransform>();
 			
 			mCollidersData.mTransforms.push_back(pTransform);
 			mCollidersData.mCollisionObjects.push_back(pCollisionObject);
 
-			pCurrBody = _createPhysicsBody(pTransform, GetValidPtrOrDefault<CBaseCollisionObject2D*>(
-																pCurrEntity->GetComponent<CBoxCollisionObject2D>(), 
-																pCurrEntity->GetComponent<CCircleCollisionObject2D>()));
+			if (pCurrTrigger = pCurrEntity->GetComponent<CTrigger2D>())
+			{
+				mCollidersData.mTriggers.push_back(pCurrTrigger);
+			}
 
+			pCurrBody = _createPhysicsBody(pTransform, pCurrTrigger,
+										   GetValidPtrOrDefault<CBaseCollisionObject2D*>(
+													pCurrEntity->GetComponent<CBoxCollisionObject2D>(), 
+													pCurrEntity->GetComponent<CCircleCollisionObject2D>()));
+			
 			mCollidersData.mBodies.push_back(pCurrBody);
+
 		}
 	}
 
@@ -156,7 +169,7 @@ namespace TDEngine2
 		return circleCollider;
 	}
 
-	b2Body* CPhysics2DSystem::_createPhysicsBody(const CTransform* pTransform, const CBaseCollisionObject2D* pCollider)
+	b2Body* CPhysics2DSystem::_createPhysicsBody(const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider)
 	{
 		TVector3 position = pTransform->GetPosition();
 		TVector3 scale    = pTransform->GetScale();
@@ -199,7 +212,8 @@ namespace TDEngine2
 
 		fixtureDef.friction = 0.3f;
 		fixtureDef.density  = 1.0f;
-
+		fixtureDef.isSensor = isTrigger;
+		
 		pCollider->GetCollisionShape(this, [&fixtureDef, &pCreatedBody](const b2Shape* pShapeCollider)
 		{
 			fixtureDef.shape = pShapeCollider;
@@ -210,6 +224,12 @@ namespace TDEngine2
 		return pCreatedBody;
 	}
 
+	CPhysics2DSystem::CTriggerContactsListener::CTriggerContactsListener(IEventManager*& pEventManager, std::vector<b2Body*>& bodiesArray, 
+																		 const THandles2EntitiesMap& handles2EntitiesMap):
+		mpBodies(&bodiesArray), mpHandles2EntitiesMap(&handles2EntitiesMap), mpEventManager(pEventManager)
+	{
+	}
+
 	void CPhysics2DSystem::CTriggerContactsListener::BeginContact(b2Contact* contact)
 	{
 		if (!contact->GetFixtureA()->IsSensor() && !contact->GetFixtureB()->IsSensor())
@@ -217,12 +237,31 @@ namespace TDEngine2
 			return;
 		}
 
-		TDE2_UNIMPLEMENTED();
+		TOnTrigger2DEnterEvent trigger2DEnterEventData;
+		trigger2DEnterEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
+		trigger2DEnterEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
+
+		mpEventManager->Notify(&trigger2DEnterEventData);
 	}
 
 	void CPhysics2DSystem::CTriggerContactsListener::EndContact(b2Contact* contact)
 	{
-		TDE2_UNIMPLEMENTED();
+		if (!contact->GetFixtureA()->IsSensor() && !contact->GetFixtureB()->IsSensor())
+		{
+			return;
+		}
+
+		TOnTrigger2DExitEvent trigger2DExitEventData;
+		trigger2DExitEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
+		trigger2DExitEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
+
+		mpEventManager->Notify(&trigger2DExitEventData);
+	}
+
+	TEntityId CPhysics2DSystem::CTriggerContactsListener::_getEntityIdByBody(const b2Body* pBody) const
+	{
+		auto iter = std::find(mpBodies->cbegin(), mpBodies->cend(), pBody);
+		return (iter != mpBodies->cend()) ? mpHandles2EntitiesMap->at(std::distance(mpBodies->cbegin(), iter)) : InvalidEntityId;
 	}
 
 

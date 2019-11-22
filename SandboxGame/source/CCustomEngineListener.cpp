@@ -48,9 +48,18 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pSprite->SetMaterialName("NewMaterial.material");
 		pSprite->SetColor(colors[rand() % 7]);
 
-		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
+		auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
 	}
-	
+
+	// \note create a trigger
+	auto pTriggerEntity = mpWorld->CreateEntity();
+	auto pTransform = pTriggerEntity->GetComponent<CTransform>();
+	pTransform->SetPosition({ 0.0f, -1.0f, 1.0f });
+	pTransform->SetScale({ 10.0f, 1.0f, 1.0f });
+	auto collider = pTriggerEntity->AddComponent<CBoxCollisionObject2D>();
+	collider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
+	pTriggerEntity->AddComponent<CTrigger2D>();
+		
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
 	mpCameraEntity->AddComponent<COrthoCamera>();	
 

@@ -12,6 +12,8 @@
 #include "./../physics/2D/ICollisionObjectsVisitor.h"
 #include "./../math/TVector2.h"
 #include "Box2D.h"
+#include <vector>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -21,6 +23,7 @@ namespace TDEngine2
 	class CBoxCollisionObject2D;
 	class CCircleCollisionObject2D;
 	class CTrigger2D;
+	class CEntity;
 	class IEventManager;
 
 
@@ -68,6 +71,9 @@ namespace TDEngine2
 				}
 			};
 
+			typedef std::unordered_map<U32, TEntityId>     THandles2EntitiesMap;
+			typedef TCollidersData<CBaseCollisionObject2D> TBaseCollidersData;
+
 			/*!
 				class CContactsListener
 
@@ -78,16 +84,20 @@ namespace TDEngine2
 			class CTriggerContactsListener : public b2ContactListener
 			{
 				public:
+					CTriggerContactsListener(IEventManager*& pEventManager, std::vector<b2Body*>& bodiesArray, const THandles2EntitiesMap& handles2EntitiesMap);
+
 					/// Called when two fixtures begin to touch.
 					void BeginContact(b2Contact* contact) override;
 
 					/// Called when two fixtures cease to touch.
 					void EndContact(b2Contact* contact) override;
+				private:	
+					TEntityId _getEntityIdByBody(const b2Body* pBody) const;
+				private:
+					std::vector<b2Body*>*       mpBodies;
+					const THandles2EntitiesMap* mpHandles2EntitiesMap;
+					IEventManager*              mpEventManager;
 			};
-
-			typedef TCollidersData<CBoxCollisionObject2D>    TBoxCollidersData;
-			typedef TCollidersData<CCircleCollisionObject2D> TCircleCollidersData;
-			typedef TCollidersData<CBaseCollisionObject2D>   TBaseCollidersData;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -148,7 +158,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics2DSystem)
 
-			TDE2_API b2Body* _createPhysicsBody(const CTransform* pTransform, const CBaseCollisionObject2D* pCollider);
+			TDE2_API b2Body* _createPhysicsBody(const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider);
 		protected:
 			static const TVector2 mDefaultGravity;
 
@@ -163,6 +173,8 @@ namespace TDEngine2
 			b2ContactListener*    mpContactsListener;
 
 			IEventManager*        mpEventManager;
+
+			THandles2EntitiesMap  mHandles2EntitiesMap;
 
 			TBaseCollidersData    mCollidersData;
 
@@ -190,7 +202,7 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnTrigger2DEnterEvent)
 		REGISTER_EVENT_TYPE(TOnTrigger2DEnterEvent)
 
-		// \todo
+		TEntityId mEntities[2]; ///< Two bodies that were collided
 	} TOnTrigger2DEnterEvent, *TOnTrigger2DEnterEventPtr;
 
 
@@ -208,6 +220,6 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnTrigger2DExitEvent)
 		REGISTER_EVENT_TYPE(TOnTrigger2DExitEvent)
 
-		// \todo
+		TEntityId mEntities[2]; ///< Two bodies that were collided
 	} TOnTrigger2DExitEvent, *TOnTrigger2DExitEventPtr;
 }
