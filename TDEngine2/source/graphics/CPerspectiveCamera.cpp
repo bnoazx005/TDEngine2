@@ -56,6 +56,11 @@ namespace TDEngine2
 		return mAspectRatio;
 	}
 
+	E_CAMERA_PROJECTION_TYPE CPerspectiveCamera::GetProjType() const
+	{
+		return E_CAMERA_PROJECTION_TYPE::PERSPECTIVE;
+	}
+
 
 	IComponent* CreatePerspectiveCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result)
 	{

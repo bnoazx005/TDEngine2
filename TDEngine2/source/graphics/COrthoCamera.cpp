@@ -56,6 +56,11 @@ namespace TDEngine2
 		return mHeight;
 	}
 
+	E_CAMERA_PROJECTION_TYPE COrthoCamera::GetProjType() const
+	{
+		return E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC;
+	}
+
 
 	IComponent* CreateOrthoCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result)
 	{

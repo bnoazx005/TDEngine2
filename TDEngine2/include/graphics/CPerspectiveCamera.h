@@ -103,6 +103,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API F32 GetAspect() const override;
+
+			/*!
+				\brief The method returns a type of camera's projection matrix
+
+				\return The method returns a type of camera's projection matrix
+			*/
+
+			TDE2_API E_CAMERA_PROJECTION_TYPE GetProjType() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPerspectiveCamera)
 		protected:

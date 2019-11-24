@@ -31,6 +31,13 @@ namespace TDEngine2
 	} TBaseCameraParameters;
 
 
+	enum class E_CAMERA_PROJECTION_TYPE : U8
+	{
+		ORTHOGRAPHIC,
+		PERSPECTIVE
+	};
+
+
 	/*!
 		interface ICamera
 
@@ -114,6 +121,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TMatrix4& GetViewMatrix() const = 0;
+
+			/*!
+				\brief The method returns a type of camera's projection matrix
+
+				\return The method returns a type of camera's projection matrix
+			*/
+
+			TDE2_API virtual E_CAMERA_PROJECTION_TYPE GetProjType() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICamera)
 	};
