@@ -299,9 +299,9 @@ namespace TDEngine2
 		projMatrix.m[0][0] = d / aspect;
 		projMatrix.m[1][1] = d;
 		projMatrix.m[2][2] = handedness * (zNDCMax * zf - zNDCMin * zn) / dz;
-		projMatrix.m[2][3] = handedness * zn * zf * (zNDCMax - zNDCMin) / dz;
+		projMatrix.m[2][3] = zn * zf * (zNDCMax - zNDCMin) / dz;
 
-		projMatrix.m[3][2] = -1.0f;
+		projMatrix.m[3][2] = -handedness;
 
 		return projMatrix;
 	}
@@ -316,7 +316,7 @@ namespace TDEngine2
 
 		projMatrix.m[0][0] = 2.0f / width;
 		projMatrix.m[1][1] = 2.0f / height;
-		projMatrix.m[2][2] = -handedness * (zNDCMax - zNDCMin) / depth;
+		projMatrix.m[2][2] = -handedness * fabs(zNDCMax - zNDCMin) / depth;
 
 		projMatrix.m[0][3] = -(right + left) / width;
 		projMatrix.m[1][3] = -(top + bottom) / height;

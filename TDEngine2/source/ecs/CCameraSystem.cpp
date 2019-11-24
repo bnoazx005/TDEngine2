@@ -107,18 +107,22 @@ namespace TDEngine2
 
 		CBaseCamera* pCurrCamera = nullptr;
 
+		const F32 graphicsCtxPositiveZAxisDirection = mpGraphicsContext->GetPositiveZAxisDirection();
+
 		for (U32 i = 0; i < mCameras.size(); ++i)
 		{
 			pCurrCamera = mCameras[i];
 
 			pCurrTransform = mCamerasTransforms[i];
 
-			TMatrix4 viewMatrix = Transpose(pCurrTransform->GetTransform());
+			TMatrix4 viewMatrix = pCurrTransform->GetTransform();
 
-			viewMatrix.m[3][0] *= -1.0f;
-			viewMatrix.m[3][1] *= -1.0f;
-			viewMatrix.m[3][2] *= -1.0f;
-			//viewMatrix.m[2][2] *= mpGraphicsContext->GetPositiveZAxisDirection();
+			viewMatrix.m[0][3] = -viewMatrix.m[0][3];
+			viewMatrix.m[1][3] = -viewMatrix.m[1][3];
+
+			// \note This thing is a kind of a hack for OpenGL graphics context which is using orthographic projection to make it uniform for both GAPIs
+			viewMatrix.m[2][3] *= ((pCurrCamera->GetProjType() == E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC) && (graphicsCtxPositiveZAxisDirection < 0.0f)) ? 1.0f : -1.0f;
+			viewMatrix.m[2][2] *= graphicsCtxPositiveZAxisDirection;
 
 			pCurrCamera->SetViewMatrix(viewMatrix);
 

@@ -222,8 +222,8 @@ namespace TDEngine2
 		
 		if (mpMainCamera)
 		{
-			perFrameShaderData.mProjMatrix = mpMainCamera->GetProjMatrix();
-			perFrameShaderData.mViewMatrix = mpMainCamera->GetViewMatrix();
+			perFrameShaderData.mProjMatrix = Transpose(mpMainCamera->GetProjMatrix());
+			perFrameShaderData.mViewMatrix = Transpose(mpMainCamera->GetViewMatrix());
 		}
 
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));

@@ -48,7 +48,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pSprite->SetMaterialName("NewMaterial.material");
 		pSprite->SetColor(colors[rand() % 7]);
 
-		auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
+		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
 	}
 
 	// \note create a trigger
@@ -61,7 +61,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pTriggerEntity->AddComponent<CTrigger2D>();
 		
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
-	mpCameraEntity->AddComponent<COrthoCamera>();	
+	auto pCamera = mpCameraEntity->AddComponent<CPerspectiveCamera>();	
+	pCamera->SetAspect(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight());
+	pCamera->SetFOV(0.5f * CMathConstants::Pi);
 
 	TTextureSamplerDesc textureSamplerDesc;
 /*
@@ -85,6 +87,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pCubeMesh = CStaticMesh::CreateCube(mpResourceManager);
 
 	auto pMeshEntity = mpWorld->CreateEntity();
+	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
+	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");	
@@ -127,6 +131,16 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	{
 		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * RightVector3);
 	}
+
+	if (mpInputContext->IsKey(E_KEYCODES::KC_Q))
+	{
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * ForwardVector3);
+	}
+
+	if (mpInputContext->IsKey(E_KEYCODES::KC_E))
+	{
+		pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * ForwardVector3);
+	}
 	
 	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
 	pDebugUtility->DrawLine(ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
@@ -136,6 +150,13 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawText({ 0, 0 }, 0.008f, std::to_string(dt), { 1.0f, 1.0f, 1.0f, 1.0f });
 	pDebugUtility->DrawCross(ZeroVector3, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawRect({ 0.0f, 0.0f, 2.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+	// rotate the cube
+	auto pEntity = mpWorld->FindEntity(mpWorld->FindEntitiesWithComponents<CStaticMeshContainer>()[0]);
+	auto pTransform = pEntity->GetComponent<CTransform>();
+	static F32 time = 0.0f;
+	time += 5.0f * dt;
+	pTransform->SetRotation(TDEngine2::TQuaternion(ForwardVector3, time));
 
 	return RC_OK;
 }
