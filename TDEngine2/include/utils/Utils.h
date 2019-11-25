@@ -598,4 +598,38 @@ namespace TDEngine2
 																				"Invalid polymorphic cast");
 		return static_cast<Derived>(pBase);
 	}
+
+
+	/*!
+		class CScopedPtr<T>
+
+		\brief The class implements RAII idiom for pointers to types which are
+		used in the engine. The main difference from std::unique_ptr<T> is
+		another way of objects destruction.
+	*/
+
+	template <typename T>
+	class CScopedPtr
+	{
+		public:
+			CScopedPtr() = delete;
+			CScopedPtr(const CScopedPtr<T>& ptr) = delete;
+			CScopedPtr(CScopedPtr<T>&& ptr) = delete;
+			explicit CScopedPtr(T* pPtr) : mpPtr(pPtr) {}
+
+			~CScopedPtr()
+			{
+				if (mpPtr)
+				{
+					mpPtr->Free();
+				}
+			}
+
+			T* operator->() const
+			{
+				return mpPtr;
+			}
+		private:
+			T* mpPtr;
+	};
 }
