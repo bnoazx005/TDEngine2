@@ -266,7 +266,7 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
 	{
-		ID3D11DepthStencilState* pDepthStencilState = PolymorphicCast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
+		ID3D11DepthStencilState* pDepthStencilState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
 		// \todo replace 0xff with second argument for the method
 		mp3dDeviceContext->OMSetDepthStencilState(pDepthStencilState, 0xFF);
 	}

@@ -225,7 +225,7 @@ namespace TDEngine2
 			return;
 		}
 
-		const TDepthStencilStateDesc& depthStencilState = PolymorphicCast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
+		const TDepthStencilStateDesc& depthStencilState = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
 
 		auto stateActivationFunction = depthStencilState.mIsDepthTestEnabled ? glEnable : glDisable;
 
