@@ -28,7 +28,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpInputContext = CreateUnixInputContext(dynamic_cast<IWindowSystem*>(pEngineCore->GetSubsystem(EST_WINDOW)), result);
+		mpInputContext = CreateUnixInputContext(pEngineCore->GetSubsystem<IWindowSystem>(), result);
 
 		if (result != RC_OK)
 		{

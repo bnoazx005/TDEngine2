@@ -1,4 +1,5 @@
 #include "./../../include/graphics/CStaticMesh.h"
+#include <cstring>
 
 
 namespace TDEngine2
@@ -180,11 +181,13 @@ namespace TDEngine2
 
 		std::vector<U8> bytes(mPositions.size() * strideSize);
 
+		static TColor32F white(1.0f); // \todo replace this static variable with global one in TColor.h
+
 		for (U32 i = 0, ptrPos = 0; i < mPositions.size(); ++i, ptrPos += strideSize)
 		{
 			// mandatory element
 			memcpy(&bytes[ptrPos], &mPositions[i], sizeof(TVector4));
-			memcpy(&bytes[ptrPos + sizeof(TVector4)], HasColors() ? &mVertexColors[i] : &TColor32F(1.0f), sizeof(TColor32F));
+			memcpy(&bytes[ptrPos + sizeof(TVector4)], HasColors() ? &mVertexColors[i] : &white, sizeof(TColor32F));
 			
 			if (HasTexCoords0()) { memcpy(&bytes[ptrPos + 2 * sizeof(TVector4)], &mTexcoords0[i], sizeof(TVector2)); }
 			if (HasNormals()) { memcpy(&bytes[ptrPos + 3 * sizeof(TVector4)], &mNormals[i], sizeof(TVector4)); }

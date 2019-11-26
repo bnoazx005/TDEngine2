@@ -14,6 +14,7 @@
 #include "./../../include/graphics/COrthoCamera.h"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 
 
 namespace TDEngine2
