@@ -720,4 +720,10 @@ namespace TDEngine2
 
 		return TDE2_STRING_ID(data);
 	}
+
+	/*!
+		\brief The macro is used to define a base class for derived one
+	*/
+
+#define TDE2_BASE_CLASS(TClass) typedef TClass TBase
 }
