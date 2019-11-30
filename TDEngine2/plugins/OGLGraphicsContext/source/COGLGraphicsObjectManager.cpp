@@ -140,6 +140,11 @@ namespace TDEngine2
 		return TOkValue<TRasterizerStateId>(mRasterizerStates.Add(rasterizerStateDesc));
 	}
 
+	TResult<TDepthStencilStateId> COGLGraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
+	{
+		return TOkValue<TDepthStencilStateId>(mDepthStencilStates.Add(depthStencilDesc));
+	}
+
 	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		if (texSamplerId >= mTextureSamplersArray.size())
