@@ -173,6 +173,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static D3D11_TEXTURECUBE_FACE GetCubemapFace(E_CUBEMAP_FACE faceType);
+
+			/*!
+				\brief The function maps internal comparison function's type into D3D11 specific one
+
+				\param[in] func An internal type of a comparison function
+
+				\return D3D11 comparison function's type based on the given argument
+			*/
+
+			TDE2_API static D3D11_COMPARISON_FUNC GetComparisonFunc(const E_COMPARISON_FUNC& func);
+			
+			/*!
+				\brief The function maps internal stencil operation's type into D3D11 specific one
+
+				\param[in] stencilOp An internal type of a stencil operation
+
+				\return D3D11 stencil operation's type based on the given argument
+			*/
+
+			TDE2_API static D3D11_STENCIL_OP GetStencilOpType(const E_STENCIL_OP& stencilOp);
 	};
 }
 

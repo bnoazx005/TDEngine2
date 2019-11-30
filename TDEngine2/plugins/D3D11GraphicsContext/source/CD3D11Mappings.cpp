@@ -498,6 +498,54 @@ namespace TDEngine2
 				return D3D11_TEXTURECUBE_FACE_POSITIVE_X;
 		}
 	}
+
+	D3D11_COMPARISON_FUNC CD3D11Mappings::GetComparisonFunc(const E_COMPARISON_FUNC& func)
+	{
+		switch (func)
+		{
+			case E_COMPARISON_FUNC::NEVER:
+				return D3D11_COMPARISON_NEVER;
+			case E_COMPARISON_FUNC::LESS:
+				return D3D11_COMPARISON_LESS;
+			case E_COMPARISON_FUNC::EQUAL:
+				return D3D11_COMPARISON_EQUAL;
+			case E_COMPARISON_FUNC::LESS_EQUAL:
+				return D3D11_COMPARISON_LESS_EQUAL;
+			case E_COMPARISON_FUNC::GREATER:
+				return D3D11_COMPARISON_GREATER;
+			case E_COMPARISON_FUNC::NOT_EQUAL:
+				return D3D11_COMPARISON_NOT_EQUAL;
+			case E_COMPARISON_FUNC::GREATER_EQUAL:
+				return D3D11_COMPARISON_GREATER_EQUAL;
+			case E_COMPARISON_FUNC::ALWAYS:
+			default:
+				return D3D11_COMPARISON_ALWAYS;
+		}
+	}
+
+	D3D11_STENCIL_OP CD3D11Mappings::GetStencilOpType(const E_STENCIL_OP& stencilOp)
+	{
+		switch (stencilOp)
+		{
+			case E_STENCIL_OP::ZERO:
+				return D3D11_STENCIL_OP_ZERO;
+			case E_STENCIL_OP::REPLACE:
+				return D3D11_STENCIL_OP_REPLACE;
+			case E_STENCIL_OP::INCR_SAT:
+				return D3D11_STENCIL_OP_INCR_SAT;
+			case E_STENCIL_OP::DECR_SAT:
+				return D3D11_STENCIL_OP_DECR_SAT;
+			case E_STENCIL_OP::INVERT:
+				return D3D11_STENCIL_OP_INVERT;
+			case E_STENCIL_OP::INCR:
+				return D3D11_STENCIL_OP_INCR;
+			case E_STENCIL_OP::DECR:
+				return D3D11_STENCIL_OP_DECR;
+			case E_STENCIL_OP::KEEP:
+			default:
+				return D3D11_STENCIL_OP_KEEP;
+		}
+	}
 }
 
 #endif
