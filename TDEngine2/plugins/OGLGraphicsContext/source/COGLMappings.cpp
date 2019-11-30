@@ -673,4 +673,52 @@ namespace TDEngine2
 
 		return 0x0;
 	}
+
+	GLenum COGLMappings::GetComparisonFunc(const E_COMPARISON_FUNC& func)
+	{
+		switch (func)
+		{
+			case E_COMPARISON_FUNC::NEVER:
+				return GL_NEVER;
+			case E_COMPARISON_FUNC::LESS:
+				return GL_LESS;
+			case E_COMPARISON_FUNC::EQUAL:
+				return GL_EQUAL;
+			case E_COMPARISON_FUNC::LESS_EQUAL:
+				return GL_LEQUAL;
+			case E_COMPARISON_FUNC::GREATER:
+				return GL_GREATER;
+			case E_COMPARISON_FUNC::NOT_EQUAL:
+				return GL_NOTEQUAL;
+			case E_COMPARISON_FUNC::GREATER_EQUAL:
+				return GL_GEQUAL;
+			case E_COMPARISON_FUNC::ALWAYS:
+				return GL_ALWAYS;
+		}
+
+		return 0;
+	}
+
+	GLenum COGLMappings::GetStencilOpType(const E_STENCIL_OP& stencilOp)
+	{
+		switch (stencilOp)
+		{
+			case E_STENCIL_OP::ZERO:
+				return GL_ZERO;
+			case E_STENCIL_OP::REPLACE:
+				return GL_REPLACE;
+			case E_STENCIL_OP::INVERT:
+				return GL_INVERT;
+			case E_STENCIL_OP::INCR:
+			case E_STENCIL_OP::INCR_SAT:
+				return GL_INCR;
+			case E_STENCIL_OP::DECR:
+			case E_STENCIL_OP::DECR_SAT:
+				return GL_DECR;
+			case E_STENCIL_OP::KEEP:
+				return GL_KEEP;
+		}
+
+		return 0;
+	}
 }

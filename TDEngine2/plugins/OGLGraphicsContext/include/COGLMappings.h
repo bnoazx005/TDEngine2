@@ -221,5 +221,25 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static GLenum GetCubemapFace(E_CUBEMAP_FACE faceType);
+
+			/*!
+				\brief The function maps internal comparison function's type into OGL specific one
+
+				\param[in] func An internal type of a comparison function
+
+				\return OGL comparison function's type based on the given argument
+			*/
+
+			TDE2_API static GLenum GetComparisonFunc(const E_COMPARISON_FUNC& func);
+
+			/*!
+				\brief The function maps internal stencil operation's type into OGL specific one
+
+				\param[in] stencilOp An internal type of a stencil operation
+
+				\return OGL stencil operation's type based on the given argument
+			*/
+
+			TDE2_API static GLenum GetStencilOpType(const E_STENCIL_OP& stencilOp);
 	};
 }
