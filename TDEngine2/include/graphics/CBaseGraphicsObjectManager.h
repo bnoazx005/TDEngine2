@@ -84,6 +84,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _freeTextureSamplers() = 0;
 
 			TDE2_API virtual E_RESULT_CODE _freeBlendStates() = 0;
+
+			TDE2_API virtual E_RESULT_CODE _freeDepthStencilStates() = 0;
 		protected:
 			IGraphicsContext*        mpGraphicsContext;
 

@@ -692,4 +692,89 @@ namespace TDEngine2
 	typedef U32 TBlendStateId;
 
 	constexpr TBlendStateId InvalidBlendStateId = (std::numeric_limits<TBlendStateId>::max)();
+
+
+	/*!
+		enum class E_COMPARISON_FUNC
+
+		\brief The enumeration contains all available types of operations which
+		can be done during depth/stencil tests
+	*/
+
+	enum class E_COMPARISON_FUNC
+	{
+		NEVER,
+		LESS,
+		EQUAL,
+		LESS_EQUAL,
+		GREATER,
+		NOT_EQUAL,
+		GREATER_EQUAL,
+		ALWAYS
+	};
+
+
+	/*!
+		enum class E_STENCIL_OP
+
+		\brief The enumeration contains all the operations that can be
+		performed over values that are stored within stencil buffer
+	*/
+
+	enum class E_STENCIL_OP
+	{
+		KEEP,
+		ZERO,
+		REPLACE,
+		INCR_SAT,
+		DECR_SAT,
+		INVERT,
+		INCR,
+		DECR
+	};
+
+
+	/*!
+		struct TStencilOperationDesc
+
+		\brief The type describe an operation that will be performed over stencil values
+		during stencil test
+	*/
+
+	typedef struct TStencilOperationDesc
+	{
+		E_COMPARISON_FUNC mFunc = E_COMPARISON_FUNC::ALWAYS;
+
+		E_STENCIL_OP      mPassOp = E_STENCIL_OP::KEEP;
+		E_STENCIL_OP      mFailOp = E_STENCIL_OP::KEEP;
+		E_STENCIL_OP      mDepthFailOp = E_STENCIL_OP::KEEP;
+	} TStencilOpDesc, *TStencilOpDescPtr;
+
+
+	/*!
+		struct TDepthStencilStateDesc
+
+		\brief The structure is a type that contains information about a depth-stencil state
+	*/
+
+	typedef struct TDepthStencilStateDesc
+	{
+		bool              mIsDepthTestEnabled = true;
+		bool              mIsDepthWritingEnabled = true;
+
+		E_COMPARISON_FUNC mDepthCmpFunc = E_COMPARISON_FUNC::ALWAYS;
+
+		bool              mIsStencilTestEnabled = false;
+
+		U8                mStencilReadMaskValue = 0xff;
+		U8                mStencilWriteMaskValue = 0xff;
+
+		TStencilOpDesc    mStencilFrontFaceOp;
+		TStencilOpDesc    mStencilBackFaceOp;
+	} TDepthStencilStateDesc, *TDepthStencilStateDescPtr;
+
+
+	typedef U32 TDepthStencilStateId;
+
+	constexpr TDepthStencilStateId InvalidDepthStencilStateId = (std::numeric_limits<TBlendStateId>::max)();
 }

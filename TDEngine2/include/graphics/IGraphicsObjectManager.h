@@ -113,14 +113,24 @@ namespace TDEngine2
 			TDE2_API virtual TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) = 0;
 
 			/*!
-				\brief The method creates a new blend state which is configured via given paramters
+				\brief The method creates a new blend state which is configured via given parameters
 
 				\param[in] blendStateDesc A structure that contains parameters which will be assigned to a new created state
 
 				\return The result object contains either an identifier of created blend state or an error code
 			*/
 
-			TDE2_API  virtual TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) = 0;
+			TDE2_API virtual TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) = 0;
+
+			/*!
+				\brief The method creates a new state which sets up depth and stencil buffers operations and values
+
+				\param[in] depthStencilDesc A structure that contains settings, which the state should set up, each time it's used
+
+				\return The result object contains either an identifier of a created state or an error code
+			*/
+
+			TDE2_API virtual TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) = 0;
 
 			/*!
 				\brief The method is a factory for creation of a debug helper object

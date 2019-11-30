@@ -125,6 +125,11 @@ namespace TDEngine2
 		return TOkValue<TBlendStateId>(stateId);
 	}
 
+	TResult<TDepthStencilStateId> COGLGraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
+	{
+		return TOkValue<TDepthStencilStateId>(mDepthStencilStates.Add(depthStencilDesc));
+	}
+
 	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		if (texSamplerId >= mTextureSamplersArray.size())
@@ -139,7 +144,12 @@ namespace TDEngine2
 	{
 		return mBlendStates[blendStateId];
 	}
-	
+
+	TResult<TDepthStencilStateDesc> COGLGraphicsObjectManager::GetDepthStencilState(TDepthStencilStateId depthStencilStateId) const
+	{
+		return mDepthStencilStates[depthStencilStateId];
+	}
+
 	std::string COGLGraphicsObjectManager::GetDefaultShaderCode() const
 	{
 		return R"(
@@ -187,6 +197,11 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeBlendStates()
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsObjectManager::_freeDepthStencilStates()
 	{
 		return RC_OK;
 	}

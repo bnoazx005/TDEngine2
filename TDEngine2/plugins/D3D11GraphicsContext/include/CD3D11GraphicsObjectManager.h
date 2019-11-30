@@ -41,8 +41,9 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		protected:
-			typedef std::vector<ID3D11SamplerState*>      TTextureSamplersArray;
-			typedef CResourceContainer<ID3D11BlendState*> TBlendStatesArray;
+			typedef std::vector<ID3D11SamplerState*>             TTextureSamplersArray;
+			typedef CResourceContainer<ID3D11BlendState*>        TBlendStatesArray;
+			typedef CResourceContainer<ID3D11DepthStencilState*> TDepthStencilStatesArray;
 		public:
 			/*!
 				\brief The method is a factory for creation objects of IVertexBuffer's type
@@ -120,6 +121,16 @@ namespace TDEngine2
 			TDE2_API TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) override;
 
 			/*!
+				\brief The method creates a new state which sets up depth and stencil buffers operations and values
+
+				\param[in] depthStencilDesc A structure that contains settings, which the state should set up, each time it's used
+
+				\return The result object contains either an identifier of a created state or an error code
+			*/
+
+			TDE2_API TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) override;
+
+			/*!
 				\brief The method returns a pointer to ID3D11SamplerState which is related with a given identifier
 
 				\param[in] texSamplerId An identifier of a texture sampler
@@ -140,6 +151,16 @@ namespace TDEngine2
 			TDE2_API TResult<ID3D11BlendState*> GetBlendState(TBlendStateId blendStateId) const;
 
 			/*!
+				\brief The method returns a parameters of a depth-stencil state with a given identifier
+
+				\param[in] stateId An identifier of a depth-stencil state
+
+				\return Either a result object with state's object or an error code
+			*/
+
+			TDE2_API TResult<ID3D11DepthStencilState*> GetDepthStencilState(TDepthStencilStateId stateId) const;
+
+			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
 				for the graphics context
 
@@ -152,10 +173,14 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsObjectManager)
 			
 			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
+
 			TDE2_API E_RESULT_CODE _freeBlendStates() override;
+
+			TDE2_API E_RESULT_CODE _freeDepthStencilStates() override;
 		protected:			
-			TTextureSamplersArray mpTextureSamplersArray;
-			TBlendStatesArray     mpBlendStates;
+			TTextureSamplersArray    mpTextureSamplersArray;
+			TBlendStatesArray        mpBlendStates;
+			TDepthStencilStatesArray mpDepthStencilStatesArray;
 	};
 }
 
