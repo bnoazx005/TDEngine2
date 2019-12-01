@@ -209,6 +209,43 @@ namespace TDEngine2
 								COGLMappings::GetBlendOpType(blendStateDesc.mAlphaOpType));
 	}
 
+	void COGLGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
+	{
+		if (depthStencilStateId == InvalidDepthStencilStateId)
+		{
+			// \note set up default values for depth-stencil state
+			glEnable(GL_DEPTH_TEST);
+			glDepthMask(GL_TRUE);
+			glDepthFunc(GL_LESS);
+
+			// \note default settings for stencil test
+			glDisable(GL_STENCIL_TEST);
+			glStencilMask(0x0);
+
+			return;
+		}
+
+		const TDepthStencilStateDesc& depthStencilState = PolymorphicCast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
+
+		auto stateActivationFunction = depthStencilState.mIsDepthTestEnabled ? glEnable : glDisable;
+
+		stateActivationFunction(GL_DEPTH_TEST);
+		glDepthMask(depthStencilState.mIsDepthWritingEnabled);
+		glDepthFunc(COGLMappings::GetComparisonFunc(depthStencilState.mDepthCmpFunc));
+
+		// \note stencil's parameters
+		stateActivationFunction = depthStencilState.mIsStencilTestEnabled ? glEnable : glDisable;
+
+		stateActivationFunction(GL_STENCIL_TEST);
+		glStencilMask(depthStencilState.mStencilWriteMaskValue);
+		glStencilOpSeparate(GL_FRONT, COGLMappings::GetStencilOpType(depthStencilState.mStencilFrontFaceOp.mFailOp),
+							COGLMappings::GetStencilOpType(depthStencilState.mStencilFrontFaceOp.mDepthFailOp),
+							COGLMappings::GetStencilOpType(depthStencilState.mStencilFrontFaceOp.mPassOp));
+		glStencilOpSeparate(GL_BACK, COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mFailOp),
+							COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mDepthFailOp),
+							COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mPassOp));
+	}
+
 	void COGLGraphicsContext::BindRenderTarget(IRenderTarget* pRenderTarget)
 	{
 		if (!pRenderTarget)

@@ -766,8 +766,8 @@ namespace TDEngine2
 
 		bool              mIsStencilTestEnabled = false;
 
-		U8                mStencilReadMaskValue = 0xff;
-		U8                mStencilWriteMaskValue = 0xff;
+		U8                mStencilReadMaskValue = 0xFF;
+		U8                mStencilWriteMaskValue = 0xFF;
 
 		TStencilOpDesc    mStencilFrontFaceOp;
 		TStencilOpDesc    mStencilBackFaceOp;

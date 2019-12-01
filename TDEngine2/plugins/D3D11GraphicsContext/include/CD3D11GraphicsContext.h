@@ -206,6 +206,14 @@ namespace TDEngine2
 			TDE2_API void BindBlendState(TBlendStateId blendStateId) override;
 
 			/*!
+				\brief The method binds a given depth-stencil state to rendering pipeline
+
+				\param[in] depthStencilStateId An identifier of a depth-stencil state
+			*/
+
+			TDE2_API void BindDepthStencilState(TDepthStencilStateId depthStencilStateId) override;
+
+			/*!
 				\brief The method binds a given render target object to rendering pipeline
 
 				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
