@@ -106,6 +106,7 @@ namespace TDEngine2
 		EST_MEMORY_MANAGER,				/// A subsystem represents a global memory manager
 		EST_RENDERER,					/// A subsystem represents a renderer
 		EST_INPUT_CONTEXT,				/// A subsystem represents a low-level input system
+		EST_IMGUI_CONTEXT,				/// A subsystem represents an immediate mode GUI system
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 

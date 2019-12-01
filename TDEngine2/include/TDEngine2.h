@@ -48,6 +48,7 @@
 #include "core/CConfigFileEngineCoreBuilder.h"
 #include "core/IFont.h"
 #include "core/CFont.h"
+#include "core/IImGUIContext.h"
 
 ///ecs
 #include "ecs/CEntity.h"
