@@ -4,6 +4,7 @@ option(BUILD_D3D11_GCTX_PLUGIN "Build D3D11 Graphics context plugin" ON)
 option(BUILD_WINDOWS_INPUTCTX_PLUGIN "Build Windows input context plugin" ON)
 option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
+option(BUILD_IMGUI_CTX_PLUGIN "Build IMGUI context plugin" ON)
 
 if (BUILD_D3D11_GCTX_PLUGIN)
 	if (MSVC)
@@ -34,3 +35,9 @@ if (UNIX)
 		add_subdirectory(UnixInputContext)
 	endif()
 endif ()
+
+if (BUILD_IMGUI_CTX_PLUGIN)
+	message(STATUS "Immediate GUI context's compilation is enabled")
+
+	add_subdirectory(ImGUIContext)
+endif (BUILD_IMGUI_CTX_PLUGIN)
