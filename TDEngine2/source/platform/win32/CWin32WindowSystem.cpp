@@ -3,6 +3,7 @@
 #include "./../../../include/platform/win32/CWin32DLLManager.h"
 #include "./../../../include/utils/CFileLogger.h"
 #include "./../../../include/core/IEventManager.h"
+#include "./../../../include/core/IImGUIContext.h"
 #include <string>
 
 
@@ -212,6 +213,11 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CWin32WindowSystem::ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const
+	{
+		return pVisitor->ConfigureForWin32Platform(this);
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CWin32WindowSystem::GetType() const

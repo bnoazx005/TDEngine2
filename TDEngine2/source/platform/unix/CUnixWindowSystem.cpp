@@ -3,6 +3,7 @@
 #include "./../../../include/platform/unix/CUnixTimer.h"
 #include "./../../../include/utils/CFileLogger.h"
 #include "./../../../include/core/IEventManager.h"
+#include "./../../../include/core/IImGUIContext.h"
 #include <cstring>
 
 
@@ -172,6 +173,11 @@ namespace TDEngine2
 		//LOG_MESSAGE("[UNIX Window System] The window's title was changed. The new value is (" + title + ")");
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CUnixWindowSystem::ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const
+	{
+		return pVisitor->ConfigureForUnixPlatform(this);
 	}
 
 	TDE2_API E_RESULT_CODE CUnixWindowSystem::EnableOpenGL(XVisualInfo* pVisualInfo)

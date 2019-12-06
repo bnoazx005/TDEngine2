@@ -21,6 +21,7 @@ namespace TDEngine2
 	class ITimer;
 	class IDLLManager;
 	class IEventManager;
+	class IImGUIContextVisitor;
 
 
 	/*!
@@ -129,7 +130,7 @@ namespace TDEngine2
 
 				The structure of the object and its members can vary on different platforms.
 
-				return The method returns an object that contains internal handlers that are used by the system
+				\return The method returns an object that contains internal handlers that are used by the system
 			*/
 
 			TDE2_API virtual const TWindowSystemInternalData& GetInternalData() const = 0;
@@ -199,6 +200,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TRectU32 GetWindowRect() const = 0;
+
+			/*!
+				\brief The method pass all the needed data into the immediate GUI context 
+				
+				\param[in, out] pVisitor A pointer to IImGUIContextVisitor implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_WINDOW; }
 		protected:

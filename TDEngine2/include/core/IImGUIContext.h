@@ -17,6 +17,42 @@ namespace TDEngine2
 	class IWindowSystem;
 	class IGraphicsObjectManager;
 	class IInputContext;
+	class CWin32WindowSystem;
+	class CUnixWindowSystem;
+
+
+	/*!
+		interface IImGUIContextVisitor
+
+		\brief The interface describes functionality of a visitor which is used
+		to proper configure of IImGUIContext object
+	*/
+
+	class IImGUIContextVisitor
+	{
+		public:
+			/*!
+				\brief The method configures the immediate GUI context for WIN32 platform
+
+				\param[in] pWindowSystem A pointer to CWin32WindowSystem implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ConfigureForWin32Platform(const CWin32WindowSystem* pWindowSystem) = 0;
+			
+			/*!
+				\brief The method configures the immediate GUI context for UNIX platform
+
+				\param[in] pWindowSystem A pointer to CUnixWindowSystem implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ConfigureForUnixPlatform(const CUnixWindowSystem* pWindowSystem) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IImGUIContextVisitor)
+	};
 
 
 	/*!
@@ -26,7 +62,7 @@ namespace TDEngine2
 		responsible for implemnentation of all editor's stuffs
 	*/
 
-	class IImGUIContext : public IEngineSubsystem
+	class IImGUIContext : public IEngineSubsystem, public IImGUIContextVisitor
 	{
 		public:
 			/*!

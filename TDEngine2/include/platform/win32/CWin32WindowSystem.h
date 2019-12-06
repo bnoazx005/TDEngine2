@@ -97,6 +97,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetTitle(const std::string& title) override;
 
 			/*!
+				\brief The method pass all the needed data into the immediate GUI context
+
+				\param[in, out] pVisitor A pointer to IImGUIContextVisitor implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
