@@ -777,5 +777,42 @@ namespace TDEngine2
 
 	typedef U32 TDepthStencilStateId;
 
-	constexpr TDepthStencilStateId InvalidDepthStencilStateId = (std::numeric_limits<TBlendStateId>::max)();
+	constexpr TDepthStencilStateId InvalidDepthStencilStateId = (std::numeric_limits<TDepthStencilStateId>::max)();
+
+
+	/*!
+		enum class E_CULL_MODE
+
+		\brief The enumeration contains all possible modes of culling
+	*/
+
+	enum class E_CULL_MODE
+	{
+		FRONT, BACK, NONE
+	};
+
+	/*!
+		struct TRasterizerStateDesc
+
+		\brief The type contains all settings that defines the way a geometry will be drawn
+	*/
+
+	typedef struct TRasterizerStateDesc
+	{
+		E_CULL_MODE mCullMode = E_CULL_MODE::FRONT;
+
+		bool        mIsWireframeModeEnabled = false;
+		bool        mIsFrontCCWEnabled = false;
+
+		F32         mDepthBias = 0.0f;
+		F32         mMaxDepthBias = 1.0f;
+
+		bool        mIsDepthClippingEnabled = true;
+		bool        mIsScissorTestEnabled = true;
+	} TRasterizerStateDesc, *TRasterizerStateDescPtr;
+
+
+	typedef U32 TRasterizerStateId;
+
+	constexpr TRasterizerStateId InvalidRasterizerStateId = (std::numeric_limits<TRasterizerStateId>::max)();
 }

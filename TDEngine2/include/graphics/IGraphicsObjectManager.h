@@ -133,6 +133,16 @@ namespace TDEngine2
 			TDE2_API virtual TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) = 0;
 
 			/*!
+				\brief The method create a new state which specifies how a geometry should be actually drawn
+				
+				\param[in] rasterizerStateDesc A type that contains settings for a rasterizer
+				
+				\return The result object contains either an identifier of a created state or an error code
+			*/
+
+			TDE2_API virtual TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) = 0;
+
+			/*!
 				\brief The method is a factory for creation of a debug helper object
 
 				\param[in, out] pRenderer A pointer to implementation of IRenderer interface

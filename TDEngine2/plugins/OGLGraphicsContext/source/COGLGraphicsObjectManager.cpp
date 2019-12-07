@@ -135,6 +135,11 @@ namespace TDEngine2
 		return TOkValue<TDepthStencilStateId>(mDepthStencilStates.Add(depthStencilDesc));
 	}
 
+	TResult<TRasterizerStateId> COGLGraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
+	{
+		return TOkValue<TRasterizerStateId>(mRasterizerStates.Add(rasterizerStateDesc));
+	}
+
 	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		if (texSamplerId >= mTextureSamplersArray.size())
@@ -153,6 +158,11 @@ namespace TDEngine2
 	TResult<TDepthStencilStateDesc> COGLGraphicsObjectManager::GetDepthStencilState(TDepthStencilStateId depthStencilStateId) const
 	{
 		return mDepthStencilStates[depthStencilStateId];
+	}
+
+	TResult<TRasterizerStateDesc> COGLGraphicsObjectManager::GetRasterizerState(TRasterizerStateId rasterizerStateId) const
+	{
+		return mRasterizerStates[rasterizerStateId];
 	}
 
 	std::string COGLGraphicsObjectManager::GetDefaultShaderCode() const
@@ -207,6 +217,11 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeDepthStencilStates()
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsObjectManager::_freeRasterizerStates()
 	{
 		return RC_OK;
 	}

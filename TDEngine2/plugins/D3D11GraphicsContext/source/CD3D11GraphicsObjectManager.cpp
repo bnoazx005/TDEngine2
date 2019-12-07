@@ -242,6 +242,35 @@ namespace TDEngine2
 		return TOkValue<TDepthStencilStateId>(mpDepthStencilStatesArray.Add(pDepthStencilState));
 	}
 
+	TResult<TRasterizerStateId> CD3D11GraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
+	{
+		ID3D11Device* p3dDevice = nullptr;
+
+#if _HAS_CXX17
+		p3dDevice = std::get<TD3D11CtxInternalData>(mpGraphicsContext->GetInternalData()).mp3dDevice;
+#else
+		p3dDevice = mpGraphicsContext->GetInternalData().mD3D11.mp3dDevice;
+#endif
+
+		ID3D11RasterizerState* pRasterizerState = nullptr;
+
+		D3D11_RASTERIZER_DESC internalStateDesc;
+		internalStateDesc.FillMode              = rasterizerStateDesc.mIsWireframeModeEnabled ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
+		internalStateDesc.CullMode              = CD3D11Mappings::GetCullMode(rasterizerStateDesc.mCullMode);
+		internalStateDesc.DepthBias             = rasterizerStateDesc.mDepthBias;
+		internalStateDesc.DepthBiasClamp        = rasterizerStateDesc.mMaxDepthBias;
+		internalStateDesc.DepthClipEnable       = rasterizerStateDesc.mIsDepthClippingEnabled;
+		internalStateDesc.FrontCounterClockwise = rasterizerStateDesc.mIsFrontCCWEnabled;
+		internalStateDesc.ScissorEnable         = rasterizerStateDesc.mIsScissorTestEnabled;
+
+		if (FAILED(p3dDevice->CreateRasterizerState(&internalStateDesc, &pRasterizerState)))
+		{
+			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return TOkValue<TRasterizerStateId>(mpRasterizerStatesArray.Add(pRasterizerState));
+	}
+
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		if (texSamplerId >= mpTextureSamplersArray.size())
@@ -260,6 +289,11 @@ namespace TDEngine2
 	TResult<ID3D11DepthStencilState*> CD3D11GraphicsObjectManager::GetDepthStencilState(TDepthStencilStateId stateId) const
 	{
 		return mpDepthStencilStatesArray[stateId];
+	}
+
+	TResult<ID3D11RasterizerState*> CD3D11GraphicsObjectManager::GetRasterizerState(TRasterizerStateId rasterizerStateId) const
+	{
+		return mpRasterizerStatesArray[rasterizerStateId];
 	}
 
 	std::string CD3D11GraphicsObjectManager::GetDefaultShaderCode() const
@@ -347,6 +381,27 @@ namespace TDEngine2
 		}
 
 		mpDepthStencilStatesArray.RemoveAll();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeRasterizerStates()
+	{
+		ID3D11RasterizerState* pCurrState = nullptr;
+
+		for (U32 i = 0; i < mpRasterizerStatesArray.GetSize(); ++i)
+		{
+			pCurrState = mpRasterizerStatesArray[i].GetOrDefault(nullptr);
+
+			if (!pCurrState)
+			{
+				continue;
+			}
+
+			pCurrState->Release();
+		}
+
+		mpRasterizerStatesArray.RemoveAll();
 
 		return RC_OK;
 	}

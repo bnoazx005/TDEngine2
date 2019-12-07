@@ -41,6 +41,7 @@ namespace TDEngine2
 			typedef std::vector<GLuint>                        TTextureSamplersArray;
 			typedef CResourceContainer<TBlendStateDesc>        TBlendStatesArray;
 			typedef CResourceContainer<TDepthStencilStateDesc> TDepthStencilStatesArray;
+			typedef CResourceContainer<TRasterizerStateDesc>   TRasterizerStatesArray;
 		public:
 			/*!
 				\brief The method is a factory for creation objects of IVertexBuffer's type
@@ -128,6 +129,16 @@ namespace TDEngine2
 			TDE2_API TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) override;
 
 			/*!
+				\brief The method create a new state which specifies how a geometry should be actually drawn
+
+				\param[in] rasterizerStateDesc A type that contains settings for a rasterizer
+
+				\return The result object contains either an identifier of a created state or an error code
+			*/
+
+			TDE2_API TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) override;
+
+			/*!
 				\brief The method returns a handler of a texture sampler which is related with a given identifier
 
 				\param[in] texSamplerId An identifier of a texture sampler
@@ -158,6 +169,16 @@ namespace TDEngine2
 			TDE2_API TResult<TDepthStencilStateDesc> GetDepthStencilState(TDepthStencilStateId depthStencilStateId) const;
 
 			/*!
+				\brief The method returns a parameters of a rasterizer state with a given identifier
+
+				\param[in] rasterizerStateId An identifier of a rasterizer state
+
+				\return Either a result object with state's description or an error code
+			*/
+
+			TDE2_API TResult<TRasterizerStateDesc> GetRasterizerState(TRasterizerStateId rasterizerStateId) const;
+
+			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
 				for the graphics context
 
@@ -174,9 +195,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _freeBlendStates() override;
 
 			TDE2_API E_RESULT_CODE _freeDepthStencilStates() override;
+
+			TDE2_API E_RESULT_CODE _freeRasterizerStates() override;
 		protected:
 			TTextureSamplersArray    mTextureSamplersArray;
 			TBlendStatesArray        mBlendStates;
 			TDepthStencilStatesArray mDepthStencilStates;
+			TRasterizerStatesArray   mRasterizerStates;
 	};
 }
