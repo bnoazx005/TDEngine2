@@ -241,5 +241,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static GLenum GetStencilOpType(const E_STENCIL_OP& stencilOp);
+
+			/*!
+				\brief The method maps E_CULL_MODE into Glenum's value
+
+				\param[in] cullMode An internal enumeration's value
+
+				\return OpenGL 3.x specific value which represents a culling mode
+			*/
+
+			TDE2_API static GLenum GetCullMode(const E_CULL_MODE& cullMode);
 	};
 }

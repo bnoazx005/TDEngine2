@@ -546,6 +546,19 @@ namespace TDEngine2
 				return D3D11_STENCIL_OP_KEEP;
 		}
 	}
+
+	D3D11_CULL_MODE CD3D11Mappings::GetCullMode(const E_CULL_MODE& cullMode)
+	{
+		switch (cullMode)
+		{
+			case E_CULL_MODE::FRONT:
+				return D3D11_CULL_FRONT;
+			case E_CULL_MODE::BACK:
+				return D3D11_CULL_BACK;
+		}
+
+		return D3D11_CULL_NONE;
+	}
 }
 
 #endif

@@ -193,6 +193,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static D3D11_STENCIL_OP GetStencilOpType(const E_STENCIL_OP& stencilOp);
+
+			/*!
+				\brief The method maps E_CULL_MODE into D3D11_CULL_MODE's value
+
+				\param[in] cullMode An internal enumeration's value
+
+				\return D3D11 specific value which represents a culling mode
+			*/
+
+			TDE2_API static D3D11_CULL_MODE GetCullMode(const E_CULL_MODE& cullMode);
 	};
 }
 

@@ -721,4 +721,17 @@ namespace TDEngine2
 
 		return 0;
 	}
+
+	GLenum COGLMappings::GetCullMode(const E_CULL_MODE& cullMode)
+	{
+		switch (cullMode)
+		{
+			case E_CULL_MODE::FRONT:
+				return GL_FRONT;
+			case E_CULL_MODE::BACK:
+				return GL_BACK;
+		}
+
+		return 0;
+	}
 }
