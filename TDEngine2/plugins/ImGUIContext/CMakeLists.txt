@@ -18,11 +18,16 @@ set(IMGUI_CONTEXT_LIBRARY_NAME "ImGUIContext")
 set(IMGUI_CTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CImGUICtxPlugin.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CImGUIContext.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_internal.h"
 	)
 
 set(IMGUI_CTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CImGUICtxPlugin.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CImGUIContext.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_widgets.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_draw.cpp"
 	)
 
 source_group("includes" FILES ${IMGUI_CTX_HEADERS})
@@ -48,6 +53,8 @@ add_library(${IMGUI_CONTEXT_LIBRARY_NAME} SHARED ${IMGUI_CTX_SOURCES} ${IMGUI_CT
 
 #set up TDEngine2 headers
 target_include_directories(${IMGUI_CONTEXT_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
+#set up imGUI headers
+target_include_directories(${IMGUI_CONTEXT_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/")
 
 # disable the <libname>_EXPORTS
 set_target_properties(${IMGUI_CONTEXT_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")

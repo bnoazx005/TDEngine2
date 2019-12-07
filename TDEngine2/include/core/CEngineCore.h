@@ -25,6 +25,7 @@ namespace TDEngine2
 	class IWorld;
 	class IMemoryManager;
 	class IEventManager;
+	class IImGUIContext;
 
 
 	/*!
@@ -188,6 +189,8 @@ namespace TDEngine2
 			IWorld*            mpWorldInstance;
 
 			IInputContext*     mpInputContext;
+
+			IImGUIContext*     mpImGUIContext;
 
 			mutable std::mutex mMutex; ///< \todo the mutex doesn't use in the code, should be fixed later!
 	};

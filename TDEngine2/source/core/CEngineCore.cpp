@@ -9,6 +9,7 @@
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/core/memory/IMemoryManager.h"
 #include "./../../include/core/memory/CLinearAllocator.h"
+#include "./../../include/core/IImGUIContext.h"
 #include "./../../include/ecs/CWorld.h"
 #include "./../../include/ecs/CSpriteRendererSystem.h"
 #include "./../../include/ecs/CTransformSystem.h"
@@ -99,6 +100,9 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		/// \note Try to get a pointer to IImGUIContext implementation
+		mpImGUIContext = _getSubsystemAs<IImGUIContext>(EST_IMGUI_CONTEXT);
 		
 		/// \note we can proceed if the window wasn't initialized properly or some error has happened within user's code
 		if (!pWindowSystem || (_onNotifyEngineListeners(EET_ONSTART) != RC_OK))
@@ -302,11 +306,27 @@ namespace TDEngine2
 					result = result | pListener->OnStart();
 					break;
 				case EET_ONUPDATE:
-					dt = mpInternalTimer->GetDeltaTime();
+					{
+						dt = mpInternalTimer->GetDeltaTime();
 
-					mpWorldInstance->Update(dt);
+						if (mpImGUIContext)
+						{
+							mpImGUIContext->BeginFrame(dt);
+						}
 
-					result = result | pListener->OnUpdate(dt);
+						/// \note The internal callback will be invoked when the execution process will go out of the scope
+						CDeferOperation finalizeImGUIContextFrame([this]()
+						{
+							if (mpImGUIContext)
+							{
+								mpImGUIContext->EndFrame();
+							}
+						});
+
+						mpWorldInstance->Update(dt);
+
+						result = result | pListener->OnUpdate(dt);
+					}
 					break;
 				case EET_ONFREE:
 					result = result | pListener->OnFree();

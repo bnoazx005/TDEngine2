@@ -19,6 +19,7 @@ namespace TDEngine2
 	class IFileSystem;
 	class IResourceManager;
 	class IEventManager;
+	class IImGUIContext;
 
 
 	/*!
@@ -149,6 +150,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE _configureInputContext() override;
+
+			/*!
+				\brief The method tries to configure an immediate GUI context
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE _configureImGUIContext() override;
 		protected:
 			bool              mIsInitialized;
 
@@ -171,6 +180,8 @@ namespace TDEngine2
 			IResourceManager* mpResourceManagerInstance;
 
 			IEventManager*    mpEventManagerInstance;
+
+			IImGUIContext*    mpImGUIContext;
 	};
 
 

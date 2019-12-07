@@ -10,9 +10,13 @@
 #include <core/IImGUIContext.h>
 
 
+struct ImGuiIO;
+
+
 namespace TDEngine2
 {
 	class IGraphicsContext;
+	class IResourceHandler;
 
 
 	/*!
@@ -20,6 +24,7 @@ namespace TDEngine2
 
 		\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
 		\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
+		\param[in, out] pResourceManager A pointer to IResourceManager implementation
 		\param[in, out] pInputContext A pointer to IInputContext implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -28,7 +33,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
-											   IInputContext* pInputContext, E_RESULT_CODE& result);
+											   IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -41,20 +46,21 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
-															  IInputContext* pInputContext, E_RESULT_CODE& result);
+															  IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
 
 				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
 				\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 				\param[in, out] pInputContext A pointer to IInputContext implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
-										IInputContext* pInputContext) override;
+										IResourceManager* pResourceManager, IInputContext* pInputContext) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -63,7 +69,42 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method configures the immediate GUI context for WIN32 platform
+
+				\param[in] pWindowSystem A pointer to CWin32WindowSystem implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ConfigureForWin32Platform(const CWin32WindowSystem* pWindowSystem);
+
+			/*!
+				\brief The method configures the immediate GUI context for UNIX platform
+
+				\param[in] pWindowSystem A pointer to CUnixWindowSystem implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ConfigureForUnixPlatform(const CUnixWindowSystem* pWindowSystem);
 			
+			/*!
+				\brief The method begins to populate immediage GUI state. Any UI element should be drawn during
+				BeginFrame/EndFrame scope
+
+				\param[in] dt Time elapsed from last frame was rendered
+			*/
+
+			TDE2_API void BeginFrame(float dt) override;
+
+			/*!
+				\brief The method flushes current state and send all the data onto GPU to render it
+			*/
+
+			TDE2_API void EndFrame() override;
+
 			/*!
 				\brief The method returns a type of the subsystem
 
@@ -73,6 +114,15 @@ namespace TDEngine2
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUIContext)
+
+			TDE2_API E_RESULT_CODE _initInternalImGUIContext(ImGuiIO& io);
+
+			TDE2_API void _updateInputState(ImGuiIO& io, IInputContext* pInputContext);
+
+			TDE2_API E_RESULT_CODE _initGraphicsResources(ImGuiIO& io, IGraphicsContext* pGraphicsContext, IGraphicsObjectManager* pGraphicsManager,
+														  IResourceManager* pResourceManager);
+
+			TDE2_API E_RESULT_CODE _initSystemFonts(ImGuiIO& io, IResourceManager* pResourceManager, IGraphicsObjectManager* pGraphicsManager);
 		protected:
 			std::atomic_bool        mIsInitialized;
 
@@ -82,6 +132,19 @@ namespace TDEngine2
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
+			IResourceManager*       mpResourceManager;
+
 			IInputContext*          mpInputContext;
+
+			ImGuiIO*                mpIOContext;
+
+			// All the stuffs below form a material instance
+			IResourceHandler*       mpFontTextureHandler;
+
+			TTextureSamplerId       mFontTextureSamplerHandle;
+
+			TBlendStateId           mBlendStateHandle;
+
+			TDepthStencilStateId    mDepthStencilStateHandle;
 	};
 }

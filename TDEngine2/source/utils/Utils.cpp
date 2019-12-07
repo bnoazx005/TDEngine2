@@ -466,6 +466,8 @@ namespace TDEngine2
 				return "Renderer system";
 			case EST_INPUT_CONTEXT:
 				return "Input Context";
+			case EST_IMGUI_CONTEXT:
+				return "ImGUI Context";
 		}
 		
 		return "";

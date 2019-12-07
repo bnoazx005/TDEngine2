@@ -14,6 +14,7 @@
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/CFont.h"
+#include "./../../include/core/IImGUIContext.h"
 #include "./../../include/platform/win32/CWin32WindowSystem.h"
 #include "./../../include/platform/win32/CWin32FileSystem.h"
 #include "./../../include/platform/unix/CUnixWindowSystem.h"
@@ -373,6 +374,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CConfigFileEngineCoreBuilder::_configureImGUIContext()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+#if defined(TDE2_USE_WIN32PLATFORM)
+		if ((result = mpPluginManagerInstance->LoadPlugin("ImGUIContext")) != RC_OK)
+		{
+			return result;
+		}
+#elif defined(TDE2_USE_UNIXPLATFORM)
+		if ((result = mpPluginManagerInstance->LoadPlugin("./ImGUIContext")) != RC_OK)
+		{
+			return result;
+		}
+#endif
+
+		return RC_OK;
+	}
+
 	IEngineCore* CConfigFileEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
@@ -397,6 +422,7 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(engineSettings.mGraphicsContextType));
 		PANIC_ON_FAILURE(_configureInputContext());
+		PANIC_ON_FAILURE(_configureImGUIContext());
 
 		mpFileSystemInstance->SetJobManager(mpJobManagerInstance);
 		LOG_MESSAGE(std::string("[ConfigFIleEngineCoreBuilder] Async file I/O operations status: ").append(mpFileSystemInstance->IsStreamingEnabled() ? "enabled" : "disabled"));

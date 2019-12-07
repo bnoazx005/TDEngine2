@@ -4,6 +4,7 @@
 #include <core/IGraphicsContext.h>
 #include <core/IInputContext.h>
 #include <core/IImGUIContext.h>
+#include <core/IResourceManager.h>
 #include <graphics/IGraphicsObjectManager.h>
 
 
@@ -32,6 +33,7 @@ namespace TDEngine2
 
 		mpImGUIContext = CreateImGUIContext(pEngineCore->GetSubsystem<IWindowSystem>(),
 											pEngineCore->GetSubsystem<IGraphicsContext>()->GetGraphicsObjectManager(),
+											pEngineCore->GetSubsystem<IResourceManager>(),
 											pEngineCore->GetSubsystem<IInputContext>(), result);
 
 		if ((result != RC_OK) || ((result = mpEngineCoreInstance->RegisterSubsystem(mpImGUIContext)) != RC_OK))
@@ -49,13 +51,6 @@ namespace TDEngine2
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = mpImGUIContext->Free();
-
-		if (result != RC_OK)
-		{
-			return result;
 		}
 
 		delete this;

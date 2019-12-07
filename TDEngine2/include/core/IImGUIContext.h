@@ -19,6 +19,7 @@ namespace TDEngine2
 	class IInputContext;
 	class CWin32WindowSystem;
 	class CUnixWindowSystem;
+	class IResourceManager;
 
 
 	/*!
@@ -70,13 +71,29 @@ namespace TDEngine2
 
 				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
 				\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 				\param[in, out] pInputContext A pointer to IInputContext implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
-												IInputContext* pInputContext) = 0;
+												IResourceManager* pResourceManager, IInputContext* pInputContext) = 0;
+
+			/*!
+				\brief The method begins to populate immediage GUI state. Any UI element should be drawn during
+				BeginFrame/EndFrame scope
+
+				\param[in] dt Time elapsed from last frame was rendered
+			*/
+
+			TDE2_API virtual void BeginFrame(float dt) = 0;
+
+			/*!
+				\brief The method flushes current state and send all the data onto GPU to render it
+			*/
+
+			TDE2_API virtual void EndFrame() = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_IMGUI_CONTEXT; }
 		protected:
