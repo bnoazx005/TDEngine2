@@ -233,6 +233,14 @@ namespace TDEngine2
 			TDE2_API virtual void BindDepthStencilState(TDepthStencilStateId depthStencilStateId) = 0;
 
 			/*!
+				\brief The method binds a given rasteriazer state to rendering pipeline
+
+				\param[in] rasterizerStateId An identifier of a rasterizer state
+			*/
+
+			TDE2_API virtual void BindRasterizerState(TRasterizerStateId rasterizerStateId) = 0;
+
+			/*!
 				\brief The method binds a given render target object to rendering pipeline
 
 				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation

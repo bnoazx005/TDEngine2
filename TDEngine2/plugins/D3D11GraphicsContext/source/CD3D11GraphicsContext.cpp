@@ -249,6 +249,15 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
+		if (samplerId == InvalidTextureSamplerId)
+		{
+			mp3dDeviceContext->VSSetSamplers(slot, 1, nullptr);
+			mp3dDeviceContext->PSSetSamplers(slot, 1, nullptr);
+			mp3dDeviceContext->GSSetSamplers(slot, 1, nullptr);
+
+			return;
+		}
+
 		ID3D11SamplerState* pSamplerState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetTextureSampler(samplerId).Get();
 
 		mp3dDeviceContext->VSSetSamplers(slot, 1, &pSamplerState);
@@ -258,6 +267,12 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
+		if (blendStateId == InvalidBlendStateId)
+		{
+			mp3dDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+			return;
+		}
+
 		ID3D11BlendState* pBlendState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetBlendState(blendStateId).Get();
 		
 		// \todo the second argument is not used now, but later it should be parametrized
@@ -266,9 +281,27 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
 	{
+		if (depthStencilStateId == InvalidDepthStencilStateId)
+		{
+			mp3dDeviceContext->OMSetDepthStencilState(nullptr, 0xFF);
+			return;
+		}
+
 		ID3D11DepthStencilState* pDepthStencilState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
 		// \todo replace 0xff with second argument for the method
 		mp3dDeviceContext->OMSetDepthStencilState(pDepthStencilState, 0xFF);
+	}
+
+	void CD3D11GraphicsContext::BindRasterizerState(TRasterizerStateId rasterizerStateId)
+	{
+		if (rasterizerStateId == InvalidRasterizerStateId)
+		{
+			mp3dDeviceContext->RSSetState(nullptr);
+			return;
+		}
+
+		ID3D11RasterizerState* pRasterizerState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetRasterizerState(rasterizerStateId).Get();
+		mp3dDeviceContext->RSSetState(pRasterizerState);
 	}
 
 	void CD3D11GraphicsContext::BindRenderTarget(IRenderTarget* pRenderTarget)

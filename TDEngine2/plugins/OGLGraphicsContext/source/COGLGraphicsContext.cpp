@@ -188,6 +188,12 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
+		if (samplerId == InvalidTextureSamplerId)
+		{
+			glBindSampler(slot, 0);
+			return;
+		}
+
 		GLuint internalSamplerId = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetTextureSampler(samplerId).Get();
 
 		glBindSampler(slot, internalSamplerId);
@@ -195,6 +201,12 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
+		if (blendStateId == InvalidBlendStateId)
+		{
+			glDisable(GL_BLEND);
+			return;
+		}
+
 		const TBlendStateDesc& blendStateDesc = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetBlendState(blendStateId).Get();
 
 		auto stateFunction = blendStateDesc.mIsEnabled ? glEnable : glDisable;
@@ -244,6 +256,33 @@ namespace TDEngine2
 		glStencilOpSeparate(GL_BACK, COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mFailOp),
 							COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mDepthFailOp),
 							COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mPassOp));
+	}
+
+	void COGLGraphicsContext::BindRasterizerState(TRasterizerStateId rasterizerStateId)
+	{
+		if (rasterizerStateId == InvalidRasterizerStateId)
+		{
+			glEnable(GL_CULL_FACE);
+
+			return;
+		}
+
+		const TRasterizerStateDesc& stateDesc = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetRasterizerState(rasterizerStateId).Get();
+
+		auto stateActivationFunction = stateDesc.mCullMode != E_CULL_MODE::NONE ? glEnable : glDisable;
+		
+		// \note Culling
+		stateActivationFunction(GL_CULL_FACE);
+		glCullFace(COGLMappings::GetCullMode(stateDesc.mCullMode));
+		glFrontFace(stateDesc.mIsFrontCCWEnabled ? GL_CCW : GL_CW);
+		
+		// \note Scissor testing
+		stateActivationFunction = stateDesc.mIsScissorTestEnabled ? glEnable : glDisable;
+		stateActivationFunction(GL_SCISSOR_BIT);
+
+		glPolygonMode(GL_FRONT_AND_BACK, stateDesc.mIsWireframeModeEnabled ? GL_LINE : GL_FILL);
+
+		// \todo Implement support of depth bias and clipping
 	}
 
 	void COGLGraphicsContext::BindRenderTarget(IRenderTarget* pRenderTarget)
