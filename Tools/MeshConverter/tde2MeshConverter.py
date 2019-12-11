@@ -52,21 +52,56 @@ def get_filetype_from_path(filename):
 	return extension2fileType[fileExtension.lower()]
 
 
+def extract_fbx_mesh_data(fbxMesh):
+	print("extract_fbx_mesh_data")
+	return
+
+
 def read_fbx_mesh_data(inputFilename):
 	sdkManager, scene = InitializeSdkObjects()
-	lResult = LoadScene(sdkManager, scene, inputFilename)
+	
+	if not LoadScene(sdkManager, scene, inputFilename):
+		print('Error: some problem has occurred during processing of FBX file [%s] ...' % inputFilename)
+		return None
+
+	nodeProcessors = {
+		FbxNodeAttribute.eMesh : extract_fbx_mesh_data
+	}
+
+	# Traverse scene's hierarchy
+	rootNode = scene.GetRootNode()
+
+	nodes = [rootNode.GetChild(i) for i in range(rootNode.GetChildCount())] # extract all nodes from the root
+
+	while len(nodes) > 0:
+		currNode = nodes.pop(0)
+
+		print(currNode.GetName()) # display node's name
+		nodeType = (currNode.GetNodeAttribute().GetAttributeType())
+		
+		nodeMesh = nodeProcessors[nodeType](currNode.GetNodeAttribute())
+
+		for i in range(currNode.GetChildCount()):
+			nodes.append(currNode.GetChild(i))
+
 
 	print('read_fbx_mesh_data: %s' % inputFilename)
 	return
 
 
-def save_mesh_data(outputFilename):
+def read_obj_mesh_data(inputFilename):
+	print('read_obj_mesh_data: %s' % inputFilename)
+	return
+
+
+def save_mesh_data(mesh_data, outputFilename):
 	print('save_mesh_data: %s' % outputFilename)
 	return
 
 
 FileTypeReaders = {
-	FBX_TYPE : read_fbx_mesh_data
+	FBX_TYPE : read_fbx_mesh_data,
+	OBJ_TYPE : read_obj_mesh_data
 }
 
 
@@ -75,8 +110,8 @@ def main():
 	
 	fileReaderFunction = FileTypeReaders[get_filetype_from_path(args.input)]
 
-	fileReaderFunction(args.input) # first step is to read information from original file
-	save_mesh_data(args.output if args.output else get_output_filename(args.input))
+	mesh_data = fileReaderFunction(args.input) # first step is to read information from original file
+	save_mesh_data(mesh_data, args.output if args.output else get_output_filename(args.input))
 
 	return 0
 
