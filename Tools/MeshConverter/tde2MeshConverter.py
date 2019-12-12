@@ -7,6 +7,7 @@ The script is used to convert DCC files (FBX, OBJ) into *.MESH internal binary f
 """
 import argparse
 import os.path
+import struct
 try:
 	from FbxCommon import *
 except ImportError:
@@ -26,6 +27,46 @@ FBX_TYPE = 0
 OBJ_TYPE = 1
 
 
+class Vec2:
+	x = 0.0
+	y = 0.0
+
+	def __init__(self, x = 0.0, y = 0.0):
+		self.x = x
+		self.y = y
+
+	def __str__(self):
+		return "(%.f, %.f)" % (self.x, self.y)
+
+
+class Vec3:
+	x = 0.0
+	y = 0.0
+	z = 0.0
+
+	def __init__(self, x = 0.0, y = 0.0, z = 0.0):
+		self.x = x
+		self.y = y
+		self.z = z
+
+	def __str__(self):
+		return "(%.f, %.f, %.f)" % (self.x, self.y, self.z)
+
+
+class Vertex:
+	pos = Vec3()
+	normal = Vec3()
+	uv = Vec2()
+
+	def __init__(self, pos = Vec3(), uv = Vec2(), normal = Vec3()):
+		self.pos = pos
+		self.normal = normal
+		self.uv = uv
+
+	def __str__(self):
+		return "pos: %s\nuv: %s\nnormal: %s" % (self.pos, self.uv, self.normal)
+
+
 def parse_args():
 	parser = argparse.ArgumentParser(description=
 		"""
@@ -33,6 +74,7 @@ def parse_args():
 		""")
 	parser.add_argument('input', type=str, help='Path to a file should be converted')
 	parser.add_argument('-o', '--output', type=str, help='Output filename')
+	parser.add_argument('-D', '--debug', type=str, action='store', help='Additional debug output')
 
 	return parser.parse_args()
 
@@ -53,8 +95,50 @@ def get_filetype_from_path(filename):
 
 
 def extract_fbx_mesh_data(fbxMesh):
-	print("extract_fbx_mesh_data")
-	return
+	polygonCount = fbxMesh.GetPolygonCount()
+	controlPointsList = fbxMesh.GetControlPoints() # aka mesh's vertices
+
+	meshData = []
+
+	for i in range(polygonCount):
+		assert fbxMesh.GetPolygonSize(i) == 3, 'Non-triangulated meshes are unacceptable'
+
+		for j in range(3):
+			controlPointId = fbxMesh.GetPolygonVertex(i, j)
+			currVertex = controlPointsList[controlPointId]
+
+			currVertexInfo = Vertex()
+			currVertexInfo.pos = Vec3(currVertex[0], currVertex[1], currVertex[2])
+
+			for currLayerId in range(fbxMesh.GetLayerCount()):
+				currLayer = fbxMesh.GetLayer(currLayerId)
+
+				# first uv channel
+				uvs = currLayer.GetUVs()
+				if uvs:
+					uvCoordsArray = uvs.GetDirectArray();
+
+					uvId = 0
+
+					if uvs.GetMappingMode() == FbxLayerElement.eByControlPoint:
+						uvId = uvs.GetIndexArray().GetAt(controlPointId) if uvs.GetReferenceMode() == FbxLayerElement.eIndexToDirect else controlPointId						
+					elif uvs.GetMappingMode() == FbxLayerElement.eByPolygonVertex:
+						uvId = fbxMesh.GetTextureUVIndex(i, j)
+
+					currUVCoords = uvCoordsArray.GetAt(uvId)
+					currVertexInfo.uv = Vec2(currUVCoords[0], currUVCoords[1])
+
+				# normals 
+				normals = currLayer.GetNormals()
+				if normals:
+					normalsArray = normals.GetDirectArray()
+					if (normals.GetMappingMode() == FbxLayerElement.eByControlPoint) and (normals.GetReferenceMode() == FbxLayerElement.eDirect):
+						currNormal = normalsArray.GetAt(controlPointId)
+						currVertexInfo.normal = Vec3(currNormal[0], currNormal[1], currNormal[2])
+
+			meshData.append(currVertexInfo)
+	
+	return (fbxMesh.GetName(), meshData)
 
 
 def read_fbx_mesh_data(inputFilename):
@@ -73,20 +157,25 @@ def read_fbx_mesh_data(inputFilename):
 
 	nodes = [rootNode.GetChild(i) for i in range(rootNode.GetChildCount())] # extract all nodes from the root
 
+	meshConverter = FbxGeometryConverter(sdkManager) # the converter is used to triangulate the input mesh
+
+	meshes = []
+
 	while len(nodes) > 0:
 		currNode = nodes.pop(0)
 
 		print(currNode.GetName()) # display node's name
 		nodeType = (currNode.GetNodeAttribute().GetAttributeType())
 		
-		nodeMesh = nodeProcessors[nodeType](currNode.GetNodeAttribute())
+		# Extract triangulated mesh's data
+		meshes.append(nodeProcessors[nodeType](meshConverter.Triangulate(currNode.GetNodeAttribute(), False)))
 
 		for i in range(currNode.GetChildCount()):
 			nodes.append(currNode.GetChild(i))
 
 
 	print('read_fbx_mesh_data: %s' % inputFilename)
-	return
+	return meshes
 
 
 def read_obj_mesh_data(inputFilename):
@@ -94,9 +183,35 @@ def read_obj_mesh_data(inputFilename):
 	return
 
 
-def save_mesh_data(mesh_data, outputFilename):
-	print('save_mesh_data: %s' % outputFilename)
+def write_mesh_header(file, meshData):
+	file.write(struct.pack('<4s', 'MESH'))
+
+def write_mesh_scene_info(file, meshData):
+	file.write(hex(18)) # 0x12
 	return
+
+def save_mesh_data(meshData, outputFilename):
+	assert outputFilename, "Output file path should be non empty"
+	assert meshData, "Empty mesh data is not allowed"
+
+	try:
+		outputMeshFile = open(outputFilename, 'wb')
+
+		write_mesh_header(outputMeshFile, meshData)
+		write_mesh_scene_info(outputMeshFile, meshData)
+
+		outputMeshFile.close()
+	except IOError as err:
+		print("Error: %s" % err)
+
+	return
+
+
+def print_all_meshes_data(meshes):
+	for currMesh in meshes:
+		print("Mesh name: %s" % currMesh[0])
+		for currVertex in currMesh[1]:
+			print("%s\n" % currVertex)
 
 
 FileTypeReaders = {
@@ -110,8 +225,12 @@ def main():
 	
 	fileReaderFunction = FileTypeReaders[get_filetype_from_path(args.input)]
 
-	mesh_data = fileReaderFunction(args.input) # first step is to read information from original file
-	save_mesh_data(mesh_data, args.output if args.output else get_output_filename(args.input))
+	meshData = fileReaderFunction(args.input) # first step is to read information from original file
+
+	if args.debug and args.debug == 'mesh-info':
+		print_all_meshes_data(meshData)
+
+	save_mesh_data(meshData, args.output if args.output else get_output_filename(args.input))
 
 	return 0
 
