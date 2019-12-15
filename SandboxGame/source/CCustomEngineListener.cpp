@@ -93,6 +93,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");	
 
+	mpResourceManager->Load<CStaticMesh>("Test.mesh");
+
 	return RC_OK;
 }
 

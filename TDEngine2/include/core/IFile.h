@@ -447,4 +447,32 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IYAMLFileReader)
 	};
+
+
+
+	class IMesh;
+
+
+	/*!
+		\brief The interface describes a functionality of a reader
+		of mesh files which correspond to internal binary meshes
+	*/
+
+	class IBinaryMeshFileReader : public virtual IBinaryFileReader
+	{
+		public:
+			TDE2_REGISTER_TYPE(IBinaryMeshFileReader)
+
+			/*!
+				\brief The method reads binary mesh file into the given memory
+
+				\param[out] pDestMesh A pointer to IMesh implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE LoadMesh(IMesh*& pDestMesh) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryMeshFileReader)
+	};
 }

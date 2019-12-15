@@ -28,7 +28,7 @@ namespace TDEngine2
 		\brief The class represents a base reader of binary files
 	*/
 
-	class CBinaryFileReader : public IBinaryFileReader, public CBaseFile
+	class CBinaryFileReader : public virtual IBinaryFileReader, public CBaseFile
 	{
 		public:
 			friend TDE2_API IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);

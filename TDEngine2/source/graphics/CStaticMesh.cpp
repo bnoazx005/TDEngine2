@@ -1,4 +1,7 @@
 #include "./../../include/graphics/CStaticMesh.h"
+#include "./../../include/core/IFileSystem.h"
+#include "./../../include/core/IFile.h"
+#include "./../../include/utils/CFileLogger.h"
 #include <cstring>
 
 
@@ -368,7 +371,22 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		TDE2_UNIMPLEMENTED();
+		TResult<TFileEntryId> meshFileId = mpFileSystem->Open<IBinaryMeshFileReader>(pResource->GetName());
+		if (meshFileId.HasError())
+		{
+			LOG_WARNING(std::string("[Mesh Loader] Could not load the specified mesh file (").append(pResource->GetName()).append("), load default one instead..."));
+
+			/// \note can't load file with the shader, so load default one
+			return RC_FAIL;
+		}
+
+		IBinaryMeshFileReader* pMeshFileReader = dynamic_cast<IBinaryMeshFileReader*>(mpFileSystem->Get<IBinaryMeshFileReader>(meshFileId.Get()));		
+		IMesh* pMesh = dynamic_cast<IMesh*>(pResource);
+
+		if ((result = pMeshFileReader->LoadMesh(pMesh)) != RC_OK)
+		{
+			return result;
+		}
 
 		return RC_OK;
 	}

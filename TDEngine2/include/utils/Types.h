@@ -83,6 +83,7 @@ namespace TDEngine2
 		RC_PLUGIN_IS_NOT_SUPPORTED,		/// Incompatible version of a plugin, or it was built with different version of the engine's library
 		RC_FILE_NOT_FOUND,				/// The engine can't find specified file in a file system
 		RC_ASYNC_FILE_IO_IS_DISABLED,	/// The code means that asyncronous file I/O is not available 
+		RC_INVALID_FILE,				/// The code means that some reader has tried to read file, but something went wrong
 		RC_UNKNOWN						/// Some unrecognized error
 	};
 

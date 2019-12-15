@@ -24,6 +24,7 @@
 #include "./../../include/platform/CBinaryFileWriter.h"
 #include "./../../include/platform/CImageFileWriter.h"
 #include "./../../include/platform/CYAMLFile.h"
+#include "./../../include/platform/CBinaryMeshFileReader.h"
 #include "./../../include/graphics/CForwardRenderer.h"
 #include "./../../include/graphics/CBaseMaterial.h"
 #include "./../../include/graphics/CTextureAtlas.h"
@@ -181,7 +182,8 @@ namespace TDEngine2
 			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IImageFileWriter>(CreateImageFileWriter)) != RC_OK)   ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileReader>(CreateYAMLFileReader)) != RC_OK)     ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileWriter>(CreateYAMLFileWriter)) != RC_OK))
+			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileWriter>(CreateYAMLFileWriter)) != RC_OK)     ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryMeshFileReader>(CreateBinaryMeshFileReader)) != RC_OK))
 		{
 			return result;
 		}

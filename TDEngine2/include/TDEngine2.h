@@ -155,6 +155,8 @@
 #include "platform/CBinaryFileReader.h"
 #include "platform/CBinaryFileWriter.h"
 #include "platform/CImageFileWriter.h"
+#include "platform/CYAMLFile.h"
+#include "platform/CBinaryMeshFileReader.h"
 
 ///utils
 #include "utils/Types.h"
