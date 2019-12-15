@@ -41,9 +41,9 @@ namespace TDEngine2
 
 		TDE2_API TMaterialParameters(const std::string& shaderName, bool isTransparent = false);
 
-		std::string mShaderName;
+		std::string     mShaderName;
 
-		bool mIsUseAlphaBlending = false;
+		TBlendStateDesc mBlendingParams;
 	} TMaterialParameters, *TMaterialParametersPtr;
 
 
@@ -103,6 +103,28 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void SetTransparentState(bool isTransparent) = 0;
+
+			/*!
+				\brief The method sets up source and destination blending factors if blending stage is enabled
+
+				\param[in] srcFactor Source blending factor
+				\param[in] destFactor Destination blending factor
+				\param[in] srcAlphaFactor Source's alpha factor
+				\param[in] destAlphaFactor Destination's alpha factor
+			*/
+
+			TDE2_API virtual void SetBlendFactors(const E_BLEND_FACTOR_VALUE& srcFactor, const E_BLEND_FACTOR_VALUE& destFactor,
+												  const E_BLEND_FACTOR_VALUE& srcAlphaFactor = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA,
+												  const E_BLEND_FACTOR_VALUE& destAlphaFactor = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA) = 0;
+
+			/*!
+				\brief The methods sets up blending operation for the material
+
+				\param[in] opType An operation that should be executed over source and destination colors
+				\param[in] alphaOpType An operation that should be executed over source and destination alpha values
+			*/
+
+			TDE2_API virtual void SetBlendOp(const E_BLEND_OP_TYPE& opType, const E_BLEND_OP_TYPE& alphaOpType = E_BLEND_OP_TYPE::ADD) = 0;
 
 			/*!
 				\brief The method returns a pointer to IResourceHandler of an attached shader

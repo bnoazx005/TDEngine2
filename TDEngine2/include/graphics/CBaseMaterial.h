@@ -214,6 +214,26 @@ namespace TDEngine2
 			TDE2_API void SetTransparentState(bool isTransparent) override;
 
 			/*!
+				\brief The method sets up source and destination blending factors if blending stage is enabled
+
+				\param[in] srcFactor Source blending factor
+				\param[in] destFactor Destination blending factor
+			*/
+
+			TDE2_API void SetBlendFactors(const E_BLEND_FACTOR_VALUE& srcFactor, const E_BLEND_FACTOR_VALUE& destFactor,
+										  const E_BLEND_FACTOR_VALUE& srcAlphaFactor = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA,
+										  const E_BLEND_FACTOR_VALUE& destAlphaFactor = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA) override;
+
+			/*!
+				\brief The methods sets up blending operation for the material
+
+				\param[in] opType An operation that should be executed over source and destination colors
+				\param[in] alphaOpType An operation that should be executed over source and destination alpha values
+			*/
+
+			TDE2_API void SetBlendOp(const E_BLEND_OP_TYPE& opType, const E_BLEND_OP_TYPE& alphaOpType = E_BLEND_OP_TYPE::ADD) override;
+
+			/*!
 				\brief The method binds a material to a rendering pipeline
 			*/
 
@@ -271,7 +291,9 @@ namespace TDEngine2
 
 			TTexturesHashTable     mpAssignedTextures;
 
-			bool                   mIsTransparent = false;
+			TBlendStateDesc        mBlendStateParams;
+
+			TBlendStateId          mBlendStateHandle = InvalidBlendStateId;
 	};
 
 

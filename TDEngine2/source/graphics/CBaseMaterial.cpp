@@ -16,8 +16,9 @@ namespace TDEngine2
 	*/
 
 	TMaterialParameters::TMaterialParameters(const std::string& shaderName, bool isTransparent):
-		mShaderName(shaderName), mIsUseAlphaBlending(isTransparent)
+		mShaderName(shaderName), mBlendingParams()
 	{
+		mBlendingParams.mIsEnabled = isTransparent;
 	}
 
 
@@ -93,7 +94,22 @@ namespace TDEngine2
 
 	void CBaseMaterial::SetTransparentState(bool isTransparent)
 	{
-		mIsTransparent = isTransparent;
+		mBlendStateParams.mIsEnabled = isTransparent;
+	}
+
+	void CBaseMaterial::SetBlendFactors(const E_BLEND_FACTOR_VALUE& srcFactor, const E_BLEND_FACTOR_VALUE& destFactor,
+										const E_BLEND_FACTOR_VALUE& srcAlphaFactor, const E_BLEND_FACTOR_VALUE& destAlphaFactor)
+	{
+		mBlendStateParams.mScrValue       = srcFactor;
+		mBlendStateParams.mDestValue      = destFactor;
+		mBlendStateParams.mScrAlphaValue  = srcAlphaFactor;
+		mBlendStateParams.mDestAlphaValue = destAlphaFactor;
+	}
+
+	void CBaseMaterial::SetBlendOp(const E_BLEND_OP_TYPE& opType, const E_BLEND_OP_TYPE& alphaOpType)
+	{
+		mBlendStateParams.mOpType      = opType;
+		mBlendStateParams.mAlphaOpType = alphaOpType;
 	}
 
 	void CBaseMaterial::Bind()
@@ -132,7 +148,7 @@ namespace TDEngine2
 
 	bool CBaseMaterial::IsTransparent() const
 	{
-		return mIsTransparent;
+		return mBlendStateParams.mIsEnabled;
 	}
 
 
@@ -189,7 +205,13 @@ namespace TDEngine2
 		else
 		{
 			pMaterialInstance->SetShader(params.mShaderName);
-			pMaterialInstance->SetTransparentState(params.mIsUseAlphaBlending);
+
+			auto&& blendingParams = params.mBlendingParams;
+
+			pMaterialInstance->SetTransparentState(blendingParams.mIsEnabled);
+			pMaterialInstance->SetBlendFactors(blendingParams.mScrValue, blendingParams.mDestValue, 
+											   blendingParams.mScrAlphaValue, blendingParams.mDestAlphaValue);
+			pMaterialInstance->SetBlendOp(blendingParams.mOpType, blendingParams.mAlphaOpType);
 		}
 
 		return pMaterialInstance;
