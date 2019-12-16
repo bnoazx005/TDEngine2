@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <atomic>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -632,4 +633,24 @@ namespace TDEngine2
 		private:
 			T* mpPtr;
 	};
+
+	/*!
+		\brief The method returns 32 bits hash value which is unique for the current set of parameters
+		\return The method returns 32 bits hash value which is unique for the current set of parameters
+	*/
+
+	template <typename T>
+	U32 ComputeStateDescHash(T&& object)
+	{
+		constexpr bool precondition = std::is_same<T, TBlendStateDesc>::value ||
+									  std::is_same<T, TTextureSamplerDesc>::value;
+
+		static_assert(precondition, "This function isn't intended for the given type");
+
+		constexpr U32 length = sizeof(T) + 1;
+		C8 data[length] = { 0 };
+		memcpy(data, static_cast<void*>(&object), length);
+
+		return TDE2_STRING_ID(data);
+	}
 }

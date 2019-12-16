@@ -700,7 +700,6 @@ namespace TDEngine2
 		E_BLEND_FACTOR_VALUE mScrAlphaValue;
 		E_BLEND_FACTOR_VALUE mDestAlphaValue;
 		E_BLEND_OP_TYPE      mAlphaOpType;
-
 	} TBlendStateDesc, *TBlendStateDescPtr;
 
 
