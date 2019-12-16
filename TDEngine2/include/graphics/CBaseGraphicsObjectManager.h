@@ -12,6 +12,7 @@
 #include "./../utils/CResourceContainer.h"
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -31,6 +32,8 @@ namespace TDEngine2
 			typedef std::list<U32>                      TFreeEntitiesRegistry;
 
 			typedef std::vector<IVertexDeclaration*>    TVertexDeclarationsArray;
+
+			typedef std::unordered_map<U32, U32>        TStatesHashTable;
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -91,6 +94,9 @@ namespace TDEngine2
 			TVertexDeclarationsArray mVertexDeclarationsArray;
 
 			TFreeEntitiesRegistry    mFreeVertDeclsSlots;
+
+			TStatesHashTable         mTextureSamplesHashTable;
+			TStatesHashTable         mBlendStatesHashTable;
 
 			IDebugUtility*           mpDebugUtility;
 	};

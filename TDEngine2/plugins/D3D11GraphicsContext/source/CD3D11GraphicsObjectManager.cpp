@@ -83,6 +83,12 @@ namespace TDEngine2
 
 	TResult<TTextureSamplerId> CD3D11GraphicsObjectManager::CreateTextureSampler(const TTextureSamplerDesc& samplerDesc)
 	{
+		U32 hashValue = ComputeStateDescHash(samplerDesc);
+		if (mTextureSamplesHashTable.find(hashValue) != mTextureSamplesHashTable.cend())
+		{
+			return TOkValue<TTextureSamplerId>(mTextureSamplesHashTable[hashValue]);
+		}
+
 		ID3D11SamplerState* pNewTextureSampler = nullptr;
 
 		D3D11_SAMPLER_DESC samplerDescInfo;
@@ -116,12 +122,19 @@ namespace TDEngine2
 		U32 samplerId = mpTextureSamplersArray.size();
 
 		mpTextureSamplersArray.push_back(pNewTextureSampler);
+		mTextureSamplesHashTable.insert({ hashValue, samplerId });
 
 		return TOkValue<TTextureSamplerId>(samplerId);
 	}
 
 	TResult<TBlendStateId> CD3D11GraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
 	{
+		U32 hashValue = ComputeStateDescHash(blendStateDesc);
+		if (mBlendStatesHashTable.find(hashValue) != mBlendStatesHashTable.cend())
+		{
+			return TOkValue<TBlendStateId>(mBlendStatesHashTable[hashValue]);
+		}
+
 		ID3D11Device* p3dDevice = nullptr;
 
 #if _HAS_CXX17
@@ -151,7 +164,10 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return TOkValue<TBlendStateId>(mpBlendStates.Add(pBlendState));
+		auto stateId = mpBlendStates.Add(pBlendState);
+		mBlendStatesHashTable.insert({ hashValue, stateId });
+
+		return TOkValue<TBlendStateId>(stateId);
 	}
 
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
