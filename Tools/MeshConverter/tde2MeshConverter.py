@@ -228,7 +228,8 @@ def write_geometry_block(file, objectsData):
 		file.write(struct.pack('<2B', 3, 255)) # 0x03FF
 		file.write(struct.pack('<H', format)) # format
 		file.write(struct.pack('<%d%s' % (len(faces), 'H' if format == 2 else 'I'), *faces))
-		offset += 4 + struct.calcsize('<%d%s' % (len(faces), 'H' if format == 2 else 'I'))
+		
+		offset += 8 + struct.calcsize('<%d%s' % (len(faces), 'H' if format == 2 else 'I'))
 
 		return offset
 
