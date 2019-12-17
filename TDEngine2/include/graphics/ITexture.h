@@ -32,6 +32,30 @@ namespace TDEngine2
 			TDE2_API virtual void Bind(U32 slot) = 0;
 
 			/*!
+				\brief The method sets up wrapping mode for U axis
+			*/
+
+			TDE2_API virtual void SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode) = 0;
+			
+			/*!
+				\brief The method sets up wrapping mode for Z axis
+			*/
+			
+			TDE2_API virtual void SetVWrapMode(const E_ADDRESS_MODE_TYPE& mode) = 0;
+			
+			/*!
+				\brief The method sets up wrapping mode for W axis
+			*/
+
+			TDE2_API virtual void SetWWrapMode(const E_ADDRESS_MODE_TYPE& mode) = 0;
+
+			/*!
+				\brief The method sets up a type of filtering read samples from the texture
+			*/
+
+			TDE2_API virtual void SetFilterType(const E_FILTER_TYPE& type) = 0;
+
+			/*!
 				\brief The method returns a width of a texture
 
 				\return The method returns a width of a texture

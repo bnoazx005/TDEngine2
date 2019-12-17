@@ -14,6 +14,8 @@ namespace TDEngine2
 
 	void COGLTexture2D::Bind(U32 slot)
 	{
+		CBaseTexture2D::Bind(slot);
+
 		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
 		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
 	}

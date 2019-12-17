@@ -42,6 +42,38 @@ namespace TDEngine2
 										const TTexture2DParameters& params) override;
 
 			/*!
+				\brief The method binds a texture object to a given slot
+
+				\param[in] slot Slot's index
+			*/
+
+			TDE2_API void Bind(U32 slot) override;
+
+			/*!
+				\brief The method sets up wrapping mode for U axis
+			*/
+
+			TDE2_API void SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode) override;
+
+			/*!
+				\brief The method sets up wrapping mode for Z axis
+			*/
+
+			TDE2_API void SetVWrapMode(const E_ADDRESS_MODE_TYPE& mode) override;
+
+			/*!
+				\brief The method sets up wrapping mode for W axis
+			*/
+
+			TDE2_API void SetWWrapMode(const E_ADDRESS_MODE_TYPE& mode) override;
+
+			/*!
+				\brief The method sets up a type of filtering read samples from the texture
+			*/
+
+			TDE2_API void SetFilterType(const E_FILTER_TYPE& type) override;
+
+			/*!
 				\brief The method returns a width of a texture
 
 				\return The method returns a width of a texture
@@ -70,18 +102,22 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																		 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) = 0;
 		protected:
-			IGraphicsContext * mpGraphicsContext;
+			IGraphicsContext*   mpGraphicsContext;
 
-			U32                mWidth;
+			U32                 mWidth;
 
-			U32                mHeight;
+			U32                 mHeight;
 
-			E_FORMAT_TYPE      mFormat;
+			E_FORMAT_TYPE       mFormat;
 
-			U32                mNumOfMipLevels;
+			U32                 mNumOfMipLevels;
 
-			U32                mNumOfSamples;
+			U32                 mNumOfSamples;
 
-			U32                mSamplingQuality;
+			U32                 mSamplingQuality;
+
+			TTextureSamplerDesc mTextureSamplerParams;
+
+			TTextureSamplerId   mCurrTextureSamplerHandle = InvalidTextureSamplerId;
 	};
 }

@@ -16,6 +16,8 @@ namespace TDEngine2
 
 	void COGLCubemapTexture::Bind(U32 slot)
 	{
+		CBaseCubemapTexture::Bind(slot);
+
 		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
 		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, mTextureHandler));
 	}

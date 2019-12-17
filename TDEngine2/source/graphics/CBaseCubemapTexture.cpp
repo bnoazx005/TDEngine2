@@ -1,4 +1,5 @@
 #include "./../../include/graphics/CBaseCubemapTexture.h"
+#include "./../../include/graphics/CBaseTexture2D.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
@@ -52,17 +53,47 @@ namespace TDEngine2
 
 		mpGraphicsContext = pGraphicsContext;
 
-		mWidth           = params.mWidth;
-		mHeight          = params.mHeight;
-		mFormat          = params.mFormat;
-		mNumOfMipLevels  = params.mNumOfMipLevels;
-		mNumOfSamples    = params.mNumOfSamples;
-		mSamplingQuality = params.mSamplingQuality;
+		mWidth                = params.mWidth;
+		mHeight               = params.mHeight;
+		mFormat               = params.mFormat;
+		mNumOfMipLevels       = params.mNumOfMipLevels;
+		mNumOfSamples         = params.mNumOfSamples;
+		mSamplingQuality      = params.mSamplingQuality;
+		mTextureSamplerParams = params.mTexSamplerDesc;
 
 		mIsInitialized = true;
 
 		return _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat,
 											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality); /// create a texture's object within video memory using GAPI
+	}
+
+	void CBaseCubemapTexture::Bind(U32 slot)
+	{
+		if (mCurrTextureSamplerHandle == InvalidTextureSamplerId)
+		{
+			mCurrTextureSamplerHandle = CBaseTexture2D::GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
+		}
+	}
+
+	void CBaseCubemapTexture::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
+	{
+		mTextureSamplerParams.mUAddressMode = mode;
+	}
+
+	void CBaseCubemapTexture::SetVWrapMode(const E_ADDRESS_MODE_TYPE& mode)
+	{
+		mTextureSamplerParams.mVAddressMode = mode;
+	}
+
+	void CBaseCubemapTexture::SetWWrapMode(const E_ADDRESS_MODE_TYPE& mode)
+	{
+		mTextureSamplerParams.mWAddressMode = mode;
+	}
+
+	void CBaseCubemapTexture::SetFilterType(const E_FILTER_TYPE& type)
+	{
+		TDE2_UNIMPLEMENTED();
+		//mTextureSamplerParams.
 	}
 
 	U32 CBaseCubemapTexture::GetWidth() const

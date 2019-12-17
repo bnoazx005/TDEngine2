@@ -54,6 +54,8 @@ namespace TDEngine2
 
 	void CD3D11RenderTarget::Bind(U32 slot)
 	{
+		CBaseRenderTarget::Bind(slot);
+
 		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->PSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);

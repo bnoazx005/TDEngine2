@@ -574,24 +574,6 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		struct TTextureSamplerDesc
-
-		\brief The structure contains an information about a sampler object that is needed for its creation
-	*/
-
-	typedef struct TTextureSamplerDesc
-	{
-		U32                 mFilterFlags;
-
-		E_ADDRESS_MODE_TYPE mUAddressMode;
-
-		E_ADDRESS_MODE_TYPE mVAddressMode;
-
-		E_ADDRESS_MODE_TYPE mWAddressMode;
-	} TTextureSamplerDesc, *TTextureSamplerDescPtr;
-
-
 	enum class E_FILTER_FLAGS_MASKS : U32
 	{
 		FFM_FILTER_MIN_MASK = 0xFF,
@@ -613,6 +595,24 @@ namespace TDEngine2
 		FT_ANISOTROPIC,
 		FT_UNUSED = 0x0
 	};
+
+
+	/*!
+		struct TTextureSamplerDesc
+
+		\brief The structure contains an information about a sampler object that is needed for its creation
+	*/
+
+	typedef struct TTextureSamplerDesc
+	{
+		U32                 mFilterFlags = ((U32)E_FILTER_TYPE::FT_BILINEAR << 16) |
+										   ((U32)E_FILTER_TYPE::FT_BILINEAR << 8) |
+										   (U32)E_FILTER_TYPE::FT_BILINEAR;
+
+		E_ADDRESS_MODE_TYPE mUAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
+		E_ADDRESS_MODE_TYPE mVAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
+		E_ADDRESS_MODE_TYPE mWAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
+	} TTextureSamplerDesc, *TTextureSamplerDescPtr;
 
 
 	typedef U32 TFileEntryId;

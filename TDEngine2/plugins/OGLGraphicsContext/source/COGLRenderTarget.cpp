@@ -48,6 +48,8 @@ namespace TDEngine2
 	
 	void COGLRenderTarget::Bind(U32 slot)
 	{
+		CBaseRenderTarget::Bind(slot);
+
 		glBindTexture(GL_TEXTURE_2D, mTextureHandler);
 	}
 

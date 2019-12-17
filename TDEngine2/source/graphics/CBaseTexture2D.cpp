@@ -2,9 +2,11 @@
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
+#include "./../../include/graphics/IGraphicsObjectManager.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <string>
+#include <cassert>
 
 
 namespace TDEngine2
@@ -20,7 +22,7 @@ namespace TDEngine2
 
 
 	CBaseTexture2D::CBaseTexture2D() :
-		CBaseResource()
+		CBaseResource(), mTextureSamplerParams()
 	{
 	}
 
@@ -61,17 +63,47 @@ namespace TDEngine2
 
 		mpGraphicsContext = pGraphicsContext;
 		
-		mWidth           = params.mWidth;
-		mHeight          = params.mHeight;
-		mFormat          = params.mFormat;
-		mNumOfMipLevels  = params.mNumOfMipLevels;
-		mNumOfSamples    = params.mNumOfSamples;
-		mSamplingQuality = params.mSamplingQuality;
+		mWidth                = params.mWidth;
+		mHeight               = params.mHeight;
+		mFormat               = params.mFormat;
+		mNumOfMipLevels       = params.mNumOfMipLevels;
+		mNumOfSamples         = params.mNumOfSamples;
+		mSamplingQuality      = params.mSamplingQuality;
+		mTextureSamplerParams = params.mTexSamplerDesc;
 
 		mIsInitialized = true;
 
 		return _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat, 
 											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality); /// create a texture's object within video memory using GAPI
+	}
+
+	void CBaseTexture2D::Bind(U32 slot)
+	{
+		if (mCurrTextureSamplerHandle == InvalidTextureSamplerId)
+		{
+			mCurrTextureSamplerHandle = GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
+		}
+	}
+
+	void CBaseTexture2D::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
+	{
+		mTextureSamplerParams.mUAddressMode = mode;
+	}
+
+	void CBaseTexture2D::SetVWrapMode(const E_ADDRESS_MODE_TYPE& mode)
+	{
+		mTextureSamplerParams.mVAddressMode = mode;
+	}
+
+	void CBaseTexture2D::SetWWrapMode(const E_ADDRESS_MODE_TYPE& mode)
+	{
+		mTextureSamplerParams.mWAddressMode = mode;
+	}
+
+	void CBaseTexture2D::SetFilterType(const E_FILTER_TYPE& type)
+	{
+		TDE2_UNIMPLEMENTED();
+		//mTextureSamplerParams.
 	}
 
 	U32 CBaseTexture2D::GetWidth() const
@@ -87,6 +119,15 @@ namespace TDEngine2
 	E_FORMAT_TYPE CBaseTexture2D::GetFormat() const
 	{
 		return mFormat;
+	}
+
+	TTextureSamplerId CBaseTexture2D::GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params)
+	{
+		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+		assert(pGraphicsObjectManager);
+
+		auto result = pGraphicsObjectManager->CreateTextureSampler(params);
+		return result.IsOk() ? result.Get() : InvalidTextureSamplerId;
 	}
 
 

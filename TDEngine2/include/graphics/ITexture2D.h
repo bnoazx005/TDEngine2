@@ -40,17 +40,19 @@ namespace TDEngine2
 
 		TDE2_API TTexture2DParameters(U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount = 1, U32 samplesCount = 1, U32 samplingQuality = 0);
 
-		U32           mWidth;
+		U32                 mWidth;
 
-		U32           mHeight;
+		U32                 mHeight;
 
-		E_FORMAT_TYPE mFormat;
+		E_FORMAT_TYPE       mFormat;
 
-		U32           mNumOfMipLevels;
+		U32                 mNumOfMipLevels;
 
-		U32           mNumOfSamples;
+		U32                 mNumOfSamples;
 
-		U32           mSamplingQuality;
+		U32                 mSamplingQuality;
+
+		TTextureSamplerDesc mTexSamplerDesc;
 	} TTexture2DParameters, *TTexture2DParametersPtr;
 
 

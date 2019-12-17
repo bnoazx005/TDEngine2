@@ -65,21 +65,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pCamera->SetAspect(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight());
 	pCamera->SetFOV(0.5f * CMathConstants::Pi);
 
-	TTextureSamplerDesc textureSamplerDesc;
-/*
-	textureSamplerDesc.mUAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
-	textureSamplerDesc.mVAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
-	textureSamplerDesc.mWAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;*/
-
-	textureSamplerDesc.mUAddressMode = E_ADDRESS_MODE_TYPE::AMT_CLAMP;
-	textureSamplerDesc.mVAddressMode = E_ADDRESS_MODE_TYPE::AMT_CLAMP;
-	textureSamplerDesc.mWAddressMode = E_ADDRESS_MODE_TYPE::AMT_CLAMP;
-
-	textureSamplerDesc.mFilterFlags = (U32)E_FILTER_TYPE::FT_BILINEAR << 16 | 
-									  (U32)E_FILTER_TYPE::FT_BILINEAR << 8  | 
-									  (U32)E_FILTER_TYPE::FT_BILINEAR;
-
-	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(textureSamplerDesc).Get();
+	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(TTextureSamplerDesc{}).Get();
 
 	auto pRT = mpResourceManager->Create<CBaseRenderTarget>("default-rt", TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), FT_NORM_UBYTE4, 1, 1, 0 });
 	//mpGraphicsContext->BindRenderTarget(dynamic_cast<IRenderTarget*>(pRT->Get(RAT_BLOCKING)));
