@@ -58,6 +58,8 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 
 		TDEngine2::IResourceManager*        mpResourceManager;
 
+		TDEngine2::IFileSystem*             mpFileSystem;
+
 		TDEngine2::IGraphicsObjectManager*  mpGraphicsObjectManager;
 
 		TDEngine2::IResourceHandler*        mpShader;

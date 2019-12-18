@@ -10,6 +10,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
+	PANIC_ON_FAILURE(mpFileSystem->Mount("./../../Resources/", "Resources"));
+
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
 	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ "testGLShader.shader", true })->Get<IMaterial>(RAT_BLOCKING);
@@ -72,14 +74,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	auto pCubeMesh = CStaticMesh::CreateCube(mpResourceManager);
 
+	mpResourceManager->Load<CStaticMesh>("Test.mesh");
+
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");	
-
-	mpResourceManager->Load<CStaticMesh>("Test.mesh");
 
 	return RC_OK;
 }
@@ -167,6 +169,7 @@ void CCustomEngineListener::SetEngineInstance(IEngineCore* pEngineCore)
 	mpWindowSystem    = mpEngineCoreInstance->GetSubsystem<IWindowSystem>();
 	mpResourceManager = mpEngineCoreInstance->GetSubsystem<IResourceManager>();
 	mpInputContext    = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>();
+	mpFileSystem      = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
 
 	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 }
