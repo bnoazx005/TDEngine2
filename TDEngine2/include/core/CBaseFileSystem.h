@@ -88,7 +88,7 @@ namespace TDEngine2
 				\return A string that contains a physical path
 			*/
 
-			TDE2_API virtual std::string ResolveVirtualPath(const std::string& path) const = 0;
+			TDE2_API std::string ResolveVirtualPath(const std::string& path) const override;
 			
 			/*!
 				\brief The method closes a file with a given filename
@@ -185,7 +185,7 @@ namespace TDEngine2
 
 			TDE2_API TFileEntryId _registerFileEntry(IFile* pFileEntry);
 
-			TDE2_API virtual std::string _unifyPathView(const std::string& path, bool isVirtualPath = false) const = 0;
+			TDE2_API std::string _unifyPathView(const std::string& path, bool isVirtualPath = false) const;
 
 			TDE2_API virtual bool _isPathValid(const std::string& path, bool isVirtualPath = false) const = 0;
 
@@ -202,6 +202,9 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _closeFile(const std::string& filename);
 
 			TDE2_API void _createNewFile(const std::string& filename);
+
+			TDE2_API virtual const C8& _getPathSeparatorChar() const = 0;
+			TDE2_API virtual const C8& _getAltPathSeparatorChar() const = 0;
 		protected:
 			TFilesContainer         mActiveFiles;
 
