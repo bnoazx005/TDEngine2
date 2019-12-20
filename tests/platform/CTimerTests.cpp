@@ -42,7 +42,7 @@ TEST_CASE("Timers Tests")
 
 		F32 actualElapsedTime = pTimer->GetCurrTime() * 1000.0f;
 
-		REQUIRE(fabsf(actualElapsedTime - expectedElapsedTime) < 1.0f); /// 1 millisecond accuraty
+		REQUIRE(fabsf(actualElapsedTime - expectedElapsedTime) < 2.0f);
 	}
 
 	SECTION("TestGetDeltaTime_EmulateFreeze_ReturnsAcceptableDeltasValue")

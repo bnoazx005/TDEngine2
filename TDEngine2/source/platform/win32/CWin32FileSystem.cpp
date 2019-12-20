@@ -26,7 +26,7 @@ namespace TDEngine2
 	{
 		bool isPathEmpty                = path.empty();
 		bool pathContainsForbiddenChars = (path.find(mForbiddenChars, 0, sizeof(mForbiddenChars) / sizeof(mForbiddenChars[0])) != std::string::npos) && (path.find(':') != 1);
-		bool virtualPathContainsDots    = isVirtualPath && path.find('.') != std::string::npos;
+		bool virtualPathContainsDots    = isVirtualPath && path.find("..") != std::string::npos;
 		
 		return !isPathEmpty && !pathContainsForbiddenChars && !virtualPathContainsDots;
 	}
@@ -34,7 +34,7 @@ namespace TDEngine2
 	E_RESULT_CODE CWin32FileSystem::_onInit()
 	{
 		/// mount a root directory
-		return Mount(this->GetCurrDirectory(), std::string(1, mPathSeparator));
+		return Mount(this->GetCurrDirectory(), CStringUtils::mEmptyStr);
 	}
 
 	const C8& CWin32FileSystem::_getPathSeparatorChar() const

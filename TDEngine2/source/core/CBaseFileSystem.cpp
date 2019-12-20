@@ -100,7 +100,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		std::string unifiedAliasPath = _unifyPathView(aliasPath);
+		std::string unifiedAliasPath = _unifyPathView(aliasPath, true);
 
 		auto existedEntryIter = mVirtualPathsMap.find(unifiedAliasPath);
 
@@ -118,14 +118,16 @@ namespace TDEngine2
 	
 	std::string CBaseFileSystem::ResolveVirtualPath(const std::string& path) const
 	{
-		std::string unifiedPath = _unifyPathView(path);
+		std::string unifiedPath = _unifyPathView(path, CStringUtils::StartsWith(path, _getVirtualPathPrefixStr()));
 
-		if (path.empty() || (path.size() > 1 && path[0] != _getPathSeparatorChar()))
+		if (unifiedPath.empty() || (unifiedPath.size() > 1 && !CStringUtils::StartsWith(unifiedPath, "vfs:")))
 		{
-			return path; // this case includes all real paths, single files
+			return unifiedPath; // this case includes all real paths, single files
 		}
 
-		if (path.length() == 1 && path[0] == _getPathSeparatorChar()) // replace / virtual root directory with current directory of an application
+		const C8 pathSeparator = _getPathSeparatorChar();
+
+		if (unifiedPath == _getVirtualPathPrefixStr()) // replace vfs:// virtual root directory with current directory of an application
 		{
 			return this->GetCurrDirectory();
 		}
@@ -176,6 +178,11 @@ namespace TDEngine2
 	{
 		if (path.empty())
 		{
+			if (isVirtualPath)
+			{
+				return _getVirtualPathPrefixStr();
+			}
+
 			return mInvalidPath;
 		}
 
@@ -188,10 +195,17 @@ namespace TDEngine2
 		{
 			return mInvalidPath;
 		}
-
-		if (isVirtualPath && unifiedPath[unifiedPath.length() - 1] != _getPathSeparatorChar())
+		
+		if (isVirtualPath)
 		{
-			return unifiedPath + _getPathSeparatorChar();
+			// \note remove any path separator from the beginning of unifiedPath string
+			if (unifiedPath.front() == _getPathSeparatorChar())
+			{
+				unifiedPath.erase(unifiedPath.begin());
+			}
+
+			static const std::string vfsPathPrefixStr = _getVirtualPathPrefixStr();
+			return CStringUtils::StartsWith(unifiedPath, vfsPathPrefixStr) ? unifiedPath : vfsPathPrefixStr + unifiedPath;
 		}
 
 		return unifiedPath;
@@ -481,5 +495,11 @@ namespace TDEngine2
 	{
 		std::ofstream newFileInstance(filename.c_str());
 		newFileInstance.close();
+	}
+
+	std::string CBaseFileSystem::_getVirtualPathPrefixStr() const
+	{
+		static std::string virtualPathPrefix = CStringUtils::Format("vfs:{0}{0}", _getPathSeparatorChar());
+		return virtualPathPrefix;
 	}
 }

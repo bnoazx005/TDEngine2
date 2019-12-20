@@ -68,7 +68,7 @@ namespace TDEngine2
 			/*!
 				\brief The method converts virtual path into a real one. For example, if
 				a following virtual directory /vdir/ exists and is binded to c:/data/,
-				then input /vdir/foo.txt will be replaced with c:/data/foo.txt.
+				then input vfs://vdir/foo.txt will be replaced with c:/data/foo.txt.
 
 				\param[in] path A virtual path's value
 

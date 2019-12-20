@@ -81,7 +81,7 @@ namespace TDEngine2
 			/*!
 				\brief The method converts virtual path into a real one. For example, if
 				a following virtual directory /vdir/ exists and is binded to c:/data/,
-				then input /vdir/foo.txt will be replaced with c:/data/foo.txt.
+				then input vfs://vdir/foo.txt will be replaced with c:/data/foo.txt.
 
 				\param[in] path A virtual path's value
 
@@ -205,21 +205,22 @@ namespace TDEngine2
 
 			TDE2_API virtual const C8& _getPathSeparatorChar() const = 0;
 			TDE2_API virtual const C8& _getAltPathSeparatorChar() const = 0;
+			TDE2_API std::string _getVirtualPathPrefixStr() const;
 		protected:
-			TFilesContainer         mActiveFiles;
+			TFilesContainer          mActiveFiles;
 
-			TVirtualPathsMap        mVirtualPathsMap;
+			TVirtualPathsMap         mVirtualPathsMap;
 
-			TFilesHashMap           mFilesMap;
+			TFilesHashMap            mFilesMap;
 
-			TFileFactoriesRegistry  mFileFactoriesMap;
+			TFileFactoriesRegistry   mFileFactoriesMap;
 						
-			TFileFactoriesContainer mFileFactories;
+			TFileFactoriesContainer  mFileFactories;
 			
-			static std::string      mInvalidPath;
+			static std::string       mInvalidPath;
 
-			mutable std::mutex      mMutex;
+			mutable std::mutex       mMutex;
 
-			IJobManager*            mpJobManager;
+			IJobManager*             mpJobManager;
 	};
 }
