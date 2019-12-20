@@ -198,6 +198,11 @@ namespace TDEngine2
 		return mEmptyStr;
 	}
 
+	bool CStringUtils::StartsWith(const std::string& str, const std::string& prefix)
+	{
+		return str.rfind(prefix, 0) == 0;
+	}
+
 	const std::string CStringUtils::mEmptyStr {};
 
 

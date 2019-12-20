@@ -91,4 +91,19 @@ TEST_CASE("CStringUtils Tests")
 
 		REQUIRE(0 == actualResult.size());
 	}
+
+	SECTION("Format_PassFormatStringAndArguments_ReturnsFormattedString")
+	{
+		// first argument of the tuple is a format string, the second is expected result
+		std::vector<std::tuple<std::string, std::string>> inputs
+		{
+			{ "", "" },
+			{ "{2} : {0} and {1}", "Number : 42 and 2.2" },
+		};
+
+		for (const auto& currInput : inputs)
+		{
+			REQUIRE(CStringUtils::Format(std::get<0>(currInput), 42, 2.2f, "Number") == std::get<1>(currInput));
+		}
+	}
 }

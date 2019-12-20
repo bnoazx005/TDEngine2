@@ -16,6 +16,8 @@
 #include <iostream>
 #include <cassert>
 #include <functional>
+#include <array>
+#include <sstream>
 
 
 namespace TDEngine2
@@ -454,8 +456,71 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static std::string GetEmptyStr();
+
+			/*!
+				\brief The method checks up whether the given string stars from specified prefix string or not
+
+				\return Returns true if first parameter contains the second as a prefix
+			*/
+
+			TDE2_API static bool StartsWith(const std::string& str, const std::string& prefix);
+
+			template <typename... TArgs>
+			TDE2_API static std::string Format(const std::string& formatStr, TArgs... args)
+			{
+				const U32 argsCount = sizeof...(args);
+
+				std::array<std::string, argsCount> arguments;
+				_convertToStringsArray(arguments, args...);
+
+				std::string formattedStr = formatStr; 
+				std::string currArgValue;
+				std::string currArgPattern;
+				
+				currArgPattern.reserve(5);
+
+				std::string::size_type pos = 0;
+
+				/// \note replace the following patterns {i}
+				for (U32 i = 0; i < argsCount; ++i)
+				{
+					currArgPattern = "{" + ToString(i) + "}";
+					currArgValue   = arguments[i];
+
+					while ((pos = formattedStr.find(currArgPattern)) != std::string::npos)
+					{
+						formattedStr.replace(pos, currArgPattern.length(), currArgValue);
+					}
+				}
+
+				return formattedStr;
+			}
+
+			template <>
+			TDE2_API static std::string Format(const std::string& formatStr)
+			{
+				return formatStr;
+			}
+
+			template <typename T>
+			TDE2_API static std::string ToString(T&& arg)
+			{
+				std::ostringstream stream;
+				stream << arg;
+				return stream.str();
+			}
 		public:
 			TDE2_API static const std::string mEmptyStr;
+		private:
+			template <U32 size>
+			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray) {}
+
+			template <typename Head, typename... Tail, U32 size>
+			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray, Head&& firstArg, Tail... rest)
+			{
+				outArray[size - 1 - sizeof...(Tail)] = ToString(firstArg);
+				_convertToStringsArray(outArray, std::forward<Tail>(rest)...);
+			}
 	};
 
 
