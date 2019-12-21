@@ -73,6 +73,8 @@ namespace TDEngine2
 		{
 			mCurrTextureSamplerHandle = CBaseTexture2D::GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
 		}
+
+		mpGraphicsContext->BindTextureSampler(slot, mCurrTextureSamplerHandle);
 	}
 
 	void CBaseCubemapTexture::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)

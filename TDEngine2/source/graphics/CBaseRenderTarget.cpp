@@ -1,5 +1,6 @@
 #include "./../../include/graphics/CBaseRenderTarget.h"
 #include "./../../include/graphics/CBaseTexture2D.h"
+#include "./../../include/core/IGraphicsContext.h"
 
 
 namespace TDEngine2
@@ -46,6 +47,8 @@ namespace TDEngine2
 		{
 			mCurrTextureSamplerHandle = CBaseTexture2D::GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
 		}
+
+		mpGraphicsContext->BindTextureSampler(slot, mCurrTextureSamplerHandle);
 	}
 
 	void CBaseRenderTarget::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)

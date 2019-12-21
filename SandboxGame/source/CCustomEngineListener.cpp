@@ -67,8 +67,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pCamera->SetAspect(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight());
 	pCamera->SetFOV(0.5f * CMathConstants::Pi);
 
-	mTextureSampler = mpGraphicsObjectManager->CreateTextureSampler(TTextureSamplerDesc{}).Get();
-
 	auto pRT = mpResourceManager->Create<CBaseRenderTarget>("default-rt", TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), FT_NORM_UBYTE4, 1, 1, 0 });
 	//mpGraphicsContext->BindRenderTarget(dynamic_cast<IRenderTarget*>(pRT->Get(RAT_BLOCKING)));
 
@@ -87,9 +85,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 }
 
 E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
-{
-	mpGraphicsContext->BindTextureSampler(0, mTextureSampler);
-	
+{	
 	if (mpInputContext->IsMouseButtonPressed(0))
 	{
 		std::cout << "pressed\n";

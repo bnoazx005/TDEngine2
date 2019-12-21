@@ -84,7 +84,7 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash<const TTextureSamplerDesc&>(samplerDesc);
 		if (mTextureSamplesHashTable.find(hashValue) != mTextureSamplesHashTable.cend())
 		{
-			return TOkValue<TTextureSamplerId>(mTextureSamplersArray[mTextureSamplesHashTable[hashValue]]);
+			return TOkValue<TTextureSamplerId>(mTextureSamplesHashTable[hashValue]);
 		}
 
 		GLuint samplerHandler = 0x0;
