@@ -17,6 +17,7 @@
 #include <map>
 #include <regex>
 #include <tuple>
+#include <functional>
 
 
 namespace TDEngine2
@@ -155,15 +156,17 @@ namespace TDEngine2
 	class CBaseShaderCompiler : public IShaderCompiler
 	{
 		protected:
-			typedef CShaderPreprocessor::TDefinesMap                     TDefinesMap;
+			typedef CShaderPreprocessor::TDefinesMap                           TDefinesMap;
 
-			typedef std::pair<std::string, std::string>                  TShaderDefineDesc;
+			typedef std::pair<std::string, std::string>                        TShaderDefineDesc;
 			
-			typedef std::unordered_map<std::string, U32>                 TStructDeclsMap;
+			typedef std::unordered_map<std::string, U32>                       TStructDeclsMap;
 
-			typedef std::unordered_map<std::string, TUniformBufferDesc>  TUniformBuffersMap;
+			typedef std::unordered_map<std::string, TUniformBufferDesc>        TUniformBuffersMap;
 
-			typedef std::unordered_map<std::string, TShaderResourceDesc> TShaderResourcesMap;
+			typedef std::unordered_map<std::string, TShaderResourceDesc>       TShaderResourcesMap;
+
+			typedef std::function<void(const TShaderUniformDesc& uniformInfo)> TUniformVariableFunctor;
 		
 			typedef struct TShaderMetadata
 			{
@@ -208,7 +211,8 @@ namespace TDEngine2
 			
 			TDE2_API virtual TStructDeclsMap _processStructDecls(CTokenizer& tokenizer) const;
 
-			TDE2_API virtual U32 _getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const;
+			TDE2_API virtual U32 _getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer,
+													  const TUniformVariableFunctor& uniformProcessor = [](auto){}) const;
 
 			TDE2_API virtual U32 _getBuiltinTypeSize(const std::string& type) const = 0;
 

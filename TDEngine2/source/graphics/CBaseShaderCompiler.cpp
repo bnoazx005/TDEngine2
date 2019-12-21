@@ -733,7 +733,8 @@ namespace TDEngine2
 		return structDeclsMap;
 	}
 
-	U32 CBaseShaderCompiler::_getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
+	U32 CBaseShaderCompiler::_getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer,
+												  const TUniformVariableFunctor& uniformProcessor) const
 	{
 		U32 totalStructSize = 0;
 
@@ -777,11 +778,17 @@ namespace TDEngine2
 			}
 
 			/// extract type of a member and compute its padded size
-			totalStructSize += _getBuiltinTypeSize(currToken);
+			U32 currMemberSize = _getBuiltinTypeSize(currToken);
+			totalStructSize += currMemberSize;
 
 			do
 			{
 				currToken = tokenizer.GetNextToken();
+
+				if (currToken != ";")
+				{
+					uniformProcessor({ currToken, currMemberSize });
+				}
 			} 
 			while (currToken != ";" && tokenizer.HasNext());
 		}

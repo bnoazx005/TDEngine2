@@ -12,6 +12,7 @@
 #include <string>
 #include <GL/glew.h>
 #include <cstring>
+#include <cassert>
 
 
 namespace TDEngine2
@@ -174,6 +175,11 @@ namespace TDEngine2
 			return slotIndex;
 		};
 
+		auto uniformVariableFunctor = [&uniformBuffersDecls, &bufferName](auto&& uniformDesc)
+		{
+			uniformBuffersDecls[bufferName].mVariables.emplace_back(uniformDesc);
+		};
+
 		while (tokenizer.HasNext())
 		{
 			currToken = tokenizer.GetCurrToken();
@@ -193,16 +199,18 @@ namespace TDEngine2
 			}
 
 			bufferName = tokenizer.GetNextToken();
-									
+			
 			if ((nextToken = tokenizer.GetNextToken()) == "{")
 			{
 				if (uniformBuffersDecls.find(bufferName) == uniformBuffersDecls.cend())
 				{
-					uniformBuffersDecls[bufferName] = { getCurrentOrNextFreeBufferSlot(0), _getPaddedStructSize(structsMap, tokenizer) };
+					auto& currBuffer = uniformBuffersDecls[bufferName];
+					currBuffer.mSlot = getCurrentOrNextFreeBufferSlot(0);
+					currBuffer.mSize = _getPaddedStructSize(structsMap, tokenizer, uniformVariableFunctor);
 				}
 				else
 				{
-					uniformBuffersDecls[bufferName].mSize = _getPaddedStructSize(structsMap, tokenizer);
+					uniformBuffersDecls[bufferName].mSize = _getPaddedStructSize(structsMap, tokenizer, uniformVariableFunctor);
 				}
 			}
 
@@ -271,36 +279,27 @@ namespace TDEngine2
 
 		if (pos != std::string::npos)
 		{
-			switch (type[pos])
-			{
-				case '2':
-					size = 2;
-					break;
-				case '3':
-					size = 3;
-					break;
-				case '4':
-					size = 4;
-					break;
-			}
+			size = (std::max)(1, static_cast<I32>(type[pos]) - static_cast<I32>('0'));
+			assert(size >= 1 && size <= 4);
 		}
 
 		std::string baseType = type.substr(0, pos);
 
-		if (baseType == "double" || baseType == "dvec")
+		static const std::unordered_map<std::string, std::function<U32(U32)>> sizesTable
 		{
-			return size * 8; // 8 is sizeof(double) in HLSL
-		}
-		else if (baseType == "mat") /// matrix wtih single precision floating-point elements
+			{ "double", [](U32 size) { return size * 8; } },
+			{ "dvec", [](U32 size) { return size * 8; } },
+			{ "mat", [](U32 size) { return size * size * 4; } },
+			{ "dmat", [](U32 size) { return size * size * 8; } },
+		};
+
+		auto iter = sizesTable.find(baseType);
+		if (iter == sizesTable.cend())
 		{
-			return size * size * 4;
-		}
-		else if (baseType == "dmat") /// matrix wtih double precision floating-point elements
-		{
-			return size * size * 8;
+			return size * 4;
 		}
 
-		return size * 4; // other types sizes equal to 4 bytes
+		return (iter->second)(size);
 	}
 
 	COGLShaderCompiler::TShaderResourcesMap COGLShaderCompiler::_processShaderResourcesDecls(CTokenizer& tokenizer) const
