@@ -37,12 +37,12 @@ namespace TDEngine2
 		return Mount(this->GetCurrDirectory(), CStringUtils::mEmptyStr);
 	}
 
-	const C8& CUnixFileSystem::_getPathSeparatorChar() const
+	const C8& CUnixFileSystem::GetPathSeparatorChar() const
 	{
 		return mPathSeparator;
 	}
 
-	const C8& CUnixFileSystem::_getAltPathSeparatorChar() const
+	const C8& CUnixFileSystem::GetAltPathSeparatorChar() const
 	{
 		return mAltPathSeparator;
 	}

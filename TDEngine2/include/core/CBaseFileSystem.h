@@ -84,11 +84,12 @@ namespace TDEngine2
 				then input vfs://vdir/foo.txt will be replaced with c:/data/foo.txt.
 
 				\param[in] path A virtual path's value
+				\param[in] isDirectory A flat that tells should be given path processed as a directory or its a path to some file
 
 				\return A string that contains a physical path
 			*/
 
-			TDE2_API std::string ResolveVirtualPath(const std::string& path) const override;
+			TDE2_API std::string ResolveVirtualPath(const std::string& path, bool isDirectory = true) const override;
 			
 			/*!
 				\brief The method closes a file with a given filename
@@ -180,12 +181,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::string GetExtension(const std::string& path) const override;
+
+			/*!
+				\brief The method returns a path separator charater
+				\return The method returns a path separator charater
+			*/
+
+			TDE2_API virtual const C8& GetPathSeparatorChar() const = 0;
+
+			/*!
+				\brief The method returns an alternative version of a path separator charater
+				\return The method returns an alternative version of a path separator charater
+			*/
+
+			TDE2_API virtual const C8& GetAltPathSeparatorChar() const = 0;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFileSystem)
 
 			TDE2_API TFileEntryId _registerFileEntry(IFile* pFileEntry);
 
-			TDE2_API std::string _unifyPathView(const std::string& path, bool isVirtualPath = false) const;
+			TDE2_API std::string _unifyPathView(const std::string& path, bool isVirtualPath = false, bool isDirectory = true) const;
 
 			TDE2_API virtual bool _isPathValid(const std::string& path, bool isVirtualPath = false) const = 0;
 
@@ -203,8 +218,6 @@ namespace TDEngine2
 
 			TDE2_API void _createNewFile(const std::string& filename);
 
-			TDE2_API virtual const C8& _getPathSeparatorChar() const = 0;
-			TDE2_API virtual const C8& _getAltPathSeparatorChar() const = 0;
 			TDE2_API std::string _getVirtualPathPrefixStr() const;
 		protected:
 			TFilesContainer          mActiveFiles;

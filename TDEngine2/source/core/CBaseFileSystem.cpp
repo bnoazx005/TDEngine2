@@ -116,16 +116,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	std::string CBaseFileSystem::ResolveVirtualPath(const std::string& path) const
+	std::string CBaseFileSystem::ResolveVirtualPath(const std::string& path, bool isDirectory) const
 	{
-		std::string unifiedPath = _unifyPathView(path, CStringUtils::StartsWith(path, _getVirtualPathPrefixStr()));
+		std::string unifiedPath = _unifyPathView(path, CStringUtils::StartsWith(path, "vfs:"), isDirectory);
 
 		if (unifiedPath.empty() || (unifiedPath.size() > 1 && !CStringUtils::StartsWith(unifiedPath, "vfs:")))
 		{
 			return unifiedPath; // this case includes all real paths, single files
 		}
 
-		const C8 pathSeparator = _getPathSeparatorChar();
+		const C8 pathSeparator = GetPathSeparatorChar();
 
 		if (unifiedPath == _getVirtualPathPrefixStr()) // replace vfs:// virtual root directory with current directory of an application
 		{
@@ -134,14 +134,14 @@ namespace TDEngine2
 
 		U32 prevDirectoryPos = 0;
 		U32 currDirectoryPos = 0;
-		U32 unchechedPathPos = 0;
+		U32 uncheckedPathPos = 0;
 
 		std::string currPath, lastMatchPart;
 
 		TVirtualPathsMap::const_iterator physicalPathIter;
 
 		/// select the greatest coincidental part of the path
-		while ((currDirectoryPos = unifiedPath.find_first_of(_getPathSeparatorChar(), prevDirectoryPos)) != std::string::npos)
+		while ((currDirectoryPos = unifiedPath.find_first_of(GetPathSeparatorChar(), prevDirectoryPos)) != std::string::npos)
 		{
 			prevDirectoryPos = currDirectoryPos + 1;
 
@@ -153,13 +153,13 @@ namespace TDEngine2
 			{
 				lastMatchPart = (*physicalPathIter).second;
 
-				unchechedPathPos = currDirectoryPos;
+				uncheckedPathPos = currDirectoryPos;
 			}
 		}
 
 		// check special case when last part of a path doesn't contains an extension's declaration like so \\foo
 		// in this situation we should try to interpretate it as a possible virtual path
-		if ((currPath = unifiedPath.substr(prevDirectoryPos - 1) + _getPathSeparatorChar()).find('.') == std::string::npos)
+		if ((currPath = unifiedPath.substr(prevDirectoryPos - 1) + GetPathSeparatorChar()).find('.') == std::string::npos)
 		{
 			// the part could be a directory and a filename as well
 
@@ -171,10 +171,10 @@ namespace TDEngine2
 			}
 		}
 
-		return lastMatchPart + unifiedPath.substr(unchechedPathPos, unifiedPath.length() - unchechedPathPos);
+		return lastMatchPart + unifiedPath.substr(uncheckedPathPos + 1, unifiedPath.length() - uncheckedPathPos);
 	}
 
-	std::string CBaseFileSystem::_unifyPathView(const std::string& path, bool isVirtualPath) const
+	std::string CBaseFileSystem::_unifyPathView(const std::string& path, bool isVirtualPath, bool isDirectory) const
 	{
 		if (path.empty())
 		{
@@ -188,7 +188,7 @@ namespace TDEngine2
 
 		std::string unifiedPath = path;
 
-		std::replace(unifiedPath.begin(), unifiedPath.end(), _getAltPathSeparatorChar(), _getPathSeparatorChar());
+		std::replace(unifiedPath.begin(), unifiedPath.end(), GetAltPathSeparatorChar(), GetPathSeparatorChar());
 
 		// check up is the path valid
 		if (!_isPathValid(unifiedPath, isVirtualPath))
@@ -196,10 +196,16 @@ namespace TDEngine2
 			return mInvalidPath;
 		}
 		
+		// \note add path separator at the end of the path
+		if ((unifiedPath.back() != GetPathSeparatorChar()) && isDirectory)
+		{
+			unifiedPath.push_back(GetPathSeparatorChar());
+		}
+
 		if (isVirtualPath)
 		{
 			// \note remove any path separator from the beginning of unifiedPath string
-			if (unifiedPath.front() == _getPathSeparatorChar())
+			if (unifiedPath.front() == GetPathSeparatorChar())
 			{
 				unifiedPath.erase(unifiedPath.begin());
 			}
@@ -499,7 +505,7 @@ namespace TDEngine2
 
 	std::string CBaseFileSystem::_getVirtualPathPrefixStr() const
 	{
-		static std::string virtualPathPrefix = CStringUtils::Format("vfs:{0}{0}", _getPathSeparatorChar());
+		static std::string virtualPathPrefix = CStringUtils::Format("vfs:{0}{0}", GetPathSeparatorChar());
 		return virtualPathPrefix;
 	}
 }

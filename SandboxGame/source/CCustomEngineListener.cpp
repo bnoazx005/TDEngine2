@@ -10,7 +10,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
-	PANIC_ON_FAILURE(mpFileSystem->Mount("./../../Resources/", "Resources"));
+	PANIC_ON_FAILURE(mpFileSystem->Mount("./../../Resources/Shaders/", "Shaders"));
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
@@ -81,7 +81,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
-	pMeshContainer->SetMeshName("Cube");	
+	pMeshContainer->SetMeshName("Cube");
 
 	return RC_OK;
 }

@@ -33,15 +33,25 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IFileSystem* CreateWin32FileSystem(E_RESULT_CODE& result);
 		public:
+			/*!
+				\brief The method returns a path separator charater
+				\return The method returns a path separator charater
+			*/
+
+			TDE2_API const C8& GetPathSeparatorChar() const override;
+
+			/*!
+				\brief The method returns an alternative version of a path separator charater
+				\return The method returns an alternative version of a path separator charater
+			*/
+
+			TDE2_API const C8& GetAltPathSeparatorChar() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWin32FileSystem)
 			
 			TDE2_API bool _isPathValid(const std::string& path, bool isVirtualPath = false) const override;
 
 			TDE2_API E_RESULT_CODE _onInit() override;
-
-			TDE2_API const C8& _getPathSeparatorChar() const override;
-			TDE2_API const C8& _getAltPathSeparatorChar() const override;
 		protected:
 			static C8 mPathSeparator;
 

@@ -53,29 +53,29 @@ TEST_CASE("File System Tests")
 	{
 		auto currDirectoryStr = pFileSystem->GetCurrDirectory();
 
-#if defined (TDE2_USE_WIN32PLATFORM)
-		std::string testExpected = ".\\test";
-#elif defined (TDE2_USE_UNIXPLATFORM)
-		std::string testExpected = "./test";
-#else
-#endif
+		std::string testPathExpected   = CStringUtils::Format(".{0}test{0}", pFileSystem->GetPathSeparatorChar());
+		std::string shaderPathExpected = CStringUtils::Format(".{0}Resources{0}Shaders{0}", pFileSystem->GetPathSeparatorChar());
 
-		// first string is an input, the second is expected result
-		std::vector<std::tuple<std::string, std::string>> paths
+		// first string is an input, the second is expected result, the third is a flag which tells whether it's a directory path or not
+		std::vector<std::tuple<std::string, std::string, bool>> paths
 		{
-			{ "", "" },
-			{ "vfs://", currDirectoryStr },
-			{ "vfs://test", testExpected },
-			{ "./test", testExpected },
-			{ "test", "test" },
-			{ "test.png", "test.png" },
+			{ "", "", true },
+			{ "vfs://", currDirectoryStr, true },
+			{ "vfs://test/abcde", testPathExpected + CStringUtils::Format("abcde{0}", pFileSystem->GetPathSeparatorChar()), true },
+			{ "vfs://test", testPathExpected, true },
+			{ "./test", testPathExpected, true },
+			{ "test", CStringUtils::Format("test{0}", pFileSystem->GetPathSeparatorChar()), true },
+			{ "test.png", "test.png", false },
+			{ "vfs://Shaders", shaderPathExpected, true },
+			{ "vfs://Shaders/", shaderPathExpected, true },
 		};
 
 		pFileSystem->Mount("./test", "test");
+		pFileSystem->Mount("./Resources/Shaders/", "Shaders");
 
 		for (const auto& currPath : paths)
 		{
-			REQUIRE(pFileSystem->ResolveVirtualPath(std::get<0>(currPath)) == std::get<1>(currPath));
+			REQUIRE(pFileSystem->ResolveVirtualPath(std::get<0>(currPath), std::get<2>(currPath)) == std::get<1>(currPath));
 		}
 	}
 

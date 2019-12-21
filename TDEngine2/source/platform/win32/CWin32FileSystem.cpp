@@ -37,12 +37,12 @@ namespace TDEngine2
 		return Mount(this->GetCurrDirectory(), CStringUtils::mEmptyStr);
 	}
 
-	const C8& CWin32FileSystem::_getPathSeparatorChar() const
+	const C8& CWin32FileSystem::GetPathSeparatorChar() const
 	{
 		return mPathSeparator;
 	}
 
-	const C8& CWin32FileSystem::_getAltPathSeparatorChar() const
+	const C8& CWin32FileSystem::GetAltPathSeparatorChar() const
 	{
 		return mAltPathSeparator;
 	}
