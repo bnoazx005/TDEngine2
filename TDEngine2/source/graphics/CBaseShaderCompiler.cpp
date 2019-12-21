@@ -224,8 +224,9 @@ namespace TDEngine2
 			}
 
 			includingFilename = matches[2];
+			includingFilename = (matches[1] == '<') ? ("vfs://Shaders/" + includingFilename) : includingFilename; // \note for built-in files change the directory to search
 
-			TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(includingFilename);
+			TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(pFileSystem->ResolveVirtualPath(includingFilename, false));
 
 			if (includeFileId.HasError())
 			{

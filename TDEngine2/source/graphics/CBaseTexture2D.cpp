@@ -184,7 +184,7 @@ namespace TDEngine2
 		I32 height = 0;
 		I32 format = 0;
 
-		std::string filename = mpFileSystem->ResolveVirtualPath(pResource->GetName());
+		std::string filename = mpFileSystem->ResolveVirtualPath(pResource->GetName(), false);
 		
 		U8* pTextureData = nullptr;
 		

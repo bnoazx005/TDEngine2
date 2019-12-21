@@ -11,7 +11,7 @@
 #define TDENGINE2GLOBALS_INC
 
 
-#include "TDEngine2Utils.inc"
+#include <TDEngine2Utils.inc>
 
 
 CBUFFER_SECTION(TDEngine2PerFrame)
