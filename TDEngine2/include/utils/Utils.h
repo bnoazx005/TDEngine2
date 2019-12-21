@@ -508,6 +508,12 @@ namespace TDEngine2
 		private:
 			template <U32 size>
 			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray) {}
+			
+			template <typename Head, U32 size>
+			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray, Head&& firstArg)
+			{
+				outArray[size - 1] = ToString(firstArg);
+			}
 
 			template <typename Head, typename... Tail, U32 size>
 			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray, Head&& firstArg, Tail... rest)
