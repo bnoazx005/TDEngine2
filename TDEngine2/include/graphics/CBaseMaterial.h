@@ -282,6 +282,8 @@ namespace TDEngine2
 			TDE2_API static bool AlphaBasedMaterialComparator(const IMaterial* pLeft, const IMaterial* pRight);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
+
+			TDE2_API E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) override;
 		protected:
 			IGraphicsContext*      mpGraphicsContext;
 

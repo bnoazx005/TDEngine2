@@ -151,6 +151,12 @@ namespace TDEngine2
 		return mBlendStateParams.mIsEnabled;
 	}
 
+	E_RESULT_CODE CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 
 	bool CBaseMaterial::AlphaBasedMaterialComparator(const IMaterial* pLeft, const IMaterial* pRight)
 	{

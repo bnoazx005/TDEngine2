@@ -105,6 +105,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
+
+			/*!
+				\brief The method returns an additional information about the shader
+
+				\return A pointer to the type that contains all the information about internal uniform buffers and
+				used resources
+			*/
+
+			TDE2_API const TShaderCompilerOutput* GetShaderMetaData() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShader)
 
@@ -125,5 +134,7 @@ namespace TDEngine2
 			TTexturesHashTable            mTexturesHashTable;
 
 			std::vector<ITexture*>        mpTextures;
+
+			TShaderCompilerOutput*        mpShaderMeta;
 	};
 }

@@ -41,6 +41,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShader::Unload()
 	{
+		if (mpShaderMeta)
+		{
+			delete mpShaderMeta;
+		}
+
 		return Reset();
 	}
 
@@ -86,21 +91,19 @@ namespace TDEngine2
 			return compilerOutput.GetError();
 		}
 
-		TShaderCompilerOutput* pCompilerData = compilerOutput.Get();
+		mpShaderMeta = compilerOutput.Get();
 		
-		E_RESULT_CODE result = _createInternalHandlers(pCompilerData); /// reimplement this method in a derived class to do some extra work
+		E_RESULT_CODE result = _createInternalHandlers(mpShaderMeta); /// reimplement this method in a derived class to do some extra work
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		if ((result = _createTexturesHashTable(pCompilerData)) != RC_OK)
+		if ((result = _createTexturesHashTable(mpShaderMeta)) != RC_OK)
 		{
 			return result;
 		}
-
-		delete pCompilerData;
 
 		if (result != RC_OK)
 		{
@@ -179,6 +182,11 @@ namespace TDEngine2
 		mpTextures[hashIter->second] = pTexture;
 
 		return RC_OK;
+	}
+
+	const TShaderCompilerOutput* CBaseShader::GetShaderMetaData() const
+	{
+		return mpShaderMeta;
 	}
 
 	E_RESULT_CODE CBaseShader::_freeUniformBuffers()

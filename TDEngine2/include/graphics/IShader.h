@@ -20,6 +20,9 @@ namespace TDEngine2
 	class IShaderCompiler;
 	class ITexture;
 
+	struct TShaderCompilerOutput;
+
+
 
 	/*!
 		interface IShader
@@ -94,6 +97,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) = 0;
+
+			/*!
+				\brief The method returns an additional information about the shader
+
+				\return A pointer to the type that contains all the information about internal uniform buffers and
+				used resources
+			*/
+
+			TDE2_API virtual const TShaderCompilerOutput* GetShaderMetaData() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShader)
 	};

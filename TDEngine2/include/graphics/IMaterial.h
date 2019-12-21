@@ -127,6 +127,20 @@ namespace TDEngine2
 			TDE2_API virtual void SetBlendOp(const E_BLEND_OP_TYPE& opType, const E_BLEND_OP_TYPE& alphaOpType = E_BLEND_OP_TYPE::ADD) = 0;
 
 			/*!
+				\brief The method sets a given value to shader's uniform variable
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			template <typename T>
+			TDE2_API E_RESULT_CODE SetVariable(const std::string& name, const T& value)
+			{
+				// \todo add validation of an input type
+
+				return _setVariable(name, static_cast<const void*>(&value), sizeof(T));
+			}
+
+			/*!
 				\brief The method returns a pointer to IResourceHandler of an attached shader
 
 				\return The method returns a pointer to IResourceHandler of an attached shader
@@ -145,6 +159,8 @@ namespace TDEngine2
 			TDE2_API virtual bool IsTransparent() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
+
+			TDE2_API virtual E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) = 0;
 	};
 
 

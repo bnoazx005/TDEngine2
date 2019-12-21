@@ -68,6 +68,21 @@ namespace TDEngine2
 
 
 	/*!
+		struct TShaderUniformDesc
+
+		\brief The structure contains meta information about a single shader's uniform
+	*/
+
+	typedef struct TShaderUniformDesc
+	{
+		std::string mName;
+
+		U32         mSize;
+	} TShaderUniformDesc, *TShaderUniformDescPtr;
+
+
+
+	/*!
 		struct TUniformBufferDesc
 
 		\brief The structure contains an information about a uniform buffer
@@ -75,13 +90,15 @@ namespace TDEngine2
 
 	typedef struct TUniformBufferDesc
 	{
-		U8                          mSlot;
+		U8                              mSlot;
 
-		U32                         mSize;
+		U32                             mSize;
 
-		E_UNIFORM_BUFFER_DESC_FLAGS mFlags;			/// The field is used to provide additional information about a buffer
+		E_UNIFORM_BUFFER_DESC_FLAGS     mFlags;			/// The field is used to provide additional information about a buffer
 
-		U32                         mBufferIndex; /// for OpenGL usage only
+		U32                             mBufferIndex; /// for OpenGL usage only
+
+		std::vector<TShaderUniformDesc> mVariables;
 	} TUniformBufferDesc, *TUniformBufferDescPtr;
 
 
