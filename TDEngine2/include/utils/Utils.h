@@ -484,7 +484,7 @@ namespace TDEngine2
 				/// \note replace the following patterns {i}
 				for (U32 i = 0; i < argsCount; ++i)
 				{
-					currArgPattern = "{" + ToString(i) + "}";
+					currArgPattern = "{" + ToString<U32>(i) + "}";
 					currArgValue   = arguments[i];
 
 					while ((pos = formattedStr.find(currArgPattern)) != std::string::npos)
@@ -496,14 +496,8 @@ namespace TDEngine2
 				return formattedStr;
 			}
 
-			template <>
-			TDE2_API static std::string Format(const std::string& formatStr)
-			{
-				return formatStr;
-			}
-
 			template <typename T>
-			TDE2_API static std::string ToString(T&& arg)
+			TDE2_API static std::string ToString(const T& arg)
 			{
 				std::ostringstream stream;
 				stream << arg;
