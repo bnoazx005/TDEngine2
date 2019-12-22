@@ -119,7 +119,7 @@ namespace TDEngine2
 	std::string CBaseFileSystem::ResolveVirtualPath(const std::string& path, bool isDirectory) const
 	{
 		std::string unifiedPath = _unifyPathView(path, CStringUtils::StartsWith(path, "vfs:"), isDirectory);
-
+		
 		if (unifiedPath.empty() || (unifiedPath.size() > 1 && !CStringUtils::StartsWith(unifiedPath, "vfs:")))
 		{
 			return unifiedPath; // this case includes all real paths, single files
@@ -132,23 +132,23 @@ namespace TDEngine2
 			return this->GetCurrDirectory();
 		}
 
-		U32 prevDirectoryPos = 0;
-		U32 currDirectoryPos = 0;
-		U32 uncheckedPathPos = 0;
+		std::string::size_type prevDirectoryPos = 0;
+		std::string::size_type currDirectoryPos = 0;
+		std::string::size_type uncheckedPathPos = 0;
 
 		std::string currPath, lastMatchPart;
 
 		TVirtualPathsMap::const_iterator physicalPathIter;
-
+		
 		/// select the greatest coincidental part of the path
 		while ((currDirectoryPos = unifiedPath.find_first_of(GetPathSeparatorChar(), prevDirectoryPos)) != std::string::npos)
 		{
 			prevDirectoryPos = currDirectoryPos + 1;
-
+			
 			currPath = unifiedPath.substr(0, prevDirectoryPos);
 
 			physicalPathIter = mVirtualPathsMap.find(currPath);
-
+			
 			if (physicalPathIter != mVirtualPathsMap.cend())
 			{
 				lastMatchPart = (*physicalPathIter).second;
@@ -156,7 +156,7 @@ namespace TDEngine2
 				uncheckedPathPos = currDirectoryPos;
 			}
 		}
-
+		
 		// check special case when last part of a path doesn't contains an extension's declaration like so \\foo
 		// in this situation we should try to interpretate it as a possible virtual path
 		if ((currPath = unifiedPath.substr(prevDirectoryPos - 1) + GetPathSeparatorChar()).find('.') == std::string::npos)
