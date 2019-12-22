@@ -1,11 +1,13 @@
 #include "./../../include/graphics/CBaseMaterial.h"
+#include "./../../include/graphics/CBaseShader.h"
+#include "./../../include/graphics/ITexture.h"
+#include "./../../include/graphics/IShaderCompiler.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
-#include "./../../include/platform/CBinaryFileReader.h"
-#include "./../../include/graphics/CBaseShader.h"
 #include "./../../include/core/IResourceHandler.h"
-#include "./../../include/graphics/ITexture.h"
+#include "./../../include/platform/CBinaryFileReader.h"
+#include "./../../include/utils/CFileLogger.h"
 #include <cstring>
 
 
@@ -90,6 +92,8 @@ namespace TDEngine2
 	{
 		//mpShader = mpResourceManager->Create<CBaseShader>(&shaderParams);
 		mpShader = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
+
+		PANIC_ON_FAILURE(_allocateUserDataBuffers(*mpShader->Get<CBaseShader>(RAT_BLOCKING)->GetShaderMetaData()));
 	}
 
 	void CBaseMaterial::SetTransparentState(bool isTransparent)
@@ -121,6 +125,17 @@ namespace TDEngine2
 			return;
 		}
 
+		U8 userUniformBufferId = 0;
+		for (const auto& currUserDataBuffer : mpUserUniformsData)
+		{
+			if (!currUserDataBuffer.size()) 
+			{
+				continue;
+			}
+
+			PANIC_ON_FAILURE(pShaderInstance->SetUserUniformsBuffer(userUniformBufferId++, &currUserDataBuffer[0], currUserDataBuffer.size()));
+		}
+
 		pShaderInstance->Bind();
 
 		for (auto iter = mpAssignedTextures.cbegin(); iter != mpAssignedTextures.cend(); ++iter)
@@ -141,6 +156,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	U32 CBaseMaterial::GetVariableHash(const std::string& name) const
+	{
+		return TDE2_STRING_ID(name.c_str());
+	}
+
 	IResourceHandler* CBaseMaterial::GetShaderHandler() const
 	{
 		return mpShader;
@@ -153,8 +173,59 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		U32 variableHash = GetVariableHash(name);
+
+		auto&& iter = mUserVariablesHashTable.find(variableHash);
+		if (iter == mUserVariablesHashTable.cend())
+		{
+			LOG_ERROR(CStringUtils::Format("[Base Material] There is no a variable with corresponding name ({0})", name));
+			return RC_FAIL;
+		}
+
+		U32 bufferIndex = 0;
+		U32 varOffset   = 0;
+		std::tie(bufferIndex, varOffset) = iter->second; // first index is a buffer's id, the second one is variable's offset in bytes
+		
+		assert((mpUserUniformsData[bufferIndex].size() - varOffset) > size);
+		memcpy(&mpUserUniformsData[bufferIndex][varOffset], pValue, size);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseMaterial::_allocateUserDataBuffers(const TShaderCompilerOutput& metadata)
+	{
+		mUserVariablesHashTable.clear();
+
+		U32 slotIndex = 0;
+
+		// \note assume that this code was invoked from SetShader, so we need to reallocate user uniform buffers
+		// also regenerate hash table of user uniforms
+		for (const auto& currEntryDesc : metadata.mUniformBuffersInfo)
+		{
+			const auto& currUniformBufferDesc = currEntryDesc.second;
+
+			if (currUniformBufferDesc.mFlags == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
+			{
+				continue;
+			}
+
+			slotIndex = currUniformBufferDesc.mSlot - TotalNumberOfInternalConstantBuffers;
+
+			assert(slotIndex >= 0);
+			assert(currUniformBufferDesc.mSize >= 0);
+
+			mpUserUniformsData[slotIndex].resize(currUniformBufferDesc.mSize);
+
+			U32 variableBytesOffset = 0;
+
+			for (const auto& currVariableDesc : currUniformBufferDesc.mVariables)
+			{
+				mUserVariablesHashTable[TDE2_STRING_ID(currVariableDesc.mName.c_str())] = { slotIndex, variableBytesOffset };
+				variableBytesOffset += currVariableDesc.mSize;
+			}
+		}		
+
+		return RC_OK;
 	}
 
 

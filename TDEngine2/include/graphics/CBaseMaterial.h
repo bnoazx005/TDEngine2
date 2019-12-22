@@ -12,6 +12,8 @@
 #include "./../utils/CResult.h"
 #include <string>
 #include <unordered_map>
+#include <vector>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -19,6 +21,7 @@ namespace TDEngine2
 	class IShader;
 	class IBinaryFileReader;
 	class IResourceHandler;
+	struct TShaderCompilerOutput;
 
 
 	constexpr U8 BaseMaterialFileTagLength = 3;
@@ -155,7 +158,11 @@ namespace TDEngine2
 			friend TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 														  const TMaterialParameters& params, E_RESULT_CODE& result);
 		protected:
-			typedef std::unordered_map<std::string, ITexture*> TTexturesHashTable;
+			typedef std::unordered_map<std::string, ITexture*>    TTexturesHashTable;
+
+			typedef std::vector<U8>                               TUserUniformBufferData;
+
+			typedef std::unordered_map<U32, std::tuple<U32, U32>> TUserUniformsHashTable;
 		public:
 			TDE2_REGISTER_TYPE(CBaseMaterial)
 
@@ -252,6 +259,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
 
 			/*!
+				\brief The method returns hash value which corresponds to a given variable's name
+
+				\return The method returns hash value which corresponds to a given variable's name
+			*/
+
+			TDE2_API U32 GetVariableHash(const std::string& name) const override;
+
+			/*!
 				\brief The method returns a pointer to IResourceHandler of an attached shader
 
 				\return The method returns a pointer to IResourceHandler of an attached shader
@@ -284,12 +299,16 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 
 			TDE2_API E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) override;
+
+			TDE2_API E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
 		protected:
 			IGraphicsContext*      mpGraphicsContext;
 
 			IResourceHandler*      mpShader;
 
 			TUserUniformBufferData mpUserUniformsData[MaxNumberOfUserConstantBuffers];
+
+			TUserUniformsHashTable mUserVariablesHashTable;
 
 			TTexturesHashTable     mpAssignedTextures;
 

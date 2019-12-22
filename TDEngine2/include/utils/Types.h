@@ -521,20 +521,6 @@ namespace TDEngine2
 	constexpr U8 MaxNumberOfUserConstantBuffers = 10;
 
 
-	/*!
-		struct TUserUniformBufferData
-
-		\brief The structure contains a data that used to describe a user defined uniform buffer
-	*/
-
-	typedef struct TUserUniformBufferData
-	{
-		U8* mpUniformBufferData;
-
-		U32 mUniformBufferSize;
-	} TUserUniformBufferData, *TUserUniformBufferDataPtr;
-
-
 	typedef U32 TEventListenerId;
 
 	constexpr TEventListenerId BroadcastListenersIdValue = (std::numeric_limits<TEventListenerId>::max)();

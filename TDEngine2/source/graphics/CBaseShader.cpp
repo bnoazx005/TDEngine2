@@ -163,6 +163,12 @@ namespace TDEngine2
 
 			pCurrTexture->Bind(i);
 		}
+
+		U8 currUserBufferId = 0;
+		for (auto& pCurrUniformBuffer : mUniformBuffers)
+		{
+			_bindUniformBuffer(TotalNumberOfInternalConstantBuffers + currUserBufferId++, pCurrUniformBuffer);
+		}
 	}
 
 	E_RESULT_CODE CBaseShader::SetTextureResource(const std::string& resourceName, ITexture* pTexture)

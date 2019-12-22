@@ -141,6 +141,14 @@ namespace TDEngine2
 			}
 
 			/*!
+				\brief The method returns hash value which corresponds to a given variable's name
+
+				\return The method returns hash value which corresponds to a given variable's name
+			*/
+
+			TDE2_API virtual U32 GetVariableHash(const std::string& name) const = 0;
+
+			/*!
 				\brief The method returns a pointer to IResourceHandler of an attached shader
 
 				\return The method returns a pointer to IResourceHandler of an attached shader
