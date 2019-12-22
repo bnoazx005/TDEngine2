@@ -519,7 +519,7 @@ namespace TDEngine2
 			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray, Head&& firstArg, Tail&&... rest)
 			{
 				outArray[size - 1 - sizeof...(Tail)] = ToString(std::forward<Head>(firstArg));
-				_convertToStringsArray(outArray, std::forward<Tail>(rest)...);
+				_convertToStringsArray<size, Tail...>(outArray, std::forward<Tail>(rest)...);
 			}
 	};
 
