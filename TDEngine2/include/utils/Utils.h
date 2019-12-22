@@ -466,7 +466,7 @@ namespace TDEngine2
 			TDE2_API static bool StartsWith(const std::string& str, const std::string& prefix);
 
 			template <typename... TArgs>
-			TDE2_API static std::string Format(const std::string& formatStr, TArgs... args)
+			TDE2_API static std::string Format(const std::string& formatStr, TArgs&&... args)
 			{
 				constexpr U32 argsCount = sizeof...(args);
 
@@ -515,8 +515,8 @@ namespace TDEngine2
 				outArray[size - 1] = ToString(std::forward<Head>(firstArg));
 			}*/
 
-			template <typename Head, typename... Tail, U32 size>
-			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray, Head&& firstArg, Tail... rest)
+			template <U32 size, typename Head, typename... Tail>
+			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray, Head&& firstArg, Tail&&... rest)
 			{
 				outArray[size - 1 - sizeof...(Tail)] = ToString(std::forward<Head>(firstArg));
 				_convertToStringsArray(outArray, std::forward<Tail>(rest)...);
