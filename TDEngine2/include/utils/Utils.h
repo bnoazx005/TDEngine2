@@ -471,7 +471,7 @@ namespace TDEngine2
 				constexpr U32 argsCount = sizeof...(args);
 
 				std::array<std::string, argsCount> arguments;
-				_convertToStringsArray(arguments, std::forward<TArgs>(args)...);
+				_convertToStringsArray<sizeof...(args), TArgs...>(arguments, std::forward<TArgs>(args)...);
 
 				std::string formattedStr = formatStr; 
 				std::string currArgValue;
