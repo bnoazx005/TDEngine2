@@ -468,10 +468,10 @@ namespace TDEngine2
 			template <typename... TArgs>
 			TDE2_API static std::string Format(const std::string& formatStr, TArgs... args)
 			{
-				const U32 argsCount = sizeof...(args);
+				constexpr U32 argsCount = sizeof...(args);
 
 				std::array<std::string, argsCount> arguments;
-				_convertToStringsArray(arguments, args...);
+				_convertToStringsArray(arguments, std::forward<TArgs>(args)...);
 
 				std::string formattedStr = formatStr; 
 				std::string currArgValue;
@@ -508,17 +508,17 @@ namespace TDEngine2
 		private:
 			template <U32 size>
 			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray) {}
-			
+			/*
 			template <typename Head, U32 size>
 			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray, Head&& firstArg)
 			{
-				outArray[size - 1] = ToString(firstArg);
-			}
+				outArray[size - 1] = ToString(std::forward<Head>(firstArg));
+			}*/
 
 			template <typename Head, typename... Tail, U32 size>
 			TDE2_API static void _convertToStringsArray(std::array<std::string, size>& outArray, Head&& firstArg, Tail... rest)
 			{
-				outArray[size - 1 - sizeof...(Tail)] = ToString(firstArg);
+				outArray[size - 1 - sizeof...(Tail)] = ToString(std::forward<Head>(firstArg));
 				_convertToStringsArray(outArray, std::forward<Tail>(rest)...);
 			}
 	};
