@@ -32,15 +32,7 @@ artifacts:
 
 after_build:
     #create zip archive with all the binaries and documentation
-    -cmd: 7z a TDEngine2_SDK.zip %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.dll^
-    %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.lib^
-    %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.pdb^
-    %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.exp^
-    %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.exe^
-    %APPVEYOR_BUILD_FOLDER%\Resources^
-    %APPVEYOR_BUILD_FOLDER%\README.md^
-    %APPVEYOR_BUILD_FOLDER%\LICENSE^
-    %APPVEYOR_BUILD_FOLDER%\CHANGELOG.md
+    - call CI\appveyor\after_build.bat
 
 deploy:
   release: TDEngine2_SDK-v$(appveyor_build_version)
