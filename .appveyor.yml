@@ -12,8 +12,6 @@ environment:
     matrix:
         - TOOLCHAIN: msvc14
         - TOOLCHAIN: msvc15
-    CI_DEPLOY_TOKEN:
-        secure: aKw3Gnd9exu0Fdz7DUdiOj36rMkyCc9h+5y2KlbLqBftXwm/Atq3wndgXnztWeKf
 
 install:
     - call CI\appveyor\install.bat %TOOLCHAIN% %PLATFORM%
@@ -39,7 +37,7 @@ deploy:
   description: ''
   provider: GitHub
   auth_token:
-    secure: %CI_DEPLOY_TOKEN%
+    secure: aKw3Gnd9exu0Fdz7DUdiOj36rMkyCc9h+5y2KlbLqBftXwm/Atq3wndgXnztWeKf
   artifact: /.*\.zip/            
   draft: false
   prerelease: false
