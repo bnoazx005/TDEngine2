@@ -29,7 +29,7 @@ artifacts:
     - path: TDEngine2_SDK.zip
 
 after_build:
-    - call CI\appveyor\after_build.bat %APPVEYOR_BUILD_FOLDER%
+    - cmd: 7z a TDEngine2_SDK.zip %APPVEYOR_BUILD_FOLDER%\bin\%CONFIGURATION%\ %APPVEYOR_BUILD_FOLDER%\Resources %APPVEYOR_BUILD_FOLDER%\README.md %APPVEYOR_BUILD_FOLDER%\LICENSE %APPVEYOR_BUILD_FOLDER%\CHANGELOG.md %APPVEYOR_BUILD_FOLDER%\TDEngine2\
 
 deploy:
   release: TDEngine2_SDK-v$(appveyor_build_version)
