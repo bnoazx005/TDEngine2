@@ -32,7 +32,7 @@ artifacts:
 
 after_build:
     #create zip archive with all the binaries and documentation
-    7z a TDEngine2_SDK.zip %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.dll^
+    -cmd: 7z a TDEngine2_SDK.zip %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.dll^
     %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.lib^
     %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.pdb^
     %APPVEYOR_BUILD_FOLDER%\TDEngine2\bin\%CONFIGURATION%\*.exp^
