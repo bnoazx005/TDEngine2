@@ -31,8 +31,10 @@ artifacts:
 after_build:
     - cmd: 7z a TDEngine2_SDK.zip %APPVEYOR_BUILD_FOLDER%\bin\%CONFIGURATION%\ %APPVEYOR_BUILD_FOLDER%\Resources %APPVEYOR_BUILD_FOLDER%\README.md %APPVEYOR_BUILD_FOLDER%\LICENSE %APPVEYOR_BUILD_FOLDER%\CHANGELOG.md %APPVEYOR_BUILD_FOLDER%\TDEngine2\
 
+skip_tags: true
+
 deploy:
-  release: TDEngine2_SDK-v$(appveyor_build_version)
+  release: TDEngine2_SDK-v$(appveyor_build_version)-Win32
   description: ''
   provider: GitHub
   auth_token:
@@ -41,4 +43,4 @@ deploy:
   draft: false
   prerelease: false
   on:
-    appveyor_repo_tag: true
+    branch: master                 # release from master branch only
