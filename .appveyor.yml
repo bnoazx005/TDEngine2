@@ -30,7 +30,7 @@ artifacts:
 
 after_build:
     #create zip archive with all the binaries and documentation
-    - call CI\appveyor\after_build.bat
+    - cmd: CI\appveyor\after_build.bat
 
 deploy:
   release: TDEngine2_SDK-v$(appveyor_build_version)
