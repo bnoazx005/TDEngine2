@@ -22,3 +22,22 @@ script:
     - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU
     - cmake --build .
     - ctest --output-on-failure
+
+before_deploy:
+    - cmd: 7z a TDEngine2_SDK.zip $TRAVIS_BUILD_DIR\bin\$BUILD_CONFIGURATION\ $TRAVIS_BUILD_DIR\Resources $TRAVIS_BUILD_DIR\README.md $TRAVIS_BUILD_DIR\LICENSE $TRAVIS_BUILD_DIR\CHANGELOG.md $TRAVIS_BUILD_DIR\TDEngine2\
+
+
+deploy:
+    provider: releases
+    name: TDEngine2_SDK-v0.4-linux
+    api_key:
+        secure: Nw5dmR6F5NC1FVhZQunHOpppjLtNjdgezW0baCJLW1mXvtvWUo9rX+eMCKNk+e02h2VQuxRyfiUe31DW3CbhO5rKNl8Aq31Zobnp9+zGTHVD+Iyz584hK2/zpqOLcHXru+BqYh2VGX1yW0Hv0EExj8zNfI6JSfqI7hHGRPcHnUfSEy6CMO56W0pLbet+EFZUpghSbsG61NCvmG0HTDItox8GsVSQcTfRij0/ckfvgOK10qv0agK2Oar9wQSFMG30Td7lM3oBV4OfBdB4y6eK5TVNPld4rzqFgc0yLdF0Nh581/WoD9kvMBzh0vte+mpEipeFmxGcgDZUcrmVvKGmAX2960z7Ujs/BYVLlgM9aNzQVoHApn0PyAm7qCdOdijE8OIwiVB1i2xz2P0oUQaxOsLTKVUcJ467OpkraxLOmn9nhfehm0H5BaVJLR0ACtZq474d54Je8bvO1TyEUAL2HvY2zVodw5mWwJLbKpDKB6ceSkFyTAWsB2bUIi1xjzkQQ5cCCjyFgrtxvo4KwddQx2NGD3Q/Q/eNGUDS5h1vlJt1CGkFHYp8Dyweae3YIHv+Y9lN4njh9gAnT3kzxhsIjTI14ynUFoe3Bcx2tXr+e8eeWOVFj4SBKJIQl00RdO4RLi/mC3gldrriRH5k9XdppmEejahZAkS1uGkLVPy3Y2I=
+
+    file:
+        - "TDEngine2_SDK.zip"
+
+    skip_cleanup: true
+
+    on:
+        tags: false
+        branch: master
