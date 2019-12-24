@@ -11,7 +11,8 @@ TDEngine 2 is a cross-platform game engine.
 ## Table of contents
 
 1. ### [Current Goals](#current-goals)
-2. ### [How to Build](#how-to-build)
+2. ### [Current Features](#current-features)
+3. ### [How to Build](#how-to-build)
 
     ### 2.1 [Visual Studio (Win32)](#vs-win32)
 
@@ -19,7 +20,7 @@ TDEngine 2 is a cross-platform game engine.
 
     ### 2.3 [Compilation](#compilation)
     
-3. ### [Getting Started](#getting-started)
+4. ### [Getting Started](#getting-started)
 
 ***
 
@@ -36,6 +37,20 @@ TDEngine 2 is a cross-platform game engine.
 * Extensibility, Modularity and plugins support;
 
 * Toolset (including resource editor, scene editor, exporters and etc) (in future).
+
+***
+
+### Current Features:<a name="current-features"></a>
+
+* Entity-Component-System architecture with support of events, reactive systems and etc;
+
+* Windows (7 and higher), UNIX systems support;
+
+* Support of D3D11 and OGL 3.x GAPIs;
+
+* 2D sprites rendering with instancing support;
+
+* 3D static meshes rendering with different configurable materials;
 
 ***
 

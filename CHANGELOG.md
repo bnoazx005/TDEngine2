@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2019-12-24
+
+### Added
+
+- An implementation of basic materials system with support
+
+- Support of static 3d meshes
+
+- Integration of box2d as 2D physics engine
+
+- Font rendering system was added into the engine for debug purposes in this build
+
+### Changed
+
+- Implementation of ECS system was updated
+
+- Now user can specify interfaces instead of particular classes for all methods of **IFileSystem**
+
 ## [0.3.63] - 2019-10-07
 
 ### Added
