@@ -206,42 +206,6 @@ namespace TDEngine2
 		return TOkValue<TDepthStencilStateId>(mpDepthStencilStatesArray.Add(pDepthStencilState));
 	}
 
-	TResult<TDepthStencilStateId> CD3D11GraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
-	{
-		ID3D11Device* p3dDevice = nullptr;
-
-#if _HAS_CXX17
-		p3dDevice = std::get<TD3D11CtxInternalData>(mpGraphicsContext->GetInternalData()).mp3dDevice;
-#else
-		p3dDevice = mpGraphicsContext->GetInternalData().mD3D11.mp3dDevice;
-#endif
-
-		ID3D11DepthStencilState* pDepthStencilState = nullptr;
-
-		D3D11_DEPTH_STENCIL_DESC internalStateDesc;
-		internalStateDesc.DepthEnable                  = depthStencilDesc.mIsDepthTestEnabled;
-		internalStateDesc.DepthWriteMask               = depthStencilDesc.mIsDepthWritingEnabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-		internalStateDesc.DepthFunc                    = CD3D11Mappings::GetComparisonFunc(depthStencilDesc.mDepthCmpFunc);
-		internalStateDesc.StencilEnable                = depthStencilDesc.mIsStencilTestEnabled;
-		internalStateDesc.StencilReadMask              = depthStencilDesc.mStencilReadMaskValue;
-		internalStateDesc.StencilWriteMask             = depthStencilDesc.mStencilWriteMaskValue;
-		internalStateDesc.FrontFace.StencilFunc        = CD3D11Mappings::GetComparisonFunc(depthStencilDesc.mStencilFrontFaceOp.mFunc);
-		internalStateDesc.FrontFace.StencilPassOp      = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mPassOp);
-		internalStateDesc.FrontFace.StencilFailOp      = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mFailOp);
-		internalStateDesc.FrontFace.StencilDepthFailOp = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mDepthFailOp);
-		internalStateDesc.BackFace.StencilFunc         = CD3D11Mappings::GetComparisonFunc(depthStencilDesc.mStencilBackFaceOp.mFunc);
-		internalStateDesc.BackFace.StencilPassOp       = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mPassOp);
-		internalStateDesc.BackFace.StencilFailOp       = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mFailOp);
-		internalStateDesc.BackFace.StencilDepthFailOp  = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mDepthFailOp);
-
-		if (FAILED(p3dDevice->CreateDepthStencilState(&internalStateDesc, &pDepthStencilState)))
-		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		return TOkValue<TDepthStencilStateId>(mpDepthStencilStatesArray.Add(pDepthStencilState));
-	}
-
 	TResult<TRasterizerStateId> CD3D11GraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
 	{
 		ID3D11Device* p3dDevice = nullptr;
@@ -269,42 +233,6 @@ namespace TDEngine2
 		}
 
 		return TOkValue<TRasterizerStateId>(mpRasterizerStatesArray.Add(pRasterizerState));
-	}
-
-	TResult<TDepthStencilStateId> CD3D11GraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
-	{
-		ID3D11Device* p3dDevice = nullptr;
-
-#if _HAS_CXX17
-		p3dDevice = std::get<TD3D11CtxInternalData>(mpGraphicsContext->GetInternalData()).mp3dDevice;
-#else
-		p3dDevice = mpGraphicsContext->GetInternalData().mD3D11.mp3dDevice;
-#endif
-
-		ID3D11DepthStencilState* pDepthStencilState = nullptr;
-
-		D3D11_DEPTH_STENCIL_DESC internalStateDesc;
-		internalStateDesc.DepthEnable                  = depthStencilDesc.mIsDepthTestEnabled;
-		internalStateDesc.DepthWriteMask               = depthStencilDesc.mIsDepthWritingEnabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-		internalStateDesc.DepthFunc                    = CD3D11Mappings::GetComparisonFunc(depthStencilDesc.mDepthCmpFunc);
-		internalStateDesc.StencilEnable                = depthStencilDesc.mIsStencilTestEnabled;
-		internalStateDesc.StencilReadMask              = depthStencilDesc.mStencilReadMaskValue;
-		internalStateDesc.StencilWriteMask             = depthStencilDesc.mStencilWriteMaskValue;
-		internalStateDesc.FrontFace.StencilFunc        = CD3D11Mappings::GetComparisonFunc(depthStencilDesc.mStencilFrontFaceOp.mFunc);
-		internalStateDesc.FrontFace.StencilPassOp      = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mPassOp);
-		internalStateDesc.FrontFace.StencilFailOp      = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mFailOp);
-		internalStateDesc.FrontFace.StencilDepthFailOp = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mDepthFailOp);
-		internalStateDesc.BackFace.StencilFunc         = CD3D11Mappings::GetComparisonFunc(depthStencilDesc.mStencilBackFaceOp.mFunc);
-		internalStateDesc.BackFace.StencilPassOp       = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mPassOp);
-		internalStateDesc.BackFace.StencilFailOp       = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mFailOp);
-		internalStateDesc.BackFace.StencilDepthFailOp  = CD3D11Mappings::GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mDepthFailOp);
-
-		if (FAILED(p3dDevice->CreateDepthStencilState(&internalStateDesc, &pDepthStencilState)))
-		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		return TOkValue<TDepthStencilStateId>(mpDepthStencilStatesArray.Add(pDepthStencilState));
 	}
 
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const

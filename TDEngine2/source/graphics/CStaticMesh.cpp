@@ -1,10 +1,7 @@
 #include "./../../include/graphics/CStaticMesh.h"
-<<<<<<< HEAD
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/core/IFile.h"
 #include "./../../include/utils/CFileLogger.h"
-=======
->>>>>>> Fix #36
 #include <cstring>
 
 
