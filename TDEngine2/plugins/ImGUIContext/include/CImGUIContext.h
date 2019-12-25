@@ -8,15 +8,21 @@
 
 
 #include <core/IImGUIContext.h>
+#include <math/TVector2.h>
+#include <math/TVector4.h>
+#include <utils/Color.h>
 
 
 struct ImGuiIO;
+struct ImDrawData;
 
 
 namespace TDEngine2
 {
 	class IGraphicsContext;
 	class IResourceHandler;
+	class IVertexBuffer;
+	class IIndexBuffer;
 
 
 	/*!
@@ -47,6 +53,13 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
 															  IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
+		protected:
+			typedef struct TEditorUIVertex
+			{
+				TVector4  mPos;
+				TColor32F mColor;
+				TVector2  mUV;
+			} TEditorUIVertex, *TEditorUIVertexPtr;
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
@@ -123,6 +136,8 @@ namespace TDEngine2
 														  IResourceManager* pResourceManager);
 
 			TDE2_API E_RESULT_CODE _initSystemFonts(ImGuiIO& io, IResourceManager* pResourceManager, IGraphicsObjectManager* pGraphicsManager);
+
+			TDE2_API void _engineInternalRender(ImDrawData* pImGUIData);
 		protected:
 			std::atomic_bool        mIsInitialized;
 
@@ -146,5 +161,9 @@ namespace TDEngine2
 			TBlendStateId           mBlendStateHandle;
 
 			TDepthStencilStateId    mDepthStencilStateHandle;
+
+			IVertexBuffer*          mpVertexBuffer;
+
+			IIndexBuffer*           mpIndexBuffer;
 	};
 }

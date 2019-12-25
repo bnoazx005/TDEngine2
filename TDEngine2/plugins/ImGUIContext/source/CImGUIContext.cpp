@@ -6,10 +6,14 @@
 #include <core/IResourceHandler.h>
 #include <graphics/CBaseTexture2D.h>
 #include <graphics/IGraphicsObjectManager.h>
+#include <graphics/IIndexBuffer.h>
+#include <graphics/IVertexBuffer.h>
 #include <platform/win32/CWin32WindowSystem.h>
 #include <platform/unix/CUnixWindowSystem.h>
 #include "./../deps/imgui-1.72/imgui.h"
 #include <cassert>
+#include <vector>
+#include <cstring>
 
 
 namespace TDEngine2
@@ -136,7 +140,8 @@ namespace TDEngine2
 			return;
 		}
 
-		ImGui::EndFrame();
+		ImGui::Render();
+		_engineInternalRender(ImGui::GetDrawData());
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CImGUIContext::GetType() const
@@ -201,6 +206,22 @@ namespace TDEngine2
 		// \todo Create a vertex shader
 		// \todo Create a pixel shader
 		// \todo Create a render state
+
+		auto vertexBufferResult = pGraphicsManager->CreateVertexBuffer(BUT_DYNAMIC, 4096 * sizeof(TEditorUIVertex), nullptr);
+		if (vertexBufferResult.HasError())
+		{
+			return vertexBufferResult.GetError();
+		}
+
+		mpVertexBuffer = vertexBufferResult.Get();
+
+		auto indexBufferResult = pGraphicsManager->CreateIndexBuffer(BUT_DYNAMIC, IFT_INDEX16, 65536 * sizeof(U16), nullptr);
+		if (indexBufferResult.HasError())
+		{
+			return indexBufferResult.GetError();
+		}
+
+		mpIndexBuffer = indexBufferResult.Get();
 
 		// \todo Create a blending state
 		auto blendStateResult = pGraphicsManager->CreateBlendState({});
@@ -282,6 +303,42 @@ namespace TDEngine2
 		mFontTextureSamplerHandle = samplerResult.Get();
 
 		return RC_OK;
+	}
+
+	void CImGUIContext::_engineInternalRender(ImDrawData* pImGUIData)
+	{
+		mpVertexBuffer->Map(BMT_WRITE_DISCARD);
+		mpIndexBuffer->Map(BMT_WRITE_DISCARD);
+		{
+			std::vector<ImDrawVert> vertices(pImGUIData->TotalVtxCount);
+			std::vector<ImDrawIdx> indices(pImGUIData->TotalIdxCount);
+
+			ImDrawVert* pCurrVertexPtr = !vertices.empty() ? &vertices[0] : nullptr;
+			ImDrawIdx* pCurrIndexPtr = !indices.empty() ? &indices[0] : nullptr;
+
+			for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
+			{
+				const ImDrawList* cmdLists = pImGUIData->CmdLists[n];
+
+				memcpy(pCurrVertexPtr, cmdLists->VtxBuffer.Data, cmdLists->VtxBuffer.Size * sizeof(ImDrawVert));
+				memcpy(pCurrIndexPtr, cmdLists->IdxBuffer.Data, cmdLists->IdxBuffer.Size * sizeof(ImDrawIdx));
+				
+				pCurrVertexPtr += cmdLists->VtxBuffer.Size;
+				pCurrIndexPtr += cmdLists->IdxBuffer.Size;
+			}
+
+			if (!vertices.empty())
+			{
+				mpVertexBuffer->Write(&vertices[0], sizeof(ImDrawVert) * vertices.size());
+			}
+
+			if (!indices.empty())
+			{
+				mpIndexBuffer->Write(&indices[0], sizeof(ImDrawIdx) * indices.size());
+			}
+		}
+		mpIndexBuffer->Unmap();
+		mpVertexBuffer->Unmap();
 	}
 
 
