@@ -422,7 +422,6 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(engineSettings.mGraphicsContextType));
 		PANIC_ON_FAILURE(_configureInputContext());
-		PANIC_ON_FAILURE(_configureImGUIContext());
 
 		mpFileSystemInstance->SetJobManager(mpJobManagerInstance);
 		LOG_MESSAGE(std::string("[ConfigFIleEngineCoreBuilder] Async file I/O operations status: ").append(mpFileSystemInstance->IsStreamingEnabled() ? "enabled" : "disabled"));
@@ -436,6 +435,7 @@ namespace TDEngine2
 			return mpEngineCoreInstance;
 		}
 
+		PANIC_ON_FAILURE(_configureImGUIContext());
 		PANIC_ON_FAILURE(_configureRenderer());
 
 		return mpEngineCoreInstance;
