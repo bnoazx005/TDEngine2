@@ -27,6 +27,19 @@ namespace TDEngine2
 
 
 	/*!
+		enum class E_DEFAULT_SHADER_TYPE
+
+		\brief The enumeration contains all available default shaders types
+	*/
+
+	enum class E_DEFAULT_SHADER_TYPE : U16
+	{
+		DST_BASIC,
+		DST_EDITOR_UI,
+	};
+
+
+	/*!
 		interface IGraphicsObjectManager
 
 		\brief The interface describes a functionality of a manager, which
@@ -163,11 +176,13 @@ namespace TDEngine2
 				\brief The method returns a string which contains full source code of default shader that is specific
 				for the graphics context 
 
+				\param[in] type A type of a default shader
+
 				\return The method returns a string which contains full source code of default shader that is specific
 				for the graphics context 
 			*/
 
-			TDE2_API virtual std::string GetDefaultShaderCode() const = 0;
+			TDE2_API virtual std::string GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsObjectManager)
 	};

@@ -260,30 +260,64 @@ namespace TDEngine2
 		return mpRasterizerStatesArray[rasterizerStateId];
 	}
 
-	std::string CD3D11GraphicsObjectManager::GetDefaultShaderCode() const
+	std::string CD3D11GraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const
 	{
-		return R"(
-			#define VERTEX_ENTRY mainVS
-			#define PIXEL_ENTRY mainPS
+		switch (type)
+		{
+			case E_DEFAULT_SHADER_TYPE::DST_BASIC:
+				return R"(
+					#define VERTEX_ENTRY mainVS
+					#define PIXEL_ENTRY mainPS
 
-			#include "TDEngine2Globals.inc"
+					#include "TDEngine2Globals.inc"
 
-			#if VERTEX
+					#if VERTEX
 
-			float4 mainVS(float4 lPos : POSITION0): SV_POSITION
-			{
-				return mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
-			}
+					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
+					{
+						return mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
+					}
 
-			#endif
+					#endif
 
-			#if PIXEL
+					#if PIXEL
 
-			float4 mainPS(float4 wPos : SV_POSITION): SV_TARGET0
-			{
-				return float4(1.0, 0.0, 1.0, 1.0);
-			}
-			#endif)";
+					float4 mainPS(float4 wPos : SV_POSITION): SV_TARGET0
+					{
+						return float4(1.0, 0.0, 1.0, 1.0);
+					}
+					#endif)";
+
+			case E_DEFAULT_SHADER_TYPE::DST_EDITOR_UI:
+				return R"(
+					#define VERTEX_ENTRY mainVS
+					#define PIXEL_ENTRY mainPS
+
+					#include "TDEngine2Globals.inc"
+
+					#if VERTEX
+
+					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
+					{
+						return mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
+					}
+
+					#endif
+
+					#if PIXEL
+
+					float4 mainPS(float4 wPos : SV_POSITION): SV_TARGET0
+					{
+						return float4(1.0, 0.0, 1.0, 1.0);
+					}
+					#endif)";
+
+			default:
+				TDE2_UNIMPLEMENTED();
+				break;
+		}
+		
+		return "";
 	}
 
 	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeTextureSamplers()

@@ -70,6 +70,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IGraphicsContext* GetGraphicsContext() const override;
+
+			/*!
+				\brief The method convert input shader's name into E_DEFAULT_SHADER_TYPE's value
+
+				\return The method returns a type of a default shader if its name corresponds to one of predefined strings
+			*/
+
+			TDE2_API static E_DEFAULT_SHADER_TYPE GetDefaultShaderTypeByName(const std::string& name);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 

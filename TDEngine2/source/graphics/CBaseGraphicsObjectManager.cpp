@@ -3,6 +3,7 @@
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/graphics/CDebugUtility.h"
 #include "./../../include/graphics/IRenderer.h"
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -75,6 +76,16 @@ namespace TDEngine2
 	IGraphicsContext* CBaseGraphicsObjectManager::GetGraphicsContext() const
 	{
 		return mpGraphicsContext;
+	}
+
+	E_DEFAULT_SHADER_TYPE CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(const std::string& name)
+	{
+		static const std::unordered_map<std::string, E_DEFAULT_SHADER_TYPE> shaderNameToTypeMapping
+		{
+			{ "DefaultEditorUI", E_DEFAULT_SHADER_TYPE::DST_EDITOR_UI }
+		};
+
+		return shaderNameToTypeMapping.at(name);
 	}
 
 	void CBaseGraphicsObjectManager::_insertBuffer(IBuffer* pBuffer)

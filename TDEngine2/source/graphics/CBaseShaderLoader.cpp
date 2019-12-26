@@ -5,8 +5,9 @@
 #include "./../../include/platform/CTextFileReader.h"
 #include "./../../include/graphics/IShaderCompiler.h"
 #include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
+#include "./../../include/graphics/CBaseGraphicsObjectManager.h"
 #include "./../../include/utils/CFileLogger.h"
+#include <unordered_map>
 #include <string>
 
 
@@ -80,8 +81,10 @@ namespace TDEngine2
 		{
 			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(pResource->GetName()).append("), load default one instead..."));
 
+			E_DEFAULT_SHADER_TYPE shaderType = CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(pResource->GetName());
+
 			/// \note can't load file with the shader, so load default one
-			return pShader->Compile(mpShaderCompiler, mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode());
+			return pShader->Compile(mpShaderCompiler, mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
 		}
 
 		ITextFileReader* pShaderFileReader = dynamic_cast<ITextFileReader*>(mpFileSystem->Get<ITextFileReader>(shaderFileId.Get()));
@@ -98,8 +101,10 @@ namespace TDEngine2
 		{
 			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(pResource->GetName()).append("), load default one instead..."));
 
+			E_DEFAULT_SHADER_TYPE shaderType = CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(pResource->GetName());
+
 			/// \note can't load file with the shader, so load default one
-			return pShader->Compile(mpShaderCompiler, mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode());
+			return pShader->Compile(mpShaderCompiler, mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
 		}
 
 		return result;

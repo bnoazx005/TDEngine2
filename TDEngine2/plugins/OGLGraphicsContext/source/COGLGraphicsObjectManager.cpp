@@ -160,36 +160,84 @@ namespace TDEngine2
 		return mRasterizerStates[rasterizerStateId];
 	}
 
-	std::string COGLGraphicsObjectManager::GetDefaultShaderCode() const
+	std::string COGLGraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const
 	{
-		return R"(
-			#version 330 core
+		switch (type)
+		{
+			case E_DEFAULT_SHADER_TYPE::DST_BASIC:
+				return R"(
+					#version 330 core
 
-			#include <TDEngine2Globals.inc>
+					#include <TDEngine2Globals.inc>
 
-			#define VERTEX_ENTRY main
-			#define PIXEL_ENTRY main
+					#define VERTEX_ENTRY main
+					#define PIXEL_ENTRY main
 
-			#if VERTEX
+					#if VERTEX
 
-			layout (location = 0) in vec4 inlPos;
+					layout (location = 0) in vec4 inlPos;
 
-			void main(void)
-			{
-				gl_Position = ProjMat * ViewMat * ModelMat * inlPos;
-			}
+					void main(void)
+					{
+						gl_Position = ProjMat * ViewMat * ModelMat * inlPos;
+					}
 
-			#endif
-			#if PIXEL
+					#endif
+					#if PIXEL
 
-			out vec4 FragColor;
+					out vec4 FragColor;
 
-			void main(void)
-			{
-				FragColor = vec4(1.0, 0.0, 1.0, 1.0);
-			}
-			#endif
-			)";
+					void main(void)
+					{
+						FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+					}
+					#endif
+					)";
+				
+			case E_DEFAULT_SHADER_TYPE::DST_EDITOR_UI:
+				return R"(
+					#version 330 core
+
+					#include <TDEngine2Globals.inc>
+
+					#define VERTEX_ENTRY main
+					#define PIXEL_ENTRY main
+
+					#if VERTEX
+
+					layout (location = 0) in vec2 inlPos;
+					layout (location = 1) in vec2 inUV;
+					layout (location = 2) in vec4 inColor;
+
+					void main(void)
+					{
+						gl_Position = ProjMat * vec4(inlPos.xy, 0.0, 1.0);
+						FragUV = inUV;
+						FragColor = inColor;
+					}
+
+					#endif
+					#if PIXEL
+
+					out vec4 FragColor;
+					out vec2 FragUV;
+
+					DECLARE_TEX2D(Texture);
+
+					void main(void)
+					{
+						FragColor = FragColor * TEX2D(Texture, FragUV);
+					}
+					#endif
+					)";
+
+			default:
+				TDE2_UNIMPLEMENTED();
+				break;
+		}
+
+		return "";
+		
 	}
 
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeTextureSamplers()
