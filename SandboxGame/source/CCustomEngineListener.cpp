@@ -10,8 +10,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
-	PANIC_ON_FAILURE(mpFileSystem->Mount("./../../Resources/Shaders/", "Shaders"));
-
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
 	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ "testGLShader.shader", true })->Get<IMaterial>(RAT_BLOCKING);

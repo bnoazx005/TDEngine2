@@ -195,6 +195,11 @@ namespace TDEngine2
 			return result;
 		}
 
+		if ((result = mpFileSystemInstance->Mount("./../../Resources/Shaders/", "Shaders")) != RC_OK)
+		{
+			return result;
+		}
+
 		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(mpFileSystemInstance));
 	}
 
@@ -435,8 +440,8 @@ namespace TDEngine2
 			return mpEngineCoreInstance;
 		}
 
-		PANIC_ON_FAILURE(_configureImGUIContext());
 		PANIC_ON_FAILURE(_configureRenderer());
+		PANIC_ON_FAILURE(_configureImGUIContext());
 
 		return mpEngineCoreInstance;
 	}

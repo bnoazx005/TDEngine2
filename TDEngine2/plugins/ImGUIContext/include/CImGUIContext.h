@@ -23,12 +23,15 @@ namespace TDEngine2
 	class IResourceHandler;
 	class IVertexBuffer;
 	class IIndexBuffer;
+	class CRenderQueue;
+	class IVertexDeclaration;
 
 
 	/*!
 		\brief A factory function for creation objects of CImGUIContext's type
 
 		\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
+		\param[in, out] pRenderer A pointer to IRenderer implementation
 		\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
 		\param[in, out] pResourceManager A pointer to IResourceManager implementation
 		\param[in, out] pInputContext A pointer to IInputContext implementation
@@ -38,7 +41,7 @@ namespace TDEngine2
 		\return A pointer to CImGUIContext's implementation
 	*/
 
-	TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
+	TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 											   IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
 
 
@@ -51,7 +54,7 @@ namespace TDEngine2
 	class CImGUIContext : public IImGUIContext
 	{
 		public:
-			friend TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
+			friend TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 															  IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
 		protected:
 			typedef struct TEditorUIVertex
@@ -65,6 +68,7 @@ namespace TDEngine2
 				\brief The method initializes an internal state of a context
 
 				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
+				\param[in, out] pRenderer A pointer to IRenderer implementation
 				\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 				\param[in, out] pInputContext A pointer to IInputContext implementation
@@ -72,7 +76,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
+			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 										IResourceManager* pResourceManager, IInputContext* pInputContext) override;
 
 			/*!
@@ -137,7 +141,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _initSystemFonts(ImGuiIO& io, IResourceManager* pResourceManager, IGraphicsObjectManager* pGraphicsManager);
 
-			TDE2_API void _engineInternalRender(ImDrawData* pImGUIData);
+			TDE2_API void _engineInternalRender(ImDrawData* pImGUIData, CRenderQueue* pRenderQueue);
 		protected:
 			std::atomic_bool        mIsInitialized;
 
@@ -156,14 +160,16 @@ namespace TDEngine2
 			// All the stuffs below form a material instance
 			IResourceHandler*       mpFontTextureHandler;
 
-			TTextureSamplerId       mFontTextureSamplerHandle;
-
-			TBlendStateId           mBlendStateHandle;
+			IResourceHandler*       mpDefaultEditorMaterial;
 
 			TDepthStencilStateId    mDepthStencilStateHandle;
 
 			IVertexBuffer*          mpVertexBuffer;
 
 			IIndexBuffer*           mpIndexBuffer;
+
+			CRenderQueue*           mpEditorUIRenderQueue;
+
+			IVertexDeclaration*     mpEditorUIVertexDeclaration;
 	};
 }

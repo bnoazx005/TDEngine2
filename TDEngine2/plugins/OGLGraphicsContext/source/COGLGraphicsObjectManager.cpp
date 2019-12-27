@@ -205,28 +205,32 @@ namespace TDEngine2
 
 					#if VERTEX
 
-					layout (location = 0) in vec2 inlPos;
-					layout (location = 1) in vec2 inUV;
-					layout (location = 2) in vec4 inColor;
+					layout (location = 0) in vec4 inPosUV;
+					layout (location = 1) in vec4 inColor;
+
+					out vec2 VertOutUV;
+					out vec4 VertOutColor;
 
 					void main(void)
 					{
-						gl_Position = ProjMat * vec4(inlPos.xy, 0.0, 1.0);
-						FragUV = inUV;
-						FragColor = inColor;
+						gl_Position  = ProjMat * vec4(inPosUV.xy, 0.0, 1.0);
+						VertOutUV    = inPosUV.zw;
+						VertOutColor = inColor;
 					}
 
 					#endif
 					#if PIXEL
 
+					in vec2 VertOutUV;
+					in vec4 VertOutColor;
+
 					out vec4 FragColor;
-					out vec2 FragUV;
 
 					DECLARE_TEX2D(Texture);
 
 					void main(void)
 					{
-						FragColor = FragColor * TEX2D(Texture, FragUV);
+						FragColor = VertOutColor * TEX2D(Texture, VertOutUV);
 					}
 					#endif
 					)";

@@ -28,6 +28,7 @@ set(IMGUI_CTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_widgets.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_draw.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_demo.cpp"
 	)
 
 source_group("includes" FILES ${IMGUI_CTX_HEADERS})

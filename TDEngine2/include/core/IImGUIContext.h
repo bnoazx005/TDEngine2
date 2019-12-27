@@ -20,6 +20,7 @@ namespace TDEngine2
 	class CWin32WindowSystem;
 	class CUnixWindowSystem;
 	class IResourceManager;
+	class IRenderer;
 
 
 	/*!
@@ -70,6 +71,7 @@ namespace TDEngine2
 				\brief The method initializes an internal state of a context
 
 				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
+				\param[in, out] pRenderer A pointer to IRenderer implementation
 				\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 				\param[in, out] pInputContext A pointer to IInputContext implementation
@@ -77,7 +79,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
+			TDE2_API virtual E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 												IResourceManager* pResourceManager, IInputContext* pInputContext) = 0;
 
 			/*!

@@ -8,6 +8,10 @@
 #include <graphics/IGraphicsObjectManager.h>
 #include <graphics/IIndexBuffer.h>
 #include <graphics/IVertexBuffer.h>
+#include <graphics/CBaseMaterial.h>
+#include <graphics/IRenderer.h>
+#include <graphics/CRenderQueue.h>
+#include <graphics/IVertexDeclaration.h>
 #include <platform/win32/CWin32WindowSystem.h>
 #include <platform/unix/CUnixWindowSystem.h>
 #include "./../deps/imgui-1.72/imgui.h"
@@ -23,7 +27,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CImGUIContext::Init(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
+	E_RESULT_CODE CImGUIContext::Init(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 									  IResourceManager* pResourceManager, IInputContext* pInputContext)
 	{
 		if (mIsInitialized)
@@ -34,6 +38,7 @@ namespace TDEngine2
 		if (!pWindowSystem ||
 			!pGraphicsObjectManager ||
 			!pResourceManager ||
+			!pRenderer ||
 			!pInputContext)
 		{
 			return RC_INVALID_ARGS;	
@@ -44,6 +49,7 @@ namespace TDEngine2
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 		mpResourceManager       = pResourceManager;
 		mpInputContext          = pInputContext;
+		mpEditorUIRenderQueue	= pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG);
 
 		if (!mpGraphicsContext) // \note the really strange case, but if it's happened we should check for it
 		{
@@ -62,10 +68,7 @@ namespace TDEngine2
 		{
 			return result;
 		}
-
-		// \note bind ImGUI to the graphics context
 		
-
 		// \note Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
@@ -139,9 +142,11 @@ namespace TDEngine2
 		{
 			return;
 		}
+		static bool f = true;
+		ImGui::ShowDemoWindow(&f);
 
 		ImGui::Render();
-		_engineInternalRender(ImGui::GetDrawData());
+		_engineInternalRender(ImGui::GetDrawData(), mpEditorUIRenderQueue);
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CImGUIContext::GetType() const
@@ -203,10 +208,6 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		// \todo Create a vertex shader
-		// \todo Create a pixel shader
-		// \todo Create a render state
-
 		auto vertexBufferResult = pGraphicsManager->CreateVertexBuffer(BUT_DYNAMIC, 4096 * sizeof(TEditorUIVertex), nullptr);
 		if (vertexBufferResult.HasError())
 		{
@@ -223,14 +224,9 @@ namespace TDEngine2
 
 		mpIndexBuffer = indexBufferResult.Get();
 
-		// \todo Create a blending state
-		auto blendStateResult = pGraphicsManager->CreateBlendState({});
-		if (blendStateResult.HasError())
-		{
-			return blendStateResult.GetError();
-		}
-
-		mBlendStateHandle = blendStateResult.Get();
+		mpEditorUIVertexDeclaration = pGraphicsManager->CreateVertexDeclaration().Get();
+		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
+		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
 		// \todo Create a depth-stencil state
 		auto depthHandleResult = pGraphicsManager->CreateDepthStencilState({});
@@ -240,6 +236,9 @@ namespace TDEngine2
 		}
 
 		mDepthStencilStateHandle = depthHandleResult.Get();
+
+		// \note load default editor's material
+		mpDefaultEditorMaterial = pResourceManager->Create<CBaseMaterial>("DefaultEditorUIMaterial.material", TMaterialParameters{ "DefaultEditorUI", true });
 
 		// \note Create a font texture
 		if ((result = _initSystemFonts(io, pResourceManager, pGraphicsManager)) != RC_OK)
@@ -284,28 +283,10 @@ namespace TDEngine2
 			return result;
 		}
 
-		// \note Create a texture sampler
-		TTextureSamplerDesc textureSamplerDesc;
-		textureSamplerDesc.mUAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
-		textureSamplerDesc.mVAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
-		textureSamplerDesc.mWAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
-
-		textureSamplerDesc.mFilterFlags = (U32)E_FILTER_TYPE::FT_BILINEAR << 16 |
-										  (U32)E_FILTER_TYPE::FT_BILINEAR << 8 |
-										  (U32)E_FILTER_TYPE::FT_BILINEAR;
-
-		auto samplerResult = pGraphicsManager->CreateTextureSampler(textureSamplerDesc);
-		if (samplerResult.HasError())
-		{
-			return samplerResult.GetError();
-		}
-
-		mFontTextureSamplerHandle = samplerResult.Get();
-
 		return RC_OK;
 	}
 
-	void CImGUIContext::_engineInternalRender(ImDrawData* pImGUIData)
+	void CImGUIContext::_engineInternalRender(ImDrawData* pImGUIData, CRenderQueue* pRenderQueue)
 	{
 		mpVertexBuffer->Map(BMT_WRITE_DISCARD);
 		mpIndexBuffer->Map(BMT_WRITE_DISCARD);
@@ -318,13 +299,13 @@ namespace TDEngine2
 
 			for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
 			{
-				const ImDrawList* cmdLists = pImGUIData->CmdLists[n];
+				const ImDrawList* pCommandList = pImGUIData->CmdLists[n];
 
-				memcpy(pCurrVertexPtr, cmdLists->VtxBuffer.Data, cmdLists->VtxBuffer.Size * sizeof(ImDrawVert));
-				memcpy(pCurrIndexPtr, cmdLists->IdxBuffer.Data, cmdLists->IdxBuffer.Size * sizeof(ImDrawIdx));
+				memcpy(pCurrVertexPtr, pCommandList->VtxBuffer.Data, pCommandList->VtxBuffer.Size * sizeof(ImDrawVert));
+				memcpy(pCurrIndexPtr, pCommandList->IdxBuffer.Data, pCommandList->IdxBuffer.Size * sizeof(ImDrawIdx));
 				
-				pCurrVertexPtr += cmdLists->VtxBuffer.Size;
-				pCurrIndexPtr += cmdLists->IdxBuffer.Size;
+				pCurrVertexPtr += pCommandList->VtxBuffer.Size;
+				pCurrIndexPtr += pCommandList->IdxBuffer.Size;
 			}
 
 			if (!vertices.empty())
@@ -339,10 +320,64 @@ namespace TDEngine2
 		}
 		mpIndexBuffer->Unmap();
 		mpVertexBuffer->Unmap();
+
+		// \note Render command lists
+		I32 currIndexOffset  = 0;
+		I32 currVertexOffset = 0;
+
+		ImVec2 clipRect = pImGUIData->DisplayPos;
+
+		for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
+		{
+			const ImDrawList* pCommandList = pImGUIData->CmdLists[n];
+
+			for (I32 currCommandIndex = 0; currCommandIndex < pCommandList->CmdBuffer.Size; ++currCommandIndex)
+			{
+				const ImDrawCmd* pCurrCommand = &pCommandList->CmdBuffer[currCommandIndex];
+				
+				auto pTexture = static_cast<IResourceHandler*>(pCurrCommand->TextureId);
+				mpDefaultEditorMaterial->Get<IMaterial>(RAT_BLOCKING)->SetTextureResource("Texture", pTexture->Get<ITexture>(RAT_BLOCKING));
+
+				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(0xFFFF + currCommandIndex);
+
+				pCurrDrawCommand->mpVertexDeclaration = mpEditorUIVertexDeclaration;
+				pCurrDrawCommand->mpVertexBuffer      = mpVertexBuffer;
+				pCurrDrawCommand->mpIndexBuffer       = mpIndexBuffer;
+				pCurrDrawCommand->mpMaterialHandler   = mpDefaultEditorMaterial;
+				pCurrDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pCurrDrawCommand->mNumOfIndices       = pCurrCommand->ElemCount;
+				pCurrDrawCommand->mStartIndex         = pCurrCommand->IdxOffset + currIndexOffset;
+				pCurrDrawCommand->mStartVertex        = pCurrCommand->VtxOffset + currVertexOffset;
+
+				//if (pCurrCommand->UserCallback != NULL)
+				//{
+				//	// User callback, registered via ImDrawList::AddCallback()
+				//	// (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
+				//	if (pCurrCommand->UserCallback == ImDrawCallback_ResetRenderState)
+				//		ImGui_ImplDX11_SetupRenderState(draw_data, ctx);
+				//	else
+				//		pCurrCommand->UserCallback(cmd_list, pCurrCommand);
+				//}
+				//else
+				//{
+				//	// Apply scissor/clipping rectangle
+				//	const D3D11_RECT r = { (LONG)(pCurrCommand->ClipRect.x - clip_off.x), (LONG)(pCurrCommand->ClipRect.y - clip_off.y), (LONG)(pCurrCommand->ClipRect.z - clip_off.x), (LONG)(pCurrCommand->ClipRect.w - clip_off.y) };
+				//	ctx->RSSetScissorRects(1, &r);
+
+				//	// Bind texture, Draw
+				//	ID3D11ShaderResourceView* texture_srv = (ID3D11ShaderResourceView*)pCurrCommand->TextureId;
+				//	ctx->PSSetShaderResources(0, 1, &texture_srv);
+				//	ctx->DrawIndexed(pCurrCommand->ElemCount, pCurrCommand->IdxOffset + global_idx_offset, pCurrCommand->VtxOffset + global_vtx_offset);
+				//}
+			}
+
+			currIndexOffset  += pCommandList->IdxBuffer.Size;
+			currVertexOffset += pCommandList->VtxBuffer.Size;
+		}
 	}
 
 
-	TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IGraphicsObjectManager* pGraphicsObjectManager,
+	TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 											   IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result)
 	{
 		CImGUIContext* pImGUIContextInstance = new (std::nothrow) CImGUIContext();
@@ -354,7 +389,7 @@ namespace TDEngine2
 			return pImGUIContextInstance;
 		}
 
-		result = pImGUIContextInstance->Init(pWindowSystem, pGraphicsObjectManager, pResourceManager, pInputContext);
+		result = pImGUIContextInstance->Init(pWindowSystem, pRenderer, pGraphicsObjectManager, pResourceManager, pInputContext);
 
 		if (result != RC_OK)
 		{

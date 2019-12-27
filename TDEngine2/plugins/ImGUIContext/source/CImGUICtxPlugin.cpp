@@ -5,6 +5,7 @@
 #include <core/IInputContext.h>
 #include <core/IImGUIContext.h>
 #include <core/IResourceManager.h>
+#include <graphics/IRenderer.h>
 #include <graphics/IGraphicsObjectManager.h>
 
 
@@ -32,6 +33,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		mpImGUIContext = CreateImGUIContext(pEngineCore->GetSubsystem<IWindowSystem>(),
+											pEngineCore->GetSubsystem<IRenderer>(),
 											pEngineCore->GetSubsystem<IGraphicsContext>()->GetGraphicsObjectManager(),
 											pEngineCore->GetSubsystem<IResourceManager>(),
 											pEngineCore->GetSubsystem<IInputContext>(), result);
