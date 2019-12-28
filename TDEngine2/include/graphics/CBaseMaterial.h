@@ -22,6 +22,7 @@ namespace TDEngine2
 	class IBinaryFileReader;
 	class IResourceHandler;
 	struct TShaderCompilerOutput;
+	class IGraphicsObjectManager;
 
 
 	constexpr U8 BaseMaterialFileTagLength = 3;
@@ -259,6 +260,36 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
 
 			/*!
+				\brief The method sets up a state of depth buffer usage
+
+				\param[in] state The argument defines whether or not the depth buffer is used
+			*/
+
+			TDE2_API void SetDepthBufferEnabled(bool state) override;
+
+			/*!
+				\brief The method sets up a state of stencil buffer usage
+
+				\param[in] state The argument defines whether or not the stencil buffer is used
+			*/
+
+			TDE2_API void SetStencilBufferEnabled(bool state) override;
+
+			/*!
+				\brief The method allows to enable or disable writing into the depth buffer
+
+				\param[in] state The argument defines whether or not shader can write into the depth buffer
+			*/
+
+			TDE2_API void SetDepthWriteEnabled(bool state) override;
+
+			/*!
+				\brief The method specifies the type of a comparison function for depth testing
+			*/
+
+			TDE2_API void SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType) override;
+
+			/*!
 				\brief The method returns hash value which corresponds to a given variable's name
 
 				\return The method returns hash value which corresponds to a given variable's name
@@ -302,19 +333,25 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
 		protected:
-			IGraphicsContext*      mpGraphicsContext;
+			IGraphicsContext*       mpGraphicsContext;
 
-			IResourceHandler*      mpShader;
+			IGraphicsObjectManager* mpGraphicsObjectManager;
 
-			TUserUniformBufferData mpUserUniformsData[MaxNumberOfUserConstantBuffers];
+			IResourceHandler*       mpShader;
 
-			TUserUniformsHashTable mUserVariablesHashTable;
+			TUserUniformBufferData  mpUserUniformsData[MaxNumberOfUserConstantBuffers];
 
-			TTexturesHashTable     mpAssignedTextures;
+			TUserUniformsHashTable  mUserVariablesHashTable;
 
-			TBlendStateDesc        mBlendStateParams;
+			TTexturesHashTable      mpAssignedTextures;
 
-			TBlendStateId          mBlendStateHandle = InvalidBlendStateId;
+			TBlendStateDesc         mBlendStateParams;
+
+			TBlendStateId           mBlendStateHandle = InvalidBlendStateId;
+
+			TDepthStencilStateDesc  mDepthStencilStateParams;
+
+			TDepthStencilStateId    mDepthStencilStateHandle = InvalidDepthStencilStateId;
 	};
 
 

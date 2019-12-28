@@ -39,11 +39,13 @@ namespace TDEngine2
 			\note TMaterialParameters's definition is placed in CBaseMaterial.cpp file
 		*/
 
-		TDE2_API TMaterialParameters(const std::string& shaderName, bool isTransparent = false);
+		TDE2_API TMaterialParameters(const std::string& shaderName, bool isTransparent = false, const TDepthStencilStateDesc& depthStencilState = {});
 
-		std::string     mShaderName;
+		std::string            mShaderName;
 
-		TBlendStateDesc mBlendingParams;
+		TBlendStateDesc        mBlendingParams;
+
+		TDepthStencilStateDesc mDepthStencilParams;
 	} TMaterialParameters, *TMaterialParametersPtr;
 
 
@@ -139,6 +141,36 @@ namespace TDEngine2
 
 				return _setVariable(name, static_cast<const void*>(&value), sizeof(T));
 			}
+
+			/*!
+				\brief The method sets up a state of depth buffer usage
+
+				\param[in] state The argument defines whether or not the depth buffer is used
+			*/
+
+			TDE2_API virtual void SetDepthBufferEnabled(bool state) = 0;
+			
+			/*!
+				\brief The method sets up a state of stencil buffer usage
+
+				\param[in] state The argument defines whether or not the stencil buffer is used
+			*/
+
+			TDE2_API virtual void SetStencilBufferEnabled(bool state) = 0;
+
+			/*!
+				\brief The method allows to enable or disable writing into the depth buffer
+
+				\param[in] state The argument defines whether or not shader can write into the depth buffer
+			*/
+
+			TDE2_API virtual void SetDepthWriteEnabled(bool state) = 0;
+
+			/*!
+				\brief The method specifies the type of a comparison function for depth testing
+			*/
+
+			TDE2_API virtual void SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType) = 0;
 
 			/*!
 				\brief The method returns hash value which corresponds to a given variable's name

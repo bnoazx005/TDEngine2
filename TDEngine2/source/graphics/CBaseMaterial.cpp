@@ -2,6 +2,7 @@
 #include "./../../include/graphics/CBaseShader.h"
 #include "./../../include/graphics/ITexture.h"
 #include "./../../include/graphics/IShaderCompiler.h"
+#include "./../../include/graphics/IGraphicsObjectManager.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
@@ -17,8 +18,8 @@ namespace TDEngine2
 		\note The declaration of TMaterialParameters is placed at IMaterial.h
 	*/
 
-	TMaterialParameters::TMaterialParameters(const std::string& shaderName, bool isTransparent):
-		mShaderName(shaderName), mBlendingParams()
+	TMaterialParameters::TMaterialParameters(const std::string& shaderName, bool isTransparent, const TDepthStencilStateDesc& depthStencilState):
+		mShaderName(shaderName), mBlendingParams(), mDepthStencilParams(depthStencilState)
 	{
 		mBlendingParams.mIsEnabled = isTransparent;
 	}
@@ -44,6 +45,7 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext = pGraphicsContext;
+		mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 		
 		mIsInitialized = true;
 
@@ -125,6 +127,20 @@ namespace TDEngine2
 			return;
 		}
 
+		if (mBlendStateHandle == InvalidBlendStateId)
+		{
+			mBlendStateHandle = mpGraphicsObjectManager->CreateBlendState(mBlendStateParams).Get();
+		}
+
+		mpGraphicsContext->BindBlendState(mBlendStateHandle);
+
+		if (mDepthStencilStateHandle == InvalidDepthStencilStateId)
+		{
+			mDepthStencilStateHandle = mpGraphicsObjectManager->CreateDepthStencilState(mDepthStencilStateParams).Get();
+		}
+
+		mpGraphicsContext->BindDepthStencilState(mDepthStencilStateHandle);
+
 		U8 userUniformBufferId = 0;
 		for (const auto& currUserDataBuffer : mpUserUniformsData)
 		{
@@ -154,6 +170,26 @@ namespace TDEngine2
 		mpAssignedTextures[resourceName] = pTexture;
 
 		return RC_OK;
+	}
+
+	void CBaseMaterial::SetDepthBufferEnabled(bool state)
+	{
+		mDepthStencilStateParams.mIsDepthTestEnabled = state;
+	}
+
+	void CBaseMaterial::SetStencilBufferEnabled(bool state)
+	{
+		mDepthStencilStateParams.mIsStencilTestEnabled = state;
+	}
+
+	void CBaseMaterial::SetDepthWriteEnabled(bool state)
+	{
+		mDepthStencilStateParams.mIsDepthWritingEnabled;
+	}
+
+	void CBaseMaterial::SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType)
+	{
+		mDepthStencilStateParams.mDepthCmpFunc = funcType;
 	}
 
 	U32 CBaseMaterial::GetVariableHash(const std::string& name) const
@@ -283,12 +319,21 @@ namespace TDEngine2
 		{
 			pMaterialInstance->SetShader(params.mShaderName);
 
+			// \note blending group
 			auto&& blendingParams = params.mBlendingParams;
 
 			pMaterialInstance->SetTransparentState(blendingParams.mIsEnabled);
 			pMaterialInstance->SetBlendFactors(blendingParams.mScrValue, blendingParams.mDestValue, 
 											   blendingParams.mScrAlphaValue, blendingParams.mDestAlphaValue);
 			pMaterialInstance->SetBlendOp(blendingParams.mOpType, blendingParams.mAlphaOpType);
+
+			// \note depth-stencil group of parameters
+			auto&& depthStencilParams = params.mDepthStencilParams;
+
+			pMaterialInstance->SetDepthBufferEnabled(depthStencilParams.mIsDepthTestEnabled);
+			pMaterialInstance->SetDepthWriteEnabled(depthStencilParams.mIsDepthWritingEnabled);
+			pMaterialInstance->SetDepthComparisonFunc(depthStencilParams.mDepthCmpFunc);
+			pMaterialInstance->SetStencilBufferEnabled(depthStencilParams.mIsStencilTestEnabled);
 		}
 
 		return pMaterialInstance;
