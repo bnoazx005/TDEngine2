@@ -247,8 +247,8 @@ namespace TDEngine2
 			pCurrIncludeFile->ReadToEnd();
 
 			processingSource = processingSource.substr(0, pos) +
-							   _removeComments(pCurrIncludeFile->ReadToEnd()) +
-							   processingSource.substr(pos + matches.length(), processingSource.length() - pos - matches.length());
+			_removeComments(pCurrIncludeFile->ReadToEnd()) +
+			processingSource.substr(pos + matches.length(), processingSource.length() - pos - matches.length());
 
 			pCurrIncludeFile->Close();
 		}
@@ -258,7 +258,7 @@ namespace TDEngine2
 
 	CShaderPreprocessor::TPreprocessorResult CShaderPreprocessor::_expandMacros(const std::string& source)
 	{
-		std::string::size_type pos  = 0;
+		std::string::size_type pos = 0;
 		std::string::size_type pos2 = 0;
 
 		auto getNextChar = [&source, &pos]() -> C8
@@ -273,9 +273,9 @@ namespace TDEngine2
 
 		C8 currCh;
 
-		TDefinesOrderedArray defines {};
+		TDefinesOrderedArray defines{};
 
-		auto isDefined = [&defines] (const std::string& name) -> bool
+		auto isDefined = [&defines](const std::string& name) -> bool
 		{
 			return defines.cend() != std::find_if(defines.cbegin(), defines.cend(), [&name](const TMacroDeclaration& decl)
 			{
@@ -284,9 +284,9 @@ namespace TDEngine2
 		};
 
 		std::stack<bool> frameStack; /// contains information about current group's inclusion via result of #if #ifndef and #ifdef
-		
+
 		frameStack.push(true); /// default field of view
-		
+
 		bool wasIfConditionaryBlock = false; /// \note we don't skip #if block so, the flag is used to add #endif if the corresponding #if has appeared
 
 		while (pos < source.length())
@@ -320,19 +320,30 @@ namespace TDEngine2
 			while (pos < source.length() && !std::isspace(currCh))
 			{
 				currFrame.push_back(currCh);
-				
+
 				currCh = source[++pos];
 			}
 
 			if (currFrame == "#define" && frameStack.top())
 			{
-				pos2 = source.find_first_of("\n\r", pos + 1);
-				
 				currFrame.clear();
 
-				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier and replacement-list
-								
-				pos = currFrame.find_first_of(' ');
+				bool isMultilineMacro = false;
+				do
+				{
+					pos2 = source.find_first_of("\n\r", pos + 1);
+					isMultilineMacro = source.find_first_of('\\', pos + 1) < pos2;
+
+					currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier and replacement-list
+
+					if (isMultilineMacro)
+					{
+						std::replace_if(currFrame.begin(), currFrame.end(), std::function<bool(C8)>([](C8 ch) { return ch == '\\'; }), '\n');
+					}
+
+					pos = pos2;
+				}
+				while (isMultilineMacro);
 
 				defines.emplace_back(_parseMacroDeclaration(currFrame));
 				
@@ -524,25 +535,26 @@ namespace TDEngine2
 		std::string::size_type pos  = 0;
 		std::string::size_type pos2 = 0;
 
-		/// declaration contains only identifier
-		if ((pos = declarationStr.find_first_of(' ')) == std::string::npos)
+		/// \note try to parse function like macro firstly
+		if ((pos = declarationStr.find_first_of('(')) != std::string::npos)
 		{
-			return { declarationStr, { {}, "1" } };
+			pos2 = declarationStr.find_first_of(')', pos + 1);
+
+			std::string identifierPart = declarationStr.substr(0, pos);
+			std::string argsPart       = CStringUtils::RemoveWhitespaces(declarationStr.substr(pos + 1, pos2 - pos - 1));
+			std::string valuePart      = declarationStr.substr(pos2 + 2, declarationStr.length() - pos2 - 2);
+
+			return { identifierPart , { CStringUtils::Split(argsPart, ","), valuePart } };
 		}
 
 		/// simple identifier with a replacement value
-		if ((pos2 = declarationStr.find_first_of(')')) == std::string::npos)
+		if ((pos = declarationStr.find_first_of(" \t")) != std::string::npos)
 		{
 			return { declarationStr.substr(0, pos), { {}, declarationStr.substr(pos + 1, declarationStr.length() - pos - 1) } };
 		}
 
-		pos = declarationStr.find_first_of('(');
-
-		std::string identifierPart = declarationStr.substr(0, pos);
-		std::string argsPart       = CStringUtils::RemoveWhitespaces(declarationStr.substr(pos + 1, pos2 - pos - 1));
-		std::string valuePart      = declarationStr.substr(pos2 + 2, declarationStr.length() - pos2 - 2);
-
-		return { identifierPart , { CStringUtils::Split(argsPart, ","), valuePart } };
+		/// declaration contains only identifier
+		return { declarationStr, { {}, "1" } };
 	}
 
 	std::string CShaderPreprocessor::_evalFuncMacro(const TMacroDeclaration& macro, const std::string& args)
