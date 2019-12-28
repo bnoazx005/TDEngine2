@@ -68,6 +68,14 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The method just returns a pointer to global logger's object. This is just a wrapper
+		for access to the global variable from another dlls, executables and etc
+	*/
+
+	TDE2_API ILogger* GetMainLogger();
+
+
+	/*!
 		\brief The macro definition to simplify logger's call. If the engine's code was built
 		without DEBUG flag the macros will be skipped
 	*/
@@ -77,9 +85,10 @@ namespace TDEngine2
 	#define LOG_MESSAGE(message)					\
 		do											\
 		{											\
-			if (MainLogger)							\
+			ILogger* pLogger = GetMainLogger();		\
+			if (pLogger)							\
 			{										\
-				MainLogger->LogMessage(message);	\
+				pLogger->LogMessage(message);		\
 			}										\
 		}											\
 		while (false)
@@ -87,9 +96,10 @@ namespace TDEngine2
 	#define LOG_WARNING(message)					\
 		do											\
 		{											\
-			if (MainLogger)							\
+			ILogger* pLogger = GetMainLogger();		\
+			if (pLogger)							\
 			{										\
-				MainLogger->LogWarning(message);	\
+				pLogger->LogWarning(message);		\
 			}										\
 		}											\
 		while (false)
@@ -97,9 +107,10 @@ namespace TDEngine2
 	#define LOG_ERROR(message)						\
 		do											\
 		{											\
-			if (MainLogger)							\
+			ILogger* pLogger = GetMainLogger();		\
+			if (pLogger)							\
 			{										\
-				MainLogger->LogError(message);		\
+				pLogger->LogError(message);			\
 			}										\
 		}											\
 		while (false)

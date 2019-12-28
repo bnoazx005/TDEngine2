@@ -108,5 +108,11 @@ namespace TDEngine2
 		return pLoggerInstance;
 	}
 
-	ILogger* MainLogger = new CFileLogger(MAIN_LOGGER_FILEPATH);
+	TDE2_API ILogger* MainLogger = new CFileLogger(MAIN_LOGGER_FILEPATH);
+
+
+	TDE2_API ILogger* GetMainLogger()
+	{
+		return MainLogger;
+	}
 }
