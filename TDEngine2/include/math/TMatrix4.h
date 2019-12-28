@@ -222,8 +222,11 @@ namespace TDEngine2
 
 		\param[in] handedness Equals to 1 for a right-handed, -1 for a left-handed
 
+		\param[in] isDepthless The flag determines whether the output matrix will process z axis or just to project onto some constant, which
+		equals to average position between zn and zf
+
 		\return The function computes GAPI independed matrix of a orthographic projection
 	*/
 
-	TDE2_API TMatrix4 OrthographicProj(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax, F32 handedness);
+	TDE2_API TMatrix4 OrthographicProj(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax, F32 handedness, bool isDepthless = false);
 }

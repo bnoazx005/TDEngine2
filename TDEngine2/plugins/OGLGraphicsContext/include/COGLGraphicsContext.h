@@ -129,11 +129,14 @@ namespace TDEngine2
 				\param[in] zn A z value of a near clip plance
 
 				\param[in] zf A z value of a far clip plane
+				
+				\param[in] isDepthless The flag determines whether the output matrix will process z axis or just to project onto some constant, which
+				equals to average position between zn and zf
 
 				\return The method computes a orthographic projection matrix specific for a graphics context
 			*/
 
-			TDE2_API TMatrix4 CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf) override;
+			TDE2_API TMatrix4 CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, bool isDepthless = false) override;
 
 			/*!
 				\brief The method sends a command to a GPU to draw current attached graphics data

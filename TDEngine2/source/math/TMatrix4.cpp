@@ -306,7 +306,7 @@ namespace TDEngine2
 		return projMatrix;
 	}
 
-	TDE2_API TMatrix4 OrthographicProj(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax, F32 handedness)
+	TDE2_API TMatrix4 OrthographicProj(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax, F32 handedness, bool isDepthless)
 	{
 		TMatrix4 projMatrix;
 
@@ -316,11 +316,11 @@ namespace TDEngine2
 
 		projMatrix.m[0][0] = 2.0f / width;
 		projMatrix.m[1][1] = 2.0f / height;
-		projMatrix.m[2][2] = -handedness * fabs(zNDCMax - zNDCMin) / depth;
+		projMatrix.m[2][2] = isDepthless ? 0.5f * (zf + zn) : -handedness * fabs(zNDCMax - zNDCMin) / depth;
 
 		projMatrix.m[0][3] = -(right + left) / width;
 		projMatrix.m[1][3] = -(top + bottom) / height;
-		projMatrix.m[2][3] = -(zn - zf * zNDCMin) / depth;
+		projMatrix.m[2][3] = isDepthless ? 0.0f : -(zn - zf * zNDCMin) / depth;
 
 		projMatrix.m[3][3] = 1.0f;
 

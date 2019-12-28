@@ -160,9 +160,9 @@ namespace TDEngine2
 		return PerspectiveProj(fov, aspect, zn, zf, -1.0f, 1.0f, 1.0f);
 	}
 
-	TMatrix4 COGLGraphicsContext::CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf)
+	TMatrix4 COGLGraphicsContext::CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, bool isDepthless)
 	{
-		return OrthographicProj(left, top, right, bottom, zn, zf, -1.0f, 1.0f, 1.0f);
+		return OrthographicProj(left, top, right, bottom, zn, zf, -1.0f, 1.0f, 1.0f, isDepthless);
 	}
 
 	void COGLGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
