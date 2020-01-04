@@ -1,0 +1,3 @@
+[submodule "TDEngine2/deps/tcpp"]
+	path = TDEngine2/deps/tcpp
+	url = https://github.com/bnoazx005/tcpp.git
