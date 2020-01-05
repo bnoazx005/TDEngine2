@@ -77,8 +77,6 @@ namespace TDEngine2
 
 			TDE2_API std::vector<std::string> _tokenize(const std::string& str, const std::string& delims, const std::string& specDelims);
 		private:
-			static std::string       mEmptyStr;
-
 			std::vector<std::string> mTokens;
 			
 			U32                      mCurrPos;
@@ -93,10 +91,6 @@ namespace TDEngine2
 
 	class CShaderPreprocessor
 	{
-		protected:
-			static std::regex mIncludePattern;
-
-			static std::regex mDefinePattern;
 		public:
 			typedef struct TDefineInfoDesc
 			{
@@ -105,17 +99,16 @@ namespace TDEngine2
 				std::string              mValue;
 			} TDefineInfoDesc, *TDefineInfoDescPtr;
 
-			typedef std::unordered_map<std::string, TDefineInfoDesc> TDefinesMap;	
-
-			typedef std::tuple<std::string, TDefineInfoDesc>         TMacroDeclaration;
-
-			typedef std::vector<TMacroDeclaration>                   TDefinesOrderedArray;
+			typedef std::unordered_map<std::string, TDefineInfoDesc>              TDefinesMap;
+			typedef std::unordered_map<E_SHADER_STAGE_TYPE, std::tuple<U32, U32>> TShaderStagesRegionsMap;
 
 			typedef struct TPreprocessorResult
 			{
 				std::string mPreprocessedSource;
 
 				TDefinesMap mDefinesTable;
+
+				TShaderStagesRegionsMap mStagesRegions;
 			}TPreprocessorResult, *TPreprocessorResultPtr;
 		public:
 			/*!
@@ -129,20 +122,28 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static TResult<TPreprocessorResult> PreprocessSource(IFileSystem* pFileSystem, const std::string& source);
-	protected:
-			TDE2_API static std::string _removeComments(const std::string& source);
+			
+			/*!
+				\brief The method converts given enumeration's value into its string representation which is used
+				within the preprocessor
 
-			TDE2_API static std::string _expandInclusions(IFileSystem* pFileSystem, const std::string& source);
+				\param[in] stageType A value of E_SHADER_STAGE_TYPE
 
-			TDE2_API static TPreprocessorResult _expandMacros(const std::string& source);
+				\return A string which equals to some of these 'vertex', 'pixel' and 'geometry'
+			*/
 
-			TDE2_API static std::string _expandMacro(const std::string& source, const TDefinesOrderedArray& definesTable);
+			TDE2_API static std::string ShaderStageToString(const E_SHADER_STAGE_TYPE& stageType);
 
-			TDE2_API static TMacroDeclaration _parseMacroDeclaration(const std::string& declarationStr);
+			/*!
+				\brief The method converts given string which equals to some of these 'vertex', 'pixel' and 'geometry'
+				into enumeration's value
 
-			TDE2_API static std::string _evalFuncMacro(const TMacroDeclaration& macro, const std::string& args);
+				\param[in] stageType A string which equals to some of these 'vertex', 'pixel' and 'geometry'
 
-			TDE2_API static TDefinesMap _buildDefinesTable(const TDefinesOrderedArray& definesArray);
+				\return A value of E_SHADER_STAGE_TYPE enumeration's type
+			*/
+
+			TDE2_API static E_SHADER_STAGE_TYPE ShaderStageStringToEnum(const std::string& stageType);
 	};
 
 
@@ -157,6 +158,8 @@ namespace TDEngine2
 	{
 		protected:
 			typedef CShaderPreprocessor::TDefinesMap                           TDefinesMap;
+
+			typedef CShaderPreprocessor::TShaderStagesRegionsMap               TStagesRegionsMap;
 
 			typedef std::pair<std::string, std::string>                        TShaderDefineDesc;
 			
@@ -183,6 +186,8 @@ namespace TDEngine2
 				TUniformBuffersMap      mUniformBuffers;
 
 				TShaderResourcesMap     mShaderResources;
+
+				TStagesRegionsMap       mShaderStagesRegionsInfo;
 			} TShaderMetadata;
 		public:
 			/*!
@@ -207,7 +212,7 @@ namespace TDEngine2
 
 			TDE2_API virtual const C8* _getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const;
 
-			TDE2_API virtual TShaderMetadata _parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable) const;
+			TDE2_API virtual TShaderMetadata _parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable, const TStagesRegionsMap& stagesRegionsInfo) const;
 			
 			TDE2_API virtual TStructDeclsMap _processStructDecls(CTokenizer& tokenizer) const;
 
@@ -225,6 +230,8 @@ namespace TDEngine2
 			TDE2_API const C8* _getTargetVersionDefineName() const;
 
 			TDE2_API virtual TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const = 0;
+
+			TDE2_API std::string _enableShaderStage(E_SHADER_STAGE_TYPE shaderStage, const TStagesRegionsMap& stagesRegionsInfo, const std::string& source) const;
 		protected:
 			bool             mIsInitialized;
 

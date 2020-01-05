@@ -157,12 +157,9 @@ namespace TDEngine2
 
 			ImGuiIO*                mpIOContext;
 
-			// All the stuffs below form a material instance
 			IResourceHandler*       mpFontTextureHandler;
 
 			IResourceHandler*       mpDefaultEditorMaterial;
-
-			TDepthStencilStateId    mDepthStencilStateHandle;
 
 			IVertexBuffer*          mpVertexBuffer;
 

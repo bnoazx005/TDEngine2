@@ -74,8 +74,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderCompiler)
 
-			TDE2_API TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const std::string& entryPointName,
-																   const TDefinesMap& shaderDefinesMap, E_SHADER_FEATURE_LEVEL targetVersion) const;
+			TDE2_API TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata, 
+																  E_SHADER_FEATURE_LEVEL targetVersion) const;
 
 			TDE2_API TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const override;
 

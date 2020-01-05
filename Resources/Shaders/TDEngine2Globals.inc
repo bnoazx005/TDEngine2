@@ -14,23 +14,23 @@
 #include <TDEngine2Utils.inc>
 
 
-CBUFFER_SECTION(TDEngine2PerFrame)
+CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
 	float4x4 ProjMat;
 	float4x4 ViewMat;
 CBUFFER_ENDSECTION
 
 
-CBUFFER_SECTION(TDEngine2PerObject)
+CBUFFER_SECTION_EX(TDEngine2PerObject, 1)
 	float4x4 ModelMat;
 CBUFFER_ENDSECTION
 
 
-CBUFFER_SECTION(TDEngine2RareUpdate)
+CBUFFER_SECTION_EX(TDEngine2RareUpdate, 2)
 	float4x4 mUnused1;
 CBUFFER_ENDSECTION
 
 
-CBUFFER_SECTION(TDEngine2Constants)
+CBUFFER_SECTION_EX(TDEngine2Constants, 3)
 	float4x4 mReserved;
 CBUFFER_ENDSECTION
 

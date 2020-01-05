@@ -12,8 +12,9 @@
 
 #ifdef TDE2_GLSL_SHADER
 
-	#define CBUFFER_SECTION(name)	layout (std140) uniform name {
-	#define CBUFFER_ENDSECTION 		};
+	#define CBUFFER_SECTION(name)			layout (std140) uniform name {
+	#define CBUFFER_SECTION_EX(name, reg)	CBUFFER_SECTION(name)
+	#define CBUFFER_ENDSECTION 				};
 #endif
 
 #ifdef TDE2_HLSL_SHADER
@@ -28,7 +29,7 @@
 ///< Utility macro for defining samplers and their state objects
 #ifdef TDE2_GLSL_SHADER
 
-	#define DECLARE_TEX2D(SamplerName)	uniform sampler2D SamplerName;
+	#define DECLARE_TEX2D(SamplerName)	uniform sampler2D SamplerName
 	#define TEX2D(SamplerName, uv)		texture(SamplerName, uv)
 
 #endif

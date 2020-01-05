@@ -226,19 +226,10 @@ namespace TDEngine2
 
 		mpEditorUIVertexDeclaration = pGraphicsManager->CreateVertexDeclaration().Get();
 		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
+		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_NORM_UBYTE4, 0, TDEngine2::VEST_COLOR });
 
-		// \todo Create a depth-stencil state
-		auto depthHandleResult = pGraphicsManager->CreateDepthStencilState({});
-		if (depthHandleResult.HasError())
-		{
-			return depthHandleResult.GetError();
-		}
-
-		mDepthStencilStateHandle = depthHandleResult.Get();
-
-		// \note load default editor's material
-		mpDefaultEditorMaterial = pResourceManager->Create<CBaseMaterial>("DefaultEditorUIMaterial.material", TMaterialParameters{ "DefaultEditorUI", true });
+		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
+		mpDefaultEditorMaterial = pResourceManager->Create<CBaseMaterial>("DefaultEditorUIMaterial.material", TMaterialParameters{ "DefaultEditorUI", true, { false, false } });
 
 		// \note Create a font texture
 		if ((result = _initSystemFonts(io, pResourceManager, pGraphicsManager)) != RC_OK)
@@ -325,7 +316,14 @@ namespace TDEngine2
 		I32 currIndexOffset  = 0;
 		I32 currVertexOffset = 0;
 
+		TMatrix4 projectionMatrix = mpGraphicsContext->CalcOrthographicMatrix(pImGUIData->DisplayPos.x, pImGUIData->DisplayPos.y,
+																			  pImGUIData->DisplayPos.x + pImGUIData->DisplaySize.x,
+																			  pImGUIData->DisplayPos.y + pImGUIData->DisplaySize.y,
+																			  0.0f, 1.0f, true);
+
 		ImVec2 clipRect = pImGUIData->DisplayPos;
+
+		U32 batchId = 0x0;
 
 		for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
 		{
@@ -338,8 +336,9 @@ namespace TDEngine2
 				auto pTexture = static_cast<IResourceHandler*>(pCurrCommand->TextureId);
 				mpDefaultEditorMaterial->Get<IMaterial>(RAT_BLOCKING)->SetTextureResource("Texture", pTexture->Get<ITexture>(RAT_BLOCKING));
 
-				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(0xFFFF + currCommandIndex);
+				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(0xFFFFFFF0 - ++batchId);
 
+				pCurrDrawCommand->mObjectData.mUnused = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
 				pCurrDrawCommand->mpVertexDeclaration = mpEditorUIVertexDeclaration;
 				pCurrDrawCommand->mpVertexBuffer      = mpVertexBuffer;
 				pCurrDrawCommand->mpIndexBuffer       = mpIndexBuffer;
@@ -363,11 +362,6 @@ namespace TDEngine2
 				//	// Apply scissor/clipping rectangle
 				//	const D3D11_RECT r = { (LONG)(pCurrCommand->ClipRect.x - clip_off.x), (LONG)(pCurrCommand->ClipRect.y - clip_off.y), (LONG)(pCurrCommand->ClipRect.z - clip_off.x), (LONG)(pCurrCommand->ClipRect.w - clip_off.y) };
 				//	ctx->RSSetScissorRects(1, &r);
-
-				//	// Bind texture, Draw
-				//	ID3D11ShaderResourceView* texture_srv = (ID3D11ShaderResourceView*)pCurrCommand->TextureId;
-				//	ctx->PSSetShaderResources(0, 1, &texture_srv);
-				//	ctx->DrawIndexed(pCurrCommand->ElemCount, pCurrCommand->IdxOffset + global_idx_offset, pCurrCommand->VtxOffset + global_vtx_offset);
 				//}
 			}
 

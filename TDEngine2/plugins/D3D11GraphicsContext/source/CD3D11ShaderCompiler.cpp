@@ -1,5 +1,6 @@
 #include "./../include/CD3D11ShaderCompiler.h"
 #include "./../include/CD3D11Mappings.h"
+#include <utils/CFileLogger.h>
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -30,7 +31,7 @@ namespace TDEngine2
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
-				
+		
 		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, "#define TDE2_HLSL_SHADER\n" + source).Get();
 
 		std::string preprocessedSource = preprocessorResult.mPreprocessedSource;
@@ -38,15 +39,14 @@ namespace TDEngine2
 		CTokenizer tokenizer(preprocessedSource);
 
 		/// parse source code to get a meta information about it
-		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable);
+		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable, preprocessorResult.mStagesRegions);
 
 		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
 
 		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
 		{
 			/// try to compile a vertex shader
-			TResult<std::vector<U8>> vertexShaderOutput = _compileShaderStage(SST_VERTEX, preprocessedSource, shaderMetadata.mVertexShaderEntrypointName,
-				shaderMetadata.mDefines, shaderMetadata.mFeatureLevel);
+			TResult<std::vector<U8>> vertexShaderOutput = _compileShaderStage(SST_VERTEX, preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
 
 			if (vertexShaderOutput.HasError())
 			{
@@ -59,8 +59,7 @@ namespace TDEngine2
 		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
 		{
 			/// try to compile a pixel shader
-			TResult<std::vector<U8>> pixelShaderOutput = _compileShaderStage(SST_PIXEL, preprocessedSource, shaderMetadata.mPixelShaderEntrypointName,
-				shaderMetadata.mDefines, shaderMetadata.mFeatureLevel);
+			TResult<std::vector<U8>> pixelShaderOutput = _compileShaderStage(SST_PIXEL, preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
 
 			if (pixelShaderOutput.HasError())
 			{
@@ -73,8 +72,7 @@ namespace TDEngine2
 		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
 		{
 			/// try to compile a geometry shader
-			TResult<std::vector<U8>> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, preprocessedSource, shaderMetadata.mGeometryShaderEntrypointName,
-				shaderMetadata.mDefines, shaderMetadata.mFeatureLevel);
+			TResult<std::vector<U8>> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
 
 			if (geometryShaderOutput.HasError())
 			{
@@ -90,9 +88,8 @@ namespace TDEngine2
 		return TOkValue<TShaderCompilerOutput*>(pResult);
 	}
 
-	TResult<std::vector<U8>> CD3D11ShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, 
-																	   const std::string& entryPointName, 
-																	   const CD3D11ShaderCompiler::TDefinesMap& shaderDefinesMap,
+	TResult<std::vector<U8>> CD3D11ShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source,
+																	   const TShaderMetadata& shaderMetadata,
 																	   E_SHADER_FEATURE_LEVEL targetVersion) const
 	{
 		std::vector<U8> byteCodeArray;
@@ -100,22 +97,27 @@ namespace TDEngine2
 		ID3DBlob* pBytecodeBuffer = nullptr;
 		ID3DBlob* pErrorBuffer    = nullptr;
 
-		//enable only needed stage within the source code with a preprocessor
-		D3D_SHADER_MACRO defines[] =
+		std::string processedSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
+		std::string entryPointName  = shaderMetadata.mVertexShaderEntrypointName;
+
+		switch (shaderStage)
 		{
-			{ "TDE2_HLSL_SHADER", "1" },
-			{ _getShaderStageDefineName(SST_VERTEX), shaderStage == SST_VERTEX ? "1" : "0" },
-			{ _getShaderStageDefineName(SST_PIXEL), shaderStage == SST_PIXEL ? "1" : "0" },
-			{ _getShaderStageDefineName(SST_GEOMETRY), shaderStage == SST_GEOMETRY ? "1" : "0" },
-			{ nullptr, nullptr }
-		};
+			case E_SHADER_STAGE_TYPE::SST_PIXEL:
+				entryPointName = shaderMetadata.mPixelShaderEntrypointName;
+				break;
+			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
+				entryPointName = shaderMetadata.mGeometryShaderEntrypointName;
+				break;
+		}
 
 		U32 flags = D3DCOMPILE_DEBUG | D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
 
-		if (FAILED(D3DCompile(source.c_str(), source.length(), nullptr, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		if (FAILED(D3DCompile(processedSource.c_str(), processedSource.length(), nullptr, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 							  entryPointName.c_str(), CD3D11Mappings::GetShaderTargetVerStr(shaderStage, targetVersion).c_str(),
 							  flags, 0x0, &pBytecodeBuffer, &pErrorBuffer)))
 		{
+			LOG_ERROR(CStringUtils::Format("[D3D11 Shader Compiler] {0}", static_cast<const C8*>(pErrorBuffer->GetBufferPointer())));
+
 			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}
 

@@ -3,6 +3,9 @@
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/graphics/InternalShaderData.h"
 #include "./../../include/platform/CTextFileReader.h"
+#include "./../../include/utils/CFileLogger.h"
+#define TCPP_IMPLEMENTATION
+#include "./../../deps/tcpp/source/tcppLibrary.hpp"
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -11,12 +14,12 @@
 #include <unordered_set>
 #include <stack>
 #include <iostream>
+#include <cassert>
+#include <memory>
 
 
 namespace TDEngine2
 {
-	std::string CTokenizer::mEmptyStr = "";
-
 	CTokenizer::CTokenizer(const std::string& str, const std::string& delims, const std::string& specDelims) :
 		mCurrPos(0)
 	{
@@ -49,7 +52,7 @@ namespace TDEngine2
 
 		if (pos >= mTokens.size())
 		{
-			return mEmptyStr;
+			return CStringUtils::mEmptyStr;
 		}
 
 		return mTokens[mCurrPos + offset];
@@ -59,7 +62,7 @@ namespace TDEngine2
 	{
 		if (mCurrPos + 1 >= mTokens.size())
 		{
-			return mEmptyStr;
+			return CStringUtils::mEmptyStr;
 		}
 
 		return mTokens[++mCurrPos];
@@ -88,6 +91,8 @@ namespace TDEngine2
 		}
 
 		mTokens.erase(mTokens.begin() + mCurrPos, mTokens.begin() + mCurrPos + count);
+
+		return RC_OK;
 	}
 
 	void CTokenizer::ParseAndPaste(const std::string& source, const std::string& delims, const std::string& specDelims)
@@ -113,7 +118,7 @@ namespace TDEngine2
 
 		if (pos >= mTokens.size())
 		{
-			return mEmptyStr;
+			return CStringUtils::mEmptyStr;
 		}
 
 		mCurrPos = pos;
@@ -176,10 +181,6 @@ namespace TDEngine2
 	}
 
 
-	std::regex CShaderPreprocessor::mIncludePattern { "#\\s*include\\s+(<|\")(.*?)(>|\")" };
-
-	std::regex CShaderPreprocessor::mDefinePattern { "#\\s*define\\s+(.*?)\\s+(.*?)\n" };
-
 	TResult<CShaderPreprocessor::TPreprocessorResult> CShaderPreprocessor::PreprocessSource(IFileSystem* pFileSystem, const std::string& source)
 	{
 		if (!pFileSystem)
@@ -187,419 +188,133 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		if (source.empty())
+		std::vector<std::unique_ptr<tcpp::IInputStream>> inputStreams;
+		inputStreams.emplace_back(new tcpp::StringInputStream{ source });
+		tcpp::Lexer lexer { *inputStreams.front() };
+		
+		tcpp::Preprocessor preprocessor { lexer, 
+		[](const tcpp::TErrorInfo& errorInfo)
 		{
-			return TOkValue<CShaderPreprocessor::TPreprocessorResult>({});
-		}
-
-		TPreprocessorResult processingResult = _expandMacros(_expandInclusions(pFileSystem, _removeComments(source)));
-
-		return TOkValue<TPreprocessorResult>(processingResult);
-	}
-
-	std::string CShaderPreprocessor::_removeComments(const std::string& source)
-	{
-		return CStringUtils::RemoveMultiLineComments(CStringUtils::RemoveSingleLineComments(CStringUtils::RemoveExtraWhitespaces(source)));
-	}
-
-	std::string CShaderPreprocessor::_expandInclusions(IFileSystem* pFileSystem, const std::string& source)
-	{
-		std::string includingFilename;	
-
-		std::smatch matches;
-
-		E_RESULT_CODE result = RC_OK;
-
-		ITextFileReader* pCurrIncludeFile = nullptr;
-
-		std::string processingSource { source };
-
-		std::string::size_type pos = 0;
-
-		while (std::regex_search(processingSource, matches, mIncludePattern))
+			LOG_ERROR(tcpp::ErrorTypeToString(errorInfo.mType));
+			assert(false);
+		}, 
+		[&pFileSystem, &inputStreams](const std::string& path, bool isSystemPath) -> tcpp::IInputStream*
 		{
-			if (includingFilename == matches[2]) /// stop search if we get a same substring more that two times
-			{
-				break;
-			}
+			std::string filename = isSystemPath ? ("vfs://Shaders/" + path) : path; // \note for built-in files change the directory to search
 
-			includingFilename = matches[2];
-			includingFilename = (matches[1] == '<') ? ("vfs://Shaders/" + includingFilename) : includingFilename; // \note for built-in files change the directory to search
-
-			TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(pFileSystem->ResolveVirtualPath(includingFilename, false));
-
+			TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(pFileSystem->ResolveVirtualPath(filename, false));
 			if (includeFileId.HasError())
 			{
-				continue;
+				return nullptr;
 			}
 
-			pCurrIncludeFile = pFileSystem->Get<ITextFileReader>(includeFileId.Get());
+			auto pCurrIncludeFile = pFileSystem->Get<ITextFileReader>(includeFileId.Get());
 
-			if (result != RC_OK)
-			{
-				/// can't find file just leave this directive without changes
-
-				continue;
-			}
-
-			pos = matches.position();
-
-			pCurrIncludeFile->ReadToEnd();
-
-			processingSource = processingSource.substr(0, pos) +
-			_removeComments(pCurrIncludeFile->ReadToEnd()) +
-			processingSource.substr(pos + matches.length(), processingSource.length() - pos - matches.length());
-
+			inputStreams.emplace_back(new tcpp::StringInputStream{ pCurrIncludeFile->ReadToEnd() });
 			pCurrIncludeFile->Close();
+
+			return inputStreams.back().get();
+		} };
+		
+		// \note below we define our custom preprocessor's commands like #version, #program/#endprogram, etc
+		// \todo Reimplement error handling for custom directives
+		preprocessor.AddCustomDirectiveHandler("version", [](auto&&, tcpp::Lexer& lexer, auto&&)
+		{
+			tcpp::TMacroDesc targetMacroDesc;
+			targetMacroDesc.mName = "TARGET";
+
+			std::string versionStr = "#version ";
+
+			auto currToken = lexer.GetNextToken();
+
+			currToken = lexer.GetNextToken();
+			versionStr.append(currToken.mRawView);
+			targetMacroDesc.mValue.push_back(currToken);
+
+			currToken = lexer.GetNextToken();
+
+			if ((currToken = lexer.GetNextToken()).mType != tcpp::E_TOKEN_TYPE::NEWLINE)
+			{
+				versionStr.append(" ").append(currToken.mRawView);
+				targetMacroDesc.mValue.push_back(currToken);
+			}
+
+			return versionStr.append("\n");
+		});
+
+		E_SHADER_STAGE_TYPE lastVisitedRegion = E_SHADER_STAGE_TYPE::SST_NONE;
+		TShaderStagesRegionsMap stagesRegionsInfo;
+
+		preprocessor.AddCustomDirectiveHandler("program", [&stagesRegionsInfo, &lastVisitedRegion](auto&&, tcpp::Lexer& lexer, const std::string& str)
+		{
+			auto currToken = lexer.GetNextToken();
+			currToken = lexer.GetNextToken();
+
+			if (lastVisitedRegion != E_SHADER_STAGE_TYPE::SST_NONE)
+			{
+				LOG_ERROR("[Shader Preprocessor] A new region start is found before the previous one has finished");
+				return "";
+			}
+
+			stagesRegionsInfo[lastVisitedRegion = ShaderStageStringToEnum(currToken.mRawView)] = { static_cast<U32>(str.length()), 0 };
+			return "";
+		});
+
+		preprocessor.AddCustomDirectiveHandler("endprogram", [&stagesRegionsInfo, &lastVisitedRegion](auto&&, tcpp::Lexer& lexer, const std::string& str)
+		{
+			auto currToken = lexer.GetNextToken();
+			auto currInfo = stagesRegionsInfo[lastVisitedRegion];
+			
+			stagesRegionsInfo[lastVisitedRegion] = { std::get<0>(currInfo), static_cast<U32>(str.length()) };
+			lastVisitedRegion = E_SHADER_STAGE_TYPE::SST_NONE;
+
+			return "";
+		});
+
+		std::string processedSource = preprocessor.Process();
+		
+		TDefinesMap definesTable;
+		for (const auto& currMacroDef : preprocessor.GetSymbolsTable())
+		{
+			std::string valueStr = "";
+
+			for (const auto& currToken : currMacroDef.mValue)
+			{
+				valueStr.append(currToken.mRawView);
+			}
+
+			definesTable[currMacroDef.mName] = { currMacroDef.mArgsNames, valueStr };
 		}
 
-		return processingSource;
+		return TOkValue<TPreprocessorResult>({ processedSource, definesTable, stagesRegionsInfo });
 	}
 
-	CShaderPreprocessor::TPreprocessorResult CShaderPreprocessor::_expandMacros(const std::string& source)
+	std::string CShaderPreprocessor::ShaderStageToString(const E_SHADER_STAGE_TYPE& stageType)
 	{
-		std::string::size_type pos = 0;
-		std::string::size_type pos2 = 0;
-
-		auto getNextChar = [&source, &pos]() -> C8
+		switch (stageType)
 		{
-			return (++pos < source.length()) ? source[pos] : '\0';
+			case E_SHADER_STAGE_TYPE::SST_VERTEX:
+				return "vertex";
+			case E_SHADER_STAGE_TYPE::SST_PIXEL:
+				return "pixel";
+			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
+				return "geometry";
+		}
+
+		return "unknown";
+	}
+
+	E_SHADER_STAGE_TYPE CShaderPreprocessor::ShaderStageStringToEnum(const std::string& stageType)
+	{
+		static const std::unordered_map<std::string, E_SHADER_STAGE_TYPE> shadersStages
+		{
+			{ "vertex", E_SHADER_STAGE_TYPE::SST_VERTEX },
+			{ "pixel", E_SHADER_STAGE_TYPE::SST_PIXEL },
+			{ "geometry", E_SHADER_STAGE_TYPE::SST_GEOMETRY },
 		};
 
-		std::string processedSource;
-		std::string currFrame;	/// contains either directive name or a current read substring
-		std::string macroName;
-		std::string macroValue;
-
-		C8 currCh;
-
-		TDefinesOrderedArray defines{};
-
-		auto isDefined = [&defines](const std::string& name) -> bool
-		{
-			return defines.cend() != std::find_if(defines.cbegin(), defines.cend(), [&name](const TMacroDeclaration& decl)
-			{
-				return std::get<std::string>(decl) == name;
-			});
-		};
-
-		std::stack<bool> frameStack; /// contains information about current group's inclusion via result of #if #ifndef and #ifdef
-
-		frameStack.push(true); /// default field of view
-
-		bool wasIfConditionaryBlock = false; /// \note we don't skip #if block so, the flag is used to add #endif if the corresponding #if has appeared
-
-		while (pos < source.length())
-		{
-			currCh = source[pos];
-
-			if (currCh != '#')
-			{
-				pos2 = source.find_first_of("\n\r", pos); /// read line
-
-				currFrame = std::move(source.substr(pos, pos2 - pos + 1));
-
-				if (frameStack.top())
-				{
-					processedSource += _expandMacro(currFrame, defines);
-				}
-
-				pos = pos2 + 1;
-
-				currFrame.clear();
-
-				continue;
-			}
-
-			currFrame.push_back(currCh); /// push '#'
-
-			while (++pos < source.length() && std::isspace(currCh = source[pos]))
-			{
-			}
-
-			while (pos < source.length() && !std::isspace(currCh))
-			{
-				currFrame.push_back(currCh);
-
-				currCh = source[++pos];
-			}
-
-			if (currFrame == "#define" && frameStack.top())
-			{
-				currFrame.clear();
-
-				bool isMultilineMacro = false;
-				do
-				{
-					pos2 = source.find_first_of("\n\r", pos + 1);
-					isMultilineMacro = source.find_first_of('\\', pos + 1) < pos2;
-
-					currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier and replacement-list
-
-					if (isMultilineMacro)
-					{
-						std::replace_if(currFrame.begin(), currFrame.end(), std::function<bool(C8)>([](C8 ch) { return ch == '\\'; }), '\n');
-					}
-
-					pos = pos2;
-				}
-				while (isMultilineMacro);
-
-				defines.emplace_back(_parseMacroDeclaration(currFrame));
-				
-				currFrame.clear();
-
-				pos = pos2 + 1;
-
-				continue;
-			}
-
-			/// especial directive for OpenGL version of a preprocessor
-			if (currFrame == "#version")
-			{
-				pos2 = source.find_first_of("\n\r", pos + 1);
-
-				currFrame.clear();
-
-				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier and replacement-list
-
-				defines.push_back({ "TARGET", { {}, currFrame }});
-
-				processedSource += "#version " + currFrame + "\n";
-
-				currFrame.clear();
-
-				pos = pos2 + 1;
-
-				continue;
-			}
-
-			if (currFrame == "#undef" && frameStack.top())
-			{
-				pos2 = source.find_first_of("\n\r", pos + 1);
-				
-				currFrame.clear();
-
-				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
-
-				defines.erase(std::find_if(defines.cbegin(), defines.cend(), [&currFrame](const TMacroDeclaration& decl)
-				{
-					return std::get<std::string>(decl) == currFrame;
-				}));
-
-				currFrame.clear();
-
-				pos = pos2;
-
-				continue;
-			}
-
-			if (currFrame == "#ifndef" && frameStack.top())
-			{
-				pos2 = source.find_first_of("\n\r", pos + 1);
-
-				currFrame.clear();
-
-				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
-
-				frameStack.push(!isDefined(currFrame));
-				
-				currFrame.clear();
-
-				pos = pos2 + 1;
-
-				continue;
-			}
-
-			if (currFrame == "#ifdef" && frameStack.top())
-			{
-				pos2 = source.find_first_of("\n\r", pos + 1);
-
-				currFrame.clear();
-
-				currFrame.append(source.substr(pos + 1, pos2 - pos - 1)); /// contains identifier
-
-				frameStack.push(isDefined(currFrame));
-				
-				currFrame.clear();
-
-				pos = pos2 + 1;
-
-				continue;
-			}
-
-			if (currFrame == "#if")
-			{
-				pos2 = source.find_first_of("\n\r", pos + 1);
-
-				currFrame.clear();
-
-				currFrame.append(source.substr(pos + 1, pos2 - pos)); /// contains identifier
-
-				processedSource += "#if " + currFrame;
-
-				frameStack.push(true); /// \todo now condition's result of #if is always true
-
-				wasIfConditionaryBlock = true;
-
-				currFrame.clear();
-
-				pos = pos2 + 1;
-
-				continue;
-			}
-
-			if (currFrame == "#endif")
-			{
-				if (wasIfConditionaryBlock)
-				{
-					processedSource += "#endif\n";
-
-					wasIfConditionaryBlock = false;
-				}
-
-				frameStack.pop();
-
-				currFrame.clear();
-
-				++pos;
-
-				continue;
-			}
-			
-			if (!frameStack.top()) /// just skip text which lies within a block with false condition within #if
-			{
-				++pos;
-
-				continue;
-			}
-			
-			processedSource += currFrame + ' ';
-
-			currFrame.clear();
-
-			++pos;
-		}
-
-		return { processedSource, CShaderPreprocessor::_buildDefinesTable(defines) };
-	}
-
-	std::string CShaderPreprocessor::_expandMacro(const std::string& source, const TDefinesOrderedArray& definesTable)
-	{
-		if (definesTable.empty())
-		{
-			return source;
-		}
-
-		std::string::size_type pos          = 0;
-		std::string::size_type startArgsPos = 0;
-		std::string::size_type endArgsPos   = 0;
-
-		std::string processedSource { source };
-		std::string currMacroIdentifier;
-		std::string evaluatedStr;
-
-		TDefineInfoDesc currMacroDesc;
-		
-		for (auto currMacroEntity : definesTable)
-		{
-			currMacroIdentifier = std::get<std::string>(currMacroEntity);
-
-			currMacroDesc = std::get<TDefineInfoDesc>(currMacroEntity);
-
-			/// simple identifier
-			while (currMacroDesc.mArgs.empty() && (pos = processedSource.find(currMacroIdentifier)) != std::string::npos)
-			{
-				processedSource = processedSource.substr(0, pos) + 
-								  currMacroDesc.mValue + 
-								  processedSource.substr(pos + currMacroIdentifier.length(), processedSource.length() - pos - currMacroIdentifier.length());
-			}
-
-			/// function-like macro
-			while (!currMacroDesc.mArgs.empty() && (pos = processedSource.find(currMacroIdentifier)) != std::string::npos)
-			{
-				startArgsPos = processedSource.find_first_of('(', pos);
-				endArgsPos   = processedSource.find_first_of(')', startArgsPos);
-
-				evaluatedStr = _evalFuncMacro(currMacroEntity, processedSource.substr(startArgsPos + 1, endArgsPos - 1 - startArgsPos));
-
-				processedSource = processedSource.substr(0, pos) + evaluatedStr + processedSource.substr(endArgsPos + 1, processedSource.length() - endArgsPos);
-			}
-		}
-
-		return processedSource;
-	}
-
-	CShaderPreprocessor::TMacroDeclaration CShaderPreprocessor::_parseMacroDeclaration(const std::string& declarationStr)
-	{
-		std::string::size_type pos  = 0;
-		std::string::size_type pos2 = 0;
-
-		/// \note try to parse function like macro firstly
-		if ((pos = declarationStr.find_first_of('(')) != std::string::npos)
-		{
-			pos2 = declarationStr.find_first_of(')', pos + 1);
-
-			std::string identifierPart = declarationStr.substr(0, pos);
-			std::string argsPart       = CStringUtils::RemoveWhitespaces(declarationStr.substr(pos + 1, pos2 - pos - 1));
-			std::string valuePart      = declarationStr.substr(pos2 + 2, declarationStr.length() - pos2 - 2);
-
-			return { identifierPart , { CStringUtils::Split(argsPart, ","), valuePart } };
-		}
-
-		/// simple identifier with a replacement value
-		if ((pos = declarationStr.find_first_of(" \t")) != std::string::npos)
-		{
-			return { declarationStr.substr(0, pos), { {}, declarationStr.substr(pos + 1, declarationStr.length() - pos - 1) } };
-		}
-
-		/// declaration contains only identifier
-		return { declarationStr, { {}, "1" } };
-	}
-
-	std::string CShaderPreprocessor::_evalFuncMacro(const TMacroDeclaration& macro, const std::string& args)
-	{
-		std::vector<std::string> separateArgs = CStringUtils::Split(CStringUtils::RemoveWhitespaces(args), ",");
-		std::vector<std::string> argsNames    = std::get<TDefineInfoDesc>(macro).mArgs;
-
-		std::string resultStr = std::get<TDefineInfoDesc>(macro).mValue;
-		
-		std::string::size_type pos = 0;
-
-		for (U32 i = 0; i < separateArgs.size(); ++i)
-		{
-			while ((pos = resultStr.find(argsNames[i])) != std::string::npos)
-			{
-				resultStr = resultStr.substr(0, pos) + separateArgs[i] + resultStr.substr(pos + argsNames[i].length(), resultStr.length() - pos - argsNames[i].length());
-			}
-		}
-
-		return resultStr;
-	}
-
-	CShaderPreprocessor::TDefinesMap CShaderPreprocessor::_buildDefinesTable(const TDefinesOrderedArray& definesArray)
-	{
-		TDefinesMap definesTable {};
-
-		if (definesArray.empty())
-		{
-			return definesTable;
-		}
-
-		std::string currMacroIdentifier;
-
-		TDefineInfoDesc currMacroDesc;
-		
-		for (auto currMacroEntity : definesArray)
-		{
-			currMacroIdentifier = std::get<std::string>(currMacroEntity);
-
-			currMacroDesc = std::get<TDefineInfoDesc>(currMacroEntity);
-
-			definesTable.emplace(currMacroIdentifier, currMacroDesc);
-		}
-
-		return definesTable;
+		auto iter = shadersStages.find(stageType);
+		return iter != shadersStages.cend() ? iter->second : E_SHADER_STAGE_TYPE::SST_NONE;
 	}
 
 
@@ -662,11 +377,13 @@ namespace TDEngine2
 		return nullptr;
 	}
 
-	CBaseShaderCompiler::TShaderMetadata CBaseShaderCompiler::_parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable) const
+	CBaseShaderCompiler::TShaderMetadata CBaseShaderCompiler::_parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable, const TStagesRegionsMap& stagesRegionsInfo) const
 	{
 		TShaderMetadata extractedMetadata {};
 		
 		extractedMetadata.mDefines = definesTable;
+
+		extractedMetadata.mShaderStagesRegionsInfo = stagesRegionsInfo;
 
 		extractedMetadata.mStructDeclsMap = _processStructDecls(tokenizer);
 		
@@ -686,15 +403,7 @@ namespace TDEngine2
 
 	bool CBaseShaderCompiler::_isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const CBaseShaderCompiler::TShaderMetadata& shaderMeta) const
 	{
-		TDefinesMap::const_iterator defineIter = shaderMeta.mDefines.find(mEntryPointsDefineNames[shaderStage]);
-
-		if (defineIter == shaderMeta.mDefines.cend() ||
-			defineIter->second.mValue.empty())
-		{
-			return false;
-		}
-
-		return true;
+		return shaderMeta.mShaderStagesRegionsInfo.find(shaderStage) != shaderMeta.mShaderStagesRegionsInfo.cend();
 	}
 
 	const C8* CBaseShaderCompiler::_getTargetVersionDefineName() const
@@ -819,5 +528,32 @@ namespace TDEngine2
 				{ "TDEngine2RareUpdate",{ IUBR_RARE_UDATED, sizeof(TRareUpdateShaderData), E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL} },
 				{ "TDEngine2Constants", { IUBR_CONSTANTS, sizeof(TConstantShaderData), E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL} }
 			};
+	}
+
+	std::string CBaseShaderCompiler::_enableShaderStage(E_SHADER_STAGE_TYPE shaderStage, const TStagesRegionsMap& stagesRegionsInfo, const std::string& source) const
+	{
+		std::string processedSource{ source };
+
+		auto vertexRegions   = (stagesRegionsInfo.find(SST_VERTEX) != stagesRegionsInfo.cend()) ? stagesRegionsInfo.at(SST_VERTEX) : std::tuple<U32, U32>{ 0, 0 };
+		auto pixelRegions    = (stagesRegionsInfo.find(SST_PIXEL) != stagesRegionsInfo.cend()) ? stagesRegionsInfo.at(SST_PIXEL) : std::tuple<U32, U32>{ 0, 0 };
+		auto geometryRegions = (stagesRegionsInfo.find(SST_GEOMETRY) != stagesRegionsInfo.cend()) ? stagesRegionsInfo.at(SST_GEOMETRY) : std::tuple<U32, U32>{ 0, 0 };
+
+		switch (shaderStage)
+		{
+			case E_SHADER_STAGE_TYPE::SST_VERTEX:
+				processedSource.erase(std::get<0>(pixelRegions), std::get<1>(pixelRegions) - std::get<0>(pixelRegions));
+				processedSource.erase(std::get<0>(geometryRegions), std::get<1>(geometryRegions) - std::get<0>(geometryRegions));
+				break;
+			case E_SHADER_STAGE_TYPE::SST_PIXEL:
+				processedSource.erase(std::get<0>(vertexRegions), std::get<1>(vertexRegions) - std::get<0>(vertexRegions));
+				processedSource.erase(std::get<0>(geometryRegions), std::get<1>(geometryRegions) - std::get<0>(geometryRegions));
+				break;
+			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
+				processedSource.erase(std::get<0>(vertexRegions), std::get<1>(vertexRegions) - std::get<0>(vertexRegions));
+				processedSource.erase(std::get<0>(pixelRegions), std::get<1>(pixelRegions) - std::get<0>(pixelRegions));
+				break;
+		}
+
+		return processedSource;
 	}
 }

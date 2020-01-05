@@ -2,6 +2,7 @@
 #include "./../include/COGLMappings.h"
 #include <core/IFileSystem.h>
 #include <platform/CTextFileReader.h>
+#include <utils/CFileLogger.h>
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -29,21 +30,21 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 		
-		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, _injectInternalDefines(SST_NONE, source)).Get();
+		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, "#define TDE2_GLSL_SHADER\n" + source).Get();
 
 		std::string preprocessedSource = preprocessorResult.mPreprocessedSource;
 
 		/// parse source code to get a meta information about it
 		CTokenizer tokenizer(preprocessedSource);
 
-		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable);
+		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable, preprocessorResult.mStagesRegions);
 		
 		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
 
 		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
 		{
 			/// try to compile a vertex shader
-			TResult<GLuint> vertexShaderOutput = _compileShaderStage(SST_VERTEX, preprocessedSource, shaderMetadata.mDefines);
+			TResult<GLuint> vertexShaderOutput = _compileShaderStage(SST_VERTEX, preprocessedSource, shaderMetadata);
 
 			if (vertexShaderOutput.HasError())
 			{
@@ -56,7 +57,7 @@ namespace TDEngine2
 		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
 		{
 			/// try to compile a pixel shader
-			TResult<GLuint> pixelShaderOutput = _compileShaderStage(SST_PIXEL, preprocessedSource, shaderMetadata.mDefines);
+			TResult<GLuint> pixelShaderOutput = _compileShaderStage(SST_PIXEL, preprocessedSource, shaderMetadata);
 
 			if (pixelShaderOutput.HasError())
 			{
@@ -69,7 +70,7 @@ namespace TDEngine2
 		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
 		{
 			/// try to compile a geometry shader
-			TResult<GLuint> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, preprocessedSource, shaderMetadata.mDefines);
+			TResult<GLuint> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, preprocessedSource, shaderMetadata);
 
 			if (geometryShaderOutput.HasError())
 			{
@@ -85,7 +86,7 @@ namespace TDEngine2
 		return TOkValue<TShaderCompilerOutput*>(pResult);
 	}
 	
-	TResult<GLuint> COGLShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TDefinesMap& shaderDefinesMap) const
+	TResult<GLuint> COGLShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const
 	{
 		GLuint shaderHandler = glCreateShader(COGLMappings::GetShaderStageType(shaderStage));
 
@@ -94,7 +95,7 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}
 		
-		std::string processedShaderSource = _injectInternalDefines(shaderStage, source);
+		std::string processedShaderSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
 
 		const C8* shaderSource = processedShaderSource.c_str();
 
@@ -136,6 +137,7 @@ namespace TDEngine2
 			glGetShaderInfoLog(shaderHandler, messageLength, &messageLength, &tmpErrorMsgBuffer[0]);
 			
 			std::string errorMessageStr(tmpErrorMsgBuffer.begin(), tmpErrorMsgBuffer.end());
+			LOG_ERROR(CStringUtils::Format("[GL Shader Compiler] {0}", errorMessageStr));
 			
 			glDeleteShader(shaderHandler);
 
@@ -240,35 +242,6 @@ namespace TDEngine2
 		}
 
 		return SFL_5_0;
-	}
-
-	std::string COGLShaderCompiler::_injectInternalDefines(E_SHADER_STAGE_TYPE shaderStage, const std::string& source) const
-	{
-		std::string newSourceCode;
-
-		/// insert internal defines such as VERTEX/PIXEL/GEOMETRY after #version directive
-
-		U32 pos = source.find("#version");
-
-		if (pos == std::string::npos)
-		{
-			return source; /// doesn't change anything
-		}
-
-		U32 endPos = source.find('\n', pos + 1);
-
-		newSourceCode = source.substr(0, endPos);
-
-		if (shaderStage != SST_NONE)
-		{
-			newSourceCode.append("\n#define ").append(_getShaderStageDefineName(shaderStage)).append(" 1\n");
-		}
-
-		newSourceCode.append("\n#define ").append("TDE2_GLSL_SHADER\n");
-
-		newSourceCode.append(source.substr(endPos, source.length() - endPos));
-
-		return newSourceCode;
 	}
 	
 	U32 COGLShaderCompiler::_getBuiltinTypeSize(const std::string& type) const

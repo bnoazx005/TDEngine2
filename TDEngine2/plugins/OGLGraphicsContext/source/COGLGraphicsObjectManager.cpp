@@ -173,7 +173,7 @@ namespace TDEngine2
 					#define VERTEX_ENTRY main
 					#define PIXEL_ENTRY main
 
-					#if VERTEX
+					#program vertex
 
 					layout (location = 0) in vec4 inlPos;
 
@@ -182,8 +182,9 @@ namespace TDEngine2
 						gl_Position = ProjMat * ViewMat * ModelMat * inlPos;
 					}
 
-					#endif
-					#if PIXEL
+					#endprogram
+
+					#program pixel
 
 					out vec4 FragColor;
 
@@ -191,7 +192,7 @@ namespace TDEngine2
 					{
 						FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 					}
-					#endif
+					#endprogram
 					)";
 				
 			case E_DEFAULT_SHADER_TYPE::DST_EDITOR_UI:
@@ -203,7 +204,7 @@ namespace TDEngine2
 					#define VERTEX_ENTRY main
 					#define PIXEL_ENTRY main
 
-					#if VERTEX
+					#program vertex
 
 					layout (location = 0) in vec4 inPosUV;
 					layout (location = 1) in vec4 inColor;
@@ -213,13 +214,14 @@ namespace TDEngine2
 
 					void main(void)
 					{
-						gl_Position  = ProjMat * vec4(inPosUV.xy, 0.0, 1.0);
+						gl_Position  = ModelMat * vec4(inPosUV.xy, 0.0, 1.0);
 						VertOutUV    = inPosUV.zw;
 						VertOutColor = inColor;
 					}
 
-					#endif
-					#if PIXEL
+					#endprogram
+
+					#program pixel
 
 					in vec2 VertOutUV;
 					in vec4 VertOutColor;
@@ -232,7 +234,7 @@ namespace TDEngine2
 					{
 						FragColor = VertOutColor * TEX2D(Texture, VertOutUV);
 					}
-					#endif
+					#endprogram
 					)";
 
 			default:

@@ -269,48 +269,71 @@ namespace TDEngine2
 					#define VERTEX_ENTRY mainVS
 					#define PIXEL_ENTRY mainPS
 
-					#include "TDEngine2Globals.inc"
+					#include <TDEngine2Globals.inc>
 
-					#if VERTEX
+					#program vertex
 
 					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
 					{
 						return mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
 					}
 
-					#endif
+					#endprogram
 
-					#if PIXEL
+					#program pixel
 
 					float4 mainPS(float4 wPos : SV_POSITION): SV_TARGET0
 					{
 						return float4(1.0, 0.0, 1.0, 1.0);
 					}
-					#endif)";
+					#endprogram
+				)";
 
 			case E_DEFAULT_SHADER_TYPE::DST_EDITOR_UI:
 				return R"(
 					#define VERTEX_ENTRY mainVS
 					#define PIXEL_ENTRY mainPS
 
-					#include "TDEngine2Globals.inc"
+					#include <TDEngine2Globals.inc>
 
-					#if VERTEX
-
-					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
+					struct VertexOut
 					{
-						return mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
+						float4 mPos   : SV_POSITION;
+						float2 mUV    : TEXCOORD0;
+						float4 mColor : COLOR;
+					};
+
+					#program vertex
+
+					struct VertexIn
+					{
+						float4 mPosUV : POSITION0;
+						float4 mColor : COLOR;
+					};
+
+					VertexOut mainVS(VertexIn input)
+					{
+						VertexOut output;
+						
+						output.mPos = mul(ModelMat, float4(input.mPosUV.xy, 0.0, 1.0));
+						output.mUV = input.mPosUV.zw;
+						output.mColor = input.mColor;
+
+						return output;
 					}
 
-					#endif
+					#endprogram
 
-					#if PIXEL
+					#program pixel
 
-					float4 mainPS(float4 wPos : SV_POSITION): SV_TARGET0
+					DECLARE_TEX2D(Texture);
+
+					float4 mainPS(VertexOut input): SV_TARGET0
 					{
-						return float4(1.0, 0.0, 1.0, 1.0);
+						return input.mColor * TEX2D(Texture, input.mUV);
 					}
-					#endif)";
+					#endprogram
+				)";
 
 			default:
 				TDE2_UNIMPLEMENTED();
