@@ -16,6 +16,7 @@
 #include <platform/win32/CWin32WindowSystem.h>
 #include <platform/unix/CUnixWindowSystem.h>
 #include <utils/CFileLogger.h>
+#include <math/MathUtils.h>
 #include "./../deps/imgui-1.72/imgui.h"
 #include <cassert>
 #include <vector>
@@ -145,8 +146,6 @@ namespace TDEngine2
 		{
 			return;
 		}
-		static bool f = true;
-		ImGui::ShowDemoWindow(&f);
 
 		ImGui::Render();
 		_engineInternalRender(ImGui::GetDrawData(), mpEditorUIRenderQueue);
@@ -155,6 +154,68 @@ namespace TDEngine2
 	E_ENGINE_SUBSYSTEM_TYPE CImGUIContext::GetType() const
 	{
 		return EST_IMGUI_CONTEXT;
+	}
+
+	void CImGUIContext::Label(const std::string& text)
+	{
+		_prepareLayout();
+		ImGui::Text(text.c_str());
+	}
+
+	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes)
+	{
+		_prepareLayout();
+		return ImGui::Button(text.c_str(), ImVec2(sizes.x, sizes.y));
+	}
+
+	bool CImGUIContext::Checkbox(const std::string& text, bool& isSelected)
+	{
+		_prepareLayout();
+		return ImGui::Checkbox(text.c_str(), &isSelected);
+	}
+
+	void CImGUIContext::IntSlider(const std::string& text, I32& value, I32 minValue, I32 maxValue,
+								  const std::function<void()>& onValueChanged)
+	{
+		_prepareLayout();
+		
+		if (ImGui::SliderInt(text.c_str(), &value, minValue, maxValue) && onValueChanged)
+		{
+			onValueChanged();
+		}
+	}
+
+	void CImGUIContext::FloatSlider(const std::string& text, F32& value, F32 minValue, F32 maxValue,
+									const std::function<void()>& onValueChanged)
+	{
+		_prepareLayout();
+
+		if (ImGui::SliderFloat(text.c_str(), &value, minValue, maxValue) && onValueChanged)
+		{
+			onValueChanged();
+		}
+	}
+
+	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened)
+	{
+		return ImGui::Begin(name.c_str(), &isOpened);
+	}
+
+	void CImGUIContext::EndWindow()
+	{
+		ImGui::End();
+	}
+
+	void CImGUIContext::BeginHorizontal()
+	{
+		mIsHorizontalGroupEnabled = true;
+	}
+
+	void CImGUIContext::EndHorizontal()
+	{
+		TDE2_ASSERT(mIsHorizontalGroupEnabled);
+
+		mIsHorizontalGroupEnabled = false;
 	}
 
 	E_RESULT_CODE CImGUIContext::_initInternalImGUIContext(ImGuiIO& io)
@@ -205,8 +266,7 @@ namespace TDEngine2
 
 		// \todo Add update of information about pressed keys and buttons
 
-		TVector3 mouseShiftVector = pDesktopInputCtx->GetMouseShiftVec();
-		io.MouseWheel += mouseShiftVector.z;
+		io.MouseWheel += CMathUtils::Clamp(-1.0f, 1.0f, pDesktopInputCtx->GetMouseShiftVec().z);
 		// \todo Implement support of gamepads
 	}
 
@@ -406,6 +466,14 @@ namespace TDEngine2
 		io.KeyMap[ImGuiKey_Escape]     = static_cast<I32>(E_KEYCODES::KC_ESCAPE);
 
 		// \todo add rest of mappings
+	}
+
+	void CImGUIContext::_prepareLayout()
+	{
+		if (mIsHorizontalGroupEnabled)
+		{
+			ImGui::SameLine();
+		}
 	}
 
 

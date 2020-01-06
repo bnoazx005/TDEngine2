@@ -84,6 +84,29 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {	
+	/// \note ImGUI tests
+	{
+		auto imgui = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
+
+		static bool isOpened = true;
+		if (imgui->BeginWindow("Hello, World!", isOpened))
+		{
+			imgui->BeginHorizontal();
+			imgui->Label("TEST");
+			imgui->Label("Test2");
+			imgui->EndHorizontal();
+
+			static int i = 0;
+			imgui->IntSlider("integer", i, 0, 20);
+
+			if (imgui->Button("Click", { 50.0f, 15.0f }))
+			{
+			}
+
+		}
+		imgui->EndWindow();
+	}	
+
 	if (mpInputContext->IsMouseButtonPressed(0))
 	{
 		std::cout << "pressed\n";

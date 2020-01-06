@@ -726,4 +726,8 @@ namespace TDEngine2
 	*/
 
 #define TDE2_BASE_CLASS(TClass) typedef TClass TBase
+
+
+#define TDE2_ASSERT(expression) assert(expression)
+
 }
