@@ -196,6 +196,45 @@ namespace TDEngine2
 		}
 	}
 
+	void CImGUIContext::Vector2Field(const std::string& text, TVector2& value, const std::function<void()>& onValueChanged)
+	{
+		_prepareLayout();
+
+		F32 rawValue[2];
+
+		if (ImGui::InputFloat2(text.c_str(), rawValue) && onValueChanged)
+		{
+			value = TVector2(rawValue);
+			onValueChanged();
+		}
+	}
+
+	void CImGUIContext::Vector3Field(const std::string& text, TVector3& value, const std::function<void()>& onValueChanged)
+	{
+		_prepareLayout();
+
+		F32 rawValue[3];
+
+		if (ImGui::InputFloat3(text.c_str(), rawValue) && onValueChanged)
+		{
+			value = TVector3(rawValue);
+			onValueChanged();
+		}
+	}
+
+	void CImGUIContext::Vector4Field(const std::string& text, TVector4& value, const std::function<void()>& onValueChanged)
+	{
+		_prepareLayout();
+
+		F32 rawValue[4];
+
+		if (ImGui::InputFloat4(text.c_str(), rawValue) && onValueChanged)
+		{
+			value = TVector4(rawValue);
+			onValueChanged();
+		}
+	}
+
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened)
 	{
 		return ImGui::Begin(name.c_str(), &isOpened);

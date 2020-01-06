@@ -182,6 +182,37 @@ namespace TDEngine2
 									  const std::function<void()>& onValueChanged = {}) override;
 
 			/*!
+				\brief The method creates a field for TVector2 type
+
+				\param[in] text A text that will be displayed with the field
+				\param[in, out] value A value of TVector2 type
+				\param[in] onValueChanged A callback that is called when the value of the slider has changed
+			*/
+
+			TDE2_API void Vector2Field(const std::string& text, TVector2& value, const std::function<void()>& onValueChanged = {}) override;
+
+			/*!
+				\brief The method creates a field for TVector3 type
+
+				\param[in] text A text that will be displayed with the field
+				\param[in, out] value A value of TVector3 type
+				\param[in] onValueChanged A callback that is called when the value of the slider has changed
+			*/
+
+
+			TDE2_API void Vector3Field(const std::string& text, TVector3& value, const std::function<void()>& onValueChanged = {}) override;
+
+			/*!
+				\brief The method creates a field for TVector4 type
+
+				\param[in] text A text that will be displayed with the field
+				\param[in, out] value A value of TVector4 type
+				\param[in] onValueChanged A callback that is called when the value of the slider has changed
+			*/
+
+			TDE2_API void Vector4Field(const std::string& text, TVector4& value, const std::function<void()>& onValueChanged = {}) override;
+
+			/*!
 				\brief The method creates a new window on the screen. Every call after this one
 				will be related with this window
 

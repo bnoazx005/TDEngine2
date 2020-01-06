@@ -10,6 +10,8 @@
 #include "./../utils/Utils.h"
 #include "./../utils/Types.h"
 #include "./../math/TVector2.h"
+#include "./../math/TVector3.h"
+#include "./../math/TVector4.h"
 #include "IEngineSubsystem.h"
 #include <functional>
 
@@ -156,6 +158,37 @@ namespace TDEngine2
 
 			TDE2_API virtual void FloatSlider(const std::string& text, F32& value, F32 minValue, F32 maxValue,
 											  const std::function<void()>& onValueChanged = {}) = 0;
+
+			/*!
+				\brief The method creates a field for TVector2 type
+
+				\param[in] text A text that will be displayed with the field
+				\param[in, out] value A value of TVector2 type
+				\param[in] onValueChanged A callback that is called when the value of the slider has changed
+			*/
+
+			TDE2_API virtual void Vector2Field(const std::string& text, TVector2& value, const std::function<void()>& onValueChanged = {}) = 0;
+
+			/*!
+				\brief The method creates a field for TVector3 type
+
+				\param[in] text A text that will be displayed with the field
+				\param[in, out] value A value of TVector3 type
+				\param[in] onValueChanged A callback that is called when the value of the slider has changed
+			*/
+
+
+			TDE2_API virtual void Vector3Field(const std::string& text, TVector3& value, const std::function<void()>& onValueChanged = {}) = 0;
+
+			/*!
+				\brief The method creates a field for TVector4 type
+
+				\param[in] text A text that will be displayed with the field
+				\param[in, out] value A value of TVector4 type
+				\param[in] onValueChanged A callback that is called when the value of the slider has changed
+			*/
+
+			TDE2_API virtual void Vector4Field(const std::string& text, TVector4& value, const std::function<void()>& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one
