@@ -1,4 +1,5 @@
 #include "./../include/CImGUIContext.h"
+#include <utils/Types.h>
 #include <core/IWindowSystem.h>
 #include <core/IGraphicsContext.h>
 #include <core/IInputContext.h>
@@ -14,6 +15,7 @@
 #include <graphics/IVertexDeclaration.h>
 #include <platform/win32/CWin32WindowSystem.h>
 #include <platform/unix/CUnixWindowSystem.h>
+#include <utils/CFileLogger.h>
 #include "./../deps/imgui-1.72/imgui.h"
 #include <cassert>
 #include <vector>
@@ -98,8 +100,10 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+#if defined(TDE2_USE_WIN32PLATFORM)
 		mpIOContext->BackendPlatformName = "Win32Platform";
 		mpIOContext->ImeWindowHandle = pWindowSystem->GetInternalData().mWindowHandler;
+#endif
 
 		return RC_OK;
 	}
@@ -127,11 +131,10 @@ namespace TDEngine2
 		mpIOContext->DeltaTime = dt;
 
 		// \note update current display size
-		TRectU32&& windowRect = mpWindowSystem->GetWindowRect();
+		TRectU32&& windowRect = mpWindowSystem->GetClientRect();
 		mpIOContext->DisplaySize = ImVec2(static_cast<F32>(windowRect.width), static_cast<F32>(windowRect.height));
 
 		_updateInputState(*mpIOContext, mpInputContext);
-		// \todo 
 
 		ImGui::NewFrame();
 	}
@@ -175,8 +178,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		// \todo Implement input system binding
-		auto ic = dynamic_cast<IDesktopInputContext*>(mpInputContext);
+		_initInputMappings(io);
 
 		return RC_OK;
 	}
@@ -194,10 +196,17 @@ namespace TDEngine2
 
 		// \note Update mouse position
 		TVector3&& mousePosition = pDesktopInputCtx->GetMousePosition();
-		io.MousePos = ImVec2(mousePosition.x, mousePosition.y);
+		io.MousePos = ImVec2(mousePosition.x, mpIOContext->DisplaySize.y - mousePosition.y);
+
+		for (U8 buttonId = 0; buttonId < sizeof(io.MouseDown) / sizeof(bool); ++buttonId)
+		{
+			io.MouseDown[buttonId] = pDesktopInputCtx->IsMouseButton(buttonId);
+		}
 
 		// \todo Add update of information about pressed keys and buttons
 
+		TVector3 mouseShiftVector = pDesktopInputCtx->GetMouseShiftVec();
+		io.MouseWheel += mouseShiftVector.z;
 		// \todo Implement support of gamepads
 	}
 
@@ -208,7 +217,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto vertexBufferResult = pGraphicsManager->CreateVertexBuffer(BUT_DYNAMIC, 4096 * sizeof(TEditorUIVertex), nullptr);
+		auto vertexBufferResult = pGraphicsManager->CreateVertexBuffer(BUT_DYNAMIC, 8192 * sizeof(ImDrawVert), nullptr);
 		if (vertexBufferResult.HasError())
 		{
 			return vertexBufferResult.GetError();
@@ -229,7 +238,15 @@ namespace TDEngine2
 		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_NORM_UBYTE4, 0, TDEngine2::VEST_COLOR });
 
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
-		mpDefaultEditorMaterial = pResourceManager->Create<CBaseMaterial>("DefaultEditorUIMaterial.material", TMaterialParameters{ "DefaultEditorUI", true, { false, false } });
+		TMaterialParameters editorUIMaterialParams { "DefaultEditorUI", true, { false, false } };
+
+		auto& blendingParams = editorUIMaterialParams.mBlendingParams;
+		blendingParams.mScrValue       = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
+		blendingParams.mDestValue      = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
+		blendingParams.mScrAlphaValue  = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
+		blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
+
+		mpDefaultEditorMaterial = pResourceManager->Create<CBaseMaterial>("DefaultEditorUIMaterial.material", editorUIMaterialParams);
 
 		// \note Create a font texture
 		if ((result = _initSystemFonts(io, pResourceManager, pGraphicsManager)) != RC_OK)
@@ -368,6 +385,27 @@ namespace TDEngine2
 			currIndexOffset  += pCommandList->IdxBuffer.Size;
 			currVertexOffset += pCommandList->VtxBuffer.Size;
 		}
+	}
+
+	void CImGUIContext::_initInputMappings(ImGuiIO& io)
+	{
+		io.KeyMap[ImGuiKey_Tab]        = static_cast<I32>(E_KEYCODES::KC_TAB);
+		io.KeyMap[ImGuiKey_LeftArrow]  = static_cast<I32>(E_KEYCODES::KC_LEFT);
+		io.KeyMap[ImGuiKey_RightArrow] = static_cast<I32>(E_KEYCODES::KC_RIGHT);
+		io.KeyMap[ImGuiKey_UpArrow]    = static_cast<I32>(E_KEYCODES::KC_UP);
+		io.KeyMap[ImGuiKey_DownArrow]  = static_cast<I32>(E_KEYCODES::KC_DOWN);
+		io.KeyMap[ImGuiKey_PageUp]     = static_cast<I32>(E_KEYCODES::KC_PAGEUP);
+		io.KeyMap[ImGuiKey_PageDown]   = static_cast<I32>(E_KEYCODES::KC_PAGEDOWN);
+		io.KeyMap[ImGuiKey_Home]       = static_cast<I32>(E_KEYCODES::KC_HOME);
+		io.KeyMap[ImGuiKey_End]        = static_cast<I32>(E_KEYCODES::KC_END);
+		io.KeyMap[ImGuiKey_Insert]     = static_cast<I32>(E_KEYCODES::KC_INSERT);
+		io.KeyMap[ImGuiKey_Delete]     = static_cast<I32>(E_KEYCODES::KC_DELETE);
+		io.KeyMap[ImGuiKey_Backspace]  = static_cast<I32>(E_KEYCODES::KC_BACKSPACE);
+		io.KeyMap[ImGuiKey_Space]      = static_cast<I32>(E_KEYCODES::KC_SPACE);
+		io.KeyMap[ImGuiKey_Enter]      = static_cast<I32>(E_KEYCODES::KC_RETURN);
+		io.KeyMap[ImGuiKey_Escape]     = static_cast<I32>(E_KEYCODES::KC_ESCAPE);
+
+		// \todo add rest of mappings
 	}
 
 

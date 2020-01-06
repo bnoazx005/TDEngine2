@@ -56,13 +56,6 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 															  IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
-		protected:
-			typedef struct TEditorUIVertex
-			{
-				TVector4  mPos;
-				TColor32F mColor;
-				TVector2  mUV;
-			} TEditorUIVertex, *TEditorUIVertexPtr;
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
@@ -142,6 +135,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _initSystemFonts(ImGuiIO& io, IResourceManager* pResourceManager, IGraphicsObjectManager* pGraphicsManager);
 
 			TDE2_API void _engineInternalRender(ImDrawData* pImGUIData, CRenderQueue* pRenderQueue);
+
+			TDE2_API void _initInputMappings(ImGuiIO& io);
 		protected:
 			std::atomic_bool        mIsInitialized;
 
