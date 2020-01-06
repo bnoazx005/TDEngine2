@@ -202,6 +202,16 @@ namespace TDEngine2
 			TDE2_API virtual TRectU32 GetWindowRect() const = 0;
 
 			/*!
+				\brief The method returns sizes of internal area of the window. If
+				the window is drawn without borders and title bar this output is the same
+				as GetWindowRect()
+
+				\return The method returns sizes of internal area of the window 
+			*/
+
+			TDE2_API virtual TRectU32 GetClientRect() const = 0;
+
+			/*!
 				\brief The method pass all the needed data into the immediate GUI context 
 				
 				\param[in, out] pVisitor A pointer to IImGUIContextVisitor implementation

@@ -288,6 +288,12 @@ namespace TDEngine2
 		return { mWindowXPos, mWindowYPos, mWidth, mHeight };
 	}
 
+	TRectU32 CUnixWindowSystem::GetClientRect() const
+	{
+		TDE2_UNIMPLEMENTED();
+		return { 0, 0, 0, 0 };
+	}
+
 	TDE2_API E_RESULT_CODE CUnixWindowSystem::_createWindow()
 	{
 		mWindowHandler = XCreateSimpleWindow(mpDisplayHandler, mRootWindowHandler, 0, 0, mWidth, mHeight, 1, 

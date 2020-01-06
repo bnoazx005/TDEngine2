@@ -302,6 +302,14 @@ namespace TDEngine2
 		return { mWindowXPos, mWindowYPos, mWidth, mHeight };
 	}
 
+	TRectU32 CWin32WindowSystem::GetClientRect() const
+	{
+		RECT clientAreaRect;
+		::GetClientRect(mWindowHandler, &clientAreaRect);
+
+		return { mWindowXPos, mWindowYPos, static_cast<U32>(clientAreaRect.right), static_cast<U32>(clientAreaRect.bottom) };
+	}
+
 
 	LRESULT CALLBACK CWin32WindowSystem::_wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{

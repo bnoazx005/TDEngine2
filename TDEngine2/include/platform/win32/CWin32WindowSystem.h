@@ -207,6 +207,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TRectU32 GetWindowRect() const override;
+
+			/*!
+				\brief The method returns sizes of internal area of the window. If
+				the window is drawn without borders and title bar this output is the same
+				as GetWindowRect()
+
+				\return The method returns sizes of internal area of the window
+			*/
+
+			TDE2_API TRectU32 GetClientRect() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWin32WindowSystem)
 
