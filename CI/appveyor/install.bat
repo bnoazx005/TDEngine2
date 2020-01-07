@@ -51,3 +51,5 @@ set CMAKE_BUILD_FLAGS= ^
     /nologo ^
     /verbosity:minimal ^
     /consoleloggerparameters:Summary
+
+git submodule update --init --recursive
