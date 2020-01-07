@@ -221,6 +221,43 @@ namespace TDEngine2
 			TDE2_API virtual void Vector4Field(const std::string& text, TVector4& value, const std::function<void()>& onValueChanged = {}) = 0;
 
 			/*!
+				\brief The method creates a main menu on top of the screen
+
+				\param[in] onDrawCallback A callback within which a user defines sub-menus of the menu
+			*/
+
+			TDE2_API virtual void DisplayMainMenu(const std::function<void(IImGUIContext&)>& onDrawCallback) = 0;
+
+			/*!
+				\brief The method creates a context menu
+				
+				\param[in] onDrawCallback A callback within which a user defines sub-menus of the menu
+			*/
+
+			TDE2_API virtual void DisplayContextMenu(const std::function<void(IImGUIContext&)>& onDrawCallback) = 0;
+
+			/*!
+				\brief The method creates a sub-menu
+
+				\param[in] name A name of the sub-menu
+				\param[in] onDrawCallback A callback within which a user defines menu items
+			*/
+
+			TDE2_API virtual void MenuGroup(const std::string& name, const std::function<void(IImGUIContext&)>& onDrawCallback) = 0;
+
+			/*!
+				\brief The method creates a new menu item, should be called within MenuGroup's onDrawCallback
+				
+				\param[in] name A name of the menu item
+				\param[in] shortcut A shortcut for keyboard to activate the menu item
+				\param[in] onClicked A callback that's called when a user clicks over the menu item
+
+				\return The method returns true when a user clicks over the menu item
+			*/
+
+			TDE2_API virtual bool MenuItem(const std::string& name, const std::string& shortcut, const std::function<void()>& onClicked = {}) = 0;
+
+			/*!
 				\brief The method creates a new window on the screen. Every call after this one
 				will be related with this window
 

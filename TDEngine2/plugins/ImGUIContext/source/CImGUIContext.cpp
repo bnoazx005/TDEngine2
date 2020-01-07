@@ -268,6 +268,60 @@ namespace TDEngine2
 		}
 	}
 
+	void CImGUIContext::DisplayMainMenu(const std::function<void(IImGUIContext&)>& onDrawCallback)
+	{
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (onDrawCallback)
+			{
+				onDrawCallback(*this);
+			}
+		}
+
+		ImGui::EndMainMenuBar();
+	}
+
+	void CImGUIContext::DisplayContextMenu(const std::function<void(IImGUIContext&)>& onDrawCallback)
+	{
+		if (ImGui::BeginMenuBar())
+		{
+			if (onDrawCallback)
+			{
+				onDrawCallback(*this);
+			}
+		}
+
+		ImGui::EndMenuBar();
+	}
+
+	void CImGUIContext::MenuGroup(const std::string& name, const std::function<void(IImGUIContext&)>& onDrawCallback)
+	{
+		if (ImGui::BeginMenu(name.c_str()))
+		{
+			if (onDrawCallback)
+			{
+				onDrawCallback(*this);
+			}
+
+			ImGui::EndMenu();
+		}
+	}
+	
+	bool CImGUIContext::MenuItem(const std::string& name, const std::string& shortcut, const std::function<void()>& onClicked)
+	{
+		if (ImGui::MenuItem(name.c_str(), shortcut.c_str()))
+		{
+			if (onClicked)
+			{
+				onClicked();
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened)
 	{
 		return ImGui::Begin(name.c_str(), &isOpened);

@@ -110,6 +110,16 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 			std::string str = "Hello!";
 			imgui->TextField("tetet", str);
 
+			imgui->DisplayMainMenu([](IImGUIContext& ui)
+			{
+				ui.MenuGroup("Menu", [](IImGUIContext& ui2)
+				{
+					ui2.MenuItem("Item1", "");
+					ui2.MenuItem("Item2", "");
+					ui2.MenuItem("Item3", "");
+				});
+			});
+
 		}
 		imgui->EndWindow();
 	}	
