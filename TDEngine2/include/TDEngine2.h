@@ -121,6 +121,9 @@
 #include "graphics/IStaticMeshContainer.h"
 #include "graphics/CStaticMeshContainer.h"
 
+///editor
+#include "editor/IProfiler.h"
+#include "editor/CPerfProfiler.h"
 
 ///math
 #include "math/TVector2.h"

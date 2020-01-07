@@ -83,9 +83,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 }
 
 E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
-{	
+{
 	/// \note ImGUI tests
 	{
+		TDE2_PROFILER_SCOPE("Test");
+
 		auto imgui = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
 
 		static bool isOpened = true;
