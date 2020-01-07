@@ -182,6 +182,36 @@ namespace TDEngine2
 									  const std::function<void()>& onValueChanged = {}) override;
 
 			/*!
+				\brief The method creates a float field which is a text box specialized for float single precision numbers
+
+				\param[in] text A text that will be displayed with this text box
+				\param[in] value The current and output value for the text box
+				\param[in] onValueChanged A callback that is called when the value of the field has changed
+			*/
+
+			TDE2_API void FloatField(const std::string& text, F32& value, const std::function<void()>& onValueChanged = {}) override;
+
+			/*!
+				\brief The method creates a integer field which is a text box specialized for integral numbers
+
+				\param[in] text A text that will be displayed with this text box
+				\param[in] value The current and output value for the text box
+				\param[in] onValueChanged A callback that is called when the value of the field has changed
+			*/
+
+			TDE2_API void IntField(const std::string& text, I32& value, const std::function<void()>& onValueChanged = {}) override;
+
+			/*!
+				\brief The method creates a text box
+
+				\param[in] text A text that will be displayed with this text box
+				\param[in] value The current and output value for the text box
+				\param[in] onValueChanged A callback that is called when the value of the field has changed
+			*/
+
+			TDE2_API void TextField(const std::string& text, std::string& value, const std::function<void()>& onValueChanged = {}) override;
+
+			/*!
 				\brief The method creates a field for TVector2 type
 
 				\param[in] text A text that will be displayed with the field

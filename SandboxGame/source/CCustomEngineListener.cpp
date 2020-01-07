@@ -98,10 +98,15 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 			static int i = 0;
 			imgui->IntSlider("integer", i, 0, 20);
+			TVector3 value;
+			imgui->Vector3Field("vector", value);
 
 			if (imgui->Button("Click", { 50.0f, 15.0f }))
 			{
 			}
+			imgui->IntField("wewewe", i);
+			std::string str = "Hello!";
+			imgui->TextField("tetet", str);
 
 		}
 		imgui->EndWindow();

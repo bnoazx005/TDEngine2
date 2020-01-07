@@ -18,7 +18,6 @@
 #include <utils/CFileLogger.h>
 #include <math/MathUtils.h>
 #include "./../deps/imgui-1.72/imgui.h"
-#include <cassert>
 #include <vector>
 #include <cstring>
 
@@ -196,11 +195,45 @@ namespace TDEngine2
 		}
 	}
 
+	void CImGUIContext::FloatField(const std::string& text, F32& value, const std::function<void()>& onValueChanged)
+	{
+		_prepareLayout();
+
+		if (ImGui::InputFloat(text.c_str(), &value) && onValueChanged)
+		{
+			onValueChanged();
+		}
+	}
+
+	void CImGUIContext::IntField(const std::string& text, I32& value, const std::function<void()>& onValueChanged)
+	{
+		_prepareLayout();
+
+		if (ImGui::InputInt(text.c_str(), &value) && onValueChanged)
+		{
+			onValueChanged();
+		}
+	}
+
+	void CImGUIContext::TextField(const std::string& text, std::string& value, const std::function<void()>& onValueChanged)
+	{
+		_prepareLayout();
+
+		C8 buffer[512];
+		memcpy(buffer, value.c_str(), sizeof(buffer));
+
+		if (ImGui::InputText(text.c_str(), buffer, sizeof(buffer)) && onValueChanged)
+		{
+			value.assign(buffer);
+			onValueChanged();
+		}
+	}
+
 	void CImGUIContext::Vector2Field(const std::string& text, TVector2& value, const std::function<void()>& onValueChanged)
 	{
 		_prepareLayout();
 
-		F32 rawValue[2];
+		F32 rawValue[2] { value.x, value.y };
 
 		if (ImGui::InputFloat2(text.c_str(), rawValue) && onValueChanged)
 		{
@@ -213,7 +246,7 @@ namespace TDEngine2
 	{
 		_prepareLayout();
 
-		F32 rawValue[3];
+		F32 rawValue[3] { value.x, value.y, value.z };
 
 		if (ImGui::InputFloat3(text.c_str(), rawValue) && onValueChanged)
 		{
@@ -226,7 +259,7 @@ namespace TDEngine2
 	{
 		_prepareLayout();
 
-		F32 rawValue[4];
+		F32 rawValue[4]{ value.x, value.y, value.z, value.w };
 
 		if (ImGui::InputFloat4(text.c_str(), rawValue) && onValueChanged)
 		{
