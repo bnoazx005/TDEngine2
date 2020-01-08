@@ -124,11 +124,6 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		imgui->EndWindow();
 	}	
 
-	if (mpInputContext->IsMouseButtonPressed(0))
-	{
-		std::cout << "pressed\n";
-	}
-
 	CTransform* pCameraTransform = mpCameraEntity->GetComponent<CTransform>();
 	
 	if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE))

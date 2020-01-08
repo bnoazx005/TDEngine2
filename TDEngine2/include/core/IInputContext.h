@@ -12,6 +12,7 @@
 #include "IEngineSubsystem.h"
 #include "./../math/TVector2.h"
 #include "./../math/TVector3.h"
+#include "./../utils/CU8String.h"
 
 
 namespace TDEngine2
@@ -26,7 +27,7 @@ namespace TDEngine2
 		\brief The enumeration contains a list of all available keycodes
 	*/
 
-	enum class E_KEYCODES
+	enum class E_KEYCODES: U16
 	{
 		KC_ESCAPE,
 		KC_ALPHA0, KC_ALPHA1, KC_ALPHA2, KC_ALPHA3, KC_ALPHA4,
@@ -64,6 +65,18 @@ namespace TDEngine2
 		KC_BREAK,
 		KC_NONE
 	};
+
+
+	/*!
+		\brief The function converts E_KEYCODE's value into UTF-8 character
+		\note The definition is placed in CU8String.cpp file
+
+		\param[in] keyCode A value of E_KEYCODE type
+
+		\return A character in UTF-8 encoding
+	*/
+
+	TDE2_API constexpr U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode);
 
 
 	/*!

@@ -1,4 +1,5 @@
 #include "./../../include/utils/CU8String.h"
+#include "./../../include/core/IInputContext.h"
 
 
 namespace TDEngine2
@@ -148,5 +149,101 @@ namespace TDEngine2
 		}
 
 		return str;
+	}
+
+
+	TDE2_API constexpr U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode)
+	{
+		constexpr U16 minAlphaValue = static_cast<U16>(E_KEYCODES::KC_ALPHA0);
+		constexpr U16 maxAlphaValue = static_cast<U16>(E_KEYCODES::KC_ALPHA9);
+		static_assert(minAlphaValue < maxAlphaValue, "Expect that KC_ALPHA0 is lesser than KC_ALPHA9. Please, don't change their order");
+
+		constexpr U16 minCharValue = static_cast<U16>(E_KEYCODES::KC_A);
+		constexpr U16 maxCharValue = static_cast<U16>(E_KEYCODES::KC_Z);
+		static_assert(minCharValue < maxCharValue, "Expect that characters key codes are lexicographically ordered. Please, don't change their order");
+
+		U16 convertedKeyCode = static_cast<U16>(keyCode);
+
+		if (convertedKeyCode >= minAlphaValue && convertedKeyCode <= maxAlphaValue)
+		{
+			return '0' + convertedKeyCode - minAlphaValue;
+		}
+
+		if (convertedKeyCode >= minCharValue && convertedKeyCode <= maxCharValue)
+		{
+			return 'a' + convertedKeyCode - minCharValue;
+		}
+
+		switch (keyCode)
+		{
+			case E_KEYCODES::KC_SPACE:
+				return ' ';
+			case E_KEYCODES::KC_EXCLAIM:
+				return '!'; 
+			case E_KEYCODES::KC_AT:
+				return '@';
+			case E_KEYCODES::KC_DOUBLE_QUOTE:
+				return '\"'; 
+			case E_KEYCODES::KC_HASH:
+				return '#'; 
+			case E_KEYCODES::KC_DOLLAR:
+				return '$'; 
+			case E_KEYCODES::KC_PERCENT:
+				return '%'; 
+			case E_KEYCODES::KC_AMPERSAND:
+				return '&';
+			case E_KEYCODES::KC_QUOTE:
+				return '\'';
+			case E_KEYCODES::KC_LPAREN:
+				return '('; 
+			case E_KEYCODES::KC_RPAREN:
+				return ')'; 
+			case E_KEYCODES::KC_ASTERISK:
+				return '*'; 
+			case E_KEYCODES::KC_PLUS:
+				return '+'; 
+			case E_KEYCODES::KC_MINUS:
+				return '-'; 
+			case E_KEYCODES::KC_EQUALS:
+				return '=';
+			case E_KEYCODES::KC_COMMA:
+				return ','; 
+			case E_KEYCODES::KC_PERIOD:
+				return '.'; 
+			case E_KEYCODES::KC_SLASH:
+				return '/'; 
+			case E_KEYCODES::KC_BACKSLASH:
+				return '\\'; 
+			case E_KEYCODES::KC_COLON:
+				return ':'; 
+			case E_KEYCODES::KC_SEMICOLON:
+				return ';'; 
+			case E_KEYCODES::KC_LESS:
+				return '<';
+			case E_KEYCODES::KC_GREATER:
+				return '>'; 
+			case E_KEYCODES::KC_QUESTION:
+				return '?'; 
+			case E_KEYCODES::KC_LBRACKET:
+				return '['; 
+			case E_KEYCODES::KC_RBRACKET:
+				return ']'; 
+			case E_KEYCODES::KC_CARET:
+				return '^'; 
+			case E_KEYCODES::KC_UNDERSCORE:
+				return '_'; 
+			case E_KEYCODES::KC_BACK_QUOTE:
+				return '\"';
+			case E_KEYCODES::KC_LCURLY_BRACKET:
+				return '{'; 
+			case E_KEYCODES::KC_RCURLY_BRACKET:
+				return '}'; 
+			case E_KEYCODES::KC_PIPE:
+				return '|'; 
+			case E_KEYCODES::KC_TILDE:
+				return '~';
+		}
+
+		return convertedKeyCode;
 	}
 }

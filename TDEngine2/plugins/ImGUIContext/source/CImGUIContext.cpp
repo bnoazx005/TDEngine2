@@ -390,7 +390,21 @@ namespace TDEngine2
 			io.MouseDown[buttonId] = pDesktopInputCtx->IsMouseButton(buttonId);
 		}
 
-		// \todo Add update of information about pressed keys and buttons
+		for (U16 keyCode = static_cast<U16>(E_KEYCODES::KC_ESCAPE); keyCode != static_cast<U16>(E_KEYCODES::KC_NONE); ++keyCode)
+		{
+			E_KEYCODES internalKeyCode = static_cast<E_KEYCODES>(keyCode);
+
+			if (((keyCode >= static_cast<U16>(E_KEYCODES::KC_A) && keyCode <= static_cast<U16>(E_KEYCODES::KC_Z)) ||
+				(keyCode >= static_cast<U16>(E_KEYCODES::KC_ALPHA0) && keyCode <=static_cast<U16>(E_KEYCODES::KC_ALPHA9))) &&
+				pDesktopInputCtx->IsKeyPressed(internalKeyCode))
+			{
+				U8C charCode = KeyCodeToUTF8Char(internalKeyCode);
+				io.AddInputCharactersUTF8(reinterpret_cast<C8*>(&charCode));
+				continue;
+			}
+
+			io.KeysDown[keyCode] = pDesktopInputCtx->IsKey(internalKeyCode);
+		}
 
 		io.MouseWheel += CMathUtils::Clamp(-1.0f, 1.0f, pDesktopInputCtx->GetMouseShiftVec().z);
 		// \todo Implement support of gamepads
@@ -590,8 +604,12 @@ namespace TDEngine2
 		io.KeyMap[ImGuiKey_Space]      = static_cast<I32>(E_KEYCODES::KC_SPACE);
 		io.KeyMap[ImGuiKey_Enter]      = static_cast<I32>(E_KEYCODES::KC_RETURN);
 		io.KeyMap[ImGuiKey_Escape]     = static_cast<I32>(E_KEYCODES::KC_ESCAPE);
-
-		// \todo add rest of mappings
+		io.KeyMap[ImGuiKey_A]          = static_cast<I32>(E_KEYCODES::KC_A);
+		io.KeyMap[ImGuiKey_C]          = static_cast<I32>(E_KEYCODES::KC_C);
+		io.KeyMap[ImGuiKey_V]          = static_cast<I32>(E_KEYCODES::KC_V);
+		io.KeyMap[ImGuiKey_X]          = static_cast<I32>(E_KEYCODES::KC_X);
+		io.KeyMap[ImGuiKey_Y]          = static_cast<I32>(E_KEYCODES::KC_Y);
+		io.KeyMap[ImGuiKey_Z]          = static_cast<I32>(E_KEYCODES::KC_Z);
 	}
 
 	void CImGUIContext::_prepareLayout()
