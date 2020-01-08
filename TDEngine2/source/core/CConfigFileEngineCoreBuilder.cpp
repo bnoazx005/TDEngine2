@@ -31,6 +31,7 @@
 #include "./../../include/graphics/CTextureAtlas.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/graphics/CStaticMesh.h"
+#include "./../../include/editor/CEditorsManager.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -403,6 +404,28 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CConfigFileEngineCoreBuilder::_configureEditorsManager()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+#if TDE2_EDITORS_ENABLED
+		E_RESULT_CODE result = RC_OK;
+		IEditorsManager* pEditorsManager = CreateEditorsManager(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), result);
+#else
+		return RC_OK;
+#endif
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		return mpEngineCoreInstance->RegisterSubsystem(pEditorsManager);
+	}
+
 	IEngineCore* CConfigFileEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
@@ -442,6 +465,7 @@ namespace TDEngine2
 
 		PANIC_ON_FAILURE(_configureRenderer());
 		PANIC_ON_FAILURE(_configureImGUIContext());
+		PANIC_ON_FAILURE(_configureEditorsManager());
 
 		return mpEngineCoreInstance;
 	}

@@ -162,6 +162,14 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _configureImGUIContext() override;
 
+			/*!
+				\brief The method tries to configure the manager of engine's editors
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE _configureEditorsManager() override;
+
 			TDE2_API TResult<TEngineSettings> _readConfigurationFile(IFileSystem* pFileSystem, const std::string& configFilename);
 		protected:
 			bool              mIsInitialized;

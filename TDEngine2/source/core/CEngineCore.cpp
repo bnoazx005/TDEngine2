@@ -19,6 +19,7 @@
 #include "./../../include/graphics/IRenderer.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/utils/ITimer.h"
+#include "./../../include/editor/IEditorsManager.h"
 #include <cstring>
 #include <algorithm>
 
@@ -30,7 +31,8 @@ namespace TDEngine2
 		mpInternalTimer(nullptr),
 		mpDLLManager(nullptr),
 		mpWorldInstance(nullptr),
-		mpInputContext(nullptr)
+		mpInputContext(nullptr),
+		mpEditorsManager(nullptr)
 	{
 	}
 	
@@ -123,6 +125,7 @@ namespace TDEngine2
 		mpInternalTimer = pWindowSystem->GetTimer();
 
 		mpInputContext = _getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT);
+		mpEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
 
 		LOG_MESSAGE("[Engine Core] The engine's core begins to execute the main loop...");
 
@@ -271,6 +274,13 @@ namespace TDEngine2
 		{
 			mpInputContext->Update();
 		}
+
+#if TDE2_EDITORS_ENABLED
+		if (mpEditorsManager)
+		{
+			mpEditorsManager->Update();
+		}
+#endif
 
 		_onNotifyEngineListeners(EET_ONUPDATE);
 

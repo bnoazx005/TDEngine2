@@ -22,15 +22,13 @@ namespace TDEngine2
 	class ITimer;
 	class IPlugin;
 	class IWorld;
+	class IEditorsManager;
 
 
 	/*!
 		interface IEngineCore
 
-		\brief The interface represents a functionality of a core object in the engine.
-
-		\todo	- specify Init's arguments list
-				- specify a way of register/unregister callbacks
+		\brief The interface represents a functionality of a core object in the engine
 	*/
 
 	class IEngineCore

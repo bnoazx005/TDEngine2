@@ -52,6 +52,7 @@ namespace TDEngine2
 	#endif
 
 	#define TDE2_DEBUG_MODE !NDEBUG
+	#define TDE2_PRODUCTION_MODE 1
 
 	#define GLEW_NO_GLU ///< Disable GLU 
 
@@ -71,4 +72,11 @@ namespace TDEngine2
 	constexpr unsigned int PreCreatedNumOfVertexBuffers = 5;
 	
 	constexpr unsigned int SpriteInstanceDataBufferSize = 1024 * 1024 * 4; /// 4 MiB
+
+
+	#if TDE2_DEBUG_MODE || TDE2_PRODUCTION_MODE
+		#define TDE2_EDITORS_ENABLED 1
+	#else
+		#define TDE2_EDITORS_ENABLED 0
+	#endif
 }

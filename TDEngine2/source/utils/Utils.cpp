@@ -468,6 +468,8 @@ namespace TDEngine2
 				return "Input Context";
 			case EST_IMGUI_CONTEXT:
 				return "ImGUI Context";
+			case EST_EDITORS_MANAGER:
+				return "Editors Manager";
 		}
 		
 		return "";

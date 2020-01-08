@@ -141,5 +141,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE _configureImGUIContext() = 0;
+
+			/*!
+				\brief The method tries to configure the manager of engine's editors
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE _configureEditorsManager() = 0;
 	};
 }

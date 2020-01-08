@@ -192,6 +192,8 @@ namespace TDEngine2
 
 			IImGUIContext*     mpImGUIContext;
 
+			IEditorsManager*   mpEditorsManager;
+
 			mutable std::mutex mMutex; ///< \todo the mutex doesn't use in the code, should be fixed later!
 	};
 
