@@ -8,6 +8,7 @@
 
 
 #include <utils/Types.h>
+#include <utils/Utils.h>
 
 
 namespace TDEngine2
@@ -21,20 +22,17 @@ namespace TDEngine2
 	*/
 
 	template <typename T>
-	inline E_RESULT_CODE SafeReleaseCOMPtr(T** pPtr)
+	inline E_RESULT_CODE SafeReleaseCOMPtr(T** pPtr, bool isLastExpected = true)
 	{
 		if (!pPtr)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		if (FAILED((*pPtr)->Release()))
-		{
-			return RC_FAIL;
-		}
-
+		U64 refCount = (*pPtr)->Release();
 		*pPtr = nullptr;
 
-		return RC_OK;
+		TDE2_ASSERT(isLastExpected && !refCount);
+		return (isLastExpected && !refCount) ? RC_OK : RC_FAIL;
 	}
 }

@@ -320,11 +320,28 @@ namespace TDEngine2
 			return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
 
+		static bool hasWindowBeenMaximized = pWinSystem->GetFlags() & P_FULLSCREEN;
+
 		IEventManager* pEventManager = pWinSystem->GetEventManager();
 		
-		TOnWindowResized onResizedEvent;
-
 		TOnWindowMoved onMovedEvent;
+
+		auto onSendResizeWindowEvent = [&pEventManager](U32 width, U32 height)
+		{
+			TOnWindowResized onResizedEvent;
+
+			onResizedEvent.mWidth  = width;
+			onResizedEvent.mHeight = height;
+
+			pEventManager->Notify(&onResizedEvent);
+
+			LOG_MESSAGE(std::string("[Win32 Window System] The window's sizes were changed (width: ").
+									append(std::to_string(onResizedEvent.mWidth)).
+									append(", height: ").
+									append(std::to_string(onResizedEvent.mHeight)).
+									append(")"));
+
+		};
 
 		switch (uMsg)
 		{
@@ -332,17 +349,22 @@ namespace TDEngine2
 				PostQuitMessage(0);
 				break;
 			case WM_SIZE:
-				onResizedEvent.mWidth  = lParam & (0x0000FFFF);
-				onResizedEvent.mHeight = (lParam & (0xFFFF0000)) >> 16;
-
-				pEventManager->Notify(&onResizedEvent);
-
-				LOG_MESSAGE(std::string("[Win32 Window System] The window's sizes were changed (width: ").
-									append(std::to_string(onResizedEvent.mWidth)).
-									append(", height: ").
-									append(std::to_string(onResizedEvent.mHeight)).
-									append(")"));
-
+				if (wParam == SIZE_MAXIMIZED)
+				{
+					onSendResizeWindowEvent(lParam & (0x0000FFFF), (lParam & (0xFFFF0000)) >> 16);
+					hasWindowBeenMaximized = true;
+				}
+				else
+				{
+					if (hasWindowBeenMaximized)
+					{
+						onSendResizeWindowEvent(lParam & (0x0000FFFF), (lParam & (0xFFFF0000)) >> 16);
+					}
+					hasWindowBeenMaximized = false;
+				}
+				break;
+			case WM_EXITSIZEMOVE:
+				hasWindowBeenMaximized = true;
 				break;
 			case WM_MOVE:
 				onMovedEvent.mX = lParam & (0x0000FFFF);

@@ -95,7 +95,7 @@ namespace TDEngine2
 		mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpDefaultDepthStencilView);
 
 		/// set up a default viewport
-		SetViewport(0.0f, 0.0f, width, height, 0.0f, 1.0f);
+		SetViewport(0.0f, 0.0f, static_cast<F32>(width), static_cast<F32>(height), 0.0f, 1.0f);
 
 #if _HAS_CXX17
 		mInternalDataObject = TD3D11CtxInternalData { mp3dDevice, mp3dDeviceContext };
@@ -133,12 +133,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = SafeReleaseCOMPtr<ID3D11Device>(&mp3dDevice)) != RC_OK							||
-			(result = SafeReleaseCOMPtr<ID3D11DeviceContext>(&mp3dDeviceContext)) != RC_OK				||
-			(result = SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView)) != RC_OK	||
-			(result = SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer)) != RC_OK		||
-			(result = SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView)) != RC_OK			||
-			(result = SafeReleaseCOMPtr<IDXGISwapChain>(&mpSwapChain)) != RC_OK)
+		if ((result = SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView)) != RC_OK ||
+			(result = SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer)) != RC_OK	  ||
+			(result = SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView)) != RC_OK		  ||
+			(result = SafeReleaseCOMPtr<IDXGISwapChain>(&mpSwapChain)) != RC_OK                       ||
+			(result = SafeReleaseCOMPtr<ID3D11DeviceContext>(&mp3dDeviceContext)) != RC_OK            ||
+			(result = SafeReleaseCOMPtr<ID3D11Device>(&mp3dDevice)) != RC_OK)
 		{
 			return result;
 		}
@@ -202,8 +202,8 @@ namespace TDEngine2
 		viewport.TopLeftY = y;
 		viewport.MinDepth = minDepth;
 		viewport.MaxDepth = maxDepth;
-		viewport.Width    = static_cast<float>(width);
-		viewport.Height   = static_cast<float>(height);
+		viewport.Width    = width;
+		viewport.Height   = height;
 
 		mp3dDeviceContext->RSSetViewports(1, &viewport);
 	}
@@ -358,12 +358,13 @@ namespace TDEngine2
 		if (mpSwapChain)
 		{
 			mp3dDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+			mp3dDeviceContext->ClearState();
 
-			SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView);
-			SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView);
-			SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer);
-
-			if (FAILED(internalResult = mpSwapChain->ResizeBuffers(2, width, height, mCurrBackBufferFormat, 0x0)))
+			SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView, true);
+			SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer, true);
+			SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView, true);
+			
+			if (FAILED(internalResult = mpSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
 			{
 				return RC_FAIL;
 			}
@@ -377,6 +378,8 @@ namespace TDEngine2
 			{
 				return result;
 			}
+
+			TDE2_ASSERT(mpBackBufferView && mpDefaultDepthStencilView);
 
 			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpDefaultDepthStencilView);
 		}
@@ -423,7 +426,7 @@ namespace TDEngine2
 		swapChainDesc.SwapEffect                         = DXGI_SWAP_EFFECT_DISCARD;
 		swapChainDesc.SampleDesc.Count                   = 1;
 
-		IDXGIDevice*  pDXGIDevice = nullptr;
+		IDXGIDevice*  pDXGIDevice  = nullptr;
 		IDXGIAdapter* pDXGIAdapter = nullptr;
 		IDXGIFactory* pDXGIFactory = nullptr;
 		
@@ -507,7 +510,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (FAILED(p3dDevice->CreateDepthStencilView(mpDefaultDepthStencilBuffer, nullptr, ppDepthStencilView)))
+		if (FAILED(p3dDevice->CreateDepthStencilView(*pDepthStencilBuffer, nullptr, ppDepthStencilView)))
 		{
 			return RC_FAIL;
 		}
