@@ -161,10 +161,19 @@ namespace TDEngine2
 		ImGui::Text(text.c_str());
 	}
 
-	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes)
+	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked)
 	{
 		_prepareLayout();
-		return ImGui::Button(text.c_str(), ImVec2(sizes.x, sizes.y));
+
+		if (ImGui::Button(text.c_str(), ImVec2(sizes.x, sizes.y)))
+		{
+			if (onClicked)
+			{
+				onClicked();
+			}
+		}
+
+		return false;
 	}
 
 	bool CImGUIContext::Checkbox(const std::string& text, bool& isSelected)
