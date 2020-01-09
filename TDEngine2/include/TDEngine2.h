@@ -126,6 +126,7 @@
 #include "editor/CPerfProfiler.h"
 #include "editor/IEditorsManager.h"
 #include "editor/CEditorsManager.h"
+#include "editor/IEditorWindow.h"
 
 ///math
 #include "math/TVector2.h"

@@ -1,0 +1,121 @@
+/*!
+	\file IEditorWindow.h
+	\date 09.01.2020
+	\authors Kasimov Ildar
+*/
+
+#pragma once
+
+
+#include "../utils/Config.h"
+#include "../utils/Types.h"
+#include "../core/CBaseObject.h"
+#include <atomic>
+#include <string>
+
+
+#if TDE2_EDITORS_ENABLED
+
+namespace TDEngine2
+{
+	/*!
+		interface IEditorWindow
+
+		\brief The interface describes functionality of a editor's window
+	*/
+
+	class IEditorWindow: public virtual IBaseObject
+	{
+		public:
+			/*!
+				\brief The method should be called once per frame and contains actual commands for
+				the IMGUI context
+			*/
+
+			TDE2_API virtual void Draw() = 0;
+
+			/*!
+				\brief The method sets visibility state of the window
+
+				\param[in] isVisible A flag that determines whether an editor's window is visible or not
+			*/
+
+			TDE2_API virtual void SetVisible(bool isVisible) = 0;
+
+			/*!
+				\brief The method returns a name of the window
+
+				\return The method returns a name of the editor's window
+			*/
+
+			TDE2_API virtual const std::string& GetName() const = 0;
+
+			/*!
+				\brief The method returns true if the editor's window is visible, false in other cases
+
+				\return The method returns true if the editor's window is visible, false in other cases
+			*/
+
+			TDE2_API virtual bool IsVisible() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEditorWindow)
+
+			/*!
+				\brief The method should be should be implemented in all derived classes. It's called
+				once per frame only if the editor's window is visible
+			*/
+
+			TDE2_API virtual void _onDraw() = 0;
+	};
+
+
+	/*!
+		class CBaseEditorWindow
+
+		\brief The class is a common implementation for all user's editors. If you need to
+		implement a custom editor just derive it from this one
+	*/
+
+	class CBaseEditorWindow: public IEditorWindow, public CBaseObject
+	{
+		public:
+			/*!
+				\brief The method should be called once per frame and contains actual commands for
+				the IMGUI context. All derived classes should implement this one to define editor's UI
+			*/
+
+			TDE2_API void Draw() override;
+			
+			/*!
+				\brief The method sets visibility state of the window
+
+				\param[in] isVisible A flag that determines whether an editor's window is visible or not
+			*/
+
+			TDE2_API void SetVisible(bool isVisible) override;
+
+			/*!
+				\brief The method returns a name of the window
+
+				\return The method returns a name of the editor's window
+			*/
+
+			TDE2_API const std::string& GetName() const override;
+
+			/*!
+				\brief The method returns true if the editor's window is visible, false in other cases
+
+				\return The method returns true if the editor's window is visible, false in other cases
+			*/
+
+			TDE2_API bool IsVisible() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseEditorWindow)
+		protected:
+			std::string      mName;
+
+			std::atomic_bool mIsVisible;
+	};
+}
+
+#endif

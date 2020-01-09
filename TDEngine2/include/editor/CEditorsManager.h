@@ -9,6 +9,9 @@
 
 #include "IEditorsManager.h"
 #include "../core/CBaseObject.h"
+#include <vector>
+#include <string>
+#include <tuple>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -43,6 +46,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, E_RESULT_CODE& result);
 		public:
+			typedef std::vector<std::tuple<std::string, IEditorWindow*>> TEditorsArray;
+		public:
 			/*!
 				\brief The method initializes an internal state of main manager for all engine's editors
 
@@ -61,7 +66,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
-			
+
+			/*!
+				\brief The method registers custom editor within the manager
+
+				\param[in] commandName A name of a command within the development menu's which the editor will be linked to
+				\param[in, out] pEditorWindow A pointer to IEditorWindow implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow) override;
+
 			/*!
 				\brief The method updates the current state of the manager
 
@@ -87,6 +103,8 @@ namespace TDEngine2
 			IImGUIContext*        mpImGUIContext;
 
 			bool                  mIsVisible;
+
+			TEditorsArray         mRegisteredEditors;
 	};
 }
 

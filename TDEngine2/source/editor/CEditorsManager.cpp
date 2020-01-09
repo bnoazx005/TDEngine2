@@ -1,6 +1,8 @@
 #include "./../../include/editor/CEditorsManager.h"
+#include "./../../include/editor/IEditorWindow.h"
 #include "./../../include/core/IImGUIContext.h"
 #include "./../../include/core/IInputContext.h"
+#include <algorithm>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -52,6 +54,26 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CEditorsManager::RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow)
+	{
+		if (commandName.empty() || !pEditorWindow)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (std::find_if(mRegisteredEditors.cbegin(), mRegisteredEditors.cend(), [&commandName](auto&& entry)
+		{
+			return std::get<std::string>(entry) == commandName;
+		}) != mRegisteredEditors.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mRegisteredEditors.emplace_back(commandName, pEditorWindow);
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CEditorsManager::Update()
 	{
 		if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_TILDE))
@@ -74,9 +96,23 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+		const static TVector2 buttonSizes { 150.0f, 20.0f };
+
 		if (mpImGUIContext->BeginWindow("Development Menu", mIsVisible))
 		{
+			std::string currCommandName;
+			IEditorWindow* pCurrEditorWindow = nullptr;
+
 			// \todo Draw all buttons here, next step is to add sub-menus based on states
+			for (auto& pCurrEditorWindowEntry : mRegisteredEditors)
+			{
+				std::tie(currCommandName, pCurrEditorWindow) = pCurrEditorWindowEntry;
+
+				mpImGUIContext->Button(currCommandName, buttonSizes, [pCurrEditorWindow]()
+				{
+					pCurrEditorWindow->SetVisible(!pCurrEditorWindow->IsVisible());
+				});
+			}
 
 			mpImGUIContext->EndWindow();
 		}

@@ -10,6 +10,7 @@
 #include "../utils/Config.h"
 #include "../utils/Types.h"
 #include "../core/IEngineSubsystem.h"
+#include <string>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -18,6 +19,7 @@ namespace TDEngine2
 {
 	class IImGUIContext;
 	class IInputContext;
+	class IEditorWindow;
 
 
 	/*!
@@ -39,6 +41,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext) = 0;
+
+			/*!
+				\brief The method registers custom editor within the manager
+
+				\param[in] commandName A name of a command within the development menu's which the editor will be linked to
+				\param[in, out] pEditorWindow A pointer to IEditorWindow implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow) = 0;
 
 			/*!
 				\brief The method updates the current state of the manager
