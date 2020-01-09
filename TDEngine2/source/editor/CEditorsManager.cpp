@@ -1,5 +1,6 @@
 #include "./../../include/editor/CEditorsManager.h"
 #include "./../../include/core/IImGUIContext.h"
+#include "./../../include/core/IInputContext.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -7,23 +8,31 @@
 namespace TDEngine2
 {
 	CEditorsManager::CEditorsManager():
-		CBaseObject()
+		CBaseObject(), mIsVisible(false)
 	{
 	}
 
-	E_RESULT_CODE CEditorsManager::Init(IImGUIContext* pImGUIContext)
+	E_RESULT_CODE CEditorsManager::Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pImGUIContext)
+		if (!pImGUIContext || !pInputContext)
 		{
 			return RC_INVALID_ARGS;
 		}
 
+		mpInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext);
 		mpImGUIContext = pImGUIContext;
+
+		mIsVisible = false;
+
+		if (!mpInputContext)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		mIsInitialized = true;
 
@@ -45,8 +54,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEditorsManager::Update()
 	{
+		if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_TILDE))
+		{
+			mIsVisible = !mIsVisible;
+		}
 
-		return RC_OK;
+		return _showEditorWindows();
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CEditorsManager::GetType() const
@@ -54,8 +67,25 @@ namespace TDEngine2
 		return EST_EDITORS_MANAGER;
 	}
 
+	E_RESULT_CODE CEditorsManager::_showEditorWindows()
+	{
+		if (!mIsVisible)
+		{
+			return RC_OK;
+		}
 
-	TDE2_API IEditorsManager* CreateEditorsManager(IImGUIContext* pImGUIContext, E_RESULT_CODE& result)
+		if (mpImGUIContext->BeginWindow("Development Menu", mIsVisible))
+		{
+			// \todo Draw all buttons here, next step is to add sub-menus based on states
+
+			mpImGUIContext->EndWindow();
+		}
+
+		return RC_OK;
+	}
+
+
+	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, E_RESULT_CODE& result)
 	{
 		CEditorsManager* pEditorsManagerInstance = new (std::nothrow) CEditorsManager();
 
@@ -66,7 +96,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pEditorsManagerInstance->Init(pImGUIContext);
+		result = pEditorsManagerInstance->Init(pInputContext, pImGUIContext);
 
 		if (result != RC_OK)
 		{

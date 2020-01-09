@@ -17,6 +17,7 @@
 namespace TDEngine2
 {
 	class IImGUIContext;
+	class IInputContext;
 
 
 	/*!
@@ -30,13 +31,14 @@ namespace TDEngine2
 		public:
 			/*!
 				\brief The method initializes an internal state of main manager for all engine's editors
-
+				
+				\param[in, out] pInputContext A pointer to IInputContext implementation
 				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IImGUIContext* pImGUIContext) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext) = 0;
 
 			/*!
 				\brief The method updates the current state of the manager

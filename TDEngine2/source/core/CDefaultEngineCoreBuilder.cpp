@@ -407,7 +407,9 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 		E_RESULT_CODE result = RC_OK;
-		IEditorsManager* pEditorsManager = CreateEditorsManager(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), result);
+		IEditorsManager* pEditorsManager = CreateEditorsManager(mpEngineCoreInstance->GetSubsystem<IInputContext>(),
+																mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
+																result);
 #else
 		return RC_OK;
 #endif

@@ -15,9 +15,13 @@
 
 namespace TDEngine2
 {
+	class IDesktopInputContext;
+
+
 	/*!
 		\brief A factory function for creation objects of CEditorsManager's type
 
+		\param[in, out] pInputContext A pointer to IInputContext implementation
 		\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -25,7 +29,7 @@ namespace TDEngine2
 		\return A pointer to IEditorsManager's implementation
 	*/
 
-	TDE2_API IEditorsManager* CreateEditorsManager(IImGUIContext* pImGUIContext, E_RESULT_CODE& result);
+	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -37,17 +41,18 @@ namespace TDEngine2
 	class CEditorsManager : public IEditorsManager, public CBaseObject
 	{
 		public:
-			friend TDE2_API IEditorsManager* CreateEditorsManager(IImGUIContext* pImGUIContext, E_RESULT_CODE& result);
+			friend TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of main manager for all engine's editors
 
+				\param[in, out] pInputContext A pointer to IInputContext implementation
 				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IImGUIContext* pImGUIContext) override;
+			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -74,8 +79,14 @@ namespace TDEngine2
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
+
+			TDE2_API E_RESULT_CODE _showEditorWindows();
 		protected:
-			IImGUIContext* mpImGUIContext;
+			IDesktopInputContext* mpInputContext;
+
+			IImGUIContext*        mpImGUIContext;
+
+			bool                  mIsVisible;
 	};
 }
 

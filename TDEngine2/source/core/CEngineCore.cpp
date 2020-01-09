@@ -275,13 +275,6 @@ namespace TDEngine2
 			mpInputContext->Update();
 		}
 
-#if TDE2_EDITORS_ENABLED
-		if (mpEditorsManager)
-		{
-			mpEditorsManager->Update();
-		}
-#endif
-
 		_onNotifyEngineListeners(EET_ONUPDATE);
 
 		IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER);
@@ -323,6 +316,13 @@ namespace TDEngine2
 						{
 							mpImGUIContext->BeginFrame(dt);
 						}
+
+#if TDE2_EDITORS_ENABLED
+						if (mpEditorsManager)
+						{
+							mpEditorsManager->Update();
+						}
+#endif
 
 						/// \note The internal callback will be invoked when the execution process will go out of the scope
 						CDeferOperation finalizeImGUIContextFrame([this]()
