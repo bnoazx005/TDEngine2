@@ -281,6 +281,20 @@ namespace TDEngine2
 			TDE2_API bool MenuItem(const std::string& name, const std::string& shortcut, const std::function<void()>& onClicked = {}) override;
 
 			/*!
+				\brief The method creates a histogram
+
+				\param[in] name A name of the histogram
+				\param[in] values An array of samples that should be drawn
+				\param[in] minScale Minimal scale's value
+				\param[in] maxScale Maximum scale's value
+				\param[in] sizes A sizes of the displayed histogram
+				\param[in] overlayedText Text that will be displayed over the histogram's samples
+			*/
+
+			TDE2_API void Histogram(const std::string& name, const std::vector<F32>& values, F32 minScale, F32 maxScale,
+									const TVector2& sizes = ZeroVector2, const std::string& overlayedText = "") override;
+
+			/*!
 				\brief The method creates a new window on the screen. Every call after this one
 				will be related with this window
 

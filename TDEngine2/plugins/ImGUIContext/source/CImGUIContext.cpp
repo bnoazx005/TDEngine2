@@ -331,6 +331,11 @@ namespace TDEngine2
 		return false;
 	}
 
+	void CImGUIContext::Histogram(const std::string& name, const std::vector<F32>& values, F32 minScale, F32 maxScale, const TVector2& sizes, const std::string& overlayedText)
+	{
+		ImGui::PlotHistogram(name.c_str(), &values[0], values.size(), 0, overlayedText.c_str(), minScale, maxScale, ImVec2(sizes.x, sizes.y));
+	}
+
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened)
 	{
 		return ImGui::Begin(name.c_str(), &isOpened);
