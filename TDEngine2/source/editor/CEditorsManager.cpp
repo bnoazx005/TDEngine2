@@ -48,6 +48,19 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
+		for (auto& currEditorEntry : mRegisteredEditors)
+		{
+			IEditorWindow* pCurrEditorWindow = std::get<IEditorWindow*>(currEditorEntry);
+			if (!pCurrEditorWindow)
+			{
+				continue;
+			}
+
+			result = result | pCurrEditorWindow->Free();
+		}
+
 		mIsInitialized = false;
 		delete this;
 
@@ -108,13 +121,27 @@ namespace TDEngine2
 			{
 				std::tie(currCommandName, pCurrEditorWindow) = pCurrEditorWindowEntry;
 
-				mpImGUIContext->Button(currCommandName, buttonSizes, [pCurrEditorWindow]()
-				{
-					pCurrEditorWindow->SetVisible(!pCurrEditorWindow->IsVisible());
-				});
+				bool isEditorEnabled = pCurrEditorWindow->IsVisible();
+
+				mpImGUIContext->Button(CStringUtils::Format("{0} {1}", isEditorEnabled ? "Hide " : "Show ", currCommandName),
+									   buttonSizes, [isEditorEnabled, pCurrEditorWindow]()
+										{
+											pCurrEditorWindow->SetVisible(!isEditorEnabled);
+										});
 			}
 
 			mpImGUIContext->EndWindow();
+		}
+
+		for (auto& currEditorEntry : mRegisteredEditors)
+		{
+			IEditorWindow* pCurrEditorWindow = std::get<IEditorWindow*>(currEditorEntry);
+			if (!pCurrEditorWindow)
+			{
+				continue;
+			}
+
+			pCurrEditorWindow->Draw(mpImGUIContext);
 		}
 
 		return RC_OK;

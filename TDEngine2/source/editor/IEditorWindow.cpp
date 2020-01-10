@@ -1,4 +1,5 @@
 #include "./../../include/editor/IEditorWindow.h"
+#include "./../../include/core/IImGUIContext.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -10,12 +11,14 @@ namespace TDEngine2
 	{
 	}
 
-	void CBaseEditorWindow::Draw()
+	void CBaseEditorWindow::Draw(IImGUIContext* pImGUIContext)
 	{
-		if (!mIsVisible)
+		if (!mIsVisible || !pImGUIContext)
 		{
 			return;
 		}
+
+		mpImGUIContext = pImGUIContext;
 
 		_onDraw();
 	}

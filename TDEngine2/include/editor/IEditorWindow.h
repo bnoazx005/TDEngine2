@@ -18,6 +18,9 @@
 
 namespace TDEngine2
 {
+	class IImGUIContext;
+
+
 	/*!
 		interface IEditorWindow
 
@@ -30,9 +33,11 @@ namespace TDEngine2
 			/*!
 				\brief The method should be called once per frame and contains actual commands for
 				the IMGUI context
+
+				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
 			*/
 
-			TDE2_API virtual void Draw() = 0;
+			TDE2_API virtual void Draw(IImGUIContext* pImGUIContext) = 0;
 
 			/*!
 				\brief The method sets visibility state of the window
@@ -81,10 +86,12 @@ namespace TDEngine2
 		public:
 			/*!
 				\brief The method should be called once per frame and contains actual commands for
-				the IMGUI context. All derived classes should implement this one to define editor's UI
+				the IMGUI context
+
+				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
 			*/
 
-			TDE2_API void Draw() override;
+			TDE2_API void Draw(IImGUIContext* pImGUIContext) override;
 			
 			/*!
 				\brief The method sets visibility state of the window
@@ -112,6 +119,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseEditorWindow)
 		protected:
+			IImGUIContext*   mpImGUIContext;
+
 			std::string      mName;
 
 			std::atomic_bool mIsVisible;

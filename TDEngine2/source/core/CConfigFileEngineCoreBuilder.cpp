@@ -32,6 +32,8 @@
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/graphics/CStaticMesh.h"
 #include "./../../include/editor/CEditorsManager.h"
+#include "./../../include/editor/CProfilerEditorWindow.h"
+#include "./../../include/editor/CPerfProfiler.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -413,9 +415,19 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 		E_RESULT_CODE result = RC_OK;
-		IEditorsManager* pEditorsManager = CreateEditorsManager(mpEngineCoreInstance->GetSubsystem<IInputContext>(), 
-																mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), 
+		IEditorsManager* pEditorsManager = CreateEditorsManager(mpEngineCoreInstance->GetSubsystem<IInputContext>(),
+																mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
 																result);
+
+		std::tuple<std::string, IEditorWindow*> builtinEditors[]
+		{
+			{ "Profiler", CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
+		};
+
+		for (auto& currEditorEntry : builtinEditors)
+		{
+			result = result | pEditorsManager->RegisterEditor(std::get<std::string>(currEditorEntry), std::get<IEditorWindow*>(currEditorEntry));
+		}
 #else
 		return RC_OK;
 #endif
