@@ -39,6 +39,8 @@ namespace TDEngine2
 
 			typedef std::stack<std::string>                        TScopesStackContext;
 			typedef std::unordered_map<std::string, TSampleRecord> TSamplesTable;
+			typedef std::vector<TSamplesTable>                     TSamplesLog;
+			typedef std::vector<F32>                               TFramesTimesLog;
 		public:
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -47,6 +49,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method stars to record current frame's statistics. The method should be called only once per frame
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE BeginFrame() override;
+
+			/*!
+				\brief The method stops recording statistics. The method should be called only once per frame
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE EndFrame() override;
 
 			/*!
 				\brief The method push a new scope into internal stack of tracked scopes to provide
@@ -94,6 +112,23 @@ namespace TDEngine2
 			TDE2_API ITimer* GetTimer() const override;
 
 			/*!
+				\brief The method returns an array which contains log of frames's timings. The method
+				is better to use when you want to get contigious block of data instead of retrieving particular samples
+
+				\return The method returns an array which contains log of frames's timings
+			*/
+
+			TDE2_API const std::vector<F32>& GetFramesTimes() const override;
+
+			/*
+				\brief The method returns an index of a frame which time is the worstest between other ones
+
+				\return The method returns an index of a frame which time is the worstest between other ones
+			*/
+
+			TDE2_API U16 GetWorstFrameIndexByTime() const override;
+
+			/*!
 				\brief The function is replacement of factory method for instances of this type.
 				The only instance will be created per program's lifetime. To destroy it call Free
 				as for any other type within the engine
@@ -105,11 +140,22 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPerfProfiler);
 		private:
+			static const U16    mLogBuffer;
+
 			ITimer*             mpPerformanceTimer;
 			
+			bool                mIsRecording;
+
 			TScopesStackContext mScopesContext;
 
-			TSamplesTable       mSamplesTable;
+			TSamplesLog         mFramesStatistics;
+
+			TFramesTimesLog     mFramesTimesStatistics;
+
+			U32                 mCurrFrameIndex;
+
+			U32                 mWorstTimeFrameIndex;
+
 	};
 
 

@@ -47,6 +47,22 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE PopScope() = 0;
 
 			/*!
+				\brief The method stars to record current frame's statistics. The method should be called only once per frame
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE BeginFrame() = 0;
+			
+			/*!
+				\brief The method stops recording statistics. The method should be called only once per frame
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE EndFrame() = 0;
+
+			/*!
 				\brief The method writes measurement's sample into profiler's table
 
 				\param[in] time A elapsed time's value for this sample
@@ -71,6 +87,23 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual ITimer* GetTimer() const = 0;
+
+			/*!
+				\brief The method returns an array which contains log of frames's timings. The method
+				is better to use when you want to get contigious block of data instead of retrieving particular samples
+
+				\return The method returns an array which contains log of frames's timings
+			*/
+
+			TDE2_API virtual const std::vector<F32>& GetFramesTimes() const = 0;
+
+			/*
+				\brief The method returns an index of a frame which time is the worstest between other ones
+
+				\return The method returns an index of a frame which time is the worstest between other ones
+			*/
+
+			TDE2_API virtual U16 GetWorstFrameIndexByTime() const = 0;
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.

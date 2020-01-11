@@ -8,6 +8,7 @@
 
 
 #include "IEditorWindow.h"
+#include <vector>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -66,7 +67,11 @@ namespace TDEngine2
 
 			TDE2_API void _onDraw() override;
 		protected:
-			IProfiler* mpProfiler;
+			static const U16 mBufferSize = 128;
+
+			IProfiler*       mpProfiler;
+
+			F32              mFrameRatesBuffer[mBufferSize];
 	};
 }
 

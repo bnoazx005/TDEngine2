@@ -57,10 +57,11 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Profiler", isEnabled, params))
 		{
-			// \todo
-			std::vector<F32> values(128);
-			for (int i = 0; i < values.size(); ++i) values[i] = rand() % 32;
-			mpImGUIContext->Histogram("", values, 0.0f, 36.0f, { mpImGUIContext->GetWindowWidth() - 15.0f, 64.0f }, "Frame Times");
+			auto framesStats = mpProfiler->GetFramesTimes();
+
+			U16 maxFrameTimeIndex = mpProfiler->GetWorstFrameIndexByTime();
+
+			mpImGUIContext->Histogram("", framesStats, 0.0f, framesStats[maxFrameTimeIndex], { mpImGUIContext->GetWindowWidth() - 15.0f, 64.0f }, "Frame Times");
 
 			mpImGUIContext->EndWindow();
 		}

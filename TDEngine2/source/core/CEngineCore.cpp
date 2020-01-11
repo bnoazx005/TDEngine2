@@ -20,6 +20,7 @@
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/utils/ITimer.h"
 #include "./../../include/editor/IEditorsManager.h"
+#include "./../../include/editor/CPerfProfiler.h"
 #include <cstring>
 #include <algorithm>
 
@@ -270,6 +271,11 @@ namespace TDEngine2
 
 	void CEngineCore::_onFrameUpdateCallback()
 	{
+#if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
+		IProfiler* pProfiler = CPerfProfiler::Get();
+		pProfiler->BeginFrame();
+#endif
+
 		if (mpInputContext)
 		{
 			mpInputContext->Update();
@@ -283,6 +289,10 @@ namespace TDEngine2
 		{
 			pRenderer->Draw();
 		}
+
+#if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
+		pProfiler->EndFrame();
+#endif
 	}
 
 	E_RESULT_CODE CEngineCore::_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType)

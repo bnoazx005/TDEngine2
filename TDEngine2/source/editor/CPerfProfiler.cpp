@@ -6,8 +6,11 @@
 
 namespace TDEngine2
 {
+	const U16 CPerfProfiler::mLogBuffer = 256;
+
+
 	CPerfProfiler::CPerfProfiler() :
-		CBaseObject()
+		CBaseObject(), mIsRecording(false), mCurrFrameIndex(0), mWorstTimeFrameIndex(0)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -21,6 +24,9 @@ namespace TDEngine2
 
 		TDE2_ASSERT(mpPerformanceTimer);
 		mpPerformanceTimer->Start();
+
+		mFramesTimesStatistics.resize(mLogBuffer);
+		mFramesStatistics.resize(mLogBuffer);
 	}
 
 	E_RESULT_CODE CPerfProfiler::Free()
@@ -57,9 +63,41 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CPerfProfiler::BeginFrame()
+	{
+		if (mIsRecording)
+		{
+			return RC_FAIL;
+		}
+
+		mIsRecording = true;
+		mFramesTimesStatistics[mCurrFrameIndex] = mpPerformanceTimer->GetCurrTime();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CPerfProfiler::EndFrame()
+	{
+		if (!mIsRecording)
+		{
+			return RC_FAIL;
+		}
+
+		// \note save information about current frame's time
+		mFramesTimesStatistics[mCurrFrameIndex] = mpPerformanceTimer->GetCurrTime() - mFramesTimesStatistics[mCurrFrameIndex];
+
+		mWorstTimeFrameIndex = (mFramesTimesStatistics[mCurrFrameIndex] > mFramesTimesStatistics[mWorstTimeFrameIndex]) ? mCurrFrameIndex : mWorstTimeFrameIndex;
+
+		mCurrFrameIndex = (mCurrFrameIndex + 1) % mLogBuffer;
+		mIsRecording = false;
+
+		return RC_OK;
+	}
+
 	void CPerfProfiler::WriteSample(F32 time, U32 threadID)
 	{
-		mSamplesTable[GetCurrParentScopeName()] = { time, threadID };
+		TDE2_ASSERT(mFramesStatistics.size() > mCurrFrameIndex);
+		mFramesStatistics[mCurrFrameIndex][GetCurrParentScopeName()] = { time, threadID };
 	}
 
 	const std::string& CPerfProfiler::GetCurrParentScopeName() const
@@ -72,6 +110,15 @@ namespace TDEngine2
 		return mpPerformanceTimer;
 	}
 
+	const std::vector<F32>& CPerfProfiler::GetFramesTimes() const
+	{
+		return mFramesTimesStatistics;
+	}
+
+	U16 CPerfProfiler::GetWorstFrameIndexByTime() const
+	{
+		return mWorstTimeFrameIndex;
+	}
 
 	TDE2_API IProfiler* CPerfProfiler::Get()
 	{
