@@ -47,10 +47,20 @@ namespace TDEngine2
 	void CProfilerEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
-		
-		if (mpImGUIContext->BeginWindow("Profiler", isEnabled))
+
+		static const IImGUIContext::TWindowParams params
+		{
+			ZeroVector2,
+			TVector2(600.0f, 100.0f),
+			TVector2(800.0f, 400.0f),
+		};
+
+		if (mpImGUIContext->BeginWindow("Profiler", isEnabled, params))
 		{
 			// \todo
+			std::vector<F32> values(128);
+			for (int i = 0; i < values.size(); ++i) values[i] = rand() % 32;
+			mpImGUIContext->Histogram("", values, 0.0f, 36.0f, { mpImGUIContext->GetWindowWidth() - 15.0f, 64.0f }, "Frame Times");
 
 			mpImGUIContext->EndWindow();
 		}

@@ -336,9 +336,34 @@ namespace TDEngine2
 		ImGui::PlotHistogram(name.c_str(), &values[0], values.size(), 0, overlayedText.c_str(), minScale, maxScale, ImVec2(sizes.x, sizes.y));
 	}
 
-	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened)
+	void CImGUIContext::Histogram(const std::string& name, const F32* pValues, U32 valuesCount, F32 minScale, F32 maxScale,
+								  const TVector2& sizes, const std::string& overlayedText)
 	{
-		return ImGui::Begin(name.c_str(), &isOpened);
+		ImGui::PlotHistogram(name.c_str(), pValues, valuesCount, 0, overlayedText.c_str(), minScale, maxScale, ImVec2(sizes.x, sizes.y));
+	}
+
+	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)
+	{
+		ImGuiWindowFlags flags = 0x0;
+		flags |= (params.mIsAutoResizeable ? ImGuiWindowFlags_AlwaysAutoResize : 0x0);
+
+		if (params.mMaxSizes != ZeroVector2)
+		{
+			TVector2 minSizes = params.mMinSizes;
+			TVector2 maxSizes = params.mMaxSizes;
+
+			ImGui::SetNextWindowSizeConstraints(ImVec2(minSizes.x, minSizes.y), ImVec2(maxSizes.x, maxSizes.y));
+		}
+
+		if (params.mSizes != ZeroVector2)
+		{
+			TVector2 sizes = params.mSizes;
+			ImGui::SetNextWindowSize(ImVec2(sizes.x, sizes.y));
+		}
+
+		bool result = ImGui::Begin(name.c_str(), &isOpened, flags);
+
+		return result;
 	}
 
 	void CImGUIContext::EndWindow()
@@ -356,6 +381,16 @@ namespace TDEngine2
 		TDE2_ASSERT(mIsHorizontalGroupEnabled);
 
 		mIsHorizontalGroupEnabled = false;
+	}
+
+	F32 CImGUIContext::GetWindowWidth() const
+	{
+		return ImGui::GetWindowWidth();
+	}
+
+	F32 CImGUIContext::GetWindowHeight() const
+	{
+		return ImGui::GetWindowHeight();
 	}
 
 	E_RESULT_CODE CImGUIContext::_initInternalImGUIContext(ImGuiIO& io)

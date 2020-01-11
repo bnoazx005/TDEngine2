@@ -71,6 +71,15 @@ namespace TDEngine2
 	class IImGUIContext : public IEngineSubsystem, public IImGUIContextVisitor
 	{
 		public:
+			typedef struct TWindowParams
+			{
+				TVector2 mSizes    = ZeroVector2;
+				TVector2 mMinSizes = ZeroVector2;
+				TVector2 mMaxSizes = ZeroVector2;
+
+				bool     mIsAutoResizeable = false;
+			} TWindowParams, *TWindowParamsPtr;
+		public:
 			/*!
 				\brief The method initializes an internal state of a context
 
@@ -273,16 +282,32 @@ namespace TDEngine2
 											const TVector2& sizes = ZeroVector2, const std::string& overlayedText = "") = 0;
 
 			/*!
+				\brief The method creates a histogram
+
+				\param[in] name A name of the histogram
+				\param[in] pValues An array of samples that should be drawn
+				\param[in] valuesCount A size of the array 
+				\param[in] minScale Minimal scale's value
+				\param[in] maxScale Maximum scale's value
+				\param[in] sizes A sizes of the displayed histogram
+				\param[in] overlayedText Text that will be displayed over the histogram's samples
+			*/
+
+			TDE2_API virtual void Histogram(const std::string& name, const F32* pValues, U32 valuesCount, F32 minScale, F32 maxScale,
+											const TVector2& sizes = ZeroVector2, const std::string& overlayedText = "") = 0;
+
+			/*!
 				\brief The method creates a new window on the screen. Every call after this one
 				will be related with this window
 
 				\param[in] name A window's name
 				\param[in, out] isOpened A flag that determines whether the window is shown or not
+				\param[in] params A set of additonal parameters which can be applied to the window
 
 				\return The method returns false if the window is collapsed or not visible
 			*/
 
-			TDE2_API virtual bool BeginWindow(const std::string& name, bool& isOpened) = 0;
+			TDE2_API virtual bool BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params = {}) = 0;
 
 			/*!
 				\brief The method finishes populating of current window
@@ -308,6 +333,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void EndHorizontal() = 0;
+
+			/*!
+				\brief The method returns a width of current active window
+
+				\return The method returns a width of current active window
+			*/
+
+			TDE2_API virtual F32 GetWindowWidth() const = 0;
+			
+			/*!
+				\brief The method returns a height of current active window
+
+				\return The method returns a height of current active window
+			*/
+
+			TDE2_API virtual F32 GetWindowHeight() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_IMGUI_CONTEXT; }
 		protected:
