@@ -110,24 +110,26 @@ namespace TDEngine2
 		}
 
 		const static TVector2 buttonSizes { 150.0f, 20.0f };
-
-		if (mpImGUIContext->BeginWindow("Development Menu", mIsVisible))
+		
 		{
-			std::string currCommandName;
-			IEditorWindow* pCurrEditorWindow = nullptr;
-
-			// \todo Draw all buttons here, next step is to add sub-menus based on states
-			for (auto& pCurrEditorWindowEntry : mRegisteredEditors)
+			if (mpImGUIContext->BeginWindow("Development Menu", mIsVisible))
 			{
-				std::tie(currCommandName, pCurrEditorWindow) = pCurrEditorWindowEntry;
+				std::string currCommandName;
+				IEditorWindow* pCurrEditorWindow = nullptr;
 
-				bool isEditorEnabled = pCurrEditorWindow->IsVisible();
+				// \todo Draw all buttons here, next step is to add sub-menus based on states
+				for (auto& pCurrEditorWindowEntry : mRegisteredEditors)
+				{
+					std::tie(currCommandName, pCurrEditorWindow) = pCurrEditorWindowEntry;
 
-				mpImGUIContext->Button(CStringUtils::Format("{0} {1}", isEditorEnabled ? "Hide " : "Show ", currCommandName),
-									   buttonSizes, [isEditorEnabled, pCurrEditorWindow]()
-										{
-											pCurrEditorWindow->SetVisible(!isEditorEnabled);
-										});
+					bool isEditorEnabled = pCurrEditorWindow->IsVisible();
+
+					mpImGUIContext->Button(CStringUtils::Format("{0} {1}", isEditorEnabled ? "Hide " : "Show ", currCommandName),
+						buttonSizes, [isEditorEnabled, pCurrEditorWindow]()
+					{
+						pCurrEditorWindow->SetVisible(!isEditorEnabled);
+					});
+				}
 			}
 
 			mpImGUIContext->EndWindow();
