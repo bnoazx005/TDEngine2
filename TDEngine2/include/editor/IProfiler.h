@@ -28,25 +28,6 @@ namespace TDEngine2
 	{
 		public:
 			/*!
-				\brief The method push a new scope into internal stack of tracked scopes to provide
-				information about stack trace
-
-				\param[in] scopeName A string identifier of pushed scope
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE PushScope(const std::string& scopeName) = 0;
-
-			/*!
-				\brief The method pops up current scope from the stack
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE PopScope() = 0;
-
-			/*!
 				\brief The method stars to record current frame's statistics. The method should be called only once per frame
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -65,20 +46,12 @@ namespace TDEngine2
 			/*!
 				\brief The method writes measurement's sample into profiler's table
 
-				\param[in] time A elapsed time's value for this sample
+				\param[in] startTime A time when the record of the sample was started to record
+				\param[in] duration A elapsed time's value for this sample
 				\param[in] threadID An identifier of a thread
 			*/
 
-			TDE2_API virtual void WriteSample(F32 time, U32 threadID) = 0;
-
-			/*!
-				\brief The method returns a string with name of a parent scope
-
-				\return The method returns a string with name of a parent scope, an empty string
-				in case of the root scope when there is no any pushed scope yet
-			*/
-
-			TDE2_API virtual const std::string& GetCurrParentScopeName() const = 0;
+			TDE2_API virtual void WriteSample(F32 startTime, F32 duration, U32 threadID) = 0;
 
 			/*!
 				\brief The method returns instrumental timer that's used for measurements

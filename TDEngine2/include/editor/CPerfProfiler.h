@@ -32,15 +32,15 @@ namespace TDEngine2
 		protected:
 			typedef struct TSampleRecord
 			{
-				F32 mTime = 0.0f;
+				F32 mStartTime = 0.0f;
+				F32 mDuration  = 0.0f;
 
 				U32 mThreadID = 0x0;
 			} TSampleRecord, *TSampleRecordPtr;
 
-			typedef std::stack<std::string>                        TScopesStackContext;
-			typedef std::unordered_map<std::string, TSampleRecord> TSamplesTable;
-			typedef std::vector<TSamplesTable>                     TSamplesLog;
-			typedef std::vector<F32>                               TFramesTimesLog;
+			typedef std::unordered_map<U32, TSampleRecord> TSamplesTable;
+			typedef std::vector<TSamplesTable>             TSamplesLog;
+			typedef std::vector<F32>                       TFramesTimesLog;
 		public:
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -67,41 +67,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE EndFrame() override;
 
 			/*!
-				\brief The method push a new scope into internal stack of tracked scopes to provide
-				information about stack trace
-
-				\param[in] scopeName A string identifier of pushed scope
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE PushScope(const std::string& scopeName) override;
-
-			/*!
-				\brief The method pops up current scope from the stack
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE PopScope() override;
-
-			/*!
 				\brief The method writes measurement's sample into profiler's table
 
-				\param[in] time A elapsed time's value for this sample
+				\param[in] startTime A time when the record of the sample was started to record
+				\param[in] duration A elapsed time's value for this sample
 				\param[in] threadID An identifier of a thread
 			*/
 
-			TDE2_API void WriteSample(F32 time, U32 threadID) override;
-
-			/*!
-				\brief The method returns a string with name of a parent scope
-
-				\return The method returns a string with name of a parent scope, an empty string
-				in case of the root scope when there is no any pushed scope yet
-			*/
-
-			TDE2_API const std::string& GetCurrParentScopeName() const override;
+			TDE2_API void WriteSample(F32 startTime, F32 duration, U32 threadID) override;
 
 			/*!
 				\brief The method returns instrumental timer that's used for measurements
@@ -146,8 +119,6 @@ namespace TDEngine2
 			
 			bool                mIsRecording;
 
-			TScopesStackContext mScopesContext;
-
 			TSamplesLog         mFramesStatistics;
 
 			TFramesTimesLog     mFramesTimesStatistics;
@@ -172,7 +143,6 @@ namespace TDEngine2
 				mName(name)
 			{
 				IProfiler* pProfiler = CPerfProfiler::Get();
-				PANIC_ON_FAILURE(pProfiler->PushScope(name));
 
 				ITimer* pTimer = pProfiler->GetTimer();
 				pTimer->Tick();
@@ -189,8 +159,7 @@ namespace TDEngine2
 
 				mEndTime = pTimer->GetCurrTime();
 
-				pProfiler->WriteSample(mEndTime - mStartTime, std::hash<std::thread::id>{}(mThreadID));
-				PANIC_ON_FAILURE(pProfiler->PopScope());
+				pProfiler->WriteSample(mStartTime, mEndTime - mStartTime, std::hash<std::thread::id>{}(mThreadID));
 			}
 		private:
 			std::string     mName;

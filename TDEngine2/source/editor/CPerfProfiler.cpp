@@ -45,24 +45,6 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CPerfProfiler::PushScope(const std::string& scopeName)
-	{
-		mScopesContext.push(scopeName);
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CPerfProfiler::PopScope()
-	{
-		if (mScopesContext.empty())
-		{
-			return RC_FAIL;
-		}
-
-		mScopesContext.pop();
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CPerfProfiler::BeginFrame()
 	{
 		if (mIsRecording)
@@ -84,7 +66,7 @@ namespace TDEngine2
 		}
 
 		// \note save information about current frame's time
-		mFramesTimesStatistics[mCurrFrameIndex] = mpPerformanceTimer->GetCurrTime() - mFramesTimesStatistics[mCurrFrameIndex];
+		mFramesTimesStatistics[mCurrFrameIndex] = (mpPerformanceTimer->GetCurrTime() - mFramesTimesStatistics[mCurrFrameIndex]);
 
 		mWorstTimeFrameIndex = (mFramesTimesStatistics[mCurrFrameIndex] > mFramesTimesStatistics[mWorstTimeFrameIndex]) ? mCurrFrameIndex : mWorstTimeFrameIndex;
 
@@ -94,15 +76,10 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CPerfProfiler::WriteSample(F32 time, U32 threadID)
+	void CPerfProfiler::WriteSample(F32 startTime, F32 duration, U32 threadID)
 	{
 		TDE2_ASSERT(mFramesStatistics.size() > mCurrFrameIndex);
-		mFramesStatistics[mCurrFrameIndex][GetCurrParentScopeName()] = { time, threadID };
-	}
-
-	const std::string& CPerfProfiler::GetCurrParentScopeName() const
-	{
-		return mScopesContext.empty() ? CStringUtils::mEmptyStr : mScopesContext.top();
+		mFramesStatistics[mCurrFrameIndex][threadID] = { startTime, duration, threadID };
 	}
 
 	ITimer* CPerfProfiler::GetTimer() const
