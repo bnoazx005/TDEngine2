@@ -800,7 +800,7 @@ namespace TDEngine2
 
 	typedef struct TRasterizerStateDesc
 	{
-		E_CULL_MODE mCullMode = E_CULL_MODE::FRONT;
+		E_CULL_MODE mCullMode = E_CULL_MODE::BACK;
 
 		bool        mIsWireframeModeEnabled = false;
 		bool        mIsFrontCCWEnabled = false;
@@ -809,7 +809,7 @@ namespace TDEngine2
 		F32         mMaxDepthBias = 1.0f;
 
 		bool        mIsDepthClippingEnabled = true;
-		bool        mIsScissorTestEnabled = true;
+		bool        mIsScissorTestEnabled = false;
 	} TRasterizerStateDesc, *TRasterizerStateDescPtr;
 
 

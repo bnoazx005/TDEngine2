@@ -290,6 +290,31 @@ namespace TDEngine2
 			TDE2_API void SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType) override;
 
 			/*!
+				\brief The method specifies culling mode for faces for the current material
+
+				\param[in] cullMode A value of E_CULL_MODE type which defines which face should be culled
+			*/
+
+			TDE2_API void SetCullMode(const E_CULL_MODE& cullMode) override;
+
+			/*!
+				\brief The method allows to enable or disable scissor test, which by defaul is disabled
+
+				\param[in] state The argument defines whether or not scissor test will be used
+			*/
+
+			TDE2_API void SetScissorEnabled(bool state) override;
+
+			/*!
+				\brief The method enables\disables wireframe output of primitives. Note that not all graphics context
+				support this kind of output especially mobile ones
+
+				\param[in] state The argument defines whether or not primitives should be rendered in wireframe mode
+			*/
+
+			TDE2_API void SetWireframeMode(bool state) override;
+
+			/*!
 				\brief The method returns hash value which corresponds to a given variable's name
 
 				\return The method returns hash value which corresponds to a given variable's name
@@ -352,6 +377,10 @@ namespace TDEngine2
 			TDepthStencilStateDesc  mDepthStencilStateParams;
 
 			TDepthStencilStateId    mDepthStencilStateHandle = InvalidDepthStencilStateId;
+
+			TRasterizerStateDesc    mRasterizerStateParams;
+
+			TRasterizerStateId      mRasterizerStateHandle = InvalidRasterizerStateId;
 	};
 
 

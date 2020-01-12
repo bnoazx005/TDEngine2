@@ -18,8 +18,9 @@ namespace TDEngine2
 		\note The declaration of TMaterialParameters is placed at IMaterial.h
 	*/
 
-	TMaterialParameters::TMaterialParameters(const std::string& shaderName, bool isTransparent, const TDepthStencilStateDesc& depthStencilState):
-		mShaderName(shaderName), mBlendingParams(), mDepthStencilParams(depthStencilState)
+	TMaterialParameters::TMaterialParameters(const std::string& shaderName, bool isTransparent, const TDepthStencilStateDesc& depthStencilState,
+											 const TRasterizerStateDesc& rasterizerState):
+		mShaderName(shaderName), mBlendingParams(), mDepthStencilParams(depthStencilState), mRasterizerParams(rasterizerState)
 	{
 		mBlendingParams.mIsEnabled = isTransparent;
 	}
@@ -141,6 +142,13 @@ namespace TDEngine2
 
 		mpGraphicsContext->BindDepthStencilState(mDepthStencilStateHandle);
 
+		if (mRasterizerStateHandle == InvalidRasterizerStateId)
+		{
+			mRasterizerStateHandle = mpGraphicsObjectManager->CreateRasterizerState(mRasterizerStateParams).Get();
+		}
+
+		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
+
 		U8 userUniformBufferId = 0;
 		for (const auto& currUserDataBuffer : mpUserUniformsData)
 		{
@@ -190,6 +198,21 @@ namespace TDEngine2
 	void CBaseMaterial::SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType)
 	{
 		mDepthStencilStateParams.mDepthCmpFunc = funcType;
+	}
+
+	void CBaseMaterial::SetCullMode(const E_CULL_MODE& cullMode)
+	{
+		mRasterizerStateParams.mCullMode = cullMode;
+	}
+
+	void CBaseMaterial::SetScissorEnabled(bool state)
+	{
+		mRasterizerStateParams.mIsScissorTestEnabled = state;
+	}
+
+	void CBaseMaterial::SetWireframeMode(bool state)
+	{
+		mRasterizerStateParams.mIsWireframeModeEnabled = state;
 	}
 
 	U32 CBaseMaterial::GetVariableHash(const std::string& name) const
@@ -334,6 +357,13 @@ namespace TDEngine2
 			pMaterialInstance->SetDepthWriteEnabled(depthStencilParams.mIsDepthWritingEnabled);
 			pMaterialInstance->SetDepthComparisonFunc(depthStencilParams.mDepthCmpFunc);
 			pMaterialInstance->SetStencilBufferEnabled(depthStencilParams.mIsStencilTestEnabled);
+
+			// \note rasterizer state parameters
+			auto&& rasterizerStateParams = params.mRasterizerParams;
+
+			pMaterialInstance->SetCullMode(rasterizerStateParams.mCullMode);
+			pMaterialInstance->SetWireframeMode(rasterizerStateParams.mIsWireframeModeEnabled);
+			pMaterialInstance->SetScissorEnabled(rasterizerStateParams.mIsScissorTestEnabled);
 		}
 
 		return pMaterialInstance;

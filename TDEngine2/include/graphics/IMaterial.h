@@ -39,13 +39,16 @@ namespace TDEngine2
 			\note TMaterialParameters's definition is placed in CBaseMaterial.cpp file
 		*/
 
-		TDE2_API TMaterialParameters(const std::string& shaderName, bool isTransparent = false, const TDepthStencilStateDesc& depthStencilState = {});
+		TDE2_API TMaterialParameters(const std::string& shaderName, bool isTransparent = false, const TDepthStencilStateDesc& depthStencilState = {},
+									 const TRasterizerStateDesc& rasterizerState = {});
 
 		std::string            mShaderName;
 
 		TBlendStateDesc        mBlendingParams;
 
 		TDepthStencilStateDesc mDepthStencilParams;
+
+		TRasterizerStateDesc   mRasterizerParams;
 	} TMaterialParameters, *TMaterialParametersPtr;
 
 
@@ -171,6 +174,31 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType) = 0;
+
+			/*!
+				\brief The method specifies culling mode for faces for the current material
+
+				\param[in] cullMode A value of E_CULL_MODE type which defines which face should be culled
+			*/
+
+			TDE2_API virtual void SetCullMode(const E_CULL_MODE& cullMode) = 0;
+
+			/*!
+				\brief The method allows to enable or disable scissor test, which by defaul is disabled
+
+				\param[in] state The argument defines whether or not scissor test will be used
+			*/
+
+			TDE2_API virtual void SetScissorEnabled(bool state) = 0;
+			
+			/*!
+				\brief The method enables\disables wireframe output of primitives. Note that not all graphics context
+				support this kind of output especially mobile ones
+
+				\param[in] state The argument defines whether or not primitives should be rendered in wireframe mode
+			*/
+
+			TDE2_API virtual void SetWireframeMode(bool state) = 0;
 
 			/*!
 				\brief The method returns hash value which corresponds to a given variable's name
