@@ -45,6 +45,10 @@ namespace TDEngine2
 			TDE2_API constexpr static inline F32 Clamp(F32 leftBound, F32 rightBound, F32 value) { return Min(rightBound, Max(leftBound, value)); }
 			TDE2_API constexpr static inline F32 Clamp01(F32 value) { return Min(1.0f, Max(0.0f, value)); }
 			TDE2_API constexpr static inline F32 Lerp(F32 a, F32 b, F32 t) { return a * (1.0f - t) + b * t; }
+			TDE2_API constexpr static inline F32 Abs(F32 value) { return value < 0.0f ? -value : value; }
+			TDE2_API constexpr static inline bool IsGreatOrEqual(F32 a, F32 b, F32 epsilon = 1e-6f) { return a > b || Abs(a - b) < epsilon; }
+			TDE2_API constexpr static inline bool IsLessOrEqual(F32 a, F32 b, F32 epsilon = 1e-6f) { return a < b || Abs(a - b) < epsilon; }
+			TDE2_API constexpr static inline bool IsInInclusiveRange(F32 left, F32 right, F32 value) { return IsGreatOrEqual(value, left) && IsLessOrEqual(value, right); }
 	};
 
 
