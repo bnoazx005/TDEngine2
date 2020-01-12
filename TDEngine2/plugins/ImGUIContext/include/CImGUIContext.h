@@ -11,10 +11,12 @@
 #include <math/TVector2.h>
 #include <math/TVector4.h>
 #include <utils/Color.h>
+#include <stack>
 
 
 struct ImGuiIO;
 struct ImDrawData;
+struct ImDrawList;
 
 
 namespace TDEngine2
@@ -56,6 +58,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 															  IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
+		public:
+			typedef std::stack<ImDrawList*> TDrawListsStack;
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
@@ -308,6 +312,26 @@ namespace TDEngine2
 
 			TDE2_API void Histogram(const std::string& name, const F32* pValues, U32 valuesCount, F32 minScale, F32 maxScale,
 									const TVector2& sizes = ZeroVector2, const std::string& overlayedText = "") override;
+			
+			/*!
+				\brief The method draws a line within the current active window
+
+				\param[in] start An initial position of the line
+				\param[in] end Finish position of the line
+				\param[in] color The line's color
+				\param[in] thickness A line's thickness
+			*/
+
+			TDE2_API void DrawLine(const TVector2& start, const TVector2& end, const TColor32F& color, F32 thickness = 1.0f) override;
+
+			/*!
+				\brief The method draws a rectangle within the current active window
+
+				\param[in] rect A rectangle's parameters
+				\param[in] color The rectangle's color
+			*/
+
+			TDE2_API void DrawRect(const TRectF32& rect, const TColor32F& color) override;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one
@@ -348,6 +372,20 @@ namespace TDEngine2
 			TDE2_API void EndHorizontal() override;
 
 			/*!
+				\brief The method creates child window's region within the current one
+
+				\return The method returns true if the window is shown
+			*/
+
+			TDE2_API bool BeginChildWindow(const std::string& name, const TVector2& sizes) override;
+
+			/*!
+				\brief The method finalizes current child window
+			*/
+
+			TDE2_API void EndChildWindow() override;
+
+			/*!
 				\brief The method returns a width of current active window
 
 				\return The method returns a width of current active window
@@ -362,6 +400,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API F32 GetWindowHeight() const override;
+
+			/*!
+				\brief The method returns cursor position in a viewport space. The method is useful when
+				you work with DrawX methods
+
+				\return The method returns cursor position in a viewport space
+			*/
+
+			TDE2_API TVector2 GetCursorScreenPos() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUIContext)
 
@@ -379,6 +426,8 @@ namespace TDEngine2
 			TDE2_API void _initInputMappings(ImGuiIO& io);
 
 			TDE2_API void _prepareLayout();
+
+			TDE2_API ImDrawList* _getCurrActiveDrawList() const;
 		protected:
 			std::atomic_bool        mIsInitialized;
 
@@ -407,5 +456,7 @@ namespace TDEngine2
 			IVertexDeclaration*     mpEditorUIVertexDeclaration;
 
 			bool                    mIsHorizontalGroupEnabled = false;
+
+			TDrawListsStack         mpDrawListsContext;
 	};
 }

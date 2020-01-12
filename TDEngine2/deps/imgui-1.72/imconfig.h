@@ -13,6 +13,10 @@
 
 #pragma once
 
+
+#include "./../../include/math/TVector2.h"
+
+
 //---- Define assertion handler. Defaults to calling assert().
 //#define IM_ASSERT(_EXPR)  MyAssert(_EXPR)
 //#define IM_ASSERT(_EXPR)  ((void)(_EXPR))     // Disable asserts
@@ -63,6 +67,10 @@
         ImVec4(const MyVec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
         operator MyVec4() const { return MyVec4(x,y,z,w); }
 */
+
+#define IM_VEC2_CLASS_EXTRA																\
+		ImVec2(const TDEngine2::TVector2& vec2): x(vec2.x), y(vec2.y) {}				\
+		operator TDEngine2::TVector2() const { return TDEngine2::TVector2(x, y); }
 
 //---- Using 32-bits vertex indices (default is 16-bits) is one way to allow large meshes with more than 64K vertices. 
 // Your renderer back-end will need to support it (most example renderer back-ends support both 16/32-bits indices).

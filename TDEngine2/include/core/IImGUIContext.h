@@ -12,6 +12,8 @@
 #include "./../math/TVector2.h"
 #include "./../math/TVector3.h"
 #include "./../math/TVector4.h"
+#include "./../utils/Color.h"
+#include "./../math/TRect.h"
 #include "IEngineSubsystem.h"
 #include <functional>
 
@@ -297,6 +299,26 @@ namespace TDEngine2
 											const TVector2& sizes = ZeroVector2, const std::string& overlayedText = "") = 0;
 
 			/*!
+				\brief The method draws a line within the current active window
+
+				\param[in] start An initial position of the line
+				\param[in] end Finish position of the line
+				\param[in] color The line's color
+				\param[in] thickness A line's thickness
+			*/
+
+			TDE2_API virtual void DrawLine(const TVector2& start, const TVector2& end, const TColor32F& color, F32 thickness = 1.0f) = 0;
+
+			/*!
+				\brief The method draws a rectangle within the current active window
+
+				\param[in] rect A rectangle's parameters
+				\param[in] color The rectangle's color
+			*/
+
+			TDE2_API virtual void DrawRect(const TRectF32& rect, const TColor32F& color) = 0;
+
+			/*!
 				\brief The method creates a new window on the screen. Every call after this one
 				will be related with this window
 
@@ -333,6 +355,29 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void EndHorizontal() = 0;
+
+			/*!
+				\brief The method creates child window's region within the current one
+
+				\return The method returns true if the window is shown
+			*/
+
+			TDE2_API virtual bool BeginChildWindow(const std::string& name, const TVector2& sizes) = 0;
+
+			/*!
+				\brief The method finalizes current child window
+			*/
+
+			TDE2_API virtual void EndChildWindow() = 0;
+
+			/*!
+				\brief The method returns cursor position in a viewport space. The method is useful when
+				you work with DrawX methods
+
+				\return The method returns cursor position in a viewport space
+			*/
+
+			TDE2_API virtual TVector2 GetCursorScreenPos() const = 0;
 
 			/*!
 				\brief The method returns a width of current active window

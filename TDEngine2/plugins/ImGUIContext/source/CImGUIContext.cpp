@@ -342,6 +342,16 @@ namespace TDEngine2
 		ImGui::PlotHistogram(name.c_str(), pValues, valuesCount, 0, overlayedText.c_str(), minScale, maxScale, ImVec2(sizes.x, sizes.y));
 	}
 
+	void CImGUIContext::DrawLine(const TVector2& start, const TVector2& end, const TColor32F& color, F32 thickness)
+	{
+		_getCurrActiveDrawList()->AddLine(ImVec2(start.x, start.y), ImVec2(end.x, end.y), PackColor32F(color), thickness);
+	}
+
+	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color)
+	{
+		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackColor32F(color));
+	}
+
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)
 	{
 		ImGuiWindowFlags flags = 0x0;
@@ -363,11 +373,14 @@ namespace TDEngine2
 
 		bool result = ImGui::Begin(name.c_str(), &isOpened, flags);
 
+		mpDrawListsContext.push(ImGui::GetWindowDrawList());
+
 		return result;
 	}
 
 	void CImGUIContext::EndWindow()
 	{
+		mpDrawListsContext.pop();
 		ImGui::End();
 	}
 
@@ -383,6 +396,21 @@ namespace TDEngine2
 		mIsHorizontalGroupEnabled = false;
 	}
 
+	bool CImGUIContext::BeginChildWindow(const std::string& name, const TVector2& sizes)
+	{
+		bool result = ImGui::BeginChild(name.c_str(), ImVec2(sizes.x, sizes.y));
+
+		mpDrawListsContext.push(ImGui::GetWindowDrawList());
+
+		return result;
+	}
+
+	void CImGUIContext::EndChildWindow()
+	{
+		mpDrawListsContext.pop();
+		ImGui::EndChild();
+	}
+
 	F32 CImGUIContext::GetWindowWidth() const
 	{
 		return ImGui::GetWindowWidth();
@@ -391,6 +419,11 @@ namespace TDEngine2
 	F32 CImGUIContext::GetWindowHeight() const
 	{
 		return ImGui::GetWindowHeight();
+	}
+
+	TVector2 CImGUIContext::GetCursorScreenPos() const
+	{
+		return ImGui::GetCursorScreenPos();
 	}
 
 	E_RESULT_CODE CImGUIContext::_initInternalImGUIContext(ImGuiIO& io)
@@ -667,6 +700,12 @@ namespace TDEngine2
 		{
 			ImGui::SameLine();
 		}
+	}
+
+	ImDrawList* CImGUIContext::_getCurrActiveDrawList() const
+	{
+		TDE2_ASSERT(!mpDrawListsContext.empty());
+		return mpDrawListsContext.top();
 	}
 
 
