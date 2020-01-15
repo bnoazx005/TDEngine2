@@ -414,10 +414,14 @@ namespace TDEngine2
 																mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
 																result);
 
+		static const U32 mainThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
 			{ "Profiler", CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
 		};
+
+		dynamic_cast<CProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);
 
 		for (auto& currEditorEntry : builtinEditors)
 		{

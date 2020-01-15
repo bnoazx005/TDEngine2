@@ -88,9 +88,9 @@ namespace TDEngine2
 		TDE2_ASSERT(mFramesStatistics.size() > mCurrFrameIndex);
 
 		auto&& currSamplesLog = mFramesStatistics[mCurrFrameIndex][threadID];
-		auto&& insertIter = std::find_if(currSamplesLog.begin(), currSamplesLog.end(), [startTime, duration](const TSampleRecord& sample)
+		auto&& insertIter = std::lower_bound(currSamplesLog.begin(), currSamplesLog.end(), 0.0f, [startTime, duration](const TSampleRecord& sample, auto&&)
 		{
-			return startTime < sample.mStartTime;
+			return startTime > sample.mStartTime && duration < sample.mDuration;
 		});
 
 		currSamplesLog.insert(insertIter, { startTime - mFramesTimesStatistics[mCurrFrameIndex], duration, threadID, name });

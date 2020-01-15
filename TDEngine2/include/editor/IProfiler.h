@@ -26,7 +26,7 @@ namespace TDEngine2
 
 	class IProfiler : public virtual IBaseObject
 	{
-		protected:
+		public:
 			typedef struct TSampleRecord
 			{
 				F32         mStartTime = 0.0f;

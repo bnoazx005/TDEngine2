@@ -8,6 +8,10 @@
 
 
 #include "IEditorWindow.h"
+#include "./../editor/IProfiler.h"
+#include "./../math/TRect.h"
+#include "./../utils/Color.h"
+#include <string>
 #include <vector>
 
 
@@ -15,9 +19,6 @@
 
 namespace TDEngine2
 {
-	class IProfiler;
-
-
 	/*!
 		\brief A factory function for creation objects of CProfilerEditorWindow's type
 
@@ -57,6 +58,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method sets up an identifier of the main thread
+
+				\param[in] mainThreadID An identifier of the main thread
+			*/
+
+			TDE2_API virtual void SetMainThreadID(U32 mainThreadID);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProfilerEditorWindow)
 
@@ -66,12 +75,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void _onDraw() override;
+
+			TDE2_API void _drawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const IProfiler::TSampleRecord& currSample, 
+											 IProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId = 0);
+
+			TDE2_API static TRectF32 _drawRectWithText(IImGUIContext& imguiContext, const std::string& text, const TRectF32& rect, const TColor32F& rectColor,
+													   const TColor32F& textColor);
 		protected:
 			static const U16 mBufferSize = 128;
 
 			IProfiler*       mpProfiler;
 
 			F32              mFrameRatesBuffer[mBufferSize];
+
+			F32              mIntervalRectHeight = 20.0f;
+
+			TVector2         mSpacingSizes = TVector2(2.0f, 2.0f);
+
+			U32              mMainThreadID;
 	};
 }
 
