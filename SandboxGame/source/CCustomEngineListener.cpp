@@ -86,6 +86,8 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	auto t = mpEngineCoreInstance->GetSubsystem<IEditorsManager>();
 
+	TDE2_PROFILER_SCOPE("OnUpdate");
+
 	/// \note ImGUI tests
 	{
 		TDE2_PROFILER_SCOPE("Test");

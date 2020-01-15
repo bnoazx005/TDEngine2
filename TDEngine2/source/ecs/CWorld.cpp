@@ -5,6 +5,7 @@
 #include "./../../include/ecs/CComponentManager.h"
 #include "./../../include/ecs/CSystemManager.h"
 #include "./../../include/core/IEventManager.h"
+#include "./../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -139,6 +140,7 @@ namespace TDEngine2
 	
 	void CWorld::Update(float dt)
 	{
+		TDE2_PROFILER_SCOPE("World::Update");
 		mpSystemManager->Update(this, dt);
 	}
 

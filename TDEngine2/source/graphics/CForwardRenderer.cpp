@@ -10,6 +10,7 @@
 #include "./../../include/graphics/InternalShaderData.h"
 #include "./../../include/graphics/CDebugUtility.h"
 #include "./../../include/graphics/IGraphicsObjectManager.h"
+#include "./../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -141,6 +142,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CForwardRenderer::Draw()
 	{
+		TDE2_PROFILER_SCOPE("Renderer::Draw");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;

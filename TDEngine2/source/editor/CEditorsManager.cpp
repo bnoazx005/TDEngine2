@@ -2,6 +2,7 @@
 #include "./../../include/editor/IEditorWindow.h"
 #include "./../../include/core/IImGUIContext.h"
 #include "./../../include/core/IInputContext.h"
+#include "./../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 
 
@@ -89,6 +90,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEditorsManager::Update()
 	{
+		TDE2_PROFILER_SCOPE("EditorsManager::Update");
+
 		if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_TILDE))
 		{
 			mIsVisible = !mIsVisible;
