@@ -1,7 +1,9 @@
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/platform/win32/CWin32Timer.h"
 #include "./../../include/platform/unix/CUnixTimer.h"
+#include "./../../include/math/MathUtils.h"
 #include <memory>
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -55,6 +57,11 @@ namespace TDEngine2
 		mIsRecording = true;
 		mFramesTimesStatistics[mCurrFrameIndex] = mpPerformanceTimer->GetCurrTime();
 
+		for (auto& currSample : mFramesStatistics[mCurrFrameIndex])
+		{
+			currSample.second.clear();
+		}
+
 		return RC_OK;
 	}
 
@@ -76,10 +83,17 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CPerfProfiler::WriteSample(F32 startTime, F32 duration, U32 threadID)
+	void CPerfProfiler::WriteSample(const std::string& name, F32 startTime, F32 duration, U32 threadID)
 	{
 		TDE2_ASSERT(mFramesStatistics.size() > mCurrFrameIndex);
-		mFramesStatistics[mCurrFrameIndex][threadID] = { startTime, duration, threadID };
+
+		auto&& currSamplesLog = mFramesStatistics[mCurrFrameIndex][threadID];
+		auto&& insertIter = std::find_if(currSamplesLog.begin(), currSamplesLog.end(), [startTime, duration](const TSampleRecord& sample)
+		{
+			return startTime < sample.mStartTime;
+		});
+
+		currSamplesLog.insert(insertIter, { startTime - mFramesTimesStatistics[mCurrFrameIndex], duration, threadID, name });
 	}
 
 	ITimer* CPerfProfiler::GetTimer() const
@@ -96,6 +110,13 @@ namespace TDEngine2
 	{
 		return mWorstTimeFrameIndex;
 	}
+
+	const CPerfProfiler::TSamplesTable& CPerfProfiler::GetSamplesLogByFrameIndex(U32 frameIndex) const
+	{
+		TDE2_ASSERT(frameIndex < mFramesStatistics.size());
+		return mFramesStatistics[frameIndex];
+	}
+
 
 	TDE2_API IProfiler* CPerfProfiler::Get()
 	{

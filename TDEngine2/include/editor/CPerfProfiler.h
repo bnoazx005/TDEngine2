@@ -29,18 +29,6 @@ namespace TDEngine2
 
 	class CPerfProfiler : public IProfiler, public CBaseObject
 	{
-		protected:
-			typedef struct TSampleRecord
-			{
-				F32 mStartTime = 0.0f;
-				F32 mDuration  = 0.0f;
-
-				U32 mThreadID = 0x0;
-			} TSampleRecord, *TSampleRecordPtr;
-
-			typedef std::unordered_map<U32, TSampleRecord> TSamplesTable;
-			typedef std::vector<TSamplesTable>             TSamplesLog;
-			typedef std::vector<F32>                       TFramesTimesLog;
 		public:
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -69,12 +57,13 @@ namespace TDEngine2
 			/*!
 				\brief The method writes measurement's sample into profiler's table
 
+				\param[in] name A name of the sample
 				\param[in] startTime A time when the record of the sample was started to record
 				\param[in] duration A elapsed time's value for this sample
 				\param[in] threadID An identifier of a thread
 			*/
 
-			TDE2_API void WriteSample(F32 startTime, F32 duration, U32 threadID) override;
+			TDE2_API void WriteSample(const std::string& name, F32 startTime, F32 duration, U32 threadID) override;
 
 			/*!
 				\brief The method returns instrumental timer that's used for measurements
@@ -100,6 +89,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U16 GetWorstFrameIndexByTime() const override;
+
+
+			/*!
+				\brief The method returns samples based on a given frame's index
+
+				\param[in] frameIndex Frame's index
+
+				\return The method returns samples based on a given frame's index
+			*/
+
+			TDE2_API const TSamplesTable& GetSamplesLogByFrameIndex(U32 frameIndex) const override;
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
@@ -159,7 +159,7 @@ namespace TDEngine2
 
 				mEndTime = pTimer->GetCurrTime();
 
-				pProfiler->WriteSample(mStartTime, mEndTime - mStartTime, std::hash<std::thread::id>{}(mThreadID));
+				pProfiler->WriteSample(mName, mStartTime, mEndTime - mStartTime, std::hash<std::thread::id>{}(mThreadID));
 			}
 		private:
 			std::string     mName;
@@ -171,5 +171,5 @@ namespace TDEngine2
 	};
 
 
-#define TDE2_PROFILER_SCOPE(Name) CProfilerScope scope##__LINE__(#Name)
+#define TDE2_PROFILER_SCOPE(Name) CProfilerScope scope##__LINE__(Name)
 }
