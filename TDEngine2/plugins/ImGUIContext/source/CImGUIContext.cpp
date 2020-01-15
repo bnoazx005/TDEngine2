@@ -161,6 +161,12 @@ namespace TDEngine2
 		ImGui::Text(text.c_str());
 	}
 
+	void CImGUIContext::Label(const std::string& text, const TVector2& pos, const TColor32F& color)
+	{
+		_prepareLayout();
+		_getCurrActiveDrawList()->AddText(pos, PackColor32F(color), &text.front(), &text.front() + text.length());
+	}
+
 	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked)
 	{
 		_prepareLayout();
@@ -344,7 +350,7 @@ namespace TDEngine2
 
 	void CImGUIContext::DrawLine(const TVector2& start, const TVector2& end, const TColor32F& color, F32 thickness)
 	{
-		_getCurrActiveDrawList()->AddLine(ImVec2(start.x, start.y), ImVec2(end.x, end.y), PackColor32F(color), thickness);
+		_getCurrActiveDrawList()->AddLine(start, end, PackColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color)
@@ -424,6 +430,11 @@ namespace TDEngine2
 	TVector2 CImGUIContext::GetCursorScreenPos() const
 	{
 		return ImGui::GetCursorScreenPos();
+	}
+
+	TVector2 CImGUIContext::GetTextSizes(const std::string& text) const
+	{
+		return ImGui::CalcTextSize(&text.front(), &text.front() + text.length());
 	}
 
 	E_RESULT_CODE CImGUIContext::_initInternalImGUIContext(ImGuiIO& io)
@@ -516,8 +527,8 @@ namespace TDEngine2
 		mpIndexBuffer = indexBufferResult.Get();
 
 		mpEditorUIVertexDeclaration = pGraphicsManager->CreateVertexDeclaration().Get();
-		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_NORM_UBYTE4, 0, TDEngine2::VEST_COLOR });
+		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION, false });
+		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_NORM_UBYTE4, 0, TDEngine2::VEST_COLOR, false });
 
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
 		TMaterialParameters editorUIMaterialParams { "DefaultEditorUI", true, { false, false } };
@@ -595,7 +606,7 @@ namespace TDEngine2
 				memcpy(pCurrIndexPtr, pCommandList->IdxBuffer.Data, pCommandList->IdxBuffer.Size * sizeof(ImDrawIdx));
 				
 				pCurrVertexPtr += pCommandList->VtxBuffer.Size;
-				pCurrIndexPtr += pCommandList->IdxBuffer.Size;
+				pCurrIndexPtr  += pCommandList->IdxBuffer.Size;
 			}
 
 			if (!vertices.empty())

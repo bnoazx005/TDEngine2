@@ -136,6 +136,16 @@ namespace TDEngine2
 			TDE2_API void Label(const std::string& text) override;
 
 			/*!
+				\brief The method creates a label within current active window
+
+				\param[in] text A string which should be rendered onto the screen
+				\param[in] pos A position of a label
+				\param[in] color Text's color
+			*/
+
+			TDE2_API void Label(const std::string& text, const TVector2& pos, const TColor32F& color) override;
+
+			/*!
 				\brief The method creates a button with a given size and label
 
 				\param[in] text A text that will be displayed on top of the button
@@ -409,6 +419,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TVector2 GetCursorScreenPos() const override;
+
+			/*!
+				\brief The method returns sizes which a given text string occupies
+
+				\param[in] text A text string
+
+				\return The static function returns sizes which a given text string occupies
+			*/
+
+			TDE2_API TVector2 GetTextSizes(const std::string& text) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUIContext)
 
