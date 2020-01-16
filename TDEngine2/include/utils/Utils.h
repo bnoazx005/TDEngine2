@@ -655,13 +655,7 @@ namespace TDEngine2
 	template <typename Derived, typename Base>
 	Derived PolymorphicCast(Base* pBase)
 	{
-		typedef typename std::remove_pointer<Derived>::type   TUnderlyingDerivedType1;
-		typedef typename std::remove_reference<Derived>::type TUnderlyingDerivedType2;
-
-		static_assert(std::is_base_of<Base,	std::conditional<std::is_pointer<Derived>::value, 
-															TUnderlyingDerivedType1,
-															TUnderlyingDerivedType2>>::value, 
-																				"Invalid polymorphic cast");
+		static_assert(std::is_base_of<Base,	std::decay<Derived>::type>::value, "Invalid polymorphic cast");
 		return static_cast<Derived>(pBase);
 	}
 
@@ -728,6 +722,10 @@ namespace TDEngine2
 #define TDE2_BASE_CLASS(TClass) typedef TClass TBase
 
 
-#define TDE2_ASSERT(expression) assert(expression)
+#if defined (TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
+	#define TDE2_ASSERT(expression) assert(expression)
+#else
+	#define TDE2_ASSERT(expression) 
+#endif
 
 }
