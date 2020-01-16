@@ -76,7 +76,7 @@ namespace TDEngine2
 		\return A character in UTF-8 encoding
 	*/
 
-	TDE2_API constexpr U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode);
+	TDE2_API U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode);
 
 
 	/*!

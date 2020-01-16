@@ -152,7 +152,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API constexpr U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode)
+	TDE2_API U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode)
 	{
 		constexpr U16 minAlphaValue = static_cast<U16>(E_KEYCODES::KC_ALPHA0);
 		constexpr U16 maxAlphaValue = static_cast<U16>(E_KEYCODES::KC_ALPHA9);
