@@ -154,24 +154,17 @@ namespace TDEngine2
 
 	TDE2_API constexpr U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode)
 	{
-		constexpr U16 minAlphaValue = static_cast<U16>(E_KEYCODES::KC_ALPHA0);
-		constexpr U16 maxAlphaValue = static_cast<U16>(E_KEYCODES::KC_ALPHA9);
-		static_assert(minAlphaValue < maxAlphaValue, "Expect that KC_ALPHA0 is lesser than KC_ALPHA9. Please, don't change their order");
+		static_assert(static_cast<U16>(E_KEYCODES::KC_ALPHA0) < static_cast<U16>(E_KEYCODES::KC_ALPHA9), "Expect that KC_ALPHA0 is lesser than KC_ALPHA9. Please, don't change their order");
+		static_assert(static_cast<U16>(E_KEYCODES::KC_A) < static_cast<U16>(E_KEYCODES::KC_Z), "Expect that characters key codes are lexicographically ordered. Please, don't change their order");
 
-		constexpr U16 minCharValue = static_cast<U16>(E_KEYCODES::KC_A);
-		constexpr U16 maxCharValue = static_cast<U16>(E_KEYCODES::KC_Z);
-		static_assert(minCharValue < maxCharValue, "Expect that characters key codes are lexicographically ordered. Please, don't change their order");
-
-		U16 convertedKeyCode = static_cast<U16>(keyCode);
-
-		if (convertedKeyCode >= minAlphaValue && convertedKeyCode <= maxAlphaValue)
+		if (static_cast<U16>(keyCode) >= static_cast<U16>(E_KEYCODES::KC_ALPHA0) && static_cast<U16>(keyCode) <= static_cast<U16>(E_KEYCODES::KC_ALPHA9))
 		{
-			return '0' + convertedKeyCode - minAlphaValue;
+			return '0' + static_cast<U16>(keyCode) - static_cast<U16>(E_KEYCODES::KC_ALPHA0);
 		}
 
-		if (convertedKeyCode >= minCharValue && convertedKeyCode <= maxCharValue)
+		if (static_cast<U16>(keyCode) >= static_cast<U16>(E_KEYCODES::KC_A) && static_cast<U16>(keyCode) <= static_cast<U16>(E_KEYCODES::KC_Z))
 		{
-			return 'a' + convertedKeyCode - minCharValue;
+			return 'a' + static_cast<U16>(keyCode) - static_cast<U16>(E_KEYCODES::KC_A);
 		}
 
 		switch (keyCode)
@@ -244,6 +237,6 @@ namespace TDEngine2
 				return '~';
 		}
 
-		return convertedKeyCode;
+		return 0x0;
 	}
 }
