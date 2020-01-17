@@ -35,9 +35,10 @@ namespace TDEngine2
 				the IMGUI context
 
 				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
+				\param[in] dt A time elapsed from last frame
 			*/
 
-			TDE2_API virtual void Draw(IImGUIContext* pImGUIContext) = 0;
+			TDE2_API virtual void Draw(IImGUIContext* pImGUIContext, F32 dt) = 0;
 
 			/*!
 				\brief The method sets visibility state of the window
@@ -71,6 +72,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void _onDraw() = 0;
+
+			/*!
+				\brief The method could be reimplemented in different classes, put your own update
+				logic of the window here
+
+				\param[in] dt A time elapsed from last frame
+			*/
+
+			TDE2_API virtual void _onUpdate(F32 dt) = 0;
 	};
 
 
@@ -89,9 +99,10 @@ namespace TDEngine2
 				the IMGUI context
 
 				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
+				\param[in] dt A time elapsed from last frame
 			*/
 
-			TDE2_API void Draw(IImGUIContext* pImGUIContext) override;
+			TDE2_API void Draw(IImGUIContext* pImGUIContext, F32 dt) override;
 			
 			/*!
 				\brief The method sets visibility state of the window
@@ -118,6 +129,15 @@ namespace TDEngine2
 			TDE2_API bool IsVisible() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseEditorWindow)
+
+			/*!
+				\brief The method could be reimplemented in different classes, put your own update
+				logic of the window here
+
+				\param[in] dt A time elapsed from last frame
+			*/
+
+			TDE2_API void _onUpdate(F32 dt) override;
 		protected:
 			IImGUIContext*   mpImGUIContext;
 

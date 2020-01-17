@@ -57,9 +57,10 @@ namespace TDEngine2
 				\brief The method updates the current state of the manager
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
+				\param[in] dt A time elapsed from last frame
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Update() = 0;
+			TDE2_API virtual E_RESULT_CODE Update(F32 dt) = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EDITORS_MANAGER; }
 		protected:

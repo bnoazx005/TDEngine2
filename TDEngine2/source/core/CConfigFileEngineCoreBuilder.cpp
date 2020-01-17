@@ -34,6 +34,7 @@
 #include "./../../include/editor/CEditorsManager.h"
 #include "./../../include/editor/CProfilerEditorWindow.h"
 #include "./../../include/editor/CPerfProfiler.h"
+#include "./../../include/editor/CLevelEditorWindow.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -424,6 +425,7 @@ namespace TDEngine2
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
 			{ "Profiler", CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
+			{ "Level Editor", CreateLevelEditorWindow(result) },
 		};
 
 		dynamic_cast<CProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);

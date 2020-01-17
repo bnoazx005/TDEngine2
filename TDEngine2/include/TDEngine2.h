@@ -128,6 +128,7 @@
 #include "editor/CEditorsManager.h"
 #include "editor/IEditorWindow.h"
 #include "editor/CProfilerEditorWindow.h"
+#include "editor/CLevelEditorWindow.h"
 
 ///math
 #include "math/TVector2.h"

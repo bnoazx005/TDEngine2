@@ -11,7 +11,7 @@ namespace TDEngine2
 	{
 	}
 
-	void CBaseEditorWindow::Draw(IImGUIContext* pImGUIContext)
+	void CBaseEditorWindow::Draw(IImGUIContext* pImGUIContext, F32 dt)
 	{
 		if (!mIsVisible || !pImGUIContext)
 		{
@@ -20,6 +20,7 @@ namespace TDEngine2
 
 		mpImGUIContext = pImGUIContext;
 
+		_onUpdate(dt);
 		_onDraw();
 	}
 
@@ -36,6 +37,10 @@ namespace TDEngine2
 	bool CBaseEditorWindow::IsVisible() const
 	{
 		return mIsVisible;
+	}
+
+	void CBaseEditorWindow::_onUpdate(F32 dt)
+	{
 	}
 }
 

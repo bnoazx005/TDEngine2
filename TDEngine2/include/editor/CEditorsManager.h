@@ -81,10 +81,12 @@ namespace TDEngine2
 			/*!
 				\brief The method updates the current state of the manager
 
+				\param[in] dt A time elapsed from last frame
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Update() override;
+			TDE2_API E_RESULT_CODE Update(F32 dt) override;
 
 			/*!
 				\brief The method returns a type of the subsystem
@@ -96,7 +98,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
 
-			TDE2_API E_RESULT_CODE _showEditorWindows();
+			TDE2_API E_RESULT_CODE _showEditorWindows(F32 dt);
 		protected:
 			IDesktopInputContext* mpInputContext;
 

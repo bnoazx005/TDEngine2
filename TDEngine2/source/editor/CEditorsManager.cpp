@@ -88,7 +88,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEditorsManager::Update()
+	E_RESULT_CODE CEditorsManager::Update(F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("EditorsManager::Update");
 
@@ -97,7 +97,7 @@ namespace TDEngine2
 			mIsVisible = !mIsVisible;
 		}
 
-		return _showEditorWindows();
+		return _showEditorWindows(dt);
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CEditorsManager::GetType() const
@@ -105,7 +105,7 @@ namespace TDEngine2
 		return EST_EDITORS_MANAGER;
 	}
 
-	E_RESULT_CODE CEditorsManager::_showEditorWindows()
+	E_RESULT_CODE CEditorsManager::_showEditorWindows(F32 dt)
 	{
 		if (!mIsVisible)
 		{
@@ -146,7 +146,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			pCurrEditorWindow->Draw(mpImGUIContext);
+			pCurrEditorWindow->Draw(mpImGUIContext, dt);
 		}
 
 		return RC_OK;

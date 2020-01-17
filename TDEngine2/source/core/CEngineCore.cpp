@@ -330,7 +330,7 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 						if (mpEditorsManager)
 						{
-							mpEditorsManager->Update();
+							mpEditorsManager->Update(dt);
 						}
 #endif
 
