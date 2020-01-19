@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -21,18 +22,26 @@ namespace TDEngine2
 	class IDesktopInputContext;
 
 
+	enum class E_EDITOR_TYPE: U16
+	{
+		PROFILER,
+		LEVEL_EDITOR,
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CEditorsManager's type
 
 		\param[in, out] pInputContext A pointer to IInputContext implementation
 		\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
+		\param[in, out] pWorld A pointer to IWorld implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to IEditorsManager's implementation
 	*/
 
-	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, E_RESULT_CODE& result);
+	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld, E_RESULT_CODE& result);
 
 
 	/*!
@@ -44,7 +53,7 @@ namespace TDEngine2
 	class CEditorsManager : public IEditorsManager, public CBaseObject
 	{
 		public:
-			friend TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, E_RESULT_CODE& result);
+			friend TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld, E_RESULT_CODE& result);
 		public:
 			typedef std::vector<std::tuple<std::string, IEditorWindow*>> TEditorsArray;
 		public:
@@ -53,11 +62,12 @@ namespace TDEngine2
 
 				\param[in, out] pInputContext A pointer to IInputContext implementation
 				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
+				\param[in, out] pWorld A pointer to IWorld implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext) override;
+			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -79,6 +89,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow) override;
 
 			/*!
+				\brief The method sets up a pointer to IWorld instance
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetWorldInstance(IWorld* pWorld) override;
+
+			/*!
 				\brief The method updates the current state of the manager
 
 				\param[in] dt A time elapsed from last frame
@@ -95,10 +113,20 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
+			
+			/*!
+				\brief The method returns true if editor mode is enabled, false in other cases
+
+				\return The method returns true if editor mode is enabled, false in other cases
+			*/
+
+			TDE2_API bool IsEditorModeEnabled() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
 
 			TDE2_API E_RESULT_CODE _showEditorWindows(F32 dt);
+		public:
+			static const std::unordered_map<E_EDITOR_TYPE, std::string> mEditorNamesMap;
 		protected:
 			IDesktopInputContext* mpInputContext;
 
@@ -107,6 +135,10 @@ namespace TDEngine2
 			bool                  mIsVisible;
 
 			TEditorsArray         mRegisteredEditors;
+
+			IWorld*               mpWorld;
+
+			TSystemId             mEditorCameraControlSystemId = InvalidSystemId;
 	};
 }
 

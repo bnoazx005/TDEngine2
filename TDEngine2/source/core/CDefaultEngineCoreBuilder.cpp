@@ -413,14 +413,15 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 		IEditorsManager* pEditorsManager = CreateEditorsManager(mpEngineCoreInstance->GetSubsystem<IInputContext>(),
 																mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
+																mpEngineCoreInstance->GetWorldInstance(),
 																result);
 
 		static const U32 mainThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
-			{ "Profiler", CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
-			{ "Level Editor", CreateLevelEditorWindow(result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROFILER), CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(result) },
 		};
 
 		dynamic_cast<CProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);

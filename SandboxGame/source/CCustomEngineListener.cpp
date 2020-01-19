@@ -84,8 +84,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
-	auto t = mpEngineCoreInstance->GetSubsystem<IEditorsManager>();
-
 	TDE2_PROFILER_SCOPE("OnUpdate");
 
 	/// \note ImGUI tests
@@ -133,39 +131,6 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE))
 	{
 		return mpEngineCoreInstance->Quit();
-	}
-	
-	{
-		// TODO: Will be removed soon
-		if (mpInputContext->IsKey(E_KEYCODES::KC_W))
-		{
-			pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * UpVector3);
-		}
-
-		if (mpInputContext->IsKey(E_KEYCODES::KC_S))
-		{
-			pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * UpVector3);
-		}
-
-		if (mpInputContext->IsKey(E_KEYCODES::KC_A))
-		{
-			pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * RightVector3);
-		}
-
-		if (mpInputContext->IsKey(E_KEYCODES::KC_D))
-		{
-			pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * RightVector3);
-		}
-
-		if (mpInputContext->IsKey(E_KEYCODES::KC_Q))
-		{
-			pCameraTransform->SetPosition(pCameraTransform->GetPosition() - dt * 5.0f * ForwardVector3);
-		}
-
-		if (mpInputContext->IsKey(E_KEYCODES::KC_E))
-		{
-			pCameraTransform->SetPosition(pCameraTransform->GetPosition() + dt * 5.0f * ForwardVector3);
-		}
 	}
 	
 	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();

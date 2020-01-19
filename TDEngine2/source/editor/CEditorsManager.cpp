@@ -3,6 +3,8 @@
 #include "./../../include/core/IImGUIContext.h"
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/editor/CPerfProfiler.h"
+#include "./../../include/editor/ecs/CEditorCameraControlSystem.h"
+#include "./../../include/ecs/IWorld.h"
 #include <algorithm>
 
 
@@ -10,12 +12,19 @@
 
 namespace TDEngine2
 {
+	const std::unordered_map<E_EDITOR_TYPE, std::string> CEditorsManager::mEditorNamesMap
+	{
+		{ E_EDITOR_TYPE::PROFILER, "Profiler" },
+		{ E_EDITOR_TYPE::LEVEL_EDITOR, "Level Editor" },
+	};
+
+
 	CEditorsManager::CEditorsManager():
 		CBaseObject(), mIsVisible(false)
 	{
 	}
 
-	E_RESULT_CODE CEditorsManager::Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext)
+	E_RESULT_CODE CEditorsManager::Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld)
 	{
 		if (mIsInitialized)
 		{
@@ -29,6 +38,7 @@ namespace TDEngine2
 
 		mpInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext);
 		mpImGUIContext = pImGUIContext;
+		mpWorld        = pWorld;
 
 		mIsVisible = false;
 
@@ -100,9 +110,46 @@ namespace TDEngine2
 		return _showEditorWindows(dt);
 	}
 
+	E_RESULT_CODE CEditorsManager::SetWorldInstance(IWorld* pWorld)
+	{
+		if (!pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpWorld = pWorld;
+
+		E_RESULT_CODE result = RC_OK;
+
+		if (mEditorCameraControlSystemId == InvalidSystemId)
+		{
+			auto registerResult = mpWorld->RegisterSystem(CreateEditorCameraControlSystem(mpInputContext, this, result), E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY);
+			if (registerResult.HasError())
+			{
+				return result;
+			}
+
+			mEditorCameraControlSystemId = registerResult.Get();
+		}
+
+		return result;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CEditorsManager::GetType() const
 	{
 		return EST_EDITORS_MANAGER;
+	}
+
+	bool CEditorsManager::IsEditorModeEnabled() const
+	{
+		const std::string mLevelEditorName = mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR);
+
+		auto editorIter = std::find_if(mRegisteredEditors.cbegin(), mRegisteredEditors.cend(), [&mLevelEditorName](const auto& entry)
+		{
+			return std::get<IEditorWindow*>(entry) && (std::get<std::string>(entry) == mLevelEditorName);
+		});
+
+		return (editorIter != mRegisteredEditors.cend()) ? std::get<IEditorWindow*>(*editorIter)->IsVisible() : false;
 	}
 
 	E_RESULT_CODE CEditorsManager::_showEditorWindows(F32 dt)
@@ -153,7 +200,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, E_RESULT_CODE& result)
+	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld, E_RESULT_CODE& result)
 	{
 		CEditorsManager* pEditorsManagerInstance = new (std::nothrow) CEditorsManager();
 
@@ -164,7 +211,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pEditorsManagerInstance->Init(pInputContext, pImGUIContext);
+		result = pEditorsManagerInstance->Init(pInputContext, pImGUIContext, pWorld);
 
 		if (result != RC_OK)
 		{

@@ -20,6 +20,7 @@ namespace TDEngine2
 	class IImGUIContext;
 	class IInputContext;
 	class IEditorWindow;
+	class IWorld;
 
 
 	/*!
@@ -36,11 +37,12 @@ namespace TDEngine2
 				
 				\param[in, out] pInputContext A pointer to IInputContext implementation
 				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
+				\param[in, out] pWorld A pointer to IWorld implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld = nullptr) = 0;
 
 			/*!
 				\brief The method registers custom editor within the manager
@@ -54,6 +56,14 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow) = 0;
 
 			/*!
+				\brief The method sets up a pointer to IWorld instance
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetWorldInstance(IWorld* pWorld) = 0;
+
+			/*!
 				\brief The method updates the current state of the manager
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -61,6 +71,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Update(F32 dt) = 0;
+
+			/*!
+				\brief The method returns true if editor mode is enabled, false in other cases
+				
+				\return The method returns true if editor mode is enabled, false in other cases
+			*/
+
+			TDE2_API virtual bool IsEditorModeEnabled() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EDITORS_MANAGER; }
 		protected:

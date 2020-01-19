@@ -99,6 +99,13 @@ namespace TDEngine2
 		
 		mpWorldInstance = CreateWorld(_getSubsystemAs<IEventManager>(EST_EVENT_MANAGER), result);
 
+#if TDE2_EDITORS_ENABLED
+		IEditorsManager* pEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
+		TDE2_ASSERT(pEditorsManager);
+
+		PANIC_ON_FAILURE(pEditorsManager->SetWorldInstance(mpWorldInstance));
+#endif
+
 		if (result != RC_OK)
 		{
 			return result;
