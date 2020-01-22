@@ -90,6 +90,24 @@ namespace TDEngine2
 		return mLocalToWorldMatrix;
 	}
 	
+	TVector3 CTransform::GetForwardVector() const
+	{
+		const TMatrix4& local2World = GetTransform();
+		return TVector3(local2World.m[0][2], local2World.m[1][2], local2World.m[2][2]);
+	}
+
+	TVector3 CTransform::GetRightVector() const
+	{
+		const TMatrix4& local2World = GetTransform();
+		return TVector3(local2World.m[0][0], local2World.m[1][0], local2World.m[2][0]);
+	}
+	
+	TVector3 CTransform::GetUpVector() const
+	{
+		const TMatrix4& local2World = GetTransform();
+		return TVector3(local2World.m[0][1], local2World.m[1][1], local2World.m[2][1]);
+	}
+
 	bool CTransform::HasChanged() const
 	{
 		return mHasChanged;

@@ -140,6 +140,29 @@ namespace TDEngine2
 			TDE2_API const TMatrix4& GetTransform() const override;
 
 			/*!
+				\brief The method returns a basis vector which corresponds to Z axis in local space of the object
+
+				\return The method returns a basis vector which corresponds to Z axis in local space of the object
+			*/
+
+			TDE2_API TVector3 GetForwardVector() const override;
+
+			/*!
+				\brief The method returns a basis vector which corresponds to X axis in local space of the object
+
+				\return The method returns a basis vector which corresponds to X axis in local space of the object
+			*/
+
+			TDE2_API TVector3 GetRightVector() const override;
+
+			/*!
+				\brief The method returns a basis vector which corresponds to Y axis in local space of the object
+
+				\return The method returns a basis vector which corresponds to Y axis in local space of the object
+			*/
+
+			TDE2_API TVector3 GetUpVector() const override;
+			/*!
 				\brief The method returns true if a state of a component was changed
 
 				\return The method returns true if a state of a component was changed
