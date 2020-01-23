@@ -168,4 +168,14 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TMatrix4 RotationMatrix(const TQuaternion& q);
+
+	/*!
+		\brief The method converts a given quaternion into Euler angles
+
+		\param[in] An input quaternion
+
+		\return The method returns a 3d vector each component of which represents Euler angles
+	*/
+
+	TDE2_API TVector3 ToEulerAngles(const TQuaternion& q);
 }
