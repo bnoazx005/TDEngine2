@@ -163,7 +163,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto metaResult = _readCubemapInfo(mpFileSystem->ResolveVirtualPath(pResource->GetName() + ".cubemap.info"));
+		auto metaResult = _readCubemapInfo(mpFileSystem->ResolveVirtualPath(pResource->GetName() + ".cubemap.info", false));
 
 		if (metaResult.HasError())
 		{
