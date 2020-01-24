@@ -215,6 +215,11 @@ namespace TDEngine2
 		mRasterizerStateParams.mIsWireframeModeEnabled = state;
 	}
 
+	void CBaseMaterial::SetGeometrySubGroupTag(const E_GEOMETRY_SUBGROUP_TAGS& tag)
+	{
+		mTag = tag;
+	}
+
 	U32 CBaseMaterial::GetVariableHash(const std::string& name) const
 	{
 		return TDE2_STRING_ID(name.c_str());
@@ -228,6 +233,11 @@ namespace TDEngine2
 	bool CBaseMaterial::IsTransparent() const
 	{
 		return mBlendStateParams.mIsEnabled;
+	}
+
+	const E_GEOMETRY_SUBGROUP_TAGS& CBaseMaterial::GetGeometrySubGroupTag() const
+	{
+		return mTag;
 	}
 
 	E_RESULT_CODE CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)

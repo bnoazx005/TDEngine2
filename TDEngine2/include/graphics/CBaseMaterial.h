@@ -10,6 +10,7 @@
 #include "IMaterial.h"
 #include "./../core/CBaseResource.h"
 #include "./../utils/CResult.h"
+#include "./../graphics/IRenderer.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -315,6 +316,14 @@ namespace TDEngine2
 			TDE2_API void SetWireframeMode(bool state) override;
 
 			/*!
+				\brief The method specifies sub-group within used geometry group
+
+				\param[in] tag A tag which specifies a sub-group within used geometry group
+			*/
+
+			TDE2_API void SetGeometrySubGroupTag(const E_GEOMETRY_SUBGROUP_TAGS& tag) override;
+
+			/*!
 				\brief The method returns hash value which corresponds to a given variable's name
 
 				\return The method returns hash value which corresponds to a given variable's name
@@ -341,6 +350,14 @@ namespace TDEngine2
 			TDE2_API bool IsTransparent() const override;
 
 			/*!
+				\brief The method returns assigned tag
+
+				\return The method returns assigned tag
+			*/
+
+			TDE2_API const E_GEOMETRY_SUBGROUP_TAGS& GetGeometrySubGroupTag() const override;
+
+			/*!
 				\brief The static function is a helper which is used for sorting materials based on their type
 				either opaque or transparent 
 
@@ -358,29 +375,31 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
 		protected:
-			IGraphicsContext*       mpGraphicsContext;
+			IGraphicsContext*        mpGraphicsContext;
 
-			IGraphicsObjectManager* mpGraphicsObjectManager;
+			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
-			IResourceHandler*       mpShader;
+			IResourceHandler*        mpShader;
 
-			TUserUniformBufferData  mpUserUniformsData[MaxNumberOfUserConstantBuffers];
+			TUserUniformBufferData   mpUserUniformsData[MaxNumberOfUserConstantBuffers];
 
-			TUserUniformsHashTable  mUserVariablesHashTable;
+			TUserUniformsHashTable   mUserVariablesHashTable;
 
-			TTexturesHashTable      mpAssignedTextures;
+			TTexturesHashTable       mpAssignedTextures;
 
-			TBlendStateDesc         mBlendStateParams;
+			TBlendStateDesc          mBlendStateParams;
 
-			TBlendStateId           mBlendStateHandle = InvalidBlendStateId;
+			TBlendStateId            mBlendStateHandle = InvalidBlendStateId;
 
-			TDepthStencilStateDesc  mDepthStencilStateParams;
+			TDepthStencilStateDesc   mDepthStencilStateParams;
 
-			TDepthStencilStateId    mDepthStencilStateHandle = InvalidDepthStencilStateId;
+			TDepthStencilStateId     mDepthStencilStateHandle = InvalidDepthStencilStateId;
 
-			TRasterizerStateDesc    mRasterizerStateParams;
+			TRasterizerStateDesc     mRasterizerStateParams;
 
-			TRasterizerStateId      mRasterizerStateHandle = InvalidRasterizerStateId;
+			TRasterizerStateId       mRasterizerStateHandle = InvalidRasterizerStateId;
+
+			E_GEOMETRY_SUBGROUP_TAGS mTag = E_GEOMETRY_SUBGROUP_TAGS::BASE;
 	};
 
 

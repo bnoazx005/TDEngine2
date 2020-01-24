@@ -36,6 +36,17 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The enumeration contains flags that are used to define subgroups within a group which is formed by E_RENDER_QUEUE_GROUP 
+	*/
+
+	enum class E_GEOMETRY_SUBGROUP_TAGS: U32
+	{
+		BASE   = 0x0,
+		SKYBOX = 0x1000,
+	};
+
+
+	/*!
 		interface IRenderer
 
 		\brief The interface represents a functionality of a renderer

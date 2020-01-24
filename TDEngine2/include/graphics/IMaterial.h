@@ -23,6 +23,9 @@ namespace TDEngine2
 	class ITexture;
 
 
+	enum class E_GEOMETRY_SUBGROUP_TAGS : U32;
+
+
 	/*!
 		struct TMaterialParameters
 
@@ -201,6 +204,14 @@ namespace TDEngine2
 			TDE2_API virtual void SetWireframeMode(bool state) = 0;
 
 			/*!
+				\brief The method specifies sub-group within used geometry group
+
+				\param[in] tag A tag which specifies a sub-group within used geometry group
+			*/
+
+			TDE2_API virtual void SetGeometrySubGroupTag(const E_GEOMETRY_SUBGROUP_TAGS& tag) = 0;
+
+			/*!
 				\brief The method returns hash value which corresponds to a given variable's name
 
 				\return The method returns hash value which corresponds to a given variable's name
@@ -225,6 +236,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool IsTransparent() const = 0;
+
+			/*!
+				\brief The method returns assigned tag 
+
+				\return The method returns assigned tag 
+			*/
+
+			TDE2_API virtual const E_GEOMETRY_SUBGROUP_TAGS& GetGeometrySubGroupTag() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
 
