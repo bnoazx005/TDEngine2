@@ -730,6 +730,9 @@ namespace TDEngine2
 				return GL_FRONT;
 			case E_CULL_MODE::BACK:
 				return GL_BACK;
+			case E_CULL_MODE::NONE:
+				TDE2_ASSERT(false);
+				return 0;
 		}
 
 		return 0;

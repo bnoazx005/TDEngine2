@@ -3,6 +3,7 @@
 #include "./../include/COGLGraphicsObjectManager.h"
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLRenderTarget.h"
+#include "./../include/COGLUtils.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 
@@ -273,15 +274,18 @@ namespace TDEngine2
 		auto stateActivationFunction = stateDesc.mCullMode != E_CULL_MODE::NONE ? glEnable : glDisable;
 		
 		// \note Culling
-		stateActivationFunction(GL_CULL_FACE);
-		glCullFace(COGLMappings::GetCullMode(stateDesc.mCullMode));
-		glFrontFace(stateDesc.mIsFrontCCWEnabled ? GL_CCW : GL_CW);
+		GL_SAFE_VOID_CALL(stateActivationFunction(GL_CULL_FACE));
+		if (stateDesc.mCullMode != E_CULL_MODE::NONE)
+		{
+			GL_SAFE_VOID_CALL(glCullFace(COGLMappings::GetCullMode(stateDesc.mCullMode)));
+		}
+		GL_SAFE_VOID_CALL(glFrontFace(stateDesc.mIsFrontCCWEnabled ? GL_CCW : GL_CW));
 		
 		// \note Scissor testing
 		stateActivationFunction = stateDesc.mIsScissorTestEnabled ? glEnable : glDisable;
-		stateActivationFunction(GL_SCISSOR_BIT);
+		GL_SAFE_VOID_CALL(stateActivationFunction(GL_SCISSOR_TEST));
 
-		glPolygonMode(GL_FRONT_AND_BACK, stateDesc.mIsWireframeModeEnabled ? GL_LINE : GL_FILL);
+		GL_SAFE_VOID_CALL(glPolygonMode(GL_FRONT_AND_BACK, stateDesc.mIsWireframeModeEnabled ? GL_LINE : GL_FILL));
 
 		// \todo Implement support of depth bias and clipping
 	}
