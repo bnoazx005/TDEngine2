@@ -23,9 +23,11 @@ VertexOut mainVS(in VertexIn input)
 {
 	VertexOut output;
 
-	float4 pos = mul(mul(ProjMat, ModelMat), input.mPos); // for now ModelMat replaces ViewMat in case when a skybox is used
-	output.mPos = pos.xyww;
-	output.mUV  = pos.xyz;
+	float4x4 transformedView = ViewMat;
+	transformedView._14_24_34 = 0.0f;
+
+	output.mPos = mul(mul(ProjMat, transformedView), input.mPos).xyww;
+	output.mUV  = input.mPos.xyz;
 
 	return output;
 }
