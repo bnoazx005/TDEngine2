@@ -6,20 +6,28 @@
 using namespace TDEngine2;
 
 
+const std::string ShaderType = "HLSL";
+const std::string GAPIType   = "DX";
+
+const std::string TestShaderName      = CStringUtils::Format("test{0}Shader.shader", GAPIType);
+const std::string DebugShaderName     = CStringUtils::Format("Debug{0}Shader.shader", GAPIType);
+const std::string DebugTextShaderName = CStringUtils::Format("DebugText{0}Shader.shader", GAPIType);
+
+
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
-	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ "testDXShader.shader", true })->Get<IMaterial>(RAT_BLOCKING);
+	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ TestShaderName, true })->Get<IMaterial>(RAT_BLOCKING);
 	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
 	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
 
-	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ "DebugDXShader.shader" });
+	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ DebugShaderName, false, {}, { E_CULL_MODE::NONE } });
 	
 	IMaterial* pFontMaterial = mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", 
-																		TMaterialParameters{ "DebugTextDXShader.shader", true })->Get<IMaterial>(RAT_BLOCKING);
+																		TMaterialParameters{ DebugTextShaderName, true })->Get<IMaterial>(RAT_BLOCKING);
 
 	auto pFontAtlas = mpResourceManager->Load<CTextureAtlas>("atlas")->Get<ITextureAtlas>(RAT_BLOCKING);
 	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
@@ -78,6 +86,24 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");
+
+	{
+		TMaterialParameters skyboxMatParams 
+		{ 
+			mpFileSystem->ResolveVirtualPath(CStringUtils::Format("vfs://Shaders/Default/DefaultSkyboxShader_{0}.shader", ShaderType), false), true,
+			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL}, 
+			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
+		};
+
+		IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("DefaultSkybox.material", skyboxMatParams)->Get<IMaterial>(RAT_BLOCKING);
+		pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
+		pMaterial->SetGeometrySubGroupTag(E_GEOMETRY_SUBGROUP_TAGS::SKYBOX);
+		
+		auto pSkyboxEntity = mpWorld->CreateEntity("Skybox");
+		auto pSkyboxContainer = pSkyboxEntity->AddComponent<CStaticMeshContainer>();
+		pSkyboxContainer->SetMeshName("Cube");
+		pSkyboxContainer->SetMaterialName("DefaultSkybox.material");
+	}
 
 	return RC_OK;
 }
@@ -147,7 +173,10 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	auto pTransform = pEntity->GetComponent<CTransform>();
 	static F32 time = 0.0f;
 	time += 5.0f * dt;
-	pTransform->SetRotation(TDEngine2::TQuaternion(ForwardVector3, time));
+
+	pTransform->SetScale(TVector3(0.5f + 0.5f * fabs(sinf(0.5f * time))));
+	pTransform->SetRotation(TVector3(0.0f, time, 0.0f));
+	auto&& m = pTransform->GetTransform();
 
 	return RC_OK;
 }

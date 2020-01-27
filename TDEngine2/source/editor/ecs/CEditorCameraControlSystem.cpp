@@ -6,6 +6,7 @@
 #include "./../../include/graphics/CPerspectiveCamera.h"
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/editor/IEditorsManager.h"
+#include "./../../include/utils/CFileLogger.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -77,35 +78,50 @@ namespace TDEngine2
 			pCurrTransform = pCurrEntity->GetComponent<CTransform>();
 			TDE2_ASSERT(pCurrTransform);
 
-			if (mpInputContext->IsKey(E_KEYCODES::KC_W))
+			TVector3 forward = Normalize(pCurrTransform->GetForwardVector());
+			TVector3 right   = Normalize(pCurrTransform->GetRightVector());
+
+			const std::tuple<E_KEYCODES, F32, TVector3> controls[4]
 			{
-				pCurrTransform->SetPosition(pCurrTransform->GetPosition() + dt * 5.0f * UpVector3);
+				{ E_KEYCODES::KC_W, dt * 5.0f, forward },
+				{ E_KEYCODES::KC_S, -dt * 5.0f, forward },
+				{ E_KEYCODES::KC_D, dt * 5.0f, right },
+				{ E_KEYCODES::KC_A, -dt * 5.0f, right },
+			};
+
+			for (auto&& currControl : controls)
+			{
+				if (mpInputContext->IsKey(std::get<E_KEYCODES>(currControl)))
+				{
+					pCurrTransform->SetPosition(pCurrTransform->GetPosition() + std::get<F32>(currControl) * std::get<TVector3>(currControl));
+				}
 			}
 
-			if (mpInputContext->IsKey(E_KEYCODES::KC_S))
-			{
-				pCurrTransform->SetPosition(pCurrTransform->GetPosition() - dt * 5.0f * UpVector3);
-			}
+			_processCameraRotation(*mpInputContext, *pCurrTransform);
+		}
+	}
 
-			if (mpInputContext->IsKey(E_KEYCODES::KC_A))
-			{
-				pCurrTransform->SetPosition(pCurrTransform->GetPosition() - dt * 5.0f * RightVector3);
-			}
+	void CEditorCameraControlSystem::_processCameraRotation(IDesktopInputContext& inputContext, CTransform& currTransform)
+	{
+		if (inputContext.IsMouseButtonPressed(1))
+		{
+			mLastClickedPosition = inputContext.GetMousePosition();
+		}
 
-			if (mpInputContext->IsKey(E_KEYCODES::KC_D))
-			{
-				pCurrTransform->SetPosition(pCurrTransform->GetPosition() + dt * 5.0f * RightVector3);
-			}
+		if (inputContext.IsMouseButton(1))
+		{
+			TVector3 currMousePosition = inputContext.GetMousePosition();
+			TVector3 deltaVec = (currMousePosition - mLastClickedPosition) * 0.01f;
 
-			if (mpInputContext->IsKey(E_KEYCODES::KC_Q))
-			{
-				pCurrTransform->SetPosition(pCurrTransform->GetPosition() - dt * 5.0f * ForwardVector3);
-			}
+			mCurrDeltaRotation = TVector3(deltaVec.y, deltaVec.x, 0.0f);
+			mCurrRotation = mCurrRotation + mCurrDeltaRotation;
 
-			if (mpInputContext->IsKey(E_KEYCODES::KC_E))
-			{
-				pCurrTransform->SetPosition(pCurrTransform->GetPosition() + dt * 5.0f * ForwardVector3);
-			}
+			currTransform.SetRotation(mCurrDeltaRotation);
+		}
+
+		if (inputContext.IsMouseButtonUnpressed(1))
+		{
+			currTransform.SetRotation(mCurrRotation);
 		}
 	}
 

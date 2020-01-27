@@ -208,7 +208,8 @@ namespace TDEngine2
 			F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
 
 			// create a command for the renderer
-			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(_computeMeshCommandHash(currMaterialId, distanceToCamera));
+			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
+																				 _computeMeshCommandHash(currMaterialId, distanceToCamera));
 
 			pCommand->mpVertexBuffer      = meshBuffersEntry.mpVertexBuffer;
 			pCommand->mpIndexBuffer       = meshBuffersEntry.mpIndexBuffer;
@@ -216,7 +217,7 @@ namespace TDEngine2
 			pCommand->mpVertexDeclaration = meshBuffersEntry.mpVertexDecl;
 			pCommand->mNumOfIndices       = pSharedMeshResource->GetIndices().size();
 			pCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCommand->mObjectData.mUnused = objectTransformMatrix;
+			pCommand->mObjectData.mUnused = Transpose(objectTransformMatrix);
 
 			++iter;
 		}

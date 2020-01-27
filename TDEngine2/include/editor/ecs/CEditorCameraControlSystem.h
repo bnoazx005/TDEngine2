@@ -9,6 +9,7 @@
 
 #include "./../../utils/Types.h"
 #include "./../../ecs/CBaseSystem.h"
+#include "./../../math/TVector3.h"
 #include <vector>
 
 
@@ -16,6 +17,7 @@
 
 namespace TDEngine2
 {
+	class CTransform;
 	class IInputContext;
 	class IDesktopInputContext;
 	class IEditorsManager;
@@ -87,12 +89,18 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorCameraControlSystem)
+
+			TDE2_API void _processCameraRotation(IDesktopInputContext& inputContext, CTransform& currTransform);
 		protected:
 			TCameraEntitiesArray  mCameras;
 
 			IDesktopInputContext* mpInputContext;
 
 			IEditorsManager*      mpEditorManager;
+
+			TVector3              mLastClickedPosition;
+			TVector3              mCurrRotation;
+			TVector3              mCurrDeltaRotation;
 	};
 }
 
