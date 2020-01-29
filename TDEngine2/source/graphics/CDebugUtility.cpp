@@ -8,6 +8,7 @@
 #include "./../../include/core/CFont.h"
 #include "./../../include/graphics/CBaseMaterial.h"
 #include "./../../include/math/TAABB.h"
+#include "./../../include/math/MathUtils.h"
 #include <algorithm>
 #include <iterator>
 
@@ -243,6 +244,22 @@ namespace TDEngine2
 		mLinesDataBuffer.push_back({ { max, 1.0f }, color });		
 		mLinesDataBuffer.push_back({ { max.x, min.y, min.z, 1.0f }, color });
 		mLinesDataBuffer.push_back({ { max.x, max.y, min.z, 1.0f }, color });
+	}
+
+	void CDebugUtility::DrawCircle(const TVector3& position, const TVector3& planeNormal, F32 radius, const TColor32F& color, U16 segmentsCount)
+	{
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
+		F32 deltaAngle = 2.0f * CMathConstants::Pi / segmentsCount;
+
+		for (U16 k = 0; k < segmentsCount; ++k)
+		{
+			mLinesDataBuffer.push_back({ { position + TVector3 { radius * cosf(k * deltaAngle), 0.0f, radius * sinf(k * deltaAngle) }, 1.0f }, color });
+			mLinesDataBuffer.push_back({ { position + TVector3 { radius * cosf((k + 1) * deltaAngle), 0.0f, radius * sinf((k + 1) * deltaAngle) }, 1.0f }, color });
+		}
 	}
 
 	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const

@@ -100,6 +100,18 @@ namespace TDEngine2
 			TDE2_API virtual void DrawAABB(const TAABB& aabb, const TColor32F& color) = 0;
 
 			/*!
+				\brief The method draws a circle with specified number of segments
+
+				\param[in] position A position of circle's center
+				\param[in] planeNormal A normal of the plane in which the circle lies
+				\param[in] radius Circle's radius
+				\param[in] color A color of the circle
+				\param[in] segmentsCount A number of circle's segments
+			*/
+
+			TDE2_API virtual void DrawCircle(const TVector3& position, const TVector3& planeNormal, F32 radius, const TColor32F& color, U16 segmentsCount = 16) = 0;
+
+			/*!
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 

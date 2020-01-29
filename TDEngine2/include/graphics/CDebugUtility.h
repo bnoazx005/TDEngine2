@@ -144,6 +144,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void DrawAABB(const TAABB& aabb, const TColor32F& color) override;
+
+			/*!
+				\brief The method draws a circle with specified number of segments
+
+				\param[in] position A position of circle's center
+				\param[in] planeNormal A normal of the plane in which the circle lies
+				\param[in] radius Circle's radius
+				\param[in] color A color of the circle
+				\param[in] segmentsCount A number of circle's segments
+			*/
+
+			TDE2_API void DrawCircle(const TVector3& position, const TVector3& planeNormal, F32 radius, const TColor32F& color, U16 segmentsCount = 16) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 
