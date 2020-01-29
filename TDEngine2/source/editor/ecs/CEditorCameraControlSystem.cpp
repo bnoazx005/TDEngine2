@@ -114,14 +114,14 @@ namespace TDEngine2
 			TVector3 deltaVec = (currMousePosition - mLastClickedPosition) * 0.01f;
 
 			mCurrDeltaRotation = TVector3(deltaVec.y, deltaVec.x, 0.0f);
-			mCurrRotation = mCurrRotation + mCurrDeltaRotation;
+			mCurrRotation = mCurrDeltaRotation;
 
 			currTransform.SetRotation(mCurrDeltaRotation);
 		}
 
 		if (inputContext.IsMouseButtonUnpressed(1))
 		{
-			currTransform.SetRotation(mCurrRotation);
+			LOG_MESSAGE(CStringUtils::Format("{0} {1} {2}", mCurrRotation.x, mCurrRotation.y, mCurrRotation.z));
 		}
 	}
 

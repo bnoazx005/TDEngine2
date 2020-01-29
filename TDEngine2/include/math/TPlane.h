@@ -47,10 +47,10 @@ namespace TDEngine2
 			\param[in] points An array of three 3d points
 		*/
 
-		TDE2_API TPlane(const TVector3& points[3])
+		TDE2_API TPlane(TVector3 points[3])
 		{
-			TVector3 e1 = points[1] - point[0];
-			TVector3 e2 = points[2] - point[0];
+			TVector3 e1 = points[1] - points[0];
+			TVector3 e2 = points[2] - points[0];
 
 			TVector3 n = Normalize(Cross(e2, e1));
 

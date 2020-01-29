@@ -7,6 +7,7 @@
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/CFont.h"
 #include "./../../include/graphics/CBaseMaterial.h"
+#include "./../../include/math/TAABB.h"
 #include <algorithm>
 #include <iterator>
 
@@ -207,6 +208,41 @@ namespace TDEngine2
 		// \note Left line
 		mLinesDataBuffer.push_back({ { rect.x, rect.y + rect.height, 0.0f, 1.0f }, color });
 		mLinesDataBuffer.push_back({ { rect.x, rect.y, 0.0f, 1.0f }, color });
+	}
+
+	void CDebugUtility::DrawAABB(const TAABB& aabb, const TColor32F& color)
+	{
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
+		TVector3 min = aabb.min;
+		TVector3 max = aabb.max;
+
+		auto draw3DRect = [min, max](std::vector<TLineVertex>& vertices, F32 height, const TColor32F& c)
+		{
+			vertices.push_back({ { min.x, height, min.z, 1.0f }, c });
+			vertices.push_back({ { min.x, height, max.z, 1.0f }, c });
+			vertices.push_back({ { min.x, height, max.z, 1.0f }, c });
+			vertices.push_back({ { max.x, height, max.z, 1.0f }, c });
+			vertices.push_back({ { max.x, height, max.z, 1.0f }, c });
+			vertices.push_back({ { max.x, height, min.z, 1.0f }, c });
+			vertices.push_back({ { max.x, height, min.z, 1.0f }, c });
+			vertices.push_back({ { min.x, height, min.z, 1.0f }, c });
+		};
+		
+		draw3DRect(mLinesDataBuffer, min.y, color);
+		draw3DRect(mLinesDataBuffer, max.y, color);
+
+		mLinesDataBuffer.push_back({ { min, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { min.x, max.y, min.z, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { min.x, min.y, max.z, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { min.x, max.y, max.z, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { max.x, min.y, max.z, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { max, 1.0f }, color });		
+		mLinesDataBuffer.push_back({ { max.x, min.y, min.z, 1.0f }, color });
+		mLinesDataBuffer.push_back({ { max.x, max.y, min.z, 1.0f }, color });
 	}
 
 	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const

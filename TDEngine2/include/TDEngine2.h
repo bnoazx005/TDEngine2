@@ -139,6 +139,8 @@
 #include "math/TMatrix4.h"
 #include "math/TQuaternion.h"
 #include "math/TRect.h"
+#include "math/TPlane.h"
+#include "math/TAABB.h"
 #include "math/MathUtils.h"
 
 ///physics

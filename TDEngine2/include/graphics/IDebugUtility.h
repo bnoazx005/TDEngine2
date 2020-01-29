@@ -22,6 +22,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IRenderer;
 	class IGraphicsObjectManager;
+	struct TAABB;
 
 
 	/*!
@@ -88,6 +89,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void DrawRect(const TRectF32& rect, const TColor32F& color) = 0;
+
+			/*!
+				\brief The method draws an axis aligned bounding box
+
+				\param[in] aabb An axis aligned bounding box that will be drawn
+				\param[in] color A color of drawn AABB
+			*/
+
+			TDE2_API virtual void DrawAABB(const TAABB& aabb, const TColor32F& color) = 0;
 
 			/*!
 				\brief The method prepares internal state of the helper before it will be actually rendered

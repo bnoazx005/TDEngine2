@@ -25,7 +25,7 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of IDebugUtility's type.
 
-				\param[in, out] pResourceManager A pointer to implementation of IResourceManager interface
+		\param[in, out] pResourceManager A pointer to implementation of IResourceManager interface
 		\param[in, out] pRenderer A pointer to implementation of IRenderer interface
 		\param[in, out] pGraphicsObjectManager A pointer to implementation of IGraphicsObjectManager interface
 
@@ -135,6 +135,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void DrawRect(const TRectF32& rect, const TColor32F& color) override;
+
+			/*!
+				\brief The method draws an axis aligned bounding box
+
+				\param[in] aabb An axis aligned bounding box that will be drawn
+				\param[in] color A color of drawn AABB
+			*/
+
+			TDE2_API void DrawAABB(const TAABB& aabb, const TColor32F& color) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 
