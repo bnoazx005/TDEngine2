@@ -255,10 +255,20 @@ namespace TDEngine2
 
 		F32 deltaAngle = 2.0f * CMathConstants::Pi / segmentsCount;
 
+		F32 currAngle = 0.0f;
+		F32 nextAngle = 0.0f;
+
+		// compute plane's tangent basis
+		TVector3 u = Normalize(Cross(RightVector3, planeNormal));
+		TVector3 v = Normalize(Cross(u, planeNormal));
+
 		for (U16 k = 0; k < segmentsCount; ++k)
 		{
-			mLinesDataBuffer.push_back({ { position + TVector3 { radius * cosf(k * deltaAngle), 0.0f, radius * sinf(k * deltaAngle) }, 1.0f }, color });
-			mLinesDataBuffer.push_back({ { position + TVector3 { radius * cosf((k + 1) * deltaAngle), 0.0f, radius * sinf((k + 1) * deltaAngle) }, 1.0f }, color });
+			currAngle = nextAngle;
+			nextAngle = (k + 1) * deltaAngle;
+
+			mLinesDataBuffer.push_back({ { position + u * (radius * cosf(currAngle)) + v * (radius * sinf(currAngle)), 1.0f }, color });
+			mLinesDataBuffer.push_back({ { position + u * (radius * cosf(nextAngle)) + v * (radius * sinf(nextAngle)), 1.0f }, color });
 		}
 	}
 

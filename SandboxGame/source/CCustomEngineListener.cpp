@@ -168,7 +168,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawCross(ZeroVector3, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawRect({ 0.0f, 0.0f, 2.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawAABB({ ZeroVector3, { 10.0f, 10.0f, 10.0f } }, { 0.0f, 1.0f, 0.0f, 1.0f });
-	pDebugUtility->DrawCircle(ZeroVector3, ZeroVector3, 5.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 16);
+	pDebugUtility->DrawCircle(ZeroVector3, Normalize(TVector3(1, 1, 0)), 5.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 16);
 
 	// rotate the cube
 	auto pEntity = mpWorld->FindEntity(mpWorld->FindEntitiesWithComponents<CStaticMeshContainer>()[0]);
