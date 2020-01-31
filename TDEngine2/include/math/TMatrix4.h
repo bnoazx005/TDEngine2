@@ -8,8 +8,10 @@
 
 
 #include "./../utils/Types.h"
+#include "./../utils/Utils.h"
 #include "TVector4.h"
 #include "TVector3.h"
+#include <string>
 
 
 namespace TDEngine2
@@ -83,6 +85,8 @@ namespace TDEngine2
 		*/
 
 		TDE2_API TMatrix4& operator= (TMatrix4&& mat);
+
+		TDE2_API std::string ToString() const;
 	} TMatrix4, *TMatrix4Ptr;
 	
 

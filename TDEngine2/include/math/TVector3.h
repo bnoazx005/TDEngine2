@@ -8,6 +8,8 @@
 
 
 #include "./../../include/utils/Types.h"
+#include "./../../include/utils/Utils.h"
+#include <string>
 
 
 namespace TDEngine2
@@ -76,6 +78,8 @@ namespace TDEngine2
 		*/
 
 		TDE2_API TVector3& operator= (TVector3&& vec3);
+
+		TDE2_API inline std::string ToString() const { return CStringUtils::Format("TVector3({0}, {1}, {2})", x, y, z); }
 	} TVector3, *TVector3Ptr;
 
 

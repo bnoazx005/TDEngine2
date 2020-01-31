@@ -78,6 +78,8 @@ namespace TDEngine2
 			pCurrTransform = pCurrEntity->GetComponent<CTransform>();
 			TDE2_ASSERT(pCurrTransform);
 
+			LOG_MESSAGE(pCurrTransform->GetTransform().ToString());
+
 			TVector3 forward = Normalize(pCurrTransform->GetForwardVector());
 			TVector3 right   = Normalize(pCurrTransform->GetRightVector());
 

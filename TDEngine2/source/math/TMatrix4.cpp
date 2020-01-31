@@ -87,6 +87,25 @@ namespace TDEngine2
 		return *this;
 	}
 
+	std::string TMatrix4::ToString() const
+	{
+		static const std::string header = "TMatrix4\n(";
+
+		std::string currStr;
+
+		for (I32 i = 0; i < 4; ++i)
+		{
+			for (I32 j = 0; j < 4; ++j)
+			{
+				currStr.append(std::to_string(m[i][j])).append((i == 3 && j == 3) ?  CStringUtils::mEmptyStr : ", ");
+			}
+
+			currStr.append(i < 3 ? "\n" : ")");
+		}
+
+		return header + currStr;
+	}
+
 
 	TMatrix4 operator+ (const TMatrix4& lmat4, const TMatrix4& rmat4)
 	{
