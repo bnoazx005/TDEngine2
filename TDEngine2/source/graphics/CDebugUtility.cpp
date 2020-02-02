@@ -272,6 +272,21 @@ namespace TDEngine2
 		}
 	}
 
+	void CDebugUtility::DrawSphere(const TVector3& position, F32 radius, const TColor32F& color, U16 triangulationFactor)
+	{
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
+		auto drawSphereSegment = [](std::vector<TLineVertex>& vertices, const TVector3& center, F32 radius, const TColor32F& c, U16 triangulationFactor)
+		{
+
+		};
+
+		TDE2_UNIMPLEMENTED();
+	}
+
 	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const
 	{
 		std::vector<U16> indices;

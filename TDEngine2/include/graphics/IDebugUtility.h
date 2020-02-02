@@ -112,6 +112,17 @@ namespace TDEngine2
 			TDE2_API virtual void DrawCircle(const TVector3& position, const TVector3& planeNormal, F32 radius, const TColor32F& color, U16 segmentsCount = 16) = 0;
 
 			/*!
+				\brief the method draws a sphere with specified parameters
+
+				\param[in] position A position of sphere's center
+				\param[in] radius Sphere's radius
+				\param[in] color A color of the sphere
+				\param[in] triangulationFactor A number of triangles per each sphere's quadrant
+			*/
+
+			TDE2_API virtual void DrawSphere(const TVector3& position, F32 radius, const TColor32F& color, U16 triangulationFactor = 1) = 0;
+
+			/*!
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 
