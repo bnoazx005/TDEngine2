@@ -78,10 +78,11 @@ namespace TDEngine2
 			pCurrTransform = pCurrEntity->GetComponent<CTransform>();
 			TDE2_ASSERT(pCurrTransform);
 
-			LOG_MESSAGE(pCurrTransform->GetTransform().ToString());
+			const TMatrix4& camera2World = Transpose(pCurrTransform->GetTransform());
+			LOG_MESSAGE(camera2World.ToString());
 
-			TVector3 forward = Normalize(pCurrTransform->GetForwardVector());
-			TVector3 right   = Normalize(pCurrTransform->GetRightVector());
+			TVector3 forward = Normalize(TVector3(camera2World.m[0][2], camera2World.m[1][2], camera2World.m[2][2]));
+			TVector3 right   = Normalize(TVector3(camera2World.m[0][0], camera2World.m[1][0], camera2World.m[2][0]));
 
 			const std::tuple<E_KEYCODES, F32, TVector3> controls[4]
 			{
@@ -123,7 +124,7 @@ namespace TDEngine2
 
 		if (inputContext.IsMouseButtonUnpressed(1))
 		{
-			LOG_MESSAGE(CStringUtils::Format("{0} {1} {2}", mCurrRotation.x, mCurrRotation.y, mCurrRotation.z));
+			LOG_MESSAGE(mCurrRotation.ToString());
 		}
 	}
 
