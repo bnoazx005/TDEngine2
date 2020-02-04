@@ -198,6 +198,8 @@ namespace TDEngine2
 
 			IVertexBuffer*           mpCrossesVertexBuffer;
 
+			const static U32         mMaxLinesVerticesCount;
+
 			const static std::string mDefaultDebugMaterialName;
 
 			const static std::string mTextMaterialName;

@@ -9,14 +9,18 @@
 #include "./../../include/graphics/CBaseMaterial.h"
 #include "./../../include/math/TAABB.h"
 #include "./../../include/math/MathUtils.h"
+#include "./../../include/math/TVector3.h"
 #include <algorithm>
 #include <iterator>
+#include <functional>
 
 
 namespace TDEngine2
 {
 	const std::string CDebugUtility::mDefaultDebugMaterialName = "DebugMaterial.material";
 	const std::string CDebugUtility::mTextMaterialName         = "DebugTextMaterial.material";
+
+	const U32 CDebugUtility::mMaxLinesVerticesCount = 65536;
 
 	CDebugUtility::CDebugUtility():
 		CBaseObject()
@@ -44,7 +48,7 @@ namespace TDEngine2
 		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
-		mpLinesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TVector3) * 4096, nullptr).Get();
+		mpLinesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr).Get();
 
 		mpSystemFont = mpResourceManager->Load<CFont>("Arial"); /// \note load system font, which is "Arial" font
 
@@ -54,7 +58,7 @@ namespace TDEngine2
 		mpTextVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TTextVertex) * 4096, nullptr).Get();
 		mpTextIndexBuffer  = mpGraphicsObjectManager->CreateIndexBuffer(BUT_DYNAMIC, TDEngine2::IFT_INDEX16, sizeof(U16) * 9072, &_buildTextIndexBuffer(2048)[0]).Get();
 
-		mpCrossesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * 4096, nullptr).Get();
+		mpCrossesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr).Get();
 
 		mIsInitialized = true;
 
@@ -279,12 +283,75 @@ namespace TDEngine2
 			return;
 		}
 
-		auto drawSphereSegment = [](std::vector<TLineVertex>& vertices, const TVector3& center, F32 radius, const TColor32F& c, U16 triangulationFactor)
+		auto drawTriangle = [](std::vector<TLineVertex>& vertices, const TVector3& p0, const TVector3& p1, const TVector3& p2, const TColor32F& color)
 		{
-
+			vertices.push_back({ { p0, 1.0f }, color });
+			vertices.push_back({ { p1, 1.0f }, color });
+			vertices.push_back({ { p0, 1.0f }, color });
+			vertices.push_back({ { p2, 1.0f }, color });
+			vertices.push_back({ { p1, 1.0f }, color });
+			vertices.push_back({ { p2, 1.0f }, color });
+		};
+		
+		const TVector3 basisVertices[]
+		{
+			position + TVector3(0.0f, radius, 0.0f),
+			position - TVector3(0.0f, radius, 0.0f),
+			position + TVector3(radius, 0.0f, 0.0f),
+			position - TVector3(radius, 0.0f, 0.0f),
+			position + TVector3(0.0f, 0.0f, radius),
+			position - TVector3(0.0f, 0.0f, radius),
 		};
 
-		TDE2_UNIMPLEMENTED();
+		std::vector<TVector3> vertices;
+
+		std::function<void(std::vector<TVector3>&, const TVector3&, const TVector3&, const TVector3&, U16)> triangulateSphereSegment = 
+		[&triangulateSphereSegment](auto&& vertices, const TVector3& v0, const TVector3& v1, const TVector3& v2, U16 depth)
+		{
+			if (!depth)
+			{
+				vertices.push_back(v0);
+				vertices.push_back(v1);
+				vertices.push_back(v2);
+
+				return;
+			}
+
+			triangulateSphereSegment(vertices, v0, Lerp(v0, v1, 0.5f), Lerp(v0, v2, 0.5f), depth - 1);
+			triangulateSphereSegment(vertices, v1, Lerp(v1, v0, 0.5f), Lerp(v1, v2, 0.5f), depth - 1);
+			triangulateSphereSegment(vertices, v2, Lerp(v2, v0, 0.5f), Lerp(v2, v1, 0.5f), depth - 1);
+			triangulateSphereSegment(vertices, Lerp(v0, v1, 0.5f), Lerp(v0, v2, 0.5f), Lerp(v1, v2, 0.5f), depth - 1);
+		};
+
+		U8 indices[][3]
+		{
+			{ 0, 2, 4 },
+			{ 0, 2, 5 },
+			{ 0, 3, 4 },
+			{ 0, 3, 5 },
+			{ 1, 2, 4 },
+			{ 1, 2, 5 },
+			{ 1, 3, 4 },
+			{ 1, 3, 5 },
+		};
+
+		for (const auto& currIndices: indices)
+		{
+			triangulateSphereSegment(vertices, basisVertices[currIndices[0]], basisVertices[currIndices[1]], basisVertices[currIndices[2]], triangulationFactor - 1);
+		}
+
+		for (U16 i = 0; i < vertices.size(); i += 3)
+		{
+			auto&& v0 = vertices[i];
+			auto&& v1 = vertices[i + 1];
+			auto&& v2 = vertices[i + 2];
+
+			v0 = Normalize(v0 - position) * radius;
+			v1 = Normalize(v1 - position) * radius;
+			v2 = Normalize(v2 - position) * radius;
+
+			drawTriangle(mLinesDataBuffer, v0, v1, v2, color);
+		}
 	}
 
 	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const
