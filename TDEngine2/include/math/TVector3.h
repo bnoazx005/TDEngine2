@@ -184,4 +184,15 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TVector3 Scale(const TVector3& vec3l, const TVector3& vec3r);
+
+	/*!
+		\brief The method returns linear interpolation of two 3d vectors
+
+		\param[in] a First 3d vector
+		\param[in] b Second 3d vector
+
+		\return A 3d vector which is a linear combination of two given vectors based on third parameter
+	*/
+
+	TDE2_API TVector3 Lerp(const TVector3& a, const TVector3& b, F32 t);
 }

@@ -49,6 +49,9 @@ namespace TDEngine2
 			TDE2_API constexpr static inline bool IsGreatOrEqual(F32 a, F32 b, F32 epsilon = 1e-6f) { return a > b || Abs(a - b) < epsilon; }
 			TDE2_API constexpr static inline bool IsLessOrEqual(F32 a, F32 b, F32 epsilon = 1e-6f) { return a < b || Abs(a - b) < epsilon; }
 			TDE2_API constexpr static inline bool IsInInclusiveRange(F32 left, F32 right, F32 value) { return IsGreatOrEqual(value, left) && IsLessOrEqual(value, right); }
+
+			template <typename T>
+			TDE2_API static inline T Lerp(const T& a, const T& b, F32 t) { return a * (1.0f - t) + b * t; }
 	};
 
 

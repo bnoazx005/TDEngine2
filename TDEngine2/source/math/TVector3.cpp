@@ -157,4 +157,9 @@ namespace TDEngine2
 	{
 		return TVector3(vec3l.x * vec3r.x, vec3l.y * vec3r.y, vec3l.z * vec3r.z);
 	}
+
+	TVector3 Lerp(const TVector3& a, const TVector3& b, F32 t)
+	{
+		return (1.0f - t) * a + t * b;
+	}
 }
