@@ -79,6 +79,14 @@ namespace TDEngine2
 
 		TDE2_API TVector3& operator= (TVector3&& vec3);
 
+		/*!
+			\brief The operator returns opposite vector to the given one
+
+			\return The operator returns opposite vector to the given one
+		*/
+
+		TDE2_API TVector3 operator- () const;
+
 		TDE2_API inline std::string ToString() const { return CStringUtils::Format("TVector3({0}, {1}, {2})", x, y, z); }
 	} TVector3, *TVector3Ptr;
 

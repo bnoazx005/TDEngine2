@@ -53,6 +53,11 @@ namespace TDEngine2
 		return *this;
 	}
 
+	TVector2 TVector2::operator- () const
+	{
+		return { -x, -y };
+	}
+
 
 	TVector2 operator+ (const TVector2& lvec2, const TVector2& rvec2)
 	{

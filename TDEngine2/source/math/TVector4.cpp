@@ -65,6 +65,11 @@ namespace TDEngine2
 		return *this;
 	}
 
+	TVector4 TVector4::operator- () const
+	{
+		return { -x, -y, -z, -w };
+	}
+
 
 	TVector4 operator+ (const TVector4& lvec4, const TVector4& rvec4)
 	{
