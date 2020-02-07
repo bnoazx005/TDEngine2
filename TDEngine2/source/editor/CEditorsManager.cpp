@@ -16,6 +16,7 @@ namespace TDEngine2
 	{
 		{ E_EDITOR_TYPE::PROFILER, "Profiler" },
 		{ E_EDITOR_TYPE::LEVEL_EDITOR, "Level Editor" },
+		{ E_EDITOR_TYPE::DEV_CONSOLE, "Console" },
 	};
 
 

@@ -130,6 +130,7 @@
 #include "editor/CProfilerEditorWindow.h"
 #include "editor/CLevelEditorWindow.h"
 #include "editor/ecs/CEditorCameraControlSystem.h"
+#include "editor/CDevConsoleWindow.h"
 
 ///math
 #include "math/TVector2.h"

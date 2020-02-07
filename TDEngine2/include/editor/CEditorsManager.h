@@ -26,6 +26,7 @@ namespace TDEngine2
 	{
 		PROFILER,
 		LEVEL_EDITOR,
+		DEV_CONSOLE,
 	};
 
 

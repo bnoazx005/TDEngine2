@@ -35,6 +35,7 @@
 #include "./../../include/editor/CProfilerEditorWindow.h"
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/editor/CLevelEditorWindow.h"
+#include "./../../include/editor/CDevConsoleWindow.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -427,6 +428,7 @@ namespace TDEngine2
 		{
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROFILER), CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
 		};
 
 		dynamic_cast<CProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);
