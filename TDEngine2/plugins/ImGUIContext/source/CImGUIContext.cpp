@@ -164,6 +164,12 @@ namespace TDEngine2
 		ImGui::Text(text.c_str());
 	}
 
+	void CImGUIContext::Label(const std::string& text, const TColor32F& color)
+	{
+		_prepareLayout();
+		ImGui::TextColored({ color.r, color.g, color.b, color.a }, text.c_str());
+	}
+
 	void CImGUIContext::Label(const std::string& text, const TVector2& pos, const TColor32F& color)
 	{
 		_prepareLayout();

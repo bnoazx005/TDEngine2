@@ -139,6 +139,15 @@ namespace TDEngine2
 				\brief The method creates a label within current active window
 
 				\param[in] text A string which should be rendered onto the screen
+				\param[in] color Text's color
+			*/
+
+			TDE2_API void Label(const std::string& text, const TColor32F& color) override;
+
+			/*!
+				\brief The method creates a label within current active window
+
+				\param[in] text A string which should be rendered onto the screen
 				\param[in] pos A position of a label
 				\param[in] color Text's color
 			*/
