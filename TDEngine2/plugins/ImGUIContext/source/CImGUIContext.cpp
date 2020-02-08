@@ -246,7 +246,7 @@ namespace TDEngine2
 		C8 buffer[512];
 		memcpy(buffer, value.c_str(), sizeof(buffer));
 
-		if (ImGui::InputText(text.c_str(), buffer, sizeof(buffer)) && onValueChanged)
+		if (ImGui::InputText(text.c_str(), buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
 		{
 			value.assign(buffer);
 			onValueChanged();

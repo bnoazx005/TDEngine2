@@ -92,6 +92,30 @@ namespace TDEngine2
 			TVector2(500.0f, 300.0f),
 			TVector2(500.0f, 300.0f),
 		};
+
+		std::string message;
+		bool isErrorMessage = false;
+
+		static const TColor32F errorTextColor { 1.0f, 0.0f, 0.0f, 1.0f };
+		static const TColor32F mainTextColor { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		auto processCommand = [this]()
+		{
+			auto&& tokens = CStringUtils::Split(mCurrInputBuffer, " ");
+			if (tokens.empty())
+			{
+				_writeToLog("#[Error] Can't evaluate an empty line", true);
+				return;
+			}
+
+			_writeToLog(CStringUtils::Format("#{0}", mCurrInputBuffer));
+			if (ExecuteCommand(tokens[0], { tokens.cbegin() + 1, tokens.cend() }) != RC_OK)
+			{
+				_writeToLog(CStringUtils::Format("#[Error] Unrecognized command: {0}", tokens[0]), true);
+			}
+
+			mCurrInputBuffer.clear();
+		};
 		
 		if (mpImGUIContext->BeginWindow("Dev Console", isEnabled, params))
 		{
@@ -99,7 +123,8 @@ namespace TDEngine2
 			{
 				for (auto iter = mLog.cbegin() + mCurrPos; iter != mLog.cend(); ++iter)
 				{
-					mpImGUIContext->Label(*iter);
+					std::tie(message, isErrorMessage) = *iter;
+					mpImGUIContext->Label(message, isErrorMessage ? errorTextColor : mainTextColor);
 				}
 			}
 			mpImGUIContext->EndChildWindow();
@@ -109,23 +134,8 @@ namespace TDEngine2
 				// Draw input field and send button
 				mpImGUIContext->BeginHorizontal();
 				{
-					mpImGUIContext->TextField(CStringUtils::GetEmptyStr(), mCurrInputBuffer, []() {});
-					mpImGUIContext->Button("Run", { 100.0f, 20.0f }, [this]()
-					{
-						auto&& tokens = CStringUtils::Split(mCurrInputBuffer, " ");
-						if (tokens.empty())
-						{
-							_writeToLog("#[Error] Can't evaluate an empty line");
-							return;
-						}
-
-						_writeToLog(CStringUtils::Format("#{0}", mCurrInputBuffer));
-						if (ExecuteCommand(tokens[0], { tokens.cbegin() + 1, tokens.cend() }) != RC_OK)
-						{
-							
-							_writeToLog(CStringUtils::Format("#[Error] Unrecognized command: {0}", tokens[0]));
-						}
-					});
+					mpImGUIContext->TextField(CStringUtils::GetEmptyStr(), mCurrInputBuffer, processCommand);
+					mpImGUIContext->Button("Run", { 100.0f, 20.0f }, processCommand);
 				}
 				mpImGUIContext->EndHorizontal();
 			}
@@ -138,9 +148,9 @@ namespace TDEngine2
 		mIsVisible = isEnabled;
 	}
 
-	void CDevConsoleWindow::_writeToLog(const std::string& message)
+	void CDevConsoleWindow::_writeToLog(const std::string& message, bool isError)
 	{
-		mLog.push_back(message);
+		mLog.emplace_back(message, isError);
 		LOG_MESSAGE(message);
 	}
 

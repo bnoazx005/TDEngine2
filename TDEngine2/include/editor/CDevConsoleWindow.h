@@ -41,6 +41,7 @@ namespace TDEngine2
 			friend TDE2_API IEditorWindow* CreateDevConsoleWindow(E_RESULT_CODE& result);
 		public:
 			typedef std::vector<std::string> TStringsArray;
+			typedef std::vector<std::tuple<std::string, bool>> TConsoleLogArray;
 			typedef std::function<std::string(const TStringsArray&)> TCommandHandler;
 			typedef std::unordered_map<std::string, TCommandHandler> TCommandsTable;
 		public:
@@ -107,15 +108,15 @@ namespace TDEngine2
 
 			TDE2_API void _onDraw() override;
 		private:
-			TDE2_API void _writeToLog(const std::string& message);
+			TDE2_API void _writeToLog(const std::string& message, bool isError = false);
 		protected:
-			TStringsArray  mLog;
+			TConsoleLogArray mLog;
 
-			TCommandsTable mRegisteredCommands;
+			TCommandsTable   mRegisteredCommands;
 
-			std::string    mCurrInputBuffer;
+			std::string      mCurrInputBuffer;
 
-			U16            mCurrPos = 0;
+			U16              mCurrPos = 0;
 	};
 }
 
