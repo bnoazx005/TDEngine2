@@ -246,9 +246,12 @@ namespace TDEngine2
 		C8 buffer[512];
 		memcpy(buffer, value.c_str(), sizeof(buffer));
 
-		if (ImGui::InputText(text.c_str(), buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
+		bool hasValueChanged = ImGui::InputText(text.c_str(), buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue);
+
+		value.assign(buffer);
+
+		if (hasValueChanged && onValueChanged)
 		{
-			value.assign(buffer);
 			onValueChanged();
 		}
 	}
@@ -496,9 +499,11 @@ namespace TDEngine2
 		{
 			E_KEYCODES internalKeyCode = static_cast<E_KEYCODES>(keyCode);
 
-			if (((keyCode >= static_cast<U16>(E_KEYCODES::KC_A) && keyCode <= static_cast<U16>(E_KEYCODES::KC_Z)) ||
-				(keyCode >= static_cast<U16>(E_KEYCODES::KC_ALPHA0) && keyCode <=static_cast<U16>(E_KEYCODES::KC_ALPHA9))) &&
-				pDesktopInputCtx->IsKeyPressed(internalKeyCode))
+			if (/*((keyCode >= static_cast<U16>(E_KEYCODES::KC_A) && keyCode <= static_cast<U16>(E_KEYCODES::KC_Z)) ||
+				(keyCode >= static_cast<U16>(E_KEYCODES::KC_ALPHA0) && keyCode <=static_cast<U16>(E_KEYCODES::KC_ALPHA9))) &&*/
+				pDesktopInputCtx->IsKeyPressed(internalKeyCode) 
+				&& keyCode != static_cast<U16>(E_KEYCODES::KC_BACKSPACE)
+				&& keyCode != static_cast<U16>(E_KEYCODES::KC_RETURN))
 			{
 				U8C charCode = KeyCodeToUTF8Char(internalKeyCode);
 				io.AddInputCharactersUTF8(reinterpret_cast<C8*>(&charCode));
