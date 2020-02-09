@@ -162,8 +162,15 @@ namespace TDEngine2
 
 		const static TVector2 buttonSizes { 150.0f, 20.0f };
 		
+		static const IImGUIContext::TWindowParams params
 		{
-			if (mpImGUIContext->BeginWindow("Development Menu", mIsVisible))
+			ZeroVector2,
+			TVector2(166.0f, 300.0f),
+			TVector2(166.0f, 300.0f),
+		};
+
+		{
+			if (mpImGUIContext->BeginWindow("Development Menu", mIsVisible, params))
 			{
 				std::string currCommandName;
 				IEditorWindow* pCurrEditorWindow = nullptr;

@@ -146,9 +146,6 @@ namespace TDEngine2
 			return;
 		}
 
-		static bool opened = true;
-		ImGui::ShowDemoWindow(&opened);
-
 		ImGui::Render();
 		_engineInternalRender(ImGui::GetDrawData(), mpEditorUIRenderQueue);
 	}
