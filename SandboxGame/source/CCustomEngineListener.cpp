@@ -119,7 +119,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		auto imgui = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
 
 		static bool isOpened = true;
-		if (imgui->BeginWindow("Hello, World!", isOpened))
+		if (imgui->BeginWindow("Hello, World!", isOpened, {}))
 		{
 			imgui->BeginHorizontal();
 			imgui->Label("TEST");

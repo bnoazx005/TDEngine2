@@ -86,6 +86,8 @@ namespace TDEngine2
 					mSizes(size), mMinSizes(minSize), mMaxSizes(maxSize)
 				{
 				}
+				TDE2_API TWindowParams(const TWindowParams&) = default;
+				TDE2_API TWindowParams(TWindowParams&&) = default;
 			} TWindowParams, *TWindowParamsPtr;
 		public:
 			/*!
@@ -354,7 +356,7 @@ namespace TDEngine2
 				\return The method returns false if the window is collapsed or not visible
 			*/
 
-			TDE2_API virtual bool BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params = TWindowParams {}) = 0;
+			TDE2_API virtual bool BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params) = 0;
 
 			/*!
 				\brief The method finishes populating of current window

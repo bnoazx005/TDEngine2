@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <iterator>
 #include <functional>
+#include <cmath>
 
 
 namespace TDEngine2

@@ -1,6 +1,6 @@
 #include "./../../include/math/TQuaternion.h"
 #include "./../../include/math/MathUtils.h"
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 
@@ -172,8 +172,8 @@ namespace TDEngine2
 	{
 		F32 sinp = 2.0f * (q.y * q.w - q.x * q.z);
 
-		return TVector3(std::atan2f(2.0f * (q.x * q.w + q.y * q.z), 1.0f - 2.0f * (q.x * q.x + q.y * q.y)),
-						CMathUtils::IsGreatOrEqual(sinp, 1.0f) ? std::copysign(CMathConstants::Pi * 0.5f, sinp) : std::asinf(sinp),
+		return TVector3(atan2f(2.0f * (q.x * q.w + q.y * q.z), 1.0f - 2.0f * (q.x * q.x + q.y * q.y)),
+						CMathUtils::IsGreatOrEqual(sinp, 1.0f) ? std::copysign(CMathConstants::Pi * 0.5f, sinp) : asinf(sinp),
 						atan2(2.0f * (q.z * q.w + q.y * q.x), 1.0f - 2.0f * (q.z * q.z + q.y * q.y)));
 	}
 }
