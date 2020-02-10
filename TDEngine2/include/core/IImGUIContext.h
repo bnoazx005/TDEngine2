@@ -80,6 +80,12 @@ namespace TDEngine2
 				TVector2 mMaxSizes = ZeroVector2;
 
 				bool     mIsAutoResizeable = false;
+
+				TDE2_API TWindowParams() = default;
+				TDE2_API TWindowParams(const TVector2& size, const TVector2& minSize, const TVector2& maxSize):
+					mSizes(size), mMinSizes(minSize), mMaxSizes(maxSize)
+				{
+				}
 			} TWindowParams, *TWindowParamsPtr;
 		public:
 			/*!
