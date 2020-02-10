@@ -35,6 +35,8 @@ namespace TDEngine2
 				U32         mThreadID = 0x0;
 
 				std::string mName;
+
+				TDE2_API TSampleRecord(F32 startTime, F32 duration, U32 threadID, const std::string& name);
 			} TSampleRecord, *TSampleRecordPtr;
 
 			typedef std::vector<TSampleRecord>             TSamplesArray;

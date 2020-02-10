@@ -363,7 +363,7 @@ namespace TDEngine2
 				\return The method returns false if the window is collapsed or not visible
 			*/
 
-			TDE2_API bool BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params = {}) override;
+			TDE2_API bool BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params = TWindowParams {}) override;
 
 			/*!
 				\brief The method finishes populating of current window

@@ -8,6 +8,12 @@
 
 namespace TDEngine2
 {
+	IProfiler::TSampleRecord::TSampleRecord(F32 startTime, F32 duration, U32 threadID, const std::string& name):
+		mStartTime(startTime), mDuration(duration), mThreadID(threadID), mName(name)
+	{
+	}
+
+
 	const U16 CPerfProfiler::mLogBuffer = 256;
 
 
