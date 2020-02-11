@@ -36,6 +36,7 @@
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/editor/CLevelEditorWindow.h"
 #include "./../../include/editor/CDevConsoleWindow.h"
+#include "./../../include/graphics/CFramePostProcessor.h"
 #include <memory>
 #include <cstring>
 #include <tuple>
@@ -298,9 +299,11 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 		
+		IFramePostProcessor* pFramePostProcessor = CreateFramePostProcessor(result);
+
 		IAllocator* pAllocator = mpMemoryManagerInstance->CreateAllocator<CStackAllocator>(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize, "Renderer");
 
-		IEngineSubsystem* pRenderer = CreateForwardRenderer(mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, result);
+		IEngineSubsystem* pRenderer = CreateForwardRenderer(mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, pFramePostProcessor, result);
 
 		if (result != RC_OK)
 		{

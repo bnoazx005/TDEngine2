@@ -120,6 +120,8 @@
 #include "graphics/VertexData.h"
 #include "graphics/IStaticMeshContainer.h"
 #include "graphics/CStaticMeshContainer.h"
+#include "graphics/IFramePostProcessor.h"
+#include "graphics/CFramePostProcessor.h"
 
 ///editor
 #include "editor/IProfiler.h"

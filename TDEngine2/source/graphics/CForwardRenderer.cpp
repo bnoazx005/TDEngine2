@@ -11,16 +11,18 @@
 #include "./../../include/graphics/CDebugUtility.h"
 #include "./../../include/graphics/IGraphicsObjectManager.h"
 #include "./../../include/editor/CPerfProfiler.h"
+#include "./../../include/graphics/IFramePostProcessor.h"
 
 
 namespace TDEngine2
 {
 	CForwardRenderer::CForwardRenderer():
-		mIsInitialized(false), mpMainCamera(nullptr), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr)
+		mIsInitialized(false), mpMainCamera(nullptr), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr), mpFramePostProcessor(nullptr)
 	{
 	}
 
-	E_RESULT_CODE CForwardRenderer::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator)
+	E_RESULT_CODE CForwardRenderer::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator,
+										 IFramePostProcessor* pFramePostProcessor)
 	{
 		if (mIsInitialized)
 		{
@@ -32,11 +34,10 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpGraphicsContext = pGraphicsContext;
-
-		mpResourceManager = pResourceManager;
-
-		mpTempAllocator = pTempAllocator;
+		mpGraphicsContext    = pGraphicsContext;
+		mpResourceManager    = pResourceManager;
+		mpTempAllocator      = pTempAllocator;
+		mpFramePostProcessor = pFramePostProcessor;
 
 		E_RESULT_CODE result = RC_OK;
 		
@@ -238,7 +239,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, E_RESULT_CODE& result)
+	TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, 
+											  IFramePostProcessor* pFramePostProcessor, E_RESULT_CODE& result)
 	{
 		CForwardRenderer* pRenderer = new (std::nothrow) CForwardRenderer();
 
@@ -249,7 +251,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pRenderer->Init(pGraphicsContext, pResourceManager, pTempAllocator);
+		result = pRenderer->Init(pGraphicsContext, pResourceManager, pTempAllocator, pFramePostProcessor);
 
 		if (result != RC_OK)
 		{

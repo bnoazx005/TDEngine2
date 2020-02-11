@@ -33,7 +33,8 @@ namespace TDEngine2
 		\return A pointer to CForwardRenderer's implementation
 	*/
 
-	TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, E_RESULT_CODE& result);
+	TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, 
+											  IFramePostProcessor* pFramePostProcessor, E_RESULT_CODE& result);
 
 
 	/*!
@@ -45,7 +46,8 @@ namespace TDEngine2
 	class CForwardRenderer : public IRenderer
 	{
 		public:
-			friend TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, E_RESULT_CODE& result);
+			friend TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, 
+															 IFramePostProcessor* pFramePostProcessor, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a renderer
@@ -57,10 +59,13 @@ namespace TDEngine2
 				\param[in, out] pTempAllocator A pointer to IAllocator object which will be used
 				for temporary allocations
 
+				\param[in, out] pFramePostProcessor A pointer to IFramePostProcessor implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator) override;
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator,
+										IFramePostProcessor* pFramePostProcessor) override;
 			
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -135,5 +140,7 @@ namespace TDEngine2
 			IGlobalShaderProperties* mpGlobalShaderProperties;
 
 			IDebugUtility*           mpDebugUtility;
+
+			IFramePostProcessor*     mpFramePostProcessor;
 	};
 }

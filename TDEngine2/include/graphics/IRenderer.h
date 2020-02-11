@@ -19,6 +19,7 @@ namespace TDEngine2
 	class CRenderQueue;
 	class IAllocator;
 	class IResourceManager;
+	class IFramePostProcessor;
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -65,10 +66,13 @@ namespace TDEngine2
 				\param[in, out] pTempAllocator A pointer to IAllocator object which will be used
 				for temporary allocations
 
+				\param[in, out] pFramePostProcessor A pointer to IFramePostProcessor implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator,
+												IFramePostProcessor* pFramePostProcessor) = 0;
 			
 			/*!
 				\brief The method sends all accumulated commands into GPU driver
