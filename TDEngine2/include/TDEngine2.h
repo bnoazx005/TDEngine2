@@ -122,6 +122,8 @@
 #include "graphics/CStaticMeshContainer.h"
 #include "graphics/IFramePostProcessor.h"
 #include "graphics/CFramePostProcessor.h"
+#include "graphics/IPostProcessingProfile.h"
+#include "graphics/CBasePostProcessingProfile.h"
 
 ///editor
 #include "editor/IProfiler.h"

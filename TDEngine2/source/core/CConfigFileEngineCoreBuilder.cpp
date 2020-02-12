@@ -37,6 +37,7 @@
 #include "./../../include/editor/CLevelEditorWindow.h"
 #include "./../../include/editor/CDevConsoleWindow.h"
 #include "./../../include/graphics/CFramePostProcessor.h"
+#include "./../../include/graphics/CBasePostProcessingProfile.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -599,6 +600,26 @@ namespace TDEngine2
 		}
 
 		pResourceFactory = CreateStaticMeshFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		{
+			return result;
+		}
+
+		/// \note register post-processing profile's resource type
+		pResourceLoader = CreateBasePostProcessingProfileLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		pResourceFactory = CreateBasePostProcessingProfileFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
 
 		if (result != RC_OK)
 		{

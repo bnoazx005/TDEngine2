@@ -32,6 +32,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pFontAtlas = mpResourceManager->Load<CTextureAtlas>("atlas")->Get<ITextureAtlas>(RAT_BLOCKING);
 	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
+	TDE2_ASSERT(mpResourceManager->Load<CBasePostProcessingProfile>("default-profile")->IsValid());
+
 	const TColor32F colors[] =
 	{
 		{ 1.0f, 0.0f, 0.0f, 1.0f },
