@@ -70,4 +70,28 @@ TEST_CASE("CResult<T, E> Tests")
 		REQUIRE(errorResult.HasError());
 		REQUIRE(errorResult.GetError() == expectedResult);
 	}
+
+	SECTION("TestBoolConversionOperator_PassTOkValueObjectIntoIfStatement_TOkValueIsConvertedIntoTrue")
+	{
+		TResult<I32> result = TOkValue<I32>(42);
+		REQUIRE(result);
+
+		if (auto result = TResult<I32>(TOkValue<I32>(42))) { REQUIRE(true); } else { REQUIRE(false); }
+	}
+
+	SECTION("TestBoolConversionOperator_PassTErrValueObjectIntoIfStatement_TErrValueIsConvertedIntoFalse")
+	{
+		TResult<I32> result = TErrorValue<E_RESULT_CODE>(RC_FAIL);
+		REQUIRE(!result);
+
+		if (auto result = TResult<I32>(TErrorValue<E_RESULT_CODE>(RC_FAIL))) { REQUIRE(false); } else { REQUIRE(true); }
+	}
+
+	SECTION("TestCopyConstruction_PassReferenceToOtherResult_CreatesNewCopyBasedOnGivenObject")
+	{
+		TResult<std::vector<I32>> result = TOkValue<std::vector<I32>>({ 0, 1, 2, 3 });
+		auto copyResult = result;
+
+		;
+	}
 }

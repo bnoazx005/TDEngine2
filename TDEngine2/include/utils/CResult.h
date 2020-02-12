@@ -439,6 +439,22 @@ namespace TDEngine2
 				return *this;
 			}
 
+			CResult<T, E>& operator= (const CResult<T, E>& result)
+			{
+				mStorage  = result.mStorage;
+				mHasError = result.mHasError;
+
+				return *this;
+			}
+
+			CResult<T, E>& operator= (CResult<T, E>&& result)
+			{
+				mStorage  = result.mStorage;
+				mHasError = result.mHasError;
+
+				return *this;
+			}
+
 			/*!
 				\brief The method returns true if a result object contains some useful data
 
@@ -459,6 +475,11 @@ namespace TDEngine2
 			bool HasError() const
 			{
 				return mHasError;
+			}
+
+			operator bool() const
+			{
+				return !mHasError;
 			}
 		protected:
 			CResult():
@@ -512,6 +533,22 @@ namespace TDEngine2
 				return *this;
 			}
 
+			CResult<void, E>& operator= (const CResult<void, E>& result)
+			{
+				mStorage  = result.mStorage;
+				mHasError = result.mHasError;
+
+				return *this;
+			}
+
+			CResult<void, E>& operator= (CResult<void, E>&& result)
+			{
+				mStorage  = result.mStorage;
+				mHasError = result.mHasError;
+
+				return *this;
+			}
+
 			/*!
 				\brief The method returns true if a result object contains some useful data
 
@@ -532,6 +569,11 @@ namespace TDEngine2
 			bool HasError() const
 			{
 				return mHasError;
+			}
+
+			operator bool() const
+			{
+				return !mHasError;
 			}
 		protected:
 			CBasicResultStorage<void, E> mStorage;
