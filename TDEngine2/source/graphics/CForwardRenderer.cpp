@@ -184,6 +184,18 @@ namespace TDEngine2
 	{
 		mpMainCamera = pCamera;
 	}
+
+	E_RESULT_CODE CForwardRenderer::SetFramePostProcessor(IFramePostProcessor* pFramePostProcessor)
+	{
+		if (!pFramePostProcessor)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpFramePostProcessor = pFramePostProcessor;
+
+		return RC_OK;
+	}
 	
 	E_ENGINE_SUBSYSTEM_TYPE CForwardRenderer::GetType() const
 	{

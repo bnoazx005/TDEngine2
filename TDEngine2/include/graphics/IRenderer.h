@@ -91,6 +91,16 @@ namespace TDEngine2
 			TDE2_API virtual void SetCamera(const ICamera* pCamera) = 0;
 
 			/*!
+				\brief The method assigns a pointer to frame post-processor 
+
+				\param[in, out] A pointer to IFramePostProcessor implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetFramePostProcessor(IFramePostProcessor* pFramePostProcessor) = 0;
+
+			/*!
 				\brief The method returns a pointer to CRenderQueue which contains objects of specific group
 
 				\param[in] queueType A type of objects that the given queue stores

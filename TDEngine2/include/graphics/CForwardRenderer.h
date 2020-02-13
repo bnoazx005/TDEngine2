@@ -92,6 +92,16 @@ namespace TDEngine2
 			TDE2_API void SetCamera(const ICamera* pCamera) override;
 
 			/*!
+				\brief The method assigns a pointer to frame post-processor
+
+				\param[in, out] A pointer to IFramePostProcessor implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetFramePostProcessor(IFramePostProcessor* pFramePostProcessor) override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
