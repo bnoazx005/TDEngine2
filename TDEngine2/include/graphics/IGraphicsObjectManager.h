@@ -36,6 +36,7 @@ namespace TDEngine2
 	{
 		DST_BASIC,
 		DST_EDITOR_UI,
+		DST_SCREEN_SPACE,
 	};
 
 
