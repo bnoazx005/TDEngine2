@@ -189,6 +189,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::string GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const override;
+
+			/*!
+				\brief The method returns vertices of a screen-quad triangle specific for the current GAPI.
+				XY of each element mean the position and ZW are texture coordinates
+
+				\return The method returns vertices of a screen-quad triangle specific for the current GAPI.
+				XY of each element mean the position and ZW are texture coordinates
+			*/
+
+			TDE2_API std::array<TVector4, 3> GetScreenTriangleVertices() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLGraphicsObjectManager)
 

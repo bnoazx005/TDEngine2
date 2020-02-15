@@ -365,9 +365,12 @@ namespace TDEngine2
 
 					#program pixel
 
+					DECLARE_TEX2D(FrameTexture);
+
 					float4 mainPS(VertexOut input): SV_TARGET0
 					{
-						return float4(input.mUV.xy, 1, 1);
+						return TEX2D(FrameTexture, input.mUV);
+						//return float4(input.mUV.xy, 1, 1);
 					}
 					#endprogram
 				)";
@@ -377,6 +380,12 @@ namespace TDEngine2
 		}
 		
 		return "";
+	}
+
+	std::array<TVector4, 3> CD3D11GraphicsObjectManager::GetScreenTriangleVertices() const
+	{
+		// \todo D3D11 supports rendering without VB, so we don't use this vertices to draw triangle
+		return { TVector4(0.0f), TVector4(0.0f), TVector4(0.0f) };
 	}
 
 	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeTextureSamplers()

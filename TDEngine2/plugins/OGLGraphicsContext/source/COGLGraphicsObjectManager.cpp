@@ -236,7 +236,43 @@ namespace TDEngine2
 					}
 					#endprogram
 					)";
+			case E_DEFAULT_SHADER_TYPE::DST_SCREEN_SPACE:
+				return R"(					
+					#version 330 core
 
+					#include <TDEngine2Globals.inc>
+
+					#define VERTEX_ENTRY main
+					#define PIXEL_ENTRY main
+
+					#program vertex
+
+					layout (location = 0) in vec4 inPosUV;
+
+					out vec2 VertOutUV;
+
+					void main(void)
+					{
+						gl_Position = vec4(inPosUV.xy, 0.0f, 1.0f);
+						VertOutUV   = inPosUV.zw;
+					}
+
+					#endprogram
+
+					#program pixel
+
+					in vec2 VertOutUV;
+
+					out vec4 FragColor;
+
+					DECLARE_TEX2D(FrameTexture);
+
+					void main(void)
+					{
+						FragColor = TEX2D(FrameTexture, VertOutUV);
+					}
+					#endprogram
+				)";
 			default:
 				TDE2_UNIMPLEMENTED();
 				break;
@@ -244,6 +280,11 @@ namespace TDEngine2
 
 		return "";
 		
+	}
+
+	std::array<TVector4, 3> COGLGraphicsObjectManager::GetScreenTriangleVertices() const
+	{
+		return { TVector4(-1.0f, -1.0f, 0.0f, 0.0f), TVector4(-1.0f, 3.0f, 0.0f, 2.0f), TVector4(3.0f, -1.0f, 2.0f, 0.0f) };
 	}
 
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeTextureSamplers()

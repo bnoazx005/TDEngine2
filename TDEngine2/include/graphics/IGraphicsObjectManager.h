@@ -13,6 +13,8 @@
 #include "./../utils/CResult.h"
 #include "./../graphics/IBuffer.h"
 #include "./../graphics/IIndexBuffer.h"
+#include "./../math/TVector4.h"
+#include <array>
 
 
 namespace TDEngine2
@@ -184,6 +186,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual std::string GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const = 0;
+
+			/*!
+				\brief The method returns vertices of a screen-quad triangle specific for the current GAPI.
+				XY of each element mean the position and ZW are texture coordinates
+
+				\return The method returns vertices of a screen-quad triangle specific for the current GAPI.
+				XY of each element mean the position and ZW are texture coordinates
+			*/
+
+			TDE2_API virtual std::array<TVector4, 3> GetScreenTriangleVertices() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsObjectManager)
 	};
