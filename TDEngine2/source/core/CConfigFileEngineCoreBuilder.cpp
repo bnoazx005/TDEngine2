@@ -305,18 +305,26 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IFramePostProcessor* pFramePostProcessor = CreateFramePostProcessor(result);
-
 		IAllocator* pAllocator = mpMemoryManagerInstance->CreateAllocator<CStackAllocator>(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize, "Renderer");
 
-		IEngineSubsystem* pRenderer = CreateForwardRenderer(mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, pFramePostProcessor, result);
-
+		IRenderer* pRenderer = CreateForwardRenderer(mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, nullptr, result);
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(pRenderer);
+		IFramePostProcessor* pFramePostProcessor = CreateFramePostProcessor(pRenderer, mpGraphicsContextInstance->GetGraphicsObjectManager(), mpWindowSystemInstance, result);
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = pRenderer->SetFramePostProcessor(pFramePostProcessor)) != RC_OK)
+		{
+			return result;
+		}
+
+		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(pRenderer));
 	}
 
 	E_RESULT_CODE CConfigFileEngineCoreBuilder::_configureMemoryManager(U32 totalMemorySize)

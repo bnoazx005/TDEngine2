@@ -6,8 +6,16 @@
 using namespace TDEngine2;
 
 
-const std::string ShaderType = "HLSL";
-const std::string GAPIType   = "DX";
+#define DX_GAPI 1
+
+#if DX_GAPI
+	const std::string ShaderType = "HLSL";
+	const std::string GAPIType   = "DX";
+#else
+	const std::string ShaderType = "GLSL";
+	const std::string GAPIType = "GL";
+#endif
+
 
 const std::string TestShaderName      = CStringUtils::Format("test{0}Shader.shader", GAPIType);
 const std::string DebugShaderName     = CStringUtils::Format("Debug{0}Shader.shader", GAPIType);

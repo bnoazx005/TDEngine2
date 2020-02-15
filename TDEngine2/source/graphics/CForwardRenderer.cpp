@@ -152,25 +152,45 @@ namespace TDEngine2
 
 		_prepareFrame();
 
-		CRenderQueue* pCurrCommandBuffer = nullptr;
-
-		const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
-		const U8 lastGroupId  = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
-
-		for (U8 currGroup = firstGroupId; currGroup <= lastGroupId; ++currGroup)
+		auto executeCommands = [this](CRenderQueue* pCommandsBuffer)
 		{
-			pCurrCommandBuffer = mpRenderQueues[currGroup];
+			pCommandsBuffer->Sort();
+			_submitToDraw(pCommandsBuffer);
+			pCommandsBuffer->Clear();
+		};
 
+		mpFramePostProcessor->Render([this, &executeCommands]()
+		{
+			const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
+			const U8 lastGroupId  = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
+
+			CRenderQueue* pCurrCommandBuffer = nullptr;
+
+			for (U8 currGroup = firstGroupId; currGroup <= lastGroupId; ++currGroup)
+			{
+				pCurrCommandBuffer = mpRenderQueues[currGroup];
+
+				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty() || (static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY))
+				{
+					continue;
+				}
+
+				executeCommands(pCurrCommandBuffer);
+			}
+		});
+
+		// \note draw UI meshes and screen-space effects
+		{
+			CRenderQueue* pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)];
 			if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
 			{
-				continue;
+				LOG_ERROR("[ForwardRenderer] Invalid \"Overlays\" commands buffer was found");
+				return RC_FAIL;
 			}
 
-			pCurrCommandBuffer->Sort();
+			mpGraphicsContext->ClearDepthBuffer(1.0f);
 
-			_submitToDraw(pCurrCommandBuffer);
-
-			pCurrCommandBuffer->Clear();
+			executeCommands(pCurrCommandBuffer);
 		}
 
 		mpGraphicsContext->Present();
