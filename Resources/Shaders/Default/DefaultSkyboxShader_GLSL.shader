@@ -33,7 +33,7 @@ uniform samplerCube SkyboxTexture;
 
 void main(void)
 {
-	FragColor = texture(SkyboxTexture, VertOutUV);
+	FragColor = GammaToLinear(texture(SkyboxTexture, VertOutUV));
 }
 
 #endprogram

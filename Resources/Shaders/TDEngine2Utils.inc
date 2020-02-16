@@ -8,6 +8,9 @@
 #define TDENGINE2UTILS_INC
 
 
+#include <TDEngine2EffectsUtils.inc>
+
+
 ///< Define constant buffer's macro
 
 #ifdef TDE2_GLSL_SHADER

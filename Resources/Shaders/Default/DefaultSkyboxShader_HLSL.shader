@@ -44,7 +44,7 @@ SamplerState SkyboxTexture_Sampler;
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {	
-	return SkyboxTexture.Sample(SkyboxTexture_Sampler, input.mUV);
+	return GammaToLinear(SkyboxTexture.Sample(SkyboxTexture_Sampler, input.mUV));
 }
 
 #endprogram

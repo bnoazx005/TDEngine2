@@ -330,7 +330,7 @@ namespace TDEngine2
 
 					float4 mainPS(VertexOut input): SV_TARGET0
 					{
-						return input.mColor * TEX2D(Texture, input.mUV);
+						return GammaToLinear(input.mColor * TEX2D(Texture, input.mUV));
 					}
 					#endprogram
 				)";
@@ -369,7 +369,9 @@ namespace TDEngine2
 
 					float4 mainPS(VertexOut input): SV_TARGET0
 					{
-						return TEX2D(FrameTexture, input.mUV);
+						float4 color = TEX2D(FrameTexture, input.mUV);
+						float3 mappedColor = 1 - exp(-color.rgb * 2.5f);
+						return float4(LinearToGamma(mappedColor), color.a);
 						//return float4(input.mUV.xy, 1, 1);
 					}
 					#endprogram
