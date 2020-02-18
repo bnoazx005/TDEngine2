@@ -9,6 +9,7 @@ option(BUILD_WINDOWS_INPUTCTX_PLUGIN "Build Windows input context plugin" ON)
 option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
 option(IS_TOOLS_BUILDING_ENABLED "The option shows whether engine's toolset should be built or not" ON)
+option(USE_EXTERNAL_BULLET_LIBRARY "The options determines whether bullet from deps/ directory or system one will be used" OFF)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
@@ -358,6 +359,24 @@ target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOU
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Box2D/")
 add_dependencies(${TDENGINE2_LIBRARY_NAME} "Box2D")
 target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Box2D/bin/$<CONFIGURATION>/Box2D${CMAKE_STATIC_LIBRARY_SUFFIX}" )
+
+#link Bullet3 library
+if (USE_EXTERNAL_BULLET_LIBRARY)	
+    find_package(Bullet REQUIRED)
+else ()
+	# use Bullet3 from deps/ directory
+	message(STATUS "Builtin bullet3 library is being used...")
+
+	set (BULLET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet/src/")
+	set (BULLET_LIBRARIES 
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet3/lib/$<CONFIGURATION>/BulletDynamics${CMAKE_STATIC_LIBRARY_SUFFIX}"
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet3/lib/$<CONFIGURATION>/BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}"
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet3/lib/$<CONFIGURATION>/LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX}")
+endif ()
+
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BULLET_INCLUDE_DIR})
+target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BULLET_LIBRARIES})
+
 
 #build plugins
 if (IS_PLUGIN_BUILDING_ENABLED)
