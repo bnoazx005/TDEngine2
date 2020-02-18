@@ -19,7 +19,8 @@ install:
 script:
     - mkdir build
     - cd build
-    - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU
+    - pushd $TRAVIS_BUILD_DIR/TDEngine2/deps/bullet3/ && cmake -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU . && cmake --build . && sudo make install && popd
+    - cmake -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU -DUSE_EXTERNAL_BULLET_LIBRARY=ON ..
     - cmake --build .
     - ctest --output-on-failure
 
