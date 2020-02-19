@@ -72,6 +72,7 @@
 #include "ecs/CPhysics2DSystem.h"
 #include "ecs/CStaticMeshRendererSystem.h"
 #include "ecs/CBaseSystem.h"
+#include "ecs/CPhysics3DSystem.h"
 
 ///graphics
 #include "graphics/IBuffer.h"
