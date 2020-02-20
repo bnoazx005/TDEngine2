@@ -193,6 +193,8 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ICollisionObjectsVisitor.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ITrigger2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CTrigger2D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/ICollisionObject.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/ICollisionObject3D.h"
 	)
 
 set(TDENGINE2_SOURCES
