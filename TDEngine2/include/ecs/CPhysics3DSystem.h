@@ -8,15 +8,26 @@
 
 
 #include "CBaseSystem.h"
+#include "./../../include/physics/3D/ICollisionObjects3DVisitor.h"
 #include "./../math/TVector3.h"
 #include "./../core/Event.h"
 #include <vector>
-#include <unordered_map>
+
+
+// Bullet3's forward declarations
+class btDefaultCollisionConfiguration;
+class btCollisionDispatcher;
+class btBroadphaseInterface;
+class btSequentialImpulseConstraintSolver;
+class btDiscreteDynamicsWorld;
+class btCollisionShape;
+class btRigidBody;
 
 
 namespace TDEngine2
 {
 	class CTransform;
+	class CBaseCollisionObject3D;
 	class CEntity;
 	class IEventManager;
 
@@ -40,10 +51,23 @@ namespace TDEngine2
 		\brief The system implements an update step of 3D physics engine
 	*/
 
-	class CPhysics3DSystem : public CBaseSystem
+	class CPhysics3DSystem : public CBaseSystem, public ICollisionObjects3DVisitor
 	{
 		public:
 			friend TDE2_API ISystem* CreatePhysics3DSystem(IEventManager* pEventManager, E_RESULT_CODE& result);
+		protected:
+			typedef struct TPhysicsObjectsData
+			{
+				std::vector<CTransform*>             mpTransforms;
+
+				std::vector<CBaseCollisionObject3D*> mpCollisionObjects;
+
+				std::vector<btCollisionShape*>       mpBulletColliderShapes;
+
+				std::vector<btRigidBody*>            mpRigidBodies;
+
+				void Clear();
+			} TPhysicsObjectsData;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -81,25 +105,45 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			/*!
+				\brief The method returns a new created collision shape which is a box collider
+
+				\param[in] box A reference to a box collision object
+
+				\return The method returns a new created collision shape of a box collider
+			*/
+
+			TDE2_API btBoxShape* CreateBoxCollisionShape(const CBoxCollisionObject3D& box) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics3DSystem)
+
+			TDE2_API btRigidBody* _createRigidbody(const CBaseCollisionObject3D& collisionObject, btCollisionShape* pColliderShape) const;
 		protected:
-			static const TVector3 mDefaultGravity;
+			static const TVector3                mDefaultGravity;
 
-			static const F32      mDefaultTimeStep;
+			static const F32                     mDefaultTimeStep;
 
-			static const U32      mDefaultVelocityIterations;
+			static const U32                     mDefaultPositionIterations;
 
-			static const U32      mDefaultPositionIterations;
+			IEventManager*                       mpEventManager;
 
-			IEventManager*        mpEventManager;
+			btDefaultCollisionConfiguration*     mpCollisionConfiguration;
 
-			TVector3              mCurrGravity;
+			btCollisionDispatcher*               mpCollisionsDispatcher;
 
-			F32                   mCurrTimeStep;
+			btBroadphaseInterface*               mpBroadphaseSolver;
 
-			U32                   mCurrVelocityIterations;
+			btSequentialImpulseConstraintSolver* mpImpulseConstraintSolver;
 
-			U32                   mCurrPositionIterations;
+			btDiscreteDynamicsWorld*             mpWorld;
+
+			TVector3                             mCurrGravity;
+
+			F32                                  mCurrTimeStep;
+
+			U32                                  mCurrPositionIterations;
+
+			TPhysicsObjectsData                  mPhysicsObjectsData;
 	};
 }

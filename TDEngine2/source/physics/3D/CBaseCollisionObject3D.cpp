@@ -1,4 +1,5 @@
 #include "./../../../include/physics/3D/CBaseCollisionObject3D.h"
+#include "./../../../include/math/MathUtils.h"
 
 
 namespace TDEngine2
@@ -37,7 +38,7 @@ namespace TDEngine2
 
 	void CBaseCollisionObject3D::SetMass(F32 mass)
 	{
-		mMass = mass < 0.0f ? 0.0f : mass;
+		mMass = CMathUtils::Max(0.0f, mass);
 	}
 
 	E_COLLISION_OBJECT_TYPE CBaseCollisionObject3D::GetCollisionType() const

@@ -160,6 +160,8 @@
 #include "physics/ICollisionObject.h"
 #include "physics/3D/ICollisionObject3D.h"
 #include "physics/3D/CBaseCollisionObject3D.h"
+#include "physics/3D/CBoxCollisionObject3D.h"
+#include "physics/3D/ICollisionObjects3DVisitor.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"

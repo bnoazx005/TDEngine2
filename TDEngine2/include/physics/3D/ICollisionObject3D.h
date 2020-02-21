@@ -11,9 +11,12 @@
 #include "./../../ecs/IComponentFactory.h"
 
 
+class btCollisionShape;
+
+
 namespace TDEngine2
 {
-	class ICollisionObjectsVisitor;
+	class ICollisionObjects3DVisitor;
 
 
 	/*!
@@ -32,6 +35,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init() = 0;
+
+			/*!
+				\brief The method returns a pointer to internal representation of a collision
+				shape that is used by Bullet3 physics engine
+
+				\param[in] pVisitor A pointer to implementation of ICollisionObjects3DVisitor
+
+				\return The method returns a pointer to internal representation of a collision
+				shape that is used by Bullet3 physics engine
+			*/
+
+			TDE2_API virtual btCollisionShape* GetCollisionShape(const ICollisionObjects3DVisitor* pVisitor) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICollisionObject3D)
 	};

@@ -96,6 +96,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");
+	pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 
 	{
 		TMaterialParameters skyboxMatParams 
