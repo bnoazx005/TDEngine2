@@ -26,6 +26,28 @@ namespace TDEngine2
 	}
 
 
+	CPhysics3DSystem::TEntitiesMotionState::TEntitiesMotionState(CTransform* pEntityTransform, const btTransform& startTrans, const btTransform& centerOfMassOffset):
+		mpEntityTransform(pEntityTransform), mGraphicsWorldTrans(startTrans), mCenterOfMassOffset(centerOfMassOffset), mStartWorldTrans(startTrans),	mUserPointer(0)
+	{
+	}
+
+	void CPhysics3DSystem::TEntitiesMotionState::getWorldTransform(btTransform & centerOfMassWorldTrans) const
+	{
+		centerOfMassWorldTrans = mGraphicsWorldTrans * mCenterOfMassOffset.inverse();
+	}
+
+	void CPhysics3DSystem::TEntitiesMotionState::setWorldTransform(const btTransform& centerOfMassWorldTrans)
+	{
+		mGraphicsWorldTrans = centerOfMassWorldTrans * mCenterOfMassOffset;
+
+		const auto& pos = mGraphicsWorldTrans.getOrigin();
+		mpEntityTransform->SetPosition({ pos.x(), pos.y(), pos.z() });
+
+		const auto& orientation = mGraphicsWorldTrans.getRotation();
+		mpEntityTransform->SetRotation(TQuaternion(orientation.x(), orientation.y(), orientation.z(), orientation.w()));
+	}
+
+
 	CPhysics3DSystem::CPhysics3DSystem() :
 		CBaseSystem()
 	{
@@ -66,6 +88,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		E_RESULT_CODE result = _freePhysicsObjects(mPhysicsObjectsData);
+
 		// \note invocation of destructors should be in reversed order of construction of these objects
 		delete mpWorld;
 		delete mpImpulseConstraintSolver;
@@ -77,7 +101,7 @@ namespace TDEngine2
 
 		delete this;
 
-		return RC_OK;
+		return result;
 	}
 
 	void CPhysics3DSystem::InjectBindings(IWorld* pWorld)
@@ -93,6 +117,8 @@ namespace TDEngine2
 		CBaseCollisionObject3D* pBaseCollisionObject = nullptr;
 
 		btCollisionShape* pInternalColliderShape = nullptr;
+		btRigidBody* pCurrRigidbody = nullptr;
+		btMotionState* pMotionHandler = nullptr;
 
 		for (TEntityId currEntityId : interactiveEntities)
 		{
@@ -110,7 +136,11 @@ namespace TDEngine2
 			pInternalColliderShape = pBaseCollisionObject->GetCollisionShape(this);
 			mPhysicsObjectsData.mpBulletColliderShapes.push_back(pInternalColliderShape);
 
-			mPhysicsObjectsData.mpRigidBodies.push_back(_createRigidbody(*pBaseCollisionObject, pInternalColliderShape));
+			std::tie(pCurrRigidbody, pMotionHandler) = _createRigidbody(*pBaseCollisionObject, pTransform, pInternalColliderShape);
+			mPhysicsObjectsData.mpRigidBodies.push_back(pCurrRigidbody);
+			mPhysicsObjectsData.mpMotionHandlers.push_back(pMotionHandler);
+
+			mpWorld->addRigidBody(pCurrRigidbody);
 		}
 	}
 
@@ -118,7 +148,9 @@ namespace TDEngine2
 	{
 		mpWorld->stepSimulation(mCurrTimeStep, mCurrPositionIterations);
 
-		// \note Update all transforms based on 
+		// \note Update all transforms based on information from physics engine's world
+		// \todo Replace with custom MotionState class
+		
 
 	}
 
@@ -128,11 +160,80 @@ namespace TDEngine2
 		return new btBoxShape({ halfExtents.x, halfExtents.y, halfExtents.z });
 	}
 
-	btRigidBody* CPhysics3DSystem::_createRigidbody(const CBaseCollisionObject3D& collisionObject, btCollisionShape* pColliderShape) const
+	std::tuple<btRigidBody*, btMotionState*> CPhysics3DSystem::_createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const
 	{
-		return nullptr;
+		E_COLLISION_OBJECT_TYPE rigidBodyType = collisionObject.GetCollisionType();
+
+		F32 mass = collisionObject.GetMass();
+
+		btVector3 localInertia{ 0.0f, 0.0f, 0.0f };
+
+		if (rigidBodyType == E_COLLISION_OBJECT_TYPE::COT_DYNAMIC)
+		{
+			pColliderShape->calculateLocalInertia(mass, localInertia);
+		}
+		else
+		{
+			// \note Bullet3 describes static and kinematic rigid bodies as objects with zero mass
+			mass = 0.0f;
+		}
+
+		btTransform internalTransform;
+		{
+			internalTransform.setIdentity();
+
+			auto&& pos = pTransform->GetPosition();
+			internalTransform.setOrigin({ pos.x, pos.y, pos.z });
+
+			auto&& rot = pTransform->GetRotation();
+			internalTransform.setRotation({ rot.x, rot.y, rot.z, rot.w });
+		}
+
+		btMotionState* pMotionHandler = new TEntitiesMotionState(pTransform, internalTransform);
+		btRigidBody::btRigidBodyConstructionInfo rigidbodyConfiguration(mass, pMotionHandler, pColliderShape, localInertia);
+
+		return { new btRigidBody(rigidbodyConfiguration), pMotionHandler };
 	}
 
+	E_RESULT_CODE CPhysics3DSystem::_freePhysicsObjects(TPhysicsObjectsData& physicsData)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		for (auto& currMotionHandler : mPhysicsObjectsData.mpMotionHandlers)
+		{
+			if (!currMotionHandler)
+			{
+				result = result | RC_FAIL;
+			}
+
+			delete currMotionHandler;
+		}
+
+		for (auto& currRigidBody : mPhysicsObjectsData.mpRigidBodies)
+		{
+			if (!currRigidBody)
+			{
+				result = result | RC_FAIL;
+			}
+
+			mpWorld->removeRigidBody(currRigidBody);
+			delete currRigidBody;
+		}
+
+		for (auto& currShape : mPhysicsObjectsData.mpBulletColliderShapes)
+		{
+			if (!currShape)
+			{
+				result = result | RC_FAIL;
+			}
+
+			delete currShape;
+		}
+
+		physicsData.Clear();
+
+		return result;
+	}
 
 	TDE2_API ISystem* CreatePhysics3DSystem(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{

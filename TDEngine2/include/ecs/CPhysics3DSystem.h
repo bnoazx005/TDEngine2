@@ -11,6 +11,7 @@
 #include "./../../include/physics/3D/ICollisionObjects3DVisitor.h"
 #include "./../math/TVector3.h"
 #include "./../core/Event.h"
+#include "./../../deps/bullet3/src/LinearMath/btMotionState.h"
 #include <vector>
 
 
@@ -66,8 +67,28 @@ namespace TDEngine2
 
 				std::vector<btRigidBody*>            mpRigidBodies;
 
+				std::vector<btMotionState*>          mpMotionHandlers;
+
 				void Clear();
 			} TPhysicsObjectsData;
+
+			ATTRIBUTE_ALIGNED16(struct) TEntitiesMotionState : public btMotionState
+			{
+				btTransform mGraphicsWorldTrans;
+				btTransform mCenterOfMassOffset;
+				btTransform mStartWorldTrans;
+				
+				void*       mUserPointer;
+
+				CTransform* mpEntityTransform; // \todo Replace with entity id and pointer to CWorld*
+				
+				BT_DECLARE_ALIGNED_ALLOCATOR();
+
+				TEntitiesMotionState(CTransform* pEntityTransform, const btTransform& startTrans = btTransform::getIdentity(), const btTransform& centerOfMassOffset = btTransform::getIdentity());
+
+				TDE2_API void getWorldTransform(btTransform & centerOfMassWorldTrans) const override;
+				TDE2_API void setWorldTransform(const btTransform& centerOfMassWorldTrans) override;
+			};
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -118,7 +139,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics3DSystem)
 
-			TDE2_API btRigidBody* _createRigidbody(const CBaseCollisionObject3D& collisionObject, btCollisionShape* pColliderShape) const;
+			TDE2_API std::tuple<btRigidBody*, btMotionState*> _createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
+
+			TDE2_API E_RESULT_CODE _freePhysicsObjects(TPhysicsObjectsData& physicsData);
 		protected:
 			static const TVector3                mDefaultGravity;
 
