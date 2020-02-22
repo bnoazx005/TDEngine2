@@ -162,6 +162,7 @@
 #include "physics/3D/CBaseCollisionObject3D.h"
 #include "physics/3D/CBoxCollisionObject3D.h"
 #include "physics/3D/ICollisionObjects3DVisitor.h"
+#include "physics/3D/CSphereCollisionObject3D.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"

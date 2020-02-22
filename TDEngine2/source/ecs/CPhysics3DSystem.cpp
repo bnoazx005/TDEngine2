@@ -4,6 +4,7 @@
 #include "./../../include/ecs/CTransform.h"
 #include "./../../include/core/IEventManager.h"
 #include "./../../include/physics/3D/CBoxCollisionObject3D.h"
+#include "./../../include/physics/3D/CSphereCollisionObject3D.h"
 #include "./../../deps/bullet3/src/btBulletDynamicsCommon.h"
 #include <algorithm>
 
@@ -147,17 +148,17 @@ namespace TDEngine2
 	void CPhysics3DSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		mpWorld->stepSimulation(mCurrTimeStep, mCurrPositionIterations);
-
-		// \note Update all transforms based on information from physics engine's world
-		// \todo Replace with custom MotionState class
-		
-
 	}
 
 	btBoxShape* CPhysics3DSystem::CreateBoxCollisionShape(const CBoxCollisionObject3D& box) const
 	{
 		TVector3 halfExtents = box.GetSizes() * 0.5f;
 		return new btBoxShape({ halfExtents.x, halfExtents.y, halfExtents.z });
+	}
+
+	btSphereShape* CPhysics3DSystem::CreateSphereCollisionShape(const CSphereCollisionObject3D& sphere) const
+	{
+		return new btSphereShape(sphere.GetRadius());
 	}
 
 	std::tuple<btRigidBody*, btMotionState*> CPhysics3DSystem::_createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const

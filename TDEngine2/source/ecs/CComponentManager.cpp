@@ -11,6 +11,7 @@
 #include "./../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "./../../include/physics/2D/CTrigger2D.h"
 #include "./../../include/physics/3D/CBoxCollisionObject3D.h"
+#include "./../../include/physics/3D/CSphereCollisionObject3D.h"
 
 
 namespace TDEngine2
@@ -326,6 +327,7 @@ namespace TDEngine2
 			CreateTrigger2DFactory,
 			CreateStaticMeshContainerFactory,
 			CreateBoxCollisionObject3DFactory,
+			CreateSphereCollisionObject3DFactory,
 			//etc
 		};
 
@@ -364,6 +366,7 @@ namespace TDEngine2
 			CTrigger2D::GetTypeId(),
 			CStaticMeshContainer::GetTypeId(),
 			CBoxCollisionObject3D::GetTypeId(),
+			CSphereCollisionObject3D::GetTypeId(),
 			//etc
 		};
 

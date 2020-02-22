@@ -136,6 +136,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API btBoxShape* CreateBoxCollisionShape(const CBoxCollisionObject3D& box) const override;
+
+			/*!
+				\brief The method returns a new created collision shape which is a sphere collider
+
+				\param[in] sphere A reference to a sphere collision object
+
+				\return The method returns a new created collision shape of a sphere collider
+			*/
+
+			TDE2_API btSphereShape* CreateSphereCollisionShape(const CSphereCollisionObject3D& sphere) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics3DSystem)
 
