@@ -157,7 +157,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE DeactivateSystem(TSystemId systemId) override;
-			
+
+			/*!
+				\brief The method registers given raycasting context within the world's instance
+
+				\param[in, out] pRaycastContext A pointer to IRaycastContext implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RegisterRaycastContext(IRaycastContext* pRaycastContext) override;
+
 			/*!
 				\brief The method seeks out an entity and either return it or return nullptr
 
@@ -176,6 +186,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(float dt) override;
+
+			/*!
+				\brief The method returns a pointer to IRaycastContext, use
+
+				\return The method returns a pointer to IRaycastContext
+			*/
+
+			TDE2_API IRaycastContext* GetRaycastContext() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWorld)
 
@@ -194,5 +212,7 @@ namespace TDEngine2
 			ISystemManager*    mpSystemManager;
 
 			IEventManager*     mpEventManager;
+
+			IRaycastContext*   mpRaycastContext;
 	};
 }

@@ -24,6 +24,7 @@ namespace TDEngine2
 	class IComponent;
 	class IComponentIterator;
 	class IEventManager;
+	class IRaycastContext;
 
 
 	/*!
@@ -217,6 +218,16 @@ namespace TDEngine2
 			TDE2_API virtual CEntity* FindEntity(TEntityId entityId) const = 0;
 			
 			/*!
+				\brief The method registers given raycasting context within the world's instance
+
+				\param[in, out] pRaycastContext A pointer to IRaycastContext implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterRaycastContext(IRaycastContext* pRaycastContext) = 0;
+
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 
@@ -224,6 +235,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void Update(float dt) = 0;
+
+			/*!
+				\brief The method returns a pointer to IRaycastContext, use
+
+				\return The method returns a pointer to IRaycastContext
+			*/
+
+			TDE2_API virtual IRaycastContext* GetRaycastContext() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IWorld)
 

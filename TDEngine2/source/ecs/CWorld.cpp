@@ -6,6 +6,7 @@
 #include "./../../include/ecs/CSystemManager.h"
 #include "./../../include/core/IEventManager.h"
 #include "./../../include/editor/CPerfProfiler.h"
+#include "./../../include/physics/IRaycastContext.h"
 
 
 namespace TDEngine2
@@ -50,7 +51,8 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpEventManager = pEventManager;
+		mpEventManager   = pEventManager;
+		mpRaycastContext = nullptr;
 
 		mIsInitialized = true;
 
@@ -133,6 +135,18 @@ namespace TDEngine2
 		return mpSystemManager->DeactivateSystem(systemId);
 	}
 
+	E_RESULT_CODE CWorld::RegisterRaycastContext(IRaycastContext* pRaycastContext)
+	{
+		if (!pRaycastContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpRaycastContext = pRaycastContext;
+
+		return RC_OK;
+	}
+
 	CEntity* CWorld::FindEntity(TEntityId entityId) const
 	{
 		return mpEntityManager->GetEntity(entityId);
@@ -142,6 +156,11 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("World::Update");
 		mpSystemManager->Update(this, dt);
+	}
+
+	IRaycastContext* CWorld::GetRaycastContext() const
+	{
+		return mpRaycastContext;
 	}
 
 	CComponentIterator CWorld::_findComponentsOfType(TypeId typeId)
