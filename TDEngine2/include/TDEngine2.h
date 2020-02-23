@@ -157,12 +157,14 @@
 #include "physics/2D/ICollisionObjectsVisitor.h"
 #include "physics/2D/ITrigger2D.h"
 #include "physics/2D/CTrigger2D.h"
-#include "physics/ICollisionObject.h"
 #include "physics/3D/ICollisionObject3D.h"
 #include "physics/3D/CBaseCollisionObject3D.h"
 #include "physics/3D/CBoxCollisionObject3D.h"
 #include "physics/3D/ICollisionObjects3DVisitor.h"
 #include "physics/3D/CSphereCollisionObject3D.h"
+#include "physics/ICollisionObject.h"
+#include "physics/IRaycastContext.h"
+#include "physics/CBaseRaycastContext.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"
