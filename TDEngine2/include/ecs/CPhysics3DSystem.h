@@ -8,11 +8,13 @@
 
 
 #include "CBaseSystem.h"
-#include "./../../include/physics/3D/ICollisionObjects3DVisitor.h"
+#include "./../physics/3D/ICollisionObjects3DVisitor.h"
+#include "./../physics/IRaycastContext.h"
 #include "./../math/TVector3.h"
 #include "./../core/Event.h"
 #include "./../../deps/bullet3/src/LinearMath/btMotionState.h"
 #include <vector>
+#include <functional>
 
 
 // Bullet3's forward declarations
@@ -89,6 +91,8 @@ namespace TDEngine2
 				TDE2_API void getWorldTransform(btTransform & centerOfMassWorldTrans) const override;
 				TDE2_API void setWorldTransform(const btTransform& centerOfMassWorldTrans) override;
 			};
+
+			typedef std::function<void(const TRaycastResult&)> TOnRaycastHitCallback;
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -146,6 +150,34 @@ namespace TDEngine2
 			*/
 
 			TDE2_API btSphereShape* CreateSphereCollisionShape(const CSphereCollisionObject3D& sphere) const override;
+
+			/*!
+				\brief The method casts a ray into a scene and returns closest object which is intersected by that.
+				If there wasn't intersections nullptr is returned. The method isn't asynchronous, its callback will
+				be called before the method returns execution context to its caller
+
+				\param[in] origin A position in world space of a ray's origin
+				\param[in] direction A normalized direction of a ray
+				\param[in] maxDistance A maximal distance of a ray through given direction
+				\param[in] onHitCallback A callback which is called only if some object was hitted by the ray
+
+				\return The method casts a ray into a scene and returns closest object which is intersected by that.
+				If there wasn't intersections nullptr is returned
+				*/
+			TDE2_API void RaycastClosest(const TVector3& origin, const TVector3& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback);
+
+			/*!
+				\brief The method casts a ray into the world and gathers all collision objects that intersect with the it
+
+				\param[in] origin A position in world space of a ray's origin
+				\param[in] direction A normalized direction of a ray
+				\param[in] maxDistance A maximal distance of a ray through given direction
+				\param[out] result An array with TRaycastResult objects
+
+				\return The method returns true if some intersections were found, false in other cases
+			*/
+
+			TDE2_API bool RaycastAll(const TVector3& origin, const TVector3& direction, F32 maxDistance, std::vector<TRaycastResult>& hitResults);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics3DSystem)
 

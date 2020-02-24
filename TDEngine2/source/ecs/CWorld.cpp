@@ -156,6 +156,9 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("World::Update");
 		mpSystemManager->Update(this, dt);
+
+		// \note reset all allocated raycasts results data
+		mpRaycastContext->Reset();
 	}
 
 	IRaycastContext* CWorld::GetRaycastContext() const

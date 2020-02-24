@@ -22,6 +22,7 @@
 #include "./../../include/utils/ITimer.h"
 #include "./../../include/editor/IEditorsManager.h"
 #include "./../../include/editor/CPerfProfiler.h"
+#include "./../../include/physics/CBaseRaycastContext.h"
 #include <cstring>
 #include <algorithm>
 
@@ -380,8 +381,9 @@ namespace TDEngine2
 			CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
-			CreatePhysics2DSystem(pEventManager, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
+			// \note should be always latest in the list
+			CreatePhysics2DSystem(pEventManager, result),
 			CreatePhysics3DSystem(pEventManager, result),
 		};
 
@@ -398,6 +400,16 @@ namespace TDEngine2
 			{
 				LOG_ERROR("[Engine Core] Could not register system");
 			}
+		}
+
+		auto pRaycastContextInstance = CreateBaseRaycastContext(_getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER),
+																dynamic_cast<CPhysics2DSystem*>(*(builtinSystems.end() - 2)), 
+																dynamic_cast<CPhysics3DSystem*>(builtinSystems.back()), 
+																result);
+
+		if ((result != RC_OK) || (result = pWorldInstance->RegisterRaycastContext(pRaycastContextInstance)) != RC_OK)
+		{
+			return result;
 		}
 
 		return RC_OK;

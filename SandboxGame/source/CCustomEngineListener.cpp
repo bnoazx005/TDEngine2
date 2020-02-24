@@ -170,6 +170,13 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	{
 		return mpEngineCoreInstance->Quit();
 	}
+
+	//if (mpInputContext->IsMouseButtonPressed(0))
+	//{
+		auto&& mousePosition = mpInputContext->GetMousePosition();
+
+		auto&& result = mpWorld->GetRaycastContext()->Raycast3DClosest(ZeroVector3, ForwardVector3, 1000.0f);
+	//}
 	
 	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
 	pDebugUtility->DrawLine(ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });

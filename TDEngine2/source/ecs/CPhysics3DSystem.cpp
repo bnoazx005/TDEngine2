@@ -6,6 +6,7 @@
 #include "./../../include/physics/3D/CBoxCollisionObject3D.h"
 #include "./../../include/physics/3D/CSphereCollisionObject3D.h"
 #include "./../../deps/bullet3/src/btBulletDynamicsCommon.h"
+//#include "./../../deps/bullet3/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include <algorithm>
 
 
@@ -141,6 +142,8 @@ namespace TDEngine2
 			mPhysicsObjectsData.mpRigidBodies.push_back(pCurrRigidbody);
 			mPhysicsObjectsData.mpMotionHandlers.push_back(pMotionHandler);
 
+			pCurrRigidbody->setUserIndex(currEntityId);
+
 			mpWorld->addRigidBody(pCurrRigidbody);
 		}
 	}
@@ -159,6 +162,57 @@ namespace TDEngine2
 	btSphereShape* CPhysics3DSystem::CreateSphereCollisionShape(const CSphereCollisionObject3D& sphere) const
 	{
 		return new btSphereShape(sphere.GetRadius());
+	}
+
+	void CPhysics3DSystem::RaycastClosest(const TVector3& origin, const TVector3& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback)
+	{
+		TVector3 finishPos = origin + maxDistance * Normalize(direction);
+
+		btVector3 from { origin.x, origin.y, origin.z };
+		btVector3 to   { finishPos.x, finishPos.y, finishPos.z };
+
+		btCollisionWorld::ClosestRayResultCallback closestResults(from, to);
+		//closestResults.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
+
+		mpWorld->rayTest(from, to, closestResults);
+
+		if (closestResults.hasHit() && onHitCallback)
+		{
+			btVector3 point  = from.lerp(to, closestResults.m_closestHitFraction);
+			btVector3 normal = closestResults.m_hitNormalWorld;
+
+			TEntityId entityId = static_cast<U32>(closestResults.m_collisionObject->getUserIndex());
+
+			onHitCallback({ entityId, { point.x(), point.y(), point.z() }, { normal.x(), normal.y(), normal.z() } });
+		}
+	}
+
+	bool CPhysics3DSystem::RaycastAll(const TVector3& origin, const TVector3& direction, F32 maxDistance, std::vector<TRaycastResult>& hitResults)
+	{
+		TVector3 finishPos = origin + maxDistance * Normalize(direction);
+
+		btVector3 from { origin.x, origin.y, origin.z };
+		btVector3 to   { finishPos.x, finishPos.y, finishPos.z };
+
+		btCollisionWorld::AllHitsRayResultCallback allResults(from, to);
+		//allResults.m_flags |= btTriangleRaycastCallback::kF_KeepUnflippedNormal;
+		//kF_UseGjkConvexRaytest flag is now enabled by default, use the faster but more approximate algorithm
+		//allResults.m_flags |= btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
+		//allResults.m_flags |= btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
+
+		mpWorld->rayTest(from, to, allResults);
+
+		for (int i = 0; i < allResults.m_hitFractions.size(); i++)
+		{
+			btVector3 point  = from.lerp(to, allResults.m_hitFractions[i]);
+			btVector3 normal = allResults.m_hitNormalWorld[i];
+
+			TEntityId entityId = static_cast<U32>(allResults.m_collisionObjects[i]->getUserIndex());
+
+			hitResults.push_back({ entityId, { point.x(), point.y(), point.z() }, { normal.x(), normal.y(), normal.z() } });
+		}
+
+		return allResults.hasHit();
 	}
 
 	std::tuple<btRigidBody*, btMotionState*> CPhysics3DSystem::_createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const
