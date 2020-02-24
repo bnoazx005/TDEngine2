@@ -3,6 +3,12 @@
 
 namespace TDEngine2
 {
+	TPoolAllocatorParams::TPoolAllocatorParams(U32 size, U32 perElementSize, U32 elementAlignment):
+		TBaseAllocatorParams(size), mPerObjectSize(perElementSize), mObjectAlignment(elementAlignment)
+	{
+	}
+
+
 	CPoolAllocator::CPoolAllocator():
 		CBaseAllocator(), mObjectSize(0), mObjectAlignment(0),
 		mppNextFreeBlock(nullptr)
@@ -111,11 +117,11 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IAllocator*> CPoolAllocatorFactory::Create(const TBaseAllocatorParams* pParams) const
+	TResult<IAllocator*> CPoolAllocatorFactory::Create(U8* pMemoryBlock, const TBaseAllocatorParams& params) const
 	{
-		const TPoolAllocatorParams* pPoolParams = dynamic_cast<const TPoolAllocatorParams*>(pParams);
+		const TPoolAllocatorParams* pPoolParams = dynamic_cast<const TPoolAllocatorParams*>(&params);
 
-		if (!pPoolParams)
+		if (!pPoolParams || !pMemoryBlock)
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
@@ -123,7 +129,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		IAllocator* pAllocator = CreatePoolAllocator(pPoolParams->mPerObjectSize, pPoolParams->mObjectAlignment, 
-													 pPoolParams->mMemoryBlockSize, pPoolParams->mpMemoryBlock, result);
+													 pPoolParams->mMemoryBlockSize, pMemoryBlock, result);
 
 		if (result != RC_OK)
 		{

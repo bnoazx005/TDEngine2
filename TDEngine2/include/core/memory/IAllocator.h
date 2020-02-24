@@ -103,11 +103,11 @@ namespace TDEngine2
 
 	typedef struct TBaseAllocatorParams
 	{
-		virtual ~TBaseAllocatorParams() = default;
+		TDE2_API TBaseAllocatorParams() = default;
+		TDE2_API TBaseAllocatorParams(U32 size);
+		TDE2_API virtual ~TBaseAllocatorParams() = default;
 
 		U32 mMemoryBlockSize;
-
-		U8* mpMemoryBlock;
 	} TBaseAllocatorParams, *TBaseAllocatorParamsPtr;
 
 
@@ -133,12 +133,13 @@ namespace TDEngine2
 			/*!
 				\brief The method creates a new instance of an allocator with a given parameters
 
-				\param[in] pParams Parameters that are used for initialization of the allocator's instance
+				\param[in, out] pMemoryBlock A pointer to a block of memory
+				\param[in] params Parameters that are used for initialization of the allocator's instance
 
 				\return Either a pointer to a new created IAllocator or an error code
 			*/
 
-			TDE2_API virtual TResult<IAllocator*> Create(const TBaseAllocatorParams* pParams) const = 0;
+			TDE2_API virtual TResult<IAllocator*> Create(U8* pMemoryBlock, const TBaseAllocatorParams& params) const = 0;
 
 			/*!
 				\brief The method returns a type of an allocator that are created by the factory

@@ -300,7 +300,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 		
-		IAllocator* pAllocator = mpMemoryManagerInstance->CreateAllocator<CStackAllocator>(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize, "Renderer");
+		IAllocator* pAllocator = mpMemoryManagerInstance->CreateAllocator<CStackAllocator>({ static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize }, "Renderer");
 
 		IRenderer* pRenderer = CreateForwardRenderer(mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, nullptr, result);
 		if (result != RC_OK)

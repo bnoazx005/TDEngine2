@@ -107,7 +107,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _unregisterFactory(TypeId factoryTypeId) override;
 
-			TDE2_API IAllocator* _createAllocator(TypeId allocatorTypeId, U32 size, const C8* userName) override;
+			TDE2_API IAllocator* _createAllocator(TypeId allocatorTypeId, const TBaseAllocatorParams& params, const C8* userName) override;
 		protected:
 			bool                       mIsInitialized;
 

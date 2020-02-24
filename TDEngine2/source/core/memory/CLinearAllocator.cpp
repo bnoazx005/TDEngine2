@@ -89,16 +89,16 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IAllocator*> CLinearAllocatorFactory::Create(const TBaseAllocatorParams* pParams) const
+	TResult<IAllocator*> CLinearAllocatorFactory::Create(U8* pMemoryBlock, const TBaseAllocatorParams& params) const
 	{
-		if (!pParams)
+		if (!pMemoryBlock)
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		E_RESULT_CODE result = RC_OK;
 
-		IAllocator* pAllocator = CreateLinearAllocator(pParams->mMemoryBlockSize, pParams->mpMemoryBlock, result);
+		IAllocator* pAllocator = CreateLinearAllocator(params.mMemoryBlockSize, pMemoryBlock, result);
 
 		if (result != RC_OK)
 		{

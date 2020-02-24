@@ -112,6 +112,9 @@ namespace TDEngine2
 
 	typedef struct TPoolAllocatorParams: TBaseAllocatorParams
 	{
+		TDE2_API TPoolAllocatorParams() = default;
+		TDE2_API TPoolAllocatorParams(U32 size, U32 perElementSize, U32 elementAlignment);
+
 		U32 mPerObjectSize;
 
 		U32 mObjectAlignment;
@@ -142,14 +145,15 @@ namespace TDEngine2
 			friend TDE2_API IAllocatorFactory* CreatePoolAllocatorFactory(E_RESULT_CODE& result);
 		public:
 			/*!
-			\brief The method creates a new instance of an allocator with a given parameters
+				\brief The method creates a new instance of an allocator with a given parameters
 
-			\param[in] pParams Parameters that are used for initialization of the allocator's instance
+				\param[in, out] pMemoryBlock A pointer to a block of memory
+				\param[in] params Parameters that are used for initialization of the allocator's instance
 
-			\return Either a pointer to a new created IAllocator or an error code
+				\return Either a pointer to a new created IAllocator or an error code
 			*/
 
-			TDE2_API TResult<IAllocator*> Create(const TBaseAllocatorParams* pParams) const override;
+			TDE2_API TResult<IAllocator*> Create(U8* pMemoryBlock, const TBaseAllocatorParams& params) const override;
 
 			/*!
 				\brief The method returns a type of an allocator that are created by the factory

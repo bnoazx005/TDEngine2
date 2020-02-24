@@ -103,16 +103,16 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IAllocator*> CStackAllocatorFactory::Create(const TBaseAllocatorParams* pParams) const
+	TResult<IAllocator*> CStackAllocatorFactory::Create(U8* pMemoryBlock, const TBaseAllocatorParams& params) const
 	{
-		if (!pParams)
+		if (!pMemoryBlock)
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		E_RESULT_CODE result = RC_OK;
 
-		IAllocator* pAllocator = CreateStackAllocator(pParams->mMemoryBlockSize, pParams->mpMemoryBlock, result);
+		IAllocator* pAllocator = CreateStackAllocator(params.mMemoryBlockSize, pMemoryBlock, result);
 
 		if (result != RC_OK)
 		{

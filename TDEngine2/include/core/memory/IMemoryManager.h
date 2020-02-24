@@ -16,6 +16,8 @@ namespace TDEngine2
 {
 	class IAllocator;
 	class IAllocatorFactory;
+
+	struct TBaseAllocatorParams;
 	
 
 	/*!
@@ -70,7 +72,7 @@ namespace TDEngine2
 				\brief The method allocates a new piece of data of a specified size and creates
 				a new allocator to manage it
 
-				\param[in] size A size of a memory block should be allocated
+				\param[in] params A parameters of created allocator
 
 				\param[in] userName An optional parameter that specifies a name of a user of the memory block
 
@@ -84,9 +86,9 @@ namespace TDEngine2
 #else
 			typename std::enable_if<std::is_base_of<IAllocator, T>::value, IAllocator*>::type
 #endif
-			CreateAllocator(U32 size, const C8* userName)
+			CreateAllocator(const TBaseAllocatorParams& params, const C8* userName)
 			{
-				return _createAllocator(T::GetTypeId(), size, userName);
+				return _createAllocator(T::GetTypeId(), params, userName);
 			}
 
 			/*!
@@ -117,6 +119,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _unregisterFactory(TypeId factoryTypeId) = 0;
 
-			TDE2_API virtual IAllocator* _createAllocator(TypeId allocatorType, U32 size, const C8* userName) = 0;
+			TDE2_API virtual IAllocator* _createAllocator(TypeId allocatorType, const TBaseAllocatorParams& params, const C8* userName) = 0;
 	};
 }

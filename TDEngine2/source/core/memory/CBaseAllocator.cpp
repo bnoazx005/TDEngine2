@@ -4,6 +4,11 @@
 
 namespace TDEngine2
 {
+	TBaseAllocatorParams::TBaseAllocatorParams(U32 size):
+		mMemoryBlockSize(size)
+	{
+	}
+
 	CBaseAllocator::CBaseAllocator():
 		CBaseObject(), mTotalMemorySize(0), mUsedMemorySize(0),
 		mAllocationsCount(0), mpMemoryBlock(nullptr)

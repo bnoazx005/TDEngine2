@@ -184,7 +184,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IAllocator* CMemoryManager::_createAllocator(TypeId allocatorTypeId, U32 size, const C8* userName)
+	IAllocator* CMemoryManager::_createAllocator(TypeId allocatorTypeId, const TBaseAllocatorParams& params, const C8* userName)
 	{
 		const IAllocatorFactory* pAllocatorFactory = mAllocatorFactories[allocatorTypeId];
 
@@ -193,12 +193,8 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		TBaseAllocatorParams params;
-		
-		params.mMemoryBlockSize = size;
-		params.mpMemoryBlock    = static_cast<U8*>(Allocate(size, userName));
-
-		TResult<IAllocator*> result = pAllocatorFactory->Create(&params);
+		U8* pNewMemoryBlock = static_cast<U8*>(Allocate(params.mMemoryBlockSize, userName));
+		TResult<IAllocator*> result = pAllocatorFactory->Create(pNewMemoryBlock, params);
 
 		return result.Get();
 	}
