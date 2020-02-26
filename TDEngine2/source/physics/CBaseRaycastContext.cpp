@@ -56,8 +56,15 @@ namespace TDEngine2
 
 	TRaycastResult* CBaseRaycastContext::Raycast2DClosest(const TVector3& origin, const TVector3& direction, F32 maxDistance)
 	{
-		TDE2_UNIMPLEMENTED();
-		return nullptr;
+		TRaycastResult* pResult = nullptr;
+
+		mp2DPhysicsSystem->RaycastClosest({ origin.x, origin.y }, { direction.x, direction.y }, maxDistance, [this, &pResult](const TRaycastResult& hitResult)
+		{
+			pResult = static_cast<TRaycastResult*>(mpAllocator->Allocate(sizeof(mRaycastResultTypeSize), __alignof(TRaycastResult)));
+			*pResult = hitResult;
+		});
+
+		return pResult;
 	}
 
 	TRaycastResult* CBaseRaycastContext::Raycast3DClosest(const TVector3& origin, const TVector3& direction, F32 maxDistance)

@@ -10,10 +10,12 @@
 #include "CBaseSystem.h"
 #include "./../core/Event.h"
 #include "./../physics/2D/ICollisionObjectsVisitor.h"
+#include "./../physics/IRaycastContext.h"
 #include "./../math/TVector2.h"
 #include "Box2D.h"
 #include <vector>
 #include <unordered_map>
+#include <functional>
 
 
 namespace TDEngine2
@@ -98,6 +100,33 @@ namespace TDEngine2
 					const THandles2EntitiesMap* mpHandles2EntitiesMap;
 					IEventManager*              mpEventManager;
 			};
+
+			typedef std::function<void(const TRaycastResult&)> TOnRaycastHitCallback;
+
+			class CRayCastClosestCallback : public b2RayCastCallback
+			{
+				public:
+					TDE2_API CRayCastClosestCallback(const TOnRaycastHitCallback& onHitCallback);
+					TDE2_API F32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, F32 fraction);
+				private:
+					bool                  mHit;
+
+					b2Vec2                mPoint;
+					b2Vec2                mNormal;
+
+					TOnRaycastHitCallback mOnHitCallback;
+			};
+			
+			class CPointOverlapCallback : public b2QueryCallback
+			{
+				public:
+					TDE2_API CPointOverlapCallback() = default;
+					TDE2_API bool ReportFixture(b2Fixture* pFixture);
+
+					TDE2_API TEntityId GetEntityId() const;
+				private:
+					b2Body* mpBody;
+			};
 		public:
 			/*!
 				\brief The method initializes an inner state of a system
@@ -155,10 +184,40 @@ namespace TDEngine2
 			*/
 
 			TDE2_API b2CircleShape CreateCircleCollisionShape(const CCircleCollisionObject2D& circle) const override;
+
+			/*!
+				\brief The method casts a ray into a scene and returns closest object which is intersected by that.
+				If there wasn't intersections nullptr is returned. The method isn't asynchronous, its callback will
+				be called before the method returns execution context to its caller
+
+				\param[in] origin A position in world space of a ray's origin
+				\param[in] direction A normalized direction of a ray
+				\param[in] maxDistance A maximal distance of a ray through given direction
+				\param[in] onHitCallback A callback which is called only if some object was hitted by the ray
+
+				\return The method casts a ray into a scene and returns closest object which is intersected by that.
+				If there wasn't intersections nullptr is returned
+				*/
+			TDE2_API void RaycastClosest(const TVector2& origin, const TVector2& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback);
+
+			/*!
+				\brief The method casts a ray into the world and gathers all collision objects that intersect with the it
+
+				\param[in] origin A position in world space of a ray's origin
+				\param[in] direction A normalized direction of a ray
+				\param[in] maxDistance A maximal distance of a ray through given direction
+				\param[out] result An array with TRaycastResult objects
+
+				\return The method returns true if some intersections were found, false in other cases
+			*/
+
+			TDE2_API bool RaycastAll(const TVector2& origin, const TVector2& direction, F32 maxDistance, std::vector<TRaycastResult>& hitResults);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics2DSystem)
 
 			TDE2_API b2Body* _createPhysicsBody(const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider);
+
+			TDE2_API void _testPointOverlap(const TVector2& point, const TOnRaycastHitCallback& onHitCallback) const;
 		protected:
 			static const TVector2 mDefaultGravity;
 

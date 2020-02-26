@@ -113,6 +113,8 @@ namespace TDEngine2
 													pCurrEntity->GetComponent<CBoxCollisionObject2D>(), 
 													pCurrEntity->GetComponent<CCircleCollisionObject2D>()));
 			
+			pCurrBody->SetUserData(pCurrEntity);
+
 			mCollidersData.mBodies.push_back(pCurrBody);
 
 		}
@@ -167,6 +169,27 @@ namespace TDEngine2
 		circleCollider.m_radius = circle.GetRadius();
 
 		return circleCollider;
+	}
+
+	void CPhysics2DSystem::RaycastClosest(const TVector2& origin, const TVector2& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback)
+	{
+		TVector2 end = origin + (Length(direction) > 1e-3f ? Normalize(direction) : ZeroVector2) * maxDistance;
+
+		if (Length(end - origin) < 1e-3f)
+		{
+			// \note the case of ray that's orthogonal for XY plane
+			_testPointOverlap(origin, onHitCallback);
+			return;
+		}
+
+		CRayCastClosestCallback callback(onHitCallback);
+
+		mpWorldInstance->RayCast(&callback, { origin.x, origin.y }, { end.x, end.y });
+	}
+
+	bool CPhysics2DSystem::RaycastAll(const TVector2& origin, const TVector2& direction, F32 maxDistance, std::vector<TRaycastResult>& hitResults)
+	{
+		return false;
 	}
 
 	b2Body* CPhysics2DSystem::_createPhysicsBody(const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider)
@@ -224,6 +247,24 @@ namespace TDEngine2
 		return pCreatedBody;
 	}
 
+	void CPhysics2DSystem::_testPointOverlap(const TVector2& point, const TOnRaycastHitCallback& onHitCallback) const
+	{
+		CPointOverlapCallback callback;
+
+		b2Vec2 p { point.x, point.y };
+		b2AABB aabb;
+		aabb.lowerBound = p;
+		aabb.upperBound = p;
+
+		mpWorldInstance->QueryAABB(&callback, aabb);
+
+		TEntityId entityId = callback.GetEntityId();
+		if (entityId != InvalidEntityId && onHitCallback)
+		{
+			onHitCallback({ entityId, { point.x, point.y, 0.0f }, ZeroVector3 });
+		}
+	}
+
 	CPhysics2DSystem::CTriggerContactsListener::CTriggerContactsListener(IEventManager*& pEventManager, std::vector<b2Body*>& bodiesArray, 
 																		 const THandles2EntitiesMap& handles2EntitiesMap):
 		mpBodies(&bodiesArray), mpHandles2EntitiesMap(&handles2EntitiesMap), mpEventManager(pEventManager)
@@ -256,6 +297,55 @@ namespace TDEngine2
 		trigger2DExitEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
 
 		mpEventManager->Notify(&trigger2DExitEventData);
+	}
+
+	CPhysics2DSystem::CRayCastClosestCallback::CRayCastClosestCallback(const TOnRaycastHitCallback& onHitCallback):
+		mHit(false), mOnHitCallback(onHitCallback)
+	{
+	}
+
+	F32 CPhysics2DSystem::CRayCastClosestCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, F32 fraction)
+	{
+		b2Body* body = fixture->GetBody();
+		
+		TEntityId entityId = InvalidEntityId;
+
+		if (auto pUserData = GetValidPtrOrDefault<void*>(body ? body->GetUserData() : nullptr, nullptr))
+		{
+			entityId = static_cast<CEntity*>(pUserData)->GetId();
+		}
+
+		mHit = true;
+
+		mPoint  = point;
+		mNormal = normal;
+
+		if (mOnHitCallback)
+		{
+			mOnHitCallback({ entityId, { mPoint.x, mPoint.y, 0.0f }, { mNormal.x, mNormal.y, 0.0f } });
+		}
+
+		// By returning the current fraction, we instruct the calling code to clip the ray and
+		// continue the ray-cast to the next fixture. WARNING: do not assume that fixtures
+		// are reported in order. However, by clipping, we can always get the closest fixture.
+		return fraction;
+	}
+
+
+	bool CPhysics2DSystem::CPointOverlapCallback::ReportFixture(b2Fixture* pFixture)
+	{
+		mpBody = pFixture->GetBody();
+		return false;
+	}
+
+	TEntityId CPhysics2DSystem::CPointOverlapCallback::GetEntityId() const
+	{
+		if (auto pUserData = GetValidPtrOrDefault<void*>(mpBody ? mpBody->GetUserData() : nullptr, nullptr))
+		{
+			return static_cast<CEntity*>(pUserData)->GetId();
+		}
+
+		return InvalidEntityId;
 	}
 
 	TEntityId CPhysics2DSystem::CTriggerContactsListener::_getEntityIdByBody(const b2Body* pBody) const

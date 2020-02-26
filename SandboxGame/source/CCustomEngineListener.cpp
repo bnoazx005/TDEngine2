@@ -97,7 +97,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
-	collision->SetMass(1.0f);
+	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
 
 	{
 		TMaterialParameters skyboxMatParams 
@@ -175,7 +175,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	//{
 		auto&& mousePosition = mpInputContext->GetMousePosition();
 
-		auto&& result = mpWorld->GetRaycastContext()->Raycast3DClosest(ZeroVector3, ForwardVector3, 1000.0f);
+		auto&& result = mpWorld->GetRaycastContext()->Raycast2DClosest(ZeroVector3, ForwardVector3, 1000.0f);
 	//}
 	
 	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
