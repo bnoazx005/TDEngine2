@@ -21,6 +21,7 @@ namespace TDEngine2
 	class IInputContext;
 	class IEditorWindow;
 	class IWorld;
+	class ISelectionManager;
 
 
 	/*!
@@ -64,6 +65,16 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetWorldInstance(IWorld* pWorld) = 0;
 
 			/*!
+				\brief The method sets up a pointer to selection manager
+
+				\param[in, out] pSelectionManager A pointer to ISelectionManager implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetSelectionManager(ISelectionManager* pSelectionManager) = 0;
+
+			/*!
 				\brief The method updates the current state of the manager
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -79,6 +90,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool IsEditorModeEnabled() const = 0;
+
+			/*!
+				\brief The method returns a pointer to ISelectionManager that's currently used in the manager
+				\return The method returns a pointer to ISelectionManager that's currently used in the manager
+			*/
+
+			TDE2_API virtual ISelectionManager* GetSelectionManager() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EDITORS_MANAGER; }
 		protected:

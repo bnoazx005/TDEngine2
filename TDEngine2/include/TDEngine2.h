@@ -136,6 +136,8 @@
 #include "editor/CLevelEditorWindow.h"
 #include "editor/ecs/CEditorCameraControlSystem.h"
 #include "editor/CDevConsoleWindow.h"
+#include "editor/ISelectionManager.h"
+#include "editor/CSelectionManager.h"
 
 ///math
 #include "math/TVector2.h"

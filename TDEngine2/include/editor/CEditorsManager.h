@@ -98,6 +98,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetWorldInstance(IWorld* pWorld) override;
 
 			/*!
+				\brief The method sets up a pointer to selection manager
+
+				\param[in, out] pSelectionManager A pointer to ISelectionManager implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetSelectionManager(ISelectionManager* pSelectionManager) override;
+
+			/*!
 				\brief The method updates the current state of the manager
 
 				\param[in] dt A time elapsed from last frame
@@ -122,6 +132,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool IsEditorModeEnabled() const override;
+
+			/*!
+				\brief The method returns a pointer to ISelectionManager that's currently used in the manager
+				\return The method returns a pointer to ISelectionManager that's currently used in the manager
+			*/
+
+			TDE2_API ISelectionManager* GetSelectionManager() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
 
@@ -140,6 +157,8 @@ namespace TDEngine2
 			IWorld*               mpWorld;
 
 			TSystemId             mEditorCameraControlSystemId = InvalidSystemId;
+
+			ISelectionManager*    mpSelectionManager;
 	};
 }
 

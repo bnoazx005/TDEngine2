@@ -5,6 +5,7 @@
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/editor/ecs/CEditorCameraControlSystem.h"
 #include "./../../include/ecs/IWorld.h"
+#include "./../../include/editor/ISelectionManager.h"
 #include <algorithm>
 
 
@@ -136,6 +137,18 @@ namespace TDEngine2
 		return result;
 	}
 
+	E_RESULT_CODE CEditorsManager::SetSelectionManager(ISelectionManager* pSelectionManager)
+	{
+		if (!pSelectionManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpSelectionManager = pSelectionManager;
+
+		return RC_OK;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CEditorsManager::GetType() const
 	{
 		return EST_EDITORS_MANAGER;
@@ -151,6 +164,11 @@ namespace TDEngine2
 		});
 
 		return (editorIter != mRegisteredEditors.cend()) ? std::get<IEditorWindow*>(*editorIter)->IsVisible() : false;
+	}
+
+	ISelectionManager* CEditorsManager::GetSelectionManager() const
+	{
+		return mpSelectionManager;
 	}
 
 	E_RESULT_CODE CEditorsManager::_showEditorWindows(F32 dt)

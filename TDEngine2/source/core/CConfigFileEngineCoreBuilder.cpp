@@ -36,6 +36,7 @@
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/editor/CLevelEditorWindow.h"
 #include "./../../include/editor/CDevConsoleWindow.h"
+#include "./../../include/editor/CSelectionManager.h"
 #include "./../../include/graphics/CFramePostProcessor.h"
 #include "./../../include/graphics/CBasePostProcessingProfile.h"
 #include <memory>
@@ -456,6 +457,14 @@ namespace TDEngine2
 		if (result != RC_OK)
 		{
 			return result;
+		}
+
+		if (ISelectionManager* pSelectionManager = CreateSelectionManager(result))
+		{
+			if ((result = pEditorsManager->SetSelectionManager(pSelectionManager)) != RC_OK)
+			{
+				return result;
+			}
 		}
 
 		return mpEngineCoreInstance->RegisterSubsystem(pEditorsManager);
