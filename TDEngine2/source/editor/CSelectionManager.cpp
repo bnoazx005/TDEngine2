@@ -35,6 +35,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
+	{
+
+
+		if (onDrawVisibleObjectsCallback)
+		{
+			onDrawVisibleObjectsCallback();
+		}
+
+		return RC_OK;
+	}
+
 
 	TDE2_API ISelectionManager* CreateSelectionManager(E_RESULT_CODE& result)
 	{

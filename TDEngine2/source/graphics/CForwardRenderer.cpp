@@ -12,6 +12,9 @@
 #include "./../../include/graphics/IGraphicsObjectManager.h"
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/graphics/IFramePostProcessor.h"
+#if TDE2_EDITORS_ENABLED
+	#include "./../../include/editor/ISelectionManager.h"
+#endif
 
 
 namespace TDEngine2
@@ -152,17 +155,21 @@ namespace TDEngine2
 
 		_prepareFrame();
 
-		auto executeCommands = [this](CRenderQueue* pCommandsBuffer)
+		auto executeCommands = [this](CRenderQueue* pCommandsBuffer, bool shouldClearBuffers)
 		{
 			pCommandsBuffer->Sort();
 			_submitToDraw(pCommandsBuffer);
-			pCommandsBuffer->Clear();
+
+			if (shouldClearBuffers)
+			{
+				pCommandsBuffer->Clear();
+			}
 		};
 
-		mpFramePostProcessor->Render([this, &executeCommands]()
+		auto renderAllGroups = [this, &executeCommands](bool shouldClearBuffers = true)
 		{
 			const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
-			const U8 lastGroupId  = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
+			const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
 
 			CRenderQueue* pCurrCommandBuffer = nullptr;
 
@@ -175,9 +182,21 @@ namespace TDEngine2
 					continue;
 				}
 
-				executeCommands(pCurrCommandBuffer);
+				executeCommands(pCurrCommandBuffer, shouldClearBuffers);
 			}
-		});
+		};
+
+#if TDE2_EDITORS_ENABLED
+		if (mpSelectionManager)
+		{
+			if (mpSelectionManager->BuildSelectionMap([&renderAllGroups] { renderAllGroups(false); }) != RC_OK)
+			{
+				TDE2_ASSERT(false);
+			}
+		}
+#endif
+
+		mpFramePostProcessor->Render([&renderAllGroups] { renderAllGroups(true); });
 
 		// \note draw UI meshes and screen-space effects
 		{
@@ -190,7 +209,7 @@ namespace TDEngine2
 
 			mpGraphicsContext->ClearDepthBuffer(1.0f);
 
-			executeCommands(pCurrCommandBuffer);
+			executeCommands(pCurrCommandBuffer, true);
 		}
 
 		mpGraphicsContext->Present();
@@ -213,6 +232,18 @@ namespace TDEngine2
 		}
 
 		mpFramePostProcessor = pFramePostProcessor;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CForwardRenderer::SetSelectionManager(ISelectionManager* pSelectionManager)
+	{
+		if (!pSelectionManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpSelectionManager = pSelectionManager;
 
 		return RC_OK;
 	}

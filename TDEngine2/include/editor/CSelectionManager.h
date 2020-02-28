@@ -52,6 +52,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method builds so called selection map which is a render target that contains
+				information about which object occupies each pixel of the screen
+
+				\param[in] onDrawVisibleObjectsCallback A callback in which all visible objects should be drawn
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSelectionManager)
 	};

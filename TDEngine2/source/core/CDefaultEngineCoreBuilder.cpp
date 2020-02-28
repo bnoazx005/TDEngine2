@@ -456,7 +456,10 @@ namespace TDEngine2
 
 		if (ISelectionManager* pSelectionManager = CreateSelectionManager(result))
 		{
-			if ((result = pEditorsManager->SetSelectionManager(pSelectionManager)) != RC_OK)
+			result = result | pEditorsManager->SetSelectionManager(pSelectionManager);
+			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager);
+
+			if (result != RC_OK)
 			{
 				return result;
 			}

@@ -102,6 +102,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetFramePostProcessor(IFramePostProcessor* pFramePostProcessor) override;
 
 			/*!
+				\brief The method sets up a pointer to selection manager
+
+				\param[in, out] pSelectionManager A pointer to ISelectionManager implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetSelectionManager(ISelectionManager* pSelectionManager) override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
@@ -152,5 +162,7 @@ namespace TDEngine2
 			IDebugUtility*           mpDebugUtility;
 
 			IFramePostProcessor*     mpFramePostProcessor;
+
+			ISelectionManager*       mpSelectionManager;
 	};
 }

@@ -20,6 +20,7 @@ namespace TDEngine2
 	class IAllocator;
 	class IResourceManager;
 	class IFramePostProcessor;
+	class ISelectionManager;
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -100,6 +101,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SetFramePostProcessor(IFramePostProcessor* pFramePostProcessor) = 0;
+
+			/*!
+				\brief The method sets up a pointer to selection manager
+
+				\param[in, out] pSelectionManager A pointer to ISelectionManager implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetSelectionManager(ISelectionManager* pSelectionManager) = 0;
 
 			/*!
 				\brief The method returns a pointer to CRenderQueue which contains objects of specific group
