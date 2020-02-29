@@ -137,10 +137,33 @@ namespace TDEngine2
 
 				for (U32 i = 0; i < mElements.size(); ++i)
 				{
-					mElements[i] = (T)0;
+					//mElements[i] = (T)0;
 
 					mFreeEntities.push_back(i);
 				}
+			}
+
+			/*!
+				\brief The method replaces element with given index or returns error
+
+				\param[in] index An index of an element that should be replaced within the container
+				\param[in] element A value of type T
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			E_RESULT_CODE ReplaceAt(U32 index, const T& element)
+			{
+				std::lock_guard<std::mutex> lock(mMutex);
+
+				if (index >= mElements.size())
+				{
+					return RC_INVALID_ARGS;
+				}
+
+				mElements[index] = element;
+
+				return RC_OK;
 			}
 
 			/*!
@@ -185,7 +208,7 @@ namespace TDEngine2
 					return RC_FAIL;
 				}
 
-				mElements[index] = (T)0;
+				//mElements[index] = (T)0;
 
 				mFreeEntities.push_back(index);
 
