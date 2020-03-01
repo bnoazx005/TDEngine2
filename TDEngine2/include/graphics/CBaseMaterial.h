@@ -9,12 +9,13 @@
 
 #include "IMaterial.h"
 #include "./../core/CBaseResource.h"
-#include "./../utils/CResult.h"
 #include "./../graphics/IRenderer.h"
+#include "./../utils/CResourceContainer.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <tuple>
+#include <array>
 
 
 namespace TDEngine2
@@ -160,11 +161,17 @@ namespace TDEngine2
 			friend TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 														  const TMaterialParameters& params, E_RESULT_CODE& result);
 		protected:
-			typedef std::unordered_map<std::string, ITexture*>    TTexturesHashTable;
+			typedef std::unordered_map<std::string, ITexture*>                         TTexturesHashTable;
 
-			typedef std::vector<U8>                               TUserUniformBufferData;
+			typedef std::vector<U8>                                                    TUserUniformBufferData;
 
-			typedef std::unordered_map<U32, std::tuple<U32, U32>> TUserUniformsHashTable;
+			typedef std::unordered_map<U32, std::tuple<U32, U32>>                      TUserUniformsHashTable;
+
+			typedef CResourceContainer<IMaterialInstance*>                             TMaterialInstancesArray;
+
+			typedef std::array<TUserUniformBufferData, MaxNumberOfUserConstantBuffers> TUserUniformsArray;
+
+			typedef CResourceContainer<TUserUniformsArray>                             TInstanceUniformsArray;
 		public:
 			TDE2_REGISTER_TYPE(CBaseMaterial)
 
@@ -207,6 +214,15 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Reset() override;
 
 			/*!
+				\brief The method creates a new instance of this material. Remember that the material instance is
+				intended for runtime usage only
+
+				\return A pointer to IMaterialInstance implementation which represents a new instance of this material
+			*/
+
+			TDE2_API IMaterialInstance* CreateInstance() override;
+
+			/*!
 				\brief The method assigns a shader object with a given name to the material
 
 				\param[in] shaderName Shader's identifier
@@ -244,9 +260,11 @@ namespace TDEngine2
 
 			/*!
 				\brief The method binds a material to a rendering pipeline
+
+				\param[in] materialInstanceId An identifier of an instance of this material. 0 means a default instance, which is used by default
 			*/
 
-			TDE2_API void Bind() override;
+			TDE2_API void Bind(TMaterialInstanceId instanceId = 0) override;
 
 			/*!
 				\brief The method assigns a given texture to a given resource's name
@@ -368,20 +386,37 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static bool AlphaBasedMaterialComparator(const IMaterial* pLeft, const IMaterial* pRight);
+
+			/*!
+				\brief The method returns either a pointer to IMaterialInstance or an error code
+
+				\return The method returns either a pointer to IMaterialInstance or an error code
+			*/
+
+			TDE2_API TResult<IMaterialInstance*> GetMaterialInstance(TMaterialInstanceId instanceId) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 
-			TDE2_API E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) override;
+			TDE2_API TResult<IMaterialInstance*> _setVariable(const std::string& name, const void* pValue, U32 size) override;
+			TDE2_API E_RESULT_CODE _setVariable(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
 
 			TDE2_API E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
+
+			TDE2_API TResult<TMaterialInstanceId> _allocateNewInstance();
+
+			TDE2_API E_RESULT_CODE _initDefaultInstance(const TShaderCompilerOutput& metadata);
 		protected:
+			static constexpr TMaterialInstanceId mDefaultMaterialInstanceId = 0x0;
+
 			IGraphicsContext*        mpGraphicsContext;
 
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
 			IResourceHandler*        mpShader;
 
-			TUserUniformBufferData   mpUserUniformsData[MaxNumberOfUserConstantBuffers];
+			TMaterialInstancesArray  mpInstancesArray;
+
+			TInstanceUniformsArray   mpInstancesUserUniformBuffers;
 
 			TUserUniformsHashTable   mUserVariablesHashTable;
 
@@ -578,5 +613,69 @@ namespace TDEngine2
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;
+	};
+
+
+	/*!
+		\brief A factory function for creation objects of BaseMaterialInstance's type
+
+		\param[in, out] pMaterial A pointer to IMaterial implementation, which is a shared material for this instance
+		\param[in] id An identifier of the instance, which should be defined by a material
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CBaseMaterialFactory's implementation
+	*/
+
+	TDE2_API IMaterialInstance* CreateBaseMaterialInstance(IMaterial* pMaterial, TMaterialInstanceId id, E_RESULT_CODE& result);
+
+
+	/*!
+		\brief The class is a common implementation of a material instance
+	*/
+
+	class CBaseMaterialInstance : public CBaseObject, public IMaterialInstance
+	{
+		public:
+			friend TDE2_API IMaterialInstance* CreateBaseMaterialInstance(IMaterial* pMaterial, TMaterialInstanceId id, E_RESULT_CODE& result);
+		public:
+			/*!
+				\brief The method initializes an internal state of the instance
+
+				\param[in, out] pMaterial A pointer to IMaterial implementation, which is a shared material for this instance
+				\param[in] id An identifier of the instance, which should be defined by a material
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IMaterial* pMaterial, TMaterialInstanceId id) override;
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method binds a material's instance to a rendering pipeline. Prefer to use this one
+				instead of using IMaterial::Bind(TMaterialInstanceId) directly
+			*/
+
+			TDE2_API void Bind() override;
+
+			/*!
+				\brief The method returns an identifier of the instance
+
+				\return The method returns an identifier of the instance
+			*/
+
+			TDE2_API TMaterialInstanceId GetInstanceId() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterialInstance)
+		protected:
+			IMaterial*          mpSharedMaterial;
+
+			TMaterialInstanceId mId = InvalidMaterialInstanceId;
 	};
 }

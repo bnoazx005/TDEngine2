@@ -24,6 +24,8 @@ namespace TDEngine2
 		\brief The class implements a common container for resources of different types
 		including files, textures, entities, components, etc...
 		An instance of the class is thread-safe.
+
+		\todo For now it doesn't work with C-style arrays or any other non-assignable type
 	*/
 
 	template <typename T>

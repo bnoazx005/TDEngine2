@@ -9,6 +9,7 @@
 #include "./../../include/core/IResourceHandler.h"
 #include "./../../include/platform/CBinaryFileReader.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/utils/Utils.h"
 #include <cstring>
 
 
@@ -91,12 +92,54 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
+	IMaterialInstance* CBaseMaterial::CreateInstance()
+	{
+		if (!mIsInitialized)
+		{
+			return nullptr;
+		}
+		
+		if (auto newInstanceResult = _allocateNewInstance())
+		{
+			TMaterialInstanceId instanceId = newInstanceResult.Get();
+			TDE2_ASSERT(instanceId != mDefaultMaterialInstanceId && instanceId != InvalidMaterialInstanceId);
+
+			LOG_MESSAGE(CStringUtils::Format("[Base Material] A new instance {1} of material {0} was created", mName, instanceId));
+
+			// \note Allocate uniform buffers for the instance
+			auto&& defaultInstanceUserUniformBuffers = mpInstancesUserUniformBuffers[mDefaultMaterialInstanceId].Get();
+
+			TUserUniformsArray newInstanceUniformBuffers;
+
+			for (U8 i = 0; i < MaxNumberOfUserConstantBuffers; ++i)
+			{
+				newInstanceUniformBuffers[i].resize(defaultInstanceUserUniformBuffers[i].size());
+			}
+
+			if (mpInstancesUserUniformBuffers.Add(newInstanceUniformBuffers) != instanceId)
+			{
+				TDE2_ASSERT(false);
+				return nullptr;
+			}
+
+			return mpInstancesArray[instanceId].Get();
+		}
+
+		return nullptr;
+	}
+
 	void CBaseMaterial::SetShader(const std::string& shaderName)
 	{
 		//mpShader = mpResourceManager->Create<CBaseShader>(&shaderParams);
-		mpShader = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
+		IResourceHandler* pNewShaderHandler = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
+		if (pNewShaderHandler == mpShader)
+		{
+			return;
+		}
 
-		PANIC_ON_FAILURE(_allocateUserDataBuffers(*mpShader->Get<CBaseShader>(RAT_BLOCKING)->GetShaderMetaData()));
+		mpShader = pNewShaderHandler;
+
+		PANIC_ON_FAILURE(_initDefaultInstance(*mpShader->Get<CBaseShader>(RAT_BLOCKING)->GetShaderMetaData()));
 	}
 
 	void CBaseMaterial::SetTransparentState(bool isTransparent)
@@ -119,11 +162,11 @@ namespace TDEngine2
 		mBlendStateParams.mAlphaOpType = alphaOpType;
 	}
 
-	void CBaseMaterial::Bind()
+	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
 	{
 		IShader* pShaderInstance = mpShader->Get<IShader>(TDEngine2::RAT_BLOCKING);
 
-		if (!pShaderInstance)
+		if (!pShaderInstance || (instanceId == InvalidMaterialInstanceId))
 		{
 			return;
 		}
@@ -149,15 +192,20 @@ namespace TDEngine2
 
 		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
 
-		U8 userUniformBufferId = 0;
-		for (const auto& currUserDataBuffer : mpUserUniformsData)
+		if (auto userUniformBuffersResult = mpInstancesUserUniformBuffers[instanceId])
 		{
-			if (!currUserDataBuffer.size()) 
-			{
-				continue;
-			}
+			auto&& instanceUniformBuffers = userUniformBuffersResult.Get();
 
-			PANIC_ON_FAILURE(pShaderInstance->SetUserUniformsBuffer(userUniformBufferId++, &currUserDataBuffer[0], currUserDataBuffer.size()));
+			U8 userUniformBufferId = 0;
+			for (const auto& currUserDataBuffer : instanceUniformBuffers)
+			{
+				if (!currUserDataBuffer.size())
+				{
+					continue;
+				}
+
+				PANIC_ON_FAILURE(pShaderInstance->SetUserUniformsBuffer(userUniformBufferId++, &currUserDataBuffer[0], currUserDataBuffer.size()));
+			}
 		}
 
 		pShaderInstance->Bind();
@@ -240,7 +288,26 @@ namespace TDEngine2
 		return mTag;
 	}
 
-	E_RESULT_CODE CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
+	TResult<IMaterialInstance*> CBaseMaterial::GetMaterialInstance(TMaterialInstanceId instanceId) const
+	{
+		return mpInstancesArray[instanceId];
+	}
+
+	TResult<IMaterialInstance*> CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
+	{
+		E_RESULT_CODE result = RC_FAIL;
+
+		IMaterialInstance* pNewMaterialInstance = CreateInstance();
+
+		if (!pNewMaterialInstance || (result = _setVariable(pNewMaterialInstance->GetInstanceId(), name, pValue, size)) != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		return TOkValue<IMaterialInstance*>(pNewMaterialInstance);
+	}
+
+	E_RESULT_CODE CBaseMaterial::_setVariable(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
 	{
 		U32 variableHash = GetVariableHash(name);
 
@@ -252,11 +319,16 @@ namespace TDEngine2
 		}
 
 		U32 bufferIndex = 0;
-		U32 varOffset   = 0;
+		U32 varOffset = 0;
 		std::tie(bufferIndex, varOffset) = iter->second; // first index is a buffer's id, the second one is variable's offset in bytes
+
+		if (auto userUniformBuffersResult = mpInstancesUserUniformBuffers[instanceId])
+		{
+			auto&& instanceUniformBuffers = userUniformBuffersResult.Get();
 		
-		assert((mpUserUniformsData[bufferIndex].size() - varOffset) > size);
-		memcpy(&mpUserUniformsData[bufferIndex][varOffset], pValue, size);
+			TDE2_ASSERT((instanceUniformBuffers[bufferIndex].size() - varOffset) > size);
+			memcpy(&instanceUniformBuffers[bufferIndex][varOffset], pValue, size);
+		}
 
 		return RC_OK;
 	}
@@ -264,6 +336,8 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseMaterial::_allocateUserDataBuffers(const TShaderCompilerOutput& metadata)
 	{
 		mUserVariablesHashTable.clear();
+		
+		TUserUniformsArray defaultInstanceUserUniforms;
 
 		U32 slotIndex = 0;
 
@@ -279,11 +353,9 @@ namespace TDEngine2
 			}
 
 			slotIndex = currUniformBufferDesc.mSlot - TotalNumberOfInternalConstantBuffers;
+			TDE2_ASSERT((slotIndex >= 0) && (currUniformBufferDesc.mSize >= 0));
 
-			assert(slotIndex >= 0);
-			assert(currUniformBufferDesc.mSize >= 0);
-
-			mpUserUniformsData[slotIndex].resize(currUniformBufferDesc.mSize);
+			defaultInstanceUserUniforms[slotIndex].resize(currUniformBufferDesc.mSize);
 
 			U32 variableBytesOffset = 0;
 
@@ -294,7 +366,50 @@ namespace TDEngine2
 			}
 		}		
 
+		// \note At this moment mpInstancesUserUniformBuffers should be empty
+		TDE2_ASSERT(mpInstancesUserUniformBuffers.Add(defaultInstanceUserUniforms) == 0);
+
 		return RC_OK;
+	}
+
+	TDE2_API TResult<TMaterialInstanceId> CBaseMaterial::_allocateNewInstance()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TMaterialInstanceId instanceId = mpInstancesArray.Add(nullptr);
+
+		IMaterialInstance* pNewMaterialInstance = CreateBaseMaterialInstance(this, instanceId, result);
+
+		if ((result != RC_OK) || (result = mpInstancesArray.ReplaceAt(instanceId, pNewMaterialInstance)) != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		return TOkValue<TMaterialInstanceId>(instanceId);
+	}
+
+	E_RESULT_CODE CBaseMaterial::_initDefaultInstance(const TShaderCompilerOutput& metadata)
+	{
+		mpInstancesArray.RemoveAll();
+		mpInstancesUserUniformBuffers.RemoveAll();
+		
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = _allocateUserDataBuffers(metadata)) != RC_OK)
+		{
+			return result;
+		}
+
+		if (auto defaultInstanceResult = _allocateNewInstance())
+		{
+			TDE2_ASSERT(defaultInstanceResult.Get() == mDefaultMaterialInstanceId);
+			if (defaultInstanceResult.Get() != mDefaultMaterialInstanceId)
+			{
+				return RC_FAIL;
+			}
+		}
+
+		return result;
 	}
 
 
@@ -603,5 +718,78 @@ namespace TDEngine2
 		}
 
 		return pMaterialFactoryInstance;
+	}
+
+
+	CBaseMaterialInstance::CBaseMaterialInstance():
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CBaseMaterialInstance::Init(IMaterial* pMaterial, TMaterialInstanceId id)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pMaterial)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpSharedMaterial = pMaterial;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseMaterialInstance::Free()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = false;
+
+		delete this;
+
+		return RC_OK;
+	}
+
+	void CBaseMaterialInstance::Bind()
+	{
+		//mpSharedMaterial->Bind(mId);
+	}
+
+	TMaterialInstanceId CBaseMaterialInstance::GetInstanceId() const
+	{
+		return mId;
+	}
+
+
+	TDE2_API IMaterialInstance* CreateBaseMaterialInstance(IMaterial* pMaterial, TMaterialInstanceId id, E_RESULT_CODE& result)
+	{
+		CBaseMaterialInstance* pMaterialInstance = new (std::nothrow) CBaseMaterialInstance();
+
+		if (!pMaterialInstance)
+		{
+			result = RC_OUT_OF_MEMORY;
+
+			return nullptr;
+		}
+
+		result = pMaterialInstance->Init(pMaterial, id);
+
+		if (result != RC_OK)
+		{
+			delete pMaterialInstance;
+
+			pMaterialInstance = nullptr;
+		}
+
+		return pMaterialInstance;
 	}
 }

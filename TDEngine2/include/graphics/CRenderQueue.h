@@ -12,6 +12,7 @@
 #include "./../core/CBaseObject.h"
 #include "./../core/IGraphicsContext.h"
 #include "./../core/memory/IAllocator.h"
+#include "./../graphics/IMaterial.h"
 #include "InternalShaderData.h"
 #include <vector>
 #include <tuple>
@@ -56,6 +57,8 @@ namespace TDEngine2
 		IVertexDeclaration*       mpVertexDeclaration;
 
 		IResourceHandler*         mpMaterialHandler;
+
+		TMaterialInstanceId       mMaterialInstanceId;
 
 		TPerObjectShaderData      mObjectData;
 	} TRenderCommand, *TRenderCommandPtr;
