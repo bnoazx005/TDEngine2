@@ -13,6 +13,8 @@
 
 namespace TDEngine2
 {
+#pragma pack(push, 16)
+
 	/*!
 		struct TPerFrameShaderData
 
@@ -35,7 +37,11 @@ namespace TDEngine2
 
 	typedef struct TPerObjectShaderData
 	{
-		TMatrix4 mUnused;
+		TMatrix4 mModelMatrix;
+		
+		U32      mObjectID;	///< The field is used by selection manager
+
+		U32      mUnused[3];
 	} TPerObjectShaderData, *TPerObjectShaderDataPtr;
 
 
@@ -61,4 +67,6 @@ namespace TDEngine2
 	{
 		TMatrix4 mUnused;
 	} TConstantShaderData, *TConstantShaderDataPtr;
+
+#pragma pack(pop)
 }

@@ -206,18 +206,18 @@ namespace TDEngine2
 
 			pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before
 
-			pCurrCommand->mpVertexBuffer      = mpSpriteVertexBuffer;
-			pCurrCommand->mpIndexBuffer       = mpSpriteIndexBuffer;
-			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCurrCommand->mIndicesPerInstance = 6;
-			pCurrCommand->mBaseVertexIndex    = 0;
-			pCurrCommand->mStartIndex         = 0;
-			pCurrCommand->mStartInstance      = 0;
-			pCurrCommand->mNumOfInstances     = instancesCount;/// assign number of sprites in a batch
-			pCurrCommand->mpInstancingBuffer  = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
-			pCurrCommand->mpMaterialHandler   = currBatchEntry.mpMaterialHandler;
-			pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
-			pCurrCommand->mObjectData.mUnused = IdentityMatrix4;
+			pCurrCommand->mpVertexBuffer           = mpSpriteVertexBuffer;
+			pCurrCommand->mpIndexBuffer            = mpSpriteIndexBuffer;
+			pCurrCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrCommand->mIndicesPerInstance      = 6;
+			pCurrCommand->mBaseVertexIndex         = 0;
+			pCurrCommand->mStartIndex              = 0;
+			pCurrCommand->mStartInstance           = 0;
+			pCurrCommand->mNumOfInstances          = instancesCount;/// assign number of sprites in a batch
+			pCurrCommand->mpInstancingBuffer       = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
+			pCurrCommand->mpMaterialHandler        = currBatchEntry.mpMaterialHandler;
+			pCurrCommand->mpVertexDeclaration      = mpSpriteVertexDeclaration;
+			pCurrCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 
 			currBatchEntry.mpInstancesData->Clear();
 		}

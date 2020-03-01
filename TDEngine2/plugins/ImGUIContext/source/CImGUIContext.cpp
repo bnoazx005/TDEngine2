@@ -659,15 +659,15 @@ namespace TDEngine2
 
 				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(0xFFFFFFF0 - ++batchId);
 
-				pCurrDrawCommand->mObjectData.mUnused = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
-				pCurrDrawCommand->mpVertexDeclaration = mpEditorUIVertexDeclaration;
-				pCurrDrawCommand->mpVertexBuffer      = mpVertexBuffer;
-				pCurrDrawCommand->mpIndexBuffer       = mpIndexBuffer;
-				pCurrDrawCommand->mpMaterialHandler   = mpDefaultEditorMaterial;
-				pCurrDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pCurrDrawCommand->mNumOfIndices       = pCurrCommand->ElemCount;
-				pCurrDrawCommand->mStartIndex         = pCurrCommand->IdxOffset + currIndexOffset;
-				pCurrDrawCommand->mStartVertex        = pCurrCommand->VtxOffset + currVertexOffset;
+				pCurrDrawCommand->mObjectData.mModelMatrix = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
+				pCurrDrawCommand->mpVertexDeclaration      = mpEditorUIVertexDeclaration;
+				pCurrDrawCommand->mpVertexBuffer           = mpVertexBuffer;
+				pCurrDrawCommand->mpIndexBuffer            = mpIndexBuffer;
+				pCurrDrawCommand->mpMaterialHandler        = mpDefaultEditorMaterial;
+				pCurrDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pCurrDrawCommand->mNumOfIndices            = pCurrCommand->ElemCount;
+				pCurrDrawCommand->mStartIndex              = pCurrCommand->IdxOffset + currIndexOffset;
+				pCurrDrawCommand->mStartVertex             = pCurrCommand->VtxOffset + currVertexOffset;
 
 				//if (pCurrCommand->UserCallback != NULL)
 				//{

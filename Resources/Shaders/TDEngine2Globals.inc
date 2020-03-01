@@ -22,6 +22,7 @@ CBUFFER_ENDSECTION
 
 CBUFFER_SECTION_EX(TDEngine2PerObject, 1)
 	float4x4 ModelMat;
+	uint     ObjectID; // used for object picking
 CBUFFER_ENDSECTION
 
 

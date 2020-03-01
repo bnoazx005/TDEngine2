@@ -90,12 +90,12 @@ namespace TDEngine2
 
 			auto pDrawLinesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(0);
 
-			pDrawLinesCommand->mpVertexBuffer = mpLinesVertexBuffer;
-			pDrawLinesCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
-			pDrawLinesCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
-			pDrawLinesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
-			pDrawLinesCommand->mNumOfVertices = mLinesDataBuffer.size();
-			pDrawLinesCommand->mObjectData.mUnused = IdentityMatrix4;
+			pDrawLinesCommand->mpVertexBuffer           = mpLinesVertexBuffer;
+			pDrawLinesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
+			pDrawLinesCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
+			pDrawLinesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
+			pDrawLinesCommand->mNumOfVertices           = mLinesDataBuffer.size();
+			pDrawLinesCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
 
 		/// \note draw crosses 
@@ -107,12 +107,12 @@ namespace TDEngine2
 
 			auto pDrawCrossesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(1);
 
-			pDrawCrossesCommand->mpVertexBuffer = mpCrossesVertexBuffer;
-			pDrawCrossesCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
-			pDrawCrossesCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
-			pDrawCrossesCommand->mpVertexDeclaration = mpLinesVertDeclaration;
-			pDrawCrossesCommand->mNumOfVertices = mCrossesDataBuffer.size();
-			pDrawCrossesCommand->mObjectData.mUnused = IdentityMatrix4;
+			pDrawCrossesCommand->mpVertexBuffer           = mpCrossesVertexBuffer;
+			pDrawCrossesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
+			pDrawCrossesCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
+			pDrawCrossesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
+			pDrawCrossesCommand->mNumOfVertices           = mCrossesDataBuffer.size();
+			pDrawCrossesCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
 
 		/// \note draw debug text onto the screen
@@ -124,15 +124,15 @@ namespace TDEngine2
 
 			auto pDrawTextCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(2);
 
-			pDrawTextCommand->mpVertexBuffer = mpTextVertexBuffer;
-			pDrawTextCommand->mpIndexBuffer = mpTextIndexBuffer;
-			pDrawTextCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawTextCommand->mpMaterialHandler = mpResourceManager->Load<CBaseMaterial>(mTextMaterialName);
-			pDrawTextCommand->mpVertexDeclaration = mpTextVertDeclaration;
-			pDrawTextCommand->mStartIndex = 0;
-			pDrawTextCommand->mStartVertex = 0;
-			pDrawTextCommand->mNumOfIndices = static_cast<U32>(mTextDataBuffer.size() * 1.5f); // \note 1.5 is hand-coded optimisation of 3 / 2 fracture
-			pDrawTextCommand->mObjectData.mUnused = IdentityMatrix4;
+			pDrawTextCommand->mpVertexBuffer           = mpTextVertexBuffer;
+			pDrawTextCommand->mpIndexBuffer            = mpTextIndexBuffer;
+			pDrawTextCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pDrawTextCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mTextMaterialName);
+			pDrawTextCommand->mpVertexDeclaration      = mpTextVertDeclaration;
+			pDrawTextCommand->mStartIndex              = 0;
+			pDrawTextCommand->mStartVertex             = 0;
+			pDrawTextCommand->mNumOfIndices            = static_cast<U32>(mTextDataBuffer.size() * 1.5f); // \note 1.5 is hand-coded optimisation of 3 / 2 fracture
+			pDrawTextCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
 		
 	}

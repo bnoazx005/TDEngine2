@@ -211,13 +211,13 @@ namespace TDEngine2
 			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
 																				 _computeMeshCommandHash(currMaterialId, distanceToCamera));
 
-			pCommand->mpVertexBuffer      = meshBuffersEntry.mpVertexBuffer;
-			pCommand->mpIndexBuffer       = meshBuffersEntry.mpIndexBuffer;
-			pCommand->mpMaterialHandler   = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName());
-			pCommand->mpVertexDeclaration = meshBuffersEntry.mpVertexDecl;
-			pCommand->mNumOfIndices       = pSharedMeshResource->GetIndices().size();
-			pCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCommand->mObjectData.mUnused = Transpose(objectTransformMatrix);
+			pCommand->mpVertexBuffer           = meshBuffersEntry.mpVertexBuffer;
+			pCommand->mpIndexBuffer            = meshBuffersEntry.mpIndexBuffer;
+			pCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName());
+			pCommand->mpVertexDeclaration      = meshBuffersEntry.mpVertexDecl;
+			pCommand->mNumOfIndices            = pSharedMeshResource->GetIndices().size();
+			pCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCommand->mObjectData.mModelMatrix = Transpose(objectTransformMatrix);
 
 			++iter;
 		}
