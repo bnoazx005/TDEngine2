@@ -58,7 +58,7 @@ namespace TDEngine2
 
 		IResourceHandler*         mpMaterialHandler;
 
-		TMaterialInstanceId       mMaterialInstanceId;
+		TMaterialInstanceId       mMaterialInstanceId = DefaultMaterialInstanceId;
 
 		TPerObjectShaderData      mObjectData;
 	} TRenderCommand, *TRenderCommandPtr;

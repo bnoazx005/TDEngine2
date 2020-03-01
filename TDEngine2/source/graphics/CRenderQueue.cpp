@@ -22,7 +22,7 @@ namespace TDEngine2
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
-		pMaterial->Bind();
+		pMaterial->Bind(mMaterialInstanceId);
 
 		if (mpVertexBuffer)
 		{
@@ -45,7 +45,7 @@ namespace TDEngine2
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
-		pMaterial->Bind();
+		pMaterial->Bind(mMaterialInstanceId);
 
 		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
 
@@ -71,7 +71,7 @@ namespace TDEngine2
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader);
 
-		pMaterial->Bind();
+		pMaterial->Bind(mMaterialInstanceId);
 
 		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
 		mpInstancingBuffer->Bind(1, 0, mpVertexDeclaration->GetStrideSize(1));

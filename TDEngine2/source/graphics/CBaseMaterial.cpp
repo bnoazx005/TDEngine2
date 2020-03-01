@@ -102,12 +102,12 @@ namespace TDEngine2
 		if (auto newInstanceResult = _allocateNewInstance())
 		{
 			TMaterialInstanceId instanceId = newInstanceResult.Get();
-			TDE2_ASSERT(instanceId != mDefaultMaterialInstanceId && instanceId != InvalidMaterialInstanceId);
+			TDE2_ASSERT(instanceId != DefaultMaterialInstanceId && instanceId != InvalidMaterialInstanceId);
 
 			LOG_MESSAGE(CStringUtils::Format("[Base Material] A new instance {1} of material {0} was created", mName, instanceId));
 
 			// \note Allocate uniform buffers for the instance
-			auto&& defaultInstanceUserUniformBuffers = mpInstancesUserUniformBuffers[mDefaultMaterialInstanceId].Get();
+			auto&& defaultInstanceUserUniformBuffers = mpInstancesUserUniformBuffers[DefaultMaterialInstanceId].Get();
 
 			TUserUniformsArray newInstanceUniformBuffers;
 
@@ -402,8 +402,8 @@ namespace TDEngine2
 
 		if (auto defaultInstanceResult = _allocateNewInstance())
 		{
-			TDE2_ASSERT(defaultInstanceResult.Get() == mDefaultMaterialInstanceId);
-			if (defaultInstanceResult.Get() != mDefaultMaterialInstanceId)
+			TDE2_ASSERT(defaultInstanceResult.Get() == DefaultMaterialInstanceId);
+			if (defaultInstanceResult.Get() != DefaultMaterialInstanceId)
 			{
 				return RC_FAIL;
 			}

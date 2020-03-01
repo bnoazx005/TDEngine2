@@ -27,6 +27,7 @@ namespace TDEngine2
 
 	typedef U32 TMaterialInstanceId;
 
+	constexpr TMaterialInstanceId DefaultMaterialInstanceId = 0x0;
 	constexpr TMaterialInstanceId InvalidMaterialInstanceId = (std::numeric_limits<TMaterialInstanceId>::max)();
 
 

@@ -406,8 +406,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _initDefaultInstance(const TShaderCompilerOutput& metadata);
 		protected:
-			static constexpr TMaterialInstanceId mDefaultMaterialInstanceId = 0x0;
-
 			IGraphicsContext*        mpGraphicsContext;
 
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
