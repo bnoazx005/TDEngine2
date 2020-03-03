@@ -94,6 +94,8 @@ namespace TDEngine2
 
 			typedef std::function<void(const TRaycastResult&)> TOnRaycastHitCallback;
 		public:
+			TDE2_SYSTEM(CPhysics3DSystem);
+
 			/*!
 				\brief The method initializes an inner state of a system
 

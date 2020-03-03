@@ -25,6 +25,7 @@ namespace TDEngine2
 
 	enum class E_RENDER_QUEUE_GROUP: U8
 	{
+		RQG_EDITOR_ONLY, ///< The queue is used for editor stuffs and not used in production builds
 		RQG_OPAQUE_GEOMETRY,
 		RQG_TRANSPARENT_GEOMETRY,
 		RQG_SPRITES,

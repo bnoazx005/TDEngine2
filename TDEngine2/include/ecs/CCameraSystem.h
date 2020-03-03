@@ -51,6 +51,8 @@ namespace TDEngine2
 			friend TDE2_API ISystem* CreateCameraSystem(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
 														IRenderer* pRenderer, E_RESULT_CODE& result);
 		public:
+			TDE2_SYSTEM(CCameraSystem);
+
 			/*!
 				\brief The method initializes an inner state of a system
 

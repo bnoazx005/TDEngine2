@@ -427,6 +427,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 		IEditorsManager* pEditorsManager = CreateEditorsManager(mpEngineCoreInstance->GetSubsystem<IInputContext>(),
 																mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
+																mpEventManagerInstance,
 																mpEngineCoreInstance->GetWorldInstance(),
 																result);
 
@@ -445,16 +446,13 @@ namespace TDEngine2
 		{
 			result = result | pEditorsManager->RegisterEditor(std::get<std::string>(currEditorEntry), std::get<IEditorWindow*>(currEditorEntry));
 		}
-#else
-		return RC_OK;
-#endif
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		if (ISelectionManager* pSelectionManager = CreateSelectionManager(result))
+		if (ISelectionManager* pSelectionManager = CreateSelectionManager(pEditorsManager, result))
 		{
 			result = result | pEditorsManager->SetSelectionManager(pSelectionManager);
 			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager);
@@ -465,7 +463,15 @@ namespace TDEngine2
 			}
 		}
 
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
 		return mpEngineCoreInstance->RegisterSubsystem(pEditorsManager);
+#else
+		return RC_OK;
+#endif
 	}
 
 	IEngineCore* CDefaultEngineCoreBuilder::GetEngineCore()

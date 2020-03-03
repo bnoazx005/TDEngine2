@@ -181,6 +181,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TEventListenerId GetListenerId() const override;
+			
+			/*!
+				\brief The method returns an identifier of a registered system by its type. IF there is no
+				active system of given type then InvalidSystemId is returned
+
+				\param[in] systemTypeId A system type's identifier
+
+				\return The method returns an identifier of a registered system by its type
+			*/
+
+			TDE2_API TSystemId FindSystem(TypeId systemTypeId) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSystemManager)
 

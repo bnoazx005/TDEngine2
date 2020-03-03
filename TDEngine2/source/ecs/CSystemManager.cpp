@@ -225,6 +225,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	TSystemId CSystemManager::FindSystem(TypeId typeId)
+	{
+		auto iter = std::find_if(mpActiveSystems.cbegin(), mpActiveSystems.cend(), [typeId](const TSystemDesc& systemDesc)
+		{
+			return systemDesc.mpSystem->GetSystemType() == typeId;
+		});
+
+		return (iter == mpActiveSystems.cend()) ? InvalidSystemId : iter->mSystemId;
+	}
+
 
 	ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result)
 	{

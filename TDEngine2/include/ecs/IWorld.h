@@ -141,6 +141,25 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE DeactivateSystem(TSystemId systemId) = 0;
 
 			/*!
+				\brief The method returns an identifier of a registered system by its type. IF there is no
+				active system of given type then InvalidSystemId is returned
+
+				\return The method returns an identifier of a registered system by its type
+			*/
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<ISystem, T>, TSystemId>
+#else
+			typename std::enable_if<std::is_base_of<ISystem, T>::value, TSystemId>::type
+#endif
+			FindSystem()
+			{
+				return _findSystem(T::GetTypeId());
+			}
+
+			/*!
 				\brief The method returns a one way iterator to an array of components of specified type
 
 				\return The method returns a one way iterator to an array of components of specified type
@@ -253,5 +272,7 @@ namespace TDEngine2
 			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TComponentTypeId>& types) = 0;
 
 			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TComponentTypeId>& types) = 0;
+
+			TDE2_API virtual TSystemId _findSystem(TypeId typeId) = 0;
 	};
 }

@@ -38,6 +38,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ISystem* CreateTransformSystem(E_RESULT_CODE& result);
 		public:
+			TDE2_SYSTEM(CTransformSystem);
+
 			/*!
 				\brief The method initializes an inner state of a system
 				

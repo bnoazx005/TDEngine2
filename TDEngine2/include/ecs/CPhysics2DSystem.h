@@ -128,6 +128,8 @@ namespace TDEngine2
 					b2Body* mpBody;
 			};
 		public:
+			TDE2_SYSTEM(CPhysics2DSystem);
+
 			/*!
 				\brief The method initializes an inner state of a system
 

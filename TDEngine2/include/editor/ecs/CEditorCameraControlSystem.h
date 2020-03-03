@@ -50,6 +50,8 @@ namespace TDEngine2
 		public:
 			typedef std::vector<TEntityId> TCameraEntitiesArray;
 		public:
+			TDE2_SYSTEM(CEditorCameraControlSystem);
+
 			/*!
 				\brief The method initializes an inner state of a system
 

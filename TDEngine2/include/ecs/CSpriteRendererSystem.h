@@ -85,6 +85,8 @@ namespace TDEngine2
 
 			typedef std::unordered_map<U32, TBatchEntry> TBatchesBuffer;
 		public:
+			TDE2_SYSTEM(CSpriteRendererSystem);
+
 			/*!
 				\brief The method initializes an inner state of a system
 

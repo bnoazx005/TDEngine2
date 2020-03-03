@@ -189,7 +189,19 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 		if (mpSelectionManager)
 		{
-			if (mpSelectionManager->BuildSelectionMap([&renderAllGroups] { renderAllGroups(false); }) != RC_OK)
+			if (mpSelectionManager->BuildSelectionMap([this, &executeCommands] 
+			{ 
+				CRenderQueue* pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)];
+				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
+				{
+					LOG_ERROR("[ForwardRenderer] Invalid \"EditorOnly\" commands buffer was found");
+					return RC_FAIL;
+				}
+
+				mpGraphicsContext->ClearDepthBuffer(1.0f);
+
+				executeCommands(pCurrCommandBuffer, true);
+			}) != RC_OK)
 			{
 				TDE2_ASSERT(false);
 			}

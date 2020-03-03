@@ -205,6 +205,8 @@ namespace TDEngine2
 			TDE2_API std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TComponentTypeId>& types) override;
 
 			TDE2_API std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TComponentTypeId>& types) override;
+
+			TDE2_API TSystemId _findSystem(TypeId typeId) override;
 		protected:
 			CEntityManager*    mpEntityManager;
 

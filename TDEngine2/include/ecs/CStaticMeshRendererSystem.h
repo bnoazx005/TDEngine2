@@ -68,6 +68,8 @@ namespace TDEngine2
 			typedef std::vector<IMaterial*>                                     TMaterialsArray;
 			typedef std::vector<TMeshBuffersEntry>                              TMeshBuffersMap;
 		public:
+			TDE2_SYSTEM(CStaticMeshRendererSystem);
+
 			/*!
 				\brief The method initializes an inner state of a system
 

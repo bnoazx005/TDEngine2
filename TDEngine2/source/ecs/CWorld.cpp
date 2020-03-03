@@ -54,13 +54,6 @@ namespace TDEngine2
 		mpEventManager   = pEventManager;
 		mpRaycastContext = nullptr;
 
-		{
-			TOnNewWorldInstanceCreated onNewWorldInstanceCreated;
-			onNewWorldInstanceCreated.mpWorldInstance = this;
-
-			mpEventManager->Notify(&onNewWorldInstanceCreated);
-		}
-
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -191,6 +184,11 @@ namespace TDEngine2
 	std::vector<TEntityId> CWorld::_findEntitiesWithAnyComponents(const std::vector<TComponentTypeId>& types)
 	{
 		return mpComponentManager->FindEntitiesWithAny(types);
+	}
+
+	TSystemId CWorld::_findSystem(TypeId typeId)
+	{
+		return mpSystemManager->FindSystem(typeId);
 	}
 	
 

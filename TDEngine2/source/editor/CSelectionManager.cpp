@@ -1,6 +1,8 @@
 #include "./../../include/editor/CSelectionManager.h"
 #include "./../../include/editor/IEditorsManager.h"
 #include "./../../include/ecs/IWorld.h"
+#include "./../../include/ecs/CObjectsSelectionSystem.h"
+#include "./../../include/utils/CFileLogger.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -64,6 +66,12 @@ namespace TDEngine2
 		}
 
 		mpWorld = pWorld;
+
+		if ((mObjectSelectionSystemId = mpWorld->FindSystem<CObjectsSelectionSystem>()) == InvalidSystemId)
+		{
+			LOG_ERROR("[CSelectionManager] \"ObjectsSelection\" system wasn't found");
+			return RC_FAIL;
+		}		
 
 		return RC_OK;
 	}

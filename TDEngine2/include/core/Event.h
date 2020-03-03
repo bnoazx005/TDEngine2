@@ -18,20 +18,20 @@ namespace TDEngine2
 		event's type retrieving
 	*/
 
-	#define REGISTER_EVENT_TYPE(Type)		\
-		virtual TypeId GetEventType() const \
-		{									\
-			return Type::GetTypeId();		\
+	#define REGISTER_EVENT_TYPE(Type)					\
+		TDE2_API virtual TypeId GetEventType() const	\
+		{												\
+			return Type::GetTypeId();					\
 		}
 
 	/*!
 		\brief The macro is used to simplify event body's definition
 	*/
 
-	#define TDE2_EVENT(EventName)		\
-		TDE2_REGISTER_TYPE(EventName)	\
-		REGISTER_EVENT_TYPE(EventName)	\
-		virtual ~EventName() = default
+	#define TDE2_EVENT(EventName)					\
+		TDE2_REGISTER_TYPE(EventName)				\
+		REGISTER_EVENT_TYPE(EventName)				\
+		TDE2_API virtual ~EventName() = default
 		
 
 

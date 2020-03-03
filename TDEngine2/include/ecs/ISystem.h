@@ -13,6 +13,26 @@
 
 namespace TDEngine2
 {
+	/*!
+		\brief The macro is used to declare virtual method for
+		system's type retrieving
+	*/
+
+	#define REGISTER_SYSTEM_TYPE(Type)							\
+		TDE2_API TypeId GetSystemType() const override			\
+		{														\
+			return Type::GetTypeId();							\
+		}
+
+	/*!
+		\brief The macro is used to simplify system body's definition
+	*/
+
+	#define TDE2_SYSTEM(SystemName)			\
+		TDE2_REGISTER_TYPE(SystemName)		\
+		REGISTER_SYSTEM_TYPE(SystemName)	
+
+
 	class IWorld;
 
 	/*!
@@ -54,6 +74,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void OnDestroy() = 0;
+
+			/*!
+				\brief The method returns system type's identifier
+				
+				\return The method returns system type's identifier
+			*/
+
+			TDE2_API virtual TypeId GetSystemType() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystem)
 	};

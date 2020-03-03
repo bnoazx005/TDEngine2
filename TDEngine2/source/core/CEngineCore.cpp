@@ -23,6 +23,7 @@
 #include "./../../include/editor/IEditorsManager.h"
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/physics/CBaseRaycastContext.h"
+#include "./../../include/ecs/CObjectsSelectionSystem.h"
 #include <cstring>
 #include <algorithm>
 
@@ -382,6 +383,9 @@ namespace TDEngine2
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
+#if TDE2_EDITORS_ENABLED
+			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
+#endif
 			// \note should be always latest in the list
 			CreatePhysics2DSystem(pEventManager, result),
 			CreatePhysics3DSystem(pEventManager, result),
@@ -410,6 +414,14 @@ namespace TDEngine2
 		if ((result != RC_OK) || (result = pWorldInstance->RegisterRaycastContext(pRaycastContextInstance)) != RC_OK)
 		{
 			return result;
+		}
+	
+		// \note Send event that a new world was created
+		{
+			TOnNewWorldInstanceCreated onNewWorldInstanceCreated;
+			onNewWorldInstanceCreated.mpWorldInstance = pWorldInstance;
+
+			pEventManager->Notify(&onNewWorldInstanceCreated);
 		}
 
 		return RC_OK;

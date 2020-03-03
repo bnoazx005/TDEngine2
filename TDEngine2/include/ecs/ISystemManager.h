@@ -119,6 +119,36 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE DestroySystems() = 0;
+
+			/*!
+				\brief The method returns an identifier of a registered system by its type. IF there is no
+				active system of given type then InvalidSystemId is returned
+
+				\return The method returns an identifier of a registered system by its type
+			*/
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+				std::enable_if_t<std::is_base_of_v<ISystem, T>, TSystemId>
+#else
+				typename std::enable_if<std::is_base_of<ISystem, T>::value, TSystemId>::type
+#endif
+				FindSystem()
+			{
+				return FindSystem(T::GetTypeId());
+			}
+
+			/*!
+				\brief The method returns an identifier of a registered system by its type. IF there is no
+				active system of given type then InvalidSystemId is returned
+
+				\param[in] systemTypeId A system type's identifier
+
+				\return The method returns an identifier of a registered system by its type
+			*/
+
+			TDE2_API virtual TSystemId FindSystem(TypeId systemTypeId) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystemManager)
 	};
