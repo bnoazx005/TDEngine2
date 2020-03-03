@@ -54,6 +54,13 @@ namespace TDEngine2
 		mpEventManager   = pEventManager;
 		mpRaycastContext = nullptr;
 
+		{
+			TOnNewWorldInstanceCreated onNewWorldInstanceCreated;
+			onNewWorldInstanceCreated.mpWorldInstance = this;
+
+			mpEventManager->Notify(&onNewWorldInstanceCreated);
+		}
+
 		mIsInitialized = true;
 
 		return RC_OK;

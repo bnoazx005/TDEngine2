@@ -24,6 +24,16 @@ namespace TDEngine2
 			return Type::GetTypeId();		\
 		}
 
+	/*!
+		\brief The macro is used to simplify event body's definition
+	*/
+
+	#define TDE2_EVENT(EventName)		\
+		TDE2_REGISTER_TYPE(EventName)	\
+		REGISTER_EVENT_TYPE(EventName)	\
+		virtual ~EventName() = default
+		
+
 
 	/*!
 		type TBaseEvent
@@ -33,11 +43,7 @@ namespace TDEngine2
 
 	typedef struct TBaseEvent
 	{
-		virtual ~TBaseEvent() = default;
-
-		TDE2_REGISTER_TYPE(TBaseEvent)
-
-		REGISTER_EVENT_TYPE(TBaseEvent)
+		TDE2_EVENT(TBaseEvent);
 
 		TEventListenerId mReceiverId = BroadcastListenersIdValue;		///< Receiver's id, use BroadcastListenersIdValue for event's broadcasting
 	} TBaseEvent, *TBaseEventPtr;

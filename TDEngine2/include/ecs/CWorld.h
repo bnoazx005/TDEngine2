@@ -8,6 +8,7 @@
 
 
 #include "./../core/CBaseObject.h"
+#include "./../core/Event.h"
 #include "IWorld.h"
 
 
@@ -215,4 +216,18 @@ namespace TDEngine2
 
 			IRaycastContext*   mpRaycastContext;
 	};
+
+
+	/*!
+		struct TOnNewWorldInstanceCreated
+
+		\brief The structure represents an event which occurs when a new instance of IWorld is created
+	*/
+
+	typedef struct TOnNewWorldInstanceCreated : TBaseEvent
+	{
+		TDE2_EVENT(TOnNewWorldInstanceCreated);
+
+		IWorld* mpWorldInstance;
+	} TOnNewWorldInstanceCreated, *TOnNewWorldInstanceCreatedPtr;
 }
