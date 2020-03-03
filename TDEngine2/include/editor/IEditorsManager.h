@@ -22,6 +22,7 @@ namespace TDEngine2
 	class IEditorWindow;
 	class IWorld;
 	class ISelectionManager;
+	class IEventManager;
 
 
 	/*!
@@ -38,12 +39,13 @@ namespace TDEngine2
 				
 				\param[in, out] pInputContext A pointer to IInputContext implementation
 				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
+				\param[in, out] pEventManager A pointer to IEventManager implementation
 				\param[in, out] pWorld A pointer to IWorld implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld = nullptr) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld = nullptr) = 0;
 
 			/*!
 				\brief The method registers custom editor within the manager

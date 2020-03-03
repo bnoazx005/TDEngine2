@@ -18,12 +18,13 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CSelectionManager's type.
 
+		\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CSelectionManager's implementation
 	*/
 
-	TDE2_API ISelectionManager* CreateSelectionManager(E_RESULT_CODE& result);
+	TDE2_API ISelectionManager* CreateSelectionManager(IEditorsManager* pEditorsManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -35,15 +36,17 @@ namespace TDEngine2
 	class CSelectionManager : public CBaseObject, public ISelectionManager
 	{
 		public:
-			friend TDE2_API ISelectionManager* CreateSelectionManager(E_RESULT_CODE& result);
+			friend TDE2_API ISelectionManager* CreateSelectionManager(IEditorsManager* pEditorsManager, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes the internal state of the manager
 
+				\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init() override;
+			TDE2_API E_RESULT_CODE Init(IEditorsManager* pEditorsManager) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -63,8 +66,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback) override;
+
+			/*!
+				\brief The method sets up a pointer to IWorld instance
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetWorldInstance(IWorld* pWorld) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSelectionManager)
+		protected:
+			IEditorsManager* mpEditorsManager;
+
+			IWorld*          mpWorld;
+
+			TSystemId        mObjectSelectionSystemId;
 	};
 }
 

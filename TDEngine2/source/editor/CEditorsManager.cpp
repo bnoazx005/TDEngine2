@@ -4,8 +4,9 @@
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/editor/ecs/CEditorCameraControlSystem.h"
-#include "./../../include/ecs/IWorld.h"
+#include "./../../include/ecs/CWorld.h"
 #include "./../../include/editor/ISelectionManager.h"
+#include "./../../include/core/IEventManager.h"
 #include <algorithm>
 
 
@@ -26,7 +27,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CEditorsManager::Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld)
+	E_RESULT_CODE CEditorsManager::Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld)
 	{
 		if (mIsInitialized)
 		{
@@ -41,6 +42,9 @@ namespace TDEngine2
 		mpInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext);
 		mpImGUIContext = pImGUIContext;
 		mpWorld        = pWorld;
+		mpEventManager = pEventManager;
+
+		mpEventManager->Subscribe(TOnNewWorldInstanceCreated::GetTypeId(), this);
 
 		mIsVisible = false;
 
@@ -171,6 +175,26 @@ namespace TDEngine2
 		return mpSelectionManager;
 	}
 
+	E_RESULT_CODE CEditorsManager::OnEvent(const TBaseEvent* pEvent)
+	{
+		if (pEvent->GetEventType() != TOnNewWorldInstanceCreated::GetTypeId())
+		{
+			return RC_OK;
+		}
+
+		if (auto pOnWorldInstanceCreated = dynamic_cast<const TOnNewWorldInstanceCreated*>(pEvent))
+		{
+			PANIC_ON_FAILURE(mpSelectionManager->SetWorldInstance(pOnWorldInstanceCreated->mpWorldInstance));
+		}
+
+		return RC_OK;
+	}
+
+	TEventListenerId CEditorsManager::GetListenerId() const
+	{
+		return GetTypeId();
+	}
+
 	E_RESULT_CODE CEditorsManager::_showEditorWindows(F32 dt)
 	{
 		if (!mIsVisible)
@@ -226,7 +250,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld, E_RESULT_CODE& result)
+	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld, E_RESULT_CODE& result)
 	{
 		CEditorsManager* pEditorsManagerInstance = new (std::nothrow) CEditorsManager();
 
@@ -237,7 +261,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pEditorsManagerInstance->Init(pInputContext, pImGUIContext, pWorld);
+		result = pEditorsManagerInstance->Init(pInputContext, pImGUIContext, pEventManager, pWorld);
 
 		if (result != RC_OK)
 		{

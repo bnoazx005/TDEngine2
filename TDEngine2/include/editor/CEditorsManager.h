@@ -9,6 +9,7 @@
 
 #include "IEditorsManager.h"
 #include "../core/CBaseObject.h"
+#include "../core/Event.h"
 #include <vector>
 #include <string>
 #include <tuple>
@@ -35,6 +36,7 @@ namespace TDEngine2
 
 		\param[in, out] pInputContext A pointer to IInputContext implementation
 		\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
+				\param[in, out] pEventManager A pointer to IEventManager implementation
 		\param[in, out] pWorld A pointer to IWorld implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -42,7 +44,7 @@ namespace TDEngine2
 		\return A pointer to IEditorsManager's implementation
 	*/
 
-	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld, E_RESULT_CODE& result);
+	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld, E_RESULT_CODE& result);
 
 
 	/*!
@@ -51,24 +53,27 @@ namespace TDEngine2
 		\brief The class implements main manager for all editors that are available within the engine
 	*/
 
-	class CEditorsManager : public IEditorsManager, public CBaseObject
+	class CEditorsManager : public IEditorsManager, public CBaseObject, public IEventHandler
 	{
 		public:
-			friend TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld, E_RESULT_CODE& result);
+			friend TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld, E_RESULT_CODE& result);
 		public:
 			typedef std::vector<std::tuple<std::string, IEditorWindow*>> TEditorsArray;
 		public:
+			TDE2_REGISTER_TYPE(CEditorsManager)
+
 			/*!
 				\brief The method initializes an internal state of main manager for all engine's editors
 
 				\param[in, out] pInputContext A pointer to IInputContext implementation
 				\param[in, out] pImGUIContext A pointer to IImGUIContext implementation
+				\param[in, out] pEventManager A pointer to IEventManager implementation
 				\param[in, out] pWorld A pointer to IWorld implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IWorld* pWorld) override;
+			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -139,6 +144,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API ISelectionManager* GetSelectionManager() const override;
+
+			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
 
@@ -153,6 +176,8 @@ namespace TDEngine2
 			bool                  mIsVisible;
 
 			TEditorsArray         mRegisteredEditors;
+
+			IEventManager*        mpEventManager;
 
 			IWorld*               mpWorld;
 

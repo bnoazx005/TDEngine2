@@ -17,6 +17,10 @@
 
 namespace TDEngine2
 {
+	class IEditorsManager;
+	class IWorld;
+
+
 	/*!
 		interface ISelectionManager
 
@@ -32,10 +36,12 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes the internal state of the manager
 
+				\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IEditorsManager* pEditorsManager) = 0;
 
 			/*!
 				\brief The method builds so called selection map which is a render target that contains
@@ -47,6 +53,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback) = 0;
+
+			/*!
+				\brief The method sets up a pointer to IWorld instance
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetWorldInstance(IWorld* pWorld) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISelectionManager)
 	};

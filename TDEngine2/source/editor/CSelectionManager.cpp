@@ -1,4 +1,6 @@
 #include "./../../include/editor/CSelectionManager.h"
+#include "./../../include/editor/IEditorsManager.h"
+#include "./../../include/ecs/IWorld.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -10,12 +12,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSelectionManager::Init()
+	E_RESULT_CODE CSelectionManager::Init(IEditorsManager* pEditorsManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
+
+		if (!pEditorsManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpEditorsManager = pEditorsManager;
 
 		mIsInitialized = true;
 
@@ -47,8 +56,20 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSelectionManager::SetWorldInstance(IWorld* pWorld)
+	{
+		if (!pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
 
-	TDE2_API ISelectionManager* CreateSelectionManager(E_RESULT_CODE& result)
+		mpWorld = pWorld;
+
+		return RC_OK;
+	}
+
+
+	TDE2_API ISelectionManager* CreateSelectionManager(IEditorsManager* pEditorsManager, E_RESULT_CODE& result)
 	{
 		CSelectionManager* pSelectionManagerInstance = new (std::nothrow) CSelectionManager();
 
@@ -59,7 +80,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pSelectionManagerInstance->Init();
+		result = pSelectionManagerInstance->Init(pEditorsManager);
 
 		if (result != RC_OK)
 		{
