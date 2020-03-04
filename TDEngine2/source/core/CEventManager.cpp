@@ -123,7 +123,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			pCurrEventHandler->OnEvent(pEvent);
+			TDE2_ASSERT(pCurrEventHandler->OnEvent(pEvent) == RC_OK);
 		}
 
 		return RC_OK;

@@ -10,6 +10,7 @@
 #include "../utils/Config.h"
 #include "../utils/Types.h"
 #include "../core/IBaseObject.h"
+#include "../core/Event.h"
 #include <functional>
 
 
@@ -28,7 +29,7 @@ namespace TDEngine2
 		about selected objects
 	*/
 	
-	class ISelectionManager: public virtual IBaseObject
+	class ISelectionManager: public virtual IBaseObject, public IEventHandler
 	{
 		public:
 			typedef std::function<void()> TRenderFrameCallback;

@@ -10,6 +10,7 @@
 #include "../utils/Config.h"
 #include "../utils/Types.h"
 #include "../core/IEngineSubsystem.h"
+#include "../core/Event.h"
 #include <string>
 
 
@@ -104,6 +105,30 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEditorsManager)
 	};
+
+
+	/*!
+		struct TOnEditorModeEnabled
+
+		\brief The structure represents an event which occurs when a user activates level editor's mode
+	*/
+
+	typedef struct TOnEditorModeEnabled : TBaseEvent
+	{
+		TDE2_EVENT(TOnEditorModeEnabled);
+	} TOnEditorModeEnabled, *TOnEditorModeEnabledPtr;
+
+
+	/*!
+		struct TOnEditorModeDisabled
+
+		\brief The structure represents an event which occurs when a user closes the level editor's
+	*/
+
+	typedef struct TOnEditorModeDisabled : TBaseEvent
+	{
+		TDE2_EVENT(TOnEditorModeDisabled);
+	} TOnEditorModeDisabled, *TOnEditorModeDisabledPtr;
 }
 
 #endif

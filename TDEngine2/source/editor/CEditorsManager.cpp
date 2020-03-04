@@ -111,6 +111,12 @@ namespace TDEngine2
 		if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_TILDE))
 		{
 			mIsVisible = !mIsVisible;
+
+			TOnEditorModeEnabled  onEditorEnabledEvent;
+			TOnEditorModeDisabled onEditorDisabledEvent;
+
+			TBaseEvent* pEvent = mIsVisible ? dynamic_cast<TBaseEvent*>(&onEditorEnabledEvent) : dynamic_cast<TBaseEvent*>(&onEditorDisabledEvent);
+			mpEventManager->Notify(pEvent);
 		}
 
 		return _showEditorWindows(dt);
@@ -149,6 +155,9 @@ namespace TDEngine2
 		}
 
 		mpSelectionManager = pSelectionManager;
+
+		mpEventManager->Subscribe(TOnEditorModeEnabled::GetTypeId(), mpSelectionManager);
+		mpEventManager->Subscribe(TOnEditorModeDisabled::GetTypeId(), mpSelectionManager);
 
 		return RC_OK;
 	}

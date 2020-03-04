@@ -9,6 +9,7 @@
 
 #include "ISelectionManager.h"
 #include "../core/CBaseObject.h"
+#include "../core/Event.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -38,6 +39,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ISelectionManager* CreateSelectionManager(IEditorsManager* pEditorsManager, E_RESULT_CODE& result);
 		public:
+			TDE2_REGISTER_TYPE(CSelectionManager)
+
 			/*!
 				\brief The method initializes the internal state of the manager
 
@@ -68,12 +71,30 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback) override;
 
 			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+
+			/*!
 				\brief The method sets up a pointer to IWorld instance
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API E_RESULT_CODE SetWorldInstance(IWorld* pWorld) override;
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSelectionManager)
 		protected:

@@ -3,6 +3,7 @@
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CObjectsSelectionSystem.h"
 #include "./../../include/utils/CFileLogger.h"
+#include <functional>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -58,6 +59,36 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSelectionManager::OnEvent(const TBaseEvent* pEvent)
+	{
+		TypeId eventType = pEvent->GetEventType();
+
+		static const std::unordered_map<TypeId, std::function<E_RESULT_CODE()>> handlers 
+		{
+			{ 
+				TOnEditorModeEnabled::GetTypeId(), [this, pEvent]
+				{
+					return mpWorld->ActivateSystem(mObjectSelectionSystemId);
+				} 
+			},
+			{ 
+				TOnEditorModeDisabled::GetTypeId(), [this, pEvent]
+				{
+					return mpWorld->DeactivateSystem(mObjectSelectionSystemId);
+				} 
+			},
+		};
+
+		auto iter = handlers.cbegin();
+		
+		if ((iter = handlers.find(eventType)) != handlers.cend())
+		{
+			return iter->second();
+		}
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CSelectionManager::SetWorldInstance(IWorld* pWorld)
 	{
 		if (!pWorld)
@@ -71,9 +102,14 @@ namespace TDEngine2
 		{
 			LOG_ERROR("[CSelectionManager] \"ObjectsSelection\" system wasn't found");
 			return RC_FAIL;
-		}		
+		}
 
-		return RC_OK;
+		return mpWorld->DeactivateSystem(mObjectSelectionSystemId);
+	}
+
+	TEventListenerId CSelectionManager::GetListenerId() const
+	{
+		return GetTypeId();
 	}
 
 
