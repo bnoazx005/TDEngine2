@@ -83,7 +83,8 @@ namespace TDEngine2
 		static const std::unordered_map<std::string, E_DEFAULT_SHADER_TYPE> shaderNameToTypeMapping
 		{
 			{ "DefaultEditorUI", E_DEFAULT_SHADER_TYPE::DST_EDITOR_UI },
-			{ "DefaultScreenSpaceEffect", E_DEFAULT_SHADER_TYPE::DST_SCREEN_SPACE }
+			{ "DefaultScreenSpaceEffect", E_DEFAULT_SHADER_TYPE::DST_SCREEN_SPACE },
+			{ "Selection", E_DEFAULT_SHADER_TYPE::DST_SELECTION },
 		};
 
 		return shaderNameToTypeMapping.at(name);
