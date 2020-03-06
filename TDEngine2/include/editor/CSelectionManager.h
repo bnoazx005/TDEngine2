@@ -16,16 +16,22 @@
 
 namespace TDEngine2
 {
+	class IResourceHandler;
+
+
 	/*!
 		\brief A factory function for creation objects of CSelectionManager's type.
 
+		\param[in, out] pResourceManager A pointer to IResourceManager implementation
+		\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
 		\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CSelectionManager's implementation
 	*/
 
-	TDE2_API ISelectionManager* CreateSelectionManager(IEditorsManager* pEditorsManager, E_RESULT_CODE& result);
+	TDE2_API ISelectionManager* CreateSelectionManager(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
+													   IEditorsManager* pEditorsManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -37,19 +43,22 @@ namespace TDEngine2
 	class CSelectionManager : public CBaseObject, public ISelectionManager
 	{
 		public:
-			friend TDE2_API ISelectionManager* CreateSelectionManager(IEditorsManager* pEditorsManager, E_RESULT_CODE& result);
+			friend TDE2_API ISelectionManager* CreateSelectionManager(IResourceManager*, IWindowSystem*, IGraphicsContext*, IEditorsManager*, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(CSelectionManager)
 
 			/*!
 				\brief The method initializes the internal state of the manager
 
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
+				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 				\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IEditorsManager* pEditorsManager) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IEditorsManager* pEditorsManager) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -97,12 +106,23 @@ namespace TDEngine2
 			TDE2_API TEventListenerId GetListenerId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSelectionManager)
+
+			TDE2_API E_RESULT_CODE _createRenderTarget(U32 width, U32 height);
 		protected:
-			IEditorsManager* mpEditorsManager;
+			IResourceManager* mpResourceManager;
 
-			IWorld*          mpWorld;
+			IEditorsManager*  mpEditorsManager;
 
-			TSystemId        mObjectSelectionSystemId;
+			IWindowSystem*    mpWindowSystem;
+
+			IGraphicsContext* mpGraphicsContext;
+
+			IWorld*           mpWorld;
+
+			TSystemId         mObjectSelectionSystemId;
+
+			IResourceHandler* mpSelectionGeometryBuffer; ///< This is a render target that contains all visible geometry 
+			IResourceHandler* mpReadableSelectionBuffer;
 	};
 }
 

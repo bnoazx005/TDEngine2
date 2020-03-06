@@ -3,6 +3,11 @@
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CObjectsSelectionSystem.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/core/IResourceManager.h"
+#include "./../../include/core/IResourceHandler.h"
+#include "./../../include/graphics/CBaseRenderTarget.h"
+#include "./../../include/core/IWindowSystem.h"
+#include "./../../include/core/IGraphicsContext.h"
 #include <functional>
 
 
@@ -15,19 +20,30 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSelectionManager::Init(IEditorsManager* pEditorsManager)
+	E_RESULT_CODE CSelectionManager::Init(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IEditorsManager* pEditorsManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pEditorsManager)
+		if (!pEditorsManager || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpEditorsManager = pEditorsManager;
+		mpResourceManager = pResourceManager;
+		mpEditorsManager  = pEditorsManager;
+		mpWindowSystem    = pWindowSystem;
+		mpGraphicsContext = pGraphicsContext;
+
+		mpSelectionGeometryBuffer = nullptr;
+
+		E_RESULT_CODE result = _createRenderTarget(mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight());
+		if (result != RC_OK)
+		{
+			return result;
+		}
 
 		mIsInitialized = true;
 
@@ -41,20 +57,28 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
+		result = result | mpSelectionGeometryBuffer->Free();
+
 		mIsInitialized = false;
 		delete this;
 
-		return RC_OK;
+		return result;
 	}
 
 	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
 	{
+		IRenderTarget* pCurrRenderTarget = mpSelectionGeometryBuffer->Get<IRenderTarget>(RAT_BLOCKING);
 
+		mpGraphicsContext->BindRenderTarget(pCurrRenderTarget);
 
 		if (onDrawVisibleObjectsCallback)
 		{
 			onDrawVisibleObjectsCallback();
 		}
+
+		mpGraphicsContext->BindRenderTarget(nullptr);
 
 		return RC_OK;
 	}
@@ -63,24 +87,35 @@ namespace TDEngine2
 	{
 		TypeId eventType = pEvent->GetEventType();
 
-		static const std::unordered_map<TypeId, std::function<E_RESULT_CODE()>> handlers 
+		static const std::unordered_map<TypeId, std::function<E_RESULT_CODE()>> handlers
 		{
-			{ 
+			{
 				TOnEditorModeEnabled::GetTypeId(), [this, pEvent]
 				{
 					return mpWorld->ActivateSystem(mObjectSelectionSystemId);
-				} 
+				}
 			},
-			{ 
+			{
 				TOnEditorModeDisabled::GetTypeId(), [this, pEvent]
 				{
 					return mpWorld->DeactivateSystem(mObjectSelectionSystemId);
-				} 
+				}
 			},
+			{
+				TOnWindowResized::GetTypeId(), [this, pEvent]
+				{
+					if (const TOnWindowResized* pOnResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent))
+					{
+						return _createRenderTarget(pOnResizedEvent->mWidth, pOnResizedEvent->mHeight);
+					}
+
+					return RC_FAIL;
+				}
+			}
 		};
 
 		auto iter = handlers.cbegin();
-		
+
 		if ((iter = handlers.find(eventType)) != handlers.cend())
 		{
 			return iter->second();
@@ -112,8 +147,38 @@ namespace TDEngine2
 		return GetTypeId();
 	}
 
+	E_RESULT_CODE CSelectionManager::_createRenderTarget(U32 width, U32 height)
+	{
+		E_RESULT_CODE result = RC_OK;
 
-	TDE2_API ISelectionManager* CreateSelectionManager(IEditorsManager* pEditorsManager, E_RESULT_CODE& result)
+		if (mpSelectionGeometryBuffer)
+		{
+			if (CBaseRenderTarget* pRenderTarget = mpSelectionGeometryBuffer->Get<CBaseRenderTarget>(RAT_BLOCKING))
+			{
+				// \note Should recreate the render target
+				if (pRenderTarget->GetWidth() != width || pRenderTarget->GetHeight() != height)
+				{
+					if ((result = mpSelectionGeometryBuffer->Free()) != RC_OK)
+					{
+						return result;
+					}
+
+					mpSelectionGeometryBuffer = nullptr;
+				}				
+			}
+		}
+
+		if (!mpSelectionGeometryBuffer)
+		{
+			mpSelectionGeometryBuffer = mpResourceManager->Create<CBaseRenderTarget>("SelectionBuffer", TTexture2DParameters{ width, height, FT_UINT1, 1, 1, 0 });
+		}
+
+		return RC_OK;
+	}
+
+
+	TDE2_API ISelectionManager* CreateSelectionManager(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
+													   IEditorsManager* pEditorsManager, E_RESULT_CODE& result)
 	{
 		CSelectionManager* pSelectionManagerInstance = new (std::nothrow) CSelectionManager();
 
@@ -124,7 +189,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pSelectionManagerInstance->Init(pEditorsManager);
+		result = pSelectionManagerInstance->Init(pResourceManager, pWindowSystem, pGraphicsContext, pEditorsManager);
 
 		if (result != RC_OK)
 		{

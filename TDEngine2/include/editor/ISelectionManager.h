@@ -20,6 +20,9 @@ namespace TDEngine2
 {
 	class IEditorsManager;
 	class IWorld;
+	class IResourceManager;
+	class IWindowSystem;
+	class IGraphicsContext;
 
 
 	/*!
@@ -37,12 +40,15 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes the internal state of the manager
 
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
+				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
 				\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IEditorsManager* pEditorsManager) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IEditorsManager* pEditorsManager) = 0;
 
 			/*!
 				\brief The method builds so called selection map which is a render target that contains

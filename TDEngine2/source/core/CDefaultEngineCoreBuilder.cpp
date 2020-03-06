@@ -452,7 +452,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (ISelectionManager* pSelectionManager = CreateSelectionManager(pEditorsManager, result))
+		if (ISelectionManager* pSelectionManager = CreateSelectionManager(mpResourceManagerInstance, mpWindowSystemInstance, mpGraphicsContextInstance, pEditorsManager, result))
 		{
 			result = result | pEditorsManager->SetSelectionManager(pSelectionManager);
 			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager);

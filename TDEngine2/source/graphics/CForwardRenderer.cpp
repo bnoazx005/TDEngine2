@@ -192,9 +192,9 @@ namespace TDEngine2
 			if (mpSelectionManager->BuildSelectionMap([this, &executeCommands] 
 			{ 
 				CRenderQueue* pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)];
-				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
+				if (!pCurrCommandBuffer)
 				{
-					LOG_ERROR("[ForwardRenderer] Invalid \"EditorOnly\" commands buffer was found");
+					LOG_ERROR("[ForwardRenderer] Invalid \"Editor Only\" commands buffer was found");
 					return RC_FAIL;
 				}
 
@@ -207,6 +207,8 @@ namespace TDEngine2
 			}
 		}
 #endif
+
+		mpGraphicsContext->ClearDepthBuffer(1.0f);
 
 		mpFramePostProcessor->Render([&renderAllGroups] { renderAllGroups(true); });
 

@@ -383,20 +383,31 @@ namespace TDEngine2
 
 					#include <TDEngine2Globals.inc>
 
+					struct VertexOut
+					{
+						float4 mPos : SV_POSITION;
+						uint mID  : COLOR0;
+					};
+
 					#program vertex
 
-					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
+					VertexOut mainVS(float4 lPos : POSITION0)
 					{
-						return mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
+						VertexOut output;			
+
+						output.mPos = mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
+						output.mID  = ObjectID;										
+
+						return output;
 					}
 
 					#endprogram
 
 					#program pixel
 
-					float4 mainPS(float4 wPos : SV_POSITION): SV_TARGET0
+					uint mainPS(VertexOut input): SV_TARGET0
 					{
-						return float4(1.0, 0.0, 1.0, 1.0);
+						return input.mID;
 					}
 					#endprogram
 				)";
