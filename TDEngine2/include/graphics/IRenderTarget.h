@@ -18,6 +18,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 	class IFileSystem;
+	class ITexture2D;
 
 
 	/*!
@@ -45,6 +46,16 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, 
 												const TTexture2DParameters& params) = 0;
+
+			/*!
+				\brief The method copies existing data of the render target into given texture object
+
+				\param[in] pDestTexture A pointer to ITexture2D implementation, the object should be already initialized
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Blit(ITexture2D*& pDestTexture) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRenderTarget)
 	};

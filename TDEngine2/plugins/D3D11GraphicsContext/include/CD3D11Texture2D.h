@@ -133,6 +133,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::unique_ptr<U8[]> GetInternalData() override;
+
+			/*!
+				\brief The method returns a pointer to D3D11 internal texture's representation. Should be not 
+				used by end users
+
+				\return The method returns a pointer to D3D11 internal texture's representation
+			*/
+
+			TDE2_API ID3D11Texture2D* GetInternalTexturePtr() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Texture2D)
 

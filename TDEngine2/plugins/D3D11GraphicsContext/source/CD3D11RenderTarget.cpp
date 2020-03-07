@@ -2,6 +2,8 @@
 #include "./../include/CD3D11GraphicsContext.h"
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11Utils.h"
+#include "./../include/CD3D11Texture2D.h"
+#include <graphics/ITexture2D.h>
 #include <cstring>
 
 
@@ -59,6 +61,24 @@ namespace TDEngine2
 		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->PSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);
+	}
+
+	E_RESULT_CODE CD3D11RenderTarget::Blit(ITexture2D*& pDestTexture)
+	{
+		if (!pDestTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		CD3D11Texture2D* pD3D11DestTexture = dynamic_cast<CD3D11Texture2D*>(pDestTexture);
+		if (!pD3D11DestTexture)
+		{
+			return RC_FAIL;
+		}
+
+		mp3dDeviceContext->CopyResource(pD3D11DestTexture->GetInternalTexturePtr(), mpRenderTexture);
+
+		return RC_OK;
 	}
 
 	ID3D11RenderTargetView* CD3D11RenderTarget::GetRenderTargetView() const

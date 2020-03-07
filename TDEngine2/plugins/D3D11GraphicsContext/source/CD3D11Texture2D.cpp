@@ -125,6 +125,11 @@ namespace TDEngine2
 		return std::move(pPixelsData);
 	}
 
+	ID3D11Texture2D* CD3D11Texture2D::GetInternalTexturePtr() const
+	{
+		return mpTexture;
+	}
+
 	E_RESULT_CODE CD3D11Texture2D::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
 	{

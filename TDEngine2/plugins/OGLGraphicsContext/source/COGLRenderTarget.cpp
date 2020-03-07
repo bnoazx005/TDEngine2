@@ -52,6 +52,11 @@ namespace TDEngine2
 
 		glBindTexture(GL_TEXTURE_2D, mTextureHandler);
 	}
+	
+	E_RESULT_CODE COGLRenderTarget::Blit(ITexture2D*& pDestTexture)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
 
 	GLuint COGLRenderTarget::GetInternalHandler() const
 	{

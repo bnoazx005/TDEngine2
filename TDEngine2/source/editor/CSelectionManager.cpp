@@ -6,6 +6,7 @@
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IResourceHandler.h"
 #include "./../../include/graphics/CBaseRenderTarget.h"
+#include "./../../include/graphics/CBaseTexture2D.h"
 #include "./../../include/core/IWindowSystem.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include <functional>
@@ -69,7 +70,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
 	{
-		IRenderTarget* pCurrRenderTarget = mpSelectionGeometryBuffer->Get<IRenderTarget>(RAT_BLOCKING);
+		IRenderTarget* pCurrRenderTarget   = mpSelectionGeometryBuffer->Get<IRenderTarget>(RAT_BLOCKING);
+		ITexture2D* pReadableRTCopyTexture = mpReadableSelectionBuffer->Get<ITexture2D>(RAT_BLOCKING);
 
 		mpGraphicsContext->BindRenderTarget(pCurrRenderTarget);
 
@@ -80,7 +82,7 @@ namespace TDEngine2
 
 		mpGraphicsContext->BindRenderTarget(nullptr);
 
-		return RC_OK;
+		return pCurrRenderTarget->Blit(pReadableRTCopyTexture);
 	}
 
 	E_RESULT_CODE CSelectionManager::OnEvent(const TBaseEvent* pEvent)
@@ -163,6 +165,11 @@ namespace TDEngine2
 						return result;
 					}
 
+					if ((result = mpReadableSelectionBuffer->Free()) != RC_OK)
+					{
+						return result;
+					}
+
 					mpSelectionGeometryBuffer = nullptr;
 				}				
 			}
@@ -170,7 +177,10 @@ namespace TDEngine2
 
 		if (!mpSelectionGeometryBuffer)
 		{
-			mpSelectionGeometryBuffer = mpResourceManager->Create<CBaseRenderTarget>("SelectionBuffer", TTexture2DParameters{ width, height, FT_UINT1, 1, 1, 0 });
+			TTexture2DParameters renderTargetParams { width, height, FT_UINT1, 1, 1, 0 };
+
+			mpSelectionGeometryBuffer = mpResourceManager->Create<CBaseRenderTarget>("SelectionBuffer", renderTargetParams);
+			mpReadableSelectionBuffer = mpResourceManager->Create<CBaseTexture2D>("SelectionBufferCPUCopy", renderTargetParams);
 		}
 
 		return RC_OK;

@@ -80,6 +80,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Reset() override;
 
 			/*!
+				\brief The method copies existing data of the render target into given texture object
+
+				\param[in] pDestTexture A pointer to ITexture2D implementation, the object should be already initialized
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Blit(ITexture2D*& pDestTexture) override;
+
+			/*!
 				\brief The method returns an internal handler of the render target
 				\return The method returns an internal handler of the render target
 			*/
