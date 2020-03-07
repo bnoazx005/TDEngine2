@@ -113,16 +113,17 @@ namespace TDEngine2
 			case FT_D32:
 				return GL_DEPTH_COMPONENT;
 			case FT_NORM_BYTE1:
-			case FT_BYTE1:
 			case FT_NORM_UBYTE1:
-			case FT_UBYTE1:
 			case FT_NORM_SHORT1:
-			case FT_SHORT1:
 			case FT_NORM_USHORT1:
+				return GL_RED;
+			case FT_BYTE1:
+			case FT_UBYTE1:
+			case FT_SHORT1:
 			case FT_USHORT1:
 			case FT_UINT1:
 			case FT_SINT1:
-				return GL_RED;
+				return GL_RED_INTEGER;
 			case FT_NORM_BYTE2:
 			case FT_BYTE2:
 			case FT_FLOAT2:

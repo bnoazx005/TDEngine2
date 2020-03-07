@@ -11,11 +11,33 @@
 #define TDENGINE2_EFFECTSUTILS_INC
 
 
-inline float3 GammaToLinear(float3 color, float gammaValue = 2.2) { return pow(color, gammaValue); }
-inline float4 GammaToLinear(float4 color, float gammaValue = 2.2) { return float4(pow(color.rgb, gammaValue), color.a); }
+float3 GammaToLinear(float3 color, float gammaValue = 2.2) 
+{ 
+#ifdef TDE2_GLSL_SHADER
+	return pow(color, float3(gammaValue)); 
+#else	
+	return pow(color, gammaValue); 
+#endif
+}
 
-inline float3 LinearToGamma(float3 color, float gammaValue = 2.2) { return pow(color, 1.0f / gammaValue); }
-inline float4 LinearToGamma(float4 color, float gammaValue = 2.2) { return float4(pow(color.rgb, 1.0f / gammaValue), color.a); }
+float4 GammaToLinear(float4 color, float gammaValue = 2.2) 
+{ 
+	return float4(GammaToLinear(color.rgb, gammaValue), color.a); 
+}
+
+float3 LinearToGamma(float3 color, float gammaValue = 2.2) 
+{
+#ifdef TDE2_GLSL_SHADER
+	return pow(color, float3(1.0f / gammaValue)); 
+#else 
+	return pow(color, 1.0f / gammaValue); 
+#endif
+}
+
+float4 LinearToGamma(float4 color, float gammaValue = 2.2) 
+{
+	return float4(LinearToGamma(color.rgb, 1.0f / gammaValue), color.a); 
+}
 
 
 #endif

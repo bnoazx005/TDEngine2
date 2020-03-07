@@ -8,9 +8,6 @@
 #define TDENGINE2UTILS_INC
 
 
-#include <TDEngine2EffectsUtils.inc>
-
-
 ///< Define constant buffer's macro
 
 #ifdef TDE2_GLSL_SHADER
@@ -60,5 +57,8 @@
 	#define float4 vec4
 
 #endif
+
+
+#include <TDEngine2EffectsUtils.inc>
 
 #endif

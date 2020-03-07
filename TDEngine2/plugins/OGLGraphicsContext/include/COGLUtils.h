@@ -8,9 +8,9 @@
 
 
 #include <utils/Types.h>
-#include <cassert>
+#include <utils/Utils.h>
+#include <utils/CFileLogger.h>
 #include "COGLMappings.h"
-#include <iostream>
 
 
 namespace TDEngine2
@@ -19,17 +19,17 @@ namespace TDEngine2
 		\brief The macro is used for safe invokation of OpenGL's commands
 	*/
 
-	#define GL_SAFE_CALL(FunctionCall)																					\
-			{																											\
-				FunctionCall;																							\
-				GLenum internalErrorCode = glGetError();																\
-				E_RESULT_CODE errCode = COGLMappings::GetErrorCode(internalErrorCode);									\
-				if (errCode != RC_OK)																					\
-				{																										\
-					std::cerr << "GL error code: " << COGLMappings::ErrorCodeToString(internalErrorCode) << std::endl;	\
-					assert(false);																						\
-					return errCode;																						\
-				}																										\
+	#define GL_SAFE_CALL(FunctionCall)																							\
+			{																													\
+				FunctionCall;																									\
+				GLenum internalErrorCode = glGetError();																		\
+				E_RESULT_CODE errCode = COGLMappings::GetErrorCode(internalErrorCode);											\
+				if (errCode != RC_OK)																							\
+				{																												\
+					LOG_ERROR(CStringUtils::Format("GL error code: {0}", COGLMappings::ErrorCodeToString(internalErrorCode)));	\
+					TDE2_ASSERT(false);																							\
+					return errCode;																								\
+				}																												\
 			}
 
 
@@ -38,15 +38,15 @@ namespace TDEngine2
 		within a functions that don't return any value
 	*/
 
-	#define GL_SAFE_VOID_CALL(FunctionCall)																				\
-			{																											\
-				FunctionCall;																							\
-				GLenum internalErrorCode = glGetError();																\
-				E_RESULT_CODE errCode = COGLMappings::GetErrorCode(internalErrorCode);									\
-				if (errCode != RC_OK)																					\
-				{																										\
-					std::cerr << "GL error code: " << COGLMappings::ErrorCodeToString(internalErrorCode) << std::endl;	\
-					assert(false);																						\
-				}																										\
+	#define GL_SAFE_VOID_CALL(FunctionCall)																						\
+			{																													\
+				FunctionCall;																									\
+				GLenum internalErrorCode = glGetError();																		\
+				E_RESULT_CODE errCode = COGLMappings::GetErrorCode(internalErrorCode);											\
+				if (errCode != RC_OK)																							\
+				{																												\
+					LOG_ERROR(CStringUtils::Format("GL error code: {0}", COGLMappings::ErrorCodeToString(internalErrorCode)));	\
+					TDE2_ASSERT(false);																							\
+				}																												\
 			}
 }
