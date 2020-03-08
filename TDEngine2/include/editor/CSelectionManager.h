@@ -90,6 +90,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
 
 			/*!
+				\brief The method tries to pick an object
+
+				\param[in] position A position of a cursor in which the method tries to pick some object
+
+				\return The method returns an identifier of an entity
+			*/
+
+			TDE2_API TEntityId PickObject(const TVector2& position) override;
+
+			/*!
 				\brief The method sets up a pointer to IWorld instance
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

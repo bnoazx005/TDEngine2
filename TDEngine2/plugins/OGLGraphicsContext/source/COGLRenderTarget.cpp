@@ -1,6 +1,7 @@
 #include "./../include/COGLRenderTarget.h"
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLUtils.h"
+#include <utils/CFileLogger.h>
 #include <core/IResourceManager.h>
 
 
@@ -55,7 +56,23 @@ namespace TDEngine2
 	
 	E_RESULT_CODE COGLRenderTarget::Blit(ITexture2D*& pDestTexture)
 	{
-		TDE2_UNIMPLEMENTED();
+		if (!pDestTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pDestTexture->Bind(0);
+
+		GLenum textureFormat = COGLMappings::GetPixelDataFormat(pDestTexture->GetFormat());
+		textureFormat = (textureFormat == GL_RED_INTEGER) ? GL_RED : textureFormat;
+
+		GL_SAFE_VOID_CALL(glCopyTexImage2D(GL_TEXTURE_2D, 0, textureFormat, 0, 0, mWidth, mHeight, 0));
+
+		// \note unbind current texture
+		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0));
+		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+		return RC_OK;
 	}
 
 	GLuint COGLRenderTarget::GetInternalHandler() const

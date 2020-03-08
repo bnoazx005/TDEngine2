@@ -10,6 +10,7 @@
 #include "./../../include/core/IWindowSystem.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include <functional>
+#include <cmath>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -83,6 +84,28 @@ namespace TDEngine2
 		mpGraphicsContext->BindRenderTarget(nullptr);
 
 		return pCurrRenderTarget->Blit(pReadableRTCopyTexture);
+	}
+
+	TEntityId CSelectionManager::PickObject(const TVector2& position)
+	{
+		int x = std::lround(position.x);
+		int y = std::lround(position.y);
+
+		if (auto pSelectionTexture = mpReadableSelectionBuffer->Get<ITexture2D>(RAT_BLOCKING))
+		{
+			U32 textureLineStride = 4 * pSelectionTexture->GetWidth();
+
+			if (auto&& selectionMapData = pSelectionTexture->GetInternalData())
+			{
+				U32* pPixelData = reinterpret_cast<U32*>(&selectionMapData[y * textureLineStride + x]);
+
+				TEntityId pickedEntityId = static_cast<TEntityId>(*pPixelData);
+
+				return pickedEntityId;
+			}
+		}
+		
+		return InvalidEntityId;
 	}
 
 	E_RESULT_CODE CSelectionManager::OnEvent(const TBaseEvent* pEvent)

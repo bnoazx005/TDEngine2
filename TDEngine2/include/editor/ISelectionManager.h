@@ -11,6 +11,7 @@
 #include "../utils/Types.h"
 #include "../core/IBaseObject.h"
 #include "../core/Event.h"
+#include "../math/TVector2.h"
 #include <functional>
 
 
@@ -60,6 +61,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback) = 0;
+
+			/*!
+				\brief The method tries to pick an object 
+
+				\param[in] position A position of a cursor in which the method tries to pick some object
+
+				\return The method returns an identifier of an entity
+			*/
+
+			TDE2_API virtual TEntityId PickObject(const TVector2& position) = 0;
 
 			/*!
 				\brief The method sets up a pointer to IWorld instance

@@ -77,6 +77,15 @@ namespace TDEngine2
 		}
 
 		mp3dDeviceContext->CopyResource(pD3D11DestTexture->GetInternalTexturePtr(), mpRenderTexture);
+		//D3D11_BOX sourceRegion;
+		//sourceRegion.left = 0;
+		//sourceRegion.right = mWidth;
+		//sourceRegion.top = 0;
+		//sourceRegion.bottom = mHeight;
+		//sourceRegion.front = 0;
+		//sourceRegion.back = 1;
+
+		//mp3dDeviceContext->CopySubresourceRegion(pD3D11DestTexture->GetInternalTexturePtr(), 0, 0, 0, 0, mpRenderTexture, 0, &sourceRegion);
 
 		return RC_OK;
 	}

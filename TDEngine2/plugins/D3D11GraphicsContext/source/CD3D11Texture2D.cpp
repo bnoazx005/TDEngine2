@@ -103,6 +103,15 @@ namespace TDEngine2
 
 		/// \note copy data from actual texture into helper one
 		mp3dDeviceContext->CopyResource(pTempTexture, mpTexture);
+		//D3D11_BOX sourceRegion;
+		//sourceRegion.left = 0;
+		//sourceRegion.right = mWidth;
+		//sourceRegion.top = 0;
+		//sourceRegion.bottom = mHeight;
+		//sourceRegion.front = 0;
+		//sourceRegion.back = 1;
+
+		//mp3dDeviceContext->CopySubresourceRegion(pTempTexture, 0, 0, 0, 0, mpTexture, 0, &sourceRegion);
 
 		/// \note retrieve pointer to memory from temp texture
 		D3D11_MAPPED_SUBRESOURCE mappedData;

@@ -396,7 +396,7 @@ namespace TDEngine2
 						VertexOut output;			
 
 						output.mPos = mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
-						output.mID  = ObjectID;										
+						output.mID  = ObjectID + 1;										
 
 						return output;
 					}

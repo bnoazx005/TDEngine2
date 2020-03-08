@@ -7,6 +7,7 @@
 #include "./../../include/ecs/CWorld.h"
 #include "./../../include/editor/ISelectionManager.h"
 #include "./../../include/core/IEventManager.h"
+#include "./../../include/utils/CFileLogger.h"
 #include <algorithm>
 
 
@@ -117,6 +118,12 @@ namespace TDEngine2
 
 			TBaseEvent* pEvent = mIsVisible ? dynamic_cast<TBaseEvent*>(&onEditorEnabledEvent) : dynamic_cast<TBaseEvent*>(&onEditorDisabledEvent);
 			mpEventManager->Notify(pEvent);
+		}
+
+		if (mIsVisible && mpInputContext->IsMouseButtonPressed(0))
+		{
+			TVector3 mousePosition = mpInputContext->GetMousePosition();
+			LOG_MESSAGE(CStringUtils::Format("Picked object id : {0}", mpSelectionManager->PickObject({ mousePosition.x, mousePosition.y })));
 		}
 
 		return _showEditorWindows(dt);
