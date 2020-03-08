@@ -79,6 +79,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SetWorldInstance(IWorld* pWorld) = 0;
+
+			/*!
+				\brief The method returns an identifier of an entity
+
+				\return The method returns an identifier of an entity
+			*/
+
+			TDE2_API virtual TEntityId GetSelectedEntityId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISelectionManager)
 	};

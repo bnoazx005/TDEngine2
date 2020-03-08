@@ -114,6 +114,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TEventListenerId GetListenerId() const override;
+
+			/*!
+				\brief The method returns an identifier of an entity
+
+				\return The method returns an identifier of an entity
+			*/
+
+			TDE2_API TEntityId GetSelectedEntityId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSelectionManager)
 
@@ -133,6 +141,10 @@ namespace TDEngine2
 
 			IResourceHandler* mpSelectionGeometryBuffer; ///< This is a render target that contains all visible geometry 
 			IResourceHandler* mpReadableSelectionBuffer;
+
+			U32               mWindowHeaderHeight;
+
+			TEntityId         mLastSelectedEntityID;
 	};
 }
 

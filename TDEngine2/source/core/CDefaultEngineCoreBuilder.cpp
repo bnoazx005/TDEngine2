@@ -425,7 +425,10 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 		E_RESULT_CODE result = RC_OK;
-		IEditorsManager* pEditorsManager = CreateEditorsManager(mpEngineCoreInstance->GetSubsystem<IInputContext>(),
+
+		IInputContext* pInputContext = mpEngineCoreInstance->GetSubsystem<IInputContext>();
+
+		IEditorsManager* pEditorsManager = CreateEditorsManager(pInputContext,
 																mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
 																mpEventManagerInstance,
 																mpEngineCoreInstance->GetWorldInstance(),
@@ -436,7 +439,7 @@ namespace TDEngine2
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROFILER), CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(pEditorsManager, pInputContext, result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
 		};
 

@@ -1,5 +1,9 @@
 #include "./../../include/editor/CLevelEditorWindow.h"
+#include "./../../include/editor/IEditorsManager.h"
+#include "./../../include/editor/ISelectionManager.h"
 #include "./../../include/core/IImGUIContext.h"
+#include "./../../include/core/IInputContext.h"
+#include "./../../include/utils/CFileLogger.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -11,11 +15,25 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLevelEditorWindow::Init()
+	E_RESULT_CODE CLevelEditorWindow::Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
+		}
+
+		if (!pEditorsManager || !pInputContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpEditorsManager   = pEditorsManager;
+		mpInputContext     = dynamic_cast<IDesktopInputContext*>(pInputContext);
+		mpSelectionManager = nullptr;
+
+		if (!mpInputContext)
+		{
+			return RC_INVALID_ARGS;
 		}
 
 		mIsInitialized = true;
@@ -54,10 +72,34 @@ namespace TDEngine2
 		mpImGUIContext->EndWindow();
 
 		mIsVisible = isEnabled;
+
+		_onHandleInput();
+	}
+
+	void CLevelEditorWindow::_onHandleInput()
+	{
+		ISelectionManager* pSelectionManager = _getSelectionManager();
+
+		if (mpInputContext->IsMouseButtonPressed(0))
+		{
+			TVector3 mousePosition = mpInputContext->GetMousePosition();
+			LOG_MESSAGE(CStringUtils::Format("[Level Editor] Picked object id : {0}", pSelectionManager->PickObject({ mousePosition.x, mousePosition.y })));
+		}
+
+	}
+
+	ISelectionManager* CLevelEditorWindow::_getSelectionManager()
+	{
+		if (!mpSelectionManager)
+		{
+			mpSelectionManager = mpEditorsManager->GetSelectionManager();
+		}
+
+		return mpSelectionManager;
 	}
 
 
-	TDE2_API IEditorWindow* CreateLevelEditorWindow(E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, E_RESULT_CODE& result)
 	{
 		CLevelEditorWindow* pEditorInstance = new (std::nothrow) CLevelEditorWindow();
 
@@ -68,7 +110,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pEditorInstance->Init();
+		result = pEditorInstance->Init(pEditorsManager, pInputContext);
 
 		if (result != RC_OK)
 		{

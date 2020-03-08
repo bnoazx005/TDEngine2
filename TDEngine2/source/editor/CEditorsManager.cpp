@@ -120,12 +120,6 @@ namespace TDEngine2
 			mpEventManager->Notify(pEvent);
 		}
 
-		if (mIsVisible && mpInputContext->IsMouseButtonPressed(0))
-		{
-			TVector3 mousePosition = mpInputContext->GetMousePosition();
-			LOG_MESSAGE(CStringUtils::Format("Picked object id : {0}", mpSelectionManager->PickObject({ mousePosition.x, mousePosition.y })));
-		}
-
 		return _showEditorWindows(dt);
 	}
 

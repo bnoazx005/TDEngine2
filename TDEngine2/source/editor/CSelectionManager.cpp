@@ -47,6 +47,8 @@ namespace TDEngine2
 			return result;
 		}
 
+		mLastSelectedEntityID = InvalidEntityId;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -88,23 +90,22 @@ namespace TDEngine2
 
 	TEntityId CSelectionManager::PickObject(const TVector2& position)
 	{
-		int x = std::lround(position.x);
-		int y = std::lround(position.y);
+		I32 x = std::lround(position.x);
+		I32 y = std::lround(position.y) + mWindowHeaderHeight;
 
 		if (auto pSelectionTexture = mpReadableSelectionBuffer->Get<ITexture2D>(RAT_BLOCKING))
 		{
-			U32 textureLineStride = 4 * pSelectionTexture->GetWidth();
+			y = pSelectionTexture->GetHeight() - y;
 
 			auto&& selectionMapData = pSelectionTexture->GetInternalData();
 			
-			U32* pPixelData = reinterpret_cast<U32*>(&selectionMapData[y * textureLineStride + x]);
+			// \note multiply by 4, where 4 is a size of a single pixel data
+			U32* pPixelData = reinterpret_cast<U32*>(&selectionMapData[(y * pSelectionTexture->GetWidth() + x) << 2]);
 
-			TEntityId pickedEntityId = static_cast<TEntityId>(*pPixelData);
-
-			return pickedEntityId;
+			return (mLastSelectedEntityID = static_cast<TEntityId>(*pPixelData) - 1);
 		}
 		
-		return InvalidEntityId;
+		return (mLastSelectedEntityID = InvalidEntityId);
 	}
 
 	E_RESULT_CODE CSelectionManager::OnEvent(const TBaseEvent* pEvent)
@@ -171,6 +172,11 @@ namespace TDEngine2
 		return GetTypeId();
 	}
 
+	TEntityId CSelectionManager::GetSelectedEntityId() const
+	{
+		return mLastSelectedEntityID;
+	}
+
 	E_RESULT_CODE CSelectionManager::_createRenderTarget(U32 width, U32 height)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -204,6 +210,8 @@ namespace TDEngine2
 			mpSelectionGeometryBuffer = mpResourceManager->Create<CBaseRenderTarget>("SelectionBuffer", renderTargetParams);
 			mpReadableSelectionBuffer = mpResourceManager->Create<CBaseTexture2D>("SelectionBufferCPUCopy", renderTargetParams);
 		}
+
+		mWindowHeaderHeight = height - mpWindowSystem->GetClientRect().height;
 
 		return RC_OK;
 	}
