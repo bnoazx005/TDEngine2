@@ -132,7 +132,7 @@ namespace TDEngine2
 				\return A pointer to texture's memory, which size equals to width * height * bytes_per_channel
 			*/
 
-			TDE2_API std::unique_ptr<U8[]> GetInternalData() override;
+			TDE2_API std::vector<U8> GetInternalData() override;
 
 			/*!
 				\brief The method returns a pointer to D3D11 internal texture's representation. Should be not 

@@ -96,7 +96,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	std::unique_ptr<U8[]> CD3D11Texture2D::GetInternalData()
+	std::vector<U8> CD3D11Texture2D::GetInternalData()
 	{
 		/// \note create temporary texture with D3D11_USAGE_STAGING flag
 		ID3D11Texture2D* pTempTexture = _createD3D11TextureResource(mpGraphicsContext, mWidth, mHeight, mFormat, mNumOfMipLevels, mNumOfSamples, mSamplingQuality, DTAT_CPU_READ).Get();
@@ -123,15 +123,15 @@ namespace TDEngine2
 
 		U64 size = mWidth * mHeight * CD3D11Mappings::GetFormatSize(mFormat);
 
-		std::unique_ptr<U8[]> pPixelsData{ new U8[size] };
+		std::vector<U8> pixelsData(size);
 
-		memcpy(pPixelsData.get(), mappedData.pData, size);
+		memcpy(&pixelsData[0], mappedData.pData, size);
 
 		mp3dDeviceContext->Unmap(pTempTexture, 0);
 
 		pTempTexture->Release();
 
-		return std::move(pPixelsData);
+		return std::move(pixelsData);
 	}
 
 	ID3D11Texture2D* CD3D11Texture2D::GetInternalTexturePtr() const

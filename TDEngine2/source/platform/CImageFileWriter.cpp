@@ -42,7 +42,7 @@ namespace TDEngine2
 		I8 numOfChannels = CFormatUtils::GetNumOfChannelsOfFormat(pTexture->GetFormat());
 
 		auto pTextureData = pTexture->GetInternalData();
-		U8* pData = pTextureData.get();
+		U8* pData = &pTextureData[0];
 		
 		switch (imageType)
 		{

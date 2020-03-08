@@ -116,7 +116,7 @@ namespace TDEngine2
 				\return A pointer to texture's memory, which size equals to width * height * bytes_per_channel
 			*/
 
-			TDE2_API std::unique_ptr<U8[]> GetInternalData() override;
+			TDE2_API std::vector<U8> GetInternalData() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLTexture2D)
 

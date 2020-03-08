@@ -95,14 +95,13 @@ namespace TDEngine2
 		{
 			U32 textureLineStride = 4 * pSelectionTexture->GetWidth();
 
-			if (auto&& selectionMapData = pSelectionTexture->GetInternalData())
-			{
-				U32* pPixelData = reinterpret_cast<U32*>(&selectionMapData[y * textureLineStride + x]);
+			auto&& selectionMapData = pSelectionTexture->GetInternalData();
+			
+			U32* pPixelData = reinterpret_cast<U32*>(&selectionMapData[y * textureLineStride + x]);
 
-				TEntityId pickedEntityId = static_cast<TEntityId>(*pPixelData);
+			TEntityId pickedEntityId = static_cast<TEntityId>(*pPixelData);
 
-				return pickedEntityId;
-			}
+			return pickedEntityId;
 		}
 		
 		return InvalidEntityId;

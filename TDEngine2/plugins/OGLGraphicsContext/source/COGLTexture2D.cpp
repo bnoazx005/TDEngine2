@@ -78,19 +78,19 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	std::unique_ptr<U8[]> COGLTexture2D::GetInternalData()
+	std::vector<U8> COGLTexture2D::GetInternalData()
 	{
-		std::unique_ptr<U8[]> pPixelData { new U8[mWidth * mHeight * COGLMappings::GetFormatSize(mFormat)] };
+		std::vector<U8> pPixelData(mWidth * mHeight * COGLMappings::GetFormatSize(mFormat));
 
 		GLenum textureFormat = COGLMappings::GetPixelDataFormat(mFormat);
 		textureFormat = (textureFormat == GL_RED_INTEGER) ? GL_RED : textureFormat;
 
 		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
-		GL_SAFE_VOID_CALL(glGetTexImage(GL_TEXTURE_2D, 0, textureFormat, GL_UNSIGNED_BYTE, reinterpret_cast<void*>(pPixelData.get())));
+		GL_SAFE_VOID_CALL(glGetTexImage(GL_TEXTURE_2D, 0, textureFormat, GL_UNSIGNED_BYTE, reinterpret_cast<void*>(&pPixelData[0])));
 		
 		if (COGLMappings::GetErrorCode(glGetError()) != RC_OK)
 		{
-			return nullptr;
+			return {};
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
