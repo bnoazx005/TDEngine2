@@ -121,8 +121,7 @@ namespace TDEngine2
 	{
 		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite>();
 
-		mTransforms.clear();
-		
+		mTransforms.clear();		
 		mSprites.clear();
 
 		CEntity* pCurrEntity = nullptr;
@@ -130,15 +129,16 @@ namespace TDEngine2
 		for (auto iter = entities.begin(); iter != entities.end(); ++iter)
 		{
 			pCurrEntity = pWorld->FindEntity(*iter);
-
 			if (!pCurrEntity)
 			{
 				continue;
 			}
 
 			mTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
-
 			mSprites.push_back(pCurrEntity->GetComponent<CQuadSprite>());
+
+			TDE2_ASSERT(mTransforms.back());
+			TDE2_ASSERT(mSprites.back());
 		}
 	}
 

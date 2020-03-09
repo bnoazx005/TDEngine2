@@ -95,7 +95,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		U32 componentHashValue = mComponentsHashTable[componentHashValue];
+		U32 componentHashValue = mComponentsHashTable[componentTypeId];
 
 		IComponent* pComponent = mActiveComponents[componentHashValue][targetEntityComponentHash - 1];
 
@@ -111,7 +111,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mActiveComponents[targetEntityComponentHash][targetEntityComponentHash - 1] = nullptr;
+		mActiveComponents[componentHashValue][targetEntityComponentHash - 1] = nullptr;
 		
 		// mark handlers as invalid
 		mComponentEntityMap[componentTypeId][entityId] = 0;
@@ -174,6 +174,11 @@ namespace TDEngine2
 		{
 			componentType = currEntityComponentPair.first;
 			hashValue = currEntityComponentPair.second - 1;
+
+			if (hashValue == (std::numeric_limits<U32>::max)()) // \note this means that there is no component of given type on this entity
+			{
+				continue;
+			}
 
 			componentTypeHashValue = mComponentsHashTable[componentType];
 

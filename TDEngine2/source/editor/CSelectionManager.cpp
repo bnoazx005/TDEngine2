@@ -121,7 +121,8 @@ namespace TDEngine2
 			// \note mark the entity as selected via adding CSelectedEntityComponent
 			if (CEntity* pSelectedEntity = mpWorld->FindEntity(mLastSelectedEntityID))
 			{
-				pSelectedEntity->AddComponent<CSelectedEntityComponent>();
+				auto pSelectedEntityComponent = pSelectedEntity->AddComponent<CSelectedEntityComponent>();
+				TDE2_ASSERT(pSelectedEntityComponent);
 			}
 
 			return mLastSelectedEntityID;
