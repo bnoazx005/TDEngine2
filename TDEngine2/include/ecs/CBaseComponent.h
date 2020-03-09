@@ -10,6 +10,7 @@
 #include "IComponent.h"
 #include "./../core/CBaseObject.h"
 #include "./../core/Event.h"
+#include "./../ecs/IComponentFactory.h"
 #include <vector>
 
 
@@ -180,4 +181,126 @@ namespace TDEngine2
 
 		TComponentTypeId mRemovedComponentTypeId;
 	} TOnComponentRemovedEvent, *TOnComponentRemovedEventPtr;
+
+
+#define TDE2_COMPONENT_CLASS_NAME(ComponentName)			C ## ComponentName
+#define TDE2_COMPONENT_FUNCTION_NAME(ComponentName)			Create ## ComponentName
+#define TDE2_COMPONENT_FACTORY_NAME(ComponentName)			C ## ComponentName ## Factory
+#define TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName)	Create ## ComponentName ## Factory
+	
+
+#define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)	\
+	TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE& result);															\
+																															\
+	class ComponentName : public CBaseComponent																				\
+	{																														\
+		public:																												\
+			friend TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE&);													\
+			TDE2_REGISTER_TYPE(ComponentName)																				\
+		protected:																											\
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)															\
+	};																														\
+																															\
+	TDE2_API IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE&);													\
+																															\
+	class ComponentFactoryName : public IComponentFactory, public CBaseObject												\
+	{																														\
+		public:																												\
+			friend TDE2_API IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE& result);								\
+		public:																												\
+			TDE2_API E_RESULT_CODE Free() override;																			\
+			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;							\
+			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;						\
+			TDE2_API TypeId GetComponentTypeId() const override;															\
+		protected:																											\
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentFactoryName)													\
+	};
+
+/*!
+	\brief The macro is used to define so called component-flag which just marks an entity and doesn't
+	contain any data
+*/
+
+#define TDE2_DECLARE_FLAG_COMPONENT(ComponentName) TDE2_DECLARE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),				\
+																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
+																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
+																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
+
+	/*!
+		\brief The macro is used to define all methods which were declared using TDE2_DECLARE_FLAG_COMPONENT.
+		Note that the macro should be invoked only within *.cpp files to avoid circular dependencies
+	*/
+
+#define TDE2_DEFINE_FLAG_COMPONENT(ComponentName)																										\
+	TDE2_COMPONENT_CLASS_NAME(ComponentName)::TDE2_COMPONENT_CLASS_NAME(ComponentName)() : CBaseComponent() { mIsInitialized = true; }					\
+																																						\
+	IComponent* TDE2_COMPONENT_FUNCTION_NAME(ComponentName)(E_RESULT_CODE& result)																		\
+	{																																					\
+		TDE2_COMPONENT_CLASS_NAME(ComponentName)* pComponentNameInstance = new (std::nothrow) TDE2_COMPONENT_CLASS_NAME(ComponentName)();				\
+																																						\
+		if (!pComponentNameInstance)																													\
+		{																																				\
+			result = RC_OUT_OF_MEMORY;																													\
+			return nullptr;																																\
+		}																																				\
+																																						\
+		return pComponentNameInstance;																													\
+	}																																					\
+																																						\
+	TDE2_COMPONENT_FACTORY_NAME(ComponentName)::TDE2_COMPONENT_FACTORY_NAME(ComponentName)() :	CBaseObject() { mIsInitialized = true; }				\
+																																						\
+	E_RESULT_CODE TDE2_COMPONENT_FACTORY_NAME(ComponentName)::Free()																					\
+	{																																					\
+		if (!mIsInitialized)																															\
+		{																																				\
+			return RC_FAIL;																																\
+		}																																				\
+																																						\
+		mIsInitialized = false;																															\
+		delete this;																																	\
+																																						\
+		return RC_OK;																																	\
+	}																																					\
+																																						\
+	IComponent* TDE2_COMPONENT_FACTORY_NAME(ComponentName)::Create(const TBaseComponentParameters* pParams) const										\
+	{																																					\
+		if (!pParams)																																	\
+		{																																				\
+			return nullptr;																																\
+		}																																				\
+																																						\
+		E_RESULT_CODE result = RC_OK;																													\
+		return TDE2_COMPONENT_FUNCTION_NAME(ComponentName)(result);																						\
+	}																																					\
+																																						\
+	IComponent* TDE2_COMPONENT_FACTORY_NAME(ComponentName)::CreateDefault(const TBaseComponentParameters& params) const									\
+	{																																					\
+		E_RESULT_CODE result = RC_OK;																													\
+		return TDE2_COMPONENT_FUNCTION_NAME(ComponentName)(result);																						\
+	}																																					\
+																																						\
+	TypeId TDE2_COMPONENT_FACTORY_NAME(ComponentName)::GetComponentTypeId() const																		\
+	{																																					\
+		return TDE2_COMPONENT_CLASS_NAME(ComponentName)::GetTypeId();																					\
+	}																																					\
+																																						\
+	IComponentFactory* TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName)(E_RESULT_CODE& result)														\
+	{																																					\
+		TDE2_COMPONENT_FACTORY_NAME(ComponentName)* pComponentNameFactoryInstance = new (std::nothrow) TDE2_COMPONENT_FACTORY_NAME(ComponentName)();	\
+																																						\
+		if (!pComponentNameFactoryInstance)																												\
+		{																																				\
+			result = RC_OUT_OF_MEMORY;																													\
+			return nullptr;																																\
+		}																																				\
+																																						\
+		if (result != RC_OK)																															\
+		{																																				\
+			delete pComponentNameFactoryInstance;																										\
+			pComponentNameFactoryInstance = nullptr;																									\
+		}																																				\
+																																						\
+		return pComponentNameFactoryInstance;																											\
+	}
+
 }
