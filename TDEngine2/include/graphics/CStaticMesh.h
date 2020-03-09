@@ -9,10 +9,14 @@
 
 #include "IMesh.h"
 #include "./../core/CBaseResource.h"
+#include "./../graphics/IIndexBuffer.h"
 
 
 namespace TDEngine2
 {
+	class IGraphicsObjectManager;
+
+
 	/*!
 		\brief A factory function for creation objects of CStaticMesh's type
 
@@ -92,6 +96,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Load() override;
+
+			/*!
+				\brief The method process internal state of the mesh after it was actually loaded
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE PostLoad() override;
 
 			/*!
 				\brief The method unloads resource data from memory
@@ -179,6 +191,38 @@ namespace TDEngine2
 			TDE2_API std::vector<U8> ToArrayOfStructsDataLayout() const override;
 
 			/*!
+				\brief The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
+
+				\return The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
+			*/
+
+			TDE2_API IVertexBuffer* GetSharedVertexBuffer() const override;
+
+			/*!
+				\brief The method returns a pointer to a vertex buffer that contains only positions of vertices
+
+				\return The method returns a pointer to a vertex buffer that contains only positions of vertices
+			*/
+
+			TDE2_API IVertexBuffer* GetPositionOnlyVertexBuffer() const override;
+
+			/*!
+				\brief The method returns a pointer to IIndexBuffer which stores all index data of the mesh
+
+				\return The method returns a pointer to IIndexBuffer which stores all index data of the mesh
+			*/
+
+			TDE2_API IIndexBuffer* GetSharedIndexBuffer() const override;
+
+			/*!
+				\brief The method returns a number of faces in the mesh
+
+				\return The method returns a number of faces in the mesh
+			*/
+
+			TDE2_API U32 GetFacesCount() const override;
+
+			/*!
 				\brief The function creates a new static mesh resource which is a cube
 
 				\param[in, out] pResourceManager A pointer to IResourceManager
@@ -189,18 +233,27 @@ namespace TDEngine2
 			TDE2_API static IStaticMesh* CreateCube(IResourceManager* pResourceManager);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
+
+			TDE2_API std::vector<U8> _getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const;
 		protected:
-			TPositionsArray   mPositions;
+			IGraphicsObjectManager* mpGraphicsObjectManager;
 
-			TVertexColorArray mVertexColors;
+			TPositionsArray         mPositions;
 
-			TNormalsArray     mNormals;
+			TVertexColorArray       mVertexColors;
+
+			TNormalsArray           mNormals;
 			
-			TTangentsArray    mTangents;
+			TTangentsArray          mTangents;
 
-			TTexcoordsArray   mTexcoords0;
+			TTexcoordsArray         mTexcoords0;
 
-			TIndicesArray     mIndices;
+			TIndicesArray           mIndices;
+
+			IVertexBuffer*          mpSharedVertexBuffer;
+			IVertexBuffer*          mpPositionOnlyVertexBuffer;
+
+			IIndexBuffer*           mpSharedIndexBuffer;
 	};
 
 

@@ -32,7 +32,6 @@ namespace TDEngine2
 		\brief A factory function for creation objects of CObjectsSelectionSystem's type.
 
 		\param[in, out] pRenderer A pointer to IRenderer implementation
-
 		\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -52,7 +51,7 @@ namespace TDEngine2
 	class CObjectsSelectionSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateObjectsSelectionSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateObjectsSelectionSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 		public:
 			typedef std::vector<TEntityId> TEntitiesArray;
 		public:

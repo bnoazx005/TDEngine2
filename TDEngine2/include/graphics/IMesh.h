@@ -21,6 +21,10 @@
 
 namespace TDEngine2
 {
+	class IVertexBuffer;
+	class IIndexBuffer;
+
+
 	/*!
 		struct TMesh2DParameters
 
@@ -40,6 +44,30 @@ namespace TDEngine2
 
 	class IMesh
 	{
+		public:
+			/*!
+				\brief The method process internal state of the mesh after it was actually loaded
+				
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+			
+			TDE2_API virtual E_RESULT_CODE PostLoad() = 0;
+
+			/*!
+				\brief The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
+				
+				\return The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
+			*/
+
+			TDE2_API virtual IVertexBuffer* GetSharedVertexBuffer() const = 0;
+			
+			/*!
+				\brief The method returns a pointer to IIndexBuffer which stores all index data of the mesh
+
+				\return The method returns a pointer to IIndexBuffer which stores all index data of the mesh
+			*/
+
+			TDE2_API virtual IIndexBuffer* GetSharedIndexBuffer() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMesh)
 	};
@@ -155,6 +183,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual std::vector<U8> ToArrayOfStructsDataLayout() const = 0;
+
+			/*!
+				\brief The method returns a number of faces in the mesh
+				
+				\return The method returns a number of faces in the mesh
+			*/
+
+			TDE2_API virtual U32 GetFacesCount() const = 0;
+
+			/*!
+				\brief The method returns a pointer to a vertex buffer that contains only positions of vertices
+
+				\return The method returns a pointer to a vertex buffer that contains only positions of vertices
+			*/
+
+			TDE2_API virtual IVertexBuffer* GetPositionOnlyVertexBuffer() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStaticMesh)
 	};

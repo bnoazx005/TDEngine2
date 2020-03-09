@@ -2,7 +2,10 @@
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/core/IFile.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/core/IGraphicsContext.h"
+#include "./../../include/graphics/IGraphicsObjectManager.h"
 #include <cstring>
+#include <climits>
 
 
 namespace TDEngine2
@@ -26,6 +29,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mpGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
 		mState = RST_LOADED;
 
 		mIsInitialized = true;
@@ -47,6 +52,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
 		mState = RST_LOADED;
 
@@ -81,6 +88,46 @@ namespace TDEngine2
 		mState = RST_LOADED;
 
 		return result;
+	}
+
+	E_RESULT_CODE CStaticMesh::PostLoad()
+	{
+		// create shared buffers for the mesh
+		auto&& vertices = ToArrayOfStructsDataLayout();
+
+		auto vertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, vertices.size(), &vertices[0]);
+		if (vertexBufferResult.HasError())
+		{
+			return vertexBufferResult.GetError();
+		}
+
+		mpSharedVertexBuffer = vertexBufferResult.Get();
+
+		// \note create a position-only vertex buffer
+		// \todo In future may be it's better to split shared VB into separate channels
+
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, mPositions.size() * sizeof(TVector4), &mPositions[0]);
+		if (positionOnlyVertexBufferResult.HasError())
+		{
+			return positionOnlyVertexBufferResult.GetError();
+		}
+
+		mpPositionOnlyVertexBuffer = positionOnlyVertexBufferResult.Get();
+
+		U32 indicesCount = mIndices.size();
+		E_INDEX_FORMAT_TYPE indexFormatType = indicesCount < (std::numeric_limits<U16>::max)() ? IFT_INDEX16 : IFT_INDEX32;
+
+		std::vector<U8> indices = _getIndicesArray(indexFormatType);
+
+		auto indexBufferResult = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, indexFormatType, indicesCount * static_cast<U32>(indexFormatType), &indices[0]);
+		if (indexBufferResult.HasError())
+		{
+			return indexBufferResult.GetError();
+		}
+
+		mpSharedIndexBuffer = indexBufferResult.Get();
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CStaticMesh::Unload()
@@ -200,6 +247,50 @@ namespace TDEngine2
 		return bytes;
 	}
 
+	U32 CStaticMesh::GetFacesCount() const
+	{
+		return mIndices.size() / 3;
+	}
+
+	IVertexBuffer* CStaticMesh::GetSharedVertexBuffer() const
+	{
+		return mpSharedVertexBuffer;
+	}
+
+	IVertexBuffer* CStaticMesh::GetPositionOnlyVertexBuffer() const
+	{
+		return mpPositionOnlyVertexBuffer;
+	}
+
+	IIndexBuffer* CStaticMesh::GetSharedIndexBuffer() const
+	{
+		return mpSharedIndexBuffer;
+	}
+
+	std::vector<U8> CStaticMesh::_getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const
+	{
+		std::vector<U8> indicesBytesArray(static_cast<U32>(indexFormat) * mIndices.size());
+
+		U8* pPtr = &indicesBytesArray[0];
+
+		for (auto&& currIndex : mIndices)
+		{
+			switch (indexFormat)
+			{
+				case IFT_INDEX16:
+					*reinterpret_cast<U16*>(pPtr) = currIndex;
+					break;
+				case IFT_INDEX32:
+					*reinterpret_cast<U32*>(pPtr) = currIndex;
+					break;
+			}
+
+			pPtr += static_cast<U32>(indexFormat);
+		}
+
+		return indicesBytesArray;
+	}
+
 
 	IStaticMesh* CStaticMesh::CreateCube(IResourceManager* pResourceManager)
 	{
@@ -262,6 +353,8 @@ namespace TDEngine2
 			pCubeMeshResource->AddFace(&indices[index]);
 			pCubeMeshResource->AddFace(&indices[index + 3]);
 		}
+
+		PANIC_ON_FAILURE(pCubeMeshResource->PostLoad());
 
 		return pCubeMeshResource;
 	}
@@ -383,10 +476,12 @@ namespace TDEngine2
 		IBinaryMeshFileReader* pMeshFileReader = dynamic_cast<IBinaryMeshFileReader*>(mpFileSystem->Get<IBinaryMeshFileReader>(meshFileId.Get()));		
 		IMesh* pMesh = dynamic_cast<IMesh*>(pResource);
 
-		if ((result = pMeshFileReader->LoadMesh(pMesh)) != RC_OK)
+		if ((result = pMeshFileReader->LoadMesh(pMesh)) != RC_OK ||
+			(result = pMesh->PostLoad()) != RC_OK)
 		{
 			return result;
 		}
+		
 
 		return RC_OK;
 	}

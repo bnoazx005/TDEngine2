@@ -5,6 +5,7 @@
 #include "./../../include/graphics/COrthoCamera.h"
 #include "./../../include/graphics/CPerspectiveCamera.h"
 #include "./../../include/graphics/CStaticMeshContainer.h"
+#include "./../../include/graphics/CStaticMesh.h"
 #include "./../../include/graphics/CQuadSprite.h"
 #include "./../../include/graphics/IVertexDeclaration.h"
 #include "./../../include/graphics/IVertexBuffer.h"
@@ -196,7 +197,7 @@ namespace TDEngine2
 		{
 			"Selection", false,
 			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
-			{ E_CULL_MODE::BACK, false, false, 0.0f, 1.0f, false }
+			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
 		};
 
 		mpSelectionMaterial = mpResourceManager->Create<CBaseMaterial>("SelectionMaterial.material", selectionMaterialParams);
@@ -207,8 +208,38 @@ namespace TDEngine2
 	void CObjectsSelectionSystem::_processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity)
 	{
 		CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>();
+		CTransform* pTransform = pEntity->GetComponent<CTransform>();
 		
-		// NOT IMPLEMENTED YET
+		// Skip skybox geometry
+		// \todo Reimplement this later with CSkyboxComponent
+		IResourceHandler* pMeshMaterialHandler = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName());
+		if (IMaterial* pMeshMainMaterial = pMeshMaterialHandler->Get<IMaterial>(RAT_BLOCKING))
+		{
+			if (pMeshMainMaterial->GetGeometrySubGroupTag() == E_GEOMETRY_SUBGROUP_TAGS::SKYBOX)
+			{
+				return;
+			}
+		}
+
+		IResourceHandler* pMeshResourceHandler = mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName());
+		TDE2_ASSERT(pMeshResourceHandler->IsValid());
+		
+		if (IStaticMesh* pStaticMeshResource = pMeshResourceHandler->Get<IStaticMesh>(RAT_BLOCKING))
+		{
+			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
+			{
+				pDrawCommand->mpVertexBuffer           = pStaticMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mpIndexBuffer            = pStaticMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mpMaterialHandler        = mpSelectionMaterial;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
+				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
+				pDrawCommand->mObjectData.mObjectID    = pEntity->GetId();
+				pDrawCommand->mStartIndex              = 0;
+				pDrawCommand->mStartVertex             = 0;
+				pDrawCommand->mNumOfIndices            = pStaticMeshResource->GetFacesCount() * 3;
+			}
+		}
 	}
 
 	void CObjectsSelectionSystem::_processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity)
