@@ -136,6 +136,7 @@
 #include "editor/CProfilerEditorWindow.h"
 #include "editor/CLevelEditorWindow.h"
 #include "editor/ecs/CEditorCameraControlSystem.h"
+#include "editor/ecs/EditorComponents.h"
 #include "editor/CDevConsoleWindow.h"
 #include "editor/ISelectionManager.h"
 #include "editor/CSelectionManager.h"

@@ -235,7 +235,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		_notifyOnRemoveComponent(id, T::GetTypeId());
+		_notifyOnRemovedComponent(id, T::GetTypeId());
 
 		return result;
 	}

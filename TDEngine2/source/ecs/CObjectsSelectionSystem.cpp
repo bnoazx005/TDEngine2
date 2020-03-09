@@ -17,6 +17,7 @@
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CEntity.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/editor/ecs/EditorComponents.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -41,6 +42,7 @@ namespace TDEngine2
 		}
 
 		mpEditorOnlyRenderQueue = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY);
+		mpDebugRenderQueue      = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG);
 
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
@@ -56,7 +58,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		if ((result = _initSpriteBuffers()) != RC_OK ||
-			(result = _initSelectionMaterial()) != RC_OK)
+			(result = _initSelectionMaterials()) != RC_OK)
 		{
 			return result;
 		}
@@ -124,40 +126,25 @@ namespace TDEngine2
 
 			if (pCurrEntity->HasComponent<CStaticMeshContainer>())
 			{
-				_processStaticMeshEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity);
+				_processStaticMeshEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mpSelectionMaterial);
+
+				if (pCurrEntity->HasComponent<CSelectedEntityComponent>())
+				{
+					_processStaticMeshEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mpSelectionOutlineMaterial);
+				}
 			}
 			else if (pCurrEntity->HasComponent<CQuadSprite>())
 			{
-				_processSpriteEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity);
+				_processSpriteEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mpSelectionMaterial);
+
+				if (pCurrEntity->HasComponent<CSelectedEntityComponent>())
+				{
+					_processSpriteEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mpSelectionOutlineMaterial);
+				}
 			}
 			
 			++commandIndex;
 		}
-
-		// add all visible object into the queue
-
-		//ICamera* pCameraComponent = GetValidPtrOrDefault<ICamera*>(mpCameraEntity->GetComponent<CPerspectiveCamera>(), mpCameraEntity->GetComponent<COrthoCamera>());
-
-		//// \note first pass (construct an array of materials)
-		//// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
-		//_collectUsedMaterials(mProcessingEntities, mpResourceManager, mCurrMaterialsArray);
-
-		//auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.cbegin(), mCurrMaterialsArray.cend(), [](const IMaterial* pCurrMaterial)
-		//{
-		//	return pCurrMaterial->IsTransparent();
-		//});
-
-		//// \note construct commands for opaque geometry
-		//std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pCameraComponent](const IMaterial* pCurrMaterial)
-		//{
-		//	_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, pCurrMaterial, pCameraComponent);
-		//});
-
-		//// \note construct commands for transparent geometry
-		//std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pCameraComponent](const IMaterial* pCurrMaterial)
-		//{
-		//	_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, pCurrMaterial, pCameraComponent);
-		//});
 	}
 
 	E_RESULT_CODE CObjectsSelectionSystem::_initSpriteBuffers()
@@ -191,21 +178,29 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CObjectsSelectionSystem::_initSelectionMaterial()
+	E_RESULT_CODE CObjectsSelectionSystem::_initSelectionMaterials()
 	{
-		TMaterialParameters selectionMaterialParams
+		const static TMaterialParameters selectionMaterialParams
 		{
 			"Selection", false,
 			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
 			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
 		};
 
-		mpSelectionMaterial = mpResourceManager->Create<CBaseMaterial>("SelectionMaterial.material", selectionMaterialParams);
+		const static TMaterialParameters selectionOutlineMaterialParams
+		{
+			"SelectionOutline", false,
+			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
+			{ E_CULL_MODE::NONE, true, false, 0.0f, 1.0f, false }
+		};
 
-		return mpSelectionMaterial->IsValid() ? RC_OK : RC_FAIL;
+		mpSelectionMaterial        = mpResourceManager->Create<CBaseMaterial>("SelectionMaterial.material", selectionMaterialParams);
+		mpSelectionOutlineMaterial = mpResourceManager->Create<CBaseMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
+
+		return mpSelectionMaterial->IsValid() && mpSelectionOutlineMaterial->IsValid() ? RC_OK : RC_FAIL;
 	}
 
-	void CObjectsSelectionSystem::_processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity)
+	void CObjectsSelectionSystem::_processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, IResourceHandler* pMaterial)
 	{
 		CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>();
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
@@ -230,7 +225,7 @@ namespace TDEngine2
 			{
 				pDrawCommand->mpVertexBuffer           = pStaticMeshResource->GetPositionOnlyVertexBuffer();
 				pDrawCommand->mpIndexBuffer            = pStaticMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mpMaterialHandler        = mpSelectionMaterial;
+				pDrawCommand->mpMaterialHandler        = pMaterial;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
@@ -242,7 +237,7 @@ namespace TDEngine2
 		}
 	}
 
-	void CObjectsSelectionSystem::_processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity)
+	void CObjectsSelectionSystem::_processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, IResourceHandler* pMaterial)
 	{
 		CQuadSprite* pSpriteComponent = pEntity->GetComponent<CQuadSprite>();
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
@@ -251,7 +246,7 @@ namespace TDEngine2
 		{
 			pDrawCommand->mpVertexBuffer           = mpSpritesVertexBuffer;
 			pDrawCommand->mpIndexBuffer            = mpSpritesIndexBuffer;
-			pDrawCommand->mpMaterialHandler        = mpSelectionMaterial;
+			pDrawCommand->mpMaterialHandler        = pMaterial;
 			pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
 			pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());

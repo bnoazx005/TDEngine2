@@ -46,7 +46,7 @@ namespace TDEngine2
 		mpEventManager = pEventManager;
 
 		mpEventManager->Subscribe(TOnNewWorldInstanceCreated::GetTypeId(), this);
-
+		
 		mIsVisible = false;
 
 		if (!mpInputContext)

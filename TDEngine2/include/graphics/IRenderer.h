@@ -44,9 +44,10 @@ namespace TDEngine2
 
 	enum class E_GEOMETRY_SUBGROUP_TAGS: U32
 	{
-		BASE          = 0x0,
-		SKYBOX        = 0x1000,
-		IMAGE_EFFECTS = 0x0,
+		BASE              = 0x0,
+		SKYBOX            = 0x1000,
+		SELECTION_OUTLINE = 0xFFFFFFF0,
+		IMAGE_EFFECTS     = 0x0,
 	};
 
 

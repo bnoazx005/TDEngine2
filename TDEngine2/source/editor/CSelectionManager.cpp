@@ -2,6 +2,8 @@
 #include "./../../include/editor/IEditorsManager.h"
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CObjectsSelectionSystem.h"
+#include "./../../include/ecs/CEntity.h"
+#include "./../../include/editor/ecs/EditorComponents.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IResourceHandler.h"
@@ -40,7 +42,7 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 
 		mpSelectionGeometryBuffer = nullptr;
-
+		
 		E_RESULT_CODE result = _createRenderTarget(mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight());
 		if (result != RC_OK)
 		{
@@ -96,6 +98,15 @@ namespace TDEngine2
 		I32 x = std::lround(position.x);
 		I32 y = std::lround(position.y) + mWindowHeaderHeight;
 
+		// \note reset selection
+		if (mLastSelectedEntityID != InvalidEntityId)
+		{
+			if (CEntity* pSelectedEntity = mpWorld->FindEntity(mLastSelectedEntityID))
+			{
+				PANIC_ON_FAILURE(pSelectedEntity->RemoveComponent<CSelectedEntityComponent>());
+			}
+		}
+
 		if (auto pSelectionTexture = mpReadableSelectionBuffer->Get<ITexture2D>(RAT_BLOCKING))
 		{
 			y = pSelectionTexture->GetHeight() - y;
@@ -105,7 +116,15 @@ namespace TDEngine2
 			// \note multiply by 4, where 4 is a size of a single pixel data
 			U32* pPixelData = reinterpret_cast<U32*>(&selectionMapData[(y * pSelectionTexture->GetWidth() + x) << 2]);
 
-			return (mLastSelectedEntityID = static_cast<TEntityId>(*pPixelData) - 1);
+			mLastSelectedEntityID = static_cast<TEntityId>(*pPixelData) - 1;
+			
+			// \note mark the entity as selected via adding CSelectedEntityComponent
+			if (CEntity* pSelectedEntity = mpWorld->FindEntity(mLastSelectedEntityID))
+			{
+				pSelectedEntity->AddComponent<CSelectedEntityComponent>();
+			}
+
+			return mLastSelectedEntityID;
 		}
 		
 		return (mLastSelectedEntityID = InvalidEntityId);

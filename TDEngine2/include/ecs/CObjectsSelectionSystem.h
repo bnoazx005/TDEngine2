@@ -99,10 +99,10 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CObjectsSelectionSystem)
 
 			TDE2_API E_RESULT_CODE _initSpriteBuffers();
-			TDE2_API E_RESULT_CODE _initSelectionMaterial();
+			TDE2_API E_RESULT_CODE _initSelectionMaterials();
 
-			TDE2_API void _processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity);
-			TDE2_API void _processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity);
+			TDE2_API void _processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, IResourceHandler* pMaterial);
+			TDE2_API void _processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, IResourceHandler* pMaterial);
 
 			TDE2_API ICamera* _getEditorCamera(IWorld* pWorld, TEntityId cameraEntityId);
 		protected:
@@ -113,6 +113,7 @@ namespace TDEngine2
 			IResourceManager*       mpResourceManager;
 
 			CRenderQueue*           mpEditorOnlyRenderQueue;
+			CRenderQueue*           mpDebugRenderQueue;
 
 			TEntityId               mCameraEntityId;
 
@@ -122,6 +123,7 @@ namespace TDEngine2
 			IIndexBuffer*           mpSpritesIndexBuffer;
 
 			IResourceHandler*       mpSelectionMaterial;
+			IResourceHandler*       mpSelectionOutlineMaterial;
 	};
 }
 
