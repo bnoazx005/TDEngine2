@@ -124,6 +124,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	TDE2_PROFILER_SCOPE("OnUpdate");
 
+#if 0
 	/// \note ImGUI tests
 	{
 		TDE2_PROFILER_SCOPE("Test");
@@ -163,6 +164,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		}
 		imgui->EndWindow();
 	}	
+#endif
 
 	CTransform* pCameraTransform = mpCameraEntity->GetComponent<CTransform>();
 	

@@ -198,8 +198,6 @@ namespace TDEngine2
 					return RC_FAIL;
 				}
 
-				mpGraphicsContext->ClearDepthBuffer(1.0f);
-
 				executeCommands(pCurrCommandBuffer, true);
 			}) != RC_OK)
 			{

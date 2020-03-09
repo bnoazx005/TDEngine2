@@ -51,6 +51,15 @@ namespace TDEngine2
 			TDE2_API void ClearBackBuffer(const TColor32F& color) override;
 
 			/*!
+				\brief The method clears up render target with specified color
+
+				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
+				\param[in] color The new color of a render target
+			*/
+
+			TDE2_API void ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color) override;
+
+			/*!
 				\brief The method clears up depth buffer with specified values
 
 				\param[in] value The depth buffer will be cleared with this value

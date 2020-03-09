@@ -78,6 +78,9 @@ namespace TDEngine2
 
 		mpGraphicsContext->BindRenderTarget(pCurrRenderTarget);
 
+		mpGraphicsContext->ClearDepthBuffer(1.0f);
+		mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget, TColor32F(0.0f, 0.0f, 0.0f, 0.0f));
+
 		if (onDrawVisibleObjectsCallback)
 		{
 			onDrawVisibleObjectsCallback();

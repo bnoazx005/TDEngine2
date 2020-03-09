@@ -177,6 +177,24 @@ namespace TDEngine2
 		mp3dDeviceContext->ClearRenderTargetView(mpBackBufferView, clearColorArray);
 	}
 
+	void CD3D11GraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
+	{
+		if (!pRenderTarget)
+		{
+			return;
+		}
+
+		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
+	
+		auto pD3D11RenderTarget = dynamic_cast<CD3D11RenderTarget*>(pRenderTarget);
+		if (!pD3D11RenderTarget)
+		{
+			return;
+		}
+
+		mp3dDeviceContext->ClearRenderTargetView(pD3D11RenderTarget->GetRenderTargetView(), clearColorArray);
+	}
+
 	void CD3D11GraphicsContext::ClearDepthBuffer(F32 value)
 	{
 		mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_DEPTH, value, 0);

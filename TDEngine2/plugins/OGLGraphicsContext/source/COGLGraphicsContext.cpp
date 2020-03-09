@@ -129,6 +129,11 @@ namespace TDEngine2
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
+	void COGLGraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
+
 	void COGLGraphicsContext::ClearDepthBuffer(F32 value)
 	{
 		glClearDepthf(value);
