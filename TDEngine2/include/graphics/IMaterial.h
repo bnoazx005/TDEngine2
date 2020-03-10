@@ -51,7 +51,8 @@ namespace TDEngine2
 		*/
 
 		TDE2_API TMaterialParameters(const std::string& shaderName, bool isTransparent = false, const TDepthStencilStateDesc& depthStencilState = {},
-									 const TRasterizerStateDesc& rasterizerState = {});
+									 const TRasterizerStateDesc& rasterizerState = {},
+									 const TBlendStateDesc& blendState = {});
 
 		std::string            mShaderName;
 

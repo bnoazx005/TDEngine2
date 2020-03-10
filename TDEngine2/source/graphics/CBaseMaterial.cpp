@@ -20,8 +20,8 @@ namespace TDEngine2
 	*/
 
 	TMaterialParameters::TMaterialParameters(const std::string& shaderName, bool isTransparent, const TDepthStencilStateDesc& depthStencilState,
-											 const TRasterizerStateDesc& rasterizerState):
-		mShaderName(shaderName), mBlendingParams(), mDepthStencilParams(depthStencilState), mRasterizerParams(rasterizerState)
+											 const TRasterizerStateDesc& rasterizerState, const TBlendStateDesc& blendState):
+		mShaderName(shaderName), mBlendingParams(blendState), mDepthStencilParams(depthStencilState), mRasterizerParams(rasterizerState)
 	{
 		mBlendingParams.mIsEnabled = isTransparent;
 	}

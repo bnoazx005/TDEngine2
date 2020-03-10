@@ -189,11 +189,19 @@ namespace TDEngine2
 
 		const static TMaterialParameters selectionOutlineMaterialParams
 		{
-			"SelectionOutline", false,
-			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
-			{ E_CULL_MODE::NONE, true, false, 0.0f, 1.0f, false }
+			"SelectionOutline", true,
+			{ false, false, E_COMPARISON_FUNC::LESS_EQUAL},
+			{ E_CULL_MODE::NONE, true, false, 0.0f, 1.0f, false },
+			{ 
+				true,
+				E_BLEND_FACTOR_VALUE::SOURCE_ALPHA, 
+				E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA, 
+				E_BLEND_OP_TYPE::ADD, 
+				E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA, 
+				E_BLEND_FACTOR_VALUE::ZERO 
+			}
 		};
-
+		
 		mpSelectionMaterial        = mpResourceManager->Create<CBaseMaterial>("SelectionMaterial.material", selectionMaterialParams);
 		mpSelectionOutlineMaterial = mpResourceManager->Create<CBaseMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
 
