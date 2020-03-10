@@ -144,7 +144,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CForwardRenderer::Draw()
+	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::Draw");
 
@@ -153,7 +153,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		_prepareFrame();
+		_prepareFrame(currTime, deltaTime);
 
 		auto executeCommands = [this](CRenderQueue* pCommandsBuffer, bool shouldClearBuffers)
 		{
@@ -294,7 +294,7 @@ namespace TDEngine2
 		}
 	}
 
-	void CForwardRenderer::_prepareFrame()
+	void CForwardRenderer::_prepareFrame(F32 currTime, F32 deltaTime)
 	{
 		///set up global shader properties for TPerFrameShaderData buffer
 		TPerFrameShaderData perFrameShaderData;
@@ -304,6 +304,8 @@ namespace TDEngine2
 			perFrameShaderData.mProjMatrix = Transpose(mpMainCamera->GetProjMatrix());
 			perFrameShaderData.mViewMatrix = Transpose(mpMainCamera->GetViewMatrix());
 		}
+
+		perFrameShaderData.mTime = TVector4(currTime, deltaTime, 0.0f, 0.0f);
 
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));
 

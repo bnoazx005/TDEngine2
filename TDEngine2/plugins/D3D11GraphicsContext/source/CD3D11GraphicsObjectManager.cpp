@@ -431,7 +431,7 @@ namespace TDEngine2
 
 					float4 mainPS(float4 wPos : SV_POSITION): SV_TARGET0
 					{
-						return float4(1.0, 0.0, 1.0, 0.5);
+						return float4(1.0, 0.0, 1.0, abs(sin(4.0 * Time.x)));
 					}
 					#endprogram
 				)";

@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "./../math/TMatrix4.h"
+#include "./../math/TVector4.h"
 
 
 namespace TDEngine2
@@ -26,6 +27,8 @@ namespace TDEngine2
 		TMatrix4 mProjMatrix;
 
 		TMatrix4 mViewMatrix;
+
+		TVector4 mTime; ///< The vector contains time related values, where x is current game time, y is delta time 
 	} TPerFrameShaderData, *TPerFrameShaderDataPtr;
 
 

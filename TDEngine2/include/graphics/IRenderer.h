@@ -81,10 +81,13 @@ namespace TDEngine2
 			/*!
 				\brief The method sends all accumulated commands into GPU driver
 
+				\param[in] currTime Time elapsed since application launch
+				\param[in] deltaTime Time elapsed since last frame was rendered
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Draw() = 0;
+			TDE2_API virtual E_RESULT_CODE Draw(F32 currTime, F32 deltaTime) = 0;
 
 			/*!
 				\brief The method attaches a camera to the renderer

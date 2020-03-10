@@ -134,6 +134,7 @@ namespace TDEngine2
 		}
 
 		mpInternalTimer = pWindowSystem->GetTimer();
+		mpInternalTimer->Start();
 
 		mpInputContext = _getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT);
 		mpEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
@@ -297,7 +298,7 @@ namespace TDEngine2
 
 		if (pRenderer)
 		{
-			pRenderer->Draw();
+			pRenderer->Draw(mpInternalTimer->GetCurrTime(), mpInternalTimer->GetDeltaTime());
 		}
 
 #if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
