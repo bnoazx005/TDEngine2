@@ -73,10 +73,5 @@ TEST_CASE("CResourceContainer Tests")
 		container.RemoveAll();
 
 		REQUIRE(container.GetSize() == expectedContainer.size()); /// the size of the container remains the same
-
-		for (U32 i = 0; i < container.GetSize(); ++i) /// but all values contains a default value
-		{
-			REQUIRE(0 == container[i].Get());
-		}
 	}
 }
