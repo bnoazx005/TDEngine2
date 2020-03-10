@@ -57,10 +57,10 @@ namespace TDEngine2
 		z = vec4.z;
 		w = vec4.w;
 
-		x = 0.0f;
-		y = 0.0f;
-		z = 0.0f;
-		w = 0.0f;
+		vec4.x = 0.0f;
+		vec4.y = 0.0f;
+		vec4.z = 0.0f;
+		vec4.w = 0.0f;
 
 		return *this;
 	}
