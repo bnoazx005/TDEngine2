@@ -160,6 +160,11 @@ namespace TDEngine2
 	{
 		glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 	}
+	
+	void COGLGraphicsContext::SetScissorRect(const TRectF32& scissorRect)
+	{
+		GL_SAFE_VOID_CALL(glScissor(scissorRect.x, scissorRect.y, scissorRect.width, scissorRect.height));
+	}
 
 	TMatrix4 COGLGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
 	{

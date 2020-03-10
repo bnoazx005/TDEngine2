@@ -11,6 +11,7 @@
 #include "IEngineSubsystem.h"
 #include "./../utils/Color.h"
 #include "./../math/TMatrix4.h"
+#include "./../math/TRect.h"
 #include "./../graphics/IIndexBuffer.h"
 
 
@@ -112,6 +113,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth) = 0;
+
+			/*!
+				\brief The method specifies rectangle for scissor testing, all the geometry outside of which
+				is rejected
+
+				\param[in] scissorRect A rectangle for scissor test
+			*/
+
+			TDE2_API virtual void SetScissorRect(const TRectF32& scissorRect) = 0;
 
 			/*!
 				\brief The method computes a perspective projection matrix specific for a graphics context

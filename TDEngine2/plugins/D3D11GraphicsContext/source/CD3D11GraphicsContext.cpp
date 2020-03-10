@@ -226,6 +226,18 @@ namespace TDEngine2
 		mp3dDeviceContext->RSSetViewports(1, &viewport);
 	}
 	
+	void CD3D11GraphicsContext::SetScissorRect(const TRectF32& scissorRect)
+	{
+		D3D11_RECT internalScissorRect;
+
+		internalScissorRect.left   = scissorRect.x;
+		internalScissorRect.top    = scissorRect.y;
+		internalScissorRect.right  = scissorRect.x + scissorRect.width;
+		internalScissorRect.bottom = scissorRect.y + scissorRect.height;
+
+		mp3dDeviceContext->RSSetScissorRects(1, &internalScissorRect);
+	}
+	
 	TMatrix4 CD3D11GraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
 	{
 		return PerspectiveProj(fov, aspect, zn, zf, 0.0f, 1.0f, -1.0f);

@@ -95,6 +95,15 @@ namespace TDEngine2
 			TDE2_API void SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth) override;
 
 			/*!
+				\brief The method specifies rectangle for scissor testing, all the geometry outside of which
+				is rejected
+
+				\param[in] scissorRect A rectangle for scissor test
+			*/
+
+			TDE2_API void SetScissorRect(const TRectF32& scissorRect) override;
+
+			/*!
 				\brief The method computes a perspective projection matrix specific for a graphics context
 
 				\param[in] fov A field of view
