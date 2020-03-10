@@ -104,7 +104,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		{ 
 			mpFileSystem->ResolveVirtualPath(CStringUtils::Format("vfs://Shaders/Default/DefaultSkyboxShader_{0}.shader", ShaderType), false), true,
 			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL}, 
-			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
+			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, true, false }
 		};
 
 		IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("DefaultSkybox.material", skyboxMatParams)->Get<IMaterial>(RAT_BLOCKING);
