@@ -79,6 +79,15 @@ namespace TDEngine2
 			TDE2_API virtual void ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color) = 0;
 
 			/*!
+				\brief The method clears up render target with specified color
+
+				\param[in] slot A slot into which the render target that should be cleared up is bound
+				\param[in] color The new color of a render target
+			*/
+
+			TDE2_API virtual void ClearRenderTarget(U8 slot, const TColor32F& color) = 0;
+
+			/*!
 				\brief The method clears up depth buffer with specified values
 
 				\param[in] value The depth buffer will be cleared with this value
@@ -265,10 +274,12 @@ namespace TDEngine2
 			/*!
 				\brief The method binds a given render target object to rendering pipeline
 
+				\param[in] slot An index of the slot into which the render target will be bound
+
 				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
 			*/
 
-			TDE2_API virtual void BindRenderTarget(IRenderTarget* pRenderTarget) = 0;
+			TDE2_API virtual void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) = 0;
 
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.

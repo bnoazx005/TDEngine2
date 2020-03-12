@@ -60,6 +60,15 @@ namespace TDEngine2
 			TDE2_API void ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color) override;
 
 			/*!
+				\brief The method clears up render target with specified color
+
+				\param[in] slot A slot into which the render target that should be cleared up is bound
+				\param[in] color The new color of a render target
+			*/
+
+			TDE2_API void ClearRenderTarget(U8 slot, const TColor32F& color) override;
+
+			/*!
 				\brief The method clears up depth buffer with specified values
 
 				\param[in] value The depth buffer will be cleared with this value
@@ -245,10 +254,12 @@ namespace TDEngine2
 			/*!
 				\brief The method binds a given render target object to rendering pipeline
 
+				\param[in] slot An index of the slot into which the render target will be bound
+
 				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
 			*/
 
-			TDE2_API void BindRenderTarget(IRenderTarget* pRenderTarget) override;
+			TDE2_API void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) override;
 
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
@@ -311,6 +322,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _createDepthBuffer(U32 width, U32 height, IDXGISwapChain* pSwapChain, ID3D11Device* p3dDevice,
 													  ID3D11DepthStencilView** ppDepthStencilView, ID3D11Texture2D** pDepthStencilBuffer);
 		protected:
+			constexpr static U8      mMaxNumOfRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
+
 			ID3D11Device*            mp3dDevice;
 			ID3D11DeviceContext*     mp3dDeviceContext;
 			TGraphicsCtxInternalData mInternalDataObject;
@@ -318,7 +331,6 @@ namespace TDEngine2
 
 			IDXGISwapChain*          mpSwapChain;
 
-			ID3D11RenderTargetView*  mpPrevBufferView;
 			ID3D11RenderTargetView*  mpBackBufferView;
 
 			ID3D11DepthStencilView*  mpCurrDepthStencilView;
@@ -337,6 +349,9 @@ namespace TDEngine2
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
 			IEventManager*           mpEventManager;
+
+			ID3D11RenderTargetView*  mpRenderTargets[mMaxNumOfRenderTargets];
+			U8                       mCurrNumOfActiveRenderTargets = 0;
 	};
 
 

@@ -300,7 +300,7 @@ namespace TDEngine2
 		// \todo Implement support of depth bias and clipping
 	}
 
-	void COGLGraphicsContext::BindRenderTarget(IRenderTarget* pRenderTarget)
+	void COGLGraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
 	{
 		if (!pRenderTarget)
 		{

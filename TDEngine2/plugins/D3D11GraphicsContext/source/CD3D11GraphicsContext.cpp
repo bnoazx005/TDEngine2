@@ -3,6 +3,8 @@
 #include "./../include/CD3D11GraphicsObjectManager.h"
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11RenderTarget.h"
+#include <utils/CFileLogger.h>
+#include <utils/Utils.h>
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 
@@ -15,7 +17,7 @@
 namespace TDEngine2
 {
 	CD3D11GraphicsContext::CD3D11GraphicsContext() :
-		mIsInitialized(false), mpPrevBufferView(nullptr), mpCurrDepthStencilView(nullptr)
+		mIsInitialized(false), mpCurrDepthStencilView(nullptr)
 	{
 	}
 	
@@ -90,7 +92,6 @@ namespace TDEngine2
 		}
 
 		mpCurrDepthStencilView = mpDefaultDepthStencilView;
-		mpPrevBufferView = mpBackBufferView;
 
 		mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpDefaultDepthStencilView);
 
@@ -195,6 +196,25 @@ namespace TDEngine2
 		mp3dDeviceContext->ClearRenderTargetView(pD3D11RenderTarget->GetRenderTargetView(), clearColorArray);
 	}
 
+	void CD3D11GraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
+	{
+		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
+		if (slot >= mMaxNumOfRenderTargets)
+		{
+			return;
+		}
+
+		if (!mpRenderTargets[slot])
+		{
+			LOG_WARNING(CStringUtils::Format("[CD3D11GraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
+			return;
+		}
+
+		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
+
+		mp3dDeviceContext->ClearRenderTargetView(mpRenderTargets[slot], clearColorArray);
+	}
+
 	void CD3D11GraphicsContext::ClearDepthBuffer(F32 value)
 	{
 		mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_DEPTH, value, 0);
@@ -208,6 +228,8 @@ namespace TDEngine2
 	void CD3D11GraphicsContext::Present()
 	{
 		mpSwapChain->Present(mIsVSyncEnabled, 0);
+		
+		mCurrNumOfActiveRenderTargets = 1;
 	}
 
 	void CD3D11GraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
@@ -334,19 +356,26 @@ namespace TDEngine2
 		mp3dDeviceContext->RSSetState(pRasterizerState);
 	}
 
-	void CD3D11GraphicsContext::BindRenderTarget(IRenderTarget* pRenderTarget)
+	void CD3D11GraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
 	{
-		if (!pRenderTarget)
+		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
+		if (slot >= mMaxNumOfRenderTargets)
 		{
-			mpBackBufferView = mpPrevBufferView;
+			LOG_WARNING("[CD3D11GraphicsContext] Render target's slot goes out of limits");
+			return;
+		}
+
+		if (!slot && !pRenderTarget)
+		{
 			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
 			return;
 		}
 
-		mpPrevBufferView = mpBackBufferView;
-		mpBackBufferView = dynamic_cast<CD3D11RenderTarget*>(pRenderTarget)->GetRenderTargetView();
+		mpRenderTargets[slot] = dynamic_cast<CD3D11RenderTarget*>(pRenderTarget)->GetRenderTargetView();
+		
+		mCurrNumOfActiveRenderTargets = std::max<U8>(mCurrNumOfActiveRenderTargets, slot + 1);
 
-		mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
+		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, mpCurrDepthStencilView);
 	}
 
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const

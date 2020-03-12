@@ -14,6 +14,7 @@ namespace TDEngine2
 {
 	class IOGLContextFactory;
 	class IEventManager;
+	class IRenderTarget;
 
 
 	/// A pointer to function that creates GL context based on platform
@@ -259,10 +260,12 @@ namespace TDEngine2
 			/*!
 				\brief The method binds a given render target object to rendering pipeline
 
+				\param[in] slot An index of the slot into which the render target will be bound
+
 				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
 			*/
 
-			TDE2_API void BindRenderTarget(IRenderTarget* pRenderTarget) override;
+			TDE2_API void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) override;
 
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
@@ -321,6 +324,8 @@ namespace TDEngine2
 			TDE2_API virtual COGLGraphicsContext& operator= (COGLGraphicsContext& graphicsCtx) = delete;
 			TDE2_API virtual ~COGLGraphicsContext();
 		protected:
+			constexpr static U8             mMaxNumOfRenderTargets = 8;
+
 			TGraphicsCtxInternalData        mInternalDataObject;
 			bool                            mIsInitialized;
 			IOGLContextFactory*             mpGLContextFactory;
@@ -330,6 +335,8 @@ namespace TDEngine2
 			IGraphicsObjectManager*         mpGraphicsObjectManager;
 
 			IEventManager*                  mpEventManager;
+
+			IRenderTarget*                  mpRenderTargets[mMaxNumOfRenderTargets];
 	};
 
 

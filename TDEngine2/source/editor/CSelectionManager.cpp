@@ -78,7 +78,7 @@ namespace TDEngine2
 		IRenderTarget* pCurrRenderTarget   = mpSelectionGeometryBuffer->Get<IRenderTarget>(RAT_BLOCKING);
 		ITexture2D* pReadableRTCopyTexture = mpReadableSelectionBuffer->Get<ITexture2D>(RAT_BLOCKING);
 
-		mpGraphicsContext->BindRenderTarget(pCurrRenderTarget);
+		mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);
 
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
 		mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget, TColor32F(0.0f, 0.0f, 0.0f, 0.0f));
@@ -88,7 +88,7 @@ namespace TDEngine2
 			onDrawVisibleObjectsCallback();
 		}
 
-		mpGraphicsContext->BindRenderTarget(nullptr);
+		mpGraphicsContext->BindRenderTarget(0, nullptr);
 
 		return pCurrRenderTarget->Blit(pReadableRTCopyTexture);
 	}

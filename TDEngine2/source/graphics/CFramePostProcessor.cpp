@@ -113,9 +113,9 @@ namespace TDEngine2
 		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, mpRenderTargetHandler->Get<IRenderTarget>(RAT_BLOCKING));
 
 		{
-			mpGraphicsContext->BindRenderTarget(pCurrRenderTarget);
+			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);
 			onRenderFrameCallback();
-			mpGraphicsContext->BindRenderTarget(nullptr);
+			mpGraphicsContext->BindRenderTarget(0, nullptr);
 		}
 
 		_submitFullScreenTriangle(mpOverlayRenderQueue);
