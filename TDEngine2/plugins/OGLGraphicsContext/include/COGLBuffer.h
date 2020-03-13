@@ -123,8 +123,6 @@ namespace TDEngine2
 
 			U32                      mBufferSize;
 
-			U32                      mElementStrideSize;
-
 			E_BUFFER_USAGE_TYPE      mBufferUsageType;
 
 			E_BUFFER_TYPE            mBufferType;
@@ -132,6 +130,10 @@ namespace TDEngine2
 			void*                    mpMappedBufferData;
 
 			TBufferInternalData      mBufferInternalData;
+
+#if TDE2_DEBUG_MODE
+			U8                       mLockChecker = 0;
+#endif
 	};
 
 

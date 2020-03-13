@@ -61,9 +61,13 @@ namespace TDEngine2
 	{
 		/// \todo GL_SAFE_CALL wrapper causes GL_INVALID_VALUE is raised by RenderDoc
 		/// but everything works well in standalone mode and within MSVC
-		glBindBuffer(_getBufferType(mBufferType), mBufferHandler);
+		GL_SAFE_CALL(glBindBuffer(_getBufferType(mBufferType), mBufferHandler));
 
 		mpMappedBufferData = glMapBuffer(_getBufferType(mBufferType), COGLMappings::GetBufferMapAccessType(mapType));
+
+#if TDE2_DEBUG_MODE
+		++mLockChecker;
+#endif
 
 		if (glGetError() != GL_NO_ERROR)
 		{
@@ -75,7 +79,11 @@ namespace TDEngine2
 
 	void COGLBuffer::Unmap()
 	{
-		glUnmapBuffer(_getBufferType(mBufferType));
+#if TDE2_DEBUG_MODE
+		--mLockChecker;
+#endif
+
+		GL_SAFE_VOID_CALL(glUnmapBuffer(_getBufferType(mBufferType)));
 	}
 
 	E_RESULT_CODE COGLBuffer::Write(const void* pData, U32 size)

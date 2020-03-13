@@ -75,7 +75,7 @@ namespace TDEngine2
 
 		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, mTextureHandler));
 
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		GL_SAFE_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
 		GL_SAFE_CALL(glTexSubImage2D(COGLMappings::GetCubemapFace(face), 0, regionRect.x, regionRect.y, regionRect.width, regionRect.height,
@@ -86,7 +86,7 @@ namespace TDEngine2
 			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
 		}
 
-		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 
 		return RC_OK;
 	}
@@ -122,7 +122,7 @@ namespace TDEngine2
 			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 		}
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
 		return RC_OK;
 	}

@@ -43,7 +43,7 @@ namespace TDEngine2
 
 	void COGLShader::Unbind()
 	{
-		glUseProgram(0);
+		GL_SAFE_VOID_CALL(glUseProgram(0));
 	}
 
 	E_RESULT_CODE COGLShader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)

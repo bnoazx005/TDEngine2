@@ -70,7 +70,7 @@ namespace TDEngine2
 			/// provide information about a per instance rate
 			if (currIndex >= currInstanceDivisorIndex && currIndex <= nextInstanceDivisorIndex)
 			{
-				glVertexAttribDivisor(currIndex, currInstancesPerData);
+				GL_SAFE_VOID_CALL(glVertexAttribDivisor(currIndex, currInstancesPerData));
 			}
 			else if (currIndex == nextInstanceDivisorIndex) /// reach the next instancing group
 			{
@@ -85,7 +85,7 @@ namespace TDEngine2
 				currInstanceDivisorIndex = nextInstanceDivisorIndex;
 				currInstancesPerData     = nextInstancesPerData;
 
-				glVertexAttribDivisor(currIndex, currInstancesPerData);
+				GL_SAFE_VOID_CALL(glVertexAttribDivisor(currIndex, currInstancesPerData));
 
 				vertexStrideSize = GetStrideSize((*iter).mSource);
 
@@ -99,21 +99,20 @@ namespace TDEngine2
 				}
 			}
 						
-			glVertexAttribPointer(currIndex, COGLMappings::GetNumOfChannelsOfFormat(currFormat),
-								  COGLMappings::GetBaseTypeOfFormat(currFormat),
-								  COGLMappings::IsFormatNormalized(currFormat),
-								  vertexStrideSize, reinterpret_cast<void*>(currOffset));
+			GL_SAFE_VOID_CALL(glVertexAttribPointer(currIndex, COGLMappings::GetNumOfChannelsOfFormat(currFormat),
+													COGLMappings::GetBaseTypeOfFormat(currFormat),
+													COGLMappings::IsFormatNormalized(currFormat),
+													vertexStrideSize, reinterpret_cast<void*>(currOffset)));
 
 			currOffset += COGLMappings::GetFormatSize(currFormat);
 			
-			glEnableVertexAttribArray(currIndex);
+			GL_SAFE_VOID_CALL(glEnableVertexAttribArray(currIndex));
 		}
 
 		pCurrNode->mVAOHandle = vaoHandler;
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glBindVertexArray(0);
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		GL_SAFE_VOID_CALL(glBindVertexArray(0));
 
 		return TOkValue<GLuint>(vaoHandler);
 	}
