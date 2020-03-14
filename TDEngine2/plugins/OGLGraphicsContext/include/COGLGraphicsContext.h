@@ -333,6 +333,8 @@ namespace TDEngine2
 			TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;
 			TDE2_API virtual COGLGraphicsContext& operator= (COGLGraphicsContext& graphicsCtx) = delete;
 			TDE2_API virtual ~COGLGraphicsContext();
+
+			TDE2_API E_RESULT_CODE _initFBO(const IWindowSystem* pWindowSystem);
 		protected:
 			constexpr static U8             mMaxNumOfRenderTargets = 8;
 
@@ -347,6 +349,7 @@ namespace TDEngine2
 			IEventManager*                  mpEventManager;
 
 			GLuint                          mMainFBOHandler; /// \todo Replace it with FBOManager later
+			GLuint                          mMainDepthStencilRenderbuffer;
 
 			IRenderTarget*                  mpRenderTargets[mMaxNumOfRenderTargets];
 	};

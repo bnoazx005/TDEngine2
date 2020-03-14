@@ -101,7 +101,10 @@ namespace TDEngine2
 
 		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this);
 
-		GL_SAFE_CALL(glGenFramebuffers(1, &mMainFBOHandler));
+		if ((result = _initFBO(pWindowSystem)) != RC_OK)
+		{
+			return result;
+		}
 
 		SetViewport(0, 0, pWindowSystem->GetWidth(), pWindowSystem->GetHeight(), 0.0f, 1.0f);
 
@@ -117,6 +120,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		GL_SAFE_CALL(glDeleteRenderbuffers(1, &mMainDepthStencilRenderbuffer));
 		GL_SAFE_CALL(glDeleteFramebuffers(1, &mMainFBOHandler));
 
 		E_RESULT_CODE result = mpGraphicsObjectManager->Free();
@@ -408,6 +412,32 @@ namespace TDEngine2
 	TEventListenerId COGLGraphicsContext::GetListenerId() const
 	{
 		return GetTypeId();
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::_initFBO(const IWindowSystem* pWindowSystem)
+	{
+		// \todo move this code into FBO manager later
+		U32 creationFlags = pWindowSystem->GetFlags();
+
+		GL_SAFE_CALL(glGenFramebuffers(1, &mMainFBOHandler));
+
+		if (!(creationFlags & P_ZBUFFER_ENABLED))
+		{
+			return RC_OK;
+		}
+
+		GL_SAFE_CALL(glGenRenderbuffers(1, &mMainDepthStencilRenderbuffer));
+
+		GL_SAFE_VOID_CALL(glBindRenderbuffer(GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
+		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
+		{
+			CDeferOperation unbindBufferOperation([] { glBindRenderbuffer(GL_RENDERBUFFER, 0); glBindFramebuffer(GL_FRAMEBUFFER, 0); });
+
+			GL_SAFE_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pWindowSystem->GetWidth(), pWindowSystem->GetHeight()));
+			GL_SAFE_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
+		}
+
+		return RC_OK;
 	}
 
 
