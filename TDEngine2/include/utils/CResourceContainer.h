@@ -139,8 +139,6 @@ namespace TDEngine2
 
 				for (U32 i = 0; i < mElements.size(); ++i)
 				{
-					//mElements[i] = (T)0;
-
 					mFreeEntities.push_back(i);
 				}
 			}
@@ -185,6 +183,11 @@ namespace TDEngine2
 				if (index >= mElements.size())
 				{
 					return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+				}
+
+				if (std::find(mFreeEntities.cbegin(), mFreeEntities.cend(), index) != mFreeEntities.cend())
+				{
+					return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 				}
 
 				return TOkValue<T>(mElements[index]);

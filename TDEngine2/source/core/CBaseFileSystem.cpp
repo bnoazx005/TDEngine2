@@ -268,7 +268,13 @@ namespace TDEngine2
 
 		for (U32 i = 0; i < mActiveFiles.GetSize(); ++i)
 		{
-			pCurrFile = mActiveFiles[i].Get();
+			auto currOpenedFile = mActiveFiles[i];
+			if (currOpenedFile.HasError()) // \note may be some error, but more possibly file was already closed
+			{
+				continue;
+			}
+
+			pCurrFile = currOpenedFile.Get();
 
 			if (!pCurrFile) /// if pCurrFile is nullptr then it has already closed manually
 			{
