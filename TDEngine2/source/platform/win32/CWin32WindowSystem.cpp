@@ -70,7 +70,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		DWORD style = (flags & P_RESIZEABLE) ? WS_OVERLAPPEDWINDOW : WS_EX_TOOLWINDOW;
+		DWORD style = _getStyleByParams(flags);
+
+		RECT outsideWindowRect = { 0, 0, mWidth, mHeight };
+		AdjustWindowRect(&outsideWindowRect, style, false);
+
+		width  = outsideWindowRect.right - outsideWindowRect.left;
+		height = outsideWindowRect.bottom - outsideWindowRect.top;
 
 		if (flags & P_FULLSCREEN)
 		{
@@ -78,13 +84,16 @@ namespace TDEngine2
 
 			mWidth = GetSystemMetrics(SM_CXSCREEN);
 			mHeight = GetSystemMetrics(SM_CYSCREEN);
+
+			width  = mWidth;
+			height = mHeight;
 		}
 
 		mWindowXPos = CW_USEDEFAULT;
 		mWindowYPos = CW_USEDEFAULT;
 
 		mWindowHandler = CreateWindow(mWindowClassName.c_str(), mWindowName.c_str(), style, mWindowXPos, mWindowYPos, 
-									  mWidth, mHeight, nullptr, nullptr, mInstanceHandler, nullptr);
+									  width, height, nullptr, nullptr, mInstanceHandler, nullptr);
 
 		if (!mWindowHandler)
 		{
@@ -299,15 +308,20 @@ namespace TDEngine2
 
 	TRectU32 CWin32WindowSystem::GetWindowRect() const
 	{
-		return { mWindowXPos, mWindowYPos, mWidth, mHeight };
+		RECT windowRect;
+		::GetWindowRect(mWindowHandler, &windowRect);
+
+		return { mWindowXPos, mWindowYPos, static_cast<U32>(windowRect.right - windowRect.left), static_cast<U32>(windowRect.bottom - windowRect.top) };
 	}
 
 	TRectU32 CWin32WindowSystem::GetClientRect() const
 	{
-		RECT clientAreaRect;
-		::GetClientRect(mWindowHandler, &clientAreaRect);
+		return { mWindowXPos, mWindowYPos, mWidth, mHeight };
+	}
 
-		return { mWindowXPos, mWindowYPos, static_cast<U32>(clientAreaRect.right), static_cast<U32>(clientAreaRect.bottom) };
+	U32 CWin32WindowSystem::_getStyleByParams(U32 flags) const
+	{
+		return (flags & P_RESIZEABLE) ? WS_OVERLAPPEDWINDOW : ((flags & P_FULLSCREEN) ? WS_POPUPWINDOW : WS_EX_TOOLWINDOW);
 	}
 
 

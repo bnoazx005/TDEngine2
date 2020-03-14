@@ -84,9 +84,9 @@ namespace TDEngine2
 
 				\param[in] name A name of a main window
 
-				\param[in] width A window's width
+				\param[in] width An internal window's area width
 
-				\param[in] height A window's height
+				\param[in] height An internal window's area height
 
 				\param[in] flags An additional flags (bitwise value) lets configure
 				additional settings of a window is created
@@ -136,17 +136,17 @@ namespace TDEngine2
 			TDE2_API virtual const TWindowSystemInternalData& GetInternalData() const = 0;
 
 			/*!
-				\brief The method returns a width of a window
+				\brief The method returns a width of a window's client area
 
-				\return The method returns a width of a window
+				\return The method returns a width of a window's client area
 			*/
 
 			TDE2_API virtual U32 GetWidth() const = 0;
 
 			/*!
-				\brief The method returns a height of a window
+				\brief The method returns a height of a window's client area
 
-				\return The method returns a height of a window
+				\return The method returns a height of a window's client area
 			*/
 
 			TDE2_API virtual U32 GetHeight() const = 0;

@@ -46,9 +46,9 @@ namespace TDEngine2
 
 				\param[in] name A name of a main window
 
-				\param[in] width A window's width
+				\param[in] width An internal window's area width
 
-				\param[in] height A window's height
+				\param[in] height An internal window's area height
 
 				\param[in] flags An additional flags (bitwise value) lets configure
 
@@ -125,17 +125,17 @@ namespace TDEngine2
 			TDE2_API const TWindowSystemInternalData& GetInternalData() const override;
 
 			/*!
-				\brief The method returns a width of a window
+				\brief The method returns a width of a window's client area
 
-				\return The method returns a width of a window
+				\return The method returns a width of a window's client area
 			*/
 
 			TDE2_API U32 GetWidth() const override;
 
 			/*!
-				\brief The method returns a height of a window
+				\brief The method returns a height of a window's client area
 
-				\return The method returns a height of a window
+				\return The method returns a height of a window's client area
 			*/
 
 			TDE2_API U32 GetHeight() const override;
@@ -219,6 +219,8 @@ namespace TDEngine2
 			TDE2_API TRectU32 GetClientRect() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWin32WindowSystem)
+
+			TDE2_API U32 _getStyleByParams(U32 flags) const;
 
 			TDE2_API static LRESULT CALLBACK _wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		protected:
