@@ -28,3 +28,6 @@ compile_commands.json
 CTestTestfile.cmake
 
 CMakeSettings.json
+
+*.mesh
+*.fbx
