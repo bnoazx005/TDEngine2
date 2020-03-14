@@ -100,11 +100,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) override;
-
-			TDE2_API E_RESULT_CODE _createFrameBufferHandler();
 		protected:
 			GLuint mTextureHandler;
-			GLuint mFrameBufferHandler;
 	};
 
 

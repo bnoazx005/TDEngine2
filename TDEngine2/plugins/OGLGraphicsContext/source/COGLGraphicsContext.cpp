@@ -88,8 +88,8 @@ namespace TDEngine2
 		/// Enable a depth buffer if it's needed
 		if (creationFlags & P_ZBUFFER_ENABLED)
 		{
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
+			GL_SAFE_CALL(glEnable(GL_DEPTH_TEST));
+			GL_SAFE_CALL(glDepthFunc(GL_LESS));
 		}
 
 		mpEventManager = pWindowSystem->GetEventManager();
@@ -100,6 +100,10 @@ namespace TDEngine2
 		}
 
 		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this);
+
+		GL_SAFE_CALL(glGenFramebuffers(1, &mMainFBOHandler));
+
+		SetViewport(0, 0, pWindowSystem->GetWidth(), pWindowSystem->GetHeight(), 0.0f, 1.0f);
 
 		mIsInitialized = true;
 		
@@ -113,6 +117,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		GL_SAFE_CALL(glDeleteFramebuffers(1, &mMainFBOHandler));
+
 		E_RESULT_CODE result = mpGraphicsObjectManager->Free();
 		result = result | mpGLContextFactory->Free();
 
@@ -125,25 +131,66 @@ namespace TDEngine2
 	
 	void COGLGraphicsContext::ClearBackBuffer(const TColor32F& color)
 	{
-		glClearColor(color.r, color.g, color.b, color.a);
-		glClear(GL_COLOR_BUFFER_BIT);
+		GL_SAFE_VOID_CALL(glClearColor(color.r, color.g, color.b, color.a));
+		GL_SAFE_VOID_CALL(glClear(GL_COLOR_BUFFER_BIT));
 	}
 
 	void COGLGraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
 	{
-	//	TDE2_UNIMPLEMENTED();
+		if (!pRenderTarget)
+		{
+			LOG_WARNING("[COGLGraphicsContext] Try to clear the invalid render target");
+			return;
+		}
+
+		U8 renderTargetBoundSlot = (std::numeric_limits<U8>::max)();
+
+		for (U8 currSlotIndex = 0; currSlotIndex < mMaxNumOfRenderTargets; ++currSlotIndex)
+		{
+			if (mpRenderTargets[currSlotIndex] == pRenderTarget)
+			{
+				renderTargetBoundSlot = currSlotIndex;
+				break;
+			}
+		}
+
+		// \note The render target isn't bound to the main FBO
+		if (renderTargetBoundSlot >= mMaxNumOfRenderTargets)
+		{
+			return;
+		}
+
+		ClearRenderTarget(renderTargetBoundSlot, color);
+	}
+	
+	void COGLGraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
+	{
+		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
+		if (slot >= mMaxNumOfRenderTargets)
+		{
+			return;
+		}
+
+		if (!mpRenderTargets[slot])
+		{
+			LOG_WARNING(CStringUtils::Format("[COGLGraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
+			return;
+		}
+
+		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
+		//GL_SAFE_VOID_CALL(glClearBufferfv(GL_COLOR_ATTACHMENT0 + slot, 0, clearColorArray));
 	}
 
 	void COGLGraphicsContext::ClearDepthBuffer(F32 value)
 	{
-		glClearDepthf(value);
-		glClear(GL_DEPTH_BUFFER_BIT);
+		GL_SAFE_VOID_CALL(glClearDepthf(value));
+		GL_SAFE_VOID_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 	}
 	
 	void COGLGraphicsContext::ClearStencilBuffer(U8 value)
 	{
-		glClearStencil(value);
-		glClear(GL_STENCIL_BUFFER_BIT);
+		GL_SAFE_VOID_CALL(glClearStencil(value));
+		GL_SAFE_VOID_CALL(glClear(GL_STENCIL_BUFFER_BIT));
 	}
 
 	void COGLGraphicsContext::Present()
@@ -158,7 +205,7 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
 	{
-		glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
+		GL_SAFE_VOID_CALL(glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height)));
 	}
 	
 	void COGLGraphicsContext::SetScissorRect(const TRectF32& scissorRect)
@@ -178,59 +225,58 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
-		glDrawArrays(COGLMappings::GetPrimitiveTopology(topology), startVertex, numOfVertices);
+		GL_SAFE_VOID_CALL(glDrawArrays(COGLMappings::GetPrimitiveTopology(topology), startVertex, numOfVertices));
 	}
 
 	void COGLGraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
 	{
 		intptr_t indexOffset = startIndex * ((indexFormatType == E_INDEX_FORMAT_TYPE::IFT_INDEX16) ? 2 : 4);
-		glDrawElementsBaseVertex(COGLMappings::GetPrimitiveTopology(topology), numOfIndices, COGLMappings::GetIndexFormat(indexFormatType), reinterpret_cast<void*>(indexOffset), baseVertex);
+		GL_SAFE_VOID_CALL(glDrawElementsBaseVertex(COGLMappings::GetPrimitiveTopology(topology), numOfIndices, COGLMappings::GetIndexFormat(indexFormatType), reinterpret_cast<void*>(indexOffset), baseVertex));
 	}
 
 	void COGLGraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
 	{
-		glDrawArraysInstanced(COGLMappings::GetPrimitiveTopology(topology), startVertex, verticesPerInstance, numOfInstances);
+		GL_SAFE_VOID_CALL(glDrawArraysInstanced(COGLMappings::GetPrimitiveTopology(topology), startVertex, verticesPerInstance, numOfInstances));
 	}
 
 	void COGLGraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 												   U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
 	{
-		glDrawElementsInstanced(COGLMappings::GetPrimitiveTopology(topology), indicesPerInstance, COGLMappings::GetIndexFormat(indexFormatType), 0, numOfInstances);
+		GL_SAFE_VOID_CALL(glDrawElementsInstanced(COGLMappings::GetPrimitiveTopology(topology), indicesPerInstance, COGLMappings::GetIndexFormat(indexFormatType), 0, numOfInstances));
 	}
 
 	void COGLGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
 		if (samplerId == InvalidTextureSamplerId)
 		{
-			glBindSampler(slot, 0);
+			GL_SAFE_VOID_CALL(glBindSampler(slot, 0));
 			return;
 		}
 
 		GLuint internalSamplerId = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetTextureSampler(samplerId).Get();
-
-		glBindSampler(slot, internalSamplerId);
+		GL_SAFE_VOID_CALL(glBindSampler(slot, internalSamplerId));
 	}
 
 	void COGLGraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
 		if (blendStateId == InvalidBlendStateId)
 		{
-			glDisable(GL_BLEND);
+			GL_SAFE_VOID_CALL(glDisable(GL_BLEND));
 			return;
 		}
 
 		const TBlendStateDesc& blendStateDesc = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetBlendState(blendStateId).Get();
 
 		auto stateFunction = blendStateDesc.mIsEnabled ? glEnable : glDisable;
-		stateFunction(GL_BLEND);
+		GL_SAFE_VOID_CALL(stateFunction(GL_BLEND));
 
-		glBlendFuncSeparate(COGLMappings::GetBlendFactorValue(blendStateDesc.mScrValue),
-							COGLMappings::GetBlendFactorValue(blendStateDesc.mDestValue),
-							COGLMappings::GetBlendFactorValue(blendStateDesc.mScrAlphaValue),
-							COGLMappings::GetBlendFactorValue(blendStateDesc.mDestAlphaValue));
+		GL_SAFE_VOID_CALL(glBlendFuncSeparate(COGLMappings::GetBlendFactorValue(blendStateDesc.mScrValue),
+											  COGLMappings::GetBlendFactorValue(blendStateDesc.mDestValue),
+											  COGLMappings::GetBlendFactorValue(blendStateDesc.mScrAlphaValue),
+											  COGLMappings::GetBlendFactorValue(blendStateDesc.mDestAlphaValue)));
 
-		glBlendEquationSeparate(COGLMappings::GetBlendOpType(blendStateDesc.mOpType), 
-								COGLMappings::GetBlendOpType(blendStateDesc.mAlphaOpType));
+		GL_SAFE_VOID_CALL(glBlendEquationSeparate(COGLMappings::GetBlendOpType(blendStateDesc.mOpType),
+								COGLMappings::GetBlendOpType(blendStateDesc.mAlphaOpType)));
 	}
 
 	void COGLGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
@@ -238,13 +284,13 @@ namespace TDEngine2
 		if (depthStencilStateId == InvalidDepthStencilStateId)
 		{
 			// \note set up default values for depth-stencil state
-			glEnable(GL_DEPTH_TEST);
-			glDepthMask(GL_TRUE);
-			glDepthFunc(GL_LESS);
+			GL_SAFE_VOID_CALL(glEnable(GL_DEPTH_TEST));
+			GL_SAFE_VOID_CALL(glDepthMask(GL_TRUE));
+			GL_SAFE_VOID_CALL(glDepthFunc(GL_LESS));
 
 			// \note default settings for stencil test
-			glDisable(GL_STENCIL_TEST);
-			glStencilMask(0x0);
+			GL_SAFE_VOID_CALL(glDisable(GL_STENCIL_TEST));
+			GL_SAFE_VOID_CALL(glStencilMask(0x0));
 
 			return;
 		}
@@ -253,28 +299,28 @@ namespace TDEngine2
 
 		auto stateActivationFunction = depthStencilState.mIsDepthTestEnabled ? glEnable : glDisable;
 
-		stateActivationFunction(GL_DEPTH_TEST);
-		glDepthMask(depthStencilState.mIsDepthWritingEnabled);
-		glDepthFunc(COGLMappings::GetComparisonFunc(depthStencilState.mDepthCmpFunc));
+		GL_SAFE_VOID_CALL(stateActivationFunction(GL_DEPTH_TEST));
+		GL_SAFE_VOID_CALL(glDepthMask(depthStencilState.mIsDepthWritingEnabled));
+		GL_SAFE_VOID_CALL(glDepthFunc(COGLMappings::GetComparisonFunc(depthStencilState.mDepthCmpFunc)));
 
 		// \note stencil's parameters
 		stateActivationFunction = depthStencilState.mIsStencilTestEnabled ? glEnable : glDisable;
 
-		stateActivationFunction(GL_STENCIL_TEST);
-		glStencilMask(depthStencilState.mStencilWriteMaskValue);
-		glStencilOpSeparate(GL_FRONT, COGLMappings::GetStencilOpType(depthStencilState.mStencilFrontFaceOp.mFailOp),
+		GL_SAFE_VOID_CALL(stateActivationFunction(GL_STENCIL_TEST));
+		GL_SAFE_VOID_CALL(glStencilMask(depthStencilState.mStencilWriteMaskValue));
+		GL_SAFE_VOID_CALL(glStencilOpSeparate(GL_FRONT, COGLMappings::GetStencilOpType(depthStencilState.mStencilFrontFaceOp.mFailOp),
 							COGLMappings::GetStencilOpType(depthStencilState.mStencilFrontFaceOp.mDepthFailOp),
-							COGLMappings::GetStencilOpType(depthStencilState.mStencilFrontFaceOp.mPassOp));
-		glStencilOpSeparate(GL_BACK, COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mFailOp),
+							COGLMappings::GetStencilOpType(depthStencilState.mStencilFrontFaceOp.mPassOp)));
+		GL_SAFE_VOID_CALL(glStencilOpSeparate(GL_BACK, COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mFailOp),
 							COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mDepthFailOp),
-							COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mPassOp));
+							COGLMappings::GetStencilOpType(depthStencilState.mStencilBackFaceOp.mPassOp)));
 	}
 
 	void COGLGraphicsContext::BindRasterizerState(TRasterizerStateId rasterizerStateId)
 	{
 		if (rasterizerStateId == InvalidRasterizerStateId)
 		{
-			glEnable(GL_CULL_FACE);
+			GL_SAFE_VOID_CALL(glEnable(GL_CULL_FACE));
 
 			return;
 		}
@@ -302,13 +348,27 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
 	{
-		if (!pRenderTarget)
+		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
+		if (slot >= mMaxNumOfRenderTargets)
 		{
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			LOG_WARNING("[CD3D11GraphicsContext] Render target's slot goes out of limits");
 			return;
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, dynamic_cast<COGLRenderTarget*>(pRenderTarget)->GetInternalHandler());
+		if (!slot && !pRenderTarget)
+		{
+			GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+			return;
+		}
+
+		mpRenderTargets[slot] = pRenderTarget;
+		
+		COGLRenderTarget* pOGLRenderTarget = dynamic_cast<COGLRenderTarget*>(pRenderTarget);
+
+#if 1
+		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
+		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D, pOGLRenderTarget->GetInternalHandler(), 0));
+#endif
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const

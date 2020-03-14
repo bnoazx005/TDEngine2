@@ -6,7 +6,7 @@
 using namespace TDEngine2;
 
 
-#define DX_GAPI 1
+#define DX_GAPI 0
 
 #if DX_GAPI
 	const std::string ShaderType = "HLSL";
@@ -124,7 +124,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	TDE2_PROFILER_SCOPE("OnUpdate");
 
-#if 0
+#if 1
 	/// \note ImGUI tests
 	{
 		TDE2_PROFILER_SCOPE("Test");

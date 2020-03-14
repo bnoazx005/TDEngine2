@@ -2,6 +2,7 @@
 #include "./../../include/editor/IEditorWindow.h"
 #include "./../../include/core/IImGUIContext.h"
 #include "./../../include/core/IInputContext.h"
+#include "./../../include/core/IWindowSystem.h"
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/editor/ecs/CEditorCameraControlSystem.h"
 #include "./../../include/ecs/CWorld.h"
@@ -159,6 +160,7 @@ namespace TDEngine2
 
 		mpEventManager->Subscribe(TOnEditorModeEnabled::GetTypeId(), mpSelectionManager);
 		mpEventManager->Subscribe(TOnEditorModeDisabled::GetTypeId(), mpSelectionManager);
+		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), mpSelectionManager);
 
 		return RC_OK;
 	}

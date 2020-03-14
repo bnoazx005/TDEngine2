@@ -344,6 +344,7 @@ namespace TDEngine2
 
 	std::array<TVector4, 3> COGLGraphicsObjectManager::GetScreenTriangleVertices() const
 	{
+		// \note first two components are xy position, latter two are uv coordinates of the triangle
 		return { TVector4(-1.0f, -1.0f, 0.0f, 0.0f), TVector4(-1.0f, 3.0f, 0.0f, 2.0f), TVector4(3.0f, -1.0f, 2.0f, 0.0f) };
 	}
 

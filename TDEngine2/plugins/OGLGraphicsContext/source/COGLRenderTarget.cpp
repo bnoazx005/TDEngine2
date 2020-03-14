@@ -39,10 +39,8 @@ namespace TDEngine2
 		mIsInitialized = false;
 
 		GL_SAFE_CALL(glDeleteTextures(1, &mTextureHandler));
-		GL_SAFE_CALL(glDeleteFramebuffers(1, &mFrameBufferHandler));
 
-		mTextureHandler     = 0;
-		mFrameBufferHandler = 0;
+		mTextureHandler = 0;
 
 		return RC_OK;
 	}
@@ -51,7 +49,7 @@ namespace TDEngine2
 	{
 		CBaseRenderTarget::Bind(slot);
 
-		glBindTexture(GL_TEXTURE_2D, mTextureHandler);
+		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
 	}
 	
 	E_RESULT_CODE COGLRenderTarget::Blit(ITexture2D*& pDestTexture)
@@ -77,7 +75,7 @@ namespace TDEngine2
 
 	GLuint COGLRenderTarget::GetInternalHandler() const
 	{
-		return mFrameBufferHandler;
+		return mTextureHandler;
 	}
 	
 	E_RESULT_CODE COGLRenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
@@ -107,17 +105,6 @@ namespace TDEngine2
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
-
-		return _createFrameBufferHandler();
-	}
-
-	E_RESULT_CODE COGLRenderTarget::_createFrameBufferHandler()
-	{		
-		GL_SAFE_CALL(glGenFramebuffers(1, &mFrameBufferHandler));
-
-		GL_SAFE_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferHandler));
-		GL_SAFE_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextureHandler, 0));
-		GL_SAFE_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 		return RC_OK;
 	}
