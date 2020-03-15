@@ -15,6 +15,10 @@ out vec3 VertOutUV;
 void main(void)
 {
 	mat4 viewMat = ViewMat;
+	viewMat[3][0] = 0.0f;
+	viewMat[3][1] = 0.0f;
+	viewMat[3][2] = 0.0f;
+
 	vec4 pos = ProjMat * viewMat * inPos;
 
 	gl_Position = pos.xyww;

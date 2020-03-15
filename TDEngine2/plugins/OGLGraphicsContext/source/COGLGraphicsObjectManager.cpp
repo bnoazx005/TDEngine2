@@ -253,7 +253,7 @@ namespace TDEngine2
 
 					void main(void)
 					{
-						gl_Position = vec4(inPosUV.xy, 0.0f, 1.0f);
+						gl_Position = vec4(inPosUV.xy, 0.0f, 1.0);
 						VertOutUV   = inPosUV.zw;
 					}
 
