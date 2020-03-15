@@ -88,7 +88,7 @@ namespace TDEngine2
 			mpLinesVertexBuffer->Write(&mLinesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
 			mpLinesVertexBuffer->Unmap();
 
-			auto pDrawLinesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(0);
+			auto pDrawLinesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(-2);
 
 			pDrawLinesCommand->mpVertexBuffer           = mpLinesVertexBuffer;
 			pDrawLinesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
@@ -105,7 +105,7 @@ namespace TDEngine2
 			mpCrossesVertexBuffer->Write(&mCrossesDataBuffer[0], sizeof(TLineVertex) * mCrossesDataBuffer.size());
 			mpCrossesVertexBuffer->Unmap();
 
-			auto pDrawCrossesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(1);
+			auto pDrawCrossesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(-1);
 
 			pDrawCrossesCommand->mpVertexBuffer           = mpCrossesVertexBuffer;
 			pDrawCrossesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
