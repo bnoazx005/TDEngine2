@@ -126,6 +126,8 @@
 #include "graphics/CFramePostProcessor.h"
 #include "graphics/IPostProcessingProfile.h"
 #include "graphics/CBasePostProcessingProfile.h"
+#include "graphics/IGeometryBuilder.h"
+#include "graphics/CGeometryBuilder.h"
 
 ///editor
 #include "editor/IProfiler.h"
