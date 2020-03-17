@@ -48,7 +48,19 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init() = 0;
 
 			//TDE2_API virtual TGeometryData CreateBoxGeometry() = 0;
-			//TDE2_API virtual TGeometryData CreateCylinderGeometry() = 0;
+			
+
+			/*!
+				\brief The method generates geometry for a cylinder which is aligned along specified axis
+
+				\param[in] position A position of a cylinder's center
+				\param[in] axis An axis along which the cylinder is aligned to
+				\param[in] raidus A radius of the cylinder
+				\param[in] height A height of the cylinder
+				\param[in] segmentsCount A number of line segments that forms cylinder's base
+			*/
+
+			TDE2_API virtual TGeometryData CreateCylinderGeometry(const TVector3& position, const TVector3& axis, F32 radius, F32 height, U16 segmentsCount) = 0;
 
 			/*!
 				\brief The method generates geometry for a cone which lies at plane with normal equals to given axis and centered along poisition point
