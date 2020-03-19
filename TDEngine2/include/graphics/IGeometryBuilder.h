@@ -37,7 +37,7 @@ namespace TDEngine2
 				std::vector<TVertex> mVertices;
 				
 				std::vector<U16>     mIndices;
-			};
+			} TGeometryData, *TGeometryDataPtr;
 		public:
 			/*!
 				\brief The method initializes an internal state of a builder

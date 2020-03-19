@@ -44,7 +44,7 @@ namespace TDEngine2
 		TVector3 normal = Normalize(axis);
 
 		// compute plane's tangent basis
-		TVector3 u = Normalize(Cross(RightVector3, normal));
+		TVector3 u = Normalize(Cross(std::abs(Dot(normal, RightVector3)) > 0.98f ? ForwardVector3 : RightVector3, normal));
 		TVector3 v = Normalize(Cross(u, normal));
 
 		std::vector<TGeometryData::TVertex> vertices;
@@ -112,7 +112,7 @@ namespace TDEngine2
 		TVector3 normal = Normalize(axis);
 
 		// compute plane's tangent basis
-		TVector3 u = Normalize(Cross(RightVector3, normal));
+		TVector3 u = Normalize(Cross(std::abs(Dot(normal, RightVector3)) > 0.98f ? ForwardVector3 : RightVector3, normal));
 		TVector3 v = Normalize(Cross(u, normal));
 
 		std::vector<TGeometryData::TVertex> vertices;
