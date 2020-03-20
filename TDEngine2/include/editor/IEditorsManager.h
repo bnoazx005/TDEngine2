@@ -101,6 +101,14 @@ namespace TDEngine2
 
 			TDE2_API virtual ISelectionManager* GetSelectionManager() const = 0;
 
+			/*!
+				\brief The method returns a pointer to world's instance
+
+				\return The method returns a pointer to world's instance
+			*/
+
+			TDE2_API virtual IWorld* GetWorldInstance() const = 0;
+
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EDITORS_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEditorsManager)

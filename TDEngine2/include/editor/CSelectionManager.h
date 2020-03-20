@@ -17,6 +17,7 @@
 namespace TDEngine2
 {
 	class IResourceHandler;
+	class IEventManager;
 
 
 	/*!
@@ -134,6 +135,8 @@ namespace TDEngine2
 			IWindowSystem*    mpWindowSystem;
 
 			IGraphicsContext* mpGraphicsContext;
+
+			IEventManager*    mpEventManager;
 
 			IWorld*           mpWorld;
 

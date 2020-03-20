@@ -162,6 +162,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TEventListenerId GetListenerId() const override;
+
+			/*!
+				\brief The method returns a pointer to world's instance
+
+				\return The method returns a pointer to world's instance
+			*/
+
+			TDE2_API IWorld* GetWorldInstance() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
 

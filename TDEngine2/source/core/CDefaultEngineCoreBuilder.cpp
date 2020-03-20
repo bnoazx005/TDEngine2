@@ -39,6 +39,8 @@
 #include "./../../include/editor/CSelectionManager.h"
 #include "./../../include/graphics/CFramePostProcessor.h"
 #include "./../../include/graphics/CBasePostProcessingProfile.h"
+#include "./../../include/graphics/IDebugUtility.h"
+#include "./../../include/graphics/IGraphicsObjectManager.h"
 #include <memory>
 #include <cstring>
 #include <tuple>
@@ -435,11 +437,13 @@ namespace TDEngine2
 																result);
 
 		static const U32 mainThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+		
+		auto pDebugUtility = mpGraphicsContextInstance->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManagerInstance, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
 
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROFILER), CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(pEditorsManager, pInputContext, result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(pEditorsManager, pInputContext, pDebugUtility, result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
 		};
 

@@ -4,6 +4,10 @@
 #include "./../../include/core/IImGUIContext.h"
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/graphics/IDebugUtility.h"
+#include "./../../include/ecs/IWorld.h"
+#include "./../../include/ecs/CEntity.h"
+#include "./../../include/ecs/CTransform.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -15,7 +19,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLevelEditorWindow::Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext)
+	E_RESULT_CODE CLevelEditorWindow::Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility)
 	{
 		if (mIsInitialized)
 		{
@@ -30,7 +34,8 @@ namespace TDEngine2
 		mpEditorsManager   = pEditorsManager;
 		mpInputContext     = dynamic_cast<IDesktopInputContext*>(pInputContext);
 		mpSelectionManager = nullptr;
-
+		mpDebugUtility     = pDebugUtility;
+		
 		if (!mpInputContext)
 		{
 			return RC_INVALID_ARGS;
@@ -74,6 +79,7 @@ namespace TDEngine2
 		mIsVisible = isEnabled;
 
 		_onHandleInput();
+		_onDrawGizmos();
 	}
 
 	void CLevelEditorWindow::_onHandleInput()
@@ -83,9 +89,30 @@ namespace TDEngine2
 		if (mpInputContext->IsMouseButtonPressed(0))
 		{
 			TVector3 mousePosition = mpInputContext->GetMousePosition();
-			LOG_MESSAGE(CStringUtils::Format("[Level Editor] Picked object id : {0}", pSelectionManager->PickObject({ mousePosition.x, mousePosition.y })));
+
+			mSelectedEntityId = pSelectionManager->PickObject({ mousePosition.x, mousePosition.y });
+
+			LOG_MESSAGE(CStringUtils::Format("[Level Editor] Picked object id : {0}", mSelectedEntityId));
 		}
 
+	}
+
+	void CLevelEditorWindow::_onDrawGizmos()
+	{
+		if (mSelectedEntityId != InvalidEntityId)
+		{
+			IWorld* pWorld = mpEditorsManager->GetWorldInstance();
+			if (!pWorld)
+			{
+				return;
+			}
+
+			if (auto pSelectedEntity = pWorld->FindEntity(mSelectedEntityId))
+			{
+				TMatrix4 matrix = pSelectedEntity->GetComponent<CTransform>()->GetTransform();
+				mpDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, matrix);
+			}
+		}
 	}
 
 	ISelectionManager* CLevelEditorWindow::_getSelectionManager()
@@ -99,7 +126,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, E_RESULT_CODE& result)
 	{
 		CLevelEditorWindow* pEditorInstance = new (std::nothrow) CLevelEditorWindow();
 
@@ -110,7 +137,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pEditorInstance->Init(pEditorsManager, pInputContext);
+		result = pEditorInstance->Init(pEditorsManager, pInputContext, pDebugUtility);
 
 		if (result != RC_OK)
 		{

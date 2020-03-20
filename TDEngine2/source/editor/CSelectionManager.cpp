@@ -7,6 +7,7 @@
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IResourceHandler.h"
+#include "./../../include/core/IEventManager.h"
 #include "./../../include/graphics/CBaseRenderTarget.h"
 #include "./../../include/graphics/CBaseTexture2D.h"
 #include "./../../include/core/IWindowSystem.h"
@@ -31,7 +32,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		if (!pEditorsManager || !pResourceManager)
+		if (!pEditorsManager || !pResourceManager || !pWindowSystem || !pGraphicsContext)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -40,6 +41,7 @@ namespace TDEngine2
 		mpEditorsManager  = pEditorsManager;
 		mpWindowSystem    = pWindowSystem;
 		mpGraphicsContext = pGraphicsContext;
+		mpEventManager    = pWindowSystem->GetEventManager();
 
 		mpSelectionGeometryBuffer = nullptr;
 		
@@ -123,6 +125,12 @@ namespace TDEngine2
 			{
 				auto pSelectedEntityComponent = pSelectedEntity->AddComponent<CSelectedEntityComponent>();
 				TDE2_ASSERT(pSelectedEntityComponent);
+
+				TOnObjectSelected onObjectSelected;
+				onObjectSelected.mObjectID = mLastSelectedEntityID;
+				onObjectSelected.mpWorld   = mpWorld;
+
+				mpEventManager->Notify(&onObjectSelected);
 			}
 
 			return mLastSelectedEntityID;

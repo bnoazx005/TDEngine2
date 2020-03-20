@@ -10,6 +10,7 @@
 #include "IDebugUtility.h"
 #include "./../core/CBaseObject.h"
 #include "./../math/TVector4.h"
+#include "./../math/TMatrix4.h"
 #include <vector>
 
 
@@ -20,6 +21,7 @@ namespace TDEngine2
 	class IVertexBuffer;
 	class IIndexBuffer;
 	class IResourceHandler;
+	class IGeometryBuilder;
 
 
 	/*!
@@ -60,6 +62,13 @@ namespace TDEngine2
 			struct TTextVertex
 			{
 				TVector4 mPosUV;
+			};
+
+			struct TGizmoData
+			{
+				E_GIZMO_TYPE mType;
+				TMatrix4     mTransform;
+				F32          mScale;
 			};
 		public:
 			/*!
@@ -167,10 +176,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void DrawSphere(const TVector3& position, F32 radius, const TColor32F& color, U16 triangulationFactor = 1) override;
+			
+			/*!
+				\brief The method draws a gizmo of one of predefined types for given transform matrix
+
+				\param[in] type A type of a gizmo
+				\param[in] transform A matrix which stores translation, rotation and scaling data
+				\param[in] size A scale of a gizmo
+			*/
+
+			TDE2_API void DrawTransformGizmo(E_GIZMO_TYPE type, const TMatrix4& transform, F32 size = 1.0f) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 
 			TDE2_API std::vector<U16> _buildTextIndexBuffer(U32 textLength) const;
+
+			TDE2_API E_RESULT_CODE _initGizmosBuffers();
 		protected:
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
@@ -203,5 +224,15 @@ namespace TDEngine2
 			const static std::string mDefaultDebugMaterialName;
 
 			const static std::string mTextMaterialName;
+
+			IVertexBuffer*           mpGizmosVertexBuffer;
+
+			IIndexBuffer*            mpGizmosIndexBuffer;
+
+			std::vector<TGizmoData>  mGizmosData;
+
+			IGeometryBuilder*        mpGeometryBuilder;
+
+			U32                      mTranslateGizmoNumOfIndices;
 	};
 }

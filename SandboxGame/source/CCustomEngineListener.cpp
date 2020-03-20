@@ -117,6 +117,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pSkyboxContainer->SetMaterialName("DefaultSkybox.material");
 	}
 
+	IGeometryBuilder* pGeomBuilder = CreateGeometryBuilder(result);
+	{
+		pGeomBuilder->CreateCylinderGeometry(ZeroVector3, UpVector3, 1.0f, 2.0f, 3);
+	}
+	pGeomBuilder->Free();
+
 	return RC_OK;
 }
 

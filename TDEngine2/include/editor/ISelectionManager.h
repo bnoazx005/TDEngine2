@@ -90,6 +90,22 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISelectionManager)
 	};
+
+
+	/*!
+		struct TOnObjectSelected
+
+		\brief The s describes a functionality of an event
+	*/
+
+	typedef struct TOnObjectSelected: TBaseEvent
+	{
+		TDE2_EVENT(TOnObjectSelected);
+		
+		IWorld*   mpWorld;
+
+		TEntityId mObjectID;
+	} TOnObjectSelected, *TBaseEventTOnObjectSelectedPtr;
 }
 
 #endif

@@ -10,10 +10,12 @@
 #include "./../../include/math/TAABB.h"
 #include "./../../include/math/MathUtils.h"
 #include "./../../include/math/TVector3.h"
+#include "./../../include/graphics/CGeometryBuilder.h"
 #include <algorithm>
 #include <iterator>
 #include <functional>
 #include <cmath>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -34,6 +36,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		E_RESULT_CODE result = RC_OK;
 
 		if (!pRenderer || !pGraphicsObjectManager || !pResourceManager)
 		{
@@ -61,6 +65,14 @@ namespace TDEngine2
 
 		mpCrossesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr).Get();
 
+		mpGeometryBuilder = CreateGeometryBuilder(result);
+
+		if ((result != RC_OK) || 
+			(result = _initGizmosBuffers()) != RC_OK)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -72,6 +84,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		E_RESULT_CODE result = mpGeometryBuilder ? mpGeometryBuilder->Free() : RC_FAIL;
 
 		mIsInitialized = false;
 
@@ -135,6 +149,22 @@ namespace TDEngine2
 			pDrawTextCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
 		
+		for (auto&& currGizmoInfo : mGizmosData)
+		{
+			auto pDrawGizmoCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(3);
+
+			pDrawGizmoCommand->mpVertexBuffer           = mpGizmosVertexBuffer;
+			pDrawGizmoCommand->mpIndexBuffer            = mpGizmosIndexBuffer;
+			pDrawGizmoCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pDrawGizmoCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
+			pDrawGizmoCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
+			pDrawGizmoCommand->mStartIndex              = 0;
+			pDrawGizmoCommand->mStartVertex             = 0;
+			pDrawGizmoCommand->mNumOfIndices            = mTranslateGizmoNumOfIndices;
+			pDrawGizmoCommand->mObjectData.mModelMatrix = Transpose(currGizmoInfo.mTransform);
+
+			// \todo Add command for EDITOR_ONLY command buffer
+		}		
 	}
 
 	void CDebugUtility::PostRender()
@@ -142,6 +172,7 @@ namespace TDEngine2
 		mLinesDataBuffer.clear();
 		mTextDataBuffer.clear();
 		mCrossesDataBuffer.clear();
+		mGizmosData.clear();
 	}
 
 	void CDebugUtility::DrawLine(const TVector3& start, const TVector3& end, const TColor32F& color)
@@ -355,6 +386,11 @@ namespace TDEngine2
 		}
 	}
 
+	void CDebugUtility::DrawTransformGizmo(E_GIZMO_TYPE type, const TMatrix4& transform, F32 size)
+	{
+		mGizmosData.push_back({ type, transform, size });
+	}
+
 	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const
 	{
 		std::vector<U16> indices;
@@ -371,6 +407,71 @@ namespace TDEngine2
 		}
 
 		return indices;
+	}
+
+	E_RESULT_CODE CDebugUtility::_initGizmosBuffers()
+	{
+		std::tuple<TVector3, IGeometryBuilder::TGeometryData, IGeometryBuilder::TGeometryData> translateGizmoGeometry[]
+		{
+			{ RightVector3, mpGeometryBuilder->CreateCylinderGeometry(ZeroVector3, RightVector3, 0.02f, 1.0f, 6), mpGeometryBuilder->CreateConeGeometry(RightVector3, RightVector3, 0.1f, 0.4f, 6) },
+			{ UpVector3, mpGeometryBuilder->CreateCylinderGeometry(ZeroVector3, UpVector3, 0.02f, 1.0f, 6), mpGeometryBuilder->CreateConeGeometry(UpVector3, UpVector3, 0.1f, 0.4f, 6) },
+			{ ForwardVector3, mpGeometryBuilder->CreateCylinderGeometry(ZeroVector3, -ForwardVector3, 0.02f, 1.0f, 6), mpGeometryBuilder->CreateConeGeometry(-ForwardVector3, -ForwardVector3, 0.1f, 0.4f, 6) },
+		};
+
+		TVector3 currAxisDirection;
+
+		IGeometryBuilder::TGeometryDataPtr pLineGeometry    = nullptr;
+		IGeometryBuilder::TGeometryDataPtr pConeTipGeometry = nullptr;
+
+		std::vector<TLineVertex> verts;
+		std::vector<U16> indices;
+
+		for (auto&& currGizmoPart : translateGizmoGeometry)
+		{
+			currAxisDirection = std::move(std::get<TVector3>(currGizmoPart));
+			pLineGeometry     = &std::get<1>(currGizmoPart);
+			pConeTipGeometry  = &std::get<2>(currGizmoPart);
+
+			TColor32F meshColor { currAxisDirection.x, currAxisDirection.y, currAxisDirection.z, 1.0f };
+
+			U16 offset = verts.size();
+
+			for (auto&& v : pLineGeometry->mVertices)
+			{
+				verts.push_back({ v.mPosition, meshColor });
+			}
+
+			for (U16 currIndex : pLineGeometry->mIndices)
+			{
+				indices.push_back(currIndex + offset);
+			}
+
+			offset = verts.size();
+
+			for (auto&& v : pConeTipGeometry->mVertices)
+			{
+				verts.push_back({ v.mPosition, meshColor });
+			}
+
+			for (U16 currIndex : pConeTipGeometry->mIndices)
+			{
+				indices.push_back(currIndex + offset);
+			}
+		}
+
+		auto gizmosVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TLineVertex) * verts.size(), &verts[0]);
+		if (gizmosVertexBufferResult.HasError())
+		{
+			return gizmosVertexBufferResult.GetError();
+		}
+
+		mpGizmosVertexBuffer = gizmosVertexBufferResult.Get();
+
+		mTranslateGizmoNumOfIndices = indices.size();
+
+		mpGizmosIndexBuffer = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, TDEngine2::IFT_INDEX16, sizeof(U16) * mTranslateGizmoNumOfIndices, &indices[0]).Get();
+
+		return RC_OK;
 	}
 
 

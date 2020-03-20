@@ -207,6 +207,11 @@ namespace TDEngine2
 		return GetTypeId();
 	}
 
+	IWorld* CEditorsManager::GetWorldInstance() const
+	{
+		return mpWorld;
+	}
+
 	E_RESULT_CODE CEditorsManager::_showEditorWindows(F32 dt)
 	{
 		if (!mIsVisible)
