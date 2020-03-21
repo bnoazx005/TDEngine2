@@ -307,6 +307,14 @@ namespace TDEngine2
 
 			TDE2_API virtual float GetPositiveZAxisDirection() const = 0;
 
+			/*!
+				\brief The method returns an information about currently using video adapter
+
+				\return The method returns an information about currently using video adapter
+			*/
+
+			TDE2_API virtual TVideoAdapterInfo GetInfo() const = 0;
+
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_GRAPHICS_CONTEXT; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsContext)

@@ -7,6 +7,7 @@
 #include <utils/Utils.h>
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
+#include <unordered_map>
 
 
 #if defined(TDE2_USE_WIN32PLATFORM)
@@ -453,6 +454,49 @@ namespace TDEngine2
 		return GetTypeId();
 	}
 
+	TVideoAdapterInfo CD3D11GraphicsContext::GetInfo() const
+	{
+		IDXGIAdapter* pDXGIAdapter = _getDXGIAdapter(mp3dDevice);
+
+		DXGI_ADAPTER_DESC adapterInfo;
+		HRESULT result = pDXGIAdapter->GetDesc(&adapterInfo);
+
+		static const std::unordered_map<U32, TVideoAdapterInfo::E_VENDOR_TYPE> vendorsMap
+		{
+			{ 0x10DE, TVideoAdapterInfo::E_VENDOR_TYPE::NVIDIA },
+			{ 0x1002, TVideoAdapterInfo::E_VENDOR_TYPE::AMD },
+			{ 0x1022, TVideoAdapterInfo::E_VENDOR_TYPE::AMD },
+			{ 0x163C, TVideoAdapterInfo::E_VENDOR_TYPE::INTEL },
+			{ 0x8086, TVideoAdapterInfo::E_VENDOR_TYPE::INTEL },
+			{ 0x8087, TVideoAdapterInfo::E_VENDOR_TYPE::INTEL },
+		};
+
+		TVideoAdapterInfo outputInfo;
+		outputInfo.mAvailableVideoMemory = adapterInfo.DedicatedVideoMemory;
+		outputInfo.mVendorType           = vendorsMap.find(adapterInfo.VendorId) == vendorsMap.cend() ? TVideoAdapterInfo::E_VENDOR_TYPE::UNKNOWN : vendorsMap.at(adapterInfo.VendorId);
+
+		return outputInfo;
+	}
+
+	IDXGIAdapter* CD3D11GraphicsContext::_getDXGIAdapter(ID3D11Device* p3dDevice) const
+	{
+		IDXGIDevice*  pDXGIDevice  = nullptr;
+		IDXGIAdapter* pDXGIAdapter = nullptr;
+
+		HRESULT result = p3dDevice->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&pDXGIDevice));
+
+		if (FAILED(result))
+		{
+			return nullptr;
+		}
+
+		result = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), reinterpret_cast<void**>(&pDXGIAdapter));
+
+		pDXGIDevice->Release();
+
+		return pDXGIAdapter;
+	}
+
 	E_RESULT_CODE CD3D11GraphicsContext::_createSwapChain(const IWindowSystem* pWindowSystem, ID3D11Device* p3dDevice)
 	{
 		DXGI_SWAP_CHAIN_DESC swapChainDesc;
@@ -485,47 +529,36 @@ namespace TDEngine2
 		swapChainDesc.SwapEffect                         = DXGI_SWAP_EFFECT_DISCARD;
 		swapChainDesc.SampleDesc.Count                   = 1;
 
-		IDXGIDevice*  pDXGIDevice  = nullptr;
-		IDXGIAdapter* pDXGIAdapter = nullptr;
+		IDXGIAdapter* pDXGIAdapter = _getDXGIAdapter(mp3dDevice);
 		IDXGIFactory* pDXGIFactory = nullptr;
 		
-		HRESULT result = mp3dDevice->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&pDXGIDevice));
-
-		if (FAILED(result))
+		if (!pDXGIAdapter)
 		{
 			return RC_FAIL;
 		}
 
-		result = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), reinterpret_cast<void**>(&pDXGIAdapter));
+		HRESULT result = pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&pDXGIFactory));
 
 		if (FAILED(result))
 		{
-			return RC_FAIL;
-		}
-
-		result = pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&pDXGIFactory));
-
-		if (FAILED(result))
-		{
-			pDXGIDevice->Release();
+			pDXGIAdapter->Release();
 
 			return RC_FAIL;
 		}
 
 		result = pDXGIFactory->CreateSwapChain(mp3dDevice, &swapChainDesc, &mpSwapChain);
 
+		CDeferOperation releaseOperation([&pDXGIAdapter, &pDXGIFactory] 
+		{
+			pDXGIAdapter->Release();
+			pDXGIFactory->Release();
+		});
+
 		if (FAILED(result))
 		{
-			pDXGIDevice->Release();
-			pDXGIAdapter->Release();
-
 			return RC_FAIL;
 		}
 
-		pDXGIDevice->Release();
-		pDXGIAdapter->Release();
-		pDXGIFactory->Release();
-		
 		return RC_OK;
 	}
 

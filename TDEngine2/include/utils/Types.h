@@ -816,4 +816,27 @@ namespace TDEngine2
 	typedef U32 TRasterizerStateId;
 
 	constexpr TRasterizerStateId InvalidRasterizerStateId = (std::numeric_limits<TRasterizerStateId>::max)();
+
+
+	/*!
+		struct TVideoAdapterInfo
+
+		\brief The structure contains all information about used video adapter
+	*/
+
+	typedef struct TVideoAdapterInfo
+	{
+		enum class E_VENDOR_TYPE: U8
+		{
+			NVIDIA,
+			AMD,
+			INTEL,
+			UNKNOWN
+		};
+
+		E_VENDOR_TYPE mVendorType = E_VENDOR_TYPE::UNKNOWN;
+
+		U64           mAvailableVideoMemory = 0;			///< Available video memory size in bytes
+	} TVideoAdapterInfo, *TVideoAdapterInfoPtr;
+
 }

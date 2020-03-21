@@ -6,6 +6,7 @@
 #include "./../include/COGLUtils.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
+#include <string>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -412,6 +413,32 @@ namespace TDEngine2
 	TEventListenerId COGLGraphicsContext::GetListenerId() const
 	{
 		return GetTypeId();
+	}
+
+	TVideoAdapterInfo COGLGraphicsContext::GetInfo() const
+	{
+		std::string vendorName { reinterpret_cast<const C8*>(glGetString(GL_VENDOR)) };
+
+		TVideoAdapterInfo::E_VENDOR_TYPE vendorType = TVideoAdapterInfo::E_VENDOR_TYPE::UNKNOWN;
+
+		if (CStringUtils::StartsWith(vendorName, "NVIDIA"))
+		{
+			vendorType = TVideoAdapterInfo::E_VENDOR_TYPE::NVIDIA;
+		}
+		else if (CStringUtils::StartsWith(vendorName, "ATI"))
+		{
+			vendorType = TVideoAdapterInfo::E_VENDOR_TYPE::AMD;
+		}
+		else if (CStringUtils::StartsWith(vendorName, "INTEL"))
+		{
+			vendorType = TVideoAdapterInfo::E_VENDOR_TYPE::INTEL;
+		}
+
+		TVideoAdapterInfo outputInfo;
+		//outputInfo.mAvailableVideoMemory = adapterInfo.DedicatedVideoMemory;
+		outputInfo.mVendorType = vendorType;
+		
+		return outputInfo;
 	}
 
 	E_RESULT_CODE COGLGraphicsContext::_initFBO(const IWindowSystem* pWindowSystem)

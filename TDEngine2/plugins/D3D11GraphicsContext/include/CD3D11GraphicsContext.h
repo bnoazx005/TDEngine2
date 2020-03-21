@@ -312,8 +312,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TEventListenerId GetListenerId() const;
+
+			/*!
+				\brief The method returns an information about currently using video adapter
+
+				\return The method returns an information about currently using video adapter
+			*/
+
+			TDE2_API TVideoAdapterInfo GetInfo() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsContext)
+
+			TDE2_API IDXGIAdapter* _getDXGIAdapter(ID3D11Device* p3dDevice) const;
 
 			TDE2_API E_RESULT_CODE _createSwapChain(const IWindowSystem* pWindowSystem, ID3D11Device* p3dDevice);
 

@@ -5,8 +5,7 @@
 
 using namespace TDEngine2;
 
-
-#define DX_GAPI 1
+#define DX_GAPI 0
 
 #if DX_GAPI
 	const std::string ShaderType = "HLSL";
@@ -122,7 +121,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pGeomBuilder->CreateCylinderGeometry(ZeroVector3, UpVector3, 1.0f, 2.0f, 3);
 	}
 	pGeomBuilder->Free();
-
+	mpGraphicsContext->GetInfo();
 	return RC_OK;
 }
 

@@ -328,6 +328,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TEventListenerId GetListenerId() const;
+
+			/*!
+				\brief The method returns an information about currently using video adapter
+
+				\return The method returns an information about currently using video adapter
+			*/
+
+			TDE2_API TVideoAdapterInfo GetInfo() const override;
 		protected:
 			TDE2_API COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 			TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;
