@@ -8,7 +8,7 @@
 
 
 #include <graphics/IConstantBuffer.h>
-#include <core/IBaseObject.h>
+#include <core/CBaseObject.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -26,7 +26,7 @@ namespace TDEngine2
 	*/
 
 
-	class CD3D11ConstantBuffer : public IConstantBuffer, public virtual IBaseObject
+	class CD3D11ConstantBuffer : public IConstantBuffer, public CBaseObject
 	{
 		public:
 			friend TDE2_API IConstantBuffer* CreateD3D11ConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
@@ -124,8 +124,6 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ConstantBuffer)
 		protected:
 			ID3D11DeviceContext* mp3dDeviceContext;
-			
-			bool                 mIsInitialized;
 
 			IBuffer*             mpBufferImpl;
 

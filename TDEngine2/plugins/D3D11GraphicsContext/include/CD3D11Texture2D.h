@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include <core/CBaseObject.h>
 #include <graphics/CBaseTexture2D.h>
 #include <utils/CResult.h>
 #include <utils/Utils.h>
@@ -186,7 +187,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class CD3D11Texture2DFactory : public ITexture2DFactory
+	class CD3D11Texture2DFactory : public CBaseObject, public ITexture2DFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateD3D11Texture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
@@ -247,8 +248,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Texture2DFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;

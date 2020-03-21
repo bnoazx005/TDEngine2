@@ -414,7 +414,7 @@ namespace TDEngine2
 
 
 	CStaticMeshLoader::CStaticMeshLoader() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
@@ -517,7 +517,7 @@ namespace TDEngine2
 
 
 	CStaticMeshFactory::CStaticMeshFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

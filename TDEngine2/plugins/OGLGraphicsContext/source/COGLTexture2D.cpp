@@ -179,7 +179,7 @@ namespace TDEngine2
 
 
 	COGLTexture2DFactory::COGLTexture2DFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

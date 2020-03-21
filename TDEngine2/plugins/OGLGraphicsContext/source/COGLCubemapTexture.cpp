@@ -178,7 +178,7 @@ namespace TDEngine2
 
 
 	COGLCubemapTextureFactory::COGLCubemapTextureFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

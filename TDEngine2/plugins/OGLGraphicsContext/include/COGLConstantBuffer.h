@@ -8,7 +8,7 @@
 
 
 #include <graphics/IConstantBuffer.h>
-#include <core/IBaseObject.h>
+#include <core/CBaseObject.h>
 
 
 namespace TDEngine2
@@ -24,7 +24,7 @@ namespace TDEngine2
 	*/
 
 
-	class COGLConstantBuffer : public IConstantBuffer, public virtual IBaseObject
+	class COGLConstantBuffer : public IConstantBuffer, public CBaseObject
 	{
 		public:
 			friend TDE2_API IConstantBuffer* CreateOGLConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
@@ -121,8 +121,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLConstantBuffer)
 		protected:
-			bool     mIsInitialized;
-
 			IBuffer* mpBufferImpl;
 
 			U32      mCurrUsedSlot;

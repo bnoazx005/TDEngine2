@@ -12,7 +12,7 @@
 namespace TDEngine2
 {
 	COGLGCtxPlugin::COGLGCtxPlugin() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

@@ -9,7 +9,7 @@
 namespace TDEngine2
 {
 	COGLBuffer::COGLBuffer() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

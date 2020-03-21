@@ -267,7 +267,7 @@ namespace TDEngine2
 
 
 	CD3D11Texture2DFactory::CD3D11Texture2DFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

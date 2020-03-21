@@ -266,7 +266,7 @@ namespace TDEngine2
 
 
 	CFontLoader::CFontLoader() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
@@ -346,7 +346,7 @@ namespace TDEngine2
 
 
 	CFontFactory::CFontFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

@@ -9,6 +9,7 @@
 
 #include "IFont.h"
 #include "CBaseResource.h"
+#include "CBaseObject.h"
 #include "./../utils/CResult.h"
 #include <string>
 #include <unordered_map>
@@ -174,7 +175,7 @@ namespace TDEngine2
 		\brief The class implements a functionality of a base material loader
 	*/
 
-	class CFontLoader : public IFontLoader
+	class CFontLoader : public CBaseObject, public IFontLoader
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateFontLoader(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result);
@@ -222,8 +223,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFontLoader)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IFileSystem*      mpFileSystem;
@@ -250,7 +249,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class CFontFactory : public IFontFactory
+	class CFontFactory : public CBaseObject, public IFontFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result);
@@ -309,8 +308,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFontFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 	};
 }

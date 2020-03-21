@@ -9,7 +9,7 @@
 namespace TDEngine2
 {
 	CD3D11VertexBuffer::CD3D11VertexBuffer() :
-		mIsInitialized(false), mpInputLayout(nullptr)
+		CBaseObject(), mpInputLayout(nullptr)
 	{
 	}
 

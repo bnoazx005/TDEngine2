@@ -8,6 +8,7 @@
 
 
 #include "IShaderCompiler.h"
+#include "./../core/CBaseObject.h"
 #include "./../utils/Utils.h"
 #include "./../utils/Types.h"
 #include "./../utils/CResult.h"
@@ -154,7 +155,7 @@ namespace TDEngine2
 		\brief The class is a basis for all other compilers of shaders
 	*/
 
-	class CBaseShaderCompiler : public IShaderCompiler
+	class CBaseShaderCompiler : public CBaseObject, public IShaderCompiler
 	{
 		protected:
 			typedef CShaderPreprocessor::TDefinesMap                           TDefinesMap;
@@ -233,8 +234,6 @@ namespace TDEngine2
 
 			TDE2_API std::string _enableShaderStage(E_SHADER_STAGE_TYPE shaderStage, const TStagesRegionsMap& stagesRegionsInfo, const std::string& source) const;
 		protected:
-			bool             mIsInitialized;
-
 			static U32       mMaxStepsCount; ///< The value is used within _removeComments to bound a maximum number of steps of an automata
 
 			static const C8* mEntryPointsDefineNames[3];

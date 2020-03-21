@@ -279,7 +279,7 @@ namespace TDEngine2
 		\brief The class implements a functionality of a base material loader
 	*/
 
-	class CStaticMeshLoader : public IMeshLoader
+	class CStaticMeshLoader : public CBaseObject, public IMeshLoader
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateStaticMeshLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem,
@@ -330,8 +330,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMeshLoader)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IFileSystem*      mpFileSystem;
@@ -362,7 +360,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class CStaticMeshFactory : public IMeshFactory
+	class CStaticMeshFactory : public CBaseObject, public IMeshFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateStaticMeshFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
@@ -423,8 +421,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMeshFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;

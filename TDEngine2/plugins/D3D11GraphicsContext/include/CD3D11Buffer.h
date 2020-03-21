@@ -8,7 +8,7 @@
 
 
 #include <graphics/IBuffer.h>
-#include <core/IBaseObject.h>
+#include <core/CBaseObject.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -35,7 +35,7 @@ namespace TDEngine2
 		can be used in different 
 	*/
 
-	class CD3D11Buffer : public virtual IBaseObject, public IBuffer
+	class CD3D11Buffer : public CBaseObject, public IBuffer
 	{
 		public:
 			friend TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
@@ -127,9 +127,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Buffer)
 		protected:
-			bool                     mIsInitialized;
-
-			ID3D11DeviceContext *    mp3dDeviceContext;
+			ID3D11DeviceContext*     mp3dDeviceContext;
 
 			ID3D11Buffer*            mpBufferInstance;
 			

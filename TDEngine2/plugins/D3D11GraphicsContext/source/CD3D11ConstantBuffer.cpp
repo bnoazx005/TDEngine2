@@ -9,7 +9,7 @@
 namespace TDEngine2
 {
 	CD3D11ConstantBuffer::CD3D11ConstantBuffer() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include <core/CBaseObject.h>
 #include <graphics/CBaseCubemapTexture.h>
 #include <utils/CResult.h>
 #include <utils/Utils.h>
@@ -142,7 +143,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class COGLCubemapTextureFactory : public ICubemapTextureFactory
+	class COGLCubemapTextureFactory : public CBaseObject, public ICubemapTextureFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateOGLCubemapTextureFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
@@ -203,8 +204,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLCubemapTextureFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;

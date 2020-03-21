@@ -8,7 +8,7 @@
 
 
 #include <graphics/IIndexBuffer.h>
-#include <core/IBaseObject.h>
+#include <core/CBaseObject.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -26,7 +26,7 @@ namespace TDEngine2
 	*/
 
 
-	class CD3D11IndexBuffer : public IIndexBuffer, public virtual IBaseObject
+	class CD3D11IndexBuffer : public IIndexBuffer, public CBaseObject
 	{
 		public:
 			friend TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
@@ -129,8 +129,6 @@ namespace TDEngine2
 			ID3D11DeviceContext * mp3dDeviceContext;
 
 			ID3D11Buffer*         mpInternalIndexBuffer;
-
-			bool                  mIsInitialized;
 
 			IBuffer*              mpBufferImpl;
 			

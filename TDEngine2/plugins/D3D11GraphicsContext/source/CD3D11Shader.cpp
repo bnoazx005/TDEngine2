@@ -213,7 +213,7 @@ namespace TDEngine2
 
 
 	CD3D11ShaderFactory::CD3D11ShaderFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

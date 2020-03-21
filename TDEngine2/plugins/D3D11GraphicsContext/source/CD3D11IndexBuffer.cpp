@@ -10,7 +10,7 @@
 namespace TDEngine2
 {
 	CD3D11IndexBuffer::CD3D11IndexBuffer() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

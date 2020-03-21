@@ -16,7 +16,7 @@
 namespace TDEngine2
 {
 	CD3D11GCtxPlugin::CD3D11GCtxPlugin() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

@@ -134,7 +134,7 @@ namespace TDEngine2
 
 
 	CBaseTexture2DLoader::CBaseTexture2DLoader() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

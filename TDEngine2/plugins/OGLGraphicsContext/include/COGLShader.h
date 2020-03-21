@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include <core/CBaseObject.h>
 #include <graphics/CBaseShader.h>
 #include <utils/Config.h>
 #include <string>
@@ -109,7 +110,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class COGLShaderFactory : public IShaderFactory
+	class COGLShaderFactory : public CBaseObject, public IShaderFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateOGLShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
@@ -170,8 +171,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLShaderFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;

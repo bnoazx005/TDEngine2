@@ -23,6 +23,15 @@ namespace TDEngine2
 	{
 		public:
 			/*!
+				\brief The method increment a value of the internal reference counter. You can ignore
+				this method if you work in single-threaded manner. If you want to use an object from
+				another thread you should increment its counter to prevent non thread-safe deletion by
+				some of running threads.
+			*/
+
+			TDE2_API void AddRef() override;
+
+			/*!
 				\brief The method frees all memory occupied by the object
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -32,6 +41,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)
 		protected:
-			std::atomic_bool mIsInitialized;
+			std::atomic_uint32_t mRefCounter = 1;
+
+			std::atomic_bool     mIsInitialized;
 	};
 }

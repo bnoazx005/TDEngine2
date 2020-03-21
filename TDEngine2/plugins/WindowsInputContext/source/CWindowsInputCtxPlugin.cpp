@@ -8,7 +8,7 @@
 namespace TDEngine2
 {
 	CWindowsInputCtxPlugin::CWindowsInputCtxPlugin():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

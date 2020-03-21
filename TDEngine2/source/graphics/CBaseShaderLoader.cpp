@@ -14,7 +14,7 @@
 namespace TDEngine2
 {
 	CBaseShaderLoader::CBaseShaderLoader() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

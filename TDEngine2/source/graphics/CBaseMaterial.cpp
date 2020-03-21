@@ -496,7 +496,7 @@ namespace TDEngine2
 	
 
 	CBaseMaterialLoader::CBaseMaterialLoader() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

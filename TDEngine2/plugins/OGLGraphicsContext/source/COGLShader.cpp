@@ -236,7 +236,7 @@ namespace TDEngine2
 
 
 	COGLShaderFactory::COGLShaderFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

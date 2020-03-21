@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include <core/CBaseObject.h>
 #include <graphics/CBaseRenderTarget.h>
 #include <GL/glew.h>
 
@@ -127,7 +128,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class COGLRenderTargetFactory : public IRenderTargetFactory
+	class COGLRenderTargetFactory : public CBaseObject, public IRenderTargetFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateOGLRenderTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
@@ -188,8 +189,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLRenderTargetFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;

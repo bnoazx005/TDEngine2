@@ -226,7 +226,7 @@ namespace TDEngine2
 
 
 	CD3D11CubemapTextureFactory::CD3D11CubemapTextureFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

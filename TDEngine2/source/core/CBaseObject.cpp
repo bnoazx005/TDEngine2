@@ -7,4 +7,9 @@ namespace TDEngine2
 		mIsInitialized(false)
 	{
 	}
+
+	void CBaseObject::AddRef()
+	{
+		++mRefCounter;
+	}
 }

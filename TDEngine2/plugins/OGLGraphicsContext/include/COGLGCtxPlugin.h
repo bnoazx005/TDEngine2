@@ -26,6 +26,7 @@
 #include "COGLCubemapTexture.h"
 
 
+#include <core/CBaseObject.h>
 #include <core/IPlugin.h>
 
 
@@ -42,7 +43,7 @@ namespace TDEngine2
 		a support of a OpenGL 3.3 graphics context
 	*/
 
-	class COGLGCtxPlugin : public IPlugin
+	class COGLGCtxPlugin : public CBaseObject, public IPlugin
 	{
 		public:
 			friend TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY::CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
@@ -80,8 +81,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _registerResourceLoaders(IEngineCore* pEngineCore);
 		protected:
-			bool              mIsInitialized;
-
 			IEngineCore*      mpEngineCoreInstance;
 
 			IGraphicsContext* mpGraphicsContext;

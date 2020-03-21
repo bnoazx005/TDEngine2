@@ -136,7 +136,7 @@ namespace TDEngine2
 
 
 	COGLRenderTargetFactory::COGLRenderTargetFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

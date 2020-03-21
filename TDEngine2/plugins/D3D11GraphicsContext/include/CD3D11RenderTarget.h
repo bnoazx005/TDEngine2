@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include <core/CBaseObject.h>
 #include <graphics/CBaseRenderTarget.h>
 
 
@@ -143,7 +144,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class CD3D11RenderTargetFactory : public IRenderTargetFactory
+	class CD3D11RenderTargetFactory : public CBaseObject, public IRenderTargetFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateD3D11RenderTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
@@ -204,8 +205,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11RenderTargetFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;

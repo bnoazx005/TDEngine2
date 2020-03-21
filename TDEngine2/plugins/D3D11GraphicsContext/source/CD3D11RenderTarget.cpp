@@ -208,7 +208,7 @@ namespace TDEngine2
 
 
 	CD3D11RenderTargetFactory::CD3D11RenderTargetFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

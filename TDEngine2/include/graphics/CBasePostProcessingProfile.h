@@ -184,7 +184,7 @@ namespace TDEngine2
 		\brief The class implements a functionality of a loader of post-processing profile resources
 	*/
 
-	class CBasePostProcessingProfileLoader : public IPostProcessingProfileLoader
+	class CBasePostProcessingProfileLoader : public CBaseObject, public IPostProcessingProfileLoader
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateBasePostProcessingProfileLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem,
@@ -267,7 +267,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class CBasePostProcessingProfileFactory : public IPostProcessingProfileFactory
+	class CBasePostProcessingProfileFactory : public CBaseObject, public IPostProcessingProfileFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateBasePostProcessingProfileFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);

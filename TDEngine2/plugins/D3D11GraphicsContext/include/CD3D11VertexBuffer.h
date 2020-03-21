@@ -8,7 +8,7 @@
 
 
 #include <graphics/IVertexBuffer.h>
-#include <core/IBaseObject.h>
+#include <core/CBaseObject.h>
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -26,7 +26,7 @@ namespace TDEngine2
 	*/
 
 
-	class CD3D11VertexBuffer : public IVertexBuffer, public virtual IBaseObject
+	class CD3D11VertexBuffer : public IVertexBuffer, public CBaseObject
 	{
 		public:
 			friend TDE2_API IVertexBuffer* CreateD3D11VertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, 
@@ -133,8 +133,6 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexBuffer)
 		protected:
 			ID3D11DeviceContext* mp3dDeviceContext;
-
-			bool                 mIsInitialized;
 
 			IBuffer*             mpBufferImpl;
 

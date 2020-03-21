@@ -293,7 +293,7 @@ namespace TDEngine2
 		\brief The class is an implementation of a loader of texture atlases
 	*/
 
-	class CTextureAtlasLoader : public ITextureAtlasLoader
+	class CTextureAtlasLoader : public CBaseObject, public ITextureAtlasLoader
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateTextureAtlasLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem,
@@ -375,7 +375,7 @@ namespace TDEngine2
 		\brief The class is an implementation of a factory of texture atlases
 	*/
 
-	class CTextureAtlasFactory : public ITextureAtlasFactory
+	class CTextureAtlasFactory : public CBaseObject, public ITextureAtlasFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateTextureAtlasFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);

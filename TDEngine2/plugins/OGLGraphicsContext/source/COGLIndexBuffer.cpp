@@ -8,7 +8,7 @@
 namespace TDEngine2
 {
 	COGLIndexBuffer::COGLIndexBuffer() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include <core/CBaseObject.h>
 #include <graphics/CBaseTexture2D.h>
 #include <GL/glew.h>
 
@@ -149,7 +150,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class COGLTexture2DFactory : public ITexture2DFactory
+	class COGLTexture2DFactory : public CBaseObject, public ITexture2DFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateOGLTexture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
@@ -210,8 +211,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLTexture2DFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;

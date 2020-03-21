@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include <core/CBaseObject.h>
 #include <core/IPlugin.h>
 
 
@@ -23,7 +24,7 @@ namespace TDEngine2
 		a support of a DirectInput API based input context
 	*/
 
-	class CWindowsInputCtxPlugin : public IPlugin
+	class CWindowsInputCtxPlugin : public CBaseObject, public IPlugin
 	{
 		public:
 			friend TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY::CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
@@ -57,8 +58,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWindowsInputCtxPlugin)
 		protected:
-			bool              mIsInitialized;
-
 			IEngineCore*      mpEngineCoreInstance;
 
 			IInputContext*    mpInputContext;

@@ -115,7 +115,7 @@ namespace TDEngine2
 
 
 	CBaseCubemapTextureLoader::CBaseCubemapTextureLoader() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

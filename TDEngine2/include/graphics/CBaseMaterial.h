@@ -460,7 +460,7 @@ namespace TDEngine2
 		\brief The class implements a functionality of a base material loader
 	*/
 
-	class CBaseMaterialLoader : public IMaterialLoader
+	class CBaseMaterialLoader : public CBaseObject, public IMaterialLoader
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateBaseMaterialLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem,
@@ -513,8 +513,6 @@ namespace TDEngine2
 
 			TDE2_API TResult<TBaseMaterialFileHeader> _readMaterialFileHeader(IBinaryFileReader* pFileReader) const;
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IFileSystem*      mpFileSystem;
@@ -545,7 +543,7 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class CBaseMaterialFactory : public IMaterialFactory
+	class CBaseMaterialFactory : public CBaseObject, public IMaterialFactory
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreateBaseMaterialFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext,E_RESULT_CODE& result);

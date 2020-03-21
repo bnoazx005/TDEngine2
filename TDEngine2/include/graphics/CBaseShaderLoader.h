@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include "./../core/CBaseObject.h"
 #include "./../core/IResourceLoader.h"
 #include "./../utils/Types.h"
 
@@ -43,7 +44,7 @@ namespace TDEngine2
 		\brief The class is a common implementation of a shader loaded
 	*/
 
-	class CBaseShaderLoader : public IShaderLoader
+	class CBaseShaderLoader : public CBaseObject, public IShaderLoader
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
@@ -97,8 +98,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShaderLoader)
 		protected:
-			bool                    mIsInitialized;
-
 			IResourceManager*       mpResourceManager;
 
 			IFileSystem*            mpFileSystem;

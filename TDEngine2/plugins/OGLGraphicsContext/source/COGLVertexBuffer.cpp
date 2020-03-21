@@ -8,7 +8,7 @@
 namespace TDEngine2
 {
 	COGLVertexBuffer::COGLVertexBuffer() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

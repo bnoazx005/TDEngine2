@@ -8,6 +8,7 @@
 
 
 #include "ICubemapTexture.h"
+#include "./../core/CBaseObject.h"
 #include "./../core/CBaseResource.h"
 
 
@@ -165,7 +166,7 @@ namespace TDEngine2
 		\brief The class is a common implementation of a 2d texture loaded
 	*/
 
-	class CBaseCubemapTextureLoader : public ICubemapTextureLoader
+	class CBaseCubemapTextureLoader : public CBaseObject, public ICubemapTextureLoader
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateBaseCubemapTextureLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem,
@@ -233,8 +234,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _loadFaceTexture(ICubemapTexture* pCubemapTexture, const TCubemapMetaInfo& info, E_CUBEMAP_FACE face) const;
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IFileSystem*      mpFileSystem;

@@ -325,7 +325,7 @@ namespace TDEngine2
 	const C8* CBaseShaderCompiler::mTargetVersionDefineName = "TARGET";		
 
 	CBaseShaderCompiler::CBaseShaderCompiler() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

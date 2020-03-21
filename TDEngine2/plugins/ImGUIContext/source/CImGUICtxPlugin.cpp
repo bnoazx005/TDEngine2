@@ -12,7 +12,7 @@
 namespace TDEngine2
 {
 	CImGUICtxPlugin::CImGUICtxPlugin():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

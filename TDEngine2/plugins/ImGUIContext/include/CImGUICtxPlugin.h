@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include <core/CBaseObject.h>
 #include <core/IPlugin.h>
 #include "CImGUIContext.h"
 
@@ -24,7 +25,7 @@ namespace TDEngine2
 		a support of immediate GUI for editor stuffs
 	*/
 
-	class CImGUICtxPlugin : public IPlugin
+	class CImGUICtxPlugin : public CBaseObject, public IPlugin
 	{
 		public:
 			friend TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY::CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
@@ -58,8 +59,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUICtxPlugin)
 		protected:
-			bool           mIsInitialized;
-
 			IEngineCore*   mpEngineCoreInstance;
 
 			IImGUIContext* mpImGUIContext;

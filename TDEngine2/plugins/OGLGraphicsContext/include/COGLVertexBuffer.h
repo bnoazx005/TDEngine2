@@ -8,7 +8,7 @@
 
 
 #include <graphics/IVertexBuffer.h>
-#include <core/IBaseObject.h>
+#include <core/CBaseObject.h>
 #include <GL/glew.h>
 
 
@@ -25,7 +25,7 @@ namespace TDEngine2
 	*/
 
 
-	class COGLVertexBuffer : public IVertexBuffer, public virtual IBaseObject
+	class COGLVertexBuffer : public IVertexBuffer, public CBaseObject
 	{
 		public:
 			friend TDE2_API IVertexBuffer* CreateOGLVertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
@@ -129,8 +129,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexBuffer)
 		protected:
-			bool     mIsInitialized;
-
 			IBuffer* mpBufferImpl;
 
 			GLuint   mVAOHandler;

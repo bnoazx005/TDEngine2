@@ -8,7 +8,7 @@
 
 
 #include <graphics/IIndexBuffer.h>
-#include <core/IBaseObject.h>
+#include <core/CBaseObject.h>
 
 
 namespace TDEngine2
@@ -24,7 +24,7 @@ namespace TDEngine2
 	*/
 
 
-	class COGLIndexBuffer : public IIndexBuffer, public virtual IBaseObject
+	class COGLIndexBuffer : public IIndexBuffer, public CBaseObject
 	{
 		public:
 			friend TDE2_API IIndexBuffer* CreateOGLIndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
@@ -124,7 +124,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLIndexBuffer)
 		protected:
-			bool                mIsInitialized;
 			IBuffer*            mpBufferImpl;
 			E_INDEX_FORMAT_TYPE mIndexFormatType;
 	};

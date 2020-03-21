@@ -8,6 +8,7 @@
 
 
 #include "ITexture2D.h"
+#include "./../core/CBaseObject.h"
 #include "./../core/CBaseResource.h"
 
 
@@ -167,7 +168,7 @@ namespace TDEngine2
 		\brief The class is a common implementation of a 2d texture loaded
 	*/
 
-	class CBaseTexture2DLoader : public ITexture2DLoader
+	class CBaseTexture2DLoader : public CBaseObject, public ITexture2DLoader
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateBaseTexture2DLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem,
@@ -218,8 +219,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTexture2DLoader)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IFileSystem*      mpFileSystem;

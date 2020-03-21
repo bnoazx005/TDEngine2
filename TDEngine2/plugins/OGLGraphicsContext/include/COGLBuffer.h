@@ -8,7 +8,7 @@
 
 
 #include <graphics/IBuffer.h>
-#include <core/IBaseObject.h>
+#include <core/CBaseObject.h>
 
 
 namespace TDEngine2
@@ -20,7 +20,7 @@ namespace TDEngine2
 		can be used in different
 	*/
 
-	class COGLBuffer : public virtual IBaseObject, public IBuffer
+	class COGLBuffer : public CBaseObject, public IBuffer
 	{
 		public:
 			/*!
@@ -117,8 +117,6 @@ namespace TDEngine2
 
 			TDE2_API GLenum _getBufferType(E_BUFFER_TYPE type) const;
 		protected:
-			bool                     mIsInitialized;
-
 			GLuint                   mBufferHandler;
 
 			U32                      mBufferSize;
