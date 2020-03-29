@@ -5,7 +5,7 @@
 
 using namespace TDEngine2;
 
-#define DX_GAPI 0
+#define DX_GAPI 1
 
 #if DX_GAPI
 	const std::string ShaderType = "HLSL";

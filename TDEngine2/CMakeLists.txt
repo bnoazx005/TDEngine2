@@ -68,6 +68,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IFont.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CFont.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IImGUIContext.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/Serialization.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBaseComponent.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CComponentManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CEntity.h"

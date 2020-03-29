@@ -49,6 +49,7 @@
 #include "core/IFont.h"
 #include "core/CFont.h"
 #include "core/IImGUIContext.h"
+#include "core/Serialization.h"
 
 ///ecs
 #include "ecs/CEntity.h"
