@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
+#include "Serialization.h"
 #include <string>
 
 
@@ -421,7 +422,7 @@ namespace TDEngine2
 		\brief The interface represents a functionality of YAML file writer
 	*/
 
-	class IYAMLFileWriter : public IFileWriter
+	class IYAMLFileWriter : public IArchiveWriter, public IFileWriter
 	{
 		public:
 			TDE2_REGISTER_TYPE(IYAMLFileWriter)
@@ -438,7 +439,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of YAML file reader
 	*/
 
-	class IYAMLFileReader : public IFileReader
+	class IYAMLFileReader : public IArchiveReader, public IFileReader
 	{
 		public:
 			TDE2_REGISTER_TYPE(IYAMLFileReader)

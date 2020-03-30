@@ -36,6 +36,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CYAMLFileWriter::BeginGroup(const std::string& key)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::EndGroup()
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	E_RESULT_CODE CYAMLFileWriter::_onFree()
 	{
 		return RC_OK;
@@ -102,8 +114,139 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CYAMLFileReader::Open(IFileSystem* pFileSystem, const std::string& filename)
+	{
+		E_RESULT_CODE result = CBaseFile::Open(pFileSystem, filename);
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mpRootNode = new (std::nothrow) Yaml::Node;
+		if (!mpRootNode)
+		{
+			return RC_OUT_OF_MEMORY;
+		}
+
+		mpContext.emplace(mpRootNode);
+
+		return Deserialize(*mpRootNode);
+	}
+
+	E_RESULT_CODE CYAMLFileReader::BeginGroup(const std::string& key)
+	{
+		auto&& currNode = *_getCurrScope();
+
+		mpContext.emplace(key.empty() ? &currNode[mCurrElementIndex] : &currNode[key]);
+		mpScopesIndexers.push(mCurrElementIndex);
+		mCurrElementIndex = 0;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CYAMLFileReader::EndGroup()
+	{
+		if (mpContext.size() < 2)
+		{
+			return RC_FAIL;
+		}
+
+		mCurrElementIndex = mpScopesIndexers.top() + 1;
+		
+		mpScopesIndexers.pop();
+		mpContext.pop();
+
+		return RC_OK;
+	}
+
+	bool CYAMLFileReader::HasNextItem() const
+	{
+		return (mCurrElementIndex + 1 < _getCurrScope()->Size());
+	}
+
+	U8 CYAMLFileReader::GetUInt8(const std::string& key)
+	{
+		return _getContentAs<U8>(key);
+	}
+
+	U16 CYAMLFileReader::GetUInt16(const std::string& key)
+	{
+		return _getContentAs<U16>(key);
+	}
+
+	U32 CYAMLFileReader::GetUInt32(const std::string& key)
+	{
+		return _getContentAs<U32>(key);
+	}
+
+	U64 CYAMLFileReader::GetUInt64(const std::string& key)
+	{
+		return _getContentAs<U64>(key);
+	}
+
+	I8 CYAMLFileReader::GetInt8(const std::string& key)
+	{
+		return _getContentAs<I8>(key);
+	}
+
+	I16 CYAMLFileReader::GetInt16(const std::string& key)
+	{
+		return _getContentAs<I16>(key);
+	}
+
+	I32 CYAMLFileReader::GetInt32(const std::string& key)
+	{
+		return _getContentAs<I32>(key);
+	}
+
+	I64 CYAMLFileReader::GetInt64(const std::string& key)
+	{
+		return _getContentAs<I64>(key);
+	}
+
+	F32 CYAMLFileReader::GetFloat(const std::string& key)
+	{
+		return _getContentAs<F32>(key);
+	}
+
+	F64 CYAMLFileReader::GetDouble(const std::string& key)
+	{
+		return _getContentAs<F64>(key);
+	}
+
+	bool CYAMLFileReader::GetBool(const std::string& key)
+	{
+		return _getContentAs<bool>(key);
+	}
+
+	std::string CYAMLFileReader::GetString(const std::string& key)
+	{
+		return _getContentAs<std::string>(key);
+	}
+
+	std::string CYAMLFileReader::GetCurrKey() const
+	{
+		auto&& pCurrNode = _getCurrScope();
+		auto&& iter = pCurrNode->Begin();
+
+		for (U32 i = 0; i < (std::min)(mCurrElementIndex, pCurrNode->Size()); ++i, iter++) {}
+
+		return (*iter).first;
+	}
+
+	Yaml::Node* CYAMLFileReader::_getCurrScope() const
+	{
+		TDE2_ASSERT(!mpContext.empty());
+		return mpContext.top();
+	}
+
 	E_RESULT_CODE CYAMLFileReader::_onFree()
 	{
+		if (mpRootNode)
+		{
+			delete mpRootNode;
+		}
+
 		return RC_OK;
 	}
 

@@ -126,44 +126,65 @@ namespace TDEngine2
 
 		auto pYAMLFileReader = pFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
 
-		Yaml::Node fontDataRoot;
+		mName = pYAMLFileReader->GetString("name");
 
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = pYAMLFileReader->Deserialize(fontDataRoot)) != RC_OK)
+		/// \note read texture atlas that contains glyphs images
+		{
+			if ((result = pYAMLFileReader->BeginGroup("texture_atlas_info")) != RC_OK)
+			{
+				return result;
+			}
+
+			const auto& textureAtlasPath = pYAMLFileReader->GetString("path");
+
+			if (!textureAtlasPath.empty())
+			{
+				mpFontTextureAtlas = mpResourceManager->Load<CTextureAtlas>(textureAtlasPath);
+			}
+
+			if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+			{
+				return result;
+			}
+		}
+
+		/// \note read glyphs parameters
+		if ((result = pYAMLFileReader->BeginGroup("glyphs_map_desc")) != RC_OK)
+		{
+			return result;
+		}
+		
+		while (pYAMLFileReader->HasNextItem())
+		{
+			std::string key = pYAMLFileReader->GetCurrKey();
+
+			auto& currGlyphMapEntry = mGlyphsMap[std::stoi(key)];
+
+			if ((result = pYAMLFileReader->BeginGroup(key)) != RC_OK)
+			{
+				return result;
+			}
+
+			currGlyphMapEntry.mWidth   = pYAMLFileReader->GetUInt16("width");
+			currGlyphMapEntry.mHeight  = pYAMLFileReader->GetUInt16("height");
+			currGlyphMapEntry.mXCenter = pYAMLFileReader->GetInt16("xoffset");
+			currGlyphMapEntry.mYCenter = pYAMLFileReader->GetInt16("yoffset");
+			currGlyphMapEntry.mAdvance = pYAMLFileReader->GetFloat("advance");
+
+			if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+			{
+				return result;
+			}
+		}
+
+		if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
 		{
 			return result;
 		}
 
-		pYAMLFileReader->Close();
-
-		mName = fontDataRoot["name"].As<std::string>();
-
-		/// \note read texture atlas that contains glyphs images
-		const auto& textureAtlasPath = fontDataRoot["texture_atlas_info"]["path"].As<std::string>();
-
-		if (!textureAtlasPath.empty())
-		{
-			mpFontTextureAtlas = mpResourceManager->Load<CTextureAtlas>(textureAtlasPath);
-		}
-
-		/// \note read glyphs parameters
-		auto& glyphsMapDesc = fontDataRoot["glyphs_map_desc"];
-
-		for (auto iter = glyphsMapDesc.Begin(); iter != glyphsMapDesc.End(); iter++)
-		{
-			auto& glyphDesc = (*iter).second;
-
-			auto& currGlyphMapEntry = mGlyphsMap[std::stoi((*iter).first)];
-
-			currGlyphMapEntry.mWidth   = glyphDesc["width"].As<U16>();
-			currGlyphMapEntry.mHeight  = glyphDesc["height"].As<U16>();
-			currGlyphMapEntry.mXCenter = glyphDesc["xoffset"].As<I16>();
-			currGlyphMapEntry.mYCenter = glyphDesc["yoffset"].As<I16>();
-			currGlyphMapEntry.mAdvance = glyphDesc["advance"].As<F32>();
-		}
-
-		return RC_OK;
+		return pYAMLFileReader->Close();
 	}
 
 	E_RESULT_CODE CFont::AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info)

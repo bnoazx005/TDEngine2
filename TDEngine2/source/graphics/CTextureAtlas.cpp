@@ -370,19 +370,10 @@ namespace TDEngine2
 
 		auto pYAMLFileReader = pFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
 
-		Yaml::Node atlasDataRoot;
-
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = pYAMLFileReader->Deserialize(atlasDataRoot)) != RC_OK)
-		{
-			return result;
-		}
-
-		pYAMLFileReader->Close();
-
 		/// \note load texture based on read parameters
-		mName = atlasDataRoot["name"].As<std::string>();
+		mName = pYAMLFileReader->GetString("name");
 
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
 		mpTextureResource = mpResourceManager->Load<CBaseTexture2D>(mName + "_Tex.png");
@@ -390,29 +381,56 @@ namespace TDEngine2
 		/// \todo ansynchronously update sizes of the atlas when the texture has been loaded
 		_updateAtlasSizes(mpTextureResource->Get<IResource>(RAT_BLOCKING));
 
-		auto& texturesList = atlasDataRoot["textures_list"];
+		if ((result = pYAMLFileReader->BeginGroup("textures_list")) != RC_OK)
+		{
+			return result;
+		}
 
 		std::string currEntryName;
 
 		TRectI32 currBounds;
 
-		for (auto iter = texturesList.Begin(); iter != texturesList.End(); iter++)
+		while (pYAMLFileReader->HasNextItem())
 		{
-			auto& currEntryDesc = (*iter).second;
+			if ((result = pYAMLFileReader->BeginGroup(CStringUtils::mEmptyStr)) != RC_OK)
+			{
+				return result;
+			}
 
-			currEntryName = currEntryDesc["name"].As<std::string>();
+			currEntryName = pYAMLFileReader->GetString("name");
 
-			auto& boundsData = currEntryDesc["bounds"];
+			// \note read bounds information
+			{
+				if ((result = pYAMLFileReader->BeginGroup("bounds")) != RC_OK)
+				{
+					return result;
+				}
+			
+				currBounds.x      = pYAMLFileReader->GetInt32("x");
+				currBounds.y      = pYAMLFileReader->GetInt32("y");
+				currBounds.width  = pYAMLFileReader->GetInt32("width");
+				currBounds.height = pYAMLFileReader->GetInt32("height");
 
-			currBounds.x      = boundsData["x"].As<I32>();
-			currBounds.y      = boundsData["y"].As<I32>();
-			currBounds.width  = boundsData["width"].As<I32>();
-			currBounds.height = boundsData["height"].As<I32>();
+				if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+				{
+					return result;
+				}
+			}
+
+			if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+			{
+				return result;
+			}
 
 			mAtlasEntities.insert({ currEntryName, currBounds });
 		}
 
-		return RC_OK;
+		if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+		{
+			return result;
+		}
+
+		return pYAMLFileReader->Close();
 	}
 
 	ITexture2D* CTextureAtlas::GetTexture() const

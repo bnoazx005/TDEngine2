@@ -218,31 +218,32 @@ namespace TDEngine2
 
 		auto pYAMLFileReader = mpFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
 
-		Yaml::Node cubemapMetaInformation;
-
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = pYAMLFileReader->Deserialize(cubemapMetaInformation)) != RC_OK)
+		TCubemapMetaInfo cubemapMeta;
+
+		cubemapMeta.mFormat = CFormatUtils::GetFormatFromString(pYAMLFileReader->GetString("format"));
+
+		cubemapMeta.mWidth          = pYAMLFileReader->GetUInt32("width");
+		cubemapMeta.mHeight         = pYAMLFileReader->GetUInt32("height");
+		cubemapMeta.mMipLevelsCount = pYAMLFileReader->GetUInt16("mip-map-levels");
+
+		if ((result = pYAMLFileReader->BeginGroup("faces")) != RC_OK)
+		{
+			return TErrorValue<E_RESULT_CODE>(result);
+		}
+
+		for (U8 i = 0; i < 6; ++i)
+		{
+			cubemapMeta.mFaceTexturePaths[static_cast<U8>(E_CUBEMAP_FACE::POSITIVE_X) + i] = pYAMLFileReader->GetString(CStringUtils::mEmptyStr);
+		}
+
+		if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
 		{
 			return TErrorValue<E_RESULT_CODE>(result);
 		}
 
 		pYAMLFileReader->Close();
-
-		TCubemapMetaInfo cubemapMeta;
-
-		cubemapMeta.mFormat = CFormatUtils::GetFormatFromString(cubemapMetaInformation["format"].As<std::string>());
-
-		cubemapMeta.mWidth          = cubemapMetaInformation["width"].As<U32>();
-		cubemapMeta.mHeight         = cubemapMetaInformation["height"].As<U32>();
-		cubemapMeta.mMipLevelsCount = cubemapMetaInformation["mip-map-levels"].As<U16>();
-
-		auto& cubeFaces = cubemapMetaInformation["faces"];
-
-		for (U8 i = 0; i < 6; ++i)
-		{
-			cubemapMeta.mFaceTexturePaths[static_cast<U8>(E_CUBEMAP_FACE::POSITIVE_X) + i] = cubeFaces[i].As<std::string>();
-		}
 
 		return TOkValue<TCubemapMetaInfo>(cubemapMeta);
 	}

@@ -83,22 +83,36 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE EndGroup() = 0;
 
 			/*!
-				\brief The method enters into array's scope with given identifier
+				\brief The method returns true if there is at least single element within current scope
 
-				\param[in] key A name of an array's object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
+				\return The method returns true if there is at least single element within current scope
 			*/
 
-			TDE2_API virtual E_RESULT_CODE BeginArray(const std::string& key) = 0;
+			TDE2_API virtual bool HasNextItem() const = 0;
+
+			TDE2_API virtual U8 GetUInt8(const std::string& key) = 0;
+			TDE2_API virtual U16 GetUInt16(const std::string& key) = 0;
+			TDE2_API virtual U32 GetUInt32(const std::string& key) = 0;
+			TDE2_API virtual U64 GetUInt64(const std::string& key) = 0;
+
+			TDE2_API virtual I8 GetInt8(const std::string& key) = 0;
+			TDE2_API virtual I16 GetInt16(const std::string& key) = 0;
+			TDE2_API virtual I32 GetInt32(const std::string& key) = 0;
+			TDE2_API virtual I64 GetInt64(const std::string& key) = 0;
+
+			TDE2_API virtual F32 GetFloat(const std::string& key) = 0;
+			TDE2_API virtual F64 GetDouble(const std::string& key) = 0;
+
+			TDE2_API virtual bool GetBool(const std::string& key) = 0;
+
+			TDE2_API virtual std::string GetString(const std::string& key) = 0;
 
 			/*!
-				\brief The method goes out of current scope
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
+				\brief The method returns an identifier of current active node
+				\return The method returns an identifier of current active node
 			*/
 
-			TDE2_API virtual E_RESULT_CODE EndArray() = 0;
+			TDE2_API virtual std::string GetCurrKey() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IArchiveReader);
 	};
@@ -132,24 +146,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE EndGroup() = 0;
-
-			/*!
-				\brief The method enters into array's scope with given identifier
-
-				\param[in] key A name of an array's object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE BeginArray(const std::string& key) = 0;
-
-			/*!
-				\brief The method goes out of current scope
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE EndArray() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IArchiveWriter);
 	};
