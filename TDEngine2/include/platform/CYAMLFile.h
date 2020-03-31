@@ -35,9 +35,23 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IFile* CreateYAMLFileWriter(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
 		public:
+			typedef std::stack<Yaml::Node*> TScopesStack;
+			typedef std::stack<U32>         TScopesIndexers;
+		public:
 			TDE2_REGISTER_TYPE(CYAMLFileWriter)
 
 			TDE2_API E_RESULT_CODE Serialize(Yaml::Node& object) override;
+
+			/*!
+				\brief The method opens specified file
+
+				\param[in,out] pFileSystem A pointer to implementation of IFileSystem
+				\param[in] filename A name of a file
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Open(IFileSystem* pFileSystem, const std::string& filename) override;
 			
 			/*!
 				\brief The method enters into object's scope with given identifier
@@ -56,10 +70,53 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE EndGroup() override;
-		protected:
-			TDE2_API E_RESULT_CODE _onFree() override;
+
+			/*!
+				\brief The method enters into array's scope with given identifier
+
+				\param[in] key A name of an array's object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE BeginArray(const std::string& key) override;
+
+			/*!
+				\brief The method goes out of current scope
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE EndArray() override;
+
+			TDE2_API E_RESULT_CODE SetUInt8(const std::string& key, U8 value) override;
+			TDE2_API E_RESULT_CODE SetUInt16(const std::string& key, U16 value) override;
+			TDE2_API E_RESULT_CODE SetUInt32(const std::string& key, U32 value) override;
+			TDE2_API E_RESULT_CODE SetUInt64(const std::string& key, U64 value) override;
+
+			TDE2_API E_RESULT_CODE SetInt8(const std::string& key, I8 value) override;
+			TDE2_API E_RESULT_CODE SetInt16(const std::string& key, I16 value) override;
+			TDE2_API E_RESULT_CODE SetInt32(const std::string& key, I32 value) override;
+			TDE2_API E_RESULT_CODE SetInt64(const std::string& key, I64 value) override;
+
+			TDE2_API E_RESULT_CODE SetFloat(const std::string& key, F32 value) override;
+			TDE2_API E_RESULT_CODE SetDouble(const std::string& key, F64 value) override;
+
+			TDE2_API E_RESULT_CODE SetBool(const std::string& key, bool value) override;
+
+			TDE2_API E_RESULT_CODE SetString(const std::string& key, const std::string& value) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CYAMLFileWriter)
+
+			TDE2_API E_RESULT_CODE _onFree() override;
+		protected:
+			Yaml::Node*     mpRootNode;
+
+			TScopesStack    mpContext;
+
+			U32             mCurrElementIndex = 0;
+
+			TScopesIndexers mpScopesIndexers;
 	};
 
 

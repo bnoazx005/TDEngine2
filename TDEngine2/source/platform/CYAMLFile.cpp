@@ -36,6 +36,25 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CYAMLFileWriter::Open(IFileSystem* pFileSystem, const std::string& filename)
+	{
+		E_RESULT_CODE result = CBaseFile::Open(pFileSystem, filename);
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mpRootNode = new (std::nothrow) Yaml::Node;
+		if (!mpRootNode)
+		{
+			return RC_OUT_OF_MEMORY;
+		}
+
+		mpContext.emplace(mpRootNode);
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CYAMLFileWriter::BeginGroup(const std::string& key)
 	{
 		TDE2_UNIMPLEMENTED();
@@ -45,6 +64,76 @@ namespace TDEngine2
 	E_RESULT_CODE CYAMLFileWriter::EndGroup()
 	{
 		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::BeginArray(const std::string& key) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::EndArray() 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetUInt8(const std::string& key, U8 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetUInt16(const std::string& key, U16 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetUInt32(const std::string& key, U32 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetUInt64(const std::string& key, U64 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetInt8(const std::string& key, I8 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetInt16(const std::string& key, I16 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetInt32(const std::string& key, I32 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetInt64(const std::string& key, I64 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetFloat(const std::string& key, F32 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetDouble(const std::string& key, F64 value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetBool(const std::string& key, bool value) 
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CYAMLFileWriter::SetString(const std::string& key, const std::string& value)
+	{
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
