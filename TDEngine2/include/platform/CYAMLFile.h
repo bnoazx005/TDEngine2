@@ -37,6 +37,7 @@ namespace TDEngine2
 		public:
 			typedef std::stack<Yaml::Node*> TScopesStack;
 			typedef std::stack<U32>         TScopesIndexers;
+			typedef std::stack<bool>        TArrayScopesStack;
 		public:
 			TDE2_REGISTER_TYPE(CYAMLFileWriter)
 
@@ -57,11 +58,12 @@ namespace TDEngine2
 				\brief The method enters into object's scope with given identifier
 
 				\param[in] key A name of an object
+				\param[in] isArray Tells whether a group should be array
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE BeginGroup(const std::string& key) override;
+			TDE2_API E_RESULT_CODE BeginGroup(const std::string& key, bool isArray = false) override;
 
 			/*!
 				\brief The method goes out of current scope
@@ -70,24 +72,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE EndGroup() override;
-
-			/*!
-				\brief The method enters into array's scope with given identifier
-
-				\param[in] key A name of an array's object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE BeginArray(const std::string& key) override;
-
-			/*!
-				\brief The method goes out of current scope
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE EndArray() override;
 
 			TDE2_API E_RESULT_CODE SetUInt8(const std::string& key, U8 value) override;
 			TDE2_API E_RESULT_CODE SetUInt16(const std::string& key, U16 value) override;
@@ -108,15 +92,49 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CYAMLFileWriter)
 
+			TDE2_API E_RESULT_CODE _internalSerialize(Yaml::Node& object);
+
 			TDE2_API E_RESULT_CODE _onFree() override;
+
+			TDE2_API Yaml::Node* _getCurrScope() const;
+
+			template <typename T>
+			E_RESULT_CODE _setContent(const std::string& key, const T& value)
+			{
+				std::string valueStr = std::to_string(value);
+
+				if (mIsArrayScope)
+				{
+					(*_getCurrScope())[mCurrElementIndex++] = valueStr;
+				}
+
+				(*_getCurrScope())[key] = valueStr;
+				return RC_OK;
+			}
+
+			template <>
+			E_RESULT_CODE _setContent<std::string>(const std::string& key, const std::string& value)
+			{
+				if (mIsArrayScope)
+				{
+					(*_getCurrScope())[mCurrElementIndex++] = value;
+				}
+
+				(*_getCurrScope())[key] = value;
+				return RC_OK;
+			}
 		protected:
-			Yaml::Node*     mpRootNode;
+			Yaml::Node*       mpRootNode;
 
-			TScopesStack    mpContext;
+			TScopesStack      mpContext;
 
-			U32             mCurrElementIndex = 0;
+			U32               mCurrElementIndex = 0;
 
-			TScopesIndexers mpScopesIndexers;
+			TScopesIndexers   mpScopesIndexers;
+
+			bool              mIsArrayScope = false;
+
+			TArrayScopesStack mArrayContext;
 	};
 
 
@@ -213,6 +231,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _onFree() override;
 
 			TDE2_API Yaml::Node* _getCurrScope() const;
+
+			TDE2_API E_RESULT_CODE _internalDeserialize(Yaml::Node& outputObject);
 
 			template <typename T>
 			T _getContentAs(const std::string& key)

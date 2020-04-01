@@ -317,18 +317,33 @@ namespace TDEngine2
 		pFileSystem->Get<IImageFileWriter>(pFileSystem->Open<IImageFileWriter>(mName + "_Tex.png", true).Get())->Write(pAtlasInternalTexture);
 		
 		/// \note try to create YAML file with the given name
-		auto pFile = pFileSystem->Get<IYAMLFileWriter>(pFileSystem->Open<IYAMLFileWriter>(filename, true).Get());
+		auto pArchiveFile = pFileSystem->Get<IYAMLFileWriter>(pFileSystem->Open<IYAMLFileWriter>(filename, true).Get());
 
-		Yaml::Node textureAtlasDesc {};
+		PANIC_ON_FAILURE(pArchiveFile->SetString("name", mName));
 
-		textureAtlasDesc["name"]   = mName;
+		E_RESULT_CODE result = RC_OK;
 
-		auto& textureResourceDesc = textureAtlasDesc["texture_resource"];
-		textureResourceDesc["width"]          = std::to_string(pAtlasInternalTexture->GetWidth());
-		textureResourceDesc["height"]         = std::to_string(pAtlasInternalTexture->GetHeight());
-		textureResourceDesc["channels_count"] = std::to_string(CFormatUtils::GetNumOfChannelsOfFormat(pAtlasInternalTexture->GetFormat()));
+		/// \note write texture's information
+		{
+			if ((result = pArchiveFile->BeginGroup("texture_resource")) != RC_OK)
+			{
+				return result;
+			}
 
-		auto& texturesList = textureAtlasDesc["textures_list"];
+			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("width", pAtlasInternalTexture->GetWidth()));
+			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("height", pAtlasInternalTexture->GetHeight()));
+			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("channels_count", CFormatUtils::GetNumOfChannelsOfFormat(pAtlasInternalTexture->GetFormat())));
+
+			if ((result = pArchiveFile->EndGroup()) != RC_OK)
+			{
+				return result;
+			}
+		}
+
+		if ((result = pArchiveFile->BeginGroup("textures_list", true)) != RC_OK)
+		{
+			return result;
+		}
 
 		TRectI32 currBounds;
 
@@ -336,20 +351,41 @@ namespace TDEngine2
 		{
 			currBounds = currTextureEntity.second;
 
-			auto& currTextureDesc = texturesList.PushBack();
+			if ((result = pArchiveFile->BeginGroup(CStringUtils::mEmptyStr)) != RC_OK)
+			{
+				return result;
+			}
 
-			currTextureDesc["name"] = currTextureEntity.first;			
+			PANIC_ON_FAILURE(pArchiveFile->SetString("name", currTextureEntity.first));			
 
-			auto& boundsData = currTextureDesc["bounds"];
+			{
+				if ((result = pArchiveFile->BeginGroup("bounds")) != RC_OK)
+				{
+					return result;
+				}
 
-			boundsData["x"]      = std::to_string(currBounds.x);
-			boundsData["y"]      = std::to_string(currBounds.y);
-			boundsData["width"]  = std::to_string(currBounds.width);
-			boundsData["height"] = std::to_string(currBounds.height);
+				PANIC_ON_FAILURE(pArchiveFile->SetInt32("x", currBounds.x));
+				PANIC_ON_FAILURE(pArchiveFile->SetInt32("y", currBounds.y));
+				PANIC_ON_FAILURE(pArchiveFile->SetInt32("width", currBounds.width));
+				PANIC_ON_FAILURE(pArchiveFile->SetInt32("height",currBounds.height));
+				
+				if ((result = pArchiveFile->EndGroup()) != RC_OK)
+				{
+					return result;
+				}
+			}
+
+			if ((result = pArchiveFile->EndGroup()) != RC_OK)
+			{
+				return result;
+			}
 		}
 
-		pFile->Serialize(textureAtlasDesc);
-		pFile->Close();
+		if ((result = pArchiveFile->EndGroup()) != RC_OK ||
+			(result = pArchiveFile->Close()) != RC_OK)
+		{
+			return result;
+		}
 
 		return RC_OK;
 	}

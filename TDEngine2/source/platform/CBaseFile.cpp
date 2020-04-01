@@ -51,6 +51,13 @@ namespace TDEngine2
 	{
 		{
 			std::lock_guard<std::mutex> lock(mMutex);
+			
+			E_RESULT_CODE result = RC_OK;
+
+			if ((result = _onFree()) != RC_OK)
+			{
+				return result;
+			}
 
 			if (!mFile.is_open())
 			{
@@ -59,14 +66,7 @@ namespace TDEngine2
 
 			mFile.close();
 
-			E_RESULT_CODE result = mpFileSystemInstance->CloseFile(mName);
-
-			if (result != RC_OK)
-			{
-				return result;
-			}
-
-			if ((result = _onFree()) != RC_OK)
+			if ((result = mpFileSystemInstance->CloseFile(mName)) != RC_OK)
 			{
 				return result;
 			}

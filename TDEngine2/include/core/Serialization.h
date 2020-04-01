@@ -133,11 +133,12 @@ namespace TDEngine2
 				\brief The method enters into object's scope with given identifier
 
 				\param[in] key A name of an object
+				\param[in] isArray Tells whether a group should be array
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE BeginGroup(const std::string& key) = 0;
+			TDE2_API virtual E_RESULT_CODE BeginGroup(const std::string& key, bool isArray = false) = 0;
 
 			/*!
 				\brief The method goes out of current scope
@@ -146,24 +147,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE EndGroup() = 0;
-
-			/*!
-				\brief The method enters into array's scope with given identifier
-
-				\param[in] key A name of an array's object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE BeginArray(const std::string& key) = 0;
-
-			/*!
-				\brief The method goes out of current scope
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE EndArray() = 0;
 
 			TDE2_API virtual E_RESULT_CODE SetUInt8(const std::string& key, U8 value) = 0;
 			TDE2_API virtual E_RESULT_CODE SetUInt16(const std::string& key, U16 value) = 0;

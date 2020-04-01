@@ -78,34 +78,59 @@ namespace TDEngine2
 		}
 
 		/// \note try to create YAML file with the given name
-		auto pFile = pFileSystem->Get<IYAMLFileWriter>(pFileSystem->Open<IYAMLFileWriter>(filename, true).Get());
+		auto pArchiveFile = pFileSystem->Get<IYAMLFileWriter>(pFileSystem->Open<IYAMLFileWriter>(filename, true).Get());
 
-		Yaml::Node fontDesc{};
+		PANIC_ON_FAILURE(pArchiveFile->SetString("name", mName));
 
-		fontDesc["name"] = mName;
+		E_RESULT_CODE result = RC_OK;
 
-		auto& textureAtlasReference = fontDesc["texture_atlas_info"];
-		textureAtlasReference["path"] = mpFontTextureAtlas->Get<IResource>(RAT_BLOCKING)->GetName();
+		{
+			if ((result = pArchiveFile->BeginGroup("texture_atlas_info")) != RC_OK)
+			{
+				return result;
+			}
+
+			PANIC_ON_FAILURE(pArchiveFile->SetString("path", mpFontTextureAtlas->Get<IResource>(RAT_BLOCKING)->GetName()));
+
+			if ((result = pArchiveFile->EndGroup()) != RC_OK)
+			{
+				return result;
+			}
+		}
 
 		// TODO: add scale's info
 		
-		auto& glyphsMapDesc = fontDesc["glyphs_map_desc"];
+		if ((result = pArchiveFile->BeginGroup("glyphs_map_desc", true)) != RC_OK)
+		{
+			return result;
+		}
 
 		for (auto currMapEntry : mGlyphsMap)
 		{
-			auto& currGlyphDesc = glyphsMapDesc[std::to_string(currMapEntry.first)];
+			if ((result = pArchiveFile->BeginGroup(std::to_string(currMapEntry.first))) != RC_OK)
+			{
+				return result;
+			}
 			
 			auto& currInternalGlyphInfo = currMapEntry.second;
 
-			currGlyphDesc["width"]   = std::to_string(currInternalGlyphInfo.mWidth);
-			currGlyphDesc["height"]  = std::to_string(currInternalGlyphInfo.mHeight);
-			currGlyphDesc["xoffset"] = std::to_string(currInternalGlyphInfo.mXCenter);
-			currGlyphDesc["yoffset"] = std::to_string(currInternalGlyphInfo.mYCenter);
-			currGlyphDesc["advance"] = std::to_string(currInternalGlyphInfo.mAdvance);
+			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("width", currInternalGlyphInfo.mWidth));
+			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("height", currInternalGlyphInfo.mHeight));
+			PANIC_ON_FAILURE(pArchiveFile->SetUInt16("xoffset", currInternalGlyphInfo.mXCenter));
+			PANIC_ON_FAILURE(pArchiveFile->SetUInt16("yoffset", currInternalGlyphInfo.mYCenter));
+			PANIC_ON_FAILURE(pArchiveFile->SetFloat("advance", currInternalGlyphInfo.mAdvance));
+
+			if ((result = pArchiveFile->EndGroup()) != RC_OK)
+			{
+				return result;
+			}
 		}
 
-		E_RESULT_CODE result = pFile->Serialize(fontDesc);
-		result = result | pFile->Close();
+		if ((result = pArchiveFile->EndGroup()) != RC_OK ||
+			(result = pArchiveFile->Close()) != RC_OK)
+		{
+			return result;
+		}
 
 		return result;
 	}

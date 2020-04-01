@@ -30,7 +30,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	// }
 
 	// read ttf file
-	auto pFontFile = pFileSystem->Get<CBinaryFileReader>(pFileSystem->Open<CBinaryFileReader>("arial.ttf").Get());
+	auto pFontFile = pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>("arial.ttf").Get());
 	
 	std::unique_ptr<U8[]> pFontBuffer(new U8[pFontFile->GetFileLength()]);
 
@@ -48,7 +48,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	I32 width, height, xoff, yoff;
 
-	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas", TDEngine2::TTexture2DParameters(512, 512, TDEngine2::FT_NORM_UBYTE1));
+	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas2", TDEngine2::TTexture2DParameters(512, 512, TDEngine2::FT_NORM_UBYTE1));
 	auto pTexAtlas = pTexAtlasHandler->Get<ITextureAtlas>(TDEngine2::RAT_BLOCKING);
 
 	I32 advance, leftBearing;
@@ -85,9 +85,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	}
 	
 	pTexAtlas->Bake();
-	pTexAtlas->Serialize(pFileSystem, "atlas.info");
+	pTexAtlas->Serialize(pFileSystem, "atlas2.info");
 
-	pFontResource->Serialize(pFileSystem, "Arial.font");
+	pFontResource->Serialize(pFileSystem, "Arial2.font");
 
 	auto pTexture = pTexAtlas->GetTexture();
 
@@ -99,7 +99,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
 
 	TDEngine2::IMaterial* pMaterial = mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material",
-																						  TDEngine2::TMaterialParameters{ "testGLShader.shader" })->Get<IMaterial>(TDEngine2::RAT_BLOCKING);
+																						  TDEngine2::TMaterialParameters{ "testDXShader.shader" })->Get<IMaterial>(TDEngine2::RAT_BLOCKING);
 
 	pMaterial->SetTextureResource("TextureAtlas", pTexture);
 
