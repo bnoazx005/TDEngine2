@@ -270,7 +270,7 @@ namespace TDEngine2
 
 		if (resourceId != InvalidResourceId)
 		{
-			return mResourceHandlers[resourceId - 1].GetOrDefault(mResourceHandlers[0].Get());
+			return _createOrGetResourceHandler(resourceId);
 		}
 
 		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
