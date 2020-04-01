@@ -111,18 +111,6 @@ namespace TDEngine2
 				(*_getCurrScope())[key] = valueStr;
 				return RC_OK;
 			}
-
-			template <>
-			E_RESULT_CODE _setContent<std::string>(const std::string& key, const std::string& value)
-			{
-				if (mIsArrayScope)
-				{
-					(*_getCurrScope())[mCurrElementIndex++] = value;
-				}
-
-				(*_getCurrScope())[key] = value;
-				return RC_OK;
-			}
 		protected:
 			Yaml::Node*       mpRootNode;
 

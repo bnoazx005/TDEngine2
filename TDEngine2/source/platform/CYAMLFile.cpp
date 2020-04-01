@@ -72,6 +72,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	template <>
+	E_RESULT_CODE CYAMLFileWriter::_setContent<std::string>(const std::string& key, const std::string& value)
+	{
+		if (mIsArrayScope)
+		{
+			(*_getCurrScope())[mCurrElementIndex++] = value;
+		}
+
+		(*_getCurrScope())[key] = value;
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CYAMLFileWriter::SetUInt8(const std::string& key, U8 value) 
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
