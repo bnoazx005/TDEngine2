@@ -4,7 +4,7 @@
 namespace TDEngine2
 {
 	CBaseObject::CBaseObject() :
-		mIsInitialized(false)
+		mIsInitialized(false), mRefCounter(1)
 	{
 	}
 

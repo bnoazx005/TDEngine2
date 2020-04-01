@@ -41,7 +41,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)
 		protected:
-			std::atomic_uint32_t mRefCounter = 1;
+			std::atomic_uint32_t mRefCounter;
 
 			std::atomic_bool     mIsInitialized;
 	};
