@@ -1,5 +1,6 @@
 #include "./../../include/graphics/CGeometryBuilder.h"
 #include "./../../include/math/MathUtils.h"
+#include <cmath>
 
 
 namespace TDEngine2
