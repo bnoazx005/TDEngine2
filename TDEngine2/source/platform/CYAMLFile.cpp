@@ -379,7 +379,7 @@ namespace TDEngine2
 		auto&& pCurrNode = _getCurrScope();
 		auto&& iter = pCurrNode->Begin();
 
-		for (U32 i = 0; i < (std::min)(mCurrElementIndex, pCurrNode->Size()); ++i, iter++) {}
+		for (U32 i = 0; i < (std::min<U32>)(mCurrElementIndex, static_cast<U32>(pCurrNode->Size())); ++i, iter++) {}
 
 		return (*iter).first;
 	}
