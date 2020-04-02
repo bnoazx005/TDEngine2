@@ -8,6 +8,7 @@
 
 
 #include <core/IPlugin.h>
+#include <core/CBaseObject.h>
 
 
 namespace TDEngine2
@@ -23,7 +24,7 @@ namespace TDEngine2
 		a support of a Xlib API based input context
 	*/
 
-	class CUnixInputCtxPlugin : public IPlugin
+	class CUnixInputCtxPlugin : public CBaseObject, public IPlugin
 	{
 		public:
 			friend TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY::CreatePlugin(TDEngine2::IEngineCore* pEngineCore, TDEngine2::E_RESULT_CODE& result);
@@ -57,12 +58,10 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixInputCtxPlugin)
 		protected:
-			bool              mIsInitialized;
+			IEngineCore*   mpEngineCoreInstance;
 
-			IEngineCore*      mpEngineCoreInstance;
+			IInputContext* mpInputContext;
 
-			IInputContext*    mpInputContext;
-
-			TPluginInfo       mPluginInfo;
+			TPluginInfo    mPluginInfo;
 	};
 }

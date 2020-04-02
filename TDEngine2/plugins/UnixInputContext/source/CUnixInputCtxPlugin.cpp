@@ -8,7 +8,7 @@
 namespace TDEngine2
 {
 	CUnixInputCtxPlugin::CUnixInputCtxPlugin():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
