@@ -321,8 +321,18 @@ source_group("sources" FILES ${TDENGINE2_SOURCES})
 if (MSVC) 	#cl.exe compiler's options
 	message(STATUS "Windows system has detected...")
 	
-	set(CMAKE_CXX_STANDARD 14)
-	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+	include(CheckCXXCompilerFlag)
+
+	CHECK_CXX_COMPILER_FLAG("/std:c++14" COMPILER_SUPPORTS_CXX14)
+
+	if(COMPILER_SUPPORTS_CXX14)
+		message(STATUS "C++14 is enabled")
+
+		set(CMAKE_CXX_STANDARD 14)
+		set(CMAKE_CXX_STANDARD_REQUIRED ON)
+	else()
+		message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+	endif()
 
 	#Debug compiler's options
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /W3 /GS /Zc:inline /Od /Zi  /Zc:wchar_t")
