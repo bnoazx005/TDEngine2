@@ -84,4 +84,30 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRenderTargetFactory)
 	};
+
+
+	/*!
+		interface IDepthBufferTarget
+
+		\brief The interface defines functionality of depth buffer which can be used as a target for rendering
+	*/
+
+	class IDepthBufferTarget : public IRenderTarget
+	{
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDepthBufferTarget)
+	};
+
+
+	/*!
+		interface IDepthBufferTargetFactory
+
+		\brief The interface is a factory which can create an objects of IDepthBufferTarget type
+	*/
+
+	class IDepthBufferTargetFactory : public IRenderTargetFactory
+	{
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDepthBufferTargetFactory)
+	};
 }

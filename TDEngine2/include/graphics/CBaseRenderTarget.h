@@ -120,4 +120,17 @@ namespace TDEngine2
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = InvalidTextureSamplerId;
 	};
+
+
+	/*!
+		class CBaseDepthBufferTarget
+
+		\brief The class implements base functionlity of bindable depth buffer
+	*/
+
+	class CBaseDepthBufferTarget : public CBaseRenderTarget
+	{
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseDepthBufferTarget)
+	};
 }
