@@ -4,6 +4,7 @@
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/graphics/IGraphicsObjectManager.h"
+#include "./../../include/graphics/CGeometryBuilder.h"
 #include <cstring>
 #include <climits>
 
@@ -357,6 +358,46 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(pCubeMeshResource->PostLoad());
 
 		return pCubeMeshResource;
+	}
+
+	IStaticMesh* CStaticMesh::CreatePlane(IResourceManager* pResourceManager)
+	{
+		auto pPlaneMeshResource = pResourceManager->Create<CStaticMesh>("Plane", TMeshParameters{})->Get<CStaticMesh>(RAT_BLOCKING);
+
+		E_RESULT_CODE result = RC_OK;
+
+		IGeometryBuilder* pGeometryBuilder = CreateGeometryBuilder(result);
+
+		CDeferOperation releaseMemory([&] { pGeometryBuilder->Free(); });
+
+		if (result != RC_OK)
+		{
+			return nullptr;
+		}
+
+		auto meshData = pGeometryBuilder->CreatePlaneGeometry(ZeroVector3, UpVector3, 10.0f, 10.0f, 10);
+
+		for (auto&& currVertex : meshData.mVertices)
+		{
+			pPlaneMeshResource->AddPosition(currVertex.mPosition);
+		}
+
+		auto&& indices = meshData.mIndices;
+
+		U32 currFace[3];
+
+		for (U16 i = 0; i < indices.size(); i += 3)
+		{
+			currFace[0] = indices[i];
+			currFace[1] = indices[i + 1];
+			currFace[2] = indices[i + 2];
+
+			pPlaneMeshResource->AddFace(currFace);
+		}
+
+		PANIC_ON_FAILURE(pPlaneMeshResource->PostLoad());
+
+		return pPlaneMeshResource;
 	}
 
 

@@ -86,6 +86,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	//mpGraphicsContext->BindRenderTarget(dynamic_cast<IRenderTarget*>(pRT->Get(RAT_BLOCKING)));
 
 	auto pCubeMesh = CStaticMesh::CreateCube(mpResourceManager);
+	auto pPlaneMesh = CStaticMesh::CreatePlane(mpResourceManager);
 
 	mpResourceManager->Load<CStaticMesh>("Test.mesh");
 
@@ -97,6 +98,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshContainer->SetMeshName("Cube");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
+
+	// plane
+	auto pPlaneEntity = mpWorld->CreateEntity();
+	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
+	pPlaneMeshContainer->SetMaterialName("DebugMaterial.material");
+	pPlaneMeshContainer->SetMeshName("Plane");
 
 	{
 		TMaterialParameters skyboxMatParams 
@@ -119,6 +126,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	IGeometryBuilder* pGeomBuilder = CreateGeometryBuilder(result);
 	{
 		pGeomBuilder->CreateCylinderGeometry(ZeroVector3, UpVector3, 1.0f, 2.0f, 3);
+		pGeomBuilder->CreatePlaneGeometry(ZeroVector3, UpVector3, 10.0f, 10.0f, 3);
 	}
 	pGeomBuilder->Free();
 	mpGraphicsContext->GetInfo();

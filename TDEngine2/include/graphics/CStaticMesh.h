@@ -231,6 +231,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static IStaticMesh* CreateCube(IResourceManager* pResourceManager);
+
+			/*!
+				\brief The function creates a new static mesh resource which is a 10x10 cells plane 
+				
+				\param[in, out] pResourceManager A pointer to IResourceManager
+
+				\return The function returns a pointer to a new static mesh resource which is a 10x10 cells plane 
+			*/
+
+			TDE2_API static IStaticMesh* CreatePlane(IResourceManager* pResourceManager);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
 

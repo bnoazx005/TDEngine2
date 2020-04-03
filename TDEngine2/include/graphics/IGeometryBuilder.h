@@ -74,6 +74,20 @@ namespace TDEngine2
 
 			TDE2_API virtual TGeometryData CreateConeGeometry(const TVector3& position, const TVector3& axis, F32 radius, F32 height, U16 segmentsCount) = 0;
 
+			/*!
+				\brief The mehtod generates geometry for a plane with given parameters
+
+				\param[in] position A position of plane's center
+				\param[in] normal Plane's normal
+				\param[in] width Plane's width
+				\param[in] height Plane's height
+				\param[in] segmentsPerSide The number defines degree of plane's subdivision
+
+				\return The method returns an object which contains geometry data of a plane
+			*/
+
+			TDE2_API virtual TGeometryData CreatePlaneGeometry(const TVector3& position, const TVector3& normal, F32 width, F32 height, U16 segmentsPerSide) = 0;
+
 			//TDE2_API virtual TGeometryData CreateSphereGeometry() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGeometryBuilder)

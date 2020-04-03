@@ -153,6 +153,50 @@ namespace TDEngine2
 		return { std::move(vertices), std::move(faces) };
 	}
 
+	CGeometryBuilder::TGeometryData CGeometryBuilder::CreatePlaneGeometry(const TVector3& position, const TVector3& normal, F32 width, F32 height, U16 segmentsPerSide)
+	{
+		std::vector<TGeometryData::TVertex> vertices;
+		std::vector<U16> faces;
+
+		F32 halfWidth  = 0.5f * width;
+		F32 halfHeight = 0.5f * height;
+
+		F32 segmentWidth  = width / segmentsPerSide;
+		F32 segmentHeight = height / segmentsPerSide;
+
+		F32 y = halfHeight;
+		
+		for (U16 i = 0; i < segmentsPerSide; ++i)
+		{
+			F32 x = -halfWidth;
+
+			for (U16 j = 0; j < segmentsPerSide; ++j)
+			{
+				vertices.push_back({ { position + TVector3(x, 0.0f, y), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+
+				x += segmentWidth;
+			}
+
+			y += segmentHeight;
+		}
+
+		for (U16 i = 0; i < segmentsPerSide - 1; ++i)
+		{
+			for (U16 j = 0; j < segmentsPerSide - 1; ++j)
+			{
+				faces.push_back(i * segmentsPerSide + j);
+				faces.push_back(i * segmentsPerSide + j + 1);
+				faces.push_back((i + 1) * segmentsPerSide + j);
+
+				faces.push_back((i + 1) * segmentsPerSide + j);
+				faces.push_back(i * segmentsPerSide + j + 1);
+				faces.push_back((i + 1) * segmentsPerSide + j + 1);
+			}
+		}
+
+		return { std::move(vertices), std::move(faces) };
+	}
+
 
 	TDE2_API IGeometryBuilder* CreateGeometryBuilder(E_RESULT_CODE& result)
 	{
