@@ -92,7 +92,7 @@ namespace TDEngine2
 		\brief The interface defines functionality of depth buffer which can be used as a target for rendering
 	*/
 
-	class IDepthBufferTarget : public IRenderTarget
+	class IDepthBufferTarget : public virtual IRenderTarget
 	{
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDepthBufferTarget)

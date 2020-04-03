@@ -30,7 +30,8 @@ set(D3D11_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Utils.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GraphicsObjectManager.h"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11RenderTarget.h"	
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11CubemapTexture.h"	
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11CubemapTexture.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11DepthBufferTarget.h"		
 	)
 
 set(D3D11_GCTX_SOURCES
@@ -48,6 +49,7 @@ set(D3D11_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11GraphicsObjectManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11RenderTarget.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11CubemapTexture.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11DepthBufferTarget.cpp"
 	)
 
 source_group("includes" FILES ${D3D11_GCTX_HEADERS})

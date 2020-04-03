@@ -3,6 +3,7 @@
 #include "./../include/CD3D11GraphicsObjectManager.h"
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11RenderTarget.h"
+#include "./../include/CD3D11DepthBufferTarget.h"
 #include <utils/CFileLogger.h>
 #include <utils/Utils.h>
 #include <core/IEventManager.h>
@@ -214,6 +215,18 @@ namespace TDEngine2
 		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
 
 		mp3dDeviceContext->ClearRenderTargetView(mpRenderTargets[slot], clearColorArray);
+	}
+
+	void CD3D11GraphicsContext::ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue)
+	{
+		if (!pDepthBufferTarget)
+		{
+			return;
+		}
+
+		ID3D11DepthStencilView* pD3D11DepthBuffer = dynamic_cast<CD3D11DepthBufferTarget*>(pDepthBufferTarget)->GetDepthBufferTargetView();
+
+		mp3dDeviceContext->ClearDepthStencilView(pD3D11DepthBuffer, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, value, stencilValue);
 	}
 
 	void CD3D11GraphicsContext::ClearDepthBuffer(F32 value)

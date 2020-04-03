@@ -91,6 +91,15 @@ namespace TDEngine2
 			TDE2_API void ClearRenderTarget(U8 slot, const TColor32F& color) override;
 
 			/*!
+				\brief The method clears up given depth buffer with specified values
+
+				\param[in] value The depth buffer will be cleared with this value
+				\param[in] stencilValue The stencil buffer will be cleared with this value
+			*/
+
+			TDE2_API void ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue) override;
+
+			/*!
 				\brief The method clears up depth buffer with specified values
 
 				\param[in] value The depth buffer will be cleared with this value

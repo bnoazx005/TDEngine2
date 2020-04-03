@@ -86,4 +86,10 @@ namespace TDEngine2
 	{
 		return mFormat;
 	}
+
+
+	CBaseDepthBufferTarget::CBaseDepthBufferTarget() :
+		CBaseRenderTarget()
+	{
+	}
 }

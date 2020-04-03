@@ -186,6 +186,11 @@ namespace TDEngine2
 		//GL_SAFE_VOID_CALL(glClearBufferfv(GL_COLOR_ATTACHMENT0 + slot, 0, clearColorArray));
 	}
 
+	void COGLGraphicsContext::ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
+
 	void COGLGraphicsContext::ClearDepthBuffer(F32 value)
 	{
 		GL_SAFE_VOID_CALL(glClearDepthf(value));

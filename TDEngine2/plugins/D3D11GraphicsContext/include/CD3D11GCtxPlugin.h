@@ -20,6 +20,7 @@
 #include "CD3D11GraphicsObjectManager.h"
 #include "CD3D11RenderTarget.h"
 #include "CD3D11CubemapTexture.h"
+#include "CD3D11DepthBufferTarget.h"
 
 
 #include <core/CBaseObject.h>

@@ -19,7 +19,7 @@ namespace TDEngine2
 		\brief The class implements platform independent functionality of a render target
 	*/
 
-	class CBaseRenderTarget : public IRenderTarget, public CBaseResource
+	class CBaseRenderTarget : public virtual IRenderTarget, public CBaseResource
 	{
 		public:
 			TDE2_REGISTER_TYPE(CBaseRenderTarget)
@@ -128,7 +128,7 @@ namespace TDEngine2
 		\brief The class implements base functionlity of bindable depth buffer
 	*/
 
-	class CBaseDepthBufferTarget : public CBaseRenderTarget
+	class CBaseDepthBufferTarget : public CBaseRenderTarget, public IDepthBufferTarget
 	{
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseDepthBufferTarget)
