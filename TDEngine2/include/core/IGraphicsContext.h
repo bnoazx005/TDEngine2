@@ -292,6 +292,14 @@ namespace TDEngine2
 			TDE2_API virtual void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) = 0;
 
 			/*!
+				\brief The method binds a given depth buffer to rendering pipeline
+
+				\param[in, out] pDepthBufferTarget A pointer to IDepthBufferTarget implementation
+			*/
+
+			TDE2_API virtual void BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget) = 0;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

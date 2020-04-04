@@ -392,6 +392,21 @@ namespace TDEngine2
 		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, mpCurrDepthStencilView);
 	}
 
+	void CD3D11GraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget)
+	{
+		if (!pDepthBufferTarget)
+		{
+			mpCurrDepthStencilView = mpDefaultDepthStencilView;
+			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
+
+			return;
+		}
+
+		mpCurrDepthStencilView = dynamic_cast<CD3D11DepthBufferTarget*>(pDepthBufferTarget)->GetDepthBufferTargetView();
+
+		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, mpCurrDepthStencilView);
+	}
+
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

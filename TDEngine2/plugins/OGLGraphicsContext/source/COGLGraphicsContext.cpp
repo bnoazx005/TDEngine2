@@ -381,6 +381,11 @@ namespace TDEngine2
 #endif
 	}
 
+	void COGLGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
+
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;
