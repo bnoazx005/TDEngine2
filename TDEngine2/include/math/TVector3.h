@@ -203,4 +203,11 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TVector3 Lerp(const TVector3& a, const TVector3& b, F32 t);
+
+	/*!
+		\brief The functions returns unclamped random 3d vector. Each component can lie in range of from MIN_FLOAT to MAX_FLOAT
+		\return The functions returns unclamped random 3d vector
+	*/
+
+	TDE2_API TVector3 RandVector3();
 }

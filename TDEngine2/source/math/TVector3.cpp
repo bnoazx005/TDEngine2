@@ -1,5 +1,6 @@
 #include "./../../include/math/TVector3.h"
 #include <cmath>
+#include <limits>
 
 
 namespace TDEngine2
@@ -166,5 +167,19 @@ namespace TDEngine2
 	TVector3 Lerp(const TVector3& a, const TVector3& b, F32 t)
 	{
 		return (1.0f - t) * a + t * b;
+	}
+
+	TVector3 RandVector3()
+	{
+		constexpr F32 leftBound  = (std::numeric_limits<F32>::min)();
+		constexpr F32 rightBound = (std::numeric_limits<F32>::max)();
+
+		constexpr F32 rangeWidth = rightBound - leftBound;
+
+		F32 x = leftBound + static_cast<F32>(rand()) / (static_cast<F32>(RAND_MAX / rangeWidth));
+		F32 y = leftBound + static_cast<F32>(rand()) / (static_cast<F32>(RAND_MAX / rangeWidth));
+		F32 z = leftBound + static_cast<F32>(rand()) / (static_cast<F32>(RAND_MAX / rangeWidth));
+
+		return TVector3(x, y, z);
 	}
 }
