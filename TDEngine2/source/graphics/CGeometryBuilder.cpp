@@ -158,6 +158,11 @@ namespace TDEngine2
 		std::vector<TGeometryData::TVertex> vertices;
 		std::vector<U16> faces;
 
+		// \note compute plane's basis
+		TVector3 randVec = TVector3(-normal.y, normal.x, normal.z);
+		TVector3 forward = Normalize(Cross(normal, randVec));
+		TVector3 right = Normalize(Cross(normal, forward));
+
 		F32 halfWidth  = 0.5f * width;
 		F32 halfHeight = 0.5f * height;
 
@@ -172,12 +177,12 @@ namespace TDEngine2
 
 			for (U16 j = 0; j < segmentsPerSide; ++j)
 			{
-				vertices.push_back({ { position + TVector3(x, 0.0f, y), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+				vertices.push_back({ { position + x * right + y * forward, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 
 				x += segmentWidth;
 			}
 
-			y += segmentHeight;
+			y -= segmentHeight;
 		}
 
 		for (U16 i = 0; i < segmentsPerSide - 1; ++i)
