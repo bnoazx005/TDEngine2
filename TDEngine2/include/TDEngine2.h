@@ -155,6 +155,7 @@
 #include "math/TPlane.h"
 #include "math/TAABB.h"
 #include "math/MathUtils.h"
+#include "math/TRay.h"
 
 ///physics
 #include "physics/2D/ICollisionObject2D.h"

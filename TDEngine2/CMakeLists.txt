@@ -193,6 +193,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TPlane.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TAABB.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/MathUtils.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TRay.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ICollisionObject2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CBaseCollisionObject2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CBoxCollisionObject2D.h"
