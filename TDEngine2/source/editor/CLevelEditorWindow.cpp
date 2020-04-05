@@ -99,19 +99,23 @@ namespace TDEngine2
 
 	void CLevelEditorWindow::_onDrawGizmos()
 	{
-		if (mSelectedEntityId != InvalidEntityId)
+		if (mSelectedEntityId == InvalidEntityId)
 		{
-			IWorld* pWorld = mpEditorsManager->GetWorldInstance();
-			if (!pWorld)
-			{
-				return;
-			}
+			return;
+		}
 
-			if (auto pSelectedEntity = pWorld->FindEntity(mSelectedEntityId))
-			{
-				TMatrix4 matrix = pSelectedEntity->GetComponent<CTransform>()->GetTransform();
-				mpDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, matrix);
-			}
+		IWorld* pWorld = mpEditorsManager->GetWorldInstance();
+		if (!pWorld)
+		{
+			return;
+		}
+
+		if (auto pSelectedEntity = pWorld->FindEntity(mSelectedEntityId))
+		{
+			TMatrix4 matrix = pSelectedEntity->GetComponent<CTransform>()->GetTransform();
+			
+			// \todo Implement all types of gizmos here
+			mpDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, matrix);
 		}
 	}
 

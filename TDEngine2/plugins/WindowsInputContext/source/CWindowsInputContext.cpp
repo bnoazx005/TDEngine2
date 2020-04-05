@@ -171,6 +171,11 @@ namespace TDEngine2
 		return mpMouseDevice->GetMousePosition();
 	}
 
+	TVector2 CWindowsInputContext::GetNormalizedMousePosition() const
+	{
+		return mpMouseDevice->GetNormalizedMousePosition();
+	}
+
 	TVector3 CWindowsInputContext::GetMouseShiftVec() const
 	{
 		return mpMouseDevice->GetMouseShiftVec();

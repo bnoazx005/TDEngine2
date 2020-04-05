@@ -1,5 +1,6 @@
 #include "./../include/CMouse.h"
 #include <core/IInputContext.h>
+#include <math/MathUtils.h>
 #include <cstring>
 
 
@@ -112,6 +113,21 @@ namespace TDEngine2
 		F32 y = static_cast<F32>(windowBounds.bottom - cursorPos.y);
 
 		return { x, y, 0.0f };
+	}
+
+	TVector2 CMouse::GetNormalizedMousePosition() const
+	{
+		TVector3 pos = GetMousePosition();
+
+		RECT windowBounds;
+
+		HWND hwnd = mpWinInputContext->GetInternalHandler().mWindowHandler;
+		GetClientRect(hwnd, &windowBounds);		
+
+		F32 width  = static_cast<F32>(windowBounds.right);
+		F32 height = static_cast<F32>(windowBounds.bottom);
+
+		return { CMathUtils::Clamp(-1.0f, 1.0f, 2.0f * pos.x / width - 1.0f), CMathUtils::Clamp(-1.0f, 1.0f, 2.0f * pos.y / height - 1.0f) };
 	}
 
 	TVector3 CMouse::GetMouseShiftVec() const

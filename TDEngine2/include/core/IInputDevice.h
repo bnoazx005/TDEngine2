@@ -127,6 +127,16 @@ namespace TDEngine2
 			TDE2_API virtual TVector3 GetMousePosition() const = 0;
 
 			/*!
+				\brief The method returns normalized mouse position where the center of the screen is (0, 0)
+				and each component lies in range of [-1; 1]
+
+				\return The method returns normalized mouse position where the center of the screen is (0, 0)
+				and each component lies in range of [-1; 1]
+			*/
+
+			TDE2_API virtual TVector2 GetNormalizedMousePosition() const = 0;
+
+			/*!
 				\brief The method returns a 3d vector that's composed from
 				shift values of each mouse axis
 
