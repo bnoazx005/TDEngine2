@@ -209,4 +209,20 @@ namespace TDEngine2
 
 		return dynamic_cast<ISystem*>(pSystemInstance);
 	}
+
+
+	TRay3D NormalizedScreenPointToWorldRay(const ICamera& pCamera, const TVector2& pos)
+	{
+		const TMatrix4& viewProjInverse = pCamera.GetInverseViewProjMatrix();
+
+		TVector4 origin = viewProjInverse * TVector4(pos.x, pos.y, 0.0f, 1.0f);
+		origin = origin * (1.0f / origin.w);
+
+		TVector4 rayEnd = viewProjInverse * TVector4(pos.x, pos.y, 1.0f, 1.0f);
+		rayEnd = rayEnd * (1.0f / rayEnd.w);
+
+		TVector4 dir = Normalize(rayEnd - origin);
+
+		return { { origin.x, origin.y, origin.z }, { dir.x, dir.y, dir.z } };
+	}
 }

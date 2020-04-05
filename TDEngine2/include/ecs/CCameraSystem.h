@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
+#include "./../math/TRay.h"
 #include "CBaseSystem.h"
 #include "ICameraSystem.h"
 
@@ -146,4 +147,16 @@ namespace TDEngine2
 
 			const ICamera*            mpMainCamera;
 	};
+
+
+	/*!
+		\brief The function is a converter which maps normalized screen position into world space ray
+
+		\param[in] pCamera A pointer to ICamera component implementation
+		\param[in] pos A position of a point in clip space, each component lies in range of [-1;1]
+
+		\return The function is a converter which maps normalized screen position into world space ray
+	*/
+
+	TDE2_API TRay3D NormalizedScreenPointToWorldRay(const ICamera& pCamera, const TVector2& pos);
 }
