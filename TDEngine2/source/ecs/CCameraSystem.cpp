@@ -125,8 +125,8 @@ namespace TDEngine2
 			viewMatrix.m[2][2] *= graphicsCtxPositiveZAxisDirection;
 
 			pCurrCamera->SetViewMatrix(viewMatrix);
-
 			pCurrCamera->ComputeProjectionMatrix(this);
+			pCurrCamera->SetViewProjMatrix(pCurrCamera->GetProjMatrix() * pCurrCamera->GetViewMatrix());
 		}
 	}
 

@@ -60,6 +60,14 @@ namespace TDEngine2
 			TDE2_API void SetViewMatrix(const TMatrix4& viewMatrix) override;
 
 			/*!
+				\brief The method specifies a view-projection matrix for a camera
+
+				\param[in] viewProjMatrix A view-projection matrix
+			*/
+
+			TDE2_API void SetViewProjMatrix(const TMatrix4& viewProjMatrix) override;
+
+			/*!
 				\brief The method returns a position of a near clip plane on Z axis
 
 				\return The method returns a position of a near clip plane on Z axis
@@ -90,6 +98,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TMatrix4& GetViewMatrix() const override;
+
+			/*!
+				\brief The method returns a view-projection matrix of a camera
+
+				\return The method returns a view-projection matrix of a camera
+			*/
+
+			TDE2_API const TMatrix4& GetViewProjMatrix() const override;
+
+			/*!
+				\brief The method returns an inverted view-projection matrix of a camera
+
+				\return The method returns an inverted view-projection matrix of a camera
+			*/
+
+			TDE2_API const TMatrix4& GetInverseViewProjMatrix() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCamera)
 		protected:
@@ -100,5 +124,9 @@ namespace TDEngine2
 			TMatrix4 mProjMatrix;
 
 			TMatrix4 mViewMatrix;
+
+			TMatrix4 mViewProjMatrix;
+
+			TMatrix4 mInvViewProjMatrix;
 	};
 }

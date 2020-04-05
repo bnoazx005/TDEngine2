@@ -28,6 +28,12 @@ namespace TDEngine2
 		mViewMatrix = viewMatrix;
 	}
 
+	void CBaseCamera::SetViewProjMatrix(const TMatrix4& viewProjMatrix)
+	{
+		mViewProjMatrix    = viewProjMatrix;
+		mInvViewProjMatrix = Inverse(viewProjMatrix);
+	}
+
 	F32 CBaseCamera::GetNearPlane() const
 	{
 		return mZNear;
@@ -46,5 +52,15 @@ namespace TDEngine2
 	const TMatrix4& CBaseCamera::GetViewMatrix() const
 	{
 		return mViewMatrix;
+	}
+
+	const TMatrix4& CBaseCamera::GetViewProjMatrix() const
+	{
+		return mViewProjMatrix;
+	}
+
+	const TMatrix4& CBaseCamera::GetInverseViewProjMatrix() const
+	{
+		return mInvViewProjMatrix;
 	}
 }

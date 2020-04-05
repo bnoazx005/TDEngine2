@@ -91,6 +91,14 @@ namespace TDEngine2
 			TDE2_API virtual void SetViewMatrix(const TMatrix4& viewMatrix) = 0;
 
 			/*!
+				\brief The method specifies a view-projection matrix for a camera
+
+				\param[in] viewProjMatrix A view-projection matrix
+			*/
+
+			TDE2_API virtual void SetViewProjMatrix(const TMatrix4& viewProjMatrix) = 0;
+
+			/*!
 				\brief The method returns a position of a near clip plane on Z axis
 
 				\return The method returns a position of a near clip plane on Z axis
@@ -121,6 +129,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TMatrix4& GetViewMatrix() const = 0;
+
+			/*!
+				\brief The method returns a view-projection matrix of a camera
+
+				\return The method returns a view-projection matrix of a camera
+			*/
+
+			TDE2_API virtual const TMatrix4& GetViewProjMatrix() const = 0;
+
+			/*!
+				\brief The method returns an inverted view-projection matrix of a camera
+
+				\return The method returns an inverted view-projection matrix of a camera
+			*/
+
+			TDE2_API virtual const TMatrix4& GetInverseViewProjMatrix() const = 0;
 
 			/*!
 				\brief The method returns a type of camera's projection matrix
