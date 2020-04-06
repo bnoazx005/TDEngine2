@@ -185,8 +185,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	{
 		return mpEngineCoreInstance->Quit();
 	}
-
-	LOG_MESSAGE(mpInputContext->GetNormalizedMousePosition().ToString());
+	
 	//if (mpInputContext->IsMouseButtonPressed(0))
 	//{
 		auto&& mousePosition = mpInputContext->GetMousePosition();

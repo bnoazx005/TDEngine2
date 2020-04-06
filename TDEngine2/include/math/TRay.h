@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "TVector2.h"
 #include "TVector3.h"
+#include "MathUtils.h"
 #include <tuple>
 
 
@@ -36,4 +37,43 @@ namespace TDEngine2
 
 	typedef TRay<TVector2> TRay2D;
 	typedef TRay<TVector3> TRay3D;
+
+
+	/*!
+		\brief The function returns shortest distance between two lines
+
+		\param[in] line1 
+		\param[in] line2
+
+		\return The function returns a value of a distance between two lines
+	*/
+
+	template <typename T>
+	F32 CalcShortestDistanceBetweenLines(const TRay<T>& line1, const TRay<T>& line2)
+	{
+		T dir = line2.origin - line1.origin;
+
+		const F32 sqrV1 = Dot(line1.dir, line1.dir);
+		const F32 sqrV2 = Dot(line2.dir, line2.dir);
+		const F32 v1v2  = Dot(line1.dir, line2.dir);
+
+		const F32 det = v1v2 * v1v2 - sqrV1 * sqrV2;
+
+		// \note lines are parallel
+		if (CMathUtils::IsLessOrEqual(std::abs(det), (std::numeric_limits<F32>::min)()))
+		{
+			return Length(dir - Dot(dir, line1.dir) * line1.dir);
+		}
+
+		const F32 invDet = 1.0f / det;
+
+		const F32 dotDirV1 = Dot(dir, line1.dir);
+		const F32 dotDirV2 = Dot(dir, line2.dir);
+
+		const F32 t1 = invDet * (sqrV2 * dotDirV1 - v1v2 * dotDirV2);
+		const F32 t2 = invDet * (v1v2 * dotDirV1 - sqrV1 * dotDirV2);
+
+		const T a = (line1.origin + t1 * line1.dir) - (line2.origin + t2 * line2.dir);
+		return std::sqrt(Dot(a, a));
+	}
 }

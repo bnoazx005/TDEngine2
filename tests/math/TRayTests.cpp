@@ -1,0 +1,40 @@
+#include <catch2/catch.hpp>
+#include <TDEngine2.h>
+#include <vector>
+#include <tuple>
+
+
+using namespace TDEngine2;
+
+
+TEST_CASE("TRay Tests")
+{
+	SECTION("TestCalcShortestDistanceBetweenLines_PassParallelLines_ReturnsCorrectDistanceBetweenThem")
+	{
+		std::tuple<TRay3D, TRay3D, F32> testCases[]
+		{
+			{ { ZeroVector3, UpVector3 }, { { 2.0, 0.0f, 0.0f}, UpVector3 }, 2.0f },
+			{ { ZeroVector3, RightVector3 }, { { 0.0, 2.0f, 0.0f}, RightVector3 }, 2.0f },
+			{ { ZeroVector3, ForwardVector3 }, { { 0.0, 2.0f, 0.0f}, ForwardVector3 }, 2.0f },
+		};
+
+		for (auto&& currTestCase : testCases)
+		{
+			REQUIRE(std::abs(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase)) - std::get<F32>(currTestCase)) < 1e-2f);
+		}
+	}
+
+	SECTION("TestCalcShortestDistanceBetweenLines_PassOrthogonalRays_ReturnsDistanceBetweenThem")
+	{
+		std::tuple<TRay3D, TRay3D, F32> testCases[]
+		{
+			{ { ZeroVector3, ForwardVector3 }, { { 2.0, 0.0f, 0.0f}, UpVector3 }, 2.0f },
+			{ { ZeroVector3, RightVector3 }, { { 0.0, 0.0f, -5.0f}, UpVector3 }, 5.0f },
+		};
+
+		for (auto&& currTestCase : testCases)
+		{
+			REQUIRE(std::abs(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase)) - std::get<F32>(currTestCase)) < 1e-2f);
+		}
+	}
+}
