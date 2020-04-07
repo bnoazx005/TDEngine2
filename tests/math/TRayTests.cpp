@@ -37,4 +37,17 @@ TEST_CASE("TRay Tests")
 			REQUIRE(std::abs(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase)) - std::get<F32>(currTestCase)) < 1e-2f);
 		}
 	}
+
+	SECTION("TestCalcShortestDistanceBetweenLines_PassCommonCaseRays_ReturnsDistanceBetweenThem")
+	{
+		std::tuple<TRay3D, TRay3D, F32> testCases[]
+		{
+			{ { { -1.0f, 2.0f, 0.0f }, { 2.0f, 3.0f, 1.0f } }, { { 3.0, -4.0f, 1.0f}, { 1.0f, 2.0f, 1.0f } }, 6.35085f },
+		};
+
+		for (auto&& currTestCase : testCases)
+		{
+			REQUIRE(std::abs(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase)) - std::get<F32>(currTestCase)) < 1e-2f);
+		}
+	}
 }

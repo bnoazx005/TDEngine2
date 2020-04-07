@@ -53,6 +53,16 @@ namespace TDEngine2
 	{
 		T dir = line2.origin - line1.origin;
 
+		const T n = Cross(line1.dir, line2.dir);
+
+		if (Length(n) < 1e-3f)
+		{
+			return Length(Cross(line1.dir, dir));
+		}
+
+		return std::abs(Dot(Cross(line1.dir, line2.dir), dir) / Length(Cross(line1.dir, line2.dir)));
+
+#if 0
 		const F32 sqrV1 = Dot(line1.dir, line1.dir);
 		const F32 sqrV2 = Dot(line2.dir, line2.dir);
 		const F32 v1v2  = Dot(line1.dir, line2.dir);
@@ -73,7 +83,8 @@ namespace TDEngine2
 		const F32 t1 = invDet * (sqrV2 * dotDirV1 - v1v2 * dotDirV2);
 		const F32 t2 = invDet * (v1v2 * dotDirV1 - sqrV1 * dotDirV2);
 
-		const T a = (line1.origin + t1 * line1.dir) - (line2.origin + t2 * line2.dir);
+		const T a = dir + line2.dir * t2 - line1.dir * t1;
 		return std::sqrt(Dot(a, a));
+#endif
 	}
 }
