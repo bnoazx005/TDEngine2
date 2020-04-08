@@ -1,5 +1,6 @@
 #include "./../../include/graphics/CGeometryBuilder.h"
 #include "./../../include/math/MathUtils.h"
+#include "./../../include/graphics/IDebugUtility.h"
 #include <cmath>
 
 
@@ -58,7 +59,7 @@ namespace TDEngine2
 			vertices.push_back({ { position + u * (radius * cosf(currAngle)) + v * (radius * sinf(currAngle)), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 		}
 
-		U16 baseVerticesCount = vertices.size() - 1;
+		U16 baseVerticesCount = static_cast<U16>(vertices.size() - 1);
 
 		TVector3 topPosition = position + height * normal;
 
@@ -84,7 +85,7 @@ namespace TDEngine2
 
 		for (U16 i = topSideOffset; i <= vertices.size() - 1; ++i)
 		{
-			faces.push_back(vertices.size() - 1);
+			faces.push_back(static_cast<U16>(vertices.size()) - 1);
 			faces.push_back(i);
 			faces.push_back((i + 1) % (vertices.size() - 1) == 0 ? topSideOffset : (i + 1));
 		}
@@ -132,7 +133,7 @@ namespace TDEngine2
 		std::vector<U16> faces;
 
 		// \note form base's tris
-		U16 baseVerticesCount = vertices.size() - 1;
+		U16 baseVerticesCount = static_cast<U16>(vertices.size() - 1);
 
 		for (U16 i = 1; i < baseVerticesCount; ++i)
 		{
@@ -200,6 +201,68 @@ namespace TDEngine2
 		}
 
 		return { std::move(vertices), std::move(faces) };
+	}
+
+	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateTranslateGizmo(E_GIZMO_TYPE type)
+	{
+		constexpr F32 axisRadius = 0.02f;
+		constexpr F32 axisTipRadius = 0.1f;
+
+		std::tuple<TVector3, IGeometryBuilder::TGeometryData, IGeometryBuilder::TGeometryData> translateGizmoGeometry[]
+		{
+			{ RightVector3,   CreateCylinderGeometry(ZeroVector3, RightVector3, axisRadius, 1.0f, 6),    CreateConeGeometry(RightVector3, RightVector3, axisTipRadius, 0.4f, 6) },
+			{ UpVector3,      CreateCylinderGeometry(ZeroVector3, UpVector3, axisRadius, 1.0f, 6),       CreateConeGeometry(UpVector3, UpVector3, axisTipRadius, 0.4f, 6) },
+			{ ForwardVector3, CreateCylinderGeometry(ZeroVector3, -ForwardVector3, axisRadius, 1.0f, 6), CreateConeGeometry(-ForwardVector3, -ForwardVector3, axisTipRadius, 0.4f, 6) },
+		};
+
+		TVector3 currAxisDirection;
+
+		IGeometryBuilder::TGeometryDataPtr pLineGeometry    = nullptr;
+		IGeometryBuilder::TGeometryDataPtr pConeTipGeometry = nullptr;
+
+		std::vector<TGeometryData::TVertex> verts;
+		std::vector<U16> indices;
+
+		const TColor32F selectedColor { 1.0f, 0.647f, 0.0f, 1.0f };
+
+		for (U8 i = 0; i < 3; ++i)
+		{
+			auto&& currGizmoPart = translateGizmoGeometry[i];
+
+			currAxisDirection = std::move(std::get<TVector3>(currGizmoPart));
+			pLineGeometry     = &std::get<1>(currGizmoPart);
+			pConeTipGeometry  = &std::get<2>(currGizmoPart);
+
+			TColor32F meshColor{ currAxisDirection.x, currAxisDirection.y, currAxisDirection.z, 1.0f };
+
+			TColor32F currColor = (type == static_cast<E_GIZMO_TYPE>(static_cast<U8>(E_GIZMO_TYPE::TRANSLATION_X) + i)) ? selectedColor : meshColor;
+
+			U16 offset = static_cast<U16>(verts.size());
+
+			for (auto&& v : pLineGeometry->mVertices)
+			{
+				verts.push_back({ v.mPosition, ZeroVector3, currColor });
+			}
+
+			for (U16 currIndex : pLineGeometry->mIndices)
+			{
+				indices.push_back(currIndex + offset);
+			}
+
+			offset = static_cast<U16>(verts.size());
+
+			for (auto&& v : pConeTipGeometry->mVertices)
+			{
+				verts.push_back({ v.mPosition, ZeroVector3, currColor });
+			}
+
+			for (U16 currIndex : pConeTipGeometry->mIndices)
+			{
+				indices.push_back(currIndex + offset);
+			}
+		}
+
+		return { std::move(verts), std::move(indices) };
 	}
 
 

@@ -10,6 +10,7 @@
 #include "../core/IBaseObject.h"
 #include "../utils/Config.h"
 #include "../utils/Types.h"
+#include "../utils/Color.h"
 #include "../math/TVector3.h"
 #include "../math/TVector4.h"
 #include <vector>
@@ -17,6 +18,9 @@
 
 namespace TDEngine2
 {
+	enum class E_GIZMO_TYPE : U8;
+
+
 	/*!
 		interface IGeometryBuilder
 
@@ -30,8 +34,9 @@ namespace TDEngine2
 			{
 				typedef struct TVertex
 				{
-					TVector4 mPosition;
-					TVector3 mUV;
+					TVector4  mPosition;
+					TVector3  mUV;
+					TColor32F mColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 				} TVertex, *TVertexPtr;
 
 				std::vector<TVertex> mVertices;
@@ -87,6 +92,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TGeometryData CreatePlaneGeometry(const TVector3& position, const TVector3& normal, F32 width, F32 height, U16 segmentsPerSide) = 0;
+
+			/*!
+				\brief The method generates translation gizmo for one of following types TRANSLATE_X, TRANSLATE_Y and TRANSLATE_Z
+
+				\param[in] type A type of a translation gizmo
+
+				\return The method returns an object which contains geometry data of a translation gizmo
+			*/
+
+			TDE2_API virtual TGeometryData CreateTranslateGizmo(E_GIZMO_TYPE type) = 0;
 
 			//TDE2_API virtual TGeometryData CreateSphereGeometry() = 0;
 		protected:

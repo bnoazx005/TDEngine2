@@ -86,6 +86,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TGeometryData CreatePlaneGeometry(const TVector3& position, const TVector3& normal, F32 width, F32 height, U16 segmentsPerSide) override;
+
+			/*!
+				\brief The method generates translation gizmo for one of following types TRANSLATE_X, TRANSLATE_Y and TRANSLATE_Z
+
+				\param[in] type A type of a translation gizmo
+
+				\return The method returns an object which contains geometry data of a translation gizmo
+			*/
+
+			TDE2_API TGeometryData CreateTranslateGizmo(E_GIZMO_TYPE type) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGeometryBuilder)
 	};
