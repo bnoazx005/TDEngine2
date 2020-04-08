@@ -12,6 +12,7 @@
 #include "./../math/TVector4.h"
 #include "./../math/TMatrix4.h"
 #include <vector>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -70,6 +71,15 @@ namespace TDEngine2
 				TMatrix4     mTransform;
 				F32          mScale;
 			};
+
+			struct TGizmoTypeInfo
+			{
+				U32 mIndicesCount;
+				U32 mStartVertex;
+				U32 mStartIndex;
+			};
+
+			typedef std::unordered_map<E_GIZMO_TYPE, TGizmoTypeInfo> TGizmoTypesMap;
 		public:
 			/*!
 				\brief The method initializes an initial state of the object
@@ -233,6 +243,6 @@ namespace TDEngine2
 
 			IGeometryBuilder*        mpGeometryBuilder;
 
-			U32                      mTranslateGizmoNumOfIndices;
+			TGizmoTypesMap           mGizmosTypesMap;
 	};
 }

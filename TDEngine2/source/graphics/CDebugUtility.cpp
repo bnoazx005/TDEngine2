@@ -152,15 +152,17 @@ namespace TDEngine2
 		for (auto&& currGizmoInfo : mGizmosData)
 		{
 			auto pDrawGizmoCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(3);
+			
+			auto&& gizmoGeometryInfo = mGizmosTypesMap[currGizmoInfo.mType];
 
 			pDrawGizmoCommand->mpVertexBuffer           = mpGizmosVertexBuffer;
 			pDrawGizmoCommand->mpIndexBuffer            = mpGizmosIndexBuffer;
 			pDrawGizmoCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawGizmoCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
 			pDrawGizmoCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
-			pDrawGizmoCommand->mStartIndex              = 0;
-			pDrawGizmoCommand->mStartVertex             = 0;
-			pDrawGizmoCommand->mNumOfIndices            = mTranslateGizmoNumOfIndices;
+			pDrawGizmoCommand->mStartIndex              = gizmoGeometryInfo.mStartIndex;
+			pDrawGizmoCommand->mStartVertex             = gizmoGeometryInfo.mStartVertex;
+			pDrawGizmoCommand->mNumOfIndices            = gizmoGeometryInfo.mIndicesCount;
 			pDrawGizmoCommand->mObjectData.mModelMatrix = Transpose(currGizmoInfo.mTransform);
 
 			// \todo Add command for EDITOR_ONLY command buffer
@@ -411,54 +413,30 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDebugUtility::_initGizmosBuffers()
 	{
-		std::tuple<TVector3, IGeometryBuilder::TGeometryData, IGeometryBuilder::TGeometryData> translateGizmoGeometry[]
-		{
-			{ RightVector3, mpGeometryBuilder->CreateCylinderGeometry(ZeroVector3, RightVector3, 0.02f, 1.0f, 6), mpGeometryBuilder->CreateConeGeometry(RightVector3, RightVector3, 0.1f, 0.4f, 6) },
-			{ UpVector3, mpGeometryBuilder->CreateCylinderGeometry(ZeroVector3, UpVector3, 0.02f, 1.0f, 6), mpGeometryBuilder->CreateConeGeometry(UpVector3, UpVector3, 0.1f, 0.4f, 6) },
-			{ ForwardVector3, mpGeometryBuilder->CreateCylinderGeometry(ZeroVector3, -ForwardVector3, 0.02f, 1.0f, 6), mpGeometryBuilder->CreateConeGeometry(-ForwardVector3, -ForwardVector3, 0.1f, 0.4f, 6) },
-		};
-
-		TVector3 currAxisDirection;
-
-		IGeometryBuilder::TGeometryDataPtr pLineGeometry    = nullptr;
-		IGeometryBuilder::TGeometryDataPtr pConeTipGeometry = nullptr;
-
 		std::vector<TLineVertex> verts;
 		std::vector<U16> indices;
 
-		for (auto&& currGizmoPart : translateGizmoGeometry)
+		U32 startIndex   = 0;
+		U32 vertexOffset = 0;
+
+		for (U8 i = static_cast<U8>(E_GIZMO_TYPE::TRANSLATION); i != static_cast<U8>(E_GIZMO_TYPE::TRANSLATION_XY); ++i)
 		{
-			currAxisDirection = std::move(std::get<TVector3>(currGizmoPart));
-			pLineGeometry     = &std::get<1>(currGizmoPart);
-			pConeTipGeometry  = &std::get<2>(currGizmoPart);
+			startIndex   = static_cast<U32>(indices.size());
+			vertexOffset = static_cast<U32>(verts.size());
 
-			TColor32F meshColor { currAxisDirection.x, currAxisDirection.y, currAxisDirection.z, 1.0f };
+			E_GIZMO_TYPE gizmoType = static_cast<E_GIZMO_TYPE>(i);
 
-			U16 offset = verts.size();
+			auto&& commonTranslateGizmo = mpGeometryBuilder->CreateTranslateGizmo(gizmoType);
 
-			for (auto&& v : pLineGeometry->mVertices)
+			std::transform(commonTranslateGizmo.mVertices.begin(), commonTranslateGizmo.mVertices.end(), std::back_inserter(verts), [](auto&& v)
 			{
-				verts.push_back({ v.mPosition, meshColor });
-			}
+				return TLineVertex{ v.mPosition, v.mColor };
+			});
+			std::copy(commonTranslateGizmo.mIndices.begin(), commonTranslateGizmo.mIndices.end(), std::back_inserter(indices));
 
-			for (U16 currIndex : pLineGeometry->mIndices)
-			{
-				indices.push_back(currIndex + offset);
-			}
-
-			offset = verts.size();
-
-			for (auto&& v : pConeTipGeometry->mVertices)
-			{
-				verts.push_back({ v.mPosition, meshColor });
-			}
-
-			for (U16 currIndex : pConeTipGeometry->mIndices)
-			{
-				indices.push_back(currIndex + offset);
-			}
+			mGizmosTypesMap[gizmoType] = { static_cast<U32>(commonTranslateGizmo.mIndices.size()), vertexOffset, startIndex };
 		}
-
+		
 		auto gizmosVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TLineVertex) * verts.size(), &verts[0]);
 		if (gizmosVertexBufferResult.HasError())
 		{
@@ -466,10 +444,7 @@ namespace TDEngine2
 		}
 
 		mpGizmosVertexBuffer = gizmosVertexBufferResult.Get();
-
-		mTranslateGizmoNumOfIndices = indices.size();
-
-		mpGizmosIndexBuffer = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, TDEngine2::IFT_INDEX16, sizeof(U16) * mTranslateGizmoNumOfIndices, &indices[0]).Get();
+		mpGizmosIndexBuffer  = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, TDEngine2::IFT_INDEX16, sizeof(U16) * indices.size(), &indices[0]).Get();
 
 		return RC_OK;
 	}
