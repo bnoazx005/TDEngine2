@@ -8,6 +8,9 @@
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CEntity.h"
 #include "./../../include/ecs/CTransform.h"
+#include "./../../include/graphics/CPerspectiveCamera.h"
+#include "./../../include/graphics/COrthoCamera.h"
+#include "./../../include/ecs/CCameraSystem.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -78,8 +81,12 @@ namespace TDEngine2
 
 		mIsVisible = isEnabled;
 
+		if (_onDrawGizmos())
+		{
+			return; // \note If some of gizmo's axes are selected then skip rest propagation of the input
+		}
+
 		_onHandleInput();
-		_onDrawGizmos();
 	}
 
 	void CLevelEditorWindow::_onHandleInput()
@@ -97,26 +104,61 @@ namespace TDEngine2
 
 	}
 
-	void CLevelEditorWindow::_onDrawGizmos()
+	bool CLevelEditorWindow::_onDrawGizmos()
 	{
 		if (mSelectedEntityId == InvalidEntityId)
 		{
-			return;
+			return false;
 		}
 
 		IWorld* pWorld = mpEditorsManager->GetWorldInstance();
 		if (!pWorld)
 		{
-			return;
+			return false;
 		}
+
+		if (mCameraEntityId == InvalidEntityId)
+		{
+			mCameraEntityId = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>().front();
+		}
+
+		CEntity* pCameraEntity = pWorld->FindEntity(mCameraEntityId);
 
 		if (auto pSelectedEntity = pWorld->FindEntity(mSelectedEntityId))
 		{
 			TMatrix4 matrix = pSelectedEntity->GetComponent<CTransform>()->GetTransform();
 			
+			auto&& ray = NormalizedScreenPointToWorldRay(*GetValidPtrOrDefault<CBaseCamera*>(pCameraEntity->GetComponent<CPerspectiveCamera>(), pCameraEntity->GetComponent<COrthoCamera>()),
+														 mpInputContext->GetNormalizedMousePosition());
+
+			TVector3 origin { matrix.m[0][3], matrix.m[1][3], matrix.m[2][3] };
+
+			const TRay3D axes[3]
+			{
+				{ origin, RightVector3 },
+				{ origin, UpVector3 },
+				{ origin, ForwardVector3 }
+			};
+
+			U8 selectedAxisIndex = -1;
+
+			for (U8 i = 0; i < 3; ++i)
+			{
+				if (CalcShortestDistanceBetweenLines(axes[i], ray) < 0.1f)
+				{
+					selectedAxisIndex = i;
+				}
+			}
+
+			E_GIZMO_TYPE type = selectedAxisIndex >= 0 ? static_cast<E_GIZMO_TYPE>(static_cast<U8>(E_GIZMO_TYPE::TRANSLATION_X) + selectedAxisIndex) : E_GIZMO_TYPE::TRANSLATION;
+
 			// \todo Implement all types of gizmos here
-			mpDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, matrix);
+			mpDebugUtility->DrawTransformGizmo(type, matrix);
+
+			return selectedAxisIndex >= 0 && selectedAxisIndex < (std::numeric_limits<U8>::max)();
 		}
+
+		return false;
 	}
 
 	ISelectionManager* CLevelEditorWindow::_getSelectionManager()

@@ -19,6 +19,7 @@ namespace TDEngine2
 	class IInputContext;
 	class IDesktopInputContext;
 	class IDebugUtility;
+	class IWorld;
 
 
 	/*!
@@ -75,7 +76,7 @@ namespace TDEngine2
 			TDE2_API void _onDraw() override;
 
 			TDE2_API void _onHandleInput();
-			TDE2_API void _onDrawGizmos();
+			TDE2_API bool _onDrawGizmos();
 
 			TDE2_API ISelectionManager* _getSelectionManager();
 		protected:
@@ -87,7 +88,9 @@ namespace TDEngine2
 
 			IDebugUtility*        mpDebugUtility;
 
-			TEntityId             mSelectedEntityId;
+			TEntityId             mSelectedEntityId = InvalidEntityId;
+
+			TEntityId             mCameraEntityId = InvalidEntityId;
 	};
 }
 
