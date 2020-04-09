@@ -51,6 +51,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
+				\brief The method generates geometry for a cube which is axis aligned
+
+				\param[in] position A position of a cube's center
+				\param[in] size A size of each side of the cube
+
+				\return  The method generates geometry for a cube which is axis aligned
+			*/
+
+			TDE2_API TGeometryData CreateCubeGeometry(const TVector3& position, F32 size) override;
+
+			/*!
 				\brief The method generates geometry for a cylinder which is aligned along specified axis
 
 				\param[in] position A position of a cylinder's center
@@ -96,6 +107,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TGeometryData CreateTranslateGizmo(E_GIZMO_TYPE type) override;
+
+			/*!
+				\brief The method generates rotation Gizmo for one of following types ROTATION_X, ROTATION_Y and ROTATION_Z
+
+				\param[in] type A type of a rotation gizmo
+
+				\return The method returns an object which contains geometry data of a rotation gizmo
+			*/
+
+			TDE2_API TGeometryData CreateRotationGizmo(E_GIZMO_TYPE type) override;
+
+			/*!
+				\brief The method generates scaling gizmo for one of following types SCALE_X, SCALE_Y and SCALE_Z
+
+				\param[in] type A type of a scaling gizmo
+
+				\return The method returns an object which contains geometry data of a scaling gizmo
+			*/
+
+			TDE2_API TGeometryData CreateScaleGizmo(E_GIZMO_TYPE type) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGeometryBuilder)
 	};

@@ -36,6 +36,65 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateCubeGeometry(const TVector3& position, F32 size)
+	{
+		std::vector<TGeometryData::TVertex> vertices;
+
+		// clock-wise order is used, bottom face
+		vertices.push_back({ { 0.5f, -0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { 0.5f, -0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+
+		// top face
+		vertices.push_back({ { 0.5f, 0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { 0.5f, 0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+
+		// front face
+		vertices.push_back({ { 0.5f, -0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { 0.5f, 0.5f, -0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+
+		// back face
+		vertices.push_back({ { 0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, -0.5f, 0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, 0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { 0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+
+		// left face
+		vertices.push_back({ { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { -0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+
+		// right face
+		vertices.push_back({ { 0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { 0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { 0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { 0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+
+		std::vector<U16> faces
+		{
+			0, 1, 2,
+			0, 2, 3,
+			4, 5, 6,
+			4, 6, 7,
+			8, 9, 10,
+			8, 10, 11,
+			12, 13, 14,
+			12, 14, 15,
+			16, 17, 18,
+			16, 18, 19,
+			20, 21, 22,
+			20, 22, 23,
+		};
+
+		return { std::move(vertices), std::move(faces) };
+	}
 	
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateCylinderGeometry(const TVector3& position, const TVector3& axis, F32 radius, F32 height, U16 segmentsCount)
 	{
@@ -263,6 +322,76 @@ namespace TDEngine2
 		}
 
 		return { std::move(verts), std::move(indices) };
+	}
+
+	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateRotationGizmo(E_GIZMO_TYPE type)
+	{
+		return { {}, {} };
+	}
+
+	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateScaleGizmo(E_GIZMO_TYPE type)
+	{
+		return { {}, {} };
+		//TDE2_ASSERT(type == E_GIZMO_TYPE::SCALING || type == E_GIZMO_TYPE::SCALING_X || type == E_GIZMO_TYPE::SCALING_Y || type == E_GIZMO_TYPE::SCALING_Z);
+
+		//constexpr F32 axisRadius    = 0.02f;
+		//constexpr F32 axisTipRadius = 0.1f;
+
+		//std::tuple<TVector3, IGeometryBuilder::TGeometryData, IGeometryBuilder::TGeometryData> scaleGizmoGeometry[]
+		//{
+		//	{ RightVector3,   CreateCylinderGeometry(ZeroVector3, RightVector3, axisRadius, 1.0f, 6),    CreateCubeGeometry(RightVector3, RightVector3, axisTipRadius, 0.4f, 6) },
+		//	{ UpVector3,      CreateCylinderGeometry(ZeroVector3, UpVector3, axisRadius, 1.0f, 6),       CreateCubeGeometry(UpVector3, UpVector3, axisTipRadius, 0.4f, 6) },
+		//	{ ForwardVector3, CreateCylinderGeometry(ZeroVector3, -ForwardVector3, axisRadius, 1.0f, 6), CreateCubeGeometry(-ForwardVector3, -ForwardVector3, axisTipRadius, 0.4f, 6) },
+		//};
+
+		//TVector3 currAxisDirection;
+
+		//IGeometryBuilder::TGeometryDataPtr pLineGeometry    = nullptr;
+		//IGeometryBuilder::TGeometryDataPtr pCubeTipGeometry = nullptr;
+
+		//std::vector<TGeometryData::TVertex> verts;
+		//std::vector<U16> indices;
+
+		//const TColor32F selectedColor{ 1.0f, 0.647f, 0.0f, 1.0f }; // \todo move to some common settings place
+
+		//for (U8 i = 0; i < 3; ++i)
+		//{
+		//	auto&& currGizmoPart = scaleGizmoGeometry[i];
+
+		//	currAxisDirection = std::move(std::get<TVector3>(currGizmoPart));
+		//	pLineGeometry = &std::get<1>(currGizmoPart);
+		//	pCubeTipGeometry = &std::get<2>(currGizmoPart);
+
+		//	TColor32F meshColor{ currAxisDirection.x, currAxisDirection.y, currAxisDirection.z, 1.0f };
+
+		//	TColor32F currColor = (type == static_cast<E_GIZMO_TYPE>(static_cast<U8>(E_GIZMO_TYPE::TRANSLATION_X) + i)) ? selectedColor : meshColor;
+
+		//	U16 offset = static_cast<U16>(verts.size());
+
+		//	for (auto&& v : pLineGeometry->mVertices)
+		//	{
+		//		verts.push_back({ v.mPosition, ZeroVector3, currColor });
+		//	}
+
+		//	for (U16 currIndex : pLineGeometry->mIndices)
+		//	{
+		//		indices.push_back(currIndex + offset);
+		//	}
+
+		//	offset = static_cast<U16>(verts.size());
+
+		//	for (auto&& v : pCubeTipGeometry->mVertices)
+		//	{
+		//		verts.push_back({ v.mPosition, ZeroVector3, currColor });
+		//	}
+
+		//	for (U16 currIndex : pCubeTipGeometry->mIndices)
+		//	{
+		//		indices.push_back(currIndex + offset);
+		//	}
+		//}
+
+		//return { std::move(verts), std::move(indices) };
 	}
 
 
