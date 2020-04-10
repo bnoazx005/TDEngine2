@@ -25,6 +25,7 @@ namespace TDEngine2
 	template <typename T>
 	struct TRay
 	{
+		TRay() = default;
 		TRay(const T& origin, const T& direction) :
 			origin(origin), dir(Normalize(direction))
 		{
@@ -37,6 +38,27 @@ namespace TDEngine2
 
 	typedef TRay<TVector2> TRay2D;
 	typedef TRay<TVector3> TRay3D;
+
+
+	/*!
+		\brief The function returns shortest distance between a line (ray) and a point in the space
+
+		\param[in] line A ray with same dimension as the given point
+		\param[in] point A nD vector which represents a point in the space
+	*/
+
+	template <typename T>
+	F32 CalcDistanceBetweenRayAndPoint(const TRay<T>& line, const T& point)
+	{
+		const T dir = point - line.origin;
+
+		const F32 cosTheta  = Dot(Normalized(dir), line.dir);
+		const F32 dirLength = Length(dir);
+
+		const T projDirOntoLine = line.dir * (cosTheta * dirLength);
+
+		return std::sqrtf(dirLength * dirLength - projDirOntoLine * projDirOntoLine);
+	}
 
 
 	/*!
