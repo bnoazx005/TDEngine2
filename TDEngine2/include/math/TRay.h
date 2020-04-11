@@ -33,6 +33,19 @@ namespace TDEngine2
 
 		T origin;
 		T dir;
+
+		/*!
+			\brief The operator is an implementation of sampling algorithm for the ray
+
+			\param[in] t A float parameter which tells how far from the origin the sampled point should lie
+
+			\return A point which is computed by the following formula origin + t x dir
+		*/
+
+		inline T operator() (F32 t) const
+		{
+			return origin + t * dir;
+		}
 	};
 
 
@@ -52,10 +65,9 @@ namespace TDEngine2
 	{
 		const T dir = point - line.origin;
 
-		const F32 cosTheta  = Dot(Normalized(dir), line.dir);
-		const F32 dirLength = Length(dir);
-
-		const T projDirOntoLine = line.dir * (cosTheta * dirLength);
+		const F32 cosTheta        = Dot(Normalize(dir), line.dir);
+		const F32 dirLength       = Length(dir);
+		const F32 projDirOntoLine = Length(line.dir * (cosTheta * dirLength));
 
 		return std::sqrtf(dirLength * dirLength - projDirOntoLine * projDirOntoLine);
 	}
@@ -67,34 +79,23 @@ namespace TDEngine2
 		\param[in] line1 
 		\param[in] line2
 
-		\return The function returns a value of a distance between two lines
+		\return The function returns a tuple which consists of the following values: a distance between two lines and two parameters of given rays
 	*/
 
 	template <typename T>
-	F32 CalcShortestDistanceBetweenLines(const TRay<T>& line1, const TRay<T>& line2)
+	std::tuple<F32, F32, F32> CalcShortestDistanceBetweenLines(const TRay<T>& line1, const TRay<T>& line2)
 	{
 		T dir = line2.origin - line1.origin;
 
-		const T n = Cross(line1.dir, line2.dir);
+		// \note all formulas below assume that line1.dir and line2.dir are normalized so their lengths equal to 1
+		const F32 v1v2 = Dot(line1.dir, line2.dir);
 
-		if (Length(n) < 1e-3f)
-		{
-			return Length(Cross(line1.dir, dir));
-		}
-
-		return std::abs(Dot(Cross(line1.dir, line2.dir), dir) / Length(Cross(line1.dir, line2.dir)));
-
-#if 0
-		const F32 sqrV1 = Dot(line1.dir, line1.dir);
-		const F32 sqrV2 = Dot(line2.dir, line2.dir);
-		const F32 v1v2  = Dot(line1.dir, line2.dir);
-
-		const F32 det = v1v2 * v1v2 - sqrV1 * sqrV2;
+		const F32 det = v1v2 * v1v2 - 1.0f; 
 
 		// \note lines are parallel
 		if (CMathUtils::IsLessOrEqual(std::abs(det), (std::numeric_limits<F32>::min)()))
 		{
-			return Length(dir - Dot(dir, line1.dir) * line1.dir);
+			return { CalcDistanceBetweenRayAndPoint<T>(line1, line2.origin), 0.0f, 0.0f };
 		}
 
 		const F32 invDet = 1.0f / det;
@@ -102,11 +103,10 @@ namespace TDEngine2
 		const F32 dotDirV1 = Dot(dir, line1.dir);
 		const F32 dotDirV2 = Dot(dir, line2.dir);
 
-		const F32 t1 = invDet * (sqrV2 * dotDirV1 - v1v2 * dotDirV2);
-		const F32 t2 = invDet * (v1v2 * dotDirV1 - sqrV1 * dotDirV2);
+		const F32 t1 = invDet * (v1v2 * dotDirV2 - dotDirV1);
+		const F32 t2 = invDet * (dotDirV2 - v1v2 * dotDirV1);
 
 		const T a = dir + line2.dir * t2 - line1.dir * t1;
-		return std::sqrt(Dot(a, a));
-#endif
+		return { Length(a), t1, t2 };
 	}
 }

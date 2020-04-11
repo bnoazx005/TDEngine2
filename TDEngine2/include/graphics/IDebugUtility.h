@@ -42,8 +42,13 @@ namespace TDEngine2
 		TRANSLATION_XZ,
 		TRANSLATION_YZ,
 		ROTATION,
-		SCALING
+		SCALING,
+		SCALING_X,
+		SCALING_Y,
+		SCALING_Z
 	};
+
+	TDE2_API inline E_GIZMO_TYPE operator+ (E_GIZMO_TYPE type, U8 value) { return static_cast<E_GIZMO_TYPE>(static_cast<U8>(type) + value); }
 
 
 	/*!

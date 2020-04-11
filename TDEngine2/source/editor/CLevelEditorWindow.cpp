@@ -81,7 +81,29 @@ namespace TDEngine2
 
 		mIsVisible = isEnabled;
 
-		if (_onDrawGizmos())
+		if (_onDrawGizmos([this](TEntityId entityId, E_GIZMO_TYPE type, const TVector3& delta)
+			{
+				if (IWorld* pWorld = mpEditorsManager->GetWorldInstance())
+				{
+					if (CEntity* pEntity = pWorld->FindEntity(entityId))
+					{
+						auto pTransform = pEntity->GetComponent<CTransform>();
+						
+						switch (type)
+						{
+							case E_GIZMO_TYPE::TRANSLATION_X:
+								pTransform->SetPosition(pTransform->GetPosition() + delta.x * pTransform->GetRightVector());
+								break;
+							case E_GIZMO_TYPE::TRANSLATION_Y:
+								pTransform->SetPosition(pTransform->GetPosition() + delta.y * pTransform->GetUpVector());
+								break;
+							case E_GIZMO_TYPE::TRANSLATION_Z:
+								pTransform->SetPosition(pTransform->GetPosition() + delta.z * pTransform->GetForwardVector());
+								break;
+						}
+					}
+				}
+			}))
 		{
 			return; // \note If some of gizmo's axes are selected then skip rest propagation of the input
 		}
@@ -104,7 +126,7 @@ namespace TDEngine2
 
 	}
 
-	bool CLevelEditorWindow::_onDrawGizmos()
+	bool CLevelEditorWindow::_onDrawGizmos(const TGizmoManipulatorCallback& onGizmoManipulatorCallback)
 	{
 		if (mSelectedEntityId == InvalidEntityId)
 		{
@@ -140,22 +162,57 @@ namespace TDEngine2
 				{ origin, ForwardVector3 }
 			};
 
-			U8 selectedAxisIndex = -1;
+			F32 currDistance = 0.0f, t1 = 0.0f, t2 = 0.0f;
 
-			for (U8 i = 0; i < 3; ++i)
+			if (!mIsGizmoBeingDragged) // \note change selection only if a user doesn't drag gizmo
 			{
-				if (CalcShortestDistanceBetweenLines(axes[i], ray) < 0.1f)
+				for (U8 i = 0; i < 3; ++i)
 				{
-					selectedAxisIndex = i;
+					std::tie(currDistance, t1, t2) = CalcShortestDistanceBetweenLines(axes[i], ray);
+					if (currDistance < 0.1f)
+					{
+						mCurrSelectedGizmoAxis = i;
+					}
 				}
+
+				mFirstPosition = axes[mCurrSelectedGizmoAxis](t1);
+			}
+			else
+			{
+				std::tie(currDistance, t1, t2) = CalcShortestDistanceBetweenLines(axes[mCurrSelectedGizmoAxis], ray);
 			}
 
-			E_GIZMO_TYPE type = selectedAxisIndex >= 0 ? static_cast<E_GIZMO_TYPE>(static_cast<U8>(E_GIZMO_TYPE::TRANSLATION_X) + selectedAxisIndex) : E_GIZMO_TYPE::TRANSLATION;
+			mpDebugUtility->DrawCross(mFirstPosition, 1.5f, { 0.0f, 0.0f, 1.0f, 1.0f });
+			mpDebugUtility->DrawCross(mLastPosition, 1.5f, { 0.0f, 0.0f, 1.0f, 1.0f });
+
+			E_GIZMO_TYPE type = (mCurrSelectedGizmoAxis >= 0 && mIsGizmoBeingDragged) ? (E_GIZMO_TYPE::TRANSLATION_X + mCurrSelectedGizmoAxis) : E_GIZMO_TYPE::TRANSLATION;
 
 			// \todo Implement all types of gizmos here
 			mpDebugUtility->DrawTransformGizmo(type, matrix);
 
-			return selectedAxisIndex >= 0 && selectedAxisIndex < (std::numeric_limits<U8>::max)();
+			bool prevState = mIsGizmoBeingDragged;
+
+			if (mCurrSelectedGizmoAxis >= 0 && mCurrSelectedGizmoAxis < (std::numeric_limits<U8>::max)())
+			{
+				if (onGizmoManipulatorCallback && (mIsGizmoBeingDragged = mpInputContext->IsMouseButton(0)))
+				{
+					mLastPosition = axes[mCurrSelectedGizmoAxis](t1);
+					LOG_MESSAGE(mFirstPosition.ToString());
+					if (prevState)
+					{
+						onGizmoManipulatorCallback(mSelectedEntityId, type, mLastPosition - mFirstPosition);
+					}
+
+					mFirstPosition = mLastPosition;
+				}
+				else if (mpInputContext->IsMouseButtonUnpressed(0))
+				{
+					mIsGizmoBeingDragged = false;
+					mCurrSelectedGizmoAxis = -1;
+				}
+
+				return true;
+			}
 		}
 
 		return false;

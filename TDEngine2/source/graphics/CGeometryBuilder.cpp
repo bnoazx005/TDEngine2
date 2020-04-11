@@ -41,41 +41,43 @@ namespace TDEngine2
 	{
 		std::vector<TGeometryData::TVertex> vertices;
 
+		F32 halfSize = 0.5f * size;
+
 		// clock-wise order is used, bottom face
-		vertices.push_back({ { 0.5f, -0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { 0.5f, -0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
 
 		// top face
-		vertices.push_back({ { 0.5f, 0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { 0.5f, 0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
 
 		// front face
-		vertices.push_back({ { 0.5f, -0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { 0.5f, 0.5f, -0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
 
 		// back face
-		vertices.push_back({ { 0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, -0.5f, 0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, 0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { 0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
 
 		// left face
-		vertices.push_back({ { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { -0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
 
 		// right face
-		vertices.push_back({ { 0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { 0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { 0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { 0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
 
 		std::vector<U16> faces
 		{
@@ -331,67 +333,66 @@ namespace TDEngine2
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateScaleGizmo(E_GIZMO_TYPE type)
 	{
-		return { {}, {} };
-		//TDE2_ASSERT(type == E_GIZMO_TYPE::SCALING || type == E_GIZMO_TYPE::SCALING_X || type == E_GIZMO_TYPE::SCALING_Y || type == E_GIZMO_TYPE::SCALING_Z);
+		TDE2_ASSERT(type == E_GIZMO_TYPE::SCALING || type == E_GIZMO_TYPE::SCALING_X || type == E_GIZMO_TYPE::SCALING_Y || type == E_GIZMO_TYPE::SCALING_Z);
 
-		//constexpr F32 axisRadius    = 0.02f;
-		//constexpr F32 axisTipRadius = 0.1f;
+		constexpr F32 axisRadius    = 0.02f;
+		constexpr F32 axisTipRadius = 0.1f;
 
-		//std::tuple<TVector3, IGeometryBuilder::TGeometryData, IGeometryBuilder::TGeometryData> scaleGizmoGeometry[]
-		//{
-		//	{ RightVector3,   CreateCylinderGeometry(ZeroVector3, RightVector3, axisRadius, 1.0f, 6),    CreateCubeGeometry(RightVector3, RightVector3, axisTipRadius, 0.4f, 6) },
-		//	{ UpVector3,      CreateCylinderGeometry(ZeroVector3, UpVector3, axisRadius, 1.0f, 6),       CreateCubeGeometry(UpVector3, UpVector3, axisTipRadius, 0.4f, 6) },
-		//	{ ForwardVector3, CreateCylinderGeometry(ZeroVector3, -ForwardVector3, axisRadius, 1.0f, 6), CreateCubeGeometry(-ForwardVector3, -ForwardVector3, axisTipRadius, 0.4f, 6) },
-		//};
+		std::tuple<TVector3, IGeometryBuilder::TGeometryData, IGeometryBuilder::TGeometryData> scaleGizmoGeometry[]
+		{
+			{ RightVector3,   CreateCylinderGeometry(ZeroVector3, RightVector3, axisRadius, 1.0f, 6),    CreateCubeGeometry(RightVector3, 0.4f) },
+			{ UpVector3,      CreateCylinderGeometry(ZeroVector3, UpVector3, axisRadius, 1.0f, 6),       CreateCubeGeometry(UpVector3, 0.4f) },
+			{ ForwardVector3, CreateCylinderGeometry(ZeroVector3, -ForwardVector3, axisRadius, 1.0f, 6), CreateCubeGeometry(-ForwardVector3, 0.4f) },
+		};
 
-		//TVector3 currAxisDirection;
+		TVector3 currAxisDirection;
 
-		//IGeometryBuilder::TGeometryDataPtr pLineGeometry    = nullptr;
-		//IGeometryBuilder::TGeometryDataPtr pCubeTipGeometry = nullptr;
+		IGeometryBuilder::TGeometryDataPtr pLineGeometry    = nullptr;
+		IGeometryBuilder::TGeometryDataPtr pCubeTipGeometry = nullptr;
 
-		//std::vector<TGeometryData::TVertex> verts;
-		//std::vector<U16> indices;
+		std::vector<TGeometryData::TVertex> verts;
+		std::vector<U16> indices;
 
-		//const TColor32F selectedColor{ 1.0f, 0.647f, 0.0f, 1.0f }; // \todo move to some common settings place
+		const TColor32F selectedColor{ 1.0f, 0.647f, 0.0f, 1.0f }; // \todo move to some common settings place
 
-		//for (U8 i = 0; i < 3; ++i)
-		//{
-		//	auto&& currGizmoPart = scaleGizmoGeometry[i];
+		for (U8 i = 0; i < 3; ++i)
+		{
+			auto&& currGizmoPart = scaleGizmoGeometry[i];
 
-		//	currAxisDirection = std::move(std::get<TVector3>(currGizmoPart));
-		//	pLineGeometry = &std::get<1>(currGizmoPart);
-		//	pCubeTipGeometry = &std::get<2>(currGizmoPart);
+			currAxisDirection = std::move(std::get<TVector3>(currGizmoPart));
+			pLineGeometry = &std::get<1>(currGizmoPart);
+			pCubeTipGeometry = &std::get<2>(currGizmoPart);
 
-		//	TColor32F meshColor{ currAxisDirection.x, currAxisDirection.y, currAxisDirection.z, 1.0f };
+			TColor32F meshColor{ currAxisDirection.x, currAxisDirection.y, currAxisDirection.z, 1.0f };
 
-		//	TColor32F currColor = (type == static_cast<E_GIZMO_TYPE>(static_cast<U8>(E_GIZMO_TYPE::TRANSLATION_X) + i)) ? selectedColor : meshColor;
+			TColor32F currColor = (type == static_cast<E_GIZMO_TYPE>(static_cast<U8>(E_GIZMO_TYPE::SCALING_X) + i)) ? selectedColor : meshColor;
 
-		//	U16 offset = static_cast<U16>(verts.size());
+			U16 offset = static_cast<U16>(verts.size());
 
-		//	for (auto&& v : pLineGeometry->mVertices)
-		//	{
-		//		verts.push_back({ v.mPosition, ZeroVector3, currColor });
-		//	}
+			for (auto&& v : pLineGeometry->mVertices)
+			{
+				verts.push_back({ v.mPosition, ZeroVector3, currColor });
+			}
 
-		//	for (U16 currIndex : pLineGeometry->mIndices)
-		//	{
-		//		indices.push_back(currIndex + offset);
-		//	}
+			for (U16 currIndex : pLineGeometry->mIndices)
+			{
+				indices.push_back(currIndex + offset);
+			}
 
-		//	offset = static_cast<U16>(verts.size());
+			offset = static_cast<U16>(verts.size());
 
-		//	for (auto&& v : pCubeTipGeometry->mVertices)
-		//	{
-		//		verts.push_back({ v.mPosition, ZeroVector3, currColor });
-		//	}
+			for (auto&& v : pCubeTipGeometry->mVertices)
+			{
+				verts.push_back({ v.mPosition, ZeroVector3, currColor });
+			}
 
-		//	for (U16 currIndex : pCubeTipGeometry->mIndices)
-		//	{
-		//		indices.push_back(currIndex + offset);
-		//	}
-		//}
+			for (U16 currIndex : pCubeTipGeometry->mIndices)
+			{
+				indices.push_back(currIndex + offset);
+			}
+		}
 
-		//return { std::move(verts), std::move(indices) };
+		return { std::move(verts), std::move(indices) };
 	}
 
 

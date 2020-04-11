@@ -20,7 +20,7 @@ TEST_CASE("TRay Tests")
 
 		for (auto&& currTestCase : testCases)
 		{
-			REQUIRE(std::abs(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase)) - std::get<F32>(currTestCase)) < 1e-2f);
+			REQUIRE(std::abs(std::get<0>(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase))) - std::get<F32>(currTestCase)) < 1e-2f);
 		}
 	}
 
@@ -34,7 +34,7 @@ TEST_CASE("TRay Tests")
 
 		for (auto&& currTestCase : testCases)
 		{
-			REQUIRE(std::abs(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase)) - std::get<F32>(currTestCase)) < 1e-2f);
+			REQUIRE(std::abs(std::get<0>(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase))) - std::get<F32>(currTestCase)) < 1e-2f);
 		}
 	}
 
@@ -47,7 +47,7 @@ TEST_CASE("TRay Tests")
 
 		for (auto&& currTestCase : testCases)
 		{
-			REQUIRE(std::abs(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase)) - std::get<F32>(currTestCase)) < 1e-2f);
+			REQUIRE(std::abs(std::get<0>(CalcShortestDistanceBetweenLines(std::get<0>(currTestCase), std::get<1>(currTestCase))) - std::get<F32>(currTestCase)) < 1e-2f);
 		}
 	}
 
@@ -76,6 +76,20 @@ TEST_CASE("TRay Tests")
 		for (auto&& currTestCase : testCases)
 		{
 			REQUIRE(std::abs(CalcDistanceBetweenRayAndPoint(std::get<TRay3D>(currTestCase), std::get<TVector3>(currTestCase)) - std::get<F32>(currTestCase)) < 1e-2f);
+		}
+	}
+
+	SECTION("TestSampleOperator_PassParameters_ReturnsValidPoints")
+	{
+		std::tuple<TRay3D, F32, TVector3> testCases[]
+		{
+			{ { ZeroVector3, RightVector3 }, 4.0f, { 4.0f, 0.0f, 0.0f } },
+			{ { ZeroVector3, 4.0f * RightVector3 }, 4.0f, { 4.0f, 0.0f, 0.0f } },
+		};
+
+		for (auto&& currTestCase : testCases)
+		{
+			REQUIRE(std::get<TRay3D>(currTestCase)(std::get<1>(currTestCase)) == std::get<TVector3>(currTestCase));
 		}
 	}
 }
