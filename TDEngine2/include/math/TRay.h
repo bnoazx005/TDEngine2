@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "TVector2.h"
 #include "TVector3.h"
+#include "TPlane.h"
 #include "MathUtils.h"
 #include <tuple>
 
@@ -108,5 +109,30 @@ namespace TDEngine2
 
 		const T a = dir + line2.dir * t2 - line1.dir * t1;
 		return { Length(a), t1, t2 };
+	}
+
+
+	/*!
+		\brief The function checks whether ray and plane intersect each other
+
+		\return Returns true if ray intersects given plane and t parameter for the ray, false in other case
+	*/
+
+	template <typename T>
+	std::tuple<bool, F32> CheckRayPlaneIntersection(const TRay<T>& ray, const TPlane<F32>& plane)
+	{
+		const T planeNormal{ plane.a, plane.b, plane.c };
+
+		const F32 dotProduct = Dot(planeNormal, ray.dir);
+		const F32 numerator  = Dot(planeNormal, ray.origin) + plane.d;
+
+		if (std::abs(dotProduct) < 1e-3f)
+		{
+			return { std::abs(numerator) < 1e-3f, 0.0f };
+		}
+
+		const F32 t = -numerator / dotProduct;
+
+		return { CMathUtils::IsGreatOrEqual(t, 0.0f), t };
 	}
 }

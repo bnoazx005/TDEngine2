@@ -92,4 +92,18 @@ TEST_CASE("TRay Tests")
 			REQUIRE(std::get<TRay3D>(currTestCase)(std::get<1>(currTestCase)) == std::get<TVector3>(currTestCase));
 		}
 	}
+
+	SECTION("TestCheckRayPlaneIntersection_PassParallelRayForPlane_ReturnsFalseIfRayDoesntLieOnPlane")
+	{
+		std::tuple<TRay3D, TPlane<F32>, bool> testCases[]
+		{
+			{ { ZeroVector3, RightVector3 }, { UpVector3, 0.0f }, true },
+			{ { UpVector3, RightVector3 }, { UpVector3, 0.0f }, false },
+		};
+
+		for (auto&& currTestCase : testCases)
+		{
+			REQUIRE(std::get<bool>(CheckRayPlaneIntersection(std::get<TRay3D>(currTestCase), std::get<TPlane<F32>>(currTestCase))) == std::get<bool>(currTestCase));
+		}
+	}
 }
