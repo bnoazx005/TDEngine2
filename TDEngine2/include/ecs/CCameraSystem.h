@@ -159,4 +159,15 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TRay3D NormalizedScreenPointToWorldRay(const ICamera& pCamera, const TVector2& pos);
+
+	/*!
+		\brief The function is a converter which maps world space point into screen space's one
+
+		\param[in] pCamera A pointer to ICamera component implementation
+		\param[in] pos A position of a point in world space
+
+		\return The position in screen space, each component of the point lies in range [-1; 1] except z axis
+	*/
+
+	TDE2_API TVector3 WorldToNormalizedScreenPoint(const ICamera& pCamera, const TVector3& pos);
 }

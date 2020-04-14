@@ -225,4 +225,15 @@ namespace TDEngine2
 
 		return { { origin.x, origin.y, origin.z }, { dir.x, dir.y, dir.z } };
 	}
+
+
+	TVector3 WorldToNormalizedScreenPoint(const ICamera& pCamera, const TVector3& pos)
+	{
+		const TMatrix4& viewProj = pCamera.GetViewProjMatrix();
+
+		TVector4 screenSpacePoint = viewProj * TVector4(pos, 1.0f);
+		screenSpacePoint = screenSpacePoint * (1.0f / screenSpacePoint.w);
+
+		return TVector3(screenSpacePoint.x, screenSpacePoint.y, screenSpacePoint.z);
+	}
 }
