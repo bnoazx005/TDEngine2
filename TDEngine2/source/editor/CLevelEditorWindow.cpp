@@ -188,7 +188,8 @@ namespace TDEngine2
 			E_GIZMO_TYPE type = (mCurrSelectedGizmoAxis >= 0 && mIsGizmoBeingDragged) ? (E_GIZMO_TYPE::TRANSLATION_X + mCurrSelectedGizmoAxis) : E_GIZMO_TYPE::TRANSLATION;
 
 			// \todo Implement all types of gizmos here
-			mpDebugUtility->DrawTransformGizmo(type, matrix);
+			//mpDebugUtility->DrawTransformGizmo(type, matrix);
+			mpDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::ROTATION, matrix);
 
 			bool prevState = mIsGizmoBeingDragged;
 

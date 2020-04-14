@@ -43,41 +43,43 @@ namespace TDEngine2
 
 		F32 halfSize = 0.5f * size;
 
+		const TVector4 origin { position, 0 };
+
 		// clock-wise order is used, bottom face
-		vertices.push_back({ { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
 
 		// top face
-		vertices.push_back({ { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
 
 		// front face
-		vertices.push_back({ { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
 
 		// back face
-		vertices.push_back({ { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
 
 		// left face
-		vertices.push_back({ { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
 
 		// right face
-		vertices.push_back({ { halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back({ origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
 
 		std::vector<U16> faces
 		{
@@ -328,7 +330,43 @@ namespace TDEngine2
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateRotationGizmo(E_GIZMO_TYPE type)
 	{
-		return { {}, {} };
+		TDE2_ASSERT(type == E_GIZMO_TYPE::ROTATION || type == E_GIZMO_TYPE::ROTATION_X || type == E_GIZMO_TYPE::ROTATION_Y || type == E_GIZMO_TYPE::ROTATION_Z);
+
+		std::vector<TGeometryData::TVertex> verts;
+		std::vector<U16> indices;
+
+		std::tuple<TVector3, IGeometryBuilder::TGeometryData> rotationGizmoGeometry[]
+		{
+			{ RightVector3, CreateSolidArcGeometry(ZeroVector3, RightVector3, 1.0f, CMathConstants::Deg2Rad * 0.0f, CMathConstants::Deg2Rad * 90.0f, false, 0.5f, 6) },
+			{ UpVector3, CreateSolidArcGeometry(ZeroVector3, UpVector3, 1.0f, CMathConstants::Deg2Rad * 180.0f, CMathConstants::Deg2Rad * 270.0f, false, 0.5f, 6) },
+			{ ForwardVector3, CreateSolidArcGeometry(ZeroVector3, ForwardVector3, 1.0f, CMathConstants::Deg2Rad * 0.0f, CMathConstants::Deg2Rad * 90.0f, false, 0.5f, 6) }
+		};
+
+		const TColor32F selectedColor{ 1.0f, 0.647f, 0.0f, 1.0f };
+
+		for (U8 i = 0; i < 3; ++i)
+		{
+			auto&& currAxisDirection = std::get<0>(rotationGizmoGeometry[i]);
+			auto&& currGizmoPart     = std::get<1>(rotationGizmoGeometry[i]);
+			
+			TColor32F meshColor{ currAxisDirection.x, currAxisDirection.y, currAxisDirection.z, 1.0f };
+
+			TColor32F currColor = (type == static_cast<E_GIZMO_TYPE>(static_cast<U8>(E_GIZMO_TYPE::ROTATION_X) + i)) ? selectedColor : meshColor;
+
+			U16 offset = static_cast<U16>(verts.size());
+
+			for (auto&& v : currGizmoPart.mVertices)
+			{
+				verts.push_back({ v.mPosition, ZeroVector3, currColor });
+			}
+
+			for (U16 currIndex : currGizmoPart.mIndices)
+			{
+				indices.push_back(currIndex + offset);
+			}
+		}
+
+		return { std::move(verts), std::move(indices) };
 	}
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateScaleGizmo(E_GIZMO_TYPE type)
@@ -340,9 +378,9 @@ namespace TDEngine2
 
 		std::tuple<TVector3, IGeometryBuilder::TGeometryData, IGeometryBuilder::TGeometryData> scaleGizmoGeometry[]
 		{
-			{ RightVector3,   CreateCylinderGeometry(ZeroVector3, RightVector3, axisRadius, 1.0f, 6),    CreateCubeGeometry(RightVector3, 0.4f) },
-			{ UpVector3,      CreateCylinderGeometry(ZeroVector3, UpVector3, axisRadius, 1.0f, 6),       CreateCubeGeometry(UpVector3, 0.4f) },
-			{ ForwardVector3, CreateCylinderGeometry(ZeroVector3, -ForwardVector3, axisRadius, 1.0f, 6), CreateCubeGeometry(-ForwardVector3, 0.4f) },
+			{ RightVector3,   CreateCylinderGeometry(ZeroVector3, RightVector3, axisRadius, 1.0f, 6),    CreateCubeGeometry(RightVector3, 0.2f) },
+			{ UpVector3,      CreateCylinderGeometry(ZeroVector3, UpVector3, axisRadius, 1.0f, 6),       CreateCubeGeometry(UpVector3, 0.2f) },
+			{ ForwardVector3, CreateCylinderGeometry(ZeroVector3, -ForwardVector3, axisRadius, 1.0f, 6), CreateCubeGeometry(-ForwardVector3, 0.2f) },
 		};
 
 		TVector3 currAxisDirection;
@@ -390,6 +428,53 @@ namespace TDEngine2
 			{
 				indices.push_back(currIndex + offset);
 			}
+		}
+
+		return { std::move(verts), std::move(indices) };
+	}
+
+	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateSolidArcGeometry(const TVector3& position, const TVector3& normal, F32 radius,
+										 F32 fromAngle, F32 toAngle, bool isLooped, F32 width, U16 segmentsCount)
+	{
+		std::vector<TGeometryData::TVertex> verts;
+		std::vector<U16> indices;
+
+		F32 deltaAngle = (toAngle - fromAngle) / segmentsCount;
+
+		const F32 halfWidth    = 0.5f * width;
+		const F32 outterRadius = radius + halfWidth;
+		const F32 innerRadius  = radius - halfWidth;
+
+		F32 currAngle = fromAngle;
+		F32 nextAngle = 0.0f;
+
+		// compute plane's tangent basis
+		TVector3 u = Normalize(Cross(TVector3(1.0f, 1.0f, 1.0f), normal));
+		TVector3 v = Normalize(Cross(u, normal));
+
+		U16 index = 0;
+
+		for (U16 k = 0; k < segmentsCount; ++k)
+		{
+			currAngle = nextAngle;
+			nextAngle = (k + 1) * deltaAngle;
+
+			// \note add firsly outter vertex then inner one
+			verts.push_back({ { position + u * (outterRadius * cosf(currAngle)) + v * (outterRadius * sinf(currAngle)), 1.0f }, ZeroVector3 });
+			verts.push_back({ { position + u * (innerRadius * cosf(currAngle)) + v * (innerRadius * sinf(currAngle)), 1.0f }, ZeroVector3 });
+
+			verts.push_back({ { position + u * (outterRadius * cosf(nextAngle)) + v * (outterRadius * sinf(nextAngle)), 1.0f }, ZeroVector3 });
+			verts.push_back({ { position + u * (innerRadius * cosf(nextAngle)) + v * (innerRadius * sinf(nextAngle)), 1.0f }, ZeroVector3 });
+
+			indices.push_back(index);
+			indices.push_back(index + 2);
+			indices.push_back(index + 1);
+
+			indices.push_back(index + 2);
+			indices.push_back(index + 3);
+			indices.push_back(index + 1);
+
+			index += 2;
 		}
 
 		return { std::move(verts), std::move(indices) };

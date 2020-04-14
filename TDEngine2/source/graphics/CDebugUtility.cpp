@@ -419,22 +419,49 @@ namespace TDEngine2
 		U32 startIndex   = 0;
 		U32 vertexOffset = 0;
 
-		for (U8 i = static_cast<U8>(E_GIZMO_TYPE::TRANSLATION); i != static_cast<U8>(E_GIZMO_TYPE::TRANSLATION_XY); ++i)
+		std::function<IGeometryBuilder::TGeometryData(E_GIZMO_TYPE)> gizmoFactory = nullptr;
+
+		for (U8 i = static_cast<U8>(E_GIZMO_TYPE::TRANSLATION); i != static_cast<U8>(E_GIZMO_TYPE::LAST); ++i)
 		{
 			startIndex   = static_cast<U32>(indices.size());
 			vertexOffset = static_cast<U32>(verts.size());
 
 			E_GIZMO_TYPE gizmoType = static_cast<E_GIZMO_TYPE>(i);
 
-			auto&& commonTranslateGizmo = mpGeometryBuilder->CreateTranslateGizmo(gizmoType);
+			switch (gizmoType)
+			{
+				case E_GIZMO_TYPE::TRANSLATION:
+				case E_GIZMO_TYPE::TRANSLATION_X:
+				case E_GIZMO_TYPE::TRANSLATION_Y:
+				case E_GIZMO_TYPE::TRANSLATION_Z:
+				case E_GIZMO_TYPE::TRANSLATION_XY:
+				case E_GIZMO_TYPE::TRANSLATION_XZ:
+				case E_GIZMO_TYPE::TRANSLATION_YZ:
+					gizmoFactory = std::bind(&IGeometryBuilder::CreateTranslateGizmo, mpGeometryBuilder, std::placeholders::_1);
+					break;
+				case E_GIZMO_TYPE::ROTATION:
+				case E_GIZMO_TYPE::ROTATION_X:
+				case E_GIZMO_TYPE::ROTATION_Y:
+				case E_GIZMO_TYPE::ROTATION_Z:
+					gizmoFactory = std::bind(&IGeometryBuilder::CreateRotationGizmo, mpGeometryBuilder, std::placeholders::_1);
+					break;
+				case E_GIZMO_TYPE::SCALING:
+				case E_GIZMO_TYPE::SCALING_X:
+				case E_GIZMO_TYPE::SCALING_Y:
+				case E_GIZMO_TYPE::SCALING_Z:
+					gizmoFactory = std::bind(&IGeometryBuilder::CreateScaleGizmo, mpGeometryBuilder, std::placeholders::_1);
+					break;
+			}
 
-			std::transform(commonTranslateGizmo.mVertices.begin(), commonTranslateGizmo.mVertices.end(), std::back_inserter(verts), [](auto&& v)
+			auto&& gizmoGeometry = gizmoFactory(gizmoType);
+
+			std::transform(gizmoGeometry.mVertices.begin(), gizmoGeometry.mVertices.end(), std::back_inserter(verts), [](auto&& v)
 			{
 				return TLineVertex{ v.mPosition, v.mColor };
 			});
-			std::copy(commonTranslateGizmo.mIndices.begin(), commonTranslateGizmo.mIndices.end(), std::back_inserter(indices));
+			std::copy(gizmoGeometry.mIndices.begin(), gizmoGeometry.mIndices.end(), std::back_inserter(indices));
 
-			mGizmosTypesMap[gizmoType] = { static_cast<U32>(commonTranslateGizmo.mIndices.size()), vertexOffset, startIndex };
+			mGizmosTypesMap[gizmoType] = { static_cast<U32>(gizmoGeometry.mIndices.size()), vertexOffset, startIndex };
 		}
 		
 		auto gizmosVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TLineVertex) * verts.size(), &verts[0]);

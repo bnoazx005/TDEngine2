@@ -127,6 +127,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TGeometryData CreateScaleGizmo(E_GIZMO_TYPE type) override;
+
+			/*!
+				\brief The mehtod generates geometry for a solid arc
+
+				\param[in] position A position of arc's center
+				\param[in] normal Arc's normal
+				\param[in] raidus Arc's radius
+				\param[in] fromAngle Angle in radians
+				\param[in] toAngle Angle in radians
+				\param[in] isLooped The flag tells whether geometry of arc should be closed (forms a circle) or not
+				\param[in] width Arc's width
+				\param[in] segmentsCount The parameter defines level of details of the arg
+
+				\return The method returns an object which contains geometry data of a plane
+			*/
+
+			TDE2_API TGeometryData CreateSolidArcGeometry(const TVector3& position, const TVector3& normal, F32 radius,
+														  F32 fromAngle, F32 toAngle, bool isLooped, F32 width, U16 segmentsCount) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGeometryBuilder)
 	};
