@@ -41,6 +41,7 @@
 #include "./../../include/graphics/CBasePostProcessingProfile.h"
 #include "./../../include/graphics/IDebugUtility.h"
 #include "./../../include/graphics/IGraphicsObjectManager.h"
+#include "./../../include/graphics/CAnimationClip.h"
 #include <memory>
 #include <cstring>
 #include <tuple>
@@ -635,6 +636,26 @@ namespace TDEngine2
 		}
 
 		pResourceFactory = CreateBasePostProcessingProfileFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		{
+			return result;
+		}
+
+		/// \note register animation clip's resource type
+		pResourceLoader = CreateAnimationClipLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		pResourceFactory = CreateAnimationClipFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
 
 		if (result != RC_OK)
 		{

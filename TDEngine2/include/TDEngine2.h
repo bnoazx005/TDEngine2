@@ -129,6 +129,8 @@
 #include "graphics/CBasePostProcessingProfile.h"
 #include "graphics/IGeometryBuilder.h"
 #include "graphics/CGeometryBuilder.h"
+#include "graphics/IAnimationClip.h"
+#include "graphics/CAnimationClip.h"
 
 ///editor
 #include "editor/IProfiler.h"
