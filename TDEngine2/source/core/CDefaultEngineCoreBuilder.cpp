@@ -542,49 +542,46 @@ namespace TDEngine2
 		};
 
 		/// Register builtin factories for IResourceManager
+		using ResourceLoaderFactoryFunctor = std::function<IResourceLoader*(IResourceManager*, IGraphicsContext*, IFileSystem*, E_RESULT_CODE&)>;
+		using ResourceFactoryFactoryFunctor = std::function<IResourceFactory*(IResourceManager*, IGraphicsContext*, E_RESULT_CODE&)>;
+
+		std::tuple<ResourceLoaderFactoryFunctor, ResourceFactoryFactoryFunctor> builtinResourcesConstructorsTable[]
+		{
+			{ CreateBaseMaterialLoader, CreateBaseMaterialFactory },
+			{ CreateTextureAtlasLoader, CreateTextureAtlasFactory },
+			{ CreateStaticMeshLoader, CreateStaticMeshFactory },
+			{ CreateBasePostProcessingProfileLoader, CreateBasePostProcessingProfileFactory },
+			{ CreateAnimationClipLoader, CreateAnimationClipFactory },
+		};
 
 		/// create material loader
 		E_RESULT_CODE result = RC_OK;
 
-		IResourceLoader* pResourceLoader = CreateBaseMaterialLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
+		IResourceLoader* pResourceLoader = nullptr;
+		IResourceFactory* pResourceFactory = nullptr;
 
-		if (result != RC_OK)
+		for (auto&& currResourceConstructors : builtinResourcesConstructorsTable)
 		{
-			return result;
-		}
+			pResourceLoader = std::get<ResourceLoaderFactoryFunctor>(currResourceConstructors)(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
 
-		/// create material factory
-		IResourceFactory* pResourceFactory = CreateBaseMaterialFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
+			if (result != RC_OK)
+			{
+				return result;
+			}
 
-		if (result != RC_OK)
-		{
-			return result;
-		}
+			/// create a factory
+			pResourceFactory = std::get<ResourceFactoryFactoryFunctor>(currResourceConstructors)(mpResourceManagerInstance, mpGraphicsContextInstance, result);
 
-		/// \note register a material type
-		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
-		{
-			return result;
-		}
+			if (result != RC_OK)
+			{
+				return result;
+			}
 
-		/// \note register texture atlas's infrastructure
-		pResourceLoader = CreateTextureAtlasLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		pResourceFactory = CreateTextureAtlasFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
-		{
-			return result;
+			/// \note register a resource type
+			if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+			{
+				return result;
+			}
 		}
 
 		/// \note register font's resource type
@@ -596,66 +593,6 @@ namespace TDEngine2
 		}
 
 		pResourceFactory = CreateFontFactory(mpResourceManagerInstance, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
-		{
-			return result;
-		}
-
-		/// \note register static mesh's resource type
-		pResourceLoader = CreateStaticMeshLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		pResourceFactory = CreateStaticMeshFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
-		{
-			return result;
-		}
-
-		/// \note register post-processing profile's resource type
-		pResourceLoader = CreateBasePostProcessingProfileLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		pResourceFactory = CreateBasePostProcessingProfileFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
-		{
-			return result;
-		}
-
-		/// \note register animation clip's resource type
-		pResourceLoader = CreateAnimationClipLoader(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		pResourceFactory = CreateAnimationClipFactory(mpResourceManagerInstance, mpGraphicsContextInstance, result);
 
 		if (result != RC_OK)
 		{
