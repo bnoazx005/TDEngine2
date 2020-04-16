@@ -8,8 +8,8 @@
 
 
 #include "IAnimationClip.h"
-#include "../core/CBaseResource.h"
-#include "../core/IResourceLoader.h"
+#include "../../core/CBaseResource.h"
+#include "../../core/IResourceLoader.h"
 
 
 namespace TDEngine2

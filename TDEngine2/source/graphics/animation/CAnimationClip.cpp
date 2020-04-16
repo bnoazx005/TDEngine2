@@ -1,6 +1,6 @@
-#include "../../include/graphics/CAnimationClip.h"
-#include "../../include/core/IResourceManager.h"
-#include "../../include/core/IGraphicsContext.h"
+#include "../../../include/graphics/animation/CAnimationClip.h"
+#include "../../../include/core/IResourceManager.h"
+#include "../../../include/core/IGraphicsContext.h"
 
 
 namespace TDEngine2

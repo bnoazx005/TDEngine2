@@ -41,7 +41,7 @@
 #include "./../../include/graphics/CBasePostProcessingProfile.h"
 #include "./../../include/graphics/IDebugUtility.h"
 #include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/CAnimationClip.h"
+#include "./../../include/graphics/animation/CAnimationClip.h"
 #include <memory>
 #include <cstring>
 #include <tuple>

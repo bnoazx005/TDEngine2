@@ -7,11 +7,11 @@
 #pragma once
 
 
-#include "../utils/Config.h"
-#include "../utils/Utils.h"
-#include "../core/IResourceFactory.h"
-#include "../core/IResourceLoader.h"
-#include "../core/Serialization.h"
+#include "../../utils/Config.h"
+#include "../../utils/Utils.h"
+#include "../../core/IResourceFactory.h"
+#include "../../core/IResourceLoader.h"
+#include "../../core/Serialization.h"
 
 
 namespace TDEngine2
