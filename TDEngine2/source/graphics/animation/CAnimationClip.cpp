@@ -1,6 +1,7 @@
 #include "../../../include/graphics/animation/CAnimationClip.h"
 #include "../../../include/core/IResourceManager.h"
 #include "../../../include/core/IGraphicsContext.h"
+#include "../../../include/graphics/animation/IAnimationTrack.h"
 
 
 namespace TDEngine2
@@ -35,6 +36,13 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = true;
+
+		if ((result = SetDuration(params.mDuration)) != RC_OK)
+		{
+			return result;
+		}
+
+		mWrapMode = params.mWrapMode;
 
 		return RC_OK;
 	}
@@ -86,8 +94,54 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CAnimationClip::Save(IArchiveWriter* pWriter)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		pWriter->BeginGroup("meta");
+		{
+			pWriter->SetString("resource-type", "animation-clip");
+			pWriter->SetUInt16("version-tag", mVersionTag);
+		}
+		pWriter->EndGroup();
+
+		pWriter->SetFloat("duration", mDuration);
+		pWriter->SetUInt8("wrap-mode", static_cast<U8>(mWrapMode)); // \todo replace with proper serialization of the enum type
+
+		pWriter->BeginGroup("tracks", true);		
+		{
+			for (auto&& pCurrTrack : mpTracks)
+			{
+				TDE2_ASSERT(pCurrTrack->Save(pWriter) != RC_OK);
+			}
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CAnimationClip::SetDuration(F32 duration)
+	{
+		if (duration < 0.0f)
+		{
+			TDE2_ASSERT(duration > 0.0f);
+			return RC_INVALID_ARGS;
+		}
+
+		mDuration = duration;
+
+		return RC_OK;
+	}
+
+	void CAnimationClip::SetWrapMode(E_ANIMATION_WRAP_MODE_TYPE mode)
+	{
+		mWrapMode = mode;
+	}
+
+	F32 CAnimationClip::GetDuration() const
+	{
+		return mDuration;
+	}
+
+	E_ANIMATION_WRAP_MODE_TYPE CAnimationClip::GetWrapMode() const
+	{
+		return mWrapMode;
 	}
 
 
@@ -277,9 +331,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		return nullptr; // dynamic_cast<IResource*>(CreateAnimationClip(mpResourceManager, mpGraphicsContext, name,
-		//	dynamic_cast<const TTexture2DParameters&>(params),
-		//	result));
+		return dynamic_cast<IResource*>(CreateAnimationClip(mpResourceManager, mpGraphicsContext, name, dynamic_cast<const TAnimationClipParameters&>(params), result));
 	}
 
 	IResource* CAnimationClipFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const

@@ -130,6 +130,22 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 	pGeomBuilder->Free();
 	mpGraphicsContext->GetInfo();
+
+	TAnimationClipParameters clip;
+	clip.mDuration  = 2.5f;
+
+	if (IAnimationClip* pClip = mpResourceManager->Create<CAnimationClip>("Animation", clip)->Get<IAnimationClip>(RAT_BLOCKING))
+	{
+		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("Animation.animation", true))
+		{			
+			if (auto animationFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
+			{
+				pClip->Save(animationFileWriter);
+				animationFileWriter->Close();
+			}
+		}
+	}	
+
 	return RC_OK;
 }
 

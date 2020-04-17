@@ -131,6 +131,7 @@
 #include "graphics/CGeometryBuilder.h"
 #include "graphics/animation/IAnimationClip.h"
 #include "graphics/animation/CAnimationClip.h"
+#include "graphics/animation/IAnimationTrack.h"
 
 ///editor
 #include "editor/IProfiler.h"

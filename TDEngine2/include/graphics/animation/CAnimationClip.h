@@ -10,10 +10,14 @@
 #include "IAnimationClip.h"
 #include "../../core/CBaseResource.h"
 #include "../../core/IResourceLoader.h"
+#include <vector>
 
 
 namespace TDEngine2
 {
+	class IAnimationTrack;
+
+
 	/*!
 		\brief A factory function for creation objects of CAnimationClip's type
 
@@ -58,6 +62,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IAnimationClip* CreateAnimationClip(IResourceManager*, IGraphicsContext*, const std::string&, const TAnimationClipParameters&, E_RESULT_CODE&);
 			friend TDE2_API IAnimationClip* CreateAnimationClip(IResourceManager*, IGraphicsContext*, const std::string&, E_RESULT_CODE&);
+		public:
+			typedef std::vector<IAnimationTrack*> TAnimationTracks;
 		public:
 			TDE2_REGISTER_TYPE(CAnimationClip)
 
@@ -132,9 +138,49 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+			/*!
+				\brief The method specifies duration of the clip
+
+				\param[in] duration A time length of the animation clip, should be positive value
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetDuration(F32 duration) override;
+
+			/*!
+				\brief The method specified wrapping mode for the clip. Remember that this value probably would
+				be overwritten when the clip would be assigned into animation component
+
+				\param[in] mode The value determines how the clip would be played
+			*/
+
+			TDE2_API void SetWrapMode(E_ANIMATION_WRAP_MODE_TYPE mode) override;
+
+			/*!
+				\brief The method returns duration of the animation clip
+				\return The method returns duration of the animation clip
+			*/
+
+			TDE2_API F32 GetDuration() const override;
+
+			/*!
+				\brief The method returns wrap mode that's defined for the clip
+				\return The method returns wrap mode that's defined for the clip
+			*/
+
+			TDE2_API E_ANIMATION_WRAP_MODE_TYPE GetWrapMode() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationClip)
 		protected:
+			static constexpr U16       mVersionTag = 0x1;
+			
+			TAnimationTracks           mpTracks;
+
+			F32                        mDuration;
+
+			E_ANIMATION_WRAP_MODE_TYPE mWrapMode;
 	};
 
 

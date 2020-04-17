@@ -19,6 +19,19 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 
+	
+	/*!
+		enum class E_ANIMATION_WRAP_MODE_TYPE
+
+		\brief The enumeration defines allowed types of animation playback
+	*/
+
+	enum class E_ANIMATION_WRAP_MODE_TYPE: U8
+	{
+		PLAY_ONCE,
+		LOOP,
+	};
+
 
 	/*!
 		struct TAnimationClipParameters
@@ -28,6 +41,9 @@ namespace TDEngine2
 
 	typedef struct TAnimationClipParameters : TBaseResourceParameters
 	{
+		F32                        mDuration = 1.0f;
+
+		E_ANIMATION_WRAP_MODE_TYPE mWrapMode = E_ANIMATION_WRAP_MODE_TYPE::PLAY_ONCE; ///< The wrap mode could be overwritten by animation component
 	} TAnimationClipParameters, *TAnimationClipParametersPtr;
 
 
@@ -67,6 +83,39 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
+
+			/*!
+				\brief The method specifies duration of the clip
+
+				\param[in] duration A time length of the animation clip, should be positive value
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetDuration(F32 duration) = 0;
+
+			/*!
+				\brief The method specified wrapping mode for the clip. Remember that this value probably would
+				be overwritten when the clip would be assigned into animation component
+
+				\param[in] mode The value determines how the clip would be played
+			*/
+
+			TDE2_API virtual void SetWrapMode(E_ANIMATION_WRAP_MODE_TYPE mode) = 0;
+
+			/*!
+				\brief The method returns duration of the animation clip
+				\return The method returns duration of the animation clip
+			*/
+
+			TDE2_API virtual F32 GetDuration() const = 0;
+
+			/*!
+				\brief The method returns wrap mode that's defined for the clip
+				\return The method returns wrap mode that's defined for the clip
+			*/
+
+			TDE2_API virtual E_ANIMATION_WRAP_MODE_TYPE GetWrapMode() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationClip)
 	};
