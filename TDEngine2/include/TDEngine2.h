@@ -146,6 +146,7 @@
 #include "editor/CDevConsoleWindow.h"
 #include "editor/ISelectionManager.h"
 #include "editor/CSelectionManager.h"
+#include "editor/EditorActions.h"
 
 ///math
 #include "math/TVector2.h"

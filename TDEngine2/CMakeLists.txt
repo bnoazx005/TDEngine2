@@ -159,6 +159,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/editor/CDevConsoleWindow.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/editor/ISelectionManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/editor/CSelectionManager.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/editor/EditorActions.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32WindowSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32Timer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32DLLManager.h"
