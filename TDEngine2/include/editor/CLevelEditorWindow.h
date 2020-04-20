@@ -24,6 +24,7 @@ namespace TDEngine2
 	class IDesktopInputContext;
 	class IDebugUtility;
 	class IWorld;
+	class IEditorActionsHistory;
 
 
 	/*!
@@ -86,24 +87,26 @@ namespace TDEngine2
 
 			TDE2_API ISelectionManager* _getSelectionManager();
 		protected:
-			IEditorsManager*      mpEditorsManager;
+			IEditorsManager*       mpEditorsManager;
 
-			IDesktopInputContext* mpInputContext;
+			IDesktopInputContext*  mpInputContext;
 
-			ISelectionManager*    mpSelectionManager;
+			ISelectionManager*     mpSelectionManager;
 
-			IDebugUtility*        mpDebugUtility;
+			IDebugUtility*         mpDebugUtility;
 
-			TEntityId             mSelectedEntityId = InvalidEntityId;
+			TEntityId              mSelectedEntityId = InvalidEntityId;
 
-			TEntityId             mCameraEntityId = InvalidEntityId;
+			TEntityId              mCameraEntityId = InvalidEntityId;
 
 			// \todo Move into separate gizmo's context
-			TVector3              mFirstPosition, mLastPosition;
+			TVector3               mFirstPosition, mLastPosition;
 
-			U8                    mCurrSelectedGizmoAxis = -1;
+			U8                     mCurrSelectedGizmoAxis = -1;
 
-			bool                  mIsGizmoBeingDragged = false;
+			bool                   mIsGizmoBeingDragged = false;
+
+			IEditorActionsHistory* mpActionsHistory;
 	};
 }
 

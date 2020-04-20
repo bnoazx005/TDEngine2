@@ -65,9 +65,11 @@ namespace TDEngine2
 				\brief The method pushes given action into the log
 
 				\param[in] pAction A pointer to IEditorAction implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual void PushAction(IEditorAction* pAction) = 0;
+			TDE2_API virtual E_RESULT_CODE PushAction(IEditorAction* pAction) = 0;
 
 			/*!
 				\brief The method extracts last added action from the log

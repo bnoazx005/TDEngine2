@@ -1,6 +1,7 @@
 #include "./../../include/editor/CLevelEditorWindow.h"
 #include "./../../include/editor/IEditorsManager.h"
 #include "./../../include/editor/ISelectionManager.h"
+#include "./../../include/editor/CEditorActionsManager.h"
 #include "./../../include/core/IImGUIContext.h"
 #include "./../../include/core/IInputContext.h"
 #include "./../../include/utils/CFileLogger.h"
@@ -29,7 +30,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		if (!pEditorsManager || !pInputContext)
+		if (!pEditorsManager || !pInputContext || !mpInputContext)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -38,10 +39,12 @@ namespace TDEngine2
 		mpInputContext     = dynamic_cast<IDesktopInputContext*>(pInputContext);
 		mpSelectionManager = nullptr;
 		mpDebugUtility     = pDebugUtility;
-		
-		if (!mpInputContext)
+
+		E_RESULT_CODE result = RC_OK;
+
+		if (!(mpActionsHistory = CreateEditorActionsManager(result)) || result != RC_OK)
 		{
-			return RC_INVALID_ARGS;
+			return result;
 		}
 
 		mIsInitialized = true;
@@ -55,6 +58,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		E_RESULT_CODE result = mpActionsHistory->Free();
 
 		mIsInitialized = false;
 		delete this;
