@@ -283,6 +283,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/editor/CDevConsoleWindow.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/editor/CSelectionManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/editor/CEditorActionsManager.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/editor/EditorActions.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32WindowSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32Timer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/win32/CWin32DLLManager.cpp"

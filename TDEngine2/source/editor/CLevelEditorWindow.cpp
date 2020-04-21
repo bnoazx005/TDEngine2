@@ -67,6 +67,36 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CLevelEditorWindow::ExecuteUndoAction()
+	{
+		if (!mpActionsHistory)
+		{
+			return RC_FAIL;
+		}
+
+		if (auto actionResult = mpActionsHistory->PopAction())
+		{
+			return actionResult.Get()->Restore();
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CLevelEditorWindow::ExecuteRedoAction()
+	{
+		if (!mpActionsHistory)
+		{
+			return RC_FAIL;
+		}
+
+		if (auto actionResult = mpActionsHistory->PopAction())
+		{
+			return actionResult.Get()->Execute();
+		}
+
+		return RC_OK;
+	}
+
 	void CLevelEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -129,6 +159,31 @@ namespace TDEngine2
 			LOG_MESSAGE(CStringUtils::Format("[Level Editor] Picked object id : {0}", mSelectedEntityId));
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
+		// \note process shortcuts
+		if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
+		{
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Z)) // \note Ctrl+Z
+			{
+				if (auto pAction = CreateUndoAction(this, result))
+				{
+					pAction->Execute();
+					PANIC_ON_FAILURE(mpActionsHistory->PushAction(pAction));
+					mpActionsHistory->Dump();
+				}
+			}
+
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Y)) // \note Ctrl+Y
+			{
+				if (auto pAction = CreateRedoAction(this, result))
+				{
+					pAction->Execute();
+					PANIC_ON_FAILURE(mpActionsHistory->PushAction(pAction));
+					mpActionsHistory->Dump();
+				}
+			}
+		}	
 	}
 
 	bool CLevelEditorWindow::_onDrawGizmos(const TGizmoManipulatorCallback& onGizmoManipulatorCallback)

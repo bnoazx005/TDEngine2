@@ -72,6 +72,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method rolls back last editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ExecuteUndoAction();
+
+			/*!
+				\brief The method applies latest rolled back editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ExecuteRedoAction();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLevelEditorWindow)
 

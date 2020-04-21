@@ -71,6 +71,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<IEditorAction*> PopAction() override;
+
+			/*!
+				\brief The method dumps current state of the log into the logger
+			*/
+
+			TDE2_API void Dump() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorActionsManager)
 		protected:
