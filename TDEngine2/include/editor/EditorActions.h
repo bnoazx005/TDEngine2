@@ -12,6 +12,9 @@
 #include "../utils/CResult.h"
 #include "../core/IBaseObject.h"
 #include "../core/CBaseObject.h"
+#include "../math/TMatrix4.h"
+#include "../math/TVector3.h"
+#include "../math/TQuaternion.h"
 #include <string>
 
 
@@ -242,6 +245,98 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRedoEditorAction)
 		protected:
 			CLevelEditorWindow* mpEditorWindow;
+	};
+
+
+	class IWorld;
+
+
+	typedef struct TSRTEntity
+	{
+		TVector3    mPosition;
+		TQuaternion mRotation;
+		TVector3    mScale;
+	} TSRTEntity;
+
+
+	/*!
+		\brief A factory function for creation objects of CTransformObjectAction's type
+
+		\param[in, out] pWorld A pointer to IWorld implementation
+		\param[in] entityId Identifier of changed object
+		\param[in] transform A matrix that represents a new transform that should be applied to the object
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CTransformObjectAction's implementation
+	*/
+
+	TDE2_API IEditorAction* CreateTransformObjectAction(IWorld* pWorld, TEntityId entityId, const TSRTEntity& transform, E_RESULT_CODE& result);
+
+	/*!
+		class CTransformObjectAction
+
+		\brief The class implement redo action for the editor
+	*/
+
+	class CTransformObjectAction : public IEditorAction, public CBaseObject
+	{
+		public:
+			friend TDE2_API IEditorAction* CreateTransformObjectAction(IWorld*, TEntityId, const TSRTEntity&, E_RESULT_CODE&);
+		public:
+			/*!
+				\brief The method initializes state of the object
+
+				\param[in, out] pWorld A pointer to IWorld implementation
+				\param[in] entityId Identifier of changed object
+				\param[in] transform A matrix that represents a new transform that should be applied to the object
+
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IWorld* pWorld, TEntityId entityId, const TSRTEntity& transform);
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method applies some action to global state of the application
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Execute() override;
+
+			/*!
+				\brief The method applies reversed action to restore previous state
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Restore() override;
+
+			/*!
+				\brief The method converts the state of the action into a string
+
+				\return A string which contains type information and other additional information
+			*/
+
+			TDE2_API std::string ToString() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransformObjectAction)
+
+			TDE2_API E_RESULT_CODE _changeTransform();
+		protected:
+			IWorld*    mpWorld;
+
+			TEntityId  mEntityId;
+
+			TSRTEntity mTransform;
 	};
 }
 
