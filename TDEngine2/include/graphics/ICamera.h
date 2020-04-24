@@ -327,4 +327,36 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICameraFactory)
 	};
+
+
+	/*!
+		interface IFrustum
+
+		\brief The interface represents functionality of a camera's view frustum
+	*/
+
+	class IFrustum : public virtual IBaseObject
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of a frustum
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init() = 0;
+
+			/*!
+				\brief The method computes planes of the frustum based on camera's parameters
+
+				\param[in] invViewProj Inverted view-projection matrix of the camera
+				\param[in] zMin A minimal value for z component of frustum cube vertices in NDC space (either -1 or 0)
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ComputeBounds(const TMatrix4& invViewProj, F32 zMin) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFrustum);
+	};
 }
