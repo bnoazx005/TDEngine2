@@ -57,7 +57,7 @@ namespace TDEngine2
 			a = n.x;
 			b = n.y;
 			c = n.z;
-			d = Dot(n, points[0]);
+			d = -Dot(n, points[0]);
 		}
 
 		TDE2_API TPlane& operator= (const TPlane& plane) = default;
@@ -68,4 +68,12 @@ namespace TDEngine2
 	typedef TPlane<F32> TPlaneF32;
 
 
+	/*!
+		\brief The function returns distance from plane to given point. The zero value means
+		that point lies on the plane; negative value is that the point stands behind it
+
+		\return The function returns distance from plane to given point
+	*/
+
+	TDE2_API F32 CalcDistanceFromPlaneToPoint(const TPlaneF32& plane, const TVector3& point);
 }
