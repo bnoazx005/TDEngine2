@@ -1,4 +1,5 @@
 #include "./../../include/graphics/CBaseCamera.h"
+#include "../../include/math/TAABB.h"
 #include <array>
 
 
@@ -107,12 +108,12 @@ namespace TDEngine2
 			invViewProj * TVector4(-1.0f,  1.0f, zMin, 1.0f), // near plane of the cube
 			invViewProj * TVector4( 1.0f,  1.0f, zMin, 1.0f),
 			invViewProj * TVector4(-1.0f, -1.0f, zMin, 1.0f),
-			invViewProj * TVector4(-1.0f,  1.0f, zMin, 1.0f),
+			invViewProj * TVector4( 1.0f, -1.0f, zMin, 1.0f),
 
 			invViewProj * TVector4(-1.0f,  1.0f, 1.0f, 1.0f),
 			invViewProj * TVector4(1.0f,  1.0f, 1.0f, 1.0f),
 			invViewProj * TVector4(-1.0f, -1.0f, 1.0f, 1.0f),
-			invViewProj * TVector4(-1.0f,  1.0f, 1.0f, 1.0f),
+			invViewProj * TVector4( 1.0f, -1.0f, 1.0f, 1.0f),
 		};
 
 		for (TVector4& currVertex : frustumVertices)
@@ -120,7 +121,76 @@ namespace TDEngine2
 			currVertex = currVertex * (1.0f / currVertex.w);
 		}
 
+		TVector3 planePoints[][3]
+		{
+			{ frustumVertices[0], frustumVertices[1], frustumVertices[2] }, // near plane
+			{ frustumVertices[4], frustumVertices[6], frustumVertices[5] }, // far plane
+			{ frustumVertices[0], frustumVertices[6], frustumVertices[4] }, // left plane
+			{ frustumVertices[1], frustumVertices[5], frustumVertices[7] }, // right plane
+			{ frustumVertices[2], frustumVertices[7], frustumVertices[6] }, // bottom plane
+			{ frustumVertices[0], frustumVertices[4], frustumVertices[5] }, // top plane
+		};
+
+		for (U8 i = 0; i < static_cast<U8>(mPlanes.size()); ++i)
+		{
+			mPlanes[i] = std::move(TPlaneF32{ planePoints[i] });
+		}
+
 		return RC_OK;
+	}
+
+	bool CFrustum::TestPoint(const TVector3& point) const
+	{
+		for (auto&& currPlane : mPlanes)
+		{
+			if (CalcDistanceFromPlaneToPoint(currPlane, point) < 0.0f)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool CFrustum::TestSphere(const TVector3& center, F32 radius) const
+	{
+		for (auto&& currPlane : mPlanes)
+		{
+			if (CalcDistanceFromPlaneToPoint(currPlane, center) < -radius)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool CFrustum::TestAABB(const TAABB& box) const
+	{
+		TVector3 min = box.min;
+		TVector3 max = box.max;
+
+		std::array<TVector3, 8> boxVertices
+		{
+			min,
+			TVector3(min.x, min.y, max.z),
+			TVector3(min.x, max.y, min.z),
+			TVector3(min.x, max.y, max.z),
+			TVector3(max.x, min.y, min.z),
+			TVector3(max.x, min.y, max.z),
+			TVector3(max.x, max.y, min.z),
+			max,
+		};
+
+		for (auto&& v : boxVertices)
+		{
+			if (TestPoint(v))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 

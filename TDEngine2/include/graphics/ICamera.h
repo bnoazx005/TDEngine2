@@ -10,6 +10,8 @@
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
 #include "./../ecs/IComponentFactory.h"
+#include "./../math/TVector3.h"
+#include "./../math/TMatrix4.h"
 
 
 namespace TDEngine2
@@ -329,6 +331,9 @@ namespace TDEngine2
 	};
 
 
+	struct TAABB;
+
+
 	/*!
 		interface IFrustum
 
@@ -356,6 +361,37 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE ComputeBounds(const TMatrix4& invViewProj, F32 zMin) = 0;
+
+			/*!
+				\brief The method tests given point for inclusion within the frustum
+
+				\param[in] point A point in world space
+
+				\return The method returns true if point lies within frustum's bounds, false in other cases
+			*/
+
+			TDE2_API virtual bool TestPoint(const TVector3& point) const = 0;
+
+			/*!
+				\brief The method tests whether a given sphere stays within frustum's volume or not
+
+				\param[in] center A 3d position of sphere's center
+				\param[in] radius Positive value that defines radius of the sphere
+
+				\return The method returns true if the frustum contains the sphere, false in other cases
+			*/
+
+			TDE2_API virtual bool TestSphere(const TVector3& center, F32 radius) const = 0;
+
+			/*!
+				\brief The method tests whether a given axis-aligned bounding box is in frustum's volume or not
+
+				\param[in] box A type that defines parameters of the AABB
+
+				\return The method returns true if AABB lies within the frustum's bounds at least partially
+			*/
+
+			TDE2_API virtual bool TestAABB(const TAABB& box) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFrustum);
 	};
