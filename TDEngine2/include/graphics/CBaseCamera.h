@@ -30,6 +30,14 @@ namespace TDEngine2
 			TDE2_REGISTER_TYPE(CBaseCamera)
 
 			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
 				\brief The method sets up a position of a near clip plane along Z axis
 
 				\param[in] zn A position of a near clip plane on Z axis
@@ -65,9 +73,10 @@ namespace TDEngine2
 				\brief The method specifies a view-projection matrix for a camera
 
 				\param[in] viewProjMatrix A view-projection matrix
+				\param[in] zNDCMin A minimal value of Z axis of camera frustum within NDC space
 			*/
 
-			TDE2_API void SetViewProjMatrix(const TMatrix4& viewProjMatrix) override;
+			TDE2_API void SetViewProjMatrix(const TMatrix4& viewProjMatrix, F32 zNDCMin) override;
 
 			/*!
 				\brief The method returns a position of a near clip plane on Z axis
@@ -116,20 +125,32 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TMatrix4& GetInverseViewProjMatrix() const override;
+
+			/*!
+				\brief The method returns a camera's actual frustum
+
+				\return The method returns pointer to camera's actual frustum implementation
+			*/
+
+			TDE2_API IFrustum* GetFrustum() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCamera)
+
+			TDE2_API E_RESULT_CODE _initInternal();
 		protected:
-			F32      mZNear;
+			F32       mZNear;
 
-			F32      mZFar;
+			F32       mZFar;
 
-			TMatrix4 mProjMatrix;
+			TMatrix4  mProjMatrix;
 
-			TMatrix4 mViewMatrix;
+			TMatrix4  mViewMatrix;
 
-			TMatrix4 mViewProjMatrix;
+			TMatrix4  mViewProjMatrix;
 
-			TMatrix4 mInvViewProjMatrix;
+			TMatrix4  mInvViewProjMatrix;
+
+			IFrustum* mpCameraFrustum;
 	};
 
 

@@ -23,7 +23,7 @@ namespace TDEngine2
 
 		mIsInitialized = true;
 
-		return RC_OK;
+		return _initInternal();
 	}
 	
 	E_RESULT_CODE CPerspectiveCamera::ComputeProjectionMatrix(const ICameraSystem* pCameraSystem)

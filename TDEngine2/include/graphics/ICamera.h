@@ -17,6 +17,7 @@
 namespace TDEngine2
 {
 	class ICameraSystem;
+	class IFrustum;
 
 
 	/*!
@@ -96,9 +97,10 @@ namespace TDEngine2
 				\brief The method specifies a view-projection matrix for a camera
 
 				\param[in] viewProjMatrix A view-projection matrix
+				\param[in] zNDCMin A minimal value of Z axis of camera frustum within NDC space
 			*/
 
-			TDE2_API virtual void SetViewProjMatrix(const TMatrix4& viewProjMatrix) = 0;
+			TDE2_API virtual void SetViewProjMatrix(const TMatrix4& viewProjMatrix, F32 zNDCMin) = 0;
 
 			/*!
 				\brief The method returns a position of a near clip plane on Z axis
@@ -155,6 +157,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_CAMERA_PROJECTION_TYPE GetProjType() const = 0;
+
+			/*!
+				\brief The method returns a camera's actual frustum
+
+				\return The method returns pointer to camera's actual frustum implementation
+			*/
+
+			TDE2_API virtual IFrustum* GetFrustum() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICamera)
 	};

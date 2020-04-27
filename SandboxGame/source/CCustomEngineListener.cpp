@@ -130,6 +130,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 	pGeomBuilder->Free();
 	mpGraphicsContext->GetInfo();
+	mpGraphicsContext->GetContextInfo();
 
 	TAnimationClipParameters clip;
 	clip.mDuration  = 2.5f;

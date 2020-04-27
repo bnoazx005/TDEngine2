@@ -108,6 +108,8 @@ namespace TDEngine2
 		CBaseCamera* pCurrCamera = nullptr;
 
 		const F32 graphicsCtxPositiveZAxisDirection = mpGraphicsContext->GetPositiveZAxisDirection();
+		const F32 ndcZmin = mpGraphicsContext->GetContextInfo().mNDCBox.min.z;
+
 
 		for (U32 i = 0; i < mCameras.size(); ++i)
 		{
@@ -126,7 +128,7 @@ namespace TDEngine2
 
 			pCurrCamera->SetViewMatrix(viewMatrix);
 			pCurrCamera->ComputeProjectionMatrix(this);
-			pCurrCamera->SetViewProjMatrix(pCurrCamera->GetProjMatrix() * pCurrCamera->GetViewMatrix());
+			pCurrCamera->SetViewProjMatrix(pCurrCamera->GetProjMatrix() * pCurrCamera->GetViewMatrix(), ndcZmin);
 		}
 	}
 

@@ -1,5 +1,6 @@
 #include "./../../include/graphics/CBaseCamera.h"
 #include "../../include/math/TAABB.h"
+#include "../../include/utils/Utils.h"
 #include <array>
 
 
@@ -8,6 +9,19 @@ namespace TDEngine2
 	CBaseCamera::CBaseCamera():
 		CBaseComponent()
 	{
+	}
+
+	E_RESULT_CODE CBaseCamera::Free()
+	{
+		CDeferOperation releaseFrustumObject([this] 
+		{ 
+			if (mpCameraFrustum)
+			{
+				mpCameraFrustum->Free();
+			}
+		});
+
+		return CBaseComponent::Free();
 	}
 
 	void CBaseCamera::SetNearPlane(F32 zn)
@@ -30,10 +44,15 @@ namespace TDEngine2
 		mViewMatrix = viewMatrix;
 	}
 
-	void CBaseCamera::SetViewProjMatrix(const TMatrix4& viewProjMatrix)
+	void CBaseCamera::SetViewProjMatrix(const TMatrix4& viewProjMatrix, F32 zNDCMin)
 	{
 		mViewProjMatrix    = viewProjMatrix;
 		mInvViewProjMatrix = Inverse(viewProjMatrix);
+
+		if (mpCameraFrustum)
+		{
+			TDE2_ASSERT(mpCameraFrustum->ComputeBounds(mInvViewProjMatrix, zNDCMin) == RC_OK);
+		}
 	}
 
 	F32 CBaseCamera::GetNearPlane() const
@@ -64,6 +83,26 @@ namespace TDEngine2
 	const TMatrix4& CBaseCamera::GetInverseViewProjMatrix() const
 	{
 		return mInvViewProjMatrix;
+	}
+
+	IFrustum* CBaseCamera::GetFrustum() const
+	{
+		return mpCameraFrustum;
+	}
+
+	E_RESULT_CODE CBaseCamera::_initInternal()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		mpCameraFrustum = CreateFrustum(result);
+
+		if (result != RC_OK)
+		{
+			mIsInitialized = false;
+			return result;
+		}
+
+		return RC_OK;
 	}
 
 	
