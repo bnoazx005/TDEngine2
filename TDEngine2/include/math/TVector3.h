@@ -210,4 +210,15 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TVector3 RandVector3();
+
+	/*!
+		\brief The functions returns unclamped random 3d vector. Each component can lie in range of from min to max
+
+		\param[in] min A vector all components determine minimal values per axis
+		\param[in] max A vector that defines upper limits for generated vectors
+
+		\return The functions returns unclamped random 3d vector
+	*/
+
+	TDE2_API TVector3 RandVector3(const TVector3& min, const TVector3& max);
 }

@@ -56,14 +56,16 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		auto pEntity = mpWorld->CreateEntity();
 
-		auto pTransform = pEntity->GetComponent<CTransform>();
+		if (auto pTransform = pEntity->GetComponent<CTransform>())
+		{
+			pTransform->SetPosition(pTransform->GetPosition() + RandVector3({ -2.0f, 0.0f, 0.0f }, { 5.0f, 5.0f, 10.0f }));
+		}
 
-		pTransform->SetPosition(pTransform->GetPosition() + TVector3(rand() % 5 - 2.0f, rand() % 5, rand() % 10));
-
-		auto pSprite = pEntity->AddComponent<CQuadSprite>();
-
-		pSprite->SetMaterialName("NewMaterial.material");
-		pSprite->SetColor(colors[rand() % 7]);
+		if (auto pSprite = pEntity->AddComponent<CQuadSprite>())
+		{
+			pSprite->SetMaterialName("NewMaterial.material");
+			pSprite->SetColor(colors[rand() % 7]);
+		}
 
 		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
 	}

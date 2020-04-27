@@ -182,4 +182,13 @@ namespace TDEngine2
 
 		return TVector3(x, y, z);
 	}
+
+	TVector3 RandVector3(const TVector3& min, const TVector3& max)
+	{
+		F32 x = min.x + static_cast<F32>(rand()) / (static_cast<F32>(RAND_MAX / (std::max)(1.0f, max.x - min.x)));
+		F32 y = min.y + static_cast<F32>(rand()) / (static_cast<F32>(RAND_MAX / (std::max)(1.0f, max.y - min.y)));
+		F32 z = min.z + static_cast<F32>(rand()) / (static_cast<F32>(RAND_MAX / (std::max)(1.0f, max.z - min.z)));
+
+		return TVector3(x, y, z);
+	}
 }
