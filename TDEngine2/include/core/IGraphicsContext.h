@@ -12,6 +12,7 @@
 #include "./../utils/Color.h"
 #include "./../math/TMatrix4.h"
 #include "./../math/TRect.h"
+#include "./../math/TAABB.h"
 #include "./../graphics/IIndexBuffer.h"
 
 
@@ -38,6 +39,18 @@ namespace TDEngine2
 		PTT_TRIANGLE_STRIP,
 		PTT_TRIANGLE_FAN
 	};
+
+
+	/*!
+		struct TGraphicsContextInfo
+
+		\brief The type contains information about the graphics context's environment
+	*/
+
+	typedef struct TGraphicsContextInfo
+	{
+		TAABB mNDCBox; ///< Determines sizes of NDC specific for the graphics API
+	} TGraphicsContextInfo, *TGraphicsContextInfoPtr;
 
 
 	/*!
@@ -332,6 +345,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TVideoAdapterInfo GetInfo() const = 0;
+
+			/*
+				\bief The method returns information about GAPI environment
+
+				\return The method returns data that describes all GAPI related information
+			*/
+
+			TDE2_API virtual const TGraphicsContextInfo& GetContextInfo() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_GRAPHICS_CONTEXT; }
 		protected:

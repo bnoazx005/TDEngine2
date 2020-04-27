@@ -451,6 +451,16 @@ namespace TDEngine2
 		return outputInfo;
 	}
 
+	const TGraphicsContextInfo& COGLGraphicsContext::GetContextInfo() const
+	{
+		const static TGraphicsContextInfo infoData
+		{
+			{ { -1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f } }
+		};
+
+		return infoData;
+	}
+
 	E_RESULT_CODE COGLGraphicsContext::_initFBO(const IWindowSystem* pWindowSystem)
 	{
 		// \todo move this code into FBO manager later

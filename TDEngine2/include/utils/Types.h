@@ -838,5 +838,4 @@ namespace TDEngine2
 
 		U64           mAvailableVideoMemory = 0;			///< Available video memory size in bytes
 	} TVideoAdapterInfo, *TVideoAdapterInfoPtr;
-
 }

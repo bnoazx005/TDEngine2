@@ -337,6 +337,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TVideoAdapterInfo GetInfo() const override;
+
+			/*
+				\bief The method returns information about GAPI environment
+
+				\return The method returns data that describes all GAPI related information
+			*/
+
+			TDE2_API const TGraphicsContextInfo& GetContextInfo() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsContext)
 

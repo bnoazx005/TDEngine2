@@ -506,6 +506,16 @@ namespace TDEngine2
 		return outputInfo;
 	}
 
+	const TGraphicsContextInfo& CD3D11GraphicsContext::GetContextInfo() const
+	{
+		const static TGraphicsContextInfo infoData
+		{
+			{ { -1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } }
+		};
+
+		return infoData;
+	}
+
 	IDXGIAdapter* CD3D11GraphicsContext::_getDXGIAdapter(ID3D11Device* p3dDevice) const
 	{
 		IDXGIDevice*  pDXGIDevice  = nullptr;
