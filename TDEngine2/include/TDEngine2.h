@@ -75,6 +75,7 @@
 #include "ecs/CBaseSystem.h"
 #include "ecs/CPhysics3DSystem.h"
 #include "ecs/CObjectsSelectionSystem.h"
+#include "ecs/components/CBoundsComponent.h"
 
 ///graphics
 #include "graphics/IBuffer.h"
