@@ -100,6 +100,7 @@ namespace TDEngine2
 
 			TDE2_API void _onHandleInput();
 			TDE2_API bool _onDrawGizmos(const TGizmoManipulatorCallback& onGizmoManipulatorCallback);
+			TDE2_API void _onDrawInspector();
 
 			TDE2_API ISelectionManager* _getSelectionManager();
 		protected:

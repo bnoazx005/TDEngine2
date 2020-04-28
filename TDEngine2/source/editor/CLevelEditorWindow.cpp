@@ -116,6 +116,8 @@ namespace TDEngine2
 
 		mIsVisible = isEnabled;
 
+		_onDrawInspector();
+
 		if (_onDrawGizmos([this](TEntityId entityId, E_GIZMO_TYPE type, const TVector3& delta)
 			{
 				if (IWorld* pWorld = mpEditorsManager->GetWorldInstance())
@@ -287,6 +289,41 @@ namespace TDEngine2
 		}
 
 		return mpSelectionManager;
+	}
+
+	void CLevelEditorWindow::_onDrawInspector()
+	{
+		CEntity* pSelectedEntity = mpEditorsManager->GetWorldInstance()->FindEntity(mSelectedEntityId);
+		if (!pSelectedEntity)
+		{
+			return;
+		}
+
+		static bool isEnabled = true;
+
+		static const IImGUIContext::TWindowParams params
+		{
+			ZeroVector2,
+			TVector2(250.0f, 400.0f),
+			TVector2(250.0f, 400.0f),
+		};
+
+		if (mpImGUIContext->BeginWindow("Object Inspector", isEnabled, params))
+		{
+			mpImGUIContext->Label(std::to_string(mSelectedEntityId));
+
+			/*!
+				\todo 
+				pseudocode for drawing object's properties:
+
+				foreach (component: entity->GetAllComponents()) {
+					propertyDrawer = editor->GetPropertyDrawerByID(component->GetID());
+					propertyDrawer->Draw(component);
+				}
+			*/
+		}
+
+		mpImGUIContext->EndWindow();
 	}
 
 
