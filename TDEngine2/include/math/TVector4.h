@@ -171,4 +171,26 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TVector4 Scale(const TVector4& lvec4, const TVector4& rvec4);
+
+	/*!
+		\brief The method forms a new vector which is built from minimal components of two given
+
+		\param[in] lvec4
+		\param[in] rvec4
+
+		\return The result consists of minimal components of both input vectors
+	*/
+
+	TDE2_API TVector4 Min(const TVector4& lvec4, const TVector4& rvec4);
+
+	/*!
+		\brief The method forms a new vector which is built from maximal components of two given
+
+		\param[in] lvec4
+		\param[in] rvec4
+
+		\return The result consists of maximal components of both input vectors
+	*/
+
+	TDE2_API TVector4 Max(const TVector4& lvec4, const TVector4& rvec4);
 }

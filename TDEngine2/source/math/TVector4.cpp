@@ -154,4 +154,24 @@ namespace TDEngine2
 	{
 		return TVector4(lvec4.x * rvec4.x, lvec4.y * rvec4.y, lvec4.z * rvec4.z, lvec4.w * rvec4.w);
 	}
+
+	TVector4 Min(const TVector4& lvec4, const TVector4& rvec4)
+	{
+		F32 x = std::min<F32>(lvec4.x, rvec4.x);
+		F32 y = std::min<F32>(lvec4.y, rvec4.y);
+		F32 z = std::min<F32>(lvec4.z, rvec4.z);
+		F32 w = std::min<F32>(lvec4.w, rvec4.w);
+
+		return TVector4(x, y, z, w);
+	}
+
+	TVector4 Max(const TVector4& lvec4, const TVector4& rvec4)
+	{
+		F32 x = std::max<F32>(lvec4.x, rvec4.x);
+		F32 y = std::max<F32>(lvec4.y, rvec4.y);
+		F32 z = std::max<F32>(lvec4.z, rvec4.z);
+		F32 w = std::max<F32>(lvec4.w, rvec4.w);
+
+		return TVector4(x, y, z, w);
+	}
 }
