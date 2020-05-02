@@ -10,6 +10,7 @@
 #include "./../../include/core/memory/IMemoryManager.h"
 #include "./../../include/core/memory/CLinearAllocator.h"
 #include "./../../include/core/IImGUIContext.h"
+#include "./../../include/core/IResourceManager.h"
 #include "./../../include/ecs/CWorld.h"
 #include "./../../include/ecs/CSpriteRendererSystem.h"
 #include "./../../include/ecs/CTransformSystem.h"
@@ -18,12 +19,15 @@
 #include "./../../include/ecs/CStaticMeshRendererSystem.h"
 #include "./../../include/ecs/CPhysics3DSystem.h"
 #include "./../../include/graphics/IRenderer.h"
+#include "./../../include/graphics/IGraphicsObjectManager.h"
+#include "./../../include/graphics/IDebugUtility.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/utils/ITimer.h"
 #include "./../../include/editor/IEditorsManager.h"
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/physics/CBaseRaycastContext.h"
 #include "./../../include/ecs/CObjectsSelectionSystem.h"
+#include "./../../include/ecs/CBoundsUpdatingSystem.h"
 #include <cstring>
 #include <algorithm>
 
@@ -374,12 +378,21 @@ namespace TDEngine2
 													   IRenderer* pRenderer, IMemoryManager* pMemoryManager, IEventManager* pEventManager)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+		IResourceManager* pResourceManager = _getSubsystemAs<IResourceManager>(EST_RESOURCE_MANAGER);
 
 		E_RESULT_CODE result = RC_OK;
+
+		IDebugUtility* pDebugUtility = nullptr;
+
+		if (auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(pResourceManager, pRenderer))
+		{
+			pDebugUtility = debugUtilityResult.Get();
+		}
 
 		std::vector<ISystem*> builtinSystems 
 		{
 			CreateTransformSystem(result),
+			CreateBoundsUpdatingSystem(pResourceManager, pDebugUtility, result),
 			CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),

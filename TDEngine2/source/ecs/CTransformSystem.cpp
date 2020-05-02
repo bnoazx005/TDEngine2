@@ -2,6 +2,7 @@
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CTransform.h"
 #include "./../../include/ecs/CEntity.h"
+#include "./../../include/ecs/components/CBoundsComponent.h"
 
 
 namespace TDEngine2
@@ -60,7 +61,7 @@ namespace TDEngine2
 
 	void CTransformSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		pWorld->ForEach<CTransform>([](TEntityId entityId, IComponent* pComponent)
+		pWorld->ForEach<CTransform>([pWorld](TEntityId entityId, IComponent* pComponent)
 		{
 			auto pTransform = dynamic_cast<CTransform*>(pComponent);
 
@@ -74,6 +75,14 @@ namespace TDEngine2
 												  ScaleMatrix(pTransform->GetScale());
 
 			pTransform->SetTransform(localToWorldMatrix);
+
+			if (CEntity* pEntity = pWorld->FindEntity(entityId))
+			{
+				if (auto pBounds = pEntity->GetComponent<CBoundsComponent>())
+				{
+					pBounds->SetDirty(true);
+				}
+			}
 
 			/// \todo Implement parent-to-child relationship's update
 		});
