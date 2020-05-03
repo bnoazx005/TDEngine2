@@ -119,7 +119,7 @@ namespace TDEngine2
 					const TMatrix4& worldMatrix = pTransform->GetTransform();
 
 					TVector4 min{ (std::numeric_limits<F32>::max)() };
-					TVector4 max{ (std::numeric_limits<F32>::min)() };
+					TVector4 max{ -(std::numeric_limits<F32>::max)() };
 
 					for (auto&& v : vertices)
 					{
@@ -138,7 +138,7 @@ namespace TDEngine2
 	void CBoundsUpdatingSystem::_computeSpritesBounds(CEntity* pEntity)
 	{
 		CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>();
-
+		
 		static const std::array<TVector4, 4> spriteVerts
 		{
 			TVector4 { -0.5f, 0.5f, 0.0f, 1.0f },
@@ -152,11 +152,11 @@ namespace TDEngine2
 			const TMatrix4& worldMatrix = pSpriteTransform->GetTransform();
 
 			TVector4 min { (std::numeric_limits<F32>::max)() };
-			TVector4 max { (std::numeric_limits<F32>::min)() };
+			TVector4 max { -(std::numeric_limits<F32>::max)() };
 
-			for (U8 i = 0; i < static_cast<U8>(spriteVerts.size()); ++i)
+			for (auto&& v : spriteVerts)
 			{
-				TVector4 transformedVertex = worldMatrix * spriteVerts[i];
+				TVector4 transformedVertex = worldMatrix * v;
 
 				min = Min(min, transformedVertex);
 				max = Max(max, transformedVertex);
