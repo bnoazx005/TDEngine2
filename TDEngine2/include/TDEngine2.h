@@ -181,6 +181,9 @@
 #include "physics/IRaycastContext.h"
 #include "physics/CBaseRaycastContext.h"
 
+/// scene
+#include "scene/components/ShadowMappingComponents.h"
+
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"
 #include "platform/win32/CWin32Timer.h"
