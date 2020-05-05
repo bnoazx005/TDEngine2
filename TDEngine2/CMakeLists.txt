@@ -95,6 +95,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBoundsUpdatingSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/components/CBoundsComponent.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/scene/components/ShadowMappingComponents.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/scene/components/ILight.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IVertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IIndexBuffer.h"
