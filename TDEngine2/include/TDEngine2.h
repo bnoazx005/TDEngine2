@@ -185,6 +185,7 @@
 #include "scene/components/ShadowMappingComponents.h"
 #include "scene/components/ILight.h"
 #include "scene/components/CBaseLight.h"
+#include "scene/components/CDirectionalLight.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"

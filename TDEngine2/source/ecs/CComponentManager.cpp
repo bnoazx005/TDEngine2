@@ -12,6 +12,7 @@
 #include "./../../include/physics/2D/CTrigger2D.h"
 #include "./../../include/physics/3D/CBoxCollisionObject3D.h"
 #include "./../../include/physics/3D/CSphereCollisionObject3D.h"
+#include "./../../include/scene/components/CDirectionalLight.h"
 #include "./../../include/ecs/components/CBoundsComponent.h"
 #include "./../../include/editor/ecs/EditorComponents.h"
 
@@ -336,6 +337,7 @@ namespace TDEngine2
 			CreateBoxCollisionObject3DFactory,
 			CreateSphereCollisionObject3DFactory,
 			CreateBoundsComponentFactory,
+			CreateDirectionalLightFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 #endif
@@ -379,6 +381,7 @@ namespace TDEngine2
 			CBoxCollisionObject3D::GetTypeId(),
 			CSphereCollisionObject3D::GetTypeId(),
 			CBoundsComponent::GetTypeId(),
+			CDirectionalLight::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 #endif
