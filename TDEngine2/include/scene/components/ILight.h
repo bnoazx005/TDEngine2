@@ -57,7 +57,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetIntensity(F32 instensity) = 0;
+			TDE2_API virtual E_RESULT_CODE SetIntensity(F32 intensity) = 0;
 
 			/*!
 				\brief The method returns a color of the light source
