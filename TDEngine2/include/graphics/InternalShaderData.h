@@ -10,11 +10,22 @@
 #include "./../utils/Types.h"
 #include "./../math/TMatrix4.h"
 #include "./../math/TVector4.h"
+#include "./../utils/Color.h"
 
 
 namespace TDEngine2
 {
 #pragma pack(push, 16)
+
+	/*!
+		\brief The structure contains all the information about light sources in the scene
+	*/
+
+	struct TLightingShaderData
+	{
+		TVector4  mSunLightDirection;
+		TColor32F mSunLightColor;
+	};
 
 	/*!
 		struct TPerFrameShaderData
@@ -24,11 +35,13 @@ namespace TDEngine2
 
 	typedef struct TPerFrameShaderData
 	{
-		TMatrix4 mProjMatrix;
+		TMatrix4            mProjMatrix;
 
-		TMatrix4 mViewMatrix;
+		TMatrix4            mViewMatrix;
 
-		TVector4 mTime; ///< The vector contains time related values, where x is current game time, y is delta time 
+		TVector4            mTime; ///< The vector contains time related values, where x is current game time, y is delta time 
+
+		TLightingShaderData mLightingData;
 	} TPerFrameShaderData, *TPerFrameShaderDataPtr;
 
 
