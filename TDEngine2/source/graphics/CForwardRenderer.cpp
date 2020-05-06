@@ -259,6 +259,17 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+	E_RESULT_CODE CForwardRenderer::SetLightingData(const TLightingShaderData& lightingData)
+	{
+		if (Length(lightingData.mSunLightDirection) < 1e-3f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mLightingData = lightingData;
+		return RC_OK;
+	}
 	
 	E_ENGINE_SUBSYSTEM_TYPE CForwardRenderer::GetType() const
 	{

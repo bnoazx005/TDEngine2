@@ -10,6 +10,7 @@
 #include "./../utils/Utils.h"
 #include "./../utils/Types.h"
 #include "IRenderer.h"
+#include "InternalShaderData.h"
 
 
 namespace TDEngine2
@@ -105,6 +106,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetFramePostProcessor(IFramePostProcessor* pFramePostProcessor) override;
 
 			/*!
+				\brief The method stores given data that will be passed into the shaders to compute lighting and shadows
+
+				\param[in] lightingData A parameter that contains all information about light sources
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetLightingData(const TLightingShaderData& lightingData) override;
+
+			/*!
 				\brief The method sets up a pointer to selection manager
 
 				\param[in, out] pSelectionManager A pointer to ISelectionManager implementation
@@ -167,5 +178,7 @@ namespace TDEngine2
 			IFramePostProcessor*     mpFramePostProcessor;
 
 			ISelectionManager*       mpSelectionManager;
+
+			TLightingShaderData      mLightingData;
 	};
 }

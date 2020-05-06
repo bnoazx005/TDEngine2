@@ -21,6 +21,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IFramePostProcessor;
 	class ISelectionManager;
+	struct TLightingShaderData;
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -116,6 +117,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SetSelectionManager(ISelectionManager* pSelectionManager) = 0;
+
+			/*!
+				\brief The method stores given data that will be passed into the shaders to compute lighting and shadows
+
+				\param[in] lightingData A parameter that contains all information about light sources
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetLightingData(const TLightingShaderData& lightingData) = 0;
 
 			/*!
 				\brief The method returns a pointer to CRenderQueue which contains objects of specific group
