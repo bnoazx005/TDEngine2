@@ -76,6 +76,7 @@
 #include "ecs/CPhysics3DSystem.h"
 #include "ecs/CObjectsSelectionSystem.h"
 #include "ecs/CBoundsUpdatingSystem.h"
+#include "ecs/CLightingSystem.h"
 #include "ecs/components/CBoundsComponent.h"
 
 ///graphics

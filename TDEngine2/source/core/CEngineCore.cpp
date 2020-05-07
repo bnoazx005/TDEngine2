@@ -28,6 +28,7 @@
 #include "./../../include/physics/CBaseRaycastContext.h"
 #include "./../../include/ecs/CObjectsSelectionSystem.h"
 #include "./../../include/ecs/CBoundsUpdatingSystem.h"
+#include "./../../include/ecs/CLightingSystem.h"
 #include <cstring>
 #include <algorithm>
 
@@ -397,6 +398,7 @@ namespace TDEngine2
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
+			CreateLightingSystem(pRenderer, result),
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
 #endif
