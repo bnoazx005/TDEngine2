@@ -86,6 +86,7 @@ namespace TDEngine2
 			{ "DefaultScreenSpaceEffect", E_DEFAULT_SHADER_TYPE::DST_SCREEN_SPACE },
 			{ "Selection", E_DEFAULT_SHADER_TYPE::DST_SELECTION },
 			{ "SelectionOutline", E_DEFAULT_SHADER_TYPE::DST_SELECTION_OUTLINE },
+			{ "ShadowPass", E_DEFAULT_SHADER_TYPE::DST_SHADOW_PASS },
 		};
 
 		return shaderNameToTypeMapping.at(name);

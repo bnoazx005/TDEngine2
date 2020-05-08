@@ -435,6 +435,27 @@ namespace TDEngine2
 					}
 					#endprogram
 				)";
+			case E_DEFAULT_SHADER_TYPE::DST_SHADOW_PASS:
+				return  R"(
+					#define VERTEX_ENTRY mainVS
+					#define PIXEL_ENTRY mainPS
+
+					#include <TDEngine2Globals.inc>
+
+					#program vertex
+
+					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
+					{
+						return mul(SunLightMat, mul(ModelMat, lPos)));
+					}
+
+					#endprogram
+
+					#program pixel
+
+					void mainPS(float4 wPos : SV_POSITION) {}
+					#endprogram
+				)";
 			default:
 				TDE2_UNIMPLEMENTED();
 				break;

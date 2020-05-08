@@ -20,7 +20,8 @@ CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
 	float4   Time; ///< The vector contains time related values, where x is current game time, y is delta time
 
 	float4   SunLightDirection;
-	float4   SunLightColor; 
+	float4   SunLightColor;
+	float4x4 SunLightMat; 
 CBUFFER_ENDSECTION
 
 

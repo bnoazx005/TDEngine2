@@ -25,6 +25,7 @@ namespace TDEngine2
 	{
 		TVector4  mSunLightDirection;
 		TColor32F mSunLightColor;
+		TMatrix4  mSunLightMatrix = IdentityMatrix4;
 	};
 
 	/*!

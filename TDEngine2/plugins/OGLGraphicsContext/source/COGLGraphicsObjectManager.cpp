@@ -333,6 +333,30 @@ namespace TDEngine2
 					}
 					#endprogram
 					)";
+			case E_DEFAULT_SHADER_TYPE::DST_SHADOW_PASS:
+				return R"(
+					#version 330 core
+
+					#include <TDEngine2Globals.inc>
+
+					#define VERTEX_ENTRY main
+					#define PIXEL_ENTRY main
+
+					#program vertex
+
+					layout (location = 0) in vec4 inlPos;
+
+					void main(void)
+					{
+						gl_Position = SunLightMat * ModelMat * inlPos;
+					}
+
+					#endprogram
+
+					#program pixel
+					void main(void) {}
+					#endprogram
+					)";
 			default:
 				TDE2_UNIMPLEMENTED();
 				break;
