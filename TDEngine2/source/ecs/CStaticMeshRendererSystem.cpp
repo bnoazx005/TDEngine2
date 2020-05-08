@@ -211,10 +211,10 @@ namespace TDEngine2
 			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
 																				 _computeMeshCommandHash(currMaterialId, distanceToCamera));
 
-			pCommand->mpVertexBuffer           = meshBuffersEntry.mpVertexBuffer;
-			pCommand->mpIndexBuffer            = meshBuffersEntry.mpIndexBuffer;
+			pCommand->mpVertexBuffer           = pSharedMeshResource->GetSharedVertexBuffer();
+			pCommand->mpIndexBuffer            = pSharedMeshResource->GetSharedIndexBuffer();
 			pCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName());
-			pCommand->mpVertexDeclaration      = meshBuffersEntry.mpVertexDecl;
+			pCommand->mpVertexDeclaration      = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
 			pCommand->mNumOfIndices            = pSharedMeshResource->GetIndices().size();
 			pCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCommand->mObjectData.mModelMatrix = Transpose(objectTransformMatrix);
