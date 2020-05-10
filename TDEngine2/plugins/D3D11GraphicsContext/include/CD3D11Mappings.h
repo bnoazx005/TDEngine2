@@ -60,6 +60,26 @@ namespace TDEngine2
 			TDE2_API static DXGI_FORMAT GetDXGIFormat(E_FORMAT_TYPE format);
 
 			/*!
+				\brief The function maps weak typed version of given format
+
+				\param[in] format Strongly typed version of format 
+
+				\return A value of DXGI_FORMAT type
+			*/
+
+			TDE2_API static DXGI_FORMAT GetTypelessVersionOfFormat(E_FORMAT_TYPE format);
+
+			/*!
+				\brief The function maps weak typed version to best fit strongly typed one
+
+				\param[in] format Weaked typed version of format
+
+				\return A value of DXGI_FORMAT type which corresponds to strongly typed format
+			*/
+
+			TDE2_API static E_FORMAT_TYPE GetBestFitStrongTypeFormat(E_FORMAT_TYPE format);
+
+			/*!
 				\brief The function returns a size of a specified format
 
 				\param[in] format An internal format

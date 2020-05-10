@@ -126,7 +126,90 @@ namespace TDEngine2
 
 		return DXGI_FORMAT_UNKNOWN;
 	}
-	 
+	
+	DXGI_FORMAT CD3D11Mappings::GetTypelessVersionOfFormat(E_FORMAT_TYPE format)
+	{
+		switch (format)
+		{
+			case FT_FLOAT1:
+			case FT_UINT1:
+			case FT_SINT1:
+			case FT_FLOAT1_TYPELESS:
+			case FT_D32:
+				return DXGI_FORMAT_R32_TYPELESS;
+			case FT_FLOAT2:
+			case FT_UINT2:
+			case FT_SINT2:
+			case FT_FLOAT2_TYPELESS:
+				return DXGI_FORMAT_R32G32_TYPELESS;
+			case FT_FLOAT3:
+			case FT_UINT3:
+			case FT_SINT3:
+			case FT_FLOAT3_TYPELESS:
+				return DXGI_FORMAT_R32G32B32_TYPELESS;
+			case FT_FLOAT4:
+			case FT_UINT4:
+			case FT_SINT4:
+			case FT_FLOAT4_TYPELESS:
+				return DXGI_FORMAT_R32G32B32A32_TYPELESS;
+			case FT_BYTE1:
+			case FT_UBYTE1:
+			case FT_NORM_BYTE1:
+			case FT_NORM_UBYTE1:
+				return DXGI_FORMAT_R8_TYPELESS;
+			case FT_BYTE2:
+			case FT_UBYTE2:
+			case FT_NORM_BYTE2:
+			case FT_NORM_UBYTE2:
+				return DXGI_FORMAT_R8G8_TYPELESS;
+			case FT_BYTE4:
+			case FT_UBYTE4:
+			case FT_NORM_BYTE4_SRGB:
+			case FT_NORM_BYTE4:
+			case FT_NORM_UBYTE4:
+				return DXGI_FORMAT_R8G8B8A8_TYPELESS;
+			case FT_SHORT1:
+			case FT_USHORT1:
+			case FT_NORM_SHORT1:
+			case FT_NORM_USHORT1:
+				return DXGI_FORMAT_R16_TYPELESS;
+			case FT_SHORT2:
+			case FT_USHORT2:
+			case FT_NORM_SHORT2:
+			case FT_NORM_USHORT2:
+				return DXGI_FORMAT_R16G16_TYPELESS;
+			case FT_SHORT4:
+			case FT_USHORT4:
+			case FT_NORM_SHORT4:
+			case FT_NORM_USHORT4:
+				return DXGI_FORMAT_R16G16B16A16_TYPELESS;
+				return DXGI_FORMAT_D32_FLOAT;
+		}
+
+		return DXGI_FORMAT_UNKNOWN;
+	}
+
+	E_FORMAT_TYPE CD3D11Mappings::GetBestFitStrongTypeFormat(E_FORMAT_TYPE format)
+	{
+		switch (format)
+		{
+			case FT_FLOAT1_TYPELESS:
+			case FT_D32:
+				return FT_FLOAT1;
+			case FT_FLOAT2_TYPELESS:
+				return FT_FLOAT2;
+			case FT_FLOAT3_TYPELESS:
+				return FT_FLOAT3;
+			case FT_FLOAT4_TYPELESS:
+				return FT_FLOAT4;
+			default:
+				TDE2_ASSERT(false);
+				break;
+		}
+
+		return FT_UNKNOWN;
+	}
+
 	U32 CD3D11Mappings::GetFormatSize(E_FORMAT_TYPE format)
 	{
 		switch (format)
