@@ -381,7 +381,7 @@ namespace TDEngine2
 #endif
 	}
 
-	void COGLGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget)
+	void COGLGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
 		TDE2_UNIMPLEMENTED();
 	}

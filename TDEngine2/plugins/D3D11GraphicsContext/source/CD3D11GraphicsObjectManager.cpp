@@ -446,7 +446,7 @@ namespace TDEngine2
 
 					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
 					{
-						return mul(SunLightMat, mul(ModelMat, lPos)));
+						return mul(SunLightMat, mul(ModelMat, lPos));
 					}
 
 					#endprogram
