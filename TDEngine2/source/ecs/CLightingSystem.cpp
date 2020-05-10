@@ -1,9 +1,20 @@
 #include "./../../include/ecs/CLightingSystem.h"
 #include "./../../include/ecs/IWorld.h"
 #include "./../../include/ecs/CEntity.h"
+#include "./../../include/ecs/CTransform.h"
+#include "./../../include/graphics/CStaticMesh.h"
+#include "./../../include/graphics/CStaticMeshContainer.h"
 #include "./../../include/graphics/IRenderer.h"
 #include "./../../include/graphics/InternalShaderData.h"
+#include "./../../include/graphics/IGraphicsObjectManager.h"
+#include "./../../include/graphics/IVertexDeclaration.h"
+#include "./../../include/graphics/CRenderQueue.h"
+#include "./../../include/graphics/CBaseMaterial.h"
+#include "./../../include/core/IResourceManager.h"
+#include "./../../include/core/IResourceHandler.h"
+#include "./../../include/core/IGraphicsContext.h"
 #include "./../../include/scene/components/CDirectionalLight.h"
+#include "./../../include/scene/components/ShadowMappingComponents.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/utils/CResult.h"
 
@@ -15,19 +26,28 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLightingSystem::Init(IRenderer* pRenderer)
+	E_RESULT_CODE CLightingSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pRenderer)
+		if (!pRenderer || !pGraphicsObjectManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpRenderer = pRenderer;
+		mpRenderer              = pRenderer;
+		mpGraphicsObjectManager = pGraphicsObjectManager;
+		mpResourceManager       = mpRenderer->GetResourceManager();
+		mpGraphicsContext       = pGraphicsObjectManager->GetGraphicsContext();
+
+		E_RESULT_CODE result = _prepareResources();
+		if (result != RC_OK)
+		{
+			return result;
+		}
 
 		mIsInitialized = true;
 
@@ -41,7 +61,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
 		mIsInitialized = false;
+
+		result = result | mpShadowVertDecl->Free();
 
 		delete this;
 
@@ -51,6 +75,7 @@ namespace TDEngine2
 	void CLightingSystem::InjectBindings(IWorld* pWorld)
 	{
 		mDirectionalLightsEntities = pWorld->FindEntitiesWithComponents<CDirectionalLight>();
+		mShadowCasterEntities      = pWorld->FindEntitiesWithComponents<CShadowCasterComponent>();
 	}
 
 	void CLightingSystem::Update(IWorld* pWorld, F32 dt)
@@ -60,6 +85,7 @@ namespace TDEngine2
 
 		TLightingShaderData lightingData;
 
+		// \note Prepare lighting data
 		for (TEntityId currEntity : mDirectionalLightsEntities)
 		{
 			if (auto pEntity = pWorld->FindEntity(currEntity))
@@ -68,6 +94,7 @@ namespace TDEngine2
 				{
 					lightingData.mSunLightDirection = TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
 					lightingData.mSunLightColor     = pSunLight->GetColor();
+					lightingData.mSunLightMatrix    = _constructSunLightMatrix(pEntity);
 				}
 			}
 		}
@@ -76,10 +103,92 @@ namespace TDEngine2
 		{
 			PANIC_ON_FAILURE(mpRenderer->SetLightingData(lightingData));
 		}
+
+		U32 drawIndex = 0;
+
+		// \note Prepare commands for the renderer
+		for (TEntityId currEntity : mShadowCasterEntities)
+		{
+			if (auto pEntity = pWorld->FindEntity(currEntity))
+			{
+				if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
+				{
+					CTransform* pTransform = pEntity->GetComponent<CTransform>();
+
+					IResourceHandler* pMeshResourceHandler = mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName());
+					TDE2_ASSERT(pMeshResourceHandler->IsValid());
+
+					if (IStaticMesh* pStaticMeshResource = pMeshResourceHandler->Get<IStaticMesh>(RAT_BLOCKING))
+					{
+						if (TDrawIndexedCommand* pDrawCommand = mpShadowPassRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex++))
+						{
+							pDrawCommand->mpVertexBuffer           = pStaticMeshResource->GetPositionOnlyVertexBuffer();
+							pDrawCommand->mpIndexBuffer            = pStaticMeshResource->GetSharedIndexBuffer();
+							pDrawCommand->mpMaterialHandler        = mpShadowPassMaterial;
+							pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+							pDrawCommand->mpVertexDeclaration      = mpShadowVertDecl;
+							pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
+							pDrawCommand->mObjectData.mObjectID    = pEntity->GetId();
+							pDrawCommand->mStartIndex              = 0;
+							pDrawCommand->mStartVertex             = 0;
+							pDrawCommand->mNumOfIndices            = pStaticMeshResource->GetFacesCount() * 3;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	E_RESULT_CODE CLightingSystem::_prepareResources()
+	{
+		if (auto newVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration())
+		{
+			mpShadowVertDecl = newVertDeclResult.Get();
+			mpShadowVertDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
+		}
+
+		mpShadowPassRenderQueue = mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS);
+
+		const static TMaterialParameters shadowPassMaterialParams
+		{
+			"ShadowPass", false,
+			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
+			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
+		};
+
+		mpShadowPassMaterial = mpResourceManager->Create<CBaseMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);
+
+		return (mpShadowPassMaterial->IsValid() && mpShadowPassRenderQueue && mpShadowVertDecl) ? RC_OK : RC_FAIL;
+	}
+
+	TMatrix4 CLightingSystem::_constructSunLightMatrix(CEntity* pEntity) const
+	{
+		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+		if (!pTransform)
+		{
+			TDE2_ASSERT(false);
+			return IdentityMatrix4;
+		}
+
+		TMatrix4 viewMatrix = pTransform->GetTransform();
+		{
+			viewMatrix.m[0][3] = -viewMatrix.m[0][3];
+			viewMatrix.m[1][3] = -viewMatrix.m[1][3];
+
+			const F32 zAxis = mpGraphicsContext->GetPositiveZAxisDirection();
+
+			// \note This thing is a kind of a hack for OpenGL graphics context which is using orthographic projection to make it uniform for both GAPIs
+			viewMatrix.m[2][3] *= -zAxis;
+			viewMatrix.m[2][2] *= zAxis;
+		}
+
+		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-10.0f, 10.0f, 10.0f, -10.0f, 1.0f, 7.0f); // \todo Refactor
+
+		return Transpose(Mul(projMatrix, viewMatrix));
 	}
 
 
-	TDE2_API ISystem* CreateLightingSystem(IRenderer* pRenderer, E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateLightingSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
 		CLightingSystem* pSystemInstance = new (std::nothrow) CLightingSystem();
 
@@ -90,7 +199,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pSystemInstance->Init(pRenderer);
+		result = pSystemInstance->Init(pRenderer, pGraphicsObjectManager);
 
 		if (result != RC_OK)
 		{

@@ -12,6 +12,7 @@
 #include "./../../include/graphics/IGraphicsObjectManager.h"
 #include "./../../include/editor/CPerfProfiler.h"
 #include "./../../include/graphics/IFramePostProcessor.h"
+#include "./../../include/graphics/CBaseRenderTarget.h"
 #if TDE2_EDITORS_ENABLED
 	#include "./../../include/editor/ISelectionManager.h"
 #endif
@@ -107,6 +108,15 @@ namespace TDEngine2
 			queue->Sort();
 			queue->Clear();
 		}*/
+		
+		TTexture2DParameters shadowMapParams{ 512, 512, FT_D32, 1, 1, 0 };
+
+		mpShadowMap = mpResourceManager->Create<CBaseDepthBufferTarget>("ShadowMap", shadowMapParams);
+		if (!mpShadowMap->IsValid())
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
 
 		mIsInitialized = true;
 
@@ -199,12 +209,33 @@ namespace TDEngine2
 				}
 
 				executeCommands(pCurrCommandBuffer, true);
+				return RC_OK;
 			}) != RC_OK)
 			{
 				TDE2_ASSERT(false);
 			}
 		}
 #endif
+
+		// \note Shadow pass
+		{
+			mpGraphicsContext->SetViewport(0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
+			mpGraphicsContext->BindDepthBufferTarget(mpShadowMap->Get<IDepthBufferTarget>(RAT_BLOCKING), true);
+
+			mpGraphicsContext->ClearDepthBuffer(1.0f);
+
+			CRenderQueue* pShadowRenderQueue = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)];
+			if (!pShadowRenderQueue)
+			{
+				LOG_ERROR("[ForwardRenderer] Invalid \"Shadow Pass\" commands buffer was found");
+				return RC_FAIL;
+			}
+
+			executeCommands(pShadowRenderQueue, true);
+
+			mpGraphicsContext->BindDepthBufferTarget(nullptr);
+			mpGraphicsContext->SetViewport(0.0f, 0.0f, 800.0f, 600.0f, 0.0f, 1.0f);
+		}
 
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
 
@@ -309,6 +340,8 @@ namespace TDEngine2
 	{
 		///set up global shader properties for TPerFrameShaderData buffer
 		TPerFrameShaderData perFrameShaderData;
+
+		perFrameShaderData.mLightingData = mLightingData;
 		
 		if (mpMainCamera)
 		{

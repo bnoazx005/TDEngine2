@@ -17,6 +17,7 @@ namespace TDEngine2
 {
 	class IGlobalShaderProperties;
 	class IDebugUtility;
+	class IResourceHandler;
 
 
 	/*!
@@ -180,5 +181,7 @@ namespace TDEngine2
 			ISelectionManager*       mpSelectionManager;
 
 			TLightingShaderData      mLightingData;
+
+			IResourceHandler*        mpShadowMap;
 	};
 }

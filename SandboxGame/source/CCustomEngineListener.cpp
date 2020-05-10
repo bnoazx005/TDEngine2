@@ -93,6 +93,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpResourceManager->Load<CStaticMesh>("Test.mesh");
 
 	auto pMeshEntity = mpWorld->CreateEntity();
+	auto shadowCaster = pMeshEntity->AddComponent<CShadowCasterComponent>();
 	auto bounds = pMeshEntity->AddComponent<CBoundsComponent>();
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
@@ -149,6 +150,20 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}
 		}
 	}	
+
+	if (auto pLightEntity = mpWorld->CreateEntity())
+	{
+		if (auto pSunLight = pLightEntity->AddComponent<CDirectionalLight>())
+		{
+			pSunLight->SetIntensity(1.5f);
+		}
+
+		if (auto pTransform = pLightEntity->GetComponent<CTransform>())
+		{
+			pTransform->SetPosition(TVector3(5.0f, 5.0f, 0.0f));
+			pTransform->SetRotation(TVector3(0.0f, 0.0f, -45.0f));
+		}
+	}
 
 	return RC_OK;
 }
