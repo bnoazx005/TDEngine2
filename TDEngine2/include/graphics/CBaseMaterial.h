@@ -430,7 +430,7 @@ namespace TDEngine2
 
 			TRasterizerStateDesc     mRasterizerStateParams;
 
-			TRasterizerStateId       mRasterizerStateHandle = InvalidRasterizerStateId;
+			TRasterizerStateId       mRasterizerStateHandle = TRasterizerStateId::Invalid;
 
 			E_GEOMETRY_SUBGROUP_TAGS mTag = E_GEOMETRY_SUBGROUP_TAGS::BASE;
 	};

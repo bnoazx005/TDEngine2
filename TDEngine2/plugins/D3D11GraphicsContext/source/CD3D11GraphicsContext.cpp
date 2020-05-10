@@ -360,7 +360,7 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::BindRasterizerState(TRasterizerStateId rasterizerStateId)
 	{
-		if (rasterizerStateId == InvalidRasterizerStateId)
+		if (rasterizerStateId == TRasterizerStateId::Invalid)
 		{
 			mp3dDeviceContext->RSSetState(nullptr);
 			return;

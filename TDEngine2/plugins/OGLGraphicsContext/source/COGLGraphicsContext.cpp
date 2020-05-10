@@ -328,7 +328,7 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::BindRasterizerState(TRasterizerStateId rasterizerStateId)
 	{
-		if (rasterizerStateId == InvalidRasterizerStateId)
+		if (rasterizerStateId == TRasterizerStateId::Invalid)
 		{
 			GL_SAFE_VOID_CALL(glEnable(GL_CULL_FACE));
 

@@ -132,7 +132,7 @@ namespace TDEngine2
 
 	TResult<TRasterizerStateId> COGLGraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
 	{
-		return TOkValue<TRasterizerStateId>(mRasterizerStates.Add(rasterizerStateDesc));
+		return TOkValue<TRasterizerStateId>(TRasterizerStateId(mRasterizerStates.Add(rasterizerStateDesc)));
 	}
 
 	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
@@ -157,7 +157,7 @@ namespace TDEngine2
 
 	TResult<TRasterizerStateDesc> COGLGraphicsObjectManager::GetRasterizerState(TRasterizerStateId rasterizerStateId) const
 	{
-		return mRasterizerStates[rasterizerStateId];
+		return mRasterizerStates[static_cast<U32>(rasterizerStateId)];
 	}
 
 	std::string COGLGraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const

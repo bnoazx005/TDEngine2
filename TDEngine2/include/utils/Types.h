@@ -821,9 +821,7 @@ namespace TDEngine2
 	} TRasterizerStateDesc, *TRasterizerStateDescPtr;
 
 
-	typedef U32 TRasterizerStateId;
-
-	constexpr TRasterizerStateId InvalidRasterizerStateId = (std::numeric_limits<TRasterizerStateId>::max)();
+	TDE2_DECLARE_HANDLE_TYPE(TRasterizerStateId);
 
 
 	/*!

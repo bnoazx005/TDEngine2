@@ -232,7 +232,7 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return TOkValue<TRasterizerStateId>(mpRasterizerStatesArray.Add(pRasterizerState));
+		return TOkValue<TRasterizerStateId>(TRasterizerStateId(mpRasterizerStatesArray.Add(pRasterizerState)));
 	}
 
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
@@ -257,7 +257,7 @@ namespace TDEngine2
 
 	TResult<ID3D11RasterizerState*> CD3D11GraphicsObjectManager::GetRasterizerState(TRasterizerStateId rasterizerStateId) const
 	{
-		return mpRasterizerStatesArray[rasterizerStateId];
+		return mpRasterizerStatesArray[static_cast<U32>(rasterizerStateId)];
 	}
 
 	std::string CD3D11GraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const
