@@ -107,7 +107,7 @@ namespace TDEngine2
 
 		textureDesc.Width              = width;
 		textureDesc.Height             = height;
-		textureDesc.Format             = CD3D11Mappings::GetDXGIFormat(format);
+		textureDesc.Format             = CD3D11Mappings::GetTypelessVersionOfFormat(format);
 		textureDesc.SampleDesc.Count   = samplesCount;
 		textureDesc.SampleDesc.Quality = samplingQuality;
 		textureDesc.MipLevels          = mipLevelsCount;
@@ -131,7 +131,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);
+		return _createShaderTextureView(mp3dDevice, CD3D11Mappings::GetBestFitStrongTypeFormat(format), mNumOfMipLevels);
 	}
 
 	E_RESULT_CODE CD3D11DepthBufferTarget::_createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount)

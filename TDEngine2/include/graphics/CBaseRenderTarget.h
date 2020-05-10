@@ -130,6 +130,8 @@ namespace TDEngine2
 
 	class CBaseDepthBufferTarget : public CBaseRenderTarget, public IDepthBufferTarget
 	{
+		public:
+			TDE2_REGISTER_TYPE(CBaseDepthBufferTarget)
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseDepthBufferTarget)
 	};
