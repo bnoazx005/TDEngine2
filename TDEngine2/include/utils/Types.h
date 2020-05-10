@@ -268,6 +268,14 @@ namespace TDEngine2
 #endif
 
 
+	/*!
+		\brief The macro TDE2_DECLARE_HANDLE_TYPE is used to declare strongly typed handles instead of using typedefs 
+	*/
+
+#define TDE2_DECLARE_HANDLE_TYPE_EX(HandleID, InvalidValue) enum class HandleID : U32 { Invalid = InvalidValue }
+#define TDE2_DECLARE_HANDLE_TYPE(HandleID) TDE2_DECLARE_HANDLE_TYPE_EX(HandleID, (std::numeric_limits<U32>::max)())
+
+
 	/// Entity-Component-System's types declarations
 
 
