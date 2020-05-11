@@ -784,9 +784,7 @@ namespace TDEngine2
 	} TDepthStencilStateDesc, *TDepthStencilStateDescPtr;
 
 
-	typedef U32 TDepthStencilStateId;
-
-	constexpr TDepthStencilStateId InvalidDepthStencilStateId = (std::numeric_limits<TDepthStencilStateId>::max)();
+	TDE2_DECLARE_HANDLE_TYPE(TDepthStencilStateId);
 
 
 	/*!

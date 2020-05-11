@@ -347,7 +347,7 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
 	{
-		if (depthStencilStateId == InvalidDepthStencilStateId)
+		if (depthStencilStateId == TDepthStencilStateId::Invalid)
 		{
 			mp3dDeviceContext->OMSetDepthStencilState(nullptr, 0xFF);
 			return;

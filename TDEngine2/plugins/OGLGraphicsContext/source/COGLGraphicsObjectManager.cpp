@@ -127,7 +127,7 @@ namespace TDEngine2
 
 	TResult<TDepthStencilStateId> COGLGraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
 	{
-		return TOkValue<TDepthStencilStateId>(mDepthStencilStates.Add(depthStencilDesc));
+		return TOkValue<TDepthStencilStateId>(TDepthStencilStateId(mDepthStencilStates.Add(depthStencilDesc)));
 	}
 
 	TResult<TRasterizerStateId> COGLGraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
@@ -152,7 +152,7 @@ namespace TDEngine2
 
 	TResult<TDepthStencilStateDesc> COGLGraphicsObjectManager::GetDepthStencilState(TDepthStencilStateId depthStencilStateId) const
 	{
-		return mDepthStencilStates[depthStencilStateId];
+		return mDepthStencilStates[static_cast<U32>(depthStencilStateId)];
 	}
 
 	TResult<TRasterizerStateDesc> COGLGraphicsObjectManager::GetRasterizerState(TRasterizerStateId rasterizerStateId) const

@@ -426,7 +426,7 @@ namespace TDEngine2
 
 			TDepthStencilStateDesc   mDepthStencilStateParams;
 
-			TDepthStencilStateId     mDepthStencilStateHandle = InvalidDepthStencilStateId;
+			TDepthStencilStateId     mDepthStencilStateHandle = TDepthStencilStateId::Invalid;
 
 			TRasterizerStateDesc     mRasterizerStateParams;
 

@@ -291,7 +291,7 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
 	{
-		if (depthStencilStateId == InvalidDepthStencilStateId)
+		if (depthStencilStateId == TDepthStencilStateId::Invalid)
 		{
 			// \note set up default values for depth-stencil state
 			GL_SAFE_VOID_CALL(glEnable(GL_DEPTH_TEST));

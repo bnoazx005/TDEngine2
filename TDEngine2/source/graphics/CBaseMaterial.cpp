@@ -178,7 +178,7 @@ namespace TDEngine2
 
 		mpGraphicsContext->BindBlendState(mBlendStateHandle);
 
-		if (mDepthStencilStateHandle == InvalidDepthStencilStateId)
+		if (mDepthStencilStateHandle == TDepthStencilStateId::Invalid)
 		{
 			mDepthStencilStateHandle = mpGraphicsObjectManager->CreateDepthStencilState(mDepthStencilStateParams).Get();
 		}

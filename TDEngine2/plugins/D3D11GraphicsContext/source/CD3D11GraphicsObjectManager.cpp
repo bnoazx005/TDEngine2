@@ -203,7 +203,7 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return TOkValue<TDepthStencilStateId>(mpDepthStencilStatesArray.Add(pDepthStencilState));
+		return TOkValue<TDepthStencilStateId>(TDepthStencilStateId(mpDepthStencilStatesArray.Add(pDepthStencilState)));
 	}
 
 	TResult<TRasterizerStateId> CD3D11GraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
@@ -252,7 +252,7 @@ namespace TDEngine2
 
 	TResult<ID3D11DepthStencilState*> CD3D11GraphicsObjectManager::GetDepthStencilState(TDepthStencilStateId stateId) const
 	{
-		return mpDepthStencilStatesArray[stateId];
+		return mpDepthStencilStatesArray[static_cast<U32>(stateId)];
 	}
 
 	TResult<ID3D11RasterizerState*> CD3D11GraphicsObjectManager::GetRasterizerState(TRasterizerStateId rasterizerStateId) const
