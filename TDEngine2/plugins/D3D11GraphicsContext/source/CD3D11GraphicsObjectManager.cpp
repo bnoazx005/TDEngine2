@@ -86,7 +86,7 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash(samplerDesc);
 		if (mTextureSamplesHashTable.find(hashValue) != mTextureSamplesHashTable.cend())
 		{
-			return TOkValue<TTextureSamplerId>(mTextureSamplesHashTable[hashValue]);
+			return TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
 		}
 
 		ID3D11SamplerState* pNewTextureSampler = nullptr;
@@ -124,7 +124,7 @@ namespace TDEngine2
 		mpTextureSamplersArray.push_back(pNewTextureSampler);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });
 
-		return TOkValue<TTextureSamplerId>(samplerId);
+		return TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
 	}
 
 	TResult<TBlendStateId> CD3D11GraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
@@ -237,12 +237,14 @@ namespace TDEngine2
 
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
-		if (texSamplerId >= mpTextureSamplersArray.size())
+		U32 texSamplerIdValue = static_cast<U32>(texSamplerId);
+
+		if (texSamplerIdValue >= mpTextureSamplersArray.size())
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		return TOkValue<ID3D11SamplerState*>(mpTextureSamplersArray[texSamplerId]);
+		return TOkValue<ID3D11SamplerState*>(mpTextureSamplersArray[texSamplerIdValue]);
 	}
 
 	TResult<ID3D11BlendState*> CD3D11GraphicsObjectManager::GetBlendState(TBlendStateId blendStateId) const

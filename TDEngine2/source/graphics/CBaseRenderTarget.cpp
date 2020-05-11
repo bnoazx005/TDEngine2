@@ -43,7 +43,7 @@ namespace TDEngine2
 
 	void CBaseRenderTarget::Bind(U32 slot)
 	{
-		if (mCurrTextureSamplerHandle == InvalidTextureSamplerId)
+		if (mCurrTextureSamplerHandle == TTextureSamplerId::Invalid)
 		{
 			mCurrTextureSamplerHandle = CBaseTexture2D::GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
 		}

@@ -257,7 +257,7 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
-		if (samplerId == InvalidTextureSamplerId)
+		if (samplerId == TTextureSamplerId::Invalid)
 		{
 			GL_SAFE_VOID_CALL(glBindSampler(slot, 0));
 			return;

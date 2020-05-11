@@ -315,7 +315,7 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
-		if (samplerId == InvalidTextureSamplerId)
+		if (samplerId == TTextureSamplerId::Invalid)
 		{
 			mp3dDeviceContext->VSSetSamplers(slot, 1, nullptr);
 			mp3dDeviceContext->PSSetSamplers(slot, 1, nullptr);

@@ -79,7 +79,7 @@ namespace TDEngine2
 
 	void CBaseTexture2D::Bind(U32 slot)
 	{
-		if (mCurrTextureSamplerHandle == InvalidTextureSamplerId)
+		if (mCurrTextureSamplerHandle == TTextureSamplerId::Invalid)
 		{
 			mCurrTextureSamplerHandle = GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
 		}
@@ -129,7 +129,7 @@ namespace TDEngine2
 		assert(pGraphicsObjectManager);
 
 		auto result = pGraphicsObjectManager->CreateTextureSampler(params);
-		return result.IsOk() ? result.Get() : InvalidTextureSamplerId;
+		return result.IsOk() ? result.Get() : TTextureSamplerId::Invalid;
 	}
 
 

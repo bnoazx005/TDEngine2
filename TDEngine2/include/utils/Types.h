@@ -550,9 +550,7 @@ namespace TDEngine2
 	};
 
 
-	typedef U32 TTextureSamplerId; ///< The type represents an identifier of a texture sampler object
-
-	constexpr TTextureSamplerId InvalidTextureSamplerId = (std::numeric_limits<TTextureSamplerId>::max)();
+	TDE2_DECLARE_HANDLE_TYPE(TTextureSamplerId); ///< The type represents an identifier of a texture sampler object
 
 
 	/*!

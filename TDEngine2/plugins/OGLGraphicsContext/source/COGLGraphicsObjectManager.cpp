@@ -84,7 +84,7 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash<const TTextureSamplerDesc&>(samplerDesc);
 		if (mTextureSamplesHashTable.find(hashValue) != mTextureSamplesHashTable.cend())
 		{
-			return TOkValue<TTextureSamplerId>(mTextureSamplesHashTable[hashValue]);
+			return TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
 		}
 
 		GLuint samplerHandler = 0x0;
@@ -108,7 +108,7 @@ namespace TDEngine2
 		mTextureSamplersArray.push_back(samplerHandler);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });
 
-		return TOkValue<TTextureSamplerId>(samplerId);
+		return TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
 	}
 
 	TResult<TBlendStateId> COGLGraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
@@ -137,12 +137,14 @@ namespace TDEngine2
 
 	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
-		if (texSamplerId >= mTextureSamplersArray.size())
+		U32 texSamplerIdValue = static_cast<U32>(texSamplerId);
+
+		if (texSamplerIdValue >= mTextureSamplersArray.size())
 		{
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		return TOkValue<GLuint>(mTextureSamplersArray[texSamplerId]);
+		return TOkValue<GLuint>(mTextureSamplersArray[texSamplerIdValue]);
 	}
 
 	TResult<TBlendStateDesc> COGLGraphicsObjectManager::GetBlendState(TBlendStateId blendStateId) const

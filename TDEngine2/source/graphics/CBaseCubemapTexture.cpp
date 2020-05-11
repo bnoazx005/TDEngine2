@@ -69,7 +69,7 @@ namespace TDEngine2
 
 	void CBaseCubemapTexture::Bind(U32 slot)
 	{
-		if (mCurrTextureSamplerHandle == InvalidTextureSamplerId)
+		if (mCurrTextureSamplerHandle == TTextureSamplerId::Invalid)
 		{
 			mCurrTextureSamplerHandle = CBaseTexture2D::GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
 		}

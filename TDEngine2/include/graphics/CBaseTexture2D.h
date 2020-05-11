@@ -140,7 +140,7 @@ namespace TDEngine2
 
 			TTextureSamplerDesc mTextureSamplerParams;
 
-			TTextureSamplerId   mCurrTextureSamplerHandle = InvalidTextureSamplerId;
+			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
 	};
 
 
