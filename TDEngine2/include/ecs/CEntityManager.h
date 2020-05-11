@@ -197,9 +197,9 @@ namespace TDEngine2
 
 			TDE2_API CEntity* _createEntity(const std::string& name);
 
-			TDE2_API void _notifyOnAddComponent(TEntityId entityId, TComponentTypeId componentTypeId);
+			TDE2_API void _notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId);
 
-			TDE2_API void _notifyOnRemovedComponent(TEntityId entityId, TComponentTypeId componentTypeId);
+			TDE2_API void _notifyOnRemovedComponent(TEntityId entityId, TypeId componentTypeId);
 		protected:
 			std::vector<CEntity*> mActiveEntities;
 

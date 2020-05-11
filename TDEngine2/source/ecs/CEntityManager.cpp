@@ -230,7 +230,7 @@ namespace TDEngine2
 		return pEntity;
 	}
 
-	void CEntityManager::_notifyOnAddComponent(TEntityId entityId, TComponentTypeId componentTypeId)
+	void CEntityManager::_notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId)
 	{
 		TOnComponentCreatedEvent onComponentCreated;
 
@@ -240,7 +240,7 @@ namespace TDEngine2
 		mpEventManager->Notify(&onComponentCreated);
 	}
 
-	void CEntityManager::_notifyOnRemovedComponent(TEntityId entityId, TComponentTypeId componentTypeId)
+	void CEntityManager::_notifyOnRemovedComponent(TEntityId entityId, TypeId componentTypeId)
 	{
 		TOnComponentRemovedEvent onComponentRemoved;
 

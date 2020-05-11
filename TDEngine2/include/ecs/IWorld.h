@@ -267,11 +267,11 @@ namespace TDEngine2
 
 			TDE2_API virtual CComponentIterator _findComponentsOfType(TypeId typeId) = 0;
 
-			TDE2_API virtual void _forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
+			TDE2_API virtual void _forEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
 
-			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TComponentTypeId>& types) = 0;
+			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TypeId>& types) = 0;
 
-			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TComponentTypeId>& types) = 0;
+			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TypeId>& types) = 0;
 
 			TDE2_API virtual TSystemId _findSystem(TypeId typeId) = 0;
 	};

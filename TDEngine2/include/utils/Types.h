@@ -281,17 +281,6 @@ namespace TDEngine2
 
 	TDE2_DECLARE_HANDLE_TYPE(TEntityId); ///< A type of entity's identifier
 
-	
-	typedef U32 TComponentTypeId; ///< A type of a component
-
-	constexpr TComponentTypeId InvalidComponentType = (std::numeric_limits<U32>::max)(); ///< Invalid value for TComponentTypeId type
-
-
-	typedef U32 TComponentFactoryId; 
-
-	constexpr TComponentFactoryId InvalidComponentFactoryId = 0;
-
-
 	TDE2_DECLARE_HANDLE_TYPE(TSystemId);
 
 

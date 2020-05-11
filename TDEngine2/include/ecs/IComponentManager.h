@@ -178,7 +178,7 @@ namespace TDEngine2
 				\return The method returns a one way iterator to an array of components of specified type
 			*/
 
-			TDE2_API virtual CComponentIterator FindComponentsOfType(TComponentTypeId typeId) = 0;
+			TDE2_API virtual CComponentIterator FindComponentsOfType(TypeId typeId) = 0;
 
 			/*!
 				\brief The method iterates over each entity, which has specified component
@@ -188,7 +188,7 @@ namespace TDEngine2
 				\param[in] action A callback that will be executed for each entity
 			*/
 
-			TDE2_API virtual void ForEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
+			TDE2_API virtual void ForEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
 
 			/*!
 				\brief The method returns an array of entities identifiers, which have all of
@@ -200,7 +200,7 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TComponentTypeId>& types) = 0;
+			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TypeId>& types) = 0;
 
 			/*!
 				\brief The method returns an array of entities identifiers, which have any of
@@ -212,7 +212,7 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TComponentTypeId>& types) = 0;
+			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TypeId>& types) = 0;
 
 			/*!
 				\brief The method returns a pointer to a component of specified type T

@@ -156,9 +156,9 @@ namespace TDEngine2
 
 		REGISTER_EVENT_TYPE(TOnComponentCreatedEvent)
 			
-		TEntityId        mEntityId;
+		TEntityId mEntityId;
 
-		TComponentTypeId mCreatedComponentTypeId;
+		TypeId    mCreatedComponentTypeId;
 	} TOnComponentCreatedEvent, *TOnComponentCreatedEventPtr;
 
 
@@ -177,9 +177,9 @@ namespace TDEngine2
 
 		REGISTER_EVENT_TYPE(TOnComponentRemovedEvent)
 		
-		TEntityId        mEntityId;
+		TEntityId mEntityId;
 
-		TComponentTypeId mRemovedComponentTypeId;
+		TypeId    mRemovedComponentTypeId;
 	} TOnComponentRemovedEvent, *TOnComponentRemovedEventPtr;
 
 

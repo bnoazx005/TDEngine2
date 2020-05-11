@@ -165,7 +165,7 @@ namespace TDEngine2
 
 		IComponent* pCurrComponent = nullptr;
 
-		TComponentTypeId componentType = 0;
+		TypeId componentType = 0;
 
 		U32 hashValue = 0;
 
@@ -425,7 +425,7 @@ namespace TDEngine2
 		return CComponentIterator(mActiveComponents[componentTypeHashValue], 0);
 	}
 
-	void CComponentManager::ForEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action)
+	void CComponentManager::ForEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action)
 	{
 		if (mComponentsHashTable.find(componentTypeId) == mComponentsHashTable.cend())
 		{
@@ -442,11 +442,11 @@ namespace TDEngine2
 		}
 	}
 
-	std::vector<TEntityId> CComponentManager::FindEntitiesWithAll(const std::vector<TComponentTypeId>& types)
+	std::vector<TEntityId> CComponentManager::FindEntitiesWithAll(const std::vector<TypeId>& types)
 	{
 		std::vector<TEntityId> filter;
 
-		std::unordered_map<TComponentTypeId, U32> entityComponentsTable;
+		std::unordered_map<TypeId, U32> entityComponentsTable;
 
 		bool containsAll = false;
 
@@ -477,11 +477,11 @@ namespace TDEngine2
 		return std::move(filter);
 	}
 
-	std::vector<TEntityId> CComponentManager::FindEntitiesWithAny(const std::vector<TComponentTypeId>& types)
+	std::vector<TEntityId> CComponentManager::FindEntitiesWithAny(const std::vector<TypeId>& types)
 	{
 		std::vector<TEntityId> filter;
 
-		std::unordered_map<TComponentTypeId, U32> entityComponentsTable;
+		std::unordered_map<TypeId, U32> entityComponentsTable;
 
 		for (auto entityComponentsTablePair : mEntityComponentMap)
 		{

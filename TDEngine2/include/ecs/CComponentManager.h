@@ -36,19 +36,19 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponentManager* CreateComponentManager(E_RESULT_CODE& result);
 		protected:
-			typedef std::unordered_map<TComponentTypeId, std::unordered_map<TEntityId, U32>> TComponentEntityMap;
+			typedef std::unordered_map<TypeId, std::unordered_map<TEntityId, U32>> TComponentEntityMap;
 
-			typedef std::unordered_map<TEntityId, std::unordered_map<TComponentTypeId, U32>> TEntityComponentMap;
+			typedef std::unordered_map<TEntityId, std::unordered_map<TypeId, U32>> TEntityComponentMap;
 
-			typedef std::unordered_map<TComponentTypeId, U32>                                TComponentHashTable;
+			typedef std::unordered_map<TypeId, U32>                                TComponentHashTable;
 
-			typedef std::unordered_map<TComponentTypeId, U32>                                TComponentFactoriesMap;
+			typedef std::unordered_map<TypeId, U32>                                TComponentFactoriesMap;
 
-			typedef std::vector<const IComponentFactory*>                                    TComponentFactoriesArray;
+			typedef std::vector<const IComponentFactory*>                          TComponentFactoriesArray;
 
-			typedef std::list<U32>                                                           TFreeEntitiesRegistry;
+			typedef std::list<U32>                                                 TFreeEntitiesRegistry;
 
-			typedef std::vector<std::vector<IComponent*>>                                    TComponentsMatrix;
+			typedef std::vector<std::vector<IComponent*>>                          TComponentsMatrix;
 		public:
 			/*!
 				\brief The method initializes a component manager's instance
@@ -113,7 +113,7 @@ namespace TDEngine2
 				\param[in] action A callback that will be executed for each entity
 			*/
 
-			TDE2_API void ForEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) override;
+			TDE2_API void ForEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) override;
 			
 			/*!
 				\brief The method returns an array of entities identifiers, which have all of
@@ -125,7 +125,7 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TComponentTypeId>& types) override;
+			TDE2_API std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TypeId>& types) override;
 
 			/*!
 				\brief The method returns an array of entities identifiers, which have any of
@@ -137,7 +137,7 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TComponentTypeId>& types) override;
+			TDE2_API std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TypeId>& types) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
 

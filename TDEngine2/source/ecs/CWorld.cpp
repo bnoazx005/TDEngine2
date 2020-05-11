@@ -171,17 +171,17 @@ namespace TDEngine2
 		return mpComponentManager->FindComponentsOfType(typeId);
 	}
 
-	void CWorld::_forEach(TComponentTypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action)
+	void CWorld::_forEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action)
 	{
 		mpComponentManager->ForEach(componentTypeId, action);
 	}
 
-	std::vector<TEntityId> CWorld::_findEntitiesWithComponents(const std::vector<TComponentTypeId>& types)
+	std::vector<TEntityId> CWorld::_findEntitiesWithComponents(const std::vector<TypeId>& types)
 	{
 		return mpComponentManager->FindEntitiesWithAll(types);
 	}
 
-	std::vector<TEntityId> CWorld::_findEntitiesWithAnyComponents(const std::vector<TComponentTypeId>& types)
+	std::vector<TEntityId> CWorld::_findEntitiesWithAnyComponents(const std::vector<TypeId>& types)
 	{
 		return mpComponentManager->FindEntitiesWithAny(types);
 	}
