@@ -233,7 +233,7 @@ namespace TDEngine2
 		return dynamic_cast<IPostProcessingProfile*>(pResource)->Deserialize(mpFileSystem, pResource->GetName() + ".camera_profile.info");
 	}
 
-	U32 CBasePostProcessingProfileLoader::GetResourceTypeId() const
+	TypeId CBasePostProcessingProfileLoader::GetResourceTypeId() const
 	{
 		return CBasePostProcessingProfile::GetTypeId();
 	}
@@ -318,7 +318,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateBasePostProcessingProfile(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
-	U32 CBasePostProcessingProfileFactory::GetResourceTypeId() const
+	TypeId CBasePostProcessingProfileFactory::GetResourceTypeId() const
 	{
 		return CBasePostProcessingProfile::GetTypeId();
 	}

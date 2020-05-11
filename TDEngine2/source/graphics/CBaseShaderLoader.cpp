@@ -110,7 +110,7 @@ namespace TDEngine2
 		return result;
 	}
 
-	U32 CBaseShaderLoader::GetResourceTypeId() const
+	TypeId CBaseShaderLoader::GetResourceTypeId() const
 	{
 		return CBaseShader::GetTypeId();
 	}

@@ -282,7 +282,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateD3D11CubemapTexture(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
 	}
 
-	U32 CD3D11CubemapTextureFactory::GetResourceTypeId() const
+	TypeId CD3D11CubemapTextureFactory::GetResourceTypeId() const
 	{
 		return CBaseCubemapTexture::GetTypeId();
 	}

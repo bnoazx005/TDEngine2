@@ -566,7 +566,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	U32 CBaseMaterialLoader::GetResourceTypeId() const
+	TypeId CBaseMaterialLoader::GetResourceTypeId() const
 	{
 		return CBaseMaterial::GetTypeId();
 	}
@@ -691,7 +691,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateBaseMaterial(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
-	U32 CBaseMaterialFactory::GetResourceTypeId() const
+	TypeId CBaseMaterialFactory::GetResourceTypeId() const
 	{
 		return CBaseMaterial::GetTypeId();
 	}

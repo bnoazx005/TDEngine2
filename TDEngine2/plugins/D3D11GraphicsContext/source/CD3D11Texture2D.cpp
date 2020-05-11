@@ -323,7 +323,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateD3D11Texture2D(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
 	}
 
-	U32 CD3D11Texture2DFactory::GetResourceTypeId() const
+	TypeId CD3D11Texture2DFactory::GetResourceTypeId() const
 	{
 		return CBaseTexture2D::GetTypeId();
 	}

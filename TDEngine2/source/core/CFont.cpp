@@ -361,7 +361,7 @@ namespace TDEngine2
 		return dynamic_cast<IFont*>(pResource)->Deserialize(mpFileSystem, pResource->GetName() + ".font");
 	}
 
-	U32 CFontLoader::GetResourceTypeId() const
+	TypeId CFontLoader::GetResourceTypeId() const
 	{
 		return CFont::GetTypeId();
 	}
@@ -441,7 +441,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateFontResource(mpResourceManager, name, result));
 	}
 
-	U32 CFontFactory::GetResourceTypeId() const
+	TypeId CFontFactory::GetResourceTypeId() const
 	{
 		return CFont::GetTypeId();
 	}

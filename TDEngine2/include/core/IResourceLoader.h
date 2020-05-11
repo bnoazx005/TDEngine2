@@ -46,7 +46,7 @@ namespace TDEngine2
 				the loader serves
 			*/
 
-			TDE2_API virtual U32 GetResourceTypeId() const = 0;
+			TDE2_API virtual TypeId GetResourceTypeId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceLoader)
 	};

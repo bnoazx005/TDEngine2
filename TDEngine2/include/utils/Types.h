@@ -56,11 +56,6 @@ namespace TDEngine2
 	typedef char32_t C32;
 
 
-	typedef U32 TypeId;
-
-	constexpr TypeId InvalidTypeId = 0;
-
-
 	/// Pointer type
 	typedef uintptr_t U32Ptr;
 
@@ -268,19 +263,26 @@ namespace TDEngine2
 #endif
 
 
+	template <typename T> std::string ToString(const T& value);
+
 	/*!
 		\brief The macro TDE2_DECLARE_HANDLE_TYPE is used to declare strongly typed handles instead of using typedefs 
 	*/
 
-#define TDE2_DECLARE_HANDLE_TYPE_EX(HandleID, InvalidValue) enum class HandleID : U32 { Invalid = InvalidValue }
+#define TDE2_DECLARE_HANDLE_TYPE_EX(HandleID, InvalidValue) \
+	enum class HandleID : U32 { Invalid = InvalidValue };	\
+	template<> inline std::string ToString<HandleID>(const HandleID& value) { return std::string(#HandleID).append("(").append(std::to_string(static_cast<U32>(value))).append(")"); }
+
 #define TDE2_DECLARE_HANDLE_TYPE(HandleID) TDE2_DECLARE_HANDLE_TYPE_EX(HandleID, (std::numeric_limits<U32>::max)())
+
+
+	TDE2_DECLARE_HANDLE_TYPE_EX(TypeId, 0);
 
 
 	/// Entity-Component-System's types declarations
 
 
-	TDE2_DECLARE_HANDLE_TYPE(TEntityId); ///< A type of entity's identifier
-
+	TDE2_DECLARE_HANDLE_TYPE(TEntityId); ///< A type of entity's identifier	
 	TDE2_DECLARE_HANDLE_TYPE(TSystemId);
 
 

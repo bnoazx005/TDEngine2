@@ -287,7 +287,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateOGLShader(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
-	U32 COGLShaderFactory::GetResourceTypeId() const
+	TypeId COGLShaderFactory::GetResourceTypeId() const
 	{
 		return CBaseShader::GetTypeId();
 	}

@@ -234,7 +234,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateOGLCubemapTexture(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
 	}
 
-	U32 COGLCubemapTextureFactory::GetResourceTypeId() const
+	TypeId COGLCubemapTextureFactory::GetResourceTypeId() const
 	{
 		return CBaseCubemapTexture::GetTypeId();
 	}

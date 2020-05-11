@@ -253,7 +253,7 @@ namespace TDEngine2
 		return RC_OK;// dynamic_cast<IAnimationClip*>(pResource)->Lo(mpFileSystem, pResource->GetName() + ".info");
 	}
 
-	U32 CAnimationClipLoader::GetResourceTypeId() const
+	TypeId CAnimationClipLoader::GetResourceTypeId() const
 	{
 		return CAnimationClip::GetTypeId();
 	}
@@ -341,7 +341,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateAnimationClip(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
-	U32 CAnimationClipFactory::GetResourceTypeId() const
+	TypeId CAnimationClipFactory::GetResourceTypeId() const
 	{
 		return CAnimationClip::GetTypeId();
 	}

@@ -527,7 +527,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	U32 CStaticMeshLoader::GetResourceTypeId() const
+	TypeId CStaticMeshLoader::GetResourceTypeId() const
 	{
 		return CStaticMesh::GetTypeId();
 	}
@@ -613,7 +613,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateStaticMesh(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
-	U32 CStaticMeshFactory::GetResourceTypeId() const
+	TypeId CStaticMeshFactory::GetResourceTypeId() const
 	{
 		return CStaticMesh::GetTypeId();
 	}

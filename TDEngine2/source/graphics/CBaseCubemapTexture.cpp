@@ -202,7 +202,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	U32 CBaseCubemapTextureLoader::GetResourceTypeId() const
+	TypeId CBaseCubemapTextureLoader::GetResourceTypeId() const
 	{
 		return CBaseCubemapTexture::GetTypeId();
 	}

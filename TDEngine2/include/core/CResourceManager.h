@@ -45,21 +45,21 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
 		protected:
-			typedef std::unordered_map<U32, TResourceLoaderId>   TResourceLoadersMap;
+			typedef std::unordered_map<TypeId, TResourceLoaderId>   TResourceLoadersMap;
 			
-			typedef CResourceContainer<const IResourceLoader*>   TResourceLoadersContainer;
+			typedef CResourceContainer<const IResourceLoader*>      TResourceLoadersContainer;
 
-			typedef std::unordered_map<U32, TResourceFactoryId>  TResourceFactoriesMap;
+			typedef std::unordered_map<TypeId, TResourceFactoryId>  TResourceFactoriesMap;
 			
-			typedef CResourceContainer<const IResourceFactory*>  TResourceFactoriesContainer;
+			typedef CResourceContainer<const IResourceFactory*>     TResourceFactoriesContainer;
 
-			typedef std::unordered_map<std::string, TResourceId> TResourcesMap;
+			typedef std::unordered_map<std::string, TResourceId>    TResourcesMap;
 
-			typedef CResourceContainer<IResource*>               TResourcesContainer;
+			typedef CResourceContainer<IResource*>                  TResourcesContainer;
 			
-			typedef std::unordered_map<TResourceId, U32>         TResourceHandlersMap;
+			typedef std::unordered_map<TResourceId, U32>            TResourceHandlersMap;
 			
-			typedef CResourceContainer<IResourceHandler*>        TResourceHandlersContainer;
+			typedef CResourceContainer<IResourceHandler*>           TResourceHandlersContainer;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -153,15 +153,15 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceManager)
 
-			TDE2_API IResourceHandler* _loadResource(U32 resourceTypeId, const std::string& name) override;
+			TDE2_API IResourceHandler* _loadResource(TypeId resourceTypeId, const std::string& name) override;
 
-			TDE2_API IResourceHandler* _createResource(U32 resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
+			TDE2_API IResourceHandler* _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
 
 			TDE2_API IResourceHandler* _createOrGetResourceHandler(TResourceId resourceId);
 
 			TDE2_API E_RESULT_CODE _freeResourceHandler(TResourceId resourceId);
 
-			TDE2_API const IResourceLoader* _getResourceLoader(U32 resourceTypeId) const override;
+			TDE2_API const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const override;
 		protected:
 			bool                        mIsInitialized;
 

@@ -356,7 +356,7 @@ namespace TDEngine2
 		return fileEntryId;
 	}
 
-	TResult<TFileEntryId> CBaseFileSystem::_openFile(U32 typeId, const std::string& filename, bool createIfDoesntExist)
+	TResult<TFileEntryId> CBaseFileSystem::_openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -388,7 +388,7 @@ namespace TDEngine2
 		/// create a file's entry on a disk if doesn't exist but a user asks for it
 		if (!FileExists(filename) && createIfDoesntExist)
 		{
-			LOG_MESSAGE("[File System] A new file was created (TypeID : " + std::to_string(typeId) + "; filename: " + filename + ")");
+			LOG_MESSAGE("[File System] A new file was created (TypeID : " + ToString<TypeId>(typeId) + "; filename: " + filename + ")");
 
 			_createNewFile(filename);
 		}
@@ -409,7 +409,7 @@ namespace TDEngine2
 		return TOkValue<TFileEntryId>(newFileEntryId);
 	}
 	
-	E_RESULT_CODE CBaseFileSystem::_registerFileFactory(U32 typeId, TCreateFileCallback pCreateFileCallback)
+	E_RESULT_CODE CBaseFileSystem::_registerFileFactory(const TypeId& typeId, TCreateFileCallback pCreateFileCallback)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -427,12 +427,12 @@ namespace TDEngine2
 		
 		mFileFactoriesMap[typeId] = mFileFactories.Add(pCreateFileCallback);
 		
-		LOG_MESSAGE("[File System] A new file factory was registred by the manager (TypeID : " + std::to_string(typeId) + ")");
+		LOG_MESSAGE("[File System] A new file factory was registred by the manager (TypeID : " + ToString<TypeId>(typeId) + ")");
 
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseFileSystem::_unregisterFileFactory(U32 typeId)
+	E_RESULT_CODE CBaseFileSystem::_unregisterFileFactory(const TypeId& typeId)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -450,7 +450,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		LOG_MESSAGE("[File System] The folowing file factory was unregistred by the manager (TypeID : " + std::to_string(typeId) + ")");
+		LOG_MESSAGE("[File System] The folowing file factory was unregistred by the manager (TypeID : " + ToString<TypeId>(typeId) + ")");
 
 		return RC_OK;
 	}

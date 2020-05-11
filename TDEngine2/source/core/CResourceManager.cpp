@@ -73,7 +73,7 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		U32 resourceTypeId = pResourceLoader->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
+		TypeId resourceTypeId = pResourceLoader->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
 
 		TResourceLoaderId existingDuplicateId = mResourceLoadersMap[resourceTypeId];
 
@@ -112,11 +112,9 @@ namespace TDEngine2
 
 		const IResourceLoader* pResourceLoader = result.Get();
 
-		U32 resourceTypeId = pResourceLoader->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
-
 		mRegisteredResourceLoaders.RemoveAt(static_cast<U32>(resourceLoaderId));
 
-		mResourceLoadersMap.erase(resourceTypeId);
+		mResourceLoadersMap.erase(pResourceLoader->GetResourceTypeId()); // an id of a resource's type, which is processed with this loader
 
 		return RC_OK;
 	}
@@ -130,7 +128,7 @@ namespace TDEngine2
 			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 		
-		U32 resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
+		TypeId resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
 
 		TResourceFactoryId existingDuplicateId = mResourceFactoriesMap[resourceTypeId];
 
@@ -171,11 +169,9 @@ namespace TDEngine2
 
 		const IResourceFactory* pResourceFactory = result.Get();
 
-		U32 resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this factory
-
 		mRegisteredResourceFactories.RemoveAt(index - 1);
 
-		mResourceFactoriesMap.erase(resourceTypeId);
+		mResourceFactoriesMap.erase(pResourceFactory->GetResourceTypeId()); // an id of a resource's type, which is processed with this factory
 
 		return RC_OK;
 	}
@@ -222,7 +218,7 @@ namespace TDEngine2
 		return (*resourceIter).second;
 	}
 
-	IResourceHandler* CResourceManager::_loadResource(U32 resourceTypeId, const std::string& name)
+	IResourceHandler* CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name)
 	{
 		TResourceId resourceId = mResourcesMap[name];
 
@@ -266,7 +262,7 @@ namespace TDEngine2
 		return pResourceHandler;
 	}
 
-	IResourceHandler* CResourceManager::_createResource(U32 resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
+	IResourceHandler* CResourceManager::_createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
 	{
 		TResourceId resourceId = GetResourceId(name);
 
@@ -343,7 +339,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	const IResourceLoader* CResourceManager::_getResourceLoader(U32 resourceTypeId) const
+	const IResourceLoader* CResourceManager::_getResourceLoader(TypeId resourceTypeId) const
 	{
 		auto resourceLoaderIdIter = mResourceLoadersMap.find(resourceTypeId);
 

@@ -176,10 +176,10 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)
 
-			TDE2_API virtual IResourceHandler* _loadResource(U32 resourceTypeId, const std::string& name) = 0;
+			TDE2_API virtual IResourceHandler* _loadResource(TypeId resourceTypeId, const std::string& name) = 0;
 
-			TDE2_API virtual IResourceHandler* _createResource(U32 resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
+			TDE2_API virtual IResourceHandler* _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
 
-			TDE2_API virtual const IResourceLoader* _getResourceLoader(U32 resourceTypeId) const = 0;
+			TDE2_API virtual const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const = 0;
 	};
 }

@@ -256,7 +256,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateD3D11DepthBufferTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
-	U32 CD3D11DepthBufferTargetFactory::GetResourceTypeId() const
+	TypeId CD3D11DepthBufferTargetFactory::GetResourceTypeId() const
 	{
 		return CBaseDepthBufferTarget::GetTypeId();
 	}

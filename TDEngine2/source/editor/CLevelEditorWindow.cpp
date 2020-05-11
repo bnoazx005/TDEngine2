@@ -158,7 +158,7 @@ namespace TDEngine2
 
 			mSelectedEntityId = pSelectionManager->PickObject({ mousePosition.x, mousePosition.y });
 
-			LOG_MESSAGE(CStringUtils::Format("[Level Editor] Picked object id : {0}", mSelectedEntityId));
+			LOG_MESSAGE(CStringUtils::Format("[Level Editor] Picked object id : {0}", ToString<TEntityId>(mSelectedEntityId)));
 		}
 
 		E_RESULT_CODE result = RC_OK;
@@ -310,7 +310,7 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Object Inspector", isEnabled, params))
 		{
-			mpImGUIContext->Label(std::to_string(mSelectedEntityId));
+			mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
 
 			/*!
 				\todo 

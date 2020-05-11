@@ -617,7 +617,7 @@ namespace TDEngine2
 		return dynamic_cast<ITextureAtlas*>(pResource)->Deserialize(mpFileSystem, pResource->GetName() + ".info");
 	}
 
-	U32 CTextureAtlasLoader::GetResourceTypeId() const
+	TypeId CTextureAtlasLoader::GetResourceTypeId() const
 	{
 		return CTextureAtlas::GetTypeId();
 	}
@@ -707,7 +707,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateTextureAtlas(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
-	U32 CTextureAtlasFactory::GetResourceTypeId() const
+	TypeId CTextureAtlasFactory::GetResourceTypeId() const
 	{
 		return CTextureAtlas::GetTypeId();
 	}

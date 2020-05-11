@@ -94,7 +94,7 @@ namespace TDEngine2
 
 		mpActiveSystems.push_back({ internalSystemPriority, pSystem });
 
-		return TOkValue<TSystemId>(internalSystemPriority);
+		return TOkValue<TSystemId>(TSystemId(internalSystemPriority));
 	}
 	
 	E_RESULT_CODE CSystemManager::UnregisterSystem(TSystemId systemId)

@@ -235,7 +235,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateOGLTexture2D(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
 	}
 
-	U32 COGLTexture2DFactory::GetResourceTypeId() const
+	TypeId COGLTexture2DFactory::GetResourceTypeId() const
 	{
 		return CBaseTexture2D::GetTypeId();
 	}

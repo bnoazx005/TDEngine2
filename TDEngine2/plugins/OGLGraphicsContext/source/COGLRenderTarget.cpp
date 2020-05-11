@@ -193,7 +193,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateOGLRenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
-	U32 COGLRenderTargetFactory::GetResourceTypeId() const
+	TypeId COGLRenderTargetFactory::GetResourceTypeId() const
 	{
 		return CBaseRenderTarget::GetTypeId();
 	}

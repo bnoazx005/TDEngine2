@@ -165,7 +165,7 @@ namespace TDEngine2
 
 		IComponent* pCurrComponent = nullptr;
 
-		TypeId componentType = 0;
+		TypeId componentType = TypeId(0);
 
 		U32 hashValue = 0;
 
@@ -242,7 +242,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CComponentManager::_unregisterFactory(TypeId typeId)
 	{
-		if (typeId == InvalidTypeId)
+		if (typeId == TypeId::Invalid)
 		{
 			return RC_INVALID_ARGS;
 		}

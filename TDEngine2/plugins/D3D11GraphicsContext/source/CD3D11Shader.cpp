@@ -264,7 +264,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateD3D11Shader(mpResourceManager, mpGraphicsContext, name, result));
 	}
 
-	U32 CD3D11ShaderFactory::GetResourceTypeId() const
+	TypeId CD3D11ShaderFactory::GetResourceTypeId() const
 	{
 		return CBaseShader::GetTypeId();
 	}

@@ -250,11 +250,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileSystem)
 
-			TDE2_API virtual TResult<TFileEntryId> _openFile(U32 typeId, const std::string& filename, bool createIfDoesntExist) = 0;
+			TDE2_API virtual TResult<TFileEntryId> _openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist) = 0;
 
-			TDE2_API virtual E_RESULT_CODE _registerFileFactory(U32 typeId, TCreateFileCallback pCreateFileCallback) = 0;
+			TDE2_API virtual E_RESULT_CODE _registerFileFactory(const TypeId& typeId, TCreateFileCallback pCreateFileCallback) = 0;
 
-			TDE2_API virtual E_RESULT_CODE _unregisterFileFactory(U32 typeId) = 0;
+			TDE2_API virtual E_RESULT_CODE _unregisterFileFactory(const TypeId& typeId) = 0;
 
 			TDE2_API virtual IFile* _getFile(TFileEntryId fileId) = 0;
 	};

@@ -265,7 +265,7 @@ namespace TDEngine2
 		return dynamic_cast<IResource*>(CreateD3D11RenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
 
-	U32 CD3D11RenderTargetFactory::GetResourceTypeId() const
+	TypeId CD3D11RenderTargetFactory::GetResourceTypeId() const
 	{
 		return CBaseRenderTarget::GetTypeId();
 	}

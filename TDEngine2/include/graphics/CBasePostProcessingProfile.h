@@ -231,7 +231,7 @@ namespace TDEngine2
 				the loader serves
 			*/
 
-			TDE2_API U32 GetResourceTypeId() const override;
+			TDE2_API TypeId GetResourceTypeId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePostProcessingProfileLoader)
 		protected:
@@ -324,7 +324,7 @@ namespace TDEngine2
 				the factory serves
 			*/
 
-			TDE2_API U32 GetResourceTypeId() const override;
+			TDE2_API TypeId GetResourceTypeId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePostProcessingProfileFactory)
 		protected:

@@ -206,11 +206,11 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _onInit() = 0;
 
-			TDE2_API TResult<TFileEntryId> _openFile(U32 typeId, const std::string& filename, bool createIfDoesntExist) override;
+			TDE2_API TResult<TFileEntryId> _openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist) override;
 
-			TDE2_API E_RESULT_CODE _registerFileFactory(U32 typeId, TCreateFileCallback pCreateFileCallback) override;
+			TDE2_API E_RESULT_CODE _registerFileFactory(const TypeId& typeId, TCreateFileCallback pCreateFileCallback) override;
 
-			TDE2_API E_RESULT_CODE _unregisterFileFactory(U32 typeId) override;
+			TDE2_API E_RESULT_CODE _unregisterFileFactory(const TypeId& typeId) override;
 
 			TDE2_API IFile* _getFile(TFileEntryId fileId) override;
 
