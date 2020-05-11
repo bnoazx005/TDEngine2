@@ -259,7 +259,7 @@ namespace TDEngine2
 		mpWorldInstance->QueryAABB(&callback, aabb);
 
 		TEntityId entityId = callback.GetEntityId();
-		if (entityId != InvalidEntityId && onHitCallback)
+		if (entityId != TEntityId::Invalid && onHitCallback)
 		{
 			onHitCallback({ entityId, { point.x, point.y, 0.0f }, ZeroVector3 });
 		}
@@ -308,7 +308,7 @@ namespace TDEngine2
 	{
 		b2Body* body = fixture->GetBody();
 		
-		TEntityId entityId = InvalidEntityId;
+		TEntityId entityId = TEntityId::Invalid;
 
 		if (auto pUserData = GetValidPtrOrDefault<void*>(body ? body->GetUserData() : nullptr, nullptr))
 		{
@@ -345,13 +345,13 @@ namespace TDEngine2
 			return static_cast<CEntity*>(pUserData)->GetId();
 		}
 
-		return InvalidEntityId;
+		return TEntityId::Invalid;
 	}
 
 	TEntityId CPhysics2DSystem::CTriggerContactsListener::_getEntityIdByBody(const b2Body* pBody) const
 	{
 		auto iter = std::find(mpBodies->cbegin(), mpBodies->cend(), pBody);
-		return (iter != mpBodies->cend()) ? mpHandles2EntitiesMap->at(std::distance(mpBodies->cbegin(), iter)) : InvalidEntityId;
+		return (iter != mpBodies->cend()) ? mpHandles2EntitiesMap->at(std::distance(mpBodies->cbegin(), iter)) : TEntityId::Invalid;
 	}
 
 

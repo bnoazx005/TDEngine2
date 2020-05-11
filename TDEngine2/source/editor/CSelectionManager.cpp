@@ -51,7 +51,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mLastSelectedEntityID = InvalidEntityId;
+		mLastSelectedEntityID = TEntityId::Invalid;
 
 		mIsInitialized = true;
 
@@ -101,7 +101,7 @@ namespace TDEngine2
 		I32 y = std::lround(position.y) + mWindowHeaderHeight;
 
 		// \note reset selection
-		if (mLastSelectedEntityID != InvalidEntityId)
+		if (mLastSelectedEntityID != TEntityId::Invalid)
 		{
 			if (CEntity* pSelectedEntity = mpWorld->FindEntity(mLastSelectedEntityID))
 			{
@@ -118,7 +118,7 @@ namespace TDEngine2
 			// \note multiply by 4, where 4 is a size of a single pixel data
 			U32* pPixelData = reinterpret_cast<U32*>(&selectionMapData[(y * pSelectionTexture->GetWidth() + x) << 2]);
 
-			mLastSelectedEntityID = static_cast<TEntityId>(*pPixelData) - 1;
+			mLastSelectedEntityID = TEntityId(static_cast<U32>(*pPixelData) - 1);
 			
 			// \note mark the entity as selected via adding CSelectedEntityComponent
 			if (CEntity* pSelectedEntity = mpWorld->FindEntity(mLastSelectedEntityID))
@@ -136,7 +136,7 @@ namespace TDEngine2
 			return mLastSelectedEntityID;
 		}
 		
-		return (mLastSelectedEntityID = InvalidEntityId);
+		return (mLastSelectedEntityID = TEntityId::Invalid);
 	}
 
 	E_RESULT_CODE CSelectionManager::OnEvent(const TBaseEvent* pEvent)

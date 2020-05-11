@@ -336,7 +336,7 @@ namespace TDEngine2
 
 		IResourceHandler* pNewHandlerInstance = mResourceHandlers[handlerHashValue].Get();
 
-		pNewHandlerInstance->SetResourceId(TResourceId(InvalidEntityId));
+		pNewHandlerInstance->SetResourceId(TResourceId::Invalid);
 
 		mResourceHandlers.RemoveAt(handlerHashValue);
 

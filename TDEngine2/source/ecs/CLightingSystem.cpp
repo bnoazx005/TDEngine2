@@ -128,7 +128,7 @@ namespace TDEngine2
 							pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 							pDrawCommand->mpVertexDeclaration      = mpShadowVertDecl;
 							pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
-							pDrawCommand->mObjectData.mObjectID    = pEntity->GetId();
+							pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
 							pDrawCommand->mStartIndex              = 0;
 							pDrawCommand->mStartVertex             = 0;
 							pDrawCommand->mNumOfIndices            = pStaticMeshResource->GetFacesCount() * 3;

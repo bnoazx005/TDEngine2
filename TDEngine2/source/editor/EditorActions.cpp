@@ -183,7 +183,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		if (!pWorld || (entityId == InvalidEntityId))
+		if (!pWorld || (entityId == TEntityId::Invalid))
 		{
 			return RC_INVALID_ARGS;
 		}

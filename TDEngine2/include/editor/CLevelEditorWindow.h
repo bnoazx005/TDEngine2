@@ -112,9 +112,9 @@ namespace TDEngine2
 
 			IDebugUtility*         mpDebugUtility;
 
-			TEntityId              mSelectedEntityId = InvalidEntityId;
+			TEntityId              mSelectedEntityId = TEntityId::Invalid;
 
-			TEntityId              mCameraEntityId = InvalidEntityId;
+			TEntityId              mCameraEntityId = TEntityId::Invalid;
 
 			// \todo Move into separate gizmo's context
 			TVector3               mFirstPosition, mLastPosition;

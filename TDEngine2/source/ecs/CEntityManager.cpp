@@ -85,7 +85,7 @@ namespace TDEngine2
 		
 		onEntityRemoved.mRemovedEntityId = id;
 
-		mActiveEntities[id] = nullptr;
+		mActiveEntities[static_cast<U32>(id)] = nullptr;
 
 		mDestroyedEntities.push_back(pEntity);
 
@@ -123,7 +123,7 @@ namespace TDEngine2
 			return result;
 		}
 				
-		mActiveEntities[id] = nullptr;
+		mActiveEntities[static_cast<U32>(id)] = nullptr;
 
 		mEntitiesHashTable.erase(id);
 		
@@ -198,7 +198,9 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		CEntity* pEntity = CreateEntity(mNextIdValue, name, this, result);
+		TEntityId id = TEntityId(mNextIdValue);
+
+		CEntity* pEntity = CreateEntity(id, name, this, result);
 		
 		if (result != RC_OK)
 		{
@@ -214,9 +216,9 @@ namespace TDEngine2
 		
 		TOnEntityCreatedEvent onEntityCreated;
 
-		onEntityCreated.mCreatedEntityId = mNextIdValue;
+		onEntityCreated.mCreatedEntityId = id;
 
-		mEntitiesHashTable[mNextIdValue] = mNextIdValue;
+		mEntitiesHashTable[id] = mNextIdValue;
 
 		mActiveEntities[mNextIdValue++] = pEntity;
 

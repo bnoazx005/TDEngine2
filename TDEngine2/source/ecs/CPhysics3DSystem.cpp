@@ -142,7 +142,7 @@ namespace TDEngine2
 			mPhysicsObjectsData.mpRigidBodies.push_back(pCurrRigidbody);
 			mPhysicsObjectsData.mpMotionHandlers.push_back(pMotionHandler);
 
-			pCurrRigidbody->setUserIndex(currEntityId);
+			pCurrRigidbody->setUserIndex(static_cast<U32>(currEntityId));
 
 			mpWorld->addRigidBody(pCurrRigidbody);
 		}
@@ -181,7 +181,7 @@ namespace TDEngine2
 			btVector3 point  = from.lerp(to, closestResults.m_closestHitFraction);
 			btVector3 normal = closestResults.m_hitNormalWorld;
 
-			TEntityId entityId = static_cast<U32>(closestResults.m_collisionObject->getUserIndex());
+			TEntityId entityId = static_cast<TEntityId>(closestResults.m_collisionObject->getUserIndex());
 
 			onHitCallback({ entityId, { point.x(), point.y(), point.z() }, { normal.x(), normal.y(), normal.z() } });
 		}
@@ -207,7 +207,7 @@ namespace TDEngine2
 			btVector3 point  = from.lerp(to, allResults.m_hitFractions[i]);
 			btVector3 normal = allResults.m_hitNormalWorld[i];
 
-			TEntityId entityId = static_cast<U32>(allResults.m_collisionObjects[i]->getUserIndex());
+			TEntityId entityId = static_cast<TEntityId>(allResults.m_collisionObjects[i]->getUserIndex());
 
 			hitResults.push_back({ entityId, { point.x(), point.y(), point.z() }, { normal.x(), normal.y(), normal.z() } });
 		}

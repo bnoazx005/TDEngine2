@@ -96,7 +96,7 @@ namespace TDEngine2
 		std::copy(entities.begin(), entities.end(), std::back_inserter(mProcessingEntities));
 
 		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
-		mCameraEntityId = !cameras.empty() ? cameras.front() : InvalidEntityId;
+		mCameraEntityId = !cameras.empty() ? cameras.front() : TEntityId::Invalid;
 	}
 
 	void CObjectsSelectionSystem::Update(IWorld* pWorld, F32 dt)
@@ -237,7 +237,7 @@ namespace TDEngine2
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
-				pDrawCommand->mObjectData.mObjectID    = pEntity->GetId();
+				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
 				pDrawCommand->mStartIndex              = 0;
 				pDrawCommand->mStartVertex             = 0;
 				pDrawCommand->mNumOfIndices            = pStaticMeshResource->GetFacesCount() * 3;
@@ -258,7 +258,7 @@ namespace TDEngine2
 			pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
 			pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
-			pDrawCommand->mObjectData.mObjectID    = pEntity->GetId();
+			pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
 			pDrawCommand->mStartIndex              = 0;
 			pDrawCommand->mStartVertex             = 0;
 			pDrawCommand->mNumOfIndices            = 6;
@@ -267,7 +267,7 @@ namespace TDEngine2
 
 	ICamera* CObjectsSelectionSystem::_getEditorCamera(IWorld* pWorld, TEntityId cameraEntityId)
 	{
-		TDE2_ASSERT(mCameraEntityId != InvalidEntityId);
+		TDE2_ASSERT(mCameraEntityId != TEntityId::Invalid);
 
 		if (CEntity* pCameraEntity = pWorld->FindEntity(cameraEntityId))
 		{

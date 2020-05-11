@@ -59,7 +59,7 @@ namespace TDEngine2
 
 	void CEntity::Reset()
 	{
-		mId = InvalidEntityId;
+		mId = TEntityId::Invalid;
 	}
 
 	E_RESULT_CODE CEntity::RemoveComponents()

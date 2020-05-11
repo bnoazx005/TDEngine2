@@ -207,7 +207,7 @@ namespace TDEngine2
 
 			TEntitiesHashTable    mEntitiesHashTable;
 
-			TEntityId             mNextIdValue;
+			U32                   mNextIdValue;
 
 			IComponentManager*    mpComponentManager;
 

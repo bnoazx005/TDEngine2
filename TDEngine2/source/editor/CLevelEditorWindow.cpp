@@ -190,7 +190,7 @@ namespace TDEngine2
 
 	bool CLevelEditorWindow::_onDrawGizmos(const TGizmoManipulatorCallback& onGizmoManipulatorCallback)
 	{
-		if (mSelectedEntityId == InvalidEntityId)
+		if (mSelectedEntityId == TEntityId::Invalid)
 		{
 			return false;
 		}
@@ -201,7 +201,7 @@ namespace TDEngine2
 			return false;
 		}
 
-		if (mCameraEntityId == InvalidEntityId)
+		if (mCameraEntityId == TEntityId::Invalid)
 		{
 			mCameraEntityId = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>().front();
 		}

@@ -279,14 +279,12 @@ namespace TDEngine2
 	/// Entity-Component-System's types declarations
 
 
-	typedef U32 TEntityId; ///< A type of entity's identifier
-
-	constexpr TEntityId InvalidEntityId = (std::numeric_limits<TEntityId>::max)(); ///< Invalid value for TEntityId type
+	TDE2_DECLARE_HANDLE_TYPE(TEntityId); ///< A type of entity's identifier
 
 	
 	typedef U32 TComponentTypeId; ///< A type of a component
 
-	constexpr TComponentTypeId InvalidComponentType = (std::numeric_limits<TEntityId>::max)(); ///< Invalid value for TComponentTypeId type
+	constexpr TComponentTypeId InvalidComponentType = (std::numeric_limits<U32>::max)(); ///< Invalid value for TComponentTypeId type
 
 
 	typedef U32 TComponentFactoryId; 
