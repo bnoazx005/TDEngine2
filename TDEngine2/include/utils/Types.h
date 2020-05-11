@@ -328,9 +328,7 @@ namespace TDEngine2
 	} TPluginInfo, *TPluginInfoPtr;
 
 	
-	typedef U32 TDynamicLibraryHandler; ///< A type of dynamic library's handler
-
-	constexpr TDynamicLibraryHandler InvalidDynamicLibHandlerValue = (std::numeric_limits<TDynamicLibraryHandler>::max)();
+	TDE2_DECLARE_HANDLE_TYPE(TDynamicLibraryHandler); ///< A type of dynamic library's handler
 
 #if defined (TDE2_USE_WIN32PLATFORM)
 	typedef HMODULE TDynamicLibrary;

@@ -7,7 +7,7 @@
 namespace TDEngine2
 {
 	CWin32DLLManager::CWin32DLLManager() :
-		CBaseObject(), mNextFreeHandler(0)
+		CBaseObject(), mNextFreeHandler(TDynamicLibraryHandler(0))
 	{
 	}
 
@@ -54,7 +54,7 @@ namespace TDEngine2
 		{
 			result = RC_INVALID_ARGS;
 
-			return InvalidDynamicLibHandlerValue;
+			return TDynamicLibraryHandler::Invalid;
 		}
 		
 		TDynLibHandlersMap::const_iterator duplicateIter = mHandlersTable.find(filename);
@@ -72,10 +72,10 @@ namespace TDEngine2
 		{
 			result = RC_FILE_NOT_FOUND;
 
-			return InvalidDynamicLibHandlerValue;
+			return TDynamicLibraryHandler::Invalid;
 		}
 
-		TDynamicLibraryHandler loadedLibraryHandler = mLoadedLibraries.size();
+		TDynamicLibraryHandler loadedLibraryHandler = TDynamicLibraryHandler(mLoadedLibraries.size());
 
 		if (mNextFreeHandler >= loadedLibraryHandler) // there is no free slot, so extend the existing array
 		{
@@ -83,7 +83,7 @@ namespace TDEngine2
 		}
 		else
 		{
-			mLoadedLibraries[mNextFreeHandler] = dynamicLibrary;
+			mLoadedLibraries[static_cast<U32>(mNextFreeHandler)] = dynamicLibrary;
 
 			loadedLibraryHandler = mNextFreeHandler;
 
@@ -121,12 +121,12 @@ namespace TDEngine2
 
 		TDynamicLibraryHandler libraryHandler = (*targetLibraryIter).second;
 		
-		if (!FreeLibrary(mLoadedLibraries[libraryHandler]))
+		if (!FreeLibrary(mLoadedLibraries[static_cast<U32>(libraryHandler)]))
 		{
 			return RC_FAIL;
 		}
 
-		mLoadedLibraries[libraryHandler] = nullptr;
+		mLoadedLibraries[static_cast<U32>(libraryHandler)] = nullptr;
 
 		mHandlersTable.erase(targetLibraryIter);
 
@@ -140,14 +140,16 @@ namespace TDEngine2
 
 	E_RESULT_CODE CWin32DLLManager::Unload(TDynamicLibraryHandler& libraryHandler)
 	{
-		if (libraryHandler == InvalidDynamicLibHandlerValue ||
-			libraryHandler >= mLoadedLibraries.size() ||
-			!mLoadedLibraries[libraryHandler])
+		U32 libHandlerValue = static_cast<U32>(libraryHandler);
+
+		if (libraryHandler == TDynamicLibraryHandler::Invalid ||
+			libHandlerValue >= mLoadedLibraries.size() ||
+			!mLoadedLibraries[libHandlerValue])
 		{
 			return RC_FAIL;
 		}
 		
-		TDynamicLibrary loadedLibrary = mLoadedLibraries[libraryHandler];
+		TDynamicLibrary loadedLibrary = mLoadedLibraries[libHandlerValue];
 
 		TDynLibHandlersMap::const_iterator libraryHandlerIter = mHandlersTable.cend();
 		
@@ -173,7 +175,7 @@ namespace TDEngine2
 
 		mHandlersTable.erase(libraryHandlerIter);
 
-		mLoadedLibraries[libraryHandler] = nullptr;
+		mLoadedLibraries[libHandlerValue] = nullptr;
 
 		// add current handler into the list of free handlers
 		mFreeHandlersList.push_back(libraryHandler);
@@ -204,13 +206,15 @@ namespace TDEngine2
 	
 	void* CWin32DLLManager::GetSymbol(const TDynamicLibraryHandler& libraryHandler, const std::string& symbol)
 	{
-		if (libraryHandler == InvalidDynamicLibHandlerValue ||
-			libraryHandler >= mLoadedLibraries.size())
+		U32 libHandlerValue = static_cast<U32>(libraryHandler);
+
+		if (libraryHandler == TDynamicLibraryHandler::Invalid ||
+			libHandlerValue >= mLoadedLibraries.size())
 		{
 			return nullptr;
 		}
 
-		return GetProcAddress(mLoadedLibraries[libraryHandler], symbol.c_str());
+		return GetProcAddress(mLoadedLibraries[libHandlerValue], symbol.c_str());
 	}
 
 
