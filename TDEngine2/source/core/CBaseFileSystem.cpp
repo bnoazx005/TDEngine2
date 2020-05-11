@@ -238,12 +238,12 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (fileId == InvalidFileEntryId)
+		if (fileId == TFileEntryId::Invalid)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		TResult<IFile*> filePointer = mActiveFiles[fileId];
+		TResult<IFile*> filePointer = mActiveFiles[static_cast<U32>(fileId)];
 
 		if (filePointer.HasError())
 		{
@@ -349,7 +349,7 @@ namespace TDEngine2
 
 	TFileEntryId CBaseFileSystem::_registerFileEntry(IFile* pFileEntry)
 	{
-		U32 fileEntryId = mActiveFiles.Add(pFileEntry);
+		TFileEntryId fileEntryId = TFileEntryId(mActiveFiles.Add(pFileEntry));
 
 		mFilesMap[pFileEntry->GetFilename()] = fileEntryId;
 		
@@ -459,12 +459,12 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (fileId == InvalidFileEntryId)
+		if (fileId == TFileEntryId::Invalid)
 		{
 			return nullptr;
 		}
 
-		TResult<IFile*> filePointer = mActiveFiles[fileId];
+		TResult<IFile*> filePointer = mActiveFiles[static_cast<U32>(fileId)];
 
 		if (filePointer.HasError())
 		{
@@ -496,7 +496,7 @@ namespace TDEngine2
 
 		mFilesMap.erase(entryHashIter);
 
-		mActiveFiles.RemoveAt(fileEntryId);
+		mActiveFiles.RemoveAt(static_cast<U32>(fileEntryId));
 
 		LOG_MESSAGE("[File System] Existing file descriptor was closed (" + filename + ")");
 

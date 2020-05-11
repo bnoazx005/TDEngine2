@@ -611,9 +611,7 @@ namespace TDEngine2
 	} TTextureSamplerDesc, *TTextureSamplerDescPtr;
 
 
-	typedef U32 TFileEntryId;
-
-	constexpr TFileEntryId InvalidFileEntryId = (std::numeric_limits<TFileEntryId>::max)();
+	TDE2_DECLARE_HANDLE_TYPE(TFileEntryId);
 
 
 	/*!
