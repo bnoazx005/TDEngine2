@@ -90,7 +90,7 @@ namespace TDEngine2
 		++mSystemsIdentifiersTable[priority];
 
 		/// low bytes contains id, high bytes - priority
-		U32 internalSystemPriority = static_cast<U32>(priority) << 16 | lastUsedSystemId;
+		TSystemId internalSystemPriority = TSystemId(static_cast<U32>(priority) << 16 | lastUsedSystemId);
 
 		mpActiveSystems.push_back({ internalSystemPriority, pSystem });
 
@@ -208,7 +208,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSystemManager::_internalUnregisterSystem(TSystemId systemId)
 	{
-		if (systemId == InvalidSystemId)
+		if (systemId == TSystemId::Invalid)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -232,7 +232,7 @@ namespace TDEngine2
 			return systemDesc.mpSystem->GetSystemType() == typeId;
 		});
 
-		return (iter == mpActiveSystems.cend()) ? InvalidSystemId : iter->mSystemId;
+		return (iter == mpActiveSystems.cend()) ? TSystemId::Invalid : iter->mSystemId;
 	}
 
 

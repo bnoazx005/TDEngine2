@@ -189,7 +189,7 @@ namespace TDEngine2
 
 		mpWorld = pWorld;
 
-		if ((mObjectSelectionSystemId = mpWorld->FindSystem<CObjectsSelectionSystem>()) == InvalidSystemId)
+		if ((mObjectSelectionSystemId = mpWorld->FindSystem<CObjectsSelectionSystem>()) == TSystemId::Invalid)
 		{
 			LOG_ERROR("[CSelectionManager] \"ObjectsSelection\" system wasn't found");
 			return RC_FAIL;

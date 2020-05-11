@@ -52,9 +52,9 @@ namespace TDEngine2
 		protected:
 			typedef struct TSystemDesc
 			{
-				U32      mSystemId; /// low bytes contains system's unique id, high bytes contains its priority
+				TSystemId mSystemId; /// low bytes contains system's unique id, high bytes contains its priority
 
-				ISystem* mpSystem;
+				ISystem*  mpSystem;
 			} TSystemDesc, *TSystemDescPtr;
 
 			typedef std::vector<TSystemDesc>                   TSystemsArray;

@@ -292,9 +292,7 @@ namespace TDEngine2
 	constexpr TComponentFactoryId InvalidComponentFactoryId = 0;
 
 
-	typedef U32 TSystemId;
-
-	constexpr TSystemId InvalidSystemId = (std::numeric_limits<TSystemId>::max)(); ///< Invalid value for TEntityId type
+	TDE2_DECLARE_HANDLE_TYPE(TSystemId);
 
 
 	/*!

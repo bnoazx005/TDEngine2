@@ -135,7 +135,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if (mEditorCameraControlSystemId == InvalidSystemId)
+		if (mEditorCameraControlSystemId == TSystemId::Invalid)
 		{
 			auto registerResult = mpWorld->RegisterSystem(CreateEditorCameraControlSystem(mpInputContext, this, result), E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY);
 			if (registerResult.HasError())

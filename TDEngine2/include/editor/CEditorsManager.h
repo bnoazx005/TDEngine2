@@ -189,7 +189,7 @@ namespace TDEngine2
 
 			IWorld*               mpWorld;
 
-			TSystemId             mEditorCameraControlSystemId = InvalidSystemId;
+			TSystemId             mEditorCameraControlSystemId = TSystemId::Invalid;
 
 			ISelectionManager*    mpSelectionManager;
 	};
