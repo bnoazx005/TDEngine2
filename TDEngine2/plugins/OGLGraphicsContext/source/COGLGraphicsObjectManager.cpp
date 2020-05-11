@@ -116,13 +116,13 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash<const TBlendStateDesc&>(blendStateDesc);
 		if (mBlendStatesHashTable.find(hashValue) != mBlendStatesHashTable.cend())
 		{
-			return TOkValue<TBlendStateId>(mBlendStatesHashTable[hashValue]);
+			return TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
 		}
 
 		auto stateId = mBlendStates.Add(blendStateDesc);
 		mBlendStatesHashTable.insert({ hashValue, stateId });
 
-		return TOkValue<TBlendStateId>(stateId);
+		return TOkValue<TBlendStateId>(TBlendStateId(stateId));
 	}
 
 	TResult<TDepthStencilStateId> COGLGraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
@@ -147,7 +147,7 @@ namespace TDEngine2
 
 	TResult<TBlendStateDesc> COGLGraphicsObjectManager::GetBlendState(TBlendStateId blendStateId) const
 	{
-		return mBlendStates[blendStateId];
+		return mBlendStates[static_cast<U32>(blendStateId)];
 	}
 
 	TResult<TDepthStencilStateDesc> COGLGraphicsObjectManager::GetDepthStencilState(TDepthStencilStateId depthStencilStateId) const

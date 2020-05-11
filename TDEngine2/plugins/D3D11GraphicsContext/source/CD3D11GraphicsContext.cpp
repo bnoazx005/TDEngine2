@@ -333,7 +333,7 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
-		if (blendStateId == InvalidBlendStateId)
+		if (blendStateId == TBlendStateId::Invalid)
 		{
 			mp3dDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
 			return;

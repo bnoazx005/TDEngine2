@@ -171,7 +171,7 @@ namespace TDEngine2
 			return;
 		}
 
-		if (mBlendStateHandle == InvalidBlendStateId)
+		if (mBlendStateHandle == TBlendStateId::Invalid)
 		{
 			mBlendStateHandle = mpGraphicsObjectManager->CreateBlendState(mBlendStateParams).Get();
 		}

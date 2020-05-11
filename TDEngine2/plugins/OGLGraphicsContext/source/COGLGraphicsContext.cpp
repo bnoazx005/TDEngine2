@@ -269,7 +269,7 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
-		if (blendStateId == InvalidBlendStateId)
+		if (blendStateId == TBlendStateId::Invalid)
 		{
 			GL_SAFE_VOID_CALL(glDisable(GL_BLEND));
 			return;

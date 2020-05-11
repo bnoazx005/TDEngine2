@@ -132,7 +132,7 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash(blendStateDesc);
 		if (mBlendStatesHashTable.find(hashValue) != mBlendStatesHashTable.cend())
 		{
-			return TOkValue<TBlendStateId>(mBlendStatesHashTable[hashValue]);
+			return TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
 		}
 
 		ID3D11Device* p3dDevice = nullptr;
@@ -167,7 +167,7 @@ namespace TDEngine2
 		auto stateId = mpBlendStates.Add(pBlendState);
 		mBlendStatesHashTable.insert({ hashValue, stateId });
 
-		return TOkValue<TBlendStateId>(stateId);
+		return TOkValue<TBlendStateId>(TBlendStateId(stateId));
 	}
 
 	TResult<TDepthStencilStateId> CD3D11GraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
@@ -247,7 +247,7 @@ namespace TDEngine2
 
 	TResult<ID3D11BlendState*> CD3D11GraphicsObjectManager::GetBlendState(TBlendStateId blendStateId) const
 	{
-		return mpBlendStates[blendStateId];
+		return mpBlendStates[static_cast<U32>(blendStateId)];
 	}
 
 	TResult<ID3D11DepthStencilState*> CD3D11GraphicsObjectManager::GetDepthStencilState(TDepthStencilStateId stateId) const

@@ -422,7 +422,7 @@ namespace TDEngine2
 
 			TBlendStateDesc          mBlendStateParams;
 
-			TBlendStateId            mBlendStateHandle = InvalidBlendStateId;
+			TBlendStateId            mBlendStateHandle = TBlendStateId::Invalid;
 
 			TDepthStencilStateDesc   mDepthStencilStateParams;
 

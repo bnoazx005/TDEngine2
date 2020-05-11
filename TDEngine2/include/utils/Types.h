@@ -699,9 +699,7 @@ namespace TDEngine2
 	} TBlendStateDesc, *TBlendStateDescPtr;
 
 
-	typedef U32 TBlendStateId;
-
-	constexpr TBlendStateId InvalidBlendStateId = (std::numeric_limits<TBlendStateId>::max)();
+	TDE2_DECLARE_HANDLE_TYPE(TBlendStateId);
 
 
 	/*!
