@@ -422,7 +422,7 @@ namespace TDEngine2
 
 	TEventListenerId COGLGraphicsContext::GetListenerId() const
 	{
-		return GetTypeId();
+		return TEventListenerId(GetTypeId());
 	}
 
 	TVideoAdapterInfo COGLGraphicsContext::GetInfo() const

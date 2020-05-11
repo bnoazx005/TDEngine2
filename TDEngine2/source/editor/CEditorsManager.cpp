@@ -204,7 +204,7 @@ namespace TDEngine2
 
 	TEventListenerId CEditorsManager::GetListenerId() const
 	{
-		return GetTypeId();
+		return TEventListenerId(GetTypeId());
 	}
 
 	IWorld* CEditorsManager::GetWorldInstance() const

@@ -481,7 +481,7 @@ namespace TDEngine2
 
 	TEventListenerId CD3D11GraphicsContext::GetListenerId() const
 	{
-		return GetTypeId();
+		return TEventListenerId(GetTypeId());
 	}
 
 	TVideoAdapterInfo CD3D11GraphicsContext::GetInfo() const

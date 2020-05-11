@@ -203,7 +203,7 @@ namespace TDEngine2
 
 	TEventListenerId CSystemManager::GetListenerId() const
 	{
-		return GetTypeId();
+		return TEventListenerId(GetTypeId());
 	}
 
 	E_RESULT_CODE CSystemManager::_internalUnregisterSystem(TSystemId systemId)

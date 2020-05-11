@@ -303,7 +303,7 @@ namespace TDEngine2
 
 	TEventListenerId CWin32WindowSystem::GetListenerId() const
 	{
-		return GetTypeId();
+		return TEventListenerId(GetTypeId());
 	}
 
 	TRectU32 CWin32WindowSystem::GetWindowRect() const

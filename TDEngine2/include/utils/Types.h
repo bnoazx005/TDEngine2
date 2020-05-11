@@ -531,9 +531,9 @@ namespace TDEngine2
 	constexpr U8 MaxNumberOfUserConstantBuffers = 10;
 
 
-	typedef U32 TEventListenerId;
+	TDE2_DECLARE_HANDLE_TYPE(TEventListenerId);
 
-	constexpr TEventListenerId BroadcastListenersIdValue = (std::numeric_limits<TEventListenerId>::max)();
+	constexpr TEventListenerId BroadcastListenersIdValue = TEventListenerId((std::numeric_limits<TEventListenerId>::max)());
 
 
 	/*!

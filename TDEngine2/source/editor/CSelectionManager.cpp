@@ -200,7 +200,7 @@ namespace TDEngine2
 
 	TEventListenerId CSelectionManager::GetListenerId() const
 	{
-		return GetTypeId();
+		return TEventListenerId(GetTypeId());
 	}
 
 	TEntityId CSelectionManager::GetSelectedEntityId() const
