@@ -6,7 +6,7 @@
 namespace TDEngine2
 {
 	CResourceHandler::CResourceHandler() :
-		CBaseObject(), mpResourceManager(nullptr), mResourceId(InvalidResourceId)
+		CBaseObject(), mpResourceManager(nullptr), mResourceId(TResourceId::Invalid)
 	{
 	}
 
@@ -93,7 +93,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		return mResourceId != InvalidResourceId;
+		return mResourceId != TResourceId::Invalid;
 	}
 
 	TDE2_API IResourceHandler* CreateResourceHandler(IResourceManager* pResourceManager, TResourceId id, E_RESULT_CODE& result)

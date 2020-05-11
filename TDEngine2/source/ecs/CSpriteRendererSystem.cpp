@@ -225,7 +225,7 @@ namespace TDEngine2
 
 	U32 CSpriteRendererSystem::_computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId)
 	{
-		return materialId << 16 | graphicsLayerId;
+		return static_cast<U32>(materialId) << 16 | graphicsLayerId;
 	}
 
 	void CSpriteRendererSystem::_initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers)

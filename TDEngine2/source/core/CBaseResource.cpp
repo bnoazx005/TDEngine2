@@ -4,7 +4,7 @@
 namespace TDEngine2
 {
 	CBaseResource::CBaseResource() :
-		CBaseObject(), mId(mInvalidResourceId), mState(RST_PENDING)
+		CBaseObject(), mId(TResourceId::Invalid), mState(RST_PENDING)
 	{
 	}
 
@@ -64,6 +64,4 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-
-	const TResourceId CBaseResource::mInvalidResourceId { 0 };
 }

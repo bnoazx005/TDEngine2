@@ -435,9 +435,7 @@ namespace TDEngine2
 		\brief Resource manager's types section
 	*/
 
-	typedef U32 TResourceId; ///< Unique resource identifier that is used for a cross-referencing
-
-	constexpr TResourceId InvalidResourceId = 0;
+	TDE2_DECLARE_HANDLE_TYPE_EX(TResourceId, 0); ///< Unique resource identifier that is used for a cross-referencing
 
 	/*!
 		enum E_RESOURCE_STATE_TYPE
@@ -454,14 +452,8 @@ namespace TDEngine2
 	};
 
 
-	typedef U32 TResourceLoaderId; ///< A resource loader's identifier
-
-	constexpr TResourceLoaderId InvalidResourceLoaderId = 0;
-	
-
-	typedef U32 TResourceFactoryId; ///< A resource factory's identifier
-
-	constexpr TResourceFactoryId InvalidResourceFactoryId = 0;
+	TDE2_DECLARE_HANDLE_TYPE_EX(TResourceLoaderId, 0); ///< A resource loader's identifier
+	TDE2_DECLARE_HANDLE_TYPE_EX(TResourceFactoryId, 0); ///< A resource factory's identifier
 	
 
 	/*!

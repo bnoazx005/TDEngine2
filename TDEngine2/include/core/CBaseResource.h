@@ -89,16 +89,14 @@ namespace TDEngine2
 
 			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name);
 		protected:
-			static const TResourceId mInvalidResourceId;
+			IResourceManager*     mpResourceManager;
 
-			IResourceManager*        mpResourceManager;
+			std::string           mName;					///< The name's value is unique for each resource
 
-			std::string              mName;						///< The name's value is unique for each resource
+			TResourceId           mId;						///< The id's value is unique for each resource. Used for cross-referencing
 
-			TResourceId              mId;						///< The id's value is unique for each resource. Used for cross-referencing
+			E_RESOURCE_STATE_TYPE mState;
 
-			E_RESOURCE_STATE_TYPE    mState;
-
-			mutable std::mutex       mMutex;
+			mutable std::mutex    mMutex;
 	};
 }

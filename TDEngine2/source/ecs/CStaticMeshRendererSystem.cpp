@@ -225,7 +225,7 @@ namespace TDEngine2
 
 	U32 CStaticMeshRendererSystem::_computeMeshCommandHash(TResourceId materialId, F32 distanceToCamera)
 	{
-		return (materialId << 16) | static_cast<U16>(fabs(distanceToCamera));
+		return (static_cast<U32>(materialId) << 16) | static_cast<U16>(fabs(distanceToCamera));
 	}
 
 

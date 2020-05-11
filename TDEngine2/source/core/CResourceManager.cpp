@@ -32,7 +32,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IResourceHandler* pInvalidResourceHandler = CreateResourceHandler(this, InvalidResourceId, result);
+		IResourceHandler* pInvalidResourceHandler = CreateResourceHandler(this, TResourceId::Invalid, result);
 
 		if (result != RC_OK)
 		{
@@ -78,12 +78,12 @@ namespace TDEngine2
 		TResourceLoaderId existingDuplicateId = mResourceLoadersMap[resourceTypeId];
 
 		// if the duplicate exists, just return it
-		if (existingDuplicateId != InvalidResourceLoaderId)
+		if (existingDuplicateId != TResourceLoaderId::Invalid)
 		{
 			return TOkValue<TResourceLoaderId>(existingDuplicateId);
 		}
 
-		existingDuplicateId = mRegisteredResourceLoaders.Add(pResourceLoader) + 1;
+		existingDuplicateId = TResourceLoaderId(mRegisteredResourceLoaders.Add(pResourceLoader) + 1);
 		mResourceLoadersMap[resourceTypeId] = existingDuplicateId;
 
 		return TOkValue<TResourceLoaderId>(existingDuplicateId);
@@ -98,12 +98,12 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (resourceLoaderId == InvalidResourceLoaderId)
+		if (resourceLoaderId == TResourceLoaderId::Invalid)
 		{
 			return RC_INVALID_ARGS;
 		}
 		
-		TResult<const IResourceLoader*> result = mRegisteredResourceLoaders[resourceLoaderId - 1];
+		TResult<const IResourceLoader*> result = mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderId) - 1];
 
 		if (result.HasError())
 		{
@@ -114,7 +114,7 @@ namespace TDEngine2
 
 		U32 resourceTypeId = pResourceLoader->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
 
-		mRegisteredResourceLoaders.RemoveAt(resourceLoaderId);
+		mRegisteredResourceLoaders.RemoveAt(static_cast<U32>(resourceLoaderId));
 
 		mResourceLoadersMap.erase(resourceTypeId);
 
@@ -135,12 +135,12 @@ namespace TDEngine2
 		TResourceFactoryId existingDuplicateId = mResourceFactoriesMap[resourceTypeId];
 
 		// if the duplicate exists, just return it
-		if (existingDuplicateId != InvalidResourceFactoryId)
+		if (existingDuplicateId != TResourceFactoryId::Invalid)
 		{
 			return TOkValue<TResourceFactoryId>(existingDuplicateId);
 		}
 		
-		existingDuplicateId = mRegisteredResourceFactories.Add(pResourceFactory) + 1;
+		existingDuplicateId = TResourceFactoryId(mRegisteredResourceFactories.Add(pResourceFactory) + 1);
 		mResourceFactoriesMap[resourceTypeId] = existingDuplicateId;
 
 		return TOkValue<TResourceFactoryId>(existingDuplicateId);
@@ -155,12 +155,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (resourceFactoryId == InvalidResourceFactoryId || resourceFactoryId > mRegisteredResourceFactories.GetSize())
+		U32 index = static_cast<U32>(resourceFactoryId);
+
+		if ((resourceFactoryId == TResourceFactoryId::Invalid) || index > mRegisteredResourceFactories.GetSize())
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		TResult<const IResourceFactory*> result = mRegisteredResourceFactories[resourceFactoryId - 1];
+		TResult<const IResourceFactory*> result = mRegisteredResourceFactories[index - 1];
 
 		if (result.HasError())
 		{
@@ -171,7 +173,7 @@ namespace TDEngine2
 
 		U32 resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this factory
 
-		mRegisteredResourceFactories.RemoveAt(resourceFactoryId - 1);
+		mRegisteredResourceFactories.RemoveAt(index - 1);
 
 		mResourceFactoriesMap.erase(resourceTypeId);
 
@@ -192,9 +194,9 @@ namespace TDEngine2
 
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		TResourceId resourceId = pResourceHandler->GetResourceId();
+		U32 resourceId = static_cast<U32>(pResourceHandler->GetResourceId());
 
-		if (resourceId == InvalidResourceId ||
+		if ((static_cast<TResourceId>(resourceId) == TResourceId::Invalid) ||
 			resourceId >= mResources.GetSize() + 1)
 		{
 			return nullptr;
@@ -207,14 +209,14 @@ namespace TDEngine2
 	{
 		if (name.empty())
 		{
-			return InvalidResourceId;
+			return TResourceId::Invalid;
 		}
 
 		TResourcesMap::const_iterator resourceIter = mResourcesMap.find(name);
 
 		if (resourceIter == mResourcesMap.cend())
 		{
-			return InvalidResourceId;
+			return TResourceId::Invalid;
 		}
 
 		return (*resourceIter).second;
@@ -228,11 +230,11 @@ namespace TDEngine2
 
 		IResourceHandler* pResourceHandler = nullptr;
 
-		if (resourceId != InvalidResourceId) /// needed resource already exists
+		if (resourceId != TResourceId::Invalid) /// needed resource already exists
 		{
 			pResourceHandler = _createOrGetResourceHandler(resourceId);
 
-			pResource = mResources[resourceId - 1].Get();
+			pResource = mResources[static_cast<U32>(resourceId) - 1].Get();
 
 			if (pResource->GetState() == RST_PENDING)
 			{
@@ -249,11 +251,11 @@ namespace TDEngine2
 			return mResourceHandlers[0].Get(); /// return invalid handler
 		}
 
-		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[(*factoryIdIter).second - 1].Get();
+		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1].Get();
 			
 		pResource = pResourceFactory->CreateDefault(name, {});
 
-		resourceId = mResources.Add(pResource) + 1;
+		resourceId = TResourceId(mResources.Add(pResource) + 1);
 
 		mResourcesMap[name] = resourceId;
 
@@ -268,7 +270,7 @@ namespace TDEngine2
 	{
 		TResourceId resourceId = GetResourceId(name);
 
-		if (resourceId != InvalidResourceId)
+		if (resourceId != TResourceId::Invalid)
 		{
 			return _createOrGetResourceHandler(resourceId);
 		}
@@ -280,7 +282,7 @@ namespace TDEngine2
 			return mResourceHandlers[0].Get(); /// return invalid handler
 		}
 
-		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[(*factoryIdIter).second - 1].Get();
+		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1].Get();
 		
 		IResource* pResource = nullptr;
 
@@ -289,7 +291,7 @@ namespace TDEngine2
 		/// \todo move it to a background thread
 		pResource = pResourceFactory->Create(name, params);
 		
-		resourceId = mResources.Add(pResource) + 1;
+		resourceId = TResourceId(mResources.Add(pResource) + 1);
 
 		mResourcesMap[name] = resourceId;
 
@@ -334,7 +336,7 @@ namespace TDEngine2
 
 		IResourceHandler* pNewHandlerInstance = mResourceHandlers[handlerHashValue].Get();
 
-		pNewHandlerInstance->SetResourceId(InvalidEntityId);
+		pNewHandlerInstance->SetResourceId(TResourceId(InvalidEntityId));
 
 		mResourceHandlers.RemoveAt(handlerHashValue);
 
@@ -350,7 +352,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		return mRegisteredResourceLoaders[resourceLoaderIdIter->second - 1].GetOrDefault(nullptr);
+		return mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderIdIter->second) - 1].GetOrDefault(nullptr);
 	}
 
 
