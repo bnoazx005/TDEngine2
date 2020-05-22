@@ -13,6 +13,7 @@
 #include "TPlane.h"
 #include "MathUtils.h"
 #include <tuple>
+#include <cmath>
 
 
 namespace TDEngine2
