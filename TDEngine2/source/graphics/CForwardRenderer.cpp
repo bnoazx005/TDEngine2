@@ -197,44 +197,47 @@ namespace TDEngine2
 		};
 
 #if TDE2_EDITORS_ENABLED
-		if (mpSelectionManager)
+		if (CRenderQueue* pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)])
 		{
-			if (mpSelectionManager->BuildSelectionMap([this, &executeCommands] 
-			{ 
-				CRenderQueue* pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)];
-				if (!pCurrCommandBuffer)
-				{
-					LOG_ERROR("[ForwardRenderer] Invalid \"Editor Only\" commands buffer was found");
-					return RC_FAIL;
-				}
-
-				executeCommands(pCurrCommandBuffer, true);
-				return RC_OK;
-			}) != RC_OK)
+			if (!pCurrCommandBuffer->IsEmpty() && mpSelectionManager)
 			{
-				TDE2_ASSERT(false);
-			}
+				if (mpSelectionManager->BuildSelectionMap([this, &executeCommands, pCurrCommandBuffer]
+				{
+					executeCommands(pCurrCommandBuffer, true);
+					return RC_OK;
+				}) != RC_OK)
+				{
+					TDE2_ASSERT(false);
+				}
+			}			
+		}
+		else
+		{
+			LOG_ERROR("[ForwardRenderer] Invalid \"Editor Only\" commands buffer was found");
+			return RC_FAIL;
 		}
 #endif
 
 		// \note Shadow pass
+		if (CRenderQueue* pShadowRenderQueue = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)])
 		{
-			mpGraphicsContext->SetViewport(0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
-			mpGraphicsContext->BindDepthBufferTarget(mpShadowMap->Get<IDepthBufferTarget>(RAT_BLOCKING), true);
-
-			mpGraphicsContext->ClearDepthBuffer(1.0f);
-
-			CRenderQueue* pShadowRenderQueue = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)];
-			if (!pShadowRenderQueue)
+			if (!pShadowRenderQueue->IsEmpty())
 			{
-				LOG_ERROR("[ForwardRenderer] Invalid \"Shadow Pass\" commands buffer was found");
-				return RC_FAIL;
-			}
+				mpGraphicsContext->SetViewport(0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
+				mpGraphicsContext->BindDepthBufferTarget(mpShadowMap->Get<IDepthBufferTarget>(RAT_BLOCKING), true);
 
-			executeCommands(pShadowRenderQueue, true);
+				mpGraphicsContext->ClearDepthBuffer(1.0f);
 
-			mpGraphicsContext->BindDepthBufferTarget(nullptr);
-			mpGraphicsContext->SetViewport(0.0f, 0.0f, 800.0f, 600.0f, 0.0f, 1.0f);
+				executeCommands(pShadowRenderQueue, true);
+
+				mpGraphicsContext->BindDepthBufferTarget(nullptr);
+				mpGraphicsContext->SetViewport(0.0f, 0.0f, 800.0f, 600.0f, 0.0f, 1.0f);
+			}			
+		}
+		else
+		{
+			LOG_ERROR("[ForwardRenderer] Invalid \"Shadow Pass\" commands buffer was found");
+			return RC_FAIL;
 		}
 
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
