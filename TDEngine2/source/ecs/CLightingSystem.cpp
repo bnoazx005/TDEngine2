@@ -82,8 +82,13 @@ namespace TDEngine2
 
 	void CLightingSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		TDE2_ASSERT(mDirectionalLightsEntities.size() == 1); // \note For now only single sun light source is supported
+		TDE2_ASSERT(mDirectionalLightsEntities.size() <= 1); // \note For now only single sun light source is supported
 		TDE2_ASSERT(mpRenderer);
+
+		if (mDirectionalLightsEntities.empty())
+		{
+			return;
+		}
 
 		TLightingShaderData lightingData;
 

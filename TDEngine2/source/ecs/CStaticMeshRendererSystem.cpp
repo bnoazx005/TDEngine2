@@ -12,6 +12,7 @@
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/graphics/CPerspectiveCamera.h"
 #include "./../../include/graphics/COrthoCamera.h"
+#include "./../../include/utils/CFileLogger.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -88,9 +89,14 @@ namespace TDEngine2
 
 	void CStaticMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		assert(mpCameraEntity);
+		if (!mpCameraEntity)
+		{
+			LOG_WARNING("[CStaticMeshRendererSystem] An entity with Camera component attached to that wasn't found");
+			return;
+		}
 
 		ICamera* pCameraComponent = GetValidPtrOrDefault<ICamera*>(mpCameraEntity->GetComponent<CPerspectiveCamera>(), mpCameraEntity->GetComponent<COrthoCamera>());
+		TDE2_ASSERT(pCameraComponent);
 
 		// \note first pass (construct an array of materials)
 		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
