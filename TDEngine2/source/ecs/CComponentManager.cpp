@@ -340,6 +340,7 @@ namespace TDEngine2
 			CreateBoundsComponentFactory,
 			CreateDirectionalLightFactory,
 			CreateShadowCasterComponentFactory,
+			CreateShadowReceiverComponentFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 #endif
@@ -385,6 +386,7 @@ namespace TDEngine2
 			CBoundsComponent::GetTypeId(),
 			CDirectionalLight::GetTypeId(),
 			CShadowCasterComponent::GetTypeId(),
+			CShadowReceiverComponent::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 #endif

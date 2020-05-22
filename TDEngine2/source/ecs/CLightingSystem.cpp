@@ -10,6 +10,7 @@
 #include "./../../include/graphics/IVertexDeclaration.h"
 #include "./../../include/graphics/CRenderQueue.h"
 #include "./../../include/graphics/CBaseMaterial.h"
+#include "./../../include/graphics/CBaseRenderTarget.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IResourceHandler.h"
 #include "./../../include/core/IGraphicsContext.h"
@@ -76,6 +77,7 @@ namespace TDEngine2
 	{
 		mDirectionalLightsEntities = pWorld->FindEntitiesWithComponents<CDirectionalLight>();
 		mShadowCasterEntities      = pWorld->FindEntitiesWithComponents<CShadowCasterComponent>();
+		mShadowReceiverEntities    = pWorld->FindEntitiesWithComponents<CShadowReceiverComponent>();
 	}
 
 	void CLightingSystem::Update(IWorld* pWorld, F32 dt)
@@ -133,6 +135,23 @@ namespace TDEngine2
 							pDrawCommand->mStartVertex             = 0;
 							pDrawCommand->mNumOfIndices            = pStaticMeshResource->GetFacesCount() * 3;
 						}
+					}
+				}
+			}
+		}
+
+		auto pShadowMapTexture = mpResourceManager->Load<CBaseDepthBufferTarget>("ShadowMap")->Get<IDepthBufferTarget>(RAT_BLOCKING);
+
+		// \note Inject shadow map buffer into materials 
+		for (TEntityId currEntity : mShadowReceiverEntities)
+		{
+			if (auto pEntity = pWorld->FindEntity(currEntity))
+			{
+				if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
+				{
+					if (auto pMaterial = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName())->Get<IMaterial>(RAT_BLOCKING))
+					{
+						pMaterial->SetTextureResource("ShadowMapTexture", pShadowMapTexture);
 					}
 				}
 			}

@@ -148,4 +148,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CShadowCasterComponentFactory)
 	};
+
+
+	TDE2_DECLARE_FLAG_COMPONENT(ShadowReceiverComponent);
 }

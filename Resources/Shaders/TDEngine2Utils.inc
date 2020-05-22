@@ -36,11 +36,13 @@
 
 #ifdef TDE2_HLSL_SHADER
 
+	#define SAMPLER_NAME(SamplerName) 
+
 	#define DECLARE_TEX2D(SamplerName)					\
 				Texture2D SamplerName;					\
-				SamplerState SamplerName_SamplerState;
+				SamplerState SamplerName ## _SamplerState;
 
-	#define TEX2D(SamplerName, uv) SamplerName.Sample(SamplerName_SamplerState, uv)
+	#define TEX2D(SamplerName, uv) SamplerName.Sample(SamplerName ## _SamplerState, uv)
 
 #endif
 

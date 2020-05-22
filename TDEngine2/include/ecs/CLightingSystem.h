@@ -104,6 +104,7 @@ namespace TDEngine2
 
 			std::vector<TEntityId>  mDirectionalLightsEntities;
 			std::vector<TEntityId>  mShadowCasterEntities;
+			std::vector<TEntityId>  mShadowReceiverEntities;
 
 			IVertexDeclaration*     mpShadowVertDecl;
 

@@ -21,6 +21,9 @@ const std::string DebugShaderName     = CStringUtils::Format("Debug{0}Shader.sha
 const std::string DebugTextShaderName = CStringUtils::Format("DebugText{0}Shader.shader", GAPIType);
 
 
+TVector3 SunLightPos { 5.0f, 0.0f, 0.0f };
+
+
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
@@ -94,6 +97,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto shadowCaster = pMeshEntity->AddComponent<CShadowCasterComponent>();
+	auto sr = pMeshEntity->AddComponent<CShadowReceiverComponent>();
 	auto bounds = pMeshEntity->AddComponent<CBoundsComponent>();
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
@@ -105,6 +109,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	// plane
 	auto pPlaneEntity = mpWorld->CreateEntity();
+	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
 	pPlaneMeshContainer->SetMaterialName("DebugMaterial.material");
 	pPlaneMeshContainer->SetMeshName("Plane");
@@ -156,12 +161,13 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		if (auto pSunLight = pLightEntity->AddComponent<CDirectionalLight>())
 		{
 			pSunLight->SetIntensity(1.5f);
+			//pSunLight->SetDirection(-TVector3(1.0f, 1.0f, 0.0f));
 		}
 
 		if (auto pTransform = pLightEntity->GetComponent<CTransform>())
 		{
-			pTransform->SetPosition(TVector3(5.0f, 5.0f, 0.0f));
-			pTransform->SetRotation(TVector3(0.0f, 0.0f, -45.0f));
+			pTransform->SetPosition(SunLightPos);
+			pTransform->SetRotation(TVector3(45.0f, 0.0f, 0.0f));
 		}
 	}
 
@@ -228,6 +234,19 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		auto&& result = mpWorld->GetRaycastContext()->Raycast2DClosest(ZeroVector3, ForwardVector3, 1000.0f);
 	//}
 	
+	if (mpInputContext->IsKey(E_KEYCODES::KC_LEFT)) SunLightPos = SunLightPos - dt * RightVector3;
+	if (mpInputContext->IsKey(E_KEYCODES::KC_RIGHT)) SunLightPos = SunLightPos + dt * RightVector3;
+	if (mpInputContext->IsKey(E_KEYCODES::KC_UP)) SunLightPos = SunLightPos + dt * UpVector3;
+	if (mpInputContext->IsKey(E_KEYCODES::KC_DOWN)) SunLightPos = SunLightPos - dt * UpVector3;
+
+	for (TEntityId entity : mpWorld->FindEntitiesWithComponents<CDirectionalLight>())
+	{
+		if (auto pTransform = mpWorld->FindEntity(entity)->GetComponent<CTransform>())
+		{
+			pTransform->SetPosition(SunLightPos);
+		}
+	}
+
 	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
 	pDebugUtility->DrawLine(ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
@@ -241,6 +260,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawSphere(ZeroVector3, 10.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 3);
 
 	// rotate the cube
+#if 0
 	auto pEntity = mpWorld->FindEntity(mpWorld->FindEntitiesWithComponents<CStaticMeshContainer>()[0]);
 	auto pTransform = pEntity->GetComponent<CTransform>();
 	static F32 time = 0.0f;
@@ -249,6 +269,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pTransform->SetScale(TVector3(0.5f + 0.5f * fabs(sinf(0.5f * time))));
 	pTransform->SetRotation(TVector3(0.0f, time, 0.0f));
 	auto&& m = pTransform->GetTransform();
+#endif
 
 	return RC_OK;
 }

@@ -142,4 +142,7 @@ namespace TDEngine2
 
 		return pShadowCasterComponentFactoryInstance;
 	}
+
+
+	TDE2_DEFINE_FLAG_COMPONENT(ShadowReceiverComponent);
 }
