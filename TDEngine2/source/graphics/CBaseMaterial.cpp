@@ -7,7 +7,7 @@
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/core/IResourceHandler.h"
-#include "./../../include/platform/CBinaryFileReader.h"
+#include "./../../include/platform/CYAMLFile.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/utils/Utils.h"
 #include <cstring>
@@ -15,6 +15,93 @@
 
 namespace TDEngine2
 {
+	struct TMaterialArchiveKeys
+	{
+		static const std::string mShaderIdKey;
+		static const std::string mTransparencyKey;
+		
+		static const std::string mBlendStateGroup;
+
+		struct TBlendStateKeys
+		{
+			static const std::string mSrcColorKey;
+			static const std::string mDestColorKey;
+			static const std::string mOpTypeKey;
+
+			static const std::string mSrcAlphaColorKey;
+			static const std::string mDestAlphaColorKey;
+			static const std::string mOpAlphaTypeKey;
+		};
+
+		static const std::string mDepthStencilStateGroup;
+
+		struct TDepthStencilStateKeys
+		{
+			static const std::string mDepthTestKey;
+			static const std::string mDepthWriteKey;
+			static const std::string mDepthCmpFuncKey;
+			static const std::string mStencilTestKey;
+			static const std::string mStencilReadMaskKey;
+			static const std::string mStencilWriteMaskKey;
+		};
+
+		static const std::string mRasterizerStateGroup;
+
+		struct TRasterizerStateKeys
+		{
+			static const std::string mCullModeKey;
+			static const std::string mWireframeModeKey;
+			static const std::string mFrontCCWModeKey;
+			static const std::string mDepthBiasKey;
+			static const std::string mMaxDepthBiasKey;
+			static const std::string mDepthClippingKey;
+			static const std::string mScissorTestKey;
+		};
+
+		static const std::string mTexturesGroup;
+		
+		struct TTextureKeys
+		{
+			static const std::string mSlotKey;
+			static const std::string mTextureKey;
+		};
+	};
+
+	const std::string TMaterialArchiveKeys::mShaderIdKey     = "shader-id";
+	const std::string TMaterialArchiveKeys::mTransparencyKey = "transparency-enabled";
+	const std::string TMaterialArchiveKeys::mBlendStateGroup = "blend-state";
+
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey       = "src-color";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey      = "dest-color";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey         = "op-type";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey  = "src-alpha";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey = "dest-alpha";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey    = "op-alpha-type";
+
+	const std::string TMaterialArchiveKeys::mDepthStencilStateGroup = "depth-stencil-state";
+
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey        = "depth-test-enabled";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey       = "depth-write-enabled";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey     = "depth-cmp-func";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey      = "stencil-test-enabled";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey  = "stencil-read-mask";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey = "stencil-write-mask";
+
+	const std::string TMaterialArchiveKeys::mRasterizerStateGroup = "rasterizer-state";
+
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey      = "cull-mode";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey = "wireframe-mode";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey  = "front-CCW-mode";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey     = "depth-bias";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey  = "max-depth-bias";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mDepthClippingKey = "depth-clipping-enabled";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey   = "scissor-test-enabled";
+
+	const std::string TMaterialArchiveKeys::mTexturesGroup = "textures";
+
+	const std::string TMaterialArchiveKeys::TTextureKeys::mSlotKey    = "slot-id";
+	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureKey = "texture-id";
+
 	/*!
 		\note The declaration of TMaterialParameters is placed at IMaterial.h
 	*/
@@ -128,9 +215,133 @@ namespace TDEngine2
 		return nullptr;
 	}
 
+	E_RESULT_CODE CBaseMaterial::Load(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CBaseMaterial::Save(IArchiveWriter* pWriter)
+	{
+		static const std::unordered_map<E_BLEND_FACTOR_VALUE, std::string> blendFactor2Str // \todo Reimplement later when Enum::ToString will be implemented
+		{
+			{ E_BLEND_FACTOR_VALUE::ZERO, "ZERO" },
+			{ E_BLEND_FACTOR_VALUE::ONE, "ONE" },
+			{ E_BLEND_FACTOR_VALUE::SOURCE_ALPHA, "SOURCE_ALPHA" },
+			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA, "ONE_MINUS_SOURCE_ALPHA" },
+			{ E_BLEND_FACTOR_VALUE::DEST_ALPHA, "DEST_ALPHA" },
+			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_ALPHA, "ONE_MINUS_DEST_ALPHA" },
+			{ E_BLEND_FACTOR_VALUE::CONSTANT_ALPHA, "CONSTANT_ALPHA" },
+			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_CONSTANT_ALPHA, "ONE_MINUS_CONSTANT_ALPHA" },
+			{ E_BLEND_FACTOR_VALUE::SOURCE_COLOR, "SOURCE_COLOR" },
+			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_COLOR, "ONE_MINUS_SOURCE_COLOR" },
+			{ E_BLEND_FACTOR_VALUE::DEST_COLOR, "DEST_COLOR" },
+			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_COLOR, "ONE_MINUS_DEST_COLOR" },
+		};
+
+		static const std::unordered_map<E_BLEND_OP_TYPE, std::string> blendOp2Str
+		{
+			{ E_BLEND_OP_TYPE::ADD, "ADD" },
+			{ E_BLEND_OP_TYPE::SUBT, "SUB" },
+			{ E_BLEND_OP_TYPE::REVERSED_SUBT, "RSUB" },
+		};
+
+		static const std::unordered_map<E_CULL_MODE, std::string> cullMode2Str
+		{
+			{ E_CULL_MODE::FRONT, "FRONT" },
+			{ E_CULL_MODE::BACK, "BACK" },
+			{ E_CULL_MODE::NONE, "NONE" },
+		};
+
+		static const std::unordered_map<E_COMPARISON_FUNC, std::string> comparisonFunc2Str
+		{
+			{ E_COMPARISON_FUNC::NEVER, "NEVER" },
+			{ E_COMPARISON_FUNC::LESS, "LESS" },
+			{ E_COMPARISON_FUNC::EQUAL, "EQUAL" },
+			{ E_COMPARISON_FUNC::LESS_EQUAL, "LESS_EQUAL" },
+			{ E_COMPARISON_FUNC::GREATER, "GREATER" },
+			{ E_COMPARISON_FUNC::NOT_EQUAL, "NOT_EQUAL" },
+			{ E_COMPARISON_FUNC::GREATER_EQUAL, "GREATER_EQUAL" },
+			{ E_COMPARISON_FUNC::ALWAYS, "ALWAYS" },
+		};
+
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("meta");
+		{
+			pWriter->SetString("resource-type", "material");
+			pWriter->SetUInt16("version-tag", mVersionTag);
+		}
+		pWriter->EndGroup();
+
+		pWriter->SetString(TMaterialArchiveKeys::mShaderIdKey, mpShader->Get<IResource>(RAT_BLOCKING)->GetName());
+		pWriter->SetBool(TMaterialArchiveKeys::mTransparencyKey, mBlendStateParams.mIsEnabled);
+
+		pWriter->BeginGroup(TMaterialArchiveKeys::mBlendStateGroup);
+		{
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey, blendFactor2Str.at(mBlendStateParams.mScrValue));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey, blendFactor2Str.at(mBlendStateParams.mDestValue));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey, blendOp2Str.at(mBlendStateParams.mOpType));
+
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey, blendFactor2Str.at(mBlendStateParams.mScrAlphaValue));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey, blendFactor2Str.at(mBlendStateParams.mDestAlphaValue));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey, blendOp2Str.at(mBlendStateParams.mAlphaOpType));
+		}
+		pWriter->EndGroup();
+
+		pWriter->BeginGroup(TMaterialArchiveKeys::mDepthStencilStateGroup);
+		{
+			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey, mDepthStencilStateParams.mIsDepthTestEnabled);
+			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey, mDepthStencilStateParams.mIsDepthWritingEnabled);
+			pWriter->SetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey, comparisonFunc2Str.at(mDepthStencilStateParams.mDepthCmpFunc));
+
+			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey, mDepthStencilStateParams.mIsStencilTestEnabled);
+			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey, mDepthStencilStateParams.mStencilReadMaskValue);
+			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey, mDepthStencilStateParams.mStencilWriteMaskValue);
+
+			// \todo
+		}
+		pWriter->EndGroup();
+
+		pWriter->BeginGroup(TMaterialArchiveKeys::mRasterizerStateGroup);
+		{
+			pWriter->SetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey, cullMode2Str.at(mRasterizerStateParams.mCullMode));
+			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey, mRasterizerStateParams.mIsWireframeModeEnabled);
+			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey, mRasterizerStateParams.mIsFrontCCWEnabled);
+			pWriter->SetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey, mRasterizerStateParams.mDepthBias);
+			pWriter->SetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey, mRasterizerStateParams.mMaxDepthBias);
+			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthClippingKey, mRasterizerStateParams.mIsDepthClippingEnabled);
+			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey, mRasterizerStateParams.mIsScissorTestEnabled);
+		}
+		pWriter->EndGroup();
+
+		pWriter->BeginGroup(TMaterialArchiveKeys::mTexturesGroup, true);
+		{
+			for (auto textureEntry : mpAssignedTextures)
+			{
+				pWriter->BeginGroup(CStringUtils::mEmptyStr);
+				{
+					pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey, textureEntry.first);
+					pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey, dynamic_cast<IResource*>(textureEntry.second)->GetName());
+				}
+				pWriter->EndGroup();
+			}
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
 	void CBaseMaterial::SetShader(const std::string& shaderName)
 	{
-		//mpShader = mpResourceManager->Create<CBaseShader>(&shaderParams);
 		IResourceHandler* pNewShaderHandler = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
 		if (pNewShaderHandler == mpShader)
 		{
@@ -544,70 +755,17 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		TResult<TFileEntryId> materialFileId = mpFileSystem->Open<CBinaryFileReader>(pResource->GetName());
-
-		if (materialFileId.HasError())
+		if (TResult<TFileEntryId> materialFileId = mpFileSystem->Open<CYAMLFileReader>(pResource->GetName()))
 		{
-			return materialFileId.GetError();
+			return dynamic_cast<IMaterial*>(pResource)->Load(mpFileSystem->Get<IYAMLFileReader>(materialFileId.Get()));
 		}
 
-		IBinaryFileReader* pMaterialFile = dynamic_cast<IBinaryFileReader*>(mpFileSystem->Get<CBinaryFileReader>(materialFileId.Get()));
-		
-		/// try to read the file's header
-		TBaseMaterialFileHeader header = _readMaterialFileHeader(pMaterialFile).Get();
-
-		if ((result = pMaterialFile->Close()) != RC_OK)
-		{
-			return result;
-		}
-
-		return RC_OK;
+		return RC_FILE_NOT_FOUND;
 	}
 
 	TypeId CBaseMaterialLoader::GetResourceTypeId() const
 	{
 		return CBaseMaterial::GetTypeId();
-	}
-
-	TResult<TBaseMaterialFileHeader> CBaseMaterialLoader::_readMaterialFileHeader(IBinaryFileReader* pFileReader) const
-	{
-		TBaseMaterialFileHeader header;
-
-		memset(&header, 0, sizeof(TBaseMaterialFileHeader));
-
-		E_RESULT_CODE result = RC_OK;
-
-		/// read the file's header
-		if ((result = pFileReader->Read(static_cast<void*>(header.mTag), sizeof(C8) * BaseMaterialFileTagLength)) != RC_OK)
-		{
-			return TErrorValue<E_RESULT_CODE>(result);
-		}
-
-		if (strncmp(header.mTag, "MAT", BaseMaterialFileTagLength))
-		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		/// read endianness of the file
-		if ((result = pFileReader->Read(static_cast<void*>(&header.mEndianType), sizeof(U8))) != RC_OK)
-		{
-			return TErrorValue<E_RESULT_CODE>(result);
-		}
-
-		/// read offsets' values of data blocks
-		if ((result = pFileReader->Read(static_cast<void*>(&header.mShaderEntriesBlockOffset), sizeof(U8))) != RC_OK)
-		{
-			return TErrorValue<E_RESULT_CODE>(result);
-		}
-
-		if ((result = pFileReader->Read(static_cast<void*>(&header.mMaterialPropertiesBlockOffset), sizeof(U8))) != RC_OK)
-		{
-			return TErrorValue<E_RESULT_CODE>(result);
-		}
-
-		return TOkValue<TBaseMaterialFileHeader>(header);
 	}
 
 

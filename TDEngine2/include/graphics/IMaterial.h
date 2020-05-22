@@ -12,6 +12,7 @@
 #include "./../utils/CResult.h"
 #include "./../core/IResourceLoader.h"
 #include "./../core/IResourceFactory.h"
+#include "./../core/Serialization.h"
 #include <string>
 
 
@@ -70,7 +71,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a material
 	*/
 
-	class IMaterial
+	class IMaterial: public ISerializable
 	{
 		public:
 			/*!

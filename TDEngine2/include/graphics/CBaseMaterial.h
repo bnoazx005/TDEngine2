@@ -27,86 +27,6 @@ namespace TDEngine2
 	class IGraphicsObjectManager;
 
 
-	constexpr U8 BaseMaterialFileTagLength = 3;
-
-
-	/*!
-		\brief The description of a basic material's file structure 
-
-		A material file is a binary file that contains parameters of
-		a CBaseMaterial type. In other words its serialized representation of
-		an object of CBaseMaterial type.
-
-		This file has the following structure:
-
-		- File header (8 bytes):
-			-- MAT tag							(3 bytes)	[ASCII tag tells that the file can be considered as actual material file that is used within TDEngine2]
-			-- endian type						(1 byte)    [The flag either 1 or 0, if it equals to 1 than big-endian order is used, little-endian is used otherwise]
-			-- shader entries block offset		(4 bytes)	[An offset from the beginning of a file from which the shader entries block is placed]
-			-- material properties block offest	(4 bytes)	[An offset from the beginning of a file from which the material properties block is placed]
-
-		- Shader Stage Entry (8 + N bytes, because of padding)
-			-- Type						(1 byte)	[A type of a shader stage (0 - vertex, 1 - fragment (pixel), 2 - geometry]
-			-- Shader name's length		(4 bytes)	[The member stores a length of a shader's filename]
-			-- Shader's name			(N bytes)	[A name of a shader including full path (null-terminated string)]
-
-		- Material property entry (bytes)
-			-- constant buffer's index	(1 byte)	[Identifier of a constant buffer]
-			-- constant buffer's size	(4 byte)	[A size of a constant buffer]
-
-		Note that the file header is placed at the end of a file (last 8 bytes). Each data block is placed in continuous fashion, but its position can vary from one file to another.
-	*/
-	
-
-	/*!
-		struct TBaseMaterialFileHeader
-
-		\brief The structure describes a members of a material file's header
-	*/
-
-	typedef struct TBaseMaterialFileHeader
-	{
-		C8  mTag[BaseMaterialFileTagLength];
-
-		U8  mEndianType;
-
-		U32 mShaderEntriesBlockOffset;
-
-		U32 mMaterialPropertiesBlockOffset;
-	} TBaseMaterialFileHeader, *TBaseMaterialFileHeaderPtr;
-
-
-	/*!
-		struct TBaseMaterialShaderEntry
-
-		\brief The structure contains shader stages data of a particular material
-	*/
-
-	typedef struct TBaseMaterialShaderEntry
-	{
-		U8          mStageType;
-
-		U32         mShaderNameLength;
-
-		std::string mShaderName;
-	} TBaseMaterialShaderEntry, *TBaseMaterialShaderEntryPtr;
-
-
-	/*!
-		struct TBaseMaterialPropertyEntry
-
-		\brief The structure contains properties of a material that are specified
-		by the user
-	*/
-
-	typedef struct TBaseMaterialPropertyEntry
-	{
-		U8  mConstantBufferSlot;
-
-		U32 mConstantBufferSize;
-	} TBaseMaterialPropertyEntry, *TBaseMaterialPropertyEntryPtr;
-
-
 	/*!
 		\brief A factory function for creation objects of CBaseMaterial's type
 
@@ -212,6 +132,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Reset() override;
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
 				\brief The method creates a new instance of this material. Remember that the material instance is
@@ -406,6 +346,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _initDefaultInstance(const TShaderCompilerOutput& metadata);
 		protected:
+			static constexpr U16     mVersionTag = 0x1;
+
 			IGraphicsContext*        mpGraphicsContext;
 
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
@@ -510,8 +452,6 @@ namespace TDEngine2
 			TDE2_API TypeId GetResourceTypeId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterialLoader)
-
-			TDE2_API TResult<TBaseMaterialFileHeader> _readMaterialFileHeader(IBinaryFileReader* pFileReader) const;
 		protected:
 			IResourceManager* mpResourceManager;
 

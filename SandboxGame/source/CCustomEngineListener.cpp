@@ -8,20 +8,20 @@ using namespace TDEngine2;
 #define DX_GAPI 1
 
 #if DX_GAPI
-	const std::string ShaderType = "HLSL";
-	const std::string GAPIType   = "DX";
+const std::string ShaderType = "HLSL";
+const std::string GAPIType = "DX";
 #else
-	const std::string ShaderType = "GLSL";
-	const std::string GAPIType = "GL";
+const std::string ShaderType = "GLSL";
+const std::string GAPIType = "GL";
 #endif
 
 
-const std::string TestShaderName      = CStringUtils::Format("test{0}Shader.shader", GAPIType);
-const std::string DebugShaderName     = CStringUtils::Format("Debug{0}Shader.shader", GAPIType);
+const std::string TestShaderName = CStringUtils::Format("test{0}Shader.shader", GAPIType);
+const std::string DebugShaderName = CStringUtils::Format("Debug{0}Shader.shader", GAPIType);
 const std::string DebugTextShaderName = CStringUtils::Format("DebugText{0}Shader.shader", GAPIType);
 
 
-TVector3 SunLightPos { 5.0f, 0.0f, 0.0f };
+TVector3 SunLightPos{ 5.0f, 0.0f, 0.0f };
 
 
 E_RESULT_CODE CCustomEngineListener::OnStart()
@@ -29,7 +29,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	E_RESULT_CODE result = RC_OK;
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
-	
+
 	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ TestShaderName, true })->Get<IMaterial>(RAT_BLOCKING);
 	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
 	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
