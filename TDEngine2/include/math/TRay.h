@@ -71,7 +71,7 @@ namespace TDEngine2
 		const F32 dirLength       = Length(dir);
 		const F32 projDirOntoLine = Length(line.dir * (cosTheta * dirLength));
 
-		return std::sqrtf(dirLength * dirLength - projDirOntoLine * projDirOntoLine);
+		return sqrtf(dirLength * dirLength - projDirOntoLine * projDirOntoLine);
 	}
 
 
