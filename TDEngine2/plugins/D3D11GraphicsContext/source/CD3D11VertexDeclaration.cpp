@@ -2,6 +2,7 @@
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11Shader.h"
 #include "./../include/CD3D11VertexBuffer.h"
+#include "./../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
 #include <graphics/IShader.h>
 #include <graphics/IVertexBuffer.h>
@@ -16,6 +17,12 @@ namespace TDEngine2
 	CD3D11VertexDeclaration::CD3D11VertexDeclaration() :
 		CVertexDeclaration(), mpInputLayout(nullptr)
 	{
+	}
+
+	E_RESULT_CODE CD3D11VertexDeclaration::Free()
+	{
+		E_RESULT_CODE result = SafeReleaseCOMPtr<ID3D11InputLayout>(&mpInputLayout);
+		return result | CVertexDeclaration::Free();
 	}
 
 	TResult<ID3D11InputLayout*> CD3D11VertexDeclaration::GetInputLayoutByShader(IGraphicsContext* pGraphicsContext, const IShader* pShader)

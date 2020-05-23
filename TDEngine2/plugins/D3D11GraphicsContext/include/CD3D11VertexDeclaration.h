@@ -46,6 +46,14 @@ namespace TDEngine2
 			friend TDE2_API IVertexDeclaration* CreateD3D11VertexDeclaration(E_RESULT_CODE& result);
 		public:
 			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
 				\brief The method creates a new input layout object  based on a given shader's description and returns it
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation

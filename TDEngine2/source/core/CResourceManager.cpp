@@ -56,6 +56,8 @@ namespace TDEngine2
 				return RC_FAIL;
 			}
 
+			E_RESULT_CODE result = _unloadAllResources();
+
 			mIsInitialized = false;
 		}
 
@@ -349,6 +351,28 @@ namespace TDEngine2
 		}
 
 		return mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderIdIter->second) - 1].GetOrDefault(nullptr);
+	}
+
+	E_RESULT_CODE CResourceManager::_unloadAllResources()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		IResource* pCurrResource = nullptr;
+
+		for (U32 i = 0; i < mResources.GetSize(); ++i)
+		{
+			if (auto resourceItem = mResources[i])
+			{
+				if (pCurrResource = resourceItem.Get())
+				{
+					result = result | pCurrResource->Free();
+				}
+			}
+		}
+
+		mResources.RemoveAll();
+
+		return result;
 	}
 
 

@@ -15,16 +15,12 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = Reset();
+		E_RESULT_CODE result = Unload();
 
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
+		mIsInitialized = false;
 		delete this;
 
-		return RC_OK;
+		return result;
 	}
 
 	TDE2_API TResourceId CBaseResource::GetId() const

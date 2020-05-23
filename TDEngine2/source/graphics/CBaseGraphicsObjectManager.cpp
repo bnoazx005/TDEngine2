@@ -45,6 +45,7 @@ namespace TDEngine2
 		result = result | _freeTextureSamplers();
 		result = result | _freeBlendStates();
 		result = result | _freeDepthStencilStates();
+		result = result | _freeRasterizerStates();
 		result = result | mpDebugUtility->Free();
 
 		mIsInitialized = false;

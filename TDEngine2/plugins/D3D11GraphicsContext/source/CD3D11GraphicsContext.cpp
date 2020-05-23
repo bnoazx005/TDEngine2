@@ -136,41 +136,35 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView)) != RC_OK ||
-			(result = SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer)) != RC_OK	  ||
-			(result = SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView)) != RC_OK		  ||
-			(result = SafeReleaseCOMPtr<IDXGISwapChain>(&mpSwapChain)) != RC_OK                       ||
-			(result = SafeReleaseCOMPtr<ID3D11DeviceContext>(&mp3dDeviceContext)) != RC_OK            ||
-			(result = SafeReleaseCOMPtr<ID3D11Device>(&mp3dDevice)) != RC_OK)
+		if (mp3dDeviceContext)
 		{
-			return result;
+			mp3dDeviceContext->ClearState();
+			mp3dDeviceContext->Flush();
 		}
+
+		result = result | mpGraphicsObjectManager->Free();
+		
+		result = result | SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView);
+		result = result | SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer);
+		result = result | SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView);
+		result = result | SafeReleaseCOMPtr<IDXGISwapChain>(&mpSwapChain);
+		result = result | SafeReleaseCOMPtr<ID3D11DeviceContext>(&mp3dDeviceContext);
 
 #if _DEBUG
 		if (mpDebuggerInstance)
 		{
 			mpDebuggerInstance->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-
-			if ((result = SafeReleaseCOMPtr<ID3D11Debug>(&mpDebuggerInstance)) != RC_OK)
-			{
-				return result;
-			}
+			mpDebuggerInstance->Release();
 		}
 #endif
 
-		if (mpGraphicsObjectManager)
-		{
-			if ((result = mpGraphicsObjectManager->Free()) != RC_OK)
-			{
-				return result;
-			}
-		}
+		result = result | SafeReleaseCOMPtr<ID3D11Device>(&mp3dDevice);
 
 		delete this;
 
 		mIsInitialized = false;
 
-		return RC_OK;
+		return result;
 	}
 	
 	void CD3D11GraphicsContext::ClearBackBuffer(const TColor32F& color)

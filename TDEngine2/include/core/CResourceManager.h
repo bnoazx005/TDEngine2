@@ -162,6 +162,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _freeResourceHandler(TResourceId resourceId);
 
 			TDE2_API const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const override;
+
+			TDE2_API E_RESULT_CODE _unloadAllResources();
 		protected:
 			bool                        mIsInitialized;
 

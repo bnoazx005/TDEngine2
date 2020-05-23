@@ -66,8 +66,6 @@ namespace TDEngine2
 
 		mIsInitialized = false;
 
-		result = result | mpShadowVertDecl->Free();
-
 		delete this;
 
 		return RC_OK;

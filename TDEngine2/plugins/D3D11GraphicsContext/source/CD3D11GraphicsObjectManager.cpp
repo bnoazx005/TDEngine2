@@ -4,6 +4,7 @@
 #include "./../include/CD3D11ConstantBuffer.h"
 #include "./../include/CD3D11VertexDeclaration.h"
 #include "./../include/CD3D11Mappings.h"
+#include "./../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
 
 
@@ -476,16 +477,9 @@ namespace TDEngine2
 	{
 		ID3D11SamplerState* pCurrSamplerState = nullptr;
 		
-		for (TTextureSamplersArray::iterator iter = mpTextureSamplersArray.begin(); iter != mpTextureSamplersArray.end(); ++iter)
+		for (ID3D11SamplerState* pCurrSamplerState : mpTextureSamplersArray)
 		{
-			pCurrSamplerState = (*iter);
-
-			if (!pCurrSamplerState)
-			{
-				continue;
-			}
-
-			pCurrSamplerState->Release();
+			SafeReleaseCOMPtr<ID3D11SamplerState>(&pCurrSamplerState);
 		}
 
 		mpTextureSamplersArray.clear();
@@ -500,13 +494,7 @@ namespace TDEngine2
 		for (U32 i = 0; i < mpBlendStates.GetSize(); ++i)
 		{
 			pCurrBlendState = mpBlendStates[i].GetOrDefault(nullptr);
-
-			if (!pCurrBlendState)
-			{
-				continue;
-			}
-
-			pCurrBlendState->Release();
+			SafeReleaseCOMPtr<ID3D11BlendState>(&pCurrBlendState);
 		}
 
 		mpBlendStates.RemoveAll();
@@ -521,13 +509,7 @@ namespace TDEngine2
 		for (U32 i = 0; i < mpDepthStencilStatesArray.GetSize(); ++i)
 		{
 			pCurrState = mpDepthStencilStatesArray[i].GetOrDefault(nullptr);
-
-			if (!pCurrState)
-			{
-				continue;
-			}
-
-			pCurrState->Release();
+			SafeReleaseCOMPtr<ID3D11DepthStencilState>(&pCurrState);
 		}
 
 		mpDepthStencilStatesArray.RemoveAll();
@@ -542,13 +524,7 @@ namespace TDEngine2
 		for (U32 i = 0; i < mpRasterizerStatesArray.GetSize(); ++i)
 		{
 			pCurrState = mpRasterizerStatesArray[i].GetOrDefault(nullptr);
-
-			if (!pCurrState)
-			{
-				continue;
-			}
-
-			pCurrState->Release();
+			SafeReleaseCOMPtr<ID3D11RasterizerState>(&pCurrState);
 		}
 
 		mpRasterizerStatesArray.RemoveAll();

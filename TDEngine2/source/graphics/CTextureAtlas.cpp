@@ -112,8 +112,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTextureAtlas::Reset()
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CTextureAtlas::AddRawTexture(const std::string& name, U32 width, U32 height, E_FORMAT_TYPE format, const U8* pData)

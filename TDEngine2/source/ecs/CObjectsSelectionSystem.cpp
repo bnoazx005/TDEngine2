@@ -79,9 +79,9 @@ namespace TDEngine2
 
 		mIsInitialized = false;
 
-		result = result | mpSelectionVertDecl->Free();
-		result = result | mpSpritesVertexBuffer->Free();
-		result = result | mpSpritesIndexBuffer->Free();
+		//result = result | mpSelectionVertDecl->Free();
+		//result = result | mpSpritesVertexBuffer->Free();
+		//result = result | mpSpritesIndexBuffer->Free();
 
 		delete this;
 

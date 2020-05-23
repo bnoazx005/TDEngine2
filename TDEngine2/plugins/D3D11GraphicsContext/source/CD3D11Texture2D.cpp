@@ -55,7 +55,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11Texture2D::Unload()
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		return Reset();
 	}
 
 	E_RESULT_CODE CD3D11Texture2D::Reset()

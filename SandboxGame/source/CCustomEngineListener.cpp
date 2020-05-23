@@ -26,7 +26,6 @@ TVector3 SunLightPos{ 5.0f, 0.0f, 0.0f };
 
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
-#if 0
 	E_RESULT_CODE result = RC_OK;
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
@@ -171,13 +170,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			pTransform->SetRotation(TVector3(45.0f, 0.0f, 0.0f));
 		}
 	}
-#endif
+
 	return RC_OK;
 }
 
 E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
-#if 0
 	TDE2_PROFILER_SCOPE("OnUpdate");
 
 #if 1
@@ -272,7 +270,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pTransform->SetRotation(TVector3(0.0f, time, 0.0f));
 	auto&& m = pTransform->GetTransform();
 #endif
-#endif
+
 	return RC_OK;
 }
 

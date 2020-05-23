@@ -29,7 +29,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		U64 refCount = (*pPtr)->Release();
+		U64 refCount = (*pPtr) ? (*pPtr)->Release() : 0;
 		*pPtr = nullptr;
 
 		TDE2_ASSERT(isLastExpected && !refCount);
