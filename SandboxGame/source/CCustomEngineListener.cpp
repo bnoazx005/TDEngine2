@@ -34,6 +34,17 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
 	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
 
+	if (auto result = mpFileSystem->Open<IYAMLFileWriter>("DefaultMaterial.material", true))
+	{
+		if (auto materialFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
+		{
+			pMaterial->Save(materialFileWriter);
+			materialFileWriter->Close();
+		}
+	}
+
+	IMaterial* pDefaultMaterial = mpResourceManager->Load<CBaseMaterial>("DefaultMaterial.material")->Get<IMaterial>(RAT_BLOCKING);
+
 	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ DebugShaderName, false, {}, { E_CULL_MODE::NONE } });
 	
 	IMaterial* pFontMaterial = mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", 
@@ -141,6 +152,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpGraphicsContext->GetInfo();
 	mpGraphicsContext->GetContextInfo();
 
+#if 0
 	TAnimationClipParameters clip;
 	clip.mDuration  = 2.5f;
 
@@ -155,6 +167,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}
 		}
 	}	
+#endif
 
 	if (auto pLightEntity = mpWorld->CreateEntity())
 	{

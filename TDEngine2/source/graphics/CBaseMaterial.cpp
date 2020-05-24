@@ -10,6 +10,7 @@
 #include "./../../include/platform/CYAMLFile.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/utils/Utils.h"
+#include "./../../include/graphics/CBaseTexture2D.h"
 #include <cstring>
 
 
@@ -63,6 +64,7 @@ namespace TDEngine2
 		struct TTextureKeys
 		{
 			static const std::string mSlotKey;
+			static const std::string mTextureTypeKey;
 			static const std::string mTextureKey;
 		};
 	};
@@ -99,8 +101,10 @@ namespace TDEngine2
 
 	const std::string TMaterialArchiveKeys::mTexturesGroup = "textures";
 
-	const std::string TMaterialArchiveKeys::TTextureKeys::mSlotKey    = "slot-id";
-	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureKey = "texture-id";
+	const std::string TMaterialArchiveKeys::TTextureKeys::mSlotKey        = "slot-id";
+	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey = "texture-type-id";
+	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureKey     = "texture-id";
+
 
 	/*!
 		\note The declaration of TMaterialParameters is placed at IMaterial.h
@@ -135,7 +139,7 @@ namespace TDEngine2
 
 		mpGraphicsContext = pGraphicsContext;
 		mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
-		
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -185,7 +189,7 @@ namespace TDEngine2
 		{
 			return nullptr;
 		}
-		
+
 		if (auto newInstanceResult = _allocateNewInstance())
 		{
 			TMaterialInstanceId instanceId = newInstanceResult.Get();
@@ -222,8 +226,140 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		static const std::unordered_map<std::string, E_BLEND_FACTOR_VALUE> str2blendFactor // \todo Reimplement later when Enum::ToString will be implemented
+		{
+			{ "ZERO", E_BLEND_FACTOR_VALUE::ZERO },
+			{ "ONE", E_BLEND_FACTOR_VALUE::ONE },
+			{ "SOURCE_ALPHA", E_BLEND_FACTOR_VALUE::SOURCE_ALPHA },
+			{ "ONE_MINUS_SOURCE_ALPHA", E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA },
+			{ "DEST_ALPHA", E_BLEND_FACTOR_VALUE::DEST_ALPHA },
+			{ "ONE_MINUS_DEST_ALPHA", E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_ALPHA },
+			{ "CONSTANT_ALPHA", E_BLEND_FACTOR_VALUE::CONSTANT_ALPHA },
+			{ "ONE_MINUS_CONSTANT_ALPHA", E_BLEND_FACTOR_VALUE::ONE_MINUS_CONSTANT_ALPHA },
+			{ "SOURCE_COLOR", E_BLEND_FACTOR_VALUE::SOURCE_COLOR },
+			{ "ONE_MINUS_SOURCE_COLOR", E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_COLOR },
+			{ "DEST_COLOR", E_BLEND_FACTOR_VALUE::DEST_COLOR },
+			{ "ONE_MINUS_DEST_COLOR", E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_COLOR },
+		};
+
+		static const std::unordered_map<std::string, E_BLEND_OP_TYPE> str2blendOp
+		{
+			{ "ADD", E_BLEND_OP_TYPE::ADD },
+			{ "SUB", E_BLEND_OP_TYPE::SUBT },
+			{ "RSUB", E_BLEND_OP_TYPE::REVERSED_SUBT },
+		};
+
+		static const std::unordered_map<std::string, E_CULL_MODE> str2cullMode
+		{
+			{ "FRONT", E_CULL_MODE::FRONT },
+			{ "BACK", E_CULL_MODE::BACK },
+			{ "NONE", E_CULL_MODE::NONE },
+		};
+
+		static const std::unordered_map<std::string, E_COMPARISON_FUNC> str2comparisonFunc
+		{
+			{ "NEVER", E_COMPARISON_FUNC::NEVER },
+			{ "LESS", E_COMPARISON_FUNC::LESS },
+			{ "EQUAL", E_COMPARISON_FUNC::EQUAL },
+			{ "LESS_EQUAL", E_COMPARISON_FUNC::LESS_EQUAL },
+			{ "GREATER", E_COMPARISON_FUNC::GREATER },
+			{ "NOT_EQUAL", E_COMPARISON_FUNC::NOT_EQUAL },
+			{ "GREATER_EQUAL", E_COMPARISON_FUNC::GREATER_EQUAL },
+			{ "ALWAYS", E_COMPARISON_FUNC::ALWAYS },
+		};
+
+		auto processGroup = [pReader](const std::string& groupName, const std::function<void()>& actionCallback)
+		{
+			if (pReader->BeginGroup(groupName) == RC_OK)
+			{
+				actionCallback();
+				pReader->EndGroup();
+
+				return;
+			}
+
+			LOG_WARNING(CStringUtils::Format("[BaseMaterial] Missing \"{0}\" group of parameters", groupName));
+		};
+
+		auto applyValue = [](auto valuesMap, const std::string& value, auto&& actionCallback)
+		{
+			auto&& iter = valuesMap.find(value);
+			if (iter != valuesMap.cend())
+			{
+				actionCallback(iter->second);
+			}
+		};
+
+		SetShader(pReader->GetString(TMaterialArchiveKeys::mShaderIdKey));
+		SetTransparentState(pReader->GetBool(TMaterialArchiveKeys::mTransparencyKey));
+
+		processGroup(TMaterialArchiveKeys::mBlendStateGroup, [pReader, applyValue, this]
+		{
+			TBlendStateDesc blendStateDesc;
+
+			applyValue(str2blendFactor, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey), [&blendStateDesc](auto&& value) { blendStateDesc.mScrValue = value; });
+			applyValue(str2blendFactor, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey), [&blendStateDesc](auto&& value) { blendStateDesc.mDestValue = value; });
+			applyValue(str2blendOp, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey), [&blendStateDesc](auto&& value) { blendStateDesc.mOpType = value; });
+
+			applyValue(str2blendFactor, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey), [&blendStateDesc](auto&& value) { blendStateDesc.mScrAlphaValue = value; });
+			applyValue(str2blendFactor, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey), [&blendStateDesc](auto&& value) { blendStateDesc.mDestAlphaValue = value; });
+			applyValue(str2blendOp, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey), [&blendStateDesc](auto&& value) { blendStateDesc.mAlphaOpType = value; });
+
+			SetBlendFactors(blendStateDesc.mScrValue, blendStateDesc.mDestValue, blendStateDesc.mScrAlphaValue, blendStateDesc.mDestAlphaValue);
+			SetBlendOp(blendStateDesc.mOpType, blendStateDesc.mAlphaOpType);
+		});
+
+		processGroup(TMaterialArchiveKeys::mDepthStencilStateGroup, [pReader, applyValue, this]
+		{
+			applyValue(str2comparisonFunc, pReader->GetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey), [this](auto&& value)
+			{
+				SetDepthComparisonFunc(value);
+			});
+
+			SetDepthBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey));
+			SetDepthWriteEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey));
+
+			SetStencilBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey));
+			// \todo Add parametrization of stencil test
+		});
+
+		processGroup(TMaterialArchiveKeys::mRasterizerStateGroup, [pReader, applyValue, this]
+		{
+			applyValue(str2cullMode, pReader->GetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey), [this](auto&& value)
+			{
+				SetCullMode(value);
+			});
+
+			SetWireframeMode(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey));
+			SetScissorEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey));
+			// \todo Add another parameters
+		});
+
+		processGroup(TMaterialArchiveKeys::mTexturesGroup, [pReader, applyValue, this]
+		{
+			E_RESULT_CODE result = RC_OK;
+
+			while (pReader->HasNextItem())
+			{
+				if ((result = pReader->BeginGroup(CStringUtils::mEmptyStr)) != RC_OK)
+				{
+					return;
+				}
+
+				std::string slotId    = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey);
+				std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
+
+				TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
+				//SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING)); // \todo Another types of textures should be supported
+				
+				if ((result = pReader->EndGroup()) != RC_OK)
+				{
+					return;
+				}
+			}
+		});
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CBaseMaterial::Save(IArchiveWriter* pWriter)
@@ -330,7 +466,12 @@ namespace TDEngine2
 				pWriter->BeginGroup(CStringUtils::mEmptyStr);
 				{
 					pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey, textureEntry.first);
-					pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey, dynamic_cast<IResource*>(textureEntry.second)->GetName());
+
+					if (auto pTexture = dynamic_cast<IResource*>(textureEntry.second))
+					{
+						pWriter->SetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey, static_cast<U32>(pTexture->GetId()));
+						pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey, pTexture->GetName());
+					}
 				}
 				pWriter->EndGroup();
 			}
@@ -755,7 +896,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (TResult<TFileEntryId> materialFileId = mpFileSystem->Open<CYAMLFileReader>(pResource->GetName()))
+		if (TResult<TFileEntryId> materialFileId = mpFileSystem->Open<IYAMLFileReader>(pResource->GetName()))
 		{
 			return dynamic_cast<IMaterial*>(pResource)->Load(mpFileSystem->Get<IYAMLFileReader>(materialFileId.Get()));
 		}
