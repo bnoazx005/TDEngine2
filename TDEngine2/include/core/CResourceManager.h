@@ -122,6 +122,18 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE UnregisterFactory(const TResourceFactoryId& resourceFactoryId) override;
 
 			/*!
+				\brief The method loads specified type of a resource using its name. This version is the same
+				as invokation of Load<T>(name)
+
+				\param[in] name A name of a resource that should be loaded
+				\param[in] typeId A identifier of type which we try to load
+
+				\return A pointer to IResourceHandler, which encapsulates direct access to the resource
+			*/
+
+			TDE2_API IResourceHandler* Load(const std::string& name, TypeId typeId) override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value

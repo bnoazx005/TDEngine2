@@ -89,6 +89,18 @@ namespace TDEngine2
 			}
 
 			/*!
+				\brief The method loads specified type of a resource using its name. This version is the same
+				as invokation of Load<T>(name)
+
+				\param[in] name A name of a resource that should be loaded
+				\param[in] typeId A identifier of type which we try to load
+
+				\return A pointer to IResourceHandler, which encapsulates direct access to the resource
+			*/
+
+			TDE2_API virtual IResourceHandler* Load(const std::string& name, TypeId typeId) = 0;
+
+			/*!
 				\brief The method registers specified resource factory within a manager
 
 				\param[in] pResourceFactory A pointer to IResourceFactory's implementation

@@ -220,6 +220,12 @@ namespace TDEngine2
 		return (*resourceIter).second;
 	}
 
+	IResourceHandler* CResourceManager::Load(const std::string& name, TypeId typeId)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return _loadResource(typeId, name);
+	}
+
 	IResourceHandler* CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name)
 	{
 		TResourceId resourceId = mResourcesMap[name];
