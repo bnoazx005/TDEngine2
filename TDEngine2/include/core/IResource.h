@@ -18,6 +18,17 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The macro is used to declare virtual method for resource's type retrieving
+	*/
+
+#define TDE2_REGISTER_RESOURCE_TYPE(Type)						\
+		TDE2_API virtual TypeId GetResourceTypeId() const	\
+		{													\
+			return Type::GetTypeId();						\
+		}
+
+
+	/*!
 		interface IResource
 
 		\brief The interface describes a functionality of a in-engine resource
@@ -75,6 +86,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESOURCE_STATE_TYPE GetState() const = 0;
+
+			/*!
+				\brief The method returns identtifier of the underlying type
+				\return The method returns identtifier of the underlying type
+			*/
+
+			TDE2_API virtual TypeId GetResourceTypeId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResource)
 	};

@@ -22,6 +22,7 @@ namespace TDEngine2
 	class CBaseRenderTarget : public virtual IRenderTarget, public CBaseResource
 	{
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CBaseRenderTarget)
 			TDE2_REGISTER_TYPE(CBaseRenderTarget)
 
 			/*!

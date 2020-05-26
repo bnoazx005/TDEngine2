@@ -53,6 +53,7 @@ namespace TDEngine2
 		public:
 			typedef std::unordered_map<U8C, TFontGlyphInfo> TGlyphsMap;
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CFont)
 			TDE2_REGISTER_TYPE(CFont)
 
 			/*!

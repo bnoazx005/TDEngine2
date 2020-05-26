@@ -93,6 +93,7 @@ namespace TDEngine2
 
 			typedef CResourceContainer<TUserUniformsArray>                             TInstanceUniformsArray;
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CBaseMaterial)
 			TDE2_REGISTER_TYPE(CBaseMaterial)
 
 			/*!

@@ -34,6 +34,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
 	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
 
+#if 0
 	if (auto result = mpFileSystem->Open<IYAMLFileWriter>("DefaultMaterial.material", true))
 	{
 		if (auto materialFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
@@ -42,6 +43,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			materialFileWriter->Close();
 		}
 	}
+#endif
 
 	IMaterial* pDefaultMaterial = mpResourceManager->Load<CBaseMaterial>("DefaultMaterial.material")->Get<IMaterial>(RAT_BLOCKING);
 

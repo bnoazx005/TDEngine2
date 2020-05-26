@@ -350,7 +350,11 @@ namespace TDEngine2
 				std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
 
 				TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
-				//SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING)); // \todo Another types of textures should be supported
+				if (SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING)) != RC_OK);
+				{
+					LOG_WARNING(CStringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
+					result = result | RC_FAIL;
+				}
 				
 				if ((result = pReader->EndGroup()) != RC_OK)
 				{
@@ -469,7 +473,7 @@ namespace TDEngine2
 
 					if (auto pTexture = dynamic_cast<IResource*>(textureEntry.second))
 					{
-						pWriter->SetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey, static_cast<U32>(pTexture->GetId()));
+						pWriter->SetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey, static_cast<U32>(pTexture->GetResourceTypeId()));
 						pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey, pTexture->GetName());
 					}
 				}

@@ -71,6 +71,7 @@ namespace TDEngine2
 			friend TDE2_API IPostProcessingProfile* CreateBasePostProcessingProfile(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 																					const TPostProcessingProfileParameters& params, E_RESULT_CODE& result);
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CBasePostProcessingProfile)
 			TDE2_REGISTER_TYPE(CBasePostProcessingProfile)
 
 			/*!

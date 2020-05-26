@@ -61,6 +61,7 @@ namespace TDEngine2
 			friend TDE2_API IStaticMesh* CreateStaticMesh(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 														  const TMeshParameters& params, E_RESULT_CODE& result);
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CStaticMesh)
 			TDE2_REGISTER_TYPE(CStaticMesh)
 
 			/*!

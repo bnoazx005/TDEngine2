@@ -65,6 +65,7 @@ namespace TDEngine2
 		public:
 			typedef std::vector<IAnimationTrack*> TAnimationTracks;
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CAnimationClip)
 			TDE2_REGISTER_TYPE(CAnimationClip)
 
 			/*!

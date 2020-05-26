@@ -24,6 +24,7 @@ namespace TDEngine2
 	class CBaseTexture2D : public ITexture2D, public CBaseResource
 	{
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CBaseTexture2D)
 			TDE2_REGISTER_TYPE(CBaseTexture2D)
 
 			/*!

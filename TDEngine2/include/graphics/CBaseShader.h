@@ -30,6 +30,7 @@ namespace TDEngine2
 		public:
 			typedef std::unordered_map<std::string, U8> TTexturesHashTable;
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CBaseShader)
 			TDE2_REGISTER_TYPE(CBaseShader)
 
 			/*!

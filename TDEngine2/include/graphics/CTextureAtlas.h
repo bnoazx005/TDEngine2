@@ -118,6 +118,7 @@ namespace TDEngine2
 
 			typedef std::unordered_map<std::string, TRectI32> TAtlasRegistry;
 		public:
+			TDE2_REGISTER_RESOURCE_TYPE(CTextureAtlas)
 			TDE2_REGISTER_TYPE(CTextureAtlas)
 
 			/*!
