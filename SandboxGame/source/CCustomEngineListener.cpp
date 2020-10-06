@@ -45,7 +45,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 #endif
 
-	IMaterial* pDefaultMaterial = mpResourceManager->Load<CBaseMaterial>("DefaultMaterial.material")->Get<IMaterial>(RAT_BLOCKING);
+	//IMaterial* pDefaultMaterial = mpResourceManager->Load<CBaseMaterial>("DefaultMaterial.material")->Get<IMaterial>(RAT_BLOCKING);
 
 	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ DebugShaderName, false, {}, { E_CULL_MODE::NONE } });
 	
@@ -182,7 +182,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		if (auto pTransform = pLightEntity->GetComponent<CTransform>())
 		{
 			pTransform->SetPosition(SunLightPos);
-			pTransform->SetRotation(TVector3(45.0f, 0.0f, 0.0f));
+			pTransform->SetRotation(TVector3(45.0f, 45.0f, 0.0f));
 		}
 	}
 

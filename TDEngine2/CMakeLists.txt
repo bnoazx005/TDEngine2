@@ -412,6 +412,9 @@ endif ()
 #set up stb library headers
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/stb")
 
+#set up Wrench library headers
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Wrench/source")
+
 # link Box2D library
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Box2D/")
 add_dependencies(${TDENGINE2_LIBRARY_NAME} "Box2D")
