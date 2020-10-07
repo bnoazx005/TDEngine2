@@ -1,6 +1,7 @@
 #include "./../../include/math/TVector3.h"
 #include <cmath>
 #include <limits>
+#include <algorithm>
 
 
 namespace TDEngine2

@@ -1,6 +1,7 @@
 #include "./../../include/editor/CDevConsoleWindow.h"
 #include "./../../include/core/IImGUIContext.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "stringUtils.hpp"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -20,7 +21,7 @@ namespace TDEngine2
 		}
 
 		// \note Register built-in commands
-		RegisterCommand("clear", [this](auto&&) { ClearHistory(); return CStringUtils::GetEmptyStr(); });
+		RegisterCommand("clear", [this](auto&&) { ClearHistory(); return Wrench::StringUtils::GetEmptyStr(); });
 
 		mIsInitialized = true;
 
@@ -101,17 +102,17 @@ namespace TDEngine2
 
 		auto processCommand = [this]()
 		{
-			auto&& tokens = CStringUtils::Split(mCurrInputBuffer, " ");
+			auto&& tokens = Wrench::StringUtils::Split(mCurrInputBuffer, " ");
 			if (tokens.empty())
 			{
 				_writeToLog("#[Error] Can't evaluate an empty line", true);
 				return;
 			}
 
-			_writeToLog(CStringUtils::Format("#{0}", mCurrInputBuffer));
+			_writeToLog(Wrench::StringUtils::Format("#{0}", mCurrInputBuffer));
 			if (ExecuteCommand(tokens[0], { tokens.cbegin() + 1, tokens.cend() }) != RC_OK)
 			{
-				_writeToLog(CStringUtils::Format("#[Error] Unrecognized command: {0}", tokens[0]), true);
+				_writeToLog(Wrench::StringUtils::Format("#[Error] Unrecognized command: {0}", tokens[0]), true);
 			}
 
 			mCurrInputBuffer.clear();
@@ -134,7 +135,7 @@ namespace TDEngine2
 				// Draw input field and send button
 				mpImGUIContext->BeginHorizontal();
 				{
-					mpImGUIContext->TextField(CStringUtils::GetEmptyStr(), mCurrInputBuffer, processCommand);
+					mpImGUIContext->TextField(Wrench::StringUtils::GetEmptyStr(), mCurrInputBuffer, processCommand);
 					mpImGUIContext->Button("Run", { 100.0f, 20.0f }, processCommand);
 				}
 				mpImGUIContext->EndHorizontal();

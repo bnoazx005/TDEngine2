@@ -4,6 +4,7 @@
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11RenderTarget.h"
 #include "./../include/CD3D11DepthBufferTarget.h"
+#include "stringUtils.hpp"
 #include <utils/CFileLogger.h>
 #include <utils/Utils.h>
 #include <core/IEventManager.h>
@@ -202,7 +203,7 @@ namespace TDEngine2
 
 		if (!mpRenderTargets[slot])
 		{
-			LOG_WARNING(CStringUtils::Format("[CD3D11GraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
+			LOG_WARNING(Wrench::StringUtils::Format("[CD3D11GraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
 			return;
 		}
 

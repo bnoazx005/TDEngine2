@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 #include <TDEngine2.h>
+#include <stringUtils.hpp>
 #include <vector>
 #include <string>
 #include <tuple>
@@ -53,18 +54,18 @@ TEST_CASE("File System Tests")
 	{
 		auto currDirectoryStr = pFileSystem->GetCurrDirectory();
 
-		std::string testPathExpected   = CStringUtils::Format(".{0}test{0}", pFileSystem->GetPathSeparatorChar());
-		std::string shaderPathExpected = CStringUtils::Format(".{0}Resources{0}Shaders{0}", pFileSystem->GetPathSeparatorChar());
+		std::string testPathExpected   = Wrench::StringUtils::Format(".{0}test{0}", pFileSystem->GetPathSeparatorChar());
+		std::string shaderPathExpected = Wrench::StringUtils::Format(".{0}Resources{0}Shaders{0}", pFileSystem->GetPathSeparatorChar());
 
 		// first string is an input, the second is expected result, the third is a flag which tells whether it's a directory path or not
 		std::vector<std::tuple<std::string, std::string, bool>> paths
 		{
 			{ "", "", true },
 			{ "vfs://", currDirectoryStr, true },
-			{ "vfs://test/abcde", testPathExpected + CStringUtils::Format("abcde{0}", pFileSystem->GetPathSeparatorChar()), true },
+			{ "vfs://test/abcde", testPathExpected + Wrench::StringUtils::Format("abcde{0}", pFileSystem->GetPathSeparatorChar()), true },
 			{ "vfs://test", testPathExpected, true },
 			{ "./test", testPathExpected, true },
-			{ "test", CStringUtils::Format("test{0}", pFileSystem->GetPathSeparatorChar()), true },
+			{ "test", Wrench::StringUtils::Format("test{0}", pFileSystem->GetPathSeparatorChar()), true },
 			{ "test.png", "test.png", false },
 			{ "vfs://Shaders", shaderPathExpected, true },
 			{ "vfs://Shaders/", shaderPathExpected, true },

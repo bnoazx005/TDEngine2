@@ -11,6 +11,7 @@
 #include "./../../include/utils/CFileLogger.h"
 #include "./../../include/utils/Utils.h"
 #include "./../../include/graphics/CBaseTexture2D.h"
+#include "stringUtils.hpp"
 #include <cstring>
 
 
@@ -195,7 +196,7 @@ namespace TDEngine2
 			TMaterialInstanceId instanceId = newInstanceResult.Get();
 			TDE2_ASSERT(instanceId != DefaultMaterialInstanceId && instanceId != InvalidMaterialInstanceId);
 
-			LOG_MESSAGE(CStringUtils::Format("[Base Material] A new instance {1} of material {0} was created", mName, instanceId));
+			LOG_MESSAGE(Wrench::StringUtils::Format("[Base Material] A new instance {1} of material {0} was created", mName, instanceId));
 
 			// \note Allocate uniform buffers for the instance
 			auto&& defaultInstanceUserUniformBuffers = mpInstancesUserUniformBuffers[DefaultMaterialInstanceId].Get();
@@ -278,7 +279,7 @@ namespace TDEngine2
 				return;
 			}
 
-			LOG_WARNING(CStringUtils::Format("[BaseMaterial] Missing \"{0}\" group of parameters", groupName));
+			LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Missing \"{0}\" group of parameters", groupName));
 		};
 
 		auto applyValue = [](auto valuesMap, const std::string& value, auto&& actionCallback)
@@ -341,7 +342,7 @@ namespace TDEngine2
 
 			while (pReader->HasNextItem())
 			{
-				if ((result = pReader->BeginGroup(CStringUtils::mEmptyStr)) != RC_OK)
+				if ((result = pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr())) != RC_OK)
 				{
 					return;
 				}
@@ -352,7 +353,7 @@ namespace TDEngine2
 				TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
 				if (SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING)) != RC_OK);
 				{
-					LOG_WARNING(CStringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
+					LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
 					result = result | RC_FAIL;
 				}
 				
@@ -467,7 +468,7 @@ namespace TDEngine2
 		{
 			for (auto textureEntry : mpAssignedTextures)
 			{
-				pWriter->BeginGroup(CStringUtils::mEmptyStr);
+				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
 					pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey, textureEntry.first);
 
@@ -670,7 +671,7 @@ namespace TDEngine2
 		auto&& iter = mUserVariablesHashTable.find(variableHash);
 		if (iter == mUserVariablesHashTable.cend())
 		{
-			LOG_ERROR(CStringUtils::Format("[Base Material] There is no a variable with corresponding name ({0})", name));
+			LOG_ERROR(Wrench::StringUtils::Format("[Base Material] There is no a variable with corresponding name ({0})", name));
 			return RC_FAIL;
 		}
 

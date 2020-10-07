@@ -3,6 +3,7 @@
 #include "./../../../include/platform/CTextFileReader.h"
 #include "./../../../include/utils/CFileLogger.h"
 #include "./../../../include/core/IJobManager.h"
+#include "./stringUtils.hpp"
 #include <algorithm>
 #if _HAS_CXX17
 #include <filesystem>
@@ -118,9 +119,9 @@ namespace TDEngine2
 	
 	std::string CBaseFileSystem::ResolveVirtualPath(const std::string& path, bool isDirectory) const
 	{
-		std::string unifiedPath = _unifyPathView(path, CStringUtils::StartsWith(path, "vfs:"), isDirectory);
+		std::string unifiedPath = _unifyPathView(path, Wrench::StringUtils::StartsWith(path, "vfs:"), isDirectory);
 		
-		if (unifiedPath.empty() || (unifiedPath.size() > 1 && !CStringUtils::StartsWith(unifiedPath, "vfs:")))
+		if (unifiedPath.empty() || (unifiedPath.size() > 1 && !Wrench::StringUtils::StartsWith(unifiedPath, "vfs:")))
 		{
 			return unifiedPath; // this case includes all real paths, single files
 		}
@@ -211,7 +212,7 @@ namespace TDEngine2
 			}
 
 			static const std::string vfsPathPrefixStr = _getVirtualPathPrefixStr();
-			return CStringUtils::StartsWith(unifiedPath, vfsPathPrefixStr) ? unifiedPath : vfsPathPrefixStr + unifiedPath;
+			return Wrench::StringUtils::StartsWith(unifiedPath, vfsPathPrefixStr) ? unifiedPath : vfsPathPrefixStr + unifiedPath;
 		}
 
 		return unifiedPath;
@@ -511,7 +512,7 @@ namespace TDEngine2
 
 	std::string CBaseFileSystem::_getVirtualPathPrefixStr() const
 	{
-		static std::string virtualPathPrefix = CStringUtils::Format("vfs:{0}{0}", GetPathSeparatorChar());
+		static std::string virtualPathPrefix = Wrench::StringUtils::Format("vfs:{0}{0}", GetPathSeparatorChar());
 		return virtualPathPrefix;
 	}
 }

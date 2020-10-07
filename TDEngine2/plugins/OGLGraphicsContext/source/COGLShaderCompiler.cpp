@@ -1,6 +1,7 @@
 #include "./../include/COGLShaderCompiler.h"
 #include "./../include/COGLMappings.h"
 #include <core/IFileSystem.h>
+#include <stringUtils.hpp>
 #include <platform/CTextFileReader.h>
 #include <utils/CFileLogger.h>
 #include <algorithm>
@@ -137,7 +138,7 @@ namespace TDEngine2
 			glGetShaderInfoLog(shaderHandler, messageLength, &messageLength, &tmpErrorMsgBuffer[0]);
 			
 			std::string errorMessageStr(tmpErrorMsgBuffer.begin(), tmpErrorMsgBuffer.end());
-			LOG_ERROR(CStringUtils::Format("[GL Shader Compiler] {0}", errorMessageStr));
+			LOG_ERROR(Wrench::StringUtils::Format("[GL Shader Compiler] {0}", errorMessageStr));
 			
 			glDeleteShader(shaderHandler);
 

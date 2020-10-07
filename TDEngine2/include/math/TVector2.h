@@ -8,7 +8,7 @@
 
 
 #include "./../../include/utils/Types.h"
-#include "./../../include/utils/Utils.h"
+#include "./stringUtils.hpp"
 #include <string>
 
 
@@ -87,7 +87,7 @@ namespace TDEngine2
 
 		TDE2_API TVector2 operator- () const;
 
-		TDE2_API inline std::string ToString() const { return CStringUtils::Format("TVector2({0}, {1})", x, y); }
+		TDE2_API inline std::string ToString() const { return Wrench::StringUtils::Format("TVector2({0}, {1})", x, y); }
 	} TVector2, *TVector2Ptr;
 
 

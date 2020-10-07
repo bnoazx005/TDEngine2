@@ -158,7 +158,7 @@ namespace TDEngine2
 
 			mSelectedEntityId = pSelectionManager->PickObject({ mousePosition.x, mousePosition.y });
 
-			LOG_MESSAGE(CStringUtils::Format("[Level Editor] Picked object id : {0}", ToString<TEntityId>(mSelectedEntityId)));
+			LOG_MESSAGE(Wrench::StringUtils::Format("[Level Editor] Picked object id : {0}", ToString<TEntityId>(mSelectedEntityId)));
 		}
 
 		E_RESULT_CODE result = RC_OK;

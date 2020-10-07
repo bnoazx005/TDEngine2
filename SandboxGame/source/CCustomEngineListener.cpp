@@ -16,9 +16,9 @@ const std::string GAPIType = "GL";
 #endif
 
 
-const std::string TestShaderName = CStringUtils::Format("test{0}Shader.shader", GAPIType);
-const std::string DebugShaderName = CStringUtils::Format("Debug{0}Shader.shader", GAPIType);
-const std::string DebugTextShaderName = CStringUtils::Format("DebugText{0}Shader.shader", GAPIType);
+const std::string TestShaderName = Wrench::StringUtils::Format("test{0}Shader.shader", GAPIType);
+const std::string DebugShaderName = Wrench::StringUtils::Format("Debug{0}Shader.shader", GAPIType);
+const std::string DebugTextShaderName = Wrench::StringUtils::Format("DebugText{0}Shader.shader", GAPIType);
 
 
 TVector3 SunLightPos{ 5.0f, 0.0f, 0.0f };
@@ -130,7 +130,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		TMaterialParameters skyboxMatParams 
 		{ 
-			mpFileSystem->ResolveVirtualPath(CStringUtils::Format("vfs://Shaders/Default/DefaultSkyboxShader_{0}.shader", ShaderType), false), true,
+			mpFileSystem->ResolveVirtualPath(Wrench::StringUtils::Format("vfs://Shaders/Default/DefaultSkyboxShader_{0}.shader", ShaderType), false), true,
 			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL}, 
 			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, true, false }
 		};

@@ -1,5 +1,6 @@
 #include "./../../include/math/TMatrix4.h"
 #include "./../../include/math/TMatrix3.h"
+#include "stringUtils.hpp"
 #include <cstring>
 #include <cmath>
 
@@ -97,7 +98,7 @@ namespace TDEngine2
 		{
 			for (I32 j = 0; j < 4; ++j)
 			{
-				currStr.append(std::to_string(m[i][j])).append((i == 3 && j == 3) ?  CStringUtils::mEmptyStr : ", ");
+				currStr.append(std::to_string(m[i][j])).append((i == 3 && j == 3) ? Wrench::StringUtils::GetEmptyStr() : ", ");
 			}
 
 			currStr.append(i < 3 ? "\n" : ")");

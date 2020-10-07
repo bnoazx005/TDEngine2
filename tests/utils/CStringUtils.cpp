@@ -8,19 +8,6 @@ using namespace TDEngine2;
 
 TEST_CASE("CStringUtils Tests")
 {
-	SECTION("RemoveSingleLineComments_PassEmptyStr_ReturnsEmptyStr")
-	{
-		REQUIRE(CStringUtils::RemoveSingleLineComments(CStringUtils::GetEmptyStr()) == CStringUtils::GetEmptyStr());
-	}
-
-	SECTION("RemoveSingleLineComments_PassEmptyAsCommentPrefix_ReturnsSourceStr")
-	{
-		std::string actualStr   = "Test string";
-		std::string expectedStr = "Test string";
-
-		REQUIRE(CStringUtils::RemoveSingleLineComments(actualStr, CStringUtils::GetEmptyStr()) == expectedStr);
-	}
-
 	SECTION("RemoveSingleLineComments_PassSourceWithComments_ReturnsSourceStrWithoutComments")
 	{
 		std::string actualStr = 
@@ -65,45 +52,5 @@ TEST_CASE("CStringUtils Tests")
 			"Test\n";
 
 		REQUIRE(CStringUtils::RemoveMultiLineComments(actualStr) == expectedStr);
-	}
-
-	SECTION("Split_PassStringWithDelimiters_ReturnsVectorOfStrings")
-	{
-		std::string str = "1 2 3 4 5";
-
-		std::vector<std::string> expectedResult { "1", "2", "3", "4", "5" };
-
-		std::vector<std::string> actualResult = CStringUtils::Split(str, " ");
-
-		REQUIRE(expectedResult.size() == actualResult.size());
-
-		for (U32 i = 0; i < expectedResult.size(); ++i)
-		{
-			REQUIRE(expectedResult[i] == actualResult[i]);
-		}
-	}
-
-	SECTION("Split_PassEmptyString_ReturnsEmptyVector")
-	{
-		std::string str = CStringUtils::GetEmptyStr();
-		
-		std::vector<std::string> actualResult = CStringUtils::Split(str, " ");
-
-		REQUIRE(0 == actualResult.size());
-	}
-
-	SECTION("Format_PassFormatStringAndArguments_ReturnsFormattedString")
-	{
-		// first argument of the tuple is a format string, the second is expected result
-		std::vector<std::tuple<std::string, std::string>> inputs
-		{
-			{ "", "" },
-			{ "{2} : {0} and {1}", "Number : 42 and 2.2" },
-		};
-
-		for (const auto& currInput : inputs)
-		{
-			REQUIRE(CStringUtils::Format(std::get<0>(currInput), 42, 2.2f, "Number") == std::get<1>(currInput));
-		}
 	}
 }

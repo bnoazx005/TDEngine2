@@ -6,6 +6,7 @@
 #include "./../../include/utils/CFileLogger.h"
 #define TCPP_IMPLEMENTATION
 #include "./../../deps/tcpp/source/tcppLibrary.hpp"
+#include "stringUtils.hpp"
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -52,7 +53,7 @@ namespace TDEngine2
 
 		if (pos >= mTokens.size())
 		{
-			return CStringUtils::mEmptyStr;
+			return Wrench::StringUtils::GetEmptyStr();
 		}
 
 		return mTokens[mCurrPos + offset];
@@ -62,7 +63,7 @@ namespace TDEngine2
 	{
 		if (mCurrPos + 1 >= mTokens.size())
 		{
-			return CStringUtils::mEmptyStr;
+			return Wrench::StringUtils::GetEmptyStr();
 		}
 
 		return mTokens[++mCurrPos];
@@ -118,7 +119,7 @@ namespace TDEngine2
 
 		if (pos >= mTokens.size())
 		{
-			return CStringUtils::mEmptyStr;
+			return Wrench::StringUtils::GetEmptyStr();
 		}
 
 		mCurrPos = pos;

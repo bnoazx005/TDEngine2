@@ -1,5 +1,6 @@
 #include "./../include/CD3D11ShaderCompiler.h"
 #include "./../include/CD3D11Mappings.h"
+#include <stringUtils.hpp>
 #include <utils/CFileLogger.h>
 #include <algorithm>
 #include <cctype>
@@ -116,7 +117,7 @@ namespace TDEngine2
 							  entryPointName.c_str(), CD3D11Mappings::GetShaderTargetVerStr(shaderStage, targetVersion).c_str(),
 							  flags, 0x0, &pBytecodeBuffer, &pErrorBuffer)))
 		{
-			LOG_ERROR(CStringUtils::Format("[D3D11 Shader Compiler] {0}", static_cast<const C8*>(pErrorBuffer->GetBufferPointer())));
+			LOG_ERROR(Wrench::StringUtils::Format("[D3D11 Shader Compiler] {0}", static_cast<const C8*>(pErrorBuffer->GetBufferPointer())));
 
 			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
 		}

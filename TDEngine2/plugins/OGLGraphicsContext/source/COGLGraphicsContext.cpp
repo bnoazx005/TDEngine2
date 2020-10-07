@@ -178,7 +178,7 @@ namespace TDEngine2
 
 		if (!mpRenderTargets[slot])
 		{
-			LOG_WARNING(CStringUtils::Format("[COGLGraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
+			LOG_WARNING(Wrench::StringUtils::Format("[COGLGraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
 			return;
 		}
 
@@ -431,15 +431,15 @@ namespace TDEngine2
 
 		TVideoAdapterInfo::E_VENDOR_TYPE vendorType = TVideoAdapterInfo::E_VENDOR_TYPE::UNKNOWN;
 
-		if (CStringUtils::StartsWith(vendorName, "NVIDIA"))
+		if (Wrench::StringUtils::StartsWith(vendorName, "NVIDIA"))
 		{
 			vendorType = TVideoAdapterInfo::E_VENDOR_TYPE::NVIDIA;
 		}
-		else if (CStringUtils::StartsWith(vendorName, "ATI"))
+		else if (Wrench::StringUtils::StartsWith(vendorName, "ATI"))
 		{
 			vendorType = TVideoAdapterInfo::E_VENDOR_TYPE::AMD;
 		}
-		else if (CStringUtils::StartsWith(vendorName, "INTEL"))
+		else if (Wrench::StringUtils::StartsWith(vendorName, "INTEL"))
 		{
 			vendorType = TVideoAdapterInfo::E_VENDOR_TYPE::INTEL;
 		}

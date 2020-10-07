@@ -2,6 +2,7 @@
 #include "../../include/editor/EditorActions.h"
 #include "../../include/utils/Utils.h"
 #include "../../include/utils/CFileLogger.h"
+#include "stringUtils.hpp"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -65,11 +66,11 @@ namespace TDEngine2
 
 	void CEditorActionsManager::Dump() const
 	{
-		LOG_MESSAGE(CStringUtils::Format("[CEditorActionsManager] Current log size: {0}", mpActionsHistory.size()));
+		LOG_MESSAGE(Wrench::StringUtils::Format("[CEditorActionsManager] Current log size: {0}", mpActionsHistory.size()));
 
 		for (auto iter = mpActionsHistory.rbegin(); iter != mpActionsHistory.rend(); ++iter)
 		{
-			LOG_MESSAGE(CStringUtils::Format("- {0}", (*iter)->ToString()));
+			LOG_MESSAGE(Wrench::StringUtils::Format("- {0}", (*iter)->ToString()));
 		}
 	}
 

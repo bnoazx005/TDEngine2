@@ -6,6 +6,7 @@
 #include "./../../include/graphics/CBaseTexture2D.h"
 #include "./../../include/core/IFile.h"
 #include "./../../include/platform/CYAMLFile.h"
+#include "stringUtils.hpp"
 #include <cassert>
 #include <algorithm>
 #include <stack>
@@ -350,7 +351,7 @@ namespace TDEngine2
 		{
 			currBounds = currTextureEntity.second;
 
-			if ((result = pArchiveFile->BeginGroup(CStringUtils::mEmptyStr)) != RC_OK)
+			if ((result = pArchiveFile->BeginGroup(Wrench::StringUtils::GetEmptyStr())) != RC_OK)
 			{
 				return result;
 			}
@@ -427,7 +428,7 @@ namespace TDEngine2
 
 		while (pYAMLFileReader->HasNextItem())
 		{
-			if ((result = pYAMLFileReader->BeginGroup(CStringUtils::mEmptyStr)) != RC_OK)
+			if ((result = pYAMLFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr())) != RC_OK)
 			{
 				return result;
 			}

@@ -1,4 +1,6 @@
 #include "./../../include/utils/Utils.h"
+#define STR_UTILS_IMPLEMENTATION
+#include "stringUtils.hpp"
 #include <algorithm>
 #include <cctype>
 
@@ -130,80 +132,6 @@ namespace TDEngine2
 
 		return processedStr;
 	}
-
-	std::string CStringUtils::RemoveExtraWhitespaces(const std::string& str)
-	{
-		bool isPrevChSpace = false;
-
-		std::string processedStr { str };
-
-		processedStr.erase(std::remove_if(processedStr.begin(), processedStr.end(), [&isPrevChSpace](C8 ch)
-		{
-			bool isCurrChSpace = std::isspace(ch);
-
-			bool result = isCurrChSpace && isPrevChSpace;
-
-			isPrevChSpace = isCurrChSpace;
-
-			return result;
-		}), processedStr.end());
-
-		return processedStr;
-	}
-
-	std::string CStringUtils::RemoveWhitespaces(const std::string& str)
-	{
-		std::string processedStr{ str };
-
-		processedStr.erase(std::remove_if(processedStr.begin(), processedStr.end(), [](C8 ch)
-		{
-			return std::isspace(ch);
-		}), processedStr.end());
-
-		return processedStr;
-	}
-	
-	std::vector<std::string> CStringUtils::Split(const std::string& str, const std::string& delims)
-	{
-		std::string::size_type pos     = 0;
-		std::string::size_type currPos = 0;
-
-		std::string currToken;
-
-		std::vector<std::string> tokens;
-
-		while ((currPos < str.length()) && ((pos = str.find_first_of(delims, currPos)) != std::string::npos))
-		{
-			currToken = std::move(str.substr(currPos, pos - currPos));
-
-			if (!currToken.empty())
-			{
-				tokens.emplace_back(std::move(currToken));
-			}
-			
-			currPos = pos + 1;
-		}
-
-		/// insert last token if it wasn't pushed back before
-		if (currPos != str.length())
-		{
-			tokens.emplace_back(std::move(str.substr(currPos, str.length() - currPos)));
-		}
-
-		return std::move(tokens);
-	}
-
-	std::string CStringUtils::GetEmptyStr()
-	{
-		return mEmptyStr;
-	}
-
-	bool CStringUtils::StartsWith(const std::string& str, const std::string& prefix)
-	{
-		return str.rfind(prefix, 0) == 0;
-	}
-
-	const std::string CStringUtils::mEmptyStr {};
 
 
 	TDE2_API std::string GraphicsContextTypeToString(E_GRAPHICS_CONTEXT_GAPI_TYPE graphicsContextType)

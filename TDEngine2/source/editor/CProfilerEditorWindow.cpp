@@ -1,6 +1,7 @@
 #include "./../../include/editor/CProfilerEditorWindow.h"
 #include "./../../include/core/IImGUIContext.h"
 #include "./../../include/math/MathUtils.h"
+#include "stringUtils.hpp"
 #include <stack>
 #include <tuple>
 
@@ -86,7 +87,7 @@ namespace TDEngine2
 				{
 					auto cursorPos = mpImGUIContext->GetCursorScreenPos();
 
-					_drawRectWithText(*mpImGUIContext, CStringUtils::Format((mMainThreadID == threadSamplesEntry.first) ? "Main Thread" : "Thread: {0}", threadSamplesEntry.first), 
+					_drawRectWithText(*mpImGUIContext, Wrench::StringUtils::Format((mMainThreadID == threadSamplesEntry.first) ? "Main Thread" : "Thread: {0}", threadSamplesEntry.first), 
 									  TRectF32{ 0.0f, 0.0f, mpImGUIContext->GetWindowWidth(), mIntervalRectHeight } + cursorPos, 
 									  { 0.44f, 0.5f, 0.56f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 

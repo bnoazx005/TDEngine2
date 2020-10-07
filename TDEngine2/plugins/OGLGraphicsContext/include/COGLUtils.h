@@ -26,7 +26,7 @@ namespace TDEngine2
 				E_RESULT_CODE errCode = COGLMappings::GetErrorCode(internalErrorCode);											\
 				if (errCode != RC_OK)																							\
 				{																												\
-					LOG_ERROR(CStringUtils::Format("GL error code: {0}", COGLMappings::ErrorCodeToString(internalErrorCode)));	\
+					LOG_ERROR(Wrench::StringUtils::Format("GL error code: {0}", COGLMappings::ErrorCodeToString(internalErrorCode)));	\
 					TDE2_ASSERT(false);																							\
 					return errCode;																								\
 				}																												\
@@ -45,7 +45,7 @@ namespace TDEngine2
 				E_RESULT_CODE errCode = COGLMappings::GetErrorCode(internalErrorCode);											\
 				if (errCode != RC_OK)																							\
 				{																												\
-					LOG_ERROR(CStringUtils::Format("GL error code: {0}", COGLMappings::ErrorCodeToString(internalErrorCode)));	\
+					LOG_ERROR(Wrench::StringUtils::Format("GL error code: {0}", COGLMappings::ErrorCodeToString(internalErrorCode)));	\
 					TDE2_ASSERT(false);																							\
 				}																												\
 			}

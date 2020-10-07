@@ -1,6 +1,7 @@
 #include "./../../../include/platform/win32/CWin32FileSystem.h"
 #include "./../../../include/core/IFile.h"
 #include "./../../../include/platform/CTextFileReader.h"
+#include "stringUtils.hpp"
 #include <algorithm>
 #if _HAS_CXX17
 #include <filesystem>
@@ -34,7 +35,7 @@ namespace TDEngine2
 	E_RESULT_CODE CWin32FileSystem::_onInit()
 	{
 		/// mount a root directory
-		return Mount(this->GetCurrDirectory(), CStringUtils::mEmptyStr);
+		return Mount(this->GetCurrDirectory(), Wrench::StringUtils::GetEmptyStr());
 	}
 
 	const C8& CWin32FileSystem::GetPathSeparatorChar() const

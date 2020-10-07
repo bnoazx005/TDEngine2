@@ -5,6 +5,7 @@
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/platform/CYAMLFile.h"
 #include "./../../include/utils/Utils.h"
+#include "./stringUtils.hpp"
 #include <stb_image.h>
 #include <string>
 
@@ -235,7 +236,7 @@ namespace TDEngine2
 
 		for (U8 i = 0; i < 6; ++i)
 		{
-			cubemapMeta.mFaceTexturePaths[static_cast<U8>(E_CUBEMAP_FACE::POSITIVE_X) + i] = pYAMLFileReader->GetString(CStringUtils::mEmptyStr);
+			cubemapMeta.mFaceTexturePaths[static_cast<U8>(E_CUBEMAP_FACE::POSITIVE_X) + i] = pYAMLFileReader->GetString(Wrench::StringUtils::GetEmptyStr());
 		}
 
 		if ((result = pYAMLFileReader->EndGroup()) != RC_OK)

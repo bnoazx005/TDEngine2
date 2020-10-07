@@ -1,6 +1,7 @@
 #include "./../../../include/platform/unix/CUnixFileSystem.h"
 #include "./../../../include/core/IFile.h"
 #include "./../../../include/platform/CTextFileReader.h"
+#include "stringUtils.hpp"
 #include <algorithm>
 #if _HAS_CXX17
 #include <filesystem>
@@ -34,7 +35,7 @@ namespace TDEngine2
 	E_RESULT_CODE CUnixFileSystem::_onInit()
 	{
 		/// mount a root directory
-		return Mount(this->GetCurrDirectory(), CStringUtils::mEmptyStr);
+		return Mount(this->GetCurrDirectory(), Wrench::StringUtils::GetEmptyStr());
 	}
 
 	const C8& CUnixFileSystem::GetPathSeparatorChar() const
