@@ -10,7 +10,6 @@
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
 #include "./../core/IBaseObject.h"
-#include "./../utils/CResult.h"
 #include <vector>
 #include <unordered_map>
 

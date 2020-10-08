@@ -9,7 +9,6 @@
 
 #include "./../core/IBaseObject.h"
 #include "./../utils/Utils.h"
-#include "./../utils/CResult.h"
 #include "./../utils/Types.h"
 #include "CBaseComponent.h"
 #include <functional>

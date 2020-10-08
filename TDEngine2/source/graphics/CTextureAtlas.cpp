@@ -478,17 +478,17 @@ namespace TDEngine2
 	{
 		if (mAtlasEntities.find(textureName) == mAtlasEntities.cend())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return TOkValue<TRectI32>(mAtlasEntities.at(textureName));
+		return Wrench::TOkValue<TRectI32>(mAtlasEntities.at(textureName));
 	}
 
 	TResult<TRectF32> CTextureAtlas::GetNormalizedTextureRect(const std::string& textureName) const
 	{
 		if (mAtlasEntities.find(textureName) == mAtlasEntities.cend())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		TRectI32 nonNormalizedRect = mAtlasEntities.at(textureName);
@@ -496,7 +496,7 @@ namespace TDEngine2
 		F32 invWidth  = 1.0f / mWidth;
 		F32 invHeight = 1.0f / mHeight;
 
-		return TOkValue<TRectF32>({ nonNormalizedRect.x * invWidth, 
+		return Wrench::TOkValue<TRectF32>({ nonNormalizedRect.x * invWidth,
 									nonNormalizedRect.y * invHeight, 
 									nonNormalizedRect.width * invWidth, 
 									nonNormalizedRect.height * invHeight });

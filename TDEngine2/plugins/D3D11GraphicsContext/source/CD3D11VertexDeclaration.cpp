@@ -31,7 +31,7 @@ namespace TDEngine2
 
 		if (!pGraphicsContext || !pD3D11Shader)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		ID3D11Device* p3dDevice = nullptr;
@@ -102,10 +102,10 @@ namespace TDEngine2
 
 		if (FAILED(p3dDevice->CreateInputLayout(&elements[0], elements.size(), vsBytecodeDesc.mpBytecode, vsBytecodeDesc.mLength, &pInputLayout)))
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return TOkValue<ID3D11InputLayout*>(pInputLayout);
+		return Wrench::TOkValue<ID3D11InputLayout*>(pInputLayout);
 	}
 
 	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)

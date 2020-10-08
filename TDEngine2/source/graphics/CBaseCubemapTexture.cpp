@@ -214,7 +214,7 @@ namespace TDEngine2
 
 		if (fileReadingResult.HasError())
 		{
-			return TErrorValue<E_RESULT_CODE>(fileReadingResult.GetError());
+			return Wrench::TErrValue<E_RESULT_CODE>(fileReadingResult.GetError());
 		}
 
 		auto pYAMLFileReader = mpFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
@@ -231,7 +231,7 @@ namespace TDEngine2
 
 		if ((result = pYAMLFileReader->BeginGroup("faces")) != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		for (U8 i = 0; i < 6; ++i)
@@ -241,12 +241,12 @@ namespace TDEngine2
 
 		if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		pYAMLFileReader->Close();
 
-		return TOkValue<TCubemapMetaInfo>(cubemapMeta);
+		return Wrench::TOkValue<TCubemapMetaInfo>(cubemapMeta);
 	}
 
 	E_RESULT_CODE CBaseCubemapTextureLoader::_loadFaceTexture(ICubemapTexture* pCubemapTexture, const TCubemapMetaInfo& info, E_CUBEMAP_FACE face) const

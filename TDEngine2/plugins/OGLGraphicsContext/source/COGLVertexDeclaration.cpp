@@ -17,7 +17,7 @@ namespace TDEngine2
 	{
 		if (pVertexBuffersArray.IsEmpty())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		auto doesExistResult = _doesHandleExist(mRootNode, pVertexBuffersArray);
@@ -34,7 +34,7 @@ namespace TDEngine2
 		
 		if (glGetError() != GL_NO_ERROR)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		/// generate vertex attribute pointers
@@ -114,7 +114,7 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 		GL_SAFE_VOID_CALL(glBindVertexArray(0));
 
-		return TOkValue<GLuint>(vaoHandler);
+		return Wrench::TOkValue<GLuint>(vaoHandler);
 	}
 
 	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
@@ -134,13 +134,13 @@ namespace TDEngine2
 
 			if (pCurrNode->mChildren.find(internalBufferHandle) == pCurrNode->mChildren.cend())
 			{
-				return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+				return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 			}
 
 			pCurrNode = pCurrNode->mChildren.at(internalBufferHandle).get();
 		}
 
-		return TOkValue<GLuint>(pCurrNode->mVAOHandle);
+		return Wrench::TOkValue<GLuint>(pCurrNode->mVAOHandle);
 	}
 
 	COGLVertexDeclaration::TVAORegistryNode* COGLVertexDeclaration::_insertNewNode(TVAORegistryNode* pCurrNode, U32 handle)

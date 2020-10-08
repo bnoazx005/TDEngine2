@@ -17,7 +17,6 @@
 #include "./../../include/scene/components/CDirectionalLight.h"
 #include "./../../include/scene/components/ShadowMappingComponents.h"
 #include "./../../include/utils/CFileLogger.h"
-#include "./../../include/utils/CResult.h"
 
 
 namespace TDEngine2

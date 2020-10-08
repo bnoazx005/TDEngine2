@@ -28,7 +28,7 @@ namespace TDEngine2
 	{
 		if (source.empty())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 		
 		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, "#define TDE2_GLSL_SHADER\n" + source).Get();
@@ -49,7 +49,7 @@ namespace TDEngine2
 
 			if (vertexShaderOutput.HasError())
 			{
-				return TErrorValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
+				return Wrench::TErrValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
 			}
 
 			pResult->mVertexShaderHandler = vertexShaderOutput.Get();
@@ -62,7 +62,7 @@ namespace TDEngine2
 
 			if (pixelShaderOutput.HasError())
 			{
-				return TErrorValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
+				return Wrench::TErrValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
 			}
 
 			pResult->mFragmentShaderHandler = pixelShaderOutput.Get();
@@ -75,7 +75,7 @@ namespace TDEngine2
 
 			if (geometryShaderOutput.HasError())
 			{
-				return TErrorValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
+				return Wrench::TErrValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
 			}
 
 			pResult->mGeometryShaderHandler = geometryShaderOutput.Get();
@@ -84,7 +84,7 @@ namespace TDEngine2
 		pResult->mUniformBuffersInfo  = std::move(shaderMetadata.mUniformBuffers);
 		pResult->mShaderResourcesInfo = std::move(shaderMetadata.mShaderResources);
 		
-		return TOkValue<TShaderCompilerOutput*>(pResult);
+		return Wrench::TOkValue<TShaderCompilerOutput*>(pResult);
 	}
 	
 	TResult<GLuint> COGLShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const
@@ -93,7 +93,7 @@ namespace TDEngine2
 
 		if (glGetError() != GL_NO_ERROR)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 		
 		std::string processedShaderSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
@@ -106,14 +106,14 @@ namespace TDEngine2
 
 		if (glGetError() != GL_NO_ERROR)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		glCompileShader(shaderHandler);
 
 		if (glGetError() != GL_NO_ERROR)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		GLint isCompiled = 0;
@@ -122,7 +122,7 @@ namespace TDEngine2
 
 		if (glGetError() != GL_NO_ERROR)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		if (!isCompiled)
@@ -142,10 +142,10 @@ namespace TDEngine2
 			
 			glDeleteShader(shaderHandler);
 
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 		
-		return TOkValue<GLuint>(shaderHandler);
+		return Wrench::TOkValue<GLuint>(shaderHandler);
 	}
 	
 	COGLShaderCompiler::TUniformBuffersMap COGLShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const

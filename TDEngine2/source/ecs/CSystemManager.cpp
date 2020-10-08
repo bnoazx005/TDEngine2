@@ -69,7 +69,7 @@ namespace TDEngine2
 	{
 		if (!pSystem)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		/// inject bindings for the first time when the system is registered
@@ -82,7 +82,7 @@ namespace TDEngine2
 
 		if (duplicateIter != mpActiveSystems.end()) /// if there is a duplicate, just interrupt registration process
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		U32 lastUsedSystemId = mSystemsIdentifiersTable[priority];
@@ -94,7 +94,7 @@ namespace TDEngine2
 
 		mpActiveSystems.push_back({ internalSystemPriority, pSystem });
 
-		return TOkValue<TSystemId>(TSystemId(internalSystemPriority));
+		return Wrench::TOkValue<TSystemId>(TSystemId(internalSystemPriority));
 	}
 	
 	E_RESULT_CODE CSystemManager::UnregisterSystem(TSystemId systemId)

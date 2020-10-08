@@ -18,6 +18,7 @@
 #include <functional>
 #include <array>
 #include <sstream>
+#include "result.hpp"
 
 
 namespace TDEngine2
@@ -622,5 +623,15 @@ namespace TDEngine2
 #else
 	#define TDE2_ASSERT(expression) 
 #endif
+
+
+	/*!
+		\brief The macro is used to terminate application if some fail occurs
+	*/
+
+#define PANIC_ON_FAILURE(expr) if ((expr) != RC_OK) { Wrench::Panic(#expr); }
+
+
+	template <typename T> using TResult = Wrench::Result<T, E_RESULT_CODE>;
 
 }

@@ -25,12 +25,12 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		_insertBuffer(pNewVertexBuffer);
 
-		return TOkValue<IVertexBuffer*>(pNewVertexBuffer);
+		return Wrench::TOkValue<IVertexBuffer*>(pNewVertexBuffer);
 	}
 
 	TResult<IIndexBuffer*> CD3D11GraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
@@ -42,12 +42,12 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		_insertBuffer(pNewIndexBuffer);
 
-		return TOkValue<IIndexBuffer*>(pNewIndexBuffer);
+		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);
 	}
 
 	TResult<IConstantBuffer*> CD3D11GraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
@@ -58,12 +58,12 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		_insertBuffer(pNewConstantBuffer);
 
-		return TOkValue<IConstantBuffer*>(pNewConstantBuffer);
+		return Wrench::TOkValue<IConstantBuffer*>(pNewConstantBuffer);
 	}
 	
 	TResult<IVertexDeclaration*> CD3D11GraphicsObjectManager::CreateVertexDeclaration()
@@ -74,12 +74,12 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		_insertVertexDeclaration(pNewVertDecl);
 
-		return TOkValue<IVertexDeclaration*>(pNewVertDecl);
+		return Wrench::TOkValue<IVertexDeclaration*>(pNewVertDecl);
 	}
 
 	TResult<TTextureSamplerId> CD3D11GraphicsObjectManager::CreateTextureSampler(const TTextureSamplerDesc& samplerDesc)
@@ -87,7 +87,7 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash(samplerDesc);
 		if (mTextureSamplesHashTable.find(hashValue) != mTextureSamplesHashTable.cend())
 		{
-			return TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
+			return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
 		}
 
 		ID3D11SamplerState* pNewTextureSampler = nullptr;
@@ -112,12 +112,12 @@ namespace TDEngine2
 		
 		if (!p3dDevice)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 		
 		if (FAILED(p3dDevice->CreateSamplerState(&samplerDescInfo, &pNewTextureSampler)))
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		U32 samplerId = mpTextureSamplersArray.size();
@@ -125,7 +125,7 @@ namespace TDEngine2
 		mpTextureSamplersArray.push_back(pNewTextureSampler);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });
 
-		return TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
+		return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
 	}
 
 	TResult<TBlendStateId> CD3D11GraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
@@ -133,7 +133,7 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash(blendStateDesc);
 		if (mBlendStatesHashTable.find(hashValue) != mBlendStatesHashTable.cend())
 		{
-			return TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
+			return Wrench::TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
 		}
 
 		ID3D11Device* p3dDevice = nullptr;
@@ -162,13 +162,13 @@ namespace TDEngine2
 
 		if (FAILED(p3dDevice->CreateBlendState(&desc, &pBlendState)))
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		auto stateId = mpBlendStates.Add(pBlendState);
 		mBlendStatesHashTable.insert({ hashValue, stateId });
 
-		return TOkValue<TBlendStateId>(TBlendStateId(stateId));
+		return Wrench::TOkValue<TBlendStateId>(TBlendStateId(stateId));
 	}
 
 	TResult<TDepthStencilStateId> CD3D11GraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
@@ -201,10 +201,10 @@ namespace TDEngine2
 
 		if (FAILED(p3dDevice->CreateDepthStencilState(&internalStateDesc, &pDepthStencilState)))
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return TOkValue<TDepthStencilStateId>(TDepthStencilStateId(mpDepthStencilStatesArray.Add(pDepthStencilState)));
+		return Wrench::TOkValue<TDepthStencilStateId>(TDepthStencilStateId(mpDepthStencilStatesArray.Add(pDepthStencilState)));
 	}
 
 	TResult<TRasterizerStateId> CD3D11GraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
@@ -230,10 +230,10 @@ namespace TDEngine2
 
 		if (FAILED(p3dDevice->CreateRasterizerState(&internalStateDesc, &pRasterizerState)))
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return TOkValue<TRasterizerStateId>(TRasterizerStateId(mpRasterizerStatesArray.Add(pRasterizerState)));
+		return Wrench::TOkValue<TRasterizerStateId>(TRasterizerStateId(mpRasterizerStatesArray.Add(pRasterizerState)));
 	}
 
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
@@ -242,10 +242,10 @@ namespace TDEngine2
 
 		if (texSamplerIdValue >= mpTextureSamplersArray.size())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		return TOkValue<ID3D11SamplerState*>(mpTextureSamplersArray[texSamplerIdValue]);
+		return Wrench::TOkValue<ID3D11SamplerState*>(mpTextureSamplersArray[texSamplerIdValue]);
 	}
 
 	TResult<ID3D11BlendState*> CD3D11GraphicsObjectManager::GetBlendState(TBlendStateId blendStateId) const

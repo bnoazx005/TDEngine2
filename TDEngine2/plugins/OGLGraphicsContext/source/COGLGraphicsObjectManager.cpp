@@ -22,12 +22,12 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		_insertBuffer(pNewVertexBuffer);
 
-		return TOkValue<IVertexBuffer*>(pNewVertexBuffer);
+		return Wrench::TOkValue<IVertexBuffer*>(pNewVertexBuffer);
 	}
 
 	TResult<IIndexBuffer*> COGLGraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
@@ -39,12 +39,12 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		_insertBuffer(pNewIndexBuffer);
 
-		return TOkValue<IIndexBuffer*>(pNewIndexBuffer);
+		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);
 	}
 
 	TResult<IConstantBuffer*> COGLGraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
@@ -55,12 +55,12 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		_insertBuffer(pNewConstantBuffer);
 
-		return TOkValue<IConstantBuffer*>(pNewConstantBuffer);
+		return Wrench::TOkValue<IConstantBuffer*>(pNewConstantBuffer);
 	}
 
 	TResult<IVertexDeclaration*> COGLGraphicsObjectManager::CreateVertexDeclaration()
@@ -71,12 +71,12 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		_insertVertexDeclaration(pNewVertDecl);
 
-		return TOkValue<IVertexDeclaration*>(pNewVertDecl);
+		return Wrench::TOkValue<IVertexDeclaration*>(pNewVertDecl);
 	}
 
 	TResult<TTextureSamplerId> COGLGraphicsObjectManager::CreateTextureSampler(const TTextureSamplerDesc& samplerDesc)
@@ -84,7 +84,7 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash<const TTextureSamplerDesc&>(samplerDesc);
 		if (mTextureSamplesHashTable.find(hashValue) != mTextureSamplesHashTable.cend())
 		{
-			return TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
+			return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
 		}
 
 		GLuint samplerHandler = 0x0;
@@ -93,7 +93,7 @@ namespace TDEngine2
 
 		if (glGetError() != GL_NO_ERROR)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 		
 		glSamplerParameteri(samplerHandler, GL_TEXTURE_WRAP_S, COGLMappings::GetTextureAddressMode(samplerDesc.mUAddressMode));
@@ -108,7 +108,7 @@ namespace TDEngine2
 		mTextureSamplersArray.push_back(samplerHandler);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });
 
-		return TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
+		return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
 	}
 
 	TResult<TBlendStateId> COGLGraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
@@ -116,23 +116,23 @@ namespace TDEngine2
 		U32 hashValue = ComputeStateDescHash<const TBlendStateDesc&>(blendStateDesc);
 		if (mBlendStatesHashTable.find(hashValue) != mBlendStatesHashTable.cend())
 		{
-			return TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
+			return Wrench::TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
 		}
 
 		auto stateId = mBlendStates.Add(blendStateDesc);
 		mBlendStatesHashTable.insert({ hashValue, stateId });
 
-		return TOkValue<TBlendStateId>(TBlendStateId(stateId));
+		return Wrench::TOkValue<TBlendStateId>(TBlendStateId(stateId));
 	}
 
 	TResult<TDepthStencilStateId> COGLGraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
 	{
-		return TOkValue<TDepthStencilStateId>(TDepthStencilStateId(mDepthStencilStates.Add(depthStencilDesc)));
+		return Wrench::TOkValue<TDepthStencilStateId>(TDepthStencilStateId(mDepthStencilStates.Add(depthStencilDesc)));
 	}
 
 	TResult<TRasterizerStateId> COGLGraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
 	{
-		return TOkValue<TRasterizerStateId>(TRasterizerStateId(mRasterizerStates.Add(rasterizerStateDesc)));
+		return Wrench::TOkValue<TRasterizerStateId>(TRasterizerStateId(mRasterizerStates.Add(rasterizerStateDesc)));
 	}
 
 	TResult<GLuint> COGLGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
@@ -141,10 +141,10 @@ namespace TDEngine2
 
 		if (texSamplerIdValue >= mTextureSamplersArray.size())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		return TOkValue<GLuint>(mTextureSamplersArray[texSamplerIdValue]);
+		return Wrench::TOkValue<GLuint>(mTextureSamplersArray[texSamplerIdValue]);
 	}
 
 	TResult<TBlendStateDesc> COGLGraphicsObjectManager::GetBlendState(TBlendStateId blendStateId) const

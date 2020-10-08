@@ -14,7 +14,6 @@
 #include "./../core/IResourceFactory.h"
 #include "ITexture.h"
 #include "./../math/TRect.h"
-#include "./../utils/CResult.h"
 
 
 namespace TDEngine2

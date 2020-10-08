@@ -35,7 +35,6 @@ set(HEADERS )
 set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CGraphicsLayersInfoTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CFrustumTests.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/utils/CResultTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/UtilsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/platform/CTimerTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/platform/FileSystemTests.cpp"

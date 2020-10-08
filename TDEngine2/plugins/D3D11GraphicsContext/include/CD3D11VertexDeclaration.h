@@ -9,8 +9,6 @@
 
 #include <graphics/CVertexDeclaration.h>
 #include <vector>
-#include <utils/CResult.h>
-
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)

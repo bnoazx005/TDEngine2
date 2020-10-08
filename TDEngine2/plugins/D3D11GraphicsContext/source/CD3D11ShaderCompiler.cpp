@@ -30,7 +30,7 @@ namespace TDEngine2
 	{
 		if (source.empty())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 		
 		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, "#define TDE2_HLSL_SHADER\n" + source).Get();
@@ -51,7 +51,7 @@ namespace TDEngine2
 
 			if (vertexShaderOutput.HasError())
 			{
-				return TErrorValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
+				return Wrench::TErrValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
 			}
 
 			pResult->mVSByteCode = std::move(vertexShaderOutput.Get());
@@ -64,7 +64,7 @@ namespace TDEngine2
 
 			if (pixelShaderOutput.HasError())
 			{
-				return TErrorValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
+				return Wrench::TErrValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
 			}
 
 			pResult->mPSByteCode = std::move(pixelShaderOutput.Get());
@@ -77,7 +77,7 @@ namespace TDEngine2
 
 			if (geometryShaderOutput.HasError())
 			{
-				return TErrorValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
+				return Wrench::TErrValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
 			}
 
 			pResult->mPSByteCode = std::move(geometryShaderOutput.Get());
@@ -86,7 +86,7 @@ namespace TDEngine2
 		pResult->mUniformBuffersInfo  = std::move(shaderMetadata.mUniformBuffers);
 		pResult->mShaderResourcesInfo = std::move(shaderMetadata.mShaderResources);
 		
-		return TOkValue<TShaderCompilerOutput*>(pResult);
+		return Wrench::TOkValue<TShaderCompilerOutput*>(pResult);
 	}
 
 	TResult<std::vector<U8>> CD3D11ShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source,
@@ -119,7 +119,7 @@ namespace TDEngine2
 		{
 			LOG_ERROR(Wrench::StringUtils::Format("[D3D11 Shader Compiler] {0}", static_cast<const C8*>(pErrorBuffer->GetBufferPointer())));
 
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		U32 size = pBytecodeBuffer->GetBufferSize();
@@ -130,7 +130,7 @@ namespace TDEngine2
 
 		std::copy(pBuffer, pBuffer + size, std::back_inserter(byteCodeArray));
 
-		return TOkValue<std::vector<U8>>(byteCodeArray);
+		return Wrench::TOkValue<std::vector<U8>>(byteCodeArray);
 	}
 
 	CD3D11ShaderCompiler::TUniformBuffersMap CD3D11ShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const

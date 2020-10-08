@@ -59,7 +59,7 @@ namespace TDEngine2
 	{
 		if (mpDebugUtility)
 		{
-			return TOkValue<IDebugUtility*>(mpDebugUtility);
+			return Wrench::TOkValue<IDebugUtility*>(mpDebugUtility);
 		}
 
 		E_RESULT_CODE result = RC_OK;
@@ -68,10 +68,10 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return TOkValue<IDebugUtility*>(mpDebugUtility);
+		return Wrench::TOkValue<IDebugUtility*>(mpDebugUtility);
 	}
 
 	IGraphicsContext* CBaseGraphicsObjectManager::GetGraphicsContext() const

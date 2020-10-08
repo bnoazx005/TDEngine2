@@ -186,7 +186,7 @@ namespace TDEngine2
 	{
 		if (!pFileSystem)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		std::vector<std::unique_ptr<tcpp::IInputStream>> inputStreams;
@@ -287,7 +287,7 @@ namespace TDEngine2
 			definesTable[currMacroDef.mName] = { currMacroDef.mArgsNames, valueStr };
 		}
 
-		return TOkValue<TPreprocessorResult>({ processedSource, definesTable, stagesRegionsInfo });
+		return Wrench::TOkValue<TPreprocessorResult>({ processedSource, definesTable, stagesRegionsInfo });
 	}
 
 	std::string CShaderPreprocessor::ShaderStageToString(const E_SHADER_STAGE_TYPE& stageType)

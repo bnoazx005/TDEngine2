@@ -10,7 +10,6 @@
 #include <graphics/CVertexDeclaration.h>
 #include <vector>
 #include <GL/glew.h>
-#include <utils/CResult.h>
 #include <unordered_map>
 #include <memory>
 

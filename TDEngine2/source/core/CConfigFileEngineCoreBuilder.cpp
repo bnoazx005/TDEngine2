@@ -495,7 +495,7 @@ namespace TDEngine2
 
 		if (settingsResult.HasError())
 		{
-			Panic("[ConfigFIleEngineCoreBuilder] Can't read engine settings. Error code: " + settingsResult.GetError());
+			Wrench::Panic("[ConfigFIleEngineCoreBuilder] Can't read engine settings. Error code: " + settingsResult.GetError());
 
 			return nullptr;
 		}
@@ -643,7 +643,7 @@ namespace TDEngine2
 
 		pConfigFileReader->Close();
 
-		return TOkValue<TEngineSettings>(settings);
+		return Wrench::TOkValue<TEngineSettings>(settings);
 	}
 
 

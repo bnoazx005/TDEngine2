@@ -13,7 +13,7 @@
 #include <mutex>
 #include <climits>
 #include <algorithm>
-#include "CResult.h"
+#include "Utils.h"
 
 
 namespace TDEngine2
@@ -182,15 +182,15 @@ namespace TDEngine2
 
 				if (index >= mElements.size())
 				{
-					return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+					return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 				}
 
 				if (std::find(mFreeEntities.cbegin(), mFreeEntities.cend(), index) != mFreeEntities.cend())
 				{
-					return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+					return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 				}
 
-				return TOkValue<T>(mElements[index]);
+				return Wrench::TOkValue<T>(mElements[index]);
 			}
 
 			/*!

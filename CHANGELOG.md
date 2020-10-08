@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.22] - 2020-10-08
+
+### Changed
+
+- The internal type CResult<T, E> was replaced with Wrench::Result<T, E>
+
+- CStringUtils API's was partially replaced with Wrench::StringUtils
+
 ## [0.4.0] - 2019-12-24
 
 ### Added

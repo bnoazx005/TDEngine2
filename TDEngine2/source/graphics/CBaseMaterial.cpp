@@ -658,10 +658,10 @@ namespace TDEngine2
 
 		if (!pNewMaterialInstance || (result = _setVariable(pNewMaterialInstance->GetInstanceId(), name, pValue, size)) != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return TOkValue<IMaterialInstance*>(pNewMaterialInstance);
+		return Wrench::TOkValue<IMaterialInstance*>(pNewMaterialInstance);
 	}
 
 	E_RESULT_CODE CBaseMaterial::_setVariable(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
@@ -739,10 +739,10 @@ namespace TDEngine2
 
 		if ((result != RC_OK) || (result = mpInstancesArray.ReplaceAt(instanceId, pNewMaterialInstance)) != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return TOkValue<TMaterialInstanceId>(instanceId);
+		return Wrench::TOkValue<TMaterialInstanceId>(instanceId);
 	}
 
 	E_RESULT_CODE CBaseMaterial::_initDefaultInstance(const TShaderCompilerOutput& metadata)

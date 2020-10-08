@@ -10,7 +10,6 @@
 #include "IProfiler.h"
 #include "../core/CBaseObject.h"
 #include "../utils/ITimer.h"
-#include "../utils/CResult.h"
 #include <string>
 #include <stack>
 #include <thread>

@@ -52,10 +52,10 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return TOkValue<TMeshFileHeader>(header);
+		return Wrench::TOkValue<TMeshFileHeader>(header);
 	}
 
 	E_RESULT_CODE CBinaryMeshFileReader::_readGeometryBlock(IMesh*& pMesh)

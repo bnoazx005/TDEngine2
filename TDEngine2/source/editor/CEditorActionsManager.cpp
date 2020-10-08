@@ -55,13 +55,13 @@ namespace TDEngine2
 	{
 		if (mpActionsHistory.empty())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		IEditorAction* pAction = mpActionsHistory.back();
 		mpActionsHistory.pop_back();
 
-		return TOkValue<IEditorAction*>(pAction);
+		return Wrench::TOkValue<IEditorAction*>(pAction);
 	}
 
 	void CEditorActionsManager::Dump() const

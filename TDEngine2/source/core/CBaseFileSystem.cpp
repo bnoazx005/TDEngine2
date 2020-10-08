@@ -363,19 +363,19 @@ namespace TDEngine2
 
 		if (!mIsInitialized)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		if (!_isPathValid(filename))
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		TFileFactoriesRegistry::const_iterator fileFactoryIter = mFileFactoriesMap.find(typeId);
 
 		if (fileFactoryIter == mFileFactoriesMap.cend())
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		///try to find the file's factory
@@ -383,7 +383,7 @@ namespace TDEngine2
 
 		if (!pFileFactory)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_FAIL);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		/// create a file's entry on a disk if doesn't exist but a user asks for it
@@ -400,14 +400,14 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		TFileEntryId newFileEntryId = _registerFileEntry(pNewFileInstance);
 		
 		LOG_MESSAGE("[File System] A new file descriptor was created by the manager (" + filename + ")");
 
-		return TOkValue<TFileEntryId>(newFileEntryId);
+		return Wrench::TOkValue<TFileEntryId>(newFileEntryId);
 	}
 	
 	E_RESULT_CODE CBaseFileSystem::_registerFileFactory(const TypeId& typeId, TCreateFileCallback pCreateFileCallback)

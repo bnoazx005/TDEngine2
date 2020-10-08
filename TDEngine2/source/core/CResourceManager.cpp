@@ -72,7 +72,7 @@ namespace TDEngine2
 
 		if (!mIsInitialized || !pResourceLoader)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		TypeId resourceTypeId = pResourceLoader->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
@@ -82,13 +82,13 @@ namespace TDEngine2
 		// if the duplicate exists, just return it
 		if (existingDuplicateId != TResourceLoaderId::Invalid)
 		{
-			return TOkValue<TResourceLoaderId>(existingDuplicateId);
+			return Wrench::TOkValue<TResourceLoaderId>(existingDuplicateId);
 		}
 
 		existingDuplicateId = TResourceLoaderId(mRegisteredResourceLoaders.Add(pResourceLoader) + 1);
 		mResourceLoadersMap[resourceTypeId] = existingDuplicateId;
 
-		return TOkValue<TResourceLoaderId>(existingDuplicateId);
+		return Wrench::TOkValue<TResourceLoaderId>(existingDuplicateId);
 	}
 	
 	E_RESULT_CODE CResourceManager::UnregisterLoader(const TResourceLoaderId& resourceLoaderId)
@@ -127,7 +127,7 @@ namespace TDEngine2
 		
 		if (!mIsInitialized || !pResourceFactory)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 		
 		TypeId resourceTypeId = pResourceFactory->GetResourceTypeId(); // an id of a resource's type, which is processed with this loader
@@ -137,13 +137,13 @@ namespace TDEngine2
 		// if the duplicate exists, just return it
 		if (existingDuplicateId != TResourceFactoryId::Invalid)
 		{
-			return TOkValue<TResourceFactoryId>(existingDuplicateId);
+			return Wrench::TOkValue<TResourceFactoryId>(existingDuplicateId);
 		}
 		
 		existingDuplicateId = TResourceFactoryId(mRegisteredResourceFactories.Add(pResourceFactory) + 1);
 		mResourceFactoriesMap[resourceTypeId] = existingDuplicateId;
 
-		return TOkValue<TResourceFactoryId>(existingDuplicateId);
+		return Wrench::TOkValue<TResourceFactoryId>(existingDuplicateId);
 	}
 
 	E_RESULT_CODE CResourceManager::UnregisterFactory(const TResourceFactoryId& resourceFactoryId)

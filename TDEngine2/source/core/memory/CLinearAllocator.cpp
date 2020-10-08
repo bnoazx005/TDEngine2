@@ -93,7 +93,7 @@ namespace TDEngine2
 	{
 		if (!pMemoryBlock)
 		{
-			return TErrorValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		E_RESULT_CODE result = RC_OK;
@@ -102,10 +102,10 @@ namespace TDEngine2
 
 		if (result != RC_OK)
 		{
-			return TErrorValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return TOkValue<IAllocator*>(pAllocator);
+		return Wrench::TOkValue<IAllocator*>(pAllocator);
 	}
 
 	TypeId CLinearAllocatorFactory::GetAllocatorType() const
