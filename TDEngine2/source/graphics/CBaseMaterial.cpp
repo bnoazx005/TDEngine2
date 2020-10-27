@@ -13,6 +13,7 @@
 #include "./../../include/graphics/CBaseTexture2D.h"
 #include "stringUtils.hpp"
 #include <cstring>
+#include "./../../include/metadata.h"
 
 
 namespace TDEngine2
@@ -351,7 +352,7 @@ namespace TDEngine2
 				std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
 
 				TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
-				if (SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING)) != RC_OK);
+				if (SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING)) != RC_OK)
 				{
 					LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
 					result = result | RC_FAIL;

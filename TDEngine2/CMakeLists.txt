@@ -23,6 +23,20 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/deps/cmake-modules/")
 
+
+# 
+# Code generation stage
+#
+
+set(TDE2_INTROSPECTOR_UTILITY "${CMAKE_CURRENT_SOURCE_DIR}/tools/Introspector/tde2_introspector")
+
+set(TDENGINE2_CGEN_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+set(TDENGINE2_CGEN_INPUT_PATH ${TDENGINE2_CGEN_OUTPUT_PATH})
+set(TDENGINE2_CGEN_HEADER "${TDENGINE2_CGEN_OUTPUT_PATH}metadata.h")
+
+message(STATUS "Code generation output: " ${TDENGINE2_CGEN_HEADER})
+file(WRITE ${TDENGINE2_CGEN_HEADER})
+
 set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/TDEngine2.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CBaseObject.h"
@@ -385,7 +399,7 @@ endif ()
 add_subdirectory(deps)
 
 
-add_library(${TDENGINE2_LIBRARY_NAME} SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS})
+add_library(${TDENGINE2_LIBRARY_NAME} SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS} ${TDENGINE2_CGEN_HEADER})
 
 if (UNIX)
 	# disable lib prefix
@@ -456,3 +470,21 @@ add_custom_command(TARGET ${TDENGINE2_LIBRARY_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy
 	"$<TARGET_FILE:${TDENGINE2_LIBRARY_NAME}>"
 	"${PROJECT_SOURCE_DIR}/../${TDENGINE2_TESTS_NAME}/bin/$<CONFIGURATION>/")
+
+
+if (UNIX)
+	set (HEADER_PATHS_TO_EXCLUDE "$/platform/win32/")
+	set (TYPEPATTERNS_TO_EXCLUDE "(.*?)Win32(.*?)")
+else ()
+	set (HEADER_PATHS_TO_EXCLUDE "/platform/unix/")
+	set (TYPEPATTERNS_TO_EXCLUDE "(.*?)Unix(.*?)")
+endif ()
+
+add_custom_command(OUTPUT ${TDENGINE2_CGEN_HEADER}
+	PRE_BUILD
+    COMMAND ${TDE2_INTROSPECTOR_UTILITY} ${TDENGINE2_CGEN_INPUT_PATH} -O ${TDENGINE2_CGEN_OUTPUT_PATH} 
+	--emit-enums --emit-classes --emit-structs 
+	--exclude-paths=${HEADER_PATHS_TO_EXCLUDE} 
+	--exclude-typenames=${TYPEPATTERNS_TO_EXCLUDE}
+    COMMENT "Run code generation stage"
+)
