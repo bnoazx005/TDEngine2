@@ -163,6 +163,16 @@ namespace TDEngine2
 			TDE2_API IJobManager* GetJobManager() const override;
 
 			/*!
+				\brief The method returns a function pointer to a file factory which is registered for the given type
+
+				\param[in] typeId A type of a file
+
+				\return Returns a function pointer to a file factory
+			*/
+
+			TDE2_API TResult<TCreateFileCallback> GetFileFactory(TypeId typeId) override;
+
+			/*!
 				\brief The method tells whether asynchronous file input / output operations
 				are available for a user or not
 

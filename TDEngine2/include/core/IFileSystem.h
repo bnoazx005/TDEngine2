@@ -195,6 +195,16 @@ namespace TDEngine2
 			Get(TFileEntryId fileId);
 
 			/*!
+				\brief The method returns a function pointer to a file factory which is registered for the given type
+
+				\param[in] typeId A type of a file 
+
+				\return Returns a function pointer to a file factory
+			*/
+
+			TDE2_API virtual TResult<TCreateFileCallback> GetFileFactory(TypeId typeId) = 0;
+
+			/*!
 				\brief The method sets up a pointer to IJobManager implementation within
 				the file manager.
 

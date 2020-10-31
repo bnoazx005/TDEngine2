@@ -332,6 +332,19 @@ namespace TDEngine2
 		return mpJobManager;
 	}
 
+	TResult<CBaseFileSystem::TCreateFileCallback> CBaseFileSystem::GetFileFactory(TypeId typeId)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		auto&& iter = mFileFactoriesMap.find(typeId);
+		if (iter == mFileFactoriesMap.cend())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return mFileFactories[iter->second];
+	}
+
 	bool CBaseFileSystem::IsStreamingEnabled() const
 	{
 		return mpJobManager != nullptr;
