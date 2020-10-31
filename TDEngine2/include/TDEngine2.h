@@ -205,6 +205,7 @@
 #include "platform/CImageFileWriter.h"
 #include "platform/CYAMLFile.h"
 #include "platform/CBinaryMeshFileReader.h"
+#include "platform/IOStreams.h"
 
 ///utils
 #include "utils/Types.h"
