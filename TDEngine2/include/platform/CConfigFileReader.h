@@ -23,7 +23,7 @@ namespace TDEngine2
 		\return A pointer to CConfigFileReader's implementation
 	*/
 
-	TDE2_API IFile* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateConfigFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -35,7 +35,7 @@ namespace TDEngine2
 	class CConfigFileReader : public IConfigFileReader, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+			friend TDE2_API IFile* CreateConfigFileReader(IFileSystem*, IStream*, E_RESULT_CODE&);
 		protected:
 			typedef std::unordered_map<std::string, std::unordered_map<std::string, std::string>> TConfigParamsMap;
 		public:

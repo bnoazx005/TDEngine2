@@ -1,6 +1,7 @@
 #include "./../../include/platform/CBinaryFileReader.h"
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/core/IJobManager.h"
+#include "../../include/platform/IOStreams.h"
 #include <functional>
 #include <limits>
 
@@ -8,9 +9,8 @@
 namespace TDEngine2
 {
 	CBinaryFileReader::CBinaryFileReader():
-		CBaseFile()
+		CBaseFile(), mpCachedInputStream(nullptr)
 	{
-		mCreationFlags = std::ios::in | std::ios::binary;
 	}
 
 	E_RESULT_CODE CBinaryFileReader::Read(void* pBuffer, U32 bufferSize)
@@ -22,9 +22,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mFile.read(static_cast<C8*>(pBuffer), bufferSize);
+		_getInputStream()->Read(pBuffer, bufferSize);
 
-		if (mFile.bad() || mFile.fail())
+		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;
 		}
@@ -68,24 +68,19 @@ namespace TDEngine2
 	E_RESULT_CODE CBinaryFileReader::SetPosition(U32 pos)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-
-		mFile.seekg(pos);
-
-		return RC_OK;
+		return mpStreamImpl->SetPosition(pos);
 	}
 
 	bool CBinaryFileReader::IsEOF() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-
-		return mFile.eof();
+		return mpStreamImpl->IsEndOfStream();
 	}
 
 	U32 CBinaryFileReader::GetPosition() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-
-		return static_cast<U32>(mFile.tellg());
+		return mpStreamImpl->GetPosition();
 	}
 
 	E_RESULT_CODE CBinaryFileReader::_onFree()
@@ -95,23 +90,26 @@ namespace TDEngine2
 
 	U64 CBinaryFileReader::GetFileLength() const
 	{
-		if (!mFile.is_open())
+		if (!mpStreamImpl->IsValid())
 		{
 			return 0;
 		}
 
-		mFile.ignore((std::numeric_limits<std::streamsize>::max)());
+		return mpStreamImpl->GetLength();
+	}
 
-		std::streamsize length = mFile.gcount();
+	IInputStream* CBinaryFileReader::_getInputStream()
+	{
+		if (!mpCachedInputStream)
+		{
+			mpCachedInputStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+		}
 
-		mFile.clear();   // \note Since ignore will have set eof.
-		mFile.seekg(0, std::ios_base::beg);
-
-		return static_cast<U64>(length);
+		return mpCachedInputStream;
 	}
 
 
-	IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+	IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CBinaryFileReader* pFileInstance = new (std::nothrow) CBinaryFileReader();
 
@@ -122,7 +120,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, filename);
+		result = pFileInstance->Open(pFileSystem, pStream);
 
 		if (result != RC_OK)
 		{

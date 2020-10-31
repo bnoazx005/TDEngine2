@@ -1,5 +1,6 @@
 #include "./../../include/platform/CBinaryMeshFileReader.h"
 #include "./../../include/graphics/IMesh.h"
+#include "../../include/platform/IOStreams.h"
 #include <cstring>
 
 
@@ -182,7 +183,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateBinaryMeshFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+	IFile* CreateBinaryMeshFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CBinaryMeshFileReader* pFileInstance = new (std::nothrow) CBinaryMeshFileReader();
 
@@ -193,7 +194,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, filename);
+		result = pFileInstance->Open(pFileSystem, pStream);
 
 		if (result != RC_OK)
 		{

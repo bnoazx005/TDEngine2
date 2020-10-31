@@ -1,12 +1,14 @@
 #include "./../../include/platform/CTextFileReader.h"
-#include<vector>
 #include "./../../include/core/IFileSystem.h"
+#include "../../include/platform/IOStreams.h"
 #include <sstream>
+#include <vector>
 
 
 namespace TDEngine2
 {
-	CTextFileReader::CTextFileReader()
+	CTextFileReader::CTextFileReader():
+		mpCachedInputStream(nullptr)
 	{
 	}
 	
@@ -14,37 +16,14 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mFile.is_open())
-		{
-			return "";
-		}
-
-		std::string currReadLine;
-
-		std::getline(mFile, currReadLine);
-
-		return currReadLine;
+		return _getInputStream()->ReadLine();
 	}
 
 	std::string CTextFileReader::ReadToEnd()
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mFile.is_open())
-		{
-			return "";
-		}
-
-		if (!mCachedData.empty())
-		{
-			return mCachedData;
-		}
-
-		std::stringstream strBuffer;
-
-		strBuffer << mFile.rdbuf();
-
-		return (mCachedData = strBuffer.str());
+		return _getInputStream()->ReadToEnd();
 	}
 
 	E_RESULT_CODE CTextFileReader::_onFree()
@@ -52,8 +31,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	IInputStream* CTextFileReader::_getInputStream()
+	{
+		if (!mpCachedInputStream)
+		{
+			mpCachedInputStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+		}
 
-	IFile* CreateTextFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+		return mpCachedInputStream;
+	}
+
+
+	IFile* CreateTextFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CTextFileReader* pFileInstance = new (std::nothrow) CTextFileReader();
 
@@ -64,7 +53,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, filename);
+		result = pFileInstance->Open(pFileSystem, pStream);
 
 		if (result != RC_OK)
 		{

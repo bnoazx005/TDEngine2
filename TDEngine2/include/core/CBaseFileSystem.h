@@ -37,7 +37,7 @@ namespace TDEngine2
 
 			typedef std::unordered_map<TypeId, U32>               TFileFactoriesRegistry;
 			
-			typedef CResourceContainer<TCreateFileCallback>       TFileFactoriesContainer;
+			typedef CResourceContainer<TFileFactory>              TFileFactoriesContainer;
 		public:
 			/*!
 				\brief The method initializes a file system's object
@@ -170,7 +170,7 @@ namespace TDEngine2
 				\return Returns a function pointer to a file factory
 			*/
 
-			TDE2_API TResult<TCreateFileCallback> GetFileFactory(TypeId typeId) override;
+			TDE2_API TResult<TFileFactory> GetFileFactory(TypeId typeId) override;
 
 			/*!
 				\brief The method tells whether asynchronous file input / output operations
@@ -218,7 +218,7 @@ namespace TDEngine2
 
 			TDE2_API TResult<TFileEntryId> _openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist) override;
 
-			TDE2_API E_RESULT_CODE _registerFileFactory(const TypeId& typeId, TCreateFileCallback pCreateFileCallback) override;
+			TDE2_API E_RESULT_CODE _registerFileFactory(const TypeId& typeId, const TFileFactory& fileFactory) override;
 
 			TDE2_API E_RESULT_CODE _unregisterFileFactory(const TypeId& typeId) override;
 

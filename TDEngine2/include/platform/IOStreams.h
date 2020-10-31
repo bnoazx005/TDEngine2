@@ -36,6 +36,10 @@ namespace TDEngine2
 			TDE2_API virtual bool IsValid() const = 0;
 
 			TDE2_API virtual const std::string& GetName() const = 0;
+
+			TDE2_API virtual bool IsEndOfStream() const = 0;
+
+			TDE2_API virtual U64 GetLength() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStream)
 	};
@@ -105,7 +109,7 @@ namespace TDEngine2
 		\return A pointer to CFileInputStream's implementation
 	*/
 
-	TDE2_API IInputStream* CreateFileInputStream(const std::string& path, E_RESULT_CODE& result);
+	TDE2_API IStream* CreateFileInputStream(const std::string& path, E_RESULT_CODE& result);
 
 
 	/*!
@@ -115,7 +119,7 @@ namespace TDEngine2
 	class CFileInputStream: public CBaseObject, public IInputStream
 	{
 		public:
-			friend TDE2_API IInputStream* CreateFileInputStream(const std::string&, E_RESULT_CODE&);
+			friend TDE2_API IStream* CreateFileInputStream(const std::string&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a stream
@@ -173,6 +177,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool IsValid() const override;
+
+			TDE2_API bool IsEndOfStream() const override;
+
+			TDE2_API U64 GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFileInputStream)
 		protected:
@@ -190,7 +198,7 @@ namespace TDEngine2
 		\return A pointer to CFileOutputStream's implementation
 	*/
 
-	TDE2_API IOutputStream* CreateFileOutputStream(const std::string& path, E_RESULT_CODE& result);
+	TDE2_API IStream* CreateFileOutputStream(const std::string& path, E_RESULT_CODE& result);
 
 
 	/*!
@@ -200,7 +208,7 @@ namespace TDEngine2
 	class CFileOutputStream : public CBaseObject, public IOutputStream
 	{
 		public:
-			friend TDE2_API IOutputStream* CreateFileOutputStream(const std::string&, E_RESULT_CODE&);
+			friend TDE2_API IStream* CreateFileOutputStream(const std::string&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a stream
@@ -245,6 +253,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool IsValid() const override;
+
+			TDE2_API bool IsEndOfStream() const override;
+
+			TDE2_API U64 GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFileOutputStream)
 		protected:

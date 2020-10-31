@@ -3,6 +3,7 @@
 #include "./../../include/core/IJobManager.h"
 #include "./../../include/graphics/ITexture2D.h"
 #include "./../../include/utils/Utils.h"
+#include "../../include/platform/IOStreams.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #pragma warning(push)
 #pragma warning(disable:4996)
@@ -17,7 +18,6 @@ namespace TDEngine2
 	CImageFileWriter::CImageFileWriter() :
 		CBaseFile()
 	{
-		mCreationFlags = std::ios::out | std::ios::binary;
 	}
 
 	E_RESULT_CODE CImageFileWriter::Write(ITexture2D* pTexture)
@@ -29,7 +29,7 @@ namespace TDEngine2
 
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mFile.is_open())
+		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;
 		}		
@@ -63,7 +63,7 @@ namespace TDEngine2
 				break;
 		}
 
-		if (mFile.bad())
+		if (mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;
 		}
@@ -108,7 +108,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateImageFileWriter(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+	IFile* CreateImageFileWriter(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CImageFileWriter* pFileInstance = new (std::nothrow) CImageFileWriter();
 
@@ -119,7 +119,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, filename);
+		result = pFileInstance->Open(pFileSystem, pStream);
 
 		if (result != RC_OK)
 		{

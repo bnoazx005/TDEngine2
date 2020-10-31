@@ -1,39 +1,35 @@
 #include "./../../include/platform/CBaseFile.h"
 #include "./../../include/core/IFileSystem.h"
+#include "../../include/platform/IOStreams.h"
 
 
 namespace TDEngine2
 {
 
 	CBaseFile::CBaseFile():
-		mCreationFlags(std::ios::in | std::ios::out), mRefCounter(1)
+		mRefCounter(1)
 	{
 	}
 
-	E_RESULT_CODE CBaseFile::Open(IFileSystem* pFileSystem, const std::string& filename)
+	E_RESULT_CODE CBaseFile::Open(IFileSystem* pFileSystem, IStream* pStream)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!pFileSystem)
+		if (!pFileSystem || !pStream)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		if (mFile.is_open())
-		{
-			return RC_FAIL;
-		}
+		mpStreamImpl = pStream;
 
-		mFile.open(filename, mCreationFlags);
-
-		if (!mFile.is_open())
+		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FILE_NOT_FOUND;
 		}
 
 		mRefCounter = 1;
 
-		mName = filename;
+		mName = mpStreamImpl->GetName();
 
 		mpFileSystemInstance = pFileSystem;
 		
@@ -59,12 +55,10 @@ namespace TDEngine2
 				return result;
 			}
 
-			if (!mFile.is_open())
+			if (mpStreamImpl)
 			{
-				return RC_FAIL;
+				result = result | mpStreamImpl->Free();
 			}
-
-			mFile.close();
 
 			if ((result = mpFileSystemInstance->CloseFile(mName)) != RC_OK)
 			{
@@ -91,7 +85,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		return mFile.is_open();
+		return mpStreamImpl->IsValid();
 	}
 
 	bool  CBaseFile::IsParentThread() const

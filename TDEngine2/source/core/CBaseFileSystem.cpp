@@ -3,6 +3,7 @@
 #include "./../../../include/platform/CTextFileReader.h"
 #include "./../../../include/utils/CFileLogger.h"
 #include "./../../../include/core/IJobManager.h"
+#include "../../../include/platform/IOStreams.h"
 #include "./stringUtils.hpp"
 #include <algorithm>
 #if _HAS_CXX17
@@ -332,7 +333,7 @@ namespace TDEngine2
 		return mpJobManager;
 	}
 
-	TResult<CBaseFileSystem::TCreateFileCallback> CBaseFileSystem::GetFileFactory(TypeId typeId)
+	TResult<TFileFactory> CBaseFileSystem::GetFileFactory(TypeId typeId)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -392,9 +393,9 @@ namespace TDEngine2
 		}
 
 		///try to find the file's factory
-		TCreateFileCallback pFileFactory = mFileFactories[(*fileFactoryIter).second].Get();
+		const TFileFactory& fileFactory = mFileFactories[(*fileFactoryIter).second].Get();
 
-		if (!pFileFactory)
+		if (!fileFactory.mCallback)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
@@ -409,7 +410,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IFile* pNewFileInstance = pFileFactory(this, filename, result);
+		IStream* pStream = (fileFactory.mFileType == E_FILE_FACTORY_TYPE::READER) ? CreateFileInputStream(filename, result) : CreateFileOutputStream(filename, result);
+
+		if (!pStream)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		IFile* pNewFileInstance = fileFactory.mCallback(this, pStream, result);
 
 		if (result != RC_OK)
 		{
@@ -423,11 +431,11 @@ namespace TDEngine2
 		return Wrench::TOkValue<TFileEntryId>(newFileEntryId);
 	}
 	
-	E_RESULT_CODE CBaseFileSystem::_registerFileFactory(const TypeId& typeId, TCreateFileCallback pCreateFileCallback)
+	E_RESULT_CODE CBaseFileSystem::_registerFileFactory(const TypeId& typeId, const TFileFactory& fileFactoryInfo)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!pCreateFileCallback) /// \todo check typeId equals to InvalidTypeId
+		if (!fileFactoryInfo.mCallback) /// \todo check typeId equals to InvalidTypeId
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -439,7 +447,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 		
-		mFileFactoriesMap[typeId] = mFileFactories.Add(pCreateFileCallback);
+		mFileFactoriesMap[typeId] = mFileFactories.Add(fileFactoryInfo);
 		
 		LOG_MESSAGE("[File System] A new file factory was registred by the manager (TypeID : " + ToString<TypeId>(typeId) + ")");
 

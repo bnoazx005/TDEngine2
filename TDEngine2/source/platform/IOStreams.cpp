@@ -105,8 +105,25 @@ namespace TDEngine2
 		return !mInternalStream.bad() && !mInternalStream.fail();
 	}
 
+	bool CFileInputStream::IsEndOfStream() const
+	{
+		return mInternalStream.eof();
+	}
 
-	IInputStream* CreateFileInputStream(const std::string& path, E_RESULT_CODE& result)
+	U64 CFileInputStream::GetLength() const
+	{
+		mInternalStream.ignore((std::numeric_limits<std::streamsize>::max)());
+
+		std::streamsize length = mInternalStream.gcount();
+
+		mInternalStream.clear();   // \note Since ignore will have set eof.
+		mInternalStream.seekg(0, std::ios_base::beg);
+
+		return static_cast<U64>(length);
+	}
+
+
+	IStream* CreateFileInputStream(const std::string& path, E_RESULT_CODE& result)
 	{
 		CFileInputStream* pStreamInstance = new (std::nothrow) CFileInputStream();
 
@@ -124,7 +141,7 @@ namespace TDEngine2
 			pStreamInstance = nullptr;
 		}
 
-		return dynamic_cast<IInputStream*>(pStreamInstance);
+		return dynamic_cast<IStream*>(pStreamInstance);
 	}
 
 
@@ -208,8 +225,18 @@ namespace TDEngine2
 		return !mInternalStream.bad() && !mInternalStream.fail();
 	}
 
+	bool CFileOutputStream::IsEndOfStream() const
+	{
+		return mInternalStream.eof();
+	}
 
-	IOutputStream* CreateFileOutputStream(const std::string& path, E_RESULT_CODE& result)
+	U64 CFileOutputStream::GetLength() const
+	{
+		return static_cast<U64>(GetPosition());
+	}
+
+
+	IStream* CreateFileOutputStream(const std::string& path, E_RESULT_CODE& result)
 	{
 		CFileOutputStream* pStreamInstance = new (std::nothrow) CFileOutputStream();
 
@@ -227,7 +254,7 @@ namespace TDEngine2
 			pStreamInstance = nullptr;
 		}
 
-		return dynamic_cast<IOutputStream*>(pStreamInstance);
+		return dynamic_cast<IStream*>(pStreamInstance);
 	}
 
 	

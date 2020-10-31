@@ -1,5 +1,6 @@
 #include "./../../include/platform/CYAMLFile.h"
 #include "./../../deps/yaml/Yaml.cpp"
+#include "../../include/platform/IOStreams.h"
 
 
 namespace TDEngine2
@@ -7,7 +8,6 @@ namespace TDEngine2
 	CYAMLFileWriter::CYAMLFileWriter():
 		CBaseFile()
 	{
-		mCreationFlags |= std::ios::trunc;
 	}
 
 	E_RESULT_CODE CYAMLFileWriter::Serialize(Yaml::Node& object)
@@ -17,9 +17,9 @@ namespace TDEngine2
 		return _internalSerialize(object);
 	}
 
-	E_RESULT_CODE CYAMLFileWriter::Open(IFileSystem* pFileSystem, const std::string& filename)
+	E_RESULT_CODE CYAMLFileWriter::Open(IFileSystem* pFileSystem, IStream* pStream)
 	{
-		E_RESULT_CODE result = CBaseFile::Open(pFileSystem, filename);
+		E_RESULT_CODE result = CBaseFile::Open(pFileSystem, pStream);
 		if (result != RC_OK)
 		{
 			return result;
@@ -158,7 +158,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CYAMLFileWriter::_internalSerialize(Yaml::Node& object)
 	{
-		if (!mFile.is_open())
+		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;
 		}
@@ -169,8 +169,8 @@ namespace TDEngine2
 
 			Yaml::Serialize(object, formattedOutput);
 
-			mFile.seekg(std::ios::beg);
-			mFile.write(formattedOutput.c_str(), formattedOutput.length());
+			mpStreamImpl->SetPosition(std::ios::beg);
+			dynamic_cast<IOutputStream*>(mpStreamImpl)->Write(formattedOutput.c_str(), formattedOutput.length());
 		}
 		catch (const Yaml::Exception e)
 		{
@@ -203,7 +203,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateYAMLFileWriter(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+	IFile* CreateYAMLFileWriter(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CYAMLFileWriter* pFileInstance = new (std::nothrow) CYAMLFileWriter();
 
@@ -214,7 +214,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, filename);
+		result = pFileInstance->Open(pFileSystem, pStream);
 
 		if (result != RC_OK)
 		{
@@ -243,9 +243,9 @@ namespace TDEngine2
 		return _internalDeserialize(outputObject);
 	}
 
-	E_RESULT_CODE CYAMLFileReader::Open(IFileSystem* pFileSystem, const std::string& filename)
+	E_RESULT_CODE CYAMLFileReader::Open(IFileSystem* pFileSystem, IStream* pStream)
 	{
-		E_RESULT_CODE result = CBaseFile::Open(pFileSystem, filename);
+		E_RESULT_CODE result = CBaseFile::Open(pFileSystem, pStream);
 		if (result != RC_OK)
 		{
 			return result;
@@ -386,20 +386,16 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CYAMLFileReader::_internalDeserialize(Yaml::Node& outputObject)
 	{
-		if (!mFile.is_open())
+		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;
 		}
 
 		// \note read YAML file to its end
-		std::stringstream strBuffer;
-
-		strBuffer << mFile.rdbuf();
-
 		// \parse it using mini-yaml library
 		try
 		{
-			Yaml::Parse(outputObject, strBuffer.str());
+			Yaml::Parse(outputObject, dynamic_cast<IInputStream*>(mpStreamImpl)->ReadToEnd());
 		}
 		catch (Yaml::Exception e)
 		{
@@ -426,7 +422,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateYAMLFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+	IFile* CreateYAMLFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CYAMLFileReader* pFileInstance = new (std::nothrow) CYAMLFileReader();
 
@@ -437,7 +433,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, filename);
+		result = pFileInstance->Open(pFileSystem, pStream);
 
 		if (result != RC_OK)
 		{

@@ -189,14 +189,14 @@ namespace TDEngine2
 #endif
 		
 		/// register known file types factories
-		if (((result = mpFileSystemInstance->RegisterFileFactory<ITextFileReader>(CreateTextFileReader)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IConfigFileReader>(CreateConfigFileReader)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileReader>(CreateBinaryFileReader)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileWriter>(CreateBinaryFileWriter)) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IImageFileWriter>(CreateImageFileWriter)) != RC_OK)   ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileReader>(CreateYAMLFileReader)) != RC_OK)     ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileWriter>(CreateYAMLFileWriter)) != RC_OK)     ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryMeshFileReader>(CreateBinaryMeshFileReader)) != RC_OK))
+		if (((result = mpFileSystemInstance->RegisterFileFactory<ITextFileReader>({ CreateTextFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IConfigFileReader>({ CreateConfigFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileReader>({ CreateBinaryFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileWriter>({ CreateBinaryFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IImageFileWriter>({ CreateImageFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileReader>({ CreateYAMLFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileWriter>({ CreateYAMLFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryMeshFileReader>({ CreateBinaryMeshFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK))
 		{
 			return result;
 		}

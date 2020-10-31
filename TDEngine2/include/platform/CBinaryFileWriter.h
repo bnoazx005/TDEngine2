@@ -13,13 +13,15 @@
 
 namespace TDEngine2
 {
+	class IOutputStream;
+
 	/*!
 		\brief A factory function for creation objects of CBinaryFileWriter's type
 
 		\return A pointer to CBinaryFileWriter's implementation
 	*/
 
-	TDE2_API IFile* CreateBinaryFileWriter(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateBinaryFileWriter(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -31,7 +33,7 @@ namespace TDEngine2
 	class CBinaryFileWriter : public IBinaryFileWriter, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateBinaryFileWriter(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+			friend TDE2_API IFile* CreateBinaryFileWriter(IFileSystem*, IStream*, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CBinaryFileWriter)
 
@@ -99,5 +101,9 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryFileWriter)
 
 			TDE2_API E_RESULT_CODE _onFree() override;
+
+			TDE2_API IOutputStream* _getOutputStream();
+		private:
+			IOutputStream* mpCachedOutputStream;
 	};
 }

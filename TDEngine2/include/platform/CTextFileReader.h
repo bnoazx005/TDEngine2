@@ -13,13 +13,16 @@
 
 namespace TDEngine2
 {
+	class IInputStream;
+
+
 	/*!
 		\brief A factory function for creation objects of CTextFileReader's type
 
 		\return A pointer to CTextFileReader's implementation
 	*/
 
-	TDE2_API IFile* CreateTextFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateTextFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -31,7 +34,7 @@ namespace TDEngine2
 	class CTextFileReader: public ITextFileReader, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateTextFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+			friend TDE2_API IFile* CreateTextFileReader(IFileSystem*, IStream*, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CTextFileReader)
 
@@ -55,7 +58,11 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextFileReader)
 
 			TDE2_API E_RESULT_CODE _onFree() override;
+
+			TDE2_API IInputStream* _getInputStream();
 		protected:
 			std::string mCachedData;
+
+			IInputStream* mpCachedInputStream;
 	};
 }

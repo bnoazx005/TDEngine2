@@ -19,7 +19,25 @@ namespace TDEngine2
 {
 	class IFile;
 	class IJobManager;
-	
+	class IStream;
+	class IFileSystem;
+
+
+	enum class E_FILE_FACTORY_TYPE : U8
+	{
+		READER = 0x1,
+		WRITER = 0x2,
+	};
+
+
+	struct TFileFactory
+	{
+		typedef IFile* (*TCreateFileCallback)(IFileSystem*, IStream*, E_RESULT_CODE&);
+
+		TCreateFileCallback mCallback;
+		E_FILE_FACTORY_TYPE mFileType;
+	};
+
 
 	/*!
 		interface IFileSystem
@@ -30,8 +48,6 @@ namespace TDEngine2
 
 	class IFileSystem : public virtual IBaseObject, public IEngineSubsystem
 	{
-		public:
-			typedef IFile* (*TCreateFileCallback)(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes a file system's object
@@ -92,7 +108,7 @@ namespace TDEngine2
 #else
 			typename std::enable_if<std::is_base_of<IFile, T>::value, E_RESULT_CODE>::type
 #endif
-			RegisterFileFactory(TCreateFileCallback pCreateFileCallback);
+			RegisterFileFactory(const TFileFactory& fileFactoryInfo);
 
 			/*!
 				\brief The method unregisters a file factory, which is attached to a specified type
@@ -202,7 +218,7 @@ namespace TDEngine2
 				\return Returns a function pointer to a file factory
 			*/
 
-			TDE2_API virtual TResult<TCreateFileCallback> GetFileFactory(TypeId typeId) = 0;
+			TDE2_API virtual TResult<TFileFactory> GetFileFactory(TypeId typeId) = 0;
 
 			/*!
 				\brief The method sets up a pointer to IJobManager implementation within
@@ -261,7 +277,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TResult<TFileEntryId> _openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist) = 0;
 
-			TDE2_API virtual E_RESULT_CODE _registerFileFactory(const TypeId& typeId, TCreateFileCallback pCreateFileCallback) = 0;
+			TDE2_API virtual E_RESULT_CODE _registerFileFactory(const TypeId& typeId, const TFileFactory& fileFactory) = 0;
 
 			TDE2_API virtual E_RESULT_CODE _unregisterFileFactory(const TypeId& typeId) = 0;
 
@@ -286,9 +302,9 @@ namespace TDEngine2
 #else
 	typename std::enable_if<std::is_base_of<IFile, T>::value, E_RESULT_CODE>::type
 #endif
-	IFileSystem::RegisterFileFactory(TCreateFileCallback pCreateFileCallback)
+	IFileSystem::RegisterFileFactory(const TFileFactory& fileFactoryInfo)
 	{
-		return _registerFileFactory(T::GetTypeId(), pCreateFileCallback);
+		return _registerFileFactory(T::GetTypeId(), fileFactoryInfo);
 	}
 
 	template <typename T>

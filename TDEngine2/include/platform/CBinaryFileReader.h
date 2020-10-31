@@ -13,13 +13,16 @@
 
 namespace TDEngine2
 {
+	class IInputStream;
+
+
 	/*!
 		\brief A factory function for creation objects of CBinaryFileReader's type
 
 		\return A pointer to CBinaryFileReader's implementation
 	*/
 
-	TDE2_API IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -31,7 +34,7 @@ namespace TDEngine2
 	class CBinaryFileReader : public virtual IBinaryFileReader, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result);
+			friend TDE2_API IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(CBinaryFileReader)
 
@@ -98,5 +101,9 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryFileReader)
 
 			TDE2_API E_RESULT_CODE _onFree() override;
+
+			TDE2_API IInputStream* _getInputStream();
+		private:
+			IInputStream* mpCachedInputStream;
 	};
 }

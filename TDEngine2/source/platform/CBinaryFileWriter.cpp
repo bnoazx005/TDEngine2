@@ -1,29 +1,29 @@
 #include "./../../include/platform/CBinaryFileWriter.h"
 #include "./../../include/core/IFileSystem.h"
 #include "./../../include/core/IJobManager.h"
+#include "../../include/platform/IOStreams.h"
 #include <functional>
 
 
 namespace TDEngine2
 {
 	CBinaryFileWriter::CBinaryFileWriter() :
-		CBaseFile()
+		CBaseFile(), mpCachedOutputStream(nullptr)
 	{
-		mCreationFlags = std::ios::out | std::ios::binary;
 	}
 
 	E_RESULT_CODE CBinaryFileWriter::Write(const void* pBuffer, U32 bufferSize)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mFile.is_open())
+		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;
 		}
 
-		mFile.write(reinterpret_cast<const C8*>(pBuffer), bufferSize);
+		_getOutputStream()->Write(reinterpret_cast<const C8*>(pBuffer), bufferSize);
 		
-		if (mFile.bad())
+		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;
 		}
@@ -62,13 +62,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		mFile.flush();
-
-		if (mFile.bad())
-		{
-			return RC_FAIL;
-		}
-
+		_getOutputStream()->Flush();
 		return RC_OK;
 	}
 
@@ -76,23 +70,21 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		mFile.seekg(pos);
-
-		return RC_OK;
+		return mpStreamImpl->SetPosition(pos);
 	}
 
 	bool CBinaryFileWriter::IsEOF() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		return mFile.eof();
+		return mpStreamImpl->IsEndOfStream();
 	}
 
 	U32 CBinaryFileWriter::GetPosition() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-
-		return static_cast<U32>(mFile.tellg());
+		
+		return mpStreamImpl->GetPosition();
 	}
 
 	E_RESULT_CODE CBinaryFileWriter::_onFree()
@@ -100,8 +92,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	IOutputStream* CBinaryFileWriter::_getOutputStream()
+	{
+		if (!mpCachedOutputStream)
+		{
+			mpCachedOutputStream = dynamic_cast<IOutputStream*>(mpStreamImpl);
+		}
 
-	IFile* CreateBinaryFileWriter(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+		return mpCachedOutputStream;
+	}
+
+
+	IFile* CreateBinaryFileWriter(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CBinaryFileWriter* pFileInstance = new (std::nothrow) CBinaryFileWriter();
 
@@ -112,7 +114,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, filename);
+		result = pFileInstance->Open(pFileSystem, pStream);
 
 		if (result != RC_OK)
 		{

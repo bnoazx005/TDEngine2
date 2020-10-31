@@ -1,5 +1,6 @@
 #include "./../../include/platform/CConfigFileReader.h"
 #include "./../../include/core/IFileSystem.h"
+#include "../../include/platform/IOStreams.h"
 #include <algorithm>
 #include <cctype>
 
@@ -67,7 +68,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mFile.is_open() || group.empty() || paramName.empty())
+		if (!mpStreamImpl->IsValid() || group.empty() || paramName.empty())
 		{
 			return RC_FAIL;
 		}
@@ -87,8 +88,12 @@ namespace TDEngine2
 		std::string currParamName;
 		std::string currValueName;
 
-		while (std::getline(mFile, currReadLine))
+		IInputStream* pInputStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+
+		while (!mpStreamImpl->IsEndOfStream())
 		{
+			currReadLine = pInputStream->ReadLine();
+
 			if (currReadLine.empty())
 			{
 				continue;
@@ -151,7 +156,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateConfigFileReader(IFileSystem* pFileSystem, const std::string& filename, E_RESULT_CODE& result)
+	IFile* CreateConfigFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CConfigFileReader* pFileInstance = new (std::nothrow) CConfigFileReader();
 
@@ -162,7 +167,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, filename);
+		result = pFileInstance->Open(pFileSystem, pStream);
 
 		if (result != RC_OK)
 		{
