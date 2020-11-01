@@ -27,6 +27,8 @@ namespace TDEngine2
 		\brief The function is a common factory functor for all objects,
 		which implements Init method (two-step initialization) instead of RAII.
 
+		\param[in] typeFactory A functor that creates a new constructed object
+		\param[in] typeFinalizer A functor-destructor
 		\param[in] args Arguments of an object that should be created (passed into its Init method)
 		\param[out] result A result code of an execution process
 
@@ -39,9 +41,9 @@ namespace TDEngine2
 #else
 	TDE2_API typename std::enable_if<std::is_base_of<I, T>::value, I*>::type
 #endif 
-	Create(TArgs&&... args, E_RESULT_CODE& result)
+	CreateImpl(const std::function<T*()>& typeFactory, const std::function<void(T*&)>& typeFinalizer, E_RESULT_CODE& result, TArgs&&... args)
 	{
-		I* pInstance = new (std::nothrow) T();
+		T* pInstance = typeFactory ? typeFactory() : nullptr;
 
 		if (!pInstance)
 		{
@@ -52,13 +54,21 @@ namespace TDEngine2
 
 		result = pInstance->Init(std::forward<TArgs>(args)...);
 
-		return pInstance;
+		if (result != RC_OK)
+		{
+			typeFinalizer(pInstance);
+			pInstance = nullptr;
+		}
+
+		return dynamic_cast<I*>(pInstance);
 	}
 
 	/*!
 		\brief The function is a common factory functor for all objects,
 		which implements Init method (two-step initialization) instead of RAII.
 
+		\param[in] typeFactory A functor that creates a new constructed object
+		\param[in] typeFinalizer A functor-destructor
 		\param[in] args Arguments of an object that should be created (passed into its Init method)
 		\param[out] result A result code of an execution process
 
@@ -71,9 +81,9 @@ namespace TDEngine2
 #else
 	TDE2_API typename std::enable_if<std::is_base_of<I, T>::value, I*>::type 
 #endif
-	Create(E_RESULT_CODE& result)
+	CreateImpl(const std::function<T*()>& typeFactory, const std::function<void(T*&)>& typeFinalizer, E_RESULT_CODE& result)
 	{
-		I* pInstance = new (std::nothrow) T();
+		T* pInstance = typeFactory ? typeFactory() : nullptr;
 
 		if (!pInstance)
 		{
@@ -84,8 +94,18 @@ namespace TDEngine2
 
 		result = pInstance->Init();
 
-		return pInstance;
+		if (result != RC_OK)
+		{
+			typeFinalizer(pInstance);
+			pInstance = nullptr;
+		}
+
+		return dynamic_cast<I*>(pInstance);
 	}
+
+
+#define CREATE_IMPL(InterfaceType, ConcreteType, ...) CreateImpl<InterfaceType, ConcreteType>([] { return new ConcreteType(); }, [](ConcreteType*& pPtr) { delete pPtr; }, __VA_ARGS__)
+
 
 	/*!
 		\brief The function implements a generic mechanism of releasing memory.
