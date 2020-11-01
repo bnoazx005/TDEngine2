@@ -1,4 +1,4 @@
-#include "./../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CBaseCamera.h"
 #include "../../include/math/TAABB.h"
 #include "../../include/utils/Utils.h"
 #include <array>
@@ -235,24 +235,6 @@ namespace TDEngine2
 
 	TDE2_API IFrustum* CreateFrustum(E_RESULT_CODE& result)
 	{
-		CFrustum* pGeometryBuilder = new (std::nothrow) CFrustum();
-
-		if (!pGeometryBuilder)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pGeometryBuilder->Init();
-
-		if (result != RC_OK)
-		{
-			delete pGeometryBuilder;
-
-			pGeometryBuilder = nullptr;
-		}
-
-		return pGeometryBuilder;
+		return CREATE_IMPL(IFrustum, CFrustum, result);
 	}
 }

@@ -62,25 +62,7 @@ namespace TDEngine2
 
 	TDE2_API IAllocator* CreateLinearAllocator(U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
 	{
-		CLinearAllocator* pLinearAllocatorInstance = new (std::nothrow) CLinearAllocator();
-
-		if (!pLinearAllocatorInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pLinearAllocatorInstance->Init(totalMemorySize, pMemoryBlock);
-
-		if (result != RC_OK)
-		{
-			delete pLinearAllocatorInstance;
-
-			pLinearAllocatorInstance = nullptr;
-		}
-
-		return dynamic_cast<IAllocator*>(pLinearAllocatorInstance);
+		return CREATE_IMPL(IAllocator, CLinearAllocator, result, totalMemorySize, pMemoryBlock);
 	}
 
 
@@ -116,24 +98,6 @@ namespace TDEngine2
 
 	TDE2_API IAllocatorFactory* CreateLinearAllocatorFactory(E_RESULT_CODE& result)
 	{
-		CLinearAllocatorFactory* pLinearAllocatorFactoryInstance = new (std::nothrow) CLinearAllocatorFactory();
-
-		if (!pLinearAllocatorFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pLinearAllocatorFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pLinearAllocatorFactoryInstance;
-
-			pLinearAllocatorFactoryInstance = nullptr;
-		}
-
-		return dynamic_cast<IAllocatorFactory*>(pLinearAllocatorFactoryInstance);
+		return CREATE_IMPL(IAllocatorFactory, CLinearAllocatorFactory, result);
 	}
 }

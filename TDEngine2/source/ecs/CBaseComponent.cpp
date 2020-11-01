@@ -1,4 +1,4 @@
-#include "./../../include/ecs/CBaseComponent.h"
+#include "../../include/ecs/CBaseComponent.h"
 #include <limits>
 
 

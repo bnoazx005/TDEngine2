@@ -1,11 +1,11 @@
-#include "./../../include/ecs/CPhysics3DSystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/core/IEventManager.h"
-#include "./../../include/physics/3D/CBoxCollisionObject3D.h"
-#include "./../../include/physics/3D/CSphereCollisionObject3D.h"
-#include "./../../deps/bullet3/src/btBulletDynamicsCommon.h"
+#include "../../include/ecs/CPhysics3DSystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/core/IEventManager.h"
+#include "../../include/physics/3D/CBoxCollisionObject3D.h"
+#include "../../include/physics/3D/CSphereCollisionObject3D.h"
+#include "../../deps/bullet3/src/btBulletDynamicsCommon.h"
 //#include "./../../deps/bullet3/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include <algorithm>
 
@@ -292,24 +292,6 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreatePhysics3DSystem(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
-		CPhysics3DSystem* pSystemInstance = new (std::nothrow) CPhysics3DSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init(pEventManager);
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CPhysics3DSystem, result, pEventManager);
 	}
 }

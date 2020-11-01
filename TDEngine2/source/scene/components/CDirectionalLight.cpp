@@ -1,4 +1,4 @@
-#include "./../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/CDirectionalLight.h"
 
 
 namespace TDEngine2
@@ -34,27 +34,7 @@ namespace TDEngine2
 
 	IComponent* CreateDirectionalLight(const TVector3& direction, E_RESULT_CODE& result)
 	{
-		CDirectionalLight* pLightInstance = new (std::nothrow) CDirectionalLight();
-
-		if (!pLightInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pLightInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pLightInstance;
-
-			pLightInstance = nullptr;
-		}
-
-		pLightInstance->SetDirection(direction);
-
-		return pLightInstance;
+		return CREATE_IMPL(IComponent, CDirectionalLight, result);
 	}
 
 
@@ -118,24 +98,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateDirectionalLightFactory(E_RESULT_CODE& result)
 	{
-		CDirectionalLightFactory* pDirectionalLightFactoryInstance = new (std::nothrow) CDirectionalLightFactory();
-
-		if (!pDirectionalLightFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pDirectionalLightFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pDirectionalLightFactoryInstance;
-
-			pDirectionalLightFactoryInstance = nullptr;
-		}
-
-		return pDirectionalLightFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CDirectionalLightFactory, result);
 	}
 }

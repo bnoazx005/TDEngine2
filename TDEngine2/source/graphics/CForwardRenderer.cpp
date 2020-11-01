@@ -1,20 +1,20 @@
-#include "./../../include/graphics/CForwardRenderer.h"
-#include "./../../include/graphics/ICamera.h"
-#include "./../../include/graphics/CRenderQueue.h"
-#include "./../../include/core/memory/IAllocator.h"
-#include "./../../include/core/memory/CLinearAllocator.h"
-#include "./../../include/utils/CFileLogger.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/graphics/CGlobalShaderProperties.h"
-#include "./../../include/graphics/InternalShaderData.h"
-#include "./../../include/graphics/CDebugUtility.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/editor/CPerfProfiler.h"
-#include "./../../include/graphics/IFramePostProcessor.h"
-#include "./../../include/graphics/CBaseRenderTarget.h"
+#include "../../include/graphics/CForwardRenderer.h"
+#include "../../include/graphics/ICamera.h"
+#include "../../include/graphics/CRenderQueue.h"
+#include "../../include/core/memory/IAllocator.h"
+#include "../../include/core/memory/CLinearAllocator.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/graphics/CGlobalShaderProperties.h"
+#include "../../include/graphics/InternalShaderData.h"
+#include "../../include/graphics/CDebugUtility.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/editor/CPerfProfiler.h"
+#include "../../include/graphics/IFramePostProcessor.h"
+#include "../../include/graphics/CBaseRenderTarget.h"
 #if TDE2_EDITORS_ENABLED
-	#include "./../../include/editor/ISelectionManager.h"
+	#include "../../include/editor/ISelectionManager.h"
 #endif
 
 
@@ -366,24 +366,6 @@ namespace TDEngine2
 	TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, 
 											  IFramePostProcessor* pFramePostProcessor, E_RESULT_CODE& result)
 	{
-		CForwardRenderer* pRenderer = new (std::nothrow) CForwardRenderer();
-
-		if (!pRenderer)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pRenderer->Init(pGraphicsContext, pResourceManager, pTempAllocator, pFramePostProcessor);
-
-		if (result != RC_OK)
-		{
-			delete pRenderer;
-
-			pRenderer = nullptr;
-		}
-
-		return pRenderer;
+		return CREATE_IMPL(IRenderer, CForwardRenderer, result, pGraphicsContext, pResourceManager, pTempAllocator, pFramePostProcessor);
 	}
 }

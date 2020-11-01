@@ -1,13 +1,13 @@
-#include "./../../include/ecs/CCameraSystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/graphics/CBaseCamera.h"
-#include "./../../include/graphics/CPerspectiveCamera.h"
-#include "./../../include/graphics/COrthoCamera.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/core/IWindowSystem.h"
-#include "./../../include/graphics/IRenderer.h"
+#include "../../include/ecs/CCameraSystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IWindowSystem.h"
+#include "../../include/graphics/IRenderer.h"
 
 
 namespace TDEngine2
@@ -191,25 +191,7 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreateCameraSystem(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IRenderer* pRenderer, E_RESULT_CODE& result)
 	{
-		CCameraSystem* pSystemInstance = new (std::nothrow) CCameraSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init(pWindowSystem, pGraphicsContext, pRenderer);
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CCameraSystem, result, pWindowSystem, pGraphicsContext, pRenderer);
 	}
 
 

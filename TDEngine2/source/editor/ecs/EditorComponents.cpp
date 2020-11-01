@@ -1,4 +1,4 @@
-#include "./../../../include/editor/ecs/EditorComponents.h"
+#include "../../../include/editor/ecs/EditorComponents.h"
 
 
 #if TDE2_EDITORS_ENABLED

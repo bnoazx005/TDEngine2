@@ -1,4 +1,4 @@
-#include "./../../include/graphics/CVertexDeclaration.h"
+#include "../../include/graphics/CVertexDeclaration.h"
 
 
 namespace TDEngine2

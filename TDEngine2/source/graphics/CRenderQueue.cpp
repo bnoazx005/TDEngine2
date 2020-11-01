@@ -1,14 +1,14 @@
-#include "./../../include/graphics/CRenderQueue.h"
-#include "./../../include/graphics/IRenderer.h"
-#include "./../../include/graphics/IVertexDeclaration.h"
-#include "./../../include/graphics/IVertexBuffer.h"
-#include "./../../include/graphics/IIndexBuffer.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/IResource.h"
-#include "./../../include/core/IResourceHandler.h"
-#include "./../../include/graphics/CBaseMaterial.h"
-#include "./../../include/graphics/IShader.h"
-#include "./../../include/graphics/IGlobalShaderProperties.h"
+#include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/IVertexDeclaration.h"
+#include "../../include/graphics/IVertexBuffer.h"
+#include "../../include/graphics/IIndexBuffer.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/IResource.h"
+#include "../../include/core/IResourceHandler.h"
+#include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/graphics/IShader.h"
+#include "../../include/graphics/IGlobalShaderProperties.h"
 #include <algorithm>
 
 
@@ -212,24 +212,6 @@ namespace TDEngine2
 
 	TDE2_API CRenderQueue* CreateRenderQueue(IAllocator* pTempAllocator, E_RESULT_CODE& result)
 	{
-		CRenderQueue* pRenderQueueInstance = new (std::nothrow) CRenderQueue();
-
-		if (!pRenderQueueInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pRenderQueueInstance->Init(pTempAllocator);
-
-		if (result != RC_OK)
-		{
-			delete pRenderQueueInstance;
-
-			pRenderQueueInstance = nullptr;
-		}
-
-		return pRenderQueueInstance;
+		return CREATE_IMPL(CRenderQueue, CRenderQueue, result, pTempAllocator);
 	}
 }

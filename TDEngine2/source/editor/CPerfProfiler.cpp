@@ -1,7 +1,7 @@
-#include "./../../include/editor/CPerfProfiler.h"
-#include "./../../include/platform/win32/CWin32Timer.h"
-#include "./../../include/platform/unix/CUnixTimer.h"
-#include "./../../include/math/MathUtils.h"
+#include "../../include/editor/CPerfProfiler.h"
+#include "../../include/platform/win32/CWin32Timer.h"
+#include "../../include/platform/unix/CUnixTimer.h"
+#include "../../include/math/MathUtils.h"
 #include <memory>
 #include <algorithm>
 

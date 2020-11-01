@@ -1,15 +1,15 @@
-#include "./../../include/ecs/CBoundsUpdatingSystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/ecs/components/CBoundsComponent.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/graphics/CStaticMesh.h"
-#include "./../../include/graphics/CStaticMeshContainer.h"
-#include "./../../include/graphics/CQuadSprite.h"
-#include "./../../include/graphics/IDebugUtility.h"
-#include "./../../include/utils/CFileLogger.h"
-#include "./../../include/math/TVector4.h"
+#include "../../include/ecs/CBoundsUpdatingSystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/components/CBoundsComponent.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/graphics/CStaticMesh.h"
+#include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CQuadSprite.h"
+#include "../../include/graphics/IDebugUtility.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/math/TVector4.h"
 
 
 namespace TDEngine2
@@ -169,24 +169,6 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, E_RESULT_CODE& result)
 	{
-		CBoundsUpdatingSystem* pSystemInstance = new (std::nothrow) CBoundsUpdatingSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init(pResourceManager, pDebugUtility);
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CBoundsUpdatingSystem, result, pResourceManager, pDebugUtility);
 	}
 }

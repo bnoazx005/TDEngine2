@@ -1,6 +1,6 @@
-#include "./../../include/editor/CDevConsoleWindow.h"
-#include "./../../include/core/IImGUIContext.h"
-#include "./../../include/utils/CFileLogger.h"
+#include "../../include/editor/CDevConsoleWindow.h"
+#include "../../include/core/IImGUIContext.h"
+#include "../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 
 
@@ -164,25 +164,7 @@ namespace TDEngine2
 
 	TDE2_API IEditorWindow* CreateDevConsoleWindow(E_RESULT_CODE& result)
 	{
-		CDevConsoleWindow* pEditorInstance = new (std::nothrow) CDevConsoleWindow();
-
-		if (!pEditorInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEditorInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pEditorInstance;
-
-			pEditorInstance = nullptr;
-		}
-
-		return dynamic_cast<IEditorWindow*>(pEditorInstance);
+		return CREATE_IMPL(IEditorWindow, CDevConsoleWindow, result);
 	}
 }
 

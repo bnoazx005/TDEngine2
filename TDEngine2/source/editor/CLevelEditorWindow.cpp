@@ -1,17 +1,17 @@
-#include "./../../include/editor/CLevelEditorWindow.h"
-#include "./../../include/editor/IEditorsManager.h"
-#include "./../../include/editor/ISelectionManager.h"
-#include "./../../include/editor/CEditorActionsManager.h"
-#include "./../../include/core/IImGUIContext.h"
-#include "./../../include/core/IInputContext.h"
-#include "./../../include/utils/CFileLogger.h"
-#include "./../../include/graphics/IDebugUtility.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/graphics/CPerspectiveCamera.h"
-#include "./../../include/graphics/COrthoCamera.h"
-#include "./../../include/ecs/CCameraSystem.h"
+#include "../../include/editor/CLevelEditorWindow.h"
+#include "../../include/editor/IEditorsManager.h"
+#include "../../include/editor/ISelectionManager.h"
+#include "../../include/editor/CEditorActionsManager.h"
+#include "../../include/core/IImGUIContext.h"
+#include "../../include/core/IInputContext.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/graphics/IDebugUtility.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/ecs/CCameraSystem.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -329,25 +329,7 @@ namespace TDEngine2
 
 	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, E_RESULT_CODE& result)
 	{
-		CLevelEditorWindow* pEditorInstance = new (std::nothrow) CLevelEditorWindow();
-
-		if (!pEditorInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEditorInstance->Init(pEditorsManager, pInputContext, pDebugUtility);
-
-		if (result != RC_OK)
-		{
-			delete pEditorInstance;
-
-			pEditorInstance = nullptr;
-		}
-
-		return dynamic_cast<IEditorWindow*>(pEditorInstance);
+		return CREATE_IMPL(IEditorWindow, CLevelEditorWindow, result, pEditorsManager, pInputContext, pDebugUtility);
 	}
 }
 

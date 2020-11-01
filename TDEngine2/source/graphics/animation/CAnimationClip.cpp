@@ -148,50 +148,15 @@ namespace TDEngine2
 	TDE2_API IAnimationClip* CreateAnimationClip(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 												 const TAnimationClipParameters& params, E_RESULT_CODE& result)
 	{
-		CAnimationClip* pAnimationClipInstance = new (std::nothrow) CAnimationClip();
 
-		if (!pAnimationClipInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pAnimationClipInstance->Init(pResourceManager, pGraphicsContext, name, params);
-
-		if (result != RC_OK)
-		{
-			delete pAnimationClipInstance;
-
-			pAnimationClipInstance = nullptr;
-		}
-
-		return pAnimationClipInstance;
+		return CREATE_IMPL(IAnimationClip, CAnimationClip, result, pResourceManager, pGraphicsContext, name, params);
 	}
 
 
 	TDE2_API IAnimationClip* CreateAnimationClip(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 												 E_RESULT_CODE& result)
 	{
-		CAnimationClip* pAnimationClipInstance = new (std::nothrow) CAnimationClip();
-
-		if (!pAnimationClipInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pAnimationClipInstance->Init(pResourceManager, pGraphicsContext, name);
-
-		if (result != RC_OK)
-		{
-			delete pAnimationClipInstance;
-
-			pAnimationClipInstance = nullptr;
-		}
-
-		return pAnimationClipInstance;
+		return CREATE_IMPL(IAnimationClip, CAnimationClip, result, pResourceManager, pGraphicsContext, name);
 	}
 
 
@@ -261,25 +226,7 @@ namespace TDEngine2
 
 	TDE2_API IResourceLoader* CreateAnimationClipLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CAnimationClipLoader* pAnimationClipLoaderInstance = new (std::nothrow) CAnimationClipLoader();
-
-		if (!pAnimationClipLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pAnimationClipLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pAnimationClipLoaderInstance;
-
-			pAnimationClipLoaderInstance = nullptr;
-		}
-
-		return pAnimationClipLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CAnimationClipLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
 	}
 
 
@@ -349,24 +296,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateAnimationClipFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		CAnimationClipFactory* pAnimationClipFactoryInstance = new (std::nothrow) CAnimationClipFactory();
-
-		if (!pAnimationClipFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pAnimationClipFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pAnimationClipFactoryInstance;
-
-			pAnimationClipFactoryInstance = nullptr;
-		}
-
-		return pAnimationClipFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, CAnimationClipFactory, result, pResourceManager, pGraphicsContext);
 	}
 }

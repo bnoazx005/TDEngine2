@@ -98,24 +98,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceHandler* CreateResourceHandler(IResourceManager* pResourceManager, TResourceId id, E_RESULT_CODE& result)
 	{
-		CResourceHandler* pResourceHandlerInstance = new (std::nothrow) CResourceHandler();
-
-		if (!pResourceHandlerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pResourceHandlerInstance->Init(pResourceManager, id);
-
-		if (result != RC_OK)
-		{
-			delete pResourceHandlerInstance;
-
-			pResourceHandlerInstance = nullptr;
-		}
-
-		return dynamic_cast<IResourceHandler*>(pResourceHandlerInstance);
+		return CREATE_IMPL(IResourceHandler, CResourceHandler, result, pResourceManager, id);
 	}
 }

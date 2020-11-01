@@ -90,25 +90,7 @@ namespace TDEngine2
 
 	TDE2_API IAllocator* CreatePoolAllocator(U32 objectSize, U32 objectAlignment, U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
 	{
-		CPoolAllocator* pPoolAllocatorInstance = new (std::nothrow) CPoolAllocator();
-
-		if (!pPoolAllocatorInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pPoolAllocatorInstance->Init(objectSize, objectAlignment, totalMemorySize, pMemoryBlock);
-
-		if (result != RC_OK)
-		{
-			delete pPoolAllocatorInstance;
-
-			pPoolAllocatorInstance = nullptr;
-		}
-
-		return dynamic_cast<IAllocator*>(pPoolAllocatorInstance);
+		return CREATE_IMPL(IAllocator, CPoolAllocator, result, objectSize, objectAlignment, totalMemorySize, pMemoryBlock);
 	}
 
 
@@ -147,24 +129,6 @@ namespace TDEngine2
 
 	TDE2_API IAllocatorFactory* CreatePoolAllocatorFactory(E_RESULT_CODE& result)
 	{
-		CPoolAllocatorFactory* pPoolAllocatorFactoryInstance = new (std::nothrow) CPoolAllocatorFactory();
-
-		if (!pPoolAllocatorFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pPoolAllocatorFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pPoolAllocatorFactoryInstance;
-
-			pPoolAllocatorFactoryInstance = nullptr;
-		}
-
-		return dynamic_cast<IAllocatorFactory*>(pPoolAllocatorFactoryInstance);
+		return CREATE_IMPL(IAllocatorFactory, CPoolAllocatorFactory, result);
 	}
 }

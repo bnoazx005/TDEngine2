@@ -1,5 +1,5 @@
-#include "./../../../include/physics/2D/CCircleCollisionObject2D.h"
-#include "./../../../include/physics/2D/ICollisionObjectsVisitor.h"
+#include "../../../include/physics/2D/CCircleCollisionObject2D.h"
+#include "../../../include/physics/2D/ICollisionObjectsVisitor.h"
 
 
 namespace TDEngine2
@@ -34,25 +34,7 @@ namespace TDEngine2
 
 	IComponent* CreateCircleCollisionObject2D(E_RESULT_CODE& result)
 	{
-		CCircleCollisionObject2D* pCircleCollisionObject2DInstance = new (std::nothrow) CCircleCollisionObject2D();
-
-		if (!pCircleCollisionObject2DInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pCircleCollisionObject2DInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pCircleCollisionObject2DInstance;
-
-			pCircleCollisionObject2DInstance = nullptr;
-		}
-
-		return pCircleCollisionObject2DInstance;
+		return CREATE_IMPL(IComponent, CCircleCollisionObject2D, result);
 	}
 
 
@@ -116,24 +98,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateCircleCollisionObject2DFactory(E_RESULT_CODE& result)
 	{
-		CCircleCollisionObject2DFactory* pCircleCollisionObject2DFactoryInstance = new (std::nothrow) CCircleCollisionObject2DFactory();
-
-		if (!pCircleCollisionObject2DFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pCircleCollisionObject2DFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pCircleCollisionObject2DFactoryInstance;
-
-			pCircleCollisionObject2DFactoryInstance = nullptr;
-		}
-
-		return pCircleCollisionObject2DFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CCircleCollisionObject2DFactory, result);
 	}
 }

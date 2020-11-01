@@ -1,21 +1,21 @@
-#include "./../../include/ecs/CComponentManager.h"
-#include "./../../include/ecs/IComponentFactory.h"
-#include "./../../include/ecs/IComponent.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/ecs/CBaseComponent.h"
-#include "./../../include/graphics/CQuadSprite.h"
-#include "./../../include/graphics/CPerspectiveCamera.h"
-#include "./../../include/graphics/COrthoCamera.h"
-#include "./../../include/graphics/CStaticMeshContainer.h"
-#include "./../../include/physics/2D/CBoxCollisionObject2D.h"
-#include "./../../include/physics/2D/CCircleCollisionObject2D.h"
-#include "./../../include/physics/2D/CTrigger2D.h"
-#include "./../../include/physics/3D/CBoxCollisionObject3D.h"
-#include "./../../include/physics/3D/CSphereCollisionObject3D.h"
-#include "./../../include/scene/components/CDirectionalLight.h"
-#include "./../../include/scene/components/ShadowMappingComponents.h"
-#include "./../../include/ecs/components/CBoundsComponent.h"
-#include "./../../include/editor/ecs/EditorComponents.h"
+#include "../../include/ecs/CComponentManager.h"
+#include "../../include/ecs/IComponentFactory.h"
+#include "../../include/ecs/IComponent.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CBaseComponent.h"
+#include "../../include/graphics/CQuadSprite.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/physics/2D/CBoxCollisionObject2D.h"
+#include "../../include/physics/2D/CCircleCollisionObject2D.h"
+#include "../../include/physics/2D/CTrigger2D.h"
+#include "../../include/physics/3D/CBoxCollisionObject3D.h"
+#include "../../include/physics/3D/CSphereCollisionObject3D.h"
+#include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/ShadowMappingComponents.h"
+#include "../../include/ecs/components/CBoundsComponent.h"
+#include "../../include/editor/ecs/EditorComponents.h"
 
 
 namespace TDEngine2
@@ -505,24 +505,6 @@ namespace TDEngine2
 
 	IComponentManager* CreateComponentManager(E_RESULT_CODE& result)
 	{
-		CComponentManager* pComponentManager = new (std::nothrow) CComponentManager();
-
-		if (!pComponentManager)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pComponentManager->Init();
-
-		if (result != RC_OK)
-		{
-			delete pComponentManager;
-
-			pComponentManager = nullptr;
-		}
-
-		return dynamic_cast<IComponentManager*>(pComponentManager);
+		return CREATE_IMPL(IComponentManager, CComponentManager, result);
 	}
 }

@@ -1,5 +1,5 @@
-#include "./../../include/editor/IEditorWindow.h"
-#include "./../../include/core/IImGUIContext.h"
+#include "../../include/editor/IEditorWindow.h"
+#include "../../include/core/IImGUIContext.h"
 
 
 #if TDE2_EDITORS_ENABLED

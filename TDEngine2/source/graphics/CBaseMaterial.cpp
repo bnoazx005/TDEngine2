@@ -1,19 +1,19 @@
-#include "./../../include/graphics/CBaseMaterial.h"
-#include "./../../include/graphics/CBaseShader.h"
-#include "./../../include/graphics/ITexture.h"
-#include "./../../include/graphics/IShaderCompiler.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/core/IResourceHandler.h"
-#include "./../../include/platform/CYAMLFile.h"
-#include "./../../include/utils/CFileLogger.h"
-#include "./../../include/utils/Utils.h"
-#include "./../../include/graphics/CBaseTexture2D.h"
+#include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/graphics/CBaseShader.h"
+#include "../../include/graphics/ITexture.h"
+#include "../../include/graphics/IShaderCompiler.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IResourceHandler.h"
+#include "../../include/platform/CYAMLFile.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/utils/Utils.h"
+#include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/metadata.h"
 #include "stringUtils.hpp"
 #include <cstring>
-#include "./../../include/metadata.h"
 
 
 namespace TDEngine2
@@ -779,25 +779,7 @@ namespace TDEngine2
 
 	TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
-		CBaseMaterial* pMaterialInstance = new (std::nothrow) CBaseMaterial();
-
-		if (!pMaterialInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMaterialInstance->Init(pResourceManager, pGraphicsContext, name);
-
-		if (result != RC_OK)
-		{
-			delete pMaterialInstance;
-
-			pMaterialInstance = nullptr;
-		}
-
-		return pMaterialInstance;
+		return CREATE_IMPL(IMaterial, CBaseMaterial, result, pResourceManager, pGraphicsContext, name);
 	}
 
 
@@ -918,25 +900,7 @@ namespace TDEngine2
 
 	TDE2_API IResourceLoader* CreateBaseMaterialLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CBaseMaterialLoader* pMaterialLoaderInstance = new (std::nothrow) CBaseMaterialLoader();
-
-		if (!pMaterialLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMaterialLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pMaterialLoaderInstance;
-
-			pMaterialLoaderInstance = nullptr;
-		}
-
-		return pMaterialLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CBaseMaterialLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
 	}
 
 
@@ -1077,24 +1041,6 @@ namespace TDEngine2
 
 	TDE2_API IMaterialInstance* CreateBaseMaterialInstance(IMaterial* pMaterial, TMaterialInstanceId id, E_RESULT_CODE& result)
 	{
-		CBaseMaterialInstance* pMaterialInstance = new (std::nothrow) CBaseMaterialInstance();
-
-		if (!pMaterialInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMaterialInstance->Init(pMaterial, id);
-
-		if (result != RC_OK)
-		{
-			delete pMaterialInstance;
-
-			pMaterialInstance = nullptr;
-		}
-
-		return pMaterialInstance;
+		return CREATE_IMPL(IMaterialInstance, CBaseMaterialInstance, result, pMaterial, id);
 	}
 }

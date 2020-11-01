@@ -1,4 +1,4 @@
-#include "./../../../include/physics/2D/CTrigger2D.h"
+#include "../../../include/physics/2D/CTrigger2D.h"
 
 
 namespace TDEngine2
@@ -23,25 +23,7 @@ namespace TDEngine2
 
 	IComponent* CreateTrigger2D(E_RESULT_CODE& result)
 	{
-		CTrigger2D* pTrigger2DInstance = new (std::nothrow) CTrigger2D();
-
-		if (!pTrigger2DInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTrigger2DInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pTrigger2DInstance;
-
-			pTrigger2DInstance = nullptr;
-		}
-
-		return pTrigger2DInstance;
+		return CREATE_IMPL(IComponent, CTrigger2D, result);
 	}
 
 
@@ -105,24 +87,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateTrigger2DFactory(E_RESULT_CODE& result)
 	{
-		CTrigger2DFactory* pTrigger2DFactoryInstance = new (std::nothrow) CTrigger2DFactory();
-
-		if (!pTrigger2DFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTrigger2DFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pTrigger2DFactoryInstance;
-
-			pTrigger2DFactoryInstance = nullptr;
-		}
-
-		return pTrigger2DFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CTrigger2DFactory, result);
 	}
 }

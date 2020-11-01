@@ -1,16 +1,16 @@
-#include "./../../include/graphics/CDebugUtility.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/IRenderer.h"
-#include "./../../include/graphics/CRenderQueue.h"
-#include "./../../include/graphics/IVertexDeclaration.h"
-#include "./../../include/graphics/IVertexBuffer.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/CFont.h"
-#include "./../../include/graphics/CBaseMaterial.h"
-#include "./../../include/math/TAABB.h"
-#include "./../../include/math/MathUtils.h"
-#include "./../../include/math/TVector3.h"
-#include "./../../include/graphics/CGeometryBuilder.h"
+#include "../../include/graphics/CDebugUtility.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/IVertexDeclaration.h"
+#include "../../include/graphics/IVertexBuffer.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/CFont.h"
+#include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/math/TAABB.h"
+#include "../../include/math/MathUtils.h"
+#include "../../include/math/TVector3.h"
+#include "../../include/graphics/CGeometryBuilder.h"
 #include <algorithm>
 #include <iterator>
 #include <functional>
@@ -479,24 +479,6 @@ namespace TDEngine2
 
 	TDE2_API IDebugUtility* CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
-		CDebugUtility* pDebugUtilityInstance = new (std::nothrow) CDebugUtility();
-
-		if (!pDebugUtilityInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pDebugUtilityInstance->Init(pResourceManager, pRenderer, pGraphicsObjectManager);
-
-		if (result != RC_OK)
-		{
-			delete pDebugUtilityInstance;
-			
-			pDebugUtilityInstance = nullptr;
-		}
-
-		return pDebugUtilityInstance;
+		return CREATE_IMPL(IDebugUtility, CDebugUtility, result, pResourceManager, pRenderer, pGraphicsObjectManager);
 	}
 }

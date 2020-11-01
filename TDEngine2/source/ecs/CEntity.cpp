@@ -1,5 +1,5 @@
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CEntityManager.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CEntityManager.h"
 #include <memory>
 
 
@@ -100,24 +100,6 @@ namespace TDEngine2
 
 	CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result)
 	{
-		CEntity* pEntity = new (std::nothrow) CEntity();
-
-		if (!pEntity)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEntity->Init(id, name, pEntityManager);
-
-		if (result != RC_OK)
-		{
-			delete pEntity;
-
-			pEntity = nullptr;
-		}
-
-		return pEntity;
+		return CREATE_IMPL(CEntity, CEntity, result, id, name, pEntityManager);
 	}
 }

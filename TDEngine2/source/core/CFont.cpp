@@ -289,25 +289,7 @@ namespace TDEngine2
 
 	TDE2_API IFont* CreateFontResource(IResourceManager* pResourceManager, const std::string& name, E_RESULT_CODE& result)
 	{
-		CFont* pFontInstance = new (std::nothrow) CFont();
-
-		if (!pFontInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pFontInstance->Init(pResourceManager, name);
-
-		if (result != RC_OK)
-		{
-			delete pFontInstance;
-
-			pFontInstance = nullptr;
-		}
-
-		return pFontInstance;
+		return CREATE_IMPL(IFont, CFont, result, pResourceManager, name);
 	}
 
 
@@ -369,25 +351,7 @@ namespace TDEngine2
 
 	TDE2_API IResourceLoader* CreateFontLoader(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CFontLoader* pFontLoaderInstance = new (std::nothrow) CFontLoader();
-
-		if (!pFontLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pFontLoaderInstance->Init(pResourceManager, pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pFontLoaderInstance;
-
-			pFontLoaderInstance = nullptr;
-		}
-
-		return pFontLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CFontLoader, result, pResourceManager, pFileSystem);
 	}
 
 
@@ -449,24 +413,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result)
 	{
-		CFontFactory* pFontFactoryInstance = new (std::nothrow) CFontFactory();
-
-		if (!pFontFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pFontFactoryInstance->Init(pResourceManager);
-
-		if (result != RC_OK)
-		{
-			delete pFontFactoryInstance;
-
-			pFontFactoryInstance = nullptr;
-		}
-
-		return pFontFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, CFontFactory, result, pResourceManager);
 	}
 }

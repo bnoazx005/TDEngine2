@@ -1,11 +1,11 @@
-#include "./../../include/ecs/CPhysics2DSystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/physics/2D/CBoxCollisionObject2D.h"
-#include "./../../include/physics/2D/CCircleCollisionObject2D.h"
-#include "./../../include/physics/2D/CTrigger2D.h"
-#include "./../../include/core/IEventManager.h"
+#include "../../include/ecs/CPhysics2DSystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/physics/2D/CBoxCollisionObject2D.h"
+#include "../../include/physics/2D/CCircleCollisionObject2D.h"
+#include "../../include/physics/2D/CTrigger2D.h"
+#include "../../include/core/IEventManager.h"
 #include <algorithm>
 
 
@@ -357,24 +357,6 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreatePhysics2DSystem(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
-		CPhysics2DSystem* pSystemInstance = new (std::nothrow) CPhysics2DSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init(pEventManager);
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CPhysics2DSystem, result, pEventManager);
 	}
 }

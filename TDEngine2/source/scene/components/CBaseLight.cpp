@@ -1,4 +1,4 @@
-#include "./../../include/scene/components/CBaseLight.h"
+#include "../../include/scene/components/CBaseLight.h"
 
 
 namespace TDEngine2

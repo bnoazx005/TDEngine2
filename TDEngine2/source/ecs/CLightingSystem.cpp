@@ -211,24 +211,6 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreateLightingSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
-		CLightingSystem* pSystemInstance = new (std::nothrow) CLightingSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init(pRenderer, pGraphicsObjectManager);
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CLightingSystem, result, pRenderer, pGraphicsObjectManager);
 	}
 }

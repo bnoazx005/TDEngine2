@@ -1,12 +1,12 @@
-#include "./../../include/graphics/CBaseShaderLoader.h"
-#include "./../../include/graphics/CBaseShader.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/core/IFile.h"
-#include "./../../include/platform/CTextFileReader.h"
-#include "./../../include/graphics/IShaderCompiler.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/graphics/CBaseGraphicsObjectManager.h"
-#include "./../../include/utils/CFileLogger.h"
+#include "../../include/graphics/CBaseShaderLoader.h"
+#include "../../include/graphics/CBaseShader.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IFile.h"
+#include "../../include/platform/CTextFileReader.h"
+#include "../../include/graphics/IShaderCompiler.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/graphics/CBaseGraphicsObjectManager.h"
+#include "../../include/utils/CFileLogger.h"
 #include <unordered_map>
 #include <string>
 
@@ -119,24 +119,6 @@ namespace TDEngine2
 	TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext,IFileSystem* pFileSystem, 
 													 const IShaderCompiler* pShaderCompiler, E_RESULT_CODE& result)
 	{
-		CBaseShaderLoader* pShaderLoaderInstance = new (std::nothrow) CBaseShaderLoader();
-
-		if (!pShaderLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pShaderLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem, pShaderCompiler);
-
-		if (result != RC_OK)
-		{
-			delete pShaderLoaderInstance;
-
-			pShaderLoaderInstance = nullptr;
-		}
-
-		return pShaderLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CBaseShaderLoader, result, pResourceManager, pGraphicsContext, pFileSystem, pShaderCompiler);
 	}
 }

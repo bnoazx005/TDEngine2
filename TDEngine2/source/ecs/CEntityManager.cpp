@@ -1,7 +1,7 @@
-#include "./../../include/ecs/CEntityManager.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/core/IEventManager.h"
+#include "../../include/ecs/CEntityManager.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/core/IEventManager.h"
 
 
 namespace TDEngine2
@@ -253,24 +253,6 @@ namespace TDEngine2
 
 	CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, E_RESULT_CODE& result)
 	{
-		CEntityManager* pEntityManager = new (std::nothrow) CEntityManager();
-
-		if (!pEntityManager)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEntityManager->Init(pEventManager, pComponentManager);
-
-		if (result != RC_OK)
-		{
-			delete pEntityManager;
-
-			pEntityManager = nullptr;
-		}
-
-		return pEntityManager;
+		return CREATE_IMPL(CEntityManager, CEntityManager, result, pEventManager, pComponentManager);
 	}
 }

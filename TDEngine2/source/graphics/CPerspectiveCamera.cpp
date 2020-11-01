@@ -1,5 +1,5 @@
-#include "./../../include/graphics/CPerspectiveCamera.h"
-#include "./../../include/ecs/ICameraSystem.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/ecs/ICameraSystem.h"
 
 
 namespace TDEngine2
@@ -64,25 +64,7 @@ namespace TDEngine2
 
 	IComponent* CreatePerspectiveCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result)
 	{
-		CPerspectiveCamera* pCameraInstance = new (std::nothrow) CPerspectiveCamera();
-
-		if (!pCameraInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pCameraInstance->Init(fov, aspect, zn, zf);
-
-		if (result != RC_OK)
-		{
-			delete pCameraInstance;
-
-			pCameraInstance = nullptr;
-		}
-
-		return pCameraInstance;
+		return CREATE_IMPL(IComponent, CPerspectiveCamera, result, fov, aspect, zn, zf);
 	}
 
 
@@ -147,24 +129,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreatePerspectiveCameraFactory(E_RESULT_CODE& result)
 	{
-		CPerspectiveCameraFactory* pPerspectiveCameraFactoryInstance = new (std::nothrow) CPerspectiveCameraFactory();
-
-		if (!pPerspectiveCameraFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pPerspectiveCameraFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pPerspectiveCameraFactoryInstance;
-
-			pPerspectiveCameraFactoryInstance = nullptr;
-		}
-
-		return pPerspectiveCameraFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CPerspectiveCameraFactory, result);
 	}
 }

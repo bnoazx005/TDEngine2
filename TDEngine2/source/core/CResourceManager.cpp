@@ -384,24 +384,6 @@ namespace TDEngine2
 
 	IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result)
 	{
-		CResourceManager* pResourceManagerInstance = new (std::nothrow) CResourceManager();
-
-		if (!pResourceManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pResourceManagerInstance->Init(pJobManager);
-
-		if (result != RC_OK)
-		{
-			delete pResourceManagerInstance;
-
-			pResourceManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<IResourceManager*>(pResourceManagerInstance);
+		return CREATE_IMPL(IResourceManager, CResourceManager, result, pJobManager);
 	}
 }

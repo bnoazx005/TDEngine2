@@ -64,25 +64,7 @@ namespace TDEngine2
 
 	TDE2_API IEditorAction* CreateUndoAction(CLevelEditorWindow* pEditorWindow, E_RESULT_CODE& result)
 	{
-		CUndoEditorAction* pActionInstance = new (std::nothrow) CUndoEditorAction();
-
-		if (!pActionInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pActionInstance->Init(pEditorWindow);
-
-		if (result != RC_OK)
-		{
-			delete pActionInstance;
-
-			pActionInstance = nullptr;
-		}
-
-		return dynamic_cast<IEditorAction*>(pActionInstance);
+		return CREATE_IMPL(IEditorAction, CUndoEditorAction, result, pEditorWindow);
 	}
 
 
@@ -145,25 +127,7 @@ namespace TDEngine2
 
 	TDE2_API IEditorAction* CreateRedoAction(CLevelEditorWindow* pEditorWindow, E_RESULT_CODE& result)
 	{
-		CRedoEditorAction* pActionInstance = new (std::nothrow) CRedoEditorAction();
-
-		if (!pActionInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pActionInstance->Init(pEditorWindow);
-
-		if (result != RC_OK)
-		{
-			delete pActionInstance;
-
-			pActionInstance = nullptr;
-		}
-
-		return dynamic_cast<IEditorAction*>(pActionInstance);
+		return CREATE_IMPL(IEditorAction, CRedoEditorAction, result, pEditorWindow);
 	}
 
 
@@ -253,25 +217,7 @@ namespace TDEngine2
 
 	TDE2_API IEditorAction* CreateTransformObjectAction(IWorld* pWorld, TEntityId entityId, const TSRTEntity& transform, E_RESULT_CODE& result)
 	{
-		CTransformObjectAction* pActionInstance = new (std::nothrow) CTransformObjectAction();
-
-		if (!pActionInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pActionInstance->Init(pWorld, entityId, transform);
-
-		if (result != RC_OK)
-		{
-			delete pActionInstance;
-
-			pActionInstance = nullptr;
-		}
-
-		return dynamic_cast<IEditorAction*>(pActionInstance);
+		return CREATE_IMPL(IEditorAction, CTransformObjectAction, result, pWorld, entityId, transform);
 	}
 }
 

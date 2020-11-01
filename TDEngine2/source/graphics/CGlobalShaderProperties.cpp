@@ -1,7 +1,7 @@
-#include "./../../include/graphics/CGlobalShaderProperties.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/IConstantBuffer.h"
-#include "./../../include/graphics/InternalShaderData.h"
+#include "../../include/graphics/CGlobalShaderProperties.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IConstantBuffer.h"
+#include "../../include/graphics/InternalShaderData.h"
 
 
 namespace TDEngine2
@@ -167,24 +167,6 @@ namespace TDEngine2
 
 	TDE2_API IGlobalShaderProperties* CreateGlobalShaderProperties(IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
-		CGlobalShaderProperties* pRenderer = new (std::nothrow) CGlobalShaderProperties();
-
-		if (!pRenderer)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pRenderer->Init(pGraphicsObjectManager);
-
-		if (result != RC_OK)
-		{
-			delete pRenderer;
-
-			pRenderer = nullptr;
-		}
-
-		return pRenderer;
+		return CREATE_IMPL(IGlobalShaderProperties, CGlobalShaderProperties, result, pGraphicsObjectManager);
 	}
 }

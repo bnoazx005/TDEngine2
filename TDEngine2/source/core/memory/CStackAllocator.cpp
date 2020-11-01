@@ -76,25 +76,7 @@ namespace TDEngine2
 
 	TDE2_API IAllocator* CreateStackAllocator(U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
 	{
-		CStackAllocator* pStackAllocatorInstance = new (std::nothrow) CStackAllocator();
-
-		if (!pStackAllocatorInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pStackAllocatorInstance->Init(totalMemorySize, pMemoryBlock);
-
-		if (result != RC_OK)
-		{
-			delete pStackAllocatorInstance;
-
-			pStackAllocatorInstance = nullptr;
-		}
-
-		return dynamic_cast<IAllocator*>(pStackAllocatorInstance);
+		return CREATE_IMPL(IAllocator, CStackAllocator, result, totalMemorySize, pMemoryBlock);
 	}
 
 
@@ -130,24 +112,6 @@ namespace TDEngine2
 
 	TDE2_API IAllocatorFactory* CreateStackAllocatorFactory(E_RESULT_CODE& result)
 	{
-		CStackAllocatorFactory* pStackAllocatorFactoryInstance = new (std::nothrow) CStackAllocatorFactory();
-
-		if (!pStackAllocatorFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pStackAllocatorFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pStackAllocatorFactoryInstance;
-
-			pStackAllocatorFactoryInstance = nullptr;
-		}
-
-		return dynamic_cast<IAllocatorFactory*>(pStackAllocatorFactoryInstance);
+		return CREATE_IMPL(IAllocatorFactory, CStackAllocatorFactory, result);
 	}
 }

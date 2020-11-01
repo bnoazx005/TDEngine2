@@ -1,8 +1,8 @@
-#include "./../../include/physics/CBaseRaycastContext.h"
-#include "./../../include/ecs/CPhysics2DSystem.h"
-#include "./../../include/ecs/CPhysics3DSystem.h"
-#include "./../../include/core/memory/CPoolAllocator.h"
-#include "./../../include/core/memory/IMemoryManager.h"
+#include "../../include/physics/CBaseRaycastContext.h"
+#include "../../include/ecs/CPhysics2DSystem.h"
+#include "../../include/ecs/CPhysics3DSystem.h"
+#include "../../include/core/memory/CPoolAllocator.h"
+#include "../../include/core/memory/IMemoryManager.h"
 
 
 namespace TDEngine2
@@ -93,24 +93,6 @@ namespace TDEngine2
 
 	TDE2_API IRaycastContext* CreateBaseRaycastContext(IMemoryManager* pMemoryManager, CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result)
 	{
-		CBaseRaycastContext* pRaycastContextInstance = new (std::nothrow) CBaseRaycastContext();
-
-		if (!pRaycastContextInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pRaycastContextInstance->Init(pMemoryManager, p2DPhysicsSystem, p3DPhysicsSystem);
-
-		if (result != RC_OK)
-		{
-			delete pRaycastContextInstance;
-
-			pRaycastContextInstance = nullptr;
-		}
-
-		return dynamic_cast<IRaycastContext*>(pRaycastContextInstance);
+		return CREATE_IMPL(IRaycastContext, CBaseRaycastContext, result, pMemoryManager, p2DPhysicsSystem, p3DPhysicsSystem);
 	}
 }

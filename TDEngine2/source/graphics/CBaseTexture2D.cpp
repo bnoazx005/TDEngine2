@@ -1,8 +1,8 @@
-#include "./../../include/graphics/CBaseTexture2D.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <string>
@@ -254,24 +254,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceLoader* CreateBaseTexture2DLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CBaseTexture2DLoader* pTexture2DLoaderInstance = new (std::nothrow) CBaseTexture2DLoader();
-
-		if (!pTexture2DLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTexture2DLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pTexture2DLoaderInstance;
-
-			pTexture2DLoaderInstance = nullptr;
-		}
-
-		return pTexture2DLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CBaseTexture2DLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
 	}
 }

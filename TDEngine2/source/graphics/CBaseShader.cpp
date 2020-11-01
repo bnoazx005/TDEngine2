@@ -1,7 +1,7 @@
-#include "./../../include/graphics/CBaseShader.h"
-#include "./../../include/graphics/IShaderCompiler.h"
-#include "./../../include/graphics/IConstantBuffer.h"
-#include "./../../include/graphics/ITexture.h"
+#include "../../include/graphics/CBaseShader.h"
+#include "../../include/graphics/IShaderCompiler.h"
+#include "../../include/graphics/IConstantBuffer.h"
+#include "../../include/graphics/ITexture.h"
 
 
 namespace TDEngine2

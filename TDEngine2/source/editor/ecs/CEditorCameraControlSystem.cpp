@@ -1,12 +1,12 @@
-#include "./../../include/editor/ecs/CEditorCameraControlSystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/graphics/COrthoCamera.h"
-#include "./../../include/graphics/CPerspectiveCamera.h"
-#include "./../../include/core/IInputContext.h"
-#include "./../../include/editor/IEditorsManager.h"
-#include "./../../include/utils/CFileLogger.h"
+#include "../../include/editor/ecs/CEditorCameraControlSystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/core/IInputContext.h"
+#include "../../include/editor/IEditorsManager.h"
+#include "../../include/utils/CFileLogger.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -131,25 +131,7 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreateEditorCameraControlSystem(IInputContext* pInputContext, IEditorsManager* pEditorManager, E_RESULT_CODE& result)
 	{
-		CEditorCameraControlSystem* pSystemInstance = new (std::nothrow) CEditorCameraControlSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init(pInputContext, pEditorManager);
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CEditorCameraControlSystem, result, pInputContext, pEditorManager);
 	}
 }
 

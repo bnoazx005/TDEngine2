@@ -1,12 +1,12 @@
-#include "./../../include/ecs/CSystemManager.h"
-#include "./../../include/ecs/ISystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CTransformSystem.h"
-#include "./../../include/ecs/CSpriteRendererSystem.h"
-#include "./../../include/utils/Utils.h"
-#include "./../../include/core/IEventManager.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CBaseComponent.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/ISystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CTransformSystem.h"
+#include "../../include/ecs/CSpriteRendererSystem.h"
+#include "../../include/utils/Utils.h"
+#include "../../include/core/IEventManager.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CBaseComponent.h"
 #include <algorithm>
 
 
@@ -238,24 +238,6 @@ namespace TDEngine2
 
 	ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
-		CSystemManager* pSysManager = new (std::nothrow) CSystemManager();
-
-		if (!pSysManager)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSysManager->Init(pWorld, pEventManager);
-
-		if (result != RC_OK)
-		{
-			delete pSysManager;
-
-			pSysManager = nullptr;
-		}
-
-		return dynamic_cast<ISystemManager*>(pSysManager);
+		return CREATE_IMPL(ISystemManager, CSystemManager, result, pWorld, pEventManager);
 	}
 }

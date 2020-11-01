@@ -191,24 +191,6 @@ namespace TDEngine2
 
 	TDE2_API IPluginManager* CreateBasePluginManager(IEngineCore* pEngineCore, E_RESULT_CODE& result)
 	{
-		CBasePluginManager* pPluginManagerInstance = new (std::nothrow) CBasePluginManager();
-
-		if (!pPluginManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pPluginManagerInstance->Init(pEngineCore);
-
-		if (result != RC_OK)
-		{
-			delete pPluginManagerInstance;
-
-			pPluginManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<IPluginManager*>(pPluginManagerInstance);
+		return CREATE_IMPL(IPluginManager, CBasePluginManager, result, pEngineCore);
 	}
 }

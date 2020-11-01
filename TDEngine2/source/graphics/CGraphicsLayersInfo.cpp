@@ -1,4 +1,4 @@
-#include "./../../include/graphics/CGraphicsLayersInfo.h"
+#include "../../include/graphics/CGraphicsLayersInfo.h"
 #include <climits>
 #include <cmath>
 
@@ -83,24 +83,6 @@ namespace TDEngine2
 
 	IGraphicsLayersInfo* CreateGraphicsLayersInfo(E_RESULT_CODE& result)
 	{
-		CGraphicsLayersInfo* pGraphicsLayersInfo = new (std::nothrow) CGraphicsLayersInfo();
-
-		if (!pGraphicsLayersInfo)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pGraphicsLayersInfo->Init();
-
-		if (result != RC_OK)
-		{
-			delete pGraphicsLayersInfo;
-
-			pGraphicsLayersInfo = nullptr;
-		}
-
-		return pGraphicsLayersInfo;
+		return CREATE_IMPL(IGraphicsLayersInfo, CGraphicsLayersInfo, result);
 	}
 }

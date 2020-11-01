@@ -1,8 +1,8 @@
-#include "./../../include/graphics/CBaseGraphicsObjectManager.h"
-#include "./../../include/graphics/IVertexDeclaration.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/graphics/CDebugUtility.h"
-#include "./../../include/graphics/IRenderer.h"
+#include "../../include/graphics/CBaseGraphicsObjectManager.h"
+#include "../../include/graphics/IVertexDeclaration.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/graphics/CDebugUtility.h"
+#include "../../include/graphics/IRenderer.h"
 #include <unordered_map>
 
 

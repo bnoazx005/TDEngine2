@@ -504,24 +504,6 @@ namespace TDEngine2
 
 	IEngineCore* CreateEngineCore(E_RESULT_CODE& result)
 	{
-		CEngineCore* pEngineCore = new (std::nothrow) CEngineCore();
-
-		if (!pEngineCore)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEngineCore->Init();
-
-		if (result != RC_OK)
-		{
-			delete pEngineCore;
-
-			pEngineCore = nullptr;
-		}
-
-		return dynamic_cast<IEngineCore*>(pEngineCore);
+		return CREATE_IMPL(IEngineCore, CEngineCore, result);
 	}
 }

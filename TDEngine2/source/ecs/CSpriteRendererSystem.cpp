@@ -1,20 +1,20 @@
-#include "./../../include/ecs/CSpriteRendererSystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/graphics/CQuadSprite.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/graphics/CRenderQueue.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/IVertexBuffer.h"
-#include "./../../include/graphics/IIndexBuffer.h"
-#include "./../../include/graphics/IVertexDeclaration.h"
-#include "./../../include/graphics/CGraphicsLayersInfo.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/graphics/IRenderer.h"
-#include "./../../include/core/IResourceHandler.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/graphics/CBaseMaterial.h"
-#include "./../../include/core/memory/IAllocator.h"
+#include "../../include/ecs/CSpriteRendererSystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/graphics/CQuadSprite.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IVertexBuffer.h"
+#include "../../include/graphics/IIndexBuffer.h"
+#include "../../include/graphics/IVertexDeclaration.h"
+#include "../../include/graphics/CGraphicsLayersInfo.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/graphics/IRenderer.h"
+#include "../../include/core/IResourceHandler.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/core/memory/IAllocator.h"
 
 
 namespace TDEngine2
@@ -239,24 +239,6 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreateSpriteRendererSystem(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
-		CSpriteRendererSystem* pSystemInstance = new (std::nothrow) CSpriteRendererSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init(allocator, pRenderer, pGraphicsObjectManager);
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CSpriteRendererSystem, result, allocator, pRenderer, pGraphicsObjectManager);
 	}
 }

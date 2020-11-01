@@ -1,5 +1,5 @@
-#include "./../../include/graphics/COrthoCamera.h"
-#include "./../../include/ecs/ICameraSystem.h"
+#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/ecs/ICameraSystem.h"
 
 
 namespace TDEngine2
@@ -64,25 +64,7 @@ namespace TDEngine2
 
 	IComponent* CreateOrthoCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result)
 	{
-		COrthoCamera* pCameraInstance = new (std::nothrow) COrthoCamera();
-
-		if (!pCameraInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pCameraInstance->Init(fov, aspect, zn, zf);
-
-		if (result != RC_OK)
-		{
-			delete pCameraInstance;
-
-			pCameraInstance = nullptr;
-		}
-
-		return pCameraInstance;
+		return CREATE_IMPL(IComponent, COrthoCamera, result, fov, aspect, zn, zf);
 	}
 
 
@@ -147,24 +129,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateOrthoCameraFactory(E_RESULT_CODE& result)
 	{
-		COrthoCameraFactory* pOrthoCameraFactoryInstance = new (std::nothrow) COrthoCameraFactory();
-
-		if (!pOrthoCameraFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pOrthoCameraFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pOrthoCameraFactoryInstance;
-
-			pOrthoCameraFactoryInstance = nullptr;
-		}
-
-		return pOrthoCameraFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, COrthoCameraFactory, result);
 	}
 }

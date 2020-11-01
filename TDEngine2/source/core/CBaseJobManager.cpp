@@ -112,24 +112,6 @@ namespace TDEngine2
 
 	IJobManager* CreateBaseJobManager(U32 maxNumOfThreads, E_RESULT_CODE& result)
 	{
-		CBaseJobManager* pJobManagerInstance = new (std::nothrow) CBaseJobManager();
-
-		if (!pJobManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pJobManagerInstance->Init(maxNumOfThreads);
-
-		if (result != RC_OK)
-		{
-			delete pJobManagerInstance;
-
-			pJobManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<IJobManager*>(pJobManagerInstance);
+		return CREATE_IMPL(IJobManager, CBaseJobManager, result, maxNumOfThreads);
 	}
 }

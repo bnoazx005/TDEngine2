@@ -1,6 +1,6 @@
-#include "./../../include/editor/CProfilerEditorWindow.h"
-#include "./../../include/core/IImGUIContext.h"
-#include "./../../include/math/MathUtils.h"
+#include "../../include/editor/CProfilerEditorWindow.h"
+#include "../../include/core/IImGUIContext.h"
+#include "../../include/math/MathUtils.h"
 #include "stringUtils.hpp"
 #include <stack>
 #include <tuple>
@@ -158,25 +158,7 @@ namespace TDEngine2
 
 	TDE2_API IEditorWindow* CreateProfilerEditorWindow(IProfiler* pProfiler, E_RESULT_CODE& result)
 	{
-		CProfilerEditorWindow* pEditorInstance = new (std::nothrow) CProfilerEditorWindow();
-
-		if (!pEditorInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEditorInstance->Init(pProfiler);
-
-		if (result != RC_OK)
-		{
-			delete pEditorInstance;
-
-			pEditorInstance = nullptr;
-		}
-
-		return dynamic_cast<IEditorWindow*>(pEditorInstance);
+		return CREATE_IMPL(IEditorWindow, CProfilerEditorWindow, result, pProfiler);
 	}
 }
 

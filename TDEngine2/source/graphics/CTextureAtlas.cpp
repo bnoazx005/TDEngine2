@@ -1,11 +1,11 @@
-#include "./../../include/graphics/CTextureAtlas.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/CBaseFileSystem.h"
-#include "./../../include/utils/Utils.h"
-#include "./../../include/graphics/CBaseTexture2D.h"
-#include "./../../include/core/IFile.h"
-#include "./../../include/platform/CYAMLFile.h"
+#include "../../include/graphics/CTextureAtlas.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/CBaseFileSystem.h"
+#include "../../include/utils/Utils.h"
+#include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/core/IFile.h"
+#include "../../include/platform/CYAMLFile.h"
 #include "stringUtils.hpp"
 #include <cassert>
 #include <algorithm>
@@ -514,50 +514,14 @@ namespace TDEngine2
 	TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 												const TTexture2DParameters& params, E_RESULT_CODE& result)
 	{
-		CTextureAtlas* pTextureAtlasInstance = new (std::nothrow) CTextureAtlas();
-
-		if (!pTextureAtlasInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTextureAtlasInstance->Init(pResourceManager, pGraphicsContext, name, params);
-
-		if (result != RC_OK)
-		{
-			delete pTextureAtlasInstance;
-
-			pTextureAtlasInstance = nullptr;
-		}
-
-		return pTextureAtlasInstance;
+		return CREATE_IMPL(ITextureAtlas, CTextureAtlas, result, pResourceManager, pGraphicsContext, name, params);
 	}
 
 
 	TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 											   E_RESULT_CODE& result)
 	{
-		CTextureAtlas* pTextureAtlasInstance = new (std::nothrow) CTextureAtlas();
-
-		if (!pTextureAtlasInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTextureAtlasInstance->Init(pResourceManager, pGraphicsContext, name);
-
-		if (result != RC_OK)
-		{
-			delete pTextureAtlasInstance;
-
-			pTextureAtlasInstance = nullptr;
-		}
-
-		return pTextureAtlasInstance;
+		return CREATE_IMPL(ITextureAtlas, CTextureAtlas, result, pResourceManager, pGraphicsContext, name);
 	}
 
 
@@ -625,25 +589,7 @@ namespace TDEngine2
 
 	TDE2_API IResourceLoader* CreateTextureAtlasLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CTextureAtlasLoader* pMaterialLoaderInstance = new (std::nothrow) CTextureAtlasLoader();
-
-		if (!pMaterialLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMaterialLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pMaterialLoaderInstance;
-
-			pMaterialLoaderInstance = nullptr;
-		}
-
-		return pMaterialLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CTextureAtlasLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
 	}
 
 
@@ -715,24 +661,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateTextureAtlasFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		CTextureAtlasFactory* pMaterialFactoryInstance = new (std::nothrow) CTextureAtlasFactory();
-
-		if (!pMaterialFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMaterialFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pMaterialFactoryInstance;
-
-			pMaterialFactoryInstance = nullptr;
-		}
-
-		return pMaterialFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, CTextureAtlasFactory, result, pResourceManager, pGraphicsContext);
 	}
 }

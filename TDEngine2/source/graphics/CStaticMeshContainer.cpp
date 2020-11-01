@@ -1,4 +1,4 @@
-#include "./../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CStaticMeshContainer.h"
 
 
 namespace TDEngine2
@@ -53,25 +53,7 @@ namespace TDEngine2
 
 	IComponent* CreateStaticMeshContainer(E_RESULT_CODE& result)
 	{
-		CStaticMeshContainer* pStaticMeshContainerInstance = new (std::nothrow) CStaticMeshContainer();
-
-		if (!pStaticMeshContainerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pStaticMeshContainerInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pStaticMeshContainerInstance;
-
-			pStaticMeshContainerInstance = nullptr;
-		}
-
-		return pStaticMeshContainerInstance;
+		return CREATE_IMPL(IComponent, CStaticMeshContainer, result);
 	}
 
 
@@ -135,24 +117,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateStaticMeshContainerFactory(E_RESULT_CODE& result)
 	{
-		CStaticMeshContainerFactory* pStaticMeshContainerFactoryInstance = new (std::nothrow) CStaticMeshContainerFactory();
-
-		if (!pStaticMeshContainerFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pStaticMeshContainerFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pStaticMeshContainerFactoryInstance;
-
-			pStaticMeshContainerFactoryInstance = nullptr;
-		}
-
-		return pStaticMeshContainerFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CStaticMeshContainerFactory, result);
 	}
 }

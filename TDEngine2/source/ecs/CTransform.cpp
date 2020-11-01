@@ -1,4 +1,4 @@
-#include "./../../include/ecs/CTransform.h"
+#include "../../include/ecs/CTransform.h"
 
 
 namespace TDEngine2
@@ -116,25 +116,7 @@ namespace TDEngine2
 
 	IComponent* CreateTransform(const TVector3& position, const TQuaternion& rotation, const TVector3& scale, E_RESULT_CODE& result)
 	{
-		CTransform* pTransformInstance = new (std::nothrow) CTransform();
-
-		if (!pTransformInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTransformInstance->Init(position, rotation, scale);
-
-		if (result != RC_OK)
-		{
-			delete pTransformInstance;
-
-			pTransformInstance = nullptr;
-		}
-
-		return pTransformInstance;
+		return CREATE_IMPL(IComponent, CTransform, result, position, rotation, scale);
 	}
 
 
@@ -198,24 +180,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateTransformFactory(E_RESULT_CODE& result)
 	{
-		CTransformFactory* pTransformFactoryInstance = new (std::nothrow) CTransformFactory();
-
-		if (!pTransformFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTransformFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pTransformFactoryInstance;
-
-			pTransformFactoryInstance = nullptr;
-		}
-
-		return pTransformFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CTransformFactory, result);
 	}
 }

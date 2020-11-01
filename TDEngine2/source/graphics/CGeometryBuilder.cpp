@@ -1,6 +1,6 @@
-#include "./../../include/graphics/CGeometryBuilder.h"
-#include "./../../include/math/MathUtils.h"
-#include "./../../include/graphics/IDebugUtility.h"
+#include "../../include/graphics/CGeometryBuilder.h"
+#include "../../include/math/MathUtils.h"
+#include "../../include/graphics/IDebugUtility.h"
 #include <cmath>
 
 
@@ -483,24 +483,6 @@ namespace TDEngine2
 
 	TDE2_API IGeometryBuilder* CreateGeometryBuilder(E_RESULT_CODE& result)
 	{
-		CGeometryBuilder* pGeometryBuilder = new (std::nothrow) CGeometryBuilder();
-
-		if (!pGeometryBuilder)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pGeometryBuilder->Init();
-
-		if (result != RC_OK)
-		{
-			delete pGeometryBuilder;
-
-			pGeometryBuilder = nullptr;
-		}
-
-		return pGeometryBuilder;
+		return CREATE_IMPL(IGeometryBuilder, CGeometryBuilder, result);
 	}
 }

@@ -1,5 +1,5 @@
-#include "./../../../include/physics/2D/CBoxCollisionObject2D.h"
-#include "./../../../include/physics/2D/ICollisionObjectsVisitor.h"
+#include "../../../include/physics/2D/CBoxCollisionObject2D.h"
+#include "../../../include/physics/2D/ICollisionObjectsVisitor.h"
 
 
 namespace TDEngine2
@@ -44,25 +44,7 @@ namespace TDEngine2
 
 	IComponent* CreateBoxCollisionObject2D(E_RESULT_CODE& result)
 	{
-		CBoxCollisionObject2D* pBoxCollisionObject2DInstance = new (std::nothrow) CBoxCollisionObject2D();
-
-		if (!pBoxCollisionObject2DInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pBoxCollisionObject2DInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pBoxCollisionObject2DInstance;
-
-			pBoxCollisionObject2DInstance = nullptr;
-		}
-
-		return pBoxCollisionObject2DInstance;
+		return CREATE_IMPL(IComponent, CBoxCollisionObject2D, result);
 	}
 
 
@@ -126,24 +108,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateBoxCollisionObject2DFactory(E_RESULT_CODE& result)
 	{
-		CBoxCollisionObject2DFactory* pBoxCollisionObject2DFactoryInstance = new (std::nothrow) CBoxCollisionObject2DFactory();
-
-		if (!pBoxCollisionObject2DFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pBoxCollisionObject2DFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pBoxCollisionObject2DFactoryInstance;
-
-			pBoxCollisionObject2DFactoryInstance = nullptr;
-		}
-
-		return pBoxCollisionObject2DFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CBoxCollisionObject2DFactory, result);
 	}
 }

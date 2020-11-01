@@ -1,17 +1,17 @@
-#include "./../../include/editor/CSelectionManager.h"
-#include "./../../include/editor/IEditorsManager.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CObjectsSelectionSystem.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/editor/ecs/EditorComponents.h"
-#include "./../../include/utils/CFileLogger.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/IResourceHandler.h"
-#include "./../../include/core/IEventManager.h"
-#include "./../../include/graphics/CBaseRenderTarget.h"
-#include "./../../include/graphics/CBaseTexture2D.h"
-#include "./../../include/core/IWindowSystem.h"
-#include "./../../include/core/IGraphicsContext.h"
+#include "../../include/editor/CSelectionManager.h"
+#include "../../include/editor/IEditorsManager.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CObjectsSelectionSystem.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/editor/ecs/EditorComponents.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/IResourceHandler.h"
+#include "../../include/core/IEventManager.h"
+#include "../../include/graphics/CBaseRenderTarget.h"
+#include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/core/IWindowSystem.h"
+#include "../../include/core/IGraphicsContext.h"
 #include <functional>
 #include <cmath>
 
@@ -251,25 +251,7 @@ namespace TDEngine2
 	TDE2_API ISelectionManager* CreateSelectionManager(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
 													   IEditorsManager* pEditorsManager, E_RESULT_CODE& result)
 	{
-		CSelectionManager* pSelectionManagerInstance = new (std::nothrow) CSelectionManager();
-
-		if (!pSelectionManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSelectionManagerInstance->Init(pResourceManager, pWindowSystem, pGraphicsContext, pEditorsManager);
-
-		if (result != RC_OK)
-		{
-			delete pSelectionManagerInstance;
-
-			pSelectionManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<ISelectionManager*>(pSelectionManagerInstance);
+		return CREATE_IMPL(ISelectionManager, CSelectionManager, result, pResourceManager, pWindowSystem, pGraphicsContext, pEditorsManager);
 	}
 }
 

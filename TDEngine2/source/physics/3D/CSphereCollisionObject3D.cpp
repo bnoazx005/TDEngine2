@@ -1,6 +1,6 @@
-#include "./../../../include/physics/3D/CSphereCollisionObject3D.h"
-#include "./../../../include/physics/3D/ICollisionObjects3DVisitor.h"
-#include "./../../../deps/bullet3/src/btBulletDynamicsCommon.h"
+#include "../../../include/physics/3D/CSphereCollisionObject3D.h"
+#include "../../../include/physics/3D/ICollisionObjects3DVisitor.h"
+#include "../../../deps/bullet3/src/btBulletDynamicsCommon.h"
 
 
 namespace TDEngine2
@@ -28,25 +28,7 @@ namespace TDEngine2
 
 	IComponent* CreateSphereCollisionObject3D(E_RESULT_CODE& result)
 	{
-		CSphereCollisionObject3D* pSphereCollisionObject3DInstance = new (std::nothrow) CSphereCollisionObject3D();
-
-		if (!pSphereCollisionObject3DInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSphereCollisionObject3DInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pSphereCollisionObject3DInstance;
-
-			pSphereCollisionObject3DInstance = nullptr;
-		}
-
-		return pSphereCollisionObject3DInstance;
+		return CREATE_IMPL(IComponent, CSphereCollisionObject3D, result);
 	}
 
 
@@ -117,24 +99,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateSphereCollisionObject3DFactory(E_RESULT_CODE& result)
 	{
-		CSphereCollisionObject3DFactory* pSphereCollisionObject3DFactoryInstance = new (std::nothrow) CSphereCollisionObject3DFactory();
-
-		if (!pSphereCollisionObject3DFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSphereCollisionObject3DFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pSphereCollisionObject3DFactoryInstance;
-
-			pSphereCollisionObject3DFactoryInstance = nullptr;
-		}
-
-		return pSphereCollisionObject3DFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CSphereCollisionObject3DFactory, result);
 	}
 }

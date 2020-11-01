@@ -1,11 +1,11 @@
-#include "./../../include/graphics/CBaseCubemapTexture.h"
-#include "./../../include/graphics/CBaseTexture2D.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/platform/CYAMLFile.h"
-#include "./../../include/utils/Utils.h"
-#include "./stringUtils.hpp"
+#include "../../include/graphics/CBaseCubemapTexture.h"
+#include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/platform/CYAMLFile.h"
+#include "../../include/utils/Utils.h"
+#include "stringUtils.hpp"
 #include <stb_image.h>
 #include <string>
 
@@ -302,24 +302,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceLoader* CreateBaseCubemapTextureLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CBaseCubemapTextureLoader* pCubemapTextureLoaderInstance = new (std::nothrow) CBaseCubemapTextureLoader();
-
-		if (!pCubemapTextureLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pCubemapTextureLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pCubemapTextureLoaderInstance;
-
-			pCubemapTextureLoaderInstance = nullptr;
-		}
-
-		return pCubemapTextureLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CBaseCubemapTextureLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
 	}
 }

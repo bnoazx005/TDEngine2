@@ -1,10 +1,10 @@
-#include "./../../include/graphics/CStaticMesh.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/core/IFile.h"
-#include "./../../include/utils/CFileLogger.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/CGeometryBuilder.h"
+#include "../../include/graphics/CStaticMesh.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IFile.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/CGeometryBuilder.h"
 #include <cstring>
 #include <climits>
 
@@ -403,25 +403,7 @@ namespace TDEngine2
 
 	TDE2_API IStaticMesh* CreateStaticMesh(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
-		CStaticMesh* pMeshInstance = new (std::nothrow) CStaticMesh();
-
-		if (!pMeshInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMeshInstance->Init(pResourceManager, pGraphicsContext, name);
-
-		if (result != RC_OK)
-		{
-			delete pMeshInstance;
-
-			pMeshInstance = nullptr;
-		}
-
-		return pMeshInstance;
+		return CREATE_IMPL(IStaticMesh, CStaticMesh, result, pResourceManager, pGraphicsContext, name);
 	}
 
 
@@ -535,25 +517,7 @@ namespace TDEngine2
 
 	TDE2_API IResourceLoader* CreateStaticMeshLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CStaticMeshLoader* pMaterialLoaderInstance = new (std::nothrow) CStaticMeshLoader();
-
-		if (!pMaterialLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMaterialLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pMaterialLoaderInstance;
-
-			pMaterialLoaderInstance = nullptr;
-		}
-
-		return pMaterialLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CStaticMeshLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
 	}
 
 
@@ -621,24 +585,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateStaticMeshFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		CStaticMeshFactory* pMaterialFactoryInstance = new (std::nothrow) CStaticMeshFactory();
-
-		if (!pMaterialFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMaterialFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pMaterialFactoryInstance;
-
-			pMaterialFactoryInstance = nullptr;
-		}
-
-		return pMaterialFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, CStaticMeshFactory, result, pResourceManager, pGraphicsContext);
 	}
 }

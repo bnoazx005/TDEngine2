@@ -1,12 +1,12 @@
-#include "./../../include/ecs/CWorld.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/ISystemManager.h"
-#include "./../../include/ecs/CEntityManager.h"
-#include "./../../include/ecs/CComponentManager.h"
-#include "./../../include/ecs/CSystemManager.h"
-#include "./../../include/core/IEventManager.h"
-#include "./../../include/editor/CPerfProfiler.h"
-#include "./../../include/physics/IRaycastContext.h"
+#include "../../include/ecs/CWorld.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/ISystemManager.h"
+#include "../../include/ecs/CEntityManager.h"
+#include "../../include/ecs/CComponentManager.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/core/IEventManager.h"
+#include "../../include/editor/CPerfProfiler.h"
+#include "../../include/physics/IRaycastContext.h"
 
 
 namespace TDEngine2
@@ -194,24 +194,6 @@ namespace TDEngine2
 
 	IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
-		CWorld* pWorld = new (std::nothrow) CWorld();
-
-		if (!pWorld)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pWorld->Init(pEventManager);
-
-		if (result != RC_OK)
-		{
-			delete pWorld;
-
-			pWorld = nullptr;
-		}
-
-		return dynamic_cast<IWorld*>(pWorld);
+		return CREATE_IMPL(IWorld, CWorld, result, pEventManager);
 	}
 }

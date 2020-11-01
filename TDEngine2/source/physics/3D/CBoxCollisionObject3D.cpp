@@ -1,6 +1,6 @@
-#include "./../../../include/physics/3D/CBoxCollisionObject3D.h"
-#include "./../../../include/physics/3D/ICollisionObjects3DVisitor.h"
-#include "./../../../deps/bullet3/src/btBulletDynamicsCommon.h"
+#include "../../../include/physics/3D/CBoxCollisionObject3D.h"
+#include "../../../include/physics/3D/ICollisionObjects3DVisitor.h"
+#include "../../../deps/bullet3/src/btBulletDynamicsCommon.h"
 
 
 namespace TDEngine2
@@ -28,25 +28,7 @@ namespace TDEngine2
 
 	IComponent* CreateBoxCollisionObject3D(E_RESULT_CODE& result)
 	{
-		CBoxCollisionObject3D* pBoxCollisionObject3DInstance = new (std::nothrow) CBoxCollisionObject3D();
-
-		if (!pBoxCollisionObject3DInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pBoxCollisionObject3DInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pBoxCollisionObject3DInstance;
-
-			pBoxCollisionObject3DInstance = nullptr;
-		}
-
-		return pBoxCollisionObject3DInstance;
+		return CREATE_IMPL(IComponent, CBoxCollisionObject3D, result);
 	}
 
 
@@ -117,24 +99,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateBoxCollisionObject3DFactory(E_RESULT_CODE& result)
 	{
-		CBoxCollisionObject3DFactory* pBoxCollisionObject3DFactoryInstance = new (std::nothrow) CBoxCollisionObject3DFactory();
-
-		if (!pBoxCollisionObject3DFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pBoxCollisionObject3DFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pBoxCollisionObject3DFactoryInstance;
-
-			pBoxCollisionObject3DFactoryInstance = nullptr;
-		}
-
-		return pBoxCollisionObject3DFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CBoxCollisionObject3DFactory, result);
 	}
 }

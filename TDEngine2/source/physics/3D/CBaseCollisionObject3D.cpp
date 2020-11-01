@@ -1,5 +1,5 @@
-#include "./../../../include/physics/3D/CBaseCollisionObject3D.h"
-#include "./../../../include/math/MathUtils.h"
+#include "../../../include/physics/3D/CBaseCollisionObject3D.h"
+#include "../../../include/math/MathUtils.h"
 
 
 namespace TDEngine2

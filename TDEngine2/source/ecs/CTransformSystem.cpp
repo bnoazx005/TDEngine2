@@ -1,8 +1,8 @@
-#include "./../../include/ecs/CTransformSystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/components/CBoundsComponent.h"
+#include "../../include/ecs/CTransformSystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/components/CBoundsComponent.h"
 
 
 namespace TDEngine2
@@ -91,24 +91,6 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreateTransformSystem(E_RESULT_CODE& result)
 	{
-		CTransformSystem* pSystemInstance = new (std::nothrow) CTransformSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CTransformSystem, result);
 	}
 }

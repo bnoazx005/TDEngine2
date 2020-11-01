@@ -1,6 +1,6 @@
-#include "./../../include/graphics/CBasePostProcessingProfile.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/platform/CYAMLFile.h"
+#include "../../include/graphics/CBasePostProcessingProfile.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/platform/CYAMLFile.h"
 
 
 namespace TDEngine2
@@ -132,25 +132,7 @@ namespace TDEngine2
 
 	TDE2_API IPostProcessingProfile* CreateBasePostProcessingProfile(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
-		CBasePostProcessingProfile* pPostProcessingProfileInstance = new (std::nothrow) CBasePostProcessingProfile();
-
-		if (!pPostProcessingProfileInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pPostProcessingProfileInstance->Init(pResourceManager, pGraphicsContext, name);
-
-		if (result != RC_OK)
-		{
-			delete pPostProcessingProfileInstance;
-
-			pPostProcessingProfileInstance = nullptr;
-		}
-
-		return pPostProcessingProfileInstance;
+		return CREATE_IMPL(IPostProcessingProfile, CBasePostProcessingProfile, result, pResourceManager, pGraphicsContext, name);
 	}
 
 
@@ -241,25 +223,7 @@ namespace TDEngine2
 
 	TDE2_API IResourceLoader* CreateBasePostProcessingProfileLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CBasePostProcessingProfileLoader* pPostProcessingProfileLoaderInstance = new (std::nothrow) CBasePostProcessingProfileLoader();
-
-		if (!pPostProcessingProfileLoaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pPostProcessingProfileLoaderInstance->Init(pResourceManager, pGraphicsContext, pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pPostProcessingProfileLoaderInstance;
-
-			pPostProcessingProfileLoaderInstance = nullptr;
-		}
-
-		return pPostProcessingProfileLoaderInstance;
+		return CREATE_IMPL(IResourceLoader, CBasePostProcessingProfileLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
 	}
 
 
@@ -326,24 +290,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateBasePostProcessingProfileFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		CBasePostProcessingProfileFactory* pPostProcessingProfileFactoryInstance = new (std::nothrow) CBasePostProcessingProfileFactory();
-
-		if (!pPostProcessingProfileFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pPostProcessingProfileFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pPostProcessingProfileFactoryInstance;
-
-			pPostProcessingProfileFactoryInstance = nullptr;
-		}
-
-		return pPostProcessingProfileFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, CBasePostProcessingProfileFactory, result, pResourceManager, pGraphicsContext);
 	}
 }

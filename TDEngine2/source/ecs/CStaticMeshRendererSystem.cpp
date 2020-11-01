@@ -1,18 +1,18 @@
-#include "./../../include/ecs/CStaticMeshRendererSystem.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/IRenderer.h"
-#include "./../../include/graphics/CStaticMeshContainer.h"
-#include "./../../include/graphics/CRenderQueue.h"
-#include "./../../include/graphics/CBaseMaterial.h"
-#include "./../../include/graphics/IVertexDeclaration.h"
-#include "./../../include/graphics/CStaticMesh.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/graphics/CPerspectiveCamera.h"
-#include "./../../include/graphics/COrthoCamera.h"
-#include "./../../include/utils/CFileLogger.h"
+#include "../../include/ecs/CStaticMeshRendererSystem.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/graphics/IVertexDeclaration.h"
+#include "../../include/graphics/CStaticMesh.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/utils/CFileLogger.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -237,24 +237,6 @@ namespace TDEngine2
 
 	TDE2_API ISystem* CreateStaticMeshRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
-		CStaticMeshRendererSystem* pSystemInstance = new (std::nothrow) CStaticMeshRendererSystem();
-
-		if (!pSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pSystemInstance->Init(pRenderer, pGraphicsObjectManager);
-
-		if (result != RC_OK)
-		{
-			delete pSystemInstance;
-
-			pSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<ISystem*>(pSystemInstance);
+		return CREATE_IMPL(ISystem, CStaticMeshRendererSystem, result, pRenderer, pGraphicsObjectManager);
 	}
 }

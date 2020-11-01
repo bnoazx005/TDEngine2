@@ -1,14 +1,14 @@
-#include "./../../include/editor/CEditorsManager.h"
-#include "./../../include/editor/IEditorWindow.h"
-#include "./../../include/core/IImGUIContext.h"
-#include "./../../include/core/IInputContext.h"
-#include "./../../include/core/IWindowSystem.h"
-#include "./../../include/editor/CPerfProfiler.h"
-#include "./../../include/editor/ecs/CEditorCameraControlSystem.h"
-#include "./../../include/ecs/CWorld.h"
-#include "./../../include/editor/ISelectionManager.h"
-#include "./../../include/core/IEventManager.h"
-#include "./../../include/utils/CFileLogger.h"
+#include "../../include/editor/CEditorsManager.h"
+#include "../../include/editor/IEditorWindow.h"
+#include "../../include/core/IImGUIContext.h"
+#include "../../include/core/IInputContext.h"
+#include "../../include/core/IWindowSystem.h"
+#include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/ecs/CEditorCameraControlSystem.h"
+#include "../../include/ecs/CWorld.h"
+#include "../../include/editor/ISelectionManager.h"
+#include "../../include/core/IEventManager.h"
+#include "../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 #include <algorithm>
 
@@ -270,25 +270,7 @@ namespace TDEngine2
 
 	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld, E_RESULT_CODE& result)
 	{
-		CEditorsManager* pEditorsManagerInstance = new (std::nothrow) CEditorsManager();
-
-		if (!pEditorsManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEditorsManagerInstance->Init(pInputContext, pImGUIContext, pEventManager, pWorld);
-
-		if (result != RC_OK)
-		{
-			delete pEditorsManagerInstance;
-
-			pEditorsManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<IEditorsManager*>(pEditorsManagerInstance);
+		return CREATE_IMPL(IEditorsManager, CEditorsManager, result, pInputContext, pImGUIContext, pEventManager, pWorld);
 	}
 }
 

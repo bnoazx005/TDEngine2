@@ -1,9 +1,10 @@
-#include "./../../../include/core/memory/CMemoryManager.h"
-#include "./../../../include/utils/CFileLogger.h"
-#include "./../../../include/core/memory/IAllocator.h"
-#include "./../../../include/core/memory/CLinearAllocator.h"
-#include "./../../../include/core/memory/CPoolAllocator.h"
-#include "./../../../include/core/memory/CStackAllocator.h"
+#include "../../../include/core/memory/CMemoryManager.h"
+#include "../../../include/utils/CFileLogger.h"
+#include "../../../include/core/memory/IAllocator.h"
+#include "../../../include/core/memory/CLinearAllocator.h"
+#include "../../../include/core/memory/CPoolAllocator.h"
+#include "../../../include/core/memory/CStackAllocator.h"
+#include "../../../include/utils/Utils.h"
 #include <cstring>
 
 
@@ -207,24 +208,6 @@ namespace TDEngine2
 
 	TDE2_API IMemoryManager* CreateMemoryManager(U32 totalMemorySize, E_RESULT_CODE& result)
 	{
-		CMemoryManager* pMemoryManager = new (std::nothrow) CMemoryManager();
-
-		if (!pMemoryManager)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pMemoryManager->Init(totalMemorySize);
-
-		if (result != RC_OK)
-		{
-			delete pMemoryManager;
-
-			pMemoryManager = nullptr;
-		}
-
-		return dynamic_cast<IMemoryManager*>(pMemoryManager);
+		return CREATE_IMPL(IMemoryManager, CMemoryManager, result, totalMemorySize);
 	}
 }

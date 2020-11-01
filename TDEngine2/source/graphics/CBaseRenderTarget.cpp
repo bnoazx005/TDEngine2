@@ -1,6 +1,6 @@
-#include "./../../include/graphics/CBaseRenderTarget.h"
-#include "./../../include/graphics/CBaseTexture2D.h"
-#include "./../../include/core/IGraphicsContext.h"
+#include "../../include/graphics/CBaseRenderTarget.h"
+#include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/core/IGraphicsContext.h"
 
 
 namespace TDEngine2

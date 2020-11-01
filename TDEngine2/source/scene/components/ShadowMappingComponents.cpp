@@ -33,25 +33,7 @@ namespace TDEngine2
 
 	IComponent* CreateShadowCasterComponent(E_RESULT_CODE& result)
 	{
-		CShadowCasterComponent* pShadowCasterComponentInstance = new (std::nothrow) CShadowCasterComponent();
-
-		if (!pShadowCasterComponentInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pShadowCasterComponentInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pShadowCasterComponentInstance;
-
-			pShadowCasterComponentInstance = nullptr;
-		}
-
-		return pShadowCasterComponentInstance;
+		return CREATE_IMPL(IComponent, CShadowCasterComponent, result);
 	}
 
 
@@ -122,25 +104,7 @@ namespace TDEngine2
 
 	IComponentFactory* CreateShadowCasterComponentFactory(E_RESULT_CODE& result)
 	{
-		CShadowCasterComponentFactory* pShadowCasterComponentFactoryInstance = new (std::nothrow) CShadowCasterComponentFactory();
-
-		if (!pShadowCasterComponentFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pShadowCasterComponentFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pShadowCasterComponentFactoryInstance;
-
-			pShadowCasterComponentFactoryInstance = nullptr;
-		}
-
-		return pShadowCasterComponentFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CShadowCasterComponentFactory, result);
 	}
 
 

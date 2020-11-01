@@ -43,25 +43,7 @@ namespace TDEngine2
 
 	IComponent* CreateBoundsComponent(E_RESULT_CODE& result)
 	{
-		CBoundsComponent* pBoundsComponentInstance = new (std::nothrow) CBoundsComponent();
-
-		if (!pBoundsComponentInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pBoundsComponentInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pBoundsComponentInstance;
-
-			pBoundsComponentInstance = nullptr;
-		}
-
-		return pBoundsComponentInstance;
+		return CREATE_IMPL(IComponent, CBoundsComponent, result);
 	}
 
 
@@ -132,24 +114,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateBoundsComponentFactory(E_RESULT_CODE& result)
 	{
-		CBoundsComponentFactory* pBoundsComponentFactoryInstance = new (std::nothrow) CBoundsComponentFactory();
-
-		if (!pBoundsComponentFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pBoundsComponentFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pBoundsComponentFactoryInstance;
-
-			pBoundsComponentFactoryInstance = nullptr;
-		}
-
-		return pBoundsComponentFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CBoundsComponentFactory, result);
 	}
 }

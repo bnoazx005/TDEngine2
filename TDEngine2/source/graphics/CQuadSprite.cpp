@@ -1,4 +1,4 @@
-#include "./../../include/graphics/CQuadSprite.h"
+#include "../../include/graphics/CQuadSprite.h"
 
 
 namespace TDEngine2
@@ -43,25 +43,7 @@ namespace TDEngine2
 
 	IComponent* CreateQuadSprite(E_RESULT_CODE& result)
 	{
-		CQuadSprite* pQuadSpriteInstance = new (std::nothrow) CQuadSprite();
-
-		if (!pQuadSpriteInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pQuadSpriteInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pQuadSpriteInstance;
-
-			pQuadSpriteInstance = nullptr;
-		}
-
-		return pQuadSpriteInstance;
+		return CREATE_IMPL(IComponent, CQuadSprite, result);
 	}
 
 
@@ -125,24 +107,6 @@ namespace TDEngine2
 
 	IComponentFactory* CreateQuadSpriteFactory(E_RESULT_CODE& result)
 	{
-		CQuadSpriteFactory* pQuadSpriteFactoryInstance = new (std::nothrow) CQuadSpriteFactory();
-
-		if (!pQuadSpriteFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pQuadSpriteFactoryInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pQuadSpriteFactoryInstance;
-
-			pQuadSpriteFactoryInstance = nullptr;
-		}
-
-		return pQuadSpriteFactoryInstance;
+		return CREATE_IMPL(IComponentFactory, CQuadSpriteFactory, result);
 	}
 }

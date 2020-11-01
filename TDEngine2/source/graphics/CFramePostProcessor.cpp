@@ -1,14 +1,14 @@
-#include "./../../include/graphics/CFramePostProcessor.h"
-#include "./../../include/graphics/IRenderer.h"
-#include "./../../include/graphics/CRenderQueue.h"
-#include "./../../include/graphics/CBaseMaterial.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/IVertexDeclaration.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/utils/CFileLogger.h"
-#include "./../../include/core/IWindowSystem.h"
-#include "./../../include/graphics/CBaseRenderTarget.h"
-#include "./../../include/core/IGraphicsContext.h"
+#include "../../include/graphics/CFramePostProcessor.h"
+#include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IVertexDeclaration.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/core/IWindowSystem.h"
+#include "../../include/graphics/CBaseRenderTarget.h"
+#include "../../include/core/IGraphicsContext.h"
 
 
 namespace TDEngine2
@@ -148,24 +148,6 @@ namespace TDEngine2
 
 	TDE2_API IFramePostProcessor* CreateFramePostProcessor(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
 	{
-		CFramePostProcessor* pPostProcessorInstance = new (std::nothrow) CFramePostProcessor();
-
-		if (!pPostProcessorInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pPostProcessorInstance->Init(pRenderer, pGraphicsObjectManager, pWindowSystem);
-
-		if (result != RC_OK)
-		{
-			delete pPostProcessorInstance;
-
-			pPostProcessorInstance = nullptr;
-		}
-
-		return dynamic_cast<IFramePostProcessor*>(pPostProcessorInstance);
+		return CREATE_IMPL(IFramePostProcessor, CFramePostProcessor, result, pRenderer, pGraphicsObjectManager, pWindowSystem);
 	}
 }

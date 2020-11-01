@@ -159,24 +159,6 @@ namespace TDEngine2
 
 	TDE2_API IEventManager* CreateEventManager(E_RESULT_CODE& result)
 	{
-		CEventManager* pEventManagerInstance = new (std::nothrow) CEventManager();
-
-		if (!pEventManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEventManagerInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pEventManagerInstance;
-
-			pEventManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<IEventManager*>(pEventManagerInstance);
+		return CREATE_IMPL(IEventManager, CEventManager, result);
 	}
 }

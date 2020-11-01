@@ -77,25 +77,7 @@ namespace TDEngine2
 
 	TDE2_API IEditorActionsHistory* CreateEditorActionsManager(E_RESULT_CODE& result)
 	{
-		CEditorActionsManager* pManagerInstance = new (std::nothrow) CEditorActionsManager();
-
-		if (!pManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pManagerInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pManagerInstance;
-
-			pManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<IEditorActionsHistory*>(pManagerInstance);
+		return CREATE_IMPL(IEditorActionsHistory, CEditorActionsManager, result);
 	}
 }
 

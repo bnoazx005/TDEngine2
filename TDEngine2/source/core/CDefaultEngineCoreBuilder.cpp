@@ -610,24 +610,6 @@ namespace TDEngine2
 	
 	TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const TEngineSettings& settings, E_RESULT_CODE& result)
 	{
-		CDefaultEngineCoreBuilder* pEngineCoreBuilder = new (std::nothrow) CDefaultEngineCoreBuilder();
-
-		if (!pEngineCoreBuilder)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pEngineCoreBuilder->Init(pEngineCoreFactoryCallback, settings);
-
-		if (result != RC_OK)
-		{
-			delete pEngineCoreBuilder;
-
-			pEngineCoreBuilder = nullptr;
-		}
-
-		return dynamic_cast<IEngineCoreBuilder*>(pEngineCoreBuilder);
+		return CREATE_IMPL(IEngineCoreBuilder, CDefaultEngineCoreBuilder, result, pEngineCoreFactoryCallback, settings);
 	}
 }
