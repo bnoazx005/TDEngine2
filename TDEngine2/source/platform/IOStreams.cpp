@@ -125,23 +125,7 @@ namespace TDEngine2
 
 	IStream* CreateFileInputStream(const std::string& path, E_RESULT_CODE& result)
 	{
-		CFileInputStream* pStreamInstance = new (std::nothrow) CFileInputStream();
-
-		if (!pStreamInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-			return nullptr;
-		}
-
-		result = pStreamInstance->Init(path);
-
-		if (result != RC_OK)
-		{
-			delete pStreamInstance;
-			pStreamInstance = nullptr;
-		}
-
-		return dynamic_cast<IStream*>(pStreamInstance);
+		return CREATE_IMPL(IStream, CFileInputStream, result, path);
 	}
 
 
@@ -238,23 +222,7 @@ namespace TDEngine2
 
 	IStream* CreateFileOutputStream(const std::string& path, E_RESULT_CODE& result)
 	{
-		CFileOutputStream* pStreamInstance = new (std::nothrow) CFileOutputStream();
-
-		if (!pStreamInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-			return nullptr;
-		}
-
-		result = pStreamInstance->Init(path);
-
-		if (result != RC_OK)
-		{
-			delete pStreamInstance;
-			pStreamInstance = nullptr;
-		}
-
-		return dynamic_cast<IStream*>(pStreamInstance);
+		return CREATE_IMPL(IStream, CFileOutputStream, result, path);
 	}
 
 	
@@ -262,7 +230,123 @@ namespace TDEngine2
 		\brief CMemoryInputStream's definition
 	*/
 
+	CMemoryInputStream::CMemoryInputStream() :
+		CBaseObject()
+	{
+	}
 
+	E_RESULT_CODE CMemoryInputStream::Init(const std::string& path, const std::vector<U8>& data)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+		
+		std::copy(data.begin(), data.end(), std::back_inserter(mData));
+
+		mPath = path;
+		mPointer = 0;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CMemoryInputStream::Free()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		--mRefCounter;
+
+		if (!mRefCounter)
+		{
+			delete this;
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CMemoryInputStream::Read(void* pBuffer, U32 bufferSize)
+	{
+		if (!pBuffer || !bufferSize)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		memcpy(pBuffer, static_cast<void*>(&mData[mPointer]), bufferSize);
+		mPointer += bufferSize;
+
+		return RC_OK;
+	}
+
+	std::string CMemoryInputStream::ReadLine()
+	{
+		if (!IsValid())
+		{
+			return Wrench::StringUtils::GetEmptyStr();
+		}
+		
+		U32 start = mPointer;
+
+		while ((mPointer < mData.size()) && (mData[mPointer] != '\n'))
+		{
+			++mPointer;
+		}
+
+		return std::string(mData.cbegin() + start, mData.cbegin() + start + mPointer - 1);
+	}
+
+	std::string CMemoryInputStream::ReadToEnd()
+	{
+		if (!IsValid())
+		{
+			return Wrench::StringUtils::GetEmptyStr();
+		}
+
+		mPointer = mData.size();
+
+		return std::string(mData.cbegin(), mData.cend());
+	}
+
+	E_RESULT_CODE CMemoryInputStream::SetPosition(U32 pos)
+	{
+		mPointer = pos;
+		return RC_OK;
+	}
+
+	const std::string& CMemoryInputStream::GetName() const
+	{
+		return mPath;
+	}
+
+	U32 CMemoryInputStream::GetPosition() const
+	{
+		return mPointer;
+	}
+
+	bool CMemoryInputStream::IsValid() const
+	{
+		return !mData.empty();
+	}
+
+	bool CMemoryInputStream::IsEndOfStream() const
+	{
+		return mPointer >= mData.size();
+	}
+
+	U64 CMemoryInputStream::GetLength() const
+	{		
+		return static_cast<U64>(mData.size());
+	}
+
+
+	IStream* CreateMemoryInputStream(const std::string& path, const std::vector<U8>& data, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IStream, CMemoryInputStream, result, path, data);
+	}
 
 	/*!
 		\brief CMemoryOutputStream's definition

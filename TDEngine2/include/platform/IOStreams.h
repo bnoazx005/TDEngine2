@@ -12,6 +12,7 @@
 #include "../core/CBaseObject.h"
 #include <string>
 #include <fstream>
+#include <vector>
 
 
 namespace TDEngine2
@@ -264,7 +265,7 @@ namespace TDEngine2
 			std::string mPath;
 	};
 
-#if 0
+
 	/*!
 		\brief A factory function for creation objects of CMemoryInputStream's type
 
@@ -275,13 +276,13 @@ namespace TDEngine2
 		\return A pointer to CMemoryInputStream's implementation
 	*/
 
-	TDE2_API IInputStream* CreateFileInputStream(const std::string& path, E_RESULT_CODE& result);
+	TDE2_API IStream* CreateMemoryInputStream(const std::string& path, const std::vector<U8>& data, E_RESULT_CODE& result);
 
 
 	class CMemoryInputStream: public CBaseObject, public IInputStream
 	{
 		public:
-			friend TDE2_API IInputStream* CreateFileInputStream(const std::string& path, E_RESULT_CODE& result);
+			friend TDE2_API IStream* CreateMemoryInputStream(const std::string&, const std::vector<U8>&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a stream
@@ -291,7 +292,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(const std::string& path);
+			TDE2_API virtual E_RESULT_CODE Init(const std::string& path, const std::vector<U8>& data);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -331,23 +332,103 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetPosition(U32 pos) override;
 			TDE2_API U32 GetPosition() const override;
 
+			TDE2_API const std::string& GetName() const override;
+
 			/*!
 				\brief The method returns true if the stream is opened and ready to use
 				\return The method returns true if the stream is opened and ready to use
 			*/
 
 			TDE2_API bool IsValid() const override;
+
+			TDE2_API bool IsEndOfStream() const override;
+
+			TDE2_API U64 GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryInputStream)
+		protected:
+			std::string mPath;
+
+			std::vector<U8> mData;
+			U32 mPointer;
 	};
 
+#if 0
+	/*!
+		\brief A factory function for creation objects of CMemoryOutputStream's type
 
-	class CMemoryOutputStream: public CBaseObject, public IOutputStream
+		\param[in] path A string with path to a file
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CMemoryOutputStream's implementation
+	*/
+
+	TDE2_API IStream* CreateMemoryOutputStream(const std::string& path, const std::vector<U8>& data, E_RESULT_CODE& result);
+
+
+	/*!
+		\brief The class is an implementation of a file writing stream
+	*/
+
+	class CMemoryOutputStream : public CBaseObject, public IOutputStream
 	{
 		public:
+			friend TDE2_API IStream* CreateMemoryOutputStream(const std::string&, E_RESULT_CODE&);
+		public:
+			/*!
+				\brief The method initializes an internal state of a stream
 
+				\param[in] path A string with path to a file
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(const std::string& path);
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method writes data of specified size into a file
+
+				\param[in] pBuffer A pointer to data's buffer
+
+				\param[in] bufferSize A size in bytes of data should be written
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Write(const void* pBuffer, U32 bufferSize) override;
+
+			TDE2_API void Flush() override;
+
+			TDE2_API E_RESULT_CODE SetPosition(U32 pos) override;
+			TDE2_API U32 GetPosition() const override;
+
+			TDE2_API const std::string& GetName() const override;
+
+			/*!
+				\brief The method returns true if the stream is opened and ready to use
+				\return The method returns true if the stream is opened and ready to use
+			*/
+
+			TDE2_API bool IsValid() const override;
+
+			TDE2_API bool IsEndOfStream() const override;
+
+			TDE2_API U64 GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryOutputStream)
+		protected:
+			std::string mPath;
+
+			std::vector<U8> mData;
+			U32 mPointer;
 	};
 #endif
 }

@@ -38,6 +38,7 @@ set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/UtilsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/platform/CTimerTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/platform/FileSystemTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/platform/IOStreamsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/math/TRectTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/math/TQuaternionTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/math/TRayTests.cpp"
