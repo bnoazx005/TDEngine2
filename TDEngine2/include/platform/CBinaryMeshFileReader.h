@@ -19,7 +19,7 @@ namespace TDEngine2
 		\return A pointer to CBinaryMeshFileReader's implementation
 	*/
 
-	TDE2_API IFile* CreateBinaryMeshFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateBinaryMeshFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -33,7 +33,7 @@ namespace TDEngine2
 	class CBinaryMeshFileReader : public CBinaryFileReader, public IBinaryMeshFileReader
 	{
 		public:
-			friend TDE2_API IFile* CreateBinaryMeshFileReader(IFileSystem*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreateBinaryMeshFileReader(IMountableStorage*, IStream*, E_RESULT_CODE&);
 		private:
 			typedef struct TMeshFileHeader
 			{

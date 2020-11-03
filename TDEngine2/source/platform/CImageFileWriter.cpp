@@ -1,13 +1,14 @@
-#include "./../../include/platform/CImageFileWriter.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/core/IJobManager.h"
-#include "./../../include/graphics/ITexture2D.h"
-#include "./../../include/utils/Utils.h"
+#include "../../include/platform/CImageFileWriter.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IJobManager.h"
+#include "../../include/graphics/ITexture2D.h"
+#include "../../include/utils/Utils.h"
 #include "../../include/platform/IOStreams.h"
+#include "../../include/platform/MountableStorages.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #pragma warning(push)
 #pragma warning(disable:4996)
-#include "./../../deps/stb/stb_image_write.h"
+#include "../../deps/stb/stb_image_write.h"
 #pragma warning(pop)
 #undef STB_IMAGE_WRITE_IMPLEMENTATION
 #include <string>
@@ -81,7 +82,7 @@ namespace TDEngine2
 		E_IMAGE_FILE_TYPE imageType = E_IMAGE_FILE_TYPE::HDR;
 
 		/// \todo move this method into CBaseFileSystem's functionality
-		std::string fileExtension = mpFileSystemInstance->GetExtension(filename);
+		std::string fileExtension = mpStorage->GetFileSystem()->GetExtension(filename);
 
 		if (fileExtension == ".png")
 		{
@@ -108,7 +109,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateImageFileWriter(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateImageFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CImageFileWriter* pFileInstance = new (std::nothrow) CImageFileWriter();
 
@@ -119,7 +120,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, pStream);
+		result = pFileInstance->Open(pStorage, pStream);
 
 		if (result != RC_OK)
 		{

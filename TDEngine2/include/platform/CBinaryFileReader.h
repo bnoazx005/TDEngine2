@@ -22,7 +22,7 @@ namespace TDEngine2
 		\return A pointer to CBinaryFileReader's implementation
 	*/
 
-	TDE2_API IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateBinaryFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -34,7 +34,7 @@ namespace TDEngine2
 	class CBinaryFileReader : public virtual IBinaryFileReader, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
+			friend TDE2_API IFile* CreateBinaryFileReader(IMountableStorage*, IStream*, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CBinaryFileReader)
 

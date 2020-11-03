@@ -49,7 +49,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixFileSystem)
 
-			TDE2_API bool _isPathValid(const std::string& path, bool isVirtualPath = false) const override;
+			TDE2_API bool IsPathValid(const std::string& path, bool isVirtualPath = false) const override;
 
 			TDE2_API E_RESULT_CODE _onInit() override;
 		protected:

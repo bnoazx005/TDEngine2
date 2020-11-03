@@ -276,8 +276,10 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		memcpy(pBuffer, static_cast<void*>(&mData[mPointer]), bufferSize);
-		mPointer += bufferSize;
+		U32 size = std::min<U32>(bufferSize, std::max<U32>(mData.size() - mPointer, 0));
+
+		memcpy(pBuffer, static_cast<void*>(&mData[mPointer]), size);
+		mPointer += size;
 
 		return RC_OK;
 	}

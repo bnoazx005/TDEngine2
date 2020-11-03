@@ -23,7 +23,7 @@ namespace TDEngine2
 	{
 	}
 
-	bool CWin32FileSystem::_isPathValid(const std::string& path, bool isVirtualPath) const
+	bool CWin32FileSystem::IsPathValid(const std::string& path, bool isVirtualPath) const
 	{
 		bool isPathEmpty                = path.empty();
 		bool pathContainsForbiddenChars = (path.find(mForbiddenChars, 0, sizeof(mForbiddenChars) / sizeof(mForbiddenChars[0])) != std::string::npos) && (path.find(':') != 1);
@@ -35,7 +35,7 @@ namespace TDEngine2
 	E_RESULT_CODE CWin32FileSystem::_onInit()
 	{
 		/// mount a root directory
-		return Mount(this->GetCurrDirectory(), Wrench::StringUtils::GetEmptyStr());
+		return MountPhysicalPath(this->GetCurrDirectory(), Wrench::StringUtils::GetEmptyStr());
 	}
 
 	const C8& CWin32FileSystem::GetPathSeparatorChar() const

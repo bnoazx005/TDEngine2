@@ -21,7 +21,7 @@ namespace TDEngine2
 		\return A pointer to CYAMLFileWriter's implementation
 	*/
 
-	TDE2_API IFile* CreateYAMLFileWriter(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateYAMLFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -33,7 +33,7 @@ namespace TDEngine2
 	class CYAMLFileWriter : public IYAMLFileWriter, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateYAMLFileWriter(IFileSystem*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreateYAMLFileWriter(IMountableStorage*, IStream*, E_RESULT_CODE&);
 		public:
 			typedef std::stack<Yaml::Node*> TScopesStack;
 			typedef std::stack<U32>         TScopesIndexers;
@@ -46,13 +46,13 @@ namespace TDEngine2
 			/*!
 				\brief The method opens specified file
 
-				\param[in,out] pFileSystem A pointer to implementation of IFileSystem
+				\param[in,out] pStorage A pointer to implementation of IMountableStorage
 				\param[in,out] pStream A pointer to IStream implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Open(IFileSystem* pFileSystem, IStream* pStream) override;
+			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, IStream* pStream) override;
 			
 			/*!
 				\brief The method enters into object's scope with given identifier
@@ -132,7 +132,7 @@ namespace TDEngine2
 		\return A pointer to CYAMLFileReader's implementation
 	*/
 
-	TDE2_API IFile* CreateYAMLFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateYAMLFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -144,7 +144,7 @@ namespace TDEngine2
 	class CYAMLFileReader : public IYAMLFileReader, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateYAMLFileReader(IFileSystem*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreateYAMLFileReader(IMountableStorage*, IStream*, E_RESULT_CODE&);
 		public:
 			typedef std::stack<Yaml::Node*> TScopesStack;
 			typedef std::stack<U32>         TScopesIndexers;
@@ -156,13 +156,13 @@ namespace TDEngine2
 			/*!
 				\brief The method opens specified file
 
-				\param[in,out] pFileSystem A pointer to implementation of IFileSystem
+				\param[in,out] pStorage A pointer to implementation of IMountableStorage
 				\param[in,out] pStream A pointer to IStream implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Open(IFileSystem* pFileSystem, IStream* pStream) override;
+			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, IStream* pStream) override;
 
 			/*!
 				\brief The method enters into object's scope with given identifier

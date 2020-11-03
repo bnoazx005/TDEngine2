@@ -156,7 +156,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateConfigFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateConfigFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CConfigFileReader* pFileInstance = new (std::nothrow) CConfigFileReader();
 
@@ -167,7 +167,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, pStream);
+		result = pFileInstance->Open(pStorage, pStream);
 
 		if (result != RC_OK)
 		{

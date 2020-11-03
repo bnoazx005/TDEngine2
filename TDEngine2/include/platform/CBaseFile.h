@@ -18,9 +18,6 @@
 
 namespace TDEngine2
 {
-	class IFileSystem;
-
-
 	/*!
 		class CBaseFile
 
@@ -35,13 +32,13 @@ namespace TDEngine2
 			/*!
 				\brief The method opens specified file
 
-				\param[in,out] pFileSystem A pointer to implementation of IFileSystem
+				\param[in,out] pStorage A pointer to implementation of IMountableStorage
 				\param[in,out] pStream A pointer to IStream implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Open(IFileSystem* pFileSystem, IStream* pStream) override;
+			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, IStream* pStream) override;
 
 			/*!
 				\brief The method increment a value of the internal reference counter. You can ignore
@@ -96,7 +93,7 @@ namespace TDEngine2
 
 			std::string          mName;
 
-			IFileSystem*         mpFileSystemInstance;
+			IMountableStorage*   mpStorage;
 
 			mutable std::mutex   mMutex;
 

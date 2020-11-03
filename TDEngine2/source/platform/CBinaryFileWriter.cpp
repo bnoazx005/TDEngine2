@@ -1,7 +1,8 @@
-#include "./../../include/platform/CBinaryFileWriter.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/core/IJobManager.h"
+#include "../../include/platform/CBinaryFileWriter.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/platform/IOStreams.h"
+#include "../../include/platform/MountableStorages.h"
 #include <functional>
 
 
@@ -34,14 +35,16 @@ namespace TDEngine2
 	void CBinaryFileWriter::WriteAsync(const void* pBuffer, U32 bufferSize, const TSuccessWriteCallback& successCallback,
 		const TErrorWriteCallback& errorCallback)
 	{
-		if (!mpFileSystemInstance->IsStreamingEnabled())
+		IFileSystem* pFileSystem = mpStorage->GetFileSystem();
+
+		if (!pFileSystem->IsStreamingEnabled())
 		{
 			errorCallback(RC_ASYNC_FILE_IO_IS_DISABLED);
 
 			return;
 		}
 
-		IJobManager* pJobManager = mpFileSystemInstance->GetJobManager();
+		IJobManager* pJobManager = pFileSystem->GetJobManager();
 
 		/// \note Is it safe to work with pBuffer without lock
 		pJobManager->SubmitJob(std::function<void (CBinaryFileWriter*, U32)>([successCallback, errorCallback, pBuffer](CBinaryFileWriter* pFileWriter, U32 size)
@@ -103,7 +106,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateBinaryFileWriter(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateBinaryFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CBinaryFileWriter* pFileInstance = new (std::nothrow) CBinaryFileWriter();
 
@@ -114,7 +117,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, pStream);
+		result = pFileInstance->Open(pStorage, pStream);
 
 		if (result != RC_OK)
 		{

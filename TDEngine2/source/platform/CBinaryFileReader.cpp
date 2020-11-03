@@ -1,7 +1,8 @@
-#include "./../../include/platform/CBinaryFileReader.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/core/IJobManager.h"
+#include "../../include/platform/CBinaryFileReader.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/platform/IOStreams.h"
+#include "../../include/platform/MountableStorages.h"
 #include <functional>
 #include <limits>
 
@@ -34,14 +35,16 @@ namespace TDEngine2
 
 	void CBinaryFileReader::ReadAsync(U32 size, const TSuccessReadCallback& successCallback, const TErrorReadCallback& errorCallback)
 	{
-		if (!mpFileSystemInstance->IsStreamingEnabled())
+		IFileSystem* pFileSystem = mpStorage->GetFileSystem();
+
+		if (!pFileSystem->IsStreamingEnabled())
 		{
 			errorCallback(RC_ASYNC_FILE_IO_IS_DISABLED);
 
 			return;
 		}
 
-		IJobManager* pJobManager = mpFileSystemInstance->GetJobManager();
+		IJobManager* pJobManager = pFileSystem->GetJobManager();
 		
 		pJobManager->SubmitJob(std::function<void(CBinaryFileReader*, U32)>([successCallback, errorCallback](CBinaryFileReader* pFileReader, U32 size)
 		{
@@ -109,7 +112,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateBinaryFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateBinaryFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CBinaryFileReader* pFileInstance = new (std::nothrow) CBinaryFileReader();
 
@@ -120,7 +123,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, pStream);
+		result = pFileInstance->Open(pStorage, pStream);
 
 		if (result != RC_OK)
 		{

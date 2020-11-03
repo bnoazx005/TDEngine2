@@ -23,7 +23,7 @@ namespace TDEngine2
 	{
 	}
 	
-	bool CUnixFileSystem::_isPathValid(const std::string& path, bool isVirtualPath) const
+	bool CUnixFileSystem::IsPathValid(const std::string& path, bool isVirtualPath) const
 	{
 		bool isPathEmpty = path.empty();
 		bool pathContainsForbiddenChars = (path.find(mForbiddenChars, 0, sizeof(mForbiddenChars) / sizeof(mForbiddenChars[0])) != std::string::npos);
@@ -35,7 +35,7 @@ namespace TDEngine2
 	E_RESULT_CODE CUnixFileSystem::_onInit()
 	{
 		/// mount a root directory
-		return Mount(this->GetCurrDirectory(), Wrench::StringUtils::GetEmptyStr());
+		return MountPhysicalPath(this->GetCurrDirectory(), Wrench::StringUtils::GetEmptyStr());
 	}
 
 	const C8& CUnixFileSystem::GetPathSeparatorChar() const

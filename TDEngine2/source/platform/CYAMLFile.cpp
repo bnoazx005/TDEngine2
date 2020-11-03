@@ -1,5 +1,6 @@
-#include "./../../include/platform/CYAMLFile.h"
-#include "./../../deps/yaml/Yaml.cpp"
+#include "../../include/platform/CYAMLFile.h"
+#include "../../deps/yaml/Yaml.cpp"
+#include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 
 
@@ -17,9 +18,9 @@ namespace TDEngine2
 		return _internalSerialize(object);
 	}
 
-	E_RESULT_CODE CYAMLFileWriter::Open(IFileSystem* pFileSystem, IStream* pStream)
+	E_RESULT_CODE CYAMLFileWriter::Open(IMountableStorage* pStorage, IStream* pStream)
 	{
-		E_RESULT_CODE result = CBaseFile::Open(pFileSystem, pStream);
+		E_RESULT_CODE result = CBaseFile::Open(pStorage, pStream);
 		if (result != RC_OK)
 		{
 			return result;
@@ -203,7 +204,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateYAMLFileWriter(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateYAMLFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CYAMLFileWriter* pFileInstance = new (std::nothrow) CYAMLFileWriter();
 
@@ -214,7 +215,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, pStream);
+		result = pFileInstance->Open(pStorage, pStream);
 
 		if (result != RC_OK)
 		{
@@ -243,9 +244,9 @@ namespace TDEngine2
 		return _internalDeserialize(outputObject);
 	}
 
-	E_RESULT_CODE CYAMLFileReader::Open(IFileSystem* pFileSystem, IStream* pStream)
+	E_RESULT_CODE CYAMLFileReader::Open(IMountableStorage* pStorage, IStream* pStream)
 	{
-		E_RESULT_CODE result = CBaseFile::Open(pFileSystem, pStream);
+		E_RESULT_CODE result = CBaseFile::Open(pStorage, pStream);
 		if (result != RC_OK)
 		{
 			return result;
@@ -422,7 +423,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateYAMLFileReader(IFileSystem* pFileSystem, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateYAMLFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CYAMLFileReader* pFileInstance = new (std::nothrow) CYAMLFileReader();
 
@@ -433,7 +434,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pFileInstance->Open(pFileSystem, pStream);
+		result = pFileInstance->Open(pStorage, pStream);
 
 		if (result != RC_OK)
 		{

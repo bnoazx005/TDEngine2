@@ -1,5 +1,5 @@
-#include "./../../include/platform/CBaseFile.h"
-#include "./../../include/core/IFileSystem.h"
+#include "../../include/platform/CBaseFile.h"
+#include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 
 
@@ -11,11 +11,11 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseFile::Open(IFileSystem* pFileSystem, IStream* pStream)
+	E_RESULT_CODE CBaseFile::Open(IMountableStorage* pStorage, IStream* pStream)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!pFileSystem || !pStream)
+		if (!pStorage || !pStream)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -31,7 +31,7 @@ namespace TDEngine2
 
 		mName = mpStreamImpl->GetName();
 
-		mpFileSystemInstance = pFileSystem;
+		mpStorage = pStorage;
 		
 		mCreatorThreadId = std::this_thread::get_id();
 
@@ -60,7 +60,7 @@ namespace TDEngine2
 				result = result | mpStreamImpl->Free();
 			}
 
-			if ((result = mpFileSystemInstance->CloseFile(mName)) != RC_OK)
+			if ((result = mpStorage->CloseFile(mName)) != RC_OK)
 			{
 				return result;
 			}
