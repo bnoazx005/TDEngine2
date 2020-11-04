@@ -9,7 +9,7 @@
 
 #include "CBaseObject.h"
 #include "IFileSystem.h"
-#include "./../utils/CResourceContainer.h"
+#include "../utils/CResourceContainer.h"
 #include <unordered_map>
 #include <vector>
 #include <mutex>
@@ -18,6 +18,7 @@
 namespace TDEngine2
 {
 	class IFile;
+	class IMountableStorage;
 
 
 	/*!
@@ -29,15 +30,16 @@ namespace TDEngine2
 	class CBaseFileSystem : public CBaseObject, public IFileSystem
 	{
 		protected:
-			typedef std::unordered_map<std::string, std::string>  TVirtualPathsMap;
+			struct TMountedStorageInfo
+			{
+				IMountableStorage* mpStorage = nullptr;
+				std::string mAliasPath;
+			};
 
-			typedef std::unordered_map<std::string, TFileEntryId> TFilesHashMap;
-
-			typedef CResourceContainer<IFile*>                    TFilesContainer;
-
-			typedef std::unordered_map<TypeId, U32>               TFileFactoriesRegistry;
+			typedef std::vector<TMountedStorageInfo> TMountingPoints;
+			typedef std::unordered_map<TypeId, U32> TFileFactoriesRegistry;
 			
-			typedef CResourceContainer<TFileFactory>              TFileFactoriesContainer;
+			typedef CResourceContainer<TFileFactory> TFileFactoriesContainer;
 		public:
 			/*!
 				\brief The method initializes a file system's object
@@ -65,7 +67,19 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Mount(const std::string& path, const std::string& aliasPath) override;
+			TDE2_API E_RESULT_CODE MountPhysicalPath(const std::string& path, const std::string& aliasPath) override;
+
+			/*!
+				\brief The method mounts a package to the alias to provide implicit work with its files structure
+
+				\param[in] path A path of the package
+				\param[in] aliasPath A virtual file system path, with which specific physical one will
+				be associated
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE MountPackage(const std::string& path, const std::string& aliasPath) override;
 
 			/*!
 				\brief The method unmounts a path from a real existing one if it was binded earlier
@@ -81,7 +95,7 @@ namespace TDEngine2
 			/*!
 				\brief The method converts virtual path into a real one. For example, if
 				a following virtual directory /vdir/ exists and is binded to c:/data/,
-				then input vfs://vdir/foo.txt will be replaced with c:/data/foo.txt.
+				then input /vdir/foo.txt will be replaced with c:/data/foo.txt.
 
 				\param[in] path A virtual path's value
 				\param[in] isDirectory A flat that tells should be given path processed as a directory or its a path to some file
@@ -90,26 +104,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::string ResolveVirtualPath(const std::string& path, bool isDirectory = true) const override;
-			
-			/*!
-				\brief The method closes a file with a given filename
-
-				\param[in] filename A path to a file
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE CloseFile(const std::string& filename) override;
-
-			/*!
-				\brief The method closes a file with a given file's identifier
-
-				\param[in] fileId An identifier of a file
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE CloseFile(TFileEntryId fileId) override;
 
 			/*!
 				\brief The method returns a type of the subsystem
@@ -118,14 +112,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
-
-			/*!
-				\brief The method closes all opened files
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE CloseAllFiles() override;
 
 			/*!
 				\brief The method returns true if specified file exists
@@ -208,11 +194,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFileSystem)
 
-			TDE2_API TFileEntryId _registerFileEntry(IFile* pFileEntry);
+			TDE2_API E_RESULT_CODE _mountInternal(const std::string& aliasPath, IMountableStorage* pStorage);
 
-			TDE2_API std::string _unifyPathView(const std::string& path, bool isVirtualPath = false, bool isDirectory = true) const;
-
-			TDE2_API virtual bool _isPathValid(const std::string& path, bool isVirtualPath = false) const = 0;
+			TDE2_API std::string _normalizePathView(const std::string& path, bool isDirectory = true) const;
 
 			TDE2_API virtual E_RESULT_CODE _onInit() = 0;
 
@@ -224,26 +208,26 @@ namespace TDEngine2
 
 			TDE2_API IFile* _getFile(TFileEntryId fileId) override;
 
-			TDE2_API E_RESULT_CODE _closeFile(const std::string& filename);
-
 			TDE2_API void _createNewFile(const std::string& filename);
 
-			TDE2_API std::string _getVirtualPathPrefixStr() const;
+			/*!
+				\brief The method converts virtual path into a real one. For example, if
+				a following virtual directory /vdir/ exists and is binded to c:/data/,
+				then input /vdir/foo.txt will be replaced with c:/data/foo.txt.
+
+				\return A string that contains a physical path
+			*/
+
+			TDE2_API std::string _resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path) const;
 		protected:
-			TFilesContainer          mActiveFiles;
+			mutable std::mutex mMutex;
 
-			TVirtualPathsMap         mVirtualPathsMap;
-
-			TFilesHashMap            mFilesMap;
-
-			TFileFactoriesRegistry   mFileFactoriesMap;
+			TFileFactoriesRegistry mFileFactoriesMap;
 						
-			TFileFactoriesContainer  mFileFactories;
+			TFileFactoriesContainer mFileFactories;
 			
-			static std::string       mInvalidPath;
+			IJobManager* mpJobManager;
 
-			mutable std::mutex       mMutex;
-
-			IJobManager*             mpJobManager;
+			TMountingPoints mMountedStorages;
 	};
 }

@@ -21,6 +21,7 @@ namespace TDEngine2
 	class IJobManager;
 	class IStream;
 	class IFileSystem;
+	class IMountableStorage;
 
 
 	enum class E_FILE_FACTORY_TYPE : U8
@@ -32,7 +33,7 @@ namespace TDEngine2
 
 	struct TFileFactory
 	{
-		typedef IFile* (*TCreateFileCallback)(IFileSystem*, IStream*, E_RESULT_CODE&);
+		typedef IFile* (*TCreateFileCallback)(IMountableStorage*, IStream*, E_RESULT_CODE&);
 
 		TCreateFileCallback mCallback;
 		E_FILE_FACTORY_TYPE mFileType;
@@ -58,7 +59,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init() = 0;
 
 			/*!
-				\brief The method mounts a virtual path to a real existing one
+				\brief The method mounts a physical path to some alias
 
 				\param[in] path A path within a real file system
 				\param[in] aliasPath A virtual file system path, with which specific physical one will
@@ -67,7 +68,19 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Mount(const std::string& path, const std::string& aliasPath) = 0;
+			TDE2_API virtual E_RESULT_CODE MountPhysicalPath(const std::string& path, const std::string& aliasPath) = 0;
+
+			/*!
+				\brief The method mounts a package to the alias to provide implicit work with its files structure
+
+				\param[in] path A path of the package
+				\param[in] aliasPath A virtual file system path, with which specific physical one will
+				be associated
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE MountPackage(const std::string& path, const std::string& aliasPath) = 0;
 
 			/*!
 				\brief The method unmounts a virtual path from a real existing one if it was binded earlier
@@ -79,11 +92,11 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Unmount(const std::string& aliasPath) = 0;
-
+			
 			/*!
 				\brief The method converts virtual path into a real one. For example, if
 				a following virtual directory /vdir/ exists and is binded to c:/data/,
-				then input vfs://vdir/foo.txt will be replaced with c:/data/foo.txt.
+				then input /vdir/foo.txt will be replaced with c:/data/foo.txt.
 
 				\param[in] path A virtual path's value
 				\param[in] isDirectory A flat that tells should be given path processed as a directory or its a path to some file
@@ -147,34 +160,6 @@ namespace TDEngine2
 #endif
 			Open(const std::string& filename, bool createIfDoesntExist = false);
 			
-			/*!
-				\brief The method closes a file with a given filename
-
-				\param[in] filename A path to a file
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE CloseFile(const std::string& filename) = 0;
-
-			/*!
-				\brief The method closes a file with a given file's identifier
-
-				\param[in] fileId An identifier of a file
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE CloseFile(TFileEntryId fileId) = 0;
-
-			/*!
-				\brief The method closes all opened files
-				
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE CloseAllFiles() = 0;
-
 			/*!
 				\brief The method returns true if specified file exists
 
@@ -270,6 +255,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const C8& GetAltPathSeparatorChar() const = 0;
+
+			TDE2_API virtual bool IsPathValid(const std::string& path, bool isVirtualPath = false) const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_FILE_SYSTEM; }
 		protected:

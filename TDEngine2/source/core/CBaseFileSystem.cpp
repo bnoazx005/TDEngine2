@@ -1,10 +1,11 @@
-#include "./../../../include/core/CBaseFileSystem.h"
-#include "./../../../include/core/IFile.h"
-#include "./../../../include/platform/CTextFileReader.h"
-#include "./../../../include/utils/CFileLogger.h"
-#include "./../../../include/core/IJobManager.h"
+#include "../../../include/core/CBaseFileSystem.h"
+#include "../../../include/core/IFile.h"
+#include "../../../include/platform/CTextFileReader.h"
+#include "../../../include/utils/CFileLogger.h"
+#include "../../../include/core/IJobManager.h"
 #include "../../../include/platform/IOStreams.h"
-#include "./stringUtils.hpp"
+#include "../../../include/platform/MountableStorages.h"
+#include "stringUtils.hpp"
 #include <algorithm>
 #if _HAS_CXX17
 #include <filesystem>
@@ -16,8 +17,6 @@
 
 namespace TDEngine2
 {
-	std::string CBaseFileSystem::mInvalidPath = "";
-
 	CBaseFileSystem::CBaseFileSystem() :
 		CBaseObject(), mpJobManager(nullptr)
 	{
@@ -46,15 +45,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		result = CloseAllFiles();
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
 		mIsInitialized = false;
-
 		delete this;
 
 		LOG_MESSAGE("[File System] The file system  was successfully destroyed");
@@ -62,236 +53,166 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseFileSystem::Mount(const std::string& path, const std::string& aliasPath)
+	E_RESULT_CODE CBaseFileSystem::MountPhysicalPath(const std::string& path, const std::string& aliasPath)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+
+		IMountableStorage* pStorage = CreatePhysicalFilesStorage(this, _normalizePathView(path), result);
+		if (result != RC_OK || !pStorage)
 		{
-			return RC_FAIL;
+			return result;
 		}
 
-		std::string unifiedPath = _unifyPathView(path);
-		std::string unifiedAliasPath = _unifyPathView(aliasPath, true);
+		return _mountInternal(aliasPath, pStorage);
+	}
 
-		if (unifiedPath.empty() || unifiedAliasPath.empty())
+	E_RESULT_CODE CBaseFileSystem::MountPackage(const std::string& path, const std::string& aliasPath)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		E_RESULT_CODE result = RC_OK;
+
+		IMountableStorage* pStorage = CreatePackageFilesStorage(this, _normalizePathView(path), result);
+		if (result != RC_OK || !pStorage)
 		{
-			return RC_INVALID_ARGS;
+			return result;
 		}
 
-		auto existedCopyIter = mVirtualPathsMap.find(unifiedAliasPath);
-
-		if (existedCopyIter != mVirtualPathsMap.cend())
-		{
-			return RC_FAIL;
-		}
-
-		mVirtualPathsMap[unifiedAliasPath] = unifiedPath;
-
-		LOG_MESSAGE("[File System] A new virtual path was mounted (" + unifiedPath + " -> " + unifiedAliasPath + ")");
-
-		return RC_OK;
+		return _mountInternal(aliasPath, pStorage);
 	}
 
 	E_RESULT_CODE CBaseFileSystem::Unmount(const std::string& aliasPath)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mIsInitialized)
+		const std::string unifiedAliasPath = _normalizePathView(aliasPath);
+
+		auto existedEntryIter = std::find_if(mMountedStorages.cbegin(), mMountedStorages.cend(), [&unifiedAliasPath](auto&& entry) { return entry.mAliasPath == unifiedAliasPath; });
+		if (existedEntryIter == mMountedStorages.cend())
 		{
+			LOG_WARNING(Wrench::StringUtils::Format("[File System] Try to unmount unexisting storage, alias: {0}", unifiedAliasPath));
 			return RC_FAIL;
 		}
 
-		std::string unifiedAliasPath = _unifyPathView(aliasPath, true);
-
-		auto existedEntryIter = mVirtualPathsMap.find(unifiedAliasPath);
-
-		if (existedEntryIter == mVirtualPathsMap.cend())
+		if (auto pStorage = existedEntryIter->mpStorage)
 		{
-			return RC_FAIL;
-		}
+			E_RESULT_CODE result = pStorage->Free();
+			if (RC_OK != result)
+			{
+				return result;
+			}
+		}		
 
-		mVirtualPathsMap.erase(existedEntryIter);
+		mMountedStorages.erase(existedEntryIter);
 
 		LOG_MESSAGE("[File System] Existing virtual path was unmounted (" + unifiedAliasPath + ")");
 
 		return RC_OK;
 	}
-	
+
 	std::string CBaseFileSystem::ResolveVirtualPath(const std::string& path, bool isDirectory) const
 	{
-		std::string unifiedPath = _unifyPathView(path, Wrench::StringUtils::StartsWith(path, "vfs:"), isDirectory);
-		
-		if (unifiedPath.empty() || (unifiedPath.size() > 1 && !Wrench::StringUtils::StartsWith(unifiedPath, "vfs:")))
-		{
-			return unifiedPath; // this case includes all real paths, single files
-		}
-
-		const C8 pathSeparator = GetPathSeparatorChar();
-
-		if (unifiedPath == _getVirtualPathPrefixStr()) // replace vfs:// virtual root directory with current directory of an application
-		{
-			return this->GetCurrDirectory();
-		}
-
-		std::string::size_type prevDirectoryPos = 0;
-		std::string::size_type currDirectoryPos = 0;
-		std::string::size_type uncheckedPathPos = 0;
-
-		std::string currPath, lastMatchPart;
-
-		TVirtualPathsMap::const_iterator physicalPathIter;
-		
-		/// select the greatest coincidental part of the path
-		while ((currDirectoryPos = unifiedPath.find_first_of(GetPathSeparatorChar(), prevDirectoryPos)) != std::string::npos)
-		{
-			prevDirectoryPos = currDirectoryPos + 1;
-			
-			currPath = unifiedPath.substr(0, prevDirectoryPos);
-
-			physicalPathIter = mVirtualPathsMap.find(currPath);
-			
-			if (physicalPathIter != mVirtualPathsMap.cend())
-			{
-				lastMatchPart = (*physicalPathIter).second;
-
-				uncheckedPathPos = currDirectoryPos;
-			}
-		}
-		
-		// check special case when last part of a path doesn't contains an extension's declaration like so \\foo
-		// in this situation we should try to interpretate it as a possible virtual path
-		if ((currPath = unifiedPath.substr(prevDirectoryPos - 1) + GetPathSeparatorChar()).find('.') == std::string::npos)
-		{
-			// the part could be a directory and a filename as well
-
-			physicalPathIter = mVirtualPathsMap.find(currPath);
-
-			if (physicalPathIter != mVirtualPathsMap.cend())
-			{
-				return (*physicalPathIter).second;
-			}
-		}
-
-		return lastMatchPart + unifiedPath.substr(uncheckedPathPos + 1, unifiedPath.length() - uncheckedPathPos);
-	}
-
-	std::string CBaseFileSystem::_unifyPathView(const std::string& path, bool isVirtualPath, bool isDirectory) const
-	{
-		if (path.empty())
-		{
-			if (isVirtualPath)
-			{
-				return _getVirtualPathPrefixStr();
-			}
-
-			return mInvalidPath;
-		}
-
-		std::string unifiedPath = path;
-
-		std::replace(unifiedPath.begin(), unifiedPath.end(), GetAltPathSeparatorChar(), GetPathSeparatorChar());
-
-		// check up is the path valid
-		if (!_isPathValid(unifiedPath, isVirtualPath))
-		{
-			return mInvalidPath;
-		}
-		
-		// \note add path separator at the end of the path
-		if ((unifiedPath.back() != GetPathSeparatorChar()) && isDirectory)
-		{
-			unifiedPath.push_back(GetPathSeparatorChar());
-		}
-
-		if (isVirtualPath)
-		{
-			// \note remove any path separator from the beginning of unifiedPath string
-			if (unifiedPath.front() == GetPathSeparatorChar())
-			{
-				unifiedPath.erase(unifiedPath.begin());
-			}
-
-			static const std::string vfsPathPrefixStr = _getVirtualPathPrefixStr();
-			return Wrench::StringUtils::StartsWith(unifiedPath, vfsPathPrefixStr) ? unifiedPath : vfsPathPrefixStr + unifiedPath;
-		}
-
-		return unifiedPath;
-	}
-
-	E_RESULT_CODE CBaseFileSystem::CloseFile(const std::string& filename)
-	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mIsInitialized)
+		const std::string filePath = _normalizePathView(path, isDirectory);
+
+		for (auto&& currMountPointEntry : mMountedStorages)
 		{
-			return RC_FAIL;
+			const std::string& alias = currMountPointEntry.mAliasPath;
+
+			/// \note Try to open file with current storage, but it could fail
+			if (Wrench::StringUtils::StartsWith(filePath, alias))
+			{
+				return _normalizePathView(_resolveVirtualPathInternal(currMountPointEntry, filePath), isDirectory);
+			}
 		}
-		
-		return _closeFile(filename);
+
+		return path;
 	}
-
-	E_RESULT_CODE CBaseFileSystem::CloseFile(TFileEntryId fileId)
+	
+	E_RESULT_CODE CBaseFileSystem::_mountInternal(const std::string& aliasPath, IMountableStorage* pStorage)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		const std::string unifiedAliasPath = _normalizePathView(aliasPath);
 
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (fileId == TFileEntryId::Invalid)
+		if (unifiedAliasPath.empty() || !pStorage)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		TResult<IFile*> filePointer = mActiveFiles[static_cast<U32>(fileId)];
-
-		if (filePointer.HasError())
-		{
-			return filePointer.GetError();
-		}
-
-		IFile* pFileEntry = filePointer.Get();
-
-		return _closeFile(pFileEntry->GetFilename());
-	}
-
-	E_RESULT_CODE CBaseFileSystem::CloseAllFiles()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
-		IFile* pCurrFile = nullptr;
-
-		for (U32 i = 0; i < mActiveFiles.GetSize(); ++i)
+		auto iter = std::find_if(mMountedStorages.begin(), mMountedStorages.end(), [&unifiedAliasPath](auto&& entry) { return entry.mAliasPath == unifiedAliasPath; });
+		if (iter != mMountedStorages.end())
 		{
-			auto currOpenedFile = mActiveFiles[i];
-			if (currOpenedFile.HasError()) // \note may be some error, but more possibly file was already closed
+			LOG_WARNING(Wrench::StringUtils::Format("[File System] Replace existing mounted storage with a new one (mount path: {0})", unifiedAliasPath));
+
+			// \note Remove previous storage
+			IMountableStorage* pExistedStorage = iter->mpStorage;
+			TDE2_ASSERT(pExistedStorage);
+
+			if (pExistedStorage)
 			{
-				continue;
+				if (RC_OK != (result = pExistedStorage->Free()))
+				{
+					return result;
+				}
 			}
 
-			pCurrFile = currOpenedFile.Get();
+			// \note Register the new one
+			iter->mpStorage = pStorage;
+			
+			return RC_OK;
+		}
 
-			if (!pCurrFile) /// if pCurrFile is nullptr then it has already closed manually
+		// \note Insert a new mounting storage based on its priority, type and path's order
+		if (mMountedStorages.empty())
+		{
+			mMountedStorages.push_back({ pStorage, aliasPath });
+		}
+		else
+		{
+			for (auto iter = mMountedStorages.cbegin(); iter != mMountedStorages.cend(); ++iter)
 			{
-				continue;
+				if (iter->mpStorage->GetPriority() >= pStorage->GetPriority())
+				{
+					mMountedStorages.insert(iter, { pStorage, aliasPath });
+					break;
+				}
 			}
+		}
 
-			result = pCurrFile->Close();
-
-			if (result != RC_OK)
+		if (pStorage)
+		{
+			if (RC_OK != (result = pStorage->OnMounted()))
 			{
 				return result;
 			}
 		}
 
+		LOG_MESSAGE("[File System] A new virtual path was mounted (" + pStorage->GetBasePath() + " -> " + unifiedAliasPath + ")");
+
 		return RC_OK;
+	}
+
+	std::string CBaseFileSystem::_normalizePathView(const std::string& path, bool isDirectory) const
+	{
+		const std::string pathSeparator { GetPathSeparatorChar() };
+		const std::string altPathSeparator { GetAltPathSeparatorChar() };
+
+		// Replace all alternative separators onto main separator
+		std::string normalizedPath = Wrench::StringUtils::ReplaceAll(path, altPathSeparator, pathSeparator);
+
+		// Add '/' separator at the end of path if it's a directory
+		if (!Wrench::StringUtils::EndsWith(normalizedPath, pathSeparator) && isDirectory)
+		{
+			normalizedPath.append(pathSeparator);
+		}
+
+		TDE2_ASSERT(IsPathValid(normalizedPath));
+
+		return normalizedPath;
 	}
 
 	bool CBaseFileSystem::FileExists(const std::string& filename) const
@@ -335,15 +256,13 @@ namespace TDEngine2
 
 	TResult<TFileFactory> CBaseFileSystem::GetFileFactory(TypeId typeId)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		auto&& iter = mFileFactoriesMap.find(typeId);
-		if (iter == mFileFactoriesMap.cend())
+		if (iter != mFileFactoriesMap.cend())
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+			return mFileFactories[iter->second];
 		}
 
-		return mFileFactories[iter->second];
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 	}
 
 	bool CBaseFileSystem::IsStreamingEnabled() const
@@ -362,73 +281,34 @@ namespace TDEngine2
 #endif
 	}
 
-	TFileEntryId CBaseFileSystem::_registerFileEntry(IFile* pFileEntry)
-	{
-		TFileEntryId fileEntryId = TFileEntryId(mActiveFiles.Add(pFileEntry));
-
-		mFilesMap[pFileEntry->GetFilename()] = fileEntryId;
-		
-		return fileEntryId;
-	}
-
 	TResult<TFileEntryId> CBaseFileSystem::_openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mIsInitialized)
+		const std::string filePath = _normalizePathView(filename, false);
+
+		for (auto&& currMountPointEntry : mMountedStorages)
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+			const std::string& alias = currMountPointEntry.mAliasPath;
+
+			/// \note Try to open file with current storage, but it could fail
+			if (Wrench::StringUtils::StartsWith(filename, alias))
+			{
+				// \note Firstly, try to open file without resolving path
+				if (auto openFileResult = currMountPointEntry.mpStorage->OpenFile(typeId, filePath, createIfDoesntExist))
+				{
+					return openFileResult;
+				}
+
+				// \note If we go here, it means a file doesn't exist at filename path, resolve this path and try again
+				if (auto openFileResult = currMountPointEntry.mpStorage->OpenFile(typeId, _resolveVirtualPathInternal(currMountPointEntry, filePath), createIfDoesntExist))
+				{
+					return openFileResult;
+				}
+			}
 		}
 
-		if (!_isPathValid(filename))
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
-		}
-
-		TFileFactoriesRegistry::const_iterator fileFactoryIter = mFileFactoriesMap.find(typeId);
-
-		if (fileFactoryIter == mFileFactoriesMap.cend())
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
-		}
-
-		///try to find the file's factory
-		const TFileFactory& fileFactory = mFileFactories[(*fileFactoryIter).second].Get();
-
-		if (!fileFactory.mCallback)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		/// create a file's entry on a disk if doesn't exist but a user asks for it
-		if (!FileExists(filename) && createIfDoesntExist)
-		{
-			LOG_MESSAGE("[File System] A new file was created (TypeID : " + ToString<TypeId>(typeId) + "; filename: " + filename + ")");
-
-			_createNewFile(filename);
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		IStream* pStream = (fileFactory.mFileType == E_FILE_FACTORY_TYPE::READER) ? CreateFileInputStream(filename, result) : CreateFileOutputStream(filename, result);
-
-		if (!pStream)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		IFile* pNewFileInstance = fileFactory.mCallback(this, pStream, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		TFileEntryId newFileEntryId = _registerFileEntry(pNewFileInstance);
-		
-		LOG_MESSAGE("[File System] A new file descriptor was created by the manager (" + filename + ")");
-
-		return Wrench::TOkValue<TFileEntryId>(newFileEntryId);
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_FILE_NOT_FOUND);
 	}
 	
 	E_RESULT_CODE CBaseFileSystem::_registerFileFactory(const TypeId& typeId, const TFileFactory& fileFactoryInfo)
@@ -485,44 +365,25 @@ namespace TDEngine2
 		{
 			return nullptr;
 		}
-
-		TResult<IFile*> filePointer = mActiveFiles[static_cast<U32>(fileId)];
-
-		if (filePointer.HasError())
+		
+		for (auto&& currMountPoint : mMountedStorages)
 		{
-			return nullptr;
+			if (auto getFileResult = currMountPoint.mpStorage->GetFile(fileId))
+			{
+				IFile* pFile = getFileResult.Get();
+
+				/// to prevent deletion of a file by one thread when it can be used in another we need to increment its internal counter's value
+				/// later used should Close it. This action will decrement internal counter's value and may destroy the file.
+				if (!pFile->IsParentThread())
+				{
+					pFile->AddRef();
+				}
+
+				return pFile;
+			}
 		}
 
-		IFile* pFile = filePointer.Get();
-
-		/// to prevent deletion of a file by one thread when it can be used in another we need to increment its internal counter's value
-		/// later used should Close it. This action will decrement internal counter's value and may destroy the file.
-		if (!pFile->IsParentThread()) 
-		{
-			pFile->AddRef();
-		}
-
-		return pFile;
-	}
-
-	E_RESULT_CODE CBaseFileSystem::_closeFile(const std::string& filename)
-	{
-		auto entryHashIter = mFilesMap.find(filename);
-
-		if (entryHashIter == mFilesMap.cend())
-		{
-			return RC_FAIL;
-		}
-
-		TFileEntryId fileEntryId = (*entryHashIter).second;
-
-		mFilesMap.erase(entryHashIter);
-
-		mActiveFiles.RemoveAt(static_cast<U32>(fileEntryId));
-
-		LOG_MESSAGE("[File System] Existing file descriptor was closed (" + filename + ")");
-
-		return RC_OK;
+		return nullptr;
 	}
 
 	void CBaseFileSystem::_createNewFile(const std::string& filename)
@@ -531,9 +392,39 @@ namespace TDEngine2
 		newFileInstance.close();
 	}
 
-	std::string CBaseFileSystem::_getVirtualPathPrefixStr() const
+	std::string CBaseFileSystem::_resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path) const
 	{
-		static std::string virtualPathPrefix = Wrench::StringUtils::Format("vfs:{0}{0}", GetPathSeparatorChar());
-		return virtualPathPrefix;
+		const std::string nativeFileSystemPath = mountInfo.mpStorage->GetBasePath();
+
+		if (_normalizePathView(mountInfo.mAliasPath) == path)
+		{
+			return nativeFileSystemPath;
+		}
+
+		// Extract base path from filename
+		size_t pos = 0;
+		
+		std::string filename;
+		std::string currPath = path;
+
+		do
+		{
+			pos = currPath.find_last_of(GetPathSeparatorChar());
+
+			if (pos == std::string::npos)
+			{
+				if (currPath == path)
+				{
+					return path;
+				}
+
+				return nativeFileSystemPath + path;
+			}
+
+			filename = currPath.substr(pos + 1);
+			currPath = currPath.substr(0, pos);
+		} while (filename.empty() && !currPath.empty());
+
+		return nativeFileSystemPath + filename;
 	}
 }

@@ -8,7 +8,6 @@
 
 using namespace TDEngine2;
 
-#if 0
 
 TEST_CASE("File System Tests")
 {
@@ -26,6 +25,39 @@ TEST_CASE("File System Tests")
 	REQUIRE(pFileSystem);
 	REQUIRE(result == RC_OK);
 
+	REQUIRE(RC_OK == pFileSystem->RegisterFileFactory<IBinaryFileReader>({ CreateBinaryFileReader, E_FILE_FACTORY_TYPE::READER }));
+	REQUIRE(RC_OK == pFileSystem->RegisterFileFactory<IBinaryFileWriter>({ CreateBinaryFileWriter, E_FILE_FACTORY_TYPE::WRITER }));
+
+	SECTION("TestMountPhysicalPath_PassRealPhysicalPathsAndVirtualOnes_CorrectlyResolvesPaths")
+	{
+		REQUIRE(RC_OK == pFileSystem->MountPhysicalPath("./Resources/", "Resources/"));
+		REQUIRE(RC_OK == pFileSystem->MountPhysicalPath("./tmp/", "/tmp/"));
+	}
+
+	SECTION("TestOpenFile_PassNativeFiles_CorrectlyOpensItAndReturnsHandleIfTheyExist")
+	{
+		REQUIRE(RC_OK == pFileSystem->MountPhysicalPath(".", "")); // Mount native FS
+		REQUIRE(RC_OK == pFileSystem->MountPhysicalPath("../../", "Sources/")); // Remap native path with alias
+		
+		auto tryOpenFile = [pFileSystem](const std::string& path)
+		{
+			if (auto fileResult = pFileSystem->Open<IBinaryFileReader>(path))
+			{
+				REQUIRE(fileResult.Get() != TFileEntryId::Invalid);
+			}
+			else
+			{
+				REQUIRE(false);
+			}
+		};
+
+		tryOpenFile("TDEngine.log");
+		tryOpenFile("Sources/main.cpp");
+
+		REQUIRE(pFileSystem->Open<IBinaryFileReader>("test.bin").HasError()); // this one doesn't exist
+	}
+
+#if 0
 	SECTION("TestMount_PassValidPathsAndAliased_ReturnsOk")
 	{
 		// first string is a path, the second is an alias
@@ -50,10 +82,11 @@ TEST_CASE("File System Tests")
 	{
 		REQUIRE(true);
 	}
+#endif
 
 	SECTION("TestResolveVirtualPath_PassValidPaths_ReturnsResolvedIfVirtualFileSystemPathsAreUsed")
 	{
-		auto currDirectoryStr = pFileSystem->GetCurrDirectory();
+		auto currDirectoryStr = Wrench::StringUtils::Format("{0}{1}", pFileSystem->GetCurrDirectory(), pFileSystem->GetPathSeparatorChar());
 
 		std::string testPathExpected   = Wrench::StringUtils::Format(".{0}test{0}", pFileSystem->GetPathSeparatorChar());
 		std::string shaderPathExpected = Wrench::StringUtils::Format(".{0}Resources{0}Shaders{0}", pFileSystem->GetPathSeparatorChar());
@@ -61,15 +94,14 @@ TEST_CASE("File System Tests")
 		// first string is an input, the second is expected result, the third is a flag which tells whether it's a directory path or not
 		std::vector<std::tuple<std::string, std::string, bool>> paths
 		{
-			{ "", "", true },
-			{ "vfs://", currDirectoryStr, true },
-			{ "vfs://test/abcde", testPathExpected + Wrench::StringUtils::Format("abcde{0}", pFileSystem->GetPathSeparatorChar()), true },
-			{ "vfs://test", testPathExpected, true },
+			{ "", currDirectoryStr, true },
+			{ "test/abcde", testPathExpected + Wrench::StringUtils::Format("abcde{0}", pFileSystem->GetPathSeparatorChar()), true },
+			{ "test", testPathExpected, true },
 			{ "./test", testPathExpected, true },
-			{ "test", Wrench::StringUtils::Format("test{0}", pFileSystem->GetPathSeparatorChar()), true },
+			{ "test", testPathExpected, true },
 			{ "test.png", "test.png", false },
-			{ "vfs://Shaders", shaderPathExpected, true },
-			{ "vfs://Shaders/", shaderPathExpected, true },
+			{ "Shaders", shaderPathExpected, true },
+			{ "Shaders/", shaderPathExpected, true },
 		};
 
 		pFileSystem->MountPhysicalPath("./test", "test");
@@ -83,4 +115,3 @@ TEST_CASE("File System Tests")
 
 	dynamic_cast<IEngineSubsystem*>(pFileSystem)->Free();
 }
-#endif

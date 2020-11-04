@@ -206,6 +206,7 @@
 #include "platform/CYAMLFile.h"
 #include "platform/CBinaryMeshFileReader.h"
 #include "platform/IOStreams.h"
+#include "platform/MountableStorages.h"
 
 ///utils
 #include "utils/Types.h"

@@ -22,6 +22,7 @@ namespace Yaml
 namespace TDEngine2
 {
 	class IFileSystem;
+	class IMountableStorage;
 	class IStream;
 
 
@@ -37,13 +38,13 @@ namespace TDEngine2
 			/*!
 				\brief The method opens specified file
 
-				\param[in,out] pFileSystem A pointer to implementation of IFileSystem
+				\param[in,out] pStorage A pointer to implementation of IMountableStorage
 				\param[in,out] pStream A pointer to IStream implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Open(IFileSystem* pFileSystem, IStream* pStream) = 0;
+			TDE2_API virtual E_RESULT_CODE Open(IMountableStorage* pStorage, IStream* pStream) = 0;
 
 			/*!
 				\brief The method increment a value of the internal reference counter. You can ignore 
