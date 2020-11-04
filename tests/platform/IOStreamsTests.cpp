@@ -54,4 +54,23 @@ TEST_CASE("CMemoryInputStream Tests")
 		}
 		REQUIRE(RC_OK == pStream->Free());
 	}
+
+#if 0
+	SECTION("TestRead_OverrunDataSize_ReturnsRC_FAIL")
+	{
+		std::vector<U8> data{ 0x42, 0x16, 0x2, 0x4 };
+
+		IInputStream* pStream = dynamic_cast<IInputStream*>(CreateMemoryInputStream("", data, result));
+
+		REQUIRE((pStream && RC_OK == result));
+		{
+			std::vector<U8> buffer;
+			buffer.resize(10);
+
+			REQUIRE(pStream->Read(static_cast<void*>(&buffer[0]), 10) == RC_FAIL);
+			REQUIRE(pStream->IsEndOfStream());
+		}
+		REQUIRE(RC_OK == pStream->Free());
+	}
+#endif
 }

@@ -26,6 +26,18 @@ namespace TDEngine2
 
 
 	/*!
+		\brief Than more value than lower the priority of a storage, native file system has the highest priority among other FSs
+	*/
+
+	enum class E_MOUNTABLE_STORAGES_PRIORITIES : U16
+	{
+		NATIVE = 0,
+		PACKAGE = 500,
+		UNKNOWN = (std::numeric_limits<U16>::max)()
+	};
+
+
+	/*!
 		interface IMountableStorage
 
 		\brief The interface describes a functionality of any mountable point within the engine
@@ -61,6 +73,10 @@ namespace TDEngine2
 			TDE2_API virtual bool FileExists(const std::string& path) const = 0;
 
 			TDE2_API virtual IFileSystem* GetFileSystem() const = 0;
+
+			TDE2_API virtual const std::string& GetBasePath() const = 0;
+
+			TDE2_API virtual U16 GetPriority() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMountableStorage)
 	};
@@ -101,6 +117,8 @@ namespace TDEngine2
 			TDE2_API TResult<IFile*> GetFile(TFileEntryId fileId) const override;
 
 			TDE2_API IFileSystem* GetFileSystem() const override;
+
+			TDE2_API const std::string& GetBasePath() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMountableStorage)
 
@@ -146,6 +164,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE OnMounted() override;
 
 			TDE2_API bool FileExists(const std::string& path) const override;
+
+			TDE2_API U16 GetPriority() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysicalFilesStorage)
 
@@ -178,6 +198,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE OnMounted() override;
 
 			TDE2_API bool FileExists(const std::string& path) const override;
+
+			TDE2_API U16 GetPriority() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPackageFilesStorage)
 

@@ -20,6 +20,11 @@ namespace TDEngine2
 		}
 
 		mInternalStream.open(path);
+		if (!mInternalStream.is_open())
+		{
+			return RC_FILE_NOT_FOUND;
+		}
+
 		mPath = path;
 
 		mIsInitialized = true;

@@ -30,7 +30,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		if (!pEditorsManager || !pInputContext || !mpInputContext)
+		if (!pEditorsManager || !pInputContext || !pDebugUtility)
 		{
 			return RC_INVALID_ARGS;
 		}

@@ -160,6 +160,11 @@ namespace TDEngine2
 		return mpFileSystem;
 	}
 
+	const std::string& CBaseMountableStorage::GetBasePath() const
+	{
+		return mPhysicalPath;
+	}
+
 	TFileEntryId CBaseMountableStorage::_registerFileEntry(IFile* pFileEntry)
 	{
 		U32 localHandle = mActiveFiles.Add(pFileEntry);
@@ -186,8 +191,7 @@ namespace TDEngine2
 		
 	E_RESULT_CODE CPhysicalFilesStorage::OnMounted()
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		return RC_OK;
 	}
 
 	bool CPhysicalFilesStorage::FileExists(const std::string& path) const
@@ -203,6 +207,11 @@ namespace TDEngine2
 
 		return exists;
 #endif
+	}
+
+	U16 CPhysicalFilesStorage::GetPriority() const
+	{
+		return static_cast<U16>(E_MOUNTABLE_STORAGES_PRIORITIES::NATIVE);
 	}
 
 	void CPhysicalFilesStorage::_createNewFile(const std::string& path)
@@ -250,6 +259,11 @@ namespace TDEngine2
 	{
 		TDE2_UNIMPLEMENTED();
 		return false;
+	}
+
+	U16 CPackageFilesStorage::GetPriority() const
+	{
+		return static_cast<U16>(E_MOUNTABLE_STORAGES_PRIORITIES::PACKAGE);
 	}
 
 	void CPackageFilesStorage::_createNewFile(const std::string& path)
