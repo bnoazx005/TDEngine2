@@ -201,9 +201,9 @@ namespace TDEngine2
 		}, 
 		[&pFileSystem, &inputStreams](const std::string& path, bool isSystemPath) -> tcpp::IInputStream*
 		{
-			std::string filename = isSystemPath ? ("vfs://Shaders/" + path) : path; // \note for built-in files change the directory to search
+			std::string filename = isSystemPath ? ("Shaders/" + path) : path; // \note for built-in files change the directory to search
 
-			TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(pFileSystem->ResolveVirtualPath(filename, false));
+			TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(filename);
 			if (includeFileId.HasError())
 			{
 				return nullptr;

@@ -120,7 +120,7 @@ namespace TDEngine2
 
 		for (auto&& currMountPointEntry : mMountedStorages)
 		{
-			const std::string& alias = currMountPointEntry.mAliasPath;
+			const std::string& alias = _normalizePathView(currMountPointEntry.mAliasPath, true);
 
 			/// \note Try to open file with current storage, but it could fail
 			if (Wrench::StringUtils::StartsWith(filePath, alias))
@@ -401,6 +401,9 @@ namespace TDEngine2
 			return nativeFileSystemPath;
 		}
 
+		return nativeFileSystemPath + path.substr(mountInfo.mAliasPath.length());
+
+#if 0
 		// Extract base path from filename
 		size_t pos = 0;
 		
@@ -426,5 +429,6 @@ namespace TDEngine2
 		} while (filename.empty() && !currPath.empty());
 
 		return nativeFileSystemPath + filename;
+#endif
 	}
 }

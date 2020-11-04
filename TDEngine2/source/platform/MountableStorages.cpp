@@ -110,7 +110,7 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseMountableStorage::CloseFile(TFileEntryId handle)
 	{
 		auto iter = mLocalConversionMap.find(handle);
-		if (iter != mLocalConversionMap.cend())
+		if (iter == mLocalConversionMap.cend())
 		{
 			return RC_FILE_NOT_FOUND;
 		}

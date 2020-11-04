@@ -130,7 +130,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		TMaterialParameters skyboxMatParams 
 		{ 
-			mpFileSystem->ResolveVirtualPath(Wrench::StringUtils::Format("vfs://Shaders/Default/DefaultSkyboxShader_{0}.shader", ShaderType), false), true,
+			mpFileSystem->ResolveVirtualPath(Wrench::StringUtils::Format("Shaders/Default/DefaultSkyboxShader_{0}.shader", ShaderType), false), true,
 			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL}, 
 			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, true, false }
 		};
