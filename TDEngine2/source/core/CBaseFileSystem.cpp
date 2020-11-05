@@ -125,7 +125,7 @@ namespace TDEngine2
 			/// \note Try to open file with current storage, but it could fail
 			if (Wrench::StringUtils::StartsWith(filePath, alias))
 			{
-				return _normalizePathView(_resolveVirtualPathInternal(currMountPointEntry, filePath), isDirectory);
+				return _normalizePathView(_resolveVirtualPathInternal(currMountPointEntry, filePath, isDirectory), isDirectory);
 			}
 		}
 
@@ -209,6 +209,10 @@ namespace TDEngine2
 		{
 			normalizedPath.append(pathSeparator);
 		}
+
+		// Remove duplicates like the following \\ or //
+		normalizedPath = Wrench::StringUtils::ReplaceAll(normalizedPath, pathSeparator + pathSeparator, pathSeparator);
+		normalizedPath = Wrench::StringUtils::ReplaceAll(normalizedPath, altPathSeparator + altPathSeparator, altPathSeparator);
 
 		TDE2_ASSERT(IsPathValid(normalizedPath));
 
@@ -301,7 +305,7 @@ namespace TDEngine2
 				}
 
 				// \note If we go here, it means a file doesn't exist at filename path, resolve this path and try again
-				if (auto openFileResult = currMountPointEntry.mpStorage->OpenFile(typeId, _resolveVirtualPathInternal(currMountPointEntry, filePath), createIfDoesntExist))
+				if (auto openFileResult = currMountPointEntry.mpStorage->OpenFile(typeId, _resolveVirtualPathInternal(currMountPointEntry, filePath, false), createIfDoesntExist))
 				{
 					return openFileResult;
 				}
@@ -392,7 +396,7 @@ namespace TDEngine2
 		newFileInstance.close();
 	}
 
-	std::string CBaseFileSystem::_resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path) const
+	std::string CBaseFileSystem::_resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path, bool isDirectory) const
 	{
 		const std::string nativeFileSystemPath = mountInfo.mpStorage->GetBasePath();
 
@@ -401,7 +405,7 @@ namespace TDEngine2
 			return nativeFileSystemPath;
 		}
 
-		return nativeFileSystemPath + path.substr(mountInfo.mAliasPath.length());
+		return _normalizePathView(nativeFileSystemPath + path.substr(mountInfo.mAliasPath.length()), isDirectory);
 
 #if 0
 		// Extract base path from filename

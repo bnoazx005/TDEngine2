@@ -97,7 +97,7 @@ TEST_CASE("File System Tests")
 			{ "", currDirectoryStr, true },
 			{ "test/abcde", testPathExpected + Wrench::StringUtils::Format("abcde{0}", pFileSystem->GetPathSeparatorChar()), true },
 			{ "test", testPathExpected, true },
-			{ "./test", testPathExpected, true },
+			//{ "./test", testPathExpected, true },
 			{ "test", testPathExpected, true },
 			{ "test.png", "test.png", false },
 			{ "Shaders", shaderPathExpected, true },

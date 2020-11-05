@@ -46,7 +46,7 @@ namespace TDEngine2
 	};
 
 
-	class IInputStream: public IStream
+	class IInputStream: public virtual IStream
 	{
 		public:
 			/*!
@@ -80,7 +80,7 @@ namespace TDEngine2
 	};
 
 
-	class IOutputStream: public IStream
+	class IOutputStream: public virtual IStream
 	{
 		public:
 			/*!
@@ -267,22 +267,22 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of CMemoryInputStream's type
+		\brief A factory function for creation objects of CMemoryIOStream's type
 
 		\param[in] path A string with path to a file
 		\param[in] pD
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CMemoryInputStream's implementation
+		\return A pointer to CMemoryIOStream's implementation
 	*/
 
-	TDE2_API IStream* CreateMemoryInputStream(const std::string& path, const std::vector<U8>& data, E_RESULT_CODE& result);
+	TDE2_API IStream* CreateMemoryIOStream(const std::string& path, const std::vector<U8>& data, E_RESULT_CODE& result);
 
 
-	class CMemoryInputStream: public CBaseObject, public IInputStream
+	class CMemoryIOStream: public CBaseObject, public IInputStream, public IOutputStream
 	{
 		public:
-			friend TDE2_API IStream* CreateMemoryInputStream(const std::string&, const std::vector<U8>&, E_RESULT_CODE&);
+			friend TDE2_API IStream* CreateMemoryIOStream(const std::string&, const std::vector<U8>&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a stream
@@ -329,70 +329,6 @@ namespace TDEngine2
 
 			TDE2_API std::string ReadToEnd() override;
 
-			TDE2_API E_RESULT_CODE SetPosition(U32 pos) override;
-			TDE2_API U32 GetPosition() const override;
-
-			TDE2_API const std::string& GetName() const override;
-
-			/*!
-				\brief The method returns true if the stream is opened and ready to use
-				\return The method returns true if the stream is opened and ready to use
-			*/
-
-			TDE2_API bool IsValid() const override;
-
-			TDE2_API bool IsEndOfStream() const override;
-
-			TDE2_API U64 GetLength() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryInputStream)
-		protected:
-			std::string mPath;
-
-			std::vector<U8> mData;
-			U32 mPointer;
-	};
-
-#if 0
-	/*!
-		\brief A factory function for creation objects of CMemoryOutputStream's type
-
-		\param[in] path A string with path to a file
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CMemoryOutputStream's implementation
-	*/
-
-	TDE2_API IStream* CreateMemoryOutputStream(const std::string& path, const std::vector<U8>& data, E_RESULT_CODE& result);
-
-
-	/*!
-		\brief The class is an implementation of a file writing stream
-	*/
-
-	class CMemoryOutputStream : public CBaseObject, public IOutputStream
-	{
-		public:
-			friend TDE2_API IStream* CreateMemoryOutputStream(const std::string&, E_RESULT_CODE&);
-		public:
-			/*!
-				\brief The method initializes an internal state of a stream
-
-				\param[in] path A string with path to a file
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(const std::string& path);
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
 			/*!
 				\brief The method writes data of specified size into a file
 
@@ -423,12 +359,11 @@ namespace TDEngine2
 
 			TDE2_API U64 GetLength() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryOutputStream)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryIOStream)
 		protected:
 			std::string mPath;
 
 			std::vector<U8> mData;
 			U32 mPointer;
 	};
-#endif
 }

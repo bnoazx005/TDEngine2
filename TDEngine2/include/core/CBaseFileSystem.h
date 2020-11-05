@@ -218,7 +218,7 @@ namespace TDEngine2
 				\return A string that contains a physical path
 			*/
 
-			TDE2_API std::string _resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path) const;
+			TDE2_API std::string _resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path, bool isDirectory) const;
 		protected:
 			mutable std::mutex mMutex;
 

@@ -232,15 +232,15 @@ namespace TDEngine2
 
 	
 	/*!
-		\brief CMemoryInputStream's definition
+		\brief CMemoryIOStream's definition
 	*/
 
-	CMemoryInputStream::CMemoryInputStream() :
+	CMemoryIOStream::CMemoryIOStream() :
 		CBaseObject()
 	{
 	}
 
-	E_RESULT_CODE CMemoryInputStream::Init(const std::string& path, const std::vector<U8>& data)
+	E_RESULT_CODE CMemoryIOStream::Init(const std::string& path, const std::vector<U8>& data)
 	{
 		if (mIsInitialized)
 		{
@@ -257,7 +257,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMemoryInputStream::Free()
+	E_RESULT_CODE CMemoryIOStream::Free()
 	{
 		if (!mIsInitialized)
 		{
@@ -274,7 +274,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMemoryInputStream::Read(void* pBuffer, U32 bufferSize)
+	E_RESULT_CODE CMemoryIOStream::Read(void* pBuffer, U32 bufferSize)
 	{
 		if (!pBuffer || !bufferSize)
 		{
@@ -289,7 +289,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	std::string CMemoryInputStream::ReadLine()
+	std::string CMemoryIOStream::ReadLine()
 	{
 		if (!IsValid())
 		{
@@ -306,7 +306,7 @@ namespace TDEngine2
 		return std::string(mData.cbegin() + start, mData.cbegin() + start + mPointer - 1);
 	}
 
-	std::string CMemoryInputStream::ReadToEnd()
+	std::string CMemoryIOStream::ReadToEnd()
 	{
 		if (!IsValid())
 		{
@@ -318,46 +318,55 @@ namespace TDEngine2
 		return std::string(mData.cbegin(), mData.cend());
 	}
 
-	E_RESULT_CODE CMemoryInputStream::SetPosition(U32 pos)
+	E_RESULT_CODE CMemoryIOStream::Write(const void* pBuffer, U32 bufferSize)
 	{
-		mPointer = pos;
 		return RC_OK;
 	}
 
-	const std::string& CMemoryInputStream::GetName() const
+	void CMemoryIOStream::Flush()
+	{
+	}
+
+	E_RESULT_CODE CMemoryIOStream::SetPosition(U32 pos)
+	{
+		if (pos > mData.size())
+		{
+			return RC_FAIL;
+		}
+
+		mPointer = pos;
+
+		return RC_OK;
+	}
+
+	const std::string& CMemoryIOStream::GetName() const
 	{
 		return mPath;
 	}
 
-	U32 CMemoryInputStream::GetPosition() const
+	U32 CMemoryIOStream::GetPosition() const
 	{
 		return mPointer;
 	}
 
-	bool CMemoryInputStream::IsValid() const
+	bool CMemoryIOStream::IsValid() const
 	{
 		return !mData.empty();
 	}
 
-	bool CMemoryInputStream::IsEndOfStream() const
+	bool CMemoryIOStream::IsEndOfStream() const
 	{
 		return mPointer >= mData.size();
 	}
 
-	U64 CMemoryInputStream::GetLength() const
+	U64 CMemoryIOStream::GetLength() const
 	{		
 		return static_cast<U64>(mData.size());
 	}
 
 
-	IStream* CreateMemoryInputStream(const std::string& path, const std::vector<U8>& data, E_RESULT_CODE& result)
+	IStream* CreateMemoryIOStream(const std::string& path, const std::vector<U8>& data, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IStream, CMemoryInputStream, result, path, data);
-	}
-
-	/*!
-		\brief CMemoryOutputStream's definition
-	*/
-
-	
+		return CREATE_IMPL(IStream, CMemoryIOStream, result, path, data);
+	}	
 }

@@ -16,7 +16,7 @@ TEST_CASE("CMemoryInputStream Tests")
 	{
 		std::vector<U8> data{ 0x42, 0x16, 0x2, 0x4 };
 
-		IInputStream* pStream = dynamic_cast<IInputStream*>(CreateMemoryInputStream("", data, result));
+		IInputStream* pStream = dynamic_cast<IInputStream*>(CreateMemoryIOStream("", data, result));
 
 		REQUIRE((pStream && RC_OK == result));
 		{
@@ -37,7 +37,7 @@ TEST_CASE("CMemoryInputStream Tests")
 	{
 		std::vector<U8> data{ 0x42, 0x16, 0x2, 0x4 };
 
-		IInputStream* pStream = dynamic_cast<IInputStream*>(CreateMemoryInputStream("", data, result));
+		IInputStream* pStream = dynamic_cast<IInputStream*>(CreateMemoryIOStream("", data, result));
 
 		REQUIRE((pStream && RC_OK == result));
 		{
