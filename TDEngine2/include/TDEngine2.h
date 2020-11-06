@@ -207,6 +207,7 @@
 #include "platform/CBinaryMeshFileReader.h"
 #include "platform/IOStreams.h"
 #include "platform/MountableStorages.h"
+#include "platform/CPackageFile.h"
 
 ///utils
 #include "utils/Types.h"

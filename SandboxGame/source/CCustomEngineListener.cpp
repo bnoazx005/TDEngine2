@@ -186,6 +186,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 	}
 
+	if (auto pPackageWriter = mpFileSystem->Get<IPackageFileWriter>(mpFileSystem->Open<IPackageFileWriter>("TestPackage.pak", true).Get()))
+	{
+		//pPackageWriter->WriteFile<Type>("path/within/package/where/to/mount", pFile)
+		pPackageWriter->WriteFile<IYAMLFileReader>("test/", *mpFileSystem->Get<IYAMLFileReader>(mpFileSystem->Open<IYAMLFileReader>("Animation.animation", false).Get()));
+
+		pPackageWriter->Close();
+	}
+
 	return RC_OK;
 }
 

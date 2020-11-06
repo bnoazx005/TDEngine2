@@ -478,4 +478,45 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryMeshFileReader)
 	};
+
+
+	/*!
+		\brief The interface represents a functionality of a packages file reader
+	*/
+
+	class IPackageFileReader : public virtual IBinaryFileReader
+	{
+		public:
+			TDE2_REGISTER_TYPE(IPackageFileReader)
+
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPackageFileReader)
+	};
+
+
+	/*!
+		\brief The interface represents a functionality of a packages file writer
+	*/
+
+	class IPackageFileWriter : public virtual IBinaryFileWriter
+	{
+		public:
+			TDE2_REGISTER_TYPE(IPackageFileWriter)
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IFile, T>, E_RESULT_CODE>
+#else
+			typename std::enable_if<std::is_base_of<IFile, T>::value, E_RESULT_CODE>::type
+#endif
+			WriteFile(const std::string& path, const T& file)
+			{
+				return _writeFileInternal(T::GetTypeId(), path, dynamic_cast<const IFile&>(file));
+			}
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPackageFileWriter)
+
+			TDE2_API virtual E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFile& file) = 0;
+	};
 }

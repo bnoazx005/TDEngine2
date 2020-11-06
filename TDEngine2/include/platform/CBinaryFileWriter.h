@@ -30,7 +30,7 @@ namespace TDEngine2
 		\brief The class represents a base writer of binary files
 	*/
 
-	class CBinaryFileWriter : public IBinaryFileWriter, public CBaseFile
+	class CBinaryFileWriter : public virtual IBinaryFileWriter, public CBaseFile
 	{
 		public:
 			friend TDE2_API IFile* CreateBinaryFileWriter(IMountableStorage*, IStream*, E_RESULT_CODE&);
