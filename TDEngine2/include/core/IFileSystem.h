@@ -258,6 +258,8 @@ namespace TDEngine2
 
 			TDE2_API virtual bool IsPathValid(const std::string& path, bool isVirtualPath = false) const = 0;
 
+			TDE2_API virtual std::string CombinePath(const std::string& left, const std::string& right) const = 0;
+
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_FILE_SYSTEM; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileSystem)

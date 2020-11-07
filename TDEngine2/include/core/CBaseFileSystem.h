@@ -191,6 +191,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const C8& GetAltPathSeparatorChar() const = 0;
+
+			TDE2_API std::string CombinePath(const std::string& left, const std::string& right) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFileSystem)
 

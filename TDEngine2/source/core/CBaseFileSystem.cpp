@@ -285,6 +285,14 @@ namespace TDEngine2
 #endif
 	}
 
+	std::string CBaseFileSystem::CombinePath(const std::string& left, const std::string& right) const
+	{
+		std::string resultPath = _normalizePathView(left, true);
+		resultPath.append(_normalizePathView(right, false));
+
+		return _normalizePathView(resultPath, false);
+	}
+
 	TResult<TFileEntryId> CBaseFileSystem::_openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
