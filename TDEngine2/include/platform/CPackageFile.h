@@ -72,17 +72,26 @@ namespace TDEngine2
 		\brief The class represents a base reader of packages files
 	*/
 
-	class CPackageFileReader : public CBinaryFileReader
+	class CPackageFileReader : public CBinaryFileReader, public IPackageFileReader
 	{
 		public:
 			friend TDE2_API IFile* CreatePackageFileReader(IMountableStorage*, IStream*, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CPackageFileReader)
 
+			TDE2_API const TPackageFileHeader& GetPackageHeader() const override;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPackageFileReader)
 
+			TDE2_API E_RESULT_CODE _onInit() override;
 			//TDE2_API E_RESULT_CODE _onFree() override;
+
+			TDE2_API E_RESULT_CODE _readPackageHeader();
+			TDE2_API E_RESULT_CODE _readFilesTableDescription();
+		private:
+			TPackageFileHeader mCurrHeader;
+			std::vector<TPackageFileEntryInfo> mFilesTable;
 	};
 
 

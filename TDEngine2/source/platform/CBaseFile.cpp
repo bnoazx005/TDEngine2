@@ -28,6 +28,13 @@ namespace TDEngine2
 			return RC_FILE_NOT_FOUND;
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = _onInit()) != RC_OK)
+		{
+			return result;
+		}
+
 		mRefCounter = 1;
 
 		mName = mpStreamImpl->GetName();
@@ -111,5 +118,10 @@ namespace TDEngine2
 	IStream* CBaseFile::GetStream() const
 	{
 		return mpStreamImpl;
+	}
+
+	E_RESULT_CODE CBaseFile::_onInit()
+	{
+		return RC_OK;
 	}
 }

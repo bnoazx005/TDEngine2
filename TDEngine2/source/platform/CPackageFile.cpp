@@ -17,6 +17,52 @@ namespace TDEngine2
 	{
 	}
 
+	const TPackageFileHeader& CPackageFileReader::GetPackageHeader() const
+	{
+		return mCurrHeader;
+	}
+
+	E_RESULT_CODE CPackageFileReader::_onInit()
+	{
+		E_RESULT_CODE result = _readPackageHeader();
+		result = result | _readFilesTableDescription();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CPackageFileReader::_readPackageHeader()
+	{
+		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+
+		return pStream->Read(&mCurrHeader, sizeof(mCurrHeader));
+	}
+
+	E_RESULT_CODE CPackageFileReader::_readFilesTableDescription()
+	{
+		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+
+		E_RESULT_CODE result = pStream->SetPosition(mCurrHeader.mFilesTableOffset);
+
+		U64 filenameLength = 0;
+		TPackageFileEntryInfo info;
+
+		for (U32 i = 0; i < mCurrHeader.mEntitiesCount; ++i)
+		{
+			result = result | pStream->Read(&filenameLength, sizeof(filenameLength));
+
+			info.mFilename.resize(filenameLength);
+			result = result | pStream->Read(&info.mFilename[0], sizeof(C8) * filenameLength);
+
+			result = result | pStream->Read(&info.mDataBlockOffset, sizeof(info.mDataBlockOffset));
+			result = result | pStream->Read(&info.mDataBlockSize, sizeof(info.mDataBlockSize));
+
+			mFilesTable.push_back(info);
+		}
+
+		return result;
+	}
+
+
 	IFile* CreatePackageFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
 	{
 		CPackageFileReader* pFileInstance = new (std::nothrow) CPackageFileReader();
@@ -52,7 +98,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPackageFileWriter::_onInit()
 	{
-		return SetPosition(sizeof(TPackageFileHeader));
+		return mpStreamImpl->SetPosition(sizeof(TPackageFileHeader));
 	}
 
 	E_RESULT_CODE CPackageFileWriter::_onFree()
@@ -74,7 +120,7 @@ namespace TDEngine2
 		IFileSystem* pFileSystem = mpStorage->GetFileSystem(); // \note Not the best idea to ask it in this way
 
 		TPackageFileEntryInfo fileInfo;
-		fileInfo.mFilename = pFileSystem->CombinePath(path, file.GetShortName());
+		fileInfo.mFilename = path.empty() ? file.GetShortName() : pFileSystem->CombinePath(path, file.GetShortName());
 		fileInfo.mDataBlockOffset = GetPosition();
 
 		// Copy file's data into the package

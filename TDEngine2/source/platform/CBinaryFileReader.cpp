@@ -86,6 +86,11 @@ namespace TDEngine2
 		return mpStreamImpl->GetPosition();
 	}
 
+	E_RESULT_CODE CBinaryFileReader::_onInit()
+	{
+		return RC_OK;
+	}
+	
 	E_RESULT_CODE CBinaryFileReader::_onFree()
 	{
 		return RC_OK;

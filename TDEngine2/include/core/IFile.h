@@ -500,7 +500,8 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_REGISTER_TYPE(IPackageFileReader)
-
+				
+			TDE2_API virtual const struct TPackageFileHeader& GetPackageHeader() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPackageFileReader)
 	};

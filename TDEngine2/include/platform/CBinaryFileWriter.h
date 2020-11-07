@@ -100,7 +100,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryFileWriter)
 
-			TDE2_API virtual E_RESULT_CODE _onInit();
+			TDE2_API E_RESULT_CODE _onInit() override;
 			TDE2_API E_RESULT_CODE _onFree() override;
 
 			TDE2_API IOutputStream* _getOutputStream();

@@ -194,6 +194,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pPackageWriter->Close();
 	}
 
+	mpFileSystem->Open<IPackageFileReader>("TestPackage.pak");
+
 	return RC_OK;
 }
 
