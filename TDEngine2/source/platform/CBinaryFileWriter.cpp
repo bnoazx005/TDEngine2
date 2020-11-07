@@ -90,6 +90,11 @@ namespace TDEngine2
 		return mpStreamImpl->GetPosition();
 	}
 
+	E_RESULT_CODE CBinaryFileWriter::_onInit()
+	{
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CBinaryFileWriter::_onFree()
 	{
 		return RC_OK;

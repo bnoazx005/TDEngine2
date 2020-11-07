@@ -117,9 +117,13 @@ namespace TDEngine2
 
 	U64 CFileInputStream::GetLength() const
 	{
-		mInternalStream.ignore((std::numeric_limits<std::streamsize>::max)());
+		if (!mInternalStream.is_open() || !IsValid())
+		{
+			return 0;
+		}
 
-		std::streamsize length = mInternalStream.gcount();
+		mInternalStream.seekg(0, std::ios::end);
+		U64 length = mInternalStream.tellg();
 
 		mInternalStream.clear();   // \note Since ignore will have set eof.
 		mInternalStream.seekg(0, std::ios_base::beg);

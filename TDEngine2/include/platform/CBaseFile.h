@@ -90,6 +90,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool IsParentThread() const override;
+
+			TDE2_API IStream* GetStream() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFile)
 

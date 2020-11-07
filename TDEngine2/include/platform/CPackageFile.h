@@ -9,10 +9,54 @@
 
 #include "../platform/CBinaryFileReader.h"
 #include "../platform/CBinaryFileWriter.h"
+#include <string>
 
 
 namespace TDEngine2
 {
+	/*!
+		\brief The structure of a simple package file looks like the following below
+
+		> beginning of a file ===========================
+		
+		      PackageFileHeader 
+		----------------------------
+		        Files Data
+		....
+		----------------------------
+		    FilesTableDescription
+		Entry1, Entry2, .... EntryN
+
+		< end of the file ===============================
+	*/
+
+#pragma pack(push, 1)
+
+	typedef struct TPackageFileHeader
+	{
+		const C8 mTag[4] { "PAK" };
+
+		const U16 mVersion = 0x100;
+		const U16 mPadding = 0x0;
+
+		U32 mEntitiesCount = 0;
+
+		U64 mFilesTableOffset = 0;
+		U64 mFilesTableSize = 0;
+	} TPackageFileHeader, *TPackageFileHeaderPtr;
+
+#pragma pack(pop)
+
+
+	typedef struct TPackageFileEntryInfo
+	{
+		std::string mFilename;
+
+		U64 mDataBlockOffset = 0;
+		U64 mDataBlockSize = 0;
+	} TPackageFileEntryInfo, *TPackageFileEntryInfoPtr;
+
+
 	/*!
 		\brief A factory function for creation objects of CPackageFileReader's type
 
@@ -67,8 +111,15 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPackageFileWriter)
 
-			//TDE2_API E_RESULT_CODE _onFree() override;
+			TDE2_API E_RESULT_CODE _onInit() override;
+			TDE2_API E_RESULT_CODE _onFree() override;
 			
-			TDE2_API E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFile& file) override;
+			TDE2_API E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file) override;
+
+			TDE2_API E_RESULT_CODE _writePackageHeader();
+			TDE2_API E_RESULT_CODE _writeFilesTableDescription();
+		private:
+			TPackageFileHeader mCurrHeader;
+			std::vector<TPackageFileEntryInfo> mFilesTable;
 	};
 }
