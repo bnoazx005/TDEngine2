@@ -1,6 +1,7 @@
 #include "../../include/platform/CBaseFile.h"
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
+#include "../../include/core/IFileSystem.h"
 
 
 namespace TDEngine2
@@ -78,6 +79,20 @@ namespace TDEngine2
 
 	std::string CBaseFile::GetFilename() const
 	{
+		return mName;
+	}
+
+	std::string CBaseFile::GetShortName() const
+	{
+		const IFileSystem* pFileSystem = mpStorage->GetFileSystem();
+
+		size_t pos = mName.find_last_of(pFileSystem->GetPathSeparatorChar());
+
+		if ((pos != std::string::npos) || (pos = mName.find_last_of(pFileSystem->GetAltPathSeparatorChar())) != std::string::npos)
+		{
+			return mName.substr(pos + 1);
+		}
+
 		return mName;
 	}
 

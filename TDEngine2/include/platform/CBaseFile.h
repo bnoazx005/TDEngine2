@@ -66,6 +66,14 @@ namespace TDEngine2
 			TDE2_API std::string GetFilename() const override;
 
 			/*!
+				\brief The method returns only name of a file with extension without its base path
+
+				\return The method returns only name of a file with extension without its base path. E.g. "file.png"
+			*/
+
+			TDE2_API std::string GetShortName() const override;
+
+			/*!
 				\brief The method returns true if a file is opened
 
 				\return The method returns true if a file is opened

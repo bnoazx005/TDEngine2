@@ -72,6 +72,14 @@ namespace TDEngine2
 			TDE2_API virtual std::string GetFilename() const = 0;
 
 			/*!
+				\brief The method returns only name of a file with extension without its base path
+
+				\return The method returns only name of a file with extension without its base path. E.g. "file.png"
+			*/
+
+			TDE2_API virtual std::string GetShortName() const = 0;
+
+			/*!
 				\brief The method returns true if a file is opened
 
 				\return The method returns true if a file is opened
@@ -101,6 +109,8 @@ namespace TDEngine2
 
 	class IFileReader : public virtual IFile
 	{
+		public:
+
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileReader)
 	};
@@ -506,17 +516,17 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API
 #if _HAS_CXX17
-			std::enable_if_t<std::is_base_of_v<IFile, T>, E_RESULT_CODE>
+			std::enable_if_t<std::is_base_of_v<IFileReader, T>, E_RESULT_CODE>
 #else
-			typename std::enable_if<std::is_base_of<IFile, T>::value, E_RESULT_CODE>::type
+			typename std::enable_if<std::is_base_of<IFileReader, T>::value, E_RESULT_CODE>::type
 #endif
 			WriteFile(const std::string& path, const T& file)
 			{
-				return _writeFileInternal(T::GetTypeId(), path, dynamic_cast<const IFile&>(file));
+				return _writeFileInternal(T::GetTypeId(), path, dynamic_cast<const IFileReader&>(file));
 			}
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPackageFileWriter)
 
-			TDE2_API virtual E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFile& file) = 0;
+			TDE2_API virtual E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file) = 0;
 	};
 }
