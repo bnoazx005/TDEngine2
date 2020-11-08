@@ -13,6 +13,7 @@
 #include "../core/CBaseObject.h"
 #include <unordered_map>
 #include <string>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -62,7 +63,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE OnMounted() = 0;
+			TDE2_API virtual E_RESULT_CODE OnMounted(const std::string& aliasPath) = 0;
 
 			TDE2_API virtual TResult<TFileEntryId> OpenFile(const TypeId& typeId, const std::string& path, bool createIfDoesntExist = false) = 0;
 			TDE2_API virtual E_RESULT_CODE CloseFile(TFileEntryId handle) = 0;
@@ -161,7 +162,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE OnMounted() override;
+			TDE2_API E_RESULT_CODE OnMounted(const std::string& aliasPath) override;
 
 			TDE2_API bool FileExists(const std::string& path) const override;
 
@@ -195,7 +196,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE OnMounted() override;
+			TDE2_API E_RESULT_CODE OnMounted(const std::string& aliasPath) override;
 
 			TDE2_API bool FileExists(const std::string& path) const override;
 
@@ -206,5 +207,10 @@ namespace TDEngine2
 			TDE2_API void _createNewFile(const std::string& path) override;
 			TDE2_API TResult<IStream*> _createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const override;
 		protected:
+			TFileEntryId mPackageFileHandle;
+
+			std::unordered_map<std::string, std::tuple<U64, U64>> mPackageFilesInfoTable; ///< The first U64 - is offset of the file within the package, the second is size of data
+
+			std::string mAliasPath;
 	};
 }

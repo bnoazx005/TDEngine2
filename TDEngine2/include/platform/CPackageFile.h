@@ -48,15 +48,6 @@ namespace TDEngine2
 #pragma pack(pop)
 
 
-	typedef struct TPackageFileEntryInfo
-	{
-		std::string mFilename;
-
-		U64 mDataBlockOffset = 0;
-		U64 mDataBlockSize = 0;
-	} TPackageFileEntryInfo, *TPackageFileEntryInfoPtr;
-
-
 	/*!
 		\brief A factory function for creation objects of CPackageFileReader's type
 
@@ -79,7 +70,10 @@ namespace TDEngine2
 		public:
 			TDE2_REGISTER_TYPE(CPackageFileReader)
 
+			TDE2_API std::vector<U8> ReadFileBytes(const std::string& path) override;
+
 			TDE2_API const TPackageFileHeader& GetPackageHeader() const override;
+			TDE2_API const std::vector<TPackageFileEntryInfo>& GetFilesTable() const override;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPackageFileReader)

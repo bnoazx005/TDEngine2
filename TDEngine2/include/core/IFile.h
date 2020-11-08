@@ -492,6 +492,15 @@ namespace TDEngine2
 	};
 
 
+	typedef struct TPackageFileEntryInfo
+	{
+		std::string mFilename;
+
+		U64 mDataBlockOffset = 0;
+		U64 mDataBlockSize = 0;
+	} TPackageFileEntryInfo, *TPackageFileEntryInfoPtr;
+
+
 	/*!
 		\brief The interface represents a functionality of a packages file reader
 	*/
@@ -500,8 +509,11 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_REGISTER_TYPE(IPackageFileReader)
-				
+
+			TDE2_API virtual std::vector<U8> ReadFileBytes(const std::string& path) = 0;
+
 			TDE2_API virtual const struct TPackageFileHeader& GetPackageHeader() const = 0;
+			TDE2_API virtual const std::vector<TPackageFileEntryInfo>& GetFilesTable() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPackageFileReader)
 	};

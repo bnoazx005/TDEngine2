@@ -196,6 +196,23 @@ namespace TDEngine2
 			Get(TFileEntryId fileId);
 
 			/*!
+				\brief The method returns a pointer of a file by its handle without thread safety
+
+				\param[in] fileId An identifier of a file
+
+				\return A pointer to IFile implementation
+			*/
+
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IFile, T>, T*>
+#else
+			typename std::enable_if<std::is_base_of<IFile, T>::value, T*>::type
+#endif
+			GetUnsafe(TFileEntryId fileId);
+
+			/*!
 				\brief The method returns a function pointer to a file factory which is registered for the given type
 
 				\param[in] typeId A type of a file 
@@ -271,6 +288,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _unregisterFileFactory(const TypeId& typeId) = 0;
 
 			TDE2_API virtual IFile* _getFile(TFileEntryId fileId) = 0;
+			TDE2_API virtual IFile* _getFileUnsafe(TFileEntryId fileId) = 0;
 	};
 
 	
@@ -317,5 +335,17 @@ namespace TDEngine2
 	IFileSystem::Get(TFileEntryId fileId)
 	{
 		return dynamic_cast<T*>(_getFile(fileId));
+	}
+
+	template <typename T>
+	TDE2_API
+#if _HAS_CXX17
+	std::enable_if_t<std::is_base_of_v<IFile, T>, T*>
+#else
+	typename std::enable_if<std::is_base_of<IFile, T>::value, T*>::type
+#endif
+	IFileSystem::GetUnsafe(TFileEntryId fileId)
+	{
+		return dynamic_cast<T*>(_getFileUnsafe(fileId));
 	}
 }

@@ -4,6 +4,7 @@
 #include "../../include/core/IFile.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/utils/CFileLogger.h"
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -17,9 +18,38 @@ namespace TDEngine2
 	{
 	}
 
+	std::vector<U8> CPackageFileReader::ReadFileBytes(const std::string& path)
+	{
+		auto iter = std::find_if(mFilesTable.cbegin(), mFilesTable.cend(), [path](auto&& entry) { return entry.mFilename == path; });
+		if (iter == mFilesTable.cend())
+		{
+			return {};
+		}
+
+		std::vector<U8> dataBuffer;
+		dataBuffer.resize(iter->mDataBlockSize);
+
+		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+		
+		U32 prevPosition = pStream->GetPosition();
+		{
+			pStream->SetPosition(iter->mDataBlockOffset);
+			pStream->Read(&dataBuffer[0], iter->mDataBlockSize);
+		}
+
+		pStream->SetPosition(prevPosition);
+
+		return std::move(dataBuffer);
+	}
+
 	const TPackageFileHeader& CPackageFileReader::GetPackageHeader() const
 	{
 		return mCurrHeader;
+	}
+
+	const std::vector<TPackageFileEntryInfo>& CPackageFileReader::GetFilesTable() const
+	{
+		return mFilesTable;
 	}
 
 	E_RESULT_CODE CPackageFileReader::_onInit()

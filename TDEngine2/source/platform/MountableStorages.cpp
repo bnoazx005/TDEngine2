@@ -3,6 +3,7 @@
 #include "../../include/core/CBaseFileSystem.h"
 #include "../../include/core/IFile.h"
 #include "../../include/utils/CFileLogger.h"
+#include "stringUtils.hpp"
 #include <fstream>
 
 
@@ -189,7 +190,7 @@ namespace TDEngine2
 	{
 	}
 		
-	E_RESULT_CODE CPhysicalFilesStorage::OnMounted()
+	E_RESULT_CODE CPhysicalFilesStorage::OnMounted(const std::string&)
 	{
 		return RC_OK;
 	}
@@ -249,16 +250,32 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CPackageFilesStorage::OnMounted()
+	E_RESULT_CODE CPackageFilesStorage::OnMounted(const std::string& aliasPath)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		mAliasPath = aliasPath;
+
+		auto openPackageResult = mpFileSystem->Open<IPackageFileReader>(mPhysicalPath);
+
+		if (openPackageResult.IsOk())
+		{
+			IPackageFileReader* pPackageFileReader = mpFileSystem->Get<IPackageFileReader>(mPackageFileHandle = openPackageResult.Get());
+
+			const auto& filesTable = pPackageFileReader->GetFilesTable();
+
+			for (auto&& currFileEntry : filesTable)
+			{
+				mPackageFilesInfoTable.insert({ currFileEntry.mFilename, { currFileEntry.mDataBlockOffset, currFileEntry.mDataBlockSize } });
+			}
+
+			return RC_OK;
+		}
+
+		return openPackageResult.GetError();
 	}
 
 	bool CPackageFilesStorage::FileExists(const std::string& path) const
 	{
-		TDE2_UNIMPLEMENTED();
-		return false;
+		return (mPackageFilesInfoTable.find(path) != mPackageFilesInfoTable.cend());
 	}
 
 	U16 CPackageFilesStorage::GetPriority() const
@@ -268,12 +285,28 @@ namespace TDEngine2
 
 	void CPackageFilesStorage::_createNewFile(const std::string& path)
 	{
+		LOG_ERROR("[Package File Storage] \"Create a new file\" feature doesn't supported for now");
 		TDE2_UNIMPLEMENTED();
 	}
 
 	TResult<IStream*> CPackageFilesStorage::_createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const
 	{
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
+		E_RESULT_CODE result = RC_OK;
+
+		IPackageFileReader* pPackageFile = mpFileSystem->GetUnsafe<IPackageFileReader>(mPackageFileHandle);
+		if (!pPackageFile)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		auto pStream = CreateMemoryIOStream(path, pPackageFile->ReadFileBytes(Wrench::StringUtils::ReplaceAll(path, mAliasPath, Wrench::StringUtils::GetEmptyStr())), result);
+
+		if (result != RC_OK || !pStream)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		return Wrench::TOkValue<IStream*>(pStream);
 	}
 
 

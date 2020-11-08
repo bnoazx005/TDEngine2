@@ -209,6 +209,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _unregisterFileFactory(const TypeId& typeId) override;
 
 			TDE2_API IFile* _getFile(TFileEntryId fileId) override;
+			TDE2_API IFile* _getFileUnsafe(TFileEntryId fileId) override;
 
 			TDE2_API void _createNewFile(const std::string& filename);
 

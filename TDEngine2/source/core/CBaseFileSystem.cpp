@@ -55,8 +55,6 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseFileSystem::MountPhysicalPath(const std::string& path, const std::string& aliasPath)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		E_RESULT_CODE result = RC_OK;
 
 		IMountableStorage* pStorage = CreatePhysicalFilesStorage(this, _normalizePathView(path), result);
@@ -70,11 +68,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseFileSystem::MountPackage(const std::string& path, const std::string& aliasPath)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		E_RESULT_CODE result = RC_OK;
 
-		IMountableStorage* pStorage = CreatePackageFilesStorage(this, _normalizePathView(path), result);
+		IMountableStorage* pStorage = CreatePackageFilesStorage(this, _normalizePathView(path, false), result);
 		if (result != RC_OK || !pStorage)
 		{
 			return result;
@@ -136,56 +132,70 @@ namespace TDEngine2
 	{
 		const std::string unifiedAliasPath = _normalizePathView(aliasPath);
 
-		if (unifiedAliasPath.empty() || !pStorage)
 		{
-			return RC_INVALID_ARGS;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		auto iter = std::find_if(mMountedStorages.begin(), mMountedStorages.end(), [&unifiedAliasPath](auto&& entry) { return entry.mAliasPath == unifiedAliasPath; });
-		if (iter != mMountedStorages.end())
-		{
-			LOG_WARNING(Wrench::StringUtils::Format("[File System] Replace existing mounted storage with a new one (mount path: {0})", unifiedAliasPath));
-
-			// \note Remove previous storage
-			IMountableStorage* pExistedStorage = iter->mpStorage;
-			TDE2_ASSERT(pExistedStorage);
-
-			if (pExistedStorage)
+			std::lock_guard<std::mutex> lock(mMutex);
+			
+			if (unifiedAliasPath.empty() || !pStorage)
 			{
-				if (RC_OK != (result = pExistedStorage->Free()))
-				{
-					return result;
-				}
+				return RC_INVALID_ARGS;
 			}
 
-			// \note Register the new one
-			iter->mpStorage = pStorage;
-			
-			return RC_OK;
-		}
+			E_RESULT_CODE result = RC_OK;
 
-		// \note Insert a new mounting storage based on its priority, type and path's order
-		if (mMountedStorages.empty())
-		{
-			mMountedStorages.push_back({ pStorage, aliasPath });
-		}
-		else
-		{
-			for (auto iter = mMountedStorages.cbegin(); iter != mMountedStorages.cend(); ++iter)
+			auto iter = std::find_if(mMountedStorages.begin(), mMountedStorages.end(), [&unifiedAliasPath](auto&& entry) { return entry.mAliasPath == unifiedAliasPath; });
+			if (iter != mMountedStorages.end())
 			{
-				if (iter->mpStorage->GetPriority() >= pStorage->GetPriority())
+				LOG_WARNING(Wrench::StringUtils::Format("[File System] Replace existing mounted storage with a new one (mount path: {0})", unifiedAliasPath));
+
+				// \note Remove previous storage
+				IMountableStorage* pExistedStorage = iter->mpStorage;
+				TDE2_ASSERT(pExistedStorage);
+
+				if (pExistedStorage)
 				{
-					mMountedStorages.insert(iter, { pStorage, aliasPath });
-					break;
+					if (RC_OK != (result = pExistedStorage->Free()))
+					{
+						return result;
+					}
+				}
+
+				// \note Register the new one
+				iter->mpStorage = pStorage;
+
+				return RC_OK;
+			}
+
+			// \note Insert a new mounting storage based on its priority, type and path's order
+			if (mMountedStorages.empty())
+			{
+				mMountedStorages.push_back({ pStorage, aliasPath });
+			}
+			else
+			{
+				bool isInserted = false;
+
+				for (auto iter = mMountedStorages.cbegin(); iter != mMountedStorages.cend(); ++iter)
+				{
+					if (iter->mpStorage->GetPriority() >= pStorage->GetPriority())
+					{
+						mMountedStorages.insert(iter, { pStorage, aliasPath });
+						isInserted = true;
+						break;
+					}
+				}
+
+				if (!isInserted)
+				{
+					mMountedStorages.push_back({ pStorage, aliasPath });
 				}
 			}
 		}
 
 		if (pStorage)
 		{
-			if (RC_OK != (result = pStorage->OnMounted()))
+			E_RESULT_CODE result = RC_OK;
+
+			if (RC_OK != (result = pStorage->OnMounted(unifiedAliasPath)))
 			{
 				return result;
 			}
@@ -372,7 +382,11 @@ namespace TDEngine2
 	IFile* CBaseFileSystem::_getFile(TFileEntryId fileId)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
+		return _getFileUnsafe(fileId);
+	}
 
+	IFile* CBaseFileSystem::_getFileUnsafe(TFileEntryId fileId)
+	{
 		if (fileId == TFileEntryId::Invalid)
 		{
 			return nullptr;
