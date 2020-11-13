@@ -194,6 +194,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pPackageWriter->Close();
 	}
 
+	ISceneManager* pSceneManager = CreateSceneManager(mpFileSystem, mpWorld, result);
+	pSceneManager->Free();
+
 	return RC_OK;
 }
 

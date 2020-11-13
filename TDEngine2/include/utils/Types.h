@@ -103,6 +103,7 @@ namespace TDEngine2
 		EST_INPUT_CONTEXT,				/// A subsystem represents a low-level input system
 		EST_IMGUI_CONTEXT,				/// A subsystem represents an immediate mode GUI system
 		EST_EDITORS_MANAGER,            /// A subsystem that operates all editors that the engine provides for users (Available only in debug and production builds)
+		EST_SCENE_MANAGER,				/// A subsystem that operates with scenes (load, unload them)
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 
