@@ -204,7 +204,23 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			{
 				if (auto pScene = pSceneManager->GetScene(pSceneManager->CreateScene("main").Get()).Get())
 				{
-					auto e = pScene->CreateEntity("testEntity01");
+					for (I32 i = 0; i < 10; ++i)
+					{
+						auto pEnt = pScene->CreateEntity(Wrench::StringUtils::Format("Entity{0}", i));
+
+						if (auto pTransform = pEnt->GetComponent<CTransform>())
+						{
+							pTransform->SetPosition(pTransform->GetPosition() + RandVector3({ -2.0f, 0.0f, 0.0f }, { 5.0f, 5.0f, 10.0f }));
+						}
+
+						if (auto pSprite = pEnt->AddComponent<CQuadSprite>())
+						{
+							pSprite->SetMaterialName("NewMaterial.material");
+							pSprite->SetColor(colors[rand() % 7]);
+						}
+
+						//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
+					}
 
 					pScene->Save(pFileWriter);
 					pFileWriter->Close();

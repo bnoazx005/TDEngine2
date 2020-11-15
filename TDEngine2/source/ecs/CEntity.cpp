@@ -75,7 +75,11 @@ namespace TDEngine2
 						continue;
 					}
 
-					currComponent->Save(pWriter);
+					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						currComponent->Save(pWriter);
+					}
+					pWriter->EndGroup();
 				}
 			}
 			pWriter->EndGroup();

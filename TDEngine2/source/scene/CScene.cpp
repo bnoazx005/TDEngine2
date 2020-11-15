@@ -95,7 +95,11 @@ namespace TDEngine2
 			{
 				if (CEntity* pCurrEntity = mpWorld->FindEntity(currEntityId))
 				{
-					pCurrEntity->Save(pWriter);
+					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						pCurrEntity->Save(pWriter);
+					}
+					pWriter->EndGroup();
 				}
 			}
 		}

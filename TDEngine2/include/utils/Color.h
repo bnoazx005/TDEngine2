@@ -7,6 +7,8 @@
 
 
 #include "Types.h"
+#include "Utils.h"
+#include "../core/Serialization.h"
 
 
 namespace TDEngine2
@@ -56,5 +58,42 @@ namespace TDEngine2
 			   (static_cast<U8>(color.g * 255) << 16) |
 			   (static_cast<U8>(color.b * 255) << 8)  | 
 				static_cast<U8>(color.a * 255);
+	}
+
+
+	/*!
+		\brief TColor32F's Serialization/Deserialization helpers
+	*/
+
+	TDE2_API inline TResult<TColor32F> LoadColor32F(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		TColor32F color;
+
+		color.r = pReader->GetFloat("r");
+		color.g = pReader->GetFloat("g");
+		color.b = pReader->GetFloat("b");
+		color.a = pReader->GetFloat("a");
+
+		return Wrench::TOkValue<TColor32F>(color);
+	}
+
+	TDE2_API inline E_RESULT_CODE SaveColor32F(IArchiveWriter* pWriter, const TColor32F& object)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pWriter->SetFloat("r", object.r);
+		pWriter->SetFloat("g", object.g);
+		pWriter->SetFloat("b", object.b);
+		pWriter->SetFloat("a", object.a);
+
+		return RC_OK;
 	}
 }
