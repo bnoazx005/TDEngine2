@@ -195,8 +195,8 @@ namespace TDEngine2
 			mActiveComponents[componentTypeHashValue][hashValue] = nullptr;
 			
 			// mark handlers as invalid
-			mEntityComponentMap[entityId][componentType] = 0;
-			mComponentEntityMap[componentType][entityId] = 0;
+			mEntityComponentMap[entityId].erase(componentType);
+			mComponentEntityMap[componentType].erase(entityId);
 		}
 
 		return RC_OK;
