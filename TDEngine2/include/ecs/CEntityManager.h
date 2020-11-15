@@ -181,6 +181,8 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API bool HasComponent(TEntityId id);
 
+			TDE2_API std::vector<IComponent*> GetComponents(TEntityId id) const;
+
 			/*!
 				\brief The method seeks out an entity and either return it or return nullptr
 

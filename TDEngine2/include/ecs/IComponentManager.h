@@ -144,6 +144,12 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE RemoveComponents(TEntityId id) = 0;
 
 			/*!
+				\return The method returns an array of components that belong to given entity
+			*/
+
+			TDE2_API virtual std::vector<IComponent*> GetComponents(TEntityId id) const = 0;
+
+			/*!
 				\brief The method removes all components that are related with the entity and
 				frees the memory occupied by them.
 

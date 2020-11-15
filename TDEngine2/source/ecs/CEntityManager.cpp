@@ -177,6 +177,11 @@ namespace TDEngine2
 		return mpComponentManager->RemoveComponents(id);
 	}
 
+	std::vector<IComponent*> CEntityManager::GetComponents(TEntityId id) const
+	{
+		return mpComponentManager->GetComponents(id);
+	}
+
 	CEntity* CEntityManager::GetEntity(TEntityId entityId) const
 	{
 		TEntitiesHashTable::const_iterator entityIter = mEntitiesHashTable.find(entityId);

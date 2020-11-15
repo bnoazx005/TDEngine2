@@ -202,6 +202,28 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
+	std::vector<IComponent*> CComponentManager::GetComponents(TEntityId id) const
+	{
+		std::vector<IComponent*> components;
+
+		auto entityComponentsIter = mEntityComponentMap.find(id);
+		if (entityComponentsIter == mEntityComponentMap.cend())
+		{
+			return components;
+		}
+
+		auto&& componentsHashesTable = entityComponentsIter->second;
+
+		for (auto& currEntityComponentPair : componentsHashesTable)
+		{
+			const TypeId componentType = currEntityComponentPair.first;
+
+			 components.push_back(mActiveComponents[mComponentsHashTable.at(componentType)][currEntityComponentPair.second - 1]);
+		}
+
+		return components;
+	}
+
 	E_RESULT_CODE CComponentManager::RegisterFactory(const IComponentFactory* pFactory)
 	{
 		if (!mIsInitialized)

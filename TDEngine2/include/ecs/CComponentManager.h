@@ -96,6 +96,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE RemoveComponentsImmediately(TEntityId id) override;
 
 			/*!
+				\return The method returns an array of components that belong to given entity
+			*/
+
+			TDE2_API std::vector<IComponent*> GetComponents(TEntityId id) const override;
+
+			/*!
 				\brief The method returns a one way iterator to an array of components of specified type
 
 				\param[in] typeId A type of a component
