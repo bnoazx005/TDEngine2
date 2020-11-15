@@ -7,8 +7,9 @@
 #pragma once
 
 
-#include "./../core/CBaseObject.h"
-#include "./../utils/Utils.h"
+#include "../core/CBaseObject.h"
+#include "../core/Serialization.h"
+#include "../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -21,7 +22,7 @@ namespace TDEngine2
 		\note The interface is empty by now
 	*/
 
-	class IComponent: public virtual IBaseObject
+	class IComponent: public virtual IBaseObject, public ISerializable
 	{
 		public:
 		protected:

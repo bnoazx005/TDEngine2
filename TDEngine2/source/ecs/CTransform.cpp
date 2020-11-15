@@ -1,4 +1,5 @@
 #include "../../include/ecs/CTransform.h"
+#include "../../include/core/Serialization.h"
 
 
 namespace TDEngine2
@@ -22,6 +23,39 @@ namespace TDEngine2
 		mScale = scale;
 		
 		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CTransform::Load(IArchiveReader* pReader)
+	{
+		return CBaseComponent::Load(pReader);
+	}
+
+	E_RESULT_CODE CTransform::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CTransform::GetTypeId()));
+			
+			pWriter->BeginGroup("position", false);
+			SaveVector3(pWriter, mPosition);
+			pWriter->EndGroup();
+			
+			pWriter->BeginGroup("rotation", false);
+			SaveQuaternion(pWriter, mRotation);
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup("scale", false);
+			SaveVector3(pWriter, mScale);
+			pWriter->EndGroup();
+		}
+		pWriter->EndGroup();
 
 		return RC_OK;
 	}

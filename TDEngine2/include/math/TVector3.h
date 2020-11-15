@@ -7,8 +7,9 @@
 #pragma once
 
 
-#include "./../../include/utils/Types.h"
-#include "./stringUtils.hpp"
+#include "../../include/utils/Types.h"
+#include "../../include/core/Serialization.h"
+#include "stringUtils.hpp"
 #include <string>
 
 
@@ -221,4 +222,12 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TVector3 RandVector3(const TVector3& min, const TVector3& max);
+
+
+	/*!
+		\brief TVector3's Serialization/Deserialization helpers
+	*/
+
+	TDE2_API TResult<TVector3> LoadVector3(IArchiveReader* pReader);
+	TDE2_API E_RESULT_CODE SaveVector3(IArchiveWriter* pWriter, const TVector3& object);
 }

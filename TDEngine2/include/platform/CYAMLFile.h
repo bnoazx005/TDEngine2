@@ -106,6 +106,7 @@ namespace TDEngine2
 				if (mIsArrayScope)
 				{
 					(*_getCurrScope())[mCurrElementIndex++] = valueStr;
+					return RC_OK;
 				}
 
 				(*_getCurrScope())[key] = valueStr;

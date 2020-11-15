@@ -23,6 +23,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBaseComponent::Load(IArchiveReader* pReader)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseComponent::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		return RC_OK;
+	}
+
 	
 	CComponentIterator CComponentIterator::mInvalidIterator = CComponentIterator();
 

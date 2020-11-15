@@ -1,4 +1,6 @@
 #include "./../../include/math/TVector3.h"
+#include "../../include/utils/Utils.h"
+#include "../../include/core/Serialization.h"
 #include <cmath>
 #include <limits>
 #include <algorithm>
@@ -191,5 +193,36 @@ namespace TDEngine2
 		F32 z = min.z + static_cast<F32>(rand()) / (static_cast<F32>(RAND_MAX / (std::max)(1.0f, max.z - min.z)));
 
 		return TVector3(x, y, z);
+	}
+
+
+	TResult<TVector3> LoadVector3(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		TVector3 vec;
+
+		vec.x = pReader->GetFloat("x");
+		vec.y = pReader->GetFloat("y");
+		vec.z = pReader->GetFloat("z");
+
+		return Wrench::TOkValue<TVector3>(vec);
+	}
+
+	E_RESULT_CODE SaveVector3(IArchiveWriter* pWriter, const TVector3& object)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pWriter->SetFloat("x", object.x);
+		pWriter->SetFloat("y", object.y);
+		pWriter->SetFloat("z", object.z);
+
+		return RC_OK;
 	}
 }

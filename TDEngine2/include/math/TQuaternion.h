@@ -178,4 +178,12 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TVector3 ToEulerAngles(const TQuaternion& q);
+
+
+	/*!
+		\brief TQuaternion's Serialization/Deserialization helpers
+	*/
+
+	TDE2_API TResult<TQuaternion> LoadQuaternion(IArchiveReader* pReader);
+	TDE2_API E_RESULT_CODE SaveQuaternion(IArchiveWriter* pWriter, const TQuaternion& object);
 }

@@ -64,6 +64,21 @@ namespace TDEngine2
 		{
 			pWriter->SetUInt32("id", static_cast<U32>(mId));
 			pWriter->SetString("name", mName);
+
+			pWriter->BeginGroup("components", true);
+			{
+				auto&& components = mpEntityManager->GetComponents(mId);
+				for (auto&& currComponent : components)
+				{
+					if (!currComponent)
+					{
+						continue;
+					}
+
+					currComponent->Save(pWriter);
+				}
+			}
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
 

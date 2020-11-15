@@ -176,4 +176,37 @@ namespace TDEngine2
 						CMathUtils::IsGreatOrEqual(sinp, 1.0f) ? std::copysign(CMathConstants::Pi * 0.5f, sinp) : asinf(sinp),
 						atan2(2.0f * (q.z * q.w + q.y * q.x), 1.0f - 2.0f * (q.z * q.z + q.y * q.y)));
 	}
+
+
+	TResult<TQuaternion> LoadQuaternion(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		TQuaternion q;
+
+		q.x = pReader->GetFloat("x");
+		q.y = pReader->GetFloat("y");
+		q.z = pReader->GetFloat("z");
+		q.w = pReader->GetFloat("w");
+
+		return Wrench::TOkValue<TQuaternion>(q);
+	}
+
+	E_RESULT_CODE SaveQuaternion(IArchiveWriter* pWriter, const TQuaternion& object)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pWriter->SetFloat("x", object.x);
+		pWriter->SetFloat("y", object.y);
+		pWriter->SetFloat("z", object.z);
+		pWriter->SetFloat("w", object.w);
+
+		return RC_OK;
+	}
 }
