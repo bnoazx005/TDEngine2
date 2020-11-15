@@ -80,10 +80,12 @@ namespace TDEngine2
 			/*!
 				\brief The method creates a new instance of a scene
 
+				\param[in] name An identifier of a scene
+
 				\return Either a handle of created scene or an error code
 			*/
 			
-			TDE2_API virtual TResult<TSceneId> CreateScene() = 0;
+			TDE2_API virtual TResult<TSceneId> CreateScene(const std::string& name) = 0;
 
 			/*!
 				\brief The method removes an instance of a scene with given identifier only if the scene was created

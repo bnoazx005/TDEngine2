@@ -189,6 +189,8 @@
 #include "scene/components/CDirectionalLight.h"
 #include "scene/ISceneManager.h"
 #include "scene/CSceneManager.h"
+#include "scene/IScene.h"
+#include "scene/CScene.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"

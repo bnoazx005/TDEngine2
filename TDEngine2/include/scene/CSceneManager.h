@@ -9,6 +9,8 @@
 
 #include "ISceneManager.h"
 #include "../core/CBaseObject.h"
+#include <mutex>
+#include <vector>
 
 
 namespace TDEngine2
@@ -84,10 +86,12 @@ namespace TDEngine2
 			/*!
 				\brief The method creates a new instance of a scene
 
+				\param[in] name An identifier of a scene
+
 				\return Either a handle of created scene or an error code
 			*/
 
-			TDE2_API TResult<TSceneId> CreateScene() override;
+			TDE2_API TResult<TSceneId> CreateScene(const std::string& name) override;
 
 			/*!
 				\brief The method removes an instance of a scene with given identifier only if the scene was created
@@ -103,7 +107,7 @@ namespace TDEngine2
 			/*!
 				\brief The method is used to retrieve a pointer to a scene by its handle
 
-				\param[in] id An identifier of a scene
+				\param[in] id An identifier of a scene. 0th id is an identifier of a main scene
 
 				\return Returns either a pointer to IScene or an error code
 			*/
@@ -111,8 +115,14 @@ namespace TDEngine2
 			TDE2_API TResult<IScene*> GetScene(TSceneId id) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneManager)
+
+			TDE2_API TResult<TSceneId> _createInternal(const std::string& name);
 		protected:
+			mutable std::mutex mMutex;
+
 			IFileSystem* mpFileSystem;
 			IWorld* mpWorld;
+
+			std::vector<IScene*> mpScenes;
 	};
 }

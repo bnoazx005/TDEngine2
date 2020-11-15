@@ -194,8 +194,26 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pPackageWriter->Close();
 	}
 
-	ISceneManager* pSceneManager = CreateSceneManager(mpFileSystem, mpWorld, result);
-	pSceneManager->Free();
+	// TEMP CODE
+	{
+		ISceneManager* pSceneManager = CreateSceneManager(mpFileSystem, mpWorld, result);
+
+		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene.scene", true))
+		{
+			if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
+			{
+				if (auto pScene = pSceneManager->GetScene(pSceneManager->CreateScene("main").Get()).Get())
+				{
+					auto e = pScene->CreateEntity("testEntity01");
+
+					pScene->Save(pFileWriter);
+					pFileWriter->Close();
+				}
+			}
+		}
+
+		pSceneManager->Free();
+	}
 
 	return RC_OK;
 }

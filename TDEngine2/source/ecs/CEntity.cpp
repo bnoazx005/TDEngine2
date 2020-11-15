@@ -46,6 +46,29 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+	E_RESULT_CODE CEntity::Load(IArchiveReader* pReader)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CEntity::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("entity");
+		{
+			pWriter->SetUInt32("id", static_cast<U32>(mId));
+			pWriter->SetString("name", mName);
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
 	
 	void CEntity::SetId(TEntityId id)
 	{

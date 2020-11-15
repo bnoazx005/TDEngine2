@@ -7,10 +7,11 @@
 #pragma once
 
 
-#include "./../core/CBaseObject.h"
-#include "./../utils/Utils.h"
+#include "../core/CBaseObject.h"
+#include "../core/Event.h"
+#include "../utils/Utils.h"
+#include "../core/Serialization.h"
 #include "CEntityManager.h"
-#include "./../core/Event.h"
 #include <string>
 
 
@@ -26,7 +27,7 @@ namespace TDEngine2
 		components.
 	*/
 
-	class CEntity : public CBaseObject
+	class CEntity : public CBaseObject, public ISerializable
 	{
 		public:
 			friend TDE2_API CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result);
@@ -52,6 +53,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
 				\brief The methods set up an identifier for an entity.
