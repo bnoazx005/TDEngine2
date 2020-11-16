@@ -20,6 +20,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CStaticMeshContainer::Load(IArchiveReader* pReader)
+	{
+		return CBaseComponent::Load(pReader);
+	}
+
+	E_RESULT_CODE CStaticMeshContainer::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CStaticMeshContainer::GetTypeId()));
+
+			pWriter->SetString("material", mMaterialName);
+			pWriter->SetString("mesh", mMeshName);
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
 	void CStaticMeshContainer::SetMaterialName(const std::string& materialName)
 	{
 		mMaterialName = materialName;
