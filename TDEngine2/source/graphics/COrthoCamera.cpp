@@ -25,6 +25,30 @@ namespace TDEngine2
 
 		return _initInternal();
 	}
+
+	E_RESULT_CODE COrthoCamera::Load(IArchiveReader* pReader)
+	{
+		return CBaseComponent::Load(pReader);
+	}
+
+	E_RESULT_CODE COrthoCamera::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(COrthoCamera::GetTypeId()));
+
+			pWriter->SetFloat("width", mWidth);
+			pWriter->SetFloat("height", mHeight);
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
 	
 	E_RESULT_CODE COrthoCamera::ComputeProjectionMatrix(const ICameraSystem* pCameraSystem)
 	{
