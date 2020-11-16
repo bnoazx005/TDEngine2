@@ -9,6 +9,30 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CBoxCollisionObject2D::Load(IArchiveReader* pReader)
+	{
+		return CBaseComponent::Load(pReader);
+	}
+
+	E_RESULT_CODE CBoxCollisionObject2D::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CBoxCollisionObject2D::GetTypeId()));
+
+			pWriter->SetFloat("width", mWidth);
+			pWriter->SetFloat("height", mHeight);
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
 	void CBoxCollisionObject2D::SetWidth(F32 width)
 	{
 		mWidth = width;

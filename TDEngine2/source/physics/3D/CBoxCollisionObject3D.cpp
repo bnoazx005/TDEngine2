@@ -10,6 +10,32 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CBoxCollisionObject3D::Load(IArchiveReader* pReader)
+	{
+		return CBaseComponent::Load(pReader);
+	}
+
+	E_RESULT_CODE CBoxCollisionObject3D::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CBoxCollisionObject3D::GetTypeId()));
+			pWriter->BeginGroup("extents");
+			{
+				SaveVector3(pWriter, mExtents);
+			}
+			pWriter->EndGroup();
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
 	void CBoxCollisionObject3D::SetSizes(const TVector3& extents)
 	{
 		mExtents = extents;

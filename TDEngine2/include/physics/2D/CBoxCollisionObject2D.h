@@ -38,6 +38,26 @@ namespace TDEngine2
 			TDE2_REGISTER_TYPE(CBoxCollisionObject2D)
 
 			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+			/*!
 				\brief The method sets up a width of a box collider
 
 				\param[in] width A width of a box collider

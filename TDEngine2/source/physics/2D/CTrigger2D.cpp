@@ -20,6 +20,27 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CTrigger2D::Load(IArchiveReader* pReader)
+	{
+		return CBaseComponent::Load(pReader);
+	}
+
+	E_RESULT_CODE CTrigger2D::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CTrigger2D::GetTypeId()));
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
 
 	IComponent* CreateTrigger2D(E_RESULT_CODE& result)
 	{

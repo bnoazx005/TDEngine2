@@ -26,7 +26,6 @@ namespace TDEngine2
 		return _initInternal();
 	}
 
-
 	E_RESULT_CODE CPerspectiveCamera::Load(IArchiveReader* pReader)
 	{
 		return CBaseComponent::Load(pReader);
