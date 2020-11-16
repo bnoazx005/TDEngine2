@@ -19,7 +19,29 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-	
+
+	E_RESULT_CODE CShadowCasterComponent::Load(IArchiveReader* pReader)
+	{
+		return CBaseComponent::Load(pReader);
+	}
+
+	E_RESULT_CODE CShadowCasterComponent::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CShadowCasterComponent::GetTypeId()));
+			pWriter->SetBool("transparent", mIsTransparent);
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
 	void CShadowCasterComponent::SetTransparentFlag(bool value)
 	{
 		mIsTransparent = value;
