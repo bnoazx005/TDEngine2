@@ -40,6 +40,7 @@ file(WRITE ${TDENGINE2_CGEN_HEADER})
 set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/TDEngine2.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CBaseObject.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CBaseEngineCoreBuilder.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CDefaultEngineCoreBuilder.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CEngineCore.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IBaseObject.h"
@@ -245,6 +246,7 @@ set(TDENGINE2_HEADERS
 
 set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CBaseObject.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CBaseEngineCoreBuilder.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CDefaultEngineCoreBuilder.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CEngineCore.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CBaseFileSystem.cpp"

@@ -13,6 +13,7 @@
 #include "core/IGraphicsContext.h"
 #include "core/CEngineCore.h"
 #include "core/IEngineCoreBuilder.h"
+#include "core/CBaseEngineCoreBuilder.h"
 #include "core/CDefaultEngineCoreBuilder.h"
 #include "core/IEngineListener.h"
 #include "core/IBaseObject.h"
