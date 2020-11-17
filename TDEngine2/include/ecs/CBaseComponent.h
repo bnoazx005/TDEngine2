@@ -217,6 +217,11 @@ namespace TDEngine2
 		public:																												\
 			friend TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE&);													\
 			TDE2_REGISTER_TYPE(ComponentName)																				\
+																															\
+			TDE2_API E_RESULT_CODE Init();																					\
+																															\
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;													\
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;													\
 		protected:																											\
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)															\
 	};																														\
@@ -228,7 +233,9 @@ namespace TDEngine2
 		public:																												\
 			friend TDE2_API IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE& result);								\
 		public:																												\
+			TDE2_API E_RESULT_CODE Init();																					\
 			TDE2_API E_RESULT_CODE Free() override;																			\
+																															\
 			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;							\
 			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;						\
 			TDE2_API TypeId GetComponentTypeId() const override;															\
@@ -251,25 +258,48 @@ namespace TDEngine2
 		Note that the macro should be invoked only within *.cpp files to avoid circular dependencies
 	*/
 
-#define TDE2_DEFINE_FLAG_COMPONENT(ComponentName)																										\
-	TDE2_COMPONENT_CLASS_NAME(ComponentName)::TDE2_COMPONENT_CLASS_NAME(ComponentName)() : CBaseComponent() { mIsInitialized = true; }					\
+#define TDE2_DEFINE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)								\
+	ComponentName::ComponentName() : CBaseComponent() { }																								\
 																																						\
-	IComponent* TDE2_COMPONENT_FUNCTION_NAME(ComponentName)(E_RESULT_CODE& result)																		\
-	{																																					\
-		TDE2_COMPONENT_CLASS_NAME(ComponentName)* pComponentNameInstance = new (std::nothrow) TDE2_COMPONENT_CLASS_NAME(ComponentName)();				\
-																																						\
-		if (!pComponentNameInstance)																													\
-		{																																				\
-			result = RC_OUT_OF_MEMORY;																													\
-			return nullptr;																																\
-		}																																				\
-																																						\
-		return pComponentNameInstance;																													\
+	E_RESULT_CODE ComponentName::Init()																													\
+	{ 																																					\
+		mIsInitialized = true;																															\
+		return RC_OK;																																	\
 	}																																					\
 																																						\
-	TDE2_COMPONENT_FACTORY_NAME(ComponentName)::TDE2_COMPONENT_FACTORY_NAME(ComponentName)() :	CBaseObject() { mIsInitialized = true; }				\
+	E_RESULT_CODE ComponentName::Load(IArchiveReader* pReader)																							\
+	{																																					\
+		return CBaseComponent::Load(pReader);																											\
+	}																																					\
 																																						\
-	E_RESULT_CODE TDE2_COMPONENT_FACTORY_NAME(ComponentName)::Free()																					\
+	E_RESULT_CODE ComponentName::Save(IArchiveWriter* pWriter)																							\
+	{																																					\
+		if (!pWriter)																																	\
+		{																																				\
+			return RC_FAIL;																																\
+		}																																				\
+																																						\
+		pWriter->BeginGroup("component");																												\
+		pWriter->SetUInt32("type_id", static_cast<U32>(ComponentName::GetTypeId()));																	\
+		pWriter->EndGroup();																															\
+																																						\
+		return RC_OK;																																	\
+	}																																					\
+																																						\
+	IComponent* ComponentFuncName(E_RESULT_CODE& result)																								\
+	{																																					\
+		return CREATE_IMPL(IComponent, ComponentName, result);																							\
+	}																																					\
+																																						\
+	ComponentFactoryName::ComponentFactoryName() :	CBaseObject() { }																					\
+																																						\
+	E_RESULT_CODE ComponentFactoryName::Init()																											\
+	{ 																																					\
+		mIsInitialized = true;																															\
+		return RC_OK;																																	\
+	}																																					\
+																																						\
+	E_RESULT_CODE ComponentFactoryName::Free()																											\
 	{																																					\
 		if (!mIsInitialized)																															\
 		{																																				\
@@ -282,7 +312,7 @@ namespace TDEngine2
 		return RC_OK;																																	\
 	}																																					\
 																																						\
-	IComponent* TDE2_COMPONENT_FACTORY_NAME(ComponentName)::Create(const TBaseComponentParameters* pParams) const										\
+	IComponent* ComponentFactoryName::Create(const TBaseComponentParameters* pParams) const																\
 	{																																					\
 		if (!pParams)																																	\
 		{																																				\
@@ -290,37 +320,28 @@ namespace TDEngine2
 		}																																				\
 																																						\
 		E_RESULT_CODE result = RC_OK;																													\
-		return TDE2_COMPONENT_FUNCTION_NAME(ComponentName)(result);																						\
+		return ComponentFuncName(result);																												\
 	}																																					\
 																																						\
-	IComponent* TDE2_COMPONENT_FACTORY_NAME(ComponentName)::CreateDefault(const TBaseComponentParameters& params) const									\
+	IComponent* ComponentFactoryName::CreateDefault(const TBaseComponentParameters& params) const														\
 	{																																					\
 		E_RESULT_CODE result = RC_OK;																													\
-		return TDE2_COMPONENT_FUNCTION_NAME(ComponentName)(result);																						\
+		return ComponentFuncName(result);																												\
 	}																																					\
 																																						\
-	TypeId TDE2_COMPONENT_FACTORY_NAME(ComponentName)::GetComponentTypeId() const																		\
+	TypeId ComponentFactoryName::GetComponentTypeId() const																								\
 	{																																					\
-		return TDE2_COMPONENT_CLASS_NAME(ComponentName)::GetTypeId();																					\
+		return ComponentName::GetTypeId();																												\
 	}																																					\
 																																						\
-	IComponentFactory* TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName)(E_RESULT_CODE& result)														\
+	IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE& result)																					\
 	{																																					\
-		TDE2_COMPONENT_FACTORY_NAME(ComponentName)* pComponentNameFactoryInstance = new (std::nothrow) TDE2_COMPONENT_FACTORY_NAME(ComponentName)();	\
-																																						\
-		if (!pComponentNameFactoryInstance)																												\
-		{																																				\
-			result = RC_OUT_OF_MEMORY;																													\
-			return nullptr;																																\
-		}																																				\
-																																						\
-		if (result != RC_OK)																															\
-		{																																				\
-			delete pComponentNameFactoryInstance;																										\
-			pComponentNameFactoryInstance = nullptr;																									\
-		}																																				\
-																																						\
-		return pComponentNameFactoryInstance;																											\
+		return CREATE_IMPL(IComponentFactory, ComponentFactoryName, result);																			\
 	}
 
+
+#define TDE2_DEFINE_FLAG_COMPONENT(ComponentName) TDE2_DEFINE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),					\
+																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
+																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
+																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
 }
