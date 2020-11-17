@@ -1,34 +1,36 @@
-#include "./../../include/core/CEngineCore.h"
-#include "./../../include/core/IEngineSubsystem.h"
-#include "./../../include/core/IWindowSystem.h"
-#include "./../../include/core/IEngineListener.h"
-#include "./../../include/core/IEventManager.h"
-#include "./../../include/core/IPlugin.h"
-#include "./../../include/core/IDLLManager.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/core/IInputContext.h"
-#include "./../../include/core/memory/IMemoryManager.h"
-#include "./../../include/core/memory/CLinearAllocator.h"
-#include "./../../include/core/IImGUIContext.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/ecs/CWorld.h"
-#include "./../../include/ecs/CSpriteRendererSystem.h"
-#include "./../../include/ecs/CTransformSystem.h"
-#include "./../../include/ecs/CCameraSystem.h"
-#include "./../../include/ecs/CPhysics2DSystem.h"
-#include "./../../include/ecs/CStaticMeshRendererSystem.h"
-#include "./../../include/ecs/CPhysics3DSystem.h"
-#include "./../../include/graphics/IRenderer.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/IDebugUtility.h"
-#include "./../../include/utils/CFileLogger.h"
-#include "./../../include/utils/ITimer.h"
-#include "./../../include/editor/IEditorsManager.h"
-#include "./../../include/editor/CPerfProfiler.h"
-#include "./../../include/physics/CBaseRaycastContext.h"
-#include "./../../include/ecs/CObjectsSelectionSystem.h"
-#include "./../../include/ecs/CBoundsUpdatingSystem.h"
-#include "./../../include/ecs/CLightingSystem.h"
+#include "../../include/core/CEngineCore.h"
+#include "../../include/core/IEngineSubsystem.h"
+#include "../../include/core/IWindowSystem.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IEngineListener.h"
+#include "../../include/core/IEventManager.h"
+#include "../../include/core/IPlugin.h"
+#include "../../include/core/IDLLManager.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IInputContext.h"
+#include "../../include/core/memory/IMemoryManager.h"
+#include "../../include/core/memory/CLinearAllocator.h"
+#include "../../include/core/IImGUIContext.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/ecs/CWorld.h"
+#include "../../include/ecs/CSpriteRendererSystem.h"
+#include "../../include/ecs/CTransformSystem.h"
+#include "../../include/ecs/CCameraSystem.h"
+#include "../../include/ecs/CPhysics2DSystem.h"
+#include "../../include/ecs/CStaticMeshRendererSystem.h"
+#include "../../include/ecs/CPhysics3DSystem.h"
+#include "../../include/scene/CSceneManager.h"
+#include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IDebugUtility.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/utils/ITimer.h"
+#include "../../include/editor/IEditorsManager.h"
+#include "../../include/editor/CPerfProfiler.h"
+#include "../../include/physics/CBaseRaycastContext.h"
+#include "../../include/ecs/CObjectsSelectionSystem.h"
+#include "../../include/ecs/CBoundsUpdatingSystem.h"
+#include "../../include/ecs/CLightingSystem.h"
 #include <cstring>
 #include <algorithm>
 
@@ -107,6 +109,11 @@ namespace TDEngine2
 		
 		mpWorldInstance = CreateWorld(_getSubsystemAs<IEventManager>(EST_EVENT_MANAGER), result);
 
+		if (RC_OK != (result = _registerSubsystemInternal(CreateSceneManager(_getSubsystemAs<IFileSystem>(EST_FILE_SYSTEM), mpWorldInstance, result))))
+		{
+			return result;
+		}
+
 #if TDE2_EDITORS_ENABLED
 		IEditorsManager* pEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
 		TDE2_ASSERT(pEditorsManager);
@@ -174,26 +181,7 @@ namespace TDEngine2
 	E_RESULT_CODE CEngineCore::RegisterSubsystem(IEngineSubsystem* pSubsystem)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-
-		E_ENGINE_SUBSYSTEM_TYPE subsystemType = EST_UNKNOWN;
-		
-		if (!pSubsystem || ((subsystemType = pSubsystem->GetType()) == EST_UNKNOWN))
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = _unregisterSubsystem(subsystemType);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mSubsystems[subsystemType] = pSubsystem;
-
-		LOG_MESSAGE(std::string("[Engine Core] A new subsystem was successfully registered: ").append(EngineSubsystemTypeToString(pSubsystem->GetType())));
-
-		return RC_OK;
+		return _registerSubsystemInternal(pSubsystem);
 	}
 
 	E_RESULT_CODE CEngineCore::UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
@@ -439,6 +427,29 @@ namespace TDEngine2
 
 			pEventManager->Notify(&onNewWorldInstanceCreated);
 		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CEngineCore::_registerSubsystemInternal(IEngineSubsystem* pSubsystem)
+	{
+		E_ENGINE_SUBSYSTEM_TYPE subsystemType = EST_UNKNOWN;
+
+		if (!pSubsystem || ((subsystemType = pSubsystem->GetType()) == EST_UNKNOWN))
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = _unregisterSubsystem(subsystemType);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mSubsystems[subsystemType] = pSubsystem;
+
+		LOG_MESSAGE(std::string("[Engine Core] A new subsystem was successfully registered: ").append(EngineSubsystemTypeToString(pSubsystem->GetType())));
 
 		return RC_OK;
 	}

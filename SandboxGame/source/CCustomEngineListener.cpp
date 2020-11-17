@@ -196,7 +196,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	// TEMP CODE
 	{
-		ISceneManager* pSceneManager = CreateSceneManager(mpFileSystem, mpWorld, result);
+		ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
 		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene.scene", true))
 		{
@@ -227,8 +227,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				}
 			}
 		}
-
-		pSceneManager->Free();
 	}
 
 	return RC_OK;

@@ -26,6 +26,7 @@ namespace TDEngine2
 	class IMemoryManager;
 	class IEventManager;
 	class IImGUIContext;
+	class ISceneManager;
 
 
 	/*!
@@ -160,7 +161,8 @@ namespace TDEngine2
 			TDE2_API void _onFrameUpdateCallback();
 
 			TDE2_API E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
-			
+
+			TDE2_API E_RESULT_CODE _registerSubsystemInternal(IEngineSubsystem* pSubsystem);
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 
 			TDE2_API E_RESULT_CODE _registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 

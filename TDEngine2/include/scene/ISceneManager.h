@@ -9,6 +9,7 @@
 
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
+#include "../core/IEngineSubsystem.h"
 #include "../core/IBaseObject.h"
 #include <functional>
 
@@ -30,7 +31,7 @@ namespace TDEngine2
 		this is the same as a resource manager, but the very specific applied
 	*/
 
-	class ISceneManager: public virtual IBaseObject
+	class ISceneManager: public virtual IBaseObject, public IEngineSubsystem
 	{
 		public:
 			typedef std::function<TResult<TSceneId>> TLoadSceneCallback;
@@ -45,6 +46,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IFileSystem* pFileSystem, IWorld* pWorld) = 0;
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Free() = 0;
 
 			/*!
 				\brief The method loads a scene based on path to that
@@ -107,6 +116,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<IScene*> GetScene(TSceneId id) const = 0;
+
+			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_SCENE_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISceneManager)
 	};

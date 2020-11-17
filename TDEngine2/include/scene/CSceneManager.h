@@ -113,6 +113,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<IScene*> GetScene(TSceneId id) const override;
+
+			/*!
+				\brief The method returns a type of the subsystem
+
+				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
+			*/
+
+			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const { return E_ENGINE_SUBSYSTEM_TYPE::EST_SCENE_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneManager)
 
