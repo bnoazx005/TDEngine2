@@ -7,9 +7,10 @@
 #pragma once
 
 
-#include "./../core/CBaseObject.h"
-#include "./../core/Event.h"
+#include "../core/CBaseObject.h"
+#include "../core/Event.h"
 #include "IWorld.h"
+#include <mutex>
 
 
 namespace TDEngine2
@@ -224,6 +225,8 @@ namespace TDEngine2
 			IEventManager*     mpEventManager;
 
 			IRaycastContext*   mpRaycastContext;
+
+			mutable std::mutex mMutex;
 	};
 
 

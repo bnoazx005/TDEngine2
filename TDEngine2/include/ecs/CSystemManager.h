@@ -7,14 +7,15 @@
 #pragma once
 
 
-#include "./../core/CBaseObject.h"
-#include "./../utils/Utils.h"
 #include "ISystemManager.h"
-#include "./../core/Event.h"
+#include "../core/CBaseObject.h"
+#include "../utils/Utils.h"
+#include "../core/Event.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -213,6 +214,7 @@ namespace TDEngine2
 			}
 
 			TDE2_API E_RESULT_CODE _internalUnregisterSystem(TSystemId systemId);
+			TDE2_API E_RESULT_CODE _internalUnregisterSystemImmediately(TSystemId systemId);
 		protected:
 			TSystemsArray        mpActiveSystems;
 
@@ -223,5 +225,7 @@ namespace TDEngine2
 			IWorld*              mpWorld;
 
 			TSystemsAccountTable mSystemsIdentifiersTable;
+
+			mutable std::mutex   mMutex;
 	};
 }

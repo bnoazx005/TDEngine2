@@ -19,6 +19,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSystemManager::Init(IWorld* pWorld, IEventManager* pEventManager)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
@@ -62,6 +64,8 @@ namespace TDEngine2
 
 	TResult<TSystemId> CSystemManager::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pSystem)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
@@ -94,25 +98,22 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CSystemManager::UnregisterSystem(TSystemId systemId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return _internalUnregisterSystem(systemId);
 	}
 
 	E_RESULT_CODE CSystemManager::UnregisterSystemImmediately(TSystemId systemId)
 	{
-		ISystem* pSystem = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), systemId)->mpSystem;
+		std::lock_guard<std::mutex> lock(mMutex);
 
-		E_RESULT_CODE result = _internalUnregisterSystem(systemId);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		return pSystem->Free();
+		return _internalUnregisterSystemImmediately(systemId);
 	}
 
 	E_RESULT_CODE CSystemManager::ActivateSystem(TSystemId systemId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		auto targetSystemIter = _findSystemDesc(mpDeactivatedSystems.begin(), mpDeactivatedSystems.end(), systemId);
 
 		if (targetSystemIter == mpDeactivatedSystems.end())
@@ -129,6 +130,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSystemManager::DeactivateSystem(TSystemId systemId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		auto targetSystemIter = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), systemId);
 
 		if (targetSystemIter == mpActiveSystems.end())
@@ -144,6 +147,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSystemManager::InitSystems()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		ISystem* pCurrSystem = nullptr;
 
 		for (auto currSystemDesc : mpActiveSystems)
@@ -160,9 +165,11 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = DestroySystems();
 
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		while (!mpActiveSystems.empty())
 		{
-			result = result | UnregisterSystemImmediately(mpActiveSystems.front().mSystemId);
+			result = result | _internalUnregisterSystemImmediately(mpActiveSystems.front().mSystemId);
 		}
 
 		return result;
@@ -170,6 +177,8 @@ namespace TDEngine2
 
 	void CSystemManager::Update(IWorld* pWorld, float dt)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		ISystem* pCurrSystem = nullptr;
 
 		for (auto currSystemDesc : mpActiveSystems)
@@ -182,6 +191,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSystemManager::DestroySystems()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		ISystem* pCurrSystem = nullptr;
 
 		for (auto currSystemDesc : mpActiveSystems)
@@ -230,6 +241,20 @@ namespace TDEngine2
 		mpActiveSystems.erase(targetSystemIter);
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CSystemManager::_internalUnregisterSystemImmediately(TSystemId systemId)
+	{
+		ISystem* pSystem = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), systemId)->mpSystem;
+
+		E_RESULT_CODE result = _internalUnregisterSystem(systemId);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		return pSystem->Free();
 	}
 
 	TSystemId CSystemManager::FindSystem(TypeId typeId)

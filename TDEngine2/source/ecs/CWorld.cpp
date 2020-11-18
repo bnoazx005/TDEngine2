@@ -18,6 +18,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CWorld::Init(IEventManager* pEventManager)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
@@ -68,19 +70,23 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = mpEntityManager->Free()) != RC_OK)
 		{
-			return result;
-		}
+			std::lock_guard<std::mutex> lock(mMutex);
 
-		if ((result = mpComponentManager->Free()) != RC_OK)
-		{
-			return result;
-		}
+			if ((result = mpEntityManager->Free()) != RC_OK)
+			{
+				return result;
+			}
 
-		if ((result = mpSystemManager->Free()) != RC_OK)
-		{
-			return result;
+			if ((result = mpComponentManager->Free()) != RC_OK)
+			{
+				return result;
+			}
+
+			if ((result = mpSystemManager->Free()) != RC_OK)
+			{
+				return result;
+			}
 		}
 
 		mIsInitialized = false;
@@ -92,21 +98,29 @@ namespace TDEngine2
 
 	CEntity* CWorld::CreateEntity()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpEntityManager->Create();
 	}
 
 	CEntity* CWorld::CreateEntity(const std::string& name)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpEntityManager->Create(name);
 	}
 
 	E_RESULT_CODE CWorld::Destroy(CEntity* pEntity)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpEntityManager->Destroy(pEntity);
 	}
 
 	E_RESULT_CODE CWorld::DestroyImmediately(CEntity* pEntity)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpEntityManager->DestroyImmediately(pEntity);
 	}
 	
@@ -137,11 +151,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CWorld::OnBeforeFree()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpSystemManager->ClearSystemsRegistry();
 	}
 
 	E_RESULT_CODE CWorld::RegisterRaycastContext(IRaycastContext* pRaycastContext)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pRaycastContext)
 		{
 			return RC_INVALID_ARGS;
@@ -154,11 +172,15 @@ namespace TDEngine2
 
 	CEntity* CWorld::FindEntity(TEntityId entityId) const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpEntityManager->GetEntity(entityId);
 	}
 	
 	void CWorld::Update(float dt)
 	{
+		//FIXME std::lock_guard<std::mutex> lock(mMutex);
+
 		TDE2_PROFILER_SCOPE("World::Update");
 		mpSystemManager->Update(this, dt);
 
@@ -168,6 +190,8 @@ namespace TDEngine2
 
 	IRaycastContext* CWorld::GetRaycastContext() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpRaycastContext;
 	}
 
