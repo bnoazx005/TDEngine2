@@ -160,6 +160,13 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE DeactivateSystem(TSystemId systemId) override;
 
 			/*!
+				\brief The method implements the logic that should be done before the object will be released
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnBeforeFree() override;
+
+			/*!
 				\brief The method registers given raycasting context within the world's instance
 
 				\param[in, out] pRaycastContext A pointer to IRaycastContext implementation

@@ -147,6 +147,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE InitSystems() override;
 
 			/*!
+				\brief The method unregisters and frees all existing systems
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ClearSystemsRegistry() override;
+
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 

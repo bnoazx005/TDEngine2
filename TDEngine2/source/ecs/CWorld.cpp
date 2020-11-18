@@ -135,6 +135,11 @@ namespace TDEngine2
 		return mpSystemManager->DeactivateSystem(systemId);
 	}
 
+	E_RESULT_CODE CWorld::OnBeforeFree()
+	{
+		return mpSystemManager->ClearSystemsRegistry();
+	}
+
 	E_RESULT_CODE CWorld::RegisterRaycastContext(IRaycastContext* pRaycastContext)
 	{
 		if (!pRaycastContext)

@@ -112,6 +112,14 @@ namespace TDEngine2
 			TDE2_API virtual void Update(IWorld* pWorld, F32 dt) = 0;
 
 			/*!
+				\brief The method unregisters and frees all existing systems
+				
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ClearSystemsRegistry() = 0;
+
+			/*!
 				\brief The method calls ISystem::OnDestroy method on each system
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

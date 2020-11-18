@@ -77,7 +77,12 @@ namespace TDEngine2
 
 			std::lock_guard<std::mutex> lock(mMutex);
 
-			result = result | (mpWorldInstance ? mpWorldInstance->Free() : RC_FAIL);
+			// Unsubscribe all systems and managers within mpWorldInstance
+			if (mpWorldInstance)
+			{
+				result = result | mpWorldInstance->OnBeforeFree();
+			}
+
 			result = result | _cleanUpSubsystems();
 
 #if defined (_DEBUG)
@@ -483,7 +488,7 @@ namespace TDEngine2
 		LOG_MESSAGE("[Engine Core] Clean up the subsystems registry...");
 
 		/// \note these two subsystems should be destroyed in last moment and in coresponding order
-		auto latestFreedSubsystems = { EST_GRAPHICS_CONTEXT, EST_PLUGIN_MANAGER, EST_FILE_SYSTEM, EST_MEMORY_MANAGER, EST_WINDOW };
+		auto latestFreedSubsystems = { EST_GRAPHICS_CONTEXT, EST_PLUGIN_MANAGER, EST_FILE_SYSTEM, EST_MEMORY_MANAGER, EST_WINDOW, EST_EVENT_MANAGER };
 
 		auto shouldSkipSubsystem = [&latestFreedSubsystems](const IEngineSubsystem* pCurrSubsystem)
 		{
@@ -503,6 +508,8 @@ namespace TDEngine2
 
 			result = _unregisterSubsystem(pCurrSubsystem->GetType());
 		}
+
+		result = result | (mpWorldInstance ? mpWorldInstance->Free() : RC_OK);
 
 		for (auto currSubsystemType : latestFreedSubsystems)
 		{

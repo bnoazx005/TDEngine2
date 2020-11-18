@@ -51,18 +51,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
-		
-		while (!mpActiveSystems.empty())
-		{
-			UnregisterSystemImmediately(mpActiveSystems.front().mSystemId);
-		}
+		E_RESULT_CODE result = ClearSystemsRegistry();
 
 		mIsInitialized = false;
 
 		delete this;
 
-		return RC_OK;
+		return result;
 	}
 
 	TResult<TSystemId> CSystemManager::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)
@@ -159,6 +154,18 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CSystemManager::ClearSystemsRegistry()
+	{
+		E_RESULT_CODE result = DestroySystems();
+
+		while (!mpActiveSystems.empty())
+		{
+			result = result | UnregisterSystemImmediately(mpActiveSystems.front().mSystemId);
+		}
+
+		return result;
 	}
 
 	void CSystemManager::Update(IWorld* pWorld, float dt)
