@@ -223,6 +223,16 @@ namespace TDEngine2
 			TDE2_API virtual TResult<TFileFactory> GetFileFactory(TypeId typeId) = 0;
 
 			/*!
+				\brief The method extrats filename with an extension from a valid given path
+
+				\param[in] path Valid and non-empty path string
+
+				\return A filename which stands after last separator within the path
+			*/
+
+			TDE2_API virtual std::string ExtractFilename(const std::string& path) const = 0;
+
+			/*!
 				\brief The method sets up a pointer to IJobManager implementation within
 				the file manager.
 

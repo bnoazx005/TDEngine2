@@ -7,6 +7,7 @@
 #include "../../../include/platform/MountableStorages.h"
 #include "stringUtils.hpp"
 #include <algorithm>
+#include <experimental/filesystem>
 #if _HAS_CXX17
 #include <filesystem>
 #include <fstream>
@@ -127,7 +128,12 @@ namespace TDEngine2
 
 		return path;
 	}
-	
+
+	std::string CBaseFileSystem::ExtractFilename(const std::string& path) const
+	{
+		return std::experimental::filesystem::path(path).filename().string();
+	}
+
 	E_RESULT_CODE CBaseFileSystem::_mountInternal(const std::string& aliasPath, IMountableStorage* pStorage)
 	{
 		const std::string unifiedAliasPath = _normalizePathView(aliasPath);

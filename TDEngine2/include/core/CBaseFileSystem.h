@@ -106,6 +106,16 @@ namespace TDEngine2
 			TDE2_API std::string ResolveVirtualPath(const std::string& path, bool isDirectory = true) const override;
 
 			/*!
+				\brief The method extrats filename with an extension from a valid given path
+
+				\param[in] path Valid and non-empty path string
+
+				\return A filename which stands after last separator within the path
+			*/
+
+			TDE2_API std::string ExtractFilename(const std::string& path) const;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
