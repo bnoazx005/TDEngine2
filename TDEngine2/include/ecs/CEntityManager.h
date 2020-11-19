@@ -145,6 +145,8 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API T* AddComponent(TEntityId id);
 
+			TDE2_API IComponent* AddComponent(TEntityId entityId, TypeId componentTypeId);
+
 			/*!
 				\brief The method remove a component of specified T type
 

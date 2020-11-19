@@ -18,6 +18,7 @@
 namespace TDEngine2
 {	
 	class CEntityManager;
+	class IComponent;
 
 	/*!
 		class CEntity
@@ -169,6 +170,8 @@ namespace TDEngine2
 			TDE2_API virtual bool operator!= (TEntityId otherId) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntity)
+
+			TDE2_API IComponent* _addComponentInternal(TypeId typeId);
 		protected:
 			CEntityManager* mpEntityManager;
 

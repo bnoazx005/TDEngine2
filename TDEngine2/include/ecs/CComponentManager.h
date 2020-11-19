@@ -77,6 +77,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE RegisterFactory(const IComponentFactory* pFactory) override;
 
+			TDE2_API IComponent* CreateComponent(TEntityId entityId, TypeId componentTypeId) override;
+
 			/*!
 				\brief The method removes all components that are related with the entity.
 				This method doesn't free the memory that is occupied by components.

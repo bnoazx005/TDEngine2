@@ -97,6 +97,17 @@ namespace TDEngine2
 			}
 
 			/*!
+				\brief The method creates a new component based on a given identifier of the entity and component's type
+
+				\param[in] entityId An identifier of an entity
+				\param[in] componentTypeId A type's identifier of the component
+
+				\return A pointer to a component, or nullptr if some error has occured
+			*/
+
+			TDE2_API virtual IComponent* CreateComponent(TEntityId entityId, TypeId componentTypeId) = 0;
+
+			/*!
 				\brief The method removes a component of specified T type.
 				This method doesn't free the memory that is occupied by a component.
 
