@@ -12,7 +12,21 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBoxCollisionObject3D::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		pReader->BeginGroup("extents");
+		{
+			if (auto extentsResult = LoadVector3(pReader))
+			{
+				mExtents = extentsResult.Get();
+			}
+		}
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CBoxCollisionObject3D::Save(IArchiveWriter* pWriter)

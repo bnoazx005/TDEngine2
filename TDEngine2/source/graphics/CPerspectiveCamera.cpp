@@ -28,7 +28,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPerspectiveCamera::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		mFOV = pReader->GetFloat("fov");
+		mAspectRatio = pReader->GetFloat("aspect");
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CPerspectiveCamera::Save(IArchiveWriter* pWriter)

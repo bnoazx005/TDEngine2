@@ -22,7 +22,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CStaticMeshContainer::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		mMaterialName = pReader->GetString("material");
+		mMeshName = pReader->GetString("mesh");
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CStaticMeshContainer::Save(IArchiveWriter* pWriter)

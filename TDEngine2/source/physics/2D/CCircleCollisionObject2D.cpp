@@ -11,7 +11,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CCircleCollisionObject2D::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		mRadius = pReader->GetFloat("radius");
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CCircleCollisionObject2D::Save(IArchiveWriter* pWriter)

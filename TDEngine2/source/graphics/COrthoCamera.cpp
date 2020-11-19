@@ -28,7 +28,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE COrthoCamera::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		mWidth = pReader->GetFloat("width");
+		mHeight = pReader->GetFloat("height");
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE COrthoCamera::Save(IArchiveWriter* pWriter)

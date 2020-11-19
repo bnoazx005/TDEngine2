@@ -29,7 +29,33 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTransform::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		pReader->BeginGroup("position");
+		if (auto positionResult = LoadVector3(pReader))
+		{
+			mPosition = positionResult.Get();
+		}
+		pReader->EndGroup();
+
+		pReader->BeginGroup("rotation");
+		if (auto rotationResult = LoadQuaternion(pReader))
+		{
+			mRotation = rotationResult.Get();
+		}
+		pReader->EndGroup();
+
+		pReader->BeginGroup("scale");
+		if (auto scaleResult = LoadVector3(pReader))
+		{
+			mScale = scaleResult.Get();
+		}
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CTransform::Save(IArchiveWriter* pWriter)

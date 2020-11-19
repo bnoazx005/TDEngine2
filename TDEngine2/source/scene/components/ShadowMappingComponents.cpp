@@ -22,7 +22,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CShadowCasterComponent::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		mIsTransparent = pReader->GetBool("transparent");
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CShadowCasterComponent::Save(IArchiveWriter* pWriter)

@@ -22,7 +22,21 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDirectionalLight::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		pReader->BeginGroup("direction");
+		{
+			if (auto directionResult = LoadVector3(pReader))
+			{
+				mDirection = Normalize(directionResult.Get());
+			}
+		}
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CDirectionalLight::Save(IArchiveWriter* pWriter)

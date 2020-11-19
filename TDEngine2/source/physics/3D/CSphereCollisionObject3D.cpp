@@ -12,7 +12,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSphereCollisionObject3D::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		mRadius = pReader->GetFloat("radius");
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CSphereCollisionObject3D::Save(IArchiveWriter* pWriter)

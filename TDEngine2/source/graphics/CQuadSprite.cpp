@@ -22,7 +22,22 @@ namespace TDEngine2
 
 	E_RESULT_CODE CQuadSprite::Load(IArchiveReader* pReader)
 	{
-		return CBaseComponent::Load(pReader);
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		pReader->BeginGroup("color");
+		{
+			if (auto colorResult = LoadColor32F(pReader))
+			{
+				mColor = colorResult.Get();
+			}
+		}
+
+		mMaterialName = pReader->GetString("material");
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CQuadSprite::Save(IArchiveWriter* pWriter)
