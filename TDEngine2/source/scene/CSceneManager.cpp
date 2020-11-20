@@ -172,18 +172,23 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSceneManager::UnloadScene(TSceneId id)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (auto findSceneResult = GetScene(id))
+		{
+			if (IScene* pScene = findSceneResult.Get())
+			{
+				return pScene->Free();
+			}
+
+			TDE2_ASSERT(false);
+		}
+
+		return RC_FAIL;
 	}
 
 	TResult<TSceneId> CSceneManager::CreateScene(const std::string& name)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return _createInternal(name);
-	}
-
-	E_RESULT_CODE CSceneManager::RemoveScene(TSceneId id)
-	{
-		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	TResult<IScene*> CSceneManager::GetScene(TSceneId id) const
