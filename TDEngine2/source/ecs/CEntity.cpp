@@ -49,8 +49,41 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntity::Load(IArchiveReader* pReader)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		pReader->BeginGroup("entity");
+		{
+			mName = pReader->GetString("name");
+
+			pReader->BeginGroup("components");
+			{
+				while (pReader->HasNextItem())
+				{
+					pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						pReader->BeginGroup("component");
+						{
+							IComponent* pComponent = _addComponentInternal(static_cast<TypeId>(pReader->GetUInt32("type_id"))); // \note Construct a new component based on its type
+							TDE2_ASSERT(pComponent);
+
+							if (pComponent)
+							{
+								pComponent->Load(pReader);
+							}
+						}
+						pReader->EndGroup();
+					}
+					pReader->EndGroup();
+				}
+			}
+			pReader->EndGroup();
+		}
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CEntity::Save(IArchiveWriter* pWriter)
@@ -137,6 +170,11 @@ namespace TDEngine2
 	bool CEntity::operator!= (TEntityId otherId) const
 	{
 		return mId != otherId;
+	}
+
+	IComponent* CEntity::_addComponentInternal(TypeId typeId)
+	{
+		return mpEntityManager->AddComponent(mId, typeId);
 	}
 
 

@@ -2,6 +2,7 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/scene/CScene.h"
+#include "../../include/core/IFile.h"
 #include <algorithm>
 
 
@@ -63,11 +64,50 @@ namespace TDEngine2
 
 	TResult<TSceneId> CSceneManager::LoadScene(const std::string& scenePath)
 	{
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
+		const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
+
+		// \note If there is loaded scene then just return its handle
+		auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&sceneName](const IScene* pScene) { return pScene->GetName() == sceneName; });
+		if (iter != mpScenes.cend())
+		{
+			return Wrench::TOkValue<TSceneId>(static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter)));
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, false, result); // \todo Add check up for a main scene flag
+
+		if (RC_OK != result || !pScene)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		// \note Open scene's file and read its data
+		if (auto openSceneFileResult = mpFileSystem->Open<IYAMLFileReader>(scenePath))
+		{
+			if (IYAMLFileReader* pSceneReader = mpFileSystem->Get<IYAMLFileReader>(openSceneFileResult.Get()))
+			{
+				result = pScene->Load(pSceneReader);
+			}
+			else
+			{
+				result = RC_FAIL;
+				TDE2_ASSERT(pSceneReader);
+			}
+		}
+
+		if (RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		return _registerSceneInternal(sceneName, pScene);
 	}
 
 	void CSceneManager::LoadSceneAsync(const std::string& scenePath, const TLoadSceneCallback& onResultCallback)
 	{
+		auto&& sceneName = mpFileSystem->ExtractFilename(scenePath);
+
 		// \note Create empty scene
 		// \note Deserialize its data based on archive at scenePath
 	}
@@ -111,9 +151,14 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&name](const IScene* pScene)
+		return _registerSceneInternal(name, pScene);
+	}
+
+	TResult<TSceneId> CSceneManager::_registerSceneInternal(const std::string& name, IScene* pScene)
+	{
+		auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&name](const IScene* pSceneEntity)
 		{
-			return pScene->GetName() == name;
+			return pSceneEntity->GetName() == name;
 		});
 
 		if (iter != mpScenes.cend())

@@ -298,7 +298,7 @@ namespace TDEngine2
 	bool CYAMLFileReader::HasNextItem() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return (mCurrElementIndex + 1 < _getCurrScope()->Size());
+		return (mCurrElementIndex + 1 <= _getCurrScope()->Size());
 	}
 
 	U8 CYAMLFileReader::GetUInt8(const std::string& key)

@@ -125,6 +125,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneManager)
 
 			TDE2_API TResult<TSceneId> _createInternal(const std::string& name);
+			TDE2_API TResult<TSceneId> _registerSceneInternal(const std::string& name, IScene* pScene);
 		protected:
 			mutable std::mutex mMutex;
 

@@ -34,8 +34,10 @@ namespace TDEngine2
 				mColor = colorResult.Get();
 			}
 		}
+		pReader->EndGroup();
 
 		mMaterialName = pReader->GetString("material");
+		TDE2_ASSERT(!mMaterialName.empty());
 
 		return RC_OK;
 	}

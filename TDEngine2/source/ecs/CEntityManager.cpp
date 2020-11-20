@@ -172,6 +172,15 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	IComponent* CEntityManager::AddComponent(TEntityId entityId, TypeId componentTypeId)
+	{
+		IComponent* pComponentInstance = mpComponentManager->CreateComponent(entityId, componentTypeId);
+
+		_notifyOnAddComponent(entityId, componentTypeId);
+
+		return pComponentInstance;
+	}
+
 	E_RESULT_CODE CEntityManager::RemoveComponents(TEntityId id)
 	{
 		return mpComponentManager->RemoveComponents(id);

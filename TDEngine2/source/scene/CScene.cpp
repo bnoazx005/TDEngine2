@@ -2,6 +2,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/utils/CFileLogger.h"
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -67,8 +68,53 @@ namespace TDEngine2
 
 	E_RESULT_CODE CScene::Load(IArchiveReader* pReader)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+
+		mName = pReader->GetString("name");
+		if (mAssetVersionId != pReader->GetUInt32("version"))
+		{
+			LOG_WARNING("[Scene] The version of the scene's asset differs from the engine's one. Loading may unexpectedly fail...");
+		}
+
+		// \note Write down the properties
+		pReader->BeginGroup("scene_properties");
+		{
+			mIsMainScene = pReader->GetBool("is_main");
+		}
+		pReader->EndGroup();
+
+		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+
+		// \note Write down entities
+		pReader->BeginGroup("entities");
+		{
+			while (pReader->HasNextItem())
+			{
+				CEntity* pNewEntity = mpWorld->CreateEntity();
+
+				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					pReader->BeginGroup("entity");
+					{
+						// \todo Implement remapping of entity's identifiers
+						entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id")), pNewEntity->GetId());
+					}
+					pReader->EndGroup();
+
+					pNewEntity->Load(pReader);
+				}
+				pReader->EndGroup();
+
+				mEntities.push_back(pNewEntity->GetId());
+			}
+		}
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CScene::Save(IArchiveWriter* pWriter)
@@ -79,7 +125,7 @@ namespace TDEngine2
 		}
 
 		pWriter->SetString("name", mName);
-		pWriter->SetUInt32("version", 0); // unused for now
+		pWriter->SetUInt32("version", mAssetVersionId); // unused for now
 		
 		// \note Write down the properties
 		pWriter->BeginGroup("scene_properties");
