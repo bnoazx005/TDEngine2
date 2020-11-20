@@ -176,7 +176,10 @@ namespace TDEngine2
 		{
 			if (IScene* pScene = findSceneResult.Get())
 			{
-				return pScene->Free();
+				E_RESULT_CODE result = pScene->Free();
+				result = result | _unregisterSceneInternal(id);
+
+				return result;
 			}
 
 			TDE2_ASSERT(false);
@@ -236,6 +239,18 @@ namespace TDEngine2
 		mpScenes.push_back(pScene);
 
 		return Wrench::TOkValue<TSceneId>(id);
+	}
+
+	E_RESULT_CODE CSceneManager::_unregisterSceneInternal(TSceneId id)
+	{
+		if (TSceneId::Invalid == id)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpScenes.erase(mpScenes.cbegin() + static_cast<U32>(id));
+
+		return RC_OK;
 	}
 
 

@@ -14,6 +14,7 @@
 #include <list>
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -201,10 +202,14 @@ namespace TDEngine2
 
 			TDE2_API CEntity* _createEntity(const std::string& name);
 
+			TDE2_API E_RESULT_CODE _destroyImmediatelyInternal(CEntity* pEntity);
+
 			TDE2_API void _notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId);
 
 			TDE2_API void _notifyOnRemovedComponent(TEntityId entityId, TypeId componentTypeId);
 		protected:
+			mutable std::mutex    mMutex;
+
 			std::vector<CEntity*> mActiveEntities;
 
 			std::list<CEntity*>   mDestroyedEntities;

@@ -13,6 +13,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::Init(IEventManager* pEventManager, IComponentManager* pComponentManager)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
@@ -57,11 +59,13 @@ namespace TDEngine2
 
 	CEntity* CEntityManager::Create()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
 		return _createEntity(_constructDefaultEntityName(mNextIdValue));
 	}
 
 	CEntity* CEntityManager::Create(const std::string& name)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
 		return _createEntity(name);
 	}
 
@@ -72,24 +76,28 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		E_RESULT_CODE result = pEntity->RemoveComponents();
+		E_RESULT_CODE result = mpComponentManager->RemoveComponents(pEntity->GetId());
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
-		
-		TEntityId id = pEntity->GetId();
 
 		TOnEntityRemovedEvent onEntityRemoved;
-		
-		onEntityRemoved.mRemovedEntityId = id;
 
-		mActiveEntities[static_cast<U32>(id)] = nullptr;
+		{
+			std::lock_guard<std::mutex> lock(mMutex);
 
-		mDestroyedEntities.push_back(pEntity);
+			TEntityId id = pEntity->GetId();
 
-		mEntitiesHashTable.erase(id);
+			onEntityRemoved.mRemovedEntityId = id;
+
+			mActiveEntities[static_cast<U32>(id)] = nullptr;
+
+			mDestroyedEntities.push_back(pEntity);
+
+			mEntitiesHashTable.erase(id);
+		}
 
 		mpEventManager->Notify(&onEntityRemoved);
 
@@ -98,42 +106,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::DestroyImmediately(CEntity* pEntity)
 	{
-		if (!pEntity)
-		{
-			return RC_INVALID_ARGS;
-		}
+		std::lock_guard<std::mutex> lock(mMutex);
 
-		E_RESULT_CODE result = pEntity->RemoveComponents();
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		TEntityId id = pEntity->GetId();
-
-		TOnEntityRemovedEvent onEntityRemoved;
-
-		onEntityRemoved.mRemovedEntityId = id;
-
-		result = pEntity->Free();
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-				
-		mActiveEntities[static_cast<U32>(id)] = nullptr;
-
-		mEntitiesHashTable.erase(id);
-		
-		mpEventManager->Notify(&onEntityRemoved);
-
-		return RC_OK;
+		return _destroyImmediatelyInternal(pEntity);
 	}
 
 	E_RESULT_CODE CEntityManager::DestroyAllEntities()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		E_RESULT_CODE result = RC_OK;
 
 		for (CEntity* pEntity : mActiveEntities)
@@ -154,6 +135,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::DestroyAllImmediately()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		E_RESULT_CODE result = RC_OK;
 
 		for (CEntity* pEntity : mActiveEntities)
@@ -163,7 +146,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			if ((result = DestroyImmediately(pEntity)) != RC_OK)
+			if ((result = _destroyImmediatelyInternal(pEntity)) != RC_OK)
 			{
 				return result;
 			}
@@ -174,6 +157,8 @@ namespace TDEngine2
 
 	IComponent* CEntityManager::AddComponent(TEntityId entityId, TypeId componentTypeId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		IComponent* pComponentInstance = mpComponentManager->CreateComponent(entityId, componentTypeId);
 
 		_notifyOnAddComponent(entityId, componentTypeId);
@@ -183,16 +168,22 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::RemoveComponents(TEntityId id)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpComponentManager->RemoveComponents(id);
 	}
 
 	std::vector<IComponent*> CEntityManager::GetComponents(TEntityId id) const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpComponentManager->GetComponents(id);
 	}
 
 	CEntity* CEntityManager::GetEntity(TEntityId entityId) const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		TEntitiesHashTable::const_iterator entityIter = mEntitiesHashTable.find(entityId);
 
 		if (entityIter == mEntitiesHashTable.cend())
@@ -242,6 +233,42 @@ namespace TDEngine2
 		mpEventManager->Notify(&onEntityCreated);
 
 		return pEntity;
+	}
+
+	E_RESULT_CODE CEntityManager::_destroyImmediatelyInternal(CEntity* pEntity)
+	{
+		if (!pEntity)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		E_RESULT_CODE result = mpComponentManager->RemoveComponents(pEntity->GetId());
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		TEntityId id = pEntity->GetId();
+
+		TOnEntityRemovedEvent onEntityRemoved;
+
+		onEntityRemoved.mRemovedEntityId = id;
+
+		result = pEntity->Free();
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mActiveEntities[static_cast<U32>(id)] = nullptr;
+
+		mEntitiesHashTable.erase(id);
+
+		mpEventManager->Notify(&onEntityRemoved);
+
+		return RC_OK;
 	}
 
 	void CEntityManager::_notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId)

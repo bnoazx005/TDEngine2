@@ -115,6 +115,7 @@ namespace TDEngine2
 
 			TDE2_API TResult<TSceneId> _createInternal(const std::string& name);
 			TDE2_API TResult<TSceneId> _registerSceneInternal(const std::string& name, IScene* pScene);
+			TDE2_API E_RESULT_CODE _unregisterSceneInternal(TSceneId id);
 		protected:
 			mutable std::mutex mMutex;
 

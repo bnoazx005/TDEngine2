@@ -98,22 +98,16 @@ namespace TDEngine2
 
 	CEntity* CWorld::CreateEntity()
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		return mpEntityManager->Create();
 	}
 
 	CEntity* CWorld::CreateEntity(const std::string& name)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		return mpEntityManager->Create(name);
 	}
 
 	E_RESULT_CODE CWorld::Destroy(CEntity* pEntity)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		return mpEntityManager->Destroy(pEntity);
 	}
 
