@@ -198,7 +198,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
-#if 1
+#if 0
 		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene.scene", true))
 		{
 			if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
@@ -230,7 +230,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
-		pSceneManager->LoadScene("TestScene.scene");
+		pSceneManager->LoadSceneAsync("TestScene.scene", [](auto)
+		{
+			int x = 0;
+		});
 	}
 
 	return RC_OK;

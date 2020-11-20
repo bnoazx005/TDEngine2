@@ -3,6 +3,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/scene/CScene.h"
 #include "../../include/core/IFile.h"
+#include "../../include/core/IJobManager.h"
 #include <algorithm>
 
 
@@ -64,6 +65,8 @@ namespace TDEngine2
 
 	TResult<TSceneId> CSceneManager::LoadScene(const std::string& scenePath)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
 
 		// \note If there is loaded scene then just return its handle
@@ -88,11 +91,12 @@ namespace TDEngine2
 			if (IYAMLFileReader* pSceneReader = mpFileSystem->Get<IYAMLFileReader>(openSceneFileResult.Get()))
 			{
 				result = pScene->Load(pSceneReader);
+				pSceneReader->Close();
 			}
 			else
 			{
 				result = RC_FAIL;
-				TDE2_ASSERT(pSceneReader);
+				TDE2_ASSERT(false);
 			}
 		}
 
@@ -106,10 +110,64 @@ namespace TDEngine2
 
 	void CSceneManager::LoadSceneAsync(const std::string& scenePath, const TLoadSceneCallback& onResultCallback)
 	{
-		auto&& sceneName = mpFileSystem->ExtractFilename(scenePath);
+		std::lock_guard<std::mutex> lock(mMutex);
 
-		// \note Create empty scene
-		// \note Deserialize its data based on archive at scenePath
+		if (!onResultCallback)
+		{
+			return;
+		}
+
+		IJobManager* pJobManager = mpFileSystem->GetJobManager();
+		if (!pJobManager)
+		{
+			onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS));
+			return;
+		}
+
+		pJobManager->SubmitJob(std::function<void()>([this, scenePath, onResultCallback]()
+		{
+			const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
+
+			// \note If there is loaded scene then just return its handle
+			auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&sceneName](const IScene* pScene) { return pScene->GetName() == sceneName; });
+			if (iter != mpScenes.cend())
+			{
+				onResultCallback(Wrench::TOkValue<TSceneId>(static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter))));
+			}
+
+			E_RESULT_CODE result = RC_OK;
+
+			IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, false, result); // \todo Add check up for a main scene flag
+
+			if (RC_OK != result || !pScene)
+			{
+				onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(result));
+				return;
+			}
+
+			// \note Open scene's file and read its data
+			if (auto openSceneFileResult = mpFileSystem->Open<IYAMLFileReader>(scenePath))
+			{
+				if (IYAMLFileReader* pSceneReader = mpFileSystem->Get<IYAMLFileReader>(openSceneFileResult.Get()))
+				{
+					result = pScene->Load(pSceneReader);
+					pSceneReader->Close();
+				}
+				else
+				{
+					result = RC_FAIL;
+					TDE2_ASSERT(false);
+				}
+			}
+
+			if (RC_OK != result)
+			{
+				onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(result));
+				return;
+			}
+
+			onResultCallback(_registerSceneInternal(sceneName, pScene));
+		}));
 	}
 
 	E_RESULT_CODE CSceneManager::UnloadScene(TSceneId id)
@@ -130,6 +188,8 @@ namespace TDEngine2
 
 	TResult<IScene*> CSceneManager::GetScene(TSceneId id) const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		const U32 index = static_cast<U32>(id);
 
 		if ((id == TSceneId::Invalid) || (index >= mpScenes.size()))

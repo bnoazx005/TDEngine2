@@ -34,7 +34,7 @@ namespace TDEngine2
 	class ISceneManager: public virtual IBaseObject, public IEngineSubsystem
 	{
 		public:
-			typedef std::function<TResult<TSceneId>> TLoadSceneCallback;
+			typedef std::function<void(const TResult<TSceneId>&)> TLoadSceneCallback;
 		public:
 			/*!
 				\brief The method initializes the internal state of the object
