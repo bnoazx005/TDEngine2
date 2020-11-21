@@ -9,8 +9,10 @@
 
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
+#include "../utils/Color.h"
 #include "../core/IBaseObject.h"
 #include "../core/Serialization.h"
+#include "../math/TVector3.h"
 
 
 namespace TDEngine2
@@ -20,6 +22,8 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_HANDLE_TYPE(TSceneId);
+
+	constexpr TSceneId MainScene = TSceneId(0);
 
 
 	/*!
@@ -63,6 +67,19 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE RemoveEntity(TEntityId id) = 0;
+
+			/*!
+				\brief The method is just a helper that sequentially creates a new entity and adds a light component
+				with given set of parameters
+
+				\param[in] tint A color of the light source
+				\param[in] instentisy A power of contribution of the light source into the scene
+				\param[in] direction A direction of the light, could be non-normalized vector 
+
+				\return A pointer to a new created entity with CDirectionalLight component attached to it
+			*/
+
+			TDE2_API virtual CEntity* CreateDirectionalLight(const TColor32F& tint, F32 intensity, const TVector3& direction) = 0;
 
 			/*!
 				\return The method returns name of the scene

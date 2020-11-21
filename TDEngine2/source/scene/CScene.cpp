@@ -2,6 +2,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/scene/components/CDirectionalLight.h"
 #include <unordered_map>
 
 
@@ -198,6 +199,20 @@ namespace TDEngine2
 		mEntities.erase(std::find(mEntities.cbegin(), mEntities.cend(), id));
 
 		return RC_OK;
+	}
+
+	CEntity* CScene::CreateDirectionalLight(const TColor32F& tint, F32 intensity, const TVector3& direction)
+	{
+		CEntity* pDirectionLightEntity = CreateEntity("DirectionLight");
+
+		if (auto pDirectionLightComponent = pDirectionLightEntity->AddComponent<CDirectionalLight>())
+		{
+			pDirectionLightComponent->SetColor(tint);
+			pDirectionLightComponent->SetIntensity(intensity);
+			pDirectionLightComponent->SetDirection(Normalize(direction));
+		}
+
+		return pDirectionLightEntity;
 	}
 
 	const std::string CScene::GetName() const
