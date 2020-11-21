@@ -110,14 +110,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
-		
-		mpWorldInstance = CreateWorld(_getSubsystemAs<IEventManager>(EST_EVENT_MANAGER), result);
-
-		if (RC_OK != (result = _registerSubsystemInternal(CreateSceneManager(_getSubsystemAs<IFileSystem>(EST_FILE_SYSTEM), mpWorldInstance, result))))
+		if (ISceneManager* pSceneManager = _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER))
 		{
-			return result;
+			mpWorldInstance = pSceneManager->GetWorld();
 		}
+
+		TDE2_ASSERT(mpWorldInstance);
 
 #if TDE2_EDITORS_ENABLED
 		IEditorsManager* pEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
@@ -134,6 +132,8 @@ namespace TDEngine2
 		/// \note Try to get a pointer to IImGUIContext implementation
 		mpImGUIContext = _getSubsystemAs<IImGUIContext>(EST_IMGUI_CONTEXT);
 		
+		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
+
 		/// \note we can proceed if the window wasn't initialized properly or some error has happened within user's code
 		if (!pWindowSystem || (_onNotifyEngineListeners(EET_ONSTART) != RC_OK))
 		{

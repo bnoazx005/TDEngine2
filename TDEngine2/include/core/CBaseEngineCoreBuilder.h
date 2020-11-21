@@ -153,6 +153,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _configureEditorsManager() override;
 
+			TDE2_API E_RESULT_CODE _configureSceneManager() override;
+
 			TDE2_API virtual TEngineSettings _initEngineSettings() = 0;
 		protected:
 			bool              mIsInitialized;

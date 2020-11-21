@@ -20,29 +20,31 @@ namespace TDEngine2
 
 		\param[in, out] pFileSystem A pointer to IFileSystem implementation
 		\param[in, out] pWorld A pointer to IWorld which is a global game state
+		\param[in] settings Start up settings
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CFileInputStream's implementation
 	*/
 
-	TDE2_API ISceneManager* CreateSceneManager(IFileSystem* pFileSystem, IWorld* pWorld, E_RESULT_CODE& result);
+	TDE2_API ISceneManager* CreateSceneManager(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings, E_RESULT_CODE& result);
 
 
 	class CSceneManager : public CBaseObject, public ISceneManager
 	{
 		public:
-			friend TDE2_API ISceneManager* CreateSceneManager(IFileSystem*, IWorld*, E_RESULT_CODE&);
+			friend TDE2_API ISceneManager* CreateSceneManager(IFileSystem*, IWorld*, const TSceneManagerSettings&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes the internal state of the object
 
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
 				\param[in, out] pWorld A pointer to IWorld which is a global game state
+				\param[in] settings Start up settings
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem, IWorld* pWorld) override;
+			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -110,17 +112,29 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const { return E_ENGINE_SUBSYSTEM_TYPE::EST_SCENE_MANAGER; }
+
+			/*!
+				\return The method returns a pointer to instance of IWorld
+			*/
+
+			TDE2_API IWorld* GetWorld() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneManager)
 
 			TDE2_API TResult<TSceneId> _createInternal(const std::string& name);
 			TDE2_API TResult<TSceneId> _registerSceneInternal(const std::string& name, IScene* pScene);
 			TDE2_API E_RESULT_CODE _unregisterSceneInternal(TSceneId id);
+
+			TDE2_API TResult<TSceneId> _loadSceneInternal(const std::string& scenePath);
+
+			TDE2_API E_RESULT_CODE _onPostInit();
 		protected:
 			mutable std::mutex mMutex;
 
 			IFileSystem* mpFileSystem;
 			IWorld* mpWorld;
+
+			TSceneManagerSettings mSettings;
 
 			std::vector<IScene*> mpScenes;
 	};

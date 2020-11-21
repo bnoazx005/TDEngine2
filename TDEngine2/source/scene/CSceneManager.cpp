@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSceneManager::Init(IFileSystem* pFileSystem, IWorld* pWorld)
+	E_RESULT_CODE CSceneManager::Init(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -28,12 +28,14 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mSettings = settings;
+
 		mpFileSystem = pFileSystem;
 		mpWorld = pWorld;
 
 		mIsInitialized = true;
 
-		return RC_OK;
+		return _onPostInit();
 	}
 
 	E_RESULT_CODE CSceneManager::Free()
@@ -67,6 +69,11 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		return _loadSceneInternal(scenePath);
+	}
+
+	TResult<TSceneId> CSceneManager::_loadSceneInternal(const std::string& scenePath)
+	{
 		const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
 
 		// \note If there is loaded scene then just return its handle
@@ -78,7 +85,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, false, result); // \todo Add check up for a main scene flag
+		IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
 		if (RC_OK != result || !pScene)
 		{
@@ -137,7 +144,7 @@ namespace TDEngine2
 
 			E_RESULT_CODE result = RC_OK;
 
-			IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, false, result); // \todo Add check up for a main scene flag
+			IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
 			if (RC_OK != result || !pScene)
 			{
@@ -208,6 +215,11 @@ namespace TDEngine2
 		return Wrench::TOkValue<IScene*>(mpScenes[index]);
 	}
 
+	IWorld* CSceneManager::GetWorld() const
+	{
+		return mpWorld;
+	}
+
 	TResult<TSceneId> CSceneManager::_createInternal(const std::string& name)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -253,9 +265,33 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-
-	TDE2_API ISceneManager* CreateSceneManager(IFileSystem* pFileSystem, IWorld* pWorld, E_RESULT_CODE& result)
+	TDE2_API E_RESULT_CODE CSceneManager::_onPostInit()
 	{
-		return CREATE_IMPL(ISceneManager, CSceneManager, result, pFileSystem, pWorld);
+		// \note Load main scene in synchronous fashion
+		if (auto openSceneFileResult = mpFileSystem->Open<IYAMLFileReader>(mSettings.mMainScenePath)) // \note File exists, so we load it
+		{
+			auto mainSceneLoadingResult = _loadSceneInternal(mSettings.mMainScenePath);
+			if (mainSceneLoadingResult.HasError())
+			{
+				return mainSceneLoadingResult.GetError();
+			}
+		}
+
+		const std::string& sceneName = mpFileSystem->ExtractFilename(mSettings.mMainScenePath);
+		
+		// \create a new empty scene		
+		auto mainSceneCreationResult = _createInternal(sceneName);
+		if (mainSceneCreationResult.HasError())
+		{
+			return mainSceneCreationResult.GetError();
+		}
+
+		return RC_OK;
+	}
+
+
+	TDE2_API ISceneManager* CreateSceneManager(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(ISceneManager, CSceneManager, result, pFileSystem, pWorld, settings);
 	}
 }

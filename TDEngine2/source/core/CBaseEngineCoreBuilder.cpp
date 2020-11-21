@@ -43,6 +43,8 @@
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/animation/CAnimationClip.h"
+#include "../../include/scene/CSceneManager.h"
+#include "../../include/ecs/CWorld.h"
 #include <memory>
 #include <cstring>
 #include <tuple>
@@ -450,6 +452,31 @@ namespace TDEngine2
 #endif
 	}
 
+	E_RESULT_CODE CBaseEngineCoreBuilder::_configureSceneManager()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		IWorld* pWorldInstance = CreateWorld(mpWindowSystemInstance->GetEventManager(), result);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		// \todo load settings from  settings
+		ISceneManager* pSceneManager = CreateSceneManager(mpFileSystemInstance, pWorldInstance, {}, result);
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		return mpEngineCoreInstance->RegisterSubsystem(pSceneManager);
+	}
+
 	IEngineCore* CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
@@ -464,6 +491,7 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(engineSettings.mGraphicsContextType));
 		PANIC_ON_FAILURE(_configureInputContext());
+		PANIC_ON_FAILURE(_configureSceneManager());
 
 		mpFileSystemInstance->SetJobManager(mpJobManagerInstance);
 		LOG_MESSAGE(std::string("[ConfigFIleEngineCoreBuilder] Async file I/O operations status: ").append(mpFileSystemInstance->IsStreamingEnabled() ? "enabled" : "disabled"));

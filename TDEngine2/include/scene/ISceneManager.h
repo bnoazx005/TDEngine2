@@ -23,12 +23,26 @@ namespace TDEngine2
 	enum class TSceneId : U32;
 
 
+	/*!
+		struct TSceneManagerSettings
+
+		\brief The type contains all information that the scene manager is needed for correct
+		start up of itself
+	*/
+
+	typedef struct TSceneManagerSettings
+	{
+		std::string mMainScenePath = "MainScene.scene";
+	} TSceneManagerSettings, *TSceneManagerSettingsPtr;
+
 
 	/*!
 		interface ISceneManager
 
 		\brief The interface represents functionality of a scene management facility. In short
-		this is the same as a resource manager, but the very specific applied
+		this is the same as a resource manager, but the very specific applied.
+
+		A first loaded scene is always assumed as main and persistent
 	*/
 
 	class ISceneManager: public virtual IBaseObject, public IEngineSubsystem
@@ -41,11 +55,12 @@ namespace TDEngine2
 
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
 				\param[in, out] pWorld A pointer to IWorld which is a global game state
+				\param[in] settings Start up settings
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IFileSystem* pFileSystem, IWorld* pWorld) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings) = 0;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -105,6 +120,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<IScene*> GetScene(TSceneId id) const = 0;
+
+			/*!
+				\return The method returns a pointer to instance of IWorld
+			*/
+
+			TDE2_API virtual IWorld* GetWorld() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_SCENE_MANAGER; }
 		protected:
