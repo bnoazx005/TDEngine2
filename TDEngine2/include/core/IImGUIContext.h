@@ -27,6 +27,10 @@ namespace TDEngine2
 	class CUnixWindowSystem;
 	class IResourceManager;
 	class IRenderer;
+	struct TQuaternion;
+	union TMatrix4;
+
+	enum class E_GIZMO_TYPE : U8;
 
 
 	/*!
@@ -344,6 +348,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void DrawRect(const TRectF32& rect, const TColor32F& color) = 0;
+
+			/*!
+				\brief The method draws manipulators for the transform based on ImGuizmo library
+			*/
+
+			TDE2_API virtual void DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
+											const std::function<void(const TVector3&, const TQuaternion&, const TVector3)>& onUpdate) = 0;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one

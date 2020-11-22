@@ -13,11 +13,14 @@
 #include <graphics/IRenderer.h>
 #include <graphics/CRenderQueue.h>
 #include <graphics/IVertexDeclaration.h>
+#include <graphics/IDebugUtility.h>
 #include <platform/win32/CWin32WindowSystem.h>
 #include <platform/unix/CUnixWindowSystem.h>
 #include <utils/CFileLogger.h>
 #include <math/MathUtils.h>
+#include <math/TQuaternion.h>
 #include "./../deps/imgui-1.72/imgui.h"
+#include "./../deps/imgui-1.72/ImGuizmo.h"
 #include <vector>
 #include <cstring>
 
@@ -137,6 +140,9 @@ namespace TDEngine2
 		_updateInputState(*mpIOContext, mpInputContext);
 
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
+
+		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
 	}
 
 	void CImGUIContext::EndFrame()
@@ -365,6 +371,45 @@ namespace TDEngine2
 	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color)
 	{
 		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackColor32F(color));
+	}
+
+	void CImGUIContext::DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
+									const std::function<void(const TVector3&, const TQuaternion&, const TVector3)>& onUpdate)
+	{
+		F32 mat[16];
+		std::memcpy(mat, transform.arr, sizeof(mat));
+
+		ImGuizmo::OPERATION gizmoType = ImGuizmo::OPERATION::TRANSLATE;
+
+		switch (type)
+		{
+			case E_GIZMO_TYPE::TRANSLATION:
+				gizmoType = ImGuizmo::OPERATION::TRANSLATE;
+				break;
+			case E_GIZMO_TYPE::ROTATION:
+				gizmoType = ImGuizmo::OPERATION::ROTATE;
+				break;
+			case E_GIZMO_TYPE::SCALING:
+				gizmoType = ImGuizmo::OPERATION::SCALE;
+				break;
+			default:
+				TDE2_UNIMPLEMENTED();
+				break;
+		}
+
+		if (ImGuizmo::Manipulate(view.arr, proj.arr, gizmoType, ImGuizmo::MODE::WORLD, mat))
+		{
+			F32 position[3] { 0.0f };
+			F32 rotation[3] { 0.0f };
+			F32 scale[3] { 0.0f };
+
+			ImGuizmo::DecomposeMatrixToComponents(mat, position, rotation, scale);
+
+			if (onUpdate)
+			{
+				onUpdate(TVector3(position), TQuaternion(TVector3(rotation)), TVector3(scale));
+			}
+		}
 	}
 
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)

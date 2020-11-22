@@ -17,15 +17,16 @@
 namespace TDEngine2
 {
 	/*!
-		struct TMatrix4
+		union TMatrix4
 
 		\brief The structure represents a squared matrix with size of 4.
 		It has a lot of applications within the engine
 	*/
 
-	typedef struct TMatrix4
+	typedef union TMatrix4
 	{
 		F32 m[4][4];
+		F32 arr[16];
 
 		/*!
 			\brief The default constructor generates a zero matrix

@@ -20,6 +20,7 @@ set(IMGUI_CTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CImGUIContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_internal.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/ImGuizmo.h"
 	)
 
 set(IMGUI_CTX_SOURCES
@@ -29,6 +30,7 @@ set(IMGUI_CTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_widgets.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_draw.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_demo.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/ImGuizmo.cpp"
 	)
 
 source_group("includes" FILES ${IMGUI_CTX_HEADERS})
@@ -41,11 +43,11 @@ if (MSVC) 	#cl.exe compiler's options
 
 	#Debug compiler's options
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++14 /MDd /W3 /GS /Zc:inline /Od /Zi  /Zc:wchar_t")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /RTC1 /Gd /Oy- /EHsc /nologo /diagnostics:classic /errorReport:prompt /sdl /permissive- /analyze-")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /RTC1 /Gd /Oy- /EHsc /nologo /diagnostics:classic /errorReport:prompt /sdl /permissive- /analyze-  /wd4250")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D _DEBUG")
 
 	#Release compiler's options
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /std:c++14 /permissive- /GS /GL /analyze- /W3 /Gy /Zc:wchar_t /Zi /O2 /sdl /Zc:inline")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /std:c++14 /permissive- /GS /GL /analyze- /W3 /Gy /Zc:wchar_t /Zi /O2 /sdl /Zc:inline  /wd4250")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /fp:precise /D _WINDLL /D _MBCS /errorReport:prompt /WX- /Zc:forScope /Gd /Oy- /Oi /MD /EHsc /nologo /diagnostics:classic")
 
 endif(MSVC)

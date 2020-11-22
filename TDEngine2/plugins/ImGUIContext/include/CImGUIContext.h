@@ -10,6 +10,7 @@
 #include <core/IImGUIContext.h>
 #include <math/TVector2.h>
 #include <math/TVector4.h>
+#include <math/TMatrix4.h>
 #include <utils/Color.h>
 #include <stack>
 
@@ -351,6 +352,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void DrawRect(const TRectF32& rect, const TColor32F& color) override;
+
+			/*!
+				\brief The method draws manipulators for the transform based on ImGuizmo library
+			*/
+
+			TDE2_API void DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
+									const std::function<void(const TVector3&, const TQuaternion&, const TVector3)>& onUpdate) override;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one
