@@ -398,6 +398,11 @@ namespace TDEngine2
 				return "ImGUI Context";
 			case EST_EDITORS_MANAGER:
 				return "Editors Manager";
+			case EST_SCENE_MANAGER:
+				return "Scene Manager";
+			default:
+				TDE2_UNIMPLEMENTED();
+				break;
 		}
 		
 		return "";
