@@ -40,6 +40,8 @@ namespace TDEngine2
 		mpSelectionManager = nullptr;
 		mpDebugUtility     = pDebugUtility;
 
+		mCurrManipulatorType = E_GIZMO_TYPE::TRANSLATION;
+
 		E_RESULT_CODE result = RC_OK;
 
 		if (!(mpActionsHistory = CreateEditorActionsManager(result)) || result != RC_OK)
@@ -117,30 +119,7 @@ namespace TDEngine2
 		mIsVisible = isEnabled;
 
 		_onDrawInspector();
-
-		if (_onDrawGizmos([this](TEntityId entityId, E_GIZMO_TYPE type, const TVector3& delta)
-			{
-				if (IWorld* pWorld = mpEditorsManager->GetWorldInstance())
-				{
-					if (CEntity* pEntity = pWorld->FindEntity(entityId))
-					{
-						auto pTransform = pEntity->GetComponent<CTransform>();
-						
-						switch (type)
-						{
-							case E_GIZMO_TYPE::TRANSLATION_X:
-								pTransform->SetPosition(pTransform->GetPosition() + delta.x * pTransform->GetRightVector());
-								break;
-							case E_GIZMO_TYPE::TRANSLATION_Y:
-								pTransform->SetPosition(pTransform->GetPosition() + delta.y * pTransform->GetUpVector());
-								break;
-							case E_GIZMO_TYPE::TRANSLATION_Z:
-								pTransform->SetPosition(pTransform->GetPosition() + delta.z * pTransform->GetForwardVector());
-								break;
-						}
-					}
-				}
-			}))
+		if (_onDrawGizmos())
 		{
 			return; // \note If some of gizmo's axes are selected then skip rest propagation of the input
 		}
@@ -186,9 +165,26 @@ namespace TDEngine2
 				}
 			}
 		}	
+
+		// \note Process changes of current manipulator's type
+		if (mpInputContext->IsKey(E_KEYCODES::KC_LALT))
+		{
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_W))
+			{
+				mCurrManipulatorType = E_GIZMO_TYPE::TRANSLATION;
+			}
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_E))
+			{
+				mCurrManipulatorType = E_GIZMO_TYPE::ROTATION;
+			}
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_R))
+			{
+				mCurrManipulatorType = E_GIZMO_TYPE::SCALING;
+			}
+		}		
 	}
 
-	bool CLevelEditorWindow::_onDrawGizmos(const TGizmoManipulatorCallback& onGizmoManipulatorCallback)
+	bool CLevelEditorWindow::_onDrawGizmos()
 	{
 		if (mSelectedEntityId == TEntityId::Invalid)
 		{
@@ -201,19 +197,25 @@ namespace TDEngine2
 			return false;
 		}
 
-		if (mCameraEntityId == TEntityId::Invalid)
-		{
-			mCameraEntityId = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>().front();
-		}
-
-		CEntity* pCameraEntity = pWorld->FindEntity(mCameraEntityId);
-
 		if (auto pSelectedEntity = pWorld->FindEntity(mSelectedEntityId))
 		{
-			TMatrix4 matrix = pSelectedEntity->GetComponent<CTransform>()->GetTransform();
+			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetTransform());
 			
-			auto&& ray = NormalizedScreenPointToWorldRay(*GetValidPtrOrDefault<CBaseCamera*>(pCameraEntity->GetComponent<CPerspectiveCamera>(), pCameraEntity->GetComponent<COrthoCamera>()),
-														 mpInputContext->GetNormalizedMousePosition());
+			auto&& camera = _getCameraEntity();
+			
+			mpImGUIContext->DrawGizmo(mCurrManipulatorType, Transpose(camera.GetViewMatrix()), Transpose(camera.GetProjMatrix()), matrix, 
+				[pSelectedEntity](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
+			{
+				if (auto pTransform = pSelectedEntity->GetComponent<CTransform>())
+				{
+					pTransform->SetPosition(pos);
+					pTransform->SetRotation(rot);
+					pTransform->SetScale(scale);
+				}
+			});
+
+#if 0
+			auto&& ray = NormalizedScreenPointToWorldRay(_getCameraEntity(), mpInputContext->GetNormalizedMousePosition());
 
 			TVector3 origin { matrix.m[0][3], matrix.m[1][3], matrix.m[2][3] };
 
@@ -228,6 +230,8 @@ namespace TDEngine2
 
 			if (!mIsGizmoBeingDragged) // \note change selection only if a user doesn't drag gizmo
 			{
+				mCurrSelectedGizmoAxis = -1;
+
 				for (U8 i = 0; i < 3; ++i)
 				{
 					std::tie(currDistance, t1, t2) = CalcShortestDistanceBetweenLines(axes[i], ray);
@@ -237,21 +241,23 @@ namespace TDEngine2
 					}
 				}
 
-				mFirstPosition = axes[mCurrSelectedGizmoAxis](t1);
+				if (mCurrSelectedGizmoAxis >= 0)
+				{
+					mFirstPosition = axes[mCurrSelectedGizmoAxis](t1);
+				}
 			}
 			else
 			{
 				std::tie(currDistance, t1, t2) = CalcShortestDistanceBetweenLines(axes[mCurrSelectedGizmoAxis], ray);
 			}
 
-			mpDebugUtility->DrawCross(mFirstPosition, 1.5f, { 0.0f, 0.0f, 1.0f, 1.0f });
+			mpDebugUtility->DrawCross(mFirstPosition, 1.5f, { 1.0f, 0.0f, 1.0f, 1.0f });
 			mpDebugUtility->DrawCross(mLastPosition, 1.5f, { 0.0f, 0.0f, 1.0f, 1.0f });
 
 			E_GIZMO_TYPE type = (mCurrSelectedGizmoAxis >= 0 && mIsGizmoBeingDragged) ? (E_GIZMO_TYPE::TRANSLATION_X + mCurrSelectedGizmoAxis) : E_GIZMO_TYPE::TRANSLATION;
 
 			// \todo Implement all types of gizmos here
-			//mpDebugUtility->DrawTransformGizmo(type, matrix);
-			mpDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::ROTATION, matrix);
+			mpDebugUtility->DrawTransformGizmo(type, matrix);
 
 			bool prevState = mIsGizmoBeingDragged;
 
@@ -260,25 +266,46 @@ namespace TDEngine2
 				if (onGizmoManipulatorCallback && (mIsGizmoBeingDragged = mpInputContext->IsMouseButton(0)))
 				{
 					mLastPosition = axes[mCurrSelectedGizmoAxis](t1);
-					LOG_MESSAGE(mFirstPosition.ToString());
+
 					if (prevState)
 					{
-						onGizmoManipulatorCallback(mSelectedEntityId, type, mLastPosition - mFirstPosition);
+						onGizmoManipulatorCallback(mSelectedEntityId, E_GIZMO_EVENT_TYPE::DRAGGED, type, mLastPosition - mFirstPosition);
+					}
+					else
+					{
+						onGizmoManipulatorCallback(mSelectedEntityId, E_GIZMO_EVENT_TYPE::STARTED, type, ZeroVector3);
 					}
 
 					mFirstPosition = mLastPosition;
 				}
 				else if (mpInputContext->IsMouseButtonUnpressed(0))
 				{
+					onGizmoManipulatorCallback(mSelectedEntityId, E_GIZMO_EVENT_TYPE::FINISHED, type, ZeroVector3);
+
 					mIsGizmoBeingDragged = false;
 					mCurrSelectedGizmoAxis = -1;
 				}
 
 				return true;
 			}
+#endif
 		}
 
 		return false;
+	}
+
+	ICamera& CLevelEditorWindow::_getCameraEntity()
+	{
+		IWorld* pWorld = mpEditorsManager->GetWorldInstance();
+
+		if (mCameraEntityId == TEntityId::Invalid)
+		{
+			mCameraEntityId = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>().front();
+		}
+
+		CEntity* pCameraEntity = pWorld->FindEntity(mCameraEntityId);
+
+		return *GetValidPtrOrDefault<CBaseCamera*>(pCameraEntity->GetComponent<CPerspectiveCamera>(), pCameraEntity->GetComponent<COrthoCamera>());
 	}
 
 	ISelectionManager* CLevelEditorWindow::_getSelectionManager()

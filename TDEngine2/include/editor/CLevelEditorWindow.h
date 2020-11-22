@@ -25,6 +25,7 @@ namespace TDEngine2
 	class IDebugUtility;
 	class IWorld;
 	class IEditorActionsHistory;
+	class ICamera;
 
 
 	/*!
@@ -50,8 +51,6 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager*, IInputContext*, IDebugUtility*, E_RESULT_CODE&);
-		public:
-			typedef std::function<void(TEntityId, E_GIZMO_TYPE, const TVector3&)> TGizmoManipulatorCallback;
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
@@ -99,8 +98,10 @@ namespace TDEngine2
 			TDE2_API void _onDraw() override;
 
 			TDE2_API void _onHandleInput();
-			TDE2_API bool _onDrawGizmos(const TGizmoManipulatorCallback& onGizmoManipulatorCallback);
+			TDE2_API bool _onDrawGizmos();
 			TDE2_API void _onDrawInspector();
+
+			TDE2_API ICamera& _getCameraEntity();
 
 			TDE2_API ISelectionManager* _getSelectionManager();
 		protected:
@@ -115,6 +116,8 @@ namespace TDEngine2
 			TEntityId              mSelectedEntityId = TEntityId::Invalid;
 
 			TEntityId              mCameraEntityId = TEntityId::Invalid;
+
+			E_GIZMO_TYPE           mCurrManipulatorType;
 
 			// \todo Move into separate gizmo's context
 			TVector3               mFirstPosition, mLastPosition;

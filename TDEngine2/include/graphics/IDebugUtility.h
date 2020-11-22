@@ -23,7 +23,7 @@ namespace TDEngine2
 	class IRenderer;
 	class IGraphicsObjectManager;
 	struct TAABB;
-	struct TMatrix4;
+	union TMatrix4;
 
 
 	/*!
