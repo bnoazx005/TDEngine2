@@ -373,7 +373,7 @@ namespace TDEngine2
 		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackColor32F(color));
 	}
 
-	void CImGUIContext::DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
+	bool CImGUIContext::DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
 									const std::function<void(const TVector3&, const TQuaternion&, const TVector3)>& onUpdate)
 	{
 		F32 mat[16];
@@ -396,20 +396,24 @@ namespace TDEngine2
 				TDE2_UNIMPLEMENTED();
 				break;
 		}
-
+		
 		if (ImGuizmo::Manipulate(view.arr, proj.arr, gizmoType, ImGuizmo::MODE::WORLD, mat))
 		{
 			F32 position[3] { 0.0f };
 			F32 rotation[3] { 0.0f };
 			F32 scale[3] { 0.0f };
-
+			
 			ImGuizmo::DecomposeMatrixToComponents(mat, position, rotation, scale);
 
 			if (onUpdate)
 			{
 				onUpdate(TVector3(position), TQuaternion(TVector3(rotation)), TVector3(scale));
 			}
+
+			return true;
 		}
+
+		return false;
 	}
 
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)
@@ -489,6 +493,11 @@ namespace TDEngine2
 	TVector2 CImGUIContext::GetTextSizes(const std::string& text) const
 	{
 		return ImGui::CalcTextSize(&text.front(), &text.front() + text.length());
+	}
+
+	bool CImGUIContext::IsMouseOverUI() const
+	{
+		return mpIOContext->WantCaptureMouse;
 	}
 
 	E_RESULT_CODE CImGUIContext::_initInternalImGUIContext(ImGuiIO& io)

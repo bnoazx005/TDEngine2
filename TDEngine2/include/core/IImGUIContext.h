@@ -351,9 +351,11 @@ namespace TDEngine2
 
 			/*!
 				\brief The method draws manipulators for the transform based on ImGuizmo library
+
+				\return The method returns true when the gizmo is actually being moving or selected
 			*/
 
-			TDE2_API virtual void DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
+			TDE2_API virtual bool DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
 											const std::function<void(const TVector3&, const TQuaternion&, const TVector3)>& onUpdate) = 0;
 
 			/*!
@@ -442,6 +444,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TVector2 GetTextSizes(const std::string& text) const = 0;
+
+			/*!
+				\return The method returns true when the cursor is over some ImGUI element
+			*/
+
+			TDE2_API virtual bool IsMouseOverUI() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_IMGUI_CONTEXT; }
 		protected:

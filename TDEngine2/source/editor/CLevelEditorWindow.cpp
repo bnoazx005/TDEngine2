@@ -131,7 +131,7 @@ namespace TDEngine2
 	{
 		ISelectionManager* pSelectionManager = _getSelectionManager();
 
-		if (mpInputContext->IsMouseButtonPressed(0))
+		if (mpInputContext->IsMouseButtonPressed(0) && !mpImGUIContext->IsMouseOverUI())
 		{
 			TVector3 mousePosition = mpInputContext->GetMousePosition();
 
@@ -202,18 +202,27 @@ namespace TDEngine2
 			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetTransform());
 			
 			auto&& camera = _getCameraEntity();
-			
+
 			mpImGUIContext->DrawGizmo(mCurrManipulatorType, Transpose(camera.GetViewMatrix()), Transpose(camera.GetProjMatrix()), matrix, 
-				[pSelectedEntity](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
+				[pSelectedEntity, this](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
 			{
 				if (auto pTransform = pSelectedEntity->GetComponent<CTransform>())
 				{
-					pTransform->SetPosition(pos);
-					pTransform->SetRotation(rot);
-					pTransform->SetScale(scale);
+					switch (mCurrManipulatorType)
+					{
+						case E_GIZMO_TYPE::TRANSLATION:
+							pTransform->SetPosition(pos);
+							break;
+						case E_GIZMO_TYPE::ROTATION:
+							pTransform->SetRotation(rot);
+							break;
+						case E_GIZMO_TYPE::SCALING:
+							pTransform->SetScale(scale);
+							break;
+					}
 				}
 			});
-
+			
 #if 0
 			auto&& ray = NormalizedScreenPointToWorldRay(_getCameraEntity(), mpInputContext->GetNormalizedMousePosition());
 
