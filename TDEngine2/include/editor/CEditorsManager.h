@@ -28,6 +28,7 @@ namespace TDEngine2
 		PROFILER,
 		LEVEL_EDITOR,
 		DEV_CONSOLE,
+		RENDER_TARGET_VIEWER,
 	};
 
 

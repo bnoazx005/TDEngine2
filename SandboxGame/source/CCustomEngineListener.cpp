@@ -280,6 +280,10 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 				});
 			});
 
+			static int id = 0;
+
+			id = imgui->Popup("TestPopup", id, { "First", "Second", "Third" });
+
 		}
 		imgui->EndWindow();
 	}	

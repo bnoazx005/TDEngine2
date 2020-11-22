@@ -361,6 +361,18 @@ namespace TDEngine2
 
 			TDE2_API bool DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
 									const std::function<void(const TVector3&, const TQuaternion&, const TVector3)>& onUpdate) override;
+			
+			/*!
+				\brief The method displays a combo box with a set of items
+
+				\param[in] label A caption of the combo box
+				\param[in] currSelectedItem An index of the item that is selected by default
+				\param[in] items A list of available items
+
+				\return The method returns an index of the selected item
+			*/
+
+			TDE2_API I32 Popup(const std::string& label, I32 currSelectedItem, const std::vector<std::string>& items) override;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one

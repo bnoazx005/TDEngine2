@@ -77,6 +77,8 @@ namespace TDEngine2
 		// \note Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
+		ImGui::GetStyle().AntiAliasedLines = false;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -414,6 +416,31 @@ namespace TDEngine2
 		}
 
 		return false;
+	}
+
+	I32 CImGUIContext::Popup(const std::string& label, I32 currSelectedItem, const std::vector<std::string>& items)
+	{
+		I32 index = currSelectedItem;
+
+		if (index >= items.size())
+		{
+			return -1;
+		}
+
+		if (ImGui::BeginCombo(label.c_str(), items[index].c_str()))
+		{
+			for (I32 i = 0; i < static_cast<I32>(items.size()); ++i)
+			{
+				if (ImGui::Selectable(items[i].c_str()))
+				{
+					index = i;
+				}
+			}
+
+			ImGui::EndCombo();
+		}
+
+		return index;
 	}
 
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)

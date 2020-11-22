@@ -152,6 +152,7 @@
 #include "editor/CSelectionManager.h"
 #include "editor/EditorActions.h"
 #include "editor/CEditorActionsManager.h"
+#include "editor/CRenderTargetViewerWindow.h"
 
 ///math
 #include "math/TVector2.h"

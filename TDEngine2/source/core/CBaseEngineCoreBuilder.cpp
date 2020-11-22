@@ -38,6 +38,7 @@
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CDevConsoleWindow.h"
 #include "../../include/editor/CSelectionManager.h"
+#include "../../include/editor/CRenderTargetViewerWindow.h"
 #include "../../include/graphics/CFramePostProcessor.h"
 #include "../../include/graphics/CBasePostProcessingProfile.h"
 #include "../../include/graphics/IDebugUtility.h"
@@ -416,6 +417,7 @@ namespace TDEngine2
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROFILER), CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(pEditorsManager, pInputContext, pDebugUtility, result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance, result) },
 		};
 
 		dynamic_cast<CProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);
