@@ -67,6 +67,8 @@ namespace TDEngine2
 			TDE2_API void _onDraw() override;
 		protected:
 			IResourceManager* mpResourceManager;
+
+			I32 mCurrSelectedItem = 0;
 	};
 }
 

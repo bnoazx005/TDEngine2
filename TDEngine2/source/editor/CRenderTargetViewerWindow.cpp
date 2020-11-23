@@ -1,6 +1,7 @@
 #include "../../include/editor/CRenderTargetViewerWindow.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/graphics/CBaseRenderTarget.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -57,10 +58,14 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Render Target Viewer", isEnabled, params))
 		{
-			
+			auto&& renderTargetsList = mpResourceManager->GetResourcesListByType<CBaseRenderTarget>();
 
-			// \todo Get list of all render targets
-			// \todo Show selected texture
+			mCurrSelectedItem = mpImGUIContext->Popup("Render Target", mCurrSelectedItem, renderTargetsList);
+			
+			if (auto pResourceHandler = mpResourceManager->Load<CBaseRenderTarget>(renderTargetsList[mCurrSelectedItem]))
+			{
+				mpImGUIContext->Image(pResourceHandler, TVector2(mpImGUIContext->GetWindowWidth() - 25.0f, mpImGUIContext->GetWindowHeight() - 60.0f));
+			}
 
 			mpImGUIContext->EndWindow();
 		}
