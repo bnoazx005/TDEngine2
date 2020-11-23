@@ -359,6 +359,26 @@ namespace TDEngine2
 		return mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderIdIter->second) - 1].GetOrDefault(nullptr);
 	}
 
+	std::vector<std::string> CResourceManager::_getResourcesListByType(TypeId resourceTypeId) const
+	{
+		std::vector<std::string> resourcesList;
+
+		for (U32 i = 0; i < mResources.GetSize(); ++i)
+		{
+			if (auto getResourceResult = mResources[i])
+			{
+				const IResource* pResource = getResourceResult.Get();
+
+				if (pResource && (resourceTypeId == pResource->GetResourceTypeId()))
+				{
+					resourcesList.push_back(pResource->GetName());
+				}
+			}
+		}
+
+		return resourcesList;
+	}
+
 	E_RESULT_CODE CResourceManager::_unloadAllResources()
 	{
 		E_RESULT_CODE result = RC_OK;

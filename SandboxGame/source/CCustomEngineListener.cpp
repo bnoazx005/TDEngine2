@@ -284,7 +284,6 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 			id = imgui->Popup("TestPopup", id, { "First", "Second", "Third" });
 			imgui->Image(mpResourceManager->Load<CBaseDepthBufferTarget>("ShadowMap"), TVector2(128.0f, 128.0f));
-
 		}
 		imgui->EndWindow();
 	}	

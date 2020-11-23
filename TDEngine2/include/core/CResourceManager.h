@@ -175,6 +175,8 @@ namespace TDEngine2
 
 			TDE2_API const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const override;
 
+			TDE2_API std::vector<std::string> _getResourcesListByType(TypeId resourceTypeId) const override;
+
 			TDE2_API E_RESULT_CODE _unloadAllResources();
 		protected:
 			bool                        mIsInitialized;

@@ -171,6 +171,18 @@ namespace TDEngine2
 				return _getResourceLoader(T::GetTypeId());
 			}
 
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+				std::enable_if_t<std::is_base_of_v<IResource, T>, std::vector<std::string>>
+#else
+				typename std::enable_if<std::is_base_of<IResource, T>::value, std::vector<std::string>>::type
+#endif
+			GetResourcesListByType() const
+			{
+				return _getResourcesListByType(T::GetTypeId());
+			}
+
 			/*!
 				\brief The method returns an identifier of a resource with a given name. If there is no
 				specified resource method returns TInvalidResourceId
@@ -192,5 +204,7 @@ namespace TDEngine2
 			TDE2_API virtual IResourceHandler* _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
 
 			TDE2_API virtual const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const = 0;
+
+			TDE2_API virtual std::vector<std::string> _getResourcesListByType(TypeId resourceTypeId) const = 0;
 	};
 }
