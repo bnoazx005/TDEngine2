@@ -443,6 +443,11 @@ namespace TDEngine2
 		return index;
 	}
 
+	void CImGUIContext::Image(IResourceHandler* pTexture, const TVector2& sizes, const TRectF32& uvRect)
+	{
+		ImGui::Image(reinterpret_cast<ImTextureID>(pTexture), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
+	}
+
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)
 	{
 		ImGuiWindowFlags flags = 0x0;

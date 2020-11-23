@@ -375,6 +375,16 @@ namespace TDEngine2
 			TDE2_API I32 Popup(const std::string& label, I32 currSelectedItem, const std::vector<std::string>& items) override;
 
 			/*!
+				\brief The method displays an image with the given parameters set
+
+				\param[in] pTexture A pointer to resource handler that corresponds to texture that should be displayed
+				\param[in] sizes A sizes of displayed image
+				\param[in] uvRect A uv coordinates of displayed texture
+			*/
+
+			TDE2_API void Image(IResourceHandler* pTexture, const TVector2& sizes, const TRectF32& uvRect = { 0.0f, 0.0f, 1.0f, 1.0f }) override;
+
+			/*!
 				\brief The method creates a new window on the screen. Every call after this one
 				will be related with this window
 

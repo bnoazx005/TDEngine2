@@ -26,6 +26,7 @@ namespace TDEngine2
 	class CWin32WindowSystem;
 	class CUnixWindowSystem;
 	class IResourceManager;
+	class IResourceHandler;
 	class IRenderer;
 	struct TQuaternion;
 	union TMatrix4;
@@ -369,6 +370,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual I32 Popup(const std::string& label, I32 currSelectedItem, const std::vector<std::string>& items) = 0;
+
+			/*!
+				\brief The method displays an image with the given parameters set
+
+				\param[in] pTexture A pointer to resource handler that corresponds to texture that should be displayed
+				\param[in] sizes A sizes of displayed image
+				\param[in] uvRect A uv coordinates of displayed texture
+			*/
+
+			TDE2_API virtual void Image(IResourceHandler* pTexture, const TVector2& sizes, const TRectF32& uvRect = { 0.0f, 0.0f, 1.0f, 1.0f }) = 0;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one
