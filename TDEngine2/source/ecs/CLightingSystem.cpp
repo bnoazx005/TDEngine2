@@ -203,7 +203,9 @@ namespace TDEngine2
 			viewMatrix.m[2][2] *= zAxis;
 		}
 
-		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-10.0f, 10.0f, 10.0f, -10.0f, 1.0f, 7.0f); // \todo Refactor
+		const F32 halfSize = 10.0f;
+
+		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 7.0f); // \todo Refactor
 
 		return Transpose(Mul(projMatrix, viewMatrix));
 	}

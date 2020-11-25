@@ -25,10 +25,9 @@ namespace TDEngine2
 	class IMaterialInstance;
 
 
-	typedef U32 TMaterialInstanceId;
+	TDE2_DECLARE_HANDLE_TYPE(TMaterialInstanceId)
 
-	constexpr TMaterialInstanceId DefaultMaterialInstanceId = 0x0;
-	constexpr TMaterialInstanceId InvalidMaterialInstanceId = (std::numeric_limits<TMaterialInstanceId>::max)();
+	constexpr TMaterialInstanceId DefaultMaterialInstanceId = TMaterialInstanceId(0);
 
 
 	enum class E_GEOMETRY_SUBGROUP_TAGS : U32;
@@ -110,7 +109,7 @@ namespace TDEngine2
 				\param[in] materialInstanceId An identifier of an instance of this material. 0 means a default instance, which is used by default
 			*/
 
-			TDE2_API virtual void Bind(TMaterialInstanceId instanceId = 0) = 0;
+			TDE2_API virtual void Bind(TMaterialInstanceId instanceId = DefaultMaterialInstanceId) = 0;
 			
 			/*!
 				\brief The method assigns a given texture to a given resource's name
@@ -122,8 +121,8 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) = 0;
-
+			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) = 0;
+			
 			/*!
 				\brief The method specifies whether the material should be transparent or not
 
@@ -161,7 +160,7 @@ namespace TDEngine2
 				\param[in] name A name of user's uniform variable within a shader
 				\param[in] value A value that should be assigned into the given variable
 
-				\return RC_OK if everything went ok, or some other code, which describes an error
+				\return A new material instance if everything went ok, or some other code, which describes an error
 			*/
 
 			template <typename T>
@@ -184,9 +183,9 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API E_RESULT_CODE SetVariable(TMaterialInstanceId instanceId, const std::string& name, const T& value)
+			TDE2_API E_RESULT_CODE SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const T& value)
 			{
-				return _setVariable(instanceId, name, static_cast<const void*>(&value), sizeof(T));
+				return _setVariableForInstance(instanceId, name, static_cast<const void*>(&value), sizeof(T));
 			}
 
 			/*!
@@ -297,7 +296,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
 
 			TDE2_API virtual TResult<IMaterialInstance*> _setVariable(const std::string& name, const void* pValue, U32 size) = 0;
-			TDE2_API virtual E_RESULT_CODE _setVariable(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) = 0;
+			TDE2_API virtual E_RESULT_CODE _setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) = 0;
 	};
 
 

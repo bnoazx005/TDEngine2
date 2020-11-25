@@ -29,6 +29,8 @@ namespace TDEngine2
 	class CRenderQueue;
 	class IVertexDeclaration;
 
+	enum class TMaterialInstanceId : U32;
+
 
 	/*!
 		\brief A factory function for creation objects of CImGUIContext's type
@@ -526,5 +528,7 @@ namespace TDEngine2
 			bool                    mIsHorizontalGroupEnabled = false;
 
 			TDrawListsStack         mpDrawListsContext;
+
+			std::unordered_map<uintptr_t, TMaterialInstanceId> mUsingMaterials;
 	};
 }

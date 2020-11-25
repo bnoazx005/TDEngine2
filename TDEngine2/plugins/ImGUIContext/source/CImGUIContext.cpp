@@ -145,6 +145,8 @@ namespace TDEngine2
 		ImGuizmo::BeginFrame();
 
 		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
+
+		ImGui::ShowMetricsWindow();
 	}
 
 	void CImGUIContext::EndFrame()
@@ -732,6 +734,8 @@ namespace TDEngine2
 
 		U32 batchId = 0x0;
 
+		IMaterial* pMaterial = mpDefaultEditorMaterial->Get<IMaterial>(RAT_BLOCKING);
+
 		for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
 		{
 			const ImDrawList* pCommandList = pImGUIData->CmdLists[n];
@@ -740,10 +744,16 @@ namespace TDEngine2
 			{
 				const ImDrawCmd* pCurrCommand = &pCommandList->CmdBuffer[currCommandIndex];
 				
-				auto pTexture = static_cast<IResourceHandler*>(pCurrCommand->TextureId);
-				mpDefaultEditorMaterial->Get<IMaterial>(RAT_BLOCKING)->SetTextureResource("Texture", pTexture->Get<ITexture>(RAT_BLOCKING));
+				const uintptr_t texturePtrId = reinterpret_cast<uintptr_t>(pCurrCommand->TextureId);
 
-				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(0xFFFFFFF0 - ++batchId);
+				if (mUsingMaterials.find(texturePtrId) == mUsingMaterials.cend()) // \note create a new instance
+				{
+					mUsingMaterials.emplace(texturePtrId, pMaterial->CreateInstance()->GetInstanceId());
+				}
+
+				pMaterial->SetTextureResource("Texture", static_cast<IResourceHandler*>(pCurrCommand->TextureId)->Get<ITexture>(RAT_BLOCKING), mUsingMaterials[texturePtrId]);
+
+				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(0xFFFFFFF0 - batchId);
 
 				pCurrDrawCommand->mObjectData.mModelMatrix = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
 				pCurrDrawCommand->mpVertexDeclaration      = mpEditorUIVertexDeclaration;
@@ -754,7 +764,9 @@ namespace TDEngine2
 				pCurrDrawCommand->mNumOfIndices            = pCurrCommand->ElemCount;
 				pCurrDrawCommand->mStartIndex              = pCurrCommand->IdxOffset + currIndexOffset;
 				pCurrDrawCommand->mStartVertex             = pCurrCommand->VtxOffset + currVertexOffset;
+				pCurrDrawCommand->mMaterialInstanceId      = mUsingMaterials[texturePtrId];
 
+				++batchId;
 				//if (pCurrCommand->UserCallback != NULL)
 				//{
 				//	// User callback, registered via ImDrawList::AddCallback()

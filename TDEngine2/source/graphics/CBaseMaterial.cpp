@@ -195,12 +195,12 @@ namespace TDEngine2
 		if (auto newInstanceResult = _allocateNewInstance())
 		{
 			TMaterialInstanceId instanceId = newInstanceResult.Get();
-			TDE2_ASSERT(instanceId != DefaultMaterialInstanceId && instanceId != InvalidMaterialInstanceId);
+			TDE2_ASSERT(instanceId != DefaultMaterialInstanceId && instanceId != TMaterialInstanceId::Invalid);
 
-			LOG_MESSAGE(Wrench::StringUtils::Format("[Base Material] A new instance {1} of material {0} was created", mName, instanceId));
+			LOG_MESSAGE(Wrench::StringUtils::Format("[Base Material] A new instance {1} of material {0} was created", mName, static_cast<U32>(instanceId)));
 
 			// \note Allocate uniform buffers for the instance
-			auto&& defaultInstanceUserUniformBuffers = mpInstancesUserUniformBuffers[DefaultMaterialInstanceId].Get();
+			auto&& defaultInstanceUserUniformBuffers = mpInstancesUserUniformBuffers[static_cast<U32>(DefaultMaterialInstanceId)].Get();
 
 			TUserUniformsArray newInstanceUniformBuffers;
 
@@ -209,13 +209,13 @@ namespace TDEngine2
 				newInstanceUniformBuffers[i].resize(defaultInstanceUserUniformBuffers[i].size());
 			}
 
-			if (mpInstancesUserUniformBuffers.Add(newInstanceUniformBuffers) != instanceId)
+			if (mpInstancesUserUniformBuffers.Add(newInstanceUniformBuffers) != static_cast<U32>(instanceId))
 			{
 				TDE2_ASSERT(false);
 				return nullptr;
 			}
 
-			return mpInstancesArray[instanceId].Get();
+			return mpInstancesArray[static_cast<U32>(instanceId)].Get();
 		}
 
 		return nullptr;
@@ -465,6 +465,7 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
+#if 0
 		pWriter->BeginGroup(TMaterialArchiveKeys::mTexturesGroup, true);
 		{
 			for (auto textureEntry : mpAssignedTextures)
@@ -483,6 +484,7 @@ namespace TDEngine2
 			}
 		}
 		pWriter->EndGroup();
+#endif
 
 		return RC_OK;
 	}
@@ -524,7 +526,7 @@ namespace TDEngine2
 	{
 		IShader* pShaderInstance = mpShader->Get<IShader>(TDEngine2::RAT_BLOCKING);
 
-		if (!pShaderInstance || (instanceId == InvalidMaterialInstanceId))
+		if (!pShaderInstance || (instanceId == TMaterialInstanceId::Invalid))
 		{
 			return;
 		}
@@ -550,7 +552,7 @@ namespace TDEngine2
 
 		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
 
-		if (auto userUniformBuffersResult = mpInstancesUserUniformBuffers[instanceId])
+		if (auto userUniformBuffersResult = mpInstancesUserUniformBuffers[static_cast<U32>(instanceId)])
 		{
 			auto&& instanceUniformBuffers = userUniformBuffersResult.Get();
 
@@ -568,20 +570,22 @@ namespace TDEngine2
 
 		pShaderInstance->Bind();
 
-		for (auto iter = mpAssignedTextures.cbegin(); iter != mpAssignedTextures.cend(); ++iter)
+		auto&& instanceTexturesStorage = mInstancesAssignedTextures[instanceId];
+
+		for (auto iter = instanceTexturesStorage.cbegin(); iter != instanceTexturesStorage.cend(); ++iter)
 		{
 			pShaderInstance->SetTextureResource(iter->first, iter->second);
 		}
 	}
 
-	E_RESULT_CODE CBaseMaterial::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
+	E_RESULT_CODE CBaseMaterial::SetTextureResource(const std::string& resourceName, ITexture* pTexture, TMaterialInstanceId instanceId)
 	{
-		if (resourceName.empty() || !pTexture)
+		if (resourceName.empty() || !pTexture || instanceId == TMaterialInstanceId::Invalid)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpAssignedTextures[resourceName] = pTexture;
+		mInstancesAssignedTextures[instanceId][resourceName] = pTexture;
 
 		return RC_OK;
 	}
@@ -648,7 +652,7 @@ namespace TDEngine2
 
 	TResult<IMaterialInstance*> CBaseMaterial::GetMaterialInstance(TMaterialInstanceId instanceId) const
 	{
-		return mpInstancesArray[instanceId];
+		return mpInstancesArray[static_cast<U32>(instanceId)];
 	}
 
 	TResult<IMaterialInstance*> CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
@@ -657,7 +661,7 @@ namespace TDEngine2
 
 		IMaterialInstance* pNewMaterialInstance = CreateInstance();
 
-		if (!pNewMaterialInstance || (result = _setVariable(pNewMaterialInstance->GetInstanceId(), name, pValue, size)) != RC_OK)
+		if (!pNewMaterialInstance || (result = _setVariableForInstance(pNewMaterialInstance->GetInstanceId(), name, pValue, size)) != RC_OK)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
@@ -665,7 +669,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<IMaterialInstance*>(pNewMaterialInstance);
 	}
 
-	E_RESULT_CODE CBaseMaterial::_setVariable(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
+	E_RESULT_CODE CBaseMaterial::_setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
 	{
 		U32 variableHash = GetVariableHash(name);
 
@@ -680,7 +684,7 @@ namespace TDEngine2
 		U32 varOffset = 0;
 		std::tie(bufferIndex, varOffset) = iter->second; // first index is a buffer's id, the second one is variable's offset in bytes
 
-		if (auto userUniformBuffersResult = mpInstancesUserUniformBuffers[instanceId])
+		if (auto userUniformBuffersResult = mpInstancesUserUniformBuffers[static_cast<U32>(instanceId)])
 		{
 			auto&& instanceUniformBuffers = userUniformBuffersResult.Get();
 		
@@ -734,11 +738,11 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TMaterialInstanceId instanceId = mpInstancesArray.Add(nullptr);
+		TMaterialInstanceId instanceId = static_cast<TMaterialInstanceId>(mpInstancesArray.Add(nullptr));
 
 		IMaterialInstance* pNewMaterialInstance = CreateBaseMaterialInstance(this, instanceId, result);
 
-		if ((result != RC_OK) || (result = mpInstancesArray.ReplaceAt(instanceId, pNewMaterialInstance)) != RC_OK)
+		if ((result != RC_OK) || (result = mpInstancesArray.ReplaceAt(static_cast<U32>(instanceId), pNewMaterialInstance)) != RC_OK)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
@@ -1008,6 +1012,7 @@ namespace TDEngine2
 		}
 
 		mpSharedMaterial = pMaterial;
+		mId = id;
 
 		mIsInitialized = true;
 

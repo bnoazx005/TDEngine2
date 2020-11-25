@@ -92,6 +92,8 @@ namespace TDEngine2
 			typedef std::array<TUserUniformBufferData, MaxNumberOfUserConstantBuffers> TUserUniformsArray;
 
 			typedef CResourceContainer<TUserUniformsArray>                             TInstanceUniformsArray;
+
+			typedef std::unordered_map<TMaterialInstanceId, TTexturesHashTable>        TInstanceTexturesArray;
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CBaseMaterial)
 			TDE2_REGISTER_TYPE(CBaseMaterial)
@@ -205,7 +207,7 @@ namespace TDEngine2
 				\param[in] materialInstanceId An identifier of an instance of this material. 0 means a default instance, which is used by default
 			*/
 
-			TDE2_API void Bind(TMaterialInstanceId instanceId = 0) override;
+			TDE2_API void Bind(TMaterialInstanceId instanceId = DefaultMaterialInstanceId) override;
 
 			/*!
 				\brief The method assigns a given texture to a given resource's name
@@ -217,7 +219,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
+			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) override;
 
 			/*!
 				\brief The method sets up a state of depth buffer usage
@@ -339,7 +341,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 
 			TDE2_API TResult<IMaterialInstance*> _setVariable(const std::string& name, const void* pValue, U32 size) override;
-			TDE2_API E_RESULT_CODE _setVariable(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
+			TDE2_API E_RESULT_CODE _setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
 
 			TDE2_API E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
 
@@ -361,7 +363,7 @@ namespace TDEngine2
 
 			TUserUniformsHashTable   mUserVariablesHashTable;
 
-			TTexturesHashTable       mpAssignedTextures;
+			TInstanceTexturesArray   mInstancesAssignedTextures;
 
 			TBlendStateDesc          mBlendStateParams;
 
@@ -613,6 +615,6 @@ namespace TDEngine2
 		protected:
 			IMaterial*          mpSharedMaterial;
 
-			TMaterialInstanceId mId = InvalidMaterialInstanceId;
+			TMaterialInstanceId mId = TMaterialInstanceId::Invalid;
 	};
 }

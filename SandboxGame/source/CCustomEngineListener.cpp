@@ -283,6 +283,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 			static int id = 0;
 
 			id = imgui->Popup("TestPopup", id, { "First", "Second", "Third" });
+			imgui->Image(mpResourceManager->Load<CBaseTexture2D>("Tim.tga"), TVector2(128.0f, 128.0f));
 		}
 		imgui->EndWindow();
 	}	

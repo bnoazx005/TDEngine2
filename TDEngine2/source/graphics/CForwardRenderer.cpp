@@ -109,7 +109,7 @@ namespace TDEngine2
 			queue->Clear();
 		}*/
 		
-		TTexture2DParameters shadowMapParams{ 512, 512, FT_D32, 1, 1, 0 };
+		TTexture2DParameters shadowMapParams{ 1024, 1024, FT_D32, 1, 1, 0 };
 
 		mpShadowMap = mpResourceManager->Create<CBaseDepthBufferTarget>("ShadowMap", shadowMapParams);
 		if (!mpShadowMap->IsValid())
