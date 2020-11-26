@@ -614,6 +614,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBaseMaterial::SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
+	{
+		return _setVariableForInstance(instanceId, name, pValue, size);
+	}
+
 	void CBaseMaterial::SetDepthBufferEnabled(bool state)
 	{
 		mDepthStencilStateParams.mIsDepthTestEnabled = state;
@@ -1062,9 +1067,19 @@ namespace TDEngine2
 		mpSharedMaterial->Bind(mId);
 	}
 
+	E_RESULT_CODE CBaseMaterialInstance::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
+	{
+		return mpSharedMaterial->SetTextureResource(resourceName, pTexture, mId);
+	}
+		
 	TMaterialInstanceId CBaseMaterialInstance::GetInstanceId() const
 	{
 		return mId;
+	}
+
+	E_RESULT_CODE CBaseMaterialInstance::_setVariable(const std::string& name, const void* pValue, U32 size)
+	{
+		return mpSharedMaterial->SetVariableForInstance(mId, name, pValue, size);
 	}
 
 

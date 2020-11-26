@@ -221,6 +221,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) override;
 
+			TDE2_API E_RESULT_CODE SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
+
 			/*!
 				\brief The method sets up a state of depth buffer usage
 
@@ -604,6 +606,18 @@ namespace TDEngine2
 			TDE2_API void Bind() override;
 
 			/*!
+				\brief The method assigns a given texture to a given resource's name
+
+				\param[in] resourceName A name of a resource within a shader's code
+
+				\param[in, out] pTexture A pointer to ITexture implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
+
+			/*!
 				\brief The method returns an identifier of the instance
 
 				\return The method returns an identifier of the instance
@@ -612,6 +626,8 @@ namespace TDEngine2
 			TDE2_API TMaterialInstanceId GetInstanceId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterialInstance)
+
+			TDE2_API E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) override;
 		protected:
 			IMaterial*          mpSharedMaterial;
 

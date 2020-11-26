@@ -188,6 +188,8 @@ namespace TDEngine2
 				return _setVariableForInstance(instanceId, name, static_cast<const void*>(&value), sizeof(T));
 			}
 
+			TDE2_API virtual E_RESULT_CODE SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) = 0;
+
 			/*!
 				\brief The method sets up a state of depth buffer usage
 
@@ -381,6 +383,33 @@ namespace TDEngine2
 			TDE2_API virtual void Bind() = 0;
 
 			/*!
+				\brief The method assigns a given texture to a given resource's name
+
+				\param[in] resourceName A name of a resource within a shader's code
+
+				\param[in, out] pTexture A pointer to ITexture implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) = 0;
+
+			/*!
+				\brief The method sets a given value to shader's uniform variable
+
+				\param[in] name A name of user's uniform variable within a shader
+				\param[in] value A value that should be assigned into the given variable
+
+				\return A new material instance if everything went ok, or some other code, which describes an error
+			*/
+
+			template <typename T>
+			TDE2_API E_RESULT_CODE SetVariable(const std::string& name, const T& value)
+			{
+				return _setVariable(name, static_cast<const void*>(&value), sizeof(T));
+			}
+
+			/*!
 				\brief The method returns an identifier of the instance
 
 				\return The method returns an identifier of the instance
@@ -389,5 +418,7 @@ namespace TDEngine2
 			TDE2_API virtual TMaterialInstanceId GetInstanceId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterialInstance)
+
+			TDE2_API virtual E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) = 0;
 	};
 }
