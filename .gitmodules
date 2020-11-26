@@ -1,8 +1,8 @@
 [submodule "TDEngine2/deps/tcpp"]
 	path = TDEngine2/deps/tcpp
 	url = https://github.com/bnoazx005/tcpp.git
-[submodule "TDEngine2\\deps\\Wrench"]
-	path = TDEngine2\\deps\\Wrench
+[submodule "TDEngine2/deps/Wrench"]
+	path = TDEngine2/deps/Wrench
 	url = https://github.com/bnoazx005/Wrench.git
 [submodule "TDEngine2/tools/ResourcesPacker/deps/Wrench"]
 	path = TDEngine2/tools/ResourcesPacker/deps/Wrench
