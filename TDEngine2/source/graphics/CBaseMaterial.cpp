@@ -1035,7 +1035,7 @@ namespace TDEngine2
 
 	void CBaseMaterialInstance::Bind()
 	{
-		//mpSharedMaterial->Bind(mId);
+		mpSharedMaterial->Bind(mId);
 	}
 
 	TMaterialInstanceId CBaseMaterialInstance::GetInstanceId() const

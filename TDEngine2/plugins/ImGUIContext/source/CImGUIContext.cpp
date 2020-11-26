@@ -447,7 +447,7 @@ namespace TDEngine2
 
 	void CImGUIContext::Image(IResourceHandler* pTexture, const TVector2& sizes, const TRectF32& uvRect)
 	{
-		ImGui::Image(reinterpret_cast<ImTextureID>(pTexture), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
+		ImGui::Image(static_cast<ImTextureID>(pTexture), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
 	}
 
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)
@@ -744,7 +744,7 @@ namespace TDEngine2
 			{
 				const ImDrawCmd* pCurrCommand = &pCommandList->CmdBuffer[currCommandIndex];
 				
-				const uintptr_t texturePtrId = reinterpret_cast<uintptr_t>(pCurrCommand->TextureId);
+				const uintptr_t texturePtrId = reinterpret_cast<std::uintptr_t>(pCurrCommand->TextureId);
 
 				if (mUsingMaterials.find(texturePtrId) == mUsingMaterials.cend()) // \note create a new instance
 				{
@@ -753,7 +753,7 @@ namespace TDEngine2
 
 				pMaterial->SetTextureResource("Texture", static_cast<IResourceHandler*>(pCurrCommand->TextureId)->Get<ITexture>(RAT_BLOCKING), mUsingMaterials[texturePtrId]);
 
-				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(0xFFFFFFF0 - batchId);
+				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId));
 
 				pCurrDrawCommand->mObjectData.mModelMatrix = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
 				pCurrDrawCommand->mpVertexDeclaration      = mpEditorUIVertexDeclaration;
