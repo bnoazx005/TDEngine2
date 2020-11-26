@@ -348,16 +348,29 @@ namespace TDEngine2
 					return;
 				}
 
-				std::string slotId    = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey);
-				std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
+				const TMaterialInstanceId instanceId = static_cast<TMaterialInstanceId>(pReader->GetUInt32("instance-id"));
 
-				TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
-				if (SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING)) != RC_OK)
+				pReader->BeginGroup("texture-bindings");
+
+				while (pReader->HasNextItem())
 				{
-					LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
-					result = result | RC_FAIL;
+					pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+
+					std::string slotId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey);
+					std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
+
+					TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
+					if (SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING), instanceId) != RC_OK)
+					{
+						LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
+						result = result | RC_FAIL;
+					}
+
+					pReader->EndGroup();
 				}
-				
+
+				pReader->EndGroup();
+
 				if ((result = pReader->EndGroup()) != RC_OK)
 				{
 					return;
@@ -465,26 +478,37 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
-#if 0
 		pWriter->BeginGroup(TMaterialArchiveKeys::mTexturesGroup, true);
 		{
-			for (auto textureEntry : mpAssignedTextures)
+			for (auto instanceTexturesEntry : this->mInstancesAssignedTextures)
 			{
 				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey, textureEntry.first);
 
-					if (auto pTexture = dynamic_cast<IResource*>(textureEntry.second))
+				pWriter->SetUInt32("instance-id", static_cast<U32>(instanceTexturesEntry.first));
+
+				pWriter->BeginGroup("texture-bindings", true);
+				
+				for (auto&& textureEntry : instanceTexturesEntry.second)
+				{
+					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 					{
-						pWriter->SetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey, static_cast<U32>(pTexture->GetResourceTypeId()));
-						pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey, pTexture->GetName());
+						pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey, textureEntry.first);
+
+						if (auto pTexture = dynamic_cast<IResource*>(textureEntry.second))
+						{
+							pWriter->SetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey, static_cast<U32>(pTexture->GetResourceTypeId()));
+							pWriter->SetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey, pTexture->GetName());
+						}
 					}
+					pWriter->EndGroup();
 				}
+
+				pWriter->EndGroup();
+
 				pWriter->EndGroup();
 			}
 		}
 		pWriter->EndGroup();
-#endif
 
 		return RC_OK;
 	}

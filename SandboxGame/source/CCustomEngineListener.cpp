@@ -329,7 +329,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawSphere(ZeroVector3, 10.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 3);
 
 	// rotate the cube
-#if 0
+#if 1
 	auto pEntity = mpWorld->FindEntity(mpWorld->FindEntitiesWithComponents<CStaticMeshContainer>()[0]);
 	auto pTransform = pEntity->GetComponent<CTransform>();
 	static F32 time = 0.0f;
