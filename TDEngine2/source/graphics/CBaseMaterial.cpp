@@ -71,41 +71,41 @@ namespace TDEngine2
 		};
 	};
 
-	const std::string TMaterialArchiveKeys::mShaderIdKey     = "shader-id";
-	const std::string TMaterialArchiveKeys::mTransparencyKey = "transparency-enabled";
-	const std::string TMaterialArchiveKeys::mBlendStateGroup = "blend-state";
+	const std::string TMaterialArchiveKeys::mShaderIdKey     = "shader_id";
+	const std::string TMaterialArchiveKeys::mTransparencyKey = "transparency_enabled";
+	const std::string TMaterialArchiveKeys::mBlendStateGroup = "blend_state";
 
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey       = "src-color";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey      = "dest-color";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey         = "op-type";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey  = "src-alpha";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey = "dest-alpha";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey    = "op-alpha-type";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey       = "src_color";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey      = "dest_color";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey         = "op_type";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey  = "src_alpha";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey = "dest_alpha";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey    = "op_alpha_type";
 
-	const std::string TMaterialArchiveKeys::mDepthStencilStateGroup = "depth-stencil-state";
+	const std::string TMaterialArchiveKeys::mDepthStencilStateGroup = "depth_stencil_state";
 
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey        = "depth-test-enabled";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey       = "depth-write-enabled";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey     = "depth-cmp-func";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey      = "stencil-test-enabled";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey  = "stencil-read-mask";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey = "stencil-write-mask";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey        = "depth_test_enabled";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey       = "depth_write_enabled";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey     = "depth_cmp_func";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey      = "stencil_test_enabled";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey  = "stencil_read_mask";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey = "stencil_write_mask";
 
-	const std::string TMaterialArchiveKeys::mRasterizerStateGroup = "rasterizer-state";
+	const std::string TMaterialArchiveKeys::mRasterizerStateGroup = "rasterizer_state";
 
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey      = "cull-mode";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey = "wireframe-mode";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey  = "front-CCW-mode";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey     = "depth-bias";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey  = "max-depth-bias";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mDepthClippingKey = "depth-clipping-enabled";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey   = "scissor-test-enabled";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey      = "cull_mode";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey = "wireframe_mode";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey  = "front_CCW_mode";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey     = "depth_bias";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey  = "max_depth_bias";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mDepthClippingKey = "depth_clipping_enabled";
+	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey   = "scissor_test_enabled";
 
 	const std::string TMaterialArchiveKeys::mTexturesGroup = "textures";
 
-	const std::string TMaterialArchiveKeys::TTextureKeys::mSlotKey        = "slot-id";
-	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey = "texture-type-id";
-	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureKey     = "texture-id";
+	const std::string TMaterialArchiveKeys::TTextureKeys::mSlotKey        = "slot_id";
+	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey = "texture_type_id";
+	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureKey     = "texture_id";
 
 
 	/*!
@@ -348,9 +348,9 @@ namespace TDEngine2
 					return;
 				}
 
-				const TMaterialInstanceId instanceId = static_cast<TMaterialInstanceId>(pReader->GetUInt32("instance-id"));
+				const TMaterialInstanceId instanceId = static_cast<TMaterialInstanceId>(pReader->GetUInt32("instance_id"));
 
-				pReader->BeginGroup("texture-bindings");
+				pReader->BeginGroup("texture_bindings");
 
 				while (pReader->HasNextItem())
 				{
@@ -432,8 +432,8 @@ namespace TDEngine2
 
 		pWriter->BeginGroup("meta");
 		{
-			pWriter->SetString("resource-type", "material");
-			pWriter->SetUInt16("version-tag", mVersionTag);
+			pWriter->SetString("resource_type", "material");
+			pWriter->SetUInt16("version_tag", mVersionTag);
 		}
 		pWriter->EndGroup();
 
@@ -484,9 +484,9 @@ namespace TDEngine2
 			{
 				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 
-				pWriter->SetUInt32("instance-id", static_cast<U32>(instanceTexturesEntry.first));
+				pWriter->SetUInt32("instance_id", static_cast<U32>(instanceTexturesEntry.first));
 
-				pWriter->BeginGroup("texture-bindings", true);
+				pWriter->BeginGroup("texture_bindings", true);
 				
 				for (auto&& textureEntry : instanceTexturesEntry.second)
 				{
