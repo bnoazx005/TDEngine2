@@ -19,6 +19,7 @@
 #include <array>
 #include <sstream>
 #include "result.hpp"
+#include "debugbreak.h"
 
 
 namespace TDEngine2
@@ -639,7 +640,7 @@ namespace TDEngine2
 
 
 #if defined (TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-	#define TDE2_ASSERT(expression) assert(expression)
+	#define TDE2_ASSERT(expression) do { if (!(expression)) { debug_break(); } } while(0)
 #else
 	#define TDE2_ASSERT(expression) 
 #endif
