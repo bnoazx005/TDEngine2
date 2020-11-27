@@ -191,6 +191,9 @@ namespace TDEngine2
 			return IdentityMatrix4;
 		}
 
+		TMatrix4 viewMatrix = LookAt(pTransform->GetPosition(), UpVector3, ZeroVector3, -1.0f);
+
+#if 0
 		TMatrix4 viewMatrix = pTransform->GetTransform();
 		{
 			viewMatrix.m[0][3] = -viewMatrix.m[0][3];
@@ -202,10 +205,11 @@ namespace TDEngine2
 			viewMatrix.m[2][3] *= -zAxis;
 			viewMatrix.m[2][2] *= zAxis;
 		}
+#endif
 
-		const F32 halfSize = 10.0f;
+		const F32 halfSize = 5.0f;
 
-		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 7.0f); // \todo Refactor
+		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 100.0f); // \todo Refactor
 
 		return Transpose(Mul(projMatrix, viewMatrix));
 	}

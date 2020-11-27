@@ -21,7 +21,7 @@ const std::string DebugShaderName = Wrench::StringUtils::Format("Debug{0}Shader.
 const std::string DebugTextShaderName = Wrench::StringUtils::Format("DebugText{0}Shader.shader", GAPIType);
 
 
-TVector3 SunLightPos{ 5.0f, 0.0f, 0.0f };
+TVector3 SunLightPos{ 5.0f, 10.0f, 0.0f };
 
 
 E_RESULT_CODE CCustomEngineListener::OnStart()
