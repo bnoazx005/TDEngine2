@@ -234,4 +234,18 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TMatrix4 OrthographicProj(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, F32 zNDCMin, F32 zNDCMax, F32 handedness, bool isDepthless = false);
+
+
+	/*!
+		\brief The function generates a view matrix based on given parameters
+
+		\param[in] eye A position of a camera
+		\param[in] up An up vector of the camera
+		\param[in] target A direction of sight
+		\param[in] handedness Equals to 1 for a right-handed, -1 for a left-handed
+
+		\return The function returns a view matrix 
+	*/
+
+	TDE2_API TMatrix4 LookAt(const TVector3& eye, const TVector3& up, const TVector3& target, F32 handedness);
 }

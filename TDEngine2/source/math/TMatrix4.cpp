@@ -346,4 +346,31 @@ namespace TDEngine2
 
 		return projMatrix;
 	}
+
+	TDE2_API TMatrix4 LookAt(const TVector3& eye, const TVector3& up, const TVector3& target, F32 handedness)
+	{
+		TMatrix4 mat4 = IdentityMatrix4;
+
+		const TVector3 dir   = Normalize(target - eye);
+		const TVector3 right = Normalize(up * dir);
+		const TVector3 upVec = dir * right;
+
+		mat4.m[0][0] = right.x;
+		mat4.m[1][0] = upVec.x;
+		mat4.m[2][0] = dir.x;
+
+		mat4.m[0][1] = right.y;
+		mat4.m[1][1] = upVec.y;
+		mat4.m[2][1] = dir.y;
+
+		mat4.m[0][2] = right.z;
+		mat4.m[1][2] = upVec.z;
+		mat4.m[2][2] = dir.z;
+
+		mat4.m[0][3] = handedness * Dot(right, eye);
+		mat4.m[1][3] = handedness * Dot(upVec, eye);
+		mat4.m[2][3] = handedness * Dot(dir, eye);
+
+		return mat4;
+	}
 }

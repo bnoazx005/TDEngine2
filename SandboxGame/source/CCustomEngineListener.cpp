@@ -30,9 +30,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("NewMaterial.material", TMaterialParameters{ TestShaderName, true })->Get<IMaterial>(RAT_BLOCKING);
-	pMaterial->SetTextureResource("TextureAtlas", mpResourceManager->Load<CBaseTexture2D>("Tim.tga")->Get<ITexture2D>(RAT_BLOCKING));
-	pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
+	IMaterial* pMaterial = mpResourceManager->Load<CBaseMaterial>("NewMaterial.material")->Get<IMaterial>(RAT_BLOCKING);
 
 #if 0
 	if (auto result = mpFileSystem->Open<IYAMLFileWriter>("DefaultMaterial.material", true))
