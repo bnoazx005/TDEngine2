@@ -12,6 +12,7 @@
 #include "../../include/utils/Utils.h"
 #include "../../include/graphics/CBaseTexture2D.h"
 #include "../../include/metadata.h"
+#include "../../include/math/MathUtils.h"
 #include "stringUtils.hpp"
 #include <cstring>
 
@@ -652,6 +653,19 @@ namespace TDEngine2
 	void CBaseMaterial::SetWireframeMode(bool state)
 	{
 		mRasterizerStateParams.mIsWireframeModeEnabled = state;
+	}
+
+	void CBaseMaterial::SetFrontCCWOrderEnabled(bool state)
+	{
+		mRasterizerStateParams.mIsFrontCCWEnabled = state;
+	}
+	
+	void CBaseMaterial::SetDepthBias(F32 bias, F32 maxBias)
+	{
+		TDE2_ASSERT(CMathUtils::IsLessOrEqual(bias, maxBias));
+
+		mRasterizerStateParams.mDepthBias = bias;
+		mRasterizerStateParams.mMaxDepthBias = maxBias;
 	}
 
 	void CBaseMaterial::SetGeometrySubGroupTag(const E_GEOMETRY_SUBGROUP_TAGS& tag)

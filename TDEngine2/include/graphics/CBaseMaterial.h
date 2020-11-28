@@ -279,6 +279,23 @@ namespace TDEngine2
 			TDE2_API void SetWireframeMode(bool state) override;
 
 			/*!
+				\brief The method enables\disables front CCW order for culling faces
+
+				\param[in] state If true than front CCW order is used
+			*/
+
+			TDE2_API void SetFrontCCWOrderEnabled(bool state) override;
+
+			/*!
+				\brief The method specifies depth bias and maximal depth bias
+
+				\param[in] bias A depth value added to a given pixel
+				\param[in] maxBias Maximum depth bias of a pixel
+			*/
+
+			TDE2_API void SetDepthBias(F32 bias, F32 maxBias) override;
+
+			/*!
 				\brief The method specifies sub-group within used geometry group
 
 				\param[in] tag A tag which specifies a sub-group within used geometry group

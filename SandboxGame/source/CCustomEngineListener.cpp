@@ -30,28 +30,24 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	IMaterial* pMaterial = mpResourceManager->Load<CBaseMaterial>("NewMaterial.material")->Get<IMaterial>(RAT_BLOCKING);
+	mpResourceManager->Load<CBaseMaterial>("NewMaterial.material");
+	mpResourceManager->Load<CBaseMaterial>("DebugMaterial.material");
+
+	IMaterial* pFontMaterial = mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", TMaterialParameters{ DebugTextShaderName, true })->Get<IMaterial>(RAT_BLOCKING);
+
+	auto pFontAtlas = mpResourceManager->Load<CTextureAtlas>("atlas")->Get<ITextureAtlas>(RAT_BLOCKING);
+	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
 #if 0
-	if (auto result = mpFileSystem->Open<IYAMLFileWriter>("DefaultMaterial.material", true))
+	if (auto result = mpFileSystem->Open<IYAMLFileWriter>("DebugTextMaterial.material", true))
 	{
 		if (auto materialFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
 		{
-			pMaterial->Save(materialFileWriter);
+			pFontMaterial->Save(materialFileWriter);
 			materialFileWriter->Close();
 		}
 	}
 #endif
-
-	//IMaterial* pDefaultMaterial = mpResourceManager->Load<CBaseMaterial>("DefaultMaterial.material")->Get<IMaterial>(RAT_BLOCKING);
-
-	mpResourceManager->Create<CBaseMaterial>("DebugMaterial.material", TMaterialParameters{ DebugShaderName, false, {}, { E_CULL_MODE::NONE } });
-	
-	IMaterial* pFontMaterial = mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", 
-																		TMaterialParameters{ DebugTextShaderName, true })->Get<IMaterial>(RAT_BLOCKING);
-
-	auto pFontAtlas = mpResourceManager->Load<CTextureAtlas>("atlas")->Get<ITextureAtlas>(RAT_BLOCKING);
-	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
 	TDE2_ASSERT(mpResourceManager->Load<CBasePostProcessingProfile>("default-profile")->IsValid());
 
@@ -143,12 +139,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pSkyboxContainer->SetMaterialName("DefaultSkybox.material");
 	}
 
-	IGeometryBuilder* pGeomBuilder = CreateGeometryBuilder(result);
-	{
-		pGeomBuilder->CreateCylinderGeometry(ZeroVector3, UpVector3, 1.0f, 2.0f, 3);
-		pGeomBuilder->CreatePlaneGeometry(ZeroVector3, UpVector3, 10.0f, 10.0f, 3);
-	}
-	pGeomBuilder->Free();
 	mpGraphicsContext->GetInfo();
 	mpGraphicsContext->GetContextInfo();
 
