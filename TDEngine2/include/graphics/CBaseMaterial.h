@@ -254,6 +254,25 @@ namespace TDEngine2
 			TDE2_API void SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType) override;
 
 			/*!
+				\brief The method specifies read mask for stencil operations
+
+				\param[in] value A value of the stencil read mask
+			*/
+
+			TDE2_API void SetStencilReadMask(U8 value) override;
+
+			/*!
+				\brief The method specifies write mask for stencil operations
+
+				\param[in] value A value of the stencil write mask
+			*/
+
+			TDE2_API void SetStencilWriteMask(U8 value) override;
+
+			TDE2_API void SetStencilFrontOp(const TStencilOperationDesc& op) override;
+			TDE2_API void SetStencilBackOp(const TStencilOperationDesc& op) override;
+
+			/*!
 				\brief The method specifies culling mode for faces for the current material
 
 				\param[in] cullMode A value of E_CULL_MODE type which defines which face should be culled

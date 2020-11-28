@@ -47,6 +47,8 @@ namespace TDEngine2
 			static const std::string mStencilTestKey;
 			static const std::string mStencilReadMaskKey;
 			static const std::string mStencilWriteMaskKey;
+			static const std::string mStencilFrontOpGroup;
+			static const std::string mStencilBackOpGroup;
 		};
 
 		static const std::string mRasterizerStateGroup;
@@ -91,6 +93,8 @@ namespace TDEngine2
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey      = "stencil_test_enabled";
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey  = "stencil_read_mask";
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey = "stencil_write_mask";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup = "stencil_front_op";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup  = "stencil_back_op";
 
 	const std::string TMaterialArchiveKeys::mRasterizerStateGroup = "rasterizer_state";
 
@@ -323,6 +327,8 @@ namespace TDEngine2
 			SetDepthWriteEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey));
 
 			SetStencilBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey));
+			SetStencilReadMask(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey));
+			SetStencilWriteMask(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey));
 			// \todo Add parametrization of stencil test
 		});
 
@@ -335,6 +341,8 @@ namespace TDEngine2
 
 			SetWireframeMode(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey));
 			SetScissorEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey));
+			SetFrontCCWOrderEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey));
+			SetDepthBias(pReader->GetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey), pReader->GetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey));
 			// \todo Add another parameters
 		});
 
@@ -463,7 +471,17 @@ namespace TDEngine2
 			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey, mDepthStencilStateParams.mStencilReadMaskValue);
 			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey, mDepthStencilStateParams.mStencilWriteMaskValue);
 
-			// \todo
+			pWriter->BeginGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup);
+			{
+				// \todo
+			}
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup);
+			{
+				// \todo
+			}
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
 
@@ -638,6 +656,26 @@ namespace TDEngine2
 	void CBaseMaterial::SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType)
 	{
 		mDepthStencilStateParams.mDepthCmpFunc = funcType;
+	}
+
+	void CBaseMaterial::SetStencilReadMask(U8 value)
+	{
+		mDepthStencilStateParams.mStencilReadMaskValue = value;
+	}
+
+	void CBaseMaterial::SetStencilWriteMask(U8 value)
+	{
+		mDepthStencilStateParams.mStencilWriteMaskValue = value;
+	}
+
+	void CBaseMaterial::SetStencilFrontOp(const TStencilOperationDesc& op)
+	{
+		mDepthStencilStateParams.mStencilFrontFaceOp = op;
+	}
+
+	void CBaseMaterial::SetStencilBackOp(const TStencilOperationDesc& op)
+	{
+		mDepthStencilStateParams.mStencilBackFaceOp = op;
 	}
 
 	void CBaseMaterial::SetCullMode(const E_CULL_MODE& cullMode)
