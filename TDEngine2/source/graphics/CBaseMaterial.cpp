@@ -51,6 +51,14 @@ namespace TDEngine2
 			static const std::string mStencilBackOpGroup;
 		};
 
+		struct TStencilOpDescKeys
+		{
+			static const std::string mComparisonFuncKey;
+			static const std::string mStencilPassOpKey;
+			static const std::string mStencilFailOpKey;
+			static const std::string mDepthFailOpKey;
+		};
+
 		static const std::string mRasterizerStateGroup;
 
 		struct TRasterizerStateKeys
@@ -95,6 +103,11 @@ namespace TDEngine2
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey = "stencil_write_mask";
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup = "stencil_front_op";
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup  = "stencil_back_op";
+
+	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mComparisonFuncKey = "cmp_func";
+	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mStencilPassOpKey = "pass_op";
+	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mStencilFailOpKey = "fail_op";
+	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mDepthFailOpKey = "depth_fail_op";
 
 	const std::string TMaterialArchiveKeys::mRasterizerStateGroup = "rasterizer_state";
 
@@ -233,48 +246,6 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		static const std::unordered_map<std::string, E_BLEND_FACTOR_VALUE> str2blendFactor // \todo Reimplement later when Enum::ToString will be implemented
-		{
-			{ "ZERO", E_BLEND_FACTOR_VALUE::ZERO },
-			{ "ONE", E_BLEND_FACTOR_VALUE::ONE },
-			{ "SOURCE_ALPHA", E_BLEND_FACTOR_VALUE::SOURCE_ALPHA },
-			{ "ONE_MINUS_SOURCE_ALPHA", E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA },
-			{ "DEST_ALPHA", E_BLEND_FACTOR_VALUE::DEST_ALPHA },
-			{ "ONE_MINUS_DEST_ALPHA", E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_ALPHA },
-			{ "CONSTANT_ALPHA", E_BLEND_FACTOR_VALUE::CONSTANT_ALPHA },
-			{ "ONE_MINUS_CONSTANT_ALPHA", E_BLEND_FACTOR_VALUE::ONE_MINUS_CONSTANT_ALPHA },
-			{ "SOURCE_COLOR", E_BLEND_FACTOR_VALUE::SOURCE_COLOR },
-			{ "ONE_MINUS_SOURCE_COLOR", E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_COLOR },
-			{ "DEST_COLOR", E_BLEND_FACTOR_VALUE::DEST_COLOR },
-			{ "ONE_MINUS_DEST_COLOR", E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_COLOR },
-		};
-
-		static const std::unordered_map<std::string, E_BLEND_OP_TYPE> str2blendOp
-		{
-			{ "ADD", E_BLEND_OP_TYPE::ADD },
-			{ "SUB", E_BLEND_OP_TYPE::SUBT },
-			{ "RSUB", E_BLEND_OP_TYPE::REVERSED_SUBT },
-		};
-
-		static const std::unordered_map<std::string, E_CULL_MODE> str2cullMode
-		{
-			{ "FRONT", E_CULL_MODE::FRONT },
-			{ "BACK", E_CULL_MODE::BACK },
-			{ "NONE", E_CULL_MODE::NONE },
-		};
-
-		static const std::unordered_map<std::string, E_COMPARISON_FUNC> str2comparisonFunc
-		{
-			{ "NEVER", E_COMPARISON_FUNC::NEVER },
-			{ "LESS", E_COMPARISON_FUNC::LESS },
-			{ "EQUAL", E_COMPARISON_FUNC::EQUAL },
-			{ "LESS_EQUAL", E_COMPARISON_FUNC::LESS_EQUAL },
-			{ "GREATER", E_COMPARISON_FUNC::GREATER },
-			{ "NOT_EQUAL", E_COMPARISON_FUNC::NOT_EQUAL },
-			{ "GREATER_EQUAL", E_COMPARISON_FUNC::GREATER_EQUAL },
-			{ "ALWAYS", E_COMPARISON_FUNC::ALWAYS },
-		};
-
 		auto processGroup = [pReader](const std::string& groupName, const std::function<void()>& actionCallback)
 		{
 			if (pReader->BeginGroup(groupName) == RC_OK)
@@ -288,40 +259,28 @@ namespace TDEngine2
 			LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Missing \"{0}\" group of parameters", groupName));
 		};
 
-		auto applyValue = [](auto valuesMap, const std::string& value, auto&& actionCallback)
-		{
-			auto&& iter = valuesMap.find(value);
-			if (iter != valuesMap.cend())
-			{
-				actionCallback(iter->second);
-			}
-		};
-
 		SetShader(pReader->GetString(TMaterialArchiveKeys::mShaderIdKey));
 		SetTransparentState(pReader->GetBool(TMaterialArchiveKeys::mTransparencyKey));
 
-		processGroup(TMaterialArchiveKeys::mBlendStateGroup, [pReader, applyValue, this]
+		processGroup(TMaterialArchiveKeys::mBlendStateGroup, [pReader, this]
 		{
 			TBlendStateDesc blendStateDesc;
 
-			applyValue(str2blendFactor, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey), [&blendStateDesc](auto&& value) { blendStateDesc.mScrValue = value; });
-			applyValue(str2blendFactor, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey), [&blendStateDesc](auto&& value) { blendStateDesc.mDestValue = value; });
-			applyValue(str2blendOp, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey), [&blendStateDesc](auto&& value) { blendStateDesc.mOpType = value; });
+			blendStateDesc.mScrValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey));
+			blendStateDesc.mDestValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey));
+			blendStateDesc.mOpType = Meta::EnumTrait<E_BLEND_OP_TYPE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey));
 
-			applyValue(str2blendFactor, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey), [&blendStateDesc](auto&& value) { blendStateDesc.mScrAlphaValue = value; });
-			applyValue(str2blendFactor, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey), [&blendStateDesc](auto&& value) { blendStateDesc.mDestAlphaValue = value; });
-			applyValue(str2blendOp, pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey), [&blendStateDesc](auto&& value) { blendStateDesc.mAlphaOpType = value; });
+			blendStateDesc.mScrAlphaValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey));
+			blendStateDesc.mDestAlphaValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey));
+			blendStateDesc.mAlphaOpType = Meta::EnumTrait<E_BLEND_OP_TYPE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey));
 
 			SetBlendFactors(blendStateDesc.mScrValue, blendStateDesc.mDestValue, blendStateDesc.mScrAlphaValue, blendStateDesc.mDestAlphaValue);
 			SetBlendOp(blendStateDesc.mOpType, blendStateDesc.mAlphaOpType);
 		});
 
-		processGroup(TMaterialArchiveKeys::mDepthStencilStateGroup, [pReader, applyValue, this]
+		processGroup(TMaterialArchiveKeys::mDepthStencilStateGroup, [pReader, this]
 		{
-			applyValue(str2comparisonFunc, pReader->GetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey), [this](auto&& value)
-			{
-				SetDepthComparisonFunc(value);
-			});
+			SetDepthComparisonFunc(Meta::EnumTrait<E_COMPARISON_FUNC>::FromString(pReader->GetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey)));
 
 			SetDepthBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey));
 			SetDepthWriteEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey));
@@ -329,15 +288,27 @@ namespace TDEngine2
 			SetStencilBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey));
 			SetStencilReadMask(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey));
 			SetStencilWriteMask(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey));
-			// \todo Add parametrization of stencil test
+
+
+			auto readStencilGroup = [this, pReader](const std::string& groupId, TStencilOpDesc& desc)
+			{
+				pReader->BeginGroup(groupId);
+				{
+					desc.mFunc = Meta::EnumTrait<E_COMPARISON_FUNC>::FromString(pReader->GetString(TMaterialArchiveKeys::TStencilOpDescKeys::mComparisonFuncKey));
+					desc.mPassOp = Meta::EnumTrait<E_STENCIL_OP>::FromString(pReader->GetString(TMaterialArchiveKeys::TStencilOpDescKeys::mStencilPassOpKey));
+					desc.mFailOp = Meta::EnumTrait<E_STENCIL_OP>::FromString(pReader->GetString(TMaterialArchiveKeys::TStencilOpDescKeys::mStencilFailOpKey));
+					desc.mDepthFailOp = Meta::EnumTrait<E_STENCIL_OP>::FromString(pReader->GetString(TMaterialArchiveKeys::TStencilOpDescKeys::mDepthFailOpKey));
+				}
+				pReader->EndGroup();
+			};
+
+			readStencilGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup, mDepthStencilStateParams.mStencilFrontFaceOp);
+			readStencilGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup, mDepthStencilStateParams.mStencilBackFaceOp);
 		});
 
-		processGroup(TMaterialArchiveKeys::mRasterizerStateGroup, [pReader, applyValue, this]
+		processGroup(TMaterialArchiveKeys::mRasterizerStateGroup, [pReader, this]
 		{
-			applyValue(str2cullMode, pReader->GetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey), [this](auto&& value)
-			{
-				SetCullMode(value);
-			});
+			SetCullMode(Meta::EnumTrait<E_CULL_MODE>::FromString(pReader->GetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey)));
 
 			SetWireframeMode(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey));
 			SetScissorEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey));
@@ -346,7 +317,7 @@ namespace TDEngine2
 			// \todo Add another parameters
 		});
 
-		processGroup(TMaterialArchiveKeys::mTexturesGroup, [pReader, applyValue, this]
+		processGroup(TMaterialArchiveKeys::mTexturesGroup, [pReader, this]
 		{
 			E_RESULT_CODE result = RC_OK;
 
@@ -392,48 +363,6 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMaterial::Save(IArchiveWriter* pWriter)
 	{
-		static const std::unordered_map<E_BLEND_FACTOR_VALUE, std::string> blendFactor2Str // \todo Reimplement later when Enum::ToString will be implemented
-		{
-			{ E_BLEND_FACTOR_VALUE::ZERO, "ZERO" },
-			{ E_BLEND_FACTOR_VALUE::ONE, "ONE" },
-			{ E_BLEND_FACTOR_VALUE::SOURCE_ALPHA, "SOURCE_ALPHA" },
-			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA, "ONE_MINUS_SOURCE_ALPHA" },
-			{ E_BLEND_FACTOR_VALUE::DEST_ALPHA, "DEST_ALPHA" },
-			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_ALPHA, "ONE_MINUS_DEST_ALPHA" },
-			{ E_BLEND_FACTOR_VALUE::CONSTANT_ALPHA, "CONSTANT_ALPHA" },
-			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_CONSTANT_ALPHA, "ONE_MINUS_CONSTANT_ALPHA" },
-			{ E_BLEND_FACTOR_VALUE::SOURCE_COLOR, "SOURCE_COLOR" },
-			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_COLOR, "ONE_MINUS_SOURCE_COLOR" },
-			{ E_BLEND_FACTOR_VALUE::DEST_COLOR, "DEST_COLOR" },
-			{ E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_COLOR, "ONE_MINUS_DEST_COLOR" },
-		};
-
-		static const std::unordered_map<E_BLEND_OP_TYPE, std::string> blendOp2Str
-		{
-			{ E_BLEND_OP_TYPE::ADD, "ADD" },
-			{ E_BLEND_OP_TYPE::SUBT, "SUB" },
-			{ E_BLEND_OP_TYPE::REVERSED_SUBT, "RSUB" },
-		};
-
-		static const std::unordered_map<E_CULL_MODE, std::string> cullMode2Str
-		{
-			{ E_CULL_MODE::FRONT, "FRONT" },
-			{ E_CULL_MODE::BACK, "BACK" },
-			{ E_CULL_MODE::NONE, "NONE" },
-		};
-
-		static const std::unordered_map<E_COMPARISON_FUNC, std::string> comparisonFunc2Str
-		{
-			{ E_COMPARISON_FUNC::NEVER, "NEVER" },
-			{ E_COMPARISON_FUNC::LESS, "LESS" },
-			{ E_COMPARISON_FUNC::EQUAL, "EQUAL" },
-			{ E_COMPARISON_FUNC::LESS_EQUAL, "LESS_EQUAL" },
-			{ E_COMPARISON_FUNC::GREATER, "GREATER" },
-			{ E_COMPARISON_FUNC::NOT_EQUAL, "NOT_EQUAL" },
-			{ E_COMPARISON_FUNC::GREATER_EQUAL, "GREATER_EQUAL" },
-			{ E_COMPARISON_FUNC::ALWAYS, "ALWAYS" },
-		};
-
 		if (!pWriter)
 		{
 			return RC_FAIL;
@@ -451,13 +380,13 @@ namespace TDEngine2
 
 		pWriter->BeginGroup(TMaterialArchiveKeys::mBlendStateGroup);
 		{
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey, blendFactor2Str.at(mBlendStateParams.mScrValue));
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey, blendFactor2Str.at(mBlendStateParams.mDestValue));
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey, blendOp2Str.at(mBlendStateParams.mOpType));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mScrValue));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mDestValue));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey, Meta::EnumTrait<E_BLEND_OP_TYPE>::ToString(mBlendStateParams.mOpType));
 
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey, blendFactor2Str.at(mBlendStateParams.mScrAlphaValue));
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey, blendFactor2Str.at(mBlendStateParams.mDestAlphaValue));
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey, blendOp2Str.at(mBlendStateParams.mAlphaOpType));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mScrAlphaValue));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mDestAlphaValue));
+			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey, Meta::EnumTrait<E_BLEND_OP_TYPE>::ToString(mBlendStateParams.mAlphaOpType));
 		}
 		pWriter->EndGroup();
 
@@ -465,29 +394,32 @@ namespace TDEngine2
 		{
 			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey, mDepthStencilStateParams.mIsDepthTestEnabled);
 			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey, mDepthStencilStateParams.mIsDepthWritingEnabled);
-			pWriter->SetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey, comparisonFunc2Str.at(mDepthStencilStateParams.mDepthCmpFunc));
+			pWriter->SetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey, Meta::EnumTrait<E_COMPARISON_FUNC>::ToString(mDepthStencilStateParams.mDepthCmpFunc));
 
 			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey, mDepthStencilStateParams.mIsStencilTestEnabled);
 			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey, mDepthStencilStateParams.mStencilReadMaskValue);
 			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey, mDepthStencilStateParams.mStencilWriteMaskValue);
 
-			pWriter->BeginGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup);
+			auto writeStencilGroup = [this, pWriter](const std::string& groupId, const TStencilOpDesc& desc)
 			{
-				// \todo
-			}
-			pWriter->EndGroup();
+				pWriter->BeginGroup(groupId);
+				{
+					pWriter->SetString(TMaterialArchiveKeys::TStencilOpDescKeys::mComparisonFuncKey, Meta::EnumTrait<E_COMPARISON_FUNC>::ToString(desc.mFunc));
+					pWriter->SetString(TMaterialArchiveKeys::TStencilOpDescKeys::mStencilPassOpKey, Meta::EnumTrait<E_STENCIL_OP>::ToString(desc.mPassOp));
+					pWriter->SetString(TMaterialArchiveKeys::TStencilOpDescKeys::mStencilFailOpKey, Meta::EnumTrait<E_STENCIL_OP>::ToString(desc.mFailOp));
+					pWriter->SetString(TMaterialArchiveKeys::TStencilOpDescKeys::mDepthFailOpKey, Meta::EnumTrait<E_STENCIL_OP>::ToString(desc.mDepthFailOp));
+				}
+				pWriter->EndGroup();
+			};
 
-			pWriter->BeginGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup);
-			{
-				// \todo
-			}
-			pWriter->EndGroup();
+			writeStencilGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup, mDepthStencilStateParams.mStencilFrontFaceOp);
+			writeStencilGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup, mDepthStencilStateParams.mStencilBackFaceOp);
 		}
 		pWriter->EndGroup();
 
 		pWriter->BeginGroup(TMaterialArchiveKeys::mRasterizerStateGroup);
 		{
-			pWriter->SetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey, cullMode2Str.at(mRasterizerStateParams.mCullMode));
+			pWriter->SetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey, Meta::EnumTrait<E_CULL_MODE>::ToString(mRasterizerStateParams.mCullMode));
 			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey, mRasterizerStateParams.mIsWireframeModeEnabled);
 			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey, mRasterizerStateParams.mIsFrontCCWEnabled);
 			pWriter->SetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey, mRasterizerStateParams.mDepthBias);
