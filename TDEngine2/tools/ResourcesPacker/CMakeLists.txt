@@ -28,6 +28,7 @@ source_group("sources" FILES ${UTILITY_SOURCES})
 
 
 if (MSVC) 	#cl.exe compiler's options
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 	#Debug compiler's options
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++17 /MDd /W3 /GS /Zc:inline /Od /ZI  /Zc:wchar_t")
