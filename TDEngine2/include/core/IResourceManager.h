@@ -7,10 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
 #include "IEngineSubsystem.h"
-#include "./../utils/Utils.h"
-#include "IResourceHandler.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 #include <type_traits>
 #include <string>
 
@@ -18,7 +17,6 @@
 namespace TDEngine2
 {
 	class IResource;
-	class IResourceHandler;
 	class IResourceLoader;
 	class IJobManager;
 	class IResourceFactory;
@@ -72,15 +70,15 @@ namespace TDEngine2
 
 				\param[in] name A name of a resource that should be loaded
 
-				\return A pointer to IResourceHandler, which encapsulates direct access to the resource
+				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
 
 			template <typename T> 
 			TDE2_API 
 #if _HAS_CXX17
-			std::enable_if_t<std::is_base_of_v<IResource, T>,IResourceHandler*>
+			std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
 #else
-			typename std::enable_if<std::is_base_of<IResource, T>::value, IResourceHandler*>::type
+			typename std::enable_if<std::is_base_of<IResource, T>::value, TResourceId>::type
 #endif
 			Load(const std::string& name)
 			{
@@ -94,10 +92,10 @@ namespace TDEngine2
 				\param[in] name A name of a resource that should be loaded
 				\param[in] typeId A identifier of type which we try to load
 
-				\return A pointer to IResourceHandler, which encapsulates direct access to the resource
+				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
 
-			TDE2_API virtual IResourceHandler* Load(const std::string& name, TypeId typeId) = 0;
+			TDE2_API virtual TResourceId Load(const std::string& name, TypeId typeId) = 0;
 
 			/*!
 				\brief The method registers specified resource factory within a manager
@@ -128,15 +126,15 @@ namespace TDEngine2
 
 				\param[in] params A parameters of a creating instance
 
-				\return A pointer to IResourceHandler, which encapsulates direct access to the resource
+				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
 
 			template <typename T>
 			TDE2_API
 #if _HAS_CXX17
-			std::enable_if_t<std::is_base_of_v<IResource, T>, IResourceHandler*>
+			std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
 #else
-			typename std::enable_if<std::is_base_of<IResource, T>::value, IResourceHandler*>::type
+			typename std::enable_if<std::is_base_of<IResource, T>::value, TResourceId>::type
 #endif
 			Create(const std::string& name, const TBaseResourceParameters& params)
 			{
@@ -144,14 +142,27 @@ namespace TDEngine2
 			}
 
 			/*!
+				\brief The method decrements internal reference counter of the resource which corresponds to given identifier
+				If the coutner goes down to zero the resource is unloaded and destroyed.
+
+				Should be called only from IResource::Free when it's guaranteed that the resource's memory will be released 
+
+				\param[in] id Unique identifier of the resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ReleaseResource(const TResourceId& id) = 0;
+
+			/*!
 				\brief The method returns a raw pointer to a resource based on specified handler
 
-				\param[in] pResourceHandler A pointer to a resource's handler
+				\param[in] handle An identifier of a resource
 
 				\return The method returns a raw pointer to a resource based on specified handler
 			*/
 
-			TDE2_API virtual IResource* GetResourceByHandler(const IResourceHandler* pResourceHandler) const = 0;
+			TDE2_API virtual IResource* GetResourceByHandler(const TResourceId& handle) const = 0;
 
 			/*!
 				\brief The method returns a pointer to IResourceLoader, which is a loader of specific type of resources
@@ -199,9 +210,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)
 
-			TDE2_API virtual IResourceHandler* _loadResource(TypeId resourceTypeId, const std::string& name) = 0;
+			TDE2_API virtual TResourceId _loadResource(TypeId resourceTypeId, const std::string& name) = 0;
 
-			TDE2_API virtual IResourceHandler* _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
+			TDE2_API virtual TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
 
 			TDE2_API virtual const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const = 0;
 

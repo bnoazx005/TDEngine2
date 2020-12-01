@@ -8,8 +8,9 @@
 
 
 #include "IResourceManager.h"
-#include "./../utils/CResourceContainer.h"
+#include "../utils/CResourceContainer.h"
 #include <unordered_map>
+#include <atomic>
 #include <vector>
 #include <mutex>
 #include <list>
@@ -56,10 +57,6 @@ namespace TDEngine2
 			typedef std::unordered_map<std::string, TResourceId>    TResourcesMap;
 
 			typedef CResourceContainer<IResource*>                  TResourcesContainer;
-			
-			typedef std::unordered_map<TResourceId, U32>            TResourceHandlersMap;
-			
-			typedef CResourceContainer<IResourceHandler*>           TResourceHandlersContainer;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -128,10 +125,21 @@ namespace TDEngine2
 				\param[in] name A name of a resource that should be loaded
 				\param[in] typeId A identifier of type which we try to load
 
-				\return A pointer to IResourceHandler, which encapsulates direct access to the resource
+				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
 
-			TDE2_API IResourceHandler* Load(const std::string& name, TypeId typeId) override;
+			TDE2_API TResourceId Load(const std::string& name, TypeId typeId) override;
+
+			/*!
+				\brief The method decrements internal reference counter of the resource which corresponds to given identifier
+				If the coutner goes down to zero the resource is unloaded and destroyed
+
+				\param[in] id Unique identifier of the resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ReleaseResource(const TResourceId& id) override;
 
 			/*!
 				\brief The method returns a type of the subsystem
@@ -144,12 +152,12 @@ namespace TDEngine2
 			/*!
 				\brief The method returns a raw pointer to a resource based on specified handler
 
-				\param[in] pResourceHandler A pointer to a resource's handler
+				\param[in] handle An identifier of a resource
 
 				\return The method returns a raw pointer to a resource based on specified handler
 			*/
 
-			TDE2_API IResource* GetResourceByHandler(const IResourceHandler* pResourceHandler) const;
+			TDE2_API IResource* GetResourceByHandler(const TResourceId& handle) const override;
 
 			/*!
 				\brief The method returns an identifier of a resource with a given name. If there is no
@@ -165,13 +173,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceManager)
 
-			TDE2_API IResourceHandler* _loadResource(TypeId resourceTypeId, const std::string& name) override;
+			TDE2_API TResourceId _loadResource(TypeId resourceTypeId, const std::string& name) override;
 
-			TDE2_API IResourceHandler* _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
-
-			TDE2_API IResourceHandler* _createOrGetResourceHandler(TResourceId resourceId);
-
-			TDE2_API E_RESULT_CODE _freeResourceHandler(TResourceId resourceId);
+			TDE2_API TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
 
 			TDE2_API const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const override;
 
@@ -179,7 +183,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _unloadAllResources();
 		protected:
-			bool                        mIsInitialized;
+			std::atomic_bool            mIsInitialized;
 
 			TResourceLoadersMap         mResourceLoadersMap;
 
@@ -192,10 +196,6 @@ namespace TDEngine2
 			TResourcesMap               mResourcesMap;
 
 			TResourcesContainer         mResources;
-
-			TResourceHandlersMap        mResourceHandlersMap;
-
-			TResourceHandlersContainer  mResourceHandlers;
 
 			IJobManager*                mpJobManager;
 

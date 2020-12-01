@@ -33,9 +33,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpResourceManager->Load<CBaseMaterial>("NewMaterial.material");
 	mpResourceManager->Load<CBaseMaterial>("DebugMaterial.material");
 
-	IMaterial* pFontMaterial = mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", TMaterialParameters{ DebugTextShaderName, true })->Get<IMaterial>(RAT_BLOCKING);
+	IMaterial* pFontMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", TMaterialParameters{ DebugTextShaderName, true })));
 
-	auto pFontAtlas = mpResourceManager->Load<CTextureAtlas>("atlas")->Get<ITextureAtlas>(RAT_BLOCKING);
+	auto pFontAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CTextureAtlas>("atlas")));
 	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
 #if 0
@@ -49,7 +49,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 #endif
 
-	TDE2_ASSERT(mpResourceManager->Load<CBasePostProcessingProfile>("default-profile")->IsValid());
+	TDE2_ASSERT(TResourceId::Invalid != mpResourceManager->Load<CBasePostProcessingProfile>("default-profile"));
 
 	const TColor32F colors[] =
 	{
@@ -129,8 +129,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, true, false }
 		};
 
-		IMaterial* pMaterial = mpResourceManager->Create<CBaseMaterial>("DefaultSkybox.material", skyboxMatParams)->Get<IMaterial>(RAT_BLOCKING);
-		pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")->Get<ICubemapTexture>(RAT_BLOCKING));
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Create<CBaseMaterial>("DefaultSkybox.material", skyboxMatParams)));
+		pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<ICubemapTexture*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox"))));
 		pMaterial->SetGeometrySubGroupTag(E_GEOMETRY_SUBGROUP_TAGS::SKYBOX);
 		
 		auto pSkyboxEntity = mpWorld->CreateEntity("Skybox");

@@ -22,39 +22,6 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, mTextureHandler));
 	}
 
-	E_RESULT_CODE COGLCubemapTexture::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseCubemapTexture>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
-	}
-
-	E_RESULT_CODE COGLCubemapTexture::Unload()
-	{
-		return Reset();
-	}
-
 	E_RESULT_CODE COGLCubemapTexture::Reset()
 	{
 		mIsInitialized = false;

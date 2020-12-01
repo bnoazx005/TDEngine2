@@ -55,7 +55,7 @@ namespace TDEngine2
 
 		mpLinesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr).Get();
 
-		mpSystemFont = mpResourceManager->Load<CFont>("Arial"); /// \note load system font, which is "Arial" font
+		mSystemFontHandle = mpResourceManager->Load<CFont>("Arial"); /// \note load system font, which is "Arial" font
 
 		mpTextVertDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 		mpTextVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
@@ -106,7 +106,7 @@ namespace TDEngine2
 
 			pDrawLinesCommand->mpVertexBuffer           = mpLinesVertexBuffer;
 			pDrawLinesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
-			pDrawLinesCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
+			pDrawLinesCommand->mMaterialHandle          = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
 			pDrawLinesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
 			pDrawLinesCommand->mNumOfVertices           = mLinesDataBuffer.size();
 			pDrawLinesCommand->mObjectData.mModelMatrix = IdentityMatrix4;
@@ -123,7 +123,7 @@ namespace TDEngine2
 
 			pDrawCrossesCommand->mpVertexBuffer           = mpCrossesVertexBuffer;
 			pDrawCrossesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
-			pDrawCrossesCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
+			pDrawCrossesCommand->mMaterialHandle          = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
 			pDrawCrossesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
 			pDrawCrossesCommand->mNumOfVertices           = mCrossesDataBuffer.size();
 			pDrawCrossesCommand->mObjectData.mModelMatrix = IdentityMatrix4;
@@ -141,7 +141,7 @@ namespace TDEngine2
 			pDrawTextCommand->mpVertexBuffer           = mpTextVertexBuffer;
 			pDrawTextCommand->mpIndexBuffer            = mpTextIndexBuffer;
 			pDrawTextCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawTextCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mTextMaterialName);
+			pDrawTextCommand->mMaterialHandle          = mpResourceManager->Load<CBaseMaterial>(mTextMaterialName);
 			pDrawTextCommand->mpVertexDeclaration      = mpTextVertDeclaration;
 			pDrawTextCommand->mStartIndex              = 0;
 			pDrawTextCommand->mStartVertex             = 0;
@@ -158,7 +158,7 @@ namespace TDEngine2
 			pDrawGizmoCommand->mpVertexBuffer           = mpGizmosVertexBuffer;
 			pDrawGizmoCommand->mpIndexBuffer            = mpGizmosIndexBuffer;
 			pDrawGizmoCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawGizmoCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
+			pDrawGizmoCommand->mMaterialHandle          = mpResourceManager->Load<CBaseMaterial>(mDefaultDebugMaterialName);
 			pDrawGizmoCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
 			pDrawGizmoCommand->mStartIndex              = gizmoGeometryInfo.mStartIndex;
 			pDrawGizmoCommand->mStartVertex             = gizmoGeometryInfo.mStartVertex;
@@ -190,12 +190,12 @@ namespace TDEngine2
 
 	void CDebugUtility::DrawText(const TVector2& screenPos, F32 scale, const CU8String& str, const TColor32F& color)
 	{
-		if (!mpSystemFont->IsValid())
+		if (mSystemFontHandle == TResourceId::Invalid)
 		{
-			mpSystemFont = mpResourceManager->Load<CFont>("Arial");
+			mSystemFontHandle = mpResourceManager->Load<CFont>("Arial");
 		}
 
-		auto pSystemFontResource = mpSystemFont->Get<IFont>(RAT_BLOCKING);
+		auto pSystemFontResource = dynamic_cast<IFont*>(mpResourceManager->GetResourceByHandler(mSystemFontHandle));
 
 		auto& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, scale, str, this);
 

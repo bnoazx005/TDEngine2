@@ -66,14 +66,6 @@ namespace TDEngine2
 			TDE2_API void Bind() override;
 
 			/*!
-				\brief The method loads resource data into memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load() override;
-
-			/*!
 				\brief The method unloads resource data from memory
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -125,6 +117,8 @@ namespace TDEngine2
 			TDE2_API virtual void _bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer) = 0;
 
 			TDE2_API virtual E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData);
+
+			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			IGraphicsContext*             mpGraphicsContext;
 

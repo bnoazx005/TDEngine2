@@ -12,7 +12,6 @@
 #include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/core/IResourceManager.h"
-#include "../../include/core/IResourceHandler.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
@@ -126,20 +125,20 @@ namespace TDEngine2
 
 			if (pCurrEntity->HasComponent<CStaticMeshContainer>())
 			{
-				_processStaticMeshEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mpSelectionMaterial);
+				_processStaticMeshEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mSelectionMaterialHandle);
 
 				if (pCurrEntity->HasComponent<CSelectedEntityComponent>())
 				{
-					_processStaticMeshEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mpSelectionOutlineMaterial);
+					_processStaticMeshEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mSelectionOutlineMaterialHandle);
 				}
 			}
 			else if (pCurrEntity->HasComponent<CQuadSprite>())
 			{
-				_processSpriteEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mpSelectionMaterial);
+				_processSpriteEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mSelectionMaterialHandle);
 
 				if (pCurrEntity->HasComponent<CSelectedEntityComponent>())
 				{
-					_processSpriteEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mpSelectionOutlineMaterial);
+					_processSpriteEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mSelectionOutlineMaterialHandle);
 				}
 			}
 			
@@ -202,21 +201,20 @@ namespace TDEngine2
 			}
 		};
 		
-		mpSelectionMaterial        = mpResourceManager->Create<CBaseMaterial>("SelectionMaterial.material", selectionMaterialParams);
-		mpSelectionOutlineMaterial = mpResourceManager->Create<CBaseMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
+		mSelectionMaterialHandle        = mpResourceManager->Create<CBaseMaterial>("SelectionMaterial.material", selectionMaterialParams);
+		mSelectionOutlineMaterialHandle = mpResourceManager->Create<CBaseMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
 
-		return mpSelectionMaterial->IsValid() && mpSelectionOutlineMaterial->IsValid() ? RC_OK : RC_FAIL;
+		return (mSelectionMaterialHandle != TResourceId::Invalid && mSelectionOutlineMaterialHandle != TResourceId::Invalid) ? RC_OK : RC_FAIL;
 	}
 
-	void CObjectsSelectionSystem::_processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, IResourceHandler* pMaterial)
+	void CObjectsSelectionSystem::_processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle)
 	{
 		CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>();
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
 		
 		// Skip skybox geometry
 		// \todo Reimplement this later with CSkyboxComponent
-		IResourceHandler* pMeshMaterialHandler = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName());
-		if (IMaterial* pMeshMainMaterial = pMeshMaterialHandler->Get<IMaterial>(RAT_BLOCKING))
+		if (IMaterial* pMeshMainMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName()))))
 		{
 			if (pMeshMainMaterial->GetGeometrySubGroupTag() == E_GEOMETRY_SUBGROUP_TAGS::SKYBOX)
 			{
@@ -224,16 +222,13 @@ namespace TDEngine2
 			}
 		}
 
-		IResourceHandler* pMeshResourceHandler = mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName());
-		TDE2_ASSERT(pMeshResourceHandler->IsValid());
-		
-		if (IStaticMesh* pStaticMeshResource = pMeshResourceHandler->Get<IStaticMesh>(RAT_BLOCKING))
+		if (IStaticMesh* pStaticMeshResource = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName()))))
 		{
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 			{
 				pDrawCommand->mpVertexBuffer           = pStaticMeshResource->GetPositionOnlyVertexBuffer();
 				pDrawCommand->mpIndexBuffer            = pStaticMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mpMaterialHandler        = pMaterial;
+				pDrawCommand->mMaterialHandle          = materialHandle;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
@@ -245,7 +240,7 @@ namespace TDEngine2
 		}
 	}
 
-	void CObjectsSelectionSystem::_processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, IResourceHandler* pMaterial)
+	void CObjectsSelectionSystem::_processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle)
 	{
 		CQuadSprite* pSpriteComponent = pEntity->GetComponent<CQuadSprite>();
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
@@ -254,7 +249,7 @@ namespace TDEngine2
 		{
 			pDrawCommand->mpVertexBuffer           = mpSpritesVertexBuffer;
 			pDrawCommand->mpIndexBuffer            = mpSpritesIndexBuffer;
-			pDrawCommand->mpMaterialHandler        = pMaterial;
+			pDrawCommand->mMaterialHandle          = materialHandle;
 			pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
 			pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());

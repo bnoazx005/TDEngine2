@@ -62,9 +62,10 @@ namespace TDEngine2
 
 			mCurrSelectedItem = mpImGUIContext->Popup("Render Target", mCurrSelectedItem, renderTargetsList);
 			
-			if (auto pResourceHandler = mpResourceManager->Load<CBaseRenderTarget>(renderTargetsList[mCurrSelectedItem]))
+			const TResourceId textureId = mpResourceManager->Load<CBaseRenderTarget>(renderTargetsList[mCurrSelectedItem]);
+			if (textureId != TResourceId::Invalid)
 			{
-				mpImGUIContext->Image(pResourceHandler, TVector2(mpImGUIContext->GetWindowWidth() - 25.0f, mpImGUIContext->GetWindowHeight() - 60.0f));
+				mpImGUIContext->Image(textureId, TVector2(mpImGUIContext->GetWindowWidth() - 25.0f, mpImGUIContext->GetWindowHeight() - 60.0f));
 			}
 
 			mpImGUIContext->EndWindow();

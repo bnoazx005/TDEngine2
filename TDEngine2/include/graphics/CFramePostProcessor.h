@@ -8,12 +8,11 @@
 
 
 #include "IFramePostProcessor.h"
-#include "./../core/CBaseObject.h"
+#include "../core/CBaseObject.h"
 
 
 namespace TDEngine2
 {
-	class IResourceHandler;
 	class CRenderQueue;
 	class IResourceManager;
 	class IGraphicsContext;
@@ -108,14 +107,14 @@ namespace TDEngine2
 
 			TDE2_API void _submitFullScreenTriangle(CRenderQueue* pRenderQueue);
 
-			TDE2_API IResourceHandler* _getRenderTarget(U32 width, U32 height, bool isHDRSupport = false);
+			TDE2_API TResourceId _getRenderTarget(U32 width, U32 height, bool isHDRSupport = false);
 		protected:
 			CRenderQueue*                 mpOverlayRenderQueue;
 
 			const IPostProcessingProfile* mpCurrPostProcessingProfile;
 
-			IResourceHandler*             mpDefaultScreenSpaceMaterial;
-			IResourceHandler*             mpRenderTargetHandler;
+			TResourceId                   mDefaultScreenSpaceMaterialHandle;
+			TResourceId                   mRenderTargetHandle;
 
 			IVertexDeclaration*           mpVertexFormatDeclaration;
 

@@ -43,7 +43,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Load() = 0;
+			TDE2_API E_RESULT_CODE Load() override;
 
 			/*!
 				\brief The method unloads resource data from memory
@@ -51,7 +51,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Unload() = 0;
+			TDE2_API E_RESULT_CODE Unload() override;
 
 			/*!
 				\brief The method resets current internal data of a resource
@@ -88,6 +88,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseResource)
 
 			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name);
+
+			TDE2_API virtual const IResourceLoader* _getResourceLoader() = 0;
 		protected:
 			IResourceManager*     mpResourceManager;
 

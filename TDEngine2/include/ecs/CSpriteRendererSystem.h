@@ -29,7 +29,6 @@ namespace TDEngine2
 	class IGraphicsLayersInfo;
 	class IRenderer;
 	class IResourceManager;
-	class IResourceHandler;
 	class IAllocator;
 
 
@@ -80,7 +79,7 @@ namespace TDEngine2
 				//std::vector<TSpriteInstanceData> mInstancesData;
 				CDynamicArray<TSpriteInstanceData>* mpInstancesData;
 				
-				IResourceHandler*                mpMaterialHandler;
+				TResourceId mMaterialHandle;
 			} TBatchEntry, *TBatchEntryPtr;
 
 			typedef std::unordered_map<U32, TBatchEntry> TBatchesBuffer;

@@ -5,7 +5,6 @@
 #include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IResource.h"
-#include "../../include/core/IResourceHandler.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/IShader.h"
 #include "../../include/graphics/IGlobalShaderProperties.h"
@@ -16,9 +15,9 @@ namespace TDEngine2
 {
 	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = mpMaterialHandler->Get<IMaterial>(RAT_BLOCKING);
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->GetResourceByHandler(mMaterialHandle));
 
-		IShader* pAttachedShader = pMaterial->GetShaderHandler()->Get<IShader>(RAT_BLOCKING);
+		IShader* pAttachedShader = dynamic_cast<IShader*>(pResourceManager->GetResourceByHandler(pMaterial->GetShaderHandle()));
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
@@ -39,9 +38,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = mpMaterialHandler->Get<IMaterial>(RAT_BLOCKING);
-		
-		IShader* pAttachedShader = pMaterial->GetShaderHandler()->Get<IShader>(RAT_BLOCKING);
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->GetResourceByHandler(mMaterialHandle));
+
+		IShader* pAttachedShader = dynamic_cast<IShader*>(pResourceManager->GetResourceByHandler(pMaterial->GetShaderHandle()));
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
@@ -65,9 +64,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = mpMaterialHandler->Get<IMaterial>(RAT_BLOCKING);
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->GetResourceByHandler(mMaterialHandle));
 
-		IShader* pAttachedShader = pMaterial->GetShaderHandler()->Get<IShader>(RAT_BLOCKING);
+		IShader* pAttachedShader = dynamic_cast<IShader*>(pResourceManager->GetResourceByHandler(pMaterial->GetShaderHandle()));
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader);
 

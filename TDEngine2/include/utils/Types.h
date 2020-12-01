@@ -421,7 +421,7 @@ namespace TDEngine2
 		\brief Resource manager's types section
 	*/
 
-	TDE2_DECLARE_HANDLE_TYPE_EX(TResourceId, 0); ///< Unique resource identifier that is used for a cross-referencing
+	TDE2_DECLARE_HANDLE_TYPE(TResourceId); ///< Unique resource identifier that is used for a cross-referencing
 
 	/*!
 		enum E_RESOURCE_STATE_TYPE
@@ -429,12 +429,13 @@ namespace TDEngine2
 		\brief The enumeration contains all possible states' types, in which a resource can stay
 	*/
 
-	enum E_RESOURCE_STATE_TYPE : U8
+	enum class E_RESOURCE_STATE_TYPE : U8
 	{
 		RST_LOADING,		///< A resource is loading at the time
 		RST_LOADED,			///< A resource is loaded and ready to use
 		RST_UNLOADED,		///< A resource is unloaded from memory, but can be loaded again
 		RST_PENDING,		///< An initial state of any resource
+		RST_DESTROYING,		///< A state of a resource between already unloaded, but not removed from the memory
 	};
 
 

@@ -475,6 +475,18 @@ namespace TDEngine2
 	while (0)
 
 
+	/*!
+		\brief The macro is used to raise assertions when it's reached
+	*/
+
+#define TDE2_UNREACHABLE()													\
+	do {																	\
+		std::cerr << "Unreachable code was executed" << std::endl;			\
+		debug_break();														\
+	}																		\
+	while (0)
+
+
 	class CFormatUtils
 	{
 		public:

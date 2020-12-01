@@ -25,39 +25,6 @@ namespace TDEngine2
 		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);
 	}
 
-	E_RESULT_CODE CD3D11Texture2D::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseTexture2D>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
-	}
-
-	E_RESULT_CODE CD3D11Texture2D::Unload()
-	{
-		return Reset();
-	}
-
 	E_RESULT_CODE CD3D11Texture2D::Reset()
 	{
 		mIsInitialized = false;

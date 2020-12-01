@@ -23,7 +23,6 @@ struct ImDrawList;
 namespace TDEngine2
 {
 	class IGraphicsContext;
-	class IResourceHandler;
 	class IVertexBuffer;
 	class IIndexBuffer;
 	class CRenderQueue;
@@ -379,12 +378,12 @@ namespace TDEngine2
 			/*!
 				\brief The method displays an image with the given parameters set
 
-				\param[in] pTexture A pointer to resource handler that corresponds to texture that should be displayed
+				\param[in] textureHandle A pointer to resource handler that corresponds to texture that should be displayed
 				\param[in] sizes A sizes of displayed image
 				\param[in] uvRect A uv coordinates of displayed texture
 			*/
 
-			TDE2_API void Image(IResourceHandler* pTexture, const TVector2& sizes, const TRectF32& uvRect = { 0.0f, 0.0f, 1.0f, 1.0f }) override;
+			TDE2_API void Image(TResourceId textureHandle, const TVector2& sizes, const TRectF32& uvRect = { 0.0f, 0.0f, 1.0f, 1.0f }) override;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one
@@ -513,9 +512,9 @@ namespace TDEngine2
 
 			ImGuiIO*                mpIOContext;
 
-			IResourceHandler*       mpFontTextureHandler;
+			TResourceId             mFontTextureHandle;
 
-			IResourceHandler*       mpDefaultEditorMaterial;
+			TResourceId             mDefaultEditorMaterialHandle;
 
 			IVertexBuffer*          mpVertexBuffer;
 

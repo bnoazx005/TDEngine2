@@ -28,7 +28,6 @@
 #include "core/IResourceManager.h"
 #include "core/IResourceLoader.h"
 #include "core/CResourceManager.h"
-#include "core/IResourceHandler.h"
 #include "core/IJobManager.h"
 #include "core/CBaseJobManager.h"
 #include "core/IPluginManager.h"

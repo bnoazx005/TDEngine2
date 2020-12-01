@@ -110,22 +110,6 @@ namespace TDEngine2
 										const TPostProcessingProfileParameters& params) override;
 
 			/*!
-				\brief The method loads resource data into memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load() override;
-
-			/*!
-				\brief The method unloads resource data from memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Unload() override;
-
-			/*!
 				\brief The method resets current internal data of a resource
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -156,6 +140,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePostProcessingProfile)
+
+			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			IGraphicsContext* mpGraphicsContext;
 	};

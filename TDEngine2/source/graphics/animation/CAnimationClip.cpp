@@ -47,39 +47,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CAnimationClip::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CAnimationClip>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
-	}
-
-	E_RESULT_CODE CAnimationClip::Unload()
-	{
-		return Reset();
-	}
-
 	E_RESULT_CODE CAnimationClip::Reset()
 	{
 		TDE2_UNIMPLEMENTED();
@@ -142,6 +109,11 @@ namespace TDEngine2
 	E_ANIMATION_WRAP_MODE_TYPE CAnimationClip::GetWrapMode() const
 	{
 		return mWrapMode;
+	}
+
+	const IResourceLoader* CAnimationClip::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CAnimationClip>();;
 	}
 
 

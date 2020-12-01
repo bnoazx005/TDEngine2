@@ -6,7 +6,6 @@
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/core/IResourceManager.h"
-#include "../../include/core/IResourceHandler.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/graphics/CBaseTexture2D.h"
@@ -43,7 +42,7 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 		mpEventManager    = pWindowSystem->GetEventManager();
 
-		mpSelectionGeometryBuffer = nullptr;
+		mSelectionGeometryBufferHandle = TResourceId::Invalid;
 		
 		E_RESULT_CODE result = _createRenderTarget(mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight());
 		if (result != RC_OK)
@@ -67,7 +66,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		result = result | mpSelectionGeometryBuffer->Free();
+		result = result | mpResourceManager->ReleaseResource(mSelectionGeometryBufferHandle);
 
 		mIsInitialized = false;
 		delete this;
@@ -77,8 +76,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
 	{
-		IRenderTarget* pCurrRenderTarget   = mpSelectionGeometryBuffer->Get<IRenderTarget>(RAT_BLOCKING);
-		ITexture2D* pReadableRTCopyTexture = mpReadableSelectionBuffer->Get<ITexture2D>(RAT_BLOCKING);
+		IRenderTarget* pCurrRenderTarget   = dynamic_cast<IRenderTarget*>(mpResourceManager->GetResourceByHandler(mSelectionGeometryBufferHandle));
+		ITexture2D* pReadableRTCopyTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mReadableSelectionBufferHandle));
 
 		mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);
 
@@ -109,7 +108,7 @@ namespace TDEngine2
 			}
 		}
 
-		if (auto pSelectionTexture = mpReadableSelectionBuffer->Get<ITexture2D>(RAT_BLOCKING))
+		if (auto pSelectionTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mReadableSelectionBufferHandle)))
 		{
 			y = pSelectionTexture->GetHeight() - y;
 
@@ -211,7 +210,7 @@ namespace TDEngine2
 	E_RESULT_CODE CSelectionManager::_createRenderTarget(U32 width, U32 height)
 	{
 		E_RESULT_CODE result = RC_OK;
-
+#if 0
 		if (mpSelectionGeometryBuffer)
 		{
 			if (CBaseRenderTarget* pRenderTarget = mpSelectionGeometryBuffer->Get<CBaseRenderTarget>(RAT_BLOCKING))
@@ -243,7 +242,7 @@ namespace TDEngine2
 		}
 
 		mWindowHeaderHeight = height - mpWindowSystem->GetClientRect().height;
-
+#endif
 		return RC_OK;
 	}
 

@@ -114,6 +114,11 @@ namespace TDEngine2
 		return mFormat;
 	}
 
+	const IResourceLoader* CBaseCubemapTexture::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CBaseCubemapTexture>();
+	}
+
 
 	CBaseCubemapTextureLoader::CBaseCubemapTextureLoader() :
 		CBaseObject()

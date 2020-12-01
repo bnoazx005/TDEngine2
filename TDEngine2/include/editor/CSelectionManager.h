@@ -16,7 +16,6 @@
 
 namespace TDEngine2
 {
-	class IResourceHandler;
 	class IEventManager;
 
 
@@ -142,8 +141,8 @@ namespace TDEngine2
 
 			TSystemId         mObjectSelectionSystemId;
 
-			IResourceHandler* mpSelectionGeometryBuffer; ///< This is a render target that contains all visible geometry 
-			IResourceHandler* mpReadableSelectionBuffer;
+			TResourceId       mSelectionGeometryBufferHandle; ///< This is a render target that contains all visible geometry 
+			TResourceId       mReadableSelectionBufferHandle;
 
 			U32               mWindowHeaderHeight;
 

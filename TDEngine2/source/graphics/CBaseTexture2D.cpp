@@ -132,6 +132,11 @@ namespace TDEngine2
 		return result.IsOk() ? result.Get() : TTextureSamplerId::Invalid;
 	}
 
+	const IResourceLoader* CBaseTexture2D::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CBaseTexture2D>();
+	}
+
 
 	CBaseTexture2DLoader::CBaseTexture2DLoader() :
 		CBaseObject()

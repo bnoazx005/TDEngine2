@@ -53,39 +53,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBasePostProcessingProfile::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBasePostProcessingProfile>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
-	}
-
-	E_RESULT_CODE CBasePostProcessingProfile::Unload()
-	{
-		return Reset();
-	}
-
 	E_RESULT_CODE CBasePostProcessingProfile::Reset()
 	{
 		return RC_NOT_IMPLEMENTED_YET;
@@ -127,6 +94,11 @@ namespace TDEngine2
 		// \todo 
 
 		return RC_OK;
+	}
+
+	const IResourceLoader* CBasePostProcessingProfile::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CBasePostProcessingProfile>();
 	}
 
 

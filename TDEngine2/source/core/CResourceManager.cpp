@@ -1,9 +1,8 @@
-#include "./../../include/core/CResourceManager.h"
-#include "./../../include/core/IResourceLoader.h"
-#include "./../../include/core/IJobManager.h"
-#include "./../../include/core/IResourceFactory.h"
-#include "./../../include/core/CResourceHandler.h"
-#include "./../../include/core/IResource.h"
+#include "../../include/core/CResourceManager.h"
+#include "../../include/core/IResourceLoader.h"
+#include "../../include/core/IJobManager.h"
+#include "../../include/core/IResourceFactory.h"
+#include "../../include/core/IResource.h"
 #include <memory>
 
 
@@ -30,17 +29,6 @@ namespace TDEngine2
 
 		mpJobManager = pJobManager;
 
-		E_RESULT_CODE result = RC_OK;
-
-		IResourceHandler* pInvalidResourceHandler = CreateResourceHandler(this, TResourceId::Invalid, result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mResourceHandlers.Add(pInvalidResourceHandler);
-
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -48,19 +36,18 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::Free()
 	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
 		{
 			std::lock_guard<std::mutex> lock(mMutex);
 
-			if (!mIsInitialized)
-			{
-				return RC_FAIL;
-			}
-
 			E_RESULT_CODE result = _unloadAllResources();
-
-			mIsInitialized = false;
 		}
 
+		mIsInitialized = false;
 		delete this;
 
 		return RC_OK;
@@ -183,24 +170,23 @@ namespace TDEngine2
 		return EST_RESOURCE_MANAGER;
 	}
 
-	IResource* CResourceManager::GetResourceByHandler(const IResourceHandler* pResourceHandler) const
+	IResource* CResourceManager::GetResourceByHandler(const TResourceId& handle) const
 	{
-		if (!pResourceHandler)
+		if (handle == TResourceId::Invalid)
 		{
 			return nullptr;
 		}
 
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		U32 resourceId = static_cast<U32>(pResourceHandler->GetResourceId());
+		const U32 resourceId = static_cast<U32>(handle);
 
-		if ((static_cast<TResourceId>(resourceId) == TResourceId::Invalid) ||
-			resourceId >= mResources.GetSize() + 1)
+		if (resourceId >= mResources.GetSize())
 		{
 			return nullptr;
 		}
 
-		return mResources[resourceId - 1].GetOrDefault(nullptr);
+		return mResources[resourceId].GetOrDefault(nullptr);
 	}
 
 	TResourceId CResourceManager::GetResourceId(const std::string& name) const
@@ -220,131 +206,109 @@ namespace TDEngine2
 		return (*resourceIter).second;
 	}
 
-	IResourceHandler* CResourceManager::Load(const std::string& name, TypeId typeId)
+	TResourceId CResourceManager::Load(const std::string& name, TypeId typeId)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return _loadResource(typeId, name);
 	}
 
-	IResourceHandler* CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name)
+	TResourceId CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name)
 	{
-		TResourceId resourceId = mResourcesMap[name];
-
-		IResource* pResource = nullptr;
-
-		IResourceHandler* pResourceHandler = nullptr;
-
-		if (resourceId != TResourceId::Invalid) /// needed resource already exists
+		auto&& iter = mResourcesMap.find(name);
+		if ((iter != mResourcesMap.cend()) && (iter->second != TResourceId::Invalid)) /// needed resource already exists
 		{
-			pResourceHandler = _createOrGetResourceHandler(resourceId);
-
-			pResource = mResources[static_cast<U32>(resourceId) - 1].Get();
-
-			if (pResource->GetState() == RST_PENDING)
+			auto getResourceResult = mResources[static_cast<U32>(iter->second)];
+			if (getResourceResult.HasError())
 			{
-				pResource->Load(); /// \todo move loading in the background thread
+				return TResourceId::Invalid;
 			}
 
-			return pResourceHandler;
+			IResource* pResource = getResourceResult.Get();
+			TDE2_ASSERT(pResource);
+
+			if (pResource && pResource->GetState() == E_RESOURCE_STATE_TYPE::RST_PENDING)
+			{
+				E_RESULT_CODE result = pResource->Load(); /// \todo move loading in the background thread
+				if (RC_OK != result)
+				{
+					return TResourceId::Invalid;
+				}
+
+				return iter->second;
+			}
+
+			TDE2_UNREACHABLE();
+			return TResourceId::Invalid;
 		}
 
+		/// \note Create a new resource and load it				
 		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
-
 		if (factoryIdIter == mResourceFactoriesMap.cend())
 		{
-			return mResourceHandlers[0].Get(); /// return invalid handler
+			return TResourceId::Invalid;
 		}
 
 		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1].Get();
 			
-		pResource = pResourceFactory->CreateDefault(name, {});
+		IResource* pResource = pResourceFactory->CreateDefault(name, {});
 
-		resourceId = TResourceId(mResources.Add(pResource) + 1);
+		const TResourceId resourceId = TResourceId(mResources.Add(pResource));
 
 		mResourcesMap[name] = resourceId;
-
-		pResourceHandler = _createOrGetResourceHandler(resourceId);
-
+		
 		pResource->Load(); /// \todo move loading in the background thread
 
-		return pResourceHandler;
+		return resourceId;
 	}
 
-	IResourceHandler* CResourceManager::_createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
+	TResourceId CResourceManager::_createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
 	{
 		TResourceId resourceId = GetResourceId(name);
 
-		if (resourceId != TResourceId::Invalid)
+		if (TResourceId::Invalid != resourceId)
 		{
-			return _createOrGetResourceHandler(resourceId);
+			return resourceId;
 		}
 
 		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
-
 		if (factoryIdIter == mResourceFactoriesMap.cend())
 		{
-			return mResourceHandlers[0].Get(); /// return invalid handler
+			return TResourceId::Invalid;
 		}
 
 		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1].Get();
 		
 		IResource* pResource = nullptr;
-
-		IResourceHandler* pResourceHandler = nullptr;
 				
 		/// \todo move it to a background thread
 		pResource = pResourceFactory->Create(name, params);
 		
-		resourceId = TResourceId(mResources.Add(pResource) + 1);
+		resourceId = TResourceId(mResources.Add(pResource));
 
 		mResourcesMap[name] = resourceId;
 
-		pResourceHandler = _createOrGetResourceHandler(resourceId);
-
-		return pResourceHandler;
+		return resourceId;
 	}
 
-	IResourceHandler* CResourceManager::_createOrGetResourceHandler(TResourceId resourceId)
+	E_RESULT_CODE CResourceManager::ReleaseResource(const TResourceId& id)
 	{
-		U32 handlerHashValue = mResourceHandlersMap[resourceId];
-
-		if (handlerHashValue) /// just return existing handler
-		{
-			return mResourceHandlers[handlerHashValue - 1].GetOrDefault(mResourceHandlers[0].Get());
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		IResourceHandler* pNewHandlerInstance = CreateResourceHandler(this, resourceId, result);
-		
-		if (result != RC_OK)
-		{
-			return mResourceHandlers[0].Get(); /// invalid handler
-		}
-
-		handlerHashValue = mResourceHandlers.Add(pNewHandlerInstance) + 1;
-
-		mResourceHandlersMap[resourceId] = handlerHashValue;
-
-		return pNewHandlerInstance;
-	}
+		std::lock_guard<std::mutex> lock(mMutex);
 	
-	E_RESULT_CODE CResourceManager::_freeResourceHandler(TResourceId resourceId)
-	{
-		U32 handlerHashValue = mResourceHandlersMap[resourceId];
+		if (TResourceId::Invalid == id)
+		{
+			return RC_INVALID_ARGS;
+		}
 
-		if (!handlerHashValue) /// there is no handler associated with resourceId
+		const IResource* pResource = GetResourceByHandler(id);
+		if (!pResource || (E_RESOURCE_STATE_TYPE::RST_DESTROYING != pResource->GetState())) /// \note A resource should be marked as DESTROYING to allow its deletion from the registry
 		{
 			return RC_FAIL;
 		}
 
-		IResourceHandler* pNewHandlerInstance = mResourceHandlers[handlerHashValue].Get();
+		E_RESULT_CODE result = mResources.RemoveAt(static_cast<U32>(id));
+		mResourcesMap.erase(mResourcesMap.find(pResource->GetName()));
 
-		pNewHandlerInstance->SetResourceId(TResourceId::Invalid);
-
-		mResourceHandlers.RemoveAt(handlerHashValue);
-
-		return RC_OK;
+		return result;
 	}
 	
 	const IResourceLoader* CResourceManager::_getResourceLoader(TypeId resourceTypeId) const

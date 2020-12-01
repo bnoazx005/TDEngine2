@@ -25,7 +25,7 @@ namespace TDEngine2
 	class IVertexDeclaration;
 	class IVertexBuffer;
 	class IIndexBuffer;
-	class IResourceHandler;
+	class IMaterial;
 
 
 	/*!
@@ -101,8 +101,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _initSpriteBuffers();
 			TDE2_API E_RESULT_CODE _initSelectionMaterials();
 
-			TDE2_API void _processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, IResourceHandler* pMaterial);
-			TDE2_API void _processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, IResourceHandler* pMaterial);
+			TDE2_API void _processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle);
+			TDE2_API void _processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle);
 
 			TDE2_API ICamera* _getEditorCamera(IWorld* pWorld, TEntityId cameraEntityId);
 		protected:
@@ -122,8 +122,8 @@ namespace TDEngine2
 			IVertexBuffer*          mpSpritesVertexBuffer;
 			IIndexBuffer*           mpSpritesIndexBuffer;
 
-			IResourceHandler*       mpSelectionMaterial;
-			IResourceHandler*       mpSelectionOutlineMaterial;
+			TResourceId             mSelectionMaterialHandle;
+			TResourceId             mSelectionOutlineMaterialHandle;
 	};
 }
 

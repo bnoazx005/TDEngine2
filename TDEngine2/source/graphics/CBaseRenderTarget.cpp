@@ -87,6 +87,11 @@ namespace TDEngine2
 		return mFormat;
 	}
 
+	const IResourceLoader* CBaseRenderTarget::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CBaseRenderTarget>();
+	}
+
 
 	CBaseDepthBufferTarget::CBaseDepthBufferTarget() :
 		CBaseRenderTarget()

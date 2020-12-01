@@ -32,7 +32,7 @@ namespace TDEngine2
 
 		mpGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
-		mState = RST_LOADED;
+		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
 
 		mIsInitialized = true;
 
@@ -56,39 +56,11 @@ namespace TDEngine2
 
 		mpGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
-		mState = RST_LOADED;
+		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
 
 		mIsInitialized = true;
 
 		return RC_OK;
-	}
-
-	E_RESULT_CODE CStaticMesh::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CStaticMesh>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
 	}
 
 	E_RESULT_CODE CStaticMesh::PostLoad()
@@ -129,11 +101,6 @@ namespace TDEngine2
 		mpSharedIndexBuffer = indexBufferResult.Get();
 
 		return RC_OK;
-	}
-
-	E_RESULT_CODE CStaticMesh::Unload()
-	{
-		return Reset();
 	}
 
 	E_RESULT_CODE CStaticMesh::Reset()
@@ -292,10 +259,15 @@ namespace TDEngine2
 		return indicesBytesArray;
 	}
 
+	const IResourceLoader* CStaticMesh::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CStaticMesh>();
+	}
+
 
 	IStaticMesh* CStaticMesh::CreateCube(IResourceManager* pResourceManager)
 	{
-		auto pCubeMeshResource = pResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{})->Get<CStaticMesh>(RAT_BLOCKING);
+		auto pCubeMeshResource = dynamic_cast<IStaticMesh*>(pResourceManager->GetResourceByHandler(pResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{})));
 
 		// clock-wise order is used, bottom face
 		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 1.0f });
@@ -362,7 +334,7 @@ namespace TDEngine2
 
 	IStaticMesh* CStaticMesh::CreatePlane(IResourceManager* pResourceManager)
 	{
-		auto pPlaneMeshResource = pResourceManager->Create<CStaticMesh>("Plane", TMeshParameters{})->Get<CStaticMesh>(RAT_BLOCKING);
+		auto pPlaneMeshResource = dynamic_cast<IStaticMesh*>(pResourceManager->GetResourceByHandler(pResourceManager->Create<CStaticMesh>("Plane", TMeshParameters{})));
 
 		E_RESULT_CODE result = RC_OK;
 

@@ -8,9 +8,9 @@
 
 
 #include "IDebugUtility.h"
-#include "./../core/CBaseObject.h"
-#include "./../math/TVector4.h"
-#include "./../math/TMatrix4.h"
+#include "../core/CBaseObject.h"
+#include "../math/TVector4.h"
+#include "../math/TMatrix4.h"
 #include <vector>
 #include <unordered_map>
 
@@ -21,7 +21,6 @@ namespace TDEngine2
 	class IVertexDeclaration;
 	class IVertexBuffer;
 	class IIndexBuffer;
-	class IResourceHandler;
 	class IGeometryBuilder;
 
 
@@ -215,7 +214,7 @@ namespace TDEngine2
 
 			std::vector<TLineVertex> mLinesDataBuffer;
 
-			IResourceHandler*        mpSystemFont;
+			TResourceId              mSystemFontHandle;
 
 			IVertexDeclaration*      mpTextVertDeclaration;
 

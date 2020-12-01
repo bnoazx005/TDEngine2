@@ -8,9 +8,9 @@
 
 
 #include "IMaterial.h"
-#include "./../core/CBaseResource.h"
-#include "./../graphics/IRenderer.h"
-#include "./../utils/CResourceContainer.h"
+#include "../core/CBaseResource.h"
+#include "../graphics/IRenderer.h"
+#include "../utils/CResourceContainer.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -22,7 +22,6 @@ namespace TDEngine2
 {
 	class IShader;
 	class IBinaryFileReader;
-	class IResourceHandler;
 	struct TShaderCompilerOutput;
 	class IGraphicsObjectManager;
 
@@ -111,22 +110,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
-
-			/*!
-				\brief The method loads resource data into memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load() override;
-
-			/*!
-				\brief The method unloads resource data from memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Unload() override;
 
 			/*!
 				\brief The method resets current internal data of a resource
@@ -336,7 +319,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IResourceHandler of an attached shader
 			*/
 
-			TDE2_API IResourceHandler* GetShaderHandler() const override;
+			TDE2_API TResourceId GetShaderHandle() const override;
 
 			/*!
 				\brief The method returns true if the material's instance uses alpha blending
@@ -386,6 +369,8 @@ namespace TDEngine2
 			TDE2_API TResult<TMaterialInstanceId> _allocateNewInstance();
 
 			TDE2_API E_RESULT_CODE _initDefaultInstance(const TShaderCompilerOutput& metadata);
+
+			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			static constexpr U16     mVersionTag = 0x1;
 
@@ -393,7 +378,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
-			IResourceHandler*        mpShader;
+			TResourceId              mShaderHandle;
 
 			TMaterialInstancesArray  mpInstancesArray;
 

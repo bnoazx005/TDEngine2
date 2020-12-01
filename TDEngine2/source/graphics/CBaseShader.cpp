@@ -11,34 +11,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseShader::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseShader>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
-	}
-
 	E_RESULT_CODE CBaseShader::Unload()
 	{
 		if (mpShaderMeta)
@@ -46,7 +18,7 @@ namespace TDEngine2
 			delete mpShaderMeta;
 		}
 
-		return Reset();
+		return CBaseResource::Unload();
 	}
 
 	E_RESULT_CODE CBaseShader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name)
@@ -245,5 +217,10 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	const IResourceLoader* CBaseShader::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CBaseShader>();
 	}
 }

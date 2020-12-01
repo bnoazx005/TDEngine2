@@ -25,7 +25,7 @@ namespace TDEngine2
 
 
 	CTextureAtlas::CTextureAtlas() :
-		CBaseResource(), mpTextureResource(nullptr)
+		CBaseResource(), mTextureResourceHandle(TResourceId::Invalid)
 	{
 	}
 
@@ -68,7 +68,7 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 		
 		/// \note create a texture using the resource manager
-		if (!(mpTextureResource = pResourceManager->Create<CBaseTexture2D>(name + "_Tex", params))->IsValid())
+		if (TResourceId::Invalid == (mTextureResourceHandle = pResourceManager->Create<CBaseTexture2D>(name + "_Tex", params)))
 		{
 			return RC_FAIL;
 		}
@@ -76,39 +76,6 @@ namespace TDEngine2
 		mIsInitialized = true;
 
 		return RC_OK;
-	}
-
-	E_RESULT_CODE CTextureAtlas::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CTextureAtlas>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
-	}
-
-	E_RESULT_CODE CTextureAtlas::Unload()
-	{
-		return Reset();
 	}
 
 	E_RESULT_CODE CTextureAtlas::Reset()
@@ -163,7 +130,7 @@ namespace TDEngine2
 			return (leftRect.width > rightRect.width) && (leftRect.height > rightRect.height);
 		});
 		
-		ITexture2D* pAtlasInternalTexture = mpTextureResource->Get<ITexture2D>(RAT_BLOCKING);
+		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mTextureResourceHandle));
 
 		/// \note while there is enough space within the atlas pack next entry
 		TAtlasAreaEntry root;
@@ -310,7 +277,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		ITexture2D* pAtlasInternalTexture = mpTextureResource->Get<ITexture2D>(RAT_BLOCKING);
+		ITexture2D* pAtlasInternalTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mTextureResourceHandle));
 
 		/// \note save texture atlas into an image file
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
@@ -412,10 +379,10 @@ namespace TDEngine2
 		mName = pYAMLFileReader->GetString("name");
 
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
-		mpTextureResource = mpResourceManager->Load<CBaseTexture2D>(mName + "_Tex.png");
+		mTextureResourceHandle = mpResourceManager->Load<CBaseTexture2D>(mName + "_Tex.png");
 
 		/// \todo ansynchronously update sizes of the atlas when the texture has been loaded
-		_updateAtlasSizes(mpTextureResource->Get<IResource>(RAT_BLOCKING));
+		_updateAtlasSizes(mpResourceManager->GetResourceByHandler(mTextureResourceHandle));
 
 		if ((result = pYAMLFileReader->BeginGroup("textures_list")) != RC_OK)
 		{
@@ -471,7 +438,7 @@ namespace TDEngine2
 
 	ITexture2D* CTextureAtlas::GetTexture() const
 	{
-		return mpTextureResource->Get<ITexture2D>(RAT_BLOCKING);
+		return dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mTextureResourceHandle));
 	}
 
 	TResult<TRectI32> CTextureAtlas::GetTextureRect(const std::string& textureName) const
@@ -508,6 +475,11 @@ namespace TDEngine2
 
 		mWidth  = pTexture2D->GetWidth();
 		mHeight = pTexture2D->GetHeight();
+	}
+
+	const IResourceLoader* CTextureAtlas::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CTextureAtlas>();
 	}
 
 

@@ -111,8 +111,8 @@ namespace TDEngine2
 		
 		TTexture2DParameters shadowMapParams{ 1024, 1024, FT_D32, 1, 1, 0 };
 
-		mpShadowMap = mpResourceManager->Create<CBaseDepthBufferTarget>("ShadowMap", shadowMapParams);
-		if (!mpShadowMap->IsValid())
+		mShadowMapHandle = mpResourceManager->Create<CBaseDepthBufferTarget>("ShadowMap", shadowMapParams);
+		if (mShadowMapHandle == TResourceId::Invalid)
 		{
 			TDE2_ASSERT(false);
 			return RC_FAIL;
@@ -224,7 +224,7 @@ namespace TDEngine2
 			if (!pShadowRenderQueue->IsEmpty())
 			{
 				mpGraphicsContext->SetViewport(0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
-				mpGraphicsContext->BindDepthBufferTarget(mpShadowMap->Get<IDepthBufferTarget>(RAT_BLOCKING), true);
+				mpGraphicsContext->BindDepthBufferTarget(dynamic_cast<IDepthBufferTarget*>(mpResourceManager->GetResourceByHandler(mShadowMapHandle)), true);
 
 				mpGraphicsContext->ClearDepthBuffer(1.0f);
 

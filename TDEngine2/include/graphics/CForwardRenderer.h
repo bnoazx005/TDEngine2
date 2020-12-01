@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../utils/Utils.h"
-#include "./../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../utils/Types.h"
 #include "IRenderer.h"
 #include "InternalShaderData.h"
 
@@ -17,7 +17,6 @@ namespace TDEngine2
 {
 	class IGlobalShaderProperties;
 	class IDebugUtility;
-	class IResourceHandler;
 
 
 	/*!
@@ -182,6 +181,6 @@ namespace TDEngine2
 
 			TLightingShaderData      mLightingData;
 
-			IResourceHandler*        mpShadowMap;
+			TResourceId              mShadowMapHandle;
 	};
 }

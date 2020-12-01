@@ -89,30 +89,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 										const TMeshParameters& params) override;
-
-			/*!
-				\brief The method loads resource data into memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load() override;
-
-			/*!
-				\brief The method process internal state of the mesh after it was actually loaded
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
+			
 			TDE2_API E_RESULT_CODE PostLoad() override;
-
-			/*!
-				\brief The method unloads resource data from memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Unload() override;
 
 			/*!
 				\brief The method resets current internal data of a resource
@@ -246,6 +224,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
 
 			TDE2_API std::vector<U8> _getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const;
+
+			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 

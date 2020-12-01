@@ -14,7 +14,7 @@
 namespace TDEngine2
 {
 	CFramePostProcessor::CFramePostProcessor() :
-		CBaseObject(), mpRenderTargetHandler(nullptr)
+		CBaseObject()
 	{
 	}
 
@@ -33,11 +33,11 @@ namespace TDEngine2
 
 		mpResourceManager = pRenderer->GetResourceManager();
 
-		mpOverlayRenderQueue         = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
-		mpDefaultScreenSpaceMaterial = mpResourceManager->Create<CBaseMaterial>("DefaultScreenSpaceEffect.material", TMaterialParameters { "DefaultScreenSpaceEffect", false, { false, false } });
-		mpWindowSystem               = pWindowSystem;
-		mpGraphicsContext            = pGraphicsObjectManager->GetGraphicsContext();
-		mpRenderTargetHandler        = nullptr;
+		mpOverlayRenderQueue              = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
+		mDefaultScreenSpaceMaterialHandle = mpResourceManager->Create<CBaseMaterial>("DefaultScreenSpaceEffect.material", TMaterialParameters { "DefaultScreenSpaceEffect", false, { false, false } });
+		mpWindowSystem                    = pWindowSystem;
+		mpGraphicsContext                 = pGraphicsObjectManager->GetGraphicsContext();
+		mRenderTargetHandle               = TResourceId::Invalid;
 
 		if (auto vertexFormatResult = pGraphicsObjectManager->CreateVertexDeclaration())
 		{
@@ -102,15 +102,18 @@ namespace TDEngine2
 
 		IRenderTarget* pCurrRenderTarget = nullptr;
 
-		if (!mpRenderTargetHandler)
+		if (mRenderTargetHandle == TResourceId::Invalid)
 		{
-			mpRenderTargetHandler = _getRenderTarget(mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true);
-			pCurrRenderTarget     = mpRenderTargetHandler->Get<IRenderTarget>(RAT_BLOCKING);
+			mRenderTargetHandle = _getRenderTarget(mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true);
+			pCurrRenderTarget = dynamic_cast<IRenderTarget*>(mpResourceManager->GetResourceByHandler(mRenderTargetHandle));
 
-			mpDefaultScreenSpaceMaterial->Get<IMaterial>(RAT_BLOCKING)->SetTextureResource("FrameTexture", pCurrRenderTarget);
+			if (auto pScreenSpaceMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mDefaultScreenSpaceMaterialHandle)))
+			{
+				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
+			}
 		}
 
-		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, mpRenderTargetHandler->Get<IRenderTarget>(RAT_BLOCKING));
+		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, dynamic_cast<IRenderTarget*>(mpResourceManager->GetResourceByHandler(mRenderTargetHandle)));
 
 		{
 			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);
@@ -135,12 +138,12 @@ namespace TDEngine2
 		TDrawCommandPtr pDrawCommand      = pRenderQueue->SubmitDrawCommand<TDrawCommand>(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS));
 		pDrawCommand->mNumOfVertices      = 3;
 		pDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-		pDrawCommand->mpMaterialHandler   = mpDefaultScreenSpaceMaterial;
+		pDrawCommand->mMaterialHandle     = mDefaultScreenSpaceMaterialHandle;
 		pDrawCommand->mpVertexBuffer      = mpFullScreenTriangleVertexBuffer;
 		pDrawCommand->mpVertexDeclaration = mpVertexFormatDeclaration;
 	}
 
-	IResourceHandler* CFramePostProcessor::_getRenderTarget(U32 width, U32 height, bool isHDRSupport)
+	TResourceId CFramePostProcessor::_getRenderTarget(U32 width, U32 height, bool isHDRSupport)
 	{
 		return mpResourceManager->Create<CBaseRenderTarget>("MainRenderTarget", TTexture2DParameters{ width, height, isHDRSupport ? FT_FLOAT4 : FT_NORM_UBYTE4, 1, 1, 0 });
 	}

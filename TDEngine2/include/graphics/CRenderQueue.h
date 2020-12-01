@@ -56,7 +56,7 @@ namespace TDEngine2
 
 		IVertexDeclaration*       mpVertexDeclaration;
 
-		IResourceHandler*         mpMaterialHandler;
+		TResourceId               mMaterialHandle;
 
 		TMaterialInstanceId       mMaterialInstanceId = DefaultMaterialInstanceId;
 

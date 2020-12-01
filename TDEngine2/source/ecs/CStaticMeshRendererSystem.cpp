@@ -132,7 +132,7 @@ namespace TDEngine2
 		{
 			pCurrStaticMeshContainer = std::get<CStaticMeshContainer*>(iter);
 
-			pCurrMaterial = mpResourceManager->Load<CBaseMaterial>(pCurrStaticMeshContainer->GetMaterialName())->Get<CBaseMaterial>(RAT_BLOCKING);
+			pCurrMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CBaseMaterial>(pCurrStaticMeshContainer->GetMaterialName())));
 
 			// \note skip duplicates
 			if (std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())
@@ -168,7 +168,7 @@ namespace TDEngine2
 			auto pStaticMeshContainer = std::get<CStaticMeshContainer*>(*iter);
 			auto pTransform           = std::get<CTransform*>(*iter);
 
-			auto pSharedMeshResource = mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName())->Get<IStaticMesh>(RAT_BLOCKING);
+			auto pSharedMeshResource = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName())));
 
 			// \note we need to create vertex and index buffers for the object
 			if (pStaticMeshContainer->GetSystemBuffersHandle() == static_cast<U32>(-1))
@@ -219,7 +219,7 @@ namespace TDEngine2
 
 			pCommand->mpVertexBuffer           = pSharedMeshResource->GetSharedVertexBuffer();
 			pCommand->mpIndexBuffer            = pSharedMeshResource->GetSharedIndexBuffer();
-			pCommand->mpMaterialHandler        = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName());
+			pCommand->mMaterialHandle          = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName());
 			pCommand->mpVertexDeclaration      = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
 			pCommand->mNumOfIndices            = pSharedMeshResource->GetIndices().size();
 			pCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;

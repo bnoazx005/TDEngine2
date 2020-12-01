@@ -11,7 +11,6 @@
 #include "../../include/graphics/CGraphicsLayersInfo.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/graphics/IRenderer.h"
-#include "../../include/core/IResourceHandler.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/core/memory/IAllocator.h"
@@ -158,21 +157,19 @@ namespace TDEngine2
 			_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
 		}
 
-		IResourceHandler* pCurrMaterialHandler = nullptr;
-
 		for (I32 i = 0; i < mSprites.size(); ++i)
 		{
 			pCurrTransform = mTransforms[i];
 
 			pCurrSprite = mSprites[i];
+			
+			const TResourceId currMaterialHandle = mpResourceManager->Load<CBaseMaterial>(pCurrSprite->GetMaterialName());
 
-			pCurrMaterialHandler = mpResourceManager->Load<CBaseMaterial>(pCurrSprite->GetMaterialName());
-
-			groupKey = _computeSpriteCommandKey(pCurrMaterialHandler->GetResourceId(), mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
+			groupKey = _computeSpriteCommandKey(currMaterialHandle, mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
 			
 			TBatchEntry& currBatchEntry = mBatches[groupKey];
 
-			currBatchEntry.mpMaterialHandler = pCurrMaterialHandler;
+			currBatchEntry.mMaterialHandle = currMaterialHandle;
 
 			if (!currBatchEntry.mpInstancesData)
 			{
@@ -215,7 +212,7 @@ namespace TDEngine2
 			pCurrCommand->mStartInstance           = 0;
 			pCurrCommand->mNumOfInstances          = instancesCount;/// assign number of sprites in a batch
 			pCurrCommand->mpInstancingBuffer       = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
-			pCurrCommand->mpMaterialHandler        = currBatchEntry.mpMaterialHandler;
+			pCurrCommand->mMaterialHandle          = currBatchEntry.mMaterialHandle;
 			pCurrCommand->mpVertexDeclaration      = mpSpriteVertexDeclaration;
 			pCurrCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 

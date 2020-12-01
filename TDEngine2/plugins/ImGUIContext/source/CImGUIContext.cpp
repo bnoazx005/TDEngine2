@@ -4,7 +4,6 @@
 #include <core/IGraphicsContext.h>
 #include <core/IInputContext.h>
 #include <core/IResourceManager.h>
-#include <core/IResourceHandler.h>
 #include <graphics/CBaseTexture2D.h>
 #include <graphics/IGraphicsObjectManager.h>
 #include <graphics/IIndexBuffer.h>
@@ -445,9 +444,9 @@ namespace TDEngine2
 		return index;
 	}
 
-	void CImGUIContext::Image(IResourceHandler* pTexture, const TVector2& sizes, const TRectF32& uvRect)
+	void CImGUIContext::Image(TResourceId textureHandle, const TVector2& sizes, const TRectF32& uvRect)
 	{
-		ImGui::Image(static_cast<ImTextureID>(pTexture), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
+		ImGui::Image(static_cast<ImTextureID>(&textureHandle), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
 	}
 
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)
@@ -638,7 +637,7 @@ namespace TDEngine2
 		blendingParams.mScrAlphaValue  = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
 		blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
 
-		mpDefaultEditorMaterial = pResourceManager->Create<CBaseMaterial>("DefaultEditorUIMaterial.material", editorUIMaterialParams);
+		mDefaultEditorMaterialHandle = pResourceManager->Create<CBaseMaterial>("DefaultEditorUIMaterial.material", editorUIMaterialParams);
 
 		// \note Create a font texture
 		if ((result = _initSystemFonts(io, pResourceManager, pGraphicsManager)) != RC_OK)
@@ -656,7 +655,7 @@ namespace TDEngine2
 		I32 height = -1;
 		io.Fonts->GetTexDataAsRGBA32(&pPixelsData, &width, &height);
 
-		mpFontTextureHandler = mpResourceManager->Create<CBaseTexture2D>("imgui_defaultfont_texatlas",
+		mFontTextureHandle = mpResourceManager->Create<CBaseTexture2D>("imgui_defaultfont_texatlas",
 																		 TTexture2DParameters
 																		 {
 																			 static_cast<U32>(width),
@@ -664,18 +663,18 @@ namespace TDEngine2
 																			 FT_NORM_UBYTE4, 1, 1, 0
 																		 });
 
-		if (!mpFontTextureHandler->IsValid())
+		if (TResourceId::Invalid == mFontTextureHandle)
 		{
 			return RC_FAIL;
 		}
 
-		auto pRawTextureResource = mpFontTextureHandler->Get<CBaseTexture2D>(RAT_BLOCKING);
+		auto pRawTextureResource = dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mFontTextureHandle));
 		if (!pRawTextureResource)
 		{
 			return RC_FAIL;
 		}
 
-		io.Fonts->TexID = static_cast<ImTextureID>(mpFontTextureHandler);
+		io.Fonts->TexID = static_cast<ImTextureID>(&mFontTextureHandle);
 		
 		E_RESULT_CODE result = pRawTextureResource->WriteData({ 0, 0, width, height }, pPixelsData);
 		if (result != RC_OK)
@@ -734,7 +733,7 @@ namespace TDEngine2
 
 		U32 batchId = 0x0;
 
-		IMaterial* pMaterial = mpDefaultEditorMaterial->Get<IMaterial>(RAT_BLOCKING);
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mDefaultEditorMaterialHandle));
 
 		for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
 		{
@@ -751,7 +750,7 @@ namespace TDEngine2
 					mUsingMaterials.emplace(texturePtrId, pMaterial->CreateInstance()->GetInstanceId());
 				}
 
-				pMaterial->SetTextureResource("Texture", static_cast<IResourceHandler*>(pCurrCommand->TextureId)->Get<ITexture>(RAT_BLOCKING), mUsingMaterials[texturePtrId]);
+				pMaterial->SetTextureResource("Texture", dynamic_cast<ITexture*>(mpResourceManager->GetResourceByHandler(*static_cast<TResourceId*>(pCurrCommand->TextureId))), mUsingMaterials[texturePtrId]);
 
 				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId));
 
@@ -759,7 +758,7 @@ namespace TDEngine2
 				pCurrDrawCommand->mpVertexDeclaration      = mpEditorUIVertexDeclaration;
 				pCurrDrawCommand->mpVertexBuffer           = mpVertexBuffer;
 				pCurrDrawCommand->mpIndexBuffer            = mpIndexBuffer;
-				pCurrDrawCommand->mpMaterialHandler        = mpDefaultEditorMaterial;
+				pCurrDrawCommand->mMaterialHandle          = mDefaultEditorMaterialHandle;
 				pCurrDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pCurrDrawCommand->mNumOfIndices            = pCurrCommand->ElemCount;
 				pCurrDrawCommand->mStartIndex              = pCurrCommand->IdxOffset + currIndexOffset;

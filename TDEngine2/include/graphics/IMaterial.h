@@ -7,11 +7,11 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../core/IResourceLoader.h"
-#include "./../core/IResourceFactory.h"
-#include "./../core/Serialization.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../core/IResourceLoader.h"
+#include "../core/IResourceFactory.h"
+#include "../core/Serialization.h"
 #include <string>
 
 
@@ -20,7 +20,6 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 	class IFileSystem;
-	class IResourceHandler;
 	class ITexture;
 	class IMaterialInstance;
 
@@ -298,12 +297,12 @@ namespace TDEngine2
 			TDE2_API virtual U32 GetVariableHash(const std::string& name) const = 0;
 
 			/*!
-				\brief The method returns a pointer to IResourceHandler of an attached shader
+				\brief The method returns an identifier of attached shader of an attached shader
 
 				\return The method returns a pointer to IResourceHandler of an attached shader
 			*/
 
-			TDE2_API virtual IResourceHandler* GetShaderHandler() const = 0;
+			TDE2_API virtual TResourceId GetShaderHandle() const = 0;
 
 			/*!
 				\brief The method returns true if the material's instance uses alpha blending

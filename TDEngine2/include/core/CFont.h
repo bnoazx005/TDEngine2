@@ -18,7 +18,6 @@ namespace TDEngine2
 {
 	class IShader;
 	class IBinaryFileReader;
-	class IResourceHandler;
 
 
 	/*!
@@ -66,22 +65,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, const std::string& name) override;
-
-			/*!
-				\brief The method loads resource data into memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load() override;
-
-			/*!
-				\brief The method unloads resource data from memory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Unload() override;
 
 			/*!
 				\brief The method resets current internal data of a resource
@@ -145,12 +128,14 @@ namespace TDEngine2
 			TDE2_API ITexture2D* GetTexture() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFont)
+
+			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
-			IResourceHandler* mpFontTextureAtlas;
+			TResourceId mFontTextureAtlasHandle;
 
-			TTextVertices     mLastGeneratedMesh;
+			TTextVertices mLastGeneratedMesh;
 
-			TGlyphsMap        mGlyphsMap;
+			TGlyphsMap mGlyphsMap;
 	};
 
 

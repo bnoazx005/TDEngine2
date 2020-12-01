@@ -1,7 +1,6 @@
 #include "./../../include/core/CFont.h"
 #include "./../../include/core/IResourceManager.h"
 #include "./../../include/core/IFileSystem.h"
-#include "./../../include/core/IResourceHandler.h"
 #include "./../../include/platform/CYAMLFile.h"
 #include "./../../include/graphics/CTextureAtlas.h"
 #include "./../../include/utils/CU8String.h"
@@ -32,39 +31,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFont::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CFont>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
-	}
-
-	E_RESULT_CODE CFont::Unload()
-	{
-		return Reset();
-	}
-
 	E_RESULT_CODE CFont::Reset()
 	{
 		return RC_NOT_IMPLEMENTED_YET;
@@ -90,7 +56,7 @@ namespace TDEngine2
 				return result;
 			}
 
-			PANIC_ON_FAILURE(pArchiveFile->SetString("path", mpFontTextureAtlas->Get<IResource>(RAT_BLOCKING)->GetName()));
+			PANIC_ON_FAILURE(pArchiveFile->SetString("path", mpResourceManager->GetResourceByHandler(mFontTextureAtlasHandle)->GetName()));
 
 			if ((result = pArchiveFile->EndGroup()) != RC_OK)
 			{
@@ -166,7 +132,8 @@ namespace TDEngine2
 
 			if (!textureAtlasPath.empty())
 			{
-				mpFontTextureAtlas = mpResourceManager->Load<CTextureAtlas>(textureAtlasPath);
+				mFontTextureAtlasHandle = mpResourceManager->Load<CTextureAtlas>(textureAtlasPath);
+				TDE2_ASSERT(mFontTextureAtlasHandle != TResourceId::Invalid);
 			}
 
 			if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
@@ -226,7 +193,7 @@ namespace TDEngine2
 
 	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text, IDebugUtility* pDebugUtility)
 	{
-		auto pTextureAtlas = mpFontTextureAtlas->Get<ITextureAtlas>(RAT_BLOCKING);
+		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResourceByHandler(mFontTextureAtlasHandle));
 
 		TVector2 currPosition{ position };
 
@@ -283,7 +250,12 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		return dynamic_cast<ITextureAtlas*>(mpFontTextureAtlas)->GetTexture();
+		return dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResourceByHandler(mFontTextureAtlasHandle))->GetTexture();
+	}
+
+	const IResourceLoader* CFont::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CFont>();
 	}
 
 

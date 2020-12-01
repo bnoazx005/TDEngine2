@@ -8,14 +8,13 @@
 
 
 #include "CBaseSystem.h"
-#include "./../math/TMatrix4.h"
+#include "../math/TMatrix4.h"
 #include <vector>
 
 
 namespace TDEngine2
 {
 	class IRenderer;
-	class IResourceHandler;
 	class IVertexDeclaration;
 	class IGraphicsObjectManager;
 	class IResourceManager;
@@ -108,7 +107,7 @@ namespace TDEngine2
 
 			IVertexDeclaration*     mpShadowVertDecl;
 
-			IResourceHandler*       mpShadowPassMaterial;
+			TResourceId             mShadowPassMaterialHandle;
 
 			CRenderQueue*           mpShadowPassRenderQueue;
 	};

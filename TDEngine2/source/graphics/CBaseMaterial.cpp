@@ -6,7 +6,6 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
-#include "../../include/core/IResourceHandler.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/Utils.h"
@@ -165,39 +164,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseMaterial::Load()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseMaterial>();
-
-		if (!pResourceLoader)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
-
-		if (result != RC_OK)
-		{
-			mState = RST_PENDING;
-
-			return result;
-		}
-
-		mState = RST_LOADED;
-
-		return result;
-	}
-
-	E_RESULT_CODE CBaseMaterial::Unload()
-	{
-		return Reset();
-	}
-
 	E_RESULT_CODE CBaseMaterial::Reset()
 	{
 		return RC_NOT_IMPLEMENTED_YET;
@@ -340,7 +306,7 @@ namespace TDEngine2
 					std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
 
 					TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
-					if (SetTextureResource(slotId, mpResourceManager->Load(textureId, textureTypeId)->Get<ITexture>(RAT_BLOCKING), instanceId) != RC_OK)
+					if (SetTextureResource(slotId, dynamic_cast<ITexture*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load(textureId, textureTypeId))), instanceId) != RC_OK)
 					{
 						LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
 						result = result | RC_FAIL;
@@ -375,7 +341,7 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
-		pWriter->SetString(TMaterialArchiveKeys::mShaderIdKey, mpShader->Get<IResource>(RAT_BLOCKING)->GetName());
+		pWriter->SetString(TMaterialArchiveKeys::mShaderIdKey, mpResourceManager->GetResourceByHandler(mShaderHandle)->GetName());
 		pWriter->SetBool(TMaterialArchiveKeys::mTransparencyKey, mBlendStateParams.mIsEnabled);
 
 		pWriter->BeginGroup(TMaterialArchiveKeys::mBlendStateGroup);
@@ -466,15 +432,14 @@ namespace TDEngine2
 
 	void CBaseMaterial::SetShader(const std::string& shaderName)
 	{
-		IResourceHandler* pNewShaderHandler = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
-		if (pNewShaderHandler == mpShader)
+		mShaderHandle = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
+		if (mShaderHandle == TResourceId::Invalid)
 		{
+			TDE2_ASSERT(false);
 			return;
 		}
 
-		mpShader = pNewShaderHandler;
-
-		PANIC_ON_FAILURE(_initDefaultInstance(*mpShader->Get<CBaseShader>(RAT_BLOCKING)->GetShaderMetaData()));
+		PANIC_ON_FAILURE(_initDefaultInstance(*dynamic_cast<IShader*>(mpResourceManager->GetResourceByHandler(mShaderHandle))->GetShaderMetaData()));
 	}
 
 	void CBaseMaterial::SetTransparentState(bool isTransparent)
@@ -499,7 +464,7 @@ namespace TDEngine2
 
 	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
 	{
-		IShader* pShaderInstance = mpShader->Get<IShader>(TDEngine2::RAT_BLOCKING);
+		IShader* pShaderInstance = dynamic_cast<IShader*>(mpResourceManager->GetResourceByHandler(mShaderHandle));
 
 		if (!pShaderInstance || (instanceId == TMaterialInstanceId::Invalid))
 		{
@@ -648,9 +613,9 @@ namespace TDEngine2
 		return TDE2_STRING_ID(name.c_str());
 	}
 
-	IResourceHandler* CBaseMaterial::GetShaderHandler() const
+	TResourceId CBaseMaterial::GetShaderHandle() const
 	{
-		return mpShader;
+		return mShaderHandle;
 	}
 
 	bool CBaseMaterial::IsTransparent() const
@@ -785,6 +750,11 @@ namespace TDEngine2
 		}
 
 		return result;
+	}
+
+	const IResourceLoader* CBaseMaterial::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<CBaseMaterial>();
 	}
 
 

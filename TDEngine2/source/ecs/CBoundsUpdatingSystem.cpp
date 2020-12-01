@@ -110,7 +110,7 @@ namespace TDEngine2
 
 		if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
 		{
-			if (IStaticMesh* pStaticMesh = mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName())->Get<IStaticMesh>(RAT_BLOCKING))
+			if (IStaticMesh* pStaticMesh = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName()))))
 			{
 				auto&& vertices = pStaticMesh->GetPositionsArray();
 
