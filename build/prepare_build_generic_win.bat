@@ -27,6 +27,9 @@ if %ERRORLEVEL% neq 0 (
 )
 
 
+call run_codegeneration.bat
+
+
 rem "Build main project"
 
 cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% .. && \

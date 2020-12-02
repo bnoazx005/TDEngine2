@@ -210,39 +210,30 @@ namespace TDEngine2
 	E_RESULT_CODE CSelectionManager::_createRenderTarget(U32 width, U32 height)
 	{
 		E_RESULT_CODE result = RC_OK;
-#if 0
-		if (mpSelectionGeometryBuffer)
+
+		if (TResourceId::Invalid != mSelectionGeometryBufferHandle)
 		{
-			if (CBaseRenderTarget* pRenderTarget = mpSelectionGeometryBuffer->Get<CBaseRenderTarget>(RAT_BLOCKING))
+			if (CBaseRenderTarget* pRenderTarget = mpResourceManager->GetResource<CBaseRenderTarget>(mSelectionGeometryBufferHandle))
 			{
 				// \note Should recreate the render target
 				if (pRenderTarget->GetWidth() != width || pRenderTarget->GetHeight() != height)
 				{
-					if ((result = mpSelectionGeometryBuffer->Free()) != RC_OK)
-					{
-						return result;
-					}
-
-					if ((result = mpReadableSelectionBuffer->Free()) != RC_OK)
-					{
-						return result;
-					}
-
-					mpSelectionGeometryBuffer = nullptr;
+					result = result | mpResourceManager->ReleaseResource(mSelectionGeometryBufferHandle);
+					result = result | mpResourceManager->ReleaseResource(mReadableSelectionBufferHandle);
 				}				
 			}
 		}
 
-		if (!mpSelectionGeometryBuffer)
+		if (TResourceId::Invalid == mSelectionGeometryBufferHandle)
 		{
 			TTexture2DParameters renderTargetParams { width, height, FT_UINT1, 1, 1, 0 };
 
-			mpSelectionGeometryBuffer = mpResourceManager->Create<CBaseRenderTarget>("SelectionBuffer", renderTargetParams);
-			mpReadableSelectionBuffer = mpResourceManager->Create<CBaseTexture2D>("SelectionBufferCPUCopy", renderTargetParams);
+			mSelectionGeometryBufferHandle = mpResourceManager->Create<CBaseRenderTarget>("SelectionBuffer", renderTargetParams);
+			mReadableSelectionBufferHandle = mpResourceManager->Create<CBaseTexture2D>("SelectionBufferCPUCopy", renderTargetParams);
 		}
 
 		mWindowHeaderHeight = height - mpWindowSystem->GetClientRect().height;
-#endif
+
 		return RC_OK;
 	}
 
