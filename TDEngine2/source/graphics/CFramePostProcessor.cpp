@@ -105,15 +105,15 @@ namespace TDEngine2
 		if (mRenderTargetHandle == TResourceId::Invalid)
 		{
 			mRenderTargetHandle = _getRenderTarget(mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true);
-			pCurrRenderTarget = dynamic_cast<IRenderTarget*>(mpResourceManager->GetResourceByHandler(mRenderTargetHandle));
+			pCurrRenderTarget = dynamic_cast<IRenderTarget*>(mpResourceManager->GetResource(mRenderTargetHandle));
 
-			if (auto pScreenSpaceMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mDefaultScreenSpaceMaterialHandle)))
+			if (auto pScreenSpaceMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mDefaultScreenSpaceMaterialHandle)))
 			{
 				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
 			}
 		}
 
-		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, dynamic_cast<IRenderTarget*>(mpResourceManager->GetResourceByHandler(mRenderTargetHandle)));
+		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, dynamic_cast<IRenderTarget*>(mpResourceManager->GetResource(mRenderTargetHandle)));
 
 		{
 			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);

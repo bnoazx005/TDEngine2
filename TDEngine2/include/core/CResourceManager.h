@@ -157,7 +157,7 @@ namespace TDEngine2
 				\return The method returns a raw pointer to a resource based on specified handler
 			*/
 
-			TDE2_API IResource* GetResourceByHandler(const TResourceId& handle) const override;
+			TDE2_API IResource* GetResource(const TResourceId& handle) const override;
 
 			/*!
 				\brief The method returns an identifier of a resource with a given name. If there is no

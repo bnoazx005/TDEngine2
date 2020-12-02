@@ -49,11 +49,11 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	I32 width, height, xoff, yoff;
 
 	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas2", TDEngine2::TTexture2DParameters(512, 512, TDEngine2::FT_NORM_UBYTE1));
-	auto pTexAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResourceByHandler(pTexAtlasHandler));
+	auto pTexAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResource(pTexAtlasHandler));
 
 	I32 advance, leftBearing;
 
-	auto pFontResource = dynamic_cast<CFont*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CFont>("Arial")));
+	auto pFontResource = dynamic_cast<CFont*>(mpResourceManager->GetResource(mpResourceManager->Load<CFont>("Arial")));
 
 	F32 scale = stbtt_ScaleForPixelHeight(&font, 50.0f);
 	
@@ -98,7 +98,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	// NOTE: delete this code later
 	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	TDEngine2::IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material",
+	TDEngine2::IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material",
 																										TDEngine2::TMaterialParameters{ "testDXShader.shader" })));
 
 	pMaterial->SetTextureResource("TextureAtlas", pTexture);

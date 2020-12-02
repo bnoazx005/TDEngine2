@@ -224,7 +224,7 @@ namespace TDEngine2
 			if (!pShadowRenderQueue->IsEmpty())
 			{
 				mpGraphicsContext->SetViewport(0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
-				mpGraphicsContext->BindDepthBufferTarget(dynamic_cast<IDepthBufferTarget*>(mpResourceManager->GetResourceByHandler(mShadowMapHandle)), true);
+				mpGraphicsContext->BindDepthBufferTarget(dynamic_cast<IDepthBufferTarget*>(mpResourceManager->GetResource(mShadowMapHandle)), true);
 
 				mpGraphicsContext->ClearDepthBuffer(1.0f);
 

@@ -15,9 +15,9 @@ namespace TDEngine2
 {
 	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->GetResourceByHandler(mMaterialHandle));
+		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
-		IShader* pAttachedShader = dynamic_cast<IShader*>(pResourceManager->GetResourceByHandler(pMaterial->GetShaderHandle()));
+		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
@@ -38,9 +38,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->GetResourceByHandler(mMaterialHandle));
+		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
-		IShader* pAttachedShader = dynamic_cast<IShader*>(pResourceManager->GetResourceByHandler(pMaterial->GetShaderHandle()));
+		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
@@ -64,9 +64,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(pResourceManager->GetResourceByHandler(mMaterialHandle));
+		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
-		IShader* pAttachedShader = dynamic_cast<IShader*>(pResourceManager->GetResourceByHandler(pMaterial->GetShaderHandle()));
+		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader);
 

@@ -214,7 +214,7 @@ namespace TDEngine2
 		
 		// Skip skybox geometry
 		// \todo Reimplement this later with CSkyboxComponent
-		if (IMaterial* pMeshMainMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName()))))
+		if (IMaterial* pMeshMainMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName()))))
 		{
 			if (pMeshMainMaterial->GetGeometrySubGroupTag() == E_GEOMETRY_SUBGROUP_TAGS::SKYBOX)
 			{
@@ -222,7 +222,7 @@ namespace TDEngine2
 			}
 		}
 
-		if (IStaticMesh* pStaticMeshResource = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName()))))
+		if (IStaticMesh* pStaticMeshResource = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResource(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName()))))
 		{
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 			{

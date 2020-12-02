@@ -195,7 +195,7 @@ namespace TDEngine2
 			mSystemFontHandle = mpResourceManager->Load<CFont>("Arial");
 		}
 
-		auto pSystemFontResource = dynamic_cast<IFont*>(mpResourceManager->GetResourceByHandler(mSystemFontHandle));
+		auto pSystemFontResource = dynamic_cast<IFont*>(mpResourceManager->GetResource(mSystemFontHandle));
 
 		auto& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, scale, str, this);
 

@@ -162,7 +162,21 @@ namespace TDEngine2
 				\return The method returns a raw pointer to a resource based on specified handler
 			*/
 
-			TDE2_API virtual IResource* GetResourceByHandler(const TResourceId& handle) const = 0;
+			TDE2_API virtual IResource* GetResource(const TResourceId& handle) const = 0;
+		
+			template <typename T>
+#if 0 /// \todo Fix this concept 
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IResource, T>, T*>
+#else
+			typename std::enable_if<std::is_base_of<IResource, T>::value, T*>::type
+#endif
+#endif 
+			T* GetResource(const TResourceId& handle) const
+			{
+				return dynamic_cast<T*>(GetResource(handle));
+			}
 
 			/*!
 				\brief The method returns a pointer to IResourceLoader, which is a loader of specific type of resources

@@ -33,9 +33,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpResourceManager->Load<CBaseMaterial>("NewMaterial.material");
 	mpResourceManager->Load<CBaseMaterial>("DebugMaterial.material");
 
-	IMaterial* pFontMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", TMaterialParameters{ DebugTextShaderName, true })));
+	IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", TMaterialParameters{ DebugTextShaderName, true }));
 
-	auto pFontAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CTextureAtlas>("atlas")));
+	auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<CTextureAtlas>("atlas"));
 	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 
 #if 0
@@ -129,8 +129,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, true, false }
 		};
 
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Create<CBaseMaterial>("DefaultSkybox.material", skyboxMatParams)));
-		pMaterial->SetTextureResource("SkyboxTexture", dynamic_cast<ICubemapTexture*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox"))));
+		IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Create<CBaseMaterial>("DefaultSkybox.material", skyboxMatParams));
+		pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->GetResource<ICubemapTexture>(mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")));
 		pMaterial->SetGeometrySubGroupTag(E_GEOMETRY_SUBGROUP_TAGS::SKYBOX);
 		
 		auto pSkyboxEntity = mpWorld->CreateEntity("Skybox");

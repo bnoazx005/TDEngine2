@@ -170,7 +170,7 @@ namespace TDEngine2
 		return EST_RESOURCE_MANAGER;
 	}
 
-	IResource* CResourceManager::GetResourceByHandler(const TResourceId& handle) const
+	IResource* CResourceManager::GetResource(const TResourceId& handle) const
 	{
 		if (handle == TResourceId::Invalid)
 		{
@@ -302,13 +302,21 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		const IResource* pResource = GetResourceByHandler(id);
-		if (!pResource || (E_RESOURCE_STATE_TYPE::RST_DESTROYING != pResource->GetState())) /// \note A resource should be marked as DESTROYING to allow its deletion from the registry
+		E_RESULT_CODE result = RC_OK;
+
+		IResource* pResource = GetResource(id);
+
+		if (pResource)
+		{
+			result = pResource->Free();
+		}
+
+		if (!pResource /*|| (E_RESOURCE_STATE_TYPE::RST_DESTROYING != pResource->GetState())*/) /// \note A resource should be marked as DESTROYING to allow its deletion from the registry
 		{
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = mResources.RemoveAt(static_cast<U32>(id));
+		result = result | mResources.RemoveAt(static_cast<U32>(id));
 		mResourcesMap.erase(mResourcesMap.find(pResource->GetName()));
 
 		return result;

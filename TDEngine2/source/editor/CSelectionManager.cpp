@@ -76,8 +76,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
 	{
-		IRenderTarget* pCurrRenderTarget   = dynamic_cast<IRenderTarget*>(mpResourceManager->GetResourceByHandler(mSelectionGeometryBufferHandle));
-		ITexture2D* pReadableRTCopyTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mReadableSelectionBufferHandle));
+		IRenderTarget* pCurrRenderTarget   = dynamic_cast<IRenderTarget*>(mpResourceManager->GetResource(mSelectionGeometryBufferHandle));
+		ITexture2D* pReadableRTCopyTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResource(mReadableSelectionBufferHandle));
 
 		mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);
 
@@ -108,7 +108,7 @@ namespace TDEngine2
 			}
 		}
 
-		if (auto pSelectionTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mReadableSelectionBufferHandle)))
+		if (auto pSelectionTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResource(mReadableSelectionBufferHandle)))
 		{
 			y = pSelectionTexture->GetHeight() - y;
 

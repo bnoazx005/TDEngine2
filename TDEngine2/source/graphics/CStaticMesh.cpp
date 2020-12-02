@@ -267,7 +267,7 @@ namespace TDEngine2
 
 	IStaticMesh* CStaticMesh::CreateCube(IResourceManager* pResourceManager)
 	{
-		auto pCubeMeshResource = dynamic_cast<IStaticMesh*>(pResourceManager->GetResourceByHandler(pResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{})));
+		auto pCubeMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{}));
 
 		// clock-wise order is used, bottom face
 		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 1.0f });
@@ -334,7 +334,7 @@ namespace TDEngine2
 
 	IStaticMesh* CStaticMesh::CreatePlane(IResourceManager* pResourceManager)
 	{
-		auto pPlaneMeshResource = dynamic_cast<IStaticMesh*>(pResourceManager->GetResourceByHandler(pResourceManager->Create<CStaticMesh>("Plane", TMeshParameters{})));
+		auto pPlaneMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<CStaticMesh>("Plane", TMeshParameters{}));
 
 		E_RESULT_CODE result = RC_OK;
 

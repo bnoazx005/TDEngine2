@@ -56,7 +56,7 @@ namespace TDEngine2
 				return result;
 			}
 
-			PANIC_ON_FAILURE(pArchiveFile->SetString("path", mpResourceManager->GetResourceByHandler(mFontTextureAtlasHandle)->GetName()));
+			PANIC_ON_FAILURE(pArchiveFile->SetString("path", mpResourceManager->GetResource(mFontTextureAtlasHandle)->GetName()));
 
 			if ((result = pArchiveFile->EndGroup()) != RC_OK)
 			{
@@ -193,7 +193,7 @@ namespace TDEngine2
 
 	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text, IDebugUtility* pDebugUtility)
 	{
-		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResourceByHandler(mFontTextureAtlasHandle));
+		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResource(mFontTextureAtlasHandle));
 
 		TVector2 currPosition{ position };
 
@@ -250,7 +250,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		return dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResourceByHandler(mFontTextureAtlasHandle))->GetTexture();
+		return dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResource(mFontTextureAtlasHandle))->GetTexture();
 	}
 
 	const IResourceLoader* CFont::_getResourceLoader()

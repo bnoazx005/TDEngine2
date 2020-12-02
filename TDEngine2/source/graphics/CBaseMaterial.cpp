@@ -306,7 +306,7 @@ namespace TDEngine2
 					std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
 
 					TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
-					if (SetTextureResource(slotId, dynamic_cast<ITexture*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load(textureId, textureTypeId))), instanceId) != RC_OK)
+					if (SetTextureResource(slotId, mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load(textureId, textureTypeId)), instanceId) != RC_OK)
 					{
 						LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
 						result = result | RC_FAIL;
@@ -341,7 +341,7 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
-		pWriter->SetString(TMaterialArchiveKeys::mShaderIdKey, mpResourceManager->GetResourceByHandler(mShaderHandle)->GetName());
+		pWriter->SetString(TMaterialArchiveKeys::mShaderIdKey, mpResourceManager->GetResource(mShaderHandle)->GetName());
 		pWriter->SetBool(TMaterialArchiveKeys::mTransparencyKey, mBlendStateParams.mIsEnabled);
 
 		pWriter->BeginGroup(TMaterialArchiveKeys::mBlendStateGroup);
@@ -439,7 +439,7 @@ namespace TDEngine2
 			return;
 		}
 
-		PANIC_ON_FAILURE(_initDefaultInstance(*dynamic_cast<IShader*>(mpResourceManager->GetResourceByHandler(mShaderHandle))->GetShaderMetaData()));
+		PANIC_ON_FAILURE(_initDefaultInstance(*mpResourceManager->GetResource<IShader>(mShaderHandle)->GetShaderMetaData()));
 	}
 
 	void CBaseMaterial::SetTransparentState(bool isTransparent)
@@ -464,7 +464,7 @@ namespace TDEngine2
 
 	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
 	{
-		IShader* pShaderInstance = dynamic_cast<IShader*>(mpResourceManager->GetResourceByHandler(mShaderHandle));
+		IShader* pShaderInstance = dynamic_cast<IShader*>(mpResourceManager->GetResource(mShaderHandle));
 
 		if (!pShaderInstance || (instanceId == TMaterialInstanceId::Invalid))
 		{

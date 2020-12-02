@@ -132,7 +132,7 @@ namespace TDEngine2
 		{
 			pCurrStaticMeshContainer = std::get<CStaticMeshContainer*>(iter);
 
-			pCurrMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CBaseMaterial>(pCurrStaticMeshContainer->GetMaterialName())));
+			pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>(pCurrStaticMeshContainer->GetMaterialName()));
 
 			// \note skip duplicates
 			if (std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())
@@ -168,7 +168,7 @@ namespace TDEngine2
 			auto pStaticMeshContainer = std::get<CStaticMeshContainer*>(*iter);
 			auto pTransform           = std::get<CTransform*>(*iter);
 
-			auto pSharedMeshResource = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResourceByHandler(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName())));
+			auto pSharedMeshResource = mpResourceManager->GetResource<IStaticMesh>(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName()));
 
 			// \note we need to create vertex and index buffers for the object
 			if (pStaticMeshContainer->GetSystemBuffersHandle() == static_cast<U32>(-1))

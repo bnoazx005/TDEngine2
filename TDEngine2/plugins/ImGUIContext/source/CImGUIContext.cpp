@@ -668,7 +668,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto pRawTextureResource = dynamic_cast<ITexture2D*>(mpResourceManager->GetResourceByHandler(mFontTextureHandle));
+		auto pRawTextureResource = mpResourceManager->GetResource<ITexture2D>(mFontTextureHandle);
 		if (!pRawTextureResource)
 		{
 			return RC_FAIL;
@@ -733,7 +733,7 @@ namespace TDEngine2
 
 		U32 batchId = 0x0;
 
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResourceByHandler(mDefaultEditorMaterialHandle));
+		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mDefaultEditorMaterialHandle));
 
 		for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
 		{
@@ -750,7 +750,7 @@ namespace TDEngine2
 					mUsingMaterials.emplace(texturePtrId, pMaterial->CreateInstance()->GetInstanceId());
 				}
 
-				pMaterial->SetTextureResource("Texture", dynamic_cast<ITexture*>(mpResourceManager->GetResourceByHandler(*static_cast<TResourceId*>(pCurrCommand->TextureId))), mUsingMaterials[texturePtrId]);
+				pMaterial->SetTextureResource("Texture", dynamic_cast<ITexture*>(mpResourceManager->GetResource(*static_cast<TResourceId*>(pCurrCommand->TextureId))), mUsingMaterials[texturePtrId]);
 
 				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId));
 
