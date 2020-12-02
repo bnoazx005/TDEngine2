@@ -226,12 +226,15 @@ namespace TDEngine2
 			IResource* pResource = getResourceResult.Get();
 			TDE2_ASSERT(pResource);
 
-			if (pResource && pResource->GetState() == E_RESOURCE_STATE_TYPE::RST_PENDING)
+			if (pResource)
 			{
-				E_RESULT_CODE result = pResource->Load(); /// \todo move loading in the background thread
-				if (RC_OK != result)
+				if (E_RESOURCE_STATE_TYPE::RST_PENDING == pResource->GetState())
 				{
-					return TResourceId::Invalid;
+					E_RESULT_CODE result = pResource->Load(); /// \todo move loading in the background thread
+					if (RC_OK != result)
+					{
+						return TResourceId::Invalid;
+					}
 				}
 
 				return iter->second;
