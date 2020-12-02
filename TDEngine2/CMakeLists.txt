@@ -495,12 +495,12 @@ else ()
 	set (TYPEPATTERNS_TO_EXCLUDE "(.*?)Unix(.*?)")
 endif ()
 
-add_custom_command(
-	TARGET ${TDENGINE2_LIBRARY_NAME}
-	PRE_BUILD
-    COMMAND ${TDE2_INTROSPECTOR_UTILITY} ${TDENGINE2_CGEN_INPUT_PATH} -O ${TDENGINE2_CGEN_OUTPUT_PATH} 
-	--emit-enums --emit-classes --emit-structs 
-	--exclude-paths=${HEADER_PATHS_TO_EXCLUDE} 
-	--exclude-typenames=${TYPEPATTERNS_TO_EXCLUDE}
-    COMMENT "Run code generation stage"
-)
+#add_custom_command(
+#	TARGET ${TDENGINE2_LIBRARY_NAME}
+#	PRE_BUILD
+#    COMMAND ${TDE2_INTROSPECTOR_UTILITY} ${TDENGINE2_CGEN_INPUT_PATH} -O ${TDENGINE2_CGEN_OUTPUT_PATH} 
+#	--emit-enums --emit-classes --emit-structs 
+#	--exclude-paths=${HEADER_PATHS_TO_EXCLUDE} 
+#	--exclude-typenames=${TYPEPATTERNS_TO_EXCLUDE}
+#    COMMENT "Run code generation stage"
+#)
