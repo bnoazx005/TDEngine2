@@ -6,6 +6,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/IWindowSystem.h"
 #include "../../include/graphics/CGlobalShaderProperties.h"
 #include "../../include/graphics/InternalShaderData.h"
 #include "../../include/graphics/CDebugUtility.h"
@@ -224,14 +225,20 @@ namespace TDEngine2
 			if (!pShadowRenderQueue->IsEmpty())
 			{
 				mpGraphicsContext->SetViewport(0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
-				mpGraphicsContext->BindDepthBufferTarget(dynamic_cast<IDepthBufferTarget*>(mpResourceManager->GetResource(mShadowMapHandle)), true);
+				{
+					mpGraphicsContext->BindDepthBufferTarget(dynamic_cast<IDepthBufferTarget*>(mpResourceManager->GetResource(mShadowMapHandle)), true);
 
-				mpGraphicsContext->ClearDepthBuffer(1.0f);
+					mpGraphicsContext->ClearDepthBuffer(1.0f);
 
-				executeCommands(pShadowRenderQueue, true);
+					executeCommands(pShadowRenderQueue, true);
 
-				mpGraphicsContext->BindDepthBufferTarget(nullptr);
-				mpGraphicsContext->SetViewport(0.0f, 0.0f, 800.0f, 600.0f, 0.0f, 1.0f);
+					mpGraphicsContext->BindDepthBufferTarget(nullptr);
+				}
+
+				if (auto pWindowSystem = mpGraphicsContext->GetWindowSystem())
+				{
+					mpGraphicsContext->SetViewport(0.0f, 0.0f, pWindowSystem->GetWidth(), pWindowSystem->GetHeight(), 0.0f, 1.0f);
+				}
 			}			
 		}
 		else

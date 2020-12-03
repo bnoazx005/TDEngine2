@@ -105,15 +105,28 @@ namespace TDEngine2
 		if (mRenderTargetHandle == TResourceId::Invalid)
 		{
 			mRenderTargetHandle = _getRenderTarget(mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true);
-			pCurrRenderTarget = dynamic_cast<IRenderTarget*>(mpResourceManager->GetResource(mRenderTargetHandle));
+			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 
-			if (auto pScreenSpaceMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mDefaultScreenSpaceMaterialHandle)))
+			if (auto pScreenSpaceMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultScreenSpaceMaterialHandle))
 			{
 				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
 			}
 		}
 
-		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, dynamic_cast<IRenderTarget*>(mpResourceManager->GetResource(mRenderTargetHandle)));
+		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle));
+
+		if (pCurrRenderTarget && (pCurrRenderTarget->GetWidth() != mpWindowSystem->GetWidth() || pCurrRenderTarget->GetHeight() != mpWindowSystem->GetHeight()))
+		{
+			mpResourceManager->ReleaseResource(mRenderTargetHandle);
+
+			mRenderTargetHandle = _getRenderTarget(mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true);
+			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+
+			if (auto pScreenSpaceMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultScreenSpaceMaterialHandle))
+			{
+				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
+			}
+		}
 
 		{
 			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);

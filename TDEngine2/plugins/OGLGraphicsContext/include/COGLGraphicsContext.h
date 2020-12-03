@@ -362,6 +362,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TGraphicsContextInfo& GetContextInfo() const override;
+
+			/*!
+				\return The method returns a pointer to IWindowSystem
+			*/
+
+			TDE2_API IWindowSystem* GetWindowSystem() const override;
 		protected:
 			TDE2_API COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 			TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;
@@ -380,6 +386,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*         mpGraphicsObjectManager;
 
+			IWindowSystem*                  mpWindowSystem;
 			IEventManager*                  mpEventManager;
 
 			GLuint                          mMainFBOHandler; /// \todo Replace it with FBOManager later

@@ -508,14 +508,14 @@ namespace TDEngine2
 			}
 		}
 
-		pShaderInstance->Bind();
-
 		auto&& instanceTexturesStorage = mInstancesAssignedTextures[instanceId];
 
 		for (auto iter = instanceTexturesStorage.cbegin(); iter != instanceTexturesStorage.cend(); ++iter)
 		{
 			pShaderInstance->SetTextureResource(iter->first, iter->second);
 		}
+
+		pShaderInstance->Bind();
 	}
 
 	E_RESULT_CODE CBaseMaterial::SetTextureResource(const std::string& resourceName, ITexture* pTexture, TMaterialInstanceId instanceId)

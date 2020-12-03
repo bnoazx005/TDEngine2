@@ -355,6 +355,12 @@ namespace TDEngine2
 
 			TDE2_API virtual const TGraphicsContextInfo& GetContextInfo() const = 0;
 
+			/*!
+				\return The method returns a pointer to IWindowSystem
+			*/
+
+			TDE2_API virtual IWindowSystem* GetWindowSystem() const = 0;
+
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_GRAPHICS_CONTEXT; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsContext)

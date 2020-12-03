@@ -36,6 +36,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mpWindowSystem = pWindowSystem;
+
 		const D3D_FEATURE_LEVEL featureLevels[] =
 		{
 			D3D_FEATURE_LEVEL_11_1,
@@ -449,7 +451,7 @@ namespace TDEngine2
 			SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer, true);
 			SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView, true);
 			
-			if (FAILED(internalResult = mpSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
+			if (FAILED(internalResult = mpSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0)))
 			{
 				return RC_FAIL;
 			}
@@ -511,6 +513,11 @@ namespace TDEngine2
 		};
 
 		return infoData;
+	}
+
+	IWindowSystem* CD3D11GraphicsContext::GetWindowSystem() const
+	{
+		return mpWindowSystem;
 	}
 
 	IDXGIAdapter* CD3D11GraphicsContext::_getDXGIAdapter(ID3D11Device* p3dDevice) const

@@ -176,6 +176,8 @@ namespace TDEngine2
 			TDE2_API TResourceId _loadResource(TypeId resourceTypeId, const std::string& name) override;
 
 			TDE2_API TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
+			
+			TDE2_API IResource* _getResourceInternal(const TResourceId& handle) const;
 
 			TDE2_API const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const override;
 

@@ -172,21 +172,9 @@ namespace TDEngine2
 
 	IResource* CResourceManager::GetResource(const TResourceId& handle) const
 	{
-		if (handle == TResourceId::Invalid)
-		{
-			return nullptr;
-		}
-
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		const U32 resourceId = static_cast<U32>(handle);
-
-		if (resourceId >= mResources.GetSize())
-		{
-			return nullptr;
-		}
-
-		return mResources[resourceId].GetOrDefault(nullptr);
+		return _getResourceInternal(handle);
 	}
 
 	TResourceId CResourceManager::GetResourceId(const std::string& name) const
@@ -293,6 +281,23 @@ namespace TDEngine2
 		return resourceId;
 	}
 
+	IResource* CResourceManager::_getResourceInternal(const TResourceId& handle) const
+	{
+		if (handle == TResourceId::Invalid)
+		{
+			return nullptr;
+		}
+
+		const U32 resourceId = static_cast<U32>(handle);
+
+		if (resourceId >= mResources.GetSize())
+		{
+			return nullptr;
+		}
+
+		return mResources[resourceId].GetOrDefault(nullptr);
+	}
+
 	E_RESULT_CODE CResourceManager::ReleaseResource(const TResourceId& id)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -304,12 +309,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IResource* pResource = GetResource(id);
-
-		if (pResource)
-		{
-			result = pResource->Free();
-		}
+		IResource* pResource = _getResourceInternal(id);
 
 		if (!pResource /*|| (E_RESOURCE_STATE_TYPE::RST_DESTROYING != pResource->GetState())*/) /// \note A resource should be marked as DESTROYING to allow its deletion from the registry
 		{
@@ -318,6 +318,11 @@ namespace TDEngine2
 
 		result = result | mResources.RemoveAt(static_cast<U32>(id));
 		mResourcesMap.erase(mResourcesMap.find(pResource->GetName()));
+
+		if (pResource)
+		{
+			result = pResource->Free();
+		}
 
 		return result;
 	}

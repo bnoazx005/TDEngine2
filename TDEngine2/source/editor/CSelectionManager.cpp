@@ -142,24 +142,24 @@ namespace TDEngine2
 	{
 		TypeId eventType = pEvent->GetEventType();
 
-		static const std::unordered_map<TypeId, std::function<E_RESULT_CODE()>> handlers
+		static const std::unordered_map<TypeId, std::function<E_RESULT_CODE(const TBaseEvent*)>> handlers
 		{
 			{
-				TOnEditorModeEnabled::GetTypeId(), [this, pEvent]
+				TOnEditorModeEnabled::GetTypeId(), [this](const TBaseEvent* pEventData)
 				{
 					return mpWorld->ActivateSystem(mObjectSelectionSystemId);
 				}
 			},
 			{
-				TOnEditorModeDisabled::GetTypeId(), [this, pEvent]
+				TOnEditorModeDisabled::GetTypeId(), [this](const TBaseEvent* pEventData)
 				{
 					return mpWorld->DeactivateSystem(mObjectSelectionSystemId);
 				}
 			},
 			{
-				TOnWindowResized::GetTypeId(), [this, pEvent]
+				TOnWindowResized::GetTypeId(), [this](const TBaseEvent* pEventData)
 				{
-					if (const TOnWindowResized* pOnResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent))
+					if (const TOnWindowResized* pOnResizedEvent = dynamic_cast<const TOnWindowResized*>(pEventData))
 					{
 						return _createRenderTarget(pOnResizedEvent->mWidth, pOnResizedEvent->mHeight);
 					}
@@ -173,7 +173,7 @@ namespace TDEngine2
 
 		if ((iter = handlers.find(eventType)) != handlers.cend())
 		{
-			return iter->second();
+			return iter->second(pEvent);
 		}
 
 		return RC_OK;
@@ -220,7 +220,10 @@ namespace TDEngine2
 				{
 					result = result | mpResourceManager->ReleaseResource(mSelectionGeometryBufferHandle);
 					result = result | mpResourceManager->ReleaseResource(mReadableSelectionBufferHandle);
-				}				
+
+					mSelectionGeometryBufferHandle = TResourceId::Invalid;
+					mReadableSelectionBufferHandle = TResourceId::Invalid;
+				}			
 			}
 		}
 

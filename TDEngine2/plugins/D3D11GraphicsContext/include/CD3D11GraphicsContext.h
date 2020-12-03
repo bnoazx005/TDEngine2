@@ -346,6 +346,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TGraphicsContextInfo& GetContextInfo() const override;
+
+			/*!
+				\return The method returns a pointer to IWindowSystem
+			*/
+
+			TDE2_API IWindowSystem* GetWindowSystem() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsContext)
 
@@ -384,6 +390,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
+			IWindowSystem*           mpWindowSystem;
 			IEventManager*           mpEventManager;
 
 			ID3D11RenderTargetView*  mpRenderTargets[mMaxNumOfRenderTargets];

@@ -41,6 +41,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mpWindowSystem = pWindowSystem;
+
 		if (!mGLContextFactoryCallback)
 		{
 			return RC_FAIL;
@@ -399,6 +401,11 @@ namespace TDEngine2
 	IGraphicsObjectManager* COGLGraphicsContext::GetGraphicsObjectManager() const
 	{
 		return mpGraphicsObjectManager;
+	}
+
+	IWindowSystem* COGLGraphicsContext::GetWindowSystem() const
+	{
+		return mpWindowSystem;
 	}
 
 	F32 COGLGraphicsContext::GetPositiveZAxisDirection() const
