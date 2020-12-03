@@ -1,4 +1,5 @@
 rem "The script for building the engine and its toolset with CMake and Microsoft Visual Studio" 
+rem "%1 argument is CMake generator name; %2 is extra build configuration"
 echo off
 
 rem "Get all submodules"
@@ -33,10 +34,12 @@ call run_codegeneration.bat
 rem "Build main project"
 
 cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% .. && \
-cmake --build .
+cmake --build . %2
 
 if %ERRORLEVEL% neq 0 (
-	pause
+	if not defined TDE2_SKIP_ERROR_WAIT_USER_RESPONSE (
+		pause
+	)
 )
 
 :finalize
