@@ -174,7 +174,7 @@ namespace TDEngine2
 			// \note Insert a new mounting storage based on its priority, type and path's order
 			if (mMountedStorages.empty())
 			{
-				mMountedStorages.push_back({ pStorage, aliasPath });
+				mMountedStorages.push_back(TMountedStorageInfo { pStorage, aliasPath });
 			}
 			else
 			{
@@ -184,7 +184,7 @@ namespace TDEngine2
 				{
 					if (iter->mpStorage->GetPriority() >= pStorage->GetPriority())
 					{
-						mMountedStorages.insert(iter, { pStorage, aliasPath });
+						mMountedStorages.insert(iter, TMountedStorageInfo { pStorage, aliasPath });
 						isInserted = true;
 						break;
 					}
@@ -192,7 +192,7 @@ namespace TDEngine2
 
 				if (!isInserted)
 				{
-					mMountedStorages.push_back({ pStorage, aliasPath });
+					mMountedStorages.push_back(TMountedStorageInfo { pStorage, aliasPath });
 				}
 			}
 		}

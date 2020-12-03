@@ -182,15 +182,16 @@ namespace TDEngine2
 		const static TMaterialParameters selectionMaterialParams
 		{
 			"Selection", false,
-			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
-			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
+			TDepthStencilStateDesc { true, true, E_COMPARISON_FUNC::LESS_EQUAL},
+			TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
 		};
 
 		const static TMaterialParameters selectionOutlineMaterialParams
 		{
 			"SelectionOutline", true,
-			{ false, false, E_COMPARISON_FUNC::LESS_EQUAL},
-			{ E_CULL_MODE::NONE, true, false, 0.0f, 1.0f, false },
+			TDepthStencilStateDesc { false, false, E_COMPARISON_FUNC::LESS_EQUAL},
+			TRasterizerStateDesc { E_CULL_MODE::NONE, true, false, 0.0f, 1.0f, false },
+			TBlendStateDesc 
 			{ 
 				true,
 				E_BLEND_FACTOR_VALUE::SOURCE_ALPHA, 

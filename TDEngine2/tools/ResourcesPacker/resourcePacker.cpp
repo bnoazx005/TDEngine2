@@ -204,7 +204,7 @@ namespace TDEngine2
 
 			resourceFile.seekg(0);
 
-			filesTable.push_back({ currFilePath, static_cast<uint64_t>(packageFile.tellp()), static_cast<uint64_t>(dataSize) });
+			filesTable.push_back(TPackageFileEntryInfo { currFilePath, static_cast<uint64_t>(packageFile.tellp()), static_cast<uint64_t>(dataSize) });
 
 			tempDataBuffer.resize(dataSize);
 			resourceFile.read(tempDataBuffer.data(), dataSize);

@@ -34,7 +34,7 @@ namespace TDEngine2
 		mpResourceManager = pRenderer->GetResourceManager();
 
 		mpOverlayRenderQueue              = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
-		mDefaultScreenSpaceMaterialHandle = mpResourceManager->Create<CBaseMaterial>("DefaultScreenSpaceEffect.material", TMaterialParameters { "DefaultScreenSpaceEffect", false, { false, false } });
+		mDefaultScreenSpaceMaterialHandle = mpResourceManager->Create<CBaseMaterial>("DefaultScreenSpaceEffect.material", TMaterialParameters { "DefaultScreenSpaceEffect", false, TDepthStencilStateDesc { false, false } });
 		mpWindowSystem                    = pWindowSystem;
 		mpGraphicsContext                 = pGraphicsObjectManager->GetGraphicsContext();
 		mRenderTargetHandle               = TResourceId::Invalid;

@@ -1,21 +1,21 @@
-#include "./../../include/ecs/CLightingSystem.h"
-#include "./../../include/ecs/IWorld.h"
-#include "./../../include/ecs/CEntity.h"
-#include "./../../include/ecs/CTransform.h"
-#include "./../../include/graphics/CStaticMesh.h"
-#include "./../../include/graphics/CStaticMeshContainer.h"
-#include "./../../include/graphics/IRenderer.h"
-#include "./../../include/graphics/InternalShaderData.h"
-#include "./../../include/graphics/IGraphicsObjectManager.h"
-#include "./../../include/graphics/IVertexDeclaration.h"
-#include "./../../include/graphics/CRenderQueue.h"
-#include "./../../include/graphics/CBaseMaterial.h"
-#include "./../../include/graphics/CBaseRenderTarget.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/IGraphicsContext.h"
-#include "./../../include/scene/components/CDirectionalLight.h"
-#include "./../../include/scene/components/ShadowMappingComponents.h"
-#include "./../../include/utils/CFileLogger.h"
+#include "../../include/ecs/CLightingSystem.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/graphics/CStaticMesh.h"
+#include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/InternalShaderData.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IVertexDeclaration.h"
+#include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/graphics/CBaseRenderTarget.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/ShadowMappingComponents.h"
+#include "../../include/utils/CFileLogger.h"
 
 
 namespace TDEngine2
@@ -172,8 +172,8 @@ namespace TDEngine2
 		const static TMaterialParameters shadowPassMaterialParams
 		{
 			"ShadowPass", false,
-			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
-			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
+			TDepthStencilStateDesc { true, true, E_COMPARISON_FUNC::LESS_EQUAL},
+			TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
 		};
 
 		mShadowPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);

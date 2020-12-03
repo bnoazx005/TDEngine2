@@ -46,40 +46,40 @@ namespace TDEngine2
 		const TVector4 origin { position, 0 };
 
 		// clock-wise order is used, bottom face
-		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
 
 		// top face
-		vertices.push_back({ origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
 
 		// front face
-		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
 
 		// back face
-		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
 
 		// left face
-		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { -halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
 
 		// right face
-		vertices.push_back({ origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-		vertices.push_back({ origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, halfSize, -halfSize, 1.0f }, { 0.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, -halfSize, -halfSize, 1.0f }, { 0.0f, 1.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, -halfSize, halfSize, 1.0f }, { 1.0f, 0.0f, 0.0f } });
+		vertices.push_back(TGeometryData::TVertex { origin + TVector4 { halfSize, halfSize, halfSize, 1.0f }, { 1.0f, 1.0f, 0.0f } });
 
 		std::vector<U16> faces
 		{
@@ -97,7 +97,7 @@ namespace TDEngine2
 			20, 22, 23,
 		};
 
-		return { std::move(vertices), std::move(faces) };
+		return CGeometryBuilder::TGeometryData { std::move(vertices), std::move(faces) };
 	}
 	
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateCylinderGeometry(const TVector3& position, const TVector3& axis, F32 radius, F32 height, U16 segmentsCount)
@@ -114,12 +114,12 @@ namespace TDEngine2
 
 		std::vector<TGeometryData::TVertex> vertices;
 
-		vertices.push_back({ { position, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+		vertices.push_back(TGeometryData::TVertex { TVector4 { position, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 
 		for (U16 k = 0; k < segmentsCount; ++k)
 		{
 			currAngle = k * deltaAngle;
-			vertices.push_back({ { position + u * (radius * cosf(currAngle)) + v * (radius * sinf(currAngle)), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+			vertices.push_back(TGeometryData::TVertex { TVector4 { position + u * (radius * cosf(currAngle)) + v * (radius * sinf(currAngle)), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 		}
 
 		U16 baseVerticesCount = static_cast<U16>(vertices.size() - 1);
@@ -129,10 +129,10 @@ namespace TDEngine2
 		for (U16 k = 0; k < segmentsCount; ++k)
 		{
 			currAngle = k * deltaAngle;
-			vertices.push_back({ { topPosition + u * (radius * cosf(currAngle)) + v * (radius * sinf(currAngle)), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+			vertices.push_back(TGeometryData::TVertex{ TVector4 { topPosition + u * (radius * cosf(currAngle)) + v * (radius * sinf(currAngle)), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 		}
 
-		vertices.push_back({ { position + height * normal, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+		vertices.push_back(TGeometryData::TVertex{ TVector4 { position + height * normal, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 
 		std::vector<U16> faces;
 
@@ -165,7 +165,7 @@ namespace TDEngine2
 			faces.push_back(k + topSideOffset - 1);
 		}
 
-		return { std::move(vertices), std::move(faces) };
+		return CGeometryBuilder::TGeometryData { std::move(vertices), std::move(faces) };
 	}
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateConeGeometry(const TVector3& position, const TVector3& axis, F32 radius, F32 height, U16 segmentsCount)
@@ -182,16 +182,16 @@ namespace TDEngine2
 
 		std::vector<TGeometryData::TVertex> vertices;
 
-		vertices.push_back({ { position, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+		vertices.push_back(TGeometryData::TVertex { TVector4 { position, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 
 		for (U16 k = 0; k < segmentsCount; ++k)
 		{
 			currAngle = k * deltaAngle;
-			vertices.push_back({ { position + u * (radius * cosf(currAngle)) + v * (radius * sinf(currAngle)), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+			vertices.push_back(TGeometryData::TVertex { TVector4 { position + u * (radius * cosf(currAngle)) + v * (radius * sinf(currAngle)), 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 		}
 
 		// \note Add cone's tip vertex
-		vertices.push_back({ { position + height * normal, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+		vertices.push_back(TGeometryData::TVertex { TVector4 { position + height * normal, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 
 		std::vector<U16> faces;
 
@@ -214,7 +214,7 @@ namespace TDEngine2
 			faces.push_back(i);
 		}
 
-		return { std::move(vertices), std::move(faces) };
+		return CGeometryBuilder::TGeometryData { std::move(vertices), std::move(faces) };
 	}
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreatePlaneGeometry(const TVector3& position, const TVector3& normal, F32 width, F32 height, U16 segmentsPerSide)
