@@ -17,10 +17,8 @@ install:
     - call CI\appveyor\install.bat %TOOLCHAIN% %PLATFORM%
 
 build_script:
-    - mkdir build
     - cd build
-    - cmake .. %CMAKE_CONFIGURE_FLAGS%          # CMAKE_CONFIGURE_FLAGS and CMAKE_BUILD_FLAGS are defined in CI\appveyor\install.bat
-    - cmake --build . %CMAKE_BUILD_FLAGS%
+    - call prepare_build_generic_win.bat %CMAKE_CONFIGURE_FLAGS% %CMAKE_BUILD_FLAGS%
 
 test_script:
     - ctest -C %CONFIGURATION% --output-on-failure

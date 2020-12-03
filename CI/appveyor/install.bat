@@ -43,7 +43,7 @@ if "%TOOLCHAIN%" == "" goto :msvc14
 if "%TARGET_CPU%" == "" goto :amd64
 if "%CONFIGURATION%" == "" (set CONFIGURATION=Release)
 
-set CMAKE_CONFIGURE_FLAGS=-G "%CMAKE_GENERATOR%%CMAKE_GENERATOR_SUFFIX%"
+set CMAKE_CONFIGURE_FLAGS="%CMAKE_GENERATOR%%CMAKE_GENERATOR_SUFFIX%"
 
 set CMAKE_BUILD_FLAGS= ^
     --config %CONFIGURATION% ^
@@ -51,5 +51,3 @@ set CMAKE_BUILD_FLAGS= ^
     /nologo ^
     /verbosity:minimal ^
     /consoleloggerparameters:Summary
-
-git submodule update --init --recursive
