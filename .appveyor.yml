@@ -10,7 +10,7 @@ platform: x86
 
 environment:
     matrix:
-        - TOOLCHAIN: msvc14
+        # - TOOLCHAIN: msvc14
         - TOOLCHAIN: msvc15
 
 install:

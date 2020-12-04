@@ -34,6 +34,7 @@ TEST_CASE("File System Tests")
 		REQUIRE(RC_OK == pFileSystem->MountPhysicalPath("./tmp/", "/tmp/"));
 	}
 
+#if 0
 	SECTION("TestOpenFile_PassNativeFiles_CorrectlyOpensItAndReturnsHandleIfTheyExist")
 	{
 		REQUIRE(RC_OK == pFileSystem->MountPhysicalPath(".", "")); // Mount native FS
@@ -57,7 +58,6 @@ TEST_CASE("File System Tests")
 		REQUIRE(pFileSystem->Open<IBinaryFileReader>("test.bin").HasError()); // this one doesn't exist
 	}
 
-#if 0
 	SECTION("TestMount_PassValidPathsAndAliased_ReturnsOk")
 	{
 		// first string is a path, the second is an alias
