@@ -32,7 +32,7 @@ namespace TDEngine2
 		protected:
 			struct TMountedStorageInfo
 			{
-				IMountableStorage* mpStorage = nullptr;
+				IMountableStorage* mpStorage;
 				std::string mAliasPath;
 			};
 

@@ -51,7 +51,7 @@ TEST_CASE("File System Tests")
 			}
 		};
 
-		tryOpenFile("TDEngine.log");
+		tryOpenFile("TDEngine2.dll");
 		tryOpenFile("Sources/main.cpp");
 
 		REQUIRE(pFileSystem->Open<IBinaryFileReader>("test.bin").HasError()); // this one doesn't exist
