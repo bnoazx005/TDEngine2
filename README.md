@@ -4,7 +4,7 @@ TDEngine 2 is a cross-platform game engine.
 
 | Platform (Compiler) | Build status  |
 |--|--|
-| Win32 (Visual Studio 2015 / 2017) |[![Build status](https://ci.appveyor.com/api/projects/status/dyp34r05yfxii09m?svg=true)](https://ci.appveyor.com/project/bnoazx005/tdengine2) |
+| Win32 (Visual Studio 2017) |[![Build status](https://ci.appveyor.com/api/projects/status/dyp34r05yfxii09m?svg=true)](https://ci.appveyor.com/project/bnoazx005/tdengine2) |
 | UNIX (g++ / clang) |[![Build Status](https://travis-ci.org/bnoazx005/TDEngine2.svg?branch=master)](https://travis-ci.org/bnoazx005/TDEngine2) |
 
 
@@ -14,11 +14,9 @@ TDEngine 2 is a cross-platform game engine.
 2. ### [Current Features](#current-features)
 3. ### [How to Build](#how-to-build)
 
-    ### 2.1 [Visual Studio (Win32)](#vs-win32)
+    ### 3.1 [Visual Studio (Win32)](#vs-win32)
 
-    ### 2.2 [Make Utility (UNIX)](#make-unix)
-
-    ### 2.3 [Compilation](#compilation)
+    ### 3.2 [Make Utility (UNIX)](#make-unix)
     
 4. ### [Getting Started](#getting-started)
 
@@ -62,17 +60,20 @@ platforms.
 
 #### Visual Studio (Win32)<a name="vs-win32"></a>
 
-By now the project  was built using Visual Studio 2017, but it will be successfully built with 2015 
-version as well. 
+For now we support only Visual Studio 2017 and higher versions.
 
-To generate the basic Visual Studio's solution of the engine's SDK you should run the following 
-commands in a console (the instructions are correct if you are within root directory of the project):
+To build all the projects use scripts that were specially prepared for that tasks. For Windows users there are
+two batch scripts **prepare_build_generic_win.bat** and **prepare_build_vs2017_win32.bat**. The first one is common 
+pipeline for any version of Visual Studio or a build type.
+
 ```console
-mkdir build
-cd build
-cmake .. -G "Visual Studio 201X"
+prepare_build_generic_win.bat "<<Generator name>>" "<<Build Type>>"
+:: or use this one to generate debug for VS2017
+prepare_build_vs2017_win32.bat
 ```
-where X is 5 or 7.
+
+Both arguments for the script is one of allowed by CMake tool. <<Build Type>> could be Debug or Release values.
+After execution all binaries and libraries will be available under /bin/%CONFIGURATION%/ directory.
 
 #### Make utility (UNIX)<a name="make-unix"></a>
 
@@ -88,26 +89,6 @@ $ cmake .. -G "Unix Makefiles"
 Note. There are a few requirements for successfull compilation of the engine under UNIX. The first is
 a support of GLX 1.4. It could be done if you have proprietary video drivers installed on your system.
 So your video card should support at least OpenGL 3.0. The second is installed X11 and GLEW libraries.
-
-#### Compilation<a name="compilation"></a>
-
-If everything went ok you've got a solution of the entire SDK (including sample project, 
-which is called SandboxGame). For now you can compile it either using Visual Studio IDE,
-or a console's command:
-```console
-$ cmake --build .
-```
-All executables can be found within /bin directory. Note. To speed up building process you can
-exclude a part of built-in plugins, which 
-aren't needed you.
-
-If you use UNIX based OS you can install all the compiled libraries into /usr/lib/TDEngine2/
-directory (call make install within /build directory),
-```console
-# make install
-```
-but everything will work well if you'll place plugins' *.so files and TDEngine2.so
-at the same directory with an executable program.
 
 ***
 
