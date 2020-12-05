@@ -32,9 +32,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	// read ttf file
 	auto pFontFile = pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>("arial.ttf").Get());
 	
-	std::unique_ptr<U8[]> pFontBuffer(new U8[pFontFile->GetFileLength()]);
+	std::unique_ptr<U8[]> pFontBuffer(new U8[static_cast<U32>(pFontFile->GetFileLength())]);
 
-	if (pFontFile->Read(pFontBuffer.get(), pFontFile->GetFileLength()) != RC_OK)
+	if (pFontFile->Read(pFontBuffer.get(), static_cast<U32>(pFontFile->GetFileLength())) != RC_OK)
 	{
 		return RC_FAIL;
 	}
@@ -59,8 +59,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	
 	int ascent, descent;
 	stbtt_GetFontVMetrics(&font, &ascent, &descent, 0);
-	ascent *= scale;
-	descent *= scale;
+
+	ascent = static_cast<I32>(ascent * scale);
+	descent = static_cast<I32>(descent * scale);
 	
 	I32 x0, y0, x1, y1;
 	stbtt_GetFontBoundingBox(&font, &x0, &y0, &x1, &y1);

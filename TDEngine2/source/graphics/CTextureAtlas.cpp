@@ -148,8 +148,8 @@ namespace TDEngine2
 
 		auto calcMetric = [](const TRectI32& textureSizes, const TRectI32& areaSizes) -> F32
 		{
-			F32 dx = fabs(areaSizes.width - textureSizes.width);
-			F32 dy = fabs(areaSizes.height - textureSizes.height);
+			F32 dx = fabs(static_cast<F32>(areaSizes.width - textureSizes.width));
+			F32 dy = fabs(static_cast<F32>(areaSizes.height - textureSizes.height));
 
 			return sqrt(dx * dx + dy * dy);
 		};
@@ -187,18 +187,18 @@ namespace TDEngine2
 				{
 					pCurrSubdivisionEntry->mTextureEntryId = std::distance(mPendingData.cbegin(), dataIter);
 
-					float dx = pCurrSubdivisionEntry->mBounds.width - dataIter->mRect.width;
-					float dy = pCurrSubdivisionEntry->mBounds.height - dataIter->mRect.height;
+					F32 dx = static_cast<F32>(pCurrSubdivisionEntry->mBounds.width - dataIter->mRect.width);
+					F32 dy = static_cast<F32>(pCurrSubdivisionEntry->mBounds.height - dataIter->mRect.height);
 
 					bool isVerticalSlice = (dx > dy) || fabs(dx - dy) < 1e-3f;
 
 					/// \note divide the area into sub areas based on filled space
 					std::tie(firstRect, secondRect) = SplitRectWithLine(pCurrSubdivisionEntry->mBounds,
-																		isVerticalSlice ? TVector2(dataIter->mRect.width, 0.0f) : TVector2(0.0f, dataIter->mRect.height),
+																		isVerticalSlice ? TVector2(static_cast<F32>(dataIter->mRect.width), 0.0f) : TVector2(0.0f, static_cast<F32>(dataIter->mRect.height)),
 																		isVerticalSlice);
 					
 					std::tie(thirdRect, firstRect) = SplitRectWithLine(firstRect,
-																	   !isVerticalSlice ? TVector2(dataIter->mRect.width, 0.0f) : TVector2(0.0f, dataIter->mRect.height),
+																	   !isVerticalSlice ? TVector2(static_cast<F32>(dataIter->mRect.width), 0.0f) : TVector2(0.0f, static_cast<F32>(dataIter->mRect.height)),
 																	   !isVerticalSlice);
 
 					pCurrSubdivisionEntry->mpLeft  = std::make_unique<TAtlasAreaEntry>();

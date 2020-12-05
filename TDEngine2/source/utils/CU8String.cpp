@@ -120,7 +120,7 @@ namespace TDEngine2
 	{
 		U32 internalPos = 0;
 
-		for (int i = 0; i < pos && internalPos < bufferSize; ++i)
+		for (U32 i = 0; i < pos && internalPos < bufferSize; ++i)
 		{
 			internalPos += GetCharLength(pStrBuffer[internalPos]);
 		}

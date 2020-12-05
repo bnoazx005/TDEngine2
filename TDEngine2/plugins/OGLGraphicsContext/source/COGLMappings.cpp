@@ -430,6 +430,8 @@ namespace TDEngine2
 			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_FAN:
 				return GL_TRIANGLE_FAN;
 		}
+
+		return GL_TRIANGLES;
 	}
 
 	GLenum COGLMappings::GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType)
@@ -579,6 +581,8 @@ namespace TDEngine2
 			case GL_NO_ERROR:
 				return RC_OK;
 		}
+
+		return RC_OK;
 	}
 	
 	std::string COGLMappings::ErrorCodeToString(GLenum error)

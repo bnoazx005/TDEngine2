@@ -423,7 +423,7 @@ namespace TDEngine2
 	{
 		I32 index = currSelectedItem;
 
-		if (index >= items.size())
+		if (index >= static_cast<I32>(items.size()))
 		{
 			return -1;
 		}

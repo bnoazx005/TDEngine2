@@ -27,14 +27,14 @@ namespace TDEngine2
 		}
 
 		std::vector<U8> dataBuffer;
-		dataBuffer.resize(iter->mDataBlockSize);
+		dataBuffer.resize(static_cast<size_t>(iter->mDataBlockSize));
 
 		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
 		
 		U32 prevPosition = pStream->GetPosition();
 		{
-			pStream->SetPosition(iter->mDataBlockOffset);
-			pStream->Read(&dataBuffer[0], iter->mDataBlockSize);
+			pStream->SetPosition(static_cast<U32>(iter->mDataBlockOffset));
+			pStream->Read(&dataBuffer[0], static_cast<U32>(iter->mDataBlockSize));
 		}
 
 		pStream->SetPosition(prevPosition);
@@ -71,7 +71,7 @@ namespace TDEngine2
 	{
 		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
 
-		E_RESULT_CODE result = pStream->SetPosition(mCurrHeader.mFilesTableOffset);
+		E_RESULT_CODE result = pStream->SetPosition(static_cast<U32>(mCurrHeader.mFilesTableOffset));
 
 		U64 filenameLength = 0;
 		TPackageFileEntryInfo info;
@@ -80,8 +80,8 @@ namespace TDEngine2
 		{
 			result = result | pStream->Read(&filenameLength, sizeof(filenameLength));
 
-			info.mFilename.resize(filenameLength);
-			result = result | pStream->Read(&info.mFilename[0], sizeof(C8) * filenameLength);
+			info.mFilename.resize(static_cast<size_t>(filenameLength));
+			result = result | pStream->Read(&info.mFilename[0], static_cast<U32>(sizeof(C8) * filenameLength));
 
 			result = result | pStream->Read(&info.mDataBlockOffset, sizeof(info.mDataBlockOffset));
 			result = result | pStream->Read(&info.mDataBlockSize, sizeof(info.mDataBlockSize));
@@ -165,7 +165,7 @@ namespace TDEngine2
 			pStream->SetPosition(0);
 			
 			std::vector<U8> buffer;
-			buffer.resize(fileInfo.mDataBlockSize);
+			buffer.resize(static_cast<size_t>(fileInfo.mDataBlockSize));
 
 			CDeferOperation _([&] 
 			{
@@ -221,7 +221,7 @@ namespace TDEngine2
 			U64 filenameLength = currFileEntryInfo.mFilename.length();
 
 			result = result | pStream->Write(&filenameLength, sizeof(filenameLength));
-			result = result | pStream->Write(&currFileEntryInfo.mFilename[0], filenameLength * sizeof(C8));
+			result = result | pStream->Write(&currFileEntryInfo.mFilename[0], static_cast<U32>(filenameLength * sizeof(C8)));
 
 			result = result | pStream->Write(&currFileEntryInfo.mDataBlockOffset, sizeof(currFileEntryInfo.mDataBlockOffset));
 			result = result | pStream->Write(&currFileEntryInfo.mDataBlockSize, sizeof(currFileEntryInfo.mDataBlockSize));

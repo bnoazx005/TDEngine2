@@ -62,7 +62,7 @@ namespace TDEngine2
 				IVertexBuffer*      mpVertexBuffer;
 				IIndexBuffer*       mpIndexBuffer;
 				IVertexDeclaration* mpVertexDecl;
-			};
+			} TMeshBuffersEntry, *TMeshBuffersEntryPtr;
 
 			typedef std::vector<std::tuple<CTransform*, CStaticMeshContainer*>> TEntitiesArray;
 			typedef std::vector<IMaterial*>                                     TMaterialsArray;

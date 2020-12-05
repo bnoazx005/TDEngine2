@@ -157,7 +157,7 @@ namespace TDEngine2
 			_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
 		}
 
-		for (I32 i = 0; i < mSprites.size(); ++i)
+		for (U32 i = 0; i < static_cast<U32>(mSprites.size()); ++i)
 		{
 			pCurrTransform = mTransforms[i];
 
@@ -183,7 +183,7 @@ namespace TDEngine2
 
 		IVertexBuffer* pCurrBatchInstancesBuffer = nullptr;
 
-		U64 instancesCount = 0;
+		U32 instancesCount = 0;
 
 		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
 		{
@@ -191,7 +191,7 @@ namespace TDEngine2
 
 			TBatchEntry& currBatchEntry = (*iter).second;
 
-			instancesCount    = currBatchEntry.mpInstancesData->GetSize();
+			instancesCount    = static_cast<U32>(currBatchEntry.mpInstancesData->GetSize());
 			U32 currBatchSize = instancesCount * sizeof(TSpriteInstanceData);
 
 			if (currBatchSize <= SpriteInstanceDataBufferSize)

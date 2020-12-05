@@ -222,7 +222,7 @@ namespace TDEngine2
 		D3D11_RASTERIZER_DESC internalStateDesc;
 		internalStateDesc.FillMode              = rasterizerStateDesc.mIsWireframeModeEnabled ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
 		internalStateDesc.CullMode              = CD3D11Mappings::GetCullMode(rasterizerStateDesc.mCullMode);
-		internalStateDesc.DepthBias             = rasterizerStateDesc.mDepthBias;
+		internalStateDesc.DepthBias             = static_cast<I32>(rasterizerStateDesc.mDepthBias);
 		internalStateDesc.DepthBiasClamp        = rasterizerStateDesc.mMaxDepthBias;
 		internalStateDesc.DepthClipEnable       = rasterizerStateDesc.mIsDepthClippingEnabled;
 		internalStateDesc.FrontCounterClockwise = rasterizerStateDesc.mIsFrontCCWEnabled;

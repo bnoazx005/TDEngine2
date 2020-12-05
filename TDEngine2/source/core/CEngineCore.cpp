@@ -476,7 +476,7 @@ namespace TDEngine2
 
 		std::string subsystemName = std::move(std::string("[Engine Core] ").append(EngineSubsystemTypeToString(subsystemType)));
 
-		MainLogger->LogStatus(subsystemName, result != RC_OK ? "FAILED" : "OK", '.', statusStringLength - subsystemName.size());
+		MainLogger->LogStatus(subsystemName, result != RC_OK ? "FAILED" : "OK", '.', static_cast<U16>(statusStringLength - subsystemName.size()));
 
 		return result;
 	}

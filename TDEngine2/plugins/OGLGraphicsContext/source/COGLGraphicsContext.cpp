@@ -109,7 +109,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		SetViewport(0, 0, pWindowSystem->GetWidth(), pWindowSystem->GetHeight(), 0.0f, 1.0f);
+		SetViewport(0, 0, static_cast<F32>(pWindowSystem->GetWidth()), static_cast<F32>(pWindowSystem->GetHeight()), 0.0f, 1.0f);
 
 		mIsInitialized = true;
 		
@@ -222,7 +222,7 @@ namespace TDEngine2
 	
 	void COGLGraphicsContext::SetScissorRect(const TRectF32& scissorRect)
 	{
-		GL_SAFE_VOID_CALL(glScissor(scissorRect.x, scissorRect.y, scissorRect.width, scissorRect.height));
+		GL_SAFE_VOID_CALL(glScissor(static_cast<GLint>(scissorRect.x), static_cast<GLint>(scissorRect.y), static_cast<GLsizei>(scissorRect.width), static_cast<GLsizei>(scissorRect.height)));
 	}
 
 	TMatrix4 COGLGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)

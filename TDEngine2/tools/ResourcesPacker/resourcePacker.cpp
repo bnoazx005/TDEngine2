@@ -200,14 +200,14 @@ namespace TDEngine2
 				continue;
 			}
 			
-			size_t dataSize = resourceFile.tellg();
+			std::streampos dataSize = resourceFile.tellg();
 
 			resourceFile.seekg(0);
 
 			filesTable.push_back(TPackageFileEntryInfo { currFilePath, static_cast<uint64_t>(packageFile.tellp()), static_cast<uint64_t>(dataSize) });
 
-			tempDataBuffer.resize(dataSize);
-			resourceFile.read(tempDataBuffer.data(), dataSize);
+			tempDataBuffer.resize(static_cast<size_t>(dataSize));
+			resourceFile.read(tempDataBuffer.data(), static_cast<std::streamsize>(dataSize));
 
 			resourceFile.close();
 		}

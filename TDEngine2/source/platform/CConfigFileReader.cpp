@@ -23,7 +23,7 @@ namespace TDEngine2
 
 		C8* ppStrEnd = nullptr;
 
-		return std::strtol(resultValue.c_str(), &ppStrEnd, 0);
+		return static_cast<I32>(std::strtol(resultValue.c_str(), &ppStrEnd, 0));
 	}
 
 	F32 CConfigFileReader::GetFloat(const std::string& group, const std::string& paramName, F32 defaultValue)
@@ -35,7 +35,7 @@ namespace TDEngine2
 			return defaultValue;
 		}
 
-		return std::atof(resultValue.c_str());
+		return static_cast<F32>(std::atof(resultValue.c_str()));
 	}
 
 	bool CConfigFileReader::GetBool(const std::string& group, const std::string& paramName, bool defaultValue)

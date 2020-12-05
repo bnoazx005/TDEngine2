@@ -71,8 +71,8 @@ namespace TDEngine2
 		}
 
 		DWORD style = _getStyleByParams(flags);
-
-		RECT outsideWindowRect = { 0, 0, mWidth, mHeight };
+		
+		RECT outsideWindowRect = { 0, 0, static_cast<LONG>(mWidth), static_cast<LONG>(mHeight) };
 		AdjustWindowRect(&outsideWindowRect, style, false);
 
 		width  = outsideWindowRect.right - outsideWindowRect.left;

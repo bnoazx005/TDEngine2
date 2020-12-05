@@ -88,7 +88,7 @@ namespace TDEngine2
 			return {};
 		}
 
-		U64 size = mWidth * mHeight * CD3D11Mappings::GetFormatSize(mFormat);
+		const size_t size = static_cast<size_t>(mWidth * mHeight * CD3D11Mappings::GetFormatSize(mFormat));
 
 		std::vector<U8> pixelsData(size);
 

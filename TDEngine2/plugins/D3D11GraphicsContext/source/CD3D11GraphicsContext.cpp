@@ -263,10 +263,10 @@ namespace TDEngine2
 	{
 		D3D11_RECT internalScissorRect;
 
-		internalScissorRect.left   = scissorRect.x;
-		internalScissorRect.top    = scissorRect.y;
-		internalScissorRect.right  = scissorRect.x + scissorRect.width;
-		internalScissorRect.bottom = scissorRect.y + scissorRect.height;
+		internalScissorRect.left   = static_cast<LONG>(scissorRect.x);
+		internalScissorRect.top    = static_cast<LONG>(scissorRect.y);
+		internalScissorRect.right  = static_cast<LONG>(scissorRect.x + scissorRect.width);
+		internalScissorRect.bottom = static_cast<LONG>(scissorRect.y + scissorRect.height);
 
 		mp3dDeviceContext->RSSetScissorRects(1, &internalScissorRect);
 	}

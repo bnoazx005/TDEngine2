@@ -176,7 +176,7 @@ namespace TDEngine2
 
 	template <typename T>
 	CDynamicArray<T>::CDynamicArray(IAllocator& allocator, SizeType capacity):
-		mpAllocator(&allocator), mCapacity(capacity), mSize(0), mpBuffer(static_cast<Type*>(allocator.Allocate(sizeof(T) * capacity, __alignof(T))))
+		mpAllocator(&allocator), mCapacity(static_cast<U64>(capacity)), mSize(0), mpBuffer(static_cast<Type*>(allocator.Allocate(static_cast<U32>(sizeof(T) * capacity), __alignof(T))))
 	{
 	}
 
@@ -301,9 +301,9 @@ namespace TDEngine2
 		
 		assert(mpAllocator->Deallocate(mpBuffer) == RC_OK);
 
-		Type* pNewBuffer = static_cast<Type*>(mpAllocator->Allocate(mCapacity * sizeof(T), __alignof(T)));
+		Type* pNewBuffer = static_cast<Type*>(mpAllocator->Allocate(static_cast<U32>(mCapacity * sizeof(T)), __alignof(T)));
 
-		memcpy(pNewBuffer, mpBuffer, mSize);
+		memcpy(pNewBuffer, mpBuffer, static_cast<size_t>(mSize));
 
 		mpBuffer = pNewBuffer;
 	}

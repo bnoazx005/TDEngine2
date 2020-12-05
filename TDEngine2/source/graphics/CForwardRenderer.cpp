@@ -237,7 +237,7 @@ namespace TDEngine2
 
 				if (auto pWindowSystem = mpGraphicsContext->GetWindowSystem())
 				{
-					mpGraphicsContext->SetViewport(0.0f, 0.0f, pWindowSystem->GetWidth(), pWindowSystem->GetHeight(), 0.0f, 1.0f);
+					mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pWindowSystem->GetWidth()), static_cast<F32>(pWindowSystem->GetHeight()), 0.0f, 1.0f);
 				}
 			}			
 		}

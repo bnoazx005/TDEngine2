@@ -166,13 +166,13 @@ namespace TDEngine2
 	template <typename T>
 	std::tuple<TRect<T>, TRect<T>> SplitRectWithLine(const TRect<T>& rect, const TVector2& pos, bool isVertical = false)
 	{
-		T ox = isVertical ? rect.x + pos.x : rect.x;
-		T oy = isVertical ? rect.y : rect.y + pos.y;
+		T ox = static_cast<T>(isVertical ? rect.x + pos.x : rect.x);
+		T oy = static_cast<T>(isVertical ? rect.y : rect.y + pos.y);
 
-		T firstRectWidth   = isVertical ? pos.x : rect.width;
-		T firstRectHeight  = isVertical ? rect.height - pos.y : pos.y;
-		T secondRectWidth  = isVertical ? rect.width - pos.x : rect.width;
-		T secondRectHeight = isVertical ? rect.height : rect.height - pos.y;
+		T firstRectWidth   = static_cast<T>(isVertical ? pos.x : rect.width);
+		T firstRectHeight  = static_cast<T>(isVertical ? rect.height - pos.y : pos.y);
+		T secondRectWidth  = static_cast<T>(isVertical ? rect.width - pos.x : rect.width);
+		T secondRectHeight = static_cast<T>(isVertical ? rect.height : rect.height - pos.y);
 
 		return { {rect.x, rect.y, firstRectWidth, firstRectHeight}, {ox, oy, secondRectWidth, secondRectHeight} };
 	}
