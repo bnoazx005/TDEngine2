@@ -19,7 +19,7 @@ install:
 build_script:
     - cd build
     - set TDE2_SKIP_ERROR_WAIT_USER_RESPONSE=1 # Skip pause when error's happened
-    - call prepare_build_generic_win.bat %CMAKE_CONFIGURE_FLAGS% %CMAKE_BUILD_FLAGS%
+    - call prepare_build_generic_win.bat %CMAKE_CONFIGURE_FLAGS% %CONFIGURATION%
 
 test_script:
     - ctest -C %CONFIGURATION% --output-on-failure
