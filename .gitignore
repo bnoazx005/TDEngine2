@@ -6,6 +6,8 @@ Release/
 Debug/
 TDEngine2/docs/
 
+/build/cache/
+
 TODO
   
 *.opensdf
