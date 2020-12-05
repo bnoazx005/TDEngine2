@@ -35,7 +35,7 @@ call run_codegeneration.bat
 
 rem "Build main project"
 
-cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% -DCMAKE_BUILD_TYPE=%2 .. && cmake --build . %2 . --config %2
+cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% -DCMAKE_BUILD_TYPE=%2 .. && cmake --build . --config %2
 
 if %ERRORLEVEL% neq 0 (
 	if not defined TDE2_SKIP_ERROR_WAIT_USER_RESPONSE (
