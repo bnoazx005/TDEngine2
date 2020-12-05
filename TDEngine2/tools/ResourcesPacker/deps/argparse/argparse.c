@@ -278,7 +278,7 @@ unknown:
     }
 
 end:
-    memmove(self->out + self->cpidx, self->argv,
+    memmove((void*)(self->out + self->cpidx), (const void*)self->argv,
             (size_t)(self->argc * sizeof(*self->out)));
     self->out[self->cpidx + self->argc] = NULL;
 
