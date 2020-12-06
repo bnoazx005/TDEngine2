@@ -19,7 +19,7 @@ install:
 script:
     - cd build
     - TDE2_INSTALL_BULLET3=1
-    - sh ./prepare_build_generic_unix.sh "Unix Makefiles" $BUILD_CONFIGURATION
+    - sh ./prepare_build_generic_unix.sh $BUILD_CONFIGURATION
     - ctest --output-on-failure
 
 before_deploy:
