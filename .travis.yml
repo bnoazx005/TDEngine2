@@ -17,15 +17,13 @@ install:
     - source CI/travis/install.sh
 
 script:
-    - mkdir build
     - cd build
-    - pushd $TRAVIS_BUILD_DIR/TDEngine2/deps/bullet3/ && cmake -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU . && cmake --build . && sudo make install && popd
-    - cmake -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU -DUSE_EXTERNAL_BULLET_LIBRARY=ON ..
-    - cmake --build .
+    - TDE2_INSTALL_BULLET3=1
+    - sh ./prepare_build_generic_unix.sh "Unix Makefiles" $BUILD_CONFIGURATION
     - ctest --output-on-failure
 
 before_deploy:
-    - cmd: 7z a TDEngine2_SDK.zip $TRAVIS_BUILD_DIR\bin\$BUILD_CONFIGURATION\ $TRAVIS_BUILD_DIR\Resources $TRAVIS_BUILD_DIR\README.md $TRAVIS_BUILD_DIR\LICENSE $TRAVIS_BUILD_DIR\CHANGELOG.md $TRAVIS_BUILD_DIR\TDEngine2\
+    - cmd: 7z a TDEngine2_SDK.zip $TRAVIS_BUILD_DIR/bin/$BUILD_CONFIGURATION/ $TRAVIS_BUILD_DIR/Resources $TRAVIS_BUILD_DIR/README.md $TRAVIS_BUILD_DIR/LICENSE $TRAVIS_BUILD_DIR/CHANGELOG.md $TRAVIS_BUILD_DIR/TDEngine2/
 
 
 deploy:
