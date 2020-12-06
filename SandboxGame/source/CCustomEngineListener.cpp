@@ -107,7 +107,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto sr = pMeshEntity->AddComponent<CShadowReceiverComponent>();
 	auto bounds = pMeshEntity->AddComponent<CBoundsComponent>();
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
-	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
+	pMeshTransform->SetPosition({ 0.0f, 1.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");

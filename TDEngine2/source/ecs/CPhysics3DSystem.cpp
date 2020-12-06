@@ -5,6 +5,7 @@
 #include "../../include/core/IEventManager.h"
 #include "../../include/physics/3D/CBoxCollisionObject3D.h"
 #include "../../include/physics/3D/CSphereCollisionObject3D.h"
+#include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
 #include "../../deps/bullet3/src/btBulletDynamicsCommon.h"
 //#include "./../../deps/bullet3/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include <algorithm>
@@ -132,7 +133,10 @@ namespace TDEngine2
 			pTransform = pCurrEntity->GetComponent<CTransform>();
 			mPhysicsObjectsData.mpTransforms.push_back(pTransform);
 
-			pBaseCollisionObject = GetValidPtrOrDefault<CBaseCollisionObject3D*>(pCurrEntity->GetComponent<CBoxCollisionObject3D>(), nullptr);
+			pBaseCollisionObject = GetValidPtrOrDefault<CBaseCollisionObject3D*>(pCurrEntity->GetComponent<CBoxCollisionObject3D>(), 
+										GetValidPtrOrDefault<CBaseCollisionObject3D*>(pCurrEntity->GetComponent<CSphereCollisionObject3D>(),
+																					  pCurrEntity->GetComponent<CConvexHullCollisionObject3D>()));
+
 			mPhysicsObjectsData.mpCollisionObjects.push_back(pBaseCollisionObject);
 
 			pInternalColliderShape = pBaseCollisionObject->GetCollisionShape(this);
@@ -162,6 +166,18 @@ namespace TDEngine2
 	btSphereShape* CPhysics3DSystem::CreateSphereCollisionShape(const CSphereCollisionObject3D& sphere) const
 	{
 		return new btSphereShape(sphere.GetRadius());
+	}
+
+	btConvexHullShape* CPhysics3DSystem::CreateConvexHullCollisionShape(const CConvexHullCollisionObject3D& hull) const
+	{
+		auto pHullShape = new btConvexHullShape();
+
+		for (auto&& currVertex : hull.GetVertices())
+		{
+			pHullShape->addPoint(btVector3(currVertex.x, currVertex.y, currVertex.z));
+		}
+
+		return pHullShape;
 	}
 
 	void CPhysics3DSystem::RaycastClosest(const TVector3& origin, const TVector3& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback)

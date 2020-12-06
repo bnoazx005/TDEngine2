@@ -179,6 +179,7 @@
 #include "physics/3D/CBoxCollisionObject3D.h"
 #include "physics/3D/ICollisionObjects3DVisitor.h"
 #include "physics/3D/CSphereCollisionObject3D.h"
+#include "physics/3D/CConvexHullCollisionObject3D.h"
 #include "physics/ICollisionObject.h"
 #include "physics/IRaycastContext.h"
 #include "physics/CBaseRaycastContext.h"

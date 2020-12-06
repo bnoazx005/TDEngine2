@@ -154,6 +154,17 @@ namespace TDEngine2
 			TDE2_API btSphereShape* CreateSphereCollisionShape(const CSphereCollisionObject3D& sphere) const override;
 
 			/*!
+				\brief The method returns a new created collision shape which is a convex hull. This is handful for
+				approximations of triangle meshes
+
+				\param[in] hull A reference to a convex hull's object
+
+				\return The method returns a new created collision shape of a convex hull
+			*/
+
+			TDE2_API btConvexHullShape* CreateConvexHullCollisionShape(const CConvexHullCollisionObject3D& hull) const override;
+
+			/*!
 				\brief The method casts a ray into a scene and returns closest object which is intersected by that.
 				If there wasn't intersections nullptr is returned. The method isn't asynchronous, its callback will
 				be called before the method returns execution context to its caller
