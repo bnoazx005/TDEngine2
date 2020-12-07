@@ -25,6 +25,8 @@ class btSequentialImpulseConstraintSolver;
 class btDiscreteDynamicsWorld;
 class btCollisionShape;
 class btRigidBody;
+class btCollisionObject;
+class btGhostObject;
 
 
 namespace TDEngine2
@@ -67,7 +69,9 @@ namespace TDEngine2
 
 				std::vector<btCollisionShape*>       mpBulletColliderShapes;
 
-				std::vector<btRigidBody*>            mpRigidBodies;
+				std::vector<btGhostObject*>          mpTriggers;
+
+				std::vector<btCollisionObject*>      mpInternalCollisionObjects;
 
 				std::vector<btMotionState*>          mpMotionHandlers;
 
@@ -196,6 +200,8 @@ namespace TDEngine2
 
 			TDE2_API std::tuple<btRigidBody*, btMotionState*> _createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
 
+			TDE2_API std::tuple<btGhostObject*, btMotionState*> _createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
+
 			TDE2_API E_RESULT_CODE _freePhysicsObjects(TPhysicsObjectsData& physicsData);
 		protected:
 			static const TVector3                mDefaultGravity;
@@ -224,4 +230,22 @@ namespace TDEngine2
 
 			TPhysicsObjectsData                  mPhysicsObjectsData;
 	};
+
+
+	/*!
+		struct TOnTrigger3DEnterEvent
+
+		\brief The structure represents an event which occurs
+		when some entity enters into a 3D trigger
+	*/
+
+	typedef struct TOnTrigger3DEnterEvent : TBaseEvent
+	{
+		virtual ~TOnTrigger3DEnterEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnTrigger3DEnterEvent)
+		REGISTER_EVENT_TYPE(TOnTrigger3DEnterEvent)
+
+		TEntityId mEntities[2]; ///< Two bodies that were collided
+	} TOnTrigger3DEnterEvent, *TOnTrigger3DEnterEventPtr;
 }

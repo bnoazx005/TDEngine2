@@ -6,7 +6,10 @@
 #include "../../include/physics/3D/CBoxCollisionObject3D.h"
 #include "../../include/physics/3D/CSphereCollisionObject3D.h"
 #include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
+#include "../../include/physics/3D/CTrigger3D.h"
 #include "../../deps/bullet3/src/btBulletDynamicsCommon.h"
+#include "../../deps/bullet3/src/btBulletCollisionCommon.h"
+#include "../../deps/bullet3/src/BulletCollision/CollisionDispatch/btGhostObject.h"
 //#include "./../../deps/bullet3/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include <algorithm>
 
@@ -25,7 +28,8 @@ namespace TDEngine2
 		mpTransforms.clear();
 		mpCollisionObjects.clear();
 		mpBulletColliderShapes.clear();
-		mpRigidBodies.clear();
+		mpInternalCollisionObjects.clear();
+		mpTriggers.clear();
 	}
 
 
@@ -120,7 +124,7 @@ namespace TDEngine2
 		CBaseCollisionObject3D* pBaseCollisionObject = nullptr;
 
 		btCollisionShape* pInternalColliderShape = nullptr;
-		btRigidBody* pCurrRigidbody = nullptr;
+		btCollisionObject* pCurrCollisionObject = nullptr;
 		btMotionState* pMotionHandler = nullptr;
 
 		for (TEntityId currEntityId : interactiveEntities)
@@ -142,19 +146,43 @@ namespace TDEngine2
 			pInternalColliderShape = pBaseCollisionObject->GetCollisionShape(this);
 			mPhysicsObjectsData.mpBulletColliderShapes.push_back(pInternalColliderShape);
 
-			std::tie(pCurrRigidbody, pMotionHandler) = _createRigidbody(*pBaseCollisionObject, pTransform, pInternalColliderShape);
-			mPhysicsObjectsData.mpRigidBodies.push_back(pCurrRigidbody);
+			if (pCurrEntity->HasComponent<CTrigger3D>())
+			{
+				std::tie(pCurrCollisionObject, pMotionHandler) = _createTrigger(*pBaseCollisionObject, pTransform, pInternalColliderShape);
+				mPhysicsObjectsData.mpTriggers.push_back(btGhostObject::upcast(pCurrCollisionObject));
+
+				mpWorld->addCollisionObject(btGhostObject::upcast(pCurrCollisionObject));
+			}
+			else
+			{
+				std::tie(pCurrCollisionObject, pMotionHandler) = _createRigidbody(*pBaseCollisionObject, pTransform, pInternalColliderShape);
+				mpWorld->addRigidBody(btRigidBody::upcast(pCurrCollisionObject));
+			}
+
+			mPhysicsObjectsData.mpInternalCollisionObjects.push_back(pCurrCollisionObject);
 			mPhysicsObjectsData.mpMotionHandlers.push_back(pMotionHandler);
 
-			pCurrRigidbody->setUserIndex(static_cast<U32>(currEntityId));
-
-			mpWorld->addRigidBody(pCurrRigidbody);
+			pCurrCollisionObject->setUserIndex(static_cast<U32>(currEntityId));
 		}
 	}
 
 	void CPhysics3DSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		mpWorld->stepSimulation(mCurrTimeStep, mCurrPositionIterations);
+
+		const btCollisionObject* pColliderObject = nullptr;
+
+		for (auto&& pCurrTrigger : mPhysicsObjectsData.mpTriggers)
+		{
+			for (I32 i = 0; i < pCurrTrigger->getNumOverlappingObjects(); ++i)
+			{
+				pColliderObject = pCurrTrigger->getOverlappingObject(i);
+				if (pColliderObject)
+				{
+					TDE2_ASSERT(false);
+				}
+			}
+		}
 	}
 
 	btBoxShape* CPhysics3DSystem::CreateBoxCollisionShape(const CBoxCollisionObject3D& box) const
@@ -266,6 +294,44 @@ namespace TDEngine2
 		return { new btRigidBody(rigidbodyConfiguration), pMotionHandler };
 	}
 
+	std::tuple<btGhostObject*, btMotionState*> CPhysics3DSystem::_createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const
+	{
+		E_COLLISION_OBJECT_TYPE triggerType = collisionObject.GetCollisionType();
+
+		F32 mass = collisionObject.GetMass();
+
+		btVector3 localInertia{ 0.0f, 0.0f, 0.0f };
+
+		if (triggerType == E_COLLISION_OBJECT_TYPE::COT_DYNAMIC)
+		{
+			pColliderShape->calculateLocalInertia(mass, localInertia);
+		}
+		else
+		{
+			// \note Bullet3 describes static and kinematic rigid bodies as objects with zero mass
+			mass = 0.0f;
+		}
+
+		btTransform internalTransform;
+		{
+			internalTransform.setIdentity();
+
+			auto&& pos = pTransform->GetPosition();
+			internalTransform.setOrigin({ pos.x, pos.y, pos.z });
+
+			auto&& rot = pTransform->GetRotation();
+			internalTransform.setRotation({ rot.x, rot.y, rot.z, rot.w });
+		}
+
+		btMotionState* pMotionHandler = new TEntitiesMotionState(pTransform, internalTransform);
+		
+		auto pTriggerObject = new btGhostObject();
+
+		pTriggerObject->setCollisionShape(pColliderShape);
+
+		return { pTriggerObject, pMotionHandler };
+	}
+
 	E_RESULT_CODE CPhysics3DSystem::_freePhysicsObjects(TPhysicsObjectsData& physicsData)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -280,15 +346,15 @@ namespace TDEngine2
 			delete currMotionHandler;
 		}
 
-		for (auto& currRigidBody : mPhysicsObjectsData.mpRigidBodies)
+		for (auto& pCurrObject : mPhysicsObjectsData.mpInternalCollisionObjects)
 		{
-			if (!currRigidBody)
+			if (!pCurrObject)
 			{
 				result = result | RC_FAIL;
 			}
 
-			mpWorld->removeRigidBody(currRigidBody);
-			delete currRigidBody;
+			mpWorld->removeCollisionObject(pCurrObject);
+			delete pCurrObject;
 		}
 
 		for (auto& currShape : mPhysicsObjectsData.mpBulletColliderShapes)

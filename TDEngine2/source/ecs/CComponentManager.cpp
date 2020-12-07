@@ -12,6 +12,8 @@
 #include "../../include/physics/2D/CTrigger2D.h"
 #include "../../include/physics/3D/CBoxCollisionObject3D.h"
 #include "../../include/physics/3D/CSphereCollisionObject3D.h"
+#include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
+#include "../../include/physics/3D/CTrigger3D.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
@@ -364,6 +366,8 @@ namespace TDEngine2
 			CreateStaticMeshContainerFactory,
 			CreateBoxCollisionObject3DFactory,
 			CreateSphereCollisionObject3DFactory,
+			CreateConvexHullCollisionObject3DFactory,
+			CreateTrigger3DFactory,
 			CreateBoundsComponentFactory,
 			CreateDirectionalLightFactory,
 			CreateShadowCasterComponentFactory,
@@ -410,6 +414,8 @@ namespace TDEngine2
 			CStaticMeshContainer::GetTypeId(),
 			CBoxCollisionObject3D::GetTypeId(),
 			CSphereCollisionObject3D::GetTypeId(),
+			CConvexHullCollisionObject3D::GetTypeId(),
+			CTrigger3D::GetTypeId(),
 			CBoundsComponent::GetTypeId(),
 			CDirectionalLight::GetTypeId(),
 			CShadowCasterComponent::GetTypeId(),

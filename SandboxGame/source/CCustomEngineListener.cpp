@@ -112,7 +112,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshContainer->SetMaterialName("DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
-	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
+	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
 
 	// plane
 	auto pPlaneEntity = mpWorld->CreateEntity();
@@ -120,6 +120,20 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
 	pPlaneMeshContainer->SetMaterialName("DebugMaterial.material");
 	pPlaneMeshContainer->SetMeshName("Plane");
+
+	// Create a 3D trigger
+	if (auto p3DTrigger = mpWorld->CreateEntity())
+	{
+		if (auto pTransform = p3DTrigger->GetComponent<CTransform>())
+		{
+			pTransform->SetPosition({ 0.0f, -1.0f, 1.0f });
+			pTransform->SetScale({ 5.0f, 1.0f, 5.0f });
+		}
+
+		auto p3DTriggerCollider = p3DTrigger->AddComponent<CBoxCollisionObject3D>();
+		p3DTriggerCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
+		p3DTrigger->AddComponent<CTrigger3D>();
+	}
 
 	{
 		TMaterialParameters skyboxMatParams 

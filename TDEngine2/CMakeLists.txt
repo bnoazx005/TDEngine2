@@ -239,6 +239,8 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/ICollisionObjects3DVisitor.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CSphereCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CConvexHullCollisionObject3D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/ITrigger3D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CTrigger3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/ICollisionObject.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/IRaycastContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/CBaseRaycastContext.h"
@@ -360,6 +362,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CBoxCollisionObject3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CSphereCollisionObject3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CConvexHullCollisionObject3D.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CTrigger3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/CBaseRaycastContext.cpp"
 	)
 
