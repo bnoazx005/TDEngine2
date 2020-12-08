@@ -88,7 +88,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEditorsManager::RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow)
+	E_RESULT_CODE CEditorsManager::RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate)
 	{
 		if (commandName.empty() || !pEditorWindow)
 		{
@@ -103,7 +103,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mRegisteredEditors.emplace_back(commandName, pEditorWindow);
+		mRegisteredEditors.emplace_back(commandName, pEditorWindow, isSeparate);
 
 		return RC_OK;
 	}
@@ -235,11 +235,17 @@ namespace TDEngine2
 			{
 				std::string currCommandName;
 				IEditorWindow* pCurrEditorWindow = nullptr;
+				bool isSeparate = false;
 
 				// \todo Draw all buttons here, next step is to add sub-menus based on states
 				for (auto& pCurrEditorWindowEntry : mRegisteredEditors)
 				{
-					std::tie(currCommandName, pCurrEditorWindow) = pCurrEditorWindowEntry;
+					std::tie(currCommandName, pCurrEditorWindow, isSeparate) = pCurrEditorWindowEntry;
+
+					if (isSeparate)
+					{
+						continue;
+					}
 
 					bool isEditorEnabled = pCurrEditorWindow->IsVisible();
 

@@ -2,6 +2,7 @@
 #include "../../include/editor/IEditorsManager.h"
 #include "../../include/editor/ISelectionManager.h"
 #include "../../include/editor/CEditorActionsManager.h"
+#include "../../include/editor/CSceneHierarchyWindow.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/utils/CFileLogger.h"
@@ -45,6 +46,16 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		if (!(mpActionsHistory = CreateEditorActionsManager(result)) || result != RC_OK)
+		{
+			return result;
+		}
+
+		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(result)) || result != RC_OK)
+		{
+			return result;
+		}
+
+		if (RC_OK != (result != mpEditorsManager->RegisterEditor("Scene Hierarchy", mpHierarchyWidget, true)))
 		{
 			return result;
 		}
@@ -112,6 +123,10 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Level Editor", isEnabled, params))
 		{
+			mpImGUIContext->Button("Show Hierarchy", TVector2(mpImGUIContext->GetWindowWidth() - 15.0f, 25.0f), [this] 
+			{
+				mpHierarchyWidget->SetVisible(!mpHierarchyWidget->IsVisible());
+			});
 		}
 
 		mpImGUIContext->EndWindow();

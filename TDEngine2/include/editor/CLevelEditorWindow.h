@@ -26,6 +26,7 @@ namespace TDEngine2
 	class IWorld;
 	class IEditorActionsHistory;
 	class ICamera;
+	class IEditorWindow;
 
 
 	/*!
@@ -127,6 +128,8 @@ namespace TDEngine2
 			bool                   mIsGizmoBeingDragged = false;
 
 			IEditorActionsHistory* mpActionsHistory;
+
+			IEditorWindow*         mpHierarchyWidget;
 	};
 }
 

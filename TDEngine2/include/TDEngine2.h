@@ -152,6 +152,7 @@
 #include "editor/EditorActions.h"
 #include "editor/CEditorActionsManager.h"
 #include "editor/CRenderTargetViewerWindow.h"
+#include "editor/CSceneHierarchyWindow.h"
 
 ///math
 #include "math/TVector2.h"

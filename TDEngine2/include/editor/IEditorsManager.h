@@ -57,7 +57,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow) = 0;
+			TDE2_API virtual E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate = false) = 0;
 
 			/*!
 				\brief The method sets up a pointer to IWorld instance

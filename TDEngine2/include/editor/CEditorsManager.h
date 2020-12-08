@@ -59,7 +59,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld, E_RESULT_CODE& result);
 		public:
-			typedef std::vector<std::tuple<std::string, IEditorWindow*>> TEditorsArray;
+			typedef std::vector<std::tuple<std::string, IEditorWindow*, bool>> TEditorsArray;
 		public:
 			TDE2_REGISTER_TYPE(CEditorsManager)
 
@@ -93,7 +93,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow) override;
+			TDE2_API E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate = false) override;
 
 			/*!
 				\brief The method sets up a pointer to IWorld instance
