@@ -127,11 +127,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		if (auto pTransform = p3DTrigger->GetComponent<CTransform>())
 		{
 			pTransform->SetPosition({ 0.0f, -1.0f, 1.0f });
-			pTransform->SetScale({ 5.0f, 1.0f, 5.0f });
+			pTransform->SetScale({ 25.0f, 1.0f, 25.0f });
 		}
 
 		auto p3DTriggerCollider = p3DTrigger->AddComponent<CBoxCollisionObject3D>();
-		p3DTriggerCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
+		p3DTriggerCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
+		p3DTriggerCollider->SetSizes(TVector3(25.0f, 1.0f, 25.0f));
 		p3DTrigger->AddComponent<CTrigger3D>();
 	}
 
@@ -286,6 +287,37 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 			id = imgui->Popup("TestPopup", id, { "First", "Second", "Third" });
 			imgui->Image(mpResourceManager->Load<CBaseTexture2D>("Tim.tga"), TVector2(128.0f, 128.0f));
+
+			static int selection = 1 << 2;
+
+			bool isOpened = false;
+			bool isSelected = false;
+
+			if (std::get<0>(std::tie(isOpened, isSelected) = imgui->BeginTreeNode("Test1", selection & (1 << 0))))
+			{
+				if (isSelected) selection = (1 << 0);
+
+				if (std::get<0>(std::tie(isOpened, isSelected) = imgui->BeginTreeNode("Node", selection & (1 << 1))))
+				{
+					if (isSelected) selection = (1 << 1);
+
+					imgui->EndTreeNode();
+				}
+
+				if (std::get<0>(std::tie(isOpened, isSelected) = imgui->BeginTreeNode("Node2", selection & (1 << 2))))
+				{
+					if (isSelected) selection = (1 << 2);
+
+					imgui->EndTreeNode();
+				}
+
+				if (imgui->SelectableItem("Node3", selection & (1 << 3)))
+				{
+					selection = (1 << 3);
+				}
+
+				imgui->EndTreeNode();
+			}
 		}
 		imgui->EndWindow();
 	}	
@@ -331,7 +363,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pDebugUtility->DrawSphere(ZeroVector3, 10.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 3);
 
 	// rotate the cube
-#if 1
+#if 0
 	auto pEntity = mpWorld->FindEntity(mpWorld->FindEntitiesWithComponents<CStaticMeshContainer>()[0]);
 	auto pTransform = pEntity->GetComponent<CTransform>();
 	static F32 time = 0.0f;

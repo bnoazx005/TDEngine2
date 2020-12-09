@@ -146,6 +146,7 @@ namespace TDEngine2
 		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
 
 		ImGui::ShowMetricsWindow();
+		ImGui::ShowDemoWindow();
 	}
 
 	void CImGUIContext::EndFrame()
@@ -447,6 +448,21 @@ namespace TDEngine2
 	void CImGUIContext::Image(TResourceId textureHandle, const TVector2& sizes, const TRectF32& uvRect)
 	{
 		ImGui::Image(static_cast<ImTextureID>(&textureHandle), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
+	}
+
+	bool CImGUIContext::SelectableItem(const std::string& id, bool isSelected)
+	{
+		return ImGui::Selectable(id.c_str(), isSelected);
+	}
+
+	std::tuple<bool, bool> CImGUIContext::BeginTreeNode(const std::string& id, bool isSelected)
+	{
+		return { ImGui::TreeNodeEx(id.c_str(), isSelected ? ImGuiTreeNodeFlags_Selected : 0x0), ImGui::IsItemClicked() };
+	}
+
+	void CImGUIContext::EndTreeNode()
+	{
+		ImGui::TreePop();
 	}
 
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)

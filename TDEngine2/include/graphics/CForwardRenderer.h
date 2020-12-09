@@ -182,5 +182,8 @@ namespace TDEngine2
 			TLightingShaderData      mLightingData;
 
 			TResourceId              mShadowMapHandle;
+
+			U32                      mShadowMapWidth;
+			U32                      mShadowMapHeight;
 	};
 }

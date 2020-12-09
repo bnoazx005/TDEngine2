@@ -386,6 +386,34 @@ namespace TDEngine2
 			TDE2_API void Image(TResourceId textureHandle, const TVector2& sizes, const TRectF32& uvRect = { 0.0f, 0.0f, 1.0f, 1.0f }) override;
 
 			/*!
+				\brief The method displays selectable label item
+
+				\param[in] id A label of an item
+				\param[in] isSelected A flag determines whether or not the current node is highlighted
+
+				\return Returns true if the current item was selected, false in other cases
+			*/
+
+			TDE2_API bool SelectableItem(const std::string& id, bool isSelected) override;
+
+			/*!
+				\brief The method display tree's element. Always should be called in pair with EndTreeNode at end
+
+				\param[in] id A label of a node
+				\param[in] isSelected A flag determines whether or not the current node is highlighted
+
+				\return A tuple the first argument is opened/hidden state of a node, the second is whether selected or not the node
+			*/
+
+			TDE2_API std::tuple<bool, bool> BeginTreeNode(const std::string& id, bool isSelected = false) override;
+
+			/*!
+				\brief The method should be called after BeginTreeNode
+			*/
+
+			TDE2_API void EndTreeNode() override;
+
+			/*!
 				\brief The method creates a new window on the screen. Every call after this one
 				will be related with this window
 
