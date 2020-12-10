@@ -220,6 +220,13 @@ namespace TDEngine2
 		return mpWorld;
 	}
 
+	const CSceneManager::TScenesArray& CSceneManager::GetLoadedScenes() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return mpScenes;
+	}
+
 	TResult<TSceneId> CSceneManager::_createInternal(const std::string& name)
 	{
 		E_RESULT_CODE result = RC_OK;

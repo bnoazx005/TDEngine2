@@ -12,6 +12,7 @@
 #include "../core/IEngineSubsystem.h"
 #include "../core/IBaseObject.h"
 #include <functional>
+#include <vector>
 
 
 namespace TDEngine2
@@ -49,6 +50,9 @@ namespace TDEngine2
 	{
 		public:
 			typedef std::function<void(const TResult<TSceneId>&)> TLoadSceneCallback;
+			
+			typedef std::vector<IScene*> TScenesArray;
+
 		public:
 			/*!
 				\brief The method initializes the internal state of the object
@@ -126,6 +130,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IWorld* GetWorld() const = 0;
+
+			/*!
+				\return The method returns an array of currently loaded chunks
+			*/
+
+			TDE2_API virtual const TScenesArray& GetLoadedScenes() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_SCENE_MANAGER; }
 		protected:

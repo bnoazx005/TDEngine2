@@ -118,6 +118,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IWorld* GetWorld() const override;
+
+			/*!
+				\return The method returns an array of currently loaded chunks
+			*/
+
+			TDE2_API const TScenesArray& GetLoadedScenes() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneManager)
 
@@ -136,6 +142,6 @@ namespace TDEngine2
 
 			TSceneManagerSettings mSettings;
 
-			std::vector<IScene*> mpScenes;
+			TScenesArray mpScenes;
 	};
 }

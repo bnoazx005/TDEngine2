@@ -215,6 +215,27 @@ namespace TDEngine2
 		return pDirectionLightEntity;
 	}
 
+	void CScene::ForEachEntity(const std::function<void(CEntity*)>& action)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!action)
+		{
+			return; // Do nothing
+		}
+
+		for (TEntityId currEntityId : mEntities)
+		{
+			CEntity* pCurrEntity = mpWorld->FindEntity(currEntityId);
+			if (!pCurrEntity)
+			{
+				continue;
+			}
+
+			action(pCurrEntity);
+		}
+	}
+
 	const std::string CScene::GetName() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

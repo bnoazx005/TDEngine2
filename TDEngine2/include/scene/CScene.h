@@ -111,6 +111,14 @@ namespace TDEngine2
 			TDE2_API CEntity* CreateDirectionalLight(const TColor32F& tint, F32 intensity, const TVector3& direction) override;
 
 			/*!
+				\brief The method iterates over each entity which is linked to current scene
+
+				\param[in] action A predicate that's executed for each valid entity. All expired or invalid entities are skipped
+			*/
+
+			TDE2_API void ForEachEntity(const std::function<void(CEntity*)>& action = nullptr) override;
+
+			/*!
 				\return The method returns name of the scene
 			*/
 
