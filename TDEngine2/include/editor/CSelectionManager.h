@@ -100,6 +100,16 @@ namespace TDEngine2
 			TDE2_API TEntityId PickObject(const TVector2& position) override;
 
 			/*!
+				\brief The method allows to manually assign current selected entity by its identifier
+
+				\param[in] id An identifier of entity that should be selected
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetSelectedEntity(TEntityId id) override;
+
+			/*!
 				\brief The method sets up a pointer to IWorld instance
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -126,6 +136,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSelectionManager)
 
 			TDE2_API E_RESULT_CODE _createRenderTarget(U32 width, U32 height);
+
+			TDE2_API void _resetCurrentSelection();
 		protected:
 			IResourceManager* mpResourceManager;
 

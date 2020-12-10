@@ -3,6 +3,7 @@
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/editor/CSelectionManager.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -14,19 +15,20 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSceneHierarchyEditorWindow::Init(ISceneManager* pSceneManager)
+	E_RESULT_CODE CSceneHierarchyEditorWindow::Init(ISceneManager* pSceneManager, ISelectionManager* pSelectionManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pSceneManager)
+		if (!pSceneManager || !pSelectionManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpSceneManager = pSceneManager;
+		mpSelectionManager = pSelectionManager;
 
 		mIsInitialized = true;
 
@@ -65,7 +67,10 @@ namespace TDEngine2
 				{
 					pCurrScene->ForEachEntity([this](const CEntity* pEntity)
 					{
-						mpImGUIContext->SelectableItem(pEntity->GetName());
+						if (mpImGUIContext->SelectableItem(pEntity->GetName()))
+						{
+							mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+						}
 					});
 
 					mpImGUIContext->EndTreeNode();
@@ -79,9 +84,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateSceneHierarchyEditorWindow(ISceneManager* pSceneManager, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateSceneHierarchyEditorWindow(ISceneManager* pSceneManager, ISelectionManager* pSelectionManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CSceneHierarchyEditorWindow, result, pSceneManager);
+		return CREATE_IMPL(IEditorWindow, CSceneHierarchyEditorWindow, result, pSceneManager, pSelectionManager);
 	}
 }
 

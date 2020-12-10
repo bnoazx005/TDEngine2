@@ -50,7 +50,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(pSceneManager, result)) || result != RC_OK)
+		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(pSceneManager, _getSelectionManager(), result)) || result != RC_OK)
 		{
 			return result;
 		}
@@ -145,6 +145,8 @@ namespace TDEngine2
 	void CLevelEditorWindow::_onHandleInput()
 	{
 		ISelectionManager* pSelectionManager = _getSelectionManager();
+
+		mSelectedEntityId = pSelectionManager->GetSelectedEntityId();
 
 		if (mpInputContext->IsMouseButtonPressed(0) && !mpImGUIContext->IsMouseOverUI())
 		{

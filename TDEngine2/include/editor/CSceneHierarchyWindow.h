@@ -15,18 +15,20 @@
 namespace TDEngine2
 {
 	class ISceneManager;
+	class ISelectionManager;
 
 
 	/*!
 		\brief A factory function for creation objects of CSceneHierarchyEditorWindow's type
 
 		\param[in, out] pSceneManager A pointer to ISceneManager implementation
+		\param[in, out] pSelectionManager A pointer to ISelectionManager implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateSceneHierarchyEditorWindow(ISceneManager* pSceneManager, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateSceneHierarchyEditorWindow(ISceneManager* pSceneManager, ISelectionManager* pSelectionManager, E_RESULT_CODE& result);
 
 	/*!
 		class CSceneHierarchyEditorWindow
@@ -37,17 +39,18 @@ namespace TDEngine2
 	class CSceneHierarchyEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateSceneHierarchyEditorWindow(ISceneManager*, E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateSceneHierarchyEditorWindow(ISceneManager*, ISelectionManager*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
 
 				\param[in, out] pSceneManager A pointer to ISceneManager implementation
+				\param[in, out] pSelectionManager A pointer to ISelectionManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(ISceneManager* pSceneManager);
+			TDE2_API virtual E_RESULT_CODE Init(ISceneManager* pSceneManager, ISelectionManager* pSelectionManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -67,6 +70,7 @@ namespace TDEngine2
 			TDE2_API void _onDraw() override;
 		protected:
 			ISceneManager* mpSceneManager;
+			ISelectionManager* mpSelectionManager;
 
 	};
 }
