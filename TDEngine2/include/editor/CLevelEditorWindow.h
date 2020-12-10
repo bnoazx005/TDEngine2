@@ -27,6 +27,7 @@ namespace TDEngine2
 	class IEditorActionsHistory;
 	class ICamera;
 	class IEditorWindow;
+	class ISceneManager;
 
 
 	/*!
@@ -35,12 +36,13 @@ namespace TDEngine2
 		\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
 		\param[in, out] pInputContext A pointer to IInputContext implementation
 		\param[in, out] pDebugUtility A pointer to IDebugUtility implementation
+		\param[in, out] pSceneManager A pointer to ISceneManager implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result);
 
 	/*!
 		class CLevelEditorWindow
@@ -51,7 +53,7 @@ namespace TDEngine2
 	class CLevelEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager*, IInputContext*, IDebugUtility*, E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager*, IInputContext*, IDebugUtility*, ISceneManager*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
@@ -59,11 +61,13 @@ namespace TDEngine2
 				\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
 				\param[in, out] pInputContext A pointer to IInputContext implementation
 				\param[in, out] pDebugUtility A pointer to IDebugUtility implementation
+				\param[in, out] pSceneManager A pointer to ISceneManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility);
+			TDE2_API virtual E_RESULT_CODE Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility,
+												ISceneManager* pSceneManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object

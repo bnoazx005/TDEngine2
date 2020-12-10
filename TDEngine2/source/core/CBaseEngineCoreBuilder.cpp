@@ -401,6 +401,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		IInputContext* pInputContext = mpEngineCoreInstance->GetSubsystem<IInputContext>();
+		ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
 		IEditorsManager* pEditorsManager = CreateEditorsManager(pInputContext,
 			mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
@@ -415,7 +416,7 @@ namespace TDEngine2
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROFILER), CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(pEditorsManager, pInputContext, pDebugUtility, result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(pEditorsManager, pInputContext, pDebugUtility, pSceneManager, result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance, result) },
 		};

@@ -24,7 +24,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLevelEditorWindow::Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility)
+	E_RESULT_CODE CLevelEditorWindow::Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager)
 	{
 		if (mIsInitialized)
 		{
@@ -50,7 +50,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(result)) || result != RC_OK)
+		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(pSceneManager, result)) || result != RC_OK)
 		{
 			return result;
 		}
@@ -378,9 +378,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CLevelEditorWindow, result, pEditorsManager, pInputContext, pDebugUtility);
+		return CREATE_IMPL(IEditorWindow, CLevelEditorWindow, result, pEditorsManager, pInputContext, pDebugUtility, pSceneManager);
 	}
 }
 
