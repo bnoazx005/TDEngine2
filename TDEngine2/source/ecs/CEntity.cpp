@@ -137,6 +137,11 @@ namespace TDEngine2
 		mId = TEntityId::Invalid;
 	}
 
+	std::vector<IComponent*> CEntity::GetComponents() const
+	{
+		return mpEntityManager->GetComponents(mId);
+	}
+
 	E_RESULT_CODE CEntity::RemoveComponents()
 	{
 		return mpEntityManager->RemoveComponents(mId);

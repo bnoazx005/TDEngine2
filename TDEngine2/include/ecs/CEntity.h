@@ -137,6 +137,12 @@ namespace TDEngine2
 			TDE2_API T* GetComponent();
 
 			/*!
+				\return The method returns an array of all components that're related with the corresponding entity
+			*/
+
+			TDE2_API std::vector<IComponent*> GetComponents() const;
+
+			/*!
 				\brief The method checks up whether the entity has corresponding component or not
 
 				\return The method returns true if the entity has specified component and false in other cases
