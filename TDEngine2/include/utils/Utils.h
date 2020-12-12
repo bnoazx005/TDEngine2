@@ -186,8 +186,13 @@ namespace TDEngine2
 			return typeId;													\
 		}
 
-	#define TDE2_REGISTER_VIRTUAL_TYPE(Type)								\
-		virtual TypeId GetTypeId() const									\
+
+#define TDE2_REGISTER_COMPONENT_TYPE(Type)									\
+	TDE2_REGISTER_TYPE(Type)												\
+	TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, GetComponentTypeId)
+
+	#define TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, MethodName)					\
+		virtual TypeId MethodName() const									\
 		{																	\
 			__pragma(warning(push))											\
 			__pragma(warning(disable:4307))									\
@@ -203,8 +208,13 @@ namespace TDEngine2
 			return typeId;													\
 		}
 
-#define TDE2_REGISTER_VIRTUAL_TYPE(Type)									\
-		virtual TypeId GetTypeId() const									\
+
+#define TDE2_REGISTER_COMPONENT_TYPE(Type)									\
+		TDE2_REGISTER_TYPE(Type)											\
+		TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, GetComponentTypeId)
+
+#define TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, MethodName)						\
+		virtual TypeId MethodName() const									\
 		{																	\
 			static constexpr TypeId typeId = TypeId(ComputeHash(#Type));	\
 			return typeId;													\

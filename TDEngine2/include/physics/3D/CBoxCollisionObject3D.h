@@ -36,7 +36,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateBoxCollisionObject3D(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_TYPE(CBoxCollisionObject3D)
+			TDE2_REGISTER_COMPONENT_TYPE(CBoxCollisionObject3D)
 
 			/*!
 				\brief The method deserializes object's state from given reader

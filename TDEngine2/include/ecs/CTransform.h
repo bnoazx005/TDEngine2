@@ -45,7 +45,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateTransform(const TVector3& position, const TQuaternion& rotation, const TVector3& scale, E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_TYPE(CTransform)
+			TDE2_REGISTER_COMPONENT_TYPE(CTransform)
 
 			/*!
 				\brief The method initializes an internal state of a transform

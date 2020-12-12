@@ -36,7 +36,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateStaticMeshContainer(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_TYPE(CStaticMeshContainer)
+			TDE2_REGISTER_COMPONENT_TYPE(CStaticMeshContainer)
 
 			/*!
 				\brief The method initializes an internal state of a quad sprite

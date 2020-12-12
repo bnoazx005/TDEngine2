@@ -37,7 +37,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateConvexHullCollisionObject3D(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_TYPE(CConvexHullCollisionObject3D)
+			TDE2_REGISTER_COMPONENT_TYPE(CConvexHullCollisionObject3D)
 
 			/*!
 				\brief The method deserializes object's state from given reader

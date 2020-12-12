@@ -43,7 +43,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreatePerspectiveCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_TYPE(CPerspectiveCamera)
+			TDE2_REGISTER_COMPONENT_TYPE(CPerspectiveCamera)
 
 			/*!
 				\brief The method initializes an internal state of a camera

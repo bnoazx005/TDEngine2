@@ -36,15 +36,15 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateTrigger3D(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_TYPE(CTrigger3D)
+			TDE2_REGISTER_COMPONENT_TYPE(CTrigger3D)
 
-				/*!
-					\brief The method initializes an internal state of a component
+			/*!
+				\brief The method initializes an internal state of a component
 
-					\return RC_OK if everything went ok, or some other code, which describes an error
-				*/
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
 
-				TDE2_API E_RESULT_CODE Init() override;
+			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
 				\brief The method deserializes object's state from given reader

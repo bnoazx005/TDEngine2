@@ -216,7 +216,7 @@ namespace TDEngine2
 	{																														\
 		public:																												\
 			friend TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE&);													\
-			TDE2_REGISTER_TYPE(ComponentName)																				\
+			TDE2_REGISTER_COMPONENT_TYPE(ComponentName)																		\
 																															\
 			TDE2_API E_RESULT_CODE Init();																					\
 																															\

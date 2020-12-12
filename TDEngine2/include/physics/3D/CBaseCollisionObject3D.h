@@ -24,7 +24,7 @@ namespace TDEngine2
 	class CBaseCollisionObject3D : public ICollisionObject3D, public CBaseComponent
 	{
 		public:
-			TDE2_REGISTER_TYPE(CBaseCollisionObject3D)
+			TDE2_REGISTER_COMPONENT_TYPE(CBaseCollisionObject3D)
 
 			/*!
 				\brief The method initializes an internal state of a component

@@ -36,7 +36,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateDirectionalLight(const TVector3&, E_RESULT_CODE&);
 		public:
-			TDE2_REGISTER_TYPE(CDirectionalLight)
+			TDE2_REGISTER_COMPONENT_TYPE(CDirectionalLight)
 
 			/*!
 				\brief The method initializes an internal state of the light

@@ -34,7 +34,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateShadowCasterComponent(E_RESULT_CODE&);
 		public:
-			TDE2_REGISTER_TYPE(CShadowCasterComponent)
+			TDE2_REGISTER_COMPONENT_TYPE(CShadowCasterComponent)
 
 			/*!
 				\brief The method initializes an internal state of a quad sprite

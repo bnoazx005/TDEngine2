@@ -25,6 +25,7 @@ namespace TDEngine2
 	class IComponent: public virtual IBaseObject, public ISerializable
 	{
 		public:
+			TDE2_API virtual TypeId GetComponentTypeId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComponent)
 	};

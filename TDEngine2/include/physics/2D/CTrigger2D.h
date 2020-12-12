@@ -36,7 +36,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateTrigger2D(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_TYPE(CTrigger2D)
+			TDE2_REGISTER_COMPONENT_TYPE(CTrigger2D)
 
 			/*!
 				\brief The method initializes an internal state of a component

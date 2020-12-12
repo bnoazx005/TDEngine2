@@ -43,7 +43,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateOrthoCamera(F32 width, F32 height, F32 zn, F32 zf, E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_TYPE(COrthoCamera)
+			TDE2_REGISTER_COMPONENT_TYPE(COrthoCamera)
 
 			/*!
 				\brief The method initializes an internal state of a camera

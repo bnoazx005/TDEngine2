@@ -35,7 +35,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateBoundsComponent(E_RESULT_CODE&);
 		public:
-			TDE2_REGISTER_TYPE(CBoundsComponent)
+			TDE2_REGISTER_COMPONENT_TYPE(CBoundsComponent)
 
 			/*!
 				\brief The method initializes an internal state of a quad sprite
