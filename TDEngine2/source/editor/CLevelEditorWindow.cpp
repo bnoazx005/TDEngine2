@@ -80,6 +80,24 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CLevelEditorWindow::RegisterInspector(TypeId targetType, const TOnGuiCallback& onGuiFunctor)
+	{
+		if (!onGuiFunctor || (TypeId::Invalid == targetType))
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto iter = mInspectorsDrawers.find(targetType);
+		if (iter != mInspectorsDrawers.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mInspectorsDrawers[targetType] = onGuiFunctor;
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CLevelEditorWindow::ExecuteUndoAction()
 	{
 		if (!mpActionsHistory)
@@ -364,6 +382,24 @@ namespace TDEngine2
 		if (mpImGUIContext->BeginWindow("Object Inspector", isEnabled, params))
 		{
 			mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
+
+			for (IComponent* pCurrComponent : pSelectedEntity->GetComponents())
+			{
+				if (!pCurrComponent)
+				{
+					continue;
+				}
+
+				auto iter = mInspectorsDrawers.find(pCurrComponent->GetComponentTypeId());
+				if (iter == mInspectorsDrawers.cend())
+				{
+					LOG_WARNING(Wrench::StringUtils::Format("[Level Editor Window] There is no defined inspector's drawer for \"TypeId\": {0}", static_cast<U32>(pCurrComponent->GetComponentTypeId())));
+
+					continue;
+				}
+
+				(iter->second)(*mpImGUIContext, *pCurrComponent);
+			}
 
 			/*!
 				\todo 

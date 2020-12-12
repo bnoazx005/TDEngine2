@@ -46,6 +46,7 @@
 #include "../../include/graphics/animation/CAnimationClip.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/ecs/CWorld.h"
+#include "../../include/ecs/CTransform.h"
 #include <memory>
 #include <cstring>
 #include <tuple>
@@ -413,10 +414,23 @@ namespace TDEngine2
 
 		auto pDebugUtility = mpGraphicsContextInstance->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManagerInstance, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
 
+		if (ISelectionManager* pSelectionManager = CreateSelectionManager(mpResourceManagerInstance, mpWindowSystemInstance, mpGraphicsContextInstance, pEditorsManager, result))
+		{
+			result = result | pEditorsManager->SetSelectionManager(pSelectionManager);
+			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager);
+
+			if (result != RC_OK)
+			{
+				return result;
+			}
+		}
+
+		IEditorWindow* pLevelEditorWindow = CreateLevelEditorWindow(pEditorsManager, pInputContext, pDebugUtility, pSceneManager, result);
+
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROFILER), CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), CreateLevelEditorWindow(pEditorsManager, pInputContext, pDebugUtility, pSceneManager, result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), pLevelEditorWindow },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance, result) },
 		};
@@ -433,20 +447,32 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (ISelectionManager* pSelectionManager = CreateSelectionManager(mpResourceManagerInstance, mpWindowSystemInstance, mpGraphicsContextInstance, pEditorsManager, result))
+		// \note Register all builtin component's inspectors
+		if (CLevelEditorWindow* pEditor = dynamic_cast<CLevelEditorWindow*>(pLevelEditorWindow))
 		{
-			result = result | pEditorsManager->SetSelectionManager(pSelectionManager);
-			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager);
-
-			if (result != RC_OK)
+			pEditor->RegisterInspector(CTransform::GetTypeId(), [](IImGUIContext& imguiContext, IComponent& component) 
 			{
-				return result;
-			}
-		}
+				CTransform& transform = dynamic_cast<CTransform&>(component);
 
-		if (result != RC_OK)
-		{
-			return result;
+				TVector3 position = transform.GetPosition();
+				TVector3 rotation = ToEulerAngles(transform.GetRotation());
+				TVector3 scale = transform.GetScale();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Position");
+				imguiContext.Vector3Field(Wrench::StringUtils::GetEmptyStr(), position, [&transform, &position] { transform.SetPosition(position); });
+				imguiContext.EndHorizontal();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Rotation");
+				imguiContext.Vector3Field(Wrench::StringUtils::GetEmptyStr(), rotation, [&transform, &rotation] { transform.SetRotation(TQuaternion(rotation)); });
+				imguiContext.EndHorizontal();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Scale");
+				imguiContext.Vector3Field(Wrench::StringUtils::GetEmptyStr(), scale, [&transform, &scale] { transform.SetScale(scale); });
+				imguiContext.EndHorizontal();
+			});
 		}
 
 		return mpEngineCoreInstance->RegisterSubsystem(pEditorsManager);

@@ -10,6 +10,7 @@
 #include "IEditorWindow.h"
 #include "./../math/TRay.h"
 #include <functional>
+#include <unordered_map>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -28,6 +29,7 @@ namespace TDEngine2
 	class ICamera;
 	class IEditorWindow;
 	class ISceneManager;
+	class IComponent;
 
 
 	/*!
@@ -54,6 +56,11 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager*, IInputContext*, IDebugUtility*, ISceneManager*, E_RESULT_CODE&);
+
+		public:
+			typedef std::function<void(IImGUIContext&, IComponent&)> TOnGuiCallback;
+			typedef std::unordered_map<TypeId, TOnGuiCallback> TInspectorsTable;
+
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
@@ -76,6 +83,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			TDE2_API E_RESULT_CODE RegisterInspector(TypeId targetType, const TOnGuiCallback& onGuiFunctor);
 
 			/*!
 				\brief The method rolls back last editor's action
@@ -134,6 +143,8 @@ namespace TDEngine2
 			IEditorActionsHistory* mpActionsHistory;
 
 			IEditorWindow*         mpHierarchyWidget;
+
+			TInspectorsTable       mInspectorsDrawers;
 	};
 }
 

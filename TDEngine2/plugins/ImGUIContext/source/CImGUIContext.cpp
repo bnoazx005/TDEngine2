@@ -146,6 +146,7 @@ namespace TDEngine2
 		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
 
 		ImGui::ShowMetricsWindow();
+		ImGui::ShowDemoWindow();
 	}
 
 	void CImGUIContext::EndFrame()

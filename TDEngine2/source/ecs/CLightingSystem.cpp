@@ -206,9 +206,9 @@ namespace TDEngine2
 		}
 #endif
 
-		const F32 halfSize = 5.0f;
+		const F32 halfSize = 10.0f;
 
-		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 100.0f); // \todo Refactor
+		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 1000.0f); // \todo Refactor
 
 		return Transpose(Mul(projMatrix, viewMatrix));
 	}

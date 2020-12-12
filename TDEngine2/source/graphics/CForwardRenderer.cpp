@@ -97,26 +97,23 @@ namespace TDEngine2
 
 		mpDebugUtility = debugUtilityResult.Get();
 
-		/*while (true)
-		{
-			auto queue = mpRenderQueues[(U32)E_RENDER_QUEUE_GROUP::RQG_SPRITES];
+		// \todo Implement shadow mapping configuration in better manner
+		mShadowMapWidth  = 1024;
+		mShadowMapHeight = 1024;
 
-			for (int i = 0; i < 1000; ++i)
-			{
-				auto c = queue->SubmitDrawCommand<TDrawIndexedInstancedCommand>(i);
-			}
-
-			queue->Sort();
-			queue->Clear();
-		}*/
-		
-		TTexture2DParameters shadowMapParams{ 1024, 1024, FT_D32, 1, 1, 0 };
+		TTexture2DParameters shadowMapParams{ mShadowMapWidth, mShadowMapHeight, FT_D32, 1, 1, 0 };
 
 		mShadowMapHandle = mpResourceManager->Create<CBaseDepthBufferTarget>("ShadowMap", shadowMapParams);
 		if (mShadowMapHandle == TResourceId::Invalid)
 		{
 			TDE2_ASSERT(false);
 			return RC_FAIL;
+		}
+
+		if (auto pShadowMapBuffer = mpResourceManager->GetResource<IDepthBufferTarget>(mShadowMapHandle))
+		{
+			pShadowMapBuffer->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pShadowMapBuffer->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
 		}
 
 		mIsInitialized = true;
@@ -224,7 +221,7 @@ namespace TDEngine2
 		{
 			if (!pShadowRenderQueue->IsEmpty())
 			{
-				mpGraphicsContext->SetViewport(0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
+				mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mShadowMapWidth), static_cast<F32>(mShadowMapHeight), 0.0f, 1.0f);
 				{
 					mpGraphicsContext->BindDepthBufferTarget(dynamic_cast<IDepthBufferTarget*>(mpResourceManager->GetResource(mShadowMapHandle)), true);
 
