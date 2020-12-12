@@ -452,9 +452,8 @@ namespace TDEngine2
 		{
 			pEditor->RegisterInspector(CTransform::GetTypeId(), [](IImGUIContext& imguiContext, IComponent& component) 
 			{
-				if (std::get<0>(imguiContext.BeginTreeNode("Transform")))
+				if (imguiContext.CollapsingHeader("Transform", true))
 				{
-
 					CTransform& transform = dynamic_cast<CTransform&>(component);
 
 					TVector3 position = transform.GetPosition();
@@ -475,8 +474,6 @@ namespace TDEngine2
 					imguiContext.Label("Scale   ");
 					imguiContext.Vector3Field("##3", scale, [&transform, &scale] { transform.SetScale(scale); });
 					imguiContext.EndHorizontal();
-
-					imguiContext.EndTreeNode();
 				}
 			});
 		}

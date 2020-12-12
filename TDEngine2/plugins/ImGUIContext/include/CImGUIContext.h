@@ -414,6 +414,18 @@ namespace TDEngine2
 			TDE2_API void EndTreeNode() override;
 
 			/*!
+				\brief The method displays header which looks same as BeginTreeNode.
+
+				\param[in] id A label that will be displayed
+				\param[in] isOpened The flag defines whether or not the group is unwinded or not
+				\param[in] contentAction You can invoke any ImGUIContext command there which should be displayed when the header is unwinded
+
+				\return The method return true if it was unwinded, false in other cases
+			*/
+
+			TDE2_API bool CollapsingHeader(const std::string& id, bool isOpened, const std::function<void()>& contentAction = nullptr) override;
+
+			/*!
 				\brief The method creates a new window on the screen. Every call after this one
 				will be related with this window
 

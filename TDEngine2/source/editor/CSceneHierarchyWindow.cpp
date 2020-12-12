@@ -63,7 +63,7 @@ namespace TDEngine2
 		{
 			for (IScene* pCurrScene : mpSceneManager->GetLoadedScenes())
 			{
-				if (std::get<0>(mpImGUIContext->BeginTreeNode(pCurrScene->GetName())))
+				if (mpImGUIContext->CollapsingHeader(pCurrScene->GetName(), true))
 				{
 					pCurrScene->ForEachEntity([this](const CEntity* pEntity)
 					{
@@ -72,8 +72,6 @@ namespace TDEngine2
 							mpSelectionManager->SetSelectedEntity(pEntity->GetId());
 						}
 					});
-
-					mpImGUIContext->EndTreeNode();
 				}
 			}
 			

@@ -467,6 +467,21 @@ namespace TDEngine2
 		ImGui::TreePop();
 	}
 
+	bool CImGUIContext::CollapsingHeader(const std::string& id, bool isOpened, const std::function<void()>& contentAction)
+	{
+		if (!ImGui::CollapsingHeader(id.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			return false;
+		}
+
+		if (contentAction)
+		{
+			contentAction();
+		}
+
+		return true;
+	}
+
 	bool CImGUIContext::BeginWindow(const std::string& name, bool& isOpened, const TWindowParams& params)
 	{
 		ImGuiWindowFlags flags = 0x0;

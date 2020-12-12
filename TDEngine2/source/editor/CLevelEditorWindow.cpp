@@ -400,16 +400,6 @@ namespace TDEngine2
 
 				(iter->second)(*mpImGUIContext, *pCurrComponent);
 			}
-
-			/*!
-				\todo 
-				pseudocode for drawing object's properties:
-
-				foreach (component: entity->GetAllComponents()) {
-					propertyDrawer = editor->GetPropertyDrawerByID(component->GetID());
-					propertyDrawer->Draw(component);
-				}
-			*/
 		}
 
 		mpImGUIContext->EndWindow();
