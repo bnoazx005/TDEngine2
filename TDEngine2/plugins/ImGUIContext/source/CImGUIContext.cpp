@@ -281,7 +281,7 @@ namespace TDEngine2
 	void CImGUIContext::Vector3Field(const std::string& text, TVector3& value, const std::function<void()>& onValueChanged)
 	{
 		F32 rawValue[3] { value.x, value.y, value.z };
-
+		
 		if (ImGui::InputFloat3(text.c_str(), rawValue) && onValueChanged)
 		{
 			value = TVector3(rawValue);
@@ -502,15 +502,14 @@ namespace TDEngine2
 	void CImGUIContext::BeginHorizontal()
 	{
 		mIsHorizontalGroupEnabled = true;
-		ImGui::BeginGroup();
 	}
 
 	void CImGUIContext::EndHorizontal()
 	{
 		TDE2_ASSERT(mIsHorizontalGroupEnabled);
-
+		
 		mIsHorizontalGroupEnabled = false;
-		ImGui::EndGroup();
+		ImGui::NewLine();
 	}
 
 	bool CImGUIContext::BeginChildWindow(const std::string& name, const TVector2& sizes)

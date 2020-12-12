@@ -452,26 +452,32 @@ namespace TDEngine2
 		{
 			pEditor->RegisterInspector(CTransform::GetTypeId(), [](IImGUIContext& imguiContext, IComponent& component) 
 			{
-				CTransform& transform = dynamic_cast<CTransform&>(component);
+				if (std::get<0>(imguiContext.BeginTreeNode("Transform")))
+				{
 
-				TVector3 position = transform.GetPosition();
-				TVector3 rotation = ToEulerAngles(transform.GetRotation());
-				TVector3 scale = transform.GetScale();
+					CTransform& transform = dynamic_cast<CTransform&>(component);
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Position");
-				imguiContext.Vector3Field(Wrench::StringUtils::GetEmptyStr(), position, [&transform, &position] { transform.SetPosition(position); });
-				imguiContext.EndHorizontal();
+					TVector3 position = transform.GetPosition();
+					TVector3 rotation = ToEulerAngles(transform.GetRotation());
+					TVector3 scale = transform.GetScale();
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Rotation");
-				imguiContext.Vector3Field(Wrench::StringUtils::GetEmptyStr(), rotation, [&transform, &rotation] { transform.SetRotation(TQuaternion(rotation)); });
-				imguiContext.EndHorizontal();
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Position");
+					imguiContext.Vector3Field("##1", position, [&transform, &position] { transform.SetPosition(position); });
+					imguiContext.EndHorizontal();
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Scale   ");
-				imguiContext.Vector3Field(Wrench::StringUtils::GetEmptyStr(), scale, [&transform, &scale] { transform.SetScale(scale); });
-				imguiContext.EndHorizontal();
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Rotation");
+					imguiContext.Vector3Field("##2", rotation, [&transform, &rotation] { transform.SetRotation(TQuaternion(rotation)); });
+					imguiContext.EndHorizontal();
+
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Scale   ");
+					imguiContext.Vector3Field("##3", scale, [&transform, &scale] { transform.SetScale(scale); });
+					imguiContext.EndHorizontal();
+
+					imguiContext.EndTreeNode();
+				}
 			});
 		}
 

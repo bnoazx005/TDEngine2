@@ -375,8 +375,8 @@ namespace TDEngine2
 		static const IImGUIContext::TWindowParams params
 		{
 			ZeroVector2,
-			TVector2(250.0f, 400.0f),
-			TVector2(250.0f, 400.0f),
+			TVector2(290.0f, 400.0f),
+			TVector2(290.0f, 400.0f),
 		};
 
 		if (mpImGUIContext->BeginWindow("Object Inspector", isEnabled, params))
