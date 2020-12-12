@@ -167,26 +167,24 @@ namespace TDEngine2
 
 	void CImGUIContext::Label(const std::string& text)
 	{
-		_prepareLayout();
 		ImGui::Text(text.c_str());
+		_prepareLayout();
 	}
 
 	void CImGUIContext::Label(const std::string& text, const TColor32F& color)
 	{
-		_prepareLayout();
 		ImGui::TextColored({ color.r, color.g, color.b, color.a }, text.c_str());
+		_prepareLayout();
 	}
 
 	void CImGUIContext::Label(const std::string& text, const TVector2& pos, const TColor32F& color)
 	{
-		_prepareLayout();
 		_getCurrActiveDrawList()->AddText(pos, PackColor32F(color), &text.front(), &text.front() + text.length());
+		_prepareLayout();
 	}
 
 	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked)
 	{
-		_prepareLayout();
-
 		if (ImGui::Button(text.c_str(), ImVec2(sizes.x, sizes.y)))
 		{
 			if (onClicked)
@@ -195,61 +193,63 @@ namespace TDEngine2
 			}
 		}
 
+		_prepareLayout();
+
 		return false;
 	}
 
 	bool CImGUIContext::Checkbox(const std::string& text, bool& isSelected)
 	{
+		bool result = ImGui::Checkbox(text.c_str(), &isSelected);
 		_prepareLayout();
-		return ImGui::Checkbox(text.c_str(), &isSelected);
+
+		return result;
 	}
 
 	void CImGUIContext::IntSlider(const std::string& text, I32& value, I32 minValue, I32 maxValue,
 								  const std::function<void()>& onValueChanged)
-	{
-		_prepareLayout();
-		
+	{		
 		if (ImGui::SliderInt(text.c_str(), &value, minValue, maxValue) && onValueChanged)
 		{
 			onValueChanged();
 		}
+
+		_prepareLayout();
 	}
 
 	void CImGUIContext::FloatSlider(const std::string& text, F32& value, F32 minValue, F32 maxValue,
 									const std::function<void()>& onValueChanged)
 	{
-		_prepareLayout();
-
 		if (ImGui::SliderFloat(text.c_str(), &value, minValue, maxValue) && onValueChanged)
 		{
 			onValueChanged();
 		}
+
+		_prepareLayout();
 	}
 
 	void CImGUIContext::FloatField(const std::string& text, F32& value, const std::function<void()>& onValueChanged)
 	{
-		_prepareLayout();
-
 		if (ImGui::InputFloat(text.c_str(), &value) && onValueChanged)
 		{
 			onValueChanged();
 		}
+
+		_prepareLayout();
 	}
 
 	void CImGUIContext::IntField(const std::string& text, I32& value, const std::function<void()>& onValueChanged)
 	{
-		_prepareLayout();
-
 		if (ImGui::InputInt(text.c_str(), &value) && onValueChanged)
 		{
 			onValueChanged();
 		}
+
+		_prepareLayout();
 	}
 
 	void CImGUIContext::TextField(const std::string& text, std::string& value, const std::function<void()>& onValueChanged)
 	{
-		_prepareLayout();
-
 		C8 buffer[512];
 		memcpy(buffer, value.c_str(), sizeof(buffer));
 
@@ -261,12 +261,12 @@ namespace TDEngine2
 		{
 			onValueChanged();
 		}
+
+		_prepareLayout();
 	}
 
 	void CImGUIContext::Vector2Field(const std::string& text, TVector2& value, const std::function<void()>& onValueChanged)
 	{
-		_prepareLayout();
-
 		F32 rawValue[2] { value.x, value.y };
 
 		if (ImGui::InputFloat2(text.c_str(), rawValue) && onValueChanged)
@@ -274,12 +274,12 @@ namespace TDEngine2
 			value = TVector2(rawValue);
 			onValueChanged();
 		}
+
+		_prepareLayout();
 	}
 
 	void CImGUIContext::Vector3Field(const std::string& text, TVector3& value, const std::function<void()>& onValueChanged)
 	{
-		_prepareLayout();
-
 		F32 rawValue[3] { value.x, value.y, value.z };
 
 		if (ImGui::InputFloat3(text.c_str(), rawValue) && onValueChanged)
@@ -287,12 +287,12 @@ namespace TDEngine2
 			value = TVector3(rawValue);
 			onValueChanged();
 		}
+
+		_prepareLayout();
 	}
 
 	void CImGUIContext::Vector4Field(const std::string& text, TVector4& value, const std::function<void()>& onValueChanged)
 	{
-		_prepareLayout();
-
 		F32 rawValue[4]{ value.x, value.y, value.z, value.w };
 
 		if (ImGui::InputFloat4(text.c_str(), rawValue) && onValueChanged)
@@ -300,6 +300,8 @@ namespace TDEngine2
 			value = TVector4(rawValue);
 			onValueChanged();
 		}
+
+		_prepareLayout();
 	}
 
 	void CImGUIContext::DisplayMainMenu(const std::function<void(IImGUIContext&)>& onDrawCallback)
@@ -500,6 +502,7 @@ namespace TDEngine2
 	void CImGUIContext::BeginHorizontal()
 	{
 		mIsHorizontalGroupEnabled = true;
+		ImGui::BeginGroup();
 	}
 
 	void CImGUIContext::EndHorizontal()
@@ -507,6 +510,7 @@ namespace TDEngine2
 		TDE2_ASSERT(mIsHorizontalGroupEnabled);
 
 		mIsHorizontalGroupEnabled = false;
+		ImGui::EndGroup();
 	}
 
 	bool CImGUIContext::BeginChildWindow(const std::string& name, const TVector2& sizes)

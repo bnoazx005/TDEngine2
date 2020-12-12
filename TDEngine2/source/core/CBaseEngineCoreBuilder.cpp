@@ -469,7 +469,7 @@ namespace TDEngine2
 				imguiContext.EndHorizontal();
 
 				imguiContext.BeginHorizontal();
-				imguiContext.Label("Scale");
+				imguiContext.Label("Scale   ");
 				imguiContext.Vector3Field(Wrench::StringUtils::GetEmptyStr(), scale, [&transform, &scale] { transform.SetScale(scale); });
 				imguiContext.EndHorizontal();
 			});
