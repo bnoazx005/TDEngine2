@@ -381,7 +381,14 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Object Inspector", isEnabled, params))
 		{
-			mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
+			mpImGUIContext->BeginHorizontal();
+			{
+				std::string entityName = pSelectedEntity->GetName();
+
+				mpImGUIContext->TextField("##entityId", entityName, [&entityName, pSelectedEntity] { pSelectedEntity->SetName(entityName); });
+				mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
+			}
+			mpImGUIContext->EndHorizontal();
 
 			for (IComponent* pCurrComponent : pSelectedEntity->GetComponents())
 			{

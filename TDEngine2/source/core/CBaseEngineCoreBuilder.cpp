@@ -39,6 +39,7 @@
 #include "../../include/editor/CDevConsoleWindow.h"
 #include "../../include/editor/CSelectionManager.h"
 #include "../../include/editor/CRenderTargetViewerWindow.h"
+#include "../../include/editor/Inspectors.h"
 #include "../../include/graphics/CFramePostProcessor.h"
 #include "../../include/graphics/CBasePostProcessingProfile.h"
 #include "../../include/graphics/IDebugUtility.h"
@@ -448,34 +449,9 @@ namespace TDEngine2
 		}
 
 		// \note Register all builtin component's inspectors
-		if (CLevelEditorWindow* pEditor = dynamic_cast<CLevelEditorWindow*>(pLevelEditorWindow))
+		if (RC_OK != (result = CDefeaultInspectorsRegistry::RegisterBuiltinInspectors(dynamic_cast<CLevelEditorWindow&>(*pLevelEditorWindow))))
 		{
-			pEditor->RegisterInspector(CTransform::GetTypeId(), [](IImGUIContext& imguiContext, IComponent& component) 
-			{
-				if (imguiContext.CollapsingHeader("Transform", true))
-				{
-					CTransform& transform = dynamic_cast<CTransform&>(component);
-
-					TVector3 position = transform.GetPosition();
-					TVector3 rotation = ToEulerAngles(transform.GetRotation());
-					TVector3 scale = transform.GetScale();
-
-					imguiContext.BeginHorizontal();
-					imguiContext.Label("Position");
-					imguiContext.Vector3Field("##1", position, [&transform, &position] { transform.SetPosition(position); });
-					imguiContext.EndHorizontal();
-
-					imguiContext.BeginHorizontal();
-					imguiContext.Label("Rotation");
-					imguiContext.Vector3Field("##2", rotation, [&transform, &rotation] { transform.SetRotation(TQuaternion(rotation)); });
-					imguiContext.EndHorizontal();
-
-					imguiContext.BeginHorizontal();
-					imguiContext.Label("Scale   ");
-					imguiContext.Vector3Field("##3", scale, [&transform, &scale] { transform.SetScale(scale); });
-					imguiContext.EndHorizontal();
-				}
-			});
+			return result;
 		}
 
 		return mpEngineCoreInstance->RegisterSubsystem(pEditorsManager);

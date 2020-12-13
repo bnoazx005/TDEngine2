@@ -206,7 +206,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		{
 			if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
 			{
-				if (auto pScene = pSceneManager->GetScene(pSceneManager->CreateScene("main").Get()).Get())
+				if (auto pScene = pSceneManager->GetScene(pSceneManager->CreateScene("Test").Get()).Get())
 				{
 					for (I32 i = 0; i < 10; ++i)
 					{
