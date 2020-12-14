@@ -111,6 +111,11 @@ namespace TDEngine2
 		return TQuaternion(q.x * scalar, q.y * scalar, q.z * scalar, q.w * scalar);
 	}
 
+	TDE2_API TVector4 operator* (const TQuaternion& q, const TVector4& v)
+	{
+		return RotationMatrix(q) * v;
+	}
+
 
 	TDE2_API TQuaternion Conjugate(const TQuaternion& q)
 	{

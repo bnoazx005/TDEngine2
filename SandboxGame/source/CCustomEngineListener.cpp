@@ -174,21 +174,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}	
 #endif
 
-	if (auto pLightEntity = mpWorld->CreateEntity())
-	{
-		if (auto pSunLight = pLightEntity->AddComponent<CDirectionalLight>())
-		{
-			pSunLight->SetIntensity(1.5f);
-			//pSunLight->SetDirection(-TVector3(1.0f, 1.0f, 0.0f));
-		}
-
-		if (auto pTransform = pLightEntity->GetComponent<CTransform>())
-		{
-			pTransform->SetPosition(SunLightPos);
-			pTransform->SetRotation(TVector3(45.0f, 45.0f, 0.0f));
-		}
-	}
-
 	if (auto pPackageWriter = mpFileSystem->Get<IPackageFileWriter>(mpFileSystem->Open<IPackageFileWriter>("TestPackage.pak", true).Get()))
 	{
 		//pPackageWriter->WriteFile<Type>("path/within/package/where/to/mount", pFile)
@@ -208,6 +193,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			{
 				if (auto pScene = pSceneManager->GetScene(pSceneManager->CreateScene("Test").Get()).Get())
 				{
+					if (auto pLight = pScene->CreateDirectionalLight(TColor32F(1.0f, 1.0f, 1.0f, 1.0f), 1.5f, TVector3(1.0f, 1.0f, 0.0f)))
+					{
+						pLight->GetComponent<CTransform>()->SetPosition(SunLightPos);
+					}
+
 					for (I32 i = 0; i < 10; ++i)
 					{
 						auto pEnt = pScene->CreateEntity(Wrench::StringUtils::Format("Entity{0}", i));

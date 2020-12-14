@@ -209,7 +209,6 @@ namespace TDEngine2
 		{
 			pDirectionLightComponent->SetColor(tint);
 			pDirectionLightComponent->SetIntensity(intensity);
-			pDirectionLightComponent->SetDirection(Normalize(direction));
 		}
 
 		return pDirectionLightEntity;

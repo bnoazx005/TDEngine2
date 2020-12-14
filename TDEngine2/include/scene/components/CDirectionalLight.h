@@ -16,13 +16,12 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CDirectionalLight's type
 
-		\param[in] direction A direction of the light source
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CDirectionalLight's implementation
 	*/
 
-	TDE2_API IComponent* CreateDirectionalLight(const TVector3& direction, E_RESULT_CODE& result);
+	TDE2_API IComponent* CreateDirectionalLight(E_RESULT_CODE& result);
 
 
 	/*!
@@ -34,7 +33,7 @@ namespace TDEngine2
 	class CDirectionalLight : public CBaseLight, public IDirectionalLight
 	{
 		public:
-			friend TDE2_API IComponent* CreateDirectionalLight(const TVector3&, E_RESULT_CODE&);
+			friend TDE2_API IComponent* CreateDirectionalLight(E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CDirectionalLight)
 
@@ -65,27 +64,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method specifies direction of the light source
-
-				\param[in] direction A normalized 3d vector that determines direction of the sun light
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE SetDirection(const TVector3& direction) override;
-
-			/*!
-				\brief The method returns a sun light's direction
-				\return The method returns a sun light's direction
-			*/
-
-			TDE2_API const TVector3& GetDirection() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDirectionalLight)
-		protected:
-			TVector3 mDirection;
 	};
 
 

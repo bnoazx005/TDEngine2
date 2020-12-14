@@ -95,7 +95,9 @@ namespace TDEngine2
 			{
 				if (auto pSunLight = pEntity->GetComponent<CDirectionalLight>())
 				{
-					lightingData.mSunLightDirection = TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
+					CTransform* pLightTransform = pEntity->GetComponent<CTransform>();
+
+					lightingData.mSunLightDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
 					lightingData.mSunLightColor     = pSunLight->GetColor();
 					lightingData.mSunLightMatrix    = _constructSunLightMatrix(pEntity);
 				}

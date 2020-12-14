@@ -100,22 +100,6 @@ namespace TDEngine2
 	class IDirectionalLight : public virtual ILight
 	{
 		public:
-			/*!
-				\brief The method specifies direction of the light source
-
-				\param[in] direction A normalized 3d vector that determines direction of the sun light
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE SetDirection(const TVector3& direction) = 0;
-			
-			/*!
-				\brief The method returns a sun light's direction
-				\return The method returns a sun light's direction
-			*/
-
-			TDE2_API virtual const TVector3& GetDirection() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDirectionalLight)
 	};

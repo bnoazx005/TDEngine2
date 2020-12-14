@@ -31,7 +31,7 @@ namespace TDEngine2
 		{
 			if (auto directionResult = LoadVector3(pReader))
 			{
-				mDirection = Normalize(directionResult.Get());
+				//mDirection = Normalize(directionResult.Get());
 			}
 		}
 		pReader->EndGroup();
@@ -51,7 +51,7 @@ namespace TDEngine2
 			pWriter->SetUInt32("type_id", static_cast<U32>(CDirectionalLight::GetTypeId()));
 			pWriter->BeginGroup("direction");
 			{
-				SaveVector3(pWriter, mDirection);
+				//SaveVector3(pWriter, mDirection);
 			}
 			pWriter->EndGroup();
 		}
@@ -59,20 +59,9 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-
-	E_RESULT_CODE CDirectionalLight::SetDirection(const TVector3& direction)
-	{
-		mDirection = Normalize(direction);
-		return RC_OK;
-	}
 	
-	const TVector3& CDirectionalLight::GetDirection() const
-	{
-		return mDirection;
-	}
 
-
-	IComponent* CreateDirectionalLight(const TVector3& direction, E_RESULT_CODE& result)
+	IComponent* CreateDirectionalLight(E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IComponent, CDirectionalLight, result);
 	}
@@ -120,14 +109,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		return CreateDirectionalLight(pSunLightParams->mDirection, result);
+		return CreateDirectionalLight(result);
 	}
 
 	IComponent* CDirectionalLightFactory::CreateDefault(const TBaseComponentParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		return CreateDirectionalLight(TVector3(1.0f), result);
+		return CreateDirectionalLight(result);
 	}
 
 	TypeId CDirectionalLightFactory::GetComponentTypeId() const

@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "TVector3.h"
+#include "TVector4.h"
 #include "TMatrix4.h"
 
 
@@ -93,6 +94,8 @@ namespace TDEngine2
 	TDE2_API TQuaternion operator* (F32 scalar, const TQuaternion& q);
 
 	TDE2_API TQuaternion operator* (const TQuaternion& q, F32 scalar);
+
+	TDE2_API TVector4 operator* (const TQuaternion& q, const TVector4& v);
 
 
 	/*!

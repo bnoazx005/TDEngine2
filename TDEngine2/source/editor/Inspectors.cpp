@@ -13,6 +13,7 @@
 #include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
 #include "../../include/physics/3D/CTrigger3D.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
+#include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CLevelEditorWindow.h"
 
@@ -31,6 +32,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CStaticMeshContainer::GetTypeId(), DrawStaticMeshContainerGUI);
 		result = result | editor.RegisterInspector(CShadowReceiverComponent::GetTypeId(), DrawShadowReceiverGUI);
 		result = result | editor.RegisterInspector(CShadowCasterComponent::GetTypeId(), DrawShadowCasterGUI);
+		result = result | editor.RegisterInspector(CDirectionalLight::GetTypeId(), DrawDirectionalLightGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -123,6 +125,17 @@ namespace TDEngine2
 		if (imguiContext.CollapsingHeader("Shadow Caster", true))
 		{
 			// \todo Implement this drawer
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawDirectionalLightGUI(IImGUIContext& imguiContext, IComponent& component)
+	{
+		if (imguiContext.CollapsingHeader("Directional Light", true))
+		{
+			CDirectionalLight& dirLight = dynamic_cast<CDirectionalLight&>(component);
+
+			// \todo Implement this drawer
+			
 		}
 	}
 
