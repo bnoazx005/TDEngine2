@@ -139,6 +139,8 @@ namespace TDEngine2
 
 			bool mIsMainScene;
 
+			TEntityId mSceneInfoEntityId;
+
 			TEntitiesRegistry mEntities;
 	};
 }

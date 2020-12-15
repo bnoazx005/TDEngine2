@@ -386,7 +386,7 @@ namespace TDEngine2
 		std::vector<ISystem*> builtinSystems 
 		{
 			CreateTransformSystem(result),
-			CreateBoundsUpdatingSystem(pResourceManager, pDebugUtility, result),
+			CreateBoundsUpdatingSystem(pResourceManager, pDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),

@@ -215,6 +215,19 @@ namespace TDEngine2
 		return Wrench::TOkValue<IScene*>(mpScenes[index]);
 	}
 
+	TResult<IScene*> CSceneManager::GetScene(const std::string& id) const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&id](const IScene* pScene) { return pScene->GetName() == id; });
+		if (iter == mpScenes.cend())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<IScene*>(*iter);
+	}
+
 	IWorld* CSceneManager::GetWorld() const
 	{
 		return mpWorld;

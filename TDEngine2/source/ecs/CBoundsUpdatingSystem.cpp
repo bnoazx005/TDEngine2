@@ -10,6 +10,10 @@
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/TVector4.h"
+#include "../../include/editor/ecs/EditorComponents.h"
+#include "../../include/scene/ISceneManager.h"
+#include "../../include/scene/IScene.h"
+#include "../../include/math/TAABB.h"
 
 
 namespace TDEngine2
@@ -19,20 +23,21 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBoundsUpdatingSystem::Init(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility)
+	E_RESULT_CODE CBoundsUpdatingSystem::Init(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pResourceManager)
+		if (!pResourceManager || !pSceneManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpResourceManager = pResourceManager;
 		mpDebugUtility    = pDebugUtility;
+		mpSceneManager    = pSceneManager;
 
 		mIsInitialized = true;
 
@@ -57,12 +62,20 @@ namespace TDEngine2
 	{
 		mStaticMeshesEntities = pWorld->FindEntitiesWithComponents<CStaticMeshContainer>();
 		mSpritesEntities = pWorld->FindEntitiesWithComponents<CQuadSprite>();
+
+#if TDE2_EDITORS_ENABLED
+		mScenesBoundariesEntities = pWorld->FindEntitiesWithComponents<CSceneInfoComponent>();
+#endif
 	}
 
 	void CBoundsUpdatingSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		_processEntities(pWorld, mStaticMeshesEntities, std::bind(&CBoundsUpdatingSystem::_computeStaticMeshBounds, this, std::placeholders::_1));
 		_processEntities(pWorld, mSpritesEntities, std::bind(&CBoundsUpdatingSystem::_computeSpritesBounds, this, std::placeholders::_1));
+
+#if TDE2_EDITORS_ENABLED
+		_processScenesEntities(pWorld);
+#endif
 	}
 
 	void CBoundsUpdatingSystem::_processEntities(IWorld* pWorld, const std::vector<TEntityId>& entities, const std::function<void(CEntity*)>& processCallback)
@@ -165,10 +178,55 @@ namespace TDEngine2
 			pBounds->SetBounds(TAABB{ min, max });
 		}
 	}
+
+	void CBoundsUpdatingSystem::_processScenesEntities(IWorld* pWorld)
+	{
+		CEntity* pEntity = nullptr;
+
+		for (TEntityId currEntity : mScenesBoundariesEntities)
+		{
+			if (!(pEntity = pWorld->FindEntity(currEntity)))
+			{
+				continue;
+			}
+
+			if (!pEntity->HasComponent<CBoundsComponent>())
+			{
+				pEntity->AddComponent<CBoundsComponent>();
+			}
+
+			if (CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>())
+			{
+				TAABB currBounds = pBounds->GetBounds();
+
+				if (CSceneInfoComponent* pSceneInfo = pEntity->GetComponent<CSceneInfoComponent>())
+				{
+					auto pScene = mpSceneManager->GetScene(pSceneInfo->GetSceneId());
+					if (pScene.IsOk())
+					{
+						pScene.Get()->ForEachEntity([&currBounds](CEntity* pOtherEntity)
+						{
+							if (CBoundsComponent* pEntityBounds = pOtherEntity->GetComponent<CBoundsComponent>())
+							{
+								currBounds = UnionBoundingBoxes(currBounds, pEntityBounds->GetBounds());
+							}
+						});
+					}
+				}
+
+				pBounds->SetBounds(currBounds);
+
+				if (mpDebugUtility)
+				{
+					mpDebugUtility->DrawAABB(currBounds, { 1.0f, 0.0f, 0.5f, 1.0f });
+				}
+			}
+		}
+	}
 	
 
-	TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystem, CBoundsUpdatingSystem, result, pResourceManager, pDebugUtility);
+		return CREATE_IMPL(ISystem, CBoundsUpdatingSystem, result, pResourceManager, pDebugUtility, pSceneManager);
 	}
 }

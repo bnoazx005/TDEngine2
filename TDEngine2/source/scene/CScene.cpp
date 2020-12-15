@@ -3,6 +3,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/editor/ecs/EditorComponents.h"
 #include <unordered_map>
 
 
@@ -32,6 +33,16 @@ namespace TDEngine2
 		mName = id;
 		mPath = scenePath;
 
+		if (auto pSceneInfoEntity = mpWorld->CreateEntity(id + "_SceneInfoEntity"))
+		{
+			mSceneInfoEntityId = pSceneInfoEntity->GetId();
+
+			if (CSceneInfoComponent* pSceneInfo = pSceneInfoEntity->AddComponent<CSceneInfoComponent>())
+			{
+				pSceneInfo->SetSceneId(mName);
+			}
+		}
+
 		mIsMainScene = isMainScene;
 
 		mIsInitialized = true;
@@ -54,6 +65,8 @@ namespace TDEngine2
 			{
 				return RC_FAIL;
 			}
+
+			mpWorld->Destroy(mpWorld->FindEntity(mSceneInfoEntityId));
 
 			for (TEntityId currEntityId : mEntities)
 			{
@@ -114,6 +127,14 @@ namespace TDEngine2
 			}
 		}
 		pReader->EndGroup();
+
+		if (auto pSceneInfoEntity = mpWorld->FindEntity(mSceneInfoEntityId))
+		{
+			if (CSceneInfoComponent* pSceneInfo = pSceneInfoEntity->AddComponent<CSceneInfoComponent>())
+			{
+				pSceneInfo->SetSceneId(mName);
+			}
+		}
 
 		return RC_OK;
 	}

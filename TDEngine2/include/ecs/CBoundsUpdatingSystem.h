@@ -20,6 +20,7 @@ namespace TDEngine2
 	class CEntity;
 	class IDebugUtility;
 	class IResourceManager;
+	class ISceneManager;
 
 
 	/*!
@@ -27,12 +28,13 @@ namespace TDEngine2
 
 		\param[in, out] pResourceManager A pointer to IResourceManager implementation
 		\param[in, out] pDebugUtility A pointer to IDebugUtility implementation
+		\param[in, out] pSceneManager A pointer to ISceneManager implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CBoundsUpdatingSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -44,7 +46,7 @@ namespace TDEngine2
 	class CBoundsUpdatingSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager*, IDebugUtility*, E_RESULT_CODE&);
+			friend TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager*, IDebugUtility*, ISceneManager*, E_RESULT_CODE&);
 		public:
 			TDE2_SYSTEM(CBoundsUpdatingSystem);
 
@@ -53,11 +55,12 @@ namespace TDEngine2
 
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 				\param[in, out] pDebugUtility A pointer to IDebugUtility implementation
+				\param[in, out] pSceneManager A pointer to ISceneManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility);
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -92,12 +95,21 @@ namespace TDEngine2
 
 			TDE2_API void _computeStaticMeshBounds(CEntity* pEntity);
 			TDE2_API void _computeSpritesBounds(CEntity* pEntity);
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API void _processScenesEntities(IWorld* pWorld);
+#endif
 		protected:
 			std::vector<TEntityId> mStaticMeshesEntities;
 			std::vector<TEntityId> mSpritesEntities;
+#if TDE2_EDITORS_ENABLED
+			std::vector<TEntityId> mScenesBoundariesEntities;
+#endif
 
 			IResourceManager*      mpResourceManager;
 
 			IDebugUtility*         mpDebugUtility;
+
+			ISceneManager*         mpSceneManager;
 	};
 }

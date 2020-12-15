@@ -374,6 +374,7 @@ namespace TDEngine2
 			CreateShadowReceiverComponentFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
+			CreateSceneInfoComponentFactory,
 #endif
 			//etc
 		};
@@ -422,6 +423,7 @@ namespace TDEngine2
 			CShadowReceiverComponent::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
+			CSceneInfoComponent::GetTypeId(),
 #endif
 			//etc
 		};
