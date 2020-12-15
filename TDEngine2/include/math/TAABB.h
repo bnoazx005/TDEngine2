@@ -64,4 +64,6 @@ namespace TDEngine2
 
 	TDE2_API bool ContainsPoint(const TAABB& aabb, const TVector3& point);
 
+	TDE2_API TAABB UnionBoundingBoxes(const TAABB& left, const TAABB& right);
+
 }

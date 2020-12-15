@@ -34,4 +34,20 @@ namespace TDEngine2
 
 		return false;
 	}
+
+
+	TAABB UnionBoundingBoxes(const TAABB& left, const TAABB& right)
+	{
+		auto minVec3 = [](const TVector3& lvec3, const TVector3& rvec3)
+		{
+			return TVector3(std::min<F32>(lvec3.x, rvec3.x), std::min<F32>(lvec3.y, rvec3.y), std::min<F32>(lvec3.z, rvec3.z));
+		};
+
+		auto maxVec3 = [](const TVector3& lvec3, const TVector3& rvec3)
+		{
+			return TVector3(std::max<F32>(lvec3.x, rvec3.x), std::max<F32>(lvec3.y, rvec3.y), std::max<F32>(lvec3.z, rvec3.z));
+		};
+
+		return TAABB(minVec3(left.min, right.min), maxVec3(left.max, right.max));
+	}
 }
