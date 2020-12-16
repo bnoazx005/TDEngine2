@@ -414,12 +414,16 @@ namespace TDEngine2
 
 				\param[in] id A label that will be displayed
 				\param[in] isOpened The flag defines whether or not the group is unwinded or not
+				\param[in] isSelected The flag defines whether the header be highlighted or not
+				\param[in] itemClicked The callback is called when a user clicks over the header
 				\param[in] contentAction You can invoke any ImGUIContext command there which should be displayed when the header is unwinded
 
 				\return The method return true if it was unwinded, false in other cases
 			*/
 
-			TDE2_API virtual bool CollapsingHeader(const std::string& id, bool isOpened, const std::function<void()>& contentAction = nullptr) = 0;
+			TDE2_API virtual bool CollapsingHeader(const std::string& id, bool isOpened, bool isSelected = false, 
+												   const std::function<void()>& itemClicked = nullptr, 
+												   const std::function<void()>& contentAction = nullptr) = 0;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one

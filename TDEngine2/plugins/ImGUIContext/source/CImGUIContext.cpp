@@ -467,11 +467,16 @@ namespace TDEngine2
 		ImGui::TreePop();
 	}
 
-	bool CImGUIContext::CollapsingHeader(const std::string& id, bool isOpened, const std::function<void()>& contentAction)
+	bool CImGUIContext::CollapsingHeader(const std::string& id, bool isOpened, bool isSelected, const std::function<void()>& itemClicked, const std::function<void()>& contentAction)
 	{
-		if (!ImGui::CollapsingHeader(id.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		if (!ImGui::CollapsingHeader(id.c_str(), ImGuiTreeNodeFlags_DefaultOpen | (isSelected ? ImGuiTreeNodeFlags_Selected : 0x0)))
 		{
 			return false;
+		}
+
+		if (ImGui::IsItemClicked() && itemClicked)
+		{
+			itemClicked();
 		}
 
 		if (contentAction)
