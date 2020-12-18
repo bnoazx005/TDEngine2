@@ -282,7 +282,7 @@ namespace TDEngine2
 				\param[in] onDrawCallback A callback within which a user defines sub-menus of the menu
 			*/
 
-			TDE2_API void DisplayContextMenu(const std::function<void(IImGUIContext&)>& onDrawCallback) override;
+			TDE2_API void DisplayContextMenu(const std::string& id, const std::function<void(IImGUIContext&)>& onDrawCallback) override;
 
 			/*!
 				\brief The method creates a sub-menu

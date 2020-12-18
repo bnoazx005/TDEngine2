@@ -317,17 +317,17 @@ namespace TDEngine2
 		ImGui::EndMainMenuBar();
 	}
 
-	void CImGUIContext::DisplayContextMenu(const std::function<void(IImGUIContext&)>& onDrawCallback)
+	void CImGUIContext::DisplayContextMenu(const std::string& id, const std::function<void(IImGUIContext&)>& onDrawCallback)
 	{
-		if (ImGui::BeginMenuBar())
+		if (ImGui::BeginPopupContextItem(id.c_str()))
 		{
 			if (onDrawCallback)
 			{
 				onDrawCallback(*this);
 			}
-		}
 
-		ImGui::EndMenuBar();
+			ImGui::EndPopup();
+		}
 	}
 
 	void CImGUIContext::MenuGroup(const std::string& name, const std::function<void(IImGUIContext&)>& onDrawCallback)
