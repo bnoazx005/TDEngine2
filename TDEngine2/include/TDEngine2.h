@@ -50,6 +50,8 @@
 #include "core/CFont.h"
 #include "core/IImGUIContext.h"
 #include "core/Serialization.h"
+#include "core/ILocalizationManager.h"
+#include "core/CLocalizationManager.h"
 
 ///ecs
 #include "ecs/CEntity.h"

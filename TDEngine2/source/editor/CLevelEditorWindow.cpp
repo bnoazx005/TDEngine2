@@ -13,6 +13,7 @@
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/ecs/CCameraSystem.h"
+#include "../../include/scene/IScene.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -364,12 +365,6 @@ namespace TDEngine2
 
 	void CLevelEditorWindow::_onDrawInspector()
 	{
-		CEntity* pSelectedEntity = mpEditorsManager->GetWorldInstance()->FindEntity(mSelectedEntityId);
-		if (!pSelectedEntity)
-		{
-			return;
-		}
-
 		static bool isEnabled = true;
 
 		static const IImGUIContext::TWindowParams params
@@ -381,35 +376,64 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Object Inspector", isEnabled, params))
 		{
-			mpImGUIContext->BeginHorizontal();
+			if (!_onDrawSceneInspector())
 			{
-				std::string entityName = pSelectedEntity->GetName();
-
-				mpImGUIContext->TextField("##entityId", entityName, [&entityName, pSelectedEntity] { pSelectedEntity->SetName(entityName); });
-				mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
-			}
-			mpImGUIContext->EndHorizontal();
-
-			for (IComponent* pCurrComponent : pSelectedEntity->GetComponents())
-			{
-				if (!pCurrComponent)
-				{
-					continue;
-				}
-
-				auto iter = mInspectorsDrawers.find(pCurrComponent->GetComponentTypeId());
-				if (iter == mInspectorsDrawers.cend())
-				{
-					LOG_WARNING(Wrench::StringUtils::Format("[Level Editor Window] There is no defined inspector's drawer for \"TypeId\": {0}", static_cast<U32>(pCurrComponent->GetComponentTypeId())));
-
-					continue;
-				}
-
-				(iter->second)(*mpImGUIContext, *pCurrComponent);
+				_onDrawObjectInspector();
 			}
 		}
 
 		mpImGUIContext->EndWindow();
+	}
+
+	bool CLevelEditorWindow::_onDrawObjectInspector()
+	{
+		CEntity* pSelectedEntity = mpEditorsManager->GetWorldInstance()->FindEntity(mSelectedEntityId);
+		if (!pSelectedEntity)
+		{
+			return false;
+		}
+
+		mpImGUIContext->BeginHorizontal();
+		{
+			std::string entityName = pSelectedEntity->GetName();
+
+			mpImGUIContext->TextField("##entityId", entityName, [&entityName, pSelectedEntity] { pSelectedEntity->SetName(entityName); });
+			mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
+		}
+		mpImGUIContext->EndHorizontal();
+
+		for (IComponent* pCurrComponent : pSelectedEntity->GetComponents())
+		{
+			if (!pCurrComponent)
+			{
+				continue;
+			}
+
+			auto iter = mInspectorsDrawers.find(pCurrComponent->GetComponentTypeId());
+			if (iter == mInspectorsDrawers.cend())
+			{
+				LOG_WARNING(Wrench::StringUtils::Format("[Level Editor Window] There is no defined inspector's drawer for \"TypeId\": {0}", static_cast<U32>(pCurrComponent->GetComponentTypeId())));
+
+				continue;
+			}
+
+			(iter->second)(*mpImGUIContext, *pCurrComponent);
+		}
+
+		return true;
+	}
+
+	bool CLevelEditorWindow::_onDrawSceneInspector()
+	{
+		IScene* pSelectedScene = dynamic_cast<CSceneHierarchyEditorWindow*>(mpHierarchyWidget)->GetSelectedSceneInfo();
+		if (!pSelectedScene)
+		{
+			return false;
+		}
+
+		mpImGUIContext->Label(pSelectedScene->GetName());
+
+		return true;
 	}
 
 
