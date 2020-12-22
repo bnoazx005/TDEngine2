@@ -4,6 +4,8 @@
 #include "../../include/scene/IScene.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/editor/CSelectionManager.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/editor/ecs/EditorComponents.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -29,6 +31,7 @@ namespace TDEngine2
 
 		mpSceneManager = pSceneManager;
 		mpSelectionManager = pSelectionManager;
+		mpSelectedScene = nullptr;
 
 		mIsInitialized = true;
 
@@ -63,13 +66,14 @@ namespace TDEngine2
 		{
 			for (IScene* pCurrScene : mpSceneManager->GetLoadedScenes())
 			{
-				if (mpImGUIContext->CollapsingHeader(pCurrScene->GetName(), true))
+				if (mpImGUIContext->CollapsingHeader(pCurrScene->GetName(), true, (mpSelectedScene == pCurrScene), [pCurrScene, this] { mpSelectedScene = pCurrScene; }))
 				{
 					pCurrScene->ForEachEntity([this](const CEntity* pEntity)
 					{
 						if (mpImGUIContext->SelectableItem(pEntity->GetName()))
 						{
 							mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+							mpSelectedScene = nullptr;
 						}
 					});
 				}
@@ -79,6 +83,11 @@ namespace TDEngine2
 		}
 
 		mIsVisible = isEnabled;
+	}
+
+	IScene* CSceneHierarchyEditorWindow::GetSelectedSceneInfo() const
+	{
+		return mpSelectedScene;
 	}
 
 

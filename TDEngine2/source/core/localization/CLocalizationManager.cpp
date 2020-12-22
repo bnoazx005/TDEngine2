@@ -1,4 +1,5 @@
-#include "../../include/core/CLocalizationManager.h"
+#include "../../include/core/localization/CLocalizationManager.h"
+#include "../../include/core/localization/CLocalizationPackage.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/platform/CYAMLFile.h"
@@ -181,7 +182,18 @@ namespace TDEngine2
 		}
 
 		// \note Load it using the resource manager
-		//mpResourceManager->Load<..>(iter->mPackagePath);
+		mCurrLocalePackageId = mpResourceManager->Load<CLocalizationPackage>(iter->mPackagePath);
+
+		// \note Wait while package is loaded and then retrieve information from it
+		// \todo Make it asynchronous
+
+		if (ILocalizationPackage* pPackageResource = mpResourceManager->GetResource<ILocalizationPackage>(mCurrLocalePackageId))
+		{
+			auto&& data = pPackageResource->GetDictionaryData();
+
+			mCurrLocaleData.clear();
+			mCurrLocaleData.insert(data.cbegin(), data.cend());
+		}
 
 		return RC_OK;
 	}

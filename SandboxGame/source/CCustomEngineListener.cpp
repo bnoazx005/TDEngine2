@@ -273,6 +273,11 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 				});
 			});
 
+			imgui->DisplayContextMenu("m1", [](IImGUIContext& ui)
+			{
+				ui.MenuItem("terer", "r");
+			});
+
 			static int id = 0;
 
 			id = imgui->Popup("TestPopup", id, { "First", "Second", "Third" });

@@ -151,5 +151,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _configureEditorsManager() = 0;
 
 			TDE2_API virtual E_RESULT_CODE _configureSceneManager() = 0;
+
+			TDE2_API virtual E_RESULT_CODE _configureLocalizationManager() = 0;
 	};
 }

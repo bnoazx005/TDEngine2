@@ -472,7 +472,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = pEngineSubsystem->Free();
 
-		const static U16 statusStringLength = 32;
+		const static U16 statusStringLength = 64;
 
 		std::string subsystemName = std::move(std::string("[Engine Core] ").append(EngineSubsystemTypeToString(subsystemType)));
 

@@ -52,7 +52,7 @@ namespace TDEngine2
 
 	void CDefeaultInspectorsRegistry::DrawTransformGUI(IImGUIContext& imguiContext, IComponent& component)
 	{
-		if (imguiContext.CollapsingHeader("Transform", true))
+		if (imguiContext.CollapsingHeader("Transform", true, false))
 		{
 			CTransform& transform = dynamic_cast<CTransform&>(component);
 

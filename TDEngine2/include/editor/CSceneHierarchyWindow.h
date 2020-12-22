@@ -16,6 +16,7 @@ namespace TDEngine2
 {
 	class ISceneManager;
 	class ISelectionManager;
+	class IScene;
 
 
 	/*!
@@ -59,6 +60,9 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			TDE2_API IScene* GetSelectedSceneInfo() const;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneHierarchyEditorWindow)
 
@@ -71,6 +75,8 @@ namespace TDEngine2
 		protected:
 			ISceneManager* mpSceneManager;
 			ISelectionManager* mpSelectionManager;
+
+			IScene* mpSelectedScene;
 
 	};
 }

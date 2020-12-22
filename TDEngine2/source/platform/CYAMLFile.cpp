@@ -2,6 +2,8 @@
 #include "../../deps/yaml/Yaml.cpp"
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
+#include "../../include/utils/CFileLogger.h"
+#include <stringUtils.hpp>
 
 
 namespace TDEngine2
@@ -400,6 +402,9 @@ namespace TDEngine2
 		}
 		catch (Yaml::Exception e)
 		{
+			LOG_ERROR(Wrench::StringUtils::Format("[YamlFileReader] Error's happened during deserialization process, error_message: {0}", e.Message()));
+			TDE2_ASSERT(false);
+
 			return RC_FAIL;
 		}
 

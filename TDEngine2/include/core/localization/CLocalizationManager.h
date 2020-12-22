@@ -8,7 +8,7 @@
 
 
 #include "ILocalizationManager.h"
-#include "../core/CBaseObject.h"
+#include "../../core/CBaseObject.h"
 #include <unordered_map>
 #include <vector>
 #include <mutex>
@@ -152,5 +152,7 @@ namespace TDEngine2
 			TLocalesRegistry mRegisteredLocales;
 
 			TLocaleData mCurrLocaleData;
+
+			TResourceId mCurrLocalePackageId;
 	};
 }

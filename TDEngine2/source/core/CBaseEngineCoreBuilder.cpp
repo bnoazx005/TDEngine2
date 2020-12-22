@@ -15,6 +15,8 @@
 #include "../../include/core/memory/CPoolAllocator.h"
 #include "../../include/core/memory/CStackAllocator.h"
 #include "../../include/core/IImGUIContext.h"
+#include "../../include/core/localization/CLocalizationManager.h"
+#include "../../include/core/localization/CLocalizationPackage.h"
 #include "../../include/platform/win32/CWin32WindowSystem.h"
 #include "../../include/platform/win32/CWin32FileSystem.h"
 #include "../../include/platform/unix/CUnixWindowSystem.h"
@@ -485,6 +487,20 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(pSceneManager);
 	}
 
+	E_RESULT_CODE CBaseEngineCoreBuilder::_configureLocalizationManager()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		// \todo Replace magic constant 
+		ILocalizationManager* pLocalizationManager = CreateLocalizationManager(mpFileSystemInstance, mpResourceManagerInstance, "localization_config.cfg", result);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		return mpEngineCoreInstance->RegisterSubsystem(pLocalizationManager);
+	}
+
 	IEngineCore* CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
@@ -513,6 +529,7 @@ namespace TDEngine2
 			return mpEngineCoreInstance;
 		}
 
+		PANIC_ON_FAILURE(_configureLocalizationManager());
 		PANIC_ON_FAILURE(_configureRenderer());
 		PANIC_ON_FAILURE(_configureImGUIContext());
 		PANIC_ON_FAILURE(_configureEditorsManager());
@@ -600,6 +617,26 @@ namespace TDEngine2
 		}
 
 		pResourceFactory = CreateFontFactory(mpResourceManagerInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		{
+			return result;
+		}
+
+		/// \note register localization package's resource type
+		pResourceLoader = CreateLocalizationPackageLoader(mpResourceManagerInstance, mpFileSystemInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		pResourceFactory = CreateLocalizationPackageFactory(mpResourceManagerInstance, result);
 
 		if (result != RC_OK)
 		{

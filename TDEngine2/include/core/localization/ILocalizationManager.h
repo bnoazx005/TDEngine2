@@ -7,10 +7,10 @@
 #pragma once
 
 
-#include "../utils/Types.h"
-#include "../utils/Utils.h"
-#include "../core/IBaseObject.h"
-#include "../core/IEngineSubsystem.h"
+#include "../../utils/Types.h"
+#include "../../utils/Utils.h"
+#include "../../core/IBaseObject.h"
+#include "../../core/IEngineSubsystem.h"
 #include <string>
 
 
