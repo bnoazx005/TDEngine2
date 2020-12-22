@@ -119,9 +119,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
-
-			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return E_ENGINE_SUBSYSTEM_TYPE::EST_LOCALIZATION_MANAGER; }
-
+			
 			/*!
 				\return The method returns a hash value that corresponds to given string identifier of a locale
 			*/

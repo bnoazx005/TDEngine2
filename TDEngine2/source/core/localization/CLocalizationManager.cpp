@@ -85,32 +85,31 @@ namespace TDEngine2
 		return _getTextInternal(keyId);
 	}
 		
-	std::string CLocalizationManager::GetFormattedText(const std::string& key) const
+	std::string CLocalizationManager::GetFormattedText(const std::string& rawText) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		/*StringBuilder formattedString = new StringBuilder();
+		std::string sourceString = rawText;
+		std::string formattedString;
 
-		int pos = 0;
-		int endPos = 0;
+		std::string::size_type pos = 0;
+		std::string::size_type endPos = 0;
 
-		while ((pos = rawText.IndexOf('{')) != -1)
+		while ((pos = sourceString.find_first_of('{')) != std::string::npos)
 		{
-			formattedString.Append(rawText.Substring(0, pos));
+			formattedString.append(sourceString.substr(0, pos));
 
-			endPos = rawText.IndexOf('}', pos);
+			endPos = sourceString.find_first_of('}', pos);
 
-			if (endPos != -1)
+			if (endPos != std::string::npos)
 			{
-				formattedString.Append(GetText(rawText.Substring(pos + 1, endPos - pos)));
+				formattedString.append(_getTextInternal(sourceString.substr(pos + 1, endPos - pos - 1)));
 			}
 
-			rawText = rawText.Substring(((endPos != -1) ? endPos : pos) + 1);
+			sourceString = sourceString.substr(((endPos != std::string::npos) ? endPos : pos) + 1);
 		}
 
-		return formattedString.ToString();*/
-
-		return "";
+		return formattedString;
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CLocalizationManager::GetType() const

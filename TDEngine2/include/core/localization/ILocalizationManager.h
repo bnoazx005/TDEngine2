@@ -93,6 +93,8 @@ namespace TDEngine2
 
 			TDE2_API virtual TLocaleId GetLocaleHash(const std::string& localeId) const = 0;
 
+			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return E_ENGINE_SUBSYSTEM_TYPE::EST_LOCALIZATION_MANAGER; }
+
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ILocalizationManager)
 	};
