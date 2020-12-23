@@ -544,4 +544,34 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file) = 0;
 	};
+
+
+	/*!
+		interface IBinaryArchiveWriter
+
+		\brief The interface represents a functionality of a binary archive writer
+	*/
+
+	class IBinaryArchiveWriter : public IArchiveWriter, public IFileWriter
+	{
+		public:
+			TDE2_REGISTER_TYPE(IYAMLFileWriter)
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryArchiveWriter)
+	};
+
+
+	/*!
+		interface IBinaryArchiveReader
+
+		\brief The interface describes a functionality of a binary archive reader
+	*/
+
+	class IBinaryArchiveReader : public IArchiveReader, public IFileReader
+	{
+		public:
+			TDE2_REGISTER_TYPE(IBinaryArchiveReader)
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryArchiveReader)
+	};
 }
