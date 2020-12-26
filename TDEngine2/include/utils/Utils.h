@@ -176,6 +176,13 @@ namespace TDEngine2
 	*/
 
 #if defined (_MSC_VER)
+#define TDE2_TYPE_ID(Type)												\
+		__pragma(warning(push))											\
+		__pragma(warning(disable:4307))									\
+		TypeId(ComputeHash(#Type))										\
+		__pragma(warning(pop))											
+
+
 	#define TDE2_REGISTER_TYPE(Type)										\
 		static TypeId GetTypeId()											\
 		{																	\

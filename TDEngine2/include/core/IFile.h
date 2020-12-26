@@ -555,7 +555,7 @@ namespace TDEngine2
 	class IBinaryArchiveWriter : public IArchiveWriter, public IFileWriter
 	{
 		public:
-			TDE2_REGISTER_TYPE(IYAMLFileWriter)
+			TDE2_REGISTER_TYPE(IBinaryArchiveWriter)
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryArchiveWriter)
 	};

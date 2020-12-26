@@ -29,6 +29,7 @@
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/platform/CPackageFile.h"
 #include "../../include/platform/CBinaryMeshFileReader.h"
+#include "../../include/platform/BinaryArchives.h"
 #include "../../include/graphics/CForwardRenderer.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/CTextureAtlas.h"
@@ -171,7 +172,9 @@ namespace TDEngine2
 			((result = mpFileSystemInstance->RegisterFileFactory<IYAMLFileWriter>({ CreateYAMLFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IPackageFileReader>({ CreatePackageFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IPackageFileWriter>({ CreatePackageFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
-			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryMeshFileReader>({ CreateBinaryMeshFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK))
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryMeshFileReader>({ CreateBinaryMeshFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryArchiveWriter>({ CreateBinaryArchiveWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryArchiveReader>({ CreateBinaryArchiveReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK))
 		{
 			return result;
 		}

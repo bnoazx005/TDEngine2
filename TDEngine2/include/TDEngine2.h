@@ -222,6 +222,7 @@
 #include "platform/IOStreams.h"
 #include "platform/MountableStorages.h"
 #include "platform/CPackageFile.h"
+#include "platform/BinaryArchives.h"
 
 ///utils
 #include "utils/Types.h"

@@ -223,6 +223,61 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
+#if 0 // TEST_CODE for binary archive writer
+		if (auto result = mpFileSystem->Open<IBinaryArchiveWriter>("TestArchive.bin", true))
+		{
+			if (IBinaryArchiveWriter* pArchiveWriter = mpFileSystem->Get<IBinaryArchiveWriter>(result.Get()))
+			{
+				pArchiveWriter->BeginGroup("Test");
+				pArchiveWriter->SetString("Key1", "This is a string");
+				pArchiveWriter->SetInt32("int", 32);
+
+				pArchiveWriter->BeginGroup("Array");
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						pArchiveWriter->BeginGroup("");
+						pArchiveWriter->SetInt32("value", i);
+						pArchiveWriter->EndGroup();
+					}
+				}
+				pArchiveWriter->EndGroup();
+
+				pArchiveWriter->EndGroup();
+
+				pArchiveWriter->Close();
+			}
+		}
+#endif
+
+#if 1 // TEST_CODE for binary archive reader
+		if (auto result = mpFileSystem->Open<IBinaryArchiveReader>("TestArchive.bin", true))
+		{
+			if (IBinaryArchiveReader* pArchiveReader = mpFileSystem->Get<IBinaryArchiveReader>(result.Get()))
+			{
+				/*pArchiveWriter->BeginGroup("Test");
+				pArchiveWriter->SetString("Key1", "This is a string");
+				pArchiveWriter->SetInt32("int", 32);
+
+				pArchiveWriter->BeginGroup("Array");
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						pArchiveWriter->BeginGroup("");
+						pArchiveWriter->SetInt32("value", i);
+						pArchiveWriter->EndGroup();
+					}
+				}
+				pArchiveWriter->EndGroup();
+
+				pArchiveWriter->EndGroup();*/
+
+				pArchiveReader->Close();
+			}
+		}
+#endif
+
+
 		pSceneManager->LoadSceneAsync("TestScene.scene", [](auto)
 		{
 			int x = 0;
