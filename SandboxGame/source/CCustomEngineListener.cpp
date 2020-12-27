@@ -255,22 +255,24 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		{
 			if (IBinaryArchiveReader* pArchiveReader = mpFileSystem->Get<IBinaryArchiveReader>(result.Get()))
 			{
-				/*pArchiveWriter->BeginGroup("Test");
-				pArchiveWriter->SetString("Key1", "This is a string");
-				pArchiveWriter->SetInt32("int", 32);
+				pArchiveReader->BeginGroup("Test");
+				auto str = pArchiveReader->GetString("Key1");
+				auto iValue = pArchiveReader->GetInt32("int");
 
-				pArchiveWriter->BeginGroup("Array");
+				pArchiveReader->BeginGroup("Array");
 				{
-					for (int i = 0; i < 3; ++i)
+					while (pArchiveReader->HasNextItem())
 					{
-						pArchiveWriter->BeginGroup("");
-						pArchiveWriter->SetInt32("value", i);
-						pArchiveWriter->EndGroup();
+						pArchiveReader->BeginGroup("");
+						auto k = pArchiveReader->GetInt32("value");
+						pArchiveReader->EndGroup();
 					}
 				}
-				pArchiveWriter->EndGroup();
+				pArchiveReader->EndGroup();
 
-				pArchiveWriter->EndGroup();*/
+				auto i2 = pArchiveReader->GetInt32("int");
+
+				pArchiveReader->EndGroup();
 
 				pArchiveReader->Close();
 			}

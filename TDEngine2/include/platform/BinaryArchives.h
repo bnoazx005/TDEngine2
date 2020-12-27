@@ -13,6 +13,7 @@
 #include <string>
 #include <memory>
 #include <tuple>
+#include <stack>
 #include <variant.hpp>
 
 
@@ -263,12 +264,31 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _readValue(void* pBuffer, U32 size);
 
 			TDE2_API const TArchiveValue* _getContent(const std::string& key);
+
+			template <typename T>
+			T _getContentAsOrDefault(const std::string& key, T defaultValue)
+			{
+				const TArchiveValue* pValue = _getContent(key);
+				if (!pValue)
+				{
+					return defaultValue;
+				}
+
+				return _tryToGetValue<T>(pValue->mValue, defaultValue);
+			}
+
+			template <typename T>
+			T _tryToGetValue(const TArchiveValue::TValue& value, T defaultValue)
+			{
+				return !value.Is<T>() ? defaultValue : value.As<T>();
+			}
 		protected:
 			IInputStream* mpCachedInputStream;
 			
 			TArchiveValue::TArchiveValuesArray mTopLevelDecls;
 
 			TArchiveValue* mpCurrNode;
+			std::stack<std::tuple<U32, TArchiveValue*>> mpHierarchyContext; // \note contains pointers to parents, U32 is current counter within the scope
 
 			U32 mCurrElementIndex = 0;
 	};

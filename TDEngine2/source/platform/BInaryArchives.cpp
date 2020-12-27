@@ -216,6 +216,18 @@ namespace TDEngine2
 		\brief CBinaryArchiveReader's definition
 	*/
 
+	template <> TDE2_API I8 CBinaryArchiveReader::_tryToGetValue<I8>(const TArchiveValue::TValue& value, I8 defaultValue) { return !value.Is<I64>() ? defaultValue : static_cast<I8>(value.As<I64>()); }
+	template <> TDE2_API I16 CBinaryArchiveReader::_tryToGetValue<I16>(const TArchiveValue::TValue& value, I16 defaultValue) { return !value.Is<I64>() ? defaultValue : static_cast<I16>(value.As<I64>()); }
+	template <> TDE2_API I32 CBinaryArchiveReader::_tryToGetValue<I32>(const TArchiveValue::TValue& value, I32 defaultValue) { return !value.Is<I64>() ? defaultValue : static_cast<I32>(value.As<I64>()); }
+
+	template <> TDE2_API U8 CBinaryArchiveReader::_tryToGetValue<U8>(const TArchiveValue::TValue& value, U8 defaultValue) { return !value.Is<I64>() ? defaultValue : static_cast<U8>(value.As<I64>()); }
+	template <> TDE2_API U16 CBinaryArchiveReader::_tryToGetValue<U16>(const TArchiveValue::TValue& value, U16 defaultValue) { return !value.Is<I64>() ? defaultValue : static_cast<U16>(value.As<I64>()); }
+	template <> TDE2_API U32 CBinaryArchiveReader::_tryToGetValue<U32>(const TArchiveValue::TValue& value, U32 defaultValue) { return !value.Is<I64>() ? defaultValue : static_cast<U32>(value.As<I64>()); }
+	template <> TDE2_API U64 CBinaryArchiveReader::_tryToGetValue<U64>(const TArchiveValue::TValue& value, U64 defaultValue) { return !value.Is<I64>() ? defaultValue : static_cast<U64>(value.As<I64>()); }
+	
+	template <> TDE2_API F32 CBinaryArchiveReader::_tryToGetValue<F32>(const TArchiveValue::TValue& value, F32 defaultValue) { return !value.Is<F64>() ? defaultValue : static_cast<F32>(value.As<F64>()); }
+	
+
 	CBinaryArchiveReader::CBinaryArchiveReader() :
 		CBaseFile()
 	{
@@ -244,6 +256,21 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		// \note try to find node with given identifier
+		auto&& groups = mpCurrNode ? mpCurrNode->mpChildren : mTopLevelDecls;
+
+		auto iter = key.empty() ? (groups.cbegin() + mCurrElementIndex) : std::find_if(groups.cbegin(), groups.cend(), [key](auto&& group) { return group->mName == key; });
+		if (iter == groups.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mpHierarchyContext.emplace(mCurrElementIndex, mpCurrNode); // \note save current pointer
+		mCurrElementIndex = 0;
+
+		// \note move down into hierarchy
+		mpCurrNode = iter->get();
+
 		return RC_OK;
 	}
 
@@ -251,104 +278,102 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		if (!mpCurrNode || mpHierarchyContext.empty())
+		{
+			return RC_FAIL;
+		}
+
+		std::tie(mCurrElementIndex, mpCurrNode) = mpHierarchyContext.top();
+		mpHierarchyContext.pop();
+
+		++mCurrElementIndex;
+
 		return RC_OK;
 	}
 
 	bool CBinaryArchiveReader::HasNextItem() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return false;
+		return (mCurrElementIndex + 1) <= static_cast<U32>(mpCurrNode ? mpCurrNode->mpChildren.size() : 0);
 	}
 
 	U8 CBinaryArchiveReader::GetUInt8(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<U8>(key);
-		return 0;
+		return _getContentAsOrDefault<U8>(key, 0);
 	}
 
 	U16 CBinaryArchiveReader::GetUInt16(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<U16>(key);
-		return 0;
+		return _getContentAsOrDefault<U16>(key, 0);
 	}
 
 	U32 CBinaryArchiveReader::GetUInt32(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<U32>(key);
-		return 0;
+		return _getContentAsOrDefault<U32>(key, 0);
 	}
 
 	U64 CBinaryArchiveReader::GetUInt64(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<U64>(key);
-		return 0;
+		return _getContentAsOrDefault<U64>(key, 0);
 	}
 
 	I8 CBinaryArchiveReader::GetInt8(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<I8>(key);
-		return 0;
+		return _getContentAsOrDefault<I8>(key, 0);
 	}
 
 	I16 CBinaryArchiveReader::GetInt16(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<I16>(key);
-		return 0;
+		return _getContentAsOrDefault<I16>(key, 0);
 	}
 
 	I32 CBinaryArchiveReader::GetInt32(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<I32>(key);
-		return 0;
+		return _getContentAsOrDefault<I32>(key, 0);
 	}
 
 	I64 CBinaryArchiveReader::GetInt64(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<I64>(key);
-		return 0;
+		return _getContentAsOrDefault<I64>(key, 0);
 	}
 
 	F32 CBinaryArchiveReader::GetFloat(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//	return _getContentAs<F32>(key);
-		return 0.0f;
+		return _getContentAsOrDefault<F32>(key, 0.0f);
 	}
 
 	F64 CBinaryArchiveReader::GetDouble(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<F64>(key);
-		return 0.0;
+		return _getContentAsOrDefault<F64>(key, 0.0);
 	}
 
 	bool CBinaryArchiveReader::GetBool(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//	return _getContentAs<bool>(key);
-		return false;
+		return _getContentAsOrDefault<bool>(key, false);
 	}
 
 	std::string CBinaryArchiveReader::GetString(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		//return _getContentAs<std::string>(key);
-		return "";
+		return _getContentAsOrDefault<std::string>(key, Wrench::StringUtils::GetEmptyStr());
 	}
 
 	std::string CBinaryArchiveReader::GetCurrKey() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		return "";
+		return mpCurrNode ? mpCurrNode->mName : Wrench::StringUtils::GetEmptyStr();
 	}
 
 	E_RESULT_CODE CBinaryArchiveReader::_onFree()
