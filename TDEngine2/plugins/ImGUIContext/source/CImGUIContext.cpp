@@ -147,6 +147,8 @@ namespace TDEngine2
 
 		ImGui::ShowMetricsWindow();
 		ImGui::ShowDemoWindow();
+
+		mUsedResourcesRegistry.clear();
 	}
 
 	void CImGUIContext::EndFrame()
@@ -449,7 +451,9 @@ namespace TDEngine2
 
 	void CImGUIContext::Image(TResourceId textureHandle, const TVector2& sizes, const TRectF32& uvRect)
 	{
-		ImGui::Image(static_cast<ImTextureID>(&textureHandle), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
+		mUsedResourcesRegistry.push_back(textureHandle);
+
+		ImGui::Image(static_cast<ImTextureID>(&mUsedResourcesRegistry.back()), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
 	}
 
 	bool CImGUIContext::SelectableItem(const std::string& id, bool isSelected)
@@ -782,14 +786,15 @@ namespace TDEngine2
 			{
 				const ImDrawCmd* pCurrCommand = &pCommandList->CmdBuffer[currCommandIndex];
 				
-				const uintptr_t texturePtrId = reinterpret_cast<std::uintptr_t>(pCurrCommand->TextureId);
+				const TResourceId textureHandle = *static_cast<const TResourceId*>(pCurrCommand->TextureId);
+				const U32 textureHandleHash = static_cast<U32>(textureHandle);
 
-				if (mUsingMaterials.find(texturePtrId) == mUsingMaterials.cend()) // \note create a new instance
+				if (mUsingMaterials.find(static_cast<U32>(textureHandle)) == mUsingMaterials.cend()) // \note create a new instance
 				{
-					mUsingMaterials.emplace(texturePtrId, pMaterial->CreateInstance()->GetInstanceId());
+					mUsingMaterials.emplace(static_cast<U32>(textureHandle), pMaterial->CreateInstance()->GetInstanceId());
 				}
 
-				pMaterial->SetTextureResource("Texture", dynamic_cast<ITexture*>(mpResourceManager->GetResource(*static_cast<TResourceId*>(pCurrCommand->TextureId))), mUsingMaterials[texturePtrId]);
+				pMaterial->SetTextureResource("Texture", dynamic_cast<ITexture*>(mpResourceManager->GetResource(textureHandle)), mUsingMaterials[textureHandleHash]);
 
 				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId));
 
@@ -802,7 +807,7 @@ namespace TDEngine2
 				pCurrDrawCommand->mNumOfIndices            = pCurrCommand->ElemCount;
 				pCurrDrawCommand->mStartIndex              = pCurrCommand->IdxOffset + currIndexOffset;
 				pCurrDrawCommand->mStartVertex             = pCurrCommand->VtxOffset + currVertexOffset;
-				pCurrDrawCommand->mMaterialInstanceId      = mUsingMaterials[texturePtrId];
+				pCurrDrawCommand->mMaterialInstanceId      = mUsingMaterials[textureHandleHash];
 
 				++batchId;
 				//if (pCurrCommand->UserCallback != NULL)

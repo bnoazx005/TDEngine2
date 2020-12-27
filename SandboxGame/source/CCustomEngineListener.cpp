@@ -250,7 +250,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
-#if 1 // TEST_CODE for binary archive reader
+#if 0 // TEST_CODE for binary archive reader
 		if (auto result = mpFileSystem->Open<IBinaryArchiveReader>("TestArchive.bin", true))
 		{
 			if (IBinaryArchiveReader* pArchiveReader = mpFileSystem->Get<IBinaryArchiveReader>(result.Get()))

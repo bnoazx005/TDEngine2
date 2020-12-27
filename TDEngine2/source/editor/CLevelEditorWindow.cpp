@@ -139,13 +139,17 @@ namespace TDEngine2
 			TVector2(150.0f, 400.0f),
 			TVector2(150.0f, 400.0f),
 		};
-
+		
 		if (mpImGUIContext->BeginWindow("Level Editor", isEnabled, params))
 		{
-			mpImGUIContext->Button("Show Hierarchy", TVector2(mpImGUIContext->GetWindowWidth() - 15.0f, 25.0f), [this] 
+			const TVector2 buttonSizes(mpImGUIContext->GetWindowWidth() - 15.0f, 25.0f);
+
+			mpImGUIContext->Button("Show Hierarchy", buttonSizes, [this]
 			{
 				mpHierarchyWidget->SetVisible(!mpHierarchyWidget->IsVisible());
 			});
+
+			mpImGUIContext->Button("Load Level Chunk", buttonSizes, std::bind(&CLevelEditorWindow::_executeLoadLevelChunkOperation, this));
 		}
 
 		mpImGUIContext->EndWindow();
@@ -434,6 +438,11 @@ namespace TDEngine2
 		mpImGUIContext->Label(pSelectedScene->GetName());
 
 		return true;
+	}
+
+	void CLevelEditorWindow::_executeLoadLevelChunkOperation()
+	{
+
 	}
 
 

@@ -62,6 +62,8 @@ namespace TDEngine2
 															  IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
 		public:
 			typedef std::stack<ImDrawList*> TDrawListsStack;
+			typedef std::vector<TResourceId> TResourceHandlesArray;
+
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
@@ -557,6 +559,8 @@ namespace TDEngine2
 			ImGuiIO*                mpIOContext;
 
 			TResourceId             mFontTextureHandle;
+
+			TResourceHandlesArray   mUsedResourcesRegistry;
 
 			TResourceId             mDefaultEditorMaterialHandle;
 
