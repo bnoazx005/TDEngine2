@@ -217,6 +217,29 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TRectU32 GetClientRect() const override;
+
+#if TDE2_EDITORS_ENABLED
+			/*!
+				\brief The method displays platform specific dialog window that allows to select file to open
+
+				\param[in] filters An array of filters, each filter is an extension
+
+				\return Either an error code, or a path to the file
+			*/
+
+			TDE2_API TResult<std::string> ShowOpenFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters) override;
+
+			/*!
+				\brief The method displays platform specific dialog window that allows to select place where the file should be saved
+
+				\param[in] filters An array of filters, each filter is an extension
+
+				\return Either an error code, or a path to the file
+			*/
+
+
+			TDE2_API TResult<std::string> ShowSaveFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters) override;
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWin32WindowSystem)
 

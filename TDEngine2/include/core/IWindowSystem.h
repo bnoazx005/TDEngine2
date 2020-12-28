@@ -7,13 +7,15 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../math/TRect.h"
 #include "IEngineSubsystem.h"
-#include "./../math/TRect.h"
 #include "Event.h"
+#include <vector>
 #include <string>
 #include <functional>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -220,6 +222,29 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const = 0;
+
+#if TDE2_EDITORS_ENABLED
+			/*!
+				\brief The method displays platform specific dialog window that allows to select file to open
+
+				\param[in] filters An array of filters, each filter is an extension
+
+				\return Either an error code, or a path to the file
+			*/
+
+			TDE2_API virtual TResult<std::string> ShowOpenFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters) = 0;
+
+			/*!
+				\brief The method displays platform specific dialog window that allows to select place where the file should be saved 
+
+				\param[in] filters An array of filters, each filter is an extension
+
+				\return Either an error code, or a path to the file
+			*/
+
+
+			TDE2_API virtual TResult<std::string> ShowSaveFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters) = 0;
+#endif
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_WINDOW; }
 		protected:

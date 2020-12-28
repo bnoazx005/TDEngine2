@@ -319,6 +319,91 @@ namespace TDEngine2
 		return { mWindowXPos, mWindowYPos, mWidth, mHeight };
 	}
 
+#if TDE2_EDITORS_ENABLED
+
+	std::string GetFilterStr(const std::vector<std::tuple<std::string, std::string>>& filters)
+	{
+		std::string output;
+
+		std::string filterName;
+		std::string filterPattern;
+
+		for (const auto& currFilter : filters)
+		{
+			std::tie(filterName, filterPattern) = currFilter;
+
+			output
+				.append(filterName)
+				.append('\0')
+				.append(filterPattern)
+				.append('\0');
+		}
+
+		output.append('\0');
+
+		return output;
+	}
+
+	TResult<std::string> CWin32WindowSystem::ShowOpenFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)
+	{
+		OPENFILENAME openFileDialogDesc;       // common dialog box structure
+		
+		std::string outputFilepath;
+		outputFilepath.resize(255);
+
+		// \note Initialize OPENFILENAME
+		ZeroMemory(&openFileDialogDesc, sizeof(openFileDialogDesc));
+		openFileDialogDesc.lStructSize = sizeof(openFileDialogDesc);
+
+		openFileDialogDesc.hwndOwner = mWindowHandler;
+		openFileDialogDesc.lpstrFile = &outputFilepath.front();
+		openFileDialogDesc.nMaxFile = outputFilepath.size();
+		openFileDialogDesc.lpstrFilter = GetFilterStr(filters).c_str();
+		openFileDialogDesc.nFilterIndex = 1;
+		openFileDialogDesc.lpstrFileTitle = NULL;
+		openFileDialogDesc.nMaxFileTitle = 0;
+		openFileDialogDesc.lpstrInitialDir = NULL;
+		openFileDialogDesc.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+		if (GetOpenFileName(&openFileDialogDesc) == TRUE)
+		{
+			return Wrench::TOkValue<std::string>(outputFilepath);
+		}
+
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+	}
+
+	TResult<std::string> CWin32WindowSystem::ShowSaveFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)
+	{
+		OPENFILENAME openFileDialogDesc;       // common dialog box structure
+
+		std::string outputFilepath;
+		outputFilepath.resize(255);
+
+		// \note Initialize OPENFILENAME
+		ZeroMemory(&openFileDialogDesc, sizeof(openFileDialogDesc));
+		openFileDialogDesc.lStructSize = sizeof(openFileDialogDesc);
+
+		openFileDialogDesc.hwndOwner = mWindowHandler;
+		openFileDialogDesc.lpstrFile = &outputFilepath.front();
+		openFileDialogDesc.nMaxFile = outputFilepath.size();
+		openFileDialogDesc.lpstrFilter = GetFilterStr(filters).c_str();
+		openFileDialogDesc.nFilterIndex = 1;
+		openFileDialogDesc.lpstrFileTitle = NULL;
+		openFileDialogDesc.nMaxFileTitle = 0;
+		openFileDialogDesc.lpstrInitialDir = NULL;
+		openFileDialogDesc.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+		if (GetSaveFileName(&openFileDialogDesc) == TRUE)
+		{
+			return Wrench::TOkValue<std::string>(outputFilepath);
+		}
+
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+	}
+
+#endif
+
 	U32 CWin32WindowSystem::_getStyleByParams(U32 flags) const
 	{
 		return (flags & P_RESIZEABLE) ? WS_OVERLAPPEDWINDOW : ((flags & P_FULLSCREEN) ? WS_POPUPWINDOW : WS_EX_TOOLWINDOW);

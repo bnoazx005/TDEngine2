@@ -1,9 +1,9 @@
-#include "./../../../include/platform/unix/CUnixWindowSystem.h"
-#include "./../../../include/platform/unix/CUnixDLLManager.h"
-#include "./../../../include/platform/unix/CUnixTimer.h"
-#include "./../../../include/utils/CFileLogger.h"
-#include "./../../../include/core/IEventManager.h"
-#include "./../../../include/core/IImGUIContext.h"
+#include "../../../include/platform/unix/CUnixWindowSystem.h"
+#include "../../../include/platform/unix/CUnixDLLManager.h"
+#include "../../../include/platform/unix/CUnixTimer.h"
+#include "../../../include/utils/CFileLogger.h"
+#include "../../../include/core/IEventManager.h"
+#include "../../../include/core/IImGUIContext.h"
 #include <cstring>
 
 
@@ -293,6 +293,22 @@ namespace TDEngine2
 		TDE2_UNIMPLEMENTED();
 		return { 0, 0, 0, 0 };
 	}
+
+#if TDE2_EDITORS_ENABLED
+
+	TResult<std::string> CUnixWindowSystem::ShowOpenFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)
+	{
+		TDE2_UNIMPLEMENTED();
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
+	}
+
+	TResult<std::string> CUnixWindowSystem::ShowSaveFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)
+	{
+		TDE2_UNIMPLEMENTED();
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
+	}
+
+#endif
 
 	TDE2_API E_RESULT_CODE CUnixWindowSystem::_createWindow()
 	{
