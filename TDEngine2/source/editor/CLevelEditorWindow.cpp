@@ -5,6 +5,7 @@
 #include "../../include/editor/CSceneHierarchyWindow.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IInputContext.h"
+#include "../../include/core/IWindowSystem.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/ecs/IWorld.h"
@@ -14,6 +15,7 @@
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/ecs/CCameraSystem.h"
 #include "../../include/scene/IScene.h"
+#include "../../include/scene/ISceneManager.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -25,22 +27,24 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLevelEditorWindow::Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager)
+	E_RESULT_CODE CLevelEditorWindow::Init(const TLevelEditorWindowDesc& desc)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pEditorsManager || !pInputContext || !pDebugUtility)
+		if (!desc.mpEditorsManager || !desc.mpInputContext || !desc.mpDebugUtility)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpEditorsManager   = pEditorsManager;
-		mpInputContext     = dynamic_cast<IDesktopInputContext*>(pInputContext);
+		mpEditorsManager   = desc.mpEditorsManager;
+		mpInputContext     = dynamic_cast<IDesktopInputContext*>(desc.mpInputContext);
 		mpSelectionManager = nullptr;
-		mpDebugUtility     = pDebugUtility;
+		mpDebugUtility     = desc.mpDebugUtility;
+		mpWindowSystem     = desc.mpWindowSystem;
+		mpSceneManager     = desc.mpSceneManager;
 
 		mCurrManipulatorType = E_GIZMO_TYPE::TRANSLATION;
 
@@ -51,7 +55,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(pSceneManager, _getSelectionManager(), result)) || result != RC_OK)
+		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(desc.mpSceneManager, _getSelectionManager(), result)) || result != RC_OK)
 		{
 			return result;
 		}
@@ -442,13 +446,19 @@ namespace TDEngine2
 
 	void CLevelEditorWindow::_executeLoadLevelChunkOperation()
 	{
+		auto openFileResult = mpWindowSystem->ShowOpenFileDialog({ { "Scene Files", "*.scene" } });
+		if (openFileResult.IsOk())
+		{
+			const std::string& sceneFilepath = openFileResult.Get();
 
+			mpSceneManager->LoadSceneAsync(sceneFilepath, [](auto) {});
+		}
 	}
 
 
-	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateLevelEditorWindow(const TLevelEditorWindowDesc& desc, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CLevelEditorWindow, result, pEditorsManager, pInputContext, pDebugUtility, pSceneManager);
+		return CREATE_IMPL(IEditorWindow, CLevelEditorWindow, result, desc);
 	}
 }
 

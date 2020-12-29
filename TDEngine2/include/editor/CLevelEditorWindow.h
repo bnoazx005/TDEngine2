@@ -30,21 +30,30 @@ namespace TDEngine2
 	class IEditorWindow;
 	class ISceneManager;
 	class IComponent;
+	class IWindowSystem;
+
+
+	typedef struct TLevelEditorWindowDesc
+	{
+		IEditorsManager* mpEditorsManager;
+		IInputContext* mpInputContext;
+		IWindowSystem* mpWindowSystem;
+		IDebugUtility* mpDebugUtility;
+		ISceneManager* mpSceneManager;
+	} TLevelEditorWindowDesc, *TLevelEditorWindowDescPtr;
+
 
 
 	/*!
 		\brief A factory function for creation objects of CLevelEditorWindow's type
 
-		\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
-		\param[in, out] pInputContext A pointer to IInputContext implementation
-		\param[in, out] pDebugUtility A pointer to IDebugUtility implementation
-		\param[in, out] pSceneManager A pointer to ISceneManager implementation
+		\param[in, out] desc An object that determines parameters of the window
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateLevelEditorWindow(const TLevelEditorWindowDesc& desc, E_RESULT_CODE& result);
 
 	/*!
 		class CLevelEditorWindow
@@ -55,7 +64,7 @@ namespace TDEngine2
 	class CLevelEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateLevelEditorWindow(IEditorsManager*, IInputContext*, IDebugUtility*, ISceneManager*, E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateLevelEditorWindow(const TLevelEditorWindowDesc&, E_RESULT_CODE&);
 
 		public:
 			typedef std::function<void(IImGUIContext&, IComponent&)> TOnGuiCallback;
@@ -65,16 +74,12 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes internal state of the editor
 				
-				\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
-				\param[in, out] pInputContext A pointer to IInputContext implementation
-				\param[in, out] pDebugUtility A pointer to IDebugUtility implementation
-				\param[in, out] pSceneManager A pointer to ISceneManager implementation
+				\param[in, out] desc An object that determines parameters of the window
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IEditorsManager* pEditorsManager, IInputContext* pInputContext, IDebugUtility* pDebugUtility,
-												ISceneManager* pSceneManager);
+			TDE2_API virtual E_RESULT_CODE Init(const TLevelEditorWindowDesc& desc);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -131,6 +136,10 @@ namespace TDEngine2
 			ISelectionManager*     mpSelectionManager;
 
 			IDebugUtility*         mpDebugUtility;
+
+			IWindowSystem*         mpWindowSystem;
+
+			ISceneManager*         mpSceneManager;
 
 			TEntityId              mSelectedEntityId = TEntityId::Invalid;
 

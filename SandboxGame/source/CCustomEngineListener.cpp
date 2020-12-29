@@ -279,11 +279,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
-
+#if 0
 		pSceneManager->LoadSceneAsync("TestScene.scene", [](auto)
 		{
 			int x = 0;
 		});
+#endif
 	}
 
 	return RC_OK;
