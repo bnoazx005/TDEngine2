@@ -323,6 +323,9 @@ namespace TDEngine2
 
 	std::string GetFilterStr(const std::vector<std::tuple<std::string, std::string>>& filters)
 	{
+		// \fixme This doesn't work
+		return "";
+#if 0
 		std::string output;
 
 		std::string filterName;
@@ -334,14 +337,23 @@ namespace TDEngine2
 
 			output
 				.append(filterName)
-				.append('\0')
+				.append("-");
+
+			output.back() = '\0';
+
+			output
 				.append(filterPattern)
-				.append('\0');
+				.append("-");
+
+			output.back() = '\0';
 		}
 
-		output.append('\0');
+	//	output.append("-");
+	//	output.back() = '\0';
+	//	output = "Scene\0*.Scene\0\0";
 
 		return output;
+#endif
 	}
 
 	TResult<std::string> CWin32WindowSystem::ShowOpenFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)

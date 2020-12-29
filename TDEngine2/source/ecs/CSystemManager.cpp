@@ -41,6 +41,8 @@ namespace TDEngine2
 		mpEventManager->Subscribe(TOnComponentCreatedEvent::GetTypeId(), this);
 		mpEventManager->Subscribe(TOnComponentRemovedEvent::GetTypeId(), this);
 		
+		mIsDirty = true;
+
 		mIsInitialized = true;
 		
 		return RC_OK;
@@ -185,8 +187,15 @@ namespace TDEngine2
 		{
 			pCurrSystem = currSystemDesc.mpSystem;
 
+			if (mIsDirty)
+			{
+				pCurrSystem->InjectBindings(mpWorld);
+			}
+
 			pCurrSystem->Update(pWorld, dt);
 		}
+
+		mIsDirty = false;
 	}
 
 	E_RESULT_CODE CSystemManager::DestroySystems()
@@ -207,15 +216,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSystemManager::OnEvent(const TBaseEvent* pEvent)
 	{
-		ISystem* pCurrSystem = nullptr;
-
-		for (auto currSystemDesc : mpActiveSystems)
-		{
-			pCurrSystem = currSystemDesc.mpSystem;
-
-			pCurrSystem->InjectBindings(mpWorld);
-		}
-
+		mIsDirty = true;
 		return RC_OK;
 	}
 

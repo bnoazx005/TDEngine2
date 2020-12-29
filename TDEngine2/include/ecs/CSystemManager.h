@@ -227,5 +227,7 @@ namespace TDEngine2
 			TSystemsAccountTable mSystemsIdentifiersTable;
 
 			mutable std::mutex   mMutex;
+
+			bool                 mIsDirty;
 	};
 }
