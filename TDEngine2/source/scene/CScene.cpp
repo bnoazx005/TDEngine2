@@ -256,10 +256,16 @@ namespace TDEngine2
 		}
 	}
 
-	const std::string CScene::GetName() const
+	const std::string& CScene::GetName() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mName;
+	}
+
+	const std::string& CScene::GetScenePath() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return mPath;
 	}
 
 	bool CScene::IsMainScene() const

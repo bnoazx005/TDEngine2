@@ -122,7 +122,13 @@ namespace TDEngine2
 				\return The method returns name of the scene
 			*/
 
-			TDE2_API const std::string GetName() const override;
+			TDE2_API const std::string& GetName() const override;
+
+			/*!
+				\return The method returns a filepath of the scene
+			*/
+
+			TDE2_API const std::string& GetScenePath() const override;
 
 			TDE2_API bool IsMainScene() const override;
 		protected:

@@ -93,7 +93,13 @@ namespace TDEngine2
 				\return The method returns name of the scene
 			*/
 
-			TDE2_API virtual const std::string GetName() const = 0;
+			TDE2_API virtual const std::string& GetName() const = 0;
+
+			/*!
+				\return The method returns a filepath of the scene
+			*/
+
+			TDE2_API virtual const std::string& GetScenePath() const = 0;
 
 			TDE2_API virtual bool IsMainScene() const = 0;
 		protected:

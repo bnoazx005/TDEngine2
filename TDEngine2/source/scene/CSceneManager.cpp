@@ -136,10 +136,11 @@ namespace TDEngine2
 			const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
 
 			// \note If there is loaded scene then just return its handle
-			auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&sceneName](const IScene* pScene) { return pScene->GetName() == sceneName; });
+			auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&scenePath](const IScene* pScene) { return pScene->GetScenePath() == scenePath; });
 			if (iter != mpScenes.cend())
 			{
 				onResultCallback(Wrench::TOkValue<TSceneId>(static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter))));
+				return;
 			}
 
 			E_RESULT_CODE result = RC_OK;
