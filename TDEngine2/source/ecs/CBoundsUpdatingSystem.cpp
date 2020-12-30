@@ -201,7 +201,7 @@ namespace TDEngine2
 
 				if (CSceneInfoComponent* pSceneInfo = pEntity->GetComponent<CSceneInfoComponent>())
 				{
-					auto pScene = mpSceneManager->GetScene(pSceneInfo->GetSceneId());
+					auto pScene = mpSceneManager->GetScene(mpSceneManager->GetSceneId(pSceneInfo->GetSceneId()));
 					if (pScene.IsOk())
 					{
 						pScene.Get()->ForEachEntity([&currBounds](CEntity* pOtherEntity)

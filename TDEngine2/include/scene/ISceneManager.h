@@ -125,7 +125,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TResult<IScene*> GetScene(TSceneId id) const = 0;
 
-			TDE2_API virtual TResult<IScene*> GetScene(const std::string& id) const = 0;
+			TDE2_API virtual TSceneId GetSceneId(const std::string& id) const = 0;
 
 			/*!
 				\return The method returns a pointer to instance of IWorld

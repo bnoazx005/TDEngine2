@@ -55,7 +55,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(desc.mpSceneManager, _getSelectionManager(), result)) || result != RC_OK)
+		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(desc.mpSceneManager, desc.mpWindowSystem, _getSelectionManager(), result)) || result != RC_OK)
 		{
 			return result;
 		}
@@ -152,8 +152,6 @@ namespace TDEngine2
 			{
 				mpHierarchyWidget->SetVisible(!mpHierarchyWidget->IsVisible());
 			});
-
-			mpImGUIContext->Button("Load Level Chunk", buttonSizes, std::bind(&CLevelEditorWindow::_executeLoadLevelChunkOperation, this));
 		}
 
 		mpImGUIContext->EndWindow();
@@ -442,17 +440,6 @@ namespace TDEngine2
 		mpImGUIContext->Label(pSelectedScene->GetName());
 
 		return true;
-	}
-
-	void CLevelEditorWindow::_executeLoadLevelChunkOperation()
-	{
-		auto openFileResult = mpWindowSystem->ShowOpenFileDialog({ { "Scene Files", "*.scene" } });
-		if (openFileResult.IsOk())
-		{
-			const std::string& sceneFilepath = openFileResult.Get();
-
-			mpSceneManager->LoadSceneAsync(sceneFilepath, [](auto) {});
-		}
 	}
 
 

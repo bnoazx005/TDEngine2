@@ -105,7 +105,7 @@ namespace TDEngine2
 
 			TDE2_API TResult<IScene*> GetScene(TSceneId id) const override;
 
-			TDE2_API TResult<IScene*> GetScene(const std::string& id) const override;
+			TDE2_API TSceneId GetSceneId(const std::string& id) const override;
 
 			/*!
 				\brief The method returns a type of the subsystem
