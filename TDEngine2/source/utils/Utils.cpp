@@ -402,6 +402,8 @@ namespace TDEngine2
 				return "Scene Manager";
 			case EST_LOCALIZATION_MANAGER:
 				return "Localization Manager";
+			case EST_SAVE_MANAGER:
+				return "Save Manager";
 			default:
 				TDE2_UNIMPLEMENTED();
 				break;

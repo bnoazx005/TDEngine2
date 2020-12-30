@@ -157,6 +157,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _configureLocalizationManager() override;
 
+			TDE2_API E_RESULT_CODE _configureSaveManager() override;
+
 			TDE2_API virtual TEngineSettings _initEngineSettings() = 0;
 		protected:
 			bool              mIsInitialized;

@@ -17,6 +17,7 @@
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/localization/CLocalizationManager.h"
 #include "../../include/core/localization/CLocalizationPackage.h"
+#include "../../include/game/CSaveManager.h"
 #include "../../include/platform/win32/CWin32WindowSystem.h"
 #include "../../include/platform/win32/CWin32FileSystem.h"
 #include "../../include/platform/unix/CUnixWindowSystem.h"
@@ -504,6 +505,20 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(pLocalizationManager);
 	}
 
+	E_RESULT_CODE CBaseEngineCoreBuilder::_configureSaveManager()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		// \todo Replace magic constant 
+		ISaveManager* pSaveManager = CreateSaveManager({ mpFileSystemInstance, "" }, result);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		return mpEngineCoreInstance->RegisterSubsystem(pSaveManager);
+	}
+
 	IEngineCore* CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
@@ -533,6 +548,7 @@ namespace TDEngine2
 		}
 
 		PANIC_ON_FAILURE(_configureLocalizationManager());
+		PANIC_ON_FAILURE(_configureSaveManager());
 		PANIC_ON_FAILURE(_configureRenderer());
 		PANIC_ON_FAILURE(_configureImGUIContext());
 		PANIC_ON_FAILURE(_configureEditorsManager());

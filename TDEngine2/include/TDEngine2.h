@@ -55,6 +55,10 @@
 #include "core/localization/CLocalizationManager.h"
 #include "core/localization/CLocalizationPackage.h"
 
+/// game
+#include "game/ISaveManager.h"
+#include "game/CSaveManager.h"
+
 ///ecs
 #include "ecs/CEntity.h"
 #include "ecs/CEntityManager.h"
