@@ -179,6 +179,18 @@ namespace TDEngine2
 			TDE2_API virtual std::string GetCurrDirectory() const = 0;
 
 			/*!
+				\return The method returns a path to application data directory
+			*/
+
+			TDE2_API virtual std::string GetApplicationDataPath() const = 0;
+
+			/*!
+				\return The method returns a path of a user's directory
+			*/
+
+			TDE2_API virtual std::string GetUserDirectory() const = 0;
+
+			/*!
 				\brief The method returns a pointer of a file by its handle
 
 				\param[in] fileId An identifier of a file

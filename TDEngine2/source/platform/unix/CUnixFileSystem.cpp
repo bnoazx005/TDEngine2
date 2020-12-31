@@ -22,6 +22,19 @@ namespace TDEngine2
 		CBaseFileSystem()
 	{
 	}
+
+	std::string CUnixFileSystem::GetApplicationDataPath() const
+	{
+		TDE2_UNIMPLEMENTED();
+		return Wrench::StringUtils::GetEmptyStr();
+	}
+
+	std::string CUnixFileSystem::GetUserDirectory() const
+	{
+		TDE2_UNIMPLEMENTED();
+		return Wrench::StringUtils::GetEmptyStr();
+	}
+
 	
 	bool CUnixFileSystem::IsPathValid(const std::string& path, bool isVirtualPath) const
 	{

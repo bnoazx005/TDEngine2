@@ -3,6 +3,11 @@
 #include "./../../../include/platform/CTextFileReader.h"
 #include "stringUtils.hpp"
 #include <algorithm>
+
+#if defined(TDE2_USE_WIN32PLATFORM)
+#include <ShlObj_core.h>
+#endif
+
 #if _HAS_CXX17
 #include <filesystem>
 #else
@@ -21,6 +26,34 @@ namespace TDEngine2
 	CWin32FileSystem::CWin32FileSystem() :
 		CBaseFileSystem()
 	{
+	}
+
+	std::string CWin32FileSystem::GetApplicationDataPath() const
+	{
+		C8 appDataDirectoryPath[MAX_PATH];
+
+#if defined(TDE2_USE_WIN32PLATFORM)
+		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appDataDirectoryPath)))
+		{
+			return std::string(appDataDirectoryPath);
+		}
+#endif
+
+		return GetCurrDirectory();
+	}
+
+	std::string CWin32FileSystem::GetUserDirectory() const
+	{
+		C8 userDirectoryPath[MAX_PATH];
+
+#if defined(TDE2_USE_WIN32PLATFORM)
+		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 0, userDirectoryPath)))
+		{
+			return std::string(userDirectoryPath);
+		}
+#endif
+
+		return GetCurrDirectory();
 	}
 
 	bool CWin32FileSystem::IsPathValid(const std::string& path, bool isVirtualPath) const
