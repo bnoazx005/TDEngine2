@@ -77,7 +77,15 @@ namespace TDEngine2
 
 			TDE2_API virtual const std::string& GetBasePath() const = 0;
 
+			/*!
+				\brief The method returns a list of file's path which are exists at given directory
+			*/
+
+			TDE2_API virtual std::vector<std::string> GetFilesListAtDirectory(const std::string& path) const = 0;
+
 			TDE2_API virtual U16 GetPriority() const = 0;
+
+			TDE2_API virtual bool PathExists(const std::string& path) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMountableStorage)
 	};
@@ -118,7 +126,7 @@ namespace TDEngine2
 			TDE2_API TResult<IFile*> GetFile(TFileEntryId fileId) const override;
 
 			TDE2_API IFileSystem* GetFileSystem() const override;
-
+			
 			TDE2_API const std::string& GetBasePath() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMountableStorage)
@@ -167,6 +175,14 @@ namespace TDEngine2
 			TDE2_API bool FileExists(const std::string& path) const override;
 
 			TDE2_API U16 GetPriority() const override;
+
+			/*!
+				\brief The method returns a list of file's path which are exists at given directory
+			*/
+
+			TDE2_API std::vector<std::string> GetFilesListAtDirectory(const std::string& path) const override;
+
+			TDE2_API bool PathExists(const std::string& path) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysicalFilesStorage)
 
@@ -201,6 +217,14 @@ namespace TDEngine2
 			TDE2_API bool FileExists(const std::string& path) const override;
 
 			TDE2_API U16 GetPriority() const override;
+
+			/*!
+				\brief The method returns a list of file's path which are exists at given directory
+			*/
+
+			TDE2_API std::vector<std::string> GetFilesListAtDirectory(const std::string& path) const override;
+
+			TDE2_API bool PathExists(const std::string& path) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPackageFilesStorage)
 

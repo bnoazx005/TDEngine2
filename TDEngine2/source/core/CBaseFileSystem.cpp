@@ -250,6 +250,21 @@ namespace TDEngine2
 #endif
 	}
 
+	std::vector<std::string> CBaseFileSystem::GetFilesListAtDirectory(const std::string& path) const
+	{
+		for (auto iter = mMountedStorages.cbegin(); iter != mMountedStorages.cend(); ++iter)
+		{
+			auto pCurrStorage = iter->mpStorage;
+
+			if (pCurrStorage->PathExists(path))
+			{
+				return std::move(pCurrStorage->GetFilesListAtDirectory(path));
+			}
+		}
+
+		return {};
+	}
+
 	std::string CBaseFileSystem::GetCurrDirectory() const
 	{
 #if _HAS_CXX17

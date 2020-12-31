@@ -5,6 +5,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 #include <fstream>
+#include <filesystem>
 
 
 namespace TDEngine2
@@ -215,6 +216,23 @@ namespace TDEngine2
 		return static_cast<U16>(E_MOUNTABLE_STORAGES_PRIORITIES::NATIVE);
 	}
 
+	std::vector<std::string> CPhysicalFilesStorage::GetFilesListAtDirectory(const std::string& path) const
+	{
+		std::vector<std::string> filesList;
+
+		for (const auto & entry : std::experimental::filesystem::directory_iterator(path))
+		{
+			filesList.emplace_back(entry.path().string());
+		}
+		
+		return std::move(filesList);
+	}
+
+	bool CPhysicalFilesStorage::PathExists(const std::string& path) const
+	{
+		return std::experimental::filesystem::exists(path);
+	}
+
 	void CPhysicalFilesStorage::_createNewFile(const std::string& path)
 	{
 		std::ofstream newFileInstance(path.c_str());
@@ -281,6 +299,22 @@ namespace TDEngine2
 	U16 CPackageFilesStorage::GetPriority() const
 	{
 		return static_cast<U16>(E_MOUNTABLE_STORAGES_PRIORITIES::PACKAGE);
+	}
+
+	std::vector<std::string> CPackageFilesStorage::GetFilesListAtDirectory(const std::string& path) const
+	{
+		TDE2_UNIMPLEMENTED();
+		return {};
+	}
+
+	bool CPackageFilesStorage::PathExists(const std::string& path) const
+	{
+		auto it = std::find_if(mPackageFilesInfoTable.cbegin(), mPackageFilesInfoTable.cend(), [path](auto&& entry)
+		{
+			return entry.first.find(path) != std::string::npos;
+		});
+
+		return it != mPackageFilesInfoTable.cend();
 	}
 
 	void CPackageFilesStorage::_createNewFile(const std::string& path)

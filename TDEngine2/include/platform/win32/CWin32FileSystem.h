@@ -46,6 +46,19 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const C8& GetAltPathSeparatorChar() const override;
+
+			/*!
+				\return The method returns a path to application data directory
+			*/
+
+			TDE2_API std::string GetApplicationDataPath() const override;
+
+			/*!
+				\return The method returns a path of a user's directory
+			*/
+
+			TDE2_API std::string GetUserDirectory() const override;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWin32FileSystem)
 			

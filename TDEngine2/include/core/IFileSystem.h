@@ -171,6 +171,12 @@ namespace TDEngine2
 			TDE2_API virtual bool FileExists(const std::string& filename) const = 0;
 
 			/*!
+				\brief The method returns a list of file's path which are exists at given directory
+			*/
+
+			TDE2_API virtual std::vector<std::string> GetFilesListAtDirectory(const std::string& path) const = 0;
+
+			/*!
 				\brief The method returns a current working directory
 
 				\return The method returns a string with current working directory
