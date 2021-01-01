@@ -58,6 +58,7 @@
 /// game
 #include "game/ISaveManager.h"
 #include "game/CSaveManager.h"
+#include "game/CSaveData.h"
 
 ///ecs
 #include "ecs/CEntity.h"
