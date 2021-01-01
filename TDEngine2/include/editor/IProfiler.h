@@ -24,7 +24,7 @@ namespace TDEngine2
 		Note that all profilers implementation should be singletons
 	*/
 
-	class IProfiler : public virtual IBaseObject
+	class ITimeProfiler : public virtual IBaseObject
 	{
 		public:
 			typedef struct TSampleRecord
@@ -114,8 +114,8 @@ namespace TDEngine2
 				\return A pointer to an instance of IProfiler type 
 			*/
 
-			TDE2_API static IProfiler* Get();
+			TDE2_API static ITimeProfiler* Get();
 		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IProfiler);
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITimeProfiler);
 	};
 }

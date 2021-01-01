@@ -281,7 +281,7 @@ namespace TDEngine2
 	void CEngineCore::_onFrameUpdateCallback()
 	{
 #if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-		IProfiler* pProfiler = CPerfProfiler::Get();
+		ITimeProfiler* pProfiler = CPerfProfiler::Get();
 		pProfiler->BeginFrame();
 #endif
 

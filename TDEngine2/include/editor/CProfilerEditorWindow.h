@@ -28,7 +28,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateProfilerEditorWindow(IProfiler* pProfiler, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result);
 
 	/*!
 		class CProfilerEditorWindow
@@ -39,7 +39,7 @@ namespace TDEngine2
 	class CProfilerEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateProfilerEditorWindow(IProfiler* pProfiler, E_RESULT_CODE& result);
+			friend TDE2_API IEditorWindow* CreateProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
@@ -49,7 +49,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IProfiler* pProfiler);
+			TDE2_API virtual E_RESULT_CODE Init(ITimeProfiler* pProfiler);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -76,15 +76,15 @@ namespace TDEngine2
 
 			TDE2_API void _onDraw() override;
 
-			TDE2_API void _drawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const IProfiler::TSampleRecord& currSample, 
-											 IProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId = 0);
+			TDE2_API void _drawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const ITimeProfiler::TSampleRecord& currSample, 
+											 ITimeProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId = 0);
 
 			TDE2_API static TRectF32 _drawRectWithText(IImGUIContext& imguiContext, const std::string& text, const TRectF32& rect, const TColor32F& rectColor,
 													   const TColor32F& textColor);
 		protected:
 			static const U16 mBufferSize = 128;
 
-			IProfiler*       mpProfiler;
+			ITimeProfiler*       mpProfiler;
 
 			F32              mFrameRatesBuffer[mBufferSize];
 

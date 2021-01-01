@@ -26,7 +26,7 @@ namespace TDEngine2
 		Note that all profilers implementation should be singletons
 	*/
 
-	class CPerfProfiler : public IProfiler, public CBaseObject
+	class CPerfProfiler : public ITimeProfiler, public CBaseObject
 	{
 		public:
 			/*!
@@ -108,7 +108,7 @@ namespace TDEngine2
 				\return A pointer to an instance of IProfiler type
 			*/
 
-			TDE2_API static IProfiler* Get();
+			TDE2_API static ITimeProfiler* Get();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPerfProfiler);
 		private:
@@ -141,7 +141,7 @@ namespace TDEngine2
 			CProfilerScope(const std::string& name):
 				mName(name)
 			{
-				IProfiler* pProfiler = CPerfProfiler::Get();
+				ITimeProfiler* pProfiler = CPerfProfiler::Get();
 
 				ITimer* pTimer = pProfiler->GetTimer();
 				pTimer->Tick();
@@ -151,7 +151,7 @@ namespace TDEngine2
 
 			~CProfilerScope()
 			{
-				IProfiler* pProfiler = CPerfProfiler::Get();
+				ITimeProfiler* pProfiler = CPerfProfiler::Get();
 
 				ITimer* pTimer = pProfiler->GetTimer();
 				pTimer->Tick();

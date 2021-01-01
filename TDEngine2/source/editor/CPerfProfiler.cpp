@@ -8,7 +8,7 @@
 
 namespace TDEngine2
 {
-	IProfiler::TSampleRecord::TSampleRecord(F32 startTime, F32 duration, U32 threadID, const std::string& name):
+	ITimeProfiler::TSampleRecord::TSampleRecord(F32 startTime, F32 duration, U32 threadID, const std::string& name):
 		mStartTime(startTime), mDuration(duration), mThreadID(threadID), mName(name)
 	{
 	}
@@ -124,9 +124,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IProfiler* CPerfProfiler::Get()
+	TDE2_API ITimeProfiler* CPerfProfiler::Get()
 	{
-		static IProfiler* pInstance = new (std::nothrow) CPerfProfiler();
+		static ITimeProfiler* pInstance = new (std::nothrow) CPerfProfiler();
 		return pInstance;
 	}
 }

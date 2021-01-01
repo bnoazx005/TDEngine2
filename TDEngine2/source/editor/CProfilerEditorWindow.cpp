@@ -15,7 +15,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CProfilerEditorWindow::Init(IProfiler* pProfiler)
+	E_RESULT_CODE CProfilerEditorWindow::Init(ITimeProfiler* pProfiler)
 	{
 		if (mIsInitialized)
 		{
@@ -96,7 +96,7 @@ namespace TDEngine2
 
 					while (!samplesQueue.empty())
 					{
-						IProfiler::TSampleRecord currSample = samplesQueue.front();
+						ITimeProfiler::TSampleRecord currSample = samplesQueue.front();
 						samplesQueue.erase(samplesQueue.cbegin());
 
 						_drawIntervalsTree(*mpImGUIContext,  cursorPos, currSample, samplesQueue, (mpImGUIContext->GetWindowWidth() - 15.0f) / framesStats[0], 1);
@@ -127,8 +127,8 @@ namespace TDEngine2
 		return rect;
 	}
 
-	void CProfilerEditorWindow::_drawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const IProfiler::TSampleRecord& currSample,
-												   IProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId)
+	void CProfilerEditorWindow::_drawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const ITimeProfiler::TSampleRecord& currSample,
+												   ITimeProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId)
 	{
 		const F32 scale = 1000.0f * pixelsPerMillisecond;
 
@@ -141,7 +141,7 @@ namespace TDEngine2
 
 		while (!samples.empty() && (iter != samples.cend()))
 		{
-			IProfiler::TSampleRecord sample = *iter;
+			ITimeProfiler::TSampleRecord sample = *iter;
 
 			if (!CMathUtils::IsInInclusiveRange(1000.0f * currSample.mStartTime, (currSample.mStartTime + currSample.mDuration) * 1000.0f, sample.mStartTime * 1000.0f))
 			{
@@ -156,7 +156,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateProfilerEditorWindow(IProfiler* pProfiler, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IEditorWindow, CProfilerEditorWindow, result, pProfiler);
 	}
