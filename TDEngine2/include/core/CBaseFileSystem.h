@@ -134,6 +134,12 @@ namespace TDEngine2
 			TDE2_API bool FileExists(const std::string& filename) const override;
 
 			/*!
+				\brief The method removes specified file from the file system
+			*/
+
+			TDE2_API E_RESULT_CODE RemoveFile(const std::string& filePath) override;
+
+			/*!
 				\brief The method returns a list of file's path which are exists at given directory
 			*/
 

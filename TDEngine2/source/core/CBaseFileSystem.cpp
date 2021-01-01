@@ -250,6 +250,16 @@ namespace TDEngine2
 #endif
 	}
 
+	E_RESULT_CODE CBaseFileSystem::RemoveFile(const std::string& filePath)
+	{
+		if (filePath.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return std::experimental::filesystem::remove(filePath) ? RC_OK : RC_FAIL;
+	}
+
 	std::vector<std::string> CBaseFileSystem::GetFilesListAtDirectory(const std::string& path) const
 	{
 		for (auto iter = mMountedStorages.cbegin(); iter != mMountedStorages.cend(); ++iter)
