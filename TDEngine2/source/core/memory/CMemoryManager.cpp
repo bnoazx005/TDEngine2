@@ -4,6 +4,7 @@
 #include "../../../include/core/memory/CLinearAllocator.h"
 #include "../../../include/core/memory/CPoolAllocator.h"
 #include "../../../include/core/memory/CStackAllocator.h"
+#include "../../../include/editor/CMemoryProfiler.h"
 #include "../../../include/utils/Utils.h"
 #include <cstring>
 
@@ -98,6 +99,8 @@ namespace TDEngine2
 
 	void* CMemoryManager::Allocate(U32 size, const C8* userName)
 	{
+		const U32 currOffset = mpGlobalAllocator->GetUsedMemorySize();
+
 		void* pMemoryBlock = mpGlobalAllocator->Allocate(size, __alignof(U8));
 
 		mAllocatedBlocks.emplace_back(userName, pMemoryBlock);
@@ -109,6 +112,7 @@ namespace TDEngine2
 				append(!userName ? "unknown" : userName).
 				append(")");
 
+		TDE2_REGISTER_MEMORY_BLOCK_PROFILE(userName, currOffset, size);
 		LOG_MESSAGE(message);
 
 		return pMemoryBlock;

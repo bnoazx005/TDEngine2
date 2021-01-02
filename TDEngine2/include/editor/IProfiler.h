@@ -18,7 +18,7 @@ namespace TDEngine2
 
 
 	/*!
-		interface IProfiler
+		interface ITimeProfiler
 
 		\brief The interface describes functionality of built-in performace profiler system.
 		Note that all profilers implementation should be singletons
@@ -117,5 +117,41 @@ namespace TDEngine2
 			TDE2_API static ITimeProfiler* Get();
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITimeProfiler);
+	};
+
+
+	/*!
+		\brief The interface describes a functionality of a memory profiler
+	*/
+
+	class IMemoryProfiler : public virtual IBaseObject
+	{
+		public:
+			/*!
+				\brief The method stars to record current frame's statistics. The method should be called only once per frame
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE BeginFrame() = 0;
+
+			/*!
+				\brief The method stops recording statistics. The method should be called only once per frame
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE EndFrame() = 0;
+
+			/*!
+				\brief The method creates an information block which is related with some memory block
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterGlobalMemoryBlock(const std::string& name, U32 offset, U32 size) = 0;
+
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMemoryProfiler);
 	};
 }

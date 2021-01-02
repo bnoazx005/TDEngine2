@@ -25,8 +25,13 @@
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/ITimer.h"
+
+#if TDE2_EDITORS_ENABLED
 #include "../../include/editor/IEditorsManager.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/CMemoryProfiler.h"
+#endif
+
 #include "../../include/physics/CBaseRaycastContext.h"
 #include "../../include/ecs/CObjectsSelectionSystem.h"
 #include "../../include/ecs/CBoundsUpdatingSystem.h"
@@ -89,6 +94,11 @@ namespace TDEngine2
 			result = result | MainLogger->Free();
 #endif
 		}
+
+#if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
+		CPerfProfiler::Get()->Free();
+		CMemoryProfiler::Get()->Free();
+#endif
 
 		mIsInitialized = false;
 
@@ -281,8 +291,8 @@ namespace TDEngine2
 	void CEngineCore::_onFrameUpdateCallback()
 	{
 #if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-		ITimeProfiler* pProfiler = CPerfProfiler::Get();
-		pProfiler->BeginFrame();
+		CPerfProfiler::Get()->BeginFrame();
+		CMemoryProfiler::Get()->BeginFrame();
 #endif
 
 		if (mpInputContext)
@@ -300,7 +310,8 @@ namespace TDEngine2
 		}
 
 #if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-		pProfiler->EndFrame();
+		CPerfProfiler::Get()->EndFrame();
+		CMemoryProfiler::Get()->EndFrame();
 #endif
 	}
 

@@ -163,6 +163,7 @@
 #include "editor/CRenderTargetViewerWindow.h"
 #include "editor/CSceneHierarchyWindow.h"
 #include "editor/Inspectors.h"
+#include "editor/CMemoryProfiler.h"
 
 ///math
 #include "math/TVector2.h"
