@@ -142,6 +142,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE EndFrame() = 0;
+			
+			TDE2_API virtual E_RESULT_CODE SetTotalMemoryAvailable(U32 size) = 0;
 
 			/*!
 				\brief The method creates an information block which is related with some memory block
@@ -150,6 +152,19 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE RegisterGlobalMemoryBlock(const std::string& name, U32 offset, U32 size) = 0;
+
+			/*!
+				\brief The method updates information about memory block's occupation
+
+				\param[in] name A name of the block
+				\param[in] usedSize A value which tells how much the memory of the block is used
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, U32 usedSize) = 0;
+
+			TDE2_API virtual U32 GetTotalMemoryAvailable() const = 0;
 
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMemoryProfiler);

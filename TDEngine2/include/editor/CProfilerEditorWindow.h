@@ -20,7 +20,7 @@
 namespace TDEngine2
 {
 	/*!
-		\brief A factory function for creation objects of CProfilerEditorWindow's type
+		\brief A factory function for creation objects of CTimeProfilerEditorWindow's type
 
 		\param[in, out] pProfiler A pointer to IProfiler implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -28,18 +28,18 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateTimeProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result);
 
 	/*!
-		class CProfilerEditorWindow
+		class CTimeProfilerEditorWindow
 
 		\brief The class is an implementation of a window for in-game profiler
 	*/
 
-	class CProfilerEditorWindow : public CBaseEditorWindow
+	class CTimeProfilerEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result);
+			friend TDE2_API IEditorWindow* CreateTimeProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
@@ -67,7 +67,7 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetMainThreadID(U32 mainThreadID);
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProfilerEditorWindow)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTimeProfilerEditorWindow)
 
 			/*!
 				\brief The method should be should be implemented in all derived classes. It's called
@@ -79,8 +79,6 @@ namespace TDEngine2
 			TDE2_API void _drawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const ITimeProfiler::TSampleRecord& currSample, 
 											 ITimeProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId = 0);
 
-			TDE2_API static TRectF32 _drawRectWithText(IImGUIContext& imguiContext, const std::string& text, const TRectF32& rect, const TColor32F& rectColor,
-													   const TColor32F& textColor);
 		protected:
 			static const U16 mBufferSize = 128;
 
@@ -93,6 +91,62 @@ namespace TDEngine2
 			TVector2         mSpacingSizes = TVector2(2.0f, 2.0f);
 
 			U32              mMainThreadID;
+	};
+
+
+	/*!
+		\brief A factory function for creation objects of CMemoryProfilerEditorWindow's type
+
+		\param[in, out] pProfiler A pointer to IMemoryProfiler implementation
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to IEditorWindow's implementation
+	*/
+
+	TDE2_API IEditorWindow* CreateMemoryProfilerEditorWindow(IMemoryProfiler* pProfiler, E_RESULT_CODE& result);
+
+
+	/*!
+		class CMemoryProfilerEditorWindow
+
+		\brief The class is an implementation of a window for a memory profiler
+	*/
+
+	class CMemoryProfilerEditorWindow : public CBaseEditorWindow
+	{
+		public:
+			friend TDE2_API IEditorWindow* CreateMemoryProfilerEditorWindow(IMemoryProfiler*, E_RESULT_CODE&);
+		public:
+			/*!
+				\brief The method initializes internal state of the editor
+
+				\param[in, out] pProfiler A pointer to IProfiler implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IMemoryProfiler* pProfiler);
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryProfilerEditorWindow)
+
+			/*!
+				\brief The method should be should be implemented in all derived classes. It's called
+				once per frame only if the editor's window is visible
+			*/
+
+			TDE2_API void _onDraw() override;
+		protected:
+			std::vector<TColor32F> mPalette;
+
+			IMemoryProfiler* mpProfiler;
 	};
 }
 

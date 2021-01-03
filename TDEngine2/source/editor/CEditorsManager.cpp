@@ -19,7 +19,8 @@ namespace TDEngine2
 {
 	const std::unordered_map<E_EDITOR_TYPE, std::string> CEditorsManager::mEditorNamesMap
 	{
-		{ E_EDITOR_TYPE::PROFILER, "Profiler" },
+		{ E_EDITOR_TYPE::TIME_PROFILER, "Time Profiler" },
+		{ E_EDITOR_TYPE::MEMORY_PROFILER, "Memory Profiler" },
 		{ E_EDITOR_TYPE::LEVEL_EDITOR, "Level Editor" },
 		{ E_EDITOR_TYPE::DEV_CONSOLE, "Console" },
 		{ E_EDITOR_TYPE::RENDER_TARGET_VIEWER, "RTs Viewer" },

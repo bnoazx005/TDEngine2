@@ -52,6 +52,15 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+#if TDE2_EDITORS_ENABLED
+
+	void CBaseAllocator::SetBlockDebugName(const std::string& blockId)
+	{
+		mName = blockId;
+	}
+
+#endif
+
 	U32 CBaseAllocator::GetTotalMemorySize() const
 	{
 		return mTotalMemorySize;

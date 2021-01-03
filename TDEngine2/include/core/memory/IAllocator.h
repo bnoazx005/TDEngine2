@@ -65,6 +65,10 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Clear() = 0;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void SetBlockDebugName(const std::string& blockId) = 0;
+#endif
+
 			/*!
 				\brief The method returns total size of available memory 
 

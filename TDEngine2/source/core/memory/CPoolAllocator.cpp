@@ -1,4 +1,5 @@
-#include "./../../../include/core/memory/CPoolAllocator.h"
+#include "../../../include/core/memory/CPoolAllocator.h"
+#include "../../../include/editor/CMemoryProfiler.h"
 
 
 namespace TDEngine2
@@ -45,6 +46,8 @@ namespace TDEngine2
 		mUsedMemorySize += mObjectSize;
 
 		++mAllocationsCount;
+
+		TDE2_UPDATE_MEMORY_BLOCK_INFO(mName, mUsedMemorySize);
 
 		return pObjectPtr;
 	}

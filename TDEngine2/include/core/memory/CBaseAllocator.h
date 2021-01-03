@@ -7,7 +7,7 @@
 #pragma once
 
 
-#include "./../CBaseObject.h"
+#include "../CBaseObject.h"
 #include "IAllocator.h"
 
 
@@ -76,6 +76,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Clear() = 0;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API void SetBlockDebugName(const std::string& blockId) override;
+#endif
 
 			/*!
 				\brief The method returns total size of available memory
@@ -153,6 +157,10 @@ namespace TDEngine2
 			U32 mAllocationsCount;
 
 			U8* mpMemoryBlock;
+
+#if TDE2_EDITORS_ENABLED
+			std::string mName;
+#endif
 	};
 
 

@@ -1,4 +1,5 @@
-#include "./../../../include/core/memory/CStackAllocator.h"
+#include "../../../include/core/memory/CStackAllocator.h"
+#include "../../../include/editor/CMemoryProfiler.h"
 #include <cstring>
 
 
@@ -44,6 +45,8 @@ namespace TDEngine2
 		mpCurrPos = reinterpret_cast<void*>(alignedAddress + size);
 
 		mUsedMemorySize += (padding + size);
+
+		TDE2_UPDATE_MEMORY_BLOCK_INFO(mName, mUsedMemorySize);
 
 		++mAllocationsCount;
 

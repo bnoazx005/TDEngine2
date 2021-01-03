@@ -34,6 +34,10 @@ namespace TDEngine2
 
 		mpGlobalAllocator = CreateStackAllocator(totalMemorySize, mpGlobalMemoryBlock, result);
 
+#if TDE2_EDITORS_ENABLED
+		CMemoryProfiler::Get()->SetTotalMemoryAvailable(totalMemorySize);
+#endif
+
 		if (result != RC_OK)
 		{
 			return result;
@@ -200,6 +204,16 @@ namespace TDEngine2
 
 		U8* pNewMemoryBlock = static_cast<U8*>(Allocate(params.mMemoryBlockSize, userName));
 		TResult<IAllocator*> result = pAllocatorFactory->Create(pNewMemoryBlock, params);
+
+#if TDE2_EDITORS_ENABLED
+		if (result)
+		{
+			if (auto pAllocator = result.Get())
+			{
+				pAllocator->SetBlockDebugName(userName);
+			}
+		}
+#endif
 
 		return result.Get();
 	}

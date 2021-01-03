@@ -44,6 +44,14 @@ namespace TDEngine2
 	typedef TColor<F32> TColor32F;
 
 
+	TDE2_API inline TColor32F RandColor32F()
+	{
+		const F32 invDenom = 1.0f / (static_cast<F32>(RAND_MAX) + 1.0f);
+
+		return TColor32F(static_cast<F32>(rand()) * invDenom, static_cast<F32>(rand()) * invDenom, static_cast<F32>(rand()) * invDenom, static_cast<F32>(rand()) * invDenom);
+	}
+
+
 	/*!
 		\brief The function packs a given color into single U32 value
 

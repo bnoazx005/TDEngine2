@@ -39,6 +39,7 @@
 #include "../../include/editor/CEditorsManager.h"
 #include "../../include/editor/CProfilerEditorWindow.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/CMemoryProfiler.h"
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CDevConsoleWindow.h"
 #include "../../include/editor/CSelectionManager.h"
@@ -436,13 +437,14 @@ namespace TDEngine2
 
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROFILER), CreateProfilerEditorWindow(CPerfProfiler::Get(), result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::TIME_PROFILER), CreateTimeProfilerEditorWindow(CPerfProfiler::Get(), result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::MEMORY_PROFILER), CreateMemoryProfilerEditorWindow(CMemoryProfiler::Get(), result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), pLevelEditorWindow },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance, result) },
 		};
 
-		dynamic_cast<CProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);
+		dynamic_cast<CTimeProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);
 
 		for (auto& currEditorEntry : builtinEditors)
 		{

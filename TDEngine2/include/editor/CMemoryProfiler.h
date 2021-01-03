@@ -35,6 +35,8 @@ namespace TDEngine2
 				U32 mTotalSize;
 			} TGlobalMemoryBlockInfo, *TMemoryBlockInfoPtr;
 
+			typedef std::unordered_map<std::string, TGlobalMemoryBlockInfo> TProfilerStatisticsData;
+
 		public:
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -60,6 +62,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE EndFrame() override;
 
+			TDE2_API E_RESULT_CODE SetTotalMemoryAvailable(U32 size) override;
+
 			/*!
 				\brief The method creates an information block which is related with some memory block
 
@@ -69,6 +73,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE RegisterGlobalMemoryBlock(const std::string& name, U32 offset, U32 size) override;
 
 			/*!
+				\brief The method updates information about memory block's occupation
+
+				\param[in] name A name of the block
+				\param[in] usedSize A value which tells how much the memory of the block is used
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, U32 usedSize) override;
+
+			/*!
 				\brief The function is replacement of factory method for instances of this type.
 				The only instance will be created per program's lifetime. To destroy it call Free
 				as for any other type within the engine
@@ -76,17 +91,28 @@ namespace TDEngine2
 				\return A pointer to an instance of IProfiler type
 			*/
 
-			TDE2_API static IMemoryProfiler* Get();
+			TDE2_API static CMemoryProfiler* Get();
+
+			const TProfilerStatisticsData& GetStatistics() const;
+
+			TDE2_API U32 GetTotalMemoryAvailable() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryProfiler);
 		private:
-			std::unordered_map<std::string, TGlobalMemoryBlockInfo> mBlocksInfoRegistry;
+			TProfilerStatisticsData mBlocksInfoRegistry;
+
+			U32 mTotalMemorySize;
 	};
 
 
 #define TDE2_REGISTER_MEMORY_BLOCK_PROFILE(Name, Offset, Size) CMemoryProfiler::Get()->RegisterGlobalMemoryBlock(Name, Offset, Size)
+#define TDE2_UPDATE_MEMORY_BLOCK_INFO(Name, UsedSize) CMemoryProfiler::Get()->UpdateMemoryBlockInfo(Name, UsedSize)
+
 }
 
-#endif
+#else
 
 #define TDE2_DECLARE_MEMORY_BLOCK_PROFILE(Name, Offset, Size) 
+#define TDE2_UPDATE_MEMORY_BLOCK_INFO(Name, UsedSize)
+
+#endif
