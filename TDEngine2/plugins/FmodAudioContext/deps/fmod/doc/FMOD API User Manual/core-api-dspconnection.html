@@ -1,0 +1,572 @@
+<html>
+<head>
+<title>Core API Reference | DSPConnection</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="core-api.html">Core API Reference</a><ul class="subchapters"><li><a href="core-api-common.html">Common</a></li><li><a href="core-api-common-dsp-effects.html">Effect Parameters</a></li><li><a href="core-api-system.html">System</a></li><li><a href="core-api-sound.html">Sound</a></li><li><a href="core-api-channelcontrol.html">ChannelControl</a></li><li><a href="core-api-channel.html">Channel</a></li><li><a href="core-api-channelgroup.html">ChannelGroup</a></li><li><a href="core-api-soundgroup.html">SoundGroup</a></li><li><a href="core-api-dsp.html">DSP</a></li><li class="manual-current-chapter manual-active-chapter"><a href="core-api-dspconnection.html">DSPConnection</a></li><li><a href="core-api-geometry.html">Geometry</a></li><li><a href="core-api-reverb3d.html">Reverb3D</a></li><li><a href="core-api-platform-ios.html">iOS Specific</a></li></ul></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>7. Core API Reference | DSPConnection</h1>
+<p>An interface that manages Digital Signal Processor (DSP) Connections</p>
+<p><strong>Mix Properties:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_setmix" title="Sets the connection's volume scale.">DSPConnection::setMix</a> Sets the connection's volume scale.</li>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_getmix" title="Retrieves the connection's volume scale.">DSPConnection::getMix</a> Retrieves the connection's volume scale.</li>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_setmixmatrix" title="Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">DSPConnection::setMixMatrix</a> Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).</li>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_getmixmatrix" title="Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">DSPConnection::getMixMatrix</a> Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_getinput" title="Retrieves the connection's input DSP unit.">DSPConnection::getInput</a> Retrieves the connection's input DSP unit.</li>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_getoutput" title="Retrieves the connection's output DSP unit.">DSPConnection::getOutput</a> Retrieves the connection's output DSP unit.</li>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_gettype" title="Retrieves the type of the connection between 2 DSP units.">DSPConnection::getType</a> Retrieves the type of the connection between 2 DSP units.</li>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_setuserdata" title="Sets a user value associated with this object.">DSPConnection::setUserData</a> Sets a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-dspconnection.html#dspconnection_getuserdata" title="Retrieves a user value associated with this object.">DSPConnection::getUserData</a> Retrieves a user value associated with this object.</li>
+</ul>
+<hr />
+<ul>
+<li><a class="apilink" href="core-api-dspconnection.html#fmod_dspconnection_type" title="List of connection types between 2 DSP nodes.">FMOD_DSPCONNECTION_TYPE</a> List of connection types between 2 DSP nodes.</li>
+</ul>
+<h2 api="function" id="dspconnection_getinput"><a href="#dspconnection_getinput">DSPConnection::getInput</a></h2>
+<p>Retrieves the connection's input DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">getInput</span><span class="p">(</span>
+  <span class="n">DSP</span> <span class="o">**</span><span class="n">input</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_GetInput</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="n">FMOD_DSP</span> <span class="o">**</span><span class="n">input</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">getInput</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">DSP</span> <span class="n">input</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span>
+  <span class="nx">input</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>input <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Input DSP unit. (<a class="apilink" href="core-api-dsp.html" title="">DSP</a>)</dd>
+</dl>
+<p>If <a class="apilink" href="core-api-dsp.html#dsp_addinput" title="Adds a DSP unit as an input to this object.">DSP::addInput</a> was just called, the connection might not be ready because the DSP system is still queued to be connected, and may need to wait several milliseconds for the next mix to occur. If so the function will return <a class="apilink" href="core-api-common.html#fmod_err_notready" title="">FMOD_ERR_NOTREADY</a> and <code>input</code> will be null.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dspconnection.html#dspconnection_getoutput" title="Retrieves the connection's output DSP unit.">DSPConnection::getOutput</a>, <a class="apilink" href="core-api-dsp.html#dsp_addinput" title="Adds a DSP unit as an input to this object.">DSP::addInput</a></p>
+<h2 api="function" id="dspconnection_getmix"><a href="#dspconnection_getmix">DSPConnection::getMix</a></h2>
+<p>Retrieves the connection's volume scale.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">getMix</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_GetMix</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">getMix</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">getMix</span><span class="p">(</span>
+  <span class="nx">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>volume <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Volume scale applied to the input before being passed to the output.  0 = silent, 1 = full. Negative level inverts the signal.  Values larger than 1 amplify the signal.</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Range:</span> (-inf, inf)</li>
+<li><span class="label">Default:</span> 1</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dspconnection.html#dspconnection_setmix" title="Sets the connection's volume scale.">DSPConnection::setMix</a></p>
+<h2 api="function" id="dspconnection_getmixmatrix"><a href="#dspconnection_getmixmatrix">DSPConnection::getMixMatrix</a></h2>
+<p>Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">getMixMatrix</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">matrix</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">outchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">inchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannel_hop</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_GetMixMatrix</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">matrix</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">outchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">inchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannel_hop</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">getMixMatrix</span><span class="p">(</span>
+  <span class="kt">float</span><span class="p">[]</span> <span class="n">matrix</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">outchannels</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannel_hop</span> <span class="p">=</span> <span class="m">0</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">getMixMatrix</span><span class="p">(</span>
+  <span class="nx">matrix</span><span class="p">,</span>
+  <span class="nx">outchannels</span><span class="p">,</span>
+  <span class="nx">inchannels</span><span class="p">,</span>
+  <span class="nx">inchannel_hop</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>matrix <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Two dimensional array of volume levels in row-major order. Each row represents an output speaker, each column represents an input channel.  Passing null or equivalent as the matrix allows querying of <code>outchannels</code> and <code>inchannels</code>.</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Range:</span> (-inf, inf)</li>
+</ul>
+</dd>
+<dt>outchannels <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Number of valid output channels (rows) in <code>matrix</code>. Optional only when <code>matrix</code> is null or equivalent.</dd>
+<dt>inchannels <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Number of valid input channels (columns) in <code>matrix</code>. Optional only when <code>matrix</code> is null or equivalent.</dd>
+<dt>inchannel_hop <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Width (total number of columns) in destination <code>matrix</code>. Can be larger than <code>inchannels</code> to represent a smaller valid region inside a larger matrix.</dd>
+</dl>
+<p>A matrix element is referenced from the incoming matrix data as <code>outchannel * inchannel_hop + inchannel</code>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dspconnection.html#dspconnection_setmixmatrix" title="Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">DSPConnection::setMixMatrix</a></p>
+<h2 api="function" id="dspconnection_getoutput"><a href="#dspconnection_getoutput">DSPConnection::getOutput</a></h2>
+<p>Retrieves the connection's output DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">getOutput</span><span class="p">(</span>
+  <span class="n">DSP</span> <span class="o">**</span><span class="n">output</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_GetOutput</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="n">FMOD_DSP</span> <span class="o">**</span><span class="n">output</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">getOutput</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">DSP</span> <span class="n">output</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">getOutput</span><span class="p">(</span>
+  <span class="nx">output</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>output <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Output DSP unit. (<a class="apilink" href="core-api-dsp.html" title="">DSP</a>)</dd>
+</dl>
+<p>If <a class="apilink" href="core-api-dsp.html#dsp_addinput" title="Adds a DSP unit as an input to this object.">DSP::addInput</a> was just called, the connection might not be ready because the DSP system is still queued to be connected, and may need to wait several milliseconds for the next mix to occur. If so the function will return <a class="apilink" href="core-api-common.html#fmod_err_notready" title="">FMOD_ERR_NOTREADY</a> and <code>output</code> will be null.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dspconnection.html#dspconnection_getinput" title="Retrieves the connection's input DSP unit.">DSPConnection::getInput</a>, <a class="apilink" href="core-api-dsp.html#dsp_addinput" title="Adds a DSP unit as an input to this object.">DSP::addInput</a></p>
+<h2 api="function" id="dspconnection_gettype"><a href="#dspconnection_gettype">DSPConnection::getType</a></h2>
+<p>Retrieves the type of the connection between 2 DSP units.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">getType</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION_TYPE</span> <span class="o">*</span><span class="n">type</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_GetType</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="n">FMOD_DSPCONNECTION_TYPE</span> <span class="o">*</span><span class="n">type</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">getType</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">DSPCONNECTION_TYPE</span> <span class="n">type</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">getType</span><span class="p">(</span>
+  <span class="nx">type</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>type <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Type of connection. (<a class="apilink" href="core-api-dspconnection.html#fmod_dspconnection_type" title="List of connection types between 2 DSP nodes.">FMOD_DSPCONNECTION_TYPE</a>)</dd>
+</dl>
+<h2 api="function" id="dspconnection_getuserdata"><a href="#dspconnection_getuserdata">DSPConnection::getUserData</a></h2>
+<p>Retrieves a user value associated with this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_GetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">getUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Value stored on this object.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dspconnection.html#dspconnection_setuserdata" title="Sets a user value associated with this object.">DSPConnection::setUserData</a></p>
+<h2 api="function" id="dspconnection_setmix"><a href="#dspconnection_setmix">DSPConnection::setMix</a></h2>
+<p>Sets the connection's volume scale.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">setMix</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_SetMix</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">setMix</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">setMix</span><span class="p">(</span>
+  <span class="nx">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>volume</dt>
+<dd>
+<p>Volume scale applied to the input before being passed to the output.  0 = silent, 1 = full. Negative level inverts the signal.  Values larger than 1 amplify the signal.</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Range:</span> (-inf, inf)</li>
+<li><span class="label">Default:</span> 1</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dspconnection.html#dspconnection_getmix" title="Retrieves the connection's volume scale.">DSPConnection::getMix</a>, <a class="apilink" href="core-api-dspconnection.html#dspconnection_setmixmatrix" title="Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">DSPConnection::setMixMatrix</a>, <a class="apilink" href="core-api-dspconnection.html#dspconnection_getmixmatrix" title="Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">DSPConnection::getMixMatrix</a></p>
+<h2 api="function" id="dspconnection_setmixmatrix"><a href="#dspconnection_setmixmatrix">DSPConnection::setMixMatrix</a></h2>
+<p>Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">setMixMatrix</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">matrix</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">outchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannel_hop</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_SetMixMatrix</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">matrix</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">outchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannel_hop</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">setMixMatrix</span><span class="p">(</span>
+  <span class="kt">float</span><span class="p">[]</span> <span class="n">matrix</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">outchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannel_hop</span> <span class="p">=</span> <span class="m">0</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">setMixMatrix</span><span class="p">(</span>
+  <span class="nx">matrix</span><span class="p">,</span>
+  <span class="nx">outchannels</span><span class="p">,</span>
+  <span class="nx">inchannels</span><span class="p">,</span>
+  <span class="nx">inchannel_hop</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>matrix <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Two dimensional array of volume levels in row-major order. Each row represents an output speaker, each column represents an input channel. Null or equivalent sets a 'default' matrix.</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Range:</span> (-inf, inf)</li>
+</ul>
+</dd>
+<dt>outchannels</dt>
+<dd>
+<p>Number of output channels (rows) in <code>matrix</code>.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-common.html#fmod_max_channel_width" title="Maximum number of channels per frame of audio supported by audio files, buffers, connections and DSPs.">FMOD_MAX_CHANNEL_WIDTH</a>]</li>
+</ul>
+</dd>
+<dt>inchannels</dt>
+<dd>
+<p>Number of input channels (columns) in <code>matrix</code>.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-common.html#fmod_max_channel_width" title="Maximum number of channels per frame of audio supported by audio files, buffers, connections and DSPs.">FMOD_MAX_CHANNEL_WIDTH</a>]</li>
+</ul>
+</dd>
+<dt>inchannel_hop <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Width (total number of columns) in source <code>matrix</code>. Can be larger than <code>inchannels</code> to represent a smaller valid region inside a larger matrix.</dd>
+</dl>
+<ul>
+<li>Range: [0, <a class="apilink" href="core-api-common.html#fmod_max_channel_width" title="Maximum number of channels per frame of audio supported by audio files, buffers, connections and DSPs.">FMOD_MAX_CHANNEL_WIDTH</a>]</li>
+<li>Default: <code>inchannels</code></li>
+</ul>
+<p>A matrix element is referenced from the incoming matrix data as <code>outchannel * inchannel_hop + inchannel</code>.</p>
+<p>If null or equivalent is passed in via <code>matrix</code> a default upmix, downmix, or unit matrix will take its place.  A unit matrix allows a signal to pass through unchanged.</p>
+<p>Example 5.1 unit matrix:</p>
+<pre><code>1 0 0 0 0 0 
+0 1 0 0 0 0 
+0 0 1 0 0 0 
+0 0 0 1 0 0 
+0 0 0 0 1 0 
+0 0 0 0 0 1
+</code></pre>
+<p>Matrix element values can be below 0 to invert a signal and above 1 to amplify the signal. Note that increasing the signal level too far may cause audible distortion.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dspconnection.html#dspconnection_getmixmatrix" title="Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">DSPConnection::getMixMatrix</a></p>
+<h2 api="function" id="dspconnection_setuserdata"><a href="#dspconnection_setuserdata">DSPConnection::setUserData</a></h2>
+<p>Sets a user value associated with this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">DSPConnection</span><span class="o">::</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_DSPConnection_SetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">*</span><span class="n">dspconnection</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">DSPConnection</span><span class="p">.</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSPConnection</span><span class="p">.</span><span class="nx">setUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata</dt>
+<dd>Value stored on this object.</dd>
+</dl>
+<p>Associates some data with this object to give it context, it can be retrieved with <a class="apilink" href="core-api-dspconnection.html#dspconnection_getuserdata" title="Retrieves a user value associated with this object.">DSPConnection::getUserData</a> but otherwise remain untouched.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dspconnection.html#dspconnection_getuserdata" title="Retrieves a user value associated with this object.">DSPConnection::getUserData</a></p>
+<h2 api="enum" id="fmod_dspconnection_type"><a href="#fmod_dspconnection_type">FMOD_DSPCONNECTION_TYPE</a></h2>
+<p>List of connection types between 2 DSP nodes.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_DSPCONNECTION_TYPE</span> <span class="p">{</span>
+  <span class="n">FMOD_DSPCONNECTION_TYPE_STANDARD</span><span class="p">,</span>
+  <span class="n">FMOD_DSPCONNECTION_TYPE_SIDECHAIN</span><span class="p">,</span>
+  <span class="n">FMOD_DSPCONNECTION_TYPE_SEND</span><span class="p">,</span>
+  <span class="n">FMOD_DSPCONNECTION_TYPE_SEND_SIDECHAIN</span><span class="p">,</span>
+  <span class="n">FMOD_DSPCONNECTION_TYPE_MAX</span>
+<span class="p">}</span> <span class="n">FMOD_DSPCONNECTION_TYPE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">DSPCONNECTION_TYPE</span>
+<span class="p">{</span>
+    <span class="n">STANDARD</span><span class="p">,</span>
+    <span class="n">SIDECHAIN</span><span class="p">,</span>
+    <span class="n">SEND</span><span class="p">,</span>
+    <span class="n">SEND_SIDECHAIN</span><span class="p">,</span>
+    <span class="n">MAX</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSPCONNECTION_TYPE_STANDARD</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSPCONNECTION_TYPE_SIDECHAIN</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSPCONNECTION_TYPE_SEND</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSPCONNECTION_TYPE_SEND_SIDECHAIN</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSPCONNECTION_TYPE_MAX</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dspconnection_type_standard">FMOD_DSPCONNECTION_TYPE_STANDARD</dt>
+<dd>Default connection type.         Audio is mixed from the input to the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a>'s audible buffer.  </dd>
+<dt id="fmod_dspconnection_type_sidechain">FMOD_DSPCONNECTION_TYPE_SIDECHAIN</dt>
+<dd>Sidechain connection type.       Audio is mixed from the input to the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a>'s sidechain buffer.</dd>
+<dt id="fmod_dspconnection_type_send">FMOD_DSPCONNECTION_TYPE_SEND</dt>
+<dd>Send connection type.            Audio is mixed from the input to the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a>'s audible buffer, but the input is NOT executed, only copied from.  A standard connection or sidechain needs to make an input execute to generate data. </dd>
+<dt id="fmod_dspconnection_type_send_sidechain">FMOD_DSPCONNECTION_TYPE_SEND_SIDECHAIN</dt>
+<dd>Send sidechain connection type.  Audio is mixed from the input to the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a>'s sidechain buffer, but the input is NOT executed, only copied from.  A standard connection or sidechain needs to make an input execute to generate data. </dd>
+<dt id="fmod_dspconnection_type_max">FMOD_DSPCONNECTION_TYPE_MAX</dt>
+<dd>Maximum number of <a class="apilink" href="core-api-dsp.html" title="">DSP</a> connection types supported. </dd>
+</dl>
+<p>FMOD_DSP_CONNECTION_TYPE_STANDARD</p>
+<hr />
+<p>Default <a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a> type.  Audio is mixed from the input to the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a>'s audible buffer, meaning it will be part of the audible signal.  A standard connection will execute its input <a class="apilink" href="core-api-dsp.html" title="">DSP</a> if it has not been executed before.</p>
+<p>FMOD_DSP_CONNECTION_TYPE_SIDECHAIN</p>
+<hr />
+<p>Sidechain <a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a> type.  Audio is mixed from the input to the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a>'s sidechain buffer, meaning it will NOT be part of the audible signal.  A sidechain connection will execute its input <a class="apilink" href="core-api-dsp.html" title="">DSP</a> if it has not been executed before.</p>
+<p>The purpose of the seperate sidechain buffer in a <a class="apilink" href="core-api-dsp.html" title="">DSP</a>, is so that the <a class="apilink" href="core-api-dsp.html" title="">DSP</a> effect can privately access for analysis purposes.  An example of use in this case, could be a compressor which analyzes the signal, to control its own effect parameters (ie a compression level or gain).</p>
+<p>For the effect developer, to accept sidechain data, the sidechain data will appear in the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a> struct which is passed into the read callback of a <a class="apilink" href="core-api-dsp.html" title="">DSP</a> unit.</p>
+<p><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_sidechaindata" title="">FMOD_DSP_STATE::sidechaindata</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_sidechainchannels" title="">FMOD_DSP_STATE::sidechainchannels</a> will hold the mixed result of any sidechain data flowing into it.</p>
+<p>FMOD_DSP_CONNECTION_TYPE_SEND</p>
+<hr />
+<p>Send <a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a> type.  Audio is mixed from the input to the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a>'s audible buffer, meaning it will be part of the audible signal.  A send connection will NOT execute its input <a class="apilink" href="core-api-dsp.html" title="">DSP</a> if it has not been executed before.</p>
+<p>A send connection will only read what exists at the input's buffer at the time of executing the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a> unit (which can be considered the 'return')</p>
+<p>FMOD_DSP_CONNECTION_TYPE_SEND_SIDECHAIN</p>
+<hr />
+<p>Send sidechain <a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a> type.  Audio is mixed from the input to the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a>'s sidechain buffer, meaning it will NOT be part of the audible signal.  A send sidechain connection will NOT execute its input <a class="apilink" href="core-api-dsp.html" title="">DSP</a> if it has not been executed before.</p>
+<p>A send sidechain connection will only read what exists at the input's buffer at the time of executing the output <a class="apilink" href="core-api-dsp.html" title="">DSP</a> unit (which can be considered the 'sidechain return').</p>
+<p>For the effect developer, to accept sidechain data, the sidechain data will appear in the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a> struct which is passed into the read callback of a <a class="apilink" href="core-api-dsp.html" title="">DSP</a> unit.</p>
+<p><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_sidechaindata" title="">FMOD_DSP_STATE::sidechaindata</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_sidechainchannels" title="">FMOD_DSP_STATE::sidechainchannels</a> will hold the mixed result of any sidechain data flowing into it.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dsp.html#dsp_addinput" title="Adds a DSP unit as an input to this object.">DSP::addInput</a>, <a class="apilink" href="core-api-dspconnection.html#dspconnection_gettype" title="Retrieves the type of the connection between 2 DSP units.">DSPConnection::getType</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

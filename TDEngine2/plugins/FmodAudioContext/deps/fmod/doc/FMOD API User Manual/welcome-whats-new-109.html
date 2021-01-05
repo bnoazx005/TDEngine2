@@ -1,0 +1,93 @@
+<html>
+<head>
+<title>Welcome to FMOD API | New in FMOD API 1.09</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="welcome.html">Welcome to FMOD API</a><ul class="subchapters"><li><a href="welcome-whats-new-201.html">New in FMOD API 2.01</a></li><li><a href="welcome-whats-new-200.html">New in FMOD API 2.00</a></li><li><a href="welcome-whats-new-110.html">New in FMOD API 1.10</a></li><li class="manual-current-chapter manual-active-chapter"><a href="welcome-whats-new-109.html">New in FMOD API 1.09</a></li><li><a href="welcome-whats-new-108.html">New in FMOD API 1.08</a></li><li><a href="welcome-revision-history.html">Detailed Revision History</a></li></ul></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>1. Welcome to FMOD API | New in FMOD API 1.09</h1>
+<div class="toc">
+<ul>
+<li><a href="#whats-new-in-109">What's New in 1.09?</a><ul>
+<li><a href="#multiple-listener-weighting">Multiple listener weighting</a></li>
+<li><a href="#getting-final-value-for-volume-and-parameter-values">Getting final value for volume and parameter values</a></li>
+<li><a href="#multiband-eq">Multiband EQ</a></li>
+</ul>
+</li>
+<li><a href="#whats-new-since-108-initial-release">What's new since 1.08 initial release?</a><ul>
+<li><a href="#sound-play-stop-callbacks">Sound Play / Stop callbacks</a></li>
+<li><a href="#listener-mask">Listener mask</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="whats-new-in-109"><a href="#whats-new-in-109">What's New in 1.09?</a></h2>
+<p>This section describes the major features introduced in the 1.09 release. See the <a href="welcome-revision-history.html">Detailed Revision History</a> for information regarding each patch release.</p>
+<h3 id="multiple-listener-weighting"><a href="#multiple-listener-weighting">Multiple listener weighting</a></h3>
+<p>Studio's multiple listener support has been improved with the ability to set a weighting per listener with <a class="apilink" href="studio-api-system.html#studio_system_setlistenerweight" title="Sets the listener weighting.">Studio::System::setListenerWeight</a>.  The weight allows listeners to be smoothly faded in or out of existence.</p>
+<p>For example, to do a crossfade, an additional listener can be created with a weighting of 0 that ramps up to 1 while the old listener weight is ramped down to 0.  After the crossfade is finished the number of listeners can be set down to 1 again.</p>
+<p>Listener weight is used in the 3D panner, the doppler calculation, and the automatic distance event parameter.</p>
+<p>For more information, see the  <a href="white-papers-studio-3d-events.html">Studio 3D Events</a> page.</p>
+<h3 id="getting-final-value-for-volume-and-parameter-values"><a href="#getting-final-value-for-volume-and-parameter-values">Getting final value for volume and parameter values</a></h3>
+<p>The Studio API getter functions take an extra optional argument which receives the final value after automation, modulation, and snapshots.  </p>
+<p>It allows the sound designer to set up automations on parameters which the game can query and drive other game side systems, as well as getting volume of buses after snapshots are applied.  For existing codebases, the second argument defaults to NULL which is unchanged behavior.</p>
+<p>The functions that have the extra functionality are:</p>
+<ul>
+<li><a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getvolume" title="Retrieves the volume level.">Studio::EventInstance::getVolume</a></li>
+<li><a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getpitch" title="Retrieves the pitch multiplier.">Studio::EventInstance::getPitch</a></li>
+<li>Studio::EventInstance::getParameterValue</li>
+<li>Studio::EventInstance::getParameterValueByIndex</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getvolume" title="Retrieves the volume level.">Studio::Bus::getVolume</a></li>
+<li><a class="apilink" href="studio-api-vca.html#studio_vca_getvolume" title="Retrieves the volume level.">Studio::VCA::getVolume</a></li>
+</ul>
+<p>As part of this change, the older function names have been renamed for consistency:</p>
+<ul>
+<li>Studio::Bus::setFaderLevel is now <a class="apilink" href="studio-api-bus.html#studio_bus_setvolume" title="Sets the volume level.">Studio::Bus::setVolume</a></li>
+<li>Studio::Bus::getFaderLevel is now <a class="apilink" href="studio-api-bus.html#studio_bus_getvolume" title="Retrieves the volume level.">Studio::Bus::getVolume</a></li>
+<li>Studio::VCA::setFaderLevel is now <a class="apilink" href="studio-api-vca.html#studio_vca_setvolume" title="Sets the volume level.">Studio::VCA::setVolume</a></li>
+<li>Studio::VCA::getFaderLevel is now <a class="apilink" href="studio-api-vca.html#studio_vca_getvolume" title="Retrieves the volume level.">Studio::VCA::getVolume</a></li>
+</ul>
+<h3 id="multiband-eq"><a href="#multiband-eq">Multiband EQ</a></h3>
+<p>A new EQ DSP has been developed to roll up several simpler DSPs into one high performance flexible effect.</p>
+<p>The multiband EQ consists of 5 independently configurable parametric equalizers with several filtering modes:</p>
+<ul>
+<li>Low-pass (12dB, 24dB, 48dB)</li>
+<li>High-pass (12dB, 24dB, 48dB)</li>
+<li>Low-shelf</li>
+<li>High-shelf</li>
+<li>Peaking</li>
+<li>Band-pass</li>
+<li>Notch</li>
+<li>All-pass</li>
+</ul>
+<p>This new effect supercedes existing lowpass, highpass, lowpass simple, highpass simple and parametric eq effects. It has better performance and a superset of functionality compared with the now deprecated effects and thus should be considered as a replacement. For more information on how to use the new effect as a replacement see <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type" title="DSP types.">FMOD_DSP_TYPE</a> remarks.</p>
+<h2 id="whats-new-since-108-initial-release"><a href="#whats-new-since-108-initial-release">What's new since 1.08 initial release?</a></h2>
+<p>This section covers some of the improvements introduced between the first 1.08 release and the new 1.09 release. See the <a href="welcome-revision-history.html">Detailed Revision History</a> for more information on features introduced during the 1.08 lifetime.</p>
+<h3 id="sound-play-stop-callbacks"><a href="#sound-play-stop-callbacks">Sound Play / Stop callbacks</a></h3>
+<p>You can now set a callback to be fired when the Studio Engine plays or stops events. With the callback is the core <a class="apilink" href="core-api-sound.html" title="">Sound</a> through which you can query the name of the sound played.</p>
+<h3 id="listener-mask"><a href="#listener-mask">Listener mask</a></h3>
+<p>Events can be set up to only be influenced by some of the listeners. <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setlistenermask" title="Sets the listener mask.">Studio::EventInstance::setListenerMask</a> can be used to specify a mask for which listeners apply to an event.</p>
+<p>For more information, see the  <a href="white-papers-studio-3d-events.html">Studio 3D Events</a> page.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

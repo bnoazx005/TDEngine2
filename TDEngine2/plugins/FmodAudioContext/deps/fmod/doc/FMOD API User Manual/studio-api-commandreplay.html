@@ -1,0 +1,1257 @@
+<html>
+<head>
+<title>Studio API Reference | Studio::CommandReplay</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="studio-api.html">Studio API Reference</a><ul class="subchapters"><li><a href="studio-api-common.html">Common</a></li><li><a href="studio-api-system.html">Studio::System</a></li><li><a href="studio-api-eventdescription.html">Studio::EventDescription</a></li><li><a href="studio-api-eventinstance.html">Studio::EventInstance</a></li><li><a href="studio-api-bus.html">Studio::Bus</a></li><li><a href="studio-api-vca.html">Studio::VCA</a></li><li><a href="studio-api-bank.html">Studio::Bank</a></li><li class="manual-current-chapter manual-active-chapter"><a href="studio-api-commandreplay.html">Studio::CommandReplay</a></li></ul></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>6. Studio API Reference | Studio::CommandReplay</h1>
+<p>The FMOD Studio command replay system allows API calls in a session to be recorded and later played back for debugging and performance purposes.</p>
+<p><strong>Setup:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setbankpath" title="Sets a path substition that will be used when loading banks with this replay.">Studio::CommandReplay::setBankPath</a> Sets a path substition that will be used when loading banks with this replay.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setcreateinstancecallback" title="Sets the create event instance callback.">Studio::CommandReplay::setCreateInstanceCallback</a> Sets the create event instance callback.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setframecallback" title="Sets a callback that is issued each time the replay reaches a new frame.">Studio::CommandReplay::setFrameCallback</a> Sets a callback that is issued each time the replay reaches a new frame.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setloadbankcallback" title="Sets the bank loading callback.">Studio::CommandReplay::setLoadBankCallback</a> Sets the bank loading callback.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setuserdata" title="Sets user data.">Studio::CommandReplay::setUserData</a> Sets user data.</li>
+</ul>
+<hr />
+<ul>
+<li><a class="apilink" href="studio-api-commandreplay.html#fmod_studio_command_info" title="Describes a command replay command.">FMOD_STUDIO_COMMAND_INFO</a> Describes a command replay command.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_create_instance_callback" title="Callback for command replay event instance creation.">FMOD_STUDIO_COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</a> Callback for command replay event instance creation.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_frame_callback" title="Callback for when the command replay goes to the next frame.">FMOD_STUDIO_COMMANDREPLAY_FRAME_CALLBACK</a> Callback for when the command replay goes to the next frame.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_load_bank_callback" title="Callback for command replay bank loading.">FMOD_STUDIO_COMMANDREPLAY_LOAD_BANK_CALLBACK</a> Callback for command replay bank loading.</li>
+</ul>
+<hr />
+<ul>
+<li><a class="apilink" href="studio-api-commandreplay.html#fmod_studio_instancetype" title="Command replay command instance handle types.">FMOD_STUDIO_INSTANCETYPE</a> Command replay command instance handle types.</li>
+</ul>
+<p><strong>Playback:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_start" title="Begins playback.">Studio::CommandReplay::start</a> Begins playback.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_stop" title="Stops playback.">Studio::CommandReplay::stop</a> Stops playback.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getcurrentcommand" title="Retrieves the progress through the command replay.">Studio::CommandReplay::getCurrentCommand</a> Retrieves the progress through the command replay.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getplaybackstate" title="Retrieves the playback state.">Studio::CommandReplay::getPlaybackState</a> Retrieves the playback state.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setpaused" title="Sets the paused state.">Studio::CommandReplay::setPaused</a> Sets the paused state.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getpaused" title="Retrieves the paused state.">Studio::CommandReplay::getPaused</a> Retrieves the paused state.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_seektocommand" title="Seeks the playback position to a command.">Studio::CommandReplay::seekToCommand</a> Seeks the playback position to a command.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_seektotime" title="Seeks the playback position to a time.">Studio::CommandReplay::seekToTime</a> Seeks the playback position to a time.</li>
+</ul>
+<p><strong>Query:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getcommandattime" title="Retrieves the command index corresponding to the given playback time.">Studio::CommandReplay::getCommandAtTime</a> Retrieves the command index corresponding to the given playback time.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getcommandcount" title="Retrieves the number of commands in the replay.">Studio::CommandReplay::getCommandCount</a> Retrieves the number of commands in the replay.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getcommandinfo" title="Retrieves command information.">Studio::CommandReplay::getCommandInfo</a> Retrieves command information.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getcommandstring" title="Retrieves the string representation of a command.">Studio::CommandReplay::getCommandString</a> Retrieves the string representation of a command.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getlength" title="Retrieves the total playback time.">Studio::CommandReplay::getLength</a> Retrieves the total playback time.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getsystem" title="Retrieves the Studio System object associated with this replay object.">Studio::CommandReplay::getSystem</a> Retrieves the Studio System object associated with this replay object.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getuserdata" title="Retrieves user data.">Studio::CommandReplay::getUserData</a> Retrieves user data.</li>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_isvalid" title="Checks that the CommandReplay reference is valid.">Studio::CommandReplay::isValid</a> Checks that the CommandReplay reference is valid.</li>
+</ul>
+<p><strong>Lifetime:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_release" title="Releases the command replay.">Studio::CommandReplay::release</a> Releases the command replay.</li>
+</ul>
+<p><strong>See also:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-system.html#studio_system_startcommandcapture" title="Recording Studio commands to a file.">Studio::System::startCommandCapture</a> Recording Studio commands to a file.</li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_stopcommandcapture" title="Stop recording Studio commands.">Studio::System::stopCommandCapture</a> Stop recording Studio commands.</li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_loadcommandreplay" title="Load a command replay.">Studio::System::loadCommandReplay</a> Load a command replay.</li>
+</ul>
+<h2 api="callback" id="fmod_studio_commandreplay_create_instance_callback"><a href="#fmod_studio_commandreplay_create_instance_callback">FMOD_STUDIO_COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</a></h2>
+<p>Callback for command replay event instance creation.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_STUDIO_COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">replay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_EVENTINSTANCE</span> <span class="o">**</span><span class="n">instance</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">replay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">eventdescription</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">instance</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>replay</dt>
+<dd>Command replay. (<a class="apilink" href="studio-api-commandreplay.html" title="">Studio::CommandReplay</a>)</dd>
+<dt>commandindex</dt>
+<dd>Current playback command index.</dd>
+<dt>eventdescription</dt>
+<dd>Event description to use. (<a class="apilink" href="studio-api-eventdescription.html" title="">Studio::EventDescription</a>)</dd>
+<dt>instance <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>The event instance created by this function. (<a class="apilink" href="studio-api-eventinstance.html" title="">Studio::EventInstance</a>)</dd>
+<dt>userdata</dt>
+<dd>The userdata set with <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setuserdata" title="Sets user data.">Studio::CommandReplay::setUserData</a></dd>
+</dl>
+<div class="admonition language-cpp">
+<p>The <code>replay</code> argument can be cast to <code>FMOD::Studio::CommandReplay *</code>.</p>
+<p>The <code>eventdescription</code> argument can be cast to <code>FMOD::Studio::EventDescription *</code>.</p>
+<p>The <code>instance</code> argument can be cast to <code>FMOD::Studio::EventInstance *</code>.</p>
+</div>
+<div class="admonition language-csharp">
+<p>The 'replay' argument can be used via <code>CommandReplay</code> by using <code>FMOD.Studio.CommandReplay commandReplay = new FMOD.Studio.CommandReplay(replay);</code></p>
+<p>The 'eventdescription' argument can be used via <code>EventDescription</code> by using <code>FMOD.EventDescription description = new FMOD.EventDescription(eventdescription);</code></p>
+<p>The 'instance' argument can be used via <code>EventInstance</code> by using <code>FMOD.EventInstance eventInstance = new FMOD.EventInstance(instance);</code></p>
+</div>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setcreateinstancecallback" title="Sets the create event instance callback.">Studio::CommandReplay::setCreateInstanceCallback</a></p>
+<h2 api="callback" id="fmod_studio_commandreplay_frame_callback"><a href="#fmod_studio_commandreplay_frame_callback">FMOD_STUDIO_COMMANDREPLAY_FRAME_CALLBACK</a></h2>
+<p>Callback for when the command replay goes to the next frame.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_STUDIO_COMMANDREPLAY_FRAME_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">replay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">currenttime</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">COMMANDREPLAY_FRAME_CALLBACK</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">replay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">currenttime</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Currently not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>replay</dt>
+<dd>Command replay. (<a class="apilink" href="studio-api-commandreplay.html" title="">Studio::CommandReplay</a>)</dd>
+<dt>commandindex</dt>
+<dd>Current playback command index.</dd>
+<dt>currenttime</dt>
+<dd>Current playback time.</dd>
+<dt>userdata</dt>
+<dd>The userdata set with <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setuserdata" title="Sets user data.">Studio::CommandReplay::setUserData</a></dd>
+</dl>
+<div class="admonition language-cpp">
+<p>The <code>replay</code> argument can be cast to <code>FMOD::Studio::CommandReplay *</code>.</p>
+</div>
+<div class="admonition language-csharp">
+<p>The 'replay' argument can be used via <code>CommandReplay</code> by using <code>FMOD.Studio.CommandReplay commandReplay = new FMOD.Studio.CommandReplay(replay);</code></p>
+</div>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setframecallback" title="Sets a callback that is issued each time the replay reaches a new frame.">Studio::CommandReplay::setFrameCallback</a></p>
+<h2 api="function" id="studio_commandreplay_getcommandattime"><a href="#studio_commandreplay_getcommandattime">Studio::CommandReplay::getCommandAtTime</a></h2>
+<p>Retrieves the command index corresponding to the given playback time.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getCommandAtTime</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">time</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">commandindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetCommandAtTime</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">time</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">commandindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getCommandAtTime</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">time</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">commandindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getCommandAtTime</span><span class="p">(</span>
+  <span class="nx">time</span><span class="p">,</span>
+  <span class="nx">commandindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>time</dt>
+<dd>The time used to find a command index.</dd>
+<dt>commandindex <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Command index.</dd>
+</dl>
+<p>This function will return an index for the first command at or after <code>time</code>. If <code>time</code> is greater than the total playback time then <a class="apilink" href="core-api-common.html#fmod_err_event_notfound" title="">FMOD_ERR_EVENT_NOTFOUND</a> is returned.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getlength" title="Retrieves the total playback time.">Studio::CommandReplay::getLength</a></p>
+<h2 api="function" id="studio_commandreplay_getcommandcount"><a href="#studio_commandreplay_getcommandcount">Studio::CommandReplay::getCommandCount</a></h2>
+<p>Retrieves the number of commands in the replay.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getCommandCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetCommandCount</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getCommandCount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getCommandCount</span><span class="p">(</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Number of commands in the replay.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getcommandinfo" title="Retrieves command information.">Studio::CommandReplay::getCommandInfo</a> to enumerate the commands in the replay.</p>
+<h2 api="function" id="studio_commandreplay_getcommandinfo"><a href="#studio_commandreplay_getcommandinfo">Studio::CommandReplay::getCommandInfo</a></h2>
+<p>Retrieves command information.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getCommandInfo</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_COMMAND_INFO</span> <span class="o">*</span><span class="n">info</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetCommandInfo</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_COMMAND_INFO</span> <span class="o">*</span><span class="n">info</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getCommandInfo</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">COMMAND_INFO</span> <span class="n">info</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getCommandInfo</span><span class="p">(</span>
+  <span class="nx">commandindex</span><span class="p">,</span>
+  <span class="nx">info</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>commandindex</dt>
+<dd>The index of the command.</dd>
+<dt>info <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Command info structure. (<a class="apilink" href="studio-api-commandreplay.html#fmod_studio_command_info" title="Describes a command replay command.">FMOD_STUDIO_COMMAND_INFO</a>)</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getcommandcount" title="Retrieves the number of commands in the replay.">Studio::CommandReplay::getCommandCount</a> to enumerate the commands in the replay.</p>
+<h2 api="function" id="studio_commandreplay_getcommandstring"><a href="#studio_commandreplay_getcommandstring">Studio::CommandReplay::getCommandString</a></h2>
+<p>Retrieves the string representation of a command.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getCommandString</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">buffer</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetCommandString</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">buffer</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getCommandString</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">string</span> <span class="n">buffer</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getCommandString</span><span class="p">(</span>
+  <span class="nx">commandindex</span><span class="p">,</span>
+  <span class="nx">buffer</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>commandindex</dt>
+<dd>The index of the command.</dd>
+<dt>buffer</dt>
+<dd>Buffer to receive the string.</dd>
+<dt>length</dt>
+<dd>The capacity of the buffer.</dd>
+</dl>
+<p>If the string representation of the command is too long to fit in the buffer it will be truncated and this function will return <a class="apilink" href="core-api-common.html#fmod_err_truncated" title="">FMOD_ERR_TRUNCATED</a>.</p>
+<h2 api="function" id="studio_commandreplay_getcurrentcommand"><a href="#studio_commandreplay_getcurrentcommand">Studio::CommandReplay::getCurrentCommand</a></h2>
+<p>Retrieves the progress through the command replay.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getCurrentCommand</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">commandindex</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">currenttime</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetCurrentCommand</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">commandindex</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">currenttime</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getCurrentCommand</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">currenttime</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getCurrentCommand</span><span class="p">(</span>
+  <span class="nx">commandindex</span><span class="p">,</span>
+  <span class="nx">currenttime</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>commandindex <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>The current command index.</dd>
+<dt>currenttime <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>The current playback time.</dd>
+</dl>
+<p>If this function is called before <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_start" title="Begins playback.">Studio::CommandReplay::start</a> then both <code>commandindex</code> and <code>currenttime</code> will be returned as 0. If this function is called after <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_stop" title="Stops playback.">Studio::CommandReplay::stop</a> then the index and time of the last command which was replayed will be returned.</p>
+<h2 api="function" id="studio_commandreplay_getlength"><a href="#studio_commandreplay_getlength">Studio::CommandReplay::getLength</a></h2>
+<p>Retrieves the total playback time.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getLength</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetLength</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getLength</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getLength</span><span class="p">(</span>
+  <span class="nx">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>length <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>The total playback time.</dd>
+</dl>
+<h2 api="function" id="studio_commandreplay_getpaused"><a href="#studio_commandreplay_getpaused">Studio::CommandReplay::getPaused</a></h2>
+<p>Retrieves the paused state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getPaused</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetPaused</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getPaused</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getPaused</span><span class="p">(</span>
+  <span class="nx">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>paused</dt>
+<dd>
+<p>Paused state.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setpaused" title="Sets the paused state.">Studio::CommandReplay::setPaused</a></p>
+<h2 api="function" id="studio_commandreplay_getplaybackstate"><a href="#studio_commandreplay_getplaybackstate">Studio::CommandReplay::getPlaybackState</a></h2>
+<p>Retrieves the playback state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getPlaybackState</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_PLAYBACK_STATE</span> <span class="o">*</span><span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetPlaybackState</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PLAYBACK_STATE</span> <span class="o">*</span><span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getPlaybackState</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">PLAYBACK_STATE</span> <span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getPlaybackState</span><span class="p">(</span>
+  <span class="nx">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>state <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Playback state. (<a class="apilink" href="studio-api-common.html#fmod_studio_playback_state" title="Playback state of various objects.">FMOD_STUDIO_PLAYBACK_STATE</a>)</dd>
+</dl>
+<h2 api="function" id="studio_commandreplay_getsystem"><a href="#studio_commandreplay_getsystem">Studio::CommandReplay::getSystem</a></h2>
+<p>Retrieves the Studio System object associated with this replay object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getSystem</span><span class="p">(</span>
+  <span class="n">Studio</span><span class="o">::</span><span class="n">System</span> <span class="o">**</span><span class="n">system</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetSystem</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_SYSTEM</span> <span class="o">**</span><span class="n">system</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getSystem</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">System</span> <span class="n">system</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getSystem</span><span class="p">(</span>
+  <span class="nx">system</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>system</dt>
+<dd>Studio system object. (<a class="apilink" href="studio-api-system.html" title="">Studio::System</a>)</dd>
+</dl>
+<h2 api="function" id="studio_commandreplay_getuserdata"><a href="#studio_commandreplay_getuserdata">Studio::CommandReplay::getUserData</a></h2>
+<p>Retrieves user data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_GetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">getUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata</dt>
+<dd>User data.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setuserdata" title="Sets user data.">Studio::CommandReplay::setUserData</a></p>
+<h2 api="function" id="studio_commandreplay_isvalid"><a href="#studio_commandreplay_isvalid">Studio::CommandReplay::isValid</a></h2>
+<p>Checks that the CommandReplay reference is valid.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="kt">bool</span> <span class="n">FMOD_Studio_CommandReplay_IsValid</span><span class="p">(</span><span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<h2 api="callback" id="fmod_studio_commandreplay_load_bank_callback"><a href="#fmod_studio_commandreplay_load_bank_callback">FMOD_STUDIO_COMMANDREPLAY_LOAD_BANK_CALLBACK</a></h2>
+<p>Callback for command replay bank loading.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_STUDIO_COMMANDREPLAY_LOAD_BANK_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">replay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">bankguid</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">bankfilename</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_LOAD_BANK_FLAGS</span> <span class="n">flags</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">**</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">COMMANDREPLAY_LOAD_BANK_CALLBACK</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">replay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="n">Guid</span> <span class="n">bankguid</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">bankfilename</span><span class="p">,</span>
+  <span class="n">LOAD_BANK_FLAGS</span> <span class="n">flags</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">bank</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>replay</dt>
+<dd>Command replay. (<a class="apilink" href="studio-api-commandreplay.html" title="">Studio::CommandReplay</a>)</dd>
+<dt>commandindex</dt>
+<dd>The command that invoked this callback.</dd>
+<dt>bankguid <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>The guid of the bank that needs to be loaded. (<a class="apilink" href="core-api-common.html#fmod_guid" title="Structure describing a globally unique identifier.">FMOD_GUID</a>)</dd>
+<dt>bankfilename <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>The filename of the bank that needs to be loaded. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>flags</dt>
+<dd>The flags to load the bank with. (<a class="apilink" href="studio-api-system.html#fmod_studio_load_bank_flags" title="Flags to controlling bank loading.">FMOD_STUDIO_LOAD_BANK_FLAGS</a>)</dd>
+<dt>bank <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>The bank loaded by this function. (<a class="apilink" href="studio-api-bank.html" title="">Studio::Bank</a>)</dd>
+<dt>userdata</dt>
+<dd>The userdata set with <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setuserdata" title="Sets user data.">Studio::CommandReplay::setUserData</a></dd>
+</dl>
+<div class="admonition language-cpp">
+<p>The <code>replay</code> argument can be cast to <code>FMOD::Studio::CommandReplay *</code>.</p>
+<p>The <code>bank</code> argument can be cast to <code>FMOD::Studio::Bank *</code>.</p>
+</div>
+<div class="admonition language-csharp">
+<p>The 'replay' argument can be used via <code>CommandReplay</code> by using <code>FMOD.Studio.CommandReplay commandReplay = new FMOD.Studio.CommandReplay(replay);</code></p>
+<p>The 'bankfilename' argument can be used via <code>StringWrapper</code> by using <code>FMOD.StringWrapper bankFilename = new FMOD.StringWrapper(bankfilename);</code></p>
+<p>The 'bank' argument can be used via <code>CommandReplay</code> by using <code>FMOD.Studio.Bank studioBank = new FMOD.Studio.Bank(bank);</code></p>
+</div>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setloadbankcallback" title="Sets the bank loading callback.">Studio::CommandReplay::setLoadBankCallback</a></p>
+<h2 api="function" id="studio_commandreplay_release"><a href="#studio_commandreplay_release">Studio::CommandReplay::release</a></h2>
+<p>Releases the command replay.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_Release</span><span class="p">(</span><span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">release</span><span class="p">();</span>
+</pre></div>
+
+
+<h2 api="function" id="studio_commandreplay_seektocommand"><a href="#studio_commandreplay_seektocommand">Studio::CommandReplay::seekToCommand</a></h2>
+<p>Seeks the playback position to a command.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">seekToCommand</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">commandindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_SeekToCommand</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">commandindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">seekToCommand</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">commandindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">seekToCommand</span><span class="p">(</span>
+  <span class="nx">commandindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>commandindex</dt>
+<dd>Command index to seek to.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_seektotime" title="Seeks the playback position to a time.">Studio::CommandReplay::seekToTime</a></p>
+<h2 api="function" id="studio_commandreplay_seektotime"><a href="#studio_commandreplay_seektotime">Studio::CommandReplay::seekToTime</a></h2>
+<p>Seeks the playback position to a time.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">seekToTime</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">time</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_SeekToTime</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">time</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">seekToTime</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">time</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">seekToTime</span><span class="p">(</span>
+  <span class="nx">time</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>time</dt>
+<dd>Time to seek to.</dd>
+</dl>
+<p>This function moves the playback position to the the first command at or after <code>time</code>. If no command exists at or after <code>time</code> then <a class="apilink" href="core-api-common.html#fmod_err_event_notfound" title="">FMOD_ERR_EVENT_NOTFOUND</a> is returned.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_seektocommand" title="Seeks the playback position to a command.">Studio::CommandReplay::seekToCommand</a></p>
+<h2 api="function" id="studio_commandreplay_setbankpath"><a href="#studio_commandreplay_setbankpath">Studio::CommandReplay::setBankPath</a></h2>
+<p>Sets a path substition that will be used when loading banks with this replay.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">setBankPath</span><span class="p">(</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">bankPath</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_SetBankPath</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">bankPath</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">setBankPath</span><span class="p">(</span>
+  <span class="kt">string</span> <span class="n">bankPath</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">setBankPath</span><span class="p">(</span>
+  <span class="nx">bankPath</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>bankPath</dt>
+<dd>The path to use when loading banks. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+</dl>
+<p><a class="apilink" href="studio-api-system.html#studio_system_loadbankfile" title="Loads the metadata of a Studio bank from file.">Studio::System::loadBankFile</a> commands in the replay are redirected to load banks from the specified directory, instead of using the directory recorded in the captured commands.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setloadbankcallback" title="Sets the bank loading callback.">Studio::CommandReplay::setLoadBankCallback</a></p>
+<h2 api="function" id="studio_commandreplay_setcreateinstancecallback"><a href="#studio_commandreplay_setcreateinstancecallback">Studio::CommandReplay::setCreateInstanceCallback</a></h2>
+<p>Sets the create event instance callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">setCreateInstanceCallback</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_SetCreateInstanceCallback</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">setCreateInstanceCallback</span><span class="p">(</span>
+  <span class="n">COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>callback</dt>
+<dd>Callback function. (<a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_create_instance_callback" title="Callback for command replay event instance creation.">FMOD_STUDIO_COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</a>)</dd>
+</dl>
+<p>The create instance callback is invoked each time a <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_createinstance" title="Creates a playable instance.">Studio::EventDescription::createInstance</a> command is processed.</p>
+<p>The callback can either create a new event instance based on the callback parameters or skip creating the instance. If the instance is not created then subsequent commands for the event instance will be ignored in the replay.</p>
+<p>If this callback is not set then the system will always create an event instance.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setuserdata" title="Sets user data.">Studio::CommandReplay::setUserData</a></p>
+<h2 api="function" id="studio_commandreplay_setframecallback"><a href="#studio_commandreplay_setframecallback">Studio::CommandReplay::setFrameCallback</a></h2>
+<p>Sets a callback that is issued each time the replay reaches a new frame.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">setFrameCallback</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY_FRAME_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_SetFrameCallback</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY_FRAME_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">setFrameCallback</span><span class="p">(</span>
+  <span class="n">COMMANDREPLAY_FRAME_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>callback</dt>
+<dd>Callback function. (<a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_frame_callback" title="Callback for when the command replay goes to the next frame.">FMOD_STUDIO_COMMANDREPLAY_FRAME_CALLBACK</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setuserdata" title="Sets user data.">Studio::CommandReplay::setUserData</a></p>
+<h2 api="function" id="studio_commandreplay_setloadbankcallback"><a href="#studio_commandreplay_setloadbankcallback">Studio::CommandReplay::setLoadBankCallback</a></h2>
+<p>Sets the bank loading callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">setLoadBankCallback</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY_LOAD_BANK_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_SetLoadBankCallback</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY_LOAD_BANK_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">setLoadBankCallback</span><span class="p">(</span>
+  <span class="n">COMMANDREPLAY_LOAD_BANK_CALLBACK</span> <span class="n">callback</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>callback</dt>
+<dd>Callback function. (<a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_load_bank_callback" title="Callback for command replay bank loading.">FMOD_STUDIO_COMMANDREPLAY_LOAD_BANK_CALLBACK</a>)</dd>
+</dl>
+<p>The load bank callback is invoked whenever any of the Studio load bank functions are reached.</p>
+<p>This callback is required to be implemented to successfully replay <a class="apilink" href="studio-api-system.html#studio_system_loadbankmemory" title="Loads the metadata of a Studio bank from memory.">Studio::System::loadBankMemory</a> and <a class="apilink" href="studio-api-system.html#studio_system_loadbankcustom" title="Loads the metadata of a Studio bank using custom read callbacks.">Studio::System::loadBankCustom</a> commands.</p>
+<p>The callback is responsible for loading the bank based on the callback parameters. If the bank is not loaded subsequent commands which reference objects in the bank will fail.</p>
+<p>If this callback is not set then the system will attempt to load banks from file according to recorded  <a class="apilink" href="studio-api-system.html#studio_system_loadbankfile" title="Loads the metadata of a Studio bank from file.">Studio::System::loadBankFile</a> commands and skip other load commands.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setuserdata" title="Sets user data.">Studio::CommandReplay::setUserData</a></p>
+<h2 api="function" id="studio_commandreplay_setpaused"><a href="#studio_commandreplay_setpaused">Studio::CommandReplay::setPaused</a></h2>
+<p>Sets the paused state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">setPaused</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_SetPaused</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">setPaused</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">setPaused</span><span class="p">(</span>
+  <span class="nx">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>paused</dt>
+<dd>
+<p>Paused state.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getpaused" title="Retrieves the paused state.">Studio::CommandReplay::getPaused</a></p>
+<h2 api="function" id="studio_commandreplay_setuserdata"><a href="#studio_commandreplay_setuserdata">Studio::CommandReplay::setUserData</a></h2>
+<p>Sets user data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_SetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">setUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata</dt>
+<dd>User data.</dd>
+</dl>
+<p>The user data is passed to the callback functions used by the replay system.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getuserdata" title="Retrieves user data.">Studio::CommandReplay::getUserData</a>, <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setcreateinstancecallback" title="Sets the create event instance callback.">Studio::CommandReplay::setCreateInstanceCallback</a>, <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setframecallback" title="Sets a callback that is issued each time the replay reaches a new frame.">Studio::CommandReplay::setFrameCallback</a>, <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_setloadbankcallback" title="Sets the bank loading callback.">Studio::CommandReplay::setLoadBankCallback</a></p>
+<h2 api="function" id="studio_commandreplay_start"><a href="#studio_commandreplay_start">Studio::CommandReplay::start</a></h2>
+<p>Begins playback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">start</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_Start</span><span class="p">(</span><span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">start</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">start</span><span class="p">();</span>
+</pre></div>
+
+
+<p>If the replay is already running then calling this function will restart replay from the beginning.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_stop" title="Stops playback.">Studio::CommandReplay::stop</a>, <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getplaybackstate" title="Retrieves the playback state.">Studio::CommandReplay::getPlaybackState</a></p>
+<h2 api="function" id="studio_commandreplay_stop"><a href="#studio_commandreplay_stop">Studio::CommandReplay::stop</a></h2>
+<p>Stops playback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">CommandReplay</span><span class="o">::</span><span class="n">stop</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_CommandReplay_Stop</span><span class="p">(</span><span class="n">FMOD_STUDIO_COMMANDREPLAY</span> <span class="o">*</span><span class="n">commandreplay</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">CommandReplay</span><span class="p">.</span><span class="n">stop</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">CommandReplay</span><span class="p">.</span><span class="nx">stop</span><span class="p">();</span>
+</pre></div>
+
+
+<p>If the <a class="apilink" href="studio-api-system.html#fmod_studio_commandreplay_skip_cleanup" title="">FMOD_STUDIO_COMMANDREPLAY_SKIP_CLEANUP</a> flag has been used then the system state is left as it was at the end of the playback, otherwise all resources that were created as part of the replay will be cleaned up.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_start" title="Begins playback.">Studio::CommandReplay::start</a>, <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getplaybackstate" title="Retrieves the playback state.">Studio::CommandReplay::getPlaybackState</a>, <a class="apilink" href="studio-api-system.html#studio_system_loadcommandreplay" title="Load a command replay.">Studio::System::loadCommandReplay</a></p>
+<h2 api="struct" id="fmod_studio_command_info"><a href="#fmod_studio_command_info">FMOD_STUDIO_COMMAND_INFO</a></h2>
+<p>Describes a command replay command.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_STUDIO_COMMAND_INFO</span> <span class="p">{</span>
+  <span class="k">const</span> <span class="kt">char</span>                <span class="o">*</span><span class="n">commandname</span><span class="p">;</span>
+  <span class="kt">int</span>                        <span class="n">parentcommandindex</span><span class="p">;</span>
+  <span class="kt">int</span>                        <span class="n">framenumber</span><span class="p">;</span>
+  <span class="kt">float</span>                      <span class="n">frametime</span><span class="p">;</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE</span>   <span class="n">instancetype</span><span class="p">;</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE</span>   <span class="n">outputtype</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>               <span class="n">instancehandle</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>               <span class="n">outputhandle</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_COMMAND_INFO</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">Studio</span><span class="p">.</span><span class="n">COMMAND_INFO</span>
+<span class="p">{</span>
+    <span class="n">StringWrapper</span> <span class="n">commandname</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">parentcommandindex</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">framenumber</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">frametime</span><span class="p">;</span>
+    <span class="n">INSTANCETYPE</span> <span class="n">instancetype</span><span class="p">;</span>
+    <span class="n">INSTANCETYPE</span> <span class="n">outputtype</span><span class="p">;</span>
+    <span class="n">UInt32</span> <span class="n">instancehandle</span><span class="p">;</span>
+    <span class="n">UInt32</span> <span class="n">outputhandle</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_STUDIO_COMMAND_INFO</span>
+<span class="p">{</span>
+  <span class="nx">commandname</span><span class="p">,</span>
+  <span class="nx">parentcommandindex</span><span class="p">,</span>
+  <span class="nx">framenumber</span><span class="p">,</span>
+  <span class="nx">frametime</span><span class="p">,</span>
+  <span class="nx">instancetype</span><span class="p">,</span>
+  <span class="nx">outputtype</span><span class="p">,</span>
+  <span class="nx">instancehandle</span><span class="p">,</span>
+  <span class="nx">outputhandle</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_command_info_commandname">commandname</dt>
+<dd>Fully qualified C++ name of the API function for this command. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt id="fmod_studio_command_info_parentcommandindex">parentcommandindex</dt>
+<dd>Index of the command that created the instance this command operates on, or -1 if the command does not operate on any instance.</dd>
+<dt id="fmod_studio_command_info_framenumber">framenumber</dt>
+<dd>Frame the command belongs to.</dd>
+<dt id="fmod_studio_command_info_frametime">frametime</dt>
+<dd>Playback time at which this command will be executed.</dd>
+<dt id="fmod_studio_command_info_instancetype">instancetype</dt>
+<dd>Type of object that this command uses as an instance. (<a class="apilink" href="studio-api-commandreplay.html#fmod_studio_instancetype" title="Command replay command instance handle types.">FMOD_STUDIO_INSTANCETYPE</a>)</dd>
+<dt id="fmod_studio_command_info_outputtype">outputtype</dt>
+<dd>Type of object that this command outputs. (<a class="apilink" href="studio-api-commandreplay.html#fmod_studio_instancetype" title="Command replay command instance handle types.">FMOD_STUDIO_INSTANCETYPE</a>)</dd>
+<dt id="fmod_studio_command_info_instancehandle">instancehandle</dt>
+<dd>Original handle value of the instance. </dd>
+<dt id="fmod_studio_command_info_outputhandle">outputhandle</dt>
+<dd>Original handle value of the command output. </dd>
+</dl>
+<p>Note that the handle values in the <code>instancehandle</code> and <code>outputhandle</code> are from the recorded session and are not valid handles during playback.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getcommandinfo" title="Retrieves command information.">Studio::CommandReplay::getCommandInfo</a></p>
+<h2 api="enum" id="fmod_studio_instancetype"><a href="#fmod_studio_instancetype">FMOD_STUDIO_INSTANCETYPE</a></h2>
+<p>Command replay command instance handle types.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_STUDIO_INSTANCETYPE</span> <span class="p">{</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_NONE</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_SYSTEM</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_EVENTDESCRIPTION</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_EVENTINSTANCE</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_PARAMETERINSTANCE</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_BUS</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_VCA</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_BANK</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_INSTANCETYPE_COMMANDREPLAY</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_INSTANCETYPE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">Studio</span><span class="p">.</span><span class="n">INSTANCETYPE</span>
+<span class="p">{</span>
+    <span class="n">NONE</span><span class="p">,</span>
+    <span class="n">SYSTEM</span><span class="p">,</span>
+    <span class="n">EVENTDESCRIPTION</span><span class="p">,</span>
+    <span class="n">EVENTINSTANCE</span><span class="p">,</span>
+    <span class="n">PARAMETERINSTANCE</span><span class="p">,</span>
+    <span class="n">BUS</span><span class="p">,</span>
+    <span class="n">VCA</span><span class="p">,</span>
+    <span class="n">BANK</span><span class="p">,</span>
+    <span class="n">COMMANDREPLAY</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">STUDIO_INSTANCETYPE_NONE</span>
+<span class="nx">STUDIO_INSTANCETYPE_SYSTEM</span>
+<span class="nx">STUDIO_INSTANCETYPE_EVENTDESCRIPTION</span>
+<span class="nx">STUDIO_INSTANCETYPE_EVENTINSTANCE</span>
+<span class="nx">STUDIO_INSTANCETYPE_PARAMETERINSTANCE</span>
+<span class="nx">STUDIO_INSTANCETYPE_BUS</span>
+<span class="nx">STUDIO_INSTANCETYPE_VCA</span>
+<span class="nx">STUDIO_INSTANCETYPE_BANK</span>
+<span class="nx">STUDIO_INSTANCETYPE_COMMANDREPLAY</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_instancetype_none">FMOD_STUDIO_INSTANCETYPE_NONE</dt>
+<dd>No type, handle is unused.</dd>
+<dt id="fmod_studio_instancetype_system">FMOD_STUDIO_INSTANCETYPE_SYSTEM</dt>
+<dd>Studio::System.</dd>
+<dt id="fmod_studio_instancetype_eventdescription">FMOD_STUDIO_INSTANCETYPE_EVENTDESCRIPTION</dt>
+<dd>Studio::EventDescription.</dd>
+<dt id="fmod_studio_instancetype_eventinstance">FMOD_STUDIO_INSTANCETYPE_EVENTINSTANCE</dt>
+<dd>Studio::EventInstance.</dd>
+<dt id="fmod_studio_instancetype_parameterinstance">FMOD_STUDIO_INSTANCETYPE_PARAMETERINSTANCE</dt>
+<dd>Studio::ParameterInstance.</dd>
+<dt id="fmod_studio_instancetype_bus">FMOD_STUDIO_INSTANCETYPE_BUS</dt>
+<dd>Studio::Bus.</dd>
+<dt id="fmod_studio_instancetype_vca">FMOD_STUDIO_INSTANCETYPE_VCA</dt>
+<dd>Studio::VCA.</dd>
+<dt id="fmod_studio_instancetype_bank">FMOD_STUDIO_INSTANCETYPE_BANK</dt>
+<dd>Studio::Bank.</dd>
+<dt id="fmod_studio_instancetype_commandreplay">FMOD_STUDIO_INSTANCETYPE_COMMANDREPLAY</dt>
+<dd>Studio::CommandReplay.</dd>
+</dl></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

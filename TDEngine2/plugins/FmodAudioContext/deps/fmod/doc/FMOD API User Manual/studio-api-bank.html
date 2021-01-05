@@ -1,0 +1,824 @@
+<html>
+<head>
+<title>Studio API Reference | Studio::Bank</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="studio-api.html">Studio API Reference</a><ul class="subchapters"><li><a href="studio-api-common.html">Common</a></li><li><a href="studio-api-system.html">Studio::System</a></li><li><a href="studio-api-eventdescription.html">Studio::EventDescription</a></li><li><a href="studio-api-eventinstance.html">Studio::EventInstance</a></li><li><a href="studio-api-bus.html">Studio::Bus</a></li><li><a href="studio-api-vca.html">Studio::VCA</a></li><li class="manual-current-chapter manual-active-chapter"><a href="studio-api-bank.html">Studio::Bank</a></li><li><a href="studio-api-commandreplay.html">Studio::CommandReplay</a></li></ul></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>6. Studio API Reference | Studio::Bank</h1>
+<p>FMOD Studio banks contain the metadata and audio sample data required for runtime mixing and playback. Audio sample data may be packed into the same bank as the events which reference it, or it may be packed into separate banks.</p>
+<p><strong>Loading:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getloadingstate" title="Retrieves the loading state.">Studio::Bank::getLoadingState</a> Retrieves the loading state.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_loadsampledata" title="Loads non-streaming sample data for all events in the bank.">Studio::Bank::loadSampleData</a> Loads non-streaming sample data for all events in the bank.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_unloadsampledata" title="Unloads non-streaming sample data for all events in the bank.">Studio::Bank::unloadSampleData</a> Unloads non-streaming sample data for all events in the bank.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getsampleloadingstate" title="Retrieves the loading state of the samples in the bank.">Studio::Bank::getSampleLoadingState</a> Retrieves the loading state of the samples in the bank.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_unload" title="Unloads the bank.">Studio::Bank::unload</a> Unloads the bank.</li>
+</ul>
+<p><strong>Buses:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getbuscount" title="Retrieves the number of buses in the bank.">Studio::Bank::getBusCount</a> Retrieves the number of buses in the bank.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getbuslist" title="Retrieves a list of the buses in the bank.">Studio::Bank::getBusList</a> Retrieves a list of the buses in the bank.</li>
+</ul>
+<p><strong>Events:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_geteventcount" title="Retrieves the number of event descriptions in the bank.">Studio::Bank::getEventCount</a> Retrieves the number of event descriptions in the bank.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_geteventlist" title="Retrieves a list of the event descriptions in the bank.">Studio::Bank::getEventList</a> Retrieves a list of the event descriptions in the bank.</li>
+</ul>
+<p><strong>String Table:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getstringcount" title="Retrieves the number of string table entries in the bank.">Studio::Bank::getStringCount</a> Retrieves the number of string table entries in the bank.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getstringinfo" title="Retrieves a string table entry.">Studio::Bank::getStringInfo</a> Retrieves a string table entry.</li>
+</ul>
+<p><strong>VCAs:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getvcacount" title="Retrieves the number of VCAs in the bank.">Studio::Bank::getVCACount</a> Retrieves the number of VCAs in the bank.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getvcalist" title="Retrieves a list of the VCAs in the bank.">Studio::Bank::getVCAList</a> Retrieves a list of the VCAs in the bank.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getid" title="Retrieves the GUID.">Studio::Bank::getID</a> Retrieves the GUID.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getpath" title="Retrieves the path.">Studio::Bank::getPath</a> Retrieves the path.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_setuserdata" title="Sets the bank user data.">Studio::Bank::setUserData</a> Sets the bank user data.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_getuserdata" title="Retrieves the bank user data.">Studio::Bank::getUserData</a> Retrieves the bank user data.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_isvalid" title="Checks that the Bank reference is valid.">Studio::Bank::isValid</a> Checks that the Bank reference is valid.</li>
+</ul>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-system.html#studio_system_loadbankfile" title="Loads the metadata of a Studio bank from file.">Studio::System::loadBankFile</a> Loads the metadata of a Studio bank from file.</li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_loadbankmemory" title="Loads the metadata of a Studio bank from memory.">Studio::System::loadBankMemory</a> Loads the metadata of a Studio bank from memory.</li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_loadbankcustom" title="Loads the metadata of a Studio bank using custom read callbacks.">Studio::System::loadBankCustom</a> Loads the metadata of a Studio bank using custom read callbacks.</li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getbank" title="Retrieves a loaded bank.">Studio::System::getBank</a> Retrieves a loaded bank.</li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getbankbyid" title="Retrieves a loaded bank.">Studio::System::getBankById</a> Retrieves a loaded bank.</li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getbanklist" title="Retrieves the loaded Banks.">Studio::System::getBankList</a> Retrieves the loaded Banks.</li>
+</ul>
+<h2 api="function" id="studio_bank_getbuscount"><a href="#studio_bank_getbuscount">Studio::Bank::getBusCount</a></h2>
+<p>Retrieves the number of buses in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getBusCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetBusCount</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getBusCount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getBusCount</span><span class="p">(</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Bus count.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-bank.html#studio_bank_getbuslist" title="Retrieves a list of the buses in the bank.">Studio::Bank::getBusList</a> to enumerate the buses in the bank.</p>
+<h2 api="function" id="studio_bank_getbuslist"><a href="#studio_bank_getbuslist">Studio::Bank::getBusList</a></h2>
+<p>Retrieves a list of the buses in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getBusList</span><span class="p">(</span>
+  <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span> <span class="o">**</span><span class="n">array</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">capacity</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetBusList</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">**</span><span class="n">array</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">capacity</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getBusList</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">Bus</span><span class="p">[]</span> <span class="n">array</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getBusList</span><span class="p">(</span>
+  <span class="nx">array</span><span class="p">,</span>
+  <span class="nx">capacity</span><span class="p">,</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>array <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Array to receive the list. (<a class="apilink" href="studio-api-bus.html" title="">Studio::Bus</a>)</dd>
+<dt>capacity</dt>
+<dd>Capacity of <code>array</code>.</dd>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Number of buses written to <code>array</code>.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-bank.html#studio_bank_getbuscount" title="Retrieves the number of buses in the bank.">Studio::Bank::getBusCount</a> to enumerate the buses in the bank.</p>
+<p>This function returns a maximum of <code>capacity</code> buses from the bank. If the bank contains more than <code>capacity</code> buses additional buses will be silently ignored.</p>
+<h2 api="function" id="studio_bank_geteventcount"><a href="#studio_bank_geteventcount">Studio::Bank::getEventCount</a></h2>
+<p>Retrieves the number of event descriptions in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getEventCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetEventCount</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getEventCount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getEventCount</span><span class="p">(</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Event description count.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-bank.html#studio_bank_geteventlist" title="Retrieves a list of the event descriptions in the bank.">Studio::Bank::getEventList</a> to enumerate the events in the bank.</p>
+<p>This function counts the events which were added to the bank by the sound designer. The bank may contain additional events which are referenced by event instruments but were not added to the bank, and those referenced events are not counted.</p>
+<h2 api="function" id="studio_bank_geteventlist"><a href="#studio_bank_geteventlist">Studio::Bank::getEventList</a></h2>
+<p>Retrieves a list of the event descriptions in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getEventList</span><span class="p">(</span>
+  <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span> <span class="o">**</span><span class="n">array</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">capacity</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetEventList</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">**</span><span class="n">array</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">capacity</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getEventList</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">EventDescription</span><span class="p">[]</span> <span class="n">array</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getEventList</span><span class="p">(</span>
+  <span class="nx">array</span><span class="p">,</span>
+  <span class="nx">capacity</span><span class="p">,</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>array <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Array to receive the list. (<a class="apilink" href="studio-api-eventdescription.html" title="">Studio::EventDescription</a>)</dd>
+<dt>capacity</dt>
+<dd>Capacity of <code>array</code>.</dd>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Number of event descriptions written to <code>array</code>.</dd>
+</dl>
+<p>This function returns a maximum of <code>capacity</code> events from the bank. If the bank contains more than <code>capacity</code> events then additional events will be silently ignored.</p>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-bank.html#studio_bank_geteventcount" title="Retrieves the number of event descriptions in the bank.">Studio::Bank::getEventCount</a> to enumerate the events in the bank.</p>
+<p>This function retrieves the events which were added to the bank by the sound designer. The bank may contain additional events which are referenced by event instruments but were not added to the bank, and those referenced events are not retrieved.</p>
+<h2 api="function" id="studio_bank_getid"><a href="#studio_bank_getid">Studio::Bank::getID</a></h2>
+<p>Retrieves the GUID.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getID</span><span class="p">(</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetID</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getID</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">Guid</span> <span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getID</span><span class="p">(</span>
+  <span class="nx">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>id <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Bank <a href="glossary.html#studio-guids-and-paths">GUID</a>. (<a class="apilink" href="core-api-common.html#fmod_guid" title="Structure describing a globally unique identifier.">FMOD_GUID</a>)</dd>
+</dl>
+<h2 api="function" id="studio_bank_getloadingstate"><a href="#studio_bank_getloadingstate">Studio::Bank::getLoadingState</a></h2>
+<p>Retrieves the loading state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getLoadingState</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE</span> <span class="o">*</span><span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetLoadingState</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE</span> <span class="o">*</span><span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getLoadingState</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">LOADING_STATE</span> <span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getLoadingState</span><span class="p">(</span>
+  <span class="nx">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>state <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Loading state. (<a class="apilink" href="studio-api-common.html#fmod_studio_loading_state" title="Loading state of various objects.">FMOD_STUDIO_LOADING_STATE</a>)</dd>
+</dl>
+<p>This function may be used to check the loading state of a bank which has been loaded asynchronously using the <a class="apilink" href="studio-api-system.html#fmod_studio_load_bank_nonblocking" title="">FMOD_STUDIO_LOAD_BANK_NONBLOCKING</a> flag, or is pending unload following a call to <a class="apilink" href="studio-api-bank.html#studio_bank_unload" title="Unloads the bank.">Studio::Bank::unload</a>.</p>
+<p>If an asynchronous load failed due to a file error <code>state</code> will contain <a class="apilink" href="studio-api-common.html#fmod_studio_loading_state_error" title="">FMOD_STUDIO_LOADING_STATE_ERROR</a> and the return code from this function will be the error code of the bank load function.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-system.html#studio_system_loadbankfile" title="Loads the metadata of a Studio bank from file.">Studio::System::loadBankFile</a>, <a class="apilink" href="studio-api-system.html#studio_system_loadbankmemory" title="Loads the metadata of a Studio bank from memory.">Studio::System::loadBankMemory</a>, <a class="apilink" href="studio-api-system.html#studio_system_loadbankcustom" title="Loads the metadata of a Studio bank using custom read callbacks.">Studio::System::loadBankCustom</a></p>
+<h2 api="function" id="studio_bank_getpath"><a href="#studio_bank_getpath">Studio::Bank::getPath</a></h2>
+<p>Retrieves the path.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getPath</span><span class="p">(</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetPath</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getPath</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">string</span> <span class="n">path</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getPath</span><span class="p">(</span>
+  <span class="nx">path</span><span class="p">,</span>
+  <span class="nx">size</span><span class="p">,</span>
+  <span class="nx">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>path <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Buffer to receive the <a href="glossary.html#studio-guids-and-paths">path</a>. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>size</dt>
+<dd>Size of the path buffer in bytes. Must be 0 if <code>path</code> is null.</dd>
+<dt>retrieved <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Length of the path in bytes, including the terminating null character.</dd>
+</dl>
+<p>The <a href="glossary.html#studio-strings-bank">strings bank</a> must be loaded prior to calling this function, otherwise <a class="apilink" href="core-api-common.html#fmod_err_event_notfound" title="">FMOD_ERR_EVENT_NOTFOUND</a> is returned.</p>
+<p>If the path is longer than <code>size</code> then it is truncated and this function returns <a class="apilink" href="core-api-common.html#fmod_err_truncated" title="">FMOD_ERR_TRUNCATED</a>.</p>
+<p>The <code>retrieved</code> parameter can be used to get the buffer size required to hold the full path</p>
+<h2 api="function" id="studio_bank_getsampleloadingstate"><a href="#studio_bank_getsampleloadingstate">Studio::Bank::getSampleLoadingState</a></h2>
+<p>Retrieves the loading state of the samples in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getSampleLoadingState</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE</span> <span class="o">*</span><span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetSampleLoadingState</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE</span> <span class="o">*</span><span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getSampleLoadingState</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">LOADING_STATE</span> <span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getSampleLoadingState</span><span class="p">(</span>
+  <span class="nx">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>state <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Loading state. (<a class="apilink" href="studio-api-common.html#fmod_studio_loading_state" title="Loading state of various objects.">FMOD_STUDIO_LOADING_STATE</a>)</dd>
+</dl>
+<p>May be used for tracking the status of the <a class="apilink" href="studio-api-bank.html#studio_bank_loadsampledata" title="Loads non-streaming sample data for all events in the bank.">Studio::Bank::loadSampleData</a> operation.</p>
+<p>If <a class="apilink" href="studio-api-bank.html#studio_bank_loadsampledata" title="Loads non-streaming sample data for all events in the bank.">Studio::Bank::loadSampleData</a> has not been called for the bank then this function will return <a class="apilink" href="studio-api-common.html#fmod_studio_loading_state_unloaded" title="">FMOD_STUDIO_LOADING_STATE_UNLOADED</a> even though sample data may have been loaded by other API calls.</p>
+<p><strong>See also:</strong> <a class="apilink" href="studio-api-bank.html#studio_bank_unloadsampledata" title="Unloads non-streaming sample data for all events in the bank.">Studio::Bank::unloadSampleData</a>, <a href="studio-guide.html#sample-data-loading">Sample Data Loading</a></p>
+<h2 api="function" id="studio_bank_getstringcount"><a href="#studio_bank_getstringcount">Studio::Bank::getStringCount</a></h2>
+<p>Retrieves the number of string table entries in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getStringCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetStringCount</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getStringCount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getStringCount</span><span class="p">(</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>String table entry count.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-bank.html#studio_bank_getstringinfo" title="Retrieves a string table entry.">Studio::Bank::getStringInfo</a> to enumerate the string table in a bank.</p>
+<p><strong>See Also:</strong> <a href="glossary.html#studio-strings-bank">strings bank</a></p>
+<h2 api="function" id="studio_bank_getstringinfo"><a href="#studio_bank_getstringinfo">Studio::Bank::getStringInfo</a></h2>
+<p>Retrieves a string table entry.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getStringInfo</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetStringInfo</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getStringInfo</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">Guid</span> <span class="n">id</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">string</span> <span class="n">path</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getStringInfo</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">id</span><span class="p">,</span>
+  <span class="nx">path</span><span class="p">,</span>
+  <span class="nx">size</span><span class="p">,</span>
+  <span class="nx">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>String table entry index.</dd>
+<dt>id <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd><a href="glossary.html#studio-guids-and-paths">GUID</a>. (<a class="apilink" href="core-api-common.html#fmod_guid" title="Structure describing a globally unique identifier.">FMOD_GUID</a>)</dd>
+<dt>path <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd><a href="glossary.html#studio-guids-and-paths">Path</a>. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>size</dt>
+<dd>Size of the path buffer in bytes. Must be 0 if <code>path</code> is null.</dd>
+<dt>retrieved <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Length of the retrieved path in bytes, including the terminating null character.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-bank.html#studio_bank_getstringcount" title="Retrieves the number of string table entries in the bank.">Studio::Bank::getStringCount</a> to enumerate the string table in a bank.</p>
+<p>If the path is longer than <code>size</code> then it is truncated and this function returns <a class="apilink" href="core-api-common.html#fmod_err_truncated" title="">FMOD_ERR_TRUNCATED</a>.</p>
+<p>The <code>retrieved</code> parameter can be used to get the buffer size required to hold the full path</p>
+<p><strong>See Also:</strong> <a href="glossary.html#studio-strings-bank">Strings bank</a>, <a class="apilink" href="studio-api-system.html#studio_system_lookupid" title="Retrieves the ID for a bank, event, snapshot, bus or VCA.">Studio::System::lookupID</a>, <a class="apilink" href="studio-api-system.html#studio_system_lookuppath" title="Retrieves the path for a bank, event, snapshot, bus or VCA.">Studio::System::lookupPath</a></p>
+<h2 api="function" id="studio_bank_getuserdata"><a href="#studio_bank_getuserdata">Studio::Bank::getUserData</a></h2>
+<p>Retrieves the bank user data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>User data set by calling <a class="apilink" href="studio-api-bank.html#studio_bank_setuserdata" title="Sets the bank user data.">Studio::Bank::setUserData</a>.</dd>
+</dl>
+<h2 api="function" id="studio_bank_getvcacount"><a href="#studio_bank_getvcacount">Studio::Bank::getVCACount</a></h2>
+<p>Retrieves the number of VCAs in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getVCACount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetVCACount</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getVCACount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getVCACount</span><span class="p">(</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>VCA count.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-bank.html#studio_bank_getvcalist" title="Retrieves a list of the VCAs in the bank.">Studio::Bank::getVCAList</a> to enumerate the VCAs in a bank.</p>
+<h2 api="function" id="studio_bank_getvcalist"><a href="#studio_bank_getvcalist">Studio::Bank::getVCAList</a></h2>
+<p>Retrieves a list of the VCAs in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">getVCAList</span><span class="p">(</span>
+  <span class="n">Studio</span><span class="o">::</span><span class="n">VCA</span> <span class="o">**</span><span class="n">array</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">capacity</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_GetVCAList</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_VCA</span> <span class="o">**</span><span class="n">array</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">capacity</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">getVCAList</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">VCA</span><span class="p">[]</span> <span class="n">array</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">getVCAList</span><span class="p">(</span>
+  <span class="nx">array</span><span class="p">,</span>
+  <span class="nx">capacity</span><span class="p">,</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>array <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Array to receive the list. (<a class="apilink" href="studio-api-vca.html" title="">Studio::VCA</a>)</dd>
+<dt>capacity</dt>
+<dd>Capacity of <code>array</code>.</dd>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Number of VCAs written to <code>array</code>.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-bank.html#studio_bank_getvcacount" title="Retrieves the number of VCAs in the bank.">Studio::Bank::getVCACount</a> to enumerate the VCAs in a bank.</p>
+<p>This function returns a maximum of <code>capacity</code> VCAs from the bank. If the bank contains more than <code>capacity</code> VCAs additional VCAs will be silently ignored.</p>
+<h2 api="function" id="studio_bank_isvalid"><a href="#studio_bank_isvalid">Studio::Bank::isValid</a></h2>
+<p>Checks that the Bank reference is valid.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="kt">bool</span> <span class="n">FMOD_Studio_Bank_IsValid</span><span class="p">(</span><span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">Bank</span><span class="p">.</span><span class="nx">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<h2 api="function" id="studio_bank_loadsampledata"><a href="#studio_bank_loadsampledata">Studio::Bank::loadSampleData</a></h2>
+<p>Loads non-streaming sample data for all events in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">loadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_LoadSampleData</span><span class="p">(</span><span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">loadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">loadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<p>Use this function to preload sample data ahead of time so that the events in the bank can play immediately when started.</p>
+<p>This function is equivalent to calling <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_loadsampledata" title="Loads non-streaming sample data used by the event.">Studio::EventDescription::loadSampleData</a> for all events in the bank, including referenced events.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bank.html#studio_bank_getsampleloadingstate" title="Retrieves the loading state of the samples in the bank.">Studio::Bank::getSampleLoadingState</a>, <a class="apilink" href="studio-api-bank.html#studio_bank_unloadsampledata" title="Unloads non-streaming sample data for all events in the bank.">Studio::Bank::unloadSampleData</a>, <a href="studio-guide.html#sample-data-loading">Sample Data Loading</a></p>
+<h2 api="function" id="studio_bank_setuserdata"><a href="#studio_bank_setuserdata">Studio::Bank::setUserData</a></h2>
+<p>Sets the bank user data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_SetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">setUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata</dt>
+<dd>User data.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bank.html#studio_bank_getuserdata" title="Retrieves the bank user data.">Studio::Bank::getUserData</a></p>
+<h2 api="function" id="studio_bank_unload"><a href="#studio_bank_unload">Studio::Bank::unload</a></h2>
+<p>Unloads the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">unload</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_Unload</span><span class="p">(</span><span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">unload</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">unload</span><span class="p">();</span>
+</pre></div>
+
+
+<p>This will destroy all objects created from the bank, unload all sample data inside the bank, and invalidate all API handles referring to the bank.</p>
+<p>If the bank was loaded from user-managed memory, e.g. by <a class="apilink" href="studio-api-system.html#studio_system_loadbankmemory" title="Loads the metadata of a Studio bank from memory.">Studio::System::loadBankMemory</a> with the <a class="apilink" href="studio-api-system.html#fmod_studio_load_memory_point" title="">FMOD_STUDIO_LOAD_MEMORY_POINT</a> mode, then the memory must not be freed until the unload has completed. Poll the loading state using <a class="apilink" href="studio-api-bank.html#studio_bank_getloadingstate" title="Retrieves the loading state.">Studio::Bank::getLoadingState</a> or use the <a class="apilink" href="studio-api-system.html#fmod_studio_system_callback_bank_unload" title="">FMOD_STUDIO_SYSTEM_CALLBACK_BANK_UNLOAD</a> system callback to determine when it is safe to free the memory.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-system.html#studio_system_loadbankfile" title="Loads the metadata of a Studio bank from file.">Studio::System::loadBankFile</a>, <a class="apilink" href="studio-api-system.html#studio_system_loadbankcustom" title="Loads the metadata of a Studio bank using custom read callbacks.">Studio::System::loadBankCustom</a>, <a class="apilink" href="studio-api-system.html#studio_system_setcallback" title="Sets a callback for the FMOD Studio System.">Studio::System::setCallback</a></p>
+<h2 api="function" id="studio_bank_unloadsampledata"><a href="#studio_bank_unloadsampledata">Studio::Bank::unloadSampleData</a></h2>
+<p>Unloads non-streaming sample data for all events in the bank.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bank</span><span class="o">::</span><span class="n">unloadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bank_UnloadSampleData</span><span class="p">(</span><span class="n">FMOD_STUDIO_BANK</span> <span class="o">*</span><span class="n">bank</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bank</span><span class="p">.</span><span class="n">unloadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bank</span><span class="p">.</span><span class="nx">unloadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<p>Sample data loading is reference counted and the sample data will remain loaded until unload requests corresponding to all load requests are made, or until the bank is unloaded. For more details see <a href="studio-guide.html#sample-data-loading">Sample Data Loading</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bank.html#studio_bank_loadsampledata" title="Loads non-streaming sample data for all events in the bank.">Studio::Bank::loadSampleData</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

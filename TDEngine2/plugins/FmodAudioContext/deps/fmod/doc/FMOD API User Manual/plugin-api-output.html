@@ -1,0 +1,1344 @@
+<html>
+<head>
+<title>Plugin API Reference | Output</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="plugin-api.html">Plugin API Reference</a><ul class="subchapters"><li><a href="plugin-api-codec.html">Codec</a></li><li><a href="plugin-api-dsp.html">DSP</a></li><li class="manual-current-chapter manual-active-chapter"><a href="plugin-api-output.html">Output</a></li></ul></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>9. Plugin API Reference | Output</h1>
+<p>An interface that manages Output plugins</p>
+<p><strong>Object 3D:</strong></p>
+<ul>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_object3dalloc_callback" title="Output 3D Object alloc callback.">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</a> Output 3D Object alloc callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_object3dfree_callback" title="Output 3D Object free callback.">FMOD_OUTPUT_OBJECT3DFREE_CALLBACK</a> Output 3D Object free callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_object3dgetinfo_callback" title="Output 3D Object get info callback.">FMOD_OUTPUT_OBJECT3DGETINFO_CALLBACK</a> Output 3D Object get info callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_object3dinfo" title="Output 3D Object Info.">FMOD_OUTPUT_OBJECT3DINFO</a> Output 3D Object Info.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_object3dupdate_callback" title="Output 3D Object update callback.">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</a> Output 3D Object update callback.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a> Output object state passed into every callback provides access to plugin developers data and system functionality.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a> Output description.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_method" title="Output method used to interact with the mixer.">FMOD_OUTPUT_METHOD</a> Output method used to interact with the mixer.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_close_callback" title="Output close callback.">FMOD_OUTPUT_CLOSE_CALLBACK</a> Output close callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_getdriverinfo_callback" title="Output get driver info callback.">FMOD_OUTPUT_GETDRIVERINFO_CALLBACK</a> Output get driver info callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_gethandle_callback" title="Output get output handle callback.">FMOD_OUTPUT_GETHANDLE_CALLBACK</a> Output get output handle callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_getnumdrivers_callback" title="Output get number of drivers callback.">FMOD_OUTPUT_GETNUMDRIVERS_CALLBACK</a> Output get number of drivers callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_getposition_callback" title="Output get position callback.">FMOD_OUTPUT_GETPOSITION_CALLBACK</a> Output get position callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_init_callback" title="Output initialization callback.">FMOD_OUTPUT_INIT_CALLBACK</a> Output initialization callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a> Output lock callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_mixer_callback" title="Output mixer callback.">FMOD_OUTPUT_MIXER_CALLBACK</a> Output mixer callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a> Output read from mixer function.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_requestreset_func" title="Output request reset function.">FMOD_OUTPUT_REQUESTRESET_FUNC</a> Output request reset function.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_copyport_func" title="Output copy port function.">FMOD_OUTPUT_COPYPORT_FUNC</a> Output copy port function.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_log_func" title="Output log function.">FMOD_OUTPUT_LOG_FUNC</a> Output log function.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_alloc_func" title="Output allocate memory function.">FMOD_OUTPUT_ALLOC_FUNC</a> Output allocate memory function.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_free_func" title="Output free memory function.">FMOD_OUTPUT_FREE_FUNC</a> Output free memory function.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_start_callback" title="Output start callback.">FMOD_OUTPUT_START_CALLBACK</a> Output start callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_stop_callback" title="Output stop callback.">FMOD_OUTPUT_STOP_CALLBACK</a> Output stop callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_unlock_callback" title="Output unlock callback.">FMOD_OUTPUT_UNLOCK_CALLBACK</a> Output unlock callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_update_callback" title="Output update callback.">FMOD_OUTPUT_UPDATE_CALLBACK</a> Output update callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_openport_callback" title="Output open port callback.">FMOD_OUTPUT_OPENPORT_CALLBACK</a> Output open port callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_closeport_callback" title="Output close port callback.">FMOD_OUTPUT_CLOSEPORT_CALLBACK</a> Output close port callback.</li>
+<li><a class="apilink" href="plugin-api-output.html#fmod_output_devicelistchanged_callback" title="Output device list change callback.">FMOD_OUTPUT_DEVICELISTCHANGED_CALLBACK</a> Output device list change callback.</li>
+</ul>
+<h2 api="callback" id="fmod_output_alloc_func"><a href="#fmod_output_alloc_func">FMOD_OUTPUT_ALLOC_FUNC</a></h2>
+<p>Output allocate memory function.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="kt">void</span> <span class="o">*</span> <span class="n">F_CALL</span> <span class="nf">FMOD_OUTPUT_ALLOC_FUNC</span><span class="p">(</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">align</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">file</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">line</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>size</dt>
+<dd>
+<p>Allocation size.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt>align</dt>
+<dd>
+<p>Memory alignment.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt>file</dt>
+<dd>Source code file name where the allocation was requested.</dd>
+<dt>line</dt>
+<dd>Line of allocation in <code>file</code>.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a></p>
+<h2 api="callback" id="fmod_output_closeport_callback"><a href="#fmod_output_closeport_callback">FMOD_OUTPUT_CLOSEPORT_CALLBACK</a></h2>
+<p>Output close port callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_CLOSEPORT_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">portId</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>portId</dt>
+<dd>Port ID.</dd>
+</dl>
+<p>Main thread callback to close an auxiliary output port on the device.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_output_close_callback"><a href="#fmod_output_close_callback">FMOD_OUTPUT_CLOSE_CALLBACK</a></h2>
+<p>Output close callback.</p>
+<p>This callback is called to shut down and release the output driver's audio interface.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_CLOSE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_close" title="Close the connection to the output and return to an uninitialized state without releasing the object.">System::close</a>.</li>
+<li><a class="apilink" href="core-api-system.html#system_release" title="Closes and frees this object and its resources.">System::release</a> calls <a class="apilink" href="core-api-system.html#system_close" title="Close the connection to the output and return to an uninitialized state without releasing the object.">System::close</a> internally.</li>
+</ul>
+<p>To stop the output stream, rather than closing and shutting it down, <a class="apilink" href="plugin-api-output.html#fmod_output_stop_callback" title="Output stop callback.">FMOD_OUTPUT_STOP_CALLBACK</a> would be used.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_output_copyport_func"><a href="#fmod_output_copyport_func">FMOD_OUTPUT_COPYPORT_FUNC</a></h2>
+<p>Output copy port function.</p>
+<p>Function to copy the output from the mixer for the given auxiliary port.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALL</span> <span class="nf">FMOD_OUTPUT_COPYPORT_FUNC</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">portId</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">buffer</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>portId</dt>
+<dd>Auxiliary port.</dd>
+<dt>buffer</dt>
+<dd>Output buffer.</dd>
+<dt>length</dt>
+<dd>Length of <code>buffer</code></dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a></p>
+<h2 api="struct" id="fmod_output_description"><a href="#fmod_output_description">FMOD_OUTPUT_DESCRIPTION</a></h2>
+<p>Output description.</p>
+<p>This description structure allows the plugin writer to define all functionality required for a user defined output device.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_OUTPUT_DESCRIPTION</span> <span class="p">{</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>                           <span class="n">apiversion</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">char</span>                            <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>                           <span class="n">version</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_METHOD</span>                     <span class="n">method</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_GETNUMDRIVERS_CALLBACK</span>     <span class="n">getnumdrivers</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_GETDRIVERINFO_CALLBACK</span>     <span class="n">getdriverinfo</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_INIT_CALLBACK</span>              <span class="n">init</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_START_CALLBACK</span>             <span class="n">start</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_STOP_CALLBACK</span>              <span class="n">stop</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_CLOSE_CALLBACK</span>             <span class="n">close</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_UPDATE_CALLBACK</span>            <span class="n">update</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_GETHANDLE_CALLBACK</span>         <span class="n">gethandle</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_GETPOSITION_CALLBACK</span>       <span class="n">getposition</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_LOCK_CALLBACK</span>              <span class="n">lock</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_UNLOCK_CALLBACK</span>            <span class="n">unlock</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_MIXER_CALLBACK</span>             <span class="n">mixer</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_OBJECT3DGETINFO_CALLBACK</span>   <span class="n">object3dgetinfo</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</span>     <span class="n">object3dalloc</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_OBJECT3DFREE_CALLBACK</span>      <span class="n">object3dfree</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</span>    <span class="n">object3dupdate</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_OPENPORT_CALLBACK</span>          <span class="n">openport</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_CLOSEPORT_CALLBACK</span>         <span class="n">closeport</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_DEVICELISTCHANGED_CALLBACK</span> <span class="n">devicelistchanged</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_OUTPUT_DESCRIPTION</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_OUTPUT_DESCRIPTION</span>
+<span class="p">{</span>
+  <span class="nx">apiversion</span><span class="p">,</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">version</span><span class="p">,</span>
+  <span class="nx">method</span><span class="p">,</span>
+  <span class="nx">getnumdrivers</span><span class="p">,</span>
+  <span class="nx">getdriverinfo</span><span class="p">,</span>
+  <span class="nx">init</span><span class="p">,</span>
+  <span class="nx">start</span><span class="p">,</span>
+  <span class="nx">stop</span><span class="p">,</span>
+  <span class="nx">close</span><span class="p">,</span>
+  <span class="nx">update</span><span class="p">,</span>
+  <span class="nx">gethandle</span><span class="p">,</span>
+  <span class="nx">getposition</span><span class="p">,</span>
+  <span class="nx">lock</span><span class="p">,</span>
+  <span class="nx">unlock</span><span class="p">,</span>
+  <span class="nx">mixer</span><span class="p">,</span>
+  <span class="nx">object3dgetinfo</span><span class="p">,</span>
+  <span class="nx">object3dalloc</span><span class="p">,</span>
+  <span class="nx">object3dfree</span><span class="p">,</span>
+  <span class="nx">object3dupdate</span><span class="p">,</span>
+  <span class="nx">openport</span><span class="p">,</span>
+  <span class="nx">closeport</span><span class="p">,</span>
+  <span class="nx">devicelistchanged</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<dl>
+<dt id="fmod_output_description_apiversion">apiversion</dt>
+<dd>The output plugin API version this plugin is built for. Set to this to FMOD_OUTPUT_PLUGIN_VERSION. </dd>
+<dt id="fmod_output_description_name">name</dt>
+<dd>Name of the output plugin, encoded as a UTF-8 string.</dd>
+<dt id="fmod_output_description_version">version</dt>
+<dd>Version of the output plugin. </dd>
+<dt id="fmod_output_description_method">method</dt>
+<dd>Method by which the mixer is executed and buffered. (<a class="apilink" href="plugin-api-output.html#fmod_output_method" title="Output method used to interact with the mixer.">FMOD_OUTPUT_METHOD</a>)</dd>
+<dt id="fmod_output_description_getnumdrivers">getnumdrivers</dt>
+<dd>User thread callback to provide the number of attached sound devices. Called from <a class="apilink" href="core-api-system.html#system_getnumdrivers" title="Retrieves the number of output drivers available for the selected output type.">System::getNumDrivers</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_getnumdrivers_callback" title="Output get number of drivers callback.">FMOD_OUTPUT_GETNUMDRIVERS_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_getdriverinfo">getdriverinfo</dt>
+<dd>User thread callback to provide information about a particular sound device. Called from <a class="apilink" href="core-api-system.html#system_getdriverinfo" title="Retrieves identification information about a sound device specified by its index, and specific to the selected output mode.">System::getDriverInfo</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_getdriverinfo_callback" title="Output get driver info callback.">FMOD_OUTPUT_GETDRIVERINFO_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_init">init</dt>
+<dd>User thread callback to allocate resources and provide information about hardware capabilities. Called from <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_init_callback" title="Output initialization callback.">FMOD_OUTPUT_INIT_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_start">start <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>User thread callback just before mixing should begin, calls to <a class="apilink" href="plugin-api-output.html#fmod_output_getposition_callback" title="Output get position callback.">FMOD_OUTPUT_GETPOSITION_CALLBACK</a> / <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a> / <a class="apilink" href="plugin-api-output.html#fmod_output_unlock_callback" title="Output unlock callback.">FMOD_OUTPUT_UNLOCK_CALLBACK</a> / <a class="apilink" href="plugin-api-output.html#fmod_output_mixer_callback" title="Output mixer callback.">FMOD_OUTPUT_MIXER_CALLBACK</a> will start, you may call <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a> after this point. Called from <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_start_callback" title="Output start callback.">FMOD_OUTPUT_START_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_stop">stop <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>User thread callback just after mixing has finished, calls to <a class="apilink" href="plugin-api-output.html#fmod_output_getposition_callback" title="Output get position callback.">FMOD_OUTPUT_GETPOSITION_CALLBACK</a> / <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a> / <a class="apilink" href="plugin-api-output.html#fmod_output_unlock_callback" title="Output unlock callback.">FMOD_OUTPUT_UNLOCK_CALLBACK</a> / <a class="apilink" href="plugin-api-output.html#fmod_output_mixer_callback" title="Output mixer callback.">FMOD_OUTPUT_MIXER_CALLBACK</a> have stopped, you may not call <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a> after this point. Called from <a class="apilink" href="core-api-system.html#system_close" title="Close the connection to the output and return to an uninitialized state without releasing the object.">System::close</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_stop_callback" title="Output stop callback.">FMOD_OUTPUT_STOP_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_close">close <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>User thread callback to clean up resources allocated during <a class="apilink" href="plugin-api-output.html#fmod_output_init_callback" title="Output initialization callback.">FMOD_OUTPUT_INIT_CALLBACK</a>. Called from <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> and <a class="apilink" href="core-api-system.html#system_close" title="Close the connection to the output and return to an uninitialized state without releasing the object.">System::close</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_close_callback" title="Output close callback.">FMOD_OUTPUT_CLOSE_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_update">update <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>User thread callback once per frame to update internal state. Called from <a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_update_callback" title="Output update callback.">FMOD_OUTPUT_UPDATE_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_gethandle">gethandle <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>User thread callback to provide a pointer to the internal device object used to share with other audio systems. Called from <a class="apilink" href="core-api-system.html#system_getoutputhandle" title="Retrieves an output type specific internal native interface.">System::getOutputHandle</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_gethandle_callback" title="Output get output handle callback.">FMOD_OUTPUT_GETHANDLE_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_getposition">getposition</dt>
+<dd>Mixer thread callback (if 'method' is <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>) to provide the hardware playback position in the output ring buffer. Called before a mix. (<a class="apilink" href="plugin-api-output.html#fmod_output_getposition_callback" title="Output get position callback.">FMOD_OUTPUT_GETPOSITION_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_lock">lock</dt>
+<dd>Mixer thread callback (if 'method' is <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>) to provide a pointer the mixer can write to for the next block of audio data. Called before a mix. (<a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_unlock">unlock <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Mixer thread callback (if 'method' is <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>) to signify the mixer has finished writing to the pointer from <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a>. Called after a mix. (<a class="apilink" href="plugin-api-output.html#fmod_output_unlock_callback" title="Output unlock callback.">FMOD_OUTPUT_UNLOCK_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_mixer">mixer <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Mixer thread callback (if 'method' is not <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>) called repeatedly to give a thread for waiting on an audio hardware synchronization primitive (see remarks for details). Ensure you have a reasonable timeout (~200ms) on your synchronization primitive and allow this callback to return once per wakeup to avoid deadlocks. (<a class="apilink" href="plugin-api-output.html#fmod_output_mixer_callback" title="Output mixer callback.">FMOD_OUTPUT_MIXER_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_object3dgetinfo">object3dgetinfo <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Mixer thread callback to provide information about the capabilities of 3D object hardware. Called during a mix. (<a class="apilink" href="plugin-api-output.html#fmod_output_object3dgetinfo_callback" title="Output 3D Object get info callback.">FMOD_OUTPUT_OBJECT3DGETINFO_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_object3dalloc">object3dalloc <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Mixer thread callback to reserve a hardware resources for a single 3D object. Called during a mix. (<a class="apilink" href="plugin-api-output.html#fmod_output_object3dalloc_callback" title="Output 3D Object alloc callback.">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_object3dfree">object3dfree <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Mixer thread callback to release a hardware resource previously acquired with <a class="apilink" href="plugin-api-output.html#fmod_output_object3dalloc_callback" title="Output 3D Object alloc callback.">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</a>. Called during a mix. (<a class="apilink" href="plugin-api-output.html#fmod_output_object3dfree_callback" title="Output 3D Object free callback.">FMOD_OUTPUT_OBJECT3DFREE_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_object3dupdate">object3dupdate <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Mixer thread callback once for every acquired 3D object every mix to provide 3D information and buffered audio. Called during a mix. (<a class="apilink" href="plugin-api-output.html#fmod_output_object3dupdate_callback" title="Output 3D Object update callback.">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_openport">openport <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Main thread callback to open an auxiliary output port on the device. (<a class="apilink" href="plugin-api-output.html#fmod_output_openport_callback" title="Output open port callback.">FMOD_OUTPUT_OPENPORT_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_closeport">closeport <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Main thread callback to close an auxiliary output port on the device. (<a class="apilink" href="plugin-api-output.html#fmod_output_closeport_callback" title="Output close port callback.">FMOD_OUTPUT_CLOSEPORT_CALLBACK</a>)</dd>
+<dt id="fmod_output_description_devicelistchanged">devicelistchanged <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Main thread callback to notify that a change to the device list may have occurred. (<a class="apilink" href="plugin-api-output.html#fmod_output_devicelistchanged_callback" title="Output device list change callback.">FMOD_OUTPUT_DEVICELISTCHANGED_CALLBACK</a>)</dd>
+</dl>
+<p>Pass this structure to <a class="apilink" href="core-api-system.html#system_registeroutput" title="Register an Output plugin description structure for later use.">System::registerOutput</a> to create a new output type, or if defining a dynamically loadable plugin, return it in a function called <code>FMODGetOutputDescription</code>.  FMOD's plugin loader will look for this function in a dynamic library;</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="cm">/*</span>
+<span class="cm">    Plugin setup example</span>
+<span class="cm">*/</span>
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="n">FMOD_OUTPUT_DESCRIPTION</span><span class="o">*</span> <span class="n">F_CALL</span> <span class="n">FMODGetOutputDescription</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">static</span> <span class="n">FMOD_OUTPUT_DESCRIPTION</span> <span class="n">desc</span><span class="p">;</span>
+
+    <span class="cm">/*</span>
+<span class="cm">        Fill members of structure</span>
+<span class="cm">    */</span>
+
+    <span class="k">return</span> <span class="o">&amp;</span><span class="n">desc</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>There are several methods for driving the FMOD mixer to service the audio hardware.</p>
+<ul>
+<li>Polled: if the audio hardware must be polled regularly set 'method' to <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>, FMOD will create a mixer thread that calls back via <a class="apilink" href="plugin-api-output.html#fmod_output_getposition_callback" title="Output get position callback.">FMOD_OUTPUT_GETPOSITION_CALLBACK</a>. Once an entire block of samples have played FMOD will call <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a> to allow you to provide a destination pointer to write the next mix.</li>
+<li>Callback: if the audio hardware provides a callback where you must provide a buffer of samples then set 'method' to <a class="apilink" href="plugin-api-output.html#fmod_output_method_mix_buffered" title="">FMOD_OUTPUT_METHOD_MIX_BUFFERED</a> and directly call <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a>.</li>
+<li>Synchronization: if the audio hardware provides a synchronization primitive to wait on then set 'method' to <a class="apilink" href="plugin-api-output.html#fmod_output_method_mix_direct" title="">FMOD_OUTPUT_METHOD_MIX_DIRECT</a> and give a <a class="apilink" href="plugin-api-output.html#fmod_output_mixer_callback" title="Output mixer callback.">FMOD_OUTPUT_MIXER_CALLBACK</a> pointer. FMOD will create a mixer thread and call you repeatedly once <a class="apilink" href="plugin-api-output.html#fmod_output_start_callback" title="Output start callback.">FMOD_OUTPUT_START_CALLBACK</a> has finished, you must wait on your primitive in this callback and upon wake call <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a>.</li>
+<li>Non-realtime: if you are writing a file or driving a non-realtime output call <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a> from <a class="apilink" href="plugin-api-output.html#fmod_output_update_callback" title="Output update callback.">FMOD_OUTPUT_UPDATE_CALLBACK</a>.</li>
+</ul>
+<p>Callbacks marked with 'user thread' will be called in response to the user of the FMOD Core API, in the case of the Studio API, the user is the Studio Update thread.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a></p>
+<h2 api="callback" id="fmod_output_devicelistchanged_callback"><a href="#fmod_output_devicelistchanged_callback">FMOD_OUTPUT_DEVICELISTCHANGED_CALLBACK</a></h2>
+<p>Output device list change callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_DEVICELISTCHANGED_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_output_free_func"><a href="#fmod_output_free_func">FMOD_OUTPUT_FREE_FUNC</a></h2>
+<p>Output free memory function.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_FREE_FUNC</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">file</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">line</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>ptr</dt>
+<dd>Allocation pointer.</dd>
+<dt>file</dt>
+<dd>Source code file name where the allocation is freed.</dd>
+<dt>line</dt>
+<dd>Line of free call in <code>file</code>.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a></p>
+<h2 api="callback" id="fmod_output_getdriverinfo_callback"><a href="#fmod_output_getdriverinfo_callback">FMOD_OUTPUT_GETDRIVERINFO_CALLBACK</a></h2>
+<p>Output get driver info callback.</p>
+<p>This callback is called to provide the user with information about the selected audio driver.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_GETDRIVERINFO_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">id</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">namelen</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">guid</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">systemrate</span><span class="p">,</span>
+  <span class="n">FMOD_SPEAKERMODE</span> <span class="o">*</span><span class="n">speakermode</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">speakermodechannels</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>id</dt>
+<dd>Index into the total number of outputs possible, provided by the <a class="apilink" href="plugin-api-output.html#fmod_output_getnumdrivers_callback" title="Output get number of drivers callback.">FMOD_OUTPUT_GETNUMDRIVERS_CALLBACK</a> callback.</dd>
+<dt>name</dt>
+<dd>Driver name relevant to the index passed in. Fill this in. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>namelen</dt>
+<dd>
+<p>Length of name buffer being passed in by the user.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt>guid</dt>
+<dd>GUID structure. (<a class="apilink" href="core-api-common.html#fmod_guid" title="Structure describing a globally unique identifier.">FMOD_GUID</a>)</dd>
+<dt>systemrate <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Rate the output device prefers.  Leave 0 to remain flexible.</p>
+<ul>
+<li><span class="label">Units:</span> Hertz</li>
+</ul>
+</dd>
+<dt>speakermode <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Speaker mode the output device prefers. Leave <a class="apilink" href="core-api-common.html#fmod_speakermode_default" title="">FMOD_SPEAKERMODE_DEFAULT</a> to remain flexible. (<a class="apilink" href="core-api-common.html#fmod_speakermode" title="Speaker mode types.">FMOD_SPEAKERMODE</a>)</dd>
+<dt>speakermodechannels <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Speaker mode associated channels the output device prefers.  Leave at 0 to remain flexible.  Only used for <a class="apilink" href="core-api-common.html#fmod_speakermode_raw" title="">FMOD_SPEAKERMODE_RAW</a>.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_getdriverinfo" title="Retrieves identification information about a sound device specified by its index, and specific to the selected output mode.">System::getDriverInfo</a></li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_getnumdrivers" title="Retrieves the number of output drivers available for the selected output type.">System::getNumDrivers</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="core-api-system.html#system_getnumdrivers" title="Retrieves the number of output drivers available for the selected output type.">System::getNumDrivers</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_getnumdrivers_callback" title="Output get number of drivers callback.">FMOD_OUTPUT_GETNUMDRIVERS_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_gethandle_callback"><a href="#fmod_output_gethandle_callback">FMOD_OUTPUT_GETHANDLE_CALLBACK</a></h2>
+<p>Output get output handle callback.</p>
+<p>This callback is called to provide the user with a low level audio interface handle that may be used to pass to other middleware.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_GETHANDLE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">handle</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>handle <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Plugin's output 'handle'.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_getoutputhandle" title="Retrieves an output type specific internal native interface.">System::getOutputHandle</a></li>
+</ul>
+<p>This callback is only needed if the plugin writer wants to allow the user access to the main handle behind the plugin (for example the file handle in a file writer plugin).  The plugin writer needs to document and publish the type of the handle, as is done in the documentation for <a class="apilink" href="core-api-system.html#system_getoutputhandle" title="Retrieves an output type specific internal native interface.">System::getOutputHandle</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_output_getnumdrivers_callback"><a href="#fmod_output_getnumdrivers_callback">FMOD_OUTPUT_GETNUMDRIVERS_CALLBACK</a></h2>
+<p>Output get number of drivers callback.</p>
+<p>This callback is called to provide the user with the number of devices usable for the output mode.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_GETNUMDRIVERS_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numdrivers</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>numdrivers</dt>
+<dd>Number of output drivers in your plugin.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_getnumdrivers" title="Retrieves the number of output drivers available for the selected output type.">System::getNumDrivers</a></li>
+</ul>
+<p>Optional.  FMOD will assume 0 if this is not specified.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="core-api-system.html#system_getdriverinfo" title="Retrieves identification information about a sound device specified by its index, and specific to the selected output mode.">System::getDriverInfo</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_getdriverinfo_callback" title="Output get driver info callback.">FMOD_OUTPUT_GETDRIVERINFO_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_getposition_callback"><a href="#fmod_output_getposition_callback">FMOD_OUTPUT_GETPOSITION_CALLBACK</a></h2>
+<p>Output get position callback.</p>
+<p>This callback is called to retrieve the current PCM offset or playback position for the output stream, to allow FMOD to determine if it should mix or not.  If it does it will call the <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a> and <a class="apilink" href="plugin-api-output.html#fmod_output_unlock_callback" title="Output unlock callback.">FMOD_OUTPUT_UNLOCK_CALLBACK</a> callbacks.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_GETPOSITION_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">pcm</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>pcm</dt>
+<dd>
+<p>Output stream position.</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer thread.</li>
+</ul>
+<p>Only called when the <code>method</code> member of <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a> is set to <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>.</p>
+<h2 api="callback" id="fmod_output_init_callback"><a href="#fmod_output_init_callback">FMOD_OUTPUT_INIT_CALLBACK</a></h2>
+<p>Output initialization callback.</p>
+<p>This callback is called to allow initialization of the output stream for mixing.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_INIT_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">selecteddriver</span><span class="p">,</span>
+  <span class="n">FMOD_INITFLAGS</span> <span class="n">flags</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">outputrate</span><span class="p">,</span>
+  <span class="n">FMOD_SPEAKERMODE</span> <span class="o">*</span><span class="n">speakermode</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">speakermodechannels</span><span class="p">,</span>
+  <span class="n">FMOD_SOUND_FORMAT</span> <span class="o">*</span><span class="n">outputformat</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">dspbufferlength</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">dspnumbuffers</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">extradriverdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>selecteddriver</dt>
+<dd>Selected driver id that the user chose from calling <a class="apilink" href="core-api-system.html#system_setdriver" title="Sets the output driver for the selected output type.">System::setDriver</a>.</dd>
+<dt>flags</dt>
+<dd>Initialization flags passed in by the user. (<a class="apilink" href="core-api-system.html#fmod_initflags" title="Configuration flags used when initializing the System object.">FMOD_INITFLAGS</a>)</dd>
+<dt>outputrate</dt>
+<dd>
+<p>Output rate selected by the user.  If not possible, change the rate to the closest match. FMOD will resample from the rate requested to your rate if they do not match.</p>
+<ul>
+<li><span class="label">Units:</span> Hertz</li>
+</ul>
+</dd>
+<dt>speakermode</dt>
+<dd>Speaker mode selected by the user.  If not possible, change the speaker mode to the closest match.  FMOD will upmix or downmix to the requested speaker mode if they do not match. (<a class="apilink" href="core-api-common.html#fmod_speakermode" title="Speaker mode types.">FMOD_SPEAKERMODE</a>)</dd>
+<dt>speakermodechannels</dt>
+<dd>Speaker mode channel count selected by the user. For example 1 = mono output.  2 = stereo output. Needed if supporting <a class="apilink" href="core-api-common.html#fmod_speakermode_raw" title="">FMOD_SPEAKERMODE_RAW</a>, otherwise it is informational.</dd>
+<dt>outputformat</dt>
+<dd>Sound format supported by output mode.  For example, <a class="apilink" href="core-api-sound.html#fmod_sound_format_pcm16" title="">FMOD_SOUND_FORMAT_PCM16</a> would be normal. FMOD will convert from <a class="apilink" href="core-api-sound.html#fmod_sound_format_pcmfloat" title="">FMOD_SOUND_FORMAT_PCMFLOAT</a> (the mixer buffer format) to whatever you specify. (<a class="apilink" href="core-api-sound.html#fmod_sound_format" title="These definitions describe the native format of the hardware or software buffer that will be used.">FMOD_SOUND_FORMAT</a>)</dd>
+<dt>dspbufferlength</dt>
+<dd>
+<p>Size of the buffer fmod will mix to in one mix update.</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+<dt>dspnumbuffers</dt>
+<dd>Number of buffers fmod will mix to in a circular fashion. Multiply this by dspbufferlength to get the total size of the output sound buffer to allocate.</dd>
+<dt>extradriverdata</dt>
+<dd>Data passed in by the user specific to this driver.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a></li>
+<li><a class="apilink" href="core-api-system.html#system_setoutput" title="Sets the type of output interface used to run the mixer.">System::setOutput</a>, if the output is set after <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>.</li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="core-api-system.html#system_setdriver" title="Sets the output driver for the selected output type.">System::setDriver</a></p>
+<h2 api="callback" id="fmod_output_lock_callback"><a href="#fmod_output_lock_callback">FMOD_OUTPUT_LOCK_CALLBACK</a></h2>
+<p>Output lock callback.</p>
+<p>In <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a> mode, this callback allows the retreival of a memory buffer from the output driver, for FMOD to mix to.  This will immediatelly be followed by a call to <a class="apilink" href="plugin-api-output.html#fmod_output_unlock_callback" title="Output unlock callback.">FMOD_OUTPUT_UNLOCK_CALLBACK</a> when the mix is complete.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_LOCK_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">offset</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">length</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">ptr1</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">ptr2</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">len1</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">len2</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>offset</dt>
+<dd>
+<p>Sample buffer offset.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt>length</dt>
+<dd>
+<p>Requested lock size.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt>ptr1</dt>
+<dd>First part of the locked data.</dd>
+<dt>ptr2</dt>
+<dd>Second part of the locked data. This will be null if the data locked hasn't wrapped at the end of the buffer.</dd>
+<dt>len1</dt>
+<dd>
+<p>Length of <code>ptr1</code>.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt>len2</dt>
+<dd>
+<p>Length of <code>ptr2</code>. This will be 0 if the data locked hasn't wrapped at the end of the buffer.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer thread.</li>
+</ul>
+<p>Only called when the <code>method</code> member of <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a> is set to <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>.</p>
+<p>Typically an output buffer will be aligned to the block size of the mixer buffer.  If it is, then ptr2 and len2 should never be used.   If it is not aligned then the mixer may request data past the end of the output buffer, so ptr2 and len2 can be used to specify a second block of memory to write to, to handle wrap around.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_unlock_callback" title="Output unlock callback.">FMOD_OUTPUT_UNLOCK_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_getposition_callback" title="Output get position callback.">FMOD_OUTPUT_GETPOSITION_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_log_func"><a href="#fmod_output_log_func">FMOD_OUTPUT_LOG_FUNC</a></h2>
+<p>Output log function.</p>
+<p>Call this function in an output plugin context to utilize FMOD's debugging system.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_LOG_FUNC</span><span class="p">(</span>
+  <span class="n">FMOD_DEBUG_FLAGS</span> <span class="n">level</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">file</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">line</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">function</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">string</span><span class="p">,</span>
+  <span class="p">...</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>level</dt>
+<dd>Log type or level. (<a class="apilink" href="core-api-common.html#fmod_debug_flags" title="Specify the requested information to be output when using the logging version of FMOD.">FMOD_DEBUG_FLAGS</a>)</dd>
+<dt>file</dt>
+<dd>Source code file name from where the log is called. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>line</dt>
+<dd>Line of log call in <code>file</code>.</dd>
+<dt>function</dt>
+<dd>Name of the logging function. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>string</dt>
+<dd>Log output string. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a></p>
+<h2 api="define" id="fmod_output_method"><a href="#fmod_output_method">FMOD_OUTPUT_METHOD</a></h2>
+<p>Output method used to interact with the mixer.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="cp">#define FMOD_OUTPUT_METHOD_MIX_DIRECT    0</span>
+<span class="cp">#define FMOD_OUTPUT_METHOD_POLLING       1</span>
+<span class="cp">#define FMOD_OUTPUT_METHOD_MIX_BUFFERED  2</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">OUTPUT_METHOD_MIX_DIRECT</span>    <span class="o">=</span> <span class="mi">0</span>
+<span class="nx">OUTPUT_METHOD_POLLING</span>       <span class="o">=</span> <span class="mi">1</span>
+<span class="nx">OUTPUT_METHOD_MIX_BUFFERED</span>  <span class="o">=</span> <span class="mi">2</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<dl>
+<dt id="fmod_output_method_mix_direct">FMOD_OUTPUT_METHOD_MIX_DIRECT</dt>
+<dd>Mixer will execute directly when calling <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a>, buffering must be performed by plugin code.</dd>
+<dt id="fmod_output_method_polling">FMOD_OUTPUT_METHOD_POLLING</dt>
+<dd>Mixer will execute and buffer indirectly (on a separate thread) in response to <a class="apilink" href="plugin-api-output.html#fmod_output_getposition_callback" title="Output get position callback.">FMOD_OUTPUT_GETPOSITION_CALLBACK</a> / <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a> / <a class="apilink" href="plugin-api-output.html#fmod_output_unlock_callback" title="Output unlock callback.">FMOD_OUTPUT_UNLOCK_CALLBACK</a>.</dd>
+<dt id="fmod_output_method_mix_buffered">FMOD_OUTPUT_METHOD_MIX_BUFFERED</dt>
+<dd>Mixer will execute and buffer automatically (on a separate thread) and can be read from with <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a>.</dd>
+</dl>
+<p>If the hardware presents a ring buffer without synchronization primitives <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a> is the recommended approach where FMOD will call into the plugin regularly to check the play position of the buffer. For hardware that presents a callback that must be filled immediately <a class="apilink" href="plugin-api-output.html#fmod_output_method_mix_buffered" title="">FMOD_OUTPUT_METHOD_MIX_BUFFERED</a> is recommended as buffering occurs in a separate thread, reading from the mixer is simply a memcpy. Using <a class="apilink" href="plugin-api-output.html#fmod_output_method_mix_direct" title="">FMOD_OUTPUT_METHOD_MIX_DIRECT</a> is recommended if you want to take direct control of how and when the mixer runs.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_output_mixer_callback"><a href="#fmod_output_mixer_callback">FMOD_OUTPUT_MIXER_CALLBACK</a></h2>
+<p>Output mixer callback.</p>
+<p>If the output is not set to <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>, this callback can be used to stall the FMOD mixer thread until it is ready to call the FMOD mixer directly.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_MIXER_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>The FMOD mixer thread, only when the 'method' member of <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a> is set to <a class="apilink" href="plugin-api-output.html#fmod_output_method_mix_direct" title="">FMOD_OUTPUT_METHOD_MIX_DIRECT</a> or <a class="apilink" href="plugin-api-output.html#fmod_output_method_mix_buffered" title="">FMOD_OUTPUT_METHOD_MIX_BUFFERED</a>.</li>
+</ul>
+<p>This callback must use the <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a> function to produce the audio stream needed by the output.</p>
+<p>This callback is optional in <a class="apilink" href="plugin-api-output.html#fmod_output_method_mix_direct" title="">FMOD_OUTPUT_METHOD_MIX_DIRECT</a> or <a class="apilink" href="plugin-api-output.html#fmod_output_method_mix_buffered" title="">FMOD_OUTPUT_METHOD_MIX_BUFFERED</a> mode.   An output mode may avoid this callback, and instead use its own timing system to call the FMOD mixer with <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a>.</p>
+<p>If this callback is used, it will be triggered immediately from the FMOD mixer thread.  The callback can then stall with its own synchronization primitive (ie a wait on a semaphore), until something else signals the primitive to execute a mix with <a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a>.</p>
+<p>Ensure you have a reasonable timeout (~200ms) on your synchronization primitive and allow this callback to return regularly, to avoid deadlocks.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a></p>
+<h2 api="callback" id="fmod_output_object3dalloc_callback"><a href="#fmod_output_object3dalloc_callback">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</a></h2>
+<p>Output 3D Object alloc callback.</p>
+<p>This callback is called to reserve hardware resources for a single 3D object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">object3d</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>object3d</dt>
+<dd>3D audio object.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer thread.</li>
+</ul>
+<p>This callback is used for 'Object based audio' where sound hardware can receive individual audio streams and position them in 3D space natively, separate from the FMOD mixer.  A typical implementation would be something like Dolby Atmos or Playstation VR.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dgetinfo_callback" title="Output 3D Object get info callback.">FMOD_OUTPUT_OBJECT3DGETINFO_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dfree_callback" title="Output 3D Object free callback.">FMOD_OUTPUT_OBJECT3DFREE_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dupdate_callback" title="Output 3D Object update callback.">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_object3dfree_callback"><a href="#fmod_output_object3dfree_callback">FMOD_OUTPUT_OBJECT3DFREE_CALLBACK</a></h2>
+<p>Output 3D Object free callback.</p>
+<p>This callback is called to releases a hardware resource previously acquired with <a class="apilink" href="plugin-api-output.html#fmod_output_object3dalloc_callback" title="Output 3D Object alloc callback.">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</a>.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_OBJECT3DFREE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">object3d</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>object3d</dt>
+<dd>3D audio object.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer thread.</li>
+</ul>
+<p>This callback is used for 'Object based audio' where sound hardware can receive individual audio streams and position them in 3D space natively, separate from the FMOD mixer.  A typical implementation would be something like Dolby Atmos or Atmos or Playstation VR.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dgetinfo_callback" title="Output 3D Object get info callback.">FMOD_OUTPUT_OBJECT3DGETINFO_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dalloc_callback" title="Output 3D Object alloc callback.">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dupdate_callback" title="Output 3D Object update callback.">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_object3dgetinfo_callback"><a href="#fmod_output_object3dgetinfo_callback">FMOD_OUTPUT_OBJECT3DGETINFO_CALLBACK</a></h2>
+<p>Output 3D Object get info callback.</p>
+<p>Called from the mixer thread to provide information about the capabilities of 3D object hardware.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_OBJECT3DGETINFO_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">maxhardwareobjects</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>maxhardwareobjects</dt>
+<dd>Maximum number of 3D objects supported.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer thread.</li>
+</ul>
+<p>This callback is used for 'Object based audio' where sound hardware can receive individual audio streams and position them in 3D space natively, separate from the FMOD mixer.  A typical implementation would be something like Dolby Atmos or Atmos or Playstation VR.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dalloc_callback" title="Output 3D Object alloc callback.">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dfree_callback" title="Output 3D Object free callback.">FMOD_OUTPUT_OBJECT3DFREE_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dupdate_callback" title="Output 3D Object update callback.">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</a></p>
+<h2 api="struct" id="fmod_output_object3dinfo"><a href="#fmod_output_object3dinfo">FMOD_OUTPUT_OBJECT3DINFO</a></h2>
+<p>Output 3D Object Info.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_OUTPUT_OBJECT3DINFO</span> <span class="p">{</span>
+  <span class="kt">float</span>         <span class="o">*</span><span class="n">buffer</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>   <span class="n">bufferlength</span><span class="p">;</span>
+  <span class="n">FMOD_VECTOR</span>    <span class="n">position</span><span class="p">;</span>
+  <span class="kt">float</span>          <span class="n">gain</span><span class="p">;</span>
+  <span class="kt">float</span>          <span class="n">spread</span><span class="p">;</span>
+  <span class="kt">float</span>          <span class="n">priority</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_OUTPUT_OBJECT3DINFO</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_OUTPUT_OBJECT3DINFO</span>
+<span class="p">{</span>
+  <span class="nx">buffer</span><span class="p">,</span>
+  <span class="nx">bufferlength</span><span class="p">,</span>
+  <span class="nx">position</span><span class="p">,</span>
+  <span class="nx">gain</span><span class="p">,</span>
+  <span class="nx">spread</span><span class="p">,</span>
+  <span class="nx">priority</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<dl>
+<dt id="fmod_output_object3dinfo_buffer">buffer <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Mono PCM floating point buffer. This buffer needs to be scaled by the gain value to get distance attenuation.  </dd>
+<dt id="fmod_output_object3dinfo_bufferlength">bufferlength <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Length in PCM samples of buffer. </dd>
+<dt id="fmod_output_object3dinfo_position">position <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Vector relative between object and listener. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</dd>
+<dt id="fmod_output_object3dinfo_gain">gain <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>0.0 to 1.0 - 1 = 'buffer' is not attenuated, 0 = 'buffer' is fully attenuated. </dd>
+<dt id="fmod_output_object3dinfo_spread">spread <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>0 - 360 degrees.  0 = point source, 360 = sound is spread around all speakers </dd>
+<dt id="fmod_output_object3dinfo_priority">priority <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>0.0 to 1.0 - 0 = most important, 1 = least important. Based on height and distance (height is more important). </dd>
+</dl>
+<p>This callback is used for 'Object mixing' where sound hardware can receive individual audio streams and position them in 3D space natively, separate from the FMOD mixer.  A typical implementation would be something like Dolby Atmos or Atmos or Playstation VR.</p>
+<p>This structure is passed to the plugin via <a class="apilink" href="plugin-api-output.html#fmod_output_object3dupdate_callback" title="Output 3D Object update callback.">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</a>, so that whatever object based panning solution available can position it in the speakers correctly.<br />
+Object based panning is a 3D panning solution that sends a mono only signal to a hardware device, such as Dolby Atmos or other similar panning solutions.</p>
+<p>FMOD does not attenuate the buffer, but provides a 'gain' parameter that the user must use to scale the buffer by.  Rather than pre-attenuating the buffer, the plugin developer can access untouched data for other purposes, like reverb sending for example.<br />
+The 'gain' parameter is based on the user's 3D custom rolloff model.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_object3dupdate_callback" title="Output 3D Object update callback.">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_object3dupdate_callback"><a href="#fmod_output_object3dupdate_callback">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</a></h2>
+<p>Output 3D Object update callback.</p>
+<p>Called from the mixer thread once for every acquired 3D object every mix to provide 3D information and buffered audio.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_OBJECT3DUPDATE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">object3d</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_OUTPUT_OBJECT3DINFO</span> <span class="o">*</span><span class="n">info</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>object3d</dt>
+<dd>3D audio object.</dd>
+<dt>info</dt>
+<dd>3D object characteristics. (<a class="apilink" href="plugin-api-output.html#fmod_output_object3dinfo" title="Output 3D Object Info.">FMOD_OUTPUT_OBJECT3DINFO</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer</li>
+</ul>
+<p>This callback is used for 'Object based audio' where sound hardware can receive individual audio streams and position them in 3D space natively, separate from the FMOD mixer.  A typical implementation would be something like Dolby Atmos or Atmos or Playstation VR.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dgetinfo_callback" title="Output 3D Object get info callback.">FMOD_OUTPUT_OBJECT3DGETINFO_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dalloc_callback" title="Output 3D Object alloc callback.">FMOD_OUTPUT_OBJECT3DALLOC_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_object3dfree_callback" title="Output 3D Object free callback.">FMOD_OUTPUT_OBJECT3DFREE_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_openport_callback"><a href="#fmod_output_openport_callback">FMOD_OUTPUT_OPENPORT_CALLBACK</a></h2>
+<p>Output open port callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_OPENPORT_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="n">FMOD_PORT_TYPE</span> <span class="n">portType</span><span class="p">,</span>
+  <span class="n">FMOD_PORT_INDEX</span> <span class="n">portIndex</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">portId</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">portRate</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">portChannels</span><span class="p">,</span>
+  <span class="n">FMOD_SOUND_FORMAT</span> <span class="o">*</span><span class="n">portFormat</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>portType</dt>
+<dd>Port type. (FMOD_PORT_TYPE)</dd>
+<dt>portIndex</dt>
+<dd>Port index. (FMOD_PORT_INDEX)</dd>
+<dt>portId <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Port ID.</dd>
+<dt>portRate <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Port rate.</p>
+<ul>
+<li><span class="label">Units:</span> Hertz</li>
+</ul>
+</dd>
+<dt>portChannels <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Number of channels.</dd>
+<dt>portFormat</dt>
+<dd>Port sound format. (<a class="apilink" href="core-api-sound.html#fmod_sound_format" title="These definitions describe the native format of the hardware or software buffer that will be used.">FMOD_SOUND_FORMAT</a>)</dd>
+</dl>
+<p>Main thread callback to open an auxiliary output port on the device.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_output_readfrommixer_func"><a href="#fmod_output_readfrommixer_func">FMOD_OUTPUT_READFROMMIXER_FUNC</a></h2>
+<p>Output read from mixer function.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALL</span> <span class="nf">FMOD_OUTPUT_READFROMMIXER_FUNC</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">buffer</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>buffer</dt>
+<dd>Plugin-writer provided memory for the FMOD Studio mixer to write to.</dd>
+<dt>length</dt>
+<dd>Length of the buffer in samples.</dd>
+</dl>
+<p>Called by the plugin, when the <code>method</code> member of <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a> is not set to <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>.</p>
+<p>Use this function from your own driver irq/timer to read some data from FMOD's DSP engine.  All of the resulting output caused by playing sounds and specifying effects by the user will be mixed here and written to the memory provided by the plugin writer.</p>
+<h2 api="callback" id="fmod_output_requestreset_func"><a href="#fmod_output_requestreset_func">FMOD_OUTPUT_REQUESTRESET_FUNC</a></h2>
+<p>Output request reset function.</p>
+<p>Request the output to shut down and restart.  </p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALL</span> <span class="nf">FMOD_OUTPUT_REQUESTRESET_FUNC</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+</dl>
+<p>If this is issued, the output will not reset immediately, but on the next udpate the output will first shut down with a call to the <a class="apilink" href="plugin-api-output.html#fmod_output_stop_callback" title="Output stop callback.">FMOD_OUTPUT_STOP_CALLBACK</a> then <a class="apilink" href="plugin-api-output.html#fmod_output_close_callback" title="Output close callback.">FMOD_OUTPUT_CLOSE_CALLBACK</a>, followed by a restart with <a class="apilink" href="plugin-api-output.html#fmod_output_init_callback" title="Output initialization callback.">FMOD_OUTPUT_INIT_CALLBACK</a> and <a class="apilink" href="plugin-api-output.html#fmod_output_start_callback" title="Output start callback.">FMOD_OUTPUT_START_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_start_callback"><a href="#fmod_output_start_callback">FMOD_OUTPUT_START_CALLBACK</a></h2>
+<p>Output start callback.</p>
+<p>Called just before mixing should begin.  This callback is called to start the output driver's audio stream.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_START_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a></li>
+<li><a class="apilink" href="core-api-system.html#system_setoutput" title="Sets the type of output interface used to run the mixer.">System::setOutput</a>, if the output is set after <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>.</li>
+<li><a class="apilink" href="core-api-system.html#system_setdriver" title="Sets the output driver for the selected output type.">System::setDriver</a>, if the driver is set after <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>.</li>
+</ul>
+<p>This function is meant for starting the output audio rather than allocating memory and initializing interfaces like <a class="apilink" href="plugin-api-output.html#fmod_output_init_callback" title="Output initialization callback.">FMOD_OUTPUT_INIT_CALLBACK</a> would.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_stop_callback" title="Output stop callback.">FMOD_OUTPUT_STOP_CALLBACK</a></p>
+<h2 api="struct" id="fmod_output_state"><a href="#fmod_output_state">FMOD_OUTPUT_STATE</a></h2>
+<p>Output object state passed into every callback provides access to plugin developers data and system functionality.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_OUTPUT_STATE</span> <span class="p">{</span>
+  <span class="kt">void</span>                            <span class="o">*</span><span class="n">plugindata</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_READFROMMIXER_FUNC</span>   <span class="n">readfrommixer</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_ALLOC_FUNC</span>           <span class="n">alloc</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_FREE_FUNC</span>            <span class="n">free</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_LOG_FUNC</span>             <span class="n">log</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_COPYPORT_FUNC</span>        <span class="n">copyport</span><span class="p">;</span>
+  <span class="n">FMOD_OUTPUT_REQUESTRESET_FUNC</span>    <span class="n">requestreset</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_OUTPUT_STATE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_OUTPUT_STATE</span>
+<span class="p">{</span>
+  <span class="nx">plugindata</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<dl>
+<dt id="fmod_output_state_plugindata">plugindata</dt>
+<dd>Plugin state data.</dd>
+<dt id="fmod_output_state_readfrommixer">readfrommixer <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to execute the mixer producing a buffer of audio. Used to control when the mix occurs manually as an alternative to <a class="apilink" href="plugin-api-output.html#fmod_output_description_method" title="">FMOD_OUTPUT_DESCRIPTION::method</a> set to <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_readfrommixer_func" title="Output read from mixer function.">FMOD_OUTPUT_READFROMMIXER_FUNC</a>)</dd>
+<dt id="fmod_output_state_alloc">alloc <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to allocate memory using the FMOD memory system. (<a class="apilink" href="plugin-api-output.html#fmod_output_alloc_func" title="Output allocate memory function.">FMOD_OUTPUT_ALLOC_FUNC</a>)</dd>
+<dt id="fmod_output_state_free">free <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to free memory allocated with FMOD_OUTPUT_ALLOC. (<a class="apilink" href="plugin-api-output.html#fmod_output_free_func" title="Output free memory function.">FMOD_OUTPUT_FREE_FUNC</a>)</dd>
+<dt id="fmod_output_state_log">log <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to write to the FMOD logging system. (<a class="apilink" href="plugin-api-output.html#fmod_output_log_func" title="Output log function.">FMOD_OUTPUT_LOG_FUNC</a>)</dd>
+<dt id="fmod_output_state_copyport">copyport <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to copy the output from the mixer for the given auxiliary port. (<a class="apilink" href="plugin-api-output.html#fmod_output_copyport_func" title="Output copy port function.">FMOD_OUTPUT_COPYPORT_FUNC</a>)</dd>
+<dt id="fmod_output_state_requestreset">requestreset <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to request the output plugin be shutdown then restarted during the next <a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a>. (<a class="apilink" href="plugin-api-output.html#fmod_output_requestreset_func" title="Output request reset function.">FMOD_OUTPUT_REQUESTRESET_FUNC</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_output_stop_callback"><a href="#fmod_output_stop_callback">FMOD_OUTPUT_STOP_CALLBACK</a></h2>
+<p>Output stop callback.</p>
+<p>Called just after mixing has ended.  This callback is called to stop the output driver's audio stream.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_STOP_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_close" title="Close the connection to the output and return to an uninitialized state without releasing the object.">System::close</a> (which can be invoked by [<a class="apilink" href="core-api-system.html#system_release" title="Closes and frees this object and its resources.">System::release</a>])</li>
+<li><a class="apilink" href="core-api-system.html#system_release" title="Closes and frees this object and its resources.">System::release</a>.</li>
+<li><a class="apilink" href="core-api-system.html#system_setoutput" title="Sets the type of output interface used to run the mixer.">System::setOutput</a>, if the output is set after <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>.</li>
+<li><a class="apilink" href="core-api-system.html#system_setdriver" title="Sets the output driver for the selected output type.">System::setDriver</a>, if the driver is set after <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>.</li>
+</ul>
+<p>This function is meant for stopping the output audio rather than freeing memory and shutting down audio interfaces like <a class="apilink" href="plugin-api-output.html#fmod_output_close_callback" title="Output close callback.">FMOD_OUTPUT_CLOSE_CALLBACK</a> would.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_start_callback" title="Output start callback.">FMOD_OUTPUT_START_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_unlock_callback"><a href="#fmod_output_unlock_callback">FMOD_OUTPUT_UNLOCK_CALLBACK</a></h2>
+<p>Output unlock callback.</p>
+<p>In <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a> mode, this callback allows the submission of a memory buffer to the output driver, which was just mixed to by the FMOD mixer.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_UNLOCK_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">ptr1</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">ptr2</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">len1</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">len2</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+<dt>ptr1</dt>
+<dd>First locked portion of sample data, from <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a>.</dd>
+<dt>ptr2</dt>
+<dd>Second locked portion of sample data, from <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a>.</dd>
+<dt>len1</dt>
+<dd>
+<p>Length of <code>ptr1</code>.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt>len2</dt>
+<dd>
+<p>Length of <code>ptr2</code>.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer thread.</li>
+</ul>
+<p>Only called when the <code>method</code> member of <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a> is set to <a class="apilink" href="plugin-api-output.html#fmod_output_method_polling" title="">FMOD_OUTPUT_METHOD_POLLING</a>.</p>
+<p>Typically an output buffer will be aligned to the block size of the mixer buffer.  If it is, then ptr2 and len2 should never be used.   If it is not aligned then the mixer may request data past the end of the output buffer, so ptr2 and len2 can be used to specify a second block of memory to write to, to handle wrap around.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_lock_callback" title="Output lock callback.">FMOD_OUTPUT_LOCK_CALLBACK</a>, <a class="apilink" href="plugin-api-output.html#fmod_output_getposition_callback" title="Output get position callback.">FMOD_OUTPUT_GETPOSITION_CALLBACK</a></p>
+<h2 api="callback" id="fmod_output_update_callback"><a href="#fmod_output_update_callback">FMOD_OUTPUT_UPDATE_CALLBACK</a></h2>
+<p>Output update callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_OUTPUT_UPDATE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_OUTPUT_STATE</span> <span class="o">*</span><span class="n">output_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>output_state</dt>
+<dd>Plugin state. (<a class="apilink" href="plugin-api-output.html#fmod_output_state" title="Output object state passed into every callback provides access to plugin developers data and system functionality.">FMOD_OUTPUT_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a></li>
+</ul>
+<p>This callback is invoked from the main application update which allows the output to process data in sync with the application, rather than the mixer thread.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>, <a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>Core API Reference | iOS Specific</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="core-api.html">Core API Reference</a><ul class="subchapters"><li><a href="core-api-common.html">Common</a></li><li><a href="core-api-common-dsp-effects.html">Effect Parameters</a></li><li><a href="core-api-system.html">System</a></li><li><a href="core-api-sound.html">Sound</a></li><li><a href="core-api-channelcontrol.html">ChannelControl</a></li><li><a href="core-api-channel.html">Channel</a></li><li><a href="core-api-channelgroup.html">ChannelGroup</a></li><li><a href="core-api-soundgroup.html">SoundGroup</a></li><li><a href="core-api-dsp.html">DSP</a></li><li><a href="core-api-dspconnection.html">DSPConnection</a></li><li><a href="core-api-geometry.html">Geometry</a></li><li><a href="core-api-reverb3d.html">Reverb3D</a></li><li class="manual-current-chapter manual-active-chapter"><a href="core-api-platform-ios.html">iOS Specific</a></li></ul></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>7. Core API Reference | iOS Specific</h1>
+<p>APIs and types for iOS platform, see fmod_ios.h</p>
+<ul>
+<li><a class="apilink" href="core-api-platform-ios.html#fmod_audioqueue_codecpolicy" title="Control whether the sound will use a the dedicated hardware decoder or a software codec.">FMOD_AUDIOQUEUE_CODECPOLICY</a> Control whether the sound will use a the dedicated hardware decoder or a software codec.</li>
+</ul>
+<h2 api="enum" id="fmod_audioqueue_codecpolicy"><a href="#fmod_audioqueue_codecpolicy">FMOD_AUDIOQUEUE_CODECPOLICY</a></h2>
+<p>Control whether the sound will use a the dedicated hardware decoder or a software codec.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_AUDIOQUEUE_CODECPOLICY</span> <span class="p">{</span>
+  <span class="n">FMOD_AUDIOQUEUE_CODECPOLICY_DEFAULT</span><span class="p">,</span>
+  <span class="n">FMOD_AUDIOQUEUE_CODECPOLICY_SOFTWAREONLY</span><span class="p">,</span>
+  <span class="n">FMOD_AUDIOQUEUE_CODECPOLICY_HARDWAREONLY</span>
+<span class="p">}</span> <span class="n">FMOD_AUDIOQUEUE_CODECPOLICY</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt id="fmod_audioqueue_codecpolicy_default">FMOD_AUDIOQUEUE_CODECPOLICY_DEFAULT</dt>
+<dd>Try hardware first, if it's in use or prohibited by audio session, try software.</dd>
+<dt id="fmod_audioqueue_codecpolicy_softwareonly">FMOD_AUDIOQUEUE_CODECPOLICY_SOFTWAREONLY</dt>
+<dd>kAudioQueueHardwareCodecPolicy_UseSoftwareOnly ~ try software, if not available fail.</dd>
+<dt id="fmod_audioqueue_codecpolicy_hardwareonly">FMOD_AUDIOQUEUE_CODECPOLICY_HARDWAREONLY</dt>
+<dd>kAudioQueueHardwareCodecPolicy_UseHardwareOnly ~ try hardware, if not available fail.</dd>
+</dl>
+<p>Every devices has a single hardware decoder and unlimited software decoders.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#fmod_createsoundexinfo" title="Additional options for creating a Sound.">FMOD_CREATESOUNDEXINFO</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

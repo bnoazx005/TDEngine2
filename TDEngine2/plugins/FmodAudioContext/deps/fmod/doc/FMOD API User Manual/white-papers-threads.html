@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>White Papers | Threads and Thread Safety</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Threads and Thread Safety</h1>
+<div class="toc">
+<ul>
+<li><a href="#threads-and-thread-safety">Threads and Thread Safety</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#fmod-thread-types">FMOD Thread Types</a><ul>
+<li><a href="#studio-thread">Studio Thread</a></li>
+<li><a href="#mixer-thread">Mixer Thread</a></li>
+<li><a href="#stream-thread">Stream Thread</a></li>
+<li><a href="#async-loading-thread">Async Loading Thread</a></li>
+<li><a href="#file-reading-thread">File Reading Thread</a></li>
+</ul>
+</li>
+<li><a href="#thread-affinity">Thread Affinity</a></li>
+<li><a href="#fmod-callback-types">FMOD Callback Types</a></li>
+<li><a href="#fmod-thread-safety">FMOD Thread Safety</a><ul>
+<li><a href="#fmod-studio-api-thread-safety">FMOD Studio API Thread Safety</a></li>
+<li><a href="#fmod-core-api-thread-safety">FMOD Core API Thread Safety</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="threads-and-thread-safety"><a href="#threads-and-thread-safety">Threads and Thread Safety</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>This section will describe the threads FMOD uses, and the thread safety offered by both the Studio API and the Core API.</p>
+<h3 id="fmod-thread-types"><a href="#fmod-thread-types">FMOD Thread Types</a></h3>
+<h4 id="studio-thread"><a href="#studio-thread">Studio Thread</a></h4>
+<p>This thread processes all Studio API commands and updates Studio events. It is created during <a class="apilink" href="studio-api-system.html#studio_system_initialize" title="Initializes the Studio System.">Studio::System::initialize</a> by default, unless <a class="apilink" href="studio-api-system.html#fmod_studio_init_synchronous_update" title="">FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE</a> is specified as a init flag.</p>
+<h4 id="mixer-thread"><a href="#mixer-thread">Mixer Thread</a></h4>
+<p>This thread is the software mixing thread. This is the thread that does the real work of mixing the DSP graph. It is created at <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>.</p>
+<h4 id="stream-thread"><a href="#stream-thread">Stream Thread</a></h4>
+<p>This thread is used for decoding streams. It is created the first time a sound is loaded as a stream in System::createSound with <a class="apilink" href="core-api-common.html#fmod_createstream" title="">FMOD_CREATESTREAM</a>, or <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a>.</p>
+<h4 id="async-loading-thread"><a href="#async-loading-thread">Async Loading Thread</a></h4>
+<p>This thread is created the first time a sound is loaded with the <a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a> flag in <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a>.</p>
+<h4 id="file-reading-thread"><a href="#file-reading-thread">File Reading Thread</a></h4>
+<p>This thread is used for reading from disk for streams, to then be decoded (decompressed) by the Stream thread. It is created the first time a sound is loaded as a stream in <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> with <a class="apilink" href="core-api-common.html#fmod_createstream" title="">FMOD_CREATESTREAM</a>, or <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a>.</p>
+<h3 id="thread-affinity"><a href="#thread-affinity">Thread Affinity</a></h3>
+<p>On some platforms, FMOD thread affinity can be customised. See the platform specific Basic Information page for more information.</p>
+<h3 id="fmod-callback-types"><a href="#fmod-callback-types">FMOD Callback Types</a></h3>
+<p>FMOD File and memory callbacks can possibly be called from an FMOD thread. Remember that if you specify file or memory callbacks with FMOD, to make sure that they are thread safe. FMOD may call these callbacks from other threads.</p>
+<h3 id="fmod-thread-safety"><a href="#fmod-thread-safety">FMOD Thread Safety</a></h3>
+<h4 id="fmod-studio-api-thread-safety"><a href="#fmod-studio-api-thread-safety">FMOD Studio API Thread Safety</a></h4>
+<p>By default FMOD Studio API is completely thread safe and all commands will execute on the Studio thread. In the case of functions that return handles to the user, the handle will be valid as soon as the function returns it, and all functions using that handle will be available. Therefore, the fact that the commands have been delayed should be completely transparent to the user.</p>
+<p>If <a class="apilink" href="studio-api-system.html#studio_system_initialize" title="Initializes the Studio System.">Studio::System::initialize</a> is called with <a class="apilink" href="studio-api-system.html#fmod_studio_init_synchronous_update" title="">FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE</a>, then Studio will not be thread-safe as it assumes all calls will be issued from a single thread. Commands in this mode will be queued up to be processed in the next <a class="apilink" href="studio-api-system.html#studio_system_update" title="Update the FMOD Studio System.">Studio::System::update</a> call. This mode is not recommended except for testing or for users who have set up their own asynchronous command queue already and wish to process all calls on a single thread. See the Studio Thread Overview for further information.</p>
+<h4 id="fmod-core-api-thread-safety"><a href="#fmod-core-api-thread-safety">FMOD Core API Thread Safety</a></h4>
+<p>By default FMOD Core API is initialized to be thread safe, which means the API can be called from any game thread at any time. Core thread safety can be disabled with the <a class="apilink" href="core-api-system.html#fmod_init_thread_unsafe" title="">FMOD_INIT_THREAD_UNSAFE</a> flag in <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> or <a class="apilink" href="studio-api-system.html#studio_system_initialize" title="Initializes the Studio System.">Studio::System::initialize</a>. The overhead of thread safety is that there is a mutex lock around the public API functions and (where possible) some commands are enqueued to be executed the next system update. The cases where it is safe to disable thread safety are:</p>
+<ul>
+<li>The game is using FMOD Studio API exclusively, and never issues Core calls itself.</li>
+<li>The game is using FMOD Core exclusively, and always from a single thread at once.</li>
+<li>The game is using FMOD Studio API and Core at the same time, but FMOD Studio is created with <a class="apilink" href="studio-api-system.html#fmod_studio_init_synchronous_update" title="">FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE</a> and the Core calls are done in the same thread as the FMOD Studio calls.</li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

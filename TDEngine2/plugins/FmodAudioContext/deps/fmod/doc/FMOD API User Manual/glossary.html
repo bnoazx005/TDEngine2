@@ -1,0 +1,310 @@
+<html>
+<head>
+<title>Glossary</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li class="manual-current-chapter manual-active-chapter"><a href="glossary.html">Glossary</a><ul>
+<li><a href="#2d-vs-3d">2D vs 3D</a></li>
+<li><a href="#callback-behavior">Callback Behavior</a></li>
+<li><a href="#channel-group">Channel Group</a></li>
+<li><a href="#channel">Channel</a></li>
+<li><a href="#compressed-sample">Compressed Sample</a></li>
+<li><a href="#documentation-conventions">Documentation Conventions</a><ul>
+<li><a href="#parameter-tokens">Parameter Tokens</a></li>
+</ul>
+</li>
+<li><a href="#distance-units">Distance Units</a></li>
+<li><a href="#dsp-chain">DSP Chain</a></li>
+<li><a href="#dsp">DSP</a></li>
+<li><a href="#handedness">Handedness</a></li>
+<li><a href="#sample-data">Sample Data</a><ul>
+<li><a href="#endianness">Endianness</a></li>
+<li><a href="#sample-formats">Sample Formats</a></li>
+<li><a href="#samples-vs-bytes-vs-milliseconds">Samples vs Bytes vs Milliseconds</a></li>
+</ul>
+</li>
+<li><a href="#sample">Sample</a></li>
+<li><a href="#sound">Sound</a></li>
+<li><a href="#stream">Stream</a><ul>
+<li><a href="#streaming-issues">Streaming Issues</a></li>
+</ul>
+</li>
+<li><a href="#string-format">String Format</a></li>
+<li><a href="#studio-guids-and-paths">Studio GUIDs and Paths</a></li>
+<li><a href="#studio-strings-bank">Studio Strings Bank</a></li>
+<li><a href="#studio-update-thread">Studio Update Thread</a></li>
+<li><a href="#sync-points">Sync Points</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>10. Glossary</h1>
+<h2 id="2d-vs-3d"><a href="#2d-vs-3d">10.1 2D vs 3D</a></h2>
+<p>A 3D sound <strong>source</strong> is a <a class="apilink" href="core-api-channel.html" title="">Channel</a> that has a position and a velocity in space. When a 3D <a class="apilink" href="core-api-channel.html" title="">Channel</a> is playing, its volume, speaker placement and pitch will be affected automatically based on the relation to the <strong>listener</strong>.</p>
+<p>A <strong>listener</strong> is typically the location of the player or the game camera. It has a position and velocity like a sound <strong>source</strong>, but it also has an orientation.</p>
+<p>3D Sound behaviour:</p>
+<ul>
+<li><strong>Volume</strong> is affected by the relative distance of the <strong>listener</strong> and the <strong>source</strong>.</li>
+<li><strong>Pitch</strong> is affected by the relative velocity of the <strong>listener</strong> and the <strong>source</strong> (This causes the doppler effect).</li>
+<li><strong>Pan</strong> is affected by the relative orientation of the <strong>listener</strong> to the position of the <strong>source</strong>.</li>
+</ul>
+<p>2D Sound behaviour:</p>
+<ul>
+<li>3D <strong>listener</strong> and <strong>source</strong> positions, velocities and orientations are ignored and have no effect.</li>
+<li>2D specific funcionality such as <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixlevelsoutput" title="Sets the outgoing volume levels for each speaker.">ChannelControl::setMixLevelsOutput</a>, <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixmatrix" title="Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">ChannelControl::setMixMatrix</a> and <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setpan" title="Sets the left/right pan level.">ChannelControl::setPan</a> will allow manual panning of audio.</li>
+</ul>
+<p><strong>Note:</strong> You can blend between a 3D mix and a 2D mix with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dlevel" title="Sets the blend between 3D panning and 2D panning.">ChannelControl::set3DLevel</a>.</p>
+<p>For a more detailed description of 3D sound behaviour, read the <a href="white-papers-3d-sounds.html">tutorial</a> on the topic.</p>
+<h2 id="callback-behavior"><a href="#callback-behavior">10.2 Callback Behavior</a></h2>
+<p>Only one callback is stored for each <a class="apilink" href="core-api-system.html" title="">System</a>/<a class="apilink" href="studio-api-system.html" title="">Studio::System</a>/<a class="apilink" href="studio-api-eventinstance.html" title="">Studio::EventInstance</a>/<a class="apilink" href="core-api-channelcontrol.html" title="">ChannelControl</a>. Therefore, any registered callback should handle all required callback types and indicate those types via the callback type mask.</p>
+<p>All calls to callbacks are issued per type. This means that if, for example, you use <a class="apilink" href="core-api-system.html#system_setcallback" title="Sets the callback for System level notifications.">System::setCallback</a> with <a class="apilink" href="core-api-system.html#fmod_system_callback_all" title="">FMOD_SYSTEM_CALLBACK_ALL</a>, when the callback is called, only one type will be passed for the <code>type</code> argument. Multiple types will not be combined for a single call.</p>
+<p><strong>C/C++ behavior</strong>.  Casting your own function type to an FMOD callback could cause a crash or corruption. For callback declaration always use the F_CALLBACK between the return type and the function name, and use the correct C types for all callback parameters. </p>
+<h2 id="channel-group"><a href="#channel-group">10.3 Channel Group</a></h2>
+<p>A <a href="glossary.html#channel-group">channel group</a> allows attributes to be set on a group of <a href="glossary.html#channel">channel</a>s collectively.  A <a href="glossary.html#channel-group">channel group</a> also allows you to operate on a the final mixed signal of the output of its <a href="glossary.html#channel">channel</a>s and child <a href="glossary.html#channel-group">channel group</a>s. This is known as a 'sub mix'.</p>
+<p>A <a href="glossary.html#channel-group">channel group</a> can be created with <a class="apilink" href="core-api-system.html#system_createchannelgroup" title="Create a ChannelGroup object.">System::createChannelGroup</a> which returns a <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a> object.</p>
+<p>The sub mix buffer can be processed with DSP effects (see <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a>), saving CPU time compared to applying the same effect to multiple <a href="glossary.html#channel">channel</a>s individually.</p>
+<p>The signal processing of a <a href="glossary.html#channel-group">channel group</a> will persist even when a <a href="glossary.html#channel">channel</a> has stopped.</p>
+<p>Note that a <a href="glossary.html#channel-group">channel group</a> can contain many children <a href="glossary.html#channel-group">channel group</a>s, but can only have one parent <a href="glossary.html#channel-group">channel group</a>.   See <a class="apilink" href="core-api-channelgroup.html#channelgroup_addgroup" title="Adds a ChannelGroup as an input to this group.">ChannelGroup::addGroup</a> and <a class="apilink" href="core-api-channelgroup.html#channelgroup_getparentgroup" title="Retrieves the ChannelGroup this object outputs to.">ChannelGroup::getParentGroup</a>.</p>
+<h2 id="channel"><a href="#channel">10.4 Channel</a></h2>
+<p>A channel is a playing instance of a <a href="glossary.html#sound">sound</a>.</p>
+<p>After loading or creating a <a href="glossary.html#sound">sound</a>, it is playable via the <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a> command which returns a <a class="apilink" href="core-api-channel.html" title="">Channel</a> object for run-time manipulation of its properties.</p>
+<p>FMOD automatically selects a channel for the sound to play on, you do not have to manage your own channels.</p>
+<p>Set the maximum number of channels playable with <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>.  For more information on Channels and how they can be real or virtual, go to the <a href="white-papers-virtual-voices.html">Virtual Voices</a> tutorial.</p>
+<h2 id="compressed-sample"><a href="#compressed-sample">10.5 Compressed Sample</a></h2>
+<p>Parent topic : <a href="glossary.html#sound">Sound</a></p>
+<p>Compressed Samples are suited for small sounds that need to be played more than once at a time, for example sound effects. </p>
+<p>Only certain file formats are supported with this type of sound.  File formats such as .MP2, .MP3, and .FSB (using FADPCM, Vorbis, AT9 and XMA codecs).<br />
+This type of sound is stored in memory in its native compressed format, and decodes in real-time while playing.</p>
+<p>Use <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a> to create a <a class="apilink" href="core-api-sound.html" title="">Sound</a> object in this mode.</p>
+<table>
+<thead>
+<tr>
+<th>Compressed Sample attributes</th>
+<th>Comparison</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keeps sound compressed into memory.</td>
+<td>Can use less memory than a <a href="glossary.html#sample">sample</a>, large sounds can use more than a <a href="glossary.html#stream">stream</a>.</td>
+</tr>
+<tr>
+<td>Higher CPU overhead during playback.</td>
+<td>Uses more CPU than a <a href="glossary.html#sample">sample</a>, slightly less than a <a href="glossary.html#stream">stream</a>.</td>
+</tr>
+<tr>
+<td>Fast to load.</td>
+<td>Faster than a <a href="glossary.html#sample">sample</a>, possibly slower than a <a href="glossary.html#stream">stream</a> with very large sounds.</td>
+</tr>
+<tr>
+<td>Can play more than 1 at a time.</td>
+<td>Better polyphony than a <a href="glossary.html#stream">stream</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: Compressed samples have a context allocated for each instance of playback.  This requires a fixed start up memory overhead.  See <a class="apilink" href="core-api-system.html#fmod_advancedsettings" title="Advanced configuration settings.">FMOD_ADVANCEDSETTINGS</a> to control codec maximums.</p>
+<h2 id="documentation-conventions"><a href="#documentation-conventions">10.6 Documentation Conventions</a></h2>
+<h3 id="parameter-tokens"><a href="#parameter-tokens">10.6.1 Parameter Tokens</a></h3>
+<table>
+<thead>
+<tr>
+<th align="center">Token</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><span><span class="token" title="Output">Out</span></span></td>
+<td>The API function will fill in information in this parameter.</td>
+</tr>
+<tr>
+<td align="center"><span><span class="token" title="Optional">Opt</span></span></td>
+<td>This parameter is optional, specify null or zero to ignore.</td>
+</tr>
+<tr>
+<td align="center"><span><span class="token" title="Read-only">R/O</span></span></td>
+<td>This token applies to members of various structures which FMOD passes to user callbacks. User callbacks must not modify the values of these members. Modifying the values of these members will cause undefined behavior.</td>
+</tr>
+<tr>
+<td align="center"><span><span class="token" title="C#only">C#</span></span></td>
+<td>This is only available in C#.</td>
+</tr>
+<tr>
+<td align="center"><span><span class="token" title="Javscript-only">JS</span></span></td>
+<td>This is only available in Javascript.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="distance-units"><a href="#distance-units">10.7 Distance Units</a></h2>
+<p>The unit of measurement for distances for 3D calculations. By default 1 disance unit is equivalent to 1 meter. To use your game's distance units specify the scale of your game's distance units to meters using <a class="apilink" href="core-api-system.html#system_set3dsettings" title="Sets the global doppler scale, distance factor and log rolloff scale for all 3D sound in FMOD.">System::set3DSettings</a>. </p>
+<h2 id="dsp-chain"><a href="#dsp-chain">10.8 DSP Chain</a></h2>
+<p>A DSP chain is a collection of DSP units that connect together in a linear fashion.  Each <a class="apilink" href="core-api-channel.html" title="">Channel</a> and <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a> contain a DSP chain.</p>
+<p>A DSP is capable of multiple inputs, but in a DSP chain each DSP is connected to the next with one input, all the way from the head to the tail. See <a class="apilink" href="core-api-channelcontrol.html#fmod_channelcontrol_dsp_index" title="References to built in DSP positions that reside in a Channel or ChannelGroup DSP chain.">FMOD_CHANNELCONTROL_DSP_INDEX</a> for special named offsets for 'head' and 'tail' and 'fader' units.</p>
+<p><img alt="DSP Chain" src="images/dsp-chain.png" /></p>
+<p>A typical Channel represented above with a 'head' (of type <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_fader" title="">FMOD_DSP_TYPE_FADER</a> to allow volume control and panning), which is fed by an echo effect (of type <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_echo" title="">FMOD_DSP_TYPE_ECHO</a>) which is in turn fed by a PCM wavetable unit (of type that is internal to FMOD).<br />
+The signal feeds from right to left to the DSP chain's head, before continuing to the next connected DSP (not pictured).</p>
+<h2 id="dsp"><a href="#dsp">10.9 DSP</a></h2>
+<p>DSP stands for "Digital Signal Processing", and usually relates to processing raw PCM samples to alter the sound. </p>
+<p>FMOD provides a suite of DSP effects that can alter the sound in interesting ways to simulate real life or exaggerate a sound.<br />
+Examples of this are echo, reverb, lowpass filtering, flange and chorus.</p>
+<p>Effects can easily be added to an FMOD channel, or a sub mix, or <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a> with the <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> function.</p>
+<p>You also have the option of writing your own effects with <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>. See the <a href="white-papers-dsp-architecture.html">DSP Architecture and Usage tutorial</a> for more.</p>
+<h2 id="handedness"><a href="#handedness">10.10 Handedness</a></h2>
+<p>Handedness is an innate property of 3D cartesian coordinate systems. The handedness of the coordinate system specifies the direction of the Z axis along the line perpendicular to the X and Y axes, and the direction of positive rotations.</p>
+<p>For 3D spatialization to behave intuitively it is important that FMOD is configured to use the same orientation as your game's coordinate system.</p>
+<p>By default FMOD uses a left-handed coordinate system. The positive Y axis points up, the positive X axis points to the right, and the positive Z axis points <em>away</em> from the listener. Positive rotations are <em>clockwise</em> around the axis of rotation when viewed so that the axis points towards the listener.</p>
+<p>FMOD may also be configured to use a right-handed coordinate system by passing FMOD_INIT_3D_RIGHTHANDED to <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>. When configured for a right-handed coordinate system the positive Y axis points up, the positive X axis points to the right, and the positive Z axis points <em>towards</em> the listener. Positive rotations are <em>counter-clockwise</em> around the axis of rotation when viewed so that the axis points towards the listener.</p>
+<h2 id="sample-data"><a href="#sample-data">10.11 Sample Data</a></h2>
+<p>Sample data is raw (PCM) or a compressed audio signal, stored as a <a href="glossary.html#sound">sound</a>.</p>
+<h3 id="endianness"><a href="#endianness">10.11.1 Endianness</a></h3>
+<p>When accessing raw data in a sound, it will be in the native endianness of the platform.  See <a class="apilink" href="core-api-sound.html#sound_lock" title="Gives access to a portion or all the sample data of a sound for direct manipulation.">Sound::lock</a>, <a class="apilink" href="core-api-sound.html#sound_unlock" title="Finalizes a previous sample data lock and submits it back to the Sound object.">Sound::unlock</a>.<br />
+When a sound file is loaded, FMOD will convert the endian to match the native endian of the platform.</p>
+<h3 id="sample-formats"><a href="#sample-formats">10.11.2 Sample Formats</a></h3>
+<p>Sample data can come in a variety of PCM bit depths (8,16,24,32) and types (integer, float), or as a compressed bitstream.   See <a class="apilink" href="core-api-sound.html#fmod_sound_format" title="These definitions describe the native format of the hardware or software buffer that will be used.">FMOD_SOUND_FORMAT</a>.</p>
+<h3 id="samples-vs-bytes-vs-milliseconds"><a href="#samples-vs-bytes-vs-milliseconds">10.11.3 Samples vs Bytes vs Milliseconds</a></h3>
+<p>Within FMOD functions you will see references to PCM samples, bytes and milliseconds.</p>
+<p>To understand what the difference is a diagram has been provided to show how raw PCM sample data is stored in FMOD buffers. </p>
+<p><img alt="Samples vs Bytes vs Milliseconds" src="images/samples-bytes-milliseconds.png" /></p>
+<p>In this diagram you will see that a stereo sound has its left/right data interleaved one after the other.<br />
+A left/right pair (a sound with 2 <strong>channels</strong>) is called a <strong>sample</strong>.<br />
+Because this is made up of 16bit data, 1 <strong>sample</strong> = 4 <strong>bytes</strong>.<br />
+If the sample rate, or playback rate is 44.1khz, or 44100 samples per second, then <strong>1 sample is 1/44100th of a second</strong>, or <strong>1/44th of a millisecond</strong>. Therefore 44100 samples = 1 second or 1000ms worth of data.<br />
+To convert between the different terminologies, the following formulas can be used:</p>
+<ul>
+<li><strong>ms</strong> = samples * 1000 / samplerate.</li>
+<li><strong>samples</strong> = ms * samplerate / 1000.</li>
+<li><strong>samplerate</strong> = samples * 1000 / ms.</li>
+<li><strong>bytes</strong> = samples * bits * channels / 8.</li>
+<li><strong>samples</strong> = bytes * 8 / bits / channels.</li>
+</ul>
+<p>Some functions like <a class="apilink" href="core-api-sound.html#sound_getlength" title="Retrieves the length using the specified time unit.">Sound::getLength</a> provide the length in milliseconds, bytes and samples to avoid needing to do these calculations.</p>
+<h2 id="sample"><a href="#sample">10.12 Sample</a></h2>
+<p>Parent topic : <a href="glossary.html#sound">Sound</a></p>
+<p>Samples (also referred to as 'decompress into memory' type sounds), are suited for small sounds that need to be played more than once at a time, for example sound effects.</p>
+<p>Use <a class="apilink" href="core-api-common.html#fmod_createsample" title="">FMOD_CREATESAMPLE</a> to create a <a class="apilink" href="core-api-sound.html" title="">Sound</a> object in this mode.</p>
+<table>
+<thead>
+<tr>
+<th>Sample attributes</th>
+<th>Comparison</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Decompresses whole sound into memory.</td>
+<td>Can use more memory than a <a href="glossary.html#compressed-sample">compressed sample</a> or <a href="glossary.html#stream">stream</a>.</td>
+</tr>
+<tr>
+<td>Low CPU overhead during playback.</td>
+<td>Uses less CPU than a <a href="glossary.html#compressed-sample">compressed sample</a> or <a href="glossary.html#stream">stream</a>.</td>
+</tr>
+<tr>
+<td>Slower to load.</td>
+<td>Can take longer to load on large sounds than a <a href="glossary.html#compressed-sample">compressed sample</a> or <a href="glossary.html#stream">stream</a>.</td>
+</tr>
+<tr>
+<td>Can play more than 1 at a time.</td>
+<td>Better polyphony than a <a href="glossary.html#stream">stream</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mobile Developers</strong>:  A common use for this format is to store files compressed on disk (for faster download speed), then decompress into memory at load time, for lower cpu overhead at run-time.</p>
+<h2 id="sound"><a href="#sound">10.13 Sound</a></h2>
+<p>A sound is an instance of <a href="glossary.html#sample-data">sample data</a> which can be loaded from media, or created from memory.</p>
+<p>When a sound is loaded, it is either decompressed as a static sample into memory as PCM (sample), loaded into memory in its native format and decompressed at runtime (compressed sample), or streamed and decoded in realtime (in chunks) from an external media such as a disk or internet (stream).</p>
+<p>For more detail see:</p>
+<ul>
+<li><a href="glossary.html#sample">Sample</a></li>
+<li><a href="glossary.html#stream">Stream</a></li>
+<li><a href="glossary.html#compressed-sample">Compressed Sample</a></li>
+</ul>
+<p>A sound can be created with <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> or <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a> which returns a <a class="apilink" href="core-api-sound.html" title="">Sound</a> object.   A <a class="apilink" href="core-api-sound.html" title="">Sound</a> object can be played with <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a>.</p>
+<h2 id="stream"><a href="#stream">10.14 Stream</a></h2>
+<p>Parent topic : <a href="glossary.html#sound">Sound</a></p>
+<p>A stream is good for a sound that is too large to fit into memory.  A stream reads from disk or other media like the internet as it plays.</p>
+<p>Typically suited to larger sounds like music, long ambiences, or voice.</p>
+<p>Use <a class="apilink" href="core-api-common.html#fmod_createstream" title="">FMOD_CREATESTREAM</a> to create a <a class="apilink" href="core-api-sound.html" title="">Sound</a> object in this mode.</p>
+<table>
+<thead>
+<tr>
+<th>'Stream' attributes</th>
+<th>Comparison</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uses a small buffer in memory.</td>
+<td>Uses less memory than a <a href="glossary.html#sample">sample</a> or <a href="glossary.html#compressed-sample">compressed sample</a> on large sounds.</td>
+</tr>
+<tr>
+<td>Higher CPU overhead during playback.</td>
+<td>Uses more CPU than <a href="glossary.html#sample">sample</a>, slightly more than a <a href="glossary.html#compressed-sample">compressed sample</a> due to simultaneous reading from medium.</td>
+</tr>
+<tr>
+<td>Fast to load.</td>
+<td>Faster than a <a href="glossary.html#sample">sample</a> on large sounds, possibly faster than a <a href="glossary.html#compressed-sample">compressed sample</a> with very large sounds.</td>
+</tr>
+<tr>
+<td>Can only be played once at a time.</td>
+<td>Worse polyphony than a <a href="glossary.html#sample">sample</a> or <a href="glossary.html#compressed-sample">compressed sample</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: A very small sound may use more memory than a <a href="glossary.html#sample">sample</a> or <a href="glossary.html#compressed-sample">compressed sample</a> when created as a stream, due to the stream file/decode buffer overhead being bigger than the size of the sound.</p>
+<h3 id="streaming-issues"><a href="#streaming-issues">10.14.1 Streaming Issues</a></h3>
+<p><strong>Bandwidth</strong></p>
+<p>Streaming audio from a medium should be kept to a limited number of instances, to avoid starvation of data leading to skipping / stuttering audio.</p>
+<p>Increasing stream memory buffer sizes can help to mitigate this problem.  See <a class="apilink" href="core-api-system.html#system_setstreambuffersize" title="Sets the default file buffer size for newly opened streams.">System::setStreamBufferSize</a> and <a class="apilink" href="core-api-system.html#fmod_advancedsettings_defaultdecodebuffersize" title="">FMOD_ADVANCEDSETTINGS::defaultDecodeBufferSize</a>.</p>
+<p><strong>Speed of commands using streams</strong></p>
+<p><a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a>, <a class="apilink" href="core-api-channel.html#channel_setposition" title="Sets the current playback position.">Channel::setPosition</a> and <a class="apilink" href="core-api-sound.html#sound_getsubsound" title="Retrieves a handle to a Sound object that is contained within the parent sound.">Sound::getSubSound</a> when using a stream can take longer than an in memory sample, as they have to initialize internal buffers and flush them from disk.</p>
+<p>Use <a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a> command to remove the cost from the main thread and put the overhead into a background thread.</p>
+<p><strong>Setting loop counts or points of a playing stream </strong></p>
+<p>Issues with looping streaming sounds may arise when changing the loop count or loop points of a playing stream.</p>
+<p>Sounds created with <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a> or <a class="apilink" href="core-api-common.html#fmod_createstream" title="">FMOD_CREATESTREAM</a> may have executed loop logic and buffered sample data before API calls to change their looping properties. If issues occur after changing loop properties you may need to call <a class="apilink" href="core-api-channel.html#channel_setposition" title="Sets the current playback position.">Channel::setPosition</a> to force a flush of the stream buffer.</p>
+<p>Note this will usually only happen if you have sounds or loop regions which are smaller than the stream <em>decode</em> buffer. See <a class="apilink" href="core-api-system.html#fmod_createsoundexinfo" title="Additional options for creating a Sound.">FMOD_CREATESOUNDEXINFO</a>.</p>
+<h2 id="string-format"><a href="#string-format">10.15 String Format</a></h2>
+<p>All FMOD Public APIs and structures use UTF-8 strings.</p>
+<p>As C# uses UTF-16 strings by default, the FMOD C# api function parameters will automatically convert between UTF-16 and UTF-8 strings in any api using the C# "string" type or FMOD's "StringWrapper" type. However, any API that uses strings via an IntPtr will not automatically convert from UTF-16, and will instead expect a UTF-8 string to be used.</p>
+<h2 id="studio-guids-and-paths"><a href="#studio-guids-and-paths">10.16 Studio GUIDs and Paths</a></h2>
+<p>Many functions in the FMOD Studio API allow you to identify an object within an FMOD Studio project by the object's globally unique identifier, or GUID. These API functions will accept the GUID in binary format (mostly useful when an object's GUID has been looked up programmatically by name), or as a string formatted as 32 digits separated by hyphens and enclosed in braces: <code>{00000000-0000-0000-0000-000000000000}</code>.</p>
+<p>Many functions in the FMOD Studio API allow you to identify an object within an FMOD Studio project by the object's path. Objects can only be identified by path if the project's <a href="#studio-strings-bank">strings bank</a> is loaded.</p>
+<p>See the <a href="https://fmod.com/resources/documentation-studio">FMOD Studio Documentation</a> for more information.</p>
+<h2 id="studio-strings-bank"><a href="#studio-strings-bank">10.17 Studio Strings Bank</a></h2>
+<p>When building a master bank FMOD Studio will also write out a strings bank for the project. The strings bank contains a string table which the FMOD Studio API can use to resolve GUIDs from paths. FMOD Studio API functions which accept paths require the project's strings bank to be loaded in order to function correctly.</p>
+<h2 id="studio-update-thread"><a href="#studio-update-thread">10.18 Studio Update Thread</a></h2>
+<p>A thread created by the FMOD Studio System to perform asynchronous processing of API commands and manage scheduling and playback logic for events. This thread is triggered from the Core Mixer thread at the period specified in the <a class="apilink" href="studio-api-system.html#fmod_studio_advancedsettings" title="Settings for advanced features like configuring memory and cpu usage.">FMOD_STUDIO_ADVANCEDSETTINGS</a>. If the Studio System is initialized with <a class="apilink" href="studio-api-system.html#fmod_studio_init_synchronous_update" title="">FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE</a> then no Studio Update thread is created.</p>
+<h2 id="sync-points"><a href="#sync-points">10.19 Sync Points</a></h2>
+<p>A sync point can be used to trigger a callback during playback. See <a class="apilink" href="core-api-channelcontrol.html#fmod_channelcontrol_callback_syncpoint" title="">FMOD_CHANNELCONTROL_CALLBACK_SYNCPOINT</a>.<br />
+These points can be user generated via the API or can come from a .wav file with embedded markers.</p>
+<p>Markers can be added to a wave file in a sound editor usually by clicking on a waveform or timeline and inserting a 'marker' or 'region'.</p>
+<p>Any RIFF based format will support sync points.</p>
+<p>Sync points can be manipulated with:</p>
+<ul>
+<li><a class="apilink" href="core-api-sound.html#sound_addsyncpoint" title="Adds a sync point at a specific time within the sound.">Sound::addSyncPoint</a></li>
+<li><a class="apilink" href="core-api-sound.html#sound_deletesyncpoint" title="Deletes a sync point within the sound.">Sound::deleteSyncPoint</a></li>
+<li><a class="apilink" href="core-api-sound.html#sound_getnumsyncpoints" title="Retrieves the number of sync points stored within a sound.">Sound::getNumSyncPoints</a></li>
+<li><a class="apilink" href="core-api-sound.html#sound_getsyncpoint" title="Retrieve a sync point.">Sound::getSyncPoint</a></li>
+<li><a class="apilink" href="core-api-sound.html#sound_getsyncpointinfo" title="Retrieves information on an embedded sync point.">Sound::getSyncPointInfo</a></li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

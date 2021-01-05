@@ -1,0 +1,59 @@
+<html>
+<head>
+<title>White Papers | Studio API Threads</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Studio API Threads</h1>
+<div class="toc">
+<ul>
+<li><a href="#studio-thread-overview">Studio Thread Overview</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#studio-synchronous-mode">Studio Synchronous Mode</a></li>
+<li><a href="#studio-asynchronous-mode">Studio Asynchronous Mode</a></li>
+<li><a href="#game-controlled-worker-thread">Game Controlled Worker Thread</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="studio-thread-overview"><a href="#studio-thread-overview">Studio Thread Overview</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>This section will describe how Studio execution works in regards to threads.</p>
+<h3 id="studio-synchronous-mode"><a href="#studio-synchronous-mode">Studio Synchronous Mode</a></h3>
+<p>If <a class="apilink" href="studio-api-system.html#studio_system_initialize" title="Initializes the Studio System.">Studio::System::initialize</a> is called with <a class="apilink" href="studio-api-system.html#fmod_studio_init_synchronous_update" title="">FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE</a>, then Studio will be created in synchronous mode. In this mode, all Studio API commands are executed during <a class="apilink" href="studio-api-system.html#studio_system_update" title="Update the FMOD Studio System.">Studio::System::update</a>.</p>
+<p>As part of that Studio update, it will automatically call the core <a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a> to ensure that the core system is updated properly.</p>
+<p><img alt="Studio Thread Synchronous" src="images/studio-thread-sync.png" /></p>
+<p>The above diagram shows Studio commands being called from the game thread in Studio. It also shows the core mixer thread, which is triggered based on the hardware output device. The core mixer thread normally has a period of 5ms, 10ms, or 20ms, depending on the platform. It can also be customized with <a class="apilink" href="core-api-system.html#system_setdspbuffersize" title="Sets the buffer size for the FMOD software mixing engine.">System::setDSPBufferSize</a> and <a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a>.</p>
+<p>When running in this mode, Studio must deal with the fact that the core mix can execute at any time. For instance, an event may have two timelocked instruments that should start at the same time. Studio schedules sounds a mix block later so that even if the mix jumps in, all scheduled events will occur in the same mix block.</p>
+<h3 id="studio-asynchronous-mode"><a href="#studio-asynchronous-mode">Studio Asynchronous Mode</a></h3>
+<p>The default operation is for Studio to create its own asynchronous thread for execution. In this mode, Studio API commands are enqueued and executed in the Studio asynchronous thread. The commands are batched up so that they are only sent to the asynchronous thread at the end of the next <a class="apilink" href="studio-api-system.html#studio_system_update" title="Update the FMOD Studio System.">Studio::System::update</a>. This prevents some Studio commands from executing earlier than others, which could cause glitches. For instance, if an event position is updated, and the listener position is updated, those two commands will always be executed together.</p>
+<p><img alt="Studio Thread Asynchronous" src="images/studio-thread-async.png" /></p>
+<p>In asynchronous mode, the Studio processing occurs every 20ms and is triggered off the core mixer. The core mix is split into parts, premix, midmix and postmix. It is the core premix that executes any enqueued core commands and updates DSP clocks. By triggering the asynchronous Studio processing at the end of the premix, Studio can assume that the mix isn't going to jump in as the asynchronous update is executing. Unlike the first case, Studio can also assume that the update will be called in a timely manner, even if the game's main thread has a framerate spike.</p>
+<p>The size of the Studio asynchronous command buffer can be customized by calling <a class="apilink" href="studio-api-system.html#studio_system_setadvancedsettings" title="Sets advanced settings.">Studio::System::setAdvancedSettings</a>. It there is not enough space for commands, then a stall will occur until the asynchronous update has consumed enough commands. <a class="apilink" href="studio-api-system.html#studio_system_getbufferusage" title="Retrieves buffer usage information.">Studio::System::getBufferUsage</a> can be used to measure if any stalls have occurred due to the command buffer not being large enough.</p>
+<h3 id="game-controlled-worker-thread"><a href="#game-controlled-worker-thread">Game Controlled Worker Thread</a></h3>
+<p>Another command situation is for the game to have its own worker thread that invokes Studio using <a class="apilink" href="studio-api-system.html#fmod_studio_init_synchronous_update" title="">FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE</a>. This is very similar to the first diagram, except that execution is in a worker rather than the game thread. It is up to the game thread how it wishes to synchronize with the rest of the game. It could be triggered per game frame, or with a fixed period.</p>
+<p>In this mode, it is up to the developer to ensure that commands are not split across system updates. For example, consider the case where the game thread issues commands for the worker thread, and the worker thread wakes up periodically to execute those commands. In that case, the worker thread may wake up and execute some commands but not others, causing subtle issues with the sound playback. Instead, the commands to the worker thread should be batched up to avoid slicing commands. Or even better, just use the inbuilt asynchronous mode to do the command batching instead.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

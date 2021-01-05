@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>Welcome to FMOD API | New in FMOD API 2.01</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="welcome.html">Welcome to FMOD API</a><ul class="subchapters"><li class="manual-current-chapter manual-active-chapter"><a href="welcome-whats-new-201.html">New in FMOD API 2.01</a></li><li><a href="welcome-whats-new-200.html">New in FMOD API 2.00</a></li><li><a href="welcome-whats-new-110.html">New in FMOD API 1.10</a></li><li><a href="welcome-whats-new-109.html">New in FMOD API 1.09</a></li><li><a href="welcome-whats-new-108.html">New in FMOD API 1.08</a></li><li><a href="welcome-revision-history.html">Detailed Revision History</a></li></ul></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>1. Welcome to FMOD API | New in FMOD API 2.01</h1>
+<div class="toc">
+<ul>
+<li><a href="#whats-new-in-201">What's New in 2.01?</a><ul>
+<li><a href="#performance-improvements">Performance improvements</a></li>
+<li><a href="#thread-attributes">Thread attributes</a></li>
+<li><a href="#minor-api-differences">Minor API differences</a></li>
+</ul>
+</li>
+<li><a href="#whats-new-since-200-initial-release">What's new since 2.00 initial release?</a><ul>
+<li><a href="#improved-cpu-tracking">Improved CPU tracking</a></li>
+<li><a href="#improved-memory-tracking">Improved memory tracking</a></li>
+<li><a href="#stadia-platform">Stadia platform</a></li>
+<li><a href="#minor-api-differences_1">Minor API differences</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="whats-new-in-201"><a href="#whats-new-in-201">What's New in 2.01?</a></h2>
+<p>This section describes the major features introduced in the 2.01 release. See the <a href="welcome-revision-history.html">Detailed Revision History</a> for information regarding each patch release.</p>
+<h3 id="performance-improvements"><a href="#performance-improvements">Performance improvements</a></h3>
+<p>With every release of FMOD performance is kept in mind, however particularly with this release a strong focus has been made to improve performance across several key areas.</p>
+<ul>
+<li>Mixing</li>
+<li>Resampling</li>
+<li>FSB Vorbis</li>
+<li>Convolution reverb</li>
+<li>Multiband EQ</li>
+</ul>
+<p>This process involved improving existing and adding new hardware specific optimization for SSE, AVX, AVX2, AVX-512 and Neon instruction sets which cover all platforms FMOD currently targets.</p>
+<ul>
+<li>Synthetic benchmarks for Vorbis playback with resampling for mono, stereo, quad, 5.1 and 7.1 showed performance increase of 2-2.5x.</li>
+<li>Synthetic benchmarks for Multiband EQ showed performance increase of 2-3x for stereo and higher channel counts.</li>
+<li>Replay of commands from existing games showed real world improvements of 20% for a mix of workloads.</li>
+</ul>
+<h3 id="thread-attributes"><a href="#thread-attributes">Thread attributes</a></h3>
+<p>Prior to this release setting thread related attributes such as priority, stack size and thread affinity was split over several API locations (some platform specific).<br />
+Now we have a unified API for controlling all these values in a single place accessed via <a class="apilink" href="core-api-common.html#thread_setattributes" title="Specify the affinity, priority and stack size for all FMOD created threads.">Thread_SetAttributes</a>.</p>
+<p>In 2.0 you could override the stack size for the stream, non-blocking and mixer threads using <code>FMOD_ADVANCEDSETTINGS::stackSizeStream</code>, <code>FMOD_ADVANCEDSETTINGS::stackSizeNonBlocking</code> and <code>FMOD_ADVANCEDSETTINGS::stackSizeMixer</code> respectively. These have all been removed in favor of using the new set attributes function as follows:</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD</span><span class="o">::</span><span class="n">Thread_SetAttributes</span><span class="p">(</span><span class="n">FMOD_THREAD_TYPE_STREAM</span><span class="p">,</span>      <span class="n">FMOD_THREAD_AFFINITY_GROUP_DEFAULT</span><span class="p">,</span> <span class="n">FMOD_THREAD_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="n">stackSizeStream</span><span class="p">);</span>
+<span class="n">FMOD</span><span class="o">::</span><span class="n">Thread_SetAttributes</span><span class="p">(</span><span class="n">FMOD_THREAD_TYPE_NONBLOCKING</span><span class="p">,</span> <span class="n">FMOD_THREAD_AFFINITY_GROUP_DEFAULT</span><span class="p">,</span> <span class="n">FMOD_THREAD_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="n">stackSizeNonBlocking</span><span class="p">);</span>
+<span class="n">FMOD</span><span class="o">::</span><span class="n">Thread_SetAttributes</span><span class="p">(</span><span class="n">FMOD_THREAD_TYPE_MIXER</span><span class="p">,</span>       <span class="n">FMOD_THREAD_AFFINITY_GROUP_DEFAULT</span><span class="p">,</span> <span class="n">FMOD_THREAD_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="n">stackSizeMixer</span><span class="p">);</span>
+</pre></div>
+
+
+<p>In 2.0 you could override the affinity for all threads in a platform specific way, e.g. <code>FMOD_UWP_SetThreadAffinity</code> or <code>FMOD_Android_SetThreadAffinity</code>. These have all been removed in favor of using the new set attributes function as follows:</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD</span><span class="o">::</span><span class="n">Thread_SetAttributes</span><span class="p">(</span><span class="n">FMOD_THREAD_TYPE_MIXER</span><span class="p">,</span> <span class="n">FMOD_THREAD_AFFINITY_CORE_5</span><span class="p">);</span>
+<span class="n">FMOD</span><span class="o">::</span><span class="n">Thread_SetAttributes</span><span class="p">(</span><span class="n">FMOD_THREAD_TYPE_STREAM</span><span class="p">,</span> <span class="n">FMOD_THREAD_AFFINITY_CORE_3</span><span class="p">);</span>
+</pre></div>
+
+
+<p>Additionally it's now possible to specify the thread priority for all FMOD threads using the same API.</p>
+<h3 id="minor-api-differences"><a href="#minor-api-differences">Minor API differences</a></h3>
+<ul>
+<li>Removed the deprecated <code>FMOD_ADVANCEDSETTINGS::commandQueueSize</code> field</li>
+<li>Renamed <code>FMOD_OUTPUT_DESCRIPTION::polling</code> to <a class="apilink" href="plugin-api-output.html#fmod_output_description_method" title="">FMOD_OUTPUT_DESCRIPTION::method</a></li>
+<li>Modified <a class="apilink" href="core-api-common.html#memory_initialize" title="Specifies a method for FMOD to allocate and free memory, either through user supplied callbacks or through a user supplied memory memory buffer with a fixed size.">Memory_Initialize</a> so that the <code>userrealloc</code> callback is now optional</li>
+<li>Modified <a class="apilink" href="studio-api-system.html#studio_system_getlistenerattributes" title="Retrieves listener 3D attributes.">Studio::System::getListenerAttributes</a> / <a class="apilink" href="studio-api-system.html#studio_system_setlistenerattributes" title="Sets the 3D attributes of the listener.">Studio::System::setListenerAttributes</a> to accept separate <code>attenuationposition</code></li>
+<li>Added <a class="apilink" href="studio-api-common.html#fmod_studio_parameter_automatic_speed_absolute" title="">FMOD_STUDIO_PARAMETER_AUTOMATIC_SPEED_ABSOLUTE</a></li>
+<li>Added <a class="apilink" href="studio-api-eventinstance.html#fmod_studio_event_callback_start_event_command" title="">FMOD_STUDIO_EVENT_CALLBACK_START_EVENT_COMMAND</a></li>
+</ul>
+<h2 id="whats-new-since-200-initial-release"><a href="#whats-new-since-200-initial-release">What's new since 2.00 initial release?</a></h2>
+<h3 id="improved-cpu-tracking"><a href="#improved-cpu-tracking">Improved CPU tracking</a></h3>
+<p>It is now possible to track both inclusive and exclusive CPU usage costs for the Studio update thread via <a class="apilink" href="studio-api-bus.html#studio_bus_getcpuusage" title="Retrieves the bus CPU usage data.">Studio::Bus::getCPUUsage</a> and <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getcpuusage" title="Retrieves the event CPU usage data.">Studio::EventInstance::getCPUUsage</a>.</p>
+<h3 id="improved-memory-tracking"><a href="#improved-memory-tracking">Improved memory tracking</a></h3>
+<p>It is now possible to track the instances and sample data memory usage for each System, Bus and EventInstance via <a class="apilink" href="studio-api-system.html#studio_system_getmemoryusage" title="Retrieves memory usage statistics.">Studio::System::getMemoryUsage</a>, <a class="apilink" href="studio-api-bus.html#studio_bus_getcpuusage" title="Retrieves the bus CPU usage data.">Studio::Bus::getCPUUsage</a> and <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getcpuusage" title="Retrieves the event CPU usage data.">Studio::EventInstance::getCPUUsage</a> respectively.</p>
+<h3 id="stadia-platform"><a href="#stadia-platform">Stadia platform</a></h3>
+<p>Official support for the Stadia platform has been added.</p>
+<h3 id="minor-api-differences_1"><a href="#minor-api-differences_1">Minor API differences</a></h3>
+<ul>
+<li>Added <a class="apilink" href="core-api-system.html#fmod_outputtype_aaudio" title="">FMOD_OUTPUTTYPE_AAUDIO</a> output mode for newer Android devices</li>
+<li>Added <a class="apilink" href="studio-api-eventinstance.html#fmod_studio_event_property_cooldown" title="">FMOD_STUDIO_EVENT_PROPERTY_COOLDOWN</a> to allow per-event instance cool down override</li>
+<li>Added <a class="apilink" href="core-api-common.html#fmod_speaker_none" title="">FMOD_SPEAKER_NONE</a> to identify the absence of a speaker</li>
+<li>Added <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_channelmix_output_ch0" title="">FMOD_DSP_CHANNELMIX_OUTPUT_CH0</a> ... <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_channelmix_output_ch31" title="">FMOD_DSP_CHANNELMIX_OUTPUT_CH31</a> to support re-routing input channels in the Channel Mix DSP</li>
+<li>Added <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_channelmix_output_all7point1point4" title="">FMOD_DSP_CHANNELMIX_OUTPUT_ALL7POINT1POINT4</a> to support 7.1.4 output in the Channel Mix DSP</li>
+<li>Modified <a class="apilink" href="core-api-system.html#fmod_advancedsettings_asiospeakerlist" title="">FMOD_ADVANCEDSETTINGS::ASIOSpeakerList</a> to accept <a class="apilink" href="core-api-common.html#fmod_speaker_none" title="">FMOD_SPEAKER_NONE</a> for supporting high channel count devices</li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

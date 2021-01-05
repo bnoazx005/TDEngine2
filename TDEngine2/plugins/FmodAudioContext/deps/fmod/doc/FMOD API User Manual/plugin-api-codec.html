@@ -1,0 +1,722 @@
+<html>
+<head>
+<title>Plugin API Reference | Codec</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="plugin-api.html">Plugin API Reference</a><ul class="subchapters"><li class="manual-current-chapter manual-active-chapter"><a href="plugin-api-codec.html">Codec</a></li><li><a href="plugin-api-dsp.html">DSP</a></li><li><a href="plugin-api-output.html">Output</a></li></ul></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>9. Plugin API Reference | Codec</h1>
+<p>An interface that manages Codec plugins</p>
+<p><strong>Structures:</strong></p>
+<ul>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a> Codec description.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a> Codec state structure that is passed into each callback.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat" title="Codec wave format.">FMOD_CODEC_WAVEFORMAT</a> Codec wave format.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat_version" title="Codec Wave format version number.">FMOD_CODEC_WAVEFORMAT_VERSION</a> Codec Wave format version number.</li>
+</ul>
+<p><strong>Callbacks:</strong></p>
+<ul>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_close_callback" title="Codec close callback.">FMOD_CODEC_CLOSE_CALLBACK</a> Codec close callback.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_getlength_callback" title="Codec get length callback.">FMOD_CODEC_GETLENGTH_CALLBACK</a> Codec get length callback.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_getposition_callback" title="Codec get position callback.">FMOD_CODEC_GETPOSITION_CALLBACK</a> Codec get position callback.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_open_callback" title="Codec open callback.">FMOD_CODEC_OPEN_CALLBACK</a> Codec open callback.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_read_callback" title="Codec read callback.">FMOD_CODEC_READ_CALLBACK</a> Codec read callback.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_setposition_callback" title="Codec set position callback.">FMOD_CODEC_SETPOSITION_CALLBACK</a> Codec set position callback.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_soundcreate_callback" title="Codec sound create callback.">FMOD_CODEC_SOUNDCREATE_CALLBACK</a> Codec sound create callback.</li>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_getwaveformat_callback" title="Codec get wave format callback.">FMOD_CODEC_GETWAVEFORMAT_CALLBACK</a> Codec get wave format callback.</li>
+</ul>
+<p><strong>State function:</strong></p>
+<ul>
+<li><a class="apilink" href="plugin-api-codec.html#fmod_codec_metadata_func" title="Codec metadata function.">FMOD_CODEC_METADATA_FUNC</a> Codec metadata function.</li>
+</ul>
+<h2 api="callback" id="fmod_codec_close_callback"><a href="#fmod_codec_close_callback">FMOD_CODEC_CLOSE_CALLBACK</a></h2>
+<p>Codec close callback.</p>
+<p>This callback is called to shut down and release memory for the codec instance.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_CLOSE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-sound.html#sound_release" title="Frees a sound object.">Sound::release</a></li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_open_callback" title="Codec open callback.">FMOD_CODEC_OPEN_CALLBACK</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_soundcreate_callback" title="Codec sound create callback.">FMOD_CODEC_SOUNDCREATE_CALLBACK</a></p>
+<h2 api="struct" id="fmod_codec_description"><a href="#fmod_codec_description">FMOD_CODEC_DESCRIPTION</a></h2>
+<p>Codec description.</p>
+<p>This description structure allows the plugin writer to define all functionality required for a user defined codec.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_CODEC_DESCRIPTION</span> <span class="p">{</span>
+  <span class="k">const</span> <span class="kt">char</span>                         <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>                        <span class="n">version</span><span class="p">;</span>
+  <span class="kt">int</span>                                 <span class="n">defaultasstream</span><span class="p">;</span>
+  <span class="n">FMOD_TIMEUNIT</span>                       <span class="n">timeunits</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_OPEN_CALLBACK</span>            <span class="n">open</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_CLOSE_CALLBACK</span>           <span class="n">close</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_READ_CALLBACK</span>            <span class="n">read</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_GETLENGTH_CALLBACK</span>       <span class="n">getlength</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_SETPOSITION_CALLBACK</span>     <span class="n">setposition</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_GETPOSITION_CALLBACK</span>     <span class="n">getposition</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_SOUNDCREATE_CALLBACK</span>     <span class="n">soundcreate</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_GETWAVEFORMAT_CALLBACK</span>   <span class="n">getwaveformat</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_CODEC_DESCRIPTION</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_CODEC_DESCRIPTION</span>
+<span class="p">{</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">version</span><span class="p">,</span>
+  <span class="nx">defaultasstream</span><span class="p">,</span>
+  <span class="nx">timeunits</span><span class="p">,</span>
+  <span class="nx">open</span><span class="p">,</span>
+  <span class="nx">close</span><span class="p">,</span>
+  <span class="nx">read</span><span class="p">,</span>
+  <span class="nx">getlength</span><span class="p">,</span>
+  <span class="nx">setposition</span><span class="p">,</span>
+  <span class="nx">getposition</span><span class="p">,</span>
+  <span class="nx">soundcreate</span><span class="p">,</span>
+  <span class="nx">getwaveformat</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Currently not supported for C#.</p>
+</div>
+<dl>
+<dt id="fmod_codec_description_name">name</dt>
+<dd>Name of the codec. </dd>
+<dt id="fmod_codec_description_version">version</dt>
+<dd>Plugin writer's version number. </dd>
+<dt id="fmod_codec_description_defaultasstream">defaultasstream</dt>
+<dd>Defaults as stream. </dd>
+<dt id="fmod_codec_description_timeunits">timeunits</dt>
+<dd>Time units used with setposition codec. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+<dt id="fmod_codec_description_open">open</dt>
+<dd>Open callback. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_open_callback" title="Codec open callback.">FMOD_CODEC_OPEN_CALLBACK</a>)</dd>
+<dt id="fmod_codec_description_close">close</dt>
+<dd>Close callback. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_close_callback" title="Codec close callback.">FMOD_CODEC_CLOSE_CALLBACK</a>)</dd>
+<dt id="fmod_codec_description_read">read</dt>
+<dd>Read callback. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_read_callback" title="Codec read callback.">FMOD_CODEC_READ_CALLBACK</a>)</dd>
+<dt id="fmod_codec_description_getlength">getlength</dt>
+<dd>Get length callback. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_getlength_callback" title="Codec get length callback.">FMOD_CODEC_GETLENGTH_CALLBACK</a>)</dd>
+<dt id="fmod_codec_description_setposition">setposition</dt>
+<dd>Seek callback. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_setposition_callback" title="Codec set position callback.">FMOD_CODEC_SETPOSITION_CALLBACK</a>)</dd>
+<dt id="fmod_codec_description_getposition">getposition</dt>
+<dd>Get position callback. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_getposition_callback" title="Codec get position callback.">FMOD_CODEC_GETPOSITION_CALLBACK</a>)</dd>
+<dt id="fmod_codec_description_soundcreate">soundcreate</dt>
+<dd>Sound creation callback. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_soundcreate_callback" title="Codec sound create callback.">FMOD_CODEC_SOUNDCREATE_CALLBACK</a>)</dd>
+<dt id="fmod_codec_description_getwaveformat">getwaveformat</dt>
+<dd>Get wave format callback. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_getwaveformat_callback" title="Codec get wave format callback.">FMOD_CODEC_GETWAVEFORMAT_CALLBACK</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat" title="Codec wave format.">FMOD_CODEC_WAVEFORMAT</a></p>
+<h2 api="callback" id="fmod_codec_getlength_callback"><a href="#fmod_codec_getlength_callback">FMOD_CODEC_GETLENGTH_CALLBACK</a></h2>
+<p>Codec get length callback.</p>
+<p>This callback is called to retrieve the length of the audio file of this codec type.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_GETLENGTH_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">length</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">lengthtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+<dt>length <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Length of the sound in units determined by <code>lengthtype</code>.</dd>
+<dt>lengthtype</dt>
+<dd>Timeunit type of <code>length</code>. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-sound.html#sound_getlength" title="Retrieves the length using the specified time unit.">Sound::getLength</a></li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_codec_getposition_callback"><a href="#fmod_codec_getposition_callback">FMOD_CODEC_GETPOSITION_CALLBACK</a></h2>
+<p>Codec get position callback.</p>
+<p>This callback is called to retrieve the current read position of the audio file of this codec type.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_GETPOSITION_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">position</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+<dt>position <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Codec position in units determined by <code>postype</code>.</dd>
+<dt>postype</dt>
+<dd>Time units for <code>position</code>.  This will be one of the timeunits supplied by the codec author in the <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a> structure. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-channel.html#channel_getposition" title="Retrieves the current playback position.">Channel::getPosition</a></li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_codec_getwaveformat_callback"><a href="#fmod_codec_getwaveformat_callback">FMOD_CODEC_GETWAVEFORMAT_CALLBACK</a></h2>
+<p>Codec get wave format callback.</p>
+<p>This callback is called to allow FMOD to retrieve the format of the file the codec instance represents.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_GETWAVEFORMAT_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_CODEC_WAVEFORMAT</span> <span class="o">*</span><span class="n">waveformat</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Subsound index.  This is only used in file formats which can store multiple sounds within them, otherwise it will be 0.</dd>
+<dt>waveformat <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Wave format of the sound object. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat" title="Codec wave format.">FMOD_CODEC_WAVEFORMAT</a>)</dd>
+</dl>
+<p>Useful to reduce memory usage by limiting the number of <a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat" title="Codec wave format.">FMOD_CODEC_WAVEFORMAT</a> structures.</p>
+<h2 api="callback" id="fmod_codec_metadata_func"><a href="#fmod_codec_metadata_func">FMOD_CODEC_METADATA_FUNC</a></h2>
+<p>Codec metadata function.</p>
+<p>This function is to be called when a codec's metadata is updated.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_METADATA_FUNC</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span><span class="p">,</span>
+  <span class="n">FMOD_TAGTYPE</span> <span class="n">tagtype</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">datalen</span><span class="p">,</span>
+  <span class="n">FMOD_TAGDATATYPE</span> <span class="n">datatype</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">unique</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+<dt>tagtype</dt>
+<dd>Source type of tag being updated. (<a class="apilink" href="core-api-sound.html#fmod_tagtype" title="List of tag data / metadata types that could be stored within a sound.  These include id3 tags, metadata from netstreams and vorbis/asf data.">FMOD_TAGTYPE</a>)</dd>
+<dt>name</dt>
+<dd>Name of the tag being updated.</dd>
+<dt>data</dt>
+<dd>Contents of tag.</dd>
+<dt>datalen</dt>
+<dd>
+<p>Data length of the tag data in bytes.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt>datatype</dt>
+<dd>Data type of tag. (<a class="apilink" href="core-api-sound.html#fmod_tagdatatype" title="List of tag data / metadata types.">FMOD_TAGDATATYPE</a>)</dd>
+<dt>unique</dt>
+<dd>Unique state.  If this is true / non zero, then the tag (determined by the name) being updated is the only one of its type.  If it is zero then there are multiple versions of this tag with the same name.</dd>
+</dl>
+<p>Codec metadata can be retrieved by the user with <a class="apilink" href="core-api-sound.html#sound_gettag" title="Retrieves a metadata tag.">Sound::getTag</a></p>
+<p>Codec metadata can be added during creation, or during playback.  A common case for play time metadata is internet based streams.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_codec_open_callback"><a href="#fmod_codec_open_callback">FMOD_CODEC_OPEN_CALLBACK</a></h2>
+<p>Codec open callback.</p>
+<p>This callback is called to initialize a codec instance using the codec's file handle to verify if the file is of the type of the codec, and to do any file reading required for initialization of the codec.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_OPEN_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span><span class="p">,</span>
+  <span class="n">FMOD_MODE</span> <span class="n">usermode</span><span class="p">,</span>
+  <span class="n">FMOD_CREATESOUNDEXINFO</span> <span class="o">*</span><span class="n">userexinfo</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state.  Use this to access codec specific variables, the FMOD file system for reading/seeking, and codec user data. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+<dt>usermode <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Mode that the user supplied via <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> or <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a>. (<a class="apilink" href="core-api-common.html#fmod_mode" title="Sound description bitfields, bitwise OR them together for loading and describing sounds.">FMOD_MODE</a>)</dd>
+<dt>userexinfo <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Extra info structure that the user supplied via <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> or <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a>. (<a class="apilink" href="core-api-system.html#fmod_createsoundexinfo" title="Additional options for creating a Sound.">FMOD_CREATESOUNDEXINFO</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a></li>
+<li><a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a></li>
+</ul>
+<p><strong>Implementation detail:</strong></p>
+<p>This callback is where the file format check is done, memory is allocated, and the codec is initialized.</p>
+<p>The <code>usermode</code> and <code>userexinfo</code> parameters tell the codec what was passed in by the user.  Generally these can be ignored, as the file format usually determines the format and frequency of the sound.  If you have a flexible format codec (ie you don't mind what output format your codec writes to), you might want to use the parameter that was passed in by the user to specify the output sound format / frequency.</p>
+<p>Read and seek within the file using the <code>fileread</code> and <code>fileseek</code> members of the <a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a> structure that is passed in.</p>
+<p><strong>Note!</strong>: Do not use your own filesystem.</p>
+<p>The reasons for this are:</p>
+<ul>
+<li>The user may have set their own file system via user filesystem callbacks.</li>
+<li>FMOD allows file reading via disk, memory and TCP/IP.  If you use your own file routines you will lose this ability.</li>
+</ul>
+<p><strong>Important!</strong>  FMOD will ping all codecs trying to find the right one for the file the user has passed in. Make sure the first line of your codec open is a FAST format check. Ie it reads an identifying string, checks it and returns an error <a class="apilink" href="core-api-common.html#fmod_err_format" title="">FMOD_ERR_FORMAT</a> if it is not found.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_close_callback" title="Codec close callback.">FMOD_CODEC_CLOSE_CALLBACK</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_soundcreate_callback" title="Codec sound create callback.">FMOD_CODEC_SOUNDCREATE_CALLBACK</a></p>
+<h2 api="callback" id="fmod_codec_read_callback"><a href="#fmod_codec_read_callback">FMOD_CODEC_READ_CALLBACK</a></h2>
+<p>Codec read callback.</p>
+<p>This callback is called to read PCM data from the codec instance.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_READ_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">buffer</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">samples_in</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">samples_out</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+<dt>buffer</dt>
+<dd>
+<p>Target PCM data buffer.  Note that the format of this data is the format described in <a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat" title="Codec wave format.">FMOD_CODEC_WAVEFORMAT</a>.</p>
+<ul>
+<li><span class="label">Units:</span> <a href="glossary.html#sample-data">Sample Data</a></li>
+</ul>
+</dd>
+<dt>samples_in</dt>
+<dd>
+<p>Number of PCM samples to decode</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+<dt>samples_out</dt>
+<dd>
+<p>Number of PCM samples decoded</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+</dl>
+<p>This callback is issued when FMOD tries to read some data from the file to the destination format (the format specified in the <a class="apilink" href="plugin-api-codec.html#fmod_codec_open_callback" title="Codec open callback.">FMOD_CODEC_OPEN_CALLBACK</a>).</p>
+<p><strong>Implementation detail:</strong></p>
+<p>If you cannot read number of samples requested, simply return <a class="apilink" href="core-api-common.html#fmod_ok" title="">FMOD_OK</a> and give samples_out the number of samples you decoded.</p>
+<p>Read and seek within the file using the <code>fileread</code> and <code>fileseek</code> members of the <a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a> structure that is passed in.</p>
+<p><strong>Note!</strong>: Do not use your own filesystem.</p>
+<p>The reasons for this are:</p>
+<ul>
+<li>The user may have set their own file system via user filesystem callbacks.</li>
+<li>FMOD allows file reading via disk, memory and TCP/IP.  If you use your own file routines you will lose this ability.</li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_codec_setposition_callback"><a href="#fmod_codec_setposition_callback">FMOD_CODEC_SETPOSITION_CALLBACK</a></h2>
+<p>Codec set position callback.</p>
+<p>This callback is called to set the audible position of a codec instance.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_SETPOSITION_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">subsound</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">position</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+<dt>subsound</dt>
+<dd>Subsound within which to seek.  This is only used in file formats which can store multiple sounds within them, otherwise it will be 0.</dd>
+<dt>position</dt>
+<dd>Seek position in units determined by <code>postype</code>.</dd>
+<dt>postype</dt>
+<dd>Time units for <code>position</code>.  This will be one of the timeunits supplied by the codec author in the <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a> structure. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-channel.html#channel_setposition" title="Sets the current playback position.">Channel::setPosition</a></li>
+<li>Looping streams in the stream thread</li>
+</ul>
+<p><strong>Implementation detail:</strong></p>
+<p>Read and seek within the file using the <code>fileread</code> and <code>fileseek</code> members of the <a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a> structure that is passed in.</p>
+<p><strong>Note!</strong>: Do not use your own filesystem.</p>
+<p>The reasons for this are:</p>
+<ul>
+<li>The user may have set their own file system via user filesystem callbacks.</li>
+<li>FMOD allows file reading via disk, memory and TCP/IP.  If you use your own file routines you will lose this ability.</li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_getposition" title="Retrieves the current playback position.">Channel::getPosition</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_read_callback" title="Codec read callback.">FMOD_CODEC_READ_CALLBACK</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_getlength_callback" title="Codec get length callback.">FMOD_CODEC_GETLENGTH_CALLBACK</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_getposition_callback" title="Codec get position callback.">FMOD_CODEC_GETPOSITION_CALLBACK</a></p>
+<h2 api="callback" id="fmod_codec_soundcreate_callback"><a href="#fmod_codec_soundcreate_callback">FMOD_CODEC_SOUNDCREATE_CALLBACK</a></h2>
+<p>Codec sound create callback.</p>
+<p>This callback is called after a <a class="apilink" href="core-api-sound.html" title="">Sound</a> is created.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_CODEC_SOUNDCREATE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_CODEC_STATE</span> <span class="o">*</span><span class="n">codec_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">subsound</span><span class="p">,</span>
+  <span class="n">FMOD_SOUND</span> <span class="o">*</span><span class="n">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Not supported for C#.</p>
+</div>
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>codec_state</dt>
+<dd>Codec state. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>)</dd>
+<dt>subsound</dt>
+<dd>Subsound index being created.  This is only used in file formats which can store multiple sounds within them, otherwise it will be 0.</dd>
+<dt>sound <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Newly created Sound object. (<a class="apilink" href="core-api-sound.html" title="">Sound</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a></li>
+<li><a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a></li>
+</ul>
+<p>Useful so the codec can set more parameters for the related created sound.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a>, <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a></p>
+<h2 api="struct" id="fmod_codec_state"><a href="#fmod_codec_state">FMOD_CODEC_STATE</a></h2>
+<p>Codec state structure that is passed into each callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_CODEC_STATE</span> <span class="p">{</span>
+  <span class="kt">int</span>                            <span class="n">numsubsounds</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_WAVEFORMAT</span>         <span class="o">*</span><span class="n">waveformat</span><span class="p">;</span>
+  <span class="kt">void</span>                          <span class="o">*</span><span class="n">plugindata</span><span class="p">;</span>
+  <span class="kt">void</span>                          <span class="o">*</span><span class="n">filehandle</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>                   <span class="n">filesize</span><span class="p">;</span>
+  <span class="n">FMOD_FILE_READ_CALLBACK</span>        <span class="n">fileread</span><span class="p">;</span>
+  <span class="n">FMOD_FILE_SEEK_CALLBACK</span>        <span class="n">fileseek</span><span class="p">;</span>
+  <span class="n">FMOD_CODEC_METADATA_FUNC</span>       <span class="n">metadata</span><span class="p">;</span>
+  <span class="kt">int</span>                            <span class="n">waveformatversion</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_CODEC_STATE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_CODEC_STATE</span>
+<span class="p">{</span>
+  <span class="nx">numsubsounds</span><span class="p">,</span>
+  <span class="nx">plugindata</span><span class="p">,</span>
+  <span class="nx">filehandle</span><span class="p">,</span>
+  <span class="nx">filesize</span><span class="p">,</span>
+  <span class="nx">fileread</span><span class="p">,</span>
+  <span class="nx">fileseek</span><span class="p">,</span>
+  <span class="nx">metadata</span><span class="p">,</span>
+  <span class="nx">waveformatversion</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Currently not supported for C#.</p>
+</div>
+<dl>
+<dt id="fmod_codec_state_numsubsounds">numsubsounds</dt>
+<dd>Number of 'subsounds' in this sound.  Anything other than 0 makes it a 'container' format.</dd>
+<dt id="fmod_codec_state_waveformat">waveformat <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Array of format structures containing information about each sound. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat" title="Codec wave format.">FMOD_CODEC_WAVEFORMAT</a>)</dd>
+<dt id="fmod_codec_state_plugindata">plugindata</dt>
+<dd>Plugin writer created data the codec author wants to attach to this object. </dd>
+<dt id="fmod_codec_state_filehandle">filehandle <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>This will return an internal FMOD file handle to use with the callbacks provided.  </dd>
+<dt id="fmod_codec_state_filesize">filesize <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>This will contain the size of the file in bytes. </dd>
+<dt id="fmod_codec_state_fileread">fileread <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>This will return a callable FMOD file function to use from codec. (<a class="apilink" href="core-api-system.html#fmod_file_read_callback" title="Callback for reading from a file.">FMOD_FILE_READ_CALLBACK</a>)</dd>
+<dt id="fmod_codec_state_fileseek">fileseek <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>This will return a callable FMOD file function to use from codec. (<a class="apilink" href="core-api-system.html#fmod_file_seek_callback" title="Callback for seeking within a file.">FMOD_FILE_SEEK_CALLBACK</a>)</dd>
+<dt id="fmod_codec_state_metadata">metadata <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>This will return a callable FMOD metadata function to use from codec. (<a class="apilink" href="plugin-api-codec.html#fmod_codec_metadata_func" title="Codec metadata function.">FMOD_CODEC_METADATA_FUNC</a>)</dd>
+<dt id="fmod_codec_state_waveformatversion">waveformatversion</dt>
+<dd>Must be set to <a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat_version" title="Codec Wave format version number.">FMOD_CODEC_WAVEFORMAT_VERSION</a> in the <a class="apilink" href="plugin-api-codec.html#fmod_codec_open_callback" title="Codec open callback.">FMOD_CODEC_OPEN_CALLBACK</a>. </dd>
+</dl>
+<p>'numsubsounds' should be 1+ if the file is a container format, and does not contain wav data itself.  Examples of these types would be FSB (contains multiple sounds), DLS (contain instruments).</p>
+<p>The waveformat value should point to an arrays of information based on how many subsounds are in the format.  If the number of subsounds is 0 then it should point to 1 waveformat, the same as if the number of subsounds was 1.  If subsounds was 100 for example, there should be a pointer to an array of 100 waveformat structures.</p>
+<p>When a sound has 1 or more subsounds, the caller must play the individual sounds specified by first obtaining the subsound with <a class="apilink" href="core-api-sound.html#sound_getsubsound" title="Retrieves a handle to a Sound object that is contained within the parent sound.">Sound::getSubSound</a>.</p>
+<h2 api="struct" id="fmod_codec_waveformat"><a href="#fmod_codec_waveformat">FMOD_CODEC_WAVEFORMAT</a></h2>
+<p>Codec wave format.</p>
+<p>This structure defines the attributes of a sound, and determines the format of the <a class="apilink" href="core-api-sound.html" title="">Sound</a> object when it is created with <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> or <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a></p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_CODEC_WAVEFORMAT</span> <span class="p">{</span>
+  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span>         <span class="n">name</span><span class="p">;</span>
+  <span class="n">FMOD_SOUND_FORMAT</span>   <span class="n">format</span><span class="p">;</span>
+  <span class="kt">int</span>                 <span class="n">channels</span><span class="p">;</span>
+  <span class="kt">int</span>                 <span class="n">frequency</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>        <span class="n">lengthbytes</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>        <span class="n">lengthpcm</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>        <span class="n">pcmblocksize</span><span class="p">;</span>
+  <span class="kt">int</span>                 <span class="n">loopstart</span><span class="p">;</span>
+  <span class="kt">int</span>                 <span class="n">loopend</span><span class="p">;</span>
+  <span class="n">FMOD_MODE</span>           <span class="n">mode</span><span class="p">;</span>
+  <span class="n">FMOD_CHANNELMASK</span>    <span class="n">channelmask</span><span class="p">;</span>
+  <span class="n">FMOD_CHANNELORDER</span>   <span class="n">channelorder</span><span class="p">;</span>
+  <span class="kt">float</span>               <span class="n">peakvolume</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_CODEC_WAVEFORMAT</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_CODEC_WAVEFORMAT</span>
+<span class="p">{</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">format</span><span class="p">,</span>
+  <span class="nx">channels</span><span class="p">,</span>
+  <span class="nx">frequency</span><span class="p">,</span>
+  <span class="nx">lengthbytes</span><span class="p">,</span>
+  <span class="nx">lengthpcm</span><span class="p">,</span>
+  <span class="nx">pcmblocksize</span><span class="p">,</span>
+  <span class="nx">loopstart</span><span class="p">,</span>
+  <span class="nx">loopend</span><span class="p">,</span>
+  <span class="nx">mode</span><span class="p">,</span>
+  <span class="nx">channelmask</span><span class="p">,</span>
+  <span class="nx">channelorder</span><span class="p">,</span>
+  <span class="nx">peakvolume</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Currently not supported for C#.</p>
+</div>
+<dl>
+<dt id="fmod_codec_waveformat_name">name <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Name of sound. The codec must own the lifetime of the string memory until the codec is destroyed. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt id="fmod_codec_waveformat_format">format</dt>
+<dd>Format for codec output. (<a class="apilink" href="core-api-sound.html#fmod_sound_format" title="These definitions describe the native format of the hardware or software buffer that will be used.">FMOD_SOUND_FORMAT</a>)</dd>
+<dt id="fmod_codec_waveformat_channels">channels</dt>
+<dd>Number of channels.</dd>
+<dt id="fmod_codec_waveformat_frequency">frequency</dt>
+<dd>
+<p>Default frequency of the codec.</p>
+<ul>
+<li><span class="label">Units:</span> Hertz</li>
+</ul>
+</dd>
+<dt id="fmod_codec_waveformat_lengthbytes">lengthbytes <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Length of the source data.  Used for <a class="apilink" href="core-api-common.html#fmod_timeunit_rawbytes" title="">FMOD_TIMEUNIT_RAWBYTES</a>.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+<dt id="fmod_codec_waveformat_lengthpcm">lengthpcm</dt>
+<dd>
+<p>Length of the file. Used for <a class="apilink" href="core-api-sound.html#sound_getlength" title="Retrieves the length using the specified time unit.">Sound::getLength</a> and for memory allocation of static decompressed sample data.</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+<dt id="fmod_codec_waveformat_pcmblocksize">pcmblocksize <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Minimum, optimal number of decompressed PCM samples codec can handle.</dd>
+<dt id="fmod_codec_waveformat_loopstart">loopstart <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Loop start position.</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+<dt id="fmod_codec_waveformat_loopend">loopend <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Loop end position.</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+<dt id="fmod_codec_waveformat_mode">mode <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Default sound loading mode. (<a class="apilink" href="core-api-common.html#fmod_mode" title="Sound description bitfields, bitwise OR them together for loading and describing sounds.">FMOD_MODE</a>)</p>
+<ul>
+<li><span class="label">Default:</span> FMOD_DEFAULT</li>
+</ul>
+</dd>
+<dt id="fmod_codec_waveformat_channelmask">channelmask <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Channel bitmask to describe which speakers the channels in the codec map to, in order of channel count. (<a class="apilink" href="core-api-common.html#fmod_channelmask" title="Flags that describe the speakers present in a given signal.">FMOD_CHANNELMASK</a>)</dd>
+<dt id="fmod_codec_waveformat_channelorder">channelorder <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Channel order type that describes where each sound channel should pan for the number of channels specified. (<a class="apilink" href="core-api-common.html#fmod_channelorder" title="Speaker ordering for multichannel signals.">FMOD_CHANNELORDER</a>)</dd>
+<dt id="fmod_codec_waveformat_peakvolume">peakvolume <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Peak volume of sound.</dd>
+</dl>
+<p>The format, channels, frequency and lengthpcm tell FMOD what sort of sound buffer to create when you initialize your code. </p>
+<p>If you wrote an MP3 codec that decoded to stereo 16bit integer PCM for a 44khz sound, you would specify <a class="apilink" href="core-api-sound.html#fmod_sound_format_pcm16" title="">FMOD_SOUND_FORMAT_PCM16</a>, and channels would be equal to 2, and frequency would be 44100.</p>
+<p>1.07 Note.  'blockalign' member which was in bytes has been removed.   'pcmblocksize' is now the replacement, and is measured in PCM samples only, not bytes.  This is purely to support buffering<br />
+internal to FMOD for codecs that are not sample accurate.</p>
+<p>Note: When registering a codec, format, channels, frequency and lengthpcm must be supplied, otherwise there will be an error.</p>
+<p>This structure is optional if <a class="apilink" href="plugin-api-codec.html#fmod_codec_getwaveformat_callback" title="Codec get wave format callback.">FMOD_CODEC_GETWAVEFORMAT_CALLBACK</a> is specified.</p>
+<p>An array of these structures may be needed if <a class="apilink" href="plugin-api-codec.html#fmod_codec_state_numsubsounds" title="">FMOD_CODEC_STATE::numsubsounds</a> is larger than 1.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a>, <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a></p>
+<h2 api="define" id="fmod_codec_waveformat_version"><a href="#fmod_codec_waveformat_version">FMOD_CODEC_WAVEFORMAT_VERSION</a></h2>
+<p>Codec Wave format version number.</p>
+<p>Use this for binary compatibility of the <a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat" title="Codec wave format.">FMOD_CODEC_WAVEFORMAT</a> structure and for future expansion.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="cp">#define FMOD_CODEC_WAVEFORMAT_VERSION   3</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">CODEC_WAVEFORMAT_VERSION</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Currently not supported for C#.</p>
+</div>
+<p>FMOD_CODEC_WAVEFORMAT_VERSION<br />
+:</p>
+<p>Should be set into <a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a> in the <a class="apilink" href="plugin-api-codec.html#fmod_codec_open_callback" title="Codec open callback.">FMOD_CODEC_OPEN_CALLBACK</a>.</p>
+<p>The version here represents the version of the <a class="apilink" href="plugin-api-codec.html#fmod_codec_waveformat" title="Codec wave format.">FMOD_CODEC_WAVEFORMAT</a> structure, which has evolved over time in FMOD.  The <a class="apilink" href="plugin-api-codec.html#fmod_codec_state" title="Codec state structure that is passed into each callback.">FMOD_CODEC_STATE</a> contains the <code>waveformat</code> member with the structure in question. </p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-codec.html#fmod_codec_description" title="Codec description.">FMOD_CODEC_DESCRIPTION</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

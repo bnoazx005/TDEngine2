@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>White Papers | CPU Performance</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | CPU Performance</h1>
+<div class="toc">
+<ul>
+<li><a href="#cpu-performance">CPU Performance</a><ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#what-is-the-mixer-and-how-is-it-measured">What is the mixer and how is it measured?</a></li>
+<li><a href="#what-else-can-be-measured">What else can be measured?</a></li>
+</ul>
+</li>
+<li><a href="#voice-limiting">Voice Limiting</a></li>
+<li><a href="#tips-and-tricks">Tips and Tricks</a><ul>
+<li><a href="#sample-rate">Sample Rate</a></li>
+<li><a href="#dsp-block-size">DSP Block Size</a></li>
+<li><a href="#channel-count">Channel Count</a></li>
+<li><a href="#dsp-choice">DSP Choice</a></li>
+</ul>
+</li>
+<li><a href="#wrapping-up">Wrapping Up</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="cpu-performance"><a href="#cpu-performance">CPU Performance</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>Measuring and tweaking performance is an important part of any application and being able to scale FMOD from low power portable devices to the very latest in next gen consoles is key to our design. This guide should give you a solid understanding of how to configure FMOD to fit within your audio budget with specific tips no matter which platform you are targeting.</p>
+<p>Before we jump into the details lets first consider how performance is measured in FMOD. The primary metric we use when discussing how expensive something is, is CPU percentage. We can calculate this by measuring the time spent performing an action and comparing it against a known time window, the most common example of this is DSP or mixer performance.</p>
+<h4 id="what-is-the-mixer-and-how-is-it-measured"><a href="#what-is-the-mixer-and-how-is-it-measured">What is the mixer and how is it measured?</a></h4>
+<p>When we talk about mixer performance we are actually talking about the production of audio samples being sent to the output (usually your speakers). At regular intervals our mixer will produce a buffer of samples which represents a fixed amount of time for playback. We call this the DSP block size and it often defaults to 512 samples, when played back at 48KHz it represents ~10ms of audio.</p>
+<p>With a fixed amount of samples being produced regularly, we can now measure how long it takes to produce those samples and receive a percentage. For example, if it took us 5ms of CPU time to produce 10ms of audio, our mixer performance would be 50%. As the CPU time approaches 10ms we risk not delivering the audio in time which results in a audio discontinuity known as stuttering.</p>
+<h4 id="what-else-can-be-measured"><a href="#what-else-can-be-measured">What else can be measured?</a></h4>
+<p>Another key performance area is update, this operation is called regularly to do runtime housekeeping. Our recommendation is you call update once per render frame which is often 30 or 60 times per second. Using the 30 or 60 FPS (frames per second) known time frame we can now measure CPU time spent performing this action to get percentages.</p>
+<p>Armed with the ability to measure performance we now need to identify the things that cost the bulk of the CPU time. The most commonly quoted contributor is voice count, following the logic that playing more sounds will take up more CPU time. Following is a list of the main contributors to the cost of sound playback:</p>
+<ul>
+<li>Decoding compressed audio to PCM.</li>
+<li>Resampling the PCM to the appropriate pitch.</li>
+<li>Applying DSP effects to the sound.</li>
+<li>Mixing the audio with other sounds to produce the final output you hear.</li>
+</ul>
+<p>Choosing the correct compression format for the kind of audio you want to play and the platform you want to play it on is a big part of controlling the CPU cost. For recommendations on format choice please consult the performance reference for this platform.</p>
+<h3 id="voice-limiting"><a href="#voice-limiting">Voice Limiting</a></h3>
+<p>Once you've settled on a compression format you need to decide how many sounds of that format you want to be audible at the same time. There are three ways you can use to control the number of sounds playable:</p>
+<p><a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> (maxChannels, ...) The maximum number of voices playing at once.<br />
+<a class="apilink" href="core-api-system.html#system_setsoftwarechannels" title="Sets the maximum number of software mixed channels possible.">System::setSoftwareChannels</a> (numSoftwareChannels) The maximum number of audible voices.<br />
+<a class="apilink" href="core-api-system.html#fmod_advancedsettings" title="Advanced configuration settings.">FMOD_ADVANCEDSETTINGS</a> max???Codec The maximum number of decoders where ??? is the compression format.<br />
+For a deep dive into how the virtual voice system works and ways to further control voice count please consult the virtual voices tutorial.</p>
+<p>It's often hard to gauge what are good values to use for the above three settings. In rough terms maxChannels should be high enough that you don't hit the cap under normal circumstances, so 256, 512 or even 1024 are reasonable choices. Selecting the values for numSoftwareChannels and maxCodecs will depend on the platform and format used. To help choose these values we have provided some recommendations and benchmarks in the performance reference document for this platform.</p>
+<h3 id="tips-and-tricks"><a href="#tips-and-tricks">Tips and Tricks</a></h3>
+<p>With a correctly configured compression format and appropriate voice count you are well on your way to an efficiently configured set up. Next up is a series of tips to consider for your project, not all will be applicable but they should be considered to get the best performance from FMOD.</p>
+<h4 id="sample-rate"><a href="#sample-rate">Sample Rate</a></h4>
+<p>There are two sample rates you need to think about when optimizing, the System rate and the source audio rate.</p>
+<p>You can control the System sample rate by using <a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a> (sampleRate, ...), which by default is 48KHz. Reducing this can give some big wins in performance because less data is being produced. This setting is a trade off between performance and quality.</p>
+<p>To control the source audio rate you can resample using your favorite audio editor or use the sample rate settings when compressing using the FSBank tool or the FSBankLib API. All audio will be sent to a resampler when it is played at runtime, if the source sample rate and the System rate match then the resampler can be essentially skipped saving CPU time. Be aware that this will only happen if there are no pitch / frequency settings applied to the Channel, so this trick is often good for music.</p>
+<h4 id="dsp-block-size"><a href="#dsp-block-size">DSP Block Size</a></h4>
+<p>As mentioned earlier this represents a fixed amount of samples that are produced regularly to be sent to the speakers. When producing each block of samples there is a fixed amount of overhead, so making the block size larger reduces the overall CPU cost. You can control this setting with <a class="apilink" href="core-api-system.html#system_setdspbuffersize" title="Sets the buffer size for the FMOD software mixing engine.">System::setDSPBufferSize</a> (blockLength, ...), which often defaults to 512 or 1024 samples depending on the platform.</p>
+<p>The trade off with this setting is CPU against mixer granularity, for more information about the implications of changing this setting please consult the API reference for that function.</p>
+<h4 id="channel-count"><a href="#channel-count">Channel Count</a></h4>
+<p>Controlling how many channels of audio are being played can have a big impact on performance, consider the simple math that 7.1 surround has four times as much data to process compared with stereo. There are a few different places where channel count can be controlled to improve performance.</p>
+<p>The source sound channel count should be carefully chosen, often mono sources are best, especially for sound that will be positioned in 3D. Reducing the channel count at the source is an easy win and will also decrease the decoding time for that sound.</p>
+<p>Setting the System channel count will control how 3D sounds are panned when they are given a position in the world. You set this channel count by specifying a speaker mode that represents a well known speaker configuration such as 7.1 surround or stereo. To do this use <a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a> (..., speakerMode, ...), the default will match your output device settings.</p>
+<p>As a more advanced setting you can limit the number of channels produced by a sub-mix or the number of channels entering a particular DSP effect. This can be especially useful for limiting the channels into an expensive DSP effect. The API to control this is DSP::setChannelFormat(..., speakerMode), by default this will be the output of the previous DSP unit.</p>
+<h4 id="dsp-choice"><a href="#dsp-choice">DSP Choice</a></h4>
+<p>Not all DSPs are created equal, some are computationally simple and use very little CPU, others can be quite expensive. When deciding to use a particular effect it is important to profile on the target hardware to fully understand the CPU implications.</p>
+<p>Positioning of the DSP can make a big difference, placing the effect on every voice could cost a lot of CPU time. There are no strict rules for where each effect should be positioned but to give an example, often low and high pass DSP effects can be used per voice efficiently, but reverb will often only have one instance with all voices sending to a sub-mix.</p>
+<h3 id="wrapping-up"><a href="#wrapping-up">Wrapping Up</a></h3>
+<p>Hopefully now you have a good understanding of the options available for optimizing your usage of FMOD. If in doubt about your particular set up, please make a post on our forums and start a discussion.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

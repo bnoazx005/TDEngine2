@@ -1,0 +1,1442 @@
+<html>
+<head>
+<title>Studio API Reference | Studio::EventDescription</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="studio-api.html">Studio API Reference</a><ul class="subchapters"><li><a href="studio-api-common.html">Common</a></li><li><a href="studio-api-system.html">Studio::System</a></li><li class="manual-current-chapter manual-active-chapter"><a href="studio-api-eventdescription.html">Studio::EventDescription</a></li><li><a href="studio-api-eventinstance.html">Studio::EventInstance</a></li><li><a href="studio-api-bus.html">Studio::Bus</a></li><li><a href="studio-api-vca.html">Studio::VCA</a></li><li><a href="studio-api-bank.html">Studio::Bank</a></li><li><a href="studio-api-commandreplay.html">Studio::CommandReplay</a></li></ul></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>6. Studio API Reference | Studio::EventDescription</h1>
+<p>The description for an FMOD Studio Event.</p>
+<p>Event descriptions belong to banks and can be queried after the relevant bank has been loaded. Event descriptions may be retrieved via path or GUID lookup, or by enumerating all descriptions in a bank.</p>
+<p><strong>Instances:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_createinstance" title="Creates a playable instance.">Studio::EventDescription::createInstance</a> Creates a playable instance.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getinstancecount" title="Retrieves the number of instances.">Studio::EventDescription::getInstanceCount</a> Retrieves the number of instances.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getinstancelist" title="Retrieves a list of the instances.">Studio::EventDescription::getInstanceList</a> Retrieves a list of the instances.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_releaseallinstances" title="Releases all instances.">Studio::EventDescription::releaseAllInstances</a> Releases all instances.</li>
+</ul>
+<p><strong>Sample Data:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_loadsampledata" title="Loads non-streaming sample data used by the event.">Studio::EventDescription::loadSampleData</a> Loads non-streaming sample data used by the event.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_unloadsampledata" title="Unloads all non-streaming sample data.">Studio::EventDescription::unloadSampleData</a> Unloads all non-streaming sample data.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getsampleloadingstate" title="Retrieves the sample data loading state.">Studio::EventDescription::getSampleLoadingState</a> Retrieves the sample data loading state.</li>
+</ul>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_is3d" title="Retrieves the event's 3D status.">Studio::EventDescription::is3D</a> Retrieves the event's 3D status.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_isoneshot" title="Retrieves the event's oneshot status.">Studio::EventDescription::isOneshot</a> Retrieves the event's oneshot status.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_issnapshot" title="Retrieves the event's snapshot status.">Studio::EventDescription::isSnapshot</a> Retrieves the event's snapshot status.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_isstream" title="Retrieves the event's stream status.">Studio::EventDescription::isStream</a> Retrieves the event's stream status.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_hascue" title="Retrieves whether the event has any sustain points.">Studio::EventDescription::hasCue</a> Retrieves whether the event has any sustain points.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getmaximumdistance" title="Retrieves the maximum distance for 3D attenuation.">Studio::EventDescription::getMaximumDistance</a> Retrieves the maximum distance for 3D attenuation.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getminimumdistance" title="Retrieves the minimum distance for 3D attenuation.">Studio::EventDescription::getMinimumDistance</a> Retrieves the minimum distance for 3D attenuation.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getsoundsize" title="Retrieves the sound size for 3D panning.">Studio::EventDescription::getSoundSize</a> Retrieves the sound size for 3D panning.</li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyname" title="Retrieves an event parameter description by name.">Studio::EventDescription::getParameterDescriptionByName</a> Retrieves an event parameter description by name.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyid" title="Retrieves an event parameter description by id.">Studio::EventDescription::getParameterDescriptionByID</a> Retrieves an event parameter description by id.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyindex" title="Retrieves an event parameter description by index.">Studio::EventDescription::getParameterDescriptionByIndex</a> Retrieves an event parameter description by index.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptioncount" title="Retrieves the number of parameters in the event.">Studio::EventDescription::getParameterDescriptionCount</a> Retrieves the number of parameters in the event.</li>
+</ul>
+<p><strong>User Properties:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserproperty" title="Retrieves a user property by name.">Studio::EventDescription::getUserProperty</a> Retrieves a user property by name.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserpropertybyindex" title="Retrieves a user property by index.">Studio::EventDescription::getUserPropertyByIndex</a> Retrieves a user property by index.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserpropertycount" title="Retrieves the number of user properties attached to the event.">Studio::EventDescription::getUserPropertyCount</a> Retrieves the number of user properties attached to the event.</li>
+</ul>
+<hr />
+<ul>
+<li><a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property" title="Describes a user property.">FMOD_STUDIO_USER_PROPERTY</a> Describes a user property.</li>
+</ul>
+<hr />
+<ul>
+<li><a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property_type" title="User property types.">FMOD_STUDIO_USER_PROPERTY_TYPE</a> User property types.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getid" title="Retrieves the GUID.">Studio::EventDescription::getID</a> Retrieves the GUID.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getlength" title="Retrieves the length of the timeline.">Studio::EventDescription::getLength</a> Retrieves the length of the timeline.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getpath" title="Retrieves the path.">Studio::EventDescription::getPath</a> Retrieves the path.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserdata" title="Retrieves the event user data.">Studio::EventDescription::getUserData</a> Retrieves the event user data.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_setcallback" title="Sets the user callback.">Studio::EventDescription::setCallback</a> Sets the user callback.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_setuserdata" title="Sets the event user data.">Studio::EventDescription::setUserData</a> Sets the event user data.</li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_isvalid" title="Checks that the EventDescription reference is valid.">Studio::EventDescription::isValid</a> Checks that the EventDescription reference is valid.</li>
+</ul>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getevent" title="Retrieves an EventDescription.">Studio::System::getEvent</a> Retrieves an EventDescription.</li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_geteventbyid" title="Retrieves an EventDescription.">Studio::System::getEventByID</a> Retrieves an EventDescription.</li>
+<li><a class="apilink" href="studio-api-bank.html#studio_bank_geteventlist" title="Retrieves a list of the event descriptions in the bank.">Studio::Bank::getEventList</a> Retrieves a list of the event descriptions in the bank.</li>
+</ul>
+<h2 api="function" id="studio_eventdescription_createinstance"><a href="#studio_eventdescription_createinstance">Studio::EventDescription::createInstance</a></h2>
+<p>Creates a playable instance.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">createInstance</span><span class="p">(</span>
+  <span class="n">Studio</span><span class="o">::</span><span class="n">EventInstance</span> <span class="o">**</span><span class="n">instance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_CreateInstance</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_EVENTINSTANCE</span> <span class="o">**</span><span class="n">instance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">createInstance</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">EventInstance</span> <span class="n">instance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">createInstance</span><span class="p">(</span>
+  <span class="nx">instance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>instance <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>EventInstance object. (<a class="apilink" href="studio-api-eventinstance.html" title="">Studio::EventInstance</a>)</dd>
+</dl>
+<p>When an event instance is created, any required non-streaming sample data is loaded asynchronously.</p>
+<p>Use <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getsampleloadingstate" title="Retrieves the sample data loading state.">Studio::EventDescription::getSampleLoadingState</a> to check the loading status.</p>
+<p>Sample data can be loaded ahead of time with <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_loadsampledata" title="Loads non-streaming sample data used by the event.">Studio::EventDescription::loadSampleData</a> or <a class="apilink" href="studio-api-bank.html#studio_bank_loadsampledata" title="Loads non-streaming sample data for all events in the bank.">Studio::Bank::loadSampleData</a>. See <a href="studio-guide.html#sample-data-loading">Sample Data Loading</a> for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_release" title="Marks the event instance for release.">Studio::EventInstance::release</a></p>
+<h2 api="function" id="studio_eventdescription_getid"><a href="#studio_eventdescription_getid">Studio::EventDescription::getID</a></h2>
+<p>Retrieves the GUID.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getID</span><span class="p">(</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetID</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getID</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">Guid</span> <span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getID</span><span class="p">(</span>
+  <span class="nx">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>id <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Event description <a href="glossary.html#studio-guids-and-paths">GUID</a>. (<a class="apilink" href="core-api-common.html#fmod_guid" title="Structure describing a globally unique identifier.">FMOD_GUID</a>)</dd>
+</dl>
+<h2 api="function" id="studio_eventdescription_getinstancecount"><a href="#studio_eventdescription_getinstancecount">Studio::EventDescription::getInstanceCount</a></h2>
+<p>Retrieves the number of instances.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getInstanceCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetInstanceCount</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getInstanceCount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getInstanceCount</span><span class="p">(</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Instance count.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getinstancelist" title="Retrieves a list of the instances.">Studio::EventDescription::getInstanceList</a> to enumerate the instances of this event.</p>
+<h2 api="function" id="studio_eventdescription_getinstancelist"><a href="#studio_eventdescription_getinstancelist">Studio::EventDescription::getInstanceList</a></h2>
+<p>Retrieves a list of the instances.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getInstanceList</span><span class="p">(</span>
+  <span class="n">Studio</span><span class="o">::</span><span class="n">EventInstance</span> <span class="o">**</span><span class="n">array</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">capacity</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetInstanceList</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_EVENTINSTANCE</span> <span class="o">**</span><span class="n">array</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">capacity</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getInstanceList</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">EventInstance</span><span class="p">[]</span> <span class="n">array</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getInstanceList</span><span class="p">(</span>
+  <span class="nx">array</span><span class="p">,</span>
+  <span class="nx">capacity</span><span class="p">,</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>array <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>An array to receive the list. (<a class="apilink" href="studio-api-eventinstance.html" title="">Studio::EventInstance</a>)</dd>
+<dt>capacity</dt>
+<dd>Capacity of <code>array</code>.</dd>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Number of event instances written to <code>array</code>.</dd>
+</dl>
+<p>This function returns a maximum of <code>capacity</code> instances. If more than <code>capacity</code> instances have been created then additional instances will be silently ignored.</p>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getinstancecount" title="Retrieves the number of instances.">Studio::EventDescription::getInstanceCount</a> to enumerate the instances of this event.</p>
+<h2 api="function" id="studio_eventdescription_getlength"><a href="#studio_eventdescription_getlength">Studio::EventDescription::getLength</a></h2>
+<p>Retrieves the length of the timeline.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getLength</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetLength</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getLength</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getLength</span><span class="p">(</span>
+  <span class="nx">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>length <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Timeline length.</p>
+<ul>
+<li><span class="label">Units:</span> Milliseconds</li>
+</ul>
+</dd>
+</dl>
+<p>A timeline's length is the largest of any logic markers, transition leadouts and the end of any trigger boxes on the timeline.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_gettimelineposition" title="Retrieves the timeline cursor position.">Studio::EventInstance::getTimelinePosition</a>, <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_settimelineposition" title="Sets the timeline cursor position.">Studio::EventInstance::setTimelinePosition</a></p>
+<h2 api="function" id="studio_eventdescription_getmaximumdistance"><a href="#studio_eventdescription_getmaximumdistance">Studio::EventDescription::getMaximumDistance</a></h2>
+<p>Retrieves the maximum distance for 3D attenuation.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getMaximumDistance</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">distance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetMaximumDistance</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">distance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getMaximumDistance</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">distance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getMaximumDistance</span><span class="p">(</span>
+  <span class="nx">distance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>distance <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Maximum distance.</p>
+<ul>
+<li><span class="label">Units:</span>  <a href="glossary.html#distance-units">Distance units</a></li>
+</ul>
+</dd>
+</dl>
+<p>Retrieves the largest maximum distance value of all FMOD Spatializers <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_pan" title="">FMOD_DSP_TYPE_PAN</a> and FMOD Object Spatializers <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_objectpan" title="">FMOD_DSP_TYPE_OBJECTPAN</a> on the event's master track. Returns zero if none are found. This function is not compatible with third party spatializers.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getminimumdistance" title="Retrieves the minimum distance for 3D attenuation.">Studio::EventDescription::getMinimumDistance</a></p>
+<h2 api="function" id="studio_eventdescription_getminimumdistance"><a href="#studio_eventdescription_getminimumdistance">Studio::EventDescription::getMinimumDistance</a></h2>
+<p>Retrieves the minimum distance for 3D attenuation.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getMinimumDistance</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">distance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetMinimumDistance</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">distance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getMinimumDistance</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">distance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getMinimumDistance</span><span class="p">(</span>
+  <span class="nx">distance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>distance <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Minimum distance.</p>
+<ul>
+<li><span class="label">Units:</span>  <a href="glossary.html#distance-units">Distance units</a></li>
+</ul>
+</dd>
+</dl>
+<p>Retrieves the smallest minimum distance value of all FMOD Spatializers <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_pan" title="">FMOD_DSP_TYPE_PAN</a> and FMOD Object Spatializers <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_objectpan" title="">FMOD_DSP_TYPE_OBJECTPAN</a> on the event's master track. Returns zero if none are found. This function is not compatible with third party spatializers.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getmaximumdistance" title="Retrieves the maximum distance for 3D attenuation.">Studio::EventDescription::getMaximumDistance</a></p>
+<h2 api="function" id="studio_eventdescription_getparameterdescriptionbyid"><a href="#studio_eventdescription_getparameterdescriptionbyid">Studio::EventDescription::getParameterDescriptionByID</a></h2>
+<p>Retrieves an event parameter description by id.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getParameterDescriptionByID</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_ID</span> <span class="n">id</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_DESCRIPTION</span> <span class="o">*</span><span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetParameterDescriptionByID</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_ID</span> <span class="n">id</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_DESCRIPTION</span> <span class="o">*</span><span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getParameterDescriptionByID</span><span class="p">(</span>
+  <span class="n">PARAMETER_ID</span> <span class="n">id</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">PARAMETER_DESCRIPTION</span> <span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getParameterDescriptionByID</span><span class="p">(</span>
+  <span class="nx">id</span><span class="p">,</span>
+  <span class="nx">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>id</dt>
+<dd>Parameter id. (<a class="apilink" href="studio-api-common.html#fmod_studio_parameter_id" title="Describes an event parameter identifier.">FMOD_STUDIO_PARAMETER_ID</a>)</dd>
+<dt>parameter <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Parameter description. (<a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a>)</dd>
+</dl>
+<h2 api="function" id="studio_eventdescription_getparameterdescriptionbyindex"><a href="#studio_eventdescription_getparameterdescriptionbyindex">Studio::EventDescription::getParameterDescriptionByIndex</a></h2>
+<p>Retrieves an event parameter description by index.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getParameterDescriptionByIndex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_DESCRIPTION</span> <span class="o">*</span><span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetParameterDescriptionByIndex</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_DESCRIPTION</span> <span class="o">*</span><span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getParameterDescriptionByIndex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">PARAMETER_DESCRIPTION</span> <span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getParameterDescriptionByIndex</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>parameter <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Parameter description. (<a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a>)</dd>
+</dl>
+<p>May be used in combination with <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptioncount" title="Retrieves the number of parameters in the event.">Studio::EventDescription::getParameterDescriptionCount</a> to enumerate event parameters.</p>
+<div class="admonition note">
+<p>The order of parameters is not necessarily the same as what is shown in the FMOD Studio event editor.</p>
+</div>
+<h2 api="function" id="studio_eventdescription_getparameterdescriptionbyname"><a href="#studio_eventdescription_getparameterdescriptionbyname">Studio::EventDescription::getParameterDescriptionByName</a></h2>
+<p>Retrieves an event parameter description by name.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getParameterDescriptionByName</span><span class="p">(</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_DESCRIPTION</span> <span class="o">*</span><span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetParameterDescriptionByName</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_DESCRIPTION</span> <span class="o">*</span><span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getParameterDescriptionByName</span><span class="p">(</span>
+  <span class="kt">string</span> <span class="n">name</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">PARAMETER_DESCRIPTION</span> <span class="n">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getParameterDescriptionByName</span><span class="p">(</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">parameter</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>name</dt>
+<dd>Parameter name (case-insensitive). (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>parameter <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Parameter description. (<a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a>)</dd>
+</dl>
+<h2 api="function" id="studio_eventdescription_getparameterdescriptioncount"><a href="#studio_eventdescription_getparameterdescriptioncount">Studio::EventDescription::getParameterDescriptionCount</a></h2>
+<p>Retrieves the number of parameters in the event.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getParameterDescriptionCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetParameterDescriptionCount</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getParameterDescriptionCount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getParameterDescriptionCount</span><span class="p">(</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Parameter count.</dd>
+</dl>
+<p>May be used in conjunction with <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyindex" title="Retrieves an event parameter description by index.">Studio::EventDescription::getParameterDescriptionByIndex</a> to enumerate event parameters.</p>
+<h2 api="function" id="studio_eventdescription_getpath"><a href="#studio_eventdescription_getpath">Studio::EventDescription::getPath</a></h2>
+<p>Retrieves the path.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getPath</span><span class="p">(</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetPath</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getPath</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">string</span> <span class="n">path</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getPath</span><span class="p">(</span>
+  <span class="nx">path</span><span class="p">,</span>
+  <span class="nx">size</span><span class="p">,</span>
+  <span class="nx">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>path <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Buffer to receive the <a href="glossary.html#studio-guids-and-paths">path</a>. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>size</dt>
+<dd>Size of the path buffer in bytes. Must be 0 if <code>path</code> is null.</dd>
+<dt>retrieved <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Length of the path in bytes, including the terminating null character.</dd>
+</dl>
+<p>The <a href="glossary.html#studio-strings-bank">strings bank</a> must be loaded prior to calling this function, otherwise <a class="apilink" href="core-api-common.html#fmod_err_event_notfound" title="">FMOD_ERR_EVENT_NOTFOUND</a> is returned.</p>
+<p>If the path is longer than <code>size</code> then it is truncated and this function returns <a class="apilink" href="core-api-common.html#fmod_err_truncated" title="">FMOD_ERR_TRUNCATED</a>.</p>
+<p>The <code>retrieved</code> parameter can be used to get the buffer size required to hold the full path.</p>
+<h2 api="function" id="studio_eventdescription_getsampleloadingstate"><a href="#studio_eventdescription_getsampleloadingstate">Studio::EventDescription::getSampleLoadingState</a></h2>
+<p>Retrieves the sample data loading state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getSampleLoadingState</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE</span> <span class="o">*</span><span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetSampleLoadingState</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE</span> <span class="o">*</span><span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getSampleLoadingState</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">LOADING_STATE</span> <span class="n">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getSampleLoadingState</span><span class="p">(</span>
+  <span class="nx">state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>state <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Loading state. (<a class="apilink" href="studio-api-common.html#fmod_studio_loading_state" title="Loading state of various objects.">FMOD_STUDIO_LOADING_STATE</a>)</dd>
+</dl>
+<p>If the event is invalid, then the state is set to <a class="apilink" href="studio-api-common.html#fmod_studio_loading_state_unloaded" title="">FMOD_STUDIO_LOADING_STATE_UNLOADED</a> and this function returns <a class="apilink" href="core-api-common.html#fmod_err_invalid_handle" title="">FMOD_ERR_INVALID_HANDLE</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_loadsampledata" title="Loads non-streaming sample data used by the event.">Studio::EventDescription::loadSampleData</a>, <a class="apilink" href="studio-api-bank.html#studio_bank_loadsampledata" title="Loads non-streaming sample data for all events in the bank.">Studio::Bank::loadSampleData</a>, <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_createinstance" title="Creates a playable instance.">Studio::EventDescription::createInstance</a>, <a href="studio-guide.html#sample-data-loading">Sample Data Loading</a></p>
+<h2 api="function" id="studio_eventdescription_getsoundsize"><a href="#studio_eventdescription_getsoundsize">Studio::EventDescription::getSoundSize</a></h2>
+<p>Retrieves the sound size for 3D panning.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getSoundSize</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">size</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetSoundSize</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">size</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getSoundSize</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">size</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getSoundSize</span><span class="p">(</span>
+  <span class="nx">size</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>size <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Sound size.</dd>
+</dl>
+<p>Retrieves the largest Sound Size value of all Spatializers and 3D Object Spatializers on the event's master track. Returns zero if there are no Spatializers or 3D Object Spatializers.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_is3d" title="Retrieves the event's 3D status.">Studio::EventDescription::is3D</a></p>
+<h2 api="function" id="studio_eventdescription_getuserdata"><a href="#studio_eventdescription_getuserdata">Studio::EventDescription::getUserData</a></h2>
+<p>Retrieves the event user data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>User data set by calling <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_setuserdata" title="Sets the event user data.">Studio::EventDescription::setUserData</a>.</dd>
+</dl>
+<h2 api="function" id="studio_eventdescription_getuserproperty"><a href="#studio_eventdescription_getuserproperty">Studio::EventDescription::getUserProperty</a></h2>
+<p>Retrieves a user property by name.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getUserProperty</span><span class="p">(</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY</span> <span class="o">*</span><span class="n">property</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetUserProperty</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY</span> <span class="o">*</span><span class="n">property</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getUserProperty</span><span class="p">(</span>
+  <span class="kt">string</span> <span class="n">name</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">USER_PROPERTY</span> <span class="n">property</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getUserProperty</span><span class="p">(</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">property</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>name</dt>
+<dd>User property name. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>property <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>User property. (<a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property" title="Describes a user property.">FMOD_STUDIO_USER_PROPERTY</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserpropertycount" title="Retrieves the number of user properties attached to the event.">Studio::EventDescription::getUserPropertyCount</a>, <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserpropertybyindex" title="Retrieves a user property by index.">Studio::EventDescription::getUserPropertyByIndex</a></p>
+<h2 api="function" id="studio_eventdescription_getuserpropertybyindex"><a href="#studio_eventdescription_getuserpropertybyindex">Studio::EventDescription::getUserPropertyByIndex</a></h2>
+<p>Retrieves a user property by index.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getUserPropertyByIndex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY</span> <span class="o">*</span><span class="n">property</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetUserPropertyByIndex</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY</span> <span class="o">*</span><span class="n">property</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getUserPropertyByIndex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">USER_PROPERTY</span> <span class="n">property</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getUserPropertyByIndex</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">property</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>User property index.</dd>
+<dt>property <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>User property. (<a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property" title="Describes a user property.">FMOD_STUDIO_USER_PROPERTY</a>)</dd>
+</dl>
+<p>May be used in combination with <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserpropertycount" title="Retrieves the number of user properties attached to the event.">Studio::EventDescription::getUserPropertyCount</a> to enumerate event user properties.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserproperty" title="Retrieves a user property by name.">Studio::EventDescription::getUserProperty</a></p>
+<h2 api="function" id="studio_eventdescription_getuserpropertycount"><a href="#studio_eventdescription_getuserpropertycount">Studio::EventDescription::getUserPropertyCount</a></h2>
+<p>Retrieves the number of user properties attached to the event.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">getUserPropertyCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_GetUserPropertyCount</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">getUserPropertyCount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">getUserPropertyCount</span><span class="p">(</span>
+  <span class="nx">count</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>count <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>User property count.</dd>
+</dl>
+<p>May be used in combination with <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserpropertybyindex" title="Retrieves a user property by index.">Studio::EventDescription::getUserPropertyByIndex</a> to enumerate event user properties.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserproperty" title="Retrieves a user property by name.">Studio::EventDescription::getUserProperty</a></p>
+<h2 api="function" id="studio_eventdescription_hascue"><a href="#studio_eventdescription_hascue">Studio::EventDescription::hasCue</a></h2>
+<p>Retrieves whether the event has any sustain points.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">hasCue</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">cue</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_HasCue</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">cue</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">hasCue</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">cue</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">hasCue</span><span class="p">(</span>
+  <span class="nx">cue</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>cue <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Cue status. True if the event has one or more sustain points.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<h2 api="function" id="studio_eventdescription_is3d"><a href="#studio_eventdescription_is3d">Studio::EventDescription::is3D</a></h2>
+<p>Retrieves the event's 3D status.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">is3D</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">is3d</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_Is3D</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">is3d</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">is3D</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">is3d</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">is3D</span><span class="p">(</span>
+  <span class="nx">is3d</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>is3d <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>3D status. True if the event is 3D.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p>An event is considered 3D if any of these conditions are met:</p>
+<ul>
+<li>The event has a Spatializer, 3D Object Spatializer, or a 3rd party spatializer on its master track.</li>
+<li>The event contains an automatic parameter that depends on the event's 3D attributes:<ul>
+<li>Distance</li>
+<li>Event Cone Angle</li>
+<li>Event Orientation</li>
+<li>Direction</li>
+<li>Elevation</li>
+</ul>
+</li>
+<li>The event contains any nested events which are 3D.</li>
+</ul>
+<p>Note: If the event contains nested events built to separate banks using versions of FMOD Studio prior to 2.00.10 and those banks have not been loaded then this function may fail to correctly determine the event's 3D status.</p>
+<h2 api="function" id="studio_eventdescription_isoneshot"><a href="#studio_eventdescription_isoneshot">Studio::EventDescription::isOneshot</a></h2>
+<p>Retrieves the event's oneshot status.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">isOneshot</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">oneshot</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_IsOneshot</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">oneshot</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">isOneshot</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">oneshot</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">isOneshot</span><span class="p">(</span>
+  <span class="nx">oneshot</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>oneshot <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>oneshot status. True if the event is a oneshot event.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p>An event is considered oneshot if it is guaranteed to terminate without intervention in bounded time after being started. Instances of such events can be played in a fire-and-forget fashion by calling <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_start" title="Starts playback.">Studio::EventInstance::start</a> immediately followed by <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_release" title="Marks the event instance for release.">Studio::EventInstance::release</a>.</p>
+<p>Note: If the event contains nested events built to separate banks and those banks have not been loaded then this function may fail to correctly determine the event's oneshot status.</p>
+<h2 api="function" id="studio_eventdescription_issnapshot"><a href="#studio_eventdescription_issnapshot">Studio::EventDescription::isSnapshot</a></h2>
+<p>Retrieves the event's snapshot status.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">isSnapshot</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">snapshot</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_IsSnapshot</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">snapshot</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">isSnapshot</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">snapshot</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">isSnapshot</span><span class="p">(</span>
+  <span class="nx">snapshot</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>snapshot <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Snapshot status. True if the event is a snapshot.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<h2 api="function" id="studio_eventdescription_isstream"><a href="#studio_eventdescription_isstream">Studio::EventDescription::isStream</a></h2>
+<p>Retrieves the event's stream status.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">isStream</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">isStream</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_IsStream</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">isStream</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">isStream</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">isStream</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">isStream</span><span class="p">(</span>
+  <span class="nx">isStream</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>isStream <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Stream status. True if the event contains one or more streamed sounds.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p>Note: If the event contains nested events built to separate banks and those banks have not been loaded then this function may fail to correctly determine the event's stream status.</p>
+<h2 api="function" id="studio_eventdescription_isvalid"><a href="#studio_eventdescription_isvalid">Studio::EventDescription::isValid</a></h2>
+<p>Checks that the EventDescription reference is valid.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="kt">bool</span> <span class="n">FMOD_Studio_EventDescription_IsValid</span><span class="p">(</span><span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<h2 api="function" id="studio_eventdescription_loadsampledata"><a href="#studio_eventdescription_loadsampledata">Studio::EventDescription::loadSampleData</a></h2>
+<p>Loads non-streaming sample data used by the event.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">loadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_LoadSampleData</span><span class="p">(</span><span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">loadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">loadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<p>This function will load all non-streaming sample data required by the event and any referenced events.</p>
+<p>Sample data is loaded asynchronously, <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getsampleloadingstate" title="Retrieves the sample data loading state.">Studio::EventDescription::getSampleLoadingState</a> may be used to poll the loading state.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_unloadsampledata" title="Unloads all non-streaming sample data.">Studio::EventDescription::unloadSampleData</a>, <a href="studio-guide.html#sample-data-loading">Sample Data Loading</a></p>
+<h2 api="function" id="studio_eventdescription_releaseallinstances"><a href="#studio_eventdescription_releaseallinstances">Studio::EventDescription::releaseAllInstances</a></h2>
+<p>Releases all instances.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">releaseAllInstances</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_ReleaseAllInstances</span><span class="p">(</span><span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">releaseAllInstances</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">releaseAllInstances</span><span class="p">();</span>
+</pre></div>
+
+
+<p>This function immediately stops and releases all instances of the event.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_release" title="Marks the event instance for release.">Studio::EventInstance::release</a></p>
+<h2 api="function" id="studio_eventdescription_setcallback"><a href="#studio_eventdescription_setcallback">Studio::EventDescription::setCallback</a></h2>
+<p>Sets the user callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">setCallback</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENT_CALLBACK</span> <span class="n">callback</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_EVENT_CALLBACK_TYPE</span> <span class="n">callbackmask</span> <span class="o">=</span> <span class="n">FMOD_STUDIO_EVENT_CALLBACK_ALL</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_SetCallback</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_EVENT_CALLBACK</span> <span class="n">callback</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_EVENT_CALLBACK_TYPE</span> <span class="n">callbackmask</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">setCallback</span><span class="p">(</span>
+  <span class="n">EVENT_CALLBACK</span> <span class="n">callback</span><span class="p">,</span>
+  <span class="n">EVENT_CALLBACK_TYPE</span> <span class="n">callbackmask</span> <span class="p">=</span> <span class="n">EVENT_CALLBACK_TYPE</span><span class="p">.</span><span class="n">ALL</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">setCallback</span><span class="p">(</span>
+  <span class="nx">callback</span><span class="p">,</span>
+  <span class="nx">callbackmask</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>callback</dt>
+<dd>User callback. (<a class="apilink" href="studio-api-eventinstance.html#fmod_studio_event_callback" title="Callback that is fired when a Studio::EventInstance changes state.">FMOD_STUDIO_EVENT_CALLBACK</a>)</dd>
+<dt>callbackmask</dt>
+<dd>Bitfield specifying which callback types are required. (<a class="apilink" href="studio-api-eventinstance.html#fmod_studio_event_callback_type" title="Studio event callback types.">FMOD_STUDIO_EVENT_CALLBACK_TYPE</a>)</dd>
+</dl>
+<p>This function sets a user callback which will be assigned to all event instances subsequently created from the event. The callback for individual instances can be set with <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setcallback" title="Sets the user callback.">Studio::EventInstance::setCallback</a>.</p>
+<p>See <a href="studio-guide.html#event-callbacks">Event Callbacks</a> for more information about when callbacks occur.</p>
+<p><strong>See Also:</strong> <a href="glossary.html#callback-behavior">Callback Behavior</a></p>
+<h2 api="function" id="studio_eventdescription_setuserdata"><a href="#studio_eventdescription_setuserdata">Studio::EventDescription::setUserData</a></h2>
+<p>Sets the event user data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_SetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">setUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata</dt>
+<dd>User data.</dd>
+</dl>
+<p>This function allows arbitrary user data to be attached to an event description. The user data can be retrieved by calling <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserdata" title="Retrieves the event user data.">Studio::EventDescription::getUserData</a>.</p>
+<h2 api="function" id="studio_eventdescription_unloadsampledata"><a href="#studio_eventdescription_unloadsampledata">Studio::EventDescription::unloadSampleData</a></h2>
+<p>Unloads all non-streaming sample data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">EventDescription</span><span class="o">::</span><span class="n">unloadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_EventDescription_UnloadSampleData</span><span class="p">(</span><span class="n">FMOD_STUDIO_EVENTDESCRIPTION</span> <span class="o">*</span><span class="n">eventdescription</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">EventDescription</span><span class="p">.</span><span class="n">unloadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">EventDescription</span><span class="p">.</span><span class="nx">unloadSampleData</span><span class="p">();</span>
+</pre></div>
+
+
+<p>Sample data will not be unloaded until all instances of the event are released.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_loadsampledata" title="Loads non-streaming sample data used by the event.">Studio::EventDescription::loadSampleData</a>, <a href="studio-guide.html#sample-data-loading">Sample Data Loading</a></p>
+<h2 api="struct" id="fmod_studio_user_property"><a href="#fmod_studio_user_property">FMOD_STUDIO_USER_PROPERTY</a></h2>
+<p>Describes a user property.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_STUDIO_USER_PROPERTY</span> <span class="p">{</span>
+  <span class="k">const</span> <span class="kt">char</span>                      <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY_TYPE</span>   <span class="n">type</span><span class="p">;</span>
+  <span class="k">union</span>
+  <span class="p">{</span>
+      <span class="kt">int</span>                              <span class="n">intvalue</span><span class="p">;</span>
+      <span class="n">FMOD_BOOL</span>                        <span class="n">boolvalue</span><span class="p">;</span>
+      <span class="kt">float</span>                            <span class="n">floatvalue</span><span class="p">;</span>
+      <span class="k">const</span> <span class="kt">char</span>                      <span class="o">*</span><span class="n">stringvalue</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_USER_PROPERTY</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">USER_PROPERTY</span>
+<span class="p">{</span>
+    <span class="n">StringWrapper</span> <span class="n">name</span><span class="p">;</span>
+    <span class="n">USER_PROPERTY_TYPE</span> <span class="n">type</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">intvalue</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">boolvalue</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">floatvalue</span><span class="p">;</span>
+    <span class="kt">string</span> <span class="n">stringvalue</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_STUDIO_USER_PROPERTY</span>
+<span class="p">{</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">type</span><span class="p">,</span>
+  <span class="nx">intvalue</span><span class="p">,</span>
+  <span class="nx">boolvalue</span><span class="p">,</span>
+  <span class="nx">floatvalue</span><span class="p">,</span>
+  <span class="nx">stringvalue</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_user_property_name">name</dt>
+<dd>Property name. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt id="fmod_studio_user_property_type">type</dt>
+<dd>Property type. (<a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property_type" title="User property types.">FMOD_STUDIO_USER_PROPERTY_TYPE</a>)</dd>
+<dt id="fmod_studio_user_property_intvalue">intvalue</dt>
+<dd>Integer value. Only valid when type is <a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property_type_integer" title="">FMOD_STUDIO_USER_PROPERTY_TYPE_INTEGER</a>. </dd>
+<dt id="fmod_studio_user_property_boolvalue">boolvalue</dt>
+<dd>
+<p>Boolean value. Only valid when type is <a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property_type_boolean" title="">FMOD_STUDIO_USER_PROPERTY_TYPE_BOOLEAN</a>. </p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+<dt id="fmod_studio_user_property_floatvalue">floatvalue</dt>
+<dd>Floating point value. Only valid when type is <a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property_type_float" title="">FMOD_STUDIO_USER_PROPERTY_TYPE_FLOAT</a>. </dd>
+<dt id="fmod_studio_user_property_stringvalue">stringvalue</dt>
+<dd>String value. Only valid when type is <a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property_type_string" title="">FMOD_STUDIO_USER_PROPERTY_TYPE_STRING</a>. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getuserproperty" title="Retrieves a user property by name.">Studio::EventDescription::getUserProperty</a></p>
+<h2 api="enum" id="fmod_studio_user_property_type"><a href="#fmod_studio_user_property_type">FMOD_STUDIO_USER_PROPERTY_TYPE</a></h2>
+<p>User property types.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_STUDIO_USER_PROPERTY_TYPE</span> <span class="p">{</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY_TYPE_INTEGER</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY_TYPE_BOOLEAN</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY_TYPE_FLOAT</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_USER_PROPERTY_TYPE_STRING</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_USER_PROPERTY_TYPE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">USER_PROPERTY_TYPE</span>
+<span class="p">{</span>
+    <span class="n">INTEGER</span><span class="p">,</span>
+    <span class="n">BOOLEAN</span><span class="p">,</span>
+    <span class="n">FLOAT</span><span class="p">,</span>
+    <span class="n">STRING</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">STUDIO_USER_PROPERTY_TYPE_INTEGER</span>
+<span class="nx">STUDIO_USER_PROPERTY_TYPE_BOOLEAN</span>
+<span class="nx">STUDIO_USER_PROPERTY_TYPE_FLOAT</span>
+<span class="nx">STUDIO_USER_PROPERTY_TYPE_STRING</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_user_property_type_integer">FMOD_STUDIO_USER_PROPERTY_TYPE_INTEGER</dt>
+<dd>Integer.</dd>
+<dt id="fmod_studio_user_property_type_boolean">FMOD_STUDIO_USER_PROPERTY_TYPE_BOOLEAN</dt>
+<dd>Boolean.</dd>
+<dt id="fmod_studio_user_property_type_float">FMOD_STUDIO_USER_PROPERTY_TYPE_FLOAT</dt>
+<dd>Floating point number.</dd>
+<dt id="fmod_studio_user_property_type_string">FMOD_STUDIO_USER_PROPERTY_TYPE_STRING</dt>
+<dd>String.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventdescription.html#fmod_studio_user_property" title="Describes a user property.">FMOD_STUDIO_USER_PROPERTY</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

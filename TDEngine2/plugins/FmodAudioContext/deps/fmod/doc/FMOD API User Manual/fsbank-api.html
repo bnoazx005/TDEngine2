@@ -1,0 +1,751 @@
+<html>
+<head>
+<title>FSBank API Reference</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li class="manual-current-chapter manual-active-chapter"><a href="fsbank-api.html">FSBank API Reference</a><ul>
+<li><a href="#fsbank_init">FSBank_Init</a></li>
+<li><a href="#fsbank_build">FSBank_Build</a></li>
+<li><a href="#fsbank_buildcancel">FSBank_BuildCancel</a></li>
+<li><a href="#fsbank_release">FSBank_Release</a></li>
+<li><a href="#fsbank_releaseprogressitem">FSBank_ReleaseProgressItem</a></li>
+<li><a href="#fsbank_memorygetstats">FSBank_MemoryGetStats</a></li>
+<li><a href="#fsbank_memoryinit">FSBank_MemoryInit</a></li>
+<li><a href="#fsbank_fetchfsbmemory">FSBank_FetchFSBMemory</a></li>
+<li><a href="#fsbank_fetchnextprogressitem">FSBank_FetchNextProgressItem</a></li>
+<li><a href="#fsbank_memory_alloc_callback">FSBANK_MEMORY_ALLOC_CALLBACK</a></li>
+<li><a href="#fsbank_memory_free_callback">FSBANK_MEMORY_FREE_CALLBACK</a></li>
+<li><a href="#fsbank_memory_realloc_callback">FSBANK_MEMORY_REALLOC_CALLBACK</a></li>
+<li><a href="#fsbank_initflags">FSBANK_INITFLAGS</a></li>
+<li><a href="#fsbank_buildflags">FSBANK_BUILDFLAGS</a></li>
+<li><a href="#fsbank_format">FSBANK_FORMAT</a></li>
+<li><a href="#fsbank_fsbversion">FSBANK_FSBVERSION</a></li>
+<li><a href="#fsbank_progressitem">FSBANK_PROGRESSITEM</a></li>
+<li><a href="#fsbank_result">FSBANK_RESULT</a></li>
+<li><a href="#fsbank_state">FSBANK_STATE</a></li>
+<li><a href="#fsbank_statedata_failed">FSBANK_STATEDATA_FAILED</a></li>
+<li><a href="#fsbank_statedata_warning">FSBANK_STATEDATA_WARNING</a></li>
+<li><a href="#fsbank_subsound">FSBANK_SUBSOUND</a></li>
+</ul>
+</li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>8. FSBank API Reference</h1>
+<ul>
+<li><a class="apilink" href="fsbank-api.html#fsbank_init" title="Initialize the FSBank system.">FSBank_Init</a> Initialize the FSBank system.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a> Begin the building process for the provided subsound descriptions.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_buildcancel" title="Halt the build in progress.">FSBank_BuildCancel</a> Halt the build in progress.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_release" title="Release the FSBank system, clean up used resources.">FSBank_Release</a> Release the FSBank system, clean up used resources.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_releaseprogressitem" title="Release memory associated with a progress item.">FSBank_ReleaseProgressItem</a> Release memory associated with a progress item.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_memorygetstats" title="Query the current and maximum memory usage of the FSBank system.">FSBank_MemoryGetStats</a> Query the current and maximum memory usage of the FSBank system.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_memoryinit" title="Specifies a method for FSBank to allocate memory through callbacks.">FSBank_MemoryInit</a> Specifies a method for FSBank to allocate memory through callbacks.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_fetchfsbmemory" title="Fetch the built FSB data from memory.">FSBank_FetchFSBMemory</a> Fetch the built FSB data from memory.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_fetchnextprogressitem" title="Fetch build progress items that describe the current state of the build.">FSBank_FetchNextProgressItem</a> Fetch build progress items that describe the current state of the build.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_memory_alloc_callback" title="Callback to allocate a block of memory.">FSBANK_MEMORY_ALLOC_CALLBACK</a> Callback to allocate a block of memory.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_memory_free_callback" title="Callback to free a block of memory.">FSBANK_MEMORY_FREE_CALLBACK</a> Callback to free a block of memory.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_memory_realloc_callback" title="Callback to re-allocate a block of memory to a different size.">FSBANK_MEMORY_REALLOC_CALLBACK</a> Callback to re-allocate a block of memory to a different size.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_initflags" title="Bit fields to control the general operation of the library.">FSBANK_INITFLAGS</a> Bit fields to control the general operation of the library.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_buildflags" title="Bit fields to control how subsounds are encoded.">FSBANK_BUILDFLAGS</a> Bit fields to control how subsounds are encoded.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_format" title="Compression formats available for encoding">FSBANK_FORMAT</a> Compression formats available for encoding</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_fsbversion" title="Version of FSB to write out.">FSBANK_FSBVERSION</a> Version of FSB to write out.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_progressitem" title="Status information describing the progress of a build.">FSBANK_PROGRESSITEM</a> Status information describing the progress of a build.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_result" title="Error codes returned from every function.">FSBANK_RESULT</a> Error codes returned from every function.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_state" title="Current state during the build process.">FSBANK_STATE</a> Current state during the build process.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_statedata_failed" title="Extra failed state data.">FSBANK_STATEDATA_FAILED</a> Extra failed state data.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_statedata_warning" title="Extra warning state data.">FSBANK_STATEDATA_WARNING</a> Extra warning state data.</li>
+<li><a class="apilink" href="fsbank-api.html#fsbank_subsound" title="Representation of how to encode a single subsound in the final FSB.">FSBANK_SUBSOUND</a> Representation of how to encode a single subsound in the final FSB.</li>
+</ul>
+<h2 api="function" id="fsbank_init"><a href="#fsbank_init">8.1 FSBank_Init</a></h2>
+<p>Initialize the FSBank system.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_Init</span><span class="p">(</span>
+  <span class="n">FSBANK_FSBVERSION</span> <span class="n">version</span><span class="p">,</span>
+  <span class="n">FSBANK_INITFLAGS</span> <span class="n">flags</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">numSimultaneousJobs</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">cacheDirectory</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>version</dt>
+<dd>FSB version, currently only <a class="apilink" href="fsbank-api.html#fsbank_fsbversion_fsb5" title="">FSBANK_FSBVERSION_FSB5</a> is supported. (<a class="apilink" href="fsbank-api.html#fsbank_fsbversion" title="Version of FSB to write out.">FSBANK_FSBVERSION</a>)</dd>
+<dt>flags</dt>
+<dd>Initialization flags which control how the system behaves. (<a class="apilink" href="fsbank-api.html#fsbank_initflags" title="Bit fields to control the general operation of the library.">FSBANK_INITFLAGS</a>)</dd>
+<dt>numSimultaneousJobs</dt>
+<dd>The maximum number of threads to create for parallel encoding. Set this to your number of CPU 'cores' for best performance.</dd>
+<dt>cacheDirectory <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Location to store the temporary cache files, default is a directory off the current working directory.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_release" title="Release the FSBank system, clean up used resources.">FSBank_Release</a></p>
+<h2 api="function" id="fsbank_build"><a href="#fsbank_build">8.2 FSBank_Build</a></h2>
+<p>Begin the building process for the provided subsound descriptions.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_Build</span><span class="p">(</span>
+  <span class="k">const</span> <span class="n">FSBANK_SUBSOUND</span> <span class="o">*</span><span class="n">subSounds</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">numSubSounds</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT</span> <span class="n">encodeFormat</span><span class="p">,</span>
+  <span class="n">FSBANK_BUILDFLAGS</span> <span class="n">buildFlags</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">quality</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">encryptKey</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">outputFileName</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>subSounds</dt>
+<dd>Array of subsound descriptions each defining one subsound for the FSB. (<a class="apilink" href="fsbank-api.html#fsbank_subsound" title="Representation of how to encode a single subsound in the final FSB.">FSBANK_SUBSOUND</a>)</dd>
+<dt>numSubSounds</dt>
+<dd>Number of elements in <code>subSounds</code>.</dd>
+<dt>encodeFormat</dt>
+<dd>FSB encoding format. (<a class="apilink" href="fsbank-api.html#fsbank_format" title="Compression formats available for encoding">FSBANK_FORMAT</a>)</dd>
+<dt>buildFlags</dt>
+<dd>Building flags which control how the sample data is encoded. (<a class="apilink" href="fsbank-api.html#fsbank_buildflags" title="Bit fields to control how subsounds are encoded.">FSBANK_BUILDFLAGS</a>)</dd>
+<dt>quality</dt>
+<dd>Controls the post compression quality level. From 1 (high compression / low quality) to 100 (high quality / low compression), use 0 for default quality. See remarks for format specific usage.</dd>
+<dt>encryptKey <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Key used to encrypt the FSB. Same key is required at runtime for decryption.</dd>
+<dt>outputFileName <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Path of the FSB to produce.</dd>
+</dl>
+<p>Format specific quality interpretation:</p>
+<ul>
+<li><strong>AT9</strong>    - Bitrate (Kbps) depends on channel count, quality [1 to 100] maps linearly to the available options</li>
+<li>1ch = [36, 48, 60, 72, 84, 96]</li>
+<li>2ch = [72, 96, 120, 144, 168, 192]</li>
+<li><strong>MPEG</strong>   - Bitrate (Kbps) = FMOD quality * 3.2</li>
+<li><strong>Vorbis</strong> - Vorbis quality [-0.1 to 1.0] maps linearly to FMOD quality [1 to 100] based on: <code>Vorbis_Quality = ((FMOD_Quality - 1) / 90.0f) - 0.1f</code></li>
+<li><strong>XMA</strong>    - XMA quality = FMOD quality</li>
+<li><strong>Opus</strong>   - Opus per-channel bitrate (Kbps) [0.8 to 64] maps linearly to FMOD quality [1 to 80], then bitrate [67.2 to 128] to quality [81 to 100]</li>
+</ul>
+<p>Build function will block until complete.</p>
+<h2 api="function" id="fsbank_buildcancel"><a href="#fsbank_buildcancel">8.3 FSBank_BuildCancel</a></h2>
+<p>Halt the build in progress.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_BuildCancel</span><span class="p">();</span>
+</pre></div>
+
+
+<p>Must be called from a different thread to <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a></p>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a></p>
+<h2 api="function" id="fsbank_release"><a href="#fsbank_release">8.4 FSBank_Release</a></h2>
+<p>Release the FSBank system, clean up used resources.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_Release</span><span class="p">();</span>
+</pre></div>
+
+
+<p>All progress items retrieved with <a class="apilink" href="fsbank-api.html#fsbank_fetchnextprogressitem" title="Fetch build progress items that describe the current state of the build.">FSBank_FetchNextProgressItem</a> will be released by this function.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_init" title="Initialize the FSBank system.">FSBank_Init</a>, <a class="apilink" href="fsbank-api.html#fsbank_fetchnextprogressitem" title="Fetch build progress items that describe the current state of the build.">FSBank_FetchNextProgressItem</a></p>
+<h2 api="function" id="fsbank_releaseprogressitem"><a href="#fsbank_releaseprogressitem">8.5 FSBank_ReleaseProgressItem</a></h2>
+<p>Release memory associated with a progress item.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_ReleaseProgressItem</span><span class="p">(</span>
+  <span class="k">const</span> <span class="n">FSBANK_PROGRESSITEM</span> <span class="o">*</span><span class="n">progressItem</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>progressItem</dt>
+<dd>One status update about the progress of a particular subsound. (<a class="apilink" href="fsbank-api.html#fsbank_progressitem" title="Status information describing the progress of a build.">FSBANK_PROGRESSITEM</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_fetchnextprogressitem" title="Fetch build progress items that describe the current state of the build.">FSBank_FetchNextProgressItem</a></p>
+<h2 api="function" id="fsbank_memorygetstats"><a href="#fsbank_memorygetstats">8.6 FSBank_MemoryGetStats</a></h2>
+<p>Query the current and maximum memory usage of the FSBank system.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_MemoryGetStats</span><span class="p">(</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">currentAllocated</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">maximumAllocated</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>currentAllocated</dt>
+<dd>Address of a variable that receives the currently allocated memory at time of call. Optional. Specify 0 or NULL to ignore.</dd>
+<dt>maximumAllocated</dt>
+<dd>Address of a variable that receives the maximum allocated memory since <a class="apilink" href="fsbank-api.html#fsbank_init" title="Initialize the FSBank system.">FSBank_Init</a>. Optional. Specify 0 or NULL to ignore.</dd>
+</dl>
+<h2 api="function" id="fsbank_memoryinit"><a href="#fsbank_memoryinit">8.7 FSBank_MemoryInit</a></h2>
+<p>Specifies a method for FSBank to allocate memory through callbacks.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_MemoryInit</span><span class="p">(</span>
+  <span class="n">FSBANK_MEMORY_ALLOC_CALLBACK</span> <span class="n">userAlloc</span><span class="p">,</span>
+  <span class="n">FSBANK_MEMORY_REALLOC_CALLBACK</span> <span class="n">userRealloc</span><span class="p">,</span>
+  <span class="n">FSBANK_MEMORY_FREE_CALLBACK</span> <span class="n">userFree</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userAlloc</dt>
+<dd>Overrides the internal calls to alloc. Compatible with ANSI malloc(). (<a class="apilink" href="fsbank-api.html#fsbank_memory_alloc_callback" title="Callback to allocate a block of memory.">FSBANK_MEMORY_ALLOC_CALLBACK</a>)</dd>
+<dt>userRealloc</dt>
+<dd>Overrides the internal calls to realloc. Compatible with ANSI realloc(). (<a class="apilink" href="fsbank-api.html#fsbank_memory_realloc_callback" title="Callback to re-allocate a block of memory to a different size.">FSBANK_MEMORY_REALLOC_CALLBACK</a>)</dd>
+<dt>userFree</dt>
+<dd>Overrides the internal calls to free. Compatible with ANSI free(). (<a class="apilink" href="fsbank-api.html#fsbank_memory_free_callback" title="Callback to free a block of memory.">FSBANK_MEMORY_FREE_CALLBACK</a>)</dd>
+</dl>
+<h2 api="function" id="fsbank_fetchfsbmemory"><a href="#fsbank_fetchfsbmemory">8.8 FSBank_FetchFSBMemory</a></h2>
+<p>Fetch the built FSB data from memory.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_FetchFSBMemory</span><span class="p">(</span>
+  <span class="k">const</span> <span class="kt">void</span> <span class="o">**</span><span class="n">data</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>data</dt>
+<dd>Built FSB data.</dd>
+<dt>length</dt>
+<dd>
+<p>Length of 'data'.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+</dl>
+<p>Requires <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a> to be called with outputFileName is set to NULL.</p>
+<p>The memory allocated as part of <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a> will be freed automatically by the next <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a> or <a class="apilink" href="fsbank-api.html#fsbank_release" title="Release the FSBank system, clean up used resources.">FSBank_Release</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a>, <a class="apilink" href="fsbank-api.html#fsbank_release" title="Release the FSBank system, clean up used resources.">FSBank_Release</a></p>
+<h2 api="function" id="fsbank_fetchnextprogressitem"><a href="#fsbank_fetchnextprogressitem">8.9 FSBank_FetchNextProgressItem</a></h2>
+<p>Fetch build progress items that describe the current state of the build.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c"><pre><span></span><span class="n">FSBANK_RESULT</span> <span class="nf">FSBank_FetchNextProgressItem</span><span class="p">(</span>
+  <span class="k">const</span> <span class="n">FSBANK_PROGRESSITEM</span> <span class="o">**</span><span class="n">progressItem</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>progressItem</dt>
+<dd>One status update about the progress of a particular subsound. (<a class="apilink" href="fsbank-api.html#fsbank_progressitem" title="Status information describing the progress of a build.">FSBANK_PROGRESSITEM</a>)</dd>
+</dl>
+<p>Can be called while the build is in progress to get realtime updates or after the build for a report. Call <a class="apilink" href="fsbank-api.html#fsbank_releaseprogressitem" title="Release memory associated with a progress item.">FSBank_ReleaseProgressItem</a> to free allocated memory.</p>
+<h2 api="callback" id="fsbank_memory_alloc_callback"><a href="#fsbank_memory_alloc_callback">8.10 FSBANK_MEMORY_ALLOC_CALLBACK</a></h2>
+<p>Callback to allocate a block of memory.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="kt">void</span> <span class="o">*</span> <span class="n">FSBANK_CALLBACK</span> <span class="nf">FSBANK_MEMORY_ALLOC_CALLBACK</span><span class="p">(</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">type</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">sourceStr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>size</dt>
+<dd>Size in bytes of the memory block to be allocated and returned.</dd>
+<dt>type</dt>
+<dd>Type of memory allocation.</dd>
+<dt>sourceStr</dt>
+<dd>Only valid (not null) in logging versions of FMOD. Gives a string with the fmod source code filename and line number in it, for better resource tracking.</dd>
+</dl>
+<p>Returning an aligned pointer, of 16 byte alignment is recommended for speed purposes.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_memoryinit" title="Specifies a method for FSBank to allocate memory through callbacks.">FSBank_MemoryInit</a>, <a class="apilink" href="fsbank-api.html#fsbank_memory_realloc_callback" title="Callback to re-allocate a block of memory to a different size.">FSBANK_MEMORY_REALLOC_CALLBACK</a>, <a class="apilink" href="fsbank-api.html#fsbank_memory_free_callback" title="Callback to free a block of memory.">FSBANK_MEMORY_FREE_CALLBACK</a></p>
+<h2 api="callback" id="fsbank_memory_free_callback"><a href="#fsbank_memory_free_callback">8.11 FSBANK_MEMORY_FREE_CALLBACK</a></h2>
+<p>Callback to free a block of memory.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="kt">void</span> <span class="n">FSBANK_CALLBACK</span> <span class="nf">FSBANK_MEMORY_FREE_CALLBACK</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">type</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">sourceStr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>ptr</dt>
+<dd>Pointer to a pre-existing block of memory to be freed.</dd>
+<dt>type</dt>
+<dd>Type of memory to be freed.</dd>
+<dt>sourceStr</dt>
+<dd>Only valid (not null) in logging versions of FMOD. Gives a string with the fmod source code filename and line number in it, for better resource tracking.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_memoryinit" title="Specifies a method for FSBank to allocate memory through callbacks.">FSBank_MemoryInit</a>, <a class="apilink" href="fsbank-api.html#fsbank_memory_alloc_callback" title="Callback to allocate a block of memory.">FSBANK_MEMORY_ALLOC_CALLBACK</a>, <a class="apilink" href="fsbank-api.html#fsbank_memory_realloc_callback" title="Callback to re-allocate a block of memory to a different size.">FSBANK_MEMORY_REALLOC_CALLBACK</a></p>
+<h2 api="callback" id="fsbank_memory_realloc_callback"><a href="#fsbank_memory_realloc_callback">8.12 FSBANK_MEMORY_REALLOC_CALLBACK</a></h2>
+<p>Callback to re-allocate a block of memory to a different size.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="kt">void</span> <span class="o">*</span> <span class="n">FSBANK_CALLBACK</span> <span class="nf">FSBANK_MEMORY_REALLOC_CALLBACK</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">type</span><span class="p">,</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">sourceStr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>ptr</dt>
+<dd>Pointer to a block of memory to be resized.  If this is NULL then a new block of memory is simply allocated.</dd>
+<dt>size</dt>
+<dd>Size of the memory to be reallocated.  The original memory must be preserved.</dd>
+<dt>type</dt>
+<dd>Type of memory allocation.</dd>
+<dt>sourceStr</dt>
+<dd>Only valid (not null) in logging versions of FMOD. Gives a string with the fmod source code filename and line number in it, for better resource tracking.</dd>
+</dl>
+<p>Returning an aligned pointer, of 16 byte alignment is recommended for speed purposes.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_memoryinit" title="Specifies a method for FSBank to allocate memory through callbacks.">FSBank_MemoryInit</a>, <a class="apilink" href="fsbank-api.html#fsbank_memory_alloc_callback" title="Callback to allocate a block of memory.">FSBANK_MEMORY_ALLOC_CALLBACK</a>, <a class="apilink" href="fsbank-api.html#fsbank_memory_free_callback" title="Callback to free a block of memory.">FSBANK_MEMORY_FREE_CALLBACK</a></p>
+<h2 api="define" id="fsbank_initflags"><a href="#fsbank_initflags">8.13 FSBANK_INITFLAGS</a></h2>
+<p>Bit fields to control the general operation of the library.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="cp">#define FSBANK_INIT_NORMAL                  0x00000000</span>
+<span class="cp">#define FSBANK_INIT_IGNOREERRORS            0x00000001</span>
+<span class="cp">#define FSBANK_INIT_WARNINGSASERRORS        0x00000002</span>
+<span class="cp">#define FSBANK_INIT_CREATEINCLUDEHEADER     0x00000004</span>
+<span class="cp">#define FSBANK_INIT_DONTLOADCACHEFILES      0x00000008</span>
+<span class="cp">#define FSBANK_INIT_GENERATEPROGRESSITEMS   0x00000010</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_init_normal">FSBANK_INIT_NORMAL</dt>
+<dd>Initialize normally. </dd>
+<dt id="fsbank_init_ignoreerrors">FSBANK_INIT_IGNOREERRORS</dt>
+<dd>Ignore individual subsound build errors, continue building for as long as possible. </dd>
+<dt id="fsbank_init_warningsaserrors">FSBANK_INIT_WARNINGSASERRORS</dt>
+<dd>Treat any warnings issued as errors. </dd>
+<dt id="fsbank_init_createincludeheader">FSBANK_INIT_CREATEINCLUDEHEADER</dt>
+<dd>Create C header files with #defines defining indices for each member of the FSB. </dd>
+<dt id="fsbank_init_dontloadcachefiles">FSBANK_INIT_DONTLOADCACHEFILES</dt>
+<dd>Ignore existing cache files. </dd>
+<dt id="fsbank_init_generateprogressitems">FSBANK_INIT_GENERATEPROGRESSITEMS</dt>
+<dd>Generate status items that can be queried by another thread to monitor the build progress and give detailed error messages. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_init" title="Initialize the FSBank system.">FSBank_Init</a></p>
+<h2 api="define" id="fsbank_buildflags"><a href="#fsbank_buildflags">8.14 FSBANK_BUILDFLAGS</a></h2>
+<p>Bit fields to control how subsounds are encoded.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="cp">#define FSBANK_BUILD_DEFAULT                 0x00000000</span>
+<span class="cp">#define FSBANK_BUILD_DISABLESYNCPOINTS       0x00000001</span>
+<span class="cp">#define FSBANK_BUILD_DONTLOOP                0x00000002</span>
+<span class="cp">#define FSBANK_BUILD_FILTERHIGHFREQ          0x00000004</span>
+<span class="cp">#define FSBANK_BUILD_DISABLESEEKING          0x00000008</span>
+<span class="cp">#define FSBANK_BUILD_OPTIMIZESAMPLERATE      0x00000010</span>
+<span class="cp">#define FSBANK_BUILD_FSB5_DONTWRITENAMES     0x00000080</span>
+<span class="cp">#define FSBANK_BUILD_NOGUID                  0x00000100</span>
+<span class="cp">#define FSBANK_BUILD_WRITEPEAKVOLUME         0x00000200</span>
+<span class="cp">#define FSBANK_BUILD_OVERRIDE_MASK           (FSBANK_BUILD_DISABLESYNCPOINTS | FSBANK_BUILD_DONTLOOP | FSBANK_BUILD_FILTERHIGHFREQ | FSBANK_BUILD_DISABLESEEKING | FSBANK_BUILD_OPTIMIZESAMPLERATE | FSBANK_BUILD_WRITEPEAKVOLUME)</span>
+<span class="cp">#define FSBANK_BUILD_CACHE_VALIDATION_MASK   (FSBANK_BUILD_DONTLOOP | FSBANK_BUILD_FILTERHIGHFREQ | FSBANK_BUILD_OPTIMIZESAMPLERATE)</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_build_default">FSBANK_BUILD_DEFAULT</dt>
+<dd>Build with default settings. </dd>
+<dt id="fsbank_build_disablesyncpoints">FSBANK_BUILD_DISABLESYNCPOINTS</dt>
+<dd>Disable the storing of syncpoints in the output </dd>
+<dt id="fsbank_build_dontloop">FSBANK_BUILD_DONTLOOP</dt>
+<dd>Disable perfect loop encoding and sound stretching. Removes chirps from the start of oneshot MP2, MP3 and IMAADPCM sounds. </dd>
+<dt id="fsbank_build_filterhighfreq">FSBANK_BUILD_FILTERHIGHFREQ</dt>
+<dd>XMA only. Enable high frequency filtering. </dd>
+<dt id="fsbank_build_disableseeking">FSBANK_BUILD_DISABLESEEKING</dt>
+<dd>XMA only. Disable seek tables to save memory. </dd>
+<dt id="fsbank_build_optimizesamplerate">FSBANK_BUILD_OPTIMIZESAMPLERATE</dt>
+<dd>Attempt to optimize the sample rate down. Ignored if format is MP2, MP3 or if FSB4 basic headers flag is used. </dd>
+<dt id="fsbank_build_fsb5_dontwritenames">FSBANK_BUILD_FSB5_DONTWRITENAMES</dt>
+<dd>FSB5 format only. Do not write out a names chunk to the FSB to reduce file size. </dd>
+<dt id="fsbank_build_noguid">FSBANK_BUILD_NOGUID</dt>
+<dd>FSB5 format only. Write out a null GUID for the FSB header. The engine will not use header caching for these FSB files. </dd>
+<dt id="fsbank_build_writepeakvolume">FSBANK_BUILD_WRITEPEAKVOLUME</dt>
+<dd>FSB5 format only. Write peak volume for all subsounds. </dd>
+<dt id="fsbank_build_override_mask">FSBANK_BUILD_OVERRIDE_MASK</dt>
+<dd>Build flag mask that specifies which settings can be overridden per subsound. </dd>
+<dt id="fsbank_build_cache_validation_mask">FSBANK_BUILD_CACHE_VALIDATION_MASK</dt>
+<dd>Build flag mask that specifies which settings (when changed) invalidate a cache file. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_init" title="Initialize the FSBank system.">FSBank_Init</a>, <a class="apilink" href="fsbank-api.html#fsbank_subsound" title="Representation of how to encode a single subsound in the final FSB.">FSBANK_SUBSOUND</a></p>
+<h2 api="enum" id="fsbank_format"><a href="#fsbank_format">8.15 FSBANK_FORMAT</a></h2>
+<p>Compression formats available for encoding</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FSBANK_FORMAT</span> <span class="p">{</span>
+  <span class="n">FSBANK_FORMAT_PCM</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT_PCM_BIGENDIAN</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT_XMA</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT_AT9_PSVITA</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT_AT9_PS4</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT_VORBIS</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT_FADPCM</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT_OPUS</span><span class="p">,</span>
+  <span class="n">FSBANK_FORMAT_MAX</span>
+<span class="p">}</span> <span class="n">FSBANK_FORMAT</span><span class="p">;</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_format_pcm">FSBANK_FORMAT_PCM</dt>
+<dd>PCM                                 (1:1)   All platforms. </dd>
+<dt id="fsbank_format_pcm_bigendian">FSBANK_FORMAT_PCM_BIGENDIAN</dt>
+<dd>PCM Big Endian                      (1:1)   Xbox360 and PS3 only. </dd>
+<dt id="fsbank_format_xma">FSBANK_FORMAT_XMA</dt>
+<dd>XMA                                 (VBR)   Xbox360 / XboxOne only (hardware).   Depends on xmaencoder. </dd>
+<dt id="fsbank_format_at9_psvita">FSBANK_FORMAT_AT9_PSVITA</dt>
+<dd>ATRAC9                              (CBR)   PSVita only (hardware).              Depends on libatrac9. </dd>
+<dt id="fsbank_format_at9_ps4">FSBANK_FORMAT_AT9_PS4</dt>
+<dd>ATRAC9                              (CBR)   PS4 only (hardware).                 Depends on libatrac9. </dd>
+<dt id="fsbank_format_vorbis">FSBANK_FORMAT_VORBIS</dt>
+<dd>Vorbis                              (VBR)   All platforms.                       Depends on libvorbis. </dd>
+<dt id="fsbank_format_fadpcm">FSBANK_FORMAT_FADPCM</dt>
+<dd>FMOD ADPCM                          (3.5:1) All platforms. </dd>
+<dt id="fsbank_format_opus">FSBANK_FORMAT_OPUS</dt>
+<dd>Opus                                (VBR)   Expiremental (no platforms yet).     Depends on opus.</dd>
+<dt id="fsbank_format_max">FSBANK_FORMAT_MAX</dt>
+<dd>Upper bound for this enumeration, for use with validation. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a></p>
+<h2 api="enum" id="fsbank_fsbversion"><a href="#fsbank_fsbversion">8.16 FSBANK_FSBVERSION</a></h2>
+<p>Version of FSB to write out.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FSBANK_FSBVERSION</span> <span class="p">{</span>
+  <span class="n">FSBANK_FSBVERSION_FSB5</span><span class="p">,</span>
+  <span class="n">FSBANK_FSBVERSION_MAX</span>
+<span class="p">}</span> <span class="n">FSBANK_FSBVERSION</span><span class="p">;</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_fsbversion_fsb5">FSBANK_FSBVERSION_FSB5</dt>
+<dd>Produce FSB version 5 files. </dd>
+<dt id="fsbank_fsbversion_max">FSBANK_FSBVERSION_MAX</dt>
+<dd>Upper bound for this enumeration, for use with validation. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_init" title="Initialize the FSBank system.">FSBank_Init</a></p>
+<h2 api="struct" id="fsbank_progressitem"><a href="#fsbank_progressitem">8.17 FSBANK_PROGRESSITEM</a></h2>
+<p>Status information describing the progress of a build.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FSBANK_PROGRESSITEM</span> <span class="p">{</span>
+  <span class="kt">int</span>            <span class="n">subSoundIndex</span><span class="p">;</span>
+  <span class="kt">int</span>            <span class="n">threadIndex</span><span class="p">;</span>
+  <span class="n">FSBANK_STATE</span>   <span class="n">state</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">void</span>    <span class="o">*</span><span class="n">stateData</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FSBANK_PROGRESSITEM</span><span class="p">;</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_progressitem_subsoundindex">subSoundIndex</dt>
+<dd>Index into the subsound list passed to <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a> that this update relates to (-1 indicates no specific subsound). </dd>
+<dt id="fsbank_progressitem_threadindex">threadIndex</dt>
+<dd>Which thread index is serving this update (-1 indicates <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a> / main thread). </dd>
+<dt id="fsbank_progressitem_state">state</dt>
+<dd>Progress through the encoding process. (<a class="apilink" href="fsbank-api.html#fsbank_state" title="Current state during the build process.">FSBANK_STATE</a>)</dd>
+<dt id="fsbank_progressitem_statedata">stateData</dt>
+<dd>Cast to state specific data structure for extra information. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a>, <a class="apilink" href="fsbank-api.html#fsbank_fetchnextprogressitem" title="Fetch build progress items that describe the current state of the build.">FSBank_FetchNextProgressItem</a>, <a class="apilink" href="fsbank-api.html#fsbank_releaseprogressitem" title="Release memory associated with a progress item.">FSBank_ReleaseProgressItem</a>, <a class="apilink" href="fsbank-api.html#fsbank_state" title="Current state during the build process.">FSBANK_STATE</a></p>
+<h2 api="enum" id="fsbank_result"><a href="#fsbank_result">8.18 FSBANK_RESULT</a></h2>
+<p>Error codes returned from every function.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FSBANK_RESULT</span> <span class="p">{</span>
+  <span class="n">FSBANK_OK</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_CACHE_CHUNKNOTFOUND</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_CANCELLED</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_CANNOT_CONTINUE</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_ENCODER</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_ENCODER_INIT</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_ENCODER_NOTSUPPORTED</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_FILE_OS</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_FILE_NOTFOUND</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_FMOD</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_INITIALIZED</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_INVALID_FORMAT</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_INVALID_PARAM</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_MEMORY</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_UNINITIALIZED</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_WRITER_FORMAT</span><span class="p">,</span>
+  <span class="n">FSBANK_WARN_CANNOTLOOP</span><span class="p">,</span>
+  <span class="n">FSBANK_WARN_IGNORED_FILTERHIGHFREQ</span><span class="p">,</span>
+  <span class="n">FSBANK_WARN_IGNORED_DISABLESEEKING</span><span class="p">,</span>
+  <span class="n">FSBANK_WARN_FORCED_DONTWRITENAMES</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_ENCODER_FILE_NOTFOUND</span><span class="p">,</span>
+  <span class="n">FSBANK_ERR_ENCODER_FILE_BAD</span>
+<span class="p">}</span> <span class="n">FSBANK_RESULT</span><span class="p">;</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_ok">FSBANK_OK</dt>
+<dd>No errors. </dd>
+<dt id="fsbank_err_cache_chunknotfound">FSBANK_ERR_CACHE_CHUNKNOTFOUND</dt>
+<dd>An expected chunk is missing from the cache, perhaps try deleting cache files. </dd>
+<dt id="fsbank_err_cancelled">FSBANK_ERR_CANCELLED</dt>
+<dd>The build process was cancelled during compilation by the user. </dd>
+<dt id="fsbank_err_cannot_continue">FSBANK_ERR_CANNOT_CONTINUE</dt>
+<dd>The build process cannot continue due to previously ignored errors. </dd>
+<dt id="fsbank_err_encoder">FSBANK_ERR_ENCODER</dt>
+<dd>Encoder for chosen format has encountered an unexpected error. </dd>
+<dt id="fsbank_err_encoder_init">FSBANK_ERR_ENCODER_INIT</dt>
+<dd>Encoder initialization failed. </dd>
+<dt id="fsbank_err_encoder_notsupported">FSBANK_ERR_ENCODER_NOTSUPPORTED</dt>
+<dd>Encoder for chosen format is not supported on this platform. </dd>
+<dt id="fsbank_err_file_os">FSBANK_ERR_FILE_OS</dt>
+<dd>An operating system based file error was encountered. </dd>
+<dt id="fsbank_err_file_notfound">FSBANK_ERR_FILE_NOTFOUND</dt>
+<dd>A specified file could not be found. </dd>
+<dt id="fsbank_err_fmod">FSBANK_ERR_FMOD</dt>
+<dd>Internal error from FMOD sub-system. </dd>
+<dt id="fsbank_err_initialized">FSBANK_ERR_INITIALIZED</dt>
+<dd>Already initialized. </dd>
+<dt id="fsbank_err_invalid_format">FSBANK_ERR_INVALID_FORMAT</dt>
+<dd>The format of the source file is invalid. </dd>
+<dt id="fsbank_err_invalid_param">FSBANK_ERR_INVALID_PARAM</dt>
+<dd>An invalid parameter has been passed to this function. </dd>
+<dt id="fsbank_err_memory">FSBANK_ERR_MEMORY</dt>
+<dd>Ran out of memory. </dd>
+<dt id="fsbank_err_uninitialized">FSBANK_ERR_UNINITIALIZED</dt>
+<dd>Not initialized yet. </dd>
+<dt id="fsbank_err_writer_format">FSBANK_ERR_WRITER_FORMAT</dt>
+<dd>Chosen encode format is not supported by this FSB version. </dd>
+<dt id="fsbank_warn_cannotloop">FSBANK_WARN_CANNOTLOOP</dt>
+<dd>Source file is too short for seamless looping. Looping disabled. </dd>
+<dt id="fsbank_warn_ignored_filterhighfreq">FSBANK_WARN_IGNORED_FILTERHIGHFREQ</dt>
+<dd><a class="apilink" href="fsbank-api.html#fsbank_build_filterhighfreq" title="">FSBANK_BUILD_FILTERHIGHFREQ</a> flag ignored: feature only supported by XMA format. </dd>
+<dt id="fsbank_warn_ignored_disableseeking">FSBANK_WARN_IGNORED_DISABLESEEKING</dt>
+<dd><a class="apilink" href="fsbank-api.html#fsbank_build_disableseeking" title="">FSBANK_BUILD_DISABLESEEKING</a> flag ignored: feature only supported by XMA format. </dd>
+<dt id="fsbank_warn_forced_dontwritenames">FSBANK_WARN_FORCED_DONTWRITENAMES</dt>
+<dd><a class="apilink" href="fsbank-api.html#fsbank_build_fsb5_dontwritenames" title="">FSBANK_BUILD_FSB5_DONTWRITENAMES</a> flag forced: cannot write names when source is from memory. </dd>
+<dt id="fsbank_err_encoder_file_notfound">FSBANK_ERR_ENCODER_FILE_NOTFOUND</dt>
+<dd>External encoder dynamic library not found </dd>
+<dt id="fsbank_err_encoder_file_bad">FSBANK_ERR_ENCODER_FILE_BAD</dt>
+<dd>External encoder dynamic library could not be loaded, possibly incorrect binary format, incorrect architecture, file corruption </dd>
+</dl>
+<h2 api="enum" id="fsbank_state"><a href="#fsbank_state">8.19 FSBANK_STATE</a></h2>
+<p>Current state during the build process.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FSBANK_STATE</span> <span class="p">{</span>
+  <span class="n">FSBANK_STATE_DECODING</span><span class="p">,</span>
+  <span class="n">FSBANK_STATE_ANALYSING</span><span class="p">,</span>
+  <span class="n">FSBANK_STATE_PREPROCESSING</span><span class="p">,</span>
+  <span class="n">FSBANK_STATE_ENCODING</span><span class="p">,</span>
+  <span class="n">FSBANK_STATE_WRITING</span><span class="p">,</span>
+  <span class="n">FSBANK_STATE_FINISHED</span><span class="p">,</span>
+  <span class="n">FSBANK_STATE_FAILED</span><span class="p">,</span>
+  <span class="n">FSBANK_STATE_WARNING</span>
+<span class="p">}</span> <span class="n">FSBANK_STATE</span><span class="p">;</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_state_decoding">FSBANK_STATE_DECODING</dt>
+<dd>Decode a file to usable raw sample data. </dd>
+<dt id="fsbank_state_analysing">FSBANK_STATE_ANALYSING</dt>
+<dd>Scan sound data for details (such as optimized sample rate). </dd>
+<dt id="fsbank_state_preprocessing">FSBANK_STATE_PREPROCESSING</dt>
+<dd>Prepares sound data for encoder. </dd>
+<dt id="fsbank_state_encoding">FSBANK_STATE_ENCODING</dt>
+<dd>Pass the sample data to the chosen encoder. </dd>
+<dt id="fsbank_state_writing">FSBANK_STATE_WRITING</dt>
+<dd>Write encoded data into an FSB. </dd>
+<dt id="fsbank_state_finished">FSBANK_STATE_FINISHED</dt>
+<dd>Process complete. </dd>
+<dt id="fsbank_state_failed">FSBANK_STATE_FAILED</dt>
+<dd>An error has occurred, check data (as <a class="apilink" href="fsbank-api.html#fsbank_statedata_failed" title="Extra failed state data.">FSBANK_STATEDATA_FAILED</a>) for details. </dd>
+<dt id="fsbank_state_warning">FSBANK_STATE_WARNING</dt>
+<dd>A warning has been issued, check data (as <a class="apilink" href="fsbank-api.html#fsbank_statedata_warning" title="Extra warning state data.">FSBANK_STATEDATA_WARNING</a>) for details. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_progressitem" title="Status information describing the progress of a build.">FSBANK_PROGRESSITEM</a></p>
+<h2 api="struct" id="fsbank_statedata_failed"><a href="#fsbank_statedata_failed">8.20 FSBANK_STATEDATA_FAILED</a></h2>
+<p>Extra failed state data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FSBANK_STATEDATA_FAILED</span> <span class="p">{</span>
+  <span class="n">FSBANK_RESULT</span>   <span class="n">errorCode</span><span class="p">;</span>
+  <span class="kt">char</span>            <span class="n">errorString</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">FSBANK_STATEDATA_FAILED</span><span class="p">;</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_statedata_failed_errorcode">errorCode</dt>
+<dd>Error result code. (<a class="apilink" href="fsbank-api.html#fsbank_result" title="Error codes returned from every function.">FSBANK_RESULT</a>)</dd>
+<dt id="fsbank_statedata_failed_errorstring">errorString</dt>
+<dd>Description for error code. </dd>
+</dl>
+<p>Cast stateData in <a class="apilink" href="fsbank-api.html#fsbank_progressitem" title="Status information describing the progress of a build.">FSBANK_PROGRESSITEM</a> to this struct if the state is <a class="apilink" href="fsbank-api.html#fsbank_state_failed" title="">FSBANK_STATE_FAILED</a></p>
+<h2 api="struct" id="fsbank_statedata_warning"><a href="#fsbank_statedata_warning">8.21 FSBANK_STATEDATA_WARNING</a></h2>
+<p>Extra warning state data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FSBANK_STATEDATA_WARNING</span> <span class="p">{</span>
+  <span class="n">FSBANK_RESULT</span>   <span class="n">warnCode</span><span class="p">;</span>
+  <span class="kt">char</span>            <span class="n">warningString</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">FSBANK_STATEDATA_WARNING</span><span class="p">;</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_statedata_warning_warncode">warnCode</dt>
+<dd>Warning result code. (<a class="apilink" href="fsbank-api.html#fsbank_result" title="Error codes returned from every function.">FSBANK_RESULT</a>)</dd>
+<dt id="fsbank_statedata_warning_warningstring">warningString</dt>
+<dd>Description for warning code. </dd>
+</dl>
+<p>Cast stateData in <a class="apilink" href="fsbank-api.html#fsbank_progressitem" title="Status information describing the progress of a build.">FSBANK_PROGRESSITEM</a> to this struct if the state is <a class="apilink" href="fsbank-api.html#fsbank_state_warning" title="">FSBANK_STATE_WARNING</a></p>
+<h2 api="struct" id="fsbank_subsound"><a href="#fsbank_subsound">8.22 FSBANK_SUBSOUND</a></h2>
+<p>Representation of how to encode a single subsound in the final FSB.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FSBANK_SUBSOUND</span> <span class="p">{</span>
+  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span>   <span class="o">*</span><span class="n">fileNames</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="k">const</span>   <span class="o">*</span><span class="n">fileData</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span>   <span class="o">*</span><span class="n">fileDataLengths</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>         <span class="n">numFiles</span><span class="p">;</span>
+  <span class="n">FSBANK_BUILDFLAGS</span>    <span class="n">overrideFlags</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>         <span class="n">overrideQuality</span><span class="p">;</span>
+  <span class="kt">float</span>                <span class="n">desiredSampleRate</span><span class="p">;</span>
+  <span class="kt">float</span>                <span class="n">percentOptimizedRate</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FSBANK_SUBSOUND</span><span class="p">;</span>
+</pre></div>
+
+
+<dl>
+<dt id="fsbank_subsound_filenames">fileNames</dt>
+<dd>List of file names (instead of FSBANK_SUBSOUND::fileData) used to produce an interleaved sound. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt id="fsbank_subsound_filedata">fileData</dt>
+<dd>List of file data pointers (instead of FSBANK_SUBSOUND::fileNames) used to produce an interleaved sound. </dd>
+<dt id="fsbank_subsound_filedatalengths">fileDataLengths</dt>
+<dd>List of file data lengths corresponding to the items in the FSBANK_SUBSOUND::fileData list. </dd>
+<dt id="fsbank_subsound_numfiles">numFiles</dt>
+<dd>Number of items in either FSBANK_SUBSOUND::fileData / FSBANK_SUBSOUND::fileDataLengths or FSBANK_SUBSOUND::fileNames. </dd>
+<dt id="fsbank_subsound_overrideflags">overrideFlags</dt>
+<dd>Flags that will reverse the equivalent flags passed to <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a>. (<a class="apilink" href="fsbank-api.html#fsbank_buildflags" title="Bit fields to control how subsounds are encoded.">FSBANK_BUILDFLAGS</a>)</dd>
+<dt id="fsbank_subsound_overridequality">overrideQuality</dt>
+<dd>Override the quality setting passed to <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a>. </dd>
+<dt id="fsbank_subsound_desiredsamplerate">desiredSampleRate</dt>
+<dd>Resample to this sample rate (ignores optimize sample rate setting), up to 192000Hz. </dd>
+<dt id="fsbank_subsound_percentoptimizedrate">percentOptimizedRate</dt>
+<dd>If using <a class="apilink" href="fsbank-api.html#fsbank_build_optimizesamplerate" title="">FSBANK_BUILD_OPTIMIZESAMPLERATE</a>, this is the percentage of that rate to be used, up to 100.0%. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="fsbank-api.html#fsbank_build" title="Begin the building process for the provided subsound descriptions.">FSBank_Build</a>, <a class="apilink" href="fsbank-api.html#fsbank_build_optimizesamplerate" title="">FSBANK_BUILD_OPTIMIZESAMPLERATE</a>, <a class="apilink" href="fsbank-api.html#fsbank_buildflags" title="Bit fields to control how subsounds are encoded.">FSBANK_BUILDFLAGS</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

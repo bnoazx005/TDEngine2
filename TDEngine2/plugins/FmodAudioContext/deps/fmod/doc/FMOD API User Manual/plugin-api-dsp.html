@@ -1,0 +1,2374 @@
+<html>
+<head>
+<title>Plugin API Reference | DSP</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="plugin-api.html">Plugin API Reference</a><ul class="subchapters"><li><a href="plugin-api-codec.html">Codec</a></li><li class="manual-current-chapter manual-active-chapter"><a href="plugin-api-dsp.html">DSP</a></li><li><a href="plugin-api-output.html">Output</a></li></ul></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>9. Plugin API Reference | DSP</h1>
+<p>An interface that manages DSP plugins</p>
+<p><strong>System:</strong></p>
+<ul>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_register_callback" title="System level DSP type registration callback.">FMOD_DSP_SYSTEM_REGISTER_CALLBACK</a> System level DSP type registration callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_deregister_callback" title="System level DSP type deregister callback.">FMOD_DSP_SYSTEM_DEREGISTER_CALLBACK</a> System level DSP type deregister callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_mix_callback" title="System level DSP type mix callback.">FMOD_DSP_SYSTEM_MIX_CALLBACK</a> System level DSP type mix callback.</li>
+</ul>
+<p><strong>Parameter API:</strong></p>
+<ul>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_valuestr_length" title="Length in bytes of the buffer pointed to by the valuestr argument of FMOD_DSP_GETPARAM_XXXX_CALLBACK functions.">FMOD_DSP_GETPARAM_VALUESTR_LENGTH</a> Length in bytes of the buffer pointed to by the valuestr argument of FMOD_DSP_GETPARAM_XXXX_CALLBACK functions.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a> Data parameter types.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a> Base Structure for DSP parameter descriptions.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_bool" title="Boolean parameter description.">FMOD_DSP_PARAMETER_DESC_BOOL</a> Boolean parameter description.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_data" title="Data parameter description.">FMOD_DSP_PARAMETER_DESC_DATA</a> Data parameter description.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_float" title="Float parameter description.">FMOD_DSP_PARAMETER_DESC_FLOAT</a> Float parameter description.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_int" title="Integer parameter description.">FMOD_DSP_PARAMETER_DESC_INT</a> Integer parameter description.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_3dattributes" title="3D attributes data structure.">FMOD_DSP_PARAMETER_3DATTRIBUTES</a> 3D attributes data structure.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_3dattributes_multi" title="3D attributes data structure for multiple listeners.">FMOD_DSP_PARAMETER_3DATTRIBUTES_MULTI</a> 3D attributes data structure for multiple listeners.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_fft" title="FFT parameter data structure.">FMOD_DSP_PARAMETER_FFT</a> FFT parameter data structure.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping" title="Structure to define a mapping for a DSP unit's float parameter.">FMOD_DSP_PARAMETER_FLOAT_MAPPING</a> Structure to define a mapping for a DSP unit's float parameter.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_piecewise_linear" title="Structure to define a piecewise linear mapping.">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</a> Structure to define a piecewise linear mapping.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_type" title="DSP float parameter mappings. These determine how values are mapped across dials and automation curves.">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE</a> DSP float parameter mappings. These determine how values are mapped across dials and automation curves.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_overallgain" title="Overall gain parameter data structure.">FMOD_DSP_PARAMETER_OVERALLGAIN</a> Overall gain parameter data structure.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_sidechain" title="Side chain parameter data structure.">FMOD_DSP_PARAMETER_SIDECHAIN</a> Side chain parameter data structure.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type" title="DSP parameter types.">FMOD_DSP_PARAMETER_TYPE</a> DSP parameter types.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_bool_callback" title="Get boolean parameter callback.">FMOD_DSP_GETPARAM_BOOL_CALLBACK</a> Get boolean parameter callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_data_callback" title="Get data parameter callback.">FMOD_DSP_GETPARAM_DATA_CALLBACK</a> Get data parameter callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_float_callback" title="Get float parameter callback.">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</a> Get float parameter callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_int_callback" title="Get integer parameter callback.">FMOD_DSP_GETPARAM_INT_CALLBACK</a> Get integer parameter callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_bool_callback" title="Set boolean parameter callback.">FMOD_DSP_SETPARAM_BOOL_CALLBACK</a> Set boolean parameter callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_data_callback" title="Set data parameter callback.">FMOD_DSP_SETPARAM_DATA_CALLBACK</a> Set data parameter callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_float_callback" title="Set float parameter callback.">FMOD_DSP_SETPARAM_FLOAT_CALLBACK</a> Set float parameter callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_int_callback" title="Set integer parameter callback.">FMOD_DSP_SETPARAM_INT_CALLBACK</a> Set integer parameter callback.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_complex" title="Complex number structure.">FMOD_COMPLEX</a> Complex number structure.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_buffer_array" title="Structure for input and output buffers.">FMOD_DSP_BUFFER_ARRAY</a> Structure for input and output buffers.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_metering_info" title="DSP metering info.">FMOD_DSP_METERING_INFO</a> DSP metering info.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_pan_surround_flags" title="Flags for the FMOD_DSP_PAN_SUMSURROUNDMATRIX_FUNC function.">FMOD_DSP_PAN_SURROUND_FLAGS</a> Flags for the FMOD_DSP_PAN_SUMSURROUNDMATRIX_FUNC function.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_operation" title="Process operation type.">FMOD_DSP_PROCESS_OPERATION</a> Process operation type.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a> DSP plugin structure that is passed into each callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_dft_functions" title="Struct containing DFT functions to enable a plugin to perform optimized time-frequency domain conversion.">FMOD_DSP_STATE_DFT_FUNCTIONS</a> Struct containing DFT functions to enable a plugin to perform optimized time-frequency domain conversion.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_functions" title="Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers.">FMOD_DSP_STATE_FUNCTIONS</a> Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_pan_functions" title="Struct containing panning helper functions for spatialization plugins.">FMOD_DSP_STATE_PAN_FUNCTIONS</a> Struct containing panning helper functions for spatialization plugins.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> DSP description.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_create_callback" title="DSP create callback.">FMOD_DSP_CREATE_CALLBACK</a> DSP create callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_callback" title="Process callback.">FMOD_DSP_PROCESS_CALLBACK</a> Process callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_read_callback" title="DSP read callback.">FMOD_DSP_READ_CALLBACK</a> DSP read callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_release_callback" title="DSP release callback.">FMOD_DSP_RELEASE_CALLBACK</a> DSP release callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_reset_callback" title="DSP reset callback.">FMOD_DSP_RESET_CALLBACK</a> DSP reset callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setposition_callback" title="DSP set position callback.">FMOD_DSP_SETPOSITION_CALLBACK</a> DSP set position callback.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a> DSP 'should I process?' callback.</li>
+</ul>
+<h2 api="struct" id="fmod_complex"><a href="#fmod_complex">FMOD_COMPLEX</a></h2>
+<p>Complex number structure.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_COMPLEX</span> <span class="p">{</span>
+  <span class="kt">float</span>   <span class="n">real</span><span class="p">;</span>
+  <span class="kt">float</span>   <span class="n">imag</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_COMPLEX</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">COMPLEX</span>
+<span class="p">{</span>
+  <span class="kt">float</span> <span class="n">real</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">imag</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_COMPLEX</span>
+<span class="p">{</span>
+  <span class="nx">real</span><span class="p">,</span>
+  <span class="nx">imag</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_complex_real">real</dt>
+<dd>Real component </dd>
+<dt id="fmod_complex_imag">imag</dt>
+<dd>Imaginary component </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_functions" title="Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers.">FMOD_DSP_STATE_FUNCTIONS</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_dft_functions" title="Struct containing DFT functions to enable a plugin to perform optimized time-frequency domain conversion.">FMOD_DSP_STATE_DFT_FUNCTIONS</a></p>
+<h2 api="struct" id="fmod_dsp_buffer_array"><a href="#fmod_dsp_buffer_array">FMOD_DSP_BUFFER_ARRAY</a></h2>
+<p>Structure for input and output buffers.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_BUFFER_ARRAY</span> <span class="p">{</span>
+  <span class="kt">int</span>                <span class="n">numbuffers</span><span class="p">;</span>
+  <span class="kt">int</span>               <span class="o">*</span><span class="n">buffernumchannels</span><span class="p">;</span>
+  <span class="n">FMOD_CHANNELMASK</span>   <span class="o">*</span><span class="n">bufferchannelmask</span><span class="p">;</span>
+  <span class="kt">float</span>            <span class="o">**</span><span class="n">buffers</span><span class="p">;</span>
+  <span class="n">FMOD_SPEAKERMODE</span>   <span class="n">speakermode</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_BUFFER_ARRAY</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_BUFFER_ARRAY</span>
+<span class="p">{</span>
+  <span class="kt">int</span>           <span class="n">numbuffers</span><span class="p">;</span>
+  <span class="kt">int</span><span class="p">[]</span>         <span class="n">buffernumchannels</span><span class="p">;</span>
+  <span class="n">CHANNELMASK</span><span class="p">[]</span> <span class="n">bufferchannelmask</span><span class="p">;</span>
+  <span class="n">IntPtr</span><span class="p">[]</span>      <span class="n">buffers</span><span class="p">;</span>
+  <span class="n">SPEAKERMODE</span>   <span class="n">speakermode</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_BUFFER_ARRAY</span>
+<span class="p">{</span>
+  <span class="nx">numbuffers</span><span class="p">,</span>
+  <span class="nx">speakermode</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_buffer_array_numbuffers">numbuffers</dt>
+<dd>Array size of <code>buffers</code>.</dd>
+<dt id="fmod_dsp_buffer_array_buffernumchannels">buffernumchannels</dt>
+<dd>Array of number of channels for each buffer.</dd>
+<dt id="fmod_dsp_buffer_array_bufferchannelmask">bufferchannelmask</dt>
+<dd>Array of channel masks for each buffer. (<a class="apilink" href="core-api-common.html#fmod_channelmask" title="Flags that describe the speakers present in a given signal.">FMOD_CHANNELMASK</a>)</dd>
+<dt id="fmod_dsp_buffer_array_buffers">buffers</dt>
+<dd>Array of buffers.</dd>
+<dt id="fmod_dsp_buffer_array_speakermode">speakermode</dt>
+<dd>speaker mode for all buffers in the array. (<a class="apilink" href="core-api-common.html#fmod_speakermode" title="Speaker mode types.">FMOD_SPEAKERMODE</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_dsp_create_callback"><a href="#fmod_dsp_create_callback">FMOD_DSP_CREATE_CALLBACK</a></h2>
+<p>DSP create callback.</p>
+<p>This callback is called when a user creates a DSP unit instance of this type.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_CREATE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_CREATECALLBACK</span><span class="p">(</span>
+    <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a></li>
+<li><a class="apilink" href="core-api-system.html#system_createdspbytype" title="Create a DSP object given a built in type index.">System::createDSPByType</a></li>
+<li><a class="apilink" href="core-api-system.html#system_createdspbyplugin" title="Create a DSP object given a plugin handle.">System::createDSPByPlugin</a></li>
+</ul>
+<p><strong>Implementation detail:</strong></p>
+<p>This callback is typically where memory is allocated and DSP specific variables are initialized.</p>
+<p>If a user will re-uses a DSP unit instead of releasing it and creating a new one, it may be useful to implement <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_reset_callback" title="DSP reset callback.">FMOD_DSP_RESET_CALLBACK</a> to reset any variables or buffers when the user calls <a class="apilink" href="core-api-dsp.html#dsp_reset" title="Reset a DSPs internal state ready for new input signal.">DSP::reset</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>, <a class="apilink" href="core-api-system.html#system_createdspbytype" title="Create a DSP object given a built in type index.">System::createDSPByType</a>, <a class="apilink" href="core-api-system.html#system_createdspbyplugin" title="Create a DSP object given a plugin handle.">System::createDSPByPlugin</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_reset_callback" title="DSP reset callback.">FMOD_DSP_RESET_CALLBACK</a></p>
+<h2 api="struct" id="fmod_dsp_description"><a href="#fmod_dsp_description">FMOD_DSP_DESCRIPTION</a></h2>
+<p>DSP description.</p>
+<p>This description structure allows the plugin writer to define all functionality required for a user defined DSP effect.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_DESCRIPTION</span> <span class="p">{</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>                          <span class="n">pluginsdkversion</span><span class="p">;</span>
+  <span class="kt">char</span>                                  <span class="n">name</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span>                          <span class="n">version</span><span class="p">;</span>
+  <span class="kt">int</span>                                   <span class="n">numinputbuffers</span><span class="p">;</span>
+  <span class="kt">int</span>                                   <span class="n">numoutputbuffers</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_CREATE_CALLBACK</span>              <span class="n">create</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_RELEASE_CALLBACK</span>             <span class="n">release</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_RESET_CALLBACK</span>               <span class="n">reset</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_READ_CALLBACK</span>                <span class="n">read</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PROCESS_CALLBACK</span>             <span class="n">process</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SETPOSITION_CALLBACK</span>         <span class="n">setposition</span><span class="p">;</span>
+  <span class="kt">int</span>                                   <span class="n">numparameters</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PARAMETER_DESC</span>             <span class="o">**</span><span class="n">paramdesc</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SETPARAM_FLOAT_CALLBACK</span>      <span class="n">setparameterfloat</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SETPARAM_INT_CALLBACK</span>        <span class="n">setparameterint</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SETPARAM_BOOL_CALLBACK</span>       <span class="n">setparameterbool</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SETPARAM_DATA_CALLBACK</span>       <span class="n">setparameterdata</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</span>      <span class="n">getparameterfloat</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETPARAM_INT_CALLBACK</span>        <span class="n">getparameterint</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETPARAM_BOOL_CALLBACK</span>       <span class="n">getparameterbool</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETPARAM_DATA_CALLBACK</span>       <span class="n">getparameterdata</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SHOULDIPROCESS_CALLBACK</span>      <span class="n">shouldiprocess</span><span class="p">;</span>
+  <span class="kt">void</span>                                 <span class="o">*</span><span class="n">userdata</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SYSTEM_REGISTER_CALLBACK</span>     <span class="n">sys_register</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SYSTEM_DEREGISTER_CALLBACK</span>   <span class="n">sys_deregister</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_SYSTEM_MIX_CALLBACK</span>          <span class="n">sys_mix</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_DESCRIPTION</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_DESCRIPTION</span>
+<span class="p">{</span>
+  <span class="kt">uint</span>                           <span class="n">pluginsdkversion</span><span class="p">;</span>
+  <span class="kt">char</span><span class="p">[]</span>                         <span class="n">name</span><span class="p">;</span>
+  <span class="kt">uint</span>                           <span class="n">version</span><span class="p">;</span>
+  <span class="kt">int</span>                            <span class="n">numinputbuffers</span><span class="p">;</span>
+  <span class="kt">int</span>                            <span class="n">numoutputbuffers</span><span class="p">;</span>
+  <span class="n">DSP_CREATECALLBACK</span>             <span class="n">create</span><span class="p">;</span>
+  <span class="n">DSP_RELEASECALLBACK</span>            <span class="n">release</span><span class="p">;</span>
+  <span class="n">DSP_RESETCALLBACK</span>              <span class="n">reset</span><span class="p">;</span>
+  <span class="n">DSP_READCALLBACK</span>               <span class="n">read</span><span class="p">;</span>
+  <span class="n">DSP_PROCESS_CALLBACK</span>           <span class="n">process</span><span class="p">;</span>
+  <span class="n">DSP_SETPOSITIONCALLBACK</span>        <span class="n">setposition</span><span class="p">;</span>
+  <span class="kt">int</span>                            <span class="n">numparameters</span><span class="p">;</span>
+  <span class="n">IntPtr</span>                         <span class="n">paramdesc</span><span class="p">;</span>
+  <span class="n">DSP_SETPARAM_FLOAT_CALLBACK</span>    <span class="n">setparameterfloat</span><span class="p">;</span>
+  <span class="n">DSP_SETPARAM_INT_CALLBACK</span>      <span class="n">setparameterint</span><span class="p">;</span>
+  <span class="n">DSP_SETPARAM_BOOL_CALLBACK</span>     <span class="n">setparameterbool</span><span class="p">;</span>
+  <span class="n">DSP_SETPARAM_DATA_CALLBACK</span>     <span class="n">setparameterdata</span><span class="p">;</span>
+  <span class="n">DSP_GETPARAM_FLOAT_CALLBACK</span>    <span class="n">getparameterfloat</span><span class="p">;</span>
+  <span class="n">DSP_GETPARAM_INT_CALLBACK</span>      <span class="n">getparameterint</span><span class="p">;</span>
+  <span class="n">DSP_GETPARAM_BOOL_CALLBACK</span>     <span class="n">getparameterbool</span><span class="p">;</span>
+  <span class="n">DSP_GETPARAM_DATA_CALLBACK</span>     <span class="n">getparameterdata</span><span class="p">;</span>
+  <span class="n">DSP_SHOULDIPROCESS_CALLBACK</span>    <span class="n">shouldiprocess</span><span class="p">;</span>
+  <span class="n">IntPtr</span>                         <span class="n">userdata</span><span class="p">;</span>
+  <span class="n">DSP_SYSTEM_REGISTER_CALLBACK</span>   <span class="n">sys_register</span><span class="p">;</span>
+  <span class="n">DSP_SYSTEM_DEREGISTER_CALLBACK</span> <span class="n">sys_deregister</span><span class="p">;</span>
+  <span class="n">DSP_SYSTEM_MIX_CALLBACK</span>        <span class="n">sys_mix</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_DESCRIPTION</span>
+<span class="p">{</span>
+  <span class="nx">pluginsdkversion</span><span class="p">,</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">version</span><span class="p">,</span>
+  <span class="nx">numinputbuffers</span><span class="p">,</span>
+  <span class="nx">numoutputbuffers</span><span class="p">,</span>
+  <span class="nx">create</span><span class="p">,</span>
+  <span class="nx">release</span><span class="p">,</span>
+  <span class="nx">reset</span><span class="p">,</span>
+  <span class="nx">read</span><span class="p">,</span>
+  <span class="nx">process</span><span class="p">,</span>
+  <span class="nx">setposition</span><span class="p">,</span>
+  <span class="nx">numparameters</span><span class="p">,</span>
+  <span class="nx">paramdesc</span><span class="p">,</span>
+  <span class="nx">setparameterfloat</span><span class="p">,</span>
+  <span class="nx">setparameterint</span><span class="p">,</span>
+  <span class="nx">setparameterbool</span><span class="p">,</span>
+  <span class="nx">setparameterdata</span><span class="p">,</span>
+  <span class="nx">getparameterfloat</span><span class="p">,</span>
+  <span class="nx">getparameterint</span><span class="p">,</span>
+  <span class="nx">getparameterbool</span><span class="p">,</span>
+  <span class="nx">getparameterdata</span><span class="p">,</span>
+  <span class="nx">shouldiprocess</span><span class="p">,</span>
+  <span class="nx">userdata</span><span class="p">,</span>
+  <span class="nx">sys_register</span><span class="p">,</span>
+  <span class="nx">sys_deregister</span><span class="p">,</span>
+  <span class="nx">sys_mix</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_description_pluginsdkversion">pluginsdkversion</dt>
+<dd>The plugin SDK version.</dd>
+<dt id="fmod_dsp_description_name">name</dt>
+<dd>DSP name.</dd>
+<dt id="fmod_dsp_description_version">version</dt>
+<dd>Plugin writer's version number.</dd>
+<dt id="fmod_dsp_description_numinputbuffers">numinputbuffers</dt>
+<dd>Number of input buffers to process.  Use 0 for DSPs that only generate sound and 1 for effects that process incoming sound.</dd>
+<dt id="fmod_dsp_description_numoutputbuffers">numoutputbuffers</dt>
+<dd>Number of audio output buffers.  Only one output buffer is currently supported.</dd>
+<dt id="fmod_dsp_description_create">create <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Create callback. This is called when DSP unit is created. Set callback invoked by (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_create_callback" title="DSP create callback.">FMOD_DSP_CREATE_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_release">release <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Release callback. This is called just before the unit is freed so the user can do any cleanup needed for the unit. Set callback invoked by (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_release_callback" title="DSP release callback.">FMOD_DSP_RELEASE_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_reset">reset</dt>
+<dd>Reset callback. This is called by the user to reset any history buffers that may need resetting for a filter, when it is to be used or re-used for the first time to its initial clean state. Use to avoid clicks or artifacts. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_reset_callback" title="DSP reset callback.">FMOD_DSP_RESET_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_read">read <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Read callback. Processing is done here. Set callback invoked by (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_read_callback" title="DSP read callback.">FMOD_DSP_READ_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_process">process <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Process callback. Can be specified instead of the read callback if any channel format changes occur between input and output. This also replaces shouldiprocess and should return an error if the effect is to be bypassed. Set callback invoked by  (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_callback" title="Process callback.">FMOD_DSP_PROCESS_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_setposition">setposition <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set position callback. This is called if the unit wants to update its position info but not process data, or reset a cursor position internally if it is reading data from a certain source. Set callback invoked by  (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setposition_callback" title="DSP set position callback.">FMOD_DSP_SETPOSITION_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_numparameters">numparameters</dt>
+<dd>Number of parameters used in this filter. The user finds this with <a class="apilink" href="core-api-dsp.html#dsp_getnumparameters" title="Retrieves the number of parameters exposed by this unit.">DSP::getNumParameters</a></dd>
+<dt id="fmod_dsp_description_paramdesc">paramdesc</dt>
+<dd>Variable number of parameter structures. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a>)</dd>
+<dt id="fmod_dsp_description_setparameterfloat">setparameterfloat <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set callback invoked by <a class="apilink" href="core-api-dsp.html#dsp_setparameterfloat" title="Sets a floating point parameter by index.">DSP::setParameterFloat</a>.(<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_float_callback" title="Set float parameter callback.">FMOD_DSP_SETPARAM_FLOAT_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_setparameterint">setparameterint <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set callback invoked by <a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a>.(<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_int_callback" title="Set integer parameter callback.">FMOD_DSP_SETPARAM_INT_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_setparameterbool">setparameterbool <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set callback invoked by <a class="apilink" href="core-api-dsp.html#dsp_setparameterbool" title="Sets a boolean parameter by index.">DSP::setParameterBool</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_bool_callback" title="Set boolean parameter callback.">FMOD_DSP_SETPARAM_BOOL_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_setparameterdata">setparameterdata <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set callback invoked by <a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_data_callback" title="Set data parameter callback.">FMOD_DSP_SETPARAM_DATA_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_getparameterfloat">getparameterfloat <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set callback invoked by <a class="apilink" href="core-api-dsp.html#dsp_getparameterfloat" title="Retrieves a floating point parameter by index.">DSP::getParameterFloat</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_float_callback" title="Get float parameter callback.">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_getparameterint">getparameterint <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set callback invoked by <a class="apilink" href="core-api-dsp.html#dsp_getparameterint" title="Retrieves an integer parameter by index.">DSP::getParameterInt</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_int_callback" title="Get integer parameter callback.">FMOD_DSP_GETPARAM_INT_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_getparameterbool">getparameterbool <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set callback invoked by <a class="apilink" href="core-api-dsp.html#dsp_getparameterbool" title="Retrieves a boolean parameter by index.">DSP::getParameterBool</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_bool_callback" title="Get boolean parameter callback.">FMOD_DSP_GETPARAM_BOOL_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_getparameterdata">getparameterdata <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Set callback invoked by <a class="apilink" href="core-api-dsp.html#dsp_getparameterdata" title="Retrieves a binary data parameter by index.">DSP::getParameterData</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_data_callback" title="Get data parameter callback.">FMOD_DSP_GETPARAM_DATA_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_shouldiprocess">shouldiprocess</dt>
+<dd>This is called before processing. You can detect if inputs are idle and return <a class="apilink" href="core-api-common.html#fmod_ok" title="">FMOD_OK</a> to process, or any other error code to avoid processing the effect. Use a count down timer to allow effect tails to process before idling! (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_userdata">userdata <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>User data.</dd>
+<dt id="fmod_dsp_description_sys_register">sys_register <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Register callback. This is called when DSP unit is loaded/registered. Useful for 'global'/per system object init for plugin. Set callback invoked by (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_register_callback" title="System level DSP type registration callback.">FMOD_DSP_SYSTEM_REGISTER_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_sys_deregister">sys_deregister <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Deregister callback. This is called when DSP unit is unloaded/deregistered. Useful as 'global'/per system object shutdown for plugin. Set callback invoked by (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_deregister_callback" title="System level DSP type deregister callback.">FMOD_DSP_SYSTEM_DEREGISTER_CALLBACK</a>)</dd>
+<dt id="fmod_dsp_description_sys_mix">sys_mix <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>System mix stage callback. This is called when the mixer starts to execute or is just finishing executing. Useful for 'global'/per system object once a mix update calls for a plugin. Set callback invoked by (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_mix_callback" title="System level DSP type mix callback.">FMOD_DSP_SYSTEM_MIX_CALLBACK</a>)</dd>
+</dl>
+<p>There are 2 different ways to change a parameter in this architecture.</p>
+<p>One is to use <a class="apilink" href="core-api-dsp.html#dsp_setparameterfloat" title="Sets a floating point parameter by index.">DSP::setParameterFloat</a> / <a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a> / <a class="apilink" href="core-api-dsp.html#dsp_setparameterbool" title="Sets a boolean parameter by index.">DSP::setParameterBool</a> / <a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>. This is platform independant and is dynamic, so new unknown plugins can have their parameters enumerated and used.</p>
+<p>The other is to use <a class="apilink" href="core-api-dsp.html#dsp_showconfigdialog" title="Display or hide a DSP unit configuration dialog box inside the target window.">DSP::showConfigDialog</a>. This is platform specific and requires a GUI, and will display a dialog box to configure the plugin.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterfloat" title="Sets a floating point parameter by index.">DSP::setParameterFloat</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterbool" title="Sets a boolean parameter by index.">DSP::setParameterBool</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_create_callback" title="DSP create callback.">FMOD_DSP_CREATE_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_release_callback" title="DSP release callback.">FMOD_DSP_RELEASE_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_reset_callback" title="DSP reset callback.">FMOD_DSP_RESET_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_read_callback" title="DSP read callback.">FMOD_DSP_READ_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_callback" title="Process callback.">FMOD_DSP_PROCESS_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setposition_callback" title="DSP set position callback.">FMOD_DSP_SETPOSITION_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_float_callback" title="Set float parameter callback.">FMOD_DSP_SETPARAM_FLOAT_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_int_callback" title="Set integer parameter callback.">FMOD_DSP_SETPARAM_INT_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_bool_callback" title="Set boolean parameter callback.">FMOD_DSP_SETPARAM_BOOL_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_data_callback" title="Set data parameter callback.">FMOD_DSP_SETPARAM_DATA_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_float_callback" title="Get float parameter callback.">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_int_callback" title="Get integer parameter callback.">FMOD_DSP_GETPARAM_INT_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_bool_callback" title="Get boolean parameter callback.">FMOD_DSP_GETPARAM_BOOL_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_data_callback" title="Get data parameter callback.">FMOD_DSP_GETPARAM_DATA_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_register_callback" title="System level DSP type registration callback.">FMOD_DSP_SYSTEM_REGISTER_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_deregister_callback" title="System level DSP type deregister callback.">FMOD_DSP_SYSTEM_DEREGISTER_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_system_mix_callback" title="System level DSP type mix callback.">FMOD_DSP_SYSTEM_MIX_CALLBACK</a></p>
+<h2 api="callback" id="fmod_dsp_getparam_bool_callback"><a href="#fmod_dsp_getparam_bool_callback">FMOD_DSP_GETPARAM_BOOL_CALLBACK</a></h2>
+<p>Get boolean parameter callback.</p>
+<p>This callback is called when the user wants to get a boolean parameter value from a DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_GETPARAM_BOOL_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">value</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">valuestr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_GETPARAM_BOOL_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="kt">bool</span> <span class="k">value</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">valuestr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP Plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>value <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Parameter value.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+<dt>valuestr <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>String value of the parameter. Can be used to display an alternate representation of the number. For example "ON" or "OFF" instead of 1.0 and 0.0. The length of the buffer being passed in is always a maximum of <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_valuestr_length" title="Length in bytes of the buffer pointed to by the valuestr argument of FMOD_DSP_GETPARAM_XXXX_CALLBACK functions.">FMOD_DSP_GETPARAM_VALUESTR_LENGTH</a> bytes. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_getparameterbool" title="Retrieves a boolean parameter by index.">DSP::getParameterBool</a>.</li>
+<li><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_bool_callback" title="Get boolean parameter callback.">FMOD_DSP_GETPARAM_BOOL_CALLBACK</a>.</li>
+</ul>
+<div class="admonition language-csharp">
+<p>The 'valuestr' argument can be used via <code>StringWrapper</code> by using <code>FMOD.StringWrapper valueStr = new FMOD.StringWrapper(valuestr);</code></p>
+</div>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_bool_callback" title="Set boolean parameter callback.">FMOD_DSP_SETPARAM_BOOL_CALLBACK</a></p>
+<h2 api="callback" id="fmod_dsp_getparam_data_callback"><a href="#fmod_dsp_getparam_data_callback">FMOD_DSP_GETPARAM_DATA_CALLBACK</a></h2>
+<p>Get data parameter callback.</p>
+<p>This callback is called when the user wants to get a data parameter value from a DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_GETPARAM_DATA_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">data</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">length</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">valuestr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_GETPARAM_DATA_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">data</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="kt">uint</span> <span class="n">length</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">valuestr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP Plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>data <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Parameter data.</dd>
+<dt>length <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Length of <code>data</code>.</dd>
+<dt>valuestr <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>String value of the parameter. Can be used to display an alternate representation of the number.  For example "ON" or "OFF" instead of values values inside the binary data.  The length of the buffer being passed in is always a maximum of <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_valuestr_length" title="Length in bytes of the buffer pointed to by the valuestr argument of FMOD_DSP_GETPARAM_XXXX_CALLBACK functions.">FMOD_DSP_GETPARAM_VALUESTR_LENGTH</a> bytes. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_getparameterdata" title="Retrieves a binary data parameter by index.">DSP::getParameterData</a></li>
+</ul>
+<div class="admonition language-csharp">
+<p>The 'valuestr' argument can be used via <code>StringWrapper</code> by using <code>FMOD.StringWrapper valueStr = new FMOD.StringWrapper(valuestr);</code></p>
+</div>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_data_callback" title="Set data parameter callback.">FMOD_DSP_SETPARAM_DATA_CALLBACK</a></p>
+<h2 api="callback" id="fmod_dsp_getparam_float_callback"><a href="#fmod_dsp_getparam_float_callback">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</a></h2>
+<p>Get float parameter callback.</p>
+<p>This callback is called when the user wants to get a floating point parameter value from a DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">value</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">valuestr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_GETPARAM_FLOAT_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="kt">float</span> <span class="k">value</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">valuestr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP Plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>value <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Parameter value.</dd>
+<dt>valuestr <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>String value of the parameter. Can be used to display an alternate representation of the number. For example "ON" or "OFF" instead of 1.0 and 0.0. The length of the buffer being passed in is always a maximum of <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_valuestr_length" title="Length in bytes of the buffer pointed to by the valuestr argument of FMOD_DSP_GETPARAM_XXXX_CALLBACK functions.">FMOD_DSP_GETPARAM_VALUESTR_LENGTH</a> bytes. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_getparameterfloat" title="Retrieves a floating point parameter by index.">DSP::getParameterFloat</a>.</li>
+</ul>
+<div class="admonition language-csharp">
+<p>The 'valuestr' argument can be used via <code>StringWrapper</code> by using <code>FMOD.StringWrapper valueStr = new FMOD.StringWrapper(valuestr);</code></p>
+</div>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_float_callback" title="Set float parameter callback.">FMOD_DSP_SETPARAM_FLOAT_CALLBACK</a></p>
+<h2 api="callback" id="fmod_dsp_getparam_int_callback"><a href="#fmod_dsp_getparam_int_callback">FMOD_DSP_GETPARAM_INT_CALLBACK</a></h2>
+<p>Get integer parameter callback.</p>
+<p>This callback is called when the user wants to get an integer parameter value from a DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_GETPARAM_INT_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">value</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">valuestr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_GETPARAM_INT_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="kt">int</span> <span class="k">value</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">valuestr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP Plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>value <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Parameter value.</dd>
+<dt>valuestr <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>String value of the parameter. Can be used to display an alternate representation of the number. For example "ON" or "OFF" instead of 1 and 0. The length of the buffer being passed in is always a maximum of <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_valuestr_length" title="Length in bytes of the buffer pointed to by the valuestr argument of FMOD_DSP_GETPARAM_XXXX_CALLBACK functions.">FMOD_DSP_GETPARAM_VALUESTR_LENGTH</a> bytes.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_getparameterint" title="Retrieves an integer parameter by index.">DSP::getParameterInt</a></li>
+</ul>
+<div class="admonition language-csharp">
+<p>The 'valuestr' argument can be used via <code>StringWrapper</code> by using <code>FMOD.StringWrapper valueStr = new FMOD.StringWrapper(valuestr);</code></p>
+</div>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_int_callback" title="Set integer parameter callback.">FMOD_DSP_SETPARAM_INT_CALLBACK</a></p>
+<h2 api="define" id="fmod_dsp_getparam_valuestr_length"><a href="#fmod_dsp_getparam_valuestr_length">FMOD_DSP_GETPARAM_VALUESTR_LENGTH</a></h2>
+<p>Length in bytes of the buffer pointed to by the valuestr argument of FMOD_DSP_GETPARAM_XXXX_CALLBACK functions.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="cp">#define FMOD_DSP_GETPARAM_VALUESTR_LENGTH   32</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_GETPARAM_VALUESTR_LENGTH</span>
+</pre></div>
+
+
+<div class="admonition language-csharp">
+<p>Currently not supported for C#.</p>
+</div>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_float_callback" title="Get float parameter callback.">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_int_callback" title="Get integer parameter callback.">FMOD_DSP_GETPARAM_INT_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_bool_callback" title="Get boolean parameter callback.">FMOD_DSP_GETPARAM_BOOL_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_data_callback" title="Get data parameter callback.">FMOD_DSP_GETPARAM_DATA_CALLBACK</a></p>
+<h2 api="struct" id="fmod_dsp_metering_info"><a href="#fmod_dsp_metering_info">FMOD_DSP_METERING_INFO</a></h2>
+<p>DSP metering info.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_METERING_INFO</span> <span class="p">{</span>
+  <span class="kt">int</span>     <span class="n">numsamples</span><span class="p">;</span>
+  <span class="kt">float</span>   <span class="n">peaklevel</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+  <span class="kt">float</span>   <span class="n">rmslevel</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+  <span class="kt">short</span>   <span class="n">numchannels</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_METERING_INFO</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_METERING_INFO</span>
+<span class="p">{</span>
+  <span class="kt">int</span>     <span class="n">numsamples</span><span class="p">;</span>
+  <span class="kt">float</span><span class="p">[]</span> <span class="n">peaklevel</span><span class="p">;</span>
+  <span class="kt">float</span><span class="p">[]</span> <span class="n">rmslevel</span><span class="p">;</span>
+  <span class="kt">short</span>   <span class="n">numchannels</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_METERING_INFO</span>
+<span class="p">{</span>
+  <span class="nx">numsamples</span><span class="p">,</span>
+  <span class="nx">peaklevel</span><span class="p">,</span>
+  <span class="nx">rmslevel</span><span class="p">,</span>
+  <span class="nx">numchannels</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_metering_info_numsamples">numsamples <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Number of samples considered for this metering info.</dd>
+<dt id="fmod_dsp_metering_info_peaklevel">peaklevel <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Peak level per channel.</dd>
+<dt id="fmod_dsp_metering_info_rmslevel">rmslevel <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Rms level per channel.</dd>
+<dt id="fmod_dsp_metering_info_numchannels">numchannels <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Number of channels.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-common.html#fmod_speaker" title="Assigns an enumeration for a speaker index.">FMOD_SPEAKER</a>, <a class="apilink" href="core-api-dsp.html#dsp_getmeteringinfo" title="Retrieve the signal metering information.">DSP::getMeteringInfo</a></p>
+<h2 api="enum" id="fmod_dsp_pan_surround_flags"><a href="#fmod_dsp_pan_surround_flags">FMOD_DSP_PAN_SURROUND_FLAGS</a></h2>
+<p>Flags for the FMOD_DSP_PAN_SUMSURROUNDMATRIX_FUNC function.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_DSP_PAN_SURROUND_FLAGS</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_PAN_SURROUND_DEFAULT</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PAN_SURROUND_ROTATION_NOT_BIASED</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PAN_SURROUND_FLAGS</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">DSP_PAN_SURROUND_FLAGS</span>
+<span class="p">{</span>
+  <span class="n">DEFAULT</span><span class="p">,</span>
+  <span class="n">ROTATION_NOT_BIASED</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PAN_SURROUND_DEFAULT</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PAN_SURROUND_ROTATION_NOT_BIASED</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_pan_surround_default">FMOD_DSP_PAN_SURROUND_DEFAULT</dt>
+<dd>TBD.</dd>
+<dt id="fmod_dsp_pan_surround_rotation_not_biased">FMOD_DSP_PAN_SURROUND_ROTATION_NOT_BIASED</dt>
+<dd>TBD.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_pan_functions" title="Struct containing panning helper functions for spatialization plugins.">FMOD_DSP_STATE_PAN_FUNCTIONS</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_3dattributes"><a href="#fmod_dsp_parameter_3dattributes">FMOD_DSP_PARAMETER_3DATTRIBUTES</a></h2>
+<p>3D attributes data structure.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_3DATTRIBUTES</span> <span class="p">{</span>
+  <span class="n">FMOD_3D_ATTRIBUTES</span>   <span class="n">relative</span><span class="p">;</span>
+  <span class="n">FMOD_3D_ATTRIBUTES</span>   <span class="n">absolute</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_3DATTRIBUTES</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_3DATTRIBUTES</span>
+<span class="p">{</span>
+  <span class="n">_3D_ATTRIBUTES</span> <span class="n">relative</span><span class="p">;</span>
+  <span class="n">_3D_ATTRIBUTES</span> <span class="n">absolute</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_3DATTRIBUTES</span>
+<span class="p">{</span>
+  <span class="nx">relative</span><span class="p">,</span>
+  <span class="nx">absolute</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_3dattributes_relative">relative</dt>
+<dd>Position of the sound relative to the listener. (<a class="apilink" href="core-api-common.html#fmod_3d_attributes" title="Structure describing a position, velocity and orientation.">FMOD_3D_ATTRIBUTES</a>)</dd>
+<dt id="fmod_dsp_parameter_3dattributes_absolute">absolute</dt>
+<dd>Position of the sound in world coordinates. (<a class="apilink" href="core-api-common.html#fmod_3d_attributes" title="Structure describing a position, velocity and orientation.">FMOD_3D_ATTRIBUTES</a>)</dd>
+</dl>
+<p>The FMOD::Studio::System will set this parameter automatically if an FMOD::Studio::EventInstance position changes, however if using the core FMOD::System you must set this DSP parameter explicitly.</p>
+<p>Attributes must use a coordinate system with the positive Y axis being up and the positive X axis being right. FMOD will convert passed in coordinates to left-handed for the plugin if the System was initialized with the <a class="apilink" href="core-api-system.html#fmod_init_3d_righthanded" title="">FMOD_INIT_3D_RIGHTHANDED</a> flag.</p>
+<p>When using a listener attenuation position, the direction of the <code>relative</code> attributes will be relative to the listener position and the length will be the distance to the attenuation position. </p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a>, <a class="apilink" href="studio-api-system.html#studio_system_setlistenerattributes" title="Sets the 3D attributes of the listener.">Studio::System::setListenerAttributes</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_3dattributes_multi"><a href="#fmod_dsp_parameter_3dattributes_multi">FMOD_DSP_PARAMETER_3DATTRIBUTES_MULTI</a></h2>
+<p>3D attributes data structure for multiple listeners.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_3DATTRIBUTES_MULTI</span> <span class="p">{</span>
+  <span class="kt">int</span>                  <span class="n">numlisteners</span><span class="p">;</span>
+  <span class="n">FMOD_3D_ATTRIBUTES</span>   <span class="n">relative</span><span class="p">[</span><span class="n">FMOD_MAX_LISTENERS</span><span class="p">];</span>
+  <span class="kt">float</span>                <span class="n">weight</span><span class="p">[</span><span class="n">FMOD_MAX_LISTENERS</span><span class="p">];</span>
+  <span class="n">FMOD_3D_ATTRIBUTES</span>   <span class="n">absolute</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_3DATTRIBUTES_MULTI</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_3DATTRIBUTES_MULTI</span>
+<span class="p">{</span>
+  <span class="kt">int</span>               <span class="n">numlisteners</span><span class="p">;</span>
+  <span class="n">_3D_ATTRIBUTES</span><span class="p">[]</span>  <span class="n">relative</span><span class="p">;</span>
+  <span class="kt">float</span><span class="p">[]</span>           <span class="n">weight</span><span class="p">;</span>
+  <span class="n">_3D_ATTRIBUTES</span>    <span class="n">absolute</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_3DATTRIBUTES_MULTI</span>
+<span class="p">{</span>
+  <span class="nx">numlisteners</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_3dattributes_multi_numlisteners">numlisteners</dt>
+<dd>Number of listeners. </dd>
+<dt id="fmod_dsp_parameter_3dattributes_multi_relative">relative</dt>
+<dd>Position of the sound relative to the listeners. (<a class="apilink" href="core-api-common.html#fmod_3d_attributes" title="Structure describing a position, velocity and orientation.">FMOD_3D_ATTRIBUTES</a>)</dd>
+<dt id="fmod_dsp_parameter_3dattributes_multi_weight">weight</dt>
+<dd>Weighting of the listeners where 0 means listener has no contribution and 1 means full contribution. </dd>
+<dt id="fmod_dsp_parameter_3dattributes_multi_absolute">absolute</dt>
+<dd>Position of the sound in world coordinates. (<a class="apilink" href="core-api-common.html#fmod_3d_attributes" title="Structure describing a position, velocity and orientation.">FMOD_3D_ATTRIBUTES</a>)</dd>
+</dl>
+<p>The FMOD::Studio::System will set this parameter automatically if an FMOD::Studio::EventInstance position changes, however if using the core FMOD::System you must set this DSP parameter explicitly.</p>
+<p>Attributes must use a coordinate system with the positive Y axis being up and the positive X axis being right. FMOD will convert passed in coordinates to left-handed for the plugin if the System was initialized with the <a class="apilink" href="core-api-system.html#fmod_init_3d_righthanded" title="">FMOD_INIT_3D_RIGHTHANDED</a> flag.</p>
+<p>When using a listener attenuation position, the direction of the <code>relative</code> attributes will be relative to the listener position and the length will be the distance to the attenuation position. </p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a>, <a class="apilink" href="studio-api-system.html#studio_system_setlistenerattributes" title="Sets the 3D attributes of the listener.">Studio::System::setListenerAttributes</a></p>
+<h2 api="enum" id="fmod_dsp_parameter_data_type"><a href="#fmod_dsp_parameter_data_type">FMOD_DSP_PARAMETER_DATA_TYPE</a></h2>
+<p>Data parameter types.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_DSP_PARAMETER_DATA_TYPE</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_PARAMETER_DATA_TYPE_USER</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_DATA_TYPE_OVERALLGAIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_DATA_TYPE_3DATTRIBUTES</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_DATA_TYPE_SIDECHAIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_DATA_TYPE_FFT</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_DATA_TYPE_3DATTRIBUTES_MULTI</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_DATA_TYPE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">DSP_PARAMETER_DATA_TYPE</span>
+<span class="p">{</span>
+  <span class="n">DSP_PARAMETER_DATA_TYPE_USER</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span>
+  <span class="n">DSP_PARAMETER_DATA_TYPE_OVERALLGAIN</span> <span class="p">=</span> <span class="p">-</span><span class="m">1</span><span class="p">,</span>
+  <span class="n">DSP_PARAMETER_DATA_TYPE_3DATTRIBUTES</span> <span class="p">=</span> <span class="p">-</span><span class="m">2</span><span class="p">,</span>
+  <span class="n">DSP_PARAMETER_DATA_TYPE_SIDECHAIN</span> <span class="p">=</span> <span class="p">-</span><span class="m">3</span><span class="p">,</span>
+  <span class="n">DSP_PARAMETER_DATA_TYPE_FFT</span> <span class="p">=</span> <span class="p">-</span><span class="m">4</span><span class="p">,</span>
+  <span class="n">DSP_PARAMETER_DATA_TYPE_3DATTRIBUTES_MULTI</span> <span class="p">=</span> <span class="p">-</span><span class="m">5</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_DATA_TYPE_USER</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_DATA_TYPE_OVERALLGAIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_DATA_TYPE_3DATTRIBUTES</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_DATA_TYPE_SIDECHAIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_DATA_TYPE_FFT</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_DATA_TYPE_3DATTRIBUTES_MULTI</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_data_type_user">FMOD_DSP_PARAMETER_DATA_TYPE_USER</dt>
+<dd>Default data type.  All user data types should be 0 or above. </dd>
+<dt id="fmod_dsp_parameter_data_type_overallgain">FMOD_DSP_PARAMETER_DATA_TYPE_OVERALLGAIN</dt>
+<dd>Data type for <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_overallgain" title="Overall gain parameter data structure.">FMOD_DSP_PARAMETER_OVERALLGAIN</a> parameters.  There should a maximum of one per DSP. </dd>
+<dt id="fmod_dsp_parameter_data_type_3dattributes">FMOD_DSP_PARAMETER_DATA_TYPE_3DATTRIBUTES</dt>
+<dd>Data type for <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_3dattributes" title="3D attributes data structure.">FMOD_DSP_PARAMETER_3DATTRIBUTES</a> parameters.  There should a maximum of one per DSP. </dd>
+<dt id="fmod_dsp_parameter_data_type_sidechain">FMOD_DSP_PARAMETER_DATA_TYPE_SIDECHAIN</dt>
+<dd>Data type for <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_sidechain" title="Side chain parameter data structure.">FMOD_DSP_PARAMETER_SIDECHAIN</a> parameters.  There should a maximum of one per DSP. </dd>
+<dt id="fmod_dsp_parameter_data_type_fft">FMOD_DSP_PARAMETER_DATA_TYPE_FFT</dt>
+<dd>Data type for <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_fft" title="FFT parameter data structure.">FMOD_DSP_PARAMETER_FFT</a> parameters.  There should a maximum of one per DSP. </dd>
+<dt id="fmod_dsp_parameter_data_type_3dattributes_multi">FMOD_DSP_PARAMETER_DATA_TYPE_3DATTRIBUTES_MULTI</dt>
+<dd>Data type for <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_3dattributes_multi" title="3D attributes data structure for multiple listeners.">FMOD_DSP_PARAMETER_3DATTRIBUTES_MULTI</a> parameters.  There should a maximum of one per DSP. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_data" title="Data parameter description.">FMOD_DSP_PARAMETER_DESC_DATA</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_overallgain" title="Overall gain parameter data structure.">FMOD_DSP_PARAMETER_OVERALLGAIN</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_3dattributes" title="3D attributes data structure.">FMOD_DSP_PARAMETER_3DATTRIBUTES</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_3dattributes_multi" title="3D attributes data structure for multiple listeners.">FMOD_DSP_PARAMETER_3DATTRIBUTES_MULTI</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_sidechain" title="Side chain parameter data structure.">FMOD_DSP_PARAMETER_SIDECHAIN</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterdata" title="Retrieves a binary data parameter by index.">DSP::getParameterData</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_desc"><a href="#fmod_dsp_parameter_desc">FMOD_DSP_PARAMETER_DESC</a></h2>
+<p>Base Structure for DSP parameter descriptions.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_DESC</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_PARAMETER_TYPE</span>         <span class="n">type</span><span class="p">;</span>
+  <span class="kt">char</span>                            <span class="n">name</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+  <span class="kt">char</span>                            <span class="n">label</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+  <span class="k">const</span> <span class="kt">char</span>                     <span class="o">*</span><span class="n">description</span><span class="p">;</span>
+  <span class="k">union</span>
+  <span class="p">{</span>
+      <span class="n">FMOD_DSP_PARAMETER_DESC_FLOAT</span>   <span class="n">floatdesc</span><span class="p">;</span>
+      <span class="n">FMOD_DSP_PARAMETER_DESC_INT</span>     <span class="n">intdesc</span><span class="p">;</span>
+      <span class="n">FMOD_DSP_PARAMETER_DESC_BOOL</span>    <span class="n">booldesc</span><span class="p">;</span>
+      <span class="n">FMOD_DSP_PARAMETER_DESC_DATA</span>    <span class="n">datadesc</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_DESC</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_DESC</span>
+<span class="p">{</span>
+  <span class="n">DSP_PARAMETER_TYPE</span>         <span class="n">type</span><span class="p">;</span>
+  <span class="kt">char</span><span class="p">[]</span>                     <span class="n">name</span><span class="p">;</span>
+  <span class="kt">char</span><span class="p">[]</span>                     <span class="n">label</span><span class="p">;</span>
+  <span class="kt">string</span>                     <span class="n">description</span><span class="p">;</span>
+  <span class="n">DSP_PARAMETER_DESC_UNION</span>   <span class="n">desc</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_DESC</span>
+<span class="p">{</span>
+  <span class="nx">type</span><span class="p">,</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">label</span><span class="p">,</span>
+  <span class="nx">description</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_desc_type">type</dt>
+<dd>Parameter type. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type" title="DSP parameter types.">FMOD_DSP_PARAMETER_TYPE</a>)</dd>
+<dt id="fmod_dsp_parameter_desc_name">name</dt>
+<dd>Parameter Name.</dd>
+<dt id="fmod_dsp_parameter_desc_label">label</dt>
+<dd>Unit type label.</dd>
+<dt id="fmod_dsp_parameter_desc_description">description</dt>
+<dd>Description of the parameter.</dd>
+<dt id="fmod_dsp_parameter_desc_floatdesc">floatdesc</dt>
+<dd>Floating point format description used when type is <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type_float" title="">FMOD_DSP_PARAMETER_TYPE_FLOAT</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_float" title="Float parameter description.">FMOD_DSP_PARAMETER_DESC_FLOAT</a>)</dd>
+<dt id="fmod_dsp_parameter_desc_intdesc">intdesc</dt>
+<dd>Integer format description used when type is <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type_int" title="">FMOD_DSP_PARAMETER_TYPE_INT</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_int" title="Integer parameter description.">FMOD_DSP_PARAMETER_DESC_INT</a>)</dd>
+<dt id="fmod_dsp_parameter_desc_booldesc">booldesc</dt>
+<dd>Boolean format description used when type is <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type_bool" title="">FMOD_DSP_PARAMETER_TYPE_BOOL</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_bool" title="Boolean parameter description.">FMOD_DSP_PARAMETER_DESC_BOOL</a>)</dd>
+<dt id="fmod_dsp_parameter_desc_datadesc">datadesc</dt>
+<dd>Data format description used when type is <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type_data" title="">FMOD_DSP_PARAMETER_TYPE_DATA</a>. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_data" title="Data parameter description.">FMOD_DSP_PARAMETER_DESC_DATA</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterfloat" title="Sets a floating point parameter by index.">DSP::setParameterFloat</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterfloat" title="Retrieves a floating point parameter by index.">DSP::getParameterFloat</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterint" title="Retrieves an integer parameter by index.">DSP::getParameterInt</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterbool" title="Sets a boolean parameter by index.">DSP::setParameterBool</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterbool" title="Retrieves a boolean parameter by index.">DSP::getParameterBool</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterdata" title="Retrieves a binary data parameter by index.">DSP::getParameterData</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_float" title="Float parameter description.">FMOD_DSP_PARAMETER_DESC_FLOAT</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_int" title="Integer parameter description.">FMOD_DSP_PARAMETER_DESC_INT</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_bool" title="Boolean parameter description.">FMOD_DSP_PARAMETER_DESC_BOOL</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_data" title="Data parameter description.">FMOD_DSP_PARAMETER_DESC_DATA</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_desc_bool"><a href="#fmod_dsp_parameter_desc_bool">FMOD_DSP_PARAMETER_DESC_BOOL</a></h2>
+<p>Boolean parameter description.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_DESC_BOOL</span> <span class="p">{</span>
+  <span class="n">FMOD_BOOL</span>            <span class="n">defaultval</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span><span class="o">*</span>   <span class="n">valuenames</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_DESC_BOOL</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_DESC_BOOL</span>
+<span class="p">{</span>
+  <span class="kt">bool</span>      <span class="n">defaultval</span><span class="p">;</span>
+  <span class="n">IntPtr</span>    <span class="n">valuenames</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_DESC_BOOL</span>
+<span class="p">{</span>
+  <span class="nx">defaultval</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_desc_bool_defaultval">defaultval</dt>
+<dd>
+<p>Default parameter value. </p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+<dt id="fmod_dsp_parameter_desc_bool_valuenames">valuenames <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Names for false and true, respectively (<a href="glossary.html#string-format">UTF-8 string</a>). There should be two strings.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterbool" title="Sets a boolean parameter by index.">DSP::setParameterBool</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterbool" title="Retrieves a boolean parameter by index.">DSP::getParameterBool</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_desc_data"><a href="#fmod_dsp_parameter_desc_data">FMOD_DSP_PARAMETER_DESC_DATA</a></h2>
+<p>Data parameter description.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_DESC_DATA</span> <span class="p">{</span>
+  <span class="kt">int</span>   <span class="n">datatype</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_DESC_DATA</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_DESC_DATA</span>
+<span class="p">{</span>
+  <span class="kt">int</span>   <span class="n">datatype</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_DESC_DATA</span>
+<span class="p">{</span>
+  <span class="nx">datatype</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_desc_data_datatype">datatype</dt>
+<dd>Type of data.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterdata" title="Retrieves a binary data parameter by index.">DSP::getParameterData</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_desc_float"><a href="#fmod_dsp_parameter_desc_float">FMOD_DSP_PARAMETER_DESC_FLOAT</a></h2>
+<p>Float parameter description.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_DESC_FLOAT</span> <span class="p">{</span>
+  <span class="kt">float</span>                              <span class="n">min</span><span class="p">;</span>
+  <span class="kt">float</span>                              <span class="n">max</span><span class="p">;</span>
+  <span class="kt">float</span>                              <span class="n">defaultval</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING</span>   <span class="n">mapping</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_DESC_FLOAT</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_DESC_FLOAT</span>
+<span class="p">{</span>
+  <span class="kt">float</span>                       <span class="n">min</span><span class="p">;</span>
+  <span class="kt">float</span>                       <span class="n">max</span><span class="p">;</span>
+  <span class="kt">float</span>                       <span class="n">defaultval</span><span class="p">;</span>
+  <span class="n">DSP_PARAMETER_FLOAT_MAPPING</span> <span class="n">mapping</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_DESC_FLOAT</span>
+<span class="p">{</span>
+  <span class="nx">min</span><span class="p">,</span>
+  <span class="nx">max</span><span class="p">,</span>
+  <span class="nx">defaultval</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_desc_float_min">min</dt>
+<dd>Minimum value. </dd>
+<dt id="fmod_dsp_parameter_desc_float_max">max</dt>
+<dd>Maximum value. </dd>
+<dt id="fmod_dsp_parameter_desc_float_defaultval">defaultval</dt>
+<dd>Default value. </dd>
+<dt id="fmod_dsp_parameter_desc_float_mapping">mapping</dt>
+<dd>How the values are distributed across dials and automation curves. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping" title="Structure to define a mapping for a DSP unit's float parameter.">FMOD_DSP_PARAMETER_FLOAT_MAPPING</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterfloat" title="Sets a floating point parameter by index.">DSP::setParameterFloat</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterfloat" title="Retrieves a floating point parameter by index.">DSP::getParameterFloat</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_desc_int"><a href="#fmod_dsp_parameter_desc_int">FMOD_DSP_PARAMETER_DESC_INT</a></h2>
+<p>Integer parameter description.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_DESC_INT</span> <span class="p">{</span>
+  <span class="kt">int</span>                  <span class="n">min</span><span class="p">;</span>
+  <span class="kt">int</span>                  <span class="n">max</span><span class="p">;</span>
+  <span class="kt">int</span>                  <span class="n">defaultval</span><span class="p">;</span>
+  <span class="n">FMOD_BOOL</span>            <span class="n">goestoinf</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span><span class="o">*</span>   <span class="n">valuenames</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_DESC_INT</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_DESC_INT</span>
+<span class="p">{</span>
+  <span class="kt">int</span>    <span class="n">min</span><span class="p">;</span>
+  <span class="kt">int</span>    <span class="n">max</span><span class="p">;</span>
+  <span class="kt">int</span>    <span class="n">defaultval</span><span class="p">;</span>
+  <span class="kt">bool</span>   <span class="n">goestoinf</span><span class="p">;</span>
+  <span class="n">IntPtr</span> <span class="n">valuenames</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_DESC_INT</span>
+<span class="p">{</span>
+  <span class="nx">min</span><span class="p">,</span>
+  <span class="nx">max</span><span class="p">,</span>
+  <span class="nx">defaultval</span><span class="p">,</span>
+  <span class="nx">goestoinf</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_desc_int_min">min</dt>
+<dd>Minimum value.</dd>
+<dt id="fmod_dsp_parameter_desc_int_max">max</dt>
+<dd>Maximum value.</dd>
+<dt id="fmod_dsp_parameter_desc_int_defaultval">defaultval</dt>
+<dd>Default value.</dd>
+<dt id="fmod_dsp_parameter_desc_int_goestoinf">goestoinf</dt>
+<dd>
+<p>Whether the last value represents infiniy.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+<dt id="fmod_dsp_parameter_desc_int_valuenames">valuenames <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Names for each value (<a href="glossary.html#string-format">UTF-8 string</a>). There should be as many strings as there are possible values (max - min + 1).</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>, <a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterint" title="Retrieves an integer parameter by index.">DSP::getParameterInt</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_fft"><a href="#fmod_dsp_parameter_fft">FMOD_DSP_PARAMETER_FFT</a></h2>
+<p>FFT parameter data structure.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_FFT</span> <span class="p">{</span>
+  <span class="kt">int</span>     <span class="n">length</span><span class="p">;</span>
+  <span class="kt">int</span>     <span class="n">numchannels</span><span class="p">;</span>
+  <span class="kt">float</span>   <span class="o">*</span><span class="n">spectrum</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_FFT</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_FFT</span>
+<span class="p">{</span>
+  <span class="kt">int</span>       <span class="n">length</span><span class="p">;</span>
+  <span class="kt">int</span>       <span class="n">numchannels</span><span class="p">;</span>
+  <span class="kt">float</span><span class="p">[][]</span> <span class="n">spectrum</span><span class="p">;</span>
+  <span class="k">void</span> <span class="nf">getSpectrum</span><span class="p">(</span><span class="k">ref</span> <span class="kt">float</span><span class="p">[][]</span> <span class="n">buffer</span><span class="p">);</span>
+  <span class="k">void</span> <span class="nf">getSpectrum</span><span class="p">(</span><span class="kt">int</span> <span class="n">channel</span><span class="p">,</span> <span class="k">ref</span> <span class="kt">float</span><span class="p">[]</span> <span class="n">buffer</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_FFT</span>
+<span class="p">{</span>
+  <span class="nx">length</span><span class="p">,</span>
+  <span class="nx">numchannels</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_fft_length">length <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Number of entries in this spectrum window. Divide this by the output rate to get the hz per entry. </dd>
+<dt id="fmod_dsp_parameter_fft_numchannels">numchannels <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Number of channels in spectrum. </dd>
+<dt id="fmod_dsp_parameter_fft_spectrum">spectrum <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Per channel spectrum arrays.  See remarks for more.</dd>
+<dt id="fmod_dsp_parameter_fft_getspectrum">getSpectrum <span><a class="token" href="glossary.html#documentation-conventions" title="C#only">C#</a></span></dt>
+<dd>Fill the provided buffer with the spectrum data to avoid garbage collection.</dd>
+<dt id="fmod_dsp_parameter_fft_getspectrum">getSpectrum <span><a class="token" href="glossary.html#documentation-conventions" title="C#only">C#</a></span></dt>
+<dd>Fill the provided buffer with the spectrum data for the specified channel to avoid garbage collection.</dd>
+</dl>
+<p>Notes on the spectrum data member.  Values inside the float buffer are typically between 0 and 1.0.</p>
+<p>Each top level array represents one PCM channel of data.</p>
+<p>Address data as spectrum[channel][bin].  A bin is 1 fft window entry.</p>
+<p>Only read/display half of the buffer typically for analysis as the 2nd half is usually the same data reversed due to the nature of the way FFT works.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type_fft" title="">FMOD_DSP_PARAMETER_DATA_TYPE_FFT</a>, <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type" title="DSP types.">FMOD_DSP_TYPE</a>, <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_fft" title="FFT DSP parameter types.">FMOD_DSP_FFT</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_float_mapping"><a href="#fmod_dsp_parameter_float_mapping">FMOD_DSP_PARAMETER_FLOAT_MAPPING</a></h2>
+<p>Structure to define a mapping for a DSP unit's float parameter.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE</span>               <span class="n">type</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</span>   <span class="n">piecewiselinearmapping</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_FLOAT_MAPPING</span>
+<span class="p">{</span>
+  <span class="n">DSP_PARAMETER_FLOAT_MAPPING_TYPE</span> <span class="n">type</span><span class="p">;</span>
+  <span class="n">DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</span> <span class="n">piecewiselinearmapping</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_FLOAT_MAPPING</span>
+<span class="p">{</span>
+  <span class="nx">type</span><span class="p">,</span>
+  <span class="nx">piecewiselinearmapping</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_float_mapping_type">type</dt>
+<dd>Mapping type (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_type" title="DSP float parameter mappings. These determine how values are mapped across dials and automation curves.">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE</a>)</dd>
+<dt id="fmod_dsp_parameter_float_mapping_piecewiselinearmapping">piecewiselinearmapping</dt>
+<dd>Piecewuse linear mapping type. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_piecewise_linear" title="Structure to define a piecewise linear mapping.">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_type" title="DSP float parameter mappings. These determine how values are mapped across dials and automation curves.">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_piecewise_linear" title="Structure to define a piecewise linear mapping.">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_float" title="Float parameter description.">FMOD_DSP_PARAMETER_DESC_FLOAT</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_float_mapping_piecewise_linear"><a href="#fmod_dsp_parameter_float_mapping_piecewise_linear">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</a></h2>
+<p>Structure to define a piecewise linear mapping.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</span> <span class="p">{</span>
+  <span class="kt">int</span>     <span class="n">numpoints</span><span class="p">;</span>
+  <span class="kt">float</span>   <span class="o">*</span><span class="n">pointparamvalues</span><span class="p">;</span>
+  <span class="kt">float</span>   <span class="o">*</span><span class="n">pointpositions</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">numpoints</span><span class="p">;</span>
+  <span class="n">IntPtr</span> <span class="n">pointparamvalues</span><span class="p">;</span>
+  <span class="n">IntPtr</span> <span class="n">pointpositions</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</span>
+<span class="p">{</span>
+  <span class="nx">numpoints</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_float_mapping_piecewise_linear_numpoints">numpoints</dt>
+<dd>Number of <position, value> pairs in the piecewise mapping (at least 2). </dd>
+<dt id="fmod_dsp_parameter_float_mapping_piecewise_linear_pointparamvalues">pointparamvalues</dt>
+<dd>Values in the parameter's units for each point </dd>
+<dt id="fmod_dsp_parameter_float_mapping_piecewise_linear_pointpositions">pointpositions</dt>
+<dd>Positions along the control's scale (e.g. dial angle) corresponding to each parameter value.  The range of this scale is arbitrary and all positions will be relative to the minimum and maximum values (e.g. [0,1,3] is equivalent to [1,2,4] and [2,4,8]).  If this array is zero, pointparamvalues will be distributed with equal spacing. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_type" title="DSP float parameter mappings. These determine how values are mapped across dials and automation curves.">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping" title="Structure to define a mapping for a DSP unit's float parameter.">FMOD_DSP_PARAMETER_FLOAT_MAPPING</a></p>
+<h2 api="enum" id="fmod_dsp_parameter_float_mapping_type"><a href="#fmod_dsp_parameter_float_mapping_type">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE</a></h2>
+<p>DSP float parameter mappings. These determine how values are mapped across dials and automation curves.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE_LINEAR</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE_AUTO</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE_PIECEWISE_LINEAR</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">DSP_PARAMETER_FLOAT_MAPPING_TYPE</span>
+<span class="p">{</span>
+  <span class="n">DSP_PARAMETER_FLOAT_MAPPING_TYPE_LINEAR</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span>
+  <span class="n">DSP_PARAMETER_FLOAT_MAPPING_TYPE_AUTO</span><span class="p">,</span>
+  <span class="n">DSP_PARAMETER_FLOAT_MAPPING_TYPE_PIECEWISE_LINEAR</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_FLOAT_MAPPING_TYPE_LINEAR</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_FLOAT_MAPPING_TYPE_AUTO</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_FLOAT_MAPPING_TYPE_PIECEWISE_LINEAR</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_float_mapping_type_linear">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE_LINEAR</dt>
+<dd>Values mapped linearly across range. </dd>
+<dt id="fmod_dsp_parameter_float_mapping_type_auto">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE_AUTO</dt>
+<dd>A mapping is automatically chosen based on range and units.  See remarks. </dd>
+<dt id="fmod_dsp_parameter_float_mapping_type_piecewise_linear">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE_PIECEWISE_LINEAR</dt>
+<dd>Values mapped in a piecewise linear fashion defined by <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_piecewise_linear" title="Structure to define a piecewise linear mapping.">FMOD_DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR</a>. </dd>
+</dl>
+<p><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping_type_auto" title="">FMOD_DSP_PARAMETER_FLOAT_MAPPING_TYPE_AUTO</a> generates a mapping based on range and units. For example, if the units are in Hertz and the range is with-in the audio spectrum, a Bark scale will be chosen. Logarithmic scales may also be generated for ranges above zero spanning several orders of magnitude.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_float_mapping" title="Structure to define a mapping for a DSP unit's float parameter.">FMOD_DSP_PARAMETER_FLOAT_MAPPING</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_overallgain"><a href="#fmod_dsp_parameter_overallgain">FMOD_DSP_PARAMETER_OVERALLGAIN</a></h2>
+<p>Overall gain parameter data structure.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_OVERALLGAIN</span> <span class="p">{</span>
+  <span class="kt">float</span>   <span class="n">linear_gain</span><span class="p">;</span>
+  <span class="kt">float</span>   <span class="n">linear_gain_additive</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_OVERALLGAIN</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_OVERALLGAIN</span>
+<span class="p">{</span>
+  <span class="kt">float</span> <span class="n">linear_gain</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">linear_gain_additive</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_OVERALLGAIN</span>
+<span class="p">{</span>
+  <span class="nx">linear_gain</span><span class="p">,</span>
+  <span class="nx">linear_gain_additive</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_overallgain_linear_gain">linear_gain <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Overall linear gain of the effect on the direct signal path </dd>
+<dt id="fmod_dsp_parameter_overallgain_linear_gain_additive">linear_gain_additive <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Additive gain, for parallel signal paths</dd>
+</dl>
+<p>This parameter is read by the system to determine the effect's gain for voice virtualization.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a></p>
+<h2 api="struct" id="fmod_dsp_parameter_sidechain"><a href="#fmod_dsp_parameter_sidechain">FMOD_DSP_PARAMETER_SIDECHAIN</a></h2>
+<p>Side chain parameter data structure.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_PARAMETER_SIDECHAIN</span> <span class="p">{</span>
+  <span class="n">FMOD_BOOL</span>   <span class="n">sidechainenable</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_SIDECHAIN</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_PARAMETER_SIDECHAIN</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">sidechainenable</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_PARAMETER_SIDECHAIN</span>
+<span class="p">{</span>
+  <span class="nx">sidechainenable</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_sidechain_sidechainenable">sidechainenable</dt>
+<dd>
+<p>Whether sidechains are enabled.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a></p>
+<h2 api="enum" id="fmod_dsp_parameter_type"><a href="#fmod_dsp_parameter_type">FMOD_DSP_PARAMETER_TYPE</a></h2>
+<p>DSP parameter types.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_DSP_PARAMETER_TYPE</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_PARAMETER_TYPE_FLOAT</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_TYPE_INT</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_TYPE_BOOL</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_TYPE_DATA</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PARAMETER_TYPE_MAX</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PARAMETER_TYPE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">DSP_PARAMETER_TYPE</span>
+<span class="p">{</span>
+  <span class="n">FLOAT</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span>
+  <span class="n">INT</span><span class="p">,</span>
+  <span class="n">BOOL</span><span class="p">,</span>
+  <span class="n">DATA</span><span class="p">,</span>
+  <span class="n">MAX</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_TYPE_FLOAT</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_TYPE_INT</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_TYPE_BOOL</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_TYPE_DATA</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PARAMETER_TYPE_MAX</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_parameter_type_float">FMOD_DSP_PARAMETER_TYPE_FLOAT</dt>
+<dd><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a> will use the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_float" title="Float parameter description.">FMOD_DSP_PARAMETER_DESC_FLOAT</a>. </dd>
+<dt id="fmod_dsp_parameter_type_int">FMOD_DSP_PARAMETER_TYPE_INT</dt>
+<dd><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a> will use the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_int" title="Integer parameter description.">FMOD_DSP_PARAMETER_DESC_INT</a>. </dd>
+<dt id="fmod_dsp_parameter_type_bool">FMOD_DSP_PARAMETER_TYPE_BOOL</dt>
+<dd><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a> will use the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_bool" title="Boolean parameter description.">FMOD_DSP_PARAMETER_DESC_BOOL</a>. </dd>
+<dt id="fmod_dsp_parameter_type_data">FMOD_DSP_PARAMETER_TYPE_DATA</dt>
+<dd><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a> will use the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_data" title="Data parameter description.">FMOD_DSP_PARAMETER_DESC_DATA</a>. </dd>
+<dt id="fmod_dsp_parameter_type_max">FMOD_DSP_PARAMETER_TYPE_MAX</dt>
+<dd>Maximum number of DSP parameter types. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a></p>
+<h2 api="callback" id="fmod_dsp_process_callback"><a href="#fmod_dsp_process_callback">FMOD_DSP_PROCESS_CALLBACK</a></h2>
+<p>Process callback.</p>
+<p>This callback receives an input signal, allows the user to filter or process the data and write it to the output.  This is an alternative to the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_read_callback" title="DSP read callback.">FMOD_DSP_READ_CALLBACK</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a>.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_PROCESS_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">length</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_DSP_BUFFER_ARRAY</span> <span class="o">*</span><span class="n">inbufferarray</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_BUFFER_ARRAY</span> <span class="o">*</span><span class="n">outbufferarray</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">inputsidle</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PROCESS_OPERATION</span> <span class="n">op</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_PROCESS_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">uint</span> <span class="n">length</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="n">DSP_BUFFER_ARRAY</span> <span class="n">inbufferarray</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="n">DSP_BUFFER_ARRAY</span> <span class="n">outbufferarray</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">inputsidle</span><span class="p">,</span>
+  <span class="n">DSP_PROCESS_OPERATION</span> <span class="n">op</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>length</dt>
+<dd>
+<p>Length of the incoming and outgoing buffer.</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+<dt>inbufferarray</dt>
+<dd>Description of the incoming signal. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_buffer_array" title="Structure for input and output buffers.">FMOD_DSP_BUFFER_ARRAY</a>)</dd>
+<dt>outbufferarray</dt>
+<dd>Description of the outgoing signal. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_buffer_array" title="Structure for input and output buffers.">FMOD_DSP_BUFFER_ARRAY</a>)</dd>
+<dt>inputsidle</dt>
+<dd>
+<p>This is true if no audio is being fed to this unit.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+<dt>op</dt>
+<dd>Operation type. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_operation" title="Process operation type.">FMOD_DSP_PROCESS_OPERATION</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer.  The callback is called automatically and periodically when the DSP engine updates.  This callback is called back regularly after the unit has been created, inserted to the DSP network, and set to active by the user.</li>
+</ul>
+<p>For a process update to be called it would have to be enabled, and this is done with <a class="apilink" href="core-api-dsp.html#dsp_setactive" title="Sets the processing active state.">DSP::setActive</a>.  If <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> is used the unit is automatically set to active.</p>
+<p><strong>Implementation detail:</strong></p>
+<p>This callback can be used to specify the output channel format at runtime rather than create time, and also supports multiple input/output buffers.</p>
+<p>This callback will be called twice per mix as it has a dual purpose.  Once will be with op = <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_query" title="">FMOD_DSP_PROCESS_QUERY</a>, and then depending on the return value of the query, if it is <a class="apilink" href="core-api-common.html#fmod_ok" title="">FMOD_OK</a> it will call it again with <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_perform" title="">FMOD_DSP_PROCESS_PERFORM</a>.</p>
+<p>Return <a class="apilink" href="core-api-common.html#fmod_err_dsp_silence" title="">FMOD_ERR_DSP_SILENCE</a> if the effect is generating silence, so FMOD's mixer can optimize the signal path and not process it any more.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_read_callback" title="DSP read callback.">FMOD_DSP_READ_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p>
+<h2 api="enum" id="fmod_dsp_process_operation"><a href="#fmod_dsp_process_operation">FMOD_DSP_PROCESS_OPERATION</a></h2>
+<p>Process operation type.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_DSP_PROCESS_OPERATION</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_PROCESS_PERFORM</span><span class="p">,</span>
+  <span class="n">FMOD_DSP_PROCESS_QUERY</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_PROCESS_OPERATION</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">DSP_PROCESS_OPERATION</span>
+<span class="p">{</span>
+  <span class="n">PROCESS_PERFORM</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span>
+  <span class="n">PROCESS_QUERY</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PROCESS_PERFORM</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DSP_PROCESS_QUERY</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_process_perform">FMOD_DSP_PROCESS_PERFORM</dt>
+<dd>Process the incoming audio in 'inbufferarray' and output to 'outbufferarray'. </dd>
+<dt id="fmod_dsp_process_query">FMOD_DSP_PROCESS_QUERY</dt>
+<dd>The DSP is being queried for the expected output format and whether it needs to process audio or should be bypassed.  The function should return <a class="apilink" href="core-api-common.html#fmod_ok" title="">FMOD_OK</a>, or <a class="apilink" href="core-api-common.html#fmod_err_dsp_dontprocess" title="">FMOD_ERR_DSP_DONTPROCESS</a> or <a class="apilink" href="core-api-common.html#fmod_err_dsp_silence" title="">FMOD_ERR_DSP_SILENCE</a> if audio can pass through unprocessed. See remarks for more.  If audio is to be processed, 'outbufferarray' must be filled with the expected output format, channel count and mask. </dd>
+</dl>
+<p>A process callback will be called twice per mix for a DSP unit.  Once with the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_query" title="">FMOD_DSP_PROCESS_QUERY</a> command, then conditionally, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_perform" title="">FMOD_DSP_PROCESS_PERFORM</a>.</p>
+<p><a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_query" title="">FMOD_DSP_PROCESS_QUERY</a> is to be handled only by filling out the outputarray information, and returning a relevant return code.</p>
+<p>It should not really do any logic besides checking and returning one of the following codes:</p>
+<ul>
+<li>
+<p><a class="apilink" href="core-api-common.html#fmod_ok" title="">FMOD_OK</a> - Meaning yes, it should execute the dsp process function with <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_perform" title="">FMOD_DSP_PROCESS_PERFORM</a></p>
+</li>
+<li>
+<p><a class="apilink" href="core-api-common.html#fmod_err_dsp_dontprocess" title="">FMOD_ERR_DSP_DONTPROCESS</a> - Meaning no, it should skip the process function and not call it with <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_perform" title="">FMOD_DSP_PROCESS_PERFORM</a>.</p>
+</li>
+<li>
+<p><a class="apilink" href="core-api-common.html#fmod_err_dsp_silence" title="">FMOD_ERR_DSP_SILENCE</a> - Meaning no, it should skip the process function and not call it with <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_perform" title="">FMOD_DSP_PROCESS_PERFORM</a>, AND, tell the signal chain to follow that it is now idle, so that no more processing happens down the chain.</p>
+</li>
+</ul>
+<p>If audio is to be processed, 'outbufferarray' must be filled with the expected output format, channel count and mask.  Mask can be 0.</p>
+<p>FMOD_DSP_PROCESS_PROCESS  is to be handled by reading the data from the input, processing it, and writing it to the output.  Always write to the output buffer and fill it fully to avoid unpredictable audio output.</p>
+<p>Always return <a class="apilink" href="core-api-common.html#fmod_ok" title="">FMOD_OK</a>, the return value is ignored from the process stage.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_process_callback" title="Process callback.">FMOD_DSP_PROCESS_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_dsp_read_callback"><a href="#fmod_dsp_read_callback">FMOD_DSP_READ_CALLBACK</a></h2>
+<p>DSP read callback.</p>
+<p>This callback receives an input signal, allows the user to filter or process the data and write it to the output.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_READ_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">inbuffer</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">outbuffer</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">length</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">outchannels</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_READCALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">inbuffer</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">outbuffer</span><span class="p">,</span>
+  <span class="kt">uint</span> <span class="n">length</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="kt">int</span> <span class="n">outchannels</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>inbuffer</dt>
+<dd>Incoming floating point -1.0 to +1.0 ranged data.  Data will be interleaved if <code>inchannels</code> is greater than 1.</dd>
+<dt>outbuffer</dt>
+<dd>Outgoing floating point -1.0 to +1.0 ranged data. The dsp writer must write to this pointer else there will be silence.  Data must be interleaved if <code>outchannels</code> is greater than 1.</dd>
+<dt>length</dt>
+<dd>
+<p>Length of the incoming and outgoing buffers.</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+<dt>inchannels</dt>
+<dd>Number of channels of interleaved PCM data in the <code>inbuffer</code> parameter.  Example: 1 = mono, 2 = stereo, 6 = 5.1.</dd>
+<dt>outchannels</dt>
+<dd>Number of channels of interleaved PCM data in the <code>outbuffer</code> parameter.  Example: 1 = mono, 2 = stereo, 6 = 5.1.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer.  The callback is called automatically and periodically when the DSP engine updates.  This callback is called back regularly after the unit has been created, inserted to the DSP network, and set to active by the user.</li>
+</ul>
+<p>For a read update to be called it would have to be enabled, and this is done with <a class="apilink" href="core-api-dsp.html#dsp_setactive" title="Sets the processing active state.">DSP::setActive</a>.  If <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> is used the unit is automatically set to active.</p>
+<p><strong>Implementation detail:</strong></p>
+<p>The range of -1 to 1 is a soft limit. In the case of the inbuffer it is not guaranteed to be in that range, and in the case of the outbuffer FMOD will accept values outside that range. However all values will be clamped to the range of -1 to 1 in the final mix.</p>
+<p>This callback will not be called if the preceeding <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a> is returning <a class="apilink" href="core-api-common.html#fmod_err_dsp_dontprocess" title="">FMOD_ERR_DSP_DONTPROCESS</a>. Return <a class="apilink" href="core-api-common.html#fmod_err_dsp_silence" title="">FMOD_ERR_DSP_SILENCE</a> if the effect is generating silence, so FMOD's mixer can optimize the signal path and not process it any more.</p>
+<p>NOTE: Effects that no not stop processing via <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a> may keep the signal chain alive when it is not desirable to do so.  FMOD Studio events may return that they are still playing when they should be stopped.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="core-api-dsp.html#dsp_setactive" title="Sets the processing active state.">DSP::setActive</a>, <a class="apilink" href="core-api-common.html#fmod_result" title="Error codes returned from every function.">FMOD_RESULT</a></p>
+<h2 api="callback" id="fmod_dsp_release_callback"><a href="#fmod_dsp_release_callback">FMOD_DSP_RELEASE_CALLBACK</a></h2>
+<p>DSP release callback.</p>
+<p>This callback is called when the user releases a DSP unit instance.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_RELEASE_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_RELEASECALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_release" title="Frees a DSP object.">DSP::release</a></li>
+</ul>
+<p><strong>Implementation detail:</strong></p>
+<p>This callback is typically used to free any resources allocated during the course of the lifetime of the DSP instance or perform any shut down code needed to clean up the DSP unit.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_dsp_reset_callback"><a href="#fmod_dsp_reset_callback">FMOD_DSP_RESET_CALLBACK</a></h2>
+<p>DSP reset callback.</p>
+<p>This callback function is called to allow a DSP effect to reset its internal state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_RESET_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_RESETCALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_reset" title="Reset a DSPs internal state ready for new input signal.">DSP::reset</a></li>
+</ul>
+<p>This callback is called on all plugins inside an event whenever the event is started (for example by <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_start" title="Starts playback.">Studio::EventInstance::start</a>).</p>
+<p>It is also useful if (for example) an effect is still holding audio data for a sound that has stopped, and is being relocated to a new sound. Resetting the unit would clear any buffers and get it ready for new sound data.</p>
+<p>Note that this callback should not change any public parameters that are exposed via <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_paramdesc" title="">FMOD_DSP_DESCRIPTION::paramdesc</a>, but should instead reset the internal state to match the public parameter values.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_dsp_setparam_bool_callback"><a href="#fmod_dsp_setparam_bool_callback">FMOD_DSP_SETPARAM_BOOL_CALLBACK</a></h2>
+<p>Set boolean parameter callback.</p>
+<p>This callback is called when the user wants to set a boolean parameter for a DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SETPARAM_BOOL_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">value</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SETPARAM_BOOL_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="k">value</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>value</dt>
+<dd>
+<p>Parameter value.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_setparameterbool" title="Sets a boolean parameter by index.">DSP::setParameterBool</a>.</li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dsp.html#dsp_getparameterbool" title="Retrieves a boolean parameter by index.">DSP::getParameterBool</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_bool_callback" title="Get boolean parameter callback.">FMOD_DSP_GETPARAM_BOOL_CALLBACK</a></p>
+<h2 api="callback" id="fmod_dsp_setparam_data_callback"><a href="#fmod_dsp_setparam_data_callback">FMOD_DSP_SETPARAM_DATA_CALLBACK</a></h2>
+<p>Set data parameter callback.</p>
+<p>This callback is called when the user wants to set a binary data parameter for a DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SETPARAM_DATA_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SETPARAM_DATA_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">IntPtr</span> <span class="n">data</span><span class="p">,</span>
+  <span class="kt">uint</span> <span class="n">length</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>data</dt>
+<dd>Parameter data.  Binary data the size of <code>length</code> parameter.</dd>
+<dt>length <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Size of the binary <code>data</code> parameter.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+</dl>
+<p>Certain data types are predefined by the system and can be specified via the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_data" title="Data parameter description.">FMOD_DSP_PARAMETER_DESC_DATA</a>, see <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type" title="Data parameter types.">FMOD_DSP_PARAMETER_DATA_TYPE</a></p>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>.</li>
+</ul>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dsp.html#dsp_getparameterdata" title="Retrieves a binary data parameter by index.">DSP::getParameterData</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_data_callback" title="Get data parameter callback.">FMOD_DSP_GETPARAM_DATA_CALLBACK</a></p>
+<h2 api="callback" id="fmod_dsp_setparam_float_callback"><a href="#fmod_dsp_setparam_float_callback">FMOD_DSP_SETPARAM_FLOAT_CALLBACK</a></h2>
+<p>Set float parameter callback.</p>
+<p>This callback is called when the user wants to set a float parameter for a DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SETPARAM_FLOAT_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">value</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SETPARAM_FLOAT_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="kt">float</span> <span class="k">value</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>value</dt>
+<dd>Parameter value.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_setparameterfloat" title="Sets a floating point parameter by index.">DSP::setParameterFloat</a>.</li>
+</ul>
+<p>Range checking is not needed.  FMOD will clamp the incoming value to the specified min/max.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dsp.html#dsp_getparameterfloat" title="Retrieves a floating point parameter by index.">DSP::getParameterFloat</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_float_callback" title="Get float parameter callback.">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</a></p>
+<h2 api="callback" id="fmod_dsp_setparam_int_callback"><a href="#fmod_dsp_setparam_int_callback">FMOD_DSP_SETPARAM_INT_CALLBACK</a></h2>
+<p>Set integer parameter callback.</p>
+<p>This callback is called when the user wants to set an integer parameter for a DSP unit.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SETPARAM_INT_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">value</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SETPARAM_INT_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="k">value</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>index</dt>
+<dd>Parameter index.</dd>
+<dt>value</dt>
+<dd>Parameter value.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a>.</li>
+</ul>
+<p>Range checking is not needed.  FMOD will clamp the incoming value to the specified min/max.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_int_callback" title="Get integer parameter callback.">FMOD_DSP_GETPARAM_INT_CALLBACK</a></p>
+<h2 api="callback" id="fmod_dsp_setposition_callback"><a href="#fmod_dsp_setposition_callback">FMOD_DSP_SETPOSITION_CALLBACK</a></h2>
+<p>DSP set position callback.</p>
+<p>This callback is called when the user wants to set a PCM position for a DSP.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SETPOSITION_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">pos</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SETPOSITIONCALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">uint</span> <span class="n">pos</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>pos</dt>
+<dd>
+<p>Target position in channel stream. (<a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>).</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-channel.html#channel_setposition" title="Sets the current playback position.">Channel::setPosition</a>.</li>
+</ul>
+<p>This callback is typically used for DSP units that behave as an audio stream with a relative position.  This type of callback is only called if the DSP has been played with <a class="apilink" href="core-api-system.html#system_playdsp" title="Plays a DSP along with any of its inputs on a Channel.">System::playDSP</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_dsp_shouldiprocess_callback"><a href="#fmod_dsp_shouldiprocess_callback">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a></h2>
+<p>DSP 'should I process?' callback.</p>
+<p>This callback is called to allow the plugin writer to tell the FMOD mixer whether the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_read_callback" title="DSP read callback.">FMOD_DSP_READ_CALLBACK</a> callback should be called or not.  This can be used as an optimization to reduce CPU overhead.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SHOULDIPROCESS_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">inputsidle</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">length</span><span class="p">,</span>
+  <span class="n">FMOD_CHANNELMASK</span> <span class="n">inmask</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span>
+  <span class="n">FMOD_SPEAKERMODE</span> <span class="n">speakermode</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SHOULDIPROCESS_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">inputsidle</span><span class="p">,</span>
+  <span class="kt">uint</span> <span class="n">length</span><span class="p">,</span>
+  <span class="n">CHANNELMASK</span> <span class="n">inmask</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span>
+  <span class="n">SPEAKERMODE</span> <span class="n">speakermode</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>inputsidle</dt>
+<dd>
+<p>This is true if no audio is being fed to this unit.  </p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+<dt>length</dt>
+<dd>
+<p>Length of the incoming and outgoing buffer.</p>
+<ul>
+<li><span class="label">Units:</span> Samples</li>
+</ul>
+</dd>
+<dt>inmask</dt>
+<dd>Deprecated. (<a class="apilink" href="core-api-common.html#fmod_channelmask" title="Flags that describe the speakers present in a given signal.">FMOD_CHANNELMASK</a>)</dd>
+<dt>inchannels</dt>
+<dd>Number of input channels.</dd>
+<dt>speakermode</dt>
+<dd>Speakermode that corresponds to the channel count and channel mask. (<a class="apilink" href="core-api-common.html#fmod_speakermode" title="Speaker mode types.">FMOD_SPEAKERMODE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer.  The callback is called automatically and periodically when the DSP engine updates.</li>
+</ul>
+<p><strong>Implementation detail:</strong></p>
+<p>An example of an effect that would continue processing silence would be an echo or reverb effect that needs to play a tail sound until it fades out to silence.  At that point it could return <a class="apilink" href="core-api-common.html#fmod_err_dsp_silence" title="">FMOD_ERR_DSP_SILENCE</a> as well.</p>
+<p>Typically inmask and speakermode parameters will not be important to the plugin, unless it cares about speaker positioning.  If it processes any data regardless of channel format coming in, it can safely ignore these 2 parameters.</p>
+<p>If the effect produces silence such as when it is receiving no signal, then <a class="apilink" href="core-api-common.html#fmod_err_dsp_silence" title="">FMOD_ERR_DSP_SILENCE</a> can be returned in the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_shouldiprocess_callback" title="DSP 'should I process?' callback.">FMOD_DSP_SHOULDIPROCESS_CALLBACK</a> callback.  If the effect does not modify the sound in any way with the current effect parameter settings, then <a class="apilink" href="core-api-common.html#fmod_err_dsp_dontprocess" title="">FMOD_ERR_DSP_DONTPROCESS</a> can be returned.<br />
+Either of these return values will cause FMOD's mixer to skip the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_read_callback" title="DSP read callback.">FMOD_DSP_READ_CALLBACK</a> callback.</p>
+<p><strong>NOTE</strong>: Effects that do not stop processing may keep the signal chain alive when it is not desirable to do so.  In the case of FMOD Studio it may result in events that keep playing indefinitely.</p>
+<p>The following code can be used for DSP effects that have no tail:</p>
+<div class="highlight language-c"><pre><span></span><span class="k">static</span> <span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">shouldIProcess</span><span class="p">(</span><span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">inputsidle</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">length</span><span class="p">,</span> <span class="n">FMOD_CHANNELMASK</span> <span class="n">inmask</span><span class="p">,</span> <span class="kt">int</span> <span class="n">inchannels</span><span class="p">,</span> <span class="n">FMOD_SPEAKERMODE</span> <span class="n">speakermode</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">inputsidle</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">FMOD_ERR_DSP_SILENCE</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">FMOD_OK</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_read_callback" title="DSP read callback.">FMOD_DSP_READ_CALLBACK</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="core-api-common.html#fmod_result" title="Error codes returned from every function.">FMOD_RESULT</a></p>
+<h2 api="struct" id="fmod_dsp_state"><a href="#fmod_dsp_state">FMOD_DSP_STATE</a></h2>
+<p>DSP plugin structure that is passed into each callback.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_STATE</span> <span class="p">{</span>
+  <span class="kt">void</span>                      <span class="o">*</span><span class="n">instance</span><span class="p">;</span>
+  <span class="kt">void</span>                      <span class="o">*</span><span class="n">plugindata</span><span class="p">;</span>
+  <span class="n">FMOD_CHANNELMASK</span>           <span class="n">channelmask</span><span class="p">;</span>
+  <span class="n">FMOD_SPEAKERMODE</span>           <span class="n">source_speakermode</span><span class="p">;</span>
+  <span class="kt">float</span>                     <span class="o">*</span><span class="n">sidechaindata</span><span class="p">;</span>
+  <span class="kt">int</span>                        <span class="n">sidechainchannels</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_STATE_FUNCTIONS</span>   <span class="o">*</span><span class="n">functions</span><span class="p">;</span>
+  <span class="kt">int</span>                        <span class="n">systemobject</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_STATE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_STATE</span>
+<span class="p">{</span>
+  <span class="n">IntPtr</span>     <span class="n">instance</span><span class="p">;</span>
+  <span class="n">IntPtr</span>     <span class="n">plugindata</span><span class="p">;</span>
+  <span class="kt">uint</span>       <span class="n">channelmask</span><span class="p">;</span>
+  <span class="kt">int</span>        <span class="n">source_speakermode</span><span class="p">;</span>
+  <span class="n">IntPtr</span>     <span class="n">sidechaindata</span><span class="p">;</span>
+  <span class="kt">int</span>        <span class="n">sidechainchannels</span><span class="p">;</span>
+  <span class="n">IntPtr</span>     <span class="n">functions</span><span class="p">;</span>
+  <span class="kt">int</span>        <span class="n">systemobject</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_STATE</span>
+<span class="p">{</span>
+  <span class="nx">instance</span><span class="p">,</span>
+  <span class="nx">plugindata</span><span class="p">,</span>
+  <span class="nx">channelmask</span><span class="p">,</span>
+  <span class="nx">source_speakermode</span><span class="p">,</span>
+  <span class="nx">sidechaindata</span><span class="p">,</span>
+  <span class="nx">sidechainchannels</span><span class="p">,</span>
+  <span class="nx">functions</span><span class="p">,</span>
+  <span class="nx">systemobject</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_state_instance">instance <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Internal instance pointer.</dd>
+<dt id="fmod_dsp_state_plugindata">plugindata</dt>
+<dd>Plugin writer created data the output author wants to attach to this object.</dd>
+<dt id="fmod_dsp_state_channelmask">channelmask <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Specifies which speakers the DSP effect is active on. (<a class="apilink" href="core-api-common.html#fmod_channelmask" title="Flags that describe the speakers present in a given signal.">FMOD_CHANNELMASK</a>)</dd>
+<dt id="fmod_dsp_state_source_speakermode">source_speakermode <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Specifies which speaker mode the signal originated. (<a class="apilink" href="core-api-common.html#fmod_speakermode" title="Speaker mode types.">FMOD_SPEAKERMODE</a>)</dd>
+<dt id="fmod_dsp_state_sidechaindata">sidechaindata <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Sidechain mix result.</dd>
+<dt id="fmod_dsp_state_sidechainchannels">sidechainchannels <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Number of channels in the sidechain buffer.</dd>
+<dt id="fmod_dsp_state_functions">functions <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_functions" title="Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers.">FMOD_DSP_STATE_FUNCTIONS</a>)</dd>
+<dt id="fmod_dsp_state_systemobject">systemobject <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>FMOD::System object index, relating to the System object that created this DSP.</dd>
+</dl>
+<p>'systemobject' is an integer that relates to the System object that created the DSP or registered the DSP plugin.  If only 1 System object is created then it should be 0.  A second object would be 1 and so on.<br />
+FMOD_DSP_STATE_FUNCTIONS::getsamplerate/getblocksize/getspeakermode could return different results so it could be relevant to plugin developers to monitor which object is being used.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_functions" title="Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers.">FMOD_DSP_STATE_FUNCTIONS</a></p>
+<h2 api="struct" id="fmod_dsp_state_dft_functions"><a href="#fmod_dsp_state_dft_functions">FMOD_DSP_STATE_DFT_FUNCTIONS</a></h2>
+<p>Struct containing DFT functions to enable a plugin to perform optimized time-frequency domain conversion.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_STATE_DFT_FUNCTIONS</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_DFT_FFTREAL_FUNC</span>    <span class="n">fftreal</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_DFT_IFFTREAL_FUNC</span>   <span class="n">inversefftreal</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_STATE_DFT_FUNCTIONS</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_STATE_DFT_FUNCTIONS</span>
+<span class="p">{</span>
+  <span class="n">DSP_DFT_FFTREAL_FUNC</span>  <span class="n">fftreal</span><span class="p">;</span>
+  <span class="n">DSP_DFT_IFFTREAL_FUNC</span> <span class="n">inversefftreal</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_STATE_DFT_FUNCTIONS</span>
+<span class="p">{</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_state_dft_functions_fftreal">fftreal <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function for performing an FFT on a real signal. (FMOD_DSP_DFT_FFTREAL_FUNC)</dd>
+<dt id="fmod_dsp_state_dft_functions_inversefftreal">inversefftreal <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function for performing an inverse FFT to get a real signal. (FMOD_DSP_DFT_IFFTREAL_FUNC)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_functions" title="Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers.">FMOD_DSP_STATE_FUNCTIONS</a></p>
+<h2 api="struct" id="fmod_dsp_state_functions"><a href="#fmod_dsp_state_functions">FMOD_DSP_STATE_FUNCTIONS</a></h2>
+<p>Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_STATE_FUNCTIONS</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_ALLOC_FUNC</span>                   <span class="n">alloc</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_REALLOC_FUNC</span>                 <span class="n">realloc</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_FREE_FUNC</span>                    <span class="n">free</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETSAMPLERATE_FUNC</span>           <span class="n">getsamplerate</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETBLOCKSIZE_FUNC</span>            <span class="n">getblocksize</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_STATE_DFT_FUNCTIONS</span>         <span class="o">*</span><span class="n">dft</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_STATE_PAN_FUNCTIONS</span>         <span class="o">*</span><span class="n">pan</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETSPEAKERMODE_FUNC</span>          <span class="n">getspeakermode</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETCLOCK_FUNC</span>                <span class="n">getclock</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETLISTENERATTRIBUTES_FUNC</span>   <span class="n">getlistenerattributes</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_LOG_FUNC</span>                     <span class="n">log</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_GETUSERDATA_FUNC</span>             <span class="n">getuserdata</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_STATE_FUNCTIONS</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_STATE_FUNCTIONS</span>
+<span class="p">{</span>
+  <span class="n">DSP_ALLOC_FUNC</span>                  <span class="n">alloc</span><span class="p">;</span>
+  <span class="n">DSP_REALLOC_FUNC</span>                <span class="n">realloc</span><span class="p">;</span>
+  <span class="n">DSP_FREE_FUNC</span>                   <span class="n">free</span><span class="p">;</span>
+  <span class="n">DSP_GETSAMPLERATE_FUNC</span>          <span class="n">getsamplerate</span><span class="p">;</span>
+  <span class="n">DSP_GETBLOCKSIZE_FUNC</span>           <span class="n">getblocksize</span><span class="p">;</span>
+  <span class="n">IntPtr</span>                          <span class="n">dft</span><span class="p">;</span>
+  <span class="n">IntPtr</span>                          <span class="n">pan</span><span class="p">;</span>
+  <span class="n">DSP_GETSPEAKERMODE_FUNC</span>         <span class="n">getspeakermode</span><span class="p">;</span>
+  <span class="n">DSP_GETCLOCK_FUNC</span>               <span class="n">getclock</span><span class="p">;</span>
+  <span class="n">DSP_GETLISTENERATTRIBUTES_FUNC</span>  <span class="n">getlistenerattributes</span><span class="p">;</span>
+  <span class="n">DSP_LOG_FUNC</span>                    <span class="n">log</span><span class="p">;</span>
+  <span class="n">DSP_GETUSERDATA_FUNC</span>            <span class="n">getuserdata</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">DSP_STATE_FUNCTIONS</span>
+<span class="p">{</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_state_functions_alloc">alloc <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to allocate memory using the FMOD memory system. (FMOD_DSP_ALLOC_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_realloc">realloc <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to reallocate memory using the FMOD memory system. (FMOD_DSP_REALLOC_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_free">free <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to free memory allocated with FMOD_DSP_ALLOC_FUNC. (FMOD_DSP_FREE_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_getsamplerate">getsamplerate <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to query the system sample rate. (FMOD_DSP_GETSAMPLERATE_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_getblocksize">getblocksize <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to query the system block size, DSPs will be requested to process blocks of varying length up to this size. (FMOD_DSP_GETBLOCKSIZE_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_dft">dft <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Struct containing DFT functions to enable a plugin to perform optimized time-frequency domain conversion. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_dft_functions" title="Struct containing DFT functions to enable a plugin to perform optimized time-frequency domain conversion.">FMOD_DSP_STATE_DFT_FUNCTIONS</a>)</dd>
+<dt id="fmod_dsp_state_functions_pan">pan <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Struct containing panning helper functions for spatialization plugins. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_pan_functions" title="Struct containing panning helper functions for spatialization plugins.">FMOD_DSP_STATE_PAN_FUNCTIONS</a>)</dd>
+<dt id="fmod_dsp_state_functions_getspeakermode">getspeakermode <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to query the system speaker modes.  One is the mixer's default speaker mode, the other is the output mode the system is downmixing or upmixing to. (FMOD_DSP_GETSPEAKERMODE_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_getclock">getclock <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to get the clock of the current DSP, as well as the subset of the input buffer that contains the signal. (FMOD_DSP_GETCLOCK_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_getlistenerattributes">getlistenerattributes <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Callback for getting the absolute listener attributes set via the API (returned as left-handed coordinates). (FMOD_DSP_GETLISTENERATTRIBUTES_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_log">log <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to write to the FMOD logging system. (FMOD_DSP_LOG_FUNC)</dd>
+<dt id="fmod_dsp_state_functions_getuserdata">getuserdata <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>Function to get the user data attached to this DSP. See FMOD_DSP_DESCRIPTION::userdata. (FMOD_DSP_GETUSERDATA_FUNC)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_dft_functions" title="Struct containing DFT functions to enable a plugin to perform optimized time-frequency domain conversion.">FMOD_DSP_STATE_DFT_FUNCTIONS</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_pan_functions" title="Struct containing panning helper functions for spatialization plugins.">FMOD_DSP_STATE_PAN_FUNCTIONS</a></p>
+<h2 api="struct" id="fmod_dsp_state_pan_functions"><a href="#fmod_dsp_state_pan_functions">FMOD_DSP_STATE_PAN_FUNCTIONS</a></h2>
+<p>Struct containing panning helper functions for spatialization plugins.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_DSP_STATE_PAN_FUNCTIONS</span> <span class="p">{</span>
+  <span class="n">FMOD_DSP_PAN_SUMMONOMATRIX_FUNC</span>               <span class="n">summonomatrix</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PAN_SUMSTEREOMATRIX_FUNC</span>             <span class="n">sumstereomatrix</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PAN_SUMSURROUNDMATRIX_FUNC</span>           <span class="n">sumsurroundmatrix</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PAN_SUMMONOTOSURROUNDMATRIX_FUNC</span>     <span class="n">summonotosurroundmatrix</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PAN_SUMSTEREOTOSURROUNDMATRIX_FUNC</span>   <span class="n">sumstereotosurroundmatrix</span><span class="p">;</span>
+  <span class="n">FMOD_DSP_PAN_GETROLLOFFGAIN_FUNC</span>              <span class="n">getrolloffgain</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_DSP_STATE_PAN_FUNCTIONS</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">DSP_STATE_PAN_FUNCTIONS</span>
+<span class="p">{</span>
+  <span class="n">DSP_PAN_SUMMONOMATRIX_FUNC</span>             <span class="n">summonomatrix</span><span class="p">;</span>
+  <span class="n">DSP_PAN_SUMSTEREOMATRIX_FUNC</span>           <span class="n">sumstereomatrix</span><span class="p">;</span>
+  <span class="n">DSP_PAN_SUMSURROUNDMATRIX_FUNC</span>         <span class="n">sumsurroundmatrix</span><span class="p">;</span>
+  <span class="n">DSP_PAN_SUMMONOTOSURROUNDMATRIX_FUNC</span>   <span class="n">summonotosurroundmatrix</span><span class="p">;</span>
+  <span class="n">DSP_PAN_SUMSTEREOTOSURROUNDMATRIX_FUNC</span> <span class="n">sumstereotosurroundmatrix</span><span class="p">;</span>
+  <span class="n">DSP_PAN_GETROLLOFFGAIN_FUNC</span>            <span class="n">getrolloffgain</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_DSP_STATE_PAN_FUNCTIONS</span>
+<span class="p">{</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_dsp_state_pan_functions_summonomatrix">summonomatrix <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>TBD. (FMOD_DSP_PAN_SUMMONOMATRIX_FUNC)</dd>
+<dt id="fmod_dsp_state_pan_functions_sumstereomatrix">sumstereomatrix <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>TBD. (FMOD_DSP_PAN_SUMSTEREOMATRIX_FUNC)</dd>
+<dt id="fmod_dsp_state_pan_functions_sumsurroundmatrix">sumsurroundmatrix <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>TBD. (FMOD_DSP_PAN_SUMSURROUNDMATRIX_FUNC)</dd>
+<dt id="fmod_dsp_state_pan_functions_summonotosurroundmatrix">summonotosurroundmatrix <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>TBD. (FMOD_DSP_PAN_SUMMONOTOSURROUNDMATRIX_FUNC)</dd>
+<dt id="fmod_dsp_state_pan_functions_sumstereotosurroundmatrix">sumstereotosurroundmatrix <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>TBD. (FMOD_DSP_PAN_SUMSTEREOTOSURROUNDMATRIX_FUNC)</dd>
+<dt id="fmod_dsp_state_pan_functions_getrolloffgain">getrolloffgain <span><a class="token" href="glossary.html#documentation-conventions" title="Read-only">R/O</a></span></dt>
+<dd>TBD. (FMOD_DSP_PAN_GETROLLOFFGAIN_FUNC)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state_functions" title="Struct containing functions to give plugin developers the ability to query system state, access system level functionality and helpers.">FMOD_DSP_STATE_FUNCTIONS</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_pan_surround_flags" title="Flags for the FMOD_DSP_PAN_SUMSURROUNDMATRIX_FUNC function.">FMOD_DSP_PAN_SURROUND_FLAGS</a></p>
+<h2 api="callback" id="fmod_dsp_system_deregister_callback"><a href="#fmod_dsp_system_deregister_callback">FMOD_DSP_SYSTEM_DEREGISTER_CALLBACK</a></h2>
+<p>System level DSP type deregister callback.</p>
+<p>The callback is called as a one time deregistration of a plugin <em>type</em>, rather than per DSP instance.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SYSTEM_DEREGISTER_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SYSTEM_DEREGISTER_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP Plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_unloadplugin" title="Unloads an FMOD (DSP, Output or Codec) plugin.">System::unloadPlugin</a></li>
+<li><a class="apilink" href="core-api-system.html#system_close" title="Close the connection to the output and return to an uninitialized state without releasing the object.">System::close</a></li>
+<li><a class="apilink" href="core-api-system.html#system_release" title="Closes and frees this object and its resources.">System::release</a></li>
+</ul>
+<p>This callback will be called after all instances of the plugin type have been released.</p>
+<p>The callback is not associated with any DSP instance, so the instance member of <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a> will be 0 / NULL.  Only 'systemobject' and 'callbacks' are valid for use.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_dsp_system_mix_callback"><a href="#fmod_dsp_system_mix_callback">FMOD_DSP_SYSTEM_MIX_CALLBACK</a></h2>
+<p>System level DSP type mix callback.</p>
+<p>The function can be used as a global pre/mid/post mix function for this <em>type</em> of DSP, rather than per DSP instance.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SYSTEM_MIX_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">stage</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SYSTEM_MIX_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">stage</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP Plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+<dt>stage</dt>
+<dd>0 = premix, or before the mixer has executed.  1 = postmix, or after the after the mix has been executed.  2 = midmix, after clocks calculation before the main mix has occurred.</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li>FMOD mixer.  The callback is called automatically and periodically when the DSP engine updates.</li>
+</ul>
+<p>The callback is not associated with any DSP instance, so the instance member of <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a> will be 0 / NULL.  Only 'systemobject' and 'callbacks' are valid for use.<br />
+The callback is triggered automatically by the mixer and is not triggered by any API function.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p>
+<h2 api="callback" id="fmod_dsp_system_register_callback"><a href="#fmod_dsp_system_register_callback">FMOD_DSP_SYSTEM_REGISTER_CALLBACK</a></h2>
+<p>System level DSP type registration callback.</p>
+<p>The callback is called as a one time initialization to set up the plugin <em>type</em>, rather than per DSP instance.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">F_CALLBACK</span> <span class="nf">FMOD_DSP_SYSTEM_REGISTER_CALLBACK</span><span class="p">(</span>
+  <span class="n">FMOD_DSP_STATE</span> <span class="o">*</span><span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">delegate</span> <span class="n">RESULT</span> <span class="nf">DSP_SYSTEM_REGISTER_CALLBACK</span>
+<span class="p">(</span>
+  <span class="k">ref</span> <span class="n">DSP_STATE</span> <span class="n">dsp_state</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>dsp_state</dt>
+<dd>DSP Plugin state. (<a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a>)</dd>
+</dl>
+<p>Invoked by:</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_loadplugin" title="Loads an FMOD (DSP, Output or Codec) plugin from file.">System::loadPlugin</a></li>
+<li><a class="apilink" href="core-api-system.html#system_registerdsp" title="Register a DSP plugin description structure for later use.">System::registerDSP</a></li>
+</ul>
+<p>This callback will be called before any instances of the plugin type have been created.</p>
+<p>The callback is not associated with any DSP instance, so the instance member of <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a> will be 0 / NULL.  Only 'systemobject' and 'callbacks' are valid for use.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

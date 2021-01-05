@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>White Papers | 3D Reverb</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | 3D Reverb</h1>
+<div class="toc">
+<ul>
+<li><a href="#3d-reverb">3D Reverb</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#3d-reverbs">3D Reverbs</a></li>
+<li><a href="#create-a-3d-reverb">Create a 3D Reverb</a></li>
+<li><a href="#set-3d-attributes">Set 3D Attributes</a></li>
+<li><a href="#all-done">All done!</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="3d-reverb"><a href="#3d-reverb">3D Reverb</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>It is common for environments to exhibit different reverberation characteristics in different locations. Ideally as the listener moves throughout the virtual environment, the sound of the reverberation should change accordingly. This change in reverberation properties can be modeled in FMOD Studio by using the built in <a class="apilink" href="core-api-reverb3d.html" title="">Reverb3D</a> API.</p>
+<h3 id="3d-reverbs"><a href="#3d-reverbs">3D Reverbs</a></h3>
+<p>The 3D reverb system works by allowing you to place multiple virtual reverbs within the 3D world. Each reverb defines:</p>
+<ul>
+<li>Its position within the 3D world</li>
+<li>The area, or sphere of influence affected by the reverb (with minimum and maximum distances)</li>
+<li>The reverberation properties of the area</li>
+</ul>
+<p>At runtime, FMOD Studio interpolates (or morphs) between the characteristics of 3D reverbs according to the listener's proximity and the position and overlap of the reverbs. This method allows FMOD Studio to use a single reverb DSP unit to provide a dynamic reverberation within the 3D world. This process is illustrated in the image below.</p>
+<p><img alt="3D Reverb" src="images/3d-reverb.png" /></p>
+<p>When the listener is within the sphere of effect of one or more 3D reverbs, the listener hears a weighted combination of the affecting reverbs. When the listener is outside the coverage of all 3D reverbs, the reverb is not applied. It is important to note that by default, 2D sounds share this same physical reverb instance, so to avoid 2D sounds having reverb, use <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setreverbproperties" title="Sets the wet / send level for a particular reverb instance.">ChannelControl::setReverbProperties</a> and set wet = 0, or shift the 2D Sounds to a different reverb instance, using the same function (adding a 2nd reverb will incur a small CPU and memory hit).</p>
+<p>The interpolation of 3D reverbs is only an estimation of how the multiple reverberations within the environment may sound. In some cases, greater realism is required. In these situations we suggest using multiple physical reverbs as described in the tutorial 'Using multiple reverbs'.</p>
+<h3 id="create-a-3d-reverb"><a href="#create-a-3d-reverb">Create a 3D Reverb</a></h3>
+<p>We will now create a virtual reverb, using the call <a class="apilink" href="core-api-system.html#system_createreverb3d" title="Creates a 'virtual reverb' object. This object reacts to 3D location and morphs the reverb environment based on how close it is to the reverb object's center.">System::createReverb3D</a>, then set the characteristics of the reverb using <a class="apilink" href="core-api-reverb3d.html#reverb3d_setproperties" title="Sets the environmental properties of a reverb sphere.">Reverb3D::setProperties</a>.</p>
+<div class="highlight language-text"><pre><span></span>FMOD::Reverb *reverb;
+result = system-&gt;createReverb3D(&amp;reverb);
+FMOD_REVERB_PROPERTIES prop2 = FMOD_PRESET_CONCERTHALL;
+reverb-&gt;setProperties(&amp;prop2);
+</pre></div>
+
+
+<h3 id="set-3d-attributes"><a href="#set-3d-attributes">Set 3D Attributes</a></h3>
+<p>The 3D attributes of the reverb must now be set. The method <a class="apilink" href="core-api-reverb3d.html#reverb3d_set3dattributes" title="Sets the 3D attributes of a reverb sphere.">Reverb3D::set3DAttributes</a> allows us to set the origin position, as well as the area of coverage using the minimum distance and maximum distance.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_VECTOR pos = { -10.0f, 0.0f, 0.0f };
+float mindist = 10.0f; 
+float maxdist = 20.0f;
+reverb-&gt;set3DAttributes(&amp;pos, mindist, maxdist);
+</pre></div>
+
+
+<p>As the 3D reverb uses the position of the listener in its weighting calculation, we also need to ensure that the location of the listener is set using System::set3dListenerAtrributes.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_VECTOR  listenerpos  = { 0.0f, 0.0f, -1.0f };
+system-&gt;set3DListenerAttributes(0, &amp;listenerpos, 0, 0, 0);
+</pre></div>
+
+
+<h3 id="all-done"><a href="#all-done">All done!</a></h3>
+<p>This is all that is needed to get virtual 3d reverb zones to work. From this point onwards, based on the listener position, reverb presets should morph into each other if they overlap, and attenuate based on the listener's distance from the 3D reverb sphere's center.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

@@ -1,0 +1,472 @@
+<html>
+<head>
+<title>Studio API Reference | Common</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="studio-api.html">Studio API Reference</a><ul class="subchapters"><li class="manual-current-chapter manual-active-chapter"><a href="studio-api-common.html">Common</a></li><li><a href="studio-api-system.html">Studio::System</a></li><li><a href="studio-api-eventdescription.html">Studio::EventDescription</a></li><li><a href="studio-api-eventinstance.html">Studio::EventInstance</a></li><li><a href="studio-api-bus.html">Studio::Bus</a></li><li><a href="studio-api-vca.html">Studio::VCA</a></li><li><a href="studio-api-bank.html">Studio::Bank</a></li><li><a href="studio-api-commandreplay.html">Studio::CommandReplay</a></li></ul></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>6. Studio API Reference | Common</h1>
+<p><strong>Loading State:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-common.html#fmod_studio_loading_state" title="Loading state of various objects.">FMOD_STUDIO_LOADING_STATE</a> Loading state of various objects.</li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a> Describes an event parameter.</li>
+<li><a class="apilink" href="studio-api-common.html#fmod_studio_parameter_id" title="Describes an event parameter identifier.">FMOD_STUDIO_PARAMETER_ID</a> Describes an event parameter identifier.</li>
+<li><a class="apilink" href="studio-api-common.html#fmod_studio_parameter_flags" title="Flags describing the behavior of a parameter.">FMOD_STUDIO_PARAMETER_FLAGS</a> Flags describing the behavior of a parameter.</li>
+</ul>
+<hr />
+<ul>
+<li><a class="apilink" href="studio-api-common.html#fmod_studio_parameter_type" title="Event parameter types.">FMOD_STUDIO_PARAMETER_TYPE</a> Event parameter types.</li>
+</ul>
+<p><strong>Playback State:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-common.html#fmod_studio_playback_state" title="Playback state of various objects.">FMOD_STUDIO_PLAYBACK_STATE</a> Playback state of various objects.</li>
+</ul>
+<p><strong>Profiling:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-common.html#fmod_studio_memory_usage" title="Memory usage statistics.">FMOD_STUDIO_MEMORY_USAGE</a> Memory usage statistics.</li>
+</ul>
+<p><strong>Utility Functions:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-common.html#studio_parseid" title="Parses a GUID from a string.">Studio::parseID</a> Parses a GUID from a string.</li>
+</ul>
+<h2 api="enum" id="fmod_studio_loading_state"><a href="#fmod_studio_loading_state">FMOD_STUDIO_LOADING_STATE</a></h2>
+<p>Loading state of various objects.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_STUDIO_LOADING_STATE</span> <span class="p">{</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE_UNLOADING</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE_UNLOADED</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE_LOADING</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE_LOADED</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_LOADING_STATE_ERROR</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_LOADING_STATE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">Studio</span><span class="p">.</span><span class="n">LOADING_STATE</span>
+<span class="p">{</span>
+    <span class="n">UNLOADING</span><span class="p">,</span>
+    <span class="n">UNLOADED</span><span class="p">,</span>
+    <span class="n">LOADING</span><span class="p">,</span>
+    <span class="n">LOADED</span><span class="p">,</span>
+    <span class="n">ERROR</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">STUDIO_LOADING_STATE_UNLOADING</span>
+<span class="nx">STUDIO_LOADING_STATE_UNLOADED</span>
+<span class="nx">STUDIO_LOADING_STATE_LOADING</span>
+<span class="nx">STUDIO_LOADING_STATE_LOADED</span>
+<span class="nx">STUDIO_LOADING_STATE_ERROR</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_loading_state_unloading">FMOD_STUDIO_LOADING_STATE_UNLOADING</dt>
+<dd>Currently unloading. </dd>
+<dt id="fmod_studio_loading_state_unloaded">FMOD_STUDIO_LOADING_STATE_UNLOADED</dt>
+<dd>Not loaded. </dd>
+<dt id="fmod_studio_loading_state_loading">FMOD_STUDIO_LOADING_STATE_LOADING</dt>
+<dd>Loading in progress. </dd>
+<dt id="fmod_studio_loading_state_loaded">FMOD_STUDIO_LOADING_STATE_LOADED</dt>
+<dd>Loaded and ready to play. </dd>
+<dt id="fmod_studio_loading_state_error">FMOD_STUDIO_LOADING_STATE_ERROR</dt>
+<dd>Failed to load. </dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bank.html#studio_bank_getloadingstate" title="Retrieves the loading state.">Studio::Bank::getLoadingState</a>, <a class="apilink" href="studio-api-bank.html#studio_bank_getsampleloadingstate" title="Retrieves the loading state of the samples in the bank.">Studio::Bank::getSampleLoadingState</a>, <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getsampleloadingstate" title="Retrieves the sample data loading state.">Studio::EventDescription::getSampleLoadingState</a></p>
+<h2 api="struct" id="fmod_studio_memory_usage"><a href="#fmod_studio_memory_usage">FMOD_STUDIO_MEMORY_USAGE</a></h2>
+<p>Memory usage statistics.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_STUDIO_MEMORY_USAGE</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">exclusive</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">inclusive</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">sampledata</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_MEMORY_USAGE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">Studio</span><span class="p">.</span><span class="n">MEMORY_USAGE</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">exclusive</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">inclusive</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">sampledata</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt id="fmod_studio_memory_usage_exclusive">exclusive</dt>
+<dd>Size of memory belonging to the bus or event instance.</dd>
+<dt id="fmod_studio_memory_usage_inclusive">inclusive</dt>
+<dd>Size of memory belonging exclusively to the bus or event pus the inclusive memory sizes of all buses and event instances which route into it.</dd>
+<dt id="fmod_studio_memory_usage_sampledata">sampledata</dt>
+<dd>Size of shared sample memory referenced by the bus or event instance, inclusive of all sample memory referenced by all buses and event instances which route into it.</dd>
+</dl>
+<p>Memory usage <code>exclusive</code> and <code>inclusive</code> values do not include sample data loaded in memory because sample data is a shared resource. Streaming sample data is not a shared resource and is included in the <code>exclusive</code> and <code>inclusive</code> values.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-system.html#fmod_studio_init_memory_tracking" title="">FMOD_STUDIO_INIT_MEMORY_TRACKING</a>, <a class="apilink" href="studio-api-system.html#studio_system_getmemoryusage" title="Retrieves memory usage statistics.">Studio::System::getMemoryUsage</a>, <a class="apilink" href="studio-api-bus.html#studio_bus_getmemoryusage" title="Retrieves memory usage statistics.">Studio::Bus::getMemoryUsage</a>, <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getmemoryusage" title="Retrieves memory usage statistics.">Studio::EventInstance::getMemoryUsage</a></p>
+<h2 api="struct" id="fmod_studio_parameter_description"><a href="#fmod_studio_parameter_description">FMOD_STUDIO_PARAMETER_DESCRIPTION</a></h2>
+<p>Describes an event parameter.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_STUDIO_PARAMETER_DESCRIPTION</span> <span class="p">{</span>
+  <span class="k">const</span> <span class="kt">char</span>                  <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_ID</span>     <span class="n">id</span><span class="p">;</span>
+  <span class="kt">float</span>                        <span class="n">minimum</span><span class="p">;</span>
+  <span class="kt">float</span>                        <span class="n">maximum</span><span class="p">;</span>
+  <span class="kt">float</span>                        <span class="n">defaultvalue</span><span class="p">;</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_TYPE</span>   <span class="n">type</span><span class="p">;</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_FLAGS</span>  <span class="n">flags</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_PARAMETER_DESCRIPTION</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">PARAMETER_DESCRIPTION</span>
+<span class="p">{</span>
+    <span class="n">StringWrapper</span> <span class="n">name</span><span class="p">;</span>
+    <span class="n">PARAMETER_ID</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">minimum</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">maximum</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">defaultvalue</span><span class="p">;</span>
+    <span class="n">PARAMETER_TYPE</span> <span class="n">type</span><span class="p">;</span>
+    <span class="n">PARAMETER_FLAGS</span> <span class="n">flags</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_STUDIO_PARAMETER_DESCRIPTION</span>
+<span class="p">{</span>
+  <span class="nx">name</span><span class="p">,</span>
+  <span class="nx">id</span><span class="p">,</span>
+  <span class="nx">minimum</span><span class="p">,</span>
+  <span class="nx">maximum</span><span class="p">,</span>
+  <span class="nx">defaultvalue</span><span class="p">,</span>
+  <span class="nx">type</span><span class="p">,</span>
+  <span class="nx">flags</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_parameter_description_name">name</dt>
+<dd>Parameter name. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt id="fmod_studio_parameter_description_id">id</dt>
+<dd>Parameter id. (<a class="apilink" href="studio-api-common.html#fmod_studio_parameter_id" title="Describes an event parameter identifier.">FMOD_STUDIO_PARAMETER_ID</a>)</dd>
+<dt id="fmod_studio_parameter_description_minimum">minimum</dt>
+<dd>Minimum parameter value.</dd>
+<dt id="fmod_studio_parameter_description_maximum">maximum</dt>
+<dd>Maximum parameter value.</dd>
+<dt id="fmod_studio_parameter_description_defaultvalue">defaultvalue</dt>
+<dd>Default parameter value.</dd>
+<dt id="fmod_studio_parameter_description_type">type</dt>
+<dd>Parameter type. (<a class="apilink" href="studio-api-common.html#fmod_studio_parameter_type" title="Event parameter types.">FMOD_STUDIO_PARAMETER_TYPE</a>)</dd>
+<dt id="fmod_studio_parameter_description_flags">flags</dt>
+<dd>Parameter behavior flags. (<a class="apilink" href="studio-api-common.html#fmod_studio_parameter_flags" title="Flags describing the behavior of a parameter.">FMOD_STUDIO_PARAMETER_FLAGS</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-system.html#studio_system_getparameterdescriptionbyname" title="Retrieves a global parameter by name or path.">Studio::System::getParameterDescriptionByName</a>, <a class="apilink" href="studio-api-system.html#studio_system_getparameterdescriptionbyid" title="Retrieves a global parameter by ID.">Studio::System::getParameterDescriptionByID</a>, <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyname" title="Retrieves an event parameter description by name.">Studio::EventDescription::getParameterDescriptionByName</a>, <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyid" title="Retrieves an event parameter description by id.">Studio::EventDescription::getParameterDescriptionByID</a></p>
+<h2 api="struct" id="fmod_studio_parameter_flags"><a href="#fmod_studio_parameter_flags">FMOD_STUDIO_PARAMETER_FLAGS</a></h2>
+<p>Flags describing the behavior of a parameter.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="cp">#define FMOD_STUDIO_PARAMETER_READONLY              0x00000001</span>
+<span class="cp">#define FMOD_STUDIO_PARAMETER_AUTOMATIC             0x00000002</span>
+<span class="cp">#define FMOD_STUDIO_PARAMETER_GLOBAL                0x00000004</span>
+<span class="cp">#define FMOD_STUDIO_PARAMETER_DISCRETE              0x00000008</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">public</span> <span class="k">enum</span> <span class="n">PARAMETER_FLAGS</span> <span class="p">:</span> <span class="kt">uint</span>
+<span class="p">{</span>
+    <span class="n">READONLY</span>  <span class="p">=</span> <span class="m">0</span><span class="n">x00000001</span><span class="p">,</span>
+    <span class="n">AUTOMATIC</span> <span class="p">=</span> <span class="m">0</span><span class="n">x00000002</span><span class="p">,</span>
+    <span class="n">GLOBAL</span>    <span class="p">=</span> <span class="m">0</span><span class="n">x00000004</span><span class="p">,</span>
+    <span class="n">DISCRETE</span>  <span class="p">=</span> <span class="m">0</span><span class="n">x00000008</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">STUDIO_PARAMETER_READONLY</span>   <span class="mh">0x00000001</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC</span>  <span class="mh">0x00000002</span>
+<span class="nx">STUDIO_PARAMETER_GLOBALS</span>    <span class="mh">0x00000004</span>
+<span class="nx">STUDIO_PARAMETER_DISCRETE</span>   <span class="mh">0x00000008</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_parameter_flags_fmod_studio_parameter_readonly">FMOD_STUDIO_PARAMETER_READONLY</dt>
+<dd>Read only.</dd>
+<dt id="fmod_studio_parameter_flags_fmod_studio_parameter_automatic">FMOD_STUDIO_PARAMETER_AUTOMATIC</dt>
+<dd>Automatic parameter.</dd>
+<dt id="fmod_studio_parameter_flags_fmod_studio_parameter_global">FMOD_STUDIO_PARAMETER_GLOBAL</dt>
+<dd>Global parameter.</dd>
+<dt id="fmod_studio_parameter_flags_fmod_studio_parameter_discrete">FMOD_STUDIO_PARAMETER_DISCRETE</dt>
+<dd>Discrete parameter that operates on integers (whole numbers) rather than continuous fractional numbers.</dd>
+</dl>
+<p><strong>See also:</strong> <a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a></p>
+<h2 api="struct" id="fmod_studio_parameter_id"><a href="#fmod_studio_parameter_id">FMOD_STUDIO_PARAMETER_ID</a></h2>
+<p>Describes an event parameter identifier.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">FMOD_STUDIO_PARAMETER_ID</span>
+<span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">data1</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">data2</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_PARAMETER_ID</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">struct</span> <span class="nc">PARAMETER_ID</span>
+<span class="p">{</span>
+    <span class="kt">uint</span> <span class="n">data1</span><span class="p">;</span>
+    <span class="kt">uint</span> <span class="n">data2</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_STUDIO_PARAMETER_ID</span>
+<span class="p">{</span>
+    <span class="nx">data1</span><span class="p">,</span>
+    <span class="nx">data2</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_parameter_id_data1">data1</dt>
+<dd>First half of the ID. </dd>
+<dt id="fmod_studio_parameter_id_data2">data2</dt>
+<dd>Second half of the ID.</dd>
+</dl>
+<p><strong>See also:</strong> <a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a></p>
+<h2 api="enum" id="fmod_studio_parameter_type"><a href="#fmod_studio_parameter_type">FMOD_STUDIO_PARAMETER_TYPE</a></h2>
+<p>Event parameter types.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_STUDIO_PARAMETER_TYPE</span> <span class="p">{</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_GAME_CONTROLLED</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_AUTOMATIC_DISTANCE</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_AUTOMATIC_EVENT_CONE_ANGLE</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_AUTOMATIC_EVENT_ORIENTATION</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_AUTOMATIC_DIRECTION</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_AUTOMATIC_ELEVATION</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_AUTOMATIC_LISTENER_ORIENTATION</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_AUTOMATIC_SPEED</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_AUTOMATIC_SPEED_ABSOLUTE</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PARAMETER_MAX</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_PARAMETER_TYPE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">PARAMETER_TYPE</span>
+<span class="p">{</span>
+    <span class="n">GAME_CONTROLLED</span><span class="p">,</span>
+    <span class="n">AUTOMATIC_DISTANCE</span><span class="p">,</span>
+    <span class="n">AUTOMATIC_EVENT_CONE_ANGLE</span><span class="p">,</span>
+    <span class="n">AUTOMATIC_EVENT_ORIENTATION</span><span class="p">,</span>
+    <span class="n">AUTOMATIC_DIRECTION</span><span class="p">,</span>
+    <span class="n">AUTOMATIC_ELEVATION</span><span class="p">,</span>
+    <span class="n">AUTOMATIC_LISTENER_ORIENTATION</span><span class="p">,</span>
+    <span class="n">AUTOMATIC_SPEED</span><span class="p">,</span>
+    <span class="n">AUTOMATIC_SPEED_ABSOLUTE</span><span class="p">,</span>
+    <span class="n">MAX</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">STUDIO_PARAMETER_GAME_CONTROLLED</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC_DISTANCE</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC_EVENT_CONE_ANGLE</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC_EVENT_ORIENTATION</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC_DIRECTION</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC_ELEVATION</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC_LISTENER_ORIENTATION</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC_SPEED</span>
+<span class="nx">STUDIO_PARAMETER_AUTOMATIC_SPEED_ABSOLUTE</span>
+<span class="nx">STUDIO_PARAMETER_MAX</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_parameter_game_controlled">FMOD_STUDIO_PARAMETER_GAME_CONTROLLED</dt>
+<dd>API settable parameter.</dd>
+<dt id="fmod_studio_parameter_automatic_distance">FMOD_STUDIO_PARAMETER_AUTOMATIC_DISTANCE</dt>
+<dd>Distance between the event and the listener.</dd>
+<dt id="fmod_studio_parameter_automatic_event_cone_angle">FMOD_STUDIO_PARAMETER_AUTOMATIC_EVENT_CONE_ANGLE</dt>
+<dd>Angle between the event's forward vector and the vector pointing from the event to the listener (0 to 180 degrees).</dd>
+<dt id="fmod_studio_parameter_automatic_event_orientation">FMOD_STUDIO_PARAMETER_AUTOMATIC_EVENT_ORIENTATION</dt>
+<dd>Horizontal angle between the event's forward vector and listener's forward vector (-180 to 180 degrees).</dd>
+<dt id="fmod_studio_parameter_automatic_direction">FMOD_STUDIO_PARAMETER_AUTOMATIC_DIRECTION</dt>
+<dd>Horizontal angle between the listener's forward vector and the vector pointing from the listener to the event (-180 to 180 degrees).</dd>
+<dt id="fmod_studio_parameter_automatic_elevation">FMOD_STUDIO_PARAMETER_AUTOMATIC_ELEVATION</dt>
+<dd>Angle between the listener's XZ plane and the vector pointing from the listener to the event (-90 to 90 degrees).</dd>
+<dt id="fmod_studio_parameter_automatic_listener_orientation">FMOD_STUDIO_PARAMETER_AUTOMATIC_LISTENER_ORIENTATION</dt>
+<dd>Horizontal angle between the listener's forward vector and the global positive Z axis (-180 to 180 degrees).</dd>
+<dt id="fmod_studio_parameter_automatic_speed">FMOD_STUDIO_PARAMETER_AUTOMATIC_SPEED</dt>
+<dd>Magnitude of the relative velocity of the event and the listener.</dd>
+<dt id="fmod_studio_parameter_automatic_speed_absolute">FMOD_STUDIO_PARAMETER_AUTOMATIC_SPEED_ABSOLUTE</dt>
+<dd>Magnitude of the absolute velocity of the event.</dd>
+<dt id="fmod_studio_parameter_max">FMOD_STUDIO_PARAMETER_MAX</dt>
+<dd>Maximum number of parameter types supported. </dd>
+</dl>
+<p>FMOD_STUDIO_PARAMETER_GAME_CONTROLLED type parameters may have their values set using the API. All other parameter types have their values automatically set by FMOD Studio when the system is updated.</p>
+<p>The horizontal angle between vectors is found by projecting both vector's onto a plane and taking the angle between the projected vectors. For FMOD_STUDIO_PARAMETER_AUTOMATIC_EVENT_ORIENTATION and FMOD_STUDIO_PARAMETER_AUTOMATIC_DIRECTION type parameters the vectors are projected onto the listener's XZ plane. For FMOD_STUDIO_PARAMETER_AUTOMATIC_LISTENER_ORIENTATION type parameters the vectors are projected onto the global XZ plane.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a></p>
+<h2 api="function" id="studio_parseid"><a href="#studio_parseid">Studio::parseID</a></h2>
+<p>Parses a GUID from a string.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">parseID</span><span class="p">(</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">idstring</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_ParseID</span><span class="p">(</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">idstring</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">static</span> <span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Util</span><span class="p">.</span><span class="n">parseID</span><span class="p">(</span>
+  <span class="kt">string</span> <span class="n">idstring</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">Guid</span> <span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>idstring</dt>
+<dd>String representation of the <a href="glossary.html#studio-guids-and-paths">GUID</a>. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>id <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>GUID. (<a class="apilink" href="core-api-common.html#fmod_guid" title="Structure describing a globally unique identifier.">FMOD_GUID</a>)</dd>
+</dl>
+<p>This function expects the string representation to be formatted as 32 digits separated by hyphens and enclosed in braces: <code>{00000000-0000-0000-0000-000000000000}</code>.</p>
+<h2 api="enum" id="fmod_studio_playback_state"><a href="#fmod_studio_playback_state">FMOD_STUDIO_PLAYBACK_STATE</a></h2>
+<p>Playback state of various objects.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_STUDIO_PLAYBACK_STATE</span> <span class="p">{</span>
+  <span class="n">FMOD_STUDIO_PLAYBACK_PLAYING</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PLAYBACK_SUSTAINING</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PLAYBACK_STOPPED</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PLAYBACK_STARTING</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_PLAYBACK_STOPPING</span>
+<span class="p">}</span> <span class="n">FMOD_STUDIO_PLAYBACK_STATE</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">Studio</span><span class="p">.</span><span class="n">PLAYBACK_STATE</span>
+<span class="p">{</span>
+    <span class="n">PLAYING</span><span class="p">,</span>
+    <span class="n">SUSTAINING</span><span class="p">,</span>
+    <span class="n">STOPPED</span><span class="p">,</span>
+    <span class="n">STARTING</span><span class="p">,</span>
+    <span class="n">STOPPING</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">STUDIO_PLAYBACK_PLAYING</span>
+<span class="nx">STUDIO_PLAYBACK_SUSTAINING</span>
+<span class="nx">STUDIO_PLAYBACK_STOPPED</span>
+<span class="nx">STUDIO_PLAYBACK_STARTING</span>
+<span class="nx">STUDIO_PLAYBACK_STOPPING</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_studio_playback_playing">FMOD_STUDIO_PLAYBACK_PLAYING</dt>
+<dd>Playing.</dd>
+<dt id="fmod_studio_playback_sustaining">FMOD_STUDIO_PLAYBACK_SUSTAINING</dt>
+<dd>The timeline cursor is paused on a sustain point. (<a class="apilink" href="studio-api-eventinstance.html" title="">Studio::EventInstance</a> only.)</dd>
+<dt id="fmod_studio_playback_stopped">FMOD_STUDIO_PLAYBACK_STOPPED</dt>
+<dd>Stopped.</dd>
+<dt id="fmod_studio_playback_starting">FMOD_STUDIO_PLAYBACK_STARTING</dt>
+<dd>Preparing to start.</dd>
+<dt id="fmod_studio_playback_stopping">FMOD_STUDIO_PLAYBACK_STOPPING</dt>
+<dd>Preparing to stop.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-commandreplay.html#studio_commandreplay_getplaybackstate" title="Retrieves the playback state.">Studio::CommandReplay::getPlaybackState</a>, <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getplaybackstate" title="Retrieves the playback state.">Studio::EventInstance::getPlaybackState</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

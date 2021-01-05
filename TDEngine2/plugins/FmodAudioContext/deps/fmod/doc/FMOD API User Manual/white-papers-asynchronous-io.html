@@ -1,0 +1,182 @@
+<html>
+<head>
+<title>White Papers | Asynchronous I/O</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Asynchronous I/O</h1>
+<div class="toc">
+<ul>
+<li><a href="#asynchronous-io-and-deferred-file-reading">Asynchronous I/O and deferred file reading</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#setup-override-fmods-file-system-with-callbacks">Setup : Override FMOD's file system with callbacks</a></li>
+<li><a href="#defining-the-basics-opening-and-closing-the-file-handle">Defining the basics - opening and closing the file handle.</a></li>
+<li><a href="#defining-userasyncread">Defining 'userasyncread'</a></li>
+<li><a href="#defining-userasynccancel">Defining 'userasynccancel'</a></li>
+<li><a href="#filling-out-the-fmod_asyncreadinfo-structure-when-performing-a-deferred-read">Filling out the FMOD_ASYNCREADINFO structure when performing a deferred read</a><ul>
+<li><a href="#set-the-result-last">Set the result last!</a></li>
+</ul>
+</li>
+<li><a href="#threading-issues-read-priorities">Threading issues &amp; read priorities</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="asynchronous-io-and-deferred-file-reading"><a href="#asynchronous-io-and-deferred-file-reading">Asynchronous I/O and deferred file reading</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>This tutorial will describe how to defer file reading in FMOD so that you don't have to immediately satisfy FMOD's requests for data.<br />
+This sort of behavior is highly desirable in game streaming engines that do not have access to the data yet, or for when accessing data out of order or in a non sequential fashion would greatly degrade performance.<br />
+FMOD's asynchronous I/O callbacks will allow you to receive an FMOD read request and defer it to a later time when the game is ready. FMOD will use priorities to notify the game engine how urgent the read request is, as sometimes deferring a music stream read for example could result in stuttering audio.</p>
+<h3 id="setup-override-fmods-file-system-with-callbacks"><a href="#setup-override-fmods-file-system-with-callbacks">Setup : Override FMOD's file system with callbacks</a></h3>
+<p>The idea is that you are wanting to override the file I/O that FMOD normally performs internally. You may have done this before with the System::setFileSystem by overriding the following callbacks:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_FILE_OPENCALLBACK  useropen
+FMOD_FILE_CLOSECALLBACK  userclose
+FMOD_FILE_READCALLBACK  userread
+FMOD_FILE_SEEKCALLBACK  userseek
+</pre></div>
+
+
+<p>The normal behavior here is that you would need to satisfy FMOD's read and seek requests immediately in a blocking fashion.<br />
+In the open callback, you open your internal file handle and return it to FMOD, along with the file size.<br />
+You would have to set all callbacks or file system override would not work. Any callback that is null in the above callback list will cause FMOD to use the default internal system and ignore your callbacks. All callbacks must be set.</p>
+<p>With async I/O, there are 2 new callbacks which you can use to replace the 'userread' and 'userseek' callbacks:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_FILE_ASYNCREADCALLBACK  userasyncread
+FMOD_FILE_ASYNCCANCELCALLBACK  userasynccancel
+</pre></div>
+
+
+<p>If these callbacks are set, the 'userread' and 'userseek' callbacks are made redundant. You can of course keep 'userread' and 'userseek' defined if you want to switch between the 2 systems for some reason, but when 'userasyncread' is defined, the normal read/seek callbacks will never be called.</p>
+<h3 id="defining-the-basics-opening-and-closing-the-file-handle"><a href="#defining-the-basics-opening-and-closing-the-file-handle">Defining the basics - opening and closing the file handle.</a></h3>
+<p>Before we start, we'll just define the open and close callback. A very simple implementation using stdio is provided below:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT F_CALLBACK myopen(const char *name, unsigned int *filesize, void **handle, void **userdata)
+{
+    if (name)
+    {
+        FILE *fp;
+
+        fp = fopen(name, &quot;rb&quot;);
+        if (!fp)
+        {
+            return FMOD_ERR_FILE_NOTFOUND;
+        }
+
+        fseek(fp, 0, SEEK_END);
+        *filesize = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        *userdata = (void *)0x12345678;
+        *handle = fp;
+    }
+
+    return FMOD_OK;
+}
+
+FMOD_RESULT F_CALLBACK myclose(void *handle, void *userdata)
+{
+    if (!handle)
+    {
+        return FMOD_ERR_INVALID_PARAM;
+    }
+
+    fclose((FILE *)handle);
+
+    return FMOD_OK;
+}
+</pre></div>
+
+
+<h3 id="defining-userasyncread"><a href="#defining-userasyncread">Defining 'userasyncread'</a></h3>
+<p>The idea for asynchronous reading, is that FMOD will request data (note, possibly from any thread - so be wary of thread safety in your code!), but you don't have to give the data to FMOD immediately. You can return from the callback without giving FMOD any data. This is deferred I/O.</p>
+<p>For example, here is a definition of an async read callback:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT F_CALLBACK myasyncread(FMOD_ASYNCREADINFO *info, void *userdata)
+{
+    return PutReadRequestOntoQueue(info);
+}
+</pre></div>
+
+
+<p>Note that we didnt actually do any read here. You can return immediately and FMOD will internally wait until the read request is satisfied. Note that if FMOD decides to wait from the main thread (which it will do often), then you cannot satisfy the queue from the main thread, you will get a deadlock. Just put the request onto a queue. We'll discuss how to let FMOD know that the data is ready in the next section.</p>
+<p>There are a few things to consider here:</p>
+<ul>
+<li>The callback could come from any thread inside FMOD's system. Usually this means FMOD's streaming thread, FMOD's file I/O thread, the main thread, or the <a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a> thread. Be thread safe! Use criticalsections around linked list/queue operations to avoid corruption of data.</li>
+<li>Return code. This is usually a fatal, non disk related error such as not being able to add to the queue. This could be an out of memory error for example. Use <a class="apilink" href="core-api-common.html#fmod_err_memory" title="">FMOD_ERR_MEMORY</a> as the return value if this is the case. Return <a class="apilink" href="core-api-common.html#fmod_ok" title="">FMOD_OK</a> in normal cases. It normally won't be a return code related to a disk error. You have to set the 'result' code in the <a class="apilink" href="core-api-system.html#fmod_asyncreadinfo" title="Information about a single asynchronous file operation.">FMOD_ASYNCREADINFO</a> structure to let FMOD know about a file based error.</li>
+<li>Be wary that your queued command may need to be cancelled if the user decides to release the FMOD resource that is using that file, such as a sound. See the next section about myasynccancel in that case.</li>
+<li>The <a class="apilink" href="core-api-system.html#fmod_asyncreadinfo" title="Information about a single asynchronous file operation.">FMOD_ASYNCREADINFO</a> structure is where you fill in the data requested by FMOD. See below for a more detailed description of this structure and what is required to complete the read. </li>
+</ul>
+<h3 id="defining-userasynccancel"><a href="#defining-userasynccancel">Defining 'userasynccancel'</a></h3>
+<p>If you have queued up a lot of read requests, and have not satisfied them yet, then it is possible that the user may want to release a sound before the request has been fulfilled (ie Sound::release is called).<br />
+In that case FMOD will call the async cancel callback to let you cancel any operations you may have pending, that are related to this file.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT F_CALLBACK myasynccancel(void *handle, void *userdata)
+{
+    return SearchQueueForFileHandleAndRemove(info);
+}
+</pre></div>
+
+
+<p>Note that the above callback implementation will search through our internal linked list (in a thread safe fashion), removing any requests from the queue so that they don't get processed after the Sound is released. If it is in the middle of reading, then the callback will wait until the read is finished and then return.<br />
+Do not return while a read is happening, or before a read happens, as the memory for the read destination will be freed and the deferred read will read into an invalid pointer.</p>
+<h3 id="filling-out-the-fmod_asyncreadinfo-structure-when-performing-a-deferred-read"><a href="#filling-out-the-fmod_asyncreadinfo-structure-when-performing-a-deferred-read">Filling out the FMOD_ASYNCREADINFO structure when performing a deferred read</a></h3>
+<p>The <a class="apilink" href="core-api-system.html#fmod_asyncreadinfo" title="Information about a single asynchronous file operation.">FMOD_ASYNCREADINFO</a> is the structure you will pass to your deferred I/O system, and will be the structure that you read and fill out when fulfilling the requests.</p>
+<p>The structure exposes the features of the async read system. These are:</p>
+<ul>
+<li>Priority is supported. FMOD will let the user know if the read is not important, mildly important, or extremely important. This will allow the user to reshuffle the queue to make important reads happen before non important reads.</li>
+<li>Read completion is signalled by simply setting the 'result' code of <a class="apilink" href="core-api-system.html#fmod_asyncreadinfo" title="Information about a single asynchronous file operation.">FMOD_ASYNCREADINFO</a>.</li>
+<li>Memory does not need to be copied anywhere, you can read directly into FMOD's pointers which point directly to the internal file buffers.</li>
+<li>You do not have to give FMOD all of the data, you can give a partial read result to the callback and FMOD will most likely just issue another read request later with a smaller byte value. </li>
+</ul>
+<div class="highlight language-text"><pre><span></span>typedef struct {
+  void *  handle;
+  unsigned int  offset;
+  unsigned int  sizebytes;
+  int  priority;
+  void *  buffer;
+  unsigned int  bytesread;
+  FMOD_RESULT  result;
+  void *  userdata;
+} FMOD_ASYNCREADINFO;
+</pre></div>
+
+
+<p>The first 4 members (<strong>handle</strong>, <strong>offset</strong>, <strong>sizebytes</strong>, <strong>priority</strong>) are read only values, which tell you about the file handle in question, where in the file it wants to read from (so no seek callbacks required!) and how many bytes it wants. The priority value tells you how important the read is as discussed previously.</p>
+<p>The next 3 members (<strong>buffer</strong>, <strong>bytesread</strong> and <strong>result</strong>) are values you will fill in, and to let FMOD know that you have read the data.<br />
+Read your file data into <strong>buffer</strong>. <strong>sizebytes</strong> is how much you should be reading. <strong>bytesread</strong> is how much you actually read (this could be less than sizebytes). <br />
+If you hit the 'end of file' condition and need to return less bytes than were requested - set bytesread to less than sizebytes, and then set the result to <a class="apilink" href="core-api-common.html#fmod_err_file_eof" title="">FMOD_ERR_FILE_EOF</a>.</p>
+<h4 id="set-the-result-last"><a href="#set-the-result-last">Set the result last!</a></h4>
+<p>Note! Do not set the <strong>result</strong> before setting the <strong>bytesread</strong> value and reading the data into buffer.<br />
+The initial value for result, is going to be <a class="apilink" href="core-api-common.html#fmod_err_notready" title="">FMOD_ERR_NOTREADY</a>. When you set the value to <a class="apilink" href="core-api-common.html#fmod_ok" title="">FMOD_OK</a> (or appropriate error code) then internally FMOD will immediately see this as an indication to continue, so if the <strong>bytesread</strong> or <strong>buffer</strong> contents are not ready, you will get corruption, errors or unexpected behavior.<br />
+So to summarize, the last thing you will do before finishing your queue process is to set result. You will not set it before setting <strong>bytesread</strong> or filling in <strong>buffer</strong>.</p>
+<h3 id="threading-issues-read-priorities"><a href="#threading-issues-read-priorities">Threading issues &amp; read priorities</a></h3>
+<p>As mentioned earlier in this tutorial, FMOD can call the read callback from various different threads, so it is common sense to protect your I/O system from operations happening simultaneously from different threads.</p>
+<p>A system that would use FMOD's async I/O feature would most likely be running in its own thread. This is so the blocking wait loops in FMOD's loading calls are not forever waiting for data because the user can't provide it to FMOD.<br />
+If the system runs in another thread, it can detect the queue insert, and process the data while FMOD is waiting.</p>
+<p>It is actually possible to complete the read as if it wasn't deferred, and do a direct file read into the buffer and set sizebytes/result values from the FMOD async read callback. This is a possible way to reduce delays for extremely urgent FMOD reads. </p>
+<p>Currently there are 3 different categories of read priority.</p>
+<ul>
+<li>0 = low priority. These reads are usually blocking style reads that come from a user load command, and there are no real negative side effects of delaying the read except that the load function takes longer. These reads are going to be issued from a System::createSound call for example.</li>
+<li>50 = medium priority. These reads are important, and usually come from the FMOD stream system. They can be delayed, but not for too long. If the delay is too long, then audio streams will starve, and possibly stutter. If you need to delay the read longer, the FMOD file buffer size can be increased with System::setStreamBufferSize</li>
+<li>100 = high priority. Currently the highest priority read issued by FMOD is when an audio stream loops. It must internally flush the stream buffer after a seek to loop start, and do so before the stream 'decode buffer' (the PCM double-buffer that the stream decoder decodes into) loops around and starts stuttering (this is a different buffer to the previously mentioned stream buffer. That one contains compressed file data. The decode buffer contains decompressed PCM data). The decode buffer is usually small so it is important to get the read done fast, but the user can also increase these buffers with <a class="apilink" href="core-api-system.html#fmod_createsoundexinfo_decodebuffersize" title="">FMOD_CREATESOUNDEXINFO::decodebuffersize</a>. <a class="apilink" href="core-api-system.html#fmod_advancedsettings_defaultdecodebuffersize" title="">FMOD_ADVANCEDSETTINGS::defaultDecodeBufferSize</a> can also be used to set all future decode buffer sizes for all streams without having to set it every time, and is going to be used for the Event System because decode buffer size is not something you can set for events individually. </li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

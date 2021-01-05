@@ -1,0 +1,691 @@
+<html>
+<head>
+<title>Studio API Reference | Studio::Bus</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="studio-api.html">Studio API Reference</a><ul class="subchapters"><li><a href="studio-api-common.html">Common</a></li><li><a href="studio-api-system.html">Studio::System</a></li><li><a href="studio-api-eventdescription.html">Studio::EventDescription</a></li><li><a href="studio-api-eventinstance.html">Studio::EventInstance</a></li><li class="manual-current-chapter manual-active-chapter"><a href="studio-api-bus.html">Studio::Bus</a></li><li><a href="studio-api-vca.html">Studio::VCA</a></li><li><a href="studio-api-bank.html">Studio::Bank</a></li><li><a href="studio-api-commandreplay.html">Studio::CommandReplay</a></li></ul></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>6. Studio API Reference | Studio::Bus</h1>
+<p>Represents a global mixer bus.</p>
+<p><strong>Playback Control:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_setpaused" title="Sets the pause state.">Studio::Bus::setPaused</a> Sets the pause state.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getpaused" title="Retrieves the pause state.">Studio::Bus::getPaused</a> Retrieves the pause state.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_stopallevents" title="Stops all event instances that are routed into the bus.">Studio::Bus::stopAllEvents</a> Stops all event instances that are routed into the bus.</li>
+</ul>
+<p><strong>Playback Properties:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_setvolume" title="Sets the volume level.">Studio::Bus::setVolume</a> Sets the volume level.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getvolume" title="Retrieves the volume level.">Studio::Bus::getVolume</a> Retrieves the volume level.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_setmute" title="Sets the mute state.">Studio::Bus::setMute</a> Sets the mute state.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getmute" title="Retrieves the mute state.">Studio::Bus::getMute</a> Retrieves the mute state.</li>
+</ul>
+<p><strong>Core:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getchannelgroup" title="Retrieves the core channel group.">Studio::Bus::getChannelGroup</a> Retrieves the core channel group.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_lockchannelgroup" title="Locks the core channel group.">Studio::Bus::lockChannelGroup</a> Locks the core channel group.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_unlockchannelgroup" title="Unlocks the core channel group.">Studio::Bus::unlockChannelGroup</a> Unlocks the core channel group.</li>
+</ul>
+<p><strong>Profiling:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getcpuusage" title="Retrieves the bus CPU usage data.">Studio::Bus::getCPUUsage</a> Retrieves the bus CPU usage data.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getmemoryusage" title="Retrieves memory usage statistics.">Studio::Bus::getMemoryUsage</a> Retrieves memory usage statistics.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getid" title="Retrieves the GUID.">Studio::Bus::getID</a> Retrieves the GUID.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_getpath" title="Retrieves the path.">Studio::Bus::getPath</a> Retrieves the path.</li>
+<li><a class="apilink" href="studio-api-bus.html#studio_bus_isvalid" title="Checks that the Bus reference is valid.">Studio::Bus::isValid</a> Checks that the Bus reference is valid.</li>
+</ul>
+<h2 api="function" id="studio_bus_getchannelgroup"><a href="#studio_bus_getchannelgroup">Studio::Bus::getChannelGroup</a></h2>
+<p>Retrieves the core channel group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">getChannelGroup</span><span class="p">(</span>
+  <span class="n">ChannelGroup</span> <span class="o">**</span><span class="n">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_GetChannelGroup</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">**</span><span class="n">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getChannelGroup</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">FMOD</span><span class="p">.</span><span class="n">ChannelGroup</span> <span class="k">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">getChannelGroup</span><span class="p">(</span>
+  <span class="nx">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>group <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Core channel group. (<a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>)</dd>
+</dl>
+<p>By default the channel group will only exist when it is needed; see <a href="studio-guide.html#signal-paths">Signal Paths</a> for details. If the channel group does not exist, this function will return <a class="apilink" href="core-api-common.html#fmod_err_studio_not_loaded" title="">FMOD_ERR_STUDIO_NOT_LOADED</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bus.html#studio_bus_lockchannelgroup" title="Locks the core channel group.">Studio::Bus::lockChannelGroup</a></p>
+<h2 api="function" id="studio_bus_getcpuusage"><a href="#studio_bus_getcpuusage">Studio::Bus::getCPUUsage</a></h2>
+<p>Retrieves the bus CPU usage data.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">getCPUUsage</span><span class="p">(</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">exclusive</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">inclusive</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_GetCPUUsage</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">exclusive</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">inclusive</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getCPUUsage</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">uint</span> <span class="n">exclusive</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">uint</span> <span class="n">inclusive</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">Bus</span><span class="p">.</span><span class="nx">getCPUUsage</span><span class="p">(</span>
+    <span class="nx">exclusive</span><span class="p">,</span>
+    <span class="nx">inclusive</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>exclusive <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>CPU time spent processing the events of this bus.</p>
+<ul>
+<li><span class="label">Units:</span> Microseconds</li>
+</ul>
+</dd>
+<dt>inclusive <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>CPU time spent processing the events and all input buses of this bus.</p>
+<ul>
+<li><span class="label">Units:</span> Microseconds</li>
+</ul>
+</dd>
+</dl>
+<p><a class="apilink" href="core-api-system.html#fmod_init_profile_enable" title="">FMOD_INIT_PROFILE_ENABLE</a> with <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> is required to call this function.</p>
+<h2 api="function" id="studio_bus_getid"><a href="#studio_bus_getid">Studio::Bus::getID</a></h2>
+<p>Retrieves the GUID.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">getID</span><span class="p">(</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_GetID</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getID</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">Guid</span> <span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">getID</span><span class="p">(</span>
+  <span class="nx">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>id <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd><a href="glossary.html#studio-guids-and-paths">GUID</a>. (<a class="apilink" href="core-api-common.html#fmod_guid" title="Structure describing a globally unique identifier.">FMOD_GUID</a>)</dd>
+</dl>
+<h2 api="function" id="studio_bus_getmemoryusage"><a href="#studio_bus_getmemoryusage">Studio::Bus::getMemoryUsage</a></h2>
+<p>Retrieves memory usage statistics.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">getMemoryUsage</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_MEMORY_USAGE</span> <span class="o">*</span><span class="n">memoryusage</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_GetMemoryUsage</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_MEMORY_USAGE</span> <span class="o">*</span><span class="n">memoryusage</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getMemoryUsage</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">MEMORY_USAGE</span> <span class="n">memoryusage</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>memoryusage <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Memory usage. (<a class="apilink" href="studio-api-common.html#fmod_studio_memory_usage" title="Memory usage statistics.">FMOD_STUDIO_MEMORY_USAGE</a>)</dd>
+</dl>
+<p>Memory usage statistics are only available in logging builds, in release builds <code>memoryusage</code> will contain zero for all values after calling this function.</p>
+<h2 api="function" id="studio_bus_getmute"><a href="#studio_bus_getmute">Studio::Bus::getMute</a></h2>
+<p>Retrieves the mute state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">getMute</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">mute</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_GetMute</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">mute</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getMute</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">mute</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">getMute</span><span class="p">(</span>
+  <span class="nx">mute</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>mute <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Mute state. True if the bus is muted.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bus.html#studio_bus_setmute" title="Sets the mute state.">Studio::Bus::setMute</a></p>
+<h2 api="function" id="studio_bus_getpath"><a href="#studio_bus_getpath">Studio::Bus::getPath</a></h2>
+<p>Retrieves the path.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">getPath</span><span class="p">(</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_GetPath</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getPath</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">string</span> <span class="n">path</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">getPath</span><span class="p">(</span>
+  <span class="nx">path</span><span class="p">,</span>
+  <span class="nx">size</span><span class="p">,</span>
+  <span class="nx">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>path <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Buffer to receive the <a href="glossary.html#studio-guids-and-paths">path</a>. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>size</dt>
+<dd>Size of the path buffer in bytes. Must be 0 if <code>path</code> is null.</dd>
+<dt>retrieved <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Length of the path in bytes, including the terminating null character.</dd>
+</dl>
+<p>The <a href="glossary.html#studio-strings-bank">strings bank</a> must be loaded prior to calling this function, otherwise <a class="apilink" href="core-api-common.html#fmod_err_event_notfound" title="">FMOD_ERR_EVENT_NOTFOUND</a> is returned.</p>
+<p>If the path is longer than <code>size</code> then it is truncated and this function returns <a class="apilink" href="core-api-common.html#fmod_err_truncated" title="">FMOD_ERR_TRUNCATED</a>.</p>
+<p>The <code>retrieved</code> parameter can be used to get the buffer size required to hold the full path.</p>
+<h2 api="function" id="studio_bus_getpaused"><a href="#studio_bus_getpaused">Studio::Bus::getPaused</a></h2>
+<p>Retrieves the pause state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">getPaused</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_GetPaused</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getPaused</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">getPaused</span><span class="p">(</span>
+  <span class="nx">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>paused <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Pause state. True if the bus is paused.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bus.html#studio_bus_setpaused" title="Sets the pause state.">Studio::Bus::setPaused</a></p>
+<h2 api="function" id="studio_bus_getvolume"><a href="#studio_bus_getvolume">Studio::Bus::getVolume</a></h2>
+<p>Retrieves the volume level.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">getVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">volume</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">finalvolume</span> <span class="o">=</span> <span class="k">nullptr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_GetVolume</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">volume</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">finalvolume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getVolume</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+<span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">getVolume</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">volume</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">finalvolume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">getVolume</span><span class="p">(</span>
+  <span class="nx">volume</span><span class="p">,</span>
+  <span class="nx">finalvolume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>volume <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Volume set via <a class="apilink" href="studio-api-bus.html#studio_bus_setvolume" title="Sets the volume level.">Studio::Bus::setVolume</a>.</dd>
+<dt>finalvolume <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Final combined volume.</dd>
+</dl>
+<p>The <code>finalvolume</code> value is calculated by combining the volume set via <a class="apilink" href="studio-api-bus.html#studio_bus_setvolume" title="Sets the volume level.">Studio::Bus::setVolume</a> with the bus's default volume and any snapshots or VCAs that affect the bus. Volume changes are processed in the Studio system update, so <code>finalvolume</code> will be the value calculated by the last update.</p>
+<h2 api="function" id="studio_bus_isvalid"><a href="#studio_bus_isvalid">Studio::Bus::isValid</a></h2>
+<p>Checks that the Bus reference is valid.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="kt">bool</span> <span class="n">FMOD_Studio_Bus_IsValid</span><span class="p">(</span><span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">Bus</span><span class="p">.</span><span class="nx">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<h2 api="function" id="studio_bus_lockchannelgroup"><a href="#studio_bus_lockchannelgroup">Studio::Bus::lockChannelGroup</a></h2>
+<p>Locks the core channel group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">lockChannelGroup</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_LockChannelGroup</span><span class="p">(</span><span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">lockChannelGroup</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">lockChannelGroup</span><span class="p">();</span>
+</pre></div>
+
+
+<p>This function forces the system to create the channel group and keep it available until <a class="apilink" href="studio-api-bus.html#studio_bus_unlockchannelgroup" title="Unlocks the core channel group.">Studio::Bus::unlockChannelGroup</a> is called. See <a href="studio-guide.html#signal-paths">Signal Paths</a> for details.</p>
+<div class="admonition note">
+<p>The channel group may not be available immediately after calling this function. When Studio has been initialized in asynchronous mode, the channel group will not be created until the command has been executed in the async thread. When Studio has been initialized with <a class="apilink" href="studio-api-system.html#fmod_studio_init_synchronous_update" title="">FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE</a>, the channel group will be created in the next <a class="apilink" href="studio-api-system.html#studio_system_update" title="Update the FMOD Studio System.">Studio::System::update</a> call.</p>
+<p>You can call <a class="apilink" href="studio-api-system.html#studio_system_flushcommands" title="Block until all pending commands have been executed.">Studio::System::flushCommands</a> to ensure the channel group has been created. Alternatively you can keep trying to obtain the channel group via <a class="apilink" href="studio-api-bus.html#studio_bus_getchannelgroup" title="Retrieves the core channel group.">Studio::Bus::getChannelGroup</a> until it is ready.</p>
+</div>
+<h2 api="function" id="studio_bus_setmute"><a href="#studio_bus_setmute">Studio::Bus::setMute</a></h2>
+<p>Sets the mute state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">setMute</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">mute</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_SetMute</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">mute</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">setMute</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">mute</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">setMute</span><span class="p">(</span>
+  <span class="nx">mute</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>mute</dt>
+<dd>
+<p>Mute state. True to mute the bus.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p>Mute is an additional control for volume, the effect of which is equivalent to setting the volume to zero.</p>
+<p>An individual mute state is kept for each bus. Muting a bus will override the mute state of its inputs (meaning they return true from <a class="apilink" href="studio-api-bus.html#studio_bus_getmute" title="Retrieves the mute state.">Studio::Bus::getMute</a>), while unmuting a bus will cause its inputs to obey their individual mute state. The mute state is processed in the Studio system update, so <a class="apilink" href="studio-api-bus.html#studio_bus_getmute" title="Retrieves the mute state.">Studio::Bus::getMute</a> will return the state as determined by the last update.</p>
+<h2 api="function" id="studio_bus_setpaused"><a href="#studio_bus_setpaused">Studio::Bus::setPaused</a></h2>
+<p>Sets the pause state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">setPaused</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_SetPaused</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">setPaused</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">setPaused</span><span class="p">(</span>
+  <span class="nx">paused</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>paused</dt>
+<dd>
+<p>Pause state. True to pause the bus.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p>This function allows pausing/unpausing of all audio routed into the bus.</p>
+<p>An individual pause state is kept for each bus. Pausing a bus will override the pause state of its inputs (meaning they return true from <a class="apilink" href="studio-api-bus.html#studio_bus_getpaused" title="Retrieves the pause state.">Studio::Bus::getPaused</a>), while unpausing a bus will cause its inputs to obey their individual pause state. The pause state is processed in the Studio system update, so <a class="apilink" href="studio-api-bus.html#studio_bus_getpaused" title="Retrieves the pause state.">Studio::Bus::getPaused</a> will return the state as determined by the last update.</p>
+<h2 api="function" id="studio_bus_setvolume"><a href="#studio_bus_setvolume">Studio::Bus::setVolume</a></h2>
+<p>Sets the volume level.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">setVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_SetVolume</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">setVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">setVolume</span><span class="p">(</span>
+  <span class="nx">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>volume</dt>
+<dd>
+<p>Volume level. Negative level inverts the signal.</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Range:</span> (-inf, inf)</li>
+<li><span class="label">Default:</span> 1</li>
+</ul>
+</dd>
+</dl>
+<p>This volume is applied as a scaling factor to the volume level set in FMOD Studio.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bus.html#studio_bus_getvolume" title="Retrieves the volume level.">Studio::Bus::getVolume</a></p>
+<h2 api="function" id="studio_bus_stopallevents"><a href="#studio_bus_stopallevents">Studio::Bus::stopAllEvents</a></h2>
+<p>Stops all event instances that are routed into the bus.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">stopAllEvents</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_STOP_MODE</span> <span class="n">mode</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_StopAllEvents</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">,</span>
+  <span class="n">FMOD_STUDIO_STOP_MODE</span> <span class="n">mode</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">stopAllEvents</span><span class="p">(</span>
+  <span class="n">STOP_MODE</span> <span class="n">mode</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">stopAllEvents</span><span class="p">(</span>
+  <span class="nx">mode</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>mode</dt>
+<dd>Stop mode. (<a class="apilink" href="studio-api-eventinstance.html#fmod_studio_stop_mode" title="Stop modes.">FMOD_STUDIO_STOP_MODE</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_stop" title="Stops playback.">Studio::EventInstance::stop</a></p>
+<h2 api="function" id="studio_bus_unlockchannelgroup"><a href="#studio_bus_unlockchannelgroup">Studio::Bus::unlockChannelGroup</a></h2>
+<p>Unlocks the core channel group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">Bus</span><span class="o">::</span><span class="n">unlockChannelGroup</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_Bus_UnlockChannelGroup</span><span class="p">(</span><span class="n">FMOD_STUDIO_BUS</span> <span class="o">*</span><span class="n">bus</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">Bus</span><span class="p">.</span><span class="n">unlockChannelGroup</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Bus</span><span class="p">.</span><span class="nx">unlockChannelGroup</span><span class="p">();</span>
+</pre></div>
+
+
+<p>This function allows the system to destroy the channel group when it is not needed. See <a href="studio-guide.html#signal-paths">Signal Paths</a> for details.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-bus.html#studio_bus_lockchannelgroup" title="Locks the core channel group.">Studio::Bus::lockChannelGroup</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

@@ -1,0 +1,456 @@
+<html>
+<head>
+<title>Core API Reference | Reverb3D</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="core-api.html">Core API Reference</a><ul class="subchapters"><li><a href="core-api-common.html">Common</a></li><li><a href="core-api-common-dsp-effects.html">Effect Parameters</a></li><li><a href="core-api-system.html">System</a></li><li><a href="core-api-sound.html">Sound</a></li><li><a href="core-api-channelcontrol.html">ChannelControl</a></li><li><a href="core-api-channel.html">Channel</a></li><li><a href="core-api-channelgroup.html">ChannelGroup</a></li><li><a href="core-api-soundgroup.html">SoundGroup</a></li><li><a href="core-api-dsp.html">DSP</a></li><li><a href="core-api-dspconnection.html">DSPConnection</a></li><li><a href="core-api-geometry.html">Geometry</a></li><li class="manual-current-chapter manual-active-chapter"><a href="core-api-reverb3d.html">Reverb3D</a></li><li><a href="core-api-platform-ios.html">iOS Specific</a></li></ul></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>7. Core API Reference | Reverb3D</h1>
+<p>An interface that manages virtual 3D reverb spheres. See the <a href="white-papers-3d-reverb.html">3D Reverb</a> guide for more information.</p>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_set3dattributes" title="Sets the 3D attributes of a reverb sphere.">Reverb3D::set3DAttributes</a> Sets the 3D attributes of a reverb sphere.</li>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_get3dattributes" title="Retrieves the 3D attributes of a reverb sphere.">Reverb3D::get3DAttributes</a> Retrieves the 3D attributes of a reverb sphere.</li>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_setproperties" title="Sets the environmental properties of a reverb sphere.">Reverb3D::setProperties</a> Sets the environmental properties of a reverb sphere.</li>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_getproperties" title="Retrieves the environmental properties of a reverb sphere.">Reverb3D::getProperties</a> Retrieves the environmental properties of a reverb sphere.</li>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_setactive" title="Sets the active state.">Reverb3D::setActive</a> Sets the active state.</li>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_getactive" title="Retrieves the active state.">Reverb3D::getActive</a> Retrieves the active state.</li>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_setuserdata" title="Sets a user value associated with this object.">Reverb3D::setUserData</a> Sets a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_getuserdata" title="Retrieves a user value associated with this object.">Reverb3D::getUserData</a> Retrieves a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-reverb3d.html#reverb3d_release" title="Releases the memory for a reverb object and makes it inactive.">Reverb3D::release</a> Releases the memory for a reverb object and makes it inactive.</li>
+</ul>
+<h2 api="function" id="reverb3d_get3dattributes"><a href="#reverb3d_get3dattributes">Reverb3D::get3DAttributes</a></h2>
+<p>Retrieves the 3D attributes of a reverb sphere.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">get3DAttributes</span><span class="p">(</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">position</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">mindistance</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">maxdistance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_Get3DAttributes</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">,</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">position</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">mindistance</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">maxdistance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">get3DAttributes</span><span class="p">(</span>
+  <span class="k">ref</span> <span class="n">VECTOR</span> <span class="n">position</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="kt">float</span> <span class="n">mindistance</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="kt">float</span> <span class="n">maxdistance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">get3DAttributes</span><span class="p">(</span>
+  <span class="nx">position</span><span class="p">,</span>
+  <span class="nx">mindistance</span><span class="p">,</span>
+  <span class="nx">maxdistance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>position <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Position in 3D space represnting the center of the reverb. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</dd>
+<dt>mindistance <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Distance from the centerpoint within which the reverb will have full effect.</dd>
+<dt>maxdistance <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Distance from the centerpoint beyond which the reverb will have no effect.</dd>
+</dl>
+<p>See the <a href="white-papers-3d-reverb.html">3D Reverb</a> guide for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-reverb3d.html#reverb3d_set3dattributes" title="Sets the 3D attributes of a reverb sphere.">Reverb3D::set3DAttributes</a></p>
+<h2 api="function" id="reverb3d_getactive"><a href="#reverb3d_getactive">Reverb3D::getActive</a></h2>
+<p>Retrieves the active state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">getActive</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_GetActive</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">getActive</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">getActive</span><span class="p">(</span>
+  <span class="nx">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>active <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Active state of the reverb sphere.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+<li><span class="label">Default:</span> True</li>
+</ul>
+</dd>
+</dl>
+<p>See the <a href="white-papers-3d-reverb.html">3D Reverb</a> guide for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-reverb3d.html#reverb3d_setactive" title="Sets the active state.">Reverb3D::setActive</a></p>
+<h2 api="function" id="reverb3d_getproperties"><a href="#reverb3d_getproperties">Reverb3D::getProperties</a></h2>
+<p>Retrieves the environmental properties of a reverb sphere.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">getProperties</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB_PROPERTIES</span> <span class="o">*</span><span class="n">properties</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_GetProperties</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">,</span>
+  <span class="n">FMOD_REVERB_PROPERTIES</span> <span class="o">*</span><span class="n">properties</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">getProperties</span><span class="p">(</span>
+  <span class="k">ref</span> <span class="n">REVERB_PROPERTIES</span> <span class="n">properties</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">getProperties</span><span class="p">(</span>
+  <span class="nx">properties</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>properties <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Reverb properties. (<a class="apilink" href="core-api-system.html#fmod_reverb_properties" title="Structure defining a reverb environment.">FMOD_REVERB_PROPERTIES</a>)</dd>
+</dl>
+<p>See the <a href="white-papers-3d-reverb.html">3D Reverb</a> guide for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-reverb3d.html#reverb3d_setproperties" title="Sets the environmental properties of a reverb sphere.">Reverb3D::setProperties</a></p>
+<h2 api="function" id="reverb3d_getuserdata"><a href="#reverb3d_getuserdata">Reverb3D::getUserData</a></h2>
+<p>Retrieves a user value associated with this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_GetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">getUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Value stored on this object.</dd>
+</dl>
+<p>See the <a href="white-papers-3d-reverb.html">3D Reverb</a> guide for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-reverb3d.html#reverb3d_setuserdata" title="Sets a user value associated with this object.">Reverb3D::setUserData</a></p>
+<h2 api="function" id="reverb3d_release"><a href="#reverb3d_release">Reverb3D::release</a></h2>
+<p>Releases the memory for a reverb object and makes it inactive.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_Release</span><span class="p">(</span><span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">release</span><span class="p">();</span>
+</pre></div>
+
+
+<p>If you release all Reverb3D objects and have not added a new Reverb3D object, <a class="apilink" href="core-api-system.html#system_setreverbproperties" title="Sets parameters for the global reverb environment.">System::setReverbProperties</a> should be called to reset the reverb properties.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createreverb3d" title="Creates a 'virtual reverb' object. This object reacts to 3D location and morphs the reverb environment based on how close it is to the reverb object's center.">System::createReverb3D</a></p>
+<h2 api="function" id="reverb3d_set3dattributes"><a href="#reverb3d_set3dattributes">Reverb3D::set3DAttributes</a></h2>
+<p>Sets the 3D attributes of a reverb sphere.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">set3DAttributes</span><span class="p">(</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">position</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">mindistance</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">maxdistance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_Set3DAttributes</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">position</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">mindistance</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">maxdistance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">set3DAttributes</span><span class="p">(</span>
+  <span class="k">ref</span> <span class="n">VECTOR</span> <span class="n">position</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">mindistance</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">maxdistance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">set3DAttributes</span><span class="p">(</span>
+  <span class="nx">position</span><span class="p">,</span>
+  <span class="nx">mindistance</span><span class="p">,</span>
+  <span class="nx">maxdistance</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>position <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Position in 3D space represnting the center of the reverb. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Units:</span> <a href="glossary.html#distance-units">Distance units</a></li>
+<li><span class="label">Default:</span> (0, 0, 0)</li>
+</ul>
+</dd>
+<dt>mindistance</dt>
+<dd>
+<p>Distance from the centerpoint within which the reverb will have full effect.</p>
+<ul>
+<li><span class="label">Units:</span> <a href="glossary.html#distance-units">Distance units</a></li>
+<li><span class="label">Default:</span> 0</li>
+</ul>
+</dd>
+<dt>maxdistance</dt>
+<dd>
+<p>Distance from the centerpoint beyond which the reverb will have no effect.</p>
+<ul>
+<li><span class="label">Units:</span> <a href="glossary.html#distance-units">Distance units</a></li>
+<li><span class="label">Default:</span> 0</li>
+</ul>
+</dd>
+</dl>
+<p>See the <a href="white-papers-3d-reverb.html">3D Reverb</a> guide for more information.</p>
+<p>When the position of the listener is less than maxdistance away from the position of one or more reverb objects, the listener's 3D reverb properties are a weighted combination of those reverb objects. Otherwise, the reverb dsp will use the global reverb settings.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-reverb3d.html#reverb3d_get3dattributes" title="Retrieves the 3D attributes of a reverb sphere.">Reverb3D::get3DAttributes</a></p>
+<h2 api="function" id="reverb3d_setactive"><a href="#reverb3d_setactive">Reverb3D::setActive</a></h2>
+<p>Sets the active state.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">setActive</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_SetActive</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">setActive</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">setActive</span><span class="p">(</span>
+  <span class="nx">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>active</dt>
+<dd>
+<p>Active state of the reverb sphere.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+<li><span class="label">Default:</span> True</li>
+</ul>
+</dd>
+</dl>
+<p>See the <a href="white-papers-3d-reverb.html">3D Reverb</a> guide for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-reverb3d.html#reverb3d_getactive" title="Retrieves the active state.">Reverb3D::getActive</a></p>
+<h2 api="function" id="reverb3d_setproperties"><a href="#reverb3d_setproperties">Reverb3D::setProperties</a></h2>
+<p>Sets the environmental properties of a reverb sphere.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">setProperties</span><span class="p">(</span>
+  <span class="k">const</span> <span class="n">FMOD_REVERB_PROPERTIES</span> <span class="o">*</span><span class="n">properties</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_SetProperties</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_REVERB_PROPERTIES</span> <span class="o">*</span><span class="n">properties</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">setProperties</span><span class="p">(</span>
+  <span class="k">ref</span> <span class="n">REVERB_PROPERTIES</span> <span class="n">properties</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">setProperties</span><span class="p">(</span>
+  <span class="nx">properties</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>properties</dt>
+<dd>Reverb properties. (<a class="apilink" href="core-api-system.html#fmod_reverb_properties" title="Structure defining a reverb environment.">FMOD_REVERB_PROPERTIES</a>)</dd>
+</dl>
+<p>See the <a href="white-papers-3d-reverb.html">3D Reverb</a> guide for more information.</p>
+<p>Reverb presets are available, see <a class="apilink" href="core-api-system.html#fmod_reverb_presets" title="Predefined reverb configurations.">FMOD_REVERB_PRESETS</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-reverb3d.html#reverb3d_getproperties" title="Retrieves the environmental properties of a reverb sphere.">Reverb3D::getProperties</a></p>
+<h2 api="function" id="reverb3d_setuserdata"><a href="#reverb3d_setuserdata">Reverb3D::setUserData</a></h2>
+<p>Sets a user value associated with this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Reverb3D</span><span class="o">::</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Reverb3D_SetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_REVERB3D</span> <span class="o">*</span><span class="n">reverb3d</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Reverb3D</span><span class="p">.</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Reverb3D</span><span class="p">.</span><span class="nx">setUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata</dt>
+<dd>Value stored on this object.</dd>
+</dl>
+<p>Associates some data with this object to give it context, it can be retrieved with <a class="apilink" href="core-api-reverb3d.html#reverb3d_getuserdata" title="Retrieves a user value associated with this object.">Reverb3D::getUserData</a> but otherwise remain untouched.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-reverb3d.html#reverb3d_getuserdata" title="Retrieves a user value associated with this object.">Reverb3D::getUserData</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

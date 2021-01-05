@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>Welcome to FMOD API | New in FMOD API 2.00</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="welcome.html">Welcome to FMOD API</a><ul class="subchapters"><li><a href="welcome-whats-new-201.html">New in FMOD API 2.01</a></li><li class="manual-current-chapter manual-active-chapter"><a href="welcome-whats-new-200.html">New in FMOD API 2.00</a></li><li><a href="welcome-whats-new-110.html">New in FMOD API 1.10</a></li><li><a href="welcome-whats-new-109.html">New in FMOD API 1.09</a></li><li><a href="welcome-whats-new-108.html">New in FMOD API 1.08</a></li><li><a href="welcome-revision-history.html">Detailed Revision History</a></li></ul></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>1. Welcome to FMOD API | New in FMOD API 2.00</h1>
+<div class="toc">
+<ul>
+<li><a href="#whats-new-in-200">What's New in 2.00?</a><ul>
+<li><a href="#global-parameters">Global Parameters</a></li>
+<li><a href="#global-mixer-automation">Global Mixer Automation</a></li>
+<li><a href="#new-parameter-api">New Parameter API</a></li>
+<li><a href="#sample-data-encryption">Sample Data Encryption</a></li>
+<li><a href="#lowlevel-api-renamed-to-core-api">LowLevel API Renamed to Core API</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="whats-new-in-200"><a href="#whats-new-in-200">What's New in 2.00?</a></h2>
+<p>This section describes the major features introduced in the 2.00 release. See the <a href="welcome-revision-history.html">Detailed Revision History</a> for information regarding each patch release.</p>
+<h3 id="global-parameters"><a href="#global-parameters">Global Parameters</a></h3>
+<p>The Studio API now supports global parameters. These parameters are controlled via the <a href="studio-api-system.html#studio_system_setparameterbyid">System parameter API</a> and have a single value that is shared between all instances. This feature is intended for parameters like "time of day" or "wind speed" that affect a number of different events at the same time.</p>
+<p>Global parameters are read-only when accessed via an event. They must be accessed via the <a href="studio-api-system.html#studio_system_setparameterbyid">System parameter API</a> in order to set their value.</p>
+<h3 id="global-mixer-automation"><a href="#global-mixer-automation">Global Mixer Automation</a></h3>
+<p>The Studio API now supports automation of objects in the global mixer (for example effect parameters or bus volume). Parameters that drive global mixer automation are controlled via the <a href="studio-api-system.html#studio_system_setparameterbyid">System parameter API</a>.</p>
+<h3 id="new-parameter-api"><a href="#new-parameter-api">New Parameter API</a></h3>
+<p>The <a href="studio-api-eventinstance.html#studio_eventinstance_setparameterbyid">Studio parameter API</a> has been updated to support global parameters and provide a more robust fast path for setting parameter values frequently: </p>
+<ul>
+<li>Indices have been replaced with IDs. These IDs are intended to be cached by game code, and provide fast access while remaining stable if the parameter list changes due to live update or bank loading.</li>
+<li>A global parameter API has been added to the <a class="apilink" href="studio-api-system.html" title="">Studio::System</a> class.</li>
+<li>The <a class="apilink" href="studio-api-eventdescription.html" title="">Studio::EventDescription</a> parameter functions have been renamed to be consistent with the corresponding System functions. </li>
+<li>The '...ByName' parameter functions now accept paths (which can be copied from FMOD Studio) as well as short parameter names.</li>
+<li>The <a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a> <em>index</em> field has been replaced with an <em>id</em> field. </li>
+<li>A <em>flags</em> field has been added to <a class="apilink" href="studio-api-common.html#fmod_studio_parameter_description" title="Describes an event parameter.">FMOD_STUDIO_PARAMETER_DESCRIPTION</a>. It provides information on whether the parameter is read-only, automatic, or global.</li>
+<li>The deprecated ParameterInstance class has been removed.</li>
+</ul>
+<p>The following event functions have been <strong>added</strong>:</p>
+<ul>
+<li><a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getparameterbyid" title="Retrieves a parameter value by unique identifier.">Studio::EventInstance::getParameterByID</a></li>
+<li><a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setparameterbyid" title="Sets a parameter value by unique identifier.">Studio::EventInstance::setParameterByID</a></li>
+<li><a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setparametersbyids" title="Sets multiple parameter values by unique identifier.">Studio::EventInstance::setParametersByIDs</a></li>
+<li><a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyid" title="Retrieves an event parameter description by id.">Studio::EventDescription::getParameterDescriptionByID</a></li>
+</ul>
+<p>In addition, to support global parameters, the following system functions have been <strong>added</strong>:</p>
+<ul>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getparameterbyid" title="Retrieves a global parameter value by unique identifier.">Studio::System::getParameterByID</a></li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_setparameterbyid" title="Sets a global parameter value by unique identifier.">Studio::System::setParameterByID</a></li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_setparametersbyids" title="Sets multiple global parameter values by unique identifier.">Studio::System::setParametersByIDs</a></li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getparameterbyname" title="Retrieves a global parameter value by name.">Studio::System::getParameterByName</a></li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_setparameterbyname" title="Sets a global parameter value by name.">Studio::System::setParameterByName</a></li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getparameterdescriptionbyname" title="Retrieves a global parameter by name or path.">Studio::System::getParameterDescriptionByName</a></li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getparameterdescriptionbyid" title="Retrieves a global parameter by ID.">Studio::System::getParameterDescriptionByID</a></li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getparameterdescriptioncount" title="Retrieves the number of global parameters.">Studio::System::getParameterDescriptionCount</a></li>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getparameterdescriptionlist" title="Retrieves a list of global parameters.">Studio::System::getParameterDescriptionList</a></li>
+</ul>
+<p>The following functions have been <strong>renamed</strong>:</p>
+<ul>
+<li>Studio::EventInstance::getParameterValue is now <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getparameterbyname" title="Retrieves a parameter value by name.">Studio::EventInstance::getParameterByName</a></li>
+<li>Studio::EventInstance::setParameterValue is now <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setparameterbyname" title="Sets a parameter value by name.">Studio::EventInstance::setParameterByName</a></li>
+<li>Studio::EventDescription::getParameterCount is now <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptioncount" title="Retrieves the number of parameters in the event.">Studio::EventDescription::getParameterDescriptionCount</a></li>
+<li>Studio::EventDescription::getParameterByIndex is now <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyindex" title="Retrieves an event parameter description by index.">Studio::EventDescription::getParameterDescriptionByIndex</a></li>
+<li>Studio::EventDescription::getParameter is now <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_getparameterdescriptionbyname" title="Retrieves an event parameter description by name.">Studio::EventDescription::getParameterDescriptionByName</a></li>
+</ul>
+<p>The following functions have been <strong>removed</strong>:</p>
+<ul>
+<li>Studio::EventInstance::getParameterValueByIndex</li>
+<li>Studio::EventInstance::setParameterValueByIndex</li>
+<li>Studio::EventInstance::setParameterValuesByIndices</li>
+<li>Studio::EventInstance::getParameter</li>
+<li>Studio::EventInstance::getParameterByIndex</li>
+<li>Studio::EventInstance::getParameterCount</li>
+</ul>
+<h3 id="sample-data-encryption"><a href="#sample-data-encryption">Sample Data Encryption</a></h3>
+<p>Bank sample data can now be encrypted using FMOD Studio. This implentation is an extension of the Core API FSB encryption feature. To allow bank loading when used with the Studio API, set the key via <a class="apilink" href="studio-api-system.html#fmod_studio_advancedsettings_encryptionkey" title="">FMOD_STUDIO_ADVANCEDSETTINGS::encryptionkey</a>. When some banks are unencrypted you can use the <a class="apilink" href="studio-api-system.html#fmod_studio_load_bank_unencrypted" title="">FMOD_STUDIO_LOAD_BANK_UNENCRYPTED</a> load flag to ignore the given key.</p>
+<h3 id="lowlevel-api-renamed-to-core-api"><a href="#lowlevel-api-renamed-to-core-api">LowLevel API Renamed to Core API</a></h3>
+<p>The LowLevel API has been renamed to Core API, other than that it should still function the same way it previously has.</p>
+<ul>
+<li>Studio::System::getLowLevelSystem is now <a class="apilink" href="studio-api-system.html#studio_system_getcoresystem" title="Retrieves the Core System.">Studio::System::getCoreSystem</a></li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

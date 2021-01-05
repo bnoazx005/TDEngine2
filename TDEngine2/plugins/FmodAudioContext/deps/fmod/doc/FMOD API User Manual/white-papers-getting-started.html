@@ -1,0 +1,141 @@
+<html>
+<head>
+<title>White Papers | Getting Started</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Getting Started</h1>
+<div class="toc">
+<ul>
+<li><a href="#getting-started">Getting Started</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#initialization">Initialization</a><ul>
+<li><a href="#fmod-studio-api-initialization">FMOD Studio API Initialization</a></li>
+</ul>
+</li>
+<li><a href="#fmod-core-api-initialization-do-not-use-this-if-using-fmod-studio-api-initialization">FMOD Core API Initialization (Do not use this if using FMOD Studio API Initialization)</a><ul>
+<li><a href="#advanced-initialization-settings">Advanced Initialization Settings</a></li>
+</ul>
+</li>
+<li><a href="#playing-a-sound-core-api-only">Playing a sound (Core API only)</a></li>
+<li><a href="#using-decompressed-samples-vs-compressed-samples-vs-streams">Using decompressed samples vs compressed samples vs streams</a><ul>
+<li><a href="#decompressed-samples">Decompressed Samples</a></li>
+<li><a href="#streams">Streams</a></li>
+<li><a href="#compressed-samples">Compressed Samples</a></li>
+</ul>
+</li>
+<li><a href="#update">Update</a></li>
+<li><a href="#shut-down">Shut Down</a></li>
+<li><a href="#error-checking">Error Checking</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#avoiding-stalls-while-loading-a-or-releasing-a-sound">Avoiding stalls while loading a or releasing a sound</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="getting-started"><a href="#getting-started">Getting Started</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>The FMOD Studio and Core API has been designed to be intuitive and flexible. In this section an introduction to using the engine as well as the key issues involved in using it effectively will be explained.</p>
+<p>FMOD provides a C++ API and also a C API. They are functional identical, and in fact the C++ and C functions can be mixed interchangeably, with the C++ and C classes being able to be casted back and forth. The following examples only show the C++ version.</p>
+<h3 id="initialization"><a href="#initialization">Initialization</a></h3>
+<h4 id="fmod-studio-api-initialization"><a href="#fmod-studio-api-initialization">FMOD Studio API Initialization</a></h4>
+<p>When using the Studio API, you can create a FMOD Studio System and then call <a class="apilink" href="studio-api-system.html#studio_system_initialize" title="Initializes the Studio System.">Studio::System::initialize</a>. That function will also initialize the in-built core FMOD system as well. Here is a simple example:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT result;
+FMOD::Studio::System* system = NULL;
+
+result = FMOD::Studio::System::create(&amp;system); // Create the Studio System object.
+if (result != FMOD_OK)
+{
+    printf(&quot;FMOD error! (%d) %s\n&quot;, result, FMOD_ErrorString(result));
+    exit(-1);
+}
+
+// Initialize FMOD Studio, which will also initialize FMOD Core
+result = system-&gt;initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0);
+if (result != FMOD_OK)
+{
+    printf(&quot;FMOD error! (%d) %s\n&quot;, result, FMOD_ErrorString(result));
+    exit(-1);
+}
+</pre></div>
+
+
+<h3 id="fmod-core-api-initialization-do-not-use-this-if-using-fmod-studio-api-initialization"><a href="#fmod-core-api-initialization-do-not-use-this-if-using-fmod-studio-api-initialization">FMOD Core API Initialization (Do not use this if using FMOD Studio API Initialization)</a></h3>
+<p>The FMOD Core API can be used without needing to use the FMOD Studio API at all. Using the Core API gives access to the fundamental abilities of loading and playing sounds, creating DSP effects, setting up FMOD channel groups, and setting sample-accurate fade points and start/stop times. However, when just using the Core API, it will not be possible to load Studio banks or load and play Studio events that sound artists have set up in the Studio tool. To initialize FMOD Core directly:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT result;
+FMOD::System *system = NULL;
+
+result = FMOD::System_Create(&amp;system);      // Create the main system object.
+if (result != FMOD_OK)
+{
+    printf(&quot;FMOD error! (%d) %s\n&quot;, result, FMOD_ErrorString(result));
+    exit(-1);
+}
+
+result = system-&gt;init(512, FMOD_INIT_NORMAL, 0);    // Initialize FMOD.
+if (result != FMOD_OK)
+{
+    printf(&quot;FMOD error! (%d) %s\n&quot;, result, FMOD_ErrorString(result));
+    exit(-1);
+}
+</pre></div>
+
+
+<h4 id="advanced-initialization-settings"><a href="#advanced-initialization-settings">Advanced Initialization Settings</a></h4>
+<p>FMOD can be customised with advanced settings by calling <a class="apilink" href="core-api-system.html#system_setadvancedsettings" title="Sets advanced settings for the system object, typically to allow adjusting of settings related to resource usage or audio quality.">System::setAdvancedSettings</a> or <a class="apilink" href="studio-api-system.html#studio_system_setadvancedsettings" title="Sets advanced settings.">Studio::System::setAdvancedSettings</a> before initialization. For a description of the typical settings for effective virtual voices, see the Virtual Voice System.</p>
+<h3 id="playing-a-sound-core-api-only"><a href="#playing-a-sound-core-api-only">Playing a sound (Core API only)</a></h3>
+<p>The simplest way to get started, and basic functionality of FMOD Core API - is to initialize the FMOD system, load a sound, and play it. All functions execute immediately, so the developer will either fire and forget during their main loop execution, or poll for the sound to finish. Playing a sound does not <strong>block</strong> the application.</p>
+<p>To execute a simple playSound</p>
+<ol>
+<li>Load a sound with <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a>, using the system object handle as described above. This will return a <strong>Sound</strong> handle. This is your handle to your loaded sound.</li>
+<li>Play the sound with <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a>, using the Sound handle returned from Step 1. This will return a <strong>Channel</strong> handle.</li>
+<li>Let it play in the background, or monitor its status with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_isplaying" title="Retrieves the playing state.">ChannelControl::isPlaying</a>, using the <strong>Channel</strong> handle returned from Step 2. A channel handle will also go immediately <strong>invalid</strong> when a sound ends, when calling any relevant Channel based function, so that is another way to know a sound has ended. The error code returned will be <a class="apilink" href="core-api-common.html#fmod_err_invalid_handle" title="">FMOD_ERR_INVALID_HANDLE</a>.</li>
+</ol>
+<h3 id="using-decompressed-samples-vs-compressed-samples-vs-streams"><a href="#using-decompressed-samples-vs-compressed-samples-vs-streams">Using decompressed samples vs compressed samples vs streams</a></h3>
+<h4 id="decompressed-samples"><a href="#decompressed-samples">Decompressed Samples</a></h4>
+<p>The default mode for createSound is <a class="apilink" href="core-api-common.html#fmod_createsample" title="">FMOD_CREATESAMPLE</a>, which decompresses the sound into memory. This may be useful for distributing sounds compressed, then decompressing them at runtime to avoid the overhead of decompressing the sounds while playing. This can be expensive on mobile devices depending on the format. Decompressing to PCM uses litte CPU during playback, but also uses many times more memory at runtime.</p>
+<h4 id="streams"><a href="#streams">Streams</a></h4>
+<p>Loading a sound as a streaming, gives the ability to take a large file, and read/play it in realtime in small chunks at a time, avoiding the need to load the entire file into memory. This is typically reserved for Music / Voice over / dialogue or Long ambience tracks. The user can simply play a sound as a <strong>stream</strong> by adding the <a class="apilink" href="core-api-common.html#fmod_createstream" title="">FMOD_CREATESTREAM</a> flag to the <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> function, or using the <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a> function. The 2 options equate to the same end behavior.</p>
+<h4 id="compressed-samples"><a href="#compressed-samples">Compressed Samples</a></h4>
+<p>To play a sound as <strong>compressed</strong>, simply add the <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a> flag to the <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> function</p>
+<p>Because compressed samples are more complicated, they have larger contexts to deal with (for example vorbis decode information), so there is a constant per voice overhead (up to a fixed limit) for a playing sound. <br />
+This allocation is typically incurred at <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> time if the user calls <a class="apilink" href="core-api-system.html#system_setadvancedsettings" title="Sets advanced settings for the system object, typically to allow adjusting of settings related to resource usage or audio quality.">System::setAdvancedSettings</a> and sets a maxCodecs value, or it could happen the first time a sound is loaded with the <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a> flag. This will not be configured by the user so uses the default of 32 codecs for the allocation.</p>
+<p>As an example: the vorbis codec has an overhead of 16kb per voice, so the default of 32 vorbis codecs will consume 512kb of memory. This is adjustable by the user to reduce or increase the default of 32, using the <a class="apilink" href="core-api-system.html#system_setadvancedsettings" title="Sets advanced settings for the system object, typically to allow adjusting of settings related to resource usage or audio quality.">System::setAdvancedSettings</a> function as mentioned. The user would adjust the <a class="apilink" href="core-api-system.html#fmod_advancedsettings" title="Advanced configuration settings.">FMOD_ADVANCEDSETTINGS</a> maxVorbisCodecs value for the vorbis case. Other supported codecs are adjustable as well.</p>
+<p>The best cross platform codec to used as a compressed sample is Vorbis (from an FSB file) but if it uses too much CPU for your platform (ie mobile), the FADPCM codec is a good second option. It is less compressed, and uses far less CPU cycles to decode, while giving good quality and 4:1 compression. For PS4 or Xbox One, it is better to use the AT9 and XMA codec format respectively, as the decoding of these formats are handled by separate media chips, taking the load off the CPU.</p>
+<h3 id="update"><a href="#update">Update</a></h3>
+<p>FMOD should be ticked once per game update. When using FMOD Studio, call <a class="apilink" href="studio-api-system.html#studio_system_update" title="Update the FMOD Studio System.">Studio::System::update</a>, which internally will also update the Core system. If using Core directly, instead call <a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a>.</p>
+<p>If FMOD Studio is running in asynchronous mode (the default, unless <a class="apilink" href="studio-api-system.html#fmod_studio_init_synchronous_update" title="">FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE</a> has been specified), then the <a class="apilink" href="studio-api-system.html#studio_system_update" title="Update the FMOD Studio System.">Studio::System::update</a> will be extremely quick as it is merely swapping a buffer for the asynchronous execution of that frame's commands.</p>
+<h3 id="shut-down"><a href="#shut-down">Shut Down</a></h3>
+<p>To shut down FMOD Studio call <a class="apilink" href="studio-api-system.html#studio_system_release" title="Shut down and free the Studio System object.">Studio::System::release</a>. If using the Core directly, instead call <a class="apilink" href="core-api-system.html#system_release" title="Closes and frees this object and its resources.">System::release</a>.</p>
+<h3 id="error-checking"><a href="#error-checking">Error Checking</a></h3>
+<p>In the FMOD examples, the error codes are checked with a macro that calls into an handling function if an unexpected error occurs. That is the recommended way of calling FMOD Studio API functions. There is also a callback that can be received whenever a public FMOD function has an error. See <a class="apilink" href="core-api-system.html#fmod_system_callback" title="Callback for System notifications.">FMOD_SYSTEM_CALLBACK</a> for more information.</p>
+<h3 id="configuration"><a href="#configuration">Configuration</a></h3>
+<p>The output hardware, FMOD's resource usage, and other types of configuration options can be set if you desire behavior differing from the default. These are generally called before <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>. For examples of these, see <a class="apilink" href="studio-api-system.html#studio_system_getcoresystem" title="Retrieves the Core System.">Studio::System::getCoreSystem</a>, <a class="apilink" href="core-api-system.html#system_setadvancedsettings" title="Sets advanced settings for the system object, typically to allow adjusting of settings related to resource usage or audio quality.">System::setAdvancedSettings</a>, <a class="apilink" href="studio-api-system.html#studio_system_setadvancedsettings" title="Sets advanced settings.">Studio::System::setAdvancedSettings</a>.</p>
+<h3 id="avoiding-stalls-while-loading-a-or-releasing-a-sound"><a href="#avoiding-stalls-while-loading-a-or-releasing-a-sound">Avoiding stalls while loading a or releasing a sound</a></h3>
+<p>One of the slowest operations is loading a sound. To place a sound load into the background so that it doesn't affect processing in the main application thread, the user can use the <a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a> flag in <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> or <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a>.</p>
+<p>Immediately a sound handle is returned to the user. The status of the sound being loaded can then be checked with <a class="apilink" href="core-api-sound.html#sound_getopenstate" title="Retrieves the state a sound is in after being opened with the non blocking flag, or the current state of the streaming buffer.">Sound::getOpenState</a>. If a function is called on a sound that is still loading (besides getOpenState), it will typically return <a class="apilink" href="core-api-common.html#fmod_err_notready" title="">FMOD_ERR_NOTREADY</a>. Wait until the sound is ready to play it. The state would be <a class="apilink" href="core-api-sound.html#fmod_openstate_ready" title="">FMOD_OPENSTATE_READY</a>.</p>
+<p>To avoid a stall on a streaming sound when trying to free/release it, check that the state is <a class="apilink" href="core-api-sound.html#fmod_openstate_ready" title="">FMOD_OPENSTATE_READY</a> before calling <a class="apilink" href="core-api-sound.html#sound_release" title="Frees a sound object.">Sound::release</a>.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

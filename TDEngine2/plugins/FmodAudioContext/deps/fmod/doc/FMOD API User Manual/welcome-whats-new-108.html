@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>Welcome to FMOD API | New in FMOD API 1.08</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="welcome.html">Welcome to FMOD API</a><ul class="subchapters"><li><a href="welcome-whats-new-201.html">New in FMOD API 2.01</a></li><li><a href="welcome-whats-new-200.html">New in FMOD API 2.00</a></li><li><a href="welcome-whats-new-110.html">New in FMOD API 1.10</a></li><li><a href="welcome-whats-new-109.html">New in FMOD API 1.09</a></li><li class="manual-current-chapter manual-active-chapter"><a href="welcome-whats-new-108.html">New in FMOD API 1.08</a></li><li><a href="welcome-revision-history.html">Detailed Revision History</a></li></ul></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>1. Welcome to FMOD API | New in FMOD API 1.08</h1>
+<div class="toc">
+<ul>
+<li><a href="#whats-new-in-108">What's New in 1.08?</a><ul>
+<li><a href="#bank-loading-performance-improvements">Bank loading performance improvements</a></li>
+<li><a href="#sample-data-idle-pool">Sample Data Idle Pool</a></li>
+<li><a href="#studio-profiler-file-io-display">Studio Profiler file I/O display</a></li>
+<li><a href="#3d-object-panner">3D Object Panner</a></li>
+<li><a href="#multiple-plugins-in-one-file">Multiple plugins in one file</a></li>
+<li><a href="#sound-loading-performance">Sound loading performance</a></li>
+<li><a href="#low-latency-output-mode-for-windows">Low latency output mode for Windows</a></li>
+<li><a href="#fsbank-and-profiler-tools-for-mac">FSBank and Profiler tools for Mac</a></li>
+<li><a href="#support-for-new-studio-features">Support for new Studio features</a></li>
+</ul>
+</li>
+<li><a href="#whats-new-since-107-initial-release">What's new since 1.07 initial release?</a><ul>
+<li><a href="#transceiver-effect">Transceiver effect</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="whats-new-in-108"><a href="#whats-new-in-108">What's New in 1.08?</a></h2>
+<p>This section describes the major features introduced in the 1.08 release. See the <a href="welcome-revision-history.html">Detailed Revision History</a> for information regarding each patch release.</p>
+<h3 id="bank-loading-performance-improvements"><a href="#bank-loading-performance-improvements">Bank loading performance improvements</a></h3>
+<p>Bank sample data loading has been optimised.  The number of file accesses and seeks has been reduced.  Multiple sample data loads are coalesced into a single read operation in sorted order.  Performance when cancelling pending sample data loads has been been improved.  There have been memory savings, so projects that load large numbers of sounds will see a memory improvement.</p>
+<p>Studio sample data loading occurs on its own thread.  Affinity can be controlled via per platform affinity settings.</p>
+<h3 id="sample-data-idle-pool"><a href="#sample-data-idle-pool">Sample Data Idle Pool</a></h3>
+<p>To avoid spurious sample data reloading, Studio will keep a pool of recently used sounds in memory.  This can help for cases where programmer doesn't manually preload data via <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_loadsampledata" title="Loads non-streaming sample data used by the event.">Studio::EventDescription::loadSampleData</a> or <a class="apilink" href="studio-api-bank.html#studio_bank_loadsampledata" title="Loads non-streaming sample data for all events in the bank.">Studio::Bank::loadSampleData</a>. See the <a href="studio-guide.html#sample-data-loading">Sample Data Loading</a> section of the <a href="studio-guide.html">Studio Guide</a> for more information.</p>
+<h3 id="studio-profiler-file-io-display"><a href="#studio-profiler-file-io-display">Studio Profiler file I/O display</a></h3>
+<p>The FMOD Studio Profiler now displays the file I/O used for sample data, stream data, and bank metadata loading.  The event instance lifetime view has indicators for when event instances are stalling waiting for sample data to load in.</p>
+<h3 id="3d-object-panner"><a href="#3d-object-panner">3D Object Panner</a></h3>
+<p>The new 3D object panner DSP (<a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_objectpan" title="">FMOD_DSP_TYPE_OBJECTPAN</a>) allows channels to be spatialized using Dolby Atmos (FMOD_OUTPUTTYPE_ATMOS) and PlayStation VR (<a class="apilink" href="core-api-system.html#fmod_outputtype_audio3d" title="">FMOD_OUTPUTTYPE_AUDIO3D</a>)technology.</p>
+<p>The output mode plugin API (<a class="apilink" href="plugin-api-output.html#fmod_output_description" title="Output description.">FMOD_OUTPUT_DESCRIPTION</a>) has been extended to allow custom object panner backends.</p>
+<p>There is a new example 'object_pan' that demonstrates object based panning.</p>
+<h3 id="multiple-plugins-in-one-file"><a href="#multiple-plugins-in-one-file">Multiple plugins in one file</a></h3>
+<p>Multiple DSP, output and codec plugins can be packaged into a single module. See <a class="apilink" href="core-api-system.html#fmod_pluginlist" title="Used to support lists of plugins within the one dynamic library.">FMOD_PLUGINLIST</a>, <a class="apilink" href="core-api-system.html#system_getnumnestedplugins" title="Retrieves the number of nested plugins from the selected plugin.">System::getNumNestedPlugins</a>, <a class="apilink" href="core-api-system.html#system_getnestedplugin" title="Retrieves the handle of a nested plugin.">System::getNestedPlugin</a>, and the <a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a> white paper for more information.</p>
+<h3 id="sound-loading-performance"><a href="#sound-loading-performance">Sound loading performance</a></h3>
+<p>Increased performance when loading samples and opening streams via the core API.</p>
+<h3 id="low-latency-output-mode-for-windows"><a href="#low-latency-output-mode-for-windows">Low latency output mode for Windows</a></h3>
+<p>The default WASAPI output mode has reduced latency by 40ms and improved mixer thread regularity.</p>
+<h3 id="fsbank-and-profiler-tools-for-mac"><a href="#fsbank-and-profiler-tools-for-mac">FSBank and Profiler tools for Mac</a></h3>
+<p>Added Mac versions of the Profiler tool, FSBank tool, and FSBankLib API. These are included in the Mac and iOS API packages.</p>
+<h3 id="support-for-new-studio-features"><a href="#support-for-new-studio-features">Support for new Studio features</a></h3>
+<ul>
+<li>Left edge trimming of timelocked sounds.</li>
+<li>Start Offset as a percentage of sound length.</li>
+<li>Per asset encoding and streaming settings.</li>
+<li>New 'Decompressed' loading mode allows sounds to be decompressed into memory when loaded, rather than staying compressed.</li>
+</ul>
+<h2 id="whats-new-since-107-initial-release"><a href="#whats-new-since-107-initial-release">What's new since 1.07 initial release?</a></h2>
+<p>This section covers some of the improvements introduced between the first 1.07 release and the new 1.08 release. See the <a href="welcome-revision-history.html">Detailed Revision History</a> for more information on features introduced during the lifetime of 1.07.</p>
+<h3 id="transceiver-effect"><a href="#transceiver-effect">Transceiver effect</a></h3>
+<p>This new DSP effect (<a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_transceiver" title="">FMOD_DSP_TYPE_TRANSCEIVER</a>) broadcasts a signal to one of 32 global 'slots' or 'channels' (like a radio station). These signals can be monitored by a receiver anywhere in the mix. Each channel may have multiple transmitters or receivers connected.</p>
+<p>Applications include sending the output of a global reverb back out in to the world to be spacialized, playing in-game radio both inside the cabin and also through loudspeakers placed outside, and many more.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

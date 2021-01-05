@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>White Papers | Memory Management</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Memory Management</h1>
+<div class="toc">
+<ul>
+<li><a href="#memory-management-and-conservation">Memory Management and Conservation</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#using-a-fixed-size-memory-pool">Using a fixed size memory pool.</a></li>
+<li><a href="#lowering-sound-instance-overhead">Lowering sound instance overhead.</a></li>
+<li><a href="#using-compressed-samples">Using compressed samples.</a></li>
+<li><a href="#controlling-memory-usage-with-settings">Controlling memory usage with settings.</a></li>
+<li><a href="#tracking-fmod-memory-usage">Tracking FMOD memory usage.</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="memory-management-and-conservation"><a href="#memory-management-and-conservation">Memory Management and Conservation</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>This section will give some pointers on how to use and save memory in FMOD Studio by describing things that may not be so obvious upon first looking at the API.</p>
+<h3 id="using-a-fixed-size-memory-pool"><a href="#using-a-fixed-size-memory-pool">Using a fixed size memory pool.</a></h3>
+<p>To make FMOD stay inside a fixed size memory pool, and not do any external allocs, you can use the <a class="apilink" href="core-api-common.html#memory_initialize" title="Specifies a method for FMOD to allocate and free memory, either through user supplied callbacks or through a user supplied memory memory buffer with a fixed size.">Memory_Initialize</a> function.<br />
+i.e.</p>
+<div class="highlight language-text"><pre><span></span>result = FMOD::Memory_Initialize(malloc(4*1024*1024), 4*1024*1024, 0,0,0);  // allocate 4mb and pass it to FMOD Studio to use.
+ERRCHECK(result);
+</pre></div>
+
+
+<p><strong>Note!</strong> that this uses malloc. On Xbox 360 and Xbox you must use a different operating system alloc such as XPhysicalAlloc otherwise FMOD may not behave correctly. See "Platform specific issues" tutorials for more information on this.</p>
+<p><strong>Note!</strong> that this function allows you to specify your own callbacks for alloc and free. In this case the memory pool pointer and length must be NULL. The 2 features are mutually exclusive.</p>
+<h3 id="lowering-sound-instance-overhead"><a href="#lowering-sound-instance-overhead">Lowering sound instance overhead.</a></h3>
+<p>The <a class="apilink" href="core-api-common.html#fmod_lowmem" title="">FMOD_LOWMEM</a> flag is used for users wanting to shave some memory usage off of the sound class.<br />
+This flag removes memory allocation for certain features like the 'name' field which isn't used often in games. When this happens, Sound::getName will return "(null)".<br />
+More memory will be stripped from the sound class in future versions of FMOD Studio when this flag is used. Currently the 'name' field is the biggest user of memory in the sound class so this has been removed first.</p>
+<h3 id="using-compressed-samples"><a href="#using-compressed-samples">Using compressed samples.</a></h3>
+<p>To trade CPU usage vs Memory, FMOD Studio has a feature to play ADPCM, XMA and MP2/MP3 data compressed, without needing to decompress it to PCM first. This can save a large amount of memory.<br />
+On XBox 360, using this for XMA files incurs next to no extra CPU usage, as the Xbox 360 XMA hardware decoder does the data decompression in realtime.<br />
+To enable this use the <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a> flag. If this flag is used for formats other than the ones specified above, it will be ignored.</p>
+<p>With the exception of XMA on Xbox 360 and ADPCM on Xbox, if <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a> is used with an FMOD_HARDWARE buffer it will generate an FMOD_ERR_NEEDSSOFTWARE error.</p>
+<p><strong>Note!</strong> If you use <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a> there will be a 'one off' memory overhead to allocate the appropriate pool of codecs depending on the format being loaded. See the next section on how to control this pool.</p>
+<h3 id="controlling-memory-usage-with-settings"><a href="#controlling-memory-usage-with-settings">Controlling memory usage with settings.</a></h3>
+<p><a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a> <code>maxinputchannels</code> is default to 6 to allow up to 6 channel wav files to be played through FMOD's software engine. Setting this to a lower number will save memory across the board. If the highest channel count in a sound you are going to use is stereo, then set this to 2.<br />
+For sounds created with <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a>, <a class="apilink" href="core-api-system.html#system_setadvancedsettings" title="Sets advanced settings for the system object, typically to allow adjusting of settings related to resource usage or audio quality.">System::setAdvancedSettings</a> allows the user to reduce the number of simultaneous XMA/ADPCM or MPEG sounds played at once, to save memory. The defaults are specified in the documentation for this function. Lowering them will reduce memory. Note the pool of codecs for each codec type is only allocated when the first sound of that type is loaded. Reducing XMA to 0 when XMA is never used will not save any memory.<br />
+For streams, setting <a class="apilink" href="core-api-system.html#system_setstreambuffersize" title="Sets the default file buffer size for newly opened streams.">System::setStreamBufferSize</a> will control the memory usage for the stream buffer used by FMOD for each stream. Lowering the size in this function will reduce memory, but may also lead to stuttering streams. This is purely based on the type of media the FMOD streamer is reading from (ie CDROM is slower than harddisk), so it is to be experimented with based on this.<br />
+Reducing the number of channels used will reduce memory. System::init and System::setSoftwareChannels give control over maximum number of virtual voices and software voices used. You will need to make sure you specify enough voices though to avoid channel stealing.</p>
+<h3 id="tracking-fmod-memory-usage"><a href="#tracking-fmod-memory-usage">Tracking FMOD memory usage.</a></h3>
+<p>Using Memory_GetStats is a good way to track FMOD memory usage, and also find the highest amount of memory allocated at any time, so you can adjust the fix memory pool size for the next time.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

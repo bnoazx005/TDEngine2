@@ -1,0 +1,496 @@
+<html>
+<head>
+<title>Core API Reference | ChannelGroup</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="core-api.html">Core API Reference</a><ul class="subchapters"><li><a href="core-api-common.html">Common</a></li><li><a href="core-api-common-dsp-effects.html">Effect Parameters</a></li><li><a href="core-api-system.html">System</a></li><li><a href="core-api-sound.html">Sound</a></li><li><a href="core-api-channelcontrol.html">ChannelControl</a></li><li><a href="core-api-channel.html">Channel</a></li><li class="manual-current-chapter manual-active-chapter"><a href="core-api-channelgroup.html">ChannelGroup</a></li><li><a href="core-api-soundgroup.html">SoundGroup</a></li><li><a href="core-api-dsp.html">DSP</a></li><li><a href="core-api-dspconnection.html">DSPConnection</a></li><li><a href="core-api-geometry.html">Geometry</a></li><li><a href="core-api-reverb3d.html">Reverb3D</a></li><li><a href="core-api-platform-ios.html">iOS Specific</a></li></ul></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>7. Core API Reference | ChannelGroup</h1>
+<p>A submix in the mixing hierarchy akin to a bus that can contain both <a class="apilink" href="core-api-channel.html" title="">Channel</a> and <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a> objects.</p>
+<p>Create with <a class="apilink" href="core-api-system.html#system_createchannelgroup" title="Create a ChannelGroup object.">System::createChannelGroup</a>.</p>
+<p><strong>Channel management:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelgroup.html#channelgroup_getnumchannels" title="Retrieves the number of Channels that feed into to this group.">ChannelGroup::getNumChannels</a> Retrieves the number of Channels that feed into to this group.</li>
+<li><a class="apilink" href="core-api-channelgroup.html#channelgroup_getchannel" title="Retrieves the Channel at the specified index in the list of Channel inputs.">ChannelGroup::getChannel</a> Retrieves the Channel at the specified index in the list of Channel inputs.</li>
+</ul>
+<p><strong>ChannelGroup management:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelgroup.html#channelgroup_addgroup" title="Adds a ChannelGroup as an input to this group.">ChannelGroup::addGroup</a> Adds a ChannelGroup as an input to this group.</li>
+<li><a class="apilink" href="core-api-channelgroup.html#channelgroup_getnumgroups" title="Retrieves the number of ChannelGroups that feed into to this group.">ChannelGroup::getNumGroups</a> Retrieves the number of ChannelGroups that feed into to this group.</li>
+<li><a class="apilink" href="core-api-channelgroup.html#channelgroup_getgroup" title="Retrieves the ChannelGroup at the specified index in the list of group inputs.">ChannelGroup::getGroup</a> Retrieves the ChannelGroup at the specified index in the list of group inputs.</li>
+<li><a class="apilink" href="core-api-channelgroup.html#channelgroup_getparentgroup" title="Retrieves the ChannelGroup this object outputs to.">ChannelGroup::getParentGroup</a> Retrieves the ChannelGroup this object outputs to.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelgroup.html#channelgroup_getname" title="Retrieves the name set when the group was created.">ChannelGroup::getName</a> Retrieves the name set when the group was created.</li>
+<li><a class="apilink" href="core-api-channelgroup.html#channelgroup_release" title="Frees the memory for the group.">ChannelGroup::release</a> Frees the memory for the group.</li>
+</ul>
+<p>The following APIs are inherited from <a class="apilink" href="core-api-channelcontrol.html" title="">ChannelControl</a>:</p>
+<p><strong>Playback:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_isplaying" title="Retrieves the playing state.">ChannelControl::isPlaying</a> Retrieves the playing state.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_stop" title="Stops the Channel (or all Channels in nested ChannelGroups) from playing.">ChannelControl::stop</a> Stops the Channel (or all Channels in nested ChannelGroups) from playing.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setpaused" title="Sets the paused state.">ChannelControl::setPaused</a> Sets the paused state.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getpaused" title="Retrieves the paused state.">ChannelControl::getPaused</a> Retrieves the paused state.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmode" title="Sets the playback mode that controls how this object behaves.">ChannelControl::setMode</a> Sets the playback mode that controls how this object behaves.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getmode" title="Retrieves the playback mode bits that control how this object behaves.">ChannelControl::getMode</a> Retrieves the playback mode bits that control how this object behaves.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setpitch" title="Sets the relative pitch / playback rate.">ChannelControl::setPitch</a> Sets the relative pitch / playback rate.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getpitch" title="Retrieves the relative pitch / playback rate.">ChannelControl::getPitch</a> Retrieves the relative pitch / playback rate.</li>
+</ul>
+<p><strong>Volume levels:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getaudibility" title="Retrieves an estimation of the output volume.">ChannelControl::getAudibility</a> Retrieves an estimation of the output volume.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setvolume" title="Sets the volume level.">ChannelControl::setVolume</a> Sets the volume level.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getvolume" title="Retrieves the volume level.">ChannelControl::getVolume</a> Retrieves the volume level.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setvolumeramp" title="Sets whether volume changes are ramped or instantaneous.">ChannelControl::setVolumeRamp</a> Sets whether volume changes are ramped or instantaneous.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getvolumeramp" title="Retrieves whether volume changes are ramped or instantaneous.">ChannelControl::getVolumeRamp</a> Retrieves whether volume changes are ramped or instantaneous.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmute" title="Sets the mute state.">ChannelControl::setMute</a> Sets the mute state.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getmute" title="Retrieves the mute state.">ChannelControl::getMute</a> Retrieves the mute state.</li>
+</ul>
+<p><strong>Spatialization:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dattributes" title="Sets the 3D position and velocity used to apply panning, attenuation and doppler.">ChannelControl::set3DAttributes</a> Sets the 3D position and velocity used to apply panning, attenuation and doppler.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dattributes" title="Retrieves the 3D position and velocity used to apply panning, attenuation and doppler.">ChannelControl::get3DAttributes</a> Retrieves the 3D position and velocity used to apply panning, attenuation and doppler.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dconeorientation" title="Sets the orientation of a 3D cone shape, used for simulated occlusion.">ChannelControl::set3DConeOrientation</a> Sets the orientation of a 3D cone shape, used for simulated occlusion.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dconeorientation" title="Retrieves the orientation of a 3D cone shape, used for simulated occlusion.">ChannelControl::get3DConeOrientation</a> Retrieves the orientation of a 3D cone shape, used for simulated occlusion.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dconesettings" title="Sets the angles and attenuation levels of a 3D cone shape, for simulated occlusion which is based on direction.">ChannelControl::set3DConeSettings</a> Sets the angles and attenuation levels of a 3D cone shape, for simulated occlusion which is based on direction.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dconesettings" title="Retrieves the angles and attenuation levels of a 3D cone shape, for simulated occlusion which is based on direction.">ChannelControl::get3DConeSettings</a> Retrieves the angles and attenuation levels of a 3D cone shape, for simulated occlusion which is based on direction.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dcustomrolloff" title="Sets a custom rolloff shape for 3D distance attenuation.">ChannelControl::set3DCustomRolloff</a> Sets a custom rolloff shape for 3D distance attenuation.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dcustomrolloff" title="Retrieves the current custom rolloff shape for 3D distance attenuation.">ChannelControl::get3DCustomRolloff</a> Retrieves the current custom rolloff shape for 3D distance attenuation.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3ddistancefilter" title="Sets an override value for the 3D distance filter.">ChannelControl::set3DDistanceFilter</a> Sets an override value for the 3D distance filter.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3ddistancefilter" title="Retrieves the override values for the 3D distance filter.">ChannelControl::get3DDistanceFilter</a> Retrieves the override values for the 3D distance filter.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3ddopplerlevel" title="Sets the amount by which doppler is scaled.">ChannelControl::set3DDopplerLevel</a> Sets the amount by which doppler is scaled.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3ddopplerlevel" title="Retrieves the amount by which doppler is scaled.">ChannelControl::get3DDopplerLevel</a> Retrieves the amount by which doppler is scaled.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dlevel" title="Sets the blend between 3D panning and 2D panning.">ChannelControl::set3DLevel</a> Sets the blend between 3D panning and 2D panning.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dlevel" title="Retrieves the blend between 3D panning and 2D panning.">ChannelControl::get3DLevel</a> Retrieves the blend between 3D panning and 2D panning.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dminmaxdistance" title="Sets the minimum and maximum distances used to calculate the 3D rolloff attenuation.">ChannelControl::set3DMinMaxDistance</a> Sets the minimum and maximum distances used to calculate the 3D rolloff attenuation.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dminmaxdistance" title="Retrieves the minimum and maximum distances used to calculate the 3D rolloff attenuation.">ChannelControl::get3DMinMaxDistance</a> Retrieves the minimum and maximum distances used to calculate the 3D rolloff attenuation.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3docclusion" title="Sets the 3D attenuation factors for the direct and reverb paths.">ChannelControl::set3DOcclusion</a> Sets the 3D attenuation factors for the direct and reverb paths.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3docclusion" title="Retrieves the 3D attenuation factors for the direct and reverb paths.">ChannelControl::get3DOcclusion</a> Retrieves the 3D attenuation factors for the direct and reverb paths.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dspread" title="Sets the spread of a 3D sound in speaker space.">ChannelControl::set3DSpread</a> Sets the spread of a 3D sound in speaker space.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dspread" title="Retrieves the spread of a 3D sound in speaker space.">ChannelControl::get3DSpread</a> Retrieves the spread of a 3D sound in speaker space.</li>
+</ul>
+<p><strong>Panning and level adjustment:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setpan" title="Sets the left/right pan level.">ChannelControl::setPan</a> Sets the left/right pan level.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixlevelsinput" title="Sets the incoming volume level for each channel of a multi-channel signal.">ChannelControl::setMixLevelsInput</a> Sets the incoming volume level for each channel of a multi-channel signal.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixlevelsoutput" title="Sets the outgoing volume levels for each speaker.">ChannelControl::setMixLevelsOutput</a> Sets the outgoing volume levels for each speaker.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixmatrix" title="Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">ChannelControl::setMixMatrix</a> Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getmixmatrix" title="Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">ChannelControl::getMixMatrix</a> Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).</li>
+</ul>
+<p><strong>Filtering:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setreverbproperties" title="Sets the wet / send level for a particular reverb instance.">ChannelControl::setReverbProperties</a> Sets the wet / send level for a particular reverb instance.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getreverbproperties" title="Retrieves the wet / send level for a particular reverb instance.">ChannelControl::getReverbProperties</a> Retrieves the wet / send level for a particular reverb instance.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setlowpassgain" title="Sets the gain of the dry signal when built in lowpass / distance filtering is applied.">ChannelControl::setLowPassGain</a> Sets the gain of the dry signal when built in lowpass / distance filtering is applied.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getlowpassgain" title="Retrieves the gain of the dry signal when built in lowpass / distance filtering is applied.">ChannelControl::getLowPassGain</a> Retrieves the gain of the dry signal when built in lowpass / distance filtering is applied.</li>
+</ul>
+<p><strong>DSP chain configuration:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> Adds a DSP unit to the specified index in the DSP chain.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_removedsp" title="Removes the specified DSP unit from the DSP chain.">ChannelControl::removeDSP</a> Removes the specified DSP unit from the DSP chain.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getnumdsps" title="Retrieves the number of DSP units in the DSP chain.">ChannelControl::getNumDSPs</a> Retrieves the number of DSP units in the DSP chain.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdsp" title="Retrieves the DSP unit at the specified index in the DSP chain.">ChannelControl::getDSP</a> Retrieves the DSP unit at the specified index in the DSP chain.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdspindex" title="Sets the index in the DSP chain of the specified DSP.">ChannelControl::setDSPIndex</a> Sets the index in the DSP chain of the specified DSP.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdspindex" title="Retrieves the index of a DSP inside the Channel or ChannelGroup's DSP chain.">ChannelControl::getDSPIndex</a> Retrieves the index of a DSP inside the Channel or ChannelGroup's DSP chain.</li>
+</ul>
+<p><strong>Sample accurate scheduling:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdspclock" title="Retrieves the DSP clock values at this point in time.">ChannelControl::getDSPClock</a> Retrieves the DSP clock values at this point in time.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdelay" title="Sets a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.">ChannelControl::setDelay</a> Sets a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdelay" title="Retrieves a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.">ChannelControl::getDelay</a> Retrieves a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_addfadepoint" title="Adds a sample accurate fade point at a time relative to the parent ChannelGroup DSP clock.">ChannelControl::addFadePoint</a> Adds a sample accurate fade point at a time relative to the parent ChannelGroup DSP clock.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setfadepointramp" title="Adds a volume ramp at the specified time in the future using fade points.">ChannelControl::setFadePointRamp</a> Adds a volume ramp at the specified time in the future using fade points.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_removefadepoints" title="Removes all fade points between the two specified clock values (inclusive).">ChannelControl::removeFadePoints</a> Removes all fade points between the two specified clock values (inclusive).</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getfadepoints" title="Retrieves information about stored fade points.">ChannelControl::getFadePoints</a> Retrieves information about stored fade points.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setcallback" title="Sets the callback for ChannelControl level notifications.">ChannelControl::setCallback</a> Sets the callback for ChannelControl level notifications.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setuserdata" title="Sets a user value associated with this object.">ChannelControl::setUserData</a> Sets a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getuserdata" title="Retrieves a user value associated with this object.">ChannelControl::getUserData</a> Retrieves a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getsystemobject" title="Retrieves the System that created this object.">ChannelControl::getSystemObject</a> Retrieves the System that created this object.</li>
+</ul>
+<h2 api="function" id="channelgroup_addgroup"><a href="#channelgroup_addgroup">ChannelGroup::addGroup</a></h2>
+<p>Adds a ChannelGroup as an input to this group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">ChannelGroup</span><span class="o">::</span><span class="n">addGroup</span><span class="p">(</span>
+  <span class="n">ChannelGroup</span> <span class="o">*</span><span class="n">group</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">propagatedspclock</span> <span class="o">=</span> <span class="nb">true</span><span class="p">,</span>
+  <span class="n">DSPConnection</span> <span class="o">**</span><span class="n">connection</span> <span class="o">=</span> <span class="k">nullptr</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_ChannelGroup_AddGroup</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span><span class="p">,</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">group</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">propagatedspclock</span><span class="p">,</span>
+  <span class="n">FMOD_DSPCONNECTION</span> <span class="o">**</span><span class="n">connection</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">addGroup</span><span class="p">(</span>
+  <span class="n">ChannelGroup</span> <span class="k">group</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">propagatedspclock</span> <span class="p">=</span> <span class="k">true</span>
+<span class="p">);</span>
+<span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">addGroup</span><span class="p">(</span>
+  <span class="n">ChannelGroup</span> <span class="k">group</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">propagatedspclock</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">DSPConnection</span> <span class="n">connection</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">ChannelGroup</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">(</span>
+  <span class="nx">group</span><span class="p">,</span>
+  <span class="nx">propagatedspclock</span><span class="p">,</span>
+  <span class="nx">connection</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>group</dt>
+<dd>Group to add. (<a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>)</dd>
+<dt>propagatedspclock</dt>
+<dd>
+<p>Recursively propagate this object's clock values to <code>group</code>.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+<dt>connection <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Connection between the head <a class="apilink" href="core-api-dsp.html" title="">DSP</a> of <code>group</code> and the tail <a class="apilink" href="core-api-dsp.html" title="">DSP</a> of this object. (<a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channelgroup.html#channelgroup_getnumgroups" title="Retrieves the number of ChannelGroups that feed into to this group.">ChannelGroup::getNumGroups</a>, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getgroup" title="Retrieves the ChannelGroup at the specified index in the list of group inputs.">ChannelGroup::getGroup</a>, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getparentgroup" title="Retrieves the ChannelGroup this object outputs to.">ChannelGroup::getParentGroup</a></p>
+<h2 api="function" id="channelgroup_getchannel"><a href="#channelgroup_getchannel">ChannelGroup::getChannel</a></h2>
+<p>Retrieves the Channel at the specified index in the list of Channel inputs.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">ChannelGroup</span><span class="o">::</span><span class="n">getChannel</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">Channel</span> <span class="o">**</span><span class="n">channel</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_ChannelGroup_GetChannel</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">**</span><span class="n">channel</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">getChannel</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">Channel</span> <span class="n">channel</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">ChannelGroup</span><span class="p">.</span><span class="nx">getChannel</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">channel</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>
+<p>Offset into the list of <a class="apilink" href="core-api-channel.html" title="">Channel</a> inputs.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getnumchannels" title="Retrieves the number of Channels that feed into to this group.">ChannelGroup::getNumChannels</a>)</li>
+</ul>
+</dd>
+<dt>channel <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Channel at the specified index. (<a class="apilink" href="core-api-channel.html" title="">Channel</a>)</dd>
+</dl>
+<h2 api="function" id="channelgroup_getgroup"><a href="#channelgroup_getgroup">ChannelGroup::getGroup</a></h2>
+<p>Retrieves the ChannelGroup at the specified index in the list of group inputs.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">ChannelGroup</span><span class="o">::</span><span class="n">getGroup</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">ChannelGroup</span> <span class="o">**</span><span class="n">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_ChannelGroup_GetGroup</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">**</span><span class="n">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">getGroup</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">ChannelGroup</span> <span class="k">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">ChannelGroup</span><span class="p">.</span><span class="nx">getGroup</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>
+<p>Offset into the list of group inputs.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getnumgroups" title="Retrieves the number of ChannelGroups that feed into to this group.">ChannelGroup::getNumGroups</a>)</li>
+</ul>
+</dd>
+<dt>group <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Group at the specified index. (<a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channelgroup.html#channelgroup_addgroup" title="Adds a ChannelGroup as an input to this group.">ChannelGroup::addGroup</a>, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getparentgroup" title="Retrieves the ChannelGroup this object outputs to.">ChannelGroup::getParentGroup</a></p>
+<h2 api="function" id="channelgroup_getname"><a href="#channelgroup_getname">ChannelGroup::getName</a></h2>
+<p>Retrieves the name set when the group was created.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">ChannelGroup</span><span class="o">::</span><span class="n">getName</span><span class="p">(</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">namelen</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_ChannelGroup_GetName</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">namelen</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">getName</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">string</span> <span class="n">name</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">namelen</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">ChannelGroup</span><span class="p">.</span><span class="nx">getName</span><span class="p">(</span>
+  <span class="nx">name</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>name <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Name of the group. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>namelen</dt>
+<dd>
+<p>Length of <code>name</code>.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_getmasterchannelgroup" title="Retrieves the master ChannelGroup that all sounds ultimately route to.">System::getMasterChannelGroup</a>, <a class="apilink" href="core-api-system.html#system_createchannelgroup" title="Create a ChannelGroup object.">System::createChannelGroup</a></p>
+<h2 api="function" id="channelgroup_getnumchannels"><a href="#channelgroup_getnumchannels">ChannelGroup::getNumChannels</a></h2>
+<p>Retrieves the number of Channels that feed into to this group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">ChannelGroup</span><span class="o">::</span><span class="n">getNumChannels</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numchannels</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_ChannelGroup_GetNumChannels</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numchannels</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">getNumChannels</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">numchannels</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">ChannelGroup</span><span class="p">.</span><span class="nx">getNumChannels</span><span class="p">(</span>
+  <span class="nx">numchannels</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>numchannels <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Number of Channels.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channelgroup.html#channelgroup_getchannel" title="Retrieves the Channel at the specified index in the list of Channel inputs.">ChannelGroup::getChannel</a></p>
+<h2 api="function" id="channelgroup_getnumgroups"><a href="#channelgroup_getnumgroups">ChannelGroup::getNumGroups</a></h2>
+<p>Retrieves the number of ChannelGroups that feed into to this group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">ChannelGroup</span><span class="o">::</span><span class="n">getNumGroups</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numgroups</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_ChannelGroup_GetNumGroups</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numgroups</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">getNumGroups</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">numgroups</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">ChannelGroup</span><span class="p">.</span><span class="nx">getNumGroups</span><span class="p">(</span>
+  <span class="nx">numgroups</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>numgroups <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Number of ChannelGroups.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channelgroup.html#channelgroup_addgroup" title="Adds a ChannelGroup as an input to this group.">ChannelGroup::addGroup</a>, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getgroup" title="Retrieves the ChannelGroup at the specified index in the list of group inputs.">ChannelGroup::getGroup</a>, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getparentgroup" title="Retrieves the ChannelGroup this object outputs to.">ChannelGroup::getParentGroup</a></p>
+<h2 api="function" id="channelgroup_getparentgroup"><a href="#channelgroup_getparentgroup">ChannelGroup::getParentGroup</a></h2>
+<p>Retrieves the ChannelGroup this object outputs to.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">ChannelGroup</span><span class="o">::</span><span class="n">getParentGroup</span><span class="p">(</span>
+  <span class="n">ChannelGroup</span> <span class="o">**</span><span class="n">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_ChannelGroup_GetParentGroup</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span><span class="p">,</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">**</span><span class="n">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">getParentGroup</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">ChannelGroup</span> <span class="k">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">ChannelGroup</span><span class="p">.</span><span class="nx">getParentGroup</span><span class="p">(</span>
+  <span class="nx">group</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>group <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Output group. (<a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channelgroup.html#channelgroup_addgroup" title="Adds a ChannelGroup as an input to this group.">ChannelGroup::addGroup</a>, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getnumgroups" title="Retrieves the number of ChannelGroups that feed into to this group.">ChannelGroup::getNumGroups</a>, <a class="apilink" href="core-api-channelgroup.html#channelgroup_getgroup" title="Retrieves the ChannelGroup at the specified index in the list of group inputs.">ChannelGroup::getGroup</a></p>
+<h2 api="function" id="channelgroup_release"><a href="#channelgroup_release">ChannelGroup::release</a></h2>
+<p>Frees the memory for the group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">ChannelGroup</span><span class="o">::</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_ChannelGroup_Release</span><span class="p">(</span><span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">ChannelGroup</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">ChannelGroup</span><span class="p">.</span><span class="nx">release</span><span class="p">();</span>
+</pre></div>
+
+
+<p>Any <a class="apilink" href="core-api-channel.html" title="">Channel</a>s or <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>s feeding into this group are moved to the master <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createchannelgroup" title="Create a ChannelGroup object.">System::createChannelGroup</a>, <a class="apilink" href="core-api-system.html#system_getmasterchannelgroup" title="Retrieves the master ChannelGroup that all sounds ultimately route to.">System::getMasterChannelGroup</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

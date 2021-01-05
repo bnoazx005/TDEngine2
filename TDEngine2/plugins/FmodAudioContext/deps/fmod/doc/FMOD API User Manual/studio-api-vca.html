@@ -1,0 +1,261 @@
+<html>
+<head>
+<title>Studio API Reference | Studio::VCA</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="studio-api.html">Studio API Reference</a><ul class="subchapters"><li><a href="studio-api-common.html">Common</a></li><li><a href="studio-api-system.html">Studio::System</a></li><li><a href="studio-api-eventdescription.html">Studio::EventDescription</a></li><li><a href="studio-api-eventinstance.html">Studio::EventInstance</a></li><li><a href="studio-api-bus.html">Studio::Bus</a></li><li class="manual-current-chapter manual-active-chapter"><a href="studio-api-vca.html">Studio::VCA</a></li><li><a href="studio-api-bank.html">Studio::Bank</a></li><li><a href="studio-api-commandreplay.html">Studio::CommandReplay</a></li></ul></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>6. Studio API Reference | Studio::VCA</h1>
+<p>Represents a global mixer VCA.</p>
+<p><strong>Volume:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-vca.html#studio_vca_setvolume" title="Sets the volume level.">Studio::VCA::setVolume</a> Sets the volume level.</li>
+<li><a class="apilink" href="studio-api-vca.html#studio_vca_getvolume" title="Retrieves the volume level.">Studio::VCA::getVolume</a> Retrieves the volume level.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-vca.html#studio_vca_getid" title="Retrieves the GUID.">Studio::VCA::getID</a> Retrieves the GUID.</li>
+<li><a class="apilink" href="studio-api-vca.html#studio_vca_getpath" title="Retrieves the path.">Studio::VCA::getPath</a> Retrieves the path.</li>
+<li><a class="apilink" href="studio-api-vca.html#studio_vca_isvalid" title="Checks that the VCA reference is valid.">Studio::VCA::isValid</a> Checks that the VCA reference is valid.</li>
+</ul>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a class="apilink" href="studio-api-system.html#studio_system_getvca" title="Retrieves a loaded VCA.">Studio::System::getVCA</a> Retrieves a loaded VCA. </li>
+</ul>
+<h2 api="function" id="studio_vca_getid"><a href="#studio_vca_getid">Studio::VCA::getID</a></h2>
+<p>Retrieves the GUID.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">VCA</span><span class="o">::</span><span class="n">getID</span><span class="p">(</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_VCA_GetID</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_VCA</span> <span class="o">*</span><span class="n">vca</span><span class="p">,</span>
+  <span class="n">FMOD_GUID</span> <span class="o">*</span><span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">VCA</span><span class="p">.</span><span class="n">getID</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">Guid</span> <span class="n">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">VCA</span><span class="p">.</span><span class="nx">getID</span><span class="p">(</span>
+  <span class="nx">id</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>id <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>VCA <a href="glossary.html#studio-guids-and-paths">GUID</a>. (<a class="apilink" href="core-api-common.html#fmod_guid" title="Structure describing a globally unique identifier.">FMOD_GUID</a>)</dd>
+</dl>
+<h2 api="function" id="studio_vca_getpath"><a href="#studio_vca_getpath">Studio::VCA::getPath</a></h2>
+<p>Retrieves the path.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">VCA</span><span class="o">::</span><span class="n">getPath</span><span class="p">(</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_VCA_GetPath</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_VCA</span> <span class="o">*</span><span class="n">vca</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">VCA</span><span class="p">.</span><span class="n">getPath</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">string</span> <span class="n">path</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">VCA</span><span class="p">.</span><span class="nx">getPath</span><span class="p">(</span>
+  <span class="nx">path</span><span class="p">,</span>
+  <span class="nx">size</span><span class="p">,</span>
+  <span class="nx">retrieved</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>path <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Buffer to receive the <a href="glossary.html#studio-guids-and-paths">path</a>. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>size</dt>
+<dd>Size of the path buffer in bytes. Must be 0 if <code>path</code> is null.</dd>
+<dt>retrieved <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Length of the path in bytes, including the terminating null character.</dd>
+</dl>
+<p>The <a href="glossary.html#studio-strings-bank">strings bank</a> must be loaded prior to calling this function, otherwise <a class="apilink" href="core-api-common.html#fmod_err_event_notfound" title="">FMOD_ERR_EVENT_NOTFOUND</a> is returned.</p>
+<p>If the path is longer than <code>size</code> then it is truncated and this function returns <a class="apilink" href="core-api-common.html#fmod_err_truncated" title="">FMOD_ERR_TRUNCATED</a>.</p>
+<p>The <code>retrieved</code> parameter can be used to get the buffer size required to hold the full path.</p>
+<h2 api="function" id="studio_vca_getvolume"><a href="#studio_vca_getvolume">Studio::VCA::getVolume</a></h2>
+<p>Retrieves the volume level.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">VCA</span><span class="o">::</span><span class="n">getVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">volume</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">finalvolume</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_VCA_GetVolume</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_VCA</span> <span class="o">*</span><span class="n">vca</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">volume</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">finalvolume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">VCA</span><span class="p">.</span><span class="n">getVolume</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+<span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">VCA</span><span class="p">.</span><span class="n">getVolume</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">volume</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">finalvolume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">VCA</span><span class="p">.</span><span class="nx">getVolume</span><span class="p">(</span>
+  <span class="nx">volume</span><span class="p">,</span>
+  <span class="nx">finalvolume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>volume <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Volume set by <a class="apilink" href="studio-api-vca.html#studio_vca_setvolume" title="Sets the volume level.">Studio::VCA::setVolume</a>.</dd>
+<dt>finalvolume <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Final combined volume.</dd>
+</dl>
+<p>The final combined volume returned in <code>finalvolume</code> combines the user value set using <a class="apilink" href="studio-api-vca.html#studio_vca_setvolume" title="Sets the volume level.">Studio::VCA::setVolume</a> with the result of any automation or modulation applied to the VCA. The final combined volume is calculated asynchronously when the Studio system updates.</p>
+<h2 api="function" id="studio_vca_isvalid"><a href="#studio_vca_isvalid">Studio::VCA::isValid</a></h2>
+<p>Checks that the VCA reference is valid.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="o">::</span><span class="n">VCA</span><span class="o">::</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="kt">bool</span> <span class="n">FMOD_Studio_VCA_IsValid</span><span class="p">(</span><span class="n">FMOD_STUDIO_VCA</span> <span class="o">*</span><span class="n">vca</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="kt">bool</span> <span class="n">Studio</span><span class="p">.</span><span class="n">VCA</span><span class="p">.</span><span class="n">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">VCA</span><span class="p">.</span><span class="nx">isValid</span><span class="p">()</span>
+</pre></div>
+
+
+<h2 api="function" id="studio_vca_setvolume"><a href="#studio_vca_setvolume">Studio::VCA::setVolume</a></h2>
+<p>Sets the volume level.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Studio</span><span class="o">::</span><span class="n">VCA</span><span class="o">::</span><span class="n">setVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Studio_VCA_SetVolume</span><span class="p">(</span>
+  <span class="n">FMOD_STUDIO_VCA</span> <span class="o">*</span><span class="n">vca</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Studio</span><span class="p">.</span><span class="n">VCA</span><span class="p">.</span><span class="n">setVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Studio</span><span class="p">.</span><span class="nx">VCA</span><span class="p">.</span><span class="nx">setVolume</span><span class="p">(</span>
+  <span class="nx">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>volume</dt>
+<dd>
+<p>Volume level. Negative level inverts the signal.</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Range:</span> (-inf, inf)</li>
+<li><span class="label">Default:</span> 1</li>
+</ul>
+</dd>
+</dl>
+<p>The VCA volume level is used to linearly modulate the levels of the buses and VCAs which it controls.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="studio-api-vca.html#studio_vca_getvolume" title="Retrieves the volume level.">Studio::VCA::getVolume</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

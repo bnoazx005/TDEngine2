@@ -1,0 +1,230 @@
+<html>
+<head>
+<title>Platform Details | iOS</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="platforms.html">Platform Details</a><ul class="subchapters"><li><a href="platforms-windows.html">Windows</a></li><li><a href="platforms-mac.html">Mac</a></li><li><a href="platforms-linux.html">Linux</a></li><li class="manual-current-chapter manual-active-chapter"><a href="platforms-ios.html">iOS</a></li><li><a href="platforms-android.html">Android</a></li><li><a href="platforms-uwp.html">Universal Windows Platform</a></li><li><a href="platforms-html5.html">HTML5</a></li></ul></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>4. Platform Details | iOS</h1>
+<div class="toc">
+<ul>
+<li><a href="#ios-specific-starter-guide">iOS Specific Starter Guide</a><ul>
+<li><a href="#sdk-version">SDK Version</a></li>
+<li><a href="#compatibility">Compatibility</a></li>
+<li><a href="#libraries">Libraries</a></li>
+<li><a href="#hardware-decoding">Hardware Decoding</a></li>
+<li><a href="#handling-interruptions">Handling Interruptions</a></li>
+<li><a href="#lock-screen-background-audio">Lock Screen &amp; Background Audio</a></li>
+<li><a href="#recording">Recording</a></li>
+<li><a href="#latency">Latency</a></li>
+<li><a href="#multichannel-output">Multichannel Output</a></li>
+<li><a href="#thread-affinity">Thread Affinity</a></li>
+<li><a href="#thread-priority">Thread Priority</a></li>
+</ul>
+</li>
+<li><a href="#performance-reference">Performance Reference</a><ul>
+<li><a href="#format-choice">Format Choice</a></li>
+<li><a href="#voice-count">Voice Count</a><ul>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#test-device-a">Test Device: A</a></li>
+<li><a href="#results-a">Results: A</a></li>
+<li><a href="#test-device-b">Test Device: B</a></li>
+<li><a href="#results-b">Results: B</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="ios-specific-starter-guide"><a href="#ios-specific-starter-guide">iOS Specific Starter Guide</a></h2>
+<h3 id="sdk-version"><a href="#sdk-version">SDK Version</a></h3>
+<p>FMOD is compiled using the following tools.</p>
+<ul>
+<li><strong>Xcode</strong> - version 12.2 targeting SDK 14.2.</li>
+</ul>
+<h3 id="compatibility"><a href="#compatibility">Compatibility</a></h3>
+<p>FMOD supports devices of the below architectures back to iOS / tvOS 9.0. Please note that armv6 is no longer accepted for submission to the iOS App Store and thus is no longer supported by FMOD.</p>
+<ul>
+<li><strong>iOS</strong>: armv7, armv7s, arm64, arm64e</li>
+<li><strong>tvOS</strong>: arm64, arm64e</li>
+<li><strong>iOS simulator</strong>: x86, x86_64, arm64</li>
+<li><strong>tvOS simulator</strong>: x86_64, arm64</li>
+</ul>
+<h3 id="libraries"><a href="#libraries">Libraries</a></h3>
+<p><em>Each lib is a universal binary containing the relevant architectures from the 'Compatibility' list above.</em></p>
+<p>FMOD Core Engine library</p>
+<ul>
+<li><strong>/api/core/lib/libfmod_iphoneos.a</strong> - Release iOS device binary for production code.</li>
+<li><strong>/api/core/lib/libfmodL_iphoneos.a</strong> - Release iOS device binary with logging enabled for development.</li>
+<li><strong>/api/core/lib/libfmod_iphonesimulator.a</strong> - Release iOS simulator binary for production code.</li>
+<li><strong>/api/core/lib/libfmodL_iphonesimulator.a</strong> - Release iOS simulator binary with logging enabled for development.</li>
+<li><strong>/api/core/lib/libfmod_appletvos.a</strong> - Release tvOS device binary for production code.</li>
+<li><strong>/api/core/lib/libfmodL_appletvos.a</strong> - Release tvOS device binary with logging enabled for development.</li>
+<li><strong>/api/core/lib/libfmod_appletvsimulator.a</strong> - Release tvOS simulator binary for production code.</li>
+<li><strong>/api/core/lib/libfmodL_appletvsimulator.a</strong> - Release tvOS simulator binary with logging enabled for development.</li>
+</ul>
+<p>FMOD Studio Engine library (used in conjunction with core library)</p>
+<ul>
+<li><strong>/api/studio/lib/libfmodstudio_iphoneos.a</strong> - Release iOS device binary for production code.</li>
+<li><strong>/api/studio/lib/libfmodstudioL_iphoneos.a</strong> - Release iOS device binary with logging enabled for development.</li>
+<li><strong>/api/studio/lib/libfmodstudio_iphonesimulator.a</strong> - Release iOS simulator binary for production code.</li>
+<li><strong>/api/studio/lib/libfmodstudioL_iphonesimulator.a</strong> - Release iOS simulator binary with logging enabled for development.</li>
+<li><strong>/api/studio/lib/libfmodstudio_appletvos.a</strong> - Release tvOS device binary for production code.</li>
+<li><strong>/api/studio/lib/libfmodstudioL_appletvos.a</strong> - Release tvOS device binary with logging enabled for development.</li>
+<li><strong>/api/studio/lib/libfmodstudio_appletvsimulator.a</strong> - Release tvOS simulator binary for production code.</li>
+<li><strong>/api/studio/lib/libfmodstudioL_appletvsimulator.a</strong> - Release tvOS simulator binary with logging enabled for development.</li>
+</ul>
+<p>Apple libraries (required for Core and Studio Engine libraries)</p>
+<ul>
+<li><strong>AudioToolbox.framework</strong> - Audio output.</li>
+<li><strong>AVFoundation.framework</strong> - Audio Session query.</li>
+</ul>
+<h3 id="hardware-decoding"><a href="#hardware-decoding">Hardware Decoding</a></h3>
+<p>Via the AudioQueue codec FMOD supports decoding AAC, ALAC and MP3. At present iOS devices only have support for decoding one sound with hardware at a time (which may be consumed by playing the iPod). At the cost of extra CPU, all iOS devices have access to software codecs to support more than one sound of these formats. By default FMOD will try to use hardware, if it is in use a software codec will be used. If you want explicit control over whether hardware or software is chosen you can use the <a class="apilink" href="core-api-platform-ios.html#fmod_audioqueue_codecpolicy" title="Control whether the sound will use a the dedicated hardware decoder or a software codec.">FMOD_AUDIOQUEUE_CODECPOLICY</a> enumeration provided in fmod_ios.h. This is set with <a class="apilink" href="core-api-system.html#fmod_createsoundexinfo_audioqueuepolicy" title="">FMOD_CREATESOUNDEXINFO::audioqueuepolicy</a> via <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a>.</p>
+<p>When playing MP3s using the AudioQueue codec, seeking is generally slow for the first time each position is visited. If you need fast random access to a file you can create the sound using the <a class="apilink" href="core-api-common.html#fmod_accuratetime" title="">FMOD_ACCURATETIME</a> flag. This will scan the file at load time to determine its accurate length, which has the benefit of creating a seek table to aid in seeking. This is a one-time upfront cost for fast seeking vs paying the cost at runtime for each unique position.</p>
+<p>All decoding performed by the AudioQueue codec is done on standalone files such as .mp3, .m4a, etc. There is no support for using AudioQueue with FSB / Bank compressed audio, any MP3 decoding for FSB files will be performed by the standard cross-platform FMOD decoder.</p>
+<h3 id="handling-interruptions"><a href="#handling-interruptions">Handling Interruptions</a></h3>
+<p>Unlike in previous versions of FMOD, it is now the responsibility of the developer to interact with the AudioSession APIs native to this platform. To assist in this matter we provide two functions you can use when you need to handle interruptions, <a class="apilink" href="core-api-system.html#system_mixersuspend" title="Suspend mixer thread and relinquish usage of audio hardware while maintaining internal state.">System::mixerSuspend</a> and <a class="apilink" href="core-api-system.html#system_mixerresume" title="Resume mixer thread and reacquire access to audio hardware.">System::mixerResume</a>. For more information about interruptions please check the <a href="http://developer.apple.com/Library/ios/documentation/Audio/Conceptual/AudioSessionProgrammingGuide/HandlingAudioInterruptions/HandlingAudioInterruptions.html">Apple documentation</a>.</p>
+<div class="highlight language-objective-c"><pre><span></span><span class="p">[[</span><span class="bp">NSNotificationCenter</span> <span class="n">defaultCenter</span><span class="p">]</span> <span class="nl">addObserverForName</span><span class="p">:</span><span class="n">AVAudioSessionInterruptionNotification</span> <span class="nl">object</span><span class="p">:</span><span class="nb">nil</span> <span class="nl">queue</span><span class="p">:</span><span class="nb">nil</span> <span class="nl">usingBlock</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="bp">NSNotification</span> <span class="o">*</span><span class="n">notification</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">([[</span><span class="n">notification</span><span class="p">.</span><span class="n">userInfo</span> <span class="nl">valueForKey</span><span class="p">:</span><span class="n">AVAudioSessionInterruptionTypeKey</span><span class="p">]</span> <span class="n">intValue</span><span class="p">]</span> <span class="o">==</span> <span class="n">AVAudioSessionInterruptionTypeBegan</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">FMOD_RESULT</span> <span class="n">result</span> <span class="o">=</span> <span class="n">gSystem</span><span class="o">-&gt;</span><span class="n">mixerSuspend</span><span class="p">();</span>
+        <span class="n">assert</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="n">FMOD_OK</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="kt">BOOL</span> <span class="n">success</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">AVAudioSession</span> <span class="n">sharedInstance</span><span class="p">]</span> <span class="nl">setActive</span><span class="p">:</span><span class="nb">TRUE</span> <span class="nl">error</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+        <span class="n">assert</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+
+        <span class="n">FMOD_RESULT</span> <span class="n">result</span> <span class="o">=</span> <span class="n">gSystem</span><span class="o">-&gt;</span><span class="n">mixerResume</span><span class="p">();</span>
+        <span class="n">assert</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="n">FMOD_OK</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}];</span>
+</pre></div>
+
+
+<h3 id="lock-screen-background-audio"><a href="#lock-screen-background-audio">Lock Screen &amp; Background Audio</a></h3>
+<p>There is no special configuration inside FMOD required to enable the playback of audio from the lock screen or the background, there are two things you must configure outside of FMOD to do this though.</p>
+<ol>
+<li>Choose an AudioSession category that supports background / lock screen audio, see <a href="http://developer.apple.com/Library/ios/documentation/Audio/Conceptual/AudioSessionProgrammingGuide/AudioSessionBasics/AudioSessionBasics.html">audio session basics</a> for more details.</li>
+<li>Enable background audio functionality in your info.plist with the UIBackgroundModes key, see the <a href="http://developer.apple.com/Library/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/iPhoneOSKeys.html">iOS key reference</a> for more details.</li>
+</ol>
+<p>When playing audio on the lock screen (or during the fade out transition to silence when locking) it is important to ensure your buffering is configured correctly to allow low power audio playback. Please consult the latency section of this doc for further details.</p>
+<h3 id="recording"><a href="#recording">Recording</a></h3>
+<p>Much like lock screen and background audio, recording requires a particular AudioSession category to be active at the time of System::recordStart (and must remain active until the recording finishes). The required category is called 'play and record' and can be read about in the <a href="http://developer.apple.com/Library/ios/documentation/Audio/Conceptual/AudioSessionProgrammingGuide/AudioSessionBasics/AudioSessionBasics.html">audio session basics</a> documentation. Note that FMOD is always 'playing' audio (even silence) so it is not sufficient to simply use the 'recording' category unless you are running the 'No Sound' or 'Wav Writer' output mode.</p>
+<p>Some devices may take some time to switch AudioSession category so it is recommended to set this category at application start time to avoid any hiccups in audio playback.</p>
+<h3 id="latency"><a href="#latency">Latency</a></h3>
+<p>The default latency introduced by FMOD for this platform is 4 blocks of 512 samples at a sample rate of 24KHz, which equates to approximately 85ms. You are free to change this using two APIs, System::setDSPBufferSize and System::setSoftwareFormat but there are some important considerations.</p>
+<p>If you have configured background or lock screen audio when locking the device the OS will conserve power by requesting audio from FMOD less frequently. If you desire this functionality please ensure your DSP buffer size is sufficiently large to cover the request. The iOS operating system will expect 4096 samples to be available, so configure FMOD as 8 blocks of 512 samples or 4 blocks of 1024 samples to satisfy the request (otherwise silence will be produced and a warning issued on the TTY).</p>
+<p>If you are worried about latency and do not want automatic low power mode you can configure the Audio Session buffer and sample rate to match FMOD for best results. Assuming an FMOD block size of 512 samples and 24KHz sample rate you should configure the OS with the following:</p>
+<div class="highlight language-objective-c"><pre><span></span><span class="bp">AVAudioSession</span> <span class="o">*</span><span class="n">session</span> <span class="o">=</span> <span class="p">[</span><span class="bp">AVAudioSession</span> <span class="n">sharedInstance</span><span class="p">];</span>
+<span class="kt">double</span> <span class="n">rate</span> <span class="o">=</span> <span class="mf">24000.0</span><span class="p">;</span> <span class="c1">// This should match System::setSoftwareFormat &#39;samplerate&#39; which defaults to 24000</span>
+<span class="kt">int</span> <span class="n">blockSize</span> <span class="o">=</span> <span class="mi">512</span><span class="p">;</span> <span class="c1">// This should match System::setDSPBufferSize &#39;bufferlength&#39; which defaults to 512</span>
+
+<span class="kt">BOOL</span> <span class="n">success</span> <span class="o">=</span> <span class="p">[</span><span class="n">session</span> <span class="nl">setPreferredSampleRate</span><span class="p">:</span><span class="n">rate</span> <span class="nl">error</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+
+<span class="n">success</span> <span class="o">=</span> <span class="p">[</span><span class="n">session</span> <span class="nl">setPreferredIOBufferDuration</span><span class="p">:</span><span class="n">blockSize</span> <span class="o">/</span> <span class="n">rate</span> <span class="nl">error</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+
+<span class="n">success</span> <span class="o">=</span> <span class="p">[</span><span class="n">session</span> <span class="nl">setActive</span><span class="p">:</span><span class="nb">TRUE</span> <span class="nl">error</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+</pre></div>
+
+
+<h3 id="multichannel-output"><a href="#multichannel-output">Multichannel Output</a></h3>
+<p>For hardware that supports greater than stereo output you can configure the device to operate with that channel count using the AudioSession API.</p>
+<p>Here is a code snippet that demonstrates using as many channels as available:</p>
+<div class="highlight language-objective-c"><pre><span></span><span class="bp">AVAudioSession</span> <span class="o">*</span><span class="n">session</span> <span class="o">=</span> <span class="p">[</span><span class="bp">AVAudioSession</span> <span class="n">sharedInstance</span><span class="p">];</span>
+<span class="kt">long</span> <span class="n">maxChannels</span> <span class="o">=</span> <span class="p">[</span><span class="n">session</span> <span class="n">maximumOutputNumberOfChannels</span><span class="p">];</span>
+
+<span class="kt">BOOL</span> <span class="n">success</span> <span class="o">=</span> <span class="p">[</span><span class="n">session</span> <span class="nl">setPreferredOutputNumberOfChannels</span><span class="p">:</span><span class="n">maxChannels</span> <span class="nl">error</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+
+<span class="n">success</span> <span class="o">=</span> <span class="p">[</span><span class="n">session</span> <span class="nl">setActive</span><span class="p">:</span><span class="nb">TRUE</span> <span class="nl">error</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+</pre></div>
+
+
+<h3 id="thread-affinity"><a href="#thread-affinity">Thread Affinity</a></h3>
+<p>All threads will default to <a class="apilink" href="core-api-common.html#fmod_thread_affinity_core_all" title="">FMOD_THREAD_AFFINITY_CORE_ALL</a>, it is not currently possible to override this with <a class="apilink" href="core-api-common.html#thread_setattributes" title="Specify the affinity, priority and stack size for all FMOD created threads.">Thread_SetAttributes</a>.</p>
+<h3 id="thread-priority"><a href="#thread-priority">Thread Priority</a></h3>
+<p>The relationship between FMOD platform agnostic thread priority and the platform specific values is as follows:</p>
+<ul>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_low" title="">FMOD_THREAD_PRIORITY_LOW</a>       ~ 83</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_medium" title="">FMOD_THREAD_PRIORITY_MEDIUM</a>    ~ 87</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_high" title="">FMOD_THREAD_PRIORITY_HIGH</a>      ~ 90</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_very_high" title="">FMOD_THREAD_PRIORITY_VERY_HIGH</a> ~ 94</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_extreme" title="">FMOD_THREAD_PRIORITY_EXTREME</a>   ~ 97</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_critical" title="">FMOD_THREAD_PRIORITY_CRITICAL</a>  ~ 99</li>
+</ul>
+<p>For FMOD to detect the channel count you must use setPreferredOutputNumberOfChannels and activate your AudioSession before calling <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>.</p>
+<h2 id="performance-reference"><a href="#performance-reference">Performance Reference</a></h2>
+<p>This section is a companion for the <a href="white-papers-cpu-performance.html">CPU Performance</a> white paper and serves as a quick reference of facts targeting this platform.</p>
+<h3 id="format-choice"><a href="#format-choice">Format Choice</a></h3>
+<p>Each compression format provided in FMOD has a reason for being included, the below list will detail our recommendations for this platform. Formats listed as primary are considering the best choice, secondary formats should only be considered if the primary doesn't satisfy your requirements.</p>
+<ul>
+<li><strong>FADPCM</strong>: Primary format for all sounds.</li>
+<li><strong>Vorbis</strong>: Secondary format for long streams if FADPCM compression is too low.</li>
+<li><strong>PCM</strong>: Secondary format for short sounds if FADPCM cost is too high.</li>
+<li><strong>AAC</strong>: Special format for long streams, single hardware assisted codec available for .MP4 / .M4A files. </li>
+<li><strong>XMA</strong>: Unavailable.</li>
+<li><strong>AT9</strong>: Unavailable.</li>
+</ul>
+<h3 id="voice-count"><a href="#voice-count">Voice Count</a></h3>
+<p>To give developers an idea about the costs of a particular format we provide synthetic benchmark results. These results are based on simple usage of the FMOD Studio API using recommended configuration settings.</p>
+<h4 id="settings"><a href="#settings">Settings</a></h4>
+<ul>
+<li><strong>Voice count:</strong> 32</li>
+<li><strong>Sample rate:</strong> 24KHz</li>
+<li><strong>Speaker mode:</strong> Stereo</li>
+<li><strong>DSP block size:</strong> 1024 samples</li>
+</ul>
+<h4 id="test-device-a"><a href="#test-device-a">Test Device: A</a></h4>
+<ul>
+<li><strong>CPU:</strong> Apple A7 @ 1.3 GHz (iPhone 5S)</li>
+<li><strong>OS:</strong> 8.0</li>
+</ul>
+<h4 id="results-a"><a href="#results-a">Results: A</a></h4>
+<ul>
+<li><strong>DSP with Vorbis:</strong> 13.7% (+/- 1.3%)</li>
+<li><strong>DSP with FADPCM:</strong> 3.3% (+/- 0.3%)</li>
+<li><strong>DSP with PCM:</strong> 1.1% (+/- 0.2%)</li>
+<li><strong>Update at 60 FPS:</strong> 0.9% (+/- 0.1%)</li>
+</ul>
+<h4 id="test-device-b"><a href="#test-device-b">Test Device: B</a></h4>
+<ul>
+<li><strong>CPU:</strong> ARM Cortex-A9 @ 0.8 GHz (iPhone 4S)</li>
+<li><strong>OS:</strong> 7.1.2</li>
+</ul>
+<h4 id="results-b"><a href="#results-b">Results: B</a></h4>
+<ul>
+<li><strong>DSP with Vorbis:</strong> N/A</li>
+<li><strong>DSP with FADPCM:</strong> 11.9% (+/- 0.8%)</li>
+<li><strong>DSP with PCM:</strong> 6.9% (+/- 0.6%)</li>
+<li><strong>Update at 60 FPS:</strong> 2.8% (+/- 0.5%)</li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

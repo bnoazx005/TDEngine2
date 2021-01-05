@@ -1,0 +1,131 @@
+<html>
+<head>
+<title>Platform Details | Windows</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="platforms.html">Platform Details</a><ul class="subchapters"><li class="manual-current-chapter manual-active-chapter"><a href="platforms-windows.html">Windows</a></li><li><a href="platforms-mac.html">Mac</a></li><li><a href="platforms-linux.html">Linux</a></li><li><a href="platforms-ios.html">iOS</a></li><li><a href="platforms-android.html">Android</a></li><li><a href="platforms-uwp.html">Universal Windows Platform</a></li><li><a href="platforms-html5.html">HTML5</a></li></ul></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>4. Platform Details | Windows</h1>
+<div class="toc">
+<ul>
+<li><a href="#windows-specific-starter-guide">Windows Specific Starter Guide</a><ul>
+<li><a href="#sdk-version">SDK Version</a></li>
+<li><a href="#compatibility">Compatibility</a></li>
+<li><a href="#libraries">Libraries</a></li>
+<li><a href="#com">COM</a></li>
+<li><a href="#thread-affinity">Thread Affinity</a></li>
+<li><a href="#thread-priority">Thread Priority</a></li>
+</ul>
+</li>
+<li><a href="#performance-reference">Performance Reference</a><ul>
+<li><a href="#format-choice">Format Choice</a></li>
+<li><a href="#voice-count">Voice Count</a><ul>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#test-device">Test Device</a></li>
+<li><a href="#results">Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="windows-specific-starter-guide"><a href="#windows-specific-starter-guide">Windows Specific Starter Guide</a></h2>
+<h3 id="sdk-version"><a href="#sdk-version">SDK Version</a></h3>
+<p>FMOD is compiled using the following tools.</p>
+<ul>
+<li><strong>Visual Studio 2019</strong> - version 16.4.5 targeting platform toolset v142.</li>
+</ul>
+<h3 id="compatibility"><a href="#compatibility">Compatibility</a></h3>
+<p>FMOD supports the below architectures back to Windows 7.</p>
+<ul>
+<li><strong>x86</strong> - optimized with SSE3.</li>
+<li><strong>x64</strong> - optimized with SSE3 (and AVX if detected at runtime).</li>
+</ul>
+<h3 id="libraries"><a href="#libraries">Libraries</a></h3>
+<p><em>The provided libs are import libraries which require the corresponding DLL to be present at runtime. Substitute $ARCH your desired architecture from the 'Compatibility' list above.</em></p>
+<p>The C API of the supplied libraries are compatible with MinGW (C++ ABI not supported). The 64 bit dll can be linked directly. You will need to use the import library libfmod.a and libfmodstudio.a in order to link the 32 bit dlls.</p>
+<p>If you encounter issues linking fmod with MinGW, ensure that you are following the GCC linker ordering requirements and the MinGW library search order.</p>
+<p>FMOD Core Engine library</p>
+<ul>
+<li><strong>/api/core/lib/$ARCH/fmod_vc.lib</strong> - Release binary for production code (requires fmod.dll at runtime).</li>
+<li><strong>/api/core/lib/$ARCH/fmodL_vc.lib</strong> - Release binary with logging enabled for development (requires fmodL.dll at runtime).</li>
+</ul>
+<p>FMOD Studio Engine library (used in conjunction with core library)</p>
+<ul>
+<li><strong>/api/studio/lib/$ARCH/fmodstudio_vc.lib</strong> - Release binary for production code (requires fmodstudio.dll at runtime).</li>
+<li><strong>/api/studio/lib/$ARCH/fmodstudioL_vc.lib</strong> - Release binary with logging enabled for development (requires fmodstudioL.dll at runtime).</li>
+</ul>
+<h3 id="com"><a href="#com">COM</a></h3>
+<p>Before calling any FMOD functions it is important to ensure COM is initialized. You can achieve this by calling <code>CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)</code> on each thread that will interact with the FMOD API. This is balanced with a call to <code>CoUninitialize()</code> when you are completely finished with all calls to FMOD.</p>
+<p>If you fail to initialize COM, FMOD will perform this on-demand for you issuing a warning. FMOD will not uninitialize COM in this case so it will be considered a memory leak.</p>
+<p>To ensure correct behavior FMOD assumes when using the WASAPI output mode (default for Windows Vista and newer) that you call <a class="apilink" href="core-api-system.html#system_getnumdrivers" title="Retrieves the number of output drivers available for the selected output type.">System::getNumDrivers</a>, <a class="apilink" href="core-api-system.html#system_getdriverinfo" title="Retrieves identification information about a sound device specified by its index, and specific to the selected output mode.">System::getDriverInfo</a> and <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> from your UI thread. This ensures that any platform specific dialogs that need to be presented can do so. This recommendation comes from the <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd370865.aspx">IAudioClient</a> interface docs on MSDN which state:</p>
+<blockquote>
+<p>In Windows 8, the first use of IAudioClient to access the audio device should be on the STA thread. Calls from an MTA thread may result in undefined behavior.</p>
+</blockquote>
+<h3 id="thread-affinity"><a href="#thread-affinity">Thread Affinity</a></h3>
+<p>All threads will default to <a class="apilink" href="core-api-common.html#fmod_thread_affinity_core_all" title="">FMOD_THREAD_AFFINITY_CORE_ALL</a>, this is recommended due to the wide variety of PC hardware but can be customized with <a class="apilink" href="core-api-common.html#thread_setattributes" title="Specify the affinity, priority and stack size for all FMOD created threads.">Thread_SetAttributes</a>.</p>
+<h3 id="thread-priority"><a href="#thread-priority">Thread Priority</a></h3>
+<p>The relationship between FMOD platform agnostic thread priority and the platform specific values is as follows:</p>
+<ul>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_low" title="">FMOD_THREAD_PRIORITY_LOW</a>       ~ THREAD_PRIORITY_BELOW_NORMAL</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_medium" title="">FMOD_THREAD_PRIORITY_MEDIUM</a>    ~ THREAD_PRIORITY_NORMAL</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_high" title="">FMOD_THREAD_PRIORITY_HIGH</a>      ~ THREAD_PRIORITY_ABOVE_NORMAL</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_very_high" title="">FMOD_THREAD_PRIORITY_VERY_HIGH</a> ~ THREAD_PRIORITY_HIGHEST</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_extreme" title="">FMOD_THREAD_PRIORITY_EXTREME</a>   ~ THREAD_PRIORITY_TIME_CRITICAL</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_critical" title="">FMOD_THREAD_PRIORITY_CRITICAL</a>  ~ THREAD_PRIORITY_TIME_CRITICAL</li>
+</ul>
+<h2 id="performance-reference"><a href="#performance-reference">Performance Reference</a></h2>
+<p>This section is a companion for the <a href="white-papers-cpu-performance.html">CPU Performance</a> white paper and serves as a quick reference of facts targeting this platform.</p>
+<h3 id="format-choice"><a href="#format-choice">Format Choice</a></h3>
+<p>Each compression format provided in FMOD has a reason for being included, the below list will detail our recommendations for this platform. Formats listed as primary are considering the best choice, secondary formats should only be considered if the primary doesn't satisfy your requirements.</p>
+<ul>
+<li><strong>Vorbis</strong>: Primary format for all sounds.</li>
+<li><strong>FADPCM</strong>: Secondary format if Vorbis CPU usage is too high for low spec machines.</li>
+<li><strong>PCM</strong>: Not recommended.</li>
+<li><strong>XMA</strong>: Unavailable.</li>
+<li><strong>AT9</strong>: Unavailable.</li>
+</ul>
+<h3 id="voice-count"><a href="#voice-count">Voice Count</a></h3>
+<p>To give developers an idea about the costs of a particular format we provide synthetic benchmark results. These results are based on simple usage of the FMOD Studio API using recommended configuration settings.</p>
+<h4 id="settings"><a href="#settings">Settings</a></h4>
+<ul>
+<li><strong>Voice count:</strong> 64</li>
+<li><strong>Sample rate:</strong> 48KHz</li>
+<li><strong>Speaker mode:</strong> Stereo</li>
+<li><strong>DSP block size:</strong> 1024 samples</li>
+</ul>
+<h4 id="test-device"><a href="#test-device">Test Device</a></h4>
+<ul>
+<li><strong>CPU:</strong> Intel Core 2 Duo E6600 @ 2.4 GHz</li>
+<li><strong>OS:</strong> Windows XP </li>
+</ul>
+<h4 id="results"><a href="#results">Results</a></h4>
+<ul>
+<li><strong>DSP with Vorbis:</strong> 22.2% (+/- 1.6%)</li>
+<li><strong>DSP with FADPCM:</strong> 5.5% (+/- 0.1%)</li>
+<li><strong>DSP with PCM:</strong> 3.3% (+/- 0.1%)</li>
+<li><strong>Update at 60 FPS:</strong> 0.8% (+/- 0.2%)</li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

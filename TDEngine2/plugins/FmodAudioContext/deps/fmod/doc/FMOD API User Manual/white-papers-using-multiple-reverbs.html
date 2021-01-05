@@ -1,0 +1,90 @@
+<html>
+<head>
+<title>White Papers | Using Multiple Reverbs</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Using Multiple Reverbs</h1>
+<div class="toc">
+<ul>
+<li><a href="#using-multiple-reverbs">Using multiple reverbs</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#setting-up-the-reverbs">Setting up the reverbs</a></li>
+<li><a href="#getting-the-reverb-properties">Getting the reverb properties</a></li>
+<li><a href="#setting-the-wetdry-mix-per-channel">Setting the wet/dry mix per Channel</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="using-multiple-reverbs"><a href="#using-multiple-reverbs">Using multiple reverbs</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>In some situations, multiple styles of reverberations within a single environment must be modeled. For example, imagine a large church hall with a tunnel down into the catacombs. The reverb applied to the player's footsteps within the church hall (such as <a class="apilink" href="core-api-system.html#fmod_preset_stoneroom" title="">FMOD_PRESET_STONEROOM</a>) could be quite different to that of the monster sounds emitting from the tunnel (which may be applied with both <a class="apilink" href="core-api-system.html#fmod_preset_sewerpipe" title="">FMOD_PRESET_SEWERPIPE</a> and <a class="apilink" href="core-api-system.html#fmod_preset_stoneroom" title="">FMOD_PRESET_STONEROOM</a>). To handle this situation, multiple instances of the reverb DSP are required. As many as four instances of the reverb DSP can be added to the FMOD DSP Network (at a cost of more CPU time and memory usage).</p>
+<p>Note: Should you want to model multiple reverbs types within an environment without the extra resource expense of multiple physical reverbs, see the 3D reverb tutorial, which covers automated 3D reverb zones using single reverb instance.</p>
+<p>In this section we will look at examples of:</p>
+<p>Adding physical reverbs using the core API<br />
+Querying an instance's reverb properties<br />
+Controlling the wet/dry mix of each reverb instance per channel<br />
+In the FMOD Studio UI you would typically allow the sound designer to set up their own reverbs on group buses, and use sends and mixer snapshots to allow the sound designer to control the reverb mix for events.</p>
+<h3 id="setting-up-the-reverbs"><a href="#setting-up-the-reverbs">Setting up the reverbs</a></h3>
+<p>Below is an example of setting up four reverb instances. You do not need to explicitly create the extra reverb instance DSP objects - the FMOD Studio engine creates them and connects them to the DSP Network when you reference them.</p>
+<p>In the following example we will use <a class="apilink" href="core-api-system.html#system_setreverbproperties" title="Sets parameters for the global reverb environment.">System::setReverbProperties</a> to specify four different reverb effects.</p>
+<p>First we define four different <a class="apilink" href="core-api-system.html#fmod_reverb_properties" title="Structure defining a reverb environment.">FMOD_REVERB_PROPERTIES</a> structures. The example below uses presets. You can define your own reverb settings but presets make it easier to get some common reverbs working.  See <a class="apilink" href="core-api-system.html#fmod_reverb_presets" title="Predefined reverb configurations.">FMOD_REVERB_PRESETS</a>.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_REVERB_PROPERTIES prop1 = FMOD_PRESET_HALLWAY;
+FMOD_REVERB_PROPERTIES prop2 = FMOD_PRESET_SEWERPIPE;
+FMOD_REVERB_PROPERTIES prop3 = FMOD_PRESET_PARKINGLOT;
+FMOD_REVERB_PROPERTIES prop4 = FMOD_PRESET_CONCERTHALL;
+</pre></div>
+
+
+<p>We then supply the 'instance' parameter to set which reverb DSP unit will be used for each preset, whilst calling the <a class="apilink" href="core-api-system.html#system_setreverbproperties" title="Sets parameters for the global reverb environment.">System::setReverbProperties</a> function.</p>
+<div class="highlight language-text"><pre><span></span>result = system-&gt;setReverbProperties(0, &amp;prop1);
+result = system-&gt;setReverbProperties(1, &amp;prop2);
+result = system-&gt;setReverbProperties(2, &amp;prop3);
+result = system-&gt;setReverbProperties(3, &amp;prop4);
+</pre></div>
+
+
+<h3 id="getting-the-reverb-properties"><a href="#getting-the-reverb-properties">Getting the reverb properties</a></h3>
+<p>Should you wish to get the current System reverb properties, you must specify the instance number in the 'instance' parameter when calling <a class="apilink" href="core-api-system.html#system_getreverbproperties" title="Retrieves the current reverb environment for the specified reverb instance.">System::getReverbProperties</a>. In this example we will get the properties for Instance 3.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_REVERB_PROPERTIES prop = { 0 };
+result = system-&gt;getReverbProperties(3, &amp;prop);
+</pre></div>
+
+
+<h3 id="setting-the-wetdry-mix-per-channel"><a href="#setting-the-wetdry-mix-per-channel">Setting the wet/dry mix per Channel</a></h3>
+<p>Each channel of the FMOD Studio mixer can set their wet/dry mix for each reverb with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setreverbproperties" title="Sets the wet / send level for a particular reverb instance.">ChannelControl::setReverbProperties</a>. <br />
+By default a channel will send to all instances. This example sets the instance 1 send value to linear 0.0 (-80 db) (off).</p>
+<div class="highlight language-text"><pre><span></span>result = channel-&gt;setReverbProperties(1, 0.0f);
+</pre></div>
+
+
+<p>To get the reverb mix level to be full volume again, simply set it to 1 (0db)</p>
+<div class="highlight language-text"><pre><span></span>result = channel-&gt;setReverbProperties(1, 1.0f);
+</pre></div>
+
+
+<p>This system supercedes the now obsolete method of using FMOD_REVERB_CHANNELPROPERTIES and flags to specify which instance.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

@@ -1,0 +1,604 @@
+<html>
+<head>
+<title>Platform Details | HTML5</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="platforms.html">Platform Details</a><ul class="subchapters"><li><a href="platforms-windows.html">Windows</a></li><li><a href="platforms-mac.html">Mac</a></li><li><a href="platforms-linux.html">Linux</a></li><li><a href="platforms-ios.html">iOS</a></li><li><a href="platforms-android.html">Android</a></li><li><a href="platforms-uwp.html">Universal Windows Platform</a></li><li class="manual-current-chapter manual-active-chapter"><a href="platforms-html5.html">HTML5</a></li></ul></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>4. Platform Details | HTML5</h1>
+<div class="toc">
+<ul>
+<li><a href="#html5-specific-starter-guide">HTML5 Specific Starter Guide</a><ul>
+<li><a href="#sdk-version">SDK Version</a></li>
+<li><a href="#limitations">Limitations</a><ul>
+<li><a href="#multi-threading">Multi-threading</a></li>
+<li><a href="#networking">Networking</a></li>
+<li><a href="#performance">Performance</a></li>
+</ul>
+</li>
+<li><a href="#technologies-supported-by-html5-what-to-use">Technologies supported by HTML5, what to use</a></li>
+<li><a href="#which-files-do-you-include">Which files do you include?</a></li>
+<li><a href="#build-your-own-asmjs-or-wasm-files-from-the-bitcode-bc-files">Build your own ASM.JS or WASM files from the BitCode (.bc) files.</a><ul>
+<li><a href="#for-the-fmod-core-api">For the FMOD Core API</a></li>
+<li><a href="#for-fmod-studio-runtime-api">For FMOD Studio Runtime API</a></li>
+</ul>
+</li>
+<li><a href="#browser-compatibility">Browser Compatibility</a></li>
+<li><a href="#essential-startup-information">Essential Startup Information</a><ul>
+<li><a href="#start-up-code">Start up code</a></li>
+<li><a href="#safari-and-chrome-browser-user-interaction-requirement-use-for-all-browsers">Safari and Chrome Browser user interaction requirement (use for all browsers)</a></li>
+</ul>
+</li>
+<li><a href="#reduced-feature-build">Reduced Feature build</a><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#codec-support">Codec Support</a></li>
+<li><a href="#dsp-effect-support">DSP Effect support</a></li>
+<li><a href="#speaker-mode-support">Speaker mode support</a></li>
+<li><a href="#feature-support">Feature support</a></li>
+</ul>
+</li>
+<li><a href="#api-javascript-port-of-a-cc-api-differences">API - JavaScript port of a C/C++ API. Differences.</a><ul>
+<li><a href="#setting-and-getting">Setting and getting.</a></li>
+<li><a href="#constants-that-started-with-fmod_-in-cc">Constants that started with FMOD_ in C/C++</a></li>
+<li><a href="#using-structures">Using structures</a></li>
+<li><a href="#api-differences">API differences</a></li>
+</ul>
+</li>
+<li><a href="#file-access">File Access</a><ul>
+<li><a href="#direct-from-host-via-fmods-filesystem">Direct from host, via FMOD's filesystem</a></li>
+<li><a href="#via-memory">Via memory</a></li>
+<li><a href="#via-callbacks">Via callbacks</a></li>
+</ul>
+</li>
+<li><a href="#javascript-specific-functions-for-fmod">JavaScript specific functions for FMOD</a><ul>
+<li><a href="#helper-functions">Helper functions</a></li>
+<li><a href="#system">System</a></li>
+<li><a href="#file">File</a></li>
+<li><a href="#misc">Misc</a></li>
+</ul>
+</li>
+<li><a href="#linking-fmod-for-html5-in-a-c-program-that-is-to-be-converted-via-emscripten">Linking FMOD for HTML5 in a C program that is to be converted via emscripten</a></li>
+<li><a href="#performance-and-memory">Performance and Memory</a><ul>
+<li><a href="#cpu-overhead">CPU Overhead</a></li>
+<li><a href="#audio-stability-stuttering">Audio Stability (Stuttering)</a></li>
+<li><a href="#threads">Threads</a></li>
+<li><a href="#heap-memory">'Heap' Memory</a></li>
+</ul>
+</li>
+<li><a href="#limitations_1">Limitations</a><ul>
+<li><a href="#non-blocking-loading">Non-blocking loading</a></li>
+</ul>
+</li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="html5-specific-starter-guide"><a href="#html5-specific-starter-guide">HTML5 Specific Starter Guide</a></h2>
+<p>Running FMOD as HTML5 on the web is made possible by having a web server host and deliver the JavaScript content to the client web browser. In a production environment this would be hosted using a professional web server such as Apache, but during development we recommend an easy to set up local server such as <a href="https://chrome.google.com/webstore/detail/web-server-for-chrome/ofhbbkphhbklhfoeikjpcbhemlocgigb">Web Server for Chrome</a></p>
+<h3 id="sdk-version"><a href="#sdk-version">SDK Version</a></h3>
+<p>FMOD is compiled using the following tools.</p>
+<ul>
+<li><strong>Emscripten</strong> - 1.39.11-64bit</li>
+</ul>
+<h3 id="limitations"><a href="#limitations">Limitations</a></h3>
+<p>The web presents a unique set of challenges that make this implementation less than perfect when compared to other platforms supported by the FMOD Engine.</p>
+<h4 id="multi-threading"><a href="#multi-threading">Multi-threading</a></h4>
+<p>One significant disadvantage is the lack of multi-threading, or more specifically, limited browser support of features such as <a href="https://caniuse.com/#feat=sharedarraybuffer">SharedArrayBuffer</a> that prevent our toolchain from implementing <a href="https://emscripten.org/docs/porting/pthreads.html">pthread support</a>. This limitation means we must run mixing, streaming and loading all in the game thread requiring added latency to hide the additional CPU cost.</p>
+<h4 id="networking"><a href="#networking">Networking</a></h4>
+<p>Another disadvantage of the web platform is the lack of networking sockets. There are <a href="https://emscripten.org/docs/porting/networking.html">alternatives</a> provided by our toolchain, however they require additional servers running as a proxy. This limitation means we cannot implement Live Update and Profiling features between the running code and FMOD Studio. Additionally this means we cannot support internet streaming of audio (netstreams).</p>
+<h4 id="performance"><a href="#performance">Performance</a></h4>
+<p>Many platforms benefit from targeted instruction level optimization known as SIMD (single instruction multiple data), these optimizations allow FMOD to perform several times faster than with standard C code instructions alone. Unfortunately development of <a href="https://emscripten.org/docs/porting/simd.html">SIMD for the web</a> is an ongoing process and not ready for us to consume. This coupled with the fact the native FMOD C code has been converted to run in a browser means you will experience worse performance than the equivalent application running natively (outside the browser).</p>
+<h3 id="technologies-supported-by-html5-what-to-use"><a href="#technologies-supported-by-html5-what-to-use">Technologies supported by HTML5, what to use</a></h3>
+<p>There are 3 ways to include FMOD in your project. </p>
+<ol>
+<li>A JS file included in a HTML file, using the older ASM.JS technology.  Slower and uses more memory, but best for compatibility.</li>
+<li>A JS file included in a HTML file, using the newer WASM technology.  Faster (approximately 30%) and uses half the memory of ASM.JS, but requires the web browser to support the WASM technology, and also a webserver that understands the .wasm 'application/wasm' mime type.</li>
+<li>A BC file included in an emscripten project, using C++.  This is if you are using Emscripten with your own C/C++ code to convert to JavaScript.  BC is an intermediate format.</li>
+</ol>
+<p>To include FMOD using JavaScript in a html file, use the following code in your HTML.</p>
+<p>Core API Only:</p>
+<div class="highlight language-html"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;fmod.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</pre></div>
+
+
+<p>FMOD Studio API:</p>
+<div class="highlight language-html"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;fmodstudio.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</pre></div>
+
+
+<h3 id="which-files-do-you-include"><a href="#which-files-do-you-include">Which files do you include?</a></h3>
+<p>Firstly we include two separate flavours of build, "fastcomp" and "upstream" representing the old and new back-ends supported by Emscripten.<br />
+Fastcomp builds intermediate bitcode (bc) binaries that are then linked to produce ASM.js and WASM implementations.<br />
+Upstream builds intermediate wasm32 (w32) static libraries that are then linked to produce Javascript and WASM implementations.<br />
+The Emscripten official <a href="https://emscripten.org/docs/compiling/WebAssembly.html?highlight=fastcomp#backends">website</a> has further information about the differences.</p>
+<p>Below are the 3 categories of files you can include based on the 3 categories listed above.<br />
+You can either use the FMOD Core API only, or the FMOD Studio API.</p>
+<hr />
+<p>Fastcomp ASM.JS - FMOD Core API</p>
+<ul>
+<li><strong>/api/core/lib/fastcomp/asm.js/fmod.js</strong> - Release library for production code</li>
+<li><strong>/api/core/lib/fastcomp/asm.js/fmod.js.mem</strong> - memory file needed to accompany <strong>fmod.js</strong> (put in same folder)</li>
+<li><strong>/api/core/lib/fastcomp/asm.js/fmodL.js</strong> - Release library with logging output, use for debugging.</li>
+<li><strong>/api/core/lib/fastcomp/asm.js/fmodL.js.mem</strong> - memory file needed to accompany <strong>fmodL.js</strong> (put in same folder)</li>
+<li><strong>/api/core/lib/fastcomp/asm.js/fmod_reduced.js</strong> - Release library for production code, w/reduced features for lower memory footprint.  Check the <a href="#reduced-feature-build">reduced</a> library section for what is removed.</li>
+<li><strong>/api/core/lib/fastcomp/asm.js/fmod_reduced.js.mem</strong> - memory file needed to accompany <strong>fmod_reduced.js</strong> (put in same folder)</li>
+</ul>
+<p>Fastcomp ASM.JS - FMOD Studio API</p>
+<ul>
+<li><strong>/api/studio/lib/fastcomp/asm.js/fmodstudio.js</strong> - Release library for production code.  Contains fmod_reduced.js, see note below.</li>
+<li><strong>/api/studio/lib/fastcomp/asm.js/fmodstudio.js.mem</strong> - memory file needed to accompany <strong>fmodstudio.js</strong></li>
+<li><strong>/api/studio/lib/fastcomp/asm.js/fmodstudioL.js</strong> - Release library with logging output, use for debugging.  Contains fmodL.js, see note below.</li>
+<li><strong>/api/studio/lib/fastcomp/asm.js/fmodstudioL.js.mem</strong> - memory file needed to accompany <strong>fmodstudioL.js</strong></li>
+</ul>
+<p>Upstream Javascript - FMOD Core API</p>
+<ul>
+<li><strong>/api/core/lib/upstream/js/fmod.js</strong> - Release library for production code</li>
+<li><strong>/api/core/lib/upstream/js/fmod.js.mem</strong> - memory file needed to accompany <strong>fmod.js</strong> (put in same folder)</li>
+<li><strong>/api/core/lib/upstream/js/fmodL.js</strong> - Release library with logging output, use for debugging.</li>
+<li><strong>/api/core/lib/upstream/js/fmodL.js.mem</strong> - memory file needed to accompany <strong>fmodL.js</strong> (put in same folder)</li>
+<li><strong>/api/core/lib/upstream/js/fmod_reduced.js</strong> - Release library for production code, w/reduced features for lower memory footprint.  Check the <a href="#reduced-feature-build">reduced</a> library section for what is removed.</li>
+<li><strong>/api/core/lib/upstream/js/fmod_reduced.js.mem</strong> - memory file needed to accompany <strong>fmod_reduced.js</strong> (put in same folder)</li>
+</ul>
+<p>Upstream Javascript - FMOD Studio API</p>
+<ul>
+<li><strong>/api/studio/lib/upstream/js/fmodstudio.js</strong> - Release library for production code.  Contains fmod_reduced.js, see note below.</li>
+<li><strong>/api/studio/lib/upstream/js/fmodstudio.js.mem</strong> - memory file needed to accompany <strong>fmodstudio.js</strong></li>
+<li><strong>/api/studio/lib/upstream/js/fmodstudioL.js</strong> - Release library with logging output, use for debugging.  Contains fmodL.js, see note below.</li>
+<li><strong>/api/studio/lib/upstream/js/fmodstudioL.js.mem</strong> - memory file needed to accompany <strong>fmodstudioL.js</strong></li>
+</ul>
+<hr />
+<p>Fastcomp WASM - FMOD Core API</p>
+<ul>
+<li><strong>/api/core/lib/fastcomp/wasm/fmod.js</strong> - Release library for production code</li>
+<li><strong>/api/core/lib/fastcomp/wasm/fmod.wasm</strong> - Web Assembly file needed to accompany <strong>fmod.js</strong> (put in same folder)</li>
+<li><strong>/api/core/lib/fastcomp/wasm/fmodL.js</strong> - Release library with logging output, use for debugging.</li>
+<li><strong>/api/core/lib/fastcomp/wasm/fmodL.wasm</strong> - Web Assembly file needed to accompany <strong>fmodL.js</strong> (put in same folder)</li>
+<li><strong>/api/core/lib/fastcomp/wasm/fmod_reduced.js</strong> - Release library for production code, w/reduced features for lower memory footprint.  Check the <a href="#reduced-feature-build">reduced</a> library section for what is removed.</li>
+<li><strong>/api/core/lib/fastcomp/wasm/fmod_reduced.wasm</strong> - Web Assembly file needed to accompany <strong>fmod_reduced.js</strong> (put in same folder)</li>
+</ul>
+<p>Fastcomp WASM - FMOD Studio API</p>
+<ul>
+<li><strong>/api/studio/lib/fastcomp/wasm/fmodstudio.js</strong> - Release library for production code.  Contains fmod_reduced.js, see note below.</li>
+<li><strong>/api/studio/lib/fastcomp/wasm/fmodstudio.wasm</strong> - Web Assembly file needed to accompany <strong>fmodstudio.js</strong></li>
+<li><strong>/api/studio/lib/fastcomp/wasm/fmodstudioL.js</strong> - Release library with logging output, use for debugging.  Contains fmodL.js, see note below.</li>
+<li><strong>/api/studio/lib/fastcomp/wasm/fmodstudioL.wasm</strong> - Web Assembly file needed to accompany <strong>fmodstudioL.js</strong></li>
+</ul>
+<p>Upstream WASM - FMOD Core API</p>
+<ul>
+<li><strong>/api/core/lib/upstream/wasm/fmod.js</strong> - Release library for production code</li>
+<li><strong>/api/core/lib/upstream/wasm/fmod.wasm</strong> - Web Assembly file needed to accompany <strong>fmod.js</strong> (put in same folder)</li>
+<li><strong>/api/core/lib/upstream/wasm/fmodL.js</strong> - Release library with logging output, use for debugging.</li>
+<li><strong>/api/core/lib/upstream/wasm/fmodL.wasm</strong> - Web Assembly file needed to accompany <strong>fmodL.js</strong> (put in same folder)</li>
+<li><strong>/api/core/lib/upstream/wasm/fmod_reduced.js</strong> - Release library for production code, w/reduced features for lower memory footprint.  Check the <a href="#reduced-feature-build">reduced</a> library section for what is removed.</li>
+<li><strong>/api/core/lib/upstream/wasm/fmod_reduced.wasm</strong> - Web Assembly file needed to accompany <strong>fmod_reduced.js</strong> (put in same folder)</li>
+</ul>
+<p>Upstream WASM - FMOD Studio API</p>
+<ul>
+<li><strong>/api/studio/lib/upstream/wasm/fmodstudio.js</strong> - Release library for production code.  Contains fmod_reduced.js, see note below.</li>
+<li><strong>/api/studio/lib/upstream/wasm/fmodstudio.wasm</strong> - Web Assembly file needed to accompany <strong>fmodstudio.js</strong></li>
+<li><strong>/api/studio/lib/upstream/wasm/fmodstudioL.js</strong> - Release library with logging output, use for debugging.  Contains fmodL.js, see note below.</li>
+<li><strong>/api/studio/lib/upstream/wasm/fmodstudioL.wasm</strong> - Web Assembly file needed to accompany <strong>fmodstudioL.js</strong></li>
+</ul>
+<hr />
+<p>Fastcomp BitCode - FMOD Core API</p>
+<ul>
+<li><strong>/api/core/lib/fastcomp/bitcode/fmod.bc</strong> - Release binary for production code.</li>
+<li><strong>/api/core/lib/fastcomp/bitcode/fmodL.bc</strong> - Release binary with logging enabled for development.</li>
+<li><strong>/api/core/lib/fastcomp/bitcode/fmod_reduced.bc</strong> - Release binary with reduced features, for production code.  Check the <a href="#reduced-feature-build">reduced</a> library section for what is removed.</li>
+</ul>
+<p>Fastcomp BitCode - FMOD Studio API</p>
+<ul>
+<li><strong>/api/studio/lib/fastcomp/bitcode/fmodstudio.bc</strong> - Release binary for production code.  Contains fmod_reduced.bc, see note below.</li>
+<li><strong>/api/studio/lib/fastcomp/bitcode/fmodstudioL.bc</strong> - Release binary with logging enabled for development.  Contains fmodL.bc, see note below.</li>
+</ul>
+<p>Upstream W32 - FMOD Core API</p>
+<ul>
+<li><strong>/api/core/lib/upstream/w32/fmod.a</strong> - Release binary for production code.</li>
+<li><strong>/api/core/lib/upstream/w32/fmodL.a</strong> - Release binary with logging enabled for development.</li>
+<li><strong>/api/core/lib/upstream/w32/fmod_reduced.a</strong> - Release binary with reduced features, for production code.  Check the <a href="#reduced-feature-build">reduced</a> library section for what is removed.</li>
+</ul>
+<p>Upstream W32 - FMOD Studio API</p>
+<ul>
+<li><strong>/api/studio/lib/upstream/w32/fmodstudio.a</strong> - Release binary for production code.  Contains fmod_reduced.a, see note below.</li>
+<li><strong>/api/studio/lib/upstream/w32/fmodstudioL.a</strong> - Release binary with logging enabled for development.  Contains fmodL.a, see note below.</li>
+</ul>
+<hr />
+<p>Note.  The FMOD Studio API .js (and .bc) files already contain the core API, so you do NOT need to include the core API files as well.<br />
+Note2. The fmodstudio.js or .bc file links to the fmod_reduced version of the core, so accessing things like .ogg/.mp3 (see <a href="#reduced-feature-build">reduced</a> ) through <a class="apilink" href="studio-api-system.html#studio_system_getcoresystem" title="Retrieves the Core System.">Studio::System::getCoreSystem</a> are not supported.</p>
+<h3 id="build-your-own-asmjs-or-wasm-files-from-the-bitcode-bc-files"><a href="#build-your-own-asmjs-or-wasm-files-from-the-bitcode-bc-files">Build your own ASM.JS or WASM files from the BitCode (.bc) files.</a></h3>
+<p>FMOD's ASM.JS and WASM builds are supplied, but to build from LLVM bitcode (.bc) to any target (and compatible Emscripten version) for FMOD, use the following command line.</p>
+<h4 id="for-the-fmod-core-api"><a href="#for-the-fmod-core-api">For the FMOD Core API</a></h4>
+<p>WASM:   emcc --bind -Os -s EXPORT_NAME="'FMODModule'" -s MODULARIZE=1 -s FORCE_FILESYSTEM=1 -s EXTRA_EXPORTED_RUNTIME_METHODS="['cwrap','setValue','getValue']" -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -o fmod.js fmod.bc fmod_bindings.bc<br />
+ASM.JS: emcc --bind -Os -s EXPORT_NAME="'FMODModule'" -s MODULARIZE=1 -s FORCE_FILESYSTEM=1 -s EXTRA_EXPORTED_RUNTIME_METHODS="['cwrap','setValue','getValue']" -s WASM=0 -s "BINARYEN_TRAP_MODE='js'" -o fmod.js fmod.bc fmod_bindings.bc</p>
+<h4 id="for-fmod-studio-runtime-api"><a href="#for-fmod-studio-runtime-api">For FMOD Studio Runtime API</a></h4>
+<p>WASM:   emcc --bind -Os -s EXPORT_NAME="'FMODModule'" -s MODULARIZE=1 -s FORCE_FILESYSTEM=1 -s EXTRA_EXPORTED_RUNTIME_METHODS="['cwrap','setValue','getValue']" -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -o fmodstudio.js fmodstudio.bc fmodstudio_bindings.bc<br />
+ASM.JS: emcc --bind -Os -s EXPORT_NAME="'FMODModule'" -s MODULARIZE=1 -s FORCE_FILESYSTEM=1 -s EXTRA_EXPORTED_RUNTIME_METHODS="['cwrap','setValue','getValue']" -s WASM=0 -s "BINARYEN_TRAP_MODE='js'" -o fmodstudio.js fmodstudio.bc fmodstudio_bindings.bc</p>
+<h3 id="browser-compatibility"><a href="#browser-compatibility">Browser Compatibility</a></h3>
+<ul>
+<li>FMOD requires a browser to support web-audio to be compatible, this is supported by all current browsers, see details <a href="https://caniuse.com/#feat=audio-api">here</a>.</li>
+<li>For using the WASM version of FMOD there are additional restrictions, however most mainstream browsers have support, see details <a href="https://caniuse.com/#feat=wasm">here</a>.</li>
+<li>Browser support for 5.1 / surround sound is limited but was adopted early by Mozilla Firefox verified in version 50.1.0.</li>
+<li>Modern browsers require user interaction to initiate audio, see "Essential Startup Information" below for details.</li>
+</ul>
+<h3 id="essential-startup-information"><a href="#essential-startup-information">Essential Startup Information</a></h3>
+<h4 id="start-up-code"><a href="#start-up-code">Start up code</a></h4>
+<p>To start with FMOD in a JavaScript environment you must initialize a global FMOD object, which you can then call FMOD functions with.</p>
+<p>This involves declaring a variable (ie 'FMOD') then calling a constructor function on it ( 'ie FMODModule(FMOD); )</p>
+<p>There are 2 optional functions which can be used to set up 'pre-runtime' information like file loading, and </p>
+<div class="highlight language-javascript"><pre><span></span><span class="kd">var</span> <span class="nx">FMOD</span> <span class="o">=</span> <span class="p">{};</span>                          <span class="c1">// FMOD global object which must be declared to enable &#39;main&#39; and &#39;preRun&#39; and then call the constructor function.</span>
+<span class="nx">FMOD</span><span class="p">[</span><span class="s1">&#39;preRun&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">prerun</span><span class="p">;</span>                <span class="c1">// Will be called because FMOD runs, but after the Emscripten runtime has initialized</span>
+<span class="nx">FMOD</span><span class="p">[</span><span class="s1">&#39;onRuntimeInitialized&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">main</span><span class="p">;</span>    <span class="c1">// Called when the Emscripten runtime has initialized</span>
+<span class="nx">FMOD</span><span class="p">[</span><span class="s1">&#39;TOTAL_MEMORY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">64</span><span class="o">*</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">;</span>    <span class="c1">// (ASM.JS ONLY) FMOD Heap defaults to 16mb which is enough for this demo, but set it differently here for demonstration (64mb)</span>
+<span class="nx">FMODModule</span><span class="p">(</span><span class="nx">FMOD</span><span class="p">);</span>                       <span class="c1">// Calling the constructor function with our object</span>
+</pre></div>
+
+
+<h4 id="safari-and-chrome-browser-user-interaction-requirement-use-for-all-browsers"><a href="#safari-and-chrome-browser-user-interaction-requirement-use-for-all-browsers">Safari and Chrome Browser user interaction requirement (use for all browsers)</a></h4>
+<p>Safari (on iOS) and Chrome Browser (version 66 and above) both have a user interaction requirement, or audio will not be audible.<br />
+This was implemented to stop unscrupulous websites from auto playing audio in things like advertisements.</p>
+<p>The workaround is that a web app must start an audio context from a touch event or a mouse click event, meaning there was user interaction.<br />
+FMOD's mechanism for doing this currently is to call <a class="apilink" href="core-api-system.html#system_mixersuspend" title="Suspend mixer thread and relinquish usage of audio hardware while maintaining internal state.">System::mixerSuspend</a> followed by <a class="apilink" href="core-api-system.html#system_mixerresume" title="Resume mixer thread and reacquire access to audio hardware.">System::mixerResume</a>.  This 'reinitializes' the webaudio driver and because it is in the context of a user interaction, the audio will start successfully.</p>
+<p>It is up to the developer to determine where the click/touch must be at the start of the application, this will have to be part of the application design.<br />
+No audio is possible without it, so traditional splash screens or introductions are not possible with audio.</p>
+<p>FMOD examples all have code that can be copied into a developer's application.  Here is the relevant JavaScript code.</p>
+<div class="highlight language-javascript"><pre><span></span><span class="c1">// Set up iOS/Chrome workaround.  Webaudio is not allowed to start unless screen is touched or button is clicked.</span>
+<span class="kd">function</span> <span class="nx">resumeAudio</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">gAudioResumed</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Resetting audio driver based on user input.&quot;</span><span class="p">);</span>
+
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">gSystem</span><span class="p">.</span><span class="nx">mixerSuspend</span><span class="p">();</span>
+        <span class="nx">CHECK_RESULT</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">gSystem</span><span class="p">.</span><span class="nx">mixerResume</span><span class="p">();</span>
+        <span class="nx">CHECK_RESULT</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+
+        <span class="nx">gAudioResumed</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">iOS</span> <span class="o">=</span> <span class="sr">/iPad|iPhone|iPod/</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">navigator</span><span class="p">.</span><span class="nx">userAgent</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nb">window</span><span class="p">.</span><span class="nx">MSStream</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nx">iOS</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;touchend&#39;</span><span class="p">,</span> <span class="nx">resumeAudio</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="nx">resumeAudio</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3 id="reduced-feature-build"><a href="#reduced-feature-build">Reduced Feature build</a></h3>
+<p>fmod_reduced.js and fmodstudio.js feature removal</p>
+<h4 id="overview"><a href="#overview">Overview</a></h4>
+<p>The fmod_reduced library is a smaller subset of features. The following is a list of what is removed.</p>
+<p>fmodstudio.js links to fmod_reduced.js by default.  To get the full feature set use fmodstudioL.js instead.</p>
+<h4 id="codec-support"><a href="#codec-support">Codec Support</a></h4>
+<p>The following are removed in favour of .FSB only.   .FSB support includes vorbis, FADPCM and pcm compression formats.</p>
+<ul>
+<li>AIFF file format support</li>
+<li>DLS file format support</li>
+<li>FLAC file format support</li>
+<li>WAV file format support</li>
+<li>MOD file format support</li>
+<li>S3M file format support</li>
+<li>XM file format support</li>
+<li>IT file format support</li>
+<li>MID/MIDI file format support</li>
+<li>MP2/MP3 file format support</li>
+<li>OGG file format support</li>
+<li>PLS/M3U file format support</li>
+<li>DLS file format support</li>
+</ul>
+<h4 id="dsp-effect-support"><a href="#dsp-effect-support">DSP Effect support</a></h4>
+<p>The following are removed due to relative expensiveness of the effect and usage rates being below other types of effects.</p>
+<ul>
+<li>Envelope follower DSP support</li>
+<li>Cubic / Spline and 'none' interpolation support.  Linear interpolation only.</li>
+</ul>
+<h4 id="speaker-mode-support"><a href="#speaker-mode-support">Speaker mode support</a></h4>
+<ul>
+<li>5.1 / 7.1 etc support is supported on certain browsers.  <a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a> must be used to set the right speaker mode.</li>
+<li>Not all browsers support 5.1.  See the table at the top of this document for tested working browsers.</li>
+</ul>
+<h4 id="feature-support"><a href="#feature-support">Feature support</a></h4>
+<p>The following features have been removed</p>
+<ul>
+<li>3D Geometry occlusion processing (via polygons).</li>
+</ul>
+<h3 id="api-javascript-port-of-a-cc-api-differences"><a href="#api-javascript-port-of-a-cc-api-differences">API - JavaScript port of a C/C++ API. Differences.</a></h3>
+<h4 id="setting-and-getting"><a href="#setting-and-getting">Setting and getting.</a></h4>
+<p>This is an important section if coming from knowledge of a C/C++ background of the FMOD API.</p>
+<p>Javascript parameters are passed by value, therefore when you pass one to a function, it makes the concept of a 'getter' function difficult.<br />
+The variable's value cannot be changed by the function from the caller's perspective, but it can add a new member to the variable, which is the mechanism FMOD always uses when 'getting' data from a function.</p>
+<p>In C the variable can be altered as it would be passed by <strong>reference</strong> (using pointers).<br />
+In FMOD for JavaScript, the variable you pass in gets a <strong>new member called val</strong> which contains the new data.<br />
+i.e.</p>
+<div class="highlight language-javascript"><pre><span></span><span class="kd">var</span> <span class="nx">outval</span><span class="p">;</span>    <span class="c1">// generic variable to reuse and be passed to FMOD functions.</span>
+<span class="kd">var</span> <span class="nx">name</span><span class="p">;</span>      <span class="c1">// to store name of sound.</span>
+
+<span class="nx">sound</span><span class="p">.</span><span class="nx">getName</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
+<span class="nx">name</span> <span class="o">=</span> <span class="nx">outval</span><span class="p">.</span><span class="nx">val</span><span class="p">;</span>  <span class="c1">// &#39;val&#39; contains the data.  Pass it to the variable we want to keep.</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
+</pre></div>
+
+
+<p>All FMOD functions that produce data in a variable after calling a function return data this way.</p>
+<h4 id="constants-that-started-with-fmod_-in-cc"><a href="#constants-that-started-with-fmod_-in-cc">Constants that started with FMOD_ in C/C++</a></h4>
+<p>In FMOD for JavaScript the enumerated values are members of the object declared at the top of the file.<br />
+As this would normally be a variable called <strong>'FMOD'</strong> it would be redundant to keep the FMOD_ as part of the constant name, so it is removed to avoid duplication.<br />
+For example, instead of</p>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">FMOD_OK</span>
+</pre></div>
+
+
+<p>in FMOD for HTML5 it becomes:</p>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">OK</span>
+</pre></div>
+
+
+<p>similarly</p>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD_INIT_NORMAL</span>
+<span class="nx">FMOD_DEFAULT</span>
+<span class="nx">FMOD_ERR_FILE_NOTFOUND</span>
+<span class="nx">FMOD_GUID</span>
+<span class="nx">FMOD_3D_ATTRIBUTES</span>
+<span class="nx">etc</span>
+</pre></div>
+
+
+<p>becomes</p>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">INIT_NORMAL</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">DEFAULT</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">ERR_FILE_NOTFOUND</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">GUID</span><span class="p">()</span>
+<span class="nx">etc</span>
+</pre></div>
+
+
+<p>Not that for attributes that start with a number after the FMOD namespace, it has to start with an underscore.<br />
+For example.</p>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">_3D</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">_2D</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">_3D_ATTRIBUTES</span><span class="p">()</span>
+</pre></div>
+
+
+<h4 id="using-structures"><a href="#using-structures">Using structures</a></h4>
+<p>In the above example you may notice that () is used to 'construct' a javascript object which represents a C structure in the FMOD API.<br />
+When using a structure to pass information to FMOD, a helper/constuctor function must be called to create the structure before using it/filling in its members, so that FMOD can understand what is being passed to it.<br />
+If these constructor functions are not used, the function it is being passed to will probably result in a 'binding' error (in the browser debug/log console/window).</p>
+<div class="highlight language-javascript"><pre><span></span><span class="kd">var</span> <span class="nx">guid</span> <span class="o">=</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">GUID</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">STUDIO_BANK_INFO</span><span class="p">();</span>
+</pre></div>
+
+
+<h4 id="api-differences"><a href="#api-differences">API differences</a></h4>
+<p>Some API constructs are redundant for JavaScript, so are removed from the API.</p>
+<p>Examples are 'cbsize' inside a struct.   The JavaScript version of a struct already knows its own size, so it is removed/redundant here.</p>
+<p>Structures like <a class="apilink" href="core-api-system.html#fmod_createsoundexinfo" title="Additional options for creating a Sound.">FMOD_CREATESOUNDEXINFO</a>, <a class="apilink" href="core-api-system.html#fmod_advancedsettings" title="Advanced configuration settings.">FMOD_ADVANCEDSETTINGS</a> and <a class="apilink" href="studio-api-system.html#fmod_studio_advancedsettings" title="Settings for advanced features like configuring memory and cpu usage.">FMOD_STUDIO_ADVANCEDSETTINGS</a> have these members, it can just be left out.</p>
+<h3 id="file-access"><a href="#file-access">File Access</a></h3>
+<p>FMOD lets you load data from the host in a few different ways, depending on your setup.</p>
+<h4 id="direct-from-host-via-fmods-filesystem"><a href="#direct-from-host-via-fmods-filesystem">Direct from host, via FMOD's filesystem</a></h4>
+<p>FMOD exposes an emscripten mechanism to mount/pre-load files in the 'prerun()' function, that is described above in the <a href="#essential-startup-information">"Essential Startup Information"</a> section of this document.<br />
+Call FMOD.FS_createPreloadedFile to register your files so that FMOD can use filenames in file related functions.  See <a href="https://emscripten.org/docs/api_reference/Filesystem-API.html#FS.createPreloadedFile">Emscripten docs</a> for more on this function.<br />
+For example the <strong>playsound</strong> example</p>
+<div class="highlight language-javascript"><pre><span></span><span class="c1">// Will be called because FMOD runs, but after the Emscripten runtime has initialized</span>
+<span class="c1">// Call FMOD file preloading functions here to mount local files.  Otherwise load custom data from memory or use own file system. </span>
+<span class="kd">function</span> <span class="nx">prerun</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">fileUrl</span> <span class="o">=</span> <span class="s2">&quot;/public/js/&quot;</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">fileName</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">folderName</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">canRead</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">canWrite</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+
+    <span class="nx">fileName</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;dog.wav&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lion.wav&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;wave.mp3&quot;</span> 
+    <span class="p">];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">count</span> <span class="o">&lt;</span> <span class="nx">fileName</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">count</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nx">FMOD</span><span class="p">.</span><span class="nx">FS_createPreloadedFile</span><span class="p">(</span><span class="nx">folderName</span><span class="p">,</span> <span class="nx">fileName</span><span class="p">[</span><span class="nx">count</span><span class="p">],</span> <span class="nx">fileUrl</span> <span class="o">+</span> <span class="nx">fileName</span><span class="p">[</span><span class="nx">count</span><span class="p">],</span> <span class="nx">canRead</span><span class="p">,</span> <span class="nx">canWrite</span><span class="p">);</span>
+    <span class="p">}</span>    
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Then later in your app you can simply reference a file by path/filename.</p>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">result</span> <span class="o">=</span> <span class="nx">gSystem</span><span class="p">.</span><span class="nx">createSound</span><span class="p">(</span><span class="s2">&quot;/lion.wav&quot;</span><span class="p">,</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">LOOP_OFF</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">outval</span><span class="p">);</span>
+<span class="nx">CHECK_RESULT</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+</pre></div>
+
+
+<h4 id="via-memory"><a href="#via-memory">Via memory</a></h4>
+<p>If you have raw data in memory that you want to pass to FMOD , you can.   Warning though, javascript passes data by value, so the memory usage will temporarily double for the sound data when it is passed to fmod.<br />
+The <strong>load_from_memory</strong> has an example of this</p>
+<div class="highlight language-javascript"><pre><span></span><span class="kd">var</span> <span class="nx">chars</span>  <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">result</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">outval</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="kd">var</span> <span class="nx">result</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">exinfo</span> <span class="o">=</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">CREATESOUNDEXINFO</span><span class="p">();</span>
+<span class="nx">exinfo</span><span class="p">.</span><span class="nx">length</span> <span class="o">=</span> <span class="nx">chars</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+
+<span class="nx">result</span> <span class="o">=</span> <span class="nx">gSystem</span><span class="p">.</span><span class="nx">createStream</span><span class="p">(</span><span class="nx">chars</span><span class="p">.</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">LOOP_OFF</span> <span class="o">|</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">OPENMEMORY</span><span class="p">,</span> <span class="nx">exinfo</span><span class="p">,</span> <span class="nx">outval</span><span class="p">);</span>
+<span class="nx">CHECK_RESULT</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+</pre></div>
+
+
+<h4 id="via-callbacks"><a href="#via-callbacks">Via callbacks</a></h4>
+<p>If you have a file system you can use file callbacks to load data into FMOD.  See <a class="apilink" href="core-api-system.html#system_setfilesystem" title="Set callbacks to implement all file I/O instead of using the platform native method.">System::setFileSystem</a>, or <a class="apilink" href="studio-api-system.html#studio_system_loadbankcustom" title="Loads the metadata of a Studio bank using custom read callbacks.">Studio::System::loadBankCustom</a><br />
+In <strong>load_bank</strong> example, there is a demonstration of this</p>
+<div class="highlight language-javascript"><pre><span></span><span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">STUDIO_BANK_INFO</span><span class="p">();</span>
+
+<span class="nx">info</span><span class="p">.</span><span class="nx">opencallback</span> <span class="o">=</span> <span class="nx">customFileOpen</span><span class="p">;</span>
+<span class="nx">info</span><span class="p">.</span><span class="nx">closecallback</span> <span class="o">=</span> <span class="nx">customFileClose</span><span class="p">;</span>
+<span class="nx">info</span><span class="p">.</span><span class="nx">readcallback</span> <span class="o">=</span> <span class="nx">customFileRead</span><span class="p">;</span>
+<span class="nx">info</span><span class="p">.</span><span class="nx">seekcallback</span> <span class="o">=</span> <span class="nx">customFileSeek</span><span class="p">;</span>
+<span class="nx">info</span><span class="p">.</span><span class="nx">userdata</span> <span class="o">=</span> <span class="nx">filename</span><span class="p">;</span>
+
+<span class="nx">result</span> <span class="o">=</span> <span class="nx">gSystem</span><span class="p">.</span><span class="nx">loadBankCustom</span><span class="p">(</span><span class="nx">info</span><span class="p">,</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">STUDIO_LOAD_BANK_NONBLOCKING</span><span class="p">,</span> <span class="nx">outval</span><span class="p">);</span>
+<span class="nx">CHECK_RESULT</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+</pre></div>
+
+
+<p>In this case the filename is passed as userdata to let the callback get information for what file to load.<br />
+Here is the customFileOpen callback getting the filename and opening a file handle.<br />
+The file is opened in this case with a special FMOD provided file API.   Replace this with your own API.</p>
+<div class="highlight language-javascript"><pre><span></span><span class="kd">function</span> <span class="nx">customFileOpen</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">filesize</span><span class="p">,</span> <span class="nx">handle</span><span class="p">,</span> <span class="nx">userdata</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">filesize_outval</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">handle_outval</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1">// We pass the filename into our callbacks via userdata in the custom info struct</span>
+    <span class="kd">var</span> <span class="nx">filename</span> <span class="o">=</span> <span class="nx">userdata</span><span class="p">;</span>
+
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">file_open</span><span class="p">(</span><span class="nx">gSystemLowLevel</span><span class="p">,</span> <span class="nx">filename</span><span class="p">,</span> <span class="nx">filesize_outval</span><span class="p">,</span> <span class="nx">handle_outval</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">result</span> <span class="o">==</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">OK</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nx">filesize</span><span class="p">.</span><span class="nx">val</span> <span class="o">=</span> <span class="nx">filesize_outval</span><span class="p">.</span><span class="nx">val</span><span class="p">;</span>
+        <span class="nx">handle</span><span class="p">.</span><span class="nx">val</span> <span class="o">=</span> <span class="nx">handle_outval</span><span class="p">.</span><span class="nx">val</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>To read data in the callback, into the buffer that FMOD has provided, FMOD has used a special technique where it passes the memory address, instead of a javascript buffer.<br />
+This means to write data to FMOD's buffer you <strong>must</strong> use FMOD.setValue using the buffer address, writing the data in a loop, a byte at a time.  This could be optimized somewhat by using i32 to write 4 bytes at a time.</p>
+<div class="highlight language-javascript"><pre><span></span><span class="kd">function</span> <span class="nx">customFileRead</span><span class="p">(</span><span class="nx">handle</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">,</span> <span class="nx">sizebytes</span><span class="p">,</span> <span class="nx">bytesread</span><span class="p">,</span> <span class="nx">userdata</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">bytesread_outval</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">buffer_outval</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="c1">// Read from the file into a new buffer.  This part can be swapped for your own file system.</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">file_read</span><span class="p">(</span><span class="nx">handle</span><span class="p">,</span> <span class="nx">buffer_outval</span><span class="p">,</span> <span class="nx">sizebytes</span><span class="p">,</span> <span class="nx">bytesread_outval</span><span class="p">)</span>   <span class="c1">// read produces a new array with data.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">result</span> <span class="o">==</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">OK</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nx">bytesread</span><span class="p">.</span><span class="nx">val</span> <span class="o">=</span> <span class="nx">bytesread_outval</span><span class="p">.</span><span class="nx">val</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Copy the new buffer contents into the buffer that is passed into the callback.  &#39;buffer&#39; is a memory address, so we can only write to it with FMOD.setValue</span>
+    <span class="k">for</span> <span class="p">(</span><span class="nx">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">count</span> <span class="o">&lt;</span> <span class="nx">bytesread</span><span class="p">.</span><span class="nx">val</span><span class="p">;</span> <span class="nx">count</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nx">FMOD</span><span class="p">.</span><span class="nx">setValue</span><span class="p">(</span><span class="nx">buffer</span> <span class="o">+</span> <span class="nx">count</span><span class="p">,</span> <span class="nx">buffer_outval</span><span class="p">.</span><span class="nx">val</span><span class="p">[</span><span class="nx">count</span><span class="p">],</span> <span class="s1">&#39;i8&#39;</span><span class="p">);</span>      <span class="c1">// See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#accessing-memory for docs on setValue.</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3 id="javascript-specific-functions-for-fmod"><a href="#javascript-specific-functions-for-fmod">JavaScript specific functions for FMOD</a></h3>
+<h4 id="helper-functions"><a href="#helper-functions">Helper functions</a></h4>
+<p>FMOD comes with some functions to aid with reading file data and writing to memory buffers.<br />
+Here is the list of functions that are provided.</p>
+<h4 id="system"><a href="#system">System</a></h4>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">[</span><span class="s1">&#39;preRun&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">callback</span>                <span class="c1">// Variable to assign a function callback to.  Will be called before FMOD runs, but after the Emscripten runtime has initialized</span>
+<span class="nx">FMOD</span><span class="p">[</span><span class="s1">&#39;onRuntimeInitialized&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">callback</span>  <span class="c1">// Assign a function to this member of FMOD, pre Called when the Emscripten runtime has initialized **</span>
+<span class="nx">FMODModule</span><span class="p">(</span><span class="nx">fmodobject</span><span class="p">)</span>                   <span class="c1">// Constructor function to set up FMOD object before use.  fmodobject = the main FMOD object you will use throughout the application lifetime.</span>
+
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">FS_createPreloadedFile</span>              <span class="c1">// Mounts a local file so that FMOD can recognize it when calling a function that uses a filename (ie loadBank/createSound).  See https://emscripten.org/docs/api_reference/Filesystem-API.html#FS.createPreloadedFile for more on this function.</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">System_Create</span>                       <span class="c1">// Only exported in FMOD.JS or FMODL.JS (Only use this function if using pure Core API).  See docs for System_Create</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">Studio_System_Create</span>                <span class="c1">// Only exported in FMODSTUDIO.JS or FMODSTUDIOL.JS (Only use this function if using Studio API). See docs for Studio::System_Create</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">ReadFile</span>                            <span class="c1">// Read the entire contents of a file into a memory variable, as preloaded by FMOD.FS_createPreloadedFile.  Call FMOD.Memory_Free on the variable after using it.  NOTE: output variable has &#39;val&#39; and &#39;length&#39; as the JS members to use as parameters to System::loadBankMemory.</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">Memory_Free</span>                         <span class="c1">// Free memory allocated by FMOD internally in FMOD.ReadFile</span>
+</pre></div>
+
+
+<h4 id="file"><a href="#file">File</a></h4>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">file_open</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">file_close</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">file_read</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">file_seek</span>
+</pre></div>
+
+
+<h4 id="misc"><a href="#misc">Misc</a></h4>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">setValue</span>                           <span class="c1">// See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#accessing-memory for docs on setValue.</span>
+</pre></div>
+
+
+<h3 id="linking-fmod-for-html5-in-a-c-program-that-is-to-be-converted-via-emscripten"><a href="#linking-fmod-for-html5-in-a-c-program-that-is-to-be-converted-via-emscripten">Linking FMOD for HTML5 in a C program that is to be converted via emscripten</a></h3>
+<p>You should be able to port existing C code with no special HTML5 related functionality.  Link the fmod.bc file or the fmodstudio.bc file (not both!) into your application to get it to link.<br />
+As mentioned previously <a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a> will not be needed, so your program might hang if <a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a> is not processed during any logic that waits on a getState function.</p>
+<h3 id="performance-and-memory"><a href="#performance-and-memory">Performance and Memory</a></h3>
+<h4 id="cpu-overhead"><a href="#cpu-overhead">CPU Overhead</a></h4>
+<p>By default FMOD mixes at 48000hz.   If the browser is not running at that rate, it will introduce a resampler to convert the rate, which consumes CPU time and adds a DSP block worth of latency.<br />
+This can be solved by querying the hardware's rate before <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>, and calling <a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a> to the same rate as the output.  Here is an example (from the PlaySound example)</p>
+<div class="highlight language-javascript"><pre><span></span><span class="kd">var</span> <span class="nx">outval</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="nx">result</span> <span class="o">=</span> <span class="nx">gSystem</span><span class="p">.</span><span class="nx">getDriverInfo</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">outval</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+<span class="nx">CHECK_RESULT</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+<span class="nx">result</span> <span class="o">=</span> <span class="nx">gSystem</span><span class="p">.</span><span class="nx">setSoftwareFormat</span><span class="p">(</span><span class="nx">outval</span><span class="p">.</span><span class="nx">val</span><span class="p">,</span> <span class="nx">FMOD</span><span class="p">.</span><span class="nx">SPEAKERMODE_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nx">CHECK_RESULT</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+</pre></div>
+
+
+<h4 id="audio-stability-stuttering"><a href="#audio-stability-stuttering">Audio Stability (Stuttering)</a></h4>
+<p>Some devices cannot handle the default buffer size of 4 blocks of 1024 samples (4096 samples) without stuttering, so to avoid this set the buffer size in your application to 2 blocks of 2048.<br />
+Here is an example</p>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">result</span> <span class="o">=</span> <span class="nx">gSystem</span><span class="p">.</span><span class="nx">setDSPBufferSize</span><span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="nx">CHECK_RESULT</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+</pre></div>
+
+
+<h4 id="threads"><a href="#threads">Threads</a></h4>
+<p>As stated in the introduction, FMOD for HTML5 does not have access to any threads so any loading/mixing/decoding/streaming/dsp has to be run in a blocking mode, from the main application loop.</p>
+<p>Keep this in mind when loading sounds, or implementing DSP that may take a large time slice.   If the application pre-loads sounds, and has a fast enough framerate that the FMOD mixing can execute in the same frame (with time left over) then there should be no audible glitching or frame rate glitching.</p>
+<h4 id="heap-memory"><a href="#heap-memory">'Heap' Memory</a></h4>
+<p>FMOD defaults to 16mb of memory to load sounds with and create FMOD objects with.  Use the following global before calling the main FMOD constructor object, to control how much memory to use.</p>
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">[</span><span class="s1">&#39;TOTAL_MEMORY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">64</span><span class="o">*</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">;</span>    <span class="c1">// (ASM.JS ONLY) FMOD Heap defaults to 16mb which is enough for this demo, but set it differently here for demonstration (64mb)</span>
+</pre></div>
+
+
+<p>For WASM support, FMOD uses ALLOW_MEMORY_GROWTH, which is more dynamic, so TOTAL_MEMORY is ignored.</p>
+<h3 id="limitations_1"><a href="#limitations_1">Limitations</a></h3>
+<h4 id="non-blocking-loading"><a href="#non-blocking-loading">Non-blocking loading</a></h4>
+<p><a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a> and <a class="apilink" href="studio-api-system.html#fmod_studio_load_bank_nonblocking" title="">FMOD_STUDIO_LOAD_BANK_NONBLOCKING</a> do not allow sound to load in the background, but it will process loading from the update loop instead.</p>
+<p>Streaming is executed from the main thread.   This may impact performance, so pre-loading sounds is preferred.</p>
+<p>Streaming infers that the source is being loaded from 'disk' which is not usually done with HTML5, because data is usually pre-packaged with the javascript file, or streamed over http (from an external URL) so loading sounds into memory might make more sense here.</p>
+<h3 id="known-issues"><a href="#known-issues">Known Issues</a></h3>
+<p>The following functions are not supported.<br />
+Some have no place in JavaScript (ie loadPlugin) but others are incomplete at this point and can be added in a later point release.</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#system_loadplugin" title="Loads an FMOD (DSP, Output or Codec) plugin from file.">System::loadPlugin</a></li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_addpolygon" title="Adds a polygon.">Geometry::addPolygon</a></li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_save" title="Saves the geometry object as a serialized binary block to a user memory buffer.">Geometry::save</a></li>
+</ul>
+<p>The following callbacks remain unimplemented at this point, so they will not work.</p>
+<ul>
+<li><a class="apilink" href="core-api-system.html#fmod_file_asyncread_callback" title="Callback for reading from a file asynchronously.">FMOD_FILE_ASYNCREAD_CALLBACK</a></li>
+<li><a class="apilink" href="core-api-system.html#fmod_file_asynccancel_callback" title="Callback for cancelling a pending asynchronous read.">FMOD_FILE_ASYNCCANCEL_CALLBACK</a></li>
+<li><a class="apilink" href="core-api-system.html#fmod_3d_rolloff_callback" title="Callback to allow custom calculation of distance attenuation.">FMOD_3D_ROLLOFF_CALLBACK</a></li>
+<li><a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_frame_callback" title="Callback for when the command replay goes to the next frame.">FMOD_STUDIO_COMMANDREPLAY_FRAME_CALLBACK</a></li>
+<li><a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_load_bank_callback" title="Callback for command replay bank loading.">FMOD_STUDIO_COMMANDREPLAY_LOAD_BANK_CALLBACK</a></li>
+<li><a class="apilink" href="studio-api-commandreplay.html#fmod_studio_commandreplay_create_instance_callback" title="Callback for command replay event instance creation.">FMOD_STUDIO_COMMANDREPLAY_CREATE_INSTANCE_CALLBACK</a></li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

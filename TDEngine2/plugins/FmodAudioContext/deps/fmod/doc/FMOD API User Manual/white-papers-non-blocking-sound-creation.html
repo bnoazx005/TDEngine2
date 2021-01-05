@@ -1,0 +1,150 @@
+<html>
+<head>
+<title>White Papers | Non-blocking Sound Creation</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Non-blocking Sound Creation</h1>
+<div class="toc">
+<ul>
+<li><a href="#non-blocking-sound-creation">Non-blocking sound creation</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#creating-the-sound">Creating the sound.</a></li>
+<li><a href="#getting-a-callback-when-the-sound-loads">Getting a callback when the sound loads.</a></li>
+<li><a href="#waiting-for-the-sound-to-be-ready-and-using-it">Waiting for the sound to be ready and using it.</a></li>
+<li><a href="#creating-the-sound-as-a-streamed-fsb-file">Creating the sound as a streamed FSB file.</a></li>
+<li><a href="#getting-a-subsound">Getting a subsound.</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="non-blocking-sound-creation"><a href="#non-blocking-sound-creation">Non-blocking sound creation</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p><a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a> flag is used so that sounds can be loaded without affecting the framerate of the application.<br />
+Normally loading operations can take a large or significant amount of time, but with this feature, sounds can be loaded in the background without the application skipping a beat.</p>
+<h3 id="creating-the-sound"><a href="#creating-the-sound">Creating the sound.</a></h3>
+<p>Simply create the sound as you normally would but add the FMOD_NONBLOCKING flag.</p>
+<div class="highlight language-text"><pre><span></span>FMOD::Sound *sound;
+result = system-&gt;createStream(&quot;../media/wave.mp3&quot;, FMOD_NONBLOCKING, 0, &amp;sound); // Creates a handle to a stream then commands the FMOD Async loader to open the stream in the background.
+ERRCHECK(result);
+</pre></div>
+
+
+<p>Now the sound will open in the background, and you will get a handle to the sound immediately. You cannot do anything with this sound handle except call Sound::getOpenState. Any other attempts to use this sound handle will result in the function returning <a class="apilink" href="core-api-common.html#fmod_err_notready" title="">FMOD_ERR_NOTREADY</a>.</p>
+<h3 id="getting-a-callback-when-the-sound-loads"><a href="#getting-a-callback-when-the-sound-loads">Getting a callback when the sound loads.</a></h3>
+<p>When the sound loads or the stream opens, you can specify a callback using the nonblockcallback member of the <a class="apilink" href="core-api-system.html#fmod_createsoundexinfo" title="Additional options for creating a Sound.">FMOD_CREATESOUNDEXINFO</a> structure that is called when the operation is completed.<br />
+Firstly the callback definition.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT F_CALLBACK nonblockcallback(FMOD_SOUND *sound, FMOD_RESULT result)
+{
+    FMOD::Sound *snd = (FMOD::Sound *)sound;
+
+    printf(&quot;Sound loaded! (%d) %s\n&quot;, result, FMOD_ErrorString(result)); 
+
+    return FMOD_OK;
+}
+</pre></div>
+
+
+<p>And then the createSound call.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT result;
+FMOD::Sound *sound;
+FMOD_CREATESOUNDEXINFO exinfo;
+
+memset(&amp;exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
+exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+exinfo.nonblockcallback = nonblockcallback;
+
+result = system-&gt;createStream(&quot;../media/wave.mp3&quot;, FMOD_NONBLOCKING, &amp;exinfo, &amp;sound);
+ERRCHECK(result);
+</pre></div>
+
+
+<h3 id="waiting-for-the-sound-to-be-ready-and-using-it"><a href="#waiting-for-the-sound-to-be-ready-and-using-it">Waiting for the sound to be ready and using it.</a></h3>
+<p>As mentioned, you will have to call <a class="apilink" href="core-api-sound.html#sound_getopenstate" title="Retrieves the state a sound is in after being opened with the non blocking flag, or the current state of the streaming buffer.">Sound::getOpenState</a> to wait for the sound to load in the background. You could do this, or just continually try to call the function you want to call (i.e. <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a>) until it succeeds.<br />
+Here is an example of polling the sound until it is ready, then playing it.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT result;
+FMOD::Sound *sound;
+result = system-&gt;createStream(&quot;../media/wave.mp3&quot;, FMOD_NONBLOCKING, 0, &amp;sound); // Creates a handle to a stream then commands the FMOD Async loader to open the stream in the background.
+ERRCHECK(result);
+
+do
+{
+    FMOD_OPENSTATE state;
+
+    result = tmpsnd-&gt;getOpenState(&amp;state, 0, 0);
+    ERRCHECK(result);
+
+    if (state == FMOD_OPENSTATE_READY &amp;&amp; !channel)
+    {
+        result = system-&gt;playSound(FMOD_CHANNEL_FREE, sound, false, &amp;channel);
+        ERRCHECK(result);
+    }
+
+    GameCode();
+} while (1)
+</pre></div>
+
+
+<p>or</p>
+<div class="highlight language-text"><pre><span></span>do
+{
+    if (!channel)
+    {
+        result = system-&gt;playSound(FMOD_CHANNEL_FREE, sound, false, &amp;channel);
+        if (result != FMOD_ERR_NOTREADY)
+        {
+            ERRCHECK(result);
+        }
+    }
+
+    GameCode();
+} while (1)
+</pre></div>
+
+
+<p>The second loop will simply retry playsound until it succeeds.</p>
+<h3 id="creating-the-sound-as-a-streamed-fsb-file"><a href="#creating-the-sound-as-a-streamed-fsb-file">Creating the sound as a streamed FSB file.</a></h3>
+<p>An FSB file will have subsounds in it, so if you open it as a stream, you may not want FMOD seeking to the first subsound and wasting time. You can use the initialsubsound member of the <a class="apilink" href="core-api-system.html#fmod_createsoundexinfo" title="Additional options for creating a Sound.">FMOD_CREATESOUNDEXINFO</a> structure to make the non-blocking open seek to the subsound of your choice.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT result;
+FMOD::Sound *sound;
+FMOD_CREATESOUNDEXINFO exinfo;
+
+memset(&amp;exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
+exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+exinfo.initialsubsound = 1;
+
+result = system-&gt;createStream(&quot;../media/sounds.fsb&quot;, FMOD_NONBLOCKING, &amp;exinfo, &amp;sound);
+ERRCHECK(result);
+</pre></div>
+
+
+<p>Then get the subsound you wanted with <a class="apilink" href="core-api-sound.html#sound_getsubsound" title="Retrieves a handle to a Sound object that is contained within the parent sound.">Sound::getSubSound</a>.</p>
+<h3 id="getting-a-subsound"><a href="#getting-a-subsound">Getting a subsound.</a></h3>
+<p><a class="apilink" href="core-api-sound.html#sound_getsubsound" title="Retrieves a handle to a Sound object that is contained within the parent sound.">Sound::getSubSound</a> is a free function call normally, all it does is return a pointer to the subsound, whether it be a sample or a stream. It does not execute any special code besides this.<br />
+What it would cause if it was a blocking stream though, is <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a> stalling several milliseconds or more while it seeks and reflushes the stream buffer. Time taken can depend on the file format and media.</p>
+<p>If the parent sound was opened using <a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a>, then it will set the subsound to be <a class="apilink" href="core-api-sound.html#fmod_openstate_seeking" title="">FMOD_OPENSTATE_SEEKING</a> and it will become not ready again until the seek and stream buffer flush has completed.<br />
+When the stream is ready and <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a> is called, then the playsound will not stall and will execute immediately because the stream has been flushed.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

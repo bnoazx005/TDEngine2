@@ -1,0 +1,110 @@
+<html>
+<head>
+<title>White Papers | Virtual Voices</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Virtual Voices</h1>
+<div class="toc">
+<ul>
+<li><a href="#virtual-voice-system">Virtual Voice System</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#core-api-virtual-voices">Core API Virtual Voices</a><ul>
+<li><a href="#audibility-calculation">Audibility Calculation</a></li>
+<li><a href="#peak-volume">Peak Volume</a></li>
+<li><a href="#sound-priority">Sound Priority</a></li>
+<li><a href="#vol0-virtual">VOL0 Virtual</a></li>
+<li><a href="#software-voices-vs-virtual-voices">Software Voices vs Virtual Voices</a></li>
+<li><a href="#virtual-to-real-transition">Virtual to Real Transition</a></li>
+</ul>
+</li>
+<li><a href="#fmod-studio-api-voice-control">FMOD Studio API Voice Control</a><ul>
+<li><a href="#event-polyphony-with-voice-stealing-on">Event Polyphony with Voice Stealing On</a></li>
+<li><a href="#event-polyphony-with-voice-stealing-off">Event Polyphony with Voice Stealing Off</a></li>
+<li><a href="#interaction-with-core-api-virtual-voice-system">Interaction with Core API Virtual Voice System</a></li>
+</ul>
+</li>
+<li><a href="#core-api-profiler">Core API Profiler</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="virtual-voice-system"><a href="#virtual-voice-system">Virtual Voice System</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>FMOD Core API includes an efficient virtual voice system. FMOD Studio API adds another layer of control on top of that with event polyphony. The following sections describe how best to take advantage of the virtual voice system.</p>
+<h3 id="core-api-virtual-voices"><a href="#core-api-virtual-voices">Core API Virtual Voices</a></h3>
+<p>FMOD Core API includes a virtual voice system. It allows the developer to play hundreds or even thousands of sounds at once, but only have a small number actually producing sound. For example a dungeon may have 200 torches burning on the wall in various places but only the loudest will be really playing. FMOD will dynamically make voices virtual or real depending on real time audibility. A sound which is playing far off or with a low volume will become virtual, but will change to a real voice when it comes closer or becomes louder due to Channel or ChannelGroup API calls.</p>
+<h4 id="audibility-calculation"><a href="#audibility-calculation">Audibility Calculation</a></h4>
+<p>The virtual voice system automatically takes into account the following when calculating audibility:</p>
+<ul>
+<li>The priority of the channel. See the "Sound Priority" section for more information.</li>
+<li>The underlying sound peak volume if available. See the "Peak Volume" section for more information.</li>
+<li>The volume of the channel and any parent channel group, set via <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setvolume" title="Sets the volume level.">ChannelControl::setVolume</a>.</li>
+<li>The volume of any applied fade points, set via <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_addfadepoint" title="Adds a sample accurate fade point at a time relative to the parent ChannelGroup DSP clock.">ChannelControl::addFadePoint</a>.</li>
+<li>Whether the channel is paused or muted.</li>
+<li>The effect of any DSP sends and returns, including the send volume.</li>
+<li>The distance attenuation of DSP panners.</li>
+<li>The overall gain reported by any DSP that exposes <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_data_type_overallgain" title="">FMOD_DSP_PARAMETER_DATA_TYPE_OVERALLGAIN</a>.</li>
+<li>The audibility calculation will take into account the hierarchy of ChannelGroups. If a DSP is added to a parent ChannelGroup that exposes a gain parameter, then that will affect all the audibility of all Channels that are children of that ChannelGroup directly or indirectly.</li>
+</ul>
+<p>A Channel can be queried for whether it is virtual with the <a class="apilink" href="core-api-channel.html#channel_isvirtual" title="Retrieves whether the Channel is being emulated by the virtual Channel system.">Channel::isVirtual</a> function. When going virtual, the sound's time will still be ticked and any fade points will still continue to interpolate. Any additional DSPs attached to the channel will be preserved. When the channel becomes real again, it will resume as if it had been playing properly.</p>
+<h4 id="peak-volume"><a href="#peak-volume">Peak Volume</a></h4>
+<p>Peak volume is available for sounds that are exported via FSBank as long as the "Write peak volume" option is enabled. FMOD Studio tool always enables this flag when exporting banks, so FMOD Studio sounds will always have a peak volume. If the peak volume is not present (such as a loose wav file), then the sound will treated as if it had full volume.</p>
+<h4 id="sound-priority"><a href="#sound-priority">Sound Priority</a></h4>
+<p>FMOD provides a simple and powerful way of controlling which voices go virtual, by using a channel priority. Channel priority set with <a class="apilink" href="core-api-channel.html#channel_setpriority" title="Sets the priority used for virtual Channel ordering.">Channel::setPriority</a> or <a class="apilink" href="core-api-sound.html#sound_setdefaults" title="Sets a sound's default playback attributes.">Sound::setDefaults</a>, where a smaller integer value corresponds to a higher (more important) priority. If a sound is a higher priority than another, then it will always take precedence regardless of its volume, distance, or gain calculation. Channels with a high priority will never be stolen by those with a lower priority, ever. The only time a channel with a high priority will go virtual is if other channels with an equal or even higher priority are playing, or if <a class="apilink" href="core-api-system.html#fmod_init_vol0_becomes_virtual" title="">FMOD_INIT_VOL0_BECOMES_VIRTUAL</a> has been specified and the sound is effectively silent.</p>
+<p>Important sounds should have higher priority and it is up to the user to decide if some sounds should be more important than others. An example of an important sound might be a 2D menu or GUI sound or beep that needs to be heard above all other sounds. Avoid using too many priority levels in a fine-grained way. If a sound has a higher priority it will never be stolen, even if it is very quiet compared to a lower priority sound.</p>
+<h4 id="vol0-virtual"><a href="#vol0-virtual">VOL0 Virtual</a></h4>
+<p>An important part of the virtual voice system is the <a class="apilink" href="core-api-system.html#fmod_init_vol0_becomes_virtual" title="">FMOD_INIT_VOL0_BECOMES_VIRTUAL</a> flag. When this flag is enabled, channels will automatically go virtual when their audibility drops below the limit specified in the FMOD_ADVANCEDSETTINGS vol0virtualvol field. This is useful to remove sounds which are effectively silent, which is both a performance and quality improvement. Since it is only removing silent sounds, there should be no perceived difference in sound output when enabling this flag.</p>
+<p>It is strongly recommended that <a class="apilink" href="core-api-system.html#fmod_init_vol0_becomes_virtual" title="">FMOD_INIT_VOL0_BECOMES_VIRTUAL</a> is specified in <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> or <a class="apilink" href="studio-api-system.html#studio_system_initialize" title="Initializes the Studio System.">Studio::System::initialize</a>, and that the <a class="apilink" href="core-api-system.html#fmod_advancedsettings_vol0virtualvol" title="">FMOD_ADVANCEDSETTINGS::vol0virtualvol</a> field is set to a small non-zero amount, such as 0.001. For users of FMOD Studio API, <a class="apilink" href="core-api-system.html#system_setadvancedsettings" title="Sets advanced settings for the system object, typically to allow adjusting of settings related to resource usage or audio quality.">System::setAdvancedSettings</a> can be called by getting the <a class="apilink" href="studio-api-system.html#studio_system_getcoresystem" title="Retrieves the Core System.">Studio::System::getCoreSystem</a> after <a class="apilink" href="studio-api-system.html#studio_system_create" title="FMOD Studio System creation function.">Studio::System::create</a> but before <a class="apilink" href="studio-api-system.html#studio_system_initialize" title="Initializes the Studio System.">Studio::System::initialize</a>.</p>
+<h4 id="software-voices-vs-virtual-voices"><a href="#software-voices-vs-virtual-voices">Software Voices vs Virtual Voices</a></h4>
+<p>To set the number of virtual voices FMOD will use, call <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> with the number of virtual voices specified in the maxchannels parameter. To set the number of software mixed channels available, use System::setSoftwareChannels. A further limit is available per codec by using FMOD_ADVANCEDSETTINGS.</p>
+<p>If the virtual voice limit is hit then Channels will be stolen and start returning <a class="apilink" href="core-api-common.html#fmod_err_invalid_handle" title="">FMOD_ERR_INVALID_HANDLE</a>. Channels which have had their handle stolen in this way are permanently stopped and will never return.</p>
+<p>Assuming the number of playing Channels is below the maximum virtual voice limit, then the channel handle will remain valid, but the Channel may be virtual or real depending on audibility. The maximum number of real playing channels will be the limit set by setSoftwareChannels, or the limits of the codecs set with <a class="apilink" href="core-api-system.html#fmod_advancedsettings" title="Advanced configuration settings.">FMOD_ADVANCEDSETTINGS</a>.</p>
+<p>For typical games, it is reasonable to set the maxchannels value of <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> to some high value, from a few hundred up to a thousand or more. The number of real software channels is often set lower, at anywhere from 32 to 128. This allows the game to create and keep track of a large number of Channels, but still limit the CPU cost by having a small number actually playing at once.</p>
+<h4 id="virtual-to-real-transition"><a href="#virtual-to-real-transition">Virtual to Real Transition</a></h4>
+<p>The way the virtual voice system works is that when sounds become real they resume from their proper place, halfway through the sound. To change this behavior, you can either use Sound or Channel priorities to stop it going virtual in the first place, or you have the option to have a voice start a from the beginning instead of half way through, by using the <a class="apilink" href="core-api-common.html#fmod_virtual_playfromstart" title="">FMOD_VIRTUAL_PLAYFROMSTART</a> flag with <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a>, <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a>, <a class="apilink" href="core-api-sound.html#sound_setmode" title="Sets or alters the mode of a sound.">Sound::setMode</a> or <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmode" title="Sets the playback mode that controls how this object behaves.">ChannelControl::setMode</a>.</p>
+<p>As described above, only the quietest, least important sounds should be swapping in and out, so you shouldn't notice sounds 'swapping in', but if you have a low number of real voices, and they are all loud, then this behavior could become more noticeable and may sound bad.</p>
+<p>Another option is to simply call <a class="apilink" href="core-api-channel.html#channel_isvirtual" title="Retrieves whether the Channel is being emulated by the virtual Channel system.">Channel::isVirtual</a> and stop the sound, but don't do this until after a <a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a>! After <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a>, the virtual voice sorting needs to be done in <a class="apilink" href="core-api-system.html#system_update" title="Updates the FMOD system.">System::update</a> to process what is really virtual and what isn't.</p>
+<h3 id="fmod-studio-api-voice-control"><a href="#fmod-studio-api-voice-control">FMOD Studio API Voice Control</a></h3>
+<p>FMOD Studio API provides further ways of limiting playing voices on top of the system provided by the Core API, by using event polyphony. The sound designer can specify a limit to the number of simultaneously playing instances of an event at once. There are currently two modes for event polyphony - voice stealing on or off.</p>
+<h4 id="event-polyphony-with-voice-stealing-on"><a href="#event-polyphony-with-voice-stealing-on">Event Polyphony with Voice Stealing On</a></h4>
+<p>In this mode, once more instances are playing than the limit, then some will become virtual. Whether an event has become virtual can be queried with <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_isvirtual" title="Retrieves the virtualization state.">Studio::EventInstance::isVirtual</a>. A virtual event will mute its master channel group, which will cause any playing Channels to go virtual if <a class="apilink" href="core-api-system.html#fmod_init_vol0_becomes_virtual" title="">FMOD_INIT_VOL0_BECOMES_VIRTUAL</a> has been specified. Event virtualization is determined by the following factors:</p>
+<ul>
+<li>Instance volume set via <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setvolume" title="Sets the volume level.">Studio::EventInstance::setVolume</a>.</li>
+<li>Master track volume set in FMOD Studio, including automation and modulation.</li>
+<li>Attenuation from the event's 3D panner.</li>
+</ul>
+<p>An event which is virtual may become real at a later time if the audibility increases compared to the other playing instances.</p>
+<h4 id="event-polyphony-with-voice-stealing-off"><a href="#event-polyphony-with-voice-stealing-off">Event Polyphony with Voice Stealing Off</a></h4>
+<p>In this mode, once the instance limit has been met, further instances will not play. Instances can still be created, and <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_start" title="Starts playback.">Studio::EventInstance::start</a> can be called, but they will not actually play. Querying <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getplaybackstate" title="Retrieves the playback state.">Studio::EventInstance::getPlaybackState</a> will show that the extra instances are not in the playing state. Once instances fail to play then they will not start at a later time, regardless of what happens to the other instances. In this mode, event audibility has no affect on which instances play, it is simply based on which had <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_start" title="Starts playback.">Studio::EventInstance::start</a> called first.</p>
+<h4 id="interaction-with-core-api-virtual-voice-system"><a href="#interaction-with-core-api-virtual-voice-system">Interaction with Core API Virtual Voice System</a></h4>
+<p>FMOD Studio events will ultimately create one or more core Channel objects to play sound. These Channels can go real or virtual based on the max software channels set at initialization time. Therefore it is possible to have events where <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_isvirtual" title="Retrieves the virtualization state.">Studio::EventInstance::isVirtual</a> is false, but some or all of the underlying Channels are virtual due to the software channel limit. The Core API voice system will correctly take into account the bus set-up, distance attenuation, volume settings, and other DSP effects on Studio buses.</p>
+<p>Studio Events can affect the Core API Virtual Voice selection system with the priority value controlled per-event in the FMOD Studio tool. Any Channels created by an Event will have the priority value exported from the FMOD Studio Tool. Unlike the Core API, the Studio tool only exposes 5 different values. This is done deliberately, since priority should not be used in a fine-grained way. Keep in mind that a higher priority voice will never be stolen by a lower priority voice, even if it is very quiet.</p>
+<p>Another factor to keep in mind is that Event Priority is not inherited for nested events. It is possible to have a very high priority event that has a bunch of low priority nested events. In that case, the sounds may not play even though ultimately the parent event is set to a high priority.</p>
+<h3 id="core-api-profiler"><a href="#core-api-profiler">Core API Profiler</a></h3>
+<p>The FMOD Core API profiler tool displays the DSP graph, and can be used to quickly see which channels have gone virtual. Consider the Channel Groups Example. If we add <a class="apilink" href="core-api-system.html#fmod_init_profile_enable" title="">FMOD_INIT_PROFILE_ENABLE</a> and add a call to <a class="apilink" href="core-api-system.html#system_setsoftwarechannels" title="Sets the maximum number of software mixed channels possible.">System::setSoftwareChannels</a> with 5, then we see one of the 6 channels has gone virtual:</p>
+<p><img alt="Virtual DSP Graph" src="images/virtual-dspgraph.png" /></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

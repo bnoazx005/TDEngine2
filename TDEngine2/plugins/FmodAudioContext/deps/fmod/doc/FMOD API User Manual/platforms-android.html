@@ -1,0 +1,257 @@
+<html>
+<head>
+<title>Platform Details | Android</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="platforms.html">Platform Details</a><ul class="subchapters"><li><a href="platforms-windows.html">Windows</a></li><li><a href="platforms-mac.html">Mac</a></li><li><a href="platforms-linux.html">Linux</a></li><li><a href="platforms-ios.html">iOS</a></li><li class="manual-current-chapter manual-active-chapter"><a href="platforms-android.html">Android</a></li><li><a href="platforms-uwp.html">Universal Windows Platform</a></li><li><a href="platforms-html5.html">HTML5</a></li></ul></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>4. Platform Details | Android</h1>
+<div class="toc">
+<ul>
+<li><a href="#android-specific-starter-guide">Android Specific Starter Guide</a><ul>
+<li><a href="#sdk-version">SDK Version</a></li>
+<li><a href="#compatibility">Compatibility</a></li>
+<li><a href="#libraries">Libraries</a></li>
+<li><a href="#java">Java</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#linking-fmod-to-your-code">Linking FMOD to your code</a></li>
+<li><a href="#audio-latency">Audio Latency</a></li>
+<li><a href="#asset-manager">Asset Manager</a></li>
+<li><a href="#native-threads">Native Threads</a></li>
+<li><a href="#suspend-in-background">Suspend in Background</a></li>
+<li><a href="#permissions">Permissions</a></li>
+<li><a href="#thread-affinity">Thread Affinity</a></li>
+<li><a href="#thread-priority">Thread Priority</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+</li>
+<li><a href="#application-lifecycle-management">Application Lifecycle Management</a></li>
+<li><a href="#performance-reference">Performance Reference</a><ul>
+<li><a href="#format-choice">Format Choice</a></li>
+<li><a href="#voice-count">Voice Count</a><ul>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#test-device-a">Test Device: A</a></li>
+<li><a href="#results-a">Results: A</a></li>
+<li><a href="#test-device-b">Test Device: B</a></li>
+<li><a href="#results-b">Results: B</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="android-specific-starter-guide"><a href="#android-specific-starter-guide">Android Specific Starter Guide</a></h2>
+<h3 id="sdk-version"><a href="#sdk-version">SDK Version</a></h3>
+<p>FMOD is compiled using the following tools.</p>
+<ul>
+<li><strong>NDK</strong> - version r16b targeting android-14 (32bit) and android-21 (64bit).</li>
+<li><strong>SDK</strong> - platform version 27.1.</li>
+</ul>
+<h3 id="compatibility"><a href="#compatibility">Compatibility</a></h3>
+<p>FMOD supports devices of the below ABIs back to API level 14 (Android 4.0.1, Ice Cream Sandwich).</p>
+<ul>
+<li><strong>armeabi</strong>     - supported and optimized with VFPv2, requires floating point hardware.</li>
+<li><strong>armeabi-v7a</strong> - supported and optimized with VFPv2 (and NEON if detected at runtime).</li>
+<li><strong>arm64-v8a</strong>   - supported and optimized with NEON.</li>
+<li><strong>x86</strong>         - supported and optimized with SSE3.</li>
+<li><strong>x86_64</strong>      - supported and optimized with SSE3.</li>
+<li><strong>mips</strong>        - unsupported due to limited demand.</li>
+<li><strong>mips64</strong>      - unsupported due to limited demand.</li>
+</ul>
+<h3 id="libraries"><a href="#libraries">Libraries</a></h3>
+<p><em>Substitute $ABI with your desired ABI from the 'Compatibility' list above.</em></p>
+<p>FMOD Core Engine library</p>
+<ul>
+<li><strong>/api/core/lib/$ABI/libfmod.so</strong> - Release binary for production code.</li>
+<li><strong>/api/core/lib/$ABI/libfmodL.so</strong> - Release binary with logging enabled for development.</li>
+</ul>
+<p>FMOD Studio Engine library (used in conjunction with core library)</p>
+<ul>
+<li><strong>/api/studio/lib/$ABI/libfmodstudio.so</strong> - Release binary for production code.</li>
+<li><strong>/api/studio/lib/$ABI/libfmodstudioL.so</strong> - Release binary with logging enabled for development.</li>
+</ul>
+<h3 id="java"><a href="#java">Java</a></h3>
+<p>FMOD is primarily a native C/C++ library implementation but does have a Java component that is invoked from native code. To ensure the Java component is properly operating please make sure you reference the <em>fmod.jar</em> in your project.  This means telling the IDE or build system where to find the <em>fmod.jar</em> file so it's included in the application.</p>
+<p>It is also highly recommended that you initialize the FMOD Java component, this will allow loading assets from the APK and automatic configuration for lowest latency.</p>
+<p>A basic example is listed below, for more details please check the provided examples.</p>
+<div class="highlight language-java"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> 
+<span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="n">org</span><span class="o">.</span><span class="na">fmod</span><span class="o">.</span><span class="na">FMOD</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span>
+    <span class="o">{</span>
+        <span class="n">org</span><span class="o">.</span><span class="na">fmod</span><span class="o">.</span><span class="na">FMOD</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">static</span>
+<span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">loadLibrary</span><span class="o">(</span><span class="s">&quot;fmod&quot;</span><span class="o">);</span> 
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="examples"><a href="#examples">Examples</a></h3>
+<p>FMOD examples are shipped as Android Studio projects using the Gradle build system with the Android Gradle plugin. Examples are provided for using both CMake and ndk-build to perform the external native build:</p>
+<ul>
+<li><strong>/api/(core|studio)/examples/androidstudio/cmake</strong> - Examples using CMake to perform the external native build.</li>
+<li><strong>/api/(core|studio)/examples/androidstudio/ndkbuild</strong> - Examples using ndk-build to perform the external native build.</li>
+</ul>
+<h3 id="linking-fmod-to-your-code"><a href="#linking-fmod-to-your-code">Linking FMOD to your code</a></h3>
+<p>To link FMOD into your native code refer to the Android documentation relevant to the build tools you are using. You may also find it helpful to refer to the Android.mk files or the CMakeLists.txt files from the FMOD examples.</p>
+<h3 id="audio-latency"><a href="#audio-latency">Audio Latency</a></h3>
+<p>Reducing the amount of audio latency between calling an API function and hearing its effect is generally controlled via <a class="apilink" href="core-api-system.html#system_setdspbuffersize" title="Sets the buffer size for the FMOD software mixing engine.">System::setDSPBufferSize</a>. However it should be noted that on this platform there is significantly more OS latency (which is out of the control of developers). It is currently not mandatory for device manufactures to adhere to audio latency guidelines (section 5.3 Audio Latency of the Android CDD). Devices which report <em>FEATURE_AUDIO_LOW_LATENCY</em> will be able to achieve lower latency playback, especially if the below tips are followed.</p>
+<p>For API level 17 devices using the OpenSL output mode you can achieve lower latency by using <a class="apilink" href="core-api-system.html#system_getdriverinfo" title="Retrieves identification information about a sound device specified by its index, and specific to the selected output mode.">System::getDriverInfo</a> to fetch the recommended sample rate and applying the value to <a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a>, by default the sample rate is 24KHz to keep CPU overheads low, using a higher rate will cost more CPU time.</p>
+<p>Pairing with a BlueTooth speaker or headset will incur significant extra latency, 120ms in some tests. This is currently unavoidable due to the OS taking extra buffering beyond developer control.</p>
+<h3 id="asset-manager"><a href="#asset-manager">Asset Manager</a></h3>
+<p>To load files from the APK using the Asset Manager (for files stored in the asset directory at build time) you need to use a special syntax. FMOD will recognize any path that is prefixed with <em>file:///android_asset/</em> as an asset, so passing a path of <em>file:///android_asset/drumloop.wav</em> will load the file <em>drumloop.wav</em> which was stored in the asset directory at build time. For this functionality to work your device must be running Gingerbread or newer and have called org.fmod.FMOD.init from Java.</p>
+<h3 id="native-threads"><a href="#native-threads">Native Threads</a></h3>
+<p>If you call FMOD from a native thread (not Java) you will need to ensure the thread is attached to the Java runtime environment <em>JavaVM::AttachCurrentThread</em>. It's recommended you remain attached for the life of the thread but you may call <em>JavaVM::DetachCurrentThread</em> after the invocation of FMOD if you prefer.  </p>
+<p>FMOD often makes calls to Java code contained within <em>fmod.jar</em> and therefore requires the thread to be attached. All internal FMOD threads are attached when they are created so this only concerns user threads. </p>
+<h3 id="suspend-in-background"><a href="#suspend-in-background">Suspend in Background</a></h3>
+<p>FMOD native threads will continue running when your application transitions to the background, this will continue to use resources. To completely stop FMOD without losing your current setup you can call <a class="apilink" href="core-api-system.html#system_mixersuspend" title="Suspend mixer thread and relinquish usage of audio hardware while maintaining internal state.">System::mixerSuspend</a> as part of your backgrounding process. When you return to the foreground, use <a class="apilink" href="core-api-system.html#system_mixerresume" title="Resume mixer thread and reacquire access to audio hardware.">System::mixerResume</a> to reactivate FMOD. It is extremely important to ensure no FMOD APIs are called in-between suspend and resume as they run the risk of causing a deadlock. You must also call suspend and resume pairs on the same thread.</p>
+<h3 id="permissions"><a href="#permissions">Permissions</a></h3>
+<p>Some functionality inside of FMOD will require you set relevant permissions in your AndroidManifest.xml file.</p>
+<ul>
+<li><strong>Recording</strong> - to make use of the <a class="apilink" href="core-api-system.html#system_recordstart" title="Starts the recording engine recording to a pre-created Sound object.">System::recordStart</a> API use <em>android.permission.RECORD_AUDIO</em>.</li>
+<li><strong>Networking</strong> - to use the FMOD profiler, FMOD Studio live update or stream audio from the internet use <em>android.permission.INTERNET</em>.</li>
+</ul>
+<h3 id="thread-affinity"><a href="#thread-affinity">Thread Affinity</a></h3>
+<p>All threads will default to <a class="apilink" href="core-api-common.html#fmod_thread_affinity_core_all" title="">FMOD_THREAD_AFFINITY_CORE_ALL</a>, this is recommended due to the wide variety of devices available but can be customized with <a class="apilink" href="core-api-common.html#thread_setattributes" title="Specify the affinity, priority and stack size for all FMOD created threads.">Thread_SetAttributes</a>.</p>
+<h3 id="thread-priority"><a href="#thread-priority">Thread Priority</a></h3>
+<p>The relationship between FMOD platform agnostic thread priority and the platform specific values is as follows:</p>
+<ul>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_low" title="">FMOD_THREAD_PRIORITY_LOW</a>       ~ 5</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_medium" title="">FMOD_THREAD_PRIORITY_MEDIUM</a>    ~ 0</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_high" title="">FMOD_THREAD_PRIORITY_HIGH</a>      ~ -8</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_very_high" title="">FMOD_THREAD_PRIORITY_VERY_HIGH</a> ~ -16</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_extreme" title="">FMOD_THREAD_PRIORITY_EXTREME</a>   ~ -18</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_critical" title="">FMOD_THREAD_PRIORITY_CRITICAL</a>  ~ -19</li>
+</ul>
+<h3 id="known-issues"><a href="#known-issues">Known Issues</a></h3>
+<ul>
+<li>The Audio Track output mode currently does not support recording, please use the OpenSL output mode for this.</li>
+<li>The <a href="https://developer.qualcomm.com/software/snapdragon-profiler">Snapdragon Profiler</a> created by Qualcomm has a bug when displaying system trace information. The trace will indicate that the "AudioTrack" thread executes for several milliseconds when in fact it does not. The "AudioTrack" thread is created by the OpenSL output plugin and is responsible for calling into FMOD to fetch audio. FMOD services this request efficiently with lock free data structures and returns in microseconds to avoid any audio glitches. To verify the behavior of this thread use the <a href="https://developer.android.com/studio/profile/systrace">Android System Trace</a> viewer instead of the Snapdragon Profiler.</li>
+</ul>
+<h2 id="application-lifecycle-management"><a href="#application-lifecycle-management">Application Lifecycle Management</a></h2>
+<p>FMOD will happily continue to operate when your device is in the background, for media playback applications this may be desirable. For the vast majority of use cases though, you want FMOD to be quiet and use no CPU. You can achieve this goal by using <a class="apilink" href="core-api-system.html#system_mixersuspend" title="Suspend mixer thread and relinquish usage of audio hardware while maintaining internal state.">System::mixerSuspend</a> and <a class="apilink" href="core-api-system.html#system_mixerresume" title="Resume mixer thread and reacquire access to audio hardware.">System::mixerResume</a>, often it is convenient to implement these in the activity onStart and onStop overrides. To avoid issues when shutting down ensure you resume the mixer before releasing, it is recommended you perform this in the onDestroy override.</p>
+<p><strong>Example Java code</strong></p>
+<div class="highlight language-java"><pre><span></span><span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onStart</span><span class="o">()</span>
+<span class="o">{</span>
+    <span class="kd">super</span><span class="o">.</span><span class="na">onStart</span><span class="o">();</span>
+    <span class="n">setStateStart</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onStop</span><span class="o">()</span>
+<span class="o">{</span>
+    <span class="n">setStateStop</span><span class="o">();</span>
+    <span class="kd">super</span><span class="o">.</span><span class="na">onStop</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span>
+<span class="o">{</span>
+    <span class="n">setStateDestroy</span><span class="o">();</span>
+    <span class="kd">super</span><span class="o">.</span><span class="na">onDestroy</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">setStateStart</span><span class="o">();</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">setStateStop</span><span class="o">();</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">setStateDestroy</span><span class="o">();</span>
+</pre></div>
+
+
+<p><strong>Example C++ code</strong></p>
+<div class="highlight language-java"><pre><span></span><span class="kt">void</span> <span class="nf">Java_org_fmod_example_MainActivity_setStateStart</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">thiz</span><span class="o">)</span>
+<span class="o">{</span>
+    <span class="n">gSystem</span><span class="o">-&gt;</span><span class="n">mixerResume</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kt">void</span> <span class="nf">Java_org_fmod_example_MainActivity_setStateStop</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">thiz</span><span class="o">)</span>
+<span class="o">{</span>
+    <span class="n">gSystem</span><span class="o">-&gt;</span><span class="n">mixerSuspend</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kt">void</span> <span class="nf">Java_org_fmod_example_MainActivity_setStateDestroy</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">thiz</span><span class="o">)</span>
+<span class="o">{</span>
+    <span class="n">gSystem</span><span class="o">-&gt;</span><span class="n">mixerResume</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>The result of using this API will be the halt of the audio hardware and a complete lock of all FMOD threads. It is important that you do not call any FMOD API after <a class="apilink" href="core-api-system.html#system_mixersuspend" title="Suspend mixer thread and relinquish usage of audio hardware while maintaining internal state.">System::mixerSuspend</a> other than <a class="apilink" href="core-api-system.html#system_mixerresume" title="Resume mixer thread and reacquire access to audio hardware.">System::mixerResume</a>, even if you intend to shutdown FMOD as you may cause a deadlock.</p>
+<h2 id="performance-reference"><a href="#performance-reference">Performance Reference</a></h2>
+<p>This section is a companion for the <a href="white-papers-cpu-performance.html">CPU Performance</a> white paper and serves as a quick reference of facts targeting this platform.</p>
+<h3 id="format-choice"><a href="#format-choice">Format Choice</a></h3>
+<p>Each compression format provided in FMOD has a reason for being included, the below list will detail our recommendations for this platform. Formats listed as primary are considering the best choice, secondary formats should only be considered if the primary doesn't satisfy your requirements.</p>
+<ul>
+<li><strong>FADPCM</strong>: Primary format for all sounds.</li>
+<li><strong>Vorbis</strong>: Secondary format for long streams if FADPCM compression is too low.</li>
+<li><strong>PCM</strong>: Secondary format for short sounds if FADPCM cost is too high.</li>
+<li><strong>XMA</strong>: Unavailable.</li>
+<li><strong>AT9</strong>: Unavailable.</li>
+</ul>
+<h3 id="voice-count"><a href="#voice-count">Voice Count</a></h3>
+<p>To give developers an idea about the costs of a particular format we provide synthetic benchmark results. These results are based on simple usage of the FMOD Studio API using recommended configuration settings.</p>
+<p>Due to the CPU governor that controls the power saving features of the device, getting accurate CPU numbers requires rooting the device and setting the CPU frequency to maximum.</p>
+<h4 id="settings"><a href="#settings">Settings</a></h4>
+<ul>
+<li><strong>Voice count:</strong> 32</li>
+<li><strong>Sample rate:</strong> 24KHz</li>
+<li><strong>Speaker mode:</strong> Stereo</li>
+<li><strong>DSP block size:</strong> 512 samples</li>
+</ul>
+<h4 id="test-device-a"><a href="#test-device-a">Test Device: A</a></h4>
+<ul>
+<li><strong>CPU:</strong> Krait 400 @ 2.26 GHz (Nexus 5)</li>
+<li><strong>OS:</strong> 4.4.4</li>
+</ul>
+<h4 id="results-a"><a href="#results-a">Results: A</a></h4>
+<ul>
+<li><strong>DSP with Vorbis:</strong> 19.2% (+/- 2.0%)</li>
+<li><strong>DSP with FADPCM:</strong> 3.2% (+/- 0.4%)</li>
+<li><strong>DSP with PCM:</strong> 1.0% (+/- 0.2%)</li>
+<li><strong>Update at 60 FPS:</strong> 1.3% (+/- 0.1%)</li>
+</ul>
+<h4 id="test-device-b"><a href="#test-device-b">Test Device: B</a></h4>
+<ul>
+<li><strong>CPU:</strong> ARM Cortex-A8 @ 1 GHz (Nexus S)</li>
+<li><strong>OS:</strong> 4.1.1</li>
+</ul>
+<h4 id="results-b"><a href="#results-b">Results: B</a></h4>
+<ul>
+<li><strong>DSP with Vorbis:</strong> N/A</li>
+<li><strong>DSP with FADPCM:</strong> 17.1% (+/- 2.7%)</li>
+<li><strong>DSP with PCM:</strong> 12.4% (+/- 1.5%)</li>
+<li><strong>Update at 60 FPS:</strong> 2.6% (+/- 2.9%)</li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

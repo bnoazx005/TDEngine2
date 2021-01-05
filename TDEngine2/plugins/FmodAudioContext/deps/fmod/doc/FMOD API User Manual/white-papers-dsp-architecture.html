@@ -1,0 +1,228 @@
+<html>
+<head>
+<title>White Papers | DSP Architecture and Usage</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | DSP Architecture and Usage</h1>
+<div class="toc">
+<ul>
+<li><a href="#dsp-architecture-and-usage">DSP Architecture and Usage</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#some-common-units-in-a-dsp-network">Some common units in a DSP network</a></li>
+<li><a href="#watch-a-dsp-network-get-built-with-code-examples">Watch a DSP network get built (with code examples)</a><ul>
+<li><a href="#start-off-with-nothing-then-play-some-sounds">Start off with nothing, then play some sounds</a></li>
+<li><a href="#add-a-dsp-effect-to-a-channel">Add a DSP effect to a Channel</a></li>
+<li><a href="#add-an-effect-to-the-channelgroup">Add an effect to the ChannelGroup</a></li>
+<li><a href="#creating-an-effect-and-making-all-channels-send-to-it">Creating an effect and making all Channels send to it.</a></li>
+<li><a href="#set-the-output-format-of-a-dsp-unit-and-control-the-pan-matrix-for-its-output-signal">Set the output format of a DSP unit, and control the pan matrix for its output signal</a></li>
+<li><a href="#bypass-an-effect-disable-it">Bypass an effect / disable it.</a></li>
+<li><a href="#order-of-execution-and-pull-no-pull-traversal">Order of execution and pull / no pull traversal</a></li>
+<li><a href="#send-vs-standard-connection-type">'Send' vs 'Standard' connection type</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="dsp-architecture-and-usage"><a href="#dsp-architecture-and-usage">DSP Architecture and Usage</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>This section will introduce you to the FMOD Studio advanced DSP system. With this system you can implement custom filters or create complicated signal chains to create high quality and dynamic sounding audio. The FMOD Studio DSP system is an incredibly flexible mixing engine that has an emphasis on quality, flexibility and efficiency, and makes it an extremely powerful system when used to its full potential.</p>
+<p>The figure below shows a representation of what a very basic FMOD DSP network looks like.</p>
+<p><img alt="DSP Network" src="images/dspnet-img001.png" /></p>
+<p>Audio data flows from the right to the left, until it finally arrives at the soundcard, fully mixed and processed.</p>
+<ul>
+<li>A blue box is an <a class="apilink" href="core-api-dsp.html" title="">DSP</a> unit. This unit is represented by the <a class="apilink" href="core-api-dsp.html" title="">DSP</a> class in the FMOD core header.</li>
+<li>A line between the boxes, is an <a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a>. This is what links the DSP units together into a network. Each <a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a> has a pan matrix which you can use to configure the mapping from input speakers/channels to output speakers/channels.</li>
+<li>The green vertical bars inside the grey bars are detected signal levels. You can see that the WaveTable unit produces a mono signal, that mono signal continues through the Channel Fader (untouched) then gets upmixed to 6 channels (5.1). Because the default pan for a mono sound to a 5.1 output is to have the mono signal attenuated by 3db to the Front Left speaker, and the signal attenuated by 3db to the Front Right speaker, you can see that the 6 grey bars have only signal in the first 2 speaker levels. See <a class="apilink" href="core-api-common.html#fmod_speaker" title="Assigns an enumeration for a speaker index.">FMOD_SPEAKER</a> for the speaker order, represented by those bars. Note: Since FMOD Studio 1.04.08, the upmix happens internally, beyond the master ChannelGroup's fader, so for the purposes of this tutorial, the master ChannelGroup's fader has been forced to <a class="apilink" href="core-api-common.html#fmod_speakermode_5point1" title="">FMOD_SPEAKERMODE_5POINT1</a> so that it can be visualized. More about channel formats can be read below in the "Set the output format of a DSP unit, and control the pan matrix for its output signal" section.</li>
+</ul>
+<p>The above image was taken using the FMOD Profiler tool. You can profile your own DSP network as long as you specify <a class="apilink" href="core-api-system.html#fmod_init_profile_enable" title="">FMOD_INIT_PROFILE_ENABLE</a> when initializing the core engine. The tool is located in the /bin directory of the SDK.</p>
+<h3 id="some-common-units-in-a-dsp-network"><a href="#some-common-units-in-a-dsp-network">Some common units in a DSP network</a></h3>
+<p>This section will describe the units in more detail, from the origin of the data through to the soundcard, from right to left. The following list describes some of the typical DSP units you will see in a graph.</p>
+<ul>
+<li><strong>Wavetable Unit</strong> This unit reads raw PCM data from the sound buffer and resamples it to the same rate as the soundcard. A Wavetable Unit is only connected when the user calls <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a>. Once resampled, the audio data is then processed (or flows) at the rate of the soundcard. This is usually 48khz by default. (22khz on iOS)</li>
+<li><strong>DSPCodec Unit</strong> This unit reads decodes compressed data from an FMOD Codec, and passes it to a built in resampler, and then passes the decompressed result to the output.</li>
+<li><strong>Channel Fader</strong> This unit provides a top level unit for a Channel to hold onto, and is a place to insert effects for a Channel. A Channel Fader also controls the volume level of a Channel, for example if the user calls <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setvolume" title="Sets the volume level.">ChannelControl::setVolume</a>.</li>
+<li><strong>ChannelGroup Fader</strong> This unit provides a top level unit for a ChannelGroup to hold onto, and is a place to insert effects for a ChannelGroup. A ChannelGroup Fader also controls the volume level of a Channel, for example if the user calls <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setvolume" title="Sets the volume level.">ChannelControl::setVolume</a>.</li>
+</ul>
+<p>When FMOD plays a PCM sound on a Channel (using <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a>), it creates a small sub-network consisting of a Fader and a Wavetable Unit. This would also happen if playing a stream, even if the source data is compressed.</p>
+<p>When FMOD plays a compressed sound on a Channel (MP3/Vorbis/XMA/ADPCM usually, loaded with <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a>), it creates a similar small sub-network consisting of a Fader and a DSPCodec Unit.</p>
+<p>When FMOD plays a DSP on a Channel (using <a class="apilink" href="core-api-system.html#system_playdsp" title="Plays a DSP along with any of its inputs on a Channel.">System::playDSP</a>), it creates a small sub-network consisting of a Fader and a standalone Resampler Unit. The DSP that was specified by the user executed by the resampler as a sub-network to the resampler, and is not visible on the profiler.</p>
+<h3 id="watch-a-dsp-network-get-built-with-code-examples"><a href="#watch-a-dsp-network-get-built-with-code-examples">Watch a DSP network get built (with code examples)</a></h3>
+<h4 id="start-off-with-nothing-then-play-some-sounds"><a href="#start-off-with-nothing-then-play-some-sounds">Start off with nothing, then play some sounds</a></h4>
+<p>In this section we will look at some basic techniques that can be used to manipulate DSP network. We shall start with the most basic signal chain (as shown in the image below) and identify the changes that occur to the DSP network with the provided code.</p>
+<p><img alt="DSP Network" src="images/dspnet-img002.png" /></p>
+<p>Note that the network only exists of 1 unit. The Master ChannelGroup's DSP Fader Unit (<a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_fader" title="">FMOD_DSP_TYPE_FADER</a>). This unit can be used to control the mix output of the entire mix if desired.</p>
+<p>Now we shall play a PCM sound with <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a>.</p>
+<p><img alt="DSP Network" src="images/dspnet-img003.png" /></p>
+<p>Note that the sub-network of a DSP Fader unit (<a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_fader" title="">FMOD_DSP_TYPE_FADER</a>), and a system level DSP WaveTable unit have been attached to the Master ChannelGroup's DSP Fader unit.</p>
+<p>Let's play the sound again, resulting in 2 channels being active.</p>
+<p><img alt="DSP Network" src="images/dspnet-img004.png" /></p>
+<p>Note now that the new Channel targets the same Master ChannelGroup DSP Fader unit, and when 2 lines merge into 1 unit, a 'mix' happens. This is just a summing of the 2 signals together.</p>
+<h4 id="add-a-dsp-effect-to-a-channel"><a href="#add-a-dsp-effect-to-a-channel">Add a DSP effect to a Channel</a></h4>
+<p>In this example we shall add an effect to a sound by connecting a DSP effect unit to the Channel. The code below starts by playing a sound, then creates a DSP unit with <a class="apilink" href="core-api-system.html#system_createdspbytype" title="Create a DSP object given a built in type index.">System::createDSPByType</a> and adds it to the DSP network using <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a>.</p>
+<div class="highlight language-text"><pre><span></span>FMOD::Channel *channel;
+FMOD::DSP *dsp_echo;
+result = system-&gt;playSound(sound, 0, false, &amp;channel);
+result = system-&gt;createDSPByType(FMOD_DSP_TYPE_ECHO, &amp;dsp_echo);
+result = channel-&gt;addDSP(0, dsp_echo);
+</pre></div>
+
+
+<p>The figure below shows the FMOD Echo effect inserted at the 'Channel head' or position 0, as specified with the <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> command (position = 0). The Channel Fader which used to be the head unit, is now shuffled down to position 1.</p>
+<p><img alt="DSP Network" src="images/dspnet-img005.png" /></p>
+<p>If we call <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdspindex" title="Sets the index in the DSP chain of the specified DSP.">ChannelControl::setDSPIndex</a></p>
+<div class="highlight language-text"><pre><span></span>result = channel-&gt;setDSPIndex(dsp_echo, 1);
+</pre></div>
+
+
+<p>We can see below, that the echo has now moved down one, and Channel Fader is back at position 0.</p>
+<p><img alt="DSP Network" src="images/dspnet-img006.png" /></p>
+<p>Create a new ChannelGroup and add our Channel to it<br />
+In this example we shall introduce ChannelGroups which are effectively used as sub-mix buses. We can add an effect to a ChannelGroup and if Channels are assigned to that ChannelGroup, all Channels will be affected by any DSP inserted into a ChannelGroup.</p>
+<p>These ChannelGroups can then be nested and manipulated to create hierarchical mixing.</p>
+<div class="highlight language-text"><pre><span></span>result = system-&gt;createChannelGroup(&quot;my channelgroup&quot;, &amp;channelgroup);
+result = channel-&gt;setChannelGroup(channelgroup);
+</pre></div>
+
+
+<p><img alt="DSP Network" src="images/dspnet-img007.png" /></p>
+<p>We can now see the newly created ChannelGroup as a stand-alone DSP ChannelGroup Fader between the channel on the right and the Master ChannelGroup Fader on the left.</p>
+<h4 id="add-an-effect-to-the-channelgroup"><a href="#add-an-effect-to-the-channelgroup">Add an effect to the ChannelGroup</a></h4>
+<p>Adding an effect to a ChannelGroup is the same as adding one to a Channel. Use <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a>.</p>
+<div class="highlight language-text"><pre><span></span>FMOD::DSP *dsp_lowpass;
+result = system-&gt;createDSPByType(FMOD_DSP_TYPE_LOWPASS, &amp;dsp_lowpass);
+result = channelgroup-&gt;addDSP(1, dsp_lowpass);
+</pre></div>
+
+
+<p><img alt="DSP Network" src="images/dspnet-img008.png" /></p>
+<p>We can now see as before, an effect attached to a ChannelGroup Fader, in position 1, the entirety of the ChannelGroup being symbolized by the box around the 2 units.</p>
+<h4 id="creating-an-effect-and-making-all-channels-send-to-it"><a href="#creating-an-effect-and-making-all-channels-send-to-it">Creating an effect and making all Channels send to it.</a></h4>
+<p>This example demonstrates a more complex, and somewhat typical scenario, in which we create a new effect, and every time a Sound plays on a Channel, we connect the new channel to the effect.</p>
+<p><strong>Important note!</strong> Please don't use this example as a standard way to set up reverb. Simply call System::setReverbProperties instead and all connection logic is handled automatically. Note the following logic does not handle what happens when a voice goes virtual and is removed from the graph, only to return later. You would only normally use this logic if you wanted to control the 'wet' mix levels indivudually for an effect, per channel. Otherwise a simple <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> would suffice.</p>
+<p>The first step is to add an effect to the master <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>. We do this by calling <a class="apilink" href="core-api-system.html#system_createdspbytype" title="Create a DSP object given a built in type index.">System::createDSPByType</a> again, and then using the <a class="apilink" href="core-api-dsp.html" title="">DSP</a> API to manually add connections.</p>
+<div class="highlight language-text"><pre><span></span>FMOD::DSP *dsp_reverb;
+FMOD::DSP *dsp_tail;
+FMOD::ChannelGroup *channelgroup_master;
+result = system-&gt;createDSPByType(FMOD_DSP_TYPE_SFXREVERB, &amp;dsp_reverb);             /* Create the reverb DSP */
+result = system-&gt;getMasterChannelGroup(&amp;channelgroup_master);                       /* Grab the master ChannelGroup / master bus */
+result = channelgroup_master-&gt;getDSP(FMOD_CHANNELCONTROL_DSP_TAIL, &amp;dsp_tail);      /* Grab the &#39;tail&#39; unit for the master ChannelGroup.  This is the last DSP unit for the ChannelGroup, in case it has other effects already in it. */
+result = dsp_tail-&gt;addInput(dsp_reverb);
+</pre></div>
+
+
+<p>This will result in</p>
+<p><img alt="DSP Network" src="images/dspnet-img009.png" /></p>
+<p>Note that the ChannelGroup from before is still there. This is what the Channels will be playing on. The reason we have a ChannelGroup here for this example is to keep the Channels executing first in the graph, then the reverb second. This raises a topic called 'order of execution' which you can find more information about below and way it may or may not be important to you.</p>
+<p>Also note that the reverb is black. This means it is inactive / disabled. All units are inactive by default, so we have to activate them. You can do this with <a class="apilink" href="core-api-dsp.html#dsp_setactive" title="Sets the processing active state.">DSP::setActive</a>.</p>
+<div class="highlight language-text"><pre><span></span>result = dsp_reverb-&gt;setActive(true);
+</pre></div>
+
+
+<p><img alt="DSP Network" src="images/dspnet-img010.png" /></p>
+<p>Now you can see that the reverb has gone from black/inactive to active.</p>
+<p>Now we will play a sound on multiple channels with the following code. The code plays the sound paused, gets its Channel DSP head unit, adds the Channel DSP head unit to the reverb, then unpauses the sound.</p>
+<div class="highlight language-text"><pre><span></span>FMOD::DSP *channel_dsp_head;
+result = system-&gt;playSound(sound, channelgroup, true, &amp;gChannel[0]);                /* Play the sound.  Play it paused so we dont hear the sound play before it is connected to the reverb. */
+result = channel-&gt;getDSP(FMOD_CHANNELCONTROL_DSP_HEAD, &amp;channel_dsp_head);          /* Grab the &#39;head&#39; unit for the Channel */
+result = dsp_reverb-&gt;addInput(channel_dsp_head);                                    /* Manually add a connection from the Channel DSP head to the reverb. */
+result = channel-&gt;setPaused(false);                                                 /* Unpause the channel and let it be audible. */
+</pre></div>
+
+
+<p>Note that calling <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setpaused" title="Sets the paused state.">ChannelControl::setPaused</a> internally just calls <a class="apilink" href="core-api-dsp.html#dsp_setactive" title="Sets the processing active state.">DSP::setActive</a> on the Channel's head DSP unit.</p>
+<p>Here is the result</p>
+<p><img alt="DSP Network" src="images/dspnet-img011.png" /></p>
+<p>The interesting parts here are that the Channel DSP head units now have 2 outputs per channel, and each set of outputs mix to the user created ChannelGroup first, before being passed as the 'dry' signal to the output. The second set of outputs can be considered the 'wet' path and similarly mix to the reverb unit, before being processed by the reverb processor.</p>
+<p>Controlling mix level and pan matrices for DSPConnections<br />
+Each connection between an <a class="apilink" href="core-api-dsp.html" title="">DSP</a> unit is represented by an <a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a> object. This is the line between the boxes.</p>
+<p>The primary purpose of this object type is to allow the user to control the volume / mix level between 2 processing units, and also to control the speaker / channel mapping between 2 units, so that a signal can be panned, and input signals mapped to any output signal, in any way that is needed.</p>
+<p>Lets go back to the example above, but with 1 voice, and change its wet mix from the Channel to the reverb from 1.0 (0db) to 0.0 (-80db)</p>
+<p>The code around the playsound would have one difference, and that is that addInput will also take a pointer to the resulting <a class="apilink" href="core-api-dspconnection.html" title="">DSPConnection</a> object.</p>
+<div class="highlight language-text"><pre><span></span>FMOD::DSP *channel_dsp_head;
+FMOD::DSPConnection *dsp_connection;
+result = system-&gt;playSound(sound, channelgroup, true, &amp;gChannel[0]);                /* Play the sound.  Play it paused so we dont hear the sound play before it is connected to the reverb. */
+result = channel-&gt;getDSP(FMOD_CHANNELCONTROL_DSP_HEAD, &amp;channel_dsp_head);          /* Grab the &#39;head&#39; unit for the Channel */
+result = dsp_reverb-&gt;addInput(channel_dsp_head, &amp;dsp_connection);                   /* Manually add a connection from the Channel DSP head to the reverb. */
+result = channel-&gt;setPaused(false);                                                 /* Unpause the channel and let it be audible. */
+</pre></div>
+
+
+<p>We can then update the volume simply with <a class="apilink" href="core-api-dspconnection.html#dspconnection_setmix" title="Sets the connection's volume scale.">DSPConnection::setMix</a>.</p>
+<div class="highlight language-text"><pre><span></span>result = dsp_connection-&gt;setMix(0.0f);
+</pre></div>
+
+
+<p><img alt="DSP Network" src="images/dspnet-img012.png" /></p>
+<p>You can see there is no signal level in the meter for the reverb, because the only input to it is silent.</p>
+<h4 id="set-the-output-format-of-a-dsp-unit-and-control-the-pan-matrix-for-its-output-signal"><a href="#set-the-output-format-of-a-dsp-unit-and-control-the-pan-matrix-for-its-output-signal">Set the output format of a DSP unit, and control the pan matrix for its output signal</a></h4>
+<p>In this section we will grab the first output from the channel_dsp_head and apply a pan matrix to it, to allow mapping of input signal to any output speaker within the mix.</p>
+<p>The first thing to note, is that the Channel Fader outputs mono to the ChannelGroup Fader. This means there's not much to map from and too here. Any matrix representing this signal will be 1 in and 1 out.</p>
+<p>To make it more interesting, we can change the output format of a DSP Unit with <a class="apilink" href="core-api-dsp.html#dsp_setchannelformat" title="Sets the PCM input format this DSP will receive when processing.">DSP::setChannelFormat</a>.</p>
+<div class="highlight language-text"><pre><span></span>result = channel_dsp_head-&gt;setChannelFormat(0, 0, FMOD_SPEAKER_QUAD);
+</pre></div>
+
+
+<p>Here is the result</p>
+<p><img alt="DSP Network" src="images/dspnet-img013.png" /></p>
+<p>You will notice that the ChannelFader now outputs 4 channels, and this gets propagated through the network. A Quad to 5.1 pan has a different default upmix than mono to 5.1, so you will see that the fronts are now slightly lower on the final ChannelGroup Fader unit, and there is some signal now introduced into the Surround Left and Surround Right speakers. Now we will use some code to do something interesting, we will put the newly quad ChannelFader signal's front 2 channels into the rear 2 speakers of the quad output.</p>
+<div class="highlight language-text"><pre><span></span>FMOD::DSPConnection *channel_dsp_head_output_connection;
+float matrix[4][4] =
+{   /*                                    FL FR SL SR &lt;- Input signal (columns) */
+    /* row 0 = front left  out    &lt;- */ { 0, 0, 0, 0 },     
+    /* row 1 = front right out    &lt;- */ { 0, 0, 0, 0 },     
+    /* row 2 = surround left out  &lt;- */ { 1, 0, 0, 0 },     
+    /* row 3 = surround right out &lt;- */ { 0, 1, 0, 0 }      
+};
+result = channel_dsp_head-&gt;getOutput(0, 0, &amp;channel_dsp_head_output_connection);
+result = channel_dsp_head_output_connection-&gt;setMixMatrix(&amp;matrix[0][0], 4, 4);
+</pre></div>
+
+
+<p><img alt="DSP Network" src="images/dspnet-img014.png" /></p>
+<p>We can now see that the first 2 channels are now silent on the output because they have 0s in the matrix where the first 2 input columns map to the first 2 output columns.</p>
+<p>Instead the first 2 input columns have 1s where the rows map to the surround left and surround right output speakers.</p>
+<h4 id="bypass-an-effect-disable-it"><a href="#bypass-an-effect-disable-it">Bypass an effect / disable it.</a></h4>
+<p>To disable an effect simply use the setBypass method. The code below plays a sound, adds an effect then bypasses it.</p>
+<div class="highlight language-text"><pre><span></span>result = dsp_reverb-&gt;setBypass(true);
+</pre></div>
+
+
+<p>This has the benefit of not disabling all input units like <a class="apilink" href="core-api-dsp.html#dsp_setactive" title="Sets the processing active state.">DSP::setActive</a> with false as the parameter would, and allows the signal to pass through the reverb unit untouched (The reverb process function is not called, saving CPU).</p>
+<p><img alt="DSP Network" src="images/dspnet-img015.png" /></p>
+<p>The bypassed reverb is represented as greyed out.</p>
+<p>Note that many FMOD effects automatically bypass themselves, saving CPU, after no signal, or silence is detected and the effective 'tail' of the effect has played out.</p>
+<h4 id="order-of-execution-and-pull-no-pull-traversal"><a href="#order-of-execution-and-pull-no-pull-traversal">Order of execution and pull / no pull traversal</a></h4>
+<p>The order of execution for a DSP graph is from right to left, but also top to bottom. Units at the top will get executed before units at the bottom.</p>
+<p>Sometimes it is undesirable to have a user created effect execute the DSP units for the channel, rather than the ChannelGroup it belongs to. This typically doesn't matter, but one case where it would matter is if the user called <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdelay" title="Sets a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.">ChannelControl::setDelay</a> on the channel or <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdelay" title="Sets a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.">ChannelControl::setDelay</a> on a parent ChannelGroup, to make the sound delay before starting.</p>
+<p>The reverb unit has no concept of the delay because the clock it is delaying against is stored in the ChannelGroup it belongs to.</p>
+<p>The result is that the reverb will pull the signal and be audible through the reverb processor, and the dry path will still be silent because it is in a delay state.</p>
+<p>The workaround in the above reverb example, is to attach the reverb to the master ChannelGroup after the ChannelGroup the Channels will play on is created, so that the ChannelGroup executes first, and the reverb second.</p>
+<h4 id="send-vs-standard-connection-type"><a href="#send-vs-standard-connection-type">'Send' vs 'Standard' connection type</a></h4>
+<p>A second workaround is to stop the reverb pulling data from its inputs. This can be done by using the <a class="apilink" href="core-api-dspconnection.html#fmod_dspconnection_type" title="List of connection types between 2 DSP nodes.">FMOD_DSPCONNECTION_TYPE</a> 'type' parameter for <a class="apilink" href="core-api-dsp.html#dsp_addinput" title="Adds a DSP unit as an input to this object.">DSP::addInput</a>. If <a class="apilink" href="core-api-dspconnection.html#fmod_dspconnection_type_send" title="">FMOD_DSPCONNECTION_TYPE_SEND</a> is used instead of <a class="apilink" href="core-api-dspconnection.html#fmod_dspconnection_type_standard" title="">FMOD_DSPCONNECTION_TYPE_STANDARD</a>, the inputs are not executed, and all the reverb would do is process whatever is mixed to it from a previous traversal to the inputs.</p>
+<p>The delay will then work, but the downside to this method is that if the reverb is first, the signal from the channels will be sent after the reverb has processed. This means it will have to wait until the next mix before it can process that data, therefore 1 mix block of latency is introduced to the reverb.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

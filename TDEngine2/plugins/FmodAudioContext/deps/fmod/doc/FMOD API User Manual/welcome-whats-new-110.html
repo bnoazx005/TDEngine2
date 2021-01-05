@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>Welcome to FMOD API | New in FMOD API 1.10</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="welcome.html">Welcome to FMOD API</a><ul class="subchapters"><li><a href="welcome-whats-new-201.html">New in FMOD API 2.01</a></li><li><a href="welcome-whats-new-200.html">New in FMOD API 2.00</a></li><li class="manual-current-chapter manual-active-chapter"><a href="welcome-whats-new-110.html">New in FMOD API 1.10</a></li><li><a href="welcome-whats-new-109.html">New in FMOD API 1.09</a></li><li><a href="welcome-whats-new-108.html">New in FMOD API 1.08</a></li><li><a href="welcome-revision-history.html">Detailed Revision History</a></li></ul></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>1. Welcome to FMOD API | New in FMOD API 1.10</h1>
+<div class="toc">
+<ul>
+<li><a href="#whats-new-in-110">What's New in 1.10?</a><ul>
+<li><a href="#spatial-audio-features">Spatial audio features</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="whats-new-in-110"><a href="#whats-new-in-110">What's New in 1.10?</a></h2>
+<p>This section describes the major features introduced in the 1.10 release. See the <a href="welcome-revision-history.html">Detailed Revision History</a> for information regarding each patch release.</p>
+<h3 id="spatial-audio-features"><a href="#spatial-audio-features">Spatial audio features</a></h3>
+<p>Windows Sonic spatialization has been added for Windows and Xbox One with a new output plugin <a class="apilink" href="core-api-system.html#fmod_outputtype_winsonic" title="">FMOD_OUTPUTTYPE_WINSONIC</a>. This will allow FMOD to be rendered using Windows Sonic for headphones, Dolby Atmos for headphones and Dolby Atmos Home Theatre. These technologies allow for a more immersive surround experience which includes height spatialization via 7.1.4 surround speaker mode and dynamic objects.</p>
+<p>To facilitate getting signal into the height speakers FMOD can play 12 channel audio (7.1.4) as a source or upmix with the help of <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_pan" title="">FMOD_DSP_TYPE_PAN</a> and the new <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_pan_2d_height_blend" title="">FMOD_DSP_PAN_2D_HEIGHT_BLEND</a> parameter.</p>
+<p>For more detail about using spatial audio features with FMOD please refer to the dedicated <a href="white-papers-spatial-audio.html">Spatial Audio</a> page.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

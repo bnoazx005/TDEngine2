@@ -1,0 +1,228 @@
+<html>
+<head>
+<title>White Papers | DSP Plugin API</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | DSP Plugin API</h1>
+<div class="toc">
+<ul>
+<li><a href="#dsp-plug-in-api">DSP Plug-in API</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#accessing-plug-ins-in-fmod-studio">Accessing Plug-ins in FMOD Studio</a></li>
+<li><a href="#basics">Basics</a><ul>
+<li><a href="#building-a-plug-in">Building a Plug-in</a></li>
+<li><a href="#loading-the-plug-in-in-the-game">Loading the Plug-in in the Game</a></li>
+<li><a href="#plug-in-types">Plug-in Types</a></li>
+</ul>
+</li>
+<li><a href="#the-plug-in-descriptor">The Plug-in Descriptor</a></li>
+<li><a href="#thread-safety">Thread Safety</a></li>
+<li><a href="#plug-in-parameters">Plug-in Parameters</a><ul>
+<li><a href="#floating-point-parameters">Floating-point Parameters</a></li>
+<li><a href="#integer-parameters">Integer Parameters</a></li>
+<li><a href="#boolean-parameters">Boolean Parameters</a></li>
+<li><a href="#data-parameters">Data Parameters</a></li>
+</ul>
+</li>
+<li><a href="#multiple-plugins-within-one-file">Multiple plugins within one file</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="dsp-plug-in-api"><a href="#dsp-plug-in-api">DSP Plug-in API</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>Game studios and third-party developers can augment FMOD Studio's built-in suite of effect and sound modules by creating their own plug-ins. By placing plug-ins in FMOD Studio's plug-ins folder, these can be added to tracks or buses, modulated and automated by game parameters just like built-in effect and sound modules.</p>
+<p>This document describes how to create plug-ins and make them available to FMOD Studio and the game. It is recommended you follow along with our examples found in api/core/examples/plugins as they are fully implemented working effects you can use or base your code on.</p>
+<h3 id="accessing-plug-ins-in-fmod-studio"><a href="#accessing-plug-ins-in-fmod-studio">Accessing Plug-ins in FMOD Studio</a></h3>
+<p>A plug-in must be built as a dynamic linked library and placed in the plug-ins folder specified in FMOD Studio's Preferences dialog under the Plug-ins tab. FMOD Studio scans the folder and all sub-folders both on start-up and when the folder is changed by the user. Studio tries to load any libraries it finds (<em>.dll on Windows or </em>.dylib on Mac) and ignores libraries which don't support the API.</p>
+<p>Detected plug-in sounds will be available via the track context menu in the Event Editor, whereas detected plug-in effects will show up in the effect deck's Add Effect and Insert Effect context menus. When a plug-in module is added to a track or bus, its panel will be displayed in the effect deck. The panel will be automatically populated with dials, buttons and data drop-zones for each parameter.</p>
+<h3 id="basics"><a href="#basics">Basics</a></h3>
+<p>Two versions of the plug-in will usually be required - one for FMOD Studio and one for the game.</p>
+<p>Studio will require a dll or dylib file if running in Windows or Mac respectively. These will be loaded dynamically in Studio as described in the previous section.</p>
+<p>Another version of the plug-in must be compiled for the game's target platform. This may also be a dynamic library but, in most cases, can (or must) be a static library or simply compiled along with the game code. In each case, game code is required to load the plug-in prior to loading the project or object referencing the plug-in.</p>
+<h4 id="building-a-plug-in"><a href="#building-a-plug-in">Building a Plug-in</a></h4>
+<p>The <code>fmod_dsp.h</code> header file includes all the necessary type definitions and constants for creating plug-ins including the struct <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> which defines the plug-in's capabilities and callbacks.</p>
+<p>If creating a dynamic library, the library must export <code>FMODGetDSPDescription</code>, e.g.:</p>
+<div class="highlight language-c"><pre><span></span><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="p">{</span>
+<span class="n">FMOD_EXPORT</span> <span class="n">FMOD_DSP_DESCRIPTION</span><span class="o">*</span> <span class="n">F_CALL</span> <span class="n">FMODGetDSPDescription</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Dynamic libraries must be compiled for the same architecture as the host (whether FMOD Studio or the game), so if the host is 64-bit, the plug-in must be 64-bit.</p>
+<p>A free tool such as Dependency Walker can be used to verify that the library is able to be loaded and the proper symbol is exported. In Windows, the symbol will look like _FMODGetDSPDescription@0.</p>
+<p>If creating a static library, the library should export a symbol with a unique name such as <code>FMOD_YourCompany_YourProduct_GetDSPDescription</code>, e.g.:</p>
+<div class="highlight language-c"><pre><span></span><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="p">{</span>
+<span class="n">FMOD_EXPORT</span> <span class="n">FMOD_DSP_DESCRIPTION</span><span class="o">*</span> <span class="n">F_CALL</span> <span class="n">FMOD_YourCompany_YourProduct_GetDSPDescription</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>You should then share this extern'd symbol name in a header so developers can register it at runtime with <a class="apilink" href="core-api-system.html#system_registerdsp" title="Register a DSP plugin description structure for later use.">System::registerDSP</a>.</p>
+<h4 id="loading-the-plug-in-in-the-game"><a href="#loading-the-plug-in-in-the-game">Loading the Plug-in in the Game</a></h4>
+<p>The plug-in must be registered using the FMOD Studio or Core API before the object referencing the plug-in is loaded in the game.</p>
+<p>The following functions can be used to register a plug-in if it is statically linked or compiled with the game code:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT FMOD::Studio::System::registerPlugin(const FMOD_DSP_DESCRIPTION* description);
+FMOD_RESULT FMOD::System::registerDSP(const FMOD_DSP_DESCRIPTION *description, unsigned int *handle);
+</pre></div>
+
+
+<p>If the plug-in library is to be dynamically loaded, it can be registered using:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT FMOD::System::loadPlugin(const char *filename, unsigned int *handle, unsigned int priority = 0)
+</pre></div>
+
+
+<p>A base plug-in path can be specified using the function:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT FMOD::System::setPluginPath(const char *path)
+</pre></div>
+
+
+<p>If this is set, the filename parameter of <a class="apilink" href="core-api-system.html#system_loadplugin" title="Loads an FMOD (DSP, Output or Codec) plugin from file.">System::loadPlugin</a> is assumed to be relative to this path.</p>
+<p>Plug-ins do not normally need to be unregistered, but it is possible with either of the following functions:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_RESULT FMOD::Studio::System::unregisterPlugin(const char* name)
+FMOD_RESULT FMOD::System::unloadPlugin(unsigned int handle)
+</pre></div>
+
+
+<p>In these functions, name refers to the name of the plug-in defined in the plug-ins descriptor and handle refers to handle returned by <a class="apilink" href="core-api-system.html#system_loadplugin" title="Loads an FMOD (DSP, Output or Codec) plugin from file.">System::loadPlugin</a>.</p>
+<h4 id="plug-in-types"><a href="#plug-in-types">Plug-in Types</a></h4>
+<p>There are two main plug-in types:</p>
+<ul>
+<li>Effect Modules</li>
+<li>Sound Modules</li>
+</ul>
+<p>Both module types are created in the same way - the difference lies in whether the plug-in processes an audio input.</p>
+<p>Effect Modules apply effects to an audio signal, they have an input and an output. Effect Modules can be inserted anywhere in FMOD Studio's signal routing, whether it be on an Event's track or a mixer bus. Examples of different types of plug-in effects include:</p>
+<ul>
+<li>Effects which have the same input and output channel counts such as EQ, compression, distortion etc...</li>
+<li>Effects which perform up- or down-mixing as part of the processing algorithm such as panning or reverb</li>
+<li>Spatialization and any distance/direction effects which respond to a sound's 3D location in the game such as 3D panning, distance filtering, early reflections or binaural audio</li>
+<li>Side-chaining effects such as compression or audio modulation (e.g. ring modulators)</li>
+</ul>
+<p>Sound Modules produce their own sound - they do not have an audio input. Sound modules can be placed on tracks inside Events and can be made to trigger from the timeline, game parameter or within another sound module.</p>
+<h3 id="the-plug-in-descriptor"><a href="#the-plug-in-descriptor">The Plug-in Descriptor</a></h3>
+<p>The plug-in descriptor is a struct, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> defined in fmod_dsp.h, which describes the capabilities of the plug-in and contains function pointers for all callbacks needed to communicate with FMOD. Data in the descriptor cannot change once the plug-in is loaded. The original struct and its data must stay around until the plug-in is unloaded as data inside this struct is referenced directly within FMOD throughout the lifetime of the plug-in.</p>
+<p>The first member, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_pluginsdkversion" title="">FMOD_DSP_DESCRIPTION::pluginsdkversion</a>, must always hold the version number of the plug-in SDK it was complied with. This version is defined as <code>FMOD_PLUGIN_SDK_VERSION</code>. The SDK version is incremented whenever changes to the API occur.</p>
+<p>The following two members, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_name" title="">FMOD_DSP_DESCRIPTION::name</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_version" title="">FMOD_DSP_DESCRIPTION::version</a>, identify the plug-in. Each plug-in must have a unique name, usually the company name followed by the product name. Version numbers should not be included in the name in order to allow for future migration of saved data across different versions. Names should not change across versions for the same reason. The version number should be incremented whenever any changes to the plug-in have been made.</p>
+<p>Here is a code snippet from the FMOD Gain example which shows how to initialize the first five members of <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>:</p>
+<div class="highlight language-text"><pre><span></span>FMOD_DSP_DESCRIPTION FMOD_Gain_Desc =
+{
+    FMOD_PLUGIN_SDK_VERSION,
+    &quot;FMOD Gain&quot;,    // name
+    0x00010000,     // plug-in version
+    1,              // number of input buffers to process
+    1,              // number of output buffers to process
+    ...
+};
+</pre></div>
+
+
+<p>The other descriptor members will be discussed in the following sections.</p>
+<h3 id="thread-safety"><a href="#thread-safety">Thread Safety</a></h3>
+<p>Audio callbacks <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_read" title="">FMOD_DSP_DESCRIPTION::read</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_process" title="">FMOD_DSP_DESCRIPTION::process</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_shouldiprocess" title="">FMOD_DSP_DESCRIPTION::shouldiprocess</a> are executed in FMOD's mixer thread whereas all other callbacks are executed in the host's thread (game or Studio UI). It is therefore important to ensure thread safety across parameters and states which are shared between those two types of callbacks.</p>
+<p>In the FMOD Gain example, two gains are stored: target gain and current gain. target gain stores the parameter value which is set and queried from the host thread. This value is then assigned to current gain at the start of the audio processing callback and it is current gain that is then applied to the signal. FMOD Gain shows how this method can be used to perform parameter ramping by not directly assigning current gain but interpolating between current gain and target gain over a fixed number of samples so as to minimize audio artefacts during parameter changes.</p>
+<h3 id="plug-in-parameters"><a href="#plug-in-parameters">Plug-in Parameters</a></h3>
+<p>Plug-in effect and sound modules can have any number of parameters. Once defined, the number of parameters and each of their properties cannot change. Parameters can be one of four types:</p>
+<ul>
+<li>floating-point</li>
+<li>integer</li>
+<li>boolean (two-state)</li>
+<li>data</li>
+</ul>
+<p>Parameters are defined in <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> as a list of pointers to parameter descriptors, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_paramdesc" title="">FMOD_DSP_DESCRIPTION::paramdesc</a>. The <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_numparameters" title="">FMOD_DSP_DESCRIPTION::numparameters</a> specifies the number of parameters. Each parameter descriptor is of type <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc" title="Base Structure for DSP parameter descriptions.">FMOD_DSP_PARAMETER_DESC</a>. As with the plug-in descriptor, parameter descriptors must stay around until the plug-in is unloaded as the data within these descriptors are directly accessed throughout the lifetime of the plug-in.</p>
+<p>Common to each parameter type are the members <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_name" title="">FMOD_DSP_PARAMETER_DESC::name</a> and <code>units</code>, as well as <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_description" title="">FMOD_DSP_PARAMETER_DESC::description</a> which should describe the parameter in a sentence or two. The type member will need to be set to one of the four types and either of the <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_floatdesc" title="">FMOD_DSP_PARAMETER_DESC::floatdesc</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_intdesc" title="">FMOD_DSP_PARAMETER_DESC::intdesc</a>, <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_booldesc" title="">FMOD_DSP_PARAMETER_DESC::booldesc</a> or <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_desc_datadesc" title="">FMOD_DSP_PARAMETER_DESC::datadesc</a> members will need to specified. The different parameter types and their properties are described in more detail the sections below.</p>
+<h4 id="floating-point-parameters"><a href="#floating-point-parameters">Floating-point Parameters</a></h4>
+<p>Floating-point parameters have type set to <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type_float" title="">FMOD_DSP_PARAMETER_TYPE_FLOAT</a>. They are continuous, singled-valued parameters and their minimum, maximum and default values are defined by the floatdesc members min, max and defaultval.</p>
+<p>The following units should be used where appropriate:</p>
+<ul>
+<li>"Hz" for frequency or cut-off</li>
+<li>"ms" for duration, time offset or delay</li>
+<li>"st" (semitones) for pitch</li>
+<li>"dB" for gain, threshold or feedback</li>
+<li>"%" for mix, depth, feedback, quality, probability, multiplier or generic 'amount'.</li>
+<li>"Deg" for angle or angular spread</li>
+</ul>
+<p>These are preferred over other denominations (such as kHz for cut-off) as they are recognised by Studio therefore allowing values to be displayed in a more readable and consistent manner. Unitless 0-to-1 parameters should be avoided in favour of dB if the parameter describes a gain, % if it describes a multiplier, or a unitless 0-to-10 range is preferred if describing a generic amount.</p>
+<p>The <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> members <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_setparameterfloat" title="">FMOD_DSP_DESCRIPTION::setparameterfloat</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_getparameterfloat" title="">FMOD_DSP_DESCRIPTION::getparameterfloat</a> will need to point to static functions of type <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_float_callback" title="Set float parameter callback.">FMOD_DSP_SETPARAM_FLOAT_CALLBACK</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_float_callback" title="Get float parameter callback.">FMOD_DSP_GETPARAM_FLOAT_CALLBACK</a>, respectively, if any floating-point parameters are declared.</p>
+<p>These will be displayed as dials in FMOD Studio's effect deck.</p>
+<h4 id="integer-parameters"><a href="#integer-parameters">Integer Parameters</a></h4>
+<p>Integer parameters have type set to <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type_int" title="">FMOD_DSP_PARAMETER_TYPE_INT</a>. They are discrete, singled-valued parameters and their minimum, maximum and default values are defined by the intdesc members min, max and defaultval. The member goestoinf describes whether the maximum value represents infinity as maybe used for parameters representing polyphony, count or ratio.</p>
+<p>The <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> members <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_setparameterint" title="">FMOD_DSP_DESCRIPTION::setparameterint</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_getparameterint" title="">FMOD_DSP_DESCRIPTION::getparameterint</a> will need to point to static functions of type <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_int_callback" title="Set integer parameter callback.">FMOD_DSP_SETPARAM_INT_CALLBACK</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_int_callback" title="Get integer parameter callback.">FMOD_DSP_GETPARAM_INT_CALLBACK</a>, respectively, if any integer parameters are declared.</p>
+<p>These will be displayed as dials in FMOD Studio's effect deck.</p>
+<h4 id="boolean-parameters"><a href="#boolean-parameters">Boolean Parameters</a></h4>
+<p>Boolean parameters have type set to <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type_bool" title="">FMOD_DSP_PARAMETER_TYPE_BOOL</a>. They are discrete, singled-valued parameters and their default value is defined by the booldesc member defaultval.</p>
+<p>The <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> members <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_setparameterbool" title="">FMOD_DSP_DESCRIPTION::setparameterbool</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_getparameterbool" title="">FMOD_DSP_DESCRIPTION::getparameterbool</a> will need to point to static functions of type <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_bool_callback" title="Set boolean parameter callback.">FMOD_DSP_SETPARAM_BOOL_CALLBACK</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_bool_callback" title="Get boolean parameter callback.">FMOD_DSP_GETPARAM_BOOL_CALLBACK</a>, respectively, if any boolean parameters are declared.</p>
+<p>These will be displayed as buttons in FMOD Studio's effect deck.</p>
+<h4 id="data-parameters"><a href="#data-parameters">Data Parameters</a></h4>
+<p>Data parameters have type set to <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_parameter_type_data" title="">FMOD_DSP_PARAMETER_TYPE_DATA</a>. These parameters can represent any type of data including built-in types which serve a special purpose in FMOD. The datadesc member datatype specifies the type of data stored in the parameter. Values 0 and above may be used to describe user types whereas negative values are reserved for special types described in the following sections.</p>
+<p>The <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> members <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_setparameterdata" title="">FMOD_DSP_DESCRIPTION::setparameterdata</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description_getparameterdata" title="">FMOD_DSP_DESCRIPTION::getparameterdata</a> will need to point to static functions of type <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_setparam_data_callback" title="Set data parameter callback.">FMOD_DSP_SETPARAM_DATA_CALLBACK</a> and <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_getparam_data_callback" title="Get data parameter callback.">FMOD_DSP_GETPARAM_DATA_CALLBACK</a>, respectively, if any data parameters with datatype 0 and above are declared.</p>
+<p>Data parameters with datatype 0 and above will be displayed as drop-zones in FMOD Studio's effect deck. You can drag any file containing the data onto the drop-zone to set the parameter's value. Data is stored will be stored with the project just like other parameter types.</p>
+<h3 id="multiple-plugins-within-one-file"><a href="#multiple-plugins-within-one-file">Multiple plugins within one file</a></h3>
+<p>Typically each plugin only has a single definition. If you want to have multiple definitions from within the one plugin file, you can use a plugin list. An example is shown below.</p>
+<div class="highlight language-text"><pre><span></span>FMOD_DSP_DESCRIPTION My_Gain_Desc = { .. };
+FMOD_DSP_DESCRIPTION My_Panner_Desc = { .. };
+FMOD_OUTPUT_DESCRIPTION My_Output_Desc = { .. };
+
+static FMOD_PLUGINLIST My_Plugin_List[] =
+{
+    { FMOD_PLUGINTYPE_DSP, &amp;My_Gain_Desc },
+    { FMOD_PLUGINTYPE_DSP, &amp;My_Panner_Desc },
+    { FMOD_PLUGINTYPE_OUTPUT, &amp;My_Output_Desc },
+    { FMOD_PLUGINTYPE_MAX, NULL }
+};
+
+extern &quot;C&quot;
+{
+
+F_EXPORT FMOD_PLUGINLIST* F_CALL FMODGetPluginDescriptionList()
+{
+    return &amp;My_Plugin_List;
+}
+
+} // end extern &quot;C&quot;
+</pre></div>
+
+
+<p>Support for multiple plugins via <code>FMODGetPluginDescriptionList</code> was added in 1.08. If the plugin also implements <code>FMODGetDSPDescription</code>, then older versions of FMOD will load a single DSP effect while newer versions will load all effects.</p>
+<p>To load plugins at runtime, call <a class="apilink" href="core-api-system.html#system_loadplugin" title="Loads an FMOD (DSP, Output or Codec) plugin from file.">System::loadPlugin</a> as normal. The handle returned is for the first definition. <a class="apilink" href="core-api-system.html#system_getnumnestedplugins" title="Retrieves the number of nested plugins from the selected plugin.">System::getNumNestedPlugins</a> and <a class="apilink" href="core-api-system.html#system_getnestedplugin" title="Retrieves the handle of a nested plugin.">System::getNestedPlugin</a> can be used to iterate all plugins in the one file.</p>
+<div class="highlight language-text"><pre><span></span>unsigned int baseHandle;
+ERRCHECK(system-&gt;loadPlugin(&quot;plugin_name.dll&quot;, &amp;baseHandle));
+int count;
+ERRCHECK(system-&gt;getNumNestedPlugins(baseHandle, &amp;count));
+for (int index=0; index&lt;count; ++index)
+{
+    unsigned int handle;
+    ERRCHECK(system-&gt;getNestedPlugin(baseHandle, index, &amp;handle));        
+    FMOD_PLUGINTYPE type;
+    ERRCHECK(system-&gt;getPluginInfo(handle, &amp;type, 0, 0, 0));
+    // we have an output plugin, a dsp plugin, or a codec plugin here ..
+}
+</pre></div>
+
+
+<p>The above code also works for plugins with a single definition. In that case, the count is always 1 and <a class="apilink" href="core-api-system.html#system_getnestedplugin" title="Retrieves the handle of a nested plugin.">System::getNestedPlugin</a> returns the same handle as passed in.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

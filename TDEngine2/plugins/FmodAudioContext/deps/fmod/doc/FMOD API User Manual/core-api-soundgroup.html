@@ -1,0 +1,843 @@
+<html>
+<head>
+<title>Core API Reference | SoundGroup</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="core-api.html">Core API Reference</a><ul class="subchapters"><li><a href="core-api-common.html">Common</a></li><li><a href="core-api-common-dsp-effects.html">Effect Parameters</a></li><li><a href="core-api-system.html">System</a></li><li><a href="core-api-sound.html">Sound</a></li><li><a href="core-api-channelcontrol.html">ChannelControl</a></li><li><a href="core-api-channel.html">Channel</a></li><li><a href="core-api-channelgroup.html">ChannelGroup</a></li><li class="manual-current-chapter manual-active-chapter"><a href="core-api-soundgroup.html">SoundGroup</a></li><li><a href="core-api-dsp.html">DSP</a></li><li><a href="core-api-dspconnection.html">DSPConnection</a></li><li><a href="core-api-geometry.html">Geometry</a></li><li><a href="core-api-reverb3d.html">Reverb3D</a></li><li><a href="core-api-platform-ios.html">iOS Specific</a></li></ul></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>7. Core API Reference | SoundGroup</h1>
+<p>An interface that manages Sound Groups</p>
+<p><strong>Group Functions:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudible" title="Sets the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::setMaxAudible</a> Sets the maximum number of playbacks to be audible at once in a sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudible" title="Retrieves the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::getMaxAudible</a> Retrieves the maximum number of playbacks to be audible at once in a sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudiblebehavior" title="This function changes the way the sound playback behaves when too many sounds are playing in a soundgroup.">SoundGroup::setMaxAudibleBehavior</a> This function changes the way the sound playback behaves when too many sounds are playing in a soundgroup.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudiblebehavior" title="Retrieves the current max audible behavior.">SoundGroup::getMaxAudibleBehavior</a> Retrieves the current max audible behavior.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_setmutefadespeed" title="Sets a mute fade time.">SoundGroup::setMuteFadeSpeed</a> Sets a mute fade time.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getmutefadespeed" title="Retrieves the current mute fade time.">SoundGroup::getMuteFadeSpeed</a> Retrieves the current mute fade time.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_setvolume" title="Sets the volume of the sound group.">SoundGroup::setVolume</a> Sets the volume of the sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getvolume" title="Retrieves the volume of the sound group.">SoundGroup::getVolume</a> Retrieves the volume of the sound group.</li>
+</ul>
+<hr />
+<ul>
+<li><a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior" title="Values specifying behavior when a sound group's max audible value is exceeded.">FMOD_SOUNDGROUP_BEHAVIOR</a> Values specifying behavior when a sound group's max audible value is exceeded.</li>
+</ul>
+<p><strong>Sound Functions:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudible" title="Sets the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::setMaxAudible</a> Sets the maximum number of playbacks to be audible at once in a sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudible" title="Retrieves the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::getMaxAudible</a> Retrieves the maximum number of playbacks to be audible at once in a sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getnumsounds" title="Retrieves the current number of sounds in this sound group.">SoundGroup::getNumSounds</a> Retrieves the current number of sounds in this sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getsound" title="Retrieves a sound.">SoundGroup::getSound</a> Retrieves a sound.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getnumplaying" title="Retrieves the number of currently playing channels for the sound group.">SoundGroup::getNumPlaying</a> Retrieves the number of currently playing channels for the sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_stop" title="Stops all sounds within this soundgroup.">SoundGroup::stop</a> Stops all sounds within this soundgroup.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getname" title="Retrieves the name of the sound group.">SoundGroup::getName</a> Retrieves the name of the sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_release" title="Releases a soundgroup object and returns all sounds back to the master sound group.">SoundGroup::release</a> Releases a soundgroup object and returns all sounds back to the master sound group.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_setuserdata" title="Sets a user value associated with this object.">SoundGroup::setUserData</a> Sets a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getuserdata" title="Retrieves a user value associated with this object.">SoundGroup::getUserData</a> Retrieves a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-soundgroup.html#soundgroup_getsystemobject" title="Retrieves the parent System object.">SoundGroup::getSystemObject</a> Retrieves the parent System object.</li>
+</ul>
+<h2 api="enum" id="fmod_soundgroup_behavior"><a href="#fmod_soundgroup_behavior">FMOD_SOUNDGROUP_BEHAVIOR</a></h2>
+<p>Values specifying behavior when a sound group's max audible value is exceeded.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-c-cpp"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">FMOD_SOUNDGROUP_BEHAVIOR</span> <span class="p">{</span>
+  <span class="n">FMOD_SOUNDGROUP_BEHAVIOR_FAIL</span><span class="p">,</span>
+  <span class="n">FMOD_SOUNDGROUP_BEHAVIOR_MUTE</span><span class="p">,</span>
+  <span class="n">FMOD_SOUNDGROUP_BEHAVIOR_STEALLOWEST</span><span class="p">,</span>
+  <span class="n">FMOD_SOUNDGROUP_BEHAVIOR_MAX</span>
+<span class="p">}</span> <span class="n">FMOD_SOUNDGROUP_BEHAVIOR</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="k">enum</span> <span class="n">SOUNDGROUP_BEHAVIOR</span>
+<span class="p">{</span>
+    <span class="n">BEHAVIOR_FAIL</span><span class="p">,</span>
+    <span class="n">BEHAVIOR_MUTE</span><span class="p">,</span>
+    <span class="n">BEHAVIOR_STEALLOWEST</span><span class="p">,</span>
+    <span class="n">MAX</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">FMOD</span><span class="p">.</span><span class="nx">SOUNDGROUP_BEHAVIOR_FAIL</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">SOUNDGROUP_BEHAVIOR_MUTE</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">SOUNDGROUP_BEHAVIOR_STEALLOWEST</span>
+<span class="nx">FMOD</span><span class="p">.</span><span class="nx">SOUNDGROUP_BEHAVIOR_MAX</span>
+</pre></div>
+
+
+<dl>
+<dt id="fmod_soundgroup_behavior_fail">FMOD_SOUNDGROUP_BEHAVIOR_FAIL</dt>
+<dd>Excess sounds will fail when calling <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a>.</dd>
+<dt id="fmod_soundgroup_behavior_mute">FMOD_SOUNDGROUP_BEHAVIOR_MUTE</dt>
+<dd>Excess sounds will begin mute and will become audible when sufficient sounds are stopped.</dd>
+<dt id="fmod_soundgroup_behavior_steallowest">FMOD_SOUNDGROUP_BEHAVIOR_STEALLOWEST</dt>
+<dd>Excess sounds will steal from the quietest <a class="apilink" href="core-api-sound.html" title="">Sound</a> playing in the group.</dd>
+<dt id="fmod_soundgroup_behavior_max">FMOD_SOUNDGROUP_BEHAVIOR_MAX</dt>
+<dd>Maximum number of <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a> behaviors. </dd>
+</dl>
+<p>When using <a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior_mute" title="">FMOD_SOUNDGROUP_BEHAVIOR_MUTE</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmutefadespeed" title="Sets a mute fade time.">SoundGroup::setMuteFadeSpeed</a> can be used to stop a sudden transition.<br />
+Instead, the time specified will be used to cross fade between the sounds that go silent and the ones that become audible.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudiblebehavior" title="This function changes the way the sound playback behaves when too many sounds are playing in a soundgroup.">SoundGroup::setMaxAudibleBehavior</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudiblebehavior" title="Retrieves the current max audible behavior.">SoundGroup::getMaxAudibleBehavior</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudible" title="Sets the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::setMaxAudible</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudible" title="Retrieves the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::getMaxAudible</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmutefadespeed" title="Sets a mute fade time.">SoundGroup::setMuteFadeSpeed</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_getmutefadespeed" title="Retrieves the current mute fade time.">SoundGroup::getMuteFadeSpeed</a></p>
+<h2 api="function" id="soundgroup_getmaxaudible"><a href="#soundgroup_getmaxaudible">SoundGroup::getMaxAudible</a></h2>
+<p>Retrieves the maximum number of playbacks to be audible at once in a sound group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getMaxAudible</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">maxaudible</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetMaxAudible</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">maxaudible</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getMaxAudible</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">maxaudible</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getMaxAudible</span><span class="p">(</span>
+  <span class="nx">maxaudible</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>maxaudible <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Maximum number of playbacks to be audible at once.</p>
+<ul>
+<li><span class="label">Range:</span> [-1, inf)</li>
+<li><span class="label">Default:</span> -1</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudible" title="Sets the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::setMaxAudible</a></p>
+<h2 api="function" id="soundgroup_getmaxaudiblebehavior"><a href="#soundgroup_getmaxaudiblebehavior">SoundGroup::getMaxAudibleBehavior</a></h2>
+<p>Retrieves the current max audible behavior.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getMaxAudibleBehavior</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP_BEHAVIOR</span> <span class="o">*</span><span class="n">behavior</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetMaxAudibleBehavior</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="n">FMOD_SOUNDGROUP_BEHAVIOR</span> <span class="o">*</span><span class="n">behavior</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getMaxAudibleBehavior</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">SOUNDGROUP_BEHAVIOR</span> <span class="n">behavior</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getMaxAudibleBehavior</span><span class="p">(</span>
+  <span class="nx">behavior</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>behavior <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p><a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a> max playbacks behavior. (<a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior" title="Values specifying behavior when a sound group's max audible value is exceeded.">FMOD_SOUNDGROUP_BEHAVIOR</a>)</p>
+<ul>
+<li><span class="label">Default:</span> <a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior_fail" title="">FMOD_SOUNDGROUP_BEHAVIOR_FAIL</a></li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudiblebehavior" title="This function changes the way the sound playback behaves when too many sounds are playing in a soundgroup.">SoundGroup::setMaxAudibleBehavior</a></p>
+<h2 api="function" id="soundgroup_getmutefadespeed"><a href="#soundgroup_getmutefadespeed">SoundGroup::getMuteFadeSpeed</a></h2>
+<p>Retrieves the current mute fade time.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getMuteFadeSpeed</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">speed</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetMuteFadeSpeed</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">speed</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getMuteFadeSpeed</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">speed</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getMuteFadeSpeed</span><span class="p">(</span>
+  <span class="nx">speed</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>speed <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Fade time.  0 = no fading.</p>
+<ul>
+<li><span class="label">Units:</span> Seconds</li>
+<li><span class="label">Range:</span> [0, inf)</li>
+<li><span class="label">Default:</span> 0</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmutefadespeed" title="Sets a mute fade time.">SoundGroup::setMuteFadeSpeed</a></p>
+<h2 api="function" id="soundgroup_getname"><a href="#soundgroup_getname">SoundGroup::getName</a></h2>
+<p>Retrieves the name of the sound group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getName</span><span class="p">(</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">namelen</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetName</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">namelen</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getName</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">string</span> <span class="n">name</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">namelen</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getName</span><span class="p">(</span>
+  <span class="nx">name</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>name <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Name of the <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a>. (<a href="glossary.html#string-format">UTF-8 string</a>)</dd>
+<dt>namelen</dt>
+<dd>
+<p>Length of <code>name</code>.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createsoundgroup" title="Creates a SoundGroup object.">System::createSoundGroup</a></p>
+<h2 api="function" id="soundgroup_getnumplaying"><a href="#soundgroup_getnumplaying">SoundGroup::getNumPlaying</a></h2>
+<p>Retrieves the number of currently playing channels for the sound group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getNumPlaying</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numplaying</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetNumPlaying</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numplaying</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getNumPlaying</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">numplaying</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getNumPlaying</span><span class="p">(</span>
+  <span class="nx">numplaying</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>numplaying <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Number of actively playing <a class="apilink" href="core-api-channel.html" title="">Channel</a>s from sounds in this <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a>.</dd>
+</dl>
+<p>This routine returns the number of <a class="apilink" href="core-api-channel.html" title="">Channel</a>s playing.  If the <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a> only has one <a class="apilink" href="core-api-sound.html" title="">Sound</a>, and that <a class="apilink" href="core-api-sound.html" title="">Sound</a> is playing twice, the figure returned will be two.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createsoundgroup" title="Creates a SoundGroup object.">System::createSoundGroup</a>, <a class="apilink" href="core-api-system.html#system_getmastersoundgroup" title="Retrieves the default SoundGroup, where all sounds are placed when they are created.">System::getMasterSoundGroup</a></p>
+<h2 api="function" id="soundgroup_getnumsounds"><a href="#soundgroup_getnumsounds">SoundGroup::getNumSounds</a></h2>
+<p>Retrieves the current number of sounds in this sound group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getNumSounds</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numsounds</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetNumSounds</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numsounds</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getNumSounds</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">numsounds</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getNumSounds</span><span class="p">(</span>
+  <span class="nx">numsounds</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>numsounds <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Number of <a class="apilink" href="core-api-sound.html" title="">Sound</a>s in this <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a>.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_getsound" title="Retrieves a sound.">SoundGroup::getSound</a></p>
+<h2 api="function" id="soundgroup_getsound"><a href="#soundgroup_getsound">SoundGroup::getSound</a></h2>
+<p>Retrieves a sound.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getSound</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">Sound</span> <span class="o">**</span><span class="n">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetSound</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="n">FMOD_SOUND</span> <span class="o">**</span><span class="n">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getSound</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">Sound</span> <span class="n">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getSound</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>Index of the sound.</dd>
+<dt>sound <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Sound object. (<a class="apilink" href="core-api-sound.html" title="">Sound</a>)</dd>
+</dl>
+<p>Use <a class="apilink" href="core-api-soundgroup.html#soundgroup_getnumsounds" title="Retrieves the current number of sounds in this sound group.">SoundGroup::getNumSounds</a> in conjunction with this function to enumerate all sounds in a <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a></p>
+<h2 api="function" id="soundgroup_getsystemobject"><a href="#soundgroup_getsystemobject">SoundGroup::getSystemObject</a></h2>
+<p>Retrieves the parent System object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getSystemObject</span><span class="p">(</span>
+  <span class="n">System</span> <span class="o">**</span><span class="n">system</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetSystemObject</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="n">FMOD_SYSTEM</span> <span class="o">**</span><span class="n">system</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getSystemObject</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">System</span> <span class="n">system</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getSystemObject</span><span class="p">(</span>
+  <span class="nx">system</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>system <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>System object. (<a class="apilink" href="core-api-system.html" title="">System</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createsoundgroup" title="Creates a SoundGroup object.">System::createSoundGroup</a>, <a class="apilink" href="core-api-system.html#system_getmastersoundgroup" title="Retrieves the default SoundGroup, where all sounds are placed when they are created.">System::getMasterSoundGroup</a></p>
+<h2 api="function" id="soundgroup_getuserdata"><a href="#soundgroup_getuserdata">SoundGroup::getUserData</a></h2>
+<p>Retrieves a user value associated with this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Value stored on this object.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_setuserdata" title="Sets a user value associated with this object.">SoundGroup::setUserData</a></p>
+<h2 api="function" id="soundgroup_getvolume"><a href="#soundgroup_getvolume">SoundGroup::getVolume</a></h2>
+<p>Retrieves the volume of the sound group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">getVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_GetVolume</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">getVolume</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">getVolume</span><span class="p">(</span>
+  <span class="nx">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>volume <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Volume level.</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Range:</span> [0, 1]</li>
+<li><span class="label">Default:</span> 1</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_setvolume" title="Sets the volume of the sound group.">SoundGroup::setVolume</a></p>
+<h2 api="function" id="soundgroup_release"><a href="#soundgroup_release">SoundGroup::release</a></h2>
+<p>Releases a soundgroup object and returns all sounds back to the master sound group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_Release</span><span class="p">(</span><span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">release</span><span class="p">();</span>
+</pre></div>
+
+
+<p>You cannot release the master <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_createsoundgroup" title="Creates a SoundGroup object.">System::createSoundGroup</a>, <a class="apilink" href="core-api-system.html#system_getmastersoundgroup" title="Retrieves the default SoundGroup, where all sounds are placed when they are created.">System::getMasterSoundGroup</a></p>
+<h2 api="function" id="soundgroup_setmaxaudible"><a href="#soundgroup_setmaxaudible">SoundGroup::setMaxAudible</a></h2>
+<p>Sets the maximum number of playbacks to be audible at once in a sound group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">setMaxAudible</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">maxaudible</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_SetMaxAudible</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">maxaudible</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">setMaxAudible</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">maxaudible</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">setMaxAudible</span><span class="p">(</span>
+  <span class="nx">maxaudible</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>maxaudible</dt>
+<dd>
+<p>Maximum number of playbacks to be audible at once. -1 denotes unlimited.</p>
+<ul>
+<li><span class="label">Range:</span> [-1, inf)</li>
+<li><span class="label">Default:</span> -1</li>
+</ul>
+</dd>
+</dl>
+<p>If playing instances of sounds in this group equal or exceed number specified here, attepts to play more of the sounds with be met with <a class="apilink" href="core-api-common.html#fmod_err_maxaudible" title="">FMOD_ERR_MAXAUDIBLE</a> by default. <br />
+Use <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudiblebehavior" title="This function changes the way the sound playback behaves when too many sounds are playing in a soundgroup.">SoundGroup::setMaxAudibleBehavior</a> to change the way the sound playback behaves when too many sounds are playing.  Muting, failing and stealing behaviors can be specified.  See <a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior" title="Values specifying behavior when a sound group's max audible value is exceeded.">FMOD_SOUNDGROUP_BEHAVIOR</a>.</p>
+<p><a class="apilink" href="core-api-soundgroup.html#soundgroup_getnumplaying" title="Retrieves the number of currently playing channels for the sound group.">SoundGroup::getNumPlaying</a> can be used to determine how many instances of the sounds in the <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a> are currently playing.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudible" title="Retrieves the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::getMaxAudible</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudiblebehavior" title="This function changes the way the sound playback behaves when too many sounds are playing in a soundgroup.">SoundGroup::setMaxAudibleBehavior</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudiblebehavior" title="Retrieves the current max audible behavior.">SoundGroup::getMaxAudibleBehavior</a></p>
+<h2 api="function" id="soundgroup_setmaxaudiblebehavior"><a href="#soundgroup_setmaxaudiblebehavior">SoundGroup::setMaxAudibleBehavior</a></h2>
+<p>This function changes the way the sound playback behaves when too many sounds are playing in a soundgroup.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">setMaxAudibleBehavior</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP_BEHAVIOR</span> <span class="n">behavior</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_SetMaxAudibleBehavior</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="n">FMOD_SOUNDGROUP_BEHAVIOR</span> <span class="n">behavior</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">setMaxAudibleBehavior</span><span class="p">(</span>
+  <span class="n">SOUNDGROUP_BEHAVIOR</span> <span class="n">behavior</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">setMaxAudibleBehavior</span><span class="p">(</span>
+  <span class="nx">behavior</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>behavior</dt>
+<dd>
+<p><a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a> max playbacks behavior. (<a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior" title="Values specifying behavior when a sound group's max audible value is exceeded.">FMOD_SOUNDGROUP_BEHAVIOR</a>)</p>
+<ul>
+<li><span class="label">Default:</span> <a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior_fail" title="">FMOD_SOUNDGROUP_BEHAVIOR_FAIL</a></li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudiblebehavior" title="Retrieves the current max audible behavior.">SoundGroup::getMaxAudibleBehavior</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudible" title="Sets the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::setMaxAudible</a>, <a class="apilink" href="core-api-soundgroup.html#soundgroup_getmaxaudible" title="Retrieves the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::getMaxAudible</a></p>
+<h2 api="function" id="soundgroup_setmutefadespeed"><a href="#soundgroup_setmutefadespeed">SoundGroup::setMuteFadeSpeed</a></h2>
+<p>Sets a mute fade time.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">setMuteFadeSpeed</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">speed</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_SetMuteFadeSpeed</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">speed</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">setMuteFadeSpeed</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">speed</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">setMuteFadeSpeed</span><span class="p">(</span>
+  <span class="nx">speed</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>speed</dt>
+<dd>
+<p>Fade time.  0 = no fading.</p>
+<ul>
+<li><span class="label">Units:</span> Seconds</li>
+<li><span class="label">Range:</span> [0, inf)</li>
+<li><span class="label">Default:</span> 0</li>
+</ul>
+</dd>
+</dl>
+<p>If a mode besides <a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior_mute" title="">FMOD_SOUNDGROUP_BEHAVIOR_MUTE</a> is used, the fade speed is ignored.</p>
+<p>When more sounds are playing in a SoundGroup than are specified with <a class="apilink" href="core-api-soundgroup.html#soundgroup_setmaxaudible" title="Sets the maximum number of playbacks to be audible at once in a sound group.">SoundGroup::setMaxAudible</a>, the least important <a class="apilink" href="core-api-sound.html" title="">Sound</a> (ie lowest priority / lowest audible volume due to 3D position, volume etc) will fade to silence if <a class="apilink" href="core-api-soundgroup.html#fmod_soundgroup_behavior_mute" title="">FMOD_SOUNDGROUP_BEHAVIOR_MUTE</a> is used, and any previous sounds that were silent because of this rule will fade in if they are more important.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_getmutefadespeed" title="Retrieves the current mute fade time.">SoundGroup::getMuteFadeSpeed</a></p>
+<h2 api="function" id="soundgroup_setuserdata"><a href="#soundgroup_setuserdata">SoundGroup::setUserData</a></h2>
+<p>Sets a user value associated with this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_SetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">setUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata</dt>
+<dd>Value stored on this object.</dd>
+</dl>
+<p>Associates some data with this object to give it context, it will be passed back via callbacks but otherwise remain untouched.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_getuserdata" title="Retrieves a user value associated with this object.">SoundGroup::getUserData</a></p>
+<h2 api="function" id="soundgroup_setvolume"><a href="#soundgroup_setvolume">SoundGroup::setVolume</a></h2>
+<p>Sets the volume of the sound group.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">setVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_SetVolume</span><span class="p">(</span>
+  <span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">setVolume</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">setVolume</span><span class="p">(</span>
+  <span class="nx">volume</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>volume</dt>
+<dd>
+<p>Volume level.</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Range:</span> [0, 1]</li>
+<li><span class="label">Default:</span> 1</li>
+</ul>
+</dd>
+</dl>
+<p>Scales the volume of all <a class="apilink" href="core-api-channel.html" title="">Channel</a>s playing <a class="apilink" href="core-api-sound.html" title="">Sound</a>s in this <a class="apilink" href="core-api-soundgroup.html" title="">SoundGroup</a>. </p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-soundgroup.html#soundgroup_getvolume" title="Retrieves the volume of the sound group.">SoundGroup::getVolume</a></p>
+<h2 api="function" id="soundgroup_stop"><a href="#soundgroup_stop">SoundGroup::stop</a></h2>
+<p>Stops all sounds within this soundgroup.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">SoundGroup</span><span class="o">::</span><span class="n">stop</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_SoundGroup_Stop</span><span class="p">(</span><span class="n">FMOD_SOUNDGROUP</span> <span class="o">*</span><span class="n">soundgroup</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">SoundGroup</span><span class="p">.</span><span class="n">stop</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">SoundGroup</span><span class="p">.</span><span class="nx">stop</span><span class="p">();</span>
+</pre></div>
+
+
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

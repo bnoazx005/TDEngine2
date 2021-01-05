@@ -1,0 +1,861 @@
+<html>
+<head>
+<title>Core API Reference | Channel</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="core-api.html">Core API Reference</a><ul class="subchapters"><li><a href="core-api-common.html">Common</a></li><li><a href="core-api-common-dsp-effects.html">Effect Parameters</a></li><li><a href="core-api-system.html">System</a></li><li><a href="core-api-sound.html">Sound</a></li><li><a href="core-api-channelcontrol.html">ChannelControl</a></li><li class="manual-current-chapter manual-active-chapter"><a href="core-api-channel.html">Channel</a></li><li><a href="core-api-channelgroup.html">ChannelGroup</a></li><li><a href="core-api-soundgroup.html">SoundGroup</a></li><li><a href="core-api-dsp.html">DSP</a></li><li><a href="core-api-dspconnection.html">DSPConnection</a></li><li><a href="core-api-geometry.html">Geometry</a></li><li><a href="core-api-reverb3d.html">Reverb3D</a></li><li><a href="core-api-platform-ios.html">iOS Specific</a></li></ul></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>7. Core API Reference | Channel</h1>
+<p>A source of audio signal that connects to the <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a> mixing hierarchy.</p>
+<p>Create with <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a> or <a class="apilink" href="core-api-system.html#system_playdsp" title="Plays a DSP along with any of its inputs on a Channel.">System::playDSP</a>.</p>
+<p><strong>Playback control:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channel.html#channel_setfrequency" title="Sets the frequency or playback rate.">Channel::setFrequency</a> Sets the frequency or playback rate.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_getfrequency" title="Retrieves the playback frequency or playback rate.">Channel::getFrequency</a> Retrieves the playback frequency or playback rate.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_setpriority" title="Sets the priority used for virtual Channel ordering.">Channel::setPriority</a> Sets the priority used for virtual Channel ordering.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_getpriority" title="Retrieves the priority used for virtual Channel ordering.">Channel::getPriority</a> Retrieves the priority used for virtual Channel ordering.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_setposition" title="Sets the current playback position.">Channel::setPosition</a> Sets the current playback position.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_getposition" title="Retrieves the current playback position.">Channel::getPosition</a> Retrieves the current playback position.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_setchannelgroup" title="Sets the ChannelGroup this object outputs to.">Channel::setChannelGroup</a> Sets the ChannelGroup this object outputs to.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_getchannelgroup" title="Retrieves the ChannelGroup this object outputs to.">Channel::getChannelGroup</a> Retrieves the ChannelGroup this object outputs to.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_setloopcount" title="Sets the number of times to loop before stopping.">Channel::setLoopCount</a> Sets the number of times to loop before stopping.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_getloopcount" title="Retrieves the number of times to loop before stopping.">Channel::getLoopCount</a> Retrieves the number of times to loop before stopping.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_setlooppoints" title="Sets the loop start and end points.">Channel::setLoopPoints</a> Sets the loop start and end points.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_getlooppoints" title="Retrieves the loop start and end points.">Channel::getLoopPoints</a> Retrieves the loop start and end points.</li>
+</ul>
+<p><strong>Information:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channel.html#channel_isvirtual" title="Retrieves whether the Channel is being emulated by the virtual Channel system.">Channel::isVirtual</a> Retrieves whether the Channel is being emulated by the virtual Channel system.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_getcurrentsound" title="Retrieves the currently playing Sound.">Channel::getCurrentSound</a> Retrieves the currently playing Sound.</li>
+<li><a class="apilink" href="core-api-channel.html#channel_getindex" title="Retrieves the index of this object in the System Channel pool.">Channel::getIndex</a> Retrieves the index of this object in the System Channel pool.</li>
+</ul>
+<p>The following APIs are inherited from <a class="apilink" href="core-api-channelcontrol.html" title="">ChannelControl</a>:</p>
+<p><strong>Playback:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_isplaying" title="Retrieves the playing state.">ChannelControl::isPlaying</a> Retrieves the playing state.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_stop" title="Stops the Channel (or all Channels in nested ChannelGroups) from playing.">ChannelControl::stop</a> Stops the Channel (or all Channels in nested ChannelGroups) from playing.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setpaused" title="Sets the paused state.">ChannelControl::setPaused</a> Sets the paused state.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getpaused" title="Retrieves the paused state.">ChannelControl::getPaused</a> Retrieves the paused state.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmode" title="Sets the playback mode that controls how this object behaves.">ChannelControl::setMode</a> Sets the playback mode that controls how this object behaves.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getmode" title="Retrieves the playback mode bits that control how this object behaves.">ChannelControl::getMode</a> Retrieves the playback mode bits that control how this object behaves.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setpitch" title="Sets the relative pitch / playback rate.">ChannelControl::setPitch</a> Sets the relative pitch / playback rate.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getpitch" title="Retrieves the relative pitch / playback rate.">ChannelControl::getPitch</a> Retrieves the relative pitch / playback rate.</li>
+</ul>
+<p><strong>Volume levels:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getaudibility" title="Retrieves an estimation of the output volume.">ChannelControl::getAudibility</a> Retrieves an estimation of the output volume.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setvolume" title="Sets the volume level.">ChannelControl::setVolume</a> Sets the volume level.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getvolume" title="Retrieves the volume level.">ChannelControl::getVolume</a> Retrieves the volume level.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setvolumeramp" title="Sets whether volume changes are ramped or instantaneous.">ChannelControl::setVolumeRamp</a> Sets whether volume changes are ramped or instantaneous.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getvolumeramp" title="Retrieves whether volume changes are ramped or instantaneous.">ChannelControl::getVolumeRamp</a> Retrieves whether volume changes are ramped or instantaneous.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmute" title="Sets the mute state.">ChannelControl::setMute</a> Sets the mute state.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getmute" title="Retrieves the mute state.">ChannelControl::getMute</a> Retrieves the mute state.</li>
+</ul>
+<p><strong>Spatialization:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dattributes" title="Sets the 3D position and velocity used to apply panning, attenuation and doppler.">ChannelControl::set3DAttributes</a> Sets the 3D position and velocity used to apply panning, attenuation and doppler.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dattributes" title="Retrieves the 3D position and velocity used to apply panning, attenuation and doppler.">ChannelControl::get3DAttributes</a> Retrieves the 3D position and velocity used to apply panning, attenuation and doppler.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dconeorientation" title="Sets the orientation of a 3D cone shape, used for simulated occlusion.">ChannelControl::set3DConeOrientation</a> Sets the orientation of a 3D cone shape, used for simulated occlusion.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dconeorientation" title="Retrieves the orientation of a 3D cone shape, used for simulated occlusion.">ChannelControl::get3DConeOrientation</a> Retrieves the orientation of a 3D cone shape, used for simulated occlusion.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dconesettings" title="Sets the angles and attenuation levels of a 3D cone shape, for simulated occlusion which is based on direction.">ChannelControl::set3DConeSettings</a> Sets the angles and attenuation levels of a 3D cone shape, for simulated occlusion which is based on direction.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dconesettings" title="Retrieves the angles and attenuation levels of a 3D cone shape, for simulated occlusion which is based on direction.">ChannelControl::get3DConeSettings</a> Retrieves the angles and attenuation levels of a 3D cone shape, for simulated occlusion which is based on direction.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dcustomrolloff" title="Sets a custom rolloff shape for 3D distance attenuation.">ChannelControl::set3DCustomRolloff</a> Sets a custom rolloff shape for 3D distance attenuation.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dcustomrolloff" title="Retrieves the current custom rolloff shape for 3D distance attenuation.">ChannelControl::get3DCustomRolloff</a> Retrieves the current custom rolloff shape for 3D distance attenuation.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3ddistancefilter" title="Sets an override value for the 3D distance filter.">ChannelControl::set3DDistanceFilter</a> Sets an override value for the 3D distance filter.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3ddistancefilter" title="Retrieves the override values for the 3D distance filter.">ChannelControl::get3DDistanceFilter</a> Retrieves the override values for the 3D distance filter.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3ddopplerlevel" title="Sets the amount by which doppler is scaled.">ChannelControl::set3DDopplerLevel</a> Sets the amount by which doppler is scaled.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3ddopplerlevel" title="Retrieves the amount by which doppler is scaled.">ChannelControl::get3DDopplerLevel</a> Retrieves the amount by which doppler is scaled.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dlevel" title="Sets the blend between 3D panning and 2D panning.">ChannelControl::set3DLevel</a> Sets the blend between 3D panning and 2D panning.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dlevel" title="Retrieves the blend between 3D panning and 2D panning.">ChannelControl::get3DLevel</a> Retrieves the blend between 3D panning and 2D panning.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dminmaxdistance" title="Sets the minimum and maximum distances used to calculate the 3D rolloff attenuation.">ChannelControl::set3DMinMaxDistance</a> Sets the minimum and maximum distances used to calculate the 3D rolloff attenuation.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dminmaxdistance" title="Retrieves the minimum and maximum distances used to calculate the 3D rolloff attenuation.">ChannelControl::get3DMinMaxDistance</a> Retrieves the minimum and maximum distances used to calculate the 3D rolloff attenuation.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3docclusion" title="Sets the 3D attenuation factors for the direct and reverb paths.">ChannelControl::set3DOcclusion</a> Sets the 3D attenuation factors for the direct and reverb paths.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3docclusion" title="Retrieves the 3D attenuation factors for the direct and reverb paths.">ChannelControl::get3DOcclusion</a> Retrieves the 3D attenuation factors for the direct and reverb paths.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dspread" title="Sets the spread of a 3D sound in speaker space.">ChannelControl::set3DSpread</a> Sets the spread of a 3D sound in speaker space.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_get3dspread" title="Retrieves the spread of a 3D sound in speaker space.">ChannelControl::get3DSpread</a> Retrieves the spread of a 3D sound in speaker space.</li>
+</ul>
+<p><strong>Panning and level adjustment:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setpan" title="Sets the left/right pan level.">ChannelControl::setPan</a> Sets the left/right pan level.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixlevelsinput" title="Sets the incoming volume level for each channel of a multi-channel signal.">ChannelControl::setMixLevelsInput</a> Sets the incoming volume level for each channel of a multi-channel signal.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixlevelsoutput" title="Sets the outgoing volume levels for each speaker.">ChannelControl::setMixLevelsOutput</a> Sets the outgoing volume levels for each speaker.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixmatrix" title="Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">ChannelControl::setMixMatrix</a> Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getmixmatrix" title="Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">ChannelControl::getMixMatrix</a> Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).</li>
+</ul>
+<p><strong>Filtering:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setreverbproperties" title="Sets the wet / send level for a particular reverb instance.">ChannelControl::setReverbProperties</a> Sets the wet / send level for a particular reverb instance.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getreverbproperties" title="Retrieves the wet / send level for a particular reverb instance.">ChannelControl::getReverbProperties</a> Retrieves the wet / send level for a particular reverb instance.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setlowpassgain" title="Sets the gain of the dry signal when built in lowpass / distance filtering is applied.">ChannelControl::setLowPassGain</a> Sets the gain of the dry signal when built in lowpass / distance filtering is applied.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getlowpassgain" title="Retrieves the gain of the dry signal when built in lowpass / distance filtering is applied.">ChannelControl::getLowPassGain</a> Retrieves the gain of the dry signal when built in lowpass / distance filtering is applied.</li>
+</ul>
+<p><strong>DSP chain configuration:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> Adds a DSP unit to the specified index in the DSP chain.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_removedsp" title="Removes the specified DSP unit from the DSP chain.">ChannelControl::removeDSP</a> Removes the specified DSP unit from the DSP chain.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getnumdsps" title="Retrieves the number of DSP units in the DSP chain.">ChannelControl::getNumDSPs</a> Retrieves the number of DSP units in the DSP chain.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdsp" title="Retrieves the DSP unit at the specified index in the DSP chain.">ChannelControl::getDSP</a> Retrieves the DSP unit at the specified index in the DSP chain.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdspindex" title="Sets the index in the DSP chain of the specified DSP.">ChannelControl::setDSPIndex</a> Sets the index in the DSP chain of the specified DSP.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdspindex" title="Retrieves the index of a DSP inside the Channel or ChannelGroup's DSP chain.">ChannelControl::getDSPIndex</a> Retrieves the index of a DSP inside the Channel or ChannelGroup's DSP chain.</li>
+</ul>
+<p><strong>Sample accurate scheduling:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdspclock" title="Retrieves the DSP clock values at this point in time.">ChannelControl::getDSPClock</a> Retrieves the DSP clock values at this point in time.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdelay" title="Sets a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.">ChannelControl::setDelay</a> Sets a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdelay" title="Retrieves a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.">ChannelControl::getDelay</a> Retrieves a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_addfadepoint" title="Adds a sample accurate fade point at a time relative to the parent ChannelGroup DSP clock.">ChannelControl::addFadePoint</a> Adds a sample accurate fade point at a time relative to the parent ChannelGroup DSP clock.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setfadepointramp" title="Adds a volume ramp at the specified time in the future using fade points.">ChannelControl::setFadePointRamp</a> Adds a volume ramp at the specified time in the future using fade points.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_removefadepoints" title="Removes all fade points between the two specified clock values (inclusive).">ChannelControl::removeFadePoints</a> Removes all fade points between the two specified clock values (inclusive).</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getfadepoints" title="Retrieves information about stored fade points.">ChannelControl::getFadePoints</a> Retrieves information about stored fade points.</li>
+</ul>
+<p><strong>General:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setcallback" title="Sets the callback for ChannelControl level notifications.">ChannelControl::setCallback</a> Sets the callback for ChannelControl level notifications.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setuserdata" title="Sets a user value associated with this object.">ChannelControl::setUserData</a> Sets a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getuserdata" title="Retrieves a user value associated with this object.">ChannelControl::getUserData</a> Retrieves a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getsystemobject" title="Retrieves the System that created this object.">ChannelControl::getSystemObject</a> Retrieves the System that created this object.</li>
+</ul>
+<h2 api="function" id="channel_getchannelgroup"><a href="#channel_getchannelgroup">Channel::getChannelGroup</a></h2>
+<p>Retrieves the ChannelGroup this object outputs to.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">getChannelGroup</span><span class="p">(</span>
+  <span class="n">ChannelGroup</span> <span class="o">**</span><span class="n">channelgroup</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_GetChannelGroup</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">**</span><span class="n">channelgroup</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">getChannelGroup</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">ChannelGroup</span> <span class="n">channelgroup</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">getChannelGroup</span><span class="p">(</span>
+  <span class="nx">channelgroup</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>channelgroup <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Output group. (<a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_setchannelgroup" title="Sets the ChannelGroup this object outputs to.">Channel::setChannelGroup</a></p>
+<h2 api="function" id="channel_getcurrentsound"><a href="#channel_getcurrentsound">Channel::getCurrentSound</a></h2>
+<p>Retrieves the currently playing Sound.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">getCurrentSound</span><span class="p">(</span>
+  <span class="n">Sound</span> <span class="o">**</span><span class="n">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_GetCurrentSound</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="n">FMOD_SOUND</span> <span class="o">**</span><span class="n">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">getCurrentSound</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">Sound</span> <span class="n">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">getCurrentSound</span><span class="p">(</span>
+  <span class="nx">sound</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>sound <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Currently playing sound. (<a class="apilink" href="core-api-sound.html" title="">Sound</a>)</dd>
+</dl>
+<p>May return NULL or equivalent if no <a class="apilink" href="core-api-sound.html" title="">Sound</a> is playing.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a></p>
+<h2 api="function" id="channel_getfrequency"><a href="#channel_getfrequency">Channel::getFrequency</a></h2>
+<p>Retrieves the playback frequency or playback rate.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">getFrequency</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">frequency</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_GetFrequency</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">frequency</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">getFrequency</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">frequency</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">getFrequency</span><span class="p">(</span>
+  <span class="nx">frequency</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>frequency <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Playback frequency.</p>
+<ul>
+<li><span class="label">Units:</span> Hertz</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_setfrequency" title="Sets the frequency or playback rate.">Channel::setFrequency</a></p>
+<h2 api="function" id="channel_getindex"><a href="#channel_getindex">Channel::getIndex</a></h2>
+<p>Retrieves the index of this object in the System Channel pool.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">getIndex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">index</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_GetIndex</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">index</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">getIndex</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">index</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">getIndex</span><span class="p">(</span>
+  <span class="nx">index</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Index within the <a class="apilink" href="core-api-system.html" title="">System</a> <a class="apilink" href="core-api-channel.html" title="">Channel</a> pool.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 'maxchannels' value from <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> - 1]</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_getchannel" title="Retrieves a handle to a channel by ID.">System::getChannel</a></p>
+<h2 api="function" id="channel_getloopcount"><a href="#channel_getloopcount">Channel::getLoopCount</a></h2>
+<p>Retrieves the number of times to loop before stopping.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">getLoopCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">loopcount</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_GetLoopCount</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">loopcount</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">getLoopCount</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">loopcount</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">getLoopCount</span><span class="p">(</span>
+  <span class="nx">loopcount</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>loopcount <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Times to loop before stopping where 0 represents "oneshot", 1 represents "loop once then stop" and -1 represents "loop forever".</dd>
+</dl>
+<p>This is the <em>current</em> loop countdown value that will decrement as it plays until reaching 0. Reset with <a class="apilink" href="core-api-channel.html#channel_setloopcount" title="Sets the number of times to loop before stopping.">Channel::setLoopCount</a>.</p>
+<h2 api="function" id="channel_getlooppoints"><a href="#channel_getlooppoints">Channel::getLoopPoints</a></h2>
+<p>Retrieves the loop start and end points.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">getLoopPoints</span><span class="p">(</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">loopstart</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">loopstarttype</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">loopend</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">loopendtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_GetLoopPoints</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">loopstart</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">loopstarttype</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">loopend</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">loopendtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">getLoopPoints</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">uint</span> <span class="n">loopstart</span><span class="p">,</span>
+  <span class="n">TIMEUNIT</span> <span class="n">loopstarttype</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">uint</span> <span class="n">loopend</span><span class="p">,</span>
+  <span class="n">TIMEUNIT</span> <span class="n">loopendtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">getLoopPoints</span><span class="p">(</span>
+  <span class="nx">loopstart</span><span class="p">,</span>
+  <span class="nx">loopstarttype</span><span class="p">,</span>
+  <span class="nx">loopend</span><span class="p">,</span>
+  <span class="nx">loopendtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>loopstart <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Loop start point.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-sound.html#sound_getlength" title="Retrieves the length using the specified time unit.">Sound::getLength</a> - 1]. </li>
+</ul>
+</dd>
+<dt>loopstarttype</dt>
+<dd>Time units for <code>loopstart</code>. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+<dt>loopend <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Loop end point.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-sound.html#sound_getlength" title="Retrieves the length using the specified time unit.">Sound::getLength</a> - 1]. </li>
+</ul>
+</dd>
+<dt>loopendtype</dt>
+<dd>Time units for <code>loopend</code>. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+</dl>
+<p>Valid <a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a> types are <a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>, <a class="apilink" href="core-api-common.html#fmod_timeunit_ms" title="">FMOD_TIMEUNIT_MS</a>, <a class="apilink" href="core-api-common.html#fmod_timeunit_pcmbytes" title="">FMOD_TIMEUNIT_PCMBYTES</a>.  Any other time units return <a class="apilink" href="core-api-common.html#fmod_err_format" title="">FMOD_ERR_FORMAT</a>.<br />
+If <a class="apilink" href="core-api-common.html#fmod_timeunit_ms" title="">FMOD_TIMEUNIT_MS</a> or <a class="apilink" href="core-api-common.html#fmod_timeunit_pcmbytes" title="">FMOD_TIMEUNIT_PCMBYTES</a> are used, the value is internally converted from <a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>, so the retrieved value may not exactly match the set value.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_setlooppoints" title="Sets the loop start and end points.">Channel::setLoopPoints</a></p>
+<h2 api="function" id="channel_getposition"><a href="#channel_getposition">Channel::getPosition</a></h2>
+<p>Retrieves the current playback position.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">getPosition</span><span class="p">(</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">position</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_GetPosition</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">position</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">getPosition</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">uint</span> <span class="n">position</span><span class="p">,</span>
+  <span class="n">TIMEUNIT</span> <span class="n">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">getPosition</span><span class="p">(</span>
+  <span class="nx">position</span><span class="p">,</span>
+  <span class="nx">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>position <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Playback position.</dd>
+<dt>postype</dt>
+<dd>Time units for <code>position</code>. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+</dl>
+<p>Certain <a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a> types are always available: <a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>, <a class="apilink" href="core-api-common.html#fmod_timeunit_pcmbytes" title="">FMOD_TIMEUNIT_PCMBYTES</a> and <a class="apilink" href="core-api-common.html#fmod_timeunit_ms" title="">FMOD_TIMEUNIT_MS</a>. The others are format specific such as <a class="apilink" href="core-api-common.html#fmod_timeunit_modorder" title="">FMOD_TIMEUNIT_MODORDER</a> / <a class="apilink" href="core-api-common.html#fmod_timeunit_modrow" title="">FMOD_TIMEUNIT_MODROW</a> / <a class="apilink" href="core-api-common.html#fmod_timeunit_modpattern" title="">FMOD_TIMEUNIT_MODPATTERN</a> which is specific to files of type MOD / S3M / XM / IT.</p>
+<p>If <a class="apilink" href="core-api-common.html#fmod_timeunit_ms" title="">FMOD_TIMEUNIT_MS</a> or <a class="apilink" href="core-api-common.html#fmod_timeunit_pcmbytes" title="">FMOD_TIMEUNIT_PCMBYTES</a> are used, the value is internally converted from <a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>, so the retrieved value may not exactly match the set value.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_setposition" title="Sets the current playback position.">Channel::setPosition</a></p>
+<h2 api="function" id="channel_getpriority"><a href="#channel_getpriority">Channel::getPriority</a></h2>
+<p>Retrieves the priority used for virtual Channel ordering.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">getPriority</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">priority</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_GetPriority</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">priority</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">getPriority</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">priority</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">getPriority</span><span class="p">(</span>
+  <span class="nx">priority</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>priority <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Priority where 0 represents most important and 256 represents least important.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 256]</li>
+<li><span class="label">Default:</span> 128</li>
+</ul>
+</dd>
+</dl>
+<p>Priority is used as a coarse grain control for the virtual <a class="apilink" href="core-api-channel.html" title="">Channel</a> system, lower priority <a class="apilink" href="core-api-channel.html" title="">Channel</a>s will always be stolen before higher. For channels of equal priority, those with the quietest <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getaudibility" title="Retrieves an estimation of the output volume.">ChannelControl::getAudibility</a> value will be stolen first.</p>
+<p>See the <a href="white-papers-virtual-voices.html">Virtual Voices</a> guide for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_setpriority" title="Sets the priority used for virtual Channel ordering.">Channel::setPriority</a></p>
+<h2 api="function" id="channel_isvirtual"><a href="#channel_isvirtual">Channel::isVirtual</a></h2>
+<p>Retrieves whether the Channel is being emulated by the virtual Channel system.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">isVirtual</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">isvirtual</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_IsVirtual</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">isvirtual</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">isVirtual</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">isvirtual</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">isVirtual</span><span class="p">(</span>
+  <span class="nx">isvirtual</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>isvirtual <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Virtual state. True = silent / emulated. False = audible / real.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p>See the <a href="white-papers-virtual-voices.html">Virtual Voices</a> guide for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getaudibility" title="Retrieves an estimation of the output volume.">ChannelControl::getAudibility</a></p>
+<h2 api="function" id="channel_setchannelgroup"><a href="#channel_setchannelgroup">Channel::setChannelGroup</a></h2>
+<p>Sets the ChannelGroup this object outputs to.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">setChannelGroup</span><span class="p">(</span>
+  <span class="n">ChannelGroup</span> <span class="o">*</span><span class="n">channelgroup</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_SetChannelGroup</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="n">FMOD_CHANNELGROUP</span> <span class="o">*</span><span class="n">channelgroup</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">setChannelGroup</span><span class="p">(</span>
+  <span class="n">ChannelGroup</span> <span class="n">channelgroup</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">setChannelGroup</span><span class="p">(</span>
+  <span class="nx">channelgroup</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>channelgroup</dt>
+<dd>Output group. (<a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>)</dd>
+</dl>
+<p>A <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a> may contain many <a class="apilink" href="core-api-channel.html" title="">Channel</a>s.</p>
+<p><a class="apilink" href="core-api-channel.html" title="">Channel</a>s may only output to a single <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a>.  This operation will remove it from the previous group first.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_getchannelgroup" title="Retrieves the ChannelGroup this object outputs to.">Channel::getChannelGroup</a></p>
+<h2 api="function" id="channel_setfrequency"><a href="#channel_setfrequency">Channel::setFrequency</a></h2>
+<p>Sets the frequency or playback rate.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">setFrequency</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">frequency</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_SetFrequency</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">frequency</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">setFrequency</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">frequency</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">setFrequency</span><span class="p">(</span>
+  <span class="nx">frequency</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>frequency</dt>
+<dd>
+<p>Playback rate.</p>
+<ul>
+<li><span class="label">Units:</span> Hertz</li>
+</ul>
+</dd>
+</dl>
+<p>Default frequency is determined by the audio format of the <a class="apilink" href="core-api-sound.html" title="">Sound</a> or <a class="apilink" href="core-api-dsp.html" title="">DSP</a>.</p>
+<p>Sounds opened as <a class="apilink" href="core-api-common.html#fmod_createsample" title="">FMOD_CREATESAMPLE</a> (not <a class="apilink" href="core-api-common.html#fmod_createstream" title="">FMOD_CREATESTREAM</a> or <a class="apilink" href="core-api-common.html#fmod_createcompressedsample" title="">FMOD_CREATECOMPRESSEDSAMPLE</a>) can be played backwards by giving a negative frequency.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_getfrequency" title="Retrieves the playback frequency or playback rate.">Channel::getFrequency</a>, <a class="apilink" href="core-api-sound.html#sound_setdefaults" title="Sets a sound's default playback attributes.">Sound::setDefaults</a></p>
+<h2 api="function" id="channel_setloopcount"><a href="#channel_setloopcount">Channel::setLoopCount</a></h2>
+<p>Sets the number of times to loop before stopping.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">setLoopCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">loopcount</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_SetLoopCount</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">loopcount</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">setLoopCount</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">loopcount</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">setLoopCount</span><span class="p">(</span>
+  <span class="nx">loopcount</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>loopcount</dt>
+<dd>Times to loop before stopping where 0 represents "oneshot", 1 represents "loop once then stop" and -1 represents "loop forever".</dd>
+</dl>
+<p>The 'mode' of the <a class="apilink" href="core-api-sound.html" title="">Sound</a> or <a class="apilink" href="core-api-channel.html" title="">Channel</a> must be <a class="apilink" href="core-api-common.html#fmod_loop_normal" title="">FMOD_LOOP_NORMAL</a> or <a class="apilink" href="core-api-common.html#fmod_loop_bidi" title="">FMOD_LOOP_BIDI</a> for this function to work.</p>
+<p><strong>See Also:</strong> <a href="glossary.html#streaming-issues">Streaming Issues</a>, <a class="apilink" href="core-api-channel.html#channel_getloopcount" title="Retrieves the number of times to loop before stopping.">Channel::getLoopCount</a>, <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmode" title="Sets the playback mode that controls how this object behaves.">ChannelControl::setMode</a>, <a class="apilink" href="core-api-sound.html#sound_setmode" title="Sets or alters the mode of a sound.">Sound::setMode</a>, <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a></p>
+<h2 api="function" id="channel_setlooppoints"><a href="#channel_setlooppoints">Channel::setLoopPoints</a></h2>
+<p>Sets the loop start and end points.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">setLoopPoints</span><span class="p">(</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">loopstart</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">loopstarttype</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">loopend</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">loopendtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_SetLoopPoints</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">loopstart</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">loopstarttype</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">loopend</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">loopendtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">setLoopPoints</span><span class="p">(</span>
+  <span class="kt">uint</span> <span class="n">loopstart</span><span class="p">,</span>
+  <span class="n">TIMEUNIT</span> <span class="n">loopstarttype</span><span class="p">,</span>
+  <span class="kt">uint</span> <span class="n">loopend</span><span class="p">,</span>
+  <span class="n">TIMEUNIT</span> <span class="n">loopendtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">setLoopPoints</span><span class="p">(</span>
+  <span class="nx">loopstart</span><span class="p">,</span>
+  <span class="nx">loopstarttype</span><span class="p">,</span>
+  <span class="nx">loopend</span><span class="p">,</span>
+  <span class="nx">loopendtype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>loopstart</dt>
+<dd>
+<p>Loop start point.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-sound.html#sound_getlength" title="Retrieves the length using the specified time unit.">Sound::getLength</a> - 1]. </li>
+</ul>
+</dd>
+<dt>loopstarttype</dt>
+<dd>Time units for <code>loopstart</code>. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+<dt>loopend</dt>
+<dd>
+<p>Loop end point.</p>
+<ul>
+<li>Range; [<code>loopstart</code> + 1, <a class="apilink" href="core-api-sound.html#sound_getlength" title="Retrieves the length using the specified time unit.">Sound::getLength</a> - 1]. </li>
+</ul>
+</dd>
+<dt>loopendtype</dt>
+<dd>Time units for <code>loopend</code>. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+</dl>
+<p>Loop points may only be set on a <a class="apilink" href="core-api-channel.html" title="">Channel</a> playing a <a class="apilink" href="core-api-sound.html" title="">Sound</a>, not a <a class="apilink" href="core-api-channel.html" title="">Channel</a> playing a <a class="apilink" href="core-api-dsp.html" title="">DSP</a> (See <a class="apilink" href="core-api-system.html#system_playdsp" title="Plays a DSP along with any of its inputs on a Channel.">System::playDSP</a>).</p>
+<p>Valid <a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a> types are <a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>, <a class="apilink" href="core-api-common.html#fmod_timeunit_ms" title="">FMOD_TIMEUNIT_MS</a>, <a class="apilink" href="core-api-common.html#fmod_timeunit_pcmbytes" title="">FMOD_TIMEUNIT_PCMBYTES</a>.  Any other time units return <a class="apilink" href="core-api-common.html#fmod_err_format" title="">FMOD_ERR_FORMAT</a>.<br />
+If <a class="apilink" href="core-api-common.html#fmod_timeunit_ms" title="">FMOD_TIMEUNIT_MS</a> or <a class="apilink" href="core-api-common.html#fmod_timeunit_pcmbytes" title="">FMOD_TIMEUNIT_PCMBYTES</a>, the value is internally converted to <a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>.</p>
+<p><strong>See Also:</strong> <a href="glossary.html#streaming-issues">Streaming Issues</a>, <a class="apilink" href="core-api-channel.html#channel_getlooppoints" title="Retrieves the loop start and end points.">Channel::getLoopPoints</a></p>
+<h2 api="function" id="channel_setposition"><a href="#channel_setposition">Channel::setPosition</a></h2>
+<p>Sets the current playback position.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">setPosition</span><span class="p">(</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">position</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_SetPosition</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">position</span><span class="p">,</span>
+  <span class="n">FMOD_TIMEUNIT</span> <span class="n">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">setPosition</span><span class="p">(</span>
+  <span class="kt">uint</span> <span class="n">position</span><span class="p">,</span>
+  <span class="n">TIMEUNIT</span> <span class="n">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">setPosition</span><span class="p">(</span>
+  <span class="nx">position</span><span class="p">,</span>
+  <span class="nx">postype</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>position</dt>
+<dd>Playback position.</dd>
+<dt>postype</dt>
+<dd>Time units for <code>position</code>. (<a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a>)</dd>
+</dl>
+<p>Certain <a class="apilink" href="core-api-common.html#fmod_timeunit" title="Time types used for position or length.">FMOD_TIMEUNIT</a> types are always available: <a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>, <a class="apilink" href="core-api-common.html#fmod_timeunit_pcmbytes" title="">FMOD_TIMEUNIT_PCMBYTES</a> and <a class="apilink" href="core-api-common.html#fmod_timeunit_ms" title="">FMOD_TIMEUNIT_MS</a>. The others are format specific such as <a class="apilink" href="core-api-common.html#fmod_timeunit_modorder" title="">FMOD_TIMEUNIT_MODORDER</a> / <a class="apilink" href="core-api-common.html#fmod_timeunit_modrow" title="">FMOD_TIMEUNIT_MODROW</a> / <a class="apilink" href="core-api-common.html#fmod_timeunit_modpattern" title="">FMOD_TIMEUNIT_MODPATTERN</a> which is specific to files of type MOD / S3M / XM / IT.</p>
+<p>If playing a <a class="apilink" href="core-api-sound.html" title="">Sound</a> created with <a class="apilink" href="core-api-system.html#system_createstream" title="Opens a sound for streaming.">System::createStream</a> or <a class="apilink" href="core-api-common.html#fmod_createstream" title="">FMOD_CREATESTREAM</a> changing the position may cause a slow reflush operation while the file seek and decode occurs. You can avoid this by creating the stream with <a class="apilink" href="core-api-common.html#fmod_nonblocking" title="">FMOD_NONBLOCKING</a>. This will cause the stream to go into <a class="apilink" href="core-api-sound.html#fmod_openstate_setposition" title="">FMOD_OPENSTATE_SETPOSITION</a> state (see <a class="apilink" href="core-api-sound.html#sound_getopenstate" title="Retrieves the state a sound is in after being opened with the non blocking flag, or the current state of the streaming buffer.">Sound::getOpenState</a>) and Sound commands will return <a class="apilink" href="core-api-common.html#fmod_err_notready" title="">FMOD_ERR_NOTREADY</a>. <a class="apilink" href="core-api-channel.html#channel_getposition" title="Retrieves the current playback position.">Channel::getPosition</a> will also not update until this non-blocking set position operation has completed.</p>
+<p>Using a VBR source that does not have an associated seek table or seek information (such as MP3 or MOD/S3M/XM/IT) may cause inaccurate seeking if you specify <a class="apilink" href="core-api-common.html#fmod_timeunit_ms" title="">FMOD_TIMEUNIT_MS</a> or <a class="apilink" href="core-api-common.html#fmod_timeunit_pcm" title="">FMOD_TIMEUNIT_PCM</a>. If you want FMOD to create a PCM vs bytes seek table so that seeking is accurate, you will have to specify <a class="apilink" href="core-api-common.html#fmod_accuratetime" title="">FMOD_ACCURATETIME</a> when loading or opening the sound. This means there is a slight delay as FMOD scans the whole file when loading the sound to create this table.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_getposition" title="Retrieves the current playback position.">Channel::getPosition</a></p>
+<h2 api="function" id="channel_setpriority"><a href="#channel_setpriority">Channel::setPriority</a></h2>
+<p>Sets the priority used for virtual Channel ordering.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Channel</span><span class="o">::</span><span class="n">setPriority</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">priority</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Channel_SetPriority</span><span class="p">(</span>
+  <span class="n">FMOD_CHANNEL</span> <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">priority</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Channel</span><span class="p">.</span><span class="n">setPriority</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">priority</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Channel</span><span class="p">.</span><span class="nx">setPriority</span><span class="p">(</span>
+  <span class="nx">priority</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>priority</dt>
+<dd>
+<p>Priority where 0 represents most important and 256 represents least important.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 256]</li>
+<li><span class="label">Default:</span> 128</li>
+</ul>
+</dd>
+</dl>
+<p>Priority is used as a coarse grain control for the virtual <a class="apilink" href="core-api-channel.html" title="">Channel</a> system, lower priority <a class="apilink" href="core-api-channel.html" title="">Channel</a>s will always be stolen before higher. For channels of equal priority, those with the quietest <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getaudibility" title="Retrieves an estimation of the output volume.">ChannelControl::getAudibility</a> value will be stolen first.</p>
+<p>See the <a href="white-papers-virtual-voices.html">Virtual Voices</a> guide for more information.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-channel.html#channel_getpriority" title="Retrieves the priority used for virtual Channel ordering.">Channel::getPriority</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>White Papers | Spatial Audio</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Spatial Audio</h1>
+<div class="toc">
+<ul>
+<li><a href="#spatial-audio">Spatial Audio</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#channel-based-approach">Channel based approach</a></li>
+<li><a href="#object-based-approach">Object based approach</a></li>
+<li><a href="#third-party-plugins">Third party plugins</a></li>
+<li><a href="#usage-in-fmod-studio">Usage in FMOD Studio</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="spatial-audio"><a href="#spatial-audio">Spatial Audio</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>Historically audio spatialization (the process of taking an audio file and making it sound "in the world") has been all about positioning sound in speakers arranged on a horizontal plane. This arrangement is often seen in the form of 5.1 or 7.1 surround. With the advancement of VR technology more emphasis has been put on making sound as immersive as the visuals. This is achieved by more advanced processing of the audio signals for the traditional horizontal plane as well as the introduction of height spatialization. This has given the rise of the term "spatial audio" which focuses on this more realistic approach to spatialization.</p>
+<p>Within FMOD there are several ways you can achieve a more immersive spatialization experience, depending on your target platform some may or may not apply. The following sections outline a few general approaches with specific implementation details contained within.</p>
+<h3 id="channel-based-approach"><a href="#channel-based-approach">Channel based approach</a></h3>
+<p>The most traditional way to approach spatialization is by panning signal into virtual speakers, so with the introduction of 7.1.4 (7 horizontal plane speakers, 1 sub-woofer, 4 roof speakers) you can do just this.</p>
+<ul>
+<li>Set your FMOD::System to the appropriate speaker mode by calling <code>System::setSoftwareFormat(0, FMOD_SPEAKERMODE_7POINT1POINT4, 0)</code>.</li>
+<li>Select an output mode capable of rendering 7.1.4 content <code>System::setOutput(FMOD_OUTPUTTYPE_WINSONIC)</code>.</li>
+</ul>
+<p>You can now <a class="apilink" href="core-api-system.html#system_createsound" title="Loads a sound into memory, opens it for streaming or sets it up for callback based sounds.">System::createSound</a> and <a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a> content authored as 7.1.4. If you have the necessary sound system setup (i.e. Dolby Atmos) you will hear the sound play back including the ceiling speakers. If you have a headphone based setup (i.e. Windows Sonic for Headphones or Dolby Atmos for Headphones) you will hear an approximation of ceiling speakers.</p>
+<p>To take an existing horizontal plane signal and push it into the ceiling plane you can create an FMOD spatializer and adjust the height controls.</p>
+<ul>
+<li>Create the spatializer with <code>System::createDSPByType(FMOD_DSP_TYPE_PAN)</code>.</li>
+<li>Add it to an <a class="apilink" href="core-api-channel.html" title="">Channel</a> or <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a> with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a>.</li>
+<li>Control the height by setting <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_pan_2d_height_blend" title="">FMOD_DSP_PAN_2D_HEIGHT_BLEND</a> via <a class="apilink" href="core-api-dsp.html#dsp_setparameterfloat" title="Sets a floating point parameter by index.">DSP::setParameterFloat</a>.</li>
+</ul>
+<p>Not only will this let you blend to the 0.0.4 ceiling speakers by setting the value between 0.0 and 1.0, it will also let you blend from the 0.0.4 ceiling speakers to the ground plane 7.1.0 by setting the value between 0.0 and -1.0.</p>
+<h3 id="object-based-approach"><a href="#object-based-approach">Object based approach</a></h3>
+<p>To get more discrete spatialization of an audio signal you can use the FMOD object spatializer, so named because the audio signal is packaged with the spatialization information (position, orientation, etc) and sent to an object mixer. Often used to highlight important sounds with strong localization to add interest to a scene, usually used in-conjunction with the channel based approach, be that 7.1.4 or even simply 5.1 / 7.1.</p>
+<ul>
+<li>Set your FMOD::System to an object ready output plugin by calling <code>System::setOutput(FMOD_OUTPUTTYPE_WINSONIC)</code> or <code>System::setOutput(FMOD_OUTPUTTYPE_AUDIO3D)</code>.</li>
+<li>Create an object spatializer with <code>System::createDSPByType(FMOD_DSP_TYPE_OBJECTPAN)</code>.</li>
+<li>Provide 3D position information with <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_objectpan_3d_position" title="">FMOD_DSP_OBJECTPAN_3D_POSITION</a> via <a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>.</li>
+</ul>
+<p>There is no limit to how many <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_objectpan" title="">FMOD_DSP_TYPE_OBJECTPAN</a> DSPs you create, however there is a flexible limit on a per-platform basis for how many can be processed. When there are more object spatializers in use than there is available resources FMOD will virtualize the least significant sounds by processing with a tradition channel based mix.</p>
+<p>An important consideration when using object spatializers is signal flow, unlike most DSPs, after the signal enters the DSP it is then sent out to the object mixer. The object mixer could be a software library or a physical piece of hardware, in all cases though you no longer have access to that signal. Any processing you would like to perform must be done before that point. However (to assist mixing) the object spatializer will automatically apply any "downstream" ChannelGroup volume settings so it behaves similarly to the standard FMOD spatializer.</p>
+<h3 id="third-party-plugins"><a href="#third-party-plugins">Third party plugins</a></h3>
+<p>In addition to the built-in channel and object based approaches there are third party plugins available that can assist too. The FMOD DSP plugin API (see <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a>) allows any developer to produce an interface for their spatial audio technology and provide it across all FMOD platforms. Additionally the FMOD output plugin API (see FMOD_OUTPUT_DESCRIPTION) allows developers to implement a renderer for the FMOD object spatializer extending the functionality to more platforms and more technologies.</p>
+<p>Resonance Audio Spatializer<br />
+Once such third party is the Resonance Audio cross-platform suite of plugins that comes bundled with FMOD. Resonance Audio offers a "Source" plugin which behaves much like the FMOD object spatializer in that audio is sent out to an object mixer, however the final signal returns as binaural output at the "Listener" plugin. Resonance Audio also offers a "Soundfield" plugin for playing back first order Ambisonic sound fields. For more details about the usage of Resonance Audio please check out the user guide.</p>
+<p>Oculus Spatializer<br />
+Another cross-platform suite of spatial audio plugins is that offered by Oculus as part of their Audio SDK. You can find instructions and downloads for these available on their website.</p>
+<p>Coming Soon<br />
+Additional plugins available in the future include:</p>
+<ul>
+<li>dearVR</li>
+<li>Steam Audio</li>
+<li>G'Audio Craft</li>
+<li>OSSIC</li>
+<li>RealSpace3D</li>
+</ul>
+<h3 id="usage-in-fmod-studio"><a href="#usage-in-fmod-studio">Usage in FMOD Studio</a></h3>
+<p>All of the functionality above has been presented in the context of the core FMOD API, however it is also all available (including the plugins) within FMOD Studio. For more details about the individual components and their visual representations please read the FMOD Studio manual, for a quick reference of where each feature applies see below.</p>
+<p>Output mode selection: Edit -&gt; Preferences -&gt; Output Device, set Windows Sonic.</p>
+<ul>
+<li>7.1.4 output: Window -&gt; Mixer, select "Master Bus", right click "out" on the deck, set Surround 7.1.4.</li>
+<li>Height control: Use the "height" slider that is part of the deck panner on any bus configured as 7.1.4.</li>
+<li>Object spatialization: Right click the deck for any event, Add effect -&gt; FMOD Object Spatializer.</li>
+<li>Resonance Audio spatialization: Right click the deck for any event, Add effect -&gt; Plug-in effects -&gt; Google -&gt; Resonance Audio Source.</li>
+</ul>
+<p>Note: When using Windows Sonic output you must first be running Windows 10 Creators Update. You must also configure it for your audio device. Right click the speaker icon in the system tray -&gt; Playback devices -&gt; Right click your default device -&gt; Properties -&gt; Spatial sound -&gt; Spatial sound format, now choose your desired spatial technology. FMOD will use your default output device with the technology you select here.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

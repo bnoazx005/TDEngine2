@@ -1,0 +1,1123 @@
+<html>
+<head>
+<title>Core API Reference | Geometry</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="core-api.html">Core API Reference</a><ul class="subchapters"><li><a href="core-api-common.html">Common</a></li><li><a href="core-api-common-dsp-effects.html">Effect Parameters</a></li><li><a href="core-api-system.html">System</a></li><li><a href="core-api-sound.html">Sound</a></li><li><a href="core-api-channelcontrol.html">ChannelControl</a></li><li><a href="core-api-channel.html">Channel</a></li><li><a href="core-api-channelgroup.html">ChannelGroup</a></li><li><a href="core-api-soundgroup.html">SoundGroup</a></li><li><a href="core-api-dsp.html">DSP</a></li><li><a href="core-api-dspconnection.html">DSPConnection</a></li><li class="manual-current-chapter manual-active-chapter"><a href="core-api-geometry.html">Geometry</a></li><li><a href="core-api-reverb3d.html">Reverb3D</a></li><li><a href="core-api-platform-ios.html">iOS Specific</a></li></ul></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>7. Core API Reference | Geometry</h1>
+<p>An interface that allows the setup and modification of geometry for occlusion</p>
+<p><strong>Polygons:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-geometry.html#geometry_setpolygonattributes" title="Sets individual attributes for a polygon inside a geometry object.">Geometry::setPolygonAttributes</a> Sets individual attributes for a polygon inside a geometry object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getpolygonattributes" title="Retrieves the attributes for a polygon.">Geometry::getPolygonAttributes</a> Retrieves the attributes for a polygon.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getpolygonnumvertices" title="Gets the number of vertices in a polygon.">Geometry::getPolygonNumVertices</a> Gets the number of vertices in a polygon.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_setpolygonvertex" title="Alters the position of a polygon's vertex inside a geometry object.">Geometry::setPolygonVertex</a> Alters the position of a polygon's vertex inside a geometry object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getpolygonvertex" title="Retrieves the position of a vertex.">Geometry::getPolygonVertex</a> Retrieves the position of a vertex.</li>
+</ul>
+<p><strong>Object Spatialization:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-geometry.html#geometry_setposition" title="Sets the 3D position of the object.">Geometry::setPosition</a> Sets the 3D position of the object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getposition" title="Retrieves the 3D position of the object.">Geometry::getPosition</a> Retrieves the 3D position of the object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_setrotation" title="Sets the 3D orientation of the object.">Geometry::setRotation</a> Sets the 3D orientation of the object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getrotation" title="Retrieves the 3D orientation of the object.">Geometry::getRotation</a> Retrieves the 3D orientation of the object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_setscale" title="Sets the 3D scale of the object.">Geometry::setScale</a> Sets the 3D scale of the object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getscale" title="Retrieves the 3D scale of the object.">Geometry::getScale</a> Retrieves the 3D scale of the object.</li>
+</ul>
+<p><strong>Object General:</strong></p>
+<ul>
+<li><a class="apilink" href="core-api-geometry.html#geometry_addpolygon" title="Adds a polygon.">Geometry::addPolygon</a> Adds a polygon.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_setactive" title="Sets whether an object is processed by the geometry engine.">Geometry::setActive</a> Sets whether an object is processed by the geometry engine.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getactive" title="Retrieves whether an object is processed by the geometry engine.">Geometry::getActive</a> Retrieves whether an object is processed by the geometry engine.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getmaxpolygons" title="Retrieves the maximum number of polygons and vertices allocatable for this object.">Geometry::getMaxPolygons</a> Retrieves the maximum number of polygons and vertices allocatable for this object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a> Retrieves the number of polygons in this object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_setuserdata" title="Sets a user value associated with this object.">Geometry::setUserData</a> Sets a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_getuserdata" title="Retrieves a user value associated with this object.">Geometry::getUserData</a> Retrieves a user value associated with this object.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_release" title="Frees a geometry object and releases its memory.">Geometry::release</a> Frees a geometry object and releases its memory.</li>
+<li><a class="apilink" href="core-api-geometry.html#geometry_save" title="Saves the geometry object as a serialized binary block to a user memory buffer.">Geometry::save</a> Saves the geometry object as a serialized binary block to a user memory buffer.</li>
+</ul>
+<h2 api="function" id="geometry_addpolygon"><a href="#geometry_addpolygon">Geometry::addPolygon</a></h2>
+<p>Adds a polygon.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">addPolygon</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">directocclusion</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">doublesided</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">numvertices</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">vertices</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">polygonindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_AddPolygon</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">directocclusion</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">doublesided</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">numvertices</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">vertices</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">polygonindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">addPolygon</span><span class="p">(</span>
+  <span class="kt">float</span> <span class="n">directocclusion</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">doublesided</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">numvertices</span><span class="p">,</span>
+  <span class="n">VECTOR</span><span class="p">[]</span> <span class="n">vertices</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">polygonindex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Currently not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>directocclusion</dt>
+<dd>
+<p>Occlusion factor of the polygon for the direct path where 0 represents no occlusion and 1 represents full occlusion.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 1]</li>
+<li><span class="label">Default:</span> 0</li>
+</ul>
+</dd>
+<dt>reverbocclusion</dt>
+<dd>
+<p>Occlusion factor of the polygon for the reverb path where 0 represents no occlusion and 1 represents full occlusion.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 1]</li>
+<li><span class="label">Default:</span> 0</li>
+</ul>
+</dd>
+<dt>doublesided</dt>
+<dd>
+<p>True: Polygon is double sided.<br />
+False: Polygon is single sided, and the winding of the polygon (which determines the polygon's normal) determines which side of the polygon will cause occlusion.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+<dt>numvertices</dt>
+<dd>Number of vertices in this polygon.  This must be at least 3.</dd>
+<dt>vertices</dt>
+<dd>Array of vertices located in object space of length numvertices. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</dd>
+<dt>polygonindex <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Polygon index.  Use this with other per polygon based functions as a handle.</dd>
+</dl>
+<p>All vertices must lay in the same plane otherwise behavior may be unpredictable. The polygon is assumed to be convex. A non convex polygon will produce unpredictable behavior. Polygons with zero area will be ignored.</p>
+<p>Polygons cannot be added if already at the maximum number of polygons or if the addition of their verticies would result in exceeding the maximum number of vertices.</p>
+<p>Vertices of an object are in object space, not world space, and so are relative to the position, or center of the object. See <a class="apilink" href="core-api-geometry.html#geometry_setposition" title="Sets the 3D position of the object.">Geometry::setPosition</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_setpolygonattributes" title="Sets individual attributes for a polygon inside a geometry object.">Geometry::setPolygonAttributes</a>, <a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a>, <a class="apilink" href="core-api-geometry.html#geometry_getmaxpolygons" title="Retrieves the maximum number of polygons and vertices allocatable for this object.">Geometry::getMaxPolygons</a></p>
+<h2 api="function" id="geometry_getactive"><a href="#geometry_getactive">Geometry::getActive</a></h2>
+<p>Retrieves whether an object is processed by the geometry engine.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getActive</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetActive</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getActive</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getActive</span><span class="p">(</span>
+  <span class="nx">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>active <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Object is allowed to be processed by the geometry engine.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+<li><span class="label">Default:</span> True</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_setactive" title="Sets whether an object is processed by the geometry engine.">Geometry::setActive</a></p>
+<h2 api="function" id="geometry_getmaxpolygons"><a href="#geometry_getmaxpolygons">Geometry::getMaxPolygons</a></h2>
+<p>Retrieves the maximum number of polygons and vertices allocatable for this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getMaxPolygons</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">maxpolygons</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">maxvertices</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetMaxPolygons</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">maxpolygons</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">maxvertices</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getMaxPolygons</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">maxpolygons</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">maxvertices</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getMaxPolygons</span><span class="p">(</span>
+  <span class="nx">maxpolygons</span><span class="p">,</span>
+  <span class="nx">maxvertices</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>maxpolygons <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Maximum possible number of polygons in this object.</dd>
+<dt>maxvertices <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Maximum possible number of vertices in this object.</dd>
+</dl>
+<p>The maximum number was set with <a class="apilink" href="core-api-system.html#system_creategeometry" title="Geometry creation function. This function will create a base geometry object which can then have polygons added to it.">System::createGeometry</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_loadgeometry" title="Creates a geometry object from a block of memory which contains pre-saved geometry data.">System::loadGeometry</a></p>
+<h2 api="function" id="geometry_getnumpolygons"><a href="#geometry_getnumpolygons">Geometry::getNumPolygons</a></h2>
+<p>Retrieves the number of polygons in this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getNumPolygons</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numpolygons</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetNumPolygons</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numpolygons</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getNumPolygons</span><span class="p">(</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">numpolygons</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getNumPolygons</span><span class="p">(</span>
+  <span class="nx">numpolygons</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>numpolygons <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Number of polygons.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_addpolygon" title="Adds a polygon.">Geometry::AddPolygon</a></p>
+<h2 api="function" id="geometry_getpolygonattributes"><a href="#geometry_getpolygonattributes">Geometry::getPolygonAttributes</a></h2>
+<p>Retrieves the attributes for a polygon.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getPolygonAttributes</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">directocclusion</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="o">*</span><span class="n">doublesided</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetPolygonAttributes</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">directocclusion</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="o">*</span><span class="n">doublesided</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getPolygonAttributes</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">directocclusion</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">float</span> <span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">bool</span> <span class="n">doublesided</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getPolygonAttributes</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">directocclusion</span><span class="p">,</span>
+  <span class="nx">reverbocclusion</span><span class="p">,</span>
+  <span class="nx">doublesided</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>
+<p>Polygon index.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a>)</li>
+</ul>
+</dd>
+<dt>directocclusion <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Occlusion factor for the direct path where 0 represents no occlusion and 1 represents full occlusion.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 1]</li>
+<li><span class="label">Default:</span> 0</li>
+<li><span class="label">Units:</span> Linear</li>
+</ul>
+</dd>
+<dt>reverbocclusion <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Occlusion factor for the reverb path where 0 represents no occlusion and 1 represents full occlusion.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 1]</li>
+<li><span class="label">Default:</span> 0</li>
+<li><span class="label">Units:</span> Linear</li>
+</ul>
+</dd>
+<dt>doublesided <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>True: Polygon is double sided.<br />
+False: Polygon is single sided, and the winding of the polygon (which determines the polygon's normal) determines which side of the polygon will cause occlusion.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_setpolygonattributes" title="Sets individual attributes for a polygon inside a geometry object.">Geometry::setPolygonAttributes</a></p>
+<h2 api="function" id="geometry_getpolygonnumvertices"><a href="#geometry_getpolygonnumvertices">Geometry::getPolygonNumVertices</a></h2>
+<p>Gets the number of vertices in a polygon.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getPolygonNumVertices</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numvertices</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetPolygonNumVertices</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">numvertices</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getPolygonNumVertices</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">numvertices</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getPolygonNumVertices</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">numvertices</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>
+<p>Polygon index.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a>)</li>
+</ul>
+</dd>
+<dt>numvertices <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Number of vertices.</dd>
+</dl>
+<h2 api="function" id="geometry_getpolygonvertex"><a href="#geometry_getpolygonvertex">Geometry::getPolygonVertex</a></h2>
+<p>Retrieves the position of a vertex.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getPolygonVertex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">vertexindex</span><span class="p">,</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">vertex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetPolygonVertex</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">vertexindex</span><span class="p">,</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">vertex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getPolygonVertex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">vertexindex</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">VECTOR</span> <span class="n">vertex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getPolygonVertex</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">vertexindex</span><span class="p">,</span>
+  <span class="nx">vertex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>
+<p>Polygon index.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a>)</li>
+</ul>
+</dd>
+<dt>vertexindex</dt>
+<dd>
+<p>Polygon vertex index.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-geometry.html#geometry_getpolygonnumvertices" title="Gets the number of vertices in a polygon.">Geometry::getPolygonNumVertices</a> (index) )</li>
+</ul>
+</dd>
+<dt>vertex <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>3D Position of the vertex. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Units:</span> <a href="glossary.html#distance-units">Distance units</a></li>
+</ul>
+</dd>
+</dl>
+<p>Vertices are relative to the position of the object.  See <a class="apilink" href="core-api-geometry.html#geometry_setposition" title="Sets the 3D position of the object.">Geometry::setPosition</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_setpolygonvertex" title="Alters the position of a polygon's vertex inside a geometry object.">Geometry::setPolygonVertex</a></p>
+<h2 api="function" id="geometry_getposition"><a href="#geometry_getposition">Geometry::getPosition</a></h2>
+<p>Retrieves the 3D position of the object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getPosition</span><span class="p">(</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">position</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetPosition</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">position</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getPosition</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">VECTOR</span> <span class="n">position</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getPosition</span><span class="p">(</span>
+  <span class="nx">position</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>position <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>3D position. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Units:</span> <a href="glossary.html#distance-units">Distance units</a></li>
+<li><span class="label">Default:</span> (0, 0, 0)</li>
+</ul>
+</dd>
+</dl>
+<p>Position is in world space.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_setposition" title="Sets the 3D position of the object.">Geometry::setPosition</a></p>
+<h2 api="function" id="geometry_getrotation"><a href="#geometry_getrotation">Geometry::getRotation</a></h2>
+<p>Retrieves the 3D orientation of the object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getRotation</span><span class="p">(</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">forward</span><span class="p">,</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">up</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetRotation</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">forward</span><span class="p">,</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">up</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getRotation</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">VECTOR</span> <span class="n">forward</span><span class="p">,</span>
+  <span class="k">out</span> <span class="n">VECTOR</span> <span class="n">up</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getRotation</span><span class="p">(</span>
+  <span class="nx">forward</span><span class="p">,</span>
+  <span class="nx">up</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>forward <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Forwards orientation. This vector must be of unit length and perpendicular to the up vector. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</dd>
+<dt>up <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Upwards orientation. This vector must be of unit length and perpendicular to the forwards vector.  (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_setrotation" title="Sets the 3D orientation of the object.">Geometry::setRotation</a></p>
+<h2 api="function" id="geometry_getscale"><a href="#geometry_getscale">Geometry::getScale</a></h2>
+<p>Retrieves the 3D scale of the object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getScale</span><span class="p">(</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">scale</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetScale</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">scale</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getScale</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">VECTOR</span> <span class="n">scale</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getScale</span><span class="p">(</span>
+  <span class="nx">scale</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>scale <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Scale value. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Default:</span> (1, 1, 1)</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_setscale" title="Sets the 3D scale of the object.">Geometry::setScale</a></p>
+<h2 api="function" id="geometry_getuserdata"><a href="#geometry_getuserdata">Geometry::getUserData</a></h2>
+<p>Retrieves a user value associated with this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_GetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">**</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">getUserData</span><span class="p">(</span>
+  <span class="k">out</span> <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">getUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>Value stored on this object.</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_setuserdata" title="Sets a user value associated with this object.">Geometry::setUserData</a></p>
+<h2 api="function" id="geometry_release"><a href="#geometry_release">Geometry::release</a></h2>
+<p>Frees a geometry object and releases its memory.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_Release</span><span class="p">(</span><span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">release</span><span class="p">();</span>
+</pre></div>
+
+
+<h2 api="function" id="geometry_save"><a href="#geometry_save">Geometry::save</a></h2>
+<p>Saves the geometry object as a serialized binary block to a user memory buffer.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">save</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">datasize</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_Save</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">datasize</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">save</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">data</span><span class="p">,</span>
+  <span class="k">out</span> <span class="kt">int</span> <span class="n">datasize</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="admonition language-javascript">
+<p>Currently not supported for JavaScript.</p>
+</div>
+<dl>
+<dt>data <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>Serialized geometry object. Specify null to have the datasize parameter return the size of the memory required for this saved object.</dd>
+<dt>datasize <span><a class="token" href="glossary.html#documentation-conventions" title="Output">Out</a></span></dt>
+<dd>
+<p>Size required to save this object when 'data' parameter is null. Otherwise ignored.</p>
+<ul>
+<li><span class="label">Units:</span> Bytes</li>
+</ul>
+</dd>
+</dl>
+<p>Typical usage of this function is to call it twice - once to get the size of the data, then again to write the data to your pointer.</p>
+<p>The data can be saved to a file if required and loaded later with <a class="apilink" href="core-api-system.html#system_loadgeometry" title="Creates a geometry object from a block of memory which contains pre-saved geometry data.">System::loadGeometry</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-system.html#system_creategeometry" title="Geometry creation function. This function will create a base geometry object which can then have polygons added to it.">System::createGeometry</a></p>
+<h2 api="function" id="geometry_setactive"><a href="#geometry_setactive">Geometry::setActive</a></h2>
+<p>Sets whether an object is processed by the geometry engine.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">setActive</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_SetActive</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">setActive</span><span class="p">(</span>
+  <span class="kt">bool</span> <span class="n">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">setActive</span><span class="p">(</span>
+  <span class="nx">active</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>active</dt>
+<dd>
+<p>Allow object to be processed by the geometry engine.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+<li><span class="label">Default:</span> True</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_getactive" title="Retrieves whether an object is processed by the geometry engine.">Geometry::getActive</a></p>
+<h2 api="function" id="geometry_setpolygonattributes"><a href="#geometry_setpolygonattributes">Geometry::setPolygonAttributes</a></h2>
+<p>Sets individual attributes for a polygon inside a geometry object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">setPolygonAttributes</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">directocclusion</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">doublesided</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_SetPolygonAttributes</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">directocclusion</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="n">FMOD_BOOL</span> <span class="n">doublesided</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">setPolygonAttributes</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">directocclusion</span><span class="p">,</span>
+  <span class="kt">float</span> <span class="n">reverbocclusion</span><span class="p">,</span>
+  <span class="kt">bool</span> <span class="n">doublesided</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">setPolygonAttributes</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">directocclusion</span><span class="p">,</span>
+  <span class="nx">reverbocclusion</span><span class="p">,</span>
+  <span class="nx">doublesided</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>
+<p>Polygon index.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a>)</li>
+</ul>
+</dd>
+<dt>directocclusion</dt>
+<dd>
+<p>Occlusion factor of the polygon for the direct path where 0 represents no occlusion and 1 represents full occlusion.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 1]</li>
+<li><span class="label">Default:</span> 0</li>
+<li><span class="label">Units:</span> Linear</li>
+</ul>
+</dd>
+<dt>reverbocclusion</dt>
+<dd>
+<p>Occlusion factor of the polygon for the reverb path where 0 represents no occlusion and 1 represents full occlusion.</p>
+<ul>
+<li><span class="label">Range:</span> [0, 1]</li>
+<li><span class="label">Default:</span> 0</li>
+<li><span class="label">Units:</span> Linear</li>
+</ul>
+</dd>
+<dt>doublesided</dt>
+<dd>
+<p>True: Polygon is double sided.<br />
+False: Polygon is single sided, and the winding of the polygon (which determines the polygon's normal) determines which side of the polygon will cause occlusion.</p>
+<ul>
+<li><span class="label">Units:</span> Boolean</li>
+</ul>
+</dd>
+</dl>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_getpolygonattributes" title="Retrieves the attributes for a polygon.">Geometry::getPolygonAttributes</a>, <a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a></p>
+<h2 api="function" id="geometry_setpolygonvertex"><a href="#geometry_setpolygonvertex">Geometry::setPolygonVertex</a></h2>
+<p>Alters the position of a polygon's vertex inside a geometry object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">setPolygonVertex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">vertexindex</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">vertex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_SetPolygonVertex</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">vertexindex</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">vertex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">setPolygonVertex</span><span class="p">(</span>
+  <span class="kt">int</span> <span class="n">index</span><span class="p">,</span>
+  <span class="kt">int</span> <span class="n">vertexindex</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="n">VECTOR</span> <span class="n">vertex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">setPolygonVertex</span><span class="p">(</span>
+  <span class="nx">index</span><span class="p">,</span>
+  <span class="nx">vertexindex</span><span class="p">,</span>
+  <span class="nx">vertex</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>index</dt>
+<dd>
+<p>Polygon index.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a>)</li>
+</ul>
+</dd>
+<dt>vertexindex</dt>
+<dd>
+<p>Polygon vertex index.</p>
+<ul>
+<li><span class="label">Range:</span> [0, <a class="apilink" href="core-api-geometry.html#geometry_getpolygonnumvertices" title="Gets the number of vertices in a polygon.">Geometry::getPolygonNumVertices</a> (index) )</li>
+</ul>
+</dd>
+<dt>vertex</dt>
+<dd>
+<p>3D Position of the vertex. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Units:</span> <a href="glossary.html#distance-units">Distance units</a></li>
+</ul>
+</dd>
+</dl>
+<p>Vertices are relative to the position of the object.  See <a class="apilink" href="core-api-geometry.html#geometry_setposition" title="Sets the 3D position of the object.">Geometry::setPosition</a>.</p>
+<p>There may be some significant overhead with this function as it may cause some reconfiguration of internal data structures used to speed up sound-ray testing.</p>
+<p>You may get better results if you want to modify your object by using <a class="apilink" href="core-api-geometry.html#geometry_setposition" title="Sets the 3D position of the object.">Geometry::setPosition</a>, <a class="apilink" href="core-api-geometry.html#geometry_setscale" title="Sets the 3D scale of the object.">Geometry::setScale</a> and <a class="apilink" href="core-api-geometry.html#geometry_setrotation" title="Sets the 3D orientation of the object.">Geometry::setRotation</a>.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_getpolygonnumvertices" title="Gets the number of vertices in a polygon.">Geometry::getPolygonNumVertices</a>, <a class="apilink" href="core-api-geometry.html#geometry_getpolygonnumvertices" title="Gets the number of vertices in a polygon.">Geometry::getPolygonNumVertices</a>, <a class="apilink" href="core-api-geometry.html#geometry_getnumpolygons" title="Retrieves the number of polygons in this object.">Geometry::getNumPolygons</a></p>
+<h2 api="function" id="geometry_setposition"><a href="#geometry_setposition">Geometry::setPosition</a></h2>
+<p>Sets the 3D position of the object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">setPosition</span><span class="p">(</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">position</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_SetPosition</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">position</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">setPosition</span><span class="p">(</span>
+  <span class="k">ref</span> <span class="n">VECTOR</span> <span class="n">position</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">setPosition</span><span class="p">(</span>
+  <span class="nx">position</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>position</dt>
+<dd>
+<p>3D position. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Units:</span> <a href="glossary.html#distance-units">Distance units</a></li>
+<li><span class="label">Default:</span> (0, 0, 0)</li>
+</ul>
+</dd>
+</dl>
+<p>Position is in world space.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_getposition" title="Retrieves the 3D position of the object.">Geometry::getPosition</a>, <a class="apilink" href="core-api-geometry.html#geometry_setrotation" title="Sets the 3D orientation of the object.">Geometry::setRotation</a>, <a class="apilink" href="core-api-geometry.html#geometry_setscale" title="Sets the 3D scale of the object.">Geometry::setScale</a></p>
+<h2 api="function" id="geometry_setrotation"><a href="#geometry_setrotation">Geometry::setRotation</a></h2>
+<p>Sets the 3D orientation of the object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">setRotation</span><span class="p">(</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">forward</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">up</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_SetRotation</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">forward</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">up</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">setRotation</span><span class="p">(</span>
+  <span class="k">ref</span> <span class="n">VECTOR</span> <span class="n">forward</span><span class="p">,</span>
+  <span class="k">ref</span> <span class="n">VECTOR</span> <span class="n">up</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">setRotation</span><span class="p">(</span>
+  <span class="nx">forward</span><span class="p">,</span>
+  <span class="nx">up</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>forward <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Forwards orientation. This vector must be of unit length and perpendicular to the up vector. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Default:</span> (0, 0, 1)</li>
+</ul>
+</dd>
+<dt>up <span><a class="token" href="glossary.html#documentation-conventions" title="Optional">Opt</a></span></dt>
+<dd>
+<p>Upwards orientation. This vector must be of unit length and perpendicular to the forwards vector. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Default:</span> (0, 1, 0)</li>
+</ul>
+</dd>
+</dl>
+<p>See remarks in <a class="apilink" href="core-api-system.html#system_set3dlistenerattributes" title="Sets the position, velocity and orientation of the specified 3D sound listener.">System::set3DListenerAttributes</a> for more description on forward and up vectors.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_getrotation" title="Retrieves the 3D orientation of the object.">Geometry::getRotation</a>, <a class="apilink" href="core-api-geometry.html#geometry_setposition" title="Sets the 3D position of the object.">Geometry::setPosition</a>, <a class="apilink" href="core-api-geometry.html#geometry_setscale" title="Sets the 3D scale of the object.">Geometry::setScale</a></p>
+<h2 api="function" id="geometry_setscale"><a href="#geometry_setscale">Geometry::setScale</a></h2>
+<p>Sets the 3D scale of the object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">setScale</span><span class="p">(</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">scale</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_SetScale</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="k">const</span> <span class="n">FMOD_VECTOR</span> <span class="o">*</span><span class="n">scale</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">setScale</span><span class="p">(</span>
+  <span class="k">ref</span> <span class="n">VECTOR</span> <span class="n">scale</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">setScale</span><span class="p">(</span>
+  <span class="nx">scale</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>scale</dt>
+<dd>
+<p>Scale value. (<a class="apilink" href="core-api-common.html#fmod_vector" title="Structure describing a point in 3D space.">FMOD_VECTOR</a>)</p>
+<ul>
+<li><span class="label">Units:</span> Linear</li>
+<li><span class="label">Default:</span> (1, 1, 1)</li>
+</ul>
+</dd>
+</dl>
+<p>An object can be scaled/warped in all 3 dimensions separately using this function without having to modify polygon data.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_getscale" title="Retrieves the 3D scale of the object.">Geometry::getScale</a>, <a class="apilink" href="core-api-geometry.html#geometry_setposition" title="Sets the 3D position of the object.">Geometry::setPosition</a>, <a class="apilink" href="core-api-geometry.html#geometry_setrotation" title="Sets the 3D orientation of the object.">Geometry::setRotation</a></p>
+<h2 api="function" id="geometry_setuserdata"><a href="#geometry_setuserdata">Geometry::setUserData</a></h2>
+<p>Sets a user value associated with this object.</p>
+<p>
+<div class="language-selector">
+<div class="language-tab" data-language="language-c">C</div>
+<div class="language-tab" data-language="language-cpp">C++</div>
+<div class="language-tab" data-language="language-csharp">C#</div>
+<div class="language-tab" data-language="language-javascript">JS</div>
+</div>
+</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="n">Geometry</span><span class="o">::</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-c"><pre><span></span><span class="n">FMOD_RESULT</span> <span class="nf">FMOD_Geometry_SetUserData</span><span class="p">(</span>
+  <span class="n">FMOD_GEOMETRY</span> <span class="o">*</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-csharp"><pre><span></span><span class="n">RESULT</span> <span class="n">Geometry</span><span class="p">.</span><span class="n">setUserData</span><span class="p">(</span>
+  <span class="n">IntPtr</span> <span class="n">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<div class="highlight language-javascript"><pre><span></span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">setUserData</span><span class="p">(</span>
+  <span class="nx">userdata</span>
+<span class="p">);</span>
+</pre></div>
+
+
+<dl>
+<dt>userdata</dt>
+<dd>Value stored on this object.</dd>
+</dl>
+<p>Associates some data with this object to give it context, it will be passed back via callbacks but otherwise remain untouched.</p>
+<p><strong>See Also:</strong> <a class="apilink" href="core-api-geometry.html#geometry_getuserdata" title="Retrieves a user value associated with this object.">Geometry::getUserData</a></p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

@@ -1,0 +1,140 @@
+<html>
+<head>
+<title>Platform Details | Universal Windows Platform</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="platforms.html">Platform Details</a><ul class="subchapters"><li><a href="platforms-windows.html">Windows</a></li><li><a href="platforms-mac.html">Mac</a></li><li><a href="platforms-linux.html">Linux</a></li><li><a href="platforms-ios.html">iOS</a></li><li><a href="platforms-android.html">Android</a></li><li class="manual-current-chapter manual-active-chapter"><a href="platforms-uwp.html">Universal Windows Platform</a></li><li><a href="platforms-html5.html">HTML5</a></li></ul></li>
+<li><a href="white-papers.html">White Papers</a></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>4. Platform Details | Universal Windows Platform</h1>
+<div class="toc">
+<ul>
+<li><a href="#uwp-specific-starter-guide">UWP Specific Starter Guide</a><ul>
+<li><a href="#sdk-version">SDK Version</a></li>
+<li><a href="#compatibility">Compatibility</a></li>
+<li><a href="#libraries">Libraries</a></li>
+<li><a href="#permissions">Permissions</a></li>
+<li><a href="#thread-affinity">Thread Affinity</a></li>
+<li><a href="#thread-priority">Thread Priority</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+</li>
+<li><a href="#performance-reference">Performance Reference</a><ul>
+<li><a href="#format-choice">Format Choice</a></li>
+<li><a href="#voice-count">Voice Count</a><ul>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#test-device">Test Device</a></li>
+<li><a href="#results">Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="uwp-specific-starter-guide"><a href="#uwp-specific-starter-guide">UWP Specific Starter Guide</a></h2>
+<h3 id="sdk-version"><a href="#sdk-version">SDK Version</a></h3>
+<p>FMOD is compiled using the following tools.</p>
+<ul>
+<li><strong>Visual Studio</strong> - version 2017 targeting platform toolset v141</li>
+</ul>
+<h3 id="compatibility"><a href="#compatibility">Compatibility</a></h3>
+<p>FMOD supports devices of the below architectures running Windows 10.</p>
+<ul>
+<li><strong>x86</strong> - optimized with SSE3.</li>
+<li><strong>x64</strong> - optimized with SSE3 (and AVX if detected at runtime).</li>
+<li><strong>arm</strong> - optimized with VFPv2 (and NEON if detected at runtime).</li>
+</ul>
+<h3 id="libraries"><a href="#libraries">Libraries</a></h3>
+<p><em>The provided libs are import libraries which require the corresponding DLL to be present at runtime. Substitute $ARCH your desired architecture from the 'Compatibility' list above.</em></p>
+<p>FMOD Core Engine library</p>
+<ul>
+<li><strong>/api/core/lib/$ARCH/fmod.lib</strong> - Release binary for production code (requires fmod.dll at runtime).</li>
+<li><strong>/api/core/lib/$ARCH/fmodL.lib</strong> - Release binary with logging enabled for development (requires fmodL.dll at runtime).</li>
+</ul>
+<p>FMOD Studio Engine library (used in conjunction with core library)</p>
+<ul>
+<li><strong>/api/studio/lib/$ARCH/fmodstudio.lib</strong> - Release binary for production code (requires fmodstudio.dll at runtime).</li>
+<li><strong>/api/studio/lib/$ARCH/fmodstudioL.lib</strong> - Release binary with logging enabled for development (requires fmodstudioL.dll at runtime).</li>
+</ul>
+<h3 id="permissions"><a href="#permissions">Permissions</a></h3>
+<p>Some functionality inside of FMOD will require you set relevant capabilities in your manifest file.</p>
+<ul>
+<li><strong>Microphone</strong> - to make use of the <a class="apilink" href="core-api-system.html#system_recordstart" title="Starts the recording engine recording to a pre-created Sound object.">System::recordStart</a> API, see Known Issues for further notes about recording.</li>
+<li><strong>Internet (Client)</strong> - to stream audio from the internet.</li>
+<li><strong>Private Networks (Client &amp; Server)</strong> - to use FMOD profiler or FMOD Studio live update. See Known Issue for further notes about connecting.</li>
+</ul>
+<h3 id="thread-affinity"><a href="#thread-affinity">Thread Affinity</a></h3>
+<p>All threads will default to <a class="apilink" href="core-api-common.html#fmod_thread_affinity_core_all" title="">FMOD_THREAD_AFFINITY_CORE_ALL</a>, this is recommended due to the wide variety of PC hardware but can be customized with <a class="apilink" href="core-api-common.html#thread_setattributes" title="Specify the affinity, priority and stack size for all FMOD created threads.">Thread_SetAttributes</a>.</p>
+<h3 id="thread-priority"><a href="#thread-priority">Thread Priority</a></h3>
+<p>The relationship between FMOD platform agnostic thread priority and the platform specific values is as follows:</p>
+<ul>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_low" title="">FMOD_THREAD_PRIORITY_LOW</a>       ~ THREAD_PRIORITY_BELOW_NORMAL</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_medium" title="">FMOD_THREAD_PRIORITY_MEDIUM</a>    ~ THREAD_PRIORITY_NORMAL</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_high" title="">FMOD_THREAD_PRIORITY_HIGH</a>      ~ THREAD_PRIORITY_ABOVE_NORMAL</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_very_high" title="">FMOD_THREAD_PRIORITY_VERY_HIGH</a> ~ THREAD_PRIORITY_HIGHEST</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_extreme" title="">FMOD_THREAD_PRIORITY_EXTREME</a>   ~ THREAD_PRIORITY_TIME_CRITICAL</li>
+<li><a class="apilink" href="core-api-common.html#fmod_thread_priority_critical" title="">FMOD_THREAD_PRIORITY_CRITICAL</a>  ~ THREAD_PRIORITY_TIME_CRITICAL</li>
+</ul>
+<h3 id="known-issues"><a href="#known-issues">Known Issues</a></h3>
+<ul>
+<li>
+<p>Even after adding support for audio recording to your application manifest, you must still make sure to call <a class="apilink" href="core-api-system.html#system_recordstart" title="Starts the recording engine recording to a pre-created Sound object.">System::recordStart</a> in the UI thread so the system can display a warning to the user. Calling from any other thread will return <a class="apilink" href="core-api-common.html#fmod_err_output_init" title="">FMOD_ERR_OUTPUT_INIT</a>.</p>
+</li>
+<li>
+<p>FMOD Studio will not be able to connect to the engine if they are both running on the same machine. This is a restriction imposed by the Windows Universal Application environment.</p>
+</li>
+</ul>
+<h2 id="performance-reference"><a href="#performance-reference">Performance Reference</a></h2>
+<p>This section is a companion for the <a href="white-papers-cpu-performance.html">CPU Performance</a> white paper and serves as a quick reference of facts targeting this platform.</p>
+<h3 id="format-choice"><a href="#format-choice">Format Choice</a></h3>
+<p>Each compression format provided in FMOD has a reason for being included, the below list will detail our recommendations for this platform. Formats listed as primary are considering the best choice, secondary formats should only be considered if the primary doesn't satisfy your requirements.</p>
+<ul>
+<li><strong>Vorbis</strong>: Primary format for all sounds.</li>
+<li><strong>FADPCM</strong>: Secondary format if Vorbis CPU usage is too high for low spec machines.</li>
+<li><strong>PCM</strong>: Not recommended.</li>
+<li><strong>XMA</strong>: Unavailable.</li>
+<li><strong>AT9</strong>: Unavailable.</li>
+</ul>
+<h3 id="voice-count"><a href="#voice-count">Voice Count</a></h3>
+<p>To give developers an idea about the costs of a particular format we provide synthetic benchmark results. These results are based on simple usage of the FMOD Studio API using recommended configuration settings.</p>
+<h4 id="settings"><a href="#settings">Settings</a></h4>
+<ul>
+<li><strong>Voice count:</strong> 64</li>
+<li><strong>Sample rate:</strong> 48KHz</li>
+<li><strong>Speaker mode:</strong> Stereo</li>
+<li><strong>DSP block size:</strong> 1024 samples</li>
+</ul>
+<h4 id="test-device"><a href="#test-device">Test Device</a></h4>
+<ul>
+<li><strong>CPU:</strong> Intel Core 2 Duo E6700 @ 2.66 GHz</li>
+<li><strong>OS:</strong> Windows 8.1 </li>
+</ul>
+<h4 id="results"><a href="#results">Results</a></h4>
+<ul>
+<li><strong>DSP with Vorbis:</strong> 25.6% (+/- 2.0%)</li>
+<li><strong>DSP with FADPCM:</strong> 5.2% (+/- 0.3%)</li>
+<li><strong>DSP with PCM:</strong> 3.0% (+/- 0.2%)</li>
+<li><strong>Update at 60 FPS:</strong> 0.8% (+/- 0.2%)</li>
+</ul></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

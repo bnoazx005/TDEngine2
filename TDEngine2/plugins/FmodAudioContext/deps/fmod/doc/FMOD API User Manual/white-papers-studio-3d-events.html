@@ -1,0 +1,90 @@
+<html>
+<head>
+<title>White Papers | Studio API 3D Events</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Studio API 3D Events</h1>
+<div class="toc">
+<ul>
+<li><a href="#studio-3d-events">Studio 3D Events</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#coordinate-systems-and-handedness">Coordinate systems and handedness</a></li>
+<li><a href="#updating-orientations">Updating orientations</a></li>
+<li><a href="#fmod-studio-3d-panner">FMOD Studio 3D Panner</a></li>
+<li><a href="#fmod-object-panner">FMOD Object Panner</a></li>
+<li><a href="#automatic-parameters">Automatic Parameters</a></li>
+<li><a href="#multiple-listeners">Multiple listeners</a><ul>
+<li><a href="#studio-panning-for-multiple-listeners">Studio panning for multiple listeners</a></li>
+<li><a href="#studio-panning-for-listener-weights">Studio panning for listener weights</a></li>
+</ul>
+</li>
+<li><a href="#listener-mask">Listener Mask</a></li>
+<li><a href="#doppler">Doppler</a></li>
+<li><a href="#automatic-parameters-and-multiple-listeners">Automatic Parameters and multiple listeners</a></li>
+<li><a href="#interface-with-core-api">Interface with Core API</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="studio-3d-events"><a href="#studio-3d-events">Studio 3D Events</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>This section will introduce you to using 3D sound with FMOD Studio events.</p>
+<h3 id="coordinate-systems-and-handedness"><a href="#coordinate-systems-and-handedness">Coordinate systems and handedness</a></h3>
+<p>FMOD Studio shares the same coordinate system as the core API. See the <a href="white-papers-3d-sounds.html">3D Sounds</a> white paper for details.</p>
+<h3 id="updating-orientations"><a href="#updating-orientations">Updating orientations</a></h3>
+<p>The programmer needs to call <a class="apilink" href="studio-api-system.html#studio_system_setlistenerattributes" title="Sets the 3D attributes of the listener.">Studio::System::setListenerAttributes</a> once per frame for the listener, and to update 3D events with <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_set3dattributes" title="Sets the 3D attributes.">Studio::EventInstance::set3DAttributes</a>. It is important to update all orientations before calling <a class="apilink" href="studio-api-system.html#studio_system_update" title="Update the FMOD Studio System.">Studio::System::update</a>. If some orientations are set before <a class="apilink" href="studio-api-system.html#studio_system_update" title="Update the FMOD Studio System.">Studio::System::update</a> and some are set afterwards, then some frames may end up having old positions relative to others. This is particularly important when both the listener and the events are moving fast and together - if there a frame where the listener moves but the event does not it becomes very noticeable.</p>
+<h3 id="fmod-studio-3d-panner"><a href="#fmod-studio-3d-panner">FMOD Studio 3D Panner</a></h3>
+<p>FMOD Studio supports panning events with the FMOD Studio panner on the master track. If there is no panner, the event is considered 2D and the orientation has no effect on the event. It is possible to use other sorts of panners by replacing the FMOD Studio panner with a different type, for example a third party panner.</p>
+<h3 id="fmod-object-panner"><a href="#fmod-object-panner">FMOD Object Panner</a></h3>
+<p>The Object panner is a special type of panner that interfaces with Object based output modes such as Dolby Atmos. These output modes accept mono signals with a 3D position and do their own panning and mixing to the final speaker configuration. To use Object panners, the programmer has to specify an output mode that supports Object based panning otherwise the signal will be mixed down at the final stage by FMOD.</p>
+<p>The benefit of the Object panner is that it allows the sound designer to leverage Object based technologies. However it does come at a cost, since the signal leaves the mix at the Object panner and does NOT receive DSP effects on the parent buses like normal panners do. The Object panner automatically bases its volume on the combined volumes of parant buses for basic mixing, but no complex effects can be used. For this reason the mix has to be set up very carefully with knowledge of the limitations of the Object panning.</p>
+<p>It is possible for the sound designer to use a mixture of normal 3D panned events and Object panned 3D events. Normal events will have signal going through the mixer hierarchy, and Object based events will have signal that leaves the mix at the master track. As far as the programming API goes, both sorts of events are treated exactly the same.</p>
+<h3 id="automatic-parameters"><a href="#automatic-parameters">Automatic Parameters</a></h3>
+<p>FMOD Studio supports setting automations based on parameters that automatically update based on position. For example, the sound designer could add a volume automation based on Distance, with a 2D panning that is automated on the Direction parameter. The event is still considered 3D in that case, even if it has no panner on the master track.</p>
+<p>An event may have both a 3D panner on the master track, as well as an automation based on a Distance parameter. As the event and listener moves, both the panner and the automation will be updated.</p>
+<h3 id="multiple-listeners"><a href="#multiple-listeners">Multiple listeners</a></h3>
+<p>FMOD Studio supports multiple listeners. Call <a class="apilink" href="studio-api-system.html#studio_system_setnumlisteners" title="Sets the number of listeners in the 3D sound scene.">Studio::System::setNumListeners</a> to set the number of listeners, and use <a class="apilink" href="studio-api-system.html#studio_system_setlistenerattributes" title="Sets the 3D attributes of the listener.">Studio::System::setListenerAttributes</a> to set the orientations for listeners, with an index for the listener.</p>
+<h4 id="studio-panning-for-multiple-listeners"><a href="#studio-panning-for-multiple-listeners">Studio panning for multiple listeners</a></h4>
+<p>Consider the case of an event with three nearby listeners. In this case, listener A is slightly closer to the event than B, and C is the furthest away, outside the max distance of the event.</p>
+<p>The Studio 3D panner will take listener A and B into account. The gain will be based off the closest listener distance (in this case, the distance to listener A). Listener B will have an effect on the panning. However, both A and B agree that the event is to the front, so the final pan matrix will be towards the front speakers. Listener C has no effect on the calculation since it is out of range.</p>
+<p><img alt="Multiple listeners" src="images/3d-studio-1.png" /></p>
+<p>Consider this case where listener A and B have moved and now the event is to the right of A and to the left of B. In this case, the gain will be based of the closest listener distance (which is B), but the pan matrix will have signal out of both the left and the right since both listeners have an effect on the mix. If A moved further away then the contribution of A would diminish and to the signal would start to come more out of the left speakers. If A moved further enough away, the signal would smoothly interpolate to just B having an influence on the panning.</p>
+<p><img alt="Multiple listeners" src="images/3d-studio-2.png" /></p>
+<h4 id="studio-panning-for-listener-weights"><a href="#studio-panning-for-listener-weights">Studio panning for listener weights</a></h4>
+<p>A new feature of 1.09 is the ability to set listener weights using <a class="apilink" href="studio-api-system.html#studio_system_setlistenerweight" title="Sets the listener weighting.">Studio::System::setListenerWeight</a>. This allows listeners to fade in and out of existence, as well as to allow cross-fading of listeners to a new position. In the following picture, we have 4 listeners. Listener C is out of range so it has no influence, and listener D has 0% weighting so it has no influence either. The remaining two listeners have a weight of 40% and 60%. In this example, perhaps the camera is teleporting to a new position and the game is smoothly interpolating to a new orientation.</p>
+<p>The gain is a weighted average between A and B, so it is equivalent to having a distance somewhere between the two listeners. The panning of the signal is a mixture of A and B. A is further away and has a lower weight, so the biggest contribution is due to B, meaning the signal sounds mostly in the front speakers. If you imagine panning from A to B, the signal will smoothly interpolate from the back speakers to the front and get louder when the weights scale from A to B.</p>
+<p><img alt="Multiple listener weights" src="images/3d-studio-3.png" /></p>
+<h3 id="listener-mask"><a href="#listener-mask">Listener Mask</a></h3>
+<p>Events can have a mask that specifies which listeners are active for that event. By default all listeners apply to all events. By calling <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setlistenermask" title="Sets the listener mask.">Studio::EventInstance::setListenerMask</a>, some listeners can be disabled for that event so that they have no influence on the panning. This could be used to group some events and listeners together and have that set only affected by that one listener. When performing the calculation above, any listener not included in the mask is ignored and is as if it does not exist for that event. It is an error to set a combination of mask and weight such that no listener is active for an event.</p>
+<h3 id="doppler"><a href="#doppler">Doppler</a></h3>
+<p>FMOD events support doppler. The sound designer specifies doppler on a per event basis with a scale, so some events may be affected less than others. It is up to the programmer to correctly specify the listener and event velocity. The scale of doppler can be specified at initialization time using <a class="apilink" href="core-api-system.html#system_set3dsettings" title="Sets the global doppler scale, distance factor and log rolloff scale for all 3D sound in FMOD.">System::set3DSettings</a>.</p>
+<p>For the case of multiple listeners, the doppler is based on the closest listener. If listener has a weight then it is a combination of the closest listeners up to 100%. For example if there were three listeners at increasing distance with weight of 60%, 60% and 60%, then the doppler would be calculated from 60% of the first listener, 40% of the second, and 0% of the third.</p>
+<h3 id="automatic-parameters-and-multiple-listeners"><a href="#automatic-parameters-and-multiple-listeners">Automatic Parameters and multiple listeners</a></h3>
+<p>For the case of multiple listeners, the FMOD Studio automatic parameters are based on the closest listener. If listener has a weight then it is a combination of the closest listeners up to 100%. For example if there were three listeners at increasing distance with weight of 60%, 60% and 60%, then the automatic parameters would be calculated from 60% of the first listener, 40% of the second, and 0% of the third.</p>
+<h3 id="interface-with-core-api"><a href="#interface-with-core-api">Interface with Core API</a></h3>
+<p>When calling <a class="apilink" href="studio-api-system.html#studio_system_setnumlisteners" title="Sets the number of listeners in the 3D sound scene.">Studio::System::setNumListeners</a> and <a class="apilink" href="studio-api-system.html#studio_system_setlistenerattributes" title="Sets the 3D attributes of the listener.">Studio::System::setListenerAttributes</a>, there is no need to call the equivalent Core functions <a class="apilink" href="core-api-system.html#system_set3dnumlisteners" title="Sets the number of 3D 'listeners' in the 3D sound scene.">System::set3DNumListeners</a> and <a class="apilink" href="core-api-system.html#system_set3dlistenerattributes" title="Sets the position, velocity and orientation of the specified 3D sound listener.">System::set3DListenerAttributes</a>. FMOD Studio will pass the information into the Core API automatically. That means it is possible to have a mixture of FMOD Studio 3D Events and Core 3D Channels playing at the same time.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

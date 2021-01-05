@@ -1,0 +1,341 @@
+<html>
+<head>
+<title>White Papers | Transitioning from FMOD Ex</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Transitioning from FMOD Ex</h1>
+<div class="toc">
+<ul>
+<li><a href="#transitioning-between-fmod-ex-and-fmod-studio">Transitioning between FMOD Ex and FMOD Studio</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#fmod-studio-api-versus-fmod-designer-api">FMOD Studio API Versus FMOD Designer API</a><ul>
+<li><a href="#eventsystem-and-eventsystem_create">EventSystem and EventSystem_Create</a></li>
+<li><a href="#eventproject">EventProject</a></li>
+<li><a href="#fev-and-fsb-files">FEV and FSB Files</a></li>
+<li><a href="#eventgroup">EventGroup</a></li>
+<li><a href="#event">Event</a></li>
+<li><a href="#retrieving-events">Retrieving Events</a></li>
+<li><a href="#eventparameter">EventParameter</a></li>
+<li><a href="#sustain-points-and-key-off">Sustain Points and Key Off</a></li>
+<li><a href="#eventcategory">EventCategory</a></li>
+<li><a href="#eventreverb">EventReverb</a></li>
+<li><a href="#eventqueue-and-eventqueueentry">EventQueue and EventQueueEntry</a></li>
+<li><a href="#musicsystem-and-musicprompt">MusicSystem and MusicPrompt</a></li>
+<li><a href="#neteventsystem">NetEventSystem</a></li>
+</ul>
+</li>
+<li><a href="#fmod-studio-core-api-versus-fmod-ex-core-api">FMOD Studio Core API Versus FMOD Ex Core API</a></li>
+<li><a href="#new-features">New features</a><ul>
+<li><a href="#no-more-recommended-startup-sequence">No more 'recommended startup sequence'</a></li>
+<li><a href="#added-new-dsp-effects">Added new DSP effects</a></li>
+<li><a href="#new-file-format-support">New file format support</a></li>
+<li><a href="#dolby-atmos-support">Dolby Atmos support</a></li>
+<li><a href="#new-dsp-mixing-engine">New DSP mixing engine</a></li>
+<li><a href="#added-plugin-info-helper-function">Added plugin info helper function</a></li>
+<li><a href="#added-background-suspension-support">Added background suspension support</a></li>
+<li><a href="#channelgroups-volume-and-panning-are-now-dsp-based-rather-than-reaching-down-to-the-channels-of-the-child-channel-groups">ChannelGroups volume and panning are now DSP based, rather than reaching down to the channels of the child channel groups.</a></li>
+<li><a href="#added-additional-output-streams">Added additional output streams</a></li>
+<li><a href="#added-sound-helper-function">Added Sound helper function</a></li>
+<li><a href="#added-sample-volume-control">Added sample volume control</a></li>
+<li><a href="#added-utf8-support">Added UTF8 support</a></li>
+<li><a href="#added-concept-of-a-fader-dsp-per-channel-and-channelgroup">Added concept of a 'fader' DSP per Channel and ChannelGroup</a></li>
+<li><a href="#new-dspconnection-types-supported">New DSPConnection types supported</a></li>
+<li><a href="#new-dsp-parameter-types">New DSP parameter types</a></li>
+</ul>
+</li>
+<li><a href="#changes">Changes</a><ul>
+<li><a href="#fmod_hardware-support">FMOD_HARDWARE support</a></li>
+<li><a href="#fmod-ex-had-channels-and-channelgroups-now-it-seems-they-are-merged-into-channelcontrol">FMOD Ex had Channels and ChannelGroups, now it seems they are merged into 'ChannelControl'?</a></li>
+<li><a href="#converting-fmod-reverb-parameters">Converting FMOD Reverb parameters</a></li>
+<li><a href="#system_set3dspeakerposition-renamed">System::set3DSpeakerPosition renamed</a></li>
+<li><a href="#fmod_channel_free-fmod_channel_reuse-removed-default-channelgroup-now-passed-to-playsound-if-needed">FMOD_CHANNEL_FREE / FMOD_CHANNEL_REUSE removed. Default ChannelGroup now passed to playSound if needed</a></li>
+<li><a href="#cdrom-cdda-support-removed">CDROM / CDDA support removed</a></li>
+<li><a href="#system_getspectrum-and-system_getwavedata-removed">System::getSpectrum and System::getWaveData removed</a></li>
+<li><a href="#w-function-wide-char-support-removed">'W' function wide char support removed</a></li>
+<li><a href="#system_setreverbambientproperties-removed">System::setReverbAmbientProperties removed</a></li>
+<li><a href="#system_getdspclock-removed">System::getDSPClock removed</a></li>
+<li><a href="#getmemoryinfo-functions-have-been-removed-from-all-classes">getMemoryInfo functions have been removed from all classes</a></li>
+<li><a href="#sound_setvariations-and-sound_getvariations-have-been-removed">Sound::setVariations and Sound::getVariations have been removed</a></li>
+<li><a href="#sound_setsubsoundsentence-has-been-removed">Sound::setSubSoundSentence has been removed</a></li>
+<li><a href="#setdelay-and-clock-functions-now-use-64bit-long-long-type-rather-than-than-32bit-hi-and-32bit-low-part-parameters">setDelay and clock functions now use 64bit 'long long' type rather than than 32bit hi and 32bit low part parameters.</a></li>
+<li><a href="#channel_setspeakermix-channel_setspeakerlevels-channel_setinputchannelmix-channel_getpan-channel_getspeakermix-and-channel_getspeakerlevels-removed">Channel::setSpeakerMix, Channel::setSpeakerLevels, Channel::setInputChannelMix, Channel::getPan, Channel::getSpeakerMix and Channel::getSpeakerLevels removed</a></li>
+<li><a href="#dspconnection_setlevelsgetlevels-have-been-removed">DSPConnection::setLevels/getLevels have been removed.</a></li>
+<li><a href="#channel_set3dpanlevel-misnomer-renamed">Channel::set3DPanLevel misnomer renamed</a></li>
+<li><a href="#override-functions-removed-from-channelgroup-class">'override' functions removed from ChannelGroup class</a></li>
+<li><a href="#system_adddsp-removed-from-the-system-api">System::addDSP removed from the System API</a></li>
+<li><a href="#dsp_remove-removed-from-the-dsp-api">DSP::remove removed from the DSP API</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="transitioning-between-fmod-ex-and-fmod-studio"><a href="#transitioning-between-fmod-ex-and-fmod-studio">Transitioning between FMOD Ex and FMOD Studio</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>This section describes the differences between FMOD Ex and FMOD Studio.</p>
+<h3 id="fmod-studio-api-versus-fmod-designer-api"><a href="#fmod-studio-api-versus-fmod-designer-api">FMOD Studio API Versus FMOD Designer API</a></h3>
+<p>The FMOD Studio API is conceptually similar to the old FMOD Designer API, but most classes have been renamed, and some have been removed or split up.</p>
+<h4 id="eventsystem-and-eventsystem_create"><a href="#eventsystem-and-eventsystem_create">EventSystem and EventSystem_Create</a></h4>
+<p>The <a class="apilink" href="studio-api-system.html" title="">Studio::System</a> class is analogous to the old EventSystem class. The static <a class="apilink" href="studio-api-system.html#studio_system_create" title="FMOD Studio System creation function.">Studio::System::create</a> function is analogous to the old EventSystem_Create function.</p>
+<h4 id="eventproject"><a href="#eventproject">EventProject</a></h4>
+<p>The <a class="apilink" href="studio-api-bank.html" title="">Studio::Bank</a> class is analogous to the old EventProject class.</p>
+<h4 id="fev-and-fsb-files"><a href="#fev-and-fsb-files">FEV and FSB Files</a></h4>
+<p>Each FMOD Designer project produced a single .fev file and multiple .fsb files. In contrast, an FMOD Studio project produces multiple .bank files, which contain event metadata as well as sample data. See the <a class="apilink" href="studio-api-system.html#studio_system_loadbankfile" title="Loads the metadata of a Studio bank from file.">Studio::System::loadBankFile</a>, <a class="apilink" href="studio-api-bank.html#studio_bank_loadsampledata" title="Loads non-streaming sample data for all events in the bank.">Studio::Bank::loadSampleData</a>, and <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_loadsampledata" title="Loads non-streaming sample data used by the event.">Studio::EventDescription::loadSampleData</a> functions. The core API still supports loading .fsb files directly.</p>
+<h4 id="eventgroup"><a href="#eventgroup">EventGroup</a></h4>
+<p>FMOD Studio doesn't have the concept of EventGroups. Events can be placed in folders, but this has no significance at runtime. To achieve the loading control formerly provided by EventGroups, events can be placed in different banks.</p>
+<h4 id="event"><a href="#event">Event</a></h4>
+<p>The old Event class has been split into two classes: <a class="apilink" href="studio-api-eventdescription.html" title="">Studio::EventDescription</a> and <a class="apilink" href="studio-api-eventinstance.html" title="">Studio::EventInstance</a>. <a class="apilink" href="studio-api-eventdescription.html" title="">Studio::EventDescription</a> holds the static data that describes an event, while <a class="apilink" href="studio-api-eventinstance.html" title="">Studio::EventInstance</a> is a playable instance of an event. These two classes correspond to old Event objects retrieved by calling getEvent with or without the FMOD_EVENT_INFOONLY flag.</p>
+<p>The FMOD Designer API used to create a fixed number of event instances when you first called getEvent without FMOD_EVENT_INFOONLY, whereas the FMOD Studio API creates a single instance each time you call <a class="apilink" href="studio-api-eventdescription.html#studio_eventdescription_createinstance" title="Creates a playable instance.">Studio::EventDescription::createInstance</a>. This gives you more control over the memory usage for each event.</p>
+<h4 id="retrieving-events"><a href="#retrieving-events">Retrieving Events</a></h4>
+<p>Events can be retrieved by ID (using <a class="apilink" href="studio-api-system.html#studio_system_geteventbyid" title="Retrieves an EventDescription.">Studio::System::getEventByID</a>) or by path (using <a class="apilink" href="studio-api-system.html#studio_system_getevent" title="Retrieves an EventDescription.">Studio::System::getEvent</a>).</p>
+<p>Event IDs are GUIDs (globally unique identifiers), and stay the same even if the event is renamed or moved around in the project. IDs can be parsed from a string using <a class="apilink" href="studio-api-common.html#studio_parseid" title="Parses a GUID from a string.">Studio::parseID</a>, or looked up from a path using <a class="apilink" href="studio-api-system.html#studio_system_lookupid" title="Retrieves the ID for a bank, event, snapshot, bus or VCA.">Studio::System::lookupID</a> if the "Master Bank.strings.bank" file is loaded.</p>
+<p>Event paths consist of the string "event:/", followed by the the path to the event within the project's folder structure. To retrieve events by path, the "Master Bank.strings.bank" file must be loaded.</p>
+<h4 id="eventparameter"><a href="#eventparameter">EventParameter</a></h4>
+<p>There is no class analogous to the old EventParameter class. Instead use the parameter getting and setting functions in <a class="apilink" href="studio-api-eventinstance.html" title="">Studio::EventInstance</a>: <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getparameterbyid" title="Retrieves a parameter value by unique identifier.">Studio::EventInstance::getParameterByID</a>, <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_getparameterbyname" title="Retrieves a parameter value by name.">Studio::EventInstance::getParameterByName</a>, <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setparameterbyid" title="Sets a parameter value by unique identifier.">Studio::EventInstance::setParameterByID</a>, <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setparameterbyname" title="Sets a parameter value by name.">Studio::EventInstance::setParameterByName</a>, <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_setparametersbyids" title="Sets multiple parameter values by unique identifier.">Studio::EventInstance::setParametersByIDs</a>.</p>
+<h4 id="sustain-points-and-key-off"><a href="#sustain-points-and-key-off">Sustain Points and Key Off</a></h4>
+<p>The old EventParameter class had a keyOff function to move past the next sustain point. In FMOD Studio this behavior is implemented via a built-in KeyOff cue that can be triggered via <a class="apilink" href="studio-api-eventinstance.html#studio_eventinstance_triggercue" title="Triggers a cue on the event instance.">Studio::EventInstance::triggerCue</a>.</p>
+<h4 id="eventcategory"><a href="#eventcategory">EventCategory</a></h4>
+<p>Event categories have been replaced in FMOD Studio by buses and VCAs, which provide much more functionality to the sound designer. At runtime, buses and VCAs are accessed via the <a class="apilink" href="studio-api-bus.html" title="">Studio::Bus</a> and <a class="apilink" href="studio-api-vca.html" title="">Studio::VCA</a> classes.</p>
+<h4 id="eventreverb"><a href="#eventreverb">EventReverb</a></h4>
+<p>The EventReverb class has been removed. Similar functionality can be implemented using events with automatic distance parameters controlling reverb snapshots.</p>
+<h4 id="eventqueue-and-eventqueueentry"><a href="#eventqueue-and-eventqueueentry">EventQueue and EventQueueEntry</a></h4>
+<p>FMOD Studio doesn't have the concept of event queues.</p>
+<h4 id="musicsystem-and-musicprompt"><a href="#musicsystem-and-musicprompt">MusicSystem and MusicPrompt</a></h4>
+<p>Interactive music in FMOD Studio is implemented inside the event editor, so the MusicSystem and MusicPrompt classes have been removed.</p>
+<h4 id="neteventsystem"><a href="#neteventsystem">NetEventSystem</a></h4>
+<p>Whereas the old network tweaking API was implemented as a separate fmod_event_net library, the FMOD Studio live update system is built into the main API library, and can be enabled by passing <a class="apilink" href="studio-api-system.html#fmod_studio_init_liveupdate" title="">FMOD_STUDIO_INIT_LIVEUPDATE</a> to <a class="apilink" href="studio-api-system.html#studio_system_initialize" title="Initializes the Studio System.">Studio::System::initialize</a>.</p>
+<h3 id="fmod-studio-core-api-versus-fmod-ex-core-api"><a href="#fmod-studio-core-api-versus-fmod-ex-core-api">FMOD Studio Core API Versus FMOD Ex Core API</a></h3>
+<h3 id="new-features"><a href="#new-features">New features</a></h3>
+<h4 id="no-more-recommended-startup-sequence"><a href="#no-more-recommended-startup-sequence">No more 'recommended startup sequence'</a></h4>
+<p>FMOD Studio now handles the speaker mode automatically. To start FMOD Studio is as simple as calling <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a>, rather than querying caps or speaker modes to make FMODs software mixer match that of the operating system. If you want the software mixer to be forced into a certain speaker mode, disregarding the operating system, use <a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a>. FMOD will automatically downmix or upmix this mode if the user's system is not the same speaker mode as the one selected for the software engine. Where possible, Dolby or internal downmixing will be used to achieve better surround effect.</p>
+<h4 id="added-new-dsp-effects"><a href="#added-new-dsp-effects">Added new DSP effects</a></h4>
+<p>The following new DSP effects are added. (From fmod_dsp_effects.h)</p>
+<div class="highlight language-cpp"><pre><span></span><span class="n">FMOD_DSP_TYPE_SEND</span><span class="p">,</span>               <span class="cm">/* This unit sends a copy of the signal to a return DSP anywhere in the DSP tree. */</span>
+<span class="n">FMOD_DSP_TYPE_RETURN</span><span class="p">,</span>             <span class="cm">/* This unit receives signals from a number of send DSPs. */</span>
+<span class="n">FMOD_DSP_TYPE_HIGHPASS_SIMPLE</span><span class="p">,</span>    <span class="cm">/* This unit filters sound using a simple highpass with no resonance, but has flexible cutoff and is fast. Deprecated and will be removed in a future release (see FMOD_DSP_HIGHPASS_SIMPLE remarks for alternatives). */</span>
+<span class="n">FMOD_DSP_TYPE_PAN</span><span class="p">,</span>                <span class="cm">/* This unit pans the signal, possibly upmixing or downmixing as well. */</span>
+<span class="n">FMOD_DSP_TYPE_THREE_EQ</span><span class="p">,</span>           <span class="cm">/* This unit is a three-band equalizer. */</span>
+<span class="n">FMOD_DSP_TYPE_FFT</span><span class="p">,</span>                <span class="cm">/* This unit simply analyzes the signal and provides spectrum information back through getParameter. */</span>
+<span class="n">FMOD_DSP_TYPE_LOUDNESS_METER</span><span class="p">,</span>     <span class="cm">/* This unit analyzes the loudness and true peak of the signal. */</span>
+<span class="n">FMOD_DSP_TYPE_ENVELOPEFOLLOWER</span><span class="p">,</span>   <span class="cm">/* This unit tracks the envelope of the input/sidechain signal. Format to be publicly disclosed soon. */</span>
+<span class="n">FMOD_DSP_TYPE_CONVOLUTIONREVERB</span><span class="p">,</span>  <span class="cm">/* This unit implements convolution reverb. */</span>
+<span class="n">FMOD_DSP_TYPE_CHANNELMIX</span><span class="p">,</span>         <span class="cm">/* This unit provides per signal channel gain, and output channel mapping to allow 1 multichannel signal made up of many groups of signals to map to a single output signal. */</span>
+<span class="n">FMOD_DSP_TYPE_TRANSCEIVER</span><span class="p">,</span>        <span class="cm">/* This unit &#39;sends&#39; and &#39;receives&#39; from a selection of up to 32 different slots.  It is like a send/return but it uses global slots rather than returns as the destination.  It also has other features.  Multiple transceivers can receive from a single channel, or multiple transceivers can send to a single channel, or a combination of both. */</span>
+<span class="n">FMOD_DSP_TYPE_OBJECTPAN</span><span class="p">,</span>          <span class="cm">/* This unit sends the signal to a 3d object encoder like Dolby Atmos.   Supports a subset of the FMOD_DSP_TYPE_PAN parameters. */</span>
+<span class="n">FMOD_DSP_TYPE_MULTIBAND_EQ</span><span class="p">,</span>       <span class="cm">/* This unit is a flexible five band parametric equalizer. */</span>
+</pre></div>
+
+
+<p>Note FMOD's convolution reverb also has the option to be GPU accelerated for big performance wins.</p>
+<h4 id="new-file-format-support"><a href="#new-file-format-support">New file format support</a></h4>
+<p><a class="apilink" href="core-api-sound.html#fmod_sound_type_fadpcm" title="">FMOD_SOUND_TYPE_FADPCM</a> is a new highly optimized, branchless ADPCM variant which has higher quality than IMA ADPCM, and better performance. Great for mobiles.</p>
+<h4 id="dolby-atmos-support"><a href="#dolby-atmos-support">Dolby Atmos support</a></h4>
+<p>Through the FMOD object panner, sounds can be positioned spherically in 3d space to support Dolby Atmos. This includes height speakers.</p>
+<h4 id="new-dsp-mixing-engine"><a href="#new-dsp-mixing-engine">New DSP mixing engine</a></h4>
+<p>FMOD Studio's software mixing engine is now more flexible, with support for changing channel formats and speaker modes as the signal flows through the mix. FMOD Studio's new software mixing engine also has better custom DSP support, with branch idling, silence detection, sends and returns, side-chaining, circular connections and more.</p>
+<h4 id="added-plugin-info-helper-function"><a href="#added-plugin-info-helper-function">Added plugin info helper function</a></h4>
+<p><a class="apilink" href="core-api-system.html#system_getdspinfobyplugin" title="Retrieve the description structure for a pre-existing DSP plugin.">System::getDSPInfoByPlugin</a> has been added to plug the gap between loading a plugin, and getting its <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_description" title="DSP description.">FMOD_DSP_DESCRIPTION</a> structure so that it can be passed to <a class="apilink" href="core-api-system.html#system_createdsp" title="Create a DSP object given a plugin description structure.">System::createDSP</a>.</p>
+<h4 id="added-background-suspension-support"><a href="#added-background-suspension-support">Added background suspension support</a></h4>
+<p>For mobile devices, <a class="apilink" href="core-api-system.html#system_mixersuspend" title="Suspend mixer thread and relinquish usage of audio hardware while maintaining internal state.">System::mixerSuspend</a> and <a class="apilink" href="core-api-system.html#system_mixerresume" title="Resume mixer thread and reacquire access to audio hardware.">System::mixerResume</a> allows you to halt FMODs cpu mixer and thread before sleeping or answering a call or any other interruption event.</p>
+<h4 id="channelgroups-volume-and-panning-are-now-dsp-based-rather-than-reaching-down-to-the-channels-of-the-child-channel-groups"><a href="#channelgroups-volume-and-panning-are-now-dsp-based-rather-than-reaching-down-to-the-channels-of-the-child-channel-groups">ChannelGroups volume and panning are now DSP based, rather than reaching down to the channels of the child channel groups.</a></h4>
+<p>ChannelGroups in FMOD Ex were a way to scale and modify the pan and volume of the channels in the channelgroups below. FMOD Studio now modifies pan and volume on a DSP basis using the FMOD DSP 'Fader' unit, and the fader can be repositioned in amongst its own effect list, so you can get the concept of post or pre fader effects.</p>
+<h4 id="added-additional-output-streams"><a href="#added-additional-output-streams">Added additional output streams</a></h4>
+<p><a class="apilink" href="core-api-system.html#system_attachchannelgrouptoport" title="Connect the output of the specified ChannelGroup to an audio port on the output driver.">System::attachChannelGroupToPort</a> and <a class="apilink" href="core-api-system.html#system_detachchannelgroupfromport" title="Disconnect the output of the specified ChannelGroup from an audio port on the output driver.">System::detachChannelGroupFromPort</a> allows signals to be sent to alternate sound outputs like headsets, controllers with speakers, and console based multi speaker arrays that are not the standard surround sound speaker output.</p>
+<h4 id="added-sound-helper-function"><a href="#added-sound-helper-function">Added Sound helper function</a></h4>
+<p>Added the ability for a child sound (subsound) to query for its parent via <a class="apilink" href="core-api-sound.html#sound_getsubsoundparent" title="Retrieves the parent Sound object that contains this subsound.">Sound::getSubSoundParent</a>.</p>
+<h4 id="added-sample-volume-control"><a href="#added-sample-volume-control">Added sample volume control</a></h4>
+<p><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_addfadepoint" title="Adds a sample accurate fade point at a time relative to the parent ChannelGroup DSP clock.">ChannelControl::addFadePoint</a>, <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_removefadepoints" title="Removes all fade points between the two specified clock values (inclusive).">ChannelControl::removeFadePoints</a> and <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getfadepoints" title="Retrieves information about stored fade points.">ChannelControl::getFadePoints</a> give the ability to set up a volume fade or ramp between any 2 clock points is possible. Link up multiple fade points to create envelopes. All fading is clock accurate and compensated for when pitch is changed. <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setvolumeramp" title="Sets whether volume changes are ramped or instantaneous.">ChannelControl::setVolumeRamp</a> / <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getvolumeramp" title="Retrieves whether volume changes are ramped or instantaneous.">ChannelControl::getVolumeRamp</a> can be used when queuing sounds up and for other reasons, it can be desirable to turn off ramping of volume changes, so the ability has been added to turn volume ramping (declicking) off or on per channel/channelgroup.</p>
+<h4 id="added-utf8-support"><a href="#added-utf8-support">Added UTF8 support</a></h4>
+<p>Functions such as System::getDriverInfoW have been removed in favour of UTF8 support.</p>
+<h4 id="added-concept-of-a-fader-dsp-per-channel-and-channelgroup"><a href="#added-concept-of-a-fader-dsp-per-channel-and-channelgroup">Added concept of a 'fader' DSP per Channel and ChannelGroup</a></h4>
+<p>Each Channel and ChannelGroup has a built in 'fader' (<a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_fader" title="">FMOD_DSP_TYPE_FADER</a>). This also acts as the DSP 'head' of the Channel or ChannelGroup by default.<br />
+This can of course be changed later. If you add an effect, you can position it to be the head, and the fader will be before that in the signal chain.<br />
+A fader DSP simply adjusts volume of the signal for a mix, and also supports sample accurate volume fade points, for envelopes and fade ins / fade outs.<br />
+A panner is a separate entity which can pan a sound in mono, stereo and surround using a variety of parameters including position/direction/extent/rotation/axis control and 3d position control.<br />
+The order of processing of a fader and panner can be controlled using <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdspindex" title="Sets the index in the DSP chain of the specified DSP.">ChannelControl::setDSPIndex</a>, and it can be positioned into an effect chain so that panning comes before an effect or after, with fading coming at a different position in the effect chain.</p>
+<h4 id="new-dspconnection-types-supported"><a href="#new-dspconnection-types-supported">New DSPConnection types supported</a></h4>
+<p><a class="apilink" href="core-api-dsp.html#dsp_addinput" title="Adds a DSP unit as an input to this object.">DSP::addInput</a> now has a new optional parameter to describe the connection's behavior between 2 DSP units. <a class="apilink" href="core-api-dspconnection.html#fmod_dspconnection_type" title="List of connection types between 2 DSP nodes.">FMOD_DSPCONNECTION_TYPE</a> has been added to tell an input DSP that</p>
+<p>It should mix to a 'sidechain' buffer, which is a special buffer for DSP units that want to process a sidechain (for example a compressor) through a DSP unit's <a class="apilink" href="plugin-api-dsp.html#fmod_dsp_state" title="DSP plugin structure that is passed into each callback.">FMOD_DSP_STATE</a> structure. This signal is not audible but is used to affect behavior within the DSP. <a class="apilink" href="core-api-dspconnection.html#fmod_dspconnection_type_sidechain" title="">FMOD_DSPCONNECTION_TYPE_SIDECHAIN</a> would be used here.<br />
+It should only consume existing data, not execute the input to generate that data. <a class="apilink" href="core-api-dspconnection.html#fmod_dspconnection_type_send" title="">FMOD_DSPCONNECTION_TYPE_SEND</a> would be used here. This can be useful for graph dependency reasons, so that an input is not executed before it should be.</p>
+<h4 id="new-dsp-parameter-types"><a href="#new-dsp-parameter-types">New DSP parameter types</a></h4>
+<p>In FMOD Ex, only float parameters were supported. Now Int, Bool and Data parameters are supported. <br />
+Use:</p>
+<ul>
+<li><a class="apilink" href="core-api-dsp.html#dsp_setparameterfloat" title="Sets a floating point parameter by index.">DSP::setParameterFloat</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterfloat" title="Retrieves a floating point parameter by index.">DSP::getParameterFloat</a></li>
+<li><a class="apilink" href="core-api-dsp.html#dsp_setparameterint" title="Sets an integer parameter by index.">DSP::setParameterInt</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterint" title="Retrieves an integer parameter by index.">DSP::getParameterInt</a></li>
+<li><a class="apilink" href="core-api-dsp.html#dsp_setparameterbool" title="Sets a boolean parameter by index.">DSP::setParameterBool</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterbool" title="Retrieves a boolean parameter by index.">DSP::getParameterBool</a></li>
+<li><a class="apilink" href="core-api-dsp.html#dsp_setparameterdata" title="Sets a binary data parameter by index.">DSP::setParameterData</a>, <a class="apilink" href="core-api-dsp.html#dsp_getparameterdata" title="Retrieves a binary data parameter by index.">DSP::getParameterData</a></li>
+</ul>
+<h3 id="changes"><a href="#changes">Changes</a></h3>
+<h4 id="fmod_hardware-support"><a href="#fmod_hardware-support">FMOD_HARDWARE support</a></h4>
+<p>FMOD Studio is such an advanced mixing engine, that the limited features of hardware voices could not possibly hope to achieve parity with the features of FMOD's software engine. It has been decided that in this day and age of multicore processors, even at the mobile level, that hardware voice support gained nothing for the user. FMOD's software engine can actually be faster, and better quality, and more flexible than hardware, so all sounds and voices are software mixed now. API changes:</p>
+<p>System::setHardwareChannels is removed<br />
+System::getDriverCaps is removed. systemrate, speakermode, speakermodechannels parameters have been added to <a class="apilink" href="core-api-system.html#system_getdriverinfo" title="Retrieves identification information about a sound device specified by its index, and specific to the selected output mode.">System::getDriverInfo</a> to provide the information which may be important to the developer. Similarly, System::getgetRecordDriverCaps has been removed, in favour of <a class="apilink" href="core-api-system.html#system_getrecorddriverinfo" title="Retrieves identification information about a sound device specified by its index, and specific to the output mode.">System::getRecordDriverInfo</a>.<br />
+System::setSpeakerMode and System::getSpeakerMode are removed, and instead are now moved into <a class="apilink" href="core-api-system.html#system_setsoftwareformat" title="Sets the output format for the software mixer.">System::setSoftwareFormat</a> because 'speakermode' now only affects the internal mixer, and the operating system speaker mode is matched at runtime through matrix upmixing or downmixing (automatically).</p>
+<h4 id="fmod-ex-had-channels-and-channelgroups-now-it-seems-they-are-merged-into-channelcontrol"><a href="#fmod-ex-had-channels-and-channelgroups-now-it-seems-they-are-merged-into-channelcontrol">FMOD Ex had Channels and ChannelGroups, now it seems they are merged into 'ChannelControl'?</a></h4>
+<p>Channels and ChannelGroups had some similar functionality in FMOD Ex (ie setVolume, setPaused), but FMOD Studio takes it even further. FMOD Studio has been designed so that ChannelGroups can have a lot more control, like pausing and muting at the DSP node level, adding effects, and positioning in 3d.</p>
+<h4 id="converting-fmod-reverb-parameters"><a href="#converting-fmod-reverb-parameters">Converting FMOD Reverb parameters</a></h4>
+<p>Reverb parameters have changed in FMOD Studio. Use this table to convert from FMOD Ex parameters to FMOD Studio parameters.</p>
+<table>
+<thead>
+<tr>
+<th>Studio property</th>
+<th align="center">Range</th>
+<th>FMOD Ex property / conversion formula to create FMOD Studio value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DecayTime (ms)</td>
+<td align="center">100 to 20000</td>
+<td>DecayTime * 1000</td>
+</tr>
+<tr>
+<td>EarlyDelay (ms)</td>
+<td align="center">0 to   300</td>
+<td>ReflectionsDelay * 1000</td>
+</tr>
+<tr>
+<td>LateDelay (ms)</td>
+<td align="center">0 to   100</td>
+<td>ReverbDelay * 1000</td>
+</tr>
+<tr>
+<td>HFReference (Hz)</td>
+<td align="center">20 to 20000</td>
+<td>HFReference</td>
+</tr>
+<tr>
+<td>HFDecayRatio (%)</td>
+<td align="center">0 to   100</td>
+<td>DecayHFRatio * 100</td>
+</tr>
+<tr>
+<td>Diffusion (%)</td>
+<td align="center">0 to   100</td>
+<td>Diffusion</td>
+</tr>
+<tr>
+<td>Density (%)</td>
+<td align="center">0 to   100</td>
+<td>Density</td>
+</tr>
+<tr>
+<td>LowShelfFrequency (Hz)</td>
+<td align="center">20 to  1000</td>
+<td>LFReference</td>
+</tr>
+<tr>
+<td>LowShelfGain (dB)</td>
+<td align="center">-48 to    12</td>
+<td>RoomLF / 100</td>
+</tr>
+<tr>
+<td>HighCut (Hz)</td>
+<td align="center">20 to 20000</td>
+<td>IF RoomHF &lt; 0 THEN HFReference / sqrt((1-HFGain) / HFGain) ELSE 20000</td>
+</tr>
+<tr>
+<td>EarlyLateMix (%)</td>
+<td align="center">0 to   100</td>
+<td>IF Reflections &gt; -10000 THEN LateEarlyRatio/(LateEarlyRatio + 1) * 100 ELSE 100</td>
+</tr>
+<tr>
+<td>WetLevel (dB)</td>
+<td align="center">-80 to    20</td>
+<td>10 * log10(EarlyAndLatePower) + Room / 100</td>
+</tr>
+</tbody>
+</table>
+<p>Note: Clamp all values to maximum (after conversion) as some conversions may exceed the new parameter range.</p>
+<table>
+<thead>
+<tr>
+<th>Intermediate variables used in conversion</th>
+<th>Formulas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LateEarlyRatio</td>
+<td>pow(10, (Reverb - Reflections) / 2000)</td>
+</tr>
+<tr>
+<td>EarlyAndLatePower</td>
+<td>pow(10, Reflections / 1000) + pow(10, Reverb / 1000)</td>
+</tr>
+<tr>
+<td>HFGain</td>
+<td>pow(10, RoomHF / 2000)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="system_set3dspeakerposition-renamed"><a href="#system_set3dspeakerposition-renamed">System::set3DSpeakerPosition renamed</a></h4>
+<p><a class="apilink" href="core-api-system.html#system_setspeakerposition" title="Sets the position of the specified speaker for the current speaker mode.">System::setSpeakerPosition</a> is a minor name change to denote that 3d and 2d positioning is affected by speaker location.</p>
+<h4 id="fmod_channel_free-fmod_channel_reuse-removed-default-channelgroup-now-passed-to-playsound-if-needed"><a href="#fmod_channel_free-fmod_channel_reuse-removed-default-channelgroup-now-passed-to-playsound-if-needed">FMOD_CHANNEL_FREE / FMOD_CHANNEL_REUSE removed. Default ChannelGroup now passed to playSound if needed</a></h4>
+<p><a class="apilink" href="core-api-system.html#system_playsound" title="Plays a Sound on a Channel.">System::playSound</a> and <a class="apilink" href="core-api-system.html#system_playdsp" title="Plays a DSP along with any of its inputs on a Channel.">System::playDSP</a> now do not take a 'channel' parameter. All channels behave the same way as FMOD_CHANNEL_FREE would have in FMOD Ex.<br />
+Seeing as a parameter was removed from playSound/playDSP, a new one was added to remove the overhead of disconnecting and reconnecting DSP graph nodes after playSound was called, so that they could be hooked up to a new ChannelGroup other than the master ChannelGroup. Consider this addition a performance optimization, and a simplification in API calls.</p>
+<h4 id="cdrom-cdda-support-removed"><a href="#cdrom-cdda-support-removed">CDROM / CDDA support removed</a></h4>
+<p>Legacy support for CDROM redbook audio playback has been removed due to lack of interest and issues with maintaining said code.</p>
+<h4 id="system_getspectrum-and-system_getwavedata-removed"><a href="#system_getspectrum-and-system_getwavedata-removed">System::getSpectrum and System::getWaveData removed</a></h4>
+<p>Add a custom DSP unit to capture DSP wavedata from the output stage. Use the master channelgroup's DSP head with <a class="apilink" href="core-api-system.html#system_getmasterchannelgroup" title="Retrieves the master ChannelGroup that all sounds ultimately route to.">System::getMasterChannelGroup</a> and <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdsp" title="Retrieves the DSP unit at the specified index in the DSP chain.">ChannelControl::getDSP</a>.<br />
+Add a built in FFT DSP unit type to capture spectrum data from the output stage. Create a built in FFT unit with <a class="apilink" href="core-api-system.html#system_createdspbytype" title="Create a DSP object given a built in type index.">System::createDSPByType</a> and <a class="apilink" href="core-api-common-dsp-effects.html#fmod_dsp_type_fft" title="">FMOD_DSP_TYPE_FFT</a>, then add the effect to the master <a class="apilink" href="core-api-channelgroup.html" title="">ChannelGroup</a> with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a>. Use <a class="apilink" href="core-api-dsp.html#dsp_getparameterdata" title="Retrieves a binary data parameter by index.">DSP::getParameterData</a> to get the raw spectrum data or use <a class="apilink" href="core-api-dsp.html#dsp_getparameterfloat" title="Retrieves a floating point parameter by index.">DSP::getParameterFloat</a> to get the dominant frequency from the signal.</p>
+<h4 id="w-function-wide-char-support-removed"><a href="#w-function-wide-char-support-removed">'W' function wide char support removed</a></h4>
+<p>Functions such as System::getDriverInfoW have been removed in favour of UTF8 support.</p>
+<h4 id="system_setreverbambientproperties-removed"><a href="#system_setreverbambientproperties-removed">System::setReverbAmbientProperties removed</a></h4>
+<p>The 'background' ambient reverb for a 3d reverb system is now just the standard reverb set with <a class="apilink" href="core-api-system.html#system_setreverbproperties" title="Sets parameters for the global reverb environment.">System::setReverbProperties</a>.</p>
+<h4 id="system_getdspclock-removed"><a href="#system_getdspclock-removed">System::getDSPClock removed</a></h4>
+<p>Use the DSP clock of the master ChannelGroup instead with <a class="apilink" href="core-api-system.html#system_getmasterchannelgroup" title="Retrieves the master ChannelGroup that all sounds ultimately route to.">System::getMasterChannelGroup</a> and <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getdspclock" title="Retrieves the DSP clock values at this point in time.">ChannelControl::getDSPClock</a>.</p>
+<h4 id="getmemoryinfo-functions-have-been-removed-from-all-classes"><a href="#getmemoryinfo-functions-have-been-removed-from-all-classes">getMemoryInfo functions have been removed from all classes</a></h4>
+<p>Due to the unreliability of the function in FMOD Ex due to caching, threads, and shared memory throwing results out, the function has been removed. Alternate memory tracking methods will be added later. FMOD::Memory_GetStats and logging is the best way to track memory at the moment.</p>
+<h4 id="sound_setvariations-and-sound_getvariations-have-been-removed"><a href="#sound_setvariations-and-sound_getvariations-have-been-removed">Sound::setVariations and Sound::getVariations have been removed</a></h4>
+<p>Due to this being a 'helper' function that can easily be achieved in user code, this was deemed not necessary and removed.</p>
+<h4 id="sound_setsubsoundsentence-has-been-removed"><a href="#sound_setsubsoundsentence-has-been-removed">Sound::setSubSoundSentence has been removed</a></h4>
+<p>This function has been removed in favour of the extremely precise and more reliable <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setdelay" title="Sets a sample accurate start (and/or stop) time relative to the parent ChannelGroup DSP clock.">ChannelControl::setDelay</a> functionality. 2 or more sounds can be queued up to play end to end using this function, with the added benefit of cross fades and overlaps.</p>
+<h4 id="setdelay-and-clock-functions-now-use-64bit-long-long-type-rather-than-than-32bit-hi-and-32bit-low-part-parameters"><a href="#setdelay-and-clock-functions-now-use-64bit-long-long-type-rather-than-than-32bit-hi-and-32bit-low-part-parameters">setDelay and clock functions now use 64bit 'long long' type rather than than 32bit hi and 32bit low part parameters.</a></h4>
+<p>Due to the complexity of working in fixed point, and seeing as there is a consistent 64bit type for all compilers in long long that FMOD supports, we have switched to this type.<br />
+1 32bit value would wrap around in 24 hours at 48khz, so 64bit values will last for 12 million years which should be enough to avoid in game clock wrap around.</p>
+<h4 id="channel_setspeakermix-channel_setspeakerlevels-channel_setinputchannelmix-channel_getpan-channel_getspeakermix-and-channel_getspeakerlevels-removed"><a href="#channel_setspeakermix-channel_setspeakerlevels-channel_setinputchannelmix-channel_getpan-channel_getspeakermix-and-channel_getspeakerlevels-removed">Channel::setSpeakerMix, Channel::setSpeakerLevels, Channel::setInputChannelMix, Channel::getPan, Channel::getSpeakerMix and Channel::getSpeakerLevels removed</a></h4>
+<p>A cleaner replacement has been made for these functions,</p>
+<ul>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixlevelsoutput" title="Sets the outgoing volume levels for each speaker.">ChannelControl::setMixLevelsOutput</a> (float frontleft, float frontright, float center, float lfe, float surroundleft, float surroundright, float backleft, float backright);</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixlevelsinput" title="Sets the incoming volume level for each channel of a multi-channel signal.">ChannelControl::setMixLevelsInput</a> (float *levels, int numlevels);</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_setmixmatrix" title="Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">ChannelControl::setMixMatrix</a> (float *matrix, int outchannels, int inchannels, int inchannel_hop = 0);</li>
+<li><a class="apilink" href="core-api-channelcontrol.html#channelcontrol_getmixmatrix" title="Retrieves a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">ChannelControl::getMixMatrix</a> (float <em>matrix, int </em>outchannels, int *inchannels, int inchannel_hop = 0);</li>
+</ul>
+<p>Note that because setPan, setMixLevelsOutput and setMixLevelsInput all affect a final pan matrix, only getMixMatrix is available as the 'getter'. There is no more exclusive mode for the panning technique like there was in FMOD Ex. All 3 functions can now affect the final matrix. The setMixMatrix function now allows instant setting of a full matrix for performance reasons, rather than calling setSpeakerLevels each time for each speaker.</p>
+<h4 id="dspconnection_setlevelsgetlevels-have-been-removed"><a href="#dspconnection_setlevelsgetlevels-have-been-removed">DSPConnection::setLevels/getLevels have been removed.</a></h4>
+<p>As above, new functionality is available to produce the same result. Rather than setting output levels row by row, a full 2 dimensional matrix is supplied with <a class="apilink" href="core-api-dspconnection.html#dspconnection_setmixmatrix" title="Sets a 2 dimensional pan matrix that maps the signal from input channels (columns) to output speakers (rows).">DSPConnection::setMixMatrix</a>.</p>
+<h4 id="channel_set3dpanlevel-misnomer-renamed"><a href="#channel_set3dpanlevel-misnomer-renamed">Channel::set3DPanLevel misnomer renamed</a></h4>
+<p>The FMOD Ex function did not actually only affect pan, it also affected doppler and distance attenuation so to call it 'pan' level was not really correct. FMOD Studio corrects this with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_set3dlevel" title="Sets the blend between 3D panning and 2D panning.">ChannelControl::set3DLevel</a>.</p>
+<h4 id="override-functions-removed-from-channelgroup-class"><a href="#override-functions-removed-from-channelgroup-class">'override' functions removed from ChannelGroup class</a></h4>
+<p>Because volume/pitch/muting/reverb properties and pausing has been added as a ChannelGroup concept at the DSP level, ChannelGroups no longer rely on their 'channels' to do pausing and muting type logic. The ChannelGroup's DSP itself will directly mute/pause etc, thanks to the removal of FMOD_HARDWARE support.</p>
+<h4 id="system_adddsp-removed-from-the-system-api"><a href="#system_adddsp-removed-from-the-system-api">System::addDSP removed from the System API</a></h4>
+<p>Rather than using the 'system' to add a DSP to, the user must use <a class="apilink" href="core-api-system.html#system_getmasterchannelgroup" title="Retrieves the master ChannelGroup that all sounds ultimately route to.">System::getMasterChannelGroup</a> which gets the top level channel group, then use <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> to add the DSP to it, which effectively puts at the end of the signal chain.</p>
+<h4 id="dsp_remove-removed-from-the-dsp-api"><a href="#dsp_remove-removed-from-the-dsp-api">DSP::remove removed from the DSP API</a></h4>
+<p>Effects that are added with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_adddsp" title="Adds a DSP unit to the specified index in the DSP chain.">ChannelControl::addDSP</a> are owned by the ChannelControl that added it, and therefore must be removed with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_removedsp" title="Removes the specified DSP unit from the DSP chain.">ChannelControl::removeDSP</a>, instead of having the DSP removing itself. This helps the channelgroup or channel manage resources.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>

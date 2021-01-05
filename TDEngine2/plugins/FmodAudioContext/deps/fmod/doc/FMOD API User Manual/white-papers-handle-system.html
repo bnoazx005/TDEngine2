@@ -1,0 +1,60 @@
+<html>
+<head>
+<title>White Papers | Handle System</title>
+<link rel="stylesheet" href="style/docs.css">
+<link rel="stylesheet" href="style/code_highlight.css">
+<script type="text/javascript" src="scripts/language-selector.js"></script></head>
+<body>
+<div class="docs-body">
+<div class="manual-toc">
+<p>FMOD API User Manual 2.01</p>
+<ul>
+<li><a href="welcome.html">Welcome to FMOD API</a></li>
+<li><a href="studio-guide.html">Studio API Guide</a></li>
+<li><a href="core-guide.html">Core API Guide</a></li>
+<li><a href="platforms.html">Platform Details</a></li>
+<li class="manual-current-chapter manual-inactive-chapter"><a href="white-papers.html">White Papers</a><ul class="subchapters"><li><a href="white-papers-getting-started.html">Getting Started</a></li><li><a href="white-papers-3d-reverb.html">3D Reverb</a></li><li><a href="white-papers-3d-sounds.html">3D Sounds</a></li><li><a href="white-papers-asynchronous-io.html">Asynchronous I/O</a></li><li><a href="white-papers-cpu-performance.html">CPU Performance</a></li><li><a href="white-papers-dsp-architecture.html">DSP Architecture and Usage</a></li><li><a href="white-papers-dsp-plugin-api.html">DSP Plugin API</a></li><li class="manual-current-chapter manual-active-chapter"><a href="white-papers-handle-system.html">Handle System</a></li><li><a href="white-papers-memory-management.html">Memory Management</a></li><li><a href="white-papers-non-blocking-sound-creation.html">Non-blocking Sound Creation</a></li><li><a href="white-papers-spatial-audio.html">Spatial Audio</a></li><li><a href="white-papers-studio-3d-events.html">Studio API 3D Events</a></li><li><a href="white-papers-studio-threads.html">Studio API Threads</a></li><li><a href="white-papers-threads.html">Threads and Thread Safety</a></li><li><a href="white-papers-transitioning-from-fmodex.html">Transitioning from FMOD Ex</a></li><li><a href="white-papers-using-multiple-reverbs.html">Using Multiple Reverbs</a></li><li><a href="white-papers-virtual-voices.html">Virtual Voices</a></li></ul></li>
+<li><a href="studio-api.html">Studio API Reference</a></li>
+<li><a href="core-api.html">Core API Reference</a></li>
+<li><a href="fsbank-api.html">FSBank API Reference</a></li>
+<li><a href="plugin-api.html">Plugin API Reference</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="manual-content api">
+<h1>5. White Papers | Handle System</h1>
+<div class="toc">
+<ul>
+<li><a href="#handle-system">Handle System</a><ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#general-information">General Information</a></li>
+<li><a href="#core-api-channels">Core API Channels</a></li>
+<li><a href="#core-api-channel-groups">Core API Channel Groups</a></li>
+<li><a href="#core-api-system">Core API System</a></li>
+<li><a href="#studio-api-types">Studio API Types</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="handle-system"><a href="#handle-system">Handle System</a></h2>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>The FMOD Studio and Core API returns pointers to types. Some of these types are actually implemented as an underlying handle with the handle data represented to the user as a pointer type. This section explains the underlying representation and lifetime of these objects.</p>
+<h3 id="general-information"><a href="#general-information">General Information</a></h3>
+<p>All FMOD types, whether they are represented internally via pointer or handle, look like a pointer type. No matter the type, a null pointer will never be returned as a valid result, but it is not safe to assume anything else about the pointer value. The user should not assume that the pointer value falls in any particular address range, or that it has any zero bits in the bottom of the pointer value address.</p>
+<p>All FMOD types are equivalent for both the C and C++ API. It is possible to cast between the appropriate types by re-interpreting the pointer type directly.</p>
+<h3 id="core-api-channels"><a href="#core-api-channels">Core API Channels</a></h3>
+<p>FMOD Channels are returned to the user as a pointer but actually consist of 32bits of packed integer handle data. This allows channels to be re-used safely.</p>
+<p>If a Channel is stopped with <a class="apilink" href="core-api-channelcontrol.html#channelcontrol_stop" title="Stops the Channel (or all Channels in nested ChannelGroups) from playing.">ChannelControl::stop</a> or ends naturally, the Channel handle will become invalid and return <a class="apilink" href="core-api-common.html#fmod_err_invalid_handle" title="">FMOD_ERR_INVALID_HANDLE</a>.</p>
+<p>If not enough channels are specified at <a class="apilink" href="core-api-system.html#system_init" title="Initialize the system object and prepare FMOD for playback.">System::init</a> and an existing virtual channel is stolen by the FMOD priority system, then the handle to the stolen channel becomes 'invalid'.  Subsequent Channel commands to a stolen handle will return <a class="apilink" href="core-api-common.html#fmod_err_channel_stolen" title="">FMOD_ERR_CHANNEL_STOLEN</a>.</p>
+<h3 id="core-api-channel-groups"><a href="#core-api-channel-groups">Core API Channel Groups</a></h3>
+<p>FMOD Channel Groups are returned to the user directly as a pointer. Once the user destroys a channel group, it is not safe to call FMOD functions with that pointer.</p>
+<h3 id="core-api-system"><a href="#core-api-system">Core API System</a></h3>
+<p>FMOD system object is returned to the user directly as a pointer. Once the user destroys the core system, is is not safe to call FMOD functions with that pointer.</p>
+<h3 id="studio-api-types"><a href="#studio-api-types">Studio API Types</a></h3>
+<p>FMOD Studio types are returned to the user as a pointer but actually consist of packed handle data. If the underlying type has been destroyed then the API will return <a class="apilink" href="core-api-common.html#fmod_err_invalid_handle" title="">FMOD_ERR_INVALID_HANDLE</a>. An example of this would be unloading a Studio::Bank and then referencing a Studio::EventDescription belonging to that bank.</p></div>
+
+<p class="manual-footer">FMOD API User Manual 2.01.07 (2020-12-17). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+</body>
+</html>
+
+</div>
