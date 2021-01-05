@@ -378,6 +378,8 @@ namespace TDEngine2
 				return "Window system";
 			case EST_GRAPHICS_CONTEXT:
 				return "Graphics Context";
+			case EST_AUDIO_CONTEXT:
+				return "Audio Context";
 			case EST_FILE_SYSTEM:
 				return "File Manager";
 			case EST_RESOURCE_MANAGER:

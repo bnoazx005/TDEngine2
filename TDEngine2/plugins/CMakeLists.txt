@@ -5,6 +5,7 @@ option(BUILD_WINDOWS_INPUTCTX_PLUGIN "Build Windows input context plugin" ON)
 option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
 option(BUILD_IMGUI_CTX_PLUGIN "Build IMGUI context plugin" ON)
+option(BUILD_FMOD_AUDIO_CTX_PLUGIN "Build FMOD audio context plugin" ON)
 
 if (BUILD_D3D11_GCTX_PLUGIN)
 	if (MSVC)
@@ -41,3 +42,9 @@ if (BUILD_IMGUI_CTX_PLUGIN)
 
 	add_subdirectory(ImGUIContext)
 endif (BUILD_IMGUI_CTX_PLUGIN)
+
+if (BUILD_FMOD_AUDIO_CTX_PLUGIN)
+	message(STATUS "FMOD audio context's compilation is enabled")
+
+	add_subdirectory(FmodAudioContext)
+endif (BUILD_FMOD_AUDIO_CTX_PLUGIN)

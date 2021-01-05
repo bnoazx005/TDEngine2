@@ -122,6 +122,37 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBaseEngineCoreBuilder::_configureAudioContext(E_AUDIO_CONTEXT_API_TYPE type)
+	{
+		if (!mIsInitialized || !mpPluginManagerInstance)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		switch (type)
+		{
+			case E_AUDIO_CONTEXT_API_TYPE::FMOD:
+#if defined (TDE2_USE_WIN32PLATFORM)
+			result = mpPluginManagerInstance->LoadPlugin("FmodAudioContext");
+#elif defined (TDE2_USE_UNIXPLATFORM)
+			result = mpPluginManagerInstance->LoadPlugin("./FmodAudioContext");
+#else
+#endif
+
+			if (result != RC_OK)
+			{
+				return result;
+			}
+			break;
+		default:
+			return RC_FAIL;
+		}
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags)
 	{
 		if (!mIsInitialized || !mpEventManagerInstance)
@@ -534,6 +565,7 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configureWindowSystem(engineSettings.mApplicationName, engineSettings.mWindowWidth, engineSettings.mWindowHeight, engineSettings.mFlags));
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(engineSettings.mGraphicsContextType));
+		PANIC_ON_FAILURE(_configureAudioContext(engineSettings.mAudioContextType));
 		PANIC_ON_FAILURE(_configureInputContext());
 		PANIC_ON_FAILURE(_configureSceneManager());
 

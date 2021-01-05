@@ -60,6 +60,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _configureGraphicsContext(E_GRAPHICS_CONTEXT_GAPI_TYPE type) override;
 
 			/*!
+				\brief The method configures an audio context based on type of middleware API
+
+				\param[in] type A type of a middleware which is a basis for the context
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE _configureAudioContext(E_AUDIO_CONTEXT_API_TYPE type) override;
+
+			/*!
 				\brief The method tries to configure windows system based on specified parameters.
 				The window system is chosen based on macro definitions, which are declared in Config.h file.
 

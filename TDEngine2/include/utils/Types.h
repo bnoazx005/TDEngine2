@@ -106,6 +106,7 @@ namespace TDEngine2
 		EST_SCENE_MANAGER,				/// A subsystem that operates with scenes (load, unload them)
 		EST_LOCALIZATION_MANAGER,		/// A subsystem that implements a manager of locales
 		EST_SAVE_MANAGER,				/// A subsystem that provides work with game saves
+		EST_AUDIO_CONTEXT,				///
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 
@@ -121,6 +122,19 @@ namespace TDEngine2
 		GCGT_DIRECT3D11,	/// Direct3D 11.0 and above
 		GCGT_OPENGL3X,		/// OpenGL of version 3.0 and above
 		GCGT_UNKNOWN
+	};
+
+
+	/*!
+		enum E_AUDIO_CONTEXT_API_TYPE
+
+		\brief The enumeration contains all avaiable types for audio context. For now only FMOD middle-ware is supported
+	*/
+
+	enum class E_AUDIO_CONTEXT_API_TYPE : U8
+	{
+		FMOD,
+		UNKNOWN
 	};
 
 
@@ -602,6 +616,8 @@ namespace TDEngine2
 	typedef struct TEngineSettings
 	{
 		E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType;
+
+		E_AUDIO_CONTEXT_API_TYPE     mAudioContextType;
 
 		std::string                  mApplicationName;
 

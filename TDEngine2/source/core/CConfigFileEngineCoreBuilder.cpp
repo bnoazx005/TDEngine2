@@ -65,6 +65,7 @@ namespace TDEngine2
 
 		settings.mTotalPreallocatedMemorySize = pConfigFileReader->GetInt("memory", "total-preallocated-memory-size", DefaultGlobalMemoryBlockSize);
 		settings.mGraphicsContextType         = StringToGraphicsContextType(pConfigFileReader->GetString("graphics", "context-type", "unknown"));
+		settings.mAudioContextType            = E_AUDIO_CONTEXT_API_TYPE::FMOD;
 
 		pConfigFileReader->Close();
 
