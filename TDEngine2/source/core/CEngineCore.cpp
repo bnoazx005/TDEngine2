@@ -12,6 +12,7 @@
 #include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/IAudioContext.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CSpriteRendererSystem.h"
 #include "../../include/ecs/CTransformSystem.h"
@@ -302,11 +303,14 @@ namespace TDEngine2
 
 		_onNotifyEngineListeners(EET_ONUPDATE);
 
-		IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER);
-
-		if (pRenderer)
+		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
 		{
 			pRenderer->Draw(mpInternalTimer->GetCurrTime(), mpInternalTimer->GetDeltaTime());
+		}
+
+		if (IAudioContext* pAudioContext = _getSubsystemAs<IAudioContext>(EST_AUDIO_CONTEXT))
+		{
+			pAudioContext->Update();
 		}
 
 #if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE

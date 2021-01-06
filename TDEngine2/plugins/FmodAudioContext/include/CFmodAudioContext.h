@@ -11,6 +11,15 @@
 #include <atomic>
 
 
+namespace FMOD
+{
+	namespace Studio
+	{
+		class System;
+	}
+}
+
+
 namespace TDEngine2
 {
 	/*!
@@ -48,6 +57,13 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
+				\brief The method updates an internal state of the context
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Update() override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
@@ -57,7 +73,11 @@ namespace TDEngine2
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFMODAudioContext)
+
+			TDE2_API E_RESULT_CODE _initInternalContext();
 		protected:
 			std::atomic_bool mIsInitialized;
+			
+			FMOD::Studio::System* mpSystem;
 	};
 }
