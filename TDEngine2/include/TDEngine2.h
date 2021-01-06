@@ -255,3 +255,7 @@
 #if defined (TDE2_BUILD_OGL_GCTX_PLUGIN)
 	#include "./../plugins/OGLGraphicsContext/include/COGLGCtxPlugin.h"
 #endif
+
+#if defined(TDE2_BUILD_FMOD_CTX_PLUGIN)
+	#include "../plugins/FmodAudioContext/include/CFmodAudioCtxPlugin.h"
+#endif

@@ -285,6 +285,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			int x = 0;
 		});
 #endif
+
+		mpResourceManager->Load<CFMODAudioClip>("test_sample.wav");
 	}
 
 	return RC_OK;

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "CFmodAudioClip.h"
+
 
 #include <core/CBaseObject.h>
 #include <core/IPlugin.h>
@@ -57,6 +59,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFMODAudioCtxPlugin)
 
+			TDE2_API E_RESULT_CODE _registerResourceFactories(IEngineCore* pEngineCore);
+			TDE2_API E_RESULT_CODE _registerResourceLoaders(IEngineCore* pEngineCore);
 		protected:
 			IEngineCore*   mpEngineCoreInstance;
 
