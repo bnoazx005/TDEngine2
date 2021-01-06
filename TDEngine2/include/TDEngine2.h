@@ -146,6 +146,9 @@
 #include "graphics/animation/CAnimationClip.h"
 #include "graphics/animation/IAnimationTrack.h"
 
+/// audio
+#include "audio/IAudioSource.h"
+
 ///editor
 #include "editor/IProfiler.h"
 #include "editor/CPerfProfiler.h"

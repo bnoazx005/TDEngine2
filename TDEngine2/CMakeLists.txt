@@ -179,6 +179,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/animation/IAnimationClip.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/animation/CAnimationClip.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/animation/IAnimationTrack.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/audio/IAudioSource.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/editor/IProfiler.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/editor/CPerfProfiler.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/editor/IEditorsManager.h"
