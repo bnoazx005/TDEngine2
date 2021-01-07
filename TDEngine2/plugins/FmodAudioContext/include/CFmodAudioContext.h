@@ -17,6 +17,8 @@ namespace FMOD
 	{
 		class System;
 	}
+
+	class System;
 }
 
 
@@ -64,12 +66,21 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Update() override;
 
 			/*!
+				\brief The method runs playback of the source
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Play(IAudioSource* pAudioSource) override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value
 			*/
 
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
+
+			TDE2_API FMOD::System* GetInternalContext() const;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFMODAudioContext)
@@ -79,5 +90,6 @@ namespace TDEngine2
 			std::atomic_bool mIsInitialized;
 			
 			FMOD::Studio::System* mpSystem;
+			FMOD::System* mpCoreSystem;
 	};
 }

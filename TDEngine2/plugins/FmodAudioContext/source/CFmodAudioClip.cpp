@@ -1,5 +1,9 @@
 #include "../include/CFmodAudioClip.h"
-#include <core/IAudioContext.h>
+#include "../include/CFmodAudioContext.h"
+#include <fmod.hpp>
+#include <fmod_studio.hpp>
+#include <fmod_errors.h>
+#include <fmod_common.h>
 
 
 namespace TDEngine2
@@ -13,10 +17,12 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = _init(pResourceManager, name);
 
-		if (result != RC_OK)
+		if (RC_OK != result)
 		{
 			return result;
 		}
+
+		mpAudioContext = pAudioContext;
 
 		mIsInitialized = true;
 
@@ -25,7 +31,34 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFMODAudioClip::Reset()
 	{
+		return ResetInternalSoundHandle(nullptr);
+	}
+
+	E_RESULT_CODE CFMODAudioClip::ResetInternalSoundHandle(FMOD::Sound* pSoundHandle)
+	{
+		if (!pSoundHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (mpSoundHandle)
+		{
+			mpSoundHandle->release();
+		}
+
+		mpSoundHandle = pSoundHandle;
+		
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CFMODAudioClip::Play()
+	{
+		return mpAudioContext->Play(this);
+	}
+
+	FMOD::Sound* CFMODAudioClip::GetInternalHandle() const
+	{
+		return mpSoundHandle;
 	}
 
 	const IResourceLoader* CFMODAudioClip::_getResourceLoader()
@@ -91,11 +124,25 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
+		CFMODAudioClip* pAudioClip = dynamic_cast<CFMODAudioClip*>(pResource);
+		if (!pAudioClip)
+		{
+			return RC_INVALID_ARGS;
+		}
 
-		TDE2_UNIMPLEMENTED();
+		CFMODAudioContext* pAudioContext = dynamic_cast<CFMODAudioContext*>(mpAudioContext);
 
-		return result;
+		FMOD::Sound* pSound = nullptr;
+
+		FMOD_RESULT result = pAudioContext->GetInternalContext()->createSound(pAudioClip->GetName().c_str(), FMOD_NONBLOCKING, nullptr, &pSound);
+		if (FMOD_OK != result)
+		{
+			return RC_FAIL;
+		}
+
+		pSound->setMode(FMOD_LOOP_OFF);
+
+		return pAudioClip->ResetInternalSoundHandle(pSound);
 	}
 
 	TypeId CFMODAudioClipLoader::GetResourceTypeId() const

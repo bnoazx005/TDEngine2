@@ -38,6 +38,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IAudioContext* pAudioContext, const std::string& name) = 0;
+
+			/*!
+				\brief The method runs playback of the audio source
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Play() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAudioSource)
 	};

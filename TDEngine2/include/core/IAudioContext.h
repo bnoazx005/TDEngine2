@@ -14,6 +14,9 @@
 
 namespace TDEngine2
 {
+	class IAudioSource;
+
+
 	/*!
 		interface IAudioContext
 
@@ -37,6 +40,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Update() = 0;
+
+			/*!
+				\brief The method runs playback of the source
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Play(IAudioSource* pAudioSource) = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return E_ENGINE_SUBSYSTEM_TYPE::EST_AUDIO_CONTEXT; }
 	protected:

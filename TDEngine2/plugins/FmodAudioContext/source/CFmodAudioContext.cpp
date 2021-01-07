@@ -1,4 +1,5 @@
 #include "../include/CFMODAudioContext.h"
+#include "../include/CFmodAudioClip.h"
 #include <stringUtils.hpp>
 #include <utils/CFileLogger.h>
 #include <utils/Utils.h>
@@ -65,9 +66,33 @@ namespace TDEngine2
 		return (mpSystem->update() == FMOD_OK) ? RC_OK : RC_FAIL;
 	}
 
+	E_RESULT_CODE CFMODAudioContext::Play(IAudioSource* pAudioSource)
+	{
+		if (!pAudioSource)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (CFMODAudioClip* pAudioClip = dynamic_cast<CFMODAudioClip*>(pAudioSource))
+		{
+			FMOD_RESULT result = mpCoreSystem->playSound(pAudioClip->GetInternalHandle(), nullptr, false, 0);
+			if (FMOD_OK != result)
+			{
+				return RC_FAIL;
+			}
+		}
+
+		return RC_FAIL;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CFMODAudioContext::GetType() const
 	{
 		return E_ENGINE_SUBSYSTEM_TYPE::EST_AUDIO_CONTEXT;
+	}
+
+	FMOD::System* CFMODAudioContext::GetInternalContext() const
+	{
+		return mpCoreSystem;
 	}
 
 	E_RESULT_CODE CFMODAudioContext::_initInternalContext()
@@ -86,6 +111,13 @@ namespace TDEngine2
 
 		// Initialize FMOD Studio, which will also initialize FMOD Core
 		result = mpSystem->initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0);
+		if (FMOD_OK != result)
+		{
+			logError(result);
+			return RC_FAIL;
+		}
+
+		result = mpSystem->getCoreSystem(&mpCoreSystem);
 		if (FMOD_OK != result)
 		{
 			logError(result);

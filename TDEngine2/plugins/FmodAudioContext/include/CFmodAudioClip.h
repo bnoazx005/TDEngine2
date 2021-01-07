@@ -11,6 +11,11 @@
 #include <core/CBaseResource.h>
 
 
+namespace FMOD
+{
+	class Sound;
+}
+
 namespace TDEngine2
 {
 	/*!
@@ -54,6 +59,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IAudioContext* pAudioContext, const std::string& name) override;
 
 			/*!
+				\brief The method should be called with a valid object. It requests a handle to FMOD sound object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ResetInternalSoundHandle(FMOD::Sound* pSoundHandle);
+
+			/*!
 				\brief The method resets current internal data of a resource
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -61,11 +74,23 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Reset() override;
 
+			/*!
+				\brief The method runs playback of the audio source
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Play() override;
+
+			FMOD::Sound* GetInternalHandle() const;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFMODAudioClip)
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
+			IAudioContext* mpAudioContext;
+
+			FMOD::Sound* mpSoundHandle;
 			
 	};
 
