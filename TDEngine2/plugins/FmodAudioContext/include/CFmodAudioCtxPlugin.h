@@ -7,6 +7,7 @@
 #pragma once
 
 #include "CFmodAudioClip.h"
+#include "CFmodAudioListenerUpdateSystem.h"
 
 
 #include <core/CBaseObject.h>
@@ -61,6 +62,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _registerResourceFactories(IEngineCore* pEngineCore);
 			TDE2_API E_RESULT_CODE _registerResourceLoaders(IEngineCore* pEngineCore);
+
+			TDE2_API E_RESULT_CODE _registerSystems(IEngineCore* pEngineCore);
 		protected:
 			IEngineCore*   mpEngineCoreInstance;
 

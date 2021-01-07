@@ -8,6 +8,7 @@
 
 #include <core/IAudioContext.h>
 #include <core/Event.h>
+#include <math/TVector3.h>
 #include <atomic>
 
 
@@ -72,6 +73,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Play(IAudioSource* pAudioSource) override;
 
+			TDE2_API E_RESULT_CODE SetListenerPosition(const TVector3& position) override;
+
+			TDE2_API const TVector3& GetListenerPosition() const override;
+
 			/*!
 				\brief The method returns a type of the subsystem
 
@@ -91,5 +96,7 @@ namespace TDEngine2
 			
 			FMOD::Studio::System* mpSystem;
 			FMOD::System* mpCoreSystem;
+
+			TVector3 mCurrListenerPosition;
 	};
 }

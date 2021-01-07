@@ -14,6 +14,7 @@
 
 namespace TDEngine2
 {
+	struct TVector3;
 	class IAudioSource;
 
 
@@ -47,6 +48,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Play(IAudioSource* pAudioSource) = 0;
+
+			TDE2_API virtual E_RESULT_CODE SetListenerPosition(const TVector3& position) = 0;
+
+			TDE2_API virtual const TVector3& GetListenerPosition() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return E_ENGINE_SUBSYSTEM_TYPE::EST_AUDIO_CONTEXT; }
 	protected:

@@ -16,6 +16,7 @@
 #include "../../include/physics/3D/CTrigger3D.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
+#include "../../include/scene/components/AudioComponents.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 
@@ -372,6 +373,7 @@ namespace TDEngine2
 			CreateDirectionalLightFactory,
 			CreateShadowCasterComponentFactory,
 			CreateShadowReceiverComponentFactory,
+			CreateAudioListenerComponentFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
@@ -421,6 +423,7 @@ namespace TDEngine2
 			CDirectionalLight::GetTypeId(),
 			CShadowCasterComponent::GetTypeId(),
 			CShadowReceiverComponent::GetTypeId(),
+			CAudioListenerComponent::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 			CSceneInfoComponent::GetTypeId(),

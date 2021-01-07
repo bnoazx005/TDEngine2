@@ -207,6 +207,7 @@
 #include "scene/components/ILight.h"
 #include "scene/components/CBaseLight.h"
 #include "scene/components/CDirectionalLight.h"
+#include "scene/components/AudioComponents.h"
 #include "scene/ISceneManager.h"
 #include "scene/CSceneManager.h"
 #include "scene/IScene.h"

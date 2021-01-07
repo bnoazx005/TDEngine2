@@ -85,6 +85,26 @@ namespace TDEngine2
 		return RC_FAIL;
 	}
 
+	E_RESULT_CODE CFMODAudioContext::SetListenerPosition(const TVector3& position)
+	{
+		mCurrListenerPosition = position;
+
+		const FMOD_VECTOR pos { position.x, position.y, position.z };
+
+		// \todo Update this with proper orienting using camera's data
+		const FMOD_VECTOR forward { ForwardVector3.x, ForwardVector3.y, ForwardVector3.z };
+		const FMOD_VECTOR up { UpVector3.x, UpVector3.y, UpVector3.z };
+
+		mpCoreSystem->set3DListenerAttributes(0, &pos, nullptr, &forward, &up);
+
+		return RC_OK;
+	}
+
+	const TVector3& CFMODAudioContext::GetListenerPosition() const
+	{
+		return mCurrListenerPosition;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CFMODAudioContext::GetType() const
 	{
 		return E_ENGINE_SUBSYSTEM_TYPE::EST_AUDIO_CONTEXT;
