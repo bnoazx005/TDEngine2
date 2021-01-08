@@ -55,7 +55,6 @@ namespace TDEngine2
 		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform, CAudioListenerComponent>();
 		if (entities.empty())
 		{
-			TDE2_ASSERT(false);
 			return;
 		}
 

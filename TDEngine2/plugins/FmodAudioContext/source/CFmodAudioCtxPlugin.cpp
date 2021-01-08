@@ -1,8 +1,10 @@
 #include "../include/CFmodAudioCtxPlugin.h"
 #include "../include/CFmodAudioContext.h"
+#include "../include/CFmodAudioListenerUpdateSystem.h"
 #include <core/IEngineCore.h>
 #include <core/IAudioContext.h>
 #include <core/IFileSystem.h>
+#include <ecs/IWorld.h>
 
 
 namespace TDEngine2
@@ -42,7 +44,6 @@ namespace TDEngine2
 
 		result = result | _registerResourceFactories(pEngineCore);
 		result = result | _registerResourceLoaders(pEngineCore);
-		result = result | _registerSystems(pEngineCore);
 
 		if (RC_OK != result)
 		{
@@ -64,6 +65,33 @@ namespace TDEngine2
 		delete this;
 
 		mIsInitialized = false;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CFMODAudioCtxPlugin::OnRegister(IEngineCore* pEngineCore, IWorld* pWorld)
+	{
+		if (!pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		std::vector<ISystem*> builtinSystems
+		{
+			CreateAudioListenerUpdateSystem(mpAudioContext, result),
+		};
+
+		for (ISystem* pCurrSystem : builtinSystems)
+		{
+			if (!pCurrSystem)
+			{
+				continue;
+			}
+
+			pWorld->RegisterSystem(pCurrSystem);
+		}
 
 		return RC_OK;
 	}
@@ -144,11 +172,6 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
-	}
-
-	E_RESULT_CODE CFMODAudioCtxPlugin::_registerSystems(IEngineCore* pEngineCore)
-	{
-		return RC_NOT_IMPLEMENTED_YET;
 	}
 }
 
