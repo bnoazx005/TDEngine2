@@ -13,6 +13,7 @@
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IAudioContext.h"
+#include "../../include/core/IPluginManager.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CSpriteRendererSystem.h"
 #include "../../include/ecs/CTransformSystem.h"
@@ -116,7 +117,7 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-		
+
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		E_RESULT_CODE result = RC_OK;
@@ -142,7 +143,7 @@ namespace TDEngine2
 
 		/// \note Try to get a pointer to IImGUIContext implementation
 		mpImGUIContext = _getSubsystemAs<IImGUIContext>(EST_IMGUI_CONTEXT);
-		
+
 		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
 
 		/// \note we can proceed if the window wasn't initialized properly or some error has happened within user's code
@@ -152,13 +153,18 @@ namespace TDEngine2
 		}
 
 		/// \todo This is not critical error, but for now I leave it as is
-		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem, 
-											  _getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT),
-											  _getSubsystemAs<IRenderer>(EST_RENDERER),
-											  _getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER),
-											  _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))) != RC_OK)
+		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem,
+			_getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT),
+			_getSubsystemAs<IRenderer>(EST_RENDERER),
+			_getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER),
+			_getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))) != RC_OK)
 		{
 			return result;
+		}
+
+		if (IPluginManager* pPluginManager = _getSubsystemAs<IPluginManager>(EST_PLUGIN_MANAGER))
+		{
+			pPluginManager->RegisterECSComponents(mpWorldInstance);
 		}
 
 		mpInternalTimer = pWindowSystem->GetTimer();

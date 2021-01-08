@@ -14,6 +14,7 @@
 namespace TDEngine2
 {
 	class IEngineCore;
+	class IWorld;
 
 
 	/*!
@@ -46,6 +47,28 @@ namespace TDEngine2
 			TDE2_API virtual const TPluginInfo& GetInfo() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPlugin)
+	};
+
+
+	/*!
+		\brief If some plugin needs to work with ECS's world or something like that, it should implement this interface
+	*/
+
+	class IECSPlugin
+	{
+		public:
+			/*!
+				\brief The method is called before OnStart method from IEngineListener and after IWorld is fully initialized and ready to run
+
+				\param[in, out] pEngineCore A pointer to IEngineCore's implementation
+				\param[in, out] pWorld A pointer to IWorld's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE OnRegister(IEngineCore* pEngineCore, IWorld* pWorld) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IECSPlugin)
 	};
 
 

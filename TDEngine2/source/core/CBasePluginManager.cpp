@@ -183,6 +183,26 @@ namespace TDEngine2
 		return result;
 	}
 
+	E_RESULT_CODE CBasePluginManager::RegisterECSComponents(IWorld* pWorld)
+	{
+		if (!pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		for (auto&& currPlugin : mLoadedPlugins)
+		{
+			if (auto pECSPlugin = dynamic_cast<IECSPlugin*>(currPlugin.second))
+			{
+				result = result | pECSPlugin->OnRegister(mpEngineCore, pWorld);
+			}
+		}
+
+		return result;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CBasePluginManager::GetType() const
 	{
 		return EST_PLUGIN_MANAGER;
