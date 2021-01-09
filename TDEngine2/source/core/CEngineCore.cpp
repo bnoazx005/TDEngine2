@@ -27,6 +27,8 @@
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/ITimer.h"
+#define META_IMPLEMENTATION
+#include "../../include/metadata.h"
 
 #if TDE2_EDITORS_ENABLED
 #include "../../include/editor/IEditorsManager.h"
@@ -475,7 +477,7 @@ namespace TDEngine2
 
 		mSubsystems[subsystemType] = pSubsystem;
 
-		LOG_MESSAGE(std::string("[Engine Core] A new subsystem was successfully registered: ").append(EngineSubsystemTypeToString(pSubsystem->GetType())));
+		LOG_MESSAGE(std::string("[Engine Core] A new subsystem was successfully registered: ").append(Meta::EnumTrait<E_ENGINE_SUBSYSTEM_TYPE>::ToString(pSubsystem->GetType())));
 
 		return RC_OK;
 	}
@@ -495,7 +497,7 @@ namespace TDEngine2
 
 		const static U16 statusStringLength = 64;
 
-		std::string subsystemName = std::move(std::string("[Engine Core] ").append(EngineSubsystemTypeToString(subsystemType)));
+		std::string subsystemName = std::move(std::string("[Engine Core] ").append(Meta::EnumTrait<E_ENGINE_SUBSYSTEM_TYPE>::ToString(subsystemType)));
 
 		MainLogger->LogStatus(subsystemName, result != RC_OK ? "FAILED" : "OK", '.', static_cast<U16>(statusStringLength - subsystemName.size()));
 

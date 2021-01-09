@@ -561,9 +561,6 @@ namespace TDEngine2
 	};
 
 
-	TDE2_API std::string EngineSubsystemTypeToString(E_ENGINE_SUBSYSTEM_TYPE type);
-
-
 	/*!
 		\brief The helper function is used to simplify code when it's needed to
 		store either a valid pointer or some default alternative one
