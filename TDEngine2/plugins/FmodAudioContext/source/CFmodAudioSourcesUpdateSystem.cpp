@@ -68,11 +68,14 @@ namespace TDEngine2
 
 		FMOD::System* pCoreSystem = dynamic_cast<CFMODAudioContext*>(mpAudioContext)->GetInternalContext();
 
-		auto updateParameters = [](CAudioSourceComponent* pAudioSource, FMOD::Channel*& pChannel)
+		auto updateParameters = [](CAudioSourceComponent* pAudioSource, const TVector3& position, FMOD::Channel*& pChannel)
 		{
 			pChannel->setVolume(pAudioSource->GetVolume());
 			pChannel->setPan(pAudioSource->GetPanning());
 			pChannel->setMute(pAudioSource->IsMuted());
+
+			const FMOD_VECTOR pos{ position.x, position.y, position.z };
+			pChannel->set3DAttributes(&pos, nullptr);
 
 			if (pAudioSource->IsLooped())
 			{
@@ -90,11 +93,13 @@ namespace TDEngine2
 				continue;
 			}
 
+			const TVector3& position = pEntity->GetComponent<CTransform>()->GetPosition();
+
 			if (CAudioSourceComponent* pAudioSource = pEntity->GetComponent<CAudioSourceComponent>())
 			{
 				if (pAudioSource->IsPlaying())
 				{
-					updateParameters(pAudioSource, mpActiveChannels.at(currEntityId));
+					updateParameters(pAudioSource, position, mpActiveChannels.at(currEntityId));
 					continue;
 				}
 
@@ -114,7 +119,7 @@ namespace TDEngine2
 
 					mpActiveChannels.insert({ currEntityId, pNewChannel });
 
-					updateParameters(pAudioSource, pNewChannel);
+					updateParameters(pAudioSource, position, pNewChannel);
 					pAudioSource->SetPlaying(true);
 				}
 			}
