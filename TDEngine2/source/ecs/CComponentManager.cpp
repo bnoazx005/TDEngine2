@@ -374,6 +374,7 @@ namespace TDEngine2
 			CreateShadowCasterComponentFactory,
 			CreateShadowReceiverComponentFactory,
 			CreateAudioListenerComponentFactory,
+			CreateAudioSourceComponentFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
@@ -424,6 +425,7 @@ namespace TDEngine2
 			CShadowCasterComponent::GetTypeId(),
 			CShadowReceiverComponent::GetTypeId(),
 			CAudioListenerComponent::GetTypeId(),
+			CAudioSourceComponent::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 			CSceneInfoComponent::GetTypeId(),

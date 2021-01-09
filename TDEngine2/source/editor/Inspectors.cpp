@@ -14,6 +14,7 @@
 #include "../../include/physics/3D/CTrigger3D.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/AudioComponents.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CLevelEditorWindow.h"
 
@@ -44,6 +45,10 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CSphereCollisionObject3D::GetTypeId(), DrawSphereCollision3DGUI);
 		result = result | editor.RegisterInspector(CConvexHullCollisionObject3D::GetTypeId(), DrawConvexHullCollision3DGUI);
 		result = result | editor.RegisterInspector(CTrigger3D::GetTypeId(), DrawTrigger3DGUI);
+
+		/// Audio
+		result = result | editor.RegisterInspector(CAudioListenerComponent::GetTypeId(), DrawAudioListenerGUI);
+		result = result | editor.RegisterInspector(CAudioSourceComponent::GetTypeId(), DrawAudioSourceGUI);
 
 		result = result | editor.RegisterInspector(CSelectedEntityComponent::GetTypeId(), [](auto&, auto&) { /* Do nothing for hidden components */ });
 
@@ -203,6 +208,40 @@ namespace TDEngine2
 		if (imguiContext.CollapsingHeader("Trigger3D", true))
 		{
 			// \todo Implement this drawer
+		}
+	}
+
+
+	void CDefeaultInspectorsRegistry::DrawAudioSourceGUI(IImGUIContext& imguiContext, IComponent& component)
+	{
+		if (imguiContext.CollapsingHeader("Audio Source", true))
+		{
+			CAudioSourceComponent& audioSource = dynamic_cast<CAudioSourceComponent&>(component);
+
+			imguiContext.Label(audioSource.GetAudioClipId());
+
+			// boolean staffs
+			bool isMuted = audioSource.IsMuted();
+			imguiContext.Checkbox("Mute", isMuted);
+			audioSource.SetMuted(isMuted);
+
+			bool isLooped = audioSource.IsLooped();
+			imguiContext.Checkbox("Loop", isLooped);
+			audioSource.SetLooped(isLooped);
+
+			// float
+			F32 volume = audioSource.GetVolume();
+			imguiContext.FloatSlider("Volume", volume, 0.0f, 1.0f, [&audioSource, &volume] { audioSource.SetVolume(volume); });
+
+			F32 panning = audioSource.GetPanning();
+			imguiContext.FloatSlider("Panning", panning, -1.0f, 1.0f, [&audioSource, &panning] { audioSource.SetPanning(panning); });
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawAudioListenerGUI(IImGUIContext& imguiContext, IComponent& component)
+	{
+		if (imguiContext.CollapsingHeader("Audio Listener", true))
+		{
 		}
 	}
 }

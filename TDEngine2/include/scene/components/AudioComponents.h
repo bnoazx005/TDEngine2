@@ -92,18 +92,20 @@ namespace TDEngine2
 			TDE2_API void SetMuted(bool value);
 			TDE2_API void SetPaused(bool value);
 			TDE2_API void SetLooped(bool value);
+			TDE2_API void SetPlaying(bool value);
 
 			TDE2_API E_RESULT_CODE SetVolume(F32 value);
 			TDE2_API E_RESULT_CODE SetPanning(F32 value);
 
-			TDE2_API const std::string& GetAudioClipId(const std::string& id) const;
+			TDE2_API const std::string& GetAudioClipId() const;
 
-			TDE2_API bool IsMuted(bool value) const;
-			TDE2_API bool IsPaused(bool value) const;
-			TDE2_API bool IsLooped(bool value) const;
+			TDE2_API bool IsMuted() const;
+			TDE2_API bool IsPaused() const;
+			TDE2_API bool IsLooped() const;
+			TDE2_API bool IsPlaying() const;
 
-			TDE2_API F32 GetVolume(F32 value) const;
-			TDE2_API F32 GetPanning(F32 value) const;
+			TDE2_API F32 GetVolume() const;
+			TDE2_API F32 GetPanning() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAudioSourceComponent)
 		protected:
@@ -112,6 +114,7 @@ namespace TDEngine2
 			bool mIsMuted;
 			bool mIsPaused;
 			bool mIsLooped;
+			bool mIsPlaying;
 
 			F32 mVolume;
 			F32 mPanning;

@@ -20,6 +20,7 @@ set(FMOD_AUDIO_CTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CFmodAudioContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CFmodAudioClip.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CFmodAudioListenerUpdateSystem.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CFmodAudioSourcesUpdateSystem.h"
 	)
 
 set(FMOD_AUDIO_CTX_SOURCES
@@ -27,6 +28,7 @@ set(FMOD_AUDIO_CTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CFmodAudioContext.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CFmodAudioClip.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CFmodAudioListenerUpdateSystem.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CFmodAudioSourcesUpdateSystem.cpp"
 	)
 
 source_group("includes" FILES ${FMOD_AUDIO_CTX_HEADERS})

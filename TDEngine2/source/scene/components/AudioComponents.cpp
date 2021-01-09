@@ -7,7 +7,7 @@ namespace TDEngine2
 
 
 	CAudioSourceComponent::CAudioSourceComponent() :
-		CBaseComponent(), mVolume(1.0f), mPanning(0.0f)
+		CBaseComponent(), mVolume(1.0f), mPanning(0.0f), mIsLooped(false), mIsMuted(false), mIsPaused(false), mIsPlaying(false)
 	{
 	}
 
@@ -87,6 +87,11 @@ namespace TDEngine2
 		mIsLooped = value;
 	}
 
+	void CAudioSourceComponent::SetPlaying(bool value)
+	{
+		mIsPlaying = value;
+	}
+
 	E_RESULT_CODE CAudioSourceComponent::SetVolume(F32 value)
 	{
 		if (value > 1.0f || value < 0.0f)
@@ -111,32 +116,37 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	const std::string& CAudioSourceComponent::GetAudioClipId(const std::string& id) const
+	const std::string& CAudioSourceComponent::GetAudioClipId() const
 	{
 		return mAudioClipId;
 	}
 
-	bool CAudioSourceComponent::IsMuted(bool value) const
+	bool CAudioSourceComponent::IsMuted() const
 	{
 		return mIsMuted;
 	}
 
-	bool CAudioSourceComponent::IsPaused(bool value) const
+	bool CAudioSourceComponent::IsPaused() const
 	{
 		return mIsPaused;
 	}
 
-	bool CAudioSourceComponent::IsLooped(bool value) const
+	bool CAudioSourceComponent::IsLooped() const
 	{
 		return mIsLooped;
 	}
 
-	F32 CAudioSourceComponent::GetVolume(F32 value) const
+	bool CAudioSourceComponent::IsPlaying() const
+	{
+		return mIsPlaying;
+	}
+
+	F32 CAudioSourceComponent::GetVolume() const
 	{
 		return mVolume;
 	}
 
-	F32 CAudioSourceComponent::GetPanning(F32 value) const
+	F32 CAudioSourceComponent::GetPanning() const
 	{
 		return mPanning;
 	}

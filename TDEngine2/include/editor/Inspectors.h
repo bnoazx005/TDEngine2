@@ -49,6 +49,10 @@ namespace TDEngine2
 			TDE2_API static void DrawSphereCollision3DGUI(IImGUIContext& imguiContext, IComponent& component);
 			TDE2_API static void DrawConvexHullCollision3DGUI(IImGUIContext& imguiContext, IComponent& component);
 			TDE2_API static void DrawTrigger3DGUI(IImGUIContext& imguiContext, IComponent& component);
+
+			/// Audio components
+			TDE2_API static void DrawAudioListenerGUI(IImGUIContext& imguiContext, IComponent& component);
+			TDE2_API static void DrawAudioSourceGUI(IImGUIContext& imguiContext, IComponent& component);
 	};
 }
 

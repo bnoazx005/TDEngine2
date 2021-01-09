@@ -2,6 +2,7 @@
 #include "../include/CFmodAudioContext.h"
 #include "../include/CFmodAudioListenerUpdateSystem.h"
 #include <core/IEngineCore.h>
+#include <core/IResourceManager.h>
 #include <core/IAudioContext.h>
 #include <core/IFileSystem.h>
 #include <ecs/IWorld.h>
@@ -81,6 +82,7 @@ namespace TDEngine2
 		std::vector<ISystem*> builtinSystems
 		{
 			CreateAudioListenerUpdateSystem(mpAudioContext, result),
+			CreateAudioSourcesUpdateSystem(mpAudioContext, pEngineCore->GetSubsystem<IResourceManager>(), result),
 		};
 
 		for (ISystem* pCurrSystem : builtinSystems)

@@ -8,6 +8,7 @@
 
 #include "CFmodAudioClip.h"
 #include "CFmodAudioListenerUpdateSystem.h"
+#include "CFmodAudioSourcesUpdateSystem.h"
 
 
 #include <core/CBaseObject.h>

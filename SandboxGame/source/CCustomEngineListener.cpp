@@ -23,8 +23,6 @@ const std::string DebugTextShaderName = Wrench::StringUtils::Format("DebugText{0
 
 TVector3 SunLightPos{ 5.0f, 10.0f, 0.0f };
 
-TResourceId soundHandle;
-
 
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
@@ -292,7 +290,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	}
 
-	mpResourceManager->GetResource<IAudioSource>(soundHandle = mpResourceManager->Load<CFMODAudioClip>("test.mp3"))->Play();
+	mpResourceManager->Load<CFMODAudioClip>("test.mp3");
 
 	return RC_OK;
 }
@@ -392,7 +390,12 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 	if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_SPACE))
 	{
-		mpResourceManager->GetResource<IAudioSource>(soundHandle)->Play();
+		auto pSoundEntity = mpEngineCoreInstance->GetSubsystem<ISceneManager>()->GetScene(TSceneId(1)).Get()->CreateEntity("Sound");
+		
+		if (auto pAudioSource = pSoundEntity->AddComponent<CAudioSourceComponent>())
+		{
+			pAudioSource->SetAudioClipId("test.mp3");
+		}
 	}
 	
 	//if (mpInputContext->IsMouseButtonPressed(0))
