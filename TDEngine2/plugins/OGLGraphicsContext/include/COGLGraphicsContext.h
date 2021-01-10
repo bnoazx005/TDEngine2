@@ -296,6 +296,14 @@ namespace TDEngine2
 			TDE2_API void BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite = false) override;
 
 			/*!
+				\brief The method disables or enables a depth buffer usage
+
+				\param[in] value If true the depth buffer will be used, false turns off it
+			*/
+
+			TDE2_API void SetDepthBufferEnabled(bool value) override;
+
+			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
 				The structure of the object and its members can vary on different platforms.

@@ -388,6 +388,11 @@ namespace TDEngine2
 		TDE2_UNIMPLEMENTED();
 	}
 
+	void COGLGraphicsContext::SetDepthBufferEnabled(bool value)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
+
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;

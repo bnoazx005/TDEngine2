@@ -406,6 +406,11 @@ namespace TDEngine2
 		mp3dDeviceContext->OMSetRenderTargets(disableRTWrite ? 1 : mCurrNumOfActiveRenderTargets, disableRTWrite ? pNullRT : mpRenderTargets, mpCurrDepthStencilView);
 	}
 
+	void CD3D11GraphicsContext::SetDepthBufferEnabled(bool value)
+	{
+		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, value ? mpCurrDepthStencilView : nullptr);
+	}
+
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;
