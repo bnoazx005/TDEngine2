@@ -152,6 +152,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IResourceManager* GetResourceManager() const override;
+
+			/*!
+				\return The method returns a pointer to an object which holds global shader uniforms
+			*/
+
+			TDE2_API IGlobalShaderProperties* GetGlobalShaderProperties() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CForwardRenderer)
 

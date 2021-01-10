@@ -324,6 +324,11 @@ namespace TDEngine2
 		return mpResourceManager;
 	}
 
+	IGlobalShaderProperties* CForwardRenderer::GetGlobalShaderProperties() const
+	{
+		return mpGlobalShaderProperties;
+	}
+
 	void CForwardRenderer::_submitToDraw(CRenderQueue* pRenderQueue)
 	{
 		CRenderQueue::CRenderQueueIterator iter = pRenderQueue->GetIterator();

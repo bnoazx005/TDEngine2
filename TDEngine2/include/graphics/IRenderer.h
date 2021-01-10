@@ -22,6 +22,7 @@ namespace TDEngine2
 	class IFramePostProcessor;
 	class ISelectionManager;
 	struct TLightingShaderData;
+	class IGlobalShaderProperties;
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -142,12 +143,15 @@ namespace TDEngine2
 			/*!
 				\brief The method returns a pointer to an instance of IResourceManager which is attached to
 				the renderer
-
-				\return The method returns a pointer to an instance of IResourceManager which is attached to
-				the renderer
 			*/
 
 			TDE2_API virtual IResourceManager* GetResourceManager() const = 0;
+
+			/*!
+				\return The method returns a pointer to an object which holds global shader uniforms
+			*/
+
+			TDE2_API virtual IGlobalShaderProperties* GetGlobalShaderProperties() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_RENDERER; }
 		protected:
