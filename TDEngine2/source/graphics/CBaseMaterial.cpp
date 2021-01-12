@@ -666,7 +666,7 @@ namespace TDEngine2
 		{
 			auto&& instanceUniformBuffers = userUniformBuffersResult.Get();
 		
-			TDE2_ASSERT((instanceUniformBuffers[bufferIndex].size() - varOffset) > size);
+			TDE2_ASSERT((bufferIndex) >= 0 && (instanceUniformBuffers[bufferIndex].size() - varOffset) > size);
 			memcpy(&instanceUniformBuffers[bufferIndex][varOffset], pValue, size);
 		}
 

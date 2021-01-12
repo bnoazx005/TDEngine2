@@ -18,20 +18,20 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IVertexDeclaration;
 	class IVertexBuffer;
+	class IGlobalShaderProperties;
+	class IRenderTarget;
 
 
 	/*!
 		\brief A factory function for creation objects of CFramePostProcessor's type
 
-		/param[in, out] pRenderer A pointer to IRenderer implementation
-		/param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
-		/param[in, out] pWindowSystem A pointer to IWindowSystem implementation
+		/param[in] desc A set of parameters that're needed to initialize the object
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CFramePostProcessor's implementation
 	*/
 
-	TDE2_API IFramePostProcessor* CreateFramePostProcessor(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IFramePostProcessor* CreateFramePostProcessor(const TFramePostProcessorParameters& desc, E_RESULT_CODE& result);
 
 
 	/*!
@@ -43,20 +43,17 @@ namespace TDEngine2
 	class CFramePostProcessor : public CBaseObject, public IFramePostProcessor
 	{
 		public:
-			friend TDE2_API IFramePostProcessor* CreateFramePostProcessor(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, 
-																		  IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+			friend TDE2_API IFramePostProcessor* CreateFramePostProcessor(const TFramePostProcessorParameters&, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of the processor
 
-				/param[in, out] pRenderer A pointer to IRenderer implementation
-				/param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
-				/param[in, out] pWindowSystem A pointer to IWindowSystem implementation
+				/param[in] desc A set of parameters that're needed to initialize the object
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, IWindowSystem* pWindowSystem) override;
+			TDE2_API E_RESULT_CODE Init(const TFramePostProcessorParameters& desc) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -105,16 +102,23 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePostProcessor)
 
-			TDE2_API void _submitFullScreenTriangle(CRenderQueue* pRenderQueue);
+			TDE2_API void _submitFullScreenTriangle(CRenderQueue* pRenderQueue, TResourceId materialHandle, bool drawImmediately = false);
+			TDE2_API void _renderTargetToTarget(IRenderTarget* pSource, IRenderTarget* pExtraSource, IRenderTarget* pDest, TResourceId materialHandle);
 
-			TDE2_API TResourceId _getRenderTarget(U32 width, U32 height, bool isHDRSupport = false);
+			TDE2_API TResourceId _getRenderTarget(U32 width, U32 height, bool isHDRSupport = false, bool isMainTarget = true);
 		protected:
 			CRenderQueue*                 mpOverlayRenderQueue;
 
 			const IPostProcessingProfile* mpCurrPostProcessingProfile;
 
 			TResourceId                   mDefaultScreenSpaceMaterialHandle;
+			TResourceId                   mBloomFilterMaterialHandle;
+			TResourceId                   mBloomFinalPassMaterialHandle;
+			TResourceId                   mGaussianBlurMaterialHandle;
+
 			TResourceId                   mRenderTargetHandle;
+			TResourceId                   mBloomRenderTargetHandle;
+			TResourceId                   mTemporaryRenderTargetHandle;
 
 			IVertexDeclaration*           mpVertexFormatDeclaration;
 
@@ -125,5 +129,7 @@ namespace TDEngine2
 			IGraphicsContext*             mpGraphicsContext;
 
 			IVertexBuffer*                mpFullScreenTriangleVertexBuffer; // \note This buffer is only needed when we work with GL GAPI, D3D11 uses bufferless rendering
+			
+			IGlobalShaderProperties*      mpGlobalShaderProperties;
 	};
 }

@@ -19,6 +19,15 @@ namespace TDEngine2
 	class IRenderer;
 	class IGraphicsObjectManager;
 	class IWindowSystem;
+	class IGlobalShaderProperties;
+
+
+	typedef struct TFramePostProcessorParameters
+	{
+		IRenderer* mpRenderer;
+		IGraphicsObjectManager* mpGraphicsObjectManager;
+		IWindowSystem* mpWindowSystem;
+	} TFramePostProcessorParameters, *TFramePostProcessorParametersPtr;
 
 
 	/*!
@@ -35,14 +44,12 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of the processor
 
-				/param[in, out] pRenderer A pointer to IRenderer implementation
-				/param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
-				/param[in, out] pWindowSystem A pointer to IWindowSystem implementation
+				/param[in] desc A set of parameters that're needed to initialize the object
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, IWindowSystem* pWindowSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(const TFramePostProcessorParameters& desc) = 0;
 
 			/*!
 				\brief The method assigns a processing profile into the processor
