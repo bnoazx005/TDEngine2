@@ -184,7 +184,7 @@ namespace TDEngine2
 			LOG_MESSAGE(Wrench::StringUtils::Format("[Base Material] A new instance {1} of material {0} was created", mName, static_cast<U32>(instanceId)));
 
 			// \note Allocate uniform buffers for the instance
-			auto&& defaultInstanceUserUniformBuffers = mpInstancesUserUniformBuffers[static_cast<U32>(DefaultMaterialInstanceId)].Get();
+			const auto& defaultInstanceUserUniformBuffers = mpInstancesUserUniformBuffers[DefaultMaterialInstanceId];
 
 			TUserUniformsArray newInstanceUniformBuffers;
 
@@ -193,11 +193,7 @@ namespace TDEngine2
 				newInstanceUniformBuffers[i].resize(defaultInstanceUserUniformBuffers[i].size());
 			}
 
-			if (mpInstancesUserUniformBuffers.Add(newInstanceUniformBuffers) != static_cast<U32>(instanceId))
-			{
-				TDE2_ASSERT(false);
-				return nullptr;
-			}
+			mpInstancesUserUniformBuffers[instanceId] = std::move(newInstanceUniformBuffers);
 
 			return mpInstancesArray[static_cast<U32>(instanceId)].Get();
 		}
@@ -492,9 +488,10 @@ namespace TDEngine2
 
 		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
 
-		if (auto userUniformBuffersResult = mpInstancesUserUniformBuffers[static_cast<U32>(instanceId)])
+		auto iter = mpInstancesUserUniformBuffers.find(instanceId);
+		if (iter != mpInstancesUserUniformBuffers.cend())
 		{
-			auto&& instanceUniformBuffers = userUniformBuffersResult.Get();
+			auto&& instanceUniformBuffers = iter->second;
 
 			U8 userUniformBufferId = 0;
 			for (const auto& currUserDataBuffer : instanceUniformBuffers)
@@ -662,10 +659,11 @@ namespace TDEngine2
 		U32 varOffset = 0;
 		std::tie(bufferIndex, varOffset) = iter->second; // first index is a buffer's id, the second one is variable's offset in bytes
 
-		if (auto userUniformBuffersResult = mpInstancesUserUniformBuffers[static_cast<U32>(instanceId)])
+		auto instanceBuffersIter = mpInstancesUserUniformBuffers.find(instanceId);
+		if (instanceBuffersIter != mpInstancesUserUniformBuffers.cend())
 		{
-			auto&& instanceUniformBuffers = userUniformBuffersResult.Get();
-		
+			auto& instanceUniformBuffers = instanceBuffersIter->second;
+
 			TDE2_ASSERT((bufferIndex) >= 0 && (instanceUniformBuffers[bufferIndex].size() - varOffset) > size);
 			memcpy(&instanceUniformBuffers[bufferIndex][varOffset], pValue, size);
 		}
@@ -706,8 +704,7 @@ namespace TDEngine2
 			}
 		}		
 
-		// \note At this moment mpInstancesUserUniformBuffers should be empty
-		TDE2_ASSERT(mpInstancesUserUniformBuffers.Add(defaultInstanceUserUniforms) == 0);
+		mpInstancesUserUniformBuffers[DefaultMaterialInstanceId] = std::move(defaultInstanceUserUniforms);
 
 		return RC_OK;
 	}
@@ -731,7 +728,7 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseMaterial::_initDefaultInstance(const TShaderCompilerOutput& metadata)
 	{
 		mpInstancesArray.RemoveAll();
-		mpInstancesUserUniformBuffers.RemoveAll();
+		mpInstancesUserUniformBuffers.clear();
 		
 		E_RESULT_CODE result = RC_OK;
 

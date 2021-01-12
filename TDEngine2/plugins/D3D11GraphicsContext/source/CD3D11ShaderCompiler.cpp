@@ -142,7 +142,7 @@ namespace TDEngine2
 
 		std::string bufferName;
 				
-		std::unordered_set<U8> usedBufferSlots { IUBR_PER_FRAME, IUBR_PER_OBJECT, IUBR_RARE_UDATED, IUBR_CONSTANTS };
+		std::unordered_set<U8> usedBufferSlots { /*IUBR_PER_FRAME, IUBR_PER_OBJECT, IUBR_RARE_UDATED, IUBR_CONSTANTS*/ };
 
 		/*!
 			\brief The function returns current passed index if its slot is still unused,
@@ -207,7 +207,16 @@ namespace TDEngine2
 			
 			if (nextToken == "{")
 			{
-				uniformBuffersDecls.insert({ bufferName, { getCurrentOrNextFreeBufferSlot(currSlotIndex), _getPaddedStructSize(structsMap, tokenizer) }});
+				std::vector<TShaderUniformDesc> uniforms{};
+
+				auto pushUniformInformation = [&uniforms](const TShaderUniformDesc& uniformInfo)
+				{
+					uniforms.push_back(uniformInfo);
+				};
+
+				uniformBuffersDecls.insert({ bufferName, { getCurrentOrNextFreeBufferSlot(currSlotIndex), _getPaddedStructSize(structsMap, tokenizer, pushUniformInformation) } });
+
+				uniformBuffersDecls[bufferName].mVariables = std::move(uniforms);
 			}
 			
 			while ((nextToken = tokenizer.GetCurrToken()) != ";" && tokenizer.HasNext())

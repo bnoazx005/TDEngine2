@@ -169,9 +169,10 @@ namespace TDEngine2
 
 			pConstantBuffer = CreateD3D11ConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
 
-			assert((currDesc.mSlot - TotalNumberOfInternalConstantBuffers) >= 0);
+			const U32 index = static_cast<U32>(std::distance(uniformBuffersInfo.cbegin(), iter) - TotalNumberOfInternalConstantBuffers);
+			TDE2_ASSERT(index >= 0);
 
-			mUniformBuffers[currDesc.mSlot - TotalNumberOfInternalConstantBuffers] = pConstantBuffer; // the offset is used because the shaders doesn't store internal buffer by themselves
+			mUniformBuffers[index] = pConstantBuffer; // the offset is used because the shaders doesn't store internal buffer by themselves
 		}
 
 		return RC_OK;

@@ -90,7 +90,7 @@ namespace TDEngine2
 
 			typedef std::array<TUserUniformBufferData, MaxNumberOfUserConstantBuffers> TUserUniformsArray;
 
-			typedef CResourceContainer<TUserUniformsArray>                             TInstanceUniformsArray;
+			typedef std::unordered_map<TMaterialInstanceId, TUserUniformsArray>        TInstanceUniformsArray;
 
 			typedef std::unordered_map<TMaterialInstanceId, TTexturesHashTable>        TInstanceTexturesArray;
 		public:
