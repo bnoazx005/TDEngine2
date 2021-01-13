@@ -10,6 +10,7 @@
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/math/MathUtils.h"
 
 
 namespace TDEngine2
@@ -125,7 +126,7 @@ namespace TDEngine2
 				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
 			}
 
-			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, true, false);
+			mBloomRenderTargetHandle = _getRenderTarget(width, height, true, false);
 
 			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, true, false);
 			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
@@ -141,17 +142,20 @@ namespace TDEngine2
 
 			mRenderTargetHandle = _getRenderTarget(width, height, true);
 			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+			pCurrRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 
 			if (auto pScreenSpaceMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultScreenSpaceMaterialHandle))
 			{
 				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
 			}
 
-			mBloomRenderTargetHandle = _getRenderTarget(width / 4, height / 4, true, false);
+			mBloomRenderTargetHandle = _getRenderTarget(width, height, true, false);
 			pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
+			pBloomRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 
 			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, true);
 			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+			pTempRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 		}
 
 		{
@@ -165,14 +169,28 @@ namespace TDEngine2
 			pBloomMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "threshold", 1.5f);
 		}
 
+		const F32 invWidth = 1.0f / static_cast<F32>(width);
+		const F32 invHeight = 1.0f / static_cast<F32>(height);
+
+		if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
+		{
+			pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", TVector4(1.2f, 0.0, invWidth, invHeight));
+			pBlurMaterial->SetVariableForInstance<U32>(DefaultMaterialInstanceId, "samplesCount", 12);
+		}
+
 		_renderTargetToTarget(pCurrRenderTarget, nullptr, pBloomRenderTarget, mBloomFilterMaterialHandle); // Bloom pass
 
 		// \todo Implement this stages
 		_renderTargetToTarget(pBloomRenderTarget, nullptr, pTempRenderTarget, mGaussianBlurMaterialHandle); // Horizontal Blur pass
+
+		if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
+		{
+			pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", TVector4(1.2f, CMathConstants::Pi * 0.5f, invWidth, invHeight));
+		}
+
 		_renderTargetToTarget(pTempRenderTarget, nullptr, pBloomRenderTarget, mGaussianBlurMaterialHandle); // Vertical Blur pass
 		_renderTargetToTarget(pCurrRenderTarget, pBloomRenderTarget, pTempRenderTarget, mBloomFinalPassMaterialHandle); // Compose
-		_renderTargetToTarget(pTempRenderTarget, nullptr, pCurrRenderTarget, mBloomFinalPassMaterialHandle); // Blit Temp -> Main render target
-
+		_renderTargetToTarget(pTempRenderTarget, nullptr, pCurrRenderTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
 
 		mpOverlayRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 

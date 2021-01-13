@@ -29,23 +29,47 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 DECLARE_TEX2D(FrameTexture);
 
+
+static const uint MAX_SAMPLES_COUNT = 16;
+
+static const float2 KernelSamples[MAX_SAMPLES_COUNT / 2 + 1] =
+{
+	float2(0.197417, 0.0),
+	float2(0.17467, 1.0),
+	float2(0.12098, 2.0),
+	float2(0.065592, 3.0),
+	float2(0.027835, 4.0),
+	float2(0.009245, 6.0),
+	float2(0.002403, 7.0),
+	float2(0.000489, 8.0),
+	float2(0.000078, 9.0),
+};
+
+
+CBUFFER_SECTION_EX(BlurParameters, 4)
+	//float4 samples[MAX_SAMPLES_COUNT];
+	float4 blurParams; // x - scale, y - angle, z is 1.0 / FrameTexture_width, w - 1.0 / FrameTexture_height
+	uint samplesCount;
+CBUFFER_ENDSECTION
+
+
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	float2 offsets[4] =
-	{
-		input.mUV + float2(-0.0025, 0.0),
-		input.mUV + float2(0.0025, 0.0),
-		input.mUV + float2(0.0, 0.0025),
-		input.mUV + float2(0.0, -0.0025),
-	};
+	float4 color =  float4(0.0, 0.0, 0.0, 0.0);
 
-	float4 color = TEX2D(FrameTexture, input.mUV);
-
-	for (int i = 0; i < 4; ++i)
+	for (uint i = 0; i < (samplesCount / 2 + 1); ++i)
 	{
-		color += TEX2D(FrameTexture, offsets[i]);
+		float2 currSample = KernelSamples[i];
+
+		float2 r = blurParams.x * float2(currSample.y * blurParams.z * cos(blurParams.y), currSample.y * blurParams.w * sin(blurParams.y));
+
+		float2 uv = input.mUV + r;
+		color += currSample.x * TEX2D(FrameTexture, uv);
+
+		uv = input.mUV - r;
+		color += currSample.x * TEX2D(FrameTexture, uv);
 	}
 
-	return color * 0.2;
+	return color;
 }
 #endprogram
