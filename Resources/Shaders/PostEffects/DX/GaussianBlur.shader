@@ -55,9 +55,9 @@ CBUFFER_ENDSECTION
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	float4 color =  float4(0.0, 0.0, 0.0, 0.0);
+	float4 color = TEX2D(FrameTexture, input.mUV) * KernelSamples[0].x;
 
-	for (uint i = 0; i < (samplesCount / 2 + 1); ++i)
+	for (uint i = 1; i < (samplesCount / 2 + 1); ++i)
 	{
 		float2 currSample = KernelSamples[i];
 
@@ -72,4 +72,5 @@ float4 mainPS(VertexOut input): SV_TARGET0
 
 	return color;
 }
+
 #endprogram

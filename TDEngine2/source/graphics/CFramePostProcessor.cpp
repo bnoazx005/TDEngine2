@@ -127,7 +127,7 @@ namespace TDEngine2
 				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
 			}
 
-			mBloomRenderTargetHandle = _getRenderTarget(width, height, true, false);
+			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, true, false);
 
 			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, true, false);
 			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
@@ -150,7 +150,7 @@ namespace TDEngine2
 				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
 			}
 
-			mBloomRenderTargetHandle = _getRenderTarget(width, height, true, false);
+			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, true, false);
 			pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
 			pBloomRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 
