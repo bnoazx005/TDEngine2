@@ -329,6 +329,17 @@ namespace TDEngine2
 			return result;
 		}
 
+		if (pFramePostProcessor)
+		{
+			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<CBasePostProcessingProfile>("default-profile.camera_profile");
+			if (TResourceId::Invalid == defaultProfileResourceId)
+			{
+				return RC_FILE_NOT_FOUND;
+			}
+
+			pFramePostProcessor->SetProcessingProfile(mpResourceManagerInstance->GetResource<IPostProcessingProfile>(defaultProfileResourceId));
+		}
+
 		if ((result = pRenderer->SetFramePostProcessor(pFramePostProcessor)) != RC_OK)
 		{
 			return result;

@@ -49,7 +49,15 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 #endif
 
-	TDE2_ASSERT(TResourceId::Invalid != mpResourceManager->Load<CBasePostProcessingProfile>("default-profile.camera_profile"));
+
+	/*if (auto result = mpFileSystem->Open<IYAMLFileWriter>("default-profile.camera_profile", true))
+	{
+		if (auto pCameraProfileFile = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
+		{
+			mpResourceManager->GetResource<IPostProcessingProfile>(mpResourceManager->Load<CBasePostProcessingProfile>("default-profile.camera_profile"))->Save(pCameraProfileFile);
+			pCameraProfileFile->Close();
+		}
+	}*/
 
 	const TColor32F colors[] =
 	{

@@ -70,6 +70,7 @@ namespace TDEngine2
 
 			friend TDE2_API IPostProcessingProfile* CreateBasePostProcessingProfile(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 																					const TPostProcessingProfileParameters& params, E_RESULT_CODE& result);
+
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CBasePostProcessingProfile)
 			TDE2_REGISTER_TYPE(CBasePostProcessingProfile)
@@ -137,12 +138,16 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API const TPostProcessingProfileParameters::TBloomParameters& GetBloomParameters() const override;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePostProcessingProfile)
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			IGraphicsContext* mpGraphicsContext;
+			
+			TPostProcessingProfileParameters::TBloomParameters mBloomParameters;
 	};
 
 

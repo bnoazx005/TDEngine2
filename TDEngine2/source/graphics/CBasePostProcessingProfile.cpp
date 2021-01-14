@@ -5,6 +5,28 @@
 
 namespace TDEngine2
 {
+	struct TPostProcessingProfileIdentifiers
+	{
+		static const std::string mBloomGroupParameters;
+
+		static const std::string mIsPassEnabledId;
+
+		struct TBloomParameters
+		{
+			static const std::string mThresholdId;
+			static const std::string mSmoothnessId;
+			static const std::string mSamplesCountId;
+		};
+	};
+
+	const std::string TPostProcessingProfileIdentifiers::mBloomGroupParameters = "bloom_parameters";
+	const std::string TPostProcessingProfileIdentifiers::mIsPassEnabledId = "enabled";
+
+	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mThresholdId = "threshold";
+	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mSmoothnessId = "smoothness";
+	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mSamplesCountId = "samples_count";
+
+
 	CBasePostProcessingProfile::CBasePostProcessingProfile():
 		CBaseResource()
 	{
@@ -65,7 +87,15 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		;
+		// \note Bloom parameters
+		pReader->BeginGroup(TPostProcessingProfileIdentifiers::mBloomGroupParameters);
+		{
+			mBloomParameters.mIsEnabled = pReader->GetBool(TPostProcessingProfileIdentifiers::mIsPassEnabledId);
+			mBloomParameters.mThreshold = pReader->GetFloat(TPostProcessingProfileIdentifiers::TBloomParameters::mThresholdId);
+			mBloomParameters.mSmoothness = pReader->GetFloat(TPostProcessingProfileIdentifiers::TBloomParameters::mSmoothnessId);
+			mBloomParameters.mSamplesCount = pReader->GetUInt32(TPostProcessingProfileIdentifiers::TBloomParameters::mSamplesCountId);
+		}
+		pReader->EndGroup();
 
 		return RC_OK;
 	}
@@ -77,9 +107,22 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		;
+		// \note Bloom parameters
+		pWriter->BeginGroup(TPostProcessingProfileIdentifiers::mBloomGroupParameters);
+		{
+			pWriter->SetBool(TPostProcessingProfileIdentifiers::mIsPassEnabledId, mBloomParameters.mIsEnabled);
+			pWriter->SetFloat(TPostProcessingProfileIdentifiers::TBloomParameters::mThresholdId, mBloomParameters.mThreshold);
+			pWriter->SetFloat(TPostProcessingProfileIdentifiers::TBloomParameters::mSmoothnessId, mBloomParameters.mSmoothness);
+			pWriter->SetUInt32(TPostProcessingProfileIdentifiers::TBloomParameters::mSamplesCountId, mBloomParameters.mSamplesCount);
+		}
+		pWriter->EndGroup();
 
 		return RC_OK;
+	}
+
+	const TPostProcessingProfileParameters::TBloomParameters& CBasePostProcessingProfile::GetBloomParameters() const
+	{
+		return mBloomParameters;
 	}
 
 	const IResourceLoader* CBasePostProcessingProfile::_getResourceLoader()

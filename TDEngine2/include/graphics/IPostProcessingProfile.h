@@ -25,7 +25,19 @@ namespace TDEngine2
 	typedef struct TPostProcessingProfileParameters : TBaseResourceParameters
 	{
 		TDE2_API TPostProcessingProfileParameters() = default;
+	
+		typedef struct TBloomParameters
+		{
+			bool mIsEnabled = false;
+			F32 mThreshold = 1.5f;
+			F32 mSmoothness = 1.2f; // \note The same as Gaussian blur's scale
+			U32 mSamplesCount = 16;
+		} TBloomParameters, *TBloomParametersPtr;
+
+
 	} TPostProcessingProfileParameters, *TPostProcessingProfileParametersPtr;
+
+
 
 
 	/*!
@@ -71,6 +83,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 												const TPostProcessingProfileParameters& params) = 0;
+
+			TDE2_API virtual const TPostProcessingProfileParameters::TBloomParameters& GetBloomParameters() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPostProcessingProfile)
 	};

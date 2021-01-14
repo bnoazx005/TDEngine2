@@ -4,6 +4,7 @@
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/IGlobalShaderProperties.h"
+#include "../../include/graphics/IPostProcessingProfile.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/utils/CFileLogger.h"
@@ -164,35 +165,40 @@ namespace TDEngine2
 			mpGraphicsContext->BindRenderTarget(0, nullptr);
 		}
 
-		if (auto pBloomMaterial = mpResourceManager->GetResource<IMaterial>(mBloomFilterMaterialHandle))
+		const auto& bloomParameters = mpCurrPostProcessingProfile->GetBloomParameters();
+
+		if (bloomParameters.mIsEnabled)
 		{
-			pBloomMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "threshold", 1.5f);
+			if (auto pBloomMaterial = mpResourceManager->GetResource<IMaterial>(mBloomFilterMaterialHandle))
+			{
+				pBloomMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "threshold", bloomParameters.mThreshold);
+			}
+
+			const TVector4 blurParams { bloomParameters.mSmoothness, 0.0, 1.0f / static_cast<F32>(width), 1.0f / static_cast<F32>(height) };
+			const TVector4 vertBlurRotation { 0.0f, CMathConstants::Pi * 0.5f, 0.0f, 0.0f };
+
+			if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
+			{
+				pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", blurParams);
+				pBlurMaterial->SetVariableForInstance<U32>(DefaultMaterialInstanceId, "samplesCount", bloomParameters.mSamplesCount);
+			}
+
+			_renderTargetToTarget(pCurrRenderTarget, nullptr, pBloomRenderTarget, mBloomFilterMaterialHandle); // Bloom pass
+
+			// \todo Implement this stages
+			_renderTargetToTarget(pBloomRenderTarget, nullptr, pTempRenderTarget, mGaussianBlurMaterialHandle); // Horizontal Blur pass
+
+			if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
+			{
+				pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", blurParams + vertBlurRotation);
+			}
+
+			_renderTargetToTarget(pTempRenderTarget, nullptr, pBloomRenderTarget, mGaussianBlurMaterialHandle); // Vertical Blur pass
+			_renderTargetToTarget(pCurrRenderTarget, pBloomRenderTarget, pTempRenderTarget, mBloomFinalPassMaterialHandle); // Compose
+			_renderTargetToTarget(pTempRenderTarget, nullptr, pCurrRenderTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
+
+			mpOverlayRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 		}
-
-		const F32 invWidth = 1.0f / static_cast<F32>(width);
-		const F32 invHeight = 1.0f / static_cast<F32>(height);
-
-		if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
-		{
-			pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", TVector4(1.2f, 0.0, invWidth, invHeight));
-			pBlurMaterial->SetVariableForInstance<U32>(DefaultMaterialInstanceId, "samplesCount", 12);
-		}
-
-		_renderTargetToTarget(pCurrRenderTarget, nullptr, pBloomRenderTarget, mBloomFilterMaterialHandle); // Bloom pass
-
-		// \todo Implement this stages
-		_renderTargetToTarget(pBloomRenderTarget, nullptr, pTempRenderTarget, mGaussianBlurMaterialHandle); // Horizontal Blur pass
-
-		if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
-		{
-			pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", TVector4(1.2f, CMathConstants::Pi * 0.5f, invWidth, invHeight));
-		}
-
-		_renderTargetToTarget(pTempRenderTarget, nullptr, pBloomRenderTarget, mGaussianBlurMaterialHandle); // Vertical Blur pass
-		_renderTargetToTarget(pCurrRenderTarget, pBloomRenderTarget, pTempRenderTarget, mBloomFinalPassMaterialHandle); // Compose
-		_renderTargetToTarget(pTempRenderTarget, nullptr, pCurrRenderTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
-
-		mpOverlayRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 
 		_submitFullScreenTriangle(mpOverlayRenderQueue, mDefaultScreenSpaceMaterialHandle);
 
