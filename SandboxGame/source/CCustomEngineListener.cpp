@@ -49,7 +49,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 #endif
 
-	TDE2_ASSERT(TResourceId::Invalid != mpResourceManager->Load<CBasePostProcessingProfile>("default-profile"));
+	TDE2_ASSERT(TResourceId::Invalid != mpResourceManager->Load<CBasePostProcessingProfile>("default-profile.camera_profile"));
 
 	const TColor32F colors[] =
 	{

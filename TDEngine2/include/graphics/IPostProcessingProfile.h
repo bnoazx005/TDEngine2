@@ -11,6 +11,7 @@
 #include "../utils/Types.h"
 #include "../core/IResourceLoader.h"
 #include "../core/IResourceFactory.h"
+#include "../core/Serialization.h"
 
 
 namespace TDEngine2
@@ -33,7 +34,7 @@ namespace TDEngine2
 		\brief The interface represents a functionality of a post-processing profile
 	*/
 
-	class IPostProcessingProfile
+	class IPostProcessingProfile : public ISerializable
 	{
 		public:
 			/*!
@@ -70,28 +71,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 												const TPostProcessingProfileParameters& params) = 0;
-
-			/*!
-				\brief The method writes the information about post-processing profile's content down onto disk
-
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Serialize(IFileSystem* pFileSystem, const std::string& filename) = 0;
-
-			/*!
-				\brief The method restores state of the post-processing profile based on information from a given file
-
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPostProcessingProfile)
 	};

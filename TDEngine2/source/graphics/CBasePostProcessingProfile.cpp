@@ -58,40 +58,26 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
-	E_RESULT_CODE CBasePostProcessingProfile::Serialize(IFileSystem* pFileSystem, const std::string& filename)
+	E_RESULT_CODE CBasePostProcessingProfile::Load(IArchiveReader* pReader)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		;
+
+		return RC_OK;
 	}
 
-	E_RESULT_CODE CBasePostProcessingProfile::Deserialize(IFileSystem* pFileSystem, const std::string& filename)
+	E_RESULT_CODE CBasePostProcessingProfile::Save(IArchiveWriter* pWriter)
 	{
-		if (!mIsInitialized)
+		if (!pWriter)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		TResult<TFileEntryId> fileReadingResult = pFileSystem->Open<IYAMLFileReader>(filename);
-
-		if (fileReadingResult.HasError())
-		{
-			return fileReadingResult.GetError();
-		}
-
-		auto pYAMLFileReader = pFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
-
-		Yaml::Node profileDataRoot;
-
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = pYAMLFileReader->Deserialize(profileDataRoot)) != RC_OK)
-		{
-			return result;
-		}
-
-		pYAMLFileReader->Close();
-
-		// \todo 
+		;
 
 		return RC_OK;
 	}
@@ -184,7 +170,12 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		return dynamic_cast<IPostProcessingProfile*>(pResource)->Deserialize(mpFileSystem, pResource->GetName() + ".camera_profile.info");
+		if (TResult<TFileEntryId> materialFileId = mpFileSystem->Open<IYAMLFileReader>(pResource->GetName()))
+		{
+			return dynamic_cast<IPostProcessingProfile*>(pResource)->Load(mpFileSystem->Get<IYAMLFileReader>(materialFileId.Get()));
+		}
+
+		return RC_FILE_NOT_FOUND;
 	}
 
 	TypeId CBasePostProcessingProfileLoader::GetResourceTypeId() const
