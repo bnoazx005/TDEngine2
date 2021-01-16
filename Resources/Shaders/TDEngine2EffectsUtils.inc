@@ -40,4 +40,17 @@ float4 LinearToGamma(float4 color, float gammaValue = 2.2)
 }
 
 
+/*!
+	\brief Color grading functions 
+*/
+
+
+// Function works with the global state. Use ColorGradingLUT texture and its sampler ColorGradingLUT_SamplerState
+/*float4 ApplyGrading(in float4 color, in Texture2D lut, in SamplerState samplerState)
+{
+	float2 uv = float2(0.2, 0.0);
+	return color ;//* lut.Sample(samplerState, uv);
+}
+*/
+
 #endif

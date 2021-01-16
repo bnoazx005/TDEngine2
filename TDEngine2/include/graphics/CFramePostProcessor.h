@@ -115,6 +115,7 @@ namespace TDEngine2
 			TResourceId                   mBloomFilterMaterialHandle;
 			TResourceId                   mBloomFinalPassMaterialHandle;
 			TResourceId                   mGaussianBlurMaterialHandle;
+			TResourceId                   mToneMappingPassMaterialHandle;
 
 			TResourceId                   mRenderTargetHandle;
 			TResourceId                   mBloomRenderTargetHandle;

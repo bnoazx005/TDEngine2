@@ -139,6 +139,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			TDE2_API const TPostProcessingProfileParameters::TBloomParameters& GetBloomParameters() const override;
+			TDE2_API const TPostProcessingProfileParameters::TColorGradingParameters& GetColorGradingParameters() const override;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePostProcessingProfile)
@@ -148,6 +149,8 @@ namespace TDEngine2
 			IGraphicsContext* mpGraphicsContext;
 			
 			TPostProcessingProfileParameters::TBloomParameters mBloomParameters;
+
+			TPostProcessingProfileParameters::TColorGradingParameters mColorGradingParameters;
 	};
 
 

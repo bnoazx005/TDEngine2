@@ -10,6 +10,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/graphics/CBaseRenderTarget.h"
+#include "../../include/graphics/CBaseTexture2D.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/math/MathUtils.h"
 
@@ -48,6 +49,7 @@ namespace TDEngine2
 		mBloomFilterMaterialHandle = mpResourceManager->Create<CBaseMaterial>("BloomScreenSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/DX/Bloom.shader", false, TDepthStencilStateDesc { false, false } });
 		mBloomFinalPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("BloomFinalPassSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/DX/BloomFinal.shader", false, TDepthStencilStateDesc { false, false } });
 		mGaussianBlurMaterialHandle = mpResourceManager->Create<CBaseMaterial>("GaussianBlurSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/DX/GaussianBlur.shader", false, TDepthStencilStateDesc { false, false } });
+		mToneMappingPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("ToneMappingPass.material", TMaterialParameters{ "ToneMappingPass", false, TDepthStencilStateDesc { false, false } });
 
 		if (auto vertexFormatResult = desc.mpGraphicsObjectManager->CreateVertexDeclaration())
 		{
@@ -117,14 +119,22 @@ namespace TDEngine2
 		const U32 width = mpWindowSystem->GetWidth();
 		const U32 height = mpWindowSystem->GetHeight();
 
+		const auto& colorGradingParameters = mpCurrPostProcessingProfile->GetColorGradingParameters();
+
 		if (mRenderTargetHandle == TResourceId::Invalid)
 		{
 			mRenderTargetHandle = _getRenderTarget(width, height, true);
 			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 
-			if (auto pScreenSpaceMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultScreenSpaceMaterialHandle))
+			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
 			{
-				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
+				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
+			
+				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<CBaseTexture2D>(colorGradingParameters.mLookUpTextureId)))
+				{
+					//pColorLUT->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
+					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT);
+				}
 			}
 
 			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, true, false);
@@ -145,9 +155,15 @@ namespace TDEngine2
 			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 			pCurrRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 
-			if (auto pScreenSpaceMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultScreenSpaceMaterialHandle))
+			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
 			{
-				pScreenSpaceMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
+				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
+
+				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<CBaseTexture2D>(colorGradingParameters.mLookUpTextureId)))
+				{
+					//pColorLUT->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
+					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT);
+				}
 			}
 
 			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, true, false);
@@ -200,7 +216,7 @@ namespace TDEngine2
 			mpOverlayRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 		}
 
-		_submitFullScreenTriangle(mpOverlayRenderQueue, mDefaultScreenSpaceMaterialHandle);
+		_submitFullScreenTriangle(mpOverlayRenderQueue, mToneMappingPassMaterialHandle);
 
 		return RC_OK;
 	}

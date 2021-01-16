@@ -372,10 +372,72 @@ namespace TDEngine2
 
 					float4 mainPS(VertexOut input): SV_TARGET0
 					{
+						return TEX2D(FrameTexture, input.mUV);
+					}
+					#endprogram
+				)";
+			case E_DEFAULT_SHADER_TYPE::DST_TONE_MAPPING_PASS:
+				return R"(
+					#define VERTEX_ENTRY mainVS
+					#define PIXEL_ENTRY mainPS
+
+					#include <TDEngine2Globals.inc>
+
+					struct VertexOut
+					{
+						float4 mPos   : SV_POSITION;
+						float2 mUV    : TEXCOORD0;
+					};
+
+					#program vertex
+
+					VertexOut mainVS(uint id : SV_VertexID)
+					{
+						VertexOut output;					
+						
+						float x = float((id & 1) << 2);
+						float y = -float((id & 2) << 1);
+						output.mPos = float4(x - 1, y + 1, 0, 1);
+						output.mUV = float2(x, -y) * 0.5;
+
+						return output;
+					}
+
+					#endprogram
+
+					#program pixel
+
+					DECLARE_TEX2D(FrameTexture);
+					DECLARE_TEX2D(ColorGradingLUT);
+
+					// \todo Move this into TDEngine2EffectsUtils.inc later
+					float4 ApplyGrading(in float4 color)
+					{
+						const float ColorsNum = 32.0;
+						const float MaxColor = ColorsNum - 1.0;
+					
+						float cell = floor(color.b * MaxColor);
+
+						float halfLUTxPixel = 0.5 / 1024.0; 
+						float halfLUTyPixel = 0.5 / 32.0;
+
+						const float threshold = MaxColor / ColorsNum;
+
+						float xOffset = halfLUTxPixel + color.r / ColorsNum * threshold;
+						float yOffset = halfLUTyPixel + color.g * threshold; 
+
+						float2 lutPos = float2(cell / ColorsNum + xOffset, yOffset); 
+						return TEX2D(ColorGradingLUT, lutPos);
+					}
+
+					float4 mainPS(VertexOut input): SV_TARGET0
+					{
 						float4 color = TEX2D(FrameTexture, input.mUV);
 						float3 mappedColor = 1 - exp(-color.rgb * 2.5f);
-						return float4(LinearToGamma(mappedColor), color.a);
-						//return float4(input.mUV.xy, 1, 1);
+						
+						color = float4(LinearToGamma(mappedColor), color.a);
+
+						return ApplyGrading(color);
 					}
 					#endprogram
 				)";

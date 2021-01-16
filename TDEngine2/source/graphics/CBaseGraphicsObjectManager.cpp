@@ -85,6 +85,7 @@ namespace TDEngine2
 		{
 			{ "DefaultEditorUI", E_DEFAULT_SHADER_TYPE::DST_EDITOR_UI },
 			{ "DefaultScreenSpaceEffect", E_DEFAULT_SHADER_TYPE::DST_SCREEN_SPACE },
+			{ "ToneMappingPass", E_DEFAULT_SHADER_TYPE::DST_TONE_MAPPING_PASS },
 			{ "Selection", E_DEFAULT_SHADER_TYPE::DST_SELECTION },
 			{ "SelectionOutline", E_DEFAULT_SHADER_TYPE::DST_SELECTION_OUTLINE },
 			{ "ShadowPass", E_DEFAULT_SHADER_TYPE::DST_SHADOW_PASS },

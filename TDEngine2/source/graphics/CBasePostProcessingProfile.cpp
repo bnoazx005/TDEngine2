@@ -8,6 +8,7 @@ namespace TDEngine2
 	struct TPostProcessingProfileIdentifiers
 	{
 		static const std::string mBloomGroupParameters;
+		static const std::string mColorGradingGroupParameters;
 
 		static const std::string mIsPassEnabledId;
 
@@ -17,14 +18,22 @@ namespace TDEngine2
 			static const std::string mSmoothnessId;
 			static const std::string mSamplesCountId;
 		};
+
+		struct TColorGradingParameters
+		{
+			static const std::string mColorLookUpTextureId;
+		};
 	};
 
 	const std::string TPostProcessingProfileIdentifiers::mBloomGroupParameters = "bloom_parameters";
+	const std::string TPostProcessingProfileIdentifiers::mColorGradingGroupParameters = "color_grading_params";
 	const std::string TPostProcessingProfileIdentifiers::mIsPassEnabledId = "enabled";
 
 	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mThresholdId = "threshold";
 	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mSmoothnessId = "smoothness";
 	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mSamplesCountId = "samples_count";
+
+	const std::string TPostProcessingProfileIdentifiers::TColorGradingParameters::mColorLookUpTextureId = "color_lut_id";
 
 
 	CBasePostProcessingProfile::CBasePostProcessingProfile():
@@ -97,6 +106,14 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+		// \note Color grading parameters
+		pReader->BeginGroup(TPostProcessingProfileIdentifiers::mColorGradingGroupParameters);
+		{
+			mColorGradingParameters.mIsEnabled = pReader->GetBool(TPostProcessingProfileIdentifiers::mIsPassEnabledId);
+			mColorGradingParameters.mLookUpTextureId = pReader->GetString(TPostProcessingProfileIdentifiers::TColorGradingParameters::mColorLookUpTextureId);
+		}
+		pReader->EndGroup();
+
 		return RC_OK;
 	}
 
@@ -117,12 +134,25 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
+		// \note Color grading parameters
+		pWriter->BeginGroup(TPostProcessingProfileIdentifiers::mColorGradingGroupParameters);
+		{
+			pWriter->SetBool(TPostProcessingProfileIdentifiers::mIsPassEnabledId, mColorGradingParameters.mIsEnabled);
+			pWriter->SetString(TPostProcessingProfileIdentifiers::TColorGradingParameters::mColorLookUpTextureId, mColorGradingParameters.mLookUpTextureId);
+		}
+		pWriter->EndGroup();
+
 		return RC_OK;
 	}
 
 	const TPostProcessingProfileParameters::TBloomParameters& CBasePostProcessingProfile::GetBloomParameters() const
 	{
 		return mBloomParameters;
+	}
+
+	const TPostProcessingProfileParameters::TColorGradingParameters& CBasePostProcessingProfile::GetColorGradingParameters() const
+	{
+		return mColorGradingParameters;
 	}
 
 	const IResourceLoader* CBasePostProcessingProfile::_getResourceLoader()

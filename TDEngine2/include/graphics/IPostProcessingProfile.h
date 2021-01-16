@@ -34,6 +34,12 @@ namespace TDEngine2
 			U32 mSamplesCount = 16;
 		} TBloomParameters, *TBloomParametersPtr;
 
+		typedef struct TColorGradingParameters
+		{
+			bool mIsEnabled = false;
+			std::string mLookUpTextureId;
+		} TColorGradingParameters, *TColorGradingParametersPtr;
+
 
 	} TPostProcessingProfileParameters, *TPostProcessingProfileParametersPtr;
 
@@ -85,6 +91,8 @@ namespace TDEngine2
 												const TPostProcessingProfileParameters& params) = 0;
 
 			TDE2_API virtual const TPostProcessingProfileParameters::TBloomParameters& GetBloomParameters() const = 0;
+
+			TDE2_API virtual const TPostProcessingProfileParameters::TColorGradingParameters& GetColorGradingParameters() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPostProcessingProfile)
 	};

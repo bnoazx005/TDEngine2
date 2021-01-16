@@ -212,7 +212,8 @@ namespace TDEngine2
 			return result;
 		}
 
-		if ((result = mpFileSystemInstance->MountPhysicalPath("./../../Resources/Shaders/", "Shaders/")) != RC_OK)
+		if ((result = mpFileSystemInstance->MountPhysicalPath("./../../Resources/Shaders/", "Shaders/")) != RC_OK ||
+			(result = mpFileSystemInstance->MountPhysicalPath("./../../Resources/", "Resources/")) != RC_OK)
 		{
 			return result;
 		}
