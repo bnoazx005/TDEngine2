@@ -40,6 +40,12 @@ namespace TDEngine2
 			std::string mLookUpTextureId;
 		} TColorGradingParameters, *TColorGradingParametersPtr;
 
+		typedef struct TToneMappingParameters
+		{
+			bool mIsEnabled = true;
+			F32 mExposure = 2.5f;
+		} TToneMappingParameters, *TToneMappingParametersPtr;
+
 
 	} TPostProcessingProfileParameters, *TPostProcessingProfileParametersPtr;
 
@@ -90,8 +96,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 												const TPostProcessingProfileParameters& params) = 0;
 
+			TDE2_API virtual const TPostProcessingProfileParameters::TToneMappingParameters& GetToneMappingParameters() const = 0;
 			TDE2_API virtual const TPostProcessingProfileParameters::TBloomParameters& GetBloomParameters() const = 0;
-
 			TDE2_API virtual const TPostProcessingProfileParameters::TColorGradingParameters& GetColorGradingParameters() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPostProcessingProfile)

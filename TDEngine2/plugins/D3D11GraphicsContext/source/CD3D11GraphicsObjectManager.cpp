@@ -410,8 +410,13 @@ namespace TDEngine2
 					DECLARE_TEX2D(FrameTexture);
 					DECLARE_TEX2D(ColorGradingLUT);
 
+					CBUFFER_SECTION_EX(ToneMappingParameters, 4)
+						float4 toneMappingParams; // x  weight (0 is disabled, 1 is enabled), y - exposure
+						float4 colorGradingParams; // x - weight (enabled or not)
+					CBUFFER_ENDSECTION
+
 					// \todo Move this into TDEngine2EffectsUtils.inc later
-					float4 ApplyGrading(in float4 color)
+					float3 ApplyGrading(in float3 color)
 					{
 						const float ColorsNum = 32.0;
 						const float MaxColor = ColorsNum - 1.0;
@@ -427,17 +432,17 @@ namespace TDEngine2
 						float yOffset = halfLUTyPixel + color.g * threshold; 
 
 						float2 lutPos = float2(cell / ColorsNum + xOffset, yOffset); 
-						return TEX2D(ColorGradingLUT, lutPos);
+						return TEX2D(ColorGradingLUT, lutPos).rgb;
 					}
 
 					float4 mainPS(VertexOut input): SV_TARGET0
 					{
 						float4 color = TEX2D(FrameTexture, input.mUV);
-						float3 mappedColor = 1 - exp(-color.rgb * 2.5f);
+						float3 mappedColor = lerp(color.rgb, 1 - exp(-color.rgb * toneMappingParams.y), toneMappingParams.x);
 						
-						color = float4(LinearToGamma(mappedColor), color.a);
+						mappedColor = lerp(mappedColor, ApplyGrading(mappedColor), colorGradingParams.x);
 
-						return ApplyGrading(color);
+						return float4(LinearToGamma(mappedColor), color.a);
 					}
 					#endprogram
 				)";

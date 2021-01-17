@@ -138,6 +138,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API const TPostProcessingProfileParameters::TToneMappingParameters& GetToneMappingParameters() const override;
 			TDE2_API const TPostProcessingProfileParameters::TBloomParameters& GetBloomParameters() const override;
 			TDE2_API const TPostProcessingProfileParameters::TColorGradingParameters& GetColorGradingParameters() const override;
 
@@ -147,7 +148,9 @@ namespace TDEngine2
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			IGraphicsContext* mpGraphicsContext;
-			
+
+			TPostProcessingProfileParameters::TToneMappingParameters mToneMappingParameters;
+
 			TPostProcessingProfileParameters::TBloomParameters mBloomParameters;
 
 			TPostProcessingProfileParameters::TColorGradingParameters mColorGradingParameters;

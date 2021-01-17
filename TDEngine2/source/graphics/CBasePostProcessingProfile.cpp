@@ -9,6 +9,7 @@ namespace TDEngine2
 	{
 		static const std::string mBloomGroupParameters;
 		static const std::string mColorGradingGroupParameters;
+		static const std::string mToneMappingGroupParameters;
 
 		static const std::string mIsPassEnabledId;
 
@@ -23,10 +24,16 @@ namespace TDEngine2
 		{
 			static const std::string mColorLookUpTextureId;
 		};
+
+		struct TToneMappingParameters
+		{
+			static const std::string mExposureId;
+		};
 	};
 
 	const std::string TPostProcessingProfileIdentifiers::mBloomGroupParameters = "bloom_parameters";
 	const std::string TPostProcessingProfileIdentifiers::mColorGradingGroupParameters = "color_grading_params";
+	const std::string TPostProcessingProfileIdentifiers::mToneMappingGroupParameters = "tone_mapping_parameters";
 	const std::string TPostProcessingProfileIdentifiers::mIsPassEnabledId = "enabled";
 
 	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mThresholdId = "threshold";
@@ -34,6 +41,8 @@ namespace TDEngine2
 	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mSamplesCountId = "samples_count";
 
 	const std::string TPostProcessingProfileIdentifiers::TColorGradingParameters::mColorLookUpTextureId = "color_lut_id";
+
+	const std::string TPostProcessingProfileIdentifiers::TToneMappingParameters::mExposureId = "exposure";
 
 
 	CBasePostProcessingProfile::CBasePostProcessingProfile():
@@ -114,6 +123,14 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+		// \note Tone mapping's parameters
+		pReader->BeginGroup(TPostProcessingProfileIdentifiers::mToneMappingGroupParameters);
+		{
+			mToneMappingParameters.mIsEnabled = pReader->GetBool(TPostProcessingProfileIdentifiers::mIsPassEnabledId);
+			mToneMappingParameters.mExposure = pReader->GetFloat(TPostProcessingProfileIdentifiers::TToneMappingParameters::mExposureId);
+		}
+		pReader->EndGroup();
+
 		return RC_OK;
 	}
 
@@ -142,7 +159,20 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
+		// \note Tone mapping's parameters
+		pWriter->BeginGroup(TPostProcessingProfileIdentifiers::mToneMappingGroupParameters);
+		{
+			pWriter->SetBool(TPostProcessingProfileIdentifiers::mIsPassEnabledId, mToneMappingParameters.mIsEnabled);
+			pWriter->SetFloat(TPostProcessingProfileIdentifiers::TToneMappingParameters::mExposureId, mToneMappingParameters.mExposure);
+		}
+		pWriter->EndGroup();
+
 		return RC_OK;
+	}
+
+	const TPostProcessingProfileParameters::TToneMappingParameters& CBasePostProcessingProfile::GetToneMappingParameters() const
+	{
+		return mToneMappingParameters;
 	}
 
 	const TPostProcessingProfileParameters::TBloomParameters& CBasePostProcessingProfile::GetBloomParameters() const

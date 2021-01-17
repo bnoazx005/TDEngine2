@@ -119,11 +119,20 @@ namespace TDEngine2
 		const U32 width = mpWindowSystem->GetWidth();
 		const U32 height = mpWindowSystem->GetHeight();
 
+		const auto& toneMappingParameters = mpCurrPostProcessingProfile->GetToneMappingParameters();
 		const auto& colorGradingParameters = mpCurrPostProcessingProfile->GetColorGradingParameters();
+
+		const bool isHDREnabled = toneMappingParameters.mIsEnabled;
+
+		if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
+		{
+			pToneMappingMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "toneMappingParams", TVector4(isHDREnabled ? 1.0f : 0.0f, toneMappingParameters.mExposure, 0.0f, 0.0f));
+			pToneMappingMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "colorGradingParams", TVector4(colorGradingParameters.mIsEnabled ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f));
+		}
 
 		if (mRenderTargetHandle == TResourceId::Invalid)
 		{
-			mRenderTargetHandle = _getRenderTarget(width, height, true);
+			mRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled);
 			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 
 			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
@@ -137,9 +146,9 @@ namespace TDEngine2
 				}
 			}
 
-			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, true, false);
+			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, isHDREnabled, false);
 
-			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, true, false);
+			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled, false);
 			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 		}
 
@@ -151,7 +160,7 @@ namespace TDEngine2
 		{
 			mpResourceManager->ReleaseResource(mRenderTargetHandle);
 
-			mRenderTargetHandle = _getRenderTarget(width, height, true);
+			mRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled);
 			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 			pCurrRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 
@@ -166,11 +175,11 @@ namespace TDEngine2
 				}
 			}
 
-			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, true, false);
+			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, isHDREnabled, false);
 			pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
 			pBloomRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 
-			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, true);
+			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled);
 			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 			pTempRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 		}
