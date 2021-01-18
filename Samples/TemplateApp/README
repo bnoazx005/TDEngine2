@@ -1,0 +1,7 @@
+# Template application
+
+### Description
+
+The sample is a basis to create your own projects. You'll need a compiled TDEngine2 libraries.
+This example uses initialization of engine's core based on configuration file. So before you first time 
+run the application's executable don't forget to copy **settings.cfg** file into the same directory.
