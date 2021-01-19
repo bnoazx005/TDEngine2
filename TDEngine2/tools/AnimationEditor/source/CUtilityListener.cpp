@@ -1,4 +1,5 @@
 #include "./../include/CUtilityListener.h"
+#include "../include/CAnimationEditorWindow.h"
 #include <memory>
 
 
@@ -22,16 +23,22 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
+	mpAnimationEditor = TDEngine2::CreateAnimationEditorWindow(result);
+
 	return RC_OK;
 }
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
+	mpAnimationEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+
 	return RC_OK;
 }
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnFree()
 {
+	SafeFree(mpAnimationEditor);
+
 	return RC_OK;
 }
 

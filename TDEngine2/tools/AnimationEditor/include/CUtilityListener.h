@@ -10,6 +10,12 @@
 #include <TDEngine2.h>
 
 
+namespace TDEngine2
+{
+	class IEditorWindow;
+}
+
+
 class CUtilityListener : public TDEngine2::IEngineListener
 {
 	public:
@@ -52,5 +58,7 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::IWindowSystem*    mpWindowSystem;
 
 		TDEngine2::IResourceManager* mpResourceManager;
+
+		TDEngine2::IEditorWindow* mpAnimationEditor;
 
 };

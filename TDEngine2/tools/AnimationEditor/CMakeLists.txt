@@ -17,10 +17,12 @@ set(TDE2_ANIMATION_EDITOR_NAME "TDE2AnimationEd")
 
 set(UTILITY_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CUtilityListener.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CAnimationEditorWindow.h"
 	)
 
 set(UTILITY_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CUtilityListener.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CAnimationEditorWindow.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp"
 	)
 
