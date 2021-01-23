@@ -21,6 +21,9 @@ namespace TDEngine2
 	typedef U32 TAnimationTrackId;
 
 
+	TDE2_DECLARE_HANDLE_TYPE(TAnimationTrackKeyId);
+
+
 	/*!
 		interface IAnimationTrack
 

@@ -25,6 +25,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	mpAnimationEditor = TDEngine2::CreateAnimationEditorWindow(result);
 
+	auto id = pWorld->CreateEntity("Test")->GetId();
+	TAnimatedValueWrapper<TTransformKey> testWrapper{ pWorld, id, {} };
+
 	return RC_OK;
 }
 
