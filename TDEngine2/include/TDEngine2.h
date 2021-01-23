@@ -145,7 +145,7 @@
 #include "graphics/animation/IAnimationClip.h"
 #include "graphics/animation/CAnimationClip.h"
 #include "graphics/animation/IAnimationTrack.h"
-#include "graphics/animation/AnimatedValueWrappers.h"
+#include "graphics/animation/AnimatedObjectWrappers.h"
 #include "graphics/animation/CBaseAnimationTrack.h"
 
 /// audio

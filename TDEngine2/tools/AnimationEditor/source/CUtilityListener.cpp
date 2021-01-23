@@ -25,8 +25,11 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	mpAnimationEditor = TDEngine2::CreateAnimationEditorWindow(result);
 
-	auto id = pWorld->CreateEntity("Test")->GetId();
-	TAnimatedValueWrapper<TTransformKey> testWrapper{ pWorld, id, {} };
+	auto id = pWorld->CreateEntity()->GetId();
+
+	auto pWrapper = CreateAnimatedEntityTransformWrapper(pWorld, id, result);
+	pWrapper->Set<TVector3>("position", ForwardVector3);
+	auto t = pWrapper->Get<TVector3>("rotation");
 
 	return RC_OK;
 }

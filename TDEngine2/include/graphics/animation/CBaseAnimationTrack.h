@@ -8,7 +8,7 @@
 
 
 #include "IAnimationTrack.h"
-#include "AnimatedValueWrappers.h"
+#include "AnimatedObjectWrappers.h"
 #include "../../core/CBaseObject.h"
 #include "../../math/MathUtils.h"
 #include <vector>
@@ -59,11 +59,13 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
+#if 0
 			E_RESULT_CODE Apply(const TAnimatedValueWrapper<T>& wrapper, F32 time)
 			{
 				// \todo implement this one
 				return RC_OK;
 			}
+#endif
 
 			T* GetKey(TAnimationTrackKeyId handle) const
 			{
