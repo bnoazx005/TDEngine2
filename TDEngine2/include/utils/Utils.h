@@ -606,18 +606,24 @@ namespace TDEngine2
 	/*!
 		class CScopedPtr<T>
 
-		\brief The class implements RAII idiom for pointers to types which are
-		used in the engine. The main difference from std::unique_ptr<T> is
-		another way of objects destruction.
+		\brief The smart pointer that can be used with any type that's defined in TDEngine2 namespace
+		and implements IBaseObject interface
 	*/
 
 	template <typename T>
 	class CScopedPtr
 	{
 		public:
-			CScopedPtr() = delete;
-			CScopedPtr(const CScopedPtr<T>& ptr) = delete;
-			CScopedPtr(CScopedPtr<T>&& ptr) = delete;
+			CScopedPtr() : mpPtr(nullptr) {}
+			CScopedPtr(const CScopedPtr<T>& ptr) : mpPtr(ptr.mpPtr) 
+			{
+				if (mpPtr)
+				{
+					mpPtr->AddRef();
+				}
+			}
+
+			CScopedPtr(CScopedPtr<T>&& ptr) : mpPtr(ptr.mpPtr) {}
 			explicit CScopedPtr(T* pPtr) : mpPtr(pPtr) {}
 
 			~CScopedPtr()
@@ -632,6 +638,37 @@ namespace TDEngine2
 			{
 				return mpPtr;
 			}
+
+			CScopedPtr<T>& operator= (CScopedPtr<T> ptr)
+			{
+				_swap(*this, ptr);
+				return *this;
+			}
+
+			CScopedPtr<T>& operator= (CScopedPtr<T>&& ptr)
+			{
+				_swap(*this, ptr);
+				return *this;
+			}
+
+			CScopedPtr<T>& operator= (T* pPtr)
+			{
+				_swap(*this, CScopedPtr<T>(pPtr));
+				return *this;
+			}
+
+			operator bool() const
+			{
+				return (this != nullptr);
+			}
+		private:
+			void _swap(CScopedPtr<T>& left, CScopedPtr<T>& right)
+			{
+				T* pPtr = left.mpPtr;
+				left.mpPtr = right.mpPtr;
+				right.mpPtr = pPtr;
+			}
+
 		private:
 			T* mpPtr;
 	};
