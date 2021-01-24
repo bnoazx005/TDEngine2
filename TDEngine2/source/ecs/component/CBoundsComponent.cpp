@@ -40,6 +40,27 @@ namespace TDEngine2
 		return mIsDirty;
 	}
 
+	const std::string& CBoundsComponent::GetTypeName() const
+	{
+		static const std::string id { "bounds" };
+		return id;
+	}
+
+	IPropertyWrapperPtr CBoundsComponent::GetProperty(const std::string& propertyName)
+	{
+		return CBaseComponent::GetProperty(propertyName);
+	}
+
+	const std::vector<std::string>& CBoundsComponent::GetAllProperties() const
+	{
+		static const std::vector<std::string> properties 
+		{
+
+		};
+
+		return properties;
+	}
+
 
 	IComponent* CreateBoundsComponent(E_RESULT_CODE& result)
 	{

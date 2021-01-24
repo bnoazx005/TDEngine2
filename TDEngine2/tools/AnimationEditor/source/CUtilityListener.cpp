@@ -25,14 +25,16 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	mpAnimationEditor = TDEngine2::CreateAnimationEditorWindow(result);
 
-	auto id = pWorld->CreateEntity()->GetId();
+	if (auto pEntity = pWorld->CreateEntity())
+	{
+		if (auto pTransform = pEntity->GetComponent<CTransform>())
+		{
+			auto props = pTransform->GetAllProperties();
 
-	auto pWrapper = CreateAnimatedEntityTransformWrapper(pWorld, id, result);
-	pWrapper->Set<TVector3>("position", ForwardVector3);
-	auto t = pWrapper->Get<TVector3>("rotation");
-
-	auto tt = CBasePropertyWrapper<int>::Create(nullptr, nullptr);
-	auto ttt = CBasePropertyWrapper<float>::Create(nullptr, nullptr);
+			auto pos = pTransform->GetProperty("position");
+			pos->Set(ForwardVector3);
+		}
+	}
 
 	return RC_OK;
 }

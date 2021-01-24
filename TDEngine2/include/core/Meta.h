@@ -44,6 +44,9 @@ namespace TDEngine2
 	};
 
 
+	typedef CScopedPtr<IPropertyWrapper> IPropertyWrapperPtr;
+
+
 	/*!
 		\brief The simple property wrapper's implementation via lambdas that have access to internal members of some class.
 		Note that you won't get the access like described above if you create these wrappers outside of a class.
@@ -89,7 +92,10 @@ namespace TDEngine2
 				return RC_OK;
 			}
 		protected:
-			CBasePropertyWrapper(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter) : CBaseObject(), mSetterFunc(setter), mGetterFunc(getter) {}
+			CBasePropertyWrapper(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter) : CBaseObject(), mSetterFunc(setter), mGetterFunc(getter) 
+			{
+				mIsInitialized = true;
+			}
 
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePropertyWrapper)
 
@@ -128,7 +134,7 @@ namespace TDEngine2
 				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
 			*/
 
-			TDE2_API virtual IPropertyWrapper* GetProperty(const std::string& propertyName) = 0;
+			TDE2_API virtual IPropertyWrapperPtr GetProperty(const std::string& propertyName) = 0;
 
 			/*!
 				\brief The method returns an array of properties names that are available for usage

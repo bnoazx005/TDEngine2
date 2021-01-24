@@ -1,5 +1,7 @@
 #include "../../include/ecs/CBaseComponent.h"
 #include <limits>
+#include <stringUtils.hpp>
+#include <result.hpp>
 
 
 namespace TDEngine2
@@ -36,6 +38,24 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	const std::string& CBaseComponent::GetTypeName() const
+	{
+		TDE2_UNIMPLEMENTED();
+		return Wrench::StringUtils::GetEmptyStr();
+	}
+
+	IPropertyWrapperPtr CBaseComponent::GetProperty(const std::string& propertyName)
+	{
+		Wrench::Panic(Wrench::StringUtils::Format("[CBaseComponent] The property ({0}) wasn't found", propertyName));
+		return IPropertyWrapperPtr(nullptr);
+	}
+
+	const std::vector<std::string>& CBaseComponent::GetAllProperties() const
+	{
+		static const std::vector<std::string> properties{};
+		return properties;
 	}
 
 	

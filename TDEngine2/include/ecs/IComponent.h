@@ -9,6 +9,7 @@
 
 #include "../core/CBaseObject.h"
 #include "../core/Serialization.h"
+#include "../core/Meta.h"
 #include "../utils/Utils.h"
 
 
@@ -22,7 +23,7 @@ namespace TDEngine2
 		\note The interface is empty by now
 	*/
 
-	class IComponent: public virtual IBaseObject, public ISerializable
+	class IComponent: public virtual IBaseObject, public ISerializable, public IIntrospectable
 	{
 		public:
 			TDE2_API virtual TypeId GetComponentTypeId() const = 0;
