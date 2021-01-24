@@ -31,6 +31,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	pWrapper->Set<TVector3>("position", ForwardVector3);
 	auto t = pWrapper->Get<TVector3>("rotation");
 
+	auto tt = CBasePropertyWrapper<int>::Create(nullptr, nullptr);
+	auto ttt = CBasePropertyWrapper<float>::Create(nullptr, nullptr);
+
 	return RC_OK;
 }
 

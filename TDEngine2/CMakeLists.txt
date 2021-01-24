@@ -87,6 +87,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/localization/ILocalizationPackage.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/localization/CLocalizationPackage.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IAudioContext.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/Meta.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/game/ISaveManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/game/CSaveManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/game/CSaveData.h"

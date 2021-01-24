@@ -1,0 +1,141 @@
+/*!
+	\file Meta.h
+	\date 22.01.2021
+	\authors Kasimov Ildar
+*/
+
+#pragma once
+
+
+#include "CBaseObject.h"
+#include <functional>
+#include <string>
+#include <vector>
+
+
+namespace TDEngine2
+{
+	/*!
+		interface IPropertyWrapper
+
+		\brief The interface describes an element that allows to get an access to internal values of some component
+	*/
+
+	class IPropertyWrapper : public virtual IBaseObject
+	{
+		public:
+			template <typename T>
+			E_RESULT_CODE Set(const T& value)
+			{
+				return _setInternal(static_cast<const void*>(&value), sizeof(value));
+			}
+
+			template <typename T>
+			const T& Get() const
+			{
+				return *static_cast<const T*>(_getInternal());
+			}
+
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPropertyWrapper)
+
+			TDE2_API virtual E_RESULT_CODE _setInternal(const void* pValue, size_t valueSize) = 0;
+			TDE2_API virtual const void* _getInternal() const = 0;
+	};
+
+
+	/*!
+		\brief The simple property wrapper's implementation via lambdas that have access to internal members of some class.
+		Note that you won't get the access like described above if you create these wrappers outside of a class.
+
+		\todo Also another problem that should be discussed here is safety. Because of template methods Set/Get in the interface 
+		now we can't be sure that user doesn't mess up with types, etc.
+	*/
+
+	template <typename TValueType>
+	class CBasePropertyWrapper : public IPropertyWrapper, public CBaseObject
+	{
+		public:
+			typedef std::function<E_RESULT_CODE(const TValueType&)> TPropertySetterFunctor;
+			typedef std::function<const TValueType*()> TPropertyGetterFunctor;
+
+		public:
+			static TDE2_API IPropertyWrapper* Create(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter)
+			{
+				return new (std::nothrow) CBasePropertyWrapper<TValueType>(setter, getter);
+			}
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free()
+			{
+				if (!mIsInitialized)
+				{
+					return RC_FAIL;
+				}
+
+				--mRefCounter;
+
+				if (!mRefCounter)
+				{
+					mIsInitialized = false;
+					delete this;
+				}
+
+				return RC_OK;
+			}
+		protected:
+			CBasePropertyWrapper(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter) : CBaseObject(), mSetterFunc(setter), mGetterFunc(getter) {}
+
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePropertyWrapper)
+
+			TDE2_API E_RESULT_CODE _setInternal(const void* pValue, size_t valueSize)
+			{
+				return mSetterFunc ? mSetterFunc(*static_cast<const TValueType*>(pValue)) : RC_FAIL;
+			}
+
+			TDE2_API const void* _getInternal() const
+			{
+				return mGetterFunc ? mGetterFunc() : nullptr;
+			}
+		protected:
+			TPropertySetterFunctor mSetterFunc;
+			TPropertyGetterFunctor mGetterFunc;
+	};
+
+
+	template <typename TValueType> CBasePropertyWrapper<TValueType>::CBasePropertyWrapper() : CBaseObject() {}
+
+
+	/*!
+		\brief All classes that want to provide some level of reflection for a user should implement this interface
+	*/
+
+	class IIntrospectable
+	{
+		public:
+			/*!
+				\return The method returns type name (lowercase is preffered)
+			*/
+
+			TDE2_API virtual const std::string& GetTypeName() const = 0;
+
+			/*!
+				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
+			*/
+
+			TDE2_API virtual IPropertyWrapper* GetProperty(const std::string& propertyName) = 0;
+
+			/*!
+				\brief The method returns an array of properties names that are available for usage
+			*/
+
+			TDE2_API virtual const std::vector<std::string>& GetAllProperties() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IIntrospectable)
+	};
+}
