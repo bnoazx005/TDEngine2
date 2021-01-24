@@ -16,6 +16,7 @@
 namespace TDEngine2
 {
 	class IAnimationClip;
+	class IPropertyWrapper;
 
 
 	typedef U32 TAnimationTrackId;
@@ -42,6 +43,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IAnimationClip* pTrackOwner) = 0;
+
+			TDE2_API virtual TAnimationTrackKeyId CreateKey(F32 time) = 0;
+			TDE2_API virtual E_RESULT_CODE RemoveKey(TAnimationTrackKeyId handle) = 0;
+
+			TDE2_API virtual E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) = 0;
+
+			/*!
+				\brief The method assign a string which contains a name of property that will be animated
+				by this track
+
+				\param[in] binding Current format looks like the following component_name.property_name
+
+				\return RC_OK if everything went ok, or some other code, which describes an error				
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetPropertyBinding(const std::string& binding) = 0;
+
+			TDE2_API virtual const std::string& GetPropertyBinding() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationTrack)
 	};
