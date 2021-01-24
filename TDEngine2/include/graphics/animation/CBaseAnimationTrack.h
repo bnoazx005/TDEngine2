@@ -8,7 +8,6 @@
 
 
 #include "IAnimationTrack.h"
-#include "AnimatedObjectWrappers.h"
 #include "../../core/CBaseObject.h"
 #include "../../math/MathUtils.h"
 #include <vector>
@@ -18,23 +17,23 @@
 
 namespace TDEngine2
 {
-	template <typename T>
+	/*!
+		class CBaseAnimationTrack
+
+		\brief All other track types should be implemented based on this
+	*/
+
+	template <typename TKeyFrameType>
 	class CBaseAnimationTrack : public IAnimationTrack, public CBaseObject
 	{
 		public:
-			typedef struct TKeyFrame
-			{
-				F32 mTime;
-				T mValue;
-			} TKeyFrame, *TKeyFramePtr;
-
-			typedef std::vector<TKeyFrame> TKeysArray;
+			typedef std::vector<TKeyFrameType> TKeysArray;
 		public:
 			virtual ~CBaseAnimationTrack() = default;
 
 			TAnimationTrackKeyId CreateKey(F32 time)
 			{
-				auto it = std::find_if(mKeys.cbegin(), mKeys.cend(), [time](const TKeyFrame& key) { return CMathUtils::Abs(key.mTime - time) < 1e-3f; });
+				auto it = std::find_if(mKeys.cbegin(), mKeys.cend(), [time](const TKeyFrameType& key) { return CMathUtils::Abs(key.mTime - time) < 1e-3f; });
 				if (it != mKeys.cend()) 
 				{
 					return static_cast<TAnimationTrackKeyId>(std::distance(mKeys.cbegin(), it));
@@ -67,7 +66,7 @@ namespace TDEngine2
 			}
 #endif
 
-			T* GetKey(TAnimationTrackKeyId handle) const
+			TKeyFrameType* GetKey(TAnimationTrackKeyId handle) const
 			{
 				if (handle == TAnimationTrackKeyId::Invalid || static_cast<size_t>(handle) >= mKeys.size())
 				{
