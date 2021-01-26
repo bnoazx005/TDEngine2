@@ -95,6 +95,9 @@ namespace TDEngine2
 					return RC_INVALID_ARGS;
 				}
 
+				mName = pReader->GetString(mNameKeyId);
+				mPropertyBinding = pReader->GetString(mBindingKeyId);
+
 				return RC_OK;
 			}
 
@@ -112,6 +115,9 @@ namespace TDEngine2
 				{
 					return RC_INVALID_ARGS;
 				}
+
+				pWriter->SetString(mNameKeyId, mName);
+				pWriter->SetString(mBindingKeyId, mPropertyBinding);
 
 				return RC_OK;
 			}
@@ -164,6 +170,18 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
+			TDE2_API E_RESULT_CODE SetName(const std::string& name) override
+			{
+				if (name.empty())
+				{
+					return RC_INVALID_ARGS;
+				}
+
+				mName = name;
+
+				return RC_FAIL;
+			}
+
 			TKeyFrameType* GetKey(TAnimationTrackKeyId handle) const
 			{
 				if (handle == TAnimationTrackKeyId::Invalid || static_cast<size_t>(handle) >= mKeys.size())
@@ -175,10 +193,14 @@ namespace TDEngine2
 			}
 
 			TDE2_API const std::string& GetPropertyBinding() const override { return mPropertyBinding; }
+			TDE2_API const std::string& GetName() const override { return mName; }
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAnimationTrack)
 		protected:
+			static const std::string mNameKeyId;
+			static const std::string mBindingKeyId;
+
 			IAnimationClip* mpTrackOwnerAnimation;
 
 			std::string mName;
@@ -186,4 +208,8 @@ namespace TDEngine2
 
 			TKeysArray mKeys;
 	};
+
+
+	template <typename T> const std::string CBaseAnimationTrack<T>::mNameKeyId = "name";
+	template <typename T> const std::string CBaseAnimationTrack<T>::mBindingKeyId = "property_binding";
 }

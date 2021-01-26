@@ -19,9 +19,6 @@ namespace TDEngine2
 	class IPropertyWrapper;
 
 
-	typedef U32 TAnimationTrackId;
-
-
 	TDE2_DECLARE_HANDLE_TYPE(TAnimationTrackKeyId);
 
 
@@ -59,8 +56,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SetPropertyBinding(const std::string& binding) = 0;
+			
+			TDE2_API virtual E_RESULT_CODE SetName(const std::string& name) = 0;
 
 			TDE2_API virtual const std::string& GetPropertyBinding() const = 0;
+
+			TDE2_API virtual const std::string& GetName() const = 0;
+
+			TDE2_API virtual TypeId GetTrackTypeId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationTrack)
 	};

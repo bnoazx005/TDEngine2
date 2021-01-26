@@ -36,6 +36,27 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
+#if 1
+	TAnimationClipParameters clip;
+	clip.mDuration = 2.5f;
+
+	if (IAnimationClip* pClip = mpResourceManager->GetResource<IAnimationClip>(mpResourceManager->Create<CAnimationClip>("Animation2", clip)))
+	{
+		
+
+		auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
+
+		if (auto result = pFileSystem->Open<IYAMLFileWriter>("Animation2.animation", true))
+		{
+			if (auto animationFileWriter = pFileSystem->Get<IYAMLFileWriter>(result.Get()))
+			{
+				pClip->Save(animationFileWriter);
+				animationFileWriter->Close();
+			}
+		}
+	}
+#endif
+
 	return RC_OK;
 }
 

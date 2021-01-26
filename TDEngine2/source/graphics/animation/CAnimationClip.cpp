@@ -6,6 +6,11 @@
 
 namespace TDEngine2
 {
+	const CAnimationClip::TAnimationTracksFactory CAnimationClip::mTracksFactory
+	{
+		{},
+	};
+
 	CAnimationClip::CAnimationClip() :
 		CBaseResource()
 	{
@@ -73,12 +78,38 @@ namespace TDEngine2
 
 		pWriter->BeginGroup("tracks", true);		
 		{
-			for (auto&& pCurrTrack : mpTracks)
+			for (auto&& currTrackEntity : mpTracks)
 			{
-				TDE2_ASSERT(pCurrTrack->Save(pWriter) != RC_OK);
+				IAnimationTrack* pCurrTrack = currTrackEntity.second;
+
+				pWriter->BeginGroup("track");
+				{
+					pWriter->SetUInt32("type_id", static_cast<U32>(pCurrTrack->GetTrackTypeId()));
+					E_RESULT_CODE result = pCurrTrack->Save(pWriter);
+					TDE2_ASSERT(result != RC_OK);
+				}
+				pWriter->EndGroup();
 			}
 		}
 		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CAnimationClip::RemoveTrack(TAnimationTrackId handle)
+	{
+		if (handle == TAnimationTrackId::Invalid)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto iter = mpTracks.find(handle);
+		if (iter == mpTracks.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mpTracks.erase(iter);
 
 		return RC_OK;
 	}
@@ -114,6 +145,48 @@ namespace TDEngine2
 	const IResourceLoader* CAnimationClip::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<CAnimationClip>();;
+	}
+
+	TAnimationTrackId CAnimationClip::_createTrackInternal(TypeId typeId, const std::string& name)
+	{
+		if (typeId == TypeId::Invalid || name.empty())
+		{
+			return TAnimationTrackId::Invalid;
+		}
+
+		auto factoryIter = mTracksFactory.find(typeId);
+		if (factoryIter == mTracksFactory.cend())
+		{
+			TDE2_ASSERT(false);
+			return TAnimationTrackId::Invalid;
+		}
+
+		IAnimationTrack* pTrack = (factoryIter->second)(this);
+		if (!pTrack)
+		{
+			TDE2_ASSERT(false);
+			return TAnimationTrackId::Invalid;
+		}
+
+		TAnimationTrackId handle = TAnimationTrackId(mpTracks.size());
+		mpTracks.insert({ handle, pTrack });
+
+		pTrack->SetName(name);
+
+		return handle;
+	}
+
+	IAnimationTrack* CAnimationClip::_getTrackInternal(TAnimationTrackId handle)
+	{
+		auto iter = mpTracks.find(handle);
+
+		if (handle == TAnimationTrackId::Invalid || iter == mpTracks.cend())
+		{
+			TDE2_ASSERT(false);
+			return nullptr;
+		}
+
+		return iter->second;
 	}
 
 

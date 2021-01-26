@@ -18,6 +18,10 @@ namespace TDEngine2
 {
 	class IResourceManager;
 	class IGraphicsContext;
+	class IAnimationTrack;
+
+
+	TDE2_DECLARE_HANDLE_TYPE(TAnimationTrackId);
 
 	
 	/*!
@@ -84,6 +88,14 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
 
+			template <typename T>
+			TDE2_API TAnimationTrackId CreateTrack(const std::string& name = "")
+			{
+				return _createTrackInternal(T::GetTypeId(), name);
+			}
+
+			TDE2_API virtual E_RESULT_CODE RemoveTrack(TAnimationTrackId handle) = 0;
+
 			/*!
 				\brief The method specifies duration of the clip
 
@@ -116,8 +128,18 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_ANIMATION_WRAP_MODE_TYPE GetWrapMode() const = 0;
+
+			template <typename T>
+			T* GetTrack(TAnimationTrackId handle) const
+			{
+				return dynamic_cast<T*>(_getTrackInternal(handle));
+			}
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationClip)
+
+			TDE2_API virtual TAnimationTrackId _createTrackInternal(TypeId typeId, const std::string& name) = 0;
+
+			TDE2_API virtual IAnimationTrack* _getTrackInternal(TAnimationTrackId handle) = 0;
 	};
 
 

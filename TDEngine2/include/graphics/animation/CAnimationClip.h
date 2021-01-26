@@ -11,6 +11,8 @@
 #include "../../core/CBaseResource.h"
 #include "../../core/IResourceLoader.h"
 #include <vector>
+#include <functional>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -63,7 +65,9 @@ namespace TDEngine2
 			friend TDE2_API IAnimationClip* CreateAnimationClip(IResourceManager*, IGraphicsContext*, const std::string&, const TAnimationClipParameters&, E_RESULT_CODE&);
 			friend TDE2_API IAnimationClip* CreateAnimationClip(IResourceManager*, IGraphicsContext*, const std::string&, E_RESULT_CODE&);
 		public:
-			typedef std::vector<IAnimationTrack*> TAnimationTracks;
+			typedef std::unordered_map<TAnimationTrackId, IAnimationTrack*> TAnimationTracks;
+			typedef std::function<IAnimationTrack*(IAnimationClip*)> TAnimationTrackFactoryFunctor;
+			typedef std::unordered_map<TypeId, TAnimationTrackFactoryFunctor> TAnimationTracksFactory;
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CAnimationClip)
 			TDE2_REGISTER_TYPE(CAnimationClip)
@@ -124,6 +128,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API E_RESULT_CODE RemoveTrack(TAnimationTrackId handle) override;
+
 			/*!
 				\brief The method specifies duration of the clip
 
@@ -160,7 +166,13 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationClip)
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
+
+			TDE2_API TAnimationTrackId _createTrackInternal(TypeId typeId, const std::string& name) override;
+
+			TDE2_API IAnimationTrack* _getTrackInternal(TAnimationTrackId handle) override;
 		protected:
+			static const TAnimationTracksFactory mTracksFactory;
+
 			static constexpr U16       mVersionTag = 0x1;
 			
 			TAnimationTracks           mpTracks;
