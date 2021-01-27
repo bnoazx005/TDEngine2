@@ -8,6 +8,7 @@
 
 
 #include "./../../include/utils/Types.h"
+#include "../../include/core/Serialization.h"
 #include "./stringUtils.hpp"
 #include <string>
 
@@ -180,4 +181,12 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TVector2 Scale(const TVector2& vec2l, const TVector2& vec2r);
+
+
+	/*!
+		\brief TVector3's Serialization/Deserialization helpers
+	*/
+
+	TDE2_API TResult<TVector2> LoadVector2(IArchiveReader* pReader);
+	TDE2_API E_RESULT_CODE SaveVector2(IArchiveWriter* pWriter, const TVector2& object);
 }

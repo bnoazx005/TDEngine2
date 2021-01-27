@@ -139,7 +139,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TAnimationTrackId _createTrackInternal(TypeId typeId, const std::string& name) = 0;
 
-			TDE2_API virtual IAnimationTrack* _getTrackInternal(TAnimationTrackId handle) = 0;
+			TDE2_API virtual IAnimationTrack* _getTrackInternal(TAnimationTrackId handle) const = 0;
 	};
 
 

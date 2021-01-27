@@ -2,13 +2,16 @@
 #include "../../../include/core/IResourceManager.h"
 #include "../../../include/core/IGraphicsContext.h"
 #include "../../../include/graphics/animation/IAnimationTrack.h"
+#include "../../../include/graphics/animation/AnimationTracks.h"
 
 
 namespace TDEngine2
 {
 	const CAnimationClip::TAnimationTracksFactory CAnimationClip::mTracksFactory
 	{
-		{},
+		{ CVector2AnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateVector2AnimationTrack(pClip, result); } },
+		{ CVector3AnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateVector3AnimationTrack(pClip, result); } },
+		{ CQuaternionAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateQuaternionAnimationTrack(pClip, result); } },
 	};
 
 	CAnimationClip::CAnimationClip() :
@@ -82,11 +85,15 @@ namespace TDEngine2
 			{
 				IAnimationTrack* pCurrTrack = currTrackEntity.second;
 
-				pWriter->BeginGroup("track");
+				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
-					pWriter->SetUInt32("type_id", static_cast<U32>(pCurrTrack->GetTrackTypeId()));
-					E_RESULT_CODE result = pCurrTrack->Save(pWriter);
-					TDE2_ASSERT(result != RC_OK);
+					pWriter->BeginGroup("track");
+					{
+						pWriter->SetUInt32("type_id", static_cast<U32>(pCurrTrack->GetTrackTypeId()));
+						E_RESULT_CODE result = pCurrTrack->Save(pWriter);
+						TDE2_ASSERT(result == RC_OK);
+					}
+					pWriter->EndGroup();
 				}
 				pWriter->EndGroup();
 			}
@@ -176,7 +183,7 @@ namespace TDEngine2
 		return handle;
 	}
 
-	IAnimationTrack* CAnimationClip::_getTrackInternal(TAnimationTrackId handle)
+	IAnimationTrack* CAnimationClip::_getTrackInternal(TAnimationTrackId handle) const
 	{
 		auto iter = mpTracks.find(handle);
 

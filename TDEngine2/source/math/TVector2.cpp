@@ -138,4 +138,33 @@ namespace TDEngine2
 	{
 		return TVector2(vec2l.x * vec2r.x, vec2l.y * vec2r.y);
 	}
+
+
+	TResult<TVector2> LoadVector2(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		TVector2 vec;
+
+		vec.x = pReader->GetFloat("x");
+		vec.y = pReader->GetFloat("y");
+
+		return Wrench::TOkValue<TVector2>(vec);
+	}
+
+	E_RESULT_CODE SaveVector2(IArchiveWriter* pWriter, const TVector2& object)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pWriter->SetFloat("x", object.x);
+		pWriter->SetFloat("y", object.y);
+
+		return RC_OK;
+	}
 }

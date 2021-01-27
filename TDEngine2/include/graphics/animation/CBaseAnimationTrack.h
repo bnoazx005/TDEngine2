@@ -119,6 +119,27 @@ namespace TDEngine2
 				pWriter->SetString(mNameKeyId, mName);
 				pWriter->SetString(mBindingKeyId, mPropertyBinding);
 
+				pWriter->BeginGroup("keys", true);
+
+				for (const TKeyFrameType& currKey : mKeys)
+				{
+					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						pWriter->BeginGroup("key");
+
+						pWriter->SetFloat("time", currKey.mTime);
+
+						pWriter->BeginGroup("value");
+						_saveKeyFrameValue(currKey, pWriter);
+						pWriter->EndGroup();
+
+						pWriter->EndGroup();
+					}
+					pWriter->EndGroup();
+				}
+
+				pWriter->EndGroup();
+
 				return RC_OK;
 			}
 
@@ -132,7 +153,7 @@ namespace TDEngine2
 
 				TAnimationTrackKeyId handle = static_cast<TAnimationTrackKeyId>(mKeys.size());
 
-				mKeys.emplace_back(time, {});
+				mKeys.push_back({ time, {} });
 
 				return handle;
 			}
@@ -197,6 +218,8 @@ namespace TDEngine2
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAnimationTrack)
+
+			TDE2_API virtual E_RESULT_CODE _saveKeyFrameValue(const TKeyFrameType& value, IArchiveWriter* pWriter) = 0;
 		protected:
 			static const std::string mNameKeyId;
 			static const std::string mBindingKeyId;
@@ -208,6 +231,9 @@ namespace TDEngine2
 
 			TKeysArray mKeys;
 	};
+
+
+	template <typename T> CBaseAnimationTrack<T>::CBaseAnimationTrack(): CBaseObject() {}
 
 
 	template <typename T> const std::string CBaseAnimationTrack<T>::mNameKeyId = "name";

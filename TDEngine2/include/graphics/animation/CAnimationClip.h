@@ -169,7 +169,7 @@ namespace TDEngine2
 
 			TDE2_API TAnimationTrackId _createTrackInternal(TypeId typeId, const std::string& name) override;
 
-			TDE2_API IAnimationTrack* _getTrackInternal(TAnimationTrackId handle) override;
+			TDE2_API IAnimationTrack* _getTrackInternal(TAnimationTrackId handle) const override;
 		protected:
 			static const TAnimationTracksFactory mTracksFactory;
 

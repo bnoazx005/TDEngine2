@@ -42,7 +42,11 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	if (IAnimationClip* pClip = mpResourceManager->GetResource<IAnimationClip>(mpResourceManager->Create<CAnimationClip>("Animation2", clip)))
 	{
-		
+		if (auto pTrack = pClip->GetTrack<IAnimationTrack>(pClip->CreateTrack<CVector3AnimationTrack>("testTrack")))
+		{
+			pTrack->CreateKey(0.0f);
+			pTrack->CreateKey(1.0f);
+		}
 
 		auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
 

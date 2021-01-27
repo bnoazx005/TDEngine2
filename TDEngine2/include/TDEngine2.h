@@ -147,6 +147,7 @@
 #include "graphics/animation/CAnimationClip.h"
 #include "graphics/animation/IAnimationTrack.h"
 #include "graphics/animation/CBaseAnimationTrack.h"
+#include "graphics/animation/AnimationTracks.h"
 
 /// audio
 #include "audio/IAudioSource.h"
