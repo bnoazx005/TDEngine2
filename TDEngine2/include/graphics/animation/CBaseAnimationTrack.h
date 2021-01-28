@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -28,6 +29,7 @@ namespace TDEngine2
 	{
 		public:
 			typedef std::vector<TKeyFrameType> TKeysArray;
+			typedef std::unordered_map<TAnimationTrackKeyId, U32> TKeysHandleRegistry;
 		public:
 			/*!
 				\brief The method initializes an internal state of an animation track
@@ -140,6 +142,11 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
+			/*!
+				\brief The method creates a new key frame in the track. Each invokation of the method should save
+				keys in sorted manner
+			*/
+
 			TDE2_API TAnimationTrackKeyId CreateKey(F32 time) override
 			{
 				auto it = std::find_if(mKeys.cbegin(), mKeys.cend(), [time](const TKeyFrameType& key) { return CMathUtils::Abs(key.mTime - time) < 1e-3f; });
@@ -150,19 +157,48 @@ namespace TDEngine2
 
 				TAnimationTrackKeyId handle = static_cast<TAnimationTrackKeyId>(mKeys.size());
 
-				mKeys.push_back({ time, {} });
+				it = std::find_if(mKeys.cbegin(), mKeys.cend(), [time](const TKeyFrameType& key) { return key.mTime > time; }); // find first key which is lesser than a new one
+
+				const U32 index = static_cast<U32>(std::distance(mKeys.cbegin(), it));
+
+				mKeys.insert(it, { time, {} });
+
+				// \note refresh handles
+				for (auto& currHandleEntity : mKeysHandlesMap)
+				{
+					if (currHandleEntity.second >= index)
+					{
+						++currHandleEntity.second;
+					}
+				}
+
+				mKeysHandlesMap.insert({ handle, index });
 
 				return handle;
 			}
 
 			TDE2_API E_RESULT_CODE RemoveKey(TAnimationTrackKeyId handle) override
 			{
-				if (handle == TAnimationTrackKeyId::Invalid || static_cast<size_t>(handle) >= mKeys.size())
+				auto it = mKeysHandlesMap.find(handle);
+
+				if (handle == TAnimationTrackKeyId::Invalid || it == mKeysHandlesMap.cend())
 				{
 					return RC_INVALID_ARGS;
 				}
 
-				mKeys.erase(mKeys.cbegin() + static_cast<size_t>(handle));
+				const U32 index = it->second;
+
+				mKeys.erase(mKeys.cbegin() + index);
+				mKeysHandlesMap.erase(it);
+
+				// \note refresh handles
+				for (auto& currHandleEntity : mKeysHandlesMap)
+				{
+					if (currHandleEntity.second > index)
+					{
+						--currHandleEntity.second;
+					}
+				}
 
 				return RC_OK;
 			}
@@ -202,12 +238,14 @@ namespace TDEngine2
 
 			TKeyFrameType* GetKey(TAnimationTrackKeyId handle) const
 			{
-				if (handle == TAnimationTrackKeyId::Invalid || static_cast<size_t>(handle) >= mKeys.size())
+				auto iter = mKeysHandlesMap.find(handle);
+
+				if (handle == TAnimationTrackKeyId::Invalid || iter == mKeysHandlesMap.cend())
 				{
 					return nullptr;
 				}
 
-				return mKeys[static_cast<U32>(handle)];
+				return mKeys[iter->second];
 			}
 
 			TDE2_API const std::string& GetPropertyBinding() const override { return mPropertyBinding; }
@@ -226,6 +264,7 @@ namespace TDEngine2
 			std::string mName;
 			std::string mPropertyBinding; ///< Format of the bindings: component_name.property_name
 
+			TKeysHandleRegistry mKeysHandlesMap;
 			TKeysArray mKeys;
 	};
 

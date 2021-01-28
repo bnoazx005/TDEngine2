@@ -46,6 +46,10 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		{
 			pTrack->CreateKey(0.0f);
 			pTrack->CreateKey(1.0f);
+			auto handle = pTrack->CreateKey(0.2f);
+			pTrack->CreateKey(0.35f);
+			pTrack->CreateKey(0.12f);
+			pTrack->RemoveKey(handle);
 		}
 
 		auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
