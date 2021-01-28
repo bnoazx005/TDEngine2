@@ -128,10 +128,7 @@ namespace TDEngine2
 						pWriter->BeginGroup("key");
 
 						pWriter->SetFloat("time", currKey.mTime);
-
-						pWriter->BeginGroup("value");
-						_saveKeyFrameValue(currKey, pWriter);
-						pWriter->EndGroup();
+						_saveKeyFrameValue(currKey, pWriter); // \note Write down the value
 
 						pWriter->EndGroup();
 					}

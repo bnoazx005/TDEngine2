@@ -12,6 +12,10 @@ namespace TDEngine2
 		{ CVector2AnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateVector2AnimationTrack(pClip, result); } },
 		{ CVector3AnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateVector3AnimationTrack(pClip, result); } },
 		{ CQuaternionAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateQuaternionAnimationTrack(pClip, result); } },
+		{ CColorAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateColorAnimationTrack(pClip, result); } },
+		{ CBooleanAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateBooleanAnimationTrack(pClip, result); } },
+		{ CFloatAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateFloatAnimationTrack(pClip, result); } },
+		{ CIntegerAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateIntegerAnimationTrack(pClip, result); } },
 	};
 
 	CAnimationClip::CAnimationClip() :

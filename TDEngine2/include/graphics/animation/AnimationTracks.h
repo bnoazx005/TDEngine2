@@ -213,4 +213,157 @@ namespace TDEngine2
 		protected:
 
 	};
+
+
+	/*!
+		\brief TBooleanKeyFrame
+	*/
+
+
+	typedef struct TBooleanKeyFrame
+	{
+		F32 mTime;
+		bool mValue;
+	} TBooleanKeyFrame, *TBooleanKeyFramePtr;
+
+
+	/*!
+		\brief A factory function for creation objects of CBooleanAnimationTrack's type
+
+		\param[in, out] pOwner A pointer to IAnimationClip implementation
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CBooleanAnimationTrack's implementation
+	*/
+
+	TDE2_API IAnimationTrack* CreateBooleanAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result);
+
+
+	class CBooleanAnimationTrack : public CBaseAnimationTrack<TBooleanKeyFrame>
+	{
+		public:
+			friend TDE2_API IAnimationTrack* CreateBooleanAnimationTrack(IAnimationClip*, E_RESULT_CODE&);
+		public:
+			TDE2_REGISTER_TYPE(CBooleanAnimationTrack);
+			TDE2_REGISTER_VIRTUAL_TYPE_EX(CBooleanAnimationTrack, GetTrackTypeId);
+
+			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBooleanAnimationTrack)
+
+			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TBooleanKeyFrame& value, IArchiveWriter* pWriter) override;
+		protected:
+	};
+
+
+	/*!
+		\brief TFloatKeyFrame
+	*/
+
+
+	typedef struct TFloatKeyFrame
+	{
+		F32 mTime;
+		F32 mValue;
+	} TFloatKeyFrame, *TFloatKeyFramePtr;
+
+
+	/*!
+		\brief A factory function for creation objects of CFloatAnimationTrack's type
+
+		\param[in, out] pOwner A pointer to IAnimationClip implementation
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CFloatAnimationTrack's implementation
+	*/
+
+	TDE2_API IAnimationTrack* CreateFloatAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result);
+
+
+	class CFloatAnimationTrack : public CBaseAnimationTrack<TFloatKeyFrame>
+	{
+		public:
+			friend TDE2_API IAnimationTrack* CreateFloatAnimationTrack(IAnimationClip*, E_RESULT_CODE&);
+		public:
+			TDE2_REGISTER_TYPE(CFloatAnimationTrack);
+			TDE2_REGISTER_VIRTUAL_TYPE_EX(CFloatAnimationTrack, GetTrackTypeId);
+
+			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFloatAnimationTrack)
+
+			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TFloatKeyFrame& value, IArchiveWriter* pWriter) override;
+		protected:
+	};
+
+
+	/*!
+		\brief TIntegerKeyFrame
+	*/
+
+
+	typedef struct TIntegerKeyFrame
+	{
+		F32 mTime;
+		I32 mValue;
+	} TIntegerKeyFrame, *TIntegerKeyFramePtr;
+
+
+	/*!
+		\brief A factory function for creation objects of CIntegerAnimationTrack's type
+
+		\param[in, out] pOwner A pointer to IAnimationClip implementation
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CIntegerAnimationTrack's implementation
+	*/
+
+	TDE2_API IAnimationTrack* CreateIntegerAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result);
+
+
+	class CIntegerAnimationTrack : public CBaseAnimationTrack<TIntegerKeyFrame>
+	{
+		public:
+			friend TDE2_API IAnimationTrack* CreateIntegerAnimationTrack(IAnimationClip*, E_RESULT_CODE&);
+		public:
+			TDE2_REGISTER_TYPE(CIntegerAnimationTrack);
+			TDE2_REGISTER_VIRTUAL_TYPE_EX(CIntegerAnimationTrack, GetTrackTypeId);
+
+			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CIntegerAnimationTrack)
+
+			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TIntegerKeyFrame& value, IArchiveWriter* pWriter) override;
+		protected:
+	};
 }
