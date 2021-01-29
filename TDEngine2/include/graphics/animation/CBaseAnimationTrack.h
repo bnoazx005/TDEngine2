@@ -8,6 +8,7 @@
 
 
 #include "IAnimationTrack.h"
+#include "IAnimationClip.h"
 #include "../../core/CBaseObject.h"
 #include "../../math/MathUtils.h"
 #include <vector>
@@ -99,6 +100,7 @@ namespace TDEngine2
 
 				mName = pReader->GetString(mNameKeyId);
 				mPropertyBinding = pReader->GetString(mBindingKeyId);
+				mInterpolationMode = static_cast<E_ANIMATION_INTERPOLATION_MODE_TYPE>(pReader->GetUInt8(mInterpolationModeKeyId));
 
 				return RC_OK;
 			}
@@ -120,6 +122,7 @@ namespace TDEngine2
 
 				pWriter->SetString(mNameKeyId, mName);
 				pWriter->SetString(mBindingKeyId, mPropertyBinding);
+				pWriter->SetUInt8(mInterpolationModeKeyId, static_cast<U8>(mInterpolationMode));
 
 				pWriter->BeginGroup("keys", true);
 
@@ -204,6 +207,17 @@ namespace TDEngine2
 			}
 
 			/*!
+				\brief The method specifies interpolation mode for tracks
+
+				\param[in] mode The value determines sampling type
+			*/
+
+			TDE2_API void SetInterpolationMode(E_ANIMATION_INTERPOLATION_MODE_TYPE mode) override
+			{
+				mInterpolationMode = mode;
+			}
+
+			/*!
 				\brief The method assign a string which contains a name of property that will be animated
 				by this track
 
@@ -251,13 +265,173 @@ namespace TDEngine2
 			TDE2_API const std::string& GetPropertyBinding() const override { return mPropertyBinding; }
 			TDE2_API const std::string& GetName() const override { return mName; }
 
+			TDE2_API E_ANIMATION_INTERPOLATION_MODE_TYPE GetInterpolationMode() const override
+			{
+				return mInterpolationMode;
+			}
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAnimationTrack)
 
 			TDE2_API virtual E_RESULT_CODE _saveKeyFrameValue(const TKeyFrameType& value, IArchiveWriter* pWriter) = 0;
+			TDE2_API virtual TKeyFrameType _lerpKeyFrames(const TKeyFrameType& left, const TKeyFrameType& right, F32 t) const = 0;
+
+			/*!
+				\brief The method returns an index of a key in the array that's time lesser than given
+			*/
+
+			TDE2_API I32 _getFrameIndexByTime(F32 time) const
+			{
+				if (mKeys.size() <= 1)
+				{
+					return -1;
+				}
+
+				F32 t = time;
+
+				const F32 startTime = mKeys.front().mTime;
+
+				if (mpTrackOwnerAnimation->GetWrapMode() == E_ANIMATION_WRAP_MODE_TYPE::LOOP)
+				{
+					const F32 endTime = mKeys[mKeys.size() - 1].mTime;
+
+					const F32 duration = endTime - startTime;
+
+					t = std::fmodf(time - startTime, duration);  // clamp time with duration
+
+					if (t < 0.0f)
+					{
+						t += duration;
+					}
+
+					t += startTime;
+				}
+				else
+				{
+					if (CMathUtils::IsLessOrEqual(time, startTime))
+					{
+						return 0;
+					}
+
+					if (CMathUtils::IsGreatOrEqual(time, mKeys[mKeys.size() - 2].mTime))
+					{
+						return static_cast<I32>(mKeys.size()) - 2;
+					}
+				}
+
+				for (auto it = mKeys.rbegin(); it != mKeys.rend(); ++it)
+				{
+					if (CMathUtils::IsGreatOrEqual(time, it->mTime))
+					{
+						return static_cast<I32>(std::distance(mKeys.rend(), it));
+					}
+				}
+
+				TDE2_UNREACHABLE();
+				return -1;
+			}
+
+			TDE2_API F32 _adjustTrackTime(F32 time) const
+			{
+				if (mKeys.size() <= 1)
+				{
+					return 0.0f;
+				}
+
+				const F32 startTime = mKeys.front().mTime;
+				const F32 endTime = mKeys[mKeys.size() - 1].mTime;
+				const F32 duration = endTime - startTime;
+
+				if (CMathUtils::IsLessOrEqual(duration, 0.0f))
+				{
+					return 0.0f;
+				}
+
+				if (mpTrackOwnerAnimation->GetWrapMode() == E_ANIMATION_WRAP_MODE_TYPE::LOOP)
+				{
+					F32 t = std::fmodf(time - startTime, duration);  // clamp time with duration
+
+					if (t < 0.0f)
+					{
+						t += duration;
+					}
+
+					t += startTime;
+				}
+				else
+				{
+					if (CMathUtils::IsLessOrEqual(time, startTime))
+					{
+						return startTime;
+					}
+
+					if (CMathUtils::IsGreatOrEqual(time, mKeys[mKeys.size() - 1].mTime))
+					{
+						return endTime;
+					}
+				}
+
+				return time;
+			}
+
+			TDE2_API TKeyFrameType _sample(F32 time) const
+			{
+				switch (mInterpolationMode)
+				{
+					case E_ANIMATION_INTERPOLATION_MODE_TYPE::CONSTANT:
+						return _sampleConstant(time);
+					
+					case E_ANIMATION_INTERPOLATION_MODE_TYPE::LINEAR:
+						return _sampleLinear(time);
+					
+					case E_ANIMATION_INTERPOLATION_MODE_TYPE::CUBIC:
+						TDE2_UNIMPLEMENTED();
+						return TKeyFrameType();
+				}
+
+				TDE2_UNREACHABLE();
+				return TKeyFrameType();
+			}
+
+			TDE2_API TKeyFrameType _sampleConstant(F32 time) const
+			{
+				const I32 index = _getFrameIndexByTime(time);
+				if (index < 0 || index >= static_cast<I32>(mKeys.size()))
+				{
+					return TKeyFrameType();
+				}
+
+				return mKeys[index];
+			}
+
+			TDE2_API TKeyFrameType _sampleLinear(F32 time) const
+			{
+				const I32 index = _getFrameIndexByTime(time);
+				if (index < 0 || index >= static_cast<I32>(mKeys.size()) - 1)
+				{
+					return TKeyFrameType();
+				}
+
+				const I32 nextIndex = index + 1;
+
+				const F32 trackTime = _adjustTrackTime(time);
+				const F32 thisTime = mKeys[index].mTime;
+
+				const F32 frameDelta = mKeys[nextIndex].mTime - thisTime;
+
+				if (CMathUtils::IsLessOrEqual(frameDelta, 0.0f))
+				{
+					return TKeyFrameType();
+				}
+
+				const F32 t = (trackTime - thisTime) / frameDelta;
+
+				return _lerpKeyFrames(mKeys[index], mKeys[nextIndex], t);
+			}
 		protected:
 			static const std::string mNameKeyId;
 			static const std::string mBindingKeyId;
+			static const std::string mInterpolationModeKeyId;
 
 			IAnimationClip* mpTrackOwnerAnimation;
 
@@ -266,6 +440,8 @@ namespace TDEngine2
 
 			TKeysHandleRegistry mKeysHandlesMap;
 			TKeysArray mKeys;
+
+			E_ANIMATION_INTERPOLATION_MODE_TYPE mInterpolationMode;
 	};
 
 
@@ -274,4 +450,5 @@ namespace TDEngine2
 
 	template <typename T> const std::string CBaseAnimationTrack<T>::mNameKeyId = "name";
 	template <typename T> const std::string CBaseAnimationTrack<T>::mBindingKeyId = "property_binding";
+	template <typename T> const std::string CBaseAnimationTrack<T>::mInterpolationModeKeyId = "interpolation_mode";
 }

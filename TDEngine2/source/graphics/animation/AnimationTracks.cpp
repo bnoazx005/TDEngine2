@@ -1,4 +1,5 @@
 #include "../../include/graphics/animation/AnimationTracks.h"
+#include "../../include/core/Meta.h"
 
 
 namespace TDEngine2
@@ -14,7 +15,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVector2AnimationTrack::Apply(IPropertyWrapper* pPropertyWrapper, F32 time)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pPropertyWrapper->Set<TVector2>(_sample(time).mValue);
 	}
 
 	E_RESULT_CODE CVector2AnimationTrack::Load(IArchiveReader* pReader)
@@ -31,6 +37,11 @@ namespace TDEngine2
 		result = result | pWriter->EndGroup();
 
 		return result;
+	}
+
+	TVector2KeyFrame CVector2AnimationTrack::_lerpKeyFrames(const TVector2KeyFrame& left, const TVector2KeyFrame& right, F32 t) const
+	{
+		return { CMathUtils::Lerp(left.mTime, right.mTime, t), left.mValue * t + right.mValue * (1.0f - t) };
 	}
 
 
@@ -51,7 +62,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVector3AnimationTrack::Apply(IPropertyWrapper* pPropertyWrapper, F32 time)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pPropertyWrapper->Set<TVector3>(_sample(time).mValue);
 	}
 
 	E_RESULT_CODE CVector3AnimationTrack::Load(IArchiveReader* pReader)
@@ -68,6 +84,11 @@ namespace TDEngine2
 		result = result | pWriter->EndGroup();
 
 		return result;
+	}
+
+	TVector3KeyFrame CVector3AnimationTrack::_lerpKeyFrames(const TVector3KeyFrame& left, const TVector3KeyFrame& right, F32 t) const
+	{
+		return { CMathUtils::Lerp(left.mTime, right.mTime, t), Lerp(left.mValue, right.mValue, t) };
 	}
 
 
@@ -89,7 +110,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CQuaternionAnimationTrack::Apply(IPropertyWrapper* pPropertyWrapper, F32 time)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pPropertyWrapper->Set<TQuaternion>(_sample(time).mValue);
 	}
 
 	E_RESULT_CODE CQuaternionAnimationTrack::Load(IArchiveReader* pReader)
@@ -106,6 +132,11 @@ namespace TDEngine2
 		result = result | pWriter->EndGroup();
 
 		return result;
+	}
+
+	TQuaternionKeyFrame CQuaternionAnimationTrack::_lerpKeyFrames(const TQuaternionKeyFrame& left, const TQuaternionKeyFrame& right, F32 t) const
+	{
+		return { CMathUtils::Lerp(left.mTime, right.mTime, t), Lerp(left.mValue, right.mValue, t) };
 	}
 
 
@@ -126,7 +157,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CColorAnimationTrack::Apply(IPropertyWrapper* pPropertyWrapper, F32 time)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pPropertyWrapper->Set<TColor32F>(_sample(time).mValue);
 	}
 
 	E_RESULT_CODE CColorAnimationTrack::Load(IArchiveReader* pReader)
@@ -145,6 +181,11 @@ namespace TDEngine2
 		return result;
 	}
 
+	TColorKeyFrame CColorAnimationTrack::_lerpKeyFrames(const TColorKeyFrame& left, const TColorKeyFrame& right, F32 t) const
+	{
+		return { CMathUtils::Lerp(left.mTime, right.mTime, t), left.mValue/* * t + right.mValue * (1.0 - t)*/ };
+	}
+
 
 	TDE2_API IAnimationTrack* CreateColorAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result)
 	{
@@ -153,7 +194,7 @@ namespace TDEngine2
 
 
 	/*!
-		\brief CBooleanAnimatioNTrack's definition
+		\brief CBooleanAnimationTrack's definition
 	*/
 
 	CBooleanAnimationTrack::CBooleanAnimationTrack() :
@@ -163,7 +204,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBooleanAnimationTrack::Apply(IPropertyWrapper* pPropertyWrapper, F32 time)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pPropertyWrapper->Set<bool>(_sample(time).mValue);
 	}
 
 	E_RESULT_CODE CBooleanAnimationTrack::Load(IArchiveReader* pReader)
@@ -176,6 +222,11 @@ namespace TDEngine2
 	E_RESULT_CODE CBooleanAnimationTrack::_saveKeyFrameValue(const TBooleanKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetBool("value", value.mValue);
+	}
+
+	TBooleanKeyFrame CBooleanAnimationTrack::_lerpKeyFrames(const TBooleanKeyFrame& left, const TBooleanKeyFrame& right, F32 t) const
+	{
+		return { CMathUtils::Lerp(left.mTime, right.mTime, t), CMathUtils::Lerp(left.mValue, left.mValue, t) };
 	}
 
 
@@ -196,7 +247,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFloatAnimationTrack::Apply(IPropertyWrapper* pPropertyWrapper, F32 time)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pPropertyWrapper->Set<F32>(_sample(time).mValue);
 	}
 
 	E_RESULT_CODE CFloatAnimationTrack::Load(IArchiveReader* pReader)
@@ -209,6 +265,11 @@ namespace TDEngine2
 	E_RESULT_CODE CFloatAnimationTrack::_saveKeyFrameValue(const TFloatKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetFloat("value", value.mValue);
+	}
+
+	TFloatKeyFrame CFloatAnimationTrack::_lerpKeyFrames(const TFloatKeyFrame& left, const TFloatKeyFrame& right, F32 t) const
+	{
+		return { CMathUtils::Lerp(left.mTime, right.mTime, t), CMathUtils::Lerp(left.mValue, left.mValue, t) };
 	}
 
 
@@ -229,7 +290,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CIntegerAnimationTrack::Apply(IPropertyWrapper* pPropertyWrapper, F32 time)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pPropertyWrapper->Set<I32>(_sample(time).mValue);
 	}
 
 	E_RESULT_CODE CIntegerAnimationTrack::Load(IArchiveReader* pReader)
@@ -242,6 +308,11 @@ namespace TDEngine2
 	E_RESULT_CODE CIntegerAnimationTrack::_saveKeyFrameValue(const TIntegerKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetInt32("value", value.mValue);
+	}
+
+	TIntegerKeyFrame CIntegerAnimationTrack::_lerpKeyFrames(const TIntegerKeyFrame& left, const TIntegerKeyFrame& right, F32 t) const
+	{
+		return { CMathUtils::Lerp(left.mTime, right.mTime, t), CMathUtils::Lerp(left.mValue, left.mValue, t) };
 	}
 
 

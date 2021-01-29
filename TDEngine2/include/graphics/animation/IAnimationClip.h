@@ -37,6 +37,14 @@ namespace TDEngine2
 	};
 
 
+	enum class E_ANIMATION_INTERPOLATION_MODE_TYPE: U8
+	{
+		CONSTANT,
+		LINEAR,
+		CUBIC,
+	};
+
+
 	/*!
 		struct TAnimationClipParameters
 
@@ -48,6 +56,7 @@ namespace TDEngine2
 		F32                        mDuration = 1.0f;
 
 		E_ANIMATION_WRAP_MODE_TYPE mWrapMode = E_ANIMATION_WRAP_MODE_TYPE::PLAY_ONCE; ///< The wrap mode could be overwritten by animation component
+		E_ANIMATION_INTERPOLATION_MODE_TYPE mInterpolationMode = E_ANIMATION_INTERPOLATION_MODE_TYPE::LINEAR;
 	} TAnimationClipParameters, *TAnimationClipParametersPtr;
 
 

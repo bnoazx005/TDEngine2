@@ -18,6 +18,8 @@ namespace TDEngine2
 	class IAnimationClip;
 	class IPropertyWrapper;
 
+	enum class E_ANIMATION_INTERPOLATION_MODE_TYPE : U8;
+
 
 	TDE2_DECLARE_HANDLE_TYPE(TAnimationTrackKeyId);
 
@@ -47,6 +49,14 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) = 0;
 
 			/*!
+				\brief The method specifies interpolation mode for tracks
+
+				\param[in] mode The value determines sampling type
+			*/
+
+			TDE2_API virtual void SetInterpolationMode(E_ANIMATION_INTERPOLATION_MODE_TYPE mode) = 0;
+
+			/*!
 				\brief The method assign a string which contains a name of property that will be animated
 				by this track
 
@@ -62,6 +72,8 @@ namespace TDEngine2
 			TDE2_API virtual const std::string& GetPropertyBinding() const = 0;
 
 			TDE2_API virtual const std::string& GetName() const = 0;
+
+			TDE2_API virtual E_ANIMATION_INTERPOLATION_MODE_TYPE GetInterpolationMode() const = 0;
 
 			TDE2_API virtual TypeId GetTrackTypeId() const = 0;
 		protected:

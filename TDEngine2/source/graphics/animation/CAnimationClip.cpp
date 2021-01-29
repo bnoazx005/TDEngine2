@@ -3,6 +3,7 @@
 #include "../../../include/core/IGraphicsContext.h"
 #include "../../../include/graphics/animation/IAnimationTrack.h"
 #include "../../../include/graphics/animation/AnimationTracks.h"
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
@@ -81,7 +82,7 @@ namespace TDEngine2
 		pWriter->EndGroup();
 
 		pWriter->SetFloat("duration", mDuration);
-		pWriter->SetUInt8("wrap-mode", static_cast<U8>(mWrapMode)); // \todo replace with proper serialization of the enum type
+		pWriter->SetString("wrap-mode", Meta::EnumTrait<E_ANIMATION_WRAP_MODE_TYPE>::ToString(mWrapMode)); // \todo replace with proper serialization of the enum type
 
 		pWriter->BeginGroup("tracks", true);		
 		{

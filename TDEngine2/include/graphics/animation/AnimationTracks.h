@@ -59,6 +59,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVector2AnimationTrack)
 
 			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TVector2KeyFrame& value, IArchiveWriter* pWriter) override;
+			TDE2_API TVector2KeyFrame _lerpKeyFrames(const TVector2KeyFrame& left, const TVector2KeyFrame& right, F32 t) const override;
 		protected:
 
 	};
@@ -106,6 +107,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVector3AnimationTrack)
 
 			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TVector3KeyFrame& value, IArchiveWriter* pWriter) override;
+			TDE2_API TVector3KeyFrame _lerpKeyFrames(const TVector3KeyFrame& left, const TVector3KeyFrame& right, F32 t) const override;
 		protected:
 
 	};
@@ -158,6 +160,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CQuaternionAnimationTrack)
 
 			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TQuaternionKeyFrame& value, IArchiveWriter* pWriter) override;
+			TDE2_API TQuaternionKeyFrame _lerpKeyFrames(const TQuaternionKeyFrame& left, const TQuaternionKeyFrame& right, F32 t) const override;
 		protected:
 
 	};
@@ -210,6 +213,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CColorAnimationTrack)
 
 			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TColorKeyFrame& value, IArchiveWriter* pWriter) override;
+			TDE2_API TColorKeyFrame _lerpKeyFrames(const TColorKeyFrame& left, const TColorKeyFrame& right, F32 t) const override;
 		protected:
 
 	};
@@ -262,6 +266,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBooleanAnimationTrack)
 
 			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TBooleanKeyFrame& value, IArchiveWriter* pWriter) override;
+			TDE2_API TBooleanKeyFrame _lerpKeyFrames(const TBooleanKeyFrame& left, const TBooleanKeyFrame& right, F32 t) const override;
 		protected:
 	};
 
@@ -313,6 +318,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFloatAnimationTrack)
 
 			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TFloatKeyFrame& value, IArchiveWriter* pWriter) override;
+			TDE2_API TFloatKeyFrame _lerpKeyFrames(const TFloatKeyFrame& left, const TFloatKeyFrame& right, F32 t) const override;
 		protected:
 	};
 
@@ -364,6 +370,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CIntegerAnimationTrack)
 
 			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TIntegerKeyFrame& value, IArchiveWriter* pWriter) override;
+			TDE2_API TIntegerKeyFrame _lerpKeyFrames(const TIntegerKeyFrame& left, const TIntegerKeyFrame& right, F32 t) const override;
 		protected:
 	};
 }
