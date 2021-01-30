@@ -148,6 +148,7 @@
 #include "graphics/animation/IAnimationTrack.h"
 #include "graphics/animation/CBaseAnimationTrack.h"
 #include "graphics/animation/AnimationTracks.h"
+#include "graphics/animation/CAnimationContainerComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

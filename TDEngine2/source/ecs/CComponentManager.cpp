@@ -18,6 +18,7 @@
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
+#include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 
 
@@ -375,6 +376,7 @@ namespace TDEngine2
 			CreateShadowReceiverComponentFactory,
 			CreateAudioListenerComponentFactory,
 			CreateAudioSourceComponentFactory,
+			CreateAnimationContainerComponentFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
@@ -426,6 +428,7 @@ namespace TDEngine2
 			CShadowReceiverComponent::GetTypeId(),
 			CAudioListenerComponent::GetTypeId(),
 			CAudioSourceComponent::GetTypeId(),
+			CAnimationContainerComponent::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 			CSceneInfoComponent::GetTypeId(),
