@@ -12,6 +12,7 @@
 #include "../../core/IResourceFactory.h"
 #include "../../core/IResourceLoader.h"
 #include "../../core/Serialization.h"
+#include "../../core/Event.h"
 
 
 namespace TDEngine2
@@ -22,6 +23,25 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_HANDLE_TYPE(TAnimationTrackId);
+
+
+	/*!
+		struct TAnimationPlaybackEvent
+
+		\brief The structure represents an event which occurs when some animation is playing in AnimationContainer component
+	*/
+
+	typedef struct TAnimationPlaybackEvent : TBaseEvent
+	{
+		virtual ~TAnimationPlaybackEvent() = default;
+
+		TDE2_REGISTER_TYPE(TAnimationPlaybackEvent)
+		REGISTER_EVENT_TYPE(TAnimationPlaybackEvent)
+
+		TEntityId mAnimationSourceEntityId;
+
+		std::string mEventId;
+	} TAnimationPlaybackEvent, *TAnimationPlaybackEventPtr;
 
 	
 	/*!

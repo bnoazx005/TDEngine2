@@ -13,11 +13,19 @@
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include <string>
 
 
 namespace TDEngine2
 {
 	class IAnimationTrack;
+
+
+	struct TAnimationEvents
+	{
+		static const std::string mOnStart;
+		static const std::string mOnFinished;
+	};
 
 
 	/*!

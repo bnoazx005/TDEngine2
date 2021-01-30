@@ -373,4 +373,56 @@ namespace TDEngine2
 			TDE2_API TIntegerKeyFrame _lerpKeyFrames(const TIntegerKeyFrame& left, const TIntegerKeyFrame& right, F32 t) const override;
 		protected:
 	};
+
+
+	/*!
+		\brief TEventKeyFrame
+	*/
+
+
+	typedef struct TEventKeyFrame
+	{
+		F32 mTime;
+		std::string mValue;
+	} TEventKeyFrame, *TEventKeyFramePtr;
+
+
+	/*!
+		\brief A factory function for creation objects of CEventAnimationTrack's type
+
+		\param[in, out] pOwner A pointer to IAnimationClip implementation
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CEventAnimationTrack's implementation
+	*/
+
+	TDE2_API IAnimationTrack* CreateEventAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result);
+
+
+	class CEventAnimationTrack : public CBaseAnimationTrack<TEventKeyFrame>
+	{
+		public:
+			friend TDE2_API IAnimationTrack* CreateEventAnimationTrack(IAnimationClip*, E_RESULT_CODE&);
+		public:
+			TDE2_REGISTER_TYPE(CEventAnimationTrack);
+			TDE2_REGISTER_VIRTUAL_TYPE_EX(CEventAnimationTrack, GetTrackTypeId);
+
+			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEventAnimationTrack)
+
+			TDE2_API E_RESULT_CODE _saveKeyFrameValue(const TEventKeyFrame& value, IArchiveWriter* pWriter) override;
+			TDE2_API TEventKeyFrame _lerpKeyFrames(const TEventKeyFrame& left, const TEventKeyFrame& right, F32 t) const override;
+		protected:
+	};
 }

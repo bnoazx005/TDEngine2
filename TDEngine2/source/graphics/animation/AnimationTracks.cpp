@@ -320,4 +320,63 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IAnimationTrack, CIntegerAnimationTrack, result, pOwner);
 	}
+
+
+	/*!
+		\brief CEventAnimationTrack's definition
+	*/
+
+	CEventAnimationTrack::CEventAnimationTrack() :
+		CBaseAnimationTrack()
+	{
+	}
+
+	E_RESULT_CODE CEventAnimationTrack::Apply(IPropertyWrapper* pPropertyWrapper, F32 time)
+	{
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto&& frameData = _sample(time).mValue;
+		if (frameData.empty())
+		{
+			return RC_OK;
+		}
+
+		return pPropertyWrapper->Set<std::string>(frameData);
+	}
+
+	E_RESULT_CODE CEventAnimationTrack::Load(IArchiveReader* pReader)
+	{
+		E_RESULT_CODE result = CBaseAnimationTrack<TEventKeyFrame>::Load(pReader);
+
+		return result;
+	}
+
+	E_RESULT_CODE CEventAnimationTrack::_saveKeyFrameValue(const TEventKeyFrame& value, IArchiveWriter* pWriter)
+	{
+		return pWriter->SetString("value", value.mValue);
+	}
+
+	TEventKeyFrame CEventAnimationTrack::_lerpKeyFrames(const TEventKeyFrame& left, const TEventKeyFrame& right, F32 t) const
+	{
+		if (std::abs(t) < 1e-3f)
+		{
+			return left;
+		}
+
+		if (std::abs(t - 1.0f) < 1e-3f)
+		{
+			return right;
+		}
+
+		return TEventKeyFrame();
+	}
+
+
+	TDE2_API IAnimationTrack* CreateEventAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IAnimationTrack, CEventAnimationTrack, result, pOwner);
+	}
 }

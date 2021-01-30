@@ -8,6 +8,10 @@
 
 namespace TDEngine2
 {
+	const std::string TAnimationEvents::mOnStart = "on_start";
+	const std::string TAnimationEvents::mOnFinished = "on_finished";
+
+
 	const CAnimationClip::TAnimationTracksFactory CAnimationClip::mTracksFactory
 	{
 		{ CVector2AnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateVector2AnimationTrack(pClip, result); } },

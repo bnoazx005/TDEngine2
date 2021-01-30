@@ -17,6 +17,7 @@
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CLevelEditorWindow.h"
+#include "../../include/graphics/animation/CAnimationContainerComponent.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -34,6 +35,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CShadowReceiverComponent::GetTypeId(), DrawShadowReceiverGUI);
 		result = result | editor.RegisterInspector(CShadowCasterComponent::GetTypeId(), DrawShadowCasterGUI);
 		result = result | editor.RegisterInspector(CDirectionalLight::GetTypeId(), DrawDirectionalLightGUI);
+		result = result | editor.RegisterInspector(CAnimationContainerComponent::GetTypeId(), DrawAnimationContainerGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -141,6 +143,17 @@ namespace TDEngine2
 
 			// \todo Implement this drawer
 			
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawAnimationContainerGUI(IImGUIContext& imguiContext, IComponent& component)
+	{
+		if (imguiContext.CollapsingHeader("Animation Container", true))
+		{
+			CAnimationContainerComponent& animationComponent = dynamic_cast<CAnimationContainerComponent&>(component);
+
+			// \todo Implement this drawer
+
 		}
 	}
 
