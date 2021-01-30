@@ -163,6 +163,8 @@ namespace TDEngine2
 			{
 				return dynamic_cast<T*>(_getTrackInternal(handle));
 			}
+
+			TDE2_API virtual void ForEachTrack(const std::function<void(IAnimationTrack*)>& action = nullptr) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationClip)
 

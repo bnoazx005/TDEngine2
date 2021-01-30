@@ -76,12 +76,20 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API E_RESULT_CODE Play();
+
 			TDE2_API E_RESULT_CODE SetAnimationClipId(const std::string& id);
 			TDE2_API E_RESULT_CODE SetAnimationClipResourceId(const TResourceId& resourceId);
+
+			TDE2_API void SetStartedFlag(bool value);
+			TDE2_API void SetPlayingFlag(bool value);
 
 			TDE2_API E_RESULT_CODE SetTime(F32 value);
 
 			TDE2_API F32 GetTime() const;
+
+			TDE2_API bool IsStarted() const;
+			TDE2_API bool IsPlaying() const;
 
 			TDE2_API const std::string& GetAnimationClipId() const;
 
@@ -90,6 +98,9 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationContainerComponent)
 		protected:
 			std::string mAnimationClipId;
+
+			bool mIsStarted = false;
+			bool mIsPlaying = false;
 
 			F32 mCurrTime;
 

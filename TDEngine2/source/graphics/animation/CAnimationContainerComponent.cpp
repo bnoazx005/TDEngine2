@@ -49,6 +49,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CAnimationContainerComponent::Play()
+	{
+		if (mIsStarted || mIsPlaying)
+		{
+			return RC_FAIL;
+		}
+
+		mIsStarted = true;
+		mIsPlaying = false;
+
+		mCurrTime = 0.0f;
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CAnimationContainerComponent::SetAnimationClipId(const std::string& id)
 	{
 		if (id.empty())
@@ -85,9 +100,29 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CAnimationContainerComponent::SetStartedFlag(bool value)
+	{
+		mIsStarted = value;
+	}
+
+	void CAnimationContainerComponent::SetPlayingFlag(bool value)
+	{
+		mIsPlaying = value;
+	}
+
 	F32 CAnimationContainerComponent::GetTime() const
 	{
 		return mCurrTime;
+	}
+
+	bool CAnimationContainerComponent::IsPlaying() const
+	{
+		return mIsPlaying;
+	}
+
+	bool CAnimationContainerComponent::IsStarted() const
+	{
+		return mIsStarted;
 	}
 
 	const std::string& CAnimationContainerComponent::GetAnimationClipId() const

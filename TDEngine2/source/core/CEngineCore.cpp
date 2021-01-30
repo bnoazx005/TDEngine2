@@ -21,6 +21,7 @@
 #include "../../include/ecs/CPhysics2DSystem.h"
 #include "../../include/ecs/CStaticMeshRendererSystem.h"
 #include "../../include/ecs/CPhysics3DSystem.h"
+#include "../../include/ecs/CAnimationSystem.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -421,6 +422,7 @@ namespace TDEngine2
 			// \note should be always latest in the list
 			CreatePhysics2DSystem(pEventManager, result),
 			CreatePhysics3DSystem(pEventManager, result),
+			CreateAnimationSystem(pResourceManager, result),
 		};
 
 		for (ISystem* pCurrSystem : builtinSystems)

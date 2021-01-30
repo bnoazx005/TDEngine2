@@ -130,6 +130,25 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CAnimationClip::ForEachTrack(const std::function<void(IAnimationTrack*)>& action)
+	{
+		if (!action)
+		{
+			return;
+		}
+
+		for (auto&& currTrackEntity : mpTracks)
+		{
+			auto&& pCurrTrack = currTrackEntity.second;
+			if (!pCurrTrack)
+			{
+				continue;
+			}
+
+			action(pCurrTrack);
+		}
+	}
+
 	E_RESULT_CODE CAnimationClip::SetDuration(F32 duration)
 	{
 		if (duration < 0.0f)
