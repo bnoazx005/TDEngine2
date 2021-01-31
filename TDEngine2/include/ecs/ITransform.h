@@ -7,10 +7,10 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../math/TVector3.h"
-#include "./../math/TQuaternion.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../math/TVector3.h"
+#include "../math/TQuaternion.h"
 
 
 namespace TDEngine2
@@ -86,6 +86,30 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetTransform(const TMatrix4& transform) = 0;
 
+			TDE2_API virtual E_RESULT_CODE AttachChild(TEntityId childEntityId) = 0;
+
+			TDE2_API virtual E_RESULT_CODE DettachChild(TEntityId childEntityId) = 0;
+
+			/*!
+				\brief The method assigns an identifier of an entity which will be corresponding as parent of it
+
+				\param[in] parentEntityId An identifier of existing entity. Should not be the same with the current one
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetParent(TEntityId parentEntityId) = 0;
+
+			TDE2_API virtual void SetDirtyFlag(bool value) = 0;
+
+			/*!
+				\return The method returns an identifier of a parent or TEntityId::Invalid if the entity has no that
+			*/
+
+			TDE2_API virtual TEntityId GetParent() const = 0;
+
+			TDE2_API virtual const std::vector<TEntityId>& GetChildren() const = 0;
+
 			/*!
 				\brief The method returns a global position's value
 
@@ -116,7 +140,15 @@ namespace TDEngine2
 				\return The method returns local to world matrix
 			*/
 
-			TDE2_API virtual const TMatrix4& GetTransform() const = 0;
+			TDE2_API virtual const TMatrix4& GetLocalToWorldTransform() const = 0;
+
+			/*!
+				\brief The method returns world to local matrix
+
+				\return The method returns world to local matrix
+			*/
+
+			TDE2_API virtual const TMatrix4& GetWorldToLocalTransform() const = 0;
 
 			/*!
 				\brief The method returns a basis vector which corresponds to Z axis in local space of the object

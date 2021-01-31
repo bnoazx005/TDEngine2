@@ -241,7 +241,7 @@ namespace TDEngine2
 
 		if (auto pSelectedEntity = pWorld->FindEntity(mSelectedEntityId))
 		{
-			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetTransform());
+			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetLocalToWorldTransform());
 			
 			auto&& camera = _getCameraEntity();
 

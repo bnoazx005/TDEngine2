@@ -129,7 +129,7 @@ namespace TDEngine2
 
 				if (CTransform* pTransform = pEntity->GetComponent<CTransform>())
 				{
-					const TMatrix4& worldMatrix = pTransform->GetTransform();
+					const TMatrix4& worldMatrix = pTransform->GetLocalToWorldTransform();
 
 					TVector4 min{ (std::numeric_limits<F32>::max)() };
 					TVector4 max{ -(std::numeric_limits<F32>::max)() };
@@ -162,7 +162,7 @@ namespace TDEngine2
 
 		if (CTransform* pSpriteTransform = pEntity->GetComponent<CTransform>())
 		{
-			const TMatrix4& worldMatrix = pSpriteTransform->GetTransform();
+			const TMatrix4& worldMatrix = pSpriteTransform->GetLocalToWorldTransform();
 
 			TVector4 min { (std::numeric_limits<F32>::max)() };
 			TVector4 max { -(std::numeric_limits<F32>::max)() };

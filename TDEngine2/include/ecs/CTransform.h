@@ -10,7 +10,7 @@
 #include "CBaseComponent.h"
 #include "ITransform.h"
 #include "IComponentFactory.h"
-#include "./../math/TMatrix4.h"
+#include "../math/TMatrix4.h"
 
 
 namespace TDEngine2
@@ -19,11 +19,8 @@ namespace TDEngine2
 		\brief A factory function for creation objects of CTransform's type.
 
 		\param[in] position A global position of an object
-
 		\param[in] rotation A global rotation of an object
-
 		\param[in] scale A global scale of an object
-
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to IComponent's implementation
@@ -127,6 +124,30 @@ namespace TDEngine2
 
 			TDE2_API void SetTransform(const TMatrix4& transform) override;
 
+			TDE2_API E_RESULT_CODE AttachChild(TEntityId childEntityId) override;
+
+			TDE2_API E_RESULT_CODE DettachChild(TEntityId childEntityId) override;
+
+			/*!
+				\brief The method assigns an identifier of an entity which will be corresponding as parent of it
+
+				\param[in] parentEntityId An identifier of existing entity. Should not be the same with the current one
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetParent(TEntityId parentEntityId) override;
+
+			TDE2_API void SetDirtyFlag(bool value) override;
+
+			/*!
+				\return The method returns an identifier of a parent or TEntityId::Invalid if the entity has no that
+			*/
+
+			TDE2_API TEntityId GetParent() const override;
+
+			TDE2_API const std::vector<TEntityId>& GetChildren() const override;
+
 			/*!
 				\brief The method returns a global position's value
 
@@ -157,7 +178,15 @@ namespace TDEngine2
 				\return The method returns local to world matrix
 			*/
 
-			TDE2_API const TMatrix4& GetTransform() const override;
+			TDE2_API const TMatrix4& GetLocalToWorldTransform() const override;
+
+			/*!
+				\brief The method returns world to local matrix
+
+				\return The method returns world to local matrix
+			*/
+
+			TDE2_API const TMatrix4& GetWorldToLocalTransform() const override;
 
 			/*!
 				\brief The method returns a basis vector which corresponds to Z axis in local space of the object
@@ -216,9 +245,14 @@ namespace TDEngine2
 
 			TVector3    mScale;
 
+			TEntityId   mParentEntityId = TEntityId::Invalid;
+
 			TMatrix4    mLocalToWorldMatrix;
+			TMatrix4    mWorldToLocalMatrix;
 
 			bool        mHasChanged;
+
+			std::vector<TEntityId> mChildrenEntities;
 	};
 
 

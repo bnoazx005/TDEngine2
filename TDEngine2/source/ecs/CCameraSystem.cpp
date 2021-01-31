@@ -117,7 +117,7 @@ namespace TDEngine2
 
 			pCurrTransform = mCamerasTransforms[i];
 
-			TMatrix4 viewMatrix = pCurrTransform->GetTransform();
+			TMatrix4 viewMatrix = pCurrTransform->GetLocalToWorldTransform();
 
 			viewMatrix.m[0][3] = -viewMatrix.m[0][3];
 			viewMatrix.m[1][3] = -viewMatrix.m[1][3];

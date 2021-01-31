@@ -242,4 +242,18 @@ namespace TDEngine2
 
 		IWorld* mpWorldInstance;
 	} TOnNewWorldInstanceCreated, *TOnNewWorldInstanceCreatedPtr;
+
+
+	/*!
+		\brief The method attaches given childEntity to parentEntity. It's basically, wrapper
+		around two calls of ITransform component SetParent and AttachChild
+
+		\param[in, out] pWorld A pointer to IWorld implementation
+		\param[in] parentEntity An identifier of parent entity, couldn't be same as childEntity, but invalid value is allowed to dettach entity from current parent
+		\param[in] childEntity An identifier of child that will be attached to parent entity. Couldn't be invalid or same as parent
+
+		\return RC_OK if everything went ok, or some other code, which describes an error
+	*/
+
+	TDE2_API E_RESULT_CODE GroupEntities(IWorld* pWorld, TEntityId parentEntity, TEntityId childEntity);
 }

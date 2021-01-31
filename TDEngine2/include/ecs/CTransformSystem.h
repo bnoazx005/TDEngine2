@@ -76,7 +76,9 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransformSystem)
+
+			TDE2_API static bool _hasParentEntityTransformChanged(IWorld* pWorld, TEntityId id);
 		protected:
-			std::vector<CTransform*> mTransforms;
+			std::vector<TEntityId> mTransformEntities;
 	};
 }

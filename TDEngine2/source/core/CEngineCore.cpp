@@ -416,13 +416,13 @@ namespace TDEngine2
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
+			CreateAnimationSystem(pResourceManager, result),
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
 #endif
 			// \note should be always latest in the list
 			CreatePhysics2DSystem(pEventManager, result),
 			CreatePhysics3DSystem(pEventManager, result),
-			CreateAnimationSystem(pResourceManager, result),
 		};
 
 		for (ISystem* pCurrSystem : builtinSystems)

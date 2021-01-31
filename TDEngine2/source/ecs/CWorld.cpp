@@ -7,6 +7,7 @@
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/physics/IRaycastContext.h"
+#include "../../include/ecs/CTransform.h"
 
 
 namespace TDEngine2
@@ -218,5 +219,49 @@ namespace TDEngine2
 	IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IWorld, CWorld, result, pEventManager);
+	}
+
+
+	TDE2_API E_RESULT_CODE GroupEntities(IWorld* pWorld, TEntityId parentEntity, TEntityId childEntity)
+	{
+		if (!pWorld || TEntityId::Invalid == childEntity || parentEntity == childEntity)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		CEntity* pChildEntity = pWorld->FindEntity(childEntity);
+		if (!pChildEntity)
+		{
+			return RC_FAIL;
+		}
+
+		CTransform* pChildTransform = pChildEntity->GetComponent<CTransform>();
+		
+		// \note Remove previous link if it exists
+		if (TEntityId::Invalid != pChildTransform->GetParent())
+		{
+			if (auto pParentEntity = pWorld->FindEntity(pChildTransform->GetParent()))
+			{
+				pParentEntity->GetComponent<CTransform>()->DettachChild(childEntity);
+			}
+		}
+
+		// \note Create a new link between child and parent
+		pChildTransform->SetParent(parentEntity);
+
+		if (TEntityId::Invalid == parentEntity)
+		{
+			return RC_OK;
+		}
+
+		CEntity* pParentEntity = pWorld->FindEntity(parentEntity);
+		if (!pParentEntity)
+		{
+			return RC_FAIL;
+		}
+
+		pParentEntity->GetComponent<CTransform>()->AttachChild(childEntity);
+
+		return RC_OK;
 	}
 }

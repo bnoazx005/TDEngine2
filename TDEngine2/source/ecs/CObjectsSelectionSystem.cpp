@@ -232,7 +232,7 @@ namespace TDEngine2
 				pDrawCommand->mMaterialHandle          = materialHandle;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
-				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
+				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
 				pDrawCommand->mStartIndex              = 0;
 				pDrawCommand->mStartVertex             = 0;
@@ -253,7 +253,7 @@ namespace TDEngine2
 			pDrawCommand->mMaterialHandle          = materialHandle;
 			pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
-			pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetTransform());
+			pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 			pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
 			pDrawCommand->mStartIndex              = 0;
 			pDrawCommand->mStartVertex             = 0;

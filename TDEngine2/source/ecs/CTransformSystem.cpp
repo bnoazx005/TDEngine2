@@ -7,7 +7,7 @@
 
 namespace TDEngine2
 {
-	CTransformSystem::CTransformSystem():
+	CTransformSystem::CTransformSystem() :
 		CBaseSystem()
 	{
 	}
@@ -20,7 +20,7 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = true;
-		
+
 		return RC_OK;
 	}
 
@@ -40,52 +40,103 @@ namespace TDEngine2
 
 	void CTransformSystem::InjectBindings(IWorld* pWorld)
 	{
-		mTransforms.clear();
+		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform>();
 
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform>();
+		mTransformEntities.clear();
 
-		CEntity* pCurrEntity = nullptr;
+		std::unordered_map<TEntityId, std::vector<TEntityId>::const_iterator> parentEntitiesTable;
 
-		for (auto iter = entities.begin(); iter != entities.end(); ++iter)
+		// \note Sort all entities in the following order that every parent should precede its children
+
+		for (TEntityId currEntityId : entities)
 		{
-			pCurrEntity = pWorld->FindEntity(*iter);
-
-			if (!pCurrEntity)
+			if (CEntity* pEntity = pWorld->FindEntity(currEntityId))
 			{
-				continue;
-			}
+				CTransform* pTransform = pEntity->GetComponent<CTransform>();
 
-			mTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
+				if (TEntityId::Invalid == pTransform->GetParent())
+				{
+					mTransformEntities.push_back(currEntityId);
+					parentEntitiesTable[currEntityId] = mTransformEntities.cend();
+					continue;
+				}
+
+				const TEntityId parentId = pTransform->GetParent();
+				
+				auto it = parentEntitiesTable.find(parentId);
+				if (it == parentEntitiesTable.cend())
+				{
+					mTransformEntities.push_back(currEntityId);
+					parentEntitiesTable[currEntityId] = mTransformEntities.cend();
+					
+					continue;
+				}
+
+				mTransformEntities.insert(it->second, currEntityId);
+			}
 		}
 	}
 
 	void CTransformSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		pWorld->ForEach<CTransform>([pWorld](TEntityId entityId, IComponent* pComponent)
+		for (TEntityId currEntity : mTransformEntities)
 		{
-			auto pTransform = dynamic_cast<CTransform*>(pComponent);
-
-			if (!pTransform->HasChanged())
+			if (CEntity* pEntity = pWorld->FindEntity(currEntity))
 			{
-				return;
-			}
-			
-			const TMatrix4& localToWorldMatrix = (TranslationMatrix(pTransform->GetPosition()) * 
-												  RotationMatrix(pTransform->GetRotation())) * 
-												  ScaleMatrix(pTransform->GetScale());
+				CTransform* pTransform = pEntity->GetComponent<CTransform>();
 
-			pTransform->SetTransform(localToWorldMatrix);
+				const TEntityId parentEntityId = pTransform->GetParent();
 
-			if (CEntity* pEntity = pWorld->FindEntity(entityId))
-			{
+				if (!pTransform->HasChanged() && !_hasParentEntityTransformChanged(pWorld, parentEntityId))
+				{
+					continue;
+				}
+
+				TMatrix4 localToWorldMatrix = (TranslationMatrix(pTransform->GetPosition()) *
+												RotationMatrix(pTransform->GetRotation())) *
+												ScaleMatrix(pTransform->GetScale());
+
+				/// \note Implement parent-to-child relationship's update
+				
+				if (TEntityId::Invalid != parentEntityId)
+				{
+					if (auto pParentEntity = pWorld->FindEntity(parentEntityId))
+					{
+						CTransform* pParentTransform = pParentEntity->GetComponent<CTransform>();
+
+						localToWorldMatrix = pParentTransform->GetLocalToWorldTransform() * localToWorldMatrix;
+					}
+				}
+
+				pTransform->SetTransform(localToWorldMatrix);
+
 				if (auto pBounds = pEntity->GetComponent<CBoundsComponent>())
 				{
 					pBounds->SetDirty(true);
 				}
 			}
+		}
 
-			/// \todo Implement parent-to-child relationship's update
-		});
+		// \note Reset dirty flag for all transforms
+		for (TEntityId currEntity : mTransformEntities)
+		{
+			if (CEntity* pEntity = pWorld->FindEntity(currEntity))
+			{
+				CTransform* pTransform = pEntity->GetComponent<CTransform>();
+				pTransform->SetDirtyFlag(false);
+			}
+		}
+	}
+
+	bool CTransformSystem::_hasParentEntityTransformChanged(IWorld* pWorld, TEntityId id)
+	{
+		if (CEntity* pEntity = pWorld->FindEntity(id))
+		{
+			CTransform* pTransform = pEntity->GetComponent<CTransform>();
+			return pTransform->HasChanged();
+		}
+
+		return false;
 	}
 
 

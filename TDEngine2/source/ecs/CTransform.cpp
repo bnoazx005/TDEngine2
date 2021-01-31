@@ -128,7 +128,66 @@ namespace TDEngine2
 	void CTransform::SetTransform(const TMatrix4& transform)
 	{
 		mLocalToWorldMatrix = transform;
+		mWorldToLocalMatrix = Inverse(transform);
 	}
+
+	E_RESULT_CODE CTransform::AttachChild(TEntityId childEntityId)
+	{
+		if (childEntityId == TEntityId::Invalid)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto it = std::find_if(mChildrenEntities.cbegin(), mChildrenEntities.cend(), [childEntityId](const TEntityId& id) { return id == childEntityId; });
+		if (it != mChildrenEntities.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mChildrenEntities.push_back(childEntityId);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CTransform::DettachChild(TEntityId childEntityId)
+	{
+		if (childEntityId == TEntityId::Invalid)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto it = std::find_if(mChildrenEntities.cbegin(), mChildrenEntities.cend(), [childEntityId](const TEntityId& id) { return id == childEntityId; });
+		if (it == mChildrenEntities.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mChildrenEntities.erase(it);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CTransform::SetParent(TEntityId parentEntityId)
+	{
+		mParentEntityId = parentEntityId;
+		return RC_OK;
+	}
+
+	void CTransform::SetDirtyFlag(bool value)
+	{
+		mHasChanged = value;
+	}
+
+	TEntityId CTransform::GetParent() const
+	{
+		return mParentEntityId;
+	}
+
+	const std::vector<TEntityId>& CTransform::GetChildren() const
+	{
+		return mChildrenEntities;
+	}
+
 
 	const TVector3& CTransform::GetPosition() const
 	{
@@ -145,26 +204,31 @@ namespace TDEngine2
 		return mScale;
 	}
 
-	const TMatrix4& CTransform::GetTransform() const
+	const TMatrix4& CTransform::GetLocalToWorldTransform() const
 	{
 		return mLocalToWorldMatrix;
+	}
+
+	const TMatrix4& CTransform::GetWorldToLocalTransform() const
+	{
+		return mWorldToLocalMatrix;
 	}
 	
 	TVector3 CTransform::GetForwardVector() const
 	{
-		const TMatrix4& local2World = GetTransform();
+		const TMatrix4& local2World = GetLocalToWorldTransform();
 		return TVector3(local2World.m[0][2], local2World.m[1][2], local2World.m[2][2]);
 	}
 
 	TVector3 CTransform::GetRightVector() const
 	{
-		const TMatrix4& local2World = GetTransform();
+		const TMatrix4& local2World = GetLocalToWorldTransform();
 		return TVector3(local2World.m[0][0], local2World.m[1][0], local2World.m[2][0]);
 	}
 	
 	TVector3 CTransform::GetUpVector() const
 	{
-		const TMatrix4& local2World = GetTransform();
+		const TMatrix4& local2World = GetLocalToWorldTransform();
 		return TVector3(local2World.m[0][1], local2World.m[1][1], local2World.m[2][1]);
 	}
 

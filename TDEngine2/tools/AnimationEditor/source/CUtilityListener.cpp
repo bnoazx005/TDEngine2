@@ -65,6 +65,26 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	}
 #endif
 
+	auto pMainEntity = pWorld->CreateEntity("Main");
+	if (auto pFirstEntity = pWorld->CreateEntity("First"))
+	{
+		pWorld->CreateEntity("Junk1");
+		pWorld->CreateEntity("Junk2");
+
+		if (auto pTransform = pFirstEntity->GetComponent<CTransform>())
+		{
+			pTransform->SetParent(pMainEntity->GetId());
+		}
+
+		if (auto pLastEntity = pWorld->CreateEntity("Child"))
+		{
+			if (auto pTransform = pLastEntity->GetComponent<CTransform>())
+			{
+				pTransform->SetParent(pFirstEntity->GetId());
+			}
+		}
+	}
+
 	return RC_OK;
 }
 

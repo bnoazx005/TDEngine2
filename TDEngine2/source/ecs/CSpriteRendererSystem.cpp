@@ -176,7 +176,7 @@ namespace TDEngine2
 				currBatchEntry.mpInstancesData = new CDynamicArray<TSpriteInstanceData>(*mpTempAllocator, 100);
 			}
 
-			currBatchEntry.mpInstancesData->PushBack({ Transpose(pCurrTransform->GetTransform()), pCurrSprite->GetColor() });
+			currBatchEntry.mpInstancesData->PushBack({ Transpose(pCurrTransform->GetLocalToWorldTransform()), pCurrSprite->GetColor() });
 		}
 		
 		U32 currInstancesBufferIndex = 0;

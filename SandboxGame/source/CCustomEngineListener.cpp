@@ -289,11 +289,22 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
-#if 1
-		pSceneManager->LoadSceneAsync("TestScene.scene", [](auto)
+#if 1 // note Test hierarchy of entities
+		pSceneManager->LoadSceneAsync("TestScene.scene", [pSceneManager, this](auto)
 		{
 			int x = 0;
+
+			auto pScene = pSceneManager->GetScene(pSceneManager->GetSceneId("Test")).Get();
+			auto pSpriteGroup = pScene->CreateEntity("Parent");
+
+			auto entities = mpWorld->FindEntitiesWithComponents<CQuadSprite>();
+
+			for (auto id : entities)
+			{
+				GroupEntities(mpWorld, pSpriteGroup->GetId(), id);
+			}
 		});
+
 #endif
 
 	}

@@ -209,7 +209,7 @@ namespace TDEngine2
 
 			auto meshBuffersEntry = mMeshBuffersMap[pStaticMeshContainer->GetSystemBuffersHandle()];
 
-			auto&& objectTransformMatrix = pTransform->GetTransform();
+			auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
 
 			F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
 
