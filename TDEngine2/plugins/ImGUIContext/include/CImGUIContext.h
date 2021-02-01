@@ -484,6 +484,22 @@ namespace TDEngine2
 			TDE2_API void EndChildWindow() override;
 
 			/*!
+				\brief The method provides implementation of drag & drop source
+
+				\param[in] action A callback in which all the stuff for register should be executed
+			*/
+
+			TDE2_API void RegisterDragAndDropSource(const std::function<void()>& action = nullptr) override;
+
+			/*!
+				\brief The method provides implementation of drag & drop target
+
+				\param[in] action A callback in which all the stuff for register should be executed
+			*/
+
+			TDE2_API void RegisterDragAndDropTarget(const std::function<void()>& action = nullptr) override;
+
+			/*!
 				\brief The method returns a width of current active window
 
 				\return The method returns a width of current active window

@@ -548,6 +548,32 @@ namespace TDEngine2
 		ImGui::EndChild();
 	}
 
+	void CImGUIContext::RegisterDragAndDropSource(const std::function<void()>& action)
+	{
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+		{
+			if (action)
+			{
+				action();
+			}
+
+			ImGui::EndDragDropSource();
+		}
+	}
+
+	void CImGUIContext::RegisterDragAndDropTarget(const std::function<void()>& action)
+	{
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (action)
+			{
+				action();
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+	}
+
 	F32 CImGUIContext::GetWindowWidth() const
 	{
 		return ImGui::GetWindowWidth();

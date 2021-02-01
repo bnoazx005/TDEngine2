@@ -478,6 +478,22 @@ namespace TDEngine2
 			TDE2_API virtual void EndChildWindow() = 0;
 
 			/*!
+				\brief The method provides implementation of drag & drop source
+
+				\param[in] action A callback in which all the stuff for register should be executed
+			*/
+
+			TDE2_API virtual void RegisterDragAndDropSource(const std::function<void()>& action = nullptr) = 0;
+
+			/*!
+				\brief The method provides implementation of drag & drop target
+
+				\param[in] action A callback in which all the stuff for register should be executed
+			*/
+
+			TDE2_API virtual void RegisterDragAndDropTarget(const std::function<void()>& action = nullptr) = 0;
+
+			/*!
 				\brief The method returns cursor position in a viewport space. The method is useful when
 				you work with DrawX methods
 
