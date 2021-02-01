@@ -70,7 +70,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		{ 1.0f, 1.0f, 0.0f, 1.0f },
 	};
 
-	for (I32 i = 0; i < 10; ++i)
+	for (I32 i = 0; i < 0; ++i)
 	{
 		auto pEntity = mpWorld->CreateEntity();
 
@@ -303,6 +303,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			{
 				GroupEntities(mpWorld, pSpriteGroup->GetId(), id);
 			}
+
+			auto c1 = mpWorld->CreateEntity("Child1")->GetId();
+			auto c2 = mpWorld->CreateEntity("Child2")->GetId();
+
+			GroupEntities(mpWorld, c1, c2);
+			GroupEntities(mpWorld, pSpriteGroup->GetId(), c1);
 		});
 
 #endif

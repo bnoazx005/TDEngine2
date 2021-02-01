@@ -4,8 +4,9 @@
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/ecs/CEntity.h"
-#include "../../include/editor/CSelectionManager.h"
 #include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CTransform.h"
+#include "../../include/editor/CSelectionManager.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 
 
@@ -98,14 +99,61 @@ namespace TDEngine2
 						break;
 					}
 
-					pCurrScene->ForEachEntity([this](const CEntity* pEntity)
+					auto pWorld = mpSceneManager->GetWorld();
+
+					TEntityId currParentId = TEntityId::Invalid;
+
+					std::function<void(CEntity*)> drawEntityHierarchy = [this, &drawEntityHierarchy, pWorld, &currParentId](CEntity* pEntity)
 					{
-						if (mpImGUIContext->SelectableItem(pEntity->GetName()))
+						CTransform* pTransform = pEntity->GetComponent<CTransform>();
+
+						const TEntityId parentEntityId = pTransform->GetParent();
+						if (currParentId != parentEntityId)
+						{
+							return;
+						}
+
+						const bool isLeafEntity = pTransform->GetChildren().empty();
+
+						if (isLeafEntity)
+						{
+							if (mpImGUIContext->SelectableItem(pEntity->GetName()))
+							{
+								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+								mpSelectedScene = nullptr;
+							}
+
+							return;
+						}
+
+						bool isOpened = false;
+						bool isSelected = false;
+
+						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(pEntity->GetName());
+
+						if (isOpened)
+						{
+							const TEntityId prevParentId = currParentId;
+							currParentId = pEntity->GetId();
+
+							for (auto currChild : pTransform->GetChildren())
+							{
+								drawEntityHierarchy(pWorld->FindEntity(currChild));
+							}
+
+							currParentId = prevParentId;
+
+							mpImGUIContext->EndTreeNode();
+						}
+
+						if (isSelected)
 						{
 							mpSelectionManager->SetSelectedEntity(pEntity->GetId());
 							mpSelectedScene = nullptr;
 						}
-					});
+					};
+
+					pCurrScene->ForEachEntity(drawEntityHierarchy);
 				}
 			}
 
