@@ -124,12 +124,12 @@ namespace TDEngine2
 
 								mpImGUIContext->RegisterDragAndDropSource([this, id = static_cast<I32>(pEntity->GetId())]
 								{
-									//ImGui::SetDragDropPayload("DND_DEMO_CELL", &id, sizeof(int));
+										mpImGUIContext->SetDragAndDropData("test", id);
 								});
 
 								mpImGUIContext->RegisterDragAndDropTarget([this]
 								{
-									//const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL");
+									auto t = mpImGUIContext->GetDragAndDropData<I32>("test");
 
 								});
 							}

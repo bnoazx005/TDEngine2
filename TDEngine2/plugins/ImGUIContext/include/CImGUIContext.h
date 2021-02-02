@@ -559,6 +559,9 @@ namespace TDEngine2
 			TDE2_API void _prepareLayout();
 
 			TDE2_API ImDrawList* _getCurrActiveDrawList() const;
+
+			TDE2_API void _setDragAndDropData(const std::string& id, const void* pData, U32 size) override;
+			TDE2_API const void* _getDragAndDropData(const std::string& id) const override;
 		protected:
 			std::atomic_bool        mIsInitialized;
 

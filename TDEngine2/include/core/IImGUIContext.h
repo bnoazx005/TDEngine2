@@ -493,6 +493,18 @@ namespace TDEngine2
 
 			TDE2_API virtual void RegisterDragAndDropTarget(const std::function<void()>& action = nullptr) = 0;
 
+			template <typename T>
+			TDE2_API void SetDragAndDropData(const std::string& id, const T& data)
+			{
+				_setDragAndDropData(id, static_cast<const void*>(&data), sizeof(T));
+			}
+
+			template <typename T>
+			TDE2_API const T& GetDragAndDropData(const std::string& id) const
+			{
+				return *static_cast<const T*>(_getDragAndDropData(id));
+			}
+
 			/*!
 				\brief The method returns cursor position in a viewport space. The method is useful when
 				you work with DrawX methods
@@ -537,5 +549,8 @@ namespace TDEngine2
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_IMGUI_CONTEXT; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IImGUIContext)
+
+			TDE2_API virtual void _setDragAndDropData(const std::string& id, const void* pData, U32 size) = 0;
+			TDE2_API virtual const void* _getDragAndDropData(const std::string& id) const = 0;
 	};
 }

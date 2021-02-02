@@ -894,6 +894,16 @@ namespace TDEngine2
 		return mpDrawListsContext.top();
 	}
 
+	void CImGUIContext::_setDragAndDropData(const std::string& id, const void* pData, U32 size)
+	{
+		ImGui::SetDragDropPayload(id.c_str(), pData, size);
+	}
+		
+	const void* CImGUIContext::_getDragAndDropData(const std::string& id) const
+	{
+		return ImGui::AcceptDragDropPayload(id.c_str());
+	}
+
 
 	TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 											   IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result)
