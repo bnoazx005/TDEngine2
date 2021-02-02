@@ -83,6 +83,8 @@ namespace TDEngine2
 
 			TDE2_API void SetStartedFlag(bool value);
 			TDE2_API void SetPlayingFlag(bool value);
+			TDE2_API void SetStoppedFlag(bool value);
+			TDE2_API void SetPausedFlag(bool value);
 
 			TDE2_API E_RESULT_CODE SetTime(F32 value);
 
@@ -90,6 +92,8 @@ namespace TDEngine2
 
 			TDE2_API bool IsStarted() const;
 			TDE2_API bool IsPlaying() const;
+			TDE2_API bool IsStopped() const;
+			TDE2_API bool IsPaused() const;
 
 			TDE2_API const std::string& GetAnimationClipId() const;
 
@@ -101,6 +105,8 @@ namespace TDEngine2
 
 			bool mIsStarted = false;
 			bool mIsPlaying = false;
+			bool mIsStopped = false;
+			bool mIsPaused = false;
 
 			F32 mCurrTime;
 

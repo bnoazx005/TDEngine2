@@ -65,24 +65,22 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	}
 #endif
 
-	auto pMainEntity = pWorld->CreateEntity("Main");
-	if (auto pFirstEntity = pWorld->CreateEntity("First"))
+	if (auto pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>())
 	{
-		pWorld->CreateEntity("Junk1");
-		pWorld->CreateEntity("Junk2");
-
-		if (auto pTransform = pFirstEntity->GetComponent<CTransform>())
+		if (auto sceneResult = pSceneManager->GetScene(pSceneManager->GetSceneId("MainScene.scene")))
 		{
-			pTransform->SetParent(pMainEntity->GetId());
-		}
-
-		if (auto pLastEntity = pWorld->CreateEntity("Child"))
-		{
-			if (auto pTransform = pLastEntity->GetComponent<CTransform>())
+			if (auto pScene = sceneResult.Get())
 			{
-				pTransform->SetParent(pFirstEntity->GetId());
+				CEntity* pEntity = pScene->CreateEntity("AnimableEntity");
+
+				if (auto pAnimationComponent = pEntity->AddComponent<CAnimationContainerComponent>())
+				{
+					pAnimationComponent->SetAnimationClipId("Animation2");
+					pAnimationComponent->Play();
+				}
 			}
 		}
+		
 	}
 
 	return RC_OK;

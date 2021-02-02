@@ -4,6 +4,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CAnimationClip.h"
+#include "../../include/graphics/animation/IAnimationTrack.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/MathUtils.h"
 
@@ -69,8 +70,47 @@ namespace TDEngine2
 
 			CAnimationContainerComponent* pAnimationContainer = pCurrEntity->GetComponent<CAnimationContainerComponent>();
 
-			// \todo Update time
-			// \todo Apply values for each animation track
+			const bool isStarted = pAnimationContainer->IsStarted();
+			const bool isPlaying = pAnimationContainer->IsPlaying();
+			const bool isPaused = pAnimationContainer->IsPaused();
+
+			if ((!isPlaying && !isStarted) || isPaused)
+			{
+				continue;
+			}
+
+			float currTime = pAnimationContainer->GetTime() + dt;
+
+			if (isStarted)
+			{
+				pAnimationContainer->SetStartedFlag(false);				
+				currTime = 0.0f;
+
+				const TResourceId animationClipId = mpResourceManager->Load<CAnimationClip>(pAnimationContainer->GetAnimationClipId());
+				pAnimationContainer->SetAnimationClipResourceId(animationClipId);
+			}
+
+			if (pAnimationContainer->IsStopped())
+			{
+				pAnimationContainer->SetPlayingFlag(false);
+
+				return;
+			}
+
+			IAnimationClip* pAnimationClip = mpResourceManager->GetResource<IAnimationClip>(pAnimationContainer->GetAnimationClipResourceId());
+
+			const bool isLooping = pAnimationClip->GetWrapMode() == E_ANIMATION_WRAP_MODE_TYPE::LOOP;
+
+			currTime = _adjustTimeToFitRange(currTime, isLooping, 0.0f, pAnimationClip->GetDuration());
+
+			pAnimationContainer->SetPlayingFlag(currTime < pAnimationClip->GetDuration() ? true : isLooping);
+			pAnimationContainer->SetTime(currTime);
+
+			// \note Apply values for each animation track
+			pAnimationClip->ForEachTrack([pAnimationContainer](IAnimationTrack* pTrack) 
+			{
+				pTrack->GetName();
+			});
 		}
 	}
 

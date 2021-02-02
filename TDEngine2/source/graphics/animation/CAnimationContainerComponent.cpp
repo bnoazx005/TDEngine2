@@ -110,6 +110,16 @@ namespace TDEngine2
 		mIsPlaying = value;
 	}
 
+	void CAnimationContainerComponent::SetStoppedFlag(bool value)
+	{
+		mIsStopped = value;
+	}
+
+	void CAnimationContainerComponent::SetPausedFlag(bool value)
+	{
+		mIsPaused = value;
+	}
+
 	F32 CAnimationContainerComponent::GetTime() const
 	{
 		return mCurrTime;
@@ -123,6 +133,16 @@ namespace TDEngine2
 	bool CAnimationContainerComponent::IsStarted() const
 	{
 		return mIsStarted;
+	}
+
+	bool CAnimationContainerComponent::IsStopped() const
+	{
+		return mIsStopped;
+	}
+
+	bool CAnimationContainerComponent::IsPaused() const
+	{
+		return mIsPaused;
 	}
 
 	const std::string& CAnimationContainerComponent::GetAnimationClipId() const
