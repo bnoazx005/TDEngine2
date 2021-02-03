@@ -657,10 +657,9 @@ namespace TDEngine2
 				return *this;
 			}
 
-			operator bool() const
-			{
-				return (this != nullptr);
-			}
+			T* Get() { return mpPtr; }
+
+			operator bool() const { return (mpPtr != nullptr); }
 		private:
 			void _swap(CScopedPtr<T>& left, CScopedPtr<T>& right)
 			{
