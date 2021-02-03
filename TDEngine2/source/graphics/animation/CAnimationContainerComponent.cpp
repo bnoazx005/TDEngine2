@@ -58,6 +58,8 @@ namespace TDEngine2
 
 		mIsStarted = true;
 		mIsPlaying = false;
+		mIsPaused = false;
+		mIsStopped = false;
 
 		mCurrTime = 0.0f;
 
@@ -100,6 +102,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CAnimationContainerComponent::SetDuration(F32 value)
+	{
+		if (value < 0.0f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mDuration = value;
+
+		return RC_OK;
+	}
+
 	void CAnimationContainerComponent::SetStartedFlag(bool value)
 	{
 		mIsStarted = value;
@@ -123,6 +137,11 @@ namespace TDEngine2
 	F32 CAnimationContainerComponent::GetTime() const
 	{
 		return mCurrTime;
+	}
+
+	F32 CAnimationContainerComponent::GetDuration() const
+	{
+		return mDuration;
 	}
 
 	bool CAnimationContainerComponent::IsPlaying() const

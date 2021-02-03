@@ -2,6 +2,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/IEventManager.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CAnimationClip.h"
 #include "../../include/graphics/animation/IAnimationTrack.h"
@@ -16,19 +17,20 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CAnimationSystem::Init(IResourceManager* pResourceManager)
+	E_RESULT_CODE CAnimationSystem::Init(IResourceManager* pResourceManager, IEventManager* pEventManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pResourceManager)
+		if (!pResourceManager || !pEventManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpResourceManager = pResourceManager;
+		mpEventManager = pEventManager;
 
 		mIsInitialized = true;
 
@@ -88,10 +90,13 @@ namespace TDEngine2
 
 				const TResourceId animationClipId = mpResourceManager->Load<CAnimationClip>(pAnimationContainer->GetAnimationClipId());
 				pAnimationContainer->SetAnimationClipResourceId(animationClipId);
+				
+				_notifyOnAnimationEvent(pCurrEntity->GetId(), TAnimationEvents::mOnStart);
 			}
 
 			if (pAnimationContainer->IsStopped())
 			{
+				_notifyOnAnimationEvent(pCurrEntity->GetId(), TAnimationEvents::mOnFinished);
 				pAnimationContainer->SetPlayingFlag(false);
 
 				return;
@@ -104,12 +109,20 @@ namespace TDEngine2
 			currTime = _adjustTimeToFitRange(currTime, isLooping, 0.0f, pAnimationClip->GetDuration());
 
 			pAnimationContainer->SetPlayingFlag(currTime < pAnimationClip->GetDuration() ? true : isLooping);
+			pAnimationContainer->SetDuration(pAnimationClip->GetDuration());
 			pAnimationContainer->SetTime(currTime);
 
-			// \note Apply values for each animation track
-			pAnimationClip->ForEachTrack([pAnimationContainer](IAnimationTrack* pTrack) 
+			if (!pAnimationContainer->IsPlaying())
 			{
-				pTrack->GetName();
+				pAnimationContainer->SetStoppedFlag(true);
+			}
+
+			// \note Apply values for each animation track
+			pAnimationClip->ForEachTrack([pCurrEntity](IAnimationTrack* pTrack)
+			{
+				// resolve binding 
+				// if corresponding child entity or a component exist get their property wrapper
+				// apply the value to the wrapper
 			});
 		}
 	}
@@ -150,9 +163,19 @@ namespace TDEngine2
 		return time;
 	}
 
-
-	TDE2_API ISystem* CreateAnimationSystem(IResourceManager* pResourceManager, E_RESULT_CODE& result)
+	void CAnimationSystem::_notifyOnAnimationEvent(TEntityId id, const std::string& eventId)
 	{
-		return CREATE_IMPL(ISystem, CAnimationSystem, result, pResourceManager);
+		TAnimationPlaybackEvent animationEvent;
+
+		animationEvent.mAnimationSourceEntityId = id;
+		animationEvent.mEventId = eventId;
+
+		mpEventManager->Notify(&animationEvent);
+	}
+
+
+	TDE2_API ISystem* CreateAnimationSystem(IResourceManager* pResourceManager, IEventManager* pEventManager, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(ISystem, CAnimationSystem, result, pResourceManager, pEventManager);
 	}
 }

@@ -148,12 +148,44 @@ namespace TDEngine2
 
 	void CDefeaultInspectorsRegistry::DrawAnimationContainerGUI(IImGUIContext& imguiContext, IComponent& component)
 	{
+		const TVector2 buttonSizes(100.0f, 25.0f);
+
 		if (imguiContext.CollapsingHeader("Animation Container", true))
 		{
 			CAnimationContainerComponent& animationComponent = dynamic_cast<CAnimationContainerComponent&>(component);
 
-			// \todo Implement this drawer
+			imguiContext.Label(Wrench::StringUtils::Format("Clip: {0}", animationComponent.GetAnimationClipId()));
 
+			const F32 duration = animationComponent.IsPlaying() ? animationComponent.GetDuration() : 0.0f;
+			F32 time = animationComponent.GetTime();
+
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Time: ");
+			imguiContext.FloatSlider(Wrench::StringUtils::GetEmptyStr(), time, 0.0f, duration);
+			imguiContext.EndHorizontal();
+
+			// \note Toolbar
+			imguiContext.BeginHorizontal();
+			{
+				// \note Pause/Play
+				imguiContext.Button(animationComponent.IsPaused() || !animationComponent.IsPlaying() ? "Play" : "Pause", buttonSizes, [&animationComponent]
+				{
+					if (animationComponent.IsPlaying())
+					{
+						animationComponent.SetPausedFlag(!animationComponent.IsPaused());
+						return;
+					}
+
+					animationComponent.Play();
+				});
+
+				// \note Stop
+				imguiContext.Button("Stop", buttonSizes, [&animationComponent]
+				{
+					animationComponent.SetStoppedFlag(true);
+				});
+			}
+			imguiContext.EndHorizontal();
 		}
 	}
 

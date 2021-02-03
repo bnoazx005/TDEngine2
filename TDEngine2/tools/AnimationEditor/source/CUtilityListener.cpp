@@ -76,7 +76,6 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 				if (auto pAnimationComponent = pEntity->AddComponent<CAnimationContainerComponent>())
 				{
 					pAnimationComponent->SetAnimationClipId("Animation2");
-					pAnimationComponent->Play();
 				}
 			}
 		}

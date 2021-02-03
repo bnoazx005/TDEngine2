@@ -14,18 +14,20 @@
 namespace TDEngine2
 {
 	class IResourceManager;
+	class IEventManager;
 
 
 	/*!
 		\brief A factory function for creation objects of CAnimationSystem's type.
 
 		\param[in, out] pResourceManager A pointer to IResourceManager implementation
+		\param[in, out] pEventManager A pointer to IEventManager implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CAnimationSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateAnimationSystem(IResourceManager* pResourceManager, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateAnimationSystem(IResourceManager* pResourceManager, IEventManager* pEventManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -37,19 +39,20 @@ namespace TDEngine2
 	class CAnimationSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateAnimationSystem(IResourceManager*, E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateAnimationSystem(IResourceManager*, IEventManager*, E_RESULT_CODE& result);
 		public:
 			TDE2_SYSTEM(CAnimationSystem);
 
 			/*!
 				\brief The method initializes an inner state of a system
 
-		\param[in, out] pResourceManager A pointer to IResourceManager implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
+				\param[in, out] pEventManager A pointer to IEventManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager);
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IEventManager* pEventManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -82,8 +85,11 @@ namespace TDEngine2
 
 			static TDE2_API F32 _adjustTimeToFitRange(F32 time, bool isLooping, F32 startTime, F32 endTime);
 
+			TDE2_API void _notifyOnAnimationEvent(TEntityId id, const std::string& eventId);
+
 		protected:
 			IResourceManager* mpResourceManager;
+			IEventManager* mpEventManager;
 			
 			std::vector<TEntityId> mAnimatedEntities;
 	};

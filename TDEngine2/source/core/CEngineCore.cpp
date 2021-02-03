@@ -416,7 +416,7 @@ namespace TDEngine2
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
-			CreateAnimationSystem(pResourceManager, result),
+			CreateAnimationSystem(pResourceManager, pEventManager, result),
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
 #endif

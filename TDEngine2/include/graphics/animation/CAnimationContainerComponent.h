@@ -87,8 +87,10 @@ namespace TDEngine2
 			TDE2_API void SetPausedFlag(bool value);
 
 			TDE2_API E_RESULT_CODE SetTime(F32 value);
+			TDE2_API E_RESULT_CODE SetDuration(F32 value);
 
 			TDE2_API F32 GetTime() const;
+			TDE2_API F32 GetDuration() const;
 
 			TDE2_API bool IsStarted() const;
 			TDE2_API bool IsPlaying() const;
@@ -109,6 +111,7 @@ namespace TDEngine2
 			bool mIsPaused = false;
 
 			F32 mCurrTime;
+			F32 mDuration;
 
 			TResourceId mAnimationClipResourceId = TResourceId::Invalid;
 	};
