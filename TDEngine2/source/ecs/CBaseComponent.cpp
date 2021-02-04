@@ -1,4 +1,5 @@
 #include "../../include/ecs/CBaseComponent.h"
+#include "../../include/utils/CFileLogger.h"
 #include <limits>
 #include <stringUtils.hpp>
 #include <result.hpp>
@@ -48,7 +49,7 @@ namespace TDEngine2
 
 	IPropertyWrapperPtr CBaseComponent::GetProperty(const std::string& propertyName)
 	{
-		Wrench::Panic(Wrench::StringUtils::Format("[CBaseComponent] The property ({0}) wasn't found", propertyName));
+		LOG_ERROR(Wrench::StringUtils::Format("[CBaseComponent] The property ({0}) wasn't found", propertyName));
 		return IPropertyWrapperPtr(nullptr);
 	}
 

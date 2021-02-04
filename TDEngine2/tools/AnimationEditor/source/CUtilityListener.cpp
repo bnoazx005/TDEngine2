@@ -44,6 +44,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	{
 		if (auto pTrack = pClip->GetTrack<IAnimationTrack>(pClip->CreateTrack<CVector3AnimationTrack>("testTrack")))
 		{
+			pTrack->SetPropertyBinding("transform.position");
+
 			pTrack->CreateKey(0.0f);
 			pTrack->CreateKey(1.0f);
 			auto handle = pTrack->CreateKey(0.2f);

@@ -1,17 +1,89 @@
 #include "../../include/ecs/CAnimationSystem.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CTransform.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IEventManager.h"
+#include "../../include/core/Meta.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CAnimationClip.h"
 #include "../../include/graphics/animation/IAnimationTrack.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/MathUtils.h"
+#include <algorithm>
 
 
 namespace TDEngine2
 {
+
+	static IComponent* GetComponentByTypeName(CEntity* pEntity, const std::string& componentId)
+	{
+		auto&& entityComponents = pEntity->GetComponents();
+
+		auto it = std::find_if(entityComponents.cbegin(), entityComponents.cend(), [&componentId](const IComponent* pComponent)
+		{
+			return pComponent->GetTypeName() == componentId;
+		});
+
+		return (it == entityComponents.cend()) ? nullptr : *it;
+	}
+
+
+	static IPropertyWrapperPtr ResolveBinding(IWorld* pWorld, CEntity* pEntity, const std::string& name)
+	{
+		std::string binding = Wrench::StringUtils::RemoveAllWhitespaces(name);
+
+		std::string::size_type pos = 0;
+
+		// \note If there are child appearances in the path go down into the hierarchy
+		CEntity* pCurrEntity = pEntity;
+
+		auto&& hierarchy = Wrench::StringUtils::Split(binding, "/");
+		for (auto it = hierarchy.cbegin(); it != std::prev(hierarchy.cend()); it++)
+		{
+			CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
+		
+			bool hasChildFound = false;
+
+			for (TEntityId childEntityId : pTransform->GetChildren())
+			{
+				if (CEntity* pChildEntity = pWorld->FindEntity(childEntityId))
+				{
+					if (pChildEntity->GetName() == *it)
+					{
+						pCurrEntity = pChildEntity;
+						hasChildFound = true;
+						break;
+					}
+				}
+			}
+
+			if (!hasChildFound)
+			{
+				return IPropertyWrapperPtr(nullptr);
+			}
+		}
+
+		// \note Check whether the component with given identifier exist or not
+		const std::string& componentBinding = hierarchy.back();
+
+		pos = componentBinding.find_first_of('.');
+		if (pos == std::string::npos)
+		{
+			return IPropertyWrapperPtr(nullptr);
+		}
+
+		const std::string componentTypeId = componentBinding.substr(0, pos); // \note extract component's name
+
+		if (IComponent* pSelectedComponent = GetComponentByTypeName(pCurrEntity, componentTypeId))
+		{
+			return pSelectedComponent->GetProperty(componentBinding.substr(pos + 1));
+		}
+
+		return IPropertyWrapperPtr(nullptr);
+	}
+
+
 	CAnimationSystem::CAnimationSystem() :
 		CBaseSystem()
 	{
@@ -62,6 +134,19 @@ namespace TDEngine2
 	{
 		CEntity* pCurrEntity = nullptr;
 
+		auto tryStopAnimation = [this](CAnimationContainerComponent* pAnimationContainer, TEntityId sourceId)
+		{
+			if (pAnimationContainer->IsStopped())
+			{
+				_notifyOnAnimationEvent(sourceId, TAnimationEvents::mOnFinished);
+				pAnimationContainer->SetPlayingFlag(false);
+			
+				return true;
+			}
+
+			return false;
+		};
+
 		for (TEntityId currEntityId : mAnimatedEntities)
 		{
 			pCurrEntity = pWorld->FindEntity(currEntityId);
@@ -78,6 +163,7 @@ namespace TDEngine2
 
 			if ((!isPlaying && !isStarted) || isPaused)
 			{
+				tryStopAnimation(pAnimationContainer, pCurrEntity->GetId());
 				continue;
 			}
 
@@ -94,11 +180,8 @@ namespace TDEngine2
 				_notifyOnAnimationEvent(pCurrEntity->GetId(), TAnimationEvents::mOnStart);
 			}
 
-			if (pAnimationContainer->IsStopped())
-			{
-				_notifyOnAnimationEvent(pCurrEntity->GetId(), TAnimationEvents::mOnFinished);
-				pAnimationContainer->SetPlayingFlag(false);
-
+			if (tryStopAnimation(pAnimationContainer, pCurrEntity->GetId()))
+			{				
 				return;
 			}
 
@@ -118,11 +201,16 @@ namespace TDEngine2
 			}
 
 			// \note Apply values for each animation track
-			pAnimationClip->ForEachTrack([pCurrEntity](IAnimationTrack* pTrack)
+			pAnimationClip->ForEachTrack([pWorld, pCurrEntity, currTime](IAnimationTrack* pTrack)
 			{
-				// resolve binding 
-				// if corresponding child entity or a component exist get their property wrapper
-				// apply the value to the wrapper
+				IPropertyWrapperPtr animableProperty{ ResolveBinding(pWorld, pCurrEntity, pTrack->GetPropertyBinding()) };
+				if (!animableProperty) // \note It's pretty normal case when you can't resolve binding, because, for instance, an entity may not have some component or child entity
+				{
+					return;
+				}
+
+				E_RESULT_CODE result = pTrack->Apply(animableProperty.Get(), currTime); // \note apply the value to the wrapper
+				TDE2_ASSERT(RC_OK == result);
 			});
 		}
 	}

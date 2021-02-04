@@ -355,6 +355,8 @@ namespace TDEngine2
 					{
 						dt = mpInternalTimer->GetDeltaTime();
 
+						mpWorldInstance->Update(dt);
+
 						if (mpImGUIContext)
 						{
 							mpImGUIContext->BeginFrame(dt);
@@ -375,8 +377,6 @@ namespace TDEngine2
 								mpImGUIContext->EndFrame();
 							}
 						});
-
-						mpWorldInstance->Update(dt);
 
 						result = result | pListener->OnUpdate(dt);
 					}

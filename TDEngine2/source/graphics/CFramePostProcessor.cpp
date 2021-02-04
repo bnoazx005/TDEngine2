@@ -186,6 +186,7 @@ namespace TDEngine2
 
 		{
 			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);
+			mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget, TColor32F{});
 			onRenderFrameCallback();
 			mpGraphicsContext->BindRenderTarget(0, nullptr);
 		}

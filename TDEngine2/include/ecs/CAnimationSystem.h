@@ -15,6 +15,9 @@ namespace TDEngine2
 {
 	class IResourceManager;
 	class IEventManager;
+	class IPropertyWrapper;
+	class CEntity;
+	class IWorld;
 
 
 	/*!
