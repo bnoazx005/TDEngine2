@@ -12,6 +12,22 @@ namespace TDEngine2
 	const std::string TAnimationEvents::mOnFinished = "on_finished";
 
 
+	struct TAnimationClipKeys
+	{
+		static const std::string mDurationKeyId;
+		static const std::string mWrapModeKeyId;
+		static const std::string mTracksKeyId;
+		static const std::string mSingleTrackKeyId;
+		static const std::string mTypeIdKeyId;
+	};
+
+	const std::string TAnimationClipKeys::mDurationKeyId = "duration";
+	const std::string TAnimationClipKeys::mWrapModeKeyId = "wrap-mode";
+	const std::string TAnimationClipKeys::mTracksKeyId = "tracks";
+	const std::string TAnimationClipKeys::mSingleTrackKeyId = "track";
+	const std::string TAnimationClipKeys::mTypeIdKeyId = "type_id";
+
+
 	const CAnimationClip::TAnimationTracksFactory CAnimationClip::mTracksFactory
 	{
 		{ CVector2AnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateVector2AnimationTrack(pClip, result); } },
@@ -66,18 +82,70 @@ namespace TDEngine2
 
 	E_RESULT_CODE CAnimationClip::Reset()
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		E_RESULT_CODE result = RC_OK;
+
+		while (!mpTracks.empty())
+		{
+			if (IAnimationTrack* pTrack = mpTracks.begin()->second)
+			{
+				result = result | pTrack->Free();
+			}
+
+			mpTracks.erase(mpTracks.cbegin());
+		}
+
+		return result;
 	}
 
 	E_RESULT_CODE CAnimationClip::Load(IArchiveReader* pReader)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mDuration = pReader->GetFloat(TAnimationClipKeys::mDurationKeyId);
+		mWrapMode = Meta::EnumTrait<E_ANIMATION_WRAP_MODE_TYPE>::FromString(pReader->GetString(TAnimationClipKeys::mWrapModeKeyId));
+
+		E_RESULT_CODE result = RC_OK;
+
+		pReader->BeginGroup(TAnimationClipKeys::mTracksKeyId);
+		{
+			while (pReader->HasNextItem())
+			{
+				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					pReader->BeginGroup(TAnimationClipKeys::mSingleTrackKeyId);
+
+					auto trackHandle = _createTrackInternal(static_cast<TypeId>(pReader->GetUInt32(TAnimationClipKeys::mTypeIdKeyId)), "#");
+					if (TAnimationTrackId::Invalid == trackHandle)
+					{
+						TDE2_ASSERT(false);
+						result = result | RC_FAIL;
+					}
+
+					if (IAnimationTrack* pTrack = mpTracks[trackHandle])
+					{
+						pTrack->Load(pReader);
+					}
+
+					pReader->EndGroup();
+				}
+				pReader->EndGroup();
+			}
+		}
+		pReader->EndGroup();
+
+		return result;
 	}
 	
 	E_RESULT_CODE CAnimationClip::Save(IArchiveWriter* pWriter)
 	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
 		pWriter->BeginGroup("meta");
 		{
 			pWriter->SetString("resource-type", "animation-clip");
@@ -85,10 +153,10 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
-		pWriter->SetFloat("duration", mDuration);
-		pWriter->SetString("wrap-mode", Meta::EnumTrait<E_ANIMATION_WRAP_MODE_TYPE>::ToString(mWrapMode)); // \todo replace with proper serialization of the enum type
+		pWriter->SetFloat(TAnimationClipKeys::mDurationKeyId, mDuration);
+		pWriter->SetString(TAnimationClipKeys::mWrapModeKeyId, Meta::EnumTrait<E_ANIMATION_WRAP_MODE_TYPE>::ToString(mWrapMode)); // \todo replace with proper serialization of the enum type
 
-		pWriter->BeginGroup("tracks", true);		
+		pWriter->BeginGroup(TAnimationClipKeys::mTracksKeyId, true);
 		{
 			for (auto&& currTrackEntity : mpTracks)
 			{
@@ -96,9 +164,9 @@ namespace TDEngine2
 
 				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
-					pWriter->BeginGroup("track");
+					pWriter->BeginGroup(TAnimationClipKeys::mSingleTrackKeyId);
 					{
-						pWriter->SetUInt32("type_id", static_cast<U32>(pCurrTrack->GetTrackTypeId()));
+						pWriter->SetUInt32(TAnimationClipKeys::mTypeIdKeyId, static_cast<U32>(pCurrTrack->GetTrackTypeId()));
 						E_RESULT_CODE result = pCurrTrack->Save(pWriter);
 						TDE2_ASSERT(result == RC_OK);
 					}
@@ -293,9 +361,12 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_UNIMPLEMENTED();
+		if (TResult<TFileEntryId> animationClipFileId = mpFileSystem->Open<IYAMLFileReader>(pResource->GetName()))
+		{
+			return dynamic_cast<IAnimationClip*>(pResource)->Load(mpFileSystem->Get<IYAMLFileReader>(animationClipFileId.Get()));
+		}
 
-		return RC_OK;// dynamic_cast<IAnimationClip*>(pResource)->Lo(mpFileSystem, pResource->GetName() + ".info");
+		return RC_FILE_NOT_FOUND;
 	}
 
 	TypeId CAnimationClipLoader::GetResourceTypeId() const

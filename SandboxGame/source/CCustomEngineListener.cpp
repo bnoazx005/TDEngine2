@@ -309,6 +309,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			GroupEntities(mpWorld, c1, c2);
 			GroupEntities(mpWorld, pSpriteGroup->GetId(), c1);
+
+			if (auto pAnimationContainer = pSpriteGroup->AddComponent<CAnimationContainerComponent>())
+			{
+				pAnimationContainer->SetAnimationClipId("Animation2.animation");
+			}
 		});
 
 #endif

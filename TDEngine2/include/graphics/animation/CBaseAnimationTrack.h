@@ -100,7 +100,22 @@ namespace TDEngine2
 
 				mName = pReader->GetString(mNameKeyId);
 				mPropertyBinding = pReader->GetString(mBindingKeyId);
-				mInterpolationMode = static_cast<E_ANIMATION_INTERPOLATION_MODE_TYPE>(pReader->GetUInt8(mInterpolationModeKeyId));
+				mInterpolationMode = static_cast<E_ANIMATION_INTERPOLATION_MODE_TYPE>(pReader->GetUInt16(mInterpolationModeKeyId));
+
+				pReader->BeginGroup("keys");
+
+				while (pReader->HasNextItem())
+				{
+					pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						pReader->BeginGroup("key");
+						_loadKeyFrameValue(CreateKey(pReader->GetFloat("time")), pReader);
+						pReader->EndGroup();
+					}
+					pReader->EndGroup();
+				}
+
+				pReader->EndGroup();
 
 				return RC_OK;
 			}
@@ -122,7 +137,7 @@ namespace TDEngine2
 
 				pWriter->SetString(mNameKeyId, mName);
 				pWriter->SetString(mBindingKeyId, mPropertyBinding);
-				pWriter->SetUInt8(mInterpolationModeKeyId, static_cast<U8>(mInterpolationMode));
+				pWriter->SetUInt16(mInterpolationModeKeyId, static_cast<U16>(mInterpolationMode));
 
 				pWriter->BeginGroup("keys", true);
 
@@ -274,6 +289,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAnimationTrack)
 
 			TDE2_API virtual E_RESULT_CODE _saveKeyFrameValue(const TKeyFrameType& value, IArchiveWriter* pWriter) = 0;
+			TDE2_API virtual E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) = 0;
+
 			TDE2_API virtual TKeyFrameType _lerpKeyFrames(const TKeyFrameType& left, const TKeyFrameType& right, F32 t) const = 0;
 
 			/*!

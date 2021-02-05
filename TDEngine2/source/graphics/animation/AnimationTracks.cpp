@@ -23,13 +23,6 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<TVector2>(_sample(time).mValue);
 	}
 
-	E_RESULT_CODE CVector2AnimationTrack::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = CBaseAnimationTrack<TVector2KeyFrame>::Load(pReader);
-
-		return result;
-	}
-
 	E_RESULT_CODE CVector2AnimationTrack::_saveKeyFrameValue(const TVector2KeyFrame& value, IArchiveWriter* pWriter)
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup("value");
@@ -37,6 +30,27 @@ namespace TDEngine2
 		result = result | pWriter->EndGroup();
 
 		return result;
+	}
+
+	E_RESULT_CODE CVector2AnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
+	{
+		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
+
+		pReader->BeginGroup("value");
+
+		auto loadResult = LoadVector2(pReader);
+		if (loadResult)
+		{
+			frameValue.mValue = loadResult.Get();
+		}
+		else
+		{
+			return loadResult.GetError();
+		}
+
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	TVector2KeyFrame CVector2AnimationTrack::_lerpKeyFrames(const TVector2KeyFrame& left, const TVector2KeyFrame& right, F32 t) const
@@ -70,13 +84,6 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<TVector3>(_sample(time).mValue);
 	}
 
-	E_RESULT_CODE CVector3AnimationTrack::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = CBaseAnimationTrack<TVector3KeyFrame>::Load(pReader);
-
-		return result;
-	}
-
 	E_RESULT_CODE CVector3AnimationTrack::_saveKeyFrameValue(const TVector3KeyFrame& value, IArchiveWriter* pWriter)
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup("value");
@@ -84,6 +91,27 @@ namespace TDEngine2
 		result = result | pWriter->EndGroup();
 
 		return result;
+	}
+
+	E_RESULT_CODE CVector3AnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
+	{
+		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
+
+		pReader->BeginGroup("value");
+
+		auto loadResult = LoadVector3(pReader);
+		if (loadResult)
+		{
+			frameValue.mValue = loadResult.Get();
+		}
+		else
+		{
+			return loadResult.GetError();
+		}
+
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	TVector3KeyFrame CVector3AnimationTrack::_lerpKeyFrames(const TVector3KeyFrame& left, const TVector3KeyFrame& right, F32 t) const
@@ -118,13 +146,6 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<TQuaternion>(_sample(time).mValue);
 	}
 
-	E_RESULT_CODE CQuaternionAnimationTrack::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = CBaseAnimationTrack<TQuaternionKeyFrame>::Load(pReader);
-
-		return result;
-	}
-
 	E_RESULT_CODE CQuaternionAnimationTrack::_saveKeyFrameValue(const TQuaternionKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup("value");
@@ -132,6 +153,27 @@ namespace TDEngine2
 		result = result | pWriter->EndGroup();
 
 		return result;
+	}
+
+	E_RESULT_CODE CQuaternionAnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
+	{
+		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
+
+		pReader->BeginGroup("value");
+
+		auto loadResult = LoadQuaternion(pReader);
+		if (loadResult)
+		{
+			frameValue.mValue = loadResult.Get();
+		}
+		else
+		{
+			return loadResult.GetError();
+		}
+
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	TQuaternionKeyFrame CQuaternionAnimationTrack::_lerpKeyFrames(const TQuaternionKeyFrame& left, const TQuaternionKeyFrame& right, F32 t) const
@@ -165,13 +207,6 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<TColor32F>(_sample(time).mValue);
 	}
 
-	E_RESULT_CODE CColorAnimationTrack::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = CBaseAnimationTrack<TColorKeyFrame>::Load(pReader);
-
-		return result;
-	}
-
 	E_RESULT_CODE CColorAnimationTrack::_saveKeyFrameValue(const TColorKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup("value");
@@ -179,6 +214,27 @@ namespace TDEngine2
 		result = result | pWriter->EndGroup();
 
 		return result;
+	}
+
+	E_RESULT_CODE CColorAnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
+	{
+		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
+
+		pReader->BeginGroup("value");
+
+		auto loadResult = LoadColor32F(pReader);
+		if (loadResult)
+		{
+			frameValue.mValue = loadResult.Get();
+		}
+		else
+		{
+			return loadResult.GetError();
+		}
+
+		pReader->EndGroup();
+
+		return RC_OK;
 	}
 
 	TColorKeyFrame CColorAnimationTrack::_lerpKeyFrames(const TColorKeyFrame& left, const TColorKeyFrame& right, F32 t) const
@@ -212,16 +268,17 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<bool>(_sample(time).mValue);
 	}
 
-	E_RESULT_CODE CBooleanAnimationTrack::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = CBaseAnimationTrack<TBooleanKeyFrame>::Load(pReader);
-
-		return result;
-	}
-
 	E_RESULT_CODE CBooleanAnimationTrack::_saveKeyFrameValue(const TBooleanKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetBool("value", value.mValue);
+	}
+
+	E_RESULT_CODE CBooleanAnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
+	{
+		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
+		frameValue.mValue = pReader->GetBool("value");
+
+		return RC_OK;
 	}
 
 	TBooleanKeyFrame CBooleanAnimationTrack::_lerpKeyFrames(const TBooleanKeyFrame& left, const TBooleanKeyFrame& right, F32 t) const
@@ -255,16 +312,17 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<F32>(_sample(time).mValue);
 	}
 
-	E_RESULT_CODE CFloatAnimationTrack::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = CBaseAnimationTrack<TFloatKeyFrame>::Load(pReader);
-
-		return result;
-	}
-
 	E_RESULT_CODE CFloatAnimationTrack::_saveKeyFrameValue(const TFloatKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetFloat("value", value.mValue);
+	}
+
+	E_RESULT_CODE CFloatAnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
+	{
+		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
+		frameValue.mValue = pReader->GetFloat("value");
+
+		return RC_OK;
 	}
 
 	TFloatKeyFrame CFloatAnimationTrack::_lerpKeyFrames(const TFloatKeyFrame& left, const TFloatKeyFrame& right, F32 t) const
@@ -298,16 +356,17 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<I32>(_sample(time).mValue);
 	}
 
-	E_RESULT_CODE CIntegerAnimationTrack::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = CBaseAnimationTrack<TIntegerKeyFrame>::Load(pReader);
-
-		return result;
-	}
-
 	E_RESULT_CODE CIntegerAnimationTrack::_saveKeyFrameValue(const TIntegerKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetInt32("value", value.mValue);
+	}
+
+	E_RESULT_CODE CIntegerAnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
+	{
+		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
+		frameValue.mValue = pReader->GetInt32("value");
+
+		return RC_OK;
 	}
 
 	TIntegerKeyFrame CIntegerAnimationTrack::_lerpKeyFrames(const TIntegerKeyFrame& left, const TIntegerKeyFrame& right, F32 t) const
@@ -347,16 +406,17 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<std::string>(frameData);
 	}
 
-	E_RESULT_CODE CEventAnimationTrack::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = CBaseAnimationTrack<TEventKeyFrame>::Load(pReader);
-
-		return result;
-	}
-
 	E_RESULT_CODE CEventAnimationTrack::_saveKeyFrameValue(const TEventKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetString("value", value.mValue);
+	}
+
+	E_RESULT_CODE CEventAnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
+	{
+		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
+		frameValue.mValue = pReader->GetString("value");
+
+		return RC_OK;
 	}
 
 	TEventKeyFrame CEventAnimationTrack::_lerpKeyFrames(const TEventKeyFrame& left, const TEventKeyFrame& right, F32 t) const

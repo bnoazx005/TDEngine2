@@ -36,7 +36,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
-#if 1
+#if 0
 	TAnimationClipParameters clip;
 	clip.mDuration = 2.5f;
 
@@ -77,7 +77,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 				if (auto pAnimationComponent = pEntity->AddComponent<CAnimationContainerComponent>())
 				{
-					pAnimationComponent->SetAnimationClipId("Animation2");
+					pAnimationComponent->SetAnimationClipId("Animation2.animation");
 				}
 			}
 		}
