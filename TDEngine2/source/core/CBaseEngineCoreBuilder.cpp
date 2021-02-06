@@ -599,7 +599,43 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configureImGUIContext());
 		PANIC_ON_FAILURE(_configureEditorsManager());
 
+		PANIC_ON_FAILURE(_mountDirectories(engineSettings.mGraphicsContextType));
+
 		return mpEngineCoreInstance;
+	}
+
+	E_RESULT_CODE CBaseEngineCoreBuilder::_mountDirectories(E_GRAPHICS_CONTEXT_GAPI_TYPE type)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		static const std::string hslsSubDirectory = "/DX/";
+		static const std::string gslsSubDirectory = "/GL/";
+		
+		std::string baseDefaultShadersPath = "../../Resources/Shaders/Default";
+		std::string basePostEffectsShadersPath = "../../Resources/Shaders/PostEffects";
+
+		switch (type)
+		{
+			case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11:
+				baseDefaultShadersPath.append(hslsSubDirectory);
+				basePostEffectsShadersPath.append(hslsSubDirectory);
+				break;
+			case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X:
+				baseDefaultShadersPath.append(gslsSubDirectory);
+				basePostEffectsShadersPath.append(gslsSubDirectory);
+				break;
+			default:
+				TDE2_UNREACHABLE();
+				break;
+		}
+
+		if ((RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
+			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/PostEffects/"))))
+		{
+			return result;
+		}
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_registerBuiltinInfrastructure()

@@ -84,6 +84,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		
 	}
 
+	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
+	auto s = pFileSystem->ResolveVirtualPath("Shaders/Default/DefaultSkyboxShader.shader", false);
+
 	return RC_OK;
 }
 

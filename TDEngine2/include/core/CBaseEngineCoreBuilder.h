@@ -169,6 +169,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _configureSaveManager() override;
 
+			TDE2_API E_RESULT_CODE _mountDirectories(E_GRAPHICS_CONTEXT_GAPI_TYPE type);
+
 			TDE2_API virtual TEngineSettings _initEngineSettings() = 0;
 		protected:
 			bool              mIsInitialized;
