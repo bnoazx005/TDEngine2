@@ -397,13 +397,18 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		auto&& frameData = _sample(time).mValue;
-		if (frameData.empty())
+		auto&& frameData = _sample(time);
+		if (frameData.mValue.empty())
 		{
 			return RC_OK;
 		}
 
-		return pPropertyWrapper->Set<std::string>(frameData);
+		if (std::abs(frameData.mTime - time) < 1e-2f)
+		{
+			return pPropertyWrapper->Set<std::string>(frameData.mValue);
+		}
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CEventAnimationTrack::_saveKeyFrameValue(const TEventKeyFrame& value, IArchiveWriter* pWriter)

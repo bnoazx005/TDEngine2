@@ -653,7 +653,9 @@ namespace TDEngine2
 
 			CScopedPtr<T>& operator= (T* pPtr)
 			{
-				_swap(*this, CScopedPtr<T>(pPtr));
+				CScopedPtr<T> temp(pPtr);
+				_swap(*this, temp);
+
 				return *this;
 			}
 

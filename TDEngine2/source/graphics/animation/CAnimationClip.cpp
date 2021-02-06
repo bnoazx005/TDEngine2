@@ -37,6 +37,7 @@ namespace TDEngine2
 		{ CBooleanAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateBooleanAnimationTrack(pClip, result); } },
 		{ CFloatAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateFloatAnimationTrack(pClip, result); } },
 		{ CIntegerAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateIntegerAnimationTrack(pClip, result); } },
+		{ CEventAnimationTrack::GetTypeId(), [](IAnimationClip* pClip) { E_RESULT_CODE result = RC_OK; return CreateEventAnimationTrack(pClip, result); } },
 	};
 
 	CAnimationClip::CAnimationClip() :
@@ -117,11 +118,18 @@ namespace TDEngine2
 				{
 					pReader->BeginGroup(TAnimationClipKeys::mSingleTrackKeyId);
 
-					auto trackHandle = _createTrackInternal(static_cast<TypeId>(pReader->GetUInt32(TAnimationClipKeys::mTypeIdKeyId)), "#");
+					const TypeId trackTypeId = static_cast<TypeId>(pReader->GetUInt32(TAnimationClipKeys::mTypeIdKeyId));
+
+					auto trackHandle = _createTrackInternal(trackTypeId, "#");
 					if (TAnimationTrackId::Invalid == trackHandle)
 					{
 						TDE2_ASSERT(false);
 						result = result | RC_FAIL;
+					}
+
+					if (trackTypeId == CEventAnimationTrack::GetTypeId()) // \note Cache handle of an event track for fast access
+					{
+						mEventTrackHandle = trackHandle;
 					}
 
 					if (IAnimationTrack* pTrack = mpTracks[trackHandle])
@@ -243,6 +251,11 @@ namespace TDEngine2
 	E_ANIMATION_WRAP_MODE_TYPE CAnimationClip::GetWrapMode() const
 	{
 		return mWrapMode;
+	}
+
+	IAnimationTrack* CAnimationClip::GetEventTrack() const
+	{
+		return (TAnimationTrackId::Invalid == mEventTrackHandle) ? nullptr : mpTracks.at(mEventTrackHandle);
 	}
 
 	const IResourceLoader* CAnimationClip::_getResourceLoader()

@@ -164,6 +164,12 @@ namespace TDEngine2
 				return dynamic_cast<T*>(_getTrackInternal(handle));
 			}
 
+			/*!
+				\return The method returns a pointer to an animation track that controls events broadcasting. Returns nullptr if the latter doesn't exist
+			*/
+
+			TDE2_API virtual IAnimationTrack* GetEventTrack() const = 0;
+
 			TDE2_API virtual void ForEachTrack(const std::function<void(IAnimationTrack*)>& action = nullptr) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationClip)

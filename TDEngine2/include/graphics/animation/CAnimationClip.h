@@ -172,6 +172,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_ANIMATION_WRAP_MODE_TYPE GetWrapMode() const override;
+
+			/*!
+				\return The method returns a pointer to an animation track that controls events broadcasting. Returns nullptr if the latter doesn't exist
+			*/
+
+			TDE2_API IAnimationTrack* GetEventTrack() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationClip)
 
@@ -186,6 +192,8 @@ namespace TDEngine2
 			static constexpr U16       mVersionTag = 0x1;
 			
 			TAnimationTracks           mpTracks;
+
+			TAnimationTrackId          mEventTrackHandle = TAnimationTrackId::Invalid;
 
 			F32                        mDuration;
 

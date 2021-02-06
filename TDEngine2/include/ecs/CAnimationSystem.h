@@ -8,6 +8,7 @@
 
 
 #include "CBaseSystem.h"
+#include "../core/Meta.h"
 #include <vector>
 
 
@@ -95,5 +96,8 @@ namespace TDEngine2
 			IEventManager* mpEventManager;
 			
 			std::vector<TEntityId> mAnimatedEntities;
+
+			IPropertyWrapperPtr mEventsHandler;
+			TEntityId mCurrEventProviderId = TEntityId::Invalid;
 	};
 }

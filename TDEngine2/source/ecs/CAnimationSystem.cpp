@@ -8,6 +8,7 @@
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CAnimationClip.h"
 #include "../../include/graphics/animation/IAnimationTrack.h"
+#include "../../include/graphics/animation/AnimationTracks.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/MathUtils.h"
 #include <algorithm>
@@ -103,6 +104,14 @@ namespace TDEngine2
 
 		mpResourceManager = pResourceManager;
 		mpEventManager = pEventManager;
+
+		mEventsHandler = CBasePropertyWrapper<std::string>::Create([this](const std::string& eventId) 
+		{ 
+			_notifyOnAnimationEvent(mCurrEventProviderId, eventId);
+			mCurrEventProviderId = TEntityId::Invalid;
+
+			return RC_OK; 
+		}, nullptr);
 
 		mIsInitialized = true;
 
@@ -201,8 +210,18 @@ namespace TDEngine2
 			}
 
 			// \note Apply values for each animation track
-			pAnimationClip->ForEachTrack([pWorld, pCurrEntity, currTime](IAnimationTrack* pTrack)
+			pAnimationClip->ForEachTrack([pWorld, pCurrEntity, currTime, this](IAnimationTrack* pTrack)
 			{
+				if (pTrack->GetTrackTypeId() == CEventAnimationTrack::GetTypeId()) // \note Event track's processed separately
+				{
+					mCurrEventProviderId = pCurrEntity->GetId();
+
+					E_RESULT_CODE result = pTrack->Apply(mEventsHandler.Get(), currTime);
+					TDE2_ASSERT(RC_OK == result);
+
+					return;
+				}
+
 				IPropertyWrapperPtr animableProperty{ ResolveBinding(pWorld, pCurrEntity, pTrack->GetPropertyBinding()) };
 				if (!animableProperty) // \note It's pretty normal case when you can't resolve binding, because, for instance, an entity may not have some component or child entity
 				{
