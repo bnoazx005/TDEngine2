@@ -41,6 +41,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBaseComponent::PostLoad(IWorld* pWorld, const TEntitiesMapper& entitiesIdentifiersRemapper)
+	{
+		return RC_OK;
+	}
+
 	const std::string& CBaseComponent::GetTypeName() const
 	{
 		TDE2_UNIMPLEMENTED();

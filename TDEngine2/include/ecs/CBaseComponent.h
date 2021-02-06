@@ -64,6 +64,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+		
+			/*!
+				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
+				make them correctly corresponds to saved state
+
+				\param[in, out] pWorld A pointer to game world
+				\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
+			*/
+
+			TDE2_API virtual E_RESULT_CODE PostLoad(IWorld* pWorld, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
 
 			/*!
 				\return The method returns type name (lowercase is preffered)

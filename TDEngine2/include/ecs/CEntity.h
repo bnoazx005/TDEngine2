@@ -19,6 +19,7 @@ namespace TDEngine2
 {	
 	class CEntityManager;
 	class IComponent;
+	class IWorld;
 
 	/*!
 		class CEntity
@@ -74,6 +75,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+			/*!
+				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
+				make them correctly corresponds to saved state
+			*/
+
+			TDE2_API E_RESULT_CODE PostLoad(IWorld* pWorld, const std::unordered_map<TEntityId, TEntityId>& entitiesIdentifiersRemapper);
 
 			/*!
 				\brief The methods set up an identifier for an entity.

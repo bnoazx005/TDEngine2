@@ -136,7 +136,20 @@ namespace TDEngine2
 			}
 		}
 
-		return RC_OK;
+		// \note Post load remapping stage
+		E_RESULT_CODE result = RC_OK;
+
+		for (TEntityId currEntityId : mEntities)
+		{
+			if (CEntity* pEntity = mpWorld->FindEntity(currEntityId))
+			{
+				result = result | pEntity->PostLoad(mpWorld, entitiesIdsMap);
+
+				TDE2_ASSERT(RC_OK == result);
+			}
+		}
+
+		return result;
 	}
 
 	E_RESULT_CODE CScene::Save(IArchiveWriter* pWriter)

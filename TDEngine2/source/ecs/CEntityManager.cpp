@@ -228,8 +228,9 @@ namespace TDEngine2
 		mActiveEntities[mNextIdValue++] = pEntity;
 
 		/// create basic component CTransform
-		pEntity->AddComponent<CTransform>();
-		
+		CTransform* pTransform = pEntity->AddComponent<CTransform>();
+		pTransform->SetOwnerId(id);
+
 		mpEventManager->Notify(&onEntityCreated);
 
 		return pEntity;

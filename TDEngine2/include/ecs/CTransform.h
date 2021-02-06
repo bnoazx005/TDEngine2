@@ -79,6 +79,18 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
+				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
+				make them correctly corresponds to saved state
+
+				\param[in, out] pWorld A pointer to game world
+				\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE PostLoad(IWorld* pWorld, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
+
+			/*!
 				\brief The method resets all values of this transform
 			*/
 
@@ -139,6 +151,10 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetParent(TEntityId parentEntityId) override;
 
 			TDE2_API void SetDirtyFlag(bool value) override;
+
+			TDE2_API E_RESULT_CODE SetOwnerId(TEntityId id) override;
+
+			TDE2_API TEntityId GetOwnerId() const override;
 
 			/*!
 				\return The method returns an identifier of a parent or TEntityId::Invalid if the entity has no that
@@ -246,6 +262,7 @@ namespace TDEngine2
 			TVector3    mScale;
 
 			TEntityId   mParentEntityId = TEntityId::Invalid;
+			TEntityId   mOwnerId = TEntityId::Invalid;
 
 			TMatrix4    mLocalToWorldMatrix;
 			TMatrix4    mWorldToLocalMatrix;

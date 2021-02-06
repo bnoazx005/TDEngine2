@@ -102,6 +102,10 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetDirtyFlag(bool value) = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetOwnerId(TEntityId id) = 0;
+
+			TDE2_API virtual TEntityId GetOwnerId() const = 0;
+
 			/*!
 				\return The method returns an identifier of a parent or TEntityId::Invalid if the entity has no that
 			*/

@@ -1,5 +1,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/core/Serialization.h"
+#include "../../include/ecs/CWorld.h"
+#include "../../include/ecs/CEntity.h"
 
 
 namespace TDEngine2
@@ -55,6 +57,20 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+		// \note Load children's identifiers
+		pReader->BeginGroup("Children");
+		{
+			while (pReader->HasNextItem())
+			{
+				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					mChildrenEntities.push_back(static_cast<TEntityId>(pReader->GetUInt32("child_id")));
+				}
+				pReader->EndGroup();
+			}
+		}
+		pReader->EndGroup();
+
 		return RC_OK;
 	}
 
@@ -80,8 +96,52 @@ namespace TDEngine2
 			pWriter->BeginGroup("scale", false);
 			SaveVector3(pWriter, mScale);
 			pWriter->EndGroup();
+
+			// \note Save children's identifiers
+			pWriter->BeginGroup("Children", true);
+			{
+				for (const TEntityId currChildId : mChildrenEntities)
+				{
+					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						pWriter->SetUInt32("child_id", static_cast<U32>(currChildId));
+					}
+					pWriter->EndGroup();
+				}
+			}
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CTransform::PostLoad(IWorld* pWorld, const TEntitiesMapper& entitiesIdentifiersRemapper)
+	{
+		if (!pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		for (TEntityId& currChildId : mChildrenEntities)
+		{
+			auto it = entitiesIdentifiersRemapper.find(currChildId);
+			if (it == entitiesIdentifiersRemapper.cend())
+			{
+				TDE2_ASSERT(false);
+				continue;
+			}
+
+			currChildId = it->second;
+
+			if (CEntity* pChildEntity = pWorld->FindEntity(currChildId))
+			{
+				if (auto pTransform = pChildEntity->GetComponent<CTransform>())
+				{
+					pTransform->SetParent(mOwnerId);
+				}
+			}
+		}
 
 		return RC_OK;
 	}
@@ -176,6 +236,17 @@ namespace TDEngine2
 	void CTransform::SetDirtyFlag(bool value)
 	{
 		mHasChanged = value;
+	}
+
+	E_RESULT_CODE CTransform::SetOwnerId(TEntityId id)
+	{
+		mOwnerId = id;
+		return RC_OK;
+	}
+
+	TEntityId CTransform::GetOwnerId() const
+	{
+		return mOwnerId;
 	}
 
 	TEntityId CTransform::GetParent() const
