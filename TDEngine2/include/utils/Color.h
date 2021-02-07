@@ -104,4 +104,15 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+
+	TDE2_API inline TColor32F RandColor(bool allowTransparency = false)
+	{
+		constexpr F32 denominator = static_cast<F32>(RAND_MAX);
+
+		return TColor32F(static_cast<F32>(rand()) / denominator,
+						static_cast<F32>(rand()) / denominator,
+						static_cast<F32>(rand()) / denominator,
+						allowTransparency ? static_cast<F32>(rand()) / denominator : 1.0f);
+	}
 }

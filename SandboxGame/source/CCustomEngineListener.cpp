@@ -30,17 +30,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 	}
 
-	const TColor32F colors[] =
-	{
-		{ 1.0f, 0.0f, 0.0f, 1.0f },
-		{ 0.0f, 1.0f, 0.0f, 1.0f },
-		{ 0.0f, 0.0f, 1.0f, 1.0f },
-		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		{ 0.0f, 1.0f, 1.0f, 1.0f },
-		{ 1.0f, 0.0f, 1.0f, 1.0f },
-		{ 1.0f, 1.0f, 0.0f, 1.0f },
-	};
-
 	for (I32 i = 0; i < 0; ++i)
 	{
 		auto pEntity = mpWorld->CreateEntity();
@@ -53,7 +42,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		if (auto pSprite = pEntity->AddComponent<CQuadSprite>())
 		{
 			pSprite->SetMaterialName("NewMaterial.material");
-			pSprite->SetColor(colors[rand() % 7]);
+			pSprite->SetColor(RandColor());
 		}
 
 		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
@@ -75,10 +64,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpCameraEntity->AddComponent<CAudioListenerComponent>();
 
-	auto pRT = mpResourceManager->Create<CBaseRenderTarget>("default-rt", TTexture2DParameters { mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), FT_NORM_UBYTE4, 1, 1, 0 });
-	//mpGraphicsContext->BindRenderTarget(dynamic_cast<IRenderTarget*>(pRT->Get(RAT_BLOCKING)));
-
-	auto pCubeMesh = CStaticMesh::CreateCube(mpResourceManager);
 	auto pPlaneMesh = CStaticMesh::CreatePlane(mpResourceManager);
 
 	mpResourceManager->Load<CStaticMesh>("Test.mesh");
@@ -116,28 +101,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		p3DTriggerCollider->SetSizes(TVector3(25.0f, 1.0f, 25.0f));
 		p3DTrigger->AddComponent<CTrigger3D>();
 	}
-
-	
-
-	mpGraphicsContext->GetInfo();
-	mpGraphicsContext->GetContextInfo();
-
-#if 0
-	TAnimationClipParameters clip;
-	clip.mDuration  = 2.5f;
-
-	if (IAnimationClip* pClip = mpResourceManager->Create<CAnimationClip>("Animation", clip)->Get<IAnimationClip>(RAT_BLOCKING))
-	{
-		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("Animation.animation", true))
-		{			
-			if (auto animationFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
-			{
-				pClip->Save(animationFileWriter);
-				animationFileWriter->Close();
-			}
-		}
-	}	
-#endif
 
 	if (auto pPackageWriter = mpFileSystem->Get<IPackageFileWriter>(mpFileSystem->Open<IPackageFileWriter>("TestPackage.pak", true).Get()))
 	{
