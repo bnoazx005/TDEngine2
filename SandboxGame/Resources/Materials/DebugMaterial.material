@@ -1,0 +1,27 @@
+blend_state: 
+  dest_alpha: ZERO
+  dest_color: ZERO
+  op_alpha_type: ADD
+  op_type: ADD
+  src_alpha: ONE
+  src_color: ONE
+depth_stencil_state: 
+  depth_cmp_func: LESS
+  depth_test_enabled: 1
+  depth_write_enabled: 1
+  stencil_read_mask: 255
+  stencil_test_enabled: 0
+  stencil_write_mask: 255
+meta: 
+  resource_type: material
+  version_tag: 1
+rasterizer_state: 
+  cull_mode: NONE
+  depth_bias: 0.000000
+  depth_clipping_enabled: 1
+  front_CCW_mode: 0
+  max_depth_bias: 1.000000
+  scissor_test_enabled: 0
+  wireframe_mode: 0
+shader_id: ProjectShaders/DebugShader.shader
+transparency_enabled: 0

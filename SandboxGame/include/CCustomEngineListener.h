@@ -50,6 +50,9 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 
 		void SetEngineInstance(TDEngine2::IEngineCore* pEngineCore) override;
 	protected:
+		TDEngine2::E_RESULT_CODE _mountResourcesDirectories();
+
+	protected:
 		TDEngine2::IEngineCore*             mpEngineCoreInstance;
 
 		TDEngine2::IGraphicsContext*        mpGraphicsContext;

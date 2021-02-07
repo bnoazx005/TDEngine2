@@ -1,25 +1,9 @@
-#include "./../include/CCustomEngineListener.h"
+#include "../include/CCustomEngineListener.h"
 #include <TDEngine2.h>
 #include <iostream>
 
 
 using namespace TDEngine2;
-
-#define DX_GAPI 1
-
-#if DX_GAPI
-const std::string ShaderType = "HLSL";
-const std::string GAPIType = "DX";
-#else
-const std::string ShaderType = "GLSL";
-const std::string GAPIType = "GL";
-#endif
-
-
-const std::string TestShaderName = Wrench::StringUtils::Format("test{0}Shader.shader", GAPIType);
-const std::string DebugShaderName = Wrench::StringUtils::Format("Debug{0}Shader.shader", GAPIType);
-const std::string DebugTextShaderName = Wrench::StringUtils::Format("DebugText{0}Shader.shader", GAPIType);
-
 
 TVector3 SunLightPos{ 5.0f, 10.0f, 0.0f };
 
@@ -28,36 +12,23 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
+	if (RC_OK != (result = _mountResourcesDirectories()))
+	{
+		return result;
+	}
+
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	mpResourceManager->Load<CBaseMaterial>("NewMaterial.material");
-	mpResourceManager->Load<CBaseMaterial>("DebugMaterial.material");
+	mpResourceManager->Load<CBaseMaterial>("Materials/NewMaterial.material");
+	mpResourceManager->Load<CBaseMaterial>("Materials/DebugMaterial.material");
 
-	IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Create<CBaseMaterial>("DebugTextMaterial.material", TMaterialParameters{ DebugTextShaderName, true }));
-
-	auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<CTextureAtlas>("atlas"));
-	pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
-
-#if 0
-	if (auto result = mpFileSystem->Open<IYAMLFileWriter>("DebugTextMaterial.material", true))
+	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>("Materials/DebugTextMaterial.material")))
 	{
-		if (auto materialFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
+		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<CTextureAtlas>("atlas")))
 		{
-			pFontMaterial->Save(materialFileWriter);
-			materialFileWriter->Close();
+			pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 		}
 	}
-#endif
-
-
-	/*if (auto result = mpFileSystem->Open<IYAMLFileWriter>("default-profile.camera_profile", true))
-	{
-		if (auto pCameraProfileFile = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
-		{
-			mpResourceManager->GetResource<IPostProcessingProfile>(mpResourceManager->Load<CBasePostProcessingProfile>("default-profile.camera_profile"))->Save(pCameraProfileFile);
-			pCameraProfileFile->Close();
-		}
-	}*/
 
 	const TColor32F colors[] =
 	{
@@ -482,4 +453,16 @@ void CCustomEngineListener::SetEngineInstance(IEngineCore* pEngineCore)
 	mpFileSystem      = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
 
 	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+}
+
+E_RESULT_CODE CCustomEngineListener::_mountResourcesDirectories()
+{
+	E_RESULT_CODE result = RC_OK;
+
+	const std::string shaderLangSubdirectory = dynamic_cast<COGLGraphicsContext*>(mpGraphicsContext) ? "GL/" : "DX/";
+
+	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Shaders/" + shaderLangSubdirectory, "ProjectShaders/");
+	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Materials/", "ProjectMaterials/");
+
+	return result;
 }
