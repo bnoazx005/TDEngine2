@@ -18,6 +18,7 @@
 namespace TDEngine2
 {
 	class IWorld;
+	class IResourceManager;
 	class CEntity;
 
 
@@ -80,6 +81,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual CEntity* CreateDirectionalLight(const TColor32F& tint, F32 intensity, const TVector3& direction) = 0;
+
+			/*!
+				\brief The method creates an entity which represents a skybox
+
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
+				\param[in] skyboxTexture A path to cube texure of a skybox
+
+				\return A pointer to a new created entity with CDirectionalLight component attached to it
+			*/
+
+			TDE2_API virtual CEntity* CreateSkybox(IResourceManager* pResourceManager, const std::string& skyboxTexture) = 0;
 
 			/*!
 				\brief The method iterates over each entity which is linked to current scene

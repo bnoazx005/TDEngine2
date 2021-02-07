@@ -46,9 +46,9 @@ namespace TDEngine2
 		// Used materials 
 		// \todo Refactor this later
 		mDefaultScreenSpaceMaterialHandle = mpResourceManager->Create<CBaseMaterial>("DefaultScreenSpaceEffect.material", TMaterialParameters{ "DefaultScreenSpaceEffect", false, TDepthStencilStateDesc { false, false } });
-		mBloomFilterMaterialHandle = mpResourceManager->Create<CBaseMaterial>("BloomScreenSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/DX/Bloom.shader", false, TDepthStencilStateDesc { false, false } });
-		mBloomFinalPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("BloomFinalPassSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/DX/BloomFinal.shader", false, TDepthStencilStateDesc { false, false } });
-		mGaussianBlurMaterialHandle = mpResourceManager->Create<CBaseMaterial>("GaussianBlurSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/DX/GaussianBlur.shader", false, TDepthStencilStateDesc { false, false } });
+		mBloomFilterMaterialHandle = mpResourceManager->Create<CBaseMaterial>("BloomScreenSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/Bloom.shader", false, TDepthStencilStateDesc { false, false } });
+		mBloomFinalPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("BloomFinalPassSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/BloomFinal.shader", false, TDepthStencilStateDesc { false, false } });
+		mGaussianBlurMaterialHandle = mpResourceManager->Create<CBaseMaterial>("GaussianBlurSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/GaussianBlur.shader", false, TDepthStencilStateDesc { false, false } });
 		mToneMappingPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("ToneMappingPass.material", TMaterialParameters{ "ToneMappingPass", false, TDepthStencilStateDesc { false, false } });
 
 		if (auto vertexFormatResult = desc.mpGraphicsObjectManager->CreateVertexDeclaration())

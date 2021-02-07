@@ -39,6 +39,7 @@ namespace TDEngine2
 			TDE2_API static void DrawShadowCasterGUI(IImGUIContext& imguiContext, IComponent& component);
 			TDE2_API static void DrawDirectionalLightGUI(IImGUIContext& imguiContext, IComponent& component);
 			TDE2_API static void DrawAnimationContainerGUI(IImGUIContext& imguiContext, IComponent& component);
+			TDE2_API static void DrawSkyboxGUI(IImGUIContext& imguiContext, IComponent& component);
 
 			/// 2D Physics components
 			TDE2_API static void DrawBoxCollision2DGUI(IImGUIContext& imguiContext, IComponent& component);

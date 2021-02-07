@@ -171,4 +171,5 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_FLAG_COMPONENT(ShadowReceiverComponent);
+	TDE2_DECLARE_FLAG_COMPONENT(SkyboxComponent); // \todo Move it to another file later
 }

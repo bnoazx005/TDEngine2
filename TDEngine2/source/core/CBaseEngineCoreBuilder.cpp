@@ -212,12 +212,6 @@ namespace TDEngine2
 			return result;
 		}
 
-		if ((result = mpFileSystemInstance->MountPhysicalPath("./../../Resources/Shaders/", "Shaders/")) != RC_OK ||
-			(result = mpFileSystemInstance->MountPhysicalPath("./../../Resources/", "Resources/")) != RC_OK)
-		{
-			return result;
-		}
-
 		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(mpFileSystemInstance));
 	}
 
@@ -570,6 +564,8 @@ namespace TDEngine2
 
 		const TEngineSettings& engineSettings = _initEngineSettings();
 
+		PANIC_ON_FAILURE(_mountDirectories(engineSettings.mGraphicsContextType));
+
 		PANIC_ON_FAILURE(_configureJobManager(engineSettings.mMaxNumOfWorkerThreads));
 		PANIC_ON_FAILURE(_configureMemoryManager(engineSettings.mTotalPreallocatedMemorySize));
 		PANIC_ON_FAILURE(_configureEventManager());
@@ -599,8 +595,6 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configureImGUIContext());
 		PANIC_ON_FAILURE(_configureEditorsManager());
 
-		PANIC_ON_FAILURE(_mountDirectories(engineSettings.mGraphicsContextType));
-
 		return mpEngineCoreInstance;
 	}
 
@@ -610,9 +604,12 @@ namespace TDEngine2
 
 		static const std::string hslsSubDirectory = "/DX/";
 		static const std::string gslsSubDirectory = "/GL/";
-		
-		std::string baseDefaultShadersPath = "../../Resources/Shaders/Default";
-		std::string basePostEffectsShadersPath = "../../Resources/Shaders/PostEffects";
+
+		static const std::string baseResourcesPath = "../../Resources/";
+		static const std::string baseShadersPath = baseResourcesPath + "Shaders/";
+
+		std::string baseDefaultShadersPath = baseShadersPath + "Default";
+		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
 
 		switch (type)
 		{
@@ -629,8 +626,10 @@ namespace TDEngine2
 				break;
 		}
 
-		if ((RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
-			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/PostEffects/"))))
+		if ((RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseResourcesPath, "Resources/"))) ||
+			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
+			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(basePostEffectsShadersPath, "Shaders/PostEffects/"))) ||
+			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseShadersPath, "Shaders/", 1))))
 		{
 			return result;
 		}

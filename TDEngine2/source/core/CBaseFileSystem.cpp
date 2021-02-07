@@ -54,7 +54,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseFileSystem::MountPhysicalPath(const std::string& path, const std::string& aliasPath)
+	E_RESULT_CODE CBaseFileSystem::MountPhysicalPath(const std::string& path, const std::string& aliasPath, U16 relativePriority)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -64,7 +64,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return _mountInternal(aliasPath, pStorage);
+		return _mountInternal(aliasPath, pStorage, relativePriority);
 	}
 
 	E_RESULT_CODE CBaseFileSystem::MountPackage(const std::string& path, const std::string& aliasPath)
@@ -77,7 +77,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return _mountInternal(aliasPath, pStorage);
+		return _mountInternal(aliasPath, pStorage, 0);
 	}
 
 	E_RESULT_CODE CBaseFileSystem::Unmount(const std::string& aliasPath)
@@ -134,7 +134,7 @@ namespace TDEngine2
 		return std::experimental::filesystem::path(path).filename().string();
 	}
 
-	E_RESULT_CODE CBaseFileSystem::_mountInternal(const std::string& aliasPath, IMountableStorage* pStorage)
+	E_RESULT_CODE CBaseFileSystem::_mountInternal(const std::string& aliasPath, IMountableStorage* pStorage, U16 realtivePriority)
 	{
 		const std::string unifiedAliasPath = _normalizePathView(aliasPath);
 
@@ -182,7 +182,7 @@ namespace TDEngine2
 
 				for (auto iter = mMountedStorages.cbegin(); iter != mMountedStorages.cend(); ++iter)
 				{
-					if (iter->mpStorage->GetPriority() >= pStorage->GetPriority())
+					if (iter->mpStorage->GetPriority() >= (pStorage->GetPriority() + realtivePriority))
 					{
 						mMountedStorages.insert(iter, TMountedStorageInfo { pStorage, aliasPath });
 						isInserted = true;

@@ -138,4 +138,5 @@ namespace TDEngine2
 
 
 	TDE2_DEFINE_FLAG_COMPONENT(ShadowReceiverComponent);
+	TDE2_DEFINE_FLAG_COMPONENT(SkyboxComponent);
 }

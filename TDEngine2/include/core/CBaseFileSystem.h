@@ -67,7 +67,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE MountPhysicalPath(const std::string& path, const std::string& aliasPath) override;
+			TDE2_API E_RESULT_CODE MountPhysicalPath(const std::string& path, const std::string& aliasPath, U16 relativePriority = 0) override;
 
 			/*!
 				\brief The method mounts a package to the alias to provide implicit work with its files structure
@@ -218,7 +218,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFileSystem)
 
-			TDE2_API E_RESULT_CODE _mountInternal(const std::string& aliasPath, IMountableStorage* pStorage);
+			TDE2_API E_RESULT_CODE _mountInternal(const std::string& aliasPath, IMountableStorage* pStorage, U16 relativePriority);
 
 			TDE2_API std::string _normalizePathView(const std::string& path, bool isDirectory = true) const;
 

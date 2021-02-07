@@ -3,7 +3,12 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/editor/ecs/EditorComponents.h"
+#include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CStaticMesh.h"
+#include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/graphics/CBaseCubemapTexture.h"
 #include <unordered_map>
 
 
@@ -246,6 +251,55 @@ namespace TDEngine2
 		}
 
 		return pDirectionLightEntity;
+	}
+
+	CEntity* CScene::CreateSkybox(IResourceManager* pResourceManager, const std::string& skyboxTexture)
+	{
+		if (!pResourceManager)
+		{
+			return nullptr;
+		}
+
+		auto skyboxEntities = mpWorld->FindEntitiesWithComponents<CSkyboxComponent>();
+		if (!skyboxEntities.empty())
+		{
+			return mpWorld->FindEntity(skyboxEntities.front());
+		}
+
+		CEntity* pSkyboxEntity = CreateEntity("Skybox");
+
+		pSkyboxEntity->AddComponent<CSkyboxComponent>();
+
+		/// \todo Replace all magic constants with proper named values
+		TMaterialParameters skyboxMatParams
+		{
+			"Shaders/Default/DefaultSkyboxShader.shader", true,
+			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
+			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, true, false }
+		};
+
+		static const std::string skyboxMaterialName = "DefaultSkybox.material";
+
+		if (IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Create<CBaseMaterial>(skyboxMaterialName, skyboxMatParams)))
+		{
+			pMaterial->SetTextureResource("SkyboxTexture", pResourceManager->GetResource<ICubemapTexture>(pResourceManager->Load<CBaseCubemapTexture>(skyboxTexture)));
+			pMaterial->SetGeometrySubGroupTag(E_GEOMETRY_SUBGROUP_TAGS::SKYBOX);
+		}		
+		
+		if (auto pStaticMeshContainer = pSkyboxEntity->AddComponent<CStaticMeshContainer>())
+		{
+			pStaticMeshContainer->SetMaterialName(skyboxMaterialName);
+
+			// \note Check whether Cube mesh exists or not
+			if (TResourceId::Invalid == pResourceManager->Load<CStaticMesh>("Cube"))
+			{
+				CStaticMesh::CreateCube(pResourceManager);
+			}
+
+			pStaticMeshContainer->SetMeshName("Cube");
+		}
+
+		return pSkyboxEntity;
 	}
 
 	void CScene::ForEachEntity(const std::function<void(CEntity*)>& action)

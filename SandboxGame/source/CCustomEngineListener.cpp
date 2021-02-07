@@ -146,23 +146,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		p3DTrigger->AddComponent<CTrigger3D>();
 	}
 
-	{
-		TMaterialParameters skyboxMatParams 
-		{ 
-			mpFileSystem->ResolveVirtualPath(Wrench::StringUtils::Format("Shaders/Default/DefaultSkyboxShader_{0}.shader", ShaderType), false), true,
-			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL}, 
-			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, true, false }
-		};
-
-		IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Create<CBaseMaterial>("DefaultSkybox.material", skyboxMatParams));
-		pMaterial->SetTextureResource("SkyboxTexture", mpResourceManager->GetResource<ICubemapTexture>(mpResourceManager->Load<CBaseCubemapTexture>("DefaultSkybox")));
-		pMaterial->SetGeometrySubGroupTag(E_GEOMETRY_SUBGROUP_TAGS::SKYBOX);
-		
-		auto pSkyboxEntity = mpWorld->CreateEntity("Skybox");
-		auto pSkyboxContainer = pSkyboxEntity->AddComponent<CStaticMeshContainer>();
-		pSkyboxContainer->SetMeshName("Cube");
-		pSkyboxContainer->SetMaterialName("DefaultSkybox.material");
-	}
+	
 
 	mpGraphicsContext->GetInfo();
 	mpGraphicsContext->GetContextInfo();
@@ -314,6 +298,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			{
 				pAnimationContainer->SetAnimationClipId("Animation2.animation");
 			}
+
+			pScene->CreateSkybox(mpResourceManager, "DefaultSkybox");
 		});
 
 #endif

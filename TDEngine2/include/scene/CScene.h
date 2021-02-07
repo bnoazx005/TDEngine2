@@ -111,6 +111,17 @@ namespace TDEngine2
 			TDE2_API CEntity* CreateDirectionalLight(const TColor32F& tint, F32 intensity, const TVector3& direction) override;
 
 			/*!
+				\brief The method creates an entity which represents a skybox
+
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
+				\param[in] skyboxTexture A path to cube texure of a skybox
+
+				\return A pointer to a new created entity with CDirectionalLight component attached to it
+			*/
+
+			TDE2_API CEntity* CreateSkybox(IResourceManager* pResourceManager, const std::string& skyboxTexture) override;
+
+			/*!
 				\brief The method iterates over each entity which is linked to current scene
 
 				\param[in] action A predicate that's executed for each valid entity. All expired or invalid entities are skipped

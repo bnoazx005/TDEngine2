@@ -377,6 +377,7 @@ namespace TDEngine2
 			CreateAudioListenerComponentFactory,
 			CreateAudioSourceComponentFactory,
 			CreateAnimationContainerComponentFactory,
+			CreateSkyboxComponentFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
@@ -429,6 +430,7 @@ namespace TDEngine2
 			CAudioListenerComponent::GetTypeId(),
 			CAudioSourceComponent::GetTypeId(),
 			CAnimationContainerComponent::GetTypeId(),
+			CSkyboxComponent::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 			CSceneInfoComponent::GetTypeId(),

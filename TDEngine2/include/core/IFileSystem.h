@@ -68,7 +68,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE MountPhysicalPath(const std::string& path, const std::string& aliasPath) = 0;
+			TDE2_API virtual E_RESULT_CODE MountPhysicalPath(const std::string& path, const std::string& aliasPath, U16 relativePriority = 0) = 0;
 
 			/*!
 				\brief The method mounts a package to the alias to provide implicit work with its files structure

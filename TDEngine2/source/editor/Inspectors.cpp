@@ -36,6 +36,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CShadowCasterComponent::GetTypeId(), DrawShadowCasterGUI);
 		result = result | editor.RegisterInspector(CDirectionalLight::GetTypeId(), DrawDirectionalLightGUI);
 		result = result | editor.RegisterInspector(CAnimationContainerComponent::GetTypeId(), DrawAnimationContainerGUI);
+		result = result | editor.RegisterInspector(CSkyboxComponent::GetTypeId(), DrawSkyboxGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -187,6 +188,11 @@ namespace TDEngine2
 			}
 			imguiContext.EndHorizontal();
 		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawSkyboxGUI(IImGUIContext& imguiContext, IComponent& component)
+	{
+		if (imguiContext.CollapsingHeader("Skybox", true)) {}
 	}
 
 	void CDefeaultInspectorsRegistry::DrawBoxCollision2DGUI(IImGUIContext& imguiContext, IComponent& component)
