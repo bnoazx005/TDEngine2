@@ -322,6 +322,11 @@ namespace TDEngine2
 			pAudioContext->Update();
 		}
 
+		if (IJobManager* pJobManager = _getSubsystemAs<IJobManager>(EST_JOB_MANAGER))
+		{
+			pJobManager->ProcessMainThreadQueue();
+		}
+
 #if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
 		CPerfProfiler::Get()->EndFrame();
 		CMemoryProfiler::Get()->EndFrame();

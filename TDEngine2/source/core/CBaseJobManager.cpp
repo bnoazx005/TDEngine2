@@ -25,6 +25,8 @@ namespace TDEngine2
 			mWorkerThreads.emplace_back(&CBaseJobManager::_executeTasksLoop, this);
 		}
 
+		mUpdateCounter = 0;
+
 		mIsInitialized = true;
 
 		LOG_MESSAGE("[Job Manager] The job manager was successfully initialized...");
@@ -61,6 +63,39 @@ namespace TDEngine2
 
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseJobManager::ExecuteInMainThread(const std::function<void()>& action)
+	{
+		if (!action)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		std::lock_guard<std::mutex> lock(mMainThreadCallbacksQueueMutex);
+
+		mMainThreadCallbacksQueue.emplace(action);
+
+		return RC_OK;
+	}
+
+	void CBaseJobManager::ProcessMainThreadQueue()
+	{
+		if (mUpdateCounter < mUpdateTickRate)
+		{
+			++mUpdateCounter;
+			return;
+		}
+
+		mUpdateCounter = 0;
+
+		std::lock_guard<std::mutex> lock(mMainThreadCallbacksQueueMutex);
+
+		while (!mMainThreadCallbacksQueue.empty())
+		{
+			(mMainThreadCallbacksQueue.front)();
+			mMainThreadCallbacksQueue.pop();
+		}
 	}
 	
 	E_ENGINE_SUBSYSTEM_TYPE CBaseJobManager::GetType() const

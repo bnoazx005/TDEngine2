@@ -105,6 +105,22 @@ namespace TDEngine2
 				return _submitJob(std::make_unique<TJob<TArgs...>>(jobCallback, std::forward<TArgs>(args)...));
 			}
 
+			/*!
+				\brief The method allows to execute some code from main thread nomatter from which thread it's called
+
+				\param[in] action A function that should be executed in the main thread
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ExecuteInMainThread(const std::function<void()>& action = nullptr) = 0;
+
+			/*!
+				\brief The method unrolls main thread's queue of actions that should be executed only in the main thread
+			*/
+
+			TDE2_API virtual void ProcessMainThreadQueue() = 0;
+
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_JOB_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IJobManager)

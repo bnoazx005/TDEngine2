@@ -42,6 +42,7 @@ namespace TDEngine2
 		protected:
 			typedef std::vector<std::thread>          TThreadsArray;
 			typedef std::queue<std::unique_ptr<IJob>> TJobQueue;
+			typedef std::queue<std::function<void()>> TCallbacksQueue;
 		public:
 			/*!
 				\brief The method initializes an inner state of a manager
@@ -60,7 +61,23 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
-						
+
+			/*!
+				\brief The method allows to execute some code from main thread nomatter from which thread it's called
+
+				\param[in] action A function that should be executed in the main thread
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ExecuteInMainThread(const std::function<void()>& action = nullptr) override;
+
+			/*!
+				\brief The method unrolls main thread's queue of actions that should be executed only in the main thread
+			*/
+
+			TDE2_API void ProcessMainThreadQueue() override;
+
 			/*!
 				\brief The method returns a type of the subsystem
 
@@ -75,15 +92,23 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _submitJob(std::unique_ptr<IJob> pJob) override;
 		protected:
+			static constexpr U8     mUpdateTickRate = 60; // \note Single update every 60 frames
+
 			bool                    mIsInitialized;
 
 			U32                     mNumOfThreads;
 
 			std::atomic<bool>       mIsRunning;
 
+			std::atomic_uint8_t     mUpdateCounter;
+
 			TThreadsArray           mWorkerThreads;
 
+			TCallbacksQueue         mMainThreadCallbacksQueue;
+
 			mutable std::mutex      mQueueMutex;
+
+			mutable std::mutex      mMainThreadCallbacksQueueMutex;
 
 			TJobQueue               mJobs;
 
