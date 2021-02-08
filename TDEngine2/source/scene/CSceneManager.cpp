@@ -131,7 +131,7 @@ namespace TDEngine2
 			return;
 		}
 
-		pJobManager->SubmitJob(std::function<void()>([this, scenePath, onResultCallback]()
+		pJobManager->SubmitJob(std::function<void()>([this, scenePath, onResultCallback, pJobManager]()
 		{
 			const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
 
@@ -139,7 +139,12 @@ namespace TDEngine2
 			auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&scenePath](const IScene* pScene) { return pScene->GetScenePath() == scenePath; });
 			if (iter != mpScenes.cend())
 			{
-				onResultCallback(Wrench::TOkValue<TSceneId>(static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter))));
+				/// \note This callback should be executed in the main thread
+				pJobManager->ExecuteInMainThread([onResultCallback, sceneId = static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter))] 
+					{
+						onResultCallback(Wrench::TOkValue<TSceneId>(sceneId));
+					});
+
 				return;
 			}
 
@@ -149,7 +154,9 @@ namespace TDEngine2
 
 			if (RC_OK != result || !pScene)
 			{
-				onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(result));
+				/// \note This callback should be executed in the main thread
+				pJobManager->ExecuteInMainThread([onResultCallback, result] { onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(result)); });
+
 				return;
 			}
 
@@ -170,11 +177,14 @@ namespace TDEngine2
 
 			if (RC_OK != result)
 			{
-				onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(result));
+				/// \note This callback should be executed in the main thread
+				pJobManager->ExecuteInMainThread([onResultCallback, result] { onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(result)); });
+
 				return;
 			}
 
-			onResultCallback(_registerSceneInternal(sceneName, pScene));
+			/// \note This callback should be executed in the main thread
+			pJobManager->ExecuteInMainThread([onResultCallback, this, sceneName, pScene] { onResultCallback(_registerSceneInternal(sceneName, pScene)); });
 		}));
 	}
 

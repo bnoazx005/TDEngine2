@@ -19,10 +19,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	mpResourceManager->Load<CBaseMaterial>("Materials/NewMaterial.material");
-	mpResourceManager->Load<CBaseMaterial>("Materials/DebugMaterial.material");
+	mpResourceManager->Load<CBaseMaterial>("ProjectMaterials/NewMaterial.material");
+	mpResourceManager->Load<CBaseMaterial>("ProjectMaterials/DebugMaterial.material");
 
-	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>("Materials/DebugTextMaterial.material")))
+	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>("ProjectMaterials/DebugTextMaterial.material")))
 	{
 		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<CTextureAtlas>("atlas")))
 		{
@@ -41,7 +41,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 		if (auto pSprite = pEntity->AddComponent<CQuadSprite>())
 		{
-			pSprite->SetMaterialName("NewMaterial.material");
+			pSprite->SetMaterialName("ProjectMaterials/NewMaterial.material");
 			pSprite->SetColor(RandColor());
 		}
 
@@ -64,7 +64,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpCameraEntity->AddComponent<CAudioListenerComponent>();
 
-	auto pPlaneMesh = CStaticMesh::CreatePlane(mpResourceManager);
+	CStaticMesh::CreateCube(mpResourceManager);
+	CStaticMesh::CreatePlane(mpResourceManager);
 
 	mpResourceManager->Load<CStaticMesh>("Test.mesh");
 
@@ -75,7 +76,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
 	pMeshTransform->SetPosition({ 0.0f, 1.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
-	pMeshContainer->SetMaterialName("DebugMaterial.material");
+	pMeshContainer->SetMaterialName("ProjectMaterials/DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
@@ -84,7 +85,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pPlaneEntity = mpWorld->CreateEntity();
 	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
-	pPlaneMeshContainer->SetMaterialName("DebugMaterial.material");
+	pPlaneMeshContainer->SetMaterialName("ProjectMaterials/DebugMaterial.material");
 	pPlaneMeshContainer->SetMeshName("Plane");
 
 	// Create a 3D trigger
