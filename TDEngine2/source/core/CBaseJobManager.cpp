@@ -93,7 +93,7 @@ namespace TDEngine2
 
 		while (!mMainThreadCallbacksQueue.empty())
 		{
-			(mMainThreadCallbacksQueue.front)();
+			mMainThreadCallbacksQueue.front()();
 			mMainThreadCallbacksQueue.pop();
 		}
 	}
