@@ -24,6 +24,7 @@
 #include "COGLRenderTarget.h"
 #include "COGLUtils.h"
 #include "COGLCubemapTexture.h"
+#include "COGLDepthBufferTarget.h"
 
 
 #include <core/CBaseObject.h>

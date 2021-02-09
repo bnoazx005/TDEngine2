@@ -1,9 +1,9 @@
-#include "./../include/COGLGCtxPlugin.h"
+#include "../include/COGLGCtxPlugin.h"
+#include "../include/COGLGraphicsContext.h"
+#include "../include/win32/CWin32GLContextFactory.h"
+#include "../include/unix/CUnixGLContextFactory.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
-#include "./../include/COGLGraphicsContext.h"
-#include "./../include/win32/CWin32GLContextFactory.h"
-#include "./../include/unix/CUnixGLContextFactory.h"
 #include <core/IWindowSystem.h>
 #include <core/IFileSystem.h>
 #include <graphics/CBaseShaderLoader.h>
@@ -104,7 +104,8 @@ namespace TDEngine2
 			CreateOGLShaderFactory,
 			CreateOGLTexture2DFactory,
 			CreateOGLCubemapTextureFactory,
-			CreateOGLRenderTargetFactory
+			CreateOGLRenderTargetFactory,
+			CreateOGLDepthBufferTargetFactory,
 		};
 
 		IResourceFactory* pFactoryInstance = nullptr;

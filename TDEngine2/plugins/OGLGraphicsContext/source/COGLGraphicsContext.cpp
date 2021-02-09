@@ -1,9 +1,10 @@
-#include "./../include/COGLGraphicsContext.h"
-#include "./../include/IOGLContextFactory.h"
-#include "./../include/COGLGraphicsObjectManager.h"
-#include "./../include/COGLMappings.h"
-#include "./../include/COGLRenderTarget.h"
-#include "./../include/COGLUtils.h"
+#include "../include/COGLGraphicsContext.h"
+#include "../include/IOGLContextFactory.h"
+#include "../include/COGLGraphicsObjectManager.h"
+#include "../include/COGLMappings.h"
+#include "../include/COGLRenderTarget.h"
+#include "../include/COGLDepthBufferTarget.h"
+#include "../include/COGLUtils.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 #include <string>
@@ -377,20 +378,41 @@ namespace TDEngine2
 		
 		COGLRenderTarget* pOGLRenderTarget = dynamic_cast<COGLRenderTarget*>(pRenderTarget);
 
-#if 1
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
 		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D, pOGLRenderTarget->GetInternalHandler(), 0));
-#endif
 	}
 
 	void COGLGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
-		TDE2_UNIMPLEMENTED();
+		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
+
+		CDeferOperation _([] 
+		{
+			GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0)); 
+		});
+
+		if (!pDepthBufferTarget)
+		{
+			GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0));
+			return;
+		}
+
+		COGLDepthBufferTarget* pGLDepthBuffer = dynamic_cast<COGLDepthBufferTarget*>(pDepthBufferTarget);
+
+		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mCurrDepthBufferHandle = pGLDepthBuffer->GetInternalHandler(), 0));
+
+		if (disableRTWrite)
+		{
+			GL_SAFE_VOID_CALL(glDrawBuffer(GL_NONE));
+			GL_SAFE_VOID_CALL(glReadBuffer(GL_NONE));
+		}
 	}
 
 	void COGLGraphicsContext::SetDepthBufferEnabled(bool value)
 	{
-		TDE2_UNIMPLEMENTED();
+		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
+		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, value ? mCurrDepthBufferHandle : 0, 0));
+		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const

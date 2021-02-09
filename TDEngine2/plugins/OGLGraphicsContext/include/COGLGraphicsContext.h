@@ -399,6 +399,7 @@ namespace TDEngine2
 
 			GLuint                          mMainFBOHandler; /// \todo Replace it with FBOManager later
 			GLuint                          mMainDepthStencilRenderbuffer;
+			GLuint                          mCurrDepthBufferHandle;
 
 			IRenderTarget*                  mpRenderTargets[mMaxNumOfRenderTargets];
 	};
