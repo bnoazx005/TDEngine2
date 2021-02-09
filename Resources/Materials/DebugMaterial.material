@@ -23,5 +23,5 @@ rasterizer_state:
   max_depth_bias: 1.000000
   scissor_test_enabled: 0
   wireframe_mode: 0
-shader_id: ProjectShaders/DebugShader.shader
+shader_id: Shaders/Default/DebugShader.shader
 transparency_enabled: 0

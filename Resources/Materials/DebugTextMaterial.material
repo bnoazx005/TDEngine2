@@ -33,7 +33,7 @@ rasterizer_state:
   max_depth_bias: 1.000000
   scissor_test_enabled: 0
   wireframe_mode: 0
-shader_id: ProjectShaders/DebugTextShader.shader
+shader_id: Shaders/Default/DebugTextShader.shader
 textures: 
   - instance_id: 0
     texture_bindings: 
