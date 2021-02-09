@@ -8,13 +8,24 @@
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/IShader.h"
 #include "../../include/graphics/IGlobalShaderProperties.h"
+#include "../../include/utils/CFileLogger.h"
 #include <algorithm>
+#include <stringUtils.hpp>
 
 
 namespace TDEngine2
 {
+	static const std::string InvalidMaterialMessage = "{0} Invalid material was passed into the render command";
+
+
 	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
+		if (TResourceId::Invalid == mMaterialHandle)
+		{
+			LOG_ERROR(Wrench::StringUtils::Format(InvalidMaterialMessage, "[TDrawCommand]"));
+			return RC_INVALID_ARGS;
+		}
+
 		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
 		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
@@ -38,6 +49,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
+		if (TResourceId::Invalid == mMaterialHandle)
+		{
+			LOG_ERROR(Wrench::StringUtils::Format(InvalidMaterialMessage, "[TDrawIndexedCommand]"));
+			return RC_INVALID_ARGS;
+		}
+
 		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
 		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
@@ -64,6 +81,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
 	{
+		if (TResourceId::Invalid == mMaterialHandle)
+		{
+			LOG_ERROR(Wrench::StringUtils::Format(InvalidMaterialMessage, "[TDrawIndexedInstancedCommand]"));
+			return RC_INVALID_ARGS;
+		}
+
 		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
 		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());

@@ -607,6 +607,7 @@ namespace TDEngine2
 
 		static const std::string baseResourcesPath = "../../Resources/";
 		static const std::string baseShadersPath = baseResourcesPath + "Shaders/";
+		static const std::string baseMaterialsPath = baseResourcesPath + "Materials/";
 
 		std::string baseDefaultShadersPath = baseShadersPath + "Default";
 		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
@@ -626,7 +627,8 @@ namespace TDEngine2
 				break;
 		}
 
-		if ((RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseResourcesPath, "Resources/"))) ||
+		if ((RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseResourcesPath, "Resources/"))) || 
+			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseMaterialsPath, "DefaultMaterials/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(basePostEffectsShadersPath, "Shaders/PostEffects/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseShadersPath, "Shaders/", 1))))

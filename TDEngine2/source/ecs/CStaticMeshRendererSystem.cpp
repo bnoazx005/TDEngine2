@@ -169,6 +169,11 @@ namespace TDEngine2
 			auto pTransform           = std::get<CTransform*>(*iter);
 
 			auto pSharedMeshResource = mpResourceManager->GetResource<IStaticMesh>(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName()));
+			if (!pSharedMeshResource)
+			{
+				++iter;
+				continue;
+			}
 
 			// \note we need to create vertex and index buffers for the object
 			if (pStaticMeshContainer->GetSystemBuffersHandle() == static_cast<U32>(-1))
