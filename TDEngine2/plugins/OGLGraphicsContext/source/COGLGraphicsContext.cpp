@@ -380,25 +380,28 @@ namespace TDEngine2
 
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
 		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D, pOGLRenderTarget->GetInternalHandler(), 0));
+		GL_SAFE_VOID_CALL(glDrawBuffer(GL_COLOR_ATTACHMENT0 + slot));
+		GL_SAFE_VOID_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0 + slot));
+
+		TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
 	}
 
 	void COGLGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
 
-		CDeferOperation _([] 
-		{
-			GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0)); 
-		});
-
 		if (!pDepthBufferTarget)
 		{
-			GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0));
+			mCurrDepthBufferHandle = mMainDepthStencilRenderbuffer;
+			GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mCurrDepthBufferHandle, 0));
+
+			TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
 			return;
 		}
 
 		COGLDepthBufferTarget* pGLDepthBuffer = dynamic_cast<COGLDepthBufferTarget*>(pDepthBufferTarget);
 
+		GL_SAFE_VOID_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0));
 		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mCurrDepthBufferHandle = pGLDepthBuffer->GetInternalHandler(), 0));
 
 		if (disableRTWrite)
@@ -406,13 +409,17 @@ namespace TDEngine2
 			GL_SAFE_VOID_CALL(glDrawBuffer(GL_NONE));
 			GL_SAFE_VOID_CALL(glReadBuffer(GL_NONE));
 		}
+
+		const auto checkStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == checkStatus);
 	}
 
 	void COGLGraphicsContext::SetDepthBufferEnabled(bool value)
 	{
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
 		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, value ? mCurrDepthBufferHandle : 0, 0));
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GL_SAFE_VOID_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, value ? mCurrDepthBufferHandle : 0));
+		//GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const
@@ -516,7 +523,11 @@ namespace TDEngine2
 
 			GL_SAFE_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pWindowSystem->GetWidth(), pWindowSystem->GetHeight()));
 			GL_SAFE_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
+			
+			TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
 		}
+
+		mCurrDepthBufferHandle = mMainDepthStencilRenderbuffer;
 
 		return RC_OK;
 	}
