@@ -3,6 +3,7 @@
 #include "../../include/editor/ISelectionManager.h"
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/editor/CSceneHierarchyWindow.h"
+#include "../../include/editor/Inspectors.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/core/IWindowSystem.h"
@@ -182,6 +183,11 @@ namespace TDEngine2
 			LOG_MESSAGE(Wrench::StringUtils::Format("[Level Editor] Picked object id : {0}", ToString<TEntityId>(mSelectedEntityId)));
 		}
 
+		if (mpInputContext->IsMouseButtonUnpressed(0))
+		{
+			mShouldRecordHistory = true;
+		}
+
 		E_RESULT_CODE result = RC_OK;
 
 		// \note process shortcuts
@@ -246,8 +252,22 @@ namespace TDEngine2
 			auto&& camera = _getCameraEntity();
 
 			mpImGUIContext->DrawGizmo(mCurrManipulatorType, Transpose(camera.GetViewMatrix()), Transpose(camera.GetProjMatrix()), matrix, 
-				[pSelectedEntity, this](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
+				[pSelectedEntity, this, pWorld](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
 			{
+				if (mShouldRecordHistory)
+				{
+					E_RESULT_CODE result = RC_OK;
+
+					if (auto pAction = CreateTransformObjectAction(pWorld, mSelectedEntityId, { pos, rot, scale }, result))
+					{
+						pAction->Execute();
+						PANIC_ON_FAILURE(mpActionsHistory->PushAction(pAction));
+						mpActionsHistory->Dump();
+					}
+
+					mShouldRecordHistory = false;
+				}
+
 				if (auto pTransform = pSelectedEntity->GetComponent<CTransform>())
 				{
 					switch (mCurrManipulatorType)
@@ -423,7 +443,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			(iter->second)(*mpImGUIContext, *pCurrComponent);
+			(iter->second)({ *mpImGUIContext, *pCurrComponent, *mpActionsHistory, *mpEditorsManager->GetWorldInstance(), mSelectedEntityId });
 		}
 
 		return true;

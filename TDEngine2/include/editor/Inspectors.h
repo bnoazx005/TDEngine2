@@ -18,6 +18,20 @@ namespace TDEngine2
 	class IImGUIContext;
 	class IComponent;
 	class CLevelEditorWindow;
+	class IEditorActionsHistory;
+	class IWorld;
+	
+	enum class TEntityId : U32;
+
+
+	typedef struct TEditorContext
+	{
+		IImGUIContext& mImGUIContext;
+		IComponent& mComponent;
+		IEditorActionsHistory& mActionsHistory;
+		IWorld& mWorld;
+		TEntityId mCurrEntityId;
+	} TEditorContext;
 
 
 	/*!
@@ -29,32 +43,32 @@ namespace TDEngine2
 		public:
 			TDE2_API static E_RESULT_CODE RegisterBuiltinInspectors(CLevelEditorWindow& editor);
 
-			TDE2_API static void DrawTransformGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawBoundsGUI(IImGUIContext& imguiContext, IComponent& component);
+			TDE2_API static void DrawTransformGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawBoundsGUI(const TEditorContext& editorContext);
 
 			/// Graphics components
-			TDE2_API static void DrawQuadSpriteGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawStaticMeshContainerGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawShadowReceiverGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawShadowCasterGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawDirectionalLightGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawAnimationContainerGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawSkyboxGUI(IImGUIContext& imguiContext, IComponent& component);
+			TDE2_API static void DrawQuadSpriteGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawStaticMeshContainerGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawShadowReceiverGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawShadowCasterGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawDirectionalLightGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawAnimationContainerGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawSkyboxGUI(const TEditorContext& editorContext);
 
 			/// 2D Physics components
-			TDE2_API static void DrawBoxCollision2DGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawCircleCollision2DGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawTrigger2DGUI(IImGUIContext& imguiContext, IComponent& component);
+			TDE2_API static void DrawBoxCollision2DGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawCircleCollision2DGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawTrigger2DGUI(const TEditorContext& editorContext);
 
 			/// 3D Physics components
-			TDE2_API static void DrawBoxCollision3DGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawSphereCollision3DGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawConvexHullCollision3DGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawTrigger3DGUI(IImGUIContext& imguiContext, IComponent& component);
+			TDE2_API static void DrawBoxCollision3DGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawSphereCollision3DGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawConvexHullCollision3DGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawTrigger3DGUI(const TEditorContext& editorContext);
 
 			/// Audio components
-			TDE2_API static void DrawAudioListenerGUI(IImGUIContext& imguiContext, IComponent& component);
-			TDE2_API static void DrawAudioSourceGUI(IImGUIContext& imguiContext, IComponent& component);
+			TDE2_API static void DrawAudioListenerGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawAudioSourceGUI(const TEditorContext& editorContext);
 	};
 }
 

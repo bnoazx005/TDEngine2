@@ -268,7 +268,7 @@ namespace TDEngine2
 	{
 		F32 rawValue[2] { value.x, value.y };
 
-		if (ImGui::InputFloat2(text.c_str(), rawValue) && onValueChanged)
+		if (ImGui::InputFloat2(text.c_str(), rawValue, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
 		{
 			value = TVector2(rawValue);
 			onValueChanged();
@@ -281,7 +281,7 @@ namespace TDEngine2
 	{
 		F32 rawValue[3] { value.x, value.y, value.z };
 		
-		if (ImGui::InputFloat3(text.c_str(), rawValue) && onValueChanged)
+		if (ImGui::InputFloat3(text.c_str(), rawValue, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
 		{
 			value = TVector3(rawValue);
 			onValueChanged();
@@ -294,7 +294,7 @@ namespace TDEngine2
 	{
 		F32 rawValue[4]{ value.x, value.y, value.z, value.w };
 
-		if (ImGui::InputFloat4(text.c_str(), rawValue) && onValueChanged)
+		if (ImGui::InputFloat4(text.c_str(), rawValue, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
 		{
 			value = TVector4(rawValue);
 			onValueChanged();

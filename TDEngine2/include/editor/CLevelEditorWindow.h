@@ -31,6 +31,7 @@ namespace TDEngine2
 	class ISceneManager;
 	class IComponent;
 	class IWindowSystem;
+	struct TEditorContext;
 
 
 	typedef struct TLevelEditorWindowDesc
@@ -67,7 +68,7 @@ namespace TDEngine2
 			friend TDE2_API IEditorWindow* CreateLevelEditorWindow(const TLevelEditorWindowDesc&, E_RESULT_CODE&);
 
 		public:
-			typedef std::function<void(IImGUIContext&, IComponent&)> TOnGuiCallback;
+			typedef std::function<void(const TEditorContext&)> TOnGuiCallback;
 			typedef std::unordered_map<TypeId, TOnGuiCallback> TInspectorsTable;
 
 		public:
@@ -151,6 +152,8 @@ namespace TDEngine2
 			U8                     mCurrSelectedGizmoAxis = -1;
 
 			bool                   mIsGizmoBeingDragged = false;
+
+			bool                   mShouldRecordHistory = false;
 
 			IEditorActionsHistory* mpActionsHistory;
 
