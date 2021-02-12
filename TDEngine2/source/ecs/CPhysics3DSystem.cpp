@@ -10,6 +10,7 @@
 #include "../../deps/bullet3/src/btBulletDynamicsCommon.h"
 #include "../../deps/bullet3/src/btBulletCollisionCommon.h"
 #include "../../deps/bullet3/src/BulletCollision/CollisionDispatch/btGhostObject.h"
+#include "../../include/utils/CFileLogger.h"
 //#include "./../../deps/bullet3/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include <algorithm>
 
@@ -80,6 +81,8 @@ namespace TDEngine2
 		mpBroadphaseSolver        = new btDbvtBroadphase();
 		mpImpulseConstraintSolver = new btSequentialImpulseConstraintSolver();
 		mpWorld                   = new btDiscreteDynamicsWorld(mpCollisionsDispatcher, mpBroadphaseSolver, mpImpulseConstraintSolver, mpCollisionConfiguration);
+		
+		mpBroadphaseSolver->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
 		mpWorld->setGravity({ mCurrGravity.x, mCurrGravity.y, mCurrGravity.z });
 
@@ -148,10 +151,13 @@ namespace TDEngine2
 
 			if (pCurrEntity->HasComponent<CTrigger3D>())
 			{
-				std::tie(pCurrCollisionObject, pMotionHandler) = _createTrigger(*pBaseCollisionObject, pTransform, pInternalColliderShape);
-				mPhysicsObjectsData.mpTriggers.push_back(btGhostObject::upcast(pCurrCollisionObject));
+				btPairCachingGhostObject* pPairGhostObject = nullptr;
 
-				mpWorld->addCollisionObject(btGhostObject::upcast(pCurrCollisionObject));
+				std::tie(pPairGhostObject, pMotionHandler) = _createTrigger(*pBaseCollisionObject, pTransform, pInternalColliderShape);
+				mPhysicsObjectsData.mpTriggers.push_back(pPairGhostObject);
+
+				mpWorld->addCollisionObject(pPairGhostObject, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger);
+				pCurrCollisionObject = btPairCachingGhostObject::upcast(pPairGhostObject);
 			}
 			else
 			{
@@ -159,30 +165,70 @@ namespace TDEngine2
 				mpWorld->addRigidBody(btRigidBody::upcast(pCurrCollisionObject));
 			}
 
+			pCurrCollisionObject->setUserIndex(static_cast<U32>(currEntityId));
+
 			mPhysicsObjectsData.mpInternalCollisionObjects.push_back(pCurrCollisionObject);
 			mPhysicsObjectsData.mpMotionHandlers.push_back(pMotionHandler);
-
-			pCurrCollisionObject->setUserIndex(static_cast<U32>(currEntityId));
 		}
 	}
 
 	void CPhysics3DSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		// \fixme This is bad solution, it's used to force activate all rigidbodies for smooth update
+		auto rigidbodies = mpWorld->getNonStaticRigidBodies();
+		for (I32 i = 0; i < rigidbodies.size(); ++i)
+		{
+			rigidbodies[i]->activate(true);
+		}
+		
 		mpWorld->stepSimulation(mCurrTimeStep, mCurrPositionIterations);
 
+#if 1
 		const btCollisionObject* pColliderObject = nullptr;
 
 		for (auto&& pCurrTrigger : mPhysicsObjectsData.mpTriggers)
 		{
-			for (I32 i = 0; i < pCurrTrigger->getNumOverlappingObjects(); ++i)
+			btManifoldArray manifoldArray;
+			auto&& overlappingPairs = pCurrTrigger->getOverlappingPairCache()->getOverlappingPairArray();
+
+			for (I32 i = 0; i < overlappingPairs.size(); ++i)
 			{
-				pColliderObject = pCurrTrigger->getOverlappingObject(i);
-				if (pColliderObject)
+				manifoldArray.clear();
+
+				btBroadphasePair* pCollisionPair = mpWorld->getPairCache()->findPair(overlappingPairs[i].m_pProxy0, overlappingPairs[i].m_pProxy1);
+				
+				if (!pCollisionPair)
 				{
-					TDE2_ASSERT(false);
+					continue;
+				}
+
+				if (pCollisionPair->m_algorithm)
+				{
+					pCollisionPair->m_algorithm->getAllContactManifolds(manifoldArray);
+				}
+
+				for (int j = 0; j < manifoldArray.size(); j++)
+				{
+					for (int p = 0; p < manifoldArray[j]->getNumContacts(); p++)
+					{
+						const btManifoldPoint& point = manifoldArray[j]->getContactPoint(p);
+
+						if (point.getDistance() < 0.0f)
+						{
+							TOnTrigger3DEvent trigger3DEventData;
+							trigger3DEventData.mEntities[0] = static_cast<TEntityId>(pCurrTrigger->getUserIndex());
+							trigger3DEventData.mEntities[1] = static_cast<TEntityId>(((pCurrTrigger == manifoldArray[j]->getBody0()) ? manifoldArray[j]->getBody1() : manifoldArray[j]->getBody0())->getUserIndex());
+
+							mpEventManager->Notify(&trigger3DEventData);
+
+							continue;
+						}
+					}
 				}
 			}
+
 		}
+#endif
 	}
 
 	btBoxShape* CPhysics3DSystem::CreateBoxCollisionShape(const CBoxCollisionObject3D& box) const
@@ -294,7 +340,7 @@ namespace TDEngine2
 		return { new btRigidBody(rigidbodyConfiguration), pMotionHandler };
 	}
 
-	std::tuple<btGhostObject*, btMotionState*> CPhysics3DSystem::_createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const
+	std::tuple<btPairCachingGhostObject*, btMotionState*> CPhysics3DSystem::_createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const
 	{
 		E_COLLISION_OBJECT_TYPE triggerType = collisionObject.GetCollisionType();
 
@@ -325,9 +371,10 @@ namespace TDEngine2
 
 		btMotionState* pMotionHandler = new TEntitiesMotionState(pTransform, internalTransform);
 		
-		auto pTriggerObject = new btGhostObject();
+		auto pTriggerObject = new btPairCachingGhostObject();
 
 		pTriggerObject->setCollisionShape(pColliderShape);
+		pTriggerObject->setCollisionFlags(pTriggerObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 		return { pTriggerObject, pMotionHandler };
 	}

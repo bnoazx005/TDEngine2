@@ -8,11 +8,11 @@
 
 
 #include "CBaseSystem.h"
-#include "./../physics/3D/ICollisionObjects3DVisitor.h"
-#include "./../physics/IRaycastContext.h"
-#include "./../math/TVector3.h"
-#include "./../core/Event.h"
-#include "./../../deps/bullet3/src/LinearMath/btMotionState.h"
+#include "../physics/3D/ICollisionObjects3DVisitor.h"
+#include "../physics/IRaycastContext.h"
+#include "../math/TVector3.h"
+#include "../core/Event.h"
+#include "../../deps/bullet3/src/LinearMath/btMotionState.h"
 #include <vector>
 #include <functional>
 
@@ -26,7 +26,7 @@ class btDiscreteDynamicsWorld;
 class btCollisionShape;
 class btRigidBody;
 class btCollisionObject;
-class btGhostObject;
+class btPairCachingGhostObject;
 
 
 namespace TDEngine2
@@ -69,7 +69,7 @@ namespace TDEngine2
 
 				std::vector<btCollisionShape*>       mpBulletColliderShapes;
 
-				std::vector<btGhostObject*>          mpTriggers;
+				std::vector<btPairCachingGhostObject*> mpTriggers;
 
 				std::vector<btCollisionObject*>      mpInternalCollisionObjects;
 
@@ -200,7 +200,7 @@ namespace TDEngine2
 
 			TDE2_API std::tuple<btRigidBody*, btMotionState*> _createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
 
-			TDE2_API std::tuple<btGhostObject*, btMotionState*> _createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
+			TDE2_API std::tuple<btPairCachingGhostObject*, btMotionState*> _createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
 
 			TDE2_API E_RESULT_CODE _freePhysicsObjects(TPhysicsObjectsData& physicsData);
 		protected:
@@ -233,19 +233,19 @@ namespace TDEngine2
 
 
 	/*!
-		struct TOnTrigger3DEnterEvent
+		struct TOnTrigger3DEvent
 
 		\brief The structure represents an event which occurs
 		when some entity enters into a 3D trigger
 	*/
 
-	typedef struct TOnTrigger3DEnterEvent : TBaseEvent
+	typedef struct TOnTrigger3DEvent : TBaseEvent
 	{
-		virtual ~TOnTrigger3DEnterEvent() = default;
+		virtual ~TOnTrigger3DEvent() = default;
 
-		TDE2_REGISTER_TYPE(TOnTrigger3DEnterEvent)
-		REGISTER_EVENT_TYPE(TOnTrigger3DEnterEvent)
+		TDE2_REGISTER_TYPE(TOnTrigger3DEvent)
+		REGISTER_EVENT_TYPE(TOnTrigger3DEvent)
 
 		TEntityId mEntities[2]; ///< Two bodies that were collided
-	} TOnTrigger3DEnterEvent, *TOnTrigger3DEnterEventPtr;
+	} TOnTrigger3DEvent, *TOnTrigger3DEventPtr;
 }

@@ -74,7 +74,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto sr = pMeshEntity->AddComponent<CShadowReceiverComponent>();
 	auto bounds = pMeshEntity->AddComponent<CBoundsComponent>();
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
-	pMeshTransform->SetPosition({ 0.0f, 1.0f, 2.0f });
+	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DefaultMaterials/DebugMaterial.material");
 	pMeshContainer->SetMeshName("Cube");
@@ -93,8 +93,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		if (auto pTransform = p3DTrigger->GetComponent<CTransform>())
 		{
-			pTransform->SetPosition({ 0.0f, -1.0f, 1.0f });
-			pTransform->SetScale({ 25.0f, 1.0f, 25.0f });
+			pTransform->SetPosition({ 0.0f, -10.0f, 1.0f });
+			pTransform->SetScale({ 25.0f, 0.45f, 25.0f });
 		}
 
 		auto p3DTriggerCollider = p3DTrigger->AddComponent<CBoxCollisionObject3D>();
