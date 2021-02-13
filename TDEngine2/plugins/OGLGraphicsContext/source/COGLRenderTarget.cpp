@@ -49,6 +49,7 @@ namespace TDEngine2
 	{
 		CBaseRenderTarget::Bind(slot);
 
+		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
 		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
 	}
 	
