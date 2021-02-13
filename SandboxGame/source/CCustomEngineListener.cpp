@@ -93,14 +93,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		if (auto pTransform = p3DTrigger->GetComponent<CTransform>())
 		{
-			pTransform->SetPosition({ 0.0f, -10.0f, 1.0f });
+			pTransform->SetPosition({ 0.0f, 0.0f, 1.0f });
 			pTransform->SetScale({ 25.0f, 0.45f, 25.0f });
 		}
 
 		auto p3DTriggerCollider = p3DTrigger->AddComponent<CBoxCollisionObject3D>();
 		p3DTriggerCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
 		p3DTriggerCollider->SetSizes(TVector3(25.0f, 1.0f, 25.0f));
-		p3DTrigger->AddComponent<CTrigger3D>();
+		//p3DTrigger->AddComponent<CTrigger3D>();
 	}
 
 	if (auto pPackageWriter = mpFileSystem->Get<IPackageFileWriter>(mpFileSystem->Open<IPackageFileWriter>("TestPackage.pak", true).Get()))
