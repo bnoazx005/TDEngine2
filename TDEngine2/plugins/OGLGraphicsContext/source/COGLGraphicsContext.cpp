@@ -514,7 +514,7 @@ namespace TDEngine2
 	{
 		// \todo move this code into FBO manager later
 		U32 creationFlags = pWindowSystem->GetFlags();
-
+		
 		GL_SAFE_CALL(glGenFramebuffers(1, &mMainFBOHandler));
 
 		if (!(creationFlags & P_ZBUFFER_ENABLED))
@@ -527,6 +527,9 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glBindRenderbuffer(GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
 		{
+			LOG_MESSAGE(Wrench::StringUtils::Format("[COGLGraphicsContext] SRGB framebuffer status, enabled: {0}", creationFlags & P_HARDWARE_GAMMA_CORRECTION));
+			GL_SAFE_CALL(((creationFlags & P_HARDWARE_GAMMA_CORRECTION) ? glEnable : glDisable)(GL_FRAMEBUFFER_SRGB));
+
 			CDeferOperation unbindBufferOperation([] { glBindRenderbuffer(GL_RENDERBUFFER, 0); glBindFramebuffer(GL_FRAMEBUFFER, 0); });
 
 			GL_SAFE_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pWindowSystem->GetWidth(), pWindowSystem->GetHeight()));

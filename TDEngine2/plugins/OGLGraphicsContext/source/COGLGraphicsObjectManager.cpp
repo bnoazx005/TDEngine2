@@ -428,7 +428,7 @@ namespace TDEngine2
 						
 						mappedColor = mix(mappedColor, ApplyGrading(mappedColor), colorGradingParams.x);
 
-						FragColor = vec4(LinearToGamma(mappedColor), color.a);
+						FragColor = vec4(mappedColor/*LinearToGamma(mappedColor)*/, color.a); // disabled because of SRGB back buffer
 					}
 
 					#endprogram
