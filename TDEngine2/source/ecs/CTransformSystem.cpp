@@ -1,6 +1,7 @@
 #include "../../include/ecs/CTransformSystem.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/core/IGraphicsContext.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 
@@ -12,12 +13,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CTransformSystem::Init()
+	E_RESULT_CODE CTransformSystem::Init(IGraphicsContext* pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		if (!pGraphicsContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
 
@@ -92,9 +100,12 @@ namespace TDEngine2
 					continue;
 				}
 
+				auto scale = pTransform->GetScale();
+				scale.z *= mpGraphicsContext->GetPositiveZAxisDirection();
+
 				TMatrix4 localToWorldMatrix = (TranslationMatrix(pTransform->GetPosition()) *
 												RotationMatrix(pTransform->GetRotation())) *
-												ScaleMatrix(pTransform->GetScale());
+												ScaleMatrix(scale);
 
 				/// \note Implement parent-to-child relationship's update
 				
@@ -140,8 +151,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISystem* CreateTransformSystem(E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateTransformSystem(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystem, CTransformSystem, result);
+		return CREATE_IMPL(ISystem, CTransformSystem, result, pGraphicsContext);
 	}
 }

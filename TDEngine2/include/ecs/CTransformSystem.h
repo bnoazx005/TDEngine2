@@ -14,17 +14,19 @@
 namespace TDEngine2
 {
 	class CTransform;
+	class IGraphicsContext;
 
 
 	/*!
 		\brief A factory function for creation objects of CTransformSystem's type.
 
+		\param[in] pGraphicsContext A pointer to IGraphicsContext implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CTransformSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateTransformSystem(E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateTransformSystem(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -36,17 +38,19 @@ namespace TDEngine2
 	class CTransformSystem: public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateTransformSystem(E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateTransformSystem(IGraphicsContext*, E_RESULT_CODE& result);
 		public:
 			TDE2_SYSTEM(CTransformSystem);
 
 			/*!
 				\brief The method initializes an inner state of a system
 				
+				\param[in] pGraphicsContext A pointer to IGraphicsContext implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init();
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -80,5 +84,7 @@ namespace TDEngine2
 			TDE2_API static bool _hasParentEntityTransformChanged(IWorld* pWorld, TEntityId id);
 		protected:
 			std::vector<TEntityId> mTransformEntities;
+
+			IGraphicsContext* mpGraphicsContext;
 	};
 }

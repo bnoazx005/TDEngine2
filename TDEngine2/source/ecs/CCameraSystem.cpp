@@ -124,10 +124,10 @@ namespace TDEngine2
 
 			// \note This thing is a kind of a hack for OpenGL graphics context which is using orthographic projection to make it uniform for both GAPIs
 			viewMatrix.m[2][3] *= ((pCurrCamera->GetProjType() == E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC) && (graphicsCtxPositiveZAxisDirection < 0.0f)) ? 1.0f : -1.0f;
-			viewMatrix.m[2][2] *= graphicsCtxPositiveZAxisDirection;
-
+			
 			pCurrCamera->SetViewMatrix(viewMatrix);
 			pCurrCamera->ComputeProjectionMatrix(this);
+
 			pCurrCamera->SetViewProjMatrix(pCurrCamera->GetProjMatrix() * pCurrCamera->GetViewMatrix(), ndcZmin);
 		}
 	}
