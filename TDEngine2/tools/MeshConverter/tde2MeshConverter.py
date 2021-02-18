@@ -59,7 +59,7 @@ class Vertex:
 def parse_args():
 	parser = argparse.ArgumentParser(description=
 		"""
-			TDEngine2 FBX -> *.MESH Mesh Converter
+			TDEngine2 [FBX|OBJ] -> *.MESH Mesh Converter
 		""")
 	parser.add_argument('input', type=str, help='Path to a file should be converted')
 	parser.add_argument('-o', '--output', type=str, help='Output filename')
@@ -82,6 +82,10 @@ def get_filetype_from_path(filename):
 
 	return extension2fileType[fileExtension.lower()]
 
+
+"""
+	FBX reader's description
+"""
 
 def extract_fbx_mesh_data(fbxMesh):
 	polygonCount = fbxMesh.GetPolygonCount()
@@ -174,10 +178,145 @@ def read_fbx_mesh_data(inputFilename):
 	return objects
 
 
-def read_obj_mesh_data(inputFilename):
-	print('read_obj_mesh_data: %s' % inputFilename)
-	return
+"""
+	OBJ reader's description
+"""
 
+class IntermediateObjDataContext:
+	class SubmeshDataDesc:
+		def __init__(self, name):
+			self.id = name
+			self.currVertexOffset = 0
+			self.currIndexOffset = 0
+			self.numOfVertices = 0
+			self.numOfIndices = 0
+
+	def __init__(self):
+		self.vertices = []
+		self.normals = []
+		self.texcoords = []
+		self.indices = []
+		self.subMeshes = []
+		self.currSubMeshDesc = self.SubmeshDataDesc("")
+		self.numOfProcessedVertices = 0
+		self.numOfProcessedIndices = 0
+		self.verticesTable = dict()
+		self.useCWOrder = True
+
+
+def obj_process_vertices(tokens, sceneContext):
+	assert len(tokens) >= 2, "[obj_process_vertices] Too few components"
+	sceneContext.vertices.append(Vec3(float(tokens[0]), float(tokens[1]), float(tokens[2]) if tokens[2] else 0.0))
+
+
+def obj_process_normals(tokens, sceneContext):
+	assert len(tokens) == 3, "[obj_process_normals] Too few components"
+	sceneContext.normals.append(Vec3(float(tokens[0]), float(tokens[1]), float(tokens[2]) if tokens[2] else 0.0))
+
+
+def obj_process_texcoords(tokens, sceneContext):
+	assert len(tokens) >= 2, "[obj_process_texcoords] Too few components"
+	sceneContext.texcoords.append(Vec3(float(tokens[0]), float(tokens[1]), float(tokens[2]) if tokens[2] else 0.0))
+
+
+def obj_process_triangulated_faces(tokens, sceneContext):
+	assert len(tokens) == 3, "Invalid number of tokens"
+
+	def parse_face_triplet(triplet):
+		return tuple(map(lambda e : (int(e) - 1), triplet.split("/")))
+
+	for currTriplet in tokens:
+		faceData = parse_face_triplet(currTriplet)
+
+		if currTriplet in sceneContext.verticesTable:
+			sceneContext.indices.append(sceneContext.verticesTable[currTriplet])
+			self.numOfProcessedIndices = self.numOfProcessedIndices + 1
+
+			continue
+
+		# TODO: The generation of a new vertex declaration is not finished yet
+
+		self.numOfProcessedVertices = self.numOfProcessedVertices + 1
+		self.numOfProcessedIndices = self.numOfProcessedIndices + 1
+
+
+def obj_process_quad_faces(tokens, sceneContext):
+	assert len(tokens) == 4, "Invalid number of tokens"
+
+	if sceneContext.useCWOrder:
+		obj_process_triangulated_faces(tokens[0:2], sceneContext)
+		obj_process_triangulated_faces(list(tokens[0], tokens[2], tokens[3]), sceneContext)
+
+		return
+
+	obj_process_triangulated_faces(tokens[0:2].reverse(), sceneContext)
+	obj_process_triangulated_faces(list(tokens[0], tokens[2], tokens[3]).reverse(), sceneContext)
+
+
+def obj_process_faces(tokens, sceneContext):
+	(obj_process_triangulated_faces if len(tokens) == 3 else obj_process_quad_faces)(tokens, sceneContext)
+
+
+def obj_process_objects(tokens, sceneContext):
+	sceneContext.currSubMeshDesc.id = tokens[0]
+
+	if len(sceneContext.subMeshes) < 1:
+		return
+
+	currSubMeshDesc = sceneContext.currSubMeshDesc
+
+	currSubMeshDesc.currVertexOffset += currSubMeshDesc.numOfVertices
+	currSubMeshDesc.currIndexOffset += currSubMeshDesc.numOfIndices
+
+	currSubMeshDesc.numOfVertices = sceneContext.numOfProcessedVertices
+	currSubMeshDesc.numOfIndices = sceneContext.numOfProcessedIndices
+
+	sceneContext.subMeshes.append(currSubMeshDesc)
+
+	sceneContext.numOfProcessedVertices = 0
+	sceneContext.numOfProcessedIndices = 0
+
+
+def read_obj_mesh_data(inputFilename):
+	handlersMap = {
+		"v" : obj_process_vertices,
+		"vn" : obj_process_normals,
+		"vt" : obj_process_texcoords,
+		"f" : obj_process_faces,
+		"g" : obj_process_objects,
+	}
+
+	tempSceneContext = IntermediateObjDataContext()
+
+	try:
+		objFileHandle = open(inputFilename, "r")
+
+		for currLine in objFileHandle:
+			if currLine.startswith('#'):
+				continue
+
+			tokens = currLine.split()
+			if not tokens:
+				continue
+
+			if tokens[0] in handlersMap:
+				handlersMap[tokens[0]](tokens[1:], tempSceneContext)
+				continue
+
+			print("[OBJ reader] Warning: Unknown block (%s)'s found" % tokens[0])
+
+		objFileHandle.close()
+	except IOError as err:
+		print("Error: %s" % err)
+
+	#for v in tempSceneContext.normals:
+	#	print (v)
+
+	return []
+
+"""
+	MESH writer's description
+"""
 
 def write_mesh_header(file, offset):
 	file.seek(0)
