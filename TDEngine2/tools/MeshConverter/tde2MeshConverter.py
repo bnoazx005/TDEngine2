@@ -182,6 +182,8 @@ def read_fbx_mesh_data(inputFilename):
 	OBJ reader's description
 """
 
+import copy
+
 class IntermediateObjDataContext:
 	class SubmeshDataDesc:
 		def __init__(self, name):
@@ -191,12 +193,20 @@ class IntermediateObjDataContext:
 			self.numOfVertices = 0
 			self.numOfIndices = 0
 
+	class ObjVertexData:
+		def __init__(self):
+			self.pos = Vec3()
+			self.normal = Vec3()
+			self.texcoords = Vec2()
+
 	def __init__(self):
 		self.vertices = []
 		self.normals = []
 		self.texcoords = []
 		self.indices = []
+		self.finalVertices = []
 		self.subMeshes = []
+		self.numOfSubMeshes = 0
 		self.currSubMeshDesc = self.SubmeshDataDesc("")
 		self.numOfProcessedVertices = 0
 		self.numOfProcessedIndices = 0
@@ -207,16 +217,19 @@ class IntermediateObjDataContext:
 def obj_process_vertices(tokens, sceneContext):
 	assert len(tokens) >= 2, "[obj_process_vertices] Too few components"
 	sceneContext.vertices.append(Vec3(float(tokens[0]), float(tokens[1]), float(tokens[2]) if tokens[2] else 0.0))
+	return sceneContext
 
 
 def obj_process_normals(tokens, sceneContext):
 	assert len(tokens) == 3, "[obj_process_normals] Too few components"
 	sceneContext.normals.append(Vec3(float(tokens[0]), float(tokens[1]), float(tokens[2]) if tokens[2] else 0.0))
+	return sceneContext
 
 
 def obj_process_texcoords(tokens, sceneContext):
 	assert len(tokens) >= 2, "[obj_process_texcoords] Too few components"
 	sceneContext.texcoords.append(Vec3(float(tokens[0]), float(tokens[1]), float(tokens[2]) if tokens[2] else 0.0))
+	return sceneContext
 
 
 def obj_process_triangulated_faces(tokens, sceneContext):
@@ -230,14 +243,26 @@ def obj_process_triangulated_faces(tokens, sceneContext):
 
 		if currTriplet in sceneContext.verticesTable:
 			sceneContext.indices.append(sceneContext.verticesTable[currTriplet])
-			self.numOfProcessedIndices = self.numOfProcessedIndices + 1
+			sceneContext.numOfProcessedIndices = sceneContext.numOfProcessedIndices + 1
 
 			continue
 
-		# TODO: The generation of a new vertex declaration is not finished yet
+		finalVertex = IntermediateObjDataContext.ObjVertexData()
+		finalVertex.pos = sceneContext.vertices[faceData[0]]
+		finalVertex.texcoords = sceneContext.texcoords[faceData[1]]
+		finalVertex.normal = sceneContext.normals[faceData[2]]
 
-		self.numOfProcessedVertices = self.numOfProcessedVertices + 1
-		self.numOfProcessedIndices = self.numOfProcessedIndices + 1
+		index = len(sceneContext.finalVertices)
+
+		sceneContext.finalVertices.append(finalVertex)
+		sceneContext.indices.append(index)
+
+		sceneContext.verticesTable[currTriplet] = index
+
+		sceneContext.numOfProcessedVertices = sceneContext.numOfProcessedVertices + 1
+		sceneContext.numOfProcessedIndices = sceneContext.numOfProcessedIndices + 1
+
+	return sceneContext
 
 
 def obj_process_quad_faces(tokens, sceneContext):
@@ -247,21 +272,24 @@ def obj_process_quad_faces(tokens, sceneContext):
 		obj_process_triangulated_faces(tokens[0:2], sceneContext)
 		obj_process_triangulated_faces(list(tokens[0], tokens[2], tokens[3]), sceneContext)
 
-		return
+		return sceneContext
 
 	obj_process_triangulated_faces(tokens[0:2].reverse(), sceneContext)
 	obj_process_triangulated_faces(list(tokens[0], tokens[2], tokens[3]).reverse(), sceneContext)
 
+	return sceneContext
+
 
 def obj_process_faces(tokens, sceneContext):
-	(obj_process_triangulated_faces if len(tokens) == 3 else obj_process_quad_faces)(tokens, sceneContext)
+	return (obj_process_triangulated_faces if len(tokens) == 3 else obj_process_quad_faces)(tokens, sceneContext)
 
 
 def obj_process_objects(tokens, sceneContext):
 	sceneContext.currSubMeshDesc.id = tokens[0]
 
-	if len(sceneContext.subMeshes) < 1:
-		return
+	if sceneContext.numOfSubMeshes < 1:
+		sceneContext.numOfSubMeshes = sceneContext.numOfSubMeshes + 1
+		return sceneContext
 
 	currSubMeshDesc = sceneContext.currSubMeshDesc
 
@@ -271,10 +299,14 @@ def obj_process_objects(tokens, sceneContext):
 	currSubMeshDesc.numOfVertices = sceneContext.numOfProcessedVertices
 	currSubMeshDesc.numOfIndices = sceneContext.numOfProcessedIndices
 
-	sceneContext.subMeshes.append(currSubMeshDesc)
+	sceneContext.subMeshes.append(copy.deepcopy(currSubMeshDesc))
 
 	sceneContext.numOfProcessedVertices = 0
 	sceneContext.numOfProcessedIndices = 0
+
+	sceneContext.numOfSubMeshes = sceneContext.numOfSubMeshes + 1
+
+	return sceneContext
 
 
 def read_obj_mesh_data(inputFilename):
@@ -300,7 +332,7 @@ def read_obj_mesh_data(inputFilename):
 				continue
 
 			if tokens[0] in handlersMap:
-				handlersMap[tokens[0]](tokens[1:], tempSceneContext)
+				tempSceneContext = handlersMap[tokens[0]](tokens[1:], tempSceneContext)
 				continue
 
 			print("[OBJ reader] Warning: Unknown block (%s)'s found" % tokens[0])
@@ -309,10 +341,26 @@ def read_obj_mesh_data(inputFilename):
 	except IOError as err:
 		print("Error: %s" % err)
 
-	#for v in tempSceneContext.normals:
-	#	print (v)
+	objects = []
 
-	return []
+	for currSubMesh in tempSceneContext.subMeshes:
+		# Gather vertices of the sub-mesh
+		vertices = []
+
+		for i in range(currSubMesh.currVertexOffset, currSubMesh.currVertexOffset + currSubMesh.numOfVertices):
+			objVertexData = tempSceneContext.finalVertices[i]
+
+			vertices.append(Vertex(objVertexData.pos, objVertexData.texcoords, objVertexData.normal))
+		
+		# Gather indices of the sub-mesh
+		faces = []
+
+		for i in range(currSubMesh.currIndexOffset, currSubMesh.currIndexOffset + currSubMesh.numOfIndices):
+			faces.append(tempSceneContext.indices[i])
+
+		objects.append((currSubMesh.id, -1, (currSubMesh.id, vertices, faces)))
+
+	return objects
 
 """
 	MESH writer's description
