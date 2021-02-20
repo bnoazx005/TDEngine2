@@ -50,6 +50,16 @@ namespace TDEngine2
 	{
 		public:
 			/*!
+				\brief The method reopens current stream and resets its state
+				
+				\param[in] isBinaryMode The flag defines whether the stream is binary or not
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Reset(bool isBinaryMode = false) = 0;
+
+			/*!
 				\brief The method reads a continuous block of data of specified size into a given buffer
 
 				\param[out] pBuffer A buffer which will keep the read block of a file
@@ -131,6 +141,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(const std::string& path);
+			
+			/*!
+				\brief The method reopens current stream and resets its state
+
+				\param[in] isBinaryMode The flag defines whether the stream is binary or not
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Reset(bool isBinaryMode = false) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -293,6 +313,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(const std::string& path, const std::vector<U8>& data);
+
+			/*!
+				\brief The method reopens current stream and resets its state
+
+				\param[in] isBinaryMode The flag defines whether the stream is binary or not
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Reset(bool isBinaryMode = false) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object

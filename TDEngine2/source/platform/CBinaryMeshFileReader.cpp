@@ -39,6 +39,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBinaryMeshFileReader::_onInit()
+	{
+		E_RESULT_CODE result = CBinaryFileReader::_onInit();
+		result = result | _getInputStream()->Reset(true);
+
+		return result;
+	}
+
 	E_RESULT_CODE CBinaryMeshFileReader::_onFree()
 	{
 		return RC_OK;
@@ -84,7 +92,8 @@ namespace TDEngine2
 		U16 tag = 0x0;
 		if ((result = Read(&tag, 2)) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 
 		if (tag != 0x484D)
@@ -96,7 +105,8 @@ namespace TDEngine2
 		U16 objectId = 0x0;
 		if ((result = Read(&objectId, 2)) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 
 		U32 vertexCount = 0;
@@ -104,24 +114,28 @@ namespace TDEngine2
 
 		if ((result = Read(&vertexCount, sizeof(U32))) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 
 		if ((result = Read(&facesCount, sizeof(U32))) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 
 		U32 padding = 0x0;
 		if ((result = Read(&padding, sizeof(U32))) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 
 		/// \note read vertices
 		if ((result = Read(&tag, sizeof(U16))) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 		assert(tag == 0xCD01);
 
@@ -138,7 +152,8 @@ namespace TDEngine2
 		/// \note read first uv channel
 		if ((result = Read(&tag, sizeof(U16))) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 		assert(tag == 0xF002);
 		
@@ -151,14 +166,16 @@ namespace TDEngine2
 		/// \note read faces
 		if ((result = Read(&tag, sizeof(U16))) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 		assert(tag == 0xFF03);
 		
 		U16 format = 0x0;
 		if ((result = Read(&format, sizeof(U16))) != RC_OK)
 		{
-			return result;
+			TDE2_ASSERT(false);
+			return false;
 		}
 		
 		U32 faceIndices[3];
