@@ -67,7 +67,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	CStaticMesh::CreateCube(mpResourceManager);
 	CStaticMesh::CreatePlane(mpResourceManager);
 
-	mpResourceManager->Load<CStaticMesh>("Test.mesh");
+	mpResourceManager->Load<CStaticMesh>("scene.mesh");
 
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto shadowCaster = pMeshEntity->AddComponent<CShadowCasterComponent>();
@@ -77,7 +77,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DefaultMaterials/DebugMaterial.material");
-	pMeshContainer->SetMeshName("Cube");
+	pMeshContainer->SetMeshName("scene.mesh");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
 

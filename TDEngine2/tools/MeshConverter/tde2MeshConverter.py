@@ -285,10 +285,11 @@ def obj_process_faces(tokens, sceneContext):
 
 
 def obj_process_objects(tokens, sceneContext):
-	sceneContext.currSubMeshDesc.id = tokens[0]
 
 	if sceneContext.numOfSubMeshes < 1:
 		sceneContext.numOfSubMeshes = sceneContext.numOfSubMeshes + 1
+		sceneContext.currSubMeshDesc.id = tokens[0]
+
 		return sceneContext
 
 	currSubMeshDesc = sceneContext.currSubMeshDesc
@@ -300,6 +301,8 @@ def obj_process_objects(tokens, sceneContext):
 	currSubMeshDesc.numOfIndices = sceneContext.numOfProcessedIndices
 
 	sceneContext.subMeshes.append(copy.deepcopy(currSubMeshDesc))
+
+	sceneContext.currSubMeshDesc.id = tokens[0]
 
 	sceneContext.numOfProcessedVertices = 0
 	sceneContext.numOfProcessedIndices = 0
@@ -341,6 +344,16 @@ def read_obj_mesh_data(inputFilename):
 	except IOError as err:
 		print("Error: %s" % err)
 
+	
+	# Append information about last group
+	tempSceneContext.currSubMeshDesc.currIndexOffset += tempSceneContext.currSubMeshDesc.numOfIndices;
+	tempSceneContext.currSubMeshDesc.currVertexOffset += tempSceneContext.currSubMeshDesc.numOfVertices;
+
+	tempSceneContext.currSubMeshDesc.numOfIndices = tempSceneContext.numOfProcessedIndices;
+	tempSceneContext.currSubMeshDesc.numOfVertices = tempSceneContext.numOfProcessedVertices;
+	
+	tempSceneContext.subMeshes.append(tempSceneContext.currSubMeshDesc);
+	
 	objects = []
 
 	for currSubMesh in tempSceneContext.subMeshes:
@@ -358,6 +371,7 @@ def read_obj_mesh_data(inputFilename):
 		for i in range(currSubMesh.currIndexOffset, currSubMesh.currIndexOffset + currSubMesh.numOfIndices):
 			faces.append(tempSceneContext.indices[i])
 
+		print("verts : %d, faces %d" % (len(vertices), len(faces)))
 		objects.append((currSubMesh.id, -1, (currSubMesh.id, vertices, faces)))
 
 	return objects
