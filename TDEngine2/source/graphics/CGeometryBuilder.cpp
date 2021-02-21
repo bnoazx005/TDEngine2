@@ -223,8 +223,7 @@ namespace TDEngine2
 		std::vector<U16> faces;
 
 		// \note compute plane's basis
-		TVector3 randVec = TVector3(-normal.y, normal.x, normal.z);
-		TVector3 forward = Normalize(Cross(normal, randVec));
+		TVector3 forward = Normalize(Cross(normal, Normalize(TVector3(-normal.y + 0.2f, normal.x, normal.z))));
 		TVector3 right = Normalize(Cross(normal, forward));
 
 		F32 halfWidth  = 0.5f * width;
@@ -235,11 +234,11 @@ namespace TDEngine2
 
 		F32 y = halfHeight;
 		
-		for (U16 i = 0; i < segmentsPerSide; ++i)
+		for (U16 i = 0; i <= segmentsPerSide; ++i)
 		{
 			F32 x = -halfWidth;
 
-			for (U16 j = 0; j < segmentsPerSide; ++j)
+			for (U16 j = 0; j <= segmentsPerSide; ++j)
 			{
 				vertices.push_back({ { position + x * right + y * forward, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
 
@@ -249,17 +248,19 @@ namespace TDEngine2
 			y -= segmentHeight;
 		}
 
-		for (U16 i = 0; i < segmentsPerSide - 1; ++i)
-		{
-			for (U16 j = 0; j < segmentsPerSide - 1; ++j)
-			{
-				faces.push_back(i * segmentsPerSide + j);
-				faces.push_back(i * segmentsPerSide + j + 1);
-				faces.push_back((i + 1) * segmentsPerSide + j);
+		const U16 stride = segmentsPerSide + 1;
 
-				faces.push_back((i + 1) * segmentsPerSide + j);
-				faces.push_back(i * segmentsPerSide + j + 1);
-				faces.push_back((i + 1) * segmentsPerSide + j + 1);
+		for (U16 i = 0; i < segmentsPerSide; ++i)
+		{
+			for (U16 j = 0; j < segmentsPerSide; ++j)
+			{
+				faces.push_back(i * stride + j);
+				faces.push_back(i * stride + j + 1);
+				faces.push_back((i + 1) * stride + j);
+
+				faces.push_back((i + 1) * stride + j);
+				faces.push_back(i * stride + j + 1);
+				faces.push_back((i + 1) * stride + j + 1);
 			}
 		}
 
