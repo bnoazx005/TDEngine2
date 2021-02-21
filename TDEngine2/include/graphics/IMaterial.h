@@ -280,6 +280,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetDepthBias(F32 bias, F32 maxBias) = 0;
 
+			TDE2_API virtual void SetDepthClippingEnabled(bool value) = 0;
+
 			/*!
 				\brief The method specifies sub-group within used geometry group
 

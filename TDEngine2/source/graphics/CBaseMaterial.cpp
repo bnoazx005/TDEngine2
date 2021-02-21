@@ -276,6 +276,7 @@ namespace TDEngine2
 			SetScissorEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey));
 			SetFrontCCWOrderEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey));
 			SetDepthBias(pReader->GetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey), pReader->GetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey));
+			SetDepthClippingEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthClippingKey));
 			// \todo Add another parameters
 		});
 
@@ -598,6 +599,11 @@ namespace TDEngine2
 
 		mRasterizerStateParams.mDepthBias = bias;
 		mRasterizerStateParams.mMaxDepthBias = maxBias;
+	}
+
+	void CBaseMaterial::SetDepthClippingEnabled(bool value)
+	{
+		mRasterizerStateParams.mIsDepthClippingEnabled = value;
 	}
 
 	void CBaseMaterial::SetGeometrySubGroupTag(const E_GEOMETRY_SUBGROUP_TAGS& tag)

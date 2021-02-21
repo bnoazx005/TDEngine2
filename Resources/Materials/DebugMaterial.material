@@ -18,9 +18,9 @@ meta:
 rasterizer_state: 
   cull_mode: NONE
   depth_bias: 0.000000
-  depth_clipping_enabled: 1
+  depth_clipping_enabled: 0
   front_CCW_mode: 0
-  max_depth_bias: 1.000000
+  max_depth_bias: 0.000000
   scissor_test_enabled: 0
   wireframe_mode: 0
 shader_id: Shaders/Default/DebugShader.shader
