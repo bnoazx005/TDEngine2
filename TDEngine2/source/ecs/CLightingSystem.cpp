@@ -192,7 +192,7 @@ namespace TDEngine2
 			return IdentityMatrix4;
 		}
 
-		TMatrix4 viewMatrix = LookAt(pTransform->GetPosition(), UpVector3, ZeroVector3, -1.0f);
+		TMatrix4 viewMatrix = LookAt(pTransform->GetPosition(), UpVector3, ZeroVector3, -mpGraphicsContext->GetPositiveZAxisDirection());
 
 #if 0
 		TMatrix4 viewMatrix = pTransform->GetTransform();
