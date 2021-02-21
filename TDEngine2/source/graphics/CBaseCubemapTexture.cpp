@@ -169,7 +169,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto metaResult = _readCubemapInfo(mpFileSystem->ResolveVirtualPath(pResource->GetName() + ".cubemap.info", false));
+		auto metaResult = _readCubemapInfo(pResource->GetName() + ".cubemap.info");
 
 		if (metaResult.HasError())
 		{
@@ -260,7 +260,7 @@ namespace TDEngine2
 
 		I32 width, height, format;
 
-		const std::string& filename = info.mFaceTexturePaths[static_cast<U8>(face)];
+		const std::string& filename = mpFileSystem->ResolveVirtualPath(info.mFaceTexturePaths[static_cast<U8>(face)], false);
 
 		if (!stbi_info(filename.c_str(), &width, &height, &format))
 		{

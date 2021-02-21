@@ -231,7 +231,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				pAnimationContainer->SetAnimationClipId("Animation2.animation");
 			}
 
-			pScene->CreateSkybox(mpResourceManager, "DefaultSkybox");
+			pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
 		});
 
 #endif
