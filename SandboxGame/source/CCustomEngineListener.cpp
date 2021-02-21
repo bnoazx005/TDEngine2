@@ -64,9 +64,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpCameraEntity->AddComponent<CAudioListenerComponent>();
 
-	CStaticMesh::CreateCube(mpResourceManager);
-	CStaticMesh::CreatePlane(mpResourceManager);
-
 	mpResourceManager->Load<CStaticMesh>("scene.mesh");
 
 	auto pMeshEntity = mpWorld->CreateEntity();
@@ -77,7 +74,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("DefaultMaterials/DebugMaterial.material");
-	pMeshContainer->SetMeshName("scene.mesh");
+	pMeshContainer->SetMeshName("Sphere");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
 

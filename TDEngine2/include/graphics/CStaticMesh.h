@@ -220,6 +220,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static IStaticMesh* CreatePlane(IResourceManager* pResourceManager);
+
+			/*!
+				\brief The function creates a new spehere's mesh which is actually rounded cube to provide better uv mapping
+
+				\param[in, out] pResourceManager A pointer to IResourceManager
+
+				\return The function creates a new spehere's mesh which is actually rounded cube to provide better uv mapping
+			*/
+
+			TDE2_API static IStaticMesh* CreateSphere(IResourceManager* pResourceManager);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
 

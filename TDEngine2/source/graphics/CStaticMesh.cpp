@@ -372,6 +372,71 @@ namespace TDEngine2
 		return pPlaneMeshResource;
 	}
 
+	IStaticMesh* CStaticMesh::CreateSphere(IResourceManager* pResourceManager)
+	{
+		constexpr F32 sphereRadius = 10.0f;
+
+		auto pSphereMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<CStaticMesh>("Sphere", TMeshParameters{}));
+
+		E_RESULT_CODE result = RC_OK;
+
+		IGeometryBuilder* pGeometryBuilder = CreateGeometryBuilder(result);
+
+		CDeferOperation releaseMemory([&] { pGeometryBuilder->Free(); });
+
+		if (result != RC_OK)
+		{
+			return nullptr;
+		}
+
+		const std::tuple<TVector3, TVector3> sidesData[6]
+		{
+			{ TVector3(sphereRadius * 0.5f, 0.0f, 0.0f), RightVector3 },
+			{ TVector3(-sphereRadius * 0.5f, 0.0f, 0.0f), -RightVector3 },
+			{ TVector3(0.0f, sphereRadius * 0.5f, 0.0f), UpVector3 },
+			{ TVector3(0.0f, -sphereRadius * 0.5f, 0.0f), -UpVector3 },
+			{ TVector3(0.0f, 0.0f, sphereRadius * 0.5f), ForwardVector3 },
+			{ TVector3(0.0f, 0.0f, -sphereRadius * 0.5f), -ForwardVector3 }
+		};
+
+		TVector3 currNormal, currOrigin;
+
+		U16 currOffset = 0;
+
+		for (auto&& currSide : sidesData)
+		{
+			std::tie(currOrigin, currNormal) = currSide;
+
+			auto meshData = pGeometryBuilder->CreatePlaneGeometry(currOrigin, currNormal, sphereRadius, sphereRadius, 10);
+
+			for (auto&& currVertex : meshData.mVertices)
+			{
+				TVector3 normal = Normalize(currVertex.mPosition) * 0.5f; // \note The whole sphere diameter equals to 1 in-game meter
+
+				pSphereMeshResource->AddPosition(TVector4(normal, 1.0f));
+			}
+
+			auto&& indices = meshData.mIndices;
+
+			U32 currFace[3];
+
+			for (U16 i = 0; i < indices.size(); i += 3)
+			{
+				currFace[0] = currOffset + indices[i];
+				currFace[1] = currOffset + indices[i + 1];
+				currFace[2] = currOffset + indices[i + 2];
+
+				pSphereMeshResource->AddFace(currFace);
+			}
+
+			currOffset += static_cast<U16>(meshData.mVertices.size());
+		}
+
+		PANIC_ON_FAILURE(pSphereMeshResource->PostLoad());
+
+		return pSphereMeshResource;
+	}
+
 
 	TDE2_API IStaticMesh* CreateStaticMesh(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
@@ -458,6 +523,21 @@ namespace TDEngine2
 		}
 
 		E_RESULT_CODE result = RC_OK;
+
+		// \todo Refactor this later (may be the declaration should be placed somewhere else
+		static const std::unordered_map<std::string, std::function<void()>> builtInMeshesFactories
+		{
+			{ "Cube", [this] { CStaticMesh::CreateCube(mpResourceManager); } },
+			{ "Plane", [this] {  CStaticMesh::CreatePlane(mpResourceManager); } },
+			{ "Sphere", [this] { CStaticMesh::CreateSphere(mpResourceManager); } }
+		};
+
+		auto it = builtInMeshesFactories.find(pResource->GetName());
+		if (it != builtInMeshesFactories.cend())
+		{
+			(it->second)();
+			return RC_OK;
+		}
 
 		TResult<TFileEntryId> meshFileId = mpFileSystem->Open<IBinaryMeshFileReader>(pResource->GetName());
 		if (meshFileId.HasError())
