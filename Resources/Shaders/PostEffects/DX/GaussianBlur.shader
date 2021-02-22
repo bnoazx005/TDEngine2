@@ -63,11 +63,8 @@ float4 mainPS(VertexOut input): SV_TARGET0
 
 		float2 r = blurParams.x * float2(currSample.y * blurParams.z * cos(blurParams.y), currSample.y * blurParams.w * sin(blurParams.y));
 
-		float2 uv = input.mUV + r;
-		color += currSample.x * TEX2D(FrameTexture, uv);
-
-		uv = input.mUV - r;
-		color += currSample.x * TEX2D(FrameTexture, uv);
+		color += currSample.x * TEX2D(FrameTexture, input.mUV + r);
+		color += currSample.x * TEX2D(FrameTexture, input.mUV - r);
 	}
 
 	return color;

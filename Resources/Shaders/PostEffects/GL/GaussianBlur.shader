@@ -60,11 +60,8 @@ void main(void)
 
 		vec2 r = blurParams.x * vec2(currSample.y * blurParams.z * cos(blurParams.y), currSample.y * blurParams.w * sin(blurParams.y));
 
-		vec2 uv = VertOutUV + r;
-		color += currSample.x * TEX2D(FrameTexture, uv);
-
-		uv = VertOutUV - r;
-		color += currSample.x * TEX2D(FrameTexture, uv);
+		color += currSample.x * TEX2D(FrameTexture, VertOutUV + r);
+		color += currSample.x * TEX2D(FrameTexture, VertOutUV - r);
 	}
 
 	FragColor = color;
