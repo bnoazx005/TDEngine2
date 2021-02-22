@@ -296,13 +296,17 @@ namespace TDEngine2
 		E_SHADER_RESOURCE_TYPE currType = E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN;
 
 		U8 currSlotIndex = 0;
+		U8 currScopeIndex = 0; // \note 0th is a global scope
 
 		while (tokenizer.HasNext())
 		{
 			currToken = tokenizer.GetCurrToken();
 
-			if ((currType = _isShaderResourceType(currToken)) == E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN)
+			if ((E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN == (currType = _isShaderResourceType(currToken))) || (currScopeIndex > 0))
 			{
+				if (currToken == "{" || currToken == "(") {	++currScopeIndex; }
+				if (currToken == ")" || currToken == "}") {	--currScopeIndex; }
+
 				tokenizer.GetNextToken();
 
 				continue;
@@ -311,6 +315,7 @@ namespace TDEngine2
 			/// found a shader resource
 			currToken = tokenizer.GetNextToken();
 
+			/// \note At this point only global scope's declarations should be passed
 			shaderResources[currToken] = { currType, currSlotIndex++ };
 		}
 
