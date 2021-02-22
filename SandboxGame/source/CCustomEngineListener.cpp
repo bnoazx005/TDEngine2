@@ -5,8 +5,6 @@
 
 using namespace TDEngine2;
 
-TVector3 SunLightPos{ 5.0f, 10.0f, 0.0f };
-
 
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
@@ -353,19 +351,6 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		auto&& result = mpWorld->GetRaycastContext()->Raycast2DClosest(ZeroVector3, ForwardVector3, 1000.0f);
 	//}
 	
-	if (mpInputContext->IsKey(E_KEYCODES::KC_LEFT)) SunLightPos = SunLightPos - dt * RightVector3;
-	if (mpInputContext->IsKey(E_KEYCODES::KC_RIGHT)) SunLightPos = SunLightPos + dt * RightVector3;
-	if (mpInputContext->IsKey(E_KEYCODES::KC_UP)) SunLightPos = SunLightPos + dt * UpVector3;
-	if (mpInputContext->IsKey(E_KEYCODES::KC_DOWN)) SunLightPos = SunLightPos - dt * UpVector3;
-
-	for (TEntityId entity : mpWorld->FindEntitiesWithComponents<CDirectionalLight>())
-	{
-		if (auto pTransform = mpWorld->FindEntity(entity)->GetComponent<CTransform>())
-		{
-			pTransform->SetPosition(SunLightPos);
-		}
-	}
-
 	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
 	pDebugUtility->DrawLine(ZeroVector3, { 10.0f, 10.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 	pDebugUtility->DrawLine(ZeroVector3, { -10.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });

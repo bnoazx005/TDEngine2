@@ -36,29 +36,12 @@ VertexOut mainVS(in VertexIn input)
 
 #program pixel
 
-DECLARE_TEX2D(ShadowMapTexture)
-
-float ComputeShadowFactor(Texture2D shadowMap, SamplerState sampleState, float4 lightSpaceFragPos, float bias)
-{
-	float3 projectedPos = lightSpaceFragPos.xyz / lightSpaceFragPos.w;
-
-	if (projectedPos.z > 1.0)
-	{
-		return 0.0;
-	}
-
-	projectedPos.x = 0.5 * projectedPos.x + 0.5;
-	projectedPos.y = -0.5 * projectedPos.y + 0.5;
-
-	float sampledDepth = shadowMap.Sample(sampleState, projectedPos.xy);
-
-	return ((projectedPos.z - bias) > sampledDepth ? 0.9 : 0.0);
-}
+#include <TDEngine2ShadowMappingUtils.inc>
 
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	return (1.0 - ComputeShadowFactor(ShadowMapTexture, ShadowMapTexture_SamplerState, input.mLightPos, 0.0001)) * input.mColor;
+	return (1.0 - ComputeShadowFactorPCF(8, input.mLightPos, 0.0001, 1000.0)) * input.mColor;
 }
 
 #endprogram

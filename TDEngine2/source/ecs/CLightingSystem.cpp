@@ -154,7 +154,7 @@ namespace TDEngine2
 				{
 					if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName())))
 					{
-						pMaterial->SetTextureResource("ShadowMapTexture", pShadowMapTexture);
+						pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture);
 					}
 				}
 			}
@@ -192,22 +192,10 @@ namespace TDEngine2
 			return IdentityMatrix4;
 		}
 
-		TMatrix4 viewMatrix = LookAt(pTransform->GetPosition(), UpVector3, ZeroVector3, -mpGraphicsContext->GetPositiveZAxisDirection());
+		const F32 handedness = mpGraphicsContext->GetPositiveZAxisDirection();
 
-#if 0
-		TMatrix4 viewMatrix = pTransform->GetTransform();
-		{
-			viewMatrix.m[0][3] = -viewMatrix.m[0][3];
-			viewMatrix.m[1][3] = -viewMatrix.m[1][3];
-
-			const F32 zAxis = mpGraphicsContext->GetPositiveZAxisDirection();
-
-			// \note This thing is a kind of a hack for OpenGL graphics context which is using orthographic projection to make it uniform for both GAPIs
-			viewMatrix.m[2][3] *= -zAxis;
-			viewMatrix.m[2][2] *= zAxis;
-		}
-#endif
-
+		TMatrix4 viewMatrix = LookAt(handedness * pTransform->GetPosition(), UpVector3, ZeroVector3, -handedness);
+		
 		const F32 halfSize = 10.0f;
 
 		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 1000.0f); // \todo Refactor
