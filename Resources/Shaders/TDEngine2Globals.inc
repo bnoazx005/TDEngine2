@@ -20,6 +20,7 @@ CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
 	float4   Time; ///< The vector contains time related values, where x is current game time, y is delta time
 
 	float4   SunLightDirection;
+	float4   SunLightPosition;
 	float4   SunLightColor;
 	float4x4 SunLightMat; 
 CBUFFER_ENDSECTION
@@ -27,6 +28,7 @@ CBUFFER_ENDSECTION
 
 CBUFFER_SECTION_EX(TDEngine2PerObject, 1)
 	float4x4 ModelMat;
+	float4x4 InvModelMat;
 	uint     ObjectID; // used for object picking
 CBUFFER_ENDSECTION
 

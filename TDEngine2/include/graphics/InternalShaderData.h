@@ -24,6 +24,7 @@ namespace TDEngine2
 	struct TLightingShaderData
 	{
 		TVector4  mSunLightDirection;
+		TVector4  mSunLightPosition;
 		TColor32F mSunLightColor;
 		TMatrix4  mSunLightMatrix = IdentityMatrix4;
 	};
@@ -55,6 +56,8 @@ namespace TDEngine2
 	typedef struct TPerObjectShaderData
 	{
 		TMatrix4 mModelMatrix;
+
+		TMatrix4 mInvModelMatrix;
 		
 		U32      mObjectID;	///< The field is used by selection manager
 

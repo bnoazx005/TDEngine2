@@ -98,6 +98,7 @@ namespace TDEngine2
 					CTransform* pLightTransform = pEntity->GetComponent<CTransform>();
 
 					lightingData.mSunLightDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
+					lightingData.mSunLightPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
 					lightingData.mSunLightColor     = pSunLight->GetColor();
 					lightingData.mSunLightMatrix    = _constructSunLightMatrix(pEntity);
 				}

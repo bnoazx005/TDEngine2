@@ -424,7 +424,7 @@ namespace TDEngine2
 				TVector4 normal = Normalize(currVertex.mPosition) * 0.5f; // \note The whole sphere diameter equals to 1 in-game meter
 
 				pSphereMeshResource->AddPosition(TVector4(normal, 1.0f));
-				pSphereMeshResource->AddNormal(TVector4(normal, 0.0f));
+				pSphereMeshResource->AddNormal(TVector4(Normalize(normal), 0.0f));
 			}
 
 			auto&& indices = meshData.mIndices;

@@ -7,7 +7,6 @@
 struct VertexOut
 {
 	float4 mPos   : SV_POSITION;
-	float4 mLightPos : POSITION1;
 	float4 mColor : COLOR;
 };
 
@@ -25,9 +24,8 @@ VertexOut mainVS(in VertexIn input)
 {
 	VertexOut output;
 
-	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), input.mPos);
-	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
-	output.mColor    = input.mColor;
+	output.mPos   = mul(mul(ProjMat, mul(ViewMat, ModelMat)), input.mPos);
+	output.mColor = input.mColor;
 
 	return output;
 }
@@ -36,12 +34,9 @@ VertexOut mainVS(in VertexIn input)
 
 #program pixel
 
-#include <TDEngine2ShadowMappingUtils.inc>
-
-
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	return (1.0 - ComputeShadowFactorPCF(8, input.mLightPos, 0.0001, 1000.0)) * input.mColor;
+	return input.mColor;
 }
 
 #endprogram
