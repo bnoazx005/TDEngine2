@@ -22,17 +22,17 @@ namespace TDEngine2
 	template <typename T>
 	struct TColor
 	{
-		TDE2_API TColor() :
+		constexpr TDE2_API TColor() :
 			r(0), g(0), b(0), a(0)
 		{
 		}
 
-		TDE2_API TColor(const T& initializer) :
+		constexpr TDE2_API TColor(const T& initializer) :
 			r(initializer), g(initializer), b(initializer), a(initializer)
 		{
 		}
 
-		TDE2_API TColor(const T& r, const T& g, const T& b, const T& a) :
+		constexpr TDE2_API TColor(const T& r, const T& g, const T& b, const T& a) :
 			r(r), g(g), b(b), a(a)
 		{
 		}
@@ -42,6 +42,18 @@ namespace TDEngine2
 
 
 	typedef TColor<F32> TColor32F;
+
+
+	struct TColorUtils
+	{
+		static constexpr TColor32F mWhite   = TColor32F(1.0f);
+		static constexpr TColor32F mBlack   = TColor32F(0.0f, 0.0f, 0.0f, 1.0f);
+		static constexpr TColor32F mRed     = TColor32F(1.0f, 0.0f, 0.0f, 1.0f);
+		static constexpr TColor32F mGreen   = TColor32F(0.0f, 1.0f, 0.0f, 1.0f);
+		static constexpr TColor32F mBlue    = TColor32F(0.0f, 0.0f, 1.0f, 1.0f);
+		static constexpr TColor32F mMagenta = TColor32F(1.0f, 0.0f, 1.0f, 1.0f);
+		static constexpr TColor32F mYellow  = TColor32F(1.0f, 1.0f, 0.0f, 1.0f);
+	};
 
 
 	TDE2_API inline TColor32F RandColor32F()
