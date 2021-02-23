@@ -199,17 +199,19 @@ namespace TDEngine2
 
 		std::vector<U8> bytes(mPositions.size() * strideSize);
 
-		static TColor32F white(1.0f); // \todo replace this static variable with global one in TColor.h
+		U32 elementsCount = 0;
 
 		for (U32 i = 0, ptrPos = 0; i < mPositions.size(); ++i, ptrPos += strideSize)
 		{
 			// mandatory element
 			memcpy(&bytes[ptrPos], &mPositions[i], sizeof(TVector4));
-			memcpy(&bytes[ptrPos + sizeof(TVector4)], HasColors() ? &mVertexColors[i] : &white, sizeof(TColor32F));
-			
-			if (HasTexCoords0()) { memcpy(&bytes[ptrPos + 2 * sizeof(TVector4)], &mTexcoords0[i], sizeof(TVector2)); }
-			if (HasNormals()) { memcpy(&bytes[ptrPos + 3 * sizeof(TVector4)], &mNormals[i], sizeof(TVector4)); }
-			if (HasTangents()) { memcpy(&bytes[ptrPos + 4 * sizeof(TVector4)], &mTangents[i], sizeof(TVector4)); }
+			memcpy(&bytes[ptrPos + sizeof(TVector4)], HasColors() ? &mVertexColors[i] : &TColorUtils::mWhite, sizeof(TColor32F));
+		
+			elementsCount = 2; // \note equals to 2 because of position and color are mandatory elements of a vertex declaration
+
+			if (HasTexCoords0()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mTexcoords0[i], sizeof(TVector2)); }
+			if (HasNormals()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mNormals[i], sizeof(TVector4)); }
+			if (HasTangents()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mTangents[i], sizeof(TVector4)); }
 		}
 
 		return bytes;
@@ -269,41 +271,48 @@ namespace TDEngine2
 	{
 		auto pCubeMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{}));
 
+		auto addVertex = [](IStaticMesh* pMesh, const TVector4& pos, const TVector2& texcoords, const TVector4& normal)
+		{
+			pMesh->AddPosition(pos); 
+			pMesh->AddTexCoord0(texcoords); 
+			pMesh->AddNormal(normal);
+		};
+
 		// clock-wise order is used, bottom face
-		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 0.0f });
-		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		addVertex(pCubeMeshResource, { 0.5f, -0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f }, TVector4(-UpVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f }, TVector4(-UpVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f }, TVector4(-UpVector3, 0.0f));
+		addVertex(pCubeMeshResource, { 0.5f, -0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f }, TVector4(-UpVector3, 0.0f));
 
 		// top face
-		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 0.0f });
-		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
+		addVertex(pCubeMeshResource, { 0.5f, 0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f }, TVector4(UpVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f }, TVector4(UpVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f }, TVector4(UpVector3, 0.0f));
+		addVertex(pCubeMeshResource, { 0.5f, 0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f }, TVector4(UpVector3, 0.0f));
 
 		// front face
-		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
-		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 0.0f });
+		addVertex(pCubeMeshResource, { 0.5f, -0.5f, -0.5f, 1.0f }, { 1.0f, 1.0f }, TVector4(-ForwardVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f }, TVector4(-ForwardVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f }, TVector4(-ForwardVector3, 0.0f));
+		addVertex(pCubeMeshResource, { 0.5f, 0.5f, -0.5f, 1.0f }, { 1.0f, 0.0f }, TVector4(-ForwardVector3, 0.0f));
 
 		// back face
-		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
-		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 0.0f });
+		addVertex(pCubeMeshResource, { 0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f }, TVector4(ForwardVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, -0.5f, 0.5f, 1.0f }, { 0.0f, 1.0f }, TVector4(ForwardVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, 0.5f, 0.5f, 1.0f }, { 0.0f, 0.0f }, TVector4(ForwardVector3, 0.0f));
+		addVertex(pCubeMeshResource, { 0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f }, TVector4(ForwardVector3, 0.0f));
 
 		// left face
-		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 0.0f });
-		pCubeMeshResource->AddPosition({ -0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 1.0f });
+		addVertex(pCubeMeshResource, { -0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f }, TVector4(-RightVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f }, TVector4(-RightVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f }, TVector4(-RightVector3, 0.0f));
+		addVertex(pCubeMeshResource, { -0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f }, TVector4(-RightVector3, 0.0f));
 
 		// right face
-		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 0.0f });
-		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, -0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 0.0f, 1.0f });
-		pCubeMeshResource->AddPosition({ 0.5f, -0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 0.0f });
-		pCubeMeshResource->AddPosition({ 0.5f, 0.5f, 0.5f, 1.0f }); pCubeMeshResource->AddTexCoord0({ 1.0f, 1.0f });
+		addVertex(pCubeMeshResource, { 0.5f, 0.5f, -0.5f, 1.0f }, { 0.0f, 0.0f }, TVector4(RightVector3, 0.0f));
+		addVertex(pCubeMeshResource, { 0.5f, -0.5f, -0.5f, 1.0f }, { 0.0f, 1.0f }, TVector4(RightVector3, 0.0f));
+		addVertex(pCubeMeshResource, { 0.5f, -0.5f, 0.5f, 1.0f }, { 1.0f, 0.0f }, TVector4(RightVector3, 0.0f));
+		addVertex(pCubeMeshResource, { 0.5f, 0.5f, 0.5f, 1.0f }, { 1.0f, 1.0f }, TVector4(RightVector3, 0.0f));
 
 		static const U32 indices[] = 
 		{
@@ -352,6 +361,7 @@ namespace TDEngine2
 		for (auto&& currVertex : meshData.mVertices)
 		{
 			pPlaneMeshResource->AddPosition(currVertex.mPosition);
+			pPlaneMeshResource->AddNormal(TVector4(UpVector3, 0.0f));
 		}
 
 		auto&& indices = meshData.mIndices;
@@ -411,9 +421,10 @@ namespace TDEngine2
 
 			for (auto&& currVertex : meshData.mVertices)
 			{
-				TVector3 normal = Normalize(currVertex.mPosition) * 0.5f; // \note The whole sphere diameter equals to 1 in-game meter
+				TVector4 normal = Normalize(currVertex.mPosition) * 0.5f; // \note The whole sphere diameter equals to 1 in-game meter
 
 				pSphereMeshResource->AddPosition(TVector4(normal, 1.0f));
+				pSphereMeshResource->AddNormal(TVector4(normal, 0.0f));
 			}
 
 			auto&& indices = meshData.mIndices;
