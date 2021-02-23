@@ -9,6 +9,7 @@ struct VertexOut
 	float4 mPos   : SV_POSITION;
 	float4 mLightPos : POSITION1;
 	float4 mColor : COLOR;
+	float2 mUV : TEXCOORD;
 	float4 mNormal : NORMAL;
 };
 
@@ -19,6 +20,7 @@ struct VertexIn
 {
 	float4 mPos   : POSITION0;
 	float4 mColor : COLOR0;
+	float2 mUV : TEXCOORD;
 	float4 mNormal : NORMAL;
 };
 
@@ -30,6 +32,7 @@ VertexOut mainVS(in VertexIn input)
 	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), input.mPos);
 	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
 	output.mNormal   = mul(transpose(InvModelMat), input.mNormal);
+	output.mUV       = input.mUV;
 	output.mColor    = input.mColor;
 
 	return output;

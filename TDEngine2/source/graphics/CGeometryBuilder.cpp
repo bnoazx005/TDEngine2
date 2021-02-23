@@ -240,7 +240,7 @@ namespace TDEngine2
 
 			for (U16 j = 0; j <= segmentsPerSide; ++j)
 			{
-				vertices.push_back({ { position + x * right + y * forward, 1.0f }, TVector3(0.0f, 0.0f, 0.0f) });
+				vertices.push_back({ { position + x * right + y * forward, 1.0f }, TVector3((x + halfWidth) / width, CMathUtils::Abs(y - halfHeight) / height, 0.0f) });
 
 				x += segmentWidth;
 			}

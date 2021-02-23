@@ -360,7 +360,10 @@ namespace TDEngine2
 
 		for (auto&& currVertex : meshData.mVertices)
 		{
+			const TVector3& uv = currVertex.mUV;
+
 			pPlaneMeshResource->AddPosition(currVertex.mPosition);
+			pPlaneMeshResource->AddTexCoord0(TVector2(uv.x, uv.y));
 			pPlaneMeshResource->AddNormal(TVector4(UpVector3, 0.0f));
 		}
 
@@ -421,9 +424,12 @@ namespace TDEngine2
 
 			for (auto&& currVertex : meshData.mVertices)
 			{
+				const TVector3& uv = currVertex.mUV;
+
 				TVector4 normal = Normalize(currVertex.mPosition) * 0.5f; // \note The whole sphere diameter equals to 1 in-game meter
 
 				pSphereMeshResource->AddPosition(TVector4(normal, 1.0f));
+				pSphereMeshResource->AddTexCoord0(TVector2(uv.x, uv.y));
 				pSphereMeshResource->AddNormal(TVector4(Normalize(normal), 0.0f));
 			}
 
