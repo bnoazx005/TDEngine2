@@ -74,13 +74,25 @@ namespace TDEngine2
 				with given set of parameters
 
 				\param[in] tint A color of the light source
-				\param[in] instentisy A power of contribution of the light source into the scene
+				\param[in] intensity A power of contribution of the light source into the scene
 				\param[in] direction A direction of the light, could be non-normalized vector 
 
 				\return A pointer to a new created entity with CDirectionalLight component attached to it
 			*/
 
 			TDE2_API virtual CEntity* CreateDirectionalLight(const TColor32F& tint, F32 intensity, const TVector3& direction) = 0;
+
+			/*!
+				\brief The method is a helper that creates a new entity with PointLightComponent's attached to it
+
+				\param[in] tint A color of the light source
+				\param[in] intensity A power of contribution of the light source into the scene
+				\param[in] range A range of a point light
+
+				\return A pointer to a new created entity with CPointLightComponent component attached to it
+			*/
+
+			TDE2_API virtual CEntity* CreatePointLight(const TColor32F& tint, F32 intensity, F32 range) = 0;
 
 			/*!
 				\brief The method creates an entity which represents a skybox

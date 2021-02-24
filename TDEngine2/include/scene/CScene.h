@@ -111,6 +111,18 @@ namespace TDEngine2
 			TDE2_API CEntity* CreateDirectionalLight(const TColor32F& tint, F32 intensity, const TVector3& direction) override;
 
 			/*!
+				\brief The method is a helper that creates a new entity with PointLightComponent's attached to it
+
+				\param[in] tint A color of the light source
+				\param[in] intensity A power of contribution of the light source into the scene
+				\param[in] range A range of a point light
+
+				\return A pointer to a new created entity with CPointLightComponent component attached to it
+			*/
+
+			TDE2_API CEntity* CreatePointLight(const TColor32F& tint, F32 intensity, F32 range) override;
+
+			/*!
 				\brief The method creates an entity which represents a skybox
 
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation

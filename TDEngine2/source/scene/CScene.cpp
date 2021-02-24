@@ -3,6 +3,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
@@ -251,6 +252,20 @@ namespace TDEngine2
 		}
 
 		return pDirectionLightEntity;
+	}
+
+	CEntity* CScene::CreatePointLight(const TColor32F& tint, F32 intensity, F32 range)
+	{
+		CEntity* pPointLightEntity = CreateEntity("PointLight");
+
+		if (auto pPointLight = pPointLightEntity->AddComponent<CPointLight>())
+		{
+			pPointLight->SetColor(tint);
+			pPointLight->SetIntensity(intensity);
+			pPointLight->SetRange(range);
+		}
+
+		return pPointLightEntity;
 	}
 
 	CEntity* CScene::CreateSkybox(IResourceManager* pResourceManager, const std::string& skyboxTexture)
