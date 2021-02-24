@@ -14,6 +14,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/utils/CFileLogger.h"
 
@@ -72,6 +73,8 @@ namespace TDEngine2
 	void CLightingSystem::InjectBindings(IWorld* pWorld)
 	{
 		mDirectionalLightsEntities = pWorld->FindEntitiesWithComponents<CDirectionalLight>();
+		mPointLightsEntities       = pWorld->FindEntitiesWithComponents<CPointLight>();
+
 		mShadowCasterEntities      = pWorld->FindEntitiesWithComponents<CShadowCasterComponent>();
 		mShadowReceiverEntities    = pWorld->FindEntitiesWithComponents<CShadowReceiverComponent>();
 	}
@@ -104,6 +107,8 @@ namespace TDEngine2
 				}
 			}
 		}
+
+		_processPointLights(pWorld, lightingData);
 
 		if (mpRenderer)
 		{
@@ -202,6 +207,36 @@ namespace TDEngine2
 		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 1000.0f); // \todo Refactor
 
 		return Transpose(Mul(projMatrix, viewMatrix));
+	}
+
+	void CLightingSystem::_processPointLights(IWorld* pWorld, TLightingShaderData& lightingData)
+	{
+		CEntity* pEntity = nullptr;
+
+		lightingData.mPointLightsCount = std::min<U32>(MaxPointLightsCount, mPointLightsEntities.size());
+
+		auto& pointLights = lightingData.mPointLights;
+
+		for (U32 i = 0; i < static_cast<U32>(mPointLightsEntities.size()); ++i)
+		{
+			pEntity = pWorld->FindEntity(mPointLightsEntities[i]);
+			if (!pEntity)
+			{
+				continue;
+			}
+
+			auto& currPointLight = pointLights[i];
+
+			if (auto pLight = pEntity->GetComponent<CPointLight>())
+			{
+				CTransform* pLightTransform = pEntity->GetComponent<CTransform>();
+
+				currPointLight.mPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
+				currPointLight.mColor     = pLight->GetColor();
+				currPointLight.mIntensity = pLight->GetIntensity();
+				currPointLight.mRange     = pLight->GetRange();
+			}
+		}
 	}
 
 

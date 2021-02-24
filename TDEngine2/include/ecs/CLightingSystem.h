@@ -21,6 +21,7 @@ namespace TDEngine2
 	class CRenderQueue;
 	class IGraphicsContext;
 	class CEntity;
+	struct TLightingShaderData;
 
 
 	/*!
@@ -92,6 +93,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _prepareResources();
 
 			TDE2_API TMatrix4 _constructSunLightMatrix(CEntity* pEntity) const;
+
+			TDE2_API void _processPointLights(IWorld* pWorld, TLightingShaderData& lightingData);
 		protected:
 			IRenderer*              mpRenderer;
 
@@ -102,6 +105,8 @@ namespace TDEngine2
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
 			std::vector<TEntityId>  mDirectionalLightsEntities;
+			std::vector<TEntityId>  mPointLightsEntities;
+
 			std::vector<TEntityId>  mShadowCasterEntities;
 			std::vector<TEntityId>  mShadowReceiverEntities;
 

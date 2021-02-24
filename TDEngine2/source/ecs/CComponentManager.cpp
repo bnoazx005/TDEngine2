@@ -15,6 +15,7 @@
 #include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
 #include "../../include/physics/3D/CTrigger3D.h"
 #include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
@@ -372,6 +373,7 @@ namespace TDEngine2
 			CreateTrigger3DFactory,
 			CreateBoundsComponentFactory,
 			CreateDirectionalLightFactory,
+			CreatePointLightFactory,
 			CreateShadowCasterComponentFactory,
 			CreateShadowReceiverComponentFactory,
 			CreateAudioListenerComponentFactory,
@@ -425,6 +427,7 @@ namespace TDEngine2
 			CTrigger3D::GetTypeId(),
 			CBoundsComponent::GetTypeId(),
 			CDirectionalLight::GetTypeId(),
+			CPointLight::GetTypeId(),
 			CShadowCasterComponent::GetTypeId(),
 			CShadowReceiverComponent::GetTypeId(),
 			CAudioListenerComponent::GetTypeId(),

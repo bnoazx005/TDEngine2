@@ -17,16 +17,36 @@ namespace TDEngine2
 {
 #pragma pack(push, 16)
 
+
+	constexpr U32 MaxPointLightsCount = 8;
+
+
+	typedef struct TPointLightData
+	{
+		TVector4  mPosition;
+		TColor32F mColor;
+		F32       mRange;
+		F32       mIntensity;
+		F32       mPadding[2];
+	} TPointLightData, *TPointLightDataPtr;
+
+
 	/*!
 		\brief The structure contains all the information about light sources in the scene
 	*/
 
 	struct TLightingShaderData
 	{
-		TVector4  mSunLightDirection;
-		TVector4  mSunLightPosition;
-		TColor32F mSunLightColor;
-		TMatrix4  mSunLightMatrix = IdentityMatrix4;
+		TVector4        mSunLightDirection;
+		TVector4        mSunLightPosition;
+		TColor32F       mSunLightColor;
+		TMatrix4        mSunLightMatrix = IdentityMatrix4;
+
+		TPointLightData mPointLights[MaxPointLightsCount];
+
+		U32             mPointLightsCount;
+
+		U32             mPadding[3];
 	};
 
 	/*!

@@ -12,6 +12,7 @@
 
 
 #include <TDEngine2Utils.inc>
+#include <TDEngine2Lighting.inc>
 
 
 CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
@@ -23,6 +24,10 @@ CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
 	float4   SunLightPosition;
 	float4   SunLightColor;
 	float4x4 SunLightMat; 
+
+	PointLightData PointLights[MAX_POINT_LIGHTS_COUNT];
+
+	int4     ActivePointLightsCount; // yzw aren't used
 CBUFFER_ENDSECTION
 
 
