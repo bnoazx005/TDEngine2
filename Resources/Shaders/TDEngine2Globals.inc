@@ -27,7 +27,8 @@ CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
 
 	PointLightData PointLights[MAX_POINT_LIGHTS_COUNT];
 
-	int4     ActivePointLightsCount; // yzw aren't used
+	int      ActivePointLightsCount; // yzw aren't used
+	int3     UnusedPadding;
 CBUFFER_ENDSECTION
 
 

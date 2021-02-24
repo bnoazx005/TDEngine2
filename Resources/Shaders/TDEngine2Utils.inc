@@ -61,6 +61,23 @@
 #endif
 
 
+/*!
+	Global variables
+*/
+
+#ifdef TDE2_GLSL_SHADER
+
+const float Pi = 3.141592;
+
+#endif
+
+#ifdef TDE2_HLSL_SHADER
+
+static float Pi = 3.141592;
+
+#endif
+
+
 #include <TDEngine2EffectsUtils.inc>
 
 #endif

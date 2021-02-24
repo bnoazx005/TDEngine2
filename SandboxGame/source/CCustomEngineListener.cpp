@@ -231,6 +231,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}
 
 			pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
+			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
 		});
 
 #endif
