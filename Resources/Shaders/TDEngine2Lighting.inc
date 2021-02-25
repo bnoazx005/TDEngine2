@@ -173,7 +173,7 @@ float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lighti
 
 	kD *= (1.0 - metalness);
 
-	return normalLightDirDotProduct;
+	return float4(normalLightDirDotProduct * albedo.rgb, 1.0);
 	//return float4((kD * albedo / Pi + specular) * normalLightDirDotProduct * sunLight.mColor.rgb, sunLight.mColor.a);
 }
 

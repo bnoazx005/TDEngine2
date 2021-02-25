@@ -47,14 +47,19 @@ VertexOut mainVS(in VertexIn input)
 #include <TDEngine2ShadowMappingUtils.inc>
 
 
+DECLARE_TEX2D(AlbedoMap);
+DECLARE_TEX2D(NormalMap);
+DECLARE_TEX2D(PropertiesMap);
+
+
 float4 mainPS(VertexOut input): SV_TARGET0
 {
 	float4 viewPos = ViewMat._14_24_34_44;
 
 	LightingData lightingData = CreateLightingData(input.mWorldPos, input.mNormal, 
 												   normalize(viewPos - input.mWorldPos), 
-												   float4(1.0, 1.0, 1.0, 1.0), // \todo replace with texture sampling
-												   float4(0.4, 0.1, 0.0, 1.0));
+												   GammaToLinear(TEX2D(AlbedoMap, input.mUV)),
+												   GammaToLinear(TEX2D(PropertiesMap, input.mUV)));
 
 	float4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, float4(1.0, 1.0, 1.0, 1.0)), lightingData);
 

@@ -19,7 +19,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpResourceManager->Load<CBaseMaterial>("ProjectMaterials/NewMaterial.material");
 	mpResourceManager->Load<CBaseMaterial>("DefaultMaterials/DebugMaterial.material");
-	mpResourceManager->Load<CBaseMaterial>("DefaultMaterials/DefaultMaterial.material");
+	mpResourceManager->Load<CBaseMaterial>("ProjectMaterials/DefaultMaterial.material");
 
 	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>("DefaultMaterials/DebugTextMaterial.material")))
 	{
@@ -72,7 +72,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
-	pMeshContainer->SetMaterialName("DefaultMaterials/DefaultMaterial.material");
+	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
 	pMeshContainer->SetMeshName("Sphere");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
@@ -81,7 +81,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pPlaneEntity = mpWorld->CreateEntity();
 	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
-	pPlaneMeshContainer->SetMaterialName("DefaultMaterials/DefaultMaterial.material");
+	pPlaneMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
 	pPlaneMeshContainer->SetMeshName("Plane");
 
 	// Create a 3D trigger
@@ -411,6 +411,7 @@ E_RESULT_CODE CCustomEngineListener::_mountResourcesDirectories()
 
 	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Shaders/" + shaderLangSubdirectory, "ProjectShaders/");
 	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Materials/", "ProjectMaterials/");
+	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Textures/", "ProjectTextures/");
 
 	return result;
 }
