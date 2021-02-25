@@ -52,6 +52,7 @@ namespace TDEngine2
 			TDE2_API static void DrawShadowReceiverGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawShadowCasterGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawDirectionalLightGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawPointLightGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawAnimationContainerGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawSkyboxGUI(const TEditorContext& editorContext);
 

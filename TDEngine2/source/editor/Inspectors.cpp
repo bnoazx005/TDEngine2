@@ -15,6 +15,7 @@
 #include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
 #include "../../include/physics/3D/CTrigger3D.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
+#include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/editor/ecs/EditorComponents.h"
@@ -38,6 +39,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CShadowReceiverComponent::GetTypeId(), DrawShadowReceiverGUI);
 		result = result | editor.RegisterInspector(CShadowCasterComponent::GetTypeId(), DrawShadowCasterGUI);
 		result = result | editor.RegisterInspector(CDirectionalLight::GetTypeId(), DrawDirectionalLightGUI);
+		result = result | editor.RegisterInspector(CPointLight::GetTypeId(), DrawPointLightGUI);
 		result = result | editor.RegisterInspector(CAnimationContainerComponent::GetTypeId(), DrawAnimationContainerGUI);
 		result = result | editor.RegisterInspector(CSkyboxComponent::GetTypeId(), DrawSkyboxGUI);
 
@@ -202,6 +204,19 @@ namespace TDEngine2
 
 			// \todo Implement this drawer
 			
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawPointLightGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("Point Light", true))
+		{
+			CPointLight& pointLight = dynamic_cast<CPointLight&>(component);
+
+			// \todo Implement this drawer
 		}
 	}
 
