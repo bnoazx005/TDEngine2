@@ -21,6 +21,47 @@ struct PointLightData
 };
 
 
+PointLightData CreatePointLight(float4 pos, float4 color, float range, float intensity)
+{
+	PointLightData output;
+
+	output.mPosition = pos;
+	output.mColor = color;
+	output.mRange = range;
+	output.mIntensity = intensity;
+
+	return output;
+}
+
+
+float PointLightGetAttenuation(in PointLightData pointLight, in float4 pos)
+{
+	float distance = length(pointLight.mPosition - pos);
+
+	return 1.0 / (distance * distance); //* min(1, max(distance - pointLight.mMaxRange, 0.0));
+}
+
+
+struct SunLightData
+{	
+	float4 mDirection;
+	float4 mPosition;
+	float4 mColor;
+};
+
+
+SunLightData CreateSunLight(float4 pos, float4 dir, float4 color)
+{
+	SunLightData output;
+	
+	output.mDirection = dir;
+	output.mPosition = pos;
+	output.mColor = color;
+
+	return output;
+}
+
+
 struct LightingData
 {
 	float4 mPosition;
@@ -31,11 +72,17 @@ struct LightingData
 };
 
 
-float PointLightGetAttenuation(in PointLightData pointLight, in float4 pos)
+LightingData CreateLightingData(float4 pos, float4 normal, float4 viewDir, float4 albedo, float4 materialProperties)
 {
-	float distance = length(pointLight.mPosition - pos);
+	LightingData output;
+	
+	output.mPosition = pos;
+	output.mNormal = normal;
+	output.mViewDir = viewDir;
+	output.mAlbedo = albedo;
+	output.mMaterialProperties = materialProperties;
 
-	return 1.0 / (distance * distance); //* min(1, max(distance - pointLight.mMaxRange, 0.0));
+	return output;
 }
 
 
@@ -87,7 +134,47 @@ float3 ComputeFresnelSchlickCoeff(float cosTheta, float3 F0)
 
 float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData lightingData)
 {
-	return float4(0.0, 0.0, 0.0, 0.0);
+	float3 lightDir = normalize(pointLight.mPosition.xyz - lightingData.mPosition.xyz);
+
+	float3 normal = lightingData.mNormal,xyz;
+
+	float normalLightDirDotProduct = max(dot(normal, lightDir), 0.0);
+
+	return normalLightDirDotProduct * pointLight.mColor * PointLightGetAttenuation(pointLight, lightingData.mPosition);
+}
+
+
+float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lightingData)
+{
+	float3 lightDir = normalize(sunLight.mPosition);
+
+	float3 normal = lightingData.mNormal,xyz;
+	float3 view   = lightingData.mViewDir.xyz;
+	float3 albedo = lightingData.mAlbedo.rgb;
+
+	float3 halfVec = normalize(view + lightDir);
+
+	const float roughness = lightingData.mMaterialProperties.x;
+	const float metalness = lightingData.mMaterialProperties.y;
+
+	float NDF = ComputeDistribution(normal, halfVec, roughness);
+	float G   = ComputeGeometrySmith(normal, view, lightDir, roughness);
+
+	float3 F0 =  lerp(0.04, albedo, metalness); // equals to 0.04 for all dielectrics
+
+	float3 F = ComputeFresnelSchlickCoeff(max(dot(view, halfVec), 0.0), F0);
+	
+	float normalLightDirDotProduct = max(dot(normal, lightDir), 0.0);
+
+	float3 specular = NDF * G * F / (4.0 * max(dot(normal, view), 0.0) * normalLightDirDotProduct + 0.001);
+
+	float3 kS = F;
+	float3 kD = 1.0 - kS;	
+
+	kD *= (1.0 - metalness);
+
+	return normalLightDirDotProduct;
+	//return float4((kD * albedo / Pi + specular) * normalLightDirDotProduct * sunLight.mColor.rgb, sunLight.mColor.a);
 }
 
 
