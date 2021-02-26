@@ -8,9 +8,9 @@
 
 
 #include "ICamera.h"
-#include "./../ecs/CBaseComponent.h"
-#include "./../math/TMatrix4.h"
-#include "./../math/TPlane.h"
+#include "../ecs/CBaseComponent.h"
+#include "../math/TMatrix4.h"
+#include "../math/TPlane.h"
 #include <array>
 
 
@@ -78,6 +78,8 @@ namespace TDEngine2
 
 			TDE2_API void SetViewProjMatrix(const TMatrix4& viewProjMatrix, F32 zNDCMin) override;
 
+			TDE2_API void SetPosition(const TVector3& position) override;
+
 			/*!
 				\brief The method returns a position of a near clip plane on Z axis
 
@@ -126,6 +128,8 @@ namespace TDEngine2
 
 			TDE2_API const TMatrix4& GetInverseViewProjMatrix() const override;
 
+			TDE2_API const TVector3& GetPosition() const override;
+
 			/*!
 				\brief The method returns a camera's actual frustum
 
@@ -141,6 +145,8 @@ namespace TDEngine2
 			F32       mZNear;
 
 			F32       mZFar;
+			
+			TVector3  mPosition;
 
 			TMatrix4  mProjMatrix;
 

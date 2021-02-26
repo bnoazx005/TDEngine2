@@ -129,6 +129,7 @@ namespace TDEngine2
 			pCurrCamera->ComputeProjectionMatrix(this);
 
 			pCurrCamera->SetViewProjMatrix(pCurrCamera->GetProjMatrix() * pCurrCamera->GetViewMatrix(), ndcZmin);
+			pCurrCamera->SetPosition(pCurrTransform->GetPosition());
 		}
 	}
 

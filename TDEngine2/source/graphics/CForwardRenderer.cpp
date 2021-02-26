@@ -357,8 +357,9 @@ namespace TDEngine2
 		
 		if (mpMainCamera)
 		{
-			perFrameShaderData.mProjMatrix = Transpose(mpMainCamera->GetProjMatrix());
-			perFrameShaderData.mViewMatrix = Transpose(mpMainCamera->GetViewMatrix());
+			perFrameShaderData.mProjMatrix     = Transpose(mpMainCamera->GetProjMatrix());
+			perFrameShaderData.mViewMatrix     = Transpose(mpMainCamera->GetViewMatrix());
+			perFrameShaderData.mCameraPosition = TVector4(mpMainCamera->GetPosition(), 1.0f);
 		}
 
 		perFrameShaderData.mTime = TVector4(currTime, deltaTime, 0.0f, 0.0f);

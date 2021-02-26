@@ -18,6 +18,9 @@
 CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
 	float4x4 ProjMat;
 	float4x4 ViewMat;
+
+	float4   CameraPosition;
+
 	float4   Time; ///< The vector contains time related values, where x is current game time, y is delta time
 
 	float4   SunLightDirection;

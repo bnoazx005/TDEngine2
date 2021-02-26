@@ -7,11 +7,11 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../ecs/IComponentFactory.h"
-#include "./../math/TVector3.h"
-#include "./../math/TMatrix4.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../ecs/IComponentFactory.h"
+#include "../math/TVector3.h"
+#include "../math/TMatrix4.h"
 
 
 namespace TDEngine2
@@ -93,6 +93,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetViewMatrix(const TMatrix4& viewMatrix) = 0;
 
+			TDE2_API virtual void SetPosition(const TVector3& position) = 0;
+
 			/*!
 				\brief The method specifies a view-projection matrix for a camera
 
@@ -149,6 +151,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TMatrix4& GetInverseViewProjMatrix() const = 0;
+
+			TDE2_API virtual const TVector3& GetPosition() const = 0;
 
 			/*!
 				\brief The method returns a type of camera's projection matrix

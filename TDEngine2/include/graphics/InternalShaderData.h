@@ -61,6 +61,8 @@ namespace TDEngine2
 
 		TMatrix4            mViewMatrix;
 
+		TVector4            mCameraPosition;
+
 		TVector4            mTime; ///< The vector contains time related values, where x is current game time, y is delta time 
 
 		TLightingShaderData mLightingData;

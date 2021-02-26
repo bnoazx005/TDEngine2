@@ -55,6 +55,11 @@ namespace TDEngine2
 		}
 	}
 
+	void CBaseCamera::SetPosition(const TVector3& position)
+	{
+		mPosition = position;
+	}
+
 	F32 CBaseCamera::GetNearPlane() const
 	{
 		return mZNear;
@@ -83,6 +88,11 @@ namespace TDEngine2
 	const TMatrix4& CBaseCamera::GetInverseViewProjMatrix() const
 	{
 		return mInvViewProjMatrix;
+	}
+
+	const TVector3& CBaseCamera::GetPosition() const
+	{
+		return mPosition;
 	}
 
 	IFrustum* CBaseCamera::GetFrustum() const
