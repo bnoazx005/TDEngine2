@@ -38,8 +38,12 @@
 
 	#define SAMPLER_NAME(SamplerName) 
 
-	#define DECLARE_TEX2D(SamplerName)					\
-				Texture2D SamplerName;					\
+	#define DECLARE_TEX2D(SamplerName)						\
+				Texture2D SamplerName;			 			\
+				SamplerState SamplerName ## _SamplerState;
+
+	#define DECLARE_TEX2D_EX(SamplerName, slot)				\
+				Texture2D SamplerName : register(t#slot); 	\
 				SamplerState SamplerName ## _SamplerState;
 
 	#define TEX2D(SamplerName, uv) SamplerName.Sample(SamplerName ## _SamplerState, uv)

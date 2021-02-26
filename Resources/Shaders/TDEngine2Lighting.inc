@@ -112,7 +112,7 @@ float ComputeGeometrySchlick(float NdotV, float roughness)
 	float r = roughness + 1.0;
 	float k = (r * r) / 8.0;
 
-	return NdotV / NdotV * (1.0 - k) + k;
+	return NdotV / (NdotV * (1.0 - k) + k);
 }
 
 
@@ -121,8 +121,7 @@ float ComputeGeometrySmith(float3 normal, float3 viewDir, float3 lightDir, float
 	float normalViewDirDotProduct  = max(dot(normal, viewDir), 0.0);
 	float normalLightDirDotProduct = max(dot(normal, lightDir), 0.0);
 
-	return ComputeGeometrySchlick(normalViewDirDotProduct, k) *
-		   ComputeGeometrySchlick(normalLightDirDotProduct, k);
+	return ComputeGeometrySchlick(normalViewDirDotProduct, k) * ComputeGeometrySchlick(normalLightDirDotProduct, k);
 }
 
 
@@ -132,23 +131,9 @@ float3 ComputeFresnelSchlickCoeff(float cosTheta, float3 F0)
 }
 
 
-float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData lightingData)
+float3 CalcCookTorranceBRDF(float3 lightDir, in LightingData lightingData)
 {
-	float3 lightDir = normalize(pointLight.mPosition.xyz - lightingData.mPosition.xyz);
-
-	float3 normal = lightingData.mNormal,xyz;
-
-	float normalLightDirDotProduct = max(dot(normal, lightDir), 0.0);
-
-	return normalLightDirDotProduct * pointLight.mColor * PointLightGetAttenuation(pointLight, lightingData.mPosition);
-}
-
-
-float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lightingData)
-{
-	float3 lightDir = normalize(sunLight.mPosition);
-
-	float3 normal = lightingData.mNormal,xyz;
+	float3 normal = lightingData.mNormal.xyz;
 	float3 view   = lightingData.mViewDir.xyz;
 	float3 albedo = lightingData.mAlbedo.rgb;
 
@@ -160,10 +145,8 @@ float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lighti
 	float NDF = ComputeDistribution(normal, halfVec, roughness);
 	float G   = ComputeGeometrySmith(normal, view, lightDir, roughness);
 
-	float3 F0 =  lerp(0.04, albedo, metalness); // equals to 0.04 for all dielectrics
+	float3 F = ComputeFresnelSchlickCoeff(max(dot(view, halfVec), 0.0), lerp(0.04, albedo, metalness)); // equals to 0.04 for all dielectrics
 
-	float3 F = ComputeFresnelSchlickCoeff(max(dot(view, halfVec), 0.0), F0);
-	
 	float normalLightDirDotProduct = max(dot(normal, lightDir), 0.0);
 
 	float3 specular = NDF * G * F / (4.0 * max(dot(normal, view), 0.0) * normalLightDirDotProduct + 0.001);
@@ -173,8 +156,23 @@ float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lighti
 
 	kD *= (1.0 - metalness);
 
-	return float4(normalLightDirDotProduct * albedo.rgb, 1.0);
-	//return float4((kD * albedo / Pi + specular) * normalLightDirDotProduct * sunLight.mColor.rgb, sunLight.mColor.a);
+	return (kD * albedo / Pi + specular) * normalLightDirDotProduct;
+}
+
+
+float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData lightingData)
+{
+	float3 lightDir = normalize(pointLight.mPosition.xyz - lightingData.mPosition.xyz);
+
+	float radiance = pointLight.mColor * PointLightGetAttenuation(pointLight, lightingData.mPosition);
+
+	return float4(CalcCookTorranceBRDF(lightDir, lightingData) * radiance, pointLight.mColor.a);
+}
+
+
+float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lightingData)
+{
+	return float4(CalcCookTorranceBRDF(normalize(sunLight.mPosition), lightingData) /* * sunLight.mColor.rgb*/, sunLight.mColor.a);
 }
 
 
