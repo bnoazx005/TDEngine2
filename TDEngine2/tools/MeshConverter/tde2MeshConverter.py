@@ -64,6 +64,8 @@ def parse_args():
 	parser.add_argument('input', type=str, help='Path to a file should be converted')
 	parser.add_argument('-o', '--output', type=str, help='Output filename')
 	parser.add_argument('-D', '--debug', type=str, action='store', help='Additional debug output')
+	parser.add_argument('--skip_normals', action='store_true', help='If defined object\'s normals will be skipped')
+	parser.add_argument('--skip_tangents', action='store_true', help='If defined object\'s tangents will be skipped')
 
 	return parser.parse_args()
 
@@ -388,7 +390,7 @@ def write_mesh_header(file, offset):
 	file.write(struct.pack('<I', 0)) # padding to 16 bytes
 
 
-def write_geometry_block(file, objectsData):
+def write_geometry_block(file, objectsData, skipNormals):
 	def write_single_mesh_data(file, id, meshData):
 		mesh  = meshData[1]
 		faces = meshData[2]
@@ -410,6 +412,19 @@ def write_geometry_block(file, objectsData):
 			file.write(struct.pack('<3f', currPos.x, currPos.y, currPos.z))
 			file.write(struct.pack('<f', 1.0)) # w component, 1.0 - point, 0.0 - vector
 			offset += 16
+
+		# write normals (optional chunk)
+		if not skipNormals:
+			file.write(struct.pack('<2B', 14, 161)) # 0xA10E, 
+			offset += 2
+
+			for currVertex in mesh:
+				normal = currVertex.normal
+
+				# write in xyz order but each coordinate is stored as little-endian value
+				file.write(struct.pack('<3f', normal.x, normal.y, normal.z))
+				file.write(struct.pack('<f', 0.0)) 
+				offset += 16
 
 		# write textures chunk (uv0)
 		file.write(struct.pack('<2B', 2, 240)) # 0x02F0, 
@@ -470,14 +485,14 @@ def write_scene_desc_info(file, offset, objectsData):
 	return
 
 
-def save_mesh_data(objectsData, outputFilename):
+def save_mesh_data(objectsData, outputFilename, skipNormals):
 	assert outputFilename, "Output file path should be non empty"
 	assert objectsData, "Empty objects data is not allowed"
 
 	try:
 		outputMeshFile = open(outputFilename, 'wb')
 
-		offset = 16 + write_geometry_block(outputMeshFile, objectsData) # 16 plus for the header's size
+		offset = 16 + write_geometry_block(outputMeshFile, objectsData, skipNormals) # 16 plus for the header's size
 		
 		write_mesh_header(outputMeshFile, offset)
 		write_scene_desc_info(outputMeshFile, offset, objectsData)
@@ -527,7 +542,7 @@ def main():
 	if args.debug and args.debug == 'mesh-info':
 		print_all_meshes_data(fileData)
 
-	save_mesh_data(fileData, args.output if args.output else get_output_filename(args.input))
+	save_mesh_data(fileData, args.output if args.output else get_output_filename(args.input), args.skip_normals)
 
 	return 0
 

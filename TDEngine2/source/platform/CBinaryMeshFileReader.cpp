@@ -137,7 +137,7 @@ namespace TDEngine2
 			TDE2_ASSERT(false);
 			return false;
 		}
-		assert(tag == 0xCD01);
+		TDE2_ASSERT(tag == 0xCD01);
 
 		auto pStaticMesh = dynamic_cast<IStaticMesh*>(pMesh);
 
@@ -149,13 +149,46 @@ namespace TDEngine2
 			pStaticMesh->AddPosition(vecData);
 		}
 
-		/// \note read first uv channel
+		/// \note Read normals (this is an optional step)
 		if ((result = Read(&tag, sizeof(U16))) != RC_OK)
 		{
 			TDE2_ASSERT(false);
 			return false;
 		}
-		assert(tag == 0xF002);
+
+		if (0xA10E == tag) /// \note Read normals (this is an optional step)
+		{
+			for (U32 i = 0; i < vertexCount; ++i)
+			{
+				result = result | Read(&vecData, sizeof(TVector4));
+				pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+			}
+
+			/// \note Read first uv channel
+			if ((result = Read(&tag, sizeof(U16))) != RC_OK)
+			{
+				TDE2_ASSERT(false);
+				return false;
+			}
+		}
+
+		if (0xA2DF == tag) /// \note Read tangents (this is an optional step)
+		{
+			for (U32 i = 0; i < vertexCount; ++i)
+			{
+				result = result | Read(&vecData, sizeof(TVector4));
+				pStaticMesh->AddTangent(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+			}
+
+			/// \note Read first uv channel
+			if ((result = Read(&tag, sizeof(U16))) != RC_OK)
+			{
+				TDE2_ASSERT(false);
+				return false;
+			}
+		}
+
+		TDE2_ASSERT(tag == 0xF002);
 		
 		for (U32 i = 0; i < vertexCount; ++i)
 		{
@@ -169,7 +202,7 @@ namespace TDEngine2
 			TDE2_ASSERT(false);
 			return false;
 		}
-		assert(tag == 0xFF03);
+		TDE2_ASSERT(tag == 0xFF03);
 		
 		U16 format = 0x0;
 		if ((result = Read(&format, sizeof(U16))) != RC_OK)
