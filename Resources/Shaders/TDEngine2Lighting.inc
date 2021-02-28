@@ -139,13 +139,17 @@ float3 CalcCookTorranceBRDF(float3 lightDir, in LightingData lightingData)
 
 	float3 halfVec = normalize(view + lightDir);
 
-	const float roughness = lightingData.mMaterialProperties.x;
-	const float metalness = lightingData.mMaterialProperties.y;
+	float roughness = lightingData.mMaterialProperties.x;
+	float metalness = lightingData.mMaterialProperties.y;
 
 	float NDF = ComputeDistribution(normal, halfVec, roughness);
 	float G   = ComputeGeometrySmith(normal, view, lightDir, roughness);
 
+#if TDE2_HLSL_SHADER
 	float3 F = ComputeFresnelSchlickCoeff(max(dot(view, halfVec), 0.0), lerp(0.04, albedo, metalness)); // equals to 0.04 for all dielectrics
+#else
+	float3 F = ComputeFresnelSchlickCoeff(max(dot(view, halfVec), 0.0), mix(vec3(0.04), albedo, metalness)); // equals to 0.04 for all dielectrics
+#endif
 
 	float normalLightDirDotProduct = max(dot(normal, lightDir), 0.0);
 
@@ -164,7 +168,7 @@ float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData 
 {
 	float3 lightDir = normalize(pointLight.mPosition.xyz - lightingData.mPosition.xyz);
 
-	float radiance = pointLight.mColor * PointLightGetAttenuation(pointLight, lightingData.mPosition);
+	float3 radiance = pointLight.mColor.rgb * PointLightGetAttenuation(pointLight, lightingData.mPosition);
 
 	return float4(CalcCookTorranceBRDF(lightDir, lightingData) * radiance, pointLight.mColor.a);
 }
@@ -172,7 +176,7 @@ float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData 
 
 float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lightingData)
 {
-	return float4(CalcCookTorranceBRDF(normalize(sunLight.mPosition), lightingData) /* * sunLight.mColor.rgb*/, sunLight.mColor.a);
+	return float4(CalcCookTorranceBRDF(normalize(sunLight.mPosition).xyz, lightingData) /* * sunLight.mColor.rgb*/, sunLight.mColor.a);
 }
 
 
