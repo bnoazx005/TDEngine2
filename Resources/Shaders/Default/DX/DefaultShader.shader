@@ -6,12 +6,13 @@
 
 struct VertexOut
 {
-	float4 mPos   : SV_POSITION;
+	float4 mPos      : SV_POSITION;
 	float4 mLightPos : POSITION1;
 	float4 mWorldPos : POSITION2;
-	float4 mColor : COLOR;
-	float2 mUV : TEXCOORD;
-	float4 mNormal : NORMAL;
+	float4 mColor    : COLOR;
+	float2 mUV       : TEXCOORD;
+	float4 mNormal   : NORMAL;
+	float3x3 mTBN    : TEXCOORD1;
 };
 
 
@@ -19,10 +20,11 @@ struct VertexOut
 
 struct VertexIn
 {
-	float4 mPos   : POSITION0;
-	float4 mColor : COLOR0;
-	float2 mUV : TEXCOORD;
-	float4 mNormal : NORMAL;
+	float4 mPos     : POSITION0;
+	float4 mColor   : COLOR0;
+	float2 mUV      : TEXCOORD;
+	float4 mNormal  : NORMAL;
+	float4 mTangent : TANGENT;
 };
 
 
@@ -36,6 +38,11 @@ VertexOut mainVS(in VertexIn input)
 	output.mNormal   = mul(transpose(InvModelMat), input.mNormal);
 	output.mUV       = input.mUV;
 	output.mColor    = input.mColor;
+
+	float3 tangent  = mul(transpose(InvModelMat), input.mTangent);
+	float3 binormal = cross(output.mNormal, tangent);
+
+	output.mTBN = transpose(float3x3(tangent, binormal, output.mNormal.xyz));
 
 	return output;
 }
@@ -54,7 +61,9 @@ DECLARE_TEX2D_EX(PropertiesMap, 3);
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	LightingData lightingData = CreateLightingData(input.mWorldPos, input.mNormal, 
+	float3 normal = mul(input.mTBN, 2.0 * TEX2D(NormalMap, input.mUV).xyz - 1.0);
+
+	LightingData lightingData = CreateLightingData(input.mWorldPos, float4(normal, 0.0), 
 												   normalize(CameraPosition - input.mWorldPos), 
 												   GammaToLinear(TEX2D(AlbedoMap, input.mUV)),
 												   TEX2D(PropertiesMap, input.mUV));
