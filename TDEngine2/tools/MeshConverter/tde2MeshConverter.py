@@ -6,6 +6,7 @@ Author: Ildar Kasimov
 The script is used to convert DCC files (FBX, OBJ) into *.MESH internal binary format
 """
 import argparse
+import math
 import os.path
 import struct
 try:
@@ -42,18 +43,35 @@ class Vec3:
 		self.y = y
 		self.z = z
 
+	@staticmethod
+	def normalize(vec3):
+		assert vec3.length() > 0, "The vector should have non-zero length"
+
+		invLength = 1.0 / vec3.length()
+		return Vec3(vec3.x * invLength, vec3.y * invLength, vec3.z * invLength)
+
+	def length(self):
+		return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+
+	def __add__(self, other):
+		return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
+
+	def __sub__(self, other):
+		return Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
+
 	def __str__(self):
 		return "(%f, %f, %f)" % (self.x, self.y, self.z)
 
 
 class Vertex:
-	def __init__(self, pos = Vec3(), uv = Vec2(), normal = Vec3()):
-		self.pos    = pos
-		self.normal = normal
-		self.uv     = uv
+	def __init__(self, pos = Vec3(), uv = Vec2(), normal = Vec3(), tangent = Vec3()):
+		self.pos     = pos
+		self.normal  = normal
+		self.uv      = uv
+		self.tangent = tangent
 
 	def __str__(self):
-		return "pos: %s\tuv: %s\tnormal: %s" % (self.pos, self.uv, self.normal)
+		return "pos: %s\tuv: %s\tnormal: %s\ttangent: %s" % (self.pos, self.uv, self.normal, self.tangent)
 
 
 def parse_args():
@@ -200,6 +218,7 @@ class IntermediateObjDataContext:
 			self.pos = Vec3()
 			self.normal = Vec3()
 			self.texcoords = Vec2()
+			self.tangent = Vec3()
 
 	def __init__(self):
 		self.vertices = []
@@ -314,6 +333,61 @@ def obj_process_objects(tokens, sceneContext):
 	return sceneContext
 
 
+def obj_compute_tangents(sceneContext):
+	indicesCount = len(sceneContext.indices)
+
+	i = 0
+
+	verts = {}
+
+	pos = {}
+	uvs = {}
+
+	edges = {}
+	dudv = {}
+
+	tangent = Vec3()
+
+	while i < indicesCount:
+		verts[0] = sceneContext.finalVertices[sceneContext.indices[i]]
+		verts[1] = sceneContext.finalVertices[sceneContext.indices[i + 1]]
+		verts[2] = sceneContext.finalVertices[sceneContext.indices[i + 2]]
+
+		pos[0] = verts[0].pos
+		pos[1] = verts[1].pos
+		pos[2] = verts[2].pos
+
+		uvs[0] = verts[0].texcoords
+		uvs[1] = verts[1].texcoords
+		uvs[2] = verts[2].texcoords
+
+		edges[0] = pos[1] - pos[0];
+		edges[1] = pos[2] - pos[0];
+
+		dudv[0] = uvs[1] - uvs[0];
+		dudv[1] = uvs[2] - uvs[0];
+
+		det = (dudv[0].x * dudv[1].y - dudv[0].y * dudv[1].x)
+		invDet = 0.0 if math.fabs(det) < 0.0 else (1.0 / det)
+
+		tangent.x = invDet * (dudv[1].y * edges[0].x - dudv[0].y * edges[1].x);
+		tangent.y = invDet * (dudv[1].y * edges[0].y - dudv[0].y * edges[1].y);
+		tangent.z = invDet * (dudv[1].y * edges[0].z - dudv[0].y * edges[1].z);
+
+		tangent = Vec3.normalize(tangent)
+
+		sceneContext.finalVertices[sceneContext.indices[i]].tangent     = verts[0].tangent + tangent
+		sceneContext.finalVertices[sceneContext.indices[i + 1]].tangent = verts[1].tangent + tangent
+		sceneContext.finalVertices[sceneContext.indices[i + 2]].tangent = verts[2].tangent + tangent
+
+		i = i + 3
+
+	for currVertex in sceneContext.finalVertices:
+		currVertex.tangent = Vec3.normalize(currVertex.tangent)
+
+	return sceneContext
+
+
 def read_obj_mesh_data(inputFilename):
 	handlersMap = {
 		"v" : obj_process_vertices,
@@ -358,6 +432,8 @@ def read_obj_mesh_data(inputFilename):
 	
 	objects = []
 
+	tempSceneContext = obj_compute_tangents(tempSceneContext)
+
 	for currSubMesh in tempSceneContext.subMeshes:
 		# Gather vertices of the sub-mesh
 		vertices = []
@@ -365,7 +441,7 @@ def read_obj_mesh_data(inputFilename):
 		for i in range(currSubMesh.currVertexOffset, currSubMesh.currVertexOffset + currSubMesh.numOfVertices):
 			objVertexData = tempSceneContext.finalVertices[i]
 
-			vertices.append(Vertex(objVertexData.pos, objVertexData.texcoords, objVertexData.normal))
+			vertices.append(Vertex(objVertexData.pos, objVertexData.texcoords, objVertexData.normal, objVertexData.tangent))
 		
 		# Gather indices of the sub-mesh
 		faces = []
@@ -390,7 +466,7 @@ def write_mesh_header(file, offset):
 	file.write(struct.pack('<I', 0)) # padding to 16 bytes
 
 
-def write_geometry_block(file, objectsData, skipNormals):
+def write_geometry_block(file, objectsData, skipNormals, skipTangents):
 	def write_single_mesh_data(file, id, meshData):
 		mesh  = meshData[1]
 		faces = meshData[2]
@@ -423,6 +499,19 @@ def write_geometry_block(file, objectsData, skipNormals):
 
 				# write in xyz order but each coordinate is stored as little-endian value
 				file.write(struct.pack('<3f', normal.x, normal.y, normal.z))
+				file.write(struct.pack('<f', 0.0)) 
+				offset += 16
+
+		# write tangents (optional chunk)
+		if not skipTangents:
+			file.write(struct.pack('<2B', 223, 162)) # 0xA2DF, 
+			offset += 2
+
+			for currVertex in mesh:
+				tangent = currVertex.tangent
+
+				# write in xyz order but each coordinate is stored as little-endian value
+				file.write(struct.pack('<3f', tangent.x, tangent.y, tangent.z))
 				file.write(struct.pack('<f', 0.0)) 
 				offset += 16
 
@@ -485,14 +574,14 @@ def write_scene_desc_info(file, offset, objectsData):
 	return
 
 
-def save_mesh_data(objectsData, outputFilename, skipNormals):
+def save_mesh_data(objectsData, outputFilename, skipNormals, skipTangents):
 	assert outputFilename, "Output file path should be non empty"
 	assert objectsData, "Empty objects data is not allowed"
 
 	try:
 		outputMeshFile = open(outputFilename, 'wb')
 
-		offset = 16 + write_geometry_block(outputMeshFile, objectsData, skipNormals) # 16 plus for the header's size
+		offset = 16 + write_geometry_block(outputMeshFile, objectsData, skipNormals, skipTangents) # 16 plus for the header's size
 		
 		write_mesh_header(outputMeshFile, offset)
 		write_scene_desc_info(outputMeshFile, offset, objectsData)
@@ -542,7 +631,7 @@ def main():
 	if args.debug and args.debug == 'mesh-info':
 		print_all_meshes_data(fileData)
 
-	save_mesh_data(fileData, args.output if args.output else get_output_filename(args.input), args.skip_normals)
+	save_mesh_data(fileData, args.output if args.output else get_output_filename(args.input), args.skip_normals, args.skip_tangents)
 
 	return 0
 
