@@ -15,10 +15,10 @@ layout (location = 4) in vec4 inTangent;
 
 out vec4 VertOutColor;
 out vec4 LightSpaceVertPos;
-out vec4 OutWorldPos;
-out vec2 OutUV;
-out vec4 OutNormal;
-out mat3 OutTBN;
+out vec4 VertOutWorldPos;
+out vec2 VertOutUV;
+out vec4 VertOutNormal;
+out mat3 VertOutTBN;
 
 
 void main(void)
@@ -28,14 +28,14 @@ void main(void)
 
 	VertOutColor = inColor;
 
-	OutWorldPos = ModelMat * inlPos;
-	OutNormal = transpose(InvModelMat) * inNormal;
-	OutUV = inUV;
+	VertOutWorldPos = ModelMat * inlPos;
+	VertOutNormal = transpose(InvModelMat) * inNormal;
+	VertOutUV = inUV;
 
 	float3 tangent  = (transpose(InvModelMat) * inTangent).xyz;
-	float3 binormal = cross(OutNormal.xyz, tangent);
+	float3 binormal = cross(VertOutNormal.xyz, tangent);
 
-	OutTBN = transpose(mat3(tangent, binormal, OutNormal.xyz));
+	VertOutTBN = transpose(mat3(tangent, binormal, VertOutNormal.xyz));
 }
 
 #endprogram
@@ -52,21 +52,21 @@ DECLARE_TEX2D(PropertiesMap);
 
 in vec4 VertOutColor;
 in vec4 LightSpaceVertPos;
-in vec4 WorldPos;
-in vec2 UV;
-in vec4 Normal;
-in mat3 TBN;
+in vec4 VertOutWorldPos;
+in vec2 VertOutUV;
+in vec4 VertOutNormal;
+in mat3 VertOutTBN;
 
 out vec4 FragColor;
 
 void main(void)
 {
-	vec3 normal = TBN * (2.0 * TEX2D(NormalMap, UV).xyz - 1.0);
+	vec3 normal = VertOutTBN * (2.0 * TEX2D(NormalMap, VertOutUV).xyz - 1.0);
 
-	LightingData lightingData = CreateLightingData(WorldPos, vec4(normal, 0.0), 
-												   normalize(CameraPosition - WorldPos), 
-												   GammaToLinear(TEX2D(AlbedoMap, UV)),
-												   TEX2D(PropertiesMap, UV));
+	LightingData lightingData = CreateLightingData(VertOutWorldPos, vec4(normal, 0.0), 
+												   normalize(CameraPosition - VertOutWorldPos), 
+												   GammaToLinear(TEX2D(AlbedoMap, VertOutUV)),
+												   TEX2D(PropertiesMap, VertOutUV));
 
 	vec4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, vec4(1.0)), lightingData);
 
@@ -77,8 +77,7 @@ void main(void)
 		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData);
 	}
 
-	//FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeShadowFactorPCF(8, LightSpaceVertPos, 0.0001, 1000.0)) * VertOutColor;
-	FragColor = GammaToLinear(TEX2D(AlbedoMap, UV));
+	FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeShadowFactorPCF(8, LightSpaceVertPos, 0.0001, 1000.0)) * VertOutColor;
 }
 
 #endprogram
