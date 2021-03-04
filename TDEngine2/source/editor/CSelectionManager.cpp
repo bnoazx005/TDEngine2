@@ -89,9 +89,11 @@ namespace TDEngine2
 			onDrawVisibleObjectsCallback();
 		}
 
+		pCurrRenderTarget->Blit(pReadableRTCopyTexture);
+
 		mpGraphicsContext->BindRenderTarget(0, nullptr);
 
-		return pCurrRenderTarget->Blit(pReadableRTCopyTexture);
+		return RC_OK;
 	}
 
 	TEntityId CSelectionManager::PickObject(const TVector2& position)

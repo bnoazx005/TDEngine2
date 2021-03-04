@@ -118,6 +118,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::vector<U8> GetInternalData() override;
+
+			TDE2_API GLuint GetInternalHandler() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLTexture2D)
 
