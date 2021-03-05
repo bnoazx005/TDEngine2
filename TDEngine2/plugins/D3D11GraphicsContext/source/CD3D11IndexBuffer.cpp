@@ -1,6 +1,6 @@
-#include "./../include/CD3D11IndexBuffer.h"
-#include "./../include/CD3D11Buffer.h"
-#include "./../include/CD3D11Mappings.h"
+#include "../include/CD3D11IndexBuffer.h"
+#include "../include/CD3D11Buffer.h"
+#include "../include/CD3D11Mappings.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -110,6 +110,11 @@ namespace TDEngine2
 	{
 		return mpBufferImpl->GetSize();
 	}
+
+	U32 CD3D11IndexBuffer::GetUsedSize() const
+	{
+		return mpBufferImpl->GetUsedSize();
+	}
 	
 	E_INDEX_FORMAT_TYPE CD3D11IndexBuffer::GetIndexFormat() const
 	{
@@ -120,25 +125,7 @@ namespace TDEngine2
 	TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
 												  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
-		CD3D11IndexBuffer* pIndexBufferInstance = new (std::nothrow) CD3D11IndexBuffer();
-
-		if (!pIndexBufferInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pIndexBufferInstance->Init(pGraphicsContext, usageType, totalBufferSize, indexFormatType, pDataPtr);
-
-		if (result != RC_OK)
-		{
-			delete pIndexBufferInstance;
-
-			pIndexBufferInstance = nullptr;
-		}
-
-		return dynamic_cast<IIndexBuffer*>(pIndexBufferInstance);
+		return CREATE_IMPL(IIndexBuffer, CD3D11IndexBuffer, result, pGraphicsContext, usageType, totalBufferSize, indexFormatType, pDataPtr);
 	}
 }
 

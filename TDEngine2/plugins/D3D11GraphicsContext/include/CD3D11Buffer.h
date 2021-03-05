@@ -118,6 +118,12 @@ namespace TDEngine2
 			TDE2_API U32 GetSize() const override;
 
 			/*!
+				\return The method returns an amount of occupied buffer's bytes
+			*/
+
+			TDE2_API U32 GetUsedSize() const override;
+
+			/*!
 				\brief The method returns a pointer to ID3D11DeviceContext implementation
 
 				\return The method returns a pointer to ID3D11DeviceContext implementation
@@ -132,6 +138,8 @@ namespace TDEngine2
 			ID3D11Buffer*            mpBufferInstance;
 			
 			U32                      mBufferSize;
+
+			U32                      mUsedBytesSize;
 
 			U32                      mElementStrideSize;
 

@@ -1,5 +1,5 @@
-#include "./../include/CD3D11VertexBuffer.h"
-#include "./../include/CD3D11Buffer.h"
+#include "../include/CD3D11VertexBuffer.h"
+#include "../include/CD3D11Buffer.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -107,6 +107,11 @@ namespace TDEngine2
 	U32 CD3D11VertexBuffer::GetSize() const
 	{
 		return mpBufferImpl->GetSize();
+	}
+
+	U32 CD3D11VertexBuffer::GetUsedSize() const
+	{
+		return mpBufferImpl->GetUsedSize();
 	}
 
 

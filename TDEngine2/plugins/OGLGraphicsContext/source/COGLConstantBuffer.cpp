@@ -103,28 +103,15 @@ namespace TDEngine2
 		return mpBufferImpl->GetSize();
 	}
 
+	U32 COGLConstantBuffer::GetUsedSize() const
+	{
+		return mpBufferImpl->GetUsedSize();
+	}
+
 
 	TDE2_API IConstantBuffer* CreateOGLConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
 													  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
-		COGLConstantBuffer* pConstantBufferInstance = new (std::nothrow) COGLConstantBuffer();
-
-		if (!pConstantBufferInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pConstantBufferInstance->Init(pGraphicsContext, usageType, totalBufferSize, pDataPtr);
-
-		if (result != RC_OK)
-		{
-			delete pConstantBufferInstance;
-
-			pConstantBufferInstance = nullptr;
-		}
-
-		return pConstantBufferInstance;
+		return CREATE_IMPL(IConstantBuffer, COGLConstantBuffer, result, pGraphicsContext, usageType, totalBufferSize, pDataPtr);
 	}
 }

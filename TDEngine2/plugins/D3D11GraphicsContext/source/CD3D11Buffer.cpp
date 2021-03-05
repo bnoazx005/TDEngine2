@@ -9,13 +9,13 @@
 
 namespace TDEngine2
 {
-	CD3D11Buffer::CD3D11Buffer():
+	CD3D11Buffer::CD3D11Buffer() :
 		CBaseObject()
 	{
 	}
 
-	E_RESULT_CODE CD3D11Buffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize, 
-									 const void* pDataPtr)
+	E_RESULT_CODE CD3D11Buffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize,
+		const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -38,6 +38,7 @@ namespace TDEngine2
 		}
 
 		mBufferSize = totalBufferSize;
+		mUsedBytesSize = 0;
 
 		mBufferUsageType = usageType;
 
@@ -62,10 +63,10 @@ namespace TDEngine2
 				break;
 		}
 
-		bufferDesc.BindFlags      = bufferCreationFlags;
-		bufferDesc.ByteWidth      = totalBufferSize;
+		bufferDesc.BindFlags = bufferCreationFlags;
+		bufferDesc.ByteWidth = totalBufferSize;
 		bufferDesc.CPUAccessFlags = CD3D11Mappings::GetAccessFlags(mBufferUsageType);
-		bufferDesc.Usage          = CD3D11Mappings::GetUsageType(mBufferUsageType);
+		bufferDesc.Usage = CD3D11Mappings::GetUsageType(mBufferUsageType);
 
 		D3D11_SUBRESOURCE_DATA bufferData;
 
@@ -74,7 +75,7 @@ namespace TDEngine2
 		bufferData.pSysMem = pDataPtr;
 
 		ID3D11Device* p3dDevice = internalD3D11Data.mp3dDevice;
-		
+
 		if (FAILED(p3dDevice->CreateBuffer(&bufferDesc, (pDataPtr ? &bufferData : nullptr), &mpBufferInstance)))
 		{
 			return RC_FAIL;
@@ -142,7 +143,7 @@ namespace TDEngine2
 	{
 		mp3dDeviceContext->Unmap(mpBufferInstance, 0);
 	}
-	
+
 	E_RESULT_CODE CD3D11Buffer::Write(const void* pData, U32 size)
 	{
 		if (size > mBufferSize)
@@ -159,6 +160,8 @@ namespace TDEngine2
 
 		memcpy(pMappedBufferDataPtr, pData, size);
 
+		mUsedBytesSize += size;
+
 		return RC_OK;
 	}
 
@@ -166,15 +169,20 @@ namespace TDEngine2
 	{
 		return mMappedBufferData.pData;
 	}
-	
+
 	const TBufferInternalData& CD3D11Buffer::GetInternalData() const
 	{
 		return mBufferInternalData;
 	}
-	
+
 	U32 CD3D11Buffer::GetSize() const
 	{
 		return mBufferSize;
+	}
+
+	U32 CD3D11Buffer::GetUsedSize() const
+	{
+		return mUsedBytesSize;
 	}
 
 	ID3D11DeviceContext* CD3D11Buffer::GetDeviceContext() const
@@ -186,25 +194,7 @@ namespace TDEngine2
 	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
 										U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
-		CD3D11Buffer* pBufferInstance = new (std::nothrow) CD3D11Buffer();
-
-		if (!pBufferInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pBufferInstance->Init(pGraphicsContext, usageType, bufferType, totalBufferSize, pDataPtr);
-
-		if (result != RC_OK)
-		{
-			delete pBufferInstance;
-
-			pBufferInstance = nullptr;
-		}
-
-		return dynamic_cast<IBuffer*>(pBufferInstance);
+		return CREATE_IMPL(IBuffer, CD3D11Buffer, result, pGraphicsContext, usageType, bufferType, totalBufferSize, pDataPtr);
 	}
 }
 

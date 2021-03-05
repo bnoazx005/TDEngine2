@@ -118,6 +118,11 @@ namespace TDEngine2
 		return mpBufferImpl->GetSize();
 	}
 
+	U32 CD3D11ConstantBuffer::GetUsedSize() const
+	{
+		return mpBufferImpl->GetUsedSize();
+	}
+
 
 	TDE2_API IConstantBuffer* CreateD3D11ConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
 		U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)

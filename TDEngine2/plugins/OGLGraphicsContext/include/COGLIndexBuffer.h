@@ -115,6 +115,12 @@ namespace TDEngine2
 			TDE2_API U32 GetSize() const override;
 
 			/*!
+				\return The method returns an amount of occupied buffer's bytes
+			*/
+
+			TDE2_API U32 GetUsedSize() const override;
+
+			/*!
 				\brief The method returns a format of a single stored index
 
 				\return The method returns a format of a single stored index

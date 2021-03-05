@@ -92,6 +92,11 @@ namespace TDEngine2
 		return mpBufferImpl->GetSize();
 	}
 
+	U32 COGLIndexBuffer::GetUsedSize() const
+	{
+		return mpBufferImpl->GetUsedSize();
+	}
+
 	E_INDEX_FORMAT_TYPE COGLIndexBuffer::GetIndexFormat() const
 	{
 		return mIndexFormatType;

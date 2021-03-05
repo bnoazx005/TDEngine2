@@ -126,6 +126,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetSize() const override;
+
+			/*!
+				\return The method returns an amount of occupied buffer's bytes
+			*/
+
+			TDE2_API U32 GetUsedSize() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexBuffer)
 		protected:

@@ -94,28 +94,15 @@ namespace TDEngine2
 		return mpBufferImpl->GetSize();
 	}
 
+	U32 COGLVertexBuffer::GetUsedSize() const
+	{
+		return mpBufferImpl->GetUsedSize();
+	}
+
 
 	TDE2_API IVertexBuffer* CreateOGLVertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
 												  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
-		COGLVertexBuffer* pVertexBufferInstance = new (std::nothrow) COGLVertexBuffer();
-
-		if (!pVertexBufferInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pVertexBufferInstance->Init(pGraphicsContext, usageType, totalBufferSize, pDataPtr);
-
-		if (result != RC_OK)
-		{
-			delete pVertexBufferInstance;
-
-			pVertexBufferInstance = nullptr;
-		}
-
-		return pVertexBufferInstance;
+		return CREATE_IMPL(IVertexBuffer, COGLVertexBuffer, result, pGraphicsContext, usageType, totalBufferSize, pDataPtr);
 	}
 }

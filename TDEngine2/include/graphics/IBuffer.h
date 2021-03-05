@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../core/IBaseObject.h"
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../core/IBaseObject.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -106,6 +106,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetSize() const = 0;
+
+			/*!
+				\return The method returns an amount of occupied buffer's bytes
+			*/
+
+			TDE2_API virtual U32 GetUsedSize() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBuffer)
 	};

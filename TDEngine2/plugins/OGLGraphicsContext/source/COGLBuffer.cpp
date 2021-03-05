@@ -21,6 +21,7 @@ namespace TDEngine2
 		}
 
 		mBufferSize = totalBufferSize;
+		mUsedBytesSize = 0;
 
 		mBufferUsageType = usageType;
 
@@ -95,6 +96,8 @@ namespace TDEngine2
 
 		memcpy(mpMappedBufferData, pData, size);
 
+		mUsedBytesSize += size;
+
 		return RC_OK;
 	}
 
@@ -111,6 +114,11 @@ namespace TDEngine2
 	U32 COGLBuffer::GetSize() const
 	{
 		return mBufferSize;
+	}
+
+	U32 COGLBuffer::GetUsedSize() const
+	{
+		return mUsedBytesSize;
 	}
 
 	TDE2_API GLenum COGLBuffer::_getBufferType(E_BUFFER_TYPE type) const
