@@ -156,6 +156,12 @@ namespace TDEngine2
 			
 			assert((currDesc.mSlot - TotalNumberOfInternalConstantBuffers) >= 0);
 
+			/// \note Ensure that we compute correct size of the block
+			I32 reflectionBlockSize = 0;
+			glGetActiveUniformBlockiv(mShaderHandler, mUniformBuffersMap[currDesc.mSlot], GL_UNIFORM_BLOCK_DATA_SIZE, &reflectionBlockSize);
+
+			currDesc.mSize = std::max<U32>(currDesc.mSize, static_cast<U32>(reflectionBlockSize));
+
 			/// the offset is used because the shaders doesn't store internal buffer by themselves
 			mUniformBuffers[currDesc.mSlot - TotalNumberOfInternalConstantBuffers] = CreateOGLConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
 		}
