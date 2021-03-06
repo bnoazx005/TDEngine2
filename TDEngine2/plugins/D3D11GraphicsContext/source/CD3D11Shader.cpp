@@ -1,8 +1,8 @@
-#include "./../include/CD3D11Shader.h"
-#include "./../include/CD3D11GraphicsContext.h"
-#include "./../include/CD3D11Utils.h"
-#include "./../include/CD3D11ShaderCompiler.h"
-#include "./../include/CD3D11ConstantBuffer.h"
+#include "../include/CD3D11Shader.h"
+#include "../include/CD3D11GraphicsContext.h"
+#include "../include/CD3D11Utils.h"
+#include "../include/CD3D11ShaderCompiler.h"
+#include "../include/CD3D11ConstantBuffer.h"
 #include <graphics/CBaseShader.h>
 #include <graphics/IShaderCompiler.h>
 #include <cstring>
@@ -10,6 +10,7 @@
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
+
 
 namespace TDEngine2
 {
@@ -171,6 +172,9 @@ namespace TDEngine2
 
 			const U32 index = static_cast<U32>(std::distance(uniformBuffersInfo.cbegin(), iter) - TotalNumberOfInternalConstantBuffers);
 			TDE2_ASSERT(index >= 0);
+
+			/// \note Ensure that we compute correct size of the constant buffer. We use ID3D11ShaderReflection to retrieve accurate information
+
 
 			mUniformBuffers[index] = pConstantBuffer; // the offset is used because the shaders doesn't store internal buffer by themselves
 		}

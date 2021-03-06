@@ -14,6 +14,7 @@
 
 #if defined (TDE2_USE_WIN32PLATFORM)
 
+#include <d3d11shader.h>
 #include <d3dcompiler.h>
 
 #pragma comment(lib, "D3Dcompiler.lib")
@@ -90,7 +91,7 @@ namespace TDEngine2
 	}
 
 	TResult<std::vector<U8>> CD3D11ShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source,
-																	   const TShaderMetadata& shaderMetadata,
+																	   TShaderMetadata& shaderMetadata,
 																	   E_SHADER_FEATURE_LEVEL targetVersion) const
 	{
 		std::vector<U8> byteCodeArray;
@@ -120,6 +121,36 @@ namespace TDEngine2
 			LOG_ERROR(Wrench::StringUtils::Format("[D3D11 Shader Compiler] {0}", static_cast<const C8*>(pErrorBuffer->GetBufferPointer())));
 
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		// Check up constant buffer sizes, extract their accurate sizes using the reflector
+		ID3D11ShaderReflection* pReflector = nullptr;
+		
+		if (FAILED(D3DReflect(pBytecodeBuffer->GetBufferPointer(), pBytecodeBuffer->GetBufferSize(), __uuidof(ID3D11ShaderReflection), (void**)&pReflector)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		D3D11_SHADER_BUFFER_DESC constantBufferInfoDesc;
+
+		auto&& constantBuffers = shaderMetadata.mUniformBuffers;
+		for (auto&& currConstantBuffer : constantBuffers)
+		{
+			// \note System constant buffers don't need any recomputation
+			if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (currConstantBuffer.second.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
+			{
+				continue;
+			}
+
+			if (auto pConstantBufferData = pReflector->GetConstantBufferByName(currConstantBuffer.first.c_str()))
+			{
+				if (FAILED(pConstantBufferData->GetDesc(&constantBufferInfoDesc)))
+				{
+					continue;
+				}
+
+				currConstantBuffer.second.mSize = std::max<U32>(currConstantBuffer.second.mSize, constantBufferInfoDesc.Size);
+			}
 		}
 
 		U32 size = pBytecodeBuffer->GetBufferSize();
