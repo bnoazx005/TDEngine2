@@ -61,9 +61,10 @@ out vec4 FragColor;
 
 void main(void)
 {
+	// \fixme Normal mapping doesn't look correctly
 	vec3 normal = VertOutTBN * (2.0 * TEX2D(NormalMap, VertOutUV).xyz - 1.0);
 
-	LightingData lightingData = CreateLightingData(VertOutWorldPos, vec4(normal, 0.0), 
+	LightingData lightingData = CreateLightingData(VertOutWorldPos, vec4(VertOutNormal.xyz, 0.0), 
 												   normalize(CameraPosition - VertOutWorldPos), 
 												   GammaToLinear(TEX2D(AlbedoMap, VertOutUV)),
 												   TEX2D(PropertiesMap, VertOutUV));
