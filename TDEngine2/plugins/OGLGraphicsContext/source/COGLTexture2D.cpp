@@ -83,7 +83,7 @@ namespace TDEngine2
 		std::vector<U8> pPixelData(mWidth * mHeight * COGLMappings::GetFormatSize(mFormat));
 
 		Bind(0);
-		GL_SAFE_VOID_CALL(glGetTexImage(GL_TEXTURE_2D, 0, COGLMappings::GetPixelDataFormat(mFormat), GL_UNSIGNED_BYTE, reinterpret_cast<void*>(&pPixelData[0])));
+		GL_SAFE_VOID_CALL(glGetTexImage(GL_TEXTURE_2D, 0, COGLMappings::GetPixelDataFormat(mFormat), COGLMappings::GetBaseTypeOfFormat(mFormat), reinterpret_cast<void*>(&pPixelData[0])));
 		
 		if (COGLMappings::GetErrorCode(glGetError()) != RC_OK)
 		{

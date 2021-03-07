@@ -9,7 +9,7 @@
 namespace TDEngine2
 {
 	COGLRenderTarget::COGLRenderTarget() :
-		CBaseRenderTarget(), mTextureHandler(0)
+		CBaseRenderTarget(), mTextureHandler(0), mTempFrameBufferHandler(0)
 	{
 	}
 
@@ -40,8 +40,10 @@ namespace TDEngine2
 		mIsInitialized = false;
 
 		GL_SAFE_CALL(glDeleteTextures(1, &mTextureHandler));
+		GL_SAFE_CALL(glDeleteFramebuffers(1, &mTempFrameBufferHandler));
 
 		mTextureHandler = 0;
+		mTempFrameBufferHandler = 0;
 
 		return RC_OK;
 	}
@@ -61,75 +63,14 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-#if 0
-		GLuint tempFramebuffer = 0;
-		GL_SAFE_VOID_CALL(glGenFramebuffers(1, &tempFramebuffer));
-
-
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, tempFramebuffer));
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, tempFramebuffer));
-
-		// bind source texture to color attachment
-		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
-		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextureHandler, 0));
-		GL_SAFE_VOID_CALL(glDrawBuffer(GL_COLOR_ATTACHMENT0));
-
-		// bind destination texture to another color attachment
-		auto id = dynamic_cast<COGLTexture2D*>(pDestTexture)->GetInternalHandler();
-		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, id));
-		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, id, 0));
-		GL_SAFE_VOID_CALL(glReadBuffer(GL_COLOR_ATTACHMENT1));
-
-		glViewport(0, 0, mWidth, mHeight);
-
-		GL_SAFE_VOID_CALL(glBlitFramebuffer(0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST));
-
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		glDeleteFramebuffers(1, &tempFramebuffer);
-#endif
-
-#if 0
-		GLuint tempFramebuffer = 0;
-		GL_SAFE_VOID_CALL(glGenFramebuffers(1, &tempFramebuffer));
-
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, tempFramebuffer));
-		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextureHandler, 0));
-		GL_SAFE_VOID_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0));
+		GL_SAFE_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mTempFrameBufferHandler));
 		glViewport(0, 0, mWidth, mHeight);
 
 		pDestTexture->Bind(0);
 
-		GL_SAFE_VOID_CALL(glCopyTexImage2D(GL_TEXTURE_2D, 0,GL_R32UI, 0, 0, mWidth, mHeight, 0));
+		GL_SAFE_CALL(glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, 0, 0, mWidth, mHeight, 0));
 
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		glDeleteFramebuffers(1, &tempFramebuffer);
-#endif
-
-#if 1
-		GLuint tempFramebuffer = 0;
-		/*GL_SAFE_VOID_CALL(glGenFramebuffers(1, &tempFramebuffer));
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, tempFramebuffer));
-		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextureHandler, 0));	*/	
-		//GL_SAFE_VOID_CALL(glReadBuffer(GL_BACK));
-
-		TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
-		//glViewport(0, 0, mWidth, mHeight);
-
-		GLubyte *data = new GLubyte[mWidth * mHeight * COGLMappings::GetFormatSize(mFormat)];
-
-		GL_SAFE_VOID_CALL(glReadPixels(0, 0, mWidth, mHeight, COGLMappings::GetPixelDataFormat(mFormat), GL_BYTE, data));
-
-		E_RESULT_CODE result = pDestTexture->WriteData({ 0, 0, static_cast<I32>(mWidth), static_cast<I32>(mHeight) }, data);
-		if (RC_OK != result)
-		{
-			return result;
-		}
-
-		//GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		//glDeleteFramebuffers(1, &tempFramebuffer);
-
-		delete[] data;
-#endif
+		GL_SAFE_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 		return RC_OK;
 	}
@@ -166,6 +107,15 @@ namespace TDEngine2
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// \note Create a temporary FBO for blit operations
+		GL_SAFE_CALL(glGenFramebuffers(1, &mTempFrameBufferHandler));
+
+		GL_SAFE_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mTempFrameBufferHandler));
+		GL_SAFE_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextureHandler, 0));
+		GL_SAFE_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0));
+
+		GL_SAFE_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 		return RC_OK;
 	}

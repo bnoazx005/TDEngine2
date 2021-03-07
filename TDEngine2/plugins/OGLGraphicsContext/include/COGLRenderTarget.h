@@ -103,6 +103,7 @@ namespace TDEngine2
 																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) override;
 		protected:
 			GLuint mTextureHandler;
+			GLuint mTempFrameBufferHandler;
 	};
 
 

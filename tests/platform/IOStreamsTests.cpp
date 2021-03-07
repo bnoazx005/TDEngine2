@@ -45,7 +45,7 @@ TEST_CASE("CMemoryInputStream Tests")
 
 			std::string actualData = pStream->ReadToEnd();
 
-			for (int i = 0; i < actualData.size(); ++i)
+			for (size_t i = 0; i < actualData.size(); ++i)
 			{
 				REQUIRE(static_cast<U8>(actualData[i]) == data[i]);
 			}
