@@ -514,7 +514,8 @@ namespace TDEngine2
 	{
 		const static TGraphicsContextInfo infoData
 		{
-			{ { -1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } }
+			{ { -1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
+			false
 		};
 
 		return infoData;

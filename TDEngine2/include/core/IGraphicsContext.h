@@ -50,6 +50,7 @@ namespace TDEngine2
 	typedef struct TGraphicsContextInfo
 	{
 		TAABB mNDCBox; ///< Determines sizes of NDC specific for the graphics API
+		bool mIsTextureYCoordInverted; /// Under GL context it equals to true
 	} TGraphicsContextInfo, *TGraphicsContextInfoPtr;
 
 

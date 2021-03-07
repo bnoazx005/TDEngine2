@@ -103,7 +103,10 @@ namespace TDEngine2
 
 		if (auto pSelectionTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResource(mReadableSelectionBufferHandle)))
 		{
-			y = pSelectionTexture->GetHeight() - y;
+			if (!mpGraphicsContext->GetContextInfo().mIsTextureYCoordInverted)
+			{
+				y = pSelectionTexture->GetHeight() - y;
+			}
 
 			auto&& selectionMapData = pSelectionTexture->GetInternalData();
 			

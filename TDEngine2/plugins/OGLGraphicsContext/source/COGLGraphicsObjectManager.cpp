@@ -303,7 +303,7 @@ namespace TDEngine2
 
 					void main(void)
 					{
-						FragColor = uint(ObjectID);
+						FragColor = uint(ObjectID + uint(1));
 					}
 					#endprogram
 					)";
