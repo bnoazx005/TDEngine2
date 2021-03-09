@@ -150,6 +150,8 @@
 #include "graphics/animation/CBaseAnimationTrack.h"
 #include "graphics/animation/AnimationTracks.h"
 #include "graphics/animation/CAnimationContainerComponent.h"
+#include "graphics/IParticleEffect.h"
+#include "graphics/CParticleEffect.h"
 
 /// audio
 #include "audio/IAudioSource.h"

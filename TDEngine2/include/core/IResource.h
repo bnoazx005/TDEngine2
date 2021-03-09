@@ -95,5 +95,7 @@ namespace TDEngine2
 			TDE2_API virtual TypeId GetResourceTypeId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResource)
+
+			static constexpr U32 mAssetsVersionTag = 0x1;
 	};
 }

@@ -34,6 +34,7 @@
 #include "../../include/graphics/CForwardRenderer.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/CTextureAtlas.h"
+#include "../../include/graphics/CParticleEffect.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/editor/CEditorsManager.h"
@@ -678,6 +679,7 @@ namespace TDEngine2
 			{ CreateStaticMeshLoader, CreateStaticMeshFactory },
 			{ CreateBasePostProcessingProfileLoader, CreateBasePostProcessingProfileFactory },
 			{ CreateAnimationClipLoader, CreateAnimationClipFactory },
+			{ CreateParticleEffectLoader, CreateParticleEffectFactory },
 		};
 
 		/// create material loader
