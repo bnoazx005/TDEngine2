@@ -182,9 +182,9 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked)
+	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked, bool makeInvisible)
 	{
-		if (ImGui::Button(text.c_str(), ImVec2(sizes.x, sizes.y)))
+		if ((makeInvisible ? ImGui::InvisibleButton : ImGui::Button)(text.c_str(), ImVec2(sizes.x, sizes.y)))
 		{
 			if (onClicked)
 			{

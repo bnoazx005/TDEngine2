@@ -164,11 +164,12 @@ namespace TDEngine2
 				\param[in] text A text that will be displayed on top of the button
 				\param[in] sizes A vector that defines width and height of the button
 				\param[in] onClicked A callback that's called when a user clicks over the menu item
+				\param[in] makeInvisible If true the button won't be displayed, but still processes all clicks over it
 
 				\return The method returns true if the button was pressed, false in other cases
 			*/
 
-			TDE2_API bool Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked = {}) override;
+			TDE2_API bool Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked = {}, bool makeInvisible = false) override;
 
 			/*!
 				\brief The method creates a check box

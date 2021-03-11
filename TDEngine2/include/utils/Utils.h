@@ -719,4 +719,22 @@ namespace TDEngine2
 
 	template <typename T> using TResult = Wrench::Result<T, E_RESULT_CODE>;
 
+
+	template <typename T>
+	inline TDE2_API
+#if _HAS_CXX17
+	std::enable_if_t<std::is_function<T>::value, void>
+#else
+	typename std::enable_if<std::is_function<T>::value, void>::type
+#endif  
+	SafeCallback(const T& callback)
+	{
+		if (!callback)
+		{
+			return;
+		}
+
+		callback();
+	}
+
 }
