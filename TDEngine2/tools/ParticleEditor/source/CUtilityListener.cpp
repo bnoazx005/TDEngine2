@@ -35,6 +35,22 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
 	mpParticleEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
 
+
+	auto imgui = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
+
+	static bool isOpened = true;
+	if (imgui->BeginWindow("Hello, World!", isOpened, {}))
+	{
+		TVector2 pos = imgui->GetCursorScreenPos();
+
+		auto a = pos;
+		auto b = pos + TVector2(100.0f, 100.0f);
+
+		imgui->DrawCubicBezier(a, a, b, b, TColorUtils::mGreen);
+
+		imgui->EndWindow();
+	}
+
 	return RC_OK;
 }
 

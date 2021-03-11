@@ -286,7 +286,7 @@ namespace TDEngine2
 			value = TVector3(rawValue);
 			onValueChanged();
 		}
-
+		
 		_prepareLayout();
 	}
 
@@ -373,9 +373,19 @@ namespace TDEngine2
 		_getCurrActiveDrawList()->AddLine(start, end, PackColor32F(color), thickness);
 	}
 
+	void CImGUIContext::DrawCubicBezier(const TVector2& p0, const TVector2& t0, const TVector2& p1, const TVector2& t1, const TColor32F& color, F32 thickness)
+	{
+		_getCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackColor32F(color), thickness);
+	}
+
 	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color)
 	{
 		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackColor32F(color));
+	}
+
+	void CImGUIContext::DrawText(const TVector2& pos, const TColor32F& color, const std::string& text)
+	{
+		_getCurrActiveDrawList()->AddText(pos, PackColor32F(color), text.c_str());
 	}
 
 	bool CImGUIContext::DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,

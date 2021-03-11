@@ -343,6 +343,12 @@ namespace TDEngine2
 			TDE2_API virtual void DrawLine(const TVector2& start, const TVector2& end, const TColor32F& color, F32 thickness = 1.0f) = 0;
 
 			/*!
+				\brief The method draws a cubic Bezier line
+			*/
+
+			TDE2_API virtual void DrawCubicBezier(const TVector2& p0, const TVector2& t0, const TVector2& p1, const TVector2& t1, const TColor32F& color, F32 thickness = 1.0f) = 0;
+
+			/*!
 				\brief The method draws a rectangle within the current active window
 
 				\param[in] rect A rectangle's parameters
@@ -350,6 +356,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void DrawRect(const TRectF32& rect, const TColor32F& color) = 0;
+
+			/*!
+				\brief The method draws given text
+			*/
+
+			TDE2_API virtual void DrawText(const TVector2& pos, const TColor32F& color, const std::string& text) = 0;
 
 			/*!
 				\brief The method draws manipulators for the transform based on ImGuizmo library
