@@ -370,22 +370,33 @@ namespace TDEngine2
 
 	void CImGUIContext::DrawLine(const TVector2& start, const TVector2& end, const TColor32F& color, F32 thickness)
 	{
-		_getCurrActiveDrawList()->AddLine(start, end, PackARGBColor32F(color), thickness);
+		_getCurrActiveDrawList()->AddLine(start, end, PackABGRColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawCubicBezier(const TVector2& p0, const TVector2& t0, const TVector2& p1, const TVector2& t1, const TColor32F& color, F32 thickness)
 	{
-		_getCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackARGBColor32F(color), thickness);
+		_getCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackABGRColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color)
 	{
-		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackARGBColor32F(color));
+		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackABGRColor32F(color));
+	}
+
+	void CImGUIContext::DrawCircle(const TVector2& center, F32 radius, bool isFilled, const TColor32F& color, F32 thickness)
+	{
+		if (isFilled)
+		{
+			_getCurrActiveDrawList()->AddCircleFilled(center, radius, PackABGRColor32F(color), 12);
+			return;
+		}
+
+		_getCurrActiveDrawList()->AddCircle(center, radius, PackABGRColor32F(color), 12, thickness);
 	}
 
 	void CImGUIContext::DrawText(const TVector2& pos, const TColor32F& color, const std::string& text)
 	{
-		_getCurrActiveDrawList()->AddText(pos, PackARGBColor32F(color), text.c_str());
+		_getCurrActiveDrawList()->AddText(pos, PackABGRColor32F(color), text.c_str());
 	}
 
 	bool CImGUIContext::DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
@@ -469,6 +480,18 @@ namespace TDEngine2
 		}
 
 		EndChildWindow();
+	}
+
+	void CImGUIContext::DisplayIDGroup(I32 id, const std::function<void()>& idGroupCallback)
+	{
+		ImGui::PushID(id);
+
+		if (idGroupCallback)
+		{
+			idGroupCallback();
+		}
+
+		ImGui::PopID();
 	}
 
 	I32 CImGUIContext::Popup(const std::string& label, I32 currSelectedItem, const std::vector<std::string>& items)
@@ -598,6 +621,11 @@ namespace TDEngine2
 		ImGui::EndChild();
 	}
 
+	void CImGUIContext::SetCursorScreenPos(const TVector2& pos)
+	{
+		ImGui::SetCursorScreenPos(pos);
+	}
+
 	void CImGUIContext::RegisterDragAndDropSource(const std::function<void()>& action)
 	{
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
@@ -644,9 +672,24 @@ namespace TDEngine2
 		return ImGui::CalcTextSize(&text.front(), &text.front() + text.length());
 	}
 
+	bool CImGUIContext::IsItemActive() const
+	{
+		return ImGui::IsItemActive();
+	}
+		
 	bool CImGUIContext::IsMouseOverUI() const
 	{
 		return mpIOContext->WantCaptureMouse;
+	}
+
+	bool CImGUIContext::IsMouseDragging(U8 buttonId) const
+	{
+		return ImGui::IsMouseDragging(static_cast<I32>(buttonId));
+	}
+
+	TVector2 CImGUIContext::GetMousePosition() const
+	{
+		return mpIOContext->MousePos;
 	}
 
 	E_RESULT_CODE CImGUIContext::_initInternalImGUIContext(ImGuiIO& io)

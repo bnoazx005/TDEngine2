@@ -89,12 +89,12 @@ namespace TDEngine2
 		\return A signle U32 value with 8 bits per channel
 	*/
 
-	TDE2_API constexpr U32 PackARGBColor32F(const TColor32F& color)
+	TDE2_API constexpr U32 PackABGRColor32F(const TColor32F& color)
 	{
 		return (static_cast<U8>(color.a * 255) << 24) |
-			(static_cast<U8>(color.r * 255) << 16) |
+			(static_cast<U8>(color.b * 255) << 16) |
 			(static_cast<U8>(color.g * 255) << 8) |
-			static_cast<U8>(color.b * 255);
+			static_cast<U8>(color.r * 255);
 	}
 
 

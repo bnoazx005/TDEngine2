@@ -370,6 +370,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void DrawRect(const TRectF32& rect, const TColor32F& color) = 0;
 
+			TDE2_API virtual void DrawCircle(const TVector2& center, F32 radius, bool isFilled, const TColor32F& color, F32 thickness = 1.0f) = 0;
+
 			/*!
 				\brief The method draws given text
 			*/
@@ -510,6 +512,14 @@ namespace TDEngine2
 			TDE2_API virtual void DrawPlotGrid(const std::string& name, const TPlotGridParams& params, const std::function<void(const TVector2&)>& onGridCallback = {}) = 0;
 
 			/*!
+				\brief The method moves current position of the cursor to given point
+			*/
+
+			TDE2_API virtual void SetCursorScreenPos(const TVector2& pos) = 0;
+
+			TDE2_API virtual void DisplayIDGroup(I32 id, const std::function<void()>& idGroupCallback = {}) = 0;
+
+			/*!
 				\brief The method provides implementation of drag & drop source
 
 				\param[in] action A callback in which all the stuff for register should be executed
@@ -572,11 +582,17 @@ namespace TDEngine2
 
 			TDE2_API virtual TVector2 GetTextSizes(const std::string& text) const = 0;
 
+			TDE2_API virtual bool IsItemActive() const = 0;
+
 			/*!
 				\return The method returns true when the cursor is over some ImGUI element
 			*/
 
 			TDE2_API virtual bool IsMouseOverUI() const = 0;
+
+			TDE2_API virtual bool IsMouseDragging(U8 buttonId) const = 0;
+
+			TDE2_API virtual TVector2 GetMousePosition() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_IMGUI_CONTEXT; }
 		protected:

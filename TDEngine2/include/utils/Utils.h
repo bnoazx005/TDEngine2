@@ -727,7 +727,7 @@ namespace TDEngine2
 #else
 	typename std::enable_if<std::is_function<T>::value, void>::type
 #endif  
-	SafeCallback(const T& callback)
+	SafeCallback(T callback)
 	{
 		if (!callback)
 		{

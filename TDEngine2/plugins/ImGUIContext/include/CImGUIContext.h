@@ -363,6 +363,8 @@ namespace TDEngine2
 
 			TDE2_API void DrawRect(const TRectF32& rect, const TColor32F& color) override;
 
+			TDE2_API void DrawCircle(const TVector2& center, F32 radius, bool isFilled, const TColor32F& color, F32 thickness = 1.0f) override;
+
 			/*!
 				\brief The method draws given text
 			*/
@@ -503,6 +505,14 @@ namespace TDEngine2
 			TDE2_API void EndChildWindow() override;
 
 			/*!
+				\brief The method moves current position of the cursor to given point
+			*/
+
+			TDE2_API void SetCursorScreenPos(const TVector2& pos) override;
+
+			TDE2_API void DisplayIDGroup(I32 id, const std::function<void()>& idGroupCallback = {}) override;
+
+			/*!
 				\brief The method provides implementation of drag & drop source
 
 				\param[in] action A callback in which all the stuff for register should be executed
@@ -553,11 +563,17 @@ namespace TDEngine2
 
 			TDE2_API TVector2 GetTextSizes(const std::string& text) const override;
 
+			TDE2_API bool IsItemActive() const override;
+
 			/*!
 				\return The method returns true when the cursor is over some ImGUI element
 			*/
 
 			TDE2_API bool IsMouseOverUI() const override;
+
+			TDE2_API bool IsMouseDragging(U8 buttonId) const override;
+
+			TDE2_API TVector2 GetMousePosition() const override;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUIContext)
