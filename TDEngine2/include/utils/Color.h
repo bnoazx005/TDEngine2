@@ -82,6 +82,23 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The function packs a given color into single U32 value
+
+		\param[in] color A color of TColor32F format, 4 bytes per channel
+
+		\return A signle U32 value with 8 bits per channel
+	*/
+
+	TDE2_API constexpr U32 PackARGBColor32F(const TColor32F& color)
+	{
+		return (static_cast<U8>(color.a * 255) << 24) |
+			(static_cast<U8>(color.r * 255) << 16) |
+			(static_cast<U8>(color.g * 255) << 8) |
+			static_cast<U8>(color.b * 255);
+	}
+
+
+	/*!
 		\brief TColor32F's Serialization/Deserialization helpers
 	*/
 

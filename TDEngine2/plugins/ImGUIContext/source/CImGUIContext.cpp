@@ -146,6 +146,8 @@ namespace TDEngine2
 		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
 
 		mUsedResourcesRegistry.clear();
+
+		ImGui::ShowDemoWindow();
 	}
 
 	void CImGUIContext::EndFrame()
@@ -370,22 +372,22 @@ namespace TDEngine2
 
 	void CImGUIContext::DrawLine(const TVector2& start, const TVector2& end, const TColor32F& color, F32 thickness)
 	{
-		_getCurrActiveDrawList()->AddLine(start, end, PackColor32F(color), thickness);
+		_getCurrActiveDrawList()->AddLine(start, end, PackARGBColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawCubicBezier(const TVector2& p0, const TVector2& t0, const TVector2& p1, const TVector2& t1, const TColor32F& color, F32 thickness)
 	{
-		_getCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackColor32F(color), thickness);
+		_getCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackARGBColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color)
 	{
-		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackColor32F(color));
+		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackARGBColor32F(color));
 	}
 
 	void CImGUIContext::DrawText(const TVector2& pos, const TColor32F& color, const std::string& text)
 	{
-		_getCurrActiveDrawList()->AddText(pos, PackColor32F(color), text.c_str());
+		_getCurrActiveDrawList()->AddText(pos, PackARGBColor32F(color), text.c_str());
 	}
 
 	bool CImGUIContext::DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
