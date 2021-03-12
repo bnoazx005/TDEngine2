@@ -94,6 +94,19 @@ namespace TDEngine2
 				TDE2_API TWindowParams(const TWindowParams&) = default;
 				TDE2_API TWindowParams(TWindowParams&&) = default;
 			} TWindowParams, *TWindowParamsPtr;
+
+			typedef struct TPlotGridParams
+			{
+				F32 mWidth;
+				F32 mHeight;
+				
+				U8 mColsCount = 5;
+				U8 mRowsCount = 5;
+
+				TColor32F mBackgroundColor = { 0.5f, 0.5f, 0.5f, 1.0f };
+				TColor32F mAxesColor = { 0.4f, 0.4f, 0.4f, 1.0f };
+			} TPlotGridParams, *TPlotGridParamsPtr;
+
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
@@ -489,6 +502,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void EndChildWindow() = 0;
+
+			/*!
+				\brief The method draws a plot's grid with input handling, scaling, moving, etc
+			*/
+
+			TDE2_API virtual void DrawPlotGrid(const std::string& name, const TPlotGridParams& params, const std::function<void(const TVector2&)>& onGridCallback = {}) = 0;
 
 			/*!
 				\brief The method provides implementation of drag & drop source

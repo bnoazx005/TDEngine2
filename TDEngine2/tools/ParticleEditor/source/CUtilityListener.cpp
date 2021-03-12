@@ -41,12 +41,26 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 	static bool isOpened = true;
 	if (imgui->BeginWindow("Hello, World!", isOpened, {}))
 	{
-		TVector2 pos = imgui->GetCursorScreenPos();
+		const F32 width = imgui->GetWindowWidth() - 20.0f;
+		const F32 height = imgui->GetWindowHeight();
 
-		auto a = pos;
-		auto b = pos + TVector2(100.0f, 100.0f);
+		static TVector2 p = ZeroVector2;
 
-		imgui->DrawCubicBezier(a, a, b, b, TColorUtils::mGreen);
+		auto t = p;
+		imgui->Vector2Field("p", t, [&] { p = t; });
+
+		imgui->DrawPlotGrid("Plot", { width, height - 100.0f }, [&](auto&& pos)
+		{
+			/*imgui->FloatSlider("px", p.x, -100.0f, 100.0f);
+			imgui->FloatSlider("py", p.y, -100.0f, 100.0f);*/
+
+
+			auto a = pos;
+			auto b = pos + TVector2(width, height - 100.0f);
+
+
+			imgui->DrawCubicBezier(a, a + p, b, b + TVector2(-200.0f, 0.0f), TColorUtils::mGreen);
+		});
 
 		imgui->EndWindow();
 	}

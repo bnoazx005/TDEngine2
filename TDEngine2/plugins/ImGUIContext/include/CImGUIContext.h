@@ -377,7 +377,13 @@ namespace TDEngine2
 
 			TDE2_API bool DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
 									const std::function<void(const TVector3&, const TQuaternion&, const TVector3)>& onUpdate) override;
-			
+
+			/*!
+				\brief The method draws a plot's grid with input handling, scaling, moving, etc
+			*/
+
+			TDE2_API void DrawPlotGrid(const std::string& name, const TPlotGridParams& params, const std::function<void(const TVector2&)>& onGridCallback = {}) override;
+
 			/*!
 				\brief The method displays a combo box with a set of items
 
