@@ -103,6 +103,8 @@ namespace TDEngine2
 				U8 mColsCount = 5;
 				U8 mRowsCount = 5;
 
+				TRectF32 mFrame;
+
 				TColor32F mBackgroundColor = { 0.5f, 0.5f, 0.5f, 1.0f };
 				TColor32F mAxesColor = { 0.4f, 0.4f, 0.4f, 1.0f };
 			} TPlotGridParams, *TPlotGridParamsPtr;

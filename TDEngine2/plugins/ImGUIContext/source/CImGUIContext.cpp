@@ -455,23 +455,30 @@ namespace TDEngine2
 
 		// draw grid
 		const F32 xStep = width / static_cast<F32>(params.mColsCount);
+		const F32 xFrameStep = params.mFrame.width / static_cast<F32>(params.mColsCount);
 
 		for (U8 i = 0; i < params.mColsCount; ++i)
 		{
 			const TVector2& p0 = pos + (i * xStep) * RightVector2;
 
 			DrawLine(p0, p0 + TVector2(0.0f, height), params.mAxesColor);
-			DrawText(pos + (i * xStep + 10.f) * RightVector2 + TVector2(0.0f, height - 20.0f), params.mAxesColor, Wrench::StringUtils::Format("{0}", static_cast<I32>(i)));
+
+			const F32 currCoord = params.mFrame.x + i * xFrameStep;
+
+			DrawText(pos + (i * xStep + 10.f) * RightVector2 + TVector2(0.0f, height - 20.0f), params.mAxesColor, Wrench::StringUtils::Format("{0}", currCoord));
 		}
 
 		const F32 yStep = height / static_cast<F32>(params.mRowsCount);
+		const F32 yFrameStep = params.mFrame.height / static_cast<F32>(params.mRowsCount);
 
 		for (U8 i = 0; i < params.mRowsCount; ++i)
 		{
 			const TVector2& p0 = pos + (i * yStep) * UpVector2;
 
+			const F32 currCoord = params.mFrame.height - i * yFrameStep;
+
 			DrawLine(p0, p0 + TVector2(width, 0.0f), params.mAxesColor);
-			DrawText(pos + (i * yStep + 10.f) * UpVector2, params.mAxesColor, Wrench::StringUtils::Format("{0}", static_cast<I32>(params.mRowsCount - i)));
+			DrawText(pos + (i * yStep + 10.f) * UpVector2, params.mAxesColor, Wrench::StringUtils::Format("{0}", currCoord));
 		}
 
 		if (onGridCallback)

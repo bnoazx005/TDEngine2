@@ -41,25 +41,69 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 	static bool isOpened = true;
 	if (imgui->BeginWindow("Hello, World!", isOpened, {}))
 	{
-		const F32 width = imgui->GetWindowWidth() - 20.0f;
+		const F32 width = imgui->GetWindowWidth() - 15.0f;
 		const F32 height = imgui->GetWindowHeight();
 
-		static TVector2 p = ZeroVector2;
-
-		auto t = p;
-		imgui->Vector2Field("p", t, [&] { p = t; });
-
-		imgui->DrawPlotGrid("Plot", { width, height - 100.0f }, [&](auto&& pos)
+		static TVector2 tangents[2]
 		{
-			/*imgui->FloatSlider("px", p.x, -100.0f, 100.0f);
-			imgui->FloatSlider("py", p.y, -100.0f, 100.0f);*/
+			TVector2(200.0f, 0.0f),
+			TVector2(-200.0f, 0.0f)
+		};
 
+		TVector2* pT0 = &tangents[0];
+		TVector2* pT1 = &tangents[1];
 
+		imgui->DrawPlotGrid("Plot", { width, height - 100.0f, 5, 5, { 0.0f, 0.0f, 1.0f, 1.0f } }, [&](auto&& pos)
+		{
 			auto a = pos;
 			auto b = pos + TVector2(width, height - 100.0f);
 
+			imgui->DrawCubicBezier(a, a + tangents[0], b, b + tangents[1], TColorUtils::mGreen);
 
-			imgui->DrawCubicBezier(a, a + p, b, b + TVector2(-200.0f, 0.0f), TColorUtils::mGreen);
+			imgui->DisplayIDGroup(0, [&, t = *pT0]
+			{
+				imgui->DrawLine(a, a + t, TColorUtils::mWhite);
+				imgui->DrawCircle(a + t, 5.0f, true, TColorUtils::mBlue);
+
+				auto pos = imgui->GetCursorScreenPos();
+
+				imgui->SetCursorScreenPos(a + t);
+
+				imgui->Button("", TVector2(30.0f, 30.0f), {}, true);
+
+				if (imgui->IsItemActive() && imgui->IsMouseDragging(0))
+				{
+					auto&& mousePos = imgui->GetMousePosition();
+
+					pT0->x = mousePos.x - a.x;
+					pT0->y = mousePos.y - a.y;
+				}
+
+				imgui->SetCursorScreenPos(pos);
+			});
+
+			imgui->DisplayIDGroup(1, [&, t = tangents[1]]
+			{
+				imgui->DrawLine(b, b + t, TColorUtils::mWhite);
+				imgui->DrawCircle(b + t, 5.0f, true, TColorUtils::mBlue);
+
+				auto pos = imgui->GetCursorScreenPos();
+
+				imgui->SetCursorScreenPos(b + t);
+
+				imgui->Button("", TVector2(30.0f, 30.0f), {}, true);
+
+				if (imgui->IsItemActive() && imgui->IsMouseDragging(0))
+				{
+					auto&& mousePos = imgui->GetMousePosition();
+
+					pT1->x = mousePos.x - b.x;
+					pT1->y = mousePos.y - b.y;
+				}
+
+
+				imgui->SetCursorScreenPos(pos);
+			});
 		});
 
 		imgui->EndWindow();
