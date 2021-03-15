@@ -52,6 +52,14 @@ namespace TDEngine2
 
 			template <typename T>
 			TDE2_API static inline T Lerp(const T& a, const T& b, F32 t) { return static_cast<T>(a * (1.0f - t) + b * t); }
+
+			template <typename T>
+			TDE2_API static inline T CubicBezierInterpolation(F32 t, const T& p0, const T& t0, const T& p1, const T& t1)
+			{
+				const F32 invT = 1.0f - t;
+
+				return p0 * (invT * invT * invT) + t0 * (3.0f * invT * invT * t) + p1 * (3.0f * invT * t * t) + t1 * (t * t * t);
+			}
 	};
 
 

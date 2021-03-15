@@ -10,6 +10,7 @@
 #include "../../core/CBaseObject.h"
 #include "../../core/Serialization.h"
 #include "../../math/TRect.h"
+#include "../../math/TVector2.h"
 #include <vector>
 
 
@@ -46,8 +47,8 @@ namespace TDEngine2
 				F32 mTime;
 				F32 mValue;
 
-				F32 mInTangent;
-				F32 mOutTangent;
+				TVector2 mInTangent;
+				TVector2 mOutTangent;
 			} TKeyFrame;
 
 			typedef std::vector<TKeyFrame> TKeysArray;
@@ -117,6 +118,8 @@ namespace TDEngine2
 
 			TDE2_API F32 Sample(F32 t) const;
 
+			TKeyFrame* GetPoint(U32 index);
+
 			TDE2_API const TRectF32& GetBounds() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationCurve)
@@ -127,6 +130,8 @@ namespace TDEngine2
 
 			TDE2_API U32 _getFrameIndexByTime(F32 time) const;
 			TDE2_API F32 _adjustTrackTime(F32 time) const;
+
+			TDE2_API E_RESULT_CODE _updateBounds();
 		protected:
 			TRectF32 mBounds;
 

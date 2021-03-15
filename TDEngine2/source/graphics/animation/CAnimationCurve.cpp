@@ -73,9 +73,7 @@ namespace TDEngine2
 		// \note Insert a new point, but keep mPoints array in sorted state
 		mPoints.insert(std::find_if(mPoints.cbegin(), mPoints.cend(), [t = point.mTime](const TKeyFrame& other) { return other.mTime > t; }), point);
 		
-		// \note Update boundaries of the curve
-
-		return RC_OK;
+		return _updateBounds(); // \note Update boundaries of the curve
 	}
 
 	E_RESULT_CODE CAnimationCurve::RemovePoint(U32 index)
@@ -87,7 +85,7 @@ namespace TDEngine2
 
 		mPoints.erase(mPoints.cbegin() + index);
 
-		return RC_OK;
+		return _updateBounds();
 	}
 
 	F32 CAnimationCurve::Sample(F32 t) const
@@ -97,12 +95,45 @@ namespace TDEngine2
 			return 0.0f;
 		}
 
-		return 0.0f;
+		const U32 index = _getFrameIndexByTime(t);
+		if (index < 0 || index >= static_cast<U32>(mPoints.size()) - 1)
+		{
+			return index >= 0 ? mPoints.back().mValue : 0.0f;
+		}
+
+		const I32 nextIndex = index + 1;
+
+		const TKeyFrame& currPoint = mPoints[index];
+		const TKeyFrame& nextPoint = mPoints[nextIndex];
+
+		const F32 trackTime = _adjustTrackTime(t);
+		const F32 thisTime = currPoint.mTime;
+
+		const F32 frameDelta = nextPoint.mTime - thisTime;
+
+		if (CMathUtils::IsLessOrEqual(frameDelta, 0.0f))
+		{
+			return 0.0f;
+		}
+
+		return CMathUtils::CubicBezierInterpolation<TVector2>((trackTime - thisTime) / frameDelta, 
+															  { currPoint.mTime, currPoint.mValue }, currPoint.mOutTangent, 
+															  { nextPoint.mTime, nextPoint.mValue }, nextPoint.mInTangent).y;
 	}
 
 	const TRectF32& CAnimationCurve::GetBounds() const
 	{
 		return mBounds;
+	}
+
+	CAnimationCurve::TKeyFrame* CAnimationCurve::GetPoint(U32 index)
+	{
+		if (index >= static_cast<U32>(mPoints.size()))
+		{
+			return nullptr;
+		}
+
+		return &mPoints[index];
 	}
 
 	U32 CAnimationCurve::_getFrameIndexByTime(F32 time) const
@@ -123,14 +154,14 @@ namespace TDEngine2
 
 		if (CMathUtils::IsGreatOrEqual(time, mPoints[mPoints.size() - 2].mTime))
 		{
-			return static_cast<I32>(mPoints.size()) - 2;
+			return static_cast<U32>(mPoints.size()) - 1;
 		}
 
 		for (auto it = mPoints.rbegin(); it != mPoints.rend(); ++it)
 		{
 			if (CMathUtils::IsGreatOrEqual(time, it->mTime))
 			{
-				return static_cast<I32>(std::distance(mPoints.rend(), it));
+				return static_cast<U32>(std::distance(mPoints.rend(), it));
 			}
 		}
 
@@ -165,6 +196,28 @@ namespace TDEngine2
 		}
 
 		return time;
+	}
+
+	E_RESULT_CODE CAnimationCurve::_updateBounds()
+	{
+		TVector2 min{ (std::numeric_limits<F32>::max)() };
+		TVector2 max{ -(std::numeric_limits<F32>::max)() };
+
+		for (auto&& currPoint : mPoints)
+		{
+			min.x = std::min<F32>(min.x, currPoint.mTime);
+			max.x = std::max<F32>(max.x, currPoint.mTime);
+
+			min.y = std::min<F32>(min.y, currPoint.mValue);
+			max.y = std::max<F32>(max.y, currPoint.mValue);
+		}
+
+		mBounds.x      = min.x;
+		mBounds.y      = min.y;
+		mBounds.width  = max.x - min.x;
+		mBounds.height = max.y - min.y;
+
+		return RC_OK;
 	}
 
 
