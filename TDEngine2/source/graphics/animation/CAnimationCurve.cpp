@@ -5,6 +5,22 @@
 
 namespace TDEngine2
 {
+	struct TAnimationCurveKeys
+	{
+		const static std::string mPointsKeyId;
+		const static std::string mTimeKeyId;
+		const static std::string mValueKeyId;
+		const static std::string mInTangentKeyId;
+		const static std::string mOutTangentKeyId;
+	};
+
+	const std::string TAnimationCurveKeys::mPointsKeyId = "points";
+	const std::string TAnimationCurveKeys::mTimeKeyId = "time";
+	const std::string TAnimationCurveKeys::mValueKeyId = "value";
+	const std::string TAnimationCurveKeys::mInTangentKeyId = "in_tangent";
+	const std::string TAnimationCurveKeys::mOutTangentKeyId = "out_tangent";
+
+
 	CAnimationCurve::CAnimationCurve() :
 		CBaseObject()
 	{
@@ -48,7 +64,50 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		return RC_OK;
+		F32 time, value;
+		TVector2 in, out;
+
+		pReader->BeginGroup(TAnimationCurveKeys::mPointsKeyId);
+		
+		while (pReader->HasNextItem())
+		{
+			pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+			
+			time = pReader->GetFloat(TAnimationCurveKeys::mTimeKeyId);
+			value = pReader->GetFloat(TAnimationCurveKeys::mValueKeyId);
+
+			pReader->BeginGroup(TAnimationCurveKeys::mInTangentKeyId);
+
+			auto inTangentResult = LoadVector2(pReader);
+			if (inTangentResult.HasError())
+			{
+				return inTangentResult.GetError();
+			}
+
+			in = inTangentResult.Get();
+
+			pReader->EndGroup();
+
+			pReader->BeginGroup(TAnimationCurveKeys::mOutTangentKeyId);
+
+			auto outTangentResult = LoadVector2(pReader);
+			if (outTangentResult.HasError())
+			{
+				return outTangentResult.GetError();
+			}
+
+			out = outTangentResult.Get();
+
+			pReader->EndGroup();
+
+			pReader->EndGroup();
+
+			AddPoint({ time, value, in, out });
+		}
+		
+		pReader->EndGroup();
+
+		return _updateBounds();
 	}
 	
 	E_RESULT_CODE CAnimationCurve::Save(IArchiveWriter* pWriter)
@@ -57,6 +116,28 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		pWriter->BeginGroup(TAnimationCurveKeys::mPointsKeyId, true);
+
+		for (auto&& currPoint : mPoints)
+		{
+			pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+
+			pWriter->SetFloat(TAnimationCurveKeys::mTimeKeyId, currPoint.mTime);
+			pWriter->SetFloat(TAnimationCurveKeys::mValueKeyId, currPoint.mValue);
+
+			pWriter->BeginGroup(TAnimationCurveKeys::mInTangentKeyId);
+			SaveVector2(pWriter, currPoint.mInTangent);
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TAnimationCurveKeys::mOutTangentKeyId);
+			SaveVector2(pWriter, currPoint.mOutTangent);
+			pWriter->EndGroup();
+
+			pWriter->EndGroup();
+		}
+
+		pWriter->EndGroup();
 
 		return RC_OK;
 	}
