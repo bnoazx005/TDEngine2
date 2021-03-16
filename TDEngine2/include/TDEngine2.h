@@ -176,6 +176,7 @@
 #include "editor/CSceneHierarchyWindow.h"
 #include "editor/Inspectors.h"
 #include "editor/CMemoryProfiler.h"
+#include "editor/CAnimationCurveEditorWindow.h"
 
 ///math
 #include "math/TVector2.h"
