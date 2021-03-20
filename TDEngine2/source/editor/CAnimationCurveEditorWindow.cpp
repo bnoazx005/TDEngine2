@@ -268,7 +268,12 @@ namespace TDEngine2
 			// draw a cursor if a user moves it right near a curve
 			mpImGUIContext->DrawCircle(ApplyCurveToScreenTransform(transformParams, TVector2(xCoord, curveValue)), 4.0f, false, TColorUtils::mYellow);
 
-			
+			if (mpImGUIContext->IsMouseDoubleClicked(0))
+			{
+				static const TVector2 defaultControlPoint{ 0.25f * RightVector2 };
+
+				mpCurrTargetCurve->AddPoint({ xCoord, /*curveValue*/ 0.5f, -defaultControlPoint, defaultControlPoint });
+			}
 		}
 	}
 

@@ -242,7 +242,7 @@ namespace TDEngine2
 		{
 			if (CMathUtils::IsGreatOrEqual(time, it->mTime))
 			{
-				return static_cast<U32>(std::distance(mPoints.rend(), it));
+				return static_cast<U32>(std::distance(it, mPoints.rend())) - 1;
 			}
 		}
 
