@@ -35,24 +35,6 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
 	mpParticleEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
 
-	E_RESULT_CODE result = RC_OK;
-	static CAnimationCurveEditorWindow* pCurveEditor = dynamic_cast<CAnimationCurveEditorWindow*>(CreateAnimationCurveEditorWindow(result));
-	static auto pCurve = CreateAnimationCurve({}, result);
-	
-	static bool init = false;
-	if (!init)
-	{
-		pCurve->AddPoint({ 0.0f, 0.0f, -RightVector2 * 0.5f, RightVector2 * 0.5f });
-		pCurve->AddPoint({ 0.5f, 0.5f, -RightVector2 * 0.3f, RightVector2 * 0.3f });
-		pCurve->AddPoint({ 1.0f, 1.0f, -RightVector2 * 0.5f, RightVector2 * 0.5f });
-
-		pCurveEditor->SetCurveForEditing(pCurve);
-
-		init = true;
-	}
-
-	pCurveEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
-
 	return RC_OK;
 }
 
