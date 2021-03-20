@@ -1,7 +1,7 @@
 #include "../../include/editor/CAnimationCurveEditorWindow.h"
 #include "../../include/graphics/animation/CAnimationCurve.h"
 #include "../../include/core/IImGUIContext.h"
-#include "../../include/math/TVector2.h"
+#include "../../include/math/MathUtils.h"
 
 
 namespace TDEngine2
@@ -75,73 +75,12 @@ namespace TDEngine2
 		{
 			const F32 width  = mpImGUIContext->GetWindowWidth() - 15.0f;
 			const F32 height = mpImGUIContext->GetWindowHeight() - 100.0f;
-
-#if 1 // OLD_IMPLEMENTATION
-
-			static TVector2 tangents[2]
-			{
-				TVector2(200.0f, 0.0f),
-				TVector2(-200.0f, 0.0f)
-			};
-
-			TVector2* pT0 = &tangents[0];
-			TVector2* pT1 = &tangents[1];
-
+			
 			mpImGUIContext->DrawPlotGrid("Plot", { width, height, 5, 5, mpCurrTargetCurve ? mpCurrTargetCurve->GetBounds() : DefaultFrameBounds }, [&](auto&& pos)
 			{
-				auto a = pos;
-				auto b = pos + TVector2(width, height);
-
 				_drawCurveLine(width, height, pos);
-
-				/*mpImGUIContext->DrawCubicBezier(a, a + tangents[0], b, b + tangents[1], TColorUtils::mGreen);
-
-				mpImGUIContext->DisplayIDGroup(0, [&, t = *pT0]
-					{
-						mpImGUIContext->DrawLine(a, a + t, TColorUtils::mWhite);
-						mpImGUIContext->DrawCircle(a + t, 5.0f, true, TColorUtils::mBlue);
-
-						auto pos = mpImGUIContext->GetCursorScreenPos();
-
-						mpImGUIContext->SetCursorScreenPos(a + t);
-
-						mpImGUIContext->Button("", TVector2(30.0f, 30.0f), {}, true);
-
-						if (mpImGUIContext->IsItemActive() && mpImGUIContext->IsMouseDragging(0))
-						{
-							auto&& mousePos = mpImGUIContext->GetMousePosition();
-
-							pT0->x = mousePos.x - a.x;
-							pT0->y = mousePos.y - a.y;
-						}
-
-						mpImGUIContext->SetCursorScreenPos(pos);
-					});
-
-					mpImGUIContext->DisplayIDGroup(1, [&, t = tangents[1]]
-					{
-						mpImGUIContext->DrawLine(b, b + t, TColorUtils::mWhite);
-						mpImGUIContext->DrawCircle(b + t, 5.0f, true, TColorUtils::mBlue);
-
-						auto pos = mpImGUIContext->GetCursorScreenPos();
-
-						mpImGUIContext->SetCursorScreenPos(b + t);
-
-						mpImGUIContext->Button("", TVector2(30.0f, 30.0f), {}, true);
-
-						if (mpImGUIContext->IsItemActive() && mpImGUIContext->IsMouseDragging(0))
-						{
-							auto&& mousePos = mpImGUIContext->GetMousePosition();
-
-							pT1->x = mousePos.x - b.x;
-							pT1->y = mousePos.y - b.y;
-						}
-
-
-						mpImGUIContext->SetCursorScreenPos(pos);
-					});*/
+				_handleCurveCursor(width, height, pos);
 			});
-#endif
 
 			mpImGUIContext->Button("Cancel", { 100.0f, 25.0f }, [this] 
 			{ 
@@ -154,6 +93,41 @@ namespace TDEngine2
 		mIsVisible = isEnabled;
 	}
 
+
+	static TVector2 ApplyCurveToScreenTransform(const CAnimationCurveEditorWindow::TCurveTransformParams& params, const TVector2& p)
+	{
+		auto&& curveBounds = params.mCurveBounds;
+		auto&& cursorPos = params.mCursorPosition;
+		const F32& width = params.mFrameWidth;
+		const F32& height = params.mFrameHeight;
+
+		TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f);
+
+		return
+		{
+			cursorPos.x + (p.x - curveBounds.x) / std::max<F32>(1e-3f, curveBounds.width) * width,
+			cursorPos.y + (1.0f - (p.y - curveBounds.y) / std::max<F32>(1e-3f, curveBounds.height)) * height
+		};
+	};
+
+
+	static TVector2 ApplyScreenToCurveTransform(const CAnimationCurveEditorWindow::TCurveTransformParams& params, const TVector2& p)
+	{
+		auto&& curveBounds = params.mCurveBounds;
+		auto&& cursorPos   = params.mCursorPosition;
+		const F32& width   = params.mFrameWidth;
+		const F32& height  = params.mFrameHeight;
+
+		TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f && width > 0.0f && height > 0.0f);
+
+		return
+		{
+			(p.x - cursorPos.x) / width * curveBounds.width + curveBounds.x,
+			(1.0f - (p.y - cursorPos.y) / height) * curveBounds.height + curveBounds.y
+		};
+	};
+
+
 	void CAnimationCurveEditorWindow::_drawCurveLine(F32 width, F32 height, const TVector2& cursorPos)
 	{
 		if (!mpCurrTargetCurve)
@@ -163,31 +137,138 @@ namespace TDEngine2
 
 		const TRectF32& curveBounds = mpCurrTargetCurve->GetBounds();
 
-		auto transformFromCurveToScreen = [&curveBounds, &cursorPos, width, height](const TVector2& p) -> TVector2
-		{
-			TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f);
+		const TCurveTransformParams transformParams { curveBounds, cursorPos, width, height };
 
-			return
-			{
-				cursorPos.x + (p.x - curveBounds.x) / std::max<F32>(1e-3f, curveBounds.width) * width,
-				cursorPos.y + (1.0f - (p.y - curveBounds.y) / std::max<F32>(1e-3f, curveBounds.height)) * height
-			};
-		};
-
-		for (auto it = mpCurrTargetCurve->begin(); it != mpCurrTargetCurve->end() - 1; ++it)
+		for (auto it = mpCurrTargetCurve->begin(); it != mpCurrTargetCurve->end(); ++it)
 		{
 			auto&& currPoint = *it;
-			auto&& nextPoint = *(it + 1);
 
 			const TVector2& initCurrPos { currPoint.mTime, currPoint.mValue };
-			const TVector2& initNextPos { nextPoint.mTime, nextPoint.mValue };
 
-			auto p0 = transformFromCurveToScreen(initCurrPos);
-			auto p1 = transformFromCurveToScreen(initNextPos);
-			auto t0 = transformFromCurveToScreen(initCurrPos + currPoint.mOutTangent);
-			auto t1 = transformFromCurveToScreen(initNextPos + nextPoint.mInTangent);
+			auto p0 = ApplyCurveToScreenTransform(transformParams, initCurrPos);
+			TVector2 p1, t0, t1;
+
+			if (it != mpCurrTargetCurve->end() - 1)
+			{
+				auto&& nextPoint = *(it + 1);
+				const TVector2& initNextPos{ nextPoint.mTime, nextPoint.mValue };
+
+				p1 = ApplyCurveToScreenTransform(transformParams, initNextPos);
+				t0 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mOutTangent);
+				t1 = ApplyCurveToScreenTransform(transformParams, initNextPos + nextPoint.mInTangent);
+
+				mpImGUIContext->DrawCubicBezier(p0, t0, p1, t1, TColorUtils::mGreen);
+			}
+
+			_drawCurvePoint(static_cast<I32>(std::distance(mpCurrTargetCurve->begin(), it)), p0, transformParams);
+
+			if (it < mpCurrTargetCurve->end() - 1)
+			{
+				t0 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mOutTangent);
+
+				t0 = _drawControlPoint(mControlPointsOffset + static_cast<I32>(std::distance(mpCurrTargetCurve->begin(), it)), p0, t0, transformParams);
+				t0 = ApplyScreenToCurveTransform(transformParams, p0 + t0) - initCurrPos;
+
+				currPoint.mOutTangent = t0;
+			}
+
+			if (it > mpCurrTargetCurve->begin())
+			{
+				t1 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mInTangent);
+
+				t1 = _drawControlPoint(2 * mControlPointsOffset + static_cast<I32>(std::distance(mpCurrTargetCurve->begin(), it)), p0, t1, transformParams);
+				t1 = ApplyScreenToCurveTransform(transformParams, p0 + t1) - initCurrPos;
+
+				currPoint.mInTangent = t1;
+			}
+		}
+	}
+
+	void CAnimationCurveEditorWindow::_drawCurvePoint(I32 id, const TVector2& pos, const TCurveTransformParams& invTransformParams)
+	{
+		mpImGUIContext->DisplayIDGroup(id, [this, &p0 = pos, &invTransformParams, id]
+		{
+			mpImGUIContext->DrawCircle(p0, mHandlePointSize, true, TColorUtils::mGreen);
+
+			auto pos = mpImGUIContext->GetCursorScreenPos();
+
+			mpImGUIContext->SetCursorScreenPos(p0 - TVector2(mHandlePointButtonSize * 0.5f));
+			{
+				mpImGUIContext->Button(Wrench::StringUtils::GetEmptyStr(), TVector2(mHandlePointButtonSize), {}, true);
+
+				if (mpImGUIContext->IsItemActive() && mpImGUIContext->IsMouseDragging(0))
+				{
+					auto&& mousePos = mpImGUIContext->GetMousePosition();
+					const TVector2 mouseDelta = mpImGUIContext->GetMouseDragDelta(0);
+
+					if (auto pPoint = mpCurrTargetCurve->GetPoint(static_cast<U32>(id)))
+					{
+						const TVector2& curvePointDelta = ApplyScreenToCurveTransform(invTransformParams, p0 + mouseDelta);
+
+						pPoint->mTime = curvePointDelta.x;
+						pPoint->mValue = curvePointDelta.y;
+					}
+				}
+			}
+			mpImGUIContext->SetCursorScreenPos(pos);
+		});
+	}
+
+	TVector2 CAnimationCurveEditorWindow::_drawControlPoint(I32 id, const TVector2& pos, const TVector2& controlPointPos, const TCurveTransformParams& invTransformParams)
+	{
+		TVector2 changedControlPoint = controlPointPos;
+
+		changedControlPoint.x -= pos.x;
+		changedControlPoint.y -= pos.y;
+
+		mpImGUIContext->DisplayIDGroup(id, [this, &changedControlPoint, &p = pos, &invTransformParams, &cp = controlPointPos]
+		{
+			mpImGUIContext->DrawLine(p, cp, TColorUtils::mWhite);
+			mpImGUIContext->DrawCircle(cp, mHandlePointSize, false, TColorUtils::mWhite);
+
+			auto pos = mpImGUIContext->GetCursorScreenPos();
+
+			mpImGUIContext->SetCursorScreenPos(cp - TVector2(0.5f * mHandlePointButtonSize));
+
+			mpImGUIContext->Button("", TVector2(mHandlePointButtonSize), {}, true);
+
+			if (mpImGUIContext->IsItemActive() && mpImGUIContext->IsMouseDragging(0))
+			{
+				auto&& mousePos = mpImGUIContext->GetMousePosition();
+
+				changedControlPoint.x = mousePos.x - p.x;
+				changedControlPoint.y = mousePos.y - p.y;
+			}
+
+			mpImGUIContext->SetCursorScreenPos(pos);
+		});
+
+		return changedControlPoint;
+	}
+
+	void CAnimationCurveEditorWindow::_handleCurveCursor(F32 width, F32 height, const TVector2& cursorPos)
+	{
+		if (!mpCurrTargetCurve)
+		{
+			return;
+		}
+
+		const TRectF32& curveBounds = mpCurrTargetCurve->GetBounds();
+
+		const TCurveTransformParams transformParams{ curveBounds, cursorPos, width, height };
+
+		const TVector2& mousePos = mpImGUIContext->GetMousePosition();
+
+		const F32 xCoord = ApplyScreenToCurveTransform(transformParams, mousePos).x;
+
+		const F32 curveValue = mpCurrTargetCurve->Sample(xCoord);
+
+		if (CMathUtils::Abs(curveValue - 1.f) < 1e-3f)
+		{
+			// draw a cursor if a user moves it right near a curve
+			mpImGUIContext->DrawCircle(ApplyCurveToScreenTransform(transformParams, TVector2(xCoord, curveValue)), 4.0f, false, TColorUtils::mYellow);
+
 			
-			mpImGUIContext->DrawCubicBezier(p0, t0, p1, t1, TColorUtils::mGreen);
 		}
 	}
 

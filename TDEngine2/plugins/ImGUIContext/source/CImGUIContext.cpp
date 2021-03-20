@@ -699,6 +699,11 @@ namespace TDEngine2
 		return mpIOContext->MousePos;
 	}
 
+	TVector2 CImGUIContext::GetMouseDragDelta(U8 buttonId) const
+	{
+		return ImGui::GetMouseDragDelta(static_cast<I32>(buttonId));
+	}
+
 	E_RESULT_CODE CImGUIContext::_initInternalImGUIContext(ImGuiIO& io)
 	{
 		E_RESULT_CODE result = RC_OK;

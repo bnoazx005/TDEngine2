@@ -596,6 +596,8 @@ namespace TDEngine2
 
 			TDE2_API virtual TVector2 GetMousePosition() const = 0;
 
+			TDE2_API virtual TVector2 GetMouseDragDelta(U8 buttonId) const = 0;
+
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_IMGUI_CONTEXT; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IImGUIContext)

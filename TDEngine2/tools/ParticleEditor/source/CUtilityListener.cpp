@@ -42,8 +42,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 	static bool init = false;
 	if (!init)
 	{
-		pCurve->AddPoint({ 0.0f, 0.0f, -RightVector2, RightVector2 });
-		pCurve->AddPoint({ 1.0f, 1.0f, -RightVector2, RightVector2 });
+		pCurve->AddPoint({ 0.0f, 0.0f, -RightVector2 * 0.5f, RightVector2 * 0.5f });
+		pCurve->AddPoint({ 0.5f, 0.5f, -RightVector2 * 0.3f, RightVector2 * 0.3f });
+		pCurve->AddPoint({ 1.0f, 1.0f, -RightVector2 * 0.5f, RightVector2 * 0.5f });
 
 		pCurveEditor->SetCurveForEditing(pCurve);
 

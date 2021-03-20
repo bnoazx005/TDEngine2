@@ -8,6 +8,8 @@
 
 
 #include "IEditorWindow.h"
+#include "../math/TRect.h"
+#include "../math/TVector2.h"
 
 
 namespace TDEngine2
@@ -37,6 +39,15 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IEditorWindow* CreateAnimationCurveEditorWindow(E_RESULT_CODE&);
+
+		public:
+			typedef struct TCurveTransformParams
+			{
+				TRectF32 mCurveBounds;
+				TVector2 mCursorPosition;
+				F32      mFrameWidth;
+				F32      mFrameHeight;
+			} TCurveTransformParams;
 
 		public:
 			/*!
@@ -70,8 +81,17 @@ namespace TDEngine2
 			TDE2_API void _onDraw() override;
 
 			TDE2_API void _drawCurveLine(F32 width, F32 height, const TVector2& cursorPos);
+			TDE2_API void _drawCurvePoint(I32 id, const TVector2& pos, const TCurveTransformParams& invTransformParams);
+			TDE2_API TVector2 _drawControlPoint(I32 id, const TVector2& pos, const TVector2& controlPointPos, const TCurveTransformParams& invTransformParams);
+
+			TDE2_API void _handleCurveCursor(F32 width, F32 height, const TVector2& cursorPos);
 
 		protected:
+			static constexpr F32 mHandlePointSize = 4.0f;
+			static constexpr F32 mHandlePointButtonSize = 30.0f;
+
+			static constexpr I32 mControlPointsOffset = 1000;
+
 			CAnimationCurve* mpCurrTargetCurve;
 	};
 }

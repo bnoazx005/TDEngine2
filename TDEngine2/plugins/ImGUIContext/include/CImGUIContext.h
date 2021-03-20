@@ -573,6 +573,8 @@ namespace TDEngine2
 
 			TDE2_API bool IsMouseDragging(U8 buttonId) const override;
 
+			TDE2_API TVector2 GetMouseDragDelta(U8 buttonId) const override;
+
 			TDE2_API TVector2 GetMousePosition() const override;
 
 		protected:
