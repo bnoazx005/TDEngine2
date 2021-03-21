@@ -63,4 +63,31 @@ namespace TDEngine2
 	};
 
 
+	template <typename T>
+	struct TRange
+	{
+		TDE2_API constexpr explicit TRange() :
+			mLeft(0), mRight(0)
+		{
+		}
+
+		TDE2_API constexpr explicit TRange(const T& initializer) :
+			mLeft(initializer), mRight(initializer)
+		{
+		}
+
+		TDE2_API constexpr TRange(const T& left, const T& right):
+			mLeft(left), mRight(right)
+		{
+			TDE2_ASSERT(IsValid());
+		}
+
+		TDE2_API constexpr bool IsValid() const { return mLeft < mRight; }
+
+		T mLeft, mRight;
+	};
+
+
+	typedef TRange<F32> TRangeF32;
+
 }
