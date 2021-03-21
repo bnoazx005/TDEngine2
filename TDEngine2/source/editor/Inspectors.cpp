@@ -7,6 +7,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/graphics/CQuadSprite.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CParticleEmitterComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -42,6 +43,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CPointLight::GetTypeId(), DrawPointLightGUI);
 		result = result | editor.RegisterInspector(CAnimationContainerComponent::GetTypeId(), DrawAnimationContainerGUI);
 		result = result | editor.RegisterInspector(CSkyboxComponent::GetTypeId(), DrawSkyboxGUI);
+		result = result | editor.RegisterInspector(CParticleEmitter::GetTypeId(), DrawParticleEmitterGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -272,6 +274,19 @@ namespace TDEngine2
 		IComponent& component = editorContext.mComponent;
 
 		if (imguiContext.CollapsingHeader("Skybox", true)) {}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawParticleEmitterGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("Particle Emitter", true))
+		{
+			CParticleEmitter& particleEmitter = dynamic_cast<CParticleEmitter&>(component);
+
+			// \todo Implement this drawer
+		}
 	}
 
 	void CDefeaultInspectorsRegistry::DrawBoxCollision2DGUI(const TEditorContext& editorContext)

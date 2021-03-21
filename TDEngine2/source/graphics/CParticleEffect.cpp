@@ -12,11 +12,13 @@ namespace TDEngine2
 		static const std::string mDurationKeyId;
 		static const std::string mLoopModeKeyId;
 		static const std::string mMaxParticlesCountKeyId;
+		static const std::string mMaterialNameKeyId;
 	};
 
 	const std::string TParticleEffectClipKeys::mDurationKeyId = "duration";
 	const std::string TParticleEffectClipKeys::mLoopModeKeyId = "loop-mode";
 	const std::string TParticleEffectClipKeys::mMaxParticlesCountKeyId = "max-particles-count";
+	const std::string TParticleEffectClipKeys::mMaterialNameKeyId = "material-id";
 
 
 	CParticleEffect::CParticleEffect() :
@@ -60,6 +62,7 @@ namespace TDEngine2
 		mDuration = pReader->GetFloat(TParticleEffectClipKeys::mDurationKeyId);
 		mIsLooped = pReader->GetBool(TParticleEffectClipKeys::mLoopModeKeyId);
 		mMaxParticlesCount = pReader->GetUInt16(TParticleEffectClipKeys::mMaxParticlesCountKeyId);
+		mMaterialName = pReader->GetString(TParticleEffectClipKeys::mMaterialNameKeyId);
 
 		return RC_OK;
 	}
@@ -81,6 +84,7 @@ namespace TDEngine2
 		pWriter->SetFloat(TParticleEffectClipKeys::mDurationKeyId, mDuration);
 		pWriter->SetBool(TParticleEffectClipKeys::mLoopModeKeyId, mIsLooped);
 		pWriter->SetUInt16(TParticleEffectClipKeys::mMaxParticlesCountKeyId, mMaxParticlesCount);
+		pWriter->SetString(TParticleEffectClipKeys::mMaterialNameKeyId, mMaterialName);
 
 		return RC_OK;
 	}
@@ -107,6 +111,18 @@ namespace TDEngine2
 		mMaxParticlesCount = particlesCount;
 	}
 
+	E_RESULT_CODE CParticleEffect::SetMaterialName(const std::string& value)
+	{
+		if (value.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mMaterialName = value;
+
+		return RC_OK;
+	}
+
 	F32 CParticleEffect::GetDuration() const
 	{
 		return mDuration;
@@ -120,6 +136,11 @@ namespace TDEngine2
 	U16 CParticleEffect::GetMaxParticlesCount() const
 	{
 		return mMaxParticlesCount;
+	}
+
+	const std::string& CParticleEffect::GetMaterialName() const
+	{
+		return mMaterialName;
 	}
 
 	const IResourceLoader* CParticleEffect::_getResourceLoader()

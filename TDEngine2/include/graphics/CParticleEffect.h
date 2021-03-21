@@ -110,6 +110,14 @@ namespace TDEngine2
 			TDE2_API void SetMaxParticlesCount(U16 particlesCount) override;
 
 			/*!
+				\brief The method sets up a name of used material. Note that it isn't verify is material already loaded or exist
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetMaterialName(const std::string& value) override;
+
+			/*!
 				\return The method returns a duration of the effect
 			*/
 
@@ -126,14 +134,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U16 GetMaxParticlesCount() const override;
+
+			/*!
+				\return The method returns an identifier of a material
+			*/
+
+			TDE2_API const std::string& GetMaterialName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
-			F32 mDuration;
-			bool mIsLooped;
-			U16 mMaxParticlesCount;
+			F32         mDuration;
+
+			bool        mIsLooped;
+
+			U16         mMaxParticlesCount;
+
+			std::string mMaterialName;
 	};
 
 

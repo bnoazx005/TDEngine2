@@ -3,6 +3,14 @@
 
 namespace TDEngine2
 {
+	struct TParticleEmitterArchiveKeys
+	{
+		static const std::string mParticleEffectKeyId;
+	};
+
+	const std::string TParticleEmitterArchiveKeys::mParticleEffectKeyId = "particle-effect-id";
+
+
 	CParticleEmitter::CParticleEmitter() :
 		CBaseComponent()
 	{
@@ -14,6 +22,10 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		mIsPlaying = false;
+
+		mParticleEffectId = TResourceId::Invalid;
 
 		mIsInitialized = true;
 
@@ -27,7 +39,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		
+		mParticleEffectName = pReader->GetString(TParticleEmitterArchiveKeys::mParticleEffectKeyId);
+		TDE2_ASSERT(!mParticleEffectName.empty());
 
 		return RC_OK;
 	}
@@ -43,10 +56,48 @@ namespace TDEngine2
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CParticleEmitter::GetTypeId()));
 
+			pWriter->SetString(TParticleEmitterArchiveKeys::mParticleEffectKeyId, mParticleEffectName);
 		}
 		pWriter->EndGroup();
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CParticleEmitter::SetParticleEffect(const std::string& id)
+	{
+		if (id.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mParticleEffectName = id;
+
+		return RC_OK;
+	}
+
+	void CParticleEmitter::SetParticleEffectHandle(TResourceId handle)
+	{
+		mParticleEffectId = handle;
+	}
+
+	void CParticleEmitter::SetPlayingFlag(bool value)
+	{
+		mIsPlaying = value;
+	}
+
+	bool CParticleEmitter::IsPlaying() const
+	{
+		return mIsPlaying;
+	}
+
+	const std::string& CParticleEmitter::GetParticleEffectId() const
+	{
+		return mParticleEffectName;
+	}
+
+	TResourceId CParticleEmitter::GetParticleEffectHandle() const
+	{
+		return mParticleEffectId;
 	}
 
 

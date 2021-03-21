@@ -22,6 +22,7 @@
 #include "../../include/ecs/CStaticMeshRendererSystem.h"
 #include "../../include/ecs/CPhysics3DSystem.h"
 #include "../../include/ecs/CAnimationSystem.h"
+#include "../../include/ecs/CParticlesSimulationSystem.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -421,6 +422,7 @@ namespace TDEngine2
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
+			CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateAnimationSystem(pResourceManager, pEventManager, result),
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),

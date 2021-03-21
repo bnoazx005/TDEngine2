@@ -89,6 +89,7 @@
 #include "ecs/CBoundsUpdatingSystem.h"
 #include "ecs/CLightingSystem.h"
 #include "ecs/CAnimationSystem.h"
+#include "ecs/CParticlesSimulationSystem.h"
 #include "ecs/components/CBoundsComponent.h"
 
 ///graphics

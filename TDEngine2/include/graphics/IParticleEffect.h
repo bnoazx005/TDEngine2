@@ -28,6 +28,7 @@ namespace TDEngine2
 		F32  mDuration;
 		bool mIsLooped;
 		U16  mMaxParticlesCount;
+		std::string mMaterialName;
 	} TParticleEffectParameters, *TParticleEffectParametersPtr;
 
 
@@ -79,6 +80,14 @@ namespace TDEngine2
 			TDE2_API virtual void SetMaxParticlesCount(U16 particlesCount) = 0;
 
 			/*!
+				\brief The method sets up a name of used material. Note that it isn't verify is material already loaded or exist
+			
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetMaterialName(const std::string& value) = 0;
+
+			/*!
 				\return The method returns a duration of the effect
 			*/
 
@@ -95,6 +104,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U16 GetMaxParticlesCount() const = 0;
+
+			/*!
+				\return The method returns an identifier of a material
+			*/
+
+			TDE2_API virtual const std::string& GetMaterialName() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IParticleEffect)
 	};

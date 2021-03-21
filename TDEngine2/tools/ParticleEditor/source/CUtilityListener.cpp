@@ -28,6 +28,12 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	auto handler = mpResourceManager->Load<CParticleEffect>("testParticles.particles");
 	TDE2_ASSERT(TResourceId::Invalid != handler);
 
+	auto pParticlesEntity = pWorld->CreateEntity();
+	if (auto pParticles = pParticlesEntity->AddComponent<CParticleEmitter>())
+	{
+		pParticles->SetParticleEffect("testParticles.particles");
+	}
+
 	return RC_OK;
 }
 

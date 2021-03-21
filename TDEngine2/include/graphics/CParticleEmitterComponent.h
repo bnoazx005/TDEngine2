@@ -7,12 +7,14 @@
 #pragma once
 
 
-#include "ISprite.h"
 #include "../ecs/CBaseComponent.h"
 
 
 namespace TDEngine2
 {
+	enum class TResourceId : U32;
+
+
 	/*!
 		\brief A factory function for creation objects of CParticleEmitter's type.
 
@@ -64,10 +66,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+			TDE2_API E_RESULT_CODE SetParticleEffect(const std::string& id);
+
+			TDE2_API void SetParticleEffectHandle(TResourceId handle);
+
+			TDE2_API void SetPlayingFlag(bool value);
+
+			TDE2_API bool IsPlaying() const;
+
+			TDE2_API const std::string& GetParticleEffectId() const;
+
+			TDE2_API TResourceId GetParticleEffectHandle() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEmitter)
 		protected:
-			
+			std::string mParticleEffectName;
+
+			TResourceId mParticleEffectId;
+
+			bool mIsPlaying;
 	};
 
 
