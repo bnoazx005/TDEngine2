@@ -124,6 +124,12 @@ namespace TDEngine2
 			TDE2_API void SetInitialRotation(const TRangeF32& value) override;
 
 			/*!
+				\brief The method defines how much particles are spawned per second
+			*/
+
+			TDE2_API void SetEmissionRate(U32 value) override;
+
+			/*!
 				\return The method returns a duration of the effect
 			*/
 
@@ -152,6 +158,10 @@ namespace TDEngine2
 			TDE2_API const TRangeF32& GetInitialSize() const override;
 
 			TDE2_API const TRangeF32& GetInitialRotation() const override;
+
+			TDE2_API U32 GetEmissionRate() const override;
+
+			TDE2_API CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
 
@@ -168,6 +178,10 @@ namespace TDEngine2
 			TRangeF32   mLifeTime;
 			TRangeF32   mInitialSize;
 			TRangeF32   mInitialRotation;
+
+			U32         mEmissionRate;
+
+			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
 	};
 
 

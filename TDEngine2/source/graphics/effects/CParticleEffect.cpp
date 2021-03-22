@@ -18,6 +18,9 @@ namespace TDEngine2
 		static const std::string mLifeTimeKeyId;
 		static const std::string mInitialSizeKeyId;
 		static const std::string mInitialRotationKeyId;
+
+		static const std::string mEmitterDataGroupId;
+		static const std::string mEmissionRateKeyId;
 	};
 
 	const std::string TParticleEffectClipKeys::mDurationKeyId = "duration";
@@ -28,6 +31,8 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mLifeTimeKeyId = "lifetime";
 	const std::string TParticleEffectClipKeys::mInitialSizeKeyId = "initial-size";
 	const std::string TParticleEffectClipKeys::mInitialRotationKeyId = "initial-rotation";
+	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
+	const std::string TParticleEffectClipKeys::mEmissionRateKeyId = "emission-rate";
 
 
 	CParticleEffect::CParticleEffect() :
@@ -50,6 +55,8 @@ namespace TDEngine2
 		}
 
 		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
+
+		mpSharedEmitter = nullptr;
 
 		mIsInitialized = true;
 
@@ -98,6 +105,24 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+		pReader->BeginGroup(TParticleEffectClipKeys::mEmitterDataGroupId);
+		{
+			auto loadEmitterResult = CBaseParticlesEmitter::Load(pReader);
+			if (loadEmitterResult.HasError())
+			{
+				return loadEmitterResult.GetError();
+			}
+
+			mpSharedEmitter = loadEmitterResult.Get();
+			if (mpSharedEmitter)
+			{
+				mpSharedEmitter->SetOwnerEffect(this);
+			}
+
+			mEmissionRate = pReader->GetUInt32(TParticleEffectClipKeys::mEmissionRateKeyId);
+		}
+		pReader->EndGroup();
+
 		return RC_OK;
 	}
 
@@ -142,6 +167,14 @@ namespace TDEngine2
 				pWriter->SetFloat("max", mInitialSize.mRight);
 			}
 			pWriter->EndGroup();
+		}
+		pWriter->EndGroup();
+
+		pWriter->BeginGroup(TParticleEffectClipKeys::mEmitterDataGroupId);
+		{
+			mpSharedEmitter->Save(pWriter);
+
+			pWriter->SetUInt32(TParticleEffectClipKeys::mEmissionRateKeyId, mEmissionRate);
 		}
 		pWriter->EndGroup();
 
@@ -201,6 +234,11 @@ namespace TDEngine2
 		mInitialRotation = value;
 	}
 
+	void CParticleEffect::SetEmissionRate(U32 value)
+	{
+		mEmissionRate = value;
+	}
+
 	F32 CParticleEffect::GetDuration() const
 	{
 		return mDuration;
@@ -234,6 +272,16 @@ namespace TDEngine2
 	const TRangeF32& CParticleEffect::GetInitialRotation() const
 	{
 		return mInitialRotation;
+	}
+
+	U32 CParticleEffect::GetEmissionRate() const
+	{
+		return mEmissionRate;
+	}
+
+	CScopedPtr<CBaseParticlesEmitter> CParticleEffect::GetSharedEmitter() const
+	{
+		return mpSharedEmitter;
 	}
 
 	const IResourceLoader* CParticleEffect::_getResourceLoader()

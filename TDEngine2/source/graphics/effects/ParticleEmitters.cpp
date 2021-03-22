@@ -1,5 +1,7 @@
 #include "../../../include/graphics/effects/ParticleEmitters.h"
 #include "../../../include/graphics/effects/TParticle.h"
+#include "../../../include/graphics/effects/IParticleEffect.h"
+#include "../../../include/ecs/CTransform.h"
 #include <unordered_map>
 #include <functional>
 
@@ -15,12 +17,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseParticlesEmitter::Init()
+	E_RESULT_CODE CBaseParticlesEmitter::Init(IParticleEffect* pOwnerEffect)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		mpOwnerEffect = pOwnerEffect;
 
 		mIsInitialized = true;
 
@@ -42,11 +46,24 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBaseParticlesEmitter::SetOwnerEffect(IParticleEffect* pOwner)
+	{
+		if (!pOwner)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpOwnerEffect = pOwner;
+
+		return RC_OK;
+	}
+
+
 	TResult<CBaseParticlesEmitter*> CBaseParticlesEmitter::Load(IArchiveReader* pReader)
 	{
-		static const std::unordered_map<TypeId, std::function<CBaseParticlesEmitter*(E_RESULT_CODE&)>> factoriesTable
+		static const std::unordered_map<TypeId, std::function<CBaseParticlesEmitter*(IParticleEffect*, E_RESULT_CODE&)>> factoriesTable
 		{
-			{ CBoxParticlesEmitter::GetTypeId(), std::bind(&CreateBoxParticlesEmitter, std::placeholders::_1) },
+			{ CBoxParticlesEmitter::GetTypeId(), std::bind(&CreateBoxParticlesEmitter, std::placeholders::_1, std::placeholders::_2) },
 		};
 
 		const TypeId typeId = static_cast<TypeId>(pReader->GetUInt32("type_id"));
@@ -58,7 +75,7 @@ namespace TDEngine2
 		}
 
 		E_RESULT_CODE result = RC_OK;
-		CBaseParticlesEmitter* pEmitterPtr = (it->second)(result);
+		CBaseParticlesEmitter* pEmitterPtr = (it->second)(nullptr, result);
 
 		if (RC_OK != result)
 		{
@@ -143,12 +160,28 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBoxParticlesEmitter::EmitParticle(const CTransform* pTransform, TParticle& particleInfo)
 	{
+		if (!mpOwnerEffect)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pTransform)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		particleInfo.mAge = 0.0f;
+		particleInfo.mColor = TColorUtils::mWhite;
+		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
+		particleInfo.mPosition = RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes);
+		particleInfo.mVelocity = UpVector3;
+
 		return RC_OK;
 	}
 
 
-	TDE2_API CBaseParticlesEmitter* CreateBoxParticlesEmitter(E_RESULT_CODE& result)
+	TDE2_API CBaseParticlesEmitter* CreateBoxParticlesEmitter(IParticleEffect* pOwnerEffect, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(CBaseParticlesEmitter, CBoxParticlesEmitter, result);
+		return CREATE_IMPL(CBaseParticlesEmitter, CBoxParticlesEmitter, result, pOwnerEffect);
 	}
 }

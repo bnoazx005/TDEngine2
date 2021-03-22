@@ -82,12 +82,19 @@ namespace TDEngine2
 			TDE2_ASSERT(IsValid());
 		}
 
-		TDE2_API constexpr bool IsValid() const { return mLeft < mRight; }
+		TDE2_API constexpr bool IsValid() const { return CMathUtils::IsLessOrEqual(mLeft, mRight, 1e-4f); }
 
 		T mLeft, mRight;
 	};
 
 
 	typedef TRange<F32> TRangeF32;
+
+
+	class CRandomUtils
+	{
+		public:
+			TDE2_API static F32 GetRandF32Value(const TRangeF32& range) { return range.mLeft + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (range.mRight - range.mLeft))); }
+	};
 
 }

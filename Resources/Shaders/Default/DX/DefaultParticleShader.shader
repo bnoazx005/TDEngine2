@@ -30,7 +30,7 @@ VertexOut mainVS(in VertexIn input)
 {
 	VertexOut output;
 
-	output.mPos        = mul(mul(ProjMat, ViewMat), input.mPos);
+	output.mPos        = mul(mul(ProjMat, ViewMat), input.mPos + float4(0.0, 0.0, 2.0, 0.0));
 	output.mUV         = input.mUV;
 	output.mColor      = input.mColor;
 	output.mInstanceId = input.mInstanceId;
@@ -48,7 +48,7 @@ DECLARE_TEX2D(MainTexture);
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	return TEX2D(MainTexture, input.mUV) * input.mColor;
+	return float4(1.0, 1.0, 1.0, 1.0);// TEX2D(MainTexture, input.mUV) * input.mColor;
 }
 
 #endprogram

@@ -8,8 +8,10 @@
 
 
 #include "CBaseSystem.h"
+#include "../graphics/effects/TParticle.h"
 #include "../math/TVector2.h"
 #include "../math/TVector4.h"
+#include "../utils/Color.h"
 #include <vector>
 
 
@@ -59,16 +61,17 @@ namespace TDEngine2
 			{
 				TVector4 mPosition;
 				TVector2 mUVs;
-				TVector4 mColor;
 			} TParticleVertex, *TParticleVertexPtr;
 
 			typedef struct TParticleInstanceData
 			{
+				TVector4 mColor;
 				TVector4 mPositionAndSize;
 				TVector4 mRotation;
-			} TParticleInstanceData, *TParticleInstanceDataPtr;
+			} TParticleInstanceData, *TParticleInstanceDataPtr;			
 
 			typedef std::vector<std::vector<TParticleInstanceData>> TParticlesArray;
+			typedef std::vector<std::vector<TParticleInfo>> TParticlesInfoArray;
 
 	public:
 			TDE2_SYSTEM(CParticlesSimulationSystem);
@@ -116,6 +119,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _initInternalVertexData();
 			
+			TDE2_API void _simulateParticles(IWorld* pWorld, F32 dt);
+
 			TDE2_API void _populateCommandsBuffer(const std::vector<TEntityId>& entities, IWorld* pWorld, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial, const ICamera* pCamera);
 
 			TDE2_API U32 _computeRenderCommandHash(TResourceId materialId, F32 distanceToCamera);
@@ -130,7 +135,6 @@ namespace TDEngine2
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
 			IVertexBuffer*          mpParticleQuadVertexBuffer;
-			IVertexBuffer*          mpParticlesInstancesBuffer;
 			
 			IIndexBuffer*           mpParticleQuadIndexBuffer;
 
@@ -140,9 +144,17 @@ namespace TDEngine2
 
 			TParticlesArray         mParticlesInstancesData;
 
+			TParticlesInfoArray     mParticles;
+
+			F32                     mEmissionTimerValue;
+
 			std::vector<TEntityId>  mParticleEmitters;
 
+			std::vector<U32>        mActiveParticlesCount;
+
 			std::vector<IMaterial*> mUsedMaterials;
+
+			std::vector<IVertexBuffer*> mpParticlesInstancesBuffers;
 
 	};
 }

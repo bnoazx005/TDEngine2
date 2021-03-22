@@ -13,11 +13,11 @@
 #include "../../core/IResourceFactory.h"
 #include "../../core/IResourceLoader.h"
 #include "../../core/Serialization.h"
+#include "ParticleEmitters.h"
 
 
 namespace TDEngine2
 {
-
 	/*!
 		struct TParticleEffect2DParameters
 
@@ -102,6 +102,12 @@ namespace TDEngine2
 			TDE2_API virtual void SetInitialRotation(const TRangeF32& value) = 0;
 
 			/*!
+				\brief The method defines how much particles are spawned per second
+			*/
+
+			TDE2_API virtual void SetEmissionRate(U32 value) = 0;
+
+			/*!
 				\return The method returns a duration of the effect
 			*/
 
@@ -130,6 +136,10 @@ namespace TDEngine2
 			TDE2_API virtual const TRangeF32& GetInitialSize() const = 0;
 
 			TDE2_API virtual const TRangeF32& GetInitialRotation() const = 0;
+
+			TDE2_API virtual U32 GetEmissionRate() const = 0;
+
+			TDE2_API virtual CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IParticleEffect)
 	};

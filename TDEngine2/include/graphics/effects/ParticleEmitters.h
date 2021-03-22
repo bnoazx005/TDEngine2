@@ -16,6 +16,7 @@
 
 namespace TDEngine2
 {
+	class IParticleEffect;
 	class CTransform;
 	struct TParticle;
 
@@ -31,10 +32,12 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of an object
 
+				\param[in, out] pOwnerEffect A pointer to IParticleEffect implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init();
+			TDE2_API virtual E_RESULT_CODE Init(IParticleEffect* pOwnerEffect);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -65,21 +68,26 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE EmitParticle(const CTransform* pTransform, TParticle& particleInfo) = 0;
 
+			TDE2_API E_RESULT_CODE SetOwnerEffect(IParticleEffect* pOwner);
+
 			TDE2_API virtual TypeId GetEmitterTypeId() const { return TypeId::Invalid; }
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseParticlesEmitter)
+		protected:
+			IParticleEffect* mpOwnerEffect;
 	};
 
 
 	/*!
 		\brief A factory function for creation objects of CBoxParticlesEmitter's type
 
+		\param[in, out] pOwnerEffect A pointer to IParticleEffect implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CBaseParticlesEmitter's implementation
 	*/
 
-	TDE2_API CBaseParticlesEmitter* CreateBoxParticlesEmitter(E_RESULT_CODE& result);
+	TDE2_API CBaseParticlesEmitter* CreateBoxParticlesEmitter(IParticleEffect* pOwnerEffect, E_RESULT_CODE& result);
 
 
 	/*!
@@ -91,7 +99,7 @@ namespace TDEngine2
 	class CBoxParticlesEmitter : public CBaseParticlesEmitter
 	{
 		public:
-			friend TDE2_API CBaseParticlesEmitter* CreateBoxParticlesEmitter(E_RESULT_CODE&);
+			friend TDE2_API CBaseParticlesEmitter* CreateBoxParticlesEmitter(IParticleEffect*, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_VIRTUAL_TYPE_EX(CBoxParticlesEmitter, GetEmitterTypeId)
 			TDE2_REGISTER_TYPE(CBoxParticlesEmitter)

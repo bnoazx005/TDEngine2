@@ -4,8 +4,8 @@
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/IVertexDeclaration.h"
-#include "../../include/graphics/CParticleEmitterComponent.h"
-#include "../../include/graphics/CParticleEffect.h"
+#include "../../include/graphics/effects/CParticleEmitterComponent.h"
+#include "../../include/graphics/effects/CParticleEffect.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
@@ -122,11 +122,32 @@ namespace TDEngine2
 		mParticleEmitters = pWorld->FindEntitiesWithComponents<CParticleEmitter>();
 
 		mParticlesInstancesData.resize(mParticleEmitters.size());
+		mParticles.resize(mParticleEmitters.size());
+		mpParticlesInstancesBuffers.resize(mParticleEmitters.size());
+		mActiveParticlesCount.resize(mParticleEmitters.size());
 
 		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
 		mpCameraEntity = !cameras.empty() ? pWorld->FindEntity(cameras.front()) : nullptr;
 
 		mUsedMaterials = GetUsedMaterials(mParticleEmitters, pWorld, mpResourceManager);
+
+		for (IVertexBuffer*& pCurrVertexBuffer : mpParticlesInstancesBuffers)
+		{
+			auto createBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, SpriteInstanceDataBufferSize, nullptr);
+			if (createBufferResult.HasError())
+			{
+				continue;
+			}
+
+			pCurrVertexBuffer = createBufferResult.Get();
+		}
+
+		for (U32& currCount : mActiveParticlesCount)
+		{
+			currCount = 0;
+		}
+
+		mEmissionTimerValue = 0.0f;
 	}
 
 	void CParticlesSimulationSystem::Update(IWorld* pWorld, F32 dt)
@@ -141,7 +162,7 @@ namespace TDEngine2
 		TDE2_ASSERT(pCameraComponent);
 
 		// \note Process a new step of particles simulation
-
+		_simulateParticles(pWorld, dt);
 
 		// \note Render particles 
 		for (IMaterial* pCurrMaterial : mUsedMaterials)
@@ -162,10 +183,10 @@ namespace TDEngine2
 
 		mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 		mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
-		mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
+		mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_COLOR, true });
 		mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true }); // xyz - position, w - size of a particle
 		mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true }); // xyz - rotation
-		mpParticleVertexDeclaration->AddInstancingDivisor(3, 1);
+		mpParticleVertexDeclaration->AddInstancingDivisor(2, 1);
 
 		static const TParticleVertex vertices[] =
 		{
@@ -197,15 +218,6 @@ namespace TDEngine2
 
 		mpParticleQuadIndexBuffer = createIndexBufferResult.Get();
 
-		/// \note Create an additional buffer for instances data
-		auto createInstancesVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, SpriteInstanceDataBufferSize, nullptr);
-		if (createInstancesVertexBufferResult.HasError())
-		{
-			return createInstancesVertexBufferResult.GetError();
-		}
-
-		mpParticlesInstancesBuffer = createInstancesVertexBufferResult.Get();
-
 		return RC_OK;
 	}
 
@@ -217,6 +229,8 @@ namespace TDEngine2
 		TResourceId currMaterialId = pCastedMaterial->GetId();
 
 		auto&& viewMatrix = pCamera->GetViewMatrix();
+
+		U32 currBufferIndex = 0;
 
 		// \note iterate over all entities with pCurrMaterial attached as main material
 		for (TEntityId currEntity : entities)
@@ -250,16 +264,46 @@ namespace TDEngine2
 
 					pCommand->mpVertexBuffer              = mpParticleQuadVertexBuffer;
 					pCommand->mpIndexBuffer               = mpParticleQuadIndexBuffer;
-					pCommand->mpInstancingBuffer          = mpParticlesInstancesBuffer;
+					pCommand->mpInstancingBuffer          = mpParticlesInstancesBuffers[currBufferIndex];
 					pCommand->mMaterialHandle             = materialHandle;
 					pCommand->mpVertexDeclaration         = mpParticleVertexDeclaration; 
 					pCommand->mIndicesPerInstance         = 6;
-					pCommand->mNumOfInstances             = 1; // \todo Add computation of particles count
+					pCommand->mNumOfInstances             = mActiveParticlesCount[currBufferIndex];
 					pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 					pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
 					pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));
+
+					++currBufferIndex;
 				}
 			}
+		}
+	}
+
+	void CParticlesSimulationSystem::_simulateParticles(IWorld* pWorld, F32 dt)
+	{
+		const bool needEmitNewParticles = (mEmissionTimerValue > 1.0f);
+		mEmissionTimerValue += dt;
+
+		CEntity* pCurrEntity = nullptr;
+
+		// \note Do main update logic here
+		for (U32 i = 0; i < static_cast<U32>(mParticleEmitters.size()); ++i)
+		{
+			pCurrEntity = pWorld->FindEntity(mParticleEmitters[i]);
+			if (!pCurrEntity)
+			{
+				continue;
+			}
+
+			if (CParticleEmitter* pEmitterComponent = pCurrEntity->GetComponent<CParticleEmitter>())
+			{
+				IParticleEffect* pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
+			}
+		}
+
+		if (needEmitNewParticles)
+		{
+			mEmissionTimerValue = 0.0f;
 		}
 	}
 		
