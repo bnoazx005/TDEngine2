@@ -155,6 +155,8 @@
 #include "graphics/effects/IParticleEffect.h"
 #include "graphics/effects/CParticleEffect.h"
 #include "graphics/effects/CParticleEmitterComponent.h"
+#include "graphics/effects/ParticleEmitters.h"
+#include "graphics/effects/TParticle.h"
 
 /// audio
 #include "audio/IAudioSource.h"
