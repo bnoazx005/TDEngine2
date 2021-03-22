@@ -152,9 +152,9 @@
 #include "graphics/animation/AnimationTracks.h"
 #include "graphics/animation/CAnimationContainerComponent.h"
 #include "graphics/animation/CAnimationCurve.h"
-#include "graphics/IParticleEffect.h"
-#include "graphics/CParticleEffect.h"
-#include "graphics/CParticleEmitterComponent.h"
+#include "graphics/effects/IParticleEffect.h"
+#include "graphics/effects/CParticleEffect.h"
+#include "graphics/effects/CParticleEmitterComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

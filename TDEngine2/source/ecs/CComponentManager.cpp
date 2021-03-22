@@ -7,7 +7,7 @@
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
-#include "../../include/graphics/CParticleEmitterComponent.h"
+#include "../../include/graphics/effects/CParticleEmitterComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"

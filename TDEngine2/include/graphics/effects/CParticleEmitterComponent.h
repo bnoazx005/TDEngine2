@@ -7,7 +7,7 @@
 #pragma once
 
 
-#include "../ecs/CBaseComponent.h"
+#include "../../ecs/CBaseComponent.h"
 
 
 namespace TDEngine2

@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "IMesh.h"
-#include "../core/CBaseResource.h"
-#include "../graphics/IParticleEffect.h"
+#include "../IMesh.h"
+#include "../../core/CBaseResource.h"
+#include "IParticleEffect.h"
 
 
 namespace TDEngine2
@@ -117,6 +117,12 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetMaterialName(const std::string& value) override;
 
+			TDE2_API E_RESULT_CODE SetLifetime(const TRangeF32& value) override;
+
+			TDE2_API E_RESULT_CODE SetInitialSize(const TRangeF32& value) override;
+
+			TDE2_API void SetInitialRotation(const TRangeF32& value) override;
+
 			/*!
 				\return The method returns a duration of the effect
 			*/
@@ -140,6 +146,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const std::string& GetMaterialName() const override;
+
+			TDE2_API const TRangeF32& GetLifetime() const override;
+
+			TDE2_API const TRangeF32& GetInitialSize() const override;
+
+			TDE2_API const TRangeF32& GetInitialRotation() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
 
@@ -152,6 +164,10 @@ namespace TDEngine2
 			U16         mMaxParticlesCount;
 
 			std::string mMaterialName;
+
+			TRangeF32   mLifeTime;
+			TRangeF32   mInitialSize;
+			TRangeF32   mInitialRotation;
 	};
 
 

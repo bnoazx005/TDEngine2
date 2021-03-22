@@ -1,4 +1,4 @@
-#include "../../include/graphics/CParticleEmitterComponent.h"
+#include "../../../include/graphics/effects/CParticleEmitterComponent.h"
 
 
 namespace TDEngine2

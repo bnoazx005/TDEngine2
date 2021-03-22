@@ -1,8 +1,8 @@
-#include "../../include/graphics/CParticleEffect.h"
-#include "../../include/core/IFileSystem.h"
-#include "../../include/core/IFile.h"
-#include "../../include/utils/CFileLogger.h"
-#include "../../include/core/IGraphicsContext.h"
+#include "../../../include/graphics/effects/CParticleEffect.h"
+#include "../../../include/core/IFileSystem.h"
+#include "../../../include/core/IFile.h"
+#include "../../../include/utils/CFileLogger.h"
+#include "../../../include/core/IGraphicsContext.h"
 
 
 namespace TDEngine2
@@ -13,12 +13,21 @@ namespace TDEngine2
 		static const std::string mLoopModeKeyId;
 		static const std::string mMaxParticlesCountKeyId;
 		static const std::string mMaterialNameKeyId;
+
+		static const std::string mParticlesSettingsGroupId;
+		static const std::string mLifeTimeKeyId;
+		static const std::string mInitialSizeKeyId;
+		static const std::string mInitialRotationKeyId;
 	};
 
 	const std::string TParticleEffectClipKeys::mDurationKeyId = "duration";
 	const std::string TParticleEffectClipKeys::mLoopModeKeyId = "loop-mode";
 	const std::string TParticleEffectClipKeys::mMaxParticlesCountKeyId = "max-particles-count";
 	const std::string TParticleEffectClipKeys::mMaterialNameKeyId = "material-id";
+	const std::string TParticleEffectClipKeys::mParticlesSettingsGroupId = "particles-settings";
+	const std::string TParticleEffectClipKeys::mLifeTimeKeyId = "lifetime";
+	const std::string TParticleEffectClipKeys::mInitialSizeKeyId = "initial-size";
+	const std::string TParticleEffectClipKeys::mInitialRotationKeyId = "initial-rotation";
 
 
 	CParticleEffect::CParticleEffect() :
@@ -64,6 +73,31 @@ namespace TDEngine2
 		mMaxParticlesCount = pReader->GetUInt16(TParticleEffectClipKeys::mMaxParticlesCountKeyId);
 		mMaterialName = pReader->GetString(TParticleEffectClipKeys::mMaterialNameKeyId);
 
+		pReader->BeginGroup(TParticleEffectClipKeys::mParticlesSettingsGroupId);
+		{
+			pReader->BeginGroup(TParticleEffectClipKeys::mLifeTimeKeyId);
+			{
+				mLifeTime.mLeft = pReader->GetFloat("min");
+				mLifeTime.mRight = pReader->GetFloat("max");
+			}
+			pReader->EndGroup();
+
+			pReader->BeginGroup(TParticleEffectClipKeys::mInitialRotationKeyId);
+			{
+				mInitialRotation.mLeft = pReader->GetFloat("min");
+				mInitialRotation.mRight = pReader->GetFloat("max");
+			}
+			pReader->EndGroup();
+
+			pReader->BeginGroup(TParticleEffectClipKeys::mInitialSizeKeyId);
+			{
+				mInitialSize.mLeft = pReader->GetFloat("min");
+				mInitialSize.mRight = pReader->GetFloat("max");
+			}
+			pReader->EndGroup();
+		}
+		pReader->EndGroup();
+
 		return RC_OK;
 	}
 
@@ -85,6 +119,31 @@ namespace TDEngine2
 		pWriter->SetBool(TParticleEffectClipKeys::mLoopModeKeyId, mIsLooped);
 		pWriter->SetUInt16(TParticleEffectClipKeys::mMaxParticlesCountKeyId, mMaxParticlesCount);
 		pWriter->SetString(TParticleEffectClipKeys::mMaterialNameKeyId, mMaterialName);
+
+		pWriter->BeginGroup(TParticleEffectClipKeys::mParticlesSettingsGroupId);
+		{
+			pWriter->BeginGroup(TParticleEffectClipKeys::mLifeTimeKeyId);
+			{
+				pWriter->SetFloat("min", mLifeTime.mLeft);
+				pWriter->SetFloat("max", mLifeTime.mRight);
+			}
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TParticleEffectClipKeys::mInitialRotationKeyId);
+			{
+				pWriter->SetFloat("min", mInitialRotation.mLeft);
+				pWriter->SetFloat("max", mInitialRotation.mRight);
+			}
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TParticleEffectClipKeys::mInitialSizeKeyId);
+			{
+				pWriter->SetFloat("min", mInitialSize.mLeft);
+				pWriter->SetFloat("max", mInitialSize.mRight);
+			}
+			pWriter->EndGroup();
+		}
+		pWriter->EndGroup();
 
 		return RC_OK;
 	}
@@ -123,6 +182,25 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CParticleEffect::SetLifetime(const TRangeF32& value)
+	{
+		mLifeTime = value;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CParticleEffect::SetInitialSize(const TRangeF32& value)
+	{
+		mInitialSize = value;
+
+		return RC_OK;
+	}
+
+	void CParticleEffect::SetInitialRotation(const TRangeF32& value)
+	{
+		mInitialRotation = value;
+	}
+
 	F32 CParticleEffect::GetDuration() const
 	{
 		return mDuration;
@@ -141,6 +219,21 @@ namespace TDEngine2
 	const std::string& CParticleEffect::GetMaterialName() const
 	{
 		return mMaterialName;
+	}
+
+	const TRangeF32& CParticleEffect::GetLifetime() const
+	{
+		return mLifeTime;
+	}
+
+	const TRangeF32& CParticleEffect::GetInitialSize() const
+	{
+		return mInitialSize;
+	}
+
+	const TRangeF32& CParticleEffect::GetInitialRotation() const
+	{
+		return mInitialRotation;
 	}
 
 	const IResourceLoader* CParticleEffect::_getResourceLoader()

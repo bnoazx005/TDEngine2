@@ -7,11 +7,12 @@
 #pragma once
 
 
-#include "../utils/Types.h"
-#include "../core/IResource.h"
-#include "../core/IResourceFactory.h"
-#include "../core/IResourceLoader.h"
-#include "../core/Serialization.h"
+#include "../../utils/Types.h"
+#include "../../math/MathUtils.h"
+#include "../../core/IResource.h"
+#include "../../core/IResourceFactory.h"
+#include "../../core/IResourceLoader.h"
+#include "../../core/Serialization.h"
 
 
 namespace TDEngine2
@@ -25,10 +26,17 @@ namespace TDEngine2
 
 	typedef struct TParticleEffectParameters : TBaseResourceParameters
 	{
+		/// \note Common settings
 		F32  mDuration;
 		bool mIsLooped;
 		U16  mMaxParticlesCount;
 		std::string mMaterialName;
+
+		/// \note Particle's settings
+		TRangeF32 mLifeTime;
+		TRangeF32 mInitialSize;
+		TRangeF32 mInitialRotation;
+
 	} TParticleEffectParameters, *TParticleEffectParametersPtr;
 
 
@@ -87,6 +95,12 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SetMaterialName(const std::string& value) = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetLifetime(const TRangeF32& value) = 0;
+
+			TDE2_API virtual E_RESULT_CODE SetInitialSize(const TRangeF32& value) = 0;
+
+			TDE2_API virtual void SetInitialRotation(const TRangeF32& value) = 0;
+
 			/*!
 				\return The method returns a duration of the effect
 			*/
@@ -110,6 +124,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const std::string& GetMaterialName() const = 0;
+
+			TDE2_API virtual const TRangeF32& GetLifetime() const = 0;
+
+			TDE2_API virtual const TRangeF32& GetInitialSize() const = 0;
+
+			TDE2_API virtual const TRangeF32& GetInitialRotation() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IParticleEffect)
 	};
