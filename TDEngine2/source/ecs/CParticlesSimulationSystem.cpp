@@ -279,6 +279,25 @@ namespace TDEngine2
 		}
 	}
 
+
+	static U32 GetFirstDeadParticleIndex(const std::vector<TParticleInfo>& particles)
+	{
+		U32 index = 0;
+
+		for (const TParticleInfo& currParticle : particles)
+		{
+			if (CMathUtils::IsGreatOrEqual(currParticle.mAge, currParticle.mLifeTime, 1e-3f))
+			{
+				return index;
+			}
+
+			++index;
+		}
+
+		return index;
+	}
+
+
 	void CParticlesSimulationSystem::_simulateParticles(IWorld* pWorld, F32 dt)
 	{
 		const bool needEmitNewParticles = (mEmissionTimerValue > 1.0f);
@@ -298,6 +317,48 @@ namespace TDEngine2
 			if (CParticleEmitter* pEmitterComponent = pCurrEntity->GetComponent<CParticleEmitter>())
 			{
 				IParticleEffect* pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
+
+				auto& particles = mParticles[i];
+
+				// \note Process emission
+				if (needEmitNewParticles && (mActiveParticlesCount[i] < pCurrEffectResource->GetMaxParticlesCount()))
+				{
+					const U32 emissionRate = pCurrEffectResource->GetEmissionRate();
+					mActiveParticlesCount[i] += emissionRate;
+
+					if (auto pSharedEmitter = pCurrEffectResource->GetSharedEmitter())
+					{
+						CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
+
+						for (U32 k = 0; k < emissionRate; ++k)
+						{
+							const U32 firstDeadParticleIndex = GetFirstDeadParticleIndex(particles);
+							if (firstDeadParticleIndex >= particles.size())
+							{
+								break; /// \note We're reach out of free particles 
+							}
+
+							pSharedEmitter->EmitParticle(pTransform, particles[firstDeadParticleIndex]);
+						}
+					}
+				}
+
+				// \note Update existing particles
+				for (TParticle& currParticle : particles)
+				{
+					currParticle.mAge += dt;
+					currParticle.mPosition = currParticle.mPosition + currParticle.mVelocity; // \todo Add speed factor
+
+					// \todo currParticle.mSize 
+					// \todo currParticle.mColor
+					// \todo currParticle.mVelocity
+					// \todo currParticle.mRotationAngle
+
+					if (CMathUtils::IsGreatOrEqual(currParticle.mAge, currParticle.mLifeTime, 1e-3f))
+					{
+						--mActiveParticlesCount[i];
+					}
+				}
 			}
 		}
 

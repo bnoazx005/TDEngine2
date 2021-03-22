@@ -22,5 +22,6 @@ namespace TDEngine2
 		TVector4  mSize;
 		TColor32F mColor;
 		F32       mAge;
+		F32       mLifeTime;
 	} TParticleInfo, *TParticleInfoPtr;
 }
