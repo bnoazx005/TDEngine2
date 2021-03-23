@@ -2,6 +2,7 @@
 #include "../../../include/graphics/effects/TParticle.h"
 #include "../../../include/graphics/effects/IParticleEffect.h"
 #include "../../../include/ecs/CTransform.h"
+#include "../../../include/math/TVector2.h"
 #include <unordered_map>
 #include <functional>
 
@@ -312,5 +313,96 @@ namespace TDEngine2
 	TDE2_API CBaseParticlesEmitter* CreateSphereParticlesEmitter(IParticleEffect* pOwnerEffect, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(CBaseParticlesEmitter, CSphereParticlesEmitter, result, pOwnerEffect);
+	}
+
+
+	/*!
+		\brief CConeParticlesEmitter's definition
+	*/
+
+
+	struct TConeParticlesEmitterArchiveKeys
+	{
+		static const std::string mRadiusKeyId;
+		static const std::string mHeightKeyId;
+	};
+
+	const std::string TConeParticlesEmitterArchiveKeys::mRadiusKeyId = "radius";
+	const std::string TConeParticlesEmitterArchiveKeys::mHeightKeyId = "height";
+
+
+	CConeParticlesEmitter::CConeParticlesEmitter() :
+		CBaseParticlesEmitter()
+	{
+	}
+
+	E_RESULT_CODE CConeParticlesEmitter::Load(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mRadius = pReader->GetFloat(TConeParticlesEmitterArchiveKeys::mRadiusKeyId);
+		mHeight = pReader->GetFloat(TConeParticlesEmitterArchiveKeys::mHeightKeyId);
+
+		mIs2DEmitter = pReader->GetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CConeParticlesEmitter::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pWriter->SetFloat(TConeParticlesEmitterArchiveKeys::mRadiusKeyId, mRadius);
+		pWriter->SetFloat(TConeParticlesEmitterArchiveKeys::mHeightKeyId, mHeight);
+
+		pWriter->SetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId, mIs2DEmitter);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CConeParticlesEmitter::EmitParticle(const CTransform* pTransform, TParticle& particleInfo)
+	{
+		if (!mpOwnerEffect)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pTransform)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		// \todo Clean up this listing
+		TVector2 pos = TVector2(CRandomUtils::GetRandF32Value({ 0.0f, 1.0f }), CRandomUtils::GetRandF32Value({ 0.0f, 1.0f })); // \todo Replace with helper functions
+		const F32 h = CRandomUtils::GetRandF32Value({ 0.0f, 1.0f });
+
+		F32 r = h * mRadius * 0.5f / mHeight;
+		pos = Normalize(pos) * r;
+
+		particleInfo.mAge = 0.0f;
+		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
+		particleInfo.mColor = TColorUtils::mWhite;
+		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
+		particleInfo.mPosition = pTransform->GetPosition() + TVector3(pos.x, h, pos.y); // \todo Fix this with proper computation of transformed position
+		particleInfo.mVelocity = ZeroVector3;
+
+		if (mIs2DEmitter)
+		{
+			particleInfo.mPosition.z = pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
+		}
+
+		return RC_OK;
+	}
+
+
+	TDE2_API CBaseParticlesEmitter* CreateConeParticlesEmitter(IParticleEffect* pOwnerEffect, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CBaseParticlesEmitter, CConeParticlesEmitter, result, pOwnerEffect);
 	}
 }
