@@ -174,8 +174,8 @@ namespace TDEngine2
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
 		particleInfo.mColor = TColorUtils::mWhite;
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
-		particleInfo.mPosition = RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes);
-		particleInfo.mVelocity = UpVector3;
+		particleInfo.mPosition = pTransform->GetPosition() + RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes);
+		particleInfo.mVelocity = ZeroVector3;
 
 		return RC_OK;
 	}

@@ -12,6 +12,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/IVertexBuffer.h"
 #include "../../include/utils/CFileLogger.h"
 #include <algorithm>
 #include <cassert>
@@ -147,7 +148,27 @@ namespace TDEngine2
 			currCount = 0;
 		}
 
-		mEmissionTimerValue = 0.0f;
+		/// \note Initialize arrays
+		CEntity* pCurrEntity = nullptr;
+
+		for (U32 i = 0; i < static_cast<U32>(mParticleEmitters.size()); ++i)
+		{
+			pCurrEntity = pWorld->FindEntity(mParticleEmitters[i]);
+			if (!pCurrEntity)
+			{
+				continue;
+			}
+
+			if (CParticleEmitter* pEmitterComponent = pCurrEntity->GetComponent<CParticleEmitter>())
+			{
+				IParticleEffect* pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
+				
+				const size_t particlesCount = static_cast<size_t>(pCurrEffectResource->GetMaxParticlesCount());
+
+				mParticlesInstancesData[i].resize(particlesCount);
+				mParticles[i].resize(particlesCount);
+			}
+		}
 	}
 
 	void CParticlesSimulationSystem::Update(IWorld* pWorld, F32 dt)
@@ -300,8 +321,7 @@ namespace TDEngine2
 
 	void CParticlesSimulationSystem::_simulateParticles(IWorld* pWorld, F32 dt)
 	{
-		const bool needEmitNewParticles = (mEmissionTimerValue > 1.0f);
-		mEmissionTimerValue += dt;
+		U32 currInstancesBufferIndex = 0;
 
 		CEntity* pCurrEntity = nullptr;
 
@@ -321,10 +341,9 @@ namespace TDEngine2
 				auto& particles = mParticles[i];
 
 				// \note Process emission
-				if (needEmitNewParticles && (mActiveParticlesCount[i] < pCurrEffectResource->GetMaxParticlesCount()))
+				if ((mActiveParticlesCount[i] < pCurrEffectResource->GetMaxParticlesCount()))
 				{
 					const U32 emissionRate = pCurrEffectResource->GetEmissionRate();
-					mActiveParticlesCount[i] += emissionRate;
 
 					if (auto pSharedEmitter = pCurrEffectResource->GetSharedEmitter())
 					{
@@ -343,9 +362,20 @@ namespace TDEngine2
 					}
 				}
 
+				auto& particlesInstancesBuffer = mParticlesInstancesData[i];
+
+				mActiveParticlesCount[i] = 0;
+
 				// \note Update existing particles
 				for (TParticle& currParticle : particles)
 				{
+					if (CMathUtils::IsGreatOrEqual(currParticle.mAge, currParticle.mLifeTime, 1e-3f))
+					{
+						continue;
+					}
+
+					++mActiveParticlesCount[i];
+
 					currParticle.mAge += dt;
 					currParticle.mPosition = currParticle.mPosition + currParticle.mVelocity; // \todo Add speed factor
 
@@ -354,17 +384,23 @@ namespace TDEngine2
 					// \todo currParticle.mVelocity
 					// \todo currParticle.mRotationAngle
 
-					if (CMathUtils::IsGreatOrEqual(currParticle.mAge, currParticle.mLifeTime, 1e-3f))
+					particlesInstancesBuffer[currInstancesBufferIndex].mColor = currParticle.mColor;
+					particlesInstancesBuffer[currInstancesBufferIndex].mPositionAndSize = TVector4(currParticle.mPosition, currParticle.mSize.x); // \todo For now use only uniform size
+
+					++currInstancesBufferIndex;
+				}
+
+				// \note Copy data into GPU buffers
+				if (!particlesInstancesBuffer.empty())
+				{
+					if (auto pInstancesBuffer = mpParticlesInstancesBuffers[i])
 					{
-						--mActiveParticlesCount[i];
+						pInstancesBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+						pInstancesBuffer->Write(&particlesInstancesBuffer[0], sizeof(TParticleInstanceData) * mActiveParticlesCount[i]);
+						pInstancesBuffer->Unmap();
 					}
 				}
 			}
-		}
-
-		if (needEmitNewParticles)
-		{
-			mEmissionTimerValue = 0.0f;
 		}
 	}
 		

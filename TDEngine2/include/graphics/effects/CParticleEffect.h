@@ -124,7 +124,7 @@ namespace TDEngine2
 			TDE2_API void SetInitialRotation(const TRangeF32& value) override;
 
 			/*!
-				\brief The method defines how much particles are spawned per second
+				\brief The method defines how much particles are spawned per frame
 			*/
 
 			TDE2_API void SetEmissionRate(U32 value) override;

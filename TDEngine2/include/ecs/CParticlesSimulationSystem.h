@@ -65,7 +65,7 @@ namespace TDEngine2
 
 			typedef struct TParticleInstanceData
 			{
-				TVector4 mColor;
+				TColor32F mColor;
 				TVector4 mPositionAndSize;
 				TVector4 mRotation;
 			} TParticleInstanceData, *TParticleInstanceDataPtr;			
@@ -145,8 +145,6 @@ namespace TDEngine2
 			TParticlesArray         mParticlesInstancesData;
 
 			TParticlesInfoArray     mParticles;
-
-			F32                     mEmissionTimerValue;
 
 			std::vector<TEntityId>  mParticleEmitters;
 

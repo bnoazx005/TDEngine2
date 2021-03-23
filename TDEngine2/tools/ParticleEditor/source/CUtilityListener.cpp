@@ -28,10 +28,17 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	auto handler = mpResourceManager->Load<CParticleEffect>("testParticles.particles");
 	TDE2_ASSERT(TResourceId::Invalid != handler);
 
-	auto pParticlesEntity = pWorld->CreateEntity();
-	if (auto pParticles = pParticlesEntity->AddComponent<CParticleEmitter>())
+	if (auto pParticlesEntity = pWorld->CreateEntity())
 	{
-		pParticles->SetParticleEffect("testParticles.particles");
+		if (CTransform* pTransform = pParticlesEntity->GetComponent<CTransform>())
+		{
+			pTransform->SetPosition(ForwardVector3 * 2.0f);
+		}
+
+		if (auto pParticles = pParticlesEntity->AddComponent<CParticleEmitter>())
+		{
+			pParticles->SetParticleEffect("testParticles.particles");
+		}
 	}
 
 	return RC_OK;
