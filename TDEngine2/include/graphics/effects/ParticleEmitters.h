@@ -70,11 +70,23 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetOwnerEffect(IParticleEffect* pOwner);
 
+			/*!
+				\brief The method determines whether or not the emitter produces particles in 2D or 3D fashion
+
+				\param[in] value True enables 2D emission mode for the emitter, false is default 3D mode
+			*/
+
+			TDE2_API void Set2DMode(bool value);
+
+			TDE2_API bool Is2DModeEnabled() const;
+
 			TDE2_API virtual TypeId GetEmitterTypeId() const { return TypeId::Invalid; }
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseParticlesEmitter)
 		protected:
 			IParticleEffect* mpOwnerEffect;
+
+			bool mIs2DEmitter = false;
 	};
 
 

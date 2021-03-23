@@ -12,6 +12,14 @@ namespace TDEngine2
 		\brief CBaseParticlesEmitter's definition
 	*/
 
+	struct TBaseParticlesEmitterArchiveKeys
+	{
+		static const std::string mIs2DModeKeyId;
+	};
+
+	const std::string TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId = "2d-mode";
+
+
 	CBaseParticlesEmitter::CBaseParticlesEmitter():
 		CBaseObject()
 	{
@@ -56,6 +64,16 @@ namespace TDEngine2
 		mpOwnerEffect = pOwner;
 
 		return RC_OK;
+	}
+
+	void CBaseParticlesEmitter::Set2DMode(bool value)
+	{
+		mIs2DEmitter = value;
+	}
+
+	bool CBaseParticlesEmitter::Is2DModeEnabled() const
+	{
+		return mIs2DEmitter;
 	}
 
 
@@ -137,6 +155,8 @@ namespace TDEngine2
 
 		pReader->EndGroup();
 
+		mIs2DEmitter = pReader->GetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId);
+
 		return RC_OK;
 	}
 
@@ -154,6 +174,8 @@ namespace TDEngine2
 		pWriter->BeginGroup(TBoxParticlesEmitterArchiveKeys::mOriginKeyId);
 		SaveVector3(pWriter, mBoxOrigin);
 		pWriter->EndGroup();
+
+		pWriter->SetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId, mIs2DEmitter);
 
 		return RC_OK;
 	}
@@ -174,8 +196,13 @@ namespace TDEngine2
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
 		particleInfo.mColor = TColorUtils::mWhite;
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
-		particleInfo.mPosition = pTransform->GetPosition() + RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes);
+		particleInfo.mPosition = pTransform->GetPosition() + RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes); // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = ZeroVector3;
+
+		if (mIs2DEmitter)
+		{
+			particleInfo.mPosition.z = pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
+		}
 
 		return RC_OK;
 	}
