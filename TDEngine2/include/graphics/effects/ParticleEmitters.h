@@ -152,4 +152,68 @@ namespace TDEngine2
 			TVector3 mBoxSizes;
 			TVector3 mBoxOrigin;
 	};
+
+
+	/*!
+		\brief A factory function for creation objects of CSphereParticlesEmitter's type
+
+		\param[in, out] pOwnerEffect A pointer to IParticleEffect implementation
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CBaseParticlesEmitter's implementation
+	*/
+
+	TDE2_API CBaseParticlesEmitter* CreateSphereParticlesEmitter(IParticleEffect* pOwnerEffect, E_RESULT_CODE& result);
+
+
+	/*!
+		class CSphereParticlesEmitter
+
+		\brief The class is an implementation of 3D sphere emitting particles
+	*/
+
+	class CSphereParticlesEmitter : public CBaseParticlesEmitter
+	{
+		public:
+			friend TDE2_API CBaseParticlesEmitter* CreateSphereParticlesEmitter(IParticleEffect*, E_RESULT_CODE&);
+		public:
+			TDE2_REGISTER_VIRTUAL_TYPE_EX(CSphereParticlesEmitter, GetEmitterTypeId)
+			TDE2_REGISTER_TYPE(CSphereParticlesEmitter)
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+			/*!
+				\brief The method initializes a state of a given particle as it's used for the first time
+
+				\param[in] pTransform A pointer to transform component that defines a position of current emitter
+				\param[out] particleInfo A reference to a particle's object that should be re-initialized
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE EmitParticle(const CTransform* pTransform, TParticle& particleInfo) override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSphereParticlesEmitter)
+		protected:
+			TVector3 mOrigin;
+			F32      mRadius;
+	};
 }

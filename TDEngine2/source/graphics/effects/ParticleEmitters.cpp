@@ -82,6 +82,7 @@ namespace TDEngine2
 		static const std::unordered_map<TypeId, std::function<CBaseParticlesEmitter*(IParticleEffect*, E_RESULT_CODE&)>> factoriesTable
 		{
 			{ CBoxParticlesEmitter::GetTypeId(), std::bind(&CreateBoxParticlesEmitter, std::placeholders::_1, std::placeholders::_2) },
+			{ CSphereParticlesEmitter::GetTypeId(), std::bind(&CreateSphereParticlesEmitter, std::placeholders::_1, std::placeholders::_2) },
 		};
 
 		const TypeId typeId = static_cast<TypeId>(pReader->GetUInt32("type_id"));
@@ -211,5 +212,105 @@ namespace TDEngine2
 	TDE2_API CBaseParticlesEmitter* CreateBoxParticlesEmitter(IParticleEffect* pOwnerEffect, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(CBaseParticlesEmitter, CBoxParticlesEmitter, result, pOwnerEffect);
+	}
+
+
+	/*!
+		\brief CSphereParticlesEmitter's definition
+	*/
+
+
+	struct TSphereParticlesEmitterArchiveKeys
+	{
+		static const std::string mRadiusKeyId;
+		static const std::string mOriginKeyId;
+	};
+
+	const std::string TSphereParticlesEmitterArchiveKeys::mRadiusKeyId = "radius";
+	const std::string TSphereParticlesEmitterArchiveKeys::mOriginKeyId = "origin";
+
+
+	CSphereParticlesEmitter::CSphereParticlesEmitter() :
+		CBaseParticlesEmitter()
+	{
+	}
+
+	E_RESULT_CODE CSphereParticlesEmitter::Load(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mRadius = pReader->GetFloat(TSphereParticlesEmitterArchiveKeys::mRadiusKeyId);
+
+		pReader->EndGroup();
+
+		pReader->BeginGroup(TSphereParticlesEmitterArchiveKeys::mOriginKeyId);
+
+		auto boxOriginResult = LoadVector3(pReader);
+		if (boxOriginResult.HasError())
+		{
+			return boxOriginResult.GetError();
+		}
+
+		mOrigin = boxOriginResult.Get();
+
+		pReader->EndGroup();
+
+		mIs2DEmitter = pReader->GetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CSphereParticlesEmitter::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pWriter->SetFloat(TSphereParticlesEmitterArchiveKeys::mRadiusKeyId, mRadius);
+
+		pWriter->BeginGroup(TSphereParticlesEmitterArchiveKeys::mOriginKeyId);
+		SaveVector3(pWriter, mOrigin);
+		pWriter->EndGroup();
+
+		pWriter->SetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId, mIs2DEmitter);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CSphereParticlesEmitter::EmitParticle(const CTransform* pTransform, TParticle& particleInfo)
+	{
+		if (!mpOwnerEffect)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pTransform)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		particleInfo.mAge = 0.0f;
+		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
+		particleInfo.mColor = TColorUtils::mWhite;
+		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
+		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3()) * mRadius; // \todo Fix this with proper computation of transformed position
+		particleInfo.mVelocity = ZeroVector3;
+
+		if (mIs2DEmitter)
+		{
+			particleInfo.mPosition.z = pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
+		}
+
+		return RC_OK;
+	}
+
+
+	TDE2_API CBaseParticlesEmitter* CreateSphereParticlesEmitter(IParticleEffect* pOwnerEffect, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CBaseParticlesEmitter, CSphereParticlesEmitter, result, pOwnerEffect);
 	}
 }
