@@ -8,10 +8,14 @@
 
 
 #include <TDEngine2.h>
+#include <string>
 
 
 namespace TDEngine2
 {
+	const std::string EditableEntityId = "ParticleEffectEntity";
+
+
 	/*!
 		\brief A factory function for creation objects of CParticleEditorWindow's type
 
@@ -66,5 +70,6 @@ namespace TDEngine2
 			TDE2_API void _drawToolbar();
 
 		protected:
+			CScopedPtr<CAnimationCurveEditorWindow> mpCurveEditor;
 	};
 }

@@ -28,16 +28,21 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	auto handler = mpResourceManager->Load<CParticleEffect>("testParticles.particles");
 	TDE2_ASSERT(TResourceId::Invalid != handler);
 
-	if (auto pParticlesEntity = pWorld->CreateEntity())
-	{
-		if (CTransform* pTransform = pParticlesEntity->GetComponent<CTransform>())
-		{
-			pTransform->SetPosition(ForwardVector3 * 2.0f);
-		}
+	ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
-		if (auto pParticles = pParticlesEntity->AddComponent<CParticleEmitter>())
+	if (auto getSceneResult = pSceneManager->GetScene(MainScene))
+	{
+		if (auto pParticlesEntity = getSceneResult.Get()->CreateEntity(EditableEntityId))
 		{
-			pParticles->SetParticleEffect("testParticles.particles");
+			if (CTransform* pTransform = pParticlesEntity->GetComponent<CTransform>())
+			{
+				pTransform->SetPosition(ForwardVector3 * 2.0f);
+			}
+
+			if (auto pParticles = pParticlesEntity->AddComponent<CParticleEmitter>())
+			{
+				pParticles->SetParticleEffect("testParticles.particles");
+			}
 		}
 	}
 
@@ -47,6 +52,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
 	mpParticleEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+
+	_drawMainMenu();
 
 	return RC_OK;
 }
@@ -72,4 +79,35 @@ void CUtilityListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCore)
 	mpWindowSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IWindowSystem>();
 
 	mpResourceManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IResourceManager>();
+}
+
+void CUtilityListener::_drawMainMenu()
+{
+	auto pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
+
+	pImGUIContext->DisplayMainMenu([this](IImGUIContext& imguiContext)
+	{
+		imguiContext.MenuGroup("File", [this](IImGUIContext& imguiContext)
+		{
+			imguiContext.MenuItem("New Effect", "CTRL+N", []
+			{
+			});
+
+			imguiContext.MenuItem("Open Effect", "CTRL+O", []
+			{
+			});
+
+			imguiContext.MenuItem("Save Effect", "CTRL+S", []
+			{
+
+			});
+
+			imguiContext.MenuItem("Save Effect As...", "SHIFT+CTRL+S", []
+			{
+
+			});
+
+			imguiContext.MenuItem("Quit", "Ctrl+Q", [this] { mpEngineCoreInstance->Quit(); });
+		});
+	});
 }

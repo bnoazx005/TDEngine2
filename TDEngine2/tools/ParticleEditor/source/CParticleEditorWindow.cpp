@@ -15,6 +15,14 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
+		mpCurveEditor = dynamic_cast<CAnimationCurveEditorWindow*>(CreateAnimationCurveEditorWindow(result));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 		mIsVisible = true;
 
@@ -53,7 +61,6 @@ namespace TDEngine2
 		if (mpImGUIContext->BeginWindow("Particle Editor", isEnabled, params))
 		{
 			_drawToolbar();
-
 		}
 
 		mpImGUIContext->EndWindow();

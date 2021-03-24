@@ -50,6 +50,10 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		*/
 
 		void SetEngineInstance(TDEngine2::IEngineCore* pEngineCore) override;
+
+	protected:
+		void _drawMainMenu();
+
 	protected:
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
 
