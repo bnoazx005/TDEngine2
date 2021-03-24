@@ -8,6 +8,7 @@
 
 
 #include <TDEngine2.h>
+#include <string>
 
 
 namespace TDEngine2
@@ -64,5 +65,9 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::IResourceManager* mpResourceManager;
 
 		TDEngine2::IEditorWindow*    mpParticleEditor;
+
+		TDEngine2::TResourceId       mCurrEditableEffectId;
+
+		std::string                  mLastSavedPath;
 
 };

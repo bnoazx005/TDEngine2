@@ -23,6 +23,8 @@ namespace TDEngine2
 			return result;
 		}
 
+		mCurrParticleEffectId = Wrench::StringUtils::GetEmptyStr();
+
 		mIsInitialized = true;
 		mIsVisible = true;
 
@@ -60,22 +62,19 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Particle Editor", isEnabled, params))
 		{
-			_drawToolbar();
+			mpImGUIContext->BeginHorizontal();
+			{
+				mpImGUIContext->Label("Effect Name: ");
+				mpImGUIContext->TextField("", mCurrParticleEffectId, []
+				{
+				});
+			}
+			mpImGUIContext->EndHorizontal();
 		}
 
 		mpImGUIContext->EndWindow();
 
 		mIsVisible = isEnabled;
-	}
-
-	void CParticleEditorWindow::_drawToolbar()
-	{
-		if (mpImGUIContext->BeginChildWindow("Toolbar", TVector2(mpImGUIContext->GetWindowWidth(), 15.0f)))
-		{
-			
-
-			mpImGUIContext->EndChildWindow();
-		}
 	}
 
 

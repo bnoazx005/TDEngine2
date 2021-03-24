@@ -25,8 +25,11 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	mpParticleEditor = TDEngine2::CreateParticleEditorWindow(result);
 
-	auto handler = mpResourceManager->Load<CParticleEffect>("testParticles.particles");
-	TDE2_ASSERT(TResourceId::Invalid != handler);
+	mCurrEditableEffectId = TResourceId::Invalid;
+	mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
+
+	mCurrEditableEffectId = mpResourceManager->Load<CParticleEffect>("testParticles.particles");
+	TDE2_ASSERT(TResourceId::Invalid != mCurrEditableEffectId);
 
 	ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
@@ -81,30 +84,69 @@ void CUtilityListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCore)
 	mpResourceManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IResourceManager>();
 }
 
+
+static E_RESULT_CODE SaveToFile(IFileSystem* pFileSystem, IResourceManager* pResourceManager, TResourceId resourceId, const std::string& destFilePath)
+{
+	if (destFilePath.empty() || (TResourceId::Invalid == resourceId) || !pFileSystem || !pResourceManager)
+	{
+		return RC_INVALID_ARGS;
+	}
+
+	E_RESULT_CODE result = RC_OK;
+
+	if (auto openFileResult = pFileSystem->Open<IYAMLFileWriter>(destFilePath, true))
+	{
+		if (auto pFileWriter = pFileSystem->Get<IYAMLFileWriter>(openFileResult.Get()))
+		{
+			if (auto pParticleEffect = pResourceManager->GetResource<IParticleEffect>(resourceId))
+			{
+				if (RC_OK != (result = pParticleEffect->Save(pFileWriter)))
+				{
+					return result;
+				}
+			}
+
+			if (RC_OK != (result = pFileWriter->Close()))
+			{
+				return result;
+			}
+		}
+	}
+
+	return RC_OK;
+}
+
+
 void CUtilityListener::_drawMainMenu()
 {
 	auto pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
-
-	pImGUIContext->DisplayMainMenu([this](IImGUIContext& imguiContext)
+	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
+	
+	pImGUIContext->DisplayMainMenu([this, pFileSystem](IImGUIContext& imguiContext)
 	{
-		imguiContext.MenuGroup("File", [this](IImGUIContext& imguiContext)
+		imguiContext.MenuGroup("File", [this, pFileSystem](IImGUIContext& imguiContext)
 		{
-			imguiContext.MenuItem("New Effect", "CTRL+N", []
+			imguiContext.MenuItem("New Effect", "CTRL+N", [this]
 			{
+				mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
 			});
 
 			imguiContext.MenuItem("Open Effect", "CTRL+O", []
 			{
 			});
 
-			imguiContext.MenuItem("Save Effect", "CTRL+S", []
+			imguiContext.MenuItem("Save Effect", "CTRL+S", [this, pFileSystem]
 			{
-
+				SaveToFile(pFileSystem, mpResourceManager, mCurrEditableEffectId, mLastSavedPath);
 			});
 
-			imguiContext.MenuItem("Save Effect As...", "SHIFT+CTRL+S", []
+			imguiContext.MenuItem("Save Effect As...", "SHIFT+CTRL+S", [this, pFileSystem]
 			{
-
+				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog({}))
+				{
+					mLastSavedPath = saveFileDialogResult.Get();
+					SaveToFile(pFileSystem, mpResourceManager, mCurrEditableEffectId, mLastSavedPath);
+				}
 			});
 
 			imguiContext.MenuItem("Quit", "Ctrl+Q", [this] { mpEngineCoreInstance->Quit(); });

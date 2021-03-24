@@ -13,7 +13,8 @@
 
 namespace TDEngine2
 {
-	const std::string EditableEntityId = "ParticleEffectEntity";
+	const std::string EditableEntityId         = "ParticleEffectEntity";
+	const std::string EditableEffectResourceId = "ParticleEffectResource";
 
 
 	/*!
@@ -67,9 +68,9 @@ namespace TDEngine2
 
 			TDE2_API void _onDraw() override;
 
-			TDE2_API void _drawToolbar();
-
 		protected:
 			CScopedPtr<CAnimationCurveEditorWindow> mpCurveEditor;
+
+			std::string mCurrParticleEffectId;
 	};
 }
