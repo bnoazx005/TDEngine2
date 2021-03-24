@@ -13,6 +13,7 @@
 #include "../../core/IResourceFactory.h"
 #include "../../core/IResourceLoader.h"
 #include "../../core/Serialization.h"
+#include "../../graphics/animation/CAnimationCurve.h"
 #include "ParticleEmitters.h"
 
 
@@ -108,6 +109,16 @@ namespace TDEngine2
 			TDE2_API virtual void SetEmissionRate(U32 value) = 0;
 
 			/*!
+				\brief The method defines a curve that controls particles size over their lifetime
+
+				\param[in] pCurve A pointer to a curve
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetSizeCurve(const CScopedPtr<CAnimationCurve>& pCurve) = 0;
+
+			/*!
 				\return The method returns a duration of the effect
 			*/
 
@@ -140,6 +151,8 @@ namespace TDEngine2
 			TDE2_API virtual U32 GetEmissionRate() const = 0;
 
 			TDE2_API virtual CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const = 0;
+
+			TDE2_API virtual CScopedPtr<CAnimationCurve> GetSizeCurve() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IParticleEffect)
 	};

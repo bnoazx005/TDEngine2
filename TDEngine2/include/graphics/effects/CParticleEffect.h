@@ -130,6 +130,16 @@ namespace TDEngine2
 			TDE2_API void SetEmissionRate(U32 value) override;
 
 			/*!
+				\brief The method defines a curve that controls particles size over their lifetime
+
+				\param[in] pCurve A pointer to a curve
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetSizeCurve(const CScopedPtr<CAnimationCurve>& pCurve) override;
+
+			/*!
 				\return The method returns a duration of the effect
 			*/
 
@@ -162,6 +172,8 @@ namespace TDEngine2
 			TDE2_API U32 GetEmissionRate() const override;
 
 			TDE2_API CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const override;
+
+			TDE2_API CScopedPtr<CAnimationCurve> GetSizeCurve() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
 
@@ -180,6 +192,8 @@ namespace TDEngine2
 			TRangeF32   mInitialRotation;
 
 			U32         mEmissionRate;
+
+			CScopedPtr<CAnimationCurve> mpSizeCurve;
 
 			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
 	};

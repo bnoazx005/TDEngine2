@@ -19,6 +19,8 @@ namespace TDEngine2
 		static const std::string mInitialSizeKeyId;
 		static const std::string mInitialRotationKeyId;
 
+		static const std::string mSizeOverTimeKeyId;
+
 		static const std::string mEmitterDataGroupId;
 		static const std::string mEmissionRateKeyId;
 	};
@@ -31,6 +33,7 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mLifeTimeKeyId = "lifetime";
 	const std::string TParticleEffectClipKeys::mInitialSizeKeyId = "initial-size";
 	const std::string TParticleEffectClipKeys::mInitialRotationKeyId = "initial-rotation";
+	const std::string TParticleEffectClipKeys::mSizeOverTimeKeyId = "size-over-time";
 	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
 	const std::string TParticleEffectClipKeys::mEmissionRateKeyId = "emission-rate";
 
@@ -102,6 +105,19 @@ namespace TDEngine2
 				mInitialSize.mRight = pReader->GetFloat("max");
 			}
 			pReader->EndGroup();
+
+			E_RESULT_CODE result = RC_OK;
+
+			pReader->BeginGroup(TParticleEffectClipKeys::mSizeOverTimeKeyId);
+			{
+				mpSizeCurve = CreateAnimationCurve({}, result);
+
+				if ((RC_OK != result) || (RC_OK != (result = mpSizeCurve->Load(pReader))))
+				{
+					return result;
+				}
+			}
+			pReader->EndGroup();
 		}
 		pReader->EndGroup();
 
@@ -165,6 +181,12 @@ namespace TDEngine2
 			{
 				pWriter->SetFloat("min", mInitialSize.mLeft);
 				pWriter->SetFloat("max", mInitialSize.mRight);
+			}
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TParticleEffectClipKeys::mSizeOverTimeKeyId);
+			{
+				mpSizeCurve->Save(pWriter);
 			}
 			pWriter->EndGroup();
 		}
@@ -239,6 +261,18 @@ namespace TDEngine2
 		mEmissionRate = value;
 	}
 
+	E_RESULT_CODE CParticleEffect::SetSizeCurve(const CScopedPtr<CAnimationCurve>& pCurve)
+	{
+		if (!pCurve)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpSizeCurve = pCurve;
+
+		return RC_OK;
+	}
+
 	F32 CParticleEffect::GetDuration() const
 	{
 		return mDuration;
@@ -282,6 +316,11 @@ namespace TDEngine2
 	CScopedPtr<CBaseParticlesEmitter> CParticleEffect::GetSharedEmitter() const
 	{
 		return mpSharedEmitter;
+	}
+
+	CScopedPtr<CAnimationCurve> CParticleEffect::GetSizeCurve() const
+	{
+		return mpSizeCurve;
 	}
 
 	const IResourceLoader* CParticleEffect::_getResourceLoader()
