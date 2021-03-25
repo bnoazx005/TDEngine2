@@ -70,4 +70,6 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 		std::string                  mLastSavedPath;
 
+		TDEngine2::CEntity*          mpEditableEffectEntity;
+
 };

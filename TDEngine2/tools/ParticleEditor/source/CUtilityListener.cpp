@@ -1,9 +1,18 @@
 #include "../include/CUtilityListener.h"
 #include "../include/CParticleEditorWindow.h"
 #include <memory>
+#include <vector>
+#include <string>
+#include <tuple>
 
 
 using namespace TDEngine2;
+
+
+const std::vector<std::tuple<std::string, std::string>> FileExtensionsFilter
+{
+	{ "Particle Effects", "*.particles" }
+};
 
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
@@ -46,6 +55,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 			{
 				pParticles->SetParticleEffect("testParticles.particles");
 			}
+
+			mpEditableEffectEntity = pParticlesEntity;
 		}
 	}
 
@@ -82,6 +93,23 @@ void CUtilityListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCore)
 	mpWindowSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IWindowSystem>();
 
 	mpResourceManager = mpEngineCoreInstance->GetSubsystem<TDEngine2::IResourceManager>();
+}
+
+
+static TResult<TResourceId> OpenFromFile(IWindowSystem* pWindowSystem, IFileSystem* pFileSystem, IResourceManager* pResourceManager)
+{
+	if (!pWindowSystem || !pFileSystem || !pResourceManager)
+	{
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+	}
+
+	auto openFileResult = pWindowSystem->ShowOpenFileDialog(FileExtensionsFilter);
+	if (openFileResult.HasError())
+	{
+		return Wrench::TErrValue<E_RESULT_CODE>(openFileResult.GetError());
+	}
+
+	return Wrench::TOkValue<TResourceId>(pResourceManager->Load<CParticleEffect>(openFileResult.Get()));
 }
 
 
@@ -129,10 +157,23 @@ void CUtilityListener::_drawMainMenu()
 			imguiContext.MenuItem("New Effect", "CTRL+N", [this]
 			{
 				mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
+				// \todo Add reset of the app's state here
 			});
 
-			imguiContext.MenuItem("Open Effect", "CTRL+O", []
+			imguiContext.MenuItem("Open Effect", "CTRL+O", [this, pFileSystem]
 			{
+				if (auto openFileResult = OpenFromFile(mpWindowSystem, pFileSystem, mpResourceManager))
+				{
+					mCurrEditableEffectId = openFileResult.Get();
+
+					if (auto pParticles = mpEditableEffectEntity->GetComponent<CParticleEmitter>())
+					{
+						if (auto pParticleEffect = mpResourceManager->GetResource<IResource>(mCurrEditableEffectId))
+						{
+							pParticles->SetParticleEffect(pParticleEffect->GetName());
+						}
+					}
+				}
 			});
 
 			imguiContext.MenuItem("Save Effect", "CTRL+S", [this, pFileSystem]
@@ -142,7 +183,7 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Save Effect As...", "SHIFT+CTRL+S", [this, pFileSystem]
 			{
-				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog({}))
+				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
 					mLastSavedPath = saveFileDialogResult.Get();
 					SaveToFile(pFileSystem, mpResourceManager, mCurrEditableEffectId, mLastSavedPath);
