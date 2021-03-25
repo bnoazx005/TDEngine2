@@ -14,6 +14,7 @@
 namespace TDEngine2
 {
 	class IEditorWindow;
+	class CParticleEditorWindow;
 }
 
 
@@ -64,7 +65,7 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 		TDEngine2::IResourceManager* mpResourceManager;
 
-		TDEngine2::IEditorWindow*    mpParticleEditor;
+		TDEngine2::CParticleEditorWindow* mpParticleEditor;
 
 		TDEngine2::TResourceId       mCurrEditableEffectId;
 

@@ -32,13 +32,15 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
-	mpParticleEditor = TDEngine2::CreateParticleEditorWindow(result);
+	mpParticleEditor = dynamic_cast<CParticleEditorWindow*>(TDEngine2::CreateParticleEditorWindow(mpResourceManager, result));
 
 	mCurrEditableEffectId = TResourceId::Invalid;
 	mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
 
 	mCurrEditableEffectId = mpResourceManager->Load<CParticleEffect>("testParticles.particles");
 	TDE2_ASSERT(TResourceId::Invalid != mCurrEditableEffectId);
+
+	mpParticleEditor->SetParticleEffectResourceHandle(mCurrEditableEffectId);
 
 	ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
@@ -172,6 +174,8 @@ void CUtilityListener::_drawMainMenu()
 						{
 							pParticles->SetParticleEffect(pParticleEffect->GetName());
 						}
+
+						mpParticleEditor->SetParticleEffectResourceHandle(mCurrEditableEffectId);
 					}
 				}
 			});

@@ -26,7 +26,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateParticleEditorWindow(E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateParticleEditorWindow(IResourceManager* pResourceManager, E_RESULT_CODE& result);
 
 	/*!
 		class CParticleEditorWindow
@@ -37,7 +37,7 @@ namespace TDEngine2
 	class CParticleEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateParticleEditorWindow(E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateParticleEditorWindow(IResourceManager*, E_RESULT_CODE&);
 
 		public:
 			/*!
@@ -48,7 +48,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init();
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -57,6 +57,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Free() override;
+
+			TDE2_API void SetParticleEffectResourceHandle(TResourceId handle);
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEditorWindow)
@@ -68,9 +70,17 @@ namespace TDEngine2
 
 			TDE2_API void _onDraw() override;
 
+			TDE2_API void _onEmitterSettingsHandle();
+			TDE2_API void _onParticlesSettingsHandle();
+			TDE2_API void _onRenderingSettingsHandle();
+
 		protected:
 			CScopedPtr<CAnimationCurveEditorWindow> mpCurveEditor;
 
-			std::string mCurrParticleEffectId;
+			TResourceId mCurrParticleEffectId;
+
+			IResourceManager* mpResourceManager;
+
+			IParticleEffect* mpCurrParticleEffect;
 	};
 }
