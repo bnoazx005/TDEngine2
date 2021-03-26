@@ -107,6 +107,13 @@ namespace TDEngine2
 		
 		pReader->EndGroup();
 
+		if (mPoints.empty())
+		{
+			// \note Use default parameters for the curve with no points
+			AddPoint({ 0.0f, 0.0f, -0.5f * RightVector2, 0.5f * RightVector2 });
+			AddPoint({ 1.0f, 1.0f, -0.5f * RightVector2, 0.5f * RightVector2 });
+		}
+
 		return _updateBounds();
 	}
 	

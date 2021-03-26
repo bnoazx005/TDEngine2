@@ -110,7 +110,7 @@ namespace TDEngine2
 
 			pReader->BeginGroup(TParticleEffectClipKeys::mSizeOverTimeKeyId);
 			{
-				mpSizeCurve = CreateAnimationCurve({}, result);
+				mpSizeCurve = CreateAnimationCurve({ 0.0f, 0.0f, 1.0f, 1.0f }, result);
 
 				if ((RC_OK != result) || (RC_OK != (result = mpSizeCurve->Load(pReader))))
 				{

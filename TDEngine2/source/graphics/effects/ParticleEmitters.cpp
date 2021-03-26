@@ -177,6 +177,7 @@ namespace TDEngine2
 		SaveVector3(pWriter, mBoxOrigin);
 		pWriter->EndGroup();
 
+		pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId()));
 		pWriter->SetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId, mIs2DEmitter);
 
 		return RC_OK;
@@ -277,6 +278,7 @@ namespace TDEngine2
 		SaveVector3(pWriter, mOrigin);
 		pWriter->EndGroup();
 
+		pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId()));
 		pWriter->SetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId, mIs2DEmitter);
 
 		return RC_OK;
@@ -361,6 +363,7 @@ namespace TDEngine2
 		pWriter->SetFloat(TConeParticlesEmitterArchiveKeys::mRadiusKeyId, mRadius);
 		pWriter->SetFloat(TConeParticlesEmitterArchiveKeys::mHeightKeyId, mHeight);
 
+		pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId()));
 		pWriter->SetBool(TBaseParticlesEmitterArchiveKeys::mIs2DModeKeyId, mIs2DEmitter);
 
 		return RC_OK;

@@ -28,6 +28,8 @@ namespace TDEngine2
 			return result;
 		}
 
+		mpCurveEditor->SetCurveForEditing(nullptr);
+
 		mpResourceManager = pResourceManager;
 
 		mCurrParticleEffectId = TResourceId::Invalid;
@@ -100,6 +102,11 @@ namespace TDEngine2
 
 		mpImGUIContext->EndWindow();
 
+		if (mpCurveEditor)
+		{
+			mpCurveEditor->Draw(mpImGUIContext, 0.0f); /// \todo Fix dt passing
+		}
+
 		mIsVisible = isEnabled;
 	}
 
@@ -168,6 +175,17 @@ namespace TDEngine2
 			mpImGUIContext->Label("Max");
 			mpImGUIContext->FloatField("##SizeMax", initialSize.mRight, [this, &initialSize] { mpCurrParticleEffect->SetInitialSize(initialSize); });
 			mpImGUIContext->EndHorizontal();
+		}
+
+		/// \note Size over lifetime 
+		if (mpImGUIContext->CollapsingHeader("Size over Lifetime", true, false))
+		{
+			mpImGUIContext->Button("Edit Curve", TVector2(100.0f, 25.0f), [this] 
+			{
+				auto pSizeCurve = mpCurrParticleEffect->GetSizeCurve();
+				mpCurveEditor->SetCurveForEditing(pSizeCurve.Get());
+				mpCurveEditor->SetVisible(true);
+			});
 		}
 	}
 
