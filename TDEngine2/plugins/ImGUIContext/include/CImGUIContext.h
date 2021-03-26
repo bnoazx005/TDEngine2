@@ -272,6 +272,16 @@ namespace TDEngine2
 			TDE2_API void Vector4Field(const std::string& text, TVector4& value, const std::function<void()>& onValueChanged = {}) override;
 
 			/*!
+				\brief The method displays a color picker for common RGBA color type
+
+				\param[in] text A text that will be displayed with the field
+				\param[in, out] color A value of TColor32F type
+				\param[in] onValueChanged A callback that is called when the value of the slider has changed
+			*/
+
+			TDE2_API void ColorPickerField(const std::string& text, TColor32F& color, const std::function<void()>& onValueChanged = {}) override;
+
+			/*!
 				\brief The method creates a main menu on top of the screen
 
 				\param[in] onDrawCallback A callback within which a user defines sub-menus of the menu

@@ -303,6 +303,19 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
+	void CImGUIContext::ColorPickerField(const std::string& text, TColor32F& color, const std::function<void()>& onValueChanged)
+	{
+		F32 rawValue[4]{ color.r, color.g, color.b, color.a };
+
+		if (ImGui::ColorEdit4(text.c_str(), rawValue, ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
+		{
+			memcpy(&color, rawValue, sizeof(rawValue));
+			onValueChanged();
+		}
+
+		_prepareLayout();
+	}
+
 	void CImGUIContext::DisplayMainMenu(const std::function<void(IImGUIContext&)>& onDrawCallback)
 	{
 		if (ImGui::BeginMainMenuBar())
