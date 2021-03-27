@@ -258,21 +258,20 @@ namespace TDEngine2
 		const TCurveTransformParams transformParams{ curveBounds, cursorPos, width, height };
 
 		const TVector2& mousePos = mpImGUIContext->GetMousePosition();
+		const TVector2 curveMousePos = ApplyScreenToCurveTransform(transformParams, mousePos);
 
-		const F32 xCoord = ApplyScreenToCurveTransform(transformParams, mousePos).x;
+		const F32 curveValue = mpCurrTargetCurve->Sample(curveMousePos.x);
 
-		const F32 curveValue = mpCurrTargetCurve->Sample(xCoord);
-
-		if (CMathUtils::Abs(curveValue - 1.f) < 1e-3f)
+		if (CMathUtils::Abs(curveValue - curveMousePos.y) < 0.2f)
 		{
 			// draw a cursor if a user moves it right near a curve
-			mpImGUIContext->DrawCircle(ApplyCurveToScreenTransform(transformParams, TVector2(xCoord, curveValue)), 4.0f, false, TColorUtils::mYellow);
+			mpImGUIContext->DrawCircle(ApplyCurveToScreenTransform(transformParams, TVector2(curveMousePos.x, curveValue)), 4.0f, false, TColorUtils::mYellow);
 
 			if (mpImGUIContext->IsMouseDoubleClicked(0))
 			{
 				static const TVector2 defaultControlPoint{ 0.25f * RightVector2 };
 
-				mpCurrTargetCurve->AddPoint({ xCoord, /*curveValue*/ 0.5f, -defaultControlPoint, defaultControlPoint });
+				mpCurrTargetCurve->AddPoint({ curveMousePos.x, /*curveValue*/ 0.5f, -defaultControlPoint, defaultControlPoint });
 			}
 		}
 	}
