@@ -70,17 +70,6 @@ TEST_CASE("CAnimationCurve Tests")
 		REQUIRE((RC_OK == pCurve->RemovePoint(0) && RC_OK == pCurve->RemovePoint(1)));
 	}
 
-	SECTION("TestSample_TryGetIntermediateValueOfConstantCurve_ReturnsCorrectValue")
-	{
-		REQUIRE(RC_OK == pCurve->AddPoint({ 0.0f, 1.0f, -RightVector2 + UpVector2, RightVector2 + UpVector2 }));
-		REQUIRE(RC_OK == pCurve->AddPoint({ 2.0f, 1.0f, -RightVector2 + UpVector2, RightVector2 + UpVector2 }));
-
-		for (F32 t = 0.0f; t < 2.0f; t += 0.1f)
-		{
-			REQUIRE(CMathUtils::Abs(1.0f - pCurve->Sample(t)) < 1e-3f);
-		}
-	}
-
 	SECTION("TestSample_PassValueOutOfBoundaries_ReturnsValuesOfClosestBorders")
 	{
 		REQUIRE(RC_OK == pCurve->AddPoint({ 0.0f, 1.0f, -RightVector2, RightVector2 }));
@@ -92,8 +81,8 @@ TEST_CASE("CAnimationCurve Tests")
 
 	SECTION("TestSample_CheckDifferenceWithCubicFunc_ReturnsMinimalError")
 	{
-		REQUIRE(RC_OK == pCurve->AddPoint({ 0.0f, 0.0f, -RightVector2, 0.2f* RightVector2 }));
-		REQUIRE(RC_OK == pCurve->AddPoint({ 1.0f, 1.0f, -0.2f*UpVector2, RightVector2 }));
+		REQUIRE(RC_OK == pCurve->AddPoint({ 0.0f, 0.0f, -RightVector2, RightVector2 }));
+		REQUIRE(RC_OK == pCurve->AddPoint({ 1.0f, 1.0f, -UpVector2, RightVector2 }));
 
 		for (F32 x = 0.0f; x < 1.0f; x += 0.01f)
 		{

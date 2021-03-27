@@ -183,10 +183,10 @@ namespace TDEngine2
 			return 0.0f;
 		}
 
-		const U32 index = _getFrameIndexByTime(t);
-		if (index < 0 || index >= static_cast<U32>(mPoints.size()) - 1)
+		const I32 index = _getFrameIndexByTime(t);
+		if (index < 0 || index >= static_cast<I32>(mPoints.size()) - 1)
 		{
-			return index >= 0 ? mPoints.back().mValue : 0.0f;
+			return index >= 0 ? mPoints.back().mValue : mPoints.front().mValue;
 		}
 
 		const I32 nextIndex = index + 1;
@@ -204,9 +204,12 @@ namespace TDEngine2
 			return 0.0f;
 		}
 
+		const TVector2 firstPoint { currPoint.mTime, currPoint.mValue };
+		const TVector2 secondPoint { nextPoint.mTime, nextPoint.mValue };
+
 		return CMathUtils::CubicBezierInterpolation<TVector2>((trackTime - thisTime) / frameDelta, 
-															  { currPoint.mTime, currPoint.mValue }, currPoint.mOutTangent, 
-															  { nextPoint.mTime, nextPoint.mValue }, nextPoint.mInTangent).y;
+															  firstPoint, firstPoint + currPoint.mOutTangent,
+															  secondPoint, secondPoint + nextPoint.mInTangent).y;
 	}
 
 	const TRectF32& CAnimationCurve::GetBounds() const
@@ -224,7 +227,7 @@ namespace TDEngine2
 		return &mPoints[index];
 	}
 
-	U32 CAnimationCurve::_getFrameIndexByTime(F32 time) const
+	I32 CAnimationCurve::_getFrameIndexByTime(F32 time) const
 	{
 		if (mPoints.size() <= 1)
 		{
@@ -237,7 +240,7 @@ namespace TDEngine2
 
 		if (CMathUtils::IsLessOrEqual(time, startTime))
 		{
-			return 0;
+			return (time < startTime) ? -1 : 0;
 		}
 
 		if (CMathUtils::IsGreatOrEqual(time, mPoints.back().mTime))

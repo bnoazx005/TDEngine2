@@ -128,7 +128,7 @@ namespace TDEngine2
 				\brief The method returns an index of a key in the array that's time lesser than given
 			*/
 
-			TDE2_API U32 _getFrameIndexByTime(F32 time) const;
+			TDE2_API I32 _getFrameIndexByTime(F32 time) const;
 			TDE2_API F32 _adjustTrackTime(F32 time) const;
 
 			TDE2_API E_RESULT_CODE _updateBounds();
