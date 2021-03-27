@@ -18,6 +18,7 @@ namespace TDEngine2
 		static const std::string mLifeTimeKeyId;
 		static const std::string mInitialSizeKeyId;
 		static const std::string mInitialRotationKeyId;
+		static const std::string mInitialColorKeyId;
 
 		static const std::string mSizeOverTimeKeyId;
 
@@ -25,6 +26,14 @@ namespace TDEngine2
 		static const std::string mEmissionRateKeyId;
 
 		static const std::string mModifiersFlagsKeyId;
+
+
+		struct TInitialColorKeys
+		{
+			static const std::string mTypeKeyId;
+			static const std::string mColorKeyId;
+			static const std::string mAddColorKeyId;
+		};
 	};
 
 	const std::string TParticleEffectClipKeys::mDurationKeyId = "duration";
@@ -35,10 +44,15 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mLifeTimeKeyId = "lifetime";
 	const std::string TParticleEffectClipKeys::mInitialSizeKeyId = "initial-size";
 	const std::string TParticleEffectClipKeys::mInitialRotationKeyId = "initial-rotation";
+	const std::string TParticleEffectClipKeys::mInitialColorKeyId = "initial-color";
 	const std::string TParticleEffectClipKeys::mSizeOverTimeKeyId = "size-over-time";
 	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
 	const std::string TParticleEffectClipKeys::mEmissionRateKeyId = "emission-rate";
 	const std::string TParticleEffectClipKeys::mModifiersFlagsKeyId = "modifiers-flags";
+	
+	const std::string TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId = "type";
+	const std::string TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId = "value0";
+	const std::string TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId = "value1";
 
 
 	CParticleEffect::CParticleEffect() :
@@ -63,6 +77,8 @@ namespace TDEngine2
 		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
 
 		mModifiersInfoFlags = E_PARTICLE_EFFECT_INFO_FLAGS::DEFAULT;
+
+		mInitialColor = { TParticleColorParameter::E_COLOR_PARAMETER_TYPE::SINGLE_COLOR, TColorUtils::mWhite, TColorUtils::mWhite };
 
 		mpSharedEmitter = nullptr;
 
@@ -108,6 +124,40 @@ namespace TDEngine2
 			{
 				mInitialSize.mLeft = pReader->GetFloat("min");
 				mInitialSize.mRight = pReader->GetFloat("max");
+			}
+			pReader->EndGroup();
+
+			pReader->BeginGroup(TParticleEffectClipKeys::mInitialColorKeyId);
+			{
+				mInitialColor.mType = static_cast<TParticleColorParameter::E_COLOR_PARAMETER_TYPE>(pReader->GetUInt16(TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId));
+				
+				pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				{
+					auto loadColorResult = LoadColor32F(pReader);
+					if (loadColorResult.HasError())
+					{
+						return loadColorResult.GetError();
+					}
+
+					mInitialColor.mFirstColor = loadColorResult.Get();
+				}
+				pReader->EndGroup();
+
+				if (TParticleColorParameter::E_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == mInitialColor.mType)
+				{
+					// \note Read additional color
+					pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId);
+					{
+						auto loadColorResult = LoadColor32F(pReader);
+						if (loadColorResult.HasError())
+						{
+							return loadColorResult.GetError();
+						}
+
+						mInitialColor.mSecondColor = loadColorResult.Get();
+					}
+					pReader->EndGroup();
+				}
 			}
 			pReader->EndGroup();
 
@@ -191,6 +241,27 @@ namespace TDEngine2
 			}
 			pWriter->EndGroup();
 
+			pWriter->BeginGroup(TParticleEffectClipKeys::mInitialColorKeyId);
+			{
+				pWriter->SetUInt16(TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId, static_cast<U16>(mInitialColor.mType));
+				
+				pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				{
+					SaveColor32F(pWriter, mInitialColor.mFirstColor);
+				}
+				pWriter->EndGroup();
+
+				if (TParticleColorParameter::E_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == mInitialColor.mType)
+				{
+					pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId);
+					{
+						SaveColor32F(pWriter, mInitialColor.mSecondColor);
+					}
+					pWriter->EndGroup();
+				}
+			}
+			pWriter->EndGroup();
+
 			pWriter->BeginGroup(TParticleEffectClipKeys::mSizeOverTimeKeyId);
 			{
 				mpSizeCurve->Save(pWriter);
@@ -265,6 +336,11 @@ namespace TDEngine2
 		mInitialRotation = value;
 	}
 
+	void CParticleEffect::SetInitialColor(const TParticleColorParameter& colorData)
+	{
+		mInitialColor = colorData;
+	}
+
 	void CParticleEffect::SetEmissionRate(U32 value)
 	{
 		mEmissionRate = value;
@@ -321,6 +397,11 @@ namespace TDEngine2
 	const TRangeF32& CParticleEffect::GetInitialRotation() const
 	{
 		return mInitialRotation;
+	}
+
+	const TParticleColorParameter& CParticleEffect::GetInitialColor() const
+	{
+		return mInitialColor;
 	}
 
 	U32 CParticleEffect::GetEmissionRate() const

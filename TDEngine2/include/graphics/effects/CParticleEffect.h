@@ -124,6 +124,12 @@ namespace TDEngine2
 			TDE2_API void SetInitialRotation(const TRangeF32& value) override;
 
 			/*!
+				\brief The method defines initial color of the particles
+			*/
+
+			TDE2_API void SetInitialColor(const TParticleColorParameter& colorData) override;
+
+			/*!
 				\brief The method defines how much particles are spawned per frame
 			*/
 
@@ -179,6 +185,8 @@ namespace TDEngine2
 
 			TDE2_API const TRangeF32& GetInitialRotation() const override;
 
+			TDE2_API const TParticleColorParameter& GetInitialColor() const override;
+
 			TDE2_API U32 GetEmissionRate() const override;
 
 			TDE2_API CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const override;
@@ -191,23 +199,24 @@ namespace TDEngine2
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
-			F32         mDuration;
+			F32                               mDuration;
 
-			bool        mIsLooped;
+			bool                              mIsLooped;
 
-			U16         mMaxParticlesCount;
+			U16                               mMaxParticlesCount;
 
-			std::string mMaterialName;
+			std::string                       mMaterialName;
 
-			TRangeF32   mLifeTime;
-			TRangeF32   mInitialSize;
-			TRangeF32   mInitialRotation;
+			TRangeF32                         mLifeTime;
+			TRangeF32                         mInitialSize;
+			TRangeF32                         mInitialRotation;
+			TParticleColorParameter           mInitialColor;
 
-			U32         mEmissionRate;
+			U32                               mEmissionRate;
 
-			E_PARTICLE_EFFECT_INFO_FLAGS mModifiersInfoFlags;
+			E_PARTICLE_EFFECT_INFO_FLAGS      mModifiersInfoFlags;
 
-			CScopedPtr<CAnimationCurve> mpSizeCurve;
+			CScopedPtr<CAnimationCurve>       mpSizeCurve;
 
 			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
 	};

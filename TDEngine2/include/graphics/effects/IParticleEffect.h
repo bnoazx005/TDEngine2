@@ -35,6 +35,25 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The structure contains information about how the color should be applied to particles
+	*/
+
+	typedef struct TParticleColorParameter
+	{
+		enum class E_COLOR_PARAMETER_TYPE : U16
+		{
+			SINGLE_COLOR = 0,
+			TWEEN_RANDOM,
+		};
+
+		E_COLOR_PARAMETER_TYPE mType = E_COLOR_PARAMETER_TYPE::SINGLE_COLOR;
+
+		TColor32F mFirstColor;
+		TColor32F mSecondColor;
+	} TParticleColorParameter, *TParticleColorParameterPtr;
+
+
+	/*!
 		struct TParticleEffect2DParameters
 
 		\brief The stucture contains fields for creation IParticleEffect and its derived classes
@@ -119,6 +138,12 @@ namespace TDEngine2
 			TDE2_API virtual void SetInitialRotation(const TRangeF32& value) = 0;
 
 			/*!
+				\brief The method defines initial color of the particles
+			*/
+
+			TDE2_API virtual void SetInitialColor(const TParticleColorParameter& colorData) = 0;
+
+			/*!
 				\brief The method defines how much particles are spawned per frame
 			*/
 
@@ -174,6 +199,8 @@ namespace TDEngine2
 			TDE2_API virtual const TRangeF32& GetInitialSize() const = 0;
 
 			TDE2_API virtual const TRangeF32& GetInitialRotation() const = 0;
+
+			TDE2_API virtual const TParticleColorParameter& GetInitialColor() const = 0;
 
 			TDE2_API virtual U32 GetEmissionRate() const = 0;
 
