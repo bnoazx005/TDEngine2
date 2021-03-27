@@ -23,6 +23,8 @@ namespace TDEngine2
 
 		static const std::string mEmitterDataGroupId;
 		static const std::string mEmissionRateKeyId;
+
+		static const std::string mModifiersFlagsKeyId;
 	};
 
 	const std::string TParticleEffectClipKeys::mDurationKeyId = "duration";
@@ -36,6 +38,7 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mSizeOverTimeKeyId = "size-over-time";
 	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
 	const std::string TParticleEffectClipKeys::mEmissionRateKeyId = "emission-rate";
+	const std::string TParticleEffectClipKeys::mModifiersFlagsKeyId = "modifiers-flags";
 
 
 	CParticleEffect::CParticleEffect() :
@@ -58,6 +61,8 @@ namespace TDEngine2
 		}
 
 		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
+
+		mModifiersInfoFlags = E_PARTICLE_EFFECT_INFO_FLAGS::DEFAULT;
 
 		mpSharedEmitter = nullptr;
 
@@ -139,6 +144,8 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+		mModifiersInfoFlags = static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(pReader->GetUInt32(TParticleEffectClipKeys::mModifiersFlagsKeyId));
+
 		return RC_OK;
 	}
 
@@ -199,6 +206,8 @@ namespace TDEngine2
 			pWriter->SetUInt32(TParticleEffectClipKeys::mEmissionRateKeyId, mEmissionRate);
 		}
 		pWriter->EndGroup();
+
+		pWriter->SetUInt32(TParticleEffectClipKeys::mModifiersFlagsKeyId, static_cast<U32>(mModifiersInfoFlags));
 
 		return RC_OK;
 	}
@@ -273,6 +282,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CParticleEffect::SetModifiersFlags(E_PARTICLE_EFFECT_INFO_FLAGS value)
+	{
+		mModifiersInfoFlags = value;
+		return RC_OK;
+	}
+
 	F32 CParticleEffect::GetDuration() const
 	{
 		return mDuration;
@@ -321,6 +336,11 @@ namespace TDEngine2
 	CScopedPtr<CAnimationCurve> CParticleEffect::GetSizeCurve() const
 	{
 		return mpSizeCurve;
+	}
+
+	E_PARTICLE_EFFECT_INFO_FLAGS CParticleEffect::GetEnabledModifiersFlags() const
+	{
+		return mModifiersInfoFlags;
 	}
 
 	const IResourceLoader* CParticleEffect::_getResourceLoader()

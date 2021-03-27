@@ -140,6 +140,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetSizeCurve(const CScopedPtr<CAnimationCurve>& pCurve) override;
 
 			/*!
+				\brief The method updates information about enabled/disables modifiers of particles parameters
+
+				\param[in] value A disjunction of flags that determines which modifiers are enabled
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetModifiersFlags(E_PARTICLE_EFFECT_INFO_FLAGS value) override;
+
+			/*!
 				\return The method returns a duration of the effect
 			*/
 
@@ -174,6 +184,8 @@ namespace TDEngine2
 			TDE2_API CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const override;
 
 			TDE2_API CScopedPtr<CAnimationCurve> GetSizeCurve() const override;
+
+			TDE2_API E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
 
@@ -192,6 +204,8 @@ namespace TDEngine2
 			TRangeF32   mInitialRotation;
 
 			U32         mEmissionRate;
+
+			E_PARTICLE_EFFECT_INFO_FLAGS mModifiersInfoFlags;
 
 			CScopedPtr<CAnimationCurve> mpSizeCurve;
 

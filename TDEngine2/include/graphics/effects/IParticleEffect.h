@@ -8,6 +8,7 @@
 
 
 #include "../../utils/Types.h"
+#include "../../utils/Utils.h"
 #include "../../math/MathUtils.h"
 #include "../../core/IResource.h"
 #include "../../core/IResourceFactory.h"
@@ -19,6 +20,18 @@
 
 namespace TDEngine2
 {
+	/*!
+		\brief The enumeration contains values for compact storage of information about enabled parameter modifiers
+	*/
+
+	enum class E_PARTICLE_EFFECT_INFO_FLAGS: U32
+	{
+		DEFAULT = 0,
+	};
+
+	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_PARTICLE_EFFECT_INFO_FLAGS);
+
+
 	/*!
 		struct TParticleEffect2DParameters
 
@@ -38,6 +51,7 @@ namespace TDEngine2
 		TRangeF32 mInitialSize;
 		TRangeF32 mInitialRotation;
 
+		E_PARTICLE_EFFECT_INFO_FLAGS mFlags;
 	} TParticleEffectParameters, *TParticleEffectParametersPtr;
 
 
@@ -119,6 +133,17 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetSizeCurve(const CScopedPtr<CAnimationCurve>& pCurve) = 0;
 
 			/*!
+				\brief The method updates information about enabled/disables modifiers of particles parameters.
+				Note that a new value overwrites previous one.
+				
+				\param[in] value A disjunction of flags that determines which modifiers are enabled
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetModifiersFlags(E_PARTICLE_EFFECT_INFO_FLAGS value) = 0;
+
+			/*!
 				\return The method returns a duration of the effect
 			*/
 
@@ -153,6 +178,8 @@ namespace TDEngine2
 			TDE2_API virtual CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const = 0;
 
 			TDE2_API virtual CScopedPtr<CAnimationCurve> GetSizeCurve() const = 0;
+
+			TDE2_API virtual E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IParticleEffect)
 	};
