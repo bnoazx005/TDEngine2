@@ -177,9 +177,27 @@ namespace TDEngine2
 			mpImGUIContext->EndHorizontal();
 		}
 
+		const auto modifiersFlags = mpCurrParticleEffect->GetEnabledModifiersFlags();
+
 		/// \note Size over lifetime 
 		if (mpImGUIContext->CollapsingHeader("Size over Lifetime", true, false))
 		{
+			bool isModifierEnabled = static_cast<bool>(modifiersFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
+
+			mpImGUIContext->Checkbox("Enabled", isModifierEnabled);
+
+			if (isModifierEnabled)
+			{
+				mpCurrParticleEffect->SetModifiersFlags(mpCurrParticleEffect->GetEnabledModifiersFlags() | E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
+			}
+			else
+			{
+				const auto flags = static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(
+					static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags()) & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED));
+
+				mpCurrParticleEffect->SetModifiersFlags(flags);
+			}
+
 			mpImGUIContext->Button("Edit Curve", TVector2(100.0f, 25.0f), [this] 
 			{
 				auto pSizeCurve = mpCurrParticleEffect->GetSizeCurve();

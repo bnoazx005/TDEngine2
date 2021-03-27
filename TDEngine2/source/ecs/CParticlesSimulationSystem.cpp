@@ -366,6 +366,10 @@ namespace TDEngine2
 
 				mActiveParticlesCount[i] = 0;
 
+				const auto modifierFlags = pCurrEffectResource->GetEnabledModifiersFlags();
+
+				auto pSizeCurve = pCurrEffectResource->GetSizeCurve();
+
 				// \note Update existing particles
 				for (TParticle& currParticle : particles)
 				{
@@ -379,7 +383,14 @@ namespace TDEngine2
 					currParticle.mAge += dt;
 					currParticle.mPosition = currParticle.mPosition + currParticle.mVelocity; // \todo Add speed factor
 
-					// \todo currParticle.mSize 
+					const F32 t = CMathUtils::Clamp01(currParticle.mAge / std::max<F32>(1e-3f, currParticle.mLifeTime));
+
+					// \note Update size over lifetime
+					if (E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED))
+					{
+						currParticle.mSize = pSizeCurve->Sample(t);
+					}
+
 					// \todo currParticle.mColor
 					// \todo currParticle.mVelocity
 					// \todo currParticle.mRotationAngle
