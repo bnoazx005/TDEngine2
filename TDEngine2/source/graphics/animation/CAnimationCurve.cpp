@@ -240,7 +240,7 @@ namespace TDEngine2
 			return 0;
 		}
 
-		if (CMathUtils::IsGreatOrEqual(time, mPoints[mPoints.size() - 2].mTime))
+		if (CMathUtils::IsGreatOrEqual(time, mPoints.back().mTime))
 		{
 			return static_cast<U32>(mPoints.size()) - 1;
 		}

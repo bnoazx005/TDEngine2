@@ -88,7 +88,17 @@ TEST_CASE("CAnimationCurve Tests")
 
 		REQUIRE(CMathUtils::Abs(1.0f - pCurve->Sample(-1.0f)) < 1e-3f);
 		REQUIRE(CMathUtils::Abs(5.0f - pCurve->Sample(2.5f)) < 1e-3f);
+	}
 
+	SECTION("TestSample_CheckDifferenceWithCubicFunc_ReturnsMinimalError")
+	{
+		REQUIRE(RC_OK == pCurve->AddPoint({ 0.0f, 0.0f, -RightVector2, 0.2f* RightVector2 }));
+		REQUIRE(RC_OK == pCurve->AddPoint({ 1.0f, 1.0f, -0.2f*UpVector2, RightVector2 }));
+
+		for (F32 x = 0.0f; x < 1.0f; x += 0.01f)
+		{
+			REQUIRE(CMathUtils::Abs(pCurve->Sample(x) - x * x * x) < 1e-1f);
+		}
 	}
 
 	REQUIRE(pCurve->Free() == RC_OK);

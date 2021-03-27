@@ -58,7 +58,7 @@ namespace TDEngine2
 			{
 				const F32 invT = 1.0f - t;
 
-				return p0 * (invT * invT * invT) + t0 * (3.0f * invT * invT * t) + p1 * (3.0f * invT * t * t) + t1 * (t * t * t);
+				return p0 * (invT * invT * invT) + t0 * (3.0f * invT * invT * t) + t1 * (3.0f * invT * t * t) + p1 * (t * t * t);
 			}
 	};
 
