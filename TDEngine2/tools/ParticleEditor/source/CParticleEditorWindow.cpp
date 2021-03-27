@@ -216,6 +216,7 @@ namespace TDEngine2
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Material Id: ");
 			mpImGUIContext->TextField("##MaterialId", materialName, [this, &materialName] { mpCurrParticleEffect->SetMaterialName(materialName); });
+			mpImGUIContext->EndHorizontal();
 		}
 
 		/// \todo Add configuration of material's texture id 
