@@ -136,6 +136,16 @@ namespace TDEngine2
 			TDE2_API void SetEmissionRate(U32 value) override;
 
 			/*!
+				\brief The method initializes internal state of a shared emitter use given pointer to the object.
+
+				\param[in] pEmitter A pointer to shared emitter (for now it could be box, sphere or cone shapes)
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetSharedEmitter(const CScopedPtr<CBaseParticlesEmitter>& pEmitter) override;
+
+			/*!
 				\brief The method defines a curve that controls particles size over their lifetime
 
 				\param[in] pCurve A pointer to a curve

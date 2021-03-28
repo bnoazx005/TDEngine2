@@ -5,6 +5,10 @@
 namespace TDEngine2
 {
 	std::vector<std::string> CParticleEditorWindow::mColorTypesIds {};
+	std::vector<std::string> CParticleEditorWindow::mEmittersTypesIds 
+	{
+		"Box", "Sphere", "Cone"
+	};
 
 	CParticleEditorWindow::CParticleEditorWindow() :
 		CBaseEditorWindow()

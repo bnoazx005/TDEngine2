@@ -84,6 +84,7 @@ namespace TDEngine2
 
 			IParticleEffect* mpCurrParticleEffect;
 
+			static std::vector<std::string> mEmittersTypesIds;
 			static std::vector<std::string> mColorTypesIds;
 	};
 }

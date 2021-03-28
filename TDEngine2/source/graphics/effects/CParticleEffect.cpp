@@ -346,6 +346,18 @@ namespace TDEngine2
 		mEmissionRate = value;
 	}
 
+	E_RESULT_CODE CParticleEffect::SetSharedEmitter(const CScopedPtr<CBaseParticlesEmitter>& pEmitter)
+	{
+		if (!pEmitter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpSharedEmitter = pEmitter;
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CParticleEffect::SetSizeCurve(const CScopedPtr<CAnimationCurve>& pCurve)
 	{
 		if (!pCurve)
