@@ -12,6 +12,7 @@
 #include "../../core/CBaseObject.h"
 #include "../../core/Serialization.h"
 #include "../../math/TVector3.h"
+#include "../../utils/Color.h"
 
 
 namespace TDEngine2
@@ -83,6 +84,8 @@ namespace TDEngine2
 			TDE2_API virtual TypeId GetEmitterTypeId() const { return TypeId::Invalid; }
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseParticlesEmitter)
+
+			TDE2_API TColor32F _getInitColor() const;
 		protected:
 			IParticleEffect* mpOwnerEffect;
 

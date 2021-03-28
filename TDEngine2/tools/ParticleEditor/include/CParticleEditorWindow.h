@@ -9,6 +9,7 @@
 
 #include <TDEngine2.h>
 #include <string>
+#include <vector>
 
 
 namespace TDEngine2
@@ -82,5 +83,7 @@ namespace TDEngine2
 			IResourceManager* mpResourceManager;
 
 			IParticleEffect* mpCurrParticleEffect;
+
+			static std::vector<std::string> mColorTypesIds;
 	};
 }

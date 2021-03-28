@@ -77,6 +77,30 @@ namespace TDEngine2
 		return mIs2DEmitter;
 	}
 
+	TColor32F CBaseParticlesEmitter::_getInitColor() const
+	{
+		if (!mpOwnerEffect)
+		{
+			TDE2_ASSERT(false);
+			return TColorUtils::mWhite;
+		}
+
+		auto&& colorData = mpOwnerEffect->GetInitialColor();
+
+		switch (colorData.mType)
+		{
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
+				return colorData.mFirstColor;
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
+				return LerpColors(colorData.mFirstColor, colorData.mSecondColor, CRandomUtils::GetRandF32Value({ 0.0f, 1.0f }));
+		}
+
+		TDE2_UNREACHABLE();
+
+		return TColorUtils::mWhite;
+	}
+
 
 	TResult<CBaseParticlesEmitter*> CBaseParticlesEmitter::Load(IArchiveReader* pReader)
 	{
@@ -197,7 +221,7 @@ namespace TDEngine2
 
 		particleInfo.mAge = 0.0f;
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
-		particleInfo.mColor = TColorUtils::mWhite;
+		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
 		particleInfo.mPosition = pTransform->GetPosition() + RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes); // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = ZeroVector3;
@@ -298,7 +322,7 @@ namespace TDEngine2
 
 		particleInfo.mAge = 0.0f;
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
-		particleInfo.mColor = TColorUtils::mWhite;
+		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
 		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3()) * mRadius; // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = ZeroVector3;
@@ -390,7 +414,7 @@ namespace TDEngine2
 
 		particleInfo.mAge = 0.0f;
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
-		particleInfo.mColor = TColorUtils::mWhite;
+		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
 		particleInfo.mPosition = pTransform->GetPosition() + TVector3(pos.x, h, pos.y); // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = ZeroVector3;

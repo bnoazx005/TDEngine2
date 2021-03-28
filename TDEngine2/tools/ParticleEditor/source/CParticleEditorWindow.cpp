@@ -1,8 +1,11 @@
 #include "../include/CParticleEditorWindow.h"
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
+	std::vector<std::string> CParticleEditorWindow::mColorTypesIds {};
+
 	CParticleEditorWindow::CParticleEditorWindow() :
 		CBaseEditorWindow()
 	{
@@ -35,6 +38,11 @@ namespace TDEngine2
 		mCurrParticleEffectId = TResourceId::Invalid;
 
 		mpCurrParticleEffect = nullptr;
+
+		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_COLOR_PARAMETER_TYPE>::GetFields())
+		{
+			mColorTypesIds.push_back(currField.name);
+		}
 
 		mIsInitialized = true;
 		mIsVisible = true;
@@ -175,6 +183,40 @@ namespace TDEngine2
 			mpImGUIContext->Label("Max");
 			mpImGUIContext->FloatField("##SizeMax", initialSize.mRight, [this, &initialSize] { mpCurrParticleEffect->SetInitialSize(initialSize); });
 			mpImGUIContext->EndHorizontal();
+		}
+
+		// \note Initial color
+		{
+			auto colorData = mpCurrParticleEffect->GetInitialColor();
+
+			I32 currSelectedColorType = static_cast<I32>(colorData.mType);
+
+			currSelectedColorType = mpImGUIContext->Popup("##InitColor", currSelectedColorType, mColorTypesIds);
+			colorData.mType = static_cast<E_PARTICLE_COLOR_PARAMETER_TYPE>(currSelectedColorType);
+
+			TColor32F colors[2] { colorData.mFirstColor, colorData.mSecondColor };
+
+			switch (colorData.mType)
+			{
+				case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
+
+					mpImGUIContext->BeginHorizontal();
+					mpImGUIContext->Label("Color");
+					mpImGUIContext->ColorPickerField("##Color0", colors[0], [&colors, &colorData] { colorData.mFirstColor = colors[0]; });
+					mpImGUIContext->EndHorizontal();
+
+					break;
+				case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
+					mpImGUIContext->BeginHorizontal();
+					mpImGUIContext->Label("Color0");
+					mpImGUIContext->ColorPickerField("##Color0", colors[0], [&colors, &colorData] { colorData.mFirstColor = colors[0]; });
+					mpImGUIContext->Label("Color1");
+					mpImGUIContext->ColorPickerField("##Color1", colors[1], [&colors, &colorData] { colorData.mSecondColor = colors[1]; });
+					mpImGUIContext->EndHorizontal();
+					break;
+			}
+
+			mpCurrParticleEffect->SetInitialColor(colorData);
 		}
 
 		const auto modifiersFlags = mpCurrParticleEffect->GetEnabledModifiersFlags();

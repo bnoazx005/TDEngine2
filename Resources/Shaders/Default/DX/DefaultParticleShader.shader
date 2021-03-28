@@ -50,7 +50,7 @@ DECLARE_TEX2D(MainTexture);
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	return float4(1.0, 1.0, 1.0, 1.0);// TEX2D(MainTexture, input.mUV) * input.mColor;
+	return input.mColor;// TEX2D(MainTexture, input.mUV) * input.mColor;
 }
 
 #endprogram

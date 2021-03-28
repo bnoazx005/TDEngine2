@@ -98,6 +98,18 @@ namespace TDEngine2
 	}
 
 
+	template <typename T>
+	TColor<T> LerpColors(const TColor<T>& left, const TColor<T>& right, F32 t)
+	{
+		const F32 invT = (1.0f - t);
+
+		return TColor<T>(left.r * invT + right.r * t,
+						left.g * invT + right.g * t,
+						left.b * invT + right.b * t,
+						left.a * invT + right.a * t);
+	}
+
+
 	/*!
 		\brief TColor32F's Serialization/Deserialization helpers
 	*/

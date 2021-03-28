@@ -78,7 +78,7 @@ namespace TDEngine2
 
 		mModifiersInfoFlags = E_PARTICLE_EFFECT_INFO_FLAGS::DEFAULT;
 
-		mInitialColor = { TParticleColorParameter::E_COLOR_PARAMETER_TYPE::SINGLE_COLOR, TColorUtils::mWhite, TColorUtils::mWhite };
+		mInitialColor = { E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR, TColorUtils::mWhite, TColorUtils::mWhite };
 
 		mpSharedEmitter = nullptr;
 
@@ -129,7 +129,7 @@ namespace TDEngine2
 
 			pReader->BeginGroup(TParticleEffectClipKeys::mInitialColorKeyId);
 			{
-				mInitialColor.mType = static_cast<TParticleColorParameter::E_COLOR_PARAMETER_TYPE>(pReader->GetUInt16(TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId));
+				mInitialColor.mType = static_cast<E_PARTICLE_COLOR_PARAMETER_TYPE>(pReader->GetUInt16(TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId));
 				
 				pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
 				{
@@ -143,7 +143,7 @@ namespace TDEngine2
 				}
 				pReader->EndGroup();
 
-				if (TParticleColorParameter::E_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == mInitialColor.mType)
+				if (E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == mInitialColor.mType)
 				{
 					// \note Read additional color
 					pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId);
@@ -251,7 +251,7 @@ namespace TDEngine2
 				}
 				pWriter->EndGroup();
 
-				if (TParticleColorParameter::E_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == mInitialColor.mType)
+				if (E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == mInitialColor.mType)
 				{
 					pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId);
 					{

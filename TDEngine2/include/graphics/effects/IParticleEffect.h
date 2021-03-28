@@ -34,19 +34,20 @@ namespace TDEngine2
 	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_PARTICLE_EFFECT_INFO_FLAGS);
 
 
+	enum class E_PARTICLE_COLOR_PARAMETER_TYPE : U16
+	{
+		SINGLE_COLOR = 0,
+		TWEEN_RANDOM,
+	};
+
+
 	/*!
 		\brief The structure contains information about how the color should be applied to particles
 	*/
 
 	typedef struct TParticleColorParameter
 	{
-		enum class E_COLOR_PARAMETER_TYPE : U16
-		{
-			SINGLE_COLOR = 0,
-			TWEEN_RANDOM,
-		};
-
-		E_COLOR_PARAMETER_TYPE mType = E_COLOR_PARAMETER_TYPE::SINGLE_COLOR;
+		E_PARTICLE_COLOR_PARAMETER_TYPE mType = E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR;
 
 		TColor32F mFirstColor;
 		TColor32F mSecondColor;
