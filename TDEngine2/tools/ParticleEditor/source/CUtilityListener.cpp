@@ -212,12 +212,28 @@ void CUtilityListener::_drawTimeControlBar()
 		TVector2(350.0f, 60.0f),
 	};
 
+	if (mShouldPauseOnNextFrame)
+	{
+		pWorld->SetTimeScaleFactor(0.0f);
+		mShouldPauseOnNextFrame = false;
+	}
+
 	if (pImGUIContext->BeginWindow("Time Control", mIsTimeControlBarWindowOpened, params))
 	{
+		pImGUIContext->BeginHorizontal();
+
 		pImGUIContext->Button(pWorld->GetTimeScaleFactor() > 0.0f ? "Pause" : "Play", TVector2(80.0f, 20.0f), [pWorld]
 		{
 			pWorld->SetTimeScaleFactor(1.0f - pWorld->GetTimeScaleFactor());
 		});
+
+		pImGUIContext->Button("Step", TVector2(80.0f, 20.0f), [pWorld, this]
+		{
+			pWorld->SetTimeScaleFactor(1.0f);
+			mShouldPauseOnNextFrame = true;
+		});
+
+		pImGUIContext->EndHorizontal();
 
 		pImGUIContext->EndWindow();
 	}

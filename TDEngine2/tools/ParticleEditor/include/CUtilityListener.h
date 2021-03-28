@@ -75,5 +75,6 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::CEntity*          mpEditableEffectEntity;
 
 		bool                         mIsTimeControlBarWindowOpened = true;
+		bool                         mShouldPauseOnNextFrame = false;
 
 };
