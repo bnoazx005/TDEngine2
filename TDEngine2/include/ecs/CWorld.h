@@ -188,13 +188,22 @@ namespace TDEngine2
 			TDE2_API CEntity* FindEntity(TEntityId entityId) const override;
 
 			/*!
+				\brief The method sets up time scale factor which impacts on update cycles of all entities and systems
+
+				\param[in] scaleFactor Could be positive, negative and zero value. The latter means some kind of pause
+				for the world
+			*/
+
+			TDE2_API void SetTimeScaleFactor(F32 scaleFactor) override;
+
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 
 				\param[in] dt A delta time's value
 			*/
 
-			TDE2_API void Update(float dt) override;
+			TDE2_API void Update(F32 dt) override;
 
 			/*!
 				\brief The method returns a pointer to IRaycastContext, use
@@ -203,6 +212,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IRaycastContext* GetRaycastContext() const override;
+
+			TDE2_API F32 GetTimeScaleFactor() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWorld)
 
@@ -225,6 +236,8 @@ namespace TDEngine2
 			IEventManager*     mpEventManager;
 
 			IRaycastContext*   mpRaycastContext;
+
+			F32                mTimeScaleFactor;
 
 			mutable std::mutex mMutex;
 	};

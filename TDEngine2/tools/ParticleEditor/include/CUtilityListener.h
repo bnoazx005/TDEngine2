@@ -55,6 +55,7 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 	protected:
 		void _drawMainMenu();
+		void _drawTimeControlBar();
 
 	protected:
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
@@ -72,5 +73,7 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		std::string                  mLastSavedPath;
 
 		TDEngine2::CEntity*          mpEditableEffectEntity;
+
+		bool                         mIsTimeControlBarWindowOpened = true;
 
 };

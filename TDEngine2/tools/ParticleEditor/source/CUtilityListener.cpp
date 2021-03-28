@@ -70,6 +70,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 	mpParticleEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
 
 	_drawMainMenu();
+	_drawTimeControlBar();
 
 	return RC_OK;
 }
@@ -197,4 +198,27 @@ void CUtilityListener::_drawMainMenu()
 			imguiContext.MenuItem("Quit", "Ctrl+Q", [this] { mpEngineCoreInstance->Quit(); });
 		});
 	});
+}
+
+void CUtilityListener::_drawTimeControlBar()
+{
+	auto pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
+	auto pWorld = mpEngineCoreInstance->GetSubsystem<ISceneManager>()->GetWorld();
+
+	static const IImGUIContext::TWindowParams params
+	{
+		ZeroVector2,
+		TVector2(350.0f, 60.0f),
+		TVector2(350.0f, 60.0f),
+	};
+
+	if (pImGUIContext->BeginWindow("Time Control", mIsTimeControlBarWindowOpened, params))
+	{
+		pImGUIContext->Button(pWorld->GetTimeScaleFactor() > 0.0f ? "Pause" : "Play", TVector2(80.0f, 20.0f), [pWorld]
+		{
+			pWorld->SetTimeScaleFactor(1.0f - pWorld->GetTimeScaleFactor());
+		});
+
+		pImGUIContext->EndWindow();
+	}
 }

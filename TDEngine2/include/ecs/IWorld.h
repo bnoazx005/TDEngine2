@@ -253,13 +253,22 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE RegisterRaycastContext(IRaycastContext* pRaycastContext) = 0;
 
 			/*!
+				\brief The method sets up time scale factor which impacts on update cycles of all entities and systems
+
+				\param[in] scaleFactor Could be positive, negative and zero value. The latter means some kind of pause
+				for the world
+			*/
+
+			TDE2_API virtual void SetTimeScaleFactor(F32 scaleFactor) = 0;
+
+			/*!
 				\brief The main method that should be implemented in all derived classes.
 				It contains all the logic that the system will execute during engine's work.
 
 				\param[in] dt A delta time's value
 			*/
 
-			TDE2_API virtual void Update(float dt) = 0;
+			TDE2_API virtual void Update(F32 dt) = 0;
 
 			/*!
 				\brief The method returns a pointer to IRaycastContext, use
@@ -268,6 +277,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IRaycastContext* GetRaycastContext() const = 0;
+
+			TDE2_API virtual F32 GetTimeScaleFactor() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IWorld)
 

@@ -31,6 +31,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 		
+		mTimeScaleFactor = 1.0f;
+
 		E_RESULT_CODE result = RC_OK;
 		
 		mpComponentManager = CreateComponentManager(result);
@@ -171,13 +173,19 @@ namespace TDEngine2
 
 		return mpEntityManager->GetEntity(entityId);
 	}
-	
-	void CWorld::Update(float dt)
+
+	void CWorld::SetTimeScaleFactor(F32 scaleFactor)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mTimeScaleFactor = scaleFactor;
+	}
+
+	void CWorld::Update(F32 dt)
 	{
 		//FIXME std::lock_guard<std::mutex> lock(mMutex);
 
 		TDE2_PROFILER_SCOPE("World::Update");
-		mpSystemManager->Update(this, dt);
+		mpSystemManager->Update(this, mTimeScaleFactor * dt);
 
 		// \note reset all allocated raycasts results data
 		mpRaycastContext->Reset();
@@ -188,6 +196,13 @@ namespace TDEngine2
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		return mpRaycastContext;
+	}
+
+	F32 CWorld::GetTimeScaleFactor() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return mTimeScaleFactor;
 	}
 
 	CComponentIterator CWorld::_findComponentsOfType(TypeId typeId)
