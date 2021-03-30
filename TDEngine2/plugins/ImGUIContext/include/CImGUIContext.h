@@ -281,6 +281,8 @@ namespace TDEngine2
 
 			TDE2_API void ColorPickerField(const std::string& text, TColor32F& color, const std::function<void()>& onValueChanged = {}) override;
 
+			TDE2_API void GradientColorPicker(const std::string& text, CGradientColor& color, const std::function<void()>& onValueChanged = {}) override;
+
 			/*!
 				\brief The method creates a main menu on top of the screen
 
@@ -611,6 +613,9 @@ namespace TDEngine2
 
 			TDE2_API void _setDragAndDropData(const std::string& id, const void* pData, U32 size) override;
 			TDE2_API const void* _getDragAndDropData(const std::string& id) const override;
+
+			TDE2_API void _drawGradientColorPreview(const std::string& text, CGradientColor& color, const TVector2& sizes);
+			TDE2_API void _drawGradientColorEditor(CGradientColor& color, const TVector2& windowSizes);
 		protected:
 			std::atomic_bool        mIsInitialized;
 
@@ -645,5 +650,8 @@ namespace TDEngine2
 			TDrawListsStack         mpDrawListsContext;
 
 			std::unordered_map<uintptr_t, TMaterialInstanceId> mUsingMaterials;
+
+			// \todo Refactor this later
+			bool                    mIsGradientColorEditorOpened = false;
 	};
 }

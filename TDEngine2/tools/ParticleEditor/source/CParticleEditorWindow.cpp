@@ -251,6 +251,18 @@ namespace TDEngine2
 				mpCurveEditor->SetVisible(true);
 			});
 		}
+
+		E_RESULT_CODE result = RC_OK;
+		static CScopedPtr<CGradientColor> gradient{ CreateGradientColor(TColorUtils::mWhite, TColorUtils::mWhite, result) };
+		static bool f = false;
+		if (!f)
+		{
+			gradient->AddPoint({ 0.5f, TColorUtils::mYellow });
+			gradient->AddPoint({ 0.25f, TColorUtils::mGreen });
+			f = true;
+		}
+
+		mpImGUIContext->GradientColorPicker("dd", *gradient.Get());
 	}
 
 	void CParticleEditorWindow::_onRenderingSettingsHandle()

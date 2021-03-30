@@ -174,10 +174,25 @@ namespace TDEngine2
 
 		if (CMathUtils::IsLessOrEqual(frameDelta, 0.0f))
 		{
-			return 0.0f;
+			return TColorUtils::mWhite;
 		}
 
 		return LerpColors(std::get<TColor32F>(currPoint), std::get<TColor32F>(nextPoint), (t - thisTime) / frameDelta);
+	}
+
+	E_RESULT_CODE CGradientColor::SetColor(U32 index, F32 t, const TColor32F& color)
+	{
+		if (index >= static_cast<U32>(mPoints.size()))
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		t = CMathUtils::Clamp01(t);
+
+		std::get<F32>(mPoints[index]) = t;
+		std::get<TColor32F>(mPoints[index]) = color;
+
+		return RC_OK;
 	}
 
 	CGradientColor::TColorSample* CGradientColor::GetPoint(U32 index)
@@ -236,6 +251,11 @@ namespace TDEngine2
 
 		TDE2_UNREACHABLE();
 		return -1;
+	}
+
+	void CGradientColor::SortPoints()
+	{
+		std::sort(mPoints.begin(), mPoints.end(), [](const TColorSample& left, const TColorSample& right) { return std::get<F32>(left) < std::get<F32>(right); });
 	}
 
 

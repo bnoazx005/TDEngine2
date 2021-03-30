@@ -27,8 +27,13 @@ namespace TDEngine2
 		{
 		}
 
-		constexpr TDE2_API TColor(const T& initializer) :
+		constexpr explicit TDE2_API TColor(const T& initializer) :
 			r(initializer), g(initializer), b(initializer), a(initializer)
+		{
+		}
+
+		constexpr explicit TDE2_API TColor(const T arr[4]) :
+			r(arr[0]), g(arr[1]), b(arr[2]), a(arr[3])
 		{
 		}
 

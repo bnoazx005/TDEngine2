@@ -30,6 +30,7 @@ namespace TDEngine2
 	class IRenderer;
 	struct TQuaternion;
 	union TMatrix4;
+	class CGradientColor;
 
 	enum class E_GIZMO_TYPE : U8;
 
@@ -289,6 +290,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void ColorPickerField(const std::string& text, TColor32F& color, const std::function<void()>& onValueChanged = {}) = 0;
+
+			TDE2_API virtual void GradientColorPicker(const std::string& text, CGradientColor& color, const std::function<void()>& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a main menu on top of the screen

@@ -112,12 +112,17 @@ namespace TDEngine2
 
 			TDE2_API TColor32F Sample(F32 t) const;
 
-			TColorSample* GetPoint(U32 index);
+			TDE2_API void SortPoints();
+
+			TDE2_API E_RESULT_CODE SetColor(U32 index, F32 t, const TColor32F& color);
+
+			TDE2_API TColorSample* GetPoint(U32 index);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGradientColor)
 
 			TDE2_API E_RESULT_CODE _addPointInternal(const TColorSample& point);
 			TDE2_API I32 _getFrameIndexByTime(F32 t) const;
+
 		protected:
 			TColorsArray mPoints;
 	};
