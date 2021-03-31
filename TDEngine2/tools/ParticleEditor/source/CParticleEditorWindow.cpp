@@ -193,55 +193,28 @@ namespace TDEngine2
 		{
 			auto colorData = mpCurrParticleEffect->GetInitialColor();
 
-			I32 currSelectedColorType = static_cast<I32>(colorData.mType);
-
-			currSelectedColorType = mpImGUIContext->Popup("##InitColor", currSelectedColorType, mColorTypesIds);
-			colorData.mType = static_cast<E_PARTICLE_COLOR_PARAMETER_TYPE>(currSelectedColorType);
-
-			TColor32F colors[2] { colorData.mFirstColor, colorData.mSecondColor };
-
-			switch (colorData.mType)
+			_drawColorDataModifiers("InitColor", colorData, [this, &colorData]
 			{
-				case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
-
-					mpImGUIContext->BeginHorizontal();
-					mpImGUIContext->Label("Color");
-					mpImGUIContext->ColorPickerField("##Color0", colors[0], [&colors, &colorData] { colorData.mFirstColor = colors[0]; });
-					mpImGUIContext->EndHorizontal();
-
-					break;
-				case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
-					mpImGUIContext->BeginHorizontal();
-					mpImGUIContext->Label("Color0");
-					mpImGUIContext->ColorPickerField("##Color0", colors[0], [&colors, &colorData] { colorData.mFirstColor = colors[0]; });
-					mpImGUIContext->Label("Color1");
-					mpImGUIContext->ColorPickerField("##Color1", colors[1], [&colors, &colorData] { colorData.mSecondColor = colors[1]; });
-					mpImGUIContext->EndHorizontal();
-					break;
-			}
-
-			mpCurrParticleEffect->SetInitialColor(colorData);
+				mpCurrParticleEffect->SetInitialColor(colorData);
+			});
 		}
 
-		const auto modifiersFlags = mpCurrParticleEffect->GetEnabledModifiersFlags();
+		U32 modifiersFlags = static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags());
 
 		/// \note Size over lifetime 
 		if (mpImGUIContext->CollapsingHeader("Size over Lifetime", true, false))
 		{
-			bool isModifierEnabled = static_cast<bool>(modifiersFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
+			bool isModifierEnabled = static_cast<bool>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) & E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
 
-			mpImGUIContext->Checkbox("Enabled", isModifierEnabled);
+			mpImGUIContext->Checkbox("Enabled##0", isModifierEnabled);
 
 			if (isModifierEnabled)
 			{
-				mpCurrParticleEffect->SetModifiersFlags(mpCurrParticleEffect->GetEnabledModifiersFlags() | E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
+				modifiersFlags = static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags() | E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
 			}
 			else
 			{
-				const auto flags = static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(
-					static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags()) & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED));
-
-				mpCurrParticleEffect->SetModifiersFlags(flags);
+				modifiersFlags = static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags()) & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
 			}
 
 			mpImGUIContext->Button("Edit Curve", TVector2(100.0f, 25.0f), [this] 
@@ -252,17 +225,31 @@ namespace TDEngine2
 			});
 		}
 
-		E_RESULT_CODE result = RC_OK;
-		static CScopedPtr<CGradientColor> gradient{ CreateGradientColor(TColorUtils::mWhite, TColorUtils::mWhite, result) };
-		static bool f = false;
-		if (!f)
+		/// \note Color over lifetime 
+		if (mpImGUIContext->CollapsingHeader("Color over Lifetime", true, false))
 		{
-			gradient->AddPoint({ 0.5f, TColorUtils::mYellow });
-			gradient->AddPoint({ 0.25f, TColorUtils::mGreen });
-			f = true;
+			bool isModifierEnabled = static_cast<bool>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) & E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED);
+
+			mpImGUIContext->Checkbox("Enabled##1", isModifierEnabled);
+
+			if (isModifierEnabled)
+			{
+				modifiersFlags = static_cast<U32>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) | E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED);
+			}
+			else
+			{
+				modifiersFlags = modifiersFlags & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED);
+			}
+
+			auto colorData = mpCurrParticleEffect->GetColorOverLifeTime();
+
+			_drawColorDataModifiers("ColorOverTime", colorData, [this, &colorData]
+			{
+				mpCurrParticleEffect->SetColorOverLifeTime(colorData);
+			});
 		}
 
-		mpImGUIContext->GradientColorPicker("dd", *gradient.Get());
+		mpCurrParticleEffect->SetModifiersFlags(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags));
 	}
 
 	void CParticleEditorWindow::_onRenderingSettingsHandle()
@@ -278,6 +265,47 @@ namespace TDEngine2
 		}
 
 		/// \todo Add configuration of material's texture id 
+	}
+	
+	void CParticleEditorWindow::_drawColorDataModifiers(const std::string& label, TParticleColorParameter& colorData, const std::function<void()>& onChangedAction)
+	{
+		I32 currSelectedColorType = static_cast<I32>(colorData.mType);
+
+		currSelectedColorType = mpImGUIContext->Popup(Wrench::StringUtils::Format("##{0}", label), currSelectedColorType, mColorTypesIds);
+		colorData.mType = static_cast<E_PARTICLE_COLOR_PARAMETER_TYPE>(currSelectedColorType);
+
+		TColor32F colors[2]{ colorData.mFirstColor, colorData.mSecondColor };
+
+		switch (colorData.mType)
+		{
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
+
+				mpImGUIContext->BeginHorizontal();
+				mpImGUIContext->Label("Color");
+				mpImGUIContext->ColorPickerField(Wrench::StringUtils::Format("##{0}Color0", label), colors[0], [&colors, &colorData] { colorData.mFirstColor = colors[0]; });
+				mpImGUIContext->EndHorizontal();
+
+				break;
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
+				mpImGUIContext->BeginHorizontal();
+				mpImGUIContext->Label("Color0");
+				mpImGUIContext->ColorPickerField(Wrench::StringUtils::Format("##{0}Color0", label), colors[0], [&colors, &colorData] { colorData.mFirstColor = colors[0]; });
+				mpImGUIContext->Label("Color1");
+				mpImGUIContext->ColorPickerField(Wrench::StringUtils::Format("##{0}Color1", label), colors[1], [&colors, &colorData] { colorData.mSecondColor = colors[1]; });
+				mpImGUIContext->EndHorizontal();
+				break;
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP:
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_RANDOM:
+				auto& gradientColor = *colorData.mGradientColor.Get();
+				mpImGUIContext->GradientColorPicker("Color", gradientColor);
+				break;
+		}
+
+		if (onChangedAction)
+		{
+			onChangedAction();
+		}
 	}
 
 

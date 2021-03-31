@@ -77,6 +77,40 @@ namespace TDEngine2
 		return mIs2DEmitter;
 	}
 
+	TColor32F CBaseParticlesEmitter::GetColorData(const TParticleColorParameter& colorData, F32 time)
+	{
+		switch (colorData.mType)
+		{
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
+				return colorData.mFirstColor;
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
+				return LerpColors(colorData.mFirstColor, colorData.mSecondColor, CRandomUtils::GetRandF32Value({ 0.0f, 1.0f }));
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP:
+				if (colorData.mGradientColor)
+				{
+					return colorData.mGradientColor->Sample(time);
+				}
+
+				TDE2_ASSERT(colorData.mGradientColor);
+				return TColorUtils::mWhite;
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_RANDOM:
+				if (colorData.mGradientColor)
+				{
+					return colorData.mGradientColor->Sample(CRandomUtils::GetRandF32Value({ 0.0f, 1.0f }));
+				}
+
+				TDE2_ASSERT(colorData.mGradientColor);
+				return TColorUtils::mWhite;
+		}
+
+		TDE2_UNREACHABLE();
+
+		return TColorUtils::mWhite;
+	}
+
 	TColor32F CBaseParticlesEmitter::_getInitColor() const
 	{
 		if (!mpOwnerEffect)
@@ -85,20 +119,7 @@ namespace TDEngine2
 			return TColorUtils::mWhite;
 		}
 
-		auto&& colorData = mpOwnerEffect->GetInitialColor();
-
-		switch (colorData.mType)
-		{
-			case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
-				return colorData.mFirstColor;
-
-			case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
-				return LerpColors(colorData.mFirstColor, colorData.mSecondColor, CRandomUtils::GetRandF32Value({ 0.0f, 1.0f }));
-		}
-
-		TDE2_UNREACHABLE();
-
-		return TColorUtils::mWhite;
+		return GetColorData(mpOwnerEffect->GetInitialColor(), 0.0f);
 	}
 
 

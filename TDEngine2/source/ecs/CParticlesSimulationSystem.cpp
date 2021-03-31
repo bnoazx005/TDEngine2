@@ -391,7 +391,11 @@ namespace TDEngine2
 						currParticle.mSize = pSizeCurve->Sample(t);
 					}
 
-					// \todo currParticle.mColor
+					if (E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED))
+					{
+						currParticle.mColor = CBaseParticlesEmitter::GetColorData(pCurrEffectResource->GetColorOverLifeTime(), t);
+					}
+
 					// \todo currParticle.mVelocity
 					// \todo currParticle.mRotationAngle
 

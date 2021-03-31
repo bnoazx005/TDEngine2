@@ -21,6 +21,7 @@ namespace TDEngine2
 		static const std::string mInitialColorKeyId;
 
 		static const std::string mSizeOverTimeKeyId;
+		static const std::string mColorOverTimeKeyId;
 
 		static const std::string mEmitterDataGroupId;
 		static const std::string mEmissionRateKeyId;
@@ -46,6 +47,7 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mInitialRotationKeyId = "initial-rotation";
 	const std::string TParticleEffectClipKeys::mInitialColorKeyId = "initial-color";
 	const std::string TParticleEffectClipKeys::mSizeOverTimeKeyId = "size-over-time";
+	const std::string TParticleEffectClipKeys::mColorOverTimeKeyId = "color-over-time";
 	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
 	const std::string TParticleEffectClipKeys::mEmissionRateKeyId = "emission-rate";
 	const std::string TParticleEffectClipKeys::mModifiersFlagsKeyId = "modifiers-flags";
@@ -129,35 +131,13 @@ namespace TDEngine2
 
 			pReader->BeginGroup(TParticleEffectClipKeys::mInitialColorKeyId);
 			{
-				mInitialColor.mType = static_cast<E_PARTICLE_COLOR_PARAMETER_TYPE>(pReader->GetUInt16(TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId));
-				
-				pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				auto loadInitColorDataResult = _loadColorData(pReader);
+				if (loadInitColorDataResult.HasError())
 				{
-					auto loadColorResult = LoadColor32F(pReader);
-					if (loadColorResult.HasError())
-					{
-						return loadColorResult.GetError();
-					}
-
-					mInitialColor.mFirstColor = loadColorResult.Get();
+					return loadInitColorDataResult.GetError();
 				}
-				pReader->EndGroup();
 
-				if (E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == mInitialColor.mType)
-				{
-					// \note Read additional color
-					pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId);
-					{
-						auto loadColorResult = LoadColor32F(pReader);
-						if (loadColorResult.HasError())
-						{
-							return loadColorResult.GetError();
-						}
-
-						mInitialColor.mSecondColor = loadColorResult.Get();
-					}
-					pReader->EndGroup();
-				}
+				mInitialColor = loadInitColorDataResult.Get();
 			}
 			pReader->EndGroup();
 
@@ -173,6 +153,19 @@ namespace TDEngine2
 				}
 			}
 			pReader->EndGroup();
+
+			pReader->BeginGroup(TParticleEffectClipKeys::mColorOverTimeKeyId);
+			{
+				auto loadColorDataResult = _loadColorData(pReader);
+				if (loadColorDataResult.HasError())
+				{
+					return loadColorDataResult.GetError();
+				}
+
+				mColorOverLifetimeData = loadColorDataResult.Get();
+			}
+			pReader->EndGroup();
+
 		}
 		pReader->EndGroup();
 
@@ -243,28 +236,19 @@ namespace TDEngine2
 
 			pWriter->BeginGroup(TParticleEffectClipKeys::mInitialColorKeyId);
 			{
-				pWriter->SetUInt16(TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId, static_cast<U16>(mInitialColor.mType));
-				
-				pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
-				{
-					SaveColor32F(pWriter, mInitialColor.mFirstColor);
-				}
-				pWriter->EndGroup();
-
-				if (E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == mInitialColor.mType)
-				{
-					pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId);
-					{
-						SaveColor32F(pWriter, mInitialColor.mSecondColor);
-					}
-					pWriter->EndGroup();
-				}
+				_saveColorData(pWriter, mInitialColor);
 			}
 			pWriter->EndGroup();
 
 			pWriter->BeginGroup(TParticleEffectClipKeys::mSizeOverTimeKeyId);
 			{
 				mpSizeCurve->Save(pWriter);
+			}
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TParticleEffectClipKeys::mColorOverTimeKeyId);
+			{
+				_saveColorData(pWriter, mColorOverLifetimeData);
 			}
 			pWriter->EndGroup();
 		}
@@ -336,9 +320,27 @@ namespace TDEngine2
 		mInitialRotation = value;
 	}
 
+
+	static E_RESULT_CODE InitColorData(TParticleColorParameter& colorData)
+	{
+		/// \note Create a new object of gradient color if it's selected but doesn't exist yet
+		if ((E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP != colorData.mType || E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP != colorData.mType) || colorData.mGradientColor)
+		{
+			return RC_OK;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		colorData.mGradientColor = CreateGradientColor(TColorUtils::mWhite, TColorUtils::mWhite, result);
+
+		return result;
+	}
+
+
 	void CParticleEffect::SetInitialColor(const TParticleColorParameter& colorData)
 	{
 		mInitialColor = colorData;
+		InitColorData(mInitialColor);
 	}
 
 	void CParticleEffect::SetEmissionRate(U32 value)
@@ -368,6 +370,12 @@ namespace TDEngine2
 		mpSizeCurve = pCurve;
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CParticleEffect::SetColorOverLifeTime(const TParticleColorParameter& colorData)
+	{
+		mColorOverLifetimeData = colorData;
+		return InitColorData(mColorOverLifetimeData);
 	}
 
 	E_RESULT_CODE CParticleEffect::SetModifiersFlags(E_PARTICLE_EFFECT_INFO_FLAGS value)
@@ -431,9 +439,150 @@ namespace TDEngine2
 		return mpSizeCurve;
 	}
 
+	const TParticleColorParameter& CParticleEffect::GetColorOverLifeTime() const
+	{
+		return mColorOverLifetimeData;
+	}
+
 	E_PARTICLE_EFFECT_INFO_FLAGS CParticleEffect::GetEnabledModifiersFlags() const
 	{
 		return mModifiersInfoFlags;
+	}
+
+	E_RESULT_CODE CParticleEffect::_saveColorData(IArchiveWriter* pWriter, const TParticleColorParameter& colorData)
+	{
+		E_RESULT_CODE result = pWriter->SetUInt16(TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId, static_cast<U16>(colorData.mType));
+
+		switch (colorData.mType)
+		{
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
+				
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				{
+					result = result | SaveColor32F(pWriter, colorData.mFirstColor);
+				}
+				result = result | pWriter->EndGroup();
+				
+				break;
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
+
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				{
+					result = result | SaveColor32F(pWriter, colorData.mFirstColor);
+				}
+				result = result | pWriter->EndGroup();
+
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId);
+				{
+					result = result | SaveColor32F(pWriter, colorData.mSecondColor);
+				}
+				result = result | pWriter->EndGroup();
+
+				break;
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP:
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_RANDOM:
+
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				{
+					if (colorData.mGradientColor)
+					{
+						result = result | colorData.mGradientColor->Save(pWriter);
+					}
+				}
+				result = result | pWriter->EndGroup();
+
+				break;
+
+			default:
+				TDE2_UNREACHABLE();
+				break;
+		}
+
+		return result;
+	}
+
+	TResult<TParticleColorParameter> CParticleEffect::_loadColorData(IArchiveReader* pReader)
+	{
+		TParticleColorParameter outputColorData;
+
+		E_RESULT_CODE result = RC_OK;
+
+		// note Create a gradient color's object anyway to prevent null dereferencing in the editor
+		outputColorData.mGradientColor = CreateGradientColor(TColorUtils::mWhite, TColorUtils::mWhite, result);
+		if (RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		outputColorData.mType = static_cast<E_PARTICLE_COLOR_PARAMETER_TYPE>(pReader->GetUInt16(TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId));
+
+		switch (outputColorData.mType)
+		{
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
+
+				pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				{
+					auto loadColorResult = LoadColor32F(pReader);
+					if (loadColorResult.HasError())
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(loadColorResult.GetError());
+					}
+
+					outputColorData.mFirstColor = loadColorResult.Get();
+				}
+				pReader->EndGroup();
+
+				return Wrench::TOkValue<TParticleColorParameter>(outputColorData);
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
+
+				// \node Read main color
+				pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				{
+					auto loadColorResult = LoadColor32F(pReader);
+					if (loadColorResult.HasError())
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(loadColorResult.GetError());
+					}
+
+					outputColorData.mFirstColor = loadColorResult.Get();
+				}
+				pReader->EndGroup();
+
+				// \note Read additional color
+				pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId);
+				{
+					auto loadColorResult = LoadColor32F(pReader);
+					if (loadColorResult.HasError())
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(loadColorResult.GetError());
+					}
+
+					outputColorData.mSecondColor = loadColorResult.Get();
+				}
+				pReader->EndGroup();
+
+				return Wrench::TOkValue<TParticleColorParameter>(outputColorData);
+
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP:
+			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_RANDOM:
+
+				pReader->BeginGroup(TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId);
+				{
+					outputColorData.mGradientColor->Load(pReader);
+				}
+				pReader->EndGroup();
+
+				return Wrench::TOkValue<TParticleColorParameter>(outputColorData);
+
+			default:
+				TDE2_UNREACHABLE();
+				break;
+		}
+
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 	}
 
 	const IResourceLoader* CParticleEffect::_getResourceLoader()

@@ -15,6 +15,7 @@
 #include "../../core/IResourceLoader.h"
 #include "../../core/Serialization.h"
 #include "../../graphics/animation/CAnimationCurve.h"
+#include "../../utils/CGradientColor.h"
 #include "ParticleEmitters.h"
 
 
@@ -28,6 +29,7 @@ namespace TDEngine2
 	{
 		DEFAULT = 0,
 		E_SIZE_OVER_LIFETIME_ENABLED = 1,
+		E_COLOR_OVER_LIFETIME_ENABLED = 1 << 1,
 
 	};
 
@@ -38,6 +40,8 @@ namespace TDEngine2
 	{
 		SINGLE_COLOR = 0,
 		TWEEN_RANDOM,
+		GRADIENT_LERP,
+		GRADIENT_RANDOM,
 	};
 
 
@@ -51,6 +55,8 @@ namespace TDEngine2
 
 		TColor32F mFirstColor;
 		TColor32F mSecondColor;
+
+		CScopedPtr<CGradientColor> mGradientColor;
 	} TParticleColorParameter, *TParticleColorParameterPtr;
 
 
@@ -171,6 +177,16 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetSizeCurve(const CScopedPtr<CAnimationCurve>& pCurve) = 0;
 
 			/*!
+				\brief The method defines how particles' color behaves itself during lifetime of the ones
+
+				\param[in] colorData Could be simple color, tween between colors or gradient sampler
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetColorOverLifeTime(const TParticleColorParameter& colorData) = 0;
+
+			/*!
 				\brief The method updates information about enabled/disables modifiers of particles parameters.
 				Note that a new value overwrites previous one.
 				
@@ -218,6 +234,8 @@ namespace TDEngine2
 			TDE2_API virtual CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const = 0;
 
 			TDE2_API virtual CScopedPtr<CAnimationCurve> GetSizeCurve() const = 0;
+
+			TDE2_API virtual const TParticleColorParameter& GetColorOverLifeTime() const = 0;
 
 			TDE2_API virtual E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const = 0;
 		protected:

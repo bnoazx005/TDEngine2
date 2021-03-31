@@ -156,6 +156,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetSizeCurve(const CScopedPtr<CAnimationCurve>& pCurve) override;
 
 			/*!
+				\brief The method defines how particles' color behaves itself during lifetime of the ones
+
+				\param[in] colorData Could be simple color, tween between colors or gradient sampler
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetColorOverLifeTime(const TParticleColorParameter& colorData) override;
+
+			/*!
 				\brief The method updates information about enabled/disables modifiers of particles parameters
 
 				\param[in] value A disjunction of flags that determines which modifiers are enabled
@@ -203,9 +213,14 @@ namespace TDEngine2
 
 			TDE2_API CScopedPtr<CAnimationCurve> GetSizeCurve() const override;
 
+			TDE2_API const TParticleColorParameter& GetColorOverLifeTime() const override;
+
 			TDE2_API E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
+
+			TDE2_API E_RESULT_CODE _saveColorData(IArchiveWriter* pWriter, const TParticleColorParameter& colorData);
+			TDE2_API TResult<TParticleColorParameter> _loadColorData(IArchiveReader* pReader);
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
@@ -227,6 +242,8 @@ namespace TDEngine2
 			E_PARTICLE_EFFECT_INFO_FLAGS      mModifiersInfoFlags;
 
 			CScopedPtr<CAnimationCurve>       mpSizeCurve;
+
+			TParticleColorParameter           mColorOverLifetimeData;
 
 			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
 	};

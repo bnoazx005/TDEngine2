@@ -75,6 +75,8 @@ namespace TDEngine2
 			TDE2_API void _onParticlesSettingsHandle();
 			TDE2_API void _onRenderingSettingsHandle();
 
+			TDE2_API void _drawColorDataModifiers(const std::string& label, TParticleColorParameter& colorData, const std::function<void()>& onChangedAction);
+
 		protected:
 			CScopedPtr<CAnimationCurveEditorWindow> mpCurveEditor;
 
