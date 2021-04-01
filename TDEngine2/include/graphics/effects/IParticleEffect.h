@@ -21,6 +21,13 @@
 
 namespace TDEngine2
 {
+	enum class E_PARTICLE_SIMULATION_SPACE : U16
+	{
+		LOCAL,
+		WORLD
+	};
+
+
 	/*!
 		\brief The enumeration contains values for compact storage of information about enabled parameter modifiers
 	*/
@@ -150,6 +157,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetInitialColor(const TParticleColorParameter& colorData) = 0;
 
+			TDE2_API virtual void SetInitialVelocityData(const TVector3& direction, F32 speedFactor) = 0;
+
 			/*!
 				\brief The method defines how much particles are spawned per frame
 			*/
@@ -228,6 +237,10 @@ namespace TDEngine2
 			TDE2_API virtual const TRangeF32& GetInitialRotation() const = 0;
 
 			TDE2_API virtual const TParticleColorParameter& GetInitialColor() const = 0;
+
+			TDE2_API virtual const TVector3& GetInitialMoveDirection() const = 0;
+
+			TDE2_API virtual F32 GetInitialSpeedFactor() const = 0;
 
 			TDE2_API virtual U32 GetEmissionRate() const = 0;
 

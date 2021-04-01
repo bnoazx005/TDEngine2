@@ -381,7 +381,7 @@ namespace TDEngine2
 					++mActiveParticlesCount[i];
 
 					currParticle.mAge += dt;
-					currParticle.mPosition = currParticle.mPosition + currParticle.mVelocity; // \todo Add speed factor
+					currParticle.mPosition = currParticle.mPosition + dt * currParticle.mVelocity; // \todo Add speed factor
 
 					const F32 t = CMathUtils::Clamp01(currParticle.mAge / std::max<F32>(1e-3f, currParticle.mLifeTime));
 

@@ -199,6 +199,23 @@ namespace TDEngine2
 			});
 		}
 
+		/// \note Initial move direction and speed factor
+		{
+			TVector3 moveDirection = mpCurrParticleEffect->GetInitialMoveDirection();
+			F32 speedFactor = mpCurrParticleEffect->GetInitialSpeedFactor();
+
+			auto updateInitialVelocityData = [&moveDirection, &speedFactor, this]
+			{
+				mpCurrParticleEffect->SetInitialVelocityData(moveDirection, speedFactor);
+			};
+
+			mpImGUIContext->Label("Initial Move Direction");
+			mpImGUIContext->Vector3Field("##InitMoveDir", moveDirection, updateInitialVelocityData);
+
+			mpImGUIContext->Label("Initial Speed Factor");
+			mpImGUIContext->FloatField("##InitSpeedFactor", speedFactor, updateInitialVelocityData);
+		}
+
 		U32 modifiersFlags = static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags());
 
 		/// \note Size over lifetime 

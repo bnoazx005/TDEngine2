@@ -122,6 +122,19 @@ namespace TDEngine2
 		return GetColorData(mpOwnerEffect->GetInitialColor(), 0.0f);
 	}
 
+	TVector3 CBaseParticlesEmitter::_getInitVelocity() const
+	{
+		if (!mpOwnerEffect)
+		{
+			TDE2_ASSERT(false);
+			return ZeroVector3;
+		}
+
+		//TDE2_ASSERT(Length(mpOwnerEffect->GetInitialMoveDirection()) < 1e-3f);
+
+		return Normalize(mpOwnerEffect->GetInitialMoveDirection()) * mpOwnerEffect->GetInitialSpeedFactor();
+	}
+
 
 	TResult<CBaseParticlesEmitter*> CBaseParticlesEmitter::Load(IArchiveReader* pReader)
 	{
@@ -245,7 +258,7 @@ namespace TDEngine2
 		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
 		particleInfo.mPosition = pTransform->GetPosition() + RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes); // \todo Fix this with proper computation of transformed position
-		particleInfo.mVelocity = ZeroVector3;
+		particleInfo.mVelocity = _getInitVelocity();
 
 		if (mIs2DEmitter)
 		{
@@ -346,7 +359,7 @@ namespace TDEngine2
 		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
 		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3()) * mRadius; // \todo Fix this with proper computation of transformed position
-		particleInfo.mVelocity = ZeroVector3;
+		particleInfo.mVelocity = _getInitVelocity();
 
 		if (mIs2DEmitter)
 		{

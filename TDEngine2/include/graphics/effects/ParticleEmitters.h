@@ -89,6 +89,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseParticlesEmitter)
 
 			TDE2_API TColor32F _getInitColor() const;
+			TDE2_API TVector3 _getInitVelocity() const;
 		protected:
 			IParticleEffect* mpOwnerEffect;
 

@@ -67,6 +67,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mPoints.clear();
+
 		F32 time;
 		
 		TColor32F value;

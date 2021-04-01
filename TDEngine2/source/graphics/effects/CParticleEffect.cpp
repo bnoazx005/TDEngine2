@@ -19,6 +19,8 @@ namespace TDEngine2
 		static const std::string mInitialSizeKeyId;
 		static const std::string mInitialRotationKeyId;
 		static const std::string mInitialColorKeyId;
+		static const std::string mInitialMoveDirectionKeyId;
+		static const std::string mInitialSpeedFactorKeyId;
 
 		static const std::string mSizeOverTimeKeyId;
 		static const std::string mColorOverTimeKeyId;
@@ -46,6 +48,8 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mInitialSizeKeyId = "initial-size";
 	const std::string TParticleEffectClipKeys::mInitialRotationKeyId = "initial-rotation";
 	const std::string TParticleEffectClipKeys::mInitialColorKeyId = "initial-color";
+	const std::string TParticleEffectClipKeys::mInitialMoveDirectionKeyId = "initial-move-dir";
+	const std::string TParticleEffectClipKeys::mInitialSpeedFactorKeyId = "initial-speed";
 	const std::string TParticleEffectClipKeys::mSizeOverTimeKeyId = "size-over-time";
 	const std::string TParticleEffectClipKeys::mColorOverTimeKeyId = "color-over-time";
 	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
@@ -141,6 +145,21 @@ namespace TDEngine2
 			}
 			pReader->EndGroup();
 
+			pReader->BeginGroup(TParticleEffectClipKeys::mInitialMoveDirectionKeyId);
+			{
+				auto loadVecResult = LoadVector3(pReader);
+				if (loadVecResult.HasError())
+				{
+					return loadVecResult.GetError();
+				}
+
+				mInitialMoveDirection = loadVecResult.Get();
+			}
+			pReader->EndGroup();
+
+			mInitialSpeedFactor = pReader->GetFloat(TParticleEffectClipKeys::mInitialSpeedFactorKeyId);
+
+			/// \note Read dynamic parameters
 			E_RESULT_CODE result = RC_OK;
 
 			pReader->BeginGroup(TParticleEffectClipKeys::mSizeOverTimeKeyId);
@@ -240,6 +259,15 @@ namespace TDEngine2
 			}
 			pWriter->EndGroup();
 
+			pWriter->BeginGroup(TParticleEffectClipKeys::mInitialMoveDirectionKeyId);
+			{
+				SaveVector3(pWriter, mInitialMoveDirection);
+			}
+			pWriter->EndGroup();
+
+			pWriter->SetFloat(TParticleEffectClipKeys::mInitialSpeedFactorKeyId, mInitialSpeedFactor);
+
+			/// \note Dynamic parameters
 			pWriter->BeginGroup(TParticleEffectClipKeys::mSizeOverTimeKeyId);
 			{
 				mpSizeCurve->Save(pWriter);
@@ -343,6 +371,12 @@ namespace TDEngine2
 		InitColorData(mInitialColor);
 	}
 
+	void CParticleEffect::SetInitialVelocityData(const TVector3& direction, F32 speedFactor)
+	{
+		mInitialMoveDirection = direction;
+		mInitialSpeedFactor = speedFactor;
+	}
+
 	void CParticleEffect::SetEmissionRate(U32 value)
 	{
 		mEmissionRate = value;
@@ -422,6 +456,16 @@ namespace TDEngine2
 	const TParticleColorParameter& CParticleEffect::GetInitialColor() const
 	{
 		return mInitialColor;
+	}
+
+	const TVector3& CParticleEffect::GetInitialMoveDirection() const
+	{
+		return mInitialMoveDirection;
+	}
+
+	F32 CParticleEffect::GetInitialSpeedFactor() const
+	{
+		return mInitialSpeedFactor;
 	}
 
 	U32 CParticleEffect::GetEmissionRate() const

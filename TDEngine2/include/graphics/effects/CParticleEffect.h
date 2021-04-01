@@ -129,6 +129,8 @@ namespace TDEngine2
 
 			TDE2_API void SetInitialColor(const TParticleColorParameter& colorData) override;
 
+			TDE2_API void SetInitialVelocityData(const TVector3& direction, F32 speedFactor) override;
+
 			/*!
 				\brief The method defines how much particles are spawned per frame
 			*/
@@ -207,6 +209,10 @@ namespace TDEngine2
 
 			TDE2_API const TParticleColorParameter& GetInitialColor() const override;
 
+			TDE2_API const TVector3& GetInitialMoveDirection() const override;
+
+			TDE2_API F32 GetInitialSpeedFactor() const override;
+
 			TDE2_API U32 GetEmissionRate() const override;
 
 			TDE2_API CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const override;
@@ -236,6 +242,8 @@ namespace TDEngine2
 			TRangeF32                         mInitialSize;
 			TRangeF32                         mInitialRotation;
 			TParticleColorParameter           mInitialColor;
+			TVector3                          mInitialMoveDirection; // \note always should be normalized
+			F32                               mInitialSpeedFactor;
 
 			U32                               mEmissionRate;
 
