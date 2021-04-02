@@ -3,6 +3,7 @@
 #include "../../../include/core/IFile.h"
 #include "../../../include/utils/CFileLogger.h"
 #include "../../../include/core/IGraphicsContext.h"
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
@@ -27,6 +28,7 @@ namespace TDEngine2
 
 		static const std::string mEmitterDataGroupId;
 		static const std::string mEmissionRateKeyId;
+		static const std::string mSimulationSpaceTypeKeyId;
 
 		static const std::string mModifiersFlagsKeyId;
 
@@ -54,6 +56,7 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mColorOverTimeKeyId = "color-over-time";
 	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
 	const std::string TParticleEffectClipKeys::mEmissionRateKeyId = "emission-rate";
+	const std::string TParticleEffectClipKeys::mSimulationSpaceTypeKeyId = "simulation-space";
 	const std::string TParticleEffectClipKeys::mModifiersFlagsKeyId = "modifiers-flags";
 	
 	const std::string TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId = "type";
@@ -109,6 +112,7 @@ namespace TDEngine2
 		mIsLooped = pReader->GetBool(TParticleEffectClipKeys::mLoopModeKeyId);
 		mMaxParticlesCount = pReader->GetUInt16(TParticleEffectClipKeys::mMaxParticlesCountKeyId);
 		mMaterialName = pReader->GetString(TParticleEffectClipKeys::mMaterialNameKeyId);
+		mSimulationSpaceType = Meta::EnumTrait<E_PARTICLE_SIMULATION_SPACE>::FromString(pReader->GetString(TParticleEffectClipKeys::mSimulationSpaceTypeKeyId));
 
 		pReader->BeginGroup(TParticleEffectClipKeys::mParticlesSettingsGroupId);
 		{
@@ -229,6 +233,7 @@ namespace TDEngine2
 		pWriter->SetBool(TParticleEffectClipKeys::mLoopModeKeyId, mIsLooped);
 		pWriter->SetUInt16(TParticleEffectClipKeys::mMaxParticlesCountKeyId, mMaxParticlesCount);
 		pWriter->SetString(TParticleEffectClipKeys::mMaterialNameKeyId, mMaterialName);
+		pWriter->SetString(TParticleEffectClipKeys::mSimulationSpaceTypeKeyId, Meta::EnumTrait<E_PARTICLE_SIMULATION_SPACE>::ToString(mSimulationSpaceType));
 
 		pWriter->BeginGroup(TParticleEffectClipKeys::mParticlesSettingsGroupId);
 		{
@@ -382,6 +387,11 @@ namespace TDEngine2
 		mEmissionRate = value;
 	}
 
+	void CParticleEffect::SetSimulationSpaceType(E_PARTICLE_SIMULATION_SPACE spaceType)
+	{
+		mSimulationSpaceType = spaceType;
+	}
+
 	E_RESULT_CODE CParticleEffect::SetSharedEmitter(const CScopedPtr<CBaseParticlesEmitter>& pEmitter)
 	{
 		if (!pEmitter)
@@ -471,6 +481,11 @@ namespace TDEngine2
 	U32 CParticleEffect::GetEmissionRate() const
 	{
 		return mEmissionRate;
+	}
+
+	E_PARTICLE_SIMULATION_SPACE CParticleEffect::GetSimulationSpaceType() const
+	{
+		return mSimulationSpaceType;
 	}
 
 	CScopedPtr<CBaseParticlesEmitter> CParticleEffect::GetSharedEmitter() const

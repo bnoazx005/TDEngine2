@@ -9,6 +9,8 @@ namespace TDEngine2
 	{
 		"Box", "Sphere", "Cone"
 	};
+	std::vector<std::string> CParticleEditorWindow::mSimulationSpaceTypesIds {};
+
 
 	CParticleEditorWindow::CParticleEditorWindow() :
 		CBaseEditorWindow()
@@ -46,6 +48,11 @@ namespace TDEngine2
 		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_COLOR_PARAMETER_TYPE>::GetFields())
 		{
 			mColorTypesIds.push_back(currField.name);
+		}
+
+		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_SIMULATION_SPACE>::GetFields())
+		{
+			mSimulationSpaceTypesIds.push_back(currField.name);
 		}
 
 		mIsInitialized = true;
@@ -132,6 +139,16 @@ namespace TDEngine2
 			mpImGUIContext->Label("Emission Rate: ");
 			mpImGUIContext->IntField("##EmissionRate", emissionRate, [this, &emissionRate] { mpCurrParticleEffect->SetEmissionRate(emissionRate); });
 			mpImGUIContext->EndHorizontal();
+		}
+
+		/// \note Simulation space
+		{			
+			I32 currSimultionSpaceType = static_cast<I32>(mpCurrParticleEffect->GetSimulationSpaceType());
+
+			mpImGUIContext->Label("Simulation Space: ");
+			currSimultionSpaceType = mpImGUIContext->Popup("##SimSpaceTypePopup", currSimultionSpaceType, mSimulationSpaceTypesIds);
+
+			mpCurrParticleEffect->SetSimulationSpaceType(static_cast<E_PARTICLE_SIMULATION_SPACE>(currSimultionSpaceType));
 		}
 	}
 

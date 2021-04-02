@@ -88,5 +88,6 @@ namespace TDEngine2
 
 			static std::vector<std::string> mEmittersTypesIds;
 			static std::vector<std::string> mColorTypesIds;
+			static std::vector<std::string> mSimulationSpaceTypesIds;
 	};
 }

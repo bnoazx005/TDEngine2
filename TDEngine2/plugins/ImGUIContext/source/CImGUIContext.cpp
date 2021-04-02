@@ -1068,25 +1068,26 @@ namespace TDEngine2
 			const F32 maxWidth = GetWindowWidth() - cursorPos.x;
 			const F32 height = GetWindowHeight();
 
-_getCurrActiveDrawList()->AddRectFilled(cursorPos, cursorPos + TVector2(maxWidth, height), packedWhiteColor);
+			_getCurrActiveDrawList()->AddRectFilled(cursorPos, cursorPos + TVector2(maxWidth, height), packedWhiteColor);
 
-for (auto it = color.begin(); it != color.end() - 1; ++it)
-{
-	const auto& currColorSample = *it;
-	const auto& nextColorSample = *(it + 1);
+			for (auto it = color.begin(); it != color.end() - 1; ++it)
+			{
+				const auto& currColorSample = *it;
+				const auto& nextColorSample = *(it + 1);
 
-	const U32 leftColor = PackABGRColor32F(std::get<TColor32F>(currColorSample));
-	const U32 rightColor = PackABGRColor32F(std::get<TColor32F>(nextColorSample));
+				const U32 leftColor = PackABGRColor32F(std::get<TColor32F>(currColorSample));
+				const U32 rightColor = PackABGRColor32F(std::get<TColor32F>(nextColorSample));
 
-	const F32 currColorTime = std::get<F32>(currColorSample);
-	const F32 nextColorTime = std::get<F32>(nextColorSample);
+				const F32 currColorTime = std::get<F32>(currColorSample);
+				const F32 nextColorTime = std::get<F32>(nextColorSample);
 
-	_getCurrActiveDrawList()->AddRectFilledMultiColor(cursorPos + RightVector2 * (currColorTime * maxWidth), cursorPos + TVector2(nextColorTime * maxWidth, height), leftColor, rightColor, rightColor, leftColor);
-}
+				_getCurrActiveDrawList()->AddRectFilledMultiColor(cursorPos + RightVector2 * (currColorTime * maxWidth), cursorPos + TVector2(nextColorTime * maxWidth, height), leftColor, rightColor, rightColor, leftColor);
+			}
 
-EndHorizontal();
-EndChildWindow();
+			EndHorizontal();
 		}
+
+		EndChildWindow();
 	}
 
 	void CImGUIContext::_drawGradientColorEditor(CGradientColor& color, const TVector2& windowSizes)

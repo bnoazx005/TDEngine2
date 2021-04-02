@@ -32,7 +32,7 @@ VertexOut mainVS(in VertexIn input)
 
 	float3 pos = input.mPos.xyz * input.mParticlePosAndSize.w + input.mParticlePosAndSize.xyz;
 
-	output.mPos        = mul(mul(ProjMat, ViewMat), float4(pos.x, pos.y, pos.z, 1.0));
+	output.mPos        = mul(mul(mul(ProjMat, ViewMat), ModelMat), float4(pos.x, pos.y, pos.z, 1.0));
 	output.mUV         = input.mUV;
 	output.mColor      = input.mColor;
 	output.mInstanceId = input.mInstanceId;

@@ -283,6 +283,8 @@ namespace TDEngine2
 					auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedInstancedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
 																								  _computeRenderCommandHash(currMaterialId, distanceToCamera));
 
+					const bool isWorldSpaceParticles = E_PARTICLE_SIMULATION_SPACE::WORLD == pParticleEffect->GetSimulationSpaceType();
+
 					pCommand->mpVertexBuffer              = mpParticleQuadVertexBuffer;
 					pCommand->mpIndexBuffer               = mpParticleQuadIndexBuffer;
 					pCommand->mpInstancingBuffer          = mpParticlesInstancesBuffers[currBufferIndex];
@@ -291,8 +293,8 @@ namespace TDEngine2
 					pCommand->mIndicesPerInstance         = 6;
 					pCommand->mNumOfInstances             = mActiveParticlesCount[currBufferIndex];
 					pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-					pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
-					pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));
+					pCommand->mObjectData.mModelMatrix    = Transpose(isWorldSpaceParticles ? objectTransformMatrix : IdentityMatrix4);
+					pCommand->mObjectData.mInvModelMatrix = Transpose(isWorldSpaceParticles ? Inverse(objectTransformMatrix) : IdentityMatrix4);
 
 					++currBufferIndex;
 				}

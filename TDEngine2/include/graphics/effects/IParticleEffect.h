@@ -23,8 +23,8 @@ namespace TDEngine2
 {
 	enum class E_PARTICLE_SIMULATION_SPACE : U16
 	{
+		WORLD,
 		LOCAL,
-		WORLD
 	};
 
 
@@ -165,6 +165,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetEmissionRate(U32 value) = 0;
 
+			TDE2_API virtual void SetSimulationSpaceType(E_PARTICLE_SIMULATION_SPACE spaceType) = 0;
+
 			/*!
 				\brief The method initializes internal state of a shared emitter use given pointer to the object.
 				
@@ -243,6 +245,8 @@ namespace TDEngine2
 			TDE2_API virtual F32 GetInitialSpeedFactor() const = 0;
 
 			TDE2_API virtual U32 GetEmissionRate() const = 0;
+
+			TDE2_API virtual E_PARTICLE_SIMULATION_SPACE GetSimulationSpaceType() const = 0;
 
 			TDE2_API virtual CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const = 0;
 

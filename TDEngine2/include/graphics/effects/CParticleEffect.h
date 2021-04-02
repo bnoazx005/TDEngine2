@@ -137,6 +137,8 @@ namespace TDEngine2
 
 			TDE2_API void SetEmissionRate(U32 value) override;
 
+			TDE2_API void SetSimulationSpaceType(E_PARTICLE_SIMULATION_SPACE spaceType) override;
+
 			/*!
 				\brief The method initializes internal state of a shared emitter use given pointer to the object.
 
@@ -215,6 +217,8 @@ namespace TDEngine2
 
 			TDE2_API U32 GetEmissionRate() const override;
 
+			TDE2_API E_PARTICLE_SIMULATION_SPACE GetSimulationSpaceType() const override;
+
 			TDE2_API CScopedPtr<CBaseParticlesEmitter> GetSharedEmitter() const override;
 
 			TDE2_API CScopedPtr<CAnimationCurve> GetSizeCurve() const override;
@@ -246,6 +250,8 @@ namespace TDEngine2
 			F32                               mInitialSpeedFactor;
 
 			U32                               mEmissionRate;
+
+			E_PARTICLE_SIMULATION_SPACE       mSimulationSpaceType;
 
 			E_PARTICLE_EFFECT_INFO_FLAGS      mModifiersInfoFlags;
 
