@@ -21,6 +21,7 @@ namespace TDEngine2
 	class CTransform;
 	struct TParticle;
 	struct TParticleColorParameter;
+	struct TParticleVelocityParameter;
 
 
 	/*!
@@ -85,6 +86,7 @@ namespace TDEngine2
 			TDE2_API virtual TypeId GetEmitterTypeId() const { return TypeId::Invalid; }
 
 			TDE2_API static TColor32F GetColorData(const TParticleColorParameter& colorData, F32 time);
+			TDE2_API static TVector3 GetVelocityData(const TParticleVelocityParameter& velocityData, F32 time);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseParticlesEmitter)
 

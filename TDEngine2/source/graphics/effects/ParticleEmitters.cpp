@@ -111,6 +111,24 @@ namespace TDEngine2
 		return TColorUtils::mWhite;
 	}
 
+	TVector3 CBaseParticlesEmitter::GetVelocityData(const TParticleVelocityParameter& velocityData, F32 time)
+	{
+		switch (velocityData.mType)
+		{
+			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CONSTANTS:
+				return Normalize(velocityData.mVelocityConst) * velocityData.mSpeedFactorConst;
+			
+			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CURVES:
+				return Normalize({ velocityData.mXCurve->Sample(time), velocityData.mYCurve->Sample(time), velocityData.mZCurve->Sample(time) }) * velocityData.mSpeedFactorCurve->Sample(time);
+
+			default:
+				TDE2_UNREACHABLE();
+				break;
+		}
+
+		return ZeroVector3;
+	}
+
 	TColor32F CBaseParticlesEmitter::_getInitColor() const
 	{
 		if (!mpOwnerEffect)

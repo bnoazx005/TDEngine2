@@ -170,6 +170,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetColorOverLifeTime(const TParticleColorParameter& colorData) override;
 
 			/*!
+				\brief The method defines how particles' velocity are being changing over time
+
+				\param[in] velocityData An object that contains a bunch of curves that determines behviour of a velocity
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetVelocityOverTime(const TParticleVelocityParameter& velocityData) override;
+
+			/*!
 				\brief The method updates information about enabled/disables modifiers of particles parameters
 
 				\param[in] value A disjunction of flags that determines which modifiers are enabled
@@ -225,12 +235,17 @@ namespace TDEngine2
 
 			TDE2_API const TParticleColorParameter& GetColorOverLifeTime() const override;
 
+			TDE2_API const TParticleVelocityParameter& GetVelocityOverTime() const override;
+
 			TDE2_API E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
 
 			TDE2_API E_RESULT_CODE _saveColorData(IArchiveWriter* pWriter, const TParticleColorParameter& colorData);
 			TDE2_API TResult<TParticleColorParameter> _loadColorData(IArchiveReader* pReader);
+
+			TDE2_API E_RESULT_CODE _saveVelocityData(IArchiveWriter* pWriter, const TParticleVelocityParameter& colorData);
+			TDE2_API TResult<TParticleVelocityParameter> _loadVelocityData(IArchiveReader* pReader);
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
@@ -258,6 +273,8 @@ namespace TDEngine2
 			CScopedPtr<CAnimationCurve>       mpSizeCurve;
 
 			TParticleColorParameter           mColorOverLifetimeData;
+
+			TParticleVelocityParameter        mVelocityOverLifetimeData;
 
 			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
 	};

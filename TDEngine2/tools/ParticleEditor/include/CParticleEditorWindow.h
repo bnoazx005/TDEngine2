@@ -76,6 +76,7 @@ namespace TDEngine2
 			TDE2_API void _onRenderingSettingsHandle();
 
 			TDE2_API void _drawColorDataModifiers(const std::string& label, TParticleColorParameter& colorData, const std::function<void()>& onChangedAction);
+			TDE2_API void _drawVelocityDataModifiers(TParticleVelocityParameter& velocityData, const std::function<void()>& onChangedAction);
 
 		protected:
 			CScopedPtr<CAnimationCurveEditorWindow> mpCurveEditor;
@@ -89,5 +90,6 @@ namespace TDEngine2
 			static std::vector<std::string> mEmittersTypesIds;
 			static std::vector<std::string> mColorTypesIds;
 			static std::vector<std::string> mSimulationSpaceTypesIds;
+			static std::vector<std::string> mVelocityParamTypesIds;
 	};
 }

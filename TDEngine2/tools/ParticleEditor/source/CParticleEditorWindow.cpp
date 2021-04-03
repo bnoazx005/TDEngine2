@@ -5,11 +5,9 @@
 namespace TDEngine2
 {
 	std::vector<std::string> CParticleEditorWindow::mColorTypesIds {};
-	std::vector<std::string> CParticleEditorWindow::mEmittersTypesIds 
-	{
-		"Box", "Sphere", "Cone"
-	};
+	std::vector<std::string> CParticleEditorWindow::mEmittersTypesIds { "Box", "Sphere", "Cone" };
 	std::vector<std::string> CParticleEditorWindow::mSimulationSpaceTypesIds {};
+	std::vector<std::string> CParticleEditorWindow::mVelocityParamTypesIds {};
 
 
 	CParticleEditorWindow::CParticleEditorWindow() :
@@ -53,6 +51,11 @@ namespace TDEngine2
 		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_SIMULATION_SPACE>::GetFields())
 		{
 			mSimulationSpaceTypesIds.push_back(currField.name);
+		}
+
+		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_VELOCITY_PARAMETER_TYPE>::GetFields())
+		{
+			mVelocityParamTypesIds.push_back(currField.name);
 		}
 
 		mIsInitialized = true;
@@ -283,6 +286,30 @@ namespace TDEngine2
 			});
 		}
 
+		/// \note Velocity over lifetime 
+		if (mpImGUIContext->CollapsingHeader("Velocity over Lifetime", true, false))
+		{
+			bool isModifierEnabled = static_cast<bool>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) & E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED);
+
+			mpImGUIContext->Checkbox("Enabled##VelOvrTm", isModifierEnabled);
+
+			if (isModifierEnabled)
+			{
+				modifiersFlags = static_cast<U32>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) | E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED);
+			}
+			else
+			{
+				modifiersFlags = modifiersFlags & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED);
+			}
+
+			auto velocityOverTimeData = mpCurrParticleEffect->GetVelocityOverTime();
+			
+			_drawVelocityDataModifiers(velocityOverTimeData, [this, &velocityOverTimeData]
+			{
+				mpCurrParticleEffect->SetVelocityOverTime(velocityOverTimeData);
+			});
+		}
+
 		mpCurrParticleEffect->SetModifiersFlags(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags));
 	}
 
@@ -333,6 +360,76 @@ namespace TDEngine2
 			case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_RANDOM:
 				auto& gradientColor = *colorData.mGradientColor.Get();
 				mpImGUIContext->GradientColorPicker("Color", gradientColor);
+				break;
+		}
+
+		if (onChangedAction)
+		{
+			onChangedAction();
+		}
+	}
+
+	void CParticleEditorWindow::_drawVelocityDataModifiers(TParticleVelocityParameter& velocityData, const std::function<void()>& onChangedAction)
+	{
+		I32 currSelectedVelocityParamType = static_cast<I32>(velocityData.mType);
+
+		currSelectedVelocityParamType = mpImGUIContext->Popup("##VelocityParamType", currSelectedVelocityParamType, mVelocityParamTypesIds);
+		velocityData.mType = static_cast<E_PARTICLE_VELOCITY_PARAMETER_TYPE>(currSelectedVelocityParamType);
+
+		TVector3 velocity;
+
+		switch (velocityData.mType)
+		{
+			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CURVES:
+				mpImGUIContext->BeginHorizontal();
+				mpImGUIContext->Label("Velocity: ");
+
+				mpImGUIContext->Button("X", TVector2(50.0f, 25.0f), [this, &velocityData]
+				{
+					auto pCurve = velocityData.mXCurve;
+					mpCurveEditor->SetCurveForEditing(pCurve.Get());
+					mpCurveEditor->SetVisible(true);
+				});
+
+				mpImGUIContext->Button("Y", TVector2(50.0f, 25.0f), [this, &velocityData]
+				{
+					auto pCurve = velocityData.mYCurve;
+					mpCurveEditor->SetCurveForEditing(pCurve.Get());
+					mpCurveEditor->SetVisible(true);
+				});
+
+				mpImGUIContext->Button("Z", TVector2(50.0f, 25.0f), [this, &velocityData]
+				{
+					auto pCurve = velocityData.mZCurve;
+					mpCurveEditor->SetCurveForEditing(pCurve.Get());
+					mpCurveEditor->SetVisible(true);
+				});
+
+				mpImGUIContext->EndHorizontal();
+
+				mpImGUIContext->Button("Speed Factor", TVector2(100.0f, 25.0f), [this, &velocityData]
+				{
+					auto pCurve = velocityData.mSpeedFactorCurve;
+					mpCurveEditor->SetCurveForEditing(pCurve.Get());
+					mpCurveEditor->SetVisible(true);
+				});
+				break;
+
+			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CONSTANTS:
+				mpImGUIContext->Label("Velocity: ");
+
+				velocity = velocityData.mVelocityConst;
+				mpImGUIContext->Vector3Field("##VelocityConst", velocity, [&velocity, &velocityData] { velocityData.mVelocityConst = velocity; });
+
+				mpImGUIContext->BeginHorizontal();
+				mpImGUIContext->Label("Speed Factor: ");
+				mpImGUIContext->FloatField("##SpeedFactorConst", velocityData.mSpeedFactorConst);
+				mpImGUIContext->EndHorizontal();
+
+				break;
+
+			default:
+				TDE2_UNREACHABLE();
 				break;
 		}
 

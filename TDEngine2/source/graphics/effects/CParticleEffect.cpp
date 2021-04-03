@@ -25,6 +25,7 @@ namespace TDEngine2
 
 		static const std::string mSizeOverTimeKeyId;
 		static const std::string mColorOverTimeKeyId;
+		static const std::string mVelocityOverTimeKeyId;
 
 		static const std::string mEmitterDataGroupId;
 		static const std::string mEmissionRateKeyId;
@@ -38,6 +39,18 @@ namespace TDEngine2
 			static const std::string mTypeKeyId;
 			static const std::string mColorKeyId;
 			static const std::string mAddColorKeyId;
+		};
+
+
+		struct TVelocityKeys
+		{
+			static const std::string mParamTypesKeyId;
+			static const std::string mXCurveKeyId;
+			static const std::string mYCurveKeyId;
+			static const std::string mZCurveKeyId;
+			static const std::string mSpeedCurveKeyId;
+			static const std::string mVelocityConstKeyId;
+			static const std::string mSpeedConstKeyId;
 		};
 	};
 
@@ -54,6 +67,7 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mInitialSpeedFactorKeyId = "initial-speed";
 	const std::string TParticleEffectClipKeys::mSizeOverTimeKeyId = "size-over-time";
 	const std::string TParticleEffectClipKeys::mColorOverTimeKeyId = "color-over-time";
+	const std::string TParticleEffectClipKeys::mVelocityOverTimeKeyId = "velocity-over-time";
 	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
 	const std::string TParticleEffectClipKeys::mEmissionRateKeyId = "emission-rate";
 	const std::string TParticleEffectClipKeys::mSimulationSpaceTypeKeyId = "simulation-space";
@@ -62,6 +76,62 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::TInitialColorKeys::mTypeKeyId = "type";
 	const std::string TParticleEffectClipKeys::TInitialColorKeys::mColorKeyId = "value0";
 	const std::string TParticleEffectClipKeys::TInitialColorKeys::mAddColorKeyId = "value1";
+
+	const std::string TParticleEffectClipKeys::TVelocityKeys::mParamTypesKeyId = "type";
+	const std::string TParticleEffectClipKeys::TVelocityKeys::mXCurveKeyId = "x-vel-curve";
+	const std::string TParticleEffectClipKeys::TVelocityKeys::mYCurveKeyId = "y-vel-curve";
+	const std::string TParticleEffectClipKeys::TVelocityKeys::mZCurveKeyId = "z-vel-curve";
+	const std::string TParticleEffectClipKeys::TVelocityKeys::mSpeedCurveKeyId = "speed-curve";
+	const std::string TParticleEffectClipKeys::TVelocityKeys::mVelocityConstKeyId = "vel-const";
+	const std::string TParticleEffectClipKeys::TVelocityKeys::mSpeedConstKeyId = "speed-const";
+
+
+	static E_RESULT_CODE InitColorData(TParticleColorParameter& colorData)
+	{
+		/// \note Create a new object of gradient color if it's selected but doesn't exist yet
+		if ((E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP != colorData.mType || E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP != colorData.mType) || colorData.mGradientColor)
+		{
+			return RC_OK;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		colorData.mGradientColor = CreateGradientColor(TColorUtils::mWhite, TColorUtils::mWhite, result);
+
+		return result;
+	}
+
+
+	static E_RESULT_CODE InitVelocityData(TParticleVelocityParameter& velocityData)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		static const TRectF32 velocityCurve{ -1.0f, -1.0f, 2.0f, 2.0f };
+		static const TRectF32 speedCurve{ 0.0f, 0.0f, 1.0f, 1.0f };
+
+		// \note Create a new curves if the given are empty
+		if (!velocityData.mXCurve)
+		{
+			velocityData.mXCurve = CreateAnimationCurve(velocityCurve, result);
+		}
+
+		if (!velocityData.mYCurve)
+		{
+			velocityData.mYCurve = CreateAnimationCurve(velocityCurve, result);
+		}
+
+		if (!velocityData.mZCurve)
+		{
+			velocityData.mZCurve = CreateAnimationCurve(velocityCurve, result);
+		}
+
+		if (!velocityData.mSpeedFactorCurve)
+		{
+			velocityData.mSpeedFactorCurve = CreateAnimationCurve(speedCurve, result);
+		}
+
+		return result;
+	}
 
 
 	CParticleEffect::CParticleEffect() :
@@ -189,6 +259,17 @@ namespace TDEngine2
 			}
 			pReader->EndGroup();
 
+			pReader->BeginGroup(TParticleEffectClipKeys::mVelocityOverTimeKeyId);
+			{
+				auto loadVelocityDataResult = _loadVelocityData(pReader);
+				if (loadVelocityDataResult.HasError())
+				{
+					return loadVelocityDataResult.GetError();
+				}
+
+				mVelocityOverLifetimeData = loadVelocityDataResult.Get();
+			}
+			pReader->EndGroup();
 		}
 		pReader->EndGroup();
 
@@ -284,6 +365,12 @@ namespace TDEngine2
 				_saveColorData(pWriter, mColorOverLifetimeData);
 			}
 			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TParticleEffectClipKeys::mVelocityOverTimeKeyId);
+			{
+				_saveVelocityData(pWriter, mVelocityOverLifetimeData);
+			}
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
 
@@ -353,23 +440,6 @@ namespace TDEngine2
 		mInitialRotation = value;
 	}
 
-
-	static E_RESULT_CODE InitColorData(TParticleColorParameter& colorData)
-	{
-		/// \note Create a new object of gradient color if it's selected but doesn't exist yet
-		if ((E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP != colorData.mType || E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP != colorData.mType) || colorData.mGradientColor)
-		{
-			return RC_OK;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		colorData.mGradientColor = CreateGradientColor(TColorUtils::mWhite, TColorUtils::mWhite, result);
-
-		return result;
-	}
-
-
 	void CParticleEffect::SetInitialColor(const TParticleColorParameter& colorData)
 	{
 		mInitialColor = colorData;
@@ -420,6 +490,12 @@ namespace TDEngine2
 	{
 		mColorOverLifetimeData = colorData;
 		return InitColorData(mColorOverLifetimeData);
+	}
+
+	E_RESULT_CODE CParticleEffect::SetVelocityOverTime(const TParticleVelocityParameter& velocityData)
+	{
+		mVelocityOverLifetimeData = velocityData;
+		return InitVelocityData(mVelocityOverLifetimeData);
 	}
 
 	E_RESULT_CODE CParticleEffect::SetModifiersFlags(E_PARTICLE_EFFECT_INFO_FLAGS value)
@@ -501,6 +577,11 @@ namespace TDEngine2
 	const TParticleColorParameter& CParticleEffect::GetColorOverLifeTime() const
 	{
 		return mColorOverLifetimeData;
+	}
+
+	const TParticleVelocityParameter& CParticleEffect::GetVelocityOverTime() const
+	{
+		return mVelocityOverLifetimeData;
 	}
 
 	E_PARTICLE_EFFECT_INFO_FLAGS CParticleEffect::GetEnabledModifiersFlags() const
@@ -642,6 +723,121 @@ namespace TDEngine2
 		}
 
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+	}
+
+	E_RESULT_CODE CParticleEffect::_saveVelocityData(IArchiveWriter* pWriter, const TParticleVelocityParameter& colorData)
+	{
+		E_RESULT_CODE result = pWriter->SetUInt16(TParticleEffectClipKeys::TVelocityKeys::mParamTypesKeyId, static_cast<U16>(mVelocityOverLifetimeData.mType));
+
+		switch (mVelocityOverLifetimeData.mType)
+		{
+			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CONSTANTS:
+				break;
+
+			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CURVES:
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mXCurveKeyId);
+				result = result | mVelocityOverLifetimeData.mXCurve->Save(pWriter);
+				result = result | pWriter->EndGroup();
+
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mYCurveKeyId);
+				result = result | mVelocityOverLifetimeData.mYCurve->Save(pWriter);
+				result = result | pWriter->EndGroup();
+
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mZCurveKeyId);
+				result = result | mVelocityOverLifetimeData.mZCurve->Save(pWriter);
+				result = result | pWriter->EndGroup();
+
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mSpeedCurveKeyId);
+				result = result | mVelocityOverLifetimeData.mSpeedFactorCurve->Save(pWriter);
+				result = result | pWriter->EndGroup();
+
+				break;
+			default:
+				TDE2_UNREACHABLE();
+				break;
+		}
+		
+		return result;
+	}
+
+	TResult<TParticleVelocityParameter> CParticleEffect::_loadVelocityData(IArchiveReader* pReader)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TParticleVelocityParameter velocityData;
+
+		velocityData.mType = static_cast<E_PARTICLE_VELOCITY_PARAMETER_TYPE>(pReader->GetUInt16(TParticleEffectClipKeys::TVelocityKeys::mParamTypesKeyId));
+
+		if (RC_OK != (result = InitVelocityData(velocityData)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		switch (velocityData.mType)
+		{
+			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CONSTANTS:
+				pReader->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mVelocityConstKeyId);
+				{
+					auto loadVelocityResult = LoadVector3(pReader);
+					if (loadVelocityResult.HasError())
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(loadVelocityResult.GetError());
+					}
+
+					velocityData.mVelocityConst = loadVelocityResult.Get();
+				}
+				pReader->EndGroup();
+
+				velocityData.mSpeedFactorConst = pReader->GetFloat(TParticleEffectClipKeys::TVelocityKeys::mSpeedConstKeyId);
+
+				break;
+
+			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CURVES:
+
+				pReader->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mXCurveKeyId);
+				{
+					if (RC_OK != (result = velocityData.mXCurve->Load(pReader)))
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(result);
+					}
+				}
+				pReader->EndGroup();
+
+				pReader->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mYCurveKeyId);
+				{
+					if (RC_OK != (result = velocityData.mYCurve->Load(pReader)))
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(result);
+					}
+				}
+				pReader->EndGroup();
+
+				pReader->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mZCurveKeyId);
+				{
+					if (RC_OK != (result = velocityData.mZCurve->Load(pReader)))
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(result);
+					}
+				}
+				pReader->EndGroup();
+
+				pReader->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mSpeedCurveKeyId);
+				{
+					if (RC_OK != (result = velocityData.mSpeedFactorCurve->Load(pReader)))
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(result);
+					}
+				}
+				pReader->EndGroup();
+
+				break;
+
+			default:
+				TDE2_UNREACHABLE();
+				break;
+		}
+		
+		return Wrench::TOkValue<TParticleVelocityParameter>(velocityData);
 	}
 
 	const IResourceLoader* CParticleEffect::_getResourceLoader()

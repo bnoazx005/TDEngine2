@@ -37,7 +37,7 @@ namespace TDEngine2
 		DEFAULT = 0,
 		E_SIZE_OVER_LIFETIME_ENABLED = 1,
 		E_COLOR_OVER_LIFETIME_ENABLED = 1 << 1,
-
+		E_VELOCITY_OVER_LIFETIME_ENABLED = 1 << 2,
 	};
 
 	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_PARTICLE_EFFECT_INFO_FLAGS);
@@ -49,6 +49,13 @@ namespace TDEngine2
 		TWEEN_RANDOM,
 		GRADIENT_LERP,
 		GRADIENT_RANDOM,
+	};
+
+
+	enum class E_PARTICLE_VELOCITY_PARAMETER_TYPE : U16
+	{
+		CONSTANTS,
+		CURVES
 	};
 
 
@@ -65,6 +72,21 @@ namespace TDEngine2
 
 		CScopedPtr<CGradientColor> mGradientColor;
 	} TParticleColorParameter, *TParticleColorParameterPtr;
+
+
+	typedef struct TParticleVelocityParameter
+	{
+		E_PARTICLE_VELOCITY_PARAMETER_TYPE mType = E_PARTICLE_VELOCITY_PARAMETER_TYPE::CONSTANTS;
+
+		CScopedPtr<CAnimationCurve> mXCurve;
+		CScopedPtr<CAnimationCurve> mYCurve;
+		CScopedPtr<CAnimationCurve> mZCurve;
+
+		CScopedPtr<CAnimationCurve> mSpeedFactorCurve;
+
+		TVector3 mVelocityConst;
+		F32 mSpeedFactorConst;
+	} TParticleVelocityParameter, *TParticleVelocityParameterPtr;
 
 
 	/*!
@@ -198,6 +220,16 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetColorOverLifeTime(const TParticleColorParameter& colorData) = 0;
 
 			/*!
+				\brief The method defines how particles' velocity are being changing over time
+
+				\param[in] velocityData An object that contains a bunch of curves that determines behviour of a velocity
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetVelocityOverTime(const TParticleVelocityParameter& velocityData) = 0;
+
+			/*!
 				\brief The method updates information about enabled/disables modifiers of particles parameters.
 				Note that a new value overwrites previous one.
 				
@@ -253,6 +285,8 @@ namespace TDEngine2
 			TDE2_API virtual CScopedPtr<CAnimationCurve> GetSizeCurve() const = 0;
 
 			TDE2_API virtual const TParticleColorParameter& GetColorOverLifeTime() const = 0;
+
+			TDE2_API virtual const TParticleVelocityParameter& GetVelocityOverTime() const = 0;
 
 			TDE2_API virtual E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const = 0;
 		protected:

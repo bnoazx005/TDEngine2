@@ -382,9 +382,6 @@ namespace TDEngine2
 
 					++mActiveParticlesCount[i];
 
-					currParticle.mAge += dt;
-					currParticle.mPosition = currParticle.mPosition + dt * currParticle.mVelocity; // \todo Add speed factor
-
 					const F32 t = CMathUtils::Clamp01(currParticle.mAge / std::max<F32>(1e-3f, currParticle.mLifeTime));
 
 					// \note Update size over lifetime
@@ -398,7 +395,15 @@ namespace TDEngine2
 						currParticle.mColor = CBaseParticlesEmitter::GetColorData(pCurrEffectResource->GetColorOverLifeTime(), t);
 					}
 
-					// \todo currParticle.mVelocity
+					// \note Update velocity over lifetime
+					if (E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED))
+					{
+						currParticle.mVelocity = CBaseParticlesEmitter::GetVelocityData(pCurrEffectResource->GetVelocityOverTime(), t);
+					}
+
+					currParticle.mAge += dt;
+					currParticle.mPosition = currParticle.mPosition + dt * currParticle.mVelocity;
+
 					// \todo currParticle.mRotationAngle
 
 					particlesInstancesBuffer[currInstancesBufferIndex].mColor = currParticle.mColor;
