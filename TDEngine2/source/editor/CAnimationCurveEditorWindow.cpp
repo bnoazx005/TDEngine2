@@ -199,15 +199,19 @@ namespace TDEngine2
 				if (mpImGUIContext->IsItemActive() && mpImGUIContext->IsMouseDragging(0))
 				{
 					auto&& mousePos = mpImGUIContext->GetMousePosition();
-					const TVector2 mouseDelta = mpImGUIContext->GetMouseDragDelta(0);
 
 					if (auto pPoint = mpCurrTargetCurve->GetPoint(static_cast<U32>(id)))
 					{
-						const TVector2& curvePointDelta = ApplyScreenToCurveTransform(invTransformParams, p0 + mouseDelta);
+						const TVector2& curvePointDelta = ApplyScreenToCurveTransform(invTransformParams, mousePos);
 
 						pPoint->mTime = curvePointDelta.x;
 						pPoint->mValue = curvePointDelta.y;
 					}
+				}
+
+				if (!mpImGUIContext->IsMouseDragging(0))
+				{
+					mpCurrTargetCurve->UpdateBounds();
 				}
 			}
 			mpImGUIContext->SetCursorScreenPos(pos);

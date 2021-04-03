@@ -212,6 +212,11 @@ namespace TDEngine2
 															  secondPoint, secondPoint + nextPoint.mInTangent).y;
 	}
 
+	void CAnimationCurve::UpdateBounds()
+	{
+		_updateBounds();
+	}
+
 	const TRectF32& CAnimationCurve::GetBounds() const
 	{
 		return mBounds;

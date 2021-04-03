@@ -118,7 +118,9 @@ namespace TDEngine2
 
 			TDE2_API F32 Sample(F32 t) const;
 
-			TKeyFrame* GetPoint(U32 index);
+			TDE2_API void UpdateBounds();
+
+			TDE2_API TKeyFrame* GetPoint(U32 index);
 
 			TDE2_API const TRectF32& GetBounds() const;
 		protected:
