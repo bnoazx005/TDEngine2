@@ -725,30 +725,36 @@ namespace TDEngine2
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 	}
 
-	E_RESULT_CODE CParticleEffect::_saveVelocityData(IArchiveWriter* pWriter, const TParticleVelocityParameter& colorData)
+	E_RESULT_CODE CParticleEffect::_saveVelocityData(IArchiveWriter* pWriter, const TParticleVelocityParameter& velocityData)
 	{
-		E_RESULT_CODE result = pWriter->SetUInt16(TParticleEffectClipKeys::TVelocityKeys::mParamTypesKeyId, static_cast<U16>(mVelocityOverLifetimeData.mType));
+		E_RESULT_CODE result = pWriter->SetUInt16(TParticleEffectClipKeys::TVelocityKeys::mParamTypesKeyId, static_cast<U16>(velocityData.mType));
 
-		switch (mVelocityOverLifetimeData.mType)
+		switch (velocityData.mType)
 		{
 			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CONSTANTS:
+				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mVelocityConstKeyId);
+				result = result | SaveVector3(pWriter, velocityData.mVelocityConst);
+				result = result | pWriter->EndGroup();
+
+				result = pWriter->SetFloat(TParticleEffectClipKeys::TVelocityKeys::mSpeedConstKeyId, velocityData.mSpeedFactorConst);
+
 				break;
 
 			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CURVES:
 				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mXCurveKeyId);
-				result = result | mVelocityOverLifetimeData.mXCurve->Save(pWriter);
+				result = result | velocityData.mXCurve->Save(pWriter);
 				result = result | pWriter->EndGroup();
 
 				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mYCurveKeyId);
-				result = result | mVelocityOverLifetimeData.mYCurve->Save(pWriter);
+				result = result | velocityData.mYCurve->Save(pWriter);
 				result = result | pWriter->EndGroup();
 
 				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mZCurveKeyId);
-				result = result | mVelocityOverLifetimeData.mZCurve->Save(pWriter);
+				result = result | velocityData.mZCurve->Save(pWriter);
 				result = result | pWriter->EndGroup();
 
 				result = result | pWriter->BeginGroup(TParticleEffectClipKeys::TVelocityKeys::mSpeedCurveKeyId);
-				result = result | mVelocityOverLifetimeData.mSpeedFactorCurve->Save(pWriter);
+				result = result | velocityData.mSpeedFactorCurve->Save(pWriter);
 				result = result | pWriter->EndGroup();
 
 				break;
