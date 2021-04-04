@@ -283,7 +283,7 @@ namespace TDEngine2
 					auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedInstancedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
 																								  _computeRenderCommandHash(currMaterialId, distanceToCamera));
 
-					const bool isWorldSpaceParticles = E_PARTICLE_SIMULATION_SPACE::WORLD == pParticleEffect->GetSimulationSpaceType();
+					const bool isLocalSpaceParticles = E_PARTICLE_SIMULATION_SPACE::LOCAL == pParticleEffect->GetSimulationSpaceType();
 
 					pCommand->mpVertexBuffer              = mpParticleQuadVertexBuffer;
 					pCommand->mpIndexBuffer               = mpParticleQuadIndexBuffer;
@@ -293,8 +293,8 @@ namespace TDEngine2
 					pCommand->mIndicesPerInstance         = 6;
 					pCommand->mNumOfInstances             = mActiveParticlesCount[currBufferIndex];
 					pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-					pCommand->mObjectData.mModelMatrix    = Transpose(isWorldSpaceParticles ? objectTransformMatrix : IdentityMatrix4);
-					pCommand->mObjectData.mInvModelMatrix = Transpose(isWorldSpaceParticles ? Inverse(objectTransformMatrix) : IdentityMatrix4);
+					pCommand->mObjectData.mModelMatrix    = Transpose(isLocalSpaceParticles ? objectTransformMatrix : IdentityMatrix4);
+					pCommand->mObjectData.mInvModelMatrix = Transpose(isLocalSpaceParticles ? Inverse(objectTransformMatrix) : IdentityMatrix4);
 
 					++currBufferIndex;
 				}
@@ -404,10 +404,15 @@ namespace TDEngine2
 					currParticle.mAge += dt;
 					currParticle.mPosition = currParticle.mPosition + dt * currParticle.mVelocity;
 
-					// \todo currParticle.mRotationAngle
+					/// \note Update rotation over lifetime
+					if (E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED))
+					{
+						currParticle.mRotation += dt * pCurrEffectResource->GetRotationOverTime(); /// \note mRotation is computed in degrees
+					}
 
 					particlesInstancesBuffer[currInstancesBufferIndex].mColor = currParticle.mColor;
 					particlesInstancesBuffer[currInstancesBufferIndex].mPositionAndSize = TVector4(currParticle.mPosition, currParticle.mSize.x); // \todo For now use only uniform size
+					particlesInstancesBuffer[currInstancesBufferIndex].mRotation = TVector4(CMathConstants::Deg2Rad * currParticle.mRotation, 0.0f, 0.0f, 0.0f);
 
 					++currInstancesBufferIndex;
 				}

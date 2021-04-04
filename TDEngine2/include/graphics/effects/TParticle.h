@@ -24,5 +24,6 @@ namespace TDEngine2
 		TColor32F mColor;
 		F32       mAge = (std::numeric_limits<F32>::max)();
 		F32       mLifeTime;
+		F32       mRotation;
 	} TParticleInfo, *TParticleInfoPtr;
 }

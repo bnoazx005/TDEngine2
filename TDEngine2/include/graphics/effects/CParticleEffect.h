@@ -179,6 +179,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetVelocityOverTime(const TParticleVelocityParameter& velocityData) override;
 
+			TDE2_API E_RESULT_CODE SetRotationOverTime(F32 anglePerFrame) override;
+
 			/*!
 				\brief The method updates information about enabled/disables modifiers of particles parameters
 
@@ -237,6 +239,8 @@ namespace TDEngine2
 
 			TDE2_API const TParticleVelocityParameter& GetVelocityOverTime() const override;
 
+			TDE2_API F32 GetRotationOverTime() const override;
+
 			TDE2_API E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
@@ -275,6 +279,8 @@ namespace TDEngine2
 			TParticleColorParameter           mColorOverLifetimeData;
 
 			TParticleVelocityParameter        mVelocityOverLifetimeData;
+
+			F32                               mRotationPerFrame;
 
 			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
 	};

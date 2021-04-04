@@ -30,7 +30,12 @@ VertexOut mainVS(in VertexIn input)
 {
 	VertexOut output;
 
-	float3 pos = input.mPos.xyz * input.mParticlePosAndSize.w + input.mParticlePosAndSize.xyz;
+	float cosAngle = cos(input.mParticleRotation.x);
+	float sinAngle = sin(input.mParticleRotation.x);
+
+	float3x3 rotZAxisMat = float3x3(cosAngle, -sinAngle, 0.0f, sinAngle, cosAngle, 0.0f, 0.0f, 0.0f, 1.0f);
+
+	float3 pos = mul(rotZAxisMat, input.mPos.xyz * input.mParticlePosAndSize.w) + input.mParticlePosAndSize.xyz;
 
 	output.mPos        = mul(mul(mul(ProjMat, ViewMat), ModelMat), float4(pos.x, pos.y, pos.z, 1.0));
 	output.mUV         = input.mUV;

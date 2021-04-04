@@ -38,6 +38,7 @@ namespace TDEngine2
 		E_SIZE_OVER_LIFETIME_ENABLED = 1,
 		E_COLOR_OVER_LIFETIME_ENABLED = 1 << 1,
 		E_VELOCITY_OVER_LIFETIME_ENABLED = 1 << 2,
+		E_ROTATION_OVER_LIFETIME_ENABLED = 1 << 3,
 	};
 
 	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_PARTICLE_EFFECT_INFO_FLAGS);
@@ -229,6 +230,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SetVelocityOverTime(const TParticleVelocityParameter& velocityData) = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetRotationOverTime(F32 anglePerFrame) = 0;
+
 			/*!
 				\brief The method updates information about enabled/disables modifiers of particles parameters.
 				Note that a new value overwrites previous one.
@@ -287,6 +290,8 @@ namespace TDEngine2
 			TDE2_API virtual const TParticleColorParameter& GetColorOverLifeTime() const = 0;
 
 			TDE2_API virtual const TParticleVelocityParameter& GetVelocityOverTime() const = 0;
+
+			TDE2_API virtual F32 GetRotationOverTime() const = 0;
 
 			TDE2_API virtual E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const = 0;
 		protected:

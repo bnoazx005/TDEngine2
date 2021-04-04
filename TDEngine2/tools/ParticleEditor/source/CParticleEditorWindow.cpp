@@ -209,6 +209,23 @@ namespace TDEngine2
 			mpImGUIContext->EndHorizontal();
 		}
 
+		/// \note Initial rotation
+		{
+			TRange<F32> initialRotation = mpCurrParticleEffect->GetInitialRotation();
+
+			mpImGUIContext->Label("Initial Rotation: ");
+
+			mpImGUIContext->BeginHorizontal();
+			mpImGUIContext->Label("Min");
+			mpImGUIContext->FloatField("##RotationMin", initialRotation.mLeft, [this, &initialRotation] { mpCurrParticleEffect->SetInitialRotation(initialRotation); });
+			mpImGUIContext->EndHorizontal();
+
+			mpImGUIContext->BeginHorizontal();
+			mpImGUIContext->Label("Max");
+			mpImGUIContext->FloatField("##RotationMax", initialRotation.mRight, [this, &initialRotation] { mpCurrParticleEffect->SetInitialRotation(initialRotation); });
+			mpImGUIContext->EndHorizontal();
+		}
+
 		// \note Initial color
 		{
 			auto colorData = mpCurrParticleEffect->GetInitialColor();
@@ -308,6 +325,30 @@ namespace TDEngine2
 			{
 				mpCurrParticleEffect->SetVelocityOverTime(velocityOverTimeData);
 			});
+		}
+
+		/// \note Rotation over lifetime 
+		if (mpImGUIContext->CollapsingHeader("Rotation over Lifetime", true, false))
+		{
+			bool isModifierEnabled = static_cast<bool>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) & E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED);
+
+			mpImGUIContext->Checkbox("Enabled##RotationOvrTm", isModifierEnabled);
+
+			if (isModifierEnabled)
+			{
+				modifiersFlags = static_cast<U32>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) | E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED);
+			}
+			else
+			{
+				modifiersFlags = modifiersFlags & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED);
+			}
+
+			F32 angularSpeed = mpCurrParticleEffect->GetRotationOverTime();
+
+			mpImGUIContext->BeginHorizontal();
+			mpImGUIContext->Label("Angular Speed");
+			mpImGUIContext->FloatField("##AngularSpeed", angularSpeed, [&angularSpeed, this] { mpCurrParticleEffect->SetRotationOverTime(angularSpeed); });
+			mpImGUIContext->EndHorizontal();
 		}
 
 		mpCurrParticleEffect->SetModifiersFlags(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags));

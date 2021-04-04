@@ -290,6 +290,7 @@ namespace TDEngine2
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
 		particleInfo.mPosition = pTransform->GetPosition() + RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes); // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = _getInitVelocity();
+		particleInfo.mRotation = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialRotation());
 
 		if (mIs2DEmitter)
 		{
