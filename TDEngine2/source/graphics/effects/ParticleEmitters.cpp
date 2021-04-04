@@ -116,10 +116,23 @@ namespace TDEngine2
 		switch (velocityData.mType)
 		{
 			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CONSTANTS:
+				if (Length(velocityData.mVelocityConst) < 1e-3f)
+				{
+					return velocityData.mVelocityConst;
+				}
+
 				return Normalize(velocityData.mVelocityConst) * velocityData.mSpeedFactorConst;
 			
 			case E_PARTICLE_VELOCITY_PARAMETER_TYPE::CURVES:
-				return Normalize({ velocityData.mXCurve->Sample(time), velocityData.mYCurve->Sample(time), velocityData.mZCurve->Sample(time) }) * velocityData.mSpeedFactorCurve->Sample(time);
+			{
+				const TVector3 velocity { velocityData.mXCurve->Sample(time), velocityData.mYCurve->Sample(time), velocityData.mZCurve->Sample(time) };
+				if (Length(velocity) < 1e-3f)
+				{
+					return velocity;
+				}
+
+				return Normalize(velocity) * velocityData.mSpeedFactorCurve->Sample(time);
+			}
 
 			default:
 				TDE2_UNREACHABLE();

@@ -21,6 +21,21 @@ namespace TDEngine2
 	const std::string TAnimationCurveKeys::mOutTangentKeyId = "out_tangent";
 
 
+	static E_RESULT_CODE InitDefaultPoints(CAnimationCurve* pCurve, const TRectF32& bounds)
+	{
+		if (!pCurve)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		// \note Use default parameters for the curve with no points
+		pCurve->AddPoint({ bounds.x, bounds.y, -0.5f * RightVector2, 0.5f * RightVector2 });
+		pCurve->AddPoint({ bounds.width + bounds.x, bounds.height + bounds.y, -0.5f * RightVector2, 0.5f * RightVector2 });
+
+		return RC_OK;
+	}
+
+
 	CAnimationCurve::CAnimationCurve() :
 		CBaseObject()
 	{
@@ -34,6 +49,12 @@ namespace TDEngine2
 		}
 
 		mBounds = bounds;
+
+		E_RESULT_CODE result = RC_OK;
+		if (RC_OK != (result = InitDefaultPoints(this, bounds)))
+		{
+			return result;
+		}
 
 		mIsInitialized = true;
 
@@ -63,6 +84,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mPoints.clear();
 
 		F32 time, value;
 		TVector2 in, out;
@@ -109,9 +132,12 @@ namespace TDEngine2
 
 		if (mPoints.empty())
 		{
-			// \note Use default parameters for the curve with no points
-			AddPoint({ 0.0f, 0.0f, -0.5f * RightVector2, 0.5f * RightVector2 });
-			AddPoint({ 1.0f, 1.0f, -0.5f * RightVector2, 0.5f * RightVector2 });
+			E_RESULT_CODE result = RC_OK;
+
+			if (RC_OK != (result = InitDefaultPoints(this, mBounds)))
+			{
+				return result;
+			}
 		}
 
 		return _updateBounds();
