@@ -131,6 +131,8 @@ namespace TDEngine2
 
 			TDE2_API void SetInitialVelocityData(const TVector3& direction, F32 speedFactor) override;
 
+			TDE2_API void SetGravityModifier(F32 value) override;
+
 			/*!
 				\brief The method defines how much particles are spawned per frame
 			*/
@@ -227,6 +229,8 @@ namespace TDEngine2
 
 			TDE2_API F32 GetInitialSpeedFactor() const override;
 
+			TDE2_API F32 GetGravityModifier() const override;
+
 			TDE2_API U32 GetEmissionRate() const override;
 
 			TDE2_API E_PARTICLE_SIMULATION_SPACE GetSimulationSpaceType() const override;
@@ -267,6 +271,7 @@ namespace TDEngine2
 			TParticleColorParameter           mInitialColor;
 			TVector3                          mInitialMoveDirection; // \note always should be normalized
 			F32                               mInitialSpeedFactor;
+			F32                               mGravityModifier;
 
 			U32                               mEmissionRate;
 

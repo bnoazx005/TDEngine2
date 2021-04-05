@@ -401,6 +401,12 @@ namespace TDEngine2
 						currParticle.mVelocity = CBaseParticlesEmitter::GetVelocityData(pCurrEffectResource->GetVelocityOverTime(), t);
 					}
 
+					// \note Apply gravity
+					if (E_PARTICLE_EFFECT_INFO_FLAGS::E_GRAVITY_FORCE_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_GRAVITY_FORCE_ENABLED))
+					{
+						currParticle.mVelocity = currParticle.mVelocity + UpVector3 * -pCurrEffectResource->GetGravityModifier();
+					}
+
 					currParticle.mAge += dt;
 					currParticle.mPosition = currParticle.mPosition + dt * currParticle.mVelocity;
 

@@ -22,6 +22,7 @@ namespace TDEngine2
 		static const std::string mInitialColorKeyId;
 		static const std::string mInitialMoveDirectionKeyId;
 		static const std::string mInitialSpeedFactorKeyId;
+		static const std::string mGravityModifierKeyId;
 
 		static const std::string mSizeOverTimeKeyId;
 		static const std::string mColorOverTimeKeyId;
@@ -66,6 +67,7 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mInitialColorKeyId = "initial-color";
 	const std::string TParticleEffectClipKeys::mInitialMoveDirectionKeyId = "initial-move-dir";
 	const std::string TParticleEffectClipKeys::mInitialSpeedFactorKeyId = "initial-speed";
+	const std::string TParticleEffectClipKeys::mGravityModifierKeyId = "gravity-modifier";
 	const std::string TParticleEffectClipKeys::mSizeOverTimeKeyId = "size-over-time";
 	const std::string TParticleEffectClipKeys::mColorOverTimeKeyId = "color-over-time";
 	const std::string TParticleEffectClipKeys::mVelocityOverTimeKeyId = "velocity-over-time";
@@ -234,6 +236,7 @@ namespace TDEngine2
 			pReader->EndGroup();
 
 			mInitialSpeedFactor = pReader->GetFloat(TParticleEffectClipKeys::mInitialSpeedFactorKeyId);
+			mGravityModifier = pReader->GetFloat(TParticleEffectClipKeys::mGravityModifierKeyId);
 
 			/// \note Read dynamic parameters
 			E_RESULT_CODE result = RC_OK;
@@ -356,6 +359,7 @@ namespace TDEngine2
 			pWriter->EndGroup();
 
 			pWriter->SetFloat(TParticleEffectClipKeys::mInitialSpeedFactorKeyId, mInitialSpeedFactor);
+			pWriter->SetFloat(TParticleEffectClipKeys::mGravityModifierKeyId, mGravityModifier);
 
 			/// \note Dynamic parameters
 			pWriter->BeginGroup(TParticleEffectClipKeys::mSizeOverTimeKeyId);
@@ -456,6 +460,11 @@ namespace TDEngine2
 	{
 		mInitialMoveDirection = direction;
 		mInitialSpeedFactor = speedFactor;
+	}
+
+	void CParticleEffect::SetGravityModifier(F32 value)
+	{
+		mGravityModifier = value;
 	}
 
 	void CParticleEffect::SetEmissionRate(U32 value)
@@ -564,6 +573,11 @@ namespace TDEngine2
 	F32 CParticleEffect::GetInitialSpeedFactor() const
 	{
 		return mInitialSpeedFactor;
+	}
+
+	F32 CParticleEffect::GetGravityModifier() const
+	{
+		return mGravityModifier;
 	}
 
 	U32 CParticleEffect::GetEmissionRate() const

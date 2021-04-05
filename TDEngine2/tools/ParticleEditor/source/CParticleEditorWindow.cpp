@@ -255,6 +255,28 @@ namespace TDEngine2
 
 		U32 modifiersFlags = static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags());
 
+		/// \note Gravity force modifier
+		if (mpImGUIContext->CollapsingHeader("Gravity", true, false))
+		{
+			bool isModifierEnabled = static_cast<bool>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) & E_PARTICLE_EFFECT_INFO_FLAGS::E_GRAVITY_FORCE_ENABLED);
+
+			mpImGUIContext->Checkbox("Enabled##Gravity", isModifierEnabled);
+
+			if (isModifierEnabled)
+			{
+				modifiersFlags |= static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_GRAVITY_FORCE_ENABLED);
+			}
+			else
+			{
+				modifiersFlags &= ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_GRAVITY_FORCE_ENABLED);
+			}
+
+			F32 gravityModifier = mpCurrParticleEffect->GetGravityModifier();
+			
+			mpImGUIContext->Label("Gravity Modifier: ");
+			mpImGUIContext->FloatField("##GravityModifier", gravityModifier, [this, &gravityModifier] { mpCurrParticleEffect->SetGravityModifier(gravityModifier); });
+		}
+
 		/// \note Size over lifetime 
 		if (mpImGUIContext->CollapsingHeader("Size over Lifetime", true, false))
 		{
@@ -264,11 +286,11 @@ namespace TDEngine2
 
 			if (isModifierEnabled)
 			{
-				modifiersFlags = static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags() | E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
+				modifiersFlags |= static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
 			}
 			else
 			{
-				modifiersFlags = static_cast<U32>(mpCurrParticleEffect->GetEnabledModifiersFlags()) & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
+				modifiersFlags &= ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED);
 			}
 
 			mpImGUIContext->Button("Edit Curve", TVector2(100.0f, 25.0f), [this] 
@@ -288,11 +310,11 @@ namespace TDEngine2
 
 			if (isModifierEnabled)
 			{
-				modifiersFlags = static_cast<U32>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) | E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED);
+				modifiersFlags |= static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED);
 			}
 			else
 			{
-				modifiersFlags = modifiersFlags & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED);
+				modifiersFlags &= ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED);
 			}
 
 			auto colorData = mpCurrParticleEffect->GetColorOverLifeTime();
@@ -312,11 +334,11 @@ namespace TDEngine2
 
 			if (isModifierEnabled)
 			{
-				modifiersFlags = static_cast<U32>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) | E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED);
+				modifiersFlags |= static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED);
 			}
 			else
 			{
-				modifiersFlags = modifiersFlags & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED);
+				modifiersFlags &= ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED);
 			}
 
 			auto velocityOverTimeData = mpCurrParticleEffect->GetVelocityOverTime();
@@ -336,11 +358,11 @@ namespace TDEngine2
 
 			if (isModifierEnabled)
 			{
-				modifiersFlags = static_cast<U32>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) | E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED);
+				modifiersFlags |= static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED);
 			}
 			else
 			{
-				modifiersFlags = modifiersFlags & ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED);
+				modifiersFlags &= ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED);
 			}
 
 			F32 angularSpeed = mpCurrParticleEffect->GetRotationOverTime();

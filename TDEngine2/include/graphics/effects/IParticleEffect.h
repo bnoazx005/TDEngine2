@@ -39,6 +39,7 @@ namespace TDEngine2
 		E_COLOR_OVER_LIFETIME_ENABLED = 1 << 1,
 		E_VELOCITY_OVER_LIFETIME_ENABLED = 1 << 2,
 		E_ROTATION_OVER_LIFETIME_ENABLED = 1 << 3,
+		E_GRAVITY_FORCE_ENABLED = 1 << 4,
 	};
 
 	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_PARTICLE_EFFECT_INFO_FLAGS);
@@ -182,6 +183,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetInitialVelocityData(const TVector3& direction, F32 speedFactor) = 0;
 
+			TDE2_API virtual void SetGravityModifier(F32 value) = 0;
+
 			/*!
 				\brief The method defines how much particles are spawned per frame
 			*/
@@ -278,6 +281,8 @@ namespace TDEngine2
 			TDE2_API virtual const TVector3& GetInitialMoveDirection() const = 0;
 
 			TDE2_API virtual F32 GetInitialSpeedFactor() const = 0;
+
+			TDE2_API virtual F32 GetGravityModifier() const = 0;
 
 			TDE2_API virtual U32 GetEmissionRate() const = 0;
 
