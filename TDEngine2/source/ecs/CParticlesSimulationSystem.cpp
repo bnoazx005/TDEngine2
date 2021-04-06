@@ -407,6 +407,12 @@ namespace TDEngine2
 						currParticle.mVelocity = currParticle.mVelocity + UpVector3 * -pCurrEffectResource->GetGravityModifier();
 					}
 
+					// \note Apply force
+					if (E_PARTICLE_EFFECT_INFO_FLAGS::E_FORCE_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_FORCE_OVER_LIFETIME_ENABLED))
+					{
+						currParticle.mVelocity = currParticle.mVelocity + pCurrEffectResource->GetForceOverTime();
+					}
+
 					currParticle.mAge += dt;
 					currParticle.mPosition = currParticle.mPosition + dt * currParticle.mVelocity;
 

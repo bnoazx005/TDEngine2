@@ -373,6 +373,31 @@ namespace TDEngine2
 			mpImGUIContext->EndHorizontal();
 		}
 
+		/// \note Force over lifetime 
+		if (mpImGUIContext->CollapsingHeader("Force over Lifetime", true, false))
+		{
+			bool isModifierEnabled = static_cast<bool>(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags) & E_PARTICLE_EFFECT_INFO_FLAGS::E_FORCE_OVER_LIFETIME_ENABLED);
+
+			mpImGUIContext->Checkbox("Enabled##ForceOvrTm", isModifierEnabled);
+
+			if (isModifierEnabled)
+			{
+				modifiersFlags |= static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_FORCE_OVER_LIFETIME_ENABLED);
+			}
+			else
+			{
+				modifiersFlags &= ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::E_FORCE_OVER_LIFETIME_ENABLED);
+			}
+
+			auto forceOverTime = mpCurrParticleEffect->GetForceOverTime();
+
+			mpImGUIContext->Label("Force: ");
+			mpImGUIContext->Vector3Field("##Force", forceOverTime, [&forceOverTime, this] 
+			{ 
+				mpCurrParticleEffect->SetForceOverTime(forceOverTime);
+			});
+		}
+
 		mpCurrParticleEffect->SetModifiersFlags(static_cast<E_PARTICLE_EFFECT_INFO_FLAGS>(modifiersFlags));
 	}
 

@@ -32,7 +32,7 @@ namespace TDEngine2
 		\brief The enumeration contains values for compact storage of information about enabled parameter modifiers
 	*/
 
-	enum class E_PARTICLE_EFFECT_INFO_FLAGS: U32
+	enum class E_PARTICLE_EFFECT_INFO_FLAGS : U32
 	{
 		DEFAULT = 0,
 		E_SIZE_OVER_LIFETIME_ENABLED = 1,
@@ -40,6 +40,7 @@ namespace TDEngine2
 		E_VELOCITY_OVER_LIFETIME_ENABLED = 1 << 2,
 		E_ROTATION_OVER_LIFETIME_ENABLED = 1 << 3,
 		E_GRAVITY_FORCE_ENABLED = 1 << 4,
+		E_FORCE_OVER_LIFETIME_ENABLED = 1 << 5,
 	};
 
 	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_PARTICLE_EFFECT_INFO_FLAGS);
@@ -235,6 +236,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SetRotationOverTime(F32 anglePerFrame) = 0;
 
+			TDE2_API virtual void SetForceOverTime(const TVector3& force) = 0;
+
 			/*!
 				\brief The method updates information about enabled/disables modifiers of particles parameters.
 				Note that a new value overwrites previous one.
@@ -295,6 +298,8 @@ namespace TDEngine2
 			TDE2_API virtual const TParticleColorParameter& GetColorOverLifeTime() const = 0;
 
 			TDE2_API virtual const TParticleVelocityParameter& GetVelocityOverTime() const = 0;
+
+			TDE2_API virtual const TVector3& GetForceOverTime() const = 0;
 
 			TDE2_API virtual F32 GetRotationOverTime() const = 0;
 

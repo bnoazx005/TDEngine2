@@ -183,6 +183,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetRotationOverTime(F32 anglePerFrame) override;
 
+			TDE2_API void SetForceOverTime(const TVector3& force) override;
+
 			/*!
 				\brief The method updates information about enabled/disables modifiers of particles parameters
 
@@ -245,6 +247,8 @@ namespace TDEngine2
 
 			TDE2_API F32 GetRotationOverTime() const override;
 
+			TDE2_API const TVector3& GetForceOverTime() const override;
+
 			TDE2_API E_PARTICLE_EFFECT_INFO_FLAGS GetEnabledModifiersFlags() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
@@ -286,6 +290,8 @@ namespace TDEngine2
 			TParticleVelocityParameter        mVelocityOverLifetimeData;
 
 			F32                               mRotationPerFrame;
+
+			TVector3                          mForcePerFrame;
 
 			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
 	};

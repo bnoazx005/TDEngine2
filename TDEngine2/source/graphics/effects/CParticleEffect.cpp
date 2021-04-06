@@ -28,6 +28,7 @@ namespace TDEngine2
 		static const std::string mColorOverTimeKeyId;
 		static const std::string mVelocityOverTimeKeyId;
 		static const std::string mRotationOverTimeKeyId;
+		static const std::string mForceOverTimeKeyId;
 
 		static const std::string mEmitterDataGroupId;
 		static const std::string mEmissionRateKeyId;
@@ -72,6 +73,7 @@ namespace TDEngine2
 	const std::string TParticleEffectClipKeys::mColorOverTimeKeyId = "color-over-time";
 	const std::string TParticleEffectClipKeys::mVelocityOverTimeKeyId = "velocity-over-time";
 	const std::string TParticleEffectClipKeys::mRotationOverTimeKeyId = "rotation-over-time";
+	const std::string TParticleEffectClipKeys::mForceOverTimeKeyId = "force-over-time";
 	const std::string TParticleEffectClipKeys::mEmitterDataGroupId = "emitter-params";
 	const std::string TParticleEffectClipKeys::mEmissionRateKeyId = "emission-rate";
 	const std::string TParticleEffectClipKeys::mSimulationSpaceTypeKeyId = "simulation-space";
@@ -277,6 +279,18 @@ namespace TDEngine2
 			pReader->EndGroup();
 
 			mRotationPerFrame = pReader->GetFloat(TParticleEffectClipKeys::mRotationOverTimeKeyId);
+
+			pReader->BeginGroup(TParticleEffectClipKeys::mForceOverTimeKeyId);
+			{
+				auto loadVecResult = LoadVector3(pReader);
+				if (loadVecResult.HasError())
+				{
+					return loadVecResult.GetError();
+				}
+
+				mForcePerFrame = loadVecResult.Get();
+			}
+			pReader->EndGroup();
 		}
 		pReader->EndGroup();
 
@@ -381,6 +395,12 @@ namespace TDEngine2
 			pWriter->EndGroup();
 
 			pWriter->SetFloat(TParticleEffectClipKeys::mRotationOverTimeKeyId, mRotationPerFrame);
+
+			pWriter->BeginGroup(TParticleEffectClipKeys::mForceOverTimeKeyId);
+			{
+				SaveVector3(pWriter, mForcePerFrame);
+			}
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
 
@@ -519,6 +539,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CParticleEffect::SetForceOverTime(const TVector3& force)
+	{
+		mForcePerFrame = force;
+	}
+
 	E_RESULT_CODE CParticleEffect::SetModifiersFlags(E_PARTICLE_EFFECT_INFO_FLAGS value)
 	{
 		mModifiersInfoFlags = value;
@@ -613,6 +638,11 @@ namespace TDEngine2
 	F32 CParticleEffect::GetRotationOverTime() const
 	{
 		return mRotationPerFrame;
+	}
+
+	const TVector3& CParticleEffect::GetForceOverTime() const
+	{
+		return mForcePerFrame;
 	}
 
 	E_PARTICLE_EFFECT_INFO_FLAGS CParticleEffect::GetEnabledModifiersFlags() const
