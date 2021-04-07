@@ -48,6 +48,26 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetVisible(bool isVisible) = 0;
 
+#if TDE2_EDITORS_ENABLED
+
+			/*!
+				\brief The method rolls back last editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ExecuteUndoAction() = 0;
+
+			/*!
+				\brief The method applies latest rolled back editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ExecuteRedoAction() = 0;
+
+#endif
+
 			/*!
 				\brief The method returns a name of the window
 
@@ -111,6 +131,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void SetVisible(bool isVisible) override;
+
+#if TDE2_EDITORS_ENABLED
+
+			/*!
+				\brief The method rolls back last editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ExecuteUndoAction() override { return RC_OK; }
+
+			/*!
+				\brief The method applies latest rolled back editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ExecuteRedoAction() override { return RC_OK; }
+
+#endif
 
 			/*!
 				\brief The method returns a name of the window

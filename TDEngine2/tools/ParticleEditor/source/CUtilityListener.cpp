@@ -32,7 +32,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
-	mpParticleEditor = dynamic_cast<CParticleEditorWindow*>(TDEngine2::CreateParticleEditorWindow(mpResourceManager, result));
+	mpParticleEditor = dynamic_cast<CParticleEditorWindow*>(TDEngine2::CreateParticleEditorWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), result));
 
 	mCurrEditableEffectId = TResourceId::Invalid;
 	mLastSavedPath = Wrench::StringUtils::GetEmptyStr();

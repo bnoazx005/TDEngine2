@@ -105,7 +105,7 @@ namespace TDEngine2
 	};
 
 
-	class CLevelEditorWindow;
+	class IEditorWindow;
 
 
 	/*!
@@ -117,7 +117,7 @@ namespace TDEngine2
 		\return A pointer to CUndoEditorAction's implementation
 	*/
 
-	TDE2_API IEditorAction* CreateUndoAction(CLevelEditorWindow* pEditorWindow, E_RESULT_CODE& result);
+	TDE2_API IEditorAction* CreateUndoAction(IEditorWindow* pEditorWindow, E_RESULT_CODE& result);
 
 	/*!
 		class CUndoEditorAction
@@ -128,7 +128,7 @@ namespace TDEngine2
 	class CUndoEditorAction : public IEditorAction, public CBaseObject
 	{
 		public:
-			friend TDE2_API IEditorAction* CreateUndoAction(CLevelEditorWindow*, E_RESULT_CODE&);
+			friend TDE2_API IEditorAction* CreateUndoAction(IEditorWindow*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes state of the object
@@ -138,7 +138,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(CLevelEditorWindow* pEditorWindow);
+			TDE2_API E_RESULT_CODE Init(IEditorWindow* pEditorWindow);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -174,7 +174,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUndoEditorAction)
 		protected:
-			CLevelEditorWindow* mpEditorWindow;
+			IEditorWindow* mpEditorWindow;
 	};
 
 
@@ -187,7 +187,7 @@ namespace TDEngine2
 		\return A pointer to CRedoEditorAction's implementation
 	*/
 
-	TDE2_API IEditorAction* CreateRedoAction(CLevelEditorWindow* pEditorWindow, E_RESULT_CODE& result);
+	TDE2_API IEditorAction* CreateRedoAction(IEditorWindow* pEditorWindow, E_RESULT_CODE& result);
 
 	/*!
 		class CRedoEditorAction
@@ -198,7 +198,7 @@ namespace TDEngine2
 	class CRedoEditorAction : public IEditorAction, public CBaseObject
 	{
 		public:
-			friend TDE2_API IEditorAction* CreateRedoAction(CLevelEditorWindow*, E_RESULT_CODE&);
+			friend TDE2_API IEditorAction* CreateRedoAction(IEditorWindow*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes state of the object
@@ -208,7 +208,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(CLevelEditorWindow* pEditorWindow);
+			TDE2_API E_RESULT_CODE Init(IEditorWindow* pEditorWindow);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -244,7 +244,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRedoEditorAction)
 		protected:
-			CLevelEditorWindow* mpEditorWindow;
+			IEditorWindow* mpEditorWindow;
 	};
 
 

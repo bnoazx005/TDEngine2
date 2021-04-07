@@ -92,13 +92,15 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE RegisterInspector(TypeId targetType, const TOnGuiCallback& onGuiFunctor);
 
+#if TDE2_EDITORS_ENABLED
+
 			/*!
 				\brief The method rolls back last editor's action
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE ExecuteUndoAction();
+			TDE2_API E_RESULT_CODE ExecuteUndoAction() override;
 
 			/*!
 				\brief The method applies latest rolled back editor's action
@@ -106,7 +108,9 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE ExecuteRedoAction();
+			TDE2_API E_RESULT_CODE ExecuteRedoAction() override;
+
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLevelEditorWindow)
 

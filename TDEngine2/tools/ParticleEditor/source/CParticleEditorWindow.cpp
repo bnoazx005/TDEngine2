@@ -15,14 +15,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CParticleEditorWindow::Init(IResourceManager* pResourceManager)
+	E_RESULT_CODE CParticleEditorWindow::Init(IResourceManager* pResourceManager, IInputContext* pInputContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pResourceManager)
+		if (!pResourceManager || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -38,6 +38,13 @@ namespace TDEngine2
 		mpCurveEditor->SetCurveForEditing(nullptr);
 
 		mpResourceManager = pResourceManager;
+		mpInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext);
+
+		mpEditorHistory = CreateEditorActionsManager(result);
+		if (RC_OK != result)
+		{
+			return result;
+		}
 
 		mCurrParticleEffectId = TResourceId::Invalid;
 
@@ -88,6 +95,36 @@ namespace TDEngine2
 		mpCurrParticleEffect = mpResourceManager->GetResource<IParticleEffect>(mCurrParticleEffectId);
 	}
 
+	E_RESULT_CODE CParticleEditorWindow::ExecuteUndoAction()
+	{
+		if (!mpEditorHistory)
+		{
+			return RC_FAIL;
+		}
+
+		if (auto actionResult = mpEditorHistory->PopAction())
+		{
+			return actionResult.Get()->Restore();
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CParticleEditorWindow::ExecuteRedoAction()
+	{
+		if (!mpEditorHistory)
+		{
+			return RC_FAIL;
+		}
+
+		if (auto actionResult = mpEditorHistory->PopAction())
+		{
+			return actionResult.Get()->Execute();
+		}
+
+		return RC_OK;
+	}
+
 	void CParticleEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -127,6 +164,32 @@ namespace TDEngine2
 		if (mpCurveEditor)
 		{
 			mpCurveEditor->Draw(mpImGUIContext, 0.0f); /// \todo Fix dt passing
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		// \note process shortcuts
+		if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
+		{
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Z)) // \note Ctrl+Z
+			{
+				if (auto pAction = CreateUndoAction(this, result))
+				{
+					pAction->Execute();
+					PANIC_ON_FAILURE(mpEditorHistory->PushAction(pAction));
+					mpEditorHistory->Dump();
+				}
+			}
+
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Y)) // \note Ctrl+Y
+			{
+				if (auto pAction = CreateRedoAction(this, result))
+				{
+					pAction->Execute();
+					PANIC_ON_FAILURE(mpEditorHistory->PushAction(pAction));
+					mpEditorHistory->Dump();
+				}
+			}
 		}
 
 		mIsVisible = isEnabled;
@@ -528,8 +591,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateParticleEditorWindow(IResourceManager* pResourceManager, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateParticleEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CParticleEditorWindow, result, pResourceManager);
+		return CREATE_IMPL(IEditorWindow, CParticleEditorWindow, result, pResourceManager, pInputContext);
 	}
 }

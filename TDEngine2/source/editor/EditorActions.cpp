@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CUndoEditorAction::Init(CLevelEditorWindow* pEditorWindow)
+	E_RESULT_CODE CUndoEditorAction::Init(IEditorWindow* pEditorWindow)
 	{
 		if (mIsInitialized)
 		{
@@ -62,7 +62,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorAction* CreateUndoAction(CLevelEditorWindow* pEditorWindow, E_RESULT_CODE& result)
+	TDE2_API IEditorAction* CreateUndoAction(IEditorWindow* pEditorWindow, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IEditorAction, CUndoEditorAction, result, pEditorWindow);
 	}
@@ -77,7 +77,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CRedoEditorAction::Init(CLevelEditorWindow* pEditorWindow)
+	E_RESULT_CODE CRedoEditorAction::Init(IEditorWindow* pEditorWindow)
 	{
 		if (mIsInitialized)
 		{
@@ -125,7 +125,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorAction* CreateRedoAction(CLevelEditorWindow* pEditorWindow, E_RESULT_CODE& result)
+	TDE2_API IEditorAction* CreateRedoAction(IEditorWindow* pEditorWindow, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IEditorAction, CRedoEditorAction, result, pEditorWindow);
 	}
