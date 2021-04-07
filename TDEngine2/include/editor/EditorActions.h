@@ -15,6 +15,7 @@
 #include "../math/TVector3.h"
 #include "../math/TQuaternion.h"
 #include <string>
+#include <functional>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -336,6 +337,82 @@ namespace TDEngine2
 			TEntityId  mEntityId;
 
 			TSRTEntity mTransform;
+	};
+
+
+	/*!
+		\brief A factory function for creation objects of CCommandAction's type
+
+		\param[in] doAction A callback that implements forward action
+		\param[in] undoAction A callback that cancel previously applied action
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CCommandAction's implementation
+*/
+
+	TDE2_API IEditorAction* CreateCommandAction(const std::function<void()>& doAction, const std::function<void()>& undoAction, E_RESULT_CODE& result);
+
+	/*!
+		class CCommandAction
+
+		\brief The class implement common action for the editor
+	*/
+
+	class CCommandAction : public IEditorAction, public CBaseObject
+	{
+		public:
+			typedef std::function<void()> TCommandFunctor;
+		public:
+			friend TDE2_API IEditorAction* CreateCommandAction(const TCommandFunctor&, const TCommandFunctor&, E_RESULT_CODE&);
+		public:
+			/*!
+				\brief The method initializes state of the object
+
+				\param[in] doAction A callback that implements forward action
+				\param[in] undoAction A callback that cancel previously applied action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(const TCommandFunctor& doAction, const TCommandFunctor& undoAction);
+
+			/*!
+				\brief The method frees all memory occupied by the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Free() override;
+
+			/*!
+				\brief The method applies some action to global state of the application
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Execute() override;
+
+			/*!
+				\brief The method applies reversed action to restore previous state
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Restore() override;
+
+			/*!
+				\brief The method converts the state of the action into a string
+
+				\return A string which contains type information and other additional information
+			*/
+
+			TDE2_API std::string ToString() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCommandAction)
+
+		protected:
+			TCommandFunctor mDoActionCallback;
+			TCommandFunctor mUndoActionCallback;
 	};
 }
 

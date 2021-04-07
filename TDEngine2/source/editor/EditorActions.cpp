@@ -219,6 +219,85 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IEditorAction, CTransformObjectAction, result, pWorld, entityId, transform);
 	}
+
+
+	/*!
+		\note CCommandAction's definition
+	*/
+
+	CCommandAction::CCommandAction() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CCommandAction::Init(const TCommandFunctor& doAction, const TCommandFunctor& undoAction)
+	{
+		if (mIsInitialized)
+		{
+			return RC_OK;
+		}
+
+		if (!doAction || !undoAction)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mDoActionCallback = doAction;
+		mUndoActionCallback = undoAction;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CCommandAction::Free()
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		--mRefCounter;
+
+		if (!mRefCounter)
+		{
+			mIsInitialized = false;
+			delete this;
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CCommandAction::Execute()
+	{
+		if (mDoActionCallback)
+		{
+			mDoActionCallback();
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CCommandAction::Restore()
+	{
+		if (mUndoActionCallback)
+		{
+			mUndoActionCallback();
+		}
+
+		return RC_OK;
+	}
+
+	std::string CCommandAction::ToString() const
+	{
+		return "CCommandAction";
+	}
+
+
+	TDE2_API IEditorAction* CreateCommandAction(const CCommandAction::TCommandFunctor& doAction, const CCommandAction::TCommandFunctor& undoAction, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IEditorAction, CCommandAction, result, doAction, undoAction);
+	}
 }
 
 #endif
