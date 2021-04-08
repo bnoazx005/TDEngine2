@@ -195,6 +195,26 @@ namespace TDEngine2
 		mIsVisible = isEnabled;
 	}
 
+
+#define STRINGIFY_COMMAND(...) __VA_ARGS__
+
+#define MAKE_COMMAND(historyOwner, command, newValue, oldValue)									\
+	do                                                                                          \
+	{																							\
+		E_RESULT_CODE result = RC_OK;                                                           \
+                                                                                                \
+		IEditorAction* pAction = CreateCommandAction(                                           \
+			[this, value = newValue] { command(value); },                                       \
+			[this, value = oldValue] { command(value); },                                       \
+			result);                                                                            \
+                                                                                                \
+		pAction->Execute();                                                                     \
+                                                                                                \
+		historyOwner->PushAction(pAction);                                                      \
+	}                                                                                           \
+	while (0)
+
+
 	void CParticleEditorWindow::_onEmitterSettingsHandle()
 	{
 		/// \note Emission Rate
@@ -203,38 +223,64 @@ namespace TDEngine2
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Emission Rate: ");
-			mpImGUIContext->IntField("##EmissionRate", emissionRate, [this, &emissionRate] { mpCurrParticleEffect->SetEmissionRate(emissionRate); });
+			mpImGUIContext->IntField("##EmissionRate", emissionRate, [this, &emissionRate] 
+			{ 
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetEmissionRate), emissionRate, mpCurrParticleEffect->GetEmissionRate());
+			});
 			mpImGUIContext->EndHorizontal();
 		}
 
 		/// \note Simulation space
 		{			
 			I32 currSimultionSpaceType = static_cast<I32>(mpCurrParticleEffect->GetSimulationSpaceType());
+			const I32 prevSimulationSpaceType = currSimultionSpaceType;
 
 			mpImGUIContext->Label("Simulation Space: ");
 			currSimultionSpaceType = mpImGUIContext->Popup("##SimSpaceTypePopup", currSimultionSpaceType, mSimulationSpaceTypesIds);
 
-			mpCurrParticleEffect->SetSimulationSpaceType(static_cast<E_PARTICLE_SIMULATION_SPACE>(currSimultionSpaceType));
+			if (currSimultionSpaceType != prevSimulationSpaceType)
+			{
+				mpCurrParticleEffect->SetSimulationSpaceType(static_cast<E_PARTICLE_SIMULATION_SPACE>(currSimultionSpaceType));
+
+				MAKE_COMMAND(mpEditorHistory,
+					STRINGIFY_COMMAND(mpCurrParticleEffect->SetSimulationSpaceType),
+					static_cast<E_PARTICLE_SIMULATION_SPACE>(currSimultionSpaceType),
+					static_cast<E_PARTICLE_SIMULATION_SPACE>(prevSimulationSpaceType));
+
+				mpEditorHistory->Dump();
+			}			
 		}
 	}
 
 	void CParticleEditorWindow::_onParticlesSettingsHandle()
 	{
-		I32 maxParticlesCount = static_cast<I32>(mpCurrParticleEffect->GetMaxParticlesCount());
-		
-		mpImGUIContext->BeginHorizontal();
-		mpImGUIContext->Label("Max Particles: ");
-		mpImGUIContext->IntField("##MaxParticles", maxParticlesCount, [this, &maxParticlesCount] { mpCurrParticleEffect->SetMaxParticlesCount(maxParticlesCount); });
-		mpImGUIContext->EndHorizontal();
+		/// \note Max particles count
+		{
+			I32 maxParticlesCount = static_cast<I32>(mpCurrParticleEffect->GetMaxParticlesCount());
+
+			mpImGUIContext->BeginHorizontal();
+			mpImGUIContext->Label("Max Particles: ");
+			mpImGUIContext->IntField("##MaxParticles", maxParticlesCount, [this, &maxParticlesCount] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetMaxParticlesCount), maxParticlesCount, mpCurrParticleEffect->GetMaxParticlesCount());
+			});
+			mpImGUIContext->EndHorizontal();
+		}
 
 		/// \note Loop mode
 		{
 			bool isLoopModeEnabled = mpCurrParticleEffect->IsLoopModeActive();
+			const bool prevLoopModeValue = isLoopModeEnabled;
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Loop Mode: ");
 			mpImGUIContext->Checkbox("##LoopMode", isLoopModeEnabled);
-			mpCurrParticleEffect->SetLoopMode(isLoopModeEnabled);
+
+			if (prevLoopModeValue != isLoopModeEnabled)
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetLoopMode), isLoopModeEnabled, prevLoopModeValue);
+			}
+
 			mpImGUIContext->EndHorizontal();
 		}
 
@@ -246,12 +292,18 @@ namespace TDEngine2
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Min");
-			mpImGUIContext->FloatField("##LifetimeMin", lifetime.mLeft, [this, &lifetime] { mpCurrParticleEffect->SetLifetime(lifetime); });
+			mpImGUIContext->FloatField("##LifetimeMin", lifetime.mLeft, [this, &lifetime] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetLifetime), lifetime, mpCurrParticleEffect->GetLifetime());
+			});
 			mpImGUIContext->EndHorizontal();
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Max");
-			mpImGUIContext->FloatField("##LifetimeMax", lifetime.mRight, [this, &lifetime] { mpCurrParticleEffect->SetLifetime(lifetime); });
+			mpImGUIContext->FloatField("##LifetimeMax", lifetime.mRight, [this, &lifetime] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetLifetime), lifetime, mpCurrParticleEffect->GetLifetime());
+			});
 			mpImGUIContext->EndHorizontal();
 		}
 
@@ -263,12 +315,18 @@ namespace TDEngine2
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Min");
-			mpImGUIContext->FloatField("##SizeMin", initialSize.mLeft, [this, &initialSize] { mpCurrParticleEffect->SetInitialSize(initialSize); });
+			mpImGUIContext->FloatField("##SizeMin", initialSize.mLeft, [this, &initialSize] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetInitialSize), initialSize, mpCurrParticleEffect->GetInitialSize());
+			});
 			mpImGUIContext->EndHorizontal();
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Max");
-			mpImGUIContext->FloatField("##SizeMax", initialSize.mRight, [this, &initialSize] { mpCurrParticleEffect->SetInitialSize(initialSize); });
+			mpImGUIContext->FloatField("##SizeMax", initialSize.mRight, [this, &initialSize] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetInitialSize), initialSize, mpCurrParticleEffect->GetInitialSize());
+			});
 			mpImGUIContext->EndHorizontal();
 		}
 
@@ -280,12 +338,18 @@ namespace TDEngine2
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Min");
-			mpImGUIContext->FloatField("##RotationMin", initialRotation.mLeft, [this, &initialRotation] { mpCurrParticleEffect->SetInitialRotation(initialRotation); });
+			mpImGUIContext->FloatField("##RotationMin", initialRotation.mLeft, [this, &initialRotation] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetInitialRotation), initialRotation, mpCurrParticleEffect->GetInitialRotation());
+			});
 			mpImGUIContext->EndHorizontal();
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Max");
-			mpImGUIContext->FloatField("##RotationMax", initialRotation.mRight, [this, &initialRotation] { mpCurrParticleEffect->SetInitialRotation(initialRotation); });
+			mpImGUIContext->FloatField("##RotationMax", initialRotation.mRight, [this, &initialRotation] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetInitialRotation), initialRotation, mpCurrParticleEffect->GetInitialRotation());
+			});
 			mpImGUIContext->EndHorizontal();
 		}
 
@@ -295,7 +359,7 @@ namespace TDEngine2
 
 			_drawColorDataModifiers("InitColor", colorData, [this, &colorData]
 			{
-				mpCurrParticleEffect->SetInitialColor(colorData);
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetInitialColor), colorData, mpCurrParticleEffect->GetInitialColor());
 			});
 		}
 
@@ -337,7 +401,10 @@ namespace TDEngine2
 			F32 gravityModifier = mpCurrParticleEffect->GetGravityModifier();
 			
 			mpImGUIContext->Label("Gravity Modifier: ");
-			mpImGUIContext->FloatField("##GravityModifier", gravityModifier, [this, &gravityModifier] { mpCurrParticleEffect->SetGravityModifier(gravityModifier); });
+			mpImGUIContext->FloatField("##GravityModifier", gravityModifier, [this, &gravityModifier] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetGravityModifier), gravityModifier, mpCurrParticleEffect->GetGravityModifier());
+			});
 		}
 
 		/// \note Size over lifetime 
@@ -432,7 +499,10 @@ namespace TDEngine2
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Angular Speed");
-			mpImGUIContext->FloatField("##AngularSpeed", angularSpeed, [&angularSpeed, this] { mpCurrParticleEffect->SetRotationOverTime(angularSpeed); });
+			mpImGUIContext->FloatField("##AngularSpeed", angularSpeed, [&angularSpeed, this] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetRotationOverTime), angularSpeed, mpCurrParticleEffect->GetRotationOverTime());
+			});
 			mpImGUIContext->EndHorizontal();
 		}
 
@@ -456,8 +526,8 @@ namespace TDEngine2
 
 			mpImGUIContext->Label("Force: ");
 			mpImGUIContext->Vector3Field("##Force", forceOverTime, [&forceOverTime, this] 
-			{ 
-				mpCurrParticleEffect->SetForceOverTime(forceOverTime);
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetForceOverTime), forceOverTime, mpCurrParticleEffect->GetForceOverTime());
 			});
 		}
 
@@ -472,7 +542,11 @@ namespace TDEngine2
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Material Id: ");
-			mpImGUIContext->TextField("##MaterialId", materialName, [this, &materialName] { mpCurrParticleEffect->SetMaterialName(materialName); });
+			mpImGUIContext->TextField("##MaterialId", materialName, [this, &materialName] 
+			{
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetMaterialName), materialName, mpCurrParticleEffect->GetMaterialName());
+			});
+
 			mpImGUIContext->EndHorizontal();
 		}
 
