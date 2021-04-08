@@ -70,7 +70,7 @@ namespace TDEngine2
 				\return The method retrieves either a pointer to last added action or returnrs an error code
 			*/
 
-			TDE2_API TResult<IEditorAction*> PopAction() override;
+			TDE2_API TResult<CScopedPtr<IEditorAction>> PopAction() override;
 
 			/*!
 				\brief The method dumps current state of the log into the logger
@@ -80,7 +80,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorActionsManager)
 		protected:
-			std::vector<IEditorAction*> mpActionsHistory;
+			std::vector<CScopedPtr<IEditorAction>> mpActionsHistory;
 	};
 }
 

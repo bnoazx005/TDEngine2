@@ -40,8 +40,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mIsInitialized = false;
-		delete this;
+		--mRefCounter;
+
+		if (!mRefCounter)
+		{
+			mIsInitialized = false;
+			delete this;
+		}		
 
 		return RC_OK;
 	}
@@ -103,8 +108,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mIsInitialized = false;
-		delete this;
+		--mRefCounter;
+
+		if (!mRefCounter)
+		{
+			mIsInitialized = false;
+			delete this;
+		}
 
 		return RC_OK;
 	}
@@ -170,8 +180,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mIsInitialized = false;
-		delete this;
+		--mRefCounter;
+
+		if (!mRefCounter)
+		{
+			mIsInitialized = false;
+			delete this;
+		}
 
 		return RC_OK;
 	}

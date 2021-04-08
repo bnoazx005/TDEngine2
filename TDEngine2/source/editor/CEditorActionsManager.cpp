@@ -46,22 +46,22 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpActionsHistory.push_back(pAction);
+		mpActionsHistory.emplace_back(pAction);
 
 		return RC_OK;
 	}
 
-	TResult<IEditorAction*> CEditorActionsManager::PopAction()
+	TResult<CScopedPtr<IEditorAction>> CEditorActionsManager::PopAction()
 	{
 		if (mpActionsHistory.empty())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		IEditorAction* pAction = mpActionsHistory.back();
+		CScopedPtr<IEditorAction> pAction = mpActionsHistory.back();
 		mpActionsHistory.pop_back();
 
-		return Wrench::TOkValue<IEditorAction*>(pAction);
+		return Wrench::TOkValue<CScopedPtr<IEditorAction>>(pAction);
 	}
 
 	void CEditorActionsManager::Dump() const

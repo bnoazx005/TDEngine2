@@ -92,7 +92,7 @@ namespace TDEngine2
 				\return The method retrieves either a pointer to last added action or returnrs an error code
 			*/
 
-			TDE2_API virtual TResult<IEditorAction*> PopAction() = 0;
+			TDE2_API virtual TResult<CScopedPtr<IEditorAction>> PopAction() = 0;
 
 			/*!
 				\brief The method dumps current state of the log into the logger. The oldest actions are outputed

@@ -230,7 +230,7 @@ namespace TDEngine2
 
 	void CImGUIContext::FloatField(const std::string& text, F32& value, const std::function<void()>& onValueChanged)
 	{
-		if (ImGui::InputFloat(text.c_str(), &value) && onValueChanged)
+		if (ImGui::InputFloat(text.c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
 		{
 			onValueChanged();
 		}
@@ -240,7 +240,7 @@ namespace TDEngine2
 
 	void CImGUIContext::IntField(const std::string& text, I32& value, const std::function<void()>& onValueChanged)
 	{
-		if (ImGui::InputInt(text.c_str(), &value) && onValueChanged)
+		if (ImGui::InputInt(text.c_str(), &value, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
 		{
 			onValueChanged();
 		}
