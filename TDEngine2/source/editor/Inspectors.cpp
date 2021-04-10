@@ -87,8 +87,7 @@ namespace TDEngine2
 
 				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, rotation, scale }, result))
 				{
-					pAction->Execute();
-					PANIC_ON_FAILURE(actionsHistory.PushAction(pAction));
+					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}
 
 				transform.SetPosition(position); 
@@ -103,8 +102,7 @@ namespace TDEngine2
 
 				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, rotation, scale }, result))
 				{
-					pAction->Execute();
-					PANIC_ON_FAILURE(actionsHistory.PushAction(pAction));
+					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}
 
 				transform.SetRotation(TQuaternion(rotation)); 
@@ -119,8 +117,7 @@ namespace TDEngine2
 
 				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, rotation, scale }, result))
 				{
-					pAction->Execute();
-					PANIC_ON_FAILURE(actionsHistory.PushAction(pAction));
+					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}
 
 				transform.SetScale(scale);

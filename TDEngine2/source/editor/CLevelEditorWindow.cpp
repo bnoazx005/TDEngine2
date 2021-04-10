@@ -195,22 +195,14 @@ namespace TDEngine2
 		{
 			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Z)) // \note Ctrl+Z
 			{
-				if (auto pAction = CreateUndoAction(this, result))
-				{
-					pAction->Execute();
-					PANIC_ON_FAILURE(mpActionsHistory->PushAction(pAction));
-					mpActionsHistory->Dump();
-				}
+				mpActionsHistory->ExecuteUndo();
+				mpActionsHistory->Dump();
 			}
 
 			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Y)) // \note Ctrl+Y
 			{
-				if (auto pAction = CreateRedoAction(this, result))
-				{
-					pAction->Execute();
-					PANIC_ON_FAILURE(mpActionsHistory->PushAction(pAction));
-					mpActionsHistory->Dump();
-				}
+				mpActionsHistory->ExecuteRedo();
+				mpActionsHistory->Dump();
 			}
 		}	
 
@@ -260,8 +252,7 @@ namespace TDEngine2
 
 					if (auto pAction = CreateTransformObjectAction(pWorld, mSelectedEntityId, { pos, rot, scale }, result))
 					{
-						pAction->Execute();
-						PANIC_ON_FAILURE(mpActionsHistory->PushAction(pAction));
+						PANIC_ON_FAILURE(mpActionsHistory->PushAndExecuteAction(pAction));
 						mpActionsHistory->Dump();
 					}
 

@@ -168,27 +168,19 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		// \note process shortcuts
+		// \note process shortcuts		
 		if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
 		{
 			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Z)) // \note Ctrl+Z
 			{
-				if (auto pAction = CreateUndoAction(this, result))
-				{
-					pAction->Execute();
-					PANIC_ON_FAILURE(mpEditorHistory->PushAction(pAction));
-					mpEditorHistory->Dump();
-				}
+				mpEditorHistory->ExecuteUndo();
+				mpEditorHistory->Dump();
 			}
 
 			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Y)) // \note Ctrl+Y
 			{
-				if (auto pAction = CreateRedoAction(this, result))
-				{
-					pAction->Execute();
-					PANIC_ON_FAILURE(mpEditorHistory->PushAction(pAction));
-					mpEditorHistory->Dump();
-				}
+				mpEditorHistory->ExecuteRedo();
+				mpEditorHistory->Dump();
 			}
 		}
 
@@ -208,9 +200,7 @@ namespace TDEngine2
 			[this, value = oldValue] { command(value); },                                       \
 			result);                                                                            \
                                                                                                 \
-		pAction->Execute();                                                                     \
-                                                                                                \
-		historyOwner->PushAction(pAction);                                                      \
+		historyOwner->PushAndExecuteAction(pAction);                                            \
 	}                                                                                           \
 	while (0)
 
@@ -359,7 +349,8 @@ namespace TDEngine2
 
 			_drawColorDataModifiers("InitColor", colorData, [this, &colorData]
 			{
-				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetInitialColor), colorData, mpCurrParticleEffect->GetInitialColor());
+				//MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetInitialColor), colorData, mpCurrParticleEffect->GetInitialColor());
+				mpCurrParticleEffect->SetInitialColor(colorData);
 			});
 		}
 

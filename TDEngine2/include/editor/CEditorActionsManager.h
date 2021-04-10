@@ -62,7 +62,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE PushAction(IEditorAction* pAction) override;
+			TDE2_API E_RESULT_CODE PushAndExecuteAction(IEditorAction* pAction) override;
 
 			/*!
 				\brief The method extracts last added action from the log
@@ -73,6 +73,22 @@ namespace TDEngine2
 			TDE2_API TResult<CScopedPtr<IEditorAction>> PopAction() override;
 
 			/*!
+				\brief The method rolls back last editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ExecuteUndo() override;
+
+			/*!
+				\brief The method applies latest rolled back editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE ExecuteRedo() override;
+
+			/*!
 				\brief The method dumps current state of the log into the logger
 			*/
 
@@ -81,6 +97,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorActionsManager)
 		protected:
 			std::vector<CScopedPtr<IEditorAction>> mpActionsHistory;
+
+			U32 mCurrActionPointer;
 	};
 }
 

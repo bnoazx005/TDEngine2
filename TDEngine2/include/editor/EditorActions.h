@@ -84,7 +84,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE PushAction(IEditorAction* pAction) = 0;
+			TDE2_API virtual E_RESULT_CODE PushAndExecuteAction(IEditorAction* pAction) = 0;
 
 			/*!
 				\brief The method extracts last added action from the log
@@ -93,6 +93,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<CScopedPtr<IEditorAction>> PopAction() = 0;
+
+			/*!
+				\brief The method rolls back last editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ExecuteUndo() = 0;
+
+			/*!
+				\brief The method applies latest rolled back editor's action
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE ExecuteRedo() = 0;
 
 			/*!
 				\brief The method dumps current state of the log into the logger. The oldest actions are outputed
@@ -106,148 +122,6 @@ namespace TDEngine2
 
 
 	class IEditorWindow;
-
-
-	/*!
-		\brief A factory function for creation objects of CUndoEditorAction's type
-
-		\param[in, out] pEditorWindow A pointer to level editor's window
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CUndoEditorAction's implementation
-	*/
-
-	TDE2_API IEditorAction* CreateUndoAction(IEditorWindow* pEditorWindow, E_RESULT_CODE& result);
-
-	/*!
-		class CUndoEditorAction
-
-		\brief The class implement undo action for the editor
-	*/
-
-	class CUndoEditorAction : public IEditorAction, public CBaseObject
-	{
-		public:
-			friend TDE2_API IEditorAction* CreateUndoAction(IEditorWindow*, E_RESULT_CODE&);
-		public:
-			/*!
-				\brief The method initializes state of the object
-
-				\param[in, out] pEditorWindow A pointer to level editor's window
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IEditorWindow* pEditorWindow);
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
-				\brief The method applies some action to global state of the application
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Execute() override;
-
-			/*!
-				\brief The method applies reversed action to restore previous state
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Restore() override;
-
-			/*!
-				\brief The method converts the state of the action into a string
-
-				\return A string which contains type information and other additional information
-			*/
-
-			TDE2_API std::string ToString() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUndoEditorAction)
-		protected:
-			IEditorWindow* mpEditorWindow;
-	};
-
-
-	/*!
-		\brief A factory function for creation objects of CRedoEditorAction's type
-
-		\param[in, out] pEditorWindow A pointer to level editor's window
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CRedoEditorAction's implementation
-	*/
-
-	TDE2_API IEditorAction* CreateRedoAction(IEditorWindow* pEditorWindow, E_RESULT_CODE& result);
-
-	/*!
-		class CRedoEditorAction
-
-		\brief The class implement redo action for the editor
-	*/
-
-	class CRedoEditorAction : public IEditorAction, public CBaseObject
-	{
-		public:
-			friend TDE2_API IEditorAction* CreateRedoAction(IEditorWindow*, E_RESULT_CODE&);
-		public:
-			/*!
-				\brief The method initializes state of the object
-
-				\param[in, out] pEditorWindow A pointer to level editor's window
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IEditorWindow* pEditorWindow);
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
-				\brief The method applies some action to global state of the application
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Execute() override;
-
-			/*!
-				\brief The method applies reversed action to restore previous state
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Restore() override;
-
-			/*!
-				\brief The method converts the state of the action into a string
-
-				\return A string which contains type information and other additional information
-			*/
-
-			TDE2_API std::string ToString() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRedoEditorAction)
-		protected:
-			IEditorWindow* mpEditorWindow;
-	};
-
-
 	class IWorld;
 
 

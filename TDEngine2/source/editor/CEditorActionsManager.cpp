@@ -21,6 +21,8 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+		mCurrActionPointer = 0;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -33,22 +35,28 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mIsInitialized = false;
-		delete this;
+		--mRefCounter;
+
+		if (!mRefCounter)
+		{
+			mIsInitialized = false;
+			delete this;
+		}
 
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEditorActionsManager::PushAction(IEditorAction* pAction)
+	E_RESULT_CODE CEditorActionsManager::PushAndExecuteAction(IEditorAction* pAction)
 	{
 		if (!pAction)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpActionsHistory.emplace_back(pAction);
+		mpActionsHistory.emplace(mpActionsHistory.begin() + mCurrActionPointer, pAction);
+		++mCurrActionPointer;
 
-		return RC_OK;
+		return pAction->Execute();
 	}
 
 	TResult<CScopedPtr<IEditorAction>> CEditorActionsManager::PopAction()
@@ -62,6 +70,37 @@ namespace TDEngine2
 		mpActionsHistory.pop_back();
 
 		return Wrench::TOkValue<CScopedPtr<IEditorAction>>(pAction);
+	}
+
+	E_RESULT_CODE CEditorActionsManager::ExecuteUndo()
+	{
+		if (mpActionsHistory.empty() || (static_cast<I32>(mCurrActionPointer) - 1 < 0))
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = mpActionsHistory[mCurrActionPointer - 1]->Restore();
+
+		if (mCurrActionPointer >= 1)
+		{
+			--mCurrActionPointer;
+		}
+
+		return result;
+	}
+
+	E_RESULT_CODE CEditorActionsManager::ExecuteRedo()
+	{
+		if (mpActionsHistory.empty() || (mCurrActionPointer >= mpActionsHistory.size()))
+		{
+			return RC_FAIL;
+		}
+
+		++mCurrActionPointer;
+
+		E_RESULT_CODE result = mpActionsHistory[mCurrActionPointer - 1]->Execute();
+		
+		return result;
 	}
 
 	void CEditorActionsManager::Dump() const
