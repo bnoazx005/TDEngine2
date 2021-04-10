@@ -35,9 +35,12 @@ VertexOut mainVS(in VertexIn input)
 
 	float3x3 rotZAxisMat = float3x3(cosAngle, -sinAngle, 0.0f, sinAngle, cosAngle, 0.0f, 0.0f, 0.0f, 1.0f);
 
-	float3 pos = mul(rotZAxisMat, input.mPos.xyz * input.mParticlePosAndSize.w) + input.mParticlePosAndSize.xyz;
+	float3 particleCenter = input.mParticlePosAndSize.xyz;
+	float3 localPos       = mul(rotZAxisMat, input.mPos.xyz * input.mParticlePosAndSize.w);
 
-	output.mPos        = mul(mul(mul(ProjMat, ViewMat), ModelMat), float4(pos.x, pos.y, pos.z, 1.0));
+	float4 pos = mul(ViewMat, float4(particleCenter.x, particleCenter.y, particleCenter.z, 1.0)) + float4(localPos.x, localPos.y, localPos.z, 0.0);
+
+	output.mPos        = mul(ProjMat, pos);
 	output.mUV         = input.mUV;
 	output.mColor      = input.mColor;
 	output.mInstanceId = input.mInstanceId;
