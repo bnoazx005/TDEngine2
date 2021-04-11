@@ -13,6 +13,9 @@
 #include "../../core/Serialization.h"
 #include "../../math/TVector3.h"
 #include "../../utils/Color.h"
+#include <vector>
+#include <string>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -87,6 +90,8 @@ namespace TDEngine2
 
 			TDE2_API static TColor32F GetColorData(const TParticleColorParameter& colorData, F32 time);
 			TDE2_API static TVector3 GetVelocityData(const TParticleVelocityParameter& velocityData, F32 time);
+
+			TDE2_API static const std::vector<std::tuple<std::string, TypeId>>& GetEmittersTypes();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseParticlesEmitter)
 
@@ -97,6 +102,9 @@ namespace TDEngine2
 
 			bool mIs2DEmitter = false;
 	};
+
+
+	TDE2_API CScopedPtr<CBaseParticlesEmitter> CreateEmitterByTypeId(IParticleEffect* pOwnerEffect, TypeId id);
 
 
 	/*!
@@ -155,6 +163,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE EmitParticle(const CTransform* pTransform, TParticle& particleInfo) override;
+
+			TDE2_API E_RESULT_CODE SetSizes(const TVector3& sizes);
+			TDE2_API E_RESULT_CODE SetOrigin(const TVector3& origin);
+
+			TDE2_API const TVector3& GetSizes() const;
+			TDE2_API const TVector3& GetOrigin() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoxParticlesEmitter)
 		protected:
@@ -219,6 +233,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE EmitParticle(const CTransform* pTransform, TParticle& particleInfo) override;
+
+			TDE2_API E_RESULT_CODE SetOrigin(const TVector3& origin);
+			TDE2_API E_RESULT_CODE SetRadius(F32 radius);
+
+			TDE2_API const TVector3& GetOrigin() const;
+			TDE2_API F32 GetRadius() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSphereParticlesEmitter)
 		protected:
@@ -283,6 +303,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE EmitParticle(const CTransform* pTransform, TParticle& particleInfo) override;
+
+			TDE2_API E_RESULT_CODE SetHeight(F32 height);
+			TDE2_API E_RESULT_CODE SetRadius(F32 radius);
+
+			TDE2_API F32 GetHeight() const;
+			TDE2_API F32 GetRadius() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConeParticlesEmitter)
 		protected:

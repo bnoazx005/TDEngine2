@@ -47,6 +47,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		--mRefCounter;
+
 		if (!mRefCounter)
 		{
 			delete this;
@@ -166,19 +168,22 @@ namespace TDEngine2
 		return Normalize(mpOwnerEffect->GetInitialMoveDirection()) * mpOwnerEffect->GetInitialSpeedFactor();
 	}
 
+	
+	static const std::unordered_map<TypeId, std::function<CBaseParticlesEmitter*(IParticleEffect*, E_RESULT_CODE&)>> FactoriesTable
+	{
+		{ CBoxParticlesEmitter::GetTypeId(), std::bind(&CreateBoxParticlesEmitter, std::placeholders::_1, std::placeholders::_2) },
+		{ CSphereParticlesEmitter::GetTypeId(), std::bind(&CreateSphereParticlesEmitter, std::placeholders::_1, std::placeholders::_2) },
+		{ CConeParticlesEmitter::GetTypeId(), std::bind(&CreateConeParticlesEmitter, std::placeholders::_1, std::placeholders::_2) },
+	};
+
 
 	TResult<CBaseParticlesEmitter*> CBaseParticlesEmitter::Load(IArchiveReader* pReader)
 	{
-		static const std::unordered_map<TypeId, std::function<CBaseParticlesEmitter*(IParticleEffect*, E_RESULT_CODE&)>> factoriesTable
-		{
-			{ CBoxParticlesEmitter::GetTypeId(), std::bind(&CreateBoxParticlesEmitter, std::placeholders::_1, std::placeholders::_2) },
-			{ CSphereParticlesEmitter::GetTypeId(), std::bind(&CreateSphereParticlesEmitter, std::placeholders::_1, std::placeholders::_2) },
-		};
-
+		
 		const TypeId typeId = static_cast<TypeId>(pReader->GetUInt32("type_id"));
 
-		auto it = factoriesTable.find(typeId);
-		if (it == factoriesTable.cend())
+		auto it = FactoriesTable.find(typeId);
+		if (it == FactoriesTable.cend())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
@@ -192,6 +197,38 @@ namespace TDEngine2
 		}
 
 		return Wrench::TOkValue<CBaseParticlesEmitter*>(pEmitterPtr);
+	}
+
+	const std::vector<std::tuple<std::string, TypeId>>& CBaseParticlesEmitter::GetEmittersTypes()
+	{
+		static const std::vector<std::tuple<std::string, TypeId>> emittersTypesIdentifiers
+		{
+			{ "Box", CBoxParticlesEmitter::GetTypeId() },
+			{ "Sphere", CSphereParticlesEmitter::GetTypeId() },
+			{ "Cone", CConeParticlesEmitter::GetTypeId() }
+		};
+
+		return emittersTypesIdentifiers;
+	}
+
+
+	CScopedPtr<CBaseParticlesEmitter> CreateEmitterByTypeId(IParticleEffect* pOwnerEffect, TypeId id)
+	{
+		auto it = FactoriesTable.find(id);
+		if (it == FactoriesTable.cend())
+		{
+			return CScopedPtr<CBaseParticlesEmitter> { nullptr };
+		}
+
+		E_RESULT_CODE result = RC_OK;
+		CBaseParticlesEmitter* pEmitterPtr = (it->second)(pOwnerEffect, result);
+
+		if (RC_OK != result)
+		{
+			return CScopedPtr<CBaseParticlesEmitter> { nullptr };
+		}
+
+		return CScopedPtr<CBaseParticlesEmitter>{ pEmitterPtr };
 	}
 
 
@@ -300,6 +337,34 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBoxParticlesEmitter::SetSizes(const TVector3& sizes)
+	{
+		if (Length(sizes) < 1e-3f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mBoxSizes = sizes;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBoxParticlesEmitter::SetOrigin(const TVector3& origin)
+	{
+		mBoxOrigin = origin;
+		return RC_OK;
+	}
+
+	const TVector3& CBoxParticlesEmitter::GetSizes() const
+	{
+		return mBoxSizes;
+	}
+
+	const TVector3& CBoxParticlesEmitter::GetOrigin() const
+	{
+		return mBoxOrigin;
+	}
+
 
 	TDE2_API CBaseParticlesEmitter* CreateBoxParticlesEmitter(IParticleEffect* pOwnerEffect, E_RESULT_CODE& result)
 	{
@@ -390,7 +455,7 @@ namespace TDEngine2
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
 		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
-		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3()) * mRadius; // \todo Fix this with proper computation of transformed position
+		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3({ 0.001f }, { 1.0f })) * mRadius; // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = _getInitVelocity();
 
 		if (mIs2DEmitter)
@@ -399,6 +464,33 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CSphereParticlesEmitter::SetOrigin(const TVector3& origin)
+	{
+		mOrigin = origin;
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CSphereParticlesEmitter::SetRadius(F32 radius)
+	{
+		if (radius < 0.0f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mRadius = radius;
+		return RC_OK;
+	}
+
+	const TVector3& CSphereParticlesEmitter::GetOrigin() const
+	{
+		return mOrigin;
+	}
+
+	F32 CSphereParticlesEmitter::GetRadius() const
+	{
+		return mRadius;
 	}
 
 
@@ -491,6 +583,40 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CConeParticlesEmitter::SetHeight(F32 height)
+	{
+		if (height < 0.0f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHeight = height;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CConeParticlesEmitter::SetRadius(F32 radius)
+	{
+		if (radius < 0.0f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mRadius = radius;
+
+		return RC_OK;
+	}
+
+	F32 CConeParticlesEmitter::GetHeight() const
+	{
+		return mHeight;
+	}
+
+	F32 CConeParticlesEmitter::GetRadius() const
+	{
+		return mRadius;
 	}
 
 

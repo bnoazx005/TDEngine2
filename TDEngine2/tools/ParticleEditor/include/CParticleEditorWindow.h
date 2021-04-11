@@ -94,6 +94,8 @@ namespace TDEngine2
 			TDE2_API void _onParticlesSettingsHandle();
 			TDE2_API void _onRenderingSettingsHandle();
 
+			TDE2_API void _displayEmitterShapeSettings();
+
 			TDE2_API void _drawColorDataModifiers(const std::string& label, TParticleColorParameter& colorData, const std::function<void()>& onChangedAction);
 			TDE2_API void _drawVelocityDataModifiers(TParticleVelocityParameter& velocityData, const std::function<void()>& onChangedAction);
 
@@ -113,5 +115,6 @@ namespace TDEngine2
 			static std::vector<std::string> mColorTypesIds;
 			static std::vector<std::string> mSimulationSpaceTypesIds;
 			static std::vector<std::string> mVelocityParamTypesIds;
+			static std::vector<std::string> mEmitterShapesTypesIds;
 	};
 }

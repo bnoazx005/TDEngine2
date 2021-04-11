@@ -8,6 +8,7 @@ namespace TDEngine2
 	std::vector<std::string> CParticleEditorWindow::mEmittersTypesIds { "Box", "Sphere", "Cone" };
 	std::vector<std::string> CParticleEditorWindow::mSimulationSpaceTypesIds {};
 	std::vector<std::string> CParticleEditorWindow::mVelocityParamTypesIds {};
+	std::vector<std::string> CParticleEditorWindow::mEmitterShapesTypesIds {};
 
 
 	CParticleEditorWindow::CParticleEditorWindow() :
@@ -63,6 +64,11 @@ namespace TDEngine2
 		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_VELOCITY_PARAMETER_TYPE>::GetFields())
 		{
 			mVelocityParamTypesIds.push_back(currField.name);
+		}
+
+		for (auto&& currEmitterTypeInfo : CBaseParticlesEmitter::GetEmittersTypes())
+		{
+			mEmitterShapesTypesIds.push_back(std::get<std::string>(currEmitterTypeInfo));
 		}
 
 		mIsInitialized = true;
@@ -205,6 +211,21 @@ namespace TDEngine2
 	while (0)
 
 
+#define MAKE_COMMAND_CAPTURE(historyOwner, command, capture, newValue, oldValue)				\
+	do                                                                                          \
+	{																							\
+		E_RESULT_CODE result = RC_OK;                                                           \
+                                                                                                \
+		IEditorAction* pAction = CreateCommandAction(                                           \
+			[capture, this, value = newValue] { command(value); },                              \
+			[capture, this, value = oldValue] { command(value); },                              \
+			result);                                                                            \
+                                                                                                \
+		historyOwner->PushAndExecuteAction(pAction);                                            \
+	}                                                                                           \
+	while (0)
+
+
 	void CParticleEditorWindow::_onEmitterSettingsHandle()
 	{
 		/// \note Emission Rate
@@ -239,6 +260,34 @@ namespace TDEngine2
 
 				mpEditorHistory->Dump();
 			}			
+		}
+
+		/// \note Emitter's shape type
+		{
+			auto pSharedEmitter = mpCurrParticleEffect->GetSharedEmitter();
+
+			auto&& emittersInfo = CBaseParticlesEmitter::GetEmittersTypes();
+			
+			auto it = std::find_if(emittersInfo.cbegin(), emittersInfo.cend(), [type = pSharedEmitter->GetEmitterTypeId()](auto&& emitterTypeInfo) 
+			{ 
+				return std::get<TypeId>(emitterTypeInfo) == type; 
+			});
+
+			mpImGUIContext->Label("Emitter Shape: ");
+
+			I32 currTypeIndex = static_cast<I32>(std::distance(emittersInfo.cbegin(), it));
+			const I32 newTypeIndex = mpImGUIContext->Popup("##ShapeType", currTypeIndex, mEmitterShapesTypesIds);
+
+			if (currTypeIndex != newTypeIndex)
+			{
+				MAKE_COMMAND(
+					mpEditorHistory, 
+					STRINGIFY_COMMAND(mpCurrParticleEffect->SetSharedEmitter), 
+					CreateEmitterByTypeId(mpCurrParticleEffect, std::get<TypeId>(emittersInfo[newTypeIndex])), 
+					pSharedEmitter);
+			}
+
+			_displayEmitterShapeSettings();
 		}
 	}
 
@@ -653,6 +702,130 @@ namespace TDEngine2
 		{
 			onChangedAction();
 		}
+	}
+
+	void CParticleEditorWindow::_displayEmitterShapeSettings()
+	{
+		auto pSharedEmitter = mpCurrParticleEffect->GetSharedEmitter();
+
+		/// \note Is 2D emitter
+		{
+			bool is2DMode = pSharedEmitter->Is2DModeEnabled();
+			const bool prev2DModeState = is2DMode;
+
+			mpImGUIContext->BeginHorizontal();
+			mpImGUIContext->Label("2D mode");
+			mpImGUIContext->Checkbox("##2DMode", is2DMode);
+			mpImGUIContext->EndHorizontal();
+
+			if (prev2DModeState != is2DMode)
+			{
+				MAKE_COMMAND_CAPTURE(mpEditorHistory, STRINGIFY_COMMAND(pSharedEmitter->Set2DMode), pSharedEmitter, is2DMode, prev2DModeState);
+			}
+		}
+
+		static const std::unordered_map<TypeId, std::function<void()>> typesViewsTable
+		{
+			{ CBoxParticlesEmitter::GetTypeId(), [this, &pSharedEmitter]
+				{
+					CBoxParticlesEmitter* pBoxEmitter = dynamic_cast<CBoxParticlesEmitter*>(pSharedEmitter.Get());
+
+					/// \note Box sizes
+					{
+						auto sizes = pBoxEmitter->GetSizes();
+
+						mpImGUIContext->BeginHorizontal();
+						mpImGUIContext->Label("Sizes:");
+						mpImGUIContext->Vector3Field("##Sizes", sizes, [this, pBoxEmitter, &sizes]
+						{
+							MAKE_COMMAND_CAPTURE(mpEditorHistory, STRINGIFY_COMMAND(pBoxEmitter->SetSizes), pBoxEmitter, sizes, pBoxEmitter->GetSizes());
+						});
+						mpImGUIContext->EndHorizontal();
+					}
+
+					/// \note Box origin
+					{
+						auto origin = pBoxEmitter->GetOrigin();
+
+						mpImGUIContext->BeginHorizontal();
+						mpImGUIContext->Label("Origin:");
+						mpImGUIContext->Vector3Field("##Origin", origin, [this, pBoxEmitter, &origin]
+						{
+							MAKE_COMMAND_CAPTURE(mpEditorHistory, STRINGIFY_COMMAND(pBoxEmitter->SetOrigin), pBoxEmitter, origin, pBoxEmitter->GetOrigin());
+						});
+						mpImGUIContext->EndHorizontal();
+					}
+				} },
+			{ CSphereParticlesEmitter::GetTypeId(), [this, &pSharedEmitter]
+				{
+					CSphereParticlesEmitter* pSphereEmitter = dynamic_cast<CSphereParticlesEmitter*>(pSharedEmitter.Get());
+
+					/// \note Radius
+					{
+						auto radius = pSphereEmitter->GetRadius();
+
+						mpImGUIContext->BeginHorizontal();
+						mpImGUIContext->Label("Radius:");
+						mpImGUIContext->FloatField("##Radius", radius, [this, pSphereEmitter, &radius]
+						{
+							MAKE_COMMAND_CAPTURE(mpEditorHistory, STRINGIFY_COMMAND(pSphereEmitter->SetRadius), pSphereEmitter, radius, pSphereEmitter->GetRadius());
+						});
+						mpImGUIContext->EndHorizontal();
+					}
+
+					/// \note Sphere origin
+					{
+						auto origin = pSphereEmitter->GetOrigin();
+
+						mpImGUIContext->BeginHorizontal();
+						mpImGUIContext->Label("Origin:");
+						mpImGUIContext->Vector3Field("##Origin", origin, [this, pSphereEmitter, &origin]
+						{
+							MAKE_COMMAND_CAPTURE(mpEditorHistory, STRINGIFY_COMMAND(pSphereEmitter->SetOrigin), pSphereEmitter, origin, pSphereEmitter->GetOrigin());
+						});
+						mpImGUIContext->EndHorizontal();
+					}
+				} },
+			{ CConeParticlesEmitter::GetTypeId(),  [this, &pSharedEmitter]
+				{
+					CConeParticlesEmitter* pConeEmitter = dynamic_cast<CConeParticlesEmitter*>(pSharedEmitter.Get());
+
+					/// \note Radius
+					{
+						auto radius = pConeEmitter->GetRadius();
+
+						mpImGUIContext->BeginHorizontal();
+						mpImGUIContext->Label("Radius:");
+						mpImGUIContext->FloatField("##Radius", radius, [this, pConeEmitter, &radius]
+						{
+							MAKE_COMMAND_CAPTURE(mpEditorHistory, STRINGIFY_COMMAND(pConeEmitter->SetRadius), pConeEmitter, radius, pConeEmitter->GetRadius());
+						});
+						mpImGUIContext->EndHorizontal();
+					}
+
+					/// \note Height
+					{
+						auto height = pConeEmitter->GetHeight();
+
+						mpImGUIContext->BeginHorizontal();
+						mpImGUIContext->Label("Height:");
+						mpImGUIContext->FloatField("##Height", height, [this, pConeEmitter, &height]
+						{
+							MAKE_COMMAND_CAPTURE(mpEditorHistory, STRINGIFY_COMMAND(pConeEmitter->SetHeight), pConeEmitter, height, pConeEmitter->GetHeight());
+						});
+						mpImGUIContext->EndHorizontal();
+					}
+				} },
+		};
+
+		auto it = typesViewsTable.find(pSharedEmitter->GetEmitterTypeId());
+		if (it == typesViewsTable.cend())
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		(it->second)();
 	}
 
 
