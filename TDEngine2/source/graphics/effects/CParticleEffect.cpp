@@ -296,7 +296,7 @@ namespace TDEngine2
 
 		pReader->BeginGroup(TParticleEffectClipKeys::mEmitterDataGroupId);
 		{
-			auto loadEmitterResult = CBaseParticlesEmitter::Load(pReader);
+			auto loadEmitterResult = CBaseParticlesEmitter::Deserialize(pReader);
 			if (loadEmitterResult.HasError())
 			{
 				return loadEmitterResult.GetError();

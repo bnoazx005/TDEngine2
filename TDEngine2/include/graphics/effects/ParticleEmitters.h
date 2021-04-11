@@ -61,7 +61,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API static TResult<CBaseParticlesEmitter*> Load(IArchiveReader* pReader);
+			TDE2_API static TResult<CBaseParticlesEmitter*> Deserialize(IArchiveReader* pReader);
 
 			/*!
 				\brief The method initializes a state of a given particle as it's used for the first time

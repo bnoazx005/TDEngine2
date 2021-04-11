@@ -177,9 +177,8 @@ namespace TDEngine2
 	};
 
 
-	TResult<CBaseParticlesEmitter*> CBaseParticlesEmitter::Load(IArchiveReader* pReader)
-	{
-		
+	TResult<CBaseParticlesEmitter*> CBaseParticlesEmitter::Deserialize(IArchiveReader* pReader)
+	{		
 		const TypeId typeId = static_cast<TypeId>(pReader->GetUInt32("type_id"));
 
 		auto it = FactoriesTable.find(typeId);
@@ -192,6 +191,11 @@ namespace TDEngine2
 		CBaseParticlesEmitter* pEmitterPtr = (it->second)(nullptr, result);
 
 		if (RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		if (RC_OK != (result = pEmitterPtr->Load(pReader)))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
