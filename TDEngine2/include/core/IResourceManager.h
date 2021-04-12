@@ -24,6 +24,14 @@ namespace TDEngine2
 	struct TBaseResourceParameters;
 
 
+	template <typename TResourceFactory, typename TResourceLoader>
+	struct TResourceProviderInfo
+	{
+		static TypeId GetFactoryResourceId() { return TResourceFactory::GetTypeId(); }
+		static TypeId GetLoaderResourceId() { return TResourceLoader::GetTypeId(); }
+	};
+
+
 	/*!
 		interface IResourceManager
 
@@ -83,6 +91,26 @@ namespace TDEngine2
 			Load(const std::string& name)
 			{
 				return _loadResource(T::GetTypeId(), name);
+			}
+
+			/*!
+				\brief The method loads specified type with particular factory and loader
+
+				\param[in] name A name of a resource that should be loaded
+
+				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
+			*/
+
+			template <typename T, typename TResourceProviderInfo>
+			TDE2_API
+#if _HAS_CXX17
+			std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
+#else
+			typename std::enable_if<std::is_base_of<IResource, T>::value, TResourceId>::type
+#endif
+			Load(const std::string& name)
+			{
+				return _loadResourceWithResourceProviderInfo(T::GetTypeId(), TResourceProviderInfo::GetFactoryResourceId(), TResourceProviderInfo::GetLoaderResourceId(), name);
 			}
 
 			/*!
@@ -225,6 +253,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)
 
 			TDE2_API virtual TResourceId _loadResource(TypeId resourceTypeId, const std::string& name) = 0;
+			TDE2_API virtual TResourceId _loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name) = 0;
 
 			TDE2_API virtual TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
 

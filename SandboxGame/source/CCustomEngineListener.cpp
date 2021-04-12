@@ -239,6 +239,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 
 	mpResourceManager->Load<CFMODAudioClip>("test.mp3");
+	
+	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
 
 	return RC_OK;
 }

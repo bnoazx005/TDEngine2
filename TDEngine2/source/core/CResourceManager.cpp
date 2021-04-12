@@ -252,6 +252,12 @@ namespace TDEngine2
 		return resourceId;
 	}
 
+	TResourceId CResourceManager::_loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name)
+	{
+		TDE2_UNIMPLEMENTED();
+		return TResourceId::Invalid;
+	}
+
 	TResourceId CResourceManager::_createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
 	{
 		TResourceId resourceId = GetResourceId(name);

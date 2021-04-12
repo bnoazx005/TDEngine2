@@ -174,6 +174,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceManager)
 
 			TDE2_API TResourceId _loadResource(TypeId resourceTypeId, const std::string& name) override;
+			TDE2_API TResourceId _loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name) override;
 
 			TDE2_API TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
 			
