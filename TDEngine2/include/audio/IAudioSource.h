@@ -27,6 +27,8 @@ namespace TDEngine2
 	class IAudioSource
 	{
 		public:
+			TDE2_REGISTER_TYPE(IAudioSource);
+
 			/*!
 				\brief The method initializes an internal state of an object
 

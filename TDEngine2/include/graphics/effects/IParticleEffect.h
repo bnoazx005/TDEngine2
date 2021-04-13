@@ -124,6 +124,8 @@ namespace TDEngine2
 	class IParticleEffect: public ISerializable
 	{
 		public:
+			TDE2_REGISTER_TYPE(IParticleEffect);
+
 			/*!
 				\brief The method initializes an internal state of a material
 

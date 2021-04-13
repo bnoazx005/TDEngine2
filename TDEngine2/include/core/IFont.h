@@ -7,13 +7,13 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../core/IResourceLoader.h"
-#include "./../core/IResourceFactory.h"
-#include "./../math/TVector2.h"
-#include "./../math/TVector4.h"
-#include "./../utils/CU8String.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../core/IResourceLoader.h"
+#include "../core/IResourceFactory.h"
+#include "../math/TVector2.h"
+#include "../math/TVector4.h"
+#include "../utils/CU8String.h"
 #include <string>
 #include <vector>
 
@@ -67,6 +67,8 @@ namespace TDEngine2
 		public:
 			typedef std::vector<TVector4> TTextVertices;
 		public:
+			TDE2_REGISTER_TYPE(IFont);
+
 			/*!
 				\brief The method initializes an internal state of a font
 

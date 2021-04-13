@@ -30,6 +30,8 @@ namespace TDEngine2
 	class IRenderTarget : public ITexture
 	{
 		public:
+			TDE2_REGISTER_TYPE(IRenderTarget);
+
 			/*!
 				\brief The method initializes an internal state of a render target
 
@@ -94,6 +96,8 @@ namespace TDEngine2
 
 	class IDepthBufferTarget : public virtual IRenderTarget
 	{
+		public:
+			TDE2_REGISTER_TYPE(IDepthBufferTarget);
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDepthBufferTarget)
 	};

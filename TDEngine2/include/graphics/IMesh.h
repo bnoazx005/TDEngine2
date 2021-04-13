@@ -89,6 +89,8 @@ namespace TDEngine2
 			typedef std::vector<TVector2>  TTexcoordsArray;
 			typedef std::vector<U32>       TIndicesArray;
 		public:
+			TDE2_REGISTER_TYPE(IStaticMesh);
+
 			/*!
 				\brief The method initializes an internal state of a mesh object
 

@@ -32,6 +32,8 @@ namespace TDEngine2
 		public:
 			typedef std::unordered_map<std::string, std::string> TDictionary;
 		public:
+			TDE2_REGISTER_TYPE(ILocalizationPackage);
+
 			/*!
 				\brief The method initializes an internal state of a material
 

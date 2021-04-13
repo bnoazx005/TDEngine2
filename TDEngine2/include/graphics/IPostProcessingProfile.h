@@ -61,6 +61,8 @@ namespace TDEngine2
 	class IPostProcessingProfile : public ISerializable
 	{
 		public:
+			TDE2_REGISTER_TYPE(IPostProcessingProfile);
+
 			/*!
 				\brief The method initializes an internal state of a post-processing profile. The method
 				is used when we want just to load profile's data from some storage. In this

@@ -35,6 +35,8 @@ namespace TDEngine2
 	class ITextureAtlas
 	{
 		public:
+			TDE2_REGISTER_TYPE(ITextureAtlas);
+
 			/*!
 				\brief The method initializes an internal state of a texture atlas. 
 

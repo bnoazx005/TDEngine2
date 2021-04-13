@@ -82,12 +82,15 @@ namespace TDEngine2
 			*/
 
 			template <typename T> 
+#if 0
 			TDE2_API 
 #if _HAS_CXX17
 			std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
 #else
 			typename std::enable_if<std::is_base_of<IResource, T>::value, TResourceId>::type
 #endif
+#endif
+			TResourceId
 			Load(const std::string& name)
 			{
 				return _loadResource(T::GetTypeId(), name);
@@ -158,12 +161,15 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
+#if 0 /// \fixme Check this later
 			TDE2_API
 #if _HAS_CXX17
 			std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
 #else
 			typename std::enable_if<std::is_base_of<IResource, T>::value, TResourceId>::type
 #endif
+#endif
+			TResourceId
 			Create(const std::string& name, const TBaseResourceParameters& params)
 			{
 				return _createResource(T::GetTypeId(), name, params);
@@ -213,13 +219,7 @@ namespace TDEngine2
 			*/
 			
 			template <typename T>
-			TDE2_API
-#if _HAS_CXX17
-			std::enable_if_t<std::is_base_of_v<IResource, T>, const IResourceLoader*>
-#else
-			typename std::enable_if<std::is_base_of<IResource, T>::value, const IResourceLoader*>::type
-#endif
-			GetResourceLoader() const
+			TDE2_API const IResourceLoader* GetResourceLoader() const
 			{
 				return _getResourceLoader(T::GetTypeId());
 			}

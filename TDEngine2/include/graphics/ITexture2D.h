@@ -65,6 +65,8 @@ namespace TDEngine2
 	class ITexture2D: public ITexture
 	{
 		public:
+			TDE2_REGISTER_TYPE(ITexture2D);
+
 			/*!
 				\brief The method initializes an internal state of a 2d texture. The method 
 				is used when we want just to load texture's data from some storage. In this 

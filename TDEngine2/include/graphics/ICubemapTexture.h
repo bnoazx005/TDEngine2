@@ -9,7 +9,7 @@
 
 #include "../core/IResourceLoader.h"
 #include "../core/IResourceFactory.h"
-#include "./../graphics/ITexture2D.h"
+#include "../graphics/ITexture2D.h"
 #include <string>
 
 
@@ -39,6 +39,8 @@ namespace TDEngine2
 	class ICubemapTexture : public ITexture
 	{
 		public:
+			TDE2_REGISTER_TYPE(ICubemapTexture);
+
 			/*!
 				\brief The method initializes an internal state of a cubemap texture. The method
 				is used when we want just to load texture's data from some storage. In this

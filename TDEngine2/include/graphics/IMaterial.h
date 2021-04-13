@@ -71,6 +71,8 @@ namespace TDEngine2
 	class IMaterial: public ISerializable
 	{
 		public:
+			TDE2_REGISTER_TYPE(IMaterial);
+
 			/*!
 				\brief The method initializes an internal state of a material
 

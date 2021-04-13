@@ -89,6 +89,8 @@ namespace TDEngine2
 	class IAnimationClip: public ISerializable
 	{
 		public:
+			TDE2_REGISTER_TYPE(IAnimationClip);
+
 			/*!
 				\brief The method initializes a state of a brand new animation clip.
 

@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Utils.h"
-#include "./../utils/Types.h"
-#include "./../core/IResourceFactory.h"
+#include "../utils/Utils.h"
+#include "../utils/Types.h"
+#include "../core/IResourceFactory.h"
 #include <string>
 
 
@@ -34,6 +34,8 @@ namespace TDEngine2
 	class IShader
 	{
 		public:
+			TDE2_REGISTER_TYPE(IShader);
+
 			/*!
 				\brief The method initializes an internal state of a shader
 
