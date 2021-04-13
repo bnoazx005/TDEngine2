@@ -202,6 +202,11 @@ namespace TDEngine2
 
 	TResourceId CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name)
 	{
+		return _loadResourceWithResourceProviderInfo(resourceTypeId, resourceTypeId, resourceTypeId, name);
+	}
+
+	TResourceId CResourceManager::_loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name)
+	{
 		auto&& iter = mResourcesMap.find(name);
 		if ((iter != mResourcesMap.cend()) && (iter->second != TResourceId::Invalid)) /// needed resource already exists
 		{
@@ -233,29 +238,23 @@ namespace TDEngine2
 		}
 
 		/// \note Create a new resource and load it				
-		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
+		auto factoryIdIter = mResourceFactoriesMap.find(factoryTypeId);
 		if (factoryIdIter == mResourceFactoriesMap.cend())
 		{
 			return TResourceId::Invalid;
 		}
 
 		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1].Get();
-			
+
 		IResource* pResource = pResourceFactory->CreateDefault(name, {});
 
 		const TResourceId resourceId = TResourceId(mResources.Add(pResource));
 
 		mResourcesMap[name] = resourceId;
-		
+
 		pResource->Load(); /// \todo move loading in the background thread
 
 		return resourceId;
-	}
-
-	TResourceId CResourceManager::_loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name)
-	{
-		TDE2_UNIMPLEMENTED();
-		return TResourceId::Invalid;
 	}
 
 	TResourceId CResourceManager::_createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
