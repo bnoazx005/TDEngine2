@@ -203,7 +203,7 @@ namespace TDEngine2
 
 	TypeId COGLCubemapTextureFactory::GetResourceTypeId() const
 	{
-		return CBaseCubemapTexture::GetTypeId();
+		return ICubemapTexture::GetTypeId();
 	}
 
 

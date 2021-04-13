@@ -45,11 +45,11 @@ namespace TDEngine2
 
 		// Used materials 
 		// \todo Refactor this later
-		mDefaultScreenSpaceMaterialHandle = mpResourceManager->Create<CBaseMaterial>("DefaultScreenSpaceEffect.material", TMaterialParameters{ "DefaultScreenSpaceEffect", false, TDepthStencilStateDesc { false, false } });
-		mBloomFilterMaterialHandle = mpResourceManager->Create<CBaseMaterial>("BloomScreenSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/Bloom.shader", false, TDepthStencilStateDesc { false, false } });
-		mBloomFinalPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("BloomFinalPassSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/BloomFinal.shader", false, TDepthStencilStateDesc { false, false } });
-		mGaussianBlurMaterialHandle = mpResourceManager->Create<CBaseMaterial>("GaussianBlurSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/GaussianBlur.shader", false, TDepthStencilStateDesc { false, false } });
-		mToneMappingPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("ToneMappingPass.material", TMaterialParameters{ "ToneMappingPass", false, TDepthStencilStateDesc { false, false } });
+		mDefaultScreenSpaceMaterialHandle = mpResourceManager->Create<IMaterial>("DefaultScreenSpaceEffect.material", TMaterialParameters{ "DefaultScreenSpaceEffect", false, TDepthStencilStateDesc { false, false } });
+		mBloomFilterMaterialHandle = mpResourceManager->Create<IMaterial>("BloomScreenSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/Bloom.shader", false, TDepthStencilStateDesc { false, false } });
+		mBloomFinalPassMaterialHandle = mpResourceManager->Create<IMaterial>("BloomFinalPassSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/BloomFinal.shader", false, TDepthStencilStateDesc { false, false } });
+		mGaussianBlurMaterialHandle = mpResourceManager->Create<IMaterial>("GaussianBlurSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/GaussianBlur.shader", false, TDepthStencilStateDesc { false, false } });
+		mToneMappingPassMaterialHandle = mpResourceManager->Create<IMaterial>("ToneMappingPass.material", TMaterialParameters{ "ToneMappingPass", false, TDepthStencilStateDesc { false, false } });
 
 		if (auto vertexFormatResult = desc.mpGraphicsObjectManager->CreateVertexDeclaration())
 		{
@@ -139,7 +139,7 @@ namespace TDEngine2
 			{
 				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
 			
-				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<CBaseTexture2D>(colorGradingParameters.mLookUpTextureId)))
+				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<ITexture2D>(colorGradingParameters.mLookUpTextureId)))
 				{
 					//pColorLUT->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT);
@@ -168,7 +168,7 @@ namespace TDEngine2
 			{
 				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
 
-				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<CBaseTexture2D>(colorGradingParameters.mLookUpTextureId)))
+				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<ITexture2D>(colorGradingParameters.mLookUpTextureId)))
 				{
 					//pColorLUT->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT);
@@ -282,7 +282,7 @@ namespace TDEngine2
 
 		const std::string renderTargetName = isMainTarget ? "MainRenderTarget" : "SecondaryRenderTarget" + std::to_string(counter++);
 
-		return mpResourceManager->Create<CBaseRenderTarget>(renderTargetName, TTexture2DParameters{ width, height, isHDRSupport ? FT_FLOAT4 : FT_NORM_UBYTE4, 1, 1, 0 });
+		return mpResourceManager->Create<IRenderTarget>(renderTargetName, TTexture2DParameters{ width, height, isHDRSupport ? FT_FLOAT4 : FT_NORM_UBYTE4, 1, 1, 0 });
 	}
 
 

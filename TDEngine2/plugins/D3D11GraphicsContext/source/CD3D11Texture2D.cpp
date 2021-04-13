@@ -292,7 +292,7 @@ namespace TDEngine2
 
 	TypeId CD3D11Texture2DFactory::GetResourceTypeId() const
 	{
-		return CBaseTexture2D::GetTypeId();
+		return ITexture2D::GetTypeId();
 	}
 
 

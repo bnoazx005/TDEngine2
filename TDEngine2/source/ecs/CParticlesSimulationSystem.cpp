@@ -36,13 +36,13 @@ namespace TDEngine2
 					TResourceId particleEffectResourceHandle = pParticlesEmitter->GetParticleEffectHandle();
 					if (TResourceId::Invalid == particleEffectResourceHandle)
 					{
-						particleEffectResourceHandle = pResourceManager->Load<CParticleEffect>(pParticlesEmitter->GetParticleEffectId());
+						particleEffectResourceHandle = pResourceManager->Load<IParticleEffect>(pParticlesEmitter->GetParticleEffectId());
 						pParticlesEmitter->SetParticleEffectHandle(particleEffectResourceHandle);
 					}
 
 					IParticleEffect* pParticleEffect = pResourceManager->GetResource<IParticleEffect>(particleEffectResourceHandle);
 
-					const TResourceId materialHandle = pResourceManager->Load<CBaseMaterial>(pParticleEffect->GetMaterialName());
+					const TResourceId materialHandle = pResourceManager->Load<IMaterial>(pParticleEffect->GetMaterialName());
 					if (TResourceId::Invalid == materialHandle)
 					{
 						continue;
@@ -266,7 +266,7 @@ namespace TDEngine2
 						continue;
 					}
 
-					const TResourceId materialHandle = mpResourceManager->Load<CBaseMaterial>(pParticleEffect->GetMaterialName());
+					const TResourceId materialHandle = mpResourceManager->Load<IMaterial>(pParticleEffect->GetMaterialName());
 					if (TResourceId::Invalid == materialHandle || currMaterialName != pParticleEffect->GetMaterialName())
 					{
 						continue;

@@ -327,7 +327,7 @@ namespace TDEngine2
 
 		if (pFramePostProcessor)
 		{
-			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<CBasePostProcessingProfile>("default-profile.camera_profile");
+			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("default-profile.camera_profile");
 			if (TResourceId::Invalid == defaultProfileResourceId)
 			{
 				return RC_FILE_NOT_FOUND;

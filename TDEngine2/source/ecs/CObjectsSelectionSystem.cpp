@@ -202,8 +202,8 @@ namespace TDEngine2
 			}
 		};
 		
-		mSelectionMaterialHandle        = mpResourceManager->Create<CBaseMaterial>("SelectionMaterial.material", selectionMaterialParams);
-		mSelectionOutlineMaterialHandle = mpResourceManager->Create<CBaseMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
+		mSelectionMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionMaterial.material", selectionMaterialParams);
+		mSelectionOutlineMaterialHandle = mpResourceManager->Create<IMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
 
 		return (mSelectionMaterialHandle != TResourceId::Invalid && mSelectionOutlineMaterialHandle != TResourceId::Invalid) ? RC_OK : RC_FAIL;
 	}
@@ -215,7 +215,7 @@ namespace TDEngine2
 		
 		// Skip skybox geometry
 		// \todo Reimplement this later with CSkyboxComponent
-		if (IMaterial* pMeshMainMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName()))))
+		if (IMaterial* pMeshMainMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName()))))
 		{
 			if (pMeshMainMaterial->GetGeometrySubGroupTag() == E_GEOMETRY_SUBGROUP_TAGS::SKYBOX)
 			{
@@ -223,7 +223,7 @@ namespace TDEngine2
 			}
 		}
 
-		if (IStaticMesh* pStaticMeshResource = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResource(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName()))))
+		if (IStaticMesh* pStaticMeshResource = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResource(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName()))))
 		{
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 			{

@@ -263,13 +263,13 @@ namespace TDEngine2
 
 	const IResourceLoader* CStaticMesh::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CStaticMesh>();
+		return mpResourceManager->GetResourceLoader<IStaticMesh>();
 	}
 
 
 	IStaticMesh* CStaticMesh::CreateCube(IResourceManager* pResourceManager)
 	{
-		auto pCubeMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<CStaticMesh>("Cube", TMeshParameters{}));
+		auto pCubeMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<IStaticMesh>("Cube", TMeshParameters{}));
 
 		auto addVertex = [](IStaticMesh* pMesh, const TVector4& pos, const TVector2& texcoords, const TVector4& normal, const TVector4& tangent)
 		{
@@ -344,7 +344,7 @@ namespace TDEngine2
 
 	IStaticMesh* CStaticMesh::CreatePlane(IResourceManager* pResourceManager)
 	{
-		auto pPlaneMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<CStaticMesh>("Plane", TMeshParameters{}));
+		auto pPlaneMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<IStaticMesh>("Plane", TMeshParameters{}));
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -391,7 +391,7 @@ namespace TDEngine2
 	{
 		constexpr F32 sphereRadius = 10.0f;
 
-		auto pSphereMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<CStaticMesh>("Sphere", TMeshParameters{}));
+		auto pSphereMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<IStaticMesh>("Sphere", TMeshParameters{}));
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -583,7 +583,7 @@ namespace TDEngine2
 
 	TypeId CStaticMeshLoader::GetResourceTypeId() const
 	{
-		return CStaticMesh::GetTypeId();
+		return IStaticMesh::GetTypeId();
 	}
 
 
@@ -651,7 +651,7 @@ namespace TDEngine2
 
 	TypeId CStaticMeshFactory::GetResourceTypeId() const
 	{
-		return CStaticMesh::GetTypeId();
+		return IStaticMesh::GetTypeId();
 	}
 
 

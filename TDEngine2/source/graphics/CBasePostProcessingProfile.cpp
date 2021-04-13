@@ -187,7 +187,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CBasePostProcessingProfile::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CBasePostProcessingProfile>();
+		return mpResourceManager->GetResourceLoader<IPostProcessingProfile>();
 	}
 
 
@@ -283,7 +283,7 @@ namespace TDEngine2
 
 	TypeId CBasePostProcessingProfileLoader::GetResourceTypeId() const
 	{
-		return CBasePostProcessingProfile::GetTypeId();
+		return IPostProcessingProfile::GetTypeId();
 	}
 
 
@@ -350,7 +350,7 @@ namespace TDEngine2
 
 	TypeId CBasePostProcessingProfileFactory::GetResourceTypeId() const
 	{
-		return CBasePostProcessingProfile::GetTypeId();
+		return IPostProcessingProfile::GetTypeId();
 	}
 
 

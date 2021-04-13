@@ -77,7 +77,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CLocalizationPackage::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CLocalizationPackage>();
+		return mpResourceManager->GetResourceLoader<ILocalizationPackage>();
 	}
 
 
@@ -143,7 +143,7 @@ namespace TDEngine2
 
 	TypeId CLocalizationPackageLoader::GetResourceTypeId() const
 	{
-		return CLocalizationPackage::GetTypeId();
+		return ILocalizationPackage::GetTypeId();
 	}
 
 
@@ -205,7 +205,7 @@ namespace TDEngine2
 
 	TypeId CLocalizationPackageFactory::GetResourceTypeId() const
 	{
-		return CLocalizationPackage::GetTypeId();
+		return ILocalizationPackage::GetTypeId();
 	}
 
 

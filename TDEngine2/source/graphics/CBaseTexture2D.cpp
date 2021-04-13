@@ -134,7 +134,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CBaseTexture2D::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CBaseTexture2D>();
+		return mpResourceManager->GetResourceLoader<ITexture2D>();
 	}
 
 
@@ -253,7 +253,7 @@ namespace TDEngine2
 
 	TypeId CBaseTexture2DLoader::GetResourceTypeId() const
 	{
-		return CBaseTexture2D::GetTypeId();
+		return ITexture2D::GetTypeId();
 	}
 
 

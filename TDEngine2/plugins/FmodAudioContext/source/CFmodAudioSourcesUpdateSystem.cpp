@@ -106,7 +106,7 @@ namespace TDEngine2
 				FMOD::Channel* pNewChannel = nullptr;
 
 				// \todo Reimplement this later
-				const TResourceId audioResourceId = mpResourceManager->Load<CFMODAudioClip>(pAudioSource->GetAudioClipId());
+				const TResourceId audioResourceId = mpResourceManager->Load<IAudioSource>(pAudioSource->GetAudioClipId());
 				if (TResourceId::Invalid == audioResourceId)
 				{
 					continue;

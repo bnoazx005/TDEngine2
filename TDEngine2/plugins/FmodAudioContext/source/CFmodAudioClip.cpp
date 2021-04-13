@@ -63,7 +63,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CFMODAudioClip::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CFMODAudioClip>();
+		return mpResourceManager->GetResourceLoader<IAudioSource>();
 	}
 
 
@@ -147,7 +147,7 @@ namespace TDEngine2
 
 	TypeId CFMODAudioClipLoader::GetResourceTypeId() const
 	{
-		return CFMODAudioClip::GetTypeId();
+		return IAudioSource::GetTypeId();
 	}
 
 
@@ -213,7 +213,7 @@ namespace TDEngine2
 
 	TypeId CFMODAudioClipFactory::GetResourceTypeId() const
 	{
-		return CFMODAudioClip::GetTypeId();
+		return IAudioSource::GetTypeId();
 	}
 
 

@@ -251,7 +251,7 @@ namespace TDEngine2
 
 	TypeId CD3D11CubemapTextureFactory::GetResourceTypeId() const
 	{
-		return CBaseCubemapTexture::GetTypeId();
+		return ICubemapTexture::GetTypeId();
 	}
 
 

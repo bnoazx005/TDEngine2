@@ -21,7 +21,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseDepthBufferTarget>();
+		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<IDepthBufferTarget>();
 
 		if (!pResourceLoader)
 		{
@@ -162,7 +162,7 @@ namespace TDEngine2
 
 	TypeId COGLDepthBufferTargetFactory::GetResourceTypeId() const
 	{
-		return CBaseDepthBufferTarget::GetTypeId();
+		return IDepthBufferTarget::GetTypeId();
 	}
 
 

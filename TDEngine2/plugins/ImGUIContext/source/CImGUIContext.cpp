@@ -853,7 +853,7 @@ namespace TDEngine2
 		blendingParams.mScrAlphaValue  = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
 		blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
 
-		mDefaultEditorMaterialHandle = pResourceManager->Create<CBaseMaterial>("DefaultEditorUIMaterial.material", editorUIMaterialParams);
+		mDefaultEditorMaterialHandle = pResourceManager->Create<IMaterial>("DefaultEditorUIMaterial.material", editorUIMaterialParams);
 
 		// \note Create a font texture
 		if ((result = _initSystemFonts(io, pResourceManager, pGraphicsManager)) != RC_OK)
@@ -871,7 +871,7 @@ namespace TDEngine2
 		I32 height = -1;
 		io.Fonts->GetTexDataAsRGBA32(&pPixelsData, &width, &height);
 
-		mFontTextureHandle = mpResourceManager->Create<CBaseTexture2D>("imgui_defaultfont_texatlas",
+		mFontTextureHandle = mpResourceManager->Create<ITexture2D>("imgui_defaultfont_texatlas",
 																		 TTexture2DParameters
 																		 {
 																			 static_cast<U32>(width),

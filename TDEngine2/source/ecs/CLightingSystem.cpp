@@ -126,7 +126,7 @@ namespace TDEngine2
 				{
 					CTransform* pTransform = pEntity->GetComponent<CTransform>();
 
-					TResourceId meshResourceHandle = mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName());
+					TResourceId meshResourceHandle = mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
 					TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
 
 					if (IStaticMesh* pStaticMeshResource = mpResourceManager->GetResource<IStaticMesh>(meshResourceHandle))
@@ -149,7 +149,7 @@ namespace TDEngine2
 			}
 		}
 
-		auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<CBaseDepthBufferTarget>("ShadowMap"));
+		auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("ShadowMap"));
 
 		// \note Inject shadow map buffer into materials 
 		for (TEntityId currEntity : mShadowReceiverEntities)
@@ -158,7 +158,7 @@ namespace TDEngine2
 			{
 				if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
 				{
-					if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName())))
+					if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
 					{
 						pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture);
 					}
@@ -184,7 +184,7 @@ namespace TDEngine2
 			TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
 		};
 
-		mShadowPassMaterialHandle = mpResourceManager->Create<CBaseMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);
+		mShadowPassMaterialHandle = mpResourceManager->Create<IMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);
 
 		return (mShadowPassMaterialHandle != TResourceId::Invalid && mpShadowPassRenderQueue && mpShadowVertDecl) ? RC_OK : RC_FAIL;
 	}

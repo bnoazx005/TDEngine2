@@ -168,7 +168,7 @@ namespace TDEngine2
 			auto pStaticMeshContainer = std::get<CStaticMeshContainer*>(*iter);
 			auto pTransform           = std::get<CTransform*>(*iter);
 
-			auto pSharedMeshResource = mpResourceManager->GetResource<IStaticMesh>(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName()));
+			auto pSharedMeshResource = mpResourceManager->GetResource<IStaticMesh>(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName()));
 			if (!pSharedMeshResource)
 			{
 				++iter;
@@ -224,7 +224,7 @@ namespace TDEngine2
 
 			pCommand->mpVertexBuffer              = pSharedMeshResource->GetSharedVertexBuffer();
 			pCommand->mpIndexBuffer               = pSharedMeshResource->GetSharedIndexBuffer();
-			pCommand->mMaterialHandle             = mpResourceManager->Load<CBaseMaterial>(pStaticMeshContainer->GetMaterialName());
+			pCommand->mMaterialHandle             = mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName());
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
 			pCommand->mNumOfIndices               = pSharedMeshResource->GetIndices().size();
 			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;

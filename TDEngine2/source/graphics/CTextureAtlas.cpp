@@ -68,7 +68,7 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 		
 		/// \note create a texture using the resource manager
-		if (TResourceId::Invalid == (mTextureResourceHandle = pResourceManager->Create<CBaseTexture2D>(name + "_Tex", params)))
+		if (TResourceId::Invalid == (mTextureResourceHandle = pResourceManager->Create<ITexture2D>(name + "_Tex", params)))
 		{
 			return RC_FAIL;
 		}
@@ -379,7 +379,7 @@ namespace TDEngine2
 		mName = pYAMLFileReader->GetString("name");
 
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
-		mTextureResourceHandle = mpResourceManager->Load<CBaseTexture2D>(mName + "_Tex.png");
+		mTextureResourceHandle = mpResourceManager->Load<ITexture2D>(mName + "_Tex.png");
 
 		/// \todo ansynchronously update sizes of the atlas when the texture has been loaded
 		_updateAtlasSizes(mpResourceManager->GetResource(mTextureResourceHandle));
@@ -479,7 +479,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CTextureAtlas::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CTextureAtlas>();
+		return mpResourceManager->GetResourceLoader<ITextureAtlas>();
 	}
 
 
@@ -555,7 +555,7 @@ namespace TDEngine2
 
 	TypeId CTextureAtlasLoader::GetResourceTypeId() const
 	{
-		return CTextureAtlas::GetTypeId();
+		return ITextureAtlas::GetTypeId();
 	}
 
 
@@ -627,7 +627,7 @@ namespace TDEngine2
 
 	TypeId CTextureAtlasFactory::GetResourceTypeId() const
 	{
-		return CTextureAtlas::GetTypeId();
+		return ITextureAtlas::GetTypeId();
 	}
 
 

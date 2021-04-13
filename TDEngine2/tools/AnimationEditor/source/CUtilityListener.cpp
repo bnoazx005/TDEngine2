@@ -40,7 +40,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	TAnimationClipParameters clip;
 	clip.mDuration = 2.5f;
 
-	if (IAnimationClip* pClip = mpResourceManager->GetResource<IAnimationClip>(mpResourceManager->Create<CAnimationClip>("Animation2", clip)))
+	if (IAnimationClip* pClip = mpResourceManager->GetResource<IAnimationClip>(mpResourceManager->Create<IAnimationClip>("Animation2", clip)))
 	{
 		if (auto pTrack = pClip->GetTrack<IAnimationTrack>(pClip->CreateTrack<CVector3AnimationTrack>("testTrack")))
 		{

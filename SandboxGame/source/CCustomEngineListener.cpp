@@ -17,13 +17,13 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	mpResourceManager->Load<CBaseMaterial>("ProjectMaterials/NewMaterial.material");
-	mpResourceManager->Load<CBaseMaterial>("DefaultMaterials/DebugMaterial.material");
-	mpResourceManager->Load<CBaseMaterial>("ProjectMaterials/DefaultMaterial.material");
+	mpResourceManager->Load<IMaterial>("ProjectMaterials/NewMaterial.material");
+	mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugMaterial.material");
+	mpResourceManager->Load<IMaterial>("ProjectMaterials/DefaultMaterial.material");
 
-	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>("DefaultMaterials/DebugTextMaterial.material")))
+	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material")))
 	{
-		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<CTextureAtlas>("atlas")))
+		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<ITextureAtlas>("atlas")))
 		{
 			pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 		}
@@ -63,7 +63,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpCameraEntity->AddComponent<CAudioListenerComponent>();
 
-	mpResourceManager->Load<CStaticMesh>("scene.mesh");
+	mpResourceManager->Load<IStaticMesh>("scene.mesh");
 
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto shadowCaster = pMeshEntity->AddComponent<CShadowCasterComponent>();
@@ -238,8 +238,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	}
 
-	mpResourceManager->Load<CFMODAudioClip>("test.mp3");
-	
+	mpResourceManager->Load<IAudioSource>("test.mp3");
+
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
 
 	return RC_OK;
@@ -294,7 +294,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 			static int id = 0;
 
 			id = imgui->Popup("TestPopup", id, { "First", "Second", "Third" });
-			imgui->Image(mpResourceManager->Load<CBaseTexture2D>("Tim.tga"), TVector2(128.0f, 128.0f));
+			imgui->Image(mpResourceManager->Load<ITexture2D>("Tim.tga"), TVector2(128.0f, 128.0f));
 
 			static int selection = 1 << 2;
 

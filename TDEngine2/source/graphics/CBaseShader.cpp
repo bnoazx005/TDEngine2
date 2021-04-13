@@ -221,6 +221,6 @@ namespace TDEngine2
 
 	const IResourceLoader* CBaseShader::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CBaseShader>();
+		return mpResourceManager->GetResourceLoader<IShader>();
 	}
 }

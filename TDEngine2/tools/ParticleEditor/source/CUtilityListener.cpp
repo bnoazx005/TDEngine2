@@ -37,7 +37,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	mCurrEditableEffectId = TResourceId::Invalid;
 	mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
 
-	mCurrEditableEffectId = mpResourceManager->Load<CParticleEffect>("testParticles.particles");
+	mCurrEditableEffectId = mpResourceManager->Load<IParticleEffect>("testParticles.particles");
 	TDE2_ASSERT(TResourceId::Invalid != mCurrEditableEffectId);
 
 	mpParticleEditor->SetParticleEffectResourceHandle(mCurrEditableEffectId);
@@ -112,7 +112,7 @@ static TResult<TResourceId> OpenFromFile(IWindowSystem* pWindowSystem, IFileSyst
 		return Wrench::TErrValue<E_RESULT_CODE>(openFileResult.GetError());
 	}
 
-	return Wrench::TOkValue<TResourceId>(pResourceManager->Load<CParticleEffect>(openFileResult.Get()));
+	return Wrench::TOkValue<TResourceId>(pResourceManager->Load<IParticleEffect>(openFileResult.Get()));
 }
 
 

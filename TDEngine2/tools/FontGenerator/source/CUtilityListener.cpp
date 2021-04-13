@@ -1,6 +1,4 @@
 #include "./../include/CUtilityListener.h"
-//#define TDE2_YAML_PLUGIN_IMPLEMENTATION
-//#include "./../plugins/YAMLFormatSupport/include/CYAMLSupportPlugin.h"
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -48,12 +46,12 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	I32 width, height, xoff, yoff;
 
-	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::CTextureAtlas>("TexAtlas2", TDEngine2::TTexture2DParameters(512, 512, TDEngine2::FT_NORM_UBYTE1));
+	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::ITextureAtlas>("TexAtlas2", TDEngine2::TTexture2DParameters(512, 512, TDEngine2::FT_NORM_UBYTE1));
 	auto pTexAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResource(pTexAtlasHandler));
 
 	I32 advance, leftBearing;
 
-	auto pFontResource = dynamic_cast<CFont*>(mpResourceManager->GetResource(mpResourceManager->Load<CFont>("Arial")));
+	auto pFontResource = mpResourceManager->GetResource<TDEngine2::IFont>(mpResourceManager->Load<TDEngine2::IFont>("Arial"));
 
 	F32 scale = stbtt_ScaleForPixelHeight(&font, 50.0f);
 	
@@ -93,13 +91,13 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	auto pTexture = pTexAtlas->GetTexture();
 
 	/// TEST: load texture atlas from a file
-	//auto pAtlasHandler = mpResourceManager->Load<CTextureAtlas>("atlas");
+	//auto pAtlasHandler = mpResourceManager->Load<ITextureAtlas>("atlas");
 	/// END TEST
 
 	// NOTE: delete this code later
 	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	TDEngine2::IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mpResourceManager->Create<TDEngine2::CBaseMaterial>("NewMaterial.material",
+	TDEngine2::IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mpResourceManager->Create<TDEngine2::IMaterial>("NewMaterial.material",
 																										TDEngine2::TMaterialParameters{ "testDXShader.shader" })));
 
 	pMaterial->SetTextureResource("TextureAtlas", pTexture);

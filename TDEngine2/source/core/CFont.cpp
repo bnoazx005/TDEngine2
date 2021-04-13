@@ -132,7 +132,7 @@ namespace TDEngine2
 
 			if (!textureAtlasPath.empty())
 			{
-				mFontTextureAtlasHandle = mpResourceManager->Load<CTextureAtlas>(textureAtlasPath);
+				mFontTextureAtlasHandle = mpResourceManager->Load<ITextureAtlas>(textureAtlasPath);
 				TDE2_ASSERT(mFontTextureAtlasHandle != TResourceId::Invalid);
 			}
 
@@ -255,7 +255,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CFont::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CFont>();
+		return mpResourceManager->GetResourceLoader<IFont>();
 	}
 
 
@@ -317,7 +317,7 @@ namespace TDEngine2
 
 	TypeId CFontLoader::GetResourceTypeId() const
 	{
-		return CFont::GetTypeId();
+		return IFont::GetTypeId();
 	}
 
 
@@ -379,7 +379,7 @@ namespace TDEngine2
 
 	TypeId CFontFactory::GetResourceTypeId() const
 	{
-		return CFont::GetTypeId();
+		return IFont::GetTypeId();
 	}
 
 

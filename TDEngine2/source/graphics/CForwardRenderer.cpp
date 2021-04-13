@@ -103,7 +103,7 @@ namespace TDEngine2
 
 		TTexture2DParameters shadowMapParams{ mShadowMapWidth, mShadowMapHeight, FT_D32, 1, 1, 0 };
 
-		mShadowMapHandle = mpResourceManager->Create<CBaseDepthBufferTarget>("ShadowMap", shadowMapParams);
+		mShadowMapHandle = mpResourceManager->Create<IDepthBufferTarget>("ShadowMap", shadowMapParams);
 		if (mShadowMapHandle == TResourceId::Invalid)
 		{
 			TDE2_ASSERT(false);

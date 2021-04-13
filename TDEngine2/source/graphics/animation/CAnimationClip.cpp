@@ -260,7 +260,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CAnimationClip::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CAnimationClip>();;
+		return mpResourceManager->GetResourceLoader<IAnimationClip>();
 	}
 
 	TAnimationTrackId CAnimationClip::_createTrackInternal(TypeId typeId, const std::string& name)
@@ -384,7 +384,7 @@ namespace TDEngine2
 
 	TypeId CAnimationClipLoader::GetResourceTypeId() const
 	{
-		return CAnimationClip::GetTypeId();
+		return IAnimationClip::GetTypeId();
 	}
 
 
@@ -454,7 +454,7 @@ namespace TDEngine2
 
 	TypeId CAnimationClipFactory::GetResourceTypeId() const
 	{
-		return CAnimationClip::GetTypeId();
+		return IAnimationClip::GetTypeId();
 	}
 
 

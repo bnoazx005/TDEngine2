@@ -295,9 +295,9 @@ namespace TDEngine2
 
 		static const std::string skyboxMaterialName = "DefaultSkybox.material";
 
-		if (IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Create<CBaseMaterial>(skyboxMaterialName, skyboxMatParams)))
+		if (IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Create<IMaterial>(skyboxMaterialName, skyboxMatParams)))
 		{
-			pMaterial->SetTextureResource("SkyboxTexture", pResourceManager->GetResource<ICubemapTexture>(pResourceManager->Load<CBaseCubemapTexture>(skyboxTexture)));
+			pMaterial->SetTextureResource("SkyboxTexture", pResourceManager->GetResource<ICubemapTexture>(pResourceManager->Load<ICubemapTexture>(skyboxTexture)));
 			pMaterial->SetGeometrySubGroupTag(E_GEOMETRY_SUBGROUP_TAGS::SKYBOX);
 		}		
 		
@@ -306,7 +306,7 @@ namespace TDEngine2
 			pStaticMeshContainer->SetMaterialName(skyboxMaterialName);
 
 			// \note Check whether Cube mesh exists or not
-			if (TResourceId::Invalid == pResourceManager->Load<CStaticMesh>("Cube"))
+			if (TResourceId::Invalid == pResourceManager->Load<IStaticMesh>("Cube"))
 			{
 				CStaticMesh::CreateCube(pResourceManager);
 			}

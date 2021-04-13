@@ -89,7 +89,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CBaseRenderTarget::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CBaseRenderTarget>();
+		return mpResourceManager->GetResourceLoader<IRenderTarget>();
 	}
 
 

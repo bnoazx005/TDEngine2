@@ -909,7 +909,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CParticleEffect::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CParticleEffect>();
+		return mpResourceManager->GetResourceLoader<IParticleEffect>();
 	}
 
 
@@ -978,7 +978,7 @@ namespace TDEngine2
 
 	TypeId CParticleEffectLoader::GetResourceTypeId() const
 	{
-		return CParticleEffect::GetTypeId();
+		return IParticleEffect::GetTypeId();
 	}
 
 
@@ -1054,7 +1054,7 @@ namespace TDEngine2
 
 	TypeId CParticleEffectFactory::GetResourceTypeId() const
 	{
-		return CParticleEffect::GetTypeId();
+		return IParticleEffect::GetTypeId();
 	}
 
 

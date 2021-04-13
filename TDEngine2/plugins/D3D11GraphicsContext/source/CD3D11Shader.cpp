@@ -271,7 +271,7 @@ namespace TDEngine2
 
 	TypeId CD3D11ShaderFactory::GetResourceTypeId() const
 	{
-		return CBaseShader::GetTypeId();
+		return IShader::GetTypeId();
 	}
 
 

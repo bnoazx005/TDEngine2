@@ -116,7 +116,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CBaseCubemapTexture::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CBaseCubemapTexture>();
+		return mpResourceManager->GetResourceLoader<ICubemapTexture>();
 	}
 
 
@@ -210,7 +210,7 @@ namespace TDEngine2
 
 	TypeId CBaseCubemapTextureLoader::GetResourceTypeId() const
 	{
-		return CBaseCubemapTexture::GetTypeId();
+		return ICubemapTexture::GetTypeId();
 	}
 
 	TResult<CBaseCubemapTextureLoader::TCubemapMetaInfo> CBaseCubemapTextureLoader::_readCubemapInfo(const std::string& filename) const

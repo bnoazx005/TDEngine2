@@ -20,7 +20,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseRenderTarget>();
+		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<IRenderTarget>();
 
 		if (!pResourceLoader)
 		{
@@ -206,7 +206,7 @@ namespace TDEngine2
 
 	TypeId COGLRenderTargetFactory::GetResourceTypeId() const
 	{
-		return CBaseRenderTarget::GetTypeId();
+		return IRenderTarget::GetTypeId();
 	}
 
 

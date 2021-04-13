@@ -182,7 +182,7 @@ namespace TDEngine2
 		}
 
 		// \note Load it using the resource manager
-		mCurrLocalePackageId = mpResourceManager->Load<CLocalizationPackage>(iter->mPackagePath);
+		mCurrLocalePackageId = mpResourceManager->Load<ILocalizationPackage>(iter->mPackagePath);
 
 		// \note Wait while package is loaded and then retrieve information from it
 		if (IJobManager* pJobManager = mpFileSystem->GetJobManager())

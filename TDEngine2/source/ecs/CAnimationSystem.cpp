@@ -183,7 +183,7 @@ namespace TDEngine2
 				pAnimationContainer->SetStartedFlag(false);				
 				currTime = 0.0f;
 
-				const TResourceId animationClipId = mpResourceManager->Load<CAnimationClip>(pAnimationContainer->GetAnimationClipId());
+				const TResourceId animationClipId = mpResourceManager->Load<IAnimationClip>(pAnimationContainer->GetAnimationClipId());
 				pAnimationContainer->SetAnimationClipResourceId(animationClipId);
 				
 				_notifyOnAnimationEvent(pCurrEntity->GetId(), TAnimationEvents::mOnStart);

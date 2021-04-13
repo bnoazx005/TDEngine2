@@ -163,7 +163,7 @@ namespace TDEngine2
 
 			pCurrSprite = mSprites[i];
 			
-			const TResourceId currMaterialHandle = mpResourceManager->Load<CBaseMaterial>(pCurrSprite->GetMaterialName());
+			const TResourceId currMaterialHandle = mpResourceManager->Load<IMaterial>(pCurrSprite->GetMaterialName());
 
 			groupKey = _computeSpriteCommandKey(currMaterialHandle, mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
 			

@@ -295,7 +295,7 @@ namespace TDEngine2
 
 	TypeId COGLShaderFactory::GetResourceTypeId() const
 	{
-		return CBaseShader::GetTypeId();
+		return IShader::GetTypeId();
 	}
 
 

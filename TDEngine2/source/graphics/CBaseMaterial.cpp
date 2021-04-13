@@ -429,7 +429,7 @@ namespace TDEngine2
 
 	void CBaseMaterial::SetShader(const std::string& shaderName)
 	{
-		mShaderHandle = mpResourceManager->Load<CBaseShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
+		mShaderHandle = mpResourceManager->Load<IShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
 		if (mShaderHandle == TResourceId::Invalid)
 		{
 			TDE2_ASSERT(false);
@@ -757,7 +757,7 @@ namespace TDEngine2
 
 	const IResourceLoader* CBaseMaterial::_getResourceLoader()
 	{
-		return mpResourceManager->GetResourceLoader<CBaseMaterial>();
+		return mpResourceManager->GetResourceLoader<IMaterial>();
 	}
 
 
@@ -884,7 +884,7 @@ namespace TDEngine2
 
 	TypeId CBaseMaterialLoader::GetResourceTypeId() const
 	{
-		return CBaseMaterial::GetTypeId();
+		return IMaterial::GetTypeId();
 	}
 
 
@@ -952,7 +952,7 @@ namespace TDEngine2
 
 	TypeId CBaseMaterialFactory::GetResourceTypeId() const
 	{
-		return CBaseMaterial::GetTypeId();
+		return IMaterial::GetTypeId();
 	}
 
 

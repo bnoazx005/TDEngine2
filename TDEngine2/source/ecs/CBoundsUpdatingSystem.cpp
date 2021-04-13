@@ -123,7 +123,7 @@ namespace TDEngine2
 
 		if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
 		{
-			if (IStaticMesh* pStaticMesh = mpResourceManager->GetResource<IStaticMesh>(mpResourceManager->Load<CStaticMesh>(pStaticMeshContainer->GetMeshName())))
+			if (IStaticMesh* pStaticMesh = mpResourceManager->GetResource<IStaticMesh>(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName())))
 			{
 				auto&& vertices = pStaticMesh->GetPositionsArray();
 

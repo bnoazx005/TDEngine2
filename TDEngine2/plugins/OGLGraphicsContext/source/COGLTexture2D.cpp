@@ -27,7 +27,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<CBaseTexture2D>();
+		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<ITexture2D>();
 
 		if (!pResourceLoader)
 		{
@@ -239,7 +239,7 @@ namespace TDEngine2
 
 	TypeId COGLTexture2DFactory::GetResourceTypeId() const
 	{
-		return CBaseTexture2D::GetTypeId();
+		return ITexture2D::GetTypeId();
 	}
 
 

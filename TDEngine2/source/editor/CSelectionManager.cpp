@@ -236,8 +236,8 @@ namespace TDEngine2
 		{
 			TTexture2DParameters renderTargetParams { width, height, FT_UINT1, 1, 1, 0 };
 
-			mSelectionGeometryBufferHandle = mpResourceManager->Create<CBaseRenderTarget>("SelectionBuffer", renderTargetParams);
-			mReadableSelectionBufferHandle = mpResourceManager->Create<CBaseTexture2D>("SelectionBufferCPUCopy", renderTargetParams);
+			mSelectionGeometryBufferHandle = mpResourceManager->Create<IRenderTarget>("SelectionBuffer", renderTargetParams);
+			mReadableSelectionBufferHandle = mpResourceManager->Create<ITexture2D>("SelectionBufferCPUCopy", renderTargetParams);
 		}
 
 		mWindowHeaderHeight = height - mpWindowSystem->GetClientRect().height;
