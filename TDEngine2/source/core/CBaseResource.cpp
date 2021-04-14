@@ -24,6 +24,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mId = mpResourceManager->GetResourceId(mName); /// \todo Should a resource store mId at all?
+
 		mState = E_RESOURCE_STATE_TYPE::RST_PENDING;
 
 		E_RESULT_CODE result = pResourceLoader->LoadResource(this);
@@ -105,8 +107,6 @@ namespace TDEngine2
 		mpResourceManager = pResourceManager;
 
 		mName = name;
-
-		mId = mpResourceManager->GetResourceId(mName); /// \todo Should a resource store mId at all?
 
 		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
 
