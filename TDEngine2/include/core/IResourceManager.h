@@ -148,6 +148,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE UnregisterFactory(const TResourceFactoryId& resourceFactoryId) = 0;
+
+			/*!
+				\brief The method registers an alternative type that's used when a factory of original one isn't allowed
+
+				\param[in] inputResourceType An original resource type (resource interface type)
+				\param[in] aliasType An alternative of the original type that's used to seek off a factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterResourceTypeAlias(TypeId inputResourceType, TypeId aliasType) = 0;
 			
 			/*!
 				\brief The method creates a new instance of specified type. If there is existing resource of type T with

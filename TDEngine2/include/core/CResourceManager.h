@@ -57,6 +57,8 @@ namespace TDEngine2
 			typedef std::unordered_map<std::string, TResourceId>    TResourcesMap;
 
 			typedef CResourceContainer<IResource*>                  TResourcesContainer;
+
+			typedef std::vector<std::tuple<TypeId, TypeId>>         TResourceTypesAliasesMap;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -117,6 +119,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE UnregisterFactory(const TResourceFactoryId& resourceFactoryId) override;
+
+			/*!
+				\brief The method registers an alternative type that's used when a factory of original one isn't allowed
+
+				\param[in] inputResourceType An original resource type (resource interface type)
+				\param[in] aliasType An alternative of the original type that's used to seek off a factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RegisterResourceTypeAlias(TypeId inputResourceType, TypeId aliasType) override;
 
 			/*!
 				\brief The method loads specified type of a resource using its name. This version is the same
@@ -181,6 +194,7 @@ namespace TDEngine2
 			TDE2_API IResource* _getResourceInternal(const TResourceId& handle) const;
 
 			TDE2_API const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const override;
+			TDE2_API const IResourceFactory* _getResourceFactory(TypeId resourceTypeId) const;
 
 			TDE2_API std::vector<std::string> _getResourcesListByType(TypeId resourceTypeId) const override;
 
@@ -199,6 +213,8 @@ namespace TDEngine2
 			TResourcesMap               mResourcesMap;
 
 			TResourcesContainer         mResources;
+
+			TResourceTypesAliasesMap    mResourceTypesAliases;
 
 			IJobManager*                mpJobManager;
 

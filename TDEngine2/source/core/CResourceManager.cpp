@@ -4,6 +4,7 @@
 #include "../../include/core/IResourceFactory.h"
 #include "../../include/core/IResource.h"
 #include <memory>
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -165,6 +166,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CResourceManager::RegisterResourceTypeAlias(TypeId inputResourceType, TypeId aliasType)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (TypeId::Invalid == inputResourceType || TypeId::Invalid == aliasType)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto it = std::find_if(mResourceTypesAliases.cbegin(), mResourceTypesAliases.cend(), [inputResourceType, aliasType](auto&& entity)
+		{
+			return std::get<0>(entity) == inputResourceType && std::get<1>(entity) == aliasType;
+		});
+
+		if (it != mResourceTypesAliases.cend())
+		{
+			return RC_FAIL; /// \note There is a duplicate already
+		}
+
+		mResourceTypesAliases.emplace_back(inputResourceType, aliasType);
+
+		return RC_OK;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CResourceManager::GetType() const
 	{
 		return EST_RESOURCE_MANAGER;
@@ -237,14 +262,12 @@ namespace TDEngine2
 			return TResourceId::Invalid;
 		}
 
-		/// \note Create a new resource and load it				
-		auto factoryIdIter = mResourceFactoriesMap.find(factoryTypeId);
-		if (factoryIdIter == mResourceFactoriesMap.cend())
+		/// \note Create a new resource and load it	
+		const IResourceFactory* pResourceFactory = _getResourceFactory(factoryTypeId);
+		if (!pResourceFactory)
 		{
 			return TResourceId::Invalid;
 		}
-
-		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1].Get();
 
 		IResource* pResource = pResourceFactory->CreateDefault(name, {});
 
@@ -342,6 +365,43 @@ namespace TDEngine2
 		}
 
 		return mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderIdIter->second) - 1].GetOrDefault(nullptr);
+	}
+
+	const IResourceFactory* CResourceManager::_getResourceFactory(TypeId resourceTypeId) const
+	{
+		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
+
+		auto getFactoryInternal = [&factoryIdIter, this]() -> const IResourceFactory*
+		{
+			if (auto getFactoryResult = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1])
+			{
+				return getFactoryResult.Get();
+			}
+
+			return nullptr;
+		};
+
+		if (factoryIdIter == mResourceFactoriesMap.cend())
+		{
+			/// \note We haven't found factory, try to find an alias type and its corresponding factory
+			for (auto&& currResourceAliasInfo : mResourceTypesAliases)
+			{
+				if (std::get<0>(currResourceAliasInfo) != resourceTypeId)
+				{
+					continue;
+				}
+
+				factoryIdIter = mResourceFactoriesMap.find(std::get<1>(currResourceAliasInfo));
+				if (factoryIdIter != mResourceFactoriesMap.cend())
+				{
+					return getFactoryInternal();
+				}
+			}
+
+			return nullptr;
+		}
+
+		return getFactoryInternal();
 	}
 
 	std::vector<std::string> CResourceManager::_getResourcesListByType(TypeId resourceTypeId) const
