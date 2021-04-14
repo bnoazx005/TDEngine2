@@ -15,6 +15,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		const IResourceLoader* pResourceLoader = _getResourceLoader();
 
 		if (!pResourceLoader)
@@ -40,6 +42,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseResource::Unload()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
 		return Reset();
 	}
 
@@ -50,12 +53,25 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = Unload();
+		--mRefCounter;
 
-		mIsInitialized = false;
-		delete this;
+		E_RESULT_CODE result = RC_OK;
+
+		if (!mRefCounter)
+		{
+			result = Unload();
+
+			mIsInitialized = false;
+			delete this;
+		}
 
 		return result;
+	}
+
+	void CBaseResource::SetState(E_RESOURCE_STATE_TYPE state)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mState = state;
 	}
 
 	TDE2_API TResourceId CBaseResource::GetId() const
@@ -70,6 +86,7 @@ namespace TDEngine2
 
 	TDE2_API E_RESOURCE_STATE_TYPE CBaseResource::GetState() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
 		return mState;
 	}
 

@@ -232,6 +232,8 @@ namespace TDEngine2
 
 	TResourceId CResourceManager::_loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name)
 	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+
 		auto&& iter = mResourcesMap.find(name);
 		if ((iter != mResourcesMap.cend()) && (iter->second != TResourceId::Invalid)) /// needed resource already exists
 		{

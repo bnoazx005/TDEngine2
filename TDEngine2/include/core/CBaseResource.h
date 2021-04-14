@@ -54,6 +54,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Unload() override;
 
 			/*!
+				\brief The method changes current state of the resource (don't use it manually)
+			*/
+
+			TDE2_API void SetState(E_RESOURCE_STATE_TYPE state) override;
+
+			/*!
 				\brief The method resets current internal data of a resource
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

@@ -22,9 +22,9 @@ namespace TDEngine2
 	*/
 
 #define TDE2_REGISTER_RESOURCE_TYPE(Type)						\
-		TDE2_API virtual TypeId GetResourceTypeId() const	\
-		{													\
-			return Type::GetTypeId();						\
+		TDE2_API virtual TypeId GetResourceTypeId() const		\
+		{														\
+			return Type::GetTypeId();							\
 		}
 
 
@@ -62,6 +62,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Reset() = 0;
+
+			/*!
+				\brief The method changes current state of the resource (don't use it manually)
+			*/
+
+			TDE2_API virtual void SetState(E_RESOURCE_STATE_TYPE state) = 0;
 
 			/*!
 				\brief The method returns an identifier of a resource
