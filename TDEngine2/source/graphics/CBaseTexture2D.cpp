@@ -2,6 +2,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -187,66 +188,81 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		I32 width  = 0;
+		IJobManager* pJobManager = mpFileSystem->GetJobManager();
+		
+		I32 width = 0;
 		I32 height = 0;
 		I32 format = 0;
 
-		std::string filename = mpFileSystem->ResolveVirtualPath(pResource->GetName(), false);
-		
+		const std::string filename = mpFileSystem->ResolveVirtualPath(pResource->GetName(), false);
+
 		U8* pTextureData = nullptr;
-		
+
 		if (!stbi_info(filename.c_str(), &width, &height, &format))
 		{
 			return RC_FILE_NOT_FOUND;
 		}
 
-		pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4));/// D3D11 doesn't work with 24 bits textures
-
-		if (!pTextureData)
+		pJobManager->SubmitJob(std::function<void()>([pResource, pJobManager, w = width, h = height, fmt = format, filename, this]
 		{
-			return RC_FAIL;
-		}
-		
-		E_FORMAT_TYPE internalFormat = FT_NORM_UBYTE4;
+			U8* pTextureData = nullptr;
 
-		switch (format)
-		{
-			case 1:
-				internalFormat = FT_NORM_UBYTE1;
-				break;
-			case 2:
-				internalFormat = FT_NORM_UBYTE2;
-				break;
-		}
+			I32 width = w;
+			I32 height = h;
+			I32 format = fmt;
 
-		/// reset old texture data
-		E_RESULT_CODE result = pResource->Reset();
+			pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4));/// D3D11 doesn't work with 24 bits textures
 
-		if (result != RC_OK)
-		{
-			return result;
-		}
+			if (!pTextureData)
+			{
+				return;
+			}
 
-		/// create new internal texture
-		ITexture2D* pTextureResource = dynamic_cast<ITexture2D*>(pResource);
-		
-		/// \todo replace magic constants with proper computations
-		result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), { static_cast<U32>(width), static_cast<U32>(height), internalFormat, 1, 1, 0 });
+			E_FORMAT_TYPE internalFormat = FT_NORM_UBYTE4;
 
-		if (result != RC_OK)
-		{
-			/// \todo restore default 2x2 black texture if something went wrong
+			switch (format)
+			{
+				case 1:
+					internalFormat = FT_NORM_UBYTE1;
+					break;
+				case 2:
+					internalFormat = FT_NORM_UBYTE2;
+					break;
+			}
 
-			return result;
-		}
+			pJobManager->ExecuteInMainThread([pResource, pTextureData, width, height, internalFormat, this]
+			{
+				/// reset old texture data
+				E_RESULT_CODE result = pResource->Reset();
+				if (RC_OK != result)
+				{
+					TDE2_ASSERT(false);
+					return;
+				}
 
-		/// update subresource
-		if ((result = pTextureResource->WriteData({ 0, 0, width, height }, pTextureData)) != RC_OK)
-		{
-			return result;
-		}
+				/// create new internal texture
+				ITexture2D* pTextureResource = dynamic_cast<ITexture2D*>(pResource);
 
-		stbi_image_free(pTextureData);
+				/// \todo replace magic constants with proper computations
+				result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), { static_cast<U32>(width), static_cast<U32>(height), internalFormat, 1, 1, 0 });
+
+				if (RC_OK != result)
+				{
+					/// \todo restore default 2x2 black texture if something went wrong
+					TDE2_ASSERT(false);
+					return;
+				}
+
+				/// update subresource
+				if (RC_OK != (result = pTextureResource->WriteData({ 0, 0, width, height }, pTextureData)))
+				{
+					TDE2_ASSERT(false);
+					return;
+				}
+
+				stbi_image_free(pTextureData);
+			});
+		}));
 		
 		return RC_OK;
 	}
