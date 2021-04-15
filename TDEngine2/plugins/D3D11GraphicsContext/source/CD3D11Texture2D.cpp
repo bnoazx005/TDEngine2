@@ -286,8 +286,13 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
+		const static TTexture2DParameters defaultTextureParams { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 };
+
+		TTexture2DParameters overridenParams = defaultTextureParams;
+		overridenParams.mLoadingPolicy = params.mLoadingPolicy;
+
 		// create blank texture, which sizes equals to 2 x 2 pixels of RGBA format
-		return dynamic_cast<IResource*>(CreateD3D11Texture2D(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
+		return dynamic_cast<IResource*>(CreateD3D11Texture2D(mpResourceManager, mpGraphicsContext, name, overridenParams, result));
 	}
 
 	TypeId CD3D11Texture2DFactory::GetResourceTypeId() const

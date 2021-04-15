@@ -164,6 +164,27 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE RegisterResourceTypeAlias(TypeId inputResourceType, TypeId aliasType) = 0;
 			
 			/*!
+				\brief The method allows to define a global loading policy for specified type of a resource
+
+				\param[in] resourceType A type of a resource for which the policy should be added
+				\param[in] policy A type of loading that will be applied for all resources of given type
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterTypeGlobalLoadingPolicy(TypeId resourceType, E_RESOURCE_LOADING_POLICY policy) = 0;
+
+			/*!
+				\brief The method allows to remove previously registered a global loading policy for specified type of a resource
+
+				\param[in] resourceType A type of a resource for which the policy should be unregistered
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE UnregisterTypeGlobalLoadingPolicy(TypeId resourceType) = 0;
+
+			/*!
 				\brief The method creates a new instance of specified type. If there is existing resource of type T with
 				specified name it will be returned as a result
 

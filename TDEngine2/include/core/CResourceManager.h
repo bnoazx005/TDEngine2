@@ -59,6 +59,8 @@ namespace TDEngine2
 			typedef CResourceContainer<IResource*>                  TResourcesContainer;
 
 			typedef std::vector<std::tuple<TypeId, TypeId>>         TResourceTypesAliasesMap;
+
+			typedef std::unordered_map<TypeId, E_RESOURCE_LOADING_POLICY> TResourceTypesPoliciesMap;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -130,6 +132,27 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE RegisterResourceTypeAlias(TypeId inputResourceType, TypeId aliasType) override;
+
+			/*!
+				\brief The method allows to define a global loading policy for specified type of a resource
+
+				\param[in] resourceType A type of a resource for which the policy should be added
+				\param[in] policy A type of loading that will be applied for all resources of given type
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RegisterTypeGlobalLoadingPolicy(TypeId resourceType, E_RESOURCE_LOADING_POLICY policy) override;
+
+			/*!
+				\brief The method allows to remove previously registered a global loading policy for specified type of a resource
+
+				\param[in] resourceType A type of a resource for which the policy should be unregistered
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE UnregisterTypeGlobalLoadingPolicy(TypeId resourceType) override;
 
 			/*!
 				\brief The method loads specified type of a resource using its name. This version is the same
@@ -215,6 +238,8 @@ namespace TDEngine2
 			TResourcesContainer         mResources;
 
 			TResourceTypesAliasesMap    mResourceTypesAliases;
+
+			TResourceTypesPoliciesMap   mResourceTypesPoliciesRegistry;
 
 			IJobManager*                mpJobManager;
 

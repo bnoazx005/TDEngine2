@@ -190,6 +190,42 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CResourceManager::RegisterTypeGlobalLoadingPolicy(TypeId resourceType, E_RESOURCE_LOADING_POLICY policy)
+	{
+		if (TypeId::Invalid == resourceType)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto it = mResourceTypesPoliciesRegistry.find(resourceType);
+		if (it != mResourceTypesPoliciesRegistry.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mResourceTypesPoliciesRegistry[resourceType] = policy;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CResourceManager::UnregisterTypeGlobalLoadingPolicy(TypeId resourceType)
+	{
+		if (TypeId::Invalid == resourceType)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto it = mResourceTypesPoliciesRegistry.find(resourceType);
+		if (it == mResourceTypesPoliciesRegistry.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mResourceTypesPoliciesRegistry.erase(it);
+
+		return RC_OK;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CResourceManager::GetType() const
 	{
 		return EST_RESOURCE_MANAGER;
@@ -271,8 +307,10 @@ namespace TDEngine2
 			return TResourceId::Invalid;
 		}
 
+		auto it = mResourceTypesPoliciesRegistry.find(resourceTypeId);
+
 		TBaseResourceParameters loadingParameters;
-		loadingParameters.mLoadingPolicy = loadingPolicy;
+		loadingParameters.mLoadingPolicy = (it == mResourceTypesPoliciesRegistry.cend()) ? loadingPolicy : it->second;
 
 		IResource* pResource = pResourceFactory->CreateDefault(name, loadingParameters);
 

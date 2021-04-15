@@ -37,9 +37,14 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (E_RESOURCE_LOADING_POLICY::SYNCED == mLoadingPolicy)
+		switch (mLoadingPolicy)
 		{
-			mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
+			case E_RESOURCE_LOADING_POLICY::SYNCED:
+				mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
+				break;
+			case E_RESOURCE_LOADING_POLICY::STREAMING:
+				mState = E_RESOURCE_STATE_TYPE::RST_LOADING;
+				break;
 		}
 
 		return result;

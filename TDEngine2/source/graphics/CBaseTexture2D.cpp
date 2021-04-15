@@ -262,6 +262,8 @@ namespace TDEngine2
 					return;
 				}
 
+				pResource->SetState(E_RESOURCE_STATE_TYPE::RST_LOADED);
+
 				stbi_image_free(pTextureData);
 			});
 		};
