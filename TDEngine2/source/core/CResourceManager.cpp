@@ -219,18 +219,18 @@ namespace TDEngine2
 		return (*resourceIter).second;
 	}
 
-	TResourceId CResourceManager::Load(const std::string& name, TypeId typeId)
+	TResourceId CResourceManager::Load(const std::string& name, TypeId typeId, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _loadResource(typeId, name);
+		return _loadResource(typeId, name, loadingPolicy);
 	}
 
-	TResourceId CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name)
+	TResourceId CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
-		return _loadResourceWithResourceProviderInfo(resourceTypeId, resourceTypeId, resourceTypeId, name);
+		return _loadResourceWithResourceProviderInfo(resourceTypeId, resourceTypeId, resourceTypeId, name, loadingPolicy);
 	}
 
-	TResourceId CResourceManager::_loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name)
+	TResourceId CResourceManager::_loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
 		//std::lock_guard<std::mutex> lock(mMutex);
 
@@ -250,7 +250,7 @@ namespace TDEngine2
 			{
 				if (E_RESOURCE_STATE_TYPE::RST_PENDING == pResource->GetState())
 				{
-					E_RESULT_CODE result = pResource->Load(); /// \todo move loading in the background thread
+					E_RESULT_CODE result = pResource->Load(); /// \note Load is executed in sequential manner, but internally it can create background tasks
 					if (RC_OK != result)
 					{
 						return TResourceId::Invalid;
@@ -271,13 +271,16 @@ namespace TDEngine2
 			return TResourceId::Invalid;
 		}
 
-		IResource* pResource = pResourceFactory->CreateDefault(name, {});
+		TBaseResourceParameters loadingParameters;
+		loadingParameters.mLoadingPolicy = loadingPolicy;
+
+		IResource* pResource = pResourceFactory->CreateDefault(name, loadingParameters);
 
 		const TResourceId resourceId = TResourceId(mResources.Add(pResource));
 
 		mResourcesMap[name] = resourceId;
 
-		pResource->Load(); /// \todo move loading in the background thread
+		pResource->Load(); /// \note Load is executed in sequential manner, but internally it can create background tasks
 
 		return resourceId;
 	}

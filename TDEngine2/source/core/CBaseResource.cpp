@@ -4,7 +4,7 @@
 namespace TDEngine2
 {
 	CBaseResource::CBaseResource() :
-		CBaseObject(), mId(TResourceId::Invalid), mState(E_RESOURCE_STATE_TYPE::RST_PENDING)
+		CBaseObject(), mId(TResourceId::Invalid), mState(E_RESOURCE_STATE_TYPE::RST_PENDING), mLoadingPolicy(E_RESOURCE_LOADING_POLICY::SYNCED)
 	{
 	}
 
@@ -37,7 +37,10 @@ namespace TDEngine2
 			return result;
 		}
 
-		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
+		if (E_RESOURCE_LOADING_POLICY::SYNCED == mLoadingPolicy)
+		{
+			mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
+		}
 
 		return result;
 	}
@@ -76,20 +79,26 @@ namespace TDEngine2
 		mState = state;
 	}
 
-	TDE2_API TResourceId CBaseResource::GetId() const
+	TResourceId CBaseResource::GetId() const
 	{
 		return mId;
 	}
 
-	TDE2_API const std::string& CBaseResource::GetName() const
+	const std::string& CBaseResource::GetName() const
 	{
 		return mName;
 	}
 
-	TDE2_API E_RESOURCE_STATE_TYPE CBaseResource::GetState() const
+	E_RESOURCE_STATE_TYPE CBaseResource::GetState() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mState;
+	}
+
+	E_RESOURCE_LOADING_POLICY CBaseResource::GetLoadingPolicy() const
+	{
+		//std::lock_guard<std::mutex> lock(mMutex);
+		return mLoadingPolicy;
 	}
 
 	TDE2_API E_RESULT_CODE CBaseResource::_init(IResourceManager* pResourceManager, const std::string& name)

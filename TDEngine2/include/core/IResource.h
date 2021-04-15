@@ -94,6 +94,12 @@ namespace TDEngine2
 			TDE2_API virtual E_RESOURCE_STATE_TYPE GetState() const = 0;
 
 			/*!
+				\return The method returns currently assigned policy for the resource
+			*/
+
+			TDE2_API virtual E_RESOURCE_LOADING_POLICY GetLoadingPolicy() const = 0;
+
+			/*!
 				\brief The method returns identtifier of the underlying type
 				\return The method returns identtifier of the underlying type
 			*/

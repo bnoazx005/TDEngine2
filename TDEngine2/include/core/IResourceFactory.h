@@ -31,6 +31,8 @@ namespace TDEngine2
 	typedef struct TBaseResourceParameters
 	{
 		TDE2_API virtual ~TBaseResourceParameters() = default;
+
+		E_RESOURCE_LOADING_POLICY mLoadingPolicy = E_RESOURCE_LOADING_POLICY::SYNCED;
 	} TBaseResourceParameters, *TBaseResourceParametersPtr;
 
 

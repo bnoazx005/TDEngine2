@@ -63,6 +63,8 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext = pGraphicsContext;
+
+		mLoadingPolicy = params.mLoadingPolicy;
 		
 		mWidth                = params.mWidth;
 		mHeight               = params.mHeight;
@@ -203,7 +205,7 @@ namespace TDEngine2
 			return RC_FILE_NOT_FOUND;
 		}
 
-		pJobManager->SubmitJob(std::function<void()>([pResource, pJobManager, w = width, h = height, fmt = format, filename, this]
+		auto loadTextureRoutine = [pResource, pJobManager, w = width, h = height, fmt = format, filename, this]
 		{
 			U8* pTextureData = nullptr;
 
@@ -222,12 +224,12 @@ namespace TDEngine2
 
 			switch (format)
 			{
-				case 1:
-					internalFormat = FT_NORM_UBYTE1;
-					break;
-				case 2:
-					internalFormat = FT_NORM_UBYTE2;
-					break;
+			case 1:
+				internalFormat = FT_NORM_UBYTE1;
+				break;
+			case 2:
+				internalFormat = FT_NORM_UBYTE2;
+				break;
 			}
 
 			pJobManager->ExecuteInMainThread([pResource, pTextureData, width, height, internalFormat, this]
@@ -262,7 +264,15 @@ namespace TDEngine2
 
 				stbi_image_free(pTextureData);
 			});
-		}));
+		};
+
+		if (E_RESOURCE_LOADING_POLICY::SYNCED == pResource->GetLoadingPolicy())
+		{
+			loadTextureRoutine();
+			return RC_OK;
+		}
+
+		pJobManager->SubmitJob(std::function<void()>(loadTextureRoutine));
 		
 		return RC_OK;
 	}

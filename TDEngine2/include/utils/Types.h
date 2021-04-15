@@ -455,21 +455,21 @@ namespace TDEngine2
 	};
 
 
-	TDE2_DECLARE_HANDLE_TYPE_EX(TResourceLoaderId, 0); ///< A resource loader's identifier
-	TDE2_DECLARE_HANDLE_TYPE_EX(TResourceFactoryId, 0); ///< A resource factory's identifier
-	
-
 	/*!
-		enum E_RESOURCE_ACCESS_TYPE
+		enum class E_RESOURCE_LOADING_POLICY
 
-		\brief The enumeration contains types of a resource's access
+		\brief The space of flags that defines whether a resource should be loaded in blocking manner or not
 	*/
 
-	enum E_RESOURCE_ACCESS_TYPE : U8
+	enum class E_RESOURCE_LOADING_POLICY : U8
 	{
-		RAT_BLOCKING,			///< An executation within a particular thread will be freezed until a resource will be loaded
-		RAT_STREAMING,			///< A resource's loading will be executed asynchronously, if the resource isn't loaded yet the default variant of it will be returned and updated later
+		SYNCED,
+		STREAMING,
 	};
+
+
+	TDE2_DECLARE_HANDLE_TYPE_EX(TResourceLoaderId, 0); ///< A resource loader's identifier
+	TDE2_DECLARE_HANDLE_TYPE_EX(TResourceFactoryId, 0); ///< A resource factory's identifier
 
 
 	/*!

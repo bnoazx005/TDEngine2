@@ -90,6 +90,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESOURCE_STATE_TYPE GetState() const override;
+
+			/*!
+				\return The method returns currently assigned policy for the resource
+			*/
+
+			TDE2_API E_RESOURCE_LOADING_POLICY GetLoadingPolicy() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseResource)
 
@@ -97,14 +103,16 @@ namespace TDEngine2
 
 			TDE2_API virtual const IResourceLoader* _getResourceLoader() = 0;
 		protected:
-			IResourceManager*     mpResourceManager;
+			IResourceManager*         mpResourceManager;
 
-			std::string           mName;					///< The name's value is unique for each resource
+			std::string               mName;					///< The name's value is unique for each resource
 
-			TResourceId           mId;						///< The id's value is unique for each resource. Used for cross-referencing
+			TResourceId               mId;						///< The id's value is unique for each resource. Used for cross-referencing
 
-			E_RESOURCE_STATE_TYPE mState;
+			E_RESOURCE_STATE_TYPE     mState;
 
-			mutable std::mutex    mMutex;
+			E_RESOURCE_LOADING_POLICY mLoadingPolicy;
+
+			mutable std::mutex        mMutex;
 	};
 }

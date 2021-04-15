@@ -77,6 +77,7 @@ namespace TDEngine2
 				\brief The method loads specified type of a resource using its name
 
 				\param[in] name A name of a resource that should be loaded
+				\param[in] loadingPolicy Determines a way the resource will be loaded. Does it block execution or runs in asynchrous manner
 
 				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
@@ -91,15 +92,16 @@ namespace TDEngine2
 #endif
 #endif
 			TResourceId
-			Load(const std::string& name)
+			Load(const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::SYNCED)
 			{
-				return _loadResource(T::GetTypeId(), name);
+				return _loadResource(T::GetTypeId(), name, loadingPolicy);
 			}
 
 			/*!
 				\brief The method loads specified type with particular factory and loader
 
 				\param[in] name A name of a resource that should be loaded
+				\param[in] loadingPolicy Determines a way the resource will be loaded. Does it block execution or runs in asynchrous manner
 
 				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
@@ -111,9 +113,9 @@ namespace TDEngine2
 #else
 			typename std::enable_if<std::is_base_of<IResource, T>::value, TResourceId>::type
 #endif
-			Load(const std::string& name)
+			Load(const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::SYNCED)
 			{
-				return _loadResourceWithResourceProviderInfo(T::GetTypeId(), TResourceProviderInfo::GetFactoryResourceId(), TResourceProviderInfo::GetLoaderResourceId(), name);
+				return _loadResourceWithResourceProviderInfo(T::GetTypeId(), TResourceProviderInfo::GetFactoryResourceId(), TResourceProviderInfo::GetLoaderResourceId(), name, loadingPolicy);
 			}
 
 			/*!
@@ -122,11 +124,12 @@ namespace TDEngine2
 
 				\param[in] name A name of a resource that should be loaded
 				\param[in] typeId A identifier of type which we try to load
+				\param[in] loadingPolicy Determines a way the resource will be loaded. Does it block execution or runs in asynchrous manner
 
 				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
 
-			TDE2_API virtual TResourceId Load(const std::string& name, TypeId typeId) = 0;
+			TDE2_API virtual TResourceId Load(const std::string& name, TypeId typeId, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::SYNCED) = 0;
 
 			/*!
 				\brief The method registers specified resource factory within a manager
@@ -263,8 +266,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)
 
-			TDE2_API virtual TResourceId _loadResource(TypeId resourceTypeId, const std::string& name) = 0;
-			TDE2_API virtual TResourceId _loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name) = 0;
+			TDE2_API virtual TResourceId _loadResource(TypeId resourceTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy) = 0;
+			TDE2_API virtual TResourceId _loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy) = 0;
 
 			TDE2_API virtual TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
 

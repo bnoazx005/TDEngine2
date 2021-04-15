@@ -141,7 +141,7 @@ namespace TDEngine2
 				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
 
-			TDE2_API TResourceId Load(const std::string& name, TypeId typeId) override;
+			TDE2_API TResourceId Load(const std::string& name, TypeId typeId, E_RESOURCE_LOADING_POLICY loadingPolicy) override;
 
 			/*!
 				\brief The method decrements internal reference counter of the resource which corresponds to given identifier
@@ -186,8 +186,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceManager)
 
-			TDE2_API TResourceId _loadResource(TypeId resourceTypeId, const std::string& name) override;
-			TDE2_API TResourceId _loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name) override;
+			TDE2_API TResourceId _loadResource(TypeId resourceTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy) override;
+			TDE2_API TResourceId _loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy) override;
 
 			TDE2_API TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
 			

@@ -65,11 +65,26 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static const auto MainThreadId = std::this_thread::get_id();
+
+
+	bool CBaseJobManager::IsMainThread()
+	{
+		return MainThreadId == std::this_thread::get_id();
+	}
+
 	E_RESULT_CODE CBaseJobManager::ExecuteInMainThread(const std::function<void()>& action)
 	{
 		if (!action)
 		{
 			return RC_INVALID_ARGS;
+		}
+
+		if (IsMainThread()) /// \note Execute immediately if already execute in the main thread
+		{
+			action();
+			return RC_OK;
 		}
 
 		std::lock_guard<std::mutex> lock(mMainThreadCallbacksQueueMutex);
