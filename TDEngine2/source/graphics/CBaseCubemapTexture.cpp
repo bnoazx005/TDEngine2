@@ -3,6 +3,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/Utils.h"
 #include "stringUtils.hpp"
@@ -33,6 +34,8 @@ namespace TDEngine2
 
 		mpGraphicsContext = pGraphicsContext;
 
+		mFacesLoadingStatusBitset = 0;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -53,6 +56,8 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext = pGraphicsContext;
+
+		mLoadingPolicy = params.mLoadingPolicy;
 
 		mWidth                = params.mWidth;
 		mHeight               = params.mHeight;
@@ -97,6 +102,15 @@ namespace TDEngine2
 	{
 		TDE2_UNIMPLEMENTED();
 		//mTextureSamplerParams.
+	}
+
+	void CBaseCubemapTexture::MarkFaceAsLoaded(E_CUBEMAP_FACE face)
+	{		
+		mFacesLoadingStatusBitset |= (1 << static_cast<U8>(face));
+		if (mFacesLoadingStatusBitset >= 0x3f)
+		{
+			mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
+		}
 	}
 
 	U32 CBaseCubemapTexture::GetWidth() const
@@ -189,9 +203,11 @@ namespace TDEngine2
 
 		TCubemapMetaInfo metaInfo = metaResult.Get();
 
+		TTexture2DParameters cubemapParams { metaInfo.mWidth, metaInfo.mHeight, metaInfo.mFormat, metaInfo.mMipLevelsCount, 1, 0 };
+		cubemapParams.mLoadingPolicy = pResource->GetLoadingPolicy();
+
 		/// \todo replace magic constants with proper computations
-		if ((result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), 
-											 { metaInfo.mWidth, metaInfo.mHeight, metaInfo.mFormat, metaInfo.mMipLevelsCount, 1, 0 })) != RC_OK)
+		if ((result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), cubemapParams)) != RC_OK)
 		{
 			return result;
 		}
@@ -256,8 +272,6 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseCubemapTextureLoader::_loadFaceTexture(ICubemapTexture* pCubemapTexture, const TCubemapMetaInfo& info, E_CUBEMAP_FACE face) const
 	{
-		U8* pTextureData = nullptr;
-
 		I32 width, height, format;
 
 		const std::string& filename = mpFileSystem->ResolveVirtualPath(info.mFaceTexturePaths[static_cast<U8>(face)], false);
@@ -272,35 +286,61 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4));/// D3D11 doesn't work with 24 bits textures
+		IJobManager* pJobManager = mpFileSystem->GetJobManager();
 
-		E_FORMAT_TYPE internalFormat = FT_NORM_UBYTE4;
-
-		switch (format)
+		auto loadTextureRoutine = [this, pJobManager, pCubemapTexture, info, face, filename, w = width, h = height, fmt = format] 
 		{
-			case 1:
-				internalFormat = FT_NORM_UBYTE1;
-				break;
-			case 2:
-				internalFormat = FT_NORM_UBYTE2;
-				break;
-		}
+			I32 width = w, height = h, format = fmt;
 
-		if (!pTextureData || (internalFormat != info.mFormat))
+			U8* pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4));/// D3D11 doesn't work with 24 bits textures
+
+			E_FORMAT_TYPE internalFormat = FT_NORM_UBYTE4;
+
+			switch (format)
+			{
+				case 1:
+					internalFormat = FT_NORM_UBYTE1;
+					break;
+				case 2:
+					internalFormat = FT_NORM_UBYTE2;
+					break;
+			}
+
+			if (!pTextureData || (internalFormat != info.mFormat))
+			{
+				TDE2_ASSERT(false);
+				return;
+			}
+
+			pJobManager->ExecuteInMainThread([pTextureData, pCubemapTexture, face, width, height]
+			{
+				E_RESULT_CODE result = RC_OK;
+
+				/// update subresource
+				if ((result = pCubemapTexture->WriteData(face, { 0, 0, width, height }, pTextureData)) != RC_OK)
+				{
+					TDE2_ASSERT(false);
+					return;
+				}
+
+				pCubemapTexture->MarkFaceAsLoaded(face);
+
+				stbi_image_free(pTextureData);
+			});
+		};
+
+
+		if (auto pResource = dynamic_cast<IResource*>(pCubemapTexture))
 		{
-			return RC_FAIL;
+			if (E_RESOURCE_LOADING_POLICY::SYNCED == pResource->GetLoadingPolicy())
+			{
+				loadTextureRoutine();
+				return RC_OK;
+			}
+
+			pJobManager->SubmitJob(std::function<void()>(loadTextureRoutine));
 		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		/// update subresource
-		if ((result = pCubemapTexture->WriteData(face, { 0, 0, width, height }, pTextureData)) != RC_OK)
-		{
-			return result;
-		}
-
-		stbi_image_free(pTextureData);
-
+		
 		return RC_OK;
 	}
 

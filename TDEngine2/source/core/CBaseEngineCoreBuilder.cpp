@@ -36,6 +36,7 @@
 #include "../../include/graphics/CTextureAtlas.h"
 #include "../../include/graphics/effects/CParticleEffect.h"
 #include "../../include/graphics/ITexture2D.h"
+#include "../../include/graphics/ICubemapTexture.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/editor/CEditorsManager.h"
@@ -235,6 +236,7 @@ namespace TDEngine2
 
 		/// \todo Replace it with reading policies from config file 
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ITexture2D::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
+		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ICubemapTexture::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 
 		return mpEngineCoreInstance->RegisterSubsystem(mpResourceManagerInstance);
 	}

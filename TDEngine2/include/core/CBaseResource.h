@@ -109,7 +109,7 @@ namespace TDEngine2
 
 			TResourceId               mId;						///< The id's value is unique for each resource. Used for cross-referencing
 
-			E_RESOURCE_STATE_TYPE     mState;
+			std::atomic<E_RESOURCE_STATE_TYPE> mState;
 
 			E_RESOURCE_LOADING_POLICY mLoadingPolicy;
 

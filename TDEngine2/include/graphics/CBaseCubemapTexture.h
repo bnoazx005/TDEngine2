@@ -95,6 +95,13 @@ namespace TDEngine2
 			TDE2_API void SetFilterType(const E_FILTER_TYPE& type) override;
 
 			/*!
+				\brief The method allows to mark one side of a cubemap as loaded one. When all the sides are loaded the resource
+				is marked as loaded.
+			*/
+
+			TDE2_API void MarkFaceAsLoaded(E_CUBEMAP_FACE face) override;
+
+			/*!
 				\brief The method returns a width of a texture
 
 				\return The method returns a width of a texture
@@ -139,6 +146,8 @@ namespace TDEngine2
 			U32                 mNumOfSamples;
 
 			U32                 mSamplingQuality;
+
+			std::atomic_uint8_t mFacesLoadingStatusBitset; /// \todo Refactor this later, each bit determines whether a face loaded or not
 
 			TTextureSamplerDesc mTextureSamplerParams;
 

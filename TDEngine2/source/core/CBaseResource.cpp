@@ -80,7 +80,6 @@ namespace TDEngine2
 
 	void CBaseResource::SetState(E_RESOURCE_STATE_TYPE state)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
 		mState = state;
 	}
 
@@ -96,7 +95,6 @@ namespace TDEngine2
 
 	E_RESOURCE_STATE_TYPE CBaseResource::GetState() const
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
 		return mState;
 	}
 

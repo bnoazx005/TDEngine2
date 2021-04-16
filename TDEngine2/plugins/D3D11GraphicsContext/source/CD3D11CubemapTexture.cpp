@@ -244,9 +244,14 @@ namespace TDEngine2
 	IResource* CD3D11CubemapTextureFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		E_RESULT_CODE result = RC_OK;
+
+		static const TTexture2DParameters defaultTextureParams { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 };
+
+		TTexture2DParameters currParams = defaultTextureParams;
+		currParams.mLoadingPolicy = params.mLoadingPolicy;
 		
 		// create blank texture, which sizes equals to 2 x 2 pixels of RGBA format
-		return dynamic_cast<IResource*>(CreateD3D11CubemapTexture(mpResourceManager, mpGraphicsContext, name, { 2, 2, FT_NORM_UBYTE4, 1, 1, 0 }, result));
+		return dynamic_cast<IResource*>(CreateD3D11CubemapTexture(mpResourceManager, mpGraphicsContext, name, currParams, result));
 	}
 
 	TypeId CD3D11CubemapTextureFactory::GetResourceTypeId() const

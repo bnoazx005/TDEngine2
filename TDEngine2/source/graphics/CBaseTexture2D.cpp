@@ -224,12 +224,12 @@ namespace TDEngine2
 
 			switch (format)
 			{
-			case 1:
-				internalFormat = FT_NORM_UBYTE1;
-				break;
-			case 2:
-				internalFormat = FT_NORM_UBYTE2;
-				break;
+				case 1:
+					internalFormat = FT_NORM_UBYTE1;
+					break;
+				case 2:
+					internalFormat = FT_NORM_UBYTE2;
+					break;
 			}
 
 			pJobManager->ExecuteInMainThread([pResource, pTextureData, width, height, internalFormat, this]

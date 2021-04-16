@@ -87,6 +87,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE WriteData(E_CUBEMAP_FACE face, const TRectI32& regionRect, const U8* pData) = 0;
+
+			/*!
+				\brief The method allows to mark one side of a cubemap as loaded one. When all the sides are loaded the resource
+				is marked as loaded.
+			*/
+
+			TDE2_API virtual void MarkFaceAsLoaded(E_CUBEMAP_FACE face) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICubemapTexture)
 	};
