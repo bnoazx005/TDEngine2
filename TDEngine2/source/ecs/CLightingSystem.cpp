@@ -131,6 +131,15 @@ namespace TDEngine2
 
 					if (IStaticMesh* pStaticMeshResource = mpResourceManager->GetResource<IStaticMesh>(meshResourceHandle))
 					{
+						/// \note Skip rest steps if the resource isn't loaded yet
+						if (IResource* pResource = mpResourceManager->GetResource<IResource>(meshResourceHandle))
+						{
+							if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState())
+							{
+								continue;
+							}
+						}
+
 						if (TDrawIndexedCommand* pDrawCommand = mpShadowPassRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex++))
 						{
 							pDrawCommand->mpVertexBuffer           = pStaticMeshResource->GetPositionOnlyVertexBuffer();

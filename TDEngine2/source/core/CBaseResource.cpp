@@ -15,8 +15,6 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		const IResourceLoader* pResourceLoader = _getResourceLoader();
 
 		if (!pResourceLoader)

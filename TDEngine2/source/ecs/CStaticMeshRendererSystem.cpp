@@ -168,8 +168,10 @@ namespace TDEngine2
 			auto pStaticMeshContainer = std::get<CStaticMeshContainer*>(*iter);
 			auto pTransform           = std::get<CTransform*>(*iter);
 
-			auto pSharedMeshResource = mpResourceManager->GetResource<IStaticMesh>(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName()));
-			if (!pSharedMeshResource)
+			const TResourceId sharedMeshId = mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
+
+			auto pSharedMeshResource = mpResourceManager->GetResource<IStaticMesh>(sharedMeshId);
+			if (!pSharedMeshResource || (pSharedMeshResource && (E_RESOURCE_STATE_TYPE::RST_LOADED != mpResourceManager->GetResource<IResource>(sharedMeshId)->GetState())))
 			{
 				++iter;
 				continue;

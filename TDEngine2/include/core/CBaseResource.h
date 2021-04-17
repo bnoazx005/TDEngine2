@@ -103,16 +103,16 @@ namespace TDEngine2
 
 			TDE2_API virtual const IResourceLoader* _getResourceLoader() = 0;
 		protected:
-			IResourceManager*         mpResourceManager;
+			IResourceManager*                  mpResourceManager;
 
-			std::string               mName;					///< The name's value is unique for each resource
+			std::string                        mName;					///< The name's value is unique for each resource
 
-			TResourceId               mId;						///< The id's value is unique for each resource. Used for cross-referencing
+			std::atomic<TResourceId>           mId;						///< The id's value is unique for each resource. Used for cross-referencing
 
 			std::atomic<E_RESOURCE_STATE_TYPE> mState;
 
-			E_RESOURCE_LOADING_POLICY mLoadingPolicy;
+			E_RESOURCE_LOADING_POLICY          mLoadingPolicy;
 
-			mutable std::mutex        mMutex;
+			mutable std::mutex                 mMutex;
 	};
 }

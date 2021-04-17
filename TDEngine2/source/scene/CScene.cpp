@@ -304,13 +304,6 @@ namespace TDEngine2
 		if (auto pStaticMeshContainer = pSkyboxEntity->AddComponent<CStaticMeshContainer>())
 		{
 			pStaticMeshContainer->SetMaterialName(skyboxMaterialName);
-
-			// \note Check whether Cube mesh exists or not
-			if (TResourceId::Invalid == pResourceManager->Load<IStaticMesh>("Cube"))
-			{
-				CStaticMesh::CreateCube(pResourceManager);
-			}
-
 			pStaticMeshContainer->SetMeshName("Cube");
 		}
 

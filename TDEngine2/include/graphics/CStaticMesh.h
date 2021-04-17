@@ -209,7 +209,7 @@ namespace TDEngine2
 				\return A pointer to static mesh of a cube
 			*/
 
-			TDE2_API static IStaticMesh* CreateCube(IResourceManager* pResourceManager);
+			TDE2_API static IStaticMesh* CreateCube(IResourceManager* pResourceManager, IJobManager* pJobManager);
 
 			/*!
 				\brief The function creates a new static mesh resource which is a 10x10 cells plane 
@@ -219,7 +219,7 @@ namespace TDEngine2
 				\return The function returns a pointer to a new static mesh resource which is a 10x10 cells plane 
 			*/
 
-			TDE2_API static IStaticMesh* CreatePlane(IResourceManager* pResourceManager);
+			TDE2_API static IStaticMesh* CreatePlane(IResourceManager* pResourceManager, IJobManager* pJobManager);
 
 			/*!
 				\brief The function creates a new spehere's mesh which is actually rounded cube to provide better uv mapping
@@ -229,11 +229,17 @@ namespace TDEngine2
 				\return The function creates a new spehere's mesh which is actually rounded cube to provide better uv mapping
 			*/
 
-			TDE2_API static IStaticMesh* CreateSphere(IResourceManager* pResourceManager);
+			TDE2_API static IStaticMesh* CreateSphere(IResourceManager* pResourceManager, IJobManager* pJobManager);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMesh)
 
+			TDE2_API std::vector<U8> _toArrayOfStructsDataLayoutInternal() const;
 			TDE2_API std::vector<U8> _getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const;
+
+			TDE2_API bool _hasColorsInternal() const;
+			TDE2_API bool _hasNormalsInternal() const;
+			TDE2_API bool _hasTangentsInternal() const;
+			TDE2_API bool _hasTexCoords0Internal() const;
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
