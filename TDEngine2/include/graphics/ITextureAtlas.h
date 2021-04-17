@@ -7,13 +7,13 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Config.h"
-#include "./../core/IResource.h"
-#include "./../core/IResourceLoader.h"
-#include "./../core/IResourceFactory.h"
+#include "../utils/Types.h"
+#include "../utils/Config.h"
+#include "../core/IResource.h"
+#include "../core/IResourceLoader.h"
+#include "../core/IResourceFactory.h"
+#include "../math/TRect.h"
 #include "ITexture.h"
-#include "./../math/TRect.h"
 
 
 namespace TDEngine2
@@ -32,7 +32,7 @@ namespace TDEngine2
 		\brief The interface describes a common functionality of a texture atlases
 	*/
 
-	class ITextureAtlas
+	class ITextureAtlas: public virtual IResource
 	{
 		public:
 			TDE2_REGISTER_TYPE(ITextureAtlas);

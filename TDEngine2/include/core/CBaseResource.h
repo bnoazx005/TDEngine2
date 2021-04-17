@@ -24,7 +24,7 @@ namespace TDEngine2
 		All concrete types of resources should derive it.
 	*/
 
-	class CBaseResource: public IResource, public CBaseObject
+	class CBaseResource: public virtual IResource, public CBaseObject
 	{
 		public:
 			TDE2_REGISTER_TYPE(CBaseResource)
