@@ -118,6 +118,12 @@ namespace TDEngine2
 
 			TDE2_API E_FORMAT_TYPE GetFormat() const override;
 
+			/*!
+				\return The method returns a rect of the texture in range [0.0f, 1.0f]
+			*/
+
+			TDE2_API TRectF32 GetNormalizedTextureRect() const override;
+
 			static TDE2_API TTextureSamplerId GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTexture2D)

@@ -966,12 +966,18 @@ namespace TDEngine2
 				{
 					mUsingMaterials.emplace(static_cast<U32>(textureHandle), pMaterial->CreateInstance()->GetInstanceId());
 				}
+				
+				ITexture* pTexture = mpResourceManager->GetResource<ITexture>(textureHandle);
 
-				pMaterial->SetTextureResource("Texture", dynamic_cast<ITexture*>(mpResourceManager->GetResource(textureHandle)), mUsingMaterials[textureHandleHash]);
+				pMaterial->SetTextureResource("Texture", pTexture, mUsingMaterials[textureHandleHash]);
 
 				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId));
 
+				auto&& uvRect = pTexture->GetNormalizedTextureRect();
+
 				pCurrDrawCommand->mObjectData.mModelMatrix = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
+				pCurrDrawCommand->mObjectData.mTextureTransformDesc = TVector4(uvRect.x, uvRect.y, uvRect.width, uvRect.height);
+
 				pCurrDrawCommand->mpVertexDeclaration      = mpEditorUIVertexDeclaration;
 				pCurrDrawCommand->mpVertexBuffer           = mpVertexBuffer;
 				pCurrDrawCommand->mpIndexBuffer            = mpIndexBuffer;

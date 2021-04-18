@@ -126,6 +126,11 @@ namespace TDEngine2
 		return mFormat;
 	}
 
+	TRectF32 CBaseTexture2D::GetNormalizedTextureRect() const
+	{
+		return { 0.0f, 0.0f, 1.0f, 1.0f };
+	}
+
 	TTextureSamplerId CBaseTexture2D::GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();

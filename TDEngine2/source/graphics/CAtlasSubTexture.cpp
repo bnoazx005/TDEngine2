@@ -125,6 +125,22 @@ namespace TDEngine2
 		return E_FORMAT_TYPE::FT_UNKNOWN;
 	}
 
+	TRectF32 CAtlasSubTexture::GetNormalizedTextureRect() const
+	{
+		if (ITextureAtlas* pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
+		{
+			if (ITexture2D* pTexture = pOwnerAtlas->GetTexture())
+			{
+				const F32 width = static_cast<F32>(pTexture->GetWidth());
+				const F32 height = static_cast<F32>(pTexture->GetHeight());
+
+				return { mTextureRectInfo.x / width, mTextureRectInfo.y / height, mTextureRectInfo.width / width, mTextureRectInfo.height / height };
+			}
+		}
+
+		return { 0.0f, 0.0f, 1.0f, 1.0f };
+	}
+
 	TTextureSamplerId CAtlasSubTexture::GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();

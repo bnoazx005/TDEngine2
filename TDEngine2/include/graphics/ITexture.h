@@ -9,6 +9,7 @@
 
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
+#include "../math/TRect.h"
 
 
 namespace TDEngine2
@@ -78,6 +79,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_FORMAT_TYPE GetFormat() const = 0;
+
+			/*!
+				\return The method returns a rect of the texture in range [0.0f, 1.0f]
+			*/
+
+			TDE2_API virtual TRectF32 GetNormalizedTextureRect() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITexture)
 	};

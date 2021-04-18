@@ -87,6 +87,11 @@ namespace TDEngine2
 		return mFormat;
 	}
 
+	TRectF32 CBaseRenderTarget::GetNormalizedTextureRect() const
+	{
+		return { 0.0f, 0.0f, 1.0f, 1.0f };
+	}
+
 	const IResourceLoader* CBaseRenderTarget::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IRenderTarget>();

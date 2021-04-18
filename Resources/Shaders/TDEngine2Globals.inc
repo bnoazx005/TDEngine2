@@ -41,6 +41,7 @@ CBUFFER_SECTION_EX(TDEngine2PerObject, 1)
 	float4x4 ModelMat;
 	float4x4 InvModelMat;
 	uint     ObjectID; // used for object picking
+	float4   MainTexture_TransformDesc; /// x, y - origin of uv space; z, w - scale of u and v axes
 CBUFFER_ENDSECTION
 
 
