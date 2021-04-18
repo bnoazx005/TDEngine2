@@ -157,6 +157,8 @@
 #include "graphics/effects/CParticleEmitterComponent.h"
 #include "graphics/effects/ParticleEmitters.h"
 #include "graphics/effects/TParticle.h"
+#include "graphics/IAtlasSubTexture.h"
+#include "graphics/CAtlasSubTexture.h"
 
 /// audio
 #include "audio/IAudioSource.h"

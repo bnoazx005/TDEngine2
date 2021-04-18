@@ -22,6 +22,7 @@ namespace TDEngine2
 	class IFileSystem;
 	class IGraphicsContext;
 	class ITexture2D;
+	class IAtlasSubTexture;
 
 
 	/*!
@@ -116,6 +117,8 @@ namespace TDEngine2
 			typedef std::vector<TTextureAtlasEntry>           TPendingDataArray;
 
 			typedef std::unordered_map<std::string, TRectI32> TAtlasRegistry;
+
+			typedef std::vector<IAtlasSubTexture*>             TAtlasSubTexturesArray;
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CTextureAtlas)
 			TDE2_REGISTER_TYPE(CTextureAtlas)
@@ -239,19 +242,23 @@ namespace TDEngine2
 
 			TDE2_API void _updateAtlasSizes(IResource* pTexture);
 
+			TDE2_API TResult<TResourceId> _createSubTexture(const std::string& id, const TRectI32& rect);
+
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext*      mpGraphicsContext;
 
-			TResourceId       mTextureResourceHandle;
+			TResourceId            mTextureResourceHandle;
 
-			TPendingDataArray mPendingData;
+			TPendingDataArray      mPendingData;
 
-			TAtlasRegistry    mAtlasEntities;
+			TAtlasRegistry         mAtlasEntities;
+			
+			TAtlasSubTexturesArray mpSubTextures;
 
-			U32               mWidth;
+			U32                    mWidth;
 
-			U32               mHeight;
+			U32                    mHeight;
 	};
 
 

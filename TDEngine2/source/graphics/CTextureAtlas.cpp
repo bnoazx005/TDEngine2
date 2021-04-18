@@ -4,6 +4,7 @@
 #include "../../include/core/CBaseFileSystem.h"
 #include "../../include/utils/Utils.h"
 #include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/graphics/IAtlasSubTexture.h"
 #include "../../include/core/IFile.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "stringUtils.hpp"
@@ -426,6 +427,8 @@ namespace TDEngine2
 			}
 
 			mAtlasEntities.insert({ currEntryName, currBounds });
+
+			_createSubTexture(currEntryName, currBounds);
 		}
 
 		if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
@@ -475,6 +478,23 @@ namespace TDEngine2
 
 		mWidth  = pTexture2D->GetWidth();
 		mHeight = pTexture2D->GetHeight();
+	}
+
+	TResult<TResourceId> CTextureAtlas::_createSubTexture(const std::string& id, const TRectI32& rect)
+	{
+		TAtlasSubTextureParameters subTextureParams;
+		subTextureParams.mTextureAtlasId = mId;
+		subTextureParams.mTextureRectInfo = rect;
+
+		TResourceId subTextureHandle = mpResourceManager->Create<IAtlasSubTexture>(id, subTextureParams);
+		if (TResourceId::Invalid == subTextureHandle)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		mpSubTextures.push_back(mpResourceManager->GetResource<IAtlasSubTexture>(subTextureHandle));
+
+		return Wrench::TOkValue<TResourceId>(subTextureHandle);
 	}
 
 	const IResourceLoader* CTextureAtlas::_getResourceLoader()

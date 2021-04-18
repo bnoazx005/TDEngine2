@@ -38,6 +38,7 @@
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/ICubemapTexture.h"
 #include "../../include/graphics/IMesh.h"
+#include "../../include/graphics/CAtlasSubTexture.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/editor/CEditorsManager.h"
@@ -239,6 +240,8 @@ namespace TDEngine2
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ITexture2D::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ICubemapTexture::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(IStaticMesh::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
+
+		mpResourceManagerInstance->RegisterResourceTypeAlias(ITexture2D::GetTypeId(), IAtlasSubTexture::GetTypeId());
 
 		return mpEngineCoreInstance->RegisterSubsystem(mpResourceManagerInstance);
 	}
@@ -684,6 +687,7 @@ namespace TDEngine2
 		{
 			{ CreateBaseMaterialLoader, CreateBaseMaterialFactory },
 			{ CreateTextureAtlasLoader, CreateTextureAtlasFactory },
+			{ CreateAtlasSubTextureLoader, CreateAtlasSubTextureFactory },
 			{ CreateStaticMeshLoader, CreateStaticMeshFactory },
 			{ CreateBasePostProcessingProfileLoader, CreateBasePostProcessingProfileFactory },
 			{ CreateAnimationClipLoader, CreateAnimationClipFactory },
