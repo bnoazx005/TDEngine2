@@ -636,6 +636,23 @@ namespace TDEngine2
 		return mpInstancesArray[static_cast<U32>(instanceId)];
 	}
 
+	ITexture* CBaseMaterial::GetTextureResource(const std::string& id, TMaterialInstanceId instanceId) const
+	{
+		auto it = mInstancesAssignedTextures.find(instanceId);
+		if (it == mInstancesAssignedTextures.cend())
+		{
+			return nullptr;
+		}
+
+		if (id.empty())
+		{
+			return it->second.begin()->second;
+		}
+
+		auto textureResourceIt = it->second.find(id);
+		return (textureResourceIt == it->second.cend()) ? nullptr : textureResourceIt->second;
+	}
+
 	TResult<IMaterialInstance*> CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
 	{
 		E_RESULT_CODE result = RC_FAIL;

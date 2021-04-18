@@ -360,6 +360,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<IMaterialInstance*> GetMaterialInstance(TMaterialInstanceId instanceId) const override;
+
+			/*!
+				\param[in] id An identifier of a texture (Empty literal will return first (main) texture)
+
+				\return The pointer to ITexture resource
+			*/
+
+			TDE2_API ITexture* GetTextureResource(const std::string& id, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 

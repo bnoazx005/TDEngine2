@@ -333,6 +333,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<IMaterialInstance*> GetMaterialInstance(TMaterialInstanceId instanceId) const = 0;
+
+			/*!
+				\param[in] id An identifier of a texture (Empty literal will return first (main) texture)
+
+				\return The pointer to ITexture resource
+			*/
+
+			TDE2_API virtual ITexture* GetTextureResource(const std::string& id, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
 

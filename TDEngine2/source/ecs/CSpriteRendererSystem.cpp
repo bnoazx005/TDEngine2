@@ -9,6 +9,7 @@
 #include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/CGraphicsLayersInfo.h"
+#include "../../include/graphics/ITexture.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/core/IResourceManager.h"
@@ -201,6 +202,9 @@ namespace TDEngine2
 				pCurrBatchInstancesBuffer->Unmap();
 			}
 
+			IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(currBatchEntry.mMaterialHandle);
+			ITexture* pMainTexture = pMaterial->GetTextureResource(Wrench::StringUtils::GetEmptyStr());
+
 			pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before
 
 			pCurrCommand->mpVertexBuffer           = mpSpriteVertexBuffer;
@@ -214,7 +218,11 @@ namespace TDEngine2
 			pCurrCommand->mpInstancingBuffer       = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
 			pCurrCommand->mMaterialHandle          = currBatchEntry.mMaterialHandle;
 			pCurrCommand->mpVertexDeclaration      = mpSpriteVertexDeclaration;
+
+			auto&& uvRect = pMainTexture->GetNormalizedTextureRect();
+
 			pCurrCommand->mObjectData.mModelMatrix = IdentityMatrix4;
+			pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
 
 			currBatchEntry.mpInstancesData->Clear();
 		}
