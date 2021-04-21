@@ -168,7 +168,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE AddRawTexture(const std::string& name, U32 width, U32 height, E_FORMAT_TYPE format, const U8* pData) override;
-			
+
+			/*!
+				\brief The method adds a specified texture into the atlas
+
+				\param[in] textureHandle A handle of texture's resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE AddTexture(TResourceId textureHandle) override;
+
 			/*!
 				\brief The method finalizes the process of packing textures into the atlas.
 				You should call it after all textures added into the atlas. True will be returned
@@ -237,6 +247,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<TRectF32> GetNormalizedTextureRect(const std::string& textureName) const override;
+
+			/*!
+				\return The vector that contains an identifiers of included texture items
+			*/
+
+			TDE2_API std::vector<std::string> GetTexturesIdentifiersList() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextureAtlas)
 

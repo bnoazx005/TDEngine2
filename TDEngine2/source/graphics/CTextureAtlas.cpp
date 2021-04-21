@@ -115,6 +115,42 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CTextureAtlas::AddTexture(TResourceId textureHandle)
+	{
+		if (TResourceId::Invalid == textureHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		ITexture2D* pTextureResource = mpResourceManager->GetResource<ITexture2D>(textureHandle);
+		if (!pTextureResource)
+		{
+			return RC_FAIL;
+		}
+
+		const std::string textureName = dynamic_cast<IResource*>(pTextureResource)->GetName();
+
+		/// \note check whether the texture's data is already within the atlas or not
+		if (std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&textureName](const TTextureAtlasEntry& entry)
+		{
+			return entry.mName == textureName;
+		}) != mPendingData.cend())
+		{
+			return RC_FAIL;
+		}
+
+		/// \note add a new entry
+		TRectI32 textureRect{ 0, 0, static_cast<I32>(pTextureResource->GetWidth()), static_cast<I32>(pTextureResource->GetHeight()) };
+
+		auto&& textureData = pTextureResource->GetInternalData();
+
+		TTextureAtlasEntry rootEntry{ textureName, textureRect, { &textureData[0], pTextureResource->GetFormat() } };
+
+		mPendingData.push_back(rootEntry);
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CTextureAtlas::Bake()
 	{
 		if (!mIsInitialized)
@@ -470,6 +506,18 @@ namespace TDEngine2
 									nonNormalizedRect.y * invHeight, 
 									nonNormalizedRect.width * invWidth, 
 									nonNormalizedRect.height * invHeight });
+	}
+
+	std::vector<std::string> CTextureAtlas::GetTexturesIdentifiersList() const
+	{
+		std::vector<std::string> output;
+		
+		for (auto&& currAtlasEntity : mAtlasEntities)
+		{
+			output.push_back(currAtlasEntity.first);
+		}
+		
+		return std::move(output);
 	}
 
 	void CTextureAtlas::_updateAtlasSizes(IResource* pTexture)

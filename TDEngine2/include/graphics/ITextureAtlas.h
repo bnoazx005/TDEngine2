@@ -14,6 +14,8 @@
 #include "../core/IResourceFactory.h"
 #include "../math/TRect.h"
 #include "ITexture.h"
+#include <vector>
+#include <string>
 
 
 namespace TDEngine2
@@ -84,6 +86,16 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE AddRawTexture(const std::string& name, U32 width, U32 height, E_FORMAT_TYPE format, const U8* pData) = 0;
 
 			/*!
+				\brief The method adds a specified texture into the atlas
+
+				\param[in] textureHandle A handle of texture's resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE AddTexture(TResourceId textureHandle) = 0;
+
+			/*!
 				\brief The method finalizes the process of packing textures into the atlas.
 				You should call it after all textures added into the atlas. True will be returned
 				in case when there is no enough space for packing all textures
@@ -143,6 +155,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<TRectF32> GetNormalizedTextureRect(const std::string& textureName) const = 0;
+
+			/*!
+				\return The vector that contains an identifiers of included texture items
+			*/
+
+			TDE2_API virtual std::vector<std::string> GetTexturesIdentifiersList() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITextureAtlas)
 	};
