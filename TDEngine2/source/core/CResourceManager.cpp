@@ -349,6 +349,8 @@ namespace TDEngine2
 
 		mResourcesMap[name] = resourceId;
 
+		pResource->OnCreated(this);
+
 		return resourceId;
 	}
 

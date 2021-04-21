@@ -64,6 +64,12 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Reset() = 0;
 
 			/*!
+				\brief The method is called after the resource has been created
+			*/
+
+			TDE2_API virtual void OnCreated(IResourceManager* pResourceManager) = 0;
+
+			/*!
 				\brief The method changes current state of the resource (don't use it manually)
 			*/
 

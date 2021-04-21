@@ -81,6 +81,12 @@ namespace TDEngine2
 		mState = state;
 	}
 
+	void CBaseResource::OnCreated(IResourceManager* pResourceManager)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mId = pResourceManager->GetResourceId(mName); // \note Update mId, because it's probably Invalid for now
+	}
+
 	TResourceId CBaseResource::GetId() const
 	{
 		return mId;
