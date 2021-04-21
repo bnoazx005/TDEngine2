@@ -45,6 +45,10 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		*/
 
 		void SetEngineInstance(TDEngine2::IEngineCore* pEngineCore) override;
+
+	protected:
+		void _drawMainMenu();
+
 	protected:
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
 
@@ -55,5 +59,9 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::IResourceManager* mpResourceManager;
 
 		TDEngine2::CScopedPtr<TDEngine2::CEditorWindow> mpEditorWindow;
+
+		TDEngine2::TResourceId       mCurrEditableAtlasId;
+
+		std::string                  mLastSavedPath;
 
 };

@@ -16,11 +16,13 @@ set(TDE2_TEX_PACKER_UTILITY_NAME "TDE2TexturesPacker")
 
 
 set(UTILITY_HEADERS
+	"${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse/argparse.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CUtilityListener.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CEditorWindow.h"
 	)
 
 set(UTILITY_SOURCES
+	"${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse/argparse.c"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CUtilityListener.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CEditorWindow.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp"

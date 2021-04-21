@@ -47,6 +47,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CEditorWindow::SetTextureAtlasResourceHandle(TResourceId atlasHandle)
+	{
+		mAtlasResourceHandle = atlasHandle;
+	}
+
 	void CEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -60,11 +65,73 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Textures List", isEnabled, params))
 		{
+			_drawTexturesList();
 		}
 
 		mpImGUIContext->EndWindow();
 
+		_drawTexturePreviewWindow();
+
 		mIsVisible = isEnabled;
+	}
+
+	void CEditorWindow::_drawTexturePreviewWindow()
+	{
+		bool isEnabled = mIsVisible;
+
+		static const IImGUIContext::TWindowParams params
+		{
+			ZeroVector2,
+			TVector2(150.0f, 150.0f),
+			TVector2(1000.0f, 1000.0f),
+		};
+
+		if (mpImGUIContext->BeginWindow("Preview Window", isEnabled, params))
+		{
+			if (ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle))
+			{
+				IResource* pTextureResource = dynamic_cast<IResource*>(pAtlasTexture->GetTexture());
+				mpImGUIContext->Image(pTextureResource->GetId(), TVector2(mpImGUIContext->GetWindowWidth() - 40.0f, mpImGUIContext->GetWindowHeight() - 40.0f));
+			}
+		}
+
+		mpImGUIContext->EndWindow();
+	}
+
+	void CEditorWindow::_drawTexturesList()
+	{
+		ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
+		if (!pAtlasTexture)
+		{
+			return;
+		}
+
+		const TVector2 sizes { mpImGUIContext->GetWindowWidth() - 20.0f, mpImGUIContext->GetWindowHeight() - 80.0f };
+
+		if (mpImGUIContext->BeginChildWindow("##ListWindow", sizes))
+		{
+			for (const std::string& currTextureId : pAtlasTexture->GetTexturesIdentifiersList())
+			{
+				mpImGUIContext->SelectableItem(currTextureId);
+			}
+		}
+
+		mpImGUIContext->EndWindow();		
+
+		/// \note Toolbar
+		mpImGUIContext->BeginHorizontal();		
+		mpImGUIContext->SetCursorScreenPos(mpImGUIContext->GetCursorScreenPos() + TVector2(0.0f, mpImGUIContext->GetWindowHeight() - 60.0f));
+
+		mpImGUIContext->Button("Add Texture", TVector2(sizes.x * 0.5f, 25.0f), [this]
+		{
+
+		});
+		mpImGUIContext->Button("Remove Texture", TVector2(sizes.x * 0.5f, 25.0f), [this]
+		{
+
+		});
+		
+		mpImGUIContext->EndHorizontal();
 	}
 
 

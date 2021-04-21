@@ -55,6 +55,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Free() override;
 
+			TDE2_API void SetTextureAtlasResourceHandle(TResourceId atlasHandle);
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorWindow)
 
@@ -65,8 +67,13 @@ namespace TDEngine2
 
 			TDE2_API void _onDraw() override;
 
+			TDE2_API void _drawTexturePreviewWindow();
+			TDE2_API void _drawTexturesList();
+
 		protected:
 			IResourceManager*     mpResourceManager;
 			IDesktopInputContext* mpInputContext;
+
+			TResourceId mAtlasResourceHandle;
 	};
 }
