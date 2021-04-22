@@ -190,6 +190,26 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Bake() override;
 
 			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+			/*!
 				\brief The method writes the information about texture atlas's content down onto disk
 
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
@@ -198,18 +218,8 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Serialize(IFileSystem* pFileSystem, const std::string& filename) override;
+			TDE2_API static E_RESULT_CODE Serialize(IFileSystem* pFileSystem, ITextureAtlas* pTextureAtlas, const std::string& filename);
 
-			/*!
-				\brief The method restores state of the texture atlas based on information from a given file
-
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) override;
 
 			/*!
 				\brief The method resets current internal data of a resource

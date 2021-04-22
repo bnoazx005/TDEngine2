@@ -84,9 +84,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	}
 	
 	pTexAtlas->Bake();
-	pTexAtlas->Serialize(pFileSystem, "atlas2.info");
+	//pTexAtlas->Serialize(pFileSystem, "atlas2.info");
 
-	pFontResource->Serialize(pFileSystem, "Arial2.font");
+	//pFontResource->Serialize(pFileSystem, "Arial2.font");
 
 	auto pTexture = pTexAtlas->GetTexture();
 

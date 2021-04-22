@@ -12,6 +12,7 @@
 #include "../core/IResource.h"
 #include "../core/IResourceLoader.h"
 #include "../core/IResourceFactory.h"
+#include "../core/Serialization.h"
 #include "../math/TRect.h"
 #include "ITexture.h"
 #include <vector>
@@ -34,7 +35,7 @@ namespace TDEngine2
 		\brief The interface describes a common functionality of a texture atlases
 	*/
 
-	class ITextureAtlas: public virtual IResource
+	class ITextureAtlas: public ISerializable
 	{
 		public:
 			TDE2_REGISTER_TYPE(ITextureAtlas);
@@ -104,28 +105,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Bake() = 0;
-
-			/*!
-				\brief The method writes the information about texture atlas's content down onto disk
-
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Serialize(IFileSystem* pFileSystem, const std::string& filename) = 0;
-
-			/*!
-				\brief The method restores state of the texture atlas based on information from a given file
-
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) = 0;
 
 			/*!
 				\brief The method returns a pointer to texture that is used with texture atlas

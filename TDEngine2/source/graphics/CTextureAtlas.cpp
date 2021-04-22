@@ -307,9 +307,9 @@ namespace TDEngine2
 		return hasInsertionFailed ? RC_FAIL : RC_OK;
 	}
 
-	E_RESULT_CODE CTextureAtlas::Serialize(IFileSystem* pFileSystem, const std::string& filename)
+	E_RESULT_CODE CTextureAtlas::Save(IArchiveWriter* pWriter)
 	{
-		if (!pFileSystem || filename.empty())
+		if (!pWriter)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -318,33 +318,30 @@ namespace TDEngine2
 
 		/// \note save texture atlas into an image file
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
-		pFileSystem->Get<IImageFileWriter>(pFileSystem->Open<IImageFileWriter>(mName + "_Tex.png", true).Get())->Write(pAtlasInternalTexture);
-		
-		/// \note try to create YAML file with the given name
-		auto pArchiveFile = pFileSystem->Get<IYAMLFileWriter>(pFileSystem->Open<IYAMLFileWriter>(filename, true).Get());
-
-		PANIC_ON_FAILURE(pArchiveFile->SetString("name", mName));
+	//	 ->Get<IImageFileWriter>(pFileSystem->Open<IImageFileWriter>(mName + "_Tex.png", true).Get())->Write(pAtlasInternalTexture);
+			
+		PANIC_ON_FAILURE(pWriter->SetString("name", mName));
 
 		E_RESULT_CODE result = RC_OK;
 
 		/// \note write texture's information
 		{
-			if ((result = pArchiveFile->BeginGroup("texture_resource")) != RC_OK)
+			if ((result = pWriter->BeginGroup("texture_resource")) != RC_OK)
 			{
 				return result;
 			}
 
-			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("width", pAtlasInternalTexture->GetWidth()));
-			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("height", pAtlasInternalTexture->GetHeight()));
-			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("channels_count", CFormatUtils::GetNumOfChannelsOfFormat(pAtlasInternalTexture->GetFormat())));
+			PANIC_ON_FAILURE(pWriter->SetUInt32("width", pAtlasInternalTexture->GetWidth()));
+			PANIC_ON_FAILURE(pWriter->SetUInt32("height", pAtlasInternalTexture->GetHeight()));
+			PANIC_ON_FAILURE(pWriter->SetUInt32("channels_count", CFormatUtils::GetNumOfChannelsOfFormat(pAtlasInternalTexture->GetFormat())));
 
-			if ((result = pArchiveFile->EndGroup()) != RC_OK)
+			if ((result = pWriter->EndGroup()) != RC_OK)
 			{
 				return result;
 			}
 		}
 
-		if ((result = pArchiveFile->BeginGroup("textures_list", true)) != RC_OK)
+		if ((result = pWriter->BeginGroup("textures_list", true)) != RC_OK)
 		{
 			return result;
 		}
@@ -355,38 +352,37 @@ namespace TDEngine2
 		{
 			currBounds = currTextureEntity.second;
 
-			if ((result = pArchiveFile->BeginGroup(Wrench::StringUtils::GetEmptyStr())) != RC_OK)
+			if ((result = pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr())) != RC_OK)
 			{
 				return result;
 			}
 
-			PANIC_ON_FAILURE(pArchiveFile->SetString("name", currTextureEntity.first));			
+			PANIC_ON_FAILURE(pWriter->SetString("name", currTextureEntity.first));
 
 			{
-				if ((result = pArchiveFile->BeginGroup("bounds")) != RC_OK)
+				if ((result = pWriter->BeginGroup("bounds")) != RC_OK)
 				{
 					return result;
 				}
 
-				PANIC_ON_FAILURE(pArchiveFile->SetInt32("x", currBounds.x));
-				PANIC_ON_FAILURE(pArchiveFile->SetInt32("y", currBounds.y));
-				PANIC_ON_FAILURE(pArchiveFile->SetInt32("width", currBounds.width));
-				PANIC_ON_FAILURE(pArchiveFile->SetInt32("height",currBounds.height));
+				PANIC_ON_FAILURE(pWriter->SetInt32("x", currBounds.x));
+				PANIC_ON_FAILURE(pWriter->SetInt32("y", currBounds.y));
+				PANIC_ON_FAILURE(pWriter->SetInt32("width", currBounds.width));
+				PANIC_ON_FAILURE(pWriter->SetInt32("height",currBounds.height));
 				
-				if ((result = pArchiveFile->EndGroup()) != RC_OK)
+				if ((result = pWriter->EndGroup()) != RC_OK)
 				{
 					return result;
 				}
 			}
 
-			if ((result = pArchiveFile->EndGroup()) != RC_OK)
+			if ((result = pWriter->EndGroup()) != RC_OK)
 			{
 				return result;
 			}
 		}
 
-		if ((result = pArchiveFile->EndGroup()) != RC_OK ||
-			(result = pArchiveFile->Close()) != RC_OK)
+		if ((result = pWriter->EndGroup()) != RC_OK)
 		{
 			return result;
 		}
@@ -394,26 +390,54 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CTextureAtlas::Deserialize(IFileSystem* pFileSystem, const std::string& filename)
+
+	E_RESULT_CODE CTextureAtlas::Serialize(IFileSystem* pFileSystem, ITextureAtlas* pTextureAtlas, const std::string& filename)
 	{
-		if (!mIsInitialized)
+		if (!pFileSystem || !pTextureAtlas || filename.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		ITexture2D* pAtlasInternalTexture = pTextureAtlas->GetTexture();
+
+		IResource* pAtlasResource = dynamic_cast<IResource*>(pTextureAtlas);
+		if (!pAtlasResource)
 		{
 			return RC_FAIL;
 		}
 
-		TResult<TFileEntryId> fileReadingResult = pFileSystem->Open<IYAMLFileReader>(filename);
+		std::string atlasName = pAtlasResource->GetName();
+		atlasName = atlasName.substr(0, atlasName.find_last_of('.'));
 
-		if (fileReadingResult.HasError())
+		/// \note save texture atlas into an image file
+		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
+		pFileSystem->Get<IImageFileWriter>(pFileSystem->Open<IImageFileWriter>(atlasName + "_Tex.png", true).Get())->Write(pAtlasInternalTexture);
+
+		/// \note try to create YAML file with the given name
+		if (auto archiveHandle = pFileSystem->Open<IYAMLFileWriter>(filename, true))
 		{
-			return fileReadingResult.GetError();
+			if (auto pArchiveFile = pFileSystem->Get<IYAMLFileWriter>(archiveHandle.Get()))
+			{
+				CDeferOperation _([pArchiveFile] { pArchiveFile->Close(); });
+				return pTextureAtlas->Save(pArchiveFile);
+			}
 		}
 
-		auto pYAMLFileReader = pFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
+		return RC_FAIL;
+	}
+
+
+	E_RESULT_CODE CTextureAtlas::Load(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		E_RESULT_CODE result = RC_OK;
 
 		/// \note load texture based on read parameters
-		mName = pYAMLFileReader->GetString("name");
+		mName = pReader->GetString("name");
 
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
 		mTextureResourceHandle = mpResourceManager->Load<ITexture2D>(mName + "_Tex.png");
@@ -421,7 +445,7 @@ namespace TDEngine2
 		/// \todo ansynchronously update sizes of the atlas when the texture has been loaded
 		_updateAtlasSizes(mpResourceManager->GetResource(mTextureResourceHandle));
 
-		if ((result = pYAMLFileReader->BeginGroup("textures_list")) != RC_OK)
+		if ((result = pReader->BeginGroup("textures_list")) != RC_OK)
 		{
 			return result;
 		}
@@ -430,34 +454,34 @@ namespace TDEngine2
 
 		TRectI32 currBounds;
 
-		while (pYAMLFileReader->HasNextItem())
+		while (pReader->HasNextItem())
 		{
-			if ((result = pYAMLFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr())) != RC_OK)
+			if ((result = pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr())) != RC_OK)
 			{
 				return result;
 			}
 
-			currEntryName = pYAMLFileReader->GetString("name");
+			currEntryName = pReader->GetString("name");
 
 			// \note read bounds information
 			{
-				if ((result = pYAMLFileReader->BeginGroup("bounds")) != RC_OK)
+				if ((result = pReader->BeginGroup("bounds")) != RC_OK)
 				{
 					return result;
 				}
 			
-				currBounds.x      = pYAMLFileReader->GetInt32("x");
-				currBounds.y      = pYAMLFileReader->GetInt32("y");
-				currBounds.width  = pYAMLFileReader->GetInt32("width");
-				currBounds.height = pYAMLFileReader->GetInt32("height");
+				currBounds.x      = pReader->GetInt32("x");
+				currBounds.y      = pReader->GetInt32("y");
+				currBounds.width  = pReader->GetInt32("width");
+				currBounds.height = pReader->GetInt32("height");
 
-				if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+				if ((result = pReader->EndGroup()) != RC_OK)
 				{
 					return result;
 				}
 			}
 
-			if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+			if ((result = pReader->EndGroup()) != RC_OK)
 			{
 				return result;
 			}
@@ -467,12 +491,12 @@ namespace TDEngine2
 			_createSubTexture(currEntryName, currBounds);
 		}
 
-		if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+		if ((result = pReader->EndGroup()) != RC_OK)
 		{
 			return result;
 		}
 
-		return pYAMLFileReader->Close();
+		return RC_OK;
 	}
 
 	ITexture2D* CTextureAtlas::GetTexture() const
@@ -613,12 +637,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTextureAtlasLoader::LoadResource(IResource* pResource) const
 	{
-		if (!mIsInitialized)
+		if (!pResource)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		return dynamic_cast<ITextureAtlas*>(pResource)->Deserialize(mpFileSystem, pResource->GetName() + ".info");
+		if (TResult<TFileEntryId> atlasFileId = mpFileSystem->Open<IYAMLFileReader>(pResource->GetName()))
+		{
+			return dynamic_cast<ITextureAtlas*>(pResource)->Load(mpFileSystem->Get<IYAMLFileReader>(atlasFileId.Get()));
+		}
+
+		return RC_FILE_NOT_FOUND;
 	}
 
 	TypeId CTextureAtlasLoader::GetResourceTypeId() const

@@ -8,8 +8,10 @@ E_RESULT_CODE CUtilityListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
+	mCurrEditableAtlasId = mpResourceManager->Create<ITextureAtlas>("NewAtlas", TTexture2DParameters{ 512, 512, FT_NORM_UBYTE4, 1, 1, 0 });
+
 	mpEditorWindow = dynamic_cast<CEditorWindow*>(TDEngine2::CreateEditorWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), result));
-	mpEditorWindow->SetTextureAtlasResourceHandle(mpResourceManager->Create<ITextureAtlas>("NewAtlas", TTexture2DParameters{ 512, 512, FT_NORM_UBYTE4, 1, 1, 0 }));
+	mpEditorWindow->SetTextureAtlasResourceHandle(mCurrEditableAtlasId);
 
 	return RC_OK;
 }
@@ -77,28 +79,12 @@ static E_RESULT_CODE SaveToFile(IFileSystem* pFileSystem, IResourceManager* pRes
 		return RC_INVALID_ARGS;
 	}
 
-	E_RESULT_CODE result = RC_OK;
-
-	if (auto openFileResult = pFileSystem->Open<IYAMLFileWriter>(destFilePath, true))
+	if (auto pAtlasTexture = pResourceManager->GetResource<ITextureAtlas>(resourceId))
 	{
-		if (auto pFileWriter = pFileSystem->Get<IYAMLFileWriter>(openFileResult.Get()))
-		{
-			if (auto pAtlasTexture = pResourceManager->GetResource<ITextureAtlas>(resourceId))
-			{
-				/*if (RC_OK != (result = pAtlasTexture->Ser(pFileWriter)))
-				{
-					return result;
-				}*/
-			}
-
-			if (RC_OK != (result = pFileWriter->Close()))
-			{
-				return result;
-			}
-		}
+		return CTextureAtlas::Serialize(pFileSystem, pAtlasTexture, destFilePath);
 	}
 
-	return RC_OK;
+	return RC_FAIL;
 }
 
 
