@@ -92,7 +92,7 @@ namespace TDEngine2
 #endif
 #endif
 			TResourceId
-			Load(const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::SYNCED)
+			Load(const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::DEFAULT)
 			{
 				return _loadResource(T::GetTypeId(), name, loadingPolicy);
 			}
@@ -113,7 +113,7 @@ namespace TDEngine2
 #else
 			typename std::enable_if<std::is_base_of<IResource, T>::value, TResourceId>::type
 #endif
-			Load(const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::SYNCED)
+			Load(const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::DEFAULT)
 			{
 				return _loadResourceWithResourceProviderInfo(T::GetTypeId(), TResourceProviderInfo::GetFactoryResourceId(), TResourceProviderInfo::GetLoaderResourceId(), name, loadingPolicy);
 			}
@@ -129,7 +129,7 @@ namespace TDEngine2
 				\return A handle of loaded resource, TResourceId::Invalid if some error has happened
 			*/
 
-			TDE2_API virtual TResourceId Load(const std::string& name, TypeId typeId, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::SYNCED) = 0;
+			TDE2_API virtual TResourceId Load(const std::string& name, TypeId typeId, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::DEFAULT) = 0;
 
 			/*!
 				\brief The method registers specified resource factory within a manager

@@ -146,7 +146,7 @@ namespace TDEngine2
 
 		if (auto openFileResult = mpWindowSystem->ShowOpenFileDialog(filters))
 		{
-			pAtlasTexture->AddTexture(mpResourceManager->Load<ITexture2D>(openFileResult.Get()));
+			pAtlasTexture->AddTexture(mpResourceManager->Load<ITexture2D>(openFileResult.Get(), E_RESOURCE_LOADING_POLICY::SYNCED));
 			pAtlasTexture->Bake();
 			return;
 		}

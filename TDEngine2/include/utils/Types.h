@@ -465,6 +465,7 @@ namespace TDEngine2
 	{
 		SYNCED,
 		STREAMING,
+		DEFAULT
 	};
 
 

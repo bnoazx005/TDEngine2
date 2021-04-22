@@ -310,7 +310,7 @@ namespace TDEngine2
 		auto it = mResourceTypesPoliciesRegistry.find(resourceTypeId);
 
 		TBaseResourceParameters loadingParameters;
-		loadingParameters.mLoadingPolicy = (it == mResourceTypesPoliciesRegistry.cend()) ? loadingPolicy : it->second;
+		loadingParameters.mLoadingPolicy = (E_RESOURCE_LOADING_POLICY::DEFAULT != loadingPolicy) || (it == mResourceTypesPoliciesRegistry.cend()) ? loadingPolicy : it->second;
 
 		IResource* pResource = pResourceFactory->CreateDefault(name, loadingParameters);
 
