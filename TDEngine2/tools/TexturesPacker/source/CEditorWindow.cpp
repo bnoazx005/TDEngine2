@@ -1,4 +1,7 @@
 #include "../include/CEditorWindow.h"
+#include <tuple>
+#include <vector>
+#include <string>
 
 
 namespace TDEngine2
@@ -8,20 +11,21 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CEditorWindow::Init(IResourceManager* pResourceManager, IInputContext* pInputContext)
+	E_RESULT_CODE CEditorWindow::Init(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pResourceManager || !pResourceManager)
+		if (!pResourceManager || !pResourceManager || !pWindowSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpResourceManager = pResourceManager;
 		mpInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext);
+		mpWindowSystem = pWindowSystem;
 
 		mIsInitialized = true;
 		mIsVisible = true;
@@ -122,10 +126,7 @@ namespace TDEngine2
 		mpImGUIContext->BeginHorizontal();		
 		mpImGUIContext->SetCursorScreenPos(mpImGUIContext->GetCursorScreenPos() + TVector2(0.0f, mpImGUIContext->GetWindowHeight() - 60.0f));
 
-		mpImGUIContext->Button("Add Texture", TVector2(sizes.x * 0.5f, 25.0f), [this]
-		{
-
-		});
+		mpImGUIContext->Button("Add Texture", TVector2(sizes.x * 0.5f, 25.0f), std::bind(&CEditorWindow::_addTextureToAtlasEventHandler, this));
 		mpImGUIContext->Button("Remove Texture", TVector2(sizes.x * 0.5f, 25.0f), [this]
 		{
 
@@ -134,9 +135,28 @@ namespace TDEngine2
 		mpImGUIContext->EndHorizontal();
 	}
 
-
-	TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result)
+	void CEditorWindow::_addTextureToAtlasEventHandler()
 	{
-		return CREATE_IMPL(IEditorWindow, CEditorWindow, result, pResourceManager, pInputContext);
+		static const std::vector<std::tuple<std::string, std::string>> filters
+		{
+			{ "Textures", "*.*" }
+		};
+
+		ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
+
+		if (auto openFileResult = mpWindowSystem->ShowOpenFileDialog(filters))
+		{
+			pAtlasTexture->AddTexture(mpResourceManager->Load<ITexture2D>(openFileResult.Get()));
+			pAtlasTexture->Bake();
+			return;
+		}
+
+		TDE2_UNREACHABLE();
+	}
+
+
+	TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IEditorWindow, CEditorWindow, result, pResourceManager, pInputContext, pWindowSystem);
 	}
 }

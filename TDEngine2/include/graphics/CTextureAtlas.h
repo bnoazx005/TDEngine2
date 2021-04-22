@@ -87,6 +87,7 @@ namespace TDEngine2
 				};
 
 				TDE2_API TTextureAtlasEntry(const std::string& name, const TRectI32& rect, const TRawTextureData& texture);
+				TDE2_API TTextureAtlasEntry(const std::string& name, const TRectI32& rect, ITexture2D* pTexture);
 
 				std::string mName;
 						    

@@ -23,6 +23,14 @@ namespace TDEngine2
 	{
 		mData.mRawTexture = texture;
 	}
+	
+	CTextureAtlas::TTextureAtlasEntry::TTextureAtlasEntry(const std::string& name, const TRectI32& rect, ITexture2D* pTexture) :
+		mName(name),
+		mRect(rect),
+		mIsRawData(false)
+	{
+		mData.mpTexture = pTexture;
+	}
 
 
 	CTextureAtlas::CTextureAtlas() :
@@ -142,9 +150,7 @@ namespace TDEngine2
 		/// \note add a new entry
 		TRectI32 textureRect{ 0, 0, static_cast<I32>(pTextureResource->GetWidth()), static_cast<I32>(pTextureResource->GetHeight()) };
 
-		auto&& textureData = pTextureResource->GetInternalData();
-
-		TTextureAtlasEntry rootEntry{ textureName, textureRect, { &textureData[0], pTextureResource->GetFormat() } };
+		TTextureAtlasEntry rootEntry{ textureName, textureRect, pTextureResource };
 
 		mPendingData.push_back(rootEntry);
 
@@ -284,13 +290,6 @@ namespace TDEngine2
 
 			pCurrTextureEntry = &mPendingData[pCurrSubdivisionEntry->mTextureEntryId];
 
-			if (!pCurrTextureEntry->mIsRawData)
-			{
-				/// \note for now we support only raw textures
-				/// \todo implement support of CBaseTexture2D based textures
-				TDE2_UNIMPLEMENTED();
-			}
-
 			textureRect = { pCurrSubdivisionEntry->mBounds.x,
 							pCurrSubdivisionEntry->mBounds.y,
 							pCurrTextureEntry->mRect.width,
@@ -298,7 +297,18 @@ namespace TDEngine2
 
 			mAtlasEntities[pCurrTextureEntry->mName] = textureRect;
 
-			assert(pAtlasInternalTexture->WriteData(textureRect, pCurrTextureEntry->mData.mRawTexture.mpData) == RC_OK);
+			if (!pCurrTextureEntry->mIsRawData)
+			{
+				auto&& textureData = pCurrTextureEntry->mData.mpTexture->GetInternalData();
+
+				E_RESULT_CODE result = pAtlasInternalTexture->WriteData(textureRect, &textureData.front());
+				TDE2_ASSERT(result == RC_OK);
+			}
+			else
+			{
+				E_RESULT_CODE result = pAtlasInternalTexture->WriteData(textureRect, pCurrTextureEntry->mData.mRawTexture.mpData);
+				TDE2_ASSERT(result == RC_OK);
+			}
 
 			areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
 			areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());

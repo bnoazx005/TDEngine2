@@ -1,4 +1,5 @@
 #include "../include/CUtilityListener.h"
+#include <functional>
 
 
 using namespace TDEngine2;
@@ -10,7 +11,7 @@ E_RESULT_CODE CUtilityListener::OnStart()
 
 	mCurrEditableAtlasId = mpResourceManager->Create<ITextureAtlas>("NewAtlas", TTexture2DParameters{ 512, 512, FT_NORM_UBYTE4, 1, 1, 0 });
 
-	mpEditorWindow = dynamic_cast<CEditorWindow*>(TDEngine2::CreateEditorWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), result));
+	mpEditorWindow = dynamic_cast<CEditorWindow*>(TDEngine2::CreateEditorWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, result));
 	mpEditorWindow->SetTextureAtlasResourceHandle(mCurrEditableAtlasId);
 
 	return RC_OK;
@@ -55,7 +56,8 @@ const TFileFiltersArray FileExtensionsFilter
 };
 
 
-static TResult<TResourceId> OpenFromFile(IWindowSystem* pWindowSystem, IFileSystem* pFileSystem, IResourceManager* pResourceManager, const TFileFiltersArray& filters)
+static TResult<TResourceId> OpenFromFile(IWindowSystem* pWindowSystem, IFileSystem* pFileSystem, IResourceManager* pResourceManager, const TFileFiltersArray& filters,
+										 const std::function<TResult<TResourceId>(const std::string&)>& onSuccessAction)
 {
 	if (!pWindowSystem || !pFileSystem || !pResourceManager)
 	{
@@ -68,7 +70,7 @@ static TResult<TResourceId> OpenFromFile(IWindowSystem* pWindowSystem, IFileSyst
 		return Wrench::TErrValue<E_RESULT_CODE>(openFileResult.GetError());
 	}
 
-	return Wrench::TOkValue<TResourceId>(pResourceManager->Load<ITextureAtlas>(openFileResult.Get()));
+	return onSuccessAction(openFileResult.Get());
 }
 
 
@@ -105,7 +107,10 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Open", "CTRL+O", [this, pFileSystem]
 			{
-				if (auto openFileResult = OpenFromFile(mpWindowSystem, pFileSystem, mpResourceManager, FileExtensionsFilter))
+				if (auto openFileResult = OpenFromFile(mpWindowSystem, pFileSystem, mpResourceManager, FileExtensionsFilter, [this](auto&& path)
+				{
+					return Wrench::TOkValue<TResourceId>(mpResourceManager->Load<ITextureAtlas>(path));
+				}))
 				{
 					mCurrEditableAtlasId = openFileResult.Get();
 
@@ -120,6 +125,11 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Save As...", "SHIFT+CTRL+S", [this, pFileSystem]
 			{
+				if (ITextureAtlas* pAtlas = mpResourceManager->GetResource<ITextureAtlas>(mCurrEditableAtlasId))
+				{
+					pAtlas->Bake();
+				}
+
 				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
 					mLastSavedPath = saveFileDialogResult.Get();
@@ -128,6 +138,16 @@ void CUtilityListener::_drawMainMenu()
 			});
 
 			imguiContext.MenuItem("Quit", "Ctrl+Q", [this] { mpEngineCoreInstance->Quit(); });
+		});
+
+		imguiContext.MenuGroup("View", [this, pFileSystem](IImGUIContext& imguiContext)
+		{
+			imguiContext.MenuItem("Refresh", "F5", [this] { 
+				if (ITextureAtlas* pAtlas = mpResourceManager->GetResource<ITextureAtlas>(mCurrEditableAtlasId))
+				{
+					pAtlas->Bake();
+				}
+			});
 		});
 	});
 }

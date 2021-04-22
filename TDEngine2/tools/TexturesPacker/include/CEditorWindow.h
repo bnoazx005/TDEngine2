@@ -22,7 +22,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -34,7 +34,7 @@ namespace TDEngine2
 	class CEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager*, IInputContext*, E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager*, IInputContext*, IWindowSystem*, E_RESULT_CODE&);
 
 		public:
 			/*!
@@ -45,7 +45,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IInputContext* pInputContext);
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -70,9 +70,12 @@ namespace TDEngine2
 			TDE2_API void _drawTexturePreviewWindow();
 			TDE2_API void _drawTexturesList();
 
+			TDE2_API void _addTextureToAtlasEventHandler();
+
 		protected:
 			IResourceManager*     mpResourceManager;
 			IDesktopInputContext* mpInputContext;
+			IWindowSystem*        mpWindowSystem;
 
 			TResourceId mAtlasResourceHandle;
 	};
