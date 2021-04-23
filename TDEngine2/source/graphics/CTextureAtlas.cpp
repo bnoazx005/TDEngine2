@@ -155,6 +155,35 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CTextureAtlas::RemoveTexture(const std::string& name)
+	{
+		if (name.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto it = std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&name](const TTextureAtlasEntry& entry) { return entry.mName == name; });
+		if (it == mPendingData.cend())
+		{
+			if (mAtlasEntities.find(name) == mAtlasEntities.cend())
+			{
+				return RC_FAIL;
+			}
+
+			mAtlasEntities.erase(name);
+			return RC_OK;
+		}
+
+		mPendingData.erase(it);
+
+		if (mAtlasEntities.find(name) != mAtlasEntities.cend())
+		{
+			mAtlasEntities.erase(name);
+		}
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CTextureAtlas::Bake()
 	{
 		if (!mIsInitialized)

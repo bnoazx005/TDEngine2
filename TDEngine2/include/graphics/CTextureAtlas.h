@@ -180,6 +180,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE AddTexture(TResourceId textureHandle) override;
 
+			TDE2_API E_RESULT_CODE RemoveTexture(const std::string& name) override;
+
 			/*!
 				\brief The method finalizes the process of packing textures into the atlas.
 				You should call it after all textures added into the atlas. True will be returned
