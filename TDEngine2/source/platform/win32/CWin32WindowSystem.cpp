@@ -360,8 +360,7 @@ namespace TDEngine2
 	{
 		OPENFILENAME openFileDialogDesc;       // common dialog box structure
 		
-		std::string outputFilepath;
-		outputFilepath.resize(255);
+		std::array<C8, 255> outputFilepath { 0 };
 
 		// \note Initialize OPENFILENAME
 		ZeroMemory(&openFileDialogDesc, sizeof(openFileDialogDesc));
@@ -379,7 +378,7 @@ namespace TDEngine2
 
 		if (GetOpenFileName(&openFileDialogDesc) == TRUE)
 		{
-			return Wrench::TOkValue<std::string>(outputFilepath);
+			return Wrench::TOkValue<std::string>(std::string(&outputFilepath.front()));
 		}
 
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
@@ -389,8 +388,7 @@ namespace TDEngine2
 	{
 		OPENFILENAME openFileDialogDesc;       // common dialog box structure
 
-		std::string outputFilepath;
-		outputFilepath.resize(255);
+		std::array<C8, 255> outputFilepath{ 0 };
 
 		// \note Initialize OPENFILENAME
 		ZeroMemory(&openFileDialogDesc, sizeof(openFileDialogDesc));
@@ -408,7 +406,7 @@ namespace TDEngine2
 
 		if (GetSaveFileName(&openFileDialogDesc) == TRUE)
 		{
-			return Wrench::TOkValue<std::string>(outputFilepath);
+			return Wrench::TOkValue<std::string>(std::string(&outputFilepath.front()));
 		}
 
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);

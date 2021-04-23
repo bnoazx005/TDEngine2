@@ -139,10 +139,8 @@ namespace TDEngine2
 		const std::string textureName = dynamic_cast<IResource*>(pTextureResource)->GetName();
 
 		/// \note check whether the texture's data is already within the atlas or not
-		if (std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&textureName](const TTextureAtlasEntry& entry)
-		{
-			return entry.mName == textureName;
-		}) != mPendingData.cend())
+		if (std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&textureName](const TTextureAtlasEntry& entry) { return entry.mName == textureName; }) != mPendingData.cend() ||
+		    mAtlasEntities.find(textureName) != mAtlasEntities.cend())
 		{
 			return RC_FAIL;
 		}
