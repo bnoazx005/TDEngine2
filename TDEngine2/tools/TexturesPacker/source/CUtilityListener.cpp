@@ -109,6 +109,11 @@ void CUtilityListener::_drawMainMenu()
 			{
 				if (auto openFileResult = OpenFromFile(mpWindowSystem, pFileSystem, mpResourceManager, FileExtensionsFilter, [this](auto&& path)
 				{
+					if (IResource* pAtlas = mpResourceManager->GetResource<IResource>(mCurrEditableAtlasId))
+					{
+						pAtlas->Unload();
+					}
+
 					return Wrench::TOkValue<TResourceId>(mpResourceManager->Load<ITextureAtlas>(path));
 				}))
 				{

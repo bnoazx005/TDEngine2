@@ -71,12 +71,15 @@ namespace TDEngine2
 			TDE2_API void _drawTexturesList();
 
 			TDE2_API void _addTextureToAtlasEventHandler();
+			TDE2_API void _removeTextureFromAtlasEventHandler();
 
 		protected:
 			IResourceManager*     mpResourceManager;
 			IDesktopInputContext* mpInputContext;
 			IWindowSystem*        mpWindowSystem;
 
-			TResourceId mAtlasResourceHandle;
+			I32                   mCurrSelectedTextureItem = -1;
+
+			TResourceId           mAtlasResourceHandle;
 	};
 }

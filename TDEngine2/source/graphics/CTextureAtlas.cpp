@@ -89,6 +89,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTextureAtlas::Reset()
 	{
+		mPendingData.clear();
+		mAtlasEntities.clear();
+
+		/// \todo
+
 		return RC_OK;
 	}
 

@@ -67,16 +67,16 @@ namespace TDEngine2
 			TVector2(1000.0f, 550.0f),
 		};
 
-		if (mpImGUIContext->BeginWindow("Textures List", isEnabled, params))
-		{
-			_drawTexturesList();
-		}
+if (mpImGUIContext->BeginWindow("Textures List", isEnabled, params))
+{
+	_drawTexturesList();
+}
 
-		mpImGUIContext->EndWindow();
+mpImGUIContext->EndWindow();
 
-		_drawTexturePreviewWindow();
+_drawTexturePreviewWindow();
 
-		mIsVisible = isEnabled;
+mIsVisible = isEnabled;
 	}
 
 	void CEditorWindow::_drawTexturePreviewWindow()
@@ -110,28 +110,30 @@ namespace TDEngine2
 			return;
 		}
 
-		const TVector2 sizes { mpImGUIContext->GetWindowWidth() - 20.0f, mpImGUIContext->GetWindowHeight() - 80.0f };
+		const TVector2 sizes{ mpImGUIContext->GetWindowWidth() - 20.0f, mpImGUIContext->GetWindowHeight() - 80.0f };
 
 		if (mpImGUIContext->BeginChildWindow("##ListWindow", sizes))
 		{
-			for (const std::string& currTextureId : pAtlasTexture->GetTexturesIdentifiersList())
+			auto&& texturesItems = pAtlasTexture->GetTexturesIdentifiersList();
+
+			for (U32 i = 0; i < texturesItems.size(); ++i)
 			{
-				mpImGUIContext->SelectableItem(currTextureId);
+				if (mpImGUIContext->SelectableItem(texturesItems[i], static_cast<U32>(mCurrSelectedTextureItem) == i))
+				{
+					mCurrSelectedTextureItem = static_cast<I32>(i);
+				}
 			}
 		}
 
-		mpImGUIContext->EndWindow();		
+		mpImGUIContext->EndWindow();
 
 		/// \note Toolbar
-		mpImGUIContext->BeginHorizontal();		
+		mpImGUIContext->BeginHorizontal();
 		mpImGUIContext->SetCursorScreenPos(mpImGUIContext->GetCursorScreenPos() + TVector2(0.0f, mpImGUIContext->GetWindowHeight() - 60.0f));
 
 		mpImGUIContext->Button("Add Texture", TVector2(sizes.x * 0.5f, 25.0f), std::bind(&CEditorWindow::_addTextureToAtlasEventHandler, this));
-		mpImGUIContext->Button("Remove Texture", TVector2(sizes.x * 0.5f, 25.0f), [this]
-		{
+		mpImGUIContext->Button("Remove Texture", TVector2(sizes.x * 0.5f, 25.0f), std::bind(&CEditorWindow::_removeTextureFromAtlasEventHandler, this));
 
-		});
-		
 		mpImGUIContext->EndHorizontal();
 	}
 
@@ -152,6 +154,29 @@ namespace TDEngine2
 		}
 
 		TDE2_UNREACHABLE();
+	}
+
+	void CEditorWindow::_removeTextureFromAtlasEventHandler()
+	{
+		ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
+		if (!pAtlasTexture)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		auto&& texturesItems = pAtlasTexture->GetTexturesIdentifiersList();
+
+		if (mCurrSelectedTextureItem < 0 || mCurrSelectedTextureItem >= static_cast<I32>(texturesItems.size()))
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		E_RESULT_CODE result = pAtlasTexture->RemoveTexture(texturesItems[mCurrSelectedTextureItem]);
+		result = result | pAtlasTexture->Bake();
+
+		TDE2_ASSERT(RC_OK == result);
 	}
 
 
