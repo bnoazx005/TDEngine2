@@ -48,6 +48,7 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 	protected:
 		void _drawMainMenu();
+		void _createNewAtlasModalWindow();
 
 	protected:
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
@@ -63,5 +64,12 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::TResourceId       mCurrEditableAtlasId;
 
 		std::string                  mLastSavedPath;
+
+		std::string                  mNewAtlasName;
+		TDEngine2::I32               mNewAtlasWidth = 2;
+		TDEngine2::I32               mNewAtlasHeight = 2;
+		TDEngine2::E_FORMAT_TYPE     mNewAtlasFormat = TDEngine2::E_FORMAT_TYPE::FT_NORM_UBYTE4;
+
+		static std::vector<std::string> mAvailableFormats;
 
 };

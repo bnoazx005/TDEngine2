@@ -67,16 +67,16 @@ namespace TDEngine2
 			TVector2(1000.0f, 550.0f),
 		};
 
-if (mpImGUIContext->BeginWindow("Textures List", isEnabled, params))
-{
-	_drawTexturesList();
-}
+		if (mpImGUIContext->BeginWindow("Textures List", isEnabled, params))
+		{
+			_drawTexturesList();
+		}
 
-mpImGUIContext->EndWindow();
+		mpImGUIContext->EndWindow();
 
-_drawTexturePreviewWindow();
+		_drawTexturePreviewWindow();
 
-mIsVisible = isEnabled;
+		mIsVisible = isEnabled;
 	}
 
 	void CEditorWindow::_drawTexturePreviewWindow()

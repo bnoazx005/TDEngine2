@@ -240,7 +240,7 @@ namespace TDEngine2
 
 	void CImGUIContext::IntField(const std::string& text, I32& value, const std::function<void()>& onValueChanged)
 	{
-		if (ImGui::InputInt(text.c_str(), &value, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
+		if (ImGui::InputInt(text.c_str(), &value, 1, 100, onValueChanged ? ImGuiInputTextFlags_EnterReturnsTrue : 0x0) && onValueChanged)
 		{
 			onValueChanged();
 		}
@@ -253,7 +253,7 @@ namespace TDEngine2
 		C8 buffer[512];
 		memcpy(buffer, value.c_str(), sizeof(buffer));
 
-		bool hasValueChanged = ImGui::InputText(text.c_str(), buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue);
+		bool hasValueChanged = ImGui::InputText(text.c_str(), buffer, sizeof(buffer), onValueChanged ? ImGuiInputTextFlags_EnterReturnsTrue : 0x0);
 
 		value.assign(buffer);
 
