@@ -23,7 +23,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material")))
 	{
-		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<ITextureAtlas>("atlas")))
+		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<ITextureAtlas>("atlas.info")))
 		{
 			pFontMaterial->SetTextureResource("FontTextureAtlas", pFontAtlas->GetTexture());
 		}

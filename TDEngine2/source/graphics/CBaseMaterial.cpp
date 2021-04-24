@@ -646,6 +646,11 @@ namespace TDEngine2
 
 		if (id.empty())
 		{
+			if (it->second.empty())
+			{
+				return nullptr;
+			}
+
 			return it->second.begin()->second;
 		}
 

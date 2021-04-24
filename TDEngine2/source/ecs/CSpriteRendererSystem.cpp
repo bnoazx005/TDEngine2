@@ -219,7 +219,7 @@ namespace TDEngine2
 			pCurrCommand->mMaterialHandle          = currBatchEntry.mMaterialHandle;
 			pCurrCommand->mpVertexDeclaration      = mpSpriteVertexDeclaration;
 
-			auto&& uvRect = pMainTexture->GetNormalizedTextureRect();
+			auto&& uvRect = pMainTexture ? pMainTexture->GetNormalizedTextureRect() : TRectF32 { 0.0f, 0.0f, 1.0f, 1.0f};
 
 			pCurrCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 			pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
