@@ -152,8 +152,6 @@ namespace TDEngine2
 			pAtlasTexture->Bake();
 			return;
 		}
-
-		TDE2_UNREACHABLE();
 	}
 
 	void CEditorWindow::_removeTextureFromAtlasEventHandler()

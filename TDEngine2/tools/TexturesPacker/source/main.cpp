@@ -10,9 +10,15 @@ using namespace TDEngine2;
 #endif
 
 
-I32 main(I32 argc, C8** argv)
+I32 main(I32 argc, const C8** argv)
 {
 	E_RESULT_CODE result = RC_OK;
+
+	auto parseOptionsResult = ParseOptions(argc, argv);
+	if (parseOptionsResult.HasError())
+	{
+		return parseOptionsResult.GetError();
+	}
 
 	IEngineCoreBuilder* pEngineCoreBuilder = CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result);
 
@@ -25,7 +31,7 @@ I32 main(I32 argc, C8** argv)
 
 	pEngineCoreBuilder->Free();
 	
-	std::unique_ptr<CUtilityListener> pUtilityListener = std::make_unique<CUtilityListener>();
+	std::unique_ptr<CUtilityListener> pUtilityListener = std::make_unique<CUtilityListener>(parseOptionsResult.Get());
 
 	pEngineCore->RegisterListener(pUtilityListener.get());
 

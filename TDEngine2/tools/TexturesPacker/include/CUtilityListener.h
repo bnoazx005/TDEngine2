@@ -9,11 +9,31 @@
 
 #include <TDEngine2.h>
 #include "CEditorWindow.h"
+#include <vector>
+#include <string>
+
+
+
+struct TUtilityOptions
+{
+	std::vector<std::string> mInputFiles;
+	std::string mOutputFilename;
+	bool mIsDefault = true;
+
+	std::string mAtlasName;
+	std::string mFormatStr;
+	std::string mBasePath; ///< The path that will be excluded from input files paths
+
+	TDEngine2::U32 mAtlasWidth;
+	TDEngine2::U32 mAtlasHeight;
+};
 
 
 class CUtilityListener : public TDEngine2::IEngineListener
 {
 	public:
+		explicit CUtilityListener(const TUtilityOptions& options);
+
 		/*!
 			\brief The event occurs after the engine was initialized
 
@@ -50,6 +70,8 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		void _drawMainMenu();
 		void _createNewAtlasModalWindow();
 
+		TDEngine2::E_RESULT_CODE _processInNonGraphicalMode();
+
 	protected:
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
 
@@ -60,6 +82,8 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::IResourceManager* mpResourceManager;
 
 		TDEngine2::CScopedPtr<TDEngine2::CEditorWindow> mpEditorWindow;
+
+		TUtilityOptions              mOptions;
 
 		TDEngine2::TResourceId       mCurrEditableAtlasId;
 
@@ -73,3 +97,13 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		static std::vector<std::string> mAvailableFormats;
 
 };
+
+
+static struct TVersion
+{
+	const uint32_t mMajor = 0;
+	const uint32_t mMinor = 1;
+} ToolVersion;
+
+
+TDEngine2::TResult<TUtilityOptions> ParseOptions(int argc, const char** argv);
