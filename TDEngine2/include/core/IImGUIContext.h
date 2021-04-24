@@ -520,6 +520,13 @@ namespace TDEngine2
 
 			TDE2_API virtual void EndChildWindow() = 0;
 
+			TDE2_API virtual void ShowModalWindow(const std::string& name) = 0;
+			TDE2_API virtual void CloseCurrentModalWindow() = 0;
+
+			TDE2_API virtual bool BeginModalWindow(const std::string& name) = 0;
+
+			TDE2_API virtual void EndModalWindow() = 0;
+
 			/*!
 				\brief The method draws a plot's grid with input handling, scaling, moving, etc
 			*/

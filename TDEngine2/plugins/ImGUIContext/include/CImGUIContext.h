@@ -516,6 +516,13 @@ namespace TDEngine2
 
 			TDE2_API void EndChildWindow() override;
 
+			TDE2_API void ShowModalWindow(const std::string& name) override;
+			TDE2_API void CloseCurrentModalWindow() override;
+
+			TDE2_API bool BeginModalWindow(const std::string& name) override;
+
+			TDE2_API void EndModalWindow() override;
+
 			/*!
 				\brief The method moves current position of the cursor to given point
 			*/

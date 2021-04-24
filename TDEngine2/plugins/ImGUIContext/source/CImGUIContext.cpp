@@ -668,6 +668,26 @@ namespace TDEngine2
 		ImGui::EndChild();
 	}
 
+	void CImGUIContext::ShowModalWindow(const std::string& name)
+	{
+		ImGui::OpenPopup(name.c_str());
+	}
+
+	void CImGUIContext::CloseCurrentModalWindow()
+	{
+		ImGui::CloseCurrentPopup();
+	}
+
+	bool CImGUIContext::BeginModalWindow(const std::string& name)
+	{
+		return ImGui::BeginPopupModal(name.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	}
+
+	void CImGUIContext::EndModalWindow()
+	{
+		ImGui::EndPopup();
+	}
+
 	void CImGUIContext::SetCursorScreenPos(const TVector2& pos)
 	{
 		ImGui::SetCursorScreenPos(pos);
