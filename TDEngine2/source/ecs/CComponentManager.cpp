@@ -8,6 +8,7 @@
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/effects/CParticleEmitterComponent.h"
+#include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -382,6 +383,7 @@ namespace TDEngine2
 			CreateAnimationContainerComponentFactory,
 			CreateSkyboxComponentFactory,
 			CreateParticleEmitterFactory,
+			CreateLayoutElementFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
@@ -437,6 +439,7 @@ namespace TDEngine2
 			CAnimationContainerComponent::GetTypeId(),
 			CSkyboxComponent::GetTypeId(),
 			CParticleEmitter::GetTypeId(),
+			CLayoutElement::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 			CSceneInfoComponent::GetTypeId(),

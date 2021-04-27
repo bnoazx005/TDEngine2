@@ -159,6 +159,7 @@
 #include "graphics/effects/TParticle.h"
 #include "graphics/IAtlasSubTexture.h"
 #include "graphics/CAtlasSubTexture.h"
+#include "graphics/UI/CLayoutElementComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

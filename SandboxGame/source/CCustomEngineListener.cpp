@@ -242,6 +242,16 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
 
+#if 1 /// Test UI layout
+	if (auto pEntity = mpWorld->CreateEntity())
+	{
+		if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+		{
+			pLayoutElement->GetTypeId();
+		}
+	}
+#endif
+
 	return RC_OK;
 }
 
