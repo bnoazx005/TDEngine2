@@ -1,6 +1,6 @@
 /*!
-	\file CLayoutElementComponent.h
-	\date 27.04.2021
+	\file CCanvasComponent.h
+	\date 28.04.2021
 	\authors Kasimov Ildar
 */
 
@@ -8,8 +8,6 @@
 
 
 #include "../../ecs/CBaseComponent.h"
-#include "../../math/TVector2.h"
-#include "../../math/TRect.h"
 
 
 namespace TDEngine2
@@ -18,34 +16,28 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of CLayoutElement's type.
+		\brief A factory function for creation objects of CCanvas's type.
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CLayoutElement's implementation
+		\return A pointer to CCanvas's implementation
 	*/
 
-	TDE2_API IComponent* CreateLayoutElement(E_RESULT_CODE& result);
+	TDE2_API IComponent* CreateCanvas(E_RESULT_CODE& result);
 
 
 	/*!
-		class CLayoutElement
+		class CCanvas
 
-		\brief The interface describes a functionality of an element that determines positioning and alignment of UI rectangle
-
-		An anchor is a pointer of a rectangle's corner relative to parent's one. There are minAnchor and maxAnchor both lie in range (0, 0) and (1, 1).
-		The position and sizes of the element's rectangle are defined via anchors positions and min/max offsets vectors.
-
-		When both vertical and horizontal anchors are separated the minOffset vector stores left bottom corner's position, maxOffset - right top's one respectively.
-		But if they're matched at some axis minOffset contains position of a rectangle's pivot in coordinates relative to parent's rectangle.
+		\brief The class is a main element that determines sizes of UI's field
 	*/
 
-	class CLayoutElement : public CBaseComponent
+	class CCanvas : public CBaseComponent
 	{
 		public:
-			friend TDE2_API IComponent* CreateLayoutElement(E_RESULT_CODE& result);
+			friend TDE2_API IComponent* CreateCanvas(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_COMPONENT_TYPE(CLayoutElement)
+			TDE2_REGISTER_COMPONENT_TYPE(CCanvas)
 
 			/*!
 				\brief The method initializes an internal state of a quad sprite
@@ -75,64 +67,51 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-			TDE2_API E_RESULT_CODE SetMinAnchor(const TVector2& value);
-			TDE2_API E_RESULT_CODE SetMaxAnchor(const TVector2& value);
+			TDE2_API void SetWidth(U32 value);
+			TDE2_API void SetHeight(U32 value);
 
-			TDE2_API E_RESULT_CODE SetMinOffset(const TVector2& value);
-			TDE2_API E_RESULT_CODE SetMaxOffset(const TVector2& value);
-
-			TDE2_API void SetWorldRect(const TRectF32& rect);
-
-			TDE2_API const TVector2& GetMinAnchor() const;
-			TDE2_API const TVector2& GetMaxAnchor() const;
-
-			TDE2_API const TVector2& GetMinOffset() const;
-			TDE2_API const TVector2& GetMaxOffset() const;
+			TDE2_API U32 GetWidth() const;
+			TDE2_API U32 GetHeight() const;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLayoutElement)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCanvas)
 		protected:
-			TVector2 mMinAnchor;
-			TVector2 mMaxAnchor;
-
-			TVector2 mMinOffset;
-			TVector2 mMaxOffset;
-
-			TRectF32 mWorldRect;
+			U32 mWidth;
+			U32 mHeight;
 	};
 
 
 	/*!
-		struct TLayoutElementParameters
+		struct TCanvasParameters
 
-		\brief The structure contains parameters for creation of CLayoutElement
+		\brief The structure contains parameters for creation of CCanvas
 	*/
 
-	typedef struct TLayoutElementParameters : public TBaseComponentParameters
+	typedef struct TCanvasParameters : public TBaseComponentParameters
 	{
-	} TLayoutElementParameters;
+	} TCanvasParameters;
 
 
 	/*!
-		\brief A factory function for creation objects of CLayoutElementFactory's type.
+		\brief A factory function for creation objects of CCanvasFactory's type.
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CLayoutElementFactory's implementation
+		\return A pointer to CCanvasFactory's implementation
 	*/
 
-	TDE2_API IComponentFactory* CreateLayoutElementFactory(E_RESULT_CODE& result);
+	TDE2_API IComponentFactory* CreateCanvasFactory(E_RESULT_CODE& result);
 
 
 	/*!
-		class CLayoutElementFactory
+		class CCanvasFactory
 
-		\brief The class is factory facility to create a new objects of CLayoutElement type
+		\brief The class is factory facility to create a new objects of CCanvas type
 	*/
 
-	class CLayoutElementFactory : public IComponentFactory, public CBaseObject
+	class CCanvasFactory : public IComponentFactory, public CBaseObject
 	{
 		public:
-			friend TDE2_API IComponentFactory* CreateLayoutElementFactory(E_RESULT_CODE& result);
+			friend TDE2_API IComponentFactory* CreateCanvasFactory(E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a factory
@@ -180,6 +159,6 @@ namespace TDEngine2
 
 			TDE2_API TypeId GetComponentTypeId() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLayoutElementFactory)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCanvasFactory)
 	};
 }

@@ -90,6 +90,7 @@
 #include "ecs/CLightingSystem.h"
 #include "ecs/CAnimationSystem.h"
 #include "ecs/CParticlesSimulationSystem.h"
+#include "ecs/CUIElementsProcessSystem.h"
 #include "ecs/components/CBoundsComponent.h"
 
 ///graphics
@@ -160,6 +161,7 @@
 #include "graphics/IAtlasSubTexture.h"
 #include "graphics/CAtlasSubTexture.h"
 #include "graphics/UI/CLayoutElementComponent.h"
+#include "graphics/UI/CCanvasComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

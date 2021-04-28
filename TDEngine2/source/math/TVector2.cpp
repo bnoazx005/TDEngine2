@@ -134,7 +134,7 @@ namespace TDEngine2
 		return TVector2(coeff * vec2.x, coeff * vec2.y);
 	}
 
-	TVector2 Scale(const TVector2& vec2l, const TVector2 vec2r)
+	TVector2 Scale(const TVector2& vec2l, const TVector2& vec2r)
 	{
 		return TVector2(vec2l.x * vec2r.x, vec2l.y * vec2r.y);
 	}

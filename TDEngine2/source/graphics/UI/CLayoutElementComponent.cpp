@@ -45,6 +45,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CLayoutElement::SetWorldRect(const TRectF32& rect)
+	{
+		mWorldRect = rect;
+	}
+
 	E_RESULT_CODE CLayoutElement::SetMinAnchor(const TVector2& value)
 	{
 		if (value.x > 1.0 || value.x < 0.0)

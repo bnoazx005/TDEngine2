@@ -243,11 +243,24 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
 
 #if 1 /// Test UI layout
-	if (auto pEntity = mpWorld->CreateEntity())
+	if (auto pCanvasEntity = mpWorld->CreateEntity("Canvas"))
 	{
-		if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+		if (auto pCanvas = pCanvasEntity->AddComponent<CCanvas>())
 		{
-			pLayoutElement->GetTypeId();
+			pCanvas->SetWidth(1024);
+			pCanvas->SetHeight(768);
+		}
+
+		if (auto pEntity = mpWorld->CreateEntity())
+		{
+			if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->GetTypeId();
+			}
+			if (auto pTransform = pEntity->AddComponent<CTransform>())
+			{
+				pTransform->SetParent(pCanvasEntity->GetId());
+			}
 		}
 	}
 #endif
