@@ -84,6 +84,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CLayoutElement::SetPivot(const TVector2& value)
+	{
+		if (Length(value) > 1.0f || value.x < 0.0f || value.y < 0.0f || value.x > 1.0f || value.y > 1.0f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mPivot = value;
+
+		return RC_OK;
+	}
+
 	const TVector2& CLayoutElement::GetMinAnchor() const
 	{
 		return mMinAnchor;
@@ -102,6 +114,16 @@ namespace TDEngine2
 	const TVector2& CLayoutElement::GetMaxOffset() const
 	{
 		return mMaxOffset;
+	}
+
+	const TVector2& CLayoutElement::GetPivot() const
+	{
+		return mPivot;
+	}
+
+	const TRectF32& CLayoutElement::GetWorldRect() const
+	{
+		return mWorldRect;
 	}
 
 

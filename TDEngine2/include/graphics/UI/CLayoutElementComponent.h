@@ -81,6 +81,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetMinOffset(const TVector2& value);
 			TDE2_API E_RESULT_CODE SetMaxOffset(const TVector2& value);
 
+			TDE2_API E_RESULT_CODE SetPivot(const TVector2& value);
+
 			TDE2_API void SetWorldRect(const TRectF32& rect);
 
 			TDE2_API const TVector2& GetMinAnchor() const;
@@ -88,6 +90,10 @@ namespace TDEngine2
 
 			TDE2_API const TVector2& GetMinOffset() const;
 			TDE2_API const TVector2& GetMaxOffset() const;
+
+			TDE2_API const TVector2& GetPivot() const;
+
+			TDE2_API const TRectF32& GetWorldRect() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLayoutElement)
 		protected:
@@ -96,6 +102,8 @@ namespace TDEngine2
 
 			TVector2 mMinOffset;
 			TVector2 mMaxOffset;
+
+			TVector2 mPivot;
 
 			TRectF32 mWorldRect;
 	};

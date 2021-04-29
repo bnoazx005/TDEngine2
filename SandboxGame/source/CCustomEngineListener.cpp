@@ -255,7 +255,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		{
 			if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
 			{
-				pLayoutElement->GetTypeId();
+				pLayoutElement->SetMinAnchor(TVector2(0.5f));
+				pLayoutElement->SetMaxAnchor(TVector2(0.5f));
 			}
 			if (auto pTransform = pEntity->AddComponent<CTransform>())
 			{

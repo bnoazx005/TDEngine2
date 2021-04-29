@@ -133,6 +133,39 @@ namespace TDEngine2
 
 			return;
 		}
+
+		if (TEntityId::Invalid == pTransform->GetParent())
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		CEntity* pParentEntity = pWorld->FindEntity(pTransform->GetParent());
+		if (!pParentEntity)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		CLayoutElement* pParentLayoutElement = pParentEntity->GetComponent<CLayoutElement>();
+		if (!pParentLayoutElement)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		auto parentWorldRect = pParentLayoutElement->GetWorldRect();
+
+		const TVector2 parentLBRect = parentWorldRect.GetLeftBottom();
+		const TVector2 parentRectSize = parentWorldRect.GetSizes();
+
+		const TRectF32 worldRect
+		{
+			parentLBRect + parentRectSize * pLayoutElement->GetMinAnchor() + pLayoutElement->GetMinOffset(),
+			parentLBRect + parentRectSize * pLayoutElement->GetMaxAnchor() + pLayoutElement->GetMaxOffset()
+		};
+
+		pLayoutElement->SetWorldRect(worldRect);
 	}
 
 
@@ -144,7 +177,6 @@ namespace TDEngine2
 		for (TEntityId currEntity : mCanvasEntities)
 		{
 			pEntity = pWorld->FindEntity(currEntity);
-
 			UpdateLayoutElementData(pWorld, pEntity);
 		}
 
@@ -152,6 +184,7 @@ namespace TDEngine2
 		for (TEntityId currEntity : mLayoutElementsEntities)
 		{
 			pEntity = pWorld->FindEntity(currEntity);
+			UpdateLayoutElementData(pWorld, pEntity);
 		}
 	}
 

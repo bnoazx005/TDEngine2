@@ -79,6 +79,11 @@ namespace TDEngine2
 		return TVector2(lvec2.x * coeff, lvec2.y * coeff);
 	}
 
+	TVector2 operator* (const TVector2& lvec2, const TVector2& rvec2)
+	{
+		return TVector2(lvec2.x * rvec2.x, lvec2.y * rvec2.x);
+	}
+
 	bool operator== (const TVector2& lvec2, const TVector2& rvec2)
 	{
 		if (fabsf(lvec2.x - rvec2.x) <= FloatEpsilon &&
