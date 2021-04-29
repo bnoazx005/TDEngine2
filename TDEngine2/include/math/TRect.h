@@ -24,6 +24,43 @@ namespace TDEngine2
 	struct TRect
 	{
 		T x, y, width, height;
+
+		TDE2_API constexpr TRect() = default;
+		TDE2_API constexpr TRect(const TRect&) = default;
+		TDE2_API constexpr TRect(TRect&&) = default;
+
+		TDE2_API constexpr TRect(T x, T y, T width, T height):
+			x(x), y(y), width(width), height(height)
+		{
+		}
+
+		TDE2_API TRect(const TVector2& leftBottom, const TVector2& rightTop):
+			x(static_cast<T>(leftBottom.x)), y(static_cast<T>(leftBottom.y))
+		{
+			const TVector2 sizes = rightTop - leftBottom;
+
+			width = static_cast<T>(std::abs(sizes.x));
+			height = static_cast<T>(std::abs(sizes.y));
+		}
+
+		TDE2_API TRect& operator= (TRect<T> rect)
+		{
+			_swap(rect);
+			return *this;
+		}
+
+		TDE2_API TVector2 GetLeftBottom() const { return TVector2(static_cast<F32>(x), static_cast<F32>(y)); }
+		TDE2_API TVector2 GetRightTop() const { return TVector2(static_cast<F32>(x + width), static_cast<F32>(y + height)); }
+		TDE2_API TVector2 GetSizes() const { return TVector2(static_cast<F32>(width), static_cast<F32>(height)); }
+
+		protected:
+			TDE2_API void _swap(TRect<T>& rect)
+			{
+				std::swap(x, rect.x);
+				std::swap(y, rect.y);
+				std::swap(width, rect.width);
+				std::swap(height, rect.height);
+			}
 	};
 
 
