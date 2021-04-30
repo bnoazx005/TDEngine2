@@ -91,6 +91,7 @@
 #include "ecs/CAnimationSystem.h"
 #include "ecs/CParticlesSimulationSystem.h"
 #include "ecs/CUIElementsProcessSystem.h"
+#include "ecs/CUIElementsRenderSystem.h"
 #include "ecs/components/CBoundsComponent.h"
 
 ///graphics

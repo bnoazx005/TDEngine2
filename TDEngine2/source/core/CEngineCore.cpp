@@ -24,6 +24,7 @@
 #include "../../include/ecs/CAnimationSystem.h"
 #include "../../include/ecs/CParticlesSimulationSystem.h"
 #include "../../include/ecs/CUIElementsProcessSystem.h"
+#include "../../include/ecs/CUIElementsRenderSystem.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -426,6 +427,7 @@ namespace TDEngine2
 			CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateAnimationSystem(pResourceManager, pEventManager, result),
 			CreateUIElementsProcessSystem(result),
+			CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
 #endif

@@ -118,7 +118,7 @@ namespace TDEngine2
 		CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
 
-		if (pEntity->HasComponent<CCanvas>()) 
+		if (pEntity->HasComponent<CCanvas>())
 		{
 			CCanvas* pCanvas = pEntity->GetComponent<CCanvas>();
 			const TVector2 canvasSizes{ static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()) };
@@ -166,6 +166,9 @@ namespace TDEngine2
 		};
 
 		pLayoutElement->SetWorldRect(worldRect);
+
+		const TVector2 position = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutElement->GetPivot();
+		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));
 	}
 
 
