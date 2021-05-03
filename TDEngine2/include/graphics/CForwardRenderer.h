@@ -161,7 +161,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CForwardRenderer)
 
-			TDE2_API void _submitToDraw(CRenderQueue* pRenderQueue);
+			TDE2_API void _submitToDraw(CRenderQueue* pRenderQueue, U32 upperRenderIndexLimit);
 
 			TDE2_API void _prepareFrame(F32 currTime, F32 deltaTime);
 		protected:

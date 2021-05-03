@@ -222,6 +222,7 @@ namespace TDEngine2
 					TDE2_API void Reset();
 
 					TDE2_API TRenderCommand* Get() const;
+					TDE2_API U32 GetIndex() const;
 
 					TDE2_API CRenderQueueIterator& operator++();
 

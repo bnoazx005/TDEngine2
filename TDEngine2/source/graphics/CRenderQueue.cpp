@@ -145,6 +145,11 @@ namespace TDEngine2
 	{
 		return std::get<TRenderCommand*>((*mpTargetCollection)[mCurrCommandIndex]);
 	}
+
+	U32 CRenderQueue::CRenderQueueIterator::GetIndex() const
+	{
+		return mCurrCommandIndex;
+	}
 	
 	CRenderQueue::CRenderQueueIterator& CRenderQueue::CRenderQueueIterator::operator++()
 	{

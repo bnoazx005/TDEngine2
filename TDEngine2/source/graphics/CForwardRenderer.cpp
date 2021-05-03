@@ -163,10 +163,10 @@ namespace TDEngine2
 
 		_prepareFrame(currTime, deltaTime);
 
-		auto executeCommands = [this](CRenderQueue* pCommandsBuffer, bool shouldClearBuffers)
+		auto executeCommands = [this](CRenderQueue* pCommandsBuffer, bool shouldClearBuffers, U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)())
 		{
 			pCommandsBuffer->Sort();
-			_submitToDraw(pCommandsBuffer);
+			_submitToDraw(pCommandsBuffer, upperRenderIndexLimit);
 
 			if (shouldClearBuffers)
 			{
@@ -185,12 +185,14 @@ namespace TDEngine2
 			{
 				pCurrCommandBuffer = mpRenderQueues[currGroup];
 
-				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty() || (static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY))
+				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
 				{
 					continue;
 				}
 
-				executeCommands(pCurrCommandBuffer, shouldClearBuffers);
+				const bool isOverlayCommandBuffer = (static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
+
+				executeCommands(pCurrCommandBuffer, shouldClearBuffers, isOverlayCommandBuffer ? static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS) : (std::numeric_limits<U32>::max)());
 			}
 		};
 
@@ -329,7 +331,7 @@ namespace TDEngine2
 		return mpGlobalShaderProperties;
 	}
 
-	void CForwardRenderer::_submitToDraw(CRenderQueue* pRenderQueue)
+	void CForwardRenderer::_submitToDraw(CRenderQueue* pRenderQueue, U32 upperRenderIndexLimit)
 	{
 		CRenderQueue::CRenderQueueIterator iter = pRenderQueue->GetIterator();
 
@@ -342,6 +344,11 @@ namespace TDEngine2
 			if (!pCurrDrawCommand)
 			{
 				continue;
+			}
+
+			if (iter.GetIndex() >= upperRenderIndexLimit)
+			{
+				break;
 			}
 
 			pCurrDrawCommand->Submit(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties);

@@ -36,7 +36,7 @@ namespace TDEngine2
 		}
 
 		mpGraphicsObjectManager = pGraphicsObjectManager;
-		mpUIElementsRenderGroup = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SPRITES);
+		mpUIElementsRenderGroup = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
 		mpResourceManager = pRenderer->GetResourceManager();
 
 		E_RESULT_CODE result = _initDefaultResources();
@@ -133,8 +133,8 @@ namespace TDEngine2
 			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCurrCommand->mMaterialHandle     = currMaterialId;
 			pCurrCommand->mpVertexDeclaration = isFontMesh ? mpDefaultFontVertexDecl : mpDefaultUIVertexDecl;
-			pCurrCommand->mStartIndex         = static_cast<U32>(mIndices.size() + 1);
-			pCurrCommand->mStartVertex        = static_cast<U32>(mVertices.size() + 1);
+			pCurrCommand->mStartIndex         = static_cast<U32>(mIndices.size());
+			pCurrCommand->mStartVertex        = static_cast<U32>(mVertices.size());
 			pCurrCommand->mNumOfIndices       = static_cast<U32>(indices.size());
 
 			std::copy(vertices.cbegin(), vertices.cend(), std::back_inserter(mVertices));

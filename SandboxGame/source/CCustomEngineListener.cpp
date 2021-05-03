@@ -253,6 +253,22 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						pLayoutElement->SetMaxOffset(TVector2(50.0f));
 					}
 
+					if (auto pMeshData = pEntity->AddComponent<CUIElementMeshData>())
+					{
+						pMeshData->AddVertex({ { 0.0f, 0.0f, 10.0f, 1.0f } , ZeroVector2, TColorUtils::mWhite });
+						pMeshData->AddVertex({ { 100.0f, 0.0f, 10.0f, 1.0f } , ZeroVector2, TColorUtils::mWhite });
+						pMeshData->AddVertex({ { 0.0f, 100.0f, 10.0f, 1.0f } , ZeroVector2, TColorUtils::mWhite });
+						pMeshData->AddVertex({ { 100.0f, 100.0f, 10.0f, 1.0f } , ZeroVector2, TColorUtils::mWhite });
+
+						pMeshData->AddIndex(0);
+						pMeshData->AddIndex(1);
+						pMeshData->AddIndex(2);
+
+						pMeshData->AddIndex(2);
+						pMeshData->AddIndex(1);
+						pMeshData->AddIndex(3);
+					}
+
 					GroupEntities(mpWorld, pCanvasEntity->GetId(), pEntity->GetId());
 				}
 			}
