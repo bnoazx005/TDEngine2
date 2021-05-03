@@ -11,6 +11,8 @@
 #include "../../include/graphics/CGraphicsLayersInfo.h"
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/IVertexBuffer.h"
+#include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/core/IResourceManager.h"
 
 
@@ -87,6 +89,12 @@ namespace TDEngine2
 	void CUIElementsRenderSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		CEntity* pEntity = nullptr;
+		CEntity* pCanvasEntity = nullptr;
+
+		CCanvas* pCurrCanvas = nullptr;
+
+		mVertices.clear();
+		mIndices.clear();
 
 		for (TEntityId currEntityId : mUIElementsEntities)
 		{
@@ -98,31 +106,56 @@ namespace TDEngine2
 
 			CUIElementMeshData* pMeshData = pEntity->GetComponent<CUIElementMeshData>();
 			CTransform* pTransform = pEntity->GetComponent<CTransform>();
+			CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
+
+			/// \note Get entity that represents a canvas
+			if (!pCanvasEntity || (pCanvasEntity->GetId() != pLayoutElement->GetOwnerCanvasId()))
+			{
+				pCanvasEntity = pWorld->FindEntity(pLayoutElement->GetOwnerCanvasId());
+				pCurrCanvas = pCanvasEntity->GetComponent<CCanvas>();
+			}
+
+			TDE2_ASSERT(pCurrCanvas && pCanvasEntity);
 
 			const bool isFontMesh = pMeshData->IsFontMesh();
 
 			const TResourceId currMaterialId = isFontMesh ? mDefaultFontMaterialId : mDefaultUIMaterialId;
 
-			const U16 layerIndex = mpGraphicsLayers->GetLayerIndex(pTransform->GetPosition().z); /// \todo Reimplement this 
+			const U16 layerIndex = static_cast<U16>(std::abs(pTransform->GetPosition().z)); /// \todo Reimplement this 
 
 			auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(ComputeCommandKey(currMaterialId, DefaultMaterialInstanceId, layerIndex));
 
-			pCurrCommand->mpVertexBuffer = mpVertexBuffer;
-			pCurrCommand->mpIndexBuffer = mpIndexBuffer;
-			pCurrCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCurrCommand->mMaterialHandle = currMaterialId;
+			auto&& vertices = pMeshData->GetVertices();
+			auto&& indices = pMeshData->GetIndices();
+
+			pCurrCommand->mpVertexBuffer      = mpVertexBuffer;
+			pCurrCommand->mpIndexBuffer       = mpIndexBuffer;
+			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrCommand->mMaterialHandle     = currMaterialId;
 			pCurrCommand->mpVertexDeclaration = isFontMesh ? mpDefaultFontVertexDecl : mpDefaultUIVertexDecl;
-			pCurrCommand->mStartIndex = 0;
-			pCurrCommand->mStartVertex = 0;
-			pCurrCommand->mNumOfIndices = 0;
+			pCurrCommand->mStartIndex         = static_cast<U32>(mIndices.size() + 1);
+			pCurrCommand->mStartVertex        = static_cast<U32>(mVertices.size() + 1);
+			pCurrCommand->mNumOfIndices       = static_cast<U32>(indices.size());
+
+			std::copy(vertices.cbegin(), vertices.cend(), std::back_inserter(mVertices));
+			std::copy(indices.cbegin(), indices.cend(), std::back_inserter(mIndices));
 
 			/// \todo Implement this
 			auto&& uvRect = /*pMainTexture ? pMainTexture->GetNormalizedTextureRect() :*/ TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
 
 			/// \todo Add computation of a projection matrix
-			pCurrCommand->mObjectData.mModelMatrix = IdentityMatrix4;
+			pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix());
 			pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
 		}
+
+		if (mVertices.empty())
+		{
+			return;
+		}
+
+		/// \note Write data into GPU buffers
+		E_RESULT_CODE result = _updateGPUBuffers();
+		TDE2_ASSERT(RC_OK == result);
 	}
 
 	E_RESULT_CODE CUIElementsRenderSystem::_initDefaultResources()
@@ -179,6 +212,40 @@ namespace TDEngine2
 		}
 
 		mpIndexBuffer = createIndexBufferResult.Get();
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CUIElementsRenderSystem::_updateGPUBuffers()
+	{
+		E_RESULT_CODE result = mpVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = mpVertexBuffer->Write(&mVertices.front(), static_cast<U32>(sizeof(TUIElementsVertex) * mVertices.size()));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpVertexBuffer->Unmap();
+
+		/// \note Index buffer
+		result = mpIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = mpIndexBuffer->Write(&mIndices.front(), static_cast<U32>(sizeof(U16) * mIndices.size()));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpIndexBuffer->Unmap();
 
 		return RC_OK;
 	}

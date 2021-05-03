@@ -20,6 +20,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mCanvasEntityId = TEntityId::Invalid;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -48,6 +50,11 @@ namespace TDEngine2
 	void CLayoutElement::SetWorldRect(const TRectF32& rect)
 	{
 		mWorldRect = rect;
+	}
+
+	void CLayoutElement::SetOwnerCanvasId(TEntityId canvasEntityId)
+	{
+		mCanvasEntityId = canvasEntityId;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetMinAnchor(const TVector2& value)
@@ -124,6 +131,11 @@ namespace TDEngine2
 	const TRectF32& CLayoutElement::GetWorldRect() const
 	{
 		return mWorldRect;
+	}
+
+	TEntityId CLayoutElement::GetOwnerCanvasId() const
+	{
+		return mCanvasEntityId;
 	}
 
 

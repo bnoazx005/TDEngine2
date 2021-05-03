@@ -195,6 +195,24 @@ namespace TDEngine2
 		}
 	}
 
+	static TEntityId FindParentCanvasEntityId(IWorld* pWorld, CEntity* pEntity)
+	{
+		CEntity* pCurrEntity = pEntity;
+
+		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+		TEntityId currParentId = pTransform->GetParent();
+
+		while ((TEntityId::Invalid != currParentId) && !pCurrEntity->HasComponent<CCanvas>())
+		{
+			pCurrEntity = pWorld->FindEntity(currParentId);
+			
+			pTransform = pCurrEntity->GetComponent<CTransform>();
+			currParentId = pTransform->GetParent();
+		}
+
+		return (pCurrEntity == pEntity) ? TEntityId::Invalid : pCurrEntity->GetId();
+	}
+
 
 	void CUIElementsProcessSystem::Update(IWorld* pWorld, F32 dt)
 	{
@@ -214,6 +232,11 @@ namespace TDEngine2
 		{
 			pEntity = pWorld->FindEntity(currEntity);
 			UpdateLayoutElementData(pWorld, pEntity);
+			
+			if (auto pLayoutElement = pEntity->GetComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetOwnerCanvasId(FindParentCanvasEntityId(pWorld, pEntity));
+			}
 		}
 	}
 
