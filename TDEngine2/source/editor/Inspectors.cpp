@@ -8,6 +8,8 @@
 #include "../../include/graphics/CQuadSprite.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/effects/CParticleEmitterComponent.h"
+#include "../../include/graphics/UI/CCanvasComponent.h"
+#include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -44,6 +46,8 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CAnimationContainerComponent::GetTypeId(), DrawAnimationContainerGUI);
 		result = result | editor.RegisterInspector(CSkyboxComponent::GetTypeId(), DrawSkyboxGUI);
 		result = result | editor.RegisterInspector(CParticleEmitter::GetTypeId(), DrawParticleEmitterGUI);
+		result = result | editor.RegisterInspector(CCanvas::GetTypeId(), DrawCanvasGUI);
+		result = result | editor.RegisterInspector(CLayoutElement::GetTypeId(), DrawLayoutElementGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -281,6 +285,29 @@ namespace TDEngine2
 		if (imguiContext.CollapsingHeader("Particle Emitter", true))
 		{
 			CParticleEmitter& particleEmitter = dynamic_cast<CParticleEmitter&>(component);
+
+			// \todo Implement this drawer
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawCanvasGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("Canvas", true))
+		{
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawLayoutElementGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("Layout Element", true))
+		{
+			CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
 
 			// \todo Implement this drawer
 		}

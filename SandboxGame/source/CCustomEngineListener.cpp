@@ -232,6 +232,31 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
 			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
+
+#if 1 /// Test UI layout
+			if (auto pCanvasEntity = pScene->CreateEntity("Canvas"))
+			{
+				if (auto pCanvas = pCanvasEntity->AddComponent<CCanvas>())
+				{
+					pCanvas->SetWidth(1024);
+					pCanvas->SetHeight(768);
+				}
+
+				if (auto pEntity = pScene->CreateEntity("UIElement"))
+				{
+					if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+					{
+						pLayoutElement->SetMinAnchor(TVector2(0.5f));
+						pLayoutElement->SetMaxAnchor(TVector2(0.5f));
+						pLayoutElement->SetPivot(TVector2(0.5f));
+
+						pLayoutElement->SetMaxOffset(TVector2(50.0f));
+					}
+
+					GroupEntities(mpWorld, pCanvasEntity->GetId(), pEntity->GetId());
+				}
+			}
+#endif
 		});
 
 #endif
@@ -241,30 +266,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpResourceManager->Load<IAudioSource>("test.mp3");
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
-
-#if 1 /// Test UI layout
-	if (auto pCanvasEntity = mpWorld->CreateEntity("Canvas"))
-	{
-		if (auto pCanvas = pCanvasEntity->AddComponent<CCanvas>())
-		{
-			pCanvas->SetWidth(1024);
-			pCanvas->SetHeight(768);
-		}
-
-		if (auto pEntity = mpWorld->CreateEntity())
-		{
-			if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
-			{
-				pLayoutElement->SetMinAnchor(TVector2(0.5f));
-				pLayoutElement->SetMaxAnchor(TVector2(0.5f));
-			}
-			if (auto pTransform = pEntity->AddComponent<CTransform>())
-			{
-				pTransform->SetParent(pCanvasEntity->GetId());
-			}
-		}
-	}
-#endif
 
 	return RC_OK;
 }
@@ -350,6 +351,15 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 				imgui->EndTreeNode();
 			}
+
+			/*if (auto pEntity = mpWorld->FindEntity(TEntityId(24)))
+			{
+				auto pLayout = pEntity->GetComponent<CLayoutElement>();
+				auto pos = pEntity->GetComponent<CTransform>()->GetPosition();
+
+				imgui->DrawRect({ {pos.x, pos.y}, -pLayout->GetWorldRect().GetSizes() }, TColorUtils::mYellow);
+			}*/
+
 		}
 		imgui->EndWindow();
 	}	

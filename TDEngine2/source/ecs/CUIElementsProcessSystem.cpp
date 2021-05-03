@@ -4,6 +4,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
+#include "../../include/core/IGraphicsContext.h"
 
 
 namespace TDEngine2
@@ -13,12 +14,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CUIElementsProcessSystem::Init()
+	E_RESULT_CODE CUIElementsProcessSystem::Init(IGraphicsContext* pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		if (!pGraphicsContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
 
@@ -172,6 +180,22 @@ namespace TDEngine2
 	}
 
 
+	static void UpdateCanvasData(IGraphicsContext* pGraphicsContext, IWorld* pWorld, CEntity* pEntity)
+	{
+		TDE2_ASSERT(pEntity->HasComponent<CCanvas>());
+
+		if (CCanvas* pCanvas = pEntity->GetComponent<CCanvas>())
+		{
+			if (!pCanvas->IsDirty())
+			{
+				return;
+			}
+
+			pCanvas->SetProjMatrix(pGraphicsContext->CalcOrthographicMatrix(0.0f, 0.0f, static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()), 0.0f, 1.0f, true));
+		}
+	}
+
+
 	void CUIElementsProcessSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		CEntity* pEntity = nullptr;
@@ -180,7 +204,9 @@ namespace TDEngine2
 		for (TEntityId currEntity : mCanvasEntities)
 		{
 			pEntity = pWorld->FindEntity(currEntity);
-			UpdateLayoutElementData(pWorld, pEntity);
+
+			UpdateCanvasData(mpGraphicsContext, pWorld, pEntity);
+			UpdateLayoutElementData(pWorld, pEntity); 
 		}
 
 		/// \note Process LayoutElement entities
@@ -192,8 +218,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISystem* CreateUIElementsProcessSystem(E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystem, CUIElementsProcessSystem, result);
+		return CREATE_IMPL(ISystem, CUIElementsProcessSystem, result, pGraphicsContext);
 	}
 }

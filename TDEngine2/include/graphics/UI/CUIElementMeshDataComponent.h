@@ -1,6 +1,6 @@
 /*!
-	\file CCanvasComponent.h
-	\date 28.04.2021
+	\file CUIElementMeshDataComponent.h
+	\date 27.04.2021
 	\authors Kasimov Ildar
 */
 
@@ -8,7 +8,11 @@
 
 
 #include "../../ecs/CBaseComponent.h"
-#include "../../math/TMatrix4.h"
+#include "../../math/TVector2.h"
+#include "../../math/TVector4.h"
+#include "../../math/TRect.h"
+#include "../../utils/Color.h"
+#include <vector>
 
 
 namespace TDEngine2
@@ -16,29 +20,38 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
+	typedef struct TUIElementsVertex
+	{
+		TVector4  mPos;
+		TVector2  mUV;
+		TColor32F mColor;
+	} TUIElementsVertex, *TUIElementsVertexPtr;
+
+
 	/*!
-		\brief A factory function for creation objects of CCanvas's type.
+		\brief A factory function for creation objects of CUIElementMeshData's type.
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CCanvas's implementation
+		\return A pointer to CUIElementMeshData's implementation
 	*/
 
-	TDE2_API IComponent* CreateCanvas(E_RESULT_CODE& result);
+	TDE2_API IComponent* CreateUIElementMeshData(E_RESULT_CODE& result);
 
 
 	/*!
-		class CCanvas
-
-		\brief The class is a main element that determines sizes of UI's field
+		class CUIElementMeshData
 	*/
 
-	class CCanvas : public CBaseComponent
+	class CUIElementMeshData : public CBaseComponent
 	{
 		public:
-			friend TDE2_API IComponent* CreateCanvas(E_RESULT_CODE& result);
+			friend TDE2_API IComponent* CreateUIElementMeshData(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_COMPONENT_TYPE(CCanvas)
+			typedef std::vector<TUIElementsVertex> TVertexArray;
+			typedef std::vector<U16> TIndexArray;
+		public:
+			TDE2_REGISTER_COMPONENT_TYPE(CUIElementMeshData)
 
 			/*!
 				\brief The method initializes an internal state of a quad sprite
@@ -68,61 +81,57 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-			TDE2_API void SetWidth(U32 value);
-			TDE2_API void SetHeight(U32 value);
+			TDE2_API void AddVertex(const TUIElementsVertex& vertex);
+			TDE2_API void AddIndex(U16 value);
 
-			TDE2_API void SetProjMatrix(const TMatrix4& projMat);
+			TDE2_API void SetFontMeshFlag(bool value);
 
-			TDE2_API U32 GetWidth() const;
-			TDE2_API U32 GetHeight() const;
+			TDE2_API const TVertexArray& GetVertices() const;
+			TDE2_API const TIndexArray& GetIndices() const;
 
-			TDE2_API bool IsDirty() const;
-
-			TDE2_API const TMatrix4& GetProjMatrix() const;
+			TDE2_API bool IsFontMesh() const;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCanvas)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementMeshData)
 		protected:
-			U32 mWidth;
-			U32 mHeight;
+			TVertexArray mVertices;
+			TIndexArray  mIndices;
 
-			bool mIsDirty;
-
-			TMatrix4 mProjMatrix;
+			bool mIsFontMesh;
 	};
 
 
 	/*!
-		struct TCanvasParameters
+		struct TUIElementMeshDataParameters
 
-		\brief The structure contains parameters for creation of CCanvas
+		\brief The structure contains parameters for creation of CUIElementMeshData
 	*/
 
-	typedef struct TCanvasParameters : public TBaseComponentParameters
+	typedef struct TUIElementMeshDataParameters : public TBaseComponentParameters
 	{
-	} TCanvasParameters;
+	} TUIElementMeshDataParameters;
 
 
 	/*!
-		\brief A factory function for creation objects of CCanvasFactory's type.
+		\brief A factory function for creation objects of CUIElementMeshDataFactory's type.
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CCanvasFactory's implementation
+		\return A pointer to CUIElementMeshDataFactory's implementation
 	*/
 
-	TDE2_API IComponentFactory* CreateCanvasFactory(E_RESULT_CODE& result);
+	TDE2_API IComponentFactory* CreateUIElementMeshDataFactory(E_RESULT_CODE& result);
 
 
 	/*!
-		class CCanvasFactory
+		class CUIElementMeshDataFactory
 
-		\brief The class is factory facility to create a new objects of CCanvas type
+		\brief The class is factory facility to create a new objects of CUIElementMeshData type
 	*/
 
-	class CCanvasFactory : public IComponentFactory, public CBaseObject
+	class CUIElementMeshDataFactory : public IComponentFactory, public CBaseObject
 	{
 		public:
-			friend TDE2_API IComponentFactory* CreateCanvasFactory(E_RESULT_CODE& result);
+			friend TDE2_API IComponentFactory* CreateUIElementMeshDataFactory(E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a factory
@@ -170,6 +179,6 @@ namespace TDEngine2
 
 			TDE2_API TypeId GetComponentTypeId() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCanvasFactory)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementMeshDataFactory)
 	};
 }

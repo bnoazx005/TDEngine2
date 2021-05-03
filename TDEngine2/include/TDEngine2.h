@@ -163,6 +163,7 @@
 #include "graphics/CAtlasSubTexture.h"
 #include "graphics/UI/CLayoutElementComponent.h"
 #include "graphics/UI/CCanvasComponent.h"
+#include "graphics/UI/CUIElementMeshDataComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

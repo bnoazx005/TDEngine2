@@ -8,6 +8,8 @@
 
 
 #include "CBaseSystem.h"
+#include "../utils/Utils.h"
+#include "../graphics/UI/CUIElementMeshDataComponent.h"
 #include <vector>
 
 
@@ -16,6 +18,13 @@ namespace TDEngine2
 	class IRenderer;
 	class IGraphicsObjectManager;
 	class CRenderQueue;
+	class IVertexDeclaration;
+	class IResourceManager;
+	class IGraphicsLayersInfo;
+	class IVertexBuffer;
+	class IIndexBuffer;
+
+	enum class TResourceId : U32;
 
 
 	/*!
@@ -84,9 +93,31 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementsRenderSystem)
-		protected:
-			IGraphicsObjectManager* mpGraphicsObjectManager;
 
-			CRenderQueue*           mpUIElementsRenderGroup;
+			TDE2_API E_RESULT_CODE _initDefaultResources();
+		protected:
+			static constexpr U32 mMaxVerticesCount = 1 << 14;
+
+			IGraphicsObjectManager*         mpGraphicsObjectManager;
+
+			CRenderQueue*                   mpUIElementsRenderGroup;
+
+			IResourceManager*               mpResourceManager;
+
+			IVertexDeclaration*             mpDefaultUIVertexDecl;
+			IVertexDeclaration*             mpDefaultFontVertexDecl;
+
+			TResourceId                     mDefaultUIMaterialId;
+			TResourceId                     mDefaultFontMaterialId;
+			
+			CScopedPtr<IGraphicsLayersInfo> mpGraphicsLayers;
+
+			std::vector<TEntityId>          mUIElementsEntities;
+
+			std::vector<TUIElementsVertex> mVertices;
+			std::vector<U16>               mIndices;
+
+			IVertexBuffer*                 mpVertexBuffer;
+			IIndexBuffer*                  mpIndexBuffer;
 	};
 }

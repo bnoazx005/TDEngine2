@@ -20,6 +20,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mIsDirty = true;
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -48,11 +49,19 @@ namespace TDEngine2
 	void CCanvas::SetWidth(U32 value)
 	{
 		mWidth = value;
+		mIsDirty = true;
 	}
 
 	void CCanvas::SetHeight(U32 value)
 	{
 		mHeight = value;
+		mIsDirty = true;
+	}
+
+	void CCanvas::SetProjMatrix(const TMatrix4& projMat)
+	{
+		mProjMatrix = projMat;
+		mIsDirty = false;
 	}
 
 	U32 CCanvas::GetWidth() const
@@ -63,6 +72,16 @@ namespace TDEngine2
 	U32 CCanvas::GetHeight() const
 	{
 		return mHeight;
+	}
+
+	bool CCanvas::IsDirty() const
+	{
+		return mIsDirty;
+	}
+
+	const TMatrix4& CCanvas::GetProjMatrix() const
+	{
+		return mProjMatrix;
 	}
 
 

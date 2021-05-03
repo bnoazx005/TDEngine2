@@ -213,4 +213,11 @@ namespace TDEngine2
 
 		return { {rect.x, rect.y, firstRectWidth, firstRectHeight}, {ox, oy, secondRectWidth, secondRectHeight} };
 	}
+
+
+	template <typename T>
+	TRect<T> MoveRect(const TRect<T>& rect, const TVector2& delta)
+	{
+		return { rect.GetLeftBottom() + delta, rect.GetSizes() };
+	}
 }
