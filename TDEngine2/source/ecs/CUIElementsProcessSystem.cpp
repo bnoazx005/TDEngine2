@@ -191,7 +191,8 @@ namespace TDEngine2
 				return;
 			}
 
-			pCanvas->SetProjMatrix(pGraphicsContext->CalcOrthographicMatrix(0.0f, 0.0f, static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()), 0.0f, 1.0f, true));
+			/// \note The canvas's origin is a left-bottom corner
+			pCanvas->SetProjMatrix(pGraphicsContext->CalcOrthographicMatrix(0.0f, static_cast<F32>(pCanvas->GetHeight()), static_cast<F32>(pCanvas->GetWidth()), 0.0f, 0.0f, 1.0f, true));
 		}
 	}
 
