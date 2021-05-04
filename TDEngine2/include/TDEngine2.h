@@ -164,6 +164,7 @@
 #include "graphics/UI/CLayoutElementComponent.h"
 #include "graphics/UI/CCanvasComponent.h"
 #include "graphics/UI/CUIElementMeshDataComponent.h"
+#include "graphics/UI/CImageComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"
