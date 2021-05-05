@@ -20,6 +20,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mTextureResourceId = TResourceId::Invalid;
+
 		mIsFontMesh = false;
 		mIsInitialized = true;
 
@@ -46,6 +48,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CUIElementMeshData::ResetMesh()
+	{
+		mVertices.clear();
+		mIndices.clear();
+	}
+
 	void CUIElementMeshData::AddVertex(const TUIElementsVertex& vertex)
 	{
 		mVertices.emplace_back(vertex);
@@ -61,6 +69,18 @@ namespace TDEngine2
 		mIsFontMesh = value;
 	}
 
+	E_RESULT_CODE CUIElementMeshData::SetTextureResourceId(TResourceId resourceId)
+	{
+		if (TResourceId::Invalid == resourceId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mTextureResourceId = resourceId;
+
+		return RC_OK;
+	}
+
 	const CUIElementMeshData::TVertexArray& CUIElementMeshData::GetVertices() const
 	{
 		return mVertices;
@@ -74,6 +94,11 @@ namespace TDEngine2
 	bool CUIElementMeshData::IsFontMesh() const
 	{
 		return mIsFontMesh;
+	}
+
+	TResourceId CUIElementMeshData::GetTextureResourceId() const
+	{
+		return mTextureResourceId;
 	}
 
 

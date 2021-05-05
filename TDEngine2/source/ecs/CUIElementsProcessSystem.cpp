@@ -4,29 +4,183 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
+#include "../../include/graphics/UI/CImageComponent.h"
+#include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
+#include "../../include/graphics/ITexture2D.h"
+#include "../../include/graphics/ITexture.h"
+#include "../../include/core/IResource.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IResourceManager.h"
 
 
 namespace TDEngine2
 {
+	static void UpdateLayoutElementData(IWorld* pWorld, CEntity* pEntity)
+	{
+		CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
+		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+
+		if (pEntity->HasComponent<CCanvas>())
+		{
+			CCanvas* pCanvas = pEntity->GetComponent<CCanvas>();
+			const TVector2 canvasSizes{ static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()) };
+
+			const TVector2 leftBottom = pLayoutElement->GetMinOffset() + Scale(pLayoutElement->GetMinAnchor(), canvasSizes);
+			const TVector2 rightTop = pLayoutElement->GetMaxOffset() + Scale(pLayoutElement->GetMaxAnchor(), canvasSizes);
+
+			const TVector2 rectSizes = rightTop - leftBottom;
+			const TVector3 position = pTransform->GetPosition();
+
+			pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });
+
+			return;
+		}
+
+		if (TEntityId::Invalid == pTransform->GetParent())
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		CEntity* pParentEntity = pWorld->FindEntity(pTransform->GetParent());
+		if (!pParentEntity)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		CLayoutElement* pParentLayoutElement = pParentEntity->GetComponent<CLayoutElement>();
+		if (!pParentLayoutElement)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		auto parentWorldRect = pParentLayoutElement->GetWorldRect();
+
+		const TVector2 parentLBRect = parentWorldRect.GetLeftBottom();
+		const TVector2 parentRectSize = parentWorldRect.GetSizes();
+
+		const TRectF32 worldRect
+		{
+			parentLBRect + parentRectSize * pLayoutElement->GetMinAnchor() + pLayoutElement->GetMinOffset(),
+			parentLBRect + parentRectSize * pLayoutElement->GetMaxAnchor() + pLayoutElement->GetMaxOffset()
+		};
+
+		pLayoutElement->SetWorldRect(worldRect);
+
+		const TVector2 position = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutElement->GetPivot();
+		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));
+	}
+
+
+	static void UpdateCanvasData(IGraphicsContext* pGraphicsContext, IWorld* pWorld, CEntity* pEntity)
+	{
+		TDE2_ASSERT(pEntity->HasComponent<CCanvas>());
+
+		if (CCanvas* pCanvas = pEntity->GetComponent<CCanvas>())
+		{
+			if (!pCanvas->IsDirty())
+			{
+				return;
+			}
+
+			/// \note The canvas's origin is a left-bottom corner
+			pCanvas->SetProjMatrix(pGraphicsContext->CalcOrthographicMatrix(0.0f, static_cast<F32>(pCanvas->GetHeight()), static_cast<F32>(pCanvas->GetWidth()), 0.0f, 0.0f, 1.0f, true));
+		}
+	}
+
+	static TEntityId FindParentCanvasEntityId(IWorld* pWorld, CEntity* pEntity)
+	{
+		CEntity* pCurrEntity = pEntity;
+
+		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+		TEntityId currParentId = pTransform->GetParent();
+
+		while ((TEntityId::Invalid != currParentId) && !pCurrEntity->HasComponent<CCanvas>())
+		{
+			pCurrEntity = pWorld->FindEntity(currParentId);
+
+			pTransform = pCurrEntity->GetComponent<CTransform>();
+			currParentId = pTransform->GetParent();
+		}
+
+		return (pCurrEntity == pEntity) ? TEntityId::Invalid : pCurrEntity->GetId();
+	}
+
+	static void ComputeImageMeshData(IResourceManager* pResourceManager, IWorld* pWorld, TEntityId id)
+	{
+		CEntity* pEntity = pWorld->FindEntity(id);
+		if (!pEntity)
+		{
+			return;
+		}
+
+		CLayoutElement* pLayoutData = pEntity->GetComponent<CLayoutElement>();
+		CImage* pImageData = pEntity->GetComponent<CImage>();
+
+		/// \note Load image's asset if it's not done yet
+		if (TResourceId::Invalid == pImageData->GetImageResourceId())
+		{
+			E_RESULT_CODE result = pImageData->SetImageResourceId(pResourceManager->Load<ITexture2D>(pImageData->GetImageId()));
+			TDE2_ASSERT(RC_OK == result);
+		}
+
+		ITexture* pImageSprite = pResourceManager->GetResource<ITexture>(pImageData->GetImageResourceId());
+		if (!pImageSprite)
+		{
+			return;
+		}
+
+		if (!pEntity->HasComponent<CUIElementMeshData>())
+		{
+			pEntity->AddComponent<CUIElementMeshData>();
+		}
+
+		auto pUIElementMeshData = pEntity->GetComponent<CUIElementMeshData>();
+		pUIElementMeshData->ResetMesh();
+
+		auto&& worldRect = pLayoutData->GetWorldRect();
+
+		auto&& lbPoint = worldRect.GetLeftBottom();
+		auto&& rtPoint = worldRect.GetRightTop();
+
+		/// \todo Add support of specifying color data
+		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, lbPoint.y, 1.0f, 1.0f), ZeroVector2, TColorUtils::mWhite });
+		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, rtPoint.y, 1.0f, 1.0f), ZeroVector2, TColorUtils::mWhite });
+		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, lbPoint.y, 1.0f, 1.0f), ZeroVector2, TColorUtils::mWhite });
+		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, rtPoint.y, 1.0f, 1.0f), ZeroVector2, TColorUtils::mWhite });
+
+		static const std::array<U16, 6> indices { 0, 1, 2, 2, 1, 3 }; /// \note standard CW ordered 2 triangles that form a quad
+
+		for (U16 index : indices)
+		{
+			pUIElementMeshData->AddIndex(index);
+		}
+
+		pUIElementMeshData->SetTextureResourceId(pImageData->GetImageResourceId());
+	}
+
+
 	CUIElementsProcessSystem::CUIElementsProcessSystem() :
 		CBaseSystem()
 	{
 	}
 
-	E_RESULT_CODE CUIElementsProcessSystem::Init(IGraphicsContext* pGraphicsContext)
+	E_RESULT_CODE CUIElementsProcessSystem::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpGraphicsContext = pGraphicsContext;
+		mpResourceManager = pResourceManager;
 
 		mIsInitialized = true;
 
@@ -118,102 +272,9 @@ namespace TDEngine2
 			pLayoutElement->SetMinOffset(ZeroVector2);
 			pLayoutElement->SetMaxOffset(ZeroVector2);
 		}
+
+		mImagesEntities = pWorld->FindEntitiesWithComponents<CLayoutElement, CImage>();
 	}
-
-
-	static void UpdateLayoutElementData(IWorld* pWorld, CEntity* pEntity)
-	{
-		CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
-
-		if (pEntity->HasComponent<CCanvas>())
-		{
-			CCanvas* pCanvas = pEntity->GetComponent<CCanvas>();
-			const TVector2 canvasSizes{ static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()) };
-
-			const TVector2 leftBottom = pLayoutElement->GetMinOffset() + Scale(pLayoutElement->GetMinAnchor(), canvasSizes);
-			const TVector2 rightTop = pLayoutElement->GetMaxOffset() + Scale(pLayoutElement->GetMaxAnchor(), canvasSizes);
-
-			const TVector2 rectSizes = rightTop - leftBottom;
-			const TVector3 position = pTransform->GetPosition();
-
-			pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });
-
-			return;
-		}
-
-		if (TEntityId::Invalid == pTransform->GetParent())
-		{
-			TDE2_ASSERT(false);
-			return;
-		}
-
-		CEntity* pParentEntity = pWorld->FindEntity(pTransform->GetParent());
-		if (!pParentEntity)
-		{
-			TDE2_ASSERT(false);
-			return;
-		}
-
-		CLayoutElement* pParentLayoutElement = pParentEntity->GetComponent<CLayoutElement>();
-		if (!pParentLayoutElement)
-		{
-			TDE2_ASSERT(false);
-			return;
-		}
-
-		auto parentWorldRect = pParentLayoutElement->GetWorldRect();
-
-		const TVector2 parentLBRect = parentWorldRect.GetLeftBottom();
-		const TVector2 parentRectSize = parentWorldRect.GetSizes();
-
-		const TRectF32 worldRect
-		{
-			parentLBRect + parentRectSize * pLayoutElement->GetMinAnchor() + pLayoutElement->GetMinOffset(),
-			parentLBRect + parentRectSize * pLayoutElement->GetMaxAnchor() + pLayoutElement->GetMaxOffset()
-		};
-
-		pLayoutElement->SetWorldRect(worldRect);
-
-		const TVector2 position = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutElement->GetPivot();
-		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));
-	}
-
-
-	static void UpdateCanvasData(IGraphicsContext* pGraphicsContext, IWorld* pWorld, CEntity* pEntity)
-	{
-		TDE2_ASSERT(pEntity->HasComponent<CCanvas>());
-
-		if (CCanvas* pCanvas = pEntity->GetComponent<CCanvas>())
-		{
-			if (!pCanvas->IsDirty())
-			{
-				return;
-			}
-
-			/// \note The canvas's origin is a left-bottom corner
-			pCanvas->SetProjMatrix(pGraphicsContext->CalcOrthographicMatrix(0.0f, static_cast<F32>(pCanvas->GetHeight()), static_cast<F32>(pCanvas->GetWidth()), 0.0f, 0.0f, 1.0f, true));
-		}
-	}
-
-	static TEntityId FindParentCanvasEntityId(IWorld* pWorld, CEntity* pEntity)
-	{
-		CEntity* pCurrEntity = pEntity;
-
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
-		TEntityId currParentId = pTransform->GetParent();
-
-		while ((TEntityId::Invalid != currParentId) && !pCurrEntity->HasComponent<CCanvas>())
-		{
-			pCurrEntity = pWorld->FindEntity(currParentId);
-			
-			pTransform = pCurrEntity->GetComponent<CTransform>();
-			currParentId = pTransform->GetParent();
-		}
-
-		return (pCurrEntity == pEntity) ? TEntityId::Invalid : pCurrEntity->GetId();
-	}
-
 
 	void CUIElementsProcessSystem::Update(IWorld* pWorld, F32 dt)
 	{
@@ -239,11 +300,17 @@ namespace TDEngine2
 				pLayoutElement->SetOwnerCanvasId(FindParentCanvasEntityId(pWorld, pEntity));
 			}
 		}
+
+		/// \note Compute meshes for Images
+		for (TEntityId currEntity : mImagesEntities)
+		{
+			ComputeImageMeshData(mpResourceManager, pWorld, currEntity);
+		}
 	}
 
 
-	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystem, CUIElementsProcessSystem, result, pGraphicsContext);
+		return CREATE_IMPL(ISystem, CUIElementsProcessSystem, result, pGraphicsContext, pResourceManager);
 	}
 }

@@ -426,7 +426,7 @@ namespace TDEngine2
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateAnimationSystem(pResourceManager, pEventManager, result),
-			CreateUIElementsProcessSystem(pGraphicsContext, result),
+			CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager, result),
 			CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),

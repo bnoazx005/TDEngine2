@@ -14,18 +14,20 @@
 namespace TDEngine2
 {
 	class IGraphicsContext;
+	class IResourceManager;
 
 
 	/*!
 		\brief A factory function for creation objects of CUIElementsProcessSystem's type.
 
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+		\param[in, out] pResourceManager A pointer to IResourceManager implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CUIElementsProcessSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -37,7 +39,7 @@ namespace TDEngine2
 	class CUIElementsProcessSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext*, E_RESULT_CODE&);
+			friend TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext*, IResourceManager*, E_RESULT_CODE&);
 		public:
 			TDE2_SYSTEM(CUIElementsProcessSystem);
 
@@ -45,11 +47,12 @@ namespace TDEngine2
 				\brief The method initializes an inner state of a system
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext);
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -84,6 +87,10 @@ namespace TDEngine2
 
 			std::vector<TEntityId> mCanvasEntities;
 
+			std::vector<TEntityId> mImagesEntities;
+
 			IGraphicsContext*      mpGraphicsContext;
+
+			IResourceManager*      mpResourceManager;
 	};
 }

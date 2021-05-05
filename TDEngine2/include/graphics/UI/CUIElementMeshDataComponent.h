@@ -81,13 +81,19 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API void ResetMesh();
+
 			TDE2_API void AddVertex(const TUIElementsVertex& vertex);
 			TDE2_API void AddIndex(U16 value);
 
 			TDE2_API void SetFontMeshFlag(bool value);
 
+			TDE2_API E_RESULT_CODE SetTextureResourceId(TResourceId resourceId);
+
 			TDE2_API const TVertexArray& GetVertices() const;
 			TDE2_API const TIndexArray& GetIndices() const;
+
+			TDE2_API TResourceId GetTextureResourceId() const;
 
 			TDE2_API bool IsFontMesh() const;
 		protected:
@@ -97,6 +103,8 @@ namespace TDEngine2
 			TIndexArray  mIndices;
 
 			bool mIsFontMesh;
+
+			TResourceId mTextureResourceId;
 	};
 
 

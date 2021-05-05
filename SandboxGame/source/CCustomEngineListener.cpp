@@ -253,6 +253,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						pLayoutElement->SetMaxOffset(TVector2(50.0f));
 					}
 
+					if (auto pImage = pEntity->AddComponent<CImage>())
+					{
+						pImage->SetImageId("Tim.tga");
+					}
+#if 0
 					if (auto pMeshData = pEntity->AddComponent<CUIElementMeshData>())
 					{
 						pMeshData->AddVertex({ { 0.0f, 0.0f, 10.0f, 1.0f } , ZeroVector2, TColorUtils::mWhite });
@@ -268,6 +273,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						pMeshData->AddIndex(1);
 						pMeshData->AddIndex(3);
 					}
+#endif
 
 					GroupEntities(mpWorld, pCanvasEntity->GetId(), pEntity->GetId());
 				}
@@ -315,7 +321,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 			}
 			imgui->IntField("wewewe", i);
 			std::string str = "Hello!";
-			imgui->TextField("tetet", str);
+			imgui->Label("FPS: " + std::to_string(1.0f / mpWindowSystem->GetTimer()->GetDeltaTime()));
 
 			imgui->DisplayMainMenu([](IImGUIContext& ui)
 			{
