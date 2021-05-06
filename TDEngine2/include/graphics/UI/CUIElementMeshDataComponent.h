@@ -22,8 +22,7 @@ namespace TDEngine2
 
 	typedef struct TUIElementsVertex
 	{
-		TVector4  mPos;
-		TVector2  mUV;
+		TVector4  mPosUV; // xy - position, zw - uv
 		TColor32F mColor;
 	} TUIElementsVertex, *TUIElementsVertexPtr;
 

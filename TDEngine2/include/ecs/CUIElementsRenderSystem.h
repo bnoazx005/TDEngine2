@@ -11,6 +11,7 @@
 #include "../utils/Utils.h"
 #include "../graphics/UI/CUIElementMeshDataComponent.h"
 #include <vector>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -25,6 +26,7 @@ namespace TDEngine2
 	class IIndexBuffer;
 
 	enum class TResourceId : U32;
+	enum class TMaterialInstanceId : U32;
 
 
 	/*!
@@ -50,6 +52,8 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateUIElementsRenderSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE& result);
+		public:
+			typedef std::unordered_map<TResourceId, TMaterialInstanceId> TMaterialsMap;
 		public:
 			TDE2_SYSTEM(CUIElementsRenderSystem);
 
@@ -121,5 +125,7 @@ namespace TDEngine2
 
 			IVertexBuffer*                 mpVertexBuffer;
 			IIndexBuffer*                  mpIndexBuffer;
+
+			TMaterialsMap                  mUsingMaterials;
 	};
 }

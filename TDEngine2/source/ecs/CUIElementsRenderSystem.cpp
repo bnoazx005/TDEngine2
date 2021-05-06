@@ -13,6 +13,9 @@
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IVertexBuffer.h"
 #include "../../include/graphics/IIndexBuffer.h"
+#include "../../include/graphics/IMaterial.h"
+#include "../../include/graphics/ITexture.h"
+#include "../../include/core/IResource.h"
 #include "../../include/core/IResourceManager.h"
 
 
@@ -120,10 +123,24 @@ namespace TDEngine2
 			const bool isFontMesh = pMeshData->IsFontMesh();
 
 			const TResourceId currMaterialId = isFontMesh ? mDefaultFontMaterialId : mDefaultUIMaterialId;
+			const TResourceId currTextureId = pMeshData->GetTextureResourceId();
+
+			IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(currMaterialId);
+
+			if (mUsingMaterials.find(currTextureId) == mUsingMaterials.cend()) // \note create a new instance if it doesn't exist yet
+			{
+				mUsingMaterials.emplace(currTextureId, pMaterial->CreateInstance()->GetInstanceId());
+			}
+
+			ITexture* pTexture = mpResourceManager->GetResource<ITexture>(currTextureId);
+
+			const TMaterialInstanceId currMaterialInstance = mUsingMaterials[currTextureId];
+
+			pMaterial->SetTextureResource("Texture", pTexture, currMaterialInstance);
 
 			const U16 layerIndex = static_cast<U16>(std::abs(pTransform->GetPosition().z)); /// \todo Reimplement this 
 
-			auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(ComputeCommandKey(currMaterialId, DefaultMaterialInstanceId, layerIndex));
+			auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(ComputeCommandKey(currMaterialId, currMaterialInstance, layerIndex));
 
 			auto&& vertices = pMeshData->GetVertices();
 			auto&& indices = pMeshData->GetIndices();
@@ -132,6 +149,7 @@ namespace TDEngine2
 			pCurrCommand->mpIndexBuffer       = mpIndexBuffer;
 			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCurrCommand->mMaterialHandle     = currMaterialId;
+			pCurrCommand->mMaterialInstanceId = currMaterialInstance;
 			pCurrCommand->mpVertexDeclaration = isFontMesh ? mpDefaultFontVertexDecl : mpDefaultUIVertexDecl;
 			pCurrCommand->mStartIndex         = static_cast<U32>(mIndices.size());
 			pCurrCommand->mStartVertex        = static_cast<U32>(mVertices.size());
@@ -141,7 +159,7 @@ namespace TDEngine2
 			std::copy(indices.cbegin(), indices.cend(), std::back_inserter(mIndices));
 
 			/// \todo Implement this
-			auto&& uvRect = /*pMainTexture ? pMainTexture->GetNormalizedTextureRect() :*/ TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
+			auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
 
 			/// \todo Add computation of a projection matrix
 			pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix());
@@ -169,7 +187,6 @@ namespace TDEngine2
 		mpDefaultUIVertexDecl = createUIVertDeclResult.Get();
 
 		mpDefaultUIVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpDefaultUIVertexDecl->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
 		mpDefaultUIVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)

@@ -146,10 +146,10 @@ namespace TDEngine2
 		auto&& rtPoint = worldRect.GetRightTop();
 
 		/// \todo Add support of specifying color data
-		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, lbPoint.y, 1.0f, 1.0f), ZeroVector2, TColorUtils::mWhite });
-		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, rtPoint.y, 1.0f, 1.0f), ZeroVector2, TColorUtils::mWhite });
-		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, lbPoint.y, 1.0f, 1.0f), ZeroVector2, TColorUtils::mWhite });
-		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, rtPoint.y, 1.0f, 1.0f), ZeroVector2, TColorUtils::mWhite });
+		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, lbPoint.y, 0.0f, 1.0f), TColorUtils::mWhite });
+		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, rtPoint.y, 0.0f, 0.0f), TColorUtils::mWhite });
+		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, lbPoint.y, 1.0f, 1.0f), TColorUtils::mWhite });
+		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, rtPoint.y, 1.0f, 0.0f), TColorUtils::mWhite });
 
 		static const std::array<U16, 6> indices { 0, 1, 2, 2, 1, 3 }; /// \note standard CW ordered 2 triangles that form a quad
 
