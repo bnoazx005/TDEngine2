@@ -67,9 +67,11 @@ namespace TDEngine2
 			parentLBRect + parentRectSize * pLayoutElement->GetMaxAnchor() + pLayoutElement->GetMaxOffset()
 		};
 
-		pLayoutElement->SetWorldRect(worldRect);
+		const TVector2 originShift = worldRect.GetSizes() * pLayoutElement->GetPivot();
 
-		const TVector2 position = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutElement->GetPivot();
+		pLayoutElement->SetWorldRect(MoveRect(worldRect, -originShift));
+
+		const TVector2 position = worldRect.GetLeftBottom() + originShift;
 		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));
 	}
 

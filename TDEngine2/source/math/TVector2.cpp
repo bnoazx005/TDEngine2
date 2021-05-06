@@ -81,7 +81,7 @@ namespace TDEngine2
 
 	TVector2 operator* (const TVector2& lvec2, const TVector2& rvec2)
 	{
-		return TVector2(lvec2.x * rvec2.x, lvec2.y * rvec2.x);
+		return TVector2(lvec2.x * rvec2.x, lvec2.y * rvec2.y);
 	}
 
 	bool operator== (const TVector2& lvec2, const TVector2& rvec2)

@@ -93,7 +93,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLayoutElement::SetPivot(const TVector2& value)
 	{
-		if (Length(value) > 1.0f || value.x < 0.0f || value.y < 0.0f || value.x > 1.0f || value.y > 1.0f)
+		if (Dot(value, value) > 2.0f || value.x < 0.0f || value.y < 0.0f || value.x > 1.0f || value.y > 1.0f)
 		{
 			return RC_INVALID_ARGS;
 		}
