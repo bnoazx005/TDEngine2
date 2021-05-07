@@ -383,7 +383,7 @@ namespace TDEngine2
 				\param[in] color The rectangle's color
 			*/
 
-			TDE2_API virtual void DrawRect(const TRectF32& rect, const TColor32F& color) = 0;
+			TDE2_API virtual void DrawRect(const TRectF32& rect, const TColor32F& color, bool isFilled = true, F32 thickness = 1.0f) = 0;
 
 			TDE2_API virtual void DrawCircle(const TVector2& center, F32 radius, bool isFilled, const TColor32F& color, F32 thickness = 1.0f) = 0;
 

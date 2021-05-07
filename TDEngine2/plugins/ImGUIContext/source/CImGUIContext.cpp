@@ -418,9 +418,15 @@ namespace TDEngine2
 		_getCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackABGRColor32F(color), thickness);
 	}
 
-	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color)
+	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color, bool isFilled, F32 thickness)
 	{
-		_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackABGRColor32F(color));
+		if (isFilled)
+		{
+			_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackABGRColor32F(color));
+			return;
+		}
+
+		_getCurrActiveDrawList()->AddRect(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackABGRColor32F(color), 0.0f, 15, thickness);
 	}
 
 	void CImGUIContext::DrawCircle(const TVector2& center, F32 radius, bool isFilled, const TColor32F& color, F32 thickness)
