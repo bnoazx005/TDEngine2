@@ -301,6 +301,20 @@ namespace TDEngine2
 
 		if (imguiContext.CollapsingHeader("Canvas", true))
 		{
+			CCanvas& canvas = dynamic_cast<CCanvas&>(component);
+			
+			I32 width = canvas.GetWidth();
+			I32 height = canvas.GetHeight();
+			
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Width");
+			imguiContext.IntField("##Width", width, [&canvas, &width] { canvas.SetWidth(static_cast<U32>(std::max<I32>(0, width))); });
+			imguiContext.EndHorizontal();
+
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Height");
+			imguiContext.IntField("##Height", height, [&canvas, &height] { canvas.SetHeight(static_cast<U32>(std::max<I32>(0, height))); });
+			imguiContext.EndHorizontal();
 		}
 	}
 
@@ -312,6 +326,30 @@ namespace TDEngine2
 		if (imguiContext.CollapsingHeader("Layout Element", true))
 		{
 			CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
+	
+			F32 canvasHeight = 0.0f;
+
+			if (CEntity* pCanvasEntity = editorContext.mWorld.FindEntity(layoutElement.GetOwnerCanvasId()))
+			{
+				if (CCanvas* pCanvas = pCanvasEntity->GetComponent<CCanvas>())
+				{
+					canvasHeight = static_cast<F32>(pCanvas->GetHeight());
+				}
+			}
+
+#if 1		/// \note Move to OnDrawGizmo
+			auto worldRect = layoutElement.GetWorldRect();
+			auto&& pivot = layoutElement.GetPivot();
+
+			TVector2 worldPosition { worldRect.GetLeftBottom() + worldRect.GetSizes() * pivot };
+			worldPosition.y = canvasHeight - worldPosition.y;
+
+			imguiContext.DrawCircle(worldPosition, 4.0f, true, TColorUtils::mWhite);
+			imguiContext.DrawCircle(worldPosition, 8.0f, false, TColorUtils::mWhite, 2.5f);
+
+			worldRect.y = CMathUtils::Max(0.0f, worldRect.y - worldRect.height);
+			imguiContext.DrawRect(worldRect, TColorUtils::mWhite);
+#endif
 
 			// \todo Implement this drawer
 		}

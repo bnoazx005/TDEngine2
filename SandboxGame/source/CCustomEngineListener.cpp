@@ -242,24 +242,38 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					pCanvas->SetHeight(768);
 				}
 
-				if (auto pEntity = pScene->CreateEntity("UIElement"))
+				if (auto pParentEntity = pScene->CreateEntity("RootUI"))
 				{
-					if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+					if (auto pLayoutElement = pParentEntity->AddComponent<CLayoutElement>())
 					{
-						pLayoutElement->SetMinAnchor(TVector2(0.5f));
-						pLayoutElement->SetMaxAnchor(TVector2(0.5f));
+						pLayoutElement->SetMinAnchor(TVector2(0.0f));
+						pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+						pLayoutElement->SetMinOffset(ZeroVector2);
+						pLayoutElement->SetMaxOffset(ZeroVector2);
 						pLayoutElement->SetPivot(TVector2(0.5f));
-
-						pLayoutElement->SetMaxOffset(TVector2(150.0f));
 					}
 
-					if (auto pImage = pEntity->AddComponent<CImage>())
+					if (auto pEntity = pScene->CreateEntity("UIElement"))
 					{
-						pImage->SetImageId("Tim.tga");
+						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+						{
+							pLayoutElement->SetMinAnchor(TVector2(0.5f));
+							pLayoutElement->SetMaxAnchor(TVector2(0.5f));
+							pLayoutElement->SetPivot(TVector2(0.5f));
+
+							pLayoutElement->SetMaxOffset(TVector2(150.0f));
+						}
+
+						if (auto pImage = pEntity->AddComponent<CImage>())
+						{
+							pImage->SetImageId("Tim.tga");
+						}
+
+						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
 					}
 
-					GroupEntities(mpWorld, pCanvasEntity->GetId(), pEntity->GetId());
-				}
+					GroupEntities(mpWorld, pCanvasEntity->GetId(), pParentEntity->GetId());
+				}				
 			}
 #endif
 		});
