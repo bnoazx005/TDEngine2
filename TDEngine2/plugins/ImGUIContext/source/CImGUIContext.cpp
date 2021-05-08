@@ -440,6 +440,17 @@ namespace TDEngine2
 		_getCurrActiveDrawList()->AddCircle(center, radius, PackABGRColor32F(color), 12, thickness);
 	}
 
+	void CImGUIContext::DrawTriangle(const TVector2& p0, const TVector2& p1, const TVector2& p2, const TColor32F& color, bool isFilled, F32 thickness)
+	{
+		if (isFilled)
+		{
+			_getCurrActiveDrawList()->AddTriangleFilled(p0, p1, p2, PackABGRColor32F(color));
+			return;
+		}
+		
+		_getCurrActiveDrawList()->AddTriangle(p0, p1, p2, PackABGRColor32F(color), thickness);
+	}
+
 	void CImGUIContext::DrawText(const TVector2& pos, const TColor32F& color, const std::string& text)
 	{
 		_getCurrActiveDrawList()->AddText(pos, PackABGRColor32F(color), text.c_str());

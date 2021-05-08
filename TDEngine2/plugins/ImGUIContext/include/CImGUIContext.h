@@ -377,6 +377,8 @@ namespace TDEngine2
 
 			TDE2_API void DrawCircle(const TVector2& center, F32 radius, bool isFilled, const TColor32F& color, F32 thickness = 1.0f) override;
 
+			TDE2_API void DrawTriangle(const TVector2& p0, const TVector2& p1, const TVector2& p2, const TColor32F& color, bool isFilled = false, F32 thickness = 1.0f) override;
+
 			/*!
 				\brief The method draws given text
 			*/
