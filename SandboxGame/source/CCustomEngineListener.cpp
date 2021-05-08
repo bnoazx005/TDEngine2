@@ -247,7 +247,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					if (auto pLayoutElement = pParentEntity->AddComponent<CLayoutElement>())
 					{
 						pLayoutElement->SetMinAnchor(TVector2(0.0f));
-						pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+						pLayoutElement->SetMaxAnchor(TVector2(0.5f, 1.0f));
 						pLayoutElement->SetMinOffset(ZeroVector2);
 						pLayoutElement->SetMaxOffset(ZeroVector2);
 						pLayoutElement->SetPivot(TVector2(0.5f));
@@ -257,11 +257,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					{
 						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
 						{
-							pLayoutElement->SetMinAnchor(TVector2(0.5f));
-							pLayoutElement->SetMaxAnchor(TVector2(0.5f));
-							pLayoutElement->SetPivot(TVector2(0.5f));
+							pLayoutElement->SetMinAnchor(TVector2(0.2f));
+							pLayoutElement->SetMaxAnchor(TVector2(0.8f));
+							pLayoutElement->SetPivot(TVector2(0.f));
 
-							pLayoutElement->SetMaxOffset(TVector2(150.0f));
+							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
 						}
 
 						if (auto pImage = pEntity->AddComponent<CImage>())

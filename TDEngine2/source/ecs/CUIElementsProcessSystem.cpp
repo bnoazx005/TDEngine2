@@ -61,15 +61,24 @@ namespace TDEngine2
 		const TVector2 parentLBRect = parentWorldRect.GetLeftBottom();
 		const TVector2 parentRectSize = parentWorldRect.GetSizes();
 
+		const TVector2 minAnchor = pLayoutElement->GetMinAnchor();
+		const TVector2 maxAnchor = pLayoutElement->GetMaxAnchor();
+
+		const TVector2 lbWorldPoint = parentLBRect + parentRectSize * minAnchor;
+		const TVector2 rtWorldPoint = parentLBRect + parentRectSize * maxAnchor;
+
+		const F32 maxOffsetSign = Length(maxAnchor - minAnchor) < 1e-3f ? 1.0f : -1.0f;
+
 		const TRectF32 worldRect
 		{
-			parentLBRect + parentRectSize * pLayoutElement->GetMinAnchor() + pLayoutElement->GetMinOffset(),
-			parentLBRect + parentRectSize * pLayoutElement->GetMaxAnchor() + pLayoutElement->GetMaxOffset()
+			lbWorldPoint + pLayoutElement->GetMinOffset(),
+			rtWorldPoint + maxOffsetSign * pLayoutElement->GetMaxOffset() /// \todo Is this a correct way to implement that?
 		};
 
 		const TVector2 originShift = worldRect.GetSizes() * pLayoutElement->GetPivot();
 
 		pLayoutElement->SetWorldRect(worldRect);
+		pLayoutElement->SetParentWorldRect({ lbWorldPoint, rtWorldPoint });
 
 		const TVector2 position = worldRect.GetLeftBottom() + originShift;
 		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));

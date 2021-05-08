@@ -52,6 +52,11 @@ namespace TDEngine2
 		mWorldRect = rect;
 	}
 
+	void CLayoutElement::SetParentWorldRect(const TRectF32& rect)
+	{
+		mParentWorldRect = rect;
+	}
+
 	void CLayoutElement::SetOwnerCanvasId(TEntityId canvasEntityId)
 	{
 		mCanvasEntityId = canvasEntityId;
@@ -131,6 +136,11 @@ namespace TDEngine2
 	const TRectF32& CLayoutElement::GetWorldRect() const
 	{
 		return mWorldRect;
+	}
+
+	const TRectF32& CLayoutElement::GetParentWorldRect() const
+	{
+		return mParentWorldRect;
 	}
 
 	TEntityId CLayoutElement::GetOwnerCanvasId() const

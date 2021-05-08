@@ -326,7 +326,11 @@ namespace TDEngine2
 		if (imguiContext.CollapsingHeader("Layout Element", true))
 		{
 			CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
-	
+
+#if 1		/// \todo Move to OnDrawGizmo
+			constexpr F32 handleRadius = 4.0f;
+			static const TVector2 anchorSizes{ 10.0f, 20.0f };
+
 			F32 canvasHeight = 0.0f;
 
 			if (CEntity* pCanvasEntity = editorContext.mWorld.FindEntity(layoutElement.GetOwnerCanvasId()))
@@ -337,21 +341,105 @@ namespace TDEngine2
 				}
 			}
 
-#if 1		/// \note Move to OnDrawGizmo
 			auto worldRect = layoutElement.GetWorldRect();
 			auto&& pivot = layoutElement.GetPivot();
 
 			TVector2 worldPosition { worldRect.GetLeftBottom() + worldRect.GetSizes() * pivot };
 			worldPosition.y = canvasHeight - worldPosition.y;
 
-			imguiContext.DrawCircle(worldPosition, 4.0f, true, TColorUtils::mWhite);
-			imguiContext.DrawCircle(worldPosition, 8.0f, false, TColorUtils::mWhite, 2.5f);
+			imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
+			imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
 
 			worldRect.y = CMathUtils::Max(0.0f, worldRect.y - worldRect.height);
-			imguiContext.DrawRect(worldRect, TColorUtils::mWhite);
+
+			imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
+
+			for (auto&& currPoint : worldRect.GetPoints())
+			{
+				imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
+			}
+
+			/// \note Draw anchors
+			auto parentWorldRect = layoutElement.GetParentWorldRect();
+
+			auto&& parentRectPoints = parentWorldRect.GetPoints();
+
+			for (U8 i = 0; i < parentRectPoints.size(); ++i)
+			{
+				auto&& p = parentRectPoints[i];
+
+				const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
+				const F32 s1 = (i < 2 ? -1.0f : 1.0f);
+
+				imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
+			}
 #endif
 
 			// \todo Implement this drawer
+			{
+				TVector2 minOffset = layoutElement.GetMinOffset();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("minOffsetX"); /// \todo Replace it 
+				imguiContext.FloatField("##minOffsetX", minOffset.x, [&minOffset, &layoutElement] { layoutElement.SetMinOffset(minOffset); });
+				imguiContext.EndHorizontal();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("minOffsetY"); /// \todo Replace it 
+				imguiContext.FloatField("##minOffsetY", minOffset.y, [&minOffset, &layoutElement] { layoutElement.SetMinOffset(minOffset); });
+				imguiContext.EndHorizontal();
+			}
+
+			{
+				TVector2 maxOffset = layoutElement.GetMaxOffset();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("maxOffsetX"); /// \todo Replace it 
+				imguiContext.FloatField("##maxOffsetX", maxOffset.x, [&maxOffset, &layoutElement] { layoutElement.SetMaxOffset(maxOffset); });
+				imguiContext.EndHorizontal();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("maxOffsetY"); /// \todo Replace it 
+				imguiContext.FloatField("##maxOffsetY", maxOffset.y, [&maxOffset, &layoutElement] { layoutElement.SetMaxOffset(maxOffset); });
+				imguiContext.EndHorizontal();
+			}
+
+			{
+				TVector2 minAnchor = layoutElement.GetMinAnchor();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("minAnchorX"); /// \todo Replace it 
+				imguiContext.FloatField("##minAnchorX", minAnchor.x, [&minAnchor, &layoutElement] { layoutElement.SetMinAnchor(minAnchor); });
+				imguiContext.EndHorizontal();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("minAnchorY"); /// \todo Replace it 
+				imguiContext.FloatField("##minAnchorY", minAnchor.y, [&minAnchor, &layoutElement] { layoutElement.SetMinAnchor(minAnchor); });
+				imguiContext.EndHorizontal();
+			}
+
+			{
+				TVector2 maxAnchor = layoutElement.GetMaxAnchor();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("maxAnchorX"); /// \todo Replace it 
+				imguiContext.FloatField("##maxAnchorX", maxAnchor.x, [&maxAnchor, &layoutElement] { layoutElement.SetMaxAnchor(maxAnchor); });
+				imguiContext.EndHorizontal();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("maxAnchorY"); /// \todo Replace it 
+				imguiContext.FloatField("##maxAnchorY", maxAnchor.y, [&maxAnchor, &layoutElement] { layoutElement.SetMaxAnchor(maxAnchor); });
+				imguiContext.EndHorizontal();
+			}
+
+			{
+				TVector2 pivot = layoutElement.GetPivot();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Pivot"); /// \todo Replace it 
+				imguiContext.Vector2Field("##pivot", pivot, [&pivot, &layoutElement] { layoutElement.SetPivot(pivot); });
+				imguiContext.EndHorizontal();
+			}
 		}
 	}
 

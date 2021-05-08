@@ -10,6 +10,7 @@
 #include "./../utils/Types.h"
 #include "TVector2.h"
 #include <tuple>
+#include <array>
 
 
 namespace TDEngine2
@@ -52,6 +53,22 @@ namespace TDEngine2
 		TDE2_API TVector2 GetLeftBottom() const { return TVector2(static_cast<F32>(x), static_cast<F32>(y)); }
 		TDE2_API TVector2 GetRightTop() const { return TVector2(static_cast<F32>(x + width), static_cast<F32>(y + height)); }
 		TDE2_API TVector2 GetSizes() const { return TVector2(static_cast<F32>(width), static_cast<F32>(height)); }
+
+		TDE2_API std::array<TVector2, 4> GetPoints() const 
+		{ 
+			F32 x0 = static_cast<F32>(x);
+			F32 y0 = static_cast<F32>(y);
+			F32 x1 = static_cast<F32>(x + width);
+			F32 y1 = static_cast<F32>(y + height);
+
+			return 
+			{
+				TVector2(x0, y0),
+				TVector2(x1, y0),
+				TVector2(x1, y1),
+				TVector2(x0, y1),
+			};
+		}
 
 		protected:
 			TDE2_API void _swap(TRect<T>& rect)

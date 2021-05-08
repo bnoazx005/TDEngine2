@@ -84,6 +84,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetPivot(const TVector2& value);
 
 			TDE2_API void SetWorldRect(const TRectF32& rect);
+			TDE2_API void SetParentWorldRect(const TRectF32& rect);
 
 			TDE2_API void SetOwnerCanvasId(TEntityId canvasEntityId);
 
@@ -96,6 +97,7 @@ namespace TDEngine2
 			TDE2_API const TVector2& GetPivot() const;
 
 			TDE2_API const TRectF32& GetWorldRect() const;
+			TDE2_API const TRectF32& GetParentWorldRect() const;
 
 			TDE2_API TEntityId GetOwnerCanvasId() const;
 		protected:
@@ -110,6 +112,7 @@ namespace TDEngine2
 			TVector2 mPivot;
 
 			TRectF32 mWorldRect;
+			TRectF32 mParentWorldRect;
 
 			TEntityId mCanvasEntityId;
 	};
