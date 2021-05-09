@@ -695,9 +695,9 @@ namespace TDEngine2
 		ImGui::CloseCurrentPopup();
 	}
 
-	bool CImGUIContext::BeginModalWindow(const std::string& name)
+	bool CImGUIContext::BeginModalWindow(const std::string& name, bool isNonBlocking)
 	{
-		return ImGui::BeginPopupModal(name.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+		return isNonBlocking ? ImGui::BeginPopupContextItem(name.c_str()) : ImGui::BeginPopupModal(name.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	}
 
 	void CImGUIContext::EndModalWindow()

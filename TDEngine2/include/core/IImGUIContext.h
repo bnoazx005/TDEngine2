@@ -525,7 +525,7 @@ namespace TDEngine2
 			TDE2_API virtual void ShowModalWindow(const std::string& name) = 0;
 			TDE2_API virtual void CloseCurrentModalWindow() = 0;
 
-			TDE2_API virtual bool BeginModalWindow(const std::string& name) = 0;
+			TDE2_API virtual bool BeginModalWindow(const std::string& name, bool isNonBlocking = false) = 0;
 
 			TDE2_API virtual void EndModalWindow() = 0;
 

@@ -521,7 +521,7 @@ namespace TDEngine2
 			TDE2_API void ShowModalWindow(const std::string& name) override;
 			TDE2_API void CloseCurrentModalWindow() override;
 
-			TDE2_API bool BeginModalWindow(const std::string& name) override;
+			TDE2_API bool BeginModalWindow(const std::string& name, bool isNonBlocking = false) override;
 
 			TDE2_API void EndModalWindow() override;
 

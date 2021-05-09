@@ -374,6 +374,18 @@ namespace TDEngine2
 				imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
 			}
 #endif
+			static const std::string anchorPresetsPopupId = "Anchor Presets";
+
+			/// \note Anchors presets
+			imguiContext.Button("Presets", TVector2(50.0f, 50.0f), [&imguiContext]
+			{
+				imguiContext.ShowModalWindow(anchorPresetsPopupId);
+			});
+
+			if (imguiContext.BeginModalWindow(anchorPresetsPopupId, true))
+			{
+				imguiContext.EndModalWindow();
+			}
 
 			const F32 inputElementWidth = imguiContext.GetWindowWidth() * 0.2f;
 
