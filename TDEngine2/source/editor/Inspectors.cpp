@@ -375,61 +375,67 @@ namespace TDEngine2
 			}
 #endif
 
+			const F32 inputElementWidth = imguiContext.GetWindowWidth() * 0.2f;
+
 			// \todo Implement this drawer
 			{
 				TVector2 minOffset = layoutElement.GetMinOffset();
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("minOffsetX"); /// \todo Replace it 
-				imguiContext.FloatField("##minOffsetX", minOffset.x, [&minOffset, &layoutElement] { layoutElement.SetMinOffset(minOffset); });
-				imguiContext.EndHorizontal();
+				imguiContext.SetItemWidth(inputElementWidth, [&imguiContext, &minOffset, &layoutElement]
+				{
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("minOffX"); /// \todo Replace it 
+					imguiContext.FloatField("##minOffsetX", minOffset.x, [&minOffset, &layoutElement] { layoutElement.SetMinOffset(minOffset); });
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("minOffsetY"); /// \todo Replace it 
-				imguiContext.FloatField("##minOffsetY", minOffset.y, [&minOffset, &layoutElement] { layoutElement.SetMinOffset(minOffset); });
-				imguiContext.EndHorizontal();
+					imguiContext.Label("minOffY"); /// \todo Replace it 
+					imguiContext.FloatField("##minOffsetY", minOffset.y, [&minOffset, &layoutElement] { layoutElement.SetMinOffset(minOffset); });
+					imguiContext.EndHorizontal();
+				});
 			}
 
 			{
 				TVector2 maxOffset = layoutElement.GetMaxOffset();
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("maxOffsetX"); /// \todo Replace it 
-				imguiContext.FloatField("##maxOffsetX", maxOffset.x, [&maxOffset, &layoutElement] { layoutElement.SetMaxOffset(maxOffset); });
-				imguiContext.EndHorizontal();
-
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("maxOffsetY"); /// \todo Replace it 
-				imguiContext.FloatField("##maxOffsetY", maxOffset.y, [&maxOffset, &layoutElement] { layoutElement.SetMaxOffset(maxOffset); });
-				imguiContext.EndHorizontal();
+				imguiContext.SetItemWidth(inputElementWidth, [&imguiContext, &maxOffset, &layoutElement]
+				{
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("maxOffX"); /// \todo Replace it 
+					imguiContext.FloatField("##maxOffsetX", maxOffset.x, [&maxOffset, &layoutElement] { layoutElement.SetMaxOffset(maxOffset); });
+					
+					imguiContext.Label("maxOffY"); /// \todo Replace it 
+					imguiContext.FloatField("##maxOffsetY", maxOffset.y, [&maxOffset, &layoutElement] { layoutElement.SetMaxOffset(maxOffset); });
+					imguiContext.EndHorizontal();
+				});
 			}
 
 			{
 				TVector2 minAnchor = layoutElement.GetMinAnchor();
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("minAnchorX"); /// \todo Replace it 
-				imguiContext.FloatField("##minAnchorX", minAnchor.x, [&minAnchor, &layoutElement] { layoutElement.SetMinAnchor(minAnchor); });
-				imguiContext.EndHorizontal();
-
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("minAnchorY"); /// \todo Replace it 
-				imguiContext.FloatField("##minAnchorY", minAnchor.y, [&minAnchor, &layoutElement] { layoutElement.SetMinAnchor(minAnchor); });
-				imguiContext.EndHorizontal();
+				imguiContext.SetItemWidth(inputElementWidth, [&imguiContext, &minAnchor, &layoutElement]
+				{
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Min Anchor:\tX"); /// \todo Replace it 
+					imguiContext.FloatField("##minAnchorX", minAnchor.x, [&minAnchor, &layoutElement] { layoutElement.SetMinAnchor(minAnchor); });
+					
+					imguiContext.Label("Y"); /// \todo Replace it 
+					imguiContext.FloatField("##minAnchorY", minAnchor.y, [&minAnchor, &layoutElement] { layoutElement.SetMinAnchor(minAnchor); });
+					imguiContext.EndHorizontal();
+				});
 			}
 
 			{
 				TVector2 maxAnchor = layoutElement.GetMaxAnchor();
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("maxAnchorX"); /// \todo Replace it 
-				imguiContext.FloatField("##maxAnchorX", maxAnchor.x, [&maxAnchor, &layoutElement] { layoutElement.SetMaxAnchor(maxAnchor); });
-				imguiContext.EndHorizontal();
+				imguiContext.SetItemWidth(inputElementWidth, [&imguiContext, &maxAnchor, &layoutElement]
+				{
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Max Anchor:\tX"); /// \todo Replace it
+					imguiContext.FloatField("##maxAnchorX", maxAnchor.x, [&maxAnchor, &layoutElement] { layoutElement.SetMaxAnchor(maxAnchor); });
 
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("maxAnchorY"); /// \todo Replace it 
-				imguiContext.FloatField("##maxAnchorY", maxAnchor.y, [&maxAnchor, &layoutElement] { layoutElement.SetMaxAnchor(maxAnchor); });
-				imguiContext.EndHorizontal();
+					imguiContext.Label("Y"); /// \todo Replace it 
+					imguiContext.FloatField("##maxAnchorY", maxAnchor.y, [&maxAnchor, &layoutElement] { layoutElement.SetMaxAnchor(maxAnchor); });
+					imguiContext.EndHorizontal();
+				});
 			}
 
 			{

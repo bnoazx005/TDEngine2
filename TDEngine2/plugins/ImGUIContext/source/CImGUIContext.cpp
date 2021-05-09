@@ -710,6 +710,18 @@ namespace TDEngine2
 		ImGui::SetCursorScreenPos(pos);
 	}
 
+	void CImGUIContext::SetItemWidth(F32 width, const std::function<void()>& action)
+	{
+		ImGui::PushItemWidth(width);
+
+		if (action)
+		{
+			action();
+		}
+
+		ImGui::PopItemWidth();
+	}
+
 	void CImGUIContext::RegisterDragAndDropSource(const std::function<void()>& action)
 	{
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))

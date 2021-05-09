@@ -531,6 +531,12 @@ namespace TDEngine2
 
 			TDE2_API void SetCursorScreenPos(const TVector2& pos) override;
 
+			/*!
+				\brief The method changes width of items that are called within action callbacks
+			*/
+
+			TDE2_API void SetItemWidth(F32 width, const std::function<void()>& action = {}) override;
+
 			TDE2_API void DisplayIDGroup(I32 id, const std::function<void()>& idGroupCallback = {}) override;
 
 			/*!
