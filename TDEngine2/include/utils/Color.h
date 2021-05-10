@@ -58,6 +58,7 @@ namespace TDEngine2
 		static constexpr TColor32F mBlue    = TColor32F(0.0f, 0.0f, 1.0f, 1.0f);
 		static constexpr TColor32F mMagenta = TColor32F(1.0f, 0.0f, 1.0f, 1.0f);
 		static constexpr TColor32F mYellow  = TColor32F(1.0f, 1.0f, 0.0f, 1.0f);
+		static constexpr TColor32F mGray    = TColor32F(0.5f, 0.5f, 0.5f, 1.0f);
 	};
 
 

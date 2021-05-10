@@ -27,6 +27,9 @@
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
+#include <array>
+#include <tuple>
+#include <functional>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -318,6 +321,194 @@ namespace TDEngine2
 		}
 	}
 
+
+	static void DrawLayoutElementHandles(const TEditorContext& editorContext, CLayoutElement& layoutElement)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+
+		constexpr F32 handleRadius = 4.0f;
+		static const TVector2 anchorSizes{ 10.0f, 20.0f };
+
+		F32 canvasHeight = 0.0f;
+
+		if (CEntity* pCanvasEntity = editorContext.mWorld.FindEntity(layoutElement.GetOwnerCanvasId()))
+		{
+			if (CCanvas* pCanvas = pCanvasEntity->GetComponent<CCanvas>())
+			{
+				canvasHeight = static_cast<F32>(pCanvas->GetHeight());
+			}
+		}
+
+		auto worldRect = layoutElement.GetWorldRect();
+		auto&& pivot = layoutElement.GetPivot();
+
+		TVector2 worldPosition{ worldRect.GetLeftBottom() + worldRect.GetSizes() * pivot };
+		worldPosition.y = canvasHeight - worldPosition.y;
+		
+		imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
+		imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
+
+		worldRect.y = CMathUtils::Max(0.0f, worldRect.y - worldRect.height);
+
+		imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
+
+		for (auto&& currPoint : worldRect.GetPoints())
+		{
+			imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
+		}
+
+		/// \note Draw anchors
+		auto parentWorldRect = layoutElement.GetParentWorldRect();
+
+		auto&& parentRectPoints = parentWorldRect.GetPoints();
+
+		for (U8 i = 0; i < parentRectPoints.size(); ++i)
+		{
+			auto&& p = parentRectPoints[i];
+
+			const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
+			const F32 s1 = (i < 2 ? -1.0f : 1.0f);
+
+			imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
+		}
+	}
+
+
+	struct TLayoutPresetParams
+	{
+		TVector2 mMinAnchor;
+		TVector2 mMaxAnchor;
+
+		std::function<void()> mOnClick = nullptr;
+	};
+
+
+	constexpr U32 LayoutPresetsCount = 17;
+
+
+	static const std::array<std::string, LayoutPresetsCount> LayoutPresetsList
+	{
+		"Top Left",
+		"Top Right",
+		"Bottom Left",
+		"Bottom Right",
+		"Center Left",
+		"Center Top",
+		"Center Right",
+		"Center Bottom",
+		"Center",
+		"Left Wide",
+		"VCenter Wide",
+		"HCenter Wide",
+		"Right Wide",
+		"Top Wide",
+		"Bottom Wide",
+		"Full Rect",
+		"Custom",
+	};
+
+
+	static const std::array<std::tuple<TVector2, TVector2>, LayoutPresetsCount> LayoutAnchorsPresets
+	{
+		std::make_tuple<TVector2, TVector2>({ 0.0f, 1.0f }, { 0.0f, 1.0f }), ///< Top Left
+		std::make_tuple<TVector2, TVector2>({ 1.0f }, { 1.0f }),             ///< Top Right
+		std::make_tuple<TVector2, TVector2>({ 0.0f }, { 0.0f }),             ///< Bottom Left
+		std::make_tuple<TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f, 0.0f }), ///< Bottom Right
+		std::make_tuple<TVector2, TVector2>({ 0.0f, 0.5f }, { 0.0f, 0.5f }), ///< Center Left
+		std::make_tuple<TVector2, TVector2>({ 0.5f, 1.0f }, { 0.5f, 1.0f }), ///< Center Top
+		std::make_tuple<TVector2, TVector2>({ 1.0f, 0.5f }, { 1.0f, 0.5f }), ///< Center Right
+		std::make_tuple<TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 0.0f }), ///< Center Bottom
+		std::make_tuple<TVector2, TVector2>({ 0.5f }, { 0.5f }),             ///< Center
+		std::make_tuple<TVector2, TVector2>({ 0.0f }, { 0.0f, 1.0f }),       ///< Left Wide
+		std::make_tuple<TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 1.0f }), ///< VCenter Wide
+		std::make_tuple<TVector2, TVector2>({ 0.0f, 0.5f }, { 1.0f, 0.5f }), ///< HCenter Wide
+		std::make_tuple<TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f }),       ///< Right Wide
+		std::make_tuple<TVector2, TVector2>({ 0.0f, 1.0f }, { 1.0f }),       ///< Top Wide
+		std::make_tuple<TVector2, TVector2>({ 0.0f }, { 1.0f, 0.0f }),       ///< Bottom Wide
+		std::make_tuple<TVector2, TVector2>({ 0.0f }, { 1.0f }),             ///< Full Rect
+	};
+
+
+	static void DrawLayoutPresetIcon(const TEditorContext& editorContext, const std::string& text, const TLayoutPresetParams& params = {})
+	{
+		constexpr F32 iconSize = 14.0f;
+		constexpr F32 iconBorderSize = 1.0f;
+		constexpr F32 innerRectSize = (iconSize - 2.0f * iconBorderSize);
+		constexpr F32 presetRectSize = innerRectSize / 3.0f;
+
+		static const std::array<TVector2, LayoutPresetsCount> presetsRectSizes
+		{
+			TVector2 { presetRectSize },                                     ///< Top Left
+			TVector2 { presetRectSize },                                     ///< Top Right
+			TVector2 { presetRectSize },                                     ///< Bottom Left
+			TVector2 { presetRectSize },                                     ///< Bottom Right
+			TVector2 { presetRectSize },                                     ///< Center Left
+			TVector2 { presetRectSize },                                     ///< Center Top
+			TVector2 { presetRectSize },                                     ///< Center Right
+			TVector2 { presetRectSize },                                     ///< Center Bottom
+			TVector2 { presetRectSize },                                     ///< Center
+			TVector2 { presetRectSize, innerRectSize },                      ///< Left Wide
+			TVector2 { presetRectSize, innerRectSize },						///< VCenter Wide
+			TVector2 { innerRectSize, presetRectSize },                      ///< HCenter Wide
+			TVector2 { presetRectSize, innerRectSize },                      ///< Right Wide
+			TVector2 { innerRectSize, presetRectSize },                      ///< Top Wide
+			TVector2 { innerRectSize, presetRectSize },                      ///< Bottom Wide
+			TVector2 { innerRectSize },                                      ///< Full Rect
+			ZeroVector2
+		};
+
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+
+		TVector2 cursorPos = imguiContext.GetCursorScreenPos();
+
+		imguiContext.BeginHorizontal();
+		
+		imguiContext.DrawRect({ cursorPos.x, cursorPos.y, iconSize, iconSize }, TColorUtils::mGray);
+		imguiContext.DrawRect({ cursorPos.x + iconBorderSize, cursorPos.y + iconBorderSize, iconSize - 2.0f * iconBorderSize, iconSize - 2.0f * iconBorderSize }, TColorUtils::mBlack);
+
+		for (U32 i = 0; i < LayoutPresetsCount; ++i)
+		{
+			const TVector2& minAnchor = std::get<0>(LayoutAnchorsPresets[i]);
+
+			if (minAnchor != params.mMinAnchor || std::get<1>(LayoutAnchorsPresets[i]) != params.mMaxAnchor)
+			{
+				continue;
+			}
+
+			const TVector2& rectSizes = presetsRectSizes[i];
+
+			imguiContext.DrawRect(
+				{ 
+					cursorPos.x + iconBorderSize + minAnchor.x * innerRectSize - ((minAnchor.x > 0.5f) ? rectSizes.x : 0.0f) - (std::abs(minAnchor.x - 0.5f) < 1e-3f ? presetRectSize * 0.5f : 0.0f),
+					cursorPos.y + iconBorderSize + (1.0f - minAnchor.y) * innerRectSize - ((minAnchor.y < 0.5f) ? rectSizes.y : 0.0f) - (std::abs(minAnchor.y - 0.5f) < 1e-3f ? presetRectSize * 0.5f : 0.0f),
+					rectSizes.x, 
+					rectSizes.y 
+				}, TColorUtils::mWhite);
+		}
+
+		imguiContext.Button(text + "##Button", TVector2(imguiContext.GetWindowWidth() * 0.4f, iconSize), params.mOnClick, true);
+
+		imguiContext.SetCursorScreenPos(cursorPos + TVector2(iconSize + 5.0f, 0.0f));
+		imguiContext.Label(text);
+
+		imguiContext.EndHorizontal();
+	}
+
+	
+	static U32 FindPresetIndexByAnchors(const TVector2& minAnchor, const TVector2& maxAnchor)
+	{
+		for (U32 i = 0; i < LayoutPresetsCount; ++i)
+		{
+			if (std::get<0>(LayoutAnchorsPresets[i]) == minAnchor && std::get<1>(LayoutAnchorsPresets[i]) == maxAnchor)
+			{
+				return i;
+			}
+		}
+
+		return static_cast<U32>(LayoutPresetsCount - 1);
+	}
+
+
 	void CDefeaultInspectorsRegistry::DrawLayoutElementGUI(const TEditorContext& editorContext)
 	{
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
@@ -327,63 +518,40 @@ namespace TDEngine2
 		{
 			CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
 
-#if 1		/// \todo Move to OnDrawGizmo
-			constexpr F32 handleRadius = 4.0f;
-			static const TVector2 anchorSizes{ 10.0f, 20.0f };
+			DrawLayoutElementHandles(editorContext, layoutElement);
 
-			F32 canvasHeight = 0.0f;
-
-			if (CEntity* pCanvasEntity = editorContext.mWorld.FindEntity(layoutElement.GetOwnerCanvasId()))
-			{
-				if (CCanvas* pCanvas = pCanvasEntity->GetComponent<CCanvas>())
-				{
-					canvasHeight = static_cast<F32>(pCanvas->GetHeight());
-				}
-			}
-
-			auto worldRect = layoutElement.GetWorldRect();
-			auto&& pivot = layoutElement.GetPivot();
-
-			TVector2 worldPosition { worldRect.GetLeftBottom() + worldRect.GetSizes() * pivot };
-			worldPosition.y = canvasHeight - worldPosition.y;
-
-			imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
-			imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
-
-			worldRect.y = CMathUtils::Max(0.0f, worldRect.y - worldRect.height);
-
-			imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
-
-			for (auto&& currPoint : worldRect.GetPoints())
-			{
-				imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
-			}
-
-			/// \note Draw anchors
-			auto parentWorldRect = layoutElement.GetParentWorldRect();
-
-			auto&& parentRectPoints = parentWorldRect.GetPoints();
-
-			for (U8 i = 0; i < parentRectPoints.size(); ++i)
-			{
-				auto&& p = parentRectPoints[i];
-
-				const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
-				const F32 s1 = (i < 2 ? -1.0f : 1.0f);
-
-				imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
-			}
-#endif
 			static const std::string anchorPresetsPopupId = "Anchor Presets";
 
 			/// \note Anchors presets
-			imguiContext.Button("Presets", TVector2(50.0f, 50.0f), [&imguiContext]
-			{
-				imguiContext.ShowModalWindow(anchorPresetsPopupId);
-			});
-
+			DrawLayoutPresetIcon(editorContext, LayoutPresetsList[FindPresetIndexByAnchors(layoutElement.GetMinAnchor(), layoutElement.GetMaxAnchor())],
+				{ 
+					layoutElement.GetMinAnchor(), layoutElement.GetMaxAnchor(), 
+					[&imguiContext]
+					{
+						imguiContext.ShowModalWindow(anchorPresetsPopupId);
+					} 
+				});
+			
 			if (imguiContext.BeginModalWindow(anchorPresetsPopupId, true))
 			{
+				for (U32 i = 0; i < LayoutPresetsCount - 1; ++i)
+				{
+					DrawLayoutPresetIcon(editorContext, LayoutPresetsList[i], 
+						{ 
+							std::get<0>(LayoutAnchorsPresets[i]), 
+							std::get<1>(LayoutAnchorsPresets[i]),
+							[&imguiContext, &layoutElement, i]
+							{
+								auto&& anchorsPreset = LayoutAnchorsPresets[i];
+
+								layoutElement.SetMinAnchor(std::get<0>(anchorsPreset));
+								layoutElement.SetMaxAnchor(std::get<1>(anchorsPreset));
+
+								imguiContext.CloseCurrentModalWindow();
+							}
+						});
+				}
+
 				imguiContext.EndModalWindow();
 			}
 
