@@ -143,7 +143,7 @@ namespace TDEngine2
 
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
-
+		ImGui::ShowMetricsWindow();
 		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
 
 		mUsedResourcesRegistry.clear();
@@ -642,6 +642,23 @@ namespace TDEngine2
 		{
 			TVector2 sizes = params.mSizes;
 			ImGui::SetNextWindowSize(ImVec2(sizes.x, sizes.y));
+		}
+
+		flags |= (params.mIsInputTransparent ? (ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMouseInputs) : 0x0);
+
+		if (params.mIsFullscreen)
+		{
+			flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar |
+					ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+					ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+			ImGui::SetNextWindowSize(mpIOContext->DisplaySize);
+			ImGui::SetNextWindowPos(ImVec2(0, 0));
+		}
+
+		if (params.mIsTransparent)
+		{
+			ImGui::SetNextWindowBgAlpha(0.0f);
 		}
 
 		bool result = ImGui::Begin(name.c_str(), &isOpened, flags);

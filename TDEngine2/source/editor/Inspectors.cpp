@@ -27,6 +27,7 @@
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
+#include "../../include/utils/CFileLogger.h"
 #include <array>
 #include <tuple>
 #include <functional>
@@ -339,38 +340,108 @@ namespace TDEngine2
 			}
 		}
 
-		auto worldRect = layoutElement.GetWorldRect();
-		auto&& pivot = layoutElement.GetPivot();
-
-		TVector2 worldPosition{ worldRect.GetLeftBottom() + worldRect.GetSizes() * pivot };
-		worldPosition.y = canvasHeight - worldPosition.y;
-		
-		imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
-		imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
-
-		worldRect.y = CMathUtils::Max(0.0f, worldRect.y - worldRect.height);
-
-		imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
-
-		for (auto&& currPoint : worldRect.GetPoints())
+		static const IImGUIContext::TWindowParams params
 		{
-			imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
+			ZeroVector2,
+			ZeroVector2,
+			ZeroVector2,
+			true, true, false, true
+		};
+
+		bool opened = true;
+
+		if (imguiContext.BeginWindow("LayoutElementEditor", opened, params))
+		{
+			auto worldRect = layoutElement.GetWorldRect();
+
+			const TVector2 worldRectLeftBottomPoint = worldRect.GetLeftBottom();
+
+			worldRect.y = CMathUtils::Max(0.0f, worldRect.y - worldRect.height);
+
+			TVector2 initCursorPos = imguiContext.GetCursorScreenPos();
+			TVector2 cursorPos = worldRect.GetLeftBottom();
+
+			{
+				
+				imguiContext.DisplayIDGroup(14, [&imguiContext, worldRect, cursorPos]
+				{
+					imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
+
+					imguiContext.SetCursorScreenPos(cursorPos);
+
+					imguiContext.Button("##Rect", worldRect.GetSizes(), nullptr, true);
+
+					/// \note Move layoutElement if its rectangle selected and are dragged
+					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+					{
+						LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move rectangle: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
+					}
+				});				
+
+				imguiContext.SetCursorScreenPos(initCursorPos);
+			}
+
+			{
+				
+				imguiContext.DisplayIDGroup(2, [&imguiContext, handleRadius, worldRect, worldRectLeftBottomPoint, canvasHeight, &initCursorPos, &layoutElement]
+				{
+					auto&& pivot = layoutElement.GetPivot();
+
+					TVector2 worldPosition{ worldRectLeftBottomPoint + worldRect.GetSizes() * pivot };
+					worldPosition.y = canvasHeight - worldPosition.y;
+
+					initCursorPos = imguiContext.GetCursorScreenPos();
+
+					imguiContext.SetCursorScreenPos(worldPosition - TVector2(5.0f * handleRadius));
+
+					imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
+					imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
+
+
+					imguiContext.Button("##Pivot", TVector2(10.0f * handleRadius), nullptr, true);
+
+					/// \note Move layoutElement's pivot
+					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+					{
+						LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move pivot: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
+					}
+				});
+
+				imguiContext.SetCursorScreenPos(initCursorPos);
+			}
+
+			for (auto&& currPoint : worldRect.GetPoints())
+			{
+				imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
+
+			/*	if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+				{
+					LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move corner: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
+				}*/
+			}
+
+			/// \note Draw anchors
+			auto parentWorldRect = layoutElement.GetParentWorldRect();
+
+			auto&& parentRectPoints = parentWorldRect.GetPoints();
+
+			for (U8 i = 0; i < parentRectPoints.size(); ++i)
+			{
+				auto&& p = parentRectPoints[i];
+
+				const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
+				const F32 s1 = (i < 2 ? -1.0f : 1.0f);
+
+				imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
+
+				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+				{
+					LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move anchor: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
+				}
+			}
 		}
 
-		/// \note Draw anchors
-		auto parentWorldRect = layoutElement.GetParentWorldRect();
-
-		auto&& parentRectPoints = parentWorldRect.GetPoints();
-
-		for (U8 i = 0; i < parentRectPoints.size(); ++i)
-		{
-			auto&& p = parentRectPoints[i];
-
-			const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
-			const F32 s1 = (i < 2 ? -1.0f : 1.0f);
-
-			imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
-		}
+		imguiContext.EndWindow();
 	}
 
 
@@ -408,24 +479,24 @@ namespace TDEngine2
 	};
 
 
-	static const std::array<std::tuple<TVector2, TVector2>, LayoutPresetsCount> LayoutAnchorsPresets
+	static const std::array<std::tuple<TVector2, TVector2, TVector2>, LayoutPresetsCount> LayoutAnchorsPresets
 	{
-		std::make_tuple<TVector2, TVector2>({ 0.0f, 1.0f }, { 0.0f, 1.0f }), ///< Top Left
-		std::make_tuple<TVector2, TVector2>({ 1.0f }, { 1.0f }),             ///< Top Right
-		std::make_tuple<TVector2, TVector2>({ 0.0f }, { 0.0f }),             ///< Bottom Left
-		std::make_tuple<TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f, 0.0f }), ///< Bottom Right
-		std::make_tuple<TVector2, TVector2>({ 0.0f, 0.5f }, { 0.0f, 0.5f }), ///< Center Left
-		std::make_tuple<TVector2, TVector2>({ 0.5f, 1.0f }, { 0.5f, 1.0f }), ///< Center Top
-		std::make_tuple<TVector2, TVector2>({ 1.0f, 0.5f }, { 1.0f, 0.5f }), ///< Center Right
-		std::make_tuple<TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 0.0f }), ///< Center Bottom
-		std::make_tuple<TVector2, TVector2>({ 0.5f }, { 0.5f }),             ///< Center
-		std::make_tuple<TVector2, TVector2>({ 0.0f }, { 0.0f, 1.0f }),       ///< Left Wide
-		std::make_tuple<TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 1.0f }), ///< VCenter Wide
-		std::make_tuple<TVector2, TVector2>({ 0.0f, 0.5f }, { 1.0f, 0.5f }), ///< HCenter Wide
-		std::make_tuple<TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f }),       ///< Right Wide
-		std::make_tuple<TVector2, TVector2>({ 0.0f, 1.0f }, { 1.0f }),       ///< Top Wide
-		std::make_tuple<TVector2, TVector2>({ 0.0f }, { 1.0f, 0.0f }),       ///< Bottom Wide
-		std::make_tuple<TVector2, TVector2>({ 0.0f }, { 1.0f }),             ///< Full Rect
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 0.0f, 1.0f }, { 100.0f }),       ///< Top Left
+		std::make_tuple<TVector2, TVector2, TVector2>({ 1.0f }, { 1.0f }, { 100.0f }),                   ///< Top Right
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f }, { 0.0f }, { 100.0f }),                   ///< Bottom Left
+		std::make_tuple<TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f, 0.0f }, { 100.0f }),       ///< Bottom Right
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f, 0.5f }, { 0.0f, 0.5f }, { 100.0f }),       ///< Center Left
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.5f, 1.0f }, { 0.5f, 1.0f }, { 100.0f }),       ///< Center Top
+		std::make_tuple<TVector2, TVector2, TVector2>({ 1.0f, 0.5f }, { 1.0f, 0.5f }, { 100.0f }),       ///< Center Right
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 0.0f }, { 100.0f }),       ///< Center Bottom
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.5f }, { 0.5f }, { 100.0f }),                   ///< Center
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f }, { 0.0f, 1.0f }, { 100.0f, 0.0f }),       ///< Left Wide
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 1.0f }, { 100.0f, 0.0f }), ///< VCenter Wide
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f, 0.5f }, { 1.0f, 0.5f }, { 0.0f, 100.0f }), ///< HCenter Wide
+		std::make_tuple<TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f }, { 100.0f, 0.0f }),       ///< Right Wide
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 1.0f }, { 0.0f, 100.0f }),       ///< Top Wide
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f, 0.0f }, { 0.0f, 100.0f }),       ///< Bottom Wide
+		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f }, { 100.0f }),                   ///< Full Rect
 	};
 
 
@@ -546,6 +617,8 @@ namespace TDEngine2
 
 								layoutElement.SetMinAnchor(std::get<0>(anchorsPreset));
 								layoutElement.SetMaxAnchor(std::get<1>(anchorsPreset));
+
+								layoutElement.SetMaxOffset(std::get<2>(anchorsPreset));
 
 								imguiContext.CloseCurrentModalWindow();
 							}
