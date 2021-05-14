@@ -143,7 +143,7 @@ namespace TDEngine2
 
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
-		ImGui::ShowMetricsWindow();
+
 		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
 
 		mUsedResourcesRegistry.clear();

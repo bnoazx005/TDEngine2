@@ -350,80 +350,45 @@ namespace TDEngine2
 
 		bool opened = true;
 
+
 		if (imguiContext.BeginWindow("LayoutElementEditor", opened, params))
 		{
 			auto worldRect = layoutElement.GetWorldRect();
 
-			const TVector2 worldRectLeftBottomPoint = worldRect.GetLeftBottom();
-
-			worldRect.y = CMathUtils::Max(0.0f, worldRect.y - worldRect.height);
-
-			TVector2 initCursorPos = imguiContext.GetCursorScreenPos();
-			TVector2 cursorPos = worldRect.GetLeftBottom();
-
+			/// \note Draw a pivot
+			imguiContext.DisplayIDGroup(1, [&imguiContext, handleRadius, worldRect, canvasHeight, &layoutElement]
 			{
-				
-				imguiContext.DisplayIDGroup(14, [&imguiContext, worldRect, cursorPos]
+				auto&& pivot = layoutElement.GetPivot();
+
+				TVector2 worldPosition{ worldRect.GetLeftBottom() + worldRect.GetSizes() * pivot };
+				worldPosition.y = canvasHeight - worldPosition.y;
+
+				imguiContext.SetCursorScreenPos(worldPosition - TVector2(5.0f * handleRadius));
+
+				imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
+				imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
+
+				imguiContext.Button("##Pivot", TVector2(10.0f * handleRadius), nullptr, true);
+
+				/// \note Move layoutElement's pivot
+				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 				{
-					imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
+					auto&& mousePosition = imguiContext.GetMousePosition() - worldRect.GetLeftBottom();
+					auto&& sizes = worldRect.GetSizes();
 
-					imguiContext.SetCursorScreenPos(cursorPos);
-
-					imguiContext.Button("##Rect", worldRect.GetSizes(), nullptr, true);
-
-					/// \note Move layoutElement if its rectangle selected and are dragged
-					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
-					{
-						LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move rectangle: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
-					}
-				});				
-
-				imguiContext.SetCursorScreenPos(initCursorPos);
-			}
-
-			{
-				
-				imguiContext.DisplayIDGroup(2, [&imguiContext, handleRadius, worldRect, worldRectLeftBottomPoint, canvasHeight, &initCursorPos, &layoutElement]
-				{
-					auto&& pivot = layoutElement.GetPivot();
-
-					TVector2 worldPosition{ worldRectLeftBottomPoint + worldRect.GetSizes() * pivot };
-					worldPosition.y = canvasHeight - worldPosition.y;
-
-					initCursorPos = imguiContext.GetCursorScreenPos();
-
-					imguiContext.SetCursorScreenPos(worldPosition - TVector2(5.0f * handleRadius));
-
-					imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
-					imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
-
-
-					imguiContext.Button("##Pivot", TVector2(10.0f * handleRadius), nullptr, true);
-
-					/// \note Move layoutElement's pivot
-					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
-					{
-						LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move pivot: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
-					}
-				});
-
-				imguiContext.SetCursorScreenPos(initCursorPos);
-			}
-
-			for (auto&& currPoint : worldRect.GetPoints())
-			{
-				imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
-
-			/*	if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
-				{
-					LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move corner: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
-				}*/
-			}
+					layoutElement.SetPivot(TVector2(mousePosition.x / sizes.x, 1.0f - mousePosition.y / sizes.y));
+				}
+			});
 
 			/// \note Draw anchors
 			auto parentWorldRect = layoutElement.GetParentWorldRect();
 
 			auto&& parentRectPoints = parentWorldRect.GetPoints();
+
+			static const std::array<TVector2, 4> anchorRectsOffsets 
+			{
+				TVector2(-5.0f * handleRadius), TVector2(0.0f, -5.0f * handleRadius), ZeroVector2, TVector2(-5.0f * handleRadius, 0.0f)
+			};
 
 			for (U8 i = 0; i < parentRectPoints.size(); ++i)
 			{
@@ -432,13 +397,56 @@ namespace TDEngine2
 				const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
 				const F32 s1 = (i < 2 ? -1.0f : 1.0f);
 
-				imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
+				imguiContext.DisplayIDGroup(static_cast<U32>(10 + i), [&imguiContext, s0, s1, p, handleRadius, i]
+				{
+					imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
 
+					imguiContext.SetCursorScreenPos(p + anchorRectsOffsets[i]);
+					imguiContext.Button(Wrench::StringUtils::GetEmptyStr(), TVector2(5.0f * handleRadius), nullptr, false);
+
+					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+					{
+						LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move anchor_{0}: {1}", i, imguiContext.GetMouseDragDelta(0).ToString()));
+					}
+				});
+			}
+
+			/// \note Draw corner vertices
+			U32 pointIndex = 0;
+
+			for (auto&& currPoint : worldRect.GetPoints())
+			{
+				imguiContext.DisplayIDGroup(3 + pointIndex++, [&imguiContext, currPoint, handleRadius]
+				{
+					imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
+
+					imguiContext.SetCursorScreenPos(currPoint - TVector2(5.0f * handleRadius));
+					imguiContext.Button(Wrench::StringUtils::GetEmptyStr(), TVector2(10.0f * handleRadius), nullptr, false);
+
+					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+					{
+						LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move corner: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
+					}
+				});
+			}
+
+			/// \note Draw a rectangle
+			imguiContext.DisplayIDGroup(2, [&imguiContext, worldRect]
+			{
+				const TVector2 cursorPos = imguiContext.GetCursorScreenPos();
+
+				imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
+
+				imguiContext.SetCursorScreenPos(worldRect.GetLeftBottom());
+
+				imguiContext.Button("##Rect", worldRect.GetSizes(), nullptr, true);
+
+				/// \note Move layoutElement if its rectangle selected and are dragged
 				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 				{
-					LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move anchor: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
+					LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move rectangle: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
 				}
-			}
+			});
 		}
 
 		imguiContext.EndWindow();
