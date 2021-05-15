@@ -140,13 +140,7 @@ namespace TDEngine2
 	template <typename T>
 	bool ContainsPoint(const TRect<T>& rect, const TVector2& point)
 	{
-		if (point.x > rect.x && point.x < (rect.x + rect.height) &&
-			point.y > (rect.y - rect.width) && point.y < rect.y)
-		{
-			return true;
-		}
-
-		return false;
+		return (point.x > rect.x && point.x < (rect.x + rect.width) && point.y < (rect.y + rect.height) && point.y > rect.y);
 	}
 
 
@@ -193,15 +187,13 @@ namespace TDEngine2
 	template <typename T>
 	TVector2 PointToNormalizedCoords(const TRect<T>& rect, const TVector2& point)
 	{
-		TVector2 normalizedPoint { point.x - rect.x, rect.y - point.y };
-
-		if (!ContainsPoint(rect, point))
-		{
-			return ZeroVector2;
-		}
+		TVector2 normalizedPoint { point.x - rect.x, point.y - rect.y };
 
 		normalizedPoint.x /= rect.width;
 		normalizedPoint.y /= rect.height;
+
+		normalizedPoint.x = CMathUtils::Clamp01(normalizedPoint.x);
+		normalizedPoint.y = CMathUtils::Clamp01(normalizedPoint.y);
 
 		return normalizedPoint;
 	}
