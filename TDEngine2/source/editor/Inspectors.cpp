@@ -325,6 +325,15 @@ namespace TDEngine2
 
 	static void DrawLayoutElementHandles(const TEditorContext& editorContext, CLayoutElement& layoutElement)
 	{
+		enum class E_ANCHOR_TYPE : U8
+		{
+			LEFT_BOTTOM,
+			RIGHT_BOTTOM,
+			RIGHT_TOP,
+			LEFT_TOP,
+		};
+
+
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
 
 		constexpr F32 handleRadius = 4.0f;
@@ -349,7 +358,6 @@ namespace TDEngine2
 		};
 
 		bool opened = true;
-
 
 		if (imguiContext.BeginWindow("LayoutElementEditor", opened, params))
 		{
@@ -382,23 +390,21 @@ namespace TDEngine2
 
 			/// \note Draw anchors
 			auto parentWorldRect = layoutElement.GetParentWorldRect();
+			auto anchorsRelativeWorldRect = layoutElement.GetAnchorWorldRect();
 
-			auto&& parentRectPoints = parentWorldRect.GetPoints();
+			auto&& anchorsRectPoints = anchorsRelativeWorldRect.GetPoints();
 
-			static const std::array<TVector2, 4> anchorRectsOffsets 
+			static const std::array<TVector2, 4> anchorRectsOffsets { TVector2(-5.0f * handleRadius, 0.0f), ZeroVector2, TVector2(0.0f, -5.0f * handleRadius), TVector2(-5.0f * handleRadius) };
+
+			for (U8 i = 0; i < anchorsRectPoints.size(); ++i)
 			{
-				TVector2(-5.0f * handleRadius, 0.0f), ZeroVector2, TVector2(0.0f, -5.0f * handleRadius), TVector2(-5.0f * handleRadius)
-			};
-
-			for (U8 i = 0; i < parentRectPoints.size(); ++i)
-			{
-				auto p = parentRectPoints[i];
+				auto p = anchorsRectPoints[i];
 				p = TVector2(p.x, canvasHeight - p.y); // transform from UI space to screen space
 
 				const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
 				const F32 s1 = (i < 2 ? 1.0f : -1.0f);
 
-				imguiContext.DisplayIDGroup(static_cast<U32>(10 + i), [&imguiContext, s0, s1, p, handleRadius, i]
+				imguiContext.DisplayIDGroup(static_cast<U32>(10 + i), [&imguiContext, &parentWorldRect, &layoutElement, s0, s1, p, handleRadius, i]
 				{
 					imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
 
@@ -407,7 +413,32 @@ namespace TDEngine2
 
 					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 					{
-						LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move anchor_{0}: {1}", static_cast<U32>(i), imguiContext.GetMouseDragDelta(0).ToString()));
+						auto normalizedAnchorPos = PointToNormalizedCoords(parentWorldRect, imguiContext.GetMousePosition());
+						normalizedAnchorPos.y = 1.0f - normalizedAnchorPos.y;
+
+						auto&& minAnchor = layoutElement.GetMinAnchor();
+						auto&& maxAnchor = layoutElement.GetMaxAnchor();
+
+						switch (static_cast<E_ANCHOR_TYPE>(i))
+						{
+							case E_ANCHOR_TYPE::LEFT_BOTTOM:
+								layoutElement.SetMinAnchor(normalizedAnchorPos);
+								break;
+							case E_ANCHOR_TYPE::RIGHT_BOTTOM:
+								layoutElement.SetMinAnchor(TVector2(minAnchor.x, normalizedAnchorPos.y));
+								layoutElement.SetMaxAnchor(TVector2(normalizedAnchorPos.x, maxAnchor.y));
+								break;
+							case E_ANCHOR_TYPE::RIGHT_TOP:
+								layoutElement.SetMaxAnchor(normalizedAnchorPos);
+								break;
+							case E_ANCHOR_TYPE::LEFT_TOP:
+								layoutElement.SetMinAnchor(TVector2(normalizedAnchorPos.x, minAnchor.y));
+								layoutElement.SetMaxAnchor(TVector2(maxAnchor.x, normalizedAnchorPos.y));
+								break;
+							default:
+								TDE2_UNREACHABLE();
+								break;
+						}
 					}
 				});
 			}

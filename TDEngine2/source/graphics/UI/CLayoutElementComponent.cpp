@@ -52,6 +52,11 @@ namespace TDEngine2
 		mWorldRect = rect;
 	}
 
+	void CLayoutElement::SetAnchorWorldRect(const TRectF32& rect)
+	{
+		mAnchorWorldRect = rect;
+	}
+
 	void CLayoutElement::SetParentWorldRect(const TRectF32& rect)
 	{
 		mParentWorldRect = rect;
@@ -136,6 +141,11 @@ namespace TDEngine2
 	const TRectF32& CLayoutElement::GetWorldRect() const
 	{
 		return mWorldRect;
+	}
+
+	const TRectF32& CLayoutElement::GetAnchorWorldRect() const
+	{
+		return mAnchorWorldRect;
 	}
 
 	const TRectF32& CLayoutElement::GetParentWorldRect() const

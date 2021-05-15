@@ -78,7 +78,8 @@ namespace TDEngine2
 		const TVector2 originShift = worldRect.GetSizes() * pLayoutElement->GetPivot();
 
 		pLayoutElement->SetWorldRect(worldRect);
-		pLayoutElement->SetParentWorldRect({ lbWorldPoint, rtWorldPoint });
+		pLayoutElement->SetAnchorWorldRect({ lbWorldPoint, rtWorldPoint });
+		pLayoutElement->SetParentWorldRect(parentWorldRect);
 
 		const TVector2 position = worldRect.GetLeftBottom() + originShift;
 		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));
