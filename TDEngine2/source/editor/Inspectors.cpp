@@ -323,6 +323,34 @@ namespace TDEngine2
 	}
 
 
+	static void SetPositionForLayoutElement(CLayoutElement& layoutElement, const TVector2& position)
+	{
+		auto parentWorldRect = layoutElement.GetParentWorldRect();
+
+		const TVector2 parentLBRect = parentWorldRect.GetLeftBottom();
+		const TVector2 parentRectSize = parentWorldRect.GetSizes();
+
+		const TVector2 minAnchor = layoutElement.GetMinAnchor();
+		const TVector2 maxAnchor = layoutElement.GetMaxAnchor();
+
+		const TVector2 lbWorldPoint = parentLBRect + parentRectSize * minAnchor;
+		const TVector2 rtWorldPoint = parentLBRect + parentRectSize * maxAnchor;
+
+		const F32 maxOffsetSign = Length(maxAnchor - minAnchor) < 1e-3f ? 1.0f : -1.0f;
+
+		const TRectF32 rect
+		{
+			lbWorldPoint + layoutElement.GetMinOffset(),
+			rtWorldPoint + maxOffsetSign * layoutElement.GetMaxOffset() /// \todo Is this a correct way to implement that?
+		};
+
+		TVector2 delta = position - rect.GetLeftBottom() - rect.GetSizes() * layoutElement.GetPivot();
+
+		layoutElement.SetMinOffset(layoutElement.GetMinOffset() + delta);
+		layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() - delta);
+	}
+
+
 	static void DrawLayoutElementHandles(const TEditorContext& editorContext, CLayoutElement& layoutElement)
 	{
 		enum class E_ANCHOR_TYPE : U8
@@ -441,12 +469,14 @@ namespace TDEngine2
 				});
 			}
 
+			worldRect.y = canvasHeight - (worldRect.y + worldRect.height);
+
 			/// \note Draw corner vertices
 			U32 pointIndex = 0;
 
 			for (auto&& currPoint : worldRect.GetPoints())
 			{
-				imguiContext.DisplayIDGroup(3 + pointIndex++, [&imguiContext, currPoint, handleRadius]
+				imguiContext.DisplayIDGroup(3 + pointIndex++, [&imguiContext, &layoutElement, currPoint, handleRadius]
 				{
 					imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
 
@@ -455,26 +485,31 @@ namespace TDEngine2
 
 					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 					{
-						LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move corner: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
 					}
 				});
 			}
 
 			/// \note Draw a rectangle
-			imguiContext.DisplayIDGroup(2, [&imguiContext, worldRect]
+			imguiContext.DisplayIDGroup(2, [&imguiContext, &layoutElement, worldRect, canvasHeight]
 			{
 				const TVector2 cursorPos = imguiContext.GetCursorScreenPos();
 
 				imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
 
+				auto&& sizes = worldRect.GetSizes();
+
 				imguiContext.SetCursorScreenPos(worldRect.GetLeftBottom());
 
-				imguiContext.Button("##Rect", worldRect.GetSizes(), nullptr, true);
-
-				/// \note Move layoutElement if its rectangle selected and are dragged
-				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+				if (sizes.x * sizes.y > 0.0f)
 				{
-					LOG_MESSAGE(Wrench::StringUtils::Format("[DrawLayoutElementHandles] Move rectangle: {0}", imguiContext.GetMouseDragDelta(0).ToString()));
+					imguiContext.Button("##Rect", sizes, nullptr, true);
+
+					/// \note Move layoutElement if its rectangle selected and are dragged
+					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+					{
+						auto mousePosition = imguiContext.GetMousePosition();
+						SetPositionForLayoutElement(layoutElement, TVector2(mousePosition.x, canvasHeight - mousePosition.y));
+					}
 				}
 			});
 		}
