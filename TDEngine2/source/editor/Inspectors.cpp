@@ -381,10 +381,8 @@ namespace TDEngine2
 				/// \note Move layoutElement's pivot
 				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 				{
-					auto&& mousePosition = imguiContext.GetMousePosition() - worldRect.GetLeftBottom();
-					auto&& sizes = worldRect.GetSizes();
-
-					layoutElement.SetPivot(TVector2(mousePosition.x / sizes.x, 1.0f - mousePosition.y / sizes.y));
+					auto&& mousePosition = PointToNormalizedCoords(worldRect, imguiContext.GetMousePosition());
+					layoutElement.SetPivot(TVector2(mousePosition.x, 1.0f - mousePosition.y));
 				}
 			});
 
