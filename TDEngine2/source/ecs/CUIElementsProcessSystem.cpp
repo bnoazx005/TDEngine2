@@ -69,11 +69,19 @@ namespace TDEngine2
 
 		const F32 maxOffsetSign = Length(maxAnchor - minAnchor) < 1e-3f ? 1.0f : -1.0f;
 
-		const TRectF32 worldRect
+		TRectF32 worldRect
 		{
 			lbWorldPoint + pLayoutElement->GetMinOffset(),
 			rtWorldPoint + maxOffsetSign * pLayoutElement->GetMaxOffset() /// \todo Is this a correct way to implement that?
 		};
+
+		if (Length(maxAnchor - minAnchor) < 1e-3f)
+		{
+			auto&& sizes = pLayoutElement->GetMaxOffset();
+
+			worldRect.width = sizes.x;
+			worldRect.height = sizes.y;
+		}
 
 		const TVector2 originShift = worldRect.GetSizes() * pLayoutElement->GetPivot();
 
