@@ -185,15 +185,18 @@ namespace TDEngine2
 	*/
 
 	template <typename T>
-	TVector2 PointToNormalizedCoords(const TRect<T>& rect, const TVector2& point)
+	TVector2 PointToNormalizedCoords(const TRect<T>& rect, const TVector2& point, bool clampOutput = true)
 	{
 		TVector2 normalizedPoint { point.x - rect.x, point.y - rect.y };
 
 		normalizedPoint.x /= rect.width;
 		normalizedPoint.y /= rect.height;
 
-		normalizedPoint.x = CMathUtils::Clamp01(normalizedPoint.x);
-		normalizedPoint.y = CMathUtils::Clamp01(normalizedPoint.y);
+		if (clampOutput) 
+		{
+			normalizedPoint.x = CMathUtils::Clamp01(normalizedPoint.x);
+			normalizedPoint.y = CMathUtils::Clamp01(normalizedPoint.y);
+		}
 
 		return normalizedPoint;
 	}
