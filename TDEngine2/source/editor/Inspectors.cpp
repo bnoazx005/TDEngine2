@@ -347,7 +347,68 @@ namespace TDEngine2
 		TVector2 delta = position - rect.GetLeftBottom() - rect.GetSizes() * layoutElement.GetPivot();
 
 		layoutElement.SetMinOffset(layoutElement.GetMinOffset() + delta);
-		layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() - delta);
+
+		if (Length(maxAnchor - minAnchor) > 1e-3f)
+		{
+			layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() - delta);
+		}
+	}
+
+
+	/*!
+		vertexIndex is an index of rect's corner
+
+		0 *---* 1
+		  |   |
+		3 *---* 2
+	*/
+
+	static void SetRectangleSizesForLayoutElement(CLayoutElement& layoutElement, const TVector2& delta, int vertexIndex)
+	{
+		const TVector2 minAnchor = layoutElement.GetMinAnchor();
+		const TVector2 maxAnchor = layoutElement.GetMaxAnchor();
+
+		if (Length(maxAnchor - minAnchor) < 1e-3f)
+		{
+			switch (vertexIndex)
+			{
+				case 0:
+					layoutElement.SetMinOffset(layoutElement.GetMinOffset() + delta);
+					layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() + TVector2(-delta.x, delta.y));
+					break;
+				case 1:
+					layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() + delta);
+					break;
+				case 2:
+					layoutElement.SetMinOffset(layoutElement.GetMinOffset() + TVector2(0.0f, delta.y));
+					layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() + TVector2(delta.x, -delta.y));
+					break;
+				case 3:
+					layoutElement.SetMinOffset(layoutElement.GetMinOffset() + delta);
+					layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() - delta);
+					break;
+			}
+
+			return;
+		}
+
+		switch (vertexIndex)
+		{
+			case 0:
+				layoutElement.SetMinOffset(layoutElement.GetMinOffset() + TVector2(delta.x, 0.0f));
+				layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() + TVector2(delta.x, -delta.y));
+				break;
+			case 1:
+				layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() + TVector2(delta.x, -delta.y));
+				break;
+			case 2:
+				layoutElement.SetMinOffset(layoutElement.GetMinOffset() + TVector2(0.0f, delta.y));
+				layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() + TVector2(delta.x, 0.0f));
+				break;
+			case 3:
+				layoutElement.SetMinOffset(layoutElement.GetMinOffset() + delta);
+				break;
+		}
 	}
 
 
@@ -476,7 +537,7 @@ namespace TDEngine2
 
 			for (auto&& currPoint : worldRect.GetPoints())
 			{
-				imguiContext.DisplayIDGroup(3 + pointIndex++, [&imguiContext, &layoutElement, currPoint, handleRadius]
+				imguiContext.DisplayIDGroup(3 + pointIndex++, [&imguiContext, &layoutElement, currPoint, handleRadius, canvasHeight, pointIndex]
 				{
 					imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
 
@@ -485,6 +546,8 @@ namespace TDEngine2
 
 					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 					{
+						auto delta = imguiContext.GetMousePosition() - currPoint;
+						SetRectangleSizesForLayoutElement(layoutElement, TVector2(delta.x, -delta.y), pointIndex);
 					}
 				});
 			}
