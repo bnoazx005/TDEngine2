@@ -64,6 +64,11 @@ namespace TDEngine2
 		mIsDirty = false;
 	}
 
+	void CCanvas::SetInheritSizesFromMainCamera(bool value)
+	{
+		mInheritsSizesFromMainCamera = value;
+	}
+
 	U32 CCanvas::GetWidth() const
 	{
 		return mWidth;
@@ -77,6 +82,11 @@ namespace TDEngine2
 	bool CCanvas::IsDirty() const
 	{
 		return mIsDirty;
+	}
+
+	bool CCanvas::DoesInheritSizesFromMainCamera() const
+	{
+		return mInheritsSizesFromMainCamera;
 	}
 
 	const TMatrix4& CCanvas::GetProjMatrix() const

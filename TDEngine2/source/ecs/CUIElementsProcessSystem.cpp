@@ -11,6 +11,7 @@
 #include "../../include/core/IResource.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/IWindowSystem.h"
 
 
 namespace TDEngine2
@@ -103,6 +104,14 @@ namespace TDEngine2
 			if (!pCanvas->IsDirty())
 			{
 				return;
+			}
+
+			if (pCanvas->DoesInheritSizesFromMainCamera())
+			{
+				IWindowSystem* pWindowSystem = pGraphicsContext->GetWindowSystem();
+
+				pCanvas->SetWidth(pWindowSystem->GetWidth());
+				pCanvas->SetHeight(pWindowSystem->GetHeight());
 			}
 
 			/// \note The canvas's origin is a left-bottom corner

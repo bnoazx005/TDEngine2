@@ -73,10 +73,13 @@ namespace TDEngine2
 
 			TDE2_API void SetProjMatrix(const TMatrix4& projMat);
 
+			TDE2_API void SetInheritSizesFromMainCamera(bool value);
+
 			TDE2_API U32 GetWidth() const;
 			TDE2_API U32 GetHeight() const;
 
 			TDE2_API bool IsDirty() const;
+			TDE2_API bool DoesInheritSizesFromMainCamera() const;
 
 			TDE2_API const TMatrix4& GetProjMatrix() const;
 		protected:
@@ -86,6 +89,7 @@ namespace TDEngine2
 			U32 mHeight;
 
 			bool mIsDirty;
+			bool mInheritsSizesFromMainCamera;
 
 			TMatrix4 mProjMatrix;
 	};

@@ -309,15 +309,26 @@ namespace TDEngine2
 			
 			I32 width = canvas.GetWidth();
 			I32 height = canvas.GetHeight();
+
+			bool inheritSizesFlag = canvas.DoesInheritSizesFromMainCamera();
+
+			{
+				imguiContext.Checkbox("Inherit sizes from camera", inheritSizesFlag);
+
+				if (inheritSizesFlag != canvas.DoesInheritSizesFromMainCamera())
+				{
+					canvas.SetInheritSizesFromMainCamera(inheritSizesFlag);
+				}
+			}
 			
 			imguiContext.BeginHorizontal();
 			imguiContext.Label("Width");
-			imguiContext.IntField("##Width", width, [&canvas, &width] { canvas.SetWidth(static_cast<U32>(std::max<I32>(0, width))); });
+			imguiContext.IntField("##Width", width, [&canvas, &width, inheritSizesFlag] { if (inheritSizesFlag) return; canvas.SetWidth(static_cast<U32>(std::max<I32>(0, width))); });
 			imguiContext.EndHorizontal();
 
 			imguiContext.BeginHorizontal();
 			imguiContext.Label("Height");
-			imguiContext.IntField("##Height", height, [&canvas, &height] { canvas.SetHeight(static_cast<U32>(std::max<I32>(0, height))); });
+			imguiContext.IntField("##Height", height, [&canvas, &height, inheritSizesFlag] { if (inheritSizesFlag) return; canvas.SetHeight(static_cast<U32>(std::max<I32>(0, height))); });
 			imguiContext.EndHorizontal();
 		}
 	}
