@@ -64,7 +64,7 @@ namespace TDEngine2
 		mIndices.push_back(value);
 	}
 
-	void CUIElementMeshData::SetFontMeshFlag(bool value)
+	void CUIElementMeshData::SetTextMeshFlag(bool value)
 	{
 		mIsFontMesh = value;
 	}
@@ -91,7 +91,7 @@ namespace TDEngine2
 		return mIndices;
 	}
 
-	bool CUIElementMeshData::IsFontMesh() const
+	bool CUIElementMeshData::IsTextMesh() const
 	{
 		return mIsFontMesh;
 	}

@@ -120,7 +120,7 @@ namespace TDEngine2
 
 			TDE2_ASSERT(pCurrCanvas && pCanvasEntity);
 
-			const bool isFontMesh = pMeshData->IsFontMesh();
+			const bool isFontMesh = pMeshData->IsTextMesh();
 
 			const TResourceId currMaterialId = isFontMesh ? mDefaultFontMaterialId : mDefaultUIMaterialId;
 			const TResourceId currTextureId = pMeshData->GetTextureResourceId();

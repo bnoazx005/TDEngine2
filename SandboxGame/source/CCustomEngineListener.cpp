@@ -269,6 +269,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							pImage->SetImageId("Tim.tga");
 						}
 
+						if (auto pInputReceiver = pEntity->AddComponent<CInputReceiver>())
+						{
+						}
+
 						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
 					}
 

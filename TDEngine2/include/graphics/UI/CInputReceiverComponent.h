@@ -1,6 +1,6 @@
 /*!
-	\file CUIElementMeshDataComponent.h
-	\date 27.04.2021
+	\file CInputReceiverComponent.h
+	\date 21.05.2021
 	\authors Kasimov Ildar
 */
 
@@ -9,10 +9,7 @@
 
 #include "../../ecs/CBaseComponent.h"
 #include "../../math/TVector2.h"
-#include "../../math/TVector4.h"
 #include "../../math/TRect.h"
-#include "../../utils/Color.h"
-#include <vector>
 
 
 namespace TDEngine2
@@ -20,37 +17,30 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
-	typedef struct TUIElementsVertex
-	{
-		TVector4  mPosUV; // xy - position, zw - uv
-		TColor32F mColor;
-	} TUIElementsVertex, *TUIElementsVertexPtr;
-
-
 	/*!
-		\brief A factory function for creation objects of CUIElementMeshData's type.
+		\brief A factory function for creation objects of CInputReceiver's type.
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CUIElementMeshData's implementation
+		\return A pointer to CInputReceiver's implementation
 	*/
 
-	TDE2_API IComponent* CreateUIElementMeshData(E_RESULT_CODE& result);
+	TDE2_API IComponent* CreateInputReceiver(E_RESULT_CODE& result);
 
 
 	/*!
-		class CUIElementMeshData
+		class CInputReceiver
+
+		\brief The interface describes a functionality of UI elements that should react on input events.
+		The best usage example is a button
 	*/
 
-	class CUIElementMeshData : public CBaseComponent
+	class CInputReceiver : public CBaseComponent
 	{
 		public:
-			friend TDE2_API IComponent* CreateUIElementMeshData(E_RESULT_CODE& result);
+			friend TDE2_API IComponent* CreateInputReceiver(E_RESULT_CODE& result);
 		public:
-			typedef std::vector<TUIElementsVertex> TVertexArray;
-			typedef std::vector<U16> TIndexArray;
-		public:
-			TDE2_REGISTER_COMPONENT_TYPE(CUIElementMeshData)
+			TDE2_REGISTER_COMPONENT_TYPE(CInputReceiver)
 
 			/*!
 				\brief The method initializes an internal state of a quad sprite
@@ -80,65 +70,44 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-			TDE2_API void ResetMesh();
-
-			TDE2_API void AddVertex(const TUIElementsVertex& vertex);
-			TDE2_API void AddIndex(U16 value);
-
-			TDE2_API void SetTextMeshFlag(bool value);
-
-			TDE2_API E_RESULT_CODE SetTextureResourceId(TResourceId resourceId);
-
-			TDE2_API const TVertexArray& GetVertices() const;
-			TDE2_API const TIndexArray& GetIndices() const;
-
-			TDE2_API TResourceId GetTextureResourceId() const;
-
-			TDE2_API bool IsTextMesh() const;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementMeshData)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputReceiver)
 		protected:
-			TVertexArray mVertices;
-			TIndexArray  mIndices;
-
-			bool mIsFontMesh;
-
-			TResourceId mTextureResourceId;
 	};
 
 
 	/*!
-		struct TUIElementMeshDataParameters
+		struct TInputReceiverParameters
 
-		\brief The structure contains parameters for creation of CUIElementMeshData
+		\brief The structure contains parameters for creation of CInputReceiver
 	*/
 
-	typedef struct TUIElementMeshDataParameters : public TBaseComponentParameters
+	typedef struct TInputReceiverParameters : public TBaseComponentParameters
 	{
-	} TUIElementMeshDataParameters;
+	} TInputReceiverParameters;
 
 
 	/*!
-		\brief A factory function for creation objects of CUIElementMeshDataFactory's type.
+		\brief A factory function for creation objects of CInputReceiverFactory's type.
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CUIElementMeshDataFactory's implementation
+		\return A pointer to CInputReceiverFactory's implementation
 	*/
 
-	TDE2_API IComponentFactory* CreateUIElementMeshDataFactory(E_RESULT_CODE& result);
+	TDE2_API IComponentFactory* CreateInputReceiverFactory(E_RESULT_CODE& result);
 
 
 	/*!
-		class CUIElementMeshDataFactory
+		class CInputReceiverFactory
 
-		\brief The class is factory facility to create a new objects of CUIElementMeshData type
+		\brief The class is factory facility to create a new objects of CInputReceiver type
 	*/
 
-	class CUIElementMeshDataFactory : public IComponentFactory, public CBaseObject
+	class CInputReceiverFactory : public IComponentFactory, public CBaseObject
 	{
 		public:
-			friend TDE2_API IComponentFactory* CreateUIElementMeshDataFactory(E_RESULT_CODE& result);
+			friend TDE2_API IComponentFactory* CreateInputReceiverFactory(E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a factory
@@ -186,6 +155,6 @@ namespace TDEngine2
 
 			TDE2_API TypeId GetComponentTypeId() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementMeshDataFactory)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputReceiverFactory)
 	};
 }
