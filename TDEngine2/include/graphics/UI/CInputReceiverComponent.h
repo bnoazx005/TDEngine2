@@ -70,9 +70,13 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API void SetPressedFlag(bool value);
+
+			TDE2_API bool IsPressed() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputReceiver)
 		protected:
+			bool mIsClicked;
 	};
 
 

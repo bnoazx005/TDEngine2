@@ -58,7 +58,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		
 	mpCameraEntity = mpWorld->CreateEntity("Camera");
 	auto pCamera = mpCameraEntity->AddComponent<CPerspectiveCamera>();	
-	pCamera->SetAspect(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight());
+	pCamera->SetAspect(static_cast<F32>(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight()));
 	pCamera->SetFOV(0.5f * CMathConstants::Pi);
 
 	mpCameraEntity->AddComponent<CAudioListenerComponent>();

@@ -60,6 +60,7 @@ namespace TDEngine2
 			TDE2_API static void DrawLayoutElementGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawUIElementMeshDataGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawImageGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawInputReceiverGUI(const TEditorContext& editorContext);
 
 			/// 2D Physics components
 			TDE2_API static void DrawBoxCollision2DGUI(const TEditorContext& editorContext);

@@ -12,6 +12,7 @@
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/UI/CImageComponent.h"
+#include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -56,6 +57,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CLayoutElement::GetTypeId(), DrawLayoutElementGUI);
 		result = result | editor.RegisterInspector(CUIElementMeshData::GetTypeId(), DrawUIElementMeshDataGUI);
 		result = result | editor.RegisterInspector(CImage::GetTypeId(), DrawImageGUI);
+		result = result | editor.RegisterInspector(CInputReceiver::GetTypeId(), DrawInputReceiverGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -875,6 +877,18 @@ namespace TDEngine2
 		}
 	}
 
+	void CDefeaultInspectorsRegistry::DrawInputReceiverGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("Input Receiver", true))
+		{
+			CInputReceiver& inputReceiver = dynamic_cast<CInputReceiver&>(component);
+
+			imguiContext.Label(Wrench::StringUtils::Format("On Pressed: {0}", inputReceiver.IsPressed()));
+		}
+	}
 
 	void CDefeaultInspectorsRegistry::DrawBoxCollision2DGUI(const TEditorContext& editorContext)
 	{

@@ -20,6 +20,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mIsClicked = false;
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -43,6 +44,16 @@ namespace TDEngine2
 		}
 		
 		return RC_OK;
+	}
+
+	void CInputReceiver::SetPressedFlag(bool value)
+	{
+		mIsClicked = value;
+	}
+
+	bool CInputReceiver::IsPressed() const
+	{
+		return mIsClicked;
 	}
 
 

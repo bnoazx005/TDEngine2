@@ -25,6 +25,7 @@
 #include "../../include/ecs/CParticlesSimulationSystem.h"
 #include "../../include/ecs/CUIElementsProcessSystem.h"
 #include "../../include/ecs/CUIElementsRenderSystem.h"
+#include "../../include/ecs/CUIEventsSystem.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -418,6 +419,7 @@ namespace TDEngine2
 		std::vector<ISystem*> builtinSystems 
 		{
 			CreateTransformSystem(pGraphicsContext, result),
+			CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), result),
 			CreateBoundsUpdatingSystem(pResourceManager, pDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateSpriteRendererSystem(*pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
 									   pRenderer, pGraphicsObjectManager, result),
