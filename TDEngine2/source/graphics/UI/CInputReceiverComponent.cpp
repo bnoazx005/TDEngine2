@@ -21,6 +21,8 @@ namespace TDEngine2
 		}
 
 		mIsClicked = false;
+		mIsIgnoreInput = false;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -51,9 +53,19 @@ namespace TDEngine2
 		mIsClicked = value;
 	}
 
+	void CInputReceiver::SetIgnoreInputFlag(bool value)
+	{
+		mIsIgnoreInput = value;
+	}
+
 	bool CInputReceiver::IsPressed() const
 	{
 		return mIsClicked;
+	}
+
+	bool CInputReceiver::IsIgnoreInputFlag() const
+	{
+		return mIsIgnoreInput;
 	}
 
 
