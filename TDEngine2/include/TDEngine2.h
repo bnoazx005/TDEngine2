@@ -167,6 +167,7 @@
 #include "graphics/UI/CUIElementMeshDataComponent.h"
 #include "graphics/UI/CImageComponent.h"
 #include "graphics/UI/CInputReceiverComponent.h"
+#include "graphics/UI/CLabelComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

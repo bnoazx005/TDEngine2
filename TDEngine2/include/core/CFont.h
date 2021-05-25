@@ -113,12 +113,11 @@ namespace TDEngine2
 				\param[in] position A position of a top left corner of a text line
 				\param[in] scale A scale of a text mesh
 				\param[in] text An input text that should be rendered
-				\param[on, out] pDebugUtility A pointer to IDebugUtility, which can be used as a debug facility
 
 				\return An array of vertices positions, each 4 forms a quad which is a single glyph
 			*/
 
-			TDE2_API const TTextVertices& GenerateMesh(const TVector2& position, F32 scale, const CU8String& text, IDebugUtility* pDebugUtility = nullptr) override;
+			TDE2_API TTextVertices GenerateMesh(const TVector2& position, F32 scale, const CU8String& text) override;
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font
 

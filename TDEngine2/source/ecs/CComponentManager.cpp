@@ -13,6 +13,7 @@
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/UI/CImageComponent.h"
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
+#include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -392,6 +393,7 @@ namespace TDEngine2
 			CreateUIElementMeshDataFactory,
 			CreateImageFactory,
 			CreateInputReceiverFactory,
+			CreateLabelFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
@@ -452,6 +454,7 @@ namespace TDEngine2
 			CUIElementMeshData::GetTypeId(),
 			CImage::GetTypeId(),
 			CInputReceiver::GetTypeId(),
+			CLabel::GetTypeId(),
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 			CSceneInfoComponent::GetTypeId(),

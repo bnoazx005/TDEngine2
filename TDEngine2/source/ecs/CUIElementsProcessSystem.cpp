@@ -5,6 +5,7 @@
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CImageComponent.h"
+#include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/ITexture.h"
@@ -191,6 +192,16 @@ namespace TDEngine2
 	}
 
 
+	static void ComputeTextMeshData(IResourceManager* pResourceManager, IWorld* pWorld, TEntityId id)
+	{
+		CEntity* pEntity = pWorld->FindEntity(id);
+		if (!pEntity)
+		{
+			return;
+		}
+	}
+
+
 	CUIElementsProcessSystem::CUIElementsProcessSystem() :
 		CBaseSystem()
 	{
@@ -303,6 +314,7 @@ namespace TDEngine2
 		}
 
 		mImagesEntities = pWorld->FindEntitiesWithComponents<CLayoutElement, CImage>();
+		mLabelsEntities = pWorld->FindEntitiesWithComponents<CLayoutElement, CLabel>();
 	}
 
 	void CUIElementsProcessSystem::Update(IWorld* pWorld, F32 dt)
@@ -334,6 +346,12 @@ namespace TDEngine2
 		for (TEntityId currEntity : mImagesEntities)
 		{
 			ComputeImageMeshData(mpResourceManager, pWorld, currEntity);
+		}
+
+		/// \note Compute meshes for Labels
+		for (TEntityId currEntity : mLabelsEntities)
+		{
+			ComputeTextMeshData(mpResourceManager, pWorld, currEntity);
 		}
 	}
 

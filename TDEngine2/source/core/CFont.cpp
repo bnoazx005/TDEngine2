@@ -191,9 +191,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	const CFont::TTextVertices& CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text, IDebugUtility* pDebugUtility)
+	CFont::TTextVertices CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text)
 	{
-		auto pTextureAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResource(mFontTextureAtlasHandle));
+		ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
+		if (!pTextureAtlas)
+		{
+			return {};
+		}
 
 		TVector2 currPosition{ position };
 

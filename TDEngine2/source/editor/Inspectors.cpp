@@ -13,6 +13,7 @@
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/UI/CImageComponent.h"
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
+#include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -58,6 +59,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CUIElementMeshData::GetTypeId(), DrawUIElementMeshDataGUI);
 		result = result | editor.RegisterInspector(CImage::GetTypeId(), DrawImageGUI);
 		result = result | editor.RegisterInspector(CInputReceiver::GetTypeId(), DrawInputReceiverGUI);
+		result = result | editor.RegisterInspector(CLabel::GetTypeId(), DrawLabelGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -901,6 +903,19 @@ namespace TDEngine2
 			}
 
 			imguiContext.Label(Wrench::StringUtils::Format("On Pressed: {0}", inputReceiver.IsPressed()));
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawLabelGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("Label", true))
+		{
+			//CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
+
+			// \todo Implement this drawer
 		}
 	}
 

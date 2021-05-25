@@ -83,11 +83,10 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementsProcessSystem)
 		protected:
-			std::vector<TEntityId> mLayoutElementsEntities; ///< \note All elements are sorted in order that parent elements precede their children
-
-			std::vector<TEntityId> mCanvasEntities;
-
-			std::vector<TEntityId> mImagesEntities;
+			TEntitiesArray mLayoutElementsEntities; ///< \note All elements are sorted in order that parent elements precede their children
+			TEntitiesArray mCanvasEntities;
+			TEntitiesArray mImagesEntities;
+			TEntitiesArray mLabelsEntities;
 
 			IGraphicsContext*      mpGraphicsContext;
 
