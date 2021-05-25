@@ -55,7 +55,7 @@ TEST_CASE("Timers Tests")
 
 		pTimer->Start();
 
-		TestSleep(freezeTime);
+		TestSleep(static_cast<U32>(freezeTime));
 
 		pTimer->Tick();
 

@@ -54,7 +54,7 @@ TEST_CASE("CGraphicsLayersInfo Tests")
 	{
 		std::vector<std::pair<F32, E_RESULT_CODE>> testSet
 		{
-			{ 0.0, RC_OK },
+			{ 0.0f, RC_OK },
 			{ 10.0f, RC_OK },
 			{ 5.0f, RC_INVALID_ARGS },
 			{ 15.0f, RC_OK },
