@@ -75,26 +75,24 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Reset() override;
 
 			/*!
-				\brief The method saves current state of the object into some representation
+				\brief The method deserializes object's state from given reader
 
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
+				\param[in, out] pReader An input stream of data that contains information about the object
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Serialize(IFileSystem* pFileSystem, const std::string& filename) override;
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
 
 			/*!
-				\brief The method restores state of the texture atlas based on information from a given file
+				\brief The method serializes object's state into given stream
 
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
+				\param[in, out] pWriter An output stream of data that writes information about the object
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) override;
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
 				\brief The method adds information about a single glyph into the font's resource
@@ -132,7 +130,7 @@ namespace TDEngine2
 		protected:
 			TResourceId mFontTextureAtlasHandle;
 
-			TTextVertices mLastGeneratedMesh;
+			//std::unordered_map<U32, TTextVertices> mGeneratedMeshesTable;
 
 			TGlyphsMap mGlyphsMap;
 	};

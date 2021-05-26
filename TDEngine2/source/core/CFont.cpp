@@ -24,7 +24,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mLastGeneratedMesh.reserve(4 * 100); /// \note preallocate space for at least 100 letters
+		//mGeneratedMeshesTable.reserve(100);
 
 		mIsInitialized = true;
 
@@ -36,99 +36,86 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 	
-	E_RESULT_CODE CFont::Serialize(IFileSystem* pFileSystem, const std::string& filename)
+	E_RESULT_CODE CFont::Save(IArchiveWriter* pWriter)
 	{
-		if (!pFileSystem || filename.empty())
+		if (!pWriter)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		/// \note try to create YAML file with the given name
-		auto pArchiveFile = pFileSystem->Get<IYAMLFileWriter>(pFileSystem->Open<IYAMLFileWriter>(filename, true).Get());
-
-		PANIC_ON_FAILURE(pArchiveFile->SetString("name", mName));
+		PANIC_ON_FAILURE(pWriter->SetString("name", mName));
 
 		E_RESULT_CODE result = RC_OK;
 
 		{
-			if ((result = pArchiveFile->BeginGroup("texture_atlas_info")) != RC_OK)
+			if ((result = pWriter->BeginGroup("texture_atlas_info")) != RC_OK)
 			{
 				return result;
 			}
 
-			PANIC_ON_FAILURE(pArchiveFile->SetString("path", mpResourceManager->GetResource(mFontTextureAtlasHandle)->GetName()));
+			PANIC_ON_FAILURE(pWriter->SetString("path", mpResourceManager->GetResource(mFontTextureAtlasHandle)->GetName()));
 
-			if ((result = pArchiveFile->EndGroup()) != RC_OK)
+			if ((result = pWriter->EndGroup()) != RC_OK)
 			{
 				return result;
 			}
 		}
 
 		// TODO: add scale's info
-		
-		if ((result = pArchiveFile->BeginGroup("glyphs_map_desc", true)) != RC_OK)
+
+		if ((result = pWriter->BeginGroup("glyphs_map_desc", true)) != RC_OK)
 		{
 			return result;
 		}
 
 		for (auto currMapEntry : mGlyphsMap)
 		{
-			if ((result = pArchiveFile->BeginGroup(std::to_string(currMapEntry.first))) != RC_OK)
+			if ((result = pWriter->BeginGroup(std::to_string(currMapEntry.first))) != RC_OK)
 			{
 				return result;
 			}
-			
+
 			auto& currInternalGlyphInfo = currMapEntry.second;
 
-			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("width", currInternalGlyphInfo.mWidth));
-			PANIC_ON_FAILURE(pArchiveFile->SetUInt32("height", currInternalGlyphInfo.mHeight));
-			PANIC_ON_FAILURE(pArchiveFile->SetUInt16("xoffset", currInternalGlyphInfo.mXCenter));
-			PANIC_ON_FAILURE(pArchiveFile->SetUInt16("yoffset", currInternalGlyphInfo.mYCenter));
-			PANIC_ON_FAILURE(pArchiveFile->SetFloat("advance", currInternalGlyphInfo.mAdvance));
+			PANIC_ON_FAILURE(pWriter->SetUInt32("width", currInternalGlyphInfo.mWidth));
+			PANIC_ON_FAILURE(pWriter->SetUInt32("height", currInternalGlyphInfo.mHeight));
+			PANIC_ON_FAILURE(pWriter->SetUInt16("xoffset", currInternalGlyphInfo.mXCenter));
+			PANIC_ON_FAILURE(pWriter->SetUInt16("yoffset", currInternalGlyphInfo.mYCenter));
+			PANIC_ON_FAILURE(pWriter->SetFloat("advance", currInternalGlyphInfo.mAdvance));
 
-			if ((result = pArchiveFile->EndGroup()) != RC_OK)
+			if ((result = pWriter->EndGroup()) != RC_OK)
 			{
 				return result;
 			}
 		}
 
-		if ((result = pArchiveFile->EndGroup()) != RC_OK ||
-			(result = pArchiveFile->Close()) != RC_OK)
+		if ((result = pWriter->EndGroup()) != RC_OK)
 		{
 			return result;
 		}
 
-		return result;
+		return RC_OK;
 	}
 
-	E_RESULT_CODE CFont::Deserialize(IFileSystem* pFileSystem, const std::string& filename)
+	E_RESULT_CODE CFont::Load(IArchiveReader* pReader)
 	{
-		if (!pFileSystem || filename.empty())
+		if (!pReader)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		TResult<TFileEntryId> fileReadingResult = pFileSystem->Open<IYAMLFileReader>(filename);
-
-		if (fileReadingResult.HasError())
-		{
-			return fileReadingResult.GetError();
-		}
-
-		auto pYAMLFileReader = pFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
-
-		mName = pYAMLFileReader->GetString("name");
+		mName = pReader->GetString("name");
 
 		E_RESULT_CODE result = RC_OK;
 
 		/// \note read texture atlas that contains glyphs images
 		{
-			if ((result = pYAMLFileReader->BeginGroup("texture_atlas_info")) != RC_OK)
+			if ((result = pReader->BeginGroup("texture_atlas_info")) != RC_OK)
 			{
 				return result;
 			}
 
-			const auto& textureAtlasPath = pYAMLFileReader->GetString("path");
+			const auto& textureAtlasPath = pReader->GetString("path");
 
 			if (!textureAtlasPath.empty())
 			{
@@ -136,47 +123,47 @@ namespace TDEngine2
 				TDE2_ASSERT(mFontTextureAtlasHandle != TResourceId::Invalid);
 			}
 
-			if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+			if ((result = pReader->EndGroup()) != RC_OK)
 			{
 				return result;
 			}
 		}
 
 		/// \note read glyphs parameters
-		if ((result = pYAMLFileReader->BeginGroup("glyphs_map_desc")) != RC_OK)
+		if ((result = pReader->BeginGroup("glyphs_map_desc")) != RC_OK)
 		{
 			return result;
 		}
-		
-		while (pYAMLFileReader->HasNextItem())
+
+		while (pReader->HasNextItem())
 		{
-			std::string key = pYAMLFileReader->GetCurrKey();
+			std::string key = pReader->GetCurrKey();
 
 			auto& currGlyphMapEntry = mGlyphsMap[std::stoi(key)];
 
-			if ((result = pYAMLFileReader->BeginGroup(key)) != RC_OK)
+			if ((result = pReader->BeginGroup(key)) != RC_OK)
 			{
 				return result;
 			}
 
-			currGlyphMapEntry.mWidth   = pYAMLFileReader->GetUInt16("width");
-			currGlyphMapEntry.mHeight  = pYAMLFileReader->GetUInt16("height");
-			currGlyphMapEntry.mXCenter = pYAMLFileReader->GetInt16("xoffset");
-			currGlyphMapEntry.mYCenter = pYAMLFileReader->GetInt16("yoffset");
-			currGlyphMapEntry.mAdvance = pYAMLFileReader->GetFloat("advance");
+			currGlyphMapEntry.mWidth = pReader->GetUInt16("width");
+			currGlyphMapEntry.mHeight = pReader->GetUInt16("height");
+			currGlyphMapEntry.mXCenter = pReader->GetInt16("xoffset");
+			currGlyphMapEntry.mYCenter = pReader->GetInt16("yoffset");
+			currGlyphMapEntry.mAdvance = pReader->GetFloat("advance");
 
-			if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+			if ((result = pReader->EndGroup()) != RC_OK)
 			{
 				return result;
 			}
 		}
 
-		if ((result = pYAMLFileReader->EndGroup()) != RC_OK)
+		if ((result = pReader->EndGroup()) != RC_OK)
 		{
 			return result;
 		}
 
-		return pYAMLFileReader->Close();
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CFont::AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info)
@@ -211,7 +198,7 @@ namespace TDEngine2
 
 		F32 x0, x1, y0, y1;
 
-		mLastGeneratedMesh.clear();
+		TTextVertices textMesh;
 
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
@@ -235,16 +222,16 @@ namespace TDEngine2
 				x1 = scale * pCurrGlyphInfo->mWidth;
 				y1 = scale * (pCurrGlyphInfo->mHeight);
 
-				mLastGeneratedMesh.push_back({ x0,      y0,      normalizedUVs.x,                       normalizedUVs.y });
-				mLastGeneratedMesh.push_back({ x0 + x1, y0,      normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
-				mLastGeneratedMesh.push_back({ x0,      y0 - y1, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
-				mLastGeneratedMesh.push_back({ x0 + x1, y0 - y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
+				textMesh.push_back({ x0,      y0,      normalizedUVs.x,                       normalizedUVs.y });
+				textMesh.push_back({ x0 + x1, y0,      normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
+				textMesh.push_back({ x0,      y0 - y1, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
+				textMesh.push_back({ x0 + x1, y0 - y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
 			}
 
 			currPosition = currPosition + TVector2{ scale * (currCodePoint != ' ' ? pCurrGlyphInfo->mAdvance : 20.0f), 0.0f };
 		}
 
-		return mLastGeneratedMesh;
+		return textMesh;
 	}
 
 	ITexture2D* CFont::GetTexture() const
@@ -316,7 +303,12 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		return dynamic_cast<IFont*>(pResource)->Deserialize(mpFileSystem, pResource->GetName() + ".font");
+		if (TResult<TFileEntryId> fontFileId = mpFileSystem->Open<IYAMLFileReader>(pResource->GetName()))
+		{
+			return dynamic_cast<IFont*>(pResource)->Load(mpFileSystem->Get<IYAMLFileReader>(fontFileId.Get()));
+		}
+
+		return RC_FILE_NOT_FOUND;
 	}
 
 	TypeId CFontLoader::GetResourceTypeId() const

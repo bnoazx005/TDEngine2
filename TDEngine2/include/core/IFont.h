@@ -11,6 +11,7 @@
 #include "../utils/Utils.h"
 #include "../core/IResourceLoader.h"
 #include "../core/IResourceFactory.h"
+#include "../core/Serialization.h"
 #include "../math/TVector2.h"
 #include "../math/TVector4.h"
 #include "../utils/CU8String.h"
@@ -62,7 +63,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a font resource
 	*/
 
-	class IFont
+	class IFont: public ISerializable
 	{
 		public:
 			typedef std::vector<TVector4> TTextVertices;
@@ -80,28 +81,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, const std::string& name) = 0;
 
-			/*!
-				\brief The method saves current state of the object into some representation
-
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Serialize(IFileSystem* pFileSystem, const std::string& filename) = 0;
-
-			/*!
-				\brief The method restores state of the texture atlas based on information from a given file
-
-				\param[in, out] pFileSystem A pointer to IFileSystem implementation
-				\param[in] filename A name of a file into which the data will be written
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Deserialize(IFileSystem* pFileSystem, const std::string& filename) = 0;
-			
 			/*!
 				\brief The method adds information about a single glyph into the font's resource
 
