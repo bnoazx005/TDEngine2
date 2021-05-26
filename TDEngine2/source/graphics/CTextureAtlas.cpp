@@ -482,7 +482,7 @@ namespace TDEngine2
 		mName = pReader->GetString("name");
 
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
-		mTextureResourceHandle = mpResourceManager->Load<ITexture2D>(mName + "_Tex.png");
+		mTextureResourceHandle = mpResourceManager->Load<ITexture2D>(mName + "_Tex.png", E_RESOURCE_LOADING_POLICY::SYNCED);
 
 		/// \todo ansynchronously update sizes of the atlas when the texture has been loaded
 		_updateAtlasSizes(mpResourceManager->GetResource(mTextureResourceHandle));
