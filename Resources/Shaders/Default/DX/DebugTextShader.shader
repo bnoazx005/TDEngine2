@@ -38,13 +38,11 @@ DECLARE_TEX2D(FontTextureAtlas)
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	float4 d = TEX2D(FontTextureAtlas, input.mUV);
-	
-	static const float2 params = float2(0.8, 0.8);
+	static const float2 params = float2(0.9, 20.0);
 
-    float a= max(0.0, ((d.x-params.x)*params.y, 1.0));
-   // if (a < 0.1) { discard;}
-	return float4(1.0, 1.0, 1.0, 0.5);
+	float d = TEX2D(FontTextureAtlas, input.mUV).r;
+
+	return float4(1.0, 1.0, 1.0, clamp((d-params.x)*params.y, 0.0, 1.0));
 }
 
 #endprogram

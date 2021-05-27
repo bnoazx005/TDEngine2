@@ -7,8 +7,8 @@ blend_state:
   src_color: SOURCE_ALPHA
 depth_stencil_state: 
   depth_cmp_func: LESS
-  depth_test_enabled: 1
-  depth_write_enabled: 1
+  depth_test_enabled: 0
+  depth_write_enabled: 0
   stencil_back_op: 
     cmp_func: ALWAYS
     depth_fail_op: KEEP
