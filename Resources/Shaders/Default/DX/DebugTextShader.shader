@@ -40,14 +40,11 @@ float4 mainPS(VertexOut input): SV_TARGET0
 {
 	float4 d = TEX2D(FontTextureAtlas, input.mUV);
 	
-    float a=min((d-1.6)*1.4, 1.0);
-	
-	if (a < 0.1)
-	{
-		discard;
-	}
+	static const float2 params = float2(0.8, 0.8);
 
-	return d;
+    float a= max(0.0, ((d.x-params.x)*params.y, 1.0));
+   // if (a < 0.1) { discard;}
+	return float4(1.0, 1.0, 1.0, 0.5);
 }
 
 #endprogram

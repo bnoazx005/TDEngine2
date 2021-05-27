@@ -368,4 +368,45 @@ namespace TDEngine2
 	{
 		mCallback();
 	}
+
+
+	template <> TDE2_API U32 ComputeStateDescHash<TBlendStateDesc>(const TBlendStateDesc& object)
+	{
+		return static_cast<U32>(object.mIsEnabled) << 31 |
+				static_cast<U32>(object.mAlphaOpType) << 15 |
+				static_cast<U32>(object.mDestAlphaValue) << 12 |
+				static_cast<U32>(object.mDestValue) << 9 |
+				static_cast<U32>(object.mOpType) << 6 |
+				static_cast<U32>(object.mScrAlphaValue) << 3 |
+				static_cast<U32>(object.mScrValue);
+	}
+
+	template <> TDE2_API U32 ComputeStateDescHash<TDepthStencilStateDesc>(const TDepthStencilStateDesc& object)
+	{
+		return static_cast<U32>(object.mIsDepthTestEnabled) << 31 |
+				static_cast<U32>(object.mIsDepthWritingEnabled) << 30 |
+				static_cast<U32>(object.mIsStencilTestEnabled) << 29 |
+				static_cast<U32>(object.mDepthCmpFunc) << 26 |
+				static_cast<U32>(object.mStencilBackFaceOp.mDepthFailOp) << 23 |
+				static_cast<U32>(object.mStencilBackFaceOp.mFailOp) << 21 |
+				static_cast<U32>(object.mStencilBackFaceOp.mFunc) << 19 |
+				static_cast<U32>(object.mStencilBackFaceOp.mPassOp) << 17 |
+				static_cast<U32>(object.mStencilFrontFaceOp.mDepthFailOp) << 15 |
+				static_cast<U32>(object.mStencilFrontFaceOp.mFailOp) << 13 |
+				static_cast<U32>(object.mStencilFrontFaceOp.mFunc) << 11 |
+				static_cast<U32>(object.mStencilFrontFaceOp.mPassOp) << 9 |
+				static_cast<U32>(object.mStencilReadMaskValue) << 8 |
+				static_cast<U32>(object.mStencilWriteMaskValue);
+	}
+
+	template <> TDE2_API U32 ComputeStateDescHash<TTextureSamplerDesc>(const TTextureSamplerDesc& object)
+	{
+		std::array<C8, sizeof(U32) * 4> data;
+		memcpy(&data[0], &object.mFilterFlags, sizeof(U32));
+		memcpy(&data[4], &object.mUAddressMode, sizeof(U32));
+		memcpy(&data[8], &object.mVAddressMode, sizeof(U32));
+		memcpy(&data[12], &object.mWAddressMode, sizeof(U32));
+
+		return ComputeHash(&data.front());
+	}
 }

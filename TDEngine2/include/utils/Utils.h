@@ -675,21 +675,17 @@ namespace TDEngine2
 	*/
 
 	template <typename T>
-	U32 ComputeStateDescHash(T&& object)
+	U32 ComputeStateDescHash(const T& object)
 	{
-		typedef typename std::decay<T>::type Type;
-
-		constexpr bool precondition = std::is_same<Type, TBlendStateDesc>::value ||
-									  std::is_same<Type, TTextureSamplerDesc>::value;
-
-		static_assert(precondition, "This function isn't intended for the given type");
-
-		constexpr U32 length = sizeof(T) + 1;
-		C8 data[length] = { 0 };
-		memcpy(data, static_cast<const void*>(&object), length);
-
-		return TDE2_STRING_ID(data);
+		static_assert(false, "This function isn't intended for the given type");
+		return 0;
 	}
+
+
+	template <> TDE2_API U32 ComputeStateDescHash<TBlendStateDesc>(const TBlendStateDesc& object);
+	template <> TDE2_API U32 ComputeStateDescHash<TDepthStencilStateDesc>(const TDepthStencilStateDesc& object);
+	template <> TDE2_API U32 ComputeStateDescHash<TTextureSamplerDesc>(const TTextureSamplerDesc& object);
+
 
 	/*!
 		\brief The macro is used to define a base class for derived one

@@ -81,7 +81,7 @@ namespace TDEngine2
 
 	TResult<TTextureSamplerId> COGLGraphicsObjectManager::CreateTextureSampler(const TTextureSamplerDesc& samplerDesc)
 	{
-		U32 hashValue = ComputeStateDescHash<const TTextureSamplerDesc&>(samplerDesc);
+		U32 hashValue = ComputeStateDescHash(samplerDesc);
 		if (mTextureSamplesHashTable.find(hashValue) != mTextureSamplesHashTable.cend())
 		{
 			return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
@@ -113,7 +113,7 @@ namespace TDEngine2
 
 	TResult<TBlendStateId> COGLGraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
 	{
-		U32 hashValue = ComputeStateDescHash<const TBlendStateDesc&>(blendStateDesc);
+		U32 hashValue = ComputeStateDescHash(blendStateDesc);
 		if (mBlendStatesHashTable.find(hashValue) != mBlendStatesHashTable.cend())
 		{
 			return Wrench::TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
