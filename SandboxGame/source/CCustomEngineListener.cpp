@@ -269,8 +269,23 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							pImage->SetImageId("Tim.tga");
 						}
 
-						if (auto pInputReceiver = pEntity->AddComponent<CInputReceiver>())
+						pEntity->AddComponent<CInputReceiver>();
+
+						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
+					}
+
+					if (auto pEntity = pScene->CreateEntity("Text"))
+					{
+						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
 						{
+							pLayoutElement->SetMinAnchor(TVector2(0.2f));
+							pLayoutElement->SetMaxAnchor(TVector2(0.8f));
+							pLayoutElement->SetPivot(TVector2(0.f));
+						}
+
+						if (auto pLabel = pEntity->AddComponent<CLabel>())
+						{
+
 						}
 
 						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());

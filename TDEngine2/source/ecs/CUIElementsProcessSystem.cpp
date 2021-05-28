@@ -249,10 +249,14 @@ namespace TDEngine2
 	static void SortLayoutElementEntities(IWorld* pWorld, std::vector<TEntityId>& entities)
 	{
 		auto&& layoutElementsEntities = pWorld->FindEntitiesWithComponents<CTransform, CLayoutElement>();
+		if (layoutElementsEntities.empty())
+		{
+			return;
+		}
 
 		entities.clear();
 
-		std::unordered_map<TEntityId, std::vector<TEntityId>::const_iterator> parentEntitiesTable;
+		std::unordered_map<TEntityId, U32> parentEntitiesTable;
 
 		// \note Sort all entities in the following order that every parent should precede its children
 
@@ -270,7 +274,7 @@ namespace TDEngine2
 				if (TEntityId::Invalid == pTransform->GetParent())
 				{
 					entities.push_back(currEntityId);
-					parentEntitiesTable[currEntityId] = entities.cend();
+					parentEntitiesTable[currEntityId] = static_cast<U32>(entities.size());
 					continue;
 				}
 
@@ -280,12 +284,12 @@ namespace TDEngine2
 				if (it == parentEntitiesTable.cend())
 				{
 					entities.push_back(currEntityId);
-					parentEntitiesTable[currEntityId] = entities.cend();
+					parentEntitiesTable[currEntityId] = static_cast<U32>(entities.size());
 
 					continue;
 				}
 
-				entities.insert(it->second, currEntityId);
+				entities.insert(entities.cbegin() + it->second, currEntityId);
 			}
 		}
 	}
