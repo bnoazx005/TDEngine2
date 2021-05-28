@@ -70,7 +70,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLabel::SetFontResourceHandle(TResourceId handle)
 	{
-		if (TResourceId::Invalid == mFontResourceHandle)
+		if (TResourceId::Invalid == handle)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -78,6 +78,11 @@ namespace TDEngine2
 		mFontResourceHandle = handle;
 
 		return RC_OK;
+	}
+
+	void CLabel::SetAlignType(E_FONT_ALIGN_POLICY value)
+	{
+		mAlignType = value;
 	}
 
 	const std::string& CLabel::GetText() const
@@ -93,6 +98,11 @@ namespace TDEngine2
 	TResourceId CLabel::GetFontResourceHandle() const
 	{
 		return mFontResourceHandle;
+	}
+
+	E_FONT_ALIGN_POLICY CLabel::GetAlignType() const
+	{
+		return mAlignType;
 	}
 
 

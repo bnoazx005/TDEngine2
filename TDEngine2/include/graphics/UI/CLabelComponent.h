@@ -17,6 +17,20 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
+	enum class E_FONT_ALIGN_POLICY : U16
+	{
+		LEFT_TOP, 
+		CENTER_TOP,
+		RIGHT_TOP,
+		LEFT_CENTER,
+		CENTER,
+		RIGHT_CENTER,
+		LEFT_BOTTOM,
+		CENTER_BOTTOM,
+		RIGHT_BOTTOM,
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CLabel's type.
 
@@ -75,17 +89,23 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetFontResourceHandle(TResourceId handle);
 
+			TDE2_API void SetAlignType(E_FONT_ALIGN_POLICY value);
+
 			TDE2_API const std::string& GetText() const;
 
 			TDE2_API const std::string& GetFontId() const;
 
 			TDE2_API TResourceId GetFontResourceHandle() const;
 
+			TDE2_API E_FONT_ALIGN_POLICY GetAlignType() const;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLabel)
 		protected:
 			std::string mText;
 			std::string mFontResourceId;
+
+			E_FONT_ALIGN_POLICY mAlignType;
 
 			TResourceId mFontResourceHandle;
 	};

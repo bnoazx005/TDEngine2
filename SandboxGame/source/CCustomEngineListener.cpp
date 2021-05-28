@@ -285,7 +285,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 						if (auto pLabel = pEntity->AddComponent<CLabel>())
 						{
-
+							pLabel->SetFontId("Arial.font");
 						}
 
 						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());

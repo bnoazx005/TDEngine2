@@ -9,6 +9,7 @@
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/ITexture.h"
+#include "../../include/core/IFont.h"
 #include "../../include/core/IResource.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
@@ -138,6 +139,21 @@ namespace TDEngine2
 		return (pCurrEntity == pEntity) ? TEntityId::Invalid : pCurrEntity->GetId();
 	}
 
+
+	static CUIElementMeshData* GetUIElementsMeshData(CEntity* pEntity)
+	{
+		if (!pEntity->HasComponent<CUIElementMeshData>())
+		{
+			pEntity->AddComponent<CUIElementMeshData>();
+		}
+
+		auto pUIElementMeshData = pEntity->GetComponent<CUIElementMeshData>();
+		pUIElementMeshData->ResetMesh();
+
+		return pUIElementMeshData;
+	}
+
+
 	static void ComputeImageMeshData(IResourceManager* pResourceManager, IWorld* pWorld, TEntityId id)
 	{
 		CEntity* pEntity = pWorld->FindEntity(id);
@@ -162,13 +178,7 @@ namespace TDEngine2
 			return;
 		}
 
-		if (!pEntity->HasComponent<CUIElementMeshData>())
-		{
-			pEntity->AddComponent<CUIElementMeshData>();
-		}
-
-		auto pUIElementMeshData = pEntity->GetComponent<CUIElementMeshData>();
-		pUIElementMeshData->ResetMesh();
+		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
 
 		auto&& worldRect = pLayoutData->GetWorldRect();
 
@@ -199,6 +209,39 @@ namespace TDEngine2
 		{
 			return;
 		}
+
+		CLayoutElement* pLayoutData = pEntity->GetComponent<CLayoutElement>();
+		CLabel* pLabelData = pEntity->GetComponent<CLabel>();
+
+		/// \note Load font data if it's not loaded yet
+		if (TResourceId::Invalid == pLabelData->GetFontResourceHandle())
+		{
+			E_RESULT_CODE result = pLabelData->SetFontResourceHandle(pResourceManager->Load<IFont>(pLabelData->GetFontId()));
+			TDE2_ASSERT(RC_OK == result);
+		}
+
+		IFont* pFont = pResourceManager->GetResource<IFont>(pLabelData->GetFontResourceHandle());
+
+		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
+
+		/// \note Transfer vertices from pFont->GenerateMesh into UIMeshData component
+		auto&& textMeshVerts = pFont->GenerateMesh(ZeroVector2, 1.0f, CU8String(pLabelData->GetText()));
+		for (const TVector4& currVertex : textMeshVerts)
+		{
+			pUIElementMeshData->AddVertex({ currVertex, TColorUtils::mWhite });
+		}
+
+		U32 index = 0;
+
+		for (U32 i = 0; i < static_cast<U32>(pLabelData->GetText().size()); ++i)
+		{
+			pUIElementMeshData->AddIndex(index); pUIElementMeshData->AddIndex(index + 1); pUIElementMeshData->AddIndex(index + 2);
+			pUIElementMeshData->AddIndex(index + 2); pUIElementMeshData->AddIndex(index + 1); pUIElementMeshData->AddIndex(index + 3);
+
+			index += 4;
+		}
+
+		pUIElementMeshData->SetTextureResourceId(dynamic_cast<IResource*>(pFont->GetTexture())->GetId()); /// \todo Replace dynamic_cast with proper method in IFont
 	}
 
 
