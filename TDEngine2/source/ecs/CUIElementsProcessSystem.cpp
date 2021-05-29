@@ -224,15 +224,22 @@ namespace TDEngine2
 
 		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
 
+		E_FONT_ALIGN_POLICY alignType = pLabelData->GetAlignType();
+
 		const TRectF32 elementRect = pLayoutData->GetWorldRect();
-		TVector2 textOffsetPosition = elementRect.GetLeftBottom() + CLabel::GetPositionFromAlighType(pLabelData->GetAlignType()) * elementRect.GetSizes();
+		TVector2 textOffsetPosition = elementRect.GetLeftBottom() + CLabel::GetPositionFromAlighType(alignType) * elementRect.GetSizes();
 
 		/// \note Transfer vertices from pFont->GenerateMesh into UIMeshData component
 		auto&& textMeshVertsData = pFont->GenerateMesh(ZeroVector2, 1.0f, CU8String(pLabelData->GetText()));
 
-		if (CLabel::IsCenterizeAlignPolicy(pLabelData->GetAlignType()))
+		if (CLabel::IsCenterizeAlignPolicy(alignType))
 		{
 			textOffsetPosition.x -= textMeshVertsData.mTextRectSizes.x * 0.5f;
+		}
+
+		if (CLabel::IsRightsidedAlignPolicy(alignType))
+		{
+			textOffsetPosition.x -= textMeshVertsData.mTextRectSizes.x;
 		}
 
 		for (const TVector4& currVertex : textMeshVertsData.mVerts)

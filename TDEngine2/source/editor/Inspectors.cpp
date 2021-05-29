@@ -30,6 +30,7 @@
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/metadata.h"
 #include <array>
 #include <tuple>
 #include <functional>
@@ -913,9 +914,61 @@ namespace TDEngine2
 
 		if (imguiContext.CollapsingHeader("Label", true))
 		{
-			//CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
+			CLabel& label = dynamic_cast<CLabel&>(component);
 
-			// \todo Implement this drawer
+			{
+				std::string text = label.GetText();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Text");
+				imguiContext.TextField("##Text", text, [&text, &label] { label.SetText(text); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// font parameters
+			bool isFontSectionOpened = false;
+			bool isFontSectionSelected = false;
+
+			if (std::get<0>(std::tie(isFontSectionOpened, isFontSectionSelected) = imguiContext.BeginTreeNode("Font Parameters", false)))
+			{
+				{
+					std::string fontId = label.GetFontId();
+
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Font Resource");
+					imguiContext.SetItemWidth(imguiContext.GetWindowWidth() * 0.5f, [&imguiContext, &fontId, &label]
+					{
+						imguiContext.TextField("##FontId", fontId, [&fontId, &label] { label.SetFontId(fontId); });
+					});
+					imguiContext.EndHorizontal();
+				}
+
+				imguiContext.EndTreeNode();
+			}
+
+			/// text parameters
+			{
+				static std::vector<std::string> textAlignTypes;
+				if (textAlignTypes.empty())
+				{
+					for (auto&& currValueInfo : Meta::EnumTrait<E_FONT_ALIGN_POLICY>::GetFields())
+					{
+						textAlignTypes.push_back(currValueInfo.name);
+					}
+				}
+
+				imguiContext.BeginHorizontal();
+
+				I32 currAlignType = static_cast<U32>(label.GetAlignType());
+
+				imguiContext.Label("Text Align");
+				currAlignType = imguiContext.Popup("##AlignType", currAlignType, textAlignTypes);
+
+				label.SetAlignType(static_cast<E_FONT_ALIGN_POLICY>(currAlignType));
+
+				imguiContext.EndHorizontal();
+			}
+
 		}
 	}
 

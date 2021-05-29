@@ -285,6 +285,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 						if (auto pLabel = pEntity->AddComponent<CLabel>())
 						{
+							pLabel->SetAlignType(E_FONT_ALIGN_POLICY::RIGHT_BOTTOM);
 							pLabel->SetFontId("Arial.font");
 						}
 

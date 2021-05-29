@@ -87,6 +87,11 @@ namespace TDEngine2
 		mAlignType = value;
 	}
 
+	void CLabel::SetOverflowPolicyType(E_TEXT_OVERFLOW_POLICY value)
+	{
+		mOverflowPolicyType = value;
+	}
+
 	const std::string& CLabel::GetText() const
 	{
 		return mText;
@@ -105,6 +110,11 @@ namespace TDEngine2
 	E_FONT_ALIGN_POLICY CLabel::GetAlignType() const
 	{
 		return mAlignType;
+	}
+
+	E_TEXT_OVERFLOW_POLICY CLabel::GetOverflowPolicyType() const
+	{
+		return mOverflowPolicyType;
 	}
 
 
@@ -217,5 +227,10 @@ namespace TDEngine2
 	bool CLabel::IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type)
 	{
 		return (E_FONT_ALIGN_POLICY::CENTER == type) || (E_FONT_ALIGN_POLICY::CENTER_BOTTOM == type) || (E_FONT_ALIGN_POLICY::CENTER_TOP == type);
+	}
+	
+	bool CLabel::IsRightsidedAlignPolicy(E_FONT_ALIGN_POLICY type)
+	{
+		return (E_FONT_ALIGN_POLICY::RIGHT_TOP == type) || (E_FONT_ALIGN_POLICY::RIGHT_CENTER == type) || (E_FONT_ALIGN_POLICY::RIGHT_BOTTOM == type);
 	}
 }

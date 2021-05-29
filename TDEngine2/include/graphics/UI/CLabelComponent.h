@@ -31,6 +31,14 @@ namespace TDEngine2
 	};
 
 
+	enum class E_TEXT_OVERFLOW_POLICY : U16
+	{
+		NO_BREAK,			///< All the text won't be splitted and is displayed though the single line
+		BREAK_ALL,			///< The text is broken based on allowed rectangle
+		BREAK_SPACES,		///< The text's splitted based on whitespaces and rectangle's sizes
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CLabel's type.
 
@@ -91,6 +99,8 @@ namespace TDEngine2
 
 			TDE2_API void SetAlignType(E_FONT_ALIGN_POLICY value);
 
+			TDE2_API void SetOverflowPolicyType(E_TEXT_OVERFLOW_POLICY value);
+
 			TDE2_API const std::string& GetText() const;
 
 			TDE2_API const std::string& GetFontId() const;
@@ -99,8 +109,12 @@ namespace TDEngine2
 
 			TDE2_API E_FONT_ALIGN_POLICY GetAlignType() const;
 
+			TDE2_API E_TEXT_OVERFLOW_POLICY GetOverflowPolicyType() const;
+
 			TDE2_API static TVector2 GetPositionFromAlighType(E_FONT_ALIGN_POLICY type);
+
 			TDE2_API static bool IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type);
+			TDE2_API static bool IsRightsidedAlignPolicy(E_FONT_ALIGN_POLICY type);
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLabel)
@@ -110,6 +124,8 @@ namespace TDEngine2
 			std::string mFontResourceId;
 
 			E_FONT_ALIGN_POLICY mAlignType;
+
+			E_TEXT_OVERFLOW_POLICY mOverflowPolicyType;
 
 			TResourceId mFontResourceHandle;
 	};
