@@ -5,6 +5,7 @@
 #include "./../../include/graphics/CTextureAtlas.h"
 #include "./../../include/utils/CU8String.h"
 #include "./../../include/graphics/IDebugUtility.h"
+#include "../../include/math/MathUtils.h"
 #include <cstring>
 
 
@@ -178,12 +179,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	CFont::TTextVertices CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text)
+	CFont::TTextMeshData CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text)
 	{
 		ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
 		if (!pTextureAtlas)
 		{
-			return {};
+			return { {}, ZeroVector2 };
 		}
 
 		TVector2 currPosition{ position };
@@ -199,6 +200,8 @@ namespace TDEngine2
 		F32 x0, x1, y0, y1;
 
 		TTextVertices textMesh;
+
+		TVector2 sizes = ZeroVector2;
 
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
@@ -222,6 +225,8 @@ namespace TDEngine2
 				x1 = scale * pCurrGlyphInfo->mWidth;
 				y1 = scale * (pCurrGlyphInfo->mHeight);
 
+				sizes.y = CMathUtils::Max(sizes.y, y1);
+
 				textMesh.push_back({ x0,      y0,      normalizedUVs.x,                       normalizedUVs.y });
 				textMesh.push_back({ x0 + x1, y0,      normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
 				textMesh.push_back({ x0,      y0 - y1, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
@@ -231,7 +236,9 @@ namespace TDEngine2
 			currPosition = currPosition + TVector2{ scale * (currCodePoint != ' ' ? pCurrGlyphInfo->mAdvance : 20.0f), 0.0f };
 		}
 
-		return textMesh;
+		sizes.x = currPosition.x - position.x;
+
+		return { std::move(textMesh), sizes };
 	}
 
 	ITexture2D* CFont::GetTexture() const

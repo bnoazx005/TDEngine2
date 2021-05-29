@@ -1,0 +1,43 @@
+blend_state: 
+  dest_alpha: ZERO
+  dest_color: ONE_MINUS_SOURCE_ALPHA
+  op_alpha_type: ADD
+  op_type: ADD
+  src_alpha: ONE_MINUS_SOURCE_ALPHA
+  src_color: SOURCE_ALPHA
+depth_stencil_state: 
+  depth_cmp_func: LESS
+  depth_test_enabled: 0
+  depth_write_enabled: 0
+  stencil_back_op: 
+    cmp_func: ALWAYS
+    depth_fail_op: KEEP
+    fail_op: KEEP
+    pass_op: KEEP
+  stencil_front_op: 
+    cmp_func: ALWAYS
+    depth_fail_op: KEEP
+    fail_op: KEEP
+    pass_op: KEEP
+  stencil_read_mask: 255
+  stencil_test_enabled: 0
+  stencil_write_mask: 255
+meta: 
+  resource_type: material
+  version_tag: 1
+rasterizer_state: 
+  cull_mode: BACK
+  depth_bias: 0.000000
+  depth_clipping_enabled: 1
+  front_CCW_mode: 0
+  max_depth_bias: 1.000000
+  scissor_test_enabled: 0
+  wireframe_mode: 0
+shader_id: Shaders/Default/UI/DefaultTextShader.shader
+textures: 
+  - instance_id: 0
+    texture_bindings: 
+      - slot_id: Texture
+        texture_id: TexAtlas_Tex.png
+        texture_type_id: 2901602602
+transparency_enabled: 1

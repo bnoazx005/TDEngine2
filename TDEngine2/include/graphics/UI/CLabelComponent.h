@@ -99,8 +99,12 @@ namespace TDEngine2
 
 			TDE2_API E_FONT_ALIGN_POLICY GetAlignType() const;
 
+			TDE2_API static TVector2 GetPositionFromAlighType(E_FONT_ALIGN_POLICY type);
+			TDE2_API static bool IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type);
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLabel)
+
 		protected:
 			std::string mText;
 			std::string mFontResourceId;

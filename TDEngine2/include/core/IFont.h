@@ -67,6 +67,13 @@ namespace TDEngine2
 	{
 		public:
 			typedef std::vector<TVector4> TTextVertices;
+
+			typedef struct TTextMeshData
+			{
+				TTextVertices mVerts;
+				TVector2 mTextRectSizes;
+			} TTextMeshData, *TTextMeshDataPtr;
+
 		public:
 			TDE2_REGISTER_TYPE(IFont);
 
@@ -102,7 +109,7 @@ namespace TDEngine2
 				\return An array of vertices positions, each 4 forms a quad which is a single glyph
 			*/
 
-			TDE2_API virtual TTextVertices GenerateMesh(const TVector2& position, F32 scale, const CU8String& text) = 0;
+			TDE2_API virtual TTextMeshData GenerateMesh(const TVector2& position, F32 scale, const CU8String& text) = 0;
 
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font

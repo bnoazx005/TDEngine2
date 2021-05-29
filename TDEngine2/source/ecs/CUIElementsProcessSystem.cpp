@@ -224,11 +224,20 @@ namespace TDEngine2
 
 		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
 
+		const TRectF32 elementRect = pLayoutData->GetWorldRect();
+		TVector2 textOffsetPosition = elementRect.GetLeftBottom() + CLabel::GetPositionFromAlighType(pLabelData->GetAlignType()) * elementRect.GetSizes();
+
 		/// \note Transfer vertices from pFont->GenerateMesh into UIMeshData component
-		auto&& textMeshVerts = pFont->GenerateMesh(ZeroVector2, 1.0f, CU8String(pLabelData->GetText()));
-		for (const TVector4& currVertex : textMeshVerts)
+		auto&& textMeshVertsData = pFont->GenerateMesh(ZeroVector2, 1.0f, CU8String(pLabelData->GetText()));
+
+		if (CLabel::IsCenterizeAlignPolicy(pLabelData->GetAlignType()))
 		{
-			pUIElementMeshData->AddVertex({ currVertex, TColorUtils::mWhite });
+			textOffsetPosition.x -= textMeshVertsData.mTextRectSizes.x * 0.5f;
+		}
+
+		for (const TVector4& currVertex : textMeshVertsData.mVerts)
+		{
+			pUIElementMeshData->AddVertex({ { currVertex.x + textOffsetPosition.x, currVertex.y + textOffsetPosition.y, currVertex.z, currVertex.w }, TColorUtils::mWhite });
 		}
 
 		U32 index = 0;
@@ -242,6 +251,7 @@ namespace TDEngine2
 		}
 
 		pUIElementMeshData->SetTextureResourceId(dynamic_cast<IResource*>(pFont->GetTexture())->GetId()); /// \todo Replace dynamic_cast with proper method in IFont
+		pUIElementMeshData->SetTextMeshFlag(true);
 	}
 
 

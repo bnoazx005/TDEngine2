@@ -120,9 +120,9 @@ namespace TDEngine2
 
 			TDE2_ASSERT(pCurrCanvas && pCanvasEntity);
 
-			const bool isFontMesh = pMeshData->IsTextMesh();
+			const bool isTextMesh = pMeshData->IsTextMesh();
 
-			const TResourceId currMaterialId = isFontMesh ? mDefaultFontMaterialId : mDefaultUIMaterialId;
+			const TResourceId currMaterialId = isTextMesh ? mDefaultFontMaterialId : mDefaultUIMaterialId;
 			const TResourceId currTextureId = pMeshData->GetTextureResourceId();
 
 			IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(currMaterialId);
@@ -150,7 +150,7 @@ namespace TDEngine2
 			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCurrCommand->mMaterialHandle     = currMaterialId;
 			pCurrCommand->mMaterialInstanceId = currMaterialInstance;
-			pCurrCommand->mpVertexDeclaration = isFontMesh ? mpDefaultFontVertexDecl : mpDefaultUIVertexDecl;
+			pCurrCommand->mpVertexDeclaration = isTextMesh ? mpDefaultFontVertexDecl : mpDefaultUIVertexDecl;
 			pCurrCommand->mStartIndex         = static_cast<U32>(mIndices.size());
 			pCurrCommand->mStartVertex        = static_cast<U32>(mVertices.size());
 			pCurrCommand->mNumOfIndices       = static_cast<U32>(indices.size());
@@ -199,6 +199,7 @@ namespace TDEngine2
 		blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
 
 		mDefaultUIMaterialId = mpResourceManager->Create<IMaterial>("DefaultInGameUI.material", editorUIMaterialParams);
+		mDefaultFontMaterialId = mpResourceManager->Load<IMaterial>("DefaultMaterials/UI/DefaultTextMaterial.material");
 
 		/// \note Create a default vertex declaration for fonts
 		auto createFontVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();
@@ -210,7 +211,7 @@ namespace TDEngine2
 		mpDefaultFontVertexDecl = createFontVertDeclResult.Get();
 
 		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
+		//mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
 		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
 		/// \note Create vertex buffer and index one
