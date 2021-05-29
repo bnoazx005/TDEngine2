@@ -162,7 +162,10 @@ namespace TDEngine2
 			auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
 
 			/// \todo Add computation of a projection matrix
-			pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix());
+			auto pivot = pLayoutElement->GetPivot();
+			TMatrix4 localObjectTransform = IdentityMatrix4;// RotationMatrix(pTransform->GetRotation()) *ScaleMatrix(pTransform->GetScale()) * TranslationMatrix(TVector3{ pivot.x, pivot.y, 0.0f });
+
+			pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix() * localObjectTransform);
 			pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
 		}
 

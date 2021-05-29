@@ -459,7 +459,7 @@ namespace TDEngine2
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
 		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
-		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3({ 0.001f }, { 1.0f })) * mRadius; // \todo Fix this with proper computation of transformed position
+		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3(TVector3 { 0.001f }, TVector3 { 1.0f })) * mRadius; // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = _getInitVelocity();
 
 		if (mIs2DEmitter)

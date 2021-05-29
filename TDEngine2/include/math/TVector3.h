@@ -34,7 +34,7 @@ namespace TDEngine2
 			\param[in] initializer A value, which will be assigned to all the components
 		*/
 
-		TDE2_API TVector3(F32 initializer);
+		TDE2_API explicit TVector3(F32 initializer);
 
 		/*!
 			\brief Simple copy constructor
@@ -46,7 +46,7 @@ namespace TDEngine2
 			\brief Move constructor
 		*/
 
-		TDE2_API TVector3(TVector3&& vec3);
+		TDE2_API explicit TVector3(TVector3&& vec3);
 
 		/*!
 			\brief The constructor, which uses an array's values to initialize
