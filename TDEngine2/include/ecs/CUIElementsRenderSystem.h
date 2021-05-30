@@ -120,8 +120,8 @@ namespace TDEngine2
 
 			std::vector<TEntityId>          mUIElementsEntities;
 
-			std::vector<TUIElementsVertex> mVertices;
-			std::vector<U16>               mIndices;
+			std::vector<TUIElementsVertex> mVertices, mIntermediateVertsBuffer;
+			std::vector<U16>               mIndices, mIntermediateIndexBuffer;
 
 			IVertexBuffer*                 mpVertexBuffer;
 			IIndexBuffer*                  mpIndexBuffer;

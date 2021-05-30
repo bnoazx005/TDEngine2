@@ -203,6 +203,8 @@ namespace TDEngine2
 
 		TVector2 sizes = ZeroVector2;
 
+		U16 indicesCount = 0;
+
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
 			currCodePoint = text.At(i);
@@ -231,6 +233,8 @@ namespace TDEngine2
 				textMesh.push_back({ x0 + x1, y0,      normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
 				textMesh.push_back({ x0,      y0 - y1, normalizedUVs.x,                       normalizedUVs.y + normalizedUVs.height });
 				textMesh.push_back({ x0 + x1, y0 - y1, normalizedUVs.x + normalizedUVs.width, normalizedUVs.y + normalizedUVs.height });
+
+				indicesCount += 6;
 			}
 
 			currPosition = currPosition + TVector2{ scale * (currCodePoint != ' ' ? pCurrGlyphInfo->mAdvance : 20.0f), 0.0f };
@@ -238,7 +242,7 @@ namespace TDEngine2
 
 		sizes.x = currPosition.x - position.x;
 
-		return { std::move(textMesh), sizes };
+		return { std::move(textMesh), sizes, indicesCount };
 	}
 
 	ITexture2D* CFont::GetTexture() const

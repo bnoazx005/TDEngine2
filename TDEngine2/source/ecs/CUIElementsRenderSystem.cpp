@@ -143,9 +143,45 @@ namespace TDEngine2
 
 		U32 index = 0;
 
-		for (TEntityId currEntityId : mUIElementsEntities)
+		TResourceId prevMaterialId = TResourceId::Invalid;
+		TMaterialInstanceId prevMaterialInstanceId = DefaultMaterialInstanceId;
+
+
+		auto shouldBatchBeFlushed = [this, pWorld](const TResourceId currMaterialId, const TMaterialInstanceId currMaterialInstanceId, U32 index)
 		{
-			pEntity = pWorld->FindEntity(currEntityId);
+			if (index + 1 >= static_cast<U32>(mUIElementsEntities.size()))
+			{
+				return true;
+			}
+
+			if (CEntity* pEntity = pWorld->FindEntity(mUIElementsEntities[index + 1]))
+			{
+				CUIElementMeshData* pMeshData = pEntity->GetComponent<CUIElementMeshData>();
+
+				const TResourceId nextMaterialId = pMeshData->IsTextMesh() ? mDefaultFontMaterialId : mDefaultUIMaterialId;
+				if (nextMaterialId != currMaterialId)
+				{
+					return true;
+				}
+
+				const TResourceId nextTextureId = pMeshData->GetTextureResourceId();
+
+				auto it = mUsingMaterials.find(nextTextureId);
+				if (it == mUsingMaterials.cend())
+				{
+					return true;
+				}
+
+				return (currMaterialInstanceId != it->second);
+			}
+
+			return false;
+		};
+
+
+		for (U32 i = 0; i < mUIElementsEntities.size(); ++i)
+		{
+			pEntity = pWorld->FindEntity(mUIElementsEntities[i]);
 			if (!pEntity)
 			{
 				continue;
@@ -182,35 +218,51 @@ namespace TDEngine2
 
 			pMaterial->SetTextureResource("Texture", pTexture, currMaterialInstance);
 
-			const U16 layerIndex = static_cast<U16>(std::abs(pTransform->GetPosition().z)); /// \todo Reimplement this 
-
-			auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(mUIElementsEntities.size() - index++));
-
 			auto&& vertices = pMeshData->GetVertices();
 			auto&& indices = pMeshData->GetIndices();
 
-			pCurrCommand->mpVertexBuffer      = mpVertexBuffer;
-			pCurrCommand->mpIndexBuffer       = mpIndexBuffer;
-			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCurrCommand->mMaterialHandle     = currMaterialId;
-			pCurrCommand->mMaterialInstanceId = currMaterialInstance;
-			pCurrCommand->mpVertexDeclaration = isTextMesh ? mpDefaultFontVertexDecl : mpDefaultUIVertexDecl;
-			pCurrCommand->mStartIndex         = static_cast<U32>(mIndices.size());
-			pCurrCommand->mStartVertex        = static_cast<U32>(mVertices.size());
-			pCurrCommand->mNumOfIndices       = static_cast<U32>(indices.size());
+			for (U16 index : indices)
+			{
+				mIntermediateIndexBuffer.push_back(static_cast<U16>(mIntermediateVertsBuffer.empty() ? 0 : mIntermediateVertsBuffer.size()) + index);
+			}
 
-			std::copy(vertices.cbegin(), vertices.cend(), std::back_inserter(mVertices));
-			std::copy(indices.cbegin(), indices.cend(), std::back_inserter(mIndices));
+			std::copy(vertices.cbegin(), vertices.cend(), std::back_inserter(mIntermediateVertsBuffer));
+			
+			/// \note Flush current buffers when the batch is splitted
+			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i))
+			{
+				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(mUIElementsEntities.size() - index));
 
-			/// \todo Implement this
-			auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
+				pCurrCommand->mpVertexBuffer = mpVertexBuffer;
+				pCurrCommand->mpIndexBuffer = mpIndexBuffer;
+				pCurrCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pCurrCommand->mMaterialHandle = currMaterialId;
+				pCurrCommand->mMaterialInstanceId = currMaterialInstance;
+				pCurrCommand->mpVertexDeclaration = isTextMesh ? mpDefaultFontVertexDecl : mpDefaultUIVertexDecl;
+				pCurrCommand->mStartIndex = static_cast<U32>(mIndices.size());
+				pCurrCommand->mStartVertex = static_cast<U32>(mVertices.size());
+				pCurrCommand->mNumOfIndices = static_cast<U32>(mIntermediateIndexBuffer.size());
 
-			/// \todo Add computation of a projection matrix
-			auto pivot = pLayoutElement->GetPivot();
-			TMatrix4 localObjectTransform = IdentityMatrix4;// RotationMatrix(pTransform->GetRotation()) *ScaleMatrix(pTransform->GetScale()) * TranslationMatrix(TVector3{ pivot.x, pivot.y, 0.0f });
+				std::copy(mIntermediateVertsBuffer.cbegin(), mIntermediateVertsBuffer.cend(), std::back_inserter(mVertices));
+				std::copy(mIntermediateIndexBuffer.cbegin(), mIntermediateIndexBuffer.cend(), std::back_inserter(mIndices));
 
-			pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix() * localObjectTransform);
-			pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
+				/// \todo Implement this
+				auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
+
+				/// \todo Add computation of a projection matrix
+				auto pivot = pLayoutElement->GetPivot();
+				TMatrix4 localObjectTransform = IdentityMatrix4;// RotationMatrix(pTransform->GetRotation()) *ScaleMatrix(pTransform->GetScale()) * TranslationMatrix(TVector3{ pivot.x, pivot.y, 0.0f });
+
+				pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix() * localObjectTransform);
+				pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
+
+				mIntermediateVertsBuffer.clear();
+				mIntermediateIndexBuffer.clear();
+
+				++index;
+
+				continue;
+			}		
 		}
 
 		if (mVertices.empty())

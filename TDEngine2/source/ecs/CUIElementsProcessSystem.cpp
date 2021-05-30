@@ -247,9 +247,9 @@ namespace TDEngine2
 			pUIElementMeshData->AddVertex({ { currVertex.x + textOffsetPosition.x, currVertex.y + textOffsetPosition.y, currVertex.z, currVertex.w }, TColorUtils::mWhite });
 		}
 
-		U32 index = 0;
+		U16 index = 0;
 
-		for (U32 i = 0; i < static_cast<U32>(pLabelData->GetText().size()); ++i)
+		for (U16 i = 0; i < textMeshVertsData.mNeededIndicesCount; i += 6)
 		{
 			pUIElementMeshData->AddIndex(index); pUIElementMeshData->AddIndex(index + 1); pUIElementMeshData->AddIndex(index + 2);
 			pUIElementMeshData->AddIndex(index + 2); pUIElementMeshData->AddIndex(index + 1); pUIElementMeshData->AddIndex(index + 3);

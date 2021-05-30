@@ -71,7 +71,8 @@ namespace TDEngine2
 			typedef struct TTextMeshData
 			{
 				TTextVertices mVerts;
-				TVector2 mTextRectSizes;
+				TVector2      mTextRectSizes;
+				U16           mNeededIndicesCount;
 			} TTextMeshData, *TTextMeshDataPtr;
 
 		public:

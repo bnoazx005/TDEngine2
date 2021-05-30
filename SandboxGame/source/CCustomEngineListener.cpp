@@ -253,7 +253,46 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						pLayoutElement->SetPivot(TVector2(0.5f));
 					}
 
+					if (auto pEntity = pScene->CreateEntity("Text0"))
+					{
+						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+						{
+							pLayoutElement->SetMinAnchor(TVector2(0.2f));
+							pLayoutElement->SetMaxAnchor(TVector2(0.8f));
+							pLayoutElement->SetPivot(TVector2(0.f));
+						}
+
+						if (auto pLabel = pEntity->AddComponent<CLabel>())
+						{
+							pLabel->SetAlignType(E_FONT_ALIGN_POLICY::RIGHT_BOTTOM);
+							pLabel->SetFontId("Arial.font");
+						}
+
+						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
+					}
+
 					if (auto pEntity = pScene->CreateEntity("UIElement"))
+					{
+						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+						{
+							pLayoutElement->SetMinAnchor(TVector2(0.2f));
+							pLayoutElement->SetMaxAnchor(TVector2(0.8f));
+							pLayoutElement->SetPivot(TVector2(0.f));
+
+							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
+						}
+
+						if (auto pImage = pEntity->AddComponent<CImage>())
+						{
+							pImage->SetImageId("Tim.tga");
+						}
+
+						pEntity->AddComponent<CInputReceiver>();
+
+						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
+					}
+
+					if (auto pEntity = pScene->CreateEntity("UIElement2"))
 					{
 						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
 						{
