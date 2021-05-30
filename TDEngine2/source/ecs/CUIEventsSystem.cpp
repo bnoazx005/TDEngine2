@@ -55,7 +55,7 @@ namespace TDEngine2
 	}
 
 
-	static TEntityId FindEntityWithMainCanvas(IWorld* pWorld)
+	TDE2_API TEntityId FindEntityWithMainCanvas(IWorld* pWorld)
 	{
 		auto&& canvases = pWorld->FindEntitiesWithComponents<CCanvas>();
 

@@ -2,6 +2,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CUIEventsSystem.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -17,6 +18,7 @@
 #include "../../include/graphics/ITexture.h"
 #include "../../include/core/IResource.h"
 #include "../../include/core/IResourceManager.h"
+#include <stack>
 
 
 namespace TDEngine2
@@ -79,7 +81,47 @@ namespace TDEngine2
 
 	void CUIElementsRenderSystem::InjectBindings(IWorld* pWorld)
 	{
-		mUIElementsEntities = pWorld->FindEntitiesWithAny<CUIElementMeshData>();
+		mUIElementsEntities.clear();
+
+		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
+		const TEntityId mainCanvasEntityId = FindEntityWithMainCanvas(pWorld);
+		if (TEntityId::Invalid == mainCanvasEntityId)
+		{
+			return;
+		}
+
+		CTransform* pTransform = pWorld->FindEntity(mainCanvasEntityId)->GetComponent<CTransform>();
+
+		/// \note Sort all entities based on computed priority (children're first)
+		std::stack<TEntityId> entitiesToVisit;
+
+		for (TEntityId id : pTransform->GetChildren())
+		{
+			entitiesToVisit.push(id);
+		}
+
+		CEntity* pEntity = nullptr;
+
+		while (!entitiesToVisit.empty())
+		{
+			const TEntityId currEntityId = entitiesToVisit.top();
+			entitiesToVisit.pop();
+
+			pEntity = pWorld->FindEntity(currEntityId);
+
+			if (pEntity->HasComponent<CUIElementMeshData>())
+			{
+				mUIElementsEntities.insert(mUIElementsEntities.begin(), currEntityId);
+			}
+
+			if (pTransform = pEntity->GetComponent<CTransform>())
+			{
+				for (TEntityId id : pTransform->GetChildren())
+				{
+					entitiesToVisit.push(id);
+				}
+			}
+		}
 	}
 
 
@@ -98,6 +140,8 @@ namespace TDEngine2
 
 		mVertices.clear();
 		mIndices.clear();
+
+		U32 index = 0;
 
 		for (TEntityId currEntityId : mUIElementsEntities)
 		{
@@ -140,7 +184,7 @@ namespace TDEngine2
 
 			const U16 layerIndex = static_cast<U16>(std::abs(pTransform->GetPosition().z)); /// \todo Reimplement this 
 
-			auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(ComputeCommandKey(currMaterialId, currMaterialInstance, layerIndex));
+			auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(mUIElementsEntities.size() - index++));
 
 			auto&& vertices = pMeshData->GetVertices();
 			auto&& indices = pMeshData->GetIndices();

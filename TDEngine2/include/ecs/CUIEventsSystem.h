@@ -86,4 +86,7 @@ namespace TDEngine2
 			IInputContext* mpInputContext; 
 			IDesktopInputContext* mpDesktopInputContext;
 	};
+
+
+	TDE2_API TEntityId FindEntityWithMainCanvas(IWorld* pWorld);
 }
