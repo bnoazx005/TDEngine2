@@ -179,7 +179,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	CFont::TTextMeshData CFont::GenerateMesh(const TVector2& position, F32 scale, const CU8String& text)
+	CFont::TTextMeshData CFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
 	{
 		ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
 		if (!pTextureAtlas)
@@ -187,7 +187,10 @@ namespace TDEngine2
 			return { {}, ZeroVector2 };
 		}
 
-		TVector2 currPosition{ position };
+		const TRectF32 bounds = params.mBounds;
+		const F32 scale = params.mScale;
+
+		TVector2 currPosition{ bounds.GetLeftBottom() };
 
 		TRectF32 normalizedUVs;
 
@@ -240,7 +243,7 @@ namespace TDEngine2
 			currPosition = currPosition + TVector2{ scale * (currCodePoint != ' ' ? pCurrGlyphInfo->mAdvance : 20.0f), 0.0f };
 		}
 
-		sizes.x = currPosition.x - position.x;
+		sizes.x = currPosition.x - bounds.GetLeftBottom().x;
 
 		return { std::move(textMesh), sizes, indicesCount };
 	}

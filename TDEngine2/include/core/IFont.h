@@ -14,6 +14,7 @@
 #include "../core/Serialization.h"
 #include "../math/TVector2.h"
 #include "../math/TVector4.h"
+#include "../math/TRect.h"
 #include "../utils/CU8String.h"
 #include <string>
 #include <vector>
@@ -75,6 +76,12 @@ namespace TDEngine2
 				U16           mNeededIndicesCount;
 			} TTextMeshData, *TTextMeshDataPtr;
 
+			typedef struct TTextMeshBuildParams
+			{
+				TRectF32 mBounds; ///< Left bottom point determines a position of a text
+				F32      mScale = 1.0f;
+			} TTextMeshBuildParams;
+
 		public:
 			TDE2_REGISTER_TYPE(IFont);
 
@@ -103,14 +110,13 @@ namespace TDEngine2
 			/*!
 				\brief The method generates 2D mesh for a given text based on font's settings
 
-				\param[in] position A position of a top left corner of a text line
-				\param[in] scale A scale of a text mesh
+				\param[in] params A set of parameters to configure text
 				\param[in] text An input text that should be rendered
 
 				\return An array of vertices positions, each 4 forms a quad which is a single glyph
 			*/
 
-			TDE2_API virtual TTextMeshData GenerateMesh(const TVector2& position, F32 scale, const CU8String& text) = 0;
+			TDE2_API virtual TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text) = 0;
 
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font

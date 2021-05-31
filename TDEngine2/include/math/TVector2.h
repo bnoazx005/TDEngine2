@@ -97,6 +97,7 @@ namespace TDEngine2
 	static const TVector2 ZeroVector2  = TVector2();
 	static const TVector2 RightVector2 = TVector2(1.0f, 0.0f);
 	static const TVector2 UpVector2    = TVector2(0.0f, 1.0f);
+	static const TVector2 MaxVector2   = TVector2((std::numeric_limits<F32>::max)());
 
 
 	///TVector2's operators overloading

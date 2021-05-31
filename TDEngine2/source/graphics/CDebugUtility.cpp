@@ -198,7 +198,7 @@ namespace TDEngine2
 
 		auto pSystemFontResource = mpResourceManager->GetResource<IFont>(mSystemFontHandle);
 
-		auto&& generatedMesh = pSystemFontResource->GenerateMesh(screenPos, scale, str).mVerts;
+		auto&& generatedMesh = pSystemFontResource->GenerateMesh({ { screenPos, MaxVector2 }, scale }, str).mVerts;
 
 		std::transform(generatedMesh.begin(), generatedMesh.end(), std::back_inserter(mTextDataBuffer), [](const TVector4& v)
 		{

@@ -230,7 +230,7 @@ namespace TDEngine2
 		TVector2 textOffsetPosition = elementRect.GetLeftBottom() + CLabel::GetPositionFromAlighType(alignType) * elementRect.GetSizes();
 
 		/// \note Transfer vertices from pFont->GenerateMesh into UIMeshData component
-		auto&& textMeshVertsData = pFont->GenerateMesh(ZeroVector2, 1.0f, CU8String(pLabelData->GetText()));
+		auto&& textMeshVertsData = pFont->GenerateMesh({ { ZeroVector2, ZeroVector2 }, 1.0f }, CU8String(pLabelData->GetText()));
 
 		if (CLabel::IsCenterizeAlignPolicy(alignType))
 		{
