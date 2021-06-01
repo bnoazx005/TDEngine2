@@ -15,28 +15,8 @@
 namespace TDEngine2
 {
 	enum class TResourceId : U32;
-
-
-	enum class E_FONT_ALIGN_POLICY : U16
-	{
-		LEFT_TOP, 
-		CENTER_TOP,
-		RIGHT_TOP,
-		LEFT_CENTER,
-		CENTER,
-		RIGHT_CENTER,
-		LEFT_BOTTOM,
-		CENTER_BOTTOM,
-		RIGHT_BOTTOM,
-	};
-
-
-	enum class E_TEXT_OVERFLOW_POLICY : U16
-	{
-		NO_BREAK,			///< All the text won't be splitted and is displayed though the single line
-		BREAK_ALL,			///< The text is broken based on allowed rectangle
-		BREAK_SPACES,		///< The text's splitted based on whitespaces and rectangle's sizes
-	};
+	enum class E_FONT_ALIGN_POLICY : U16;
+	enum class E_TEXT_OVERFLOW_POLICY : U16;
 
 
 	/*!
@@ -110,11 +90,6 @@ namespace TDEngine2
 			TDE2_API E_FONT_ALIGN_POLICY GetAlignType() const;
 
 			TDE2_API E_TEXT_OVERFLOW_POLICY GetOverflowPolicyType() const;
-
-			TDE2_API static TVector2 GetPositionFromAlighType(E_FONT_ALIGN_POLICY type);
-
-			TDE2_API static bool IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type);
-			TDE2_API static bool IsRightsidedAlignPolicy(E_FONT_ALIGN_POLICY type);
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLabel)

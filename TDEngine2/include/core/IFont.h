@@ -30,6 +30,28 @@ namespace TDEngine2
 	class IDebugUtility;
 
 
+	enum class E_FONT_ALIGN_POLICY : U16
+	{
+		LEFT_TOP,
+		CENTER_TOP,
+		RIGHT_TOP,
+		LEFT_CENTER,
+		CENTER,
+		RIGHT_CENTER,
+		LEFT_BOTTOM,
+		CENTER_BOTTOM,
+		RIGHT_BOTTOM,
+	};
+
+
+	enum class E_TEXT_OVERFLOW_POLICY : U16
+	{
+		NO_BREAK,			///< All the text won't be splitted and is displayed though the single line
+		BREAK_ALL,			///< The text is broken based on allowed rectangle
+		BREAK_SPACES,		///< The text's splitted based on whitespaces and rectangle's sizes
+	};
+
+
 	/*!
 		struct TFontParameters
 

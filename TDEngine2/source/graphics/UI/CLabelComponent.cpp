@@ -1,4 +1,5 @@
 #include "../../../include/graphics/UI/CLabelComponent.h"
+#include "../../../include/core/CFont.h"
 #include <stringUtils.hpp>
 
 
@@ -185,52 +186,5 @@ namespace TDEngine2
 	IComponentFactory* CreateLabelFactory(E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IComponentFactory, CLabelFactory, result);
-	}
-
-
-	TVector2 CLabel::GetPositionFromAlighType(E_FONT_ALIGN_POLICY type)
-	{
-		switch (type)
-		{
-			case E_FONT_ALIGN_POLICY::LEFT_TOP:
-				return TVector2(0.0f, 1.0f);
-
-			case E_FONT_ALIGN_POLICY::CENTER_TOP:
-				return TVector2(0.5f, 1.0f);
-
-			case E_FONT_ALIGN_POLICY::RIGHT_TOP:
-				return TVector2(1.0f, 1.0f);
-
-			case E_FONT_ALIGN_POLICY::LEFT_CENTER:
-				return TVector2(0.0f, 0.5f);
-
-			case E_FONT_ALIGN_POLICY::CENTER:
-				return TVector2(0.5f, 0.5f);
-
-			case E_FONT_ALIGN_POLICY::RIGHT_CENTER:
-				return TVector2(1.0f, 0.5f);
-
-			case E_FONT_ALIGN_POLICY::LEFT_BOTTOM:
-				return TVector2(0.0f, 0.0f);
-
-			case E_FONT_ALIGN_POLICY::CENTER_BOTTOM:
-				return TVector2(0.5f, 0.0f);
-
-			case E_FONT_ALIGN_POLICY::RIGHT_BOTTOM:
-				return TVector2(1.0f, 0.0f);
-		}
-
-		TDE2_UNREACHABLE();
-		return ZeroVector2;
-	}
-
-	bool CLabel::IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type)
-	{
-		return (E_FONT_ALIGN_POLICY::CENTER == type) || (E_FONT_ALIGN_POLICY::CENTER_BOTTOM == type) || (E_FONT_ALIGN_POLICY::CENTER_TOP == type);
-	}
-	
-	bool CLabel::IsRightsidedAlignPolicy(E_FONT_ALIGN_POLICY type)
-	{
-		return (E_FONT_ALIGN_POLICY::RIGHT_TOP == type) || (E_FONT_ALIGN_POLICY::RIGHT_CENTER == type) || (E_FONT_ALIGN_POLICY::RIGHT_BOTTOM == type);
 	}
 }
