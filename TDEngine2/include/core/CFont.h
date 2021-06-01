@@ -124,9 +124,6 @@ namespace TDEngine2
 			TDE2_API ITexture2D* GetTexture() const override;
 
 			TDE2_API static TVector2 GetPositionFromAlignType(E_FONT_ALIGN_POLICY type);
-
-			TDE2_API static bool IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type);
-			TDE2_API static bool IsRightsidedAlignPolicy(E_FONT_ALIGN_POLICY type);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFont)
 

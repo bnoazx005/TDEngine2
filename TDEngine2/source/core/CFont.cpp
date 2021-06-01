@@ -179,6 +179,23 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static bool IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type)
+	{
+		return (E_FONT_ALIGN_POLICY::CENTER == type) || (E_FONT_ALIGN_POLICY::CENTER_BOTTOM == type) || (E_FONT_ALIGN_POLICY::CENTER_TOP == type);
+	}
+
+	static bool IsRightsidedAlignPolicy(E_FONT_ALIGN_POLICY type)
+	{
+		return (E_FONT_ALIGN_POLICY::RIGHT_TOP == type) || (E_FONT_ALIGN_POLICY::RIGHT_CENTER == type) || (E_FONT_ALIGN_POLICY::RIGHT_BOTTOM == type);
+	}
+
+	static bool IsTopsidedAlignPolicy(E_FONT_ALIGN_POLICY type)
+	{
+		return (E_FONT_ALIGN_POLICY::RIGHT_TOP == type) || (E_FONT_ALIGN_POLICY::LEFT_TOP == type) || (E_FONT_ALIGN_POLICY::CENTER_TOP == type);
+	}
+
+
 	CFont::TTextMeshData CFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
 	{
 		ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
@@ -189,8 +206,6 @@ namespace TDEngine2
 
 		const TRectF32 bounds = params.mBounds;
 		const F32 scale = params.mScale;
-
-		TVector2 currPosition{ bounds.GetLeftBottom() };
 
 		TRectF32 normalizedUVs;
 
@@ -207,6 +222,8 @@ namespace TDEngine2
 		TVector2 sizes = ZeroVector2;
 
 		U16 indicesCount = 0;
+
+		TVector2 currPosition = bounds.GetLeftBottom();
 
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
@@ -244,6 +261,29 @@ namespace TDEngine2
 		}
 
 		sizes.x = currPosition.x - bounds.GetLeftBottom().x;
+
+		TVector2 textOffsetPosition = CFont::GetPositionFromAlignType(params.mAlignMode) * bounds.GetSizes();
+
+		if (IsCenterizeAlignPolicy(params.mAlignMode))
+		{
+			textOffsetPosition.x -= sizes.x * 0.5f;
+		}
+
+		if (IsRightsidedAlignPolicy(params.mAlignMode))
+		{
+			textOffsetPosition.x -= sizes.x;
+		}
+
+		if (IsTopsidedAlignPolicy(params.mAlignMode))
+		{
+			textOffsetPosition.y -= sizes.y;
+		}
+
+		for (auto& v : textMesh)
+		{
+			v.x += textOffsetPosition.x;
+			v.y += textOffsetPosition.y;
+		}
 
 		return { std::move(textMesh), sizes, indicesCount };
 	}
@@ -298,16 +338,6 @@ namespace TDEngine2
 
 		TDE2_UNREACHABLE();
 		return ZeroVector2;
-	}
-
-	bool CFont::IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type)
-	{
-		return (E_FONT_ALIGN_POLICY::CENTER == type) || (E_FONT_ALIGN_POLICY::CENTER_BOTTOM == type) || (E_FONT_ALIGN_POLICY::CENTER_TOP == type);
-	}
-
-	bool CFont::IsRightsidedAlignPolicy(E_FONT_ALIGN_POLICY type)
-	{
-		return (E_FONT_ALIGN_POLICY::RIGHT_TOP == type) || (E_FONT_ALIGN_POLICY::RIGHT_CENTER == type) || (E_FONT_ALIGN_POLICY::RIGHT_BOTTOM == type);
 	}
 
 

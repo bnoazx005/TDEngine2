@@ -100,8 +100,10 @@ namespace TDEngine2
 
 			typedef struct TTextMeshBuildParams
 			{
-				TRectF32 mBounds; ///< Left bottom point determines a position of a text
-				F32      mScale = 1.0f;
+				TRectF32               mBounds; ///< Left bottom point determines a position of a text
+				F32                    mScale = 1.0f;
+				E_TEXT_OVERFLOW_POLICY mOverflowPolicy = E_TEXT_OVERFLOW_POLICY::NO_BREAK;
+				E_FONT_ALIGN_POLICY    mAlignMode = E_FONT_ALIGN_POLICY::CENTER;
 			} TTextMeshBuildParams;
 
 		public:

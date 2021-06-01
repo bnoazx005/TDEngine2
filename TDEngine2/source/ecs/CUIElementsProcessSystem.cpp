@@ -223,28 +223,13 @@ namespace TDEngine2
 		IFont* pFont = pResourceManager->GetResource<IFont>(pLabelData->GetFontResourceHandle());
 
 		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
-
-		E_FONT_ALIGN_POLICY alignType = pLabelData->GetAlignType();
-
-		const TRectF32 elementRect = pLayoutData->GetWorldRect();
-		TVector2 textOffsetPosition = elementRect.GetLeftBottom() + CFont::GetPositionFromAlignType(alignType) * elementRect.GetSizes();
-
+		
 		/// \note Transfer vertices from pFont->GenerateMesh into UIMeshData component
-		auto&& textMeshVertsData = pFont->GenerateMesh({ { ZeroVector2, ZeroVector2 }, 1.0f }, CU8String(pLabelData->GetText()));
-
-		if (CFont::IsCenterizeAlignPolicy(alignType))
-		{
-			textOffsetPosition.x -= textMeshVertsData.mTextRectSizes.x * 0.5f;
-		}
-
-		if (CFont::IsRightsidedAlignPolicy(alignType))
-		{
-			textOffsetPosition.x -= textMeshVertsData.mTextRectSizes.x;
-		}
+		auto&& textMeshVertsData = pFont->GenerateMesh({ pLayoutData->GetWorldRect(), 1.0f, E_TEXT_OVERFLOW_POLICY::NO_BREAK, pLabelData->GetAlignType() }, CU8String(pLabelData->GetText()));
 
 		for (const TVector4& currVertex : textMeshVertsData.mVerts)
 		{
-			pUIElementMeshData->AddVertex({ { currVertex.x + textOffsetPosition.x, currVertex.y + textOffsetPosition.y, currVertex.z, currVertex.w }, TColorUtils::mWhite });
+			pUIElementMeshData->AddVertex({ currVertex, TColorUtils::mWhite });
 		}
 
 		U16 index = 0;
