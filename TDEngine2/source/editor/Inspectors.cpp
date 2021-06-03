@@ -969,6 +969,29 @@ namespace TDEngine2
 				imguiContext.EndHorizontal();
 			}
 
+			/// \note Text overflow policy
+			{
+				static std::vector<std::string> overflowPolicies;
+				if (overflowPolicies.empty())
+				{
+					for (auto&& currValueInfo : Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::GetFields())
+					{
+						overflowPolicies.push_back(currValueInfo.name);
+					}
+				}
+
+				imguiContext.BeginHorizontal();
+
+				I32 currTextOverflowType = static_cast<U32>(label.GetOverflowPolicyType());
+
+				imguiContext.Label("Text Overflow Rule");
+				currTextOverflowType = imguiContext.Popup("##TextOverflow", currTextOverflowType, overflowPolicies);
+
+				label.SetOverflowPolicyType(static_cast<E_TEXT_OVERFLOW_POLICY>(currTextOverflowType));
+
+				imguiContext.EndHorizontal();
+			}
+
 		}
 	}
 

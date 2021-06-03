@@ -324,8 +324,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 						if (auto pLabel = pEntity->AddComponent<CLabel>())
 						{
-							pLabel->SetAlignType(E_FONT_ALIGN_POLICY::RIGHT_BOTTOM);
+							pLabel->SetAlignType(E_FONT_ALIGN_POLICY::CENTER);
+							pLabel->SetOverflowPolicyType(E_TEXT_OVERFLOW_POLICY::BREAK_ALL);
 							pLabel->SetFontId("Arial.font");
+							pLabel->SetText("TTTTTTTTTTTTTTTTTTTTTTTT");
 						}
 
 						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());

@@ -195,6 +195,11 @@ namespace TDEngine2
 		return (E_FONT_ALIGN_POLICY::RIGHT_TOP == type) || (E_FONT_ALIGN_POLICY::LEFT_TOP == type) || (E_FONT_ALIGN_POLICY::CENTER_TOP == type);
 	}
 
+	static bool IsControlCharacter(U8C codePoint)
+	{
+		return codePoint == ' ' || codePoint == '\n';
+	}
+
 
 	CFont::TTextMeshData CFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
 	{
@@ -223,13 +228,16 @@ namespace TDEngine2
 
 		U16 indicesCount = 0;
 
-		TVector2 currPosition = bounds.GetLeftBottom();
+		const TVector2 leftBottomPos = bounds.GetLeftBottom();
+		const TVector2 rectSizes = bounds.GetSizes();
+
+		TVector2 currPosition = leftBottomPos;
 
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
 			currCodePoint = text.At(i);
 
-			if (currCodePoint != ' ')
+			if (!IsControlCharacter(currCodePoint))
 			{
 				pCurrGlyphInfo = &mGlyphsMap[currCodePoint];
 
@@ -247,7 +255,10 @@ namespace TDEngine2
 				x1 = scale * pCurrGlyphInfo->mWidth;
 				y1 = scale * (pCurrGlyphInfo->mHeight);
 
-				sizes.y = CMathUtils::Max(sizes.y, y1);
+				if (E_TEXT_OVERFLOW_POLICY::NO_BREAK == params.mOverflowPolicy)
+				{
+					sizes.y = CMathUtils::Max(sizes.y, y1);
+				}
 
 				textMesh.push_back({ x0,      y0,      normalizedUVs.x,                       normalizedUVs.y });
 				textMesh.push_back({ x0 + x1, y0,      normalizedUVs.x + normalizedUVs.width, normalizedUVs.y });
@@ -257,16 +268,27 @@ namespace TDEngine2
 				indicesCount += 6;
 			}
 
-			currPosition = currPosition + TVector2{ scale * (currCodePoint != ' ' ? pCurrGlyphInfo->mAdvance : 20.0f), 0.0f };
+			/// \todo Replace 40.0f with proper variable fontHeight or something equivalent to that
+			currPosition = currPosition + TVector2{ scale * ((currCodePoint != ' ') ? pCurrGlyphInfo->mAdvance : 20.0f), (currCodePoint == '\n') ? 40.0f : 0.0f };
+			
+			/// \note If the text goes out of bounds split it into a few lines
+			if ((E_TEXT_OVERFLOW_POLICY::BREAK_ALL == params.mOverflowPolicy) && (currPosition.x > (leftBottomPos.x + rectSizes.x)))
+			{
+				sizes.x = currPosition.x;
+
+				currPosition.x = leftBottomPos.x;
+				currPosition.y -= 40.0f;
+			}
 		}
 
-		sizes.x = currPosition.x - bounds.GetLeftBottom().x;
+		sizes.x = (sizes.x > 0 ? sizes.x : currPosition.x) - leftBottomPos.x;
+		sizes.y = (sizes.y > 0 ? sizes.y : currPosition.y);
 
-		TVector2 textOffsetPosition = CFont::GetPositionFromAlignType(params.mAlignMode) * bounds.GetSizes();
+		TVector2 textOffsetPosition = CFont::GetPositionFromAlignType(params.mAlignMode) * rectSizes;
 
 		if (IsCenterizeAlignPolicy(params.mAlignMode))
 		{
-			textOffsetPosition.x -= sizes.x * 0.5f;
+			textOffsetPosition = textOffsetPosition - sizes * 0.5f;
 		}
 
 		if (IsRightsidedAlignPolicy(params.mAlignMode))
