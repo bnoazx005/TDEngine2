@@ -984,14 +984,16 @@ namespace TDEngine2
 
 				I32 currTextOverflowType = static_cast<U32>(label.GetOverflowPolicyType());
 
-				imguiContext.Label("Text Overflow Rule");
-				currTextOverflowType = imguiContext.Popup("##TextOverflow", currTextOverflowType, overflowPolicies);
+				imguiContext.SetItemWidth(imguiContext.GetWindowWidth() * 0.4f, [&currTextOverflowType, &imguiContext]
+				{
+					imguiContext.Label("Text Overflow Rule");
+					currTextOverflowType = imguiContext.Popup("##TextOverflow", currTextOverflowType, overflowPolicies);
+				});
 
 				label.SetOverflowPolicyType(static_cast<E_TEXT_OVERFLOW_POLICY>(currTextOverflowType));
 
 				imguiContext.EndHorizontal();
 			}
-
 		}
 	}
 

@@ -272,17 +272,20 @@ namespace TDEngine2
 			currPosition = currPosition + TVector2{ scale * ((currCodePoint != ' ') ? pCurrGlyphInfo->mAdvance : 20.0f), (currCodePoint == '\n') ? 40.0f : 0.0f };
 			
 			/// \note If the text goes out of bounds split it into a few lines
-			if ((E_TEXT_OVERFLOW_POLICY::BREAK_ALL == params.mOverflowPolicy) && (currPosition.x > (leftBottomPos.x + rectSizes.x)))
+			if (currPosition.x > (leftBottomPos.x + rectSizes.x))
 			{
-				sizes.x = currPosition.x;
+				if ((E_TEXT_OVERFLOW_POLICY::BREAK_ALL == params.mOverflowPolicy) || (E_TEXT_OVERFLOW_POLICY::BREAK_SPACES == params.mOverflowPolicy && (currCodePoint == ' ')))
+				{
+					sizes.x = currPosition.x;
 
-				currPosition.x = leftBottomPos.x;
-				currPosition.y -= 40.0f;
-			}
+					currPosition.x = leftBottomPos.x;
+					currPosition.y -= 40.0f;
+				}
+			}			
 		}
 
 		sizes.x = (sizes.x > 0 ? sizes.x : currPosition.x) - leftBottomPos.x;
-		sizes.y = (sizes.y > 0 ? sizes.y : currPosition.y);
+		sizes.y = (sizes.y > 0 ? sizes.y : currPosition.y) - leftBottomPos.y;
 
 		TVector2 textOffsetPosition = CFont::GetPositionFromAlignType(params.mAlignMode) * rectSizes;
 
