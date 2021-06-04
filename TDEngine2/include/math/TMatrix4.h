@@ -7,10 +7,11 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 #include "TVector4.h"
 #include "TVector3.h"
+#include "TVector2.h"
 #include <string>
 
 
@@ -106,6 +107,8 @@ namespace TDEngine2
 	TDE2_API TMatrix4 operator* (const TMatrix4& lmat4, const TMatrix4& rmat4);
 
 	TDE2_API TVector4 operator* (const TMatrix4& mat4, const TVector4& vec4);
+	TDE2_API TVector3 operator* (const TMatrix4& mat4, const TVector3& vec3);
+	TDE2_API TVector2 operator* (const TMatrix4& mat4, const TVector2& vec2);
 
 	TDE2_API TMatrix4 operator* (const TMatrix4& mat4, const F32& coeff);
 

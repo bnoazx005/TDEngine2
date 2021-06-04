@@ -182,8 +182,14 @@ namespace TDEngine2
 
 		auto&& worldRect = pLayoutData->GetWorldRect();
 
-		auto&& lbPoint = worldRect.GetLeftBottom();
-		auto&& rtPoint = worldRect.GetRightTop();
+		auto pTransform = pEntity->GetComponent<CTransform>();
+		auto pivot = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutData->GetPivot();
+		auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
+
+		const TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
+
+		auto&& lbPoint = localObjectTransform * worldRect.GetLeftBottom();
+		auto&& rtPoint = localObjectTransform * worldRect.GetRightTop();
 
 		/// \todo Add support of specifying color data
 		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, lbPoint.y, 0.0f, 1.0f), TColorUtils::mWhite });

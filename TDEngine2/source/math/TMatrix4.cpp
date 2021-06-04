@@ -168,6 +168,30 @@ namespace TDEngine2
 		return TVector4(result);
 	}
 
+	TVector3 operator* (const TMatrix4& mat4, const TVector3& vec3)
+	{
+		F32 result[4];
+
+		for (I32 i = 0; i < 4; ++i)
+		{
+			result[i] = mat4.m[i][0] * vec3.x + mat4.m[i][1] * vec3.y + mat4.m[i][2] * vec3.z + mat4.m[i][3];
+		}
+
+		return TVector3(result);
+	}
+
+	TVector2 operator* (const TMatrix4& mat4, const TVector2& vec2)
+	{
+		F32 result[4];
+
+		for (I32 i = 0; i < 4; ++i)
+		{
+			result[i] = mat4.m[i][0] * vec2.x + mat4.m[i][1] * vec2.y + mat4.m[i][3];
+		}
+
+		return TVector2(result[0], result[1]);
+	}
+
 	TMatrix4 operator* (const TMatrix4& mat4, const F32& coeff)
 	{
 		TMatrix4 result;
