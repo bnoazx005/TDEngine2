@@ -1,4 +1,4 @@
-#include "./../include/CUtilityListener.h"
+#include "../include/CUtilityListener.h"
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -16,16 +16,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = RC_OK;
 
+#if 0
 	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IFileSystem>();
-
-	// auto pYamlFile = pFileSystem->Get<CYAMLFileReader>(pFileSystem->Open<CYAMLFileReader>("test.info").Get());
-
-	// Yaml::Node root;
-
-	// if (pYamlFile->Deserialize(root) != RC_OK)
-	// {
-	// 	return RC_FAIL;
-	// }
 
 	// read ttf file
 	auto pFontFile = pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>("arial.ttf").Get());
@@ -134,12 +126,18 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	auto textureSampler = mpGraphicsContext->GetGraphicsObjectManager()->CreateTextureSampler(textureSamplerDesc).Get();
 
 	mpGraphicsContext->BindTextureSampler(0, textureSampler);
+#endif
+
+
+	mpPreviewEditorWindow = dynamic_cast<CFontPreviewWindow*>(TDEngine2::CreateFontPreviewWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, result));
+	mpPreviewEditorWindow->SetTextureAtlasResourceHandle(TResourceId::Invalid);
+
 	return RC_OK;
 }
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
-	mpWindowSystem->SetTitle(std::to_string(dt));
+	mpPreviewEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
 
 	return RC_OK;
 }
