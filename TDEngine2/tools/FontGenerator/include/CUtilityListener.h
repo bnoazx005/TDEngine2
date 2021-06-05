@@ -9,6 +9,7 @@
 
 #include <TDEngine2.h>
 #include "CFontPreviewWindow.h"
+#include "CConfigWindow.h"
 
 
 class CUtilityListener : public TDEngine2::IEngineListener
@@ -55,5 +56,6 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::IResourceManager* mpResourceManager;
 
 		TDEngine2::CScopedPtr<TDEngine2::CFontPreviewWindow> mpPreviewEditorWindow;
+		TDEngine2::CScopedPtr<TDEngine2::IEditorWindow> mpConfigEditorWindow;
 
 };

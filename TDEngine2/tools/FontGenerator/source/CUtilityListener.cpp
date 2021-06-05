@@ -16,7 +16,10 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = RC_OK;
 
-#if 0
+	/// \todo Load font data
+	/// \todo Create a texture atlas for a font
+	/// \todo Update characters
+
 	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<TDEngine2::IFileSystem>();
 
 	// read ttf file
@@ -38,8 +41,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	I32 width, height, xoff, yoff;
 
-	auto pTexAtlasHandler = mpResourceManager->Create<TDEngine2::ITextureAtlas>("TexAtlas2", TDEngine2::TTexture2DParameters(512, 512, TDEngine2::FT_NORM_UBYTE1));
-	auto pTexAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResource(pTexAtlasHandler));
+	auto fontAtlasHandler = mpResourceManager->Create<TDEngine2::ITextureAtlas>("TexAtlas2", TDEngine2::TTexture2DParameters(512, 512, TDEngine2::FT_NORM_UBYTE1));
+	auto pTexAtlas = dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResource(fontAtlasHandler));
 
 	I32 advance, leftBearing;
 
@@ -86,6 +89,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	//auto pAtlasHandler = mpResourceManager->Load<ITextureAtlas>("atlas");
 	/// END TEST
 
+#if 0
 	// NOTE: delete this code later
 	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
 
@@ -130,7 +134,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 
 	mpPreviewEditorWindow = dynamic_cast<CFontPreviewWindow*>(TDEngine2::CreateFontPreviewWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, result));
-	mpPreviewEditorWindow->SetTextureAtlasResourceHandle(TResourceId::Invalid);
+	mpPreviewEditorWindow->SetTextureAtlasResourceHandle(fontAtlasHandler);
+
+	mpConfigEditorWindow = CreateConfigWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, result);
 
 	return RC_OK;
 }
@@ -138,6 +144,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
 	mpPreviewEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+	mpConfigEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
 
 	return RC_OK;
 }
