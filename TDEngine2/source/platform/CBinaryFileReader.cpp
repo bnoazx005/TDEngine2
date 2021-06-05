@@ -87,8 +87,8 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE CBinaryFileReader::_onInit()
-	{
-		return RC_OK;
+	{		 
+		return _getInputStream()->Reset(true);
 	}
 	
 	E_RESULT_CODE CBinaryFileReader::_onFree()
