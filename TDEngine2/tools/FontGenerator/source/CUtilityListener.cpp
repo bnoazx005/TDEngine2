@@ -85,58 +85,27 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	auto pTexture = pTexAtlas->GetTexture();
 
-	/// TEST: load texture atlas from a file
-	//auto pAtlasHandler = mpResourceManager->Load<ITextureAtlas>("atlas");
-	/// END TEST
 
-#if 0
-	// NOTE: delete this code later
-	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
-
-	TDEngine2::IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mpResourceManager->Create<TDEngine2::IMaterial>("NewMaterial.material",
-																										TDEngine2::TMaterialParameters{ "testDXShader.shader" })));
-
-	pMaterial->SetTextureResource("TextureAtlas", pTexture);
-
-	//for (TDEngine2::I32 i = 0; i < 10; ++i)
-	{
-		auto pEntity = pWorld->CreateEntity();
-
-		auto pTransform = pEntity->GetComponent<TDEngine2::CTransform>();
-
-		pTransform->SetScale(TVector3(4.0f));
-
-		auto pSprite = pEntity->AddComponent<TDEngine2::CQuadSprite>();
-		pSprite->SetColor(TColor32F(1.0f, 1.0f, 1.0f, 1.0f));
-
-		pSprite->SetMaterialName("NewMaterial.material");
-	}
-
-	CEntity* pCameraEntity = pWorld->CreateEntity("Camera");
-
-	pCameraEntity->AddComponent<TDEngine2::COrthoCamera>();
-
-	if (result != TDEngine2::RC_OK)
-	{
-		return result;
-	}
-
-	TDEngine2::TTextureSamplerDesc textureSamplerDesc;
-
-	textureSamplerDesc.mUAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
-	textureSamplerDesc.mVAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
-	textureSamplerDesc.mWAddressMode = TDEngine2::E_ADDRESS_MODE_TYPE::AMT_CLAMP;
-
-	auto textureSampler = mpGraphicsContext->GetGraphicsObjectManager()->CreateTextureSampler(textureSamplerDesc).Get();
-
-	mpGraphicsContext->BindTextureSampler(0, textureSampler);
-#endif
 
 
 	mpPreviewEditorWindow = dynamic_cast<CFontPreviewWindow*>(TDEngine2::CreateFontPreviewWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, result));
 	mpPreviewEditorWindow->SetTextureAtlasResourceHandle(fontAtlasHandler);
 
-	mpConfigEditorWindow = CreateConfigWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, result);
+	mpConfigEditorWindow = CreateConfigWindow({ mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, pFileSystem }, result);
+
+	/// \note For this tool this entity isn't used but create it to suppress assertions
+	if (IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance())
+	{
+		if (CEntity* pCameraEntity = pWorld->CreateEntity("Camera"))
+		{
+			pCameraEntity->AddComponent<TDEngine2::COrthoCamera>();
+		}
+	}
+
+	if (result != TDEngine2::RC_OK)
+	{
+		return result;
+	}
 
 	return RC_OK;
 }
