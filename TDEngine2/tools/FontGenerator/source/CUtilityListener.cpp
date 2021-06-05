@@ -50,8 +50,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	F32 scale = stbtt_ScaleForPixelHeight(&font, 50.0f);
 	
-	int ascent, descent;
-	stbtt_GetFontVMetrics(&font, &ascent, &descent, 0);
+	int ascent, descent, lineGap;
+	stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
 
 	ascent = static_cast<I32>(ascent * scale);
 	descent = static_cast<I32>(descent * scale);
@@ -79,18 +79,10 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	}
 	
 	pTexAtlas->Bake();
-	//pTexAtlas->Serialize(pFileSystem, "atlas2.info");
-
-	//pFontResource->Serialize(pFileSystem, "Arial2.font");
-
-	auto pTexture = pTexAtlas->GetTexture();
-
 
 
 
 	mpPreviewEditorWindow = dynamic_cast<CFontPreviewWindow*>(TDEngine2::CreateFontPreviewWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, result));
-	mpPreviewEditorWindow->SetTextureAtlasResourceHandle(fontAtlasHandler);
-
 	mpConfigEditorWindow = CreateConfigWindow({ mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, pFileSystem }, result);
 
 	/// \note For this tool this entity isn't used but create it to suppress assertions
@@ -114,6 +106,12 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
 	mpPreviewEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
 	mpConfigEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+
+	/// \todo Replace with event driven approach
+	if (CConfigWindow* pConfigWindow = dynamic_cast<CConfigWindow*>(mpConfigEditorWindow.Get()))
+	{
+		mpPreviewEditorWindow->SetTextureAtlasResourceHandle(pConfigWindow->GetFontAtlasHandle());
+	}
 
 	return RC_OK;
 }

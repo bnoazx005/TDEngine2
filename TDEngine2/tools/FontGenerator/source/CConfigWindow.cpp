@@ -70,6 +70,8 @@ namespace TDEngine2
 		mpWindowSystem = params.mpWindowSystem;
 		mpFileSystem = params.mpFileSystem;
 
+		mFontTextureAtlasId = TResourceId::Invalid;
+
 		mIsInitialized = true;
 		mIsVisible = true;
 
@@ -94,6 +96,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	TResourceId CConfigWindow::GetFontAtlasHandle() const
+	{
+		return mFontTextureAtlasId;
+	}
+
 	void CConfigWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -108,6 +115,8 @@ namespace TDEngine2
 		if (mpImGUIContext->BeginWindow("Settings", isEnabled, params))
 		{
 			_fontSelectionToolbar();
+			_fontSDFConfiguration();
+			_updateFontsAtlas();
 		}
 
 		mpImGUIContext->EndWindow();
@@ -161,6 +170,97 @@ namespace TDEngine2
 		{
 			mpImGUIContext->Label(mFontFileName);
 		}
+	}
+
+	void CConfigWindow::_fontSDFConfiguration()
+	{
+		/// \note a path to TTF font
+		mpImGUIContext->BeginHorizontal();
+		{
+			mpImGUIContext->Label("Font TTF Path:");
+
+			mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.4f, [this]
+			{
+				mpImGUIContext->TextField("##FontPath", mTTFFontFilePath);
+			});
+
+			mpImGUIContext->Button("Browse", TVector2(mpImGUIContext->GetWindowWidth() * 0.16f, 25.0f), [this]
+			{
+				OpenFromFile(mpWindowSystem, mpFileSystem, mpResourceManager, { { "TrueType Fonts", "*.ttf" } }, [this](auto&& path)
+				{
+					mTTFFontFilePath = path;
+					return Wrench::TOkValue<TResourceId>(TResourceId::Invalid); // \note Isn't used
+				});
+			});
+		}
+		mpImGUIContext->EndHorizontal();
+
+		/// \note SDF configs
+
+		// \note Glyph's height
+		mpImGUIContext->BeginHorizontal();
+		{
+			mpImGUIContext->Label("Glyph Height:");
+
+			mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.55f, [this]
+			{
+				mpImGUIContext->FloatSlider("##GlyphHeight", mGlyphHeight, 0.0f, 100.0f);
+			});
+		}
+		mpImGUIContext->EndHorizontal();
+
+		// \note Texture's parameters
+		if (std::get<0>(mpImGUIContext->BeginTreeNode("Atlas settings")))
+		{
+			_fontAtlasSettings();
+			mpImGUIContext->EndTreeNode();
+		}
+		
+		// Characters that are included into the font
+		mpImGUIContext->BeginHorizontal();
+		{
+			mpImGUIContext->Label("Characters:");
+
+			mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.65f, [this]
+			{
+				mpImGUIContext->TextField("##Alphabet", mFontAlphabet);
+			});
+		}
+		mpImGUIContext->EndHorizontal();
+	}
+
+	void CConfigWindow::_fontAtlasSettings()
+	{
+		mpImGUIContext->BeginHorizontal();
+		{
+			mpImGUIContext->Label("Font Atlas Name:");
+
+			mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.45f, [this]
+			{
+				mpImGUIContext->TextField("##AtlasName", mFontAtlasName);
+			});
+		}
+		mpImGUIContext->EndHorizontal();
+
+		mpImGUIContext->BeginHorizontal();
+		{
+			mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.25f, [this]
+			{
+				mpImGUIContext->Label("Width");
+				mpImGUIContext->IntField("##Width", mAtlasWidth);
+				mpImGUIContext->Label("Height");
+				mpImGUIContext->IntField("##Height", mAtlasHeight);
+			});
+		}
+		mpImGUIContext->EndHorizontal();
+	}
+
+	void CConfigWindow::_updateFontsAtlas()
+	{
+		mpImGUIContext->Button("Update Font Atlas", TVector2(mpImGUIContext->GetWindowWidth() * 0.95f, 25.0f), []
+		{
+
+		});
 	}
 
 

@@ -64,6 +64,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Free() override;
 
+			TDE2_API TResourceId GetFontAtlasHandle() const;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConfigWindow)
 
@@ -76,6 +78,11 @@ namespace TDEngine2
 
 			TDE2_API void _fontSelectionToolbar();
 
+			TDE2_API void _fontSDFConfiguration();
+			TDE2_API void _fontAtlasSettings();
+
+			TDE2_API void _updateFontsAtlas();
+
 		protected:
 			IResourceManager*     mpResourceManager;
 			IDesktopInputContext* mpInputContext;
@@ -84,7 +91,16 @@ namespace TDEngine2
 
 			std::string mFontFileName;
 			std::string mLastSavedPath;
+			std::string mFontAtlasName;
+			std::string mTTFFontFilePath;
+			std::string mFontAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.,!@#$%^&*()_=+";
+
+			F32 mGlyphHeight = 24.0f;
+
+			I32 mAtlasWidth = 256;
+			I32 mAtlasHeight = 256;
 
 			TResourceId mFontResourceId;
+			TResourceId mFontTextureAtlasId;
 	};
 }
