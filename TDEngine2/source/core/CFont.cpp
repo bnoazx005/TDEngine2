@@ -25,7 +25,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		//mGeneratedMeshesTable.reserve(100);
+		mFontTextureAtlasHandle = TResourceId::Invalid;
 
 		mIsInitialized = true;
 
@@ -179,6 +179,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CFont::SetTextureAtlasHandle(TResourceId atlasHandle)
+	{
+		if (TResourceId::Invalid == atlasHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mFontTextureAtlasHandle = atlasHandle;
+
+		return RC_OK;
+	}
+
 
 	static bool IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type)
 	{
@@ -320,7 +332,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		return dynamic_cast<ITextureAtlas*>(mpResourceManager->GetResource(mFontTextureAtlasHandle))->GetTexture();
+		return mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle)->GetTexture();
 	}
 
 	const IResourceLoader* CFont::_getResourceLoader()
@@ -479,7 +491,16 @@ namespace TDEngine2
 
 	IResource* CFontFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
-		return CreateDefault(name, params);
+		const TFontParameters& fontParams = dynamic_cast<const TFontParameters&>(params);
+
+		auto pResource = CreateDefault(name, params);
+		
+		if (IFont* pFont = dynamic_cast<IFont*>(pResource))
+		{
+			pFont->SetTextureAtlasHandle(fontParams.mAtlasHandle);
+		}
+
+		return pResource;
 	}
 
 	IResource* CFontFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const

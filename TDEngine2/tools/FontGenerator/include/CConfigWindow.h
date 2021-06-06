@@ -91,7 +91,7 @@ namespace TDEngine2
 
 			std::string mFontFileName = "New Font";
 			std::string mLastSavedPath;
-			std::string mFontAtlasName = "FontAtlas";
+			std::string mFontAtlasName = "FontAtlas.atlas";
 			std::string mTTFFontFilePath;
 			std::string mFontAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.,!@#$%^&*()_=+";
 

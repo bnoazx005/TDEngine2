@@ -60,6 +60,7 @@ namespace TDEngine2
 
 	typedef struct TFontParameters : TBaseResourceParameters
 	{
+		TResourceId mAtlasHandle;
 	} TFontParameters, *TFontParametersPtr;
 
 
@@ -130,6 +131,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info) = 0;
+
+			/*!
+				\brief The method links a texture atlas resource to current font entity. Notice that
+				the method should not be called manually by a user
+
+				\param[in] atlasHandle A handle of a new created atlas
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetTextureAtlasHandle(TResourceId atlasHandle) = 0;
 
 			/*!
 				\brief The method generates 2D mesh for a given text based on font's settings

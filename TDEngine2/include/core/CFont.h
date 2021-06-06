@@ -106,6 +106,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info) override;
 
 			/*!
+				\brief The method links a texture atlas resource to current font entity. Notice that
+				the method should not be called manually by a user
+
+				\param[in] atlasHandle A handle of a new created atlas
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetTextureAtlasHandle(TResourceId atlasHandle) override;
+
+			/*!
 				\brief The method generates 2D mesh for a given text based on font's settings
 
 				\param[in] params A set of parameters to configure text

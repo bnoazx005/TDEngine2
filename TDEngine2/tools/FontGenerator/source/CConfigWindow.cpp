@@ -2,6 +2,7 @@
 #include <tuple>
 #include <vector>
 #include <string>
+#include <experimental/filesystem>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #include <memory>
@@ -146,7 +147,8 @@ namespace TDEngine2
 		{
 			_fontSelectionToolbar();
 			_fontSDFConfiguration();
-			_updateFontsAtlas();
+
+			mpImGUIContext->Button("Update Font Atlas", TVector2(mpImGUIContext->GetWindowWidth() * 0.95f, 25.0f), std::bind(&CConfigWindow::_updateFontsAtlas, this));
 		}
 
 		mpImGUIContext->EndWindow();
@@ -176,21 +178,38 @@ namespace TDEngine2
 					mFontFileName = mpResourceManager->GetResource(mFontResourceId)->GetName();
 
 					mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
+
+					_updateFontsAtlas();
 				}
 			});
 
 			mpImGUIContext->Button("Save", buttonSizes, [this]
 			{
+				namespace fs = std::experimental::filesystem;
+
 				if (!mLastSavedPath.empty())
 				{
-					//SaveToFile(mpFileSystem, mpResourceManager, mFontResourceId, mLastSavedPath);
+					fs::path parentFontPath = mLastSavedPath;
+					parentFontPath = parentFontPath.parent_path().append(mFontAtlasName);
+
+					SaveToFile(mpFileSystem, mpResourceManager, mFontResourceId, mFontTextureAtlasId, mLastSavedPath, parentFontPath.string());
 					return;
 				}
 
 				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
 					mLastSavedPath = saveFileDialogResult.Get();
-					//SaveToFile(mpFileSystem, mpResourceManager, mFontResourceId, mLastSavedPath);
+
+					fs::path atlasFilename = mFontAtlasName;
+					if (!atlasFilename.has_extension())
+					{
+						atlasFilename.replace_extension("atlas");
+					}
+
+					fs::path parentFontPath = mLastSavedPath;
+					parentFontPath = parentFontPath.parent_path().append(atlasFilename);
+
+					SaveToFile(mpFileSystem, mpResourceManager, mFontResourceId, mFontTextureAtlasId, mLastSavedPath, parentFontPath.string());
 				}
 			});
 		}		
@@ -352,56 +371,59 @@ namespace TDEngine2
 
 	void CConfigWindow::_updateFontsAtlas()
 	{
-		mpImGUIContext->Button("Update Font Atlas", TVector2(mpImGUIContext->GetWindowWidth() * 0.95f, 25.0f), [this]
+		auto fileOpenResult = mpFileSystem->Open<IBinaryFileReader>(mTTFFontFilePath);
+		if (fileOpenResult.HasError())
 		{
-			auto fileOpenResult = mpFileSystem->Open<IBinaryFileReader>(mTTFFontFilePath);
-			if (fileOpenResult.HasError())
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		auto pFontFile = mpFileSystem->Get<IBinaryFileReader>(fileOpenResult.Get());
+		if (!pFontFile)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		const U32 fileLength = static_cast<U32>(pFontFile->GetFileLength());
+
+		std::unique_ptr<U8[]> pFontBuffer(new U8[fileLength]);
+
+		if (RC_OK != pFontFile->Read(pFontBuffer.get(), fileLength))
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		stbtt_fontinfo font;
+
+		stbtt_InitFont(&font, pFontBuffer.get(), stbtt_GetFontOffsetForIndex(pFontBuffer.get(), 0));
+
+		mFontTextureAtlasId = mpResourceManager->Create<ITextureAtlas>(mFontAtlasName, TDEngine2::TTexture2DParameters(mAtlasWidth, mAtlasHeight, TDEngine2::FT_NORM_UBYTE1));
+		if (TResourceId::Invalid == mFontTextureAtlasId)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		TFontParameters fontParams;
+		fontParams.mAtlasHandle = mFontTextureAtlasId;
+
+		mFontResourceId = mpResourceManager->Create<IFont>(mFontFileName, fontParams);
+		if (TResourceId::Invalid == mFontResourceId)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		GenerateFontTexture(
 			{
-				return;
-			}
-
-			auto pFontFile = mpFileSystem->Get<IBinaryFileReader>(fileOpenResult.Get());
-			if (!pFontFile)
-			{
-				return;
-			}
-
-			const U32 fileLength = static_cast<U32>(pFontFile->GetFileLength());
-
-			std::unique_ptr<U8[]> pFontBuffer(new U8[fileLength]);
-
-			if (RC_OK != pFontFile->Read(pFontBuffer.get(), fileLength))
-			{
-				return;
-			}
-
-			stbtt_fontinfo font;
-
-			stbtt_InitFont(&font, pFontBuffer.get(), stbtt_GetFontOffsetForIndex(pFontBuffer.get(), 0));
-
-			mFontTextureAtlasId = mpResourceManager->Create<ITextureAtlas>(mFontAtlasName, TDEngine2::TTexture2DParameters(mAtlasWidth, mAtlasHeight, TDEngine2::FT_NORM_UBYTE1));
-			if (TResourceId::Invalid == mFontTextureAtlasId)
-			{
-				TDE2_ASSERT(false);
-				return;
-			}
-
-			mFontResourceId = mpResourceManager->Create<IFont>(mFontFileName, TFontParameters{});
-			if (TResourceId::Invalid == mFontResourceId)
-			{
-				TDE2_ASSERT(false);
-				return;
-			}
-
-			GenerateFontTexture(
-				{
-					mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasId),
-					mpResourceManager->GetResource<IFont>(mFontResourceId),
-					&font,
-					mFontAlphabet,
-					mGlyphHeight
-				});
-		});
+				mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasId),
+				mpResourceManager->GetResource<IFont>(mFontResourceId),
+				&font,
+				mFontAlphabet,
+				mGlyphHeight
+			});
 	}
 
 
