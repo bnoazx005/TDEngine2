@@ -96,6 +96,9 @@ namespace TDEngine2
 			std::string mFontAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.,!@#$%^&*()_=+";
 
 			F32 mGlyphHeight = 24.0f;
+			F32 mGlyphSDFDistanceScale = 20.0f; ///< Intensity of decreasing distance value
+			I32 mGlyphOnEdgeValue = 255;
+			I32 mPadding = 10;
 
 			I32 mAtlasWidth = 1024;
 			I32 mAtlasHeight = 1024;

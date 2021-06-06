@@ -252,18 +252,57 @@ namespace TDEngine2
 		mpImGUIContext->EndHorizontal();
 
 		/// \note SDF configs
-
-		// \note Glyph's height
-		mpImGUIContext->BeginHorizontal();
+		if (std::get<0>(mpImGUIContext->BeginTreeNode("SDF settings")))
 		{
-			mpImGUIContext->Label("Glyph Height:");
-
-			mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.55f, [this]
+			// \note Glyph's height
+			mpImGUIContext->BeginHorizontal();
 			{
-				mpImGUIContext->FloatSlider("##GlyphHeight", mGlyphHeight, 0.0f, 100.0f);
-			});
-		}
-		mpImGUIContext->EndHorizontal();
+				mpImGUIContext->Label("Glyph Height:");
+
+				mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.55f, [this]
+				{
+					mpImGUIContext->FloatSlider("##GlyphHeight", mGlyphHeight, 0.0f, 100.0f);
+				});
+			}
+			mpImGUIContext->EndHorizontal();
+
+			/// \note Padding
+			mpImGUIContext->BeginHorizontal();
+			{
+				mpImGUIContext->Label("Padding:");
+
+				mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.55f, [this]
+				{
+					mpImGUIContext->IntField("##Padding", mPadding, [this] { mPadding = std::max<I32>(0, mPadding); });
+				});
+			}
+			mpImGUIContext->EndHorizontal();
+
+			/// \note SDF decrease scale
+			mpImGUIContext->BeginHorizontal();
+			{
+				mpImGUIContext->Label("Pixel Distance Scale:");
+
+				mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.25f, [this]
+				{
+					mpImGUIContext->FloatField("##Distance", mGlyphSDFDistanceScale, [this] { mGlyphSDFDistanceScale = std::max<F32>(0, mGlyphSDFDistanceScale); });
+				});
+			}
+			mpImGUIContext->EndHorizontal();
+
+			mpImGUIContext->BeginHorizontal();
+			{
+				mpImGUIContext->Label("On Edge Value:");
+
+				mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth() * 0.5f, [this]
+				{
+					mpImGUIContext->IntField("##EdgeValue", mGlyphOnEdgeValue, [this] { mGlyphOnEdgeValue = std::min<I32>(255, std::max<I32>(0, mGlyphOnEdgeValue)); });
+				});
+			}
+			mpImGUIContext->EndHorizontal();
+
+			mpImGUIContext->EndTreeNode();
+		}		
 
 		// \note Texture's parameters
 		if (std::get<0>(mpImGUIContext->BeginTreeNode("Atlas settings")))
