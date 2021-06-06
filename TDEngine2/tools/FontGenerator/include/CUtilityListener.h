@@ -55,6 +55,10 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 		TDEngine2::IResourceManager* mpResourceManager;
 
+		TDEngine2::IFileSystem*      mpFileSystem;
+
+		TDEngine2::IInputContext*    mpInputContext;
+
 		TDEngine2::CScopedPtr<TDEngine2::CFontPreviewWindow> mpPreviewEditorWindow;
 		TDEngine2::CScopedPtr<TDEngine2::IEditorWindow> mpConfigEditorWindow;
 

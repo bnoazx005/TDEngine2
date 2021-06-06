@@ -89,16 +89,16 @@ namespace TDEngine2
 			IWindowSystem*        mpWindowSystem;
 			IFileSystem*          mpFileSystem;
 
-			std::string mFontFileName;
+			std::string mFontFileName = "New Font";
 			std::string mLastSavedPath;
-			std::string mFontAtlasName;
+			std::string mFontAtlasName = "FontAtlas";
 			std::string mTTFFontFilePath;
 			std::string mFontAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.,!@#$%^&*()_=+";
 
 			F32 mGlyphHeight = 24.0f;
 
-			I32 mAtlasWidth = 256;
-			I32 mAtlasHeight = 256;
+			I32 mAtlasWidth = 1024;
+			I32 mAtlasHeight = 1024;
 
 			TResourceId mFontResourceId;
 			TResourceId mFontTextureAtlasId;
