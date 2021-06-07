@@ -7,7 +7,7 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
+#include "../utils/Types.h"
 #include "IBaseObject.h"
 
 
@@ -28,8 +28,7 @@ namespace TDEngine2
 	{
 		public:
 			/*!
-				\brief The method loads data into the specified resource based on its
-				internal information
+				\brief The method loads data into the specified resource based on its internal information
 
 				\param[in, out] pResource A pointer to an allocated resource
 
@@ -39,11 +38,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE LoadResource(IResource* pResource) const = 0;
 
 			/*!
-				\brief The method returns an identifier of a resource's type, which
-				the loader serves
-
-				\return The method returns an identifier of a resource's type, which
-				the loader serves
+				\return The method returns an identifier of a resource's type, which the loader serves
 			*/
 
 			TDE2_API virtual TypeId GetResourceTypeId() const = 0;
@@ -58,31 +53,28 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The template is used to declare interfaces of loaders for concrete resources types
+	*/
+
+	template <typename... TInitArgs>
+	class IGenericResourceLoader : public IResourceLoader
+	{
+		public:
+			/*!
+				\brief The method initializes an inner state of an object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(TInitArgs... args) = 0;
+	};
+
+
+	/*!
 		interface IShaderLoader
 
 		\brief The interface describes a functionality of a shaders loader
 	*/
 
-	class IShaderLoader : public IResourceLoader
-	{
-		public:
-			/*!
-				\brief The method initializes an inner state of an object
-				
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\param[in, out] pFileSystem A pointer to IFileSystem's implementation
-
-				\param[in] pShaderCompiler A pointer to IShaderCompiler's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-			
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-												const IShaderCompiler* pShaderCompiler) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShaderLoader)
-	};
+	class IShaderLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*, const IShaderCompiler*> {};
 }
