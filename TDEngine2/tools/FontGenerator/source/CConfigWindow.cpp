@@ -357,7 +357,14 @@ namespace TDEngine2
 		IFont* mpFont;
 		stbtt_fontinfo* mpFontInfo;
 		std::string mCharacters;
-		F32 mGlyphHeight;
+
+		struct
+		{
+			F32 mHeight;
+			F32 mPixelDistanceScale;
+			U8  mOnEdgeValue;
+			I32 mPadding;
+		} mGlyphParams;
 	};
 
 	
@@ -368,7 +375,9 @@ namespace TDEngine2
 
 		const stbtt_fontinfo* pFontInfo = params.mpFontInfo;
 
-		const F32 scale = stbtt_ScaleForPixelHeight(pFontInfo, params.mGlyphHeight);
+		const auto& glyphParams = params.mGlyphParams;
+
+		const F32 scale = stbtt_ScaleForPixelHeight(pFontInfo, glyphParams.mHeight);
 
 		I32 ascent, descent, lineGap;
 		stbtt_GetFontVMetrics(pFontInfo, &ascent, &descent, &lineGap);
@@ -389,7 +398,7 @@ namespace TDEngine2
 
 		for (C8 ch : params.mCharacters)
 		{
-			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, ch, 10, 255, 20.0f, &width, &height, &xoff, &yoff);
+			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, ch, glyphParams.mPadding, glyphParams.mOnEdgeValue, glyphParams.mPixelDistanceScale, &width, &height, &xoff, &yoff);
 
 			if (RC_OK != (result = pTexAtlas->AddRawTexture(std::string(1, ch), width, height, FT_NORM_UBYTE1, pBitmap)))
 			{
@@ -461,7 +470,12 @@ namespace TDEngine2
 				mpResourceManager->GetResource<IFont>(mFontResourceId),
 				&font,
 				mFontAlphabet,
-				mGlyphHeight
+				{
+					mGlyphHeight,
+					mGlyphSDFDistanceScale,
+					static_cast<U8>(mGlyphOnEdgeValue),
+					mPadding
+				}
 			});
 	}
 
