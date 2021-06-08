@@ -81,4 +81,22 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceFactory)
 	};
+
+
+	/*!
+		\brief The template is used to declare interfaces of factories for concrete resources types
+	*/
+
+	template <typename... TInitArgs>
+	class IGenericResourceFactory : public IResourceFactory
+	{
+		public:
+			/*!
+				\brief The method initializes an inner state of an object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(TInitArgs... args) = 0;
+	};
 }

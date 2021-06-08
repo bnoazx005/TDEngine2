@@ -206,35 +206,6 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		interface IMeshLoader
-
-		\brief The interface describes a functionality of a mesh loader
-	*/
-
-	class IMeshLoader : public IGenericResourceLoader< IResourceManager*, IGraphicsContext*, IFileSystem*> {};
-
-
-	/*!
-		interface IStaticMeshFactory
-
-		\brief The interface represents a functionality of a factory of IMesh objects
-	*/
-
-	class IMeshFactory : public IResourceFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a shader factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMeshFactory)
-	};
+	class IMeshLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*> {};
+	class IMeshFactory : public IGenericResourceFactory<IResourceManager*, IGraphicsContext*> {};
 }

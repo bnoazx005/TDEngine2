@@ -166,34 +166,6 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		interface IFontLoader
-
-		\brief The interface describes a functionality of a font loader
-	*/
-
 	class IFontLoader : public IGenericResourceLoader<IResourceManager*, IFileSystem*> {};
-
-
-	/*!
-		interface IFontFactory
-
-		\brief The interface describes a functionality of a font factory
-	*/
-
-	class IFontFactory : public IResourceFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a font factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFontFactory)
-	};
+	class IFontFactory : public IGenericResourceFactory<IResourceManager*> {};
 }

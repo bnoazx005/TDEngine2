@@ -51,34 +51,6 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		interface ILocalizationPackageLoader
-
-		\brief The interface describes a functionality of a material loader
-	*/
-
 	class ILocalizationPackageLoader : public IGenericResourceLoader<IResourceManager*, IFileSystem*> {};
-
-
-	/*!
-		interface ILocalizationPackageFactory
-
-		\brief The interface describes a functionality of a material factory
-	*/
-
-	class ILocalizationPackageFactory : public IResourceFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a material factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(ILocalizationPackageFactory)
-	};
+	class ILocalizationPackageFactory : public IGenericResourceFactory<IResourceManager*> {};
 }

@@ -52,35 +52,6 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		interface IAudioSourceLoader
-
-		\brief The interface describes a functionality of an audio source's loader
-	*/
-
 	class IAudioSourceLoader : public IGenericResourceLoader<IResourceManager*, IFileSystem*, IAudioContext*> {};
-
-
-	/*!
-		interface IAudioSourceFactory
-
-		\brief The interface describes a functionality of an audio source's factory
-	*/
-
-	class IAudioSourceFactory : public IResourceFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-				\param[in, out] pAudioContext A pointer to IAudioContext's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IAudioContext* pAudioContext) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAudioSourceFactory)
-	};
+	class IAudioSourceFactory : public IGenericResourceFactory<IResourceManager*, IAudioContext*> {};
 }

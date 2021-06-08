@@ -349,38 +349,8 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		interface IMaterialLoader
-
-		\brief The interface describes a functionality of a material loader
-	*/
-
 	class IMaterialLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*> {};
-
-
-	/*!
-		interface IMaterialFactory
-
-		\brief The interface describes a functionality of a material factory
-	*/
-
-	class IMaterialFactory : public IResourceFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a material factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterialFactory)
-	};
+	class IMaterialFactory : public IGenericResourceFactory<IResourceManager*, IGraphicsContext*> {};
 
 
 	/*!

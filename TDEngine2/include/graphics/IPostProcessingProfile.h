@@ -106,36 +106,6 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		interface IPostProcessingProfileLoader
-
-		\brief The interface describes a functionality of a post-processing profile loader
-	*/
-
 	class IPostProcessingProfileLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*> {};
-
-
-	/*!
-		interface IPostProcessingProfileFactory
-
-		\brief The interface describes a functionality of a post-processing profiles factory
-	*/
-
-	class IPostProcessingProfileFactory : public IResourceFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a post-processing profiles factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPostProcessingProfileFactory)
-	};
+	class IPostProcessingProfileFactory : public IGenericResourceFactory<IResourceManager*, IGraphicsContext*> {};
 }
