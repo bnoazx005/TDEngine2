@@ -10,6 +10,7 @@
 #include "../../include/core/IInputContext.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/CFont.h"
+#include "../../include/core/CRuntimeFont.h"
 #include "../../include/core/memory/CMemoryManager.h"
 #include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/core/memory/CPoolAllocator.h"
@@ -242,6 +243,7 @@ namespace TDEngine2
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(IStaticMesh::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 
 		mpResourceManagerInstance->RegisterResourceTypeAlias(ITexture2D::GetTypeId(), IAtlasSubTexture::GetTypeId());
+		mpResourceManagerInstance->RegisterResourceTypeAlias(IFont::GetTypeId(), IRuntimeFont::GetTypeId());
 
 		return mpEngineCoreInstance->RegisterSubsystem(mpResourceManagerInstance);
 	}
@@ -733,6 +735,26 @@ namespace TDEngine2
 		}
 
 		pResourceFactory = CreateFontFactory(mpResourceManagerInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		{
+			return result;
+		}
+
+		/// \note register runtime font's resource type
+		pResourceLoader = CreateRuntimeFontLoader(mpResourceManagerInstance, mpFileSystemInstance, result);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		pResourceFactory = CreateRuntimeFontFactory(mpResourceManagerInstance, result);
 
 		if (result != RC_OK)
 		{

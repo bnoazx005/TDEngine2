@@ -168,4 +168,24 @@ namespace TDEngine2
 
 	class IFontLoader : public IGenericResourceLoader<IResourceManager*, IFileSystem*> {};
 	class IFontFactory : public IGenericResourceFactory<IResourceManager*> {};
+
+
+	/*!
+		interface IRuntimeFont
+
+		\brief The interface describes a functionality of runtime generated font atlases
+	*/
+
+	class IRuntimeFont : public virtual IFont
+	{
+		public:
+			TDE2_REGISTER_TYPE(IRuntimeFont);
+
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRuntimeFont)
+	};
+
+
+	class IRuntimeFontLoader : public IGenericResourceLoader<IResourceManager*, IFileSystem*> {};
+	class IRuntimeFontFactory : public IGenericResourceFactory<IResourceManager*> {};
 }

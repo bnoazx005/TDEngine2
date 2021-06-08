@@ -1,17 +1,13 @@
 /*!
-	\file CFont.h
-	\date 19.09.2019
+	\file CRuntimeFont.h
+	\date 08.06.2021
 	\author Kasimov Ildar
 */
 
 #pragma once
 
 
-#include "IFont.h"
-#include "CBaseResource.h"
-#include "CBaseObject.h"
-#include <string>
-#include <unordered_map>
+#include "CFont.h"
 
 
 namespace TDEngine2
@@ -21,44 +17,38 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of CFont's type
+		\brief A factory function for creation objects of CRuntimeFont's type
 
-		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
-		
+		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation		
 		\param[in] name A resource's name
-
 		\param[in] id An identifier of a resource
-
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CFont's implementation
+		\return A pointer to CRuntimeFont's implementation
 	*/
 
-	TDE2_API IFont* CreateFontResource(IResourceManager* pResourceManager, const std::string& name, E_RESULT_CODE& result);
+	TDE2_API IRuntimeFont* CreateRuntimeFontResource(IResourceManager* pResourceManager, const std::string& name, E_RESULT_CODE& result);
 
 
 	/*!
-		class CFont
+		class CRuntimeFont
 
-		\brief The class represents a default implementation of a font resource, which
-		is used to store infromation about glyphs
+		\brief The class represents a default implementation of a font resource that differs from CFont with a feature of
+		runtime generation font's atlase
 	*/
 
-	class CFont : public CBaseResource, public virtual IFont
+	class CRuntimeFont : public CFont, public IRuntimeFont
 	{
 		public:
-			friend 	TDE2_API IFont* CreateFontResource(IResourceManager* pResourceManager, const std::string& name, E_RESULT_CODE& result);
+			friend 	TDE2_API IRuntimeFont* CreateRuntimeFontResource(IResourceManager* pResourceManager, const std::string& name, E_RESULT_CODE& result);
 		public:
-			typedef std::unordered_map<U8C, TFontGlyphInfo> TGlyphsMap;
-		public:
-			TDE2_REGISTER_RESOURCE_TYPE(CFont)
-			TDE2_REGISTER_TYPE(CFont)
+			TDE2_REGISTER_RESOURCE_TYPE(CRuntimeFont)
+			TDE2_REGISTER_TYPE(CRuntimeFont)
 
 			/*!
 				\brief The method initializes an internal state of a material
 
 				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
 				\param[in] name A resource's name
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -75,26 +65,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Reset() override;
 
 			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
 				\brief The method adds information about a single glyph into the font's resource
 
 				\param[in] codePoint A value of a glyph
@@ -104,52 +74,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info) override;
-
-			/*!
-				\brief The method links a texture atlas resource to current font entity. Notice that
-				the method should not be called manually by a user
-
-				\param[in] atlasHandle A handle of a new created atlas
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE SetTextureAtlasHandle(TResourceId atlasHandle) override;
-
-			/*!
-				\brief The method generates 2D mesh for a given text based on font's settings
-
-				\param[in] params A set of parameters to configure text
-				\param[in] text An input text that should be rendered
-
-				\return An array of vertices positions, each 4 forms a quad which is a single glyph
-			*/
-
-			TDE2_API TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text) override;
-			/*!
-				\brief The method returns a pointer to texture atlas that is linked with the font
-
-				\return The method returns a pointer to texture atlas that is linked with the font
-			*/
-
-			TDE2_API ITexture2D* GetTexture() const override;
-
-			TDE2_API static TVector2 GetPositionFromAlignType(E_FONT_ALIGN_POLICY type);
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFont)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRuntimeFont)
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
-			TResourceId mFontTextureAtlasHandle;
-
-			//std::unordered_map<U32, TTextVertices> mGeneratedMeshesTable;
-
-			TGlyphsMap mGlyphsMap;
 	};
 
 
 	/*!
-		\brief A factory function for creation objects of CFontLoader's type
+		\brief A factory function for creation objects of CRuntimeFontLoader's type
 
 		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
 
@@ -157,22 +91,22 @@ namespace TDEngine2
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CFontLoader's implementation
+		\return A pointer to CRuntimeFontLoader's implementation
 	*/
 
-	TDE2_API IResourceLoader* CreateFontLoader(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result);
+	TDE2_API IResourceLoader* CreateRuntimeFontLoader(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
-		class CFontLoader
+		class CRuntimeFontLoader
 
 		\brief The class implements a functionality of a base material loader
 	*/
 
-	class CFontLoader : public CBaseObject, public IFontLoader
+	class CRuntimeFontLoader : public CBaseObject, public IRuntimeFontLoader
 	{
 		public:
-			friend TDE2_API IResourceLoader* CreateFontLoader(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result);
+			friend TDE2_API IResourceLoader* CreateRuntimeFontLoader(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an inner state of an object
@@ -215,7 +149,7 @@ namespace TDEngine2
 
 			TDE2_API TypeId GetResourceTypeId() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFontLoader)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRuntimeFontLoader)
 		protected:
 			IResourceManager* mpResourceManager;
 
@@ -224,29 +158,29 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of CFontFactory's type
+		\brief A factory function for creation objects of CRuntimeFontFactory's type
 
 		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
 		
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CFontFactory's implementation
+		\return A pointer to CRuntimeFontFactory's implementation
 	*/
 
-	TDE2_API IResourceFactory* CreateFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result);
+	TDE2_API IResourceFactory* CreateRuntimeFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result);
 
 
 	/*!
-		class CFontFactory
+		class CRuntimeFontFactory
 
-		\brief The class is an abstract factory of CFont objects that
+		\brief The class is an abstract factory of CRuntimeFont objects that
 		is used by a resource manager
 	*/
 
-	class CFontFactory : public CBaseObject, public IFontFactory
+	class CRuntimeFontFactory : public CBaseObject, public IRuntimeFontFactory
 	{
 		public:
-			friend TDE2_API IResourceFactory* CreateFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result);
+			friend TDE2_API IResourceFactory* CreateRuntimeFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a material factory
@@ -300,7 +234,7 @@ namespace TDEngine2
 
 			TDE2_API TypeId GetResourceTypeId() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFontFactory)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRuntimeFontFactory)
 		protected:
 			IResourceManager* mpResourceManager;
 	};

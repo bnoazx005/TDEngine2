@@ -48,6 +48,7 @@
 #include "core/CConfigFileEngineCoreBuilder.h"
 #include "core/IFont.h"
 #include "core/CFont.h"
+#include "core/CRuntimeFont.h"
 #include "core/IImGUIContext.h"
 #include "core/Serialization.h"
 #include "core/localization/ILocalizationManager.h"
