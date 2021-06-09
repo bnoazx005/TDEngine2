@@ -28,6 +28,7 @@ namespace TDEngine2
 	class ITexture2D;
 	class CU8String;
 	class IDebugUtility;
+	class IBinaryFileReader;
 
 
 	enum class E_FONT_ALIGN_POLICY : U16
@@ -171,6 +172,17 @@ namespace TDEngine2
 
 
 	/*!
+		struct TRuntimeFontParameters
+
+		\brief The stucture contains fields for creation IRuntimeFont objects
+	*/
+
+	typedef struct TRuntimeFontParameters : TBaseResourceParameters
+	{
+		std::string mTrueTypeFontFilePath;
+	} TRuntimeFontParameters, *TRuntimeFontParametersPtr;
+
+	/*!
 		interface IRuntimeFont
 
 		\brief The interface describes a functionality of runtime generated font atlases
@@ -181,11 +193,20 @@ namespace TDEngine2
 		public:
 			TDE2_REGISTER_TYPE(IRuntimeFont);
 
+			/*!
+				\brief The method loads information from truetype font's file 
+
+				\param[in] pFontFile A pointer to stream of bytes that represents a TTF file
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE LoadFontInfo(IBinaryFileReader* pFontFile) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRuntimeFont)
 	};
 
 
 	class IRuntimeFontLoader : public IGenericResourceLoader<IResourceManager*, IFileSystem*> {};
-	class IRuntimeFontFactory : public IGenericResourceFactory<IResourceManager*> {};
+	class IRuntimeFontFactory : public IGenericResourceFactory<IResourceManager*, IFileSystem*> {};
 }

@@ -8,6 +8,8 @@
 
 
 #include "CFont.h"
+#include <unordered_set>
+#include <vector>
 
 
 namespace TDEngine2
@@ -65,20 +67,43 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Reset() override;
 
 			/*!
-				\brief The method adds information about a single glyph into the font's resource
+				\brief The method generates 2D mesh for a given text based on font's settings
 
-				\param[in] codePoint A value of a glyph
-				\param[in] info A structure that contains glyph's metrics (advance, width, height, ...)
+				\param[in] params A set of parameters to configure text
+				\param[in] text An input text that should be rendered
+
+				\return An array of vertices positions, each 4 forms a quad which is a single glyph
+			*/
+
+			TDE2_API TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text) override;
+
+			/*!
+				\brief The method loads information from truetype font's file
+
+				\param[in] pFontFile A pointer to stream of bytes that represents a TTF file
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info) override;
+			TDE2_API E_RESULT_CODE LoadFontInfo(IBinaryFileReader* pFontFile) override;
+
+			/*!
+				\brief The method returns a pointer to texture atlas that is linked with the font
+
+				\return The method returns a pointer to texture atlas that is linked with the font
+			*/
+
+			TDE2_API ITexture2D* GetTexture() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRuntimeFont)
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
+			std::unordered_set<U8C> mCachedGlyphs;
+
+			mutable bool            mIsDirty = true;
+
+			std::vector<U8>         mFontInfoBytes;
 	};
 
 
@@ -167,7 +192,7 @@ namespace TDEngine2
 		\return A pointer to CRuntimeFontFactory's implementation
 	*/
 
-	TDE2_API IResourceFactory* CreateRuntimeFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result);
+	TDE2_API IResourceFactory* CreateRuntimeFontFactory(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -180,17 +205,19 @@ namespace TDEngine2
 	class CRuntimeFontFactory : public CBaseObject, public IRuntimeFontFactory
 	{
 		public:
-			friend TDE2_API IResourceFactory* CreateRuntimeFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result);
+			friend TDE2_API IResourceFactory* CreateRuntimeFontFactory(IResourceManager*, IFileSystem*, E_RESULT_CODE& result);
 		public:
 			/*!
-				\brief The method initializes an internal state of a material factory
+				\brief The method initializes an inner state of an object
 
 				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-				
+
+				\param[in, out] pFileSystem A pointer to IFileSystem's implementation
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -236,6 +263,10 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRuntimeFontFactory)
 		protected:
+			static constexpr U32 mAtlasSize = 1024;
+
 			IResourceManager* mpResourceManager;
+
+			IFileSystem*      mpFileSystem;
 	};
 }

@@ -754,7 +754,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		pResourceFactory = CreateRuntimeFontFactory(mpResourceManagerInstance, result);
+		pResourceFactory = CreateRuntimeFontFactory(mpResourceManagerInstance, mpFileSystemInstance, result);
 
 		if (result != RC_OK)
 		{

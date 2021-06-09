@@ -3,10 +3,12 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/graphics/CTextureAtlas.h"
+#include "../../include/graphics/ITexture2D.h"
 #include "../../include/utils/CU8String.h"
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/math/MathUtils.h"
 #include <cstring>
+#include "../../deps/stb/stb_truetype.h"
 
 
 namespace TDEngine2
@@ -28,11 +30,54 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CRuntimeFont::AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info)
+	CFont::TTextMeshData CRuntimeFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
 	{
-		E_RESULT_CODE result = CFont::AddGlyphInfo(codePoint, info);
+		for (U32 i = 0; i < text.Length(); ++i)
+		{
+			auto codePoint = text.At(i);
 
-		return result;
+			if (mCachedGlyphs.find(codePoint) != mCachedGlyphs.cend())
+			{
+				continue;
+			}
+
+			mCachedGlyphs.emplace(codePoint);
+			mIsDirty = true;
+		}
+
+		return std::move(CFont::GenerateMesh(params, text));
+	}
+
+	E_RESULT_CODE CRuntimeFont::LoadFontInfo(IBinaryFileReader* pFontFile)
+	{
+		if (!pFontFile)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const U64 fileSize = pFontFile->GetFileLength();
+
+		mFontInfoBytes.resize(static_cast<size_t>(fileSize));
+
+		return pFontFile->Read(static_cast<void*>(&mFontInfoBytes.front()), static_cast<U32>(fileSize));
+	}
+	
+	ITexture2D* CRuntimeFont::GetTexture() const
+	{
+		/// update font texture's cache
+		if (ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle))
+		{
+			// \note Generate SDF glyph data 
+
+			//pTextureAtlas->AddRawTexture();
+
+			E_RESULT_CODE result = pTextureAtlas->Bake();
+			TDE2_ASSERT(RC_OK == result);
+		}
+
+		mIsDirty = false;
+
+		return CFont::GetTexture();
 	}
 
 	const IResourceLoader* CRuntimeFont::_getResourceLoader()
@@ -119,19 +164,20 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CRuntimeFontFactory::Init(IResourceManager* pResourceManager)
+	E_RESULT_CODE CRuntimeFontFactory::Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pResourceManager)
+		if (!pResourceManager || !pFileSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpResourceManager = pResourceManager;
+		mpFileSystem = pFileSystem;
 
 		mIsInitialized = true;
 
@@ -154,13 +200,25 @@ namespace TDEngine2
 
 	IResource* CRuntimeFontFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
-		const TFontParameters& fontParams = dynamic_cast<const TFontParameters&>(params);
+		const TRuntimeFontParameters& fontParams = dynamic_cast<const TRuntimeFontParameters&>(params);
 
 		auto pResource = CreateDefault(name, params);
 		
-		if (IFont* pFont = dynamic_cast<IFont*>(pResource))
+		if (IRuntimeFont* pFont = dynamic_cast<IRuntimeFont*>(pResource))
 		{
-			pFont->SetTextureAtlasHandle(fontParams.mAtlasHandle);
+			/// \note Create a new texture atlas for a font cache
+			pFont->SetTextureAtlasHandle(mpResourceManager->Create<ITextureAtlas>("Atlas_" + name, TTexture2DParameters { mAtlasSize, mAtlasSize, FT_NORM_UBYTE1 }));
+
+			/// \note Load TTF file into the memory
+			if (auto fontFileOpenResult = mpFileSystem->Open<IBinaryFileReader>(fontParams.mTrueTypeFontFilePath))
+			{
+				if (IBinaryFileReader* pFontFile = mpFileSystem->Get<IBinaryFileReader>(fontFileOpenResult.Get()))
+				{
+					pFont->LoadFontInfo(pFontFile);
+
+					pFontFile->Close();
+				}
+			}
 		}
 
 		return pResource;
@@ -179,8 +237,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateRuntimeFontFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result)
+	TDE2_API IResourceFactory* CreateRuntimeFontFactory(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IResourceFactory, CRuntimeFontFactory, result, pResourceManager);
+		return CREATE_IMPL(IResourceFactory, CRuntimeFontFactory, result, pResourceManager, pFileSystem);
 	}
 }

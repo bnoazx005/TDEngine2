@@ -126,6 +126,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text) override;
+
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font
 
