@@ -139,16 +139,25 @@ namespace TDEngine2
 		TDE2_API Type(const Type&) = delete;				\
 		TDE2_API Type& operator= (Type&) = delete;
 
+
+	/*!
+		\brief The macro is the same as DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS but with no destructor's default definition.
+		It may be handy in case of std::unique_ptr usage with incomplete types
+	*/
+
+	#define DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(Type)		\
+		TDE2_API Type();												\
+		TDE2_API Type(const Type&) = delete;							\
+		TDE2_API Type& operator= (Type&) = delete;
+
 	/*!
 		\brief The macros is used to declare protected members of interfaces' implementations, which
 		should use two-step initialization technique
 	*/
 
-	#define DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(Type)		\
-		TDE2_API Type();										\
-		TDE2_API virtual ~Type() = default;						\
-		TDE2_API Type(const Type&) = delete;					\
-		TDE2_API Type& operator= (Type&) = delete;
+	#define DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(Type)				\
+		DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(Type)			\
+		TDE2_API virtual ~Type() = default;								
 
 
 	/*!

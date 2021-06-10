@@ -8,6 +8,7 @@
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/math/MathUtils.h"
 #include <cstring>
+#define STB_TRUETYPE_IMPLEMENTATION
 #include "../../deps/stb/stb_truetype.h"
 
 
@@ -18,15 +19,25 @@ namespace TDEngine2
 	{
 	}
 
+	CRuntimeFont::~CRuntimeFont()
+	{
+	}
+
 	E_RESULT_CODE CRuntimeFont::Init(IResourceManager* pResourceManager, const std::string& name)
 	{
 		E_RESULT_CODE result = CFont::Init(pResourceManager, name);
+
+		mFontInfoBytes.clear();
+
 		return result;
 	}
 
 	E_RESULT_CODE CRuntimeFont::Reset()
 	{
 		E_RESULT_CODE result = CFont::Reset();
+
+		mFontInfoBytes.clear();
+
 		return result;
 	}
 
@@ -45,6 +56,18 @@ namespace TDEngine2
 			mIsDirty = true;
 		}
 
+		if (mIsDirty)
+		{
+			/// update font texture's cache
+			if (ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle))
+			{
+				E_RESULT_CODE result = _updateFontTextureCache(pTextureAtlas);
+				TDE2_ASSERT(RC_OK == result);
+			}
+
+			mIsDirty = false;
+		}
+
 		return std::move(CFont::GenerateMesh(params, text));
 	}
 
@@ -59,25 +82,97 @@ namespace TDEngine2
 
 		mFontInfoBytes.resize(static_cast<size_t>(fileSize));
 
-		return pFontFile->Read(static_cast<void*>(&mFontInfoBytes.front()), static_cast<U32>(fileSize));
-	}
-	
-	ITexture2D* CRuntimeFont::GetTexture() const
-	{
-		/// update font texture's cache
-		if (ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle))
+		E_RESULT_CODE result = pFontFile->Read(static_cast<void*>(&mFontInfoBytes.front()), static_cast<U32>(fileSize));
+		if (RC_OK != result)
 		{
-			// \note Generate SDF glyph data 
-
-			//pTextureAtlas->AddRawTexture();
-
-			E_RESULT_CODE result = pTextureAtlas->Bake();
-			TDE2_ASSERT(RC_OK == result);
+			TDE2_ASSERT(false);
+			return result;
 		}
 
-		mIsDirty = false;
+		/// \note Initialize stb_truetype font's data
+		mpInternalFontInfo = std::make_unique<stbtt_fontinfo>();
+		TDE2_ASSERT(mpInternalFontInfo);
 
+		const U8* pFontInfoPtr = &mFontInfoBytes.front();
+
+		if (!stbtt_InitFont(mpInternalFontInfo.get(), pFontInfoPtr, stbtt_GetFontOffsetForIndex(pFontInfoPtr, 0)))
+		{
+			return RC_FAIL;
+		}
+
+		return result;
+	}
+
+	E_RESULT_CODE CRuntimeFont::SetFontHeight(F32 value)
+	{
+		if (value < 0.0f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (mFontInfoBytes.empty()) /// \note The method should be invoked after font's initialization
+		{
+			return RC_FAIL;
+		}
+
+		mFontHeight = value;
+		mFontInternalScale = stbtt_ScaleForPixelHeight(mpInternalFontInfo.get(), mFontHeight);
+
+		return RC_OK;
+	}
+
+	F32 CRuntimeFont::GetFontHeight() const
+	{
+		return mFontHeight;
+	}
+
+	ITexture2D* CRuntimeFont::GetTexture() const
+	{
 		return CFont::GetTexture();
+	}
+
+	E_RESULT_CODE CRuntimeFont::_updateFontTextureCache(ITextureAtlas* pFontCacheTexture)
+	{
+		I32 width, height, xoff, yoff;
+		I32 advance, leftBearing;
+
+		const stbtt_fontinfo* pFontInfo = mpInternalFontInfo.get();
+
+		I32 ascent, descent, lineGap;
+		stbtt_GetFontVMetrics(pFontInfo, &ascent, &descent, &lineGap);
+
+		const F32 scale = mFontInternalScale;
+
+		ascent = static_cast<I32>(ascent * scale);
+		descent = static_cast<I32>(descent * scale);
+
+		I32 x0, y0, x1, y1;
+		stbtt_GetFontBoundingBox(pFontInfo, &x0, &y0, &x1, &y1);
+
+		F32 w = scale * (x1 - x0);
+		F32 h = scale * (y1 - y0);
+
+		E_RESULT_CODE result = RC_OK;
+
+		// \note Generate SDF glyph data 
+		for (C8 ch : mCachedGlyphs)
+		{
+			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, ch, 10, 255, 20.0f, &width, &height, &xoff, &yoff); /// \note Replace magic constants
+
+			if (RC_OK != (result = pFontCacheTexture->AddRawTexture(std::string(1, ch), width, height, FT_NORM_UBYTE1, pBitmap)))
+			{
+				TDE2_ASSERT(false);
+			}
+
+			stbtt_GetCodepointHMetrics(pFontInfo, ch, &advance, &leftBearing);
+
+			if (RC_OK != (result = AddGlyphInfo(ch, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance })))
+			{
+				TDE2_ASSERT(false);
+			}
+		}
+
+		return pFontCacheTexture->Bake();
 	}
 
 	const IResourceLoader* CRuntimeFont::_getResourceLoader()
@@ -214,10 +309,26 @@ namespace TDEngine2
 			{
 				if (IBinaryFileReader* pFontFile = mpFileSystem->Get<IBinaryFileReader>(fontFileOpenResult.Get()))
 				{
-					pFont->LoadFontInfo(pFontFile);
+					E_RESULT_CODE result = pFont->LoadFontInfo(pFontFile);
+					if (RC_OK != result)
+					{
+						TDE2_ASSERT(false);
+						return nullptr;
+					}
 
 					pFontFile->Close();
+
+					result = pFont->SetFontHeight(fontParams.mGlyphHeight);
+					if (RC_OK != result)
+					{
+						TDE2_ASSERT(false);
+						return nullptr;
+					}
 				}
+			}
+			else
+			{
+				return nullptr;
 			}
 		}
 

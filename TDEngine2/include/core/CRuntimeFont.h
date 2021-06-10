@@ -10,12 +10,17 @@
 #include "CFont.h"
 #include <unordered_set>
 #include <vector>
+#include <memory>
+
+
+struct stbtt_fontinfo;
 
 
 namespace TDEngine2
 {
 	class IShader;
 	class IBinaryFileReader;
+	class ITextureAtlas;
 
 
 	/*!
@@ -87,6 +92,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE LoadFontInfo(IBinaryFileReader* pFontFile) override;
 
+			TDE2_API E_RESULT_CODE SetFontHeight(F32 value) override;
+
+			TDE2_API F32 GetFontHeight() const override;
+
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font
 
@@ -95,7 +104,10 @@ namespace TDEngine2
 
 			TDE2_API ITexture2D* GetTexture() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRuntimeFont)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CRuntimeFont)
+			virtual ~CRuntimeFont(); /// \note declare own destructor because of incomplete type as argument of std::unique_ptr
+
+			TDE2_API E_RESULT_CODE _updateFontTextureCache(ITextureAtlas* pFontCacheTexture);
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
@@ -103,7 +115,12 @@ namespace TDEngine2
 
 			mutable bool            mIsDirty = true;
 
+			std::unique_ptr<stbtt_fontinfo> mpInternalFontInfo;
+
 			std::vector<U8>         mFontInfoBytes;
+
+			F32                     mFontHeight;
+			F32                     mFontInternalScale;
 	};
 
 
