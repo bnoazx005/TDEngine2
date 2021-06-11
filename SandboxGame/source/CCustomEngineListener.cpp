@@ -347,10 +347,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
 
-	TRuntimeFontParameters fontParams;
-	fontParams.mTrueTypeFontFilePath = "arial.ttf";
-	mpResourceManager->Create<IRuntimeFont>("Test.font", fontParams);
-
 	return RC_OK;
 }
 

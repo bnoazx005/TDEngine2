@@ -69,7 +69,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !params.mHeight || !params.mWidth)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -81,6 +81,9 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		mWidth  = params.mWidth;
+		mHeight = params.mHeight;
 
 		mIsInitialized = true;
 

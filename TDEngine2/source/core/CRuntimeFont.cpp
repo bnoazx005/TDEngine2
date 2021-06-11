@@ -59,6 +59,11 @@ namespace TDEngine2
 		if (mIsDirty)
 		{
 			/// update font texture's cache
+			if (IResource* pFontCacheTexture = mpResourceManager->GetResource(mFontTextureAtlasHandle))
+			{
+				pFontCacheTexture->Reset();
+			}
+			
 			if (ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle))
 			{
 				E_RESULT_CODE result = _updateFontTextureCache(pTextureAtlas);
@@ -133,6 +138,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CRuntimeFont::_updateFontTextureCache(ITextureAtlas* pFontCacheTexture)
 	{
+		mGlyphsMap.clear();
+
 		I32 width, height, xoff, yoff;
 		I32 advance, leftBearing;
 
@@ -155,18 +162,20 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		// \note Generate SDF glyph data 
-		for (C8 ch : mCachedGlyphs)
+		for (U8C currCodepoint : mCachedGlyphs)
 		{
-			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, ch, 10, 255, 20.0f, &width, &height, &xoff, &yoff); /// \note Replace magic constants
+			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, currCodepoint, 10, 255, 20.0f, &width, &height, &xoff, &yoff); /// \note Replace magic constants
 
-			if (RC_OK != (result = pFontCacheTexture->AddRawTexture(std::string(1, ch), width, height, FT_NORM_UBYTE1, pBitmap)))
+			const C8* pStr = reinterpret_cast<const C8*>(&currCodepoint);
+
+			if (RC_OK != (result = pFontCacheTexture->AddRawTexture(std::string(pStr), width, height, FT_NORM_UBYTE1, pBitmap)))
 			{
 				TDE2_ASSERT(false);
 			}
 
-			stbtt_GetCodepointHMetrics(pFontInfo, ch, &advance, &leftBearing);
+			stbtt_GetCodepointHMetrics(pFontInfo, currCodepoint, &advance, &leftBearing);
 
-			if (RC_OK != (result = AddGlyphInfo(ch, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance })))
+			if (RC_OK != (result = AddGlyphInfo(currCodepoint, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance })))
 			{
 				TDE2_ASSERT(false);
 			}
