@@ -786,6 +786,12 @@ namespace TDEngine2
 			return result;
 		}
 
+		/// \todo Move this into another place later
+		TRuntimeFontParameters fontParams;
+		fontParams.mTrueTypeFontFilePath = "arial.ttf";
+
+		mpResourceManagerInstance->Create<IRuntimeFont>("Arial.font", fontParams);
+
 		return RC_OK;
 	}
 }

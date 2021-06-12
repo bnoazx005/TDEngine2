@@ -193,7 +193,7 @@ namespace TDEngine2
 	{
 		if (mSystemFontHandle == TResourceId::Invalid)
 		{
-			mSystemFontHandle = mpResourceManager->Load<IFont>("Arial");
+			mSystemFontHandle = mpResourceManager->Load<IFont>("Arial.font");
 		}
 
 		auto pSystemFontResource = mpResourceManager->GetResource<IFont>(mSystemFontHandle);

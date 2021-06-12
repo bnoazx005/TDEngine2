@@ -41,13 +41,20 @@ namespace TDEngine2
 		return result;
 	}
 
+
+	static bool IsControlCharacter(U8C codePoint)
+	{
+		return codePoint == ' ' || codePoint == '\n';
+	}
+
+
 	CFont::TTextMeshData CRuntimeFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
 	{
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
 			auto codePoint = text.At(i);
 
-			if (mCachedGlyphs.find(codePoint) != mCachedGlyphs.cend())
+			if (mCachedGlyphs.find(codePoint) != mCachedGlyphs.cend() || IsControlCharacter(codePoint))
 			{
 				continue;
 			}
