@@ -149,6 +149,8 @@
 #include "graphics/CBasePostProcessingProfile.h"
 #include "graphics/IGeometryBuilder.h"
 #include "graphics/CGeometryBuilder.h"
+#include "graphics/ISkeleton.h"
+#include "graphics/CSkeleton.h"
 #include "graphics/animation/IAnimationClip.h"
 #include "graphics/animation/CAnimationClip.h"
 #include "graphics/animation/IAnimationTrack.h"

@@ -347,6 +347,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
 
+	mpResourceManager->Load<ISkeleton>("Test.skeleton");
+
 	return RC_OK;
 }
 

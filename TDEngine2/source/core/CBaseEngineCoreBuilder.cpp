@@ -39,6 +39,7 @@
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/ICubemapTexture.h"
 #include "../../include/graphics/IMesh.h"
+#include "../../include/graphics/CSkeleton.h"
 #include "../../include/graphics/CAtlasSubTexture.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/graphics/CStaticMesh.h"
@@ -694,6 +695,7 @@ namespace TDEngine2
 			{ CreateBasePostProcessingProfileLoader, CreateBasePostProcessingProfileFactory },
 			{ CreateAnimationClipLoader, CreateAnimationClipFactory },
 			{ CreateParticleEffectLoader, CreateParticleEffectFactory },
+			{ CreateSkeletonLoader, CreateSkeletonFactory },
 		};
 
 		/// create material loader
