@@ -10,6 +10,8 @@
 #include "ISkeleton.h"
 #include "../core/CBaseResource.h"
 #include "../graphics/IIndexBuffer.h"
+#include <vector>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -83,11 +85,24 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API TResult<U32> CreateJoint(const std::string& name, const TMatrix4& bindTransform = IdentityMatrix4, I32 parent = -1) override;
+
+			TDE2_API E_RESULT_CODE RemoveJoint(const std::string& name) override;
+			TDE2_API E_RESULT_CODE RemoveJoint(U32 id) override;
+
+			/*!
+				\param The method returns a joint with specified identifier, pass 0 to get a root joint
+				\return A pointer to TJoint or an error code if there is no a joint with the given identifier
+			*/
+
+			TDE2_API TResult<TJoint*> GetJoint(U32 id) override;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkeleton)
 
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
+			std::vector<TJoint> mJoints;
 	};
 
 

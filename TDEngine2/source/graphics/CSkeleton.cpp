@@ -32,6 +32,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mJoints.push_back({ 0, -1, "Root", IdentityMatrix4 }); /// \note Add default root node
+
 		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
 
 		mIsInitialized = true;
@@ -52,6 +54,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mJoints.clear();
+
 		return RC_OK;
 	}
 
@@ -62,7 +66,93 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		pWriter->BeginGroup("meta");
+		{
+			pWriter->SetString("resource_type", "skeleton");
+			pWriter->SetUInt16("version_tag", mAssetsVersionTag);
+		}
+		pWriter->EndGroup();
+
 		return RC_OK;
+	}
+
+	TResult<U32> CSkeleton::CreateJoint(const std::string& name, const TMatrix4& bindTransform, I32 parent)
+	{
+		if (parent > static_cast<I32>(mJoints.size()))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		auto&& it = std::find_if(mJoints.cbegin(), mJoints.cend(), [&name](const TJoint& joint) { return name == joint.mName; });
+		if (it == mJoints.cend())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		const U32 jointId = static_cast<I32>(mJoints.size());
+		mJoints.push_back({ jointId, parent, name, bindTransform });
+
+		return Wrench::TOkValue<U32>(jointId);
+	}
+
+	E_RESULT_CODE CSkeleton::RemoveJoint(const std::string& name)
+	{
+		auto it = std::find_if(mJoints.begin(), mJoints.end(), [&name](const TJoint& joint) { return name == joint.mName; });
+		if (it == mJoints.end())
+		{
+			return RC_FAIL;
+		}
+
+		const I32 pos = static_cast<I32>(std::distance(mJoints.begin(), it));
+		it = mJoints.erase(it);
+
+		for (; it != mJoints.end(); ++it) /// \note Update all indices and parent-child links 
+		{
+			auto& currJoint = *it;
+
+			--currJoint.mIndex;
+			
+			if (currJoint.mParentIndex >= pos)
+			{
+				--currJoint.mParentIndex;
+			}
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CSkeleton::RemoveJoint(U32 id)
+	{
+		if (id >= static_cast<U32>(mJoints.size()))
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto it = mJoints.erase(mJoints.begin() + id);
+
+		for (; it != mJoints.end(); ++it) /// \note Update all indices and parent-child links 
+		{
+			auto& currJoint = *it;
+
+			--currJoint.mIndex;
+
+			if (currJoint.mParentIndex >= static_cast<I32>(id))
+			{
+				--currJoint.mParentIndex;
+			}
+		}
+
+		return RC_OK;
+	}
+	
+	TResult<TJoint*> CSkeleton::GetJoint(U32 id)
+	{
+		if (id >= static_cast<U32>(mJoints.size()))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		return Wrench::TOkValue<TJoint*>(&mJoints[id]);
 	}
 
 	const IResourceLoader* CSkeleton::_getResourceLoader()

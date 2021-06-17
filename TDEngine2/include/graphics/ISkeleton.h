@@ -11,10 +11,20 @@
 #include "../core/IResourceFactory.h"
 #include "../core/IResourceLoader.h"
 #include "../core/Serialization.h"
+#include "../math/TMatrix4.h"
 
 
 namespace TDEngine2
 {
+	typedef struct TJoint
+	{
+		U32         mIndex = 0;
+		I32         mParentIndex = -1;
+		std::string mName;
+		TMatrix4    mBindTransform;
+	} TJoint, *TJointPtr, TBone, *TBonePtr;
+
+
 	/*!
 		struct TSkeleton2DParameters
 
@@ -35,6 +45,8 @@ namespace TDEngine2
 	class ISkeleton: public ISerializable
 	{
 		public:
+			static constexpr U32 mMaxNumOfJoints = 256;
+		public:
 			TDE2_REGISTER_TYPE(ISkeleton);
 
 			/*!
@@ -49,6 +61,17 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
 
+			TDE2_API virtual TResult<U32> CreateJoint(const std::string& name, const TMatrix4& bindTransform = IdentityMatrix4, I32 parent = -1) = 0;
+			
+			TDE2_API virtual E_RESULT_CODE RemoveJoint(const std::string& name) = 0;
+			TDE2_API virtual E_RESULT_CODE RemoveJoint(U32 id) = 0;
+
+			/*!
+				\param The method returns a joint with specified identifier, pass 0 to get a root joint
+				\return A pointer to TJoint or an error code if there is no a joint with the given identifier
+			*/
+
+			TDE2_API virtual TResult<TJoint*> GetJoint(U32 id) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISkeleton)
 	};
