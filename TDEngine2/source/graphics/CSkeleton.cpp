@@ -10,7 +10,24 @@ namespace TDEngine2
 {
 	struct TSkeletonArchiveKeys
 	{
+		static const std::string mJointsGroupKey;
+
+		struct TJointsGroup
+		{
+			static const std::string mIndexKey;
+			static const std::string mParentIndexKey;
+			static const std::string mNameKey;
+			static const std::string mBindTransformKey;
+		};
 	};
+
+
+	const std::string TSkeletonArchiveKeys::mJointsGroupKey = "joints";
+
+	const std::string TSkeletonArchiveKeys::TJointsGroup::mIndexKey = "id";
+	const std::string TSkeletonArchiveKeys::TJointsGroup::mParentIndexKey = "parent_id";
+	const std::string TSkeletonArchiveKeys::TJointsGroup::mNameKey = "name";
+	const std::string TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey = "bind_transform";
 
 
 	CSkeleton::CSkeleton() :
@@ -56,6 +73,34 @@ namespace TDEngine2
 
 		mJoints.clear();
 
+		TJoint tmpJoint;
+
+		pReader->BeginGroup(TSkeletonArchiveKeys::mJointsGroupKey);
+		{
+			while (pReader->HasNextItem())
+			{
+				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					tmpJoint.mIndex       = pReader->GetUInt32(TSkeletonArchiveKeys::TJointsGroup::mIndexKey);
+					tmpJoint.mParentIndex = pReader->GetInt32(TSkeletonArchiveKeys::TJointsGroup::mParentIndexKey);
+					tmpJoint.mName        = pReader->GetString(TSkeletonArchiveKeys::TJointsGroup::mNameKey);
+
+					pReader->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey);
+					{
+						if (auto matrixLoadResult = LoadMatrix4(pReader))
+						{
+							tmpJoint.mBindTransform = matrixLoadResult.Get();
+						}
+					}
+					pReader->EndGroup();
+				}
+				pReader->EndGroup();
+
+				mJoints.push_back(tmpJoint);
+			}
+		}
+		pReader->EndGroup();
+
 		return RC_OK;
 	}
 
@@ -70,6 +115,27 @@ namespace TDEngine2
 		{
 			pWriter->SetString("resource_type", "skeleton");
 			pWriter->SetUInt16("version_tag", mAssetsVersionTag);
+		}
+		pWriter->EndGroup();
+
+		pWriter->BeginGroup(TSkeletonArchiveKeys::mJointsGroupKey, true);
+		{
+			for (const TJoint& currJoint : mJoints)
+			{
+				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					pWriter->SetUInt32(TSkeletonArchiveKeys::TJointsGroup::mIndexKey, currJoint.mIndex);
+					pWriter->SetInt32(TSkeletonArchiveKeys::TJointsGroup::mParentIndexKey, currJoint.mParentIndex);
+					pWriter->SetString(TSkeletonArchiveKeys::TJointsGroup::mNameKey, currJoint.mName);
+
+					pWriter->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey, true);
+					{
+						SaveMatrix4(pWriter, currJoint.mBindTransform);
+					}
+					pWriter->EndGroup();
+				}
+				pWriter->EndGroup();
+			}
 		}
 		pWriter->EndGroup();
 
