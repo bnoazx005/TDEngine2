@@ -251,4 +251,12 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TMatrix4 LookAt(const TVector3& eye, const TVector3& up, const TVector3& target, F32 handedness);
+
+
+	/*!
+		\brief TMatrix4's Serialization/Deserialization helpers
+	*/
+
+	TDE2_API TResult<TMatrix4> LoadMatrix4(class IArchiveReader* pReader);
+	TDE2_API E_RESULT_CODE SaveMatrix4(class IArchiveWriter* pWriter, const TMatrix4& object);
 }

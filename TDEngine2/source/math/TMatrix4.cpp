@@ -1,5 +1,6 @@
-#include "./../../include/math/TMatrix4.h"
-#include "./../../include/math/TMatrix3.h"
+#include "../../include/math/TMatrix4.h"
+#include "../../include/math/TMatrix3.h"
+#include "../../include/core/Serialization.h"
 #include "stringUtils.hpp"
 #include <cstring>
 #include <cmath>
@@ -396,5 +397,65 @@ namespace TDEngine2
 		mat4.m[2][3] = handedness * Dot(dir, eye);
 
 		return mat4;
+	}
+
+
+	static const std::array<std::string, 16> MatrixSerializationKeys
+	{
+		"_11", "_12", "_13", "_14",
+		"_21", "_22", "_23", "_24",
+		"_31", "_32", "_33", "_34",
+		"_41", "_42", "_43", "_44",
+	};
+
+
+	TDE2_API TResult<TMatrix4> LoadMatrix4(class IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		TMatrix4 mat;
+
+		U32 currIndex = 0;
+
+		while (pReader->HasNextItem())
+		{
+			pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+			{
+				for (U8 i = 0; i < 4; ++i, ++currIndex)
+				{
+					mat.arr[currIndex] = pReader->GetFloat(MatrixSerializationKeys[currIndex]);
+				}
+			}
+			pReader->EndGroup();
+		}
+
+		return Wrench::TOkValue<TMatrix4>(mat);
+	}
+
+	TDE2_API E_RESULT_CODE SaveMatrix4(class IArchiveWriter* pWriter, const TMatrix4& object)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		for (U8 i = 0; i < 4; ++i)
+		{
+			pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+			{
+				for (U8 j = 0; j < 4; ++j)
+				{
+					const U32 index = i * 4 + j;
+
+					pWriter->SetFloat(MatrixSerializationKeys[index], object.arr[index]);
+				}
+			}
+			pWriter->EndGroup();
+		}
+
+		return RC_OK;
 	}
 }
