@@ -14,7 +14,7 @@ import argparse
 import math
 import os.path
 import struct
-import yaml
+from ruamel.yaml import YAML
 import io
 try:
 	from FbxCommon import *
@@ -664,6 +664,8 @@ def save_skeleton_data(objectsData, outputFilename):
 		return None
 
 	def pack_matrix_into_engine_fmt(fbxMatrix):
+		fbxMatrix = fbxMatrix.Transpose()
+
 		mat = [{}, {}, {}, {}]
 
 		for i in range(4):
@@ -701,14 +703,11 @@ def save_skeleton_data(objectsData, outputFilename):
 
 		joints.append({ "id" : nodeIndex, "parent_id" : parentId, "name" : skeletonData[nodeIndex], "bind_transform" : pack_matrix_into_engine_fmt(currJointInfo[0]) })
 
-	def unicode_representer(dumper, uni):
-		node = yaml.ScalarNode(tag=u'tag:yaml.org,2002:str', value=uni)
-		return node
-
-	yaml.add_representer(unicode, unicode_representer)
+	yaml = YAML()
+	yaml.indent(mapping=4, sequence=6, offset=3)
 
 	with io.open(outputFilename, 'w', encoding='utf-8') as outfile:
-		yaml.dump(skeletonResourceData, outfile, default_flow_style=False, allow_unicode=True)
+		yaml.dump(skeletonResourceData, outfile)
 
 
 def print_all_meshes_data(objects):
