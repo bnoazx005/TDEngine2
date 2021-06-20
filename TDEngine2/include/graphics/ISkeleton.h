@@ -21,7 +21,8 @@ namespace TDEngine2
 		U32         mIndex = 0;
 		I32         mParentIndex = -1;
 		std::string mName;
-		TMatrix4    mBindTransform;
+		TMatrix4    mLocalBindTransform; ///< \note This transformation is a local for specific joint relative to its parent
+		TMatrix4    mInvBindTransform; /// \note The field is recomputed on loading of a skeleton, moves from joint space to model space
 	} TJoint, *TJointPtr, TBone, *TBonePtr;
 
 

@@ -100,6 +100,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkeleton)
 
+			TDE2_API E_RESULT_CODE _postLoad();
+
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			std::vector<TJoint> mJoints;

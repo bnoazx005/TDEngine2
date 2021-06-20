@@ -4,11 +4,18 @@ Date: 09.12.2019
 Author: Ildar Kasimov
 
 The script is used to convert DCC files (FBX, OBJ) into *.MESH internal binary format
+
+## Change log:
+
+- **[20.06.2021]**: 
+  ####Added: Add support of FBX meshes with skeletons
 """
 import argparse
 import math
 import os.path
 import struct
+import yaml
+import io
 try:
 	from FbxCommon import *
 except ImportError:
@@ -26,6 +33,9 @@ except ImportError:
 
 FBX_TYPE = 0
 OBJ_TYPE = 1
+
+
+SKELETON_RESOURCE_VERSION = 1
 
 
 class Vec2:
@@ -111,6 +121,8 @@ def extract_fbx_mesh_data(fbxMesh):
 	polygonCount = fbxMesh.GetPolygonCount()
 	controlPointsList = fbxMesh.GetControlPoints() # aka mesh's vertices
 
+	jointsTable = extract_fbx_joints_table(fbxMesh)
+
 	vertices = []
 	faces    = []
 
@@ -153,8 +165,49 @@ def extract_fbx_mesh_data(fbxMesh):
 
 		for j in range(3):
 			faces.append(fbxMesh.GetPolygonVertex(i, j))
-	
-	return (fbxMesh.GetName(), vertices, faces)
+
+	return (fbxMesh.GetName(), vertices, faces, jointsTable)
+
+
+def extract_fbx_joints_table(fbxMesh):
+	skinCount = fbxMesh.GetDeformerCount(FbxDeformer.eSkin)
+
+	jointsTable = {}
+
+	if skinCount < 1:
+		return jointsTable
+
+	clustersCount = fbxMesh.GetDeformer(0, FbxDeformer.eSkin).GetClusterCount()
+
+	# use only the first skin 
+	for i in range(clustersCount):
+		clusterData = fbxMesh.GetDeformer(0, FbxDeformer.eSkin).GetCluster(i)
+
+		if clusterData.GetLink():
+			bindPoseTransform = FbxAMatrix()
+			bindPoseTransform = clusterData.GetTransformLinkMatrix(bindPoseTransform)
+			jointsTable[clusterData.GetLink().GetName()] = (bindPoseTransform, clusterData.GetLink().GetParent().GetName())
+
+	return jointsTable
+
+
+def extract_fbx_skeleton_data(rootNode):
+	jointsHierarchyTable = []
+
+	nodesQueue = [rootNode.GetChild(i) for i in range(rootNode.GetChildCount())]
+
+	while len(nodesQueue) > 0:
+		currNode = nodesQueue.pop(0)
+
+		if not (currNode.GetNodeAttribute().GetAttributeType() == FbxNodeAttribute.eSkeleton):
+			continue
+
+		jointsHierarchyTable.append(currNode.GetName())
+
+		for i in range(currNode.GetChildCount()):
+			nodesQueue.append(currNode.GetChild(i))
+
+	return jointsHierarchyTable
 
 
 def read_fbx_mesh_data(inputFilename):
@@ -165,7 +218,7 @@ def read_fbx_mesh_data(inputFilename):
 		return None
 
 	nodeProcessors = {
-		FbxNodeAttribute.eMesh : extract_fbx_mesh_data
+		FbxNodeAttribute.eMesh : extract_fbx_mesh_data,
 	}
 
 	# Traverse scene's hierarchy
@@ -176,6 +229,8 @@ def read_fbx_mesh_data(inputFilename):
 	meshConverter = FbxGeometryConverter(sdkManager) # the converter is used to triangulate the input mesh
 
 	objects = []
+
+	nextIndexId = len(nodes)
 
 	while len(nodes) > 0:
 		currNodeEntry = nodes.pop(0)
@@ -190,12 +245,16 @@ def read_fbx_mesh_data(inputFilename):
 		nodeProcessorFunc = nodeProcessors.get(nodeType)
 		meshData = nodeProcessorFunc(meshConverter.Triangulate(currNode.GetNodeAttribute(), False)) if nodeProcessorFunc else None
 
-		objects.append((currNode.GetName(), parentId, meshData))
+		if not meshData is None:
+			objects.append((currNode.GetName(), parentId, meshData))
 
 		for i in range(currNode.GetChildCount()):
-			nodes.append((currNode.GetChild(i), currNodeId, nodes[-1][2] + i + 1))
+			nodes.append((currNode.GetChild(i), currNodeId, nextIndexId)) # 2nd arg is parent's id, 3rd is for own index
+			nextIndexId = nextIndexId + 1
 
-	return objects
+	skeleton = extract_fbx_skeleton_data(rootNode)
+
+	return (objects, skeleton)
 
 
 """
@@ -452,7 +511,7 @@ def read_obj_mesh_data(inputFilename):
 		print("verts : %d, faces %d" % (len(vertices), len(faces)))
 		objects.append((currSubMesh.id, -1, (currSubMesh.id, vertices, faces)))
 
-	return objects
+	return (objects, [])
 
 """
 	MESH writer's description
@@ -593,6 +652,65 @@ def save_mesh_data(objectsData, outputFilename, skipNormals, skipTangents):
 	return
 
 
+def save_skeleton_data(objectsData, outputFilename):
+	assert outputFilename, "Output file path should be non empty"
+	assert objectsData, "Empty objects data is not allowed"
+
+	def find_joint_info(meshes, jointName):
+		for currMesh in meshes:
+			if jointName in currMesh[2][3]:
+				return currMesh[2][3][jointName]
+
+		return None
+
+	def pack_matrix_into_engine_fmt(fbxMatrix):
+		mat = [{}, {}, {}, {}]
+
+		for i in range(4):
+			for j in range(4):
+				mat[i]["_%d%d" % (i + 1, j + 1)] = fbxMatrix.Get(i, j)
+
+		return mat
+
+
+	skeletonData = objectsData[1]
+	if len(skeletonData) < 1 or skeletonData is None:
+		return
+
+	skeletonResourceData = { "meta": {
+			"resource_type": "skeleton",
+			"version_tag": SKELETON_RESOURCE_VERSION
+		},
+		"joints" : []
+	}
+
+	joints = skeletonResourceData["joints"]
+
+	for nodeIndex in range(len(skeletonData)):
+		currJointInfo = find_joint_info(objectsData[0], skeletonData[nodeIndex])
+
+		if currJointInfo is None:
+			continue
+
+		parentId = -1
+
+		for i in range(len(skeletonData)):
+			if skeletonData[i] == currJointInfo[1]:
+				parentId = i
+				break
+
+		joints.append({ "id" : nodeIndex, "parent_id" : parentId, "name" : skeletonData[nodeIndex], "bind_transform" : pack_matrix_into_engine_fmt(currJointInfo[0]) })
+
+	def unicode_representer(dumper, uni):
+		node = yaml.ScalarNode(tag=u'tag:yaml.org,2002:str', value=uni)
+		return node
+
+	yaml.add_representer(unicode, unicode_representer)
+
+	with io.open(outputFilename, 'w', encoding='utf-8') as outfile:
+		yaml.dump(skeletonResourceData, outfile, default_flow_style=False, allow_unicode=True)
+
+
 def print_all_meshes_data(objects):
 	for currObjectEntry in objects:
 		print("Object Name: %s" % currObjectEntry[0])
@@ -629,9 +747,12 @@ def main():
 	fileData = fileReaderFunction(args.input) # first step is to read information from original file
 
 	if args.debug and args.debug == 'mesh-info':
-		print_all_meshes_data(fileData)
+		print_all_meshes_data(fileData[0])
 
-	save_mesh_data(fileData, args.output if args.output else get_output_filename(args.input), args.skip_normals, args.skip_tangents)
+	outputFilepath = args.output if args.output else get_output_filename(args.input)
+
+	save_mesh_data(fileData[0], outputFilepath, args.skip_normals, args.skip_tangents)
+	save_skeleton_data(fileData, os.path.splitext(outputFilepath)[0]+ ".skeleton")
 
 	return 0
 

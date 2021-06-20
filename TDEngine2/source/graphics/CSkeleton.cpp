@@ -30,6 +30,12 @@ namespace TDEngine2
 	const std::string TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey = "bind_transform";
 
 
+	static TMatrix4 ComputeInvBindTransform(const std::vector<TJoint>& joints)
+	{
+		return IdentityMatrix4;
+	}
+
+
 	CSkeleton::CSkeleton() :
 		CBaseResource()
 	{
@@ -89,7 +95,7 @@ namespace TDEngine2
 					{
 						if (auto matrixLoadResult = LoadMatrix4(pReader))
 						{
-							tmpJoint.mBindTransform = matrixLoadResult.Get();
+							tmpJoint.mLocalBindTransform = matrixLoadResult.Get();
 						}
 					}
 					pReader->EndGroup();
@@ -101,7 +107,9 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
-		return RC_OK;
+		TDE2_ASSERT(!mJoints.empty());
+
+		return _postLoad();
 	}
 
 	E_RESULT_CODE CSkeleton::Save(IArchiveWriter* pWriter)
@@ -130,7 +138,7 @@ namespace TDEngine2
 
 					pWriter->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey, true);
 					{
-						SaveMatrix4(pWriter, currJoint.mBindTransform);
+						SaveMatrix4(pWriter, currJoint.mLocalBindTransform);
 					}
 					pWriter->EndGroup();
 				}
@@ -224,6 +232,22 @@ namespace TDEngine2
 	const IResourceLoader* CSkeleton::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ISkeleton>();
+	}
+
+	E_RESULT_CODE CSkeleton::_postLoad()
+	{
+		/// \note Compute inverted bind transforms for all joints
+		/// We can assume that all joints are ordered based on child - parent relationship, parents are first
+
+#if TDE2_DEBUG_MODE
+		/// \note Check the assumption above in debug code
+		for (size_t i = 0; i < mJoints.size(); ++i)
+		{
+			TDE2_ASSERT(mJoints[i].mParentIndex < static_cast<I32>(mJoints[i].mIndex));
+		}
+#endif
+
+		return RC_OK;
 	}
 
 
