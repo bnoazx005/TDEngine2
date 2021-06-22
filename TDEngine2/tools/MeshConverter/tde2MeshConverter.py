@@ -79,9 +79,11 @@ class Vertex:
 		self.normal  = normal
 		self.uv      = uv
 		self.tangent = tangent
+		self.jointIndices = []
+		self.weights = []
 
 	def __str__(self):
-		return "pos: %s\tuv: %s\tnormal: %s\ttangent: %s" % (self.pos, self.uv, self.normal, self.tangent)
+		return "pos: %s\tuv: %s\tnormal: %s\ttangent: %s\tjoints:%s\tweights:%s" % (self.pos, self.uv, self.normal, self.tangent, self.jointIndices, self.weights)
 
 
 def parse_args():
@@ -117,7 +119,48 @@ def get_filetype_from_path(filename):
 	FBX reader's description
 """
 
-def extract_fbx_mesh_data(fbxMesh):
+
+def extract_fbx_vertex_joint_data(fbxMesh, skeleton, vertexId, currVertex):
+	controlPointsList = fbxMesh.GetControlPoints() # aka mesh's vertices
+
+	skinCount = fbxMesh.GetDeformerCount(FbxDeformer.eSkin)
+
+	if skinCount < 1:
+		return jointsTable
+
+	clustersCount = fbxMesh.GetDeformer(0, FbxDeformer.eSkin).GetClusterCount()
+
+	def get_joint_index(skeleton, jointId):
+		for i in range(len(skeleton)):
+			if skeleton[i] == jointId:
+				return i
+
+		return -1
+
+	# use only the first skin 
+	for i in range(clustersCount):
+		clusterData = fbxMesh.GetDeformer(0, FbxDeformer.eSkin).GetCluster(i)
+
+		indexCount = clusterData.GetControlPointIndicesCount()
+		indices    = clusterData.GetControlPointIndices()
+		weights    = clusterData.GetControlPointWeights()
+
+		jointId = get_joint_index(skeleton, clusterData.GetLink().GetName())
+
+		for k in range(indexCount):
+			if vertexId != indices[k]:
+				continue
+
+			currVertex.jointIndices.append(jointId)
+			currVertex.weights.append(weights[k])
+
+	assert len(currVertex.jointIndices) == len(currVertex.weights), "Joint indices count should be same as weights"
+	assert len(currVertex.jointIndices) <= 4, "A number of joints couldn't be more than 4"
+
+	return currVertex
+
+
+def extract_fbx_mesh_data(fbxMesh, skeleton):
 	polygonCount = fbxMesh.GetPolygonCount()
 	controlPointsList = fbxMesh.GetControlPoints() # aka mesh's vertices
 
@@ -156,6 +199,9 @@ def extract_fbx_mesh_data(fbxMesh):
 				if (normals.GetMappingMode() == FbxLayerElement.eByControlPoint) and (normals.GetReferenceMode() == FbxLayerElement.eDirect):
 					currNormal = normalsArray.GetAt(controlPointId)
 					currVertex.normal = Vec3(currNormal[0], currNormal[1], currNormal[2])
+
+		if len(jointsTable) > 1:
+			currVertex = extract_fbx_vertex_joint_data(fbxMesh, skeleton, i, currVertex)
 
 		vertices.append(currVertex)
 
@@ -232,6 +278,8 @@ def read_fbx_mesh_data(inputFilename):
 
 	nextIndexId = len(nodes)
 
+	skeleton = extract_fbx_skeleton_data(rootNode)
+
 	while len(nodes) > 0:
 		currNodeEntry = nodes.pop(0)
 
@@ -243,7 +291,7 @@ def read_fbx_mesh_data(inputFilename):
 		
 		# Extract triangulated mesh's data
 		nodeProcessorFunc = nodeProcessors.get(nodeType)
-		meshData = nodeProcessorFunc(meshConverter.Triangulate(currNode.GetNodeAttribute(), False)) if nodeProcessorFunc else None
+		meshData = nodeProcessorFunc(meshConverter.Triangulate(currNode.GetNodeAttribute(), False), skeleton) if nodeProcessorFunc else None
 
 		if not meshData is None:
 			objects.append((currNode.GetName(), parentId, meshData))
@@ -251,8 +299,6 @@ def read_fbx_mesh_data(inputFilename):
 		for i in range(currNode.GetChildCount()):
 			nodes.append((currNode.GetChild(i), currNodeId, nextIndexId)) # 2nd arg is parent's id, 3rd is for own index
 			nextIndexId = nextIndexId + 1
-
-	skeleton = extract_fbx_skeleton_data(rootNode)
 
 	return (objects, skeleton)
 
