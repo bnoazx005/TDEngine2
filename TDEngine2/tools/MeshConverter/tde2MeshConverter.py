@@ -571,7 +571,7 @@ def write_mesh_header(file, offset):
 	file.write(struct.pack('<I', 0)) # padding to 16 bytes
 
 
-def write_geometry_block(file, objectsData, skipNormals, skipTangents):
+def write_geometry_block(file, objectsData, skipNormals, skipTangents, skipJoints):
 	def write_single_mesh_data(file, id, meshData):
 		mesh  = meshData[1]
 		faces = meshData[2]
@@ -632,6 +632,32 @@ def write_geometry_block(file, objectsData, skipNormals, skipTangents):
 			file.write(struct.pack('<2f', 0.0, 1.0)) # w component, 1.0 - point, 0.0 - vector
 			offset += 16
 
+		if not skipJoints:
+			# write joint weights
+			file.write(struct.pack('<2B', 164, 1)) # 0xA401, 
+			offset += 2
+
+			for currVertex in mesh:
+				weights = currVertex.weights
+
+				file.write(struct.pack('<H', len(weights)))
+				offset += 2
+
+				for currWeight in weights:
+					file.write(struct.pack('<f', currWeight))
+					offset += 4
+
+			# write joint indices
+			file.write(struct.pack('<2B', 165, 2)) # 0xA502, 
+			offset += 2
+
+			for currVertex in mesh:
+				jointIndices = currVertex.jointIndices
+
+				for currIndex in jointIndices:
+					file.write(struct.pack('<H', currIndex))
+					offset += 2
+
 		# write faces chunk (polygons)
 		format = 2 if len(faces) < 65536 else 4
 
@@ -679,14 +705,14 @@ def write_scene_desc_info(file, offset, objectsData):
 	return
 
 
-def save_mesh_data(objectsData, outputFilename, skipNormals, skipTangents):
+def save_mesh_data(objectsData, outputFilename, skipNormals, skipTangents, skipJoints):
 	assert outputFilename, "Output file path should be non empty"
 	assert objectsData, "Empty objects data is not allowed"
 
 	try:
 		outputMeshFile = open(outputFilename, 'wb')
 
-		offset = 16 + write_geometry_block(outputMeshFile, objectsData, skipNormals, skipTangents) # 16 plus for the header's size
+		offset = 16 + write_geometry_block(outputMeshFile, objectsData, skipNormals, skipTangents, skipJoints) # 16 plus for the header's size
 		
 		write_mesh_header(outputMeshFile, offset)
 		write_scene_desc_info(outputMeshFile, offset, objectsData)
@@ -796,9 +822,10 @@ def main():
 
 	outputFilepath = args.output if args.output else get_output_filename(args.input)
 
-	save_mesh_data(fileData[0], outputFilepath, args.skip_normals, args.skip_tangents)
+	save_mesh_data(fileData[0], outputFilepath, args.skip_normals, args.skip_tangents, len(fileData[1]) < 1)
 	save_skeleton_data(fileData, os.path.splitext(outputFilepath)[0]+ ".skeleton")
 
 	return 0
 
-main()
+if __name__ == "__main__":
+	main()
