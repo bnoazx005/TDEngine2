@@ -764,6 +764,7 @@ def save_skeleton_data(objectsData, outputFilename):
 		currJointInfo = find_joint_info(objectsData[0], skeletonData[nodeIndex])
 
 		if currJointInfo is None:
+			joints.append({ "id" : "Joint%d" % (nodeIndex), "parent_id" : -1, "name" : "" })
 			continue
 
 		parentId = -1

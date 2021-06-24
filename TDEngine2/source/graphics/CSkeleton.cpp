@@ -4,6 +4,8 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/utils/CFileLogger.h"
+#include <queue>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -246,6 +248,30 @@ namespace TDEngine2
 			TDE2_ASSERT(mJoints[i].mParentIndex < static_cast<I32>(mJoints[i].mIndex));
 		}
 #endif
+
+		std::queue<std::tuple<U32, TMatrix4>> jointsQueue;
+		jointsQueue.emplace(0, IdentityMatrix4);
+
+		while (!jointsQueue.empty())
+		{
+			auto&& entity = jointsQueue.front();
+			jointsQueue.pop();
+
+			TJoint& currJoint = mJoints[std::get<U32>(entity)];
+
+			TMatrix4 bindTransform = std::get<TMatrix4>(entity) * currJoint.mLocalBindTransform;
+			currJoint.mInvBindTransform = Inverse(bindTransform);
+
+			for (U32 i = std::get<U32>(entity) + 1; i < mJoints.size(); ++i)
+			{
+				if (currJoint.mIndex != static_cast<U32>(mJoints[i].mParentIndex))
+				{
+					continue;
+				}
+
+				jointsQueue.emplace(mJoints[i].mIndex, bindTransform);
+			}
+		}
 
 		return RC_OK;
 	}
