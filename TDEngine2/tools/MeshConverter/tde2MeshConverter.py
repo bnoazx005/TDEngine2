@@ -96,6 +96,7 @@ def parse_args():
 	parser.add_argument('-D', '--debug', type=str, action='store', help='Additional debug output')
 	parser.add_argument('--skip_normals', action='store_true', help='If defined object\'s normals will be skipped')
 	parser.add_argument('--skip_tangents', action='store_true', help='If defined object\'s tangents will be skipped')
+	parser.add_argument('--skip_joints', action='store_true', help='If defined object\'s joints information will be skipped')
 
 	return parser.parse_args()
 
@@ -256,7 +257,7 @@ def extract_fbx_skeleton_data(rootNode):
 	return jointsHierarchyTable
 
 
-def read_fbx_mesh_data(inputFilename):
+def read_fbx_mesh_data(inputFilename, skipTangents):
 	sdkManager, scene = InitializeSdkObjects()
 	
 	if not LoadScene(sdkManager, scene, inputFilename):
@@ -473,13 +474,15 @@ def obj_compute_tangents(sceneContext):
 		dudv[1] = uvs[2] - uvs[0];
 
 		det = (dudv[0].x * dudv[1].y - dudv[0].y * dudv[1].x)
-		invDet = 0.0 if math.fabs(det) < 0.0 else (1.0 / det)
+		invDet = 0.0 if math.fabs(det) < 1e-3 else (1.0 / det)
 
 		tangent.x = invDet * (dudv[1].y * edges[0].x - dudv[0].y * edges[1].x);
 		tangent.y = invDet * (dudv[1].y * edges[0].y - dudv[0].y * edges[1].y);
 		tangent.z = invDet * (dudv[1].y * edges[0].z - dudv[0].y * edges[1].z);
 
-		tangent = Vec3.normalize(tangent)
+		# FIXME: this is not correct
+		if tangent.length() > 1e-3:
+			tangent = Vec3.normalize(tangent)
 
 		sceneContext.finalVertices[sceneContext.indices[i]].tangent     = verts[0].tangent + tangent
 		sceneContext.finalVertices[sceneContext.indices[i + 1]].tangent = verts[1].tangent + tangent
@@ -488,12 +491,13 @@ def obj_compute_tangents(sceneContext):
 		i = i + 3
 
 	for currVertex in sceneContext.finalVertices:
-		currVertex.tangent = Vec3.normalize(currVertex.tangent)
+		if currVertex.tangent.length() > 1e-3:
+			currVertex.tangent = Vec3.normalize(currVertex.tangent)
 
 	return sceneContext
 
 
-def read_obj_mesh_data(inputFilename):
+def read_obj_mesh_data(inputFilename, skipTangents):
 	handlersMap = {
 		"v" : obj_process_vertices,
 		"vn" : obj_process_normals,
@@ -537,7 +541,8 @@ def read_obj_mesh_data(inputFilename):
 	
 	objects = []
 
-	tempSceneContext = obj_compute_tangents(tempSceneContext)
+	if not skipTangents:
+		tempSceneContext = obj_compute_tangents(tempSceneContext)
 
 	for currSubMesh in tempSceneContext.subMeshes:
 		# Gather vertices of the sub-mesh
@@ -816,14 +821,14 @@ def main():
 	
 	fileReaderFunction = FileTypeReaders[get_filetype_from_path(args.input)]
 
-	fileData = fileReaderFunction(args.input) # first step is to read information from original file
+	fileData = fileReaderFunction(args.input, args.skip_tangents) # first step is to read information from original file
 
 	if args.debug and args.debug == 'mesh-info':
 		print_all_meshes_data(fileData[0])
 
 	outputFilepath = args.output if args.output else get_output_filename(args.input)
 
-	save_mesh_data(fileData[0], outputFilepath, args.skip_normals, args.skip_tangents, len(fileData[1]) < 1)
+	save_mesh_data(fileData[0], outputFilepath, args.skip_normals, args.skip_tangents, args.skip_joints or len(fileData[1]) < 1)
 	save_skeleton_data(fileData, os.path.splitext(outputFilepath)[0]+ ".skeleton")
 
 	return 0
