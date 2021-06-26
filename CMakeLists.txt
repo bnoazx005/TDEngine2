@@ -10,6 +10,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/$<CONFIGURATION>")
 set(TDENGINE2_LIBRARY_NAME "TDEngine2")
 set(TDENGINE2_TESTS_NAME "tests")
 
+SET(CMAKE_DEBUG_POSTFIX "" CACHE STRING "Debug Postfix for lib, samples and tools")
+
 # Global options are declared here
 option(IS_PLUGIN_BUILDING_ENABLED "The option shows whether plugins should be built or not" ON)
 option(IS_SAMPLES_BUILDING_ENABLED "The option shows whether sample projects should be built or not" ON)

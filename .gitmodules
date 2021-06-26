@@ -10,3 +10,6 @@
 [submodule "TDEngine2/deps/debugbreak"]
 	path = TDEngine2/deps/debugbreak
 	url = https://github.com/scottt/debugbreak.git
+[submodule "TDEngine2/tools/MeshConverter/deps/Wrench"]
+	path = TDEngine2/tools/MeshConverter/deps/Wrench
+	url = https://github.com/bnoazx005/Wrench.git
