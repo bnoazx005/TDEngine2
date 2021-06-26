@@ -231,6 +231,37 @@ namespace TDEngine2
 		return Wrench::TOkValue<TJoint*>(&mJoints[id]);
 	}
 
+	void CSkeleton::ForEachJoint(const std::function<void(TJoint*)>& action)
+	{
+		if (!action)
+		{
+			return;
+		}
+
+		for (TJoint& currJoint : mJoints)
+		{
+			action(&currJoint);
+		}
+	}
+
+	void CSkeleton::ForEachChildJoint(U32 jointIndex, const std::function<void(TJoint*)>& action)
+	{
+		if (!action)
+		{
+			return;
+		}
+
+		for (TJoint& currJoint : mJoints)
+		{
+			if (static_cast<U32>(currJoint.mParentIndex) != jointIndex)
+			{
+				continue;
+			}
+
+			action(&currJoint);
+		}
+	}
+
 	const IResourceLoader* CSkeleton::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ISkeleton>();

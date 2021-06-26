@@ -67,6 +67,9 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE RemoveJoint(const std::string& name) = 0;
 			TDE2_API virtual E_RESULT_CODE RemoveJoint(U32 id) = 0;
 
+			TDE2_API virtual void ForEachJoint(const std::function<void(TJoint*)>& action = nullptr) = 0;
+			TDE2_API virtual void ForEachChildJoint(U32 jointIndex, const std::function<void(TJoint*)>& action = nullptr) = 0;
+
 			/*!
 				\param The method returns a joint with specified identifier, pass 0 to get a root joint
 				\return A pointer to TJoint or an error code if there is no a joint with the given identifier
