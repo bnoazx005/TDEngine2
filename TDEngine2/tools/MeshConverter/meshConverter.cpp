@@ -24,36 +24,37 @@ namespace TDEngine2
 		int showVersion = 0;
 
 		// flags
-		int taggedOnly = 0;
 		int suppressLogOutput = 0;
-		int forceMode = 0;
-		int emitFlags = 0;
+		int debugMode = 0;
+		int skipNormals = 0;
+		int skipTangents = 0;
+		int skipJoints = 0;
 
 		const char* pOutputDirectory = nullptr;
 		const char* pOutputFilename = nullptr;
-		const char* pExcludedPathsStr = nullptr;
-		const char* pExcludedTypenamesStr = nullptr;
-
-		const char* pCacheOutputDirectory = nullptr;
 
 		struct argparse_option options[] = {
 			OPT_HELP(),
-			OPT_GROUP("Basic options"),
+			OPT_GROUP("Options"),
 			OPT_BOOLEAN('V', "version", &showVersion, "Print version info and exit"),
 			OPT_STRING(0, "outdir", &pOutputDirectory, "Write output into specified <dirname>"),
-			OPT_STRING('o', "outfile", &pOutputFilename, "Output file's name <filename>"),
+			OPT_STRING('o', "output", &pOutputFilename, "Output file's name <filename>"),
 			OPT_BOOLEAN(0, "quiet", &suppressLogOutput, "Enables suppresion of program's output"),
+			OPT_BOOLEAN('D', "debug", &debugMode, "Enables debug output of the utility"),
+			OPT_BOOLEAN(0, "skip_normals", &skipNormals, "If defined object\'s normals will be skipped"),
+			OPT_BOOLEAN(0, "skip_tangents", &skipTangents, "If defined object\'s tangents will be skipped"),
+			OPT_BOOLEAN(0, "skip_joints", &skipJoints, "If defined object\'s joints information will be skipped"),
 			OPT_END(),
 		};
 
 		struct argparse argparse;
 		argparse_init(&argparse, options, Usage, 0);
-		argparse_describe(&argparse, "\nThe utility is an archiver of resources which is a part of TDE2 game engine that gathers them together in single peace (package)", "\n");
+		argparse_describe(&argparse, "\nThe utility is an mesh converter tool that processes FBX, OBJ files into internal engine format", "\n");
 		argc = argparse_parse(&argparse, argc, argv);
 
 		if (showVersion)
 		{
-			std::cout << "tde2_resource_packer, version " << ToolVersion.mMajor << "." << ToolVersion.mMinor << std::endl;
+			std::cout << "tde2_mesh_converter, version " << ToolVersion.mMajor << "." << ToolVersion.mMinor << std::endl;
 			exit(0);
 		}
 
@@ -87,6 +88,10 @@ namespace TDEngine2
 			utilityOptions.mOutputFilename = pOutputFilename;
 		}
 
+		utilityOptions.mShouldSkipNormals  = static_cast<bool>(skipNormals);
+		utilityOptions.mShouldSkipTangents = static_cast<bool>(skipTangents);
+		utilityOptions.mShouldSkipJoints   = static_cast<bool>(skipJoints);
+
 		return Wrench::TOkValue<TUtilityOptions>(utilityOptions);
 	}
 
@@ -98,9 +103,24 @@ namespace TDEngine2
 			return {};
 		}
 
+		static const std::array<std::string, 4> extensions{ ".obj", ".OBJ", ".fbx", ".FBX" };
+
+		auto&& hasValidExtension = [=](const std::string& ext)
+		{
+			for (auto&& currExtension : extensions)
+			{
+				if (currExtension == ext)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		};
+
 		std::unordered_set<std::string> processedPaths; // contains absolute paths that already have been processed 
 
-		std::vector<std::string> headersPaths;
+		std::vector<std::string> filesPaths;
 
 		for (auto&& currSource : directories)
 		{
@@ -111,9 +131,9 @@ namespace TDEngine2
 
 				auto&& absPathStr = fs::canonical(currSource).string();
 
-				if (processedPaths.find(absPathStr) == processedPaths.cend())
+				if (processedPaths.find(absPathStr) == processedPaths.cend() && hasValidExtension(path.extension().string()))
 				{
-					headersPaths.emplace_back(currSource);
+					filesPaths.emplace_back(currSource);
 					processedPaths.emplace(absPathStr);
 				}
 
@@ -127,15 +147,15 @@ namespace TDEngine2
 
 				auto&& absPathStr = fs::canonical(path).string();
 
-				if (processedPaths.find(absPathStr) == processedPaths.cend())
+				if (processedPaths.find(absPathStr) == processedPaths.cend() && hasValidExtension(path.extension().string()))
 				{
-					headersPaths.emplace_back(path.string());
+					filesPaths.emplace_back(path.string());
 					processedPaths.emplace(absPathStr);
 				}
 			}
 		}
 
-		return headersPaths;
+		return filesPaths;
 	}
 
 
@@ -163,6 +183,12 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE ProcessSingleMeshFile(const std::string& filePath, const TUtilityOptions& options) TDE2_NOEXCEPT
+	{
+		return RC_OK;
+	}
+
+
 	E_RESULT_CODE ProcessMeshFiles(std::vector<std::string>&& files, const TUtilityOptions& options) TDE2_NOEXCEPT
 	{
 		if (files.empty())
@@ -175,67 +201,13 @@ namespace TDEngine2
 			fs::create_directory(options.mOutputDirname);
 		}
 
-		std::ofstream packageFile{ fs::path(options.mOutputDirname).append(options.mOutputFilename), std::ios::binary };
-		if (!packageFile.is_open())
-		{
-			return RC_FAIL;
-		}
-
-		// \note Compress files into the package
-		std::vector<TPackageFileEntryInfo> filesTable;
-
 		E_RESULT_CODE result = RC_OK;
 
-		packageFile.seekp(sizeof(TPackageFileHeader)); // \note Skip writing header, make it as last step
-
-		std::vector<char> tempDataBuffer;
-
-		// \note Copy files' data into the package's file
 		for (auto&& currFilePath : files)
 		{
-			std::ifstream resourceFile{ currFilePath, std::ios::binary | std::ios::ate };
-			if (!resourceFile.is_open())
-			{
-				std::cerr << "Error: Couldn't find file: " << currFilePath << std::endl;
-				continue;
-			}
-			
-			std::streampos dataSize = resourceFile.tellg();
-
-			resourceFile.seekg(0);
-
-			filesTable.push_back(TPackageFileEntryInfo { currFilePath, static_cast<uint64_t>(packageFile.tellp()), static_cast<uint64_t>(dataSize) });
-
-			tempDataBuffer.resize(static_cast<size_t>(dataSize));
-			resourceFile.read(tempDataBuffer.data(), static_cast<std::streamsize>(dataSize));
-
-			resourceFile.close();
+			result = result | ProcessSingleMeshFile(currFilePath, options);
 		}
 
-		TPackageFileHeader header;
-		header.mEntitiesCount = filesTable.size();
-		header.mFilesTableOffset = packageFile.tellp();
-
-		// \note Write down files table to end of the file
-		if (RC_OK != (result = WriteFilesTableInfo(packageFile, std::move(filesTable))))
-		{
-			packageFile.close();
-			return result;
-		}
-
-		header.mFilesTableSize = static_cast<uint64_t>(packageFile.tellp()) - header.mFilesTableOffset;
-		
-		packageFile.seekp(0);
-
-		// \note Write header's data
-		if (RC_OK != (result = WritePackageHeader(packageFile, header)))
-		{
-			packageFile.close();
-			return result;
-		}
-
-		packageFile.close();
-
-		return RC_OK;
+		return result;
 	}
 }

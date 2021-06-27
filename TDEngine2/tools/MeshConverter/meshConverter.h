@@ -36,7 +36,11 @@ namespace TDEngine2
 		std::vector<std::string> mInputFiles;
 
 		std::string mOutputDirname = ".";
-		std::string mOutputFilename = "NewArchive.pak";
+		std::string mOutputFilename = "NewMesh.mesh";
+
+		bool mShouldSkipNormals  = false;
+		bool mShouldSkipTangents = false;
+		bool mShouldSkipJoints   = false;
 	};
 
 	TResult<TUtilityOptions> ParseOptions(int argc, const char** argv) TDE2_NOEXCEPT;
