@@ -14,6 +14,10 @@
 
 using namespace TDEngine2;
 
+#if defined (TDE2_USE_WIN32PLATFORM)
+	#pragma comment(lib, "TDEngine2.lib")
+#endif
+
 
 int main(int argc, const char** argv)
 {
@@ -24,6 +28,17 @@ int main(int argc, const char** argv)
 	}
 
 	const TUtilityOptions options = parseOptionsResult.Get();
-	
-	return static_cast<int>(ProcessMeshFiles(std::move(BuildFilesList(options.mInputFiles)), options));
+
+	E_RESULT_CODE result = RC_OK;
+
+	CScopedPtr<IEngineCoreBuilder> pEngineCoreBuilder { CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result) };
+	if (result != RC_OK)
+	{
+		return -1;
+	}
+
+	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
+	CDeferOperation _([&pEngineCore] { pEngineCore->Free(); });
+
+	return static_cast<int>(ProcessMeshFiles(pEngineCore, std::move(BuildFilesList(options.mInputFiles)), options));
 }

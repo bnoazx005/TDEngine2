@@ -43,10 +43,11 @@ namespace TDEngine2
 		bool mShouldSkipJoints   = false;
 	};
 
+
 	TResult<TUtilityOptions> ParseOptions(int argc, const char** argv) TDE2_NOEXCEPT;
 
 	std::vector<std::string> BuildFilesList(const std::vector<std::string>& directories) TDE2_NOEXCEPT;
 
-	E_RESULT_CODE ProcessMeshFiles(std::vector<std::string>&& files, const TUtilityOptions& options) TDE2_NOEXCEPT;
+	E_RESULT_CODE ProcessMeshFiles(IEngineCore* pEngineCore, std::vector<std::string>&& files, const TUtilityOptions& options) TDE2_NOEXCEPT;
 
 }

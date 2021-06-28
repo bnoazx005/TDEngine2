@@ -4,6 +4,9 @@
 #include <unordered_set>
 #include <iostream>
 #include <fstream>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 
 namespace fs = std::experimental::filesystem;
@@ -159,37 +162,124 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE WritePackageHeader(std::ofstream& packageFile, const TPackageFileHeader& headerData) TDE2_NOEXCEPT
+	static TMatrix4 ConvertAssimpMatrix(const aiMatrix4x4& mat)
 	{
-		packageFile.write(reinterpret_cast<const char*>(&headerData), sizeof(headerData));
+		const std::array<F32, 16> elements
+		{
+			mat.a1, mat.a2, mat.a3, mat.a4,
+			mat.b1, mat.b2, mat.b3, mat.b4,
+			mat.c1, mat.c2, mat.c3, mat.c4,
+			mat.d1, mat.d2, mat.d3, mat.d4,
+		};
 
-		return RC_OK;
+		return TMatrix4(&elements.front());
 	}
 
 
-	static E_RESULT_CODE WriteFilesTableInfo(std::ofstream& packageFile, std::vector<TPackageFileEntryInfo>&& filesTable) TDE2_NOEXCEPT
+	static E_RESULT_CODE ReadSkeletonData(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options, const aiMesh* pMesh) TDE2_NOEXCEPT
 	{
-		for (auto&& currFileEntry : filesTable)
-		{
-			uint64_t filenameLength = currFileEntry.mFilename.length();
-			packageFile.write(reinterpret_cast<char*>(&filenameLength), sizeof(uint64_t));
-			packageFile.write(currFileEntry.mFilename.data(), filenameLength);
+		const aiBone* pCurrBone = nullptr;
 
-			packageFile.write(reinterpret_cast<char*>(&currFileEntry.mDataBlockOffset), sizeof(currFileEntry.mDataBlockOffset));
-			packageFile.write(reinterpret_cast<char*>(&currFileEntry.mDataBlockSize), sizeof(currFileEntry.mDataBlockSize));
+		E_RESULT_CODE result = RC_OK;
+
+		CScopedPtr<CSkeleton> pSkeleton 
+		{
+			dynamic_cast<CSkeleton*>(CreateSkeleton(pEngineCore->GetSubsystem<IResourceManager>(), pEngineCore->GetSubsystem<IGraphicsContext>(), "NewSkeleton.skeleton", result))
+		};
+
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		pSkeleton->SetInvBindPoseUsing(true);
+
+		std::unordered_map<U32, std::string> jointLinksInfo;
+
+		for (U32 i = 0; i < pMesh->mNumBones; ++i)
+		{
+			pCurrBone = pMesh->mBones[i];
+			if (!pCurrBone)
+			{
+				continue;
+			}
+
+			if (auto jointIdResult = pSkeleton->CreateJoint(pCurrBone->mName.C_Str()))
+			{
+				jointLinksInfo[jointIdResult.Get()] = pCurrBone->mNode->mParent->mName.C_Str();
+
+				if (TJoint* pJoint = pSkeleton->GetJoint(jointIdResult.Get()))
+				{
+					pJoint->mInvBindTransform = ConvertAssimpMatrix(pCurrBone->mOffsetMatrix);
+				}
+			}
+		}
+
+		/// \note Generate links between joints
+		pSkeleton->ForEachJoint([pSkeleton, &jointLinksInfo](TJoint* pJoint)
+		{
+			if (auto pParentJoint = pSkeleton->GetJointByName(jointLinksInfo[pJoint->mIndex]))
+			{
+				pJoint->mParentIndex = pParentJoint->mIndex;
+			}
+		});
+
+		/// \note Write down the resource into file sytem
+		if (IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
+		{
+			auto&& skeletonFilePath = fs::path(filePath).replace_extension("skeleton").string();
+
+			auto skeletonFileResult = pFileSystem->Open<IYAMLFileWriter>(skeletonFilePath, true);
+			if (skeletonFileResult.HasError())
+			{
+				return skeletonFileResult.GetError();
+			}
+
+			if (IYAMLFileWriter* pSkeletonArchiveWriter = pFileSystem->Get<IYAMLFileWriter>(skeletonFileResult.Get()))
+			{
+				if (RC_OK != (result = pSkeleton->Save(pSkeletonArchiveWriter)))
+				{
+					return result;
+				}
+
+				pSkeletonArchiveWriter->Close();
+			}
 		}
 
 		return RC_OK;
 	}
 
 
-	static E_RESULT_CODE ProcessSingleMeshFile(const std::string& filePath, const TUtilityOptions& options) TDE2_NOEXCEPT
+	static E_RESULT_CODE ProcessSingleMeshFile(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options) TDE2_NOEXCEPT
 	{
+		Assimp::Importer importer;
+		
+		const aiScene *pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PopulateArmatureData);
+		if (!pScene)
+		{
+			return RC_FAIL;
+		}
+
+		if (pScene->HasMeshes())
+		{
+			E_RESULT_CODE result = ReadSkeletonData(pEngineCore, filePath, options, pScene->mMeshes[0]);
+			if (RC_OK != result)
+			{
+				return result;
+			}
+		}
+
+		for (U32 i = 0; i < pScene->mNumMeshes; ++i)
+		{
+			auto pMesh = pScene->mMeshes[i];
+
+		}
+
 		return RC_OK;
 	}
 
 
-	E_RESULT_CODE ProcessMeshFiles(std::vector<std::string>&& files, const TUtilityOptions& options) TDE2_NOEXCEPT
+	E_RESULT_CODE ProcessMeshFiles(IEngineCore* pEngineCore, std::vector<std::string>&& files, const TUtilityOptions& options) TDE2_NOEXCEPT
 	{
 		if (files.empty())
 		{
@@ -205,7 +295,7 @@ namespace TDEngine2
 
 		for (auto&& currFilePath : files)
 		{
-			result = result | ProcessSingleMeshFile(currFilePath, options);
+			result = result | ProcessSingleMeshFile(pEngineCore, currFilePath, options);
 		}
 
 		return result;

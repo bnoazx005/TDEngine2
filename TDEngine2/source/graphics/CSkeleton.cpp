@@ -61,8 +61,6 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mJoints.push_back({ 0, -1, "Root", IdentityMatrix4 }); /// \note Add default root node
-
 		mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
 
 		mIsInitialized = true;
@@ -149,7 +147,7 @@ namespace TDEngine2
 					pWriter->SetInt32(TSkeletonArchiveKeys::TJointsGroup::mParentIndexKey, currJoint.mParentIndex);
 					pWriter->SetString(TSkeletonArchiveKeys::TJointsGroup::mNameKey, currJoint.mName);
 
-					pWriter->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey, true);
+					pWriter->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey);
 					{
 						SaveMatrix4(pWriter, currJoint.mLocalBindTransform);
 					}
