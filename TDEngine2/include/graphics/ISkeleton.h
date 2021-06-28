@@ -71,11 +71,19 @@ namespace TDEngine2
 			TDE2_API virtual void ForEachChildJoint(U32 jointIndex, const std::function<void(TJoint*)>& action = nullptr) = 0;
 
 			/*!
-				\param The method returns a joint with specified identifier, pass 0 to get a root joint
-				\return A pointer to TJoint or an error code if there is no a joint with the given identifier
+				\brief The method sets up a flag that determines whether inverted or local bind poses are stored 
 			*/
 
-			TDE2_API virtual TResult<TJoint*> GetJoint(U32 id) = 0;
+			TDE2_API virtual void SetInvBindPoseUsing(bool flag) = 0;
+
+			/*!
+				\param The method returns a joint with specified identifier, pass 0 to get a root joint
+				\return A pointer to TJoint or nullptr if there is no joint with given identifier
+			*/
+
+			TDE2_API virtual TJoint* GetJoint(U32 id) = 0;
+
+			TDE2_API virtual TJoint* GetJointByName(const std::string& name) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISkeleton)
 	};

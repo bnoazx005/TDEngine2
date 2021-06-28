@@ -94,12 +94,19 @@ namespace TDEngine2
 			TDE2_API void ForEachChildJoint(U32 jointIndex, const std::function<void(TJoint*)>& action = nullptr) override;
 
 			/*!
+				\brief The method sets up a flag that determines whether inverted or local bind poses are stored
+			*/
+
+			TDE2_API void SetInvBindPoseUsing(bool flag) override;
+
+			/*!
 				\param The method returns a joint with specified identifier, pass 0 to get a root joint
 				\return A pointer to TJoint or an error code if there is no a joint with the given identifier
 			*/
 
-			TDE2_API TResult<TJoint*> GetJoint(U32 id) override;
+			TDE2_API TJoint* GetJoint(U32 id) override;
 
+			TDE2_API TJoint* GetJointByName(const std::string& name) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkeleton)
 
@@ -108,6 +115,8 @@ namespace TDEngine2
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			std::vector<TJoint> mJoints;
+
+			bool mShouldStoreInvBindPoses = false;
 	};
 
 

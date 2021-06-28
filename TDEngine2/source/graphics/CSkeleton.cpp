@@ -21,6 +21,8 @@ namespace TDEngine2
 			static const std::string mNameKey;
 			static const std::string mBindTransformKey;
 		};
+
+		static const std::string mStoresInvBindFlagKey;
 	};
 
 
@@ -30,6 +32,8 @@ namespace TDEngine2
 	const std::string TSkeletonArchiveKeys::TJointsGroup::mParentIndexKey = "parent_id";
 	const std::string TSkeletonArchiveKeys::TJointsGroup::mNameKey = "name";
 	const std::string TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey = "bind_transform";
+
+	const std::string TSkeletonArchiveKeys::mStoresInvBindFlagKey = "stores_inv_bind_poses";
 
 
 	static TMatrix4 ComputeInvBindTransform(const std::vector<TJoint>& joints)
@@ -109,7 +113,14 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+		mShouldStoreInvBindPoses = pReader->GetBool(TSkeletonArchiveKeys::mStoresInvBindFlagKey);
+
 		TDE2_ASSERT(!mJoints.empty());
+
+		if (mShouldStoreInvBindPoses) /// \note Don't need postLoad because matrices were already inverted and computed previously
+		{
+			return RC_OK;
+		}
 
 		return _postLoad();
 	}
@@ -149,6 +160,8 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
+		pWriter->SetBool(TSkeletonArchiveKeys::mStoresInvBindFlagKey, mShouldStoreInvBindPoses);
+
 		return RC_OK;
 	}
 
@@ -160,7 +173,7 @@ namespace TDEngine2
 		}
 
 		auto&& it = std::find_if(mJoints.cbegin(), mJoints.cend(), [&name](const TJoint& joint) { return name == joint.mName; });
-		if (it == mJoints.cend())
+		if (it != mJoints.cend())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
@@ -220,15 +233,21 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-	
-	TResult<TJoint*> CSkeleton::GetJoint(U32 id)
-	{
-		if (id >= static_cast<U32>(mJoints.size()))
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
-		}
 
-		return Wrench::TOkValue<TJoint*>(&mJoints[id]);
+	void CSkeleton::SetInvBindPoseUsing(bool flag)
+	{
+		mShouldStoreInvBindPoses = flag;
+	}
+	
+	TJoint* CSkeleton::GetJoint(U32 id)
+	{
+		return (id >= static_cast<U32>(mJoints.size())) ? nullptr : &mJoints[id];
+	}
+
+	TJoint* CSkeleton::GetJointByName(const std::string& name)
+	{
+		auto it = std::find_if(mJoints.begin(), mJoints.end(), [&name](const TJoint& joint) { return name == joint.mName; });
+		return (it == mJoints.end()) ? nullptr : &*it;
 	}
 
 	void CSkeleton::ForEachJoint(const std::function<void(TJoint*)>& action)
