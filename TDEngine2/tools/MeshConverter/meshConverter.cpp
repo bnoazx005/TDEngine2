@@ -194,7 +194,7 @@ namespace TDEngine2
 
 		pSkeleton->SetInvBindPoseUsing(true);
 
-		std::unordered_map<U32, std::string> jointLinksInfo;
+		std::unordered_map<U32, std::string> jointLinksInfo; /// U32 is joint index, std::string contains parent's name
 
 		for (U32 i = 0; i < pMesh->mNumBones; ++i)
 		{

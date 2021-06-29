@@ -85,6 +85,8 @@ namespace TDEngine2
 
 		TJoint tmpJoint;
 
+		mShouldStoreInvBindPoses = pReader->GetBool(TSkeletonArchiveKeys::mStoresInvBindFlagKey);
+
 		pReader->BeginGroup(TSkeletonArchiveKeys::mJointsGroupKey);
 		{
 			while (pReader->HasNextItem())
@@ -99,7 +101,7 @@ namespace TDEngine2
 					{
 						if (auto matrixLoadResult = LoadMatrix4(pReader))
 						{
-							tmpJoint.mLocalBindTransform = matrixLoadResult.Get();
+							(mShouldStoreInvBindPoses ? tmpJoint.mInvBindTransform : tmpJoint.mLocalBindTransform) = matrixLoadResult.Get();
 						}
 					}
 					pReader->EndGroup();
@@ -110,8 +112,6 @@ namespace TDEngine2
 			}
 		}
 		pReader->EndGroup();
-
-		mShouldStoreInvBindPoses = pReader->GetBool(TSkeletonArchiveKeys::mStoresInvBindFlagKey);
 
 		TDE2_ASSERT(!mJoints.empty());
 
@@ -149,7 +149,7 @@ namespace TDEngine2
 
 					pWriter->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey);
 					{
-						SaveMatrix4(pWriter, currJoint.mLocalBindTransform);
+						SaveMatrix4(pWriter, mShouldStoreInvBindPoses ? currJoint.mInvBindTransform : currJoint.mLocalBindTransform);
 					}
 					pWriter->EndGroup();
 				}
