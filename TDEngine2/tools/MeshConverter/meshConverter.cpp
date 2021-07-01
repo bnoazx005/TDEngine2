@@ -177,16 +177,11 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE ReadSkeletonData(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options, const aiMesh* pMesh) TDE2_NOEXCEPT
+	static E_RESULT_CODE ReadSkeletonData(IEngineCore* pEngineCore, const CScopedPtr<CSkeleton>& pSkeleton, const std::string& filePath, const TUtilityOptions& options, const aiMesh* pMesh) TDE2_NOEXCEPT
 	{
 		const aiBone* pCurrBone = nullptr;
 
 		E_RESULT_CODE result = RC_OK;
-
-		CScopedPtr<CSkeleton> pSkeleton 
-		{
-			dynamic_cast<CSkeleton*>(CreateSkeleton(pEngineCore->GetSubsystem<IResourceManager>(), pEngineCore->GetSubsystem<IGraphicsContext>(), "NewSkeleton.skeleton", result))
-		};
 
 		if (RC_OK != result)
 		{
@@ -264,9 +259,59 @@ namespace TDEngine2
 	};
 
 
-	static TMeshDataEntity ReadMeshData(const aiScene* pScene, const aiMesh* pMesh, const TUtilityOptions& options)
+	static std::tuple<std::vector<F32>, std::vector<std::string>> ReadVertexJointData(const aiScene* pScene, const aiMesh* pMesh, U32 vertexId)
+	{
+		std::vector<F32> weights;
+		std::vector<std::string> indices;
+
+		for (U32 i = 0; i < pMesh->mNumBones; ++i)
+		{
+			auto pCurrBone = pMesh->mBones[i];
+
+			for (U32 k = 0; k < pCurrBone->mNumWeights; ++k)
+			{
+				auto& weight = pCurrBone->mWeights[k];
+
+				if (static_cast<U32>(weight.mVertexId) != vertexId)
+				{
+					continue;
+				}
+
+				indices.push_back(pCurrBone->mName.C_Str());
+				weights.push_back(weight.mWeight);
+			}
+		}
+
+		return { weights, indices };
+	}
+
+
+	static std::vector<U16> ResolveBoneIndices(const CScopedPtr<CSkeleton>& pSkeleton, const std::vector<std::string>& boneIdentifiers)
+	{
+		std::vector<U16> resolvedIndices;
+
+		for (const std::string& boneId : boneIdentifiers)
+		{
+			auto pJoint = pSkeleton->GetJointByName(boneId);
+			if (!pJoint)
+			{
+				TDE2_ASSERT(false);
+				continue;
+			}
+
+			resolvedIndices.push_back(pJoint->mIndex);
+		}
+
+		return resolvedIndices;
+	}
+
+
+	static TMeshDataEntity ReadMeshData(const aiScene* pScene, const aiMesh* pMesh, const CScopedPtr<CSkeleton>& pSkeleton, const TUtilityOptions& options)
 	{
 		TMeshDataEntity meshData;
+
+		std::vector<F32> boneWeights;
+		std::vector<std::string> boneIndices;
 
 		for (U32 i = 0; i < pMesh->mNumVertices; ++i)
 		{
@@ -296,6 +341,13 @@ namespace TDEngine2
 			}
 
 			/// \todo Add retrieving information about joints
+			std::tie(boneWeights, boneIndices) = ReadVertexJointData(pScene, pMesh, i);
+
+			if (!options.mShouldSkipJoints && !boneWeights.empty())
+			{
+				meshData.mJointWeights.push_back(boneWeights);
+				meshData.mJointIndices.push_back(ResolveBoneIndices(pSkeleton, boneIndices));
+			}
 		}
 
 		for (U32 i = 0; i < pMesh->mNumFaces; ++i)
@@ -545,9 +597,16 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		E_RESULT_CODE result = RC_OK;
+
+		CScopedPtr<CSkeleton> pSkeleton
+		{
+			dynamic_cast<CSkeleton*>(CreateSkeleton(pEngineCore->GetSubsystem<IResourceManager>(), pEngineCore->GetSubsystem<IGraphicsContext>(), "NewSkeleton.skeleton", result))
+		};
+
 		if (pScene->HasMeshes())
 		{
-			E_RESULT_CODE result = ReadSkeletonData(pEngineCore, filePath, options, pScene->mMeshes[0]);
+			E_RESULT_CODE result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene->mMeshes[0]);
 			if (RC_OK != result)
 			{
 				return result;
@@ -568,10 +627,8 @@ namespace TDEngine2
 				continue;
 			}
 
-			meshes.emplace_back(ReadMeshData(pScene, pMesh, options));
+			meshes.emplace_back(ReadMeshData(pScene, pMesh, pSkeleton, options));
 		}
-
-		E_RESULT_CODE result = RC_OK;
 
 		auto&& originalPath = fs::path(filePath);
 
