@@ -92,7 +92,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBinaryFileWriter::_onInit()
 	{
-		return RC_OK;
+		return _getOutputStream()->Reset(true);
 	}
 
 	E_RESULT_CODE CBinaryFileWriter::_onFree()

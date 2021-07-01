@@ -30,6 +30,16 @@ namespace TDEngine2
 			TDE2_API virtual U32 GetPosition() const = 0;
 
 			/*!
+				\brief The method reopens current stream and resets its state
+
+				\param[in] isBinaryMode The flag defines whether the stream is binary or not
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Reset(bool isBinaryMode = false) = 0;
+
+			/*!
 				\brief The method returns true if the stream is opened and ready to use
 				\return The method returns true if the stream is opened and ready to use
 			*/
@@ -49,16 +59,6 @@ namespace TDEngine2
 	class IInputStream: public virtual IStream
 	{
 		public:
-			/*!
-				\brief The method reopens current stream and resets its state
-				
-				\param[in] isBinaryMode The flag defines whether the stream is binary or not
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Reset(bool isBinaryMode = false) = 0;
-
 			/*!
 				\brief The method reads a continuous block of data of specified size into a given buffer
 
@@ -240,6 +240,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(const std::string& path);
+
+			/*!
+				\brief The method reopens current stream and resets its state
+
+				\param[in] isBinaryMode The flag defines whether the stream is binary or not
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Reset(bool isBinaryMode = false) override;
 
 			/*!
 				\brief The method frees all memory occupied by the object

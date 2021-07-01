@@ -205,6 +205,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CFileOutputStream::Reset(bool isBinaryMode)
+	{
+		if (mInternalStream.is_open())
+		{
+			mInternalStream.close();
+		}
+
+		if (isBinaryMode)
+		{
+			mInternalStream.open(mPath, std::ios::binary);
+		}
+		else
+		{
+			mInternalStream.open(mPath);
+		}
+
+		if (!mInternalStream.is_open())
+		{
+			return RC_FILE_NOT_FOUND;
+		}
+
+		return IsValid() ? RC_OK : RC_FAIL;
+	}
+
 	E_RESULT_CODE CFileOutputStream::Write(const void* pBuffer, U32 bufferSize)
 	{
 		if (!pBuffer || !bufferSize)
