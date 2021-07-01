@@ -78,7 +78,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		assert(id == 0x2F);
+		TDE2_ASSERT(id == 0x2F);
 
 		while (_readMeshEntryBlock(pMesh)) {}
 

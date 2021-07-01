@@ -14,7 +14,6 @@
 #include <cstring>
 #include <vector>
 #include <iostream>
-#include <cassert>
 #include <functional>
 #include <array>
 #include <sstream>
@@ -280,6 +279,21 @@ namespace TDEngine2
 	*/
 
 	TDE2_API U64 Swap8Bytes(U64 value);
+
+
+	/*!
+		\brief The functions swaps the order of bytes for a given object
+	*/
+
+	template <typename T>
+	inline T SwapObjectBytes(T object)
+	{
+		T tmp(object);
+
+		std::reverse(reinterpret_cast<U8*>(&tmp), reinterpret_cast<U8*>(&tmp) + sizeof(T));
+
+		return tmp;
+	}
 
 
 	/*!
