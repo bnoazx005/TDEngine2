@@ -63,7 +63,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpCameraEntity->AddComponent<CAudioListenerComponent>();
 
-	mpResourceManager->Load<IStaticMesh>("hq.mesh");
+	//mpResourceManager->Load<IStaticMesh>("hq.mesh");
 
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto shadowCaster = pMeshEntity->AddComponent<CShadowCasterComponent>();

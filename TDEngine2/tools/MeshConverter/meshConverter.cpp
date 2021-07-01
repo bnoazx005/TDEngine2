@@ -260,7 +260,7 @@ namespace TDEngine2
 		std::vector<TVector4>         mColors;
 		std::vector<U32>              mFaces;
 		std::vector<std::vector<F32>> mJointWeights;
-		std::vector<std::vector<U32>> mJointIndices;
+		std::vector<std::vector<U16>> mJointIndices;
 	};
 
 
@@ -313,7 +313,7 @@ namespace TDEngine2
 
 	static E_RESULT_CODE WriteFileHeader(IBinaryFileWriter* pMeshFileWriter, U64 offset)
 	{
-		const U8 Version[4] = { 0, 1, 0, 0 }; /// \todo Move to header 
+		const U8 Version[4] = { 0, 0, 1, 0 }; /// \todo Move to header 
 
 		E_RESULT_CODE result = pMeshFileWriter->SetPosition(0);
 
@@ -328,27 +328,31 @@ namespace TDEngine2
 
 	static TResult<U64> WriteSingleMeshBlock(IBinaryFileWriter* pMeshFileWriter, U16 meshId, const TMeshDataEntity& meshEntity, const TUtilityOptions& options)
 	{
-		const U8 MeshBlockTag[2]             = { 0x4D, 0x48 };
-		const U8 MeshVerticesBlockTag[2]     = { 0x01, 0xCD };
-		const U8 MeshNormalsBlockTag[2]      = { 0xA1, 0x0E };
-		const U8 MeshTangentsBlockTag[2]     = { 0xA2, 0xDF };
-		const U8 MeshTexcoords0BlockTag[2]   = { 0x02, 0xF0 };
-		const U8 MeshJointWeightsBlockTag[2] = { 0xA4, 0x01 };
-		const U8 MeshJointIndicesBlockTag[2] = { 0xA5, 0x02 };
-		const U8 MeshFacesBlockTag[2]        = { 0x03, 0xFF };
+		const U16 MeshBlockTag             = 0x4D48;
+		const U16 MeshVerticesBlockTag     = 0x01CD;
+		const U16 MeshNormalsBlockTag      = 0xA10E;
+		const U16 MeshTangentsBlockTag     = 0xA2DF;
+		const U16 MeshTexcoords0BlockTag   = 0x02F0;
+		const U16 MeshJointWeightsBlockTag = 0xA401;
+		const U16 MeshJointIndicesBlockTag = 0xA502;
+		const U16 MeshFacesBlockTag        = 0x03FF;
 
 		E_RESULT_CODE result = RC_OK;
 
-		result = result | pMeshFileWriter->Write(MeshBlockTag, sizeof(MeshBlockTag));
+		result = result | pMeshFileWriter->Write(&MeshBlockTag, sizeof(MeshBlockTag));
 		result = result | pMeshFileWriter->Write(&meshId, sizeof(meshId));
 
-		const U32 meshInfo[3] { static_cast<U32>(meshEntity.mVertices.size()), static_cast<U32>(meshEntity.mFaces.size()), 0x0 };
-		result = result | pMeshFileWriter->Write(&meshInfo, sizeof(meshInfo));
+		const U32 vertexCount = static_cast<U32>(meshEntity.mVertices.size());
+		const U32 facesCount  = static_cast<U32>(meshEntity.mFaces.size());
+
+		result = result | pMeshFileWriter->Write(&vertexCount, sizeof(vertexCount));
+		result = result | pMeshFileWriter->Write(&facesCount, sizeof(facesCount));
+		result = result | pMeshFileWriter->Write(&vertexCount, sizeof(vertexCount)); /// \note Unused
 
 		U64 offset = 16; // \note 16 bytes is size of mesh's header that's written above
 		
 		/// \note Write vertices
-		result = result | pMeshFileWriter->Write(MeshVerticesBlockTag, sizeof(MeshVerticesBlockTag));
+		result = result | pMeshFileWriter->Write(&MeshVerticesBlockTag, sizeof(MeshVerticesBlockTag));
 		offset += sizeof(MeshVerticesBlockTag);
 
 		for (const TVector4& v : meshEntity.mVertices)
@@ -357,14 +361,14 @@ namespace TDEngine2
 			result = result | pMeshFileWriter->Write(&v.y, sizeof(F32));
 			result = result | pMeshFileWriter->Write(&v.z, sizeof(F32));
 			result = result | pMeshFileWriter->Write(&v.w, sizeof(F32));
-
-			offset += sizeof(F32) * 4;
 		}
+
+		offset += sizeof(F32) * 4 * static_cast<U64>(meshEntity.mVertices.size());
 
 		/// \note Write normal (optional chuch that can be omitted)
 		if (!options.mShouldSkipNormals)
 		{
-			result = result | pMeshFileWriter->Write(MeshNormalsBlockTag, sizeof(MeshNormalsBlockTag));
+			result = result | pMeshFileWriter->Write(&MeshNormalsBlockTag, sizeof(MeshNormalsBlockTag));
 			offset += sizeof(MeshNormalsBlockTag);
 
 			for (const TVector4& normal : meshEntity.mNormals)
@@ -381,7 +385,7 @@ namespace TDEngine2
 		/// \note Write tangents (optional)
 		if (!options.mShouldSkipTangents)
 		{
-			result = result | pMeshFileWriter->Write(MeshTangentsBlockTag, sizeof(MeshTangentsBlockTag));
+			result = result | pMeshFileWriter->Write(&MeshTangentsBlockTag, sizeof(MeshTangentsBlockTag));
 			offset += sizeof(MeshTangentsBlockTag);
 
 			for (const TVector4& tangent : meshEntity.mTangents)
@@ -396,13 +400,15 @@ namespace TDEngine2
 		}
 
 		/// \note Write first uv channel
-		result = result | pMeshFileWriter->Write(MeshTexcoords0BlockTag, sizeof(MeshTexcoords0BlockTag));
+		result = result | pMeshFileWriter->Write(&MeshTexcoords0BlockTag, sizeof(MeshTexcoords0BlockTag));
 		offset += sizeof(MeshTexcoords0BlockTag);
 
 		for (const TVector2& uv : meshEntity.mTexcoords)
 		{
 			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
 			result = result | pMeshFileWriter->Write(&uv.y, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32)); /// \note Unused
+			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
 
 			offset += sizeof(F32) * 2;
 		}
@@ -410,38 +416,44 @@ namespace TDEngine2
 		/// \note Write joints weights (optional)
 		if (!options.mShouldSkipJoints)
 		{
-			result = result | pMeshFileWriter->Write(MeshJointWeightsBlockTag, sizeof(MeshJointWeightsBlockTag));
+			result = result | pMeshFileWriter->Write(&MeshJointWeightsBlockTag, sizeof(MeshJointWeightsBlockTag));
 			offset += sizeof(MeshJointWeightsBlockTag);
 
 			for (auto&& jointWeights : meshEntity.mJointWeights)
 			{
+				const U16 weightsCount = static_cast<U16>(jointWeights.size());
+				result = result | pMeshFileWriter->Write(&weightsCount, sizeof(U16));
+
 				for (F32 currWeight : jointWeights)
 				{
 					result = result | pMeshFileWriter->Write(&currWeight, sizeof(F32));
 				}
 
-				offset += sizeof(F32) * static_cast<U64>(jointWeights.size());
+				offset += sizeof(U16) + sizeof(F32) * static_cast<U64>(weightsCount);
 			}
 
 			/// \note Write joint indices
-			result = result | pMeshFileWriter->Write(MeshJointIndicesBlockTag, sizeof(MeshJointIndicesBlockTag));
+			result = result | pMeshFileWriter->Write(&MeshJointIndicesBlockTag, sizeof(MeshJointIndicesBlockTag));
 			offset += sizeof(MeshJointIndicesBlockTag);
 
 			for (auto&& jointIndices : meshEntity.mJointIndices)
 			{
-				for (U32 currJointIndex : jointIndices)
+				const U16 indicesCount = static_cast<U16>(jointIndices.size());
+				result = result | pMeshFileWriter->Write(&indicesCount, sizeof(U16));
+
+				for (U16 currJointIndex : jointIndices)
 				{
-					result = result | pMeshFileWriter->Write(&currJointIndex, sizeof(U32));
+					result = result | pMeshFileWriter->Write(&currJointIndex, sizeof(currJointIndex));
 				}
 
-				offset += sizeof(U32) * static_cast<U64>(jointIndices.size());
+				offset += sizeof(U16) + sizeof(U16) * static_cast<U64>(indicesCount);
 			}
 		}
 
 		/// \note Write faces information
 		const U16 indexFormat = meshEntity.mFaces.size() < 65536 ? sizeof(U16) : sizeof(U32);
 
-		result = result | pMeshFileWriter->Write(MeshFacesBlockTag, sizeof(MeshFacesBlockTag));
+		result = result | pMeshFileWriter->Write(&MeshFacesBlockTag, sizeof(MeshFacesBlockTag));
 		offset += sizeof(MeshFacesBlockTag);
 
 		result = result | pMeshFileWriter->Write(&indexFormat, sizeof(indexFormat));
@@ -466,11 +478,11 @@ namespace TDEngine2
 	/// returns offset to the end of the block or an error code
 	static TResult<U64> WriteGeometryBlock(IBinaryFileWriter* pMeshFileWriter, const std::vector<TMeshDataEntity>& meshes, const TUtilityOptions& options)
 	{
-		const U8 GeometryBlockTag[2] = { 0, 0x2F };
+		const U16 GeometryBlockTag = 0x2F;
 
 		E_RESULT_CODE result = pMeshFileWriter->SetPosition(16);
 		
-		result = result | pMeshFileWriter->Write(GeometryBlockTag, sizeof(GeometryBlockTag));
+		result = result | pMeshFileWriter->Write(&GeometryBlockTag, sizeof(GeometryBlockTag));
 
 		U64 offset = 0;
 
@@ -480,6 +492,7 @@ namespace TDEngine2
 			if (writeResult.HasError())
 			{
 				result = result | writeResult.GetError();
+				TDE2_ASSERT(false);
 			}
 
 			offset += writeResult.Get();

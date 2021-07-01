@@ -72,6 +72,11 @@ namespace TDEngine2
 
 		// create shared buffers for the mesh
 		auto&& vertices = _toArrayOfStructsDataLayoutInternal();
+		if (vertices.empty())
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
 
 		auto vertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, vertices.size(), &vertices[0]);
 		if (vertexBufferResult.HasError())

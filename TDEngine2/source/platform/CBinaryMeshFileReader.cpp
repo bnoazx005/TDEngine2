@@ -6,7 +6,7 @@
 
 namespace TDEngine2
 {
-	const U32 CBinaryMeshFileReader::mMeshVersion = 256; // 00.01.0000 
+	const U32 CBinaryMeshFileReader::mMeshVersion = 0x00010000; // 00.01.0000 
 
 
 	CBinaryMeshFileReader::CBinaryMeshFileReader() :
@@ -96,7 +96,7 @@ namespace TDEngine2
 			return false;
 		}
 
-		if (tag != 0x484D)
+		if (tag != 0x4D48)
 		{
 			SetPosition(GetPosition() - 2); // roll back to previous position
 			return false;
@@ -137,7 +137,7 @@ namespace TDEngine2
 			TDE2_ASSERT(false);
 			return false;
 		}
-		TDE2_ASSERT(tag == 0xCD01);
+		TDE2_ASSERT(tag == 0x01CD);
 
 		auto pStaticMesh = dynamic_cast<IStaticMesh*>(pMesh);
 
@@ -145,7 +145,11 @@ namespace TDEngine2
 
 		for (U32 i = 0; i < vertexCount; ++i)
 		{
-			result = result | Read(&vecData, sizeof(TVector4));
+			result = result | Read(&vecData.x, sizeof(F32));
+			result = result | Read(&vecData.y, sizeof(F32));
+			result = result | Read(&vecData.z, sizeof(F32));
+			result = result | Read(&vecData.w, sizeof(F32));
+
 			pStaticMesh->AddPosition(vecData);
 		}
 
@@ -160,7 +164,11 @@ namespace TDEngine2
 		{
 			for (U32 i = 0; i < vertexCount; ++i)
 			{
-				result = result | Read(&vecData, sizeof(TVector4));
+				result = result | Read(&vecData.x, sizeof(F32));
+				result = result | Read(&vecData.y, sizeof(F32));
+				result = result | Read(&vecData.z, sizeof(F32));
+				result = result | Read(&vecData.w, sizeof(F32));
+
 				pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
 			}
 
@@ -176,7 +184,11 @@ namespace TDEngine2
 		{
 			for (U32 i = 0; i < vertexCount; ++i)
 			{
-				result = result | Read(&vecData, sizeof(TVector4));
+				result = result | Read(&vecData.x, sizeof(F32));
+				result = result | Read(&vecData.y, sizeof(F32));
+				result = result | Read(&vecData.z, sizeof(F32));
+				result = result | Read(&vecData.w, sizeof(F32));
+
 				pStaticMesh->AddTangent(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
 			}
 
@@ -188,11 +200,15 @@ namespace TDEngine2
 			}
 		}
 
-		TDE2_ASSERT(tag == 0xF002);
+		TDE2_ASSERT(tag == 0x02F0);
 		
 		for (U32 i = 0; i < vertexCount; ++i)
 		{
-			result = result | Read(&vecData, sizeof(TVector4));
+			result = result | Read(&vecData.x, sizeof(F32));
+			result = result | Read(&vecData.y, sizeof(F32));
+			result = result | Read(&vecData.z, sizeof(F32));
+			result = result | Read(&vecData.w, sizeof(F32));
+
 			pStaticMesh->AddTexCoord0(TVector2(vecData.x, vecData.y));
 		}
 
@@ -202,7 +218,41 @@ namespace TDEngine2
 			TDE2_ASSERT(false);
 			return false;
 		}
-		TDE2_ASSERT(tag == 0xFF03);
+
+		if (0xA401 == tag) /// \note Read joint weights (this is an optional step)
+		{
+			for (U32 i = 0; i < vertexCount; ++i)
+			{
+				result = result | Read(&vecData.x, sizeof(F32));
+				result = result | Read(&vecData.y, sizeof(F32));
+				result = result | Read(&vecData.z, sizeof(F32));
+				result = result | Read(&vecData.w, sizeof(F32));
+
+				pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+			}
+
+			/// \note Read faces or joint indices
+			if ((result = Read(&tag, sizeof(U16))) != RC_OK)
+			{
+				TDE2_ASSERT(false);
+				return false;
+			}
+		}
+
+		if (0xA502 == tag) /// \note Read joint indices (this is an optional step)
+		{
+			for (U32 i = 0; i < vertexCount; ++i)
+			{
+				result = result | Read(&vecData.x, sizeof(F32));
+				result = result | Read(&vecData.y, sizeof(F32));
+				result = result | Read(&vecData.z, sizeof(F32));
+				result = result | Read(&vecData.w, sizeof(F32));
+
+				pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+			}
+		}
+
+		TDE2_ASSERT(tag == 0x03FF);
 		
 		U16 format = 0x0;
 		if ((result = Read(&format, sizeof(U16))) != RC_OK)
