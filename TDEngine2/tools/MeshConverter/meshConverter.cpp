@@ -177,7 +177,7 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE ReadSkeletonData(IEngineCore* pEngineCore, const CScopedPtr<CSkeleton>& pSkeleton, const std::string& filePath, const TUtilityOptions& options, const aiMesh* pMesh) TDE2_NOEXCEPT
+	static E_RESULT_CODE ReadSkeletonData(IEngineCore* pEngineCore, const CScopedPtr<CSkeleton>& pSkeleton, const std::string& filePath, const TUtilityOptions& options, const aiScene* pScene) TDE2_NOEXCEPT
 	{
 		const aiBone* pCurrBone = nullptr;
 
@@ -192,22 +192,47 @@ namespace TDEngine2
 
 		std::unordered_map<U32, std::string> jointLinksInfo; /// U32 is joint index, std::string contains parent's name
 
-		for (U32 i = 0; i < pMesh->mNumBones; ++i)
+		std::queue<aiNode*> nodesToVisit;
+		nodesToVisit.emplace(pScene->mRootNode);
+
+		/// \note Traverse the scene's hierarchy
+		while (!nodesToVisit.empty())
 		{
-			pCurrBone = pMesh->mBones[i];
-			if (!pCurrBone)
+			aiNode* pCurrNode = nodesToVisit.front();
+			nodesToVisit.pop();
+
+			for (U32 i = 0; i < pCurrNode->mNumMeshes; ++i)
 			{
-				continue;
+				aiMesh* pMesh = pScene->mMeshes[pCurrNode->mMeshes[i]];
+				if (!pMesh)
+				{
+					TDE2_ASSERT(false);
+					continue;
+				}
+
+				for (U32 i = 0; i < pMesh->mNumBones; ++i)
+				{
+					pCurrBone = pMesh->mBones[i];
+					if (!pCurrBone)
+					{
+						continue;
+					}
+
+					if (auto jointIdResult = pSkeleton->CreateJoint(pCurrBone->mName.C_Str()))
+					{
+						jointLinksInfo[jointIdResult.Get()] = pCurrBone->mNode->mParent->mName.C_Str();
+
+						if (TJoint* pJoint = pSkeleton->GetJoint(jointIdResult.Get()))
+						{
+							pJoint->mInvBindTransform = ConvertAssimpMatrix(pCurrBone->mOffsetMatrix);
+						}
+					}
+				}
 			}
 
-			if (auto jointIdResult = pSkeleton->CreateJoint(pCurrBone->mName.C_Str()))
+			for (U32 i = 0; i < pCurrNode->mNumChildren; ++i)
 			{
-				jointLinksInfo[jointIdResult.Get()] = pCurrBone->mNode->mParent->mName.C_Str();
-
-				if (TJoint* pJoint = pSkeleton->GetJoint(jointIdResult.Get()))
-				{
-					pJoint->mInvBindTransform = ConvertAssimpMatrix(pCurrBone->mOffsetMatrix);
-				}
+				nodesToVisit.push(pCurrNode->mChildren[i]);
 			}
 		}
 
@@ -604,9 +629,9 @@ namespace TDEngine2
 			dynamic_cast<CSkeleton*>(CreateSkeleton(pEngineCore->GetSubsystem<IResourceManager>(), pEngineCore->GetSubsystem<IGraphicsContext>(), "NewSkeleton.skeleton", result))
 		};
 
-		if (pScene->HasMeshes())
+		if (pScene->HasAnimations())
 		{
-			E_RESULT_CODE result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene->mMeshes[0]);
+			E_RESULT_CODE result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene);
 			if (RC_OK != result)
 			{
 				return result;
