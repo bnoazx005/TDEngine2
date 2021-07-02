@@ -104,6 +104,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE AddPoint(const TKeyFrame& point);
+			
+			/*!
+				\brief The method does the same that AddPoint but also can update information of already existing points
+			*/
+			
+			TDE2_API E_RESULT_CODE ReplacePoint(const TKeyFrame& point);
 
 			TDE2_API E_RESULT_CODE RemovePoint(U32 index);
 
@@ -121,6 +127,8 @@ namespace TDEngine2
 			TDE2_API void UpdateBounds();
 
 			TDE2_API TKeyFrame* GetPoint(U32 index);
+
+			TDE2_API U32 GetPointsCount() const;
 
 			TDE2_API const TRectF32& GetBounds() const;
 		protected:

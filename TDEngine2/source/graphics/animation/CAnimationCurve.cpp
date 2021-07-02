@@ -190,6 +190,23 @@ namespace TDEngine2
 		return _updateBounds(); // \note Update boundaries of the curve
 	}
 
+	E_RESULT_CODE CAnimationCurve::ReplacePoint(const TKeyFrame& point)
+	{
+		// \note Check up if there is same point already
+		auto it = std::find_if(mPoints.begin(), mPoints.end(), [t = point.mTime](const TKeyFrame& other) { return CMathUtils::Abs(other.mTime - t) < 1e-3f; });
+		if (it == mPoints.end())
+		{
+			// \note Insert a new point, but keep mPoints array in sorted state
+			mPoints.insert(std::find_if(mPoints.begin(), mPoints.end(), [t = point.mTime](const TKeyFrame& other) { return other.mTime > t; }), point);
+
+			return _updateBounds(); // \note Update boundaries of the curve
+		}
+
+		*it = point;
+
+		return _updateBounds();
+	}
+
 	E_RESULT_CODE CAnimationCurve::RemovePoint(U32 index)
 	{
 		if (index >= static_cast<U32>(mPoints.size()))
@@ -256,6 +273,11 @@ namespace TDEngine2
 		}
 
 		return &mPoints[index];
+	}
+
+	U32 CAnimationCurve::GetPointsCount() const
+	{
+		return static_cast<U32>(mPoints.size());
 	}
 
 	I32 CAnimationCurve::_getFrameIndexByTime(F32 time) const
