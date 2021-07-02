@@ -15,11 +15,11 @@ TEST_CASE("TRect Tests")
 
 		std::vector<std::pair<TVector2, bool>> testSamples
 		{
-			{ { 10.0f, -10.0f }, true },
+			{ { 10.0f, 10.0f }, true },
 			{ { 0.0f, 0.0f }, false },
 			{ { 100.0f, -100.0f }, false },
 			{ { 10.0f, -105.0f }, false },
-			{ { 99.5f, -99.5f }, true }
+			{ { 99.5f, 99.5f }, true }
 		};
 
 		for (auto iter = testSamples.cbegin(); iter != testSamples.cend(); ++iter)
@@ -42,20 +42,20 @@ TEST_CASE("TRect Tests")
 		REQUIRE(IsOverlapped(left, left) == true);
 	}
 
-	SECTION("TestPointToNormalized_PassRectAndOutsidePoint_ReturnsZeroVector2")
+	SECTION("TestPointToNormalized_PassRectAndOutsidePoint_ReturnsClampedVector")
 	{
 		TRectF32 rect { 0.0f, 0.0f, 10.0f, 10.0f };
 
 		TVector2 outsidePoint { 10.0f, 10.0f };
 
-		REQUIRE(PointToNormalizedCoords(rect, outsidePoint) == ZeroVector2);
+		REQUIRE(PointToNormalizedCoords(rect, outsidePoint) == TVector2(1.0f));
 	}
 
 	SECTION("TestPointToNormalized_PassRectAndInternalPoint_ReturnsNormalizedCoords")
 	{
 		TRectF32 rect { 0.0f, 0.0f, 10.0f, 10.0f };
 
-		TVector2 internalPoint { 5.0f, -5.0f };
+		TVector2 internalPoint { 5.0f, 5.0f };
 
 		REQUIRE(PointToNormalizedCoords(rect, internalPoint) == TVector2(0.5f, 0.5f));
 	}

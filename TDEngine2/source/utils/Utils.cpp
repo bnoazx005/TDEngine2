@@ -36,6 +36,11 @@ namespace TDEngine2
 			   (value & 0xFF00000000000000) >> 56;
 	}
 
+	TDE2_API U8* SwapObjectBytes(U8* pPtr, U32 size)
+	{
+		std::reverse(pPtr, pPtr + size);
+		return pPtr;
+	}
 
 	std::string CStringUtils::RemoveSingleLineComments(const std::string& source, const std::string& commentPrefixStr)
 	{

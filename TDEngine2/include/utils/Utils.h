@@ -296,6 +296,9 @@ namespace TDEngine2
 	}
 
 
+	TDE2_API U8* SwapObjectBytes(U8* pPtr, U32 size);
+
+
 	/*!
 		\brief Scoped enums helpers
 	*/
