@@ -7,6 +7,7 @@
 namespace TDEngine2
 {
 	const U32 CBinaryMeshFileReader::mMeshVersion = 0x00010000; // 00.01.0000 
+	const U8 CBinaryMeshFileReader::mMaxJointsCountPerVertex = 4; 
 
 
 	CBinaryMeshFileReader::CBinaryMeshFileReader() :
@@ -92,7 +93,6 @@ namespace TDEngine2
 		U16 tag = 0x0;
 		if ((result = Read(&tag, 2)) != RC_OK)
 		{
-			TDE2_ASSERT(false);
 			return false;
 		}
 
@@ -221,14 +221,25 @@ namespace TDEngine2
 
 		if (0xA401 == tag) /// \note Read joint weights (this is an optional step)
 		{
+			std::array<F32, mMaxJointsCountPerVertex> tmpJointsWeights;
+			U16 jointsCount = 0;
+
 			for (U32 i = 0; i < vertexCount; ++i)
 			{
-				result = result | Read(&vecData.x, sizeof(F32));
-				result = result | Read(&vecData.y, sizeof(F32));
-				result = result | Read(&vecData.z, sizeof(F32));
-				result = result | Read(&vecData.w, sizeof(F32));
+				result = result | Read(&jointsCount, sizeof(U16));
 
-				pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+				if (!jointsCount)
+				{
+					TDE2_ASSERT(false);
+					continue;
+				}
+
+				for (U16 k = 0; k < jointsCount; ++k)
+				{
+					result = result | Read(&tmpJointsWeights[k], sizeof(F32));
+				}
+
+				//pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
 			}
 
 			/// \note Read faces or joint indices
@@ -241,14 +252,30 @@ namespace TDEngine2
 
 		if (0xA502 == tag) /// \note Read joint indices (this is an optional step)
 		{
+			std::array<U16, mMaxJointsCountPerVertex> tmpJointsIndices;
+			U16 jointsCount = 0;
+
 			for (U32 i = 0; i < vertexCount; ++i)
 			{
-				result = result | Read(&vecData.x, sizeof(F32));
-				result = result | Read(&vecData.y, sizeof(F32));
-				result = result | Read(&vecData.z, sizeof(F32));
-				result = result | Read(&vecData.w, sizeof(F32));
+				result = result | Read(&jointsCount, sizeof(U16));
 
-				pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+				if (!jointsCount)
+				{
+					TDE2_ASSERT(false);
+					continue;
+				}
+
+				for (U16 k = 0; k < jointsCount; ++k)
+				{
+					result = result | Read(&tmpJointsIndices[k], sizeof(U16));
+				}
+			}
+
+			/// \note Read faces tag
+			if ((result = Read(&tag, sizeof(U16))) != RC_OK)
+			{
+				TDE2_ASSERT(false);
+				return false;
 			}
 		}
 

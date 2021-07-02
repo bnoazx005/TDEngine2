@@ -69,5 +69,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _readSceneDescBlock(IMesh*& pMesh, U32 offset);
 		protected:
 			static const U32 mMeshVersion;
+			static const U8 mMaxJointsCountPerVertex;
 	};
 }
