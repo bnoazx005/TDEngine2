@@ -273,6 +273,7 @@ namespace TDEngine2
 
 	struct TMeshDataEntity
 	{
+		std::string                   mName;
 		std::vector<TVector4>         mVertices;
 		std::vector<TVector4>         mNormals;
 		std::vector<TVector4>         mTangents;
@@ -337,6 +338,8 @@ namespace TDEngine2
 
 		std::vector<F32> boneWeights;
 		std::vector<std::string> boneIndices;
+
+		meshData.mName = pMesh->mName.C_Str();
 
 		for (U32 i = 0; i < pMesh->mNumVertices; ++i)
 		{
@@ -440,7 +443,7 @@ namespace TDEngine2
 			result = result | pMeshFileWriter->Write(&v.w, sizeof(F32));
 		}
 
-		offset += sizeof(F32) * 4 * static_cast<U64>(meshEntity.mVertices.size());
+		offset += sizeof(F32) * 4 * static_cast<U64>(vertexCount);
 
 		/// \note Write normal (optional chuch that can be omitted)
 		if (!options.mShouldSkipNormals)
@@ -454,9 +457,9 @@ namespace TDEngine2
 				result = result | pMeshFileWriter->Write(&normal.y, sizeof(F32));
 				result = result | pMeshFileWriter->Write(&normal.z, sizeof(F32));
 				result = result | pMeshFileWriter->Write(&normal.w, sizeof(F32));
-
-				offset += sizeof(F32) * 4;
 			}
+
+			offset += sizeof(F32) * 4 * static_cast<U64>(vertexCount);
 		}
 
 		/// \note Write tangents (optional)
@@ -471,9 +474,9 @@ namespace TDEngine2
 				result = result | pMeshFileWriter->Write(&tangent.y, sizeof(F32));
 				result = result | pMeshFileWriter->Write(&tangent.z, sizeof(F32));
 				result = result | pMeshFileWriter->Write(&tangent.w, sizeof(F32));
-
-				offset += sizeof(F32) * 4;
 			}
+
+			offset += sizeof(F32) * 4 * static_cast<U64>(vertexCount);
 		}
 
 		/// \note Write first uv channel
@@ -486,9 +489,9 @@ namespace TDEngine2
 			result = result | pMeshFileWriter->Write(&uv.y, sizeof(F32));
 			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32)); /// \note Unused
 			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
-
-			offset += sizeof(F32) * 2;
 		}
+
+		offset += sizeof(F32) * 4 * static_cast<U64>(vertexCount);
 
 		/// \note Write joints weights (optional)
 		if (!options.mShouldSkipJoints)
@@ -584,7 +587,90 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE SaveMeshFile(IEngineCore* pEngineCore, std::vector<TMeshDataEntity> meshes, const std::string& filePath, const TUtilityOptions& options)
+	typedef std::tuple<std::string, U16, U16> TSceneObjectInfo;
+
+
+	static std::vector<TSceneObjectInfo> GetObjectsList(const aiScene* pScene, const std::vector<TMeshDataEntity>& meshes)
+	{
+		std::vector<std::tuple<std::string, U16, U16>> objects;
+
+		std::queue<aiNode*> nodesToVisit;
+		nodesToVisit.emplace(pScene->mRootNode);
+
+		/// \note Traverse the scene's hierarchy
+		while (!nodesToVisit.empty())
+		{
+			aiNode* pCurrNode = nodesToVisit.front();
+			nodesToVisit.pop();
+
+			for (U32 i = 0; i < pCurrNode->mNumMeshes; ++i)
+			{
+				aiMesh* pMesh = pScene->mMeshes[pCurrNode->mMeshes[i]];
+				if (!pMesh)
+				{
+					TDE2_ASSERT(false);
+					continue;
+				}
+
+				auto meshIt = std::find_if(meshes.cbegin(), meshes.cend(), [meshId = pMesh->mName.C_Str()](const TMeshDataEntity& entity) { return meshId == entity.mName; });
+				auto parentIt = std::find_if(objects.cbegin(), objects.cend(), [nameId = pCurrNode->mParent->mName.C_Str()](auto&& entity) { return nameId == std::get<std::string>(entity); });
+
+				objects.emplace_back(pCurrNode->mName.C_Str(), 
+									(parentIt == objects.cend()) ? (std::numeric_limits<U16>::max)() : static_cast<U16>(std::distance(objects.cbegin(), parentIt)), ///< Parent id
+									(meshIt == meshes.cend()) ? (std::numeric_limits<U16>::max)() : static_cast<U16>(std::distance(meshes.cbegin(), meshIt))); /// Mesh id
+			}
+
+			for (U32 i = 0; i < pCurrNode->mNumChildren; ++i)
+			{
+				nodesToVisit.push(pCurrNode->mChildren[i]);
+			}
+		}
+
+		return objects;
+	}
+
+
+	static E_RESULT_CODE WriteSingleObjectInfo(IBinaryFileWriter* pMeshFileWriter, U16 objectId, const TSceneObjectInfo& objectInfo)
+	{
+		const U16 ObjectInfoBlockTag = 0xF0CD;
+
+		E_RESULT_CODE result = pMeshFileWriter->Write(&ObjectInfoBlockTag, sizeof(ObjectInfoBlockTag));
+
+		auto&& objectName = std::get<std::string>(objectInfo);
+
+		result = result | pMeshFileWriter->Write(objectName.c_str(), sizeof(C8) * static_cast<U32>(objectName.length()));
+
+		const U16 objectDataBlock[3] { objectId, std::get<1>(objectInfo), std::get<2>(objectInfo) }; /// objectId, parentId, meshId
+
+		result = result | pMeshFileWriter->Write(objectDataBlock, sizeof(objectDataBlock));
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE WriteSceneDescInfo(IBinaryFileWriter* pMeshFileWriter, const aiScene* pScene, const std::vector<TMeshDataEntity>& meshes, U64 offset, const TUtilityOptions& options)
+	{
+		const U16 SceneDescBlockTag = 0x12;
+
+		auto&& objects = GetObjectsList(pScene, meshes);
+
+		E_RESULT_CODE result = pMeshFileWriter->SetPosition(static_cast<U32>(offset));
+		result = result | pMeshFileWriter->Write(&SceneDescBlockTag, sizeof(SceneDescBlockTag));
+
+		const U16 objectsCount = static_cast<U16>(objects.size());
+
+		result = result | pMeshFileWriter->Write(&objectsCount, sizeof(objectsCount));
+
+		for (U16 i = 0; i < objectsCount; ++i)
+		{
+			result = result | WriteSingleObjectInfo(pMeshFileWriter, i, objects[i]);
+		}
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE SaveMeshFile(IEngineCore* pEngineCore, const aiScene* pScene, std::vector<TMeshDataEntity> meshes, const std::string& filePath, const TUtilityOptions& options)
 	{
 		if (IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
 		{
@@ -602,7 +688,10 @@ namespace TDEngine2
 					return writeDataResult.GetError();
 				}
 
-				WriteFileHeader(pMeshFileWriter, writeDataResult.Get() + 16); // 16 is size of the header
+				const U64 offset = writeDataResult.Get() + 16;
+
+				WriteFileHeader(pMeshFileWriter, offset); // 16 is size of the header
+				WriteSceneDescInfo(pMeshFileWriter, pScene, meshes, offset, options);
 
 				pMeshFileWriter->Close();
 			}
@@ -629,13 +718,9 @@ namespace TDEngine2
 			dynamic_cast<CSkeleton*>(CreateSkeleton(pEngineCore->GetSubsystem<IResourceManager>(), pEngineCore->GetSubsystem<IGraphicsContext>(), "NewSkeleton.skeleton", result))
 		};
 
-		if (pScene->HasAnimations())
+		if (RC_OK != (result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene)))
 		{
-			E_RESULT_CODE result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene);
-			if (RC_OK != result)
-			{
-				return result;
-			}
+			return result;
 		}
 
 		//std::queue<const aiMesh*> meshesQueue; \note It's not used for now
@@ -657,7 +742,7 @@ namespace TDEngine2
 
 		auto&& originalPath = fs::path(filePath);
 
-		if (RC_OK != (result = SaveMeshFile(pEngineCore, std::move(meshes), originalPath.parent_path().string() + originalPath.filename().replace_extension("mesh").string(), options)))
+		if (RC_OK != (result = SaveMeshFile(pEngineCore, pScene, std::move(meshes), originalPath.parent_path().string() + originalPath.filename().replace_extension("mesh").string(), options)))
 		{
 			return result;
 		}

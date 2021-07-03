@@ -73,7 +73,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
-	pMeshContainer->SetMeshName("TestAnim.mesh");
+	pMeshContainer->SetMeshName("TestAnim2.mesh");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
 
@@ -483,12 +483,15 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	//pDebugUtility->DrawCircle(ZeroVector3, Normalize(TVector3(1, 1, 0)), 5.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 16);
 	//pDebugUtility->DrawSphere(ZeroVector3, 10.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 3);
 
-	TResourceId skeletonId = mpResourceManager->Load<ISkeleton>("Test.skeleton");
+	TResourceId skeletonId = mpResourceManager->Load<ISkeleton>("TestAnim2.skeleton");
 	if (TResourceId::Invalid != skeletonId)
 	{
 		if (auto pSkeleton = mpResourceManager->GetResource<ISkeleton>(skeletonId))
 		{
-			
+			pSkeleton->ForEachJoint([pDebugUtility](TJoint* pJoint) 
+			{
+				pDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, pJoint->mInvBindTransform, 5.0f);
+			});
 		}
 	}
 

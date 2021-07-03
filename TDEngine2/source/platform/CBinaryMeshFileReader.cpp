@@ -139,8 +139,6 @@ namespace TDEngine2
 		}
 		TDE2_ASSERT(tag == 0x01CD);
 
-		auto pStaticMesh = dynamic_cast<IStaticMesh*>(pMesh);
-
 		TVector4 vecData;
 
 		for (U32 i = 0; i < vertexCount; ++i)
@@ -150,7 +148,7 @@ namespace TDEngine2
 			result = result | Read(&vecData.z, sizeof(F32));
 			result = result | Read(&vecData.w, sizeof(F32));
 
-			pStaticMesh->AddPosition(vecData);
+			pMesh->AddPosition(vecData);
 		}
 
 		/// \note Read normals (this is an optional step)
@@ -169,7 +167,7 @@ namespace TDEngine2
 				result = result | Read(&vecData.z, sizeof(F32));
 				result = result | Read(&vecData.w, sizeof(F32));
 
-				pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+				pMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
 			}
 
 			/// \note Read first uv channel
@@ -189,7 +187,7 @@ namespace TDEngine2
 				result = result | Read(&vecData.z, sizeof(F32));
 				result = result | Read(&vecData.w, sizeof(F32));
 
-				pStaticMesh->AddTangent(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+				pMesh->AddTangent(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
 			}
 
 			/// \note Read first uv channel
@@ -209,7 +207,7 @@ namespace TDEngine2
 			result = result | Read(&vecData.z, sizeof(F32));
 			result = result | Read(&vecData.w, sizeof(F32));
 
-			pStaticMesh->AddTexCoord0(TVector2(vecData.x, vecData.y));
+			pMesh->AddTexCoord0(TVector2(vecData.x, vecData.y));
 		}
 
 		/// \note read faces
@@ -228,7 +226,7 @@ namespace TDEngine2
 			{
 				result = result | Read(&jointsCount, sizeof(U16));
 
-				if (!jointsCount)
+				if (!jointsCount || jointsCount > mMaxJointsCountPerVertex)
 				{
 					TDE2_ASSERT(false);
 					continue;
@@ -259,7 +257,7 @@ namespace TDEngine2
 			{
 				result = result | Read(&jointsCount, sizeof(U16));
 
-				if (!jointsCount)
+				if (!jointsCount || jointsCount > mMaxJointsCountPerVertex)
 				{
 					TDE2_ASSERT(false);
 					continue;
@@ -298,7 +296,7 @@ namespace TDEngine2
 			result = result | Read(&faceIndices[1], format);
 			result = result | Read(&faceIndices[2], format);
 
-			pStaticMesh->AddFace(faceIndices);
+			pMesh->AddFace(faceIndices);
 		}
 
 		return true;

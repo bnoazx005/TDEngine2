@@ -45,43 +45,6 @@ namespace TDEngine2
 	class IMesh
 	{
 		public:
-			/*!
-				\brief The method process internal state of the mesh after it was actually loaded
-				
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-			
-			TDE2_API virtual E_RESULT_CODE PostLoad() = 0;
-
-			/*!
-				\brief The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
-				
-				\return The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
-			*/
-
-			TDE2_API virtual IVertexBuffer* GetSharedVertexBuffer() const = 0;
-			
-			/*!
-				\brief The method returns a pointer to IIndexBuffer which stores all index data of the mesh
-
-				\return The method returns a pointer to IIndexBuffer which stores all index data of the mesh
-			*/
-
-			TDE2_API virtual IIndexBuffer* GetSharedIndexBuffer() const = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMesh)
-	};
-
-
-	/*!
-		interface IStaticMesh
-
-		\brief The interface describes a functionality of static meshes
-	*/
-
-	class IStaticMesh : public IMesh
-	{
-		public:
 			typedef std::vector<TVector4>  TPositionsArray;
 			typedef std::vector<TColor32F> TVertexColorArray;
 			typedef std::vector<TVector4>  TNormalsArray;
@@ -89,33 +52,6 @@ namespace TDEngine2
 			typedef std::vector<TVector2>  TTexcoordsArray;
 			typedef std::vector<U32>       TIndicesArray;
 		public:
-			TDE2_REGISTER_TYPE(IStaticMesh);
-
-			/*!
-				\brief The method initializes an internal state of a mesh object
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-				\param[in] name A resource's name
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
-
-			/*!
-				\brief The method initializes an internal state of a mesh object
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-				\param[in] name A resource's name
-				\param[in] params Additional parameters of a mesh
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-												const TMeshParameters& params) = 0;
 
 			/*!
 				\brief The method adds a new point into the array of mesh's positions
@@ -188,7 +124,7 @@ namespace TDEngine2
 
 			/*!
 				\brief The method returns a number of faces in the mesh
-				
+
 				\return The method returns a number of faces in the mesh
 			*/
 
@@ -201,8 +137,126 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IVertexBuffer* GetPositionOnlyVertexBuffer() const = 0;
+
+			/*!
+				\brief The method process internal state of the mesh after it was actually loaded
+				
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+			
+			TDE2_API virtual E_RESULT_CODE PostLoad() = 0;
+
+			/*!
+				\brief The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
+				
+				\return The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
+			*/
+
+			TDE2_API virtual IVertexBuffer* GetSharedVertexBuffer() const = 0;
+			
+			/*!
+				\brief The method returns a pointer to IIndexBuffer which stores all index data of the mesh
+
+				\return The method returns a pointer to IIndexBuffer which stores all index data of the mesh
+			*/
+
+			TDE2_API virtual IIndexBuffer* GetSharedIndexBuffer() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMesh)
+	};
+
+
+	/*!
+		interface IStaticMesh
+
+		\brief The interface describes a functionality of static meshes
+	*/
+
+	class IStaticMesh : public IMesh
+	{
+		public:
+			TDE2_REGISTER_TYPE(IStaticMesh);
+
+			/*!
+				\brief The method initializes an internal state of a mesh object
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in] name A resource's name
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
+
+			/*!
+				\brief The method initializes an internal state of a mesh object
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in] name A resource's name
+				\param[in] params Additional parameters of a mesh
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+												const TMeshParameters& params) = 0;
+
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStaticMesh)
+	};
+
+
+	/*!
+		interface ISkinnedMesh
+
+		\brief The interface describes a functionality of skinned animable meshes
+	*/
+
+	class ISkinnedMesh : public IMesh
+	{
+		public:
+			typedef std::vector<F32> TJointsWeightsArray;
+			typedef std::vector<U16> TJointsIndicesArray;
+		public:
+			TDE2_REGISTER_TYPE(ISkinnedMesh);
+
+			/*!
+				\brief The method initializes an internal state of a mesh object
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in] name A resource's name
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
+
+			/*!
+				\brief The method initializes an internal state of a mesh object
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in] name A resource's name
+				\param[in] params Additional parameters of a mesh
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, const TMeshParameters& params) = 0;
+
+			TDE2_API virtual void AddVertexJointWeights(const TJointsWeightsArray& weights) = 0;
+			TDE2_API virtual void AddVertexJointIndices(const TJointsIndicesArray& weights) = 0;
+
+			TDE2_API virtual const TPositionsArray& GetJointWeightsArray() const = 0;
+			TDE2_API virtual const TPositionsArray& GetJointIndicesArray() const = 0;
+
+			TDE2_API virtual bool HasJointWeights() const = 0;
+			TDE2_API virtual bool HasJointIndices() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISkinnedMesh)
 	};
 
 
