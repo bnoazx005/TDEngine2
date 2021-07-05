@@ -41,8 +41,9 @@
 #include "../../include/graphics/IMesh.h"
 #include "../../include/graphics/CSkeleton.h"
 #include "../../include/graphics/CAtlasSubTexture.h"
-#include "../../include/utils/CFileLogger.h"
 #include "../../include/graphics/CStaticMesh.h"
+#include "../../include/graphics/CSkinnedMesh.h"
+#include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CEditorsManager.h"
 #include "../../include/editor/CProfilerEditorWindow.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -692,6 +693,7 @@ namespace TDEngine2
 			{ CreateTextureAtlasLoader, CreateTextureAtlasFactory },
 			{ CreateAtlasSubTextureLoader, CreateAtlasSubTextureFactory },
 			{ CreateStaticMeshLoader, CreateStaticMeshFactory },
+			{ CreateSkinnedMeshLoader, CreateSkinnedMeshFactory },
 			{ CreateBasePostProcessingProfileLoader, CreateBasePostProcessingProfileFactory },
 			{ CreateAnimationClipLoader, CreateAnimationClipFactory },
 			{ CreateParticleEffectLoader, CreateParticleEffectFactory },

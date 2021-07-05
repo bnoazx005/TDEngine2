@@ -234,24 +234,11 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
 
-			/*!
-				\brief The method initializes an internal state of a mesh object
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-				\param[in] name A resource's name
-				\param[in] params Additional parameters of a mesh
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, const TMeshParameters& params) = 0;
-
 			TDE2_API virtual void AddVertexJointWeights(const TJointsWeightsArray& weights) = 0;
 			TDE2_API virtual void AddVertexJointIndices(const TJointsIndicesArray& weights) = 0;
 
-			TDE2_API virtual const TPositionsArray& GetJointWeightsArray() const = 0;
-			TDE2_API virtual const TPositionsArray& GetJointIndicesArray() const = 0;
+			TDE2_API virtual const std::vector<TJointsWeightsArray>& GetJointWeightsArray() const = 0;
+			TDE2_API virtual const std::vector<TJointsIndicesArray>& GetJointIndicesArray() const = 0;
 
 			TDE2_API virtual bool HasJointWeights() const = 0;
 			TDE2_API virtual bool HasJointIndices() const = 0;
