@@ -139,6 +139,7 @@
 #include "graphics/IDebugUtility.h"
 #include "graphics/CDebugUtility.h"
 #include "graphics/IMesh.h"
+#include "graphics/CBaseMesh.h"
 #include "graphics/CStaticMesh.h"
 #include "graphics/VertexData.h"
 #include "graphics/IStaticMeshContainer.h"

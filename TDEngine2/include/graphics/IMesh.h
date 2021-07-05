@@ -172,7 +172,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of static meshes
 	*/
 
-	class IStaticMesh : public IMesh
+	class IStaticMesh : public virtual IMesh
 	{
 		public:
 			TDE2_REGISTER_TYPE(IStaticMesh);
@@ -214,7 +214,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of skinned animable meshes
 	*/
 
-	class ISkinnedMesh : public IMesh
+	class ISkinnedMesh : public virtual IMesh
 	{
 		public:
 			typedef std::vector<F32> TJointsWeightsArray;

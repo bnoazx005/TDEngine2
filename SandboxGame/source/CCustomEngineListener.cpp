@@ -490,7 +490,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		{
 			pSkeleton->ForEachJoint([pDebugUtility](TJoint* pJoint) 
 			{
-				pDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, pJoint->mInvBindTransform, 5.0f);
+				pDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, pJoint->mInvBindTransform, 2.0f);
 			});
 		}
 	}
