@@ -564,9 +564,13 @@ namespace TDEngine2
 		
 		result = result | pMeshFileWriter->Write(&GeometryBlockTag, sizeof(GeometryBlockTag));
 
+		const U16 meshesCount = static_cast<U16>(meshes.size());
+
+		result = result | pMeshFileWriter->Write(&meshesCount, sizeof(meshesCount));
+
 		U64 offset = 0;
 
-		for (U16 i = 0; i < static_cast<U16>(meshes.size()); ++i)
+		for (U16 i = 0; i < meshesCount; ++i)
 		{
 			auto writeResult = WriteSingleMeshBlock(pMeshFileWriter, i, meshes[i], options);
 			if (writeResult.HasError())
@@ -705,7 +709,7 @@ namespace TDEngine2
 	{
 		Assimp::Importer importer;
 		
-		const aiScene *pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PopulateArmatureData);
+		const aiScene *pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_PopulateArmatureData);
 		if (!pScene)
 		{
 			return RC_FAIL;

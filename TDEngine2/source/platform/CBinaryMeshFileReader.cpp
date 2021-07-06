@@ -101,14 +101,16 @@ namespace TDEngine2
 
 		if (0xA401 == tag) /// \note Read joint weights (this is an optional step)
 		{
-			std::array<F32, MaxJointsCountPerVertex> tmpJointsWeights;
+			std::array<F32, MaxJointsCountPerVertex - 1> tmpJointsWeights;
 			U16 jointsCount = 0;
 
 			for (U32 i = 0; i < vertexCount; ++i)
 			{
 				result = result | Read(&jointsCount, sizeof(U16));
 
-				if (!jointsCount || jointsCount > MaxJointsCountPerVertex)
+				memset(&tmpJointsWeights.front(), 0, sizeof(tmpJointsWeights));
+
+				if (!jointsCount || jointsCount > MaxJointsCountPerVertex - 1)
 				{
 					TDE2_ASSERT(false);
 					continue;
@@ -144,6 +146,8 @@ namespace TDEngine2
 					TDE2_ASSERT(false);
 					continue;
 				}
+
+				memset(&tmpJointsIndices.front(), 0, sizeof(tmpJointsIndices));
 
 				for (U16 k = 0; k < jointsCount; ++k)
 				{
@@ -187,18 +191,26 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = SetPosition(16);
 
-		U16 id = 0;
+		U16 tag = 0, meshesCount = 0;
 
-		if ((result = Read(&id, sizeof(U16))) != RC_OK)
+		if (RC_OK != (result = Read(&tag, sizeof(U16))))
 		{
 			return result;
 		}
 
-		TDE2_ASSERT(id == 0x2F);
+		TDE2_ASSERT(tag == 0x2F);
 
-		while (RC_OK == pMesh->Accept(this)) {}
+		if (RC_OK != (result = Read(&meshesCount, sizeof(meshesCount))))
+		{
+			return result;
+		}
 
-		return RC_OK;
+		for (U16 i = 0; i < meshesCount; ++i)
+		{
+			result = result | pMesh->Accept(this);
+		}
+
+		return result;
 	}
 
 	bool CBinaryMeshFileReader::_readMeshEntryBlock(IMesh*& pMesh)
