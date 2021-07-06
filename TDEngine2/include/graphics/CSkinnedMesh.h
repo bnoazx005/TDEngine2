@@ -53,8 +53,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
 
+			TDE2_API E_RESULT_CODE Accept(IBinaryMeshFileReader* pReader) override;
+
 			TDE2_API void AddVertexJointWeights(const TJointsWeightsArray& weights) override;
-			TDE2_API void AddVertexJointIndices(const TJointsIndicesArray& weights) override;
+			TDE2_API void AddVertexJointIndices(const TJointsIndicesArray& indices) override;
 
 			TDE2_API const std::vector<TJointsWeightsArray>& GetJointWeightsArray() const override;
 			TDE2_API const std::vector<TJointsIndicesArray>& GetJointIndicesArray() const override;

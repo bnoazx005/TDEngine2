@@ -40,15 +40,26 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSkinnedMesh::Accept(IBinaryMeshFileReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pReader->LoadSkinnedMesh(this);
+	}
+
 	void CSkinnedMesh::AddVertexJointWeights(const TJointsWeightsArray& weights)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-
+		mJointsWeights.push_back(weights);
 	}
 
-	void CSkinnedMesh::AddVertexJointIndices(const TJointsIndicesArray& weights)
+	void CSkinnedMesh::AddVertexJointIndices(const TJointsIndicesArray& indices)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
+		mJointsIndices.push_back(indices);
 	}
 
 	const std::vector<CSkinnedMesh::TJointsWeightsArray>& CSkinnedMesh::GetJointWeightsArray() const

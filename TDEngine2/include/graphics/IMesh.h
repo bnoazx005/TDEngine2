@@ -7,14 +7,14 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../math/TVector2.h"
-#include "./../math/TVector4.h"
-#include "./../core/IResource.h"
-#include "./../core/IResourceFactory.h"
-#include "./../core/IResourceLoader.h"
-#include "./../utils/Color.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../math/TVector2.h"
+#include "../math/TVector4.h"
+#include "../core/IResource.h"
+#include "../core/IResourceFactory.h"
+#include "../core/IResourceLoader.h"
+#include "../utils/Color.h"
 #include <string>
 #include <vector>
 
@@ -23,6 +23,10 @@ namespace TDEngine2
 {
 	class IVertexBuffer;
 	class IIndexBuffer;
+	class IBinaryMeshFileReader;
+
+
+	constexpr U8 MaxJointsCountPerVertex = 4;
 
 
 	/*!
@@ -52,6 +56,7 @@ namespace TDEngine2
 			typedef std::vector<TVector2>  TTexcoordsArray;
 			typedef std::vector<U32>       TIndicesArray;
 		public:
+			TDE2_API virtual E_RESULT_CODE Accept(IBinaryMeshFileReader* pReader) = 0;
 
 			/*!
 				\brief The method adds a new point into the array of mesh's positions
@@ -217,8 +222,8 @@ namespace TDEngine2
 	class ISkinnedMesh : public virtual IMesh
 	{
 		public:
-			typedef std::vector<F32> TJointsWeightsArray;
-			typedef std::vector<U16> TJointsIndicesArray;
+			typedef std::array<F32, MaxJointsCountPerVertex> TJointsWeightsArray;
+			typedef std::array<U16, MaxJointsCountPerVertex> TJointsIndicesArray;
 		public:
 			TDE2_REGISTER_TYPE(ISkinnedMesh);
 
@@ -235,7 +240,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
 
 			TDE2_API virtual void AddVertexJointWeights(const TJointsWeightsArray& weights) = 0;
-			TDE2_API virtual void AddVertexJointIndices(const TJointsIndicesArray& weights) = 0;
+			TDE2_API virtual void AddVertexJointIndices(const TJointsIndicesArray& indices) = 0;
 
 			TDE2_API virtual const std::vector<TJointsWeightsArray>& GetJointWeightsArray() const = 0;
 			TDE2_API virtual const std::vector<TJointsIndicesArray>& GetJointIndicesArray() const = 0;

@@ -42,6 +42,8 @@ namespace TDEngine2
 				U32 mSceneDescOffset;
 				U32 mPadding;
 			} TMeshFileHeader, *TMeshFileHeaderPtr;
+
+			typedef std::tuple<U16, U32, U32> TMeshEntityHeader;
 		public:
 			TDE2_REGISTER_TYPE(CBinaryMeshFileReader)
 
@@ -54,6 +56,9 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE LoadMesh(IMesh*& pDestMesh) override;
+
+			TDE2_API E_RESULT_CODE LoadStaticMesh(IStaticMesh* const& pMesh) override;
+			TDE2_API E_RESULT_CODE LoadSkinnedMesh(ISkinnedMesh* const& pMesh) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryMeshFileReader)
 
@@ -65,10 +70,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _readGeometryBlock(IMesh*& pMesh);
 
 			TDE2_API bool _readMeshEntryBlock(IMesh*& pMesh);
+			TDE2_API TResult<TMeshEntityHeader> _readMeshEntryHeader();
+			TDE2_API E_RESULT_CODE _readCommonMeshVertexData(IMesh*& pMesh, U32 vertexCount, U32 facesCount);
+			TDE2_API E_RESULT_CODE _readMeshFacesData(IMesh*& pMesh, U32 facesCount);
 
 			TDE2_API E_RESULT_CODE _readSceneDescBlock(IMesh*& pMesh, U32 offset);
 		protected:
 			static const U32 mMeshVersion;
-			static const U8 mMaxJointsCountPerVertex;
 	};
 }

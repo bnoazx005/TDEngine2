@@ -466,6 +466,8 @@ namespace TDEngine2
 
 
 	class IMesh;
+	class IStaticMesh;
+	class ISkinnedMesh;
 
 
 	/*!
@@ -487,6 +489,9 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE LoadMesh(IMesh*& pDestMesh) = 0;
+
+			TDE2_API virtual E_RESULT_CODE LoadStaticMesh(IStaticMesh* const& pMesh) = 0;
+			TDE2_API virtual E_RESULT_CODE LoadSkinnedMesh(ISkinnedMesh* const& pMesh) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryMeshFileReader)
 	};

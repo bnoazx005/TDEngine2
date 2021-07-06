@@ -85,6 +85,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 										const TMeshParameters& params) override;
 
+			TDE2_API E_RESULT_CODE Accept(IBinaryMeshFileReader* pReader) override;
+
 			/*!
 				\brief The function creates a new static mesh resource which is a cube
 

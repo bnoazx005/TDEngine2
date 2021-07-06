@@ -66,6 +66,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CStaticMesh::Accept(IBinaryMeshFileReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pReader->LoadStaticMesh(this);
+	}
+
 	const IResourceLoader* CStaticMesh::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IStaticMesh>();
