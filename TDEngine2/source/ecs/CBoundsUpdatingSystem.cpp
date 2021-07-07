@@ -123,7 +123,15 @@ namespace TDEngine2
 
 		if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
 		{
-			if (IStaticMesh* pStaticMesh = mpResourceManager->GetResource<IStaticMesh>(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName())))
+			const TResourceId meshId = mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
+
+			/// \note Skip meshes that's not been loaded yet
+			if (E_RESOURCE_STATE_TYPE::RST_LOADED != mpResourceManager->GetResource<IResource>(meshId)->GetState())
+			{
+				return;
+			}
+
+			if (IStaticMesh* pStaticMesh = mpResourceManager->GetResource<IStaticMesh>(meshId))
 			{
 				auto&& vertices = pStaticMesh->GetPositionsArray();
 
