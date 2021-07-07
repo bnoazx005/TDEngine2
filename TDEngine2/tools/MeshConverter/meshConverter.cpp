@@ -332,7 +332,7 @@ namespace TDEngine2
 	}
 
 
-	static TMeshDataEntity ReadMeshData(const aiScene* pScene, const aiMesh* pMesh, const CScopedPtr<CSkeleton>& pSkeleton, const TUtilityOptions& options)
+	static TMeshDataEntity ReadMeshData(const aiScene* pScene, const aiMesh* pMesh, const CScopedPtr<CSkeleton>& pSkeleton, U32 baseIndex, const TUtilityOptions& options)
 	{
 		TMeshDataEntity meshData;
 
@@ -382,9 +382,9 @@ namespace TDEngine2
 		{
 			auto& pFace = pMesh->mFaces[i];
 
-			meshData.mFaces.emplace_back(pFace.mIndices[0]);
-			meshData.mFaces.emplace_back(pFace.mIndices[1]);
-			meshData.mFaces.emplace_back(pFace.mIndices[2]);
+			meshData.mFaces.emplace_back(baseIndex + pFace.mIndices[0]);
+			meshData.mFaces.emplace_back(baseIndex + pFace.mIndices[1]);
+			meshData.mFaces.emplace_back(baseIndex + pFace.mIndices[2]);
 		}
 
 		return std::move(meshData);
@@ -406,7 +406,7 @@ namespace TDEngine2
 	}
 
 
-	static TResult<U64> WriteSingleMeshBlock(IBinaryFileWriter* pMeshFileWriter, U16 meshId, const TMeshDataEntity& meshEntity, const TUtilityOptions& options)
+	static E_RESULT_CODE WriteSingleMeshBlock(IBinaryFileWriter* pMeshFileWriter, U16 meshId, const TMeshDataEntity& meshEntity, const TUtilityOptions& options)
 	{
 		const U16 MeshBlockTag             = 0x4D48;
 		const U16 MeshVerticesBlockTag     = 0x01CD;
@@ -429,12 +429,9 @@ namespace TDEngine2
 		result = result | pMeshFileWriter->Write(&facesCount, sizeof(facesCount));
 		result = result | pMeshFileWriter->Write(&vertexCount, sizeof(vertexCount)); /// \note Unused
 
-		U64 offset = 16; // \note 16 bytes is size of mesh's header that's written above
-		
 		/// \note Write vertices
 		result = result | pMeshFileWriter->Write(&MeshVerticesBlockTag, sizeof(MeshVerticesBlockTag));
-		offset += sizeof(MeshVerticesBlockTag);
-
+		
 		for (const TVector4& v : meshEntity.mVertices)
 		{
 			result = result | pMeshFileWriter->Write(&v.x, sizeof(F32));
@@ -443,14 +440,11 @@ namespace TDEngine2
 			result = result | pMeshFileWriter->Write(&v.w, sizeof(F32));
 		}
 
-		offset += sizeof(F32) * 4 * static_cast<U64>(vertexCount);
-
 		/// \note Write normal (optional chuch that can be omitted)
 		if (!options.mShouldSkipNormals)
 		{
 			result = result | pMeshFileWriter->Write(&MeshNormalsBlockTag, sizeof(MeshNormalsBlockTag));
-			offset += sizeof(MeshNormalsBlockTag);
-
+		
 			for (const TVector4& normal : meshEntity.mNormals)
 			{
 				result = result | pMeshFileWriter->Write(&normal.x, sizeof(F32));
@@ -458,15 +452,12 @@ namespace TDEngine2
 				result = result | pMeshFileWriter->Write(&normal.z, sizeof(F32));
 				result = result | pMeshFileWriter->Write(&normal.w, sizeof(F32));
 			}
-
-			offset += sizeof(F32) * 4 * static_cast<U64>(vertexCount);
 		}
 
 		/// \note Write tangents (optional)
 		if (!options.mShouldSkipTangents)
 		{
 			result = result | pMeshFileWriter->Write(&MeshTangentsBlockTag, sizeof(MeshTangentsBlockTag));
-			offset += sizeof(MeshTangentsBlockTag);
 
 			for (const TVector4& tangent : meshEntity.mTangents)
 			{
@@ -475,13 +466,10 @@ namespace TDEngine2
 				result = result | pMeshFileWriter->Write(&tangent.z, sizeof(F32));
 				result = result | pMeshFileWriter->Write(&tangent.w, sizeof(F32));
 			}
-
-			offset += sizeof(F32) * 4 * static_cast<U64>(vertexCount);
 		}
 
 		/// \note Write first uv channel
 		result = result | pMeshFileWriter->Write(&MeshTexcoords0BlockTag, sizeof(MeshTexcoords0BlockTag));
-		offset += sizeof(MeshTexcoords0BlockTag);
 
 		for (const TVector2& uv : meshEntity.mTexcoords)
 		{
@@ -491,13 +479,10 @@ namespace TDEngine2
 			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
 		}
 
-		offset += sizeof(F32) * 4 * static_cast<U64>(vertexCount);
-
 		/// \note Write joints weights (optional)
 		if (!options.mShouldSkipJoints)
 		{
 			result = result | pMeshFileWriter->Write(&MeshJointWeightsBlockTag, sizeof(MeshJointWeightsBlockTag));
-			offset += sizeof(MeshJointWeightsBlockTag);
 
 			for (auto&& jointWeights : meshEntity.mJointWeights)
 			{
@@ -508,13 +493,10 @@ namespace TDEngine2
 				{
 					result = result | pMeshFileWriter->Write(&currWeight, sizeof(F32));
 				}
-
-				offset += sizeof(U16) + sizeof(F32) * static_cast<U64>(weightsCount);
 			}
 
 			/// \note Write joint indices
 			result = result | pMeshFileWriter->Write(&MeshJointIndicesBlockTag, sizeof(MeshJointIndicesBlockTag));
-			offset += sizeof(MeshJointIndicesBlockTag);
 
 			for (auto&& jointIndices : meshEntity.mJointIndices)
 			{
@@ -525,38 +507,26 @@ namespace TDEngine2
 				{
 					result = result | pMeshFileWriter->Write(&currJointIndex, sizeof(currJointIndex));
 				}
-
-				offset += sizeof(U16) + sizeof(U16) * static_cast<U64>(indicesCount);
 			}
 		}
 
 		/// \note Write faces information
-		const U16 indexFormat = meshEntity.mFaces.size() < 65536 ? sizeof(U16) : sizeof(U32);
+		const U16 indexFormat = options.mIndexFormat;
 
 		result = result | pMeshFileWriter->Write(&MeshFacesBlockTag, sizeof(MeshFacesBlockTag));
-		offset += sizeof(MeshFacesBlockTag);
-
 		result = result | pMeshFileWriter->Write(&indexFormat, sizeof(indexFormat));
-		offset += sizeof(indexFormat);
 
 		for (U32 index : meshEntity.mFaces)
 		{
 			result = result | pMeshFileWriter->Write(&index, indexFormat);
 		}
 
-		offset += indexFormat * static_cast<U64>(meshEntity.mFaces.size());
-
-		if (RC_OK != result)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		return Wrench::TOkValue<U64>(offset);
+		return result;
 	}
 
 
 	/// returns offset to the end of the block or an error code
-	static TResult<U64> WriteGeometryBlock(IBinaryFileWriter* pMeshFileWriter, const std::vector<TMeshDataEntity>& meshes, const TUtilityOptions& options)
+	static E_RESULT_CODE WriteGeometryBlock(IBinaryFileWriter* pMeshFileWriter, const std::vector<TMeshDataEntity>& meshes, const TUtilityOptions& options)
 	{
 		const U16 GeometryBlockTag = 0x2F;
 
@@ -568,26 +538,12 @@ namespace TDEngine2
 
 		result = result | pMeshFileWriter->Write(&meshesCount, sizeof(meshesCount));
 
-		U64 offset = 0;
-
 		for (U16 i = 0; i < meshesCount; ++i)
 		{
-			auto writeResult = WriteSingleMeshBlock(pMeshFileWriter, i, meshes[i], options);
-			if (writeResult.HasError())
-			{
-				result = result | writeResult.GetError();
-				TDE2_ASSERT(false);
-			}
-
-			offset += writeResult.Get();
+			result = result | WriteSingleMeshBlock(pMeshFileWriter, i, meshes[i], options);
 		}
 
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		return Wrench::TOkValue<U64>(offset);
+		return result;
 	}
 
 
@@ -686,13 +642,13 @@ namespace TDEngine2
 
 			if (IBinaryFileWriter* pMeshFileWriter = pFileSystem->Get<IBinaryFileWriter>(meshFileResult.Get()))
 			{
-				auto writeDataResult = WriteGeometryBlock(pMeshFileWriter, meshes, options);
-				if (writeDataResult.HasError())
+				E_RESULT_CODE result = WriteGeometryBlock(pMeshFileWriter, meshes, options);
+				if (RC_OK != result)
 				{
-					return writeDataResult.GetError();
+					return result;
 				}
 
-				const U64 offset = writeDataResult.Get() + 16;
+				const U64 offset = static_cast<U64>(pMeshFileWriter->GetPosition());
 
 				WriteFileHeader(pMeshFileWriter, offset); // 16 is size of the header
 				WriteSceneDescInfo(pMeshFileWriter, pScene, meshes, offset, options);
@@ -733,6 +689,8 @@ namespace TDEngine2
 
 		std::vector<TMeshDataEntity> meshes;
 
+		U32 baseIndex = 0;
+
 		for (U32 i = 0; i < pScene->mNumMeshes; ++i)
 		{
 			pMesh = pScene->mMeshes[i];
@@ -741,12 +699,16 @@ namespace TDEngine2
 				continue;
 			}
 
-			meshes.emplace_back(ReadMeshData(pScene, pMesh, pSkeleton, options));
+			meshes.emplace_back(ReadMeshData(pScene, pMesh, pSkeleton, baseIndex, options));
+			baseIndex += pMesh->mNumVertices;
 		}
+
+		TUtilityOptions updatedOptions = options;
+		updatedOptions.mIndexFormat = (baseIndex < 0xFFFF) ? sizeof(U16) : sizeof(U32);
 
 		auto&& originalPath = fs::path(filePath);
 
-		if (RC_OK != (result = SaveMeshFile(pEngineCore, pScene, std::move(meshes), originalPath.parent_path().string() + originalPath.filename().replace_extension("mesh").string(), options)))
+		if (RC_OK != (result = SaveMeshFile(pEngineCore, pScene, std::move(meshes), originalPath.parent_path().string() + originalPath.filename().replace_extension("mesh").string(), updatedOptions)))
 		{
 			return result;
 		}

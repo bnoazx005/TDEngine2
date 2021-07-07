@@ -41,6 +41,8 @@ namespace TDEngine2
 		bool mShouldSkipNormals  = false;
 		bool mShouldSkipTangents = false;
 		bool mShouldSkipJoints   = false;
+
+		U32 mIndexFormat = sizeof(U16);
 	};
 
 
