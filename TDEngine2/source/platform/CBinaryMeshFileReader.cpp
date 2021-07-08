@@ -101,7 +101,7 @@ namespace TDEngine2
 
 		if (0xA401 == tag) /// \note Read joint weights (this is an optional step)
 		{
-			std::array<F32, MaxJointsCountPerVertex - 1> tmpJointsWeights;
+			std::array<F32, MaxJointsCountPerVertex> tmpJointsWeights;
 			U16 jointsCount = 0;
 
 			for (U32 i = 0; i < vertexCount; ++i)
@@ -110,7 +110,7 @@ namespace TDEngine2
 
 				memset(&tmpJointsWeights.front(), 0, sizeof(tmpJointsWeights));
 
-				if (!jointsCount || jointsCount > MaxJointsCountPerVertex - 1)
+				if (!jointsCount || jointsCount > MaxJointsCountPerVertex)
 				{
 					TDE2_ASSERT(false);
 					continue;
@@ -121,7 +121,7 @@ namespace TDEngine2
 					result = result | Read(&tmpJointsWeights[k], sizeof(F32));
 				}
 
-				//pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
+				pMesh->AddVertexJointWeights(tmpJointsWeights);
 			}
 
 			/// \note Read faces or joint indices
@@ -153,6 +153,8 @@ namespace TDEngine2
 				{
 					result = result | Read(&tmpJointsIndices[k], sizeof(U16));
 				}
+
+				pMesh->AddVertexJointIndices(tmpJointsIndices);
 			}
 		}
 

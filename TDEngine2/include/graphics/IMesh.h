@@ -222,7 +222,7 @@ namespace TDEngine2
 	class ISkinnedMesh : public virtual IMesh
 	{
 		public:
-			typedef std::array<F32, MaxJointsCountPerVertex - 1> TJointsWeightsArray;
+			typedef std::array<F32, MaxJointsCountPerVertex> TJointsWeightsArray;
 			typedef std::array<U16, MaxJointsCountPerVertex> TJointsIndicesArray;
 		public:
 			TDE2_REGISTER_TYPE(ISkinnedMesh);

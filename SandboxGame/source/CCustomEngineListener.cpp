@@ -73,9 +73,23 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
-	pMeshContainer->SetMeshName("hq.mesh");
+	pMeshContainer->SetMeshName("scene.mesh");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
+
+	/// \note animated mesh entity
+	if (auto pAnimatedMeshEntity = mpWorld->CreateEntity("AnimatedMesh"))
+	{
+		pAnimatedMeshEntity->AddComponent<CShadowCasterComponent>();
+		pAnimatedMeshEntity->AddComponent<CShadowReceiverComponent>(); 
+		pAnimatedMeshEntity->AddComponent<CBoundsComponent>();
+
+		if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
+		{
+			pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
+			pMeshContainer->SetMeshName("TestAnim.mesh");
+		}
+	}
 
 	// plane
 	auto pPlaneEntity = mpWorld->CreateEntity();

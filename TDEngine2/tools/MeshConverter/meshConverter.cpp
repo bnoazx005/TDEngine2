@@ -488,7 +488,7 @@ namespace TDEngine2
 			{
 				const U16 weightsCount = static_cast<U16>(jointWeights.size());
 				result = result | pMeshFileWriter->Write(&weightsCount, sizeof(U16));
-
+				
 				for (F32 currWeight : jointWeights)
 				{
 					result = result | pMeshFileWriter->Write(&currWeight, sizeof(F32));

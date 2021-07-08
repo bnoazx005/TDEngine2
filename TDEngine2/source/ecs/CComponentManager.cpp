@@ -7,6 +7,7 @@
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CSkinnedMeshContainer.h"
 #include "../../include/graphics/effects/CParticleEmitterComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
@@ -374,6 +375,7 @@ namespace TDEngine2
 			CreateCircleCollisionObject2DFactory,
 			CreateTrigger2DFactory,
 			CreateStaticMeshContainerFactory,
+			CreateSkinnedMeshContainerFactory,
 			CreateBoxCollisionObject3DFactory,
 			CreateSphereCollisionObject3DFactory,
 			CreateConvexHullCollisionObject3DFactory,
@@ -435,6 +437,7 @@ namespace TDEngine2
 			CCircleCollisionObject2D::GetTypeId(),
 			CTrigger2D::GetTypeId(),
 			CStaticMeshContainer::GetTypeId(),
+			CSkinnedMeshContainer::GetTypeId(),
 			CBoxCollisionObject3D::GetTypeId(),
 			CSphereCollisionObject3D::GetTypeId(),
 			CConvexHullCollisionObject3D::GetTypeId(),

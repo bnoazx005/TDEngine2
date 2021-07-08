@@ -144,6 +144,8 @@
 #include "graphics/VertexData.h"
 #include "graphics/IStaticMeshContainer.h"
 #include "graphics/CStaticMeshContainer.h"
+#include "graphics/ISkinnedMeshContainer.h"
+#include "graphics/CSkinnedMeshContainer.h"
 #include "graphics/IFramePostProcessor.h"
 #include "graphics/CFramePostProcessor.h"
 #include "graphics/IPostProcessingProfile.h"
