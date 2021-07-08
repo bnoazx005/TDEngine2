@@ -84,6 +84,7 @@
 #include "ecs/CCameraSystem.h"
 #include "ecs/CPhysics2DSystem.h"
 #include "ecs/CStaticMeshRendererSystem.h"
+#include "ecs/CSkinnedMeshRendererSystem.h"
 #include "ecs/CBaseSystem.h"
 #include "ecs/CPhysics3DSystem.h"
 #include "ecs/CObjectsSelectionSystem.h"

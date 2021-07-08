@@ -20,6 +20,7 @@
 #include "../../include/ecs/CCameraSystem.h"
 #include "../../include/ecs/CPhysics2DSystem.h"
 #include "../../include/ecs/CStaticMeshRendererSystem.h"
+#include "../../include/ecs/CSkinnedMeshRendererSystem.h"
 #include "../../include/ecs/CPhysics3DSystem.h"
 #include "../../include/ecs/CAnimationSystem.h"
 #include "../../include/ecs/CParticlesSimulationSystem.h"
@@ -425,6 +426,7 @@ namespace TDEngine2
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
+			CreateSkinnedMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateAnimationSystem(pResourceManager, pEventManager, result),
