@@ -9,8 +9,19 @@ TEST_CASE("TQuaternion Tests")
 {
 	SECTION("TestEulerConstructor_PassCorrectResults_CreateCorrectQuaternion")
 	{
-		TQuaternion q({ 0.0f, 0.0f, 45.0f * CMathConstants::Deg2Rad });
+		constexpr F32 testAngle = 45.0f * CMathConstants::Deg2Rad;
 
-		REQUIRE(true);
+		/// first is an expected, second is actual result
+		std::tuple<TQuaternion, TQuaternion> testCases[] 
+		{
+			{ TQuaternion { 0.3826f, 0.0f, 0.0f, 0.9238f }, TQuaternion { TVector3 { testAngle, 0.0f, 0.0f } } },
+			{ TQuaternion { 0.0f, 0.3826f, 0.0f, 0.9238f }, TQuaternion { TVector3 { 0.0f, testAngle, 0.0f } } },
+			{ TQuaternion { 0.0f, 0.0f, 0.3826f, 0.9238f }, TQuaternion { TVector3 { 0.0f, 0.0f, testAngle } } },
+		};
+
+		for (auto&& currCase : testCases)
+		{
+			REQUIRE(std::get<0>(currCase) == std::get<1>(currCase));
+		}
 	}
 }

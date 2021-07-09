@@ -84,6 +84,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		pAnimatedMeshEntity->AddComponent<CShadowReceiverComponent>(); 
 		pAnimatedMeshEntity->AddComponent<CBoundsComponent>();
 
+		if (auto pTransform = pAnimatedMeshEntity->GetComponent<CTransform>())
+		{
+			pTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
+		}
+
 		if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
 		{
 			pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");

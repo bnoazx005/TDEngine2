@@ -97,6 +97,11 @@ namespace TDEngine2
 
 	TDE2_API TVector4 operator* (const TQuaternion& q, const TVector4& v);
 
+	TDE2_API bool operator== (const TQuaternion& lq, const TQuaternion& rq);
+
+	TDE2_API bool operator!= (const TQuaternion& lq, const TQuaternion& rq);
+
+
 
 	/*!
 		\brief The method computes a conjugate quaternion to specified one

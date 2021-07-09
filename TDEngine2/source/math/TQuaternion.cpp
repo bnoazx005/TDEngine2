@@ -116,6 +116,22 @@ namespace TDEngine2
 		return RotationMatrix(q) * v;
 	}
 
+	TDE2_API bool operator== (const TQuaternion& lq, const TQuaternion& rq)
+	{
+		return	(CMathUtils::Abs(lq.x - rq.x) < 1e-3f) && 
+				(CMathUtils::Abs(lq.y - rq.y) < 1e-3f) && 
+				(CMathUtils::Abs(lq.z - rq.z) < 1e-3f) && 
+				(CMathUtils::Abs(lq.w - rq.w) < 1e-3f);
+	}
+
+	TDE2_API bool operator!= (const TQuaternion& lq, const TQuaternion& rq)
+	{
+		return	(CMathUtils::Abs(lq.x - rq.x) > 1e-3f) ||
+				(CMathUtils::Abs(lq.y - rq.y) > 1e-3f) ||
+				(CMathUtils::Abs(lq.z - rq.z) > 1e-3f) ||
+				(CMathUtils::Abs(lq.w - rq.w) > 1e-3f);
+	}
+
 
 	TDE2_API TQuaternion Conjugate(const TQuaternion& q)
 	{
