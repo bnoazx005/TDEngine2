@@ -70,6 +70,8 @@ namespace TDEngine2
 
 			TDE2_API bool _hasJointWeightsInternal() const;
 			TDE2_API bool _hasJointIndicesInternal() const;
+
+			TDE2_API std::vector<U8> _toArrayOfStructsDataLayoutInternal() const override;
 		protected:
 			std::vector<TJointsWeightsArray> mJointsWeights;
 			std::vector<TJointsIndicesArray> mJointsIndices;

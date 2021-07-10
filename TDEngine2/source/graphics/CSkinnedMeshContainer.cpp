@@ -1,4 +1,5 @@
 #include "../../include/graphics/CSkinnedMeshContainer.h"
+#include "../../include/graphics/IMaterial.h"
 
 
 namespace TDEngine2
@@ -14,6 +15,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		mMaterialInstanceId = TMaterialInstanceId::Invalid;
 
 		mIsInitialized = true;
 
@@ -62,6 +65,11 @@ namespace TDEngine2
 		mMeshName = meshName;
 	}
 
+	void CSkinnedMeshContainer::SetMaterialInstanceHandle(TMaterialInstanceId materialInstanceId)
+	{
+		mMaterialInstanceId = materialInstanceId;
+	}
+
 	void CSkinnedMeshContainer::SetSystemBuffersHandle(U32 handle)
 	{
 		mSystemBuffersHandle = handle;
@@ -75,6 +83,11 @@ namespace TDEngine2
 	const std::string& CSkinnedMeshContainer::GetMeshName() const
 	{
 		return mMeshName;
+	}
+
+	TMaterialInstanceId CSkinnedMeshContainer::GetMaterialInstanceHandle() const
+	{
+		return mMaterialInstanceId;
 	}
 
 	U32 CSkinnedMeshContainer::GetSystemBuffersHandle() const

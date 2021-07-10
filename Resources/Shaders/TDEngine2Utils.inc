@@ -79,6 +79,8 @@ const float Pi = 3.141592;
 
 static float Pi = 3.141592;
 
+static uint MAX_JOINTS_COUNT = 256;
+
 #endif
 
 

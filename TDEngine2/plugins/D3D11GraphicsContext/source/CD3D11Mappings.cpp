@@ -422,6 +422,10 @@ namespace TDEngine2
 				return "TANGENT";
 			case VEST_COLOR:
 				return "COLOR";
+			case VEST_JOINT_INDICES:
+				return "BLENDINDICES";
+			case VEST_JOINT_WEIGHTS:
+				return "BLENDWEIGHT";
 		}
 
 		return "UNKNOWN";

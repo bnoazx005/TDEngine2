@@ -20,6 +20,10 @@
 
 namespace TDEngine2
 {
+	static const std::string JointsPalleteShaderVariableId = "mJoints";
+	static const std::string JointsCountShaderVariableId   = "mUsedJointsCount";
+
+
 	CSkinnedMeshRendererSystem::CSkinnedMeshRendererSystem() :
 		CBaseSystem()
 	{
@@ -108,13 +112,13 @@ namespace TDEngine2
 		});
 		
 		// \note construct commands for opaque geometry
-		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pCameraComponent](const IMaterial* pCurrMaterial)
+		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pCameraComponent](IMaterial* pCurrMaterial)
 		{
 			_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, pCurrMaterial, pCameraComponent);
 		});
 
 		// \note construct commands for transparent geometry
-		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pCameraComponent](const IMaterial* pCurrMaterial)
+		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pCameraComponent](IMaterial* pCurrMaterial)
 		{
 			_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, pCurrMaterial, pCameraComponent);
 		});
@@ -147,12 +151,12 @@ namespace TDEngine2
 		std::sort(usedMaterials.begin(), usedMaterials.end(), CBaseMaterial::AlphaBasedMaterialComparator);
 	}
 
-	void CSkinnedMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial,
+	void CSkinnedMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, IMaterial* pCurrMaterial,
 															const ICamera* pCamera)
 	{
 		auto iter = entities.begin();
 
-		auto&& pCastedMaterial = dynamic_cast<const CBaseMaterial*>(pCurrMaterial);
+		auto&& pCastedMaterial = dynamic_cast<CBaseMaterial*>(pCurrMaterial);
 		const std::string& currMaterialName = pCastedMaterial->GetName();
 
 		TResourceId currMaterialId = pCastedMaterial->GetId();
@@ -160,13 +164,13 @@ namespace TDEngine2
 		auto&& viewMatrix = pCamera->GetViewMatrix();
 
 		// \note iterate over all entities with pCurrMaterial attached as main material
-		while ((iter = std::find_if(iter, entities.end(), [currMaterialId, &currMaterialName](auto&& entity)
+		while ((iter = std::find_if(iter, entities.end(), [pCastedMaterial, currMaterialId, &currMaterialName](auto&& entity)
 		{
 			return std::get<CSkinnedMeshContainer*>(entity)->GetMaterialName() == currMaterialName;
 		})) != entities.end())
 		{
 			auto pSkinnedMeshContainer = std::get<CSkinnedMeshContainer*>(*iter);
-			auto pTransform           = std::get<CTransform*>(*iter);
+			auto pTransform            = std::get<CTransform*>(*iter);
 
 			const TResourceId sharedMeshId = mpResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName());
 
@@ -195,24 +199,45 @@ namespace TDEngine2
 					});
 
 				// \note form the vertex declaration for the mesh
-				pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-				pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
+				pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
+				pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_COLOR });
 
 				if (pSharedMeshResource->HasTexCoords0())
 				{
-					pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_TEXCOORDS });
+					pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_TEXCOORDS });
 				}
 
 				if (pSharedMeshResource->HasNormals())
 				{
-					pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_NORMAL });
+					pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_NORMAL });
 				}
 
 				if (pSharedMeshResource->HasTangents())
 				{
-					pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_TANGENT });
+					pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_TANGENT });
+				}
+
+				if (pSharedMeshResource->HasJointWeights())
+				{
+					pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_JOINT_WEIGHTS });
+				}
+
+				if (pSharedMeshResource->HasJointIndices())
+				{
+					pVertexDecl->AddElement({ FT_UINT4, 0, VEST_JOINT_INDICES });
 				}
 			}
+
+			/// \note Get or create a new material's instance
+			TMaterialInstanceId materialInstance = pSkinnedMeshContainer->GetMaterialInstanceHandle();
+			if (TMaterialInstanceId::Invalid == materialInstance)
+			{
+				materialInstance = pCastedMaterial->CreateInstance()->GetInstanceId();
+			}
+			
+			/// \todo Implement this lines after animator component will be finished
+			//pCastedMaterial->SetVariableForInstance(materialInstance, JointsPalleteShaderVariableId, nullptr, 0);
+			//pCastedMaterial->SetVariableForInstance(materialInstance, JointsCountShaderVariableId, nullptr, 0);
 
 			auto meshBuffersEntry = mMeshBuffersMap[pSkinnedMeshContainer->GetSystemBuffersHandle()];
 

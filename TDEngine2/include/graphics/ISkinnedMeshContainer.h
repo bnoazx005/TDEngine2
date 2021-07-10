@@ -17,6 +17,9 @@
 
 namespace TDEngine2
 {
+	enum class TMaterialInstanceId : U32;
+
+
 	/*!
 		interface ISkinnedMeshContainer
 
@@ -60,6 +63,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetSystemBuffersHandle(U32 handle) = 0;
 
+			TDE2_API virtual void SetMaterialInstanceHandle(TMaterialInstanceId materialInstanceId) = 0;
+
 			/*!
 				\brief The method returns an identifier of used material
 
@@ -75,6 +80,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const std::string& GetMeshName() const = 0;
+
+			TDE2_API virtual TMaterialInstanceId GetMaterialInstanceHandle() const = 0;
 
 			/*!
 				\brief The method returns an internal handle which points to pair 

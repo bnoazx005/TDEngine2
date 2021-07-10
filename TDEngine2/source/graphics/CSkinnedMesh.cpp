@@ -86,6 +86,38 @@ namespace TDEngine2
 		return _hasJointIndicesInternal();
 	}
 
+	std::vector<U8> CSkinnedMesh::_toArrayOfStructsDataLayoutInternal() const
+	{
+		U32 strideSize = sizeof(TVector4) + sizeof(TColor32F);
+		strideSize += (_hasTexCoords0Internal() ? sizeof(TVector4) : 0); // \note texcoords use float2, but we align them manually to float4
+		strideSize += (_hasNormalsInternal() ? sizeof(TVector4) : 0);
+		strideSize += (_hasTangentsInternal() ? sizeof(TVector4) : 0);
+		strideSize += (_hasJointWeightsInternal() ? sizeof(TVector4) : 0);
+		strideSize += (_hasJointIndicesInternal() ? sizeof(U32) * 4 : 0);
+
+		std::vector<U8> bytes(mPositions.size() * strideSize);
+
+		U32 elementsCount = 0;
+
+		for (U32 i = 0, ptrPos = 0; i < mPositions.size(); ++i, ptrPos += strideSize)
+		{
+			// mandatory element
+			memcpy(&bytes[ptrPos], &mPositions[i], sizeof(TVector4));
+			memcpy(&bytes[ptrPos + sizeof(TVector4)], _hasColorsInternal() ? &mVertexColors[i] : &TColorUtils::mWhite, sizeof(TColor32F));
+
+			elementsCount = 2; // \note equals to 2 because of position and color are mandatory elements of a vertex declaration
+
+			if (_hasTexCoords0Internal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mTexcoords0[i], sizeof(TVector2)); }
+			if (_hasNormalsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mNormals[i], sizeof(TVector4)); }
+			if (_hasTangentsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mTangents[i], sizeof(TVector4)); }
+			if (_hasJointWeightsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mJointsWeights[i], sizeof(TVector4)); }
+			if (_hasJointIndicesInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * 4 * sizeof(U32)], &mJointsIndices[i], 4 * sizeof(U32)); }
+		}
+
+		return bytes;
+	}
+
+
 	const IResourceLoader* CSkinnedMesh::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ISkinnedMesh>();
