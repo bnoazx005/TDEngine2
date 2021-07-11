@@ -243,6 +243,7 @@ namespace TDEngine2
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ITexture2D::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ICubemapTexture::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(IStaticMesh::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
+		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ISkinnedMesh::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 
 		mpResourceManagerInstance->RegisterResourceTypeAlias(ITexture2D::GetTypeId(), IAtlasSubTexture::GetTypeId());
 		mpResourceManagerInstance->RegisterResourceTypeAlias(IFont::GetTypeId(), IRuntimeFont::GetTypeId());

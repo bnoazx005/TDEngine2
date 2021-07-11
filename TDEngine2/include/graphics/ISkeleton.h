@@ -84,6 +84,8 @@ namespace TDEngine2
 			TDE2_API virtual TJoint* GetJoint(U32 id) = 0;
 
 			TDE2_API virtual TJoint* GetJointByName(const std::string& name) = 0;
+
+			TDE2_API virtual U32 GetJointsCount() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISkeleton)
 	};

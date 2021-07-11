@@ -69,6 +69,8 @@
 	Global variables
 */
 
+#define MAX_JOINTS_COUNT 256
+
 #ifdef TDE2_GLSL_SHADER
 
 const float Pi = 3.141592;
@@ -78,8 +80,6 @@ const float Pi = 3.141592;
 #ifdef TDE2_HLSL_SHADER
 
 static float Pi = 3.141592;
-
-static uint MAX_JOINTS_COUNT = 256;
 
 #endif
 

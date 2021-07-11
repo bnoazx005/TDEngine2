@@ -30,6 +30,7 @@ namespace TDEngine2
 
 		if (mUsedMemorySize + padding + size > mTotalMemorySize)
 		{
+			TDE2_ASSERT(false);
 			return nullptr;
 		}
 

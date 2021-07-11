@@ -94,6 +94,8 @@ namespace TDEngine2
 			TDE2_API void SetSystemBuffersHandle(U32 handle) override;
 
 			TDE2_API void SetMaterialInstanceHandle(TMaterialInstanceId materialInstanceId) override;
+			
+			TDE2_API void SetSkeletonName(const std::string& skeletonName) override;
 
 			/*!
 				\brief The method returns an identifier of used material
@@ -119,15 +121,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetSystemBuffersHandle() const override;
+
+			TDE2_API const std::string& GetSkeletonName() const override;
+
+			TDE2_API std::vector<TMatrix4>& GetCurrentAnimationPose() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkinnedMeshContainer)
 		protected:
 			std::string mMaterialName;
 			std::string mMeshName; /// \todo replace with GUID or something like that
+			std::string mSkeletonName;
 
 			U32         mSystemBuffersHandle = static_cast<U32>(-1);
 
 			TMaterialInstanceId mMaterialInstanceId;
+
+			std::vector<TMatrix4> mCurrAnimationPose;
 	};
 
 

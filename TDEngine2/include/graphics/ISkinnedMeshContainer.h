@@ -53,6 +53,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetMeshName(const std::string& meshName) = 0;
 
+			TDE2_API virtual void SetSkeletonName(const std::string& skeletonName) = 0;
+
 			/*!
 				\brief The method sets up an internal handle which points to pair 
 				vertex and index buffers within system that renders static meshes
@@ -81,6 +83,8 @@ namespace TDEngine2
 
 			TDE2_API virtual const std::string& GetMeshName() const = 0;
 
+			TDE2_API virtual const std::string& GetSkeletonName() const = 0;
+
 			TDE2_API virtual TMaterialInstanceId GetMaterialInstanceHandle() const = 0;
 
 			/*!
@@ -89,6 +93,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetSystemBuffersHandle() const = 0;
+
+			TDE2_API virtual std::vector<TMatrix4>& GetCurrentAnimationPose() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISkinnedMeshContainer)
 	};

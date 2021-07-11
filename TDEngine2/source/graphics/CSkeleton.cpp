@@ -20,6 +20,7 @@ namespace TDEngine2
 			static const std::string mParentIndexKey;
 			static const std::string mNameKey;
 			static const std::string mBindTransformKey;
+			static const std::string mInvBindTransformKey;
 		};
 
 		static const std::string mStoresInvBindFlagKey;
@@ -32,6 +33,7 @@ namespace TDEngine2
 	const std::string TSkeletonArchiveKeys::TJointsGroup::mParentIndexKey = "parent_id";
 	const std::string TSkeletonArchiveKeys::TJointsGroup::mNameKey = "name";
 	const std::string TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey = "bind_transform";
+	const std::string TSkeletonArchiveKeys::TJointsGroup::mInvBindTransformKey = "inv_bind_transform";
 
 	const std::string TSkeletonArchiveKeys::mStoresInvBindFlagKey = "stores_inv_bind_poses";
 
@@ -101,10 +103,22 @@ namespace TDEngine2
 					{
 						if (auto matrixLoadResult = LoadMatrix4(pReader))
 						{
-							(mShouldStoreInvBindPoses ? tmpJoint.mInvBindTransform : tmpJoint.mLocalBindTransform) = matrixLoadResult.Get();
+							tmpJoint.mLocalBindTransform = matrixLoadResult.Get();
 						}
 					}
 					pReader->EndGroup();
+
+					if (mShouldStoreInvBindPoses)
+					{
+						pReader->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mInvBindTransformKey);
+						{
+							if (auto matrixLoadResult = LoadMatrix4(pReader))
+							{
+								tmpJoint.mInvBindTransform = matrixLoadResult.Get();
+							}
+						}
+						pReader->EndGroup();
+					}
 				}
 				pReader->EndGroup();
 
@@ -149,9 +163,18 @@ namespace TDEngine2
 
 					pWriter->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mBindTransformKey);
 					{
-						SaveMatrix4(pWriter, mShouldStoreInvBindPoses ? currJoint.mInvBindTransform : currJoint.mLocalBindTransform);
+						SaveMatrix4(pWriter, currJoint.mLocalBindTransform);
 					}
 					pWriter->EndGroup();
+
+					if (mShouldStoreInvBindPoses)
+					{
+						pWriter->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mInvBindTransformKey);
+						{
+							SaveMatrix4(pWriter, currJoint.mLocalBindTransform);
+						}
+						pWriter->EndGroup();
+					}
 				}
 				pWriter->EndGroup();
 			}
@@ -246,6 +269,11 @@ namespace TDEngine2
 	{
 		auto it = std::find_if(mJoints.begin(), mJoints.end(), [&name](const TJoint& joint) { return name == joint.mName; });
 		return (it == mJoints.end()) ? nullptr : &*it;
+	}
+
+	U32 CSkeleton::GetJointsCount() const
+	{
+		return static_cast<U32>(mJoints.size());
 	}
 
 	void CSkeleton::ForEachJoint(const std::function<void(TJoint*)>& action)

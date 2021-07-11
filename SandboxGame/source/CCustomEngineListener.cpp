@@ -77,6 +77,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
 
+#if 1
 	/// \note animated mesh entity
 	if (auto pAnimatedMeshEntity = mpWorld->CreateEntity("AnimatedMesh"))
 	{
@@ -91,10 +92,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 		if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
 		{
-			pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
+			pMeshContainer->SetMaterialName("DefaultMaterials/DefaultSkinningMaterial.material");
 			pMeshContainer->SetMeshName("TestAnim2.mesh");
+			pMeshContainer->SetSkeletonName("TestAnim2.skeleton");
 		}
 	}
+#endif
 
 	// plane
 	auto pPlaneEntity = mpWorld->CreateEntity();
@@ -502,6 +505,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	//pDebugUtility->DrawCircle(ZeroVector3, Normalize(TVector3(1, 1, 0)), 5.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 16);
 	//pDebugUtility->DrawSphere(ZeroVector3, 10.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 3);
 
+#if 0
 	TResourceId skeletonId = mpResourceManager->Load<ISkeleton>("TestAnim2.skeleton");
 	if (TResourceId::Invalid != skeletonId)
 	{
@@ -513,6 +517,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 			});
 		}
 	}
+#endif
 
 
 	// rotate the cube

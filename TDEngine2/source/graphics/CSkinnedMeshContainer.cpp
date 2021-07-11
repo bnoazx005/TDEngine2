@@ -70,6 +70,11 @@ namespace TDEngine2
 		mMaterialInstanceId = materialInstanceId;
 	}
 
+	void CSkinnedMeshContainer::SetSkeletonName(const std::string& skeletonName)
+	{
+		mSkeletonName = skeletonName;
+	}
+
 	void CSkinnedMeshContainer::SetSystemBuffersHandle(U32 handle)
 	{
 		mSystemBuffersHandle = handle;
@@ -90,9 +95,19 @@ namespace TDEngine2
 		return mMaterialInstanceId;
 	}
 
+	const std::string& CSkinnedMeshContainer::GetSkeletonName() const
+	{
+		return mSkeletonName;
+	}
+
 	U32 CSkinnedMeshContainer::GetSystemBuffersHandle() const
 	{
 		return mSystemBuffersHandle;
+	}
+
+	std::vector<TMatrix4>& CSkinnedMeshContainer::GetCurrentAnimationPose()
+	{
+		return mCurrAnimationPose;
 	}
 
 

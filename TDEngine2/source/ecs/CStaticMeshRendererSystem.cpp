@@ -132,7 +132,7 @@ namespace TDEngine2
 		{
 			pCurrStaticMeshContainer = std::get<CStaticMeshContainer*>(iter);
 
-			pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>(pCurrStaticMeshContainer->GetMaterialName()));
+			pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pCurrStaticMeshContainer->GetMaterialName()));
 
 			// \note skip duplicates
 			if (std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())

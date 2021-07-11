@@ -13,8 +13,6 @@ struct VertexOut
 	float2 mUV           : TEXCOORD;
 	float4 mNormal       : NORMAL;
 	float3x3 mTBN        : TEXCOORD1;
-	float4 mJointWeights : BLENDWEIGHTS; 
-	uint4  mJointIndices : BLENDINDICES;
 };
 
 
@@ -33,6 +31,8 @@ struct VertexIn
 	float2 mUV      : TEXCOORD;
 	float4 mNormal  : NORMAL;
 	float4 mTangent : TANGENT;
+	float4 mJointWeights : BLENDWEIGHT; 
+	uint4  mJointIndices : BLENDINDICES;
 };
 
 

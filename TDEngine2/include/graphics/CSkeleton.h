@@ -107,6 +107,8 @@ namespace TDEngine2
 			TDE2_API TJoint* GetJoint(U32 id) override;
 
 			TDE2_API TJoint* GetJointByName(const std::string& name) override;
+
+			TDE2_API U32 GetJointsCount() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkeleton)
 

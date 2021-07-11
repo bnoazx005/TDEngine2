@@ -6,6 +6,7 @@
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/CSkinnedMesh.h"
+#include "../../include/graphics/ISkeleton.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
@@ -106,19 +107,19 @@ namespace TDEngine2
 		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
 		_collectUsedMaterials(mProcessingEntities, mpResourceManager, mCurrMaterialsArray);
 
-		auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.cbegin(), mCurrMaterialsArray.cend(), [](const IMaterial* pCurrMaterial)
+		auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.begin(), mCurrMaterialsArray.end(), [](IMaterial* pCurrMaterial)
 		{
 			return pCurrMaterial->IsTransparent();
 		});
-		
+
 		// \note construct commands for opaque geometry
-		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pCameraComponent](IMaterial* pCurrMaterial)
+		std::for_each(mCurrMaterialsArray.begin(), firstTransparentMatIter, [this, pCameraComponent](IMaterial* pCurrMaterial)
 		{
 			_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, pCurrMaterial, pCameraComponent);
 		});
 
 		// \note construct commands for transparent geometry
-		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pCameraComponent](IMaterial* pCurrMaterial)
+		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.end(), [this, pCameraComponent](IMaterial* pCurrMaterial)
 		{
 			_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, pCurrMaterial, pCameraComponent);
 		});
@@ -136,7 +137,7 @@ namespace TDEngine2
 		{
 			pCurrSkinnedMeshContainer = std::get<CSkinnedMeshContainer*>(iter);
 
-			pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<CBaseMaterial>(pCurrSkinnedMeshContainer->GetMaterialName()));
+			pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pCurrSkinnedMeshContainer->GetMaterialName()));
 
 			// \note skip duplicates
 			if (std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())
@@ -158,6 +159,7 @@ namespace TDEngine2
 
 		auto&& pCastedMaterial = dynamic_cast<CBaseMaterial*>(pCurrMaterial);
 		const std::string& currMaterialName = pCastedMaterial->GetName();
+		TDE2_ASSERT(pCastedMaterial);
 
 		TResourceId currMaterialId = pCastedMaterial->GetId();
 
@@ -180,7 +182,7 @@ namespace TDEngine2
 				++iter;
 				continue;
 			}
-
+			
 			// \note we need to create vertex and index buffers for the object
 			if (pSkinnedMeshContainer->GetSystemBuffersHandle() == static_cast<U32>(-1))
 			{
@@ -188,15 +190,7 @@ namespace TDEngine2
 
 				auto pVertexDecl = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 
-				auto&& vertexData = pSharedMeshResource->ToArrayOfStructsDataLayout();
-				std::vector<U16> indices(pSharedMeshResource->GetIndices().begin(), pSharedMeshResource->GetIndices().end());
-
-				mMeshBuffersMap.push_back(
-					{
-						mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, vertexData.size(), &vertexData[0]).Get(),
-						mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, IFT_INDEX16, indices.size() * sizeof(U16), &indices[0]).Get(),
-						pVertexDecl
-					});
+				mMeshBuffersMap.push_back({ pSharedMeshResource->GetSharedVertexBuffer(), pSharedMeshResource->GetSharedIndexBuffer(), pVertexDecl });
 
 				// \note form the vertex declaration for the mesh
 				pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
@@ -228,18 +222,34 @@ namespace TDEngine2
 				}
 			}
 
+			auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
+			U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
 			/// \note Get or create a new material's instance
 			TMaterialInstanceId materialInstance = pSkinnedMeshContainer->GetMaterialInstanceHandle();
 			if (TMaterialInstanceId::Invalid == materialInstance)
 			{
 				materialInstance = pCastedMaterial->CreateInstance()->GetInstanceId();
+				pSkinnedMeshContainer->SetMaterialInstanceHandle(materialInstance);
+
+				const TResourceId skeletonResourceId = mpResourceManager->Load<ISkeleton>(pSkinnedMeshContainer->GetSkeletonName());
+				if (TResourceId::Invalid != skeletonResourceId)
+				{
+					ISkeleton* pSkeleton = mpResourceManager->GetResource<ISkeleton>(skeletonResourceId);
+
+					pSkeleton->ForEachJoint([&currAnimationPose](TJoint* pJoint)
+					{
+						currAnimationPose.push_back(Inverse(pJoint->mInvBindTransform));
+					});
+
+					jointsCount = static_cast<U32>(currAnimationPose.size());
+				}
 			}
 			
-			/// \todo Implement this lines after animator component will be finished
-			//pCastedMaterial->SetVariableForInstance(materialInstance, JointsPalleteShaderVariableId, nullptr, 0);
-			//pCastedMaterial->SetVariableForInstance(materialInstance, JointsCountShaderVariableId, nullptr, 0);
+			pCastedMaterial->SetVariableForInstance(materialInstance, JointsPalleteShaderVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+			pCastedMaterial->SetVariableForInstance(materialInstance, JointsCountShaderVariableId, &jointsCount, sizeof(U32));
 
-			auto meshBuffersEntry = mMeshBuffersMap[pSkinnedMeshContainer->GetSystemBuffersHandle()];
+			auto& meshBuffersEntry = mMeshBuffersMap[pSkinnedMeshContainer->GetSystemBuffersHandle()];
 
 			auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
 
@@ -248,6 +258,8 @@ namespace TDEngine2
 			// create a command for the renderer
 			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
 																				 _computeMeshCommandHash(currMaterialId, distanceToCamera));
+			
+			TDE2_ASSERT(pCommand);
 
 			pCommand->mpVertexBuffer              = pSharedMeshResource->GetSharedVertexBuffer();
 			pCommand->mpIndexBuffer               = pSharedMeshResource->GetSharedIndexBuffer();
