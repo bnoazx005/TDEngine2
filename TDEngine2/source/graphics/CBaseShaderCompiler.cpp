@@ -455,6 +455,25 @@ namespace TDEngine2
 		return structDeclsMap;
 	}
 
+
+	static std::string ExtractIdentifier(const std::string& idStr)
+	{
+		std::string outputIdentifier;
+		
+		for (auto&& ch : idStr)
+		{
+			if (!std::isalnum(ch) && ch != '_')
+			{
+				return outputIdentifier;
+			}
+
+			outputIdentifier.push_back(ch);
+		}
+
+		return outputIdentifier;
+	}
+
+
 	U32 CBaseShaderCompiler::_getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer,
 												  const TUniformVariableFunctor& uniformProcessor) const
 	{
@@ -509,7 +528,7 @@ namespace TDEngine2
 
 				if (currToken != ";")
 				{
-					uniformProcessor({ currToken, currMemberSize });
+					uniformProcessor({ std::move(ExtractIdentifier(currToken)), currMemberSize });
 				}
 			} 
 			while (currToken != ";" && tokenizer.HasNext());

@@ -18,6 +18,8 @@ struct VertexOut
 
 #program vertex
 
+
+
 CBUFFER_SECTION(SkinningData)
 	float4x4 mJoints[MAX_JOINTS_COUNT];
 	uint mUsedJointsCount;
@@ -40,7 +42,7 @@ VertexOut mainVS(in VertexIn input)
 {
 	VertexOut output;
 
-	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), input.mPos);
+	output.mPos      = mul(mul(ProjMat + mJoints[0], mul(ViewMat, ModelMat)), input.mPos);
 	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
 	output.mWorldPos = mul(ModelMat, input.mPos);
 	output.mNormal   = mul(transpose(InvModelMat), input.mNormal);
