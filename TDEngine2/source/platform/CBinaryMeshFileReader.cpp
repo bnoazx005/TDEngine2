@@ -134,7 +134,7 @@ namespace TDEngine2
 
 		if (0xA502 == tag) /// \note Read joint indices (this is an optional step)
 		{
-			std::array<U16, MaxJointsCountPerVertex> tmpJointsIndices;
+			std::array<U32, MaxJointsCountPerVertex> tmpJointsIndices;
 			U16 jointsCount = 0;
 
 			for (U32 i = 0; i < vertexCount; ++i)
@@ -151,7 +151,7 @@ namespace TDEngine2
 
 				for (U16 k = 0; k < jointsCount; ++k)
 				{
-					result = result | Read(&tmpJointsIndices[k], sizeof(U16));
+					result = result | Read(&tmpJointsIndices[k], sizeof(U32));
 				}
 
 				pMesh->AddVertexJointIndices(tmpJointsIndices);

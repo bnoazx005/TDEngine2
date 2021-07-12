@@ -361,6 +361,8 @@ namespace TDEngine2
 			}
 		}
 
+		LOG_ERROR(Wrench::StringUtils::Format("[File System] Could not load the specified file from \"{0}\"", filePath));
+
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_FILE_NOT_FOUND);
 	}
 	

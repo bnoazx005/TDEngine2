@@ -273,15 +273,17 @@ namespace TDEngine2
 
 	struct TMeshDataEntity
 	{
-		std::string                   mName;
-		std::vector<TVector4>         mVertices;
-		std::vector<TVector4>         mNormals;
-		std::vector<TVector4>         mTangents;
-		std::vector<TVector2>         mTexcoords;
-		std::vector<TVector4>         mColors;
-		std::vector<U32>              mFaces;
-		std::vector<std::vector<F32>> mJointWeights;
-		std::vector<std::vector<U16>> mJointIndices;
+		typedef std::vector<U32> TJointIndicesArray;
+
+		std::string                     mName;
+		std::vector<TVector4>           mVertices;
+		std::vector<TVector4>           mNormals;
+		std::vector<TVector4>           mTangents;
+		std::vector<TVector2>           mTexcoords;
+		std::vector<TVector4>           mColors;
+		std::vector<U32>                mFaces;
+		std::vector<std::vector<F32>>   mJointWeights;
+		std::vector<TJointIndicesArray> mJointIndices;
 	};
 
 
@@ -312,9 +314,9 @@ namespace TDEngine2
 	}
 
 
-	static std::vector<U16> ResolveBoneIndices(const CScopedPtr<CSkeleton>& pSkeleton, const std::vector<std::string>& boneIdentifiers)
+	static TMeshDataEntity::TJointIndicesArray ResolveBoneIndices(const CScopedPtr<CSkeleton>& pSkeleton, const std::vector<std::string>& boneIdentifiers)
 	{
-		std::vector<U16> resolvedIndices;
+		TMeshDataEntity::TJointIndicesArray resolvedIndices;
 
 		for (const std::string& boneId : boneIdentifiers)
 		{
@@ -503,7 +505,7 @@ namespace TDEngine2
 				const U16 indicesCount = static_cast<U16>(jointIndices.size());
 				result = result | pMeshFileWriter->Write(&indicesCount, sizeof(U16));
 
-				for (U16 currJointIndex : jointIndices)
+				for (U32 currJointIndex : jointIndices)
 				{
 					result = result | pMeshFileWriter->Write(&currJointIndex, sizeof(currJointIndex));
 				}
