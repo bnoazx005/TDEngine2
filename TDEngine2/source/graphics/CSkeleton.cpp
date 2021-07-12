@@ -171,7 +171,7 @@ namespace TDEngine2
 					{
 						pWriter->BeginGroup(TSkeletonArchiveKeys::TJointsGroup::mInvBindTransformKey);
 						{
-							SaveMatrix4(pWriter, currJoint.mLocalBindTransform);
+							SaveMatrix4(pWriter, currJoint.mInvBindTransform);
 						}
 						pWriter->EndGroup();
 					}
