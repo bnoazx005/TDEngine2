@@ -629,6 +629,13 @@ namespace TDEngine2
 	}
 
 
+#if defined (TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
+	#define TDE2_ASSERT(expression) do { if (!(expression)) { debug_break(); } } while(0)
+#else
+	#define TDE2_ASSERT(expression) 
+#endif
+
+
 	/*!
 		class CScopedPtr<T>
 
@@ -663,6 +670,7 @@ namespace TDEngine2
 
 			T* operator->() const
 			{
+				TDE2_ASSERT(mpPtr);
 				return mpPtr;
 			}
 
@@ -718,13 +726,6 @@ namespace TDEngine2
 	*/
 
 #define TDE2_BASE_CLASS(TClass) typedef TClass TBase
-
-
-#if defined (TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-	#define TDE2_ASSERT(expression) do { if (!(expression)) { debug_break(); } } while(0)
-#else
-	#define TDE2_ASSERT(expression) 
-#endif
 
 
 	/*!

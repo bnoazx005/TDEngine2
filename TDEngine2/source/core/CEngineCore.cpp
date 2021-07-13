@@ -53,7 +53,7 @@
 namespace TDEngine2
 {
 	CEngineCore::CEngineCore():
-		mIsInitialized(false),
+		CBaseObject(),
 		mpInternalTimer(nullptr),
 		mpDLLManager(nullptr),
 		mpWorldInstance(nullptr),
@@ -85,6 +85,13 @@ namespace TDEngine2
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
+		}
+
+		--mRefCounter;
+
+		if (mRefCounter)
+		{
+			return RC_OK;
 		}
 
 		{

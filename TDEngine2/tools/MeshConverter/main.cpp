@@ -37,8 +37,7 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 
-	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
-	CDeferOperation _([&pEngineCore] { pEngineCore->Free(); });
+	CScopedPtr<IEngineCore> pEngineCore { pEngineCoreBuilder->GetEngineCore() };
 
-	return static_cast<int>(ProcessMeshFiles(pEngineCore, std::move(BuildFilesList(options.mInputFiles)), options));
+	return static_cast<int>(ProcessMeshFiles(pEngineCore.Get(), std::move(BuildFilesList(options.mInputFiles)), options));
 }

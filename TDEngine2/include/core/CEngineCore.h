@@ -7,6 +7,7 @@
 
 
 #include "IEngineCore.h"
+#include "CBaseObject.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -36,7 +37,7 @@ namespace TDEngine2
 		in a single place.
 	*/
 
-	class CEngineCore: public IEngineCore
+	class CEngineCore: public IEngineCore, public CBaseObject
 	{
 		public:
 			friend TDE2_API IEngineCore* CreateEngineCore(E_RESULT_CODE& result);	
@@ -178,8 +179,6 @@ namespace TDEngine2
 				return dynamic_cast<T*>(mSubsystems[type]);
 			}
 		protected:
-			std::atomic_bool   mIsInitialized;
-
 			IEngineSubsystem*  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 
 			TListenersArray    mEngineListeners;

@@ -7,11 +7,11 @@
 #pragma once
 
 
-#include "./../utils/Config.h"
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../utils/Config.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "IBaseObject.h"
 #include <string>
-#include <cassert>
 
 
 namespace TDEngine2
@@ -31,7 +31,7 @@ namespace TDEngine2
 		\brief The interface represents a functionality of a core object in the engine
 	*/
 
-	class IEngineCore
+	class IEngineCore: public virtual IBaseObject
 	{
 		public:
 			/*!
@@ -41,14 +41,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init() = 0;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Free() = 0;
 
 			/*!
 				\brief The method starts up the engine
@@ -126,7 +118,7 @@ namespace TDEngine2
 			{
 				T* pInternalSystem = static_cast<T*>(_getSubsystem(T::GetTypeID()));
 
-				assert(pInternalSystem);
+				TDE2_ASSERT(pInternalSystem);
 				return pInternalSystem;
 			}
 
