@@ -224,7 +224,8 @@ namespace TDEngine2
 
 						if (TJoint* pJoint = pSkeleton->GetJoint(jointIdResult.Get()))
 						{
-							pJoint->mInvBindTransform = ConvertAssimpMatrix(pCurrBone->mOffsetMatrix);
+							pJoint->mInvBindTransform   = ConvertAssimpMatrix(pCurrBone->mOffsetMatrix);
+							pJoint->mLocalBindTransform = ConvertAssimpMatrix(pCurrBone->mNode->mTransformation);
 						}
 					}
 				}

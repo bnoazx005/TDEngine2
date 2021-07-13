@@ -505,7 +505,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	//pDebugUtility->DrawCircle(ZeroVector3, Normalize(TVector3(1, 1, 0)), 5.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 16);
 	//pDebugUtility->DrawSphere(ZeroVector3, 10.0f, { 0.0f, 1.0f, 0.0f, 1.0f }, 3);
 
-#if 0
+#if 1
 	TResourceId skeletonId = mpResourceManager->Load<ISkeleton>("TestAnim2.skeleton");
 	if (TResourceId::Invalid != skeletonId)
 	{
@@ -513,7 +513,8 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		{
 			pSkeleton->ForEachJoint([pDebugUtility](TJoint* pJoint) 
 			{
-				pDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, pJoint->mInvBindTransform, 2.0f);
+				//pDebugUtility->DrawTransformGizmo(E_GIZMO_TYPE::TRANSLATION, pJoint->mInvBindTransform, 2.0f);
+				pDebugUtility->DrawCross(Inverse(pJoint->mInvBindTransform) * TVector4(ZeroVector3, 1.0f), 3.0f, TColorUtils::mGreen);
 			});
 		}
 	}
