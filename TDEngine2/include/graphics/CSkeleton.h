@@ -114,6 +114,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _postLoad();
 
+			TDE2_API U32 _insertJoint(TJoint jointData);
+
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 		protected:
 			std::vector<TJoint> mJoints;

@@ -122,7 +122,7 @@ namespace TDEngine2
 				}
 				pReader->EndGroup();
 
-				mJoints.push_back(tmpJoint);
+				_insertJoint(tmpJoint);
 			}
 		}
 		pReader->EndGroup();
@@ -199,10 +199,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		const U32 jointId = static_cast<I32>(mJoints.size());
-		mJoints.push_back({ jointId, parent, name, bindTransform });
-
-		return Wrench::TOkValue<U32>(jointId);
+		return Wrench::TOkValue<U32>(_insertJoint({ static_cast<U32>(mJoints.size()), parent, name, bindTransform }));
 	}
 
 	E_RESULT_CODE CSkeleton::RemoveJoint(const std::string& name)
@@ -262,7 +259,8 @@ namespace TDEngine2
 	
 	TJoint* CSkeleton::GetJoint(U32 id)
 	{
-		return (id >= static_cast<U32>(mJoints.size())) ? nullptr : &mJoints[id];
+		auto it = std::find_if(mJoints.begin(), mJoints.end(), [id](const TJoint& joint) { return id == joint.mIndex; });
+		return (it == mJoints.end()) ? nullptr : &*it;
 	}
 
 	TJoint* CSkeleton::GetJointByName(const std::string& name)
@@ -350,6 +348,17 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	U32 CSkeleton::_insertJoint(TJoint jointData)
+	{
+		const U32 id = jointData.mIndex;
+
+		auto it = std::find_if(mJoints.begin(), mJoints.end(), [parentId = static_cast<U32>(jointData.mParentIndex)](const TJoint& pJoint) { return pJoint.mIndex == parentId; });
+	
+		mJoints.emplace((it == mJoints.end()) ? it : (it + 1), jointData);
+
+		return id;
 	}
 
 
