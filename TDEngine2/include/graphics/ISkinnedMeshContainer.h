@@ -66,6 +66,8 @@ namespace TDEngine2
 			TDE2_API virtual void SetSystemBuffersHandle(U32 handle) = 0;
 
 			TDE2_API virtual void SetMaterialInstanceHandle(TMaterialInstanceId materialInstanceId) = 0;
+			
+			TDE2_API virtual void SetShowDebugSkeleton(bool value) = 0;
 
 			/*!
 				\brief The method returns an identifier of used material
@@ -95,6 +97,8 @@ namespace TDEngine2
 			TDE2_API virtual U32 GetSystemBuffersHandle() const = 0;
 
 			TDE2_API virtual std::vector<TMatrix4>& GetCurrentAnimationPose() = 0;
+
+			TDE2_API virtual bool ShouldShowDebugSkeleton() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISkinnedMeshContainer)
 	};

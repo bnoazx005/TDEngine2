@@ -7,6 +7,7 @@
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/CSkinnedMesh.h"
 #include "../../include/graphics/ISkeleton.h"
+#include "../../include/graphics/IDebugUtility.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
@@ -41,6 +42,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mpRenderer = pRenderer;
 
 		mpOpaqueRenderGroup      = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY);
 		mpTransparentRenderGroup = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY);
@@ -152,6 +155,47 @@ namespace TDEngine2
 		std::sort(usedMaterials.begin(), usedMaterials.end(), CBaseMaterial::AlphaBasedMaterialComparator);
 	}
 
+
+	static E_RESULT_CODE ShowSkeletonDebugHierarchy(IGraphicsObjectManager* pGraphicsObjectsManager, IResourceManager* pResourceManager, IRenderer* pRenderer, TResourceId skeletonId)
+	{
+		if (!pGraphicsObjectsManager || !pResourceManager || TResourceId::Invalid == skeletonId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto retrievePtrResult = pGraphicsObjectsManager->CreateDebugUtility(pResourceManager, pRenderer);
+		if (retrievePtrResult.HasError())
+		{
+			return retrievePtrResult.GetError();
+		}
+
+		IDebugUtility* pDebugUtility = retrievePtrResult.Get();
+
+		ISkeleton* pSkeleton = pResourceManager->GetResource<ISkeleton>(skeletonId);
+		if (!pSkeleton)
+		{
+			return RC_FAIL;
+		}
+
+		pSkeleton->ForEachJoint([pDebugUtility, pSkeleton](TJoint* pJoint)
+		{
+			const TVector4 first = Inverse(pJoint->mInvBindTransform) * TVector4(ZeroVector3, 1.0f);
+
+			if (pJoint->mParentIndex >= 0)
+			{
+				if (TJoint* pParentJoint = pSkeleton->GetJoint(pJoint->mParentIndex))
+				{
+					pDebugUtility->DrawLine(first, Inverse(pParentJoint->mInvBindTransform) * TVector4(ZeroVector3, 1.0f), TColorUtils::mYellow);
+				}
+			}
+
+			pDebugUtility->DrawCross(first, 2.0f, TColorUtils::mGreen);
+		});
+
+		return RC_OK;
+	}
+
+
 	void CSkinnedMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, IMaterial* pCurrMaterial,
 															const ICamera* pCamera)
 	{
@@ -225,6 +269,8 @@ namespace TDEngine2
 			auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
 			U32 jointsCount = static_cast<U32>(currAnimationPose.size());
 
+			const TResourceId skeletonResourceId = mpResourceManager->Load<ISkeleton>(pSkinnedMeshContainer->GetSkeletonName());
+
 			/// \note Get or create a new material's instance
 			TMaterialInstanceId materialInstance = pSkinnedMeshContainer->GetMaterialInstanceHandle();
 			if (TMaterialInstanceId::Invalid == materialInstance)
@@ -232,7 +278,6 @@ namespace TDEngine2
 				materialInstance = pCastedMaterial->CreateInstance()->GetInstanceId();
 				pSkinnedMeshContainer->SetMaterialInstanceHandle(materialInstance);
 
-				const TResourceId skeletonResourceId = mpResourceManager->Load<ISkeleton>(pSkinnedMeshContainer->GetSkeletonName());
 				if (TResourceId::Invalid != skeletonResourceId)
 				{
 					ISkeleton* pSkeleton = mpResourceManager->GetResource<ISkeleton>(skeletonResourceId);
@@ -244,6 +289,11 @@ namespace TDEngine2
 
 					jointsCount = static_cast<U32>(currAnimationPose.size());
 				}
+			}
+
+			if (pSkinnedMeshContainer->ShouldShowDebugSkeleton())
+			{
+				TDE2_ASSERT(RC_OK == ShowSkeletonDebugHierarchy(mpGraphicsObjectManager, mpResourceManager, mpRenderer, skeletonResourceId));
 			}
 			
 			pCastedMaterial->SetVariableForInstance(materialInstance, JointsPalleteShaderVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));

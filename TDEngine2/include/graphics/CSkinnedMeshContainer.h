@@ -97,6 +97,8 @@ namespace TDEngine2
 			
 			TDE2_API void SetSkeletonName(const std::string& skeletonName) override;
 
+			TDE2_API void SetShowDebugSkeleton(bool value) override;
+
 			/*!
 				\brief The method returns an identifier of used material
 
@@ -125,6 +127,8 @@ namespace TDEngine2
 			TDE2_API const std::string& GetSkeletonName() const override;
 
 			TDE2_API std::vector<TMatrix4>& GetCurrentAnimationPose() override;
+
+			TDE2_API bool ShouldShowDebugSkeleton() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkinnedMeshContainer)
 		protected:
@@ -137,6 +141,8 @@ namespace TDEngine2
 			TMaterialInstanceId mMaterialInstanceId;
 
 			std::vector<TMatrix4> mCurrAnimationPose;
+
+			bool mShouldShowDebugSkeleton = false;
 	};
 
 

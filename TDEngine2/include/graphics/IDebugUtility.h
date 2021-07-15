@@ -7,14 +7,14 @@
 #pragma once
 
 
-#include "./../utils/Config.h"
-#include "./../utils/Types.h"
-#include "./../core/IBaseObject.h"
-#include "./../math/TVector2.h"
-#include "./../math/TVector3.h"
-#include "./../math/TRect.h"
-#include "./../utils/Color.h"
-#include "./../utils/CU8String.h"
+#include "../utils/Config.h"
+#include "../utils/Types.h"
+#include "../core/IBaseObject.h"
+#include "../math/TVector2.h"
+#include "../math/TVector3.h"
+#include "../math/TRect.h"
+#include "../utils/Color.h"
+#include "../utils/CU8String.h"
 
 
 namespace TDEngine2

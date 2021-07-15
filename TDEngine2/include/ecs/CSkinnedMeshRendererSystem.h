@@ -121,6 +121,8 @@ namespace TDEngine2
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
 			IResourceManager*       mpResourceManager;
+			
+			IRenderer*              mpRenderer;
 
 			CRenderQueue*           mpOpaqueRenderGroup;
 			CRenderQueue*           mpTransparentRenderGroup;

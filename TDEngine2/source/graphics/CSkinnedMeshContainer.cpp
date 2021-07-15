@@ -80,6 +80,11 @@ namespace TDEngine2
 		mSystemBuffersHandle = handle;
 	}
 
+	void CSkinnedMeshContainer::SetShowDebugSkeleton(bool value)
+	{
+		mShouldShowDebugSkeleton = value;
+	}
+
 	const std::string& CSkinnedMeshContainer::GetMaterialName() const
 	{
 		return mMaterialName;
@@ -108,6 +113,11 @@ namespace TDEngine2
 	std::vector<TMatrix4>& CSkinnedMeshContainer::GetCurrentAnimationPose()
 	{
 		return mCurrAnimationPose;
+	}
+
+	bool CSkinnedMeshContainer::ShouldShowDebugSkeleton() const
+	{
+		return mShouldShowDebugSkeleton;
 	}
 
 
