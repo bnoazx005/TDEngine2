@@ -93,8 +93,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
 		{
 			pMeshContainer->SetMaterialName("DefaultMaterials/DefaultSkinningMaterial.material");
-			pMeshContainer->SetMeshName("TestAnim2.mesh");
-			pMeshContainer->SetSkeletonName("TestAnim2.skeleton");
+			pMeshContainer->SetMeshName("TestAnim.mesh");
+			pMeshContainer->SetSkeletonName("TestAnim.skeleton");
 			pMeshContainer->SetShowDebugSkeleton(true);
 		}
 	}

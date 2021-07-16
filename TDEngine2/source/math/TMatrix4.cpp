@@ -1,6 +1,7 @@
 #include "../../include/math/TMatrix4.h"
 #include "../../include/math/TMatrix3.h"
 #include "../../include/core/Serialization.h"
+#include "../../include/math/MathUtils.h"
 #include "stringUtils.hpp"
 #include <cstring>
 #include <cmath>
@@ -25,6 +26,17 @@ namespace TDEngine2
 				}
 			}
 		}
+	}
+
+	TMatrix4::TMatrix4(F32 _11, F32 _12, F32 _13, F32 _14,
+					   F32 _21, F32 _22, F32 _23, F32 _24,
+					   F32 _31, F32 _32, F32 _33, F32 _34,
+					   F32 _41, F32 _42, F32 _43, F32 _44)
+	{
+		m[0][0] = _11; m[0][1] = _12; m[0][2] = _13; m[0][3] = _14;
+		m[1][0] = _11; m[1][1] = _12; m[1][2] = _13; m[1][3] = _14;
+		m[2][0] = _11; m[2][1] = _12; m[2][2] = _13; m[2][3] = _14;
+		m[3][0] = _11; m[3][1] = _12; m[3][2] = _13; m[3][3] = _14;
 	}
 
 	TMatrix4::TMatrix4(const TVector4& diagElements)
@@ -223,6 +235,38 @@ namespace TDEngine2
 		return result;
 	}
 
+
+	TDE2_API bool operator== (const TMatrix4& lmat4, const TMatrix4& rmat4)
+	{
+		for (I32 i = 0; i < 4; ++i)
+		{
+			for (I32 j = 0; j < 4; ++j)
+			{
+				if (CMathUtils::Abs(lmat4.m[i][j] - rmat4.m[i][j]) > 1e-3f) 
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	TDE2_API bool operator!= (const TMatrix4& lmat4, const TMatrix4& rmat4)
+	{
+		for (I32 i = 0; i < 4; ++i)
+		{
+			for (I32 j = 0; j < 4; ++j)
+			{
+				if (CMathUtils::Abs(lmat4.m[i][j] - rmat4.m[i][j]) > 1e-3f)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 
 	TDE2_API TMatrix4 Mul(const TMatrix4& lmat4, const TMatrix4& rmat4)
 	{

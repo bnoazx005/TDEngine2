@@ -42,7 +42,12 @@ namespace TDEngine2
 			\param[in] arr An array of 16 floats
 		*/
 
-		TDE2_API TMatrix4(const F32 arr[16]);
+		TDE2_API explicit TMatrix4(const F32 arr[16]);
+
+		TDE2_API TMatrix4(F32 _11, F32 _12, F32 _13, F32 _14, 
+						  F32 _21, F32 _22, F32 _23, F32 _24, 
+						  F32 _31, F32 _32, F32 _33, F32 _34,
+						  F32 _41, F32 _42, F32 _43, F32 _44);
 
 		/*!
 			\brief The constructor that creates a diagonal matrix
@@ -50,7 +55,7 @@ namespace TDEngine2
 			\param[in] diagElements A 4d vector that contains diagonal elements values
 		*/
 
-		TDE2_API TMatrix4(const TVector4& diagElements);
+		TDE2_API explicit TMatrix4(const TVector4& diagElements);
 
 		/*!
 			\brief Copy constructor
@@ -113,6 +118,10 @@ namespace TDEngine2
 	TDE2_API TMatrix4 operator* (const TMatrix4& mat4, const F32& coeff);
 
 	TDE2_API TMatrix4 operator* (const F32& coeff, const TMatrix4& mat4);
+
+
+	TDE2_API bool operator== (const TMatrix4& lmat4, const TMatrix4& rmat4);
+	TDE2_API bool operator!= (const TMatrix4& lmat4, const TMatrix4& rmat4);
 
 
 	///TMatrix4's functions
