@@ -1,4 +1,5 @@
-#include "./../../include/math/TMatrix3.h"
+#include "../../include/math/TMatrix3.h"
+#include "../../include/math/MathUtils.h"
 #include <cstring>
 #include <cmath>
 
@@ -191,6 +192,38 @@ namespace TDEngine2
 		return result;
 	}
 
+	TDE2_API bool operator== (const TMatrix3& lmat3, const TMatrix3& rmat3)
+	{
+		for (I32 i = 0; i < 3; ++i)
+		{
+			for (I32 j = 0; j < 3; ++j)
+			{
+				if (CMathUtils::Abs(lmat3.m[i][j] - rmat3.m[i][j]) > FloatEpsilon)
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	TDE2_API bool operator!= (const TMatrix3& lmat3, const TMatrix3& rmat3)
+	{
+		for (I32 i = 0; i < 3; ++i)
+		{
+			for (I32 j = 0; j < 3; ++j)
+			{
+				if (CMathUtils::Abs(lmat3.m[i][j] - rmat3.m[i][j]) > FloatEpsilon)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 
 	TDE2_API TMatrix3 Mul(const TMatrix3& lmat3, const TMatrix3& rmat3)
 	{
@@ -206,26 +239,26 @@ namespace TDEngine2
 	{
 		TMatrix3 inversed = ZeroMatrix3;
 
-		F32 det = Det(mat3);
+		const F32 det = Det(mat3);
 
-		if (fabs(det) < FloatEpsilon)
+		if (CMathUtils::Abs(det) < 0.0f)
 		{
 			return inversed;
 		}
 
-		F32 invDet = 1.0f / det;
+		const F32 invDet = 1.0f / det;
 
 		//compute adjoint matrix adjA = (A*)^T, where A* is composed from minors of A
 		inversed.m[0][0] = invDet * (mat3.m[1][1] * mat3.m[2][2] - mat3.m[1][2] * mat3.m[2][1]);
 		inversed.m[0][1] = invDet * (mat3.m[0][2] * mat3.m[2][1] - mat3.m[0][1] * mat3.m[2][2]);
-		inversed.m[0][2] = invDet * (mat3.m[0][2] * mat3.m[1][1] - mat3.m[0][1] * mat3.m[1][2]);
+		inversed.m[0][2] = invDet * (mat3.m[0][1] * mat3.m[1][2] - mat3.m[0][2] * mat3.m[1][1]);
 												  				 			    
 		inversed.m[1][0] = invDet * (mat3.m[1][2] * mat3.m[2][0] - mat3.m[1][0] * mat3.m[2][2]);
 		inversed.m[1][1] = invDet * (mat3.m[0][0] * mat3.m[2][2] - mat3.m[0][2] * mat3.m[2][0]);
 		inversed.m[1][2] = invDet * (mat3.m[0][2] * mat3.m[1][0] - mat3.m[0][0] * mat3.m[1][2]);
 												  				 			    
 		inversed.m[2][0] = invDet * (mat3.m[1][0] * mat3.m[2][1] - mat3.m[1][1] * mat3.m[2][0]);
-		inversed.m[2][1] = invDet * (mat3.m[0][2] * mat3.m[2][0] - mat3.m[0][0] * mat3.m[2][1]);
+		inversed.m[2][1] = invDet * (mat3.m[0][1] * mat3.m[2][0] - mat3.m[0][0] * mat3.m[2][1]);
 		inversed.m[2][2] = invDet * (mat3.m[0][0] * mat3.m[1][1] - mat3.m[0][1] * mat3.m[1][0]);
 
 		return inversed;

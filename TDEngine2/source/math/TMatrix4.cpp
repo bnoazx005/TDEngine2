@@ -34,9 +34,9 @@ namespace TDEngine2
 					   F32 _41, F32 _42, F32 _43, F32 _44)
 	{
 		m[0][0] = _11; m[0][1] = _12; m[0][2] = _13; m[0][3] = _14;
-		m[1][0] = _11; m[1][1] = _12; m[1][2] = _13; m[1][3] = _14;
-		m[2][0] = _11; m[2][1] = _12; m[2][2] = _13; m[2][3] = _14;
-		m[3][0] = _11; m[3][1] = _12; m[3][2] = _13; m[3][3] = _14;
+		m[1][0] = _21; m[1][1] = _22; m[1][2] = _23; m[1][3] = _24;
+		m[2][0] = _31; m[2][1] = _32; m[2][2] = _33; m[2][3] = _34;
+		m[3][0] = _41; m[3][1] = _42; m[3][2] = _43; m[3][3] = _44;
 	}
 
 	TMatrix4::TMatrix4(const TVector4& diagElements)
@@ -282,14 +282,14 @@ namespace TDEngine2
 	{
 		TMatrix4 inversed = ZeroMatrix4;
 
-		F32 det = Det(mat4);
+		const F32 det = Det(mat4);
 
-		if (fabs(det) < FloatEpsilon)
+		if (CMathUtils::Abs(det) < 0.0f)
 		{
 			return inversed;
 		}
 
-		F32 invDet = 1.0f / det;
+		const F32 invDet = 1.0f / det;
 
 		F32 minorDet11 = Det(TMatrix3(mat4.m[1][1], mat4.m[1][2], mat4.m[1][3], mat4.m[2][1], mat4.m[2][2], mat4.m[2][3], mat4.m[3][1], mat4.m[3][2], mat4.m[3][3]));
 		F32 minorDet12 = Det(TMatrix3(mat4.m[1][0], mat4.m[1][2], mat4.m[1][3], mat4.m[2][0], mat4.m[2][2], mat4.m[2][3], mat4.m[3][0], mat4.m[3][2], mat4.m[3][3]));
@@ -353,12 +353,12 @@ namespace TDEngine2
 
 	TDE2_API F32 Det(const TMatrix4& mat4)
 	{
-		F32 minorDet00 = Det(TMatrix3(mat4.m[1][1], mat4.m[1][2], mat4.m[1][3], mat4.m[2][1], mat4.m[2][2], mat4.m[2][3], mat4.m[3][1], mat4.m[3][2], mat4.m[3][3]));
-		F32 minorDet01 = Det(TMatrix3(mat4.m[1][0], mat4.m[1][2], mat4.m[1][3], mat4.m[2][0], mat4.m[2][2], mat4.m[2][3], mat4.m[3][0], mat4.m[3][2], mat4.m[3][3]));
-		F32 minorDet02 = Det(TMatrix3(mat4.m[1][0], mat4.m[1][1], mat4.m[1][3], mat4.m[2][0], mat4.m[2][1], mat4.m[2][3], mat4.m[3][0], mat4.m[3][1], mat4.m[3][3]));
-		F32 minorDet03 = Det(TMatrix3(mat4.m[1][0], mat4.m[1][1], mat4.m[1][2], mat4.m[2][0], mat4.m[2][1], mat4.m[2][2], mat4.m[3][0], mat4.m[3][1], mat4.m[3][2]));
+		const F32 minorDet00 = Det(TMatrix3(mat4.m[1][1], mat4.m[1][2], mat4.m[1][3], mat4.m[2][1], mat4.m[2][2], mat4.m[2][3], mat4.m[3][1], mat4.m[3][2], mat4.m[3][3]));
+		const F32 minorDet01 = Det(TMatrix3(mat4.m[1][0], mat4.m[1][2], mat4.m[1][3], mat4.m[2][0], mat4.m[2][2], mat4.m[2][3], mat4.m[3][0], mat4.m[3][2], mat4.m[3][3]));
+		const F32 minorDet02 = Det(TMatrix3(mat4.m[1][0], mat4.m[1][1], mat4.m[1][3], mat4.m[2][0], mat4.m[2][1], mat4.m[2][3], mat4.m[3][0], mat4.m[3][1], mat4.m[3][3]));
+		const F32 minorDet03 = Det(TMatrix3(mat4.m[1][0], mat4.m[1][1], mat4.m[1][2], mat4.m[2][0], mat4.m[2][1], mat4.m[2][2], mat4.m[3][0], mat4.m[3][1], mat4.m[3][2]));
 
-		return mat4.m[0][0] * minorDet00 - mat4.m[0][1] * minorDet01 + mat4.m[0][2] * minorDet02 - mat4.m[0][2] * minorDet03;
+		return mat4.m[0][0] * minorDet00 - mat4.m[0][1] * minorDet01 + mat4.m[0][2] * minorDet02 - mat4.m[0][3] * minorDet03;
 	}
 
 	TDE2_API TMatrix4 TranslationMatrix(const TVector3& t)

@@ -61,8 +61,11 @@ TEST_CASE("TMatrix4 Tests")
 
 		for (auto&& currCase : testCases)
 		{
+			const F32 det = Det(std::get<1>(currCase));
+			REQUIRE(CMathUtils::Abs(det) > 0.0f);
+
 			const TMatrix4 invertedMat = Inverse(std::get<1>(currCase));
-			REQUIRE((CMathUtils::Abs(Det(std::get<1>(currCase))) > 1e-3f && (std::get<0>(currCase) == invertedMat)));
+			REQUIRE(std::get<0>(currCase) == invertedMat);
 		}
 	}
 }

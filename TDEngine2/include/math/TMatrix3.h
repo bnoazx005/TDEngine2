@@ -36,7 +36,7 @@ namespace TDEngine2
 			\param[in] arr An array of 9 floats
 		*/
 
-		TDE2_API TMatrix3(const F32 arr[9]);
+		TDE2_API explicit TMatrix3(const F32 arr[9]);
 		
 		/*!
 			\brief The constructor that assigns values from the specified arguments
@@ -50,7 +50,7 @@ namespace TDEngine2
 			\param[in] diagElements A 3d vector that contains diagonal elements values
 		*/
 
-		TDE2_API TMatrix3(const TVector3& diagElements);
+		TDE2_API explicit TMatrix3(const TVector3& diagElements);
 
 		/*!
 			\brief Copy constructor
@@ -109,6 +109,10 @@ namespace TDEngine2
 	TDE2_API TMatrix3 operator* (const TMatrix3& mat3, const F32& coeff);
 
 	TDE2_API TMatrix3 operator* (const F32& coeff, const TMatrix3& mat3);
+
+
+	TDE2_API bool operator== (const TMatrix3& lmat3, const TMatrix3& rmat3);
+	TDE2_API bool operator!= (const TMatrix3& lmat3, const TMatrix3& rmat3);
 
 
 	///TMatrix3's functions
