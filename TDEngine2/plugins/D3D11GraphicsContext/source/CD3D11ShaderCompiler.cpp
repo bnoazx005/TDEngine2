@@ -132,6 +132,7 @@ namespace TDEngine2
 		}
 
 		D3D11_SHADER_BUFFER_DESC constantBufferInfoDesc;
+		D3D11_SHADER_VARIABLE_DESC shaderVariableInfoDesc;
 
 		auto&& constantBuffers = shaderMetadata.mUniformBuffers;
 		for (auto&& currConstantBuffer : constantBuffers)
@@ -150,6 +151,19 @@ namespace TDEngine2
 				}
 
 				currConstantBuffer.second.mSize = std::max<U32>(currConstantBuffer.second.mSize, constantBufferInfoDesc.Size);
+				
+				for (TShaderUniformDesc& variableDesc : currConstantBuffer.second.mVariables)
+				{
+					if (ID3D11ShaderReflectionVariable* pVariableInfo = pConstantBufferData->GetVariableByName(variableDesc.mName.c_str()))
+					{
+						if (FAILED(pVariableInfo->GetDesc(&shaderVariableInfoDesc)))
+						{
+							continue;
+						}
+
+						variableDesc.mSize = std::max<U32>(variableDesc.mSize, shaderVariableInfoDesc.Size);
+					}
+				}
 			}
 		}
 
