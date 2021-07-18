@@ -84,14 +84,20 @@ namespace TDEngine2
 
 			if (updatedJointsPose.empty())
 			{
-				pSkeleton->ForEachJoint([&updatedJointsPose](TJoint* pJoint)
+				auto& jointsTable = pMeshAnimator->GetJointsTable();
+
+				U32 index = 0;
+
+				pSkeleton->ForEachJoint([&updatedJointsPose, &jointsTable, &index](TJoint* pJoint)
 				{
 					updatedJointsPose.push_back(Inverse(pJoint->mInvBindTransform));
+					jointsTable.emplace(pJoint->mName, index++);
 				});
 			}
 
 			/// \todo Implement real update
 
+			/// \note Update matrices for the mesh
 			auto& currAnimationPose = pMeshContainer->GetCurrentAnimationPose();
 
 			if (TResourceId::Invalid != skeletonResourceId)

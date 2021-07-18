@@ -1,4 +1,5 @@
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
+#include <tuple>
 
 
 namespace TDEngine2
@@ -15,6 +16,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mIsDirty = true;
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -49,9 +51,122 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CMeshAnimatorComponent::SetDirtyFlag(bool value)
+	{
+		mIsDirty = value;
+	}
+
+	bool CMeshAnimatorComponent::IsDirty() const
+	{
+		return mIsDirty;
+	}
+
+	CMeshAnimatorComponent::TJointsMap& CMeshAnimatorComponent::GetJointsTable()
+	{
+		return mJointsTable;
+	}
+
 	CMeshAnimatorComponent::TJointPose& CMeshAnimatorComponent::GetCurrAnimationPose()
 	{
 		return mCurrAnimationPose;
+	}
+
+
+	enum class E_JOINT_PROPERTY_TYPE : U8
+	{
+		POSITION, ROTATION
+	};
+
+
+	static std::tuple<std::string, E_JOINT_PROPERTY_TYPE> GetJointInfoFromProperty(const std::string& propertyId)
+	{
+		auto p0 = propertyId.find_first_of('_') + 1;
+		auto p1 = propertyId.find_first_of('.');
+
+		return { propertyId.substr(p0, p1 - p0), propertyId.substr(p1 + 1) == "position" ? E_JOINT_PROPERTY_TYPE::POSITION : E_JOINT_PROPERTY_TYPE::ROTATION };
+	}
+
+
+	IPropertyWrapperPtr CMeshAnimatorComponent::GetProperty(const std::string& propertyName)
+	{
+		auto&& properties = GetAllProperties();
+		if (std::find_if(properties.cbegin(), properties.cend(), [&propertyName](const std::string& id) { return propertyName == id; }) == properties.cend())
+		{
+			return CBaseComponent::GetProperty(propertyName);
+		}
+
+		std::string jointId;
+		E_JOINT_PROPERTY_TYPE propertyType;
+
+		std::tie(jointId, propertyType) = GetJointInfoFromProperty(propertyName);
+
+		switch (propertyType)
+		{
+			case E_JOINT_PROPERTY_TYPE::POSITION:
+				return IPropertyWrapperPtr(CBasePropertyWrapper<TVector3>::Create([this, jointId](const TVector3& pos) { _setPositionForJoint(jointId, pos); return RC_OK; }, nullptr));
+			case E_JOINT_PROPERTY_TYPE::ROTATION:
+				return IPropertyWrapperPtr(CBasePropertyWrapper<TVector3>::Create([this, jointId](const TQuaternion& rot) { _setRotationForJoint(jointId, rot); return RC_OK; }, nullptr));
+		}
+
+		return CBaseComponent::GetProperty(propertyName);
+	}
+
+	const std::vector<std::string>& CMeshAnimatorComponent::GetAllProperties() const
+	{
+		static std::vector<std::string> properties;
+
+		if (properties.size() / 2 == mJointsTable.size())
+		{
+			return properties;
+		}
+
+		properties.clear();
+
+		for (auto&& currJointEntity : mJointsTable)
+		{
+			properties.push_back(Wrench::StringUtils::Format("joint_{0}.position", currJointEntity.first));
+			properties.push_back(Wrench::StringUtils::Format("joint_{0}.rotation", currJointEntity.first));
+		}
+
+		return properties;
+	}
+
+	void CMeshAnimatorComponent::_setPositionForJoint(const std::string& jointId, const TVector3& position)
+	{
+		auto it = mJointsTable.find(jointId);
+		if (it == mJointsTable.cend())
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		if (static_cast<U32>(mJointsCurrPositions.size()) <= it->second)
+		{
+			mJointsCurrPositions.resize(it->second + 1);
+		}
+
+		mJointsCurrPositions[it->second] = position;
+
+		mIsDirty = true;
+	}
+
+	void CMeshAnimatorComponent::_setRotationForJoint(const std::string& jointId, const TQuaternion& rotation)
+	{
+		auto it = mJointsTable.find(jointId);
+		if (it == mJointsTable.cend())
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		if (static_cast<U32>(mJointsCurrRotation.size()) <= it->second)
+		{
+			mJointsCurrRotation.resize(it->second + 1);
+		}
+
+		mJointsCurrRotation[it->second] = rotation;
+
+		mIsDirty = true;
 	}
 
 

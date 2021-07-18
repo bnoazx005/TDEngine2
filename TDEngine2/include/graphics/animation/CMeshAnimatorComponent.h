@@ -10,6 +10,10 @@
 #include "../../ecs/CBaseComponent.h"
 #include "../../ecs/IComponentFactory.h"
 #include "../../math/TMatrix4.h"
+#include "../../math/TVector3.h"
+#include "../../math/TQuaternion.h"
+#include <unordered_map>
+#include <vector>
 
 
 namespace TDEngine2
@@ -48,6 +52,7 @@ namespace TDEngine2
 			friend TDE2_API IComponent* CreateMeshAnimatorComponent(E_RESULT_CODE&);
 		public:
 			typedef std::vector<TMatrix4> TJointPose;
+			typedef std::unordered_map<std::string, U32> TJointsMap;
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CMeshAnimatorComponent)
 
@@ -79,11 +84,38 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			void SetDirtyFlag(bool value);
+
+			bool IsDirty() const;
+
+			TJointsMap& GetJointsTable();
+
 			TJointPose& GetCurrAnimationPose();
+
+			/*!
+				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
+			*/
+
+			TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override;
+
+			/*!
+				\brief The method returns an array of properties names that are available for usage
+			*/
+
+			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMeshAnimatorComponent)
+
+			TDE2_API void _setPositionForJoint(const std::string& jointId, const TVector3& position);
+			TDE2_API void _setRotationForJoint(const std::string& jointId, const TQuaternion& rotation);
 		protected:
-			TJointPose mCurrAnimationPose;
+			TJointPose               mCurrAnimationPose;
+			TJointsMap               mJointsTable;
+
+			std::vector<TVector3>    mJointsCurrPositions;
+			std::vector<TQuaternion> mJointsCurrRotation;
+
+			bool                     mIsDirty;
 	};
 
 
