@@ -29,7 +29,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto vertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, vertices.size(), &vertices[0]);
+		auto vertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, vertices.size(), &vertices.front());
 		if (vertexBufferResult.HasError())
 		{
 			return vertexBufferResult.GetError();
@@ -40,7 +40,7 @@ namespace TDEngine2
 		// \note create a position-only vertex buffer
 		// \todo In future may be it's better to split shared VB into separate channels
 
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, mPositions.size() * sizeof(TVector4), &mPositions[0]);
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, mPositions.size() * sizeof(TVector4), &mPositions.front());
 		if (positionOnlyVertexBufferResult.HasError())
 		{
 			return positionOnlyVertexBufferResult.GetError();
@@ -48,12 +48,11 @@ namespace TDEngine2
 
 		mpPositionOnlyVertexBuffer = positionOnlyVertexBufferResult.Get();
 
-		U32 indicesCount = mIndices.size();
-		E_INDEX_FORMAT_TYPE indexFormatType = indicesCount < (std::numeric_limits<U16>::max)() ? IFT_INDEX16 : IFT_INDEX32;
+		E_INDEX_FORMAT_TYPE indexFormatType = (mIndices.size() < (std::numeric_limits<U16>::max)()) ? IFT_INDEX16 : IFT_INDEX32;
 
 		std::vector<U8> indices = _getIndicesArray(indexFormatType);
 
-		auto indexBufferResult = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, indexFormatType, indicesCount * static_cast<U32>(indexFormatType), &indices[0]);
+		auto indexBufferResult = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, indexFormatType, static_cast<U32>(indices.size()), &indices[0]);
 		if (indexBufferResult.HasError())
 		{
 			return indexBufferResult.GetError();

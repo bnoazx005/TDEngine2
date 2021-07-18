@@ -56,15 +56,24 @@ namespace TDEngine2
 		}
 
 		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
+		if (!pMaterial)
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
 
 		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
+		if (!pAttachedShader)
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
 
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
 
 		pMaterial->Bind(mMaterialInstanceId);
 
 		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-
 		mpIndexBuffer->Bind(0);
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));

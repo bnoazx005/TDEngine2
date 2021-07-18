@@ -271,6 +271,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	
+	static E_RESULT_CODE ReadAnimationsData(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options, const aiScene* pScene) TDE2_NOEXCEPT
+	{
+		return RC_OK;
+	}
+
 
 	struct TMeshDataEntity
 	{
@@ -682,6 +688,11 @@ namespace TDEngine2
 		};
 
 		if (RC_OK != (result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene)))
+		{
+			return result;
+		}
+
+		if (RC_OK != (result = ReadAnimationsData(pEngineCore, filePath, options, pScene)))
 		{
 			return result;
 		}

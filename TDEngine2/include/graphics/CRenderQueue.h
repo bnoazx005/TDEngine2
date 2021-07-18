@@ -7,12 +7,12 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../core/CBaseObject.h"
-#include "./../core/IGraphicsContext.h"
-#include "./../core/memory/IAllocator.h"
-#include "./../graphics/IMaterial.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../core/CBaseObject.h"
+#include "../core/IGraphicsContext.h"
+#include "../core/memory/IAllocator.h"
+#include "../graphics/IMaterial.h"
 #include "InternalShaderData.h"
 #include <vector>
 #include <tuple>
@@ -275,6 +275,7 @@ namespace TDEngine2
 				}
 
 				void* pMemoryBlock = mpTempAllocator->Allocate(sizeof(T), __alignof(T));
+				TDE2_ASSERT(pMemoryBlock);
 
 				T* pRenderCommand = new (pMemoryBlock) T(); /// \todo Replace the allocation with a helper function's invokation
 

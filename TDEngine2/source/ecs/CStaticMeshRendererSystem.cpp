@@ -184,15 +184,7 @@ namespace TDEngine2
 
 				auto pVertexDecl = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 
-				auto&& vertexData = pSharedMeshResource->ToArrayOfStructsDataLayout();
-				std::vector<U16> indices(pSharedMeshResource->GetIndices().begin(), pSharedMeshResource->GetIndices().end());
-
-				mMeshBuffersMap.push_back(
-					{
-						mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, vertexData.size(), &vertexData[0]).Get(),
-						mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, IFT_INDEX16, indices.size() * sizeof(U16), &indices[0]).Get(),
-						pVertexDecl
-					});
+				mMeshBuffersMap.push_back({ pSharedMeshResource->GetSharedVertexBuffer(), pSharedMeshResource->GetSharedIndexBuffer(), pVertexDecl });
 
 				// \note form the vertex declaration for the mesh
 				pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });

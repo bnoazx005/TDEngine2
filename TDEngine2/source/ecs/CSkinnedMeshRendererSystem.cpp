@@ -314,6 +314,7 @@ namespace TDEngine2
 			pCommand->mpVertexBuffer              = pSharedMeshResource->GetSharedVertexBuffer();
 			pCommand->mpIndexBuffer               = pSharedMeshResource->GetSharedIndexBuffer();
 			pCommand->mMaterialHandle             = mpResourceManager->Load<IMaterial>(pSkinnedMeshContainer->GetMaterialName());
+			pCommand->mMaterialInstanceId         = materialInstance;
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
 			pCommand->mNumOfIndices               = pSharedMeshResource->GetIndices().size();
 			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;

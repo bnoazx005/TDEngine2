@@ -334,10 +334,9 @@ namespace TDEngine2
 			});
 		};
 
-
 		if (auto pResource = dynamic_cast<IResource*>(pCubemapTexture))
 		{
-			if (E_RESOURCE_LOADING_POLICY::SYNCED == pResource->GetLoadingPolicy())
+			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 			{
 				loadTextureRoutine();
 				return RC_OK;

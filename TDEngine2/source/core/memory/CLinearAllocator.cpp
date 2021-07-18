@@ -1,5 +1,7 @@
 #include "./../../../include/core/memory/CLinearAllocator.h"
 #include "../../../include/editor/CMemoryProfiler.h"
+#include "../../../include/utils/CFileLogger.h"
+#include "stringUtils.hpp"
 #include <cstring>
 
 
@@ -44,6 +46,8 @@ namespace TDEngine2
 
 		++mAllocationsCount;
 
+		//LOG_MESSAGE(Wrench::StringUtils::Format("alloc count: {0}; used memory : {1}, stashed memory : {2}", mAllocationsCount, mUsedMemorySize, mTotalMemorySize - mUsedMemorySize));
+		
 		return reinterpret_cast<void*>(alignedAddress);
 	}
 

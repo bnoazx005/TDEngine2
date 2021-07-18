@@ -59,7 +59,7 @@ namespace TDEngine2
 	#define GLEW_NO_GLU ///< Disable GLU 
 
 	/// Main logger's settings
-	#define MAIN_LOGGER_FILEPATH "TDEngine.log"
+	#define MAIN_LOGGER_FILEPATH "TDEngine2.log"
 
 
 	/// Math configurable constants
@@ -81,4 +81,7 @@ namespace TDEngine2
 	#else
 		#define TDE2_EDITORS_ENABLED 0
 	#endif
+
+
+	#define TDE2_RESOURCES_STREAMING_ENABLED 1
 }
