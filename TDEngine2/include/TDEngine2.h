@@ -95,6 +95,7 @@
 #include "ecs/CUIElementsProcessSystem.h"
 #include "ecs/CUIElementsRenderSystem.h"
 #include "ecs/CUIEventsSystem.h"
+#include "ecs/CMeshAnimatorUpdatingSystem.h"
 #include "ecs/components/CBoundsComponent.h"
 
 ///graphics
@@ -162,6 +163,7 @@
 #include "graphics/animation/AnimationTracks.h"
 #include "graphics/animation/CAnimationContainerComponent.h"
 #include "graphics/animation/CAnimationCurve.h"
+#include "graphics/animation/CMeshAnimatorComponent.h"
 #include "graphics/effects/IParticleEffect.h"
 #include "graphics/effects/CParticleEffect.h"
 #include "graphics/effects/CParticleEmitterComponent.h"

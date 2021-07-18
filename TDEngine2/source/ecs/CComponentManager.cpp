@@ -3,6 +3,7 @@
 #include "../../include/ecs/IComponent.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/CBaseComponent.h"
+#include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/graphics/CQuadSprite.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
@@ -15,6 +16,8 @@
 #include "../../include/graphics/UI/CImageComponent.h"
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
+#include "../../include/graphics/animation/CAnimationContainerComponent.h"
+#include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -26,8 +29,6 @@
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/AudioComponents.h"
-#include "../../include/ecs/components/CBoundsComponent.h"
-#include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 
 
@@ -374,6 +375,7 @@ namespace TDEngine2
 			CreateBoxCollisionObject2DFactory,
 			CreateCircleCollisionObject2DFactory,
 			CreateTrigger2DFactory,
+			CreateMeshAnimatorComponentFactory,
 			CreateStaticMeshContainerFactory,
 			CreateSkinnedMeshContainerFactory,
 			CreateBoxCollisionObject3DFactory,
@@ -436,6 +438,7 @@ namespace TDEngine2
 			CBoxCollisionObject2D::GetTypeId(),
 			CCircleCollisionObject2D::GetTypeId(),
 			CTrigger2D::GetTypeId(),
+			CMeshAnimatorComponent::GetTypeId(),
 			CStaticMeshContainer::GetTypeId(),
 			CSkinnedMeshContainer::GetTypeId(),
 			CBoxCollisionObject3D::GetTypeId(),

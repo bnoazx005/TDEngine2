@@ -42,7 +42,12 @@ VertexOut mainVS(in VertexIn input)
 {
 	VertexOut output;
 
-	output.mPos      = mul(mul(ProjMat + mJoints[0], mul(ViewMat, ModelMat)), input.mPos);
+	float4 localPos = mul(mJoints[input.mJointIndices.x], input.mPos) * input.mJointWeights.x;
+	//localPos.xyz += mul(mJoints[input.mJointIndices.y], input.mPos) * input.mJointWeights.y;
+	//localPos.xyz += mul(mJoints[input.mJointIndices.z], input.mPos) * input.mJointWeights.z;
+	//localPos.xyz += mul(mJoints[input.mJointIndices.w], input.mPos) * input.mJointWeights.w;
+
+	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), localPos);
 	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
 	output.mWorldPos = mul(ModelMat, input.mPos);
 	output.mNormal   = mul(transpose(InvModelMat), input.mNormal);

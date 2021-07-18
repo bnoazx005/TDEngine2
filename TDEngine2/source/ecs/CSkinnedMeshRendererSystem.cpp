@@ -277,25 +277,13 @@ namespace TDEngine2
 			{
 				materialInstance = pCastedMaterial->CreateInstance()->GetInstanceId();
 				pSkinnedMeshContainer->SetMaterialInstanceHandle(materialInstance);
-
-				if (TResourceId::Invalid != skeletonResourceId)
-				{
-					ISkeleton* pSkeleton = mpResourceManager->GetResource<ISkeleton>(skeletonResourceId);
-
-					pSkeleton->ForEachJoint([&currAnimationPose](TJoint* pJoint)
-					{
-						currAnimationPose.push_back(Inverse(pJoint->mInvBindTransform));
-					});
-
-					jointsCount = static_cast<U32>(currAnimationPose.size());
-				}
 			}
 
 			if (pSkinnedMeshContainer->ShouldShowDebugSkeleton())
 			{
 				TDE2_ASSERT(RC_OK == ShowSkeletonDebugHierarchy(mpGraphicsObjectManager, mpResourceManager, mpRenderer, skeletonResourceId));
 			}
-			
+
 			pCastedMaterial->SetVariableForInstance(materialInstance, JointsPalleteShaderVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
 			pCastedMaterial->SetVariableForInstance(materialInstance, JointsCountShaderVariableId, &jointsCount, sizeof(U32));
 

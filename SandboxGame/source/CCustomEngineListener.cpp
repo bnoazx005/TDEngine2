@@ -17,9 +17,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	mpResourceManager->Load<IMaterial>("ProjectMaterials/NewMaterial.material");
-	mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugMaterial.material");
-	mpResourceManager->Load<IMaterial>("ProjectMaterials/DefaultMaterial.material");
+	//mpResourceManager->Load<IMaterial>("ProjectMaterials/NewMaterial.material");
+	//mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugMaterial.material");
+	//mpResourceManager->Load<IMaterial>("ProjectMaterials/DefaultMaterial.material");
 
 	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material")))
 	{
@@ -76,29 +76,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshContainer->SetMeshName("scene.mesh");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
-
-#if 1
-	/// \note animated mesh entity
-	if (auto pAnimatedMeshEntity = mpWorld->CreateEntity("AnimatedMesh"))
-	{
-		pAnimatedMeshEntity->AddComponent<CShadowCasterComponent>();
-		pAnimatedMeshEntity->AddComponent<CShadowReceiverComponent>(); 
-		pAnimatedMeshEntity->AddComponent<CBoundsComponent>();
-
-		if (auto pTransform = pAnimatedMeshEntity->GetComponent<CTransform>())
-		{
-			pTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
-		}
-
-		if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
-		{
-			pMeshContainer->SetMaterialName("DefaultMaterials/DefaultSkinningMaterial.material");
-			pMeshContainer->SetMeshName("TestAnim.mesh");
-			pMeshContainer->SetSkeletonName("TestAnim.skeleton");
-			pMeshContainer->SetShowDebugSkeleton(true);
-		}
-	}
-#endif
 
 	// plane
 	auto pPlaneEntity = mpWorld->CreateEntity();
@@ -358,6 +335,30 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 					GroupEntities(mpWorld, pCanvasEntity->GetId(), pParentEntity->GetId());
 				}				
+			}
+#endif
+
+#if 1
+			/// \note animated mesh entity
+			if (auto pAnimatedMeshEntity = pScene->CreateEntity("AnimatedMesh"))
+			{
+				pAnimatedMeshEntity->AddComponent<CShadowCasterComponent>();
+				pAnimatedMeshEntity->AddComponent<CShadowReceiverComponent>();
+				pAnimatedMeshEntity->AddComponent<CBoundsComponent>();
+				pAnimatedMeshEntity->AddComponent<CMeshAnimatorComponent>();
+
+				if (auto pTransform = pAnimatedMeshEntity->GetComponent<CTransform>())
+				{
+					pTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
+				}
+
+				if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
+				{
+					pMeshContainer->SetMaterialName("DefaultMaterials/DefaultSkinningMaterial.material");
+					pMeshContainer->SetMeshName("TestAnim.mesh");
+					pMeshContainer->SetSkeletonName("TestAnim.skeleton");
+					pMeshContainer->SetShowDebugSkeleton(true);
+				}
 			}
 #endif
 		});

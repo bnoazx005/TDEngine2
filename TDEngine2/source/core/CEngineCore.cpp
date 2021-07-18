@@ -27,6 +27,7 @@
 #include "../../include/ecs/CUIElementsProcessSystem.h"
 #include "../../include/ecs/CUIElementsRenderSystem.h"
 #include "../../include/ecs/CUIEventsSystem.h"
+#include "../../include/ecs/CMeshAnimatorUpdatingSystem.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -424,7 +425,7 @@ namespace TDEngine2
 			pDebugUtility = debugUtilityResult.Get();
 		}
 
-		std::vector<ISystem*> builtinSystems 
+		std::vector<ISystem*> builtinSystems
 		{
 			CreateTransformSystem(pGraphicsContext, result),
 			CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), result),
@@ -433,6 +434,7 @@ namespace TDEngine2
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
+			CreateMeshAnimatorUpdatingSystem(pResourceManager, result),
 			CreateSkinnedMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
