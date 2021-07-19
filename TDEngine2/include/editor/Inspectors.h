@@ -49,6 +49,7 @@ namespace TDEngine2
 			/// Graphics components
 			TDE2_API static void DrawQuadSpriteGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawStaticMeshContainerGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawSkinnedMeshContainerGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawShadowReceiverGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawShadowCasterGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawDirectionalLightGUI(const TEditorContext& editorContext);
@@ -62,6 +63,7 @@ namespace TDEngine2
 			TDE2_API static void DrawImageGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawInputReceiverGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawLabelGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawMeshAnimatorGUI(const TEditorContext& editorContext);
 
 			/// 2D Physics components
 			TDE2_API static void DrawBoxCollision2DGUI(const TEditorContext& editorContext);

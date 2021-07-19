@@ -7,6 +7,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/graphics/CQuadSprite.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CSkinnedMeshContainer.h"
 #include "../../include/graphics/effects/CParticleEmitterComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
@@ -14,6 +15,8 @@
 #include "../../include/graphics/UI/CImageComponent.h"
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
+#include "../../include/graphics/animation/CAnimationContainerComponent.h"
+#include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -28,7 +31,6 @@
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
-#include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/metadata.h"
 #include <array>
@@ -48,6 +50,7 @@ namespace TDEngine2
 		/// Graphics
 		result = result | editor.RegisterInspector(CQuadSprite::GetTypeId(), DrawQuadSpriteGUI);
 		result = result | editor.RegisterInspector(CStaticMeshContainer::GetTypeId(), DrawStaticMeshContainerGUI);
+		result = result | editor.RegisterInspector(CSkinnedMeshContainer::GetTypeId(), DrawSkinnedMeshContainerGUI);
 		result = result | editor.RegisterInspector(CShadowReceiverComponent::GetTypeId(), DrawShadowReceiverGUI);
 		result = result | editor.RegisterInspector(CShadowCasterComponent::GetTypeId(), DrawShadowCasterGUI);
 		result = result | editor.RegisterInspector(CDirectionalLight::GetTypeId(), DrawDirectionalLightGUI);
@@ -61,6 +64,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CImage::GetTypeId(), DrawImageGUI);
 		result = result | editor.RegisterInspector(CInputReceiver::GetTypeId(), DrawInputReceiverGUI);
 		result = result | editor.RegisterInspector(CLabel::GetTypeId(), DrawLabelGUI);
+		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -181,6 +185,22 @@ namespace TDEngine2
 
 			imguiContext.Label(meshContainer.GetMeshName());
 			imguiContext.Label(meshContainer.GetMaterialName());
+			// \todo Implement this drawer
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawSkinnedMeshContainerGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("Skinned Mesh Container", true))
+		{
+			CSkinnedMeshContainer& meshContainer = dynamic_cast<CSkinnedMeshContainer&>(component);
+
+			imguiContext.Label(meshContainer.GetMeshName());
+			imguiContext.Label(meshContainer.GetMaterialName());
+			imguiContext.Label(meshContainer.GetSkeletonName());
 			// \todo Implement this drawer
 		}
 	}
@@ -335,6 +355,19 @@ namespace TDEngine2
 			imguiContext.Label("Height");
 			imguiContext.IntField("##Height", height, [&canvas, &height, inheritSizesFlag] { if (inheritSizesFlag) return; canvas.SetHeight(static_cast<U32>(std::max<I32>(0, height))); });
 			imguiContext.EndHorizontal();
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawMeshAnimatorGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("Mesh Animator", true))
+		{
+			CMeshAnimatorComponent& meshAnimator = dynamic_cast<CMeshAnimatorComponent&>(component);
+
+			// \todo Implement this drawer
 		}
 	}
 

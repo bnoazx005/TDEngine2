@@ -434,11 +434,11 @@ namespace TDEngine2
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
+			CreateAnimationSystem(pResourceManager, pEventManager, result),
 			CreateMeshAnimatorUpdatingSystem(pResourceManager, result),
 			CreateSkinnedMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
-			CreateAnimationSystem(pResourceManager, pEventManager, result),
 			CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager, result),
 			CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
 #if TDE2_EDITORS_ENABLED
