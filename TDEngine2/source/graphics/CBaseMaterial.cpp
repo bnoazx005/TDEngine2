@@ -195,6 +195,14 @@ namespace TDEngine2
 
 			mpInstancesUserUniformBuffers[instanceId] = std::move(newInstanceUniformBuffers);
 
+			/// \note Copy all assigned textures for the default instance into the slots of a new one
+			auto& newInstanceTexturesSlots = mInstancesAssignedTextures[instanceId];
+
+			for (auto&& currTextureResourceInfo : mInstancesAssignedTextures[DefaultMaterialInstanceId])
+			{
+				newInstanceTexturesSlots[currTextureResourceInfo.first] = currTextureResourceInfo.second;
+			}
+
 			return mpInstancesArray[static_cast<U32>(instanceId)].Get();
 		}
 

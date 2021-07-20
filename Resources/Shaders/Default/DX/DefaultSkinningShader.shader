@@ -77,7 +77,6 @@ DECLARE_TEX2D_EX(PropertiesMap, 3);
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	return GammaToLinear(TEX2D(AlbedoMap, input.mUV));
 	float3 normal = mul(input.mTBN, 2.0 * TEX2D(NormalMap, input.mUV).xyz - 1.0);
 
 	LightingData lightingData = CreateLightingData(input.mWorldPos, float4(normal, 0.0), 
