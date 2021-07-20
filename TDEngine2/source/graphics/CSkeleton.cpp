@@ -354,6 +354,12 @@ namespace TDEngine2
 	{
 		const U32 id = jointData.mIndex;
 
+		if (jointData.mParentIndex < 0)
+		{
+			mJoints.emplace(mJoints.cbegin(), jointData);
+			return id;
+		}
+
 		auto it = std::find_if(mJoints.begin(), mJoints.end(), [parentId = static_cast<U32>(jointData.mParentIndex)](const TJoint& pJoint) { return pJoint.mIndex == parentId; });
 	
 		mJoints.emplace((it == mJoints.end()) ? it : (it + 1), jointData);

@@ -43,19 +43,37 @@ VertexOut mainVS(in VertexIn input)
 {
 	VertexOut output;
 
-	float3 localPos = (mul(mJoints[input.mJointIndices.x], input.mPos) * input.mJointWeights.x).xyz;
-	localPos += (mul(mJoints[input.mJointIndices.y], input.mPos) * input.mJointWeights.y).xyz;
-	localPos += (mul(mJoints[input.mJointIndices.z], input.mPos) * input.mJointWeights.z).xyz;
-	localPos += (mul(mJoints[input.mJointIndices.w], input.mPos) * input.mJointWeights.w).xyz;
+	float weights[MAX_VERTS_PER_JOINT];
+	weights[0] = input.mJointWeights.x;
+	weights[1] = input.mJointWeights.y;
+	weights[2] = input.mJointWeights.z;
+	weights[3] = input.mJointWeights.w;
+
+	float4x4 jointMats[MAX_VERTS_PER_JOINT];
+	jointMats[0] = mJoints[input.mJointIndices.x];
+	jointMats[1] = mJoints[input.mJointIndices.y];
+	jointMats[2] = mJoints[input.mJointIndices.z];
+	jointMats[3] = mJoints[input.mJointIndices.w];
+
+	float3 localPos     = float3(0.0, 0.0, 0.0);
+	float3 localNormal  = float3(0.0, 0.0, 0.0);
+	float3 localTangent = float3(0.0, 0.0, 0.0);
+
+	for (int i = 0; i < MAX_VERTS_PER_JOINT; ++i)
+	{
+		localPos     += (mul(jointMats[i], input.mPos) * weights[i]).xyz;
+		localNormal  += (mul(jointMats[i], input.mNormal) * weights[i]).xyz;
+		localTangent += (mul(jointMats[i], input.mTangent) * weights[i]).xyz;
+	}
 
 	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), float4(localPos, 1.0));
 	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
-	output.mWorldPos = mul(ModelMat, input.mPos);
-	output.mNormal   = mul(transpose(InvModelMat), input.mNormal);
+	output.mWorldPos = mul(ModelMat, float4(localPos, 1.0));
+	output.mNormal   = mul(transpose(InvModelMat), float4(localNormal, 0.0));
 	output.mUV       = input.mUV;
 	output.mColor    = input.mColor;
 
-	float3 tangent  = mul(transpose(InvModelMat), input.mTangent);
+	float3 tangent  = mul(transpose(InvModelMat), float4(localNormal, 0.0));
 	float3 binormal = cross(output.mNormal, tangent);
 
 	output.mTBN = transpose(float3x3(tangent, binormal, output.mNormal.xyz));

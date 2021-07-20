@@ -70,6 +70,7 @@
 */
 
 #define MAX_JOINTS_COUNT 256
+#define MAX_VERTS_PER_JOINT 4
 
 #ifdef TDE2_GLSL_SHADER
 
