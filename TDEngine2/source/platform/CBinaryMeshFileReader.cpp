@@ -1,5 +1,6 @@
-#include "./../../include/platform/CBinaryMeshFileReader.h"
-#include "./../../include/graphics/IMesh.h"
+#include "../../include/platform/CBinaryMeshFileReader.h"
+#include "../../include/graphics/IMesh.h"
+#include "../../include/graphics/ISkeleton.h"
 #include "../../include/platform/IOStreams.h"
 #include <cstring>
 
@@ -147,10 +148,14 @@ namespace TDEngine2
 					continue;
 				}
 
-				memset(&tmpJointsIndices.front(), 0, sizeof(tmpJointsIndices));
-
-				for (U16 k = 0; k < jointsCount; ++k)
+				for (U16 k = 0; k < MaxJointsCountPerVertex; ++k)
 				{
+					if (k >= jointsCount)
+					{
+						tmpJointsIndices[k] = static_cast<U32>(ISkeleton::mMaxNumOfJoints - 1);
+						continue;
+					}
+
 					result = result | Read(&tmpJointsIndices[k], sizeof(U32));
 				}
 

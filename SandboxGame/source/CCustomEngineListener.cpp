@@ -65,6 +65,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	//mpResourceManager->Load<IStaticMesh>("hq.mesh");
 
+#if 0 /// Create a static mesh
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto shadowCaster = pMeshEntity->AddComponent<CShadowCasterComponent>();
 	auto sr = pMeshEntity->AddComponent<CShadowReceiverComponent>();
@@ -76,13 +77,16 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshContainer->SetMeshName("scene.mesh");
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
+#endif
 
 	// plane
+#if 0
 	auto pPlaneEntity = mpWorld->CreateEntity();
 	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
 	pPlaneMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
 	pPlaneMeshContainer->SetMeshName("Plane");
+#endif
 
 	// Create a 3D trigger
 	if (auto p3DTrigger = mpWorld->CreateEntity())
@@ -233,7 +237,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
 			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
 
-#if 1 /// Test UI layout
+#if 0 /// Test UI layout
 			if (auto pCanvasEntity = pScene->CreateEntity("Canvas"))
 			{
 				if (auto pCanvas = pCanvasEntity->AddComponent<CCanvas>())
@@ -354,9 +358,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 				if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
 				{
-					pMeshContainer->SetMaterialName("DefaultMaterials/DefaultSkinningMaterial.material");
-					pMeshContainer->SetMeshName("TestAnim.mesh");
-					pMeshContainer->SetSkeletonName("TestAnim.skeleton");
+					const std::string meshName = "TestAnim";
+
+					pMeshContainer->SetMaterialName("ProjectMaterials/DefaultSkinningMaterial.material");
+					pMeshContainer->SetMeshName(meshName + ".mesh");
+					pMeshContainer->SetSkeletonName(meshName + ".skeleton");
 					pMeshContainer->SetShowDebugSkeleton(true);
 				}
 			}

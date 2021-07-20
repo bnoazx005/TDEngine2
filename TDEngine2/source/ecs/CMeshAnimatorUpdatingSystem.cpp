@@ -90,8 +90,13 @@ namespace TDEngine2
 
 				pSkeleton->ForEachJoint([&updatedJointsPose, &jointsTable, &index](TJoint* pJoint)
 				{
-					updatedJointsPose.push_back(Inverse(pJoint->mInvBindTransform));
-					jointsTable.emplace(pJoint->mName, index++);
+					if (updatedJointsPose.size() <= pJoint->mIndex + 1)
+					{
+						updatedJointsPose.resize(pJoint->mIndex + 1);
+					}
+
+					updatedJointsPose[pJoint->mIndex] = Inverse(pJoint->mInvBindTransform);
+					jointsTable.emplace(pJoint->mName, pJoint->mIndex);
 				});
 			}
 
@@ -109,7 +114,12 @@ namespace TDEngine2
 
 				pSkeleton->ForEachJoint([&currAnimationPose, &updatedJointsPose, &index](TJoint* pJoint)
 				{
-					currAnimationPose.push_back(Transpose(Mul(updatedJointsPose[index++], pJoint->mInvBindTransform)));
+					if (currAnimationPose.size() <= pJoint->mIndex + 1)
+					{
+						currAnimationPose.resize(pJoint->mIndex + 1);
+					}
+
+					currAnimationPose[pJoint->mIndex] = Transpose(Mul(updatedJointsPose[pJoint->mIndex], pJoint->mInvBindTransform));
 				});
 			}
 		}

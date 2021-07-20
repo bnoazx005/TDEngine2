@@ -328,13 +328,7 @@ namespace TDEngine2
 		for (const std::string& boneId : boneIdentifiers)
 		{
 			auto pJoint = pSkeleton->GetJointByName(boneId);
-			if (!pJoint)
-			{
-				TDE2_ASSERT(false);
-				continue;
-			}
-
-			resolvedIndices.push_back(pJoint->mIndex);
+			resolvedIndices.push_back(pJoint ? pJoint->mIndex : static_cast<U32>(ISkeleton::mMaxNumOfJoints));
 		}
 
 		return resolvedIndices;

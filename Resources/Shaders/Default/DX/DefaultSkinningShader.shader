@@ -38,16 +38,17 @@ struct VertexIn
 };
 
 
+
 VertexOut mainVS(in VertexIn input)
 {
 	VertexOut output;
 
-	float4 localPos = mul(mJoints[input.mJointIndices.x], input.mPos) * input.mJointWeights.x;
-	//localPos.xyz += mul(mJoints[input.mJointIndices.y], input.mPos) * input.mJointWeights.y;
-	//localPos.xyz += mul(mJoints[input.mJointIndices.z], input.mPos) * input.mJointWeights.z;
-	//localPos.xyz += mul(mJoints[input.mJointIndices.w], input.mPos) * input.mJointWeights.w;
+	float3 localPos = (mul(mJoints[input.mJointIndices.x], input.mPos) * input.mJointWeights.x).xyz;
+	localPos += (mul(mJoints[input.mJointIndices.y], input.mPos) * input.mJointWeights.y).xyz;
+	localPos += (mul(mJoints[input.mJointIndices.z], input.mPos) * input.mJointWeights.z).xyz;
+	localPos += (mul(mJoints[input.mJointIndices.w], input.mPos) * input.mJointWeights.w).xyz;
 
-	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), localPos);
+	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), float4(localPos, 1.0));
 	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
 	output.mWorldPos = mul(ModelMat, input.mPos);
 	output.mNormal   = mul(transpose(InvModelMat), input.mNormal);
@@ -76,6 +77,7 @@ DECLARE_TEX2D_EX(PropertiesMap, 3);
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
+	return GammaToLinear(TEX2D(AlbedoMap, input.mUV));
 	float3 normal = mul(input.mTBN, 2.0 * TEX2D(NormalMap, input.mUV).xyz - 1.0);
 
 	LightingData lightingData = CreateLightingData(input.mWorldPos, float4(normal, 0.0), 
