@@ -6,8 +6,11 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CSkinnedMesh.h"
+#include "../../include/graphics/CSkinnedMeshContainer.h"
 #include "../../include/graphics/CQuadSprite.h"
 #include "../../include/graphics/IDebugUtility.h"
+#include "../../include/graphics/ISkeleton.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/TVector4.h"
 #include "../../include/editor/ecs/EditorComponents.h"
@@ -51,34 +54,30 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mIsInitialized = false;
+		--mRefCounter;
 
-		delete this;
+		if (!mRefCounter)
+		{
+			mIsInitialized = false;
+			delete this;
+		}		
 
 		return RC_OK;
 	}
 
 	void CBoundsUpdatingSystem::InjectBindings(IWorld* pWorld)
 	{
-		mStaticMeshesEntities = pWorld->FindEntitiesWithComponents<CStaticMeshContainer>();
-		mSpritesEntities = pWorld->FindEntitiesWithComponents<CQuadSprite>();
+		mStaticMeshesEntities  = pWorld->FindEntitiesWithComponents<CStaticMeshContainer>();
+		mSkinnedMeshesEntities = pWorld->FindEntitiesWithComponents<CSkinnedMeshContainer>();
+		mSpritesEntities       = pWorld->FindEntitiesWithComponents<CQuadSprite>();
 
 #if TDE2_EDITORS_ENABLED
 		mScenesBoundariesEntities = pWorld->FindEntitiesWithComponents<CSceneInfoComponent>();
 #endif
 	}
 
-	void CBoundsUpdatingSystem::Update(IWorld* pWorld, F32 dt)
-	{
-		_processEntities(pWorld, mStaticMeshesEntities, std::bind(&CBoundsUpdatingSystem::_computeStaticMeshBounds, this, std::placeholders::_1));
-		_processEntities(pWorld, mSpritesEntities, std::bind(&CBoundsUpdatingSystem::_computeSpritesBounds, this, std::placeholders::_1));
 
-#if TDE2_EDITORS_ENABLED
-		_processScenesEntities(pWorld);
-#endif
-	}
-
-	void CBoundsUpdatingSystem::_processEntities(IWorld* pWorld, const std::vector<TEntityId>& entities, const std::function<void(CEntity*)>& processCallback)
+	static void ProcessEntities(IDebugUtility* pDebugUtility, IWorld* pWorld, const std::vector<TEntityId>& entities, const std::function<void(CEntity*)>& processCallback)
 	{
 		CEntity* pEntity = nullptr;
 
@@ -97,9 +96,9 @@ namespace TDEngine2
 
 			if (CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>())
 			{
-				if (mpDebugUtility)
+				if (pDebugUtility)
 				{
-					mpDebugUtility->DrawAABB(pBounds->GetBounds(), { 1.0f, 1.0f, 1.0f, 1.0f });
+					pDebugUtility->DrawAABB(pBounds->GetBounds(), { 1.0f, 1.0f, 1.0f, 1.0f });
 				}
 
 				if (!pBounds->IsDirty())
@@ -117,21 +116,21 @@ namespace TDEngine2
 		}
 	}
 
-	void CBoundsUpdatingSystem::_computeStaticMeshBounds(CEntity* pEntity)
+	static void ComputeStaticMeshBounds(IResourceManager* pResourceManager, CEntity* pEntity)
 	{
 		CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>();
 
 		if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
 		{
-			const TResourceId meshId = mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
+			const TResourceId meshId = pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
 
 			/// \note Skip meshes that's not been loaded yet
-			if (E_RESOURCE_STATE_TYPE::RST_LOADED != mpResourceManager->GetResource<IResource>(meshId)->GetState())
+			if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(meshId)->GetState())
 			{
 				return;
 			}
 
-			if (IStaticMesh* pStaticMesh = mpResourceManager->GetResource<IStaticMesh>(meshId))
+			if (IStaticMesh* pStaticMesh = pResourceManager->GetResource<IStaticMesh>(meshId))
 			{
 				auto&& vertices = pStaticMesh->GetPositionsArray();
 
@@ -156,10 +155,66 @@ namespace TDEngine2
 		}
 	}
 
-	void CBoundsUpdatingSystem::_computeSpritesBounds(CEntity* pEntity)
+	static void ComputeSkinnedMeshBounds(IResourceManager* pResourceManager, CEntity* pEntity)
 	{
 		CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>();
-		
+
+		if (CSkinnedMeshContainer* pSkinnedMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>())
+		{
+			const TResourceId meshId = pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName());
+
+			/// \note Skip meshes that's not been loaded yet
+			if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(meshId)->GetState())
+			{
+				return;
+			}
+
+			if (ISkinnedMesh* pSkinnedMesh = pResourceManager->GetResource<ISkinnedMesh>(meshId))
+			{
+				if (CTransform* pTransform = pEntity->GetComponent<CTransform>())
+				{
+					auto&& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
+					auto&& vertices = pSkinnedMesh->GetPositionsArray();
+					auto&& jointIndices = pSkinnedMesh->GetJointIndicesArray();
+					auto&& jointWeights = pSkinnedMesh->GetJointWeightsArray();
+
+					const TMatrix4& worldMatrix = pTransform->GetLocalToWorldTransform();
+
+					TVector4 min{ (std::numeric_limits<F32>::max)() };
+					TVector4 max{ -(std::numeric_limits<F32>::max)() };
+
+					/// \note Compute whole CPU skinning for correct updates of bounds when the model is animated
+
+					for (U32 i = 0; i < vertices.size(); ++i)
+					{
+						TVector4 skinVertex = TVector4(ZeroVector3, 1.0f);
+						const TVector4& currVertex = vertices[i];
+
+						for (U8 k = 0; k < jointWeights[i].size(); ++k)
+						{
+							const U32 jointIndex = jointIndices[i][k];
+
+							const auto& jointMatrix = (jointIndex < ISkeleton::mMaxNumOfJoints && jointIndex < currAnimationPose.size()) ? currAnimationPose[jointIndex] : ZeroMatrix4;
+
+							skinVertex = skinVertex + jointWeights[i][k] * Mul(jointMatrix, currVertex);
+						}
+						
+						TVector4 transformedVertex = worldMatrix * vertices[i];
+
+						min = Min(min, transformedVertex);
+						max = Max(max, transformedVertex);
+					}
+
+					pBounds->SetBounds(TAABB{ min, max });
+				}
+			}
+		}
+	}
+
+	static void ComputeSpritesBounds(CEntity* pEntity)
+	{
+		CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>();
+
 		static const std::array<TVector4, 4> spriteVerts
 		{
 			TVector4 { -0.5f, 0.5f, 0.0f, 1.0f },
@@ -172,8 +227,8 @@ namespace TDEngine2
 		{
 			const TMatrix4& worldMatrix = pSpriteTransform->GetLocalToWorldTransform();
 
-			TVector4 min { (std::numeric_limits<F32>::max)() };
-			TVector4 max { -(std::numeric_limits<F32>::max)() };
+			TVector4 min{ (std::numeric_limits<F32>::max)() };
+			TVector4 max{ -(std::numeric_limits<F32>::max)() };
 
 			for (auto&& v : spriteVerts)
 			{
@@ -187,6 +242,19 @@ namespace TDEngine2
 		}
 	}
 
+
+	void CBoundsUpdatingSystem::Update(IWorld* pWorld, F32 dt)
+	{
+		ProcessEntities(mpDebugUtility, pWorld, mStaticMeshesEntities, [this](CEntity* pEntity) { ComputeStaticMeshBounds(mpResourceManager, pEntity); });
+		ProcessEntities(mpDebugUtility, pWorld, mSkinnedMeshesEntities, [this](CEntity* pEntity) { ComputeSkinnedMeshBounds(mpResourceManager, pEntity); });
+		ProcessEntities(mpDebugUtility, pWorld, mSpritesEntities, std::bind(&ComputeSpritesBounds, std::placeholders::_1));
+
+#if TDE2_EDITORS_ENABLED
+		_processScenesEntities(pWorld);
+#endif
+	}
+
+#if TDE2_EDITORS_ENABLED
 	void CBoundsUpdatingSystem::_processScenesEntities(IWorld* pWorld)
 	{
 		CEntity* pEntity = nullptr;
@@ -231,7 +299,7 @@ namespace TDEngine2
 			}
 		}
 	}
-	
+#endif
 
 	TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result)
 	{

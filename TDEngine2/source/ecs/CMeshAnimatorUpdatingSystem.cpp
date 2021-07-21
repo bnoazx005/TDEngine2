@@ -1,6 +1,7 @@
 #include "../../include/ecs/CMeshAnimatorUpdatingSystem.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/graphics/CSkinnedMeshContainer.h"
@@ -121,6 +122,11 @@ namespace TDEngine2
 
 					currAnimationPose[pJoint->mIndex] = Transpose(Mul(updatedJointsPose[pJoint->mIndex], pJoint->mInvBindTransform));
 				});
+			}
+
+			if (auto pBounds = pEntity->GetComponent<CBoundsComponent>())
+			{
+				pBounds->SetDirty(true);
 			}
 		}
 	}

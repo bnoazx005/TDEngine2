@@ -91,25 +91,21 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoundsUpdatingSystem)
 
-			TDE2_API void _processEntities(IWorld* pWorld, const std::vector<TEntityId>& entities, const std::function<void(CEntity*)>& processCallback);
-
-			TDE2_API void _computeStaticMeshBounds(CEntity* pEntity);
-			TDE2_API void _computeSpritesBounds(CEntity* pEntity);
-
 #if TDE2_EDITORS_ENABLED
 			TDE2_API void _processScenesEntities(IWorld* pWorld);
 #endif
 		protected:
-			std::vector<TEntityId> mStaticMeshesEntities;
-			std::vector<TEntityId> mSpritesEntities;
+			TEntitiesArray    mStaticMeshesEntities;
+			TEntitiesArray    mSkinnedMeshesEntities;
+			TEntitiesArray    mSpritesEntities;
 #if TDE2_EDITORS_ENABLED
-			std::vector<TEntityId> mScenesBoundariesEntities;
+			TEntitiesArray    mScenesBoundariesEntities;
 #endif
 
-			IResourceManager*      mpResourceManager;
+			IResourceManager* mpResourceManager;
 
-			IDebugUtility*         mpDebugUtility;
+			IDebugUtility*    mpDebugUtility;
 
-			ISceneManager*         mpSceneManager;
+			ISceneManager*    mpSceneManager;
 	};
 }
