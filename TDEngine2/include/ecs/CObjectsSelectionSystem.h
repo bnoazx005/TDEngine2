@@ -102,6 +102,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _initSelectionMaterials();
 
 			TDE2_API void _processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle);
+			TDE2_API void _processSkinnedMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle);
 			TDE2_API void _processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle);
 
 			TDE2_API ICamera* _getEditorCamera(IWorld* pWorld, TEntityId cameraEntityId);
@@ -118,12 +119,16 @@ namespace TDEngine2
 			TEntityId               mCameraEntityId;
 
 			IVertexDeclaration*     mpSelectionVertDecl;
+			IVertexDeclaration*     mpSelectionSkinnedVertDecl;
 
 			IVertexBuffer*          mpSpritesVertexBuffer;
 			IIndexBuffer*           mpSpritesIndexBuffer;
 
 			TResourceId             mSelectionMaterialHandle;
+			TResourceId             mSelectionSkinnedMaterialHandle;
+
 			TResourceId             mSelectionOutlineMaterialHandle;
+			TResourceId             mSelectionSkinnedOutlineMaterialHandle;
 	};
 }
 

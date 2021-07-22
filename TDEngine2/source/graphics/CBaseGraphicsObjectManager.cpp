@@ -87,7 +87,9 @@ namespace TDEngine2
 			{ "DefaultScreenSpaceEffect", E_DEFAULT_SHADER_TYPE::DST_SCREEN_SPACE },
 			{ "ToneMappingPass", E_DEFAULT_SHADER_TYPE::DST_TONE_MAPPING_PASS },
 			{ "Selection", E_DEFAULT_SHADER_TYPE::DST_SELECTION },
+			{ "SelectionSkinned", E_DEFAULT_SHADER_TYPE::DST_SELECTION_SKINNED },
 			{ "SelectionOutline", E_DEFAULT_SHADER_TYPE::DST_SELECTION_OUTLINE },
+			{ "SelectionSkinnedOutline", E_DEFAULT_SHADER_TYPE::DST_SELECTION_SKINNED_OUTLINE },
 			{ "ShadowPass", E_DEFAULT_SHADER_TYPE::DST_SHADOW_PASS },
 		};
 

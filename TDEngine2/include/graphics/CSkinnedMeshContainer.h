@@ -35,6 +35,9 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateSkinnedMeshContainer(E_RESULT_CODE& result);
 		public:
+			static const std::string mJointsArrayUniformVariableId;
+			static const std::string mJointsCountUniformVariableId;
+		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CSkinnedMeshContainer)
 
 			/*!

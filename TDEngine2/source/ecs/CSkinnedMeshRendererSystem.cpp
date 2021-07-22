@@ -22,10 +22,6 @@
 
 namespace TDEngine2
 {
-	static const std::string JointsPalleteShaderVariableId = "mJoints";
-	static const std::string JointsCountShaderVariableId   = "mUsedJointsCount";
-
-
 	CSkinnedMeshRendererSystem::CSkinnedMeshRendererSystem() :
 		CBaseSystem()
 	{
@@ -284,8 +280,8 @@ namespace TDEngine2
 				TDE2_ASSERT(RC_OK == ShowSkeletonDebugHierarchy(mpGraphicsObjectManager, mpResourceManager, mpRenderer, skeletonResourceId));
 			}
 
-			pCastedMaterial->SetVariableForInstance(materialInstance, JointsPalleteShaderVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
-			pCastedMaterial->SetVariableForInstance(materialInstance, JointsCountShaderVariableId, &jointsCount, sizeof(U32));
+			pCastedMaterial->SetVariableForInstance(materialInstance, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+			pCastedMaterial->SetVariableForInstance(materialInstance, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
 
 			auto& meshBuffersEntry = mMeshBuffersMap[pSkinnedMeshContainer->GetSystemBuffersHandle()];
 

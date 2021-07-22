@@ -123,6 +123,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		if (ISystem* pSystem = targetSystemIter->mpSystem)
+		{
+			pSystem->InjectBindings(mpWorld);
+		}
+
 		mpActiveSystems.emplace_back(*targetSystemIter);
 
 		mpDeactivatedSystems.erase(targetSystemIter);

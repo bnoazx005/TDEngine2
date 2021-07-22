@@ -4,6 +4,10 @@
 
 namespace TDEngine2
 {
+	const std::string CSkinnedMeshContainer::mJointsArrayUniformVariableId = "mJoints";
+	const std::string CSkinnedMeshContainer::mJointsCountUniformVariableId = "mUsedJointsCount";
+
+
 	CSkinnedMeshContainer::CSkinnedMeshContainer():
 		CBaseComponent(), mMaterialName(), mMeshName()
 	{

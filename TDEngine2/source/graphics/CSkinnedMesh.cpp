@@ -86,6 +86,46 @@ namespace TDEngine2
 		return _hasJointIndicesInternal();
 	}
 
+	E_RESULT_CODE CSkinnedMesh::_initPositionOnlyVertexBuffer()
+	{
+		auto&& positions = _toPositionOnlyArray();
+
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, positions.size() , &positions.front());
+		if (positionOnlyVertexBufferResult.HasError())
+		{
+			return positionOnlyVertexBufferResult.GetError();
+		}
+
+		mpPositionOnlyVertexBuffer = positionOnlyVertexBufferResult.Get();
+
+		return RC_OK;
+	}
+
+	// \todo Maybe some refactoring is needed
+	std::vector<U8> CSkinnedMesh::_toPositionOnlyArray() const
+	{
+		U32 strideSize = sizeof(TVector4);
+		strideSize += (_hasJointWeightsInternal() ? sizeof(TVector4) : 0);
+		strideSize += (_hasJointIndicesInternal() ? sizeof(U32) * 4 : 0);
+
+		std::vector<U8> bytes(mPositions.size() * strideSize);
+
+		U32 elementsCount = 0;
+
+		for (U32 i = 0, ptrPos = 0; i < mPositions.size(); ++i, ptrPos += strideSize)
+		{
+			// mandatory element
+			memcpy(&bytes[ptrPos], &mPositions[i], sizeof(TVector4));
+
+			elementsCount = 1;
+
+			if (_hasJointWeightsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mJointsWeights[i], sizeof(TVector4)); }
+			if (_hasJointIndicesInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * 4 * sizeof(U32)], &mJointsIndices[i], 4 * sizeof(U32)); }
+		}
+
+		return bytes;
+	}
+
 	std::vector<U8> CSkinnedMesh::_toArrayOfStructsDataLayoutInternal() const
 	{
 		U32 strideSize = sizeof(TVector4) + sizeof(TColor32F);

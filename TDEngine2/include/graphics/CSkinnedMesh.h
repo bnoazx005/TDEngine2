@@ -66,12 +66,15 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkinnedMesh)
 
+			TDE2_API E_RESULT_CODE _initPositionOnlyVertexBuffer() override;
+
 			TDE2_API const IResourceLoader* _getResourceLoader() override;
 
 			TDE2_API bool _hasJointWeightsInternal() const;
 			TDE2_API bool _hasJointIndicesInternal() const;
 
 			TDE2_API std::vector<U8> _toArrayOfStructsDataLayoutInternal() const override;
+			TDE2_API std::vector<U8> _toPositionOnlyArray() const;
 		protected:
 			std::vector<TJointsWeightsArray> mJointsWeights;
 			std::vector<TJointsIndicesArray> mJointsIndices;

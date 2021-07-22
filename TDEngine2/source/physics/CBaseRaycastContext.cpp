@@ -87,7 +87,8 @@ namespace TDEngine2
 
 	void CBaseRaycastContext::Reset()
 	{
-		TDE2_ASSERT(mpAllocator->Clear() == RC_OK);
+		E_RESULT_CODE result = mpAllocator->Clear();
+		TDE2_ASSERT(result == RC_OK);
 	}
 
 

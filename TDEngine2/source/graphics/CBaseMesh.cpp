@@ -40,13 +40,11 @@ namespace TDEngine2
 		// \note create a position-only vertex buffer
 		// \todo In future may be it's better to split shared VB into separate channels
 
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, mPositions.size() * sizeof(TVector4), &mPositions.front());
-		if (positionOnlyVertexBufferResult.HasError())
+		E_RESULT_CODE result = _initPositionOnlyVertexBuffer();
+		if (RC_OK != result)
 		{
-			return positionOnlyVertexBufferResult.GetError();
+			return result;
 		}
-
-		mpPositionOnlyVertexBuffer = positionOnlyVertexBufferResult.Get();
 
 		E_INDEX_FORMAT_TYPE indexFormatType = (mIndices.size() < (std::numeric_limits<U16>::max)()) ? IFT_INDEX16 : IFT_INDEX32;
 
@@ -218,6 +216,19 @@ namespace TDEngine2
 		}
 
 		return indicesBytesArray;
+	}
+
+	E_RESULT_CODE CBaseMesh::_initPositionOnlyVertexBuffer()
+	{
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, mPositions.size() * sizeof(TVector4), &mPositions.front());
+		if (positionOnlyVertexBufferResult.HasError())
+		{
+			return positionOnlyVertexBufferResult.GetError();
+		}
+
+		mpPositionOnlyVertexBuffer = positionOnlyVertexBufferResult.Get();
+
+		return RC_OK;
 	}
 
 	std::vector<U8> CBaseMesh::_toArrayOfStructsDataLayoutInternal() const

@@ -138,6 +138,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMesh)
 
+			TDE2_API virtual E_RESULT_CODE _initPositionOnlyVertexBuffer();
+
 			TDE2_API virtual std::vector<U8> _toArrayOfStructsDataLayoutInternal() const;
 			TDE2_API std::vector<U8> _getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const;
 

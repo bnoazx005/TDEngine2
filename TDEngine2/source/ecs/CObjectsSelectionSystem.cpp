@@ -6,6 +6,8 @@
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CStaticMesh.h"
+#include "../../include/graphics/CSkinnedMeshContainer.h"
+#include "../../include/graphics/CSkinnedMesh.h"
 #include "../../include/graphics/CQuadSprite.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/IVertexBuffer.h"
@@ -46,12 +48,24 @@ namespace TDEngine2
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
 		mpResourceManager = pRenderer->GetResourceManager();
+
+		mpSelectionVertDecl = nullptr;
+		mpSelectionSkinnedVertDecl = nullptr;
 		
 		if (auto newVertDeclResult = pGraphicsObjectManager->CreateVertexDeclaration())
 		{
 			mpSelectionVertDecl = newVertDeclResult.Get();
 
-			mpSelectionVertDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
+			mpSelectionVertDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
+		}
+
+		if (auto newVertDeclResult = pGraphicsObjectManager->CreateVertexDeclaration())
+		{
+			mpSelectionSkinnedVertDecl = newVertDeclResult.Get();
+
+			mpSelectionSkinnedVertDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
+			mpSelectionSkinnedVertDecl->AddElement({ FT_FLOAT4, 0, VEST_JOINT_WEIGHTS });
+			mpSelectionSkinnedVertDecl->AddElement({ FT_UINT4, 0, VEST_JOINT_INDICES });
 		}
 
 		E_RESULT_CODE result = RC_OK;
@@ -74,25 +88,20 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
+		--mRefCounter;
 
-		mIsInitialized = false;
+		if (!mRefCounter)
+		{
+			mIsInitialized = false;
+			delete this;
+		}		
 
-		//result = result | mpSelectionVertDecl->Free();
-		//result = result | mpSpritesVertexBuffer->Free();
-		//result = result | mpSpritesIndexBuffer->Free();
-
-		delete this;
-
-		return result;
+		return RC_OK;
 	}
 
 	void CObjectsSelectionSystem::InjectBindings(IWorld* pWorld)
 	{
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithAny<CTransform, CStaticMeshContainer, CQuadSprite>();
-
-		mProcessingEntities.clear();
-		std::copy(entities.begin(), entities.end(), std::back_inserter(mProcessingEntities));
+		mProcessingEntities = pWorld->FindEntitiesWithAny<CTransform, CStaticMeshContainer, CSkinnedMeshContainer, CQuadSprite>();
 
 		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
 		mCameraEntityId = !cameras.empty() ? cameras.front() : TEntityId::Invalid;
@@ -132,7 +141,18 @@ namespace TDEngine2
 					_processStaticMeshEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mSelectionOutlineMaterialHandle);
 				}
 			}
-			else if (pCurrEntity->HasComponent<CQuadSprite>())
+
+			if (pCurrEntity->HasComponent<CSkinnedMeshContainer>())
+			{
+				_processSkinnedMeshEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mSelectionSkinnedMaterialHandle);
+
+				if (pCurrEntity->HasComponent<CSelectedEntityComponent>())
+				{
+					_processSkinnedMeshEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mSelectionSkinnedOutlineMaterialHandle);
+				}
+			}
+			
+			if (pCurrEntity->HasComponent<CQuadSprite>())
 			{
 				_processSpriteEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mSelectionMaterialHandle);
 
@@ -177,33 +197,54 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CObjectsSelectionSystem::_initSelectionMaterials()
+
+	static TMaterialParameters CreateSelectionMaterialParams(const std::string& materialName)
 	{
-		const static TMaterialParameters selectionMaterialParams
+		const TMaterialParameters selectionMaterialParams
 		{
-			"Selection", false,
+			materialName, false,
 			TDepthStencilStateDesc { true, true, E_COMPARISON_FUNC::LESS_EQUAL},
 			TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
 		};
 
-		const static TMaterialParameters selectionOutlineMaterialParams
+		return selectionMaterialParams;
+	}
+
+
+	static TMaterialParameters CreateSelectionOutlineMaterialParams(const std::string& materialName)
+	{
+		const TMaterialParameters selectionOutlineMaterialParams
 		{
-			"SelectionOutline", true,
+			materialName, true,
 			TDepthStencilStateDesc { false, false, E_COMPARISON_FUNC::LESS_EQUAL},
 			TRasterizerStateDesc { E_CULL_MODE::NONE, true, false, 0.0f, 1.0f, false },
-			TBlendStateDesc 
-			{ 
+			TBlendStateDesc
+			{
 				true,
-				E_BLEND_FACTOR_VALUE::SOURCE_ALPHA, 
-				E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA, 
-				E_BLEND_OP_TYPE::ADD, 
-				E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA, 
-				E_BLEND_FACTOR_VALUE::ZERO 
+				E_BLEND_FACTOR_VALUE::SOURCE_ALPHA,
+				E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA,
+				E_BLEND_OP_TYPE::ADD,
+				E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA,
+				E_BLEND_FACTOR_VALUE::ZERO
 			}
 		};
-		
-		mSelectionMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionMaterial.material", selectionMaterialParams);
-		mSelectionOutlineMaterialHandle = mpResourceManager->Create<IMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
+
+		return selectionOutlineMaterialParams;
+	}
+
+
+	E_RESULT_CODE CObjectsSelectionSystem::_initSelectionMaterials()
+	{
+		const static TMaterialParameters selectionMaterialParams        = CreateSelectionMaterialParams("Selection");
+		const static TMaterialParameters selectionSkinnedMaterialParams = CreateSelectionMaterialParams("SelectionSkinned");
+
+		const static TMaterialParameters selectionOutlineMaterialParams        = CreateSelectionOutlineMaterialParams("SelectionOutline");
+		const static TMaterialParameters selectionSkinnedOutlineMaterialParams = CreateSelectionOutlineMaterialParams("SelectionSkinnedOutline");
+
+		mSelectionMaterialHandle               = mpResourceManager->Create<IMaterial>("SelectionMaterial.material", selectionMaterialParams);
+		mSelectionSkinnedMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionSkinnedMaterial.material", selectionSkinnedMaterialParams);
+		mSelectionOutlineMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
+		mSelectionSkinnedOutlineMaterialHandle = mpResourceManager->Create<IMaterial>("SelectionSkinnedOutlineMaterial.material", selectionSkinnedOutlineMaterialParams);
 
 		return (mSelectionMaterialHandle != TResourceId::Invalid && mSelectionOutlineMaterialHandle != TResourceId::Invalid) ? RC_OK : RC_FAIL;
 	}
@@ -237,6 +278,38 @@ namespace TDEngine2
 				pDrawCommand->mStartIndex              = 0;
 				pDrawCommand->mStartVertex             = 0;
 				pDrawCommand->mNumOfIndices            = pStaticMeshResource->GetFacesCount() * 3;
+			}
+		}
+	}
+
+	void CObjectsSelectionSystem::_processSkinnedMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle)
+	{
+		CSkinnedMeshContainer* pSkinnedMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
+		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+		
+		if (ISkinnedMesh* pSkinnedMeshResource = mpResourceManager->GetResource<ISkinnedMesh>(mpResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName())))
+		{
+			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
+			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
+			if (IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(materialHandle))
+			{
+				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
+			}
+
+			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
+			{
+				pDrawCommand->mpVertexBuffer           = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mpIndexBuffer            = pSkinnedMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mMaterialHandle          = materialHandle;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mpVertexDeclaration      = mpSelectionSkinnedVertDecl;
+				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
+				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
+				pDrawCommand->mStartIndex              = 0;
+				pDrawCommand->mStartVertex             = 0;
+				pDrawCommand->mNumOfIndices            = pSkinnedMeshResource->GetIndices().size();
 			}
 		}
 	}

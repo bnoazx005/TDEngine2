@@ -18,12 +18,7 @@ struct VertexOut
 
 #program vertex
 
-
-
-CBUFFER_SECTION(SkinningData)
-	float4x4 mJoints[MAX_JOINTS_COUNT];
-	uint mUsedJointsCount;
-CBUFFER_ENDSECTION
+#include <TDEngine2SkinningUtils.inc>
 
 
 struct VertexIn
