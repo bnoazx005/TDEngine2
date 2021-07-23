@@ -4,6 +4,8 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
+#include "../../include/graphics/CSkinnedMesh.h"
+#include "../../include/graphics/CSkinnedMeshContainer.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/InternalShaderData.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -79,6 +81,118 @@ namespace TDEngine2
 		mShadowReceiverEntities    = pWorld->FindEntitiesWithComponents<CShadowReceiverComponent>();
 	}
 
+
+	struct TProcessParams
+	{
+		CEntity*            mpEntity;
+		IResourceManager*   mpResourceManager;
+		IVertexDeclaration* mpVertexDeclaration;
+		TResourceId         mMaterialId;
+		U32                 mDrawIndex;
+		CRenderQueue*       mpRenderQueue;
+	};
+
+
+	static U32 ProcessStaticMeshCasterEntity(const TProcessParams& params)
+	{
+		IResourceManager* pResourceManager = params.mpResourceManager;
+		CEntity* pEntity = params.mpEntity;
+
+		CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>();
+		if (!pStaticMeshContainer)
+		{
+			return params.mDrawIndex;
+		}
+
+		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+
+		TResourceId meshResourceHandle = pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
+		TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
+
+		if (IStaticMesh* pStaticMeshResource = pResourceManager->GetResource<IStaticMesh>(meshResourceHandle))
+		{
+			/// \note Skip rest steps if the resource isn't loaded yet
+			if (IResource* pResource = pResourceManager->GetResource<IResource>(meshResourceHandle))
+			{
+				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState())
+				{
+					return params.mDrawIndex;
+				}
+			}
+
+			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
+			{
+				pDrawCommand->mpVertexBuffer = pStaticMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mpIndexBuffer = pStaticMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mMaterialHandle = params.mMaterialId;
+				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
+				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
+				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(pEntity->GetId());
+				pDrawCommand->mStartIndex = 0;
+				pDrawCommand->mStartVertex = 0;
+				pDrawCommand->mNumOfIndices = pStaticMeshResource->GetFacesCount() * 3;
+			}
+		}
+
+		return params.mDrawIndex + 1;
+	}
+
+	static U32 ProcessSkinnedMeshCasterEntity(const TProcessParams& params)
+	{
+		IResourceManager* pResourceManager = params.mpResourceManager;
+		CEntity* pEntity = params.mpEntity;
+
+		CSkinnedMeshContainer* pSkinnedMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
+		if (!pSkinnedMeshContainer)
+		{
+			return params.mDrawIndex;
+		}
+
+		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+
+		TResourceId meshResourceHandle = pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName());
+		TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
+
+		if (ISkinnedMesh* pSkinnedMeshResource = pResourceManager->GetResource<ISkinnedMesh>(meshResourceHandle))
+		{
+			/// \note Skip rest steps if the resource isn't loaded yet
+			if (IResource* pResource = pResourceManager->GetResource<IResource>(meshResourceHandle))
+			{
+				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState())
+				{
+					return params.mDrawIndex;
+				}
+			}
+
+			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
+			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
+			if (IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(params.mMaterialId))
+			{
+				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
+			}
+
+			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
+			{
+				pDrawCommand->mpVertexBuffer = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mpIndexBuffer = pSkinnedMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mMaterialHandle = params.mMaterialId;
+				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
+				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
+				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(pEntity->GetId());
+				pDrawCommand->mStartIndex = 0;
+				pDrawCommand->mStartVertex = 0;
+				pDrawCommand->mNumOfIndices = static_cast<U32>(pSkinnedMeshResource->GetIndices().size());
+			}
+		}
+
+		return params.mDrawIndex + 1;
+	}
+
+
 	void CLightingSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_ASSERT(mDirectionalLightsEntities.size() <= 1); // \note For now only single sun light source is supported
@@ -122,39 +236,8 @@ namespace TDEngine2
 		{
 			if (auto pEntity = pWorld->FindEntity(currEntity))
 			{
-				if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
-				{
-					CTransform* pTransform = pEntity->GetComponent<CTransform>();
-
-					TResourceId meshResourceHandle = mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
-					TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
-
-					if (IStaticMesh* pStaticMeshResource = mpResourceManager->GetResource<IStaticMesh>(meshResourceHandle))
-					{
-						/// \note Skip rest steps if the resource isn't loaded yet
-						if (IResource* pResource = mpResourceManager->GetResource<IResource>(meshResourceHandle))
-						{
-							if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState())
-							{
-								continue;
-							}
-						}
-
-						if (TDrawIndexedCommand* pDrawCommand = mpShadowPassRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex++))
-						{
-							pDrawCommand->mpVertexBuffer           = pStaticMeshResource->GetPositionOnlyVertexBuffer();
-							pDrawCommand->mpIndexBuffer            = pStaticMeshResource->GetSharedIndexBuffer();
-							pDrawCommand->mMaterialHandle          = mShadowPassMaterialHandle;
-							pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-							pDrawCommand->mpVertexDeclaration      = mpShadowVertDecl;
-							pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-							pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
-							pDrawCommand->mStartIndex              = 0;
-							pDrawCommand->mStartVertex             = 0;
-							pDrawCommand->mNumOfIndices            = pStaticMeshResource->GetFacesCount() * 3;
-						}
-					}
-				}
+				drawIndex = ProcessStaticMeshCasterEntity({ pEntity, mpResourceManager, mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, mpShadowPassRenderQueue });
+				drawIndex = ProcessSkinnedMeshCasterEntity({ pEntity, mpResourceManager, mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, mpShadowPassRenderQueue });
 			}
 		}
 
@@ -176,24 +259,45 @@ namespace TDEngine2
 		}
 	}
 
+
+	static TMaterialParameters CreateShadowPassMaterialParams(const std::string& shaderId)
+	{
+		const TMaterialParameters shadowPassMaterialParams
+		{
+			shaderId, false,
+			TDepthStencilStateDesc { true, true, E_COMPARISON_FUNC::LESS_EQUAL},
+			TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
+		};
+
+		return shadowPassMaterialParams;
+	}
+
+
 	E_RESULT_CODE CLightingSystem::_prepareResources()
 	{
 		if (auto newVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration())
 		{
 			mpShadowVertDecl = newVertDeclResult.Get();
-			mpShadowVertDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
+
+			mpShadowVertDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
+		}
+
+		if (auto newVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration())
+		{
+			mpSkinnedShadowVertDecl = newVertDeclResult.Get();
+
+			mpSkinnedShadowVertDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
+			mpSkinnedShadowVertDecl->AddElement({ FT_FLOAT4, 0, VEST_JOINT_WEIGHTS });
+			mpSkinnedShadowVertDecl->AddElement({ FT_UINT4, 0, VEST_JOINT_INDICES });
 		}
 
 		mpShadowPassRenderQueue = mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS);
 
-		const static TMaterialParameters shadowPassMaterialParams
-		{
-			"ShadowPass", false,
-			TDepthStencilStateDesc { true, true, E_COMPARISON_FUNC::LESS_EQUAL},
-			TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
-		};
+		const static TMaterialParameters shadowPassMaterialParams = CreateShadowPassMaterialParams("ShadowPass");
+		const static TMaterialParameters shadowPassSkinnedMaterialParams = CreateShadowPassMaterialParams("SkinnedShadowPass");
 
-		mShadowPassMaterialHandle = mpResourceManager->Create<IMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);
+		mShadowPassMaterialHandle        = mpResourceManager->Create<IMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);
+		mShadowPassSkinnedMaterialHandle = mpResourceManager->Create<IMaterial>("ShadowPassSkinnedMaterial.material", shadowPassSkinnedMaterialParams);
 
 		return (mShadowPassMaterialHandle != TResourceId::Invalid && mpShadowPassRenderQueue && mpShadowVertDecl) ? RC_OK : RC_FAIL;
 	}

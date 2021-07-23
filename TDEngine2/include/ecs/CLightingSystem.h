@@ -104,15 +104,17 @@ namespace TDEngine2
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
-			std::vector<TEntityId>  mDirectionalLightsEntities;
-			std::vector<TEntityId>  mPointLightsEntities;
+			TEntitiesArray          mDirectionalLightsEntities;
+			TEntitiesArray          mPointLightsEntities;
 
-			std::vector<TEntityId>  mShadowCasterEntities;
-			std::vector<TEntityId>  mShadowReceiverEntities;
+			TEntitiesArray          mShadowCasterEntities;
+			TEntitiesArray          mShadowReceiverEntities;
 
 			IVertexDeclaration*     mpShadowVertDecl;
+			IVertexDeclaration*     mpSkinnedShadowVertDecl;
 
 			TResourceId             mShadowPassMaterialHandle;
+			TResourceId             mShadowPassSkinnedMaterialHandle;
 
 			CRenderQueue*           mpShadowPassRenderQueue;
 	};

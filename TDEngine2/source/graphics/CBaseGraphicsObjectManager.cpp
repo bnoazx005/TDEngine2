@@ -91,6 +91,7 @@ namespace TDEngine2
 			{ "SelectionOutline", E_DEFAULT_SHADER_TYPE::DST_SELECTION_OUTLINE },
 			{ "SelectionSkinnedOutline", E_DEFAULT_SHADER_TYPE::DST_SELECTION_SKINNED_OUTLINE },
 			{ "ShadowPass", E_DEFAULT_SHADER_TYPE::DST_SHADOW_PASS },
+			{ "SkinnedShadowPass", E_DEFAULT_SHADER_TYPE::DST_SHADOW_SKINNED_PASS },
 		};
 
 		return shaderNameToTypeMapping.at(name);
