@@ -32,6 +32,8 @@ source_group("includes" FILES ${UTILITY_HEADERS})
 source_group("sources" FILES ${UTILITY_SOURCES})
 
 
+add_definitions( -D_CRT_SECURE_NO_WARNINGS )
+
 if (MSVC) 	#cl.exe compiler's options
 
 	#Debug compiler's options
