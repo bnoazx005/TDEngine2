@@ -178,6 +178,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IAnimationTrack* GetEventTrack() const override;
+
+			template<typename T>
+			TDE2_API T* GetTrack(TAnimationTrackId handle)
+			{
+				return dynamic_cast<T*>(_getTrackInternal(handle));
+			}
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationClip)
 

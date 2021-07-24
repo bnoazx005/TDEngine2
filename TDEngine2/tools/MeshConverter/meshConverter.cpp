@@ -2,6 +2,7 @@
 #include "deps/argparse/argparse.h"
 #include <experimental/filesystem>
 #include <unordered_set>
+#include <unordered_map>
 #include <iostream>
 #include <fstream>
 #include <queue>
@@ -36,6 +37,7 @@ namespace TDEngine2
 
 		const char* pOutputDirectory = nullptr;
 		const char* pOutputFilename = nullptr;
+		const char* pAnimationsInfoFilename = nullptr;
 
 		struct argparse_option options[] = {
 			OPT_HELP(),
@@ -43,6 +45,7 @@ namespace TDEngine2
 			OPT_BOOLEAN('V', "version", &showVersion, "Print version info and exit"),
 			OPT_STRING(0, "outdir", &pOutputDirectory, "Write output into specified <dirname>"),
 			OPT_STRING('o', "output", &pOutputFilename, "Output file's name <filename>"),
+			OPT_STRING(0, "anim_import_info", &pOutputFilename, "A file which contains information about imported animations"),
 			OPT_BOOLEAN(0, "quiet", &suppressLogOutput, "Enables suppresion of program's output"),
 			OPT_BOOLEAN('D', "debug", &debugMode, "Enables debug output of the utility"),
 			OPT_BOOLEAN(0, "skip_normals", &skipNormals, "If defined object\'s normals will be skipped"),
@@ -90,6 +93,11 @@ namespace TDEngine2
 		if (pOutputFilename)
 		{
 			utilityOptions.mOutputFilename = pOutputFilename;
+		}
+
+		if (pAnimationsInfoFilename)
+		{
+			utilityOptions.mAnimationImportInfoFilename = pAnimationsInfoFilename;
 		}
 
 		utilityOptions.mShouldSkipNormals  = static_cast<bool>(skipNormals);
@@ -174,6 +182,18 @@ namespace TDEngine2
 		};
 
 		return TMatrix4(&elements.front());
+	}
+
+
+	static TVector3 ConvertAssimpVector3(const aiVector3D& vec)
+	{
+		return TVector3(vec.x, vec.y, vec.z);
+	}
+
+
+	static TQuaternion ConvertAssimpQuaternion(const aiQuaternion& rotation)
+	{
+		return TQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
 	}
 
 
@@ -271,9 +291,188 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	struct TAnimationClipInfo
+	{
+		std::string mName;
+		U32 mStartFrame;
+		U32 mEndFrame;
+		bool mIsLooped;
+	};
+
+
+	typedef std::unordered_map<std::string, std::vector<TAnimationClipInfo>> TAnimationsInfoTable;
+
+
+	static TResult<TAnimationsInfoTable> ReadAnimationsInfoTable(IEngineCore* pEngineCore, const std::string& filepath) TDE2_NOEXCEPT
+	{
+		TAnimationsInfoTable output;
+
+		if (IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
+		{
+			auto importDatabaseOpenResult = pFileSystem->Open<IYAMLFileReader>(filepath);
+			if (importDatabaseOpenResult.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(importDatabaseOpenResult.GetError());
+			}
+
+			if (IYAMLFileReader* pAnimationsDatabaseReader = pFileSystem->Get<IYAMLFileReader>(importDatabaseOpenResult.Get()))
+			{
+				/// \note Check meta information
+				pAnimationsDatabaseReader->BeginGroup("meta");
+				{
+					if (pAnimationsDatabaseReader->GetString("resource-type") != "animations-import-info")
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+					}
+				}
+				pAnimationsDatabaseReader->EndGroup();
+
+				pAnimationsDatabaseReader->BeginGroup("entities");
+				{
+					while (pAnimationsDatabaseReader->HasNextItem())
+					{
+						pAnimationsDatabaseReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+						{
+							auto&& filePath = pAnimationsDatabaseReader->GetString("filepath");
+
+							auto& animations = output[filePath];
+
+							/// \note Read information about imported animation clips
+							pAnimationsDatabaseReader->BeginGroup("animations");
+							{
+								while (pAnimationsDatabaseReader->HasNextItem())
+								{
+									pAnimationsDatabaseReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+									{
+										animations.push_back(
+											{ 
+												pAnimationsDatabaseReader->GetString("id"),
+												pAnimationsDatabaseReader->GetUInt32("start"),
+												pAnimationsDatabaseReader->GetUInt32("end"),
+												pAnimationsDatabaseReader->GetBool("looped"),
+											});
+									}
+									pAnimationsDatabaseReader->EndGroup();
+								}
+							}
+							pAnimationsDatabaseReader->EndGroup();
+						}
+						pAnimationsDatabaseReader->EndGroup();
+					}
+				}
+				pAnimationsDatabaseReader->EndGroup();
+
+				pAnimationsDatabaseReader->Close();
+			}
+		}
+
+		return Wrench::TOkValue<TAnimationsInfoTable>(output);
+	}
+
 	
 	static E_RESULT_CODE ReadAnimationsData(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options, const aiScene* pScene) TDE2_NOEXCEPT
 	{
+		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
+
+		auto fileImportInfoDataResult = ReadAnimationsInfoTable(pEngineCore, options.mAnimationImportInfoFilename);
+		if (fileImportInfoDataResult.HasError())
+		{
+			return fileImportInfoDataResult.GetError();
+		}
+
+		TAnimationsInfoTable animationsInfo = fileImportInfoDataResult.Get();
+
+		const aiAnimation* pCurrAnimation = nullptr;
+		const aiNodeAnim* pCurrChannel = nullptr;
+
+		auto it = animationsInfo.find(filePath);
+		if (it == animationsInfo.cend())
+		{
+			return RC_FAIL;
+		}
+
+		auto& animationsClipInfo = it->second;
+
+		E_RESULT_CODE result = RC_OK;
+
+		for (const TAnimationClipInfo& currAnimationClip : animationsClipInfo)
+		{
+			/// \note Create a new Animation resource
+			CScopedPtr<CAnimationClip> pAnimation
+			{
+				dynamic_cast<CAnimationClip*>(
+					CreateAnimationClip(
+						pEngineCore->GetSubsystem<IResourceManager>(), 
+						pEngineCore->GetSubsystem<IGraphicsContext>(), 
+						pFileSystem->CombinePath(options.mOutputDirname, currAnimationClip.mName), 
+						result))
+			};
+
+			for (U32 i = 0; i < pScene->mNumAnimations; ++i)
+			{
+				pCurrAnimation = pScene->mAnimations[i];
+
+				const U32 duration = static_cast<U32>(pCurrAnimation->mDuration / std::min<F64>(1e-3, pCurrAnimation->mTicksPerSecond)); /// animation's duration in seconds
+
+				pAnimation->SetDuration(static_cast<F32>(currAnimationClip.mEndFrame - currAnimationClip.mStartFrame));
+				pAnimation->SetWrapMode(currAnimationClip.mIsLooped ? E_ANIMATION_WRAP_MODE_TYPE::LOOP : E_ANIMATION_WRAP_MODE_TYPE::PLAY_ONCE);
+
+				for (U32 channelId = 0; channelId < pCurrAnimation->mNumChannels; ++channelId)
+				{
+					pCurrChannel = pCurrAnimation->mChannels[channelId];
+
+					const std::string jointId = pCurrChannel->mNodeName.data;
+
+					auto* pPositionTrack = pAnimation->GetTrack<CVector3AnimationTrack>(pAnimation->CreateTrack<CVector3AnimationTrack>(Wrench::StringUtils::Format("track_pos_{0}", channelId + 1)));
+					pPositionTrack->SetPropertyBinding(Wrench::StringUtils::Format(CMeshAnimatorComponent::GetPositionJointChannelPattern(), jointId));
+
+					for (U32 k = 0; k < pCurrChannel->mNumPositionKeys; ++k)
+					{
+						auto&& position = pCurrChannel->mPositionKeys[k];
+						
+						if (auto pKeyValue = pPositionTrack->GetKey(pPositionTrack->CreateKey(static_cast<F32>(position.mTime))))
+						{
+							pKeyValue->mValue = ConvertAssimpVector3(position.mValue);
+						}
+					}
+
+					auto* pRotationTrack = pAnimation->GetTrack<CQuaternionAnimationTrack>(pAnimation->CreateTrack<CQuaternionAnimationTrack>(Wrench::StringUtils::Format("track_rot_{0}", channelId + 1)));
+					pRotationTrack->SetPropertyBinding(Wrench::StringUtils::Format(CMeshAnimatorComponent::GetRotationJointChannelPattern(), jointId));
+
+					for (U32 k = 0; k < pCurrChannel->mNumRotationKeys; ++k)
+					{
+						auto&& rotation = pCurrChannel->mRotationKeys[k];
+
+						if (auto pKeyValue = pRotationTrack->GetKey(pRotationTrack->CreateKey(static_cast<F32>(rotation.mTime))))
+						{
+							pKeyValue->mValue = ConvertAssimpQuaternion(rotation.mValue);
+						}
+					}
+				}
+			}
+
+			/// \note Write down the resource into file sytem
+			if (IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
+			{
+				auto animationFileResult = pFileSystem->Open<IYAMLFileWriter>(pAnimation->GetName(), true);
+				if (animationFileResult.HasError())
+				{
+					return animationFileResult.GetError();
+				}
+
+				if (IYAMLFileWriter* pAnimationArchiveWriter = pFileSystem->Get<IYAMLFileWriter>(animationFileResult.Get()))
+				{
+					if (RC_OK != (result = pAnimation->Save(pAnimationArchiveWriter)))
+					{
+						return result;
+					}
+
+					pAnimationArchiveWriter->Close();
+				}
+			}
+		}
+
 		return RC_OK;
 	}
 
@@ -303,14 +502,25 @@ namespace TDEngine2
 		{
 			auto pCurrBone = pMesh->mBones[i];
 
-			TDE2_ASSERT(pCurrBone->mNumWeights <= MaxJointsCountPerVertex);
-
 			for (U32 k = 0; k < pCurrBone->mNumWeights; ++k)
 			{
 				auto& weight = pCurrBone->mWeights[k];
 
-				if (static_cast<U32>(weight.mVertexId) != vertexId)
+				if (static_cast<U32>(weight.mVertexId) != vertexId || weight.mWeight < 1e-2f)
 				{
+					continue;
+				}
+
+				/// \note Find the least significant weight and replace it if it's less than a new one
+				if (weights.size() >= MaxJointsCountPerVertex)
+				{
+					auto it = std::min_element(weights.begin(), weights.end());
+					if (*it < weight.mWeight)
+					{
+						indices[std::distance(weights.begin(), it)] = pCurrBone->mName.C_Str();
+						*it = weight.mWeight;
+					}
+
 					continue;
 				}
 

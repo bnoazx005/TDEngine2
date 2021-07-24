@@ -265,7 +265,7 @@ namespace TDEngine2
 				return RC_FAIL;
 			}
 
-			TKeyFrameType* GetKey(TAnimationTrackKeyId handle) const
+			TKeyFrameType* GetKey(TAnimationTrackKeyId handle)
 			{
 				auto iter = mKeysHandlesMap.find(handle);
 
@@ -274,7 +274,7 @@ namespace TDEngine2
 					return nullptr;
 				}
 
-				return mKeys[iter->second];
+				return &mKeys[iter->second];
 			}
 
 			TDE2_API const std::string& GetPropertyBinding() const override { return mPropertyBinding; }

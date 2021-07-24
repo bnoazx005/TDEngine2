@@ -4,6 +4,20 @@
 
 namespace TDEngine2
 {
+	const std::string CMeshAnimatorComponent::mPositionJointChannelPattern = "joint_{0}.position";
+	const std::string CMeshAnimatorComponent::mRotationJointChannelPattern = "joint_{0}.rotation";
+
+	const std::string& CMeshAnimatorComponent::GetPositionJointChannelPattern()
+	{
+		return mPositionJointChannelPattern;
+	}
+
+	const std::string& CMeshAnimatorComponent::GetRotationJointChannelPattern()
+	{
+		return mRotationJointChannelPattern;
+	}
+
+
 	CMeshAnimatorComponent::CMeshAnimatorComponent() :
 		CBaseComponent()
 	{
@@ -124,8 +138,8 @@ namespace TDEngine2
 
 		for (auto&& currJointEntity : mJointsTable)
 		{
-			properties.push_back(Wrench::StringUtils::Format("joint_{0}.position", currJointEntity.first));
-			properties.push_back(Wrench::StringUtils::Format("joint_{0}.rotation", currJointEntity.first));
+			properties.push_back(Wrench::StringUtils::Format(CMeshAnimatorComponent::mPositionJointChannelPattern, currJointEntity.first));
+			properties.push_back(Wrench::StringUtils::Format(CMeshAnimatorComponent::mRotationJointChannelPattern, currJointEntity.first));
 		}
 
 		return properties;

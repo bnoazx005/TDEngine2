@@ -51,6 +51,9 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateMeshAnimatorComponent(E_RESULT_CODE&);
 		public:
+			TDE2_API static const std::string mPositionJointChannelPattern;
+			TDE2_API static const std::string mRotationJointChannelPattern;
+
 			typedef std::vector<TMatrix4> TJointPose;
 			typedef std::unordered_map<std::string, U32> TJointsMap;
 		public:
@@ -103,6 +106,9 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
+
+			TDE2_API static const std::string& GetPositionJointChannelPattern();
+			TDE2_API static const std::string& GetRotationJointChannelPattern();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMeshAnimatorComponent)
 

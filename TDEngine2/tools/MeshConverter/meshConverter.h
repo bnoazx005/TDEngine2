@@ -37,6 +37,7 @@ namespace TDEngine2
 
 		std::string mOutputDirname = ".";
 		std::string mOutputFilename = "NewMesh.mesh";
+		std::string mAnimationImportInfoFilename = "AnimationsList.info";
 
 		bool mShouldSkipNormals  = false;
 		bool mShouldSkipTangents = false;
