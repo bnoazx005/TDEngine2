@@ -107,7 +107,7 @@ namespace TDEngine2
 			return {};
 		}
 
-		static const std::array<std::string, 4> extensions{ ".obj", ".OBJ", ".fbx", ".FBX" };
+		static const std::array<std::string, 6> extensions{ ".obj", ".OBJ", ".fbx", ".FBX", ".dae", ".DAE" };
 
 		auto&& hasValidExtension = [=](const std::string& ext)
 		{
@@ -303,6 +303,8 @@ namespace TDEngine2
 		{
 			auto pCurrBone = pMesh->mBones[i];
 
+			TDE2_ASSERT(pCurrBone->mNumWeights <= MaxJointsCountPerVertex);
+
 			for (U32 k = 0; k < pCurrBone->mNumWeights; ++k)
 			{
 				auto& weight = pCurrBone->mWeights[k];
@@ -491,6 +493,8 @@ namespace TDEngine2
 			{
 				const U16 weightsCount = static_cast<U16>(jointWeights.size());
 				result = result | pMeshFileWriter->Write(&weightsCount, sizeof(U16));
+
+				TDE2_ASSERT(weightsCount <= MaxJointsCountPerVertex);
 				
 				for (F32 currWeight : jointWeights)
 				{
@@ -505,6 +509,8 @@ namespace TDEngine2
 			{
 				const U16 indicesCount = static_cast<U16>(jointIndices.size());
 				result = result | pMeshFileWriter->Write(&indicesCount, sizeof(U16));
+
+				TDE2_ASSERT(indicesCount <= MaxJointsCountPerVertex);
 
 				for (U32 currJointIndex : jointIndices)
 				{

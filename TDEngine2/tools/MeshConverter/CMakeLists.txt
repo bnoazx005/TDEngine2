@@ -65,6 +65,7 @@ endif (UNIX)
 
 set (ASSIMP_BUILD_OBJ_IMPORTER TRUE)
 set (ASSIMP_BUILD_FBX_IMPORTER TRUE)
+set (ASSIMP_BUILD_COLLADA_IMPORTER TRUE)
 
 add_subdirectory(deps/assimp)
 
