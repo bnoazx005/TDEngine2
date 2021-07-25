@@ -1,5 +1,5 @@
-#include "./../../include/math/TQuaternion.h"
-#include "./../../include/math/MathUtils.h"
+#include "../../include/math/TQuaternion.h"
+#include "../../include/math/MathUtils.h"
 #include <cmath>
 #include <algorithm>
 
@@ -223,10 +223,10 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		pWriter->SetFloat("x", object.x);
-		pWriter->SetFloat("y", object.y);
-		pWriter->SetFloat("z", object.z);
-		pWriter->SetFloat("w", object.w);
+		if (CMathUtils::Abs(object.x) > 1e-5f) pWriter->SetFloat("x", object.x);
+		if (CMathUtils::Abs(object.y) > 1e-5f) pWriter->SetFloat("y", object.y);
+		if (CMathUtils::Abs(object.z) > 1e-5f) pWriter->SetFloat("z", object.z);
+		if (CMathUtils::Abs(object.w) > 1e-5f) pWriter->SetFloat("w", object.w);
 
 		return RC_OK;
 	}
