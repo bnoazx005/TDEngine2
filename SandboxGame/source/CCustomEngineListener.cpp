@@ -65,7 +65,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	//mpResourceManager->Load<IStaticMesh>("hq.mesh");
 
-#if 1 /// Create a static mesh
+#if 0 /// Create a static mesh
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto shadowCaster = pMeshEntity->AddComponent<CShadowCasterComponent>();
 	auto sr = pMeshEntity->AddComponent<CShadowReceiverComponent>();
@@ -80,7 +80,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 	// plane
-#if 1
+#if 0
 	auto pPlaneEntity = mpWorld->CreateEntity();
 	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
@@ -364,6 +364,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					pMeshContainer->SetMeshName(meshName + ".mesh");
 					pMeshContainer->SetSkeletonName(meshName + ".skeleton");
 					pMeshContainer->SetShowDebugSkeleton(true);
+
+					if (auto pAnimationPlayer = pAnimatedMeshEntity->AddComponent<CAnimationContainerComponent>())
+					{
+						pAnimationPlayer->SetAnimationClipId(meshName + "_Idle.animation");
+						pAnimationPlayer->Play();
+					}
 				}
 			}
 #endif
@@ -376,8 +382,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpResourceManager->Load<IAudioSource>("test.mp3");
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
-
-	mpResourceManager->Load<ISkeleton>("Test.skeleton");
 
 	return RC_OK;
 }

@@ -361,8 +361,25 @@ namespace TDEngine2
 		}
 
 		auto it = std::find_if(mJoints.begin(), mJoints.end(), [parentId = static_cast<U32>(jointData.mParentIndex)](const TJoint& pJoint) { return pJoint.mIndex == parentId; });
+		auto it2 = std::find_if(mJoints.begin(), mJoints.end(), [id](const TJoint& pJoint) { return pJoint.mParentIndex == id; });
 	
-		mJoints.emplace((it == mJoints.end()) ? it : (it + 1), jointData);
+		if (it == mJoints.cend())
+		{
+			if (it2 == mJoints.cend())
+			{
+
+			}
+			else
+			{
+				it = (it2 == mJoints.cbegin()) ? it2 : (it2 - 1);
+			}
+		}
+		else
+		{
+			++it;
+		}
+
+		mJoints.emplace(it, jointData);
 
 		return id;
 	}

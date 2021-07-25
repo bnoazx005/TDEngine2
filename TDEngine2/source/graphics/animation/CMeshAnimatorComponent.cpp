@@ -4,6 +4,8 @@
 
 namespace TDEngine2
 {
+	static const std::string ComponentTypeName = "mesh_animator";
+
 	const std::string CMeshAnimatorComponent::mPositionJointChannelPattern = "joint_{0}.position";
 	const std::string CMeshAnimatorComponent::mRotationJointChannelPattern = "joint_{0}.rotation";
 
@@ -17,6 +19,10 @@ namespace TDEngine2
 		return mRotationJointChannelPattern;
 	}
 
+	const std::string& CMeshAnimatorComponent::GetComponentTypeName()
+	{
+		return ComponentTypeName;
+	}
 
 	CMeshAnimatorComponent::CMeshAnimatorComponent() :
 		CBaseComponent()
@@ -85,6 +91,16 @@ namespace TDEngine2
 		return mCurrAnimationPose;
 	}
 
+	const std::vector<TVector3>& CMeshAnimatorComponent::GetJointPositionsArray() const
+	{
+		return mJointsCurrPositions;
+	}
+
+	const std::vector<TQuaternion>& CMeshAnimatorComponent::GetJointRotationsArray() const
+	{
+		return mJointsCurrRotation;
+	}
+
 
 	enum class E_JOINT_PROPERTY_TYPE : U8
 	{
@@ -143,6 +159,11 @@ namespace TDEngine2
 		}
 
 		return properties;
+	}
+
+	const std::string& CMeshAnimatorComponent::GetTypeName() const
+	{
+		return ComponentTypeName;
 	}
 
 	void CMeshAnimatorComponent::_setPositionForJoint(const std::string& jointId, const TVector3& position)

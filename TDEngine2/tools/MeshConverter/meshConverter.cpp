@@ -425,7 +425,7 @@ namespace TDEngine2
 					const std::string jointId = pCurrChannel->mNodeName.data;
 
 					auto* pPositionTrack = pAnimation->GetTrack<CVector3AnimationTrack>(pAnimation->CreateTrack<CVector3AnimationTrack>(Wrench::StringUtils::Format("track_pos_{0}", channelId + 1)));
-					pPositionTrack->SetPropertyBinding(Wrench::StringUtils::Format(CMeshAnimatorComponent::GetPositionJointChannelPattern(), jointId));
+					pPositionTrack->SetPropertyBinding(Wrench::StringUtils::Format("{1}." + CMeshAnimatorComponent::GetPositionJointChannelPattern(), jointId, CMeshAnimatorComponent::GetComponentTypeName()));
 
 					for (U32 k = 0; k < pCurrChannel->mNumPositionKeys; ++k)
 					{
@@ -438,7 +438,7 @@ namespace TDEngine2
 					}
 
 					auto* pRotationTrack = pAnimation->GetTrack<CQuaternionAnimationTrack>(pAnimation->CreateTrack<CQuaternionAnimationTrack>(Wrench::StringUtils::Format("track_rot_{0}", channelId + 1)));
-					pRotationTrack->SetPropertyBinding(Wrench::StringUtils::Format(CMeshAnimatorComponent::GetRotationJointChannelPattern(), jointId));
+					pRotationTrack->SetPropertyBinding(Wrench::StringUtils::Format("{1}." + CMeshAnimatorComponent::GetRotationJointChannelPattern(), jointId, CMeshAnimatorComponent::GetComponentTypeName()));
 
 					for (U32 k = 0; k < pCurrChannel->mNumRotationKeys; ++k)
 					{

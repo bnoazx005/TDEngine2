@@ -95,6 +95,9 @@ namespace TDEngine2
 
 			TJointPose& GetCurrAnimationPose();
 
+			const std::vector<TVector3>& GetJointPositionsArray() const;
+			const std::vector<TQuaternion>& GetJointRotationsArray() const;
+
 			/*!
 				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
 			*/
@@ -107,8 +110,15 @@ namespace TDEngine2
 
 			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
 
+			/*!
+				\return The method returns type name (lowercase is preffered)
+			*/
+
+			TDE2_API const std::string& GetTypeName() const override;
+
 			TDE2_API static const std::string& GetPositionJointChannelPattern();
 			TDE2_API static const std::string& GetRotationJointChannelPattern();
+			TDE2_API static const std::string& GetComponentTypeName();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMeshAnimatorComponent)
 

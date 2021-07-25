@@ -3,9 +3,11 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/graphics/CSkinnedMeshContainer.h"
 #include "../../include/graphics/ISkeleton.h"
+#include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/utils/CFileLogger.h"
 
 
@@ -70,6 +72,8 @@ namespace TDEngine2
 				continue;
 			}
 
+			TDE2_PROFILER_SCOPE("CMeshAnimatorUpdatingSystem::Update");
+
 			CSkinnedMeshContainer* pMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
 			const TResourceId skeletonResourceId = mpResourceManager->Load<ISkeleton>(pMeshContainer->GetSkeletonName());
 
@@ -101,7 +105,34 @@ namespace TDEngine2
 				});
 			}
 
-			/// \todo Implement real update
+			auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>();
+			if (!pAnimationContainer || !pAnimationContainer->IsPlaying())
+			{
+				continue;
+			}
+
+			/// \note Update bind transform matrices
+			auto& positions = pMeshAnimator->GetJointPositionsArray();
+			auto& rotations = pMeshAnimator->GetJointRotationsArray();
+
+			if (!positions.empty() && !rotations.empty())
+			{
+				for (U32 i = 0; i < updatedJointsPose.size(); ++i)
+				{
+					const TVector3& position = positions[i];
+					const TQuaternion& rotation = rotations[i];
+
+					updatedJointsPose[i] = Mul(TranslationMatrix(position), RotationMatrix(rotation));
+
+					if (TJoint* pJoint = pSkeleton->GetJoint(i))
+					{
+						if (pJoint->mParentIndex >= 0)
+						{
+							updatedJointsPose[i] = Mul(updatedJointsPose[pJoint->mParentIndex], updatedJointsPose[i]);
+						}
+					}
+				}
+			}			
 
 			/// \note Update matrices for the mesh
 			auto& currAnimationPose = pMeshContainer->GetCurrentAnimationPose();

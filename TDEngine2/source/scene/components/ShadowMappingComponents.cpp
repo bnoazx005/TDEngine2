@@ -59,6 +59,12 @@ namespace TDEngine2
 		return mIsTransparent;
 	}
 
+	const std::string& CShadowCasterComponent::GetTypeName() const
+	{
+		static std::string componentName{ "shadow_caster" };
+		return componentName;
+	}
+
 
 	IComponent* CreateShadowCasterComponent(E_RESULT_CODE& result)
 	{
