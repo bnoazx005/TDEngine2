@@ -220,10 +220,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		/// \note For the sake of optimization skip zero components
-		if (CMathUtils::Abs(object.x) > 1e-5f) pWriter->SetFloat("x", object.x);
-		if (CMathUtils::Abs(object.y) > 1e-5f) pWriter->SetFloat("y", object.y);
-		if (CMathUtils::Abs(object.z) > 1e-5f) pWriter->SetFloat("z", object.z);
+		pWriter->SetFloat("x", object.x);
+		pWriter->SetFloat("y", object.y);
+		pWriter->SetFloat("z", object.z);
 
 		return RC_OK;
 	}

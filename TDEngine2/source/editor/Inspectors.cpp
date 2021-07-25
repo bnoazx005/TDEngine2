@@ -97,7 +97,7 @@ namespace TDEngine2
 			CTransform& transform = dynamic_cast<CTransform&>(component);
 
 			TVector3 position = transform.GetPosition();
-			TVector3 rotation = ToEulerAngles(transform.GetRotation());
+			TVector3 rotation = ToEulerAngles(transform.GetRotation()) * CMathConstants::Rad2Deg;
 			TVector3 scale = transform.GetScale();
 
 			imguiContext.BeginHorizontal();
@@ -126,7 +126,7 @@ namespace TDEngine2
 					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}
 
-				transform.SetRotation(TQuaternion(rotation)); 
+				transform.SetRotation(TQuaternion(rotation * CMathConstants::Deg2Rad)); 
 			});
 			imguiContext.EndHorizontal();
 

@@ -68,4 +68,60 @@ TEST_CASE("TMatrix4 Tests")
 			REQUIRE(std::get<0>(currCase) == invertedMat);
 		}
 	}
+
+	SECTION("TestRotationMatrix_PassCorrectQuaternion_ReturnsCorrectRotationMatrix")
+	{
+		/// first is an expected, second is actual result
+		std::tuple<TMatrix4, TQuaternion> testCases[]
+		{
+			{ IdentityMatrix4, UnitQuaternion },
+			{ 
+				TMatrix4(1.0f, 0.0f, 0.0f, 0.0f,
+						 0.0f, 0.0f, -1.0f, 0.0f, 
+						 0.0f, 1.0f, 0.0f, 0.0f, 
+						 0.0f, 0.0f, 0.0f, 1.0f), 
+				TQuaternion(1.0f, 0.0f, 0.0f, 1.0f) 
+			},
+			{ 
+				TMatrix4(0.0f, 0.0f, 1.0f, 0.0f,
+						 0.0f, 1.0f, 0.0f, 0.0f, 
+						 -1.0f, 0.0f, 0.0f, 0.0f, 
+						 0.0f, 0.0f, 0.0f, 1.0f), 
+				TQuaternion(0.0f, 1.0f, 0.0f, 1.0f) 
+			},
+			{ 
+				TMatrix4(0.0f, -1.0f, 0.0f, 0.0f,
+						 1.0f, 0.0f, 0.0f, 0.0f,
+						 0.0f, 0.0f, 1.0f, 0.0f, 
+						 0.0f, 0.0f, 0.0f, 1.0f),
+				TQuaternion(0.0f, 0.0f, 1.0f, 1.0f) 
+			},
+			{ 
+				TMatrix4(0.333f, -0.667f, 0.667f, 0.0f,
+						 0.667f, -0.333f, -0.667f, 0.0f, 
+						 0.667f, 0.667f, 0.333f, 0.0f, 
+						 0.0f, 0.0f, 0.0f, 1.0f), 
+				TQuaternion(1.0f, 0.0f, 1.0f, 1.0f)
+			},
+			{ 
+				TMatrix4(0.0f, 0.0f, 1.0f, 0.0f,
+						 1.0f, 0.0f, 0.0f, 0.0f,
+						 0.0f, 1.0f, 0.0f, 0.0f, 
+						 0.0f, 0.0f, 0.0f, 1.0f), 
+				TQuaternion(1.0f, 1.0f, 1.0f, 1.0f) 
+			},
+			{ 
+				TMatrix4(-0.333f, -0.667f, 0.667f, 0.0f, 
+						 0.667f, 0.333f, 0.667f, 0.0f, 
+						 -0.667f, 0.667f, 0.333f, 0.0f,
+						 0.0f, 0.0f, 0.0f, 1.0f), 
+				TQuaternion(0.0f, 1.0f, 1.0f, 1.0f)
+			},
+		};
+
+		for (auto&& currCase : testCases)
+		{
+			REQUIRE(std::get<TMatrix4>(currCase) == RotationMatrix(std::get<TQuaternion>(currCase)));
+		}
+	}
 }

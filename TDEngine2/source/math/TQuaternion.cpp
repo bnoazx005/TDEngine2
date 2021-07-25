@@ -1,5 +1,5 @@
-#include "../../include/math/TQuaternion.h"
-#include "../../include/math/MathUtils.h"
+#include "./../../include/math/TQuaternion.h"
+#include "./../../include/math/MathUtils.h"
 #include <cmath>
 #include <algorithm>
 
@@ -23,21 +23,21 @@ namespace TDEngine2
 
 	TQuaternion::TQuaternion(const TVector3& eulerAngles)
 	{
-		F32 yaw   = eulerAngles.z;
-		F32 roll  = eulerAngles.x;
-		F32 pitch = eulerAngles.y;
+		const F32 halfYaw   = 0.5f * eulerAngles.z;
+		const F32 halfRoll  = 0.5f * eulerAngles.x;
+		const F32 halfPitch = 0.5f * eulerAngles.y;
 
-		F32 cosYaw   = cosf(yaw * 0.5f);
-		F32 sinYaw   = sinf(yaw * 0.5f);
-		F32 cosRoll  = cosf(roll * 0.5f);
-		F32 sinRoll  = sinf(roll * 0.5f);
-		F32 cosPitch = cosf(pitch * 0.5f);
-		F32 sinPitch = sinf(pitch * 0.5f);
+		const F32 cosYaw   = cosf(halfYaw);
+		const F32 sinYaw   = sinf(halfYaw);
+		const F32 cosRoll  = cosf(halfRoll);
+		const F32 sinRoll  = sinf(halfRoll);
+		const F32 cosPitch = cosf(halfPitch);
+		const F32 sinPitch = sinf(halfPitch);
 
-		w = cosYaw * cosRoll * cosPitch + sinYaw * sinRoll * sinPitch;
-		x = cosYaw * sinRoll * cosPitch + sinYaw * cosRoll * sinPitch;
-		y = cosYaw * cosRoll * sinPitch - sinYaw * sinRoll * cosPitch;
-		z = sinYaw * cosRoll * cosPitch - cosYaw * sinRoll * sinPitch;
+		x = sinRoll * cosYaw * cosPitch + cosRoll * sinYaw * sinPitch;
+		y = cosRoll * cosYaw * sinPitch - sinRoll * sinYaw * cosPitch;
+		z = cosRoll * sinYaw * cosPitch + sinRoll * cosYaw * sinPitch;
+		w = cosRoll * cosYaw * cosPitch - sinRoll * sinYaw * sinPitch;
 	}
 
 	TQuaternion::TQuaternion(const TQuaternion& q):
@@ -118,18 +118,18 @@ namespace TDEngine2
 
 	TDE2_API bool operator== (const TQuaternion& lq, const TQuaternion& rq)
 	{
-		return	(CMathUtils::Abs(lq.x - rq.x) < 1e-3f) && 
-				(CMathUtils::Abs(lq.y - rq.y) < 1e-3f) && 
-				(CMathUtils::Abs(lq.z - rq.z) < 1e-3f) && 
-				(CMathUtils::Abs(lq.w - rq.w) < 1e-3f);
+		return	(CMathUtils::Abs(lq.x - rq.x) < FloatEpsilon) && 
+				(CMathUtils::Abs(lq.y - rq.y) < FloatEpsilon) && 
+				(CMathUtils::Abs(lq.z - rq.z) < FloatEpsilon) && 
+				(CMathUtils::Abs(lq.w - rq.w) < FloatEpsilon);
 	}
 
 	TDE2_API bool operator!= (const TQuaternion& lq, const TQuaternion& rq)
 	{
-		return	(CMathUtils::Abs(lq.x - rq.x) > 1e-3f) ||
-				(CMathUtils::Abs(lq.y - rq.y) > 1e-3f) ||
-				(CMathUtils::Abs(lq.z - rq.z) > 1e-3f) ||
-				(CMathUtils::Abs(lq.w - rq.w) > 1e-3f);
+		return	(CMathUtils::Abs(lq.x - rq.x) > FloatEpsilon) ||
+				(CMathUtils::Abs(lq.y - rq.y) > FloatEpsilon) ||
+				(CMathUtils::Abs(lq.z - rq.z) > FloatEpsilon) ||
+				(CMathUtils::Abs(lq.w - rq.w) > FloatEpsilon);
 	}
 
 
@@ -177,13 +177,15 @@ namespace TDEngine2
 
 	TMatrix4 RotationMatrix(const TQuaternion& q)
 	{
-		F32 squaredX = q.x * q.x;
-		F32 squaredY = q.y * q.y;
-		F32 squaredZ = q.z * q.z;
+		const TQuaternion rot = Normalize(q);
 
-		F32 elements[16] { 1.0f - 2.0f * (squaredY + squaredZ), 2.0f * (q.x * q.y - q.w * q.z), 2.0f * (q.x * q.z + q.w * q.y), 0.0f,
-						   2.0f * (q.x * q.y + q.w * q.z), 1.0f - 2.0f * (squaredX + squaredZ), 2.0f * (q.y * q.z - q.w * q.x), 0.0f,
-						   2.0f * (q.x * q.z - q.w * q.y), 2.0f * (q.y * q.z + q.w * q.x), 1.0f - 2.0f * (squaredX + squaredY), 0.0f,
+		const F32 squaredX = rot.x * rot.x;
+		const F32 squaredY = rot.y * rot.y;
+		const F32 squaredZ = rot.z * rot.z;
+
+		F32 elements[16] { 1.0f - 2.0f * (squaredY + squaredZ), 2.0f * (rot.x * rot.y - rot.w * rot.z), 2.0f * (rot.x * rot.z + rot.w * rot.y), 0.0f,
+						   2.0f * (rot.x * rot.y + rot.w * rot.z), 1.0f - 2.0f * (squaredX + squaredZ), 2.0f * (rot.y * rot.z - rot.w * rot.x), 0.0f,
+						   2.0f * (rot.x * rot.z - rot.w * rot.y), 2.0f * (rot.y * rot.z + rot.w * rot.x), 1.0f - 2.0f * (squaredX + squaredY), 0.0f,
 						   0.0f, 0.0f, 0.0f, 1.0f };
 
 		return TMatrix4(elements);
@@ -223,10 +225,10 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		if (CMathUtils::Abs(object.x) > 1e-5f) pWriter->SetFloat("x", object.x);
-		if (CMathUtils::Abs(object.y) > 1e-5f) pWriter->SetFloat("y", object.y);
-		if (CMathUtils::Abs(object.z) > 1e-5f) pWriter->SetFloat("z", object.z);
-		if (CMathUtils::Abs(object.w) > 1e-5f) pWriter->SetFloat("w", object.w);
+		pWriter->SetFloat("x", object.x);
+		pWriter->SetFloat("y", object.y);
+		pWriter->SetFloat("z", object.z);
+		pWriter->SetFloat("w", object.w);
 
 		return RC_OK;
 	}
