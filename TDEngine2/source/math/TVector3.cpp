@@ -101,9 +101,9 @@ namespace TDEngine2
 
 	bool operator== (const TVector3& lvec3, const TVector3& rvec3)
 	{
-		if (fabsf(lvec3.x - rvec3.x) <= FloatEpsilon &&
-			fabsf(lvec3.y - rvec3.y) <= FloatEpsilon &&
-			fabsf(lvec3.z - rvec3.z) <= FloatEpsilon)
+		if (fabsf(lvec3.x - rvec3.x) < FloatEpsilon &&
+			fabsf(lvec3.y - rvec3.y) < FloatEpsilon &&
+			fabsf(lvec3.z - rvec3.z) < FloatEpsilon)
 		{
 			return true;
 		}

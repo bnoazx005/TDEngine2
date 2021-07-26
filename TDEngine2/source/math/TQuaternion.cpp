@@ -193,11 +193,13 @@ namespace TDEngine2
 
 	TVector3 ToEulerAngles(const TQuaternion& q)
 	{
-		F32 sinp = 2.0f * (q.y * q.w - q.x * q.z);
+		const TMatrix4 m = RotationMatrix(q);
 
-		return TVector3(atan2f(2.0f * (q.x * q.w + q.y * q.z), 1.0f - 2.0f * (q.x * q.x + q.y * q.y)),
-						CMathUtils::IsGreatOrEqual(sinp, 1.0f) ? std::copysign(CMathConstants::Pi * 0.5f, sinp) : asinf(sinp),
-						atan2(2.0f * (q.z * q.w + q.y * q.x), 1.0f - 2.0f * (q.z * q.z + q.y * q.y)));
+		const bool test = fabsf(m.m[0][2]) < 0.99f;
+
+		return TVector3(test ? atan2f(-m.m[1][2], m.m[2][2]) : atan2f(m.m[2][1], m.m[1][1]),
+						asinf(CMathUtils::Clamp(-1.0f, 1.0f, m.m[0][2])),
+						test ? atan2f(-m.m[0][1], m.m[0][0]) : 0.0f);
 	}
 
 
