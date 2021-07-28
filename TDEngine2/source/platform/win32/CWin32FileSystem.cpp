@@ -5,7 +5,11 @@
 #include <algorithm>
 
 #if defined(TDE2_USE_WIN32PLATFORM)
-#include <ShlObj_core.h>
+#include <ShlObj.h>
+#include <comutil.h>
+
+#pragma comment(lib, "comsuppw")
+
 #endif
 
 #if _HAS_CXX17
@@ -30,12 +34,15 @@ namespace TDEngine2
 
 	std::string CWin32FileSystem::GetApplicationDataPath() const
 	{
-		C8 appDataDirectoryPath[MAX_PATH];
+		LPWSTR tmpPath = nullptr;
 
 #if defined(TDE2_USE_WIN32PLATFORM)
-		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appDataDirectoryPath)))
+		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &tmpPath)))
 		{
-			return std::string(appDataDirectoryPath);
+			CDeferOperation _([&tmpPath] { CoTaskMemFree(tmpPath); });
+
+			_bstr_t bstrPath(tmpPath);
+			return std::string(static_cast<C8*>(bstrPath));
 		}
 #endif
 
@@ -44,12 +51,15 @@ namespace TDEngine2
 
 	std::string CWin32FileSystem::GetUserDirectory() const
 	{
-		C8 userDirectoryPath[MAX_PATH];
+		LPWSTR tmpPath = nullptr;
 
 #if defined(TDE2_USE_WIN32PLATFORM)
-		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 0, userDirectoryPath)))
+		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &tmpPath)))
 		{
-			return std::string(userDirectoryPath);
+			CDeferOperation _([&tmpPath] { CoTaskMemFree(tmpPath); });
+
+			_bstr_t bstrPath(tmpPath);
+			return std::string(static_cast<C8*>(bstrPath));
 		}
 #endif
 
