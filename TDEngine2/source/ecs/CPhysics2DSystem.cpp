@@ -6,6 +6,7 @@
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
 #include "../../include/core/IEventManager.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 
 
@@ -122,6 +123,8 @@ namespace TDEngine2
 
 	void CPhysics2DSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CPhysics2DSystem::Update");
+
 		mpWorldInstance->Step(mCurrTimeStep, mCurrVelocityIterations, mCurrPositionIterations);
 
 		auto& collisionObjects = mCollidersData.mBodies;

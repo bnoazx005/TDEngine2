@@ -12,6 +12,7 @@
 #include "../../deps/bullet3/src/BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "../../include/utils/CFileLogger.h"
 //#include "./../../deps/bullet3/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 
 
@@ -174,6 +175,8 @@ namespace TDEngine2
 
 	void CPhysics3DSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CPhysics3DSystem::Update");
+
 		// \fixme This is bad solution, it's used to force activate all rigidbodies for smooth update
 		auto rigidbodies = mpWorld->getNonStaticRigidBodies();
 		for (I32 i = 0; i < rigidbodies.size(); ++i)

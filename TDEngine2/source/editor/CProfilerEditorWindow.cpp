@@ -135,11 +135,19 @@ namespace TDEngine2
 		const F32 scale = 1000.0f * pixelsPerMillisecond;
 
 		TVector2 pos = initPosition + TVector2(scale * currSample.mStartTime, currTrackId * (mIntervalRectHeight + mSpacingSizes.y));
+		const TRectF32 sampleRect = TRectF32{ 0.0f, 0.0f, currSample.mDuration * scale, mIntervalRectHeight } + pos;
 
-		DrawRectWithText(imguiContext, currSample.mName, TRectF32{ 0.0f, 0.0f, currSample.mDuration * scale, mIntervalRectHeight } + pos,
-						  { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+		DrawRectWithText(imguiContext, currSample.mName, sampleRect, { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 
-		imguiContext.Tooltip(Wrench::StringUtils::Format("{0} : {1} ms", currSample.mName, currSample.mDuration));
+		{
+			const TVector2 prevPosition = imguiContext.GetCursorScreenPos();
+			imguiContext.SetCursorScreenPos(pos);
+
+			imguiContext.Button(Wrench::StringUtils::Format("##{0}", currSample.mName), sampleRect.GetSizes(), nullptr, true);
+			imguiContext.Tooltip(Wrench::StringUtils::Format("{0} : {1} ms", currSample.mName, currSample.mDuration * 1000.0f));
+
+			imguiContext.SetCursorScreenPos(prevPosition);
+		}
 
 		auto&& iter = samples.begin();
 
