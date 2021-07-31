@@ -199,6 +199,8 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 		if (CRenderQueue* pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)])
 		{
+			TDE2_PROFILER_SCOPE("Renderer::RenderSelectionBuffer");
+
 			if (!pCurrCommandBuffer->IsEmpty() && mpSelectionManager)
 			{
 				if (mpSelectionManager->BuildSelectionMap([this, &executeCommands, pCurrCommandBuffer]
@@ -221,6 +223,8 @@ namespace TDEngine2
 		// \note Shadow pass
 		if (CRenderQueue* pShadowRenderQueue = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)])
 		{
+			TDE2_PROFILER_SCOPE("Renderer::RenderShadows");
+
 			if (!pShadowRenderQueue->IsEmpty())
 			{
 				mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mShadowMapWidth), static_cast<F32>(mShadowMapHeight), 0.0f, 1.0f);
@@ -248,10 +252,16 @@ namespace TDEngine2
 
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
 
-		mpFramePostProcessor->Render([&renderAllGroups] { renderAllGroups(true); });
+		mpFramePostProcessor->Render([&renderAllGroups] 
+		{
+			TDE2_PROFILER_SCOPE("Renderer::RenderAll");
+			renderAllGroups(true); 
+		});
 
 		// \note draw UI meshes and screen-space effects
 		{
+			TDE2_PROFILER_SCOPE("Renderer::UI");
+
 			CRenderQueue* pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)];
 			if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
 			{
@@ -357,6 +367,8 @@ namespace TDEngine2
 
 	void CForwardRenderer::_prepareFrame(F32 currTime, F32 deltaTime)
 	{
+		TDE2_PROFILER_SCOPE("Renderer::PreRender");
+
 		///set up global shader properties for TPerFrameShaderData buffer
 		TPerFrameShaderData perFrameShaderData;
 

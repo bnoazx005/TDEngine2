@@ -17,10 +17,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	//mpResourceManager->Load<IMaterial>("ProjectMaterials/NewMaterial.material");
-	//mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugMaterial.material");
-	//mpResourceManager->Load<IMaterial>("ProjectMaterials/DefaultMaterial.material");
-
 	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material")))
 	{
 		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<ITextureAtlas>("atlas.info")))
@@ -75,8 +71,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
 	pMeshContainer->SetMeshName("scene.mesh");
+#if 0
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
+#endif
 #endif
 
 	// plane
@@ -88,6 +86,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pPlaneMeshContainer->SetMeshName("Plane");
 #endif
 
+#if 0
 	// Create a 3D trigger
 	if (auto p3DTrigger = mpWorld->CreateEntity())
 	{
@@ -102,14 +101,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		p3DTriggerCollider->SetSizes(TVector3(25.0f, 1.0f, 25.0f));
 		//p3DTrigger->AddComponent<CTrigger3D>();
 	}
-
-	if (auto pPackageWriter = mpFileSystem->Get<IPackageFileWriter>(mpFileSystem->Open<IPackageFileWriter>("TestPackage.pak", true).Get()))
-	{
-		//pPackageWriter->WriteFile<Type>("path/within/package/where/to/mount", pFile)
-		pPackageWriter->WriteFile<IYAMLFileReader>("test/", *mpFileSystem->Get<IYAMLFileReader>(mpFileSystem->Open<IYAMLFileReader>("Animation.animation", false).Get()));
-
-		pPackageWriter->Close();
-	}
+#endif
 
 	// TEMP CODE
 	{

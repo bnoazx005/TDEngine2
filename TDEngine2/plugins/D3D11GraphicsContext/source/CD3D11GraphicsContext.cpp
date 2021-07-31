@@ -4,6 +4,7 @@
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11RenderTarget.h"
 #include "./../include/CD3D11DepthBufferTarget.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #include <utils/CFileLogger.h>
 #include <utils/Utils.h>
@@ -238,6 +239,8 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::Present()
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::Present");
+
 		mpSwapChain->Present(mIsVSyncEnabled, 0);
 		
 		mCurrNumOfActiveRenderTargets = 1;

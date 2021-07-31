@@ -11,6 +11,7 @@
 #include "../../include/math/MathUtils.h"
 #include "../../include/math/TVector3.h"
 #include "../../include/graphics/CGeometryBuilder.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 #include <iterator>
 #include <functional>
@@ -172,6 +173,8 @@ namespace TDEngine2
 
 	void CDebugUtility::PostRender()
 	{
+		TDE2_PROFILER_SCOPE("CDebugUtility::PostRender");
+
 		mLinesDataBuffer.clear();
 		mTextDataBuffer.clear();
 		mCrossesDataBuffer.clear();
