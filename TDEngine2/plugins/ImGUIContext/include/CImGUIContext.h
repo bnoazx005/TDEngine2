@@ -525,6 +525,8 @@ namespace TDEngine2
 
 			TDE2_API void EndModalWindow() override;
 
+			TDE2_API void Tooltip(const std::string& message) override;
+
 			/*!
 				\brief The method moves current position of the cursor to given point
 			*/

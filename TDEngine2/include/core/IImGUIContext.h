@@ -530,6 +530,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void DrawPlotGrid(const std::string& name, const TPlotGridParams& params, const std::function<void(const TVector2&)>& onGridCallback = {}) = 0;
 
+			TDE2_API virtual void Tooltip(const std::string& message) = 0;
+
 			/*!
 				\brief The method moves current position of the cursor to given point
 			*/

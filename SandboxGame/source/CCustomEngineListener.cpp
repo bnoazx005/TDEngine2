@@ -65,7 +65,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	//mpResourceManager->Load<IStaticMesh>("hq.mesh");
 
-#if 0 /// Create a static mesh
+#if 1 /// Create a static mesh
 	auto pMeshEntity = mpWorld->CreateEntity();
 	auto shadowCaster = pMeshEntity->AddComponent<CShadowCasterComponent>();
 	auto sr = pMeshEntity->AddComponent<CShadowReceiverComponent>();
@@ -80,7 +80,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 	// plane
-#if 0
+#if 1
 	auto pPlaneEntity = mpWorld->CreateEntity();
 	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
@@ -416,6 +416,8 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 			{
 			}
 			imgui->IntField("wewewe", i);
+			imgui->Tooltip("Test");
+
 			std::string str = "Hello!";
 			imgui->Label("FPS: " + std::to_string(1.0f / mpWindowSystem->GetTimer()->GetDeltaTime()));
 

@@ -62,6 +62,8 @@ namespace TDEngine2
 
 	void CMeshAnimatorUpdatingSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CMeshAnimatorUpdatingSystem::Update");
+
 		CEntity* pEntity = nullptr;
 
 		for (TEntityId currEntityId : mProcessingEntities)
@@ -71,8 +73,6 @@ namespace TDEngine2
 			{
 				continue;
 			}
-
-			TDE2_PROFILER_SCOPE("CMeshAnimatorUpdatingSystem::Update");
 
 			CSkinnedMeshContainer* pMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
 			const TResourceId skeletonResourceId = mpResourceManager->Load<ISkeleton>(pMeshContainer->GetSkeletonName());

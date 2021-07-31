@@ -722,6 +722,18 @@ namespace TDEngine2
 		ImGui::EndPopup();
 	}
 
+	void CImGUIContext::Tooltip(const std::string& message)
+	{
+		if (!ImGui::IsItemHovered())
+		{
+			return;
+		}
+
+		ImGui::BeginTooltip();
+		ImGui::SetTooltip(message.c_str());
+		ImGui::EndTooltip();
+	}
+
 	void CImGUIContext::SetCursorScreenPos(const TVector2& pos)
 	{
 		ImGui::SetCursorScreenPos(pos);
