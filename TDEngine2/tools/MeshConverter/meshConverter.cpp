@@ -427,12 +427,20 @@ namespace TDEngine2
 
 					auto* pPositionTrack = pAnimation->GetTrack<CVector3AnimationTrack>(pAnimation->CreateTrack<CVector3AnimationTrack>(Wrench::StringUtils::Format("track_pos_{0}", channelId + 1)));
 					pPositionTrack->SetPropertyBinding(Wrench::StringUtils::Format("{1}." + CMeshAnimatorComponent::GetPositionJointChannelPattern(), jointId, CMeshAnimatorComponent::GetComponentTypeName()));
+					pPositionTrack->SetInterpolationMode(E_ANIMATION_INTERPOLATION_MODE_TYPE::LINEAR);
 
 					for (U32 k = 0; k < pCurrChannel->mNumPositionKeys; ++k)
 					{
 						auto&& position = pCurrChannel->mPositionKeys[k];
+
+						const F32 time = static_cast<F32>(position.mTime / ticksPerSecond);
+
+						if (!CMathUtils::IsInInclusiveRange(static_cast<F32>(currAnimationClip.mStartFrame), static_cast<F32>(currAnimationClip.mEndFrame), time))
+						{
+							continue;
+						}
 						
-						if (auto pKeyValue = pPositionTrack->GetKey(pPositionTrack->CreateKey(static_cast<F32>(position.mTime / ticksPerSecond))))
+						if (auto pKeyValue = pPositionTrack->GetKey(pPositionTrack->CreateKey(time)))
 						{
 							pKeyValue->mValue = ConvertAssimpVector3(position.mValue);
 						}
@@ -440,12 +448,20 @@ namespace TDEngine2
 
 					auto* pRotationTrack = pAnimation->GetTrack<CQuaternionAnimationTrack>(pAnimation->CreateTrack<CQuaternionAnimationTrack>(Wrench::StringUtils::Format("track_rot_{0}", channelId + 1)));
 					pRotationTrack->SetPropertyBinding(Wrench::StringUtils::Format("{1}." + CMeshAnimatorComponent::GetRotationJointChannelPattern(), jointId, CMeshAnimatorComponent::GetComponentTypeName()));
+					pRotationTrack->SetInterpolationMode(E_ANIMATION_INTERPOLATION_MODE_TYPE::LINEAR);
 
 					for (U32 k = 0; k < pCurrChannel->mNumRotationKeys; ++k)
 					{
 						auto&& rotation = pCurrChannel->mRotationKeys[k];
 
-						if (auto pKeyValue = pRotationTrack->GetKey(pRotationTrack->CreateKey(static_cast<F32>(rotation.mTime / ticksPerSecond))))
+						const F32 time = static_cast<F32>(rotation.mTime / ticksPerSecond);
+
+						if (!CMathUtils::IsInInclusiveRange(static_cast<F32>(currAnimationClip.mStartFrame), static_cast<F32>(currAnimationClip.mEndFrame), time))
+						{
+							continue;
+						}
+
+						if (auto pKeyValue = pRotationTrack->GetKey(pRotationTrack->CreateKey(time)))
 						{
 							pKeyValue->mValue = ConvertAssimpQuaternion(rotation.mValue);
 						}
