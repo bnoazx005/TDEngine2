@@ -48,4 +48,14 @@ TEST_CASE("TQuaternion Tests")
 			REQUIRE(std::get<TVector3>(currCase) == ToEulerAngles(std::get<TQuaternion>(currCase)));
 		}
 	}
+
+	SECTION("TestSlerp_PassTwoSameQuaternions_ReturnsItAtWholeRange")
+	{
+		const TQuaternion q { 0.0f, 0.0f, 0.78f, 0.78f };
+
+		for (F32 t = 0; t < 1.1f; t += 0.1f)
+		{
+			REQUIRE(q == Slerp(q, q, t));
+		}
+	}
 }

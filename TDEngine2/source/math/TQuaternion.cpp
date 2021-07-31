@@ -166,13 +166,18 @@ namespace TDEngine2
 
 	TDE2_API TQuaternion Slerp(const TQuaternion& q1, const TQuaternion& q2, F32 t)
 	{
-		t = (std::max)((std::min)(1.0f, t), 0.0f); // clamp t to range [0; 1]
+		t = CMathUtils::Clamp01(t);
 
-		F32 theta = 1.0f / cosf(q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w);
+		const F32 theta = (q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w);
+		if (CMathUtils::IsGreatOrEqual(theta, 1.0f, FloatEpsilon))
+		{
+			return q1;
+		}
 
-		F32 sinTheta = sinf(theta);
+		const F32 acosTheta = acosf(theta);
+		const F32 sinTheta = sinf(acosTheta);
 
-		return (sinf(theta * (1.0f - t)) / sinTheta) * q1 + (sinf(theta * t) / sinTheta) * q2;
+		return (sinf(acosTheta * (1.0f - t)) / sinTheta) * q1 + (sinf(acosTheta * t) / sinTheta) * q2;
 	}
 
 	TMatrix4 RotationMatrix(const TQuaternion& q)
