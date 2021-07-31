@@ -135,7 +135,7 @@ namespace TDEngine2
 			case E_JOINT_PROPERTY_TYPE::POSITION:
 				return IPropertyWrapperPtr(CBasePropertyWrapper<TVector3>::Create([this, jointId](const TVector3& pos) { _setPositionForJoint(jointId, pos); return RC_OK; }, nullptr));
 			case E_JOINT_PROPERTY_TYPE::ROTATION:
-				return IPropertyWrapperPtr(CBasePropertyWrapper<TVector3>::Create([this, jointId](const TQuaternion& rot) { _setRotationForJoint(jointId, rot); return RC_OK; }, nullptr));
+				return IPropertyWrapperPtr(CBasePropertyWrapper<TQuaternion>::Create([this, jointId](const TQuaternion& rot) { _setRotationForJoint(jointId, rot); return RC_OK; }, nullptr));
 		}
 
 		return CBaseComponent::GetProperty(propertyName);

@@ -106,33 +106,30 @@ namespace TDEngine2
 			}
 
 			auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>();
-			if (!pAnimationContainer || !pAnimationContainer->IsPlaying())
+			if (pAnimationContainer && pAnimationContainer->IsPlaying())
 			{
-				continue;
-			}
+				/// \note Update bind transform matrices
+				auto& positions = pMeshAnimator->GetJointPositionsArray();
+				auto& rotations = pMeshAnimator->GetJointRotationsArray();
 
-			/// \note Update bind transform matrices
-			auto& positions = pMeshAnimator->GetJointPositionsArray();
-			auto& rotations = pMeshAnimator->GetJointRotationsArray();
-
-			if (!positions.empty() && !rotations.empty())
-			{
-				for (U32 i = 0; i < updatedJointsPose.size(); ++i)
+				if (!positions.empty() && !rotations.empty())
 				{
-					const TVector3& position = positions[i];
-					const TQuaternion& rotation = rotations[i];
-
-					updatedJointsPose[i] = Mul(TranslationMatrix(position), RotationMatrix(rotation));
-
-					if (TJoint* pJoint = pSkeleton->GetJoint(i))
+					pSkeleton->ForEachJoint([&updatedJointsPose, &positions, &rotations](TJoint* pJoint)
 					{
+						const U32 index = pJoint->mIndex;
+
+						const TVector3& position = positions[index];
+						const TQuaternion& rotation = rotations[index];
+
+						updatedJointsPose[index] = Mul(TranslationMatrix(position), RotationMatrix(rotation));
+
 						if (pJoint->mParentIndex >= 0)
 						{
-							updatedJointsPose[i] = Mul(updatedJointsPose[pJoint->mParentIndex], updatedJointsPose[i]);
+							updatedJointsPose[index] = Mul(updatedJointsPose[pJoint->mParentIndex], updatedJointsPose[index]);
 						}
-					}
+					});
 				}
-			}			
+			}
 
 			/// \note Update matrices for the mesh
 			auto& currAnimationPose = pMeshContainer->GetCurrentAnimationPose();

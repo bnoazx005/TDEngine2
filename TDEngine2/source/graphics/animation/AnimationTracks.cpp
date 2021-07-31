@@ -178,7 +178,7 @@ namespace TDEngine2
 
 	TQuaternionKeyFrame CQuaternionAnimationTrack::_lerpKeyFrames(const TQuaternionKeyFrame& left, const TQuaternionKeyFrame& right, F32 t) const
 	{
-		return { CMathUtils::Lerp(left.mTime, right.mTime, t), Lerp(left.mValue, right.mValue, t) };
+		return { CMathUtils::Lerp(left.mTime, right.mTime, t), Slerp(left.mValue, right.mValue, t) };
 	}
 
 

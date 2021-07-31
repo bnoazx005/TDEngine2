@@ -413,7 +413,8 @@ namespace TDEngine2
 			{
 				pCurrAnimation = pScene->mAnimations[i];
 
-				const U32 duration = static_cast<U32>(pCurrAnimation->mDuration / std::min<F64>(1e-3, pCurrAnimation->mTicksPerSecond)); /// animation's duration in seconds
+				const F64 ticksPerSecond = std::max<F64>(1e-3, pCurrAnimation->mTicksPerSecond);
+				const U32 duration = static_cast<U32>(pCurrAnimation->mDuration / ticksPerSecond); /// animation's duration in seconds
 
 				pAnimation->SetDuration(static_cast<F32>(currAnimationClip.mEndFrame - currAnimationClip.mStartFrame));
 				pAnimation->SetWrapMode(currAnimationClip.mIsLooped ? E_ANIMATION_WRAP_MODE_TYPE::LOOP : E_ANIMATION_WRAP_MODE_TYPE::PLAY_ONCE);
@@ -431,7 +432,7 @@ namespace TDEngine2
 					{
 						auto&& position = pCurrChannel->mPositionKeys[k];
 						
-						if (auto pKeyValue = pPositionTrack->GetKey(pPositionTrack->CreateKey(static_cast<F32>(position.mTime))))
+						if (auto pKeyValue = pPositionTrack->GetKey(pPositionTrack->CreateKey(static_cast<F32>(position.mTime / ticksPerSecond))))
 						{
 							pKeyValue->mValue = ConvertAssimpVector3(position.mValue);
 						}
@@ -444,7 +445,7 @@ namespace TDEngine2
 					{
 						auto&& rotation = pCurrChannel->mRotationKeys[k];
 
-						if (auto pKeyValue = pRotationTrack->GetKey(pRotationTrack->CreateKey(static_cast<F32>(rotation.mTime))))
+						if (auto pKeyValue = pRotationTrack->GetKey(pRotationTrack->CreateKey(static_cast<F32>(rotation.mTime / ticksPerSecond))))
 						{
 							pKeyValue->mValue = ConvertAssimpQuaternion(rotation.mValue);
 						}

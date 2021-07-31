@@ -358,7 +358,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 				if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
 				{
-					const std::string meshName = "TestAnim4";
+					const std::string meshName = "TestAnim2";
 
 					pMeshContainer->SetMaterialName("ProjectMaterials/DefaultSkinningMaterial.material");
 					pMeshContainer->SetMeshName(meshName + ".mesh");
@@ -382,6 +382,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	mpResourceManager->Load<IAudioSource>("test.mp3");
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
+	
+	auto s = mpFileSystem->GetUserDirectory();
 
 	return RC_OK;
 }

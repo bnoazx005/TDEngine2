@@ -152,7 +152,8 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE ShowSkeletonDebugHierarchy(IGraphicsObjectManager* pGraphicsObjectsManager, IResourceManager* pResourceManager, IRenderer* pRenderer, TResourceId skeletonId)
+	static E_RESULT_CODE ShowSkeletonDebugHierarchy(IGraphicsObjectManager* pGraphicsObjectsManager, IResourceManager* pResourceManager, IRenderer* pRenderer, 
+													const std::vector<TMatrix4>& currPose, TResourceId skeletonId)
 	{
 		if (!pGraphicsObjectsManager || !pResourceManager || TResourceId::Invalid == skeletonId)
 		{
@@ -173,15 +174,15 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		pSkeleton->ForEachJoint([pDebugUtility, pSkeleton](TJoint* pJoint)
+		pSkeleton->ForEachJoint([&currPose, pDebugUtility, pSkeleton](TJoint* pJoint)
 		{
-			const TVector4 first = Inverse(pJoint->mInvBindTransform) * TVector4(ZeroVector3, 1.0f);
+			const TVector4 first = Transpose(currPose[pJoint->mIndex]) * TVector4(ZeroVector3, 1.0f);
 
 			if (pJoint->mParentIndex >= 0)
 			{
 				if (TJoint* pParentJoint = pSkeleton->GetJoint(pJoint->mParentIndex))
 				{
-					pDebugUtility->DrawLine(first, Inverse(pParentJoint->mInvBindTransform) * TVector4(ZeroVector3, 1.0f), TColorUtils::mYellow);
+					pDebugUtility->DrawLine(first, Transpose(currPose[pParentJoint->mIndex]) * TVector4(ZeroVector3, 1.0f), TColorUtils::mYellow);
 				}
 			}
 
@@ -277,7 +278,7 @@ namespace TDEngine2
 
 			if (pSkinnedMeshContainer->ShouldShowDebugSkeleton())
 			{
-				TDE2_ASSERT(RC_OK == ShowSkeletonDebugHierarchy(mpGraphicsObjectManager, mpResourceManager, mpRenderer, skeletonResourceId));
+				TDE2_ASSERT(RC_OK == ShowSkeletonDebugHierarchy(mpGraphicsObjectManager, mpResourceManager, mpRenderer, currAnimationPose, skeletonResourceId));
 			}
 
 			pCastedMaterial->SetVariableForInstance(materialInstance, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));

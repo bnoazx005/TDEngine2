@@ -340,7 +340,7 @@ namespace TDEngine2
 				{
 					if (CMathUtils::IsGreatOrEqual(time, it->mTime))
 					{
-						return static_cast<I32>(std::distance(mKeys.rend(), it));
+						return static_cast<I32>(std::distance(it, mKeys.rend()) - 1);
 					}
 				}
 
