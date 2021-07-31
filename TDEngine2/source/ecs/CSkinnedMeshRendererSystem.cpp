@@ -15,6 +15,7 @@
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -93,6 +94,8 @@ namespace TDEngine2
 
 	void CSkinnedMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::Update");
+
 		if (!mpCameraEntity)
 		{
 			LOG_WARNING("[CSkinnedMeshRendererSystem] An entity with Camera component attached to that wasn't found");

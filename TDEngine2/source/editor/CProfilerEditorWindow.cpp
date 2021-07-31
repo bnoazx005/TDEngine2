@@ -139,6 +139,8 @@ namespace TDEngine2
 		DrawRectWithText(imguiContext, currSample.mName, TRectF32{ 0.0f, 0.0f, currSample.mDuration * scale, mIntervalRectHeight } + pos,
 						  { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 
+		imguiContext.Tooltip(Wrench::StringUtils::Format("{0} : {1} ms", currSample.mName, currSample.mDuration));
+
 		auto&& iter = samples.begin();
 
 		while (!samples.empty() && (iter != samples.cend()))

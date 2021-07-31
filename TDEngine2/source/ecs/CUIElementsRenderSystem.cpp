@@ -18,6 +18,7 @@
 #include "../../include/graphics/ITexture.h"
 #include "../../include/core/IResource.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <stack>
 
 
@@ -133,6 +134,8 @@ namespace TDEngine2
 
 	void CUIElementsRenderSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CUIElementsRenderSystem::Update");
+
 		CEntity* pEntity = nullptr;
 		CEntity* pCanvasEntity = nullptr;
 

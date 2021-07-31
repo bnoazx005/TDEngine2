@@ -17,6 +17,7 @@
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/math/TAABB.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -245,6 +246,8 @@ namespace TDEngine2
 
 	void CBoundsUpdatingSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::Update");
+
 		ProcessEntities(mpDebugUtility, pWorld, mStaticMeshesEntities, [this](CEntity* pEntity) { ComputeStaticMeshBounds(mpResourceManager, pEntity); });
 		ProcessEntities(mpDebugUtility, pWorld, mSkinnedMeshesEntities, [this](CEntity* pEntity) { ComputeSkinnedMeshBounds(mpResourceManager, pEntity); });
 		ProcessEntities(mpDebugUtility, pWorld, mSpritesEntities, std::bind(&ComputeSpritesBounds, std::placeholders::_1));

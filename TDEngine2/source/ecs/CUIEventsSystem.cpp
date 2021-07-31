@@ -6,6 +6,7 @@
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/core/IInputContext.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <stack>
 
 
@@ -134,6 +135,8 @@ namespace TDEngine2
 
 	void CUIEventsSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CUIEventsSystem::Update");
+
 		CEntity* pEntity = nullptr;
 
 		CInputReceiver* pInputReceiver = nullptr;

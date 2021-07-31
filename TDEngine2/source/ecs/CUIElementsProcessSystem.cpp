@@ -9,6 +9,7 @@
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/ITexture.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/core/CFont.h"
 #include "../../include/core/IResource.h"
 #include "../../include/core/IGraphicsContext.h"
@@ -374,6 +375,8 @@ namespace TDEngine2
 
 	void CUIElementsProcessSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CUIElementsProcessSystem::Update");
+
 		CEntity* pEntity = nullptr;
 
 		/// \note Update canvas entities
