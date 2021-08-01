@@ -76,3 +76,121 @@ TEST_CASE("Utils Tests")
 
 	//SECTION("")
 }
+
+
+class CTestCounter : public CBaseObject
+{
+public:
+	CTestCounter(bool& destroyed):
+		CBaseObject()
+	{
+		mDestroyed = &destroyed;
+	}
+
+	E_RESULT_CODE Free() override
+	{
+		--mRefCounter;
+
+		if (!mRefCounter)
+		{
+			delete this;
+		}
+
+		return RC_OK;
+	}
+
+	~CTestCounter() { *mDestroyed = true; }
+private:
+	bool* mDestroyed = nullptr;
+};
+
+
+TEST_CASE("CScopedPtr Tests")
+{
+	SECTION("TestConstructor_CreateTempObjectAndDestroyIt_FlagShouldBeTrue")
+	{
+		bool hasBeenDestroyed = false;
+
+		{
+			CScopedPtr<CTestCounter> pPtr{ new CTestCounter(hasBeenDestroyed) };
+			REQUIRE(pPtr->GetRefCount() == 1);
+		}
+
+		REQUIRE(hasBeenDestroyed);
+	}
+
+	SECTION("TestCopyConstructor_CreateTwoTempObjects_BothShouldBeDestoryed")
+	{
+		bool hasBeenDestroyed = false;
+
+		{
+			CScopedPtr<CTestCounter> pPtr{ new CTestCounter(hasBeenDestroyed) };
+
+			{
+				CScopedPtr<CTestCounter> pPtrCopy = pPtr;
+				REQUIRE(pPtrCopy->GetRefCount() == 2);
+			}
+
+			REQUIRE(pPtr->GetRefCount() == 1);
+			REQUIRE(!hasBeenDestroyed);
+		}
+
+		REQUIRE(hasBeenDestroyed);
+	}
+
+	SECTION("TestMoveConstructor_CreateTwoTempObjects_BothShouldBeDestoryed")
+	{
+		bool hasBeenDestroyed = false;
+
+		{
+			CScopedPtr<CTestCounter> pPtr{ new CTestCounter(hasBeenDestroyed) };
+
+			{
+				CScopedPtr<CTestCounter> pPtrCopy = std::move(pPtr);
+				REQUIRE((!pPtr && (pPtrCopy->GetRefCount() == 1)));
+			}
+
+			REQUIRE(hasBeenDestroyed);
+		}
+
+		REQUIRE(hasBeenDestroyed);
+	}
+
+	SECTION("TestNestedPointersCase_CreateThreeObjects_AllShouldBeDestroyed")
+	{
+		bool hasBeenDestroyed = false;
+
+		{
+			CScopedPtr<CTestCounter> pPtr{ new CTestCounter(hasBeenDestroyed) };
+
+			{
+				CScopedPtr<CTestCounter> pPtrCopy = pPtr; // copy
+				REQUIRE((pPtr && (pPtrCopy->GetRefCount() == 2)));
+
+				{
+					CScopedPtr<CTestCounter> pThirdPtr = std::move(pPtrCopy); // move
+					REQUIRE(((pPtr && pPtr->GetRefCount() == 2) && !pPtrCopy && (pThirdPtr->GetRefCount() == 2)));
+				}
+			}
+
+			REQUIRE(!hasBeenDestroyed);
+		}
+
+		REQUIRE(hasBeenDestroyed);
+	}
+
+	SECTION("TestDynamicCast_TryToConvertOnePointerToPtrOfBaseClass_CorrectlyCastsPointer")
+	{
+		bool hasBeenDestroyed = false;
+		
+		{
+			CScopedPtr<CTestCounter> pPtr{ new CTestCounter(hasBeenDestroyed) };
+
+			CScopedPtr<CBaseObject> pBasePtr = DynamicPtrCast<CBaseObject, CTestCounter>(pPtr);
+
+			REQUIRE((pBasePtr && pPtr));
+		}
+
+		REQUIRE(hasBeenDestroyed);
+	}
+}

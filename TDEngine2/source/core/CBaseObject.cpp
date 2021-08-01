@@ -12,4 +12,9 @@ namespace TDEngine2
 	{
 		++mRefCounter;
 	}
+
+	U32 CBaseObject::GetRefCount() const
+	{
+		return mRefCounter;
+	}
 }

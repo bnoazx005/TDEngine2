@@ -703,6 +703,22 @@ namespace TDEngine2
 			T* mpPtr;
 	};
 
+
+	template <typename T, typename U> 
+	CScopedPtr<T> DynamicPtrCast(CScopedPtr<U> ptr) 
+	{ 
+		U* pPtr = ptr.Get(); 
+		if (pPtr)
+		{
+			pPtr->AddRef();
+		}
+
+		TDE2_ASSERT(dynamic_cast<T*>(pPtr));
+
+		return CScopedPtr<T>(dynamic_cast<T*>(pPtr));
+	}
+
+
 	/*!
 		\brief The method returns 32 bits hash value which is unique for the current set of parameters
 		\return The method returns 32 bits hash value which is unique for the current set of parameters

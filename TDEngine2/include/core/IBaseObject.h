@@ -39,6 +39,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Free() = 0;
+
+			/*!
+				\return The method returns a number of strong references that points to the object
+			*/
+
+			TDE2_API virtual U32 GetRefCount() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBaseObject)
 	};
