@@ -81,6 +81,20 @@ namespace TDEngine2
 	*/
 
 #if TDE2_DEBUG_MODE
+	#define LOG_DEBUG_MESSAGE(message)				\
+		do											\
+		{											\
+			ILogger* pLogger = GetMainLogger();		\
+			if (pLogger)							\
+			{										\
+				pLogger->LogMessage(message);		\
+			}										\
+		}											\
+		while (false)
+#else
+	#define LOG_DEBUG_MESSAGE(message) do {} while(false)
+#endif
+
 
 	#define LOG_MESSAGE(message)					\
 		do											\
@@ -114,9 +128,4 @@ namespace TDEngine2
 			}										\
 		}											\
 		while (false)
-#else
-	#define LOG_MESSAGE(message) do {} while(false)
-	#define LOG_WARNING(message) do {} while(false)
-	#define LOG_ERROR(message)   do {} while(false)
-#endif
 }
