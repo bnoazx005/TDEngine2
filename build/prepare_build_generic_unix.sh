@@ -34,6 +34,17 @@ if [$? -ne 0]; then
 fi
 
 
+# try to build tde2_introspector utility
+pushd "../TDEngine2/tools/Introspector/source/"
+	cmake -G "$GENERATOR_NAME" -DCMAKE_BUILD_TYPE=$2 . && cmake --build . --config $2 && cmake install
+popd
+
+if [$? -ne 0]; then
+	pause
+	goto finalize
+fi
+
+
 sh ./run_codegeneration.sh
 
 
