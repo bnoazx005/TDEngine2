@@ -385,6 +385,7 @@ namespace TDEngine2
 
 			ID3D11DepthStencilView*  mpCurrDepthStencilView;
 			ID3D11DepthStencilView*  mpDefaultDepthStencilView;
+			ID3D11DepthStencilView*  mpPrevDepthStencilView;
 			ID3D11Texture2D*         mpDefaultDepthStencilBuffer;
 
 			D3D_FEATURE_LEVEL        mCurrFeatureLevel; 

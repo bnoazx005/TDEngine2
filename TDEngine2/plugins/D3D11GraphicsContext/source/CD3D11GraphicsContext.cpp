@@ -411,7 +411,9 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::SetDepthBufferEnabled(bool value)
 	{
-		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, value ? mpCurrDepthStencilView : nullptr);
+		auto pPrevDepthView = mpCurrDepthStencilView;
+		mpCurrDepthStencilView = value ? mpPrevDepthStencilView : nullptr;
+		mpPrevDepthStencilView = pPrevDepthView;
 	}
 
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const

@@ -80,8 +80,13 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		mIsInitialized = false;
-		delete this;
+		--mRefCounter;
+
+		if (!mRefCounter)
+		{
+			mIsInitialized = false;
+			delete this;
+		}
 
 		return RC_OK;
 	}
@@ -255,8 +260,8 @@ namespace TDEngine2
 
 	void CFramePostProcessor::_renderTargetToTarget(IRenderTarget* pSource, IRenderTarget* pExtraSource, IRenderTarget* pDest, TResourceId materialHandle)
 	{
-		mpGraphicsContext->BindRenderTarget(0, pDest);
 		mpGraphicsContext->SetDepthBufferEnabled(false);
+		mpGraphicsContext->BindRenderTarget(0, pDest);
 		mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pDest->GetWidth()), static_cast<F32>(pDest->GetHeight()), 0.0f, 1.0f);
 
 		if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(materialHandle))
