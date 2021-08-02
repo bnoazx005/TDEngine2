@@ -170,6 +170,11 @@ namespace TDEngine2
 
 			if (IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(params.mMaterialId))
 			{
+				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(params.mMaterialId)->GetState())
+				{
+					return params.mDrawIndex;
+				}
+
 				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
 				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
 			}

@@ -97,6 +97,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESOURCE_STATE_TYPE GetState() const override;
 
+			TDE2_API void SetLoadingPolicy(E_RESOURCE_LOADING_POLICY policy) override;
+
 			/*!
 				\return The method returns currently assigned policy for the resource
 			*/

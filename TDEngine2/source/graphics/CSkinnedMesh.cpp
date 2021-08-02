@@ -88,9 +88,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSkinnedMesh::_initPositionOnlyVertexBuffer()
 	{
+		constexpr U32 vertexStride = sizeof(TVector4) * 2 + sizeof(U32) * 4;
+
 		auto&& positions = _toPositionOnlyArray();
 
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, positions.size() , &positions.front());
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, positions.size() * vertexStride, &positions.front());
 		if (positionOnlyVertexBufferResult.HasError())
 		{
 			return positionOnlyVertexBufferResult.GetError();
@@ -237,8 +239,6 @@ namespace TDEngine2
 		if (meshFileId.HasError())
 		{
 			LOG_WARNING(std::string("[Mesh Loader] Could not load the specified mesh file (").append(pResource->GetName()).append("), load default one instead..."));
-
-			/// \note can't load file with the shader, so load default one
 			return RC_FAIL;
 		}
 
@@ -346,10 +346,13 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TMeshParameters meshParams;
-		meshParams.mLoadingPolicy = params.mLoadingPolicy;
+		if (auto pResource = dynamic_cast<IResource*>(CreateSkinnedMesh(mpResourceManager, mpGraphicsContext, name, result)))
+		{
+			pResource->SetLoadingPolicy(params.mLoadingPolicy);
+			return pResource;
+		}
 
-		return dynamic_cast<IResource*>(CreateSkinnedMesh(mpResourceManager, mpGraphicsContext, name, result));
+		return nullptr;
 	}
 
 	TypeId CSkinnedMeshFactory::GetResourceTypeId() const

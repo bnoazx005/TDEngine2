@@ -102,6 +102,11 @@ namespace TDEngine2
 		return mState;
 	}
 
+	void CBaseResource::SetLoadingPolicy(E_RESOURCE_LOADING_POLICY policy)
+	{
+		mLoadingPolicy = policy;
+	}
+
 	E_RESOURCE_LOADING_POLICY CBaseResource::GetLoadingPolicy() const
 	{
 		//std::lock_guard<std::mutex> lock(mMutex);

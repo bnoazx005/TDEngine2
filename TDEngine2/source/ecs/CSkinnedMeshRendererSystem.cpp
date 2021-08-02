@@ -271,6 +271,13 @@ namespace TDEngine2
 
 			const TResourceId skeletonResourceId = mpResourceManager->Load<ISkeleton>(pSkinnedMeshContainer->GetSkeletonName());
 
+			auto pSkeletonResource = mpResourceManager->GetResource<IResource>(sharedMeshId);
+			if (!pSkeletonResource || (pSkeletonResource && (E_RESOURCE_STATE_TYPE::RST_LOADED != pSkeletonResource->GetState())))
+			{
+				++iter;
+				continue;
+			}
+
 			/// \note Get or create a new material's instance
 			TMaterialInstanceId materialInstance = pSkinnedMeshContainer->GetMaterialInstanceHandle();
 			if (TMaterialInstanceId::Invalid == materialInstance)
@@ -301,7 +308,7 @@ namespace TDEngine2
 
 			pCommand->mpVertexBuffer              = pSharedMeshResource->GetSharedVertexBuffer();
 			pCommand->mpIndexBuffer               = pSharedMeshResource->GetSharedIndexBuffer();
-			pCommand->mMaterialHandle             = mpResourceManager->Load<IMaterial>(pSkinnedMeshContainer->GetMaterialName());
+			pCommand->mMaterialHandle             = currMaterialId;
 			pCommand->mMaterialInstanceId         = materialInstance;
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
 			pCommand->mNumOfIndices               = pSharedMeshResource->GetIndices().size();

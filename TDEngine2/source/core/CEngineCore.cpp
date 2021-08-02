@@ -75,8 +75,10 @@ namespace TDEngine2
 		mIsInitialized = true;
 
 		memset(mSubsystems, 0, sizeof(mSubsystems));
-		
+
+		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core starts to work...");
+		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
 
 		return RC_OK;
 	}
@@ -122,7 +124,9 @@ namespace TDEngine2
 
 		delete this;
 
+		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core was successfully finalized");
+		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
 
 		return RC_OK;
 	}
@@ -189,7 +193,9 @@ namespace TDEngine2
 		mpInputContext = _getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT);
 		mpEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
 
+		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core begins to execute the main loop...");
+		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
 
 		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));

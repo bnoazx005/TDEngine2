@@ -99,6 +99,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESOURCE_STATE_TYPE GetState() const = 0;
 
+			TDE2_API virtual void SetLoadingPolicy(E_RESOURCE_LOADING_POLICY policy) = 0;
+
 			/*!
 				\return The method returns currently assigned policy for the resource
 			*/
