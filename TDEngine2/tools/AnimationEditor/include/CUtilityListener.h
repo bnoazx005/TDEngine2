@@ -12,7 +12,7 @@
 
 namespace TDEngine2
 {
-	class IEditorWindow;
+	class CAnimationEditorWindow;
 }
 
 
@@ -50,6 +50,8 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		*/
 
 		void SetEngineInstance(TDEngine2::IEngineCore* pEngineCore) override;
+	private:
+		void _drawMainMenu();
 	protected:
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
 
@@ -59,6 +61,13 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 		TDEngine2::IResourceManager* mpResourceManager;
 
-		TDEngine2::IEditorWindow* mpAnimationEditor;
+		TDEngine2::CAnimationEditorWindow* mpAnimationEditor;
+
+		TDEngine2::TResourceId       mCurrEditableEffectId;
+
+		std::string                  mLastSavedPath;
+
+		TDEngine2::CEntity*          mpEditableEffectEntity;
+
 
 };

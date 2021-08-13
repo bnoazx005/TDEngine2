@@ -8,12 +8,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CAnimationEditorWindow::Init()
+	E_RESULT_CODE CAnimationEditorWindow::Init(IResourceManager* pResourceManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
+
+		if (!pResourceManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
 
 		mIsInitialized = true;
 		mIsVisible = true;
@@ -37,6 +44,12 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	void CAnimationEditorWindow::SetAnimationResourceHandle(TResourceId handle)
+	{
+		mCurrAnimationResourceHandle = handle;
+		mpCurrAnimationClip = mpResourceManager->GetResource<IAnimationClip>(mCurrAnimationResourceHandle);
 	}
 
 	void CAnimationEditorWindow::_onDraw()
@@ -80,8 +93,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateAnimationEditorWindow(E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager* pResourceManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CAnimationEditorWindow, result);
+		return CREATE_IMPL(IEditorWindow, CAnimationEditorWindow, result, pResourceManager);
 	}
 }
