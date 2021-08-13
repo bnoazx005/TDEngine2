@@ -402,6 +402,24 @@ namespace TDEngine2
 		ImGui::PlotHistogram(name.c_str(), &values[0], values.size(), 0, overlayedText.c_str(), minScale, maxScale, ImVec2(sizes.x, sizes.y));
 	}
 
+	void CImGUIContext::VerticalSeparator(const std::function<void()>& leftRegionCallback, const std::function<void()>& rightRegionCallback)
+	{
+		ImGui::Columns(2);
+
+		if (leftRegionCallback)
+		{
+			leftRegionCallback();
+		}
+
+		ImGui::NextColumn();
+
+		if (rightRegionCallback)
+		{
+			rightRegionCallback();
+		}
+
+	}
+
 	void CImGUIContext::Histogram(const std::string& name, const F32* pValues, U32 valuesCount, F32 minScale, F32 maxScale,
 								  const TVector2& sizes, const std::string& overlayedText)
 	{
