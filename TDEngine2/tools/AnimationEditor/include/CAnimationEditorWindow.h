@@ -66,11 +66,17 @@ namespace TDEngine2
 			TDE2_API void _onDraw() override;
 
 			TDE2_API void _drawToolbar();
+			TDE2_API void _drawTimelineEditorGroup();
+			TDE2_API void _drawTracksHierarchy(F32 blockWidth);
+			TDE2_API void _drawTimelineEditor(F32 blockWidth);
+			TDE2_API void _drawDopesheetWidget(F32 currPlaybackTime);
 
 		protected:
 			TResourceId mCurrAnimationResourceHandle;
 			IAnimationClip* mpCurrAnimationClip;
 
 			IResourceManager* mpResourceManager;
+
+			bool mIsDopeSheetModeEnabled = true;
 	};
 }

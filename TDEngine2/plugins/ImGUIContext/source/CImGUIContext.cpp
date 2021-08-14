@@ -191,6 +191,10 @@ namespace TDEngine2
 			{
 				onClicked();
 			}
+
+			_prepareLayout();
+
+			return true;
 		}
 
 		_prepareLayout();
@@ -402,20 +406,23 @@ namespace TDEngine2
 		ImGui::PlotHistogram(name.c_str(), &values[0], values.size(), 0, overlayedText.c_str(), minScale, maxScale, ImVec2(sizes.x, sizes.y));
 	}
 
-	void CImGUIContext::VerticalSeparator(const std::function<void()>& leftRegionCallback, const std::function<void()>& rightRegionCallback)
+	void CImGUIContext::VerticalSeparator(F32 initialLeftColumnWidth, const std::function<void(F32)>& leftRegionCallback, const std::function<void(F32)>& rightRegionCallback)
 	{
 		ImGui::Columns(2);
 
+		/// \fixme
+		//ImGui::SetColumnWidth(-1, initialLeftColumnWidth);
+
 		if (leftRegionCallback)
 		{
-			leftRegionCallback();
+			leftRegionCallback(ImGui::GetColumnWidth());
 		}
 
 		ImGui::NextColumn();
 
 		if (rightRegionCallback)
 		{
-			rightRegionCallback();
+			rightRegionCallback(0.0f);
 		}
 
 	}

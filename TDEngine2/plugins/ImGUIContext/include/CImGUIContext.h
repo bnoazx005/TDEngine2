@@ -527,7 +527,7 @@ namespace TDEngine2
 
 			TDE2_API void Tooltip(const std::string& message) override;
 
-			TDE2_API void VerticalSeparator(const std::function<void()>& leftRegionCallback, const std::function<void()>& rightRegionCallback) override;
+			TDE2_API void VerticalSeparator(F32 initialLeftColumnWidth, const std::function<void(F32)>& leftRegionCallback, const std::function<void(F32)>& rightRegionCallback) override;
 
 			/*!
 				\brief The method moves current position of the cursor to given point

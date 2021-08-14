@@ -25,6 +25,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(TDEngine2::CreateAnimationEditorWindow(mpResourceManager, result));
 
+	mCurrEditableEffectId = mpResourceManager->Create<IAnimationClip>("unnamed.animation", TAnimationClipParameters {});
+	mpAnimationEditor->SetAnimationResourceHandle(mCurrEditableEffectId);
+
 	if (auto pEntity = pWorld->CreateEntity())
 	{
 		if (auto pTransform = pEntity->GetComponent<CTransform>())
@@ -190,7 +193,9 @@ void CUtilityListener::_drawMainMenu()
 			imguiContext.MenuItem("New", "CTRL+N", [this]
 			{
 				mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
-				// \todo Add reset of the app's state here
+
+				mCurrEditableEffectId = mpResourceManager->Create<IAnimationClip>("unnamed.animation", TAnimationClipParameters{});
+				mpAnimationEditor->SetAnimationResourceHandle(mCurrEditableEffectId);
 			});
 
 			imguiContext.MenuItem("Open", "CTRL+O", [this, pFileSystem]
