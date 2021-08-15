@@ -23,19 +23,26 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
-	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(TDEngine2::CreateAnimationEditorWindow(mpResourceManager, result));
+	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(TDEngine2::CreateAnimationEditorWindow(mpResourceManager, mpEngineCoreInstance->GetWorldInstance(), result));
 
 	mCurrEditableEffectId = mpResourceManager->Create<IAnimationClip>("unnamed.animation", TAnimationClipParameters {});
 	mpAnimationEditor->SetAnimationResourceHandle(mCurrEditableEffectId);
 
 	if (auto pEntity = pWorld->CreateEntity())
 	{
+		mpAnimationEditor->SetAnimatedEntityId(pEntity->GetId());
+
 		if (auto pTransform = pEntity->GetComponent<CTransform>())
 		{
 			auto props = pTransform->GetAllProperties();
 
 			auto pos = pTransform->GetProperty("position");
 			pos->Set(ForwardVector3);
+		}
+
+		if (auto pAnimationContainer = pEntity->AddComponent<CAnimationContainerComponent>())
+		{
+			pAnimationContainer->SetAnimationClipId("unnamed.animation");
 		}
 	}
 

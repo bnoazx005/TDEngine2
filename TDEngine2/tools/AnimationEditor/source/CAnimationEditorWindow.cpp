@@ -8,19 +8,22 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CAnimationEditorWindow::Init(IResourceManager* pResourceManager)
+	E_RESULT_CODE CAnimationEditorWindow::Init(IResourceManager* pResourceManager, IWorld* pWorld)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pResourceManager)
+		if (!pResourceManager || !pWorld)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpResourceManager = pResourceManager;
+		mpWorld = pWorld;
+
+		mCurrAnimatedEntity = TEntityId::Invalid;
 
 		mIsInitialized = true;
 		mIsVisible = true;
@@ -50,6 +53,11 @@ namespace TDEngine2
 	{
 		mCurrAnimationResourceHandle = handle;
 		mpCurrAnimationClip = mpResourceManager->GetResource<IAnimationClip>(mCurrAnimationResourceHandle);
+	}
+
+	void CAnimationEditorWindow::SetAnimatedEntityId(TEntityId entity)
+	{
+		mCurrAnimatedEntity = entity;
 	}
 
 	void CAnimationEditorWindow::_onDraw()
@@ -148,9 +156,32 @@ namespace TDEngine2
 		{
 			F32 playbackTime = 0.0f;
 
+			if (TEntityId::Invalid != mCurrAnimatedEntity)
+			{
+				if (auto pEntity = mpWorld->FindEntity(mCurrAnimatedEntity))
+				{
+					if (auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>())
+					{
+						playbackTime = pAnimationContainer->GetTime();
+					}
+				}
+			}
+
 			mpImGUIContext->SetItemWidth(mpImGUIContext->GetWindowWidth(), [&playbackTime, this]
 			{
-				mpImGUIContext->FloatSlider("##Cursor", playbackTime, 0.0f, mpCurrAnimationClip ? mpCurrAnimationClip->GetDuration() : 0.0f, [&playbackTime, this] {});
+				mpImGUIContext->FloatSlider("##Cursor", playbackTime, 0.0f, mpCurrAnimationClip ? mpCurrAnimationClip->GetDuration() : 0.0f, [&playbackTime, this] 
+				{
+					if (TEntityId::Invalid != mCurrAnimatedEntity)
+					{
+						if (auto pEntity = mpWorld->FindEntity(mCurrAnimatedEntity))
+						{
+							if (auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>())
+							{
+								pAnimationContainer->SetTime(playbackTime);
+							}
+						}
+					}
+				});
 			});
 
 			if (mIsDopeSheetModeEnabled)
@@ -159,7 +190,10 @@ namespace TDEngine2
 			}
 			else
 			{
+				const F32 timelineWidth = mpImGUIContext->GetWindowWidth();
+				const F32 timelineHeight = mpImGUIContext->GetWindowHeight() * 0.95f;
 
+				CAnimationCurveEditorWindow::DrawCurveEditor(mpImGUIContext, timelineWidth, timelineHeight, nullptr);
 			}
 		}
 		mpImGUIContext->EndChildWindow();
@@ -190,8 +224,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager* pResourceManager, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager* pResourceManager, IWorld* pWorld, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CAnimationEditorWindow, result, pResourceManager);
+		return CREATE_IMPL(IEditorWindow, CAnimationEditorWindow, result, pResourceManager, pWorld);
 	}
 }

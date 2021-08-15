@@ -15,13 +15,14 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CAnimationEditorWindow's type
 
-		\param[in, out] desc An object that determines parameters of the window
+		\param[in, out] pResourceManager A pointer to implementation of IResourceManager
+		\param[in, out] pWorld A pointer to implementation of IWorld
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager* pResourceManager, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager* pResourceManager, IWorld* pWorld, E_RESULT_CODE& result);
 
 	/*!
 		class CAnimationEditorWindow
@@ -32,18 +33,19 @@ namespace TDEngine2
 	class CAnimationEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager*, E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager*, IWorld*, E_RESULT_CODE&);
 
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
 
-				\param[in, out] desc An object that determines parameters of the window
+				\param[in, out] pResourceManager A pointer to implementation of IResourceManager
+				\param[in, out] pWorld A pointer to implementation of IWorld
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager);
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IWorld* pWorld);
 
 			/*!
 				\brief The method frees all memory occupied by the object
@@ -54,6 +56,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Free() override;
 
 			TDE2_API void SetAnimationResourceHandle(TResourceId handle);
+			TDE2_API void SetAnimatedEntityId(TEntityId entity);
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationEditorWindow)
@@ -72,11 +75,14 @@ namespace TDEngine2
 			TDE2_API void _drawDopesheetWidget(F32 currPlaybackTime);
 
 		protected:
-			TResourceId mCurrAnimationResourceHandle;
-			IAnimationClip* mpCurrAnimationClip;
+			TResourceId       mCurrAnimationResourceHandle;
+			IAnimationClip*   mpCurrAnimationClip;
+
+			TEntityId         mCurrAnimatedEntity;
 
 			IResourceManager* mpResourceManager;
+			IWorld*           mpWorld;
 
-			bool mIsDopeSheetModeEnabled = true;
+			bool              mIsDopeSheetModeEnabled = true;
 	};
 }

@@ -4,7 +4,7 @@
 namespace TDEngine2
 {
 	CAnimationContainerComponent::CAnimationContainerComponent() :
-		CBaseComponent()
+		CBaseComponent(), mCurrTime(0.0f)
 	{
 	}
 

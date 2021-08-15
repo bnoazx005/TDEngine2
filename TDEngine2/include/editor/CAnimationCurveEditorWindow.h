@@ -70,6 +70,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetCurveForEditing(CAnimationCurve* pCurve);
 
+			TDE2_API static E_RESULT_CODE DrawCurveEditor(IImGUIContext* pImGUIContext, F32 width, F32 height, CAnimationCurve* pCurve);
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationCurveEditorWindow)
 
@@ -79,12 +81,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void _onDraw() override;
-
-			TDE2_API void _drawCurveLine(F32 width, F32 height, const TVector2& cursorPos);
-			TDE2_API void _drawCurvePoint(I32 id, const TVector2& pos, const TCurveTransformParams& invTransformParams);
-			TDE2_API TVector2 _drawControlPoint(I32 id, const TVector2& pos, const TVector2& controlPointPos, const TCurveTransformParams& invTransformParams);
-
-			TDE2_API void _handleCurveCursor(F32 width, F32 height, const TVector2& cursorPos);
 
 		protected:
 			static constexpr F32 mHandlePointSize = 4.0f;
