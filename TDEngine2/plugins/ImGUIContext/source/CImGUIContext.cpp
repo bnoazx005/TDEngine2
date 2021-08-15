@@ -837,6 +837,11 @@ namespace TDEngine2
 		return ImGui::IsMouseDoubleClicked(static_cast<I32>(buttonId));
 	}
 
+	bool CImGUIContext::IsMouseClicked(U8 buttonId) const
+	{
+		return ImGui::IsMouseClicked(static_cast<I32>(buttonId));
+	}
+
 	bool CImGUIContext::IsMouseDragging(U8 buttonId) const
 	{
 		return ImGui::IsMouseDragging(static_cast<I32>(buttonId));

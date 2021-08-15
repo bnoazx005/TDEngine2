@@ -621,6 +621,8 @@ namespace TDEngine2
 
 			TDE2_API virtual bool IsMouseDoubleClicked(U8 buttonId) const = 0;
 
+			TDE2_API virtual bool IsMouseClicked(U8 buttonId) const = 0;
+
 			TDE2_API virtual bool IsMouseDragging(U8 buttonId) const = 0;
 
 			TDE2_API virtual TVector2 GetMousePosition() const = 0;
