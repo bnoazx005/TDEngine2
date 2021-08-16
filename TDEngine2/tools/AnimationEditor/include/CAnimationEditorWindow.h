@@ -87,6 +87,8 @@ namespace TDEngine2
 			IResourceManager* mpResourceManager;
 			IWorld*           mpWorld;
 
+			std::string       mCurrSelectedPropertyBinding;
+
 			TAnimationTrackId mSelectedTrackId = TAnimationTrackId::Invalid;
 
 			bool              mIsDopeSheetModeEnabled = true;

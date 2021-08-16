@@ -30,6 +30,8 @@ namespace TDEngine2
 	}
 
 
+	/// \note Binding format: Entity_1/.../Entity_N.ComponentName.property
+
 	static IPropertyWrapperPtr ResolveBinding(IWorld* pWorld, CEntity* pEntity, const std::string& name)
 	{
 		std::string binding = Wrench::StringUtils::RemoveAllWhitespaces(name);

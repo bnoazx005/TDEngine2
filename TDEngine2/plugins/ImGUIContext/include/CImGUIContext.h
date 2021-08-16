@@ -427,11 +427,12 @@ namespace TDEngine2
 
 				\param[in] id A label of an item
 				\param[in] isSelected A flag determines whether or not the current node is highlighted
+				\param[in] shouldClosePopup A flag defines whether the selectable's input events cause closing of the pop up window
 
 				\return Returns true if the current item was selected, false in other cases
 			*/
 
-			TDE2_API bool SelectableItem(const std::string& id, bool isSelected) override;
+			TDE2_API bool SelectableItem(const std::string& id, bool isSelected, bool shouldClosePopup) override;
 
 			/*!
 				\brief The method display tree's element. Always should be called in pair with EndTreeNode at end

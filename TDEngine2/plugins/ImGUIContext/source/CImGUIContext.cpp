@@ -615,9 +615,9 @@ namespace TDEngine2
 		ImGui::Image(static_cast<ImTextureID>(&mUsedResourcesRegistry.back()), sizes, ImVec2(uvRect.x, uvRect.y), ImVec2(uvRect.width, uvRect.height));
 	}
 
-	bool CImGUIContext::SelectableItem(const std::string& id, bool isSelected)
+	bool CImGUIContext::SelectableItem(const std::string& id, bool isSelected, bool shouldClosePopup)
 	{
-		return ImGui::Selectable(id.c_str(), isSelected);
+		return ImGui::Selectable(id.c_str(), isSelected, shouldClosePopup ? 0x0 : ImGuiSelectableFlags_DontClosePopups);
 	}
 
 	std::tuple<bool, bool> CImGUIContext::BeginTreeNode(const std::string& id, bool isSelected)

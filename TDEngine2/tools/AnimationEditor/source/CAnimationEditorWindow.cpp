@@ -328,25 +328,39 @@ namespace TDEngine2
 			return;
 		}
 
-		std::function<void(CEntity*)> processEntityTree = [this, &processEntityTree](CEntity* pEntity)
+		std::function<void(CEntity*)> processEntityTree = [this, &processEntityTree](CEntity* pEntity, const std::string& constructedBindingPath = "")
 		{
 			if (!pEntity)
 			{
 				return;
 			}
 
+			std::string bindingPath = constructedBindingPath;
+
 			if (std::get<0>(mpImGUIContext->BeginTreeNode(pEntity->GetName())))
 			{
+				bindingPath.append(pEntity->GetName());
+
 				/// \note Draw all the components of the entity
 				for (auto pComponent : pEntity->GetComponents())
 				{
 					if (std::get<0>(mpImGUIContext->BeginTreeNode(pComponent->GetTypeName())))
 					{
+						bindingPath
+							.append(".")
+							.append(pComponent->GetTypeName());
+
 						for (auto currPropertyId : pComponent->GetAllProperties())
 						{
-							if (mpImGUIContext->SelectableItem(currPropertyId))
-							{
+							std::string currBinding = bindingPath;
 
+							currBinding
+								.append(".")
+								.append(currPropertyId);
+							
+							if (mpImGUIContext->SelectableItem(currPropertyId, mCurrSelectedPropertyBinding == currBinding, false))
+							{
+								mCurrSelectedPropertyBinding = currBinding;
 							}
 						}
 
@@ -357,6 +371,11 @@ namespace TDEngine2
 				/// \note Draw hierarchy
 				if (auto pTransform = pEntity->GetComponent<CTransform>())
 				{
+					if (!pTransform->GetChildren().empty())
+					{
+						bindingPath.append("/");
+					}
+
 					for (TEntityId currChildEntityId : pTransform->GetChildren())
 					{
 						processEntityTree(mpWorld->FindEntity(currChildEntityId));
@@ -376,11 +395,15 @@ namespace TDEngine2
 
 			if (mpImGUIContext->Button("Accept", buttonsSizes))
 			{
+				/// \todo Create a new track based on property's type id and property binding's value
+
+				mCurrSelectedPropertyBinding = Wrench::StringUtils::GetEmptyStr();
 				mpImGUIContext->CloseCurrentModalWindow();
 			}
 
 			if (mpImGUIContext->Button("Cancel", buttonsSizes))
 			{
+				mCurrSelectedPropertyBinding = Wrench::StringUtils::GetEmptyStr();
 				mpImGUIContext->CloseCurrentModalWindow();
 			}
 		}
