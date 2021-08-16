@@ -169,6 +169,12 @@ namespace TDEngine2
 		return mAnimationClipId;
 	}
 
+	const std::string& CAnimationContainerComponent::GetTypeName() const
+	{
+		static const std::string componentName{ "animation-container" };
+		return componentName;
+	}
+
 	TResourceId CAnimationContainerComponent::GetAnimationClipResourceId() const
 	{
 		return mAnimationClipResourceId;

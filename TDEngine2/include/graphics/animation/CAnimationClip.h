@@ -138,7 +138,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE RemoveTrack(TAnimationTrackId handle) override;
 
-			TDE2_API void ForEachTrack(const std::function<void(IAnimationTrack*)>& action = nullptr) override;
+			TDE2_API void ForEachTrack(const std::function<bool(TAnimationTrackId trackId, IAnimationTrack*)>& action = nullptr) override;
 
 			/*!
 				\brief The method specifies duration of the clip

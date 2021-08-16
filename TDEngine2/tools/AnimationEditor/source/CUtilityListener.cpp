@@ -85,11 +85,14 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 			{
 				pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
 
-				CEntity* pEntity = pScene->CreateEntity("AnimableEntity");
-
-				if (auto pAnimationComponent = pEntity->AddComponent<CAnimationContainerComponent>())
+				if (CEntity* pEntity = pScene->CreateEntity("AnimableEntity"))
 				{
-					pAnimationComponent->SetAnimationClipId("Animation2.animation");
+					if (auto pAnimationComponent = pEntity->AddComponent<CAnimationContainerComponent>())
+					{
+						pAnimationComponent->SetAnimationClipId("Animation2.animation");
+					}
+
+					mpEditableEntity = pEntity;
 				}
 			}
 		}
@@ -211,7 +214,7 @@ void CUtilityListener::_drawMainMenu()
 				{
 					mCurrEditableEffectId = openFileResult.Get();
 
-					if (auto pAnimationContainer = mpEditableEffectEntity->GetComponent<CAnimationContainerComponent>())
+					if (auto pAnimationContainer = mpEditableEntity->GetComponent<CAnimationContainerComponent>())
 					{
 						if (auto pAnimation = mpResourceManager->GetResource<IResource>(mCurrEditableEffectId))
 						{

@@ -58,7 +58,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 				pParticles->SetParticleEffect("testParticles.particles");
 			}
 
-			mpEditableEffectEntity = pParticlesEntity;
+			mpEditableEntity = pParticlesEntity;
 		}
 	}
 
@@ -169,7 +169,7 @@ void CUtilityListener::_drawMainMenu()
 				{
 					mCurrEditableEffectId = openFileResult.Get();
 
-					if (auto pParticles = mpEditableEffectEntity->GetComponent<CParticleEmitter>())
+					if (auto pParticles = mpEditableEntity->GetComponent<CParticleEmitter>())
 					{
 						if (auto pParticleEffect = mpResourceManager->GetResource<IResource>(mCurrEditableEffectId))
 						{

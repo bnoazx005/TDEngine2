@@ -210,7 +210,7 @@ namespace TDEngine2
 			}
 
 			// \note Apply values for each animation track
-			pAnimationClip->ForEachTrack([pWorld, pCurrEntity, currTime, this](IAnimationTrack* pTrack)
+			pAnimationClip->ForEachTrack([pWorld, pCurrEntity, currTime, this](TAnimationTrackId trackId, IAnimationTrack* pTrack)
 			{
 				if (pTrack->GetTrackTypeId() == CEventAnimationTrack::GetTypeId()) // \note Event track's processed separately
 				{
@@ -219,17 +219,19 @@ namespace TDEngine2
 					E_RESULT_CODE result = pTrack->Apply(mEventsHandler.Get(), currTime);
 					TDE2_ASSERT(RC_OK == result);
 
-					return;
+					return true;
 				}
 
 				IPropertyWrapperPtr animableProperty{ ResolveBinding(pWorld, pCurrEntity, pTrack->GetPropertyBinding()) };
 				if (!animableProperty) // \note It's pretty normal case when you can't resolve binding, because, for instance, an entity may not have some component or child entity
 				{
-					return;
+					return true;
 				}
 
 				E_RESULT_CODE result = pTrack->Apply(animableProperty.Get(), currTime); // \note apply the value to the wrapper
 				TDE2_ASSERT(RC_OK == result);
+
+				return true;
 			});
 		}
 	}

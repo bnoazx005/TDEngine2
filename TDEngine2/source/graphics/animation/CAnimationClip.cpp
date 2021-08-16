@@ -206,7 +206,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CAnimationClip::ForEachTrack(const std::function<void(IAnimationTrack*)>& action)
+	void CAnimationClip::ForEachTrack(const std::function<bool(TAnimationTrackId trackId, IAnimationTrack*)>& action)
 	{
 		if (!action)
 		{
@@ -221,7 +221,10 @@ namespace TDEngine2
 				continue;
 			}
 
-			action(pCurrTrack);
+			if (!action(currTrackEntity.first, pCurrTrack))
+			{
+				break;
+			}
 		}
 	}
 

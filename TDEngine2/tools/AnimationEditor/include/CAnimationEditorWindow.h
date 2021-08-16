@@ -74,7 +74,11 @@ namespace TDEngine2
 			TDE2_API void _drawTimelineEditor(F32 blockWidth);
 			TDE2_API void _drawDopesheetWidget(F32 currPlaybackTime);
 
+			TDE2_API void _drawPropertyBindingsWindow();
+
 		protected:
+			static const std::string mAddPropertyWindowId;
+
 			TResourceId       mCurrAnimationResourceHandle;
 			IAnimationClip*   mpCurrAnimationClip;
 
@@ -82,6 +86,8 @@ namespace TDEngine2
 
 			IResourceManager* mpResourceManager;
 			IWorld*           mpWorld;
+
+			TAnimationTrackId mSelectedTrackId = TAnimationTrackId::Invalid;
 
 			bool              mIsDopeSheetModeEnabled = true;
 	};

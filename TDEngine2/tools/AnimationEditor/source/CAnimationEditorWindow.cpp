@@ -3,6 +3,9 @@
 
 namespace TDEngine2
 {
+	const std::string CAnimationEditorWindow::mAddPropertyWindowId = "Add Property ...";
+
+
 	CAnimationEditorWindow::CAnimationEditorWindow() :
 		CBaseEditorWindow()
 	{
@@ -132,19 +135,114 @@ namespace TDEngine2
 			std::bind(&CAnimationEditorWindow::_drawTimelineEditor, this, std::placeholders::_1));
 	}
 
+
+	/// \todo Move the method into some place where all the utilities for bindings will be stored
+	static std::tuple<std::string, std::string> GetTrackInfoFromBinding(IWorld* pWorld, TEntityId currAnimatedEntity, const std::string& propertyBinding)
+	{
+		static const std::string InvalidEntity = "None";
+
+		std::string binding = Wrench::StringUtils::RemoveAllWhitespaces(propertyBinding);
+
+		std::string::size_type pos = 0;
+
+		// \note If there are child appearances in the path go down into the hierarchy
+		CEntity* pCurrEntity = pWorld->FindEntity(currAnimatedEntity);
+		if (!pCurrEntity || (binding == Wrench::StringUtils::GetEmptyStr()))
+		{
+			return { InvalidEntity, Wrench::StringUtils::GetEmptyStr() };
+		}
+
+		auto&& hierarchy = Wrench::StringUtils::Split(binding, "/");
+		for (auto it = hierarchy.cbegin(); it != std::prev(hierarchy.cend()); it++)
+		{
+			CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
+
+			bool hasChildFound = false;
+
+			for (TEntityId childEntityId : pTransform->GetChildren())
+			{
+				if (CEntity* pChildEntity = pWorld->FindEntity(childEntityId))
+				{
+					if (pChildEntity->GetName() == *it)
+					{
+						pCurrEntity = pChildEntity;
+						hasChildFound = true;
+						break;
+					}
+				}
+			}
+
+			if (!hasChildFound)
+			{
+				return { InvalidEntity, Wrench::StringUtils::GetEmptyStr() };
+			}
+		}
+
+		// \note Check whether the component with given identifier exist or not
+		const std::string& componentBinding = hierarchy.back();
+
+		pos = componentBinding.find_first_of('.');
+		if (pos == std::string::npos)
+		{
+			return { InvalidEntity, Wrench::StringUtils::GetEmptyStr() };
+		}
+
+		return { pCurrEntity->GetName(), componentBinding };
+	}
+
+
 	void CAnimationEditorWindow::_drawTracksHierarchy(F32 blockWidth)
 	{
-		mpImGUIContext->BeginChildWindow("##TracksHierarchyWidget", TVector2(blockWidth - 10.0f, mpImGUIContext->GetWindowHeight() * 0.73f));
-		{
+		mpImGUIContext->SetCursorScreenPos(mpImGUIContext->GetCursorScreenPos() + TVector2(0.0f, 25.0f));
 
+		mpImGUIContext->BeginChildWindow("##TracksHierarchyWidget", TVector2(blockWidth - 10.0f, mpImGUIContext->GetWindowHeight() * 0.65f));
+		{
+			mpCurrAnimationClip->ForEachTrack([this](TAnimationTrackId trackId, IAnimationTrack* pTrack)
+			{
+				std::string entityName, bindingName;
+				std::tie(entityName, bindingName) = GetTrackInfoFromBinding(mpWorld, mCurrAnimatedEntity, pTrack->GetPropertyBinding());
+				
+				/// \todo For events track there should be a unique identifier
+				if (mpImGUIContext->SelectableItem(Wrench::StringUtils::Format("{0}: {1}", entityName, bindingName), mSelectedTrackId == trackId))
+				{					
+					mSelectedTrackId = trackId;
+				}
+
+				/// \todo Remove the selected track
+				if (mSelectedTrackId == trackId)
+				{
+					mpImGUIContext->DisplayContextMenu("TracksOperations", [this, trackId](IImGUIContext& imguiContext)
+					{
+						imguiContext.MenuItem("Remove Track", "Del", [this, trackId]
+						{
+							if (mpCurrAnimationClip)
+							{
+								E_RESULT_CODE result = mpCurrAnimationClip->RemoveTrack(trackId);
+								TDE2_ASSERT(RC_OK == result);
+							}
+
+							mSelectedTrackId = TAnimationTrackId::Invalid;
+						});
+					});
+
+					if (TAnimationTrackId::Invalid == mSelectedTrackId)
+					{
+						return false;
+					}
+				}
+
+				return true;
+			});
 		}
 		mpImGUIContext->EndChildWindow();
 
 		mpImGUIContext->BeginChildWindow("##TracksHierarchyToolbarWidget", TVector2(blockWidth - 10.0f, 35.0f));
 		{
+			_drawPropertyBindingsWindow();
+
 			if (mpImGUIContext->Button("Add Property", TVector2(mpImGUIContext->GetWindowWidth() * 0.5f, 25.0f)))
 			{
-
+				mpImGUIContext->ShowModalWindow(mAddPropertyWindowId);
 			}
 		}
 		mpImGUIContext->EndChildWindow();
@@ -221,6 +319,74 @@ namespace TDEngine2
 
 		/// \note Draw a cursor
 		mpImGUIContext->DrawLine(cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, 0.0f), cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, timelineHeight), TColorUtils::mWhite);
+	}
+
+	void CAnimationEditorWindow::_drawPropertyBindingsWindow()
+	{
+		if (!mpImGUIContext->BeginModalWindow(mAddPropertyWindowId))
+		{
+			return;
+		}
+
+		std::function<void(CEntity*)> processEntityTree = [this, &processEntityTree](CEntity* pEntity)
+		{
+			if (!pEntity)
+			{
+				return;
+			}
+
+			if (std::get<0>(mpImGUIContext->BeginTreeNode(pEntity->GetName())))
+			{
+				/// \note Draw all the components of the entity
+				for (auto pComponent : pEntity->GetComponents())
+				{
+					if (std::get<0>(mpImGUIContext->BeginTreeNode(pComponent->GetTypeName())))
+					{
+						for (auto currPropertyId : pComponent->GetAllProperties())
+						{
+							if (mpImGUIContext->SelectableItem(currPropertyId))
+							{
+
+							}
+						}
+
+						mpImGUIContext->EndTreeNode();
+					}
+				}
+
+				/// \note Draw hierarchy
+				if (auto pTransform = pEntity->GetComponent<CTransform>())
+				{
+					for (TEntityId currChildEntityId : pTransform->GetChildren())
+					{
+						processEntityTree(mpWorld->FindEntity(currChildEntityId));
+					}
+				}
+
+				mpImGUIContext->EndTreeNode();
+			}
+		};
+
+		processEntityTree(mpWorld->FindEntity(mCurrAnimatedEntity));
+
+		/// Accept and Cancel buttons bar
+		mpImGUIContext->BeginHorizontal();
+		{
+			const TVector2 buttonsSizes(mpImGUIContext->GetWindowWidth() * 0.4f, 25.0f);
+
+			if (mpImGUIContext->Button("Accept", buttonsSizes))
+			{
+				mpImGUIContext->CloseCurrentModalWindow();
+			}
+
+			if (mpImGUIContext->Button("Cancel", buttonsSizes))
+			{
+				mpImGUIContext->CloseCurrentModalWindow();
+			}
+		}
+		mpImGUIContext->EndHorizontal();
+
+		mpImGUIContext->EndModalWindow();
 	}
 
 

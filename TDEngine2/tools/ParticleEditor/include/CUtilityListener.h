@@ -72,7 +72,7 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 		std::string                  mLastSavedPath;
 
-		TDEngine2::CEntity*          mpEditableEffectEntity;
+		TDEngine2::CEntity*          mpEditableEntity;
 
 		bool                         mIsTimeControlBarWindowOpened = true;
 		bool                         mShouldPauseOnNextFrame = false;
