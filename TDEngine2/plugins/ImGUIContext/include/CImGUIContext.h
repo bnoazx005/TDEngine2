@@ -602,6 +602,8 @@ namespace TDEngine2
 
 			TDE2_API bool IsMouseOverUI() const override;
 
+			TDE2_API bool IsItemHovered() const override;
+
 			TDE2_API bool IsMouseDoubleClicked(U8 buttonId) const override;
 
 			TDE2_API bool IsMouseClicked(U8 buttonId) const override;

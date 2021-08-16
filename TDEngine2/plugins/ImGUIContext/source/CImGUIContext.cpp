@@ -832,6 +832,11 @@ namespace TDEngine2
 		return mpIOContext->WantCaptureMouse;
 	}
 
+	bool CImGUIContext::IsItemHovered() const
+	{
+		return ImGui::IsItemHovered();
+	}
+
 	bool CImGUIContext::IsMouseDoubleClicked(U8 buttonId) const
 	{
 		return ImGui::IsMouseDoubleClicked(static_cast<I32>(buttonId));

@@ -619,6 +619,8 @@ namespace TDEngine2
 
 			TDE2_API virtual bool IsMouseOverUI() const = 0;
 
+			TDE2_API virtual bool IsItemHovered() const = 0;
+
 			TDE2_API virtual bool IsMouseDoubleClicked(U8 buttonId) const = 0;
 
 			TDE2_API virtual bool IsMouseClicked(U8 buttonId) const = 0;
