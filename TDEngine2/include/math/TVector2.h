@@ -190,4 +190,7 @@ namespace TDEngine2
 
 	TDE2_API TResult<TVector2> LoadVector2(IArchiveReader* pReader);
 	TDE2_API E_RESULT_CODE SaveVector2(IArchiveWriter* pWriter, const TVector2& object);
+
+
+	template <> struct GetTypeId<TVector2> { static constexpr TypeId mValue = TDE2_TYPE_ID(TVector2); };
 }

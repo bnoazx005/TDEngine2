@@ -88,6 +88,7 @@ namespace TDEngine2
 			IWorld*           mpWorld;
 
 			std::string       mCurrSelectedPropertyBinding;
+			TypeId            mNewTrackTypeId;
 
 			TAnimationTrackId mSelectedTrackId = TAnimationTrackId::Invalid;
 

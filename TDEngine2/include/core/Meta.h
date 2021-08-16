@@ -36,6 +36,8 @@ namespace TDEngine2
 				return *static_cast<const T*>(_getInternal());
 			}
 
+			TDE2_API virtual TypeId GetValueType() const = 0;
+
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPropertyWrapper)
 
@@ -90,6 +92,11 @@ namespace TDEngine2
 				}
 
 				return RC_OK;
+			}
+
+			TDE2_API TypeId GetValueType() const override
+			{
+				return GetTypeId<TValueType>::mValue;
 			}
 		protected:
 			CBasePropertyWrapper(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter) : CBaseObject(), mSetterFunc(setter), mGetterFunc(getter) 

@@ -361,6 +361,11 @@ namespace TDEngine2
 							if (mpImGUIContext->SelectableItem(currPropertyId, mCurrSelectedPropertyBinding == currBinding, false))
 							{
 								mCurrSelectedPropertyBinding = currBinding;
+
+								if (auto pProperty = pComponent->GetProperty(currPropertyId))
+								{
+									mNewTrackTypeId = pProperty->GetValueType();
+								}
 							}
 						}
 

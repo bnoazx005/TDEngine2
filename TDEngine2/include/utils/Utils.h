@@ -177,6 +177,9 @@ namespace TDEngine2
 	}
 
 
+	template <typename T> struct GetTypeId { static constexpr TypeId mValue = TypeId::Invalid; };
+
+
 	/*!
 		\brief The macro is used to provide type counting mechanism
 
@@ -235,6 +238,13 @@ namespace TDEngine2
 			return typeId;													\
 		}
 #endif
+
+
+	template <> struct GetTypeId<F32> { static constexpr TypeId mValue = TDE2_TYPE_ID(F32); };
+	template <> struct GetTypeId<I32> { static constexpr TypeId mValue = TDE2_TYPE_ID(I32); };
+	template <> struct GetTypeId<U32> { static constexpr TypeId mValue = TDE2_TYPE_ID(U32); };
+	template <> struct GetTypeId<bool> { static constexpr TypeId mValue = TDE2_TYPE_ID(bool); };
+
 
 
 	/*!
