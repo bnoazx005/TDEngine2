@@ -268,7 +268,7 @@ namespace TDEngine2
 
 	TAnimationTrackId CAnimationClip::_createTrackInternal(TypeId typeId, const std::string& name)
 	{
-		if (typeId == TypeId::Invalid || name.empty())
+		if (typeId == TypeId::Invalid)
 		{
 			return TAnimationTrackId::Invalid;
 		}
@@ -290,7 +290,7 @@ namespace TDEngine2
 		TAnimationTrackId handle = TAnimationTrackId(mpTracks.size());
 		mpTracks.insert({ handle, pTrack });
 
-		pTrack->SetName(name);
+		pTrack->SetName(name.empty() ? Wrench::StringUtils::Format("Track{0}", static_cast<U32>(handle)) : name);
 
 		return handle;
 	}

@@ -162,4 +162,7 @@ namespace TDEngine2
 						static_cast<F32>(rand()) / denominator,
 						allowTransparency ? static_cast<F32>(rand()) / denominator : 1.0f);
 	}
+
+
+	template <> struct GetTypeId<TColor32F> { static constexpr TypeId mValue = TDE2_TYPE_ID(TColor32F); };
 }

@@ -321,6 +321,40 @@ namespace TDEngine2
 		mpImGUIContext->DrawLine(cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, 0.0f), cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, timelineHeight), TColorUtils::mWhite);
 	}
 
+
+	static E_RESULT_CODE CreateTrack(IAnimationClip* pClip, TypeId trackBaseTypeId, const std::string& bindingStr)
+	{
+		const std::unordered_map<TypeId, std::function<TAnimationTrackId()>> trackHandlers
+		{
+			{ GetTypeId<TVector2>::mValue, [&pClip] { return pClip->CreateTrack<CVector2AnimationTrack>(); } },
+			{ GetTypeId<TVector3>::mValue, [&pClip] { return pClip->CreateTrack<CVector3AnimationTrack>(); } },
+			{ GetTypeId<TQuaternion>::mValue, [&pClip] { return pClip->CreateTrack<CQuaternionAnimationTrack>(); } },
+			{ GetTypeId<TColor32F>::mValue, [&pClip] { return pClip->CreateTrack<CColorAnimationTrack>(); } },
+			{ GetTypeId<F32>::mValue, [&pClip] { return pClip->CreateTrack<CFloatAnimationTrack>(); } },
+			{ GetTypeId<bool>::mValue, [&pClip] { return pClip->CreateTrack<CBooleanAnimationTrack>(); } },
+		};
+
+		auto it = trackHandlers.find(trackBaseTypeId);
+		if (it == trackHandlers.cend())
+		{
+			return RC_FAIL;
+		}
+
+		const TAnimationTrackId trackHandle = (it->second)();
+		if (TAnimationTrackId::Invalid == trackHandle)
+		{
+			return RC_FAIL;
+		}
+
+		if (auto pTrack = pClip->GetTrack<IAnimationTrack>(trackHandle))
+		{
+			pTrack->SetPropertyBinding(bindingStr);
+		}
+
+		return RC_OK;
+	}
+
+
 	void CAnimationEditorWindow::_drawPropertyBindingsWindow()
 	{
 		if (!mpImGUIContext->BeginModalWindow(mAddPropertyWindowId))
@@ -328,7 +362,7 @@ namespace TDEngine2
 			return;
 		}
 
-		std::function<void(CEntity*)> processEntityTree = [this, &processEntityTree](CEntity* pEntity, const std::string& constructedBindingPath = "")
+		std::function<void(CEntity*, const std::string&, bool)> processEntityTree = [this, &processEntityTree](CEntity* pEntity, const std::string& constructedBindingPath = "", bool isRoot = false)
 		{
 			if (!pEntity)
 			{
@@ -339,16 +373,25 @@ namespace TDEngine2
 
 			if (std::get<0>(mpImGUIContext->BeginTreeNode(pEntity->GetName())))
 			{
-				bindingPath.append(pEntity->GetName());
+				if (auto pTransform = pEntity->GetComponent<CTransform>())
+				{
+					if (!isRoot || !pTransform->GetChildren().empty())
+					{
+						bindingPath.append(pEntity->GetName());
+					}
+				}
 
 				/// \note Draw all the components of the entity
 				for (auto pComponent : pEntity->GetComponents())
 				{
 					if (std::get<0>(mpImGUIContext->BeginTreeNode(pComponent->GetTypeName())))
 					{
-						bindingPath
-							.append(".")
-							.append(pComponent->GetTypeName());
+						if (!isRoot)
+						{
+							bindingPath.append(".");
+						}
+
+						bindingPath.append(pComponent->GetTypeName());
 
 						for (auto currPropertyId : pComponent->GetAllProperties())
 						{
@@ -383,7 +426,7 @@ namespace TDEngine2
 
 					for (TEntityId currChildEntityId : pTransform->GetChildren())
 					{
-						processEntityTree(mpWorld->FindEntity(currChildEntityId));
+						processEntityTree(mpWorld->FindEntity(currChildEntityId), bindingPath, false);
 					}
 				}
 
@@ -391,7 +434,7 @@ namespace TDEngine2
 			}
 		};
 
-		processEntityTree(mpWorld->FindEntity(mCurrAnimatedEntity));
+		processEntityTree(mpWorld->FindEntity(mCurrAnimatedEntity), Wrench::StringUtils::GetEmptyStr(), true);
 
 		/// Accept and Cancel buttons bar
 		mpImGUIContext->BeginHorizontal();
@@ -400,7 +443,9 @@ namespace TDEngine2
 
 			if (mpImGUIContext->Button("Accept", buttonsSizes))
 			{
-				/// \todo Create a new track based on property's type id and property binding's value
+				/// \note Create a new track based on property's type id and property binding's value
+				E_RESULT_CODE result = CreateTrack(mpCurrAnimationClip, mNewTrackTypeId, mCurrSelectedPropertyBinding);
+				TDE2_ASSERT(RC_OK == result);
 
 				mCurrSelectedPropertyBinding = Wrench::StringUtils::GetEmptyStr();
 				mpImGUIContext->CloseCurrentModalWindow();
