@@ -8,6 +8,7 @@
 
 
 #include <TDEngine2.h>
+#include <unordered_set>
 
 
 namespace TDEngine2
@@ -89,6 +90,8 @@ namespace TDEngine2
 
 			std::string       mCurrSelectedPropertyBinding;
 			TypeId            mNewTrackTypeId;
+
+			std::unordered_set<std::string> mUsedPropertyBindings; /// \note Contains string bindings that are already used by tracks 
 
 			TAnimationTrackId mSelectedTrackId = TAnimationTrackId::Invalid;
 

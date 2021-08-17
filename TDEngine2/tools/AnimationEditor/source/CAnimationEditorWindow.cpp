@@ -199,9 +199,16 @@ namespace TDEngine2
 		{
 			mpCurrAnimationClip->ForEachTrack([this](TAnimationTrackId trackId, IAnimationTrack* pTrack)
 			{
+				const std::string& propertyBinding = pTrack->GetPropertyBinding();
+
 				std::string entityName, bindingName;
-				std::tie(entityName, bindingName) = GetTrackInfoFromBinding(mpWorld, mCurrAnimatedEntity, pTrack->GetPropertyBinding());
-				
+				std::tie(entityName, bindingName) = GetTrackInfoFromBinding(mpWorld, mCurrAnimatedEntity, propertyBinding);
+
+				if (mUsedPropertyBindings.find(propertyBinding) == mUsedPropertyBindings.cend())
+				{
+					mUsedPropertyBindings.insert(propertyBinding);
+				}
+
 				/// \todo For events track there should be a unique identifier
 				if (mpImGUIContext->SelectableItem(Wrench::StringUtils::Format("{0}: {1}", entityName, bindingName), mSelectedTrackId == trackId))
 				{					
@@ -211,10 +218,12 @@ namespace TDEngine2
 				/// \todo Remove the selected track
 				if (mSelectedTrackId == trackId)
 				{
-					mpImGUIContext->DisplayContextMenu("TracksOperations", [this, trackId](IImGUIContext& imguiContext)
+					mpImGUIContext->DisplayContextMenu("TracksOperations", [this, trackId, propertyBinding](IImGUIContext& imguiContext)
 					{
-						imguiContext.MenuItem("Remove Track", "Del", [this, trackId]
+						imguiContext.MenuItem("Remove Track", "Del", [this, trackId, propertyBinding]
 						{
+							mUsedPropertyBindings.erase(propertyBinding);
+
 							if (mpCurrAnimationClip)
 							{
 								E_RESULT_CODE result = mpCurrAnimationClip->RemoveTrack(trackId);
@@ -400,6 +409,11 @@ namespace TDEngine2
 							currBinding
 								.append(".")
 								.append(currPropertyId);
+
+							if (mUsedPropertyBindings.find(currBinding) != mUsedPropertyBindings.cend())
+							{
+								continue;
+							}
 							
 							if (mpImGUIContext->SelectableItem(currPropertyId, mCurrSelectedPropertyBinding == currBinding, false))
 							{
@@ -446,6 +460,8 @@ namespace TDEngine2
 				/// \note Create a new track based on property's type id and property binding's value
 				E_RESULT_CODE result = CreateTrack(mpCurrAnimationClip, mNewTrackTypeId, mCurrSelectedPropertyBinding);
 				TDE2_ASSERT(RC_OK == result);
+
+				mUsedPropertyBindings.insert(mCurrSelectedPropertyBinding);
 
 				mCurrSelectedPropertyBinding = Wrench::StringUtils::GetEmptyStr();
 				mpImGUIContext->CloseCurrentModalWindow();
