@@ -93,10 +93,53 @@ namespace TDEngine2
 
 			static const TVector2 buttonSize(20.0f, 20.0f);
 
+			bool isAnimationPlaying = false;
+
+			if (auto pEntity = mpWorld->FindEntity(mCurrAnimatedEntity))
+			{
+				if (auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>())
+				{
+					isAnimationPlaying = pAnimationContainer->IsPlaying();
+				}
+			}
+
 			mpImGUIContext->Button("*##Record", buttonSize);
-			mpImGUIContext->Button("<|##BackStep", buttonSize);
-			mpImGUIContext->Button(">##Play", buttonSize);
-			mpImGUIContext->Button("|>##ForwardStep", buttonSize);
+
+			auto rewindAnimationFunctor = [this](float timeStep)
+			{
+				return [this, timeStep]
+				{
+					if (auto pEntity = mpWorld->FindEntity(mCurrAnimatedEntity))
+					{
+						if (auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>())
+						{
+							pAnimationContainer->SetTime(pAnimationContainer->GetTime() + timeStep);
+						}
+					}
+				};
+			};
+
+			mpImGUIContext->Button("<|##BackStep", buttonSize, rewindAnimationFunctor(-1.0f));
+
+			mpImGUIContext->Button(isAnimationPlaying ? "Stop" : "Play", TVector2(40.0f, 20.0f), [this]
+			{
+				if (auto pEntity = mpWorld->FindEntity(mCurrAnimatedEntity))
+				{
+					if (auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>())
+					{
+						if (pAnimationContainer->IsPlaying())
+						{
+							pAnimationContainer->SetStoppedFlag(true);
+						}
+						else
+						{
+							pAnimationContainer->Play();
+						}
+					}
+				}
+			});
+
+			mpImGUIContext->Button("|>##ForwardStep", buttonSize, rewindAnimationFunctor(1.0f));
 
 			{
 				mpImGUIContext->Label("Duration: ");
