@@ -285,6 +285,8 @@ namespace TDEngine2
 
 				return true;
 			});
+
+			mTimelineScrollPosition = mpImGUIContext->GetScrollPosition();
 		}
 		mpImGUIContext->EndChildWindow();
 
@@ -360,17 +362,46 @@ namespace TDEngine2
 
 		mpImGUIContext->DrawRect(TRectF32(cursorPos.x, cursorPos.y, timelineWidth, timelineHeight), TColor32F(0.2f, 0.2f, 0.2f, 1.0f), true, 1.0f);
 
-		/// \note Draw tracks
-		//mpImGUIContext->DrawLine()
-
 		/// \note Draw vertical lines which determine seconds
 		for (F32 t = 0.0f; CMathUtils::IsLessOrEqual(t, duration); t += 1.0f)
 		{
 			mpImGUIContext->DrawLine(cursorPos + TVector2(t * pixelsPerSecond, 0.0f), cursorPos + TVector2(t * pixelsPerSecond, timelineHeight), TColor32F(0.25f, 0.25f, 0.25f, 1.0f));
 		}
 
+		/// \note Draw tracks
+		_drawDopesheetTracks(cursorPos, timelineWidth, timelineHeight, pixelsPerSecond);
+
 		/// \note Draw a cursor
 		mpImGUIContext->DrawLine(cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, 0.0f), cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, timelineHeight), TColorUtils::mWhite);
+	}
+
+	void CAnimationEditorWindow::_drawDopesheetTracks(const TVector2& cursorPos, F32 frameWidth, F32 frameHeight, F32 pixelsPerSecond)
+	{
+		if (!mpCurrAnimationClip)
+		{
+			return;
+		}
+
+		constexpr F32 trackWidth = 17.0f;
+
+		const TVector2 tracksOrigin = cursorPos + TVector2(0.0f, 10.0f - mTimelineScrollPosition.y);
+
+		F32 currVerticalPosition = 0.0f;
+
+		const TVector2 prevCursorPosition = mpImGUIContext->GetCursorScreenPos();
+		mpImGUIContext->SetCursorScreenPos(cursorPos);
+
+		mpCurrAnimationClip->ForEachTrack([this, pixelsPerSecond, trackWidth, tracksOrigin, frameWidth, &currVerticalPosition](TAnimationTrackId trackId, IAnimationTrack* pTrack)
+		{
+			const TVector2 currPosition = tracksOrigin + TVector2(0.0f, currVerticalPosition);
+			mpImGUIContext->DrawLine(currPosition, currPosition + TVector2(frameWidth, 0.0f), TColor32F(0.1f, 0.1f, 0.1f, 1.0f), 4.0f);
+
+			currVerticalPosition += trackWidth;
+
+			return true;
+		});
+
+		mpImGUIContext->SetCursorScreenPos(prevCursorPosition);
 	}
 
 
