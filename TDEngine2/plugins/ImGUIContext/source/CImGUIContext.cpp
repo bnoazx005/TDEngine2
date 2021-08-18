@@ -857,6 +857,11 @@ namespace TDEngine2
 		return mpIOContext->MousePos;
 	}
 
+	TVector2 CImGUIContext::GetScrollPosition() const
+	{
+		return TVector2(ImGui::GetScrollX(), ImGui::GetScrollY());
+	}
+
 	TVector2 CImGUIContext::GetMouseDragDelta(U8 buttonId) const
 	{
 		return ImGui::GetMouseDragDelta(static_cast<I32>(buttonId));

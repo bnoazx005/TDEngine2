@@ -615,6 +615,8 @@ namespace TDEngine2
 
 			TDE2_API TVector2 GetMousePosition() const override;
 
+			TDE2_API TVector2 GetScrollPosition() const override;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUIContext)
 
