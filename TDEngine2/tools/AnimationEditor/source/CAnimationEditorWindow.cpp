@@ -375,6 +375,70 @@ namespace TDEngine2
 		mpImGUIContext->DrawLine(cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, 0.0f), cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, timelineHeight), TColorUtils::mWhite);
 	}
 
+
+	/*static TVector2 ApplyValueToScreenTransform(const CAnimationCurveEditorWindow::TCurveTransformParams& params, const TVector2& p)
+	{
+		auto&& curveBounds = params.mCurveBounds;
+		auto&& cursorPos = params.mCursorPosition;
+		const F32& width = params.mFrameWidth;
+		const F32& height = params.mFrameHeight;
+
+		TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f);
+
+		return
+		{
+			cursorPos.x + (p.x - curveBounds.x) / std::max<F32>(1e-3f, curveBounds.width) * width,
+			cursorPos.y + (1.0f - (p.y - curveBounds.y) / std::max<F32>(1e-3f, curveBounds.height)) * height
+		};
+	};
+
+
+	static TVector2 ApplyScreenToValueTransform(const CAnimationCurveEditorWindow::TCurveTransformParams& params, const TVector2& p)
+	{
+		auto&& curveBounds = params.mCurveBounds;
+		auto&& cursorPos = params.mCursorPosition;
+		const F32& width = params.mFrameWidth;
+		const F32& height = params.mFrameHeight;
+
+		TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f && width > 0.0f && height > 0.0f);
+
+		return
+		{
+			(p.x - cursorPos.x) / width * curveBounds.width + curveBounds.x,
+			(1.0f - (p.y - cursorPos.y) / height) * curveBounds.height + curveBounds.y
+		};
+	};
+*/
+
+	static bool HandleTrackOperations(IImGUIContext* pImGUIContext, IAnimationClip* pClip, TAnimationTrackId trackId, const TVector2& cursorPosition, F32 trackHeight, F32 frameWidth,
+									  F32 pixelsPerSecond)
+	{
+		bool hasNewFrameKeyWasCreated = true;
+
+		pImGUIContext->DisplayIDGroup(static_cast<I32>(trackId), [&hasNewFrameKeyWasCreated, &cursorPosition, trackId, frameWidth, trackHeight, pImGUIContext, pClip, pixelsPerSecond]
+		{
+			const TVector2 prevPosition = pImGUIContext->GetCursorScreenPos();
+			pImGUIContext->SetCursorScreenPos(cursorPosition - TVector2(0.0f, trackHeight * 0.5f));
+
+			pImGUIContext->Button("##TrackLine", TVector2(frameWidth, trackHeight), nullptr, true);
+
+			pImGUIContext->SetCursorScreenPos(prevPosition);
+
+			/// \note Create a new key at the position of mouse click
+			if (pImGUIContext->IsItemHovered() && pImGUIContext->IsMouseDoubleClicked(0))
+			{
+				/// \note Convert mouse position into track's space
+				auto newKeyHandle = pClip->GetTrack<IAnimationTrack>(trackId)->CreateKey(CMathUtils::Clamp(0.0f, frameWidth, pImGUIContext->GetMousePosition().x - cursorPosition.x) / pixelsPerSecond);
+				TDE2_ASSERT(TAnimationTrackKeyId::Invalid != newKeyHandle);
+
+				hasNewFrameKeyWasCreated = false;
+			}
+		});
+
+		return hasNewFrameKeyWasCreated;
+	}
+
+
 	void CAnimationEditorWindow::_drawDopesheetTracks(const TVector2& cursorPos, F32 frameWidth, F32 frameHeight, F32 pixelsPerSecond)
 	{
 		if (!mpCurrAnimationClip)
@@ -382,7 +446,8 @@ namespace TDEngine2
 			return;
 		}
 
-		constexpr F32 trackWidth = 17.0f;
+		constexpr F32 trackHeight = 17.0f;
+		constexpr F32 visibleTrackHeight = 4.0f;
 
 		const TVector2 tracksOrigin = cursorPos + TVector2(0.0f, 10.0f - mTimelineScrollPosition.y);
 
@@ -391,12 +456,22 @@ namespace TDEngine2
 		const TVector2 prevCursorPosition = mpImGUIContext->GetCursorScreenPos();
 		mpImGUIContext->SetCursorScreenPos(cursorPos);
 
-		mpCurrAnimationClip->ForEachTrack([this, pixelsPerSecond, trackWidth, tracksOrigin, frameWidth, &currVerticalPosition](TAnimationTrackId trackId, IAnimationTrack* pTrack)
+		mpCurrAnimationClip->ForEachTrack([this, pixelsPerSecond, trackHeight, visibleTrackHeight, tracksOrigin, frameWidth, &currVerticalPosition](TAnimationTrackId trackId, IAnimationTrack* pTrack)
 		{
 			const TVector2 currPosition = tracksOrigin + TVector2(0.0f, currVerticalPosition);
-			mpImGUIContext->DrawLine(currPosition, currPosition + TVector2(frameWidth, 0.0f), TColor32F(0.1f, 0.1f, 0.1f, 1.0f), 4.0f);
+			mpImGUIContext->DrawLine(currPosition, currPosition + TVector2(frameWidth, 0.0f), TColor32F(0.1f, 0.1f, 0.1f, 1.0f), visibleTrackHeight);
 
-			currVerticalPosition += trackWidth;
+			HandleTrackOperations(mpImGUIContext, mpCurrAnimationClip, trackId, currPosition, trackHeight, frameWidth, pixelsPerSecond);
+
+			/// \note Draw all control points here
+			auto&& samples = pTrack->GetSamples();
+
+			for (F32 currTime : samples)
+			{
+				mpImGUIContext->DrawCircle(TVector2(currTime * pixelsPerSecond, 0.0f) + currPosition, 4.0f, true, TColorUtils::mWhite);
+			}
+
+			currVerticalPosition += trackHeight;
 
 			return true;
 		});
