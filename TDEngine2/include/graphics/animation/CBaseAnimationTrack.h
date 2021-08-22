@@ -277,6 +277,15 @@ namespace TDEngine2
 				return &mKeys[iter->second];
 			}
 
+			const TKeysArray& GetKeys() const { return mKeys; }
+
+			TDE2_API std::vector<F32> GetSamples() const override
+			{
+				std::vector<F32> samples;
+				std::transform(mKeys.cbegin(), mKeys.cend(), std::back_inserter(samples), [](const TKeyFrameType& key) { return key.mTime; });
+				return samples;
+			}
+
 			TDE2_API const std::string& GetPropertyBinding() const override { return mPropertyBinding; }
 			TDE2_API const std::string& GetName() const override { return mName; }
 

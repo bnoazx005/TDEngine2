@@ -75,6 +75,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_ANIMATION_INTERPOLATION_MODE_TYPE GetInterpolationMode() const = 0;
 
+			TDE2_API virtual std::vector<F32> GetSamples() const = 0;
+
 			TDE2_API virtual TypeId GetTrackTypeId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationTrack)
