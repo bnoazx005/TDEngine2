@@ -362,7 +362,7 @@ namespace TDEngine2
 
 	void CImGUIContext::DisplayContextMenu(const std::string& id, const std::function<void(IImGUIContext&)>& onDrawCallback)
 	{
-		if (ImGui::BeginPopupContextItem(id.c_str()))
+		if (ImGui::BeginPopupContextItem(id.empty() ? nullptr : id.c_str()))
 		{
 			if (onDrawCallback)
 			{

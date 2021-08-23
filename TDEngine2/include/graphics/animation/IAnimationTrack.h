@@ -69,11 +69,17 @@ namespace TDEngine2
 			
 			TDE2_API virtual E_RESULT_CODE SetName(const std::string& name) = 0;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual E_RESULT_CODE UpdateKeyTime(TAnimationTrackKeyId keyId, F32 value) = 0;
+#endif
+
 			TDE2_API virtual const std::string& GetPropertyBinding() const = 0;
 
 			TDE2_API virtual const std::string& GetName() const = 0;
 
 			TDE2_API virtual E_ANIMATION_INTERPOLATION_MODE_TYPE GetInterpolationMode() const = 0;
+
+			TDE2_API virtual TAnimationTrackKeyId GetKeyHandleByTime(F32 value) const = 0;
 
 			TDE2_API virtual std::vector<F32> GetSamples() const = 0;
 

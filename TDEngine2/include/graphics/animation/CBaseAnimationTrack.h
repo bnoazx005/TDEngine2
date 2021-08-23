@@ -265,6 +265,44 @@ namespace TDEngine2
 				return RC_FAIL;
 			}
 
+#if TDE2_EDITORS_ENABLED
+
+			TDE2_API E_RESULT_CODE UpdateKeyTime(TAnimationTrackKeyId keyId, F32 value) override
+			{
+				if (auto pKey = GetKey(keyId))
+				{
+					pKey->mTime = value;
+
+					const U32 oldIndex = mKeysHandlesMap[keyId];
+					/// find first key which is lesser than a new one
+					const U32 newIndex = static_cast<U32>(std::distance(mKeys.cbegin(), std::find_if(mKeys.cbegin(), mKeys.cend(), [value](const TKeyFrameType& key) { return key.mTime > value; })));
+
+					/// \note If the existing one index is the same with new one skip reordering
+					if (oldIndex == newIndex)
+					{
+						return RC_OK;
+					}
+
+					/// \note Update order of the keys
+
+					const U32 first  = std::min<U32>(oldIndex, newIndex);
+					const U32 second = std::max<U32>(oldIndex, newIndex);
+
+					/// \note Swap two elements including current one
+					TKeyFrameType tmp = mKeys[first];
+					mKeys[first] = mKeys[second];
+					mKeys[second] = tmp;
+
+					/// \note Update indices in the hash table
+
+					return RC_OK;
+				}
+
+				return RC_FAIL;
+			}
+
+#endif
+
 			TKeyFrameType* GetKey(TAnimationTrackKeyId handle)
 			{
 				auto iter = mKeysHandlesMap.find(handle);
@@ -284,6 +322,28 @@ namespace TDEngine2
 				std::vector<F32> samples;
 				std::transform(mKeys.cbegin(), mKeys.cend(), std::back_inserter(samples), [](const TKeyFrameType& key) { return key.mTime; });
 				return samples;
+			}
+
+			TDE2_API TAnimationTrackKeyId GetKeyHandleByTime(F32 value) const override
+			{
+				/// \note Find the entity in mKeys array
+				auto it = std::find_if(mKeys.cbegin(), mKeys.cend(), [value](const TKeyFrameType& key) { return CMathUtils::Abs(key.mTime - value) < 1e-3f; });
+				if (it == mKeys.cend())
+				{
+					return TAnimationTrackKeyId::Invalid;
+				}
+				
+				/// \note Compute an index of the key
+				const U32 index = static_cast<U32>(std::distance(mKeys.cbegin(), it));
+
+				/// \note Search for this in the hash table
+				auto hashTableIter = std::find_if(mKeysHandlesMap.cbegin(), mKeysHandlesMap.cend(), [index](auto&& entity) { return entity.second == index; });
+				if (hashTableIter == mKeysHandlesMap.cend())
+				{
+					return TAnimationTrackKeyId::Invalid;
+				}
+
+				return hashTableIter->first;
 			}
 
 			TDE2_API const std::string& GetPropertyBinding() const override { return mPropertyBinding; }

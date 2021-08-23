@@ -433,9 +433,53 @@ namespace TDEngine2
 
 				hasNewFrameKeyWasCreated = false;
 			}
+
+			/// \note Show context popup menu
+			if (pImGUIContext->IsItemHovered() && pImGUIContext->IsMouseClicked(1))
+			{
+				pImGUIContext->DisplayContextMenu("TracksOperationsDopeSheet", [trackId](IImGUIContext& imguiContext)
+				{
+					imguiContext.MenuItem("Remove Track", "Del", [trackId]
+					{
+					});
+				});
+			}
 		});
 
 		return hasNewFrameKeyWasCreated;
+	}
+
+
+	static bool HandleKeySampleOperations(IImGUIContext* pImGUIContext, IAnimationClip* pClip, TAnimationTrackId trackId, TAnimationTrackKeyId keyId, 
+										  const TVector2& cursorPosition, F32 keyButtonSize, F32 frameWidth, F32 pixelsPerSecond)
+	{
+		bool hasSampleKeyBeenRemoved = false;
+
+		pImGUIContext->DisplayIDGroup(static_cast<I32>(keyId) | (static_cast<I32>(trackId) << 16), [=, &hasSampleKeyBeenRemoved, &cursorPosition]
+		{
+			const TVector2 prevPosition = pImGUIContext->GetCursorScreenPos();
+			pImGUIContext->SetCursorScreenPos(cursorPosition - TVector2(keyButtonSize * 0.5f));
+
+			pImGUIContext->Button("##KeyButton", TVector2(keyButtonSize), nullptr, true);
+
+			pImGUIContext->SetCursorScreenPos(prevPosition);
+
+			pImGUIContext->DisplayContextMenu("", [pClip, trackId, keyId, &hasSampleKeyBeenRemoved](IImGUIContext& imguiContext)
+			{
+				imguiContext.MenuItem("Remove Key", "Del", [pClip, trackId, keyId, &hasSampleKeyBeenRemoved]
+				{
+					if (IAnimationTrack* pTrack = pClip->GetTrack<IAnimationTrack>(trackId))
+					{
+						E_RESULT_CODE result = pTrack->RemoveKey(keyId);
+						TDE2_ASSERT(RC_OK == result);
+					}
+
+					hasSampleKeyBeenRemoved = true;
+				});
+			});
+		});
+
+		return !hasSampleKeyBeenRemoved;
 	}
 
 
@@ -468,7 +512,10 @@ namespace TDEngine2
 
 			for (F32 currTime : samples)
 			{
-				mpImGUIContext->DrawCircle(TVector2(currTime * pixelsPerSecond, 0.0f) + currPosition, 4.0f, true, TColorUtils::mWhite);
+				const TVector2 keyPosition = TVector2(currTime * pixelsPerSecond, 0.0f) + currPosition;
+
+				mpImGUIContext->DrawCircle(keyPosition, 4.0f, true, TColorUtils::mWhite);
+				HandleKeySampleOperations(mpImGUIContext, mpCurrAnimationClip, trackId, pTrack->GetKeyHandleByTime(currTime), keyPosition, 8.0f, frameWidth, pixelsPerSecond);
 			}
 
 			currVerticalPosition += trackHeight;
