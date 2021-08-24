@@ -70,7 +70,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetName(const std::string& name) = 0;
 
 #if TDE2_EDITORS_ENABLED
-			TDE2_API virtual E_RESULT_CODE UpdateKeyTime(TAnimationTrackKeyId keyId, F32 value) = 0;
+			TDE2_API virtual E_RESULT_CODE UpdateKeyTime(TAnimationTrackKeyId keyId, F32 value, bool reorderKeys = false) = 0;
 #endif
 
 			TDE2_API virtual const std::string& GetPropertyBinding() const = 0;

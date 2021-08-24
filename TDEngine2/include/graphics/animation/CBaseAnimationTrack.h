@@ -267,7 +267,7 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 
-			TDE2_API E_RESULT_CODE UpdateKeyTime(TAnimationTrackKeyId keyId, F32 value) override
+			TDE2_API E_RESULT_CODE UpdateKeyTime(TAnimationTrackKeyId keyId, F32 value, bool reorderKeys = false) override
 			{
 				if (auto pKey = GetKey(keyId))
 				{
@@ -275,16 +275,17 @@ namespace TDEngine2
 
 					const U32 oldIndex = mKeysHandlesMap[keyId];
 					/// find first key which is lesser than a new one
-					const U32 newIndex = static_cast<U32>(std::distance(mKeys.cbegin(), std::find_if(mKeys.cbegin(), mKeys.cend(), [value](const TKeyFrameType& key) { return key.mTime > value; })));
+					U32 newIndex = static_cast<U32>(std::distance(mKeys.cbegin(), std::find_if(mKeys.cbegin(), mKeys.cend(), [value](const TKeyFrameType& key) { return key.mTime > value; })));
 
-					/// \note If the existing one index is the same with new one skip reordering
-					if (oldIndex == newIndex)
+					/// \note If the existing one index is the same with new one skip reordering ( subtract 1 because of a new value of the key always will be greater than its previous one )
+					if ((oldIndex == newIndex - 1) || (mKeys.size() < 2))
 					{
 						return RC_OK;
 					}
 
-					/// \note Update order of the keys
+					newIndex = (newIndex - 1) >= mKeys.size() ? 0 : newIndex - 1;
 
+					/// \note Update order of the keys
 					const U32 first  = std::min<U32>(oldIndex, newIndex);
 					const U32 second = std::max<U32>(oldIndex, newIndex);
 
@@ -293,7 +294,12 @@ namespace TDEngine2
 					mKeys[first] = mKeys[second];
 					mKeys[second] = tmp;
 
-					/// \note Update indices in the hash table
+					/// \todo Update indices in the hash table
+					auto it0 = std::find_if(mKeysHandlesMap.begin(), mKeysHandlesMap.end(), [first](auto&& entity) { return entity.second == first; });
+					auto it1 = std::find_if(mKeysHandlesMap.begin(), mKeysHandlesMap.end(), [second](auto&& entity) { return entity.second == second; });
+
+					it0->second = second;
+					it1->second = first;					
 
 					return RC_OK;
 				}

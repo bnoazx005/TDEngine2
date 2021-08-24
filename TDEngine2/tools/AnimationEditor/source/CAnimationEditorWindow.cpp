@@ -410,17 +410,40 @@ namespace TDEngine2
 	};
 */
 
-	static bool HandleTrackOperations(IImGUIContext* pImGUIContext, IAnimationClip* pClip, TAnimationTrackId trackId, const TVector2& cursorPosition, F32 trackHeight, F32 frameWidth,
-									  F32 pixelsPerSecond)
+
+	struct HandleTrackOperationsParams
+	{
+		IImGUIContext* mpImGUIContext;
+		IAnimationClip* mpClip;
+		TAnimationTrackId mTrackId;
+		TVector2 mCursorPosition;
+		F32 mTrackHeight;
+		F32 mFrameWidth;
+		F32 mPixelsPerSecond;
+
+		std::function<void(TAnimationTrackId, std::string)> mOnRemoveTrackCallback = nullptr;
+	};
+
+
+	static bool HandleTrackOperations(const HandleTrackOperationsParams& params)
 	{
 		bool hasNewFrameKeyWasCreated = true;
 
-		pImGUIContext->DisplayIDGroup(static_cast<I32>(trackId), [&hasNewFrameKeyWasCreated, &cursorPosition, trackId, frameWidth, trackHeight, pImGUIContext, pClip, pixelsPerSecond]
+		auto&& trackId = params.mTrackId;
+
+		auto pImGUIContext = params.mpImGUIContext;
+		auto pClip         = params.mpClip;
+
+		const F32 frameWidth      = params.mFrameWidth;
+		const F32 trackHeight     = params.mTrackHeight;
+		const F32 pixelsPerSecond = params.mPixelsPerSecond;
+
+		pImGUIContext->DisplayIDGroup(static_cast<I32>(trackId) | (1 << 24), [=, &hasNewFrameKeyWasCreated, &cursorPosition = params.mCursorPosition]
 		{
 			const TVector2 prevPosition = pImGUIContext->GetCursorScreenPos();
 			pImGUIContext->SetCursorScreenPos(cursorPosition - TVector2(0.0f, trackHeight * 0.5f));
 
-			pImGUIContext->Button("##TrackLine", TVector2(frameWidth, trackHeight), nullptr, true);
+			pImGUIContext->Button("##TrackLine", TVector2(frameWidth, trackHeight), nullptr, true, true);
 
 			pImGUIContext->SetCursorScreenPos(prevPosition);
 
@@ -435,15 +458,16 @@ namespace TDEngine2
 			}
 
 			/// \note Show context popup menu
-			if (pImGUIContext->IsItemHovered() && pImGUIContext->IsMouseClicked(1))
+			pImGUIContext->DisplayContextMenu("TracksOperationsDopeSheet", [callback = params.mOnRemoveTrackCallback, trackId](IImGUIContext& imguiContext)
 			{
-				pImGUIContext->DisplayContextMenu("TracksOperationsDopeSheet", [trackId](IImGUIContext& imguiContext)
+				imguiContext.MenuItem("Remove Track", "Del", [trackId, callback]
 				{
-					imguiContext.MenuItem("Remove Track", "Del", [trackId]
+					if (callback)
 					{
-					});
+						callback(trackId, Wrench::StringUtils::GetEmptyStr());
+					}
 				});
-			}
+			});
 		});
 
 		return hasNewFrameKeyWasCreated;
@@ -451,7 +475,7 @@ namespace TDEngine2
 
 
 	static bool HandleKeySampleOperations(IImGUIContext* pImGUIContext, IAnimationClip* pClip, TAnimationTrackId trackId, TAnimationTrackKeyId keyId, 
-										  const TVector2& cursorPosition, F32 keyButtonSize, F32 frameWidth, F32 pixelsPerSecond)
+										  const TVector2& trackOrigin, const TVector2& cursorPosition, F32 keyButtonSize, F32 frameWidth, F32 pixelsPerSecond)
 	{
 		bool hasSampleKeyBeenRemoved = false;
 
@@ -462,9 +486,31 @@ namespace TDEngine2
 
 			pImGUIContext->Button("##KeyButton", TVector2(keyButtonSize), nullptr, true);
 
+			if (pImGUIContext->IsItemActive())
+			{
+				auto&& mousePos = pImGUIContext->GetMousePosition();
+
+				if (pImGUIContext->IsMouseDragging(0))
+				{
+					if (IAnimationTrack* pTrack = pClip->GetTrack<IAnimationTrack>(trackId))
+					{
+						pTrack->UpdateKeyTime(keyId, static_cast<F32>(CMathUtils::Clamp01((mousePos.x - trackOrigin.x) / pixelsPerSecond) * pClip->GetDuration()));
+					}
+				}
+			}
+#if 0
+			if (pImGUIContext->IsMouseReleased(0))
+			{
+				if (IAnimationTrack* pTrack = pClip->GetTrack<IAnimationTrack>(trackId))
+				{
+					pTrack->UpdateKeyTime(keyId, static_cast<F32>(CMathUtils::Clamp01((mousePos.x - trackOrigin.x) / pixelsPerSecond) * pClip->GetDuration()));
+				}
+			}
+#endif
+
 			pImGUIContext->SetCursorScreenPos(prevPosition);
 
-			pImGUIContext->DisplayContextMenu("", [pClip, trackId, keyId, &hasSampleKeyBeenRemoved](IImGUIContext& imguiContext)
+			pImGUIContext->DisplayContextMenu(Wrench::StringUtils::GetEmptyStr(), [pClip, trackId, keyId, &hasSampleKeyBeenRemoved](IImGUIContext& imguiContext)
 			{
 				imguiContext.MenuItem("Remove Key", "Del", [pClip, trackId, keyId, &hasSampleKeyBeenRemoved]
 				{
@@ -503,9 +549,9 @@ namespace TDEngine2
 		mpCurrAnimationClip->ForEachTrack([this, pixelsPerSecond, trackHeight, visibleTrackHeight, tracksOrigin, frameWidth, &currVerticalPosition](TAnimationTrackId trackId, IAnimationTrack* pTrack)
 		{
 			const TVector2 currPosition = tracksOrigin + TVector2(0.0f, currVerticalPosition);
+			
 			mpImGUIContext->DrawLine(currPosition, currPosition + TVector2(frameWidth, 0.0f), TColor32F(0.1f, 0.1f, 0.1f, 1.0f), visibleTrackHeight);
-
-			HandleTrackOperations(mpImGUIContext, mpCurrAnimationClip, trackId, currPosition, trackHeight, frameWidth, pixelsPerSecond);
+			HandleTrackOperations({ mpImGUIContext, mpCurrAnimationClip, trackId, currPosition, trackHeight, frameWidth, pixelsPerSecond });
 
 			/// \note Draw all control points here
 			auto&& samples = pTrack->GetSamples();
@@ -515,7 +561,7 @@ namespace TDEngine2
 				const TVector2 keyPosition = TVector2(currTime * pixelsPerSecond, 0.0f) + currPosition;
 
 				mpImGUIContext->DrawCircle(keyPosition, 4.0f, true, TColorUtils::mWhite);
-				HandleKeySampleOperations(mpImGUIContext, mpCurrAnimationClip, trackId, pTrack->GetKeyHandleByTime(currTime), keyPosition, 8.0f, frameWidth, pixelsPerSecond);
+				HandleKeySampleOperations(mpImGUIContext, mpCurrAnimationClip, trackId, pTrack->GetKeyHandleByTime(currTime), currPosition, keyPosition, 16.0f, frameWidth, pixelsPerSecond);
 			}
 
 			currVerticalPosition += trackHeight;
