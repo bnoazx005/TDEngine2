@@ -183,7 +183,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked, bool makeInvisible)
+	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked, bool makeInvisible, bool allowOverlapping)
 	{
 		if ((makeInvisible ? ImGui::InvisibleButton : ImGui::Button)(text.c_str(), ImVec2(sizes.x, sizes.y)))
 		{
@@ -192,11 +192,13 @@ namespace TDEngine2
 				onClicked();
 			}
 
+			ImGui::SetItemAllowOverlap();
 			_prepareLayout();
 
 			return true;
 		}
 
+		ImGui::SetItemAllowOverlap();
 		_prepareLayout();
 
 		return false;
