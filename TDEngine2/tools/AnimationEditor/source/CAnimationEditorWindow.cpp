@@ -699,14 +699,17 @@ namespace TDEngine2
 
 			if (mpImGUIContext->Button("Accept", buttonsSizes))
 			{
-				/// \note Create a new track based on property's type id and property binding's value
-				E_RESULT_CODE result = CreateTrack(mpCurrAnimationClip, mNewTrackTypeId, mCurrSelectedPropertyBinding);
-				TDE2_ASSERT(RC_OK == result);
+				if (TypeId::Invalid != mNewTrackTypeId && !mCurrSelectedPropertyBinding.empty())
+				{
+					/// \note Create a new track based on property's type id and property binding's value
+					E_RESULT_CODE result = CreateTrack(mpCurrAnimationClip, mNewTrackTypeId, mCurrSelectedPropertyBinding);
+					TDE2_ASSERT(RC_OK == result);
 
-				mUsedPropertyBindings.insert(mCurrSelectedPropertyBinding);
+					mUsedPropertyBindings.insert(mCurrSelectedPropertyBinding);
 
-				mCurrSelectedPropertyBinding = Wrench::StringUtils::GetEmptyStr();
-				mpImGUIContext->CloseCurrentModalWindow();
+					mCurrSelectedPropertyBinding = Wrench::StringUtils::GetEmptyStr();
+					mpImGUIContext->CloseCurrentModalWindow();
+				}
 			}
 
 			if (mpImGUIContext->Button("Cancel", buttonsSizes))
