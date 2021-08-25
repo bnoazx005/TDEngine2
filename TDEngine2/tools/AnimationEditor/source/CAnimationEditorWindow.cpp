@@ -494,7 +494,7 @@ namespace TDEngine2
 				{
 					if (IAnimationTrack* pTrack = pClip->GetTrack<IAnimationTrack>(trackId))
 					{
-						pTrack->UpdateKeyTime(keyId, static_cast<F32>(CMathUtils::Clamp01((mousePos.x - trackOrigin.x) / pixelsPerSecond) * pClip->GetDuration()));
+						pTrack->UpdateKeyTime(keyId, CMathUtils::Clamp(0.0f, pClip->GetDuration(), (mousePos.x - trackOrigin.x) / pixelsPerSecond));
 					}
 				}
 			}
