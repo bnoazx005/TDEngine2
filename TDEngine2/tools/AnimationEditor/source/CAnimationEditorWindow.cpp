@@ -336,22 +336,12 @@ namespace TDEngine2
 				});
 			});
 
-			if (mIsDopeSheetModeEnabled)
-			{
-				_drawDopesheetWidget(playbackTime);
-			}
-			else
-			{
-				const F32 timelineWidth = mpImGUIContext->GetWindowWidth();
-				const F32 timelineHeight = mpImGUIContext->GetWindowHeight() * 0.95f;
-
-				CAnimationCurveEditorWindow::DrawCurveEditor(mpImGUIContext, timelineWidth, timelineHeight, nullptr);
-			}
+			_drawTimelineSheetWidget(playbackTime);
 		}
 		mpImGUIContext->EndChildWindow();
 	}
 
-	void CAnimationEditorWindow::_drawDopesheetWidget(F32 currPlaybackTime)
+	void CAnimationEditorWindow::_drawTimelineSheetWidget(F32 currPlaybackTime)
 	{
 		TVector2 cursorPos = mpImGUIContext->GetCursorScreenPos();
 
@@ -369,46 +359,18 @@ namespace TDEngine2
 		}
 
 		/// \note Draw tracks
-		_drawDopesheetTracks(cursorPos, timelineWidth, timelineHeight, pixelsPerSecond);
+		if (mIsDopeSheetModeEnabled)
+		{
+			_drawDopesheetTracks(cursorPos, timelineWidth, timelineHeight, pixelsPerSecond);
+		}
+		else
+		{
+			CAnimationCurveEditorWindow::DrawCurveEditor(mpImGUIContext, timelineWidth, timelineHeight, nullptr);
+		}
 
 		/// \note Draw a cursor
 		mpImGUIContext->DrawLine(cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, 0.0f), cursorPos + TVector2(currPlaybackTime * pixelsPerSecond, timelineHeight), TColorUtils::mWhite);
 	}
-
-
-	/*static TVector2 ApplyValueToScreenTransform(const CAnimationCurveEditorWindow::TCurveTransformParams& params, const TVector2& p)
-	{
-		auto&& curveBounds = params.mCurveBounds;
-		auto&& cursorPos = params.mCursorPosition;
-		const F32& width = params.mFrameWidth;
-		const F32& height = params.mFrameHeight;
-
-		TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f);
-
-		return
-		{
-			cursorPos.x + (p.x - curveBounds.x) / std::max<F32>(1e-3f, curveBounds.width) * width,
-			cursorPos.y + (1.0f - (p.y - curveBounds.y) / std::max<F32>(1e-3f, curveBounds.height)) * height
-		};
-	};
-
-
-	static TVector2 ApplyScreenToValueTransform(const CAnimationCurveEditorWindow::TCurveTransformParams& params, const TVector2& p)
-	{
-		auto&& curveBounds = params.mCurveBounds;
-		auto&& cursorPos = params.mCursorPosition;
-		const F32& width = params.mFrameWidth;
-		const F32& height = params.mFrameHeight;
-
-		TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f && width > 0.0f && height > 0.0f);
-
-		return
-		{
-			(p.x - cursorPos.x) / width * curveBounds.width + curveBounds.x,
-			(1.0f - (p.y - cursorPos.y) / height) * curveBounds.height + curveBounds.y
-		};
-	};
-*/
 
 
 	struct HandleTrackOperationsParams

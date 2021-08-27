@@ -73,7 +73,7 @@ namespace TDEngine2
 			TDE2_API void _drawTimelineEditorGroup();
 			TDE2_API void _drawTracksHierarchy(F32 blockWidth);
 			TDE2_API void _drawTimelineEditor(F32 blockWidth);
-			TDE2_API void _drawDopesheetWidget(F32 currPlaybackTime);
+			TDE2_API void _drawTimelineSheetWidget(F32 currPlaybackTime);
 			TDE2_API void _drawDopesheetTracks(const TVector2& cursorPos, F32 frameWidth, F32 frameHeight, F32 pixelsPerSecond);
 
 			TDE2_API void _drawPropertyBindingsWindow();
