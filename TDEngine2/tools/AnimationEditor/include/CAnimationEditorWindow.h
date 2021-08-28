@@ -9,6 +9,7 @@
 
 #include <TDEngine2.h>
 #include <unordered_set>
+#include "CTrackSheetEditor.h"
 
 
 namespace TDEngine2
@@ -99,5 +100,7 @@ namespace TDEngine2
 			TAnimationTrackId mSelectedTrackId = TAnimationTrackId::Invalid;
 
 			bool              mIsDopeSheetModeEnabled = true;
+
+			CScopedPtr<CTrackSheetEditor> mpTrackSheetEditor;
 	};
 }

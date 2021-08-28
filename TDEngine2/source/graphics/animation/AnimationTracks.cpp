@@ -23,6 +23,11 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<TVector2>(_sample(time).mValue);
 	}
 
+	E_RESULT_CODE CVector2AnimationTrack::AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor)
+	{
+		return pTrackEditor ? pTrackEditor->VisitVector2Track(this) : RC_FAIL;
+	}
+
 	E_RESULT_CODE CVector2AnimationTrack::_saveKeyFrameValue(const TVector2KeyFrame& value, IArchiveWriter* pWriter)
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup("value");
@@ -82,6 +87,11 @@ namespace TDEngine2
 		}
 
 		return pPropertyWrapper->Set<TVector3>(_sample(time).mValue);
+	}
+
+	E_RESULT_CODE CVector3AnimationTrack::AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor)
+	{
+		return pTrackEditor ? pTrackEditor->VisitVector3Track(this) : RC_FAIL;
 	}
 
 	E_RESULT_CODE CVector3AnimationTrack::_saveKeyFrameValue(const TVector3KeyFrame& value, IArchiveWriter* pWriter)
@@ -146,6 +156,11 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<TQuaternion>(_sample(time).mValue);
 	}
 
+	E_RESULT_CODE CQuaternionAnimationTrack::AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor)
+	{
+		return pTrackEditor ? pTrackEditor->VisitQuaternionTrack(this) : RC_FAIL;
+	}
+
 	E_RESULT_CODE CQuaternionAnimationTrack::_saveKeyFrameValue(const TQuaternionKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup("value");
@@ -205,6 +220,11 @@ namespace TDEngine2
 		}
 
 		return pPropertyWrapper->Set<TColor32F>(_sample(time).mValue);
+	}
+
+	E_RESULT_CODE CColorAnimationTrack::AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor)
+	{
+		return pTrackEditor ? pTrackEditor->VisitColorTrack(this) : RC_FAIL;
 	}
 
 	E_RESULT_CODE CColorAnimationTrack::_saveKeyFrameValue(const TColorKeyFrame& value, IArchiveWriter* pWriter)
@@ -268,6 +288,11 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<bool>(_sample(time).mValue);
 	}
 
+	E_RESULT_CODE CBooleanAnimationTrack::AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor)
+	{
+		return pTrackEditor ? pTrackEditor->VisitBooleanTrack(this) : RC_FAIL;
+	}
+
 	E_RESULT_CODE CBooleanAnimationTrack::_saveKeyFrameValue(const TBooleanKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetBool("value", value.mValue);
@@ -312,6 +337,11 @@ namespace TDEngine2
 		return pPropertyWrapper->Set<F32>(_sample(time).mValue);
 	}
 
+	E_RESULT_CODE CFloatAnimationTrack::AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor)
+	{
+		return pTrackEditor ? pTrackEditor->VisitFloatTrack(this) : RC_FAIL;
+	}
+
 	E_RESULT_CODE CFloatAnimationTrack::_saveKeyFrameValue(const TFloatKeyFrame& value, IArchiveWriter* pWriter)
 	{
 		return pWriter->SetFloat("value", value.mValue);
@@ -354,6 +384,11 @@ namespace TDEngine2
 		}
 
 		return pPropertyWrapper->Set<I32>(_sample(time).mValue);
+	}
+
+	E_RESULT_CODE CIntegerAnimationTrack::AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor)
+	{
+		return pTrackEditor ? pTrackEditor->VisitIntegerTrack(this) : RC_FAIL;
 	}
 
 	E_RESULT_CODE CIntegerAnimationTrack::_saveKeyFrameValue(const TIntegerKeyFrame& value, IArchiveWriter* pWriter)
@@ -409,6 +444,11 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CEventAnimationTrack::AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor)
+	{
+		return pTrackEditor ? pTrackEditor->VisitEventTrack(this) : RC_FAIL;
 	}
 
 	E_RESULT_CODE CEventAnimationTrack::_saveKeyFrameValue(const TEventKeyFrame& value, IArchiveWriter* pWriter)

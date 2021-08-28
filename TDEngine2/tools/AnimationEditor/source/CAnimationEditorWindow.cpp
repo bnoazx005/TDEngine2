@@ -28,6 +28,15 @@ namespace TDEngine2
 
 		mCurrAnimatedEntity = TEntityId::Invalid;
 
+		E_RESULT_CODE result = RC_OK;
+
+		mpTrackSheetEditor = CreateTrackSheetEditor(result);
+
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 		mIsVisible = true;
 
@@ -365,6 +374,7 @@ namespace TDEngine2
 		}
 		else
 		{
+			/// \todo There should be implemented some curve editor that allows to work with BaseAnimationTrack type
 			CAnimationCurveEditorWindow::DrawCurveEditor(mpImGUIContext, timelineWidth, timelineHeight, nullptr);
 		}
 

@@ -48,6 +48,10 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) = 0;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual E_RESULT_CODE AssignTrackForEditing(class IAnimationTrackVisitor* pTrackEditor) = 0;
+#endif
+
 			/*!
 				\brief The method specifies interpolation mode for tracks
 
@@ -87,4 +91,24 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationTrack)
 	};
+
+
+#if TDE2_EDITORS_ENABLED
+
+	class IAnimationTrackVisitor : public virtual IBaseObject
+	{
+		public:
+			TDE2_API virtual E_RESULT_CODE VisitVector2Track(class CVector2AnimationTrack* pTrack) = 0;
+			TDE2_API virtual E_RESULT_CODE VisitVector3Track(class CVector3AnimationTrack* pTrack) = 0;
+			TDE2_API virtual E_RESULT_CODE VisitQuaternionTrack(class CQuaternionAnimationTrack* pTrack) = 0;
+			TDE2_API virtual E_RESULT_CODE VisitColorTrack(class CColorAnimationTrack* pTrack) = 0;
+			TDE2_API virtual E_RESULT_CODE VisitFloatTrack(class CFloatAnimationTrack* pTrack) = 0;
+			TDE2_API virtual E_RESULT_CODE VisitIntegerTrack(class CIntegerAnimationTrack* pTrack) = 0;
+			TDE2_API virtual E_RESULT_CODE VisitBooleanTrack(class CBooleanAnimationTrack* pTrack) = 0;
+			TDE2_API virtual E_RESULT_CODE VisitEventTrack(class CEventAnimationTrack* pTrack) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationTrackVisitor)
+	};
+
+#endif
 }

@@ -45,6 +45,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor) override;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVector2AnimationTrack)
 
@@ -85,6 +89,11 @@ namespace TDEngine2
 			TDE2_REGISTER_VIRTUAL_TYPE_EX(CVector3AnimationTrack, GetTrackTypeId);
 
 			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor) override;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVector3AnimationTrack)
 
@@ -130,6 +139,11 @@ namespace TDEngine2
 			TDE2_REGISTER_VIRTUAL_TYPE_EX(CQuaternionAnimationTrack, GetTrackTypeId);
 
 			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor) override;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CQuaternionAnimationTrack)
 
@@ -175,6 +189,11 @@ namespace TDEngine2
 			TDE2_REGISTER_VIRTUAL_TYPE_EX(CColorAnimationTrack, GetTrackTypeId);
 
 			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor) override;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CColorAnimationTrack)
 
@@ -220,6 +239,11 @@ namespace TDEngine2
 			TDE2_REGISTER_VIRTUAL_TYPE_EX(CBooleanAnimationTrack, GetTrackTypeId);
 
 			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor) override;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBooleanAnimationTrack)
 
@@ -264,6 +288,11 @@ namespace TDEngine2
 			TDE2_REGISTER_VIRTUAL_TYPE_EX(CFloatAnimationTrack, GetTrackTypeId);
 
 			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor) override;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFloatAnimationTrack)
 
@@ -308,6 +337,11 @@ namespace TDEngine2
 			TDE2_REGISTER_VIRTUAL_TYPE_EX(CIntegerAnimationTrack, GetTrackTypeId);
 
 			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor) override;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CIntegerAnimationTrack)
 
@@ -352,6 +386,11 @@ namespace TDEngine2
 			TDE2_REGISTER_VIRTUAL_TYPE_EX(CEventAnimationTrack, GetTrackTypeId);
 
 			TDE2_API E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE AssignTrackForEditing(IAnimationTrackVisitor* pTrackEditor) override;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEventAnimationTrack)
 
