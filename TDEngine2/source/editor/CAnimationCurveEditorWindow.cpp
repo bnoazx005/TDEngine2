@@ -251,12 +251,15 @@ namespace TDEngine2
 	static const TRectF32 DefaultFrameBounds{ 0.0f, 0.0f, 1.0f, 1.0f };
 
 
-	E_RESULT_CODE CAnimationCurveEditorWindow::DrawCurveEditor(IImGUIContext* pImGUIContext, F32 width, F32 height, CAnimationCurve* pCurve)
+	E_RESULT_CODE CAnimationCurveEditorWindow::DrawCurveEditor(IImGUIContext* pImGUIContext, const TAnimationCurveEditorParams& params, CAnimationCurve* pCurve)
 	{
 		if (!pImGUIContext || !pCurve)
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		const F32 width = params.mFrameWidth;
+		const F32 height = params.mFrameHeight;
 
 		pImGUIContext->DrawPlotGrid("Plot", { width, height, 5, 5, pCurve ? pCurve->GetBounds() : DefaultFrameBounds }, [=](auto&& pos)
 		{
@@ -281,7 +284,7 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Curve Editor", isEnabled, params))
 		{
-			DrawCurveEditor(mpImGUIContext, mpImGUIContext->GetWindowWidth() - 15.0f, mpImGUIContext->GetWindowHeight() - 100.0f, mpCurrTargetCurve);
+			DrawCurveEditor(mpImGUIContext, { mpImGUIContext->GetWindowWidth() - 15.0f, mpImGUIContext->GetWindowHeight() - 100.0f }, mpCurrTargetCurve);
 
 			mpImGUIContext->Button("Cancel", { 100.0f, 25.0f }, [this] 
 			{ 

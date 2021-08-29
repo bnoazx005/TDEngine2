@@ -164,13 +164,28 @@ namespace TDEngine2
 						}
 
 						mpCurrAnimationClip->SetDuration(duration);
+
+						if (CMathUtils::Abs(duration - mLastClipDuration) > FloatEpsilon)
+						{
+							if (auto pTrack = mpCurrAnimationClip->GetTrack<IAnimationTrack>(mSelectedTrackId))
+							{
+								mpTrackSheetEditor->SetImGUIContext(mpImGUIContext);
+								pTrack->AssignTrackForEditing(mpTrackSheetEditor.Get());
+							}
+
+							mLastClipDuration = duration;
+						}
 					});
 				});
 			}
 
 			{
+				const bool prevDopeSheetModeState = mIsDopeSheetModeEnabled;
+
 				mpImGUIContext->Label("Dope Sheet");
 				mpImGUIContext->Checkbox("##DopeSheetMode", mIsDopeSheetModeEnabled);
+
+				mHasEditModeBeenChanged = (prevDopeSheetModeState != mIsDopeSheetModeEnabled);
 			}
 
 			mpImGUIContext->EndHorizontal();
@@ -259,6 +274,11 @@ namespace TDEngine2
 				if (mUsedPropertyBindings.find(propertyBinding) == mUsedPropertyBindings.cend())
 				{
 					mUsedPropertyBindings.insert(propertyBinding);
+				}
+
+				if (TAnimationTrackId::Invalid == mSelectedTrackId)
+				{
+					mSelectedTrackId = trackId;
 				}
 
 				/// \todo For events track there should be a unique identifier
@@ -370,12 +390,25 @@ namespace TDEngine2
 		/// \note Draw tracks
 		if (mIsDopeSheetModeEnabled)
 		{
+			if (mpTrackSheetEditor && mpTrackSheetEditor->IsEditing())
+			{
+				mpTrackSheetEditor->Reset(); /// \note Save data back into the tracks
+			}
+
 			_drawDopesheetTracks(cursorPos, timelineWidth, timelineHeight, pixelsPerSecond);
 		}
 		else
 		{
-			/// \todo There should be implemented some curve editor that allows to work with BaseAnimationTrack type
-			CAnimationCurveEditorWindow::DrawCurveEditor(mpImGUIContext, timelineWidth, timelineHeight, nullptr);
+			if (mHasEditModeBeenChanged)
+			{
+				if (auto pTrack = mpCurrAnimationClip->GetTrack<IAnimationTrack>(mSelectedTrackId))
+				{
+					mpTrackSheetEditor->SetImGUIContext(mpImGUIContext);
+					pTrack->AssignTrackForEditing(mpTrackSheetEditor.Get());
+				}
+			}			
+
+			mpTrackSheetEditor->Draw(TVector2(timelineWidth, timelineHeight));
 		}
 
 		/// \note Draw a cursor

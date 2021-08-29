@@ -80,27 +80,30 @@ namespace TDEngine2
 			TDE2_API void _drawPropertyBindingsWindow();
 
 		protected:
-			static const std::string mAddPropertyWindowId;
+			static const std::string        mAddPropertyWindowId;
 
-			TResourceId       mCurrAnimationResourceHandle;
-			IAnimationClip*   mpCurrAnimationClip;
+			TResourceId                     mCurrAnimationResourceHandle;
+			IAnimationClip*                 mpCurrAnimationClip;
 
-			TEntityId         mCurrAnimatedEntity;
+			TEntityId                       mCurrAnimatedEntity;
 
-			IResourceManager* mpResourceManager;
-			IWorld*           mpWorld;
+			IResourceManager*               mpResourceManager;
+			IWorld*                         mpWorld;
 
-			std::string       mCurrSelectedPropertyBinding;
-			TypeId            mNewTrackTypeId;
+			std::string                     mCurrSelectedPropertyBinding;
+			TypeId                          mNewTrackTypeId;
 
 			std::unordered_set<std::string> mUsedPropertyBindings; /// \note Contains string bindings that are already used by tracks 
 
-			TVector2          mTimelineScrollPosition;
+			TVector2                        mTimelineScrollPosition;
 
-			TAnimationTrackId mSelectedTrackId = TAnimationTrackId::Invalid;
+			TAnimationTrackId               mSelectedTrackId = TAnimationTrackId::Invalid;
 
-			bool              mIsDopeSheetModeEnabled = true;
+			bool                            mIsDopeSheetModeEnabled = true;
+			bool                            mHasEditModeBeenChanged = true;
 
-			CScopedPtr<CTrackSheetEditor> mpTrackSheetEditor;
+			CScopedPtr<CTrackSheetEditor>   mpTrackSheetEditor;
+
+			F32                             mLastClipDuration = -1.0f;
 	};
 }

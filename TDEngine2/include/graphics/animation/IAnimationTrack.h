@@ -52,6 +52,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE AssignTrackForEditing(class IAnimationTrackVisitor* pTrackEditor) = 0;
 #endif
 
+			TDE2_API virtual void RemoveAllKeys() = 0;
+
 			/*!
 				\brief The method specifies interpolation mode for tracks
 
@@ -88,6 +90,8 @@ namespace TDEngine2
 			TDE2_API virtual std::vector<F32> GetSamples() const = 0;
 
 			TDE2_API virtual TypeId GetTrackTypeId() const = 0;
+
+			TDE2_API virtual IAnimationClip* GetOwner() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationTrack)
 	};

@@ -18,6 +18,13 @@ namespace TDEngine2
 	struct TVector2;
 
 
+	typedef struct TAnimationCurveEditorParams
+	{
+		F32 mFrameWidth;
+		F32 mFrameHeight;
+	} TAnimationCurveEditorParams, *TAnimationCurveEditorParamsPtr;
+
+
 	/*!
 		\brief A factory function for creation objects of CAnimationCurveEditorWindow's type
 
@@ -70,7 +77,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetCurveForEditing(CAnimationCurve* pCurve);
 
-			TDE2_API static E_RESULT_CODE DrawCurveEditor(IImGUIContext* pImGUIContext, F32 width, F32 height, CAnimationCurve* pCurve);
+			TDE2_API static E_RESULT_CODE DrawCurveEditor(IImGUIContext* pImGUIContext, const TAnimationCurveEditorParams& params, CAnimationCurve* pCurve);
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationCurveEditorWindow)

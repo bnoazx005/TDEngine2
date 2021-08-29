@@ -8,10 +8,15 @@
 
 
 #include <TDEngine2.h>
+#include <unordered_map>
+#include <functional>
 
 
 namespace TDEngine2
 {
+	class CAnimationCurve;
+
+
 	/*!
 		\brief A factory function for creation objects of CTrackSheetEditor's type
 
@@ -29,18 +34,29 @@ namespace TDEngine2
 		\brief The class is an implementation of a widget for editing animation tracks
 	*/
 
-	class CTrackSheetEditor : public CBaseObject
+	class CTrackSheetEditor : public CBaseObject, public IAnimationTrackVisitor
 	{
 	public:
 		friend TDE2_API CTrackSheetEditor* CreateTrackSheetEditor(E_RESULT_CODE&);
 
 	public:
+		typedef std::function<void(const CScopedPtr<CAnimationCurve>&)> TCurveBindingCallback;
+		typedef std::function<void(const TVector2&)> TCurveDrawCallback;
+
+		struct TTrack2CurveBindingInfo
+		{
+			CScopedPtr<CAnimationCurve> mpCurve;
+
+			TCurveBindingCallback mOnInitCurvePointsCallback = nullptr;
+			TCurveBindingCallback mOnSerializeCurvePointsCallback = nullptr;
+		};
+
+		typedef std::unordered_map<std::string, TTrack2CurveBindingInfo> TCurveBindingsTable;
+
+	public:
 		/*!
 			\brief The method initializes internal state of the editor
-
-			\param[in, out] pResourceManager A pointer to implementation of IResourceManager
-			\param[in, out] pWorld A pointer to implementation of IWorld
-
+	
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
@@ -53,9 +69,36 @@ namespace TDEngine2
 		*/
 
 		TDE2_API E_RESULT_CODE Free() override;
-	protected:
+
+		TDE2_API E_RESULT_CODE Draw(const TVector2& frameSizes);
+
+		TDE2_API E_RESULT_CODE Reset();
+
+		TDE2_API void SetImGUIContext(IImGUIContext* pImGUIContext);
+
+		TDE2_API E_RESULT_CODE VisitVector2Track(class CVector2AnimationTrack* pTrack) override;
+		TDE2_API E_RESULT_CODE VisitVector3Track(class CVector3AnimationTrack* pTrack) override;
+		TDE2_API E_RESULT_CODE VisitQuaternionTrack(class CQuaternionAnimationTrack* pTrack) override;
+		TDE2_API E_RESULT_CODE VisitColorTrack(class CColorAnimationTrack* pTrack) override;
+		TDE2_API E_RESULT_CODE VisitFloatTrack(class CFloatAnimationTrack* pTrack) override;
+		TDE2_API E_RESULT_CODE VisitIntegerTrack(class CIntegerAnimationTrack* pTrack) override;
+		TDE2_API E_RESULT_CODE VisitBooleanTrack(class CBooleanAnimationTrack* pTrack) override;
+		TDE2_API E_RESULT_CODE VisitEventTrack(class CEventAnimationTrack* pTrack) override;
+
+		TDE2_API bool IsEditing() const;
+	private:
 		DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTrackSheetEditor)
 
-	protected:
+		TDE2_API E_RESULT_CODE _resetState();
+		TDE2_API void _initCurvesState();
+
+	private:
+		IImGUIContext* mpImGUIContext;
+
+		TCurveBindingsTable mCurvesTable;
+
+		TCurveDrawCallback  mOnDrawImpl = nullptr;
+
+		bool mIsEditing = false;
 	};
 }

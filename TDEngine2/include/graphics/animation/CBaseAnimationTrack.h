@@ -221,6 +221,12 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
+			TDE2_API void RemoveAllKeys() override
+			{
+				mKeysHandlesMap.clear();
+				mKeys.clear();
+			}
+
 			/*!
 				\brief The method specifies interpolation mode for tracks
 
@@ -359,6 +365,8 @@ namespace TDEngine2
 			{
 				return mInterpolationMode;
 			}
+
+			TDE2_API IAnimationClip* GetOwner() override { return mpTrackOwnerAnimation; }
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAnimationTrack)
