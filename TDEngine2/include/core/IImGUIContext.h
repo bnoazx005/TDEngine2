@@ -103,6 +103,9 @@ namespace TDEngine2
 
 				TColor32F mBackgroundColor = { 0.5f, 0.5f, 0.5f, 1.0f };
 				TColor32F mAxesColor = { 0.4f, 0.4f, 0.4f, 1.0f };
+
+				bool mIsGridEnabled = true;
+				bool mIsBackgroundEnabled = true;
 			} TPlotGridParams, *TPlotGridParamsPtr;
 
 		public:
