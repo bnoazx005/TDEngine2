@@ -92,6 +92,8 @@ namespace TDEngine2
 		TDE2_API E_RESULT_CODE _resetState();
 		TDE2_API void _initCurvesState();
 
+		TDE2_API TCurveDrawCallback _generateDrawCallback();
+
 	private:
 		IImGUIContext* mpImGUIContext;
 
@@ -100,5 +102,7 @@ namespace TDEngine2
 		TCurveDrawCallback  mOnDrawImpl = nullptr;
 
 		bool mIsEditing = false;
+
+		std::string mCurrSelectedCurveId;
 	};
 }

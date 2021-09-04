@@ -10,6 +10,8 @@
 #include "IEditorWindow.h"
 #include "../math/TRect.h"
 #include "../math/TVector2.h"
+#include "../utils/Color.h"
+#include <functional>
 
 
 namespace TDEngine2
@@ -20,8 +22,19 @@ namespace TDEngine2
 
 	typedef struct TAnimationCurveEditorParams
 	{
-		F32 mFrameWidth;
-		F32 mFrameHeight;
+		typedef std::function<void()> TActionCallback;
+
+		F32             mFrameWidth;
+		F32             mFrameHeight;
+
+		bool            mIsGridVisible = false;
+		bool            mIsBackgroundVisible = false;
+
+		bool            mShouldIgnoreInput = false;
+
+		TColor32F       mCurveColor = TColorUtils::mGreen;
+
+		TActionCallback mOnCurveClickedCallback = nullptr;
 	} TAnimationCurveEditorParams, *TAnimationCurveEditorParamsPtr;
 
 

@@ -1,6 +1,8 @@
 #include "./../../include/utils/Utils.h"
 #define STR_UTILS_IMPLEMENTATION
 #include "stringUtils.hpp"
+#define MEM_TRACKER_IMPLEMENTATION
+#include "memTracker.hpp"
 #include <algorithm>
 #include <cctype>
 

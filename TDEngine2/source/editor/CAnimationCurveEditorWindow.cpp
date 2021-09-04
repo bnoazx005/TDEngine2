@@ -41,15 +41,16 @@ namespace TDEngine2
 
 
 	static void DrawCurvePoint(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, I32 id, const TVector2& pos, const CAnimationCurveEditorWindow::TCurveTransformParams& invTransformParams,
-							   F32 handlePointSize, F32 handlePointButtonSize)
+							   F32 handlePointSize, F32 handlePointButtonSize, bool shouldIgnoreInput)
 	{
-		pImGUIContext->DisplayIDGroup(id, [pImGUIContext, pCurve, handlePointSize, handlePointButtonSize, p0 = pos, &invTransformParams, id]
+		pImGUIContext->DisplayIDGroup(id, [shouldIgnoreInput, pImGUIContext, pCurve, handlePointSize, handlePointButtonSize, p0 = pos, &invTransformParams, id]
 		{
 			pImGUIContext->DrawCircle(p0, handlePointSize, true, TColorUtils::mGreen);
 
 			auto pos = pImGUIContext->GetCursorScreenPos();
 
 			pImGUIContext->SetCursorScreenPos(p0 - TVector2(handlePointButtonSize * 0.5f));
+			if (!shouldIgnoreInput)
 			{
 				pImGUIContext->Button(Wrench::StringUtils::GetEmptyStr(), TVector2(handlePointButtonSize), {}, true);
 
@@ -76,14 +77,14 @@ namespace TDEngine2
 	}
 
 	TVector2 DrawControlPoint(IImGUIContext* pImGUIContext, I32 id, const TVector2& pos, const TVector2& controlPointPos, const CAnimationCurveEditorWindow::TCurveTransformParams& invTransformParams,
-							  F32 handlePointSize, F32 handlePointButtonSize)
+							  F32 handlePointSize, F32 handlePointButtonSize, bool shouldIgnoreInput)
 	{
 		TVector2 changedControlPoint = controlPointPos;
 
 		changedControlPoint.x -= pos.x;
 		changedControlPoint.y -= pos.y;
 
-		pImGUIContext->DisplayIDGroup(id, [pImGUIContext, handlePointSize, handlePointButtonSize, &changedControlPoint, &p = pos, &invTransformParams, &cp = controlPointPos]
+		pImGUIContext->DisplayIDGroup(id, [pImGUIContext, handlePointSize, handlePointButtonSize, shouldIgnoreInput, &changedControlPoint, &p = pos, &invTransformParams, &cp = controlPointPos]
 		{
 			pImGUIContext->DrawLine(p, cp, TColorUtils::mWhite);
 			pImGUIContext->DrawCircle(cp, handlePointSize, false, TColorUtils::mWhite);
@@ -92,14 +93,17 @@ namespace TDEngine2
 
 			pImGUIContext->SetCursorScreenPos(cp - TVector2(0.5f * handlePointButtonSize));
 
-			pImGUIContext->Button("", TVector2(handlePointButtonSize), {}, true);
-
-			if (pImGUIContext->IsItemActive() && pImGUIContext->IsMouseDragging(0))
+			if (!shouldIgnoreInput)
 			{
-				auto&& mousePos = pImGUIContext->GetMousePosition();
+				pImGUIContext->Button("", TVector2(handlePointButtonSize), {}, true);
 
-				changedControlPoint.x = mousePos.x - p.x;
-				changedControlPoint.y = mousePos.y - p.y;
+				if (pImGUIContext->IsItemActive() && pImGUIContext->IsMouseDragging(0))
+				{
+					auto&& mousePos = pImGUIContext->GetMousePosition();
+
+					changedControlPoint.x = mousePos.x - p.x;
+					changedControlPoint.y = mousePos.y - p.y;
+				}
 			}
 
 			pImGUIContext->SetCursorScreenPos(pos);
@@ -109,7 +113,7 @@ namespace TDEngine2
 	}
 
 	static void DrawCurveLine(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, I32 controlPointsOffset,
-							  F32 handlePointSize, F32 handlePointButtonSize)
+							  const TColor32F& curveColor, F32 handlePointSize, F32 handlePointButtonSize, bool shouldIgnoreInput)
 	{
 		if (!pCurve)
 		{
@@ -138,16 +142,16 @@ namespace TDEngine2
 				t0 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mOutTangent);
 				t1 = ApplyCurveToScreenTransform(transformParams, initNextPos + nextPoint.mInTangent);
 
-				pImGUIContext->DrawCubicBezier(p0, t0, p1, t1, TColorUtils::mGreen);
+				pImGUIContext->DrawCubicBezier(p0, t0, p1, t1, curveColor);
 			}
 
-			DrawCurvePoint(pImGUIContext, pCurve, static_cast<I32>(std::distance(pCurve->begin(), it)), p0, transformParams, handlePointSize, handlePointButtonSize);
+			DrawCurvePoint(pImGUIContext, pCurve, static_cast<I32>(std::distance(pCurve->begin(), it)), p0, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
 
 			if (it < pCurve->end() - 1)
 			{
 				t0 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mOutTangent);
 
-				t0 = DrawControlPoint(pImGUIContext, controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t0, transformParams, handlePointSize, handlePointButtonSize);
+				t0 = DrawControlPoint(pImGUIContext, controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t0, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
 				t0 = ApplyScreenToCurveTransform(transformParams, p0 + t0) - initCurrPos;
 
 				currPoint.mOutTangent = t0;
@@ -157,7 +161,7 @@ namespace TDEngine2
 			{
 				t1 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mInTangent);
 
-				t1 = DrawControlPoint(pImGUIContext, 2 * controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t1, transformParams, handlePointSize, handlePointButtonSize);
+				t1 = DrawControlPoint(pImGUIContext, 2 * controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t1, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
 				t1 = ApplyScreenToCurveTransform(transformParams, p0 + t1) - initCurrPos;
 
 				currPoint.mInTangent = t1;
@@ -166,7 +170,8 @@ namespace TDEngine2
 	}
 
 
-	static void HandleCurveCursor(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos)
+	static void HandleCurveCursor(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, 
+								  const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, bool shouldIgnoreInput)
 	{
 		if (!pCurve)
 		{
@@ -187,11 +192,19 @@ namespace TDEngine2
 			// draw a cursor if a user moves it right near a curve
 			pImGUIContext->DrawCircle(ApplyCurveToScreenTransform(transformParams, TVector2(curveMousePos.x, curveValue)), 4.0f, false, TColorUtils::mYellow);
 
-			if (pImGUIContext->IsMouseDoubleClicked(0))
+			if (!shouldIgnoreInput)
 			{
-				static const TVector2 defaultControlPoint{ 0.25f * RightVector2 };
+				if (pImGUIContext->IsMouseDoubleClicked(0))
+				{
+					static const TVector2 defaultControlPoint{ 0.25f * RightVector2 };
 
-				pCurve->AddPoint({ curveMousePos.x, /*curveValue*/ 0.5f, -defaultControlPoint, defaultControlPoint });
+					pCurve->AddPoint({ curveMousePos.x, /*curveValue*/ 0.5f, -defaultControlPoint, defaultControlPoint });
+				}
+			}
+
+			if (onCurveClicked && pImGUIContext->IsMouseClicked(0))
+			{
+				onCurveClicked();
 			}
 		}
 	}
@@ -261,10 +274,20 @@ namespace TDEngine2
 		const F32 width = params.mFrameWidth;
 		const F32 height = params.mFrameHeight;
 
-		pImGUIContext->DrawPlotGrid("Plot", { width, height, 5, 5, pCurve ? pCurve->GetBounds() : DefaultFrameBounds }, [=](auto&& pos)
+		IImGUIContext::TPlotGridParams gridParams;
 		{
-			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, mHandlePointSize, mHandlePointButtonSize);
-			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos);
+			gridParams.mWidth               = width;
+			gridParams.mHeight              = height;
+			gridParams.mFrame               = pCurve ? pCurve->GetBounds() : DefaultFrameBounds;
+			gridParams.mIsGridEnabled       = params.mIsGridVisible;
+			gridParams.mIsBackgroundEnabled = params.mIsBackgroundVisible;
+			gridParams.mCurveColor          = params.mCurveColor;
+		}
+
+		pImGUIContext->DrawPlotGrid("Plot", gridParams, [=, curveColor = gridParams.mCurveColor, shouldIgnoreInput = params.mShouldIgnoreInput](auto&& pos)
+		{
+			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, shouldIgnoreInput);
+			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, params.mOnCurveClickedCallback, shouldIgnoreInput);
 		});
 
 		return RC_OK;

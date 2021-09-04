@@ -98,20 +98,6 @@ namespace TDEngine2
 	}
 
 
-	static CTrackSheetEditor::TCurveDrawCallback GenerateDrawCallback(IImGUIContext* pImGUIContext, CTrackSheetEditor::TCurveBindingsTable& curvesTable)
-	{
-		return [pImGUIContext, &curvesTable](const TVector2& frameSizes)
-		{
-			for (auto&& currCurveBindingInfo : curvesTable)
-			{
-				auto& curveInfo = currCurveBindingInfo.second;
-
-				CAnimationCurveEditorWindow::DrawCurveEditor(pImGUIContext, { frameSizes.x, frameSizes.y }, curveInfo.mpCurve.Get());
-			}
-		};
-	}
-
-
 	E_RESULT_CODE CTrackSheetEditor::VisitVector2Track(CVector2AnimationTrack* pTrack)
 	{
 		E_RESULT_CODE result = _resetState();
@@ -131,7 +117,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, offsetof(TVector2, y)),
 			GenerateSerializePointsCallback(pTrack, offsetof(TVector2, y)) });
 
-		mOnDrawImpl = GenerateDrawCallback(mpImGUIContext, mCurvesTable);
+		mOnDrawImpl = _generateDrawCallback();
 
 		_initCurvesState();
 
@@ -161,7 +147,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, offsetof(TVector3, z)),
 			GenerateSerializePointsCallback(pTrack, offsetof(TVector3, z)) });
 
-		mOnDrawImpl = GenerateDrawCallback(mpImGUIContext, mCurvesTable);
+		mOnDrawImpl = _generateDrawCallback();
 
 		_initCurvesState();
 
@@ -195,7 +181,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, offsetof(TQuaternion, w)),
 			GenerateSerializePointsCallback(pTrack, offsetof(TQuaternion, w)) });
 
-		mOnDrawImpl = GenerateDrawCallback(mpImGUIContext, mCurvesTable);
+		mOnDrawImpl = _generateDrawCallback();
 
 		_initCurvesState();
 
@@ -229,7 +215,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, offsetof(TColor32F, a)),
 			GenerateSerializePointsCallback(pTrack, offsetof(TColor32F, a)) });
 
-		mOnDrawImpl = GenerateDrawCallback(mpImGUIContext, mCurvesTable);
+		mOnDrawImpl = _generateDrawCallback();
 
 		_initCurvesState();
 
@@ -363,6 +349,48 @@ namespace TDEngine2
 				serializationCallback(bindingInfo.mpCurve);
 			}
 		}
+	}
+
+	CTrackSheetEditor::TCurveDrawCallback CTrackSheetEditor::_generateDrawCallback()
+	{
+		return [this](const TVector2& frameSizes)
+		{
+			U8 i = 0;
+
+			static const std::array<TColor32F, 4> curveColors
+			{
+				TColorUtils::mRed,
+				TColorUtils::mGreen,
+				TColorUtils::mBlue,
+				TColorUtils::mGray,
+			};
+
+			TAnimationCurveEditorParams curveParams;
+
+			for (auto&& currCurveBindingInfo : mCurvesTable)
+			{
+				auto& curveInfo = currCurveBindingInfo.second;
+
+				if (mCurrSelectedCurveId.empty())
+				{
+					mCurrSelectedCurveId = currCurveBindingInfo.first;
+				}
+
+				curveParams.mFrameWidth = frameSizes.x;
+				curveParams.mFrameHeight = frameSizes.y;
+				curveParams.mIsGridVisible = !i; /// \note Draw the grid only for the first curve
+				curveParams.mIsBackgroundVisible = false;
+				curveParams.mCurveColor = ((mCurvesTable.size() < 2) ? curveColors[2] : (mCurrSelectedCurveId != currCurveBindingInfo.first ? curveColors[3] : curveColors[i]));
+				curveParams.mShouldIgnoreInput = mCurrSelectedCurveId != currCurveBindingInfo.first;
+				curveParams.mOnCurveClickedCallback = [id = currCurveBindingInfo.first, this]
+				{
+					mCurrSelectedCurveId = id;
+				};
+
+				CAnimationCurveEditorWindow::DrawCurveEditor(mpImGUIContext, curveParams, curveInfo.mpCurve.Get());
+				++i;
+			}
+		};
 	}
 
 

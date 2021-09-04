@@ -18,11 +18,15 @@
 #include <array>
 #include <sstream>
 #include "result.hpp"
+#include "memTracker.hpp"
 #include "debugbreak.h"
 
 
 namespace TDEngine2
 {
+	#define TDE2_NEW WRENCH_NEW ///< Our super custom memory trackable new implementation
+
+
 	/*!
 		\brief The function is a common factory functor for all objects,
 		which implements Init method (two-step initialization) instead of RAII.
