@@ -320,18 +320,48 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 1.0f };
-
-		/// \note Create new curves 
-		mCurvesTable.emplace("value", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			[pTrack](const CScopedPtr<CAnimationCurve>& pCurve)
+		mOnDrawImpl = [this, pTrack](const TVector2& frameSizes)
+		{
+			auto newSelectedTrackHandle = DrawDiscreteTrackSamples(mpImGUIContext, pTrack, frameSizes);
+			if (TAnimationTrackKeyId::Invalid != newSelectedTrackHandle)
 			{
-			},
-			[pTrack](const CScopedPtr<CAnimationCurve>& pCurve)
-			{
-			} });
+				mCurrSelectedSampleId = newSelectedTrackHandle;
+			}
 
-		_initCurvesState();
+			/// \note Context menu
+			if ((TAnimationTrackKeyId::Invalid != mCurrSelectedSampleId) && mpImGUIContext->BeginModalWindow(KeyOperationsPopupMenuId))
+			{
+				const I32 currValue = pTrack->GetKey(mCurrSelectedSampleId)->mValue;
+				I32 sampleValue = currValue;
+
+				mpImGUIContext->BeginHorizontal();
+				mpImGUIContext->Label("Value: ");
+				mpImGUIContext->IntField(Wrench::StringUtils::GetEmptyStr(), sampleValue);
+				mpImGUIContext->EndHorizontal();
+
+				if (sampleValue != currValue)
+				{
+					if (auto pKeySample = pTrack->GetKey(mCurrSelectedSampleId))
+					{
+						pKeySample->mValue = sampleValue;
+					}
+
+					mCurrSelectedSampleId = TAnimationTrackKeyId::Invalid;
+					mpImGUIContext->CloseCurrentModalWindow();
+				}
+
+				if (mpImGUIContext->Button("Remove Key", TVector2(50.0f, 25.0f)))
+				{
+					E_RESULT_CODE result = pTrack->RemoveKey(mCurrSelectedSampleId);
+					TDE2_ASSERT(RC_OK == result);
+
+					mCurrSelectedSampleId = TAnimationTrackKeyId::Invalid;
+					mpImGUIContext->CloseCurrentModalWindow();
+				}
+
+				mpImGUIContext->EndModalWindow();
+			}
+		};
 
 		return RC_OK;
 	}
