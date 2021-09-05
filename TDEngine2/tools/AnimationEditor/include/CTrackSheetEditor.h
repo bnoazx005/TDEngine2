@@ -42,6 +42,7 @@ namespace TDEngine2
 	public:
 		typedef std::function<void(const CScopedPtr<CAnimationCurve>&)> TCurveBindingCallback;
 		typedef std::function<void(const TVector2&)> TCurveDrawCallback;
+		typedef std::function<void()> TActionCallback;
 
 		struct TTrack2CurveBindingInfo
 		{
@@ -93,6 +94,8 @@ namespace TDEngine2
 		TDE2_API void _initCurvesState();
 
 		TDE2_API TCurveDrawCallback _generateDrawCallback();
+
+		TDE2_API void _drawContextMenuForKeySample(const TActionCallback& concreteElementsDrawCallback);
 
 	private:
 		IImGUIContext* mpImGUIContext;
