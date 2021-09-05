@@ -276,7 +276,7 @@ namespace TDEngine2
 			const TVector2 buttonPosition = cursorPos + TVector2(currKeySample.mTime * pixelsPerSecond, frameSizes.y * 0.5f) - DiscreteTrackButtonSize * 0.5f;
 
 			pImGUIContext->DrawRect(TRectF32(buttonPosition.x, buttonPosition.y, DiscreteTrackButtonSize.x, DiscreteTrackButtonSize.y), TColorUtils::mGreen, true);
-			pImGUIContext->DrawText(buttonPosition - TVector2(0.0f, DiscreteTrackButtonSize.y), TColorUtils::mWhite, currKeySample.mValue);
+			pImGUIContext->DrawText(buttonPosition - TVector2(0.0f, DiscreteTrackButtonSize.y), TColorUtils::mWhite, ToString(currKeySample.mValue));
 
 			pImGUIContext->DisplayIDGroup((1 << 16) | id, [pImGUIContext, &currKeySample, &buttonPosition, pixelsPerSecond, cursorPos, pTrack]
 			{
@@ -344,18 +344,48 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 1.0f };
-
-		/// \note Create new curves 
-		mCurvesTable.emplace("value", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			[pTrack](const CScopedPtr<CAnimationCurve>& pCurve)
+		mOnDrawImpl = [this, pTrack](const TVector2& frameSizes)
+		{
+			auto newSelectedTrackHandle = DrawDiscreteTrackSamples(mpImGUIContext, pTrack, frameSizes);
+			if (TAnimationTrackKeyId::Invalid != newSelectedTrackHandle)
 			{
-			},
-			[pTrack](const CScopedPtr<CAnimationCurve>& pCurve)
-			{
-			} });
+				mCurrSelectedSampleId = newSelectedTrackHandle;
+			}
 
-		_initCurvesState();
+			/// \note Context menu
+			if ((TAnimationTrackKeyId::Invalid != mCurrSelectedSampleId) && mpImGUIContext->BeginModalWindow(KeyOperationsPopupMenuId))
+			{
+				const bool currValue = pTrack->GetKey(mCurrSelectedSampleId)->mValue;
+				bool sampleValue = currValue;
+
+				mpImGUIContext->BeginHorizontal();
+				mpImGUIContext->Label("Value: ");
+				mpImGUIContext->Checkbox(Wrench::StringUtils::GetEmptyStr(), sampleValue);
+				mpImGUIContext->EndHorizontal();
+
+				if (sampleValue != currValue)
+				{
+					if (auto pKeySample = pTrack->GetKey(mCurrSelectedSampleId))
+					{
+						pKeySample->mValue = sampleValue;
+					}
+
+					mCurrSelectedSampleId = TAnimationTrackKeyId::Invalid;
+					mpImGUIContext->CloseCurrentModalWindow();
+				}
+
+				if (mpImGUIContext->Button("Remove Key", TVector2(50.0f, 25.0f)))
+				{
+					E_RESULT_CODE result = pTrack->RemoveKey(mCurrSelectedSampleId);
+					TDE2_ASSERT(RC_OK == result);
+
+					mCurrSelectedSampleId = TAnimationTrackKeyId::Invalid;
+					mpImGUIContext->CloseCurrentModalWindow();
+				}
+
+				mpImGUIContext->EndModalWindow();
+			}
+		};
 
 		return RC_OK;
 	}
