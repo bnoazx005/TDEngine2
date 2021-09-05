@@ -79,6 +79,8 @@ namespace TDEngine2
 
 			TDE2_API void _drawPropertyBindingsWindow();
 
+			TDE2_API void _onAddEventsTrackButtonHandler();
+
 		protected:
 			static const std::string        mAddPropertyWindowId;
 

@@ -323,12 +323,38 @@ namespace TDEngine2
 		{
 			_drawPropertyBindingsWindow();
 
-			if (mpImGUIContext->Button("Add Property", TVector2(mpImGUIContext->GetWindowWidth() * 0.5f, 25.0f)))
+			const TVector2 buttonSizes(mpImGUIContext->GetWindowWidth() * 0.45f, 25.0f);
+
+			mpImGUIContext->BeginHorizontal();
 			{
-				mpImGUIContext->ShowModalWindow(mAddPropertyWindowId);
+				if (mpImGUIContext->Button("Add Property", buttonSizes))
+				{
+					mpImGUIContext->ShowModalWindow(mAddPropertyWindowId);
+				}
+
+				if (!mpCurrAnimationClip->GetEventTrack())
+				{
+					if (mpImGUIContext->Button("Add Events Track", buttonSizes))
+					{
+						_onAddEventsTrackButtonHandler();
+					}
+				}				
 			}
+			mpImGUIContext->EndHorizontal();
 		}
 		mpImGUIContext->EndChildWindow();
+	}
+
+	void CAnimationEditorWindow::_onAddEventsTrackButtonHandler()
+	{
+		if (!mpCurrAnimationClip)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		auto handle = mpCurrAnimationClip->CreateTrack<CEventAnimationTrack>("events");
+		TDE2_ASSERT(TAnimationTrackId::Invalid != handle);
 	}
 
 	void CAnimationEditorWindow::_drawTimelineEditor(F32 blockWidth)

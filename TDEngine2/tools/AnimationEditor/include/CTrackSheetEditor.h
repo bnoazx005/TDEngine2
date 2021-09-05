@@ -104,5 +104,7 @@ namespace TDEngine2
 		bool mIsEditing = false;
 
 		std::string mCurrSelectedCurveId;
+
+		TAnimationTrackKeyId mCurrSelectedSampleId;
 	};
 }

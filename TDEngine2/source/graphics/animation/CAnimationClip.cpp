@@ -203,6 +203,11 @@ namespace TDEngine2
 
 		mpTracks.erase(iter);
 
+		if (handle == mEventTrackHandle)
+		{
+			mEventTrackHandle = TAnimationTrackId::Invalid;
+		}
+
 		return RC_OK;
 	}
 
@@ -289,6 +294,12 @@ namespace TDEngine2
 
 		TAnimationTrackId handle = TAnimationTrackId(mpTracks.size());
 		mpTracks.insert({ handle, pTrack });
+
+		/// \note There could be the only event track for the clip
+		if (CEventAnimationTrack::GetTypeId() == typeId)
+		{
+			mEventTrackHandle = handle;
+		}
 
 		pTrack->SetName(name.empty() ? Wrench::StringUtils::Format("Track{0}", static_cast<U32>(handle)) : name);
 
