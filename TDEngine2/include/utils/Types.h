@@ -286,6 +286,7 @@ namespace TDEngine2
 
 	template<> inline std::string ToString<std::string>(const std::string& value) { return value; }
 	template<> inline std::string ToString<bool>(const bool& value) { return value ? "True" : "False"; }
+	template<> inline std::string ToString<I32>(const I32& value) { return std::to_string(value); }
 
 	/*!
 		\brief The macro TDE2_DECLARE_HANDLE_TYPE is used to declare strongly typed handles instead of using typedefs 

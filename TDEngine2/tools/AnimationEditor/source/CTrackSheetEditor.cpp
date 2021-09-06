@@ -245,6 +245,8 @@ namespace TDEngine2
 			{
 			} });
 
+		mOnDrawImpl = _generateDrawCallback();
+
 		_initCurvesState();
 
 		return RC_OK;
