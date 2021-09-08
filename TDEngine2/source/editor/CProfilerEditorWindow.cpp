@@ -143,8 +143,11 @@ namespace TDEngine2
 			const TVector2 prevPosition = imguiContext.GetCursorScreenPos();
 			imguiContext.SetCursorScreenPos(pos);
 
-			imguiContext.Button(Wrench::StringUtils::Format("##{0}", currSample.mName), sampleRect.GetSizes(), nullptr, true);
-			imguiContext.Tooltip(Wrench::StringUtils::Format("{0} : {1} ms", currSample.mName, currSample.mDuration * 1000.0f));
+			if (sampleRect.width > 0.0f && sampleRect.height > 0.0f)
+			{
+				imguiContext.Button(Wrench::StringUtils::Format("##{0}", currSample.mName), sampleRect.GetSizes(), nullptr, true);
+				imguiContext.Tooltip(Wrench::StringUtils::Format("{0} : {1} ms", currSample.mName, currSample.mDuration * 1000.0f));
+			}
 
 			imguiContext.SetCursorScreenPos(prevPosition);
 		}

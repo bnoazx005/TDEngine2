@@ -41,19 +41,20 @@ namespace TDEngine2
 
 
 	static void DrawCurvePoint(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, I32 id, const TVector2& pos, const CAnimationCurveEditorWindow::TCurveTransformParams& invTransformParams,
-							   F32 handlePointSize, F32 handlePointButtonSize, bool shouldIgnoreInput)
+							   F32 handlePointSize, F32 handlePointButtonSize, const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, bool shouldIgnoreInput)
 	{
-		pImGUIContext->DisplayIDGroup(id, [shouldIgnoreInput, pImGUIContext, pCurve, handlePointSize, handlePointButtonSize, p0 = pos, &invTransformParams, id]
+		pImGUIContext->DisplayIDGroup(id, [shouldIgnoreInput, pImGUIContext, pCurve, handlePointSize, handlePointButtonSize, onCurveClicked, p0 = pos, &invTransformParams, id]
 		{
 			pImGUIContext->DrawCircle(p0, handlePointSize, true, TColorUtils::mGreen);
 
 			auto pos = pImGUIContext->GetCursorScreenPos();
 
 			pImGUIContext->SetCursorScreenPos(p0 - TVector2(handlePointButtonSize * 0.5f));
+			
+			pImGUIContext->Button(Wrench::StringUtils::GetEmptyStr(), TVector2(handlePointButtonSize), {}, true);
+
 			if (!shouldIgnoreInput)
 			{
-				pImGUIContext->Button(Wrench::StringUtils::GetEmptyStr(), TVector2(handlePointButtonSize), {}, true);
-
 				if (pImGUIContext->IsItemActive() && pImGUIContext->IsMouseDragging(0))
 				{
 					auto&& mousePos = pImGUIContext->GetMousePosition();
@@ -72,6 +73,12 @@ namespace TDEngine2
 					pCurve->UpdateBounds();
 				}
 			}
+
+			if (onCurveClicked && pImGUIContext->IsItemHovered() && pImGUIContext->IsMouseClicked(0))
+			{
+				onCurveClicked();
+			}
+
 			pImGUIContext->SetCursorScreenPos(pos);
 		});
 	}
@@ -113,7 +120,7 @@ namespace TDEngine2
 	}
 
 	static void DrawCurveLine(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, I32 controlPointsOffset,
-							  const TColor32F& curveColor, F32 handlePointSize, F32 handlePointButtonSize, bool shouldIgnoreInput)
+							  const TColor32F& curveColor, F32 handlePointSize, F32 handlePointButtonSize, const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, bool shouldIgnoreInput)
 	{
 		if (!pCurve)
 		{
@@ -145,7 +152,7 @@ namespace TDEngine2
 				pImGUIContext->DrawCubicBezier(p0, t0, p1, t1, curveColor);
 			}
 
-			DrawCurvePoint(pImGUIContext, pCurve, static_cast<I32>(std::distance(pCurve->begin(), it)), p0, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
+			DrawCurvePoint(pImGUIContext, pCurve, static_cast<I32>(std::distance(pCurve->begin(), it)), p0, transformParams, handlePointSize, handlePointButtonSize, onCurveClicked, shouldIgnoreInput);
 
 			if (it < pCurve->end() - 1)
 			{
@@ -170,8 +177,7 @@ namespace TDEngine2
 	}
 
 
-	static void HandleCurveCursor(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, 
-								  const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, bool shouldIgnoreInput)
+	static void HandleCurveCursor(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, bool shouldIgnoreInput)
 	{
 		if (!pCurve)
 		{
@@ -200,11 +206,6 @@ namespace TDEngine2
 
 					pCurve->AddPoint({ curveMousePos.x, /*curveValue*/ 0.5f, -defaultControlPoint, defaultControlPoint });
 				}
-			}
-
-			if (onCurveClicked && pImGUIContext->IsMouseClicked(0))
-			{
-				onCurveClicked();
 			}
 		}
 	}
@@ -286,8 +287,8 @@ namespace TDEngine2
 
 		pImGUIContext->DrawPlotGrid("Plot", gridParams, [=, curveColor = gridParams.mCurveColor, shouldIgnoreInput = params.mShouldIgnoreInput](auto&& pos)
 		{
-			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, shouldIgnoreInput);
-			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, params.mOnCurveClickedCallback, shouldIgnoreInput);
+			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, params.mOnCurveClickedCallback, shouldIgnoreInput);
+			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, shouldIgnoreInput);
 		});
 
 		return RC_OK;
