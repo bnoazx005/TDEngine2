@@ -109,5 +109,7 @@ namespace TDEngine2
 		std::string mCurrSelectedCurveId;
 
 		TAnimationTrackKeyId mCurrSelectedSampleId;
+
+		TActionCallback mPreSerializeAction = nullptr;
 	};
 }

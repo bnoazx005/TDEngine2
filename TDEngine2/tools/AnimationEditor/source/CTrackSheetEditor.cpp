@@ -74,7 +74,7 @@ namespace TDEngine2
 		{
 			for (auto&& currKey : pTrack->GetKeys())
 			{
-				pCurve->AddPoint(CAnimationCurve::TKeyFrame{ currKey.mTime, *reinterpret_cast<const F32*>(&currKey.mValue + memberOffset) });
+				pCurve->ReplacePoint(CAnimationCurve::TKeyFrame{ currKey.mTime, *reinterpret_cast<const F32*>(&currKey.mValue + memberOffset) });
 			}
 		};
 	}
@@ -85,8 +85,6 @@ namespace TDEngine2
 	{
 		return [pTrack, memberOffset](const CScopedPtr<CAnimationCurve>& pCurve)
 		{
-			pTrack->RemoveAllKeys();
-
 			for (U32 i = 0; i < pCurve->GetPointsCount(); ++i)
 			{
 				if (auto&& pCurrPoint = pCurve->GetPoint(i))
@@ -100,6 +98,16 @@ namespace TDEngine2
 					}					
 				}
 			}
+		};
+	}
+
+
+	template <typename T>
+	static CTrackSheetEditor::TActionCallback GeneratePreSerializeCallback(T* pTrack)
+	{
+		return [pTrack]
+		{
+			pTrack->RemoveAllKeys();
 		};
 	}
 
@@ -124,6 +132,8 @@ namespace TDEngine2
 			GenerateSerializePointsCallback(pTrack, offsetof(TVector2, y)) });
 
 		mOnDrawImpl = _generateDrawCallback();
+
+		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
 
 		_initCurvesState();
 
@@ -154,6 +164,8 @@ namespace TDEngine2
 			GenerateSerializePointsCallback(pTrack, offsetof(TVector3, z)) });
 
 		mOnDrawImpl = _generateDrawCallback();
+
+		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
 
 		_initCurvesState();
 
@@ -189,6 +201,8 @@ namespace TDEngine2
 
 		mOnDrawImpl = _generateDrawCallback();
 
+		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
+
 		_initCurvesState();
 
 		return RC_OK;
@@ -223,6 +237,8 @@ namespace TDEngine2
 
 		mOnDrawImpl = _generateDrawCallback();
 
+		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
+
 		_initCurvesState();
 
 		return RC_OK;
@@ -244,6 +260,8 @@ namespace TDEngine2
 			[pTrack](const CScopedPtr<CAnimationCurve>& pCurve)
 			{
 			} });
+
+		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
 
 		mOnDrawImpl = _generateDrawCallback();
 
@@ -477,6 +495,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTrackSheetEditor::_resetState()
 	{
+		if (mPreSerializeAction && !mCurvesTable.empty())
+		{
+			mPreSerializeAction();
+		}
+
 		for (auto& currBindingEntityInfo : mCurvesTable)
 		{
 			auto& bindingInfo = currBindingEntityInfo.second;
