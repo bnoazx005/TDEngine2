@@ -67,23 +67,23 @@ namespace TDEngine2
 	}
 
 
-	template <typename T>
-	static CTrackSheetEditor::TCurveBindingCallback GenerateInitCurveCallback(T* pTrack, U32 memberOffset)
+	template <typename T, typename TGetterType>
+	static CTrackSheetEditor::TCurveBindingCallback GenerateInitCurveCallback(T* pTrack, const TGetterType& getterAction)
 	{
-		return [pTrack, memberOffset](const CScopedPtr<CAnimationCurve>& pCurve)
+		return [pTrack, &getterAction](const CScopedPtr<CAnimationCurve>& pCurve)
 		{
 			for (auto&& currKey : pTrack->GetKeys())
 			{
-				pCurve->ReplacePoint(CAnimationCurve::TKeyFrame{ currKey.mTime, *reinterpret_cast<const F32*>(&currKey.mValue + memberOffset) });
+				pCurve->ReplacePoint(CAnimationCurve::TKeyFrame{ currKey.mTime, getterAction(currKey) });
 			}
 		};
 	}
 
 
-	template <typename T>
-	static CTrackSheetEditor::TCurveBindingCallback GenerateSerializePointsCallback(T* pTrack, U32 memberOffset)
+	template <typename T, typename TSetterType>
+	static CTrackSheetEditor::TCurveBindingCallback GenerateSerializePointsCallback(T* pTrack, const TSetterType& setterAction)
 	{
-		return [pTrack, memberOffset](const CScopedPtr<CAnimationCurve>& pCurve)
+		return [pTrack, &setterAction](const CScopedPtr<CAnimationCurve>& pCurve)
 		{
 			for (U32 i = 0; i < pCurve->GetPointsCount(); ++i)
 			{
@@ -91,10 +91,7 @@ namespace TDEngine2
 				{
 					if (auto pKeySample = pTrack->GetKey(pTrack->CreateKey(pCurrPoint->mTime)))
 					{
-						if (auto pKeyValue = reinterpret_cast<F32*>(&pKeySample->mValue + memberOffset))
-						{
-							*pKeyValue = pCurrPoint->mValue;
-						}
+						setterAction(*pKeySample, pCurrPoint->mValue);
 					}					
 				}
 			}
@@ -124,12 +121,12 @@ namespace TDEngine2
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("x", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TVector2, x)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TVector2, x)) });
+			GenerateInitCurveCallback(pTrack, [](const TVector2KeyFrame& value) { return value.mValue.x; }),
+			GenerateSerializePointsCallback(pTrack, [](TVector2KeyFrame& dest, F32 value) { return dest.mValue.x = value; }) });
 
 		mCurvesTable.emplace("y", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TVector2, y)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TVector2, y)) });
+			GenerateInitCurveCallback(pTrack, [](const TVector2KeyFrame& value) { return value.mValue.y; }),
+			GenerateSerializePointsCallback(pTrack, [](TVector2KeyFrame& dest, F32 value) { return dest.mValue.y = value; }) });
 
 		mOnDrawImpl = _generateDrawCallback();
 
@@ -152,16 +149,16 @@ namespace TDEngine2
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("x", TTrack2CurveBindingInfo { CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) }, 
-			GenerateInitCurveCallback(pTrack, offsetof(TVector3, x)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TVector3, x)) });
+			GenerateInitCurveCallback(pTrack, [](const TVector3KeyFrame& value) { return value.mValue.x; }),
+			GenerateSerializePointsCallback(pTrack, [](TVector3KeyFrame& dest, F32 value) { return dest.mValue.x = value; }) });
 
 		mCurvesTable.emplace("y", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TVector3, y)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TVector3, y)) });
+			GenerateInitCurveCallback(pTrack, [](const TVector3KeyFrame& value) { return value.mValue.y; }),
+			GenerateSerializePointsCallback(pTrack, [](TVector3KeyFrame& dest, F32 value) { return dest.mValue.y = value; }) });
 
 		mCurvesTable.emplace("z", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TVector3, z)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TVector3, z)) });
+			GenerateInitCurveCallback(pTrack, [](const TVector3KeyFrame& value) { return value.mValue.z; }),
+			GenerateSerializePointsCallback(pTrack, [](TVector3KeyFrame& dest, F32 value) { return dest.mValue.z = value; }) });
 
 		mOnDrawImpl = _generateDrawCallback();
 
@@ -184,20 +181,20 @@ namespace TDEngine2
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("x", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TQuaternion, x)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TQuaternion, x)) });
+			GenerateInitCurveCallback(pTrack, [](const TQuaternionKeyFrame& value) { return value.mValue.x; }),
+			GenerateSerializePointsCallback(pTrack, [](TQuaternionKeyFrame& dest, F32 value) { return dest.mValue.x = value; }) });
 
 		mCurvesTable.emplace("y", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TQuaternion, y)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TQuaternion, y)) });
+			GenerateInitCurveCallback(pTrack, [](const TQuaternionKeyFrame& value) { return value.mValue.y; }),
+			GenerateSerializePointsCallback(pTrack, [](TQuaternionKeyFrame& dest, F32 value) { return dest.mValue.y = value; }) });
 
 		mCurvesTable.emplace("z", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TQuaternion, z)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TQuaternion, z)) });
+			GenerateInitCurveCallback(pTrack, [](const TQuaternionKeyFrame& value) { return value.mValue.z; }),
+			GenerateSerializePointsCallback(pTrack, [](TQuaternionKeyFrame& dest, F32 value) { return dest.mValue.z = value; }) });
 
 		mCurvesTable.emplace("w", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TQuaternion, w)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TQuaternion, w)) });
+			GenerateInitCurveCallback(pTrack, [](const TQuaternionKeyFrame& value) { return value.mValue.w; }),
+			GenerateSerializePointsCallback(pTrack, [](TQuaternionKeyFrame& dest, F32 value) { return dest.mValue.w = value; }) });
 
 		mOnDrawImpl = _generateDrawCallback();
 
@@ -220,20 +217,20 @@ namespace TDEngine2
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("r", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TColor32F, r)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TColor32F, r)) });
+			GenerateInitCurveCallback(pTrack, [](const TColorKeyFrame& value) { return value.mValue.r; }),
+			GenerateSerializePointsCallback(pTrack, [](TColorKeyFrame& dest, F32 value) { return dest.mValue.r = value; }) });
 
 		mCurvesTable.emplace("g", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TColor32F, g)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TColor32F, g)) });
+			GenerateInitCurveCallback(pTrack, [](const TColorKeyFrame& value) { return value.mValue.g; }),
+			GenerateSerializePointsCallback(pTrack, [](TColorKeyFrame& dest, F32 value) { return dest.mValue.g = value; }) });
 
 		mCurvesTable.emplace("b", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TColor32F, b)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TColor32F, b)) });
+			GenerateInitCurveCallback(pTrack, [](const TColorKeyFrame& value) { return value.mValue.b; }),
+			GenerateSerializePointsCallback(pTrack, [](TColorKeyFrame& dest, F32 value) { return dest.mValue.b = value; }) });
 
 		mCurvesTable.emplace("a", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, offsetof(TColor32F, a)),
-			GenerateSerializePointsCallback(pTrack, offsetof(TColor32F, a)) });
+			GenerateInitCurveCallback(pTrack, [](const TColorKeyFrame& value) { return value.mValue.a; }),
+			GenerateSerializePointsCallback(pTrack, [](TColorKeyFrame& dest, F32 value) { return dest.mValue.a = value; }) });
 
 		mOnDrawImpl = _generateDrawCallback();
 
@@ -256,7 +253,7 @@ namespace TDEngine2
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("value", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
-			GenerateInitCurveCallback(pTrack, 0),
+			GenerateInitCurveCallback(pTrack, [](const TFloatKeyFrame& value) { return value.mValue; }),
 			[pTrack](const CScopedPtr<CAnimationCurve>& pCurve)
 			{
 			} });
