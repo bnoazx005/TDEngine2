@@ -93,7 +93,7 @@ namespace TDEngine2
 		TDE2_API E_RESULT_CODE _resetState();
 		TDE2_API void _initCurvesState();
 
-		TDE2_API TCurveDrawCallback _generateDrawCallback();
+		TDE2_API TCurveDrawCallback _generateDrawCallback(F32 trackDuration);
 
 		TDE2_API void _drawContextMenuForKeySample(const TActionCallback& concreteElementsDrawCallback);
 

@@ -128,7 +128,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, [](const TVector2KeyFrame& value) { return value.mValue.y; }),
 			GenerateSerializePointsCallback(pTrack, [](TVector2KeyFrame& dest, F32 value) { return dest.mValue.y = value; }) });
 
-		mOnDrawImpl = _generateDrawCallback();
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
 
 		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
 
@@ -160,7 +160,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, [](const TVector3KeyFrame& value) { return value.mValue.z; }),
 			GenerateSerializePointsCallback(pTrack, [](TVector3KeyFrame& dest, F32 value) { return dest.mValue.z = value; }) });
 
-		mOnDrawImpl = _generateDrawCallback();
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
 
 		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
 
@@ -196,7 +196,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, [](const TQuaternionKeyFrame& value) { return value.mValue.w; }),
 			GenerateSerializePointsCallback(pTrack, [](TQuaternionKeyFrame& dest, F32 value) { return dest.mValue.w = value; }) });
 
-		mOnDrawImpl = _generateDrawCallback();
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
 
 		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
 
@@ -232,7 +232,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, [](const TColorKeyFrame& value) { return value.mValue.a; }),
 			GenerateSerializePointsCallback(pTrack, [](TColorKeyFrame& dest, F32 value) { return dest.mValue.a = value; }) });
 
-		mOnDrawImpl = _generateDrawCallback();
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
 
 		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
 
@@ -260,7 +260,7 @@ namespace TDEngine2
 
 		mPreSerializeAction = GeneratePreSerializeCallback(pTrack);
 
-		mOnDrawImpl = _generateDrawCallback();
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
 
 		_initCurvesState();
 
@@ -525,9 +525,9 @@ namespace TDEngine2
 		}
 	}
 
-	CTrackSheetEditor::TCurveDrawCallback CTrackSheetEditor::_generateDrawCallback()
+	CTrackSheetEditor::TCurveDrawCallback CTrackSheetEditor::_generateDrawCallback(F32 trackDuration)
 	{
-		return [this](const TVector2& frameSizes)
+		return [this, trackDuration](const TVector2& frameSizes)
 		{
 			U8 i = 0;
 
@@ -540,6 +540,17 @@ namespace TDEngine2
 			};
 
 			TAnimationCurveEditorParams curveParams;
+
+			TRectF32 gridBounds(0.0f, (std::numeric_limits<F32>::max)(), trackDuration, 0.0f);
+
+			/// \note Find common boundaries for all curves
+			for (auto&& currCurveBindingInfo : mCurvesTable)
+			{
+				auto&& currBounds = currCurveBindingInfo.second.mpCurve->GetBounds();
+
+				gridBounds.y      = std::min<F32>(gridBounds.y, currBounds.y);
+				gridBounds.height = std::max<F32>(gridBounds.height, currBounds.height);
+			}
 
 			for (auto&& currCurveBindingInfo : mCurvesTable)
 			{
@@ -556,6 +567,8 @@ namespace TDEngine2
 				curveParams.mIsBackgroundVisible = false;
 				curveParams.mCurveColor = ((mCurvesTable.size() < 2) ? curveColors[2] : (mCurrSelectedCurveId != currCurveBindingInfo.first ? curveColors[3] : curveColors[i]));
 				curveParams.mShouldIgnoreInput = mCurrSelectedCurveId != currCurveBindingInfo.first;
+				curveParams.mUseCustomGridBounds = true;
+				curveParams.mGridBounds = gridBounds;
 				curveParams.mOnCurveClickedCallback = [id = currCurveBindingInfo.first, this]
 				{
 					mCurrSelectedCurveId = id;

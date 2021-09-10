@@ -120,14 +120,15 @@ namespace TDEngine2
 	}
 
 	static void DrawCurveLine(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, I32 controlPointsOffset,
-							  const TColor32F& curveColor, F32 handlePointSize, F32 handlePointButtonSize, const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, bool shouldIgnoreInput)
+							  const TColor32F& curveColor, F32 handlePointSize, F32 handlePointButtonSize, const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, bool shouldIgnoreInput,
+							  bool useCustomBounds = false, const TRectF32* pCustomGridBounds = nullptr)
 	{
 		if (!pCurve)
 		{
 			return;
 		}
 
-		const TRectF32& curveBounds = pCurve->GetBounds();
+		const TRectF32& curveBounds = useCustomBounds ? *pCustomGridBounds : pCurve->GetBounds();
 
 		const CAnimationCurveEditorWindow::TCurveTransformParams transformParams{ curveBounds, cursorPos, width, height };
 
@@ -274,12 +275,12 @@ namespace TDEngine2
 
 		const F32 width = params.mFrameWidth;
 		const F32 height = params.mFrameHeight;
-
+		
 		IImGUIContext::TPlotGridParams gridParams;
 		{
 			gridParams.mWidth               = width;
 			gridParams.mHeight              = height;
-			gridParams.mFrame               = pCurve ? pCurve->GetBounds() : DefaultFrameBounds;
+			gridParams.mFrame               = pCurve ? (params.mUseCustomGridBounds ? params.mGridBounds : pCurve->GetBounds()) : DefaultFrameBounds;
 			gridParams.mIsGridEnabled       = params.mIsGridVisible;
 			gridParams.mIsBackgroundEnabled = params.mIsBackgroundVisible;
 			gridParams.mCurveColor          = params.mCurveColor;
@@ -287,7 +288,8 @@ namespace TDEngine2
 
 		pImGUIContext->DrawPlotGrid("Plot", gridParams, [=, curveColor = gridParams.mCurveColor, shouldIgnoreInput = params.mShouldIgnoreInput](auto&& pos)
 		{
-			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, params.mOnCurveClickedCallback, shouldIgnoreInput);
+			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, params.mOnCurveClickedCallback, shouldIgnoreInput,
+						  params.mUseCustomGridBounds, &params.mGridBounds);
 			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, shouldIgnoreInput);
 		});
 

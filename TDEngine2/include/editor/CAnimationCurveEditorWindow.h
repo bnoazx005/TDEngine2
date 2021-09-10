@@ -29,8 +29,11 @@ namespace TDEngine2
 
 		bool            mIsGridVisible = false;
 		bool            mIsBackgroundVisible = false;
+		bool            mUseCustomGridBounds = false;
 
 		bool            mShouldIgnoreInput = false;
+
+		TRectF32        mGridBounds;
 
 		TColor32F       mCurveColor = TColorUtils::mGreen;
 
