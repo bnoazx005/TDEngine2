@@ -482,8 +482,11 @@ namespace TDEngine2
 			if (pImGUIContext->IsItemHovered() && pImGUIContext->IsMouseDoubleClicked(0))
 			{
 				/// \note Convert mouse position into track's space
-				auto newKeyHandle = pClip->GetTrack<IAnimationTrack>(trackId)->CreateKey(CMathUtils::Clamp(0.0f, frameWidth, pImGUIContext->GetMousePosition().x - cursorPosition.x) / pixelsPerSecond);
-				TDE2_ASSERT(TAnimationTrackKeyId::Invalid != newKeyHandle);
+				if (auto pTrack = pClip->GetTrack<IAnimationTrack>(trackId))
+				{
+					auto newKeyHandle = pTrack->CreateKey(CMathUtils::Clamp(0.0f, frameWidth, pImGUIContext->GetMousePosition().x - cursorPosition.x) / pixelsPerSecond);
+					TDE2_ASSERT(TAnimationTrackKeyId::Invalid != newKeyHandle);
+				}				
 
 				hasNewFrameKeyWasCreated = false;
 			}

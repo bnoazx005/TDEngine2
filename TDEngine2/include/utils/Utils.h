@@ -703,6 +703,7 @@ namespace TDEngine2
 			}
 
 			T* Get() { return mpPtr; }
+			const T* Get() const { return mpPtr; }
 
 			operator bool() const { return (mpPtr != nullptr); }
 		private:

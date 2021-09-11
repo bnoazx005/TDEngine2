@@ -16,11 +16,16 @@
 
 namespace TDEngine2
 {
-	typedef struct TVector2KeyFrame
+	template <typename T, typename TBitsetType = U8>
+	struct TGenericKeyFrame
 	{
-		F32 mTime;
-		TVector2 mValue;
-	} TVector2KeyFrame, *TVector2KeyFramePtr;
+		F32         mTime;
+		T           mValue;
+		TBitsetType mUsedChannels;
+	};
+
+
+	typedef TGenericKeyFrame<TVector2> TVector2KeyFrame, *TVector2KeyFramePtr;
 
 
 	/*!
@@ -61,11 +66,7 @@ namespace TDEngine2
 	};
 
 
-	typedef struct TVector3KeyFrame
-	{
-		F32 mTime;
-		TVector3 mValue;
-	} TVector3KeyFrame, *TVector3KeyFramePtr;
+	typedef TGenericKeyFrame<TVector3> TVector3KeyFrame, *TVector3KeyFramePtr;
 
 
 	/*!
@@ -111,11 +112,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef struct TQuaternionKeyFrame
-	{
-		F32 mTime;
-		TQuaternion mValue;
-	} TQuaternionKeyFrame, *TQuaternionKeyFramePtr;
+	typedef TGenericKeyFrame<TQuaternion> TQuaternionKeyFrame, *TQuaternionKeyFramePtr;
 
 
 	/*!
@@ -161,11 +158,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef struct TColorKeyFrame
-	{
-		F32 mTime;
-		TColor32F mValue;
-	} TColorKeyFrame, *TColorKeyFramePtr;
+	typedef TGenericKeyFrame<TColor32F> TColorKeyFrame, *TColorKeyFramePtr;
 
 
 	/*!
@@ -211,11 +204,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef struct TBooleanKeyFrame
-	{
-		F32 mTime;
-		bool mValue;
-	} TBooleanKeyFrame, *TBooleanKeyFramePtr;
+	typedef TGenericKeyFrame<bool> TBooleanKeyFrame, *TBooleanKeyFramePtr;
 
 
 	/*!
@@ -260,11 +249,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef struct TFloatKeyFrame
-	{
-		F32 mTime;
-		F32 mValue;
-	} TFloatKeyFrame, *TFloatKeyFramePtr;
+	typedef TGenericKeyFrame<F32> TFloatKeyFrame, *TFloatKeyFramePtr;
 
 
 	/*!
@@ -309,11 +294,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef struct TIntegerKeyFrame
-	{
-		F32 mTime;
-		I32 mValue;
-	} TIntegerKeyFrame, *TIntegerKeyFramePtr;
+	typedef TGenericKeyFrame<I32> TIntegerKeyFrame, *TIntegerKeyFramePtr;
 
 
 	/*!
@@ -358,11 +339,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef struct TEventKeyFrame
-	{
-		F32 mTime;
-		std::string mValue;
-	} TEventKeyFrame, *TEventKeyFramePtr;
+	typedef TGenericKeyFrame<std::string> TEventKeyFrame, *TEventKeyFramePtr;
 
 
 	/*!

@@ -43,7 +43,15 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IAnimationClip* pTrackOwner) = 0;
 
-			TDE2_API virtual TAnimationTrackKeyId CreateKey(F32 time) = 0;
+			/*!
+				\brief The method creates a new sample in the track at the given time position
+
+				\param[in] time A position of a created sample
+				\param[in] pChannelsUsageMask A bitset that tells which channels of the track are used in the sample. Pass nullptr to skip overwriting of previous value if 
+				the key is already exist. The invokation with nullptr for the sample that isn't in the track generates a new one with 0xFF as usedChannels mask
+			*/
+
+			TDE2_API virtual TAnimationTrackKeyId CreateKey(F32 time, const U8* pChannelsUsageMask = nullptr) = 0;
 			TDE2_API virtual E_RESULT_CODE RemoveKey(TAnimationTrackKeyId handle) = 0;
 
 			TDE2_API virtual E_RESULT_CODE Apply(IPropertyWrapper* pPropertyWrapper, F32 time) = 0;

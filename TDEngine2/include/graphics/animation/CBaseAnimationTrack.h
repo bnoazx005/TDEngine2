@@ -165,21 +165,26 @@ namespace TDEngine2
 				keys in sorted manner
 			*/
 
-			TDE2_API TAnimationTrackKeyId CreateKey(F32 time) override
+			TDE2_API TAnimationTrackKeyId CreateKey(F32 time, const U8* pChannelsUsageMask = nullptr) override
 			{
-				auto it = std::find_if(mKeys.cbegin(), mKeys.cend(), [time](const TKeyFrameType& key) { return CMathUtils::Abs(key.mTime - time) < 1e-3f; });
-				if (it != mKeys.cend()) 
+				auto it = std::find_if(mKeys.begin(), mKeys.end(), [time](const TKeyFrameType& key) { return CMathUtils::Abs(key.mTime - time) < 1e-3f; });
+				if (it != mKeys.end()) 
 				{
-					return static_cast<TAnimationTrackKeyId>(std::distance(mKeys.cbegin(), it));
+					if (pChannelsUsageMask)
+					{
+						it->mUsedChannels = *pChannelsUsageMask; /// Update current used channels 
+					}
+
+					return GetKeyHandleByTime(time);
 				}
 
 				TAnimationTrackKeyId handle = static_cast<TAnimationTrackKeyId>(mKeys.size());
 
-				it = std::find_if(mKeys.cbegin(), mKeys.cend(), [time](const TKeyFrameType& key) { return key.mTime > time; }); // find first key which is lesser than a new one
+				it = std::find_if(mKeys.begin(), mKeys.end(), [time](const TKeyFrameType& key) { return key.mTime > time; }); // find first key which is lesser than a new one
 
-				const U32 index = static_cast<U32>(std::distance(mKeys.cbegin(), it));
+				const U32 index = static_cast<U32>(std::distance(mKeys.begin(), it));
 
-				mKeys.insert(it, { time, {} });
+				mKeys.insert(it, { time, {}, pChannelsUsageMask ? *pChannelsUsageMask : static_cast<U8>(0xFF) });
 
 				// \note refresh handles
 				for (auto& currHandleEntity : mKeysHandlesMap)
