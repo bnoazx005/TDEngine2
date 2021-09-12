@@ -13,7 +13,7 @@ namespace TDEngine2
 		const F32& width = params.mFrameWidth;
 		const F32& height = params.mFrameHeight;
 
-		TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f);
+		TDE2_ASSERT(curveBounds.width > 0.0f);
 
 		return
 		{
@@ -30,7 +30,7 @@ namespace TDEngine2
 		const F32& width = params.mFrameWidth;
 		const F32& height = params.mFrameHeight;
 
-		TDE2_ASSERT(curveBounds.width > 0.0f && curveBounds.height > 0.0f && width > 0.0f && height > 0.0f);
+		TDE2_ASSERT(curveBounds.width > 0.0f && width > 0.0f); /// \note heght could be zero
 
 		return
 		{
