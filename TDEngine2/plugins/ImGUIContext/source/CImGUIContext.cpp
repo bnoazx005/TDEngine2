@@ -559,12 +559,13 @@ namespace TDEngine2
 
 			const F32 yStep = height / static_cast<F32>(params.mRowsCount);
 			const F32 yFrameStep = params.mFrame.height / static_cast<F32>(params.mRowsCount);
+			const F32 yMaxLimit = params.mFrame.height + params.mFrame.y;
 
 			for (U8 i = 0; i < params.mRowsCount; ++i)
 			{
 				const TVector2& p0 = pos + (i * yStep) * UpVector2;
 
-				const F32 currCoord = params.mFrame.height - i * yFrameStep;
+				const F32 currCoord = yMaxLimit - i * yFrameStep;
 
 				DrawLine(p0, p0 + TVector2(width, 0.0f), params.mAxesColor);
 				DrawText(pos + (i * yStep + 10.f) * UpVector2, params.mAxesColor, Wrench::StringUtils::Format("{0}", currCoord));

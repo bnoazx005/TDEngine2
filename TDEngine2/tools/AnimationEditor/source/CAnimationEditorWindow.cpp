@@ -179,6 +179,7 @@ namespace TDEngine2
 				});
 			}
 
+			/// \todo Check whether any track exists or not in the clip
 			{
 				const bool prevDopeSheetModeState = mIsDopeSheetModeEnabled;
 

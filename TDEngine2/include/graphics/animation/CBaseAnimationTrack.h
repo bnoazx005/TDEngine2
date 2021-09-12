@@ -108,8 +108,11 @@ namespace TDEngine2
 				{
 					pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 					{
+						U8 usedChannels = pReader->GetUInt8("used_channels_mask");
+						usedChannels = usedChannels ? usedChannels : static_cast<U8>(0xFF);
+
 						pReader->BeginGroup("key");
-						_loadKeyFrameValue(CreateKey(pReader->GetFloat("time")), pReader);
+						_loadKeyFrameValue(CreateKey(pReader->GetFloat("time"), &usedChannels), pReader);
 						pReader->EndGroup();
 					}
 					pReader->EndGroup();
@@ -148,6 +151,7 @@ namespace TDEngine2
 						pWriter->BeginGroup("key");
 
 						pWriter->SetFloat("time", currKey.mTime);
+						pWriter->SetUInt8("used_channels_mask", currKey.mUsedChannels);
 						_saveKeyFrameValue(currKey, pWriter); // \note Write down the value
 
 						pWriter->EndGroup();
