@@ -102,9 +102,44 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	return RC_OK;
 }
 
+
+static void DrawGrid(IDebugUtility* pDebugUtility, I32 rows, I32 cols, F32 cellSize = 1.0f)
+{
+	const F32 halfWidth  = 0.5f * cols * cellSize;
+	const F32 halfHeight = 0.5f * rows * cellSize;
+
+	for (I32 i = rows / 2; i >= -rows / 2; --i)
+	{
+		if (!i)
+		{
+			continue;
+		}
+
+		pDebugUtility->DrawLine(TVector3(-halfWidth, 0.0f, i * cellSize), TVector3(halfWidth, 0.0f, i * cellSize), TColorUtils::mWhite);
+	}
+
+	for (I32 i = cols / 2; i >= -cols / 2; --i)
+	{
+		if (!i)
+		{
+			continue;
+		}
+
+		pDebugUtility->DrawLine(TVector3(i * cellSize, 0.0f, halfHeight), TVector3(i * cellSize, 0.0f, -halfHeight), TColorUtils::mWhite);
+	}
+
+	/// \note Center lines
+
+	pDebugUtility->DrawLine(TVector3(-halfWidth, 0.0f, 0.0f), TVector3(halfWidth, 0.0f, 0.0f), TColorUtils::mRed);
+	pDebugUtility->DrawLine(TVector3(0.0f, 0.0f, -halfHeight), TVector3(0.0f, 0.0f, halfHeight), TColorUtils::mRed);
+}
+
+
 TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
 	mpAnimationEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+
+	DrawGrid(mpGraphicsContext->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get(), 10, 10);
 
 	_drawMainMenu();
 
