@@ -266,6 +266,11 @@ namespace TDEngine2
 		return (TAnimationTrackId::Invalid == mEventTrackHandle) ? nullptr : mpTracks.at(mEventTrackHandle);
 	}
 
+	U32 CAnimationClip::GetTracksCount() const
+	{
+		return static_cast<U32>(mpTracks.size());
+	}
+
 	const IResourceLoader* CAnimationClip::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IAnimationClip>();

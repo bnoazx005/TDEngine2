@@ -184,6 +184,8 @@ namespace TDEngine2
 			{
 				return dynamic_cast<T*>(_getTrackInternal(handle));
 			}
+
+			TDE2_API U32 GetTracksCount() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationClip)
 

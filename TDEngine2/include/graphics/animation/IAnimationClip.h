@@ -173,6 +173,8 @@ namespace TDEngine2
 			TDE2_API virtual IAnimationTrack* GetEventTrack() const = 0;
 
 			TDE2_API virtual void ForEachTrack(const std::function<bool(TAnimationTrackId trackId, IAnimationTrack*)>& action = nullptr) = 0;
+
+			TDE2_API virtual U32 GetTracksCount() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationClip)
 

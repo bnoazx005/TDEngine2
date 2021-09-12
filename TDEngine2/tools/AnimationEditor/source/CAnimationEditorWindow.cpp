@@ -179,7 +179,8 @@ namespace TDEngine2
 				});
 			}
 
-			/// \todo Check whether any track exists or not in the clip
+			/// \note Check whether any track exists or not in the clip
+			if (mpCurrAnimationClip->GetTracksCount() > 0)
 			{
 				const bool prevDopeSheetModeState = mIsDopeSheetModeEnabled;
 
