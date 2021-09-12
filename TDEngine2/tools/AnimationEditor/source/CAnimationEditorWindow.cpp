@@ -277,6 +277,8 @@ namespace TDEngine2
 					mUsedPropertyBindings.insert(propertyBinding);
 				}
 
+				auto prevSelectedTrackId = mSelectedTrackId;
+
 				if (TAnimationTrackId::Invalid == mSelectedTrackId)
 				{
 					mSelectedTrackId = trackId;
@@ -286,6 +288,11 @@ namespace TDEngine2
 				if (mpImGUIContext->SelectableItem(Wrench::StringUtils::Format("{0}: {1}", entityName, bindingName), mSelectedTrackId == trackId))
 				{					
 					mSelectedTrackId = trackId;
+				}
+
+				if (prevSelectedTrackId != mSelectedTrackId)
+				{
+					mHasEditModeBeenChanged = true;
 				}
 
 				/// \todo Remove the selected track
