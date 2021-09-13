@@ -306,7 +306,7 @@ namespace TDEngine2
 	U8 CYAMLFileReader::GetUInt8(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<U8>(key);
+		return static_cast<U8>(_getContentAs<U16>(key));
 	}
 
 	U16 CYAMLFileReader::GetUInt16(const std::string& key)
