@@ -144,7 +144,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 1.0f };
+		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 0.0f };
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("x", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
@@ -172,7 +172,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TRectF32 trackBounds { 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 1.0f };
+		const TRectF32 trackBounds { 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 0.0f };
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("x", TTrack2CurveBindingInfo { CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) }, 
@@ -204,7 +204,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 1.0f };
+		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 0.0f };
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("x", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
@@ -240,7 +240,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 1.0f };
+		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 0.0f };
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("r", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
@@ -276,7 +276,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 1.0f };
+		const TRectF32 trackBounds{ 0.0f, 0.0f, pTrack->GetOwner()->GetDuration(), 0.0f };
 
 		/// \note Create new curves 
 		mCurvesTable.emplace("value", TTrack2CurveBindingInfo{ CScopedPtr<CAnimationCurve> { CreateAnimationCurve(trackBounds, result) },
@@ -577,7 +577,7 @@ namespace TDEngine2
 				auto&& currBounds = currCurveBindingInfo.second.mpCurve->GetBounds();
 
 				gridBounds.y      = std::min<F32>(gridBounds.y, currBounds.y);
-				gridBounds.height = std::max<F32>(gridBounds.height, currBounds.height);
+				gridBounds.height = std::max<F32>(1e-3f, std::max<F32>(gridBounds.height, currBounds.height + currBounds.y));
 			}
 
 			for (auto&& currCurveBindingInfo : mCurvesTable)
