@@ -108,11 +108,13 @@ namespace TDEngine2
 				{
 					pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 					{
-						U8 usedChannels = pReader->GetUInt8("used_channels_mask");
-						usedChannels = usedChannels ? usedChannels : static_cast<U8>(0xFF);
-
 						pReader->BeginGroup("key");
-						_loadKeyFrameValue(CreateKey(pReader->GetFloat("time"), &usedChannels), pReader);
+						{
+							U8 usedChannels = pReader->GetUInt8("used_channels_mask");
+							usedChannels = usedChannels ? usedChannels : static_cast<U8>(0xFF);
+
+							_loadKeyFrameValue(CreateKey(pReader->GetFloat("time"), &usedChannels), pReader);
+						}
 						pReader->EndGroup();
 					}
 					pReader->EndGroup();

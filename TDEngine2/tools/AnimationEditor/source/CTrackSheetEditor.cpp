@@ -569,16 +569,19 @@ namespace TDEngine2
 
 			TAnimationCurveEditorParams curveParams;
 
-			TRectF32 gridBounds(0.0f, (std::numeric_limits<F32>::max)(), trackDuration, -(std::numeric_limits<F32>::max)());
+			F32 minY = (std::numeric_limits<F32>::max)();
+			F32 maxY = -minY;
 
 			/// \note Find common boundaries for all curves
 			for (auto&& currCurveBindingInfo : mCurvesTable)
 			{
 				auto&& currBounds = currCurveBindingInfo.second.mpCurve->GetBounds();
 
-				gridBounds.y      = std::min<F32>(gridBounds.y, currBounds.y);
-				gridBounds.height = std::max<F32>(1e-3f, std::max<F32>(gridBounds.height, currBounds.height + currBounds.y));
+				minY = std::min<F32>(minY, currBounds.y);
+				maxY = std::max<F32>(maxY, currBounds.y + currBounds.height);
 			}
+
+			const TRectF32 gridBounds(0.0f, minY, trackDuration, CMathUtils::Abs(maxY - minY));
 
 			for (auto&& currCurveBindingInfo : mCurvesTable)
 			{
