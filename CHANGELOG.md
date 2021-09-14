@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0]  2021-08-02
+
+### Changed
+
+### Added
+
+- An implementation of basic material functionality was introduced
+
+- A pack of utilities were added including tde2_mesh_converter, tde2_resource_packer, TDE2FontEd, TDE2AnimationEd
+
+- Scene manager with support of sync/async scene loading was added
+
+- A few types of textures (2D / Cubemap) were supported
+
+- Off-screen rendering support was also provided via RenderBuffer / DepthBuffer resources
+
+- Basic functionality of save manager was added
+
+- Support of UI system with flexible layout was implemented
+
+- Particles with their own editor TDE2ParticlesEd
+
+- 2D/3D physics
+
+- Audio system based on FMOD library
+
+- Post-processing camera stack
+
+- Localization manager with corresponding resource to store locales data
+
+- first iteration of 3D animation system
+
+- Support of skinned meshes
+
+### Fixed
+
 ## [0.4.22] - 2020-10-08
 
 ### Changed
