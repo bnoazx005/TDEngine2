@@ -2,6 +2,7 @@
 #include "../../include/graphics/animation/CAnimationCurve.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/math/MathUtils.h"
+#include "../../include/utils/CFileLogger.h"
 
 
 namespace TDEngine2
@@ -40,10 +41,12 @@ namespace TDEngine2
 	};
 
 
-	static void DrawCurvePoint(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, I32 id, const TVector2& pos, const CAnimationCurveEditorWindow::TCurveTransformParams& invTransformParams,
+	static bool DrawCurvePoint(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, I32 id, const TVector2& pos, const CAnimationCurveEditorWindow::TCurveTransformParams& invTransformParams,
 							   F32 handlePointSize, F32 handlePointButtonSize, const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, bool shouldIgnoreInput)
 	{
-		pImGUIContext->DisplayIDGroup(id, [shouldIgnoreInput, pImGUIContext, pCurve, handlePointSize, handlePointButtonSize, onCurveClicked, p0 = pos, &invTransformParams, id]
+		bool hasPointBeenRemoved = false;
+
+		pImGUIContext->DisplayIDGroup(id, [shouldIgnoreInput, pImGUIContext, pCurve, handlePointSize, handlePointButtonSize, onCurveClicked, p0 = pos, &hasPointBeenRemoved, &invTransformParams, id]
 		{
 			pImGUIContext->DrawCircle(p0, handlePointSize, true, TColorUtils::mGreen);
 
@@ -79,8 +82,21 @@ namespace TDEngine2
 				onCurveClicked();
 			}
 
+			pImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("Point{0}_{1}_ContextMenu", id, reinterpret_cast<uintptr_t>(pCurve)), [pCurve, id, &hasPointBeenRemoved](IImGUIContext& imguiContext)
+			{
+				imguiContext.MenuItem("Remove Point", "DEL", [pCurve, id, &hasPointBeenRemoved]
+				{
+					E_RESULT_CODE result = pCurve->RemovePoint(static_cast<U32>(id));
+					TDE2_ASSERT(RC_OK == result);
+
+					hasPointBeenRemoved = true;
+				});
+			});
+
 			pImGUIContext->SetCursorScreenPos(pos);
 		});
+
+		return hasPointBeenRemoved;
 	}
 
 	TVector2 DrawControlPoint(IImGUIContext* pImGUIContext, I32 id, const TVector2& pos, const TVector2& controlPointPos, const CAnimationCurveEditorWindow::TCurveTransformParams& invTransformParams,
@@ -153,7 +169,10 @@ namespace TDEngine2
 				pImGUIContext->DrawCubicBezier(p0, t0, p1, t1, curveColor);
 			}
 
-			DrawCurvePoint(pImGUIContext, pCurve, static_cast<I32>(std::distance(pCurve->begin(), it)), p0, transformParams, handlePointSize, handlePointButtonSize, onCurveClicked, shouldIgnoreInput);
+			if (DrawCurvePoint(pImGUIContext, pCurve, static_cast<I32>(std::distance(pCurve->begin(), it)), p0, transformParams, handlePointSize, handlePointButtonSize, onCurveClicked, shouldIgnoreInput))
+			{
+				break; /// \note Break the iteration because we've removed the point 
+			}
 
 			if (it < pCurve->end() - 1)
 			{
