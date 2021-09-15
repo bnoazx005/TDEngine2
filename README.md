@@ -24,9 +24,7 @@ TDEngine 2 is a cross-platform game engine.
 
 ### Current Goals:<a name="current-goals"></a>
 
-* Entity-Component-System architecture;
-
-* Windows (7 and higher), UNIX systems and Android OS support;
+* Android OS support;
 
 * 2D and 3D graphics support via Direct3D 11 and OpenGL 3.3 (with extensions) GAPIs;
 
@@ -48,7 +46,11 @@ TDEngine 2 is a cross-platform game engine.
 
 * 2D sprites rendering with instancing support;
 
-* 3D static meshes rendering with different configurable materials;
+* 3D static and skinned meshes rendering with different configurable materials;
+
+* Support of particle effects, animations with custom editors
+
+* Scene management with support of asynchronous loading of scenes and assets
 
 ***
 
@@ -72,7 +74,7 @@ prepare_build_generic_win.bat "<<Generator name>>" "<<Build Type>>"
 prepare_build_vs2017_win32.bat
 ```
 
-Both arguments for the script is one of allowed by CMake tool. <<Build Type>> could be Debug or Release values.
+Both arguments for the script is one of allowed by CMake tool. _**\<\<Build Type\>\>**_ could be **Debug** or **Release** values.
 After execution all binaries and libraries will be available under /bin/%CONFIGURATION%/ directory.
 
 #### Make utility (UNIX)<a name="make-unix"></a>
@@ -86,6 +88,14 @@ $ cd build
 $ cmake .. -G "Unix Makefiles"
 ```
 
+Another approach to build the engine is to use shell script **prepare_build_generic_unix.sh** from **build/** directory. 
+
+```bash
+$ ./prepare_build_generic_unix.sh "<<Build Type>>"
+```
+
+_**\<\<Build Type\>\>**_ argument can equal either to **Debug** or **Release**.
+
 Note. There are a few requirements for successfull compilation of the engine under UNIX. The first is
 a support of GLX 1.4. It could be done if you have proprietary video drivers installed on your system.
 So your video card should support at least OpenGL 3.0. The second is installed X11 and GLEW libraries.
@@ -94,5 +104,37 @@ So your video card should support at least OpenGL 3.0. The second is installed X
 
 ### Getting Started<a name="getting-started"></a>
 
-(soon)
+The simplest application that creates an empty window consists of the following lines of code:
+```cpp
+#include <TDEngine2.h>
 
+#if defined (TDE2_USE_WIN32PLATFORM)
+    #pragma comment(lib, "TDEngine2.lib")
+#endif
+
+using namespace TDEngine2;
+
+
+int main(int argc, char** argv)
+{
+    E_RESULT_CODE result = RC_OK;
+    
+    IEngineCoreBuilder* pEngineCoreBuilder = CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result);
+
+    if (result != RC_OK)
+    {
+        return -1;
+    }
+
+    IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
+
+    pEngineCoreBuilder->Free();
+    
+    pEngineCore->Run();
+    
+    pEngineCore->Free();
+
+    return 0;
+}
+```
+You can see that there is "settings.cfg" file used in the line where IEngineCoreBuilder* instance is retrieved. It's a configuration file that should have at least information about window's sizes, its title and graphics API that should be used. You can find the one inside **/Samples/TemplateApp/settings.zip** archive. In short it's just an INI file with all the syntax that corresponds to its notation.
