@@ -364,6 +364,35 @@ namespace TDEngine2
 					#endprogram
 					)";
 
+			case E_DEFAULT_SHADER_TYPE::DST_SHADOW_SKINNED_PASS:
+				return R"(
+					#version 330 core
+
+					#include <TDEngine2Globals.inc>
+
+					#define VERTEX_ENTRY main
+					#define PIXEL_ENTRY main
+
+					#program vertex
+
+					#include <TDEngine2SkinningUtils.inc>
+
+					layout (location = 0) in vec4  inlPos;
+					layout (location = 1) in vec4  inJointWeights;
+					layout (location = 2) in ivec4 inJointIndices;
+
+					void main(void)
+					{
+						gl_Position = SunLightMat * ModelMat * ComputeSkinnedVertexPos(inlPos, inJointWeights, inJointIndices);
+					}
+
+					#endprogram
+
+					#program pixel
+					void main(void) {}
+					#endprogram
+					)";
+
 			case E_DEFAULT_SHADER_TYPE::DST_TONE_MAPPING_PASS:
 				return R"(
 					#version 330 core

@@ -16,9 +16,7 @@ CBUFFER_SECTION(SkinningData)
 CBUFFER_ENDSECTION
 
 
-#ifdef TDE2_HLSL_SHADER
-
-float4 ComputeSkinnedVertexPos(in float3 position, in float4 weights, in uint4 indices)
+float4 ComputeSkinnedVertexPos(in float4 position, in float4 weights, in uint4 indices)
 {	
 	float weightsArray[MAX_VERTS_PER_JOINT];
 	weightsArray[0] = weights.x;
@@ -41,13 +39,6 @@ float4 ComputeSkinnedVertexPos(in float3 position, in float4 weights, in uint4 i
 
 	return float4(localPos, 1.0);
 }
-
-#endif
-
-
-#ifdef TDE2_GLSL_SHADER
-
-#endif
 
 
 #endif
