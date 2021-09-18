@@ -391,6 +391,87 @@ namespace TDEngine2
 		return 0;
 	}
 
+	GLint COGLMappings::GetTypeSize(GLenum type)
+	{
+		switch (type)
+		{
+			case GL_FLOAT:
+				return sizeof(F32);
+			case GL_FLOAT_VEC2:
+				return sizeof(F32) * 2;
+			case GL_FLOAT_VEC3:
+				return sizeof(F32) * 3;
+			case GL_FLOAT_VEC4:
+				return sizeof(F32) * 4;
+			case GL_DOUBLE:
+				return sizeof(F64);
+			case GL_DOUBLE_VEC2:
+				return sizeof(F64) * 2;
+			case GL_DOUBLE_VEC3:
+				return sizeof(F64) * 3;
+			case GL_DOUBLE_VEC4:
+				return sizeof(F64) * 4;
+			case GL_INT:
+				return sizeof(I32);
+			case GL_INT_VEC2:
+				return sizeof(I32) * 2;
+			case GL_INT_VEC3:
+				return sizeof(I32) * 3;
+			case GL_INT_VEC4:
+				return sizeof(I32) * 4;
+			case GL_UNSIGNED_INT:
+				return sizeof(U32);
+			case GL_UNSIGNED_INT_VEC2:
+				return sizeof(U32) * 2;
+			case GL_UNSIGNED_INT_VEC3:
+				return sizeof(U32) * 3;
+			case GL_UNSIGNED_INT_VEC4:
+				return sizeof(U32) * 4;
+			case GL_BOOL:
+				return sizeof(bool);
+			case GL_BOOL_VEC2:
+				return sizeof(bool) * 2;
+			case GL_BOOL_VEC3:
+				return sizeof(bool) * 3;
+			case GL_BOOL_VEC4:
+				return sizeof(bool) * 4;
+			case GL_FLOAT_MAT2:
+				return sizeof(F32) * 4;
+			case GL_FLOAT_MAT3:
+				return sizeof(F32) * 9;
+			case GL_FLOAT_MAT4:
+				return sizeof(F32) * 16;
+			case GL_FLOAT_MAT2x3:
+			case GL_FLOAT_MAT3x2:
+				return sizeof(F32) * 6;
+			case GL_FLOAT_MAT4x2:
+			case GL_FLOAT_MAT2x4:
+				return sizeof(F32) * 8;
+			case GL_FLOAT_MAT4x3:
+			case GL_FLOAT_MAT3x4:
+				return sizeof(F32) * 12;
+			case GL_DOUBLE_MAT2:
+				return sizeof(F64) * 9;
+			case GL_DOUBLE_MAT3:
+				return sizeof(F64) * 9;
+			case GL_DOUBLE_MAT4:
+				return sizeof(F64) * 9;
+			case GL_DOUBLE_MAT2x3:
+			case GL_DOUBLE_MAT3x2:
+				return sizeof(F64) * 6;
+			case GL_DOUBLE_MAT2x4:
+			case GL_DOUBLE_MAT4x2:
+				return sizeof(F64) * 8;
+			case GL_DOUBLE_MAT3x4:
+			case GL_DOUBLE_MAT4x3:
+				return sizeof(F64) * 12;
+		}
+
+		TDE2_UNREACHABLE();
+
+		return 0;
+	}
+
 	bool COGLMappings::IsFormatNormalized(E_FORMAT_TYPE format)
 	{
 		switch (format)

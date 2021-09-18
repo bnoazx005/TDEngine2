@@ -338,8 +338,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			/// \note animated mesh entity
 			if (auto pAnimatedMeshEntity = pScene->CreateEntity("AnimatedMesh"))
 			{
-				pAnimatedMeshEntity->AddComponent<CShadowCasterComponent>();
-				pAnimatedMeshEntity->AddComponent<CShadowReceiverComponent>();
+				//pAnimatedMeshEntity->AddComponent<CShadowCasterComponent>();
+				//pAnimatedMeshEntity->AddComponent<CShadowReceiverComponent>();
 				pAnimatedMeshEntity->AddComponent<CBoundsComponent>();
 				pAnimatedMeshEntity->AddComponent<CMeshAnimatorComponent>();
 

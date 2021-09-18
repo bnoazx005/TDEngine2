@@ -109,6 +109,12 @@ namespace TDEngine2
 			TDE2_API static GLsizei GetFormatSize(E_FORMAT_TYPE format);
 
 			/*!
+				\brief The method returns a size of a type that can be retrieved from glGetActiveUniform
+			*/
+
+			TDE2_API static GLint GetTypeSize(GLenum type);
+
+			/*!
 				\brief The function is a predicate that returns true if a given format is normalized,
 				false in other cases
 

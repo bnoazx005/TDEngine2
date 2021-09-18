@@ -127,8 +127,6 @@ namespace TDEngine2
 	{
 		auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
-		TUniformBufferDesc currDesc;
-
 		E_RESULT_CODE result = RC_OK;
 
 		mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
@@ -138,9 +136,9 @@ namespace TDEngine2
 			But only user's buffers are processed by the shader itself, therefore we create only them and store into mUniformBuffers
 		*/
 
-		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
+		for (auto iter = uniformBuffersInfo.begin(); iter != uniformBuffersInfo.end(); ++iter)
 		{
-			currDesc = (*iter).second;
+			TUniformBufferDesc& currDesc = (*iter).second;
 
 			mUniformBuffersMap[currDesc.mSlot] = glGetUniformBlockIndex(mShaderHandler, (*iter).first.c_str());
 
@@ -160,7 +158,50 @@ namespace TDEngine2
 			I32 reflectionBlockSize = 0;
 			glGetActiveUniformBlockiv(mShaderHandler, mUniformBuffersMap[currDesc.mSlot], GL_UNIFORM_BLOCK_DATA_SIZE, &reflectionBlockSize);
 
-			currDesc.mSize = std::max<U32>(currDesc.mSize, static_cast<U32>(reflectionBlockSize));
+			if (currDesc.mSize != reflectionBlockSize)
+			{
+				auto& uniformBlockInfo = mpShaderMeta->mUniformBuffersInfo[iter->first];
+				uniformBlockInfo.mSize = static_cast<U32>(reflectionBlockSize);
+
+				currDesc.mSize = uniformBlockInfo.mSize;
+
+				/// \note Recompute sizes of individual members of uniform buffers
+				I32 numOfActiveUniforms = 0;
+				glGetActiveUniformBlockiv(mShaderHandler, mUniformBuffersMap[currDesc.mSlot], GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &numOfActiveUniforms);
+
+				std::vector<I32> activeUniformsIndices;
+				activeUniformsIndices.resize(static_cast<size_t>(numOfActiveUniforms));
+
+				glGetActiveUniformBlockiv(mShaderHandler, mUniformBuffersMap[currDesc.mSlot], GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, &activeUniformsIndices.front());
+
+				I32 maxUniformNameLength = 0;
+				glGetProgramiv(mShaderHandler, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
+
+				std::string uniformName;
+				uniformName.resize(maxUniformNameLength);
+
+				I32 currUniformNameLength = 0;
+				I32 currUniformSize = 0;
+
+				GLenum type;
+
+				auto& uniformBlockVariables = uniformBlockInfo.mVariables;
+
+				for (const I32& currUniformIndex : activeUniformsIndices)
+				{
+					glGetActiveUniform(mShaderHandler, currUniformIndex, maxUniformNameLength, &currUniformNameLength, &currUniformSize, &type, &uniformName[0]);
+
+					auto it = std::find_if(uniformBlockVariables.begin(), uniformBlockVariables.end(), [uniformName](auto&& entity) 
+					{
+						return Wrench::StringUtils::StartsWith(uniformName, entity.mName);
+					});
+
+					if (it != uniformBlockVariables.end())
+					{
+						it->mSize = static_cast<U32>(COGLMappings::GetTypeSize(type) * currUniformSize);
+					}
+				}
+			}
 
 			/// the offset is used because the shaders doesn't store internal buffer by themselves
 			mUniformBuffers[currDesc.mSlot - TotalNumberOfInternalConstantBuffers] = CreateOGLConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
