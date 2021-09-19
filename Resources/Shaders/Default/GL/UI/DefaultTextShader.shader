@@ -16,7 +16,7 @@ out vec4 VertColor;
 
 void main(void)
 {
-	gl_Position = ProjMat * ViewMat * vec4(inPosUV.xy, 0.1, 1.0);// - vec4(1.5, 1.5, 0, 0);
+	gl_Position = ModelMat * vec4(inPosUV.xy, 0.1, 1.0);// - vec4(1.5, 1.5, 0, 0);
 	TexCoords = inPosUV.zw;
 
 	VertColor = inColor;
