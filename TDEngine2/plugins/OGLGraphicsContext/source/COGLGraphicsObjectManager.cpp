@@ -321,9 +321,9 @@ namespace TDEngine2
 
 					#include <TDEngine2SkinningUtils.inc>
 
-					layout (location = 0) in vec4  inlPos;
-					layout (location = 1) in vec4  inJointWeights;
-					layout (location = 2) in uvec4 inJointIndices;
+					layout (location = 0) in vec4 inlPos;
+					layout (location = 1) in vec4 inJointWeights;
+					layout (location = 2) in vec4 inJointIndices;
 
 					void main(void)
 					{
@@ -387,9 +387,9 @@ namespace TDEngine2
 
 					#include <TDEngine2SkinningUtils.inc>
 
-					layout (location = 0) in vec4  inlPos;
-					layout (location = 1) in vec4  inJointWeights;
-					layout (location = 2) in uvec4 inJointIndices;
+					layout (location = 0) in vec4 inlPos;
+					layout (location = 1) in vec4 inJointWeights;
+					layout (location = 2) in vec4 inJointIndices;
 
 					void main(void)
 					{
@@ -447,9 +447,9 @@ namespace TDEngine2
 
 					#include <TDEngine2SkinningUtils.inc>
 
-					layout (location = 0) in vec4  inlPos;
-					layout (location = 1) in vec4  inJointWeights;
-					layout (location = 2) in uvec4 inJointIndices;
+					layout (location = 0) in vec4 inlPos;
+					layout (location = 1) in vec4 inJointWeights;
+					layout (location = 2) in vec4 inJointIndices;
 
 					void main(void)
 					{

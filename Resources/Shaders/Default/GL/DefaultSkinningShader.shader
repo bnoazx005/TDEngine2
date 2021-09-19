@@ -15,7 +15,7 @@ layout (location = 2) in vec2 inUV;
 layout (location = 3) in vec4 inNormal;
 layout (location = 4) in vec4 inTangent;
 layout (location = 5) in vec4  inJointWeights;
-layout (location = 6) in uvec4 inJointIndices;
+layout (location = 6) in vec4 inJointIndices;
 
 out vec4 VertOutColor;
 out vec4 LightSpaceVertPos;
@@ -31,11 +31,17 @@ void main(void)
 	vec3 localNormal  = vec3(0.0);
 	vec3 localTangent = vec3(0.0);
 
-	for (int i = 0; i < 1; ++i)
+	int intJointIndices[MAX_VERTS_PER_JOINT];
+	intJointIndices[0] = int(inJointIndices.x);
+	intJointIndices[1] = int(inJointIndices.y);
+	intJointIndices[2] = int(inJointIndices.z);
+	intJointIndices[3] = int(inJointIndices.w);
+
+	for (int i = 0; i < MAX_VERTS_PER_JOINT; ++i)
 	{
-		localPos     += (mul(mJoints[inJointIndices[i]], inlPos) * inJointWeights[i]).xyz;
-		localNormal  += (mul(mJoints[inJointIndices[i]], inNormal) * inJointWeights[i]).xyz;
-		localTangent += (mul(mJoints[inJointIndices[i]], inTangent) * inJointWeights[i]).xyz;
+		localPos     += ((mJoints[intJointIndices[i]] * inlPos) * inJointWeights[i]).xyz;
+		localNormal  += (((mJoints[intJointIndices[i]] * inNormal)) * inJointWeights[i]).xyz;
+		localTangent += ((mJoints[intJointIndices[i]] * inTangent) * inJointWeights[i]).xyz;
 	}
 
 	vec4 pos = vec4(localPos, 1.0);
@@ -96,7 +102,6 @@ void main(void)
 	}
 
 	FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeShadowFactorPCF(8, LightSpaceVertPos, 0.0001, 1000.0)) * VertOutColor;
-	FragColor = GammaToLinear(TEX2D(AlbedoMap, VertOutUV));
 }
 
 #endprogram

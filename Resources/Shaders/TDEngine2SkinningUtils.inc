@@ -16,6 +16,8 @@ CBUFFER_SECTION(SkinningData)
 CBUFFER_ENDSECTION
 
 
+#ifdef TDE2_HLSL_SHADER
+
 float4 ComputeSkinnedVertexPos(in float4 position, in float4 weights, in uint4 indices)
 {	
 	float weightsArray[MAX_VERTS_PER_JOINT];
@@ -39,6 +41,38 @@ float4 ComputeSkinnedVertexPos(in float4 position, in float4 weights, in uint4 i
 
 	return float4(localPos, 1.0);
 }
+
+#endif
+
+
+#ifdef TDE2_GLSL_SHADER
+
+vec4 ComputeSkinnedVertexPos(in vec4 position, in vec4 weights, in vec4 indices)
+{	
+	float weightsArray[MAX_VERTS_PER_JOINT];
+	weightsArray[0] = weights.x;
+	weightsArray[1] = weights.y;
+	weightsArray[2] = weights.z;
+	weightsArray[3] = weights.w;
+
+	vec3 localPos = vec3(0.0);
+
+
+	int intJointIndices[MAX_VERTS_PER_JOINT];
+	intJointIndices[0] = int(indices.x);
+	intJointIndices[1] = int(indices.y);
+	intJointIndices[2] = int(indices.z);
+	intJointIndices[3] = int(indices.w);
+
+	for (int i = 0; i < MAX_VERTS_PER_JOINT; ++i)
+	{
+		localPos += ((mJoints[intJointIndices[i]] * position) * weightsArray[i]).xyz;
+	}
+
+	return vec4(localPos, 1.0);
+}
+
+#endif
 
 
 #endif
