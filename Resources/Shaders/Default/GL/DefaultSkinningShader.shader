@@ -27,27 +27,15 @@ out mat3 VertOutTBN;
 
 void main(void)
 {
-	float weights[MAX_VERTS_PER_JOINT];
-	weights[0] = inJointWeights.x;
-	weights[1] = inJointWeights.y;
-	weights[2] = inJointWeights.z;
-	weights[3] = inJointWeights.w;
-
-	mat4 jointMats[MAX_VERTS_PER_JOINT];
-	jointMats[0] = mJoints[inJointIndices.x];
-	jointMats[1] = mJoints[inJointIndices.y];
-	jointMats[2] = mJoints[inJointIndices.z];
-	jointMats[3] = mJoints[inJointIndices.w];
-
 	vec3 localPos     = vec3(0.0);
 	vec3 localNormal  = vec3(0.0);
 	vec3 localTangent = vec3(0.0);
 
-	for (int i = 0; i < MAX_VERTS_PER_JOINT; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
-		localPos     += (mul(jointMats[i], inlPos) * weights[i]).xyz;
-		localNormal  += (mul(jointMats[i], inNormal) * weights[i]).xyz;
-		localTangent += (mul(jointMats[i], inTangent) * weights[i]).xyz;
+		localPos     += (mul(mJoints[inJointIndices[i]], inlPos) * inJointWeights[i]).xyz;
+		localNormal  += (mul(mJoints[inJointIndices[i]], inNormal) * inJointWeights[i]).xyz;
+		localTangent += (mul(mJoints[inJointIndices[i]], inTangent) * inJointWeights[i]).xyz;
 	}
 
 	vec4 pos = vec4(localPos, 1.0);
@@ -108,6 +96,7 @@ void main(void)
 	}
 
 	FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeShadowFactorPCF(8, LightSpaceVertPos, 0.0001, 1000.0)) * VertOutColor;
+	FragColor = GammaToLinear(TEX2D(AlbedoMap, VertOutUV));
 }
 
 #endprogram

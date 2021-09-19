@@ -327,7 +327,7 @@ namespace TDEngine2
 
 					void main(void)
 					{
-						gl_Position = SunLightMat * ModelMat * ComputeSkinnedVertexPos(inlPos, inJointWeights, inJointIndices);
+						gl_Position = ProjMat * ViewMat * ModelMat * ComputeSkinnedVertexPos(inlPos, inJointWeights, inJointIndices);
 					}
 
 					#endprogram
@@ -393,7 +393,7 @@ namespace TDEngine2
 
 					void main(void)
 					{
-						gl_Position = SunLightMat * ModelMat * ComputeSkinnedVertexPos(inlPos, inJointWeights, inJointIndices);
+						gl_Position = ProjMat * ViewMat * ModelMat * ComputeSkinnedVertexPos(inlPos, inJointWeights, inJointIndices);
 					}
 
 					#endprogram
