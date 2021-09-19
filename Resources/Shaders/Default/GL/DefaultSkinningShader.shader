@@ -15,7 +15,7 @@ layout (location = 2) in vec2 inUV;
 layout (location = 3) in vec4 inNormal;
 layout (location = 4) in vec4 inTangent;
 layout (location = 5) in vec4  inJointWeights;
-layout (location = 6) in ivec4 inJointIndices;
+layout (location = 6) in uvec4 inJointIndices;
 
 out vec4 VertOutColor;
 out vec4 LightSpaceVertPos;

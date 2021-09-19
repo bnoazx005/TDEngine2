@@ -61,7 +61,7 @@
 	#define float2 vec2
 	#define float3 vec3
 	#define float4 vec4
-	#define uint4 ivec4
+	#define uint4 uvec4
 
 	#define mul(a, b) (a * b)
 

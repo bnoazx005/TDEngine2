@@ -88,11 +88,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSkinnedMesh::_initPositionOnlyVertexBuffer()
 	{
-		constexpr U32 vertexStride = sizeof(TVector4) * 2 + sizeof(U32) * 4;
-
 		auto&& positions = _toPositionOnlyArray();
 
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, positions.size() * vertexStride, &positions.front());
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, positions.size(), &positions.front());
 		if (positionOnlyVertexBufferResult.HasError())
 		{
 			return positionOnlyVertexBufferResult.GetError();
