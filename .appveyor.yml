@@ -32,8 +32,8 @@ test_script:
     - ctest -C %CONFIGURATION% --output-on-failure
 
 artifacts:
-    - path: .
-      name: TDEngine2_SDK.zip
+    - path: build/TDEngine2_SDK.zip
+      name: TDEngine2_SDK
 
 after_build:
     - cmd: 7z a TDEngine2_SDK.zip %APPVEYOR_BUILD_FOLDER%\bin\%CONFIGURATION%\ %APPVEYOR_BUILD_FOLDER%\Resources %APPVEYOR_BUILD_FOLDER%\README.md %APPVEYOR_BUILD_FOLDER%\LICENSE %APPVEYOR_BUILD_FOLDER%\CHANGELOG.md %APPVEYOR_BUILD_FOLDER%\TDEngine2\
@@ -46,9 +46,9 @@ deploy:
   provider: GitHub
   auth_token:
     secure: GMrmiUbidhqUQJE6M8XWztU+5GhVHZyHkECQlzwYsnP2jB1ZxDxcMHnOq7aEa2vE
-  artifact: /.*\.zip/            
+  artifact: TDEngine2_SDK        
   draft: false
   prerelease: false
   on:
     branch: master                 # release from master branch only
-    #configuration: Release
+    configuration: Release
