@@ -73,7 +73,7 @@ add_subdirectory(deps/assimp)
 add_executable(${TDE2_MESH_CONVERTER_NAME} ${UTILITY_SOURCES} ${UTILITY_HEADERS})
 
 if (UNIX)
-	target_link_libraries(${TDE2_MESH_CONVERTER_NAME} pthread stdc++fs)
+	target_link_libraries(${TDE2_MESH_CONVERTER_NAME} PUBLIC pthread stdc++fs)
 endif()
 
 
