@@ -36,7 +36,7 @@ fi
 
 # try to build tde2_introspector utility
 pushd "../TDEngine2/tools/Introspector/source/"
-	cmake -G "$GENERATOR_NAME" -DCMAKE_BUILD_TYPE=$1 . && cmake --build . --config $1 && cmake install
+	cmake -G "$GENERATOR_NAME" -DCMAKE_BUILD_TYPE=$1 . && cmake --build . --config Release && cmake --install . --prefix ..
 popd
 
 if [ $? -ne 0 ]; then
