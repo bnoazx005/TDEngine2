@@ -12,6 +12,7 @@
 #include "../../core/CBaseObject.h"
 #include "../../math/MathUtils.h"
 #include <vector>
+#include <cmath>
 #include <string>
 #include <algorithm>
 #include <unordered_map>
@@ -408,7 +409,7 @@ namespace TDEngine2
 
 					const F32 duration = endTime - startTime;
 
-					t = std::fmodf(time - startTime, duration);  // clamp time with duration
+					t = fmodf(time - startTime, duration);  // clamp time with duration
 
 					if (t < 0.0f)
 					{
@@ -460,7 +461,7 @@ namespace TDEngine2
 
 				if (mpTrackOwnerAnimation->GetWrapMode() == E_ANIMATION_WRAP_MODE_TYPE::LOOP)
 				{
-					F32 t = std::fmodf(time - startTime, duration);  // clamp time with duration
+					F32 t = fmodf(time - startTime, duration);  // clamp time with duration
 
 					if (t < 0.0f)
 					{
