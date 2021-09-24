@@ -8,6 +8,9 @@
 
 
 #include "Types.h"
+#include "result.hpp"
+#include "memTracker.hpp"
+#include "debugbreak.h"
 #include <type_traits>
 #include <atomic>
 #include <string>
@@ -15,11 +18,9 @@
 #include <vector>
 #include <iostream>
 #include <functional>
+#include <algorithm>
 #include <array>
 #include <sstream>
-#include "result.hpp"
-#include "memTracker.hpp"
-#include "debugbreak.h"
 
 
 namespace TDEngine2
@@ -223,6 +224,8 @@ namespace TDEngine2
 			return typeId;													\
 		}
 #else
+	#define TDE2_TYPE_ID(Type) TypeId(ComputeHash(#Type))	
+
 	#define TDE2_REGISTER_TYPE(Type)										\
 		static TypeId GetTypeId()											\
 		{																	\
@@ -742,7 +745,7 @@ namespace TDEngine2
 	template <typename T>
 	U32 ComputeStateDescHash(const T& object)
 	{
-		static_assert(false, "This function isn't intended for the given type");
+		TDE2_UNIMPLEMENTED();
 		return 0;
 	}
 
