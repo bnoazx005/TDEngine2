@@ -7,8 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
+#include "../utils/Types.h"
 #include "TVector2.h"
+#include "MathUtils.h"
 #include <tuple>
 #include <array>
 
