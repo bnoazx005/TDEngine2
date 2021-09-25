@@ -20,11 +20,11 @@ GENERATOR_NAME="Unix Makefiles"
 TDE2_USE_INSTALLED_BULLET="OFF"
 
 pushd "../TDEngine2/deps/bullet3"
-	cmake -G "$GENERATOR_NAME"  -DBUILD_SHARED_LIBS=OFF -DUSE_GRAPHICAL_BENCHMARK=OFF -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DCMAKE_BUILD_TYPE=$1 . && cmake --build . --config $2
+	cmake -G "$GENERATOR_NAME"  -DBUILD_SHARED_LIBS=OFF -DUSE_GRAPHICAL_BENCHMARK=OFF -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DCMAKE_BUILD_TYPE=$1 . && cmake --build . --config $1
 
-	if [[ $TDE2_INSTALL_BULLET3 ]]; then
+	if [ $TDE2_INSTALL_BULLET3 -eq 1 ]; then
 		TDE2_USE_INSTALLED_BULLET="ON"
-		cmake install
+		sudo make install
 	fi
 popd
 
