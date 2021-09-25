@@ -499,6 +499,12 @@ if (UNIX)
 	else()
 		message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 	endif()
+
+	
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -v")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+    endif()
 endif ()
 
 #build dependencies

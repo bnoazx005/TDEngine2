@@ -45,6 +45,15 @@ if (MSVC) 	#cl.exe compiler's options
 
 endif(MSVC)
 
+if (UNIX)
+
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -v")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+    endif()
+
+endif()
+
 
 add_executable(${TDE2_FONT_GENERATOR_NAME} ${UTILITY_SOURCES} ${UTILITY_HEADERS})
 
@@ -55,3 +64,10 @@ target_include_directories(${TDE2_FONT_GENERATOR_NAME} PUBLIC "${CMAKE_CURRENT_S
 target_include_directories(${TDE2_FONT_GENERATOR_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
 
 target_link_libraries(${TDE2_FONT_GENERATOR_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})
+
+if (UNIX)
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        set_target_properties(${TDE2_FONT_GENERATOR_NAME} PROPERTIES COMPILE_FLAGS "-stdlib=libc++")
+        target_link_libraries(${TDE2_FONT_GENERATOR_NAME} c++experimental)
+    endif()
+endif()

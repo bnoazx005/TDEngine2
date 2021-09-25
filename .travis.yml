@@ -5,6 +5,15 @@ language: cpp
 
 os: linux
 
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-trusty-3.9
+    packages:
+      - clang-3.9
+      - libc++-dev
+      - libc++abi-dev
+
 compiler: 
     - gcc
     - clang
