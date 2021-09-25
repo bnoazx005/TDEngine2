@@ -1,4 +1,4 @@
-#include "../include/CFMODAudioContext.h"
+#include "../include/CFmodAudioContext.h"
 #include "../include/CFmodAudioClip.h"
 #include <stringUtils.hpp>
 #include <utils/CFileLogger.h>

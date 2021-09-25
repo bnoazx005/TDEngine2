@@ -10,7 +10,7 @@
 namespace TDEngine2
 {
 	CUnixDLLManager::CUnixDLLManager() :
-		CBaseObject(), mNextFreeHandler(0)
+		CBaseObject(), mNextFreeHandler(static_cast<TDynamicLibraryHandler>(0))
 	{
 	}
 
@@ -78,7 +78,7 @@ namespace TDEngine2
 			return InvalidDynamicLibHandlerValue;
 		}
 
-		TDynamicLibraryHandler loadedLibraryHandler = mLoadedLibraries.size();
+		TDynamicLibraryHandler loadedLibraryHandler = static_cast<TDynamicLibraryHandler>(mLoadedLibraries.size());
 
 		if (mNextFreeHandler >= loadedLibraryHandler) // there is no free slot, so extend the existing array
 		{
@@ -86,7 +86,7 @@ namespace TDEngine2
 		}
 		else
 		{
-			mLoadedLibraries[mNextFreeHandler] = dynamicLibrary;
+			mLoadedLibraries[static_cast<U32>(mNextFreeHandler)] = dynamicLibrary;
 
 			loadedLibraryHandler = mNextFreeHandler;
 
@@ -124,12 +124,12 @@ namespace TDEngine2
 
 		TDynamicLibraryHandler libraryHandler = (*targetLibraryIter).second;
 
-		if (dlclose(mLoadedLibraries[libraryHandler]) != 0)
+		if (dlclose(mLoadedLibraries[static_cast<U32>(libraryHandler)]) != 0)
 		{
 			return RC_FAIL;
 		}
 
-		mLoadedLibraries[libraryHandler] = nullptr;
+		mLoadedLibraries[static_cast<U32>(libraryHandler)] = nullptr;
 
 		mHandlersTable.erase(targetLibraryIter);
 
@@ -143,14 +143,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUnixDLLManager::Unload(TDynamicLibraryHandler& libraryHandler)
 	{
-		if (libraryHandler == InvalidDynamicLibHandlerValue ||
-			libraryHandler >= mLoadedLibraries.size() ||
-			!mLoadedLibraries[libraryHandler])
+		if (libraryHandler == TDynamicLibraryHandler::Invalid ||
+			static_cast<U32>(libraryHandler) >= mLoadedLibraries.size() ||
+			!mLoadedLibraries[static_cast<U32>(libraryHandler)])
 		{
 			return RC_FAIL;
 		}
 
-		TDynamicLibrary loadedLibrary = mLoadedLibraries[libraryHandler];
+		TDynamicLibrary loadedLibrary = mLoadedLibraries[static_cast<U32>(libraryHandler)];
 
 		TDynLibHandlersMap::const_iterator libraryHandlerIter = mHandlersTable.cend();
 
@@ -176,7 +176,7 @@ namespace TDEngine2
 
 		mHandlersTable.erase(libraryHandlerIter);
 
-		mLoadedLibraries[libraryHandler] = nullptr;
+		mLoadedLibraries[static_cast<U32>(libraryHandler)] = nullptr;
 
 		// add current handler into the list of free handlers
 		mFreeHandlersList.push_back(libraryHandler);
@@ -207,13 +207,13 @@ namespace TDEngine2
 
 	void* CUnixDLLManager::GetSymbol(const TDynamicLibraryHandler& libraryHandler, const std::string& symbol)
 	{
-		if (libraryHandler == InvalidDynamicLibHandlerValue ||
-			libraryHandler >= mLoadedLibraries.size())
+		if (libraryHandler == TDynamicLibraryHandler::Invalid ||
+			static_cast<U32>(libraryHandler) >= mLoadedLibraries.size())
 		{
 			return nullptr;
 		}
 
-		return dlsym(mLoadedLibraries[libraryHandler], symbol.c_str());
+		return dlsym(mLoadedLibraries[static_cast<U32>(libraryHandler)], symbol.c_str());
 	}
 
 

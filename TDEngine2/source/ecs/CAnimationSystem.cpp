@@ -12,6 +12,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/MathUtils.h"
 #include <algorithm>
+#include <cmath>
 
 
 namespace TDEngine2
@@ -249,7 +250,7 @@ namespace TDEngine2
 
 		if (isLooping)
 		{
-			F32 t = std::fmodf(time - startTime, duration);  // clamp time with duration
+			F32 t = fmodf(time - startTime, duration);  // clamp time with duration
 
 			if (t < 0.0f)
 			{

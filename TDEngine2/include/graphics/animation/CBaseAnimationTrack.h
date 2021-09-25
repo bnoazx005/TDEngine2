@@ -11,6 +11,7 @@
 #include "IAnimationClip.h"
 #include "../../core/CBaseObject.h"
 #include "../../math/MathUtils.h"
+#include "stringUtils.hpp"
 #include <vector>
 #include <cmath>
 #include <string>

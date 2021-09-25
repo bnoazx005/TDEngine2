@@ -280,7 +280,7 @@ namespace TDEngine2
 
 	TEventListenerId CUnixWindowSystem::GetListenerId() const
 	{
-		return GetTypeId();
+		return static_cast<TEventListenerId>(GetTypeId());
 	}
 
 	TRectU32 CUnixWindowSystem::GetWindowRect() const

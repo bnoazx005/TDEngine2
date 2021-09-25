@@ -5,7 +5,11 @@
 #include "../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 #include <fstream>
+#if _HAS_CXX17
 #include <filesystem>
+#else
+#include <experimental/filesystem>
+#endif
 
 
 namespace TDEngine2

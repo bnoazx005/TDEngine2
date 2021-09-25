@@ -120,6 +120,13 @@ namespace TDEngine2
 		return mCurrCursorPos;
 	}
 
+	TVector2 CUnixInputContext::GetNormalizedMousePosition() const
+	{
+		TDE2_UNIMPLEMENTED();
+		TVector3 pos = GetMousePosition();
+		return TVector2(pos.x, pos.y);
+	}
+
 	TVector3 CUnixInputContext::GetMouseShiftVec() const
 	{
 		return mCurrCursorPos - mPrevCursorPos;

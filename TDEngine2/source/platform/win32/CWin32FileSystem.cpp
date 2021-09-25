@@ -10,7 +10,6 @@
 
 #pragma comment(lib, "comsuppw")
 
-#endif
 
 #if _HAS_CXX17
 #include <filesystem>
@@ -115,3 +114,5 @@ namespace TDEngine2
 		return dynamic_cast<IFileSystem*>(pFileSystemInstance);
 	}
 }
+
+#endif
