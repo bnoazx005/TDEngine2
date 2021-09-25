@@ -57,7 +57,7 @@ namespace TDEngine2
 		{
 			result = RC_INVALID_ARGS;
 
-			return InvalidDynamicLibHandlerValue;
+			return TDynamicLibraryHandler::Invalid;
 		}
 
 		TDynLibHandlersMap::const_iterator duplicateIter = mHandlersTable.find(filename);
@@ -75,7 +75,7 @@ namespace TDEngine2
 		{
 			result = RC_FILE_NOT_FOUND;
 
-			return InvalidDynamicLibHandlerValue;
+			return TDynamicLibraryHandler::Invalid;
 		}
 
 		TDynamicLibraryHandler loadedLibraryHandler = static_cast<TDynamicLibraryHandler>(mLoadedLibraries.size());

@@ -17,15 +17,43 @@ GENERATOR_NAME="Unix Makefiles"
 
 # "Build bullet3 first"
 
-TDE2_USE_INSTALLED_BULLET="OFF"
-
 pushd "../TDEngine2/deps/bullet3"
 	cmake -G "$GENERATOR_NAME"  -DBUILD_SHARED_LIBS=OFF -DUSE_GRAPHICAL_BENCHMARK=OFF -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DCMAKE_BUILD_TYPE=$1 . && cmake --build . --config $1
 
-	if [ $TDE2_INSTALL_BULLET3 -eq 1 ]; then
-		TDE2_USE_INSTALLED_BULLET="ON"
-		sudo make install
-	fi
+	# \fixme 
+	TDE2_USE_INSTALLED_BULLET=ON
+	sudo make install
+	
+	# if [[ $TDE2_INSTALL_BULLET3 ]]; then
+	# 	TDE2_USE_INSTALLED_BULLET=ON
+	# 	sudo make install
+	# else
+	# 	TDE2_USE_INSTALLED_BULLET=OFF
+	# fi
+popd
+
+if [ $? -ne 0 ]; then
+	pause
+	goto finalize
+fi
+
+# Install FMOD's libraries
+pushd "../TDEngine2/plugins/FmodAudioContext/deps/fmod/lib/unix_libs/"
+
+# sudo dpkg -i fmodstudio.deb
+
+# if [ $? -ne 0 ]; then
+# 	pause
+# 	goto finalize
+# fi
+
+sudo cp api/core/lib/x86_64/* /usr/lib/
+
+if [ $? -ne 0 ]; then
+	pause
+	goto finalize
+fi
+
 popd
 
 if [ $? -ne 0 ]; then

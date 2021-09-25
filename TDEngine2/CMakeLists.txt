@@ -542,6 +542,8 @@ target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_D
 
 #link Bullet3 library
 if (USE_EXTERNAL_BULLET_LIBRARY)	
+	message(STATUS "Bullet3 library's found")
+
     find_package(Bullet REQUIRED)
 else ()
 	# use Bullet3 from deps/ directory

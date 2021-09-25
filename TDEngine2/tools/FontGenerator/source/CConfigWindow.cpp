@@ -207,7 +207,7 @@ namespace TDEngine2
 					}
 
 					fs::path parentFontPath = mLastSavedPath;
-					parentFontPath = parentFontPath.parent_path().append(atlasFilename);
+					parentFontPath = parentFontPath.parent_path().append(atlasFilename.string());
 
 					SaveToFile(mpFileSystem, mpResourceManager, mFontResourceId, mFontTextureAtlasId, mLastSavedPath, parentFontPath.string());
 				}

@@ -61,21 +61,23 @@ set_target_properties(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PROPERTIES DEFINE_SYMBO
 # bad decision to create a circular dependency TODO: dettach the plugin from TDEngine2
 target_link_libraries(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})
 
-# Set up FMOD 
-if (MSVC)
+
 set(FMOD_INCLUDES_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/deps/fmod/includes/")
 set(FMOD_LIB_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/deps/fmod/lib/")
 
-set(FMOD_CORE_LIBS 
-	"${FMOD_LIB_DIRECTORY}core/x86/fmod_vc.lib"
-	"${FMOD_LIB_DIRECTORY}core/x86/fmodL_vc.lib"
-)
+# Set up FMOD 
+if (MSVC)
+	set(FMOD_CORE_LIBS 
+		"${FMOD_LIB_DIRECTORY}core/x86/fmod_vc.lib"
+		"${FMOD_LIB_DIRECTORY}core/x86/fmodL_vc.lib"
+	)
 
-set(FMOD_STUDIO_LIBS 
-	"${FMOD_LIB_DIRECTORY}studio/x86/fmodstudio_vc.lib"
-	"${FMOD_LIB_DIRECTORY}studio/x86/fmodstudioL_vc.lib"
-)
+	set(FMOD_STUDIO_LIBS 
+		"${FMOD_LIB_DIRECTORY}studio/x86/fmodstudio_vc.lib"
+		"${FMOD_LIB_DIRECTORY}studio/x86/fmodstudioL_vc.lib"
+	)
+
+	target_link_libraries(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC ${FMOD_CORE_LIBS} ${FMOD_STUDIO_LIBS})
+endif()
 
 target_include_directories(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC "${FMOD_INCLUDES_DIRECTORY}core/" "${FMOD_INCLUDES_DIRECTORY}studio/")
-target_link_libraries(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC ${FMOD_CORE_LIBS} ${FMOD_STUDIO_LIBS})
-endif()
