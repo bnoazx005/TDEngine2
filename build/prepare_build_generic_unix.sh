@@ -8,7 +8,7 @@ git submodule update --recursive --init
 
 if [ $? -ne 0 ]; then
 	pause
-	goto finalize
+	exit $?
 fi
 
 
@@ -34,7 +34,7 @@ popd
 
 if [ $? -ne 0 ]; then
 	pause
-	goto finalize
+	exit $?
 fi
 
 # Install FMOD's libraries
@@ -51,14 +51,14 @@ sudo cp api/core/lib/x86_64/* /usr/lib/
 
 if [ $? -ne 0 ]; then
 	pause
-	goto finalize
+	exit $?
 fi
 
 popd
 
 if [ $? -ne 0 ]; then
 	pause
-	goto finalize
+	exit $?
 fi
 
 
@@ -69,7 +69,7 @@ popd
 
 if [ $? -ne 0 ]; then
 	pause
-	goto finalize
+	exit $?
 fi
 
 
@@ -80,8 +80,7 @@ cmake -G "$GENERATOR_NAME" -DUSE_EXTERNAL_BULLET_LIBRARY=$TDE2_USE_INSTALLED_BUL
 
 if [ $? -ne 0 ]; then
 	pause
-	goto finalize
+	exit $?
 fi
 
-:finalize
 exit $?

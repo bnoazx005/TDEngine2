@@ -196,5 +196,5 @@ namespace TDEngine2
 	TDE2_API E_RESULT_CODE SaveQuaternion(IArchiveWriter* pWriter, const TQuaternion& object);
 
 
-	template <> struct GetTypeId<TQuaternion> { static constexpr TypeId mValue = TDE2_TYPE_ID(TQuaternion); };
+	template <> struct GetTypeId<TQuaternion> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(TQuaternion); };
 }

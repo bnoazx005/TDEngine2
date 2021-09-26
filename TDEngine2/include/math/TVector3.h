@@ -232,5 +232,5 @@ namespace TDEngine2
 	TDE2_API E_RESULT_CODE SaveVector3(IArchiveWriter* pWriter, const TVector3& object);
 
 
-	template <> struct GetTypeId<TVector3> { static constexpr TypeId mValue = TDE2_TYPE_ID(TVector3); };
+	template <> struct GetTypeId<TVector3> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(TVector3); };
 }

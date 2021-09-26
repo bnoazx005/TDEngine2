@@ -164,5 +164,5 @@ namespace TDEngine2
 	}
 
 
-	template <> struct GetTypeId<TColor32F> { static constexpr TypeId mValue = TDE2_TYPE_ID(TColor32F); };
+	template <> struct GetTypeId<TColor32F> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(TColor32F); };
 }

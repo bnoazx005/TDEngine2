@@ -9,7 +9,7 @@ TEST_CASE("TQuaternion Tests")
 {
 	SECTION("TestEulerConstructor_PassCorrectResults_CreateCorrectQuaternion")
 	{
-		constexpr F32 testAngle = 45.0f * CMathConstants::Deg2Rad;
+		const F32 testAngle = 45.0f * CMathConstants::Deg2Rad;
 
 		/// first is an expected, second is actual result
 		std::tuple<TQuaternion, TQuaternion> testCases[] 
@@ -30,7 +30,7 @@ TEST_CASE("TQuaternion Tests")
 
 	SECTION("TestToEulerAngles_PassQuaternion_ReturnsCorrectAngles")
 	{
-		constexpr F32 testAngle = 45.0f * CMathConstants::Deg2Rad;
+		const F32 testAngle = 45.0f * CMathConstants::Deg2Rad;
 
 		/// first is input, second is expected result
 		std::tuple<TQuaternion, TVector3> testCases[]

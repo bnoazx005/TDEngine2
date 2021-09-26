@@ -28,6 +28,17 @@ namespace TDEngine2
 	#define TDE2_NEW WRENCH_NEW ///< Our super custom memory trackable new implementation
 
 
+#if defined(__unix__) || defined(unix)
+	#if _HAS_CXX17
+		#define TDE2_STATIC_CONSTEXPR static constexpr
+	#else
+		#define TDE2_STATIC_CONSTEXPR static const inline
+	#endif
+#else
+	#define TDE2_STATIC_CONSTEXPR static constexpr
+#endif
+
+
 	/*!
 		\brief The function is a common factory functor for all objects,
 		which implements Init method (two-step initialization) instead of RAII.
@@ -182,7 +193,7 @@ namespace TDEngine2
 	}
 
 
-	template <typename T> struct GetTypeId { static constexpr TypeId mValue = TypeId::Invalid; };
+	template <typename T> struct GetTypeId { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TypeId::Invalid; };
 
 
 	/*!
@@ -247,10 +258,10 @@ namespace TDEngine2
 #endif
 
 
-	template <> struct GetTypeId<F32> { static constexpr TypeId mValue = TDE2_TYPE_ID(F32); };
-	template <> struct GetTypeId<I32> { static constexpr TypeId mValue = TDE2_TYPE_ID(I32); };
-	template <> struct GetTypeId<U32> { static constexpr TypeId mValue = TDE2_TYPE_ID(U32); };
-	template <> struct GetTypeId<bool> { static constexpr TypeId mValue = TDE2_TYPE_ID(bool); };
+	template <> struct GetTypeId<F32> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(F32); };
+	template <> struct GetTypeId<I32> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(I32); };
+	template <> struct GetTypeId<U32> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(U32); };
+	template <> struct GetTypeId<bool> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(bool); };
 
 
 
@@ -788,16 +799,4 @@ namespace TDEngine2
 
 		callback();
 	}
-
-
-#if defined(__unix__) || defined(unix)
-	#if _HAS_CXX17
-		#define TDE2_STATIC_CONSTEXPR static constexpr
-	#else
-		#define TDE2_STATIC_CONSTEXPR static const inline
-	#endif
-#else
-	#define TDE2_STATIC_CONSTEXPR static constexpr
-#endif
-
 }
