@@ -7,13 +7,13 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
+#include "../utils/Types.h"
 #include "IEngineSubsystem.h"
-#include "./../utils/Color.h"
-#include "./../math/TMatrix4.h"
-#include "./../math/TRect.h"
-#include "./../math/TAABB.h"
-#include "./../graphics/IIndexBuffer.h"
+#include "../utils/Color.h"
+#include "../math/TMatrix4.h"
+#include "../math/TRect.h"
+#include "../math/TAABB.h"
+#include "../graphics/IIndexBuffer.h"
 
 
 namespace TDEngine2
@@ -51,6 +51,7 @@ namespace TDEngine2
 	{
 		TAABB mNDCBox; ///< Determines sizes of NDC specific for the graphics API
 		bool mIsTextureYCoordInverted; /// Under GL context it equals to true
+		E_GRAPHICS_CONTEXT_GAPI_TYPE mGapiType;
 	} TGraphicsContextInfo, *TGraphicsContextInfoPtr;
 
 

@@ -545,7 +545,7 @@ E_RESULT_CODE CCustomEngineListener::_mountResourcesDirectories()
 {
 	E_RESULT_CODE result = RC_OK;
 
-	const std::string shaderLangSubdirectory = dynamic_cast<COGLGraphicsContext*>(mpGraphicsContext) ? "GL/" : "DX/";
+	const std::string shaderLangSubdirectory = (mpGraphicsContext->GetContextInfo().mGapiType == E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X) ? "GL/" : "DX/";
 
 	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Shaders/" + shaderLangSubdirectory, "ProjectShaders/");
 	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Materials/", "ProjectMaterials/");

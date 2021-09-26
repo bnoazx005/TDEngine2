@@ -520,7 +520,8 @@ namespace TDEngine2
 		const static TGraphicsContextInfo infoData
 		{
 			{ { -1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
-			false
+			false,
+			E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11
 		};
 
 		return infoData;
