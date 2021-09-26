@@ -1,0 +1,107 @@
+name: TDEngine2 SDK Build
+
+on: 
+  push:
+  pull_request:
+
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }} 
+    strategy:
+      fail-fast: false
+      matrix:
+        config: 
+        - {
+            name: "Windows Latest MSVC",
+            os: windows-latest,
+            artifact: "windows_msvc.7z",
+            build_type: "Release",
+            cc: "cl",
+            cxx: "cl",
+            archiver: "7z a",
+            generators: "Visual Studio 16 2019"
+          }
+        - {
+            name: "Ubuntu_GCC_9",
+            os: ubuntu-latest,
+            artifact: "ubuntu_gcc9.7z",
+            build_type: "Release",
+            cc: "gcc",
+            cxx: "g++",
+            archiver: "7z a",
+            generators: "Unix Makefiles"
+          }
+        - {
+            name: "Ubuntu Clang",
+            os: ubuntu-latest,
+            artifact: "macos_clang.7z",
+            build_type: "Release",
+            cc: "clang",
+            cxx: "clang++",
+            archiver: "7za a",
+            generators: "Unix Makefiles"
+          }
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Print env
+        run: |
+          echo github.event.action: ${{ github.event.action }}
+          echo github.event_name: ${{ github.event_name }}
+
+
+      - name: Install dependencies on windows
+        if: startsWith(matrix.config.os, 'windows')
+        run: |
+          choco install ninja cmake
+          ninja --version
+          cmake --version
+        # cmd "${{ matrix.config.environment_script }}"
+
+      - name: Install dependencies on ubuntu
+        if: startsWith(matrix.config.name, 'Ubuntu')
+        run: |
+          bash ./CI/travis/install.sh
+
+      - name: Build UNIX
+        if: startsWith(matrix.config.name, 'Ubuntu')
+        shell: bash
+        run: |
+          cd build
+          chmod +x prepare_build_generic_unix.sh
+          ./prepare_build_generic_unix.sh ${{ matrix.config.build_type }}
+
+      - name: Build Windows
+        if: startsWith(matrix.config.name, 'windows')
+        shell: cmd
+        run: |
+          cd build
+          prepare_build_generic_win.bat "Visual Studio 16 2019" ${{ matrix.config.build_type }}
+
+      # - name: Pack
+      #   shell: bash
+      #   working-directory: instdir
+      #   run: |
+      #     ls -laR
+      #     ${{ matrix.config.archiver }} ../${{ matrix.config.artifact }} .
+
+      # - name: Upload
+      #   uses: actions/upload-artifact@v1
+      #   with:
+      #     path: ./${{ matrix.config.artifact }}
+      #     name: ${{ matrix.config.artifact }}
+
+      # - name: Upload release asset
+      #   if: github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'created')
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ github.event.release.upload_url }}
+      #     asset_path: ./${{ matrix.config.artifact }}
+      #     asset_name: ${{ matrix.config.artifact }}.zip
+      #     asset_content_type: application/zip
