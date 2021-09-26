@@ -21,13 +21,13 @@ namespace TDEngine2
 	class CMathConstants
 	{
 		public:
-			constexpr static F32 Pi      = 3.141592f;
+			TDE2_API TDE2_STATIC_CONSTEXPR F32 Pi      = 3.141592f;
 
-			constexpr static F32 Exp     = 2.728281f;
+			TDE2_API TDE2_STATIC_CONSTEXPR F32 Exp     = 2.728281f;
+			
+			TDE2_API TDE2_STATIC_CONSTEXPR F32 Deg2Rad = Pi / 180.0f;
 
-			constexpr static F32 Deg2Rad = Pi / 180.0f;
-
-			constexpr static F32 Rad2Deg = 180.0f / Pi;
+			TDE2_API TDE2_STATIC_CONSTEXPR F32 Rad2Deg = 180.0f / Pi;
 	};
 
 

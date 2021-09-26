@@ -789,4 +789,15 @@ namespace TDEngine2
 		callback();
 	}
 
+
+#if defined(__unix__) || defined(unix)
+	#if _HAS_CXX17
+		#define TDE2_STATIC_CONSTEXPR static constexpr
+	#else
+		#define TDE2_STATIC_CONSTEXPR static const inline
+	#endif
+#else
+	#define TDE2_STATIC_CONSTEXPR static constexpr
+#endif
+
 }
