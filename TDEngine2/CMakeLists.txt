@@ -577,6 +577,8 @@ if (IS_TOOLS_BUILDING_ENABLED)
 endif ()
 
 if (UNIX)
+	target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC pthread stdc++fs)
+
 	install (TARGETS ${TDENGINE2_LIBRARY_NAME} DESTINATION "/usr/lib/TDEngine2")
 endif ()
 

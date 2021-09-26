@@ -66,6 +66,8 @@ target_include_directories(${TDE2_FONT_GENERATOR_NAME} PUBLIC "${CMAKE_CURRENT_S
 target_link_libraries(${TDE2_FONT_GENERATOR_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})
 
 if (UNIX)
+	target_link_libraries(${TDE2_FONT_GENERATOR_NAME} PUBLIC pthread stdc++fs)
+
 	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         set_target_properties(${TDE2_FONT_GENERATOR_NAME} PROPERTIES COMPILE_FLAGS "-stdlib=libc++")
         target_link_libraries(${TDE2_FONT_GENERATOR_NAME} c++experimental)
