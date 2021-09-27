@@ -16,7 +16,7 @@ jobs:
         - {
             name: "Windows Latest MSVC",
             os: windows-latest,
-            artifact: "windows_msvc.7z",
+            artifact: "TDEngine2_SDK.7z",
             build_type: "Release",
             cc: "cl",
             cxx: "cl",
@@ -26,7 +26,7 @@ jobs:
         - {
             name: "Ubuntu_GCC_9",
             os: ubuntu-latest,
-            artifact: "ubuntu_gcc9.7z",
+            artifact: "TDEngine2_SDK.7z",
             build_type: "Release",
             cc: "gcc",
             cxx: "g++",
@@ -36,7 +36,7 @@ jobs:
         # - {
         #     name: "Ubuntu Clang",
         #     os: ubuntu-latest,
-        #     artifact: "macos_clang.7z",
+        #     artifact: "TDEngine2_SDK.7z",
         #     build_type: "Release",
         #     cc: "clang",
         #     cxx: "clang++",
@@ -82,12 +82,17 @@ jobs:
           cd build
           prepare_build_generic_win.bat "Visual Studio 16 2019" ${{ matrix.config.build_type }}
 
-      # - name: Pack
-      #   shell: bash
-      #   working-directory: instdir
-      #   run: |
-      #     ls -laR
-      #     ${{ matrix.config.archiver }} ../${{ matrix.config.artifact }} .
+      - name: Test
+        working-directory: build
+        run: |
+          ctest -C ${{ matrix.config.build_type }} --output-on-failure
+
+      - name: Pack
+        shell: bash
+        working-directory: build
+        run: |
+          ls -laR
+          ${{ matrix.config.archiver }} ../${{ matrix.config.artifact }} ../bin/${{ matrix.config.build_type }}/ ../Resources/ ../README.md ../LICENSE ../CHANGELOG.md ../TDEngine2/
 
       # - name: Upload
       #   uses: actions/upload-artifact@v1

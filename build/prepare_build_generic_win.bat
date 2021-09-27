@@ -37,6 +37,7 @@ rem "Build main project"
 
 cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% -DCMAKE_BUILD_TYPE=%2 .. && cmake --build . --config %2
 
+exit /b 0
 
 :finalize
 exit /b %ERRORLEVEL%
