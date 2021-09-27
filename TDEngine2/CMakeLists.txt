@@ -460,6 +460,8 @@ source_group("sources" FILES ${TDENGINE2_SOURCES})
 
 if (MSVC) 	#cl.exe compiler's options
 	message(STATUS "Windows system has detected...")
+
+	add_definitions(-D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING)
 	
 	include(CheckCXXCompilerFlag)
 

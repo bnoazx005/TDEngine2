@@ -5,10 +5,13 @@
 #include "../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 #include <fstream>
+
 #if _HAS_CXX17
-#include <filesystem>
+	#include <filesystem>
+	namespace fs = std::filesystem;
 #else
-#include <experimental/filesystem>
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
 #endif
 
 

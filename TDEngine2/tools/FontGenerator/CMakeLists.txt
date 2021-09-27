@@ -33,6 +33,7 @@ source_group("sources" FILES ${UTILITY_SOURCES})
 
 
 if (MSVC) 	#cl.exe compiler's options
+	add_definitions(-D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING)
 
 	#Debug compiler's options
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++14 /MDd /W3 /GS /Zc:inline /Od /Zi  /Zc:wchar_t /wd4250")

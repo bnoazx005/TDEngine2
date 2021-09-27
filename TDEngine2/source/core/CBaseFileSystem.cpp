@@ -7,12 +7,14 @@
 #include "../../../include/platform/MountableStorages.h"
 #include "stringUtils.hpp"
 #include <algorithm>
-#include <experimental/filesystem>
+#include <fstream>
+
 #if _HAS_CXX17
-#include <filesystem>
-#include <fstream>
+	#include <filesystem>
+	namespace fs = std::filesystem;
 #else
-#include <fstream>
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
 #endif
 
 
@@ -131,7 +133,7 @@ namespace TDEngine2
 
 	std::string CBaseFileSystem::ExtractFilename(const std::string& path) const
 	{
-		return std::experimental::filesystem::path(path).filename().string();
+		return fs::path(path).filename().string();
 	}
 
 	E_RESULT_CODE CBaseFileSystem::_mountInternal(const std::string& aliasPath, IMountableStorage* pStorage, U16 realtivePriority)
@@ -238,7 +240,7 @@ namespace TDEngine2
 	bool CBaseFileSystem::FileExists(const std::string& filename) const
 	{
 #if _HAS_CXX17
-		return std::experimental::filesystem::exists(filename);
+		return fs::exists(filename);
 #else
 		std::ifstream file(filename);
 
@@ -257,7 +259,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		return std::experimental::filesystem::remove(filePath) ? RC_OK : RC_FAIL;
+		return fs::remove(filePath) ? RC_OK : RC_FAIL;
 	}
 
 	std::vector<std::string> CBaseFileSystem::GetFilesListAtDirectory(const std::string& path) const
@@ -278,7 +280,7 @@ namespace TDEngine2
 	std::string CBaseFileSystem::GetCurrDirectory() const
 	{
 #if _HAS_CXX17
-		return std::experimental::filesystem::current_path().string();
+		return fs::current_path().string();
 #else
 		return ".";
 #endif
@@ -318,7 +320,7 @@ namespace TDEngine2
 	std::string CBaseFileSystem::GetExtension(const std::string& path) const
 	{
 #if _HAS_CXX17
-		return std::experimental::filesystem::path(path).extension().string();
+		return fs::path(path).extension().string();
 #else
 		std::string::size_type pos = path.find_last_of('.');
 

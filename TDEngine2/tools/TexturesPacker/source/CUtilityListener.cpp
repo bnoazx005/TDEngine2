@@ -2,8 +2,14 @@
 #include "../../include/metadata.h"
 #include "../deps/argparse/argparse.h"
 #include <functional>
-#include <experimental/filesystem>
 
+#if _HAS_CXX17
+	#include <filesystem>
+	namespace fs = std::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
+#endif
 
 using namespace TDEngine2;
 

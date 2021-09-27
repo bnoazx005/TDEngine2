@@ -33,16 +33,16 @@ jobs:
             archiver: "7z a",
             generators: "Unix Makefiles"
           }
-        - {
-            name: "Ubuntu Clang",
-            os: ubuntu-latest,
-            artifact: "macos_clang.7z",
-            build_type: "Release",
-            cc: "clang",
-            cxx: "clang++",
-            archiver: "7za a",
-            generators: "Unix Makefiles"
-          }
+        # - {
+        #     name: "Ubuntu Clang",
+        #     os: ubuntu-latest,
+        #     artifact: "macos_clang.7z",
+        #     build_type: "Release",
+        #     cc: "clang",
+        #     cxx: "clang++",
+        #     archiver: "7za a",
+        #     generators: "Unix Makefiles"
+        #   }
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it

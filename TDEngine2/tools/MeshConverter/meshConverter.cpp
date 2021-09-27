@@ -1,6 +1,5 @@
 #include "meshConverter.h"
 #include "deps/argparse/argparse.h"
-#include <experimental/filesystem>
 #include <unordered_set>
 #include <unordered_map>
 #include <iostream>
@@ -11,7 +10,13 @@
 #include <assimp/postprocess.h>
 
 
-namespace fs = std::experimental::filesystem;
+#if _HAS_CXX17
+	#include <filesystem>
+	namespace fs = std::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
+#endif
 
 namespace TDEngine2
 {

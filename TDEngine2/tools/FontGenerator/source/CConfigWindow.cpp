@@ -2,10 +2,18 @@
 #include <tuple>
 #include <vector>
 #include <string>
-#include <experimental/filesystem>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #include <memory>
+
+
+#if _HAS_CXX17
+	#include <filesystem>
+	namespace fs = std::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
+#endif
 
 
 namespace TDEngine2
@@ -185,8 +193,6 @@ namespace TDEngine2
 
 			mpImGUIContext->Button("Save", buttonSizes, [this]
 			{
-				namespace fs = std::experimental::filesystem;
-
 				if (!mLastSavedPath.empty())
 				{
 					fs::path parentFontPath = mLastSavedPath;

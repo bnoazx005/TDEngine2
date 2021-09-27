@@ -1,12 +1,18 @@
 #include "resourcePacker.h"
 #include "deps/argparse/argparse.h"
-#include <experimental/filesystem>
 #include <unordered_set>
 #include <iostream>
 #include <fstream>
 
+#if _HAS_CXX17
+	#include <filesystem>
+	namespace fs = std::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
+#endif
 
-namespace fs = std::experimental::filesystem;
+
 
 namespace TDEngine2
 {
