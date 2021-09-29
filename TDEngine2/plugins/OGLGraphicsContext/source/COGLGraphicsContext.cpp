@@ -8,6 +8,8 @@
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 #include <string>
+#define DEFER_IMPLEMENTATION
+#include "deferOperation.hpp"
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -532,7 +534,7 @@ namespace TDEngine2
 			LOG_MESSAGE(Wrench::StringUtils::Format("[COGLGraphicsContext] SRGB framebuffer status, enabled: {0}", creationFlags & P_HARDWARE_GAMMA_CORRECTION));
 			GL_SAFE_CALL(((creationFlags & P_HARDWARE_GAMMA_CORRECTION) ? glEnable : glDisable)(GL_FRAMEBUFFER_SRGB));
 
-			CDeferOperation unbindBufferOperation([] { glBindRenderbuffer(GL_RENDERBUFFER, 0); glBindFramebuffer(GL_FRAMEBUFFER, 0); });
+			defer([] { glBindRenderbuffer(GL_RENDERBUFFER, 0); glBindFramebuffer(GL_FRAMEBUFFER, 0); });
 
 			GL_SAFE_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pWindowSystem->GetWidth(), pWindowSystem->GetHeight()));
 			GL_SAFE_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));

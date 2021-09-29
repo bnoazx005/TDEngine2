@@ -2,6 +2,7 @@
 #include "../../include/math/TAABB.h"
 #include "../../include/utils/Utils.h"
 #include <array>
+#include "deferOperation.hpp"
 
 
 namespace TDEngine2
@@ -13,7 +14,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseCamera::Free()
 	{
-		CDeferOperation releaseFrustumObject([this] 
+		defer([this] 
 		{ 
 			if (mpCameraFrustum)
 			{

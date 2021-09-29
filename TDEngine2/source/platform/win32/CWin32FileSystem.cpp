@@ -1,6 +1,7 @@
 #include "./../../../include/platform/win32/CWin32FileSystem.h"
 #include "./../../../include/core/IFile.h"
 #include "./../../../include/platform/CTextFileReader.h"
+#include "deferOperation.hpp"
 #include "stringUtils.hpp"
 #include <algorithm>
 
@@ -38,7 +39,7 @@ namespace TDEngine2
 #if defined(TDE2_USE_WIN32PLATFORM)
 		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &tmpPath)))
 		{
-			CDeferOperation _([&tmpPath] { CoTaskMemFree(tmpPath); });
+			defer([&tmpPath] { CoTaskMemFree(tmpPath); });
 
 			_bstr_t bstrPath(tmpPath);
 			return std::string(static_cast<C8*>(bstrPath));
@@ -55,7 +56,7 @@ namespace TDEngine2
 #if defined(TDE2_USE_WIN32PLATFORM)
 		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &tmpPath)))
 		{
-			CDeferOperation _([&tmpPath] { CoTaskMemFree(tmpPath); });
+			defer([&tmpPath] { CoTaskMemFree(tmpPath); });
 
 			_bstr_t bstrPath(tmpPath);
 			return std::string(static_cast<C8*>(bstrPath));

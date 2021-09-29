@@ -8,6 +8,7 @@
 #include "../../include/core/IFile.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "stringUtils.hpp"
+#include "deferOperation.hpp"
 #include <cassert>
 #include <algorithm>
 #include <stack>
@@ -463,7 +464,7 @@ namespace TDEngine2
 		{
 			if (auto pArchiveFile = pFileSystem->Get<IYAMLFileWriter>(archiveHandle.Get()))
 			{
-				CDeferOperation _([pArchiveFile] { pArchiveFile->Close(); });
+				defer([pArchiveFile] { pArchiveFile->Close(); });
 				return pTextureAtlas->Save(pArchiveFile);
 			}
 		}

@@ -6,6 +6,8 @@
 #include "./../include/CD3D11DepthBufferTarget.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
+#define DEFER_IMPLEMENTATION
+#include "deferOperation.hpp"
 #include <utils/CFileLogger.h>
 #include <utils/Utils.h>
 #include <core/IEventManager.h>
@@ -602,7 +604,7 @@ namespace TDEngine2
 
 		result = pDXGIFactory->CreateSwapChain(mp3dDevice, &swapChainDesc, &mpSwapChain);
 
-		CDeferOperation releaseOperation([&pDXGIAdapter, &pDXGIFactory] 
+		defer([&pDXGIAdapter, &pDXGIFactory] 
 		{
 			pDXGIAdapter->Release();
 			pDXGIFactory->Release();

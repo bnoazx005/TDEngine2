@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1]  2021-09-29
+
+### Changed
+
+- **CDeferOperation** class is replaced with **Wrench::TDeferOperation**
+
+- GraphicsContextTypeToString(E_GRAPHICS_CONTEXT_GAPI_TYPE) and StringToGraphicsContextType(const std::string&) were removed
+
 ## [0.5.0]  2021-08-02
 
 ### Changed

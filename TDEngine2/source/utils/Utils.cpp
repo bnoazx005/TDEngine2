@@ -141,34 +141,6 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API std::string GraphicsContextTypeToString(E_GRAPHICS_CONTEXT_GAPI_TYPE graphicsContextType)
-	{
-		switch (graphicsContextType)
-		{
-			case GCGT_DIRECT3D11:
-				return "d3d11";
-			case GCGT_OPENGL3X:
-				return "gl3x";
-		}
-
-		return "unknown";
-	}
-
-	TDE2_API E_GRAPHICS_CONTEXT_GAPI_TYPE StringToGraphicsContextType(const std::string& value)
-	{
-		if (value.find("d3d11") != std::string::npos)
-		{
-			return GCGT_DIRECT3D11;
-		}
-		else if (value.find("gl3x") != std::string::npos)
-		{
-			return GCGT_OPENGL3X;
-		}
-
-		return GCGT_UNKNOWN;
-	}
-
-
 	/*!
 		\brief CFormatUtils's definition
 	*/
@@ -359,21 +331,6 @@ namespace TDEngine2
 		}
 
 		return formatsMap.at(str);
-	}
-
-
-	/*!
-		\brief CDeferOperation's definition
-	*/
-
-	CDeferOperation::CDeferOperation(const TCallbackType& callback) :
-		mCallback(callback)
-	{
-	}
-
-	CDeferOperation::~CDeferOperation()
-	{
-		mCallback();
 	}
 
 

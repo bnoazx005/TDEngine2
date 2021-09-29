@@ -4,6 +4,7 @@
 #include "../../include/core/IFile.h"
 #include "../../include/game/CSaveData.h"
 #include <stringUtils.hpp>
+#include <deferOperation.hpp>
 
 
 namespace TDEngine2
@@ -98,7 +99,7 @@ namespace TDEngine2
 			IYAMLFileWriter* pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(openFileResult.Get()); // \todo Refactor this to choose between binary or YAML format
 
 			// \note Proceed to read the file, because it's really save data
-			CDeferOperation _([pFileWriter] { pFileWriter->Close(); });
+			defer([pFileWriter] { pFileWriter->Close(); });
 
 			E_RESULT_CODE result = RC_OK;
 
@@ -192,7 +193,7 @@ namespace TDEngine2
 				IYAMLFileReader* pFileReader = mpFileSystem->Get<IYAMLFileReader>(openFileResult.Get()); // \todo Refactor this to choose between binary or YAML format
 
 				// \note Proceed to read the file, because it's really save data
-				CDeferOperation _([pFileReader] { pFileReader->Close(); });
+				defer([pFileReader] { pFileReader->Close(); });
 
 				E_RESULT_CODE result = RC_OK;
 

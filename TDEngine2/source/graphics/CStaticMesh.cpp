@@ -6,6 +6,7 @@
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CGeometryBuilder.h"
 #include "../../include/utils/CFileLogger.h"
+#include "deferOperation.hpp"
 #include <cstring>
 #include <climits>
 
@@ -184,7 +185,7 @@ namespace TDEngine2
 
 			IGeometryBuilder* pGeometryBuilder = CreateGeometryBuilder(result);
 
-			CDeferOperation releaseMemory([&] { pGeometryBuilder->Free(); });
+			defer([&] { pGeometryBuilder->Free(); });
 
 			if (result != RC_OK)
 			{
@@ -248,7 +249,7 @@ namespace TDEngine2
 
 			IGeometryBuilder* pGeometryBuilder = CreateGeometryBuilder(result);
 
-			CDeferOperation releaseMemory([&] { pGeometryBuilder->Free(); });
+			defer([&] { pGeometryBuilder->Free(); });
 
 			if (result != RC_OK)
 			{

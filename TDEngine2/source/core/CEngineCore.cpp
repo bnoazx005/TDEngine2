@@ -49,6 +49,7 @@
 #include "../../include/ecs/CLightingSystem.h"
 #include <cstring>
 #include <algorithm>
+#include "deferOperation.hpp"
 
 
 namespace TDEngine2
@@ -394,7 +395,7 @@ namespace TDEngine2
 #endif
 
 						/// \note The internal callback will be invoked when the execution process will go out of the scope
-						CDeferOperation finalizeImGUIContextFrame([this]()
+						defer([this]()
 						{
 							if (mpImGUIContext)
 							{

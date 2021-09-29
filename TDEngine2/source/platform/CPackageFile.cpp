@@ -4,6 +4,8 @@
 #include "../../include/core/IFile.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/utils/CFileLogger.h"
+#define DEFER_IMPLEMENTATION
+#include "deferOperation.hpp"
 #include <algorithm>
 
 
@@ -167,7 +169,7 @@ namespace TDEngine2
 			std::vector<U8> buffer;
 			buffer.resize(static_cast<size_t>(fileInfo.mDataBlockSize));
 
-			CDeferOperation _([&] 
+			defer([&] 
 			{
 				pStream->SetPosition(savedPosition); // Restore previous position
 			});

@@ -23,6 +23,8 @@
 #include "./../deps/imgui-1.72/ImGuizmo.h"
 #include <vector>
 #include <cstring>
+#define DEFER_IMPLEMENTATION
+#include "deferOperation.hpp"
 
 
 namespace TDEngine2
@@ -1250,7 +1252,7 @@ namespace TDEngine2
 
 		if (BeginWindow("GradientColorEditor", mIsGradientColorEditorOpened, params))
 		{
-			CDeferOperation _([this] { EndWindow(); });
+			defer([this] { EndWindow(); });
 
 			SetCursorScreenPos(GetCursorScreenPos() + TVector2(5.0f, 0.0f));
 			TVector2 cursorPos = GetCursorScreenPos();

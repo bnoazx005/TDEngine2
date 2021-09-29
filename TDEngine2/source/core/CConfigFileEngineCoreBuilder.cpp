@@ -1,6 +1,7 @@
 #include "../../include/core/CConfigFileEngineCoreBuilder.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/platform/CConfigFileReader.h"
+#include "../../include/metadata.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -64,7 +65,7 @@ namespace TDEngine2
 		settings.mMaxNumOfWorkerThreads = pConfigFileReader->GetInt("main", "max-num-worker-threads", std::thread::hardware_concurrency() - 1);
 
 		settings.mTotalPreallocatedMemorySize = pConfigFileReader->GetInt("memory", "total-preallocated-memory-size", DefaultGlobalMemoryBlockSize);
-		settings.mGraphicsContextType         = StringToGraphicsContextType(pConfigFileReader->GetString("graphics", "context-type", "unknown"));
+		settings.mGraphicsContextType         = Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::FromString(pConfigFileReader->GetString("graphics", "context-type", "unknown"));
 		settings.mAudioContextType            = E_AUDIO_CONTEXT_API_TYPE::FMOD;
 
 		pConfigFileReader->Close();

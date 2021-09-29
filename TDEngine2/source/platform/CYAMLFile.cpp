@@ -3,6 +3,7 @@
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/utils/CFileLogger.h"
+#include <deferOperation.hpp>
 #include <stringUtils.hpp>
 
 
@@ -187,7 +188,7 @@ namespace TDEngine2
 	{
 		if (mpRootNode)
 		{
-			CDeferOperation releaseMemory([this] { delete mpRootNode; });
+			defer([this] { delete mpRootNode; });
 
 			E_RESULT_CODE result = _internalSerialize(*mpRootNode);
 			if (result != RC_OK)
