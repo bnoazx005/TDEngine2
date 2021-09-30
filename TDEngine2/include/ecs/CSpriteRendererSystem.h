@@ -101,14 +101,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager);
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method inject components array into a system
 
 				\param[in] pWorld A pointer to a main scene's object
@@ -132,6 +124,8 @@ namespace TDEngine2
 			TDE2_API U32 _computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId);
 
 			TDE2_API void _initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IAllocator*                 mpTempAllocator;
 

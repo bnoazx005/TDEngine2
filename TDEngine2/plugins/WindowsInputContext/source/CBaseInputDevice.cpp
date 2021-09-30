@@ -41,23 +41,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseInputDevice::Free()
+	E_RESULT_CODE CBaseInputDevice::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		if (mpInputDevice &&
 			FAILED(mpInputDevice->Unacquire()) &&
 			FAILED(mpInputDevice->Release()))
 		{
 			return RC_FAIL;
 		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

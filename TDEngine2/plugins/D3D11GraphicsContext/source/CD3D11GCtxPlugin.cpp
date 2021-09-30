@@ -63,20 +63,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11GCtxPlugin::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		delete this;
-
-		mIsInitialized = false;
-
-		return RC_OK;
-	}
-
 	const TPluginInfo& CD3D11GCtxPlugin::GetInfo() const
 	{
 		return mPluginInfo;

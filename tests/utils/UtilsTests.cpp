@@ -87,18 +87,6 @@ public:
 		mDestroyed = &destroyed;
 	}
 
-	E_RESULT_CODE Free() override
-	{
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			delete this;
-		}
-
-		return RC_OK;
-	}
-
 	~CTestCounter() { *mDestroyed = true; }
 private:
 	bool* mDestroyed = nullptr;

@@ -372,20 +372,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CAnimationClipLoader::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CAnimationClipLoader::LoadResource(IResource* pResource) const
 	{
 		if (!mIsInitialized)
@@ -439,20 +425,6 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CAnimationClipFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

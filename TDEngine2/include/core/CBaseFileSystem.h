@@ -50,14 +50,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method mounts a path to a real existing one
 
 				\param[in] path A path within a real file system
@@ -244,6 +236,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::string _resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path, bool isDirectory) const;
+			
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			mutable std::mutex mMutex;
 

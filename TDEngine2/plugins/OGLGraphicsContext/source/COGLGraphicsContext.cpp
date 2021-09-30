@@ -119,22 +119,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::Free()
+	E_RESULT_CODE COGLGraphicsContext::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		GL_SAFE_CALL(glDeleteRenderbuffers(1, &mMainDepthStencilRenderbuffer));
 		GL_SAFE_CALL(glDeleteFramebuffers(1, &mMainFBOHandler));
 
 		E_RESULT_CODE result = mpGraphicsObjectManager->Free();
 		result = result | mpGLContextFactory->Free();
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return result;
 	}

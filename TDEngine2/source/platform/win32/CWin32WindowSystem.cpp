@@ -141,13 +141,8 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CWin32WindowSystem::Free()
+	E_RESULT_CODE CWin32WindowSystem::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_OK;
-		}
-
 		E_RESULT_CODE result = DestroyWindow(mWindowHandler) ? RC_FAIL : RC_OK;
 		result = result | (!UnregisterClass(mWindowClassName.c_str(), mInstanceHandler) ? RC_FAIL : RC_OK);
 
@@ -158,13 +153,9 @@ namespace TDEngine2
 		result = result | mpTimer->Free();
 		result = result | mpDLLManager->Free();
 
-		mIsInitialized = false;
-
-		delete this;
-
 		LOG_MESSAGE("[Win32 Window System] The window system was successfully destroyed");
 
-		return RC_OK;
+		return result;
 	}
 
 	bool CWin32WindowSystem::Run(const std::function<void()>& onFrameUpdate)

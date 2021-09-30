@@ -153,14 +153,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Reset(bool isBinaryMode = false) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method reads a continuous block of data of specified size into a given buffer
 
 				\param[out] pBuffer A buffer which will keep the read block of a file
@@ -204,6 +196,8 @@ namespace TDEngine2
 			TDE2_API U64 GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFileInputStream)
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			mutable std::ifstream mInternalStream;
 			std::string mPath;
@@ -252,14 +246,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Reset(bool isBinaryMode = false) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method writes data of specified size into a file
 
 				\param[in] pBuffer A pointer to data's buffer
@@ -290,6 +276,8 @@ namespace TDEngine2
 			TDE2_API U64 GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFileOutputStream)
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			mutable std::ofstream mInternalStream;
 			std::string mPath;
@@ -333,14 +321,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Reset(bool isBinaryMode = false) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method reads a continuous block of data of specified size into a given buffer

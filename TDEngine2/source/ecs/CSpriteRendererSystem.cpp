@@ -89,13 +89,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSpriteRendererSystem::Free()
+	E_RESULT_CODE CSpriteRendererSystem::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
 		if ((result = mpGraphicsLayers->Free()) != RC_OK)
@@ -109,10 +104,6 @@ namespace TDEngine2
 
 			delete currBatchEntry.mpInstancesData;
 		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

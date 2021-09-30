@@ -133,13 +133,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	E_RESULT_CODE CD3D11GraphicsContext::Free()
+	E_RESULT_CODE CD3D11GraphicsContext::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
 		if (mp3dDeviceContext)
@@ -165,11 +160,7 @@ namespace TDEngine2
 #endif
 
 		result = result | SafeReleaseCOMPtr<ID3D11Device>(&mp3dDevice);
-
-		delete this;
-
-		mIsInitialized = false;
-
+		
 		return result;
 	}
 	

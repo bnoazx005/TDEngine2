@@ -54,14 +54,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init();
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method registers given function as a command with 'commandName' name
 
 				\param[in] commandName A name of the command

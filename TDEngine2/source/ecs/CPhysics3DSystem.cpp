@@ -92,13 +92,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CPhysics3DSystem::Free()
+	E_RESULT_CODE CPhysics3DSystem::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = _freePhysicsObjects(mPhysicsObjectsData);
 
 		// \note invocation of destructors should be in reversed order of construction of these objects
@@ -107,10 +102,6 @@ namespace TDEngine2
 		delete mpBroadphaseSolver;
 		delete mpCollisionsDispatcher;
 		delete mpCollisionConfiguration;
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return result;
 	}

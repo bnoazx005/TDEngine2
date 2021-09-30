@@ -78,14 +78,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method registers custom editor within the manager
 
 				\param[in] commandName A name of a command within the development menu's which the editor will be linked to
@@ -176,6 +168,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
 
 			TDE2_API E_RESULT_CODE _showEditorWindows(F32 dt);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		public:
 			static const std::unordered_map<E_EDITOR_TYPE, std::string> mEditorNamesMap;
 		protected:

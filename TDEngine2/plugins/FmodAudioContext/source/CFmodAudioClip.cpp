@@ -103,20 +103,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFMODAudioClipLoader::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CFMODAudioClipLoader::LoadResource(IResource* pResource) const
 	{
 		if (!mIsInitialized)
@@ -182,20 +168,6 @@ namespace TDEngine2
 		mpAudioContext = pAudioContext;
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CFMODAudioClipFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

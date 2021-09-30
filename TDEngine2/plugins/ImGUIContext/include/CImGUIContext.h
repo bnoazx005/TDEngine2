@@ -8,6 +8,7 @@
 
 
 #include <core/IImGUIContext.h>
+#include <core/CBaseObject.h>
 #include <math/TVector2.h>
 #include <math/TVector4.h>
 #include <math/TMatrix4.h>
@@ -55,7 +56,7 @@ namespace TDEngine2
 		\brief The class is an implementation of an immediate mode GUI for editor's stuffs
 	*/
 
-	class CImGUIContext : public IImGUIContext
+	class CImGUIContext : public IImGUIContext, public CBaseObject
 	{
 		public:
 			friend TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
@@ -79,14 +80,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
 										IResourceManager* pResourceManager, IInputContext* pInputContext) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method configures the immediate GUI context for WIN32 platform

@@ -53,14 +53,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IGraphicsObjectManager* pGraphicsObjectManager) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method writes data into an internal uniforms buffer with specified register
 
 				\param[in] slot A slot specifies a uniforms buffer, in which data will be written
@@ -83,6 +75,8 @@ namespace TDEngine2
 			TDE2_API E_BUFFER_USAGE_TYPE _getInternalBufferUsageType(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot);
 
 			TDE2_API U32 _getInternalBufferSize(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IConstantBuffer* mpInternalEngineUniforms[TotalNumberOfInternalConstantBuffers];
 	};

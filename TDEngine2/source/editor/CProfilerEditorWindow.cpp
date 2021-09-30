@@ -52,19 +52,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CTimeProfilerEditorWindow::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-		delete this;
-
-		return RC_OK;
-	}
-
 	void CTimeProfilerEditorWindow::SetMainThreadID(U32 mainThreadID)
 	{
 		mMainThreadID = mainThreadID;
@@ -207,19 +194,6 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CMemoryProfilerEditorWindow::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-		delete this;
 
 		return RC_OK;
 	}

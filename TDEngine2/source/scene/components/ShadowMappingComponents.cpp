@@ -89,20 +89,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CShadowCasterComponentFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	IComponent* CShadowCasterComponentFactory::Create(const TBaseComponentParameters* pParams) const
 	{
 		if (!pParams)

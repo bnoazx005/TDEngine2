@@ -57,15 +57,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
+			
 			/*!
 				\brief The method creates a new instance of CEntity
 
@@ -226,6 +218,8 @@ namespace TDEngine2
 			TDE2_API std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TypeId>& types) override;
 
 			TDE2_API TSystemId _findSystem(TypeId typeId) override;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			CEntityManager*    mpEntityManager;
 

@@ -8,6 +8,7 @@
 
 
 #include "IJobManager.h"
+#include "CBaseObject.h"
 #include <vector>
 #include <queue>
 #include <thread>
@@ -35,7 +36,7 @@ namespace TDEngine2
 		Win32 and UNIX platforms
 	*/
 
-	class CBaseJobManager : public IJobManager
+	class CBaseJobManager : public IJobManager, public CBaseObject
 	{
 		public:
 			friend TDE2_API IJobManager* CreateBaseJobManager(U32 maxNumOfThreads, E_RESULT_CODE& result);
@@ -53,14 +54,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(U32 maxNumOfThreads) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called
@@ -93,6 +86,8 @@ namespace TDEngine2
 			TDE2_API void _executeTasksLoop();
 
 			TDE2_API E_RESULT_CODE _submitJob(std::unique_ptr<IJob> pJob) override;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			static constexpr U8     mUpdateTickRate = 60; // \note Single update every 60 frames
 

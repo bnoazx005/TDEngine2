@@ -52,14 +52,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(ITimeProfiler* pProfiler);
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method sets up an identifier of the main thread
 
 				\param[in] mainThreadID An identifier of the main thread
@@ -126,14 +118,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(IMemoryProfiler* pProfiler);
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryProfilerEditorWindow)
 

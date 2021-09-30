@@ -78,20 +78,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSphereCollisionObject3DFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	IComponent* CSphereCollisionObject3DFactory::Create(const TBaseComponentParameters* pParams) const
 	{
 		if (!pParams)

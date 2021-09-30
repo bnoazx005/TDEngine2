@@ -35,25 +35,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CGlobalShaderProperties::Free()
+	E_RESULT_CODE CGlobalShaderProperties::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = _freeAllUniformsBuffers();
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
+		return _freeAllUniformsBuffers();
 	}
 
 	E_RESULT_CODE CGlobalShaderProperties::SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize)

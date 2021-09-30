@@ -417,20 +417,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSkeletonLoader::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CSkeletonLoader::LoadResource(IResource* pResource) const
 	{
 		if (!mIsInitialized)
@@ -479,20 +465,6 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CSkeletonFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

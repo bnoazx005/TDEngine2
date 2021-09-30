@@ -8,6 +8,7 @@
 
 
 #include "IResourceManager.h"
+#include "CBaseObject.h"
 #include "../utils/CResourceContainer.h"
 #include <unordered_map>
 #include <atomic>
@@ -41,7 +42,7 @@ namespace TDEngine2
 		\brief The class represents a root resource manager's functionality
 	*/
 
-	class CResourceManager : public IResourceManager
+	class CResourceManager : public IResourceManager, public CBaseObject
 	{
 		public:
 			friend TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
@@ -71,14 +72,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IJobManager* pJobManager) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method registers specified resource loader within a manager
@@ -220,6 +213,8 @@ namespace TDEngine2
 			TDE2_API const IResourceFactory* _getResourceFactory(TypeId resourceTypeId) const;
 
 			TDE2_API std::vector<std::string> _getResourcesListByType(TypeId resourceTypeId) const override;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
 			TDE2_API E_RESULT_CODE _unloadAllResources();
 		protected:

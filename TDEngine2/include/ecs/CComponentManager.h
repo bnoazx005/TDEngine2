@@ -59,14 +59,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method registers specified resource factory within a manager
 
 				\param[in] pFactory A pointer to IComponentFactory's implementation
@@ -169,6 +161,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _unregisterBuiltinComponentFactories();
 
 			TDE2_API bool _hasComponent(TypeId componentTypeId, TEntityId entityId) override;
+			
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TComponentEntityMap      mComponentEntityMap;
 

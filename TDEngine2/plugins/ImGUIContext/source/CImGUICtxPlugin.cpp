@@ -48,20 +48,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CImGUICtxPlugin::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		delete this;
-
-		mIsInitialized = false;
-
-		return RC_OK;
-	}
-
 	const TPluginInfo& CImGUICtxPlugin::GetInfo() const
 	{
 		return mPluginInfo;

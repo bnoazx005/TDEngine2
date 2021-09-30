@@ -121,22 +121,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CAnimationSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	void CAnimationSystem::InjectBindings(IWorld* pWorld)
 	{
 		mAnimatedEntities = pWorld->FindEntitiesWithComponents<CAnimationContainerComponent>();

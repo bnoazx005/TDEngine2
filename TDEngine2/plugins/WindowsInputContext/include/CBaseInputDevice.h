@@ -34,20 +34,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseInputDevice)
 
 			TDE2_API E_RESULT_CODE _acquireDevice();
 
 			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TInternalInputData& params) = 0;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IDirectInputDevice8*  mpInputDevice;
 

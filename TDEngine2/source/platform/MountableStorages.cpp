@@ -46,13 +46,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseMountableStorage::Free()
+	E_RESULT_CODE CBaseMountableStorage::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
 		for (U32 i = 0; i < mActiveFiles.GetSize(); ++i)
@@ -65,10 +60,6 @@ namespace TDEngine2
 				}
 			}
 		}
-
-		delete this;
-
-		mIsInitialized = false;
 
 		return result;
 	}

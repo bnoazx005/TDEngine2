@@ -308,20 +308,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLShaderFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	IResource* COGLShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		return nullptr;

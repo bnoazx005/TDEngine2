@@ -69,20 +69,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLGCtxPlugin::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		delete this;
-
-		mIsInitialized = false;
-
-		return RC_OK;
-	}
-
 	const TPluginInfo& COGLGCtxPlugin::GetInfo() const
 	{
 		return mPluginInfo;

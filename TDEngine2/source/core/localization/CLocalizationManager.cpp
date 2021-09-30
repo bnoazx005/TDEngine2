@@ -50,24 +50,6 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CLocalizationManager::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CLocalizationManager::LoadLocale(TLocaleId locale)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

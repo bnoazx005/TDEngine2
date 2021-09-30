@@ -28,19 +28,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDevConsoleWindow::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CDevConsoleWindow::RegisterCommand(const std::string& commandName, const TCommandHandler& commandHandler)
 	{
 		if (commandName.empty() || !commandHandler)

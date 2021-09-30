@@ -62,24 +62,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CUIElementsRenderSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}
-
-		return RC_OK;
-	}
-
 	void CUIElementsRenderSystem::InjectBindings(IWorld* pWorld)
 	{
 		mUIElementsEntities.clear();

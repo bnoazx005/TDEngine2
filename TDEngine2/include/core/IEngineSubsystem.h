@@ -7,8 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Config.h"
-#include "./../utils/Utils.h"
+#include "../utils/Config.h"
+#include "../utils/Utils.h"
+#include "IBaseObject.h"
 
 
 namespace TDEngine2
@@ -21,17 +22,9 @@ namespace TDEngine2
 		The subsystem term includes low-level graphics context, window creation and etc.
 	*/
 
-	class IEngineSubsystem
+	class IEngineSubsystem: public virtual IBaseObject
 	{
 		public:
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Free() = 0;
-
 			/*!
 				\brief The method returns a type of the subsystem
 

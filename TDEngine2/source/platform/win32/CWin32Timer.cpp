@@ -34,21 +34,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CWin32Timer::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
-
 	void CWin32Timer::Start()
 	{
 		QueryPerformanceCounter(&mStartTime);

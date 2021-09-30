@@ -38,20 +38,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseAllocator::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 #if TDE2_EDITORS_ENABLED
 
 	void CBaseAllocator::SetBlockDebugName(const std::string& blockId)
@@ -132,20 +118,6 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CBaseAllocatorFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

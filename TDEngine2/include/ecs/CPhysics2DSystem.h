@@ -141,14 +141,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager);
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method inject components array into a system
 
 				\param[in] pWorld A pointer to a main scene's object
@@ -220,6 +212,8 @@ namespace TDEngine2
 			TDE2_API b2Body* _createPhysicsBody(const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider);
 
 			TDE2_API void _testPointOverlap(const TVector2& point, const TOnRaycastHitCallback& onHitCallback) const;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			static const TVector2 mDefaultGravity;
 

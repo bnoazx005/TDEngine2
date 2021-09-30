@@ -228,20 +228,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMeshAnimatorComponentFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	IComponent* CMeshAnimatorComponentFactory::Create(const TBaseComponentParameters* pParams) const
 	{
 		if (!pParams)

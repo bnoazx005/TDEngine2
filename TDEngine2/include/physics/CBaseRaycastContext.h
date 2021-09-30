@@ -57,14 +57,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IMemoryManager* pMemoryManager, CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem);
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method casts a ray into a scene and returns closest object which is intersected by that.
 				If there wasn't intersections nullptr is returned. The method should be used for work with 2D physics objects
 				which are controled by Box2D

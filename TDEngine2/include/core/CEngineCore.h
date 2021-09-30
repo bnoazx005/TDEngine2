@@ -64,14 +64,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method starts up the engine
 
 				All the code that is placed under a call of the method will be executed only
@@ -178,6 +170,8 @@ namespace TDEngine2
 
 				return dynamic_cast<T*>(mSubsystems[type]);
 			}
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IEngineSubsystem*  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 

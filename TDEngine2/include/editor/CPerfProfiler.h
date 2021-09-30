@@ -30,14 +30,6 @@ namespace TDEngine2
 	{
 		public:
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method stars to record current frame's statistics. The method should be called only once per frame
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -111,6 +103,8 @@ namespace TDEngine2
 			TDE2_API static ITimeProfiler* Get();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPerfProfiler);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		private:
 			static const U16    mLogBuffer;
 

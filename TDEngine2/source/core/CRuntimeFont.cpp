@@ -229,20 +229,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CRuntimeFontLoader::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CRuntimeFontLoader::LoadResource(IResource* pResource) const
 	{
 		if (!mIsInitialized)
@@ -291,20 +277,6 @@ namespace TDEngine2
 		mpFileSystem = pFileSystem;
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CRuntimeFontFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

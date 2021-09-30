@@ -37,7 +37,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Free() = 0;
+			TDE2_API E_RESULT_CODE Free() final override;
 
 			/*!
 				\return The method returns a number of strong references that points to the object
@@ -46,6 +46,8 @@ namespace TDEngine2
 			TDE2_API U32 GetRefCount() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)
+
+			TDE2_API virtual E_RESULT_CODE _onFreeInternal();
 		protected:
 			std::atomic_uint32_t mRefCounter;
 

@@ -48,13 +48,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	E_RESULT_CODE CMemoryManager::Free()
+	E_RESULT_CODE CMemoryManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		_checkUpMemoryLeaks();
 
 		E_RESULT_CODE result = RC_OK;
@@ -67,10 +62,6 @@ namespace TDEngine2
 		delete[] mpGlobalMemoryBlock;
 
 		LOG_MESSAGE("[Memory manager] The memory manager was successfully finalized");
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

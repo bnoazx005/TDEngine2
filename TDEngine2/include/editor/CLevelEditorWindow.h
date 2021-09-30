@@ -82,14 +82,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(const TLevelEditorWindowDesc& desc);
 
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
 			TDE2_API E_RESULT_CODE RegisterInspector(TypeId targetType, const TOnGuiCallback& onGuiFunctor);
 
 #if TDE2_EDITORS_ENABLED
@@ -131,6 +123,8 @@ namespace TDEngine2
 			TDE2_API ICamera& _getCameraEntity();
 
 			TDE2_API ISelectionManager* _getSelectionManager();
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IEditorsManager*       mpEditorsManager;
 

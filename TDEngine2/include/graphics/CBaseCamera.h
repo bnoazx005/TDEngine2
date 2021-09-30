@@ -30,14 +30,6 @@ namespace TDEngine2
 			TDE2_REGISTER_TYPE(CBaseCamera)
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method sets up a position of a near clip plane along Z axis
 
 				\param[in] zn A position of a near clip plane on Z axis
@@ -141,6 +133,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCamera)
 
 			TDE2_API E_RESULT_CODE _initInternal();
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			F32       mZNear;
 
@@ -189,14 +183,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method computes planes of the frustum based on camera's parameters

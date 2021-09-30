@@ -8,6 +8,7 @@
 
 #include <core/IGraphicsContext.h>
 #include <core/Event.h>
+#include <core/CBaseObject.h>
 
 
 #if defined(TDE2_USE_WIN32PLATFORM) /// Used only on Windows platform
@@ -17,7 +18,7 @@ namespace TDEngine2
 	class IEventManager;
 
 
-	class CD3D11GraphicsContext : public IGraphicsContext, public IEventHandler
+	class CD3D11GraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
 			friend TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
@@ -33,14 +34,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method clears up back buffer with specified color
@@ -371,6 +364,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createDepthBuffer(U32 width, U32 height, IDXGISwapChain* pSwapChain, ID3D11Device* p3dDevice,
 													  ID3D11DepthStencilView** ppDepthStencilView, ID3D11Texture2D** pDepthStencilBuffer);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			constexpr static U8      mMaxNumOfRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
 

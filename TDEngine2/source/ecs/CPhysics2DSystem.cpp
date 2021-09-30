@@ -50,13 +50,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CPhysics2DSystem::Free()
+	E_RESULT_CODE CPhysics2DSystem::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		if (mpWorldInstance)
 		{
 			delete mpWorldInstance;
@@ -65,10 +60,6 @@ namespace TDEngine2
 		}
 		
 		delete mpContactsListener;
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

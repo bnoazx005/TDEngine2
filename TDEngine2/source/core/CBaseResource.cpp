@@ -54,26 +54,9 @@ namespace TDEngine2
 		return Reset();
 	}
 
-	TDE2_API E_RESULT_CODE CBaseResource::Free()
+	E_RESULT_CODE CBaseResource::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		E_RESULT_CODE result = RC_OK;
-
-		if (!mRefCounter)
-		{
-			result = Unload();
-
-			mIsInitialized = false;
-			delete this;
-		}
-
-		return result;
+		return Unload();
 	}
 
 	void CBaseResource::SetState(E_RESOURCE_STATE_TYPE state)

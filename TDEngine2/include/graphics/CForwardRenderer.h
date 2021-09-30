@@ -9,6 +9,7 @@
 
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
+#include "../core/CBaseObject.h"
 #include "IRenderer.h"
 #include "InternalShaderData.h"
 
@@ -44,7 +45,7 @@ namespace TDEngine2
 		\brief The interface represents a functionality of a renderer
 	*/
 
-	class CForwardRenderer : public IRenderer
+	class CForwardRenderer : public IRenderer, public CBaseObject
 	{
 		public:
 			friend TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, 
@@ -68,14 +69,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator,
 										IFramePostProcessor* pFramePostProcessor) override;
 			
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
 			/*!
 				\brief The method sends all accumulated commands into GPU driver
 
@@ -164,6 +157,8 @@ namespace TDEngine2
 			TDE2_API void _submitToDraw(CRenderQueue* pRenderQueue, U32 upperRenderIndexLimit);
 
 			TDE2_API void _prepareFrame(F32 currTime, F32 deltaTime);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			bool                     mIsInitialized;
 							         

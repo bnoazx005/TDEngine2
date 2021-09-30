@@ -80,20 +80,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDebugUtility::Free()
+	E_RESULT_CODE CDebugUtility::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = mpGeometryBuilder ? mpGeometryBuilder->Free() : RC_FAIL;
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
+		return mpGeometryBuilder ? mpGeometryBuilder->Free() : RC_FAIL;
 	}
 
 	void CDebugUtility::PreRender()

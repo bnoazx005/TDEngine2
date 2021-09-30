@@ -39,20 +39,9 @@ namespace TDEngine2
 		return _onInit();
 	}
 
-	E_RESULT_CODE CBaseFileSystem::Free()
+	E_RESULT_CODE CBaseFileSystem::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		mIsInitialized = false;
-		delete this;
-
 		LOG_MESSAGE("[File System] The file system  was successfully destroyed");
-
 		return RC_OK;
 	}
 

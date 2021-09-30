@@ -46,14 +46,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method is a factory for creation of a debug helper object
 
 				\param[in, out] pResourceManager A pointer to implementation of IResourceManager interface
@@ -96,6 +88,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _freeDepthStencilStates() = 0;
 
 			TDE2_API virtual E_RESULT_CODE _freeRasterizerStates() = 0;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IGraphicsContext*        mpGraphicsContext;
 

@@ -36,25 +36,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEntityManager::Free()
+	E_RESULT_CODE CEntityManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = DestroyAllImmediately();
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
+		return DestroyAllImmediately();
 	}
 
 	CEntity* CEntityManager::Create()

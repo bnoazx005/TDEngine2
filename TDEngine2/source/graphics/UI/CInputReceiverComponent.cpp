@@ -92,20 +92,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CInputReceiverFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	IComponent* CInputReceiverFactory::Create(const TBaseComponentParameters* pParams) const
 	{
 		if (!pParams)

@@ -22,20 +22,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CGraphicsLayersInfo::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CGraphicsLayersInfo::AddLayer(F32 depthValue, const C8* layerName)
 	{
 		/// if there is no any layer within the vector use -infinity as the most left value

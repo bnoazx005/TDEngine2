@@ -56,14 +56,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(const TFramePostProcessorParameters& desc) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method assigns a processing profile into the processor
 
 				\param[in] pProfileResource A pointer to IPostProcessingProfile implementation

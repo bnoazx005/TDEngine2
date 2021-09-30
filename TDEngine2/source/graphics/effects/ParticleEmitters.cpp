@@ -40,23 +40,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseParticlesEmitter::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			delete this;
-		}
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CBaseParticlesEmitter::SetOwnerEffect(IParticleEffect* pOwner)
 	{
 		if (!pOwner)

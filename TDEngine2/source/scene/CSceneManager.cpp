@@ -38,29 +38,16 @@ namespace TDEngine2
 		return _onPostInit();
 	}
 
-	E_RESULT_CODE CSceneManager::Free()
+	E_RESULT_CODE CSceneManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
 		E_RESULT_CODE result = RC_OK;
 
-		if (!mRefCounter)
+		for (IScene* pCurrScene : mpScenes)
 		{
-			for (IScene* pCurrScene : mpScenes)
-			{
-				result = result | pCurrScene->Free();
-			}
-
-			mpScenes.clear();
-
-			mIsInitialized = false;
-			delete this;
+			result = result | pCurrScene->Free();
 		}
+
+		mpScenes.clear();
 
 		return result;
 	}

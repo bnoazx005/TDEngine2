@@ -8,6 +8,7 @@
 
 
 #include "IPluginManager.h"
+#include "CBaseObject.h"
 #include <unordered_map>
 #include <mutex>
 
@@ -37,7 +38,7 @@ namespace TDEngine2
 		\brief The class implements common functionality of a plugin manager
 	*/
 
-	class CBasePluginManager : public IPluginManager
+	class CBasePluginManager : public IPluginManager, public CBaseObject
 	{
 		public:
 			friend TDE2_API IPluginManager* CreateBasePluginManager(IEngineCore* pEngineCore, E_RESULT_CODE& result);
@@ -53,14 +54,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IEngineCore* pEngineCore) override;
-
-			/*!
-			\brief The method frees all memory occupied by the object
-
-			\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method load a specified plugin
@@ -107,6 +100,8 @@ namespace TDEngine2
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePluginManager)
+			
+			TDE2_API virtual E_RESULT_CODE _onFreeInternal();
 		protected:
 			bool               mIsInitialized;
 

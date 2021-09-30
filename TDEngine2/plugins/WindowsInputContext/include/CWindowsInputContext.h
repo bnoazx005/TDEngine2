@@ -8,6 +8,7 @@
 
 
 #include <core/IInputContext.h>
+#include <core/CBaseObject.h>
 #include <utils/Utils.h>
 
 
@@ -63,7 +64,7 @@ namespace TDEngine2
 		on DirectInput and XInput APIs
 	*/
 
-	class CWindowsInputContext : public IDesktopInputContext
+	class CWindowsInputContext : public IDesktopInputContext, public CBaseObject
 	{
 		public:
 			friend TDE2_API IInputContext* CreateWindowsInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
@@ -77,15 +78,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-			
+						
 			/*!
 				\brief The method updates the current state of a context
 
@@ -201,6 +194,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _createInputInternalHandler(HINSTANCE windowHandler);
 
 			TDE2_API E_RESULT_CODE _releaseInternalHandler();
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			bool               mIsInitialized;
 

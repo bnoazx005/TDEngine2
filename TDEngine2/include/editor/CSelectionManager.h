@@ -61,14 +61,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IEditorsManager* pEditorsManager) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method builds so called selection map which is a render target that contains
 				information about which object occupies each pixel of the screen
 
@@ -138,6 +130,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _createRenderTarget(U32 width, U32 height);
 
 			TDE2_API void _resetCurrentSelection();
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IResourceManager* mpResourceManager;
 

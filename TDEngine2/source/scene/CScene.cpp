@@ -56,31 +56,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CScene::Free()
+	E_RESULT_CODE CScene::_onFreeInternal()
 	{
-		if (!mIsInitialized)
+		if (!mpWorld)
 		{
 			return RC_FAIL;
 		}
 
-		--mRefCounter;
+		mpWorld->Destroy(mpWorld->FindEntity(mSceneInfoEntityId));
 
-		if (!mRefCounter)
+		for (TEntityId currEntityId : mEntities)
 		{
-			if (!mpWorld)
-			{
-				return RC_FAIL;
-			}
-
-			mpWorld->Destroy(mpWorld->FindEntity(mSceneInfoEntityId));
-
-			for (TEntityId currEntityId : mEntities)
-			{
-				mpWorld->Destroy(mpWorld->FindEntity(currEntityId));
-			}
-
-			mIsInitialized = false;
-			delete this;
+			mpWorld->Destroy(mpWorld->FindEntity(currEntityId));
 		}
 
 		return RC_OK;

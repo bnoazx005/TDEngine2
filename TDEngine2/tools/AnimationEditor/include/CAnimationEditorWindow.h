@@ -49,14 +49,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IWorld* pWorld);
 
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
 			TDE2_API void SetAnimationResourceHandle(TResourceId handle);
 			TDE2_API void SetAnimatedEntityId(TEntityId entity);
 

@@ -70,30 +70,6 @@ namespace TDEngine2
 				return new (std::nothrow) CBasePropertyWrapper<TValueType>(setter, getter);
 			}
 
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free()
-			{
-				if (!mIsInitialized)
-				{
-					return RC_FAIL;
-				}
-
-				--mRefCounter;
-
-				if (!mRefCounter)
-				{
-					mIsInitialized = false;
-					delete this;
-				}
-
-				return RC_OK;
-			}
-
 			TDE2_API TypeId GetValueType() const override
 			{
 				return GetTypeId<TValueType>::mValue;

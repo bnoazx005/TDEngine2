@@ -111,14 +111,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem, const std::string& path) override;
 
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-			
 			TDE2_API TResult<TFileEntryId> OpenFile(const TypeId& typeId, const std::string& path, bool createIfDoesntExist) override;
 			TDE2_API E_RESULT_CODE CloseFile(TFileEntryId handle) override;
 			TDE2_API E_RESULT_CODE CloseFile(const std::string& path) override;
@@ -135,6 +127,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void _createNewFile(const std::string& path) = 0;
 			TDE2_API virtual TResult<IStream*> _createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const = 0;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			std::string mPhysicalPath;
 

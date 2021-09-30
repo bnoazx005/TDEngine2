@@ -36,22 +36,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	E_RESULT_CODE CFMODAudioContext::Free()
+	E_RESULT_CODE CFMODAudioContext::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		FMOD_RESULT result = mpSystem->release();
 		if (FMOD_OK != result)
 		{
 			return RC_FAIL;
 		}
-
-		delete this;
-
-		mIsInitialized = false;
 
 		return RC_OK;
 	}

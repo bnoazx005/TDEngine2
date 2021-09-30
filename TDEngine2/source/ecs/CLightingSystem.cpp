@@ -56,22 +56,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CLightingSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	void CLightingSystem::InjectBindings(IWorld* pWorld)
 	{
 		mDirectionalLightsEntities = pWorld->FindEntitiesWithComponents<CDirectionalLight>();

@@ -243,20 +243,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11ShaderFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	IResource* CD3D11ShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
 		return nullptr;

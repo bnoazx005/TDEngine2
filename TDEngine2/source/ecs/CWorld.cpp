@@ -64,13 +64,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CWorld::Free()
+	E_RESULT_CODE CWorld::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
 		{
@@ -91,10 +86,6 @@ namespace TDEngine2
 				return result;
 			}
 		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

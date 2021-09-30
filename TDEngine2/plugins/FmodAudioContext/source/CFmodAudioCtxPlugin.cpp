@@ -56,20 +56,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFMODAudioCtxPlugin::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		delete this;
-
-		mIsInitialized = false;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CFMODAudioCtxPlugin::OnRegister(IEngineCore* pEngineCore, IWorld* pWorld)
 	{
 		if (!pWorld)

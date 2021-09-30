@@ -41,24 +41,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CTransformObjectAction::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CTransformObjectAction::Execute()
 	{
 		return _changeTransform();
@@ -129,24 +111,6 @@ namespace TDEngine2
 		mUndoActionCallback = undoAction;
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CCommandAction::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}
 
 		return RC_OK;
 	}

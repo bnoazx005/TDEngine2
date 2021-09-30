@@ -34,22 +34,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CAudioListenerUpdateSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	void CAudioListenerUpdateSystem::InjectBindings(IWorld* pWorld)
 	{
 		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform, CAudioListenerComponent>();

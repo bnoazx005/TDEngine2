@@ -38,14 +38,6 @@ namespace TDEngine2
 			TDE2_REGISTER_TYPE(CBaseComponent)
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free();
-
-			/*!
 				\brief The method deserializes object's state from given reader
 
 				\param[in, out] pReader An input stream of data that contains information about the object
@@ -262,7 +254,6 @@ namespace TDEngine2
 			friend TDE2_API IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE& result);								\
 		public:																												\
 			TDE2_API E_RESULT_CODE Init();																					\
-			TDE2_API E_RESULT_CODE Free() override;																			\
 																															\
 			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;							\
 			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;						\
@@ -324,19 +315,6 @@ namespace TDEngine2
 	E_RESULT_CODE ComponentFactoryName::Init()																											\
 	{ 																																					\
 		mIsInitialized = true;																															\
-		return RC_OK;																																	\
-	}																																					\
-																																						\
-	E_RESULT_CODE ComponentFactoryName::Free()																											\
-	{																																					\
-		if (!mIsInitialized)																															\
-		{																																				\
-			return RC_FAIL;																																\
-		}																																				\
-																																						\
-		mIsInitialized = false;																															\
-		delete this;																																	\
-																																						\
 		return RC_OK;																																	\
 	}																																					\
 																																						\

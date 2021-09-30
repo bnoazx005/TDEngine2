@@ -48,23 +48,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBasePluginManager::Free()
+	E_RESULT_CODE CBasePluginManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
 		E_RESULT_CODE result = UnloadAllPlugins();
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
-
-		delete this;
 
 		LOG_MESSAGE("[Plugin Manager] The plugin manager was destroyed");
 

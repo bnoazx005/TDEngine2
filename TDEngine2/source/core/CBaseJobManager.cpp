@@ -35,13 +35,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	E_RESULT_CODE CBaseJobManager::Free()
+	E_RESULT_CODE CBaseJobManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		mIsRunning = false;
 
 		mHasNewJobAdded.notify_all();
@@ -55,12 +50,7 @@ namespace TDEngine2
 			}
 		}
 
-		delete this;
-
-		mIsInitialized = false;
-
 		LOG_MESSAGE("[Job Manager] The job manager was successfully destroyed");
-
 
 		return RC_OK;
 	}

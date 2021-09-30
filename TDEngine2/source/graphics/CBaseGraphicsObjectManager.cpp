@@ -32,13 +32,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseGraphicsObjectManager::Free()
+	E_RESULT_CODE CBaseGraphicsObjectManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = _freeBuffers();
 
 		result = result | _freeVertexDeclarations();
@@ -47,10 +42,6 @@ namespace TDEngine2
 		result = result | _freeDepthStencilStates();
 		result = result | _freeRasterizerStates();
 		result = result | mpDebugUtility->Free();
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return result;
 	}

@@ -48,20 +48,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSystemManager::Free()
+	E_RESULT_CODE CSystemManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = ClearSystemsRegistry();
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return result;
+		return ClearSystemsRegistry();
 	}
 
 	TResult<TSystemId> CSystemManager::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)

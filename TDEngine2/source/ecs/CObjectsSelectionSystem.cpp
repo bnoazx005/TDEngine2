@@ -81,24 +81,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CObjectsSelectionSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}		
-
-		return RC_OK;
-	}
-
 	void CObjectsSelectionSystem::InjectBindings(IWorld* pWorld)
 	{
 		mProcessingEntities = pWorld->FindEntitiesWithAny<CTransform, CStaticMeshContainer, CSkinnedMeshContainer, CQuadSprite>();

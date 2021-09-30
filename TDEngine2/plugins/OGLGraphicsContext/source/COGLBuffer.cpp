@@ -42,19 +42,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLBuffer::Free()
+	E_RESULT_CODE COGLBuffer::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		GL_SAFE_CALL(glDeleteBuffers(1, &mBufferHandler));
-
-		delete this;
-
-		mIsInitialized = false;
-
 		return RC_OK;
 	}
 

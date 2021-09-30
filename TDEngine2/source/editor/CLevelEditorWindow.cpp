@@ -71,19 +71,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CLevelEditorWindow::Free()
+	E_RESULT_CODE CLevelEditorWindow::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = mpActionsHistory->Free();
-
-		mIsInitialized = false;
-		delete this;
-
-		return RC_OK;
+		return mpActionsHistory->Free();
 	}
 
 	E_RESULT_CODE CLevelEditorWindow::RegisterInspector(TypeId targetType, const TOnGuiCallback& onGuiFunctor)

@@ -73,24 +73,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFramePostProcessor::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_OK;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CFramePostProcessor::SetProcessingProfile(const IPostProcessingProfile* pProfileResource)
 	{
 		if (!pProfileResource)

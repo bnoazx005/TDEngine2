@@ -33,25 +33,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLVertexBuffer::Free()
+	E_RESULT_CODE COGLVertexBuffer::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = mpBufferImpl->Free()) != RC_OK)
-		{
-			return result;
-		}
-
-		delete this;
-
-		mIsInitialized = false;
-
-		return RC_OK;
+		return mpBufferImpl->Free();
 	}
 
 	E_RESULT_CODE COGLVertexBuffer::Map(E_BUFFER_MAP_TYPE mapType)

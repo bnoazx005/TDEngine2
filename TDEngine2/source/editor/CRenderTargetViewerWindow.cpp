@@ -32,19 +32,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CRenderTargetViewerEditorWindow::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-		delete this;
-
-		return RC_OK;
-	}
-
 	void CRenderTargetViewerEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;

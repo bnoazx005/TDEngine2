@@ -171,14 +171,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IWorld* pWorld, TEntityId entityId, const TSRTEntity& transform);
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method applies some action to global state of the application
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -249,14 +241,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(const TCommandFunctor& doAction, const TCommandFunctor& undoAction);
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method applies some action to global state of the application

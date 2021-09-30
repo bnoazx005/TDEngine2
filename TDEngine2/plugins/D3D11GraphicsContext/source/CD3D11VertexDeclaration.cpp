@@ -19,10 +19,9 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11VertexDeclaration::Free()
+	E_RESULT_CODE CD3D11VertexDeclaration::_onFreeInternal()
 	{
-		E_RESULT_CODE result = SafeReleaseCOMPtr<ID3D11InputLayout>(&mpInputLayout);
-		return result | CVertexDeclaration::Free();
+		return SafeReleaseCOMPtr<ID3D11InputLayout>(&mpInputLayout) | CVertexDeclaration::_onFreeInternal();
 	}
 
 	TResult<ID3D11InputLayout*> CD3D11VertexDeclaration::GetInputLayoutByShader(IGraphicsContext* pGraphicsContext, const IShader* pShader)

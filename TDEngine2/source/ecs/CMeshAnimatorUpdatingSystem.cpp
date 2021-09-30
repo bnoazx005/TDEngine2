@@ -37,24 +37,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMeshAnimatorUpdatingSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}		
-
-		return RC_OK;
-	}
-
 	void CMeshAnimatorUpdatingSystem::InjectBindings(IWorld* pWorld)
 	{
 		mProcessingEntities = pWorld->FindEntitiesWithComponents<CSkinnedMeshContainer, CMeshAnimatorComponent>();

@@ -252,20 +252,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBasePostProcessingProfileLoader::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CBasePostProcessingProfileLoader::LoadResource(IResource* pResource) const
 	{
 		if (!mIsInitialized)
@@ -314,20 +300,6 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CBasePostProcessingProfileFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

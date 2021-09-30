@@ -50,14 +50,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(const TSaveManagerParametersDesc& desc) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method creates a new save at given directory
 
 				\param[in] saveId An identifer of the save
@@ -114,7 +106,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _scanAndLoadSaveFiles(const std::string& path);
 
-			TDE2_API E_RESULT_CODE _freeSaveGamesObjects();
+			TDE2_API E_RESULT_CODE _freeSaveGamesObjects();			
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			mutable std::mutex mMutex;
 

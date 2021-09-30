@@ -8,6 +8,7 @@
 
 
 #include "IMemoryManager.h"
+#include "../CBaseObject.h"
 #include <vector>
 #include <tuple>
 #include <unordered_map>
@@ -34,7 +35,7 @@ namespace TDEngine2
 		\brief The class represents a global memory manager
 	*/
 
-	class CMemoryManager : public IMemoryManager
+	class CMemoryManager : public IMemoryManager, public CBaseObject
 	{
 		public:
 			friend TDE2_API IMemoryManager* CreateMemoryManager(U32 totalMemorySize, E_RESULT_CODE& result);
@@ -52,14 +53,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(U32 totalMemorySize) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method registers a given factory object within the manager
@@ -108,6 +101,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _unregisterFactory(TypeId factoryTypeId) override;
 
 			TDE2_API IAllocator* _createAllocator(TypeId allocatorTypeId, const TBaseAllocatorParams& params, const C8* userName) override;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			bool                       mIsInitialized;
 

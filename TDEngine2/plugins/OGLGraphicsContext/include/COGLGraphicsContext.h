@@ -8,6 +8,7 @@
 
 #include <core/IGraphicsContext.h>
 #include <core/Event.h>
+#include <core/CBaseObject.h>
 
 
 namespace TDEngine2
@@ -31,7 +32,7 @@ namespace TDEngine2
 		some another way
 	*/
 
-	class COGLGraphicsContext : public IGraphicsContext, public IEventHandler
+	class COGLGraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
 			friend TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, 
@@ -48,14 +49,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method clears up back buffer with specified color
@@ -383,6 +376,8 @@ namespace TDEngine2
 			TDE2_API virtual ~COGLGraphicsContext();
 
 			TDE2_API E_RESULT_CODE _initFBO(const IWindowSystem* pWindowSystem);
+			
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			constexpr static U8             mMaxNumOfRenderTargets = 8;
 

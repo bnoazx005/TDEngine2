@@ -41,22 +41,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CAudioSourcesUpdateSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	void CAudioSourcesUpdateSystem::InjectBindings(IWorld* pWorld)
 	{
 		mAudioSources = pWorld->FindEntitiesWithComponents<CAudioSourceComponent>();

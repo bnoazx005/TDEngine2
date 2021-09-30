@@ -25,23 +25,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	E_RESULT_CODE CWin32DLLManager::Free()
+	E_RESULT_CODE CWin32DLLManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
 		if ((result = UnloadAll()) != RC_OK)
 		{
 			return result;
 		}
-
-		delete this;
-
-		mIsInitialized = false;
 
 		LOG_MESSAGE("[Win32 DLL Manager] The Win32 DLL manager was successfully destroyed");
 

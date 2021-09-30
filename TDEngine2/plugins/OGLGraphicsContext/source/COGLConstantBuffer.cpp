@@ -33,20 +33,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLConstantBuffer::Free()
+	E_RESULT_CODE COGLConstantBuffer::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = mpBufferImpl->Free();
-
-		delete this;
-
-		mIsInitialized = false;
-
-		return result;
+		return mpBufferImpl->Free();
 	}
 
 	E_RESULT_CODE COGLConstantBuffer::Map(E_BUFFER_MAP_TYPE mapType)

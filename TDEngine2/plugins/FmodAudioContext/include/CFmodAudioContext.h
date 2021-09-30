@@ -8,6 +8,7 @@
 
 #include <core/IAudioContext.h>
 #include <core/Event.h>
+#include <core/CBaseObject.h>
 #include <math/TVector3.h>
 #include <atomic>
 
@@ -36,7 +37,7 @@ namespace TDEngine2
 	TDE2_API IAudioContext* CreateFMODAudioContext(E_RESULT_CODE& result);
 
 
-	class CFMODAudioContext : public IAudioContext
+	class CFMODAudioContext : public IAudioContext, public CBaseObject
 	{
 		public:
 			friend TDE2_API IAudioContext* CreateFMODAudioContext(E_RESULT_CODE&);
@@ -50,14 +51,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method updates an internal state of the context
@@ -91,6 +84,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFMODAudioContext)
 
 			TDE2_API E_RESULT_CODE _initInternalContext();
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			std::atomic_bool mIsInitialized;
 			

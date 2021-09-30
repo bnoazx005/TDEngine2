@@ -93,14 +93,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 
@@ -201,6 +193,8 @@ namespace TDEngine2
 			TDE2_API std::vector<U16> _buildTextIndexBuffer(U32 textLength) const;
 
 			TDE2_API E_RESULT_CODE _initGizmosBuffers();
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 

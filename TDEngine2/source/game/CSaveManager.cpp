@@ -43,26 +43,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSaveManager::Free()
+	E_RESULT_CODE CSaveManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-		
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			result = _freeSaveGamesObjects();
-
-			mIsInitialized = false;
-			delete this;
-		}
-
-		return result;
+		return _freeSaveGamesObjects();
 	}
 
 	TSaveDataId CSaveManager::CreateSaveData(const std::string& saveId, const std::string& path, const std::function<bool()>& onOverwriteFile)

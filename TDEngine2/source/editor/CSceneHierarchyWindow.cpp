@@ -41,19 +41,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSceneHierarchyEditorWindow::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-		delete this;
-
-		return RC_OK;
-	}
-
 	void CSceneHierarchyEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;

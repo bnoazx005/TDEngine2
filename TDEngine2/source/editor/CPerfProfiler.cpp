@@ -37,20 +37,9 @@ namespace TDEngine2
 		mFramesStatistics.resize(mLogBuffer);
 	}
 
-	E_RESULT_CODE CPerfProfiler::Free()
+	E_RESULT_CODE CPerfProfiler::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = mpPerformanceTimer->Free();
-
-		delete this;
-
-		mIsInitialized = false;
-
-		return result;
+		return mpPerformanceTimer->Free();
 	}
 
 	E_RESULT_CODE CPerfProfiler::BeginFrame()

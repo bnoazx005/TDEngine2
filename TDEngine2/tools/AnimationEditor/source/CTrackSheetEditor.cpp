@@ -26,24 +26,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CTrackSheetEditor::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CTrackSheetEditor::Draw(const TVector2& frameSizes)
 	{
 		if (mOnDrawImpl)

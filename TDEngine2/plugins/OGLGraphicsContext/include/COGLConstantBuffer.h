@@ -45,14 +45,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
 
 				\param[in] mapType A way the data should be processed during a lock
@@ -126,6 +118,8 @@ namespace TDEngine2
 			TDE2_API U32 GetUsedSize() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLConstantBuffer)
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IBuffer* mpBufferImpl;
 

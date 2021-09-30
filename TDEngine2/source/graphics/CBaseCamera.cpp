@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseCamera::Free()
+	E_RESULT_CODE CBaseCamera::_onFreeInternal()
 	{
 		defer([this] 
 		{ 
@@ -22,7 +22,7 @@ namespace TDEngine2
 			}
 		});
 
-		return CBaseComponent::Free();
+		return CBaseComponent::_onFreeInternal();
 	}
 
 	void CBaseCamera::SetNearPlane(F32 zn)
@@ -134,19 +134,6 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CFrustum::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-		delete this;
 
 		return RC_OK;
 	}

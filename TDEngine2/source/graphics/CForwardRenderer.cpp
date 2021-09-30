@@ -121,15 +121,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CForwardRenderer::Free()
+	E_RESULT_CODE CForwardRenderer::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
 		/*!
 			\bug The piece of code below throws an exception because of corrupted memory.
 			
@@ -144,10 +137,6 @@ namespace TDEngine2
 		{
 			return result;
 		}*/
-
-		mIsInitialized = false;
-
-		delete this;
 
 		return RC_OK;
 	}

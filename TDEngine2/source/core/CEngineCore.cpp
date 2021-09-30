@@ -84,20 +84,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEngineCore::Free()
+	E_RESULT_CODE CEngineCore::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (mRefCounter)
-		{
-			return RC_OK;
-		}
-
 		{
 			E_RESULT_CODE result = _onNotifyEngineListeners(EET_ONFREE); ///< \note call user's code
 
@@ -120,10 +108,6 @@ namespace TDEngine2
 		CPerfProfiler::Get()->Free();
 		CMemoryProfiler::Get()->Free();
 #endif
-
-		mIsInitialized = false;
-
-		delete this;
 
 		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core was successfully finalized");

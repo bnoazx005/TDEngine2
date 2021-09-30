@@ -23,20 +23,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CGeometryBuilder::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateCubeGeometry(const TVector3& position, F32 size)
 	{
 		std::vector<TGeometryData::TVertex> vertices;

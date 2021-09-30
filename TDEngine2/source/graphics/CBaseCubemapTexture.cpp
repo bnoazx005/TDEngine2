@@ -167,20 +167,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseCubemapTextureLoader::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CBaseCubemapTextureLoader::LoadResource(IResource* pResource) const
 	{
 		if (!mIsInitialized)

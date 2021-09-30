@@ -10,24 +10,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CMemoryProfiler::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			delete this;
-			mIsInitialized = false;
-		}
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CMemoryProfiler::BeginFrame()
 	{
 		return RC_OK;

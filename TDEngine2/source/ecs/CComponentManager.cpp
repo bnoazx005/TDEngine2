@@ -51,25 +51,9 @@ namespace TDEngine2
 		return _registerBuiltinComponentFactories();
 	}
 
-	E_RESULT_CODE CComponentManager::Free()
+	E_RESULT_CODE CComponentManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = _unregisterBuiltinComponentFactories()))
-		{
-			return result;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
+		return _unregisterBuiltinComponentFactories();
 	}
 
 	IComponent* CComponentManager::CreateComponent(TEntityId entityId, TypeId componentTypeId)

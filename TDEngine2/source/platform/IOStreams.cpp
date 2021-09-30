@@ -32,22 +32,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFileInputStream::Free()
+	E_RESULT_CODE CFileInputStream::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mInternalStream.close();
-
-			delete this;
-		}
-
+		mInternalStream.close();
 		return RC_OK;
 	}
 
@@ -186,22 +173,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFileOutputStream::Free()
+	E_RESULT_CODE CFileOutputStream::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mInternalStream.close();
-
-			delete this;
-		}
-
+		mInternalStream.close();
 		return RC_OK;
 	}
 
@@ -305,23 +279,6 @@ namespace TDEngine2
 		mPointer = 0;
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CMemoryIOStream::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			delete this;
-		}
 
 		return RC_OK;
 	}

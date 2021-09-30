@@ -79,14 +79,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IWorld* pWorld, IEventManager* pEventManager) override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-			
-			/*!
 				\brief The method registers specified system
 
 				\param[in] A pointer to ISystem's implementation
@@ -215,6 +207,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _internalUnregisterSystem(TSystemId systemId);
 			TDE2_API E_RESULT_CODE _internalUnregisterSystemImmediately(TSystemId systemId);
+			
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TSystemsArray        mpActiveSystems;
 

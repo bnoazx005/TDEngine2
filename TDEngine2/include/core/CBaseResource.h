@@ -30,14 +30,6 @@ namespace TDEngine2
 			TDE2_REGISTER_TYPE(CBaseResource)
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method loads resource data into memory
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -110,6 +102,8 @@ namespace TDEngine2
 			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name);
 
 			TDE2_API virtual const IResourceLoader* _getResourceLoader() = 0;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IResourceManager*                  mpResourceManager;
 

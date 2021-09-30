@@ -43,14 +43,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method generates geometry for a cube which is axis aligned
 
 				\param[in] position A position of a cube's center

@@ -124,20 +124,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CParticleEmitterFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	IComponent* CParticleEmitterFactory::Create(const TBaseComponentParameters* pParams) const
 	{
 		if (!pParams)

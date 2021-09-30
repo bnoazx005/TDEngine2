@@ -53,14 +53,6 @@ namespace TDEngine2
 										const void* pDataPtr);
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
 
 				\param[in] mapType A way the data should be processed during a lock
@@ -122,6 +114,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLBuffer)
 
 			TDE2_API GLenum _getBufferType(E_BUFFER_TYPE type) const;
+			
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			GLuint                   mBufferHandler;
 

@@ -67,14 +67,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings) = 0;
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Free() = 0;
-
-			/*!
 				\brief The method loads a scene based on path to that
 
 				\param[in] scenePath A path to a scene's file

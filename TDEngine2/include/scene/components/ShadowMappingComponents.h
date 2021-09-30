@@ -135,14 +135,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init();
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method creates a new instance of a component based on passed parameters
 
 				\param[in] pParams An object that contains parameters that are needed for the component's creation

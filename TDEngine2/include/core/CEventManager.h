@@ -8,6 +8,7 @@
 
 
 #include "IEventManager.h"
+#include "CBaseObject.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -33,7 +34,7 @@ namespace TDEngine2
 		in the engine should provide.
 	*/
 
-	class CEventManager : public IEventManager
+	class CEventManager : public IEventManager, public CBaseObject
 	{
 		public:
 			friend TDE2_API IEventManager* CreateEventManager(E_RESULT_CODE& result);
@@ -51,14 +52,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method registers a new subscriber into a list of subscribers

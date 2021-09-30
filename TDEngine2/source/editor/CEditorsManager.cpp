@@ -63,13 +63,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEditorsManager::Free()
+	E_RESULT_CODE CEditorsManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_OK;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
 		for (auto& currEditorEntry : mRegisteredEditors)
@@ -83,10 +78,7 @@ namespace TDEngine2
 			result = result | pCurrEditorWindow->Free();
 		}
 
-		mIsInitialized = false;
-		delete this;
-
-		return RC_OK;
+		return result;
 	}
 
 	E_RESULT_CODE CEditorsManager::RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate)

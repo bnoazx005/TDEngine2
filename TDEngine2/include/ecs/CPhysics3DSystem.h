@@ -111,14 +111,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager);
 
 			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-
-			/*!
 				\brief The method inject components array into a system
 
 				\param[in] pWorld A pointer to a main scene's object
@@ -203,6 +195,8 @@ namespace TDEngine2
 			TDE2_API std::tuple<btPairCachingGhostObject*, btMotionState*> _createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
 
 			TDE2_API E_RESULT_CODE _freePhysicsObjects(TPhysicsObjectsData& physicsData);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			static const TVector3                mDefaultGravity;
 

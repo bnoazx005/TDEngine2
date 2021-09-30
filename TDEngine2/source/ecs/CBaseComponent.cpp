@@ -12,20 +12,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseComponent::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CBaseComponent::Load(IArchiveReader* pReader)
 	{
 		return RC_OK;

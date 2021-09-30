@@ -48,24 +48,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBoundsUpdatingSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-			delete this;
-		}		
-
-		return RC_OK;
-	}
-
 	void CBoundsUpdatingSystem::InjectBindings(IWorld* pWorld)
 	{
 		mStaticMeshesEntities  = pWorld->FindEntitiesWithComponents<CStaticMeshContainer>();

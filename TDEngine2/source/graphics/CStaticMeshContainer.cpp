@@ -106,20 +106,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CStaticMeshContainerFactory::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 	IComponent* CStaticMeshContainerFactory::Create(const TBaseComponentParameters* pParams) const
 	{
 		if (!pParams)

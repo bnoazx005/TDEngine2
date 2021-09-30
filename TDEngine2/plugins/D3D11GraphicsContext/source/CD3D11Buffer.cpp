@@ -88,23 +88,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11Buffer::Free()
+	E_RESULT_CODE CD3D11Buffer::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		E_RESULT_CODE result = RC_OK;
 
 		if ((result = SafeReleaseCOMPtr<ID3D11Buffer>(&mpBufferInstance)) != RC_OK)
 		{
 			return result;
 		}
-
-		delete this;
-
-		mIsInitialized = false;
 
 		return RC_OK;
 	}

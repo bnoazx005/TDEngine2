@@ -7,13 +7,14 @@
 #pragma once
 
 
-#include "./../../utils/Config.h"
-#include "./../../core/Event.h"
+#include "../../utils/Config.h"
+#include "../../core/Event.h"
+#include "../../core/CBaseObject.h"
 
 #if defined(TDE2_USE_WIN32PLATFORM) /// use
 
 
-#include "./../../core/IWindowSystem.h"
+#include "../../core/IWindowSystem.h"
 #include <Windows.h>
 
 
@@ -25,7 +26,7 @@ namespace TDEngine2
 		\brief The class provides methods for a window system, which works under Windows
 	*/
 
-	class CWin32WindowSystem : public IWindowSystem, public IEventHandler
+	class CWin32WindowSystem : public IWindowSystem, public IEventHandler, public CBaseObject
 	{
 		public:
 			/*!
@@ -58,15 +59,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-			
+						
 			/*!
 				\brief The method processes a window's update (executing messages, redraw content)
 
@@ -246,6 +239,9 @@ namespace TDEngine2
 			TDE2_API U32 _getStyleByParams(U32 flags) const;
 
 			TDE2_API static LRESULT CALLBACK _wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+
 		protected:
 			HWND                     mWindowHandler;
 			HINSTANCE                mInstanceHandler;

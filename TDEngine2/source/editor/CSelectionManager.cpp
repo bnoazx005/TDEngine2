@@ -57,21 +57,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSelectionManager::Free()
+	E_RESULT_CODE CSelectionManager::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_OK;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		result = result | mpResourceManager->ReleaseResource(mSelectionGeometryBufferHandle);
-
-		mIsInitialized = false;
-		delete this;
-
-		return result;
+		return mpResourceManager->ReleaseResource(mSelectionGeometryBufferHandle);
 	}
 
 	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)

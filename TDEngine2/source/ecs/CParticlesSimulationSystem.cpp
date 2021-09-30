@@ -99,25 +99,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CParticlesSimulationSystem::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		--mRefCounter;
-
-		if (!mRefCounter)
-		{
-			mIsInitialized = false;
-
-			delete this;
-		}		
-
-		return RC_OK;
-	}
-
 	void CParticlesSimulationSystem::InjectBindings(IWorld* pWorld)
 	{
 		mParticleEmitters = pWorld->FindEntitiesWithComponents<CParticleEmitter>();
