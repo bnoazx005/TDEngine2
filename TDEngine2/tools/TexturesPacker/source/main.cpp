@@ -20,24 +20,18 @@ I32 main(I32 argc, const C8** argv)
 		return parseOptionsResult.GetError();
 	}
 
-	IEngineCoreBuilder* pEngineCoreBuilder = CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result);
+	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result));
 
 	if (result != RC_OK)
 	{
 		return -1;
 	}
 
-	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
-
-	pEngineCoreBuilder->Free();
+	TPtr<IEngineCore> pEngineCore = TPtr<IEngineCore>(pEngineCoreBuilder->GetEngineCore());
 	
-	std::unique_ptr<CUtilityListener> pUtilityListener = std::make_unique<CUtilityListener>(parseOptionsResult.Get());
-
-	pEngineCore->RegisterListener(pUtilityListener.get());
+	pEngineCore->RegisterListener(std::make_unique<CUtilityListener>(parseOptionsResult.Get()));
 
 	pEngineCore->Run();
-
-	pEngineCore->Free();
 
 	return 0;
 }

@@ -691,6 +691,9 @@ namespace TDEngine2
 	};
 
 
+	template <typename T> using TPtr = CScopedPtr<T>;
+
+
 	template <typename T, typename U> 
 	CScopedPtr<T> DynamicPtrCast(CScopedPtr<U> ptr) 
 	{ 

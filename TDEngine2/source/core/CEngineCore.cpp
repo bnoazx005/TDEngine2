@@ -220,47 +220,43 @@ namespace TDEngine2
 		return _unregisterSubsystem(subsystemType);
 	}
 
-	E_RESULT_CODE CEngineCore::RegisterListener(IEngineListener* pListener)
+	TResult<TEngineListenerId> CEngineCore::RegisterListener(std::unique_ptr<IEngineListener> pListener)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (!pListener)
 		{
-			return RC_INVALID_ARGS;
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
 		/// prevent duplicating instances
-		if (std::find(mEngineListeners.cbegin(), mEngineListeners.cend(), pListener) != mEngineListeners.cend())
+		auto it = std::find_if(mEngineListeners.cbegin(), mEngineListeners.cend(), [&](auto& pCurrListener) { return pListener.get() == pCurrListener.get(); });
+		if (it != mEngineListeners.cend())
 		{
-			return RC_FAIL;
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		pListener->SetEngineInstance(this); /// inject engine's instance into the listener
 
-		mEngineListeners.push_back(pListener);
+		mEngineListeners.push_back(std::move(pListener));
 
 		LOG_MESSAGE("[Engine Core] A new listener was successfully registered");
 
-		return RC_OK;
+		return Wrench::TOkValue<TEngineListenerId>(static_cast<TEngineListenerId>(mEngineListeners.size() - 1));
 	}
 
-	E_RESULT_CODE CEngineCore::UnregisterListener(IEngineListener* pListener)
+	E_RESULT_CODE CEngineCore::UnregisterListener(TEngineListenerId listenerHandle)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!pListener)
+		const size_t index = static_cast<size_t>(listenerHandle);
+
+		if ((TEngineListenerId::Invalid == listenerHandle) || (index >= mEngineListeners.size()))
 		{
 			return RC_INVALID_ARGS;
 		}
 		
-		auto entityIter = std::find(mEngineListeners.begin(), mEngineListeners.end(), pListener);
-
-		if (entityIter == mEngineListeners.cend())
-		{
-			return RC_FAIL;
-		}
-
-		mEngineListeners.erase(entityIter);
+		mEngineListeners.erase(mEngineListeners.cbegin() + index);
 
 		LOG_MESSAGE("[Engine Core] The new listener was successfully unregistered");
 
@@ -348,7 +344,7 @@ namespace TDEngine2
 
 		F32 dt = 0.0f;
 
-		for (IEngineListener* pListener : mEngineListeners)
+		for (auto&& pListener : mEngineListeners)
 		{
 			if (!pListener)
 			{

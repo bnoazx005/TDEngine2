@@ -10,8 +10,10 @@
 #include "../utils/Config.h"
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
+#include "IEngineListener.h"
 #include "IBaseObject.h"
 #include <string>
+#include <memory>
 
 
 namespace TDEngine2
@@ -90,17 +92,17 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RegisterListener(IEngineListener* pListener) = 0;
+			TDE2_API virtual TResult<TEngineListenerId> RegisterListener(std::unique_ptr<IEngineListener> pListener) = 0;
 
 			/*!
 				\brief The method unregisters a specified engine's listener
 
-				\param[in] pListener A pointer to listener's implementation
+				\param[in] listenerHandle An identifier of the registered listener
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE UnregisterListener(IEngineListener* pListener) = 0;
+			TDE2_API virtual E_RESULT_CODE UnregisterListener(TEngineListenerId listenerHandle) = 0;
 
 			/*!
 				\brief The method returns a pointer to a subsystem of specified type

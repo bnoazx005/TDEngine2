@@ -14,26 +14,18 @@ int main(int argc, char** argv)
 {
 	E_RESULT_CODE result = RC_OK;
 	
-	IEngineCoreBuilder* pEngineCoreBuilder = CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result);
+	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result));
 
 	if (result != RC_OK)
 	{
 		return -1;
 	}
 
-	IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
+	TPtr<IEngineCore> pEngineCore = TPtr<IEngineCore>(pEngineCoreBuilder->GetEngineCore());
 
-	pEngineCoreBuilder->Free();
-	
-	IEngineListener* pCustomListener = new CCustomEngineListener();
-
-	pEngineCore->RegisterListener(pCustomListener);
+	pEngineCore->RegisterListener(std::make_unique<CCustomEngineListener>());
 
 	pEngineCore->Run();
-	
-	pEngineCore->Free();
-
-	delete pCustomListener;
 
 	return 0;
 }

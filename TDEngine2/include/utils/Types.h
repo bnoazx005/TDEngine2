@@ -300,6 +300,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_HANDLE_TYPE_EX(TypeId, 0);
+	TDE2_DECLARE_HANDLE_TYPE(TEngineListenerId);
 
 
 	/// Entity-Component-System's types declarations

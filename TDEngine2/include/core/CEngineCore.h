@@ -53,7 +53,7 @@ namespace TDEngine2
 				EET_ONFREE
 			};
 
-			typedef std::vector<IEngineListener*> TListenersArray;
+			typedef std::vector<std::unique_ptr<IEngineListener>> TListenersArray;
 		public:
 			/*!
 				\brief The method initializes the object
@@ -111,17 +111,17 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterListener(IEngineListener* pListener) override;
+			TDE2_API TResult<TEngineListenerId> RegisterListener(std::unique_ptr<IEngineListener> pListener) override;
 
 			/*!
 				\brief The method unregisters a specified engine's listener
 
-				\param[in] pSubsystem A pointer to listener's implementation
+				\param[in] listenerHandle An identifier of the registered listener
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE UnregisterListener(IEngineListener* pListener) override;
+			TDE2_API E_RESULT_CODE UnregisterListener(TEngineListenerId listenerHandle) override;
 
 			/*!
 				\brief The method returns a pointer to a main logger of an engine
