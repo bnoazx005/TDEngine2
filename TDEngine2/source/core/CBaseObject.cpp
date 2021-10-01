@@ -15,7 +15,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseObject::Free()
 	{
-		if (!mIsInitialized)
+		if (!mRefCounter)
 		{
 			return RC_FAIL;
 		}
