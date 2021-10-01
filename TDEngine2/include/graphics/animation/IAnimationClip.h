@@ -13,6 +13,7 @@
 #include "../../core/IResourceLoader.h"
 #include "../../core/Serialization.h"
 #include "../../core/Event.h"
+#include "../../core/IBaseObject.h"
 
 
 namespace TDEngine2
@@ -86,7 +87,7 @@ namespace TDEngine2
 		\brief The interface describes API of animation clips resources
 	*/
 
-	class IAnimationClip: public ISerializable
+	class IAnimationClip: public ISerializable, public virtual IBaseObject
 	{
 		public:
 			TDE2_REGISTER_TYPE(IAnimationClip);

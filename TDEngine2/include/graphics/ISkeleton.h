@@ -11,6 +11,7 @@
 #include "../core/IResourceFactory.h"
 #include "../core/IResourceLoader.h"
 #include "../core/Serialization.h"
+#include "../core/IBaseObject.h"
 #include "../math/TMatrix4.h"
 
 
@@ -43,7 +44,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a skeleton for skinned meshes
 	*/
 
-	class ISkeleton: public ISerializable
+	class ISkeleton: public ISerializable, public virtual IBaseObject
 	{
 		public:
 			static constexpr U32 mMaxNumOfJoints = 256;

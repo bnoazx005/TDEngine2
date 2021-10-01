@@ -12,6 +12,7 @@
 #include "../ecs/IComponentFactory.h"
 #include "../math/TVector3.h"
 #include "../math/TMatrix4.h"
+#include "../core/IBaseObject.h"
 
 
 namespace TDEngine2
@@ -47,7 +48,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a camera component
 	*/
 
-	class ICamera
+	class ICamera: public virtual IBaseObject
 	{
 		public:
 			/*!

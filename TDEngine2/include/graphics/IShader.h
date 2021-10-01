@@ -10,6 +10,7 @@
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
 #include "../core/IResourceFactory.h"
+#include "../core/IBaseObject.h"
 #include <string>
 
 
@@ -31,7 +32,7 @@ namespace TDEngine2
 		 which unites all programmable stages of the graphics pipeline
 	*/
 
-	class IShader
+	class IShader: public virtual IBaseObject
 	{
 		public:
 			TDE2_REGISTER_TYPE(IShader);

@@ -7,8 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../core/IBaseObject.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 #include "../math/TRect.h"
 
 
@@ -21,7 +22,7 @@ namespace TDEngine2
 		all texture types should provide within the engine
 	*/
 
-	class ITexture
+	class ITexture: public virtual IBaseObject
 	{
 		public:
 			/*!

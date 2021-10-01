@@ -14,6 +14,7 @@
 #include "../../core/IResourceFactory.h"
 #include "../../core/IResourceLoader.h"
 #include "../../core/Serialization.h"
+#include "../../core/IBaseObject.h"
 #include "../../graphics/animation/CAnimationCurve.h"
 #include "../../utils/CGradientColor.h"
 #include "ParticleEmitters.h"
@@ -121,7 +122,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a particle effect's settings
 	*/
 
-	class IParticleEffect: public ISerializable
+	class IParticleEffect: public ISerializable, public virtual IBaseObject
 	{
 		public:
 			TDE2_REGISTER_TYPE(IParticleEffect);

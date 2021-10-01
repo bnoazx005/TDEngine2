@@ -12,6 +12,7 @@
 #include "../core/IResourceLoader.h"
 #include "../core/IResourceFactory.h"
 #include "../core/Serialization.h"
+#include "../core/IBaseObject.h"
 #include <string>
 
 
@@ -68,7 +69,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a material
 	*/
 
-	class IMaterial: public ISerializable
+	class IMaterial: public ISerializable, public virtual IBaseObject
 	{
 		public:
 			TDE2_REGISTER_TYPE(IMaterial);

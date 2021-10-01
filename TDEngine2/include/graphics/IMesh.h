@@ -14,6 +14,7 @@
 #include "../core/IResource.h"
 #include "../core/IResourceFactory.h"
 #include "../core/IResourceLoader.h"
+#include "../core/IBaseObject.h"
 #include "../utils/Color.h"
 #include <string>
 #include <vector>
@@ -46,7 +47,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a common mesh
 	*/
 
-	class IMesh
+	class IMesh: public virtual IBaseObject
 	{
 		public:
 			typedef std::vector<TVector4>  TPositionsArray;

@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Utils.h"
-#include "./../utils/Types.h"
-#include "./../core/IBaseObject.h"
+#include "../utils/Utils.h"
+#include "../utils/Types.h"
+#include "../core/IBaseObject.h"
 
 
 namespace TDEngine2

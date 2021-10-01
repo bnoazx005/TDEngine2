@@ -12,6 +12,7 @@
 #include "../core/IResourceLoader.h"
 #include "../core/IResourceFactory.h"
 #include "../core/Serialization.h"
+#include "../core/IBaseObject.h"
 
 
 namespace TDEngine2
@@ -58,7 +59,7 @@ namespace TDEngine2
 		\brief The interface represents a functionality of a post-processing profile
 	*/
 
-	class IPostProcessingProfile : public ISerializable
+	class IPostProcessingProfile : public ISerializable, public virtual IBaseObject
 	{
 		public:
 			TDE2_REGISTER_TYPE(IPostProcessingProfile);
