@@ -1,4 +1,6 @@
-#include "./../../include/utils/Utils.h"
+#include "../../include/utils/Utils.h"
+#include "../../include/utils/CFileLogger.h"
+#include "backward.hpp"
 #define STR_UTILS_IMPLEMENTATION
 #include "stringUtils.hpp"
 #define MEM_TRACKER_IMPLEMENTATION
@@ -372,5 +374,30 @@ namespace TDEngine2
 		memcpy(&data[12], &object.mWAddressMode, sizeof(U32));
 
 		return ComputeHash(&data.front());
+	}
+
+
+	static std::string GetStackTrace() {
+		std::ostringstream ss;
+
+		backward::StackTrace stackTrace;
+		backward::TraceResolver resolver;
+		stackTrace.load_here();
+		resolver.load_stacktrace(stackTrace);
+
+		for (std::size_t i = 0; i < stackTrace.size(); ++i) {
+			const backward::ResolvedTrace trace = resolver.resolve(stackTrace[i]);
+
+			ss << "#" << i << " at " << trace.object_function << "\n";
+		}
+
+		return ss.str();
+	}
+
+
+	TDE2_API void AssertImpl()
+	{
+		LOG_ERROR(GetStackTrace());
+		debug_break();
 	}
 }

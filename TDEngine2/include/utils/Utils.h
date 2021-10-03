@@ -615,8 +615,10 @@ namespace TDEngine2
 	}
 
 
+	TDE2_API void AssertImpl();
+
 #if defined (TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-	#define TDE2_ASSERT(expression) do { if (!(expression)) { debug_break(); } } while(0)
+	#define TDE2_ASSERT(expression) do { if (!(expression)) { AssertImpl(); } } while(0)
 #else
 	#define TDE2_ASSERT(expression) 
 #endif

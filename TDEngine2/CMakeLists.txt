@@ -460,8 +460,8 @@ source_group("sources" FILES ${TDENGINE2_SOURCES})
 
 if (MSVC) 	#cl.exe compiler's options
 	message(STATUS "Windows system has detected...")
-
-	add_definitions(-D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING)
+	
+	add_definitions(-D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)
 	
 	include(CheckCXXCompilerFlag)
 
@@ -542,6 +542,11 @@ target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOU
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Wrench/source")
 
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/debugbreak")
+
+# set up backtrace-cpp library
+target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BACKWARD_ENABLED})
+add_backward(${TDENGINE2_LIBRARY_NAME})
+
 
 # link Box2D library
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Box2D/")
