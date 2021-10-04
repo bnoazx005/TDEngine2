@@ -281,6 +281,7 @@
 #include "utils/CU8String.h"
 #include "utils/CContainers.h"
 #include "utils/CGradientColor.h"
+#include "utils/CProgramOptions.h"
 
 /// D3D11GraphicsContext plugin's header
 #if defined (TDE2_BUILD_D3D11_GCTX_PLUGIN)

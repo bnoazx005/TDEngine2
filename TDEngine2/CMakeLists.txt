@@ -265,6 +265,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CResourceContainer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CContainers.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CGradientColor.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/CProgramOptions.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector2.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector3.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/math/TVector4.h"
@@ -434,6 +435,8 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/Utils.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CU8String.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CGradientColor.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CProgramOptions.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse/argparse.c"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector2.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector3.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector4.cpp"
@@ -546,6 +549,9 @@ target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOU
 # set up backtrace-cpp library
 target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BACKWARD_ENABLED})
 add_backward(${TDENGINE2_LIBRARY_NAME})
+
+# set up argparse library
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse")
 
 
 # link Box2D library
