@@ -63,6 +63,25 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE AddArgument(const TArgumentParams& params);
 
+			template <typename T>
+			TResult<T> GetValue(const std::string& argName) const
+			{
+				auto it = std::find_if(mArgumentsInfo.cbegin(), mArgumentsInfo.cend(), [&argName](auto&& entity) { return entity.mCommand == argName; });
+				if (it == mArgumentsInfo.cend())
+				{
+					return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+				}
+
+				return Wrench::TOkValue<T>(it->mValue.As<T>());
+			}
+
+			template <typename T>
+			T GetValueOrDefault(const std::string& argName, const T& defaultValue) const
+			{
+				auto&& valueResult = GetValue<T>(argName);
+				return valueResult.HasError() ? defaultValue: valueResult.Get();
+			}
+
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
 				The only instance will be created per program's lifetime

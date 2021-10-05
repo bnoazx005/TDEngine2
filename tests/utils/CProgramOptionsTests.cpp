@@ -73,4 +73,37 @@ TEST_CASE("CProgramOptions Tests")
 		REQUIRE(RC_INVALID_ARGS == CProgramOptions::Get()->AddArgument({ 'V', "variable", Wrench::StringUtils::GetEmptyStr() }));
 		REQUIRE(RC_INVALID_ARGS == CProgramOptions::Get()->AddArgument({ '0', "version", Wrench::StringUtils::GetEmptyStr() }));
 	}
+
+	SECTION("TestGetValue_PassArgumentThatDoesntExist_ReturnsRC_FAIL")
+	{
+		REQUIRE(RC_FAIL == CProgramOptions::Get()->GetValue<I32>("test").GetError());
+	}
+
+	SECTION("TestGetValue_PassExistingArgumentId_ReturnsItsValue")
+	{
+		static const C8* args[] =
+		{
+			"Program Path",
+			"--value=42"
+		};
+
+		CProgramOptions::TParseArgsParams argsParams;
+		argsParams.mArgsCount = 2;
+		argsParams.mpArgsValues = args;
+
+		static const std::string argumentId = "value";
+
+		CProgramOptions::Get()->AddArgument({ 'V', argumentId, Wrench::StringUtils::GetEmptyStr() });
+
+		REQUIRE(RC_OK == CProgramOptions::Get()->ParseArgs(argsParams));
+
+		auto&& valueResult = CProgramOptions::Get()->GetValue<I32>(argumentId);
+		REQUIRE((valueResult.IsOk() && valueResult.Get() == 42));
+	}
+
+	SECTION("TestGetValueOrDefault_PassArgumentThatDoesntExist_ReturnsDefaultValue")
+	{
+		const std::string expectedValue = "TestString";
+		REQUIRE((CProgramOptions::Get()->GetValueOrDefault<std::string>("test", expectedValue) == expectedValue));
+	}
 }
