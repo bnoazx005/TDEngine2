@@ -96,25 +96,25 @@ jobs:
           cd ..
           ${{ matrix.config.archiver }} ${{ matrix.config.artifact }} bin/${{ matrix.config.build_type }}/ Resources/ README.md LICENSE CHANGELOG.md TDEngine2/
 
-      - name: Deploy
-        if: contains( ${{ github.head_ref }}, 'master' )
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: TDEngine2_SDK-v0.5.${{ github.run_number }}-${{ matrix.config.platform }}
-          release_name: TDEngine2_SDK-v0.5.${{ github.run_number }}-${{ matrix.config.platform }}  #TDEngine2_SDK-v$(appveyor_build_version)-Win32
-          draft: false
-          prerelease: false
+      # - name: Deploy
+      #   if: contains( ${{ github.head_ref }}, 'master' )
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: TDEngine2_SDK-v0.5.${{ github.run_number }}-${{ matrix.config.platform }}
+      #     release_name: TDEngine2_SDK-v0.5.${{ github.run_number }}-${{ matrix.config.platform }}  #TDEngine2_SDK-v$(appveyor_build_version)-Win32
+      #     draft: false
+      #     prerelease: false
 
-      - name: Upload Archive
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./${{ matrix.config.artifact }}
-          asset_name: ${{ matrix.config.artifact }}
-          asset_content_type: application/zip
+      # - name: Upload Archive
+      #   id: upload-release-asset 
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+      #     asset_path: ./${{ matrix.config.artifact }}
+      #     asset_name: ${{ matrix.config.artifact }}
+      #     asset_content_type: application/zip
