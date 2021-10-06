@@ -7,6 +7,7 @@
 
 
 #include "ILogger.h"
+#include "../core/CBaseObject.h"
 #include <fstream>
 #include <mutex>
 
@@ -20,7 +21,7 @@ namespace TDEngine2
 		a logger that writes down information into a file
 	*/
 
-	class CFileLogger:public ILogger
+	class CFileLogger: public ILogger, public CBaseObject
 	{
 		protected:
 			enum E_LOG_MESSAGE_TYPE : U8
@@ -31,15 +32,7 @@ namespace TDEngine2
 			};
 		public:
 			TDE2_API CFileLogger(const std::string& path);
-			TDE2_API virtual ~CFileLogger();
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
+			TDE2_API virtual ~CFileLogger() = default;
 
 			TDE2_API void LogMessage(const std::string& message) override;
 
@@ -49,11 +42,13 @@ namespace TDEngine2
 
 			TDE2_API void LogWarning(const std::string& message) override;
 		protected:
-			TDE2_API CFileLogger();
+			TDE2_API CFileLogger() = default;
 			TDE2_API CFileLogger(const CFileLogger& builder) = delete;
 			TDE2_API virtual CFileLogger& operator= (CFileLogger& builder) = delete;
 
 			TDE2_API void _logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			std::ofstream      mOutputLog;
 
@@ -62,9 +57,8 @@ namespace TDEngine2
 
 
 	/// Global defined instance of a file logger
-	/// CEngineCore's instance will free its memory by call Free method
 
-	TDE2_API extern ILogger* MainLogger;
+	TDE2_API extern TPtr<ILogger> MainLogger;
 
 
 	/*!
@@ -72,7 +66,7 @@ namespace TDEngine2
 		for access to the global variable from another dlls, executables and etc
 	*/
 
-	TDE2_API ILogger* GetMainLogger();
+	TDE2_API TPtr<ILogger> GetMainLogger();
 
 
 	/*!
@@ -84,8 +78,7 @@ namespace TDEngine2
 	#define LOG_DEBUG_MESSAGE(message)				\
 		do											\
 		{											\
-			ILogger* pLogger = GetMainLogger();		\
-			if (pLogger)							\
+			if (auto pLogger = GetMainLogger())		\
 			{										\
 				pLogger->LogMessage(message);		\
 			}										\
@@ -99,8 +92,7 @@ namespace TDEngine2
 	#define LOG_MESSAGE(message)					\
 		do											\
 		{											\
-			ILogger* pLogger = GetMainLogger();		\
-			if (pLogger)							\
+			if (auto pLogger = GetMainLogger())		\
 			{										\
 				pLogger->LogMessage(message);		\
 			}										\
@@ -110,8 +102,7 @@ namespace TDEngine2
 	#define LOG_WARNING(message)					\
 		do											\
 		{											\
-			ILogger* pLogger = GetMainLogger();		\
-			if (pLogger)							\
+			if (auto pLogger = GetMainLogger())		\
 			{										\
 				pLogger->LogWarning(message);		\
 			}										\
@@ -121,8 +112,7 @@ namespace TDEngine2
 	#define LOG_ERROR(message)						\
 		do											\
 		{											\
-			ILogger* pLogger = GetMainLogger();		\
-			if (pLogger)							\
+			if (auto pLogger = GetMainLogger())		\
 			{										\
 				pLogger->LogError(message);			\
 			}										\

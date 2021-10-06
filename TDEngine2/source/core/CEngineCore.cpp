@@ -98,10 +98,6 @@ namespace TDEngine2
 			}
 
 			result = result | _cleanUpSubsystems();
-
-#if defined (_DEBUG)
-			result = result | MainLogger->Free();
-#endif
 		}
 
 #if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
@@ -263,7 +259,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	ILogger* CEngineCore::GetLogger() const
+	TPtr<ILogger> CEngineCore::GetLogger() const
 	{
 #if defined(TDE2_DEBUG_MODE)
 		return MainLogger;

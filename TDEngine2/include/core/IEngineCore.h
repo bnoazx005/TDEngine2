@@ -131,7 +131,7 @@ namespace TDEngine2
 				\returns The method returns a pointer to a main logger of an engine
 			*/
 
-			TDE2_API virtual ILogger* GetLogger() const = 0;
+			TDE2_API virtual TPtr<ILogger> GetLogger() const = 0;
 
 			/*!
 				\brief The method returns a pointer to a in-engine timer

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2]  2021-10-06
+
+### Changed
+
+- The logger now uses the smart pointer to control its lifetime
+
+### Added
+
+- A new type to process input program's console arguments was introduced which is **CProgramOptions**
+
 ## [0.5.1]  2021-09-29
 
 ### Changed

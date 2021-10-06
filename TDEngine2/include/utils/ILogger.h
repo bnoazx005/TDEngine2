@@ -7,6 +7,7 @@
 
 
 #include "Types.h"
+#include "../core/IBaseObject.h"
 #include <string>
 
 
@@ -18,18 +19,10 @@ namespace TDEngine2
 		\brief The interface represents a functionality of a logging system
 	*/
 
-	class ILogger
+	class ILogger: public virtual IBaseObject
 	{
 		public:
 			TDE2_API virtual ~ILogger() = default;
-			
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Free() = 0;
 
 			TDE2_API virtual void LogMessage(const std::string& message) = 0;
 

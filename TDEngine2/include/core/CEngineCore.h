@@ -129,7 +129,7 @@ namespace TDEngine2
 				\returns The method returns a pointer to a main logger of an engine
 			*/
 
-			TDE2_API ILogger* GetLogger() const override;
+			TDE2_API TPtr<ILogger> GetLogger() const override;
 
 			/*!
 				\brief The method returns a pointer to a in-engine timer

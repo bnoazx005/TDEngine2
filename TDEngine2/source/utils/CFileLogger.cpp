@@ -1,26 +1,17 @@
-#include "./../../include/utils/CFileLogger.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/utils/Utils.h"
 #include <iostream>
 
 
 namespace TDEngine2
 {
-	CFileLogger::CFileLogger()
-	{
-	}
-
 	CFileLogger::CFileLogger(const std::string& path)
 	{
 		mOutputLog.open(path.c_str());
 	}
 
-	CFileLogger::~CFileLogger()
+	E_RESULT_CODE CFileLogger::_onFreeInternal()
 	{
-	}
-
-	E_RESULT_CODE CFileLogger::Free()
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
 		if (!mOutputLog.is_open())
 		{
 			return RC_FAIL;
@@ -92,26 +83,10 @@ namespace TDEngine2
 	}
 
 
-	ILogger* CreateFileLogger(const std::string& path, E_RESULT_CODE& result)
-	{
-		ILogger* pLoggerInstance = new (std::nothrow) CFileLogger(path);
-
-		if (!pLoggerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = RC_OK;
-
-		return pLoggerInstance;
-	}
-
-	TDE2_API ILogger* MainLogger = new CFileLogger(MAIN_LOGGER_FILEPATH);
+	TDE2_API TPtr<ILogger> MainLogger = TPtr<ILogger>(new CFileLogger(MAIN_LOGGER_FILEPATH));
 
 
-	TDE2_API ILogger* GetMainLogger()
+	TDE2_API TPtr<ILogger> GetMainLogger()
 	{
 		return MainLogger;
 	}
