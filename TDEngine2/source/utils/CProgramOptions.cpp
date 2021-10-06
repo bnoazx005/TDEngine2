@@ -16,24 +16,23 @@ namespace TDEngine2
 	{
 		auto& value = arg.mValue;
 
-		if (value.Is<I32>())
+		switch (arg.mValueType)
 		{
-			return OPT_INTEGER(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<I32>(), arg.mCommandInfo.c_str());
-		}
+			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::INTEGER:
+				value = 0;
+				return OPT_INTEGER(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<I32>(), arg.mCommandInfo.c_str());
 
-		if (value.Is<F32>())
-		{
-			return OPT_FLOAT(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<F32>(), arg.mCommandInfo.c_str());
-		}
+			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::FLOAT:
+				value = 0.0f;
+				return OPT_FLOAT(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<F32>(), arg.mCommandInfo.c_str());
 
-		if (value.Is<bool>())
-		{
-			return OPT_BOOLEAN(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<bool>(), arg.mCommandInfo.c_str());
-		}
+			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING:
+				value = std::string();
+				return OPT_STRING(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<std::string>(), arg.mCommandInfo.c_str());
 
-		if (value.Is<std::string>())
-		{
-			return OPT_STRING(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<std::string>(), arg.mCommandInfo.c_str());
+			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::BOOLEAN:
+				value = false;
+				return OPT_BOOLEAN(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<bool>(), arg.mCommandInfo.c_str());
 		}
 
 		return OPT_END();
@@ -64,6 +63,11 @@ namespace TDEngine2
 		argparse_init(&argparse, &internalOptions.front(), pUsage, 0);
 		argparse_describe(&argparse, params.mProgramDescriptionStr.c_str(), nullptr);
 		I32 argc = argparse_parse(&argparse, params.mArgsCount, params.mpArgsValues);
+
+		for (I32 i = 0; i < argc; ++i)
+		{
+			mPositionalArguments.emplace_back(params.mpArgsValues[i]);
+		}
 
 		mIsInternalStateInitialized = true;
 
@@ -101,6 +105,11 @@ namespace TDEngine2
 	{
 		mIsInternalStateInitialized = false;
 		mArgumentsInfo.clear();
+	}
+
+	const std::string& CProgramOptions::GetPositionalArgValue(U32 index) const
+	{
+		return (index >= static_cast<U32>(mPositionalArguments.size())) ? Wrench::StringUtils::GetEmptyStr() : mPositionalArguments[index];
 	}
 
 	TPtr<CProgramOptions> CProgramOptions::Get()

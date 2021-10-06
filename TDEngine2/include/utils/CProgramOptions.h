@@ -38,11 +38,18 @@ namespace TDEngine2
 
 			struct TArgumentParams
 			{
-				typedef Wrench::Variant<I32, F32, std::string, bool> TValueType;
+				enum class E_VALUE_TYPE : U8
+				{
+					INTEGER, FLOAT, STRING, BOOLEAN
+				};
+
+				typedef Wrench::Variant<I32, F32, std::string> TValueType;
 
 				C8          mSingleCharCommand = '\0';
 				std::string mCommand;
 				std::string mCommandInfo;
+
+				E_VALUE_TYPE mValueType = E_VALUE_TYPE::INTEGER;
 
 				TValueType  mValue;
 			};
@@ -63,10 +70,20 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE AddArgument(const TArgumentParams& params);
 
+			/*!
+				\brief The method returns value that's related with argument or an error code if there is no one
+
+				\param[in] argName The name of the argument could be a single character value too
+			*/
+
 			template <typename T>
 			TResult<T> GetValue(const std::string& argName) const
 			{
-				auto it = std::find_if(mArgumentsInfo.cbegin(), mArgumentsInfo.cend(), [&argName](auto&& entity) { return entity.mCommand == argName; });
+				auto it = std::find_if(mArgumentsInfo.cbegin(), mArgumentsInfo.cend(), [&argName](auto&& entity) 
+				{ 
+					return (entity.mCommand == argName) || (entity.mSingleCharCommand == argName.front() && argName.size() == 1); 
+				});
+
 				if (it == mArgumentsInfo.cend())
 				{
 					return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
@@ -82,6 +99,8 @@ namespace TDEngine2
 				return valueResult.HasError() ? defaultValue: valueResult.Get();
 			}
 
+			TDE2_API const std::string& GetPositionalArgValue(U32 index = 0) const;
+
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
 				The only instance will be created per program's lifetime
@@ -94,7 +113,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProgramOptions)
 		private:
 			std::vector<TArgumentParams> mArgumentsInfo;
+			std::vector<std::string>     mPositionalArguments;
 
-			bool mIsInternalStateInitialized;
+			bool                         mIsInternalStateInitialized;
 	};
 }

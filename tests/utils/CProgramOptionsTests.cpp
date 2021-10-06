@@ -77,6 +77,7 @@ TEST_CASE("CProgramOptions Tests")
 	SECTION("TestGetValue_PassArgumentThatDoesntExist_ReturnsRC_FAIL")
 	{
 		REQUIRE(RC_FAIL == CProgramOptions::Get()->GetValue<I32>("test").GetError());
+		REQUIRE(RC_FAIL == CProgramOptions::Get()->GetValue<bool>("flag").GetError());
 	}
 
 	SECTION("TestGetValue_PassExistingArgumentId_ReturnsItsValue")
@@ -84,26 +85,56 @@ TEST_CASE("CProgramOptions Tests")
 		static const C8* args[] =
 		{
 			"Program Path",
-			"--value=42"
+			"--value=42",
+			"--flag"
 		};
 
 		CProgramOptions::TParseArgsParams argsParams;
-		argsParams.mArgsCount = 2;
+		argsParams.mArgsCount = 3;
 		argsParams.mpArgsValues = args;
 
 		static const std::string argumentId = "value";
 
 		CProgramOptions::Get()->AddArgument({ 'V', argumentId, Wrench::StringUtils::GetEmptyStr() });
+		CProgramOptions::Get()->AddArgument({ '\0', "flag", Wrench::StringUtils::GetEmptyStr(), CProgramOptions::TArgumentParams::E_VALUE_TYPE::BOOLEAN });
 
 		REQUIRE(RC_OK == CProgramOptions::Get()->ParseArgs(argsParams));
 
 		auto&& valueResult = CProgramOptions::Get()->GetValue<I32>(argumentId);
-		REQUIRE((valueResult.IsOk() && valueResult.Get() == 42));
+		REQUIRE(valueResult.IsOk()); 
+		REQUIRE(valueResult.Get() == 42);
+
+		auto&& boolValueResult = CProgramOptions::Get()->GetValue<bool>("flag");
+		REQUIRE(boolValueResult.IsOk());
+		REQUIRE(boolValueResult.Get());
 	}
 
 	SECTION("TestGetValueOrDefault_PassArgumentThatDoesntExist_ReturnsDefaultValue")
 	{
 		const std::string expectedValue = "TestString";
 		REQUIRE((CProgramOptions::Get()->GetValueOrDefault<std::string>("test", expectedValue) == expectedValue));
+	}
+
+
+	SECTION("TestGetValue_PassExistingArgumentIdBySingleCharId_ReturnsItsValue")
+	{
+		static const C8* args[] =
+		{
+			"Program Path",
+			"-F 4"
+		};
+
+		CProgramOptions::TParseArgsParams argsParams;
+		argsParams.mArgsCount = 2;
+		argsParams.mpArgsValues = args;
+
+		static const std::string argumentId = "F";
+
+		CProgramOptions::Get()->AddArgument({ 'F', Wrench::StringUtils::GetEmptyStr(), Wrench::StringUtils::GetEmptyStr() });
+
+		REQUIRE(RC_OK == CProgramOptions::Get()->ParseArgs(argsParams));
+
+		auto&& valueResult = CProgramOptions::Get()->GetValue<I32>(argumentId);
+		REQUIRE((valueResult.IsOk() && valueResult.Get() == 4));
 	}
 }
