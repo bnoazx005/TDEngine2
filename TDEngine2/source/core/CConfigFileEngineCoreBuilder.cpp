@@ -14,29 +14,21 @@ namespace TDEngine2
 	{
 	}
 
-	/*!
-		\brief The method initialized the builder's object
-
-		\param[in] A callback to a factory's function of IEngineCore's objects
-
-		\return RC_OK if everything went ok, or some other code, which describes an error
-	*/
-
-	E_RESULT_CODE CConfigFileEngineCoreBuilder::Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const std::string& configFilename)
+	E_RESULT_CODE CConfigFileEngineCoreBuilder::Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const std::string& projectConfigFilename)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pEngineCoreFactoryCallback || configFilename.empty())
+		if (!pEngineCoreFactoryCallback || projectConfigFilename.empty())
 		{
 			return RC_INVALID_ARGS;
 		}
 		
 		E_RESULT_CODE result = RC_OK;
 
-		mConfigFilename = configFilename;
+		mProjectConfigFilename = projectConfigFilename;
 
 		mpEngineCoreInstance = pEngineCoreFactoryCallback(result);
 
@@ -50,7 +42,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TResult<TEngineSettings> CConfigFileEngineCoreBuilder::_readConfigurationFile(IFileSystem* pFileSystem, const std::string& configFilename)
+	static TResult<TEngineSettings> ReadProjectConfigFile(IFileSystem* pFileSystem, const std::string& configFilename)
 	{
 		TFileEntryId configFileHandle = pFileSystem->Open<IConfigFileReader>(configFilename, false).Get();
 
@@ -75,19 +67,19 @@ namespace TDEngine2
 
 	TEngineSettings CConfigFileEngineCoreBuilder::_initEngineSettings()
 	{
-		if (auto readConfigResult = _readConfigurationFile(mpFileSystemInstance, mConfigFilename))
+		if (auto readConfigResult = ReadProjectConfigFile(mpFileSystemInstance, mProjectConfigFilename))
 		{
 			return (mEngineSettings = readConfigResult.Get());
 		}
 
-		TDE2_ASSERT(false);
+		TDE2_UNREACHABLE();
 
 		return mEngineSettings;
 	}
 
 
-	TDE2_API IEngineCoreBuilder* CreateConfigFileEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const std::string& configFilename, E_RESULT_CODE& result)
+	TDE2_API IEngineCoreBuilder* CreateConfigFileEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const std::string& projectConfigFilename, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEngineCoreBuilder, CConfigFileEngineCoreBuilder, result, pEngineCoreFactoryCallback, configFilename);
+		return CREATE_IMPL(IEngineCoreBuilder, CConfigFileEngineCoreBuilder, result, pEngineCoreFactoryCallback, projectConfigFilename);
 	}
 }

@@ -57,6 +57,7 @@
 #include "core/localization/CLocalizationPackage.h"
 #include "core/IAudioContext.h"
 #include "core/Meta.h"
+#include "core/CGameUserSettings.h"
 
 /// game
 #include "game/ISaveManager.h"
