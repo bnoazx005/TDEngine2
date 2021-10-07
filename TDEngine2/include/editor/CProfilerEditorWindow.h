@@ -8,9 +8,9 @@
 
 
 #include "IEditorWindow.h"
-#include "./../editor/IProfiler.h"
-#include "./../math/TRect.h"
-#include "./../utils/Color.h"
+#include "../editor/IProfiler.h"
+#include "../math/TRect.h"
+#include "../utils/Color.h"
 #include <string>
 #include <vector>
 
@@ -28,7 +28,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateTimeProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateTimeProfilerEditorWindow(TPtr<ITimeProfiler> pProfiler, E_RESULT_CODE& result);
 
 	/*!
 		class CTimeProfilerEditorWindow
@@ -39,7 +39,7 @@ namespace TDEngine2
 	class CTimeProfilerEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateTimeProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result);
+			friend TDE2_API IEditorWindow* CreateTimeProfilerEditorWindow(TPtr<ITimeProfiler>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
@@ -49,7 +49,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(ITimeProfiler* pProfiler);
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<ITimeProfiler> pProfiler);
 
 			/*!
 				\brief The method sets up an identifier of the main thread
@@ -74,7 +74,7 @@ namespace TDEngine2
 		protected:
 			static const U16 mBufferSize = 128;
 
-			ITimeProfiler*       mpProfiler;
+			TPtr<ITimeProfiler> mpProfiler;
 
 			F32              mFrameRatesBuffer[mBufferSize];
 
@@ -95,7 +95,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateMemoryProfilerEditorWindow(IMemoryProfiler* pProfiler, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateMemoryProfilerEditorWindow(TPtr<IMemoryProfiler> pProfiler, E_RESULT_CODE& result);
 
 
 	/*!
@@ -107,7 +107,7 @@ namespace TDEngine2
 	class CMemoryProfilerEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateMemoryProfilerEditorWindow(IMemoryProfiler*, E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateMemoryProfilerEditorWindow(TPtr<IMemoryProfiler>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes internal state of the editor
@@ -117,7 +117,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IMemoryProfiler* pProfiler);
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IMemoryProfiler> pProfiler);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryProfilerEditorWindow)
 
@@ -130,7 +130,7 @@ namespace TDEngine2
 		protected:
 			std::vector<TColor32F> mPalette;
 
-			IMemoryProfiler* mpProfiler;
+			TPtr<IMemoryProfiler> mpProfiler;
 	};
 }
 

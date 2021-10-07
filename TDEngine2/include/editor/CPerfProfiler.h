@@ -94,13 +94,12 @@ namespace TDEngine2
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
-				The only instance will be created per program's lifetime. To destroy it call Free
-				as for any other type within the engine
+				The only instance will be created per program's lifetime.
 
 				\return A pointer to an instance of IProfiler type
 			*/
 
-			TDE2_API static ITimeProfiler* Get();
+			TDE2_API static TPtr<ITimeProfiler> Get();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPerfProfiler);
 
@@ -135,7 +134,7 @@ namespace TDEngine2
 			CProfilerScope(const std::string& name):
 				mName(name)
 			{
-				ITimeProfiler* pProfiler = CPerfProfiler::Get();
+				auto pProfiler = CPerfProfiler::Get();
 
 				ITimer* pTimer = pProfiler->GetTimer();
 				pTimer->Tick();
@@ -145,7 +144,7 @@ namespace TDEngine2
 
 			~CProfilerScope()
 			{
-				ITimeProfiler* pProfiler = CPerfProfiler::Get();
+				auto pProfiler = CPerfProfiler::Get();
 
 				ITimer* pTimer = pProfiler->GetTimer();
 				pTimer->Tick();

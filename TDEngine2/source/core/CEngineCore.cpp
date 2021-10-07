@@ -57,7 +57,6 @@ namespace TDEngine2
 	CEngineCore::CEngineCore():
 		CBaseObject(),
 		mpInternalTimer(nullptr),
-		mpDLLManager(nullptr),
 		mpWorldInstance(nullptr),
 		mpInputContext(nullptr),
 		mpEditorsManager(nullptr)
@@ -99,11 +98,6 @@ namespace TDEngine2
 
 			result = result | _cleanUpSubsystems();
 		}
-
-#if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-		CPerfProfiler::Get()->Free();
-		CMemoryProfiler::Get()->Free();
-#endif
 
 		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core was successfully finalized");

@@ -179,8 +179,6 @@ namespace TDEngine2
 
 			ITimer*            mpInternalTimer;
 
-			IDLLManager*       mpDLLManager;
-
 			IWorld*            mpWorldInstance;
 
 			IInputContext*     mpInputContext;

@@ -113,9 +113,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ITimeProfiler* CPerfProfiler::Get()
+	TDE2_API TPtr<ITimeProfiler> CPerfProfiler::Get()
 	{
-		static ITimeProfiler* pInstance = new (std::nothrow) CPerfProfiler();
+		static TPtr<ITimeProfiler> pInstance = TPtr<ITimeProfiler>(new (std::nothrow) CPerfProfiler());
 		return pInstance;
 	}
 }

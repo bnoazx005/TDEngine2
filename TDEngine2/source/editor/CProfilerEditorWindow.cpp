@@ -33,7 +33,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CTimeProfilerEditorWindow::Init(ITimeProfiler* pProfiler)
+	E_RESULT_CODE CTimeProfilerEditorWindow::Init(TPtr<ITimeProfiler> pProfiler)
 	{
 		if (mIsInitialized)
 		{
@@ -158,7 +158,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateTimeProfilerEditorWindow(ITimeProfiler* pProfiler, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateTimeProfilerEditorWindow(TPtr<ITimeProfiler> pProfiler, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IEditorWindow, CTimeProfilerEditorWindow, result, pProfiler);
 	}
@@ -174,7 +174,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CMemoryProfilerEditorWindow::Init(IMemoryProfiler* pProfiler)
+	E_RESULT_CODE CMemoryProfilerEditorWindow::Init(TPtr<IMemoryProfiler> pProfiler)
 	{
 		if (mIsInitialized)
 		{
@@ -253,7 +253,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateMemoryProfilerEditorWindow(IMemoryProfiler* pProfiler, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateMemoryProfilerEditorWindow(TPtr<IMemoryProfiler> pProfiler, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IEditorWindow, CMemoryProfilerEditorWindow, result, pProfiler);
 	}

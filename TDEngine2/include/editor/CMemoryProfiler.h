@@ -77,13 +77,12 @@ namespace TDEngine2
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
-				The only instance will be created per program's lifetime. To destroy it call Free
-				as for any other type within the engine
+				The only instance will be created per program's lifetime. 
 
 				\return A pointer to an instance of IProfiler type
 			*/
 
-			TDE2_API static CMemoryProfiler* Get();
+			TDE2_API static TPtr<CMemoryProfiler> Get();
 
 			const TProfilerStatisticsData& GetStatistics() const;
 

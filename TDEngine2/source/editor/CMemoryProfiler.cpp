@@ -63,9 +63,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API CMemoryProfiler* CMemoryProfiler::Get()
+	TDE2_API TPtr<CMemoryProfiler> CMemoryProfiler::Get()
 	{
-		static CMemoryProfiler* pInstance = new (std::nothrow) CMemoryProfiler();
+		static TPtr<CMemoryProfiler> pInstance = TPtr<CMemoryProfiler>(new (std::nothrow) CMemoryProfiler());
 		return pInstance;
 	}
 }

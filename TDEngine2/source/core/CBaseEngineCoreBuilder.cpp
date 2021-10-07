@@ -494,7 +494,7 @@ namespace TDEngine2
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::TIME_PROFILER), CreateTimeProfilerEditorWindow(CPerfProfiler::Get(), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::MEMORY_PROFILER), CreateMemoryProfilerEditorWindow(CMemoryProfiler::Get(), result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::MEMORY_PROFILER), CreateMemoryProfilerEditorWindow(DynamicPtrCast<IMemoryProfiler>(CMemoryProfiler::Get()), result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), pLevelEditorWindow },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance, result) },
