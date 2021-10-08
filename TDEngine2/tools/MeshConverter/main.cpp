@@ -31,7 +31,7 @@ int main(int argc, const char** argv)
 
 	E_RESULT_CODE result = RC_OK;
 
-	CScopedPtr<IEngineCoreBuilder> pEngineCoreBuilder { CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result) };
+	CScopedPtr<IEngineCoreBuilder> pEngineCoreBuilder { CreateConfigFileEngineCoreBuilder({}, result) };
 	if (result != RC_OK)
 	{
 		return -1;

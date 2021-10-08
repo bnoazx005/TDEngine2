@@ -1,5 +1,6 @@
 #include "../../include/core/CConfigFileEngineCoreBuilder.h"
 #include "../../include/core/IFileSystem.h"
+#include "../../include/core/CGameUserSettings.h"
 #include "../../include/platform/CConfigFileReader.h"
 #include "../../include/metadata.h"
 #include <memory>
@@ -14,23 +15,24 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CConfigFileEngineCoreBuilder::Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const std::string& projectConfigFilename)
+	E_RESULT_CODE CConfigFileEngineCoreBuilder::Init(const TConfigEngineCoreBuilderInputParams& params)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pEngineCoreFactoryCallback || projectConfigFilename.empty())
+		if (!params.mpEngineCoreFactoryCallback || params.mProjectConfigFilepath.empty())
 		{
 			return RC_INVALID_ARGS;
 		}
 		
 		E_RESULT_CODE result = RC_OK;
 
-		mProjectConfigFilename = projectConfigFilename;
+		mProjectConfigFilepath = params.mProjectConfigFilepath;
+		mGameUserSettingsFilepath = params.mUserConfigFilepath;
 
-		mpEngineCoreInstance = pEngineCoreFactoryCallback(result);
+		mpEngineCoreInstance = (params.mpEngineCoreFactoryCallback)(result);
 
 		if (result != RC_OK)
 		{
@@ -42,11 +44,17 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	static TResult<TEngineSettings> ReadProjectConfigFile(IFileSystem* pFileSystem, const std::string& configFilename)
+	static TResult<TEngineSettings> ReadGameUserSettingsFile(IFileSystem* pFileSystem, const std::string& configFilename)
 	{
 		TFileEntryId configFileHandle = pFileSystem->Open<IConfigFileReader>(configFilename, false).Get();
 
 		IConfigFileReader* pConfigFileReader = pFileSystem->Get<IConfigFileReader>(configFileHandle);
+
+		E_RESULT_CODE result = CGameUserSettings::Get()->Init(pConfigFileReader);
+		if (RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
 
 		TEngineSettings settings;
 
@@ -67,7 +75,7 @@ namespace TDEngine2
 
 	TEngineSettings CConfigFileEngineCoreBuilder::_initEngineSettings()
 	{
-		if (auto readConfigResult = ReadProjectConfigFile(mpFileSystemInstance, mProjectConfigFilename))
+		if (auto readConfigResult = ReadGameUserSettingsFile(mpFileSystemInstance, mGameUserSettingsFilepath))
 		{
 			return (mEngineSettings = readConfigResult.Get());
 		}
@@ -78,8 +86,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEngineCoreBuilder* CreateConfigFileEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const std::string& projectConfigFilename, E_RESULT_CODE& result)
+	TDE2_API IEngineCoreBuilder* CreateConfigFileEngineCoreBuilder(const TConfigEngineCoreBuilderInputParams& params, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEngineCoreBuilder, CConfigFileEngineCoreBuilder, result, pEngineCoreFactoryCallback, projectConfigFilename);
+		return CREATE_IMPL(IEngineCoreBuilder, CConfigFileEngineCoreBuilder, result, params);
 	}
 }

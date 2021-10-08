@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 {
 	E_RESULT_CODE result = RC_OK;
 	
-	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result));
+	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder({}, result));
 
 	if (result != RC_OK)
 	{

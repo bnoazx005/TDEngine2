@@ -7,21 +7,27 @@
 
 
 #include "CBaseEngineCoreBuilder.h"
+#include "CEngineCore.h"
 #include <string>
 
 
 namespace TDEngine2
 {
+	typedef struct TConfigEngineCoreBuilderInputParams
+	{
+		TCreateEngineCoreCallback mpEngineCoreFactoryCallback = CreateEngineCore;
+		std::string               mProjectConfigFilepath = "Default.project";
+		std::string               mUserConfigFilepath = "settings.cfg";
+	} TConfigEngineCoreBuilderInputParams, *TConfigEngineCoreBuilderInputParamsPtr;
+
+
 	/*!
 		\brief A factory function for creation objects of CConfigFileEngineCoreBuilder's type
-
-		\param[in] A callback to a factory's function of IEngineCore's objects
-		\param[in] configFilename A name of a configuration file that stores engine's settings
 
 		\return A pointer to CConfigFileEngineCoreBuilder's implementation
 	*/
 
-	TDE2_API IEngineCoreBuilder* CreateConfigFileEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const std::string& projectConfigFilename, E_RESULT_CODE& result);
+	TDE2_API IEngineCoreBuilder* CreateConfigFileEngineCoreBuilder(const TConfigEngineCoreBuilderInputParams& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -34,24 +40,21 @@ namespace TDEngine2
 	class CConfigFileEngineCoreBuilder : public CBaseEngineCoreBuilder
 	{
 		public:
-			friend TDE2_API IEngineCoreBuilder* CreateConfigFileEngineCoreBuilder(TCreateEngineCoreCallback, const std::string&, E_RESULT_CODE&);
+			friend TDE2_API IEngineCoreBuilder* CreateConfigFileEngineCoreBuilder(const TConfigEngineCoreBuilderInputParams&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initialized the builder's object
 
-				\param[in] A callback to a factory's function of IEngineCore's objects
-
-				\param[in] configFilename A name of a configuration file with settings
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const std::string& projectConfigFilename);
+			TDE2_API E_RESULT_CODE Init(const TConfigEngineCoreBuilderInputParams& params);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConfigFileEngineCoreBuilder)
 
 			TDE2_API TEngineSettings _initEngineSettings() override;
 		protected:
-			std::string mProjectConfigFilename;
+			std::string mProjectConfigFilepath;
+			std::string mGameUserSettingsFilepath;
 	};
 }

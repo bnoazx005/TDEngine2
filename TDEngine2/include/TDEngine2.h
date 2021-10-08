@@ -58,6 +58,7 @@
 #include "core/IAudioContext.h"
 #include "core/Meta.h"
 #include "core/CGameUserSettings.h"
+#include "core/CProjectSettings.h"
 
 /// game
 #include "game/ISaveManager.h"
