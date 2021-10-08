@@ -19,7 +19,7 @@ namespace TDEngine2
 		\return RC_OK if everything went ok, or some other code, which describes an error
 	*/
 
-	E_RESULT_CODE CDefaultEngineCoreBuilder::Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const TEngineSettings& settings)
+	E_RESULT_CODE CDefaultEngineCoreBuilder::Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback)
 	{
 		if (mIsInitialized)
 		{
@@ -30,8 +30,6 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
-
-		memcpy(&mEngineSettings, &settings, sizeof(settings));
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -47,14 +45,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TEngineSettings CDefaultEngineCoreBuilder::_initEngineSettings() 
+	E_RESULT_CODE CDefaultEngineCoreBuilder::_initEngineSettings() 
 	{
-		return mEngineSettings;
+		return RC_OK;
 	}
 
 	
-	TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const TEngineSettings& settings, E_RESULT_CODE& result)
+	TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEngineCoreBuilder, CDefaultEngineCoreBuilder, result, pEngineCoreFactoryCallback, settings);
+		return CREATE_IMPL(IEngineCoreBuilder, CDefaultEngineCoreBuilder, result, pEngineCoreFactoryCallback);
 	}
 }

@@ -3,6 +3,8 @@
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/platform/CConfigFileReader.h"
 #include "../../include/metadata.h"
+#include "../../include/core/CGameUserSettings.h"
+#include "../../include/core/CProjectSettings.h"
 #include <memory>
 #include <thread>
 #include <functional>
@@ -44,45 +46,35 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	static TResult<TEngineSettings> ReadGameUserSettingsFile(IFileSystem* pFileSystem, const std::string& configFilename)
+	E_RESULT_CODE CConfigFileEngineCoreBuilder::_initEngineSettings()
 	{
-		TFileEntryId configFileHandle = pFileSystem->Open<IConfigFileReader>(configFilename, false).Get();
+		E_RESULT_CODE result = RC_OK;
 
-		IConfigFileReader* pConfigFileReader = pFileSystem->Get<IConfigFileReader>(configFileHandle);
+		TFileEntryId configFileHandle = mpFileSystemInstance->Open<IConfigFileReader>(mGameUserSettingsFilepath, false).Get();
 
-		E_RESULT_CODE result = CGameUserSettings::Get()->Init(pConfigFileReader);
-		if (RC_OK != result)
+		/// \note Read user's settings
+		if (IConfigFileReader* pConfigFileReader = mpFileSystemInstance->Get<IConfigFileReader>(configFileHandle))
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
+			if (RC_OK != (result = CGameUserSettings::Get()->Init(pConfigFileReader)))
+			{
+				return result;
+			}
+
+			pConfigFileReader->Close();
 		}
 
-		TEngineSettings settings;
+		TFileEntryId projectSettingsFileHandle = mpFileSystemInstance->Open<IYAMLFileReader>(mProjectConfigFilepath, false).Get();
 
-		settings.mApplicationName       = pConfigFileReader->GetString("main", "name", "Default App");
-		settings.mWindowWidth           = pConfigFileReader->GetInt("main", "width", 640);
-		settings.mWindowHeight          = pConfigFileReader->GetInt("main", "height", 480);
-		settings.mFlags                 = pConfigFileReader->GetInt("main", "flags", 0x0);
-		settings.mMaxNumOfWorkerThreads = pConfigFileReader->GetInt("main", "max-num-worker-threads", std::thread::hardware_concurrency() - 1);
-
-		settings.mTotalPreallocatedMemorySize = pConfigFileReader->GetInt("memory", "total-preallocated-memory-size", DefaultGlobalMemoryBlockSize);
-		settings.mGraphicsContextType         = Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::FromString(pConfigFileReader->GetString("graphics", "context-type", "unknown"));
-		settings.mAudioContextType            = E_AUDIO_CONTEXT_API_TYPE::FMOD;
-
-		pConfigFileReader->Close();
-
-		return Wrench::TOkValue<TEngineSettings>(settings);
-	}
-
-	TEngineSettings CConfigFileEngineCoreBuilder::_initEngineSettings()
-	{
-		if (auto readConfigResult = ReadGameUserSettingsFile(mpFileSystemInstance, mGameUserSettingsFilepath))
+		/// \note Read project's settings
+		if (IArchiveReader* pProjectSettingsReader = mpFileSystemInstance->Get<IYAMLFileReader>(projectSettingsFileHandle))
 		{
-			return (mEngineSettings = readConfigResult.Get());
+			if (RC_OK != (result = CProjectSettings::Get()->Init(pProjectSettingsReader)))
+			{
+				return result;
+			}
 		}
 
-		TDE2_UNREACHABLE();
-
-		return mEngineSettings;
+		return RC_OK;
 	}
 
 

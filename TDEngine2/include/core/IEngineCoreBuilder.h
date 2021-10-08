@@ -6,8 +6,8 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 #include <string>
 #include <thread>
 

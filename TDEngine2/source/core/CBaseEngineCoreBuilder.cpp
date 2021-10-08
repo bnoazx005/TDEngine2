@@ -18,6 +18,8 @@
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/localization/CLocalizationManager.h"
 #include "../../include/core/localization/CLocalizationPackage.h"
+#include "../../include/core/CGameUserSettings.h"
+#include "../../include/core/CProjectSettings.h"
 #include "../../include/game/CSaveManager.h"
 #include "../../include/platform/win32/CWin32WindowSystem.h"
 #include "../../include/platform/win32/CWin32FileSystem.h"
@@ -580,19 +582,24 @@ namespace TDEngine2
 	IEngineCore* CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
+		PANIC_ON_FAILURE(_initEngineSettings());
 
-		const TEngineSettings& engineSettings = _initEngineSettings();
+		PANIC_ON_FAILURE(_mountDirectories(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));
 
-		PANIC_ON_FAILURE(_mountDirectories(engineSettings.mGraphicsContextType));
-
-		PANIC_ON_FAILURE(_configureJobManager(engineSettings.mMaxNumOfWorkerThreads));
-		PANIC_ON_FAILURE(_configureMemoryManager(engineSettings.mTotalPreallocatedMemorySize));
+		PANIC_ON_FAILURE(_configureJobManager(CProjectSettings::Get()->mCommonSettings.mMaxNumOfWorkerThreads));
+		PANIC_ON_FAILURE(_configureMemoryManager(CProjectSettings::Get()->mCommonSettings.mTotalPreallocatedMemorySize));
 		PANIC_ON_FAILURE(_configureEventManager());
 		PANIC_ON_FAILURE(_configureResourceManager());
-		PANIC_ON_FAILURE(_configureWindowSystem(engineSettings.mApplicationName, engineSettings.mWindowWidth, engineSettings.mWindowHeight, engineSettings.mFlags));
+
+		PANIC_ON_FAILURE(_configureWindowSystem(
+			CProjectSettings::Get()->mCommonSettings.mApplicationName, 
+			CGameUserSettings::Get()->mWindowWidth, 
+			CGameUserSettings::Get()->mWindowHeight,
+			CGameUserSettings::Get()->mFlags));
+
 		PANIC_ON_FAILURE(_configurePluginManager());
-		PANIC_ON_FAILURE(_configureGraphicsContext(engineSettings.mGraphicsContextType));
-		PANIC_ON_FAILURE(_configureAudioContext(engineSettings.mAudioContextType));
+		PANIC_ON_FAILURE(_configureGraphicsContext(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));
+		PANIC_ON_FAILURE(_configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioContextType));
 		PANIC_ON_FAILURE(_configureInputContext());
 		PANIC_ON_FAILURE(_configureSceneManager());
 
@@ -624,7 +631,13 @@ namespace TDEngine2
 		static const std::string hslsSubDirectory = "/DX/";
 		static const std::string gslsSubDirectory = "/GL/";
 
+#if TDE2_PRODUCTION_MODE
 		static const std::string baseResourcesPath = "../../Resources/";
+#else
+		static const std::string baseResourcesPath = "../../Resources/";
+		TDE2_UNIMPLEMENTED();
+#endif
+
 		static const std::string baseShadersPath = baseResourcesPath + "Shaders/";
 		static const std::string baseMaterialsPath = baseResourcesPath + "Materials/";
 

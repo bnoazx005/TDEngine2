@@ -8,6 +8,7 @@
 
 
 #include "CBaseObject.h"
+#include <thread>
 
 
 namespace TDEngine2
@@ -37,5 +38,22 @@ namespace TDEngine2
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProjectSettings)
 		public:
+			struct
+			{
+				E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType = E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11;
+			} mGraphicsSettings;
+
+			struct
+			{
+				E_AUDIO_CONTEXT_API_TYPE mAudioContextType = E_AUDIO_CONTEXT_API_TYPE::FMOD;
+			} mAudioSettings;
+
+			struct
+			{
+				U32 mMaxNumOfWorkerThreads = std::thread::hardware_concurrency() - 1;
+				U32 mTotalPreallocatedMemorySize = DefaultGlobalMemoryBlockSize;
+
+				std::string mApplicationName;
+			} mCommonSettings;
 	};
 }

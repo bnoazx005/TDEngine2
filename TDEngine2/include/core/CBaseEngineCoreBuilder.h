@@ -171,11 +171,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _mountDirectories(E_GRAPHICS_CONTEXT_GAPI_TYPE type);
 
-			TDE2_API virtual TEngineSettings _initEngineSettings() = 0;
+			TDE2_API virtual E_RESULT_CODE _initEngineSettings() = 0;
 		protected:
 			bool              mIsInitialized;
-
-			TEngineSettings   mEngineSettings;
 
 			IEngineCore*      mpEngineCoreInstance;
 

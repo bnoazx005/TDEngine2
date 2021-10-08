@@ -52,7 +52,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConfigFileEngineCoreBuilder)
 
-			TDE2_API TEngineSettings _initEngineSettings() override;
+			TDE2_API E_RESULT_CODE _initEngineSettings() override;
 		protected:
 			std::string mProjectConfigFilepath;
 			std::string mGameUserSettingsFilepath;

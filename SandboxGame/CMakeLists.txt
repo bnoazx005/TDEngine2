@@ -67,3 +67,9 @@ if (UNIX)
 endif ()
 
 target_link_libraries(${EXECUTABLE_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})
+
+# Copy .project into executable's directory
+add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	"${CMAKE_CURRENT_SOURCE_DIR}/${EXECUTABLE_NAME}.project"
+	"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")

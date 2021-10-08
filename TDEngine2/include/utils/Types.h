@@ -618,32 +618,6 @@ namespace TDEngine2
 
 
 	/*!
-		struct TEngineSettings
-
-		\brief The structure contains all available settings that provide an ability of engine's tuning
-	*/
-
-	typedef struct TEngineSettings
-	{
-		E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType;
-
-		E_AUDIO_CONTEXT_API_TYPE     mAudioContextType;
-
-		std::string                  mApplicationName;
-
-		U32                          mWindowWidth;
-
-		U32                          mWindowHeight;
-
-		U32                          mFlags;
-
-		U32                          mMaxNumOfWorkerThreads;
-
-		U32                          mTotalPreallocatedMemorySize;
-	} TEngineSettings, *TEngineSettingsPtr;
-
-
-	/*!
 		enum E_BLEND_FACTOR_VALUE
 
 		\brief The enumeration contains all possible values that can be used to

@@ -20,23 +20,21 @@ namespace TDEngine2
 	class CDefaultEngineCoreBuilder: public CBaseEngineCoreBuilder
 	{
 		public:
-			friend TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const TEngineSettings& settings, E_RESULT_CODE& result);
+			friend TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initialized the builder's object
 
 				\param[in] A callback to a factory's function of IEngineCore's objects
 
-				\param[in] settings A structure's entry that contains information about engine's settings
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const TEngineSettings& settings);
+			TDE2_API E_RESULT_CODE Init(TCreateEngineCoreCallback pEngineCoreFactoryCallback);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDefaultEngineCoreBuilder)
 
-			TDE2_API TEngineSettings _initEngineSettings() override;
+			TDE2_API E_RESULT_CODE _initEngineSettings() override;
 	};
 
 
@@ -45,10 +43,8 @@ namespace TDEngine2
 
 		\param[in] A callback to a factory's function of IEngineCore's objects
 
-		\param[in] settings A structure's entry that contains information about engine's settings
-
 		\return A pointer to CDefaultEngineCoreBuilder's implementation
 	*/
 
-	TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, const TEngineSettings& settings, E_RESULT_CODE& result);
+	TDE2_API IEngineCoreBuilder* CreateDefaultEngineCoreBuilder(TCreateEngineCoreCallback pEngineCoreFactoryCallback, E_RESULT_CODE& result);
 }
