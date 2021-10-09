@@ -53,3 +53,10 @@ target_include_directories(${TDE2_PARTICLE_EDITOR_NAME} PUBLIC "${CMAKE_CURRENT_
 target_include_directories(${TDE2_PARTICLE_EDITOR_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
 
 target_link_libraries(${TDE2_PARTICLE_EDITOR_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})
+
+
+# Copy .project into executable's directory
+add_custom_command(TARGET ${TDE2_PARTICLE_EDITOR_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	"${CMAKE_CURRENT_SOURCE_DIR}/${TDE2_PARTICLE_EDITOR_NAME}.project"
+	"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")

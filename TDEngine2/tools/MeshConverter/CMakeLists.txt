@@ -87,3 +87,10 @@ target_link_libraries(${TDE2_MESH_CONVERTER_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAM
 target_include_directories(${TDE2_MESH_CONVERTER_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/assimp/include")
 
 target_link_libraries(${TDE2_MESH_CONVERTER_NAME} PUBLIC assimp)
+
+
+# Copy .project into executable's directory
+add_custom_command(TARGET ${TDE2_MESH_CONVERTER_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	"${CMAKE_CURRENT_SOURCE_DIR}/${TDE2_MESH_CONVERTER_NAME}.project"
+	"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")

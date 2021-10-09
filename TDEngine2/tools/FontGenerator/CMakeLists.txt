@@ -74,3 +74,10 @@ if (UNIX)
         target_link_libraries(${TDE2_FONT_GENERATOR_NAME} c++experimental)
     endif()
 endif()
+
+
+# Copy .project into executable's directory
+add_custom_command(TARGET ${TDE2_FONT_GENERATOR_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	"${CMAKE_CURRENT_SOURCE_DIR}/${TDE2_FONT_GENERATOR_NAME}.project"
+	"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
