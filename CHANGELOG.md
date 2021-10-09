@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Now settings are splitted into application specific and project ones
+- The localization manager now reads its settings from **CProjectSettings**
 
 ### Added
 

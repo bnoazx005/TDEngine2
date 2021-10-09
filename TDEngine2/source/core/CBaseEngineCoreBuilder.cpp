@@ -556,7 +556,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		// \todo Replace magic constant 
-		ILocalizationManager* pLocalizationManager = CreateLocalizationManager(mpFileSystemInstance, mpResourceManagerInstance, "localization_config.cfg", result);
+		ILocalizationManager* pLocalizationManager = CreateLocalizationManager(mpFileSystemInstance, mpResourceManagerInstance, CProjectSettings::Get()->mLocalizationSettings, result);
 		if (RC_OK != result)
 		{
 			return result;

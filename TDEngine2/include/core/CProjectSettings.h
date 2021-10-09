@@ -16,6 +16,9 @@ namespace TDEngine2
 	class IArchiveReader;
 
 
+	enum class TLocaleId : U32;
+
+
 	/*!
 		class CProjectSettings
 
@@ -55,5 +58,19 @@ namespace TDEngine2
 
 				std::string mApplicationName;
 			} mCommonSettings;
+
+
+			struct TLocalizationSettings
+			{
+				struct TLocaleInfo
+				{
+					std::string mName;
+					std::string mPackagePath;
+					TLocaleId mId;
+				};
+
+				std::vector<TLocaleInfo> mRegisteredLocales;
+				std::string mCurrActiveLocaleId;
+			} mLocalizationSettings;
 	};
 }

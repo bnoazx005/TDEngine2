@@ -11,6 +11,7 @@
 #include "../../utils/Utils.h"
 #include "../../core/IBaseObject.h"
 #include "../../core/IEngineSubsystem.h"
+#include "../../core/CProjectSettings.h"
 #include <string>
 
 
@@ -38,12 +39,12 @@ namespace TDEngine2
 
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation
-				\param[in] configPath A string with a path to manager's configuration
+				\param[in] settings A structure with bunch of settings related with the localization manager
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const std::string& configPath) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings) = 0;
 
 			/*!
 				\brief The method loads given locale's data into the manager

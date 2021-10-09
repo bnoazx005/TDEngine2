@@ -15,14 +15,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLocalizationManager::Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const std::string& configPath)
+	E_RESULT_CODE CLocalizationManager::Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pFileSystem || !pResourceManager || configPath.empty())
+		if (!pFileSystem || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -31,12 +31,11 @@ namespace TDEngine2
 
 		mpFileSystem = pFileSystem;
 		mpResourceManager = pResourceManager;
-		mConfigFilePath = configPath;
 
 		mCurrSelectedLocaleId = TLocaleId::Invalid;
 
 		// \todo Load configuration of the manager
-		E_RESULT_CODE result = _readConfiguration();
+		E_RESULT_CODE result = _readConfiguration(settings);
 		if (RC_OK != result)
 		{
 			return result;
@@ -112,36 +111,15 @@ namespace TDEngine2
 		return (iter == mRegisteredLocales.cend()) ? TLocaleId::Invalid : iter->mId;
 	}
 
-	E_RESULT_CODE CLocalizationManager::_readConfiguration()
+	E_RESULT_CODE CLocalizationManager::_readConfiguration(const CProjectSettings::TLocalizationSettings& settings)
 	{
-		auto openFileResult = mpFileSystem->Open<IYAMLFileReader>(mConfigFilePath);
-		if (openFileResult.HasError())
+		for (auto&& currLocaleInfo : settings.mRegisteredLocales)
 		{
-			return openFileResult.GetError();
+			mRegisteredLocales.push_back({ currLocaleInfo.mName, currLocaleInfo.mPackagePath, currLocaleInfo.mId });
 		}
 
-		if (auto pConfigFile = mpFileSystem->Get<IYAMLFileReader>(openFileResult.Get()))
-		{
-			pConfigFile->BeginGroup("registered_locales");
-			{
-				while (pConfigFile->HasNextItem())
-				{
-					pConfigFile->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-					{
-						pConfigFile->BeginGroup("locale_info");
-						_registerLocale(pConfigFile);
-						pConfigFile->EndGroup();
-					}
-					pConfigFile->EndGroup();
-				}				
-			}
-			pConfigFile->EndGroup();
-
-			mCurrSelectedLocaleId = _getLocaleHashInternal(pConfigFile->GetString("current_locale"));
-			TDE2_ASSERT(TLocaleId::Invalid != mCurrSelectedLocaleId);
-
-			pConfigFile->Close();
-		}
+		mCurrSelectedLocaleId = _getLocaleHashInternal(settings.mCurrActiveLocaleId);
+		TDE2_ASSERT(TLocaleId::Invalid != mCurrSelectedLocaleId);
 
 		return RC_OK;
 	}
@@ -191,19 +169,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CLocalizationManager::_registerLocale(IYAMLFileReader* pConfigReader)
-	{
-		TLocaleInfoEntity localeInfo;
-
-		localeInfo.mName = pConfigReader->GetString("id");
-		localeInfo.mPackagePath = pConfigReader->GetString("package_path");
-		localeInfo.mId = static_cast<TLocaleId>(mRegisteredLocales.size());
-
-		mRegisteredLocales.emplace_back(localeInfo);
-
-		return RC_OK;
-	}
-
 	std::string CLocalizationManager::_getTextInternal(const std::string& key) const
 	{
 		auto iter = mCurrLocaleData.find(key);
@@ -219,8 +184,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const std::string& configPath, E_RESULT_CODE& result)
+	TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ILocalizationManager, CLocalizationManager, result, pFileSystem, pResourceManager, configPath);
+		return CREATE_IMPL(ILocalizationManager, CLocalizationManager, result, pFileSystem, pResourceManager, settings);
 	}
 }

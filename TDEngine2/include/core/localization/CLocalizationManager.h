@@ -24,19 +24,19 @@ namespace TDEngine2
 
 		\param[in, out] pFileSystem A pointer to IFileSystem implementation
 		\param[in, out] pResourceManager A pointer to IResourceManager implementation
-		\param[in] configPath A string with a path to manager's configuration
+		\param[in] settings A structure with bunch of settings related with the localization manager
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CLocalizationManager's implementation
 	*/
 
-	TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const std::string& configPath, E_RESULT_CODE& result);
+	TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings, E_RESULT_CODE& result);
 
 
 	class CLocalizationManager : public CBaseObject, public ILocalizationManager
 	{
 		public:
-			friend TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem*, IResourceManager*, const std::string&, E_RESULT_CODE&);
+			friend TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem*, IResourceManager*, const CProjectSettings::TLocalizationSettings&, E_RESULT_CODE&);
 
 		public:
 			struct TLocaleInfoEntity
@@ -55,12 +55,12 @@ namespace TDEngine2
 
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation
-				\param[in] configPath A string with a path to manager's configuration
+				\param[in] settings A structure with bunch of settings related with the localization manager
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const std::string& configPath) override;
+			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings) override;
 
 			/*!
 				\brief The method loads given locale's data into the manager
@@ -120,8 +120,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLocalizationManager)
 
-			TDE2_API E_RESULT_CODE _readConfiguration();
-			TDE2_API E_RESULT_CODE _registerLocale(IYAMLFileReader* pConfigReader);
+			TDE2_API E_RESULT_CODE _readConfiguration(const CProjectSettings::TLocalizationSettings& settings);
 
 			TDE2_API E_RESULT_CODE _loadLocaleResources(TLocaleId locale);
 
