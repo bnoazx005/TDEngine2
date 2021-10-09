@@ -71,24 +71,9 @@
 namespace TDEngine2
 {
 	CBaseEngineCoreBuilder::CBaseEngineCoreBuilder() :
-		mIsInitialized(false), mpEngineCoreInstance(nullptr), mpWindowSystemInstance(nullptr), mpJobManagerInstance(nullptr),
+		CBaseObject(), mpEngineCoreInstance(nullptr), mpWindowSystemInstance(nullptr), mpJobManagerInstance(nullptr),
 		mpPluginManagerInstance(nullptr), mpGraphicsContextInstance(nullptr), mpResourceManagerInstance(nullptr)
 	{
-	}
-
-
-	E_RESULT_CODE CBaseEngineCoreBuilder::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureGraphicsContext(E_GRAPHICS_CONTEXT_GAPI_TYPE type)
