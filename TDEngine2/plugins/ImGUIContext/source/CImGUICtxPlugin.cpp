@@ -1,4 +1,4 @@
-#include "./../include/CImGUICtxPlugin.h"
+#include "../include/CImGUICtxPlugin.h"
 #include <core/IEngineCore.h>
 #include <core/IWindowSystem.h>
 #include <core/IGraphicsContext.h>
@@ -50,7 +50,14 @@ namespace TDEngine2
 
 	const TPluginInfo& CImGUICtxPlugin::GetInfo() const
 	{
-		return mPluginInfo;
+		static const TPluginInfo pluginInfo
+		{
+			"ImGUIContext",
+			(0 << 16) | 5,
+			(0 << 16) | 5,
+		};
+
+		return pluginInfo;
 	}
 }
 

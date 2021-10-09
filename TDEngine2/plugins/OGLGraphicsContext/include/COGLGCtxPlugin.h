@@ -77,7 +77,5 @@ namespace TDEngine2
 			IEngineCore*      mpEngineCoreInstance;
 
 			IGraphicsContext* mpGraphicsContext;
-
-			TPluginInfo       mPluginInfo;
 	};
 }

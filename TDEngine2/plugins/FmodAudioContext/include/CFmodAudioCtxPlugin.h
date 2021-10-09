@@ -70,7 +70,5 @@ namespace TDEngine2
 			IEngineCore*   mpEngineCoreInstance;
 
 			IAudioContext* mpAudioContext;
-
-			TPluginInfo    mPluginInfo;
 	};
 }

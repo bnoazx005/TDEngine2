@@ -61,7 +61,5 @@ namespace TDEngine2
 			IEngineCore*   mpEngineCoreInstance;
 
 			IInputContext* mpInputContext;
-
-			TPluginInfo    mPluginInfo;
 	};
 }

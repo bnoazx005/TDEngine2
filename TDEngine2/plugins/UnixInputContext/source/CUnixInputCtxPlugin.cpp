@@ -1,8 +1,8 @@
-#include "./../include/CUnixInputCtxPlugin.h"
+#include "../include/CUnixInputCtxPlugin.h"
+#include "../include/CUnixInputContext.h"
 #include <core/IEngineCore.h>
 #include <core/IInputContext.h>
 #include <core/IWindowSystem.h>
-#include "./../include/CUnixInputContext.h"
 
 
 namespace TDEngine2
@@ -61,7 +61,14 @@ namespace TDEngine2
 
 	const TPluginInfo& CUnixInputCtxPlugin::GetInfo() const
 	{
-		return mPluginInfo;
+		static const TPluginInfo pluginInfo
+		{
+			"UnixInputContext",
+			(0 << 16) | 5,
+			(0 << 16) | 5,
+		};
+
+		return pluginInfo;
 	}
 }
 

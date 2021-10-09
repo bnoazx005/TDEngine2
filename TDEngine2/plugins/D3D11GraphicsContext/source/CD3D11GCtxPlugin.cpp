@@ -1,20 +1,28 @@
-#include "./../include/CD3D11GCtxPlugin.h"
+#include "../include/CD3D11GCtxPlugin.h"
+#include "../include/CD3D11GraphicsContext.h"
+#include "../include/CD3D11Shader.h"
+#include "../include/CD3D11ShaderCompiler.h"
+#include "../include/CD3D11Texture2D.h"
+#include "../include/CD3D11RenderTarget.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
-#include "./../include/CD3D11GraphicsContext.h"
 #include <core/IWindowSystem.h>
 #include <core/IResourceManager.h>
-#include "./../include/CD3D11Shader.h"
-#include <graphics/CBaseShaderLoader.h>
 #include <core/IFileSystem.h>
-#include "./../include/CD3D11ShaderCompiler.h"
+#include <graphics/CBaseShaderLoader.h>
 #include <graphics/CBaseTexture2D.h>
-#include "./../include/CD3D11Texture2D.h"
-#include "./../include/CD3D11RenderTarget.h"
 
 
 namespace TDEngine2
 {
+	static const TPluginInfo PluginInfo 
+	{
+		"D3D11GraphicsContext",
+		(0 << 16) | 5,
+		(0 << 16) | 5,
+	};
+
+
 	CD3D11GCtxPlugin::CD3D11GCtxPlugin() :
 		CBaseObject()
 	{
@@ -65,7 +73,7 @@ namespace TDEngine2
 
 	const TPluginInfo& CD3D11GCtxPlugin::GetInfo() const
 	{
-		return mPluginInfo;
+		return PluginInfo;
 	}
 
 	E_RESULT_CODE CD3D11GCtxPlugin::_registerFactories(IEngineCore* pEngineCore)

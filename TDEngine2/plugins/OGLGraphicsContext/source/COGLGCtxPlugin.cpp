@@ -71,7 +71,14 @@ namespace TDEngine2
 
 	const TPluginInfo& COGLGCtxPlugin::GetInfo() const
 	{
-		return mPluginInfo;
+		static const TPluginInfo pluginInfo
+		{
+			"OGLGraphicsContext",
+			(0 << 16) | 5,
+			(0 << 16) | 5,
+		};
+
+		return pluginInfo;
 	}
 
 	E_RESULT_CODE COGLGCtxPlugin::_registerFactories(IEngineCore* pEngineCore)

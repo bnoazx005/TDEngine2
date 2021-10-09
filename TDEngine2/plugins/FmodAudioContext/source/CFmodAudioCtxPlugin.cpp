@@ -86,7 +86,14 @@ namespace TDEngine2
 
 	const TPluginInfo& CFMODAudioCtxPlugin::GetInfo() const
 	{
-		return mPluginInfo;
+		static const TPluginInfo pluginInfo
+		{
+			"FmodAudioContext",
+			(0 << 16) | 5,
+			(0 << 16) | 5,
+		};
+
+		return pluginInfo;
 	}
 
 	E_RESULT_CODE CFMODAudioCtxPlugin::_registerResourceFactories(IEngineCore* pEngineCore)

@@ -1,8 +1,8 @@
-#include "./../include/CWindowsInputCtxPlugin.h"
+#include "../include/CWindowsInputCtxPlugin.h"
+#include "../include/CWindowsInputContext.h"
 #include <core/IEngineCore.h>
 #include <core/IInputContext.h>
 #include <core/IWindowSystem.h>
-#include "./../include/CWindowsInputContext.h"
 
 
 namespace TDEngine2
@@ -47,7 +47,14 @@ namespace TDEngine2
 
 	const TPluginInfo& CWindowsInputCtxPlugin::GetInfo() const
 	{
-		return mPluginInfo;
+		static const TPluginInfo pluginInfo
+		{
+			"WindowsInputContext",
+			(0 << 16) | 5,
+			(0 << 16) | 5,
+		};
+
+		return pluginInfo;
 	}
 }
 

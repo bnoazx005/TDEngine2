@@ -54,7 +54,5 @@ namespace TDEngine2
 			IEngineCore*   mpEngineCoreInstance;
 
 			IImGUIContext* mpImGUIContext;
-
-			TPluginInfo    mPluginInfo;
 	};
 }
