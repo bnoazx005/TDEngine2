@@ -274,7 +274,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WIN32PLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
-		IEngineSubsystem* pPluginManager = CreateBasePluginManager(mpEngineCoreInstance, result);
+		IEngineSubsystem* pPluginManager = CreateBasePluginManager(TPtr<IEngineCore>(mpEngineCoreInstance), result);
 #else
 #endif
 
@@ -458,7 +458,7 @@ namespace TDEngine2
 		IEditorsManager* pEditorsManager = CreateEditorsManager(pInputContext,
 			mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
 			mpEventManagerInstance,
-			mpEngineCoreInstance->GetWorldInstance(),
+			mpEngineCoreInstance->GetWorldInstance().Get(),
 			result);
 
 		static const U32 mainThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());

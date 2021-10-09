@@ -123,6 +123,24 @@ namespace TDEngine2
 #define CREATE_IMPL(InterfaceType, ConcreteType, ...) CreateImpl<InterfaceType, ConcreteType>([] { return new ConcreteType(); }, [](ConcreteType*& pPtr) { delete pPtr; }, __VA_ARGS__)
 
 
+	template <typename T> 
+	E_RESULT_CODE SafeFreeInternal(T*& pPtr, std::true_type)
+	{
+		if (!pPtr)
+		{
+			return RC_FAIL;
+		}
+
+		return pPtr->Free();
+	}
+
+	template <typename T>
+	E_RESULT_CODE SafeFreeInternal(T*& pPtr, std::false_type)
+	{
+		return RC_OK;
+	}
+
+
 	/*!
 		\brief The function implements a generic mechanism of releasing memory.
 		
@@ -131,16 +149,7 @@ namespace TDEngine2
 		\return RC_OK if everything went ok, or some other code, which describes an error
 	*/
 
-	template <typename T>
-	TDE2_API E_RESULT_CODE SafeFree(T*& pObject)
-	{
-		if (!pObject)
-		{
-			return RC_FAIL;
-		}
-
-		return pObject->Free();
-	}
+	template <typename T> E_RESULT_CODE SafeFree(T*& pObject) { return SafeFreeInternal<T>(pObject, std::is_base_of<class IBaseObject, T>{}); }
 
 
 	/*!
@@ -650,10 +659,7 @@ namespace TDEngine2
 
 			~CScopedPtr()
 			{
-				if (mpPtr)
-				{
-					mpPtr->Free();
-				}
+				SafeFreeInternal<T>(mpPtr, std::is_base_of<class IBaseObject, T>{});
 			}
 
 			T* operator->() const

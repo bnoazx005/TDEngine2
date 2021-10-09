@@ -19,7 +19,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = RC_OK;
 
-	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
+	auto pWorld = mpEngineCoreInstance->GetWorldInstance();
 
 	// \note Create an editor's camera
 

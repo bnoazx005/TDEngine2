@@ -212,14 +212,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			for (auto id : entities)
 			{
-				GroupEntities(mpWorld, pSpriteGroup->GetId(), id);
+				GroupEntities(mpWorld.Get(), pSpriteGroup->GetId(), id);
 			}
 
 			auto c1 = mpWorld->CreateEntity("Child1")->GetId();
 			auto c2 = mpWorld->CreateEntity("Child2")->GetId();
 
-			GroupEntities(mpWorld, c1, c2);
-			GroupEntities(mpWorld, pSpriteGroup->GetId(), c1);
+			GroupEntities(mpWorld.Get(), c1, c2);
+			GroupEntities(mpWorld.Get(), pSpriteGroup->GetId(), c1);
 
 			if (auto pAnimationContainer = pSpriteGroup->AddComponent<CAnimationContainerComponent>())
 			{
@@ -264,7 +264,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							pLabel->SetFontId("Arial.font");
 						}
 
-						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
+						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
 
 					if (auto pEntity = pScene->CreateEntity("UIElement"))
@@ -285,7 +285,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 						pEntity->AddComponent<CInputReceiver>();
 
-						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
+						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
 
 					if (auto pEntity = pScene->CreateEntity("UIElement2"))
@@ -306,7 +306,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 						pEntity->AddComponent<CInputReceiver>();
 
-						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
+						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
 
 					if (auto pEntity = pScene->CreateEntity("Text"))
@@ -326,10 +326,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							pLabel->SetText("TTTTTTTTTTTTTTTTTTTTTTTT");
 						}
 
-						GroupEntities(mpWorld, pParentEntity->GetId(), pEntity->GetId());
+						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
 
-					GroupEntities(mpWorld, pCanvasEntity->GetId(), pParentEntity->GetId());
+					GroupEntities(mpWorld.Get(), pCanvasEntity->GetId(), pParentEntity->GetId());
 				}				
 			}
 #endif

@@ -147,7 +147,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IWorld implementation
 			*/
 
-			TDE2_API virtual IWorld* GetWorldInstance() const = 0;
+			TDE2_API virtual TPtr<IWorld> GetWorldInstance() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEngineCore)
 

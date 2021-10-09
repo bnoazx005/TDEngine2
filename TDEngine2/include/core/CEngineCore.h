@@ -145,7 +145,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IWorld implementation
 			*/
 
-			TDE2_API IWorld* GetWorldInstance() const override;
+			TDE2_API TPtr<IWorld> GetWorldInstance() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEngineCore)
 
@@ -158,7 +158,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _registerSubsystemInternal(IEngineSubsystem* pSubsystem);
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 
-			TDE2_API E_RESULT_CODE _registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
+			TDE2_API E_RESULT_CODE _registerBuiltinSystems(TPtr<IWorld> pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
 														   IRenderer* pRenderer, IMemoryManager* pMemoryManager, IEventManager* pEventManager);
 
 			TDE2_API E_RESULT_CODE _cleanUpSubsystems();
@@ -179,7 +179,7 @@ namespace TDEngine2
 
 			ITimer*            mpInternalTimer;
 
-			IWorld*            mpWorldInstance;
+			TPtr<IWorld>       mpWorldInstance;
 
 			IInputContext*     mpInputContext;
 

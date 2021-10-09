@@ -17,7 +17,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	mpConfigEditorWindow = CreateConfigWindow({ mpResourceManager, mpInputContext, mpWindowSystem, mpFileSystem }, result);
 
 	/// \note For this tool this entity isn't used but create it to suppress assertions
-	if (IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance())
+	if (auto pWorld = mpEngineCoreInstance->GetWorldInstance())
 	{
 		if (CEntity* pCameraEntity = pWorld->CreateEntity("Camera"))
 		{

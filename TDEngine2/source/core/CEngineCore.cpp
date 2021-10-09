@@ -128,7 +128,7 @@ namespace TDEngine2
 		IEditorsManager* pEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
 		TDE2_ASSERT(pEditorsManager);
 
-		PANIC_ON_FAILURE(pEditorsManager->SetWorldInstance(mpWorldInstance));
+		PANIC_ON_FAILURE(pEditorsManager->SetWorldInstance(mpWorldInstance.Get()));
 #endif
 
 		if (result != RC_OK)
@@ -159,7 +159,7 @@ namespace TDEngine2
 
 		if (IPluginManager* pPluginManager = _getSubsystemAs<IPluginManager>(EST_PLUGIN_MANAGER))
 		{
-			pPluginManager->RegisterECSComponents(mpWorldInstance);
+			pPluginManager->RegisterECSComponents(TPtr<IWorld>(mpWorldInstance));
 		}
 
 		mpInternalTimer = pWindowSystem->GetTimer();
@@ -269,7 +269,7 @@ namespace TDEngine2
 		return mpInternalTimer;
 	}
 
-	IWorld* CEngineCore::GetWorldInstance() const
+	TPtr<IWorld> CEngineCore::GetWorldInstance() const
 	{
 		//std::lock_guard<std::mutex> lock(mMutex);
 
@@ -387,7 +387,7 @@ namespace TDEngine2
 
 	/// \todo Refactor the method
 
-	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(IWorld* pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
+	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(TPtr<IWorld> pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
 													   IRenderer* pRenderer, IMemoryManager* pMemoryManager, IEventManager* pEventManager)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
@@ -454,7 +454,7 @@ namespace TDEngine2
 		// \note Send event that a new world was created
 		{
 			TOnNewWorldInstanceCreated onNewWorldInstanceCreated;
-			onNewWorldInstanceCreated.mpWorldInstance = pWorldInstance;
+			onNewWorldInstanceCreated.mpWorldInstance = pWorldInstance.Get();
 
 			pEventManager->Notify(&onNewWorldInstanceCreated);
 		}

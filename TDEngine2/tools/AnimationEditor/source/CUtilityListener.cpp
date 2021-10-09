@@ -10,7 +10,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = RC_OK;
 
-	IWorld* pWorld = mpEngineCoreInstance->GetWorldInstance();
+	auto pWorld = mpEngineCoreInstance->GetWorldInstance();
 
 	// \note Create an editor's camera
 
@@ -23,7 +23,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
-	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(TDEngine2::CreateAnimationEditorWindow(mpResourceManager, mpEngineCoreInstance->GetWorldInstance(), result));
+	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(TDEngine2::CreateAnimationEditorWindow(mpResourceManager, mpEngineCoreInstance->GetWorldInstance().Get(), result));
 
 	mCurrEditableEffectId = mpResourceManager->Create<IAnimationClip>("unnamed.animation", TAnimationClipParameters {});
 	mpAnimationEditor->SetAnimationResourceHandle(mCurrEditableEffectId);

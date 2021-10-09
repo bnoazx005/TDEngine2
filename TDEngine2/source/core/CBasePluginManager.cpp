@@ -1,19 +1,20 @@
-#include "./../../include/core/CBasePluginManager.h"
-#include "./../../include/core/IPlugin.h"
-#include "./../../include/core/IDLLManager.h"
-#include "./../../include/core/IEngineCore.h"
-#include "./../../include/core/IWindowSystem.h"
-#include "./../../include/utils/CFileLogger.h"
+#include "../../include/core/CBasePluginManager.h"
+#include "../../include/core/IPlugin.h"
+#include "../../include/core/IDLLManager.h"
+#include "../../include/core/IEngineCore.h"
+#include "../../include/core/IWindowSystem.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/ecs/IWorld.h"
 
 
 namespace TDEngine2
 {
 	CBasePluginManager::CBasePluginManager():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
-	E_RESULT_CODE CBasePluginManager::Init(IEngineCore* pEngineCore)
+	E_RESULT_CODE CBasePluginManager::Init(TPtr<IEngineCore> pEngineCore)
 	{
 		if (mIsInitialized)
 		{
@@ -76,7 +77,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		IPlugin* pPluginInstance = mLoadedPlugins[filename];
+		auto pPluginInstance = mLoadedPlugins[filename];
 
 		if (pPluginInstance)
 		{
@@ -101,7 +102,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		IPlugin* pLoadedPlugin = pCreatePluginCallback(mpEngineCore, result);
+		IPlugin* pLoadedPlugin = pCreatePluginCallback(mpEngineCore.Get(), result);
 
 		if (result != RC_OK)
 		{
@@ -131,18 +132,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		IPlugin* pPluginInstance = mLoadedPlugins[filename];
+		auto pPluginInstance = mLoadedPlugins[filename];
 
 		if (!pPluginInstance)
 		{
 			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = pPluginInstance->Free()) != RC_OK)
-		{
-			return result;
 		}
 
 		mLoadedPlugins[filename] = nullptr;
@@ -171,10 +165,12 @@ namespace TDEngine2
 			++currPluginIter;
 		}
 
+		mLoadedPlugins.clear();
+
 		return result;
 	}
 
-	E_RESULT_CODE CBasePluginManager::RegisterECSComponents(IWorld* pWorld)
+	E_RESULT_CODE CBasePluginManager::RegisterECSComponents(TPtr<IWorld> pWorld)
 	{
 		if (!pWorld)
 		{
@@ -185,9 +181,9 @@ namespace TDEngine2
 
 		for (auto&& currPlugin : mLoadedPlugins)
 		{
-			if (auto pECSPlugin = dynamic_cast<IECSPlugin*>(currPlugin.second))
+			if (auto pECSPlugin = dynamic_cast<IECSPlugin*>(currPlugin.second.Get()))
 			{
-				result = result | pECSPlugin->OnRegister(mpEngineCore, pWorld);
+				result = result | pECSPlugin->OnRegister(mpEngineCore.Get(), pWorld.Get());
 			}
 		}
 
@@ -200,7 +196,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IPluginManager* CreateBasePluginManager(IEngineCore* pEngineCore, E_RESULT_CODE& result)
+	TDE2_API IPluginManager* CreateBasePluginManager(TPtr<IEngineCore> pEngineCore, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IPluginManager, CBasePluginManager, result, pEngineCore);
 	}
