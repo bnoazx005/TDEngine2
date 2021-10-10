@@ -633,6 +633,25 @@ namespace TDEngine2
 #endif
 
 
+	template <typename T> void ScopedPtrAdd(T*& pPtr) { }
+	template <typename T> void ScopedPtrRelease(T*& pPtr) { }
+
+
+#define DECLARE_SCOPED_PTR(Type)						 \
+	template <> void ScopedPtrAdd<Type>(Type*& pPtr);	 \
+	template <> void ScopedPtrRelease<Type>(Type*& pPtr);
+
+
+#define DECLARE_SCOPED_PTR_INLINED(Type)										 \
+	template <> inline void ScopedPtrAdd<Type>(Type*& pPtr) { pPtr->AddRef(); }	 \
+	template <> inline void ScopedPtrRelease<Type>(Type*& pPtr) { pPtr->Free(); }
+
+
+#define DEFINE_SCOPED_PTR(Type)												 \
+	template <> void ScopedPtrAdd<Type>(Type*& pPtr) { pPtr->AddRef(); }	 \
+	template <> void ScopedPtrRelease<Type>(Type*& pPtr) { pPtr->Free(); }
+
+
 	/*!
 		class CScopedPtr<T>
 
@@ -649,7 +668,7 @@ namespace TDEngine2
 			{
 				if (mpPtr)
 				{
-					mpPtr->AddRef();
+					ScopedPtrAdd<T>(mpPtr);
 				}
 			}
 
@@ -659,7 +678,10 @@ namespace TDEngine2
 
 			~CScopedPtr()
 			{
-				SafeFreeInternal<T>(mpPtr, std::is_base_of<class IBaseObject, T>{});
+				if (mpPtr)
+				{
+					ScopedPtrRelease<T>(mpPtr);
+				}
 			}
 
 			T* operator->() const
