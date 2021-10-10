@@ -1,9 +1,9 @@
-#include "./../../../include/platform/win32/CWin32WindowSystem.h"
-#include "./../../../include/platform/win32/CWin32Timer.h"
-#include "./../../../include/platform/win32/CWin32DLLManager.h"
-#include "./../../../include/utils/CFileLogger.h"
-#include "./../../../include/core/IEventManager.h"
-#include "./../../../include/core/IImGUIContext.h"
+#include "../../../include/platform/win32/CWin32WindowSystem.h"
+#include "../../../include/platform/win32/CWin32Timer.h"
+#include "../../../include/platform/win32/CWin32DLLManager.h"
+#include "../../../include/utils/CFileLogger.h"
+#include "../../../include/core/IEventManager.h"
+#include "../../../include/core/IImGUIContext.h"
 #include <string>
 
 
@@ -12,11 +12,80 @@
 
 namespace TDEngine2
 {
-	C8 CWin32WindowSystem::mAppWinProcParamName[] = "WindowObjectPtr";	/// the proerty's name is used in WNDPROC function to retrieve window's object
+	static const C8 AppWinProcParamName[] = "WindowObjectPtr";	/// the proerty's name is used in WNDPROC function to retrieve window's object
+
+
+	LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		IWindowSystem* pWinSystem = static_cast<IWindowSystem*>(GetProp(hWnd, AppWinProcParamName));
+
+		if (!pWinSystem)
+		{
+			return DefWindowProc(hWnd, uMsg, wParam, lParam);
+		}
+
+		static bool hasWindowBeenMaximized = pWinSystem->GetFlags() & P_FULLSCREEN;
+
+		IEventManager* pEventManager = pWinSystem->GetEventManager();
+
+		TOnWindowMoved onMovedEvent;
+
+		auto onSendResizeWindowEvent = [&pEventManager](U32 width, U32 height)
+		{
+			TOnWindowResized onResizedEvent;
+
+			onResizedEvent.mWidth = width;
+			onResizedEvent.mHeight = height;
+
+			pEventManager->Notify(&onResizedEvent);
+
+			LOG_MESSAGE(std::string("[Win32 Window System] The window's sizes were changed (width: ").
+				append(std::to_string(onResizedEvent.mWidth)).
+				append(", height: ").
+				append(std::to_string(onResizedEvent.mHeight)).
+				append(")"));
+
+		};
+
+		switch (uMsg)
+		{
+			case WM_DESTROY:
+				PostQuitMessage(0);
+				break;
+			case WM_SIZE:
+				if (wParam == SIZE_MAXIMIZED)
+				{
+					onSendResizeWindowEvent(lParam & (0x0000FFFF), (lParam & (0xFFFF0000)) >> 16);
+					hasWindowBeenMaximized = true;
+				}
+				else
+				{
+					if (hasWindowBeenMaximized)
+					{
+						onSendResizeWindowEvent(lParam & (0x0000FFFF), (lParam & (0xFFFF0000)) >> 16);
+					}
+					hasWindowBeenMaximized = false;
+				}
+				break;
+			case WM_EXITSIZEMOVE:
+				hasWindowBeenMaximized = true;
+				break;
+			case WM_MOVE:
+				onMovedEvent.mX = lParam & (0x0000FFFF);
+				onMovedEvent.mY = (lParam & (0xFFFF0000)) >> 16;
+
+				pEventManager->Notify(&onMovedEvent);
+				break;
+			default:
+				return DefWindowProc(hWnd, uMsg, wParam, lParam);
+		}
+
+		return 0;
+	}
 
 
 	CWin32WindowSystem::CWin32WindowSystem():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
@@ -53,7 +122,7 @@ namespace TDEngine2
 		memset(&wc, 0, sizeof(wc));
 
 		wc.cbSize        = sizeof(WNDCLASSEX);
-		wc.lpfnWndProc   = (WNDPROC)_wndProc;
+		wc.lpfnWndProc   = (WNDPROC)WndProc;
 		wc.hInstance     = mInstanceHandler;
 		wc.lpszClassName = mWindowClassName.c_str();
 		wc.cbWndExtra    = NULL;
@@ -106,7 +175,7 @@ namespace TDEngine2
 		mInternalDataObject.mWindowHandler         = mWindowHandler;
 		mInternalDataObject.mWindowInstanceHandler = mInstanceHandler;
 
-		SetProp(mWindowHandler, mAppWinProcParamName, this); //attach the window's object as the window's parameter
+		SetProp(mWindowHandler, AppWinProcParamName, this); //attach the window's object as the window's parameter
 
 		/// try to get a device context's handler
 		mInternalDataObject.mDeviceContextHandler = GetDC(mWindowHandler);
@@ -119,7 +188,7 @@ namespace TDEngine2
 
 		/// CWin32Timer's initialization
 
-		mpTimer = CreateWin32Timer(result);
+		mpTimer = TPtr<ITimer>(CreateWin32Timer(result));
 
 		if (result != RC_OK)
 		{
@@ -128,7 +197,7 @@ namespace TDEngine2
 
 		/// CWin32DLLManager's initialization
 
-		mpDLLManager = CreateWin32DLLManager(result);
+		mpDLLManager = TPtr<IDLLManager>(CreateWin32DLLManager(result));
 
 		if (result != RC_OK)
 		{
@@ -146,12 +215,9 @@ namespace TDEngine2
 		E_RESULT_CODE result = DestroyWindow(mWindowHandler) ? RC_FAIL : RC_OK;
 		result = result | (!UnregisterClass(mWindowClassName.c_str(), mInstanceHandler) ? RC_FAIL : RC_OK);
 
-		RemoveProp(mWindowHandler, mAppWinProcParamName);
+		RemoveProp(mWindowHandler, AppWinProcParamName);
 
 		/// \todo add invokation of OnFree user's method here
-		
-		result = result | mpTimer->Free();
-		result = result | mpDLLManager->Free();
 
 		LOG_MESSAGE("[Win32 Window System] The window system was successfully destroyed");
 
@@ -240,7 +306,7 @@ namespace TDEngine2
 		return mHeight;
 	}
 
-	ITimer* CWin32WindowSystem::GetTimer() const
+	TPtr<ITimer> CWin32WindowSystem::GetTimer() const
 	{
 		return mpTimer;
 	}
@@ -255,7 +321,7 @@ namespace TDEngine2
 		return mSetupFlags;
 	}
 
-	IDLLManager* CWin32WindowSystem::GetDLLManagerInstance() const
+	TPtr<IDLLManager> CWin32WindowSystem::GetDLLManagerInstance() const
 	{
 		return mpDLLManager;
 	}
@@ -408,75 +474,6 @@ namespace TDEngine2
 	U32 CWin32WindowSystem::_getStyleByParams(U32 flags) const
 	{
 		return (flags & P_RESIZEABLE) ? WS_OVERLAPPEDWINDOW : ((flags & P_FULLSCREEN) ? WS_POPUPWINDOW : WS_EX_TOOLWINDOW);
-	}
-
-
-	LRESULT CALLBACK CWin32WindowSystem::_wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-	{
-		IWindowSystem* pWinSystem = static_cast<IWindowSystem*>(GetProp(hWnd, CWin32WindowSystem::mAppWinProcParamName));
-
-		if (!pWinSystem)
-		{
-			return DefWindowProc(hWnd, uMsg, wParam, lParam);
-		}
-
-		static bool hasWindowBeenMaximized = pWinSystem->GetFlags() & P_FULLSCREEN;
-
-		IEventManager* pEventManager = pWinSystem->GetEventManager();
-		
-		TOnWindowMoved onMovedEvent;
-
-		auto onSendResizeWindowEvent = [&pEventManager](U32 width, U32 height)
-		{
-			TOnWindowResized onResizedEvent;
-
-			onResizedEvent.mWidth  = width;
-			onResizedEvent.mHeight = height;
-
-			pEventManager->Notify(&onResizedEvent);
-
-			LOG_MESSAGE(std::string("[Win32 Window System] The window's sizes were changed (width: ").
-									append(std::to_string(onResizedEvent.mWidth)).
-									append(", height: ").
-									append(std::to_string(onResizedEvent.mHeight)).
-									append(")"));
-
-		};
-
-		switch (uMsg)
-		{
-			case WM_DESTROY:
-				PostQuitMessage(0);
-				break;
-			case WM_SIZE:
-				if (wParam == SIZE_MAXIMIZED)
-				{
-					onSendResizeWindowEvent(lParam & (0x0000FFFF), (lParam & (0xFFFF0000)) >> 16);
-					hasWindowBeenMaximized = true;
-				}
-				else
-				{
-					if (hasWindowBeenMaximized)
-					{
-						onSendResizeWindowEvent(lParam & (0x0000FFFF), (lParam & (0xFFFF0000)) >> 16);
-					}
-					hasWindowBeenMaximized = false;
-				}
-				break;
-			case WM_EXITSIZEMOVE:
-				hasWindowBeenMaximized = true;
-				break;
-			case WM_MOVE:
-				onMovedEvent.mX = lParam & (0x0000FFFF);
-				onMovedEvent.mY = (lParam & (0xFFFF0000)) >> 16;
-
-				pEventManager->Notify(&onMovedEvent);
-				break;
-			default:
-				return DefWindowProc(hWnd, uMsg, wParam, lParam);
-		}
-
-		return 0;
 	}
 
 

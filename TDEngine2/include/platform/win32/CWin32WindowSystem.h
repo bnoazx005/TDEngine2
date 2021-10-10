@@ -139,7 +139,7 @@ namespace TDEngine2
 				\returns The method returns a pointer to a in-engine timer
 			*/
 
-			TDE2_API ITimer* GetTimer() const override;
+			TDE2_API TPtr<ITimer> GetTimer() const override;
 
 			/*!
 				\brief The method returns a window's title
@@ -163,7 +163,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IDLLManager's implementation
 			*/
 
-			TDE2_API IDLLManager* GetDLLManagerInstance() const override;
+			TDE2_API TPtr<IDLLManager> GetDLLManagerInstance() const override;
 
 			/*!
 				\brief The method returns a pointer to IEventManager implementation
@@ -238,8 +238,6 @@ namespace TDEngine2
 
 			TDE2_API U32 _getStyleByParams(U32 flags) const;
 
-			TDE2_API static LRESULT CALLBACK _wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
 		protected:
@@ -259,15 +257,11 @@ namespace TDEngine2
 			std::string              mWindowName;
 			std::string              mWindowClassName;
 
-			bool                     mIsInitialized;
-			
-			static C8                mAppWinProcParamName[];
-
 			TWin32InternalWindowData mInternalDataObject;
 
-			ITimer*                  mpTimer;
+			TPtr<ITimer>             mpTimer;
 
-			IDLLManager*             mpDLLManager;
+			TPtr<IDLLManager>        mpDLLManager;
 
 			IEventManager*           mpEventManager;
 	};

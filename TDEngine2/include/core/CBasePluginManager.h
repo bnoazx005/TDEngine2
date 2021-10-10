@@ -107,7 +107,7 @@ namespace TDEngine2
 
 			TPtr<IEngineCore>  mpEngineCore;
 
-			IDLLManager*       mpDLLManager;
+			TPtr<IDLLManager>  mpDLLManager;
 
 			mutable std::mutex mMutex; ///< \todo the mutex doesn't use in the code, should be fixed later!
 	};

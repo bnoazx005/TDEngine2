@@ -9,8 +9,10 @@
 
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
+#include "../utils/ITimer.h"
 #include "../math/TRect.h"
 #include "IEngineSubsystem.h"
+#include "IDLLManager.h"
 #include "Event.h"
 #include <vector>
 #include <string>
@@ -159,7 +161,7 @@ namespace TDEngine2
 				\return The method returns a pointer to a in-engine timer
 			*/
 
-			TDE2_API virtual ITimer* GetTimer() const = 0;
+			TDE2_API virtual TPtr<ITimer> GetTimer() const = 0;
 
 			/*!
 				\brief The method returns a window's title
@@ -183,7 +185,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IDLLManager's implementation
 			*/
 
-			TDE2_API virtual IDLLManager* GetDLLManagerInstance() const = 0;
+			TDE2_API virtual TPtr<IDLLManager> GetDLLManagerInstance() const = 0;
 
 			/*!
 				\brief The method returns a pointer to IEventManager implementation

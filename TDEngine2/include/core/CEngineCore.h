@@ -137,7 +137,7 @@ namespace TDEngine2
 				\returns The method returns a pointer to a in-engine timer
 			*/
 
-			TDE2_API ITimer* GetTimer() const override;
+			TDE2_API TPtr<ITimer> GetTimer() const override;
 
 			/*!
 				\brief The method returns a pointer to IWorld implementation
@@ -177,7 +177,7 @@ namespace TDEngine2
 
 			TListenersArray    mEngineListeners;
 
-			ITimer*            mpInternalTimer;
+			TPtr<ITimer>       mpInternalTimer;
 
 			TPtr<IWorld>       mpWorldInstance;
 

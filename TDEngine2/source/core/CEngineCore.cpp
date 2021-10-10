@@ -262,7 +262,7 @@ namespace TDEngine2
 #endif
 	}
 
-	ITimer* CEngineCore::GetTimer() const
+	TPtr<ITimer> CEngineCore::GetTimer() const
 	{
 		//std::lock_guard<std::mutex> lock(mMutex);
 
