@@ -8,7 +8,7 @@
 
 
 #include "IBaseObject.h"
-#include "./../utils/Utils.h"
+#include "../utils/Utils.h"
 #include <string>
 
 
@@ -83,4 +83,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDLLManager)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IDLLManager)
 }

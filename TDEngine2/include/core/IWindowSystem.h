@@ -9,10 +9,8 @@
 
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
-#include "../utils/ITimer.h"
 #include "../math/TRect.h"
 #include "IEngineSubsystem.h"
-#include "IDLLManager.h"
 #include "Event.h"
 #include <vector>
 #include <string>
@@ -26,6 +24,10 @@ namespace TDEngine2
 	class IDLLManager;
 	class IEventManager;
 	class IImGUIContextVisitor;
+
+
+	TDE2_DECLARE_SCOPED_PTR(ITimer);
+	TDE2_DECLARE_SCOPED_PTR(IDLLManager);
 
 
 	/*!

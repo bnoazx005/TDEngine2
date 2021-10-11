@@ -633,21 +633,21 @@ namespace TDEngine2
 #endif
 
 
-	template <typename T> void ScopedPtrAdd(T*& pPtr) { }
-	template <typename T> void ScopedPtrRelease(T*& pPtr) { }
+	template <typename T> void ScopedPtrAdd(T*& pPtr) { pPtr->AddRef(); }
+	template <typename T> void ScopedPtrRelease(T*& pPtr) { pPtr->Free(); }
 
 
-#define DECLARE_SCOPED_PTR(Type)						 \
-	template <> void ScopedPtrAdd<Type>(Type*& pPtr);	 \
-	template <> void ScopedPtrRelease<Type>(Type*& pPtr);
+#define TDE2_DECLARE_SCOPED_PTR(Type)						 \
+	template <> TDE2_API void ScopedPtrAdd<Type>(Type*& pPtr);	 \
+	template <> TDE2_API void ScopedPtrRelease<Type>(Type*& pPtr);
 
 
-#define DECLARE_SCOPED_PTR_INLINED(Type)										 \
-	template <> inline void ScopedPtrAdd<Type>(Type*& pPtr) { pPtr->AddRef(); }	 \
-	template <> inline void ScopedPtrRelease<Type>(Type*& pPtr) { pPtr->Free(); }
+#define TDE2_DECLARE_SCOPED_PTR_INLINED(Type)										 \
+	template <> TDE2_API inline void ScopedPtrAdd<Type>(Type*& pPtr) { pPtr->AddRef(); }	 \
+	template <> TDE2_API inline void ScopedPtrRelease<Type>(Type*& pPtr) { pPtr->Free(); }
 
 
-#define DEFINE_SCOPED_PTR(Type)												 \
+#define TDE2_DEFINE_SCOPED_PTR(Type)												 \
 	template <> void ScopedPtrAdd<Type>(Type*& pPtr) { pPtr->AddRef(); }	 \
 	template <> void ScopedPtrRelease<Type>(Type*& pPtr) { pPtr->Free(); }
 
