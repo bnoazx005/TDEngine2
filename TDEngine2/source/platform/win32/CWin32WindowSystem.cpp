@@ -26,7 +26,7 @@ namespace TDEngine2
 
 		static bool hasWindowBeenMaximized = pWinSystem->GetFlags() & P_FULLSCREEN;
 
-		IEventManager* pEventManager = pWinSystem->GetEventManager();
+		TPtr<IEventManager> pEventManager = pWinSystem->GetEventManager();
 
 		TOnWindowMoved onMovedEvent;
 
@@ -89,7 +89,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CWin32WindowSystem::Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags)
+	E_RESULT_CODE CWin32WindowSystem::Init(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags)
 	{
 		if (mIsInitialized)
 		{
@@ -326,7 +326,7 @@ namespace TDEngine2
 		return mpDLLManager;
 	}
 
-	IEventManager* CWin32WindowSystem::GetEventManager() const
+	TPtr<IEventManager> CWin32WindowSystem::GetEventManager() const
 	{
 		return mpEventManager;
 	}
@@ -477,27 +477,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IWindowSystem* CreateWin32WindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
+	TDE2_API IWindowSystem* CreateWin32WindowSystem(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
 	{
-		CWin32WindowSystem* pWindowSystemInstance = new (std::nothrow) CWin32WindowSystem();
-
-		if (!pWindowSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pWindowSystemInstance->Init(pEventManager, name, width, height, flags);
-
-		if (result != RC_OK)
-		{
-			delete pWindowSystemInstance;
-
-			pWindowSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<IWindowSystem*>(pWindowSystemInstance);
+		return CREATE_IMPL(IWindowSystem, CWin32WindowSystem, result, pEventManager, name, width, height, flags);
 	}
 }
 

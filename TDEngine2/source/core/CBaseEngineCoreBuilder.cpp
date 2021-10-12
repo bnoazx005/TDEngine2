@@ -297,14 +297,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpEventManagerInstance = CreateEventManager(result);
+		mpEventManagerInstance = TPtr<IEventManager>(CreateEventManager(result));
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(mpEventManagerInstance);
+		return mpEngineCoreInstance->RegisterSubsystem(mpEventManagerInstance.Get());
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureRenderer()
@@ -457,7 +457,7 @@ namespace TDEngine2
 
 		IEditorsManager* pEditorsManager = CreateEditorsManager(pInputContext,
 			mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
-			mpEventManagerInstance,
+			mpEventManagerInstance.Get(),
 			mpEngineCoreInstance->GetWorldInstance().Get(),
 			result);
 
@@ -520,7 +520,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IWorld* pWorldInstance = CreateWorld(mpWindowSystemInstance->GetEventManager(), result);
+		IWorld* pWorldInstance = CreateWorld(mpWindowSystemInstance->GetEventManager().Get(), result);
 		if (RC_OK != result)
 		{
 			return result;

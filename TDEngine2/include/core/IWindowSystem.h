@@ -28,6 +28,7 @@ namespace TDEngine2
 
 	TDE2_DECLARE_SCOPED_PTR(ITimer);
 	TDE2_DECLARE_SCOPED_PTR(IDLLManager);
+	TDE2_DECLARE_SCOPED_PTR(IEventManager);
 
 
 	/*!
@@ -100,7 +101,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) = 0;
 
 			/*!
 				\brief The method processes a window's update (executing messages, redraw content)
@@ -195,7 +196,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IEventManager implementation
 			*/
 
-			TDE2_API virtual IEventManager* GetEventManager() const = 0;
+			TDE2_API virtual TPtr<IEventManager> GetEventManager() const = 0;
 
 			/*!
 				\brief The method returns an object of TRect type which contains

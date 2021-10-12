@@ -35,7 +35,7 @@ namespace TDEngine2
 				\return A pointer to CWin32WindowSystem's implementation
 			*/
 
-			friend TDE2_API IWindowSystem* CreateWin32WindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
+			friend TDE2_API IWindowSystem* CreateWin32WindowSystem(TPtr<IEventManager>, const std::string&, U32, U32, U32, E_RESULT_CODE&);
 
 		public:
 			TDE2_REGISTER_TYPE(CWin32WindowSystem)
@@ -58,7 +58,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
 						
 			/*!
 				\brief The method processes a window's update (executing messages, redraw content)
@@ -171,7 +171,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IEventManager implementation
 			*/
 
-			TDE2_API IEventManager* GetEventManager() const override;
+			TDE2_API TPtr<IEventManager> GetEventManager() const override;
 
 			/*!
 				\brief The method receives a given event and processes it
@@ -263,7 +263,7 @@ namespace TDEngine2
 
 			TPtr<IDLLManager>        mpDLLManager;
 
-			IEventManager*           mpEventManager;
+			TPtr<IEventManager>      mpEventManager;
 	};
 
 
@@ -273,7 +273,7 @@ namespace TDEngine2
 		\return A pointer to CWin32WindowSystem's implementation
 	*/
 
-	TDE2_API IWindowSystem* CreateWin32WindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
+	TDE2_API IWindowSystem* CreateWin32WindowSystem(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
 }
 
 #endif

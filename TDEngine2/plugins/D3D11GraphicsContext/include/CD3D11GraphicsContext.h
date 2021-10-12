@@ -18,6 +18,9 @@ namespace TDEngine2
 	class IEventManager;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IEventManager)
+
+
 	class CD3D11GraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
@@ -395,7 +398,7 @@ namespace TDEngine2
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
 			IWindowSystem*           mpWindowSystem;
-			IEventManager*           mpEventManager;
+			TPtr<IEventManager>      mpEventManager;
 
 			ID3D11RenderTargetView*  mpRenderTargets[mMaxNumOfRenderTargets];
 			U8                       mCurrNumOfActiveRenderTargets = 0;

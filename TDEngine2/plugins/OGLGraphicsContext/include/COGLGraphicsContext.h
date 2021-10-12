@@ -390,7 +390,7 @@ namespace TDEngine2
 			IGraphicsObjectManager*         mpGraphicsObjectManager;
 
 			IWindowSystem*                  mpWindowSystem;
-			IEventManager*                  mpEventManager;
+			TPtr<IEventManager>             mpEventManager;
 
 			GLuint                          mMainFBOHandler; /// \todo Replace it with FBOManager later
 			GLuint                          mMainDepthStencilRenderbuffer;

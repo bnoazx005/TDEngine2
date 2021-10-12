@@ -141,7 +141,7 @@ namespace TDEngine2
 
 			IGraphicsContext* mpGraphicsContext;
 
-			IEventManager*    mpEventManager;
+			TPtr<IEventManager> mpEventManager;
 
 			IWorld*           mpWorld;
 

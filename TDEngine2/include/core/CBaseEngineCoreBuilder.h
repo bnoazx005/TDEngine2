@@ -23,6 +23,9 @@ namespace TDEngine2
 	class IImGUIContext;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IEventManager);
+
+
 	/*!
 		class CBaseEngineCoreBuilder
 
@@ -182,7 +185,7 @@ namespace TDEngine2
 
 			IResourceManager* mpResourceManagerInstance;
 
-			IEventManager*    mpEventManagerInstance;
+			TPtr<IEventManager> mpEventManagerInstance;
 
 			IImGUIContext*    mpImGUIContext;
 	};

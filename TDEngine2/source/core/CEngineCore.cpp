@@ -535,8 +535,6 @@ namespace TDEngine2
 			result = _unregisterSubsystem(pCurrSubsystem->GetType());
 		}
 
-		result = result | (mpWorldInstance ? mpWorldInstance->Free() : RC_OK);
-
 		for (auto currSubsystemType : latestFreedSubsystems)
 		{
 			result = _unregisterSubsystem(currSubsystemType);
