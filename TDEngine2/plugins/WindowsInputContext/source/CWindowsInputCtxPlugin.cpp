@@ -28,14 +28,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpInputContext = CreateWindowsInputContext(pEngineCore->GetSubsystem<IWindowSystem>(), result);
+		mpInputContext = TPtr<IInputContext>(CreateWindowsInputContext(pEngineCore->GetSubsystem<IWindowSystem>().Get(), result));
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		if ((result = mpEngineCoreInstance->RegisterSubsystem(mpInputContext)) != RC_OK)
+		if ((result = mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpInputContext))) != RC_OK)
 		{
 			return result;
 		}

@@ -27,6 +27,9 @@ namespace TDEngine2
 	class IEditorsManager;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IEngineSubsystem)
+
+
 	/*!
 		interface IEngineCore
 
@@ -72,7 +75,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RegisterSubsystem(IEngineSubsystem* pSubsystem) = 0;
+			TDE2_API virtual E_RESULT_CODE RegisterSubsystem(TPtr<IEngineSubsystem> pSubsystem) = 0;
 
 			/*!
 				\brief The method unregisters specified type of a subsystem
@@ -112,16 +115,13 @@ namespace TDEngine2
 
 			template <typename T>
 #if _HAS_CXX17
-			std::enable_if_t<std::is_base_of_v<IEngineSubsystem, T>, T*>
+			std::enable_if_t<std::is_base_of_v<IEngineSubsystem, T>, TPtr<T>>
 #else
-			typename std::enable_if<std::is_base_of<IEngineSubsystem, T>::value, T*>::type
+			typename std::enable_if<std::is_base_of<IEngineSubsystem, T>::value, TPtr<T>>::type
 #endif
 			GetSubsystem() const
 			{
-				T* pInternalSystem = static_cast<T*>(_getSubsystem(T::GetTypeID()));
-
-				TDE2_ASSERT(pInternalSystem);
-				return pInternalSystem;
+				return DynamicPtrCast<T>(_getSubsystem(T::GetTypeID()));
 			}
 
 			/*!
@@ -151,6 +151,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEngineCore)
 
-			TDE2_API virtual IEngineSubsystem* _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const = 0;
+			TDE2_API virtual TPtr<IEngineSubsystem> _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const = 0;
 	};
 }

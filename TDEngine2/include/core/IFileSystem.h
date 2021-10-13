@@ -382,4 +382,7 @@ namespace TDEngine2
 	{
 		return dynamic_cast<T*>(_getFileUnsafe(fileId));
 	}
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IFileSystem)
 }

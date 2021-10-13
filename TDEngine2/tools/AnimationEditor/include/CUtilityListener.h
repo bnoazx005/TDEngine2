@@ -13,6 +13,8 @@
 namespace TDEngine2
 {
 	class CAnimationEditorWindow;
+
+	TDE2_DECLARE_SCOPED_PTR(CAnimationEditorWindow)
 }
 
 
@@ -55,13 +57,13 @@ class CUtilityListener : public TDEngine2::IEngineListener
 	protected:
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
 
-		TDEngine2::IGraphicsContext* mpGraphicsContext;
+		TDEngine2::TPtr<TDEngine2::IGraphicsContext> mpGraphicsContext;
 
-		TDEngine2::IWindowSystem*    mpWindowSystem;
+		TDEngine2::TPtr<TDEngine2::IWindowSystem> mpWindowSystem;
 
-		TDEngine2::IResourceManager* mpResourceManager;
+		TDEngine2::TPtr<TDEngine2::IResourceManager> mpResourceManager;
 
-		TDEngine2::CAnimationEditorWindow* mpAnimationEditor;
+		TDEngine2::TPtr<TDEngine2::CAnimationEditorWindow> mpAnimationEditor;
 
 		TDEngine2::TResourceId       mCurrEditableEffectId;
 

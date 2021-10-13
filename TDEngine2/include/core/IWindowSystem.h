@@ -255,4 +255,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IWindowSystem)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IWindowSystem)
 }

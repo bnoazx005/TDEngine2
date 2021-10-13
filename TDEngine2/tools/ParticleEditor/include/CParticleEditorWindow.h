@@ -109,4 +109,7 @@ namespace TDEngine2
 			static std::vector<std::string> mVelocityParamTypesIds;
 			static std::vector<std::string> mEmitterShapesTypesIds;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(CParticleEditorWindow)
 }

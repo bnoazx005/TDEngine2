@@ -272,7 +272,7 @@ namespace TDEngine2
 		});
 
 		/// \note Write down the resource into file sytem
-		if (IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
+		if (auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
 		{
 			auto&& skeletonFilePath = fs::path(filePath).replace_extension("skeleton").string();
 
@@ -313,7 +313,7 @@ namespace TDEngine2
 	{
 		TAnimationsInfoTable output;
 
-		if (IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
+		if (auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
 		{
 			auto importDatabaseOpenResult = pFileSystem->Open<IYAMLFileReader>(filepath);
 			if (importDatabaseOpenResult.HasError())
@@ -378,7 +378,7 @@ namespace TDEngine2
 	
 	static E_RESULT_CODE ReadAnimationsData(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options, const aiScene* pScene) TDE2_NOEXCEPT
 	{
-		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
+		auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
 
 		auto fileImportInfoDataResult = ReadAnimationsInfoTable(pEngineCore, options.mAnimationImportInfoFilename);
 		if (fileImportInfoDataResult.HasError())
@@ -408,8 +408,8 @@ namespace TDEngine2
 			{
 				dynamic_cast<CAnimationClip*>(
 					CreateAnimationClip(
-						pEngineCore->GetSubsystem<IResourceManager>(), 
-						pEngineCore->GetSubsystem<IGraphicsContext>(), 
+						pEngineCore->GetSubsystem<IResourceManager>().Get(), 
+						pEngineCore->GetSubsystem<IGraphicsContext>().Get(), 
 						pFileSystem->CombinePath(options.mOutputDirname, currAnimationClip.mName), 
 						result))
 			};
@@ -475,7 +475,7 @@ namespace TDEngine2
 			}
 
 			/// \note Write down the resource into file sytem
-			if (IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
+			if (auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
 			{
 				auto animationFileResult = pFileSystem->Open<IYAMLFileWriter>(pAnimation->GetName(), true);
 				if (animationFileResult.HasError())
@@ -873,7 +873,7 @@ namespace TDEngine2
 
 	static E_RESULT_CODE SaveMeshFile(IEngineCore* pEngineCore, const aiScene* pScene, std::vector<TMeshDataEntity> meshes, const std::string& filePath, const TUtilityOptions& options)
 	{
-		if (IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
+		if (auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>())
 		{
 			auto meshFileResult = pFileSystem->Open<IBinaryFileWriter>(filePath, true);
 			if (meshFileResult.HasError())
@@ -916,7 +916,7 @@ namespace TDEngine2
 
 		CScopedPtr<CSkeleton> pSkeleton
 		{
-			dynamic_cast<CSkeleton*>(CreateSkeleton(pEngineCore->GetSubsystem<IResourceManager>(), pEngineCore->GetSubsystem<IGraphicsContext>(), "NewSkeleton.skeleton", result))
+			dynamic_cast<CSkeleton*>(CreateSkeleton(pEngineCore->GetSubsystem<IResourceManager>().Get(), pEngineCore->GetSubsystem<IGraphicsContext>().Get(), "NewSkeleton.skeleton", result))
 		};
 
 		if (RC_OK != (result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene)))

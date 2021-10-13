@@ -24,6 +24,13 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager);
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext);
+	TDE2_DECLARE_SCOPED_PTR(IWindowSystem);
+	TDE2_DECLARE_SCOPED_PTR(IFileSystem);
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager);
+	TDE2_DECLARE_SCOPED_PTR(IJobManager);
+	TDE2_DECLARE_SCOPED_PTR(IPluginManager);
+	TDE2_DECLARE_SCOPED_PTR(IMemoryManager);
 
 
 	/*!
@@ -171,19 +178,19 @@ namespace TDEngine2
 		protected:
 			IEngineCore*      mpEngineCoreInstance;
 
-			IWindowSystem*    mpWindowSystemInstance;
+			TPtr<IWindowSystem> mpWindowSystemInstance;
 
-			IJobManager*      mpJobManagerInstance;
+			TPtr<IJobManager> mpJobManagerInstance;
 
-			IPluginManager*   mpPluginManagerInstance;
+			TPtr<IPluginManager> mpPluginManagerInstance;
 
-			IMemoryManager*   mpMemoryManagerInstance;
+			TPtr<IMemoryManager> mpMemoryManagerInstance;
 
-			IGraphicsContext* mpGraphicsContextInstance;
+			TPtr<IGraphicsContext> mpGraphicsContextInstance;
 
-			IFileSystem*      mpFileSystemInstance;
+			TPtr<IFileSystem> mpFileSystemInstance;
 
-			IResourceManager* mpResourceManagerInstance;
+			TPtr<IResourceManager> mpResourceManagerInstance;
 
 			TPtr<IEventManager> mpEventManagerInstance;
 

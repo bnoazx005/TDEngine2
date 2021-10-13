@@ -105,7 +105,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	// TEMP CODE
 	{
-		ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
+		ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>().Get();
 
 #if 0
 		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene.scene", true))
@@ -501,7 +501,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		auto&& result = mpWorld->GetRaycastContext()->Raycast2DClosest(ZeroVector3, ForwardVector3, 1000.0f);
 	//}
 	
-	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
+	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get();
 	
 	// rotate the cube
 #if 0
@@ -532,11 +532,11 @@ void CCustomEngineListener::SetEngineInstance(IEngineCore* pEngineCore)
 
 	mpEngineCoreInstance = pEngineCore;
 
-	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>();
-	mpWindowSystem    = mpEngineCoreInstance->GetSubsystem<IWindowSystem>();
-	mpResourceManager = mpEngineCoreInstance->GetSubsystem<IResourceManager>();
-	mpInputContext    = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>();
-	mpFileSystem      = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
+	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>().Get();
+	mpWindowSystem    = mpEngineCoreInstance->GetSubsystem<IWindowSystem>().Get();
+	mpResourceManager = mpEngineCoreInstance->GetSubsystem<IResourceManager>().Get();
+	mpInputContext    = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>().Get();
+	mpFileSystem      = mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get();
 
 	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 }

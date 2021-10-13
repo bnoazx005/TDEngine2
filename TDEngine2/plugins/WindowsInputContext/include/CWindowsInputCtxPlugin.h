@@ -17,6 +17,8 @@ namespace TDEngine2
 	class IInputContext;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IInputContext);
+
 	/*!
 		class CWindowsInputCtxPlugin
 
@@ -52,6 +54,6 @@ namespace TDEngine2
 		protected:
 			IEngineCore*   mpEngineCoreInstance;
 
-			IInputContext* mpInputContext;
+			TPtr<IInputContext> mpInputContext;
 	};
 }

@@ -100,4 +100,7 @@ namespace TDEngine2
 
 			F32                             mLastClipDuration = -1.0f;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(CAnimationEditorWindow)
 }

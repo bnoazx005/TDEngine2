@@ -28,8 +28,7 @@ namespace TDEngine2
 
 		mpEngineCore = pEngineCore;
 
-		IWindowSystem* pWindowSystem = pEngineCore->GetSubsystem<IWindowSystem>();
-
+		auto pWindowSystem = pEngineCore->GetSubsystem<IWindowSystem>();
 		if (!pWindowSystem)
 		{
 			return RC_FAIL;

@@ -23,7 +23,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
-	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(TDEngine2::CreateAnimationEditorWindow(mpResourceManager, mpEngineCoreInstance->GetWorldInstance().Get(), result));
+	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(TDEngine2::CreateAnimationEditorWindow(mpResourceManager.Get(), mpEngineCoreInstance->GetWorldInstance().Get(), result));
 
 	mCurrEditableEffectId = mpResourceManager->Create<IAnimationClip>("unnamed.animation", TAnimationClipParameters {});
 	mpAnimationEditor->SetAnimationResourceHandle(mCurrEditableEffectId);
@@ -83,7 +83,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		{
 			if (auto pScene = sceneResult.Get())
 			{
-				pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
+				pScene->CreateSkybox(mpResourceManager.Get(), "Resources/Textures/DefaultSkybox");
 
 				if (CEntity* pEntity = pScene->CreateEntity("AnimableEntity"))
 				{
@@ -137,9 +137,9 @@ static void DrawGrid(IDebugUtility* pDebugUtility, I32 rows, I32 cols, F32 cellS
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
-	mpAnimationEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+	mpAnimationEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>().Get(), dt);
 
-	DrawGrid(mpGraphicsContext->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get(), 10, 10);
+	DrawGrid(mpGraphicsContext->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManager.Get(), mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get(), 10, 10);
 
 	_drawMainMenu();
 
@@ -148,8 +148,6 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnFree()
 {
-	SafeFree(mpAnimationEditor);
-
 	return RC_OK;
 }
 
@@ -229,7 +227,7 @@ static E_RESULT_CODE SaveToFile(IFileSystem* pFileSystem, IResourceManager* pRes
 void CUtilityListener::_drawMainMenu()
 {
 	auto pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
-	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
+	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get();
 
 	pImGUIContext->DisplayMainMenu([this, pFileSystem](IImGUIContext& imguiContext)
 	{
@@ -245,7 +243,7 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Open", "CTRL+O", [this, pFileSystem]
 			{
-				if (auto openFileResult = OpenFromFile(mpWindowSystem, pFileSystem, mpResourceManager))
+				if (auto openFileResult = OpenFromFile(mpWindowSystem.Get(), pFileSystem, mpResourceManager.Get()))
 				{
 					mCurrEditableEffectId = openFileResult.Get();
 
@@ -263,7 +261,7 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Save", "CTRL+S", [this, pFileSystem]
 			{
-				SaveToFile(pFileSystem, mpResourceManager, mCurrEditableEffectId, mLastSavedPath);
+				SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableEffectId, mLastSavedPath);
 			});
 
 			imguiContext.MenuItem("Save As...", "SHIFT+CTRL+S", [this, pFileSystem]
@@ -271,7 +269,7 @@ void CUtilityListener::_drawMainMenu()
 				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
 					mLastSavedPath = saveFileDialogResult.Get();
-					SaveToFile(pFileSystem, mpResourceManager, mCurrEditableEffectId, mLastSavedPath);
+					SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableEffectId, mLastSavedPath);
 				}
 			});
 

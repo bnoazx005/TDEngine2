@@ -63,6 +63,7 @@
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CTransform.h"
+#include "deferOperation.hpp"
 #include <memory>
 #include <cstring>
 #include <tuple>
@@ -160,9 +161,9 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WIN32PLATFORM)																/// Win32 Platform
-		mpWindowSystemInstance = CreateWin32WindowSystem(mpEventManagerInstance, name, width, height, flags, result);
+		mpWindowSystemInstance = TPtr<IWindowSystem>(CreateWin32WindowSystem(mpEventManagerInstance, name, width, height, flags, result));
 #elif defined (TDE2_USE_UNIXPLATFORM)
-		mpWindowSystemInstance = CreateUnixWindowSystem(mpEventManagerInstance, name, width, height, flags, result);
+		mpWindowSystemInstance = TPtr<IWindowSystem>(CreateUnixWindowSystem(mpEventManagerInstance, name, width, height, flags, result));
 #else
 #endif
 
@@ -171,7 +172,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(mpWindowSystemInstance);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpWindowSystemInstance));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureFileSystem()
@@ -184,9 +185,9 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WIN32PLATFORM)
-		mpFileSystemInstance = CreateWin32FileSystem(result);
+		mpFileSystemInstance = TPtr<IFileSystem>(CreateWin32FileSystem(result));
 #elif defined (TDE2_USE_UNIXPLATFORM)
-		mpFileSystemInstance = CreateUnixFileSystem(result);
+		mpFileSystemInstance = TPtr<IFileSystem>(CreateUnixFileSystem(result));
 #else
 #endif
 
@@ -207,7 +208,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(mpFileSystemInstance));
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpFileSystemInstance));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureResourceManager()
@@ -219,7 +220,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpResourceManagerInstance = CreateResourceManager(mpJobManagerInstance, result);
+		mpResourceManagerInstance = TPtr<IResourceManager>(CreateResourceManager(mpJobManagerInstance.Get(), result));
 
 		if (result != RC_OK)
 		{
@@ -237,7 +238,7 @@ namespace TDEngine2
 		mpResourceManagerInstance->RegisterResourceTypeAlias(ITexture2D::GetTypeId(), IAtlasSubTexture::GetTypeId());
 		mpResourceManagerInstance->RegisterResourceTypeAlias(IFont::GetTypeId(), IRuntimeFont::GetTypeId());
 
-		return mpEngineCoreInstance->RegisterSubsystem(mpResourceManagerInstance);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpResourceManagerInstance));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureJobManager(U32 maxNumOfThreads)
@@ -250,7 +251,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WIN32PLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
-		IEngineSubsystem* pJobManager = CreateBaseJobManager(maxNumOfThreads, result);
+		mpJobManagerInstance = TPtr<IJobManager>(CreateBaseJobManager(maxNumOfThreads, result));
 #else
 #endif
 
@@ -259,9 +260,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpJobManagerInstance = dynamic_cast<IJobManager*>(pJobManager);
-
-		return mpEngineCoreInstance->RegisterSubsystem(pJobManager);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpJobManagerInstance));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configurePluginManager()
@@ -274,7 +273,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WIN32PLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
-		IEngineSubsystem* pPluginManager = CreateBasePluginManager(TPtr<IEngineCore>(mpEngineCoreInstance), result);
+		mpPluginManagerInstance = TPtr<IPluginManager>(CreateBasePluginManager(TPtr<IEngineCore>(mpEngineCoreInstance), result));
 #else
 #endif
 
@@ -283,9 +282,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpPluginManagerInstance = dynamic_cast<IPluginManager*>(pPluginManager);
-
-		return mpEngineCoreInstance->RegisterSubsystem(pPluginManager);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpPluginManagerInstance));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureEventManager()
@@ -304,7 +301,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(mpEventManagerInstance.Get());
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpEventManagerInstance));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureRenderer()
@@ -318,13 +315,13 @@ namespace TDEngine2
 
 		IAllocator* pAllocator = mpMemoryManagerInstance->CreateAllocator<CStackAllocator>(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize, "Renderer");
 
-		IRenderer* pRenderer = CreateForwardRenderer(mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, nullptr, result);
+		IRenderer* pRenderer = CreateForwardRenderer(mpGraphicsContextInstance.Get(), mpResourceManagerInstance.Get(), pAllocator, nullptr, result);
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		IFramePostProcessor* pFramePostProcessor = CreateFramePostProcessor({ pRenderer, mpGraphicsContextInstance->GetGraphicsObjectManager(), mpWindowSystemInstance }, result);
+		IFramePostProcessor* pFramePostProcessor = CreateFramePostProcessor({ pRenderer, mpGraphicsContextInstance->GetGraphicsObjectManager(), mpWindowSystemInstance.Get() }, result);
 		if (result != RC_OK)
 		{
 			return result;
@@ -346,7 +343,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(dynamic_cast<IEngineSubsystem*>(pRenderer));
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<IRenderer>(pRenderer)));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureMemoryManager(U32 totalMemorySize)
@@ -358,7 +355,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpMemoryManagerInstance = CreateMemoryManager(totalMemorySize, result);
+		mpMemoryManagerInstance = TPtr<IMemoryManager>(CreateMemoryManager(totalMemorySize, result));
 
 		if (result != RC_OK)
 		{
@@ -391,7 +388,7 @@ namespace TDEngine2
 			}
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(mpMemoryManagerInstance);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpMemoryManagerInstance));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureInputContext()
@@ -452,20 +449,20 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 		E_RESULT_CODE result = RC_OK;
 
-		IInputContext* pInputContext = mpEngineCoreInstance->GetSubsystem<IInputContext>();
-		ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
+		auto pInputContext = mpEngineCoreInstance->GetSubsystem<IInputContext>();
+		auto pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
-		IEditorsManager* pEditorsManager = CreateEditorsManager(pInputContext,
-			mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
+		IEditorsManager* pEditorsManager = CreateEditorsManager(pInputContext.Get(),
+			mpEngineCoreInstance->GetSubsystem<IImGUIContext>().Get(),
 			mpEventManagerInstance.Get(),
 			mpEngineCoreInstance->GetWorldInstance().Get(),
 			result);
 
 		static const U32 mainThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 
-		auto pDebugUtility = mpGraphicsContextInstance->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManagerInstance, mpEngineCoreInstance->GetSubsystem<IRenderer>()).Get();
+		auto pDebugUtility = mpGraphicsContextInstance->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManagerInstance.Get(), mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get();
 
-		if (ISelectionManager* pSelectionManager = CreateSelectionManager(mpResourceManagerInstance, mpWindowSystemInstance, mpGraphicsContextInstance, pEditorsManager, result))
+		if (ISelectionManager* pSelectionManager = CreateSelectionManager(mpResourceManagerInstance.Get(), mpWindowSystemInstance.Get(), mpGraphicsContextInstance.Get(), pEditorsManager, result))
 		{
 			result = result | pEditorsManager->SetSelectionManager(pSelectionManager);
 			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager);
@@ -476,7 +473,7 @@ namespace TDEngine2
 			}
 		}
 
-		IEditorWindow* pLevelEditorWindow = CreateLevelEditorWindow({ pEditorsManager, pInputContext, mpWindowSystemInstance, pDebugUtility, pSceneManager }, result);
+		IEditorWindow* pLevelEditorWindow = CreateLevelEditorWindow({ pEditorsManager, pInputContext.Get(), mpWindowSystemInstance.Get(), pDebugUtility, pSceneManager.Get() }, result);
 
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
@@ -484,7 +481,7 @@ namespace TDEngine2
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::MEMORY_PROFILER), CreateMemoryProfilerEditorWindow(DynamicPtrCast<IMemoryProfiler>(CMemoryProfiler::Get()), result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), pLevelEditorWindow },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance, result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance.Get(), result) },
 		};
 
 		dynamic_cast<CTimeProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);
@@ -505,7 +502,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(pEditorsManager);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<IEditorsManager>(pEditorsManager)));
 #else
 		return RC_OK;
 #endif
@@ -527,13 +524,13 @@ namespace TDEngine2
 		}
 
 		// \todo load settings from  settings
-		ISceneManager* pSceneManager = CreateSceneManager(mpFileSystemInstance, pWorldInstance, {}, result);
+		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance.Get(), pWorldInstance, {}, result));
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(pSceneManager);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(pSceneManager));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureLocalizationManager()
@@ -541,13 +538,13 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		// \todo Replace magic constant 
-		ILocalizationManager* pLocalizationManager = CreateLocalizationManager(mpFileSystemInstance, mpResourceManagerInstance, CProjectSettings::Get()->mLocalizationSettings, result);
+		ILocalizationManager* pLocalizationManager = CreateLocalizationManager(mpFileSystemInstance.Get(), mpResourceManagerInstance.Get(), CProjectSettings::Get()->mLocalizationSettings, result);
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(pLocalizationManager);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<ILocalizationManager>(pLocalizationManager)));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureSaveManager()
@@ -555,13 +552,13 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		// \todo Replace magic constant 
-		ISaveManager* pSaveManager = CreateSaveManager({ mpFileSystemInstance, "." }, result);
+		ISaveManager* pSaveManager = CreateSaveManager({ mpFileSystemInstance.Get(), "." }, result);
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(pSaveManager);
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<ISaveManager>(pSaveManager)));
 	}
 
 	IEngineCore* CBaseEngineCoreBuilder::GetEngineCore()
@@ -588,10 +585,22 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configureInputContext());
 		PANIC_ON_FAILURE(_configureSceneManager());
 
-		mpFileSystemInstance->SetJobManager(mpJobManagerInstance);
+		mpFileSystemInstance->SetJobManager(mpJobManagerInstance.Get());
 		LOG_MESSAGE(std::string("[ConfigFIleEngineCoreBuilder] Async file I/O operations status: ").append(mpFileSystemInstance->IsStreamingEnabled() ? "enabled" : "disabled"));
 
 		E_RESULT_CODE result = _registerBuiltinInfrastructure();
+
+		defer([this] /// \note Should release this refs to provide correct release of the memory when the app will be terminated
+		{
+			mpWindowSystemInstance = nullptr;
+			mpJobManagerInstance = nullptr;
+			mpPluginManagerInstance = nullptr;
+			mpMemoryManagerInstance = nullptr;
+			mpGraphicsContextInstance = nullptr;
+			mpFileSystemInstance = nullptr;
+			mpResourceManagerInstance = nullptr;
+			mpEventManagerInstance = nullptr;
+		});
 
 		if (result != RC_OK)
 		{
@@ -709,7 +718,7 @@ namespace TDEngine2
 
 		for (auto&& currResourceConstructors : builtinResourcesConstructorsTable)
 		{
-			pResourceLoader = std::get<ResourceLoaderFactoryFunctor>(currResourceConstructors)(mpResourceManagerInstance, mpGraphicsContextInstance, mpFileSystemInstance, result);
+			pResourceLoader = std::get<ResourceLoaderFactoryFunctor>(currResourceConstructors)(mpResourceManagerInstance.Get(), mpGraphicsContextInstance.Get(), mpFileSystemInstance.Get(), result);
 
 			if (result != RC_OK)
 			{
@@ -717,7 +726,7 @@ namespace TDEngine2
 			}
 
 			/// create a factory
-			pResourceFactory = std::get<ResourceFactoryFactoryFunctor>(currResourceConstructors)(mpResourceManagerInstance, mpGraphicsContextInstance, result);
+			pResourceFactory = std::get<ResourceFactoryFactoryFunctor>(currResourceConstructors)(mpResourceManagerInstance.Get(), mpGraphicsContextInstance.Get(), result);
 
 			if (result != RC_OK)
 			{
@@ -725,68 +734,68 @@ namespace TDEngine2
 			}
 
 			/// \note register a resource type
-			if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+			if ((result = registerResourceType(mpResourceManagerInstance.Get(), pResourceLoader, pResourceFactory)) != RC_OK)
 			{
 				return result;
 			}
 		}
 
 		/// \note register font's resource type
-		pResourceLoader = CreateFontLoader(mpResourceManagerInstance, mpFileSystemInstance, result);
+		pResourceLoader = CreateFontLoader(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		pResourceFactory = CreateFontFactory(mpResourceManagerInstance, result);
+		pResourceFactory = CreateFontFactory(mpResourceManagerInstance.Get(), result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		if ((result = registerResourceType(mpResourceManagerInstance.Get(), pResourceLoader, pResourceFactory)) != RC_OK)
 		{
 			return result;
 		}
 
 		/// \note register runtime font's resource type
-		pResourceLoader = CreateRuntimeFontLoader(mpResourceManagerInstance, mpFileSystemInstance, result);
+		pResourceLoader = CreateRuntimeFontLoader(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		pResourceFactory = CreateRuntimeFontFactory(mpResourceManagerInstance, mpFileSystemInstance, result);
+		pResourceFactory = CreateRuntimeFontFactory(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		if ((result = registerResourceType(mpResourceManagerInstance.Get(), pResourceLoader, pResourceFactory)) != RC_OK)
 		{
 			return result;
 		}
 
 		/// \note register localization package's resource type
-		pResourceLoader = CreateLocalizationPackageLoader(mpResourceManagerInstance, mpFileSystemInstance, result);
+		pResourceLoader = CreateLocalizationPackageLoader(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		pResourceFactory = CreateLocalizationPackageFactory(mpResourceManagerInstance, result);
+		pResourceFactory = CreateLocalizationPackageFactory(mpResourceManagerInstance.Get(), result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		if ((result = registerResourceType(mpResourceManagerInstance, pResourceLoader, pResourceFactory)) != RC_OK)
+		if ((result = registerResourceType(mpResourceManagerInstance.Get(), pResourceLoader, pResourceFactory)) != RC_OK)
 		{
 			return result;
 		}

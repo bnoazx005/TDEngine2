@@ -38,7 +38,7 @@ namespace TDEngine2
 			return result;
 		}
 		
-		if (RC_OK != (result = pEngineCore->RegisterSubsystem(mpAudioContext)))
+		if (RC_OK != (result = pEngineCore->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpAudioContext))))
 		{
 			return result;
 		}
@@ -67,8 +67,8 @@ namespace TDEngine2
 
 		std::vector<ISystem*> builtinSystems
 		{
-			CreateAudioListenerUpdateSystem(mpAudioContext, result),
-			CreateAudioSourcesUpdateSystem(mpAudioContext, pEngineCore->GetSubsystem<IResourceManager>(), result),
+			CreateAudioListenerUpdateSystem(mpAudioContext.Get(), result),
+			CreateAudioSourcesUpdateSystem(mpAudioContext.Get(), pEngineCore->GetSubsystem<IResourceManager>().Get(), result),
 		};
 
 		for (ISystem* pCurrSystem : builtinSystems)
@@ -98,7 +98,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFMODAudioCtxPlugin::_registerResourceFactories(IEngineCore* pEngineCore)
 	{
-		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>();
+		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();
 
 		if (!pResourceManager)
 		{
@@ -116,7 +116,7 @@ namespace TDEngine2
 
 		for (auto currFactoryCallback : factoryFunctions)
 		{
-			pFactoryInstance = currFactoryCallback(pResourceManager, mpAudioContext, result);
+			pFactoryInstance = currFactoryCallback(pResourceManager, mpAudioContext.Get(), result);
 
 			if (result != RC_OK)
 			{
@@ -136,9 +136,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFMODAudioCtxPlugin::_registerResourceLoaders(IEngineCore* pEngineCore)
 	{
-		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>();
+		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();
 
-		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
+		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>().Get();
 
 		if (!pResourceManager || !pFileSystem)
 		{
@@ -159,7 +159,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IResourceLoader* pLoaderInstance = CreateFMODAudioClipLoader(pResourceManager, mpAudioContext, pFileSystem, result);
+		IResourceLoader* pLoaderInstance = CreateFMODAudioClipLoader(pResourceManager, mpAudioContext.Get(), pFileSystem, result);
 
 		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{

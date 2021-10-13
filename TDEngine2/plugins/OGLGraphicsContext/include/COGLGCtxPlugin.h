@@ -37,6 +37,9 @@ namespace TDEngine2
 	class IGraphicsContext;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)
+
+
 	/*!
 		class COGLGCtxPlugin
 
@@ -76,6 +79,6 @@ namespace TDEngine2
 		protected:
 			IEngineCore*      mpEngineCoreInstance;
 
-			IGraphicsContext* mpGraphicsContext;
+			TPtr<IGraphicsContext> mpGraphicsContext;
 	};
 }

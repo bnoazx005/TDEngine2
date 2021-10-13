@@ -375,4 +375,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsContext)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IGraphicsContext);
 }

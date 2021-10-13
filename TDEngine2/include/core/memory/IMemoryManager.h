@@ -121,4 +121,7 @@ namespace TDEngine2
 
 			TDE2_API virtual IAllocator* _createAllocator(TypeId allocatorType, const TBaseAllocatorParams& params, const C8* userName) = 0;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IMemoryManager)
 }

@@ -32,7 +32,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		}
 	}
 
-	mpParticleEditor = dynamic_cast<CParticleEditorWindow*>(TDEngine2::CreateParticleEditorWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), result));
+	mpParticleEditor = TPtr<CParticleEditorWindow>(dynamic_cast<CParticleEditorWindow*>(TDEngine2::CreateParticleEditorWindow(mpResourceManager.Get(), mpEngineCoreInstance->GetSubsystem<IInputContext>().Get(), result)));
 
 	mCurrEditableEffectId = TResourceId::Invalid;
 	mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
@@ -42,7 +42,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	mpParticleEditor->SetParticleEffectResourceHandle(mCurrEditableEffectId);
 
-	ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
+	ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>().Get();
 
 	if (auto getSceneResult = pSceneManager->GetScene(MainScene))
 	{
@@ -67,7 +67,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
-	mpParticleEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+	mpParticleEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>().Get(), dt);
 
 	_drawMainMenu();
 	_drawTimeControlBar();
@@ -77,8 +77,6 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnFree()
 {
-	SafeFree(mpParticleEditor);
-
 	return RC_OK;
 }
 
@@ -151,7 +149,7 @@ static E_RESULT_CODE SaveToFile(IFileSystem* pFileSystem, IResourceManager* pRes
 void CUtilityListener::_drawMainMenu()
 {
 	auto pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
-	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
+	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get();
 	
 	pImGUIContext->DisplayMainMenu([this, pFileSystem](IImGUIContext& imguiContext)
 	{
@@ -165,7 +163,7 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Open Effect", "CTRL+O", [this, pFileSystem]
 			{
-				if (auto openFileResult = OpenFromFile(mpWindowSystem, pFileSystem, mpResourceManager))
+				if (auto openFileResult = OpenFromFile(mpWindowSystem.Get(), pFileSystem, mpResourceManager.Get()))
 				{
 					mCurrEditableEffectId = openFileResult.Get();
 
@@ -183,7 +181,7 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Save Effect", "CTRL+S", [this, pFileSystem]
 			{
-				SaveToFile(pFileSystem, mpResourceManager, mCurrEditableEffectId, mLastSavedPath);
+				SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableEffectId, mLastSavedPath);
 			});
 
 			imguiContext.MenuItem("Save Effect As...", "SHIFT+CTRL+S", [this, pFileSystem]
@@ -191,7 +189,7 @@ void CUtilityListener::_drawMainMenu()
 				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
 					mLastSavedPath = saveFileDialogResult.Get();
-					SaveToFile(pFileSystem, mpResourceManager, mCurrEditableEffectId, mLastSavedPath);
+					SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableEffectId, mLastSavedPath);
 				}
 			});
 

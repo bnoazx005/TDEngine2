@@ -49,15 +49,15 @@ class CUtilityListener : public TDEngine2::IEngineListener
 	protected:
 		TDEngine2::IEngineCore*      mpEngineCoreInstance;
 
-		TDEngine2::IGraphicsContext* mpGraphicsContext;
+		TDEngine2::CScopedPtr<TDEngine2::IGraphicsContext> mpGraphicsContext;
 
-		TDEngine2::IWindowSystem*    mpWindowSystem;
+		TDEngine2::CScopedPtr<TDEngine2::IWindowSystem>    mpWindowSystem;
 
-		TDEngine2::IResourceManager* mpResourceManager;
+		TDEngine2::CScopedPtr<TDEngine2::IResourceManager> mpResourceManager;
 
-		TDEngine2::IFileSystem*      mpFileSystem;
+		TDEngine2::CScopedPtr<TDEngine2::IFileSystem>      mpFileSystem;
 
-		TDEngine2::IInputContext*    mpInputContext;
+		TDEngine2::CScopedPtr<TDEngine2::IInputContext>    mpInputContext;
 
 		TDEngine2::CScopedPtr<TDEngine2::CFontPreviewWindow> mpPreviewEditorWindow;
 		TDEngine2::CScopedPtr<TDEngine2::IEditorWindow> mpConfigEditorWindow;

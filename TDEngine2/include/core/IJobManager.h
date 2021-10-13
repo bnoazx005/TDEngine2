@@ -127,4 +127,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _submitJob(std::unique_ptr<IJob> pJob) = 0;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IJobManager)
 }

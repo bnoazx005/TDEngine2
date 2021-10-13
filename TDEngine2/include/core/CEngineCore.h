@@ -91,7 +91,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterSubsystem(IEngineSubsystem* pSubsystem) override;
+			TDE2_API E_RESULT_CODE RegisterSubsystem(TPtr<IEngineSubsystem> pSubsystem) override;
 
 			/*!
 				\brief The method unregisters specified type of a subsystem
@@ -149,13 +149,13 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEngineCore)
 
-			TDE2_API IEngineSubsystem* _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const override;
+			TDE2_API TPtr<IEngineSubsystem> _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const override;
 
 			TDE2_API void _onFrameUpdateCallback();
 
 			TDE2_API E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
 
-			TDE2_API E_RESULT_CODE _registerSubsystemInternal(IEngineSubsystem* pSubsystem);
+			TDE2_API E_RESULT_CODE _registerSubsystemInternal(TPtr<IEngineSubsystem> pSubsystem);
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 
 			TDE2_API E_RESULT_CODE _registerBuiltinSystems(TPtr<IWorld> pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
@@ -164,16 +164,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _cleanUpSubsystems();
 
 			template <typename T>
-			TDE2_API T* _getSubsystemAs(E_ENGINE_SUBSYSTEM_TYPE type) const
+			TDE2_API T* _getSubsystemAs(E_ENGINE_SUBSYSTEM_TYPE type)
 			{
 				static_assert(std::is_base_of<IEngineSubsystem, T>::value, "The given template argument isn't implement IEngineSubsystem interface");
 
-				return dynamic_cast<T*>(mSubsystems[type]);
+				return dynamic_cast<T*>(mSubsystems[type].Get());
 			}
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			IEngineSubsystem*  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
+			TPtr<IEngineSubsystem>  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 
 			TListenersArray    mEngineListeners;
 

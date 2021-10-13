@@ -649,4 +649,7 @@ namespace TDEngine2
 			TDE2_API virtual void _setDragAndDropData(const std::string& id, const void* pData, U32 size) = 0;
 			TDE2_API virtual const void* _getDragAndDropData(const std::string& id) const = 0;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IImGUIContext)
 }

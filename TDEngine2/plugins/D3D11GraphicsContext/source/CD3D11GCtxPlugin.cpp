@@ -44,14 +44,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpGraphicsContext = CreateD3D11GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), result);
+		mpGraphicsContext = TPtr<IGraphicsContext>(CreateD3D11GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>().Get(), result));
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 		
-		if ((result = pEngineCore->RegisterSubsystem(mpGraphicsContext)) != RC_OK)
+		if ((result = pEngineCore->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpGraphicsContext))) != RC_OK)
 		{
 			return result;
 		}
@@ -78,7 +78,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GCtxPlugin::_registerFactories(IEngineCore* pEngineCore)
 	{
-		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>();
+		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();
 
 		if (!pResourceManager)
 		{
@@ -100,7 +100,7 @@ namespace TDEngine2
 
 		for (auto currFactoryCallback : factoryFunctions)
 		{
-			pFactoryInstance = currFactoryCallback(pResourceManager, mpGraphicsContext, result);
+			pFactoryInstance = currFactoryCallback(pResourceManager, mpGraphicsContext.Get(), result);
 
 			if (result != RC_OK)
 			{
@@ -120,9 +120,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GCtxPlugin::_registerResourceLoaders(IEngineCore* pEngineCore)
 	{
-		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>();
+		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();
 
-		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
+		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>().Get();
 
 		if (!pResourceManager || !pFileSystem)
 		{
@@ -150,21 +150,21 @@ namespace TDEngine2
 			return result;
 		}
 
-		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext, pFileSystem, pShaderCompilerInstance, result);
+		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, pShaderCompilerInstance, result);
 
 		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{
 			return result;
 		}
 
-		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
+		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, result);
 
 		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{
 			return result;
 		}
 
-		pLoaderInstance = CreateBaseCubemapTextureLoader(pResourceManager, mpGraphicsContext, pFileSystem, result);
+		pLoaderInstance = CreateBaseCubemapTextureLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, result);
 
 		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{

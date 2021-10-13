@@ -197,7 +197,7 @@ namespace TDEngine2
 		return pWindowSystem->Quit();
 	}
 
-	E_RESULT_CODE CEngineCore::RegisterSubsystem(IEngineSubsystem* pSubsystem)
+	E_RESULT_CODE CEngineCore::RegisterSubsystem(TPtr<IEngineSubsystem> pSubsystem)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return _registerSubsystemInternal(pSubsystem);
@@ -276,11 +276,11 @@ namespace TDEngine2
 		return mpWorldInstance;
 	}
 
-	IEngineSubsystem* CEngineCore::_getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
+	TPtr<IEngineSubsystem> CEngineCore::_getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
 	{
 		if (type == EST_UNKNOWN)
 		{
-			return nullptr;
+			return TPtr<IEngineSubsystem>(nullptr);
 		}
 
 		//std::lock_guard<std::mutex> lock(mMutex);
@@ -462,7 +462,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEngineCore::_registerSubsystemInternal(IEngineSubsystem* pSubsystem)
+	E_RESULT_CODE CEngineCore::_registerSubsystemInternal(TPtr<IEngineSubsystem> pSubsystem)
 	{
 		E_ENGINE_SUBSYSTEM_TYPE subsystemType = EST_UNKNOWN;
 
@@ -487,7 +487,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::_unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
 	{
-		IEngineSubsystem* pEngineSubsystem = mSubsystems[subsystemType];
+		TPtr<IEngineSubsystem> pEngineSubsystem = mSubsystems[subsystemType];
 
 		if (!pEngineSubsystem)
 		{
@@ -496,15 +496,13 @@ namespace TDEngine2
 
 		mSubsystems[subsystemType] = nullptr;
 
-		E_RESULT_CODE result = pEngineSubsystem->Free();
-
 		const static U16 statusStringLength = 64;
 
 		std::string subsystemName = std::move(std::string("[Engine Core] ").append(Meta::EnumTrait<E_ENGINE_SUBSYSTEM_TYPE>::ToString(subsystemType)));
 
-		MainLogger->LogStatus(subsystemName, result != RC_OK ? "FAILED" : "OK", '.', static_cast<U16>(statusStringLength - subsystemName.size()));
+		MainLogger->LogStatus(subsystemName, "OK", '.', static_cast<U16>(statusStringLength - subsystemName.size()));
 
-		return result;
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CEngineCore::_cleanUpSubsystems()
@@ -516,7 +514,7 @@ namespace TDEngine2
 		/// \note these two subsystems should be destroyed in last moment and in coresponding order
 		auto latestFreedSubsystems = { EST_GRAPHICS_CONTEXT, EST_PLUGIN_MANAGER, EST_FILE_SYSTEM, EST_MEMORY_MANAGER, EST_WINDOW, EST_EVENT_MANAGER };
 
-		auto shouldSkipSubsystem = [&latestFreedSubsystems](const IEngineSubsystem* pCurrSubsystem)
+		auto shouldSkipSubsystem = [&latestFreedSubsystems](const TPtr<IEngineSubsystem> pCurrSubsystem)
 		{
 			return std::find_if(latestFreedSubsystems.begin(), latestFreedSubsystems.end(), [&pCurrSubsystem](E_ENGINE_SUBSYSTEM_TYPE type)
 			{
@@ -525,7 +523,7 @@ namespace TDEngine2
 		};
 
 		/// frees memory from all subsystems
-		for (IEngineSubsystem* pCurrSubsystem : mSubsystems)
+		for (auto pCurrSubsystem : mSubsystems)
 		{
 			if (!pCurrSubsystem || shouldSkipSubsystem(pCurrSubsystem))
 			{

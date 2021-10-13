@@ -13,8 +13,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = RC_OK;
 
-	mpPreviewEditorWindow = dynamic_cast<CFontPreviewWindow*>(CreateFontPreviewWindow(mpResourceManager, mpInputContext, mpWindowSystem, result));
-	mpConfigEditorWindow = CreateConfigWindow({ mpResourceManager, mpInputContext, mpWindowSystem, mpFileSystem }, result);
+	mpPreviewEditorWindow = dynamic_cast<CFontPreviewWindow*>(CreateFontPreviewWindow(mpResourceManager.Get(), mpInputContext.Get(), mpWindowSystem.Get(), result));
+	mpConfigEditorWindow = CreateConfigWindow({ mpResourceManager.Get(), mpInputContext.Get(), mpWindowSystem.Get(), mpFileSystem.Get() }, result);
 
 	/// \note For this tool this entity isn't used but create it to suppress assertions
 	if (auto pWorld = mpEngineCoreInstance->GetWorldInstance())
@@ -35,8 +35,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
-	mpPreviewEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
-	mpConfigEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+	mpPreviewEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>().Get(), dt);
+	mpConfigEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>().Get(), dt);
 
 	/// \todo Replace with event driven approach
 	if (CConfigWindow* pConfigWindow = dynamic_cast<CConfigWindow*>(mpConfigEditorWindow.Get()))

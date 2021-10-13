@@ -296,4 +296,7 @@ namespace TDEngine2
 
 			TDE2_API virtual std::vector<std::string> _getResourcesListByType(TypeId resourceTypeId) const = 0;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IResourceManager);
 }

@@ -18,6 +18,9 @@ namespace TDEngine2
 	class IImGUIContext;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IImGUIContext)
+
+
 	/*!
 		class CImGUICtxPlugin
 
@@ -53,6 +56,6 @@ namespace TDEngine2
 		protected:
 			IEngineCore*   mpEngineCoreInstance;
 
-			IImGUIContext* mpImGUIContext;
+			TPtr<IImGUIContext> mpImGUIContext;
 	};
 }

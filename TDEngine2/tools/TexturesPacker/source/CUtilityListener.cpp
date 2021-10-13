@@ -40,7 +40,7 @@ E_RESULT_CODE CUtilityListener::OnStart()
 
 	mCurrEditableAtlasId = mpResourceManager->Create<ITextureAtlas>("NewAtlas", TTexture2DParameters{ 512, 512, FT_NORM_UBYTE4, 1, 1, 0 });
 
-	mpEditorWindow = dynamic_cast<CEditorWindow*>(TDEngine2::CreateEditorWindow(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IInputContext>(), mpWindowSystem, result));
+	mpEditorWindow = dynamic_cast<CEditorWindow*>(TDEngine2::CreateEditorWindow(mpResourceManager.Get(), mpEngineCoreInstance->GetSubsystem<IInputContext>().Get(), mpWindowSystem.Get(), result));
 	mpEditorWindow->SetTextureAtlasResourceHandle(mCurrEditableAtlasId);
 
 	for (auto&& currFieldInfo : Meta::EnumTrait<E_FORMAT_TYPE>::GetFields())
@@ -53,7 +53,7 @@ E_RESULT_CODE CUtilityListener::OnStart()
 
 E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
-	mpEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>(), dt);
+	mpEditorWindow->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>().Get(), dt);
 	
 	_drawMainMenu();
 	_createNewAtlasModalWindow();
@@ -129,7 +129,7 @@ static E_RESULT_CODE SaveToFile(IFileSystem* pFileSystem, IResourceManager* pRes
 void CUtilityListener::_drawMainMenu()
 {
 	auto pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
-	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
+	auto pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get();
 
 	bool showNewAtlasPopupWindow = false;
 
@@ -144,7 +144,7 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Open", "CTRL+O", [this, pFileSystem]
 			{
-				if (auto openFileResult = OpenFromFile(mpWindowSystem, pFileSystem, mpResourceManager, FileExtensionsFilter, [this](auto&& path)
+				if (auto openFileResult = OpenFromFile(mpWindowSystem.Get(), pFileSystem, mpResourceManager.Get(), FileExtensionsFilter, [this](auto&& path)
 				{
 					if (IResource* pAtlas = mpResourceManager->GetResource<IResource>(mCurrEditableAtlasId))
 					{
@@ -162,7 +162,7 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Save", "CTRL+S", [this, pFileSystem]
 			{
-				SaveToFile(pFileSystem, mpResourceManager, mCurrEditableAtlasId, mLastSavedPath);
+				SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableAtlasId, mLastSavedPath);
 			});
 
 			imguiContext.MenuItem("Save As...", "SHIFT+CTRL+S", [this, pFileSystem]
@@ -175,7 +175,7 @@ void CUtilityListener::_drawMainMenu()
 				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
 					mLastSavedPath = saveFileDialogResult.Get();
-					SaveToFile(pFileSystem, mpResourceManager, mCurrEditableAtlasId, mLastSavedPath);
+					SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableAtlasId, mLastSavedPath);
 				}
 			});
 
@@ -299,7 +299,7 @@ E_RESULT_CODE CUtilityListener::_processInNonGraphicalMode()
 	}
 
 	/// \note Serialize into the file
-	return CTextureAtlas::Serialize(mpEngineCoreInstance->GetSubsystem<IFileSystem>(), pTextureAtlas, mOptions.mOutputFilename);
+	return CTextureAtlas::Serialize(mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get(), pTextureAtlas, mOptions.mOutputFilename);
 }
 
 

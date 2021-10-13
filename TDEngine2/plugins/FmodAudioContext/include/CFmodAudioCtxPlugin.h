@@ -21,6 +21,9 @@ namespace TDEngine2
 	class IAudioContext;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IAudioContext)
+
+
 	/*!
 		class CFMODAudioCtxPlugin
 
@@ -69,6 +72,6 @@ namespace TDEngine2
 		protected:
 			IEngineCore*   mpEngineCoreInstance;
 
-			IAudioContext* mpAudioContext;
+			TPtr<IAudioContext> mpAudioContext;
 	};
 }
