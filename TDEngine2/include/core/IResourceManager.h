@@ -32,6 +32,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_DECLARE_SCOPED_PTR(IJobManager)
+
+
 	/*!
 		interface IResourceManager
 
@@ -50,7 +53,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IJobManager* pJobManager) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IJobManager> pJobManager) = 0;
 
 			/*!
 				\brief The method registers specified resource loader within a manager

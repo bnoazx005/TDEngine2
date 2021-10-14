@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CResourceManager::Init(IJobManager* pJobManager)
+	E_RESULT_CODE CResourceManager::Init(TPtr<IJobManager> pJobManager)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -478,7 +478,7 @@ namespace TDEngine2
 	}
 
 
-	IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result)
+	IResourceManager* CreateResourceManager(TPtr<IJobManager> pJobManager, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IResourceManager, CResourceManager, result, pJobManager);
 	}

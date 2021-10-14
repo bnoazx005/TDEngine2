@@ -33,7 +33,7 @@ namespace TDEngine2
 		\return A pointer to CResourceManager's implementation
 	*/
 
-	TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
+	TDE2_API IResourceManager* CreateResourceManager(TPtr<IJobManager> pJobManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -45,7 +45,7 @@ namespace TDEngine2
 	class CResourceManager : public IResourceManager, public CBaseObject
 	{
 		public:
-			friend TDE2_API IResourceManager* CreateResourceManager(IJobManager* pJobManager, E_RESULT_CODE& result);
+			friend TDE2_API IResourceManager* CreateResourceManager(TPtr<IJobManager>, E_RESULT_CODE&);
 		protected:
 			typedef std::unordered_map<TypeId, TResourceLoaderId>   TResourceLoadersMap;
 			
@@ -71,7 +71,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IJobManager* pJobManager) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IJobManager> pJobManager) override;
 
 			/*!
 				\brief The method registers specified resource loader within a manager
@@ -236,7 +236,7 @@ namespace TDEngine2
 
 			TResourceTypesPoliciesMap   mResourceTypesPoliciesRegistry;
 
-			IJobManager*                mpJobManager;
+			TPtr<IJobManager>           mpJobManager;
 
 			mutable std::mutex          mMutex;
 	};

@@ -220,7 +220,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpResourceManagerInstance = TPtr<IResourceManager>(CreateResourceManager(mpJobManagerInstance.Get(), result));
+		mpResourceManagerInstance = TPtr<IResourceManager>(CreateResourceManager(mpJobManagerInstance, result));
 
 		if (result != RC_OK)
 		{
