@@ -28,7 +28,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpInputContext = TPtr<IInputContext>(CreateWindowsInputContext(pEngineCore->GetSubsystem<IWindowSystem>().Get(), result));
+		mpInputContext = TPtr<IInputContext>(CreateWindowsInputContext(pEngineCore->GetSubsystem<IWindowSystem>(), result));
 
 		if (result != RC_OK)
 		{

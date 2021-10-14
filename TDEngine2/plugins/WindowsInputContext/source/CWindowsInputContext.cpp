@@ -1,8 +1,8 @@
-#include "./../include/CWindowsInputContext.h"
+#include "../include/CWindowsInputContext.h"
 #include <core/IWindowSystem.h>
-#include "./../include/CKeyboard.h"
-#include "./../include/CMouse.h"
-#include "./../include/CGamepad.h"
+#include "../include/CKeyboard.h"
+#include "../include/CMouse.h"
+#include "../include/CGamepad.h"
 
 
 #if defined (TDE2_USE_WIN32PLATFORM)
@@ -10,11 +10,11 @@
 namespace TDEngine2
 {
 	CWindowsInputContext::CWindowsInputContext():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
-	E_RESULT_CODE CWindowsInputContext::Init(IWindowSystem* pWindowSystem)
+	E_RESULT_CODE CWindowsInputContext::Init(TPtr<IWindowSystem> pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
@@ -31,14 +31,14 @@ namespace TDEngine2
 		mInternalData.mpInput        = mpInput;
 		mInternalData.mWindowHandler = pWindowSystem->GetInternalData().mWindowHandler;
 
-		mpKeyboardDevice = dynamic_cast<IKeyboard*>(CreateKeyboardDevice(this, result));
+		mpKeyboardDevice = TPtr<IKeyboard>(dynamic_cast<IKeyboard*>(CreateKeyboardDevice(this, result)));
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		mpMouseDevice = dynamic_cast<IMouse*>(CreateMouseDevice(this, result));
+		mpMouseDevice = TPtr<IMouse>(dynamic_cast<IMouse*>(CreateMouseDevice(this, result)));
 
 		if (result != RC_OK)
 		{
@@ -47,7 +47,7 @@ namespace TDEngine2
 
 		for (U8 i = 0; i < mMaxNumOfGamepads; ++i)
 		{
-			mpGamepads[i] = dynamic_cast<IGamepad*>(CreateGamepadDevice(this, i, result));
+			mpGamepads[i] = TPtr<IGamepad>(dynamic_cast<IGamepad*>(CreateGamepadDevice(this, i, result)));
 
 			if (result != RC_OK)
 			{
@@ -62,41 +62,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CWindowsInputContext::_onFreeInternal()
 	{
-		E_RESULT_CODE result = _releaseInternalHandler();
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = mpKeyboardDevice->Free()) != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = mpMouseDevice->Free()) != RC_OK)
-		{
-			return result;
-		}
-
-		IGamepad* pCurrGamepad = nullptr;
-
-		for (U8 i = 0; i < mMaxNumOfGamepads; ++i)
-		{
-			pCurrGamepad = mpGamepads[i];
-
-			if (!pCurrGamepad)
-			{
-				continue;
-			}
-
-			if ((result = pCurrGamepad->Free()) != RC_OK)
-			{
-				return result;
-			}
-		}
-
-		return RC_OK;
+		return _releaseInternalHandler();
 	}
 
 	E_RESULT_CODE CWindowsInputContext::Update()
@@ -110,18 +76,12 @@ namespace TDEngine2
 
 		mpMouseDevice->Update();
 
-		IGamepad* pCurrGamepad = nullptr;
-
 		for (U8 i = 0; i < mMaxNumOfGamepads; ++i)
 		{
-			pCurrGamepad = mpGamepads[i];
-
-			if (!pCurrGamepad)
+			if (auto pCurrGamepad = mpGamepads[i])
 			{
-				continue;
+				pCurrGamepad->Update();
 			}
-
-			pCurrGamepad->Update();
 		}
 
 		return RC_OK;
@@ -182,11 +142,11 @@ namespace TDEngine2
 		return mInternalData;
 	}
 
-	IGamepad* CWindowsInputContext::GetGamepad(U8 gamepadId) const
+	TPtr<IGamepad> CWindowsInputContext::GetGamepad(U8 gamepadId) const
 	{
 		if (gamepadId >= mMaxNumOfGamepads)
 		{
-			return nullptr;
+			return TPtr<IGamepad>(nullptr);
 		}
 
 		return mpGamepads[gamepadId];
@@ -215,27 +175,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IInputContext* CreateWindowsInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IInputContext* CreateWindowsInputContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
 	{
-		CWindowsInputContext* pInputContextInstance = new (std::nothrow) CWindowsInputContext();
-
-		if (!pInputContextInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pInputContextInstance->Init(pWindowSystem);
-
-		if (result != RC_OK)
-		{
-			delete pInputContextInstance;
-
-			pInputContextInstance = nullptr;
-		}
-
-		return dynamic_cast<IInputContext*>(pInputContextInstance);
+		return CREATE_IMPL(IInputContext, CWindowsInputContext, result, pWindowSystem);
 	}
 }
 

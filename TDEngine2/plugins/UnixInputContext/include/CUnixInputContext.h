@@ -43,7 +43,7 @@ namespace TDEngine2
 		\return A pointer to CUnixInputContext's implementation
 	*/
 
-	TDE2_API IInputContext* CreateUnixInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IInputContext* CreateUnixInputContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -56,7 +56,7 @@ namespace TDEngine2
 	class CUnixInputContext : public IDesktopInputContext
 	{
 		public:
-			friend TDE2_API IInputContext* CreateUnixInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+			friend TDE2_API IInputContext* CreateUnixInputContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of an input context
@@ -66,16 +66,8 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
-			
 			/*!
 				\brief The method updates the current state of a context
 
@@ -184,7 +176,7 @@ namespace TDEngine2
 				\return The method return a pointer to IGamepad implementation
 			*/
 
-			TDE2_API IGamepad* GetGamepad(U8 gamepadId) const override;
+			TDE2_API TPtr<IGamepad> GetGamepad(U8 gamepadId) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixInputContext)
 
@@ -193,30 +185,30 @@ namespace TDEngine2
 			TDE2_API bool _isKeyPressed(const C8 keysVector[32], U8 keycode);
 
 			TDE2_API bool _isButtonPressed(U32 buttonsMask, U8 buttonId);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			bool                            mIsInitialized;
+			TInternalInputData  mInternalData;
 
-			TInternalInputData              mInternalData;
+			TPtr<IWindowSystem> mpWindowSystem;
 
-			IWindowSystem*                  mpWindowSystem;
+			Display*            mpDisplayHandler;
 
-			Display*                        mpDisplayHandler;
+			Window              mWindowHandler;
 
-			Window                          mWindowHandler;
+			static const U32    mMaxKeysBufferSize = 32;
 
-			static const U32                mMaxKeysBufferSize = 32;
+			C8                  mCurrKeysStates[mMaxKeysBufferSize];
 
-			C8                              mCurrKeysStates[mMaxKeysBufferSize];
+			C8                  mPrevKeysStates[mMaxKeysBufferSize];
 
-			C8                              mPrevKeysStates[mMaxKeysBufferSize];
+			TVector3            mPrevCursorPos;
 
-			TVector3                        mPrevCursorPos;
+			TVector3            mCurrCursorPos;
 
-			TVector3                        mCurrCursorPos;
+			U32                 mPrevMouseState;
 
-			U32                             mPrevMouseState;
-
-			U32                             mCurrMouseState;
+			U32                 mCurrMouseState;
 	};
 }
 

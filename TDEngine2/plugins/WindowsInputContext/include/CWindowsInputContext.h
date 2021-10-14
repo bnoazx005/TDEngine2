@@ -30,6 +30,11 @@ namespace TDEngine2
 	class IGamepad;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IKeyboard)
+	TDE2_DECLARE_SCOPED_PTR(IMouse)
+	TDE2_DECLARE_SCOPED_PTR(IGamepad)
+
+
 	/*!
 		struct TInternalInputData
 
@@ -54,7 +59,7 @@ namespace TDEngine2
 		\return A pointer to CWindowsInputContext's implementation
 	*/
 
-	TDE2_API IInputContext* CreateWindowsInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IInputContext* CreateWindowsInputContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -67,7 +72,7 @@ namespace TDEngine2
 	class CWindowsInputContext : public IDesktopInputContext, public CBaseObject
 	{
 		public:
-			friend TDE2_API IInputContext* CreateWindowsInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+			friend TDE2_API IInputContext* CreateWindowsInputContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of an input context
@@ -77,7 +82,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 						
 			/*!
 				\brief The method updates the current state of a context
@@ -187,7 +192,7 @@ namespace TDEngine2
 				\return The method return a pointer to IGamepad implementation
 			*/
 
-			TDE2_API IGamepad* GetGamepad(U8 gamepadId) const override;
+			TDE2_API TPtr<IGamepad> GetGamepad(U8 gamepadId) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWindowsInputContext)
 
@@ -197,17 +202,15 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			bool               mIsInitialized;
-
 			IDirectInput8*     mpInput;
 
-			IKeyboard*         mpKeyboardDevice;
+			TPtr<IKeyboard>    mpKeyboardDevice;
 
-			IMouse*            mpMouseDevice;
+			TPtr<IMouse>       mpMouseDevice;
 
 			static const U8    mMaxNumOfGamepads = XUSER_MAX_COUNT;
 
-			IGamepad*          mpGamepads[mMaxNumOfGamepads];
+			TPtr<IGamepad>     mpGamepads[mMaxNumOfGamepads];
 
 			TInternalInputData mInternalData;
 	};

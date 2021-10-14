@@ -1,4 +1,4 @@
-#include "./../include/CUnixInputContext.h"
+#include "../include/CUnixInputContext.h"
 #include <core/IWindowSystem.h>
 #include <platform/unix/CUnixWindowSystem.h>
 #include <cstring>
@@ -9,11 +9,11 @@
 namespace TDEngine2
 {
 	CUnixInputContext::CUnixInputContext():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
-	E_RESULT_CODE CUnixInputContext::Init(IWindowSystem* pWindowSystem)
+	E_RESULT_CODE CUnixInputContext::Init(TPtr<IWindowSystem> pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
@@ -22,7 +22,7 @@ namespace TDEngine2
 
 		mpWindowSystem = pWindowSystem;
 
-		CUnixWindowSystem* pUnixWindowSystem = dynamic_cast<CUnixWindowSystem*>(pWindowSystem);
+		CUnixWindowSystem* pUnixWindowSystem = dynamic_cast<CUnixWindowSystem*>(pWindowSystem.Get());
 
 		if (!pUnixWindowSystem)
 		{
@@ -38,19 +38,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CUnixInputContext::Free()
+	E_RESULT_CODE CUnixInputContext::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		mIsInitialized = false;
-
-		delete this;
-
 		return RC_OK;
 	}
 
@@ -142,9 +131,9 @@ namespace TDEngine2
 		return mInternalData;
 	}
 
-	IGamepad* CUnixInputContext::GetGamepad(U8 gamepadId) const
+	TPtr<IGamepad> CUnixInputContext::GetGamepad(U8 gamepadId) const
 	{
-        return nullptr;
+        return TPtr<IGamepad>(nullptr);
 	}
 	
 	U8 CUnixInputContext::_toKeycode(E_KEYCODES keyCode)
@@ -408,27 +397,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IInputContext* CreateUnixInputContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IInputContext* CreateUnixInputContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
 	{
-		CUnixInputContext* pInputContextInstance = new (std::nothrow) CUnixInputContext();
-
-		if (!pInputContextInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return pInputContextInstance;
-		}
-
-		result = pInputContextInstance->Init(pWindowSystem);
-
-		if (result != RC_OK)
-		{
-			delete pInputContextInstance;
-
-			pInputContextInstance = nullptr;
-		}
-
-		return dynamic_cast<IInputContext*>(pInputContextInstance);
+		return CREATE_IMPL(IInputContext, CUnixInputContext, result, pWindowSystem);
 	}
 }
 

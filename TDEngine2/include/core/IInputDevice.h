@@ -7,11 +7,11 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../core/IBaseObject.h"
-#include "./../math/TVector2.h"
-#include "./../math/TVector3.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../core/IBaseObject.h"
+#include "../math/TVector2.h"
+#include "../math/TVector3.h"
 #include "IInputContext.h"
 
 
@@ -235,4 +235,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGamepad)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IMouse)
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IKeyboard)
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IGamepad)
 }

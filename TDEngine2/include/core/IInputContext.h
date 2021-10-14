@@ -7,18 +7,22 @@
 #pragma once
 
 
-#include "./../utils/Utils.h"
-#include "./../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../utils/Types.h"
 #include "IEngineSubsystem.h"
-#include "./../math/TVector2.h"
-#include "./../math/TVector3.h"
-#include "./../utils/CU8String.h"
+#include "../math/TVector2.h"
+#include "../math/TVector3.h"
+#include "../utils/CU8String.h"
 
 
 namespace TDEngine2
 {
 	class IWindowSystem;
 	class IGamepad;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
+	TDE2_DECLARE_SCOPED_PTR(IGamepad)
 
 
 	/*!
@@ -114,7 +118,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IWindowSystem* pWindowSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) = 0;
 
 			/*!
 				\brief The method updates the current state of a context
@@ -224,7 +228,7 @@ namespace TDEngine2
 				\return The method return a pointer to IGamepad implementation
 			*/
 
-			TDE2_API virtual IGamepad* GetGamepad(U8 gamepadId) const = 0;
+			TDE2_API virtual TPtr<IGamepad> GetGamepad(U8 gamepadId) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDesktopInputContext)
 	};
