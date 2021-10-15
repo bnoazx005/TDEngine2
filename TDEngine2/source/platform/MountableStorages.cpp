@@ -167,7 +167,7 @@ namespace TDEngine2
 
 	TFileEntryId CBaseMountableStorage::_registerFileEntry(IFile* pFileEntry)
 	{
-		U32 localHandle = mActiveFiles.Add(pFileEntry);
+		USIZE localHandle = mActiveFiles.Add(pFileEntry);
 
 		const std::string& path = pFileEntry->GetFilename();
 

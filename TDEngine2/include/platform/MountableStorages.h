@@ -96,7 +96,7 @@ namespace TDEngine2
 		public:
 			typedef std::unordered_map<std::string, std::string> TVirtualPathsMap;
 			typedef std::unordered_map<std::string, TFileEntryId> TFilesHashMap;
-			typedef std::unordered_map<TFileEntryId, U32> TStorageEntriesInfo;
+			typedef std::unordered_map<TFileEntryId, USIZE> TStorageEntriesInfo;
 
 			typedef CResourceContainer<IFile*> TFilesContainer;
 

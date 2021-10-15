@@ -103,7 +103,7 @@ namespace TDEngine2
 		glSamplerParameteri(samplerHandler, GL_TEXTURE_MIN_FILTER, COGLMappings::GetMinFilterType(samplerDesc.mFilterFlags));
 		glSamplerParameteri(samplerHandler, GL_TEXTURE_MIN_LOD, 0);
 
-		U32 samplerId = mTextureSamplersArray.size();
+		U32 samplerId = static_cast<U32>(mTextureSamplersArray.size());
 
 		mTextureSamplersArray.push_back(samplerHandler);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });

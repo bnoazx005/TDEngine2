@@ -167,7 +167,7 @@ namespace TDEngine2
 			}
 		}
 
-		U32 size = pBytecodeBuffer->GetBufferSize();
+		USIZE size = pBytecodeBuffer->GetBufferSize();
 
 		U8* pBuffer = static_cast<U8*>(pBytecodeBuffer->GetBufferPointer());
 

@@ -43,14 +43,14 @@ namespace TDEngine2
 		}
 	}
 
-	U32 CU8String::Length() const
+	CU8String::TSizeType CU8String::Length() const
 	{
 		return _getLength(mpBuffer, mBufferLength);
 	}
 
-	U8C CU8String::At(U32 pos) const
+	U8C CU8String::At(TSizeType pos) const
 	{
-		U32 internalPos = _getInternalCharPos(mpBuffer, mBufferLength, pos);
+		TSizeType internalPos = _getInternalCharPos(mpBuffer, mBufferLength, pos);
 
 		if (internalPos >= mBufferLength)
 		{
@@ -100,7 +100,7 @@ namespace TDEngine2
 		return 1;
 	}
 
-	U32 CU8String::_getLength(const C8* pStr, U32 size) const
+	CU8String::TSizeType CU8String::_getLength(const C8* pStr, TSizeType size) const
 	{
 		U32 length = 0;
 
@@ -116,7 +116,7 @@ namespace TDEngine2
 		return length;
 	}
 
-	U32 CU8String::_getInternalCharPos(const C8* pStrBuffer, U32 bufferSize, U32 pos) const
+	CU8String::TSizeType CU8String::_getInternalCharPos(const C8* pStrBuffer, TSizeType bufferSize, TSizeType pos) const
 	{
 		U32 internalPos = 0;
 

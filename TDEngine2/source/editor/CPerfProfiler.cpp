@@ -8,7 +8,7 @@
 
 namespace TDEngine2
 {
-	ITimeProfiler::TSampleRecord::TSampleRecord(F32 startTime, F32 duration, U32 threadID, const std::string& name):
+	ITimeProfiler::TSampleRecord::TSampleRecord(F32 startTime, F32 duration, USIZE threadID, const std::string& name):
 		mStartTime(startTime), mDuration(duration), mThreadID(threadID), mName(name)
 	{
 	}
@@ -78,7 +78,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CPerfProfiler::WriteSample(const std::string& name, F32 startTime, F32 duration, U32 threadID)
+	void CPerfProfiler::WriteSample(const std::string& name, F32 startTime, F32 duration, USIZE threadID)
 	{
 		TDE2_ASSERT(mFramesStatistics.size() > mCurrFrameIndex);
 

@@ -54,7 +54,7 @@ namespace TDEngine2
 				\param[in] threadID An identifier of a thread
 			*/
 
-			TDE2_API void WriteSample(const std::string& name, F32 startTime, F32 duration, U32 threadID) override;
+			TDE2_API void WriteSample(const std::string& name, F32 startTime, F32 duration, USIZE threadID) override;
 
 			/*!
 				\brief The method returns instrumental timer that's used for measurements

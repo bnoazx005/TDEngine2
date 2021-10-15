@@ -99,7 +99,7 @@ namespace TDEngine2
 
 		TShaderBytecodeDesc vsBytecodeDesc = pD3D11Shader->GetVertexShaderBytecode();
 
-		if (FAILED(p3dDevice->CreateInputLayout(&elements[0], elements.size(), vsBytecodeDesc.mpBytecode, vsBytecodeDesc.mLength, &pInputLayout)))
+		if (FAILED(p3dDevice->CreateInputLayout(&elements[0], static_cast<UINT>(elements.size()), vsBytecodeDesc.mpBytecode, vsBytecodeDesc.mLength, &pInputLayout)))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}

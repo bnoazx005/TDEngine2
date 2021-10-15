@@ -458,7 +458,7 @@ namespace TDEngine2
 			mpEngineCoreInstance->GetWorldInstance().Get(),
 			result);
 
-		static const U32 mainThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+		static const USIZE mainThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 
 		auto pDebugUtility = mpGraphicsContextInstance->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManagerInstance.Get(), mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get();
 

@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBinaryFileReader::Read(void* pBuffer, U32 bufferSize)
+	E_RESULT_CODE CBinaryFileReader::Read(void* pBuffer, TSizeType bufferSize)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -33,7 +33,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CBinaryFileReader::ReadAsync(U32 size, const TSuccessReadCallback& successCallback, const TErrorReadCallback& errorCallback)
+	void CBinaryFileReader::ReadAsync(TSizeType size, const TSuccessReadCallback& successCallback, const TErrorReadCallback& errorCallback)
 	{
 		IFileSystem* pFileSystem = mpStorage->GetFileSystem();
 
@@ -46,7 +46,7 @@ namespace TDEngine2
 
 		IJobManager* pJobManager = pFileSystem->GetJobManager();
 		
-		pJobManager->SubmitJob(std::function<void(CBinaryFileReader*, U32)>([successCallback, errorCallback](CBinaryFileReader* pFileReader, U32 size)
+		pJobManager->SubmitJob(std::function<void(CBinaryFileReader*, TSizeType)>([successCallback, errorCallback](CBinaryFileReader* pFileReader, TSizeType size)
 		{
 			E_RESULT_CODE result = RC_OK;
 
@@ -68,7 +68,7 @@ namespace TDEngine2
 		}), this, size);
 	}
 
-	E_RESULT_CODE CBinaryFileReader::SetPosition(U32 pos)
+	E_RESULT_CODE CBinaryFileReader::SetPosition(TSizeType pos)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mpStreamImpl->SetPosition(pos);
@@ -80,7 +80,7 @@ namespace TDEngine2
 		return mpStreamImpl->IsEndOfStream();
 	}
 
-	U32 CBinaryFileReader::GetPosition() const
+	CBinaryFileReader::TSizeType CBinaryFileReader::GetPosition() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mpStreamImpl->GetPosition();
@@ -96,7 +96,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	U64 CBinaryFileReader::GetFileLength() const
+	CBinaryFileReader::TSizeType CBinaryFileReader::GetFileLength() const
 	{
 		if (!mpStreamImpl->IsValid())
 		{

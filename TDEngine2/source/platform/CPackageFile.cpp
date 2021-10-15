@@ -33,10 +33,10 @@ namespace TDEngine2
 
 		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
 		
-		U32 prevPosition = pStream->GetPosition();
+		TSizeType prevPosition = pStream->GetPosition();
 		{
-			pStream->SetPosition(static_cast<U32>(iter->mDataBlockOffset));
-			pStream->Read(&dataBuffer[0], static_cast<U32>(iter->mDataBlockSize));
+			pStream->SetPosition(static_cast<TSizeType>(iter->mDataBlockOffset));
+			pStream->Read(&dataBuffer[0], static_cast<TSizeType>(iter->mDataBlockSize));
 		}
 
 		pStream->SetPosition(prevPosition);
@@ -162,7 +162,7 @@ namespace TDEngine2
 
 			fileInfo.mDataBlockSize = pStream->GetLength();
 
-			U32 savedPosition = pStream->GetPosition();
+			TSizeType savedPosition = pStream->GetPosition();
 
 			pStream->SetPosition(0);
 			
@@ -200,7 +200,7 @@ namespace TDEngine2
 	{
 		IOutputStream* pStream = dynamic_cast<IOutputStream*>(mpStreamImpl);
 
-		U32 prevPosition = pStream->GetPosition();
+		TSizeType prevPosition = pStream->GetPosition();
 
 		E_RESULT_CODE result = pStream->SetPosition(0);
 		result = result | pStream->Write(&mCurrHeader, sizeof(mCurrHeader));
@@ -230,7 +230,7 @@ namespace TDEngine2
 		}
 
 		mCurrHeader.mFilesTableSize = std::max<U64>(0, static_cast<U64>(pStream->GetPosition()) - mCurrHeader.mFilesTableOffset);
-		mCurrHeader.mEntitiesCount = mFilesTable.size();
+		mCurrHeader.mEntitiesCount = static_cast<U32>(mFilesTable.size());
 
 		return result;
 	}

@@ -81,8 +81,8 @@ namespace TDEngine2
 				
 		std::string currReadLine;
 
-		U32 firstDelimPos  = 0;
-		U32 secondDelimPos = 0;
+		USIZE firstDelimPos  = 0;
+		USIZE secondDelimPos = 0;
 
 		std::string currGroupName { mCurrParsingGroup };
 		std::string currParamName;

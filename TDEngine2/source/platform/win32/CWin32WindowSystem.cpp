@@ -425,7 +425,7 @@ namespace TDEngine2
 
 		openFileDialogDesc.hwndOwner = mWindowHandler;
 		openFileDialogDesc.lpstrFile = &outputFilepath.front();
-		openFileDialogDesc.nMaxFile = outputFilepath.size();
+		openFileDialogDesc.nMaxFile = static_cast<DWORD>(outputFilepath.size());
 		openFileDialogDesc.lpstrFilter = GetFilterStr(filters).c_str();
 		openFileDialogDesc.nFilterIndex = 1;
 		openFileDialogDesc.lpstrFileTitle = NULL;
@@ -453,7 +453,7 @@ namespace TDEngine2
 
 		openFileDialogDesc.hwndOwner = mWindowHandler;
 		openFileDialogDesc.lpstrFile = &outputFilepath.front();
-		openFileDialogDesc.nMaxFile = outputFilepath.size();
+		openFileDialogDesc.nMaxFile = static_cast<DWORD>(outputFilepath.size());
 		openFileDialogDesc.lpstrFilter = GetFilterStr(filters).c_str();
 		openFileDialogDesc.nFilterIndex = 1;
 		openFileDialogDesc.lpstrFileTitle = NULL;

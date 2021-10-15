@@ -29,6 +29,8 @@ namespace TDEngine2
 	class CU8String
 	{
 		public:
+			typedef USIZE TSizeType;
+		public:
 			TDE2_API CU8String();
 			TDE2_API CU8String(const C8* str);
 			TDE2_API CU8String(const std::string& str);
@@ -42,7 +44,7 @@ namespace TDEngine2
 				\return The method returns a length of a string in code points
 			*/
 
-			TDE2_API U32 Length() const;
+			TDE2_API TSizeType Length() const;
 
 			/*!
 				\brief The method returns a code point at a given position
@@ -53,7 +55,7 @@ namespace TDEngine2
 				string if pos >= str.Length()
 			*/
 
-			TDE2_API U8C At(U32 pos) const;
+			TDE2_API U8C At(TSizeType pos) const;
 
 			TDE2_API static U8 GetHighSignificantByte(U8C codePoint);
 
@@ -68,14 +70,13 @@ namespace TDEngine2
 
 			TDE2_API static U32 GetCharLength(C8 ch);
 		protected:
-			TDE2_API U32 _getLength(const C8* pStr, U32 size) const;
-			TDE2_API U32 _getInternalCharPos(const C8* pStrBuffer, U32 bufferSize, U32 pos) const;
+			TDE2_API TSizeType _getLength(const C8* pStr, TSizeType size) const;
+			TDE2_API TSizeType _getInternalCharPos(const C8* pStrBuffer, TSizeType bufferSize, TSizeType pos) const;
 		protected:
 			C8*  mpBuffer;
 
-			U32  mCapacity;
-
-			U32  mBufferLength;
+			TSizeType mCapacity;
+			TSizeType mBufferLength;
 
 			bool mHasChanged;
 	};

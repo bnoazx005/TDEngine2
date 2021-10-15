@@ -13,7 +13,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBinaryFileWriter::Write(const void* pBuffer, U32 bufferSize)
+	E_RESULT_CODE CBinaryFileWriter::Write(const void* pBuffer, TSizeType bufferSize)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -32,7 +32,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CBinaryFileWriter::WriteAsync(const void* pBuffer, U32 bufferSize, const TSuccessWriteCallback& successCallback,
+	void CBinaryFileWriter::WriteAsync(const void* pBuffer, TSizeType bufferSize, const TSuccessWriteCallback& successCallback,
 		const TErrorWriteCallback& errorCallback)
 	{
 		IFileSystem* pFileSystem = mpStorage->GetFileSystem();
@@ -47,7 +47,7 @@ namespace TDEngine2
 		IJobManager* pJobManager = pFileSystem->GetJobManager();
 
 		/// \note Is it safe to work with pBuffer without lock
-		pJobManager->SubmitJob(std::function<void (CBinaryFileWriter*, U32)>([successCallback, errorCallback, pBuffer](CBinaryFileWriter* pFileWriter, U32 size)
+		pJobManager->SubmitJob(std::function<void (CBinaryFileWriter*, TSizeType)>([successCallback, errorCallback, pBuffer](CBinaryFileWriter* pFileWriter, TSizeType size)
 		{
 			E_RESULT_CODE result = RC_OK;
 
@@ -69,7 +69,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBinaryFileWriter::SetPosition(U32 pos)
+	E_RESULT_CODE CBinaryFileWriter::SetPosition(TSizeType pos)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -83,7 +83,7 @@ namespace TDEngine2
 		return mpStreamImpl->IsEndOfStream();
 	}
 
-	U32 CBinaryFileWriter::GetPosition() const
+	CBinaryFileWriter::TSizeType CBinaryFileWriter::GetPosition() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		

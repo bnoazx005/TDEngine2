@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 #include "Serialization.h"
 #include <string>
 
@@ -112,7 +112,7 @@ namespace TDEngine2
 	class IFileReader : public virtual IFile
 	{
 		public:
-
+			typedef USIZE TSizeType;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileReader)
 	};
@@ -245,6 +245,7 @@ namespace TDEngine2
 			typedef void (*TSuccessReadCallback)(void* pBuffer);
 
 			typedef void (*TErrorReadCallback)(E_RESULT_CODE);
+
 		public:
 			TDE2_REGISTER_TYPE(IBinaryFileReader)
 
@@ -259,7 +260,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Read(void* pBuffer, U32 bufferSize) = 0;
+			TDE2_API virtual E_RESULT_CODE Read(void* pBuffer, TSizeType bufferSize) = 0;
 
 			/*!
 				\brief The method asynchronously reads a continuous block of a file of specified size
@@ -272,7 +273,7 @@ namespace TDEngine2
 				\param[in] errorCallback A callback will be called if something went wrong
 			*/
 
-			TDE2_API virtual void ReadAsync(U32 size, const TSuccessReadCallback& successCallback, const TErrorReadCallback& errorCallback) = 0;
+			TDE2_API virtual void ReadAsync(TSizeType size, const TSuccessReadCallback& successCallback, const TErrorReadCallback& errorCallback) = 0;
 
 			/*!
 				\brief The method sets up a position of a file pointer
@@ -282,7 +283,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetPosition(U32 pos) = 0;
+			TDE2_API virtual E_RESULT_CODE SetPosition(TSizeType pos) = 0;
 
 			/*!
 				\brief The method is a predicate that returns true if the end of a file has reached
@@ -298,7 +299,7 @@ namespace TDEngine2
 				\return The method returns a current position of a file pointer
 			*/
 
-			TDE2_API virtual U32 GetPosition() const = 0;
+			TDE2_API virtual TSizeType GetPosition() const = 0;
 
 			/*!
 				\brief The method returns a total size of a file in bytes
@@ -306,7 +307,7 @@ namespace TDEngine2
 				\return The method returns a total size of a file in bytes
 			*/
 
-			TDE2_API virtual U64 GetFileLength() const = 0;
+			TDE2_API virtual TSizeType GetFileLength() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryFileReader)
 	};
@@ -320,6 +321,8 @@ namespace TDEngine2
 
 	class IFileWriter: public virtual IFile
 	{
+		public:
+			typedef USIZE TSizeType;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFileWriter)
 	};
@@ -337,6 +340,7 @@ namespace TDEngine2
 			typedef void(*TSuccessWriteCallback)();
 
 			typedef void(*TErrorWriteCallback)(E_RESULT_CODE);
+
 		public:
 			TDE2_REGISTER_TYPE(IBinaryFileWriter)
 
@@ -350,7 +354,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Write(const void* pBuffer, U32 bufferSize) = 0;
+			TDE2_API virtual E_RESULT_CODE Write(const void* pBuffer, TSizeType bufferSize) = 0;
 
 			/*!
 				\brief The method writes data in asynchronous manner into a given file
@@ -364,7 +368,7 @@ namespace TDEngine2
 				\param[in] errorCallback A callback that will be called when some error's happened during the process
 			*/
 
-			TDE2_API virtual void WriteAsync(const void* pBuffer, U32 bufferSize, const TSuccessWriteCallback& successCallback,
+			TDE2_API virtual void WriteAsync(const void* pBuffer, TSizeType bufferSize, const TSuccessWriteCallback& successCallback,
 											 const TErrorWriteCallback& errorCallback) = 0;
 
 			/*!
@@ -383,7 +387,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetPosition(U32 pos) = 0;
+			TDE2_API virtual E_RESULT_CODE SetPosition(TSizeType pos) = 0;
 
 			/*!
 				\brief The method is a predicate that returns true if the end of a file has reached
@@ -399,7 +403,7 @@ namespace TDEngine2
 				\return The method returns a current position of a file pointer
 			*/
 
-			TDE2_API virtual U32 GetPosition() const = 0;
+			TDE2_API virtual TSizeType GetPosition() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBinaryFileWriter)
 	};

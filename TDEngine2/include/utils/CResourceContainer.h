@@ -32,8 +32,9 @@ namespace TDEngine2
 	class CResourceContainer
 	{
 		public:
-			typedef std::vector<T> TElementsArray;
-			typedef std::list<U32> TFreeEntitiesRegistry;
+			typedef std::vector<T>       TElementsArray;
+			typedef USIZE                TSizeType;
+			typedef std::list<TSizeType> TFreeEntitiesRegistry;
 		public:
 			CResourceContainer():
 				mElements {}, mFreeEntities {}
@@ -72,11 +73,11 @@ namespace TDEngine2
 				\return An index at which the given element is placed
 			*/
 
-			U32 Add(const T& element)
+			TSizeType Add(const T& element)
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
 
-				U32 newEntryIndex = 0;
+				TSizeType newEntryIndex = 0;
 
 				if (mFreeEntities.empty())
 				{
@@ -120,7 +121,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE RemoveAt(U32 index)
+			E_RESULT_CODE RemoveAt(TSizeType index)
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
 				
@@ -135,9 +136,9 @@ namespace TDEngine2
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
 
-				U32 numOfElements = mElements.size();
+				TSizeType numOfElements = mElements.size();
 
-				for (U32 i = 0; i < mElements.size(); ++i)
+				for (TSizeType i = 0; i < mElements.size(); ++i)
 				{
 					mFreeEntities.push_back(i);
 				}
@@ -152,7 +153,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE ReplaceAt(U32 index, const T& element)
+			E_RESULT_CODE ReplaceAt(TSizeType index, const T& element)
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
 
@@ -176,7 +177,7 @@ namespace TDEngine2
 				position or an error code
 			*/
 
-			TResult<T> operator[] (U32 index) const
+			TResult<T> operator[] (TSizeType index) const
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
 
@@ -199,14 +200,14 @@ namespace TDEngine2
 				\return The method returns a number of elements within the container
 			*/
 
-			U32 GetSize() const
+			TSizeType GetSize() const
 			{
 				std::lock_guard<std::mutex> lock(mMutex);
 				
 				return mElements.size();
 			}
 		protected:
-			E_RESULT_CODE _removeAt(U32 index)
+			E_RESULT_CODE _removeAt(TSizeType index)
 			{
 				if (index >= mElements.size())
 				{
@@ -220,7 +221,7 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
-			U32 _findElement(const T& element)
+			TSizeType _findElement(const T& element)
 			{
 				auto iter = std::find(mElements.cbegin(), mElements.cend(), element);
 
@@ -232,12 +233,12 @@ namespace TDEngine2
 				return iter - mElements.cbegin();
 			}
 		protected:
-			TElementsArray        mElements;
+			TElementsArray         mElements;
 			
-			TFreeEntitiesRegistry mFreeEntities;
+			TFreeEntitiesRegistry  mFreeEntities;
 			
-			mutable std::mutex    mMutex;
+			mutable std::mutex     mMutex;
 
-			static const U32      mInvalidIndex = (std::numeric_limits<U32>::max)();
+			static const TSizeType mInvalidIndex = (std::numeric_limits<TSizeType>::max)();
 	};
 }

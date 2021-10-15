@@ -120,7 +120,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		U32 samplerId = mpTextureSamplersArray.size();
+		U32 samplerId = static_cast<U32>(mpTextureSamplersArray.size());
 
 		mpTextureSamplersArray.push_back(pNewTextureSampler);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });
@@ -165,7 +165,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		auto stateId = mpBlendStates.Add(pBlendState);
+		U32 stateId = static_cast<U32>(mpBlendStates.Add(pBlendState));
 		mBlendStatesHashTable.insert({ hashValue, stateId });
 
 		return Wrench::TOkValue<TBlendStateId>(TBlendStateId(stateId));

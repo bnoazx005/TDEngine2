@@ -47,7 +47,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Write(const void* pBuffer, U32 bufferSize) override;
+			TDE2_API E_RESULT_CODE Write(const void* pBuffer, TSizeType bufferSize) override;
 
 			/*!
 				\brief The method writes data in asynchronous manner into a given file
@@ -61,7 +61,7 @@ namespace TDEngine2
 				\param[in] errorCallback A callback that will be called when some error's happened during the process
 			*/
 
-			TDE2_API void WriteAsync(const void* pBuffer, U32 bufferSize, const TSuccessWriteCallback& successCallback,
+			TDE2_API void WriteAsync(const void* pBuffer, TSizeType bufferSize, const TSuccessWriteCallback& successCallback,
 									 const TErrorWriteCallback& errorCallback) override;
 
 			/*!
@@ -80,7 +80,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetPosition(U32 pos) override;
+			TDE2_API E_RESULT_CODE SetPosition(TSizeType pos) override;
 
 			/*!
 				\brief The method is a predicate that returns true if the end of a file has reached
@@ -96,7 +96,7 @@ namespace TDEngine2
 				\return The method returns a current position of a file pointer
 			*/
 
-			TDE2_API U32 GetPosition() const override;
+			TDE2_API TSizeType GetPosition() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryFileWriter)
 

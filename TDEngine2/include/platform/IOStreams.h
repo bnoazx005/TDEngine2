@@ -26,8 +26,10 @@ namespace TDEngine2
 	class IStream: public virtual IBaseObject
 	{
 		public:
-			TDE2_API virtual E_RESULT_CODE SetPosition(U32 pos) = 0;
-			TDE2_API virtual U32 GetPosition() const = 0;
+			typedef USIZE TSizeType;
+		public:
+			TDE2_API virtual E_RESULT_CODE SetPosition(TSizeType pos) = 0;
+			TDE2_API virtual TSizeType GetPosition() const = 0;
 
 			/*!
 				\brief The method reopens current stream and resets its state
@@ -50,7 +52,7 @@ namespace TDEngine2
 
 			TDE2_API virtual bool IsEndOfStream() const = 0;
 
-			TDE2_API virtual U64 GetLength() const = 0;
+			TDE2_API virtual TSizeType GetLength() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStream)
 	};
@@ -68,7 +70,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Read(void* pBuffer, U32 bufferSize) = 0;
+			TDE2_API virtual E_RESULT_CODE Read(void* pBuffer, TSizeType bufferSize) = 0;
 
 			/*!
 				\brief The method reads a current line of the file and returns its data as string
@@ -103,7 +105,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Write(const void* pBuffer, U32 bufferSize) = 0;
+			TDE2_API virtual E_RESULT_CODE Write(const void* pBuffer, TSizeType bufferSize) = 0;
 
 			TDE2_API virtual void Flush() = 0;
 		protected:
@@ -161,7 +163,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Read(void* pBuffer, U32 bufferSize) override;
+			TDE2_API E_RESULT_CODE Read(void* pBuffer, TSizeType bufferSize) override;
 
 			/*!
 				\brief The method reads a whole file and returns its data as string
@@ -179,8 +181,8 @@ namespace TDEngine2
 
 			TDE2_API std::string ReadToEnd() override;
 
-			TDE2_API E_RESULT_CODE SetPosition(U32 pos) override;
-			TDE2_API U32 GetPosition() const override;
+			TDE2_API E_RESULT_CODE SetPosition(TSizeType pos) override;
+			TDE2_API TSizeType GetPosition() const override;
 
 			TDE2_API const std::string& GetName() const override;
 
@@ -193,7 +195,7 @@ namespace TDEngine2
 
 			TDE2_API bool IsEndOfStream() const override;
 
-			TDE2_API U64 GetLength() const override;
+			TDE2_API TSizeType GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFileInputStream)
 
@@ -255,12 +257,12 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Write(const void* pBuffer, U32 bufferSize) override;
+			TDE2_API E_RESULT_CODE Write(const void* pBuffer, TSizeType bufferSize) override;
 
 			TDE2_API void Flush() override;
 
-			TDE2_API E_RESULT_CODE SetPosition(U32 pos) override;
-			TDE2_API U32 GetPosition() const override;
+			TDE2_API E_RESULT_CODE SetPosition(TSizeType pos) override;
+			TDE2_API TSizeType GetPosition() const override;
 
 			TDE2_API const std::string& GetName() const override;
 
@@ -273,7 +275,7 @@ namespace TDEngine2
 
 			TDE2_API bool IsEndOfStream() const override;
 
-			TDE2_API U64 GetLength() const override;
+			TDE2_API TSizeType GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFileOutputStream)
 
@@ -331,7 +333,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Read(void* pBuffer, U32 bufferSize) override;
+			TDE2_API E_RESULT_CODE Read(void* pBuffer, TSizeType bufferSize) override;
 
 			/*!
 				\brief The method reads a whole file and returns its data as string
@@ -359,12 +361,12 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Write(const void* pBuffer, U32 bufferSize) override;
+			TDE2_API E_RESULT_CODE Write(const void* pBuffer, TSizeType bufferSize) override;
 
 			TDE2_API void Flush() override;
 
-			TDE2_API E_RESULT_CODE SetPosition(U32 pos) override;
-			TDE2_API U32 GetPosition() const override;
+			TDE2_API E_RESULT_CODE SetPosition(TSizeType pos) override;
+			TDE2_API TSizeType GetPosition() const override;
 
 			TDE2_API const std::string& GetName() const override;
 
@@ -377,13 +379,13 @@ namespace TDEngine2
 
 			TDE2_API bool IsEndOfStream() const override;
 
-			TDE2_API U64 GetLength() const override;
+			TDE2_API TSizeType GetLength() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryIOStream)
 		protected:
 			std::string mPath;
 
 			std::vector<U8> mData;
-			U32 mPointer;
+			TSizeType mPointer;
 	};
 }

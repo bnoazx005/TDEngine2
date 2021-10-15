@@ -32,7 +32,7 @@ namespace TDEngine2
 	{
 		U8* mpBytecode;
 
-		U32 mLength;
+		USIZE mLength;
 	};
 
 

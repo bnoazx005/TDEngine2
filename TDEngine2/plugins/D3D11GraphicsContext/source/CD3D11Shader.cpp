@@ -90,7 +90,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 		
-		U32 bytecodeSize = pD3D11ShaderCompilerData->mVSByteCode.size();
+		USIZE bytecodeSize = pD3D11ShaderCompilerData->mVSByteCode.size();
 
 		mVertexShaderBytecode.mpBytecode = new U8[bytecodeSize];
 		

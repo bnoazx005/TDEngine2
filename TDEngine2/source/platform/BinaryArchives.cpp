@@ -405,7 +405,7 @@ namespace TDEngine2
 				break;
 			}
 
-			mpCachedInputStream->SetPosition(std::max<U32>(0, mpCachedInputStream->GetPosition() - sizeof(U32)));
+			mpCachedInputStream->SetPosition(std::max<TSizeType>(0, mpCachedInputStream->GetPosition() - sizeof(U32)));
 
 			pCurrNode = _readChunkData();
 			if (!pCurrNode)
@@ -521,7 +521,7 @@ namespace TDEngine2
 		return keyValue;
 	}
 	
-	std::unique_ptr<TArchiveValue> CBinaryArchiveReader::_readIntValue(const std::string& key, U32 size)
+	std::unique_ptr<TArchiveValue> CBinaryArchiveReader::_readIntValue(const std::string& key, TSizeType size)
 	{
 		I64 value = 0x0;
 		_readValue(&value, size);
@@ -533,7 +533,7 @@ namespace TDEngine2
 		return pValue;
 	}
 	
-	std::unique_ptr<TArchiveValue> CBinaryArchiveReader::_readFloatValue(const std::string& key, U32 size)
+	std::unique_ptr<TArchiveValue> CBinaryArchiveReader::_readFloatValue(const std::string& key, TSizeType size)
 	{
 		F64 value = 0.0f;
 		_readValue(&value, size);
@@ -568,7 +568,7 @@ namespace TDEngine2
 		return pValue;
 	}
 
-	E_RESULT_CODE CBinaryArchiveReader::_readValue(void* pBuffer, U32 size)
+	E_RESULT_CODE CBinaryArchiveReader::_readValue(void* pBuffer, TSizeType size)
 	{
 		return mpCachedInputStream->Read(pBuffer, size);
 	}

@@ -62,7 +62,7 @@ namespace TDEngine2
 		return IsValid() ? RC_OK : RC_FAIL;
 	}
 
-	E_RESULT_CODE CFileInputStream::Read(void* pBuffer, U32 bufferSize)
+	E_RESULT_CODE CFileInputStream::Read(void* pBuffer, TSizeType bufferSize)
 	{
 		if (!pBuffer || !bufferSize)
 		{
@@ -100,7 +100,7 @@ namespace TDEngine2
 		return strBuffer.str();
 	}
 
-	E_RESULT_CODE CFileInputStream::SetPosition(U32 pos)
+	E_RESULT_CODE CFileInputStream::SetPosition(TSizeType pos)
 	{
 		mInternalStream.seekg(pos);
 		return RC_OK;
@@ -111,7 +111,7 @@ namespace TDEngine2
 		return mPath;
 	}
 
-	U32 CFileInputStream::GetPosition() const
+	CFileInputStream::TSizeType CFileInputStream::GetPosition() const
 	{
 		return static_cast<U32>(mInternalStream.tellg());
 	}
@@ -126,7 +126,7 @@ namespace TDEngine2
 		return mInternalStream.eof();
 	}
 
-	U64 CFileInputStream::GetLength() const
+	CFileInputStream::TSizeType CFileInputStream::GetLength() const
 	{
 		if (!mInternalStream.is_open() || !IsValid())
 		{
@@ -134,12 +134,12 @@ namespace TDEngine2
 		}
 
 		mInternalStream.seekg(0, std::ios::end);
-		U64 length = mInternalStream.tellg();
+		TSizeType length = mInternalStream.tellg();
 
 		mInternalStream.clear();   // \note Since ignore will have set eof.
 		mInternalStream.seekg(0, std::ios_base::beg);
 
-		return static_cast<U64>(length);
+		return length;
 	}
 
 
@@ -203,7 +203,7 @@ namespace TDEngine2
 		return IsValid() ? RC_OK : RC_FAIL;
 	}
 
-	E_RESULT_CODE CFileOutputStream::Write(const void* pBuffer, U32 bufferSize)
+	E_RESULT_CODE CFileOutputStream::Write(const void* pBuffer, TSizeType bufferSize)
 	{
 		if (!pBuffer || !bufferSize)
 		{
@@ -219,15 +219,15 @@ namespace TDEngine2
 		mInternalStream.flush();
 	}
 
-	E_RESULT_CODE CFileOutputStream::SetPosition(U32 pos)
+	E_RESULT_CODE CFileOutputStream::SetPosition(TSizeType pos)
 	{
 		mInternalStream.seekp(pos);
 		return RC_OK;
 	}
 
-	U32 CFileOutputStream::GetPosition() const
+	CFileOutputStream::TSizeType CFileOutputStream::GetPosition() const
 	{
-		return static_cast<U32>(mInternalStream.tellp());
+		return static_cast<TSizeType>(mInternalStream.tellp());
 	}
 
 	const std::string& CFileOutputStream::GetName() const
@@ -245,9 +245,9 @@ namespace TDEngine2
 		return mInternalStream.eof();
 	}
 
-	U64 CFileOutputStream::GetLength() const
+	CFileOutputStream::TSizeType CFileOutputStream::GetLength() const
 	{
-		return static_cast<U64>(GetPosition());
+		return static_cast<TSizeType>(GetPosition());
 	}
 
 
@@ -289,14 +289,14 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
-	E_RESULT_CODE CMemoryIOStream::Read(void* pBuffer, U32 bufferSize)
+	E_RESULT_CODE CMemoryIOStream::Read(void* pBuffer, TSizeType bufferSize)
 	{
 		if (!pBuffer || !bufferSize)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		U32 size = std::min<U32>(bufferSize, std::max<U32>(mData.size() - mPointer, 0));
+		TSizeType size = std::min<TSizeType>(bufferSize, std::max<TSizeType>(mData.size() - mPointer, 0));
 
 		memcpy(pBuffer, static_cast<void*>(&mData[mPointer]), size);
 		mPointer += size;
@@ -311,7 +311,7 @@ namespace TDEngine2
 			return Wrench::StringUtils::GetEmptyStr();
 		}
 		
-		U32 start = mPointer;
+		TSizeType start = mPointer;
 
 		while ((mPointer < mData.size()) && (mData[mPointer] != '\n'))
 		{
@@ -333,7 +333,7 @@ namespace TDEngine2
 		return std::string(mData.cbegin(), mData.cend());
 	}
 
-	E_RESULT_CODE CMemoryIOStream::Write(const void* pBuffer, U32 bufferSize)
+	E_RESULT_CODE CMemoryIOStream::Write(const void* pBuffer, TSizeType bufferSize)
 	{
 		return RC_OK;
 	}
@@ -342,7 +342,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CMemoryIOStream::SetPosition(U32 pos)
+	E_RESULT_CODE CMemoryIOStream::SetPosition(TSizeType pos)
 	{
 		if (pos > mData.size())
 		{
@@ -359,7 +359,7 @@ namespace TDEngine2
 		return mPath;
 	}
 
-	U32 CMemoryIOStream::GetPosition() const
+	CMemoryIOStream::TSizeType CMemoryIOStream::GetPosition() const
 	{
 		return mPointer;
 	}
@@ -374,9 +374,9 @@ namespace TDEngine2
 		return mPointer >= mData.size();
 	}
 
-	U64 CMemoryIOStream::GetLength() const
+	CMemoryIOStream::TSizeType CMemoryIOStream::GetLength() const
 	{		
-		return static_cast<U64>(mData.size());
+		return static_cast<TSizeType>(mData.size());
 	}
 
 

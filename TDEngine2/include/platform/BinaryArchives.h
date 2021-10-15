@@ -254,14 +254,14 @@ namespace TDEngine2
 			TDE2_API U32 _readChunkTag();
 			TDE2_API std::string _readStringChunk();
 			
-			TDE2_API std::unique_ptr<TArchiveValue> _readIntValue(const std::string& key, U32 size);
-			TDE2_API std::unique_ptr<TArchiveValue> _readFloatValue(const std::string& key, U32 size);
+			TDE2_API std::unique_ptr<TArchiveValue> _readIntValue(const std::string& key, TSizeType size);
+			TDE2_API std::unique_ptr<TArchiveValue> _readFloatValue(const std::string& key, TSizeType size);
 			TDE2_API std::unique_ptr<TArchiveValue> _readBoolValue(const std::string& key);
 			TDE2_API std::unique_ptr<TArchiveValue> _readStringValue(const std::string& key);
 
 			TDE2_API TArchiveValue::TArchiveValuesArray _readChunk();
 
-			TDE2_API E_RESULT_CODE _readValue(void* pBuffer, U32 size);
+			TDE2_API E_RESULT_CODE _readValue(void* pBuffer, TSizeType size);
 
 			TDE2_API const TArchiveValue* _getContent(const std::string& key);
 

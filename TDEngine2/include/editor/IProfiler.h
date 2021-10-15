@@ -32,17 +32,17 @@ namespace TDEngine2
 				F32         mStartTime = 0.0f;
 				F32         mDuration = 0.0f;
 
-				U32         mThreadID = 0x0;
+				USIZE       mThreadID = 0x0;
 
 				std::string mName;
 
-				TDE2_API TSampleRecord(F32 startTime, F32 duration, U32 threadID, const std::string& name);
+				TDE2_API TSampleRecord(F32 startTime, F32 duration, USIZE threadID, const std::string& name);
 			} TSampleRecord, *TSampleRecordPtr;
 
-			typedef std::vector<TSampleRecord>             TSamplesArray;
-			typedef std::unordered_map<U32, TSamplesArray> TSamplesTable;
-			typedef std::vector<TSamplesTable>             TSamplesLog;
-			typedef std::vector<F32>                       TFramesTimesLog;
+			typedef std::vector<TSampleRecord>               TSamplesArray;
+			typedef std::unordered_map<USIZE, TSamplesArray> TSamplesTable;
+			typedef std::vector<TSamplesTable>               TSamplesLog;
+			typedef std::vector<F32>                         TFramesTimesLog;
 		public:
 			/*!
 				\brief The method stars to record current frame's statistics. The method should be called only once per frame
@@ -69,7 +69,7 @@ namespace TDEngine2
 				\param[in] threadID An identifier of a thread
 			*/
 
-			TDE2_API virtual void WriteSample(const std::string& name, F32 startTime, F32 duration, U32 threadID) = 0;
+			TDE2_API virtual void WriteSample(const std::string& name, F32 startTime, F32 duration, USIZE threadID) = 0;
 
 			/*!
 				\brief The method returns instrumental timer that's used for measurements

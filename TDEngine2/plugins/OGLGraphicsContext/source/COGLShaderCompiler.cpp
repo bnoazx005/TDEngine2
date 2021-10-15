@@ -100,7 +100,7 @@ namespace TDEngine2
 
 		const C8* shaderSource = processedShaderSource.c_str();
 
-		I32 shaderSourceLength = strlen(shaderSource);
+		USIZE shaderSourceLength = strlen(shaderSource);
 
 		glShaderSource(shaderHandler, 1, &shaderSource, &shaderSourceLength);
 

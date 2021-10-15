@@ -85,8 +85,8 @@ namespace TDEngine2
 		std::string::size_type secondPos = 0;
 		std::string::size_type thirdPos  = 0;
 		
-		const U32 commentPrefixLength  = commentPrefixStr.length();
-		const U32 commentPostfixLength = commentPostfixStr.length();
+		const USIZE commentPrefixLength  = commentPrefixStr.length();
+		const USIZE commentPostfixLength = commentPostfixStr.length();
 
 		U8 numOfNestedCommentsBlocks = 0;
 
