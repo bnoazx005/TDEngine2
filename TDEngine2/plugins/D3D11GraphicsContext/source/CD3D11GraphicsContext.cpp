@@ -15,7 +15,7 @@
 #include <unordered_map>
 
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 
 #pragma comment(lib, "d3d11.lib")
 

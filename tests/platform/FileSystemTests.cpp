@@ -15,7 +15,7 @@ TEST_CASE("File System Tests")
 
 	IFileSystem* pFileSystem = nullptr;
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 	pFileSystem = CreateWin32FileSystem(result);
 #elif defined (TDE2_USE_UNIXPLATFORM)
 	pFileSystem = CreateUnixFileSystem(result);

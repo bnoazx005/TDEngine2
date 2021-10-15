@@ -19,7 +19,7 @@
 #endif
 
 /// include platform specific headers
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 	#include <Windows.h>
 	#include <d3d11.h>
 #elif defined (TDE2_USE_UNIXPLATFORM)
@@ -43,6 +43,7 @@ namespace TDEngine2
 	typedef uint16_t U16;
 	typedef uint32_t U32;
 	typedef uint64_t U64;
+	typedef size_t   USIZE;
 
 	/// Floating-point types
 
@@ -157,7 +158,7 @@ namespace TDEngine2
 
 	/// Try to infer a type TWindowSystemInternalData, that should be used to store internal window's data based on specific platform
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 
 	/*!
 		struct TWin32InternalWindowData
@@ -197,7 +198,7 @@ namespace TDEngine2
 
 	/// Try to infer a type TGraphicsCtxInternalData 
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 
 
 	/*!
@@ -253,7 +254,7 @@ namespace TDEngine2
 
 
 	/// Try to infer a type TGraphicsCtxInternalData 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 	/*!
 		union TBufferInternalData
 
@@ -341,7 +342,7 @@ namespace TDEngine2
 	
 	TDE2_DECLARE_HANDLE_TYPE(TDynamicLibraryHandler); ///< A type of dynamic library's handler
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 	typedef HMODULE TDynamicLibrary;
 #elif defined (TDE2_USE_WIN32PLATFORM)
 	typedef void* TDynamicLibrary;

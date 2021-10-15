@@ -5,7 +5,7 @@
 
 using namespace TDEngine2;
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 	#pragma comment(lib, "TDEngine2.lib")
 #endif
 

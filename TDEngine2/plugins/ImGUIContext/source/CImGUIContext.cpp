@@ -93,7 +93,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 		mpIOContext->BackendPlatformName = "Win32Platform";
 		mpIOContext->ImeWindowHandle = pWindowSystem->GetInternalData().mWindowHandler;
 #endif

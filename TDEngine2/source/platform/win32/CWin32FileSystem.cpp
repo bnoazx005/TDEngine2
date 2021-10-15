@@ -5,7 +5,7 @@
 #include "stringUtils.hpp"
 #include <algorithm>
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 #include <ShlObj.h>
 #include <comutil.h>
 
@@ -36,7 +36,7 @@ namespace TDEngine2
 	{
 		LPWSTR tmpPath = nullptr;
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &tmpPath)))
 		{
 			defer([&tmpPath] { CoTaskMemFree(tmpPath); });
@@ -53,7 +53,7 @@ namespace TDEngine2
 	{
 		LPWSTR tmpPath = nullptr;
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &tmpPath)))
 		{
 			defer([&tmpPath] { CoTaskMemFree(tmpPath); });

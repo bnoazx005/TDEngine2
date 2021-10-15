@@ -22,7 +22,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 		mpPerformanceTimer = CreateWin32Timer(result);
 #elif defined(TDE2_USE_UNIXPLATFORM)
 		mpPerformanceTimer = CreateUnixTimer(result);

@@ -11,7 +11,7 @@
 #include "../../core/Event.h"
 #include "../../core/CBaseObject.h"
 
-#if defined(TDE2_USE_WIN32PLATFORM) /// use
+#if defined(TDE2_USE_WINPLATFORM) /// use
 
 
 #include "../../core/IWindowSystem.h"

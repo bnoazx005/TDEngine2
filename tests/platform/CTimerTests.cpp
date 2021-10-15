@@ -20,7 +20,7 @@ TEST_CASE("Timers Tests")
 
 	ITimer* pTimer = nullptr;
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 	pTimer = CreateWin32Timer(result);
 #elif defined (TDE2_USE_UNIXPLATFORM)
 	pTimer = CreateUnixTimer(result);

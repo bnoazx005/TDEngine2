@@ -88,7 +88,7 @@ namespace TDEngine2
 
 		switch (type)
 		{
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 		case GCGT_DIRECT3D11:																	/// try to create D3D11 Graphics context
 			if ((result = mpPluginManagerInstance->LoadPlugin("D3D11GraphicsContext")) != RC_OK)
 			{
@@ -97,7 +97,7 @@ namespace TDEngine2
 			break;
 #endif
 		case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 			result = mpPluginManagerInstance->LoadPlugin("GLGraphicsContext");
 #elif defined (TDE2_USE_UNIXPLATFORM)
 			result = mpPluginManagerInstance->LoadPlugin("./GLGraphicsContext");
@@ -130,7 +130,7 @@ namespace TDEngine2
 		switch (type)
 		{
 			case E_AUDIO_CONTEXT_API_TYPE::FMOD:
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 			result = mpPluginManagerInstance->LoadPlugin("FmodAudioContext");
 #elif defined (TDE2_USE_UNIXPLATFORM)
 			result = mpPluginManagerInstance->LoadPlugin("./FmodAudioContext");
@@ -160,7 +160,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-#if defined (TDE2_USE_WIN32PLATFORM)																/// Win32 Platform
+#if defined (TDE2_USE_WINPLATFORM)																/// Win32 Platform
 		mpWindowSystemInstance = TPtr<IWindowSystem>(CreateWin32WindowSystem(mpEventManagerInstance, name, width, height, flags, result));
 #elif defined (TDE2_USE_UNIXPLATFORM)
 		mpWindowSystemInstance = TPtr<IWindowSystem>(CreateUnixWindowSystem(mpEventManagerInstance, name, width, height, flags, result));
@@ -184,7 +184,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 		mpFileSystemInstance = TPtr<IFileSystem>(CreateWin32FileSystem(result));
 #elif defined (TDE2_USE_UNIXPLATFORM)
 		mpFileSystemInstance = TPtr<IFileSystem>(CreateUnixFileSystem(result));
@@ -250,7 +250,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-#if defined (TDE2_USE_WIN32PLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
+#if defined (TDE2_USE_WINPLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
 		mpJobManagerInstance = TPtr<IJobManager>(CreateBaseJobManager(maxNumOfThreads, result));
 #else
 #endif
@@ -272,7 +272,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-#if defined (TDE2_USE_WIN32PLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
+#if defined (TDE2_USE_WINPLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
 		mpPluginManagerInstance = TPtr<IPluginManager>(CreateBasePluginManager(TPtr<IEngineCore>(mpEngineCoreInstance), result));
 #else
 #endif
@@ -400,7 +400,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 		if ((result = mpPluginManagerInstance->LoadPlugin("WindowsInputContext")) != RC_OK)
 		{
 			return result;
@@ -424,7 +424,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 		if ((result = mpPluginManagerInstance->LoadPlugin("ImGUIContext")) != RC_OK)
 		{
 			return result;

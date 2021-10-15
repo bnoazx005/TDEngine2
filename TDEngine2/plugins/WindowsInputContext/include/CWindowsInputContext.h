@@ -12,7 +12,7 @@
 #include <utils/Utils.h>
 
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 
 #include <dinput.h>
 #include <Xinput.h>

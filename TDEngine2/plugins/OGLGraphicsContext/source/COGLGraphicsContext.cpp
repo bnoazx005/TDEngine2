@@ -12,7 +12,7 @@
 #include "deferOperation.hpp"
 
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 	#include <GL/glew.h>
 	#pragma comment(lib, "glew32.lib")
 #elif defined (TDE2_USE_UNIXPLATFORM)
@@ -201,7 +201,7 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::Present()
 	{
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 		SwapBuffers(mWindowInternalData.mDeviceContextHandler);
 #elif defined (TDE2_USE_UNIXPLATFORM)
 		glXSwapBuffers(mWindowInternalData.mpDisplayHandler, mWindowInternalData.mWindowHandler);

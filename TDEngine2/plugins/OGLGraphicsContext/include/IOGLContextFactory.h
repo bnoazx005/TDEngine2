@@ -18,7 +18,7 @@ namespace TDEngine2
 	class IWindowSystem;
 
 	
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 	typedef HGLRC TOGLCtxHandler;
 #elif defined (TDE2_USE_UNIXPLATFORM)
 	typedef GLXContext TOGLCtxHandler;

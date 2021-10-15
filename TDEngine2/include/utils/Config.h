@@ -13,9 +13,11 @@
 
 namespace TDEngine2
 {
+	#define TDE2_WINDOWS (_WIN32 | _WIN64)
+
 	/// Macroses' definitions to handle exporting objects
 
-	#if defined(_WIN32) || defined(_MSC_VER)
+	#if TDE2_WINDOWS || defined(_MSC_VER)
 		#define TDE2_APIENTRY __cdecl					///< Calling convention for VS
 
 		#if defined(TDE2_DLLIMPORT)
@@ -37,8 +39,8 @@ namespace TDEngine2
 
 	/// Platform-specific macroses are used to configure build in compile time
 
-	#if defined(_WIN32)
-		#define TDE2_USE_WIN32PLATFORM
+	#if TDE2_WINDOWS
+		#define TDE2_USE_WINPLATFORM
 
 		#define TDE2_BUILD_D3D11_GCTX_PLUGIN
 		#define TDE2_BUILD_OGL_GCTX_PLUGIN

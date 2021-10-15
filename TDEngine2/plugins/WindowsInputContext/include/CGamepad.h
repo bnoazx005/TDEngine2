@@ -10,7 +10,7 @@
 #include <core/CBaseObject.h>
 #include <core/IInputDevice.h>
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 
 #include <XInput.h>
 

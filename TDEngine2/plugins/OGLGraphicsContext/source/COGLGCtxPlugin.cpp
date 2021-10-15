@@ -34,7 +34,7 @@ namespace TDEngine2
 		
 		TCreateGLContextFactoryCallback pGLContextFactoryCallback = nullptr;
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 		pGLContextFactoryCallback = CreateWin32GLContextFactory;
 #elif defined (TDE2_USE_UNIXPLATFORM)
 		pGLContextFactoryCallback = CreateUnixGLContextFactory;

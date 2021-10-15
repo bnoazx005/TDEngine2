@@ -10,7 +10,7 @@
 #include "./../../utils/Config.h"
 
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 
 #include "./../../core/CBaseObject.h"
 #include "./../../utils/ITimer.h"

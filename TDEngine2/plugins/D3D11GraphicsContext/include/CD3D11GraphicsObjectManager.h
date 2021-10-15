@@ -12,7 +12,7 @@
 #include <vector>
 
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 
 
 namespace TDEngine2

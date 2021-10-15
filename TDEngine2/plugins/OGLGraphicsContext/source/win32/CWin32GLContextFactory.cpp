@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 
 
-#if defined(TDE2_USE_WIN32PLATFORM)
+#if defined(TDE2_USE_WINPLATFORM)
 
 #include <GL/wglew.h>
 

@@ -11,7 +11,7 @@
 #include <core/CBaseObject.h>
 
 
-#if defined(TDE2_USE_WIN32PLATFORM) /// Used only on Windows platform
+#if defined(TDE2_USE_WINPLATFORM) /// Used only on Windows platform
 
 namespace TDEngine2
 {

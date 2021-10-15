@@ -13,7 +13,7 @@
 #include <string>
 
 
-#if defined (TDE2_USE_WIN32PLATFORM)
+#if defined (TDE2_USE_WINPLATFORM)
 
 #include <d3d11.h>
 
