@@ -1,4 +1,4 @@
-#include "./../../../include/core/memory/CLinearAllocator.h"
+#include "../../../include/core/memory/CLinearAllocator.h"
 #include "../../../include/editor/CMemoryProfiler.h"
 #include "../../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLinearAllocator::Init(U32 totalMemorySize, U8* pMemoryBlock)
+	E_RESULT_CODE CLinearAllocator::Init(TSizeType totalMemorySize, U8* pMemoryBlock)
 	{
 		E_RESULT_CODE result = CBaseAllocator::Init(totalMemorySize, pMemoryBlock);
 
@@ -26,7 +26,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void* CLinearAllocator::Allocate(U32 size, U8 alignment)
+	void* CLinearAllocator::Allocate(TSizeType size, U8 alignment)
 	{
 		U8 padding = CBaseAllocator::GetPadding(mpCurrPos, alignment);
 
@@ -68,7 +68,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IAllocator* CreateLinearAllocator(U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
+	TDE2_API IAllocator* CreateLinearAllocator(USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IAllocator, CLinearAllocator, result, totalMemorySize, pMemoryBlock);
 	}

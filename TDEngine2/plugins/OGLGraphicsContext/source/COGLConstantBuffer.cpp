@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLConstantBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
+	E_RESULT_CODE COGLConstantBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -48,7 +48,7 @@ namespace TDEngine2
 		return mpBufferImpl->Unmap();
 	}
 
-	E_RESULT_CODE COGLConstantBuffer::Write(const void* pData, U32 size)
+	E_RESULT_CODE COGLConstantBuffer::Write(const void* pData, USIZE size)
 	{
 		return mpBufferImpl->Write(pData, size);
 	}
@@ -87,19 +87,19 @@ namespace TDEngine2
 		return mpBufferImpl->GetInternalData();
 	}
 
-	U32 COGLConstantBuffer::GetSize() const
+	USIZE COGLConstantBuffer::GetSize() const
 	{
 		return mpBufferImpl->GetSize();
 	}
 
-	U32 COGLConstantBuffer::GetUsedSize() const
+	USIZE COGLConstantBuffer::GetUsedSize() const
 	{
 		return mpBufferImpl->GetUsedSize();
 	}
 
 
 	TDE2_API IConstantBuffer* CreateOGLConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
-													  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+													  USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IConstantBuffer, COGLConstantBuffer, result, pGraphicsContext, usageType, totalBufferSize, pDataPtr);
 	}

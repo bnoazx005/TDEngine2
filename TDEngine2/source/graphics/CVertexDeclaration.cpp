@@ -60,7 +60,7 @@ namespace TDEngine2
 
 	U32 CVertexDeclaration::GetElementsCount() const
 	{
-		return mElements.size();
+		return static_cast<U32>(mElements.size());
 	}
 
 	U32 CVertexDeclaration::GetStrideSize(U32 sourceIndex) const

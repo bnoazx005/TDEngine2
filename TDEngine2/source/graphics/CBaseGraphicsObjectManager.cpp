@@ -94,7 +94,7 @@ namespace TDEngine2
 
 		if (mFreeBuffersSlots.empty())
 		{
-			index = mBuffersArray.size();
+			index = static_cast<U32>(mBuffersArray.size());
 
 			mBuffersArray.push_back(pBuffer);
 
@@ -116,7 +116,7 @@ namespace TDEngine2
 
 		if (mFreeVertDeclsSlots.empty())
 		{
-			index = mVertexDeclarationsArray.size();
+			index = static_cast<U32>(mVertexDeclarationsArray.size());
 
 			mVertexDeclarationsArray.push_back(pVertDecl);
 

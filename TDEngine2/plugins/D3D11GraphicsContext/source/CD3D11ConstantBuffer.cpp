@@ -13,7 +13,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11ConstantBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
+	E_RESULT_CODE CD3D11ConstantBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -51,7 +51,7 @@ namespace TDEngine2
 		return mpBufferImpl->Unmap();
 	}
 
-	E_RESULT_CODE CD3D11ConstantBuffer::Write(const void* pData, U32 size)
+	E_RESULT_CODE CD3D11ConstantBuffer::Write(const void* pData, USIZE size)
 	{
 		return mpBufferImpl->Write(pData, size);
 	}
@@ -97,39 +97,21 @@ namespace TDEngine2
 		return mpBufferImpl->GetInternalData();
 	}
 
-	U32 CD3D11ConstantBuffer::GetSize() const
+	USIZE CD3D11ConstantBuffer::GetSize() const
 	{
 		return mpBufferImpl->GetSize();
 	}
 
-	U32 CD3D11ConstantBuffer::GetUsedSize() const
+	USIZE CD3D11ConstantBuffer::GetUsedSize() const
 	{
 		return mpBufferImpl->GetUsedSize();
 	}
 
 
 	TDE2_API IConstantBuffer* CreateD3D11ConstantBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
-		U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+		USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
-		CD3D11ConstantBuffer* pConstantBufferInstance = new (std::nothrow) CD3D11ConstantBuffer();
-
-		if (!pConstantBufferInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pConstantBufferInstance->Init(pGraphicsContext, usageType, totalBufferSize, pDataPtr);
-
-		if (result != RC_OK)
-		{
-			delete pConstantBufferInstance;
-
-			pConstantBufferInstance = nullptr;
-		}
-
-		return pConstantBufferInstance;
+		return CREATE_IMPL(IConstantBuffer, CD3D11ConstantBuffer, result, pGraphicsContext, usageType, totalBufferSize, pDataPtr);
 	}
 }
 

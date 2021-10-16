@@ -13,7 +13,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CStackAllocator::Init(U32 totalMemorySize, U8* pMemoryBlock)
+	E_RESULT_CODE CStackAllocator::Init(TSizeType totalMemorySize, U8* pMemoryBlock)
 	{
 		E_RESULT_CODE result = CBaseAllocator::Init(totalMemorySize, pMemoryBlock);
 
@@ -27,7 +27,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void* CStackAllocator::Allocate(U32 size, U8 alignment)
+	void* CStackAllocator::Allocate(TSizeType size, U8 alignment)
 	{
 		U8 padding = CBaseAllocator::GetPaddingWithHeader(mpCurrPos, alignment, mHeaderSize);
 
@@ -77,7 +77,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IAllocator* CreateStackAllocator(U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
+	TDE2_API IAllocator* CreateStackAllocator(USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IAllocator, CStackAllocator, result, totalMemorySize, pMemoryBlock);
 	}

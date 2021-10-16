@@ -16,7 +16,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CMemoryManager::Init(U32 totalMemorySize)
+	E_RESULT_CODE CMemoryManager::Init(TSizeType totalMemorySize)
 	{
 		if (mIsInitialized)
 		{
@@ -92,9 +92,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void* CMemoryManager::Allocate(U32 size, const C8* userName)
+	void* CMemoryManager::Allocate(TSizeType size, const C8* userName)
 	{
-		const U32 currOffset = mpGlobalAllocator->GetUsedMemorySize();
+		const TSizeType currOffset = mpGlobalAllocator->GetUsedMemorySize();
 
 		void* pMemoryBlock = mpGlobalAllocator->Allocate(size, __alignof(U8));
 
@@ -215,7 +215,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IMemoryManager* CreateMemoryManager(U32 totalMemorySize, E_RESULT_CODE& result)
+	TDE2_API IMemoryManager* CreateMemoryManager(USIZE totalMemorySize, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IMemoryManager, CMemoryManager, result, totalMemorySize);
 	}

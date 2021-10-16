@@ -31,6 +31,8 @@ namespace TDEngine2
 	class IMemoryManager: public IEngineSubsystem
 	{
 		public:
+			typedef USIZE TSizeType;
+		public:
 			/*!
 				\brief The method initializes an internal state of an allocator
 
@@ -39,7 +41,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(U32 totalMemorySize) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TSizeType totalMemorySize) = 0;
 
 			/*!
 				\brief The method registers a given factory object within the manager
@@ -101,7 +103,7 @@ namespace TDEngine2
 				\return A pointer to a new allocated memory block
 			*/
 
-			TDE2_API virtual void* Allocate(U32 size, const C8* userName = nullptr) = 0;
+			TDE2_API virtual void* Allocate(TSizeType size, const C8* userName = nullptr) = 0;
 
 			/*!
 				\brief The method deallocates a given piece of memory

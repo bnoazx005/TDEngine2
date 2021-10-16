@@ -13,7 +13,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11VertexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
+	E_RESULT_CODE CD3D11VertexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -61,7 +61,7 @@ namespace TDEngine2
 		return mpBufferImpl->Unmap();
 	}
 
-	E_RESULT_CODE CD3D11VertexBuffer::Write(const void* pData, U32 size)
+	E_RESULT_CODE CD3D11VertexBuffer::Write(const void* pData, USIZE size)
 	{
 		return mpBufferImpl->Write(pData, size);
 	}
@@ -76,7 +76,7 @@ namespace TDEngine2
 		mp3dDeviceContext->IASetVertexBuffers(slot, 1, &mpInternalVertexBuffer, &stride, &offset);
 	}
 
-	void CD3D11VertexBuffer::SetInputLayout(ID3D11InputLayout* pInputLayout, U32 stride)
+	void CD3D11VertexBuffer::SetInputLayout(ID3D11InputLayout* pInputLayout, USIZE stride)
 	{
 		mpInputLayout = pInputLayout;
 
@@ -88,39 +88,21 @@ namespace TDEngine2
 		return mpBufferImpl->GetInternalData();
 	}
 
-	U32 CD3D11VertexBuffer::GetSize() const
+	USIZE CD3D11VertexBuffer::GetSize() const
 	{
 		return mpBufferImpl->GetSize();
 	}
 
-	U32 CD3D11VertexBuffer::GetUsedSize() const
+	USIZE CD3D11VertexBuffer::GetUsedSize() const
 	{
 		return mpBufferImpl->GetUsedSize();
 	}
 
 
 	TDE2_API IVertexBuffer* CreateD3D11VertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, 
-													U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+													USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
-		CD3D11VertexBuffer* pVertexBufferInstance = new (std::nothrow) CD3D11VertexBuffer();
-
-		if (!pVertexBufferInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pVertexBufferInstance->Init(pGraphicsContext, usageType, totalBufferSize, pDataPtr);
-
-		if (result != RC_OK)
-		{
-			delete pVertexBufferInstance;
-
-			pVertexBufferInstance = nullptr;
-		}
-
-		return pVertexBufferInstance;
+		return CREATE_IMPL(IVertexBuffer, CD3D11VertexBuffer, result, pGraphicsContext, usageType, totalBufferSize, pDataPtr);
 	}
 }
 

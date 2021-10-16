@@ -76,7 +76,7 @@ namespace TDEngine2
 	{
 		std::string mName;
 
-		U32         mSize;
+		USIZE       mSize;
 	} TShaderUniformDesc, *TShaderUniformDescPtr;
 
 
@@ -91,7 +91,7 @@ namespace TDEngine2
 	{
 		U8                              mSlot;
 
-		U32                             mSize;
+		USIZE                           mSize;
 
 		E_UNIFORM_BUFFER_DESC_FLAGS     mFlags;			/// The field is used to provide additional information about a buffer
 

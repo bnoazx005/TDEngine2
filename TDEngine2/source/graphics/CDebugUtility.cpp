@@ -99,7 +99,7 @@ namespace TDEngine2
 			pDrawLinesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
 			pDrawLinesCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mDefaultDebugMaterialName);
 			pDrawLinesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
-			pDrawLinesCommand->mNumOfVertices           = mLinesDataBuffer.size();
+			pDrawLinesCommand->mNumOfVertices           = static_cast<U32>(mLinesDataBuffer.size());
 			pDrawLinesCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
 
@@ -116,7 +116,7 @@ namespace TDEngine2
 			pDrawCrossesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
 			pDrawCrossesCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mDefaultDebugMaterialName);
 			pDrawCrossesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
-			pDrawCrossesCommand->mNumOfVertices           = mCrossesDataBuffer.size();
+			pDrawCrossesCommand->mNumOfVertices           = static_cast<U32>(mCrossesDataBuffer.size());
 			pDrawCrossesCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
 

@@ -150,7 +150,7 @@ namespace TDEngine2
 					continue;
 				}
 
-				currConstantBuffer.second.mSize = std::max<U32>(currConstantBuffer.second.mSize, constantBufferInfoDesc.Size);
+				currConstantBuffer.second.mSize = std::max<USIZE>(currConstantBuffer.second.mSize, static_cast<USIZE>(constantBufferInfoDesc.Size));
 				
 				for (TShaderUniformDesc& variableDesc : currConstantBuffer.second.mVariables)
 				{
@@ -161,7 +161,7 @@ namespace TDEngine2
 							continue;
 						}
 
-						variableDesc.mSize = std::max<U32>(variableDesc.mSize, shaderVariableInfoDesc.Size);
+						variableDesc.mSize = std::max<USIZE>(variableDesc.mSize, static_cast<USIZE>(shaderVariableInfoDesc.Size));
 					}
 				}
 			}
@@ -292,15 +292,15 @@ namespace TDEngine2
 		return SFL_5_0;
 	}
 
-	U32 CD3D11ShaderCompiler::_getBuiltinTypeSize(const std::string& type) const
+	USIZE CD3D11ShaderCompiler::_getBuiltinTypeSize(const std::string& type) const
 	{
-		U32 pos = type.find_first_of("1234");
+		USIZE pos = type.find_first_of("1234");
 		
-		U32 size = 1;
+		USIZE size = 1;
 
 		std::string baseType = type.substr(0, pos);
 		
-		U32 currPos = 0;
+		USIZE currPos = 0;
 
 		while ((pos = type.find_first_of("1234", currPos)) != std::string::npos)
 		{

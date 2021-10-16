@@ -65,16 +65,17 @@ target_link_libraries(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC ${TDENGINE2_LIBR
 set(FMOD_INCLUDES_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/deps/fmod/includes/")
 set(FMOD_LIB_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/deps/fmod/lib/")
 
+
 # Set up FMOD 
 if (MSVC)
 	set(FMOD_CORE_LIBS 
-		"${FMOD_LIB_DIRECTORY}core/x86/fmod_vc.lib"
-		"${FMOD_LIB_DIRECTORY}core/x86/fmodL_vc.lib"
+		"${FMOD_LIB_DIRECTORY}core/x64/fmod_vc.lib"
+		"${FMOD_LIB_DIRECTORY}core/x64/fmodL_vc.lib"
 	)
 
 	set(FMOD_STUDIO_LIBS 
-		"${FMOD_LIB_DIRECTORY}studio/x86/fmodstudio_vc.lib"
-		"${FMOD_LIB_DIRECTORY}studio/x86/fmodstudioL_vc.lib"
+		"${FMOD_LIB_DIRECTORY}studio/x64/fmodstudio_vc.lib"
+		"${FMOD_LIB_DIRECTORY}studio/x64/fmodstudioL_vc.lib"
 	)
 
 	target_link_libraries(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC ${FMOD_CORE_LIBS} ${FMOD_STUDIO_LIBS})

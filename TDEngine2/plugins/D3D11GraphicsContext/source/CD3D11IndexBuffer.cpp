@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11IndexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
+	E_RESULT_CODE CD3D11IndexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize,
 										  E_INDEX_FORMAT_TYPE indexFormatType, const void* pDataPtr)
 	{
 		if (mIsInitialized)
@@ -65,7 +65,7 @@ namespace TDEngine2
 		return mpBufferImpl->Unmap();
 	}
 
-	E_RESULT_CODE CD3D11IndexBuffer::Write(const void* pData, U32 size)
+	E_RESULT_CODE CD3D11IndexBuffer::Write(const void* pData, USIZE size)
 	{
 		return mpBufferImpl->Write(pData, size);
 	}
@@ -90,12 +90,12 @@ namespace TDEngine2
 		return mpBufferImpl->GetInternalData();
 	}
 
-	U32 CD3D11IndexBuffer::GetSize() const
+	USIZE CD3D11IndexBuffer::GetSize() const
 	{
 		return mpBufferImpl->GetSize();
 	}
 
-	U32 CD3D11IndexBuffer::GetUsedSize() const
+	USIZE CD3D11IndexBuffer::GetUsedSize() const
 	{
 		return mpBufferImpl->GetUsedSize();
 	}
@@ -107,7 +107,7 @@ namespace TDEngine2
 
 
 	TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-												  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+												  USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IIndexBuffer, CD3D11IndexBuffer, result, pGraphicsContext, usageType, totalBufferSize, indexFormatType, pDataPtr);
 	}

@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../IBaseObject.h"
-#include "./../../utils/Utils.h"
+#include "../IBaseObject.h"
+#include "../../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -22,6 +22,8 @@ namespace TDEngine2
 	class IAllocator: public virtual IBaseObject
 	{
 		public:
+			typedef USIZE TSizeType;
+		public:
 			/*!
 				\brief The method initializes an internal state of an allocator
 
@@ -32,7 +34,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(U32 totalMemorySize, U8* pMemoryBlock) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TSizeType totalMemorySize, U8* pMemoryBlock) = 0;
 
 			/*!
 				\brief The method allocates a new piece of memory of specified size,
@@ -45,7 +47,7 @@ namespace TDEngine2
 				\return A pointer to the allocated block, returns nullptr if there is no free space
 			*/
 
-			TDE2_API virtual void* Allocate(U32 size, U8 alignment) = 0;
+			TDE2_API virtual void* Allocate(TSizeType size, U8 alignment) = 0;
 
 			/*!
 				\brief The method deallocates memory in position specified with a given pointer
@@ -75,7 +77,7 @@ namespace TDEngine2
 				\return The method returns total size of available memory 
 			*/
 
-			TDE2_API virtual U32 GetTotalMemorySize() const = 0;
+			TDE2_API virtual TSizeType GetTotalMemorySize() const = 0;
 
 			/*!
 				\brief The method returns a size of used memory
@@ -83,7 +85,7 @@ namespace TDEngine2
 				\return The method returns a size of used memory
 			*/
 
-			TDE2_API virtual U32 GetUsedMemorySize() const = 0;
+			TDE2_API virtual TSizeType GetUsedMemorySize() const = 0;
 
 			/*!
 				\brief The methods returns total number of allocations
@@ -107,10 +109,10 @@ namespace TDEngine2
 	typedef struct TBaseAllocatorParams
 	{
 		TDE2_API TBaseAllocatorParams() = default;
-		TDE2_API TBaseAllocatorParams(U32 size);
+		TDE2_API TBaseAllocatorParams(USIZE size);
 		TDE2_API virtual ~TBaseAllocatorParams() = default;
 
-		U32 mMemoryBlockSize;
+		USIZE mMemoryBlockSize;
 	} TBaseAllocatorParams, *TBaseAllocatorParamsPtr;
 
 

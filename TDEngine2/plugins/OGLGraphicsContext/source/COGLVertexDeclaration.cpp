@@ -46,7 +46,7 @@ namespace TDEngine2
 		U32 nextInstanceDivisorIndex = currInstanceDivisorIndex;
 		U32 currInstancesPerData     = 0;
 		U32 nextInstancesPerData     = 0;
-		U32 currOffset               = 0;
+		USIZE currOffset             = 0;
 		U32 vertexStrideSize         = GetStrideSize(0);
 
 		TInstancingInfoArray::const_iterator instancingInfoIter = mInstancingInfo.cbegin();

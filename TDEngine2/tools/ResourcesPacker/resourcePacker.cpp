@@ -219,7 +219,7 @@ namespace TDEngine2
 		}
 
 		TPackageFileHeader header;
-		header.mEntitiesCount = filesTable.size();
+		header.mEntitiesCount = static_cast<uint32_t>(filesTable.size());
 		header.mFilesTableOffset = packageFile.tellp();
 
 		// \note Write down files table to end of the file

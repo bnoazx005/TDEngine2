@@ -29,8 +29,7 @@ namespace TDEngine2
 	class CD3D11VertexBuffer : public IVertexBuffer, public CBaseObject
 	{
 		public:
-			friend TDE2_API IVertexBuffer* CreateD3D11VertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, 
-																   U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
+			friend TDE2_API IVertexBuffer* CreateD3D11VertexBuffer(IGraphicsContext*, E_BUFFER_USAGE_TYPE, USIZE, const void*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -44,7 +43,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr) override;
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr) override;
 
 			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
@@ -71,7 +70,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Write(const void* pData, U32 size) override;
+			TDE2_API E_RESULT_CODE Write(const void* pData, USIZE size) override;
 
 			/*!
 				\brief The method returns a pointer to buffer's data
@@ -102,7 +101,7 @@ namespace TDEngine2
 				\param[in] stride A size of a single vertex element in bytes
 			*/
 
-			TDE2_API void SetInputLayout(ID3D11InputLayout* pInputLayout, U32 stride);
+			TDE2_API void SetInputLayout(ID3D11InputLayout* pInputLayout, USIZE stride);
 
 			/*!
 				\brief The method returns an internal data of a buffer, which
@@ -120,13 +119,13 @@ namespace TDEngine2
 				\return The method returns buffer's size in bytes
 			*/
 
-			TDE2_API U32 GetSize() const override;
+			TDE2_API USIZE GetSize() const override;
 
 			/*!
 				\return The method returns an amount of occupied buffer's bytes
 			*/
 
-			TDE2_API U32 GetUsedSize() const override;
+			TDE2_API USIZE GetUsedSize() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexBuffer)
 
@@ -140,7 +139,7 @@ namespace TDEngine2
 			
 			ID3D11Buffer*        mpInternalVertexBuffer;
 
-			U32                  mVertexStride;
+			USIZE                mVertexStride;
 	};
 
 
@@ -151,7 +150,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IVertexBuffer* CreateD3D11VertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
-												    U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
+												    USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
 }
 
 #endif

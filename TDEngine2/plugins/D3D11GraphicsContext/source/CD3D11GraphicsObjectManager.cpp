@@ -17,7 +17,7 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IVertexBuffer*> CD3D11GraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
+	TResult<IVertexBuffer*> CD3D11GraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -34,7 +34,7 @@ namespace TDEngine2
 	}
 
 	TResult<IIndexBuffer*> CD3D11GraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																		  U32 totalBufferSize, const void* pDataPtr)
+																		  USIZE totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -50,7 +50,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);
 	}
 
-	TResult<IConstantBuffer*> CD3D11GraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
+	TResult<IConstantBuffer*> CD3D11GraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -709,25 +709,7 @@ namespace TDEngine2
 
 	IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		CD3D11GraphicsObjectManager* pManagerInstance = new (std::nothrow) CD3D11GraphicsObjectManager();
-
-		if (!pManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pManagerInstance->Init(pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pManagerInstance;
-
-			pManagerInstance = nullptr;
-		}
-
-		return pManagerInstance;
+		return CREATE_IMPL(IGraphicsObjectManager, CD3D11GraphicsObjectManager, result, pGraphicsContext);
 	}
 }
 

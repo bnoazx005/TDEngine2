@@ -216,7 +216,7 @@ namespace TDEngine2
 			// \note we need to create vertex and index buffers for the object
 			if (pSkinnedMeshContainer->GetSystemBuffersHandle() == static_cast<U32>(-1))
 			{
-				pSkinnedMeshContainer->SetSystemBuffersHandle(mMeshBuffersMap.size());
+				pSkinnedMeshContainer->SetSystemBuffersHandle(static_cast<U32>(mMeshBuffersMap.size()));
 
 				auto pVertexDecl = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 
@@ -297,7 +297,7 @@ namespace TDEngine2
 			pCommand->mMaterialHandle             = currMaterialId;
 			pCommand->mMaterialInstanceId         = materialInstance;
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
-			pCommand->mNumOfIndices               = pSharedMeshResource->GetIndices().size();
+			pCommand->mNumOfIndices               = static_cast<U32>(pSharedMeshResource->GetIndices().size());
 			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
 			pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));

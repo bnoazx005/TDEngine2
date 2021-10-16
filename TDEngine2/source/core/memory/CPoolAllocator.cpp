@@ -4,7 +4,7 @@
 
 namespace TDEngine2
 {
-	TPoolAllocatorParams::TPoolAllocatorParams(U32 size, U32 perElementSize, U32 elementAlignment):
+	TPoolAllocatorParams::TPoolAllocatorParams(USIZE size, USIZE perElementSize, USIZE elementAlignment):
 		TBaseAllocatorParams(size), mPerObjectSize(perElementSize), mObjectAlignment(elementAlignment)
 	{
 	}
@@ -16,7 +16,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CPoolAllocator::Init(U32 objectSize, U32 objectAlignment, U32 totalMemorySize, U8* pMemoryBlock)
+	E_RESULT_CODE CPoolAllocator::Init(TSizeType objectSize, TSizeType objectAlignment, TSizeType totalMemorySize, U8* pMemoryBlock)
 	{
 		E_RESULT_CODE result = CBaseAllocator::Init(totalMemorySize, pMemoryBlock);
 
@@ -32,7 +32,7 @@ namespace TDEngine2
 		return Clear();
 	}
 
-	void* CPoolAllocator::Allocate(U32 size, U8 alignment)
+	void* CPoolAllocator::Allocate(TSizeType size, U8 alignment)
 	{
 		if (!mppNextFreeBlock)
 		{
@@ -72,11 +72,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPoolAllocator::Clear()
 	{
-		U8 padding = CBaseAllocator::GetPadding(mpMemoryBlock, mObjectAlignment);
+		U8 padding = CBaseAllocator::GetPadding(mpMemoryBlock, static_cast<U8>(mObjectAlignment));
 
 		mppNextFreeBlock = reinterpret_cast<void**>(reinterpret_cast<U32Ptr>(mpMemoryBlock) + static_cast<U32Ptr>(mObjectAlignment));
 
-		U32 numOfObjects = (mTotalMemorySize - padding) / mObjectSize;
+		U32 numOfObjects = static_cast<U32>((mTotalMemorySize - padding) / mObjectSize);
 
 		void** pCurrBlock = mppNextFreeBlock;
 
@@ -91,7 +91,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IAllocator* CreatePoolAllocator(U32 objectSize, U32 objectAlignment, U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
+	TDE2_API IAllocator* CreatePoolAllocator(USIZE objectSize, USIZE objectAlignment, USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IAllocator, CPoolAllocator, result, objectSize, objectAlignment, totalMemorySize, pMemoryBlock);
 	}

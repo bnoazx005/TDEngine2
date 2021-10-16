@@ -88,7 +88,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			mHandles2EntitiesMap[mCollidersData.mTransforms.size()] = currEntityId;
+			mHandles2EntitiesMap[static_cast<U32>(mCollidersData.mTransforms.size())] = currEntityId;
 
 			pTransform = pCurrEntity->GetComponent<CTransform>();
 			
@@ -345,7 +345,7 @@ namespace TDEngine2
 	TEntityId CPhysics2DSystem::CTriggerContactsListener::_getEntityIdByBody(const b2Body* pBody) const
 	{
 		auto iter = std::find(mpBodies->cbegin(), mpBodies->cend(), pBody);
-		return (iter != mpBodies->cend()) ? mpHandles2EntitiesMap->at(std::distance(mpBodies->cbegin(), iter)) : TEntityId::Invalid;
+		return (iter != mpBodies->cend()) ? static_cast<TEntityId>(mpHandles2EntitiesMap->at(static_cast<U32>(std::distance(mpBodies->cbegin(), iter)))) : TEntityId::Invalid;
 	}
 
 

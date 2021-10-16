@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLVertexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
+	E_RESULT_CODE COGLVertexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -48,7 +48,7 @@ namespace TDEngine2
 		return mpBufferImpl->Unmap();
 	}
 
-	E_RESULT_CODE COGLVertexBuffer::Write(const void* pData, U32 size)
+	E_RESULT_CODE COGLVertexBuffer::Write(const void* pData, USIZE size)
 	{
 		return mpBufferImpl->Write(pData, size);
 	}
@@ -73,19 +73,19 @@ namespace TDEngine2
 		return mpBufferImpl->GetInternalData();
 	}
 
-	U32 COGLVertexBuffer::GetSize() const
+	USIZE COGLVertexBuffer::GetSize() const
 	{
 		return mpBufferImpl->GetSize();
 	}
 
-	U32 COGLVertexBuffer::GetUsedSize() const
+	USIZE COGLVertexBuffer::GetUsedSize() const
 	{
 		return mpBufferImpl->GetUsedSize();
 	}
 
 
 	TDE2_API IVertexBuffer* CreateOGLVertexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType,
-												  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+												  USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IVertexBuffer, COGLVertexBuffer, result, pGraphicsContext, usageType, totalBufferSize, pDataPtr);
 	}

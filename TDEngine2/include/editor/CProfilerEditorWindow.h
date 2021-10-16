@@ -57,7 +57,7 @@ namespace TDEngine2
 				\param[in] mainThreadID An identifier of the main thread
 			*/
 
-			TDE2_API virtual void SetMainThreadID(U32 mainThreadID);
+			TDE2_API virtual void SetMainThreadID(USIZE mainThreadID);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTimeProfilerEditorWindow)
 
@@ -82,7 +82,7 @@ namespace TDEngine2
 
 			TVector2         mSpacingSizes = TVector2(2.0f, 2.0f);
 
-			U32              mMainThreadID;
+			USIZE            mMainThreadID;
 	};
 
 

@@ -85,7 +85,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize)
+	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize)
 	{
 		if (slot >= MaxNumberOfUserConstantBuffers)
 		{

@@ -30,9 +30,9 @@ namespace TDEngine2
 		public:
 			typedef struct TGlobalMemoryBlockInfo
 			{
-				U32 mOffset; // < An offset within a global chunk of memory
-				U32 mCurrOccupiedSize = 0;
-				U32 mTotalSize;
+				USIZE mOffset; // < An offset within a global chunk of memory
+				USIZE mCurrOccupiedSize = 0;
+				USIZE mTotalSize;
 			} TGlobalMemoryBlockInfo, *TMemoryBlockInfoPtr;
 
 			typedef std::unordered_map<std::string, TGlobalMemoryBlockInfo> TProfilerStatisticsData;
@@ -54,7 +54,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE EndFrame() override;
 
-			TDE2_API E_RESULT_CODE SetTotalMemoryAvailable(U32 size) override;
+			TDE2_API E_RESULT_CODE SetTotalMemoryAvailable(USIZE size) override;
 
 			/*!
 				\brief The method creates an information block which is related with some memory block
@@ -62,7 +62,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterGlobalMemoryBlock(const std::string& name, U32 offset, U32 size) override;
+			TDE2_API E_RESULT_CODE RegisterGlobalMemoryBlock(const std::string& name, USIZE offset, USIZE size) override;
 
 			/*!
 				\brief The method updates information about memory block's occupation
@@ -73,7 +73,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, U32 usedSize) override;
+			TDE2_API E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, USIZE usedSize) override;
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
@@ -86,13 +86,13 @@ namespace TDEngine2
 
 			const TProfilerStatisticsData& GetStatistics() const;
 
-			TDE2_API U32 GetTotalMemoryAvailable() const override;
+			TDE2_API USIZE GetTotalMemoryAvailable() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryProfiler);
 		private:
 			TProfilerStatisticsData mBlocksInfoRegistry;
 
-			U32 mTotalMemorySize;
+			USIZE mTotalMemorySize;
 	};
 
 

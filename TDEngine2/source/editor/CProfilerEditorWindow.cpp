@@ -52,7 +52,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CTimeProfilerEditorWindow::SetMainThreadID(U32 mainThreadID)
+	void CTimeProfilerEditorWindow::SetMainThreadID(USIZE mainThreadID)
 	{
 		mMainThreadID = mainThreadID;
 	}
@@ -218,7 +218,7 @@ namespace TDEngine2
 				const TColor32F textColor { 1.0f };
 
 				const F32 windowWidth = mpImGUIContext->GetWindowWidth();
-				const U32 totalMemory = CMemoryProfiler::Get()->GetTotalMemoryAvailable();
+				const U32 totalMemory = static_cast<U32>(CMemoryProfiler::Get()->GetTotalMemoryAvailable());
 				const F32 scale = windowWidth / static_cast<F32>(totalMemory > 0 ? totalMemory : 1);
 
 				auto cursorPos = mpImGUIContext->GetCursorScreenPos();

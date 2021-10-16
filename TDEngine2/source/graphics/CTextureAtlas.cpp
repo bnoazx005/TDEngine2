@@ -264,7 +264,7 @@ namespace TDEngine2
 				if (pCurrSubdivisionEntry->mBounds.width >= dataIter->mRect.width &&
 					pCurrSubdivisionEntry->mBounds.height >= dataIter->mRect.height)
 				{
-					pCurrSubdivisionEntry->mTextureEntryId = std::distance(mPendingData.cbegin(), dataIter);
+					pCurrSubdivisionEntry->mTextureEntryId = static_cast<U32>(std::distance(mPendingData.cbegin(), dataIter));
 
 					F32 dx = static_cast<F32>(pCurrSubdivisionEntry->mBounds.width - dataIter->mRect.width);
 					F32 dy = static_cast<F32>(pCurrSubdivisionEntry->mBounds.height - dataIter->mRect.height);

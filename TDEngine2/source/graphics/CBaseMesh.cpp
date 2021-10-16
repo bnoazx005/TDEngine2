@@ -176,7 +176,7 @@ namespace TDEngine2
 	U32 CBaseMesh::GetFacesCount() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return mIndices.size() / 3;
+		return static_cast<U32>(mIndices.size()) / 3;
 	}
 
 	IVertexBuffer* CBaseMesh::GetSharedVertexBuffer() const

@@ -29,7 +29,7 @@ namespace TDEngine2
 		\return A pointer to CPoolAllocator's implementation
 	*/
 
-	TDE2_API IAllocator* CreatePoolAllocator(U32 objectSize, U32 objectAlignment, U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
+	TDE2_API IAllocator* CreatePoolAllocator(USIZE objectSize, USIZE objectAlignment, USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
 
 
 	/*!
@@ -42,7 +42,7 @@ namespace TDEngine2
 	class CPoolAllocator : public CBaseAllocator
 	{
 		public:
-			friend TDE2_API IAllocator* CreatePoolAllocator(U32 objectSize, U32 objectAlignment, U32 totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
+			friend TDE2_API IAllocator* CreatePoolAllocator(USIZE objectSize, USIZE objectAlignment, USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(CPoolAllocator)
 
@@ -60,7 +60,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(U32 objectSize, U32 objectAlignment, U32 totalMemorySize, U8* pMemoryBlock);
+			TDE2_API E_RESULT_CODE Init(TSizeType objectSize, TSizeType objectAlignment, TSizeType totalMemorySize, U8* pMemoryBlock);
 
 			/*!
 				\brief The method allocates a new piece of memory of specified size,
@@ -73,7 +73,7 @@ namespace TDEngine2
 				\return A pointer to the allocated block, returns nullptr if there is no free space
 			*/
 
-			TDE2_API void* Allocate(U32 size, U8 alignment) override;
+			TDE2_API void* Allocate(TSizeType size, U8 alignment) override;
 
 			/*!
 				\brief The method deallocates memory in position specified with a given pointer
@@ -95,9 +95,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPoolAllocator)
 		protected:
-			U32    mObjectSize;
-
-			U8     mObjectAlignment;
+			TSizeType mObjectSize;
+			TSizeType mObjectAlignment;
 
 			void** mppNextFreeBlock;
 	};
@@ -113,11 +112,10 @@ namespace TDEngine2
 	typedef struct TPoolAllocatorParams: TBaseAllocatorParams
 	{
 		TDE2_API TPoolAllocatorParams() = default;
-		TDE2_API TPoolAllocatorParams(U32 size, U32 perElementSize, U32 elementAlignment);
+		TDE2_API TPoolAllocatorParams(USIZE size, USIZE perElementSize, USIZE elementAlignment);
 
-		U32 mPerObjectSize;
-
-		U32 mObjectAlignment;
+		USIZE mPerObjectSize;
+		USIZE mObjectAlignment;
 	} TPoolAllocatorParams, *TPoolAllocatorParamsPtr;
 
 

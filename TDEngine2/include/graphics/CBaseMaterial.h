@@ -84,7 +84,7 @@ namespace TDEngine2
 
 			typedef std::vector<U8>                                                    TUserUniformBufferData;
 
-			typedef std::unordered_map<U32, std::tuple<U32, U32>>                      TUserUniformsHashTable;
+			typedef std::unordered_map<U32, std::tuple<U32, USIZE>>                    TUserUniformsHashTable;
 
 			typedef CResourceContainer<IMaterialInstance*>                             TMaterialInstancesArray;
 

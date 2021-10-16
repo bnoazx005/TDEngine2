@@ -291,7 +291,7 @@ namespace TDEngine2
 				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
 				pDrawCommand->mStartIndex              = 0;
 				pDrawCommand->mStartVertex             = 0;
-				pDrawCommand->mNumOfIndices            = pSkinnedMeshResource->GetIndices().size();
+				pDrawCommand->mNumOfIndices            = static_cast<U32>(pSkinnedMeshResource->GetIndices().size());
 			}
 		}
 	}

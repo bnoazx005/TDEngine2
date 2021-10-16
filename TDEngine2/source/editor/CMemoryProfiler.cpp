@@ -20,13 +20,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMemoryProfiler::SetTotalMemoryAvailable(U32 size)
+	E_RESULT_CODE CMemoryProfiler::SetTotalMemoryAvailable(USIZE size)
 	{
 		mTotalMemorySize = size;
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMemoryProfiler::RegisterGlobalMemoryBlock(const std::string& name, U32 offset, U32 size)
+	E_RESULT_CODE CMemoryProfiler::RegisterGlobalMemoryBlock(const std::string& name, USIZE offset, USIZE size)
 	{
 		auto it = mBlocksInfoRegistry.find(name);
 		if (it != mBlocksInfoRegistry.cend())
@@ -39,7 +39,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMemoryProfiler::UpdateMemoryBlockInfo(const std::string& name, U32 usedSize)
+	E_RESULT_CODE CMemoryProfiler::UpdateMemoryBlockInfo(const std::string& name, USIZE usedSize)
 	{
 		auto it = mBlocksInfoRegistry.find(name);
 		if ((it == mBlocksInfoRegistry.cend()) || (it->second.mTotalSize < usedSize))
@@ -57,7 +57,7 @@ namespace TDEngine2
 		return mBlocksInfoRegistry;
 	}
 
-	U32 CMemoryProfiler::GetTotalMemoryAvailable() const
+	USIZE CMemoryProfiler::GetTotalMemoryAvailable() const
 	{
 		return mTotalMemorySize;
 	}

@@ -85,7 +85,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetUserUniformsBuffer(U8 slot, const U8* pData, U32 dataSize) override;
+			TDE2_API E_RESULT_CODE SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize) override;
 
 			/*!
 				\brief The method assigns a given texture to a given resource's name

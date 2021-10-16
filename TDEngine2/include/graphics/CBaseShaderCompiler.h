@@ -163,7 +163,7 @@ namespace TDEngine2
 
 			typedef std::pair<std::string, std::string>                        TShaderDefineDesc;
 			
-			typedef std::unordered_map<std::string, U32>                       TStructDeclsMap;
+			typedef std::unordered_map<std::string, USIZE>                     TStructDeclsMap;
 
 			typedef std::unordered_map<std::string, TUniformBufferDesc>        TUniformBuffersMap;
 
@@ -208,10 +208,10 @@ namespace TDEngine2
 			
 			TDE2_API virtual TStructDeclsMap _processStructDecls(CTokenizer& tokenizer) const;
 
-			TDE2_API virtual U32 _getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer,
-													  const TUniformVariableFunctor& uniformProcessor = [](auto){}) const;
+			TDE2_API virtual USIZE _getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer,
+														const TUniformVariableFunctor& uniformProcessor = [](auto){}) const;
 
-			TDE2_API virtual U32 _getBuiltinTypeSize(const std::string& type) const = 0;
+			TDE2_API virtual USIZE _getBuiltinTypeSize(const std::string& type) const = 0;
 
 			TDE2_API virtual TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const;
 

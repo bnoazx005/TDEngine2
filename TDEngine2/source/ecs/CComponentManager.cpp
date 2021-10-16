@@ -245,7 +245,7 @@ namespace TDEngine2
 
 		if (mFreeComponentFactoriesRegistry.empty())
 		{
-			hashValue = mComponentFactories.size();
+			hashValue = static_cast<U32>(mComponentFactories.size());
 
 			mComponentFactories.push_back(pFactory);
 
@@ -315,7 +315,7 @@ namespace TDEngine2
 
 		if (componentTypeHashIter == mComponentsHashTable.end()) /// allocate space for a new group
 		{
-			mComponentsHashTable[componentTypeId] = mActiveComponents.size();
+			mComponentsHashTable[componentTypeId] = static_cast<U32>(mActiveComponents.size());
 
 			mActiveComponents.emplace_back();
 		}
@@ -324,7 +324,7 @@ namespace TDEngine2
 
 		componentsGroup.push_back(pNewComponent);
 
-		size_t hash = componentsGroup.size();
+		U32 hash = static_cast<U32>(componentsGroup.size());
 
 		mComponentEntityMap[componentTypeId][entityId] = hash;
 		mEntityComponentMap[entityId][componentTypeId] = hash;

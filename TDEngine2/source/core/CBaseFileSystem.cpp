@@ -373,7 +373,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 		
-		mFileFactoriesMap[typeId] = mFileFactories.Add(fileFactoryInfo);
+		mFileFactoriesMap[typeId] = static_cast<U32>(mFileFactories.Add(fileFactoryInfo));
 		
 		LOG_MESSAGE("[File System] A new file factory was registred by the manager (TypeID : " + ToString<TypeId>(typeId) + ")");
 

@@ -100,7 +100,7 @@ namespace TDEngine2
 
 		const C8* shaderSource = processedShaderSource.c_str();
 
-		USIZE shaderSourceLength = strlen(shaderSource);
+		const GLint shaderSourceLength = static_cast<const GLint>(strlen(shaderSource));
 
 		glShaderSource(shaderHandler, 1, &shaderSource, &shaderSourceLength);
 
@@ -245,11 +245,11 @@ namespace TDEngine2
 		return SFL_5_0;
 	}
 	
-	U32 COGLShaderCompiler::_getBuiltinTypeSize(const std::string& type) const
+	USIZE COGLShaderCompiler::_getBuiltinTypeSize(const std::string& type) const
 	{
-		U32 pos = type.find_first_of("1234");
+		USIZE pos = type.find_first_of("1234");
 
-		U32 size = 1;
+		USIZE size = 1;
 
 		if (pos != std::string::npos)
 		{
@@ -259,12 +259,12 @@ namespace TDEngine2
 
 		std::string baseType = type.substr(0, pos);
 
-		static const std::unordered_map<std::string, std::function<U32(U32)>> sizesTable
+		static const std::unordered_map<std::string, std::function<USIZE(USIZE)>> sizesTable
 		{
-			{ "double", [](U32 size) { return size * 8; } },
-			{ "dvec", [](U32 size) { return size * 8; } },
-			{ "mat", [](U32 size) { return size * size * 4; } },
-			{ "dmat", [](U32 size) { return size * size * 8; } },
+			{ "double", [](USIZE size) { return size * 8; } },
+			{ "dvec", [](USIZE size) { return size * 8; } },
+			{ "mat", [](USIZE size) { return size * size * 4; } },
+			{ "dmat", [](USIZE size) { return size * size * 8; } },
 		};
 
 		auto iter = sizesTable.find(baseType);

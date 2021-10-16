@@ -13,7 +13,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize, const void* pDataPtr)
+	E_RESULT_CODE COGLBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		if (mIsInitialized)
 		{
@@ -77,7 +77,7 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glUnmapBuffer(_getBufferType(mBufferType)));
 	}
 
-	E_RESULT_CODE COGLBuffer::Write(const void* pData, U32 size)
+	E_RESULT_CODE COGLBuffer::Write(const void* pData, USIZE size)
 	{
 		if (!mpMappedBufferData || size > mBufferSize)
 		{
@@ -101,12 +101,12 @@ namespace TDEngine2
 		return mBufferInternalData;
 	}
 
-	U32 COGLBuffer::GetSize() const
+	USIZE COGLBuffer::GetSize() const
 	{
 		return mBufferSize;
 	}
 
-	U32 COGLBuffer::GetUsedSize() const
+	USIZE COGLBuffer::GetUsedSize() const
 	{
 		return mUsedBytesSize;
 	}
@@ -128,26 +128,8 @@ namespace TDEngine2
 
 
 	TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, COGLBuffer::E_BUFFER_TYPE bufferType,
-		U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+		USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
-		COGLBuffer* pBufferInstance = new (std::nothrow) COGLBuffer();
-
-		if (!pBufferInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pBufferInstance->Init(pGraphicsContext, usageType, bufferType, totalBufferSize, pDataPtr);
-
-		if (result != RC_OK)
-		{
-			delete pBufferInstance;
-
-			pBufferInstance = nullptr;
-		}
-
-		return dynamic_cast<IBuffer*>(pBufferInstance);
+		return CREATE_IMPL(IBuffer, COGLBuffer, result, pGraphicsContext, usageType, bufferType, totalBufferSize, pDataPtr);
 	}
 }

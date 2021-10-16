@@ -36,7 +36,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(U32 totalMemorySize, U8* pMemoryBlock) override;
+			TDE2_API E_RESULT_CODE Init(TSizeType totalMemorySize, U8* pMemoryBlock) override;
 
 			/*!
 				\brief The method allocates a new piece of memory of specified size,
@@ -49,7 +49,7 @@ namespace TDEngine2
 				\return A pointer to the allocated block, returns nullptr if there is no free space
 			*/
 
-			TDE2_API virtual void* Allocate(U32 size, U8 alignment) = 0;
+			TDE2_API virtual void* Allocate(TSizeType size, U8 alignment) = 0;
 
 			/*!
 				\brief The method deallocates memory in position specified with a given pointer
@@ -79,7 +79,7 @@ namespace TDEngine2
 				\return The method returns total size of available memory
 			*/
 
-			TDE2_API U32 GetTotalMemorySize() const override;
+			TDE2_API TSizeType GetTotalMemorySize() const override;
 
 			/*!
 				\brief The method returns a size of used memory
@@ -87,7 +87,7 @@ namespace TDEngine2
 				\return The method returns a size of used memory
 			*/
 
-			TDE2_API U32 GetUsedMemorySize() const override;
+			TDE2_API TSizeType GetUsedMemorySize() const override;
 			
 			/*!
 				\brief The methods returns total number of allocations
@@ -142,10 +142,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAllocator)
 		protected:
-			U32 mTotalMemorySize;
-
-			U32 mUsedMemorySize;
-
+			TSizeType mTotalMemorySize;
+			TSizeType mUsedMemorySize;
+			
 			U32 mAllocationsCount;
 
 			U8* mpMemoryBlock;
@@ -169,7 +168,7 @@ namespace TDEngine2
 		or there is no free space within memory then nullptr will be returned
 	*/
 
-	TDE2_API void* AllocateMemory(IAllocator* pAllocator, U32 size, U32 alignment);
+	TDE2_API void* AllocateMemory(IAllocator* pAllocator, USIZE size, USIZE alignment);
 
 
 	/*!

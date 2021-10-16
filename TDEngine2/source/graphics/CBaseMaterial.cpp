@@ -510,7 +510,7 @@ namespace TDEngine2
 					continue;
 				}
 
-				PANIC_ON_FAILURE(pShaderInstance->SetUserUniformsBuffer(userUniformBufferId++, &currUserDataBuffer[0], currUserDataBuffer.size()));
+				PANIC_ON_FAILURE(pShaderInstance->SetUserUniformsBuffer(userUniformBufferId++, &currUserDataBuffer.front(), currUserDataBuffer.size()));
 			}
 		}
 
@@ -692,7 +692,7 @@ namespace TDEngine2
 		}
 
 		U32 bufferIndex = 0;
-		U32 varOffset = 0;
+		USIZE varOffset = 0;
 		std::tie(bufferIndex, varOffset) = iter->second; // first index is a buffer's id, the second one is variable's offset in bytes
 
 		auto instanceBuffersIter = mpInstancesUserUniformBuffers.find(instanceId);
@@ -731,7 +731,7 @@ namespace TDEngine2
 
 			defaultInstanceUserUniforms[slotIndex].resize(currUniformBufferDesc.mSize);
 
-			U32 variableBytesOffset = 0;
+			USIZE variableBytesOffset = 0;
 
 			for (const auto& currVariableDesc : currUniformBufferDesc.mVariables)
 			{

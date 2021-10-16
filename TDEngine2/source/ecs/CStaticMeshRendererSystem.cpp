@@ -168,7 +168,7 @@ namespace TDEngine2
 			// \note we need to create vertex and index buffers for the object
 			if (pStaticMeshContainer->GetSystemBuffersHandle() == static_cast<U32>(-1))
 			{
-				pStaticMeshContainer->SetSystemBuffersHandle(mMeshBuffersMap.size());
+				pStaticMeshContainer->SetSystemBuffersHandle(static_cast<U32>(mMeshBuffersMap.size()));
 
 				auto pVertexDecl = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 
@@ -208,7 +208,7 @@ namespace TDEngine2
 			pCommand->mpIndexBuffer               = pSharedMeshResource->GetSharedIndexBuffer();
 			pCommand->mMaterialHandle             = mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName());
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
-			pCommand->mNumOfIndices               = pSharedMeshResource->GetIndices().size();
+			pCommand->mNumOfIndices               = static_cast<U32>(pSharedMeshResource->GetIndices().size());
 			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
 			pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));

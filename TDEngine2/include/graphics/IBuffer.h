@@ -79,7 +79,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Write(const void* pData, U32 size) = 0;
+			TDE2_API virtual E_RESULT_CODE Write(const void* pData, USIZE size) = 0;
 
 			/*!
 				\brief The method returns a pointer to buffer's data
@@ -105,13 +105,13 @@ namespace TDEngine2
 				\return The method returns buffer's size in bytes
 			*/
 
-			TDE2_API virtual U32 GetSize() const = 0;
+			TDE2_API virtual USIZE GetSize() const = 0;
 
 			/*!
 				\return The method returns an amount of occupied buffer's bytes
 			*/
 
-			TDE2_API virtual U32 GetUsedSize() const = 0;
+			TDE2_API virtual USIZE GetUsedSize() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBuffer)
 	};

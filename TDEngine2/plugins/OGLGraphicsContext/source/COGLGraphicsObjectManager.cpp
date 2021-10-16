@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IVertexBuffer*> COGLGraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
+	TResult<IVertexBuffer*> COGLGraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -31,7 +31,7 @@ namespace TDEngine2
 	}
 
 	TResult<IIndexBuffer*> COGLGraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																		U32 totalBufferSize, const void* pDataPtr)
+																		USIZE totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -47,7 +47,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);
 	}
 
-	TResult<IConstantBuffer*> COGLGraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize, const void* pDataPtr)
+	TResult<IConstantBuffer*> COGLGraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -119,7 +119,7 @@ namespace TDEngine2
 			return Wrench::TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
 		}
 
-		auto stateId = mBlendStates.Add(blendStateDesc);
+		const U32 stateId = static_cast<U32>(mBlendStates.Add(blendStateDesc));
 		mBlendStatesHashTable.insert({ hashValue, stateId });
 
 		return Wrench::TOkValue<TBlendStateId>(TBlendStateId(stateId));
@@ -555,7 +555,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		GL_SAFE_CALL(glDeleteSamplers(mTextureSamplersArray.size(), &mTextureSamplersArray[0]));
+		GL_SAFE_CALL(glDeleteSamplers(static_cast<GLsizei>(mTextureSamplersArray.size()), &mTextureSamplersArray.front()));
 
 		mTextureSamplersArray.clear();
 
@@ -580,24 +580,6 @@ namespace TDEngine2
 
 	IGraphicsObjectManager* CreateOGLGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		COGLGraphicsObjectManager* pManagerInstance = new (std::nothrow) COGLGraphicsObjectManager();
-
-		if (!pManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pManagerInstance->Init(pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pManagerInstance;
-
-			pManagerInstance = nullptr;
-		}
-
-		return pManagerInstance;
+		return CREATE_IMPL(IGraphicsObjectManager, COGLGraphicsObjectManager, result, pGraphicsContext);
 	}
 }

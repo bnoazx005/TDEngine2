@@ -1,6 +1,6 @@
-#include "./../include/COGLIndexBuffer.h"
-#include "./../include/COGLBuffer.h"
-#include "./../include/COGLUtils.h"
+#include "../include/COGLIndexBuffer.h"
+#include "../include/COGLBuffer.h"
+#include "../include/COGLUtils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLIndexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
+	E_RESULT_CODE COGLIndexBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize,
 										E_INDEX_FORMAT_TYPE indexFormatType, const void* pDataPtr)
 	{
 		if (mIsInitialized)
@@ -51,7 +51,7 @@ namespace TDEngine2
 		return mpBufferImpl->Unmap();
 	}
 
-	E_RESULT_CODE COGLIndexBuffer::Write(const void* pData, U32 size)
+	E_RESULT_CODE COGLIndexBuffer::Write(const void* pData, USIZE size)
 	{
 		return mpBufferImpl->Write(pData, size);
 	}
@@ -71,12 +71,12 @@ namespace TDEngine2
 		return mpBufferImpl->GetInternalData();
 	}
 
-	U32 COGLIndexBuffer::GetSize() const
+	USIZE COGLIndexBuffer::GetSize() const
 	{
 		return mpBufferImpl->GetSize();
 	}
 
-	U32 COGLIndexBuffer::GetUsedSize() const
+	USIZE COGLIndexBuffer::GetUsedSize() const
 	{
 		return mpBufferImpl->GetUsedSize();
 	}
@@ -88,26 +88,8 @@ namespace TDEngine2
 
 
 	TDE2_API IIndexBuffer* CreateOGLIndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-		U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+		USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
 	{
-		COGLIndexBuffer* pIndexBufferInstance = new (std::nothrow) COGLIndexBuffer();
-
-		if (!pIndexBufferInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pIndexBufferInstance->Init(pGraphicsContext, usageType, totalBufferSize, indexFormatType, pDataPtr);
-
-		if (result != RC_OK)
-		{
-			delete pIndexBufferInstance;
-
-			pIndexBufferInstance = nullptr;
-		}
-
-		return dynamic_cast<IIndexBuffer*>(pIndexBufferInstance);
+		return CREATE_IMPL(IIndexBuffer, COGLIndexBuffer, result, pGraphicsContext, usageType, totalBufferSize, indexFormatType, pDataPtr);
 	}
 }

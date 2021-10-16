@@ -38,8 +38,7 @@ namespace TDEngine2
 	class CD3D11Buffer : public CBaseObject, public IBuffer
 	{
 		public:
-			friend TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
-														U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
+			friend TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext*, E_BUFFER_USAGE_TYPE, E_BUFFER_TYPE, USIZE, const void*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -53,7 +52,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, U32 totalBufferSize, 
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, USIZE totalBufferSize, 
 										const void* pDataPtr);
 
 			/*!
@@ -81,7 +80,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Write(const void* pData, U32 size) override;
+			TDE2_API E_RESULT_CODE Write(const void* pData, USIZE size) override;
 
 			/*!
 				\brief The method returns a pointer to buffer's data
@@ -107,13 +106,13 @@ namespace TDEngine2
 				\return The method returns buffer's size in bytes
 			*/
 
-			TDE2_API U32 GetSize() const override;
+			TDE2_API USIZE GetSize() const override;
 
 			/*!
 				\return The method returns an amount of occupied buffer's bytes
 			*/
 
-			TDE2_API U32 GetUsedSize() const override;
+			TDE2_API USIZE GetUsedSize() const override;
 
 			/*!
 				\brief The method returns a pointer to ID3D11DeviceContext implementation
@@ -131,11 +130,9 @@ namespace TDEngine2
 
 			ID3D11Buffer*            mpBufferInstance;
 			
-			U32                      mBufferSize;
-
-			U32                      mUsedBytesSize;
-
-			U32                      mElementStrideSize;
+			USIZE                    mBufferSize;
+			USIZE                    mUsedBytesSize;
+			USIZE                    mElementStrideSize;
 
 			E_BUFFER_USAGE_TYPE      mBufferUsageType;
 
@@ -156,7 +153,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
-										U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
+										USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
 }
 
 #endif

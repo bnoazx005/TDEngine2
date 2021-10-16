@@ -125,7 +125,7 @@ namespace TDEngine2
 	{
 		if (mFreeGroupsRegistry.empty())
 		{
-			U32 newGroupHash = mListeners.size();
+			U32 newGroupHash = static_cast<U32>(mListeners.size());
 
 			mListenersMap[eventTypeId] = newGroupHash;
 

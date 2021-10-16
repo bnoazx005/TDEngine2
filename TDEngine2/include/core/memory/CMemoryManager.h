@@ -26,7 +26,7 @@ namespace TDEngine2
 		\return A pointer to CMemoryManager's implementation
 	*/
 
-	TDE2_API IMemoryManager* CreateMemoryManager(U32 totalMemorySize, E_RESULT_CODE& result);
+	TDE2_API IMemoryManager* CreateMemoryManager(USIZE totalMemorySize, E_RESULT_CODE& result);
 
 
 	/*!
@@ -38,7 +38,7 @@ namespace TDEngine2
 	class CMemoryManager : public IMemoryManager, public CBaseObject
 	{
 		public:
-			friend TDE2_API IMemoryManager* CreateMemoryManager(U32 totalMemorySize, E_RESULT_CODE& result);
+			friend TDE2_API IMemoryManager* CreateMemoryManager(USIZE totalMemorySize, E_RESULT_CODE& result);
 		public:
 			typedef std::vector<std::tuple<const C8*, void*>> TMemoryBlocksTable;
 
@@ -52,7 +52,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(U32 totalMemorySize) override;
+			TDE2_API E_RESULT_CODE Init(TSizeType totalMemorySize) override;
 
 			/*!
 				\brief The method registers a given factory object within the manager
@@ -74,7 +74,7 @@ namespace TDEngine2
 				\return A pointer to a new allocated memory block
 			*/
 
-			TDE2_API void* Allocate(U32 size, const C8* userName = nullptr) override;
+			TDE2_API void* Allocate(TSizeType size, const C8* userName = nullptr) override;
 
 			/*!
 				\brief The method deallocates a given piece of memory

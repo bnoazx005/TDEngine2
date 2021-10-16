@@ -4,7 +4,7 @@
 
 namespace TDEngine2
 {
-	TBaseAllocatorParams::TBaseAllocatorParams(U32 size):
+	TBaseAllocatorParams::TBaseAllocatorParams(USIZE size):
 		mMemoryBlockSize(size)
 	{
 	}
@@ -15,7 +15,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseAllocator::Init(U32 totalMemorySize, U8* pMemoryBlock)
+	E_RESULT_CODE CBaseAllocator::Init(TSizeType totalMemorySize, U8* pMemoryBlock)
 	{
 		if (mIsInitialized)
 		{
@@ -47,12 +47,12 @@ namespace TDEngine2
 
 #endif
 
-	U32 CBaseAllocator::GetTotalMemorySize() const
+	CBaseAllocator::TSizeType CBaseAllocator::GetTotalMemorySize() const
 	{
 		return mTotalMemorySize;
 	}
 
-	U32 CBaseAllocator::GetUsedMemorySize() const
+	CBaseAllocator::TSizeType CBaseAllocator::GetUsedMemorySize() const
 	{
 		return mUsedMemorySize;
 	}
@@ -94,14 +94,14 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API void* AllocateMemory(IAllocator* pAllocator, U32 size, U32 alignment)
+	TDE2_API void* AllocateMemory(IAllocator* pAllocator, USIZE size, USIZE alignment)
 	{
 		if (!pAllocator)
 		{
 			return nullptr;
 		}
 
-		return pAllocator->Allocate(size, alignment);
+		return pAllocator->Allocate(size, static_cast<U8>(alignment));
 	}
 
 

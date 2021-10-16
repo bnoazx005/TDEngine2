@@ -29,8 +29,7 @@ namespace TDEngine2
 	class CD3D11IndexBuffer : public IIndexBuffer, public CBaseObject
 	{
 		public:
-			friend TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																 U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
+			friend TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext*, E_BUFFER_USAGE_TYPE, E_INDEX_FORMAT_TYPE, USIZE, const void*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -44,7 +43,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, U32 totalBufferSize,
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize,
 										E_INDEX_FORMAT_TYPE indexFormatType, const void* pDataPtr) override;
 
 			/*!
@@ -72,7 +71,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Write(const void* pData, U32 size) override;
+			TDE2_API E_RESULT_CODE Write(const void* pData, USIZE size) override;
 
 			/*!
 				\brief The method returns a pointer to buffer's data
@@ -106,13 +105,13 @@ namespace TDEngine2
 				\return The method returns buffer's size in bytes
 			*/
 
-			TDE2_API U32 GetSize() const override;
+			TDE2_API USIZE GetSize() const override;
 
 			/*!
 				\return The method returns an amount of occupied buffer's bytes
 			*/
 
-			TDE2_API U32 GetUsedSize() const override;
+			TDE2_API USIZE GetUsedSize() const override;
 
 			/*!
 				\brief The method returns a format of a single stored index
@@ -143,7 +142,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IIndexBuffer* CreateD3D11IndexBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-												  U32 totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
+												  USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
 }
 
 #endif

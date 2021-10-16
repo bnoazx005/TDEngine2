@@ -315,7 +315,7 @@ namespace TDEngine2
 	{
 		CEntity* pEntity = nullptr;
 
-		lightingData.mPointLightsCount = std::min<U32>(MaxPointLightsCount, mPointLightsEntities.size());
+		lightingData.mPointLightsCount = std::min<U32>(MaxPointLightsCount, static_cast<U32>(mPointLightsEntities.size()));
 
 		auto& pointLights = lightingData.mPointLights;
 
