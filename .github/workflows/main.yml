@@ -77,7 +77,7 @@ jobs:
         run: |
           cd build
           chmod +x prepare_build_generic_unix.sh
-          ./prepare_build_generic_unix.sh ${{ matrix.config.build_type }} ${{ matrix.config.architecture }}
+          ./prepare_build_generic_unix.sh ${{ matrix.config.build_type }}
 
       - name: Build Windows
         if: startsWith(matrix.config.name, 'windows')

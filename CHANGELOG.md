@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4] 2021-10-16
+
+### Changed
+
+- Breaking changes. Now the engine and its toolset is targeted for x64 platforms. x86 isn't supported from this moment.
+
 ## [0.5.3] 2021-10-09
 
 ### Changed
