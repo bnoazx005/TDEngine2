@@ -17,7 +17,7 @@ rem "Build bullet3 first"
 set TDE2_USE_INSTALLED_BULLET="OFF"
 
 pushd "../TDEngine2/deps/bullet3"
-	cmake -G %1 -DBUILD_SHARED_LIBS=OFF -DUSE_GRAPHICAL_BENCHMARK=OFF -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DCMAKE_BUILD_TYPE=%2 . && cmake --build . --config %2
+	cmake -G %1 -DBUILD_SHARED_LIBS=OFF -DUSE_GRAPHICAL_BENCHMARK=OFF -DCMAKE_GENERATOR_PLATFORM=%3 -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DCMAKE_BUILD_TYPE=%2 . && cmake --build . --config %2
 
 	if defined TDE2_INSTALL_BULLET3 (
 		set TDE2_USE_INSTALLED_BULLET="ON"
@@ -35,7 +35,7 @@ call run_codegeneration.bat
 
 rem "Build main project"
 
-cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% -DCMAKE_BUILD_TYPE=%2 .. && cmake --build . --config %2
+cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% -DCMAKE_GENERATOR_PLATFORM=%3 -DCMAKE_BUILD_TYPE=%2 .. && cmake --build . --config %2
 
 exit /b 0
 

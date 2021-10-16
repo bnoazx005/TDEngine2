@@ -22,7 +22,8 @@ jobs:
             cxx: "cl",
             archiver: "7z a",
             generators: "Visual Studio 16 2019",
-            platform: "Win32"
+            platform: "Win64",
+            architecture: "x64"
           }
         - {
             name: "Ubuntu_GCC_9",
@@ -33,7 +34,8 @@ jobs:
             cxx: "g++",
             archiver: "7z a",
             generators: "Unix Makefiles",
-            platform: "Ubuntu"
+            platform: "Ubuntu",
+            architecture: "x64"
           }
         # - {
         #     name: "Ubuntu Clang",
@@ -75,14 +77,14 @@ jobs:
         run: |
           cd build
           chmod +x prepare_build_generic_unix.sh
-          ./prepare_build_generic_unix.sh ${{ matrix.config.build_type }}
+          ./prepare_build_generic_unix.sh ${{ matrix.config.build_type }} ${{ matrix.config.architecture }}
 
       - name: Build Windows
         if: startsWith(matrix.config.name, 'windows')
         shell: cmd
         run: |
           cd build
-          prepare_build_generic_win.bat "Visual Studio 16 2019" ${{ matrix.config.build_type }}
+          prepare_build_generic_win.bat "Visual Studio 16 2019" ${{ matrix.config.build_type }} ${{ matrix.config.architecture }}
 
       - name: Test
         working-directory: build
