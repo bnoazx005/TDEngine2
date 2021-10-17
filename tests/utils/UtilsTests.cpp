@@ -181,4 +181,46 @@ TEST_CASE("CScopedPtr Tests")
 
 		REQUIRE(hasBeenDestroyed);
 	}
+
+	SECTION("TestScopedPtr_PassPtrIntoAnotherObject_CorrectlyDestroysObjects")
+	{
+		class CTestObjectHolder : public CBaseObject
+		{
+			public:
+				CTestObjectHolder(TPtr<CTestCounter> pCounter, bool& destroyed) :
+					CBaseObject(), mpCounter(pCounter)
+				{
+					mDestroyed = &destroyed;
+				}
+
+				~CTestObjectHolder() { *mDestroyed = true; }
+			private:
+				TPtr<CTestCounter> mpCounter;
+				bool* mDestroyed = nullptr;
+		};
+
+		bool hasBeenTestCounterDestroyed = false;
+		bool hasBeenHolderDestroyed = false;
+
+		/// 1st case
+		{
+			if (auto pPtr = TPtr<CTestCounter>(new CTestCounter(hasBeenTestCounterDestroyed)))
+			{
+				auto pHolder = TPtr<CTestObjectHolder>(new CTestObjectHolder(pPtr, hasBeenHolderDestroyed));
+			}
+		}
+
+		REQUIRE((hasBeenTestCounterDestroyed && hasBeenHolderDestroyed));
+
+		/// 2nd case
+		hasBeenTestCounterDestroyed = false;
+		hasBeenHolderDestroyed = false;
+
+		{
+			auto pPtr = TPtr<CTestCounter>(new CTestCounter(hasBeenTestCounterDestroyed));
+			auto pHolder = TPtr<CTestObjectHolder>(new CTestObjectHolder(pPtr, hasBeenHolderDestroyed));
+		}
+
+		REQUIRE((hasBeenTestCounterDestroyed && hasBeenHolderDestroyed));
+	}
 }

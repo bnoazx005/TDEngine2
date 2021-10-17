@@ -24,7 +24,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSelectionManager::Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, TPtr<IEditorsManager> pEditorsManager)
+	E_RESULT_CODE CSelectionManager::Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, IEditorsManager* pEditorsManager)
 	{
 		if (mIsInitialized)
 		{
@@ -248,7 +248,7 @@ namespace TDEngine2
 
 
 	TDE2_API ISelectionManager* CreateSelectionManager(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext,
-														TPtr<IEditorsManager> pEditorsManager, E_RESULT_CODE& result)
+														IEditorsManager* pEditorsManager, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ISelectionManager, CSelectionManager, result, pResourceManager, pWindowSystem, pGraphicsContext, pEditorsManager);
 	}

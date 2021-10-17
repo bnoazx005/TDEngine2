@@ -29,7 +29,6 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)
-	TDE2_DECLARE_SCOPED_PTR(IEditorsManager)
 	TDE2_DECLARE_SCOPED_PTR(IWorld)
 
 
@@ -51,12 +50,12 @@ namespace TDEngine2
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-				\param[in, out] pEditorsManager A pointer to IEditorsManager implementation
+				\param[in, out] pEditorsManager A pointer to IEditorsManager implementation. Don't store CScopedPtr pointer to prevent circular dependencies
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, TPtr<IEditorsManager> pEditorsManager) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, IEditorsManager* pEditorsManager) = 0;
 
 			/*!
 				\brief The method builds so called selection map which is a render target that contains

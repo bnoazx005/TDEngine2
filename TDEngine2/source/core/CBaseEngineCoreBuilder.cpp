@@ -462,7 +462,7 @@ namespace TDEngine2
 
 		auto pDebugUtility = mpGraphicsContextInstance->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManagerInstance.Get(), mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get();
 
-		if (auto pSelectionManager = TPtr<ISelectionManager>(CreateSelectionManager(mpResourceManagerInstance, mpWindowSystemInstance, mpGraphicsContextInstance, pEditorsManager, result)))
+		if (auto pSelectionManager = TPtr<ISelectionManager>(CreateSelectionManager(mpResourceManagerInstance, mpWindowSystemInstance, mpGraphicsContextInstance, pEditorsManager.Get(), result)))
 		{
 			result = result | pEditorsManager->SetSelectionManager(pSelectionManager);
 			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager.Get());

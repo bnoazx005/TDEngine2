@@ -31,7 +31,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API ISelectionManager* CreateSelectionManager(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, 
-													   TPtr<IEditorsManager> pEditorsManager, E_RESULT_CODE& result);
+													   IEditorsManager* pEditorsManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -43,7 +43,7 @@ namespace TDEngine2
 	class CSelectionManager : public CBaseObject, public ISelectionManager
 	{
 		public:
-			friend TDE2_API ISelectionManager* CreateSelectionManager(TPtr<IResourceManager>, TPtr<IWindowSystem>, TPtr<IGraphicsContext>, TPtr<IEditorsManager>, E_RESULT_CODE&);
+			friend TDE2_API ISelectionManager* CreateSelectionManager(TPtr<IResourceManager>, TPtr<IWindowSystem>, TPtr<IGraphicsContext>, IEditorsManager*, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CSelectionManager)
 
@@ -58,7 +58,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, TPtr<IEditorsManager> pEditorsManager) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, IEditorsManager* pEditorsManager) override;
 
 			/*!
 				\brief The method builds so called selection map which is a render target that contains
@@ -135,7 +135,7 @@ namespace TDEngine2
 		protected:
 			TPtr<IResourceManager> mpResourceManager;
 
-			TPtr<IEditorsManager>  mpEditorsManager;
+			IEditorsManager*  mpEditorsManager;
 
 			TPtr<IWindowSystem>    mpWindowSystem;
 
