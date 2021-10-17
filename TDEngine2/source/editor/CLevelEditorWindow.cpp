@@ -221,7 +221,7 @@ namespace TDEngine2
 			return false;
 		}
 
-		IWorld* pWorld = mpEditorsManager->GetWorldInstance();
+		auto pWorld = mpEditorsManager->GetWorldInstance();
 		if (!pWorld)
 		{
 			return false;
@@ -240,7 +240,7 @@ namespace TDEngine2
 				{
 					E_RESULT_CODE result = RC_OK;
 
-					if (auto pAction = CreateTransformObjectAction(pWorld, mSelectedEntityId, { pos, rot, scale }, result))
+					if (auto pAction = CreateTransformObjectAction(mpEditorsManager->GetWorldInstance().Get(), mSelectedEntityId, { pos, rot, scale }, result))
 					{
 						PANIC_ON_FAILURE(mpActionsHistory->PushAndExecuteAction(pAction));
 						mpActionsHistory->Dump();
@@ -348,7 +348,7 @@ namespace TDEngine2
 
 	ICamera& CLevelEditorWindow::_getCameraEntity()
 	{
-		IWorld* pWorld = mpEditorsManager->GetWorldInstance();
+		auto pWorld = mpEditorsManager->GetWorldInstance();
 
 		if (mCameraEntityId == TEntityId::Invalid)
 		{
@@ -367,7 +367,7 @@ namespace TDEngine2
 			mpSelectionManager = mpEditorsManager->GetSelectionManager();
 		}
 
-		return mpSelectionManager;
+		return mpSelectionManager.Get();
 	}
 
 	void CLevelEditorWindow::_onDrawInspector()
@@ -424,7 +424,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			(iter->second)({ *mpImGUIContext, *pCurrComponent, *mpActionsHistory, *mpEditorsManager->GetWorldInstance(), mSelectedEntityId });
+			(iter->second)({ *mpImGUIContext, *pCurrComponent, *mpActionsHistory, *mpEditorsManager->GetWorldInstance().Get(), mSelectedEntityId });
 		}
 
 		return true;

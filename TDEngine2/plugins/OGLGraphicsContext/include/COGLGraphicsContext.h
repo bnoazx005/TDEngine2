@@ -35,8 +35,7 @@ namespace TDEngine2
 	class COGLGraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
-			friend TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, 
-																		E_RESULT_CODE& result);
+			friend TDE2_API IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem>, TCreateGLContextFactoryCallback, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(COGLGraphicsContext)
 
@@ -48,7 +47,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 
 			/*!
 				\brief The method clears up back buffer with specified color
@@ -368,7 +367,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IWindowSystem
 			*/
 
-			TDE2_API IWindowSystem* GetWindowSystem() const override;
+			TDE2_API TPtr<IWindowSystem> GetWindowSystem() const override;
 		protected:
 			TDE2_API COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 			TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;
@@ -389,7 +388,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*         mpGraphicsObjectManager;
 
-			IWindowSystem*                  mpWindowSystem;
+			TPtr<IWindowSystem>             mpWindowSystem;
 			TPtr<IEventManager>             mpEventManager;
 
 			GLuint                          mMainFBOHandler; /// \todo Replace it with FBOManager later
@@ -406,6 +405,6 @@ namespace TDEngine2
 		\return A pointer to OGLGraphicsContext's implementation
 	*/
 
-	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback,
+	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback,
 														E_RESULT_CODE& result);
 }

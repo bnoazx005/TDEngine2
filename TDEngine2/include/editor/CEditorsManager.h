@@ -46,7 +46,7 @@ namespace TDEngine2
 		\return A pointer to IEditorsManager's implementation
 	*/
 
-	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld, E_RESULT_CODE& result);
+	TDE2_API IEditorsManager* CreateEditorsManager(TPtr<IInputContext> pInputContext, TPtr<IImGUIContext> pImGUIContext, TPtr<IEventManager> pEventManager, TPtr<IWorld> pWorld, E_RESULT_CODE& result);
 
 
 	/*!
@@ -58,7 +58,7 @@ namespace TDEngine2
 	class CEditorsManager : public IEditorsManager, public CBaseObject, public IEventHandler
 	{
 		public:
-			friend TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld, E_RESULT_CODE& result);
+			friend TDE2_API IEditorsManager* CreateEditorsManager(TPtr<IInputContext>, TPtr<IImGUIContext>, TPtr<IEventManager>, TPtr<IWorld>, E_RESULT_CODE&);
 		public:
 			typedef std::vector<std::tuple<std::string, IEditorWindow*, bool>> TEditorsArray;
 		public:
@@ -75,7 +75,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IInputContext> pInputContext, TPtr<IImGUIContext> pImGUIContext, TPtr<IEventManager> pEventManager, TPtr<IWorld> pWorld) override;
 
 			/*!
 				\brief The method registers custom editor within the manager
@@ -94,7 +94,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetWorldInstance(IWorld* pWorld) override;
+			TDE2_API E_RESULT_CODE SetWorldInstance(TPtr<IWorld> pWorld) override;
 
 			/*!
 				\brief The method sets up a pointer to selection manager
@@ -104,7 +104,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetSelectionManager(ISelectionManager* pSelectionManager) override;
+			TDE2_API E_RESULT_CODE SetSelectionManager(TPtr<ISelectionManager> pSelectionManager) override;
 
 			/*!
 				\brief The method updates the current state of the manager
@@ -137,7 +137,7 @@ namespace TDEngine2
 				\return The method returns a pointer to ISelectionManager that's currently used in the manager
 			*/
 
-			TDE2_API ISelectionManager* GetSelectionManager() const override;
+			TDE2_API TPtr<ISelectionManager> GetSelectionManager() const override;
 
 			/*!
 				\brief The method receives a given event and processes it
@@ -163,7 +163,7 @@ namespace TDEngine2
 				\return The method returns a pointer to world's instance
 			*/
 
-			TDE2_API IWorld* GetWorldInstance() const override;
+			TDE2_API TPtr<IWorld> GetWorldInstance() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
 
@@ -173,21 +173,21 @@ namespace TDEngine2
 		public:
 			static const std::unordered_map<E_EDITOR_TYPE, std::string> mEditorNamesMap;
 		protected:
-			IDesktopInputContext* mpInputContext;
+			TPtr<IDesktopInputContext> mpInputContext;
 
-			IImGUIContext*        mpImGUIContext;
+			TPtr<IImGUIContext>     mpImGUIContext;
 
-			bool                  mIsVisible;
+			bool                    mIsVisible;
 
-			TEditorsArray         mRegisteredEditors;
+			TEditorsArray           mRegisteredEditors;
 
-			IEventManager*        mpEventManager;
+			TPtr<IEventManager>     mpEventManager;
 
-			IWorld*               mpWorld;
+			TPtr<IWorld>            mpWorld;
 
-			TSystemId             mEditorCameraControlSystemId = TSystemId::Invalid;
+			TSystemId               mEditorCameraControlSystemId = TSystemId::Invalid;
 
-			ISelectionManager*    mpSelectionManager;
+			TPtr<ISelectionManager> mpSelectionManager;
 	};
 }
 

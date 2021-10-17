@@ -8,7 +8,7 @@
 
 
 #include "IEditorWindow.h"
-#include "./../math/TRay.h"
+#include "../math/TRay.h"
 #include <functional>
 #include <unordered_map>
 
@@ -32,6 +32,9 @@ namespace TDEngine2
 	class IComponent;
 	class IWindowSystem;
 	struct TEditorContext;
+
+
+	TDE2_DECLARE_SCOPED_PTR(ISelectionManager)
 
 
 	typedef struct TLevelEditorWindowDesc
@@ -130,7 +133,7 @@ namespace TDEngine2
 
 			IDesktopInputContext*  mpInputContext;
 
-			ISelectionManager*     mpSelectionManager;
+			TPtr<ISelectionManager> mpSelectionManager;
 
 			IDebugUtility*         mpDebugUtility;
 

@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../core/IBaseObject.h"
-#include "./../utils/Utils.h"
-#include "./../utils/Types.h"
+#include "../core/IBaseObject.h"
+#include "../utils/Utils.h"
+#include "../utils/Types.h"
 #include "CBaseComponent.h"
 #include <functional>
 #include <string>
@@ -292,4 +292,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TSystemId _findSystem(TypeId typeId) = 0;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IWorld)
 }

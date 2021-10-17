@@ -32,7 +32,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CEditorsManager::Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld)
+	E_RESULT_CODE CEditorsManager::Init(TPtr<IInputContext> pInputContext, TPtr<IImGUIContext> pImGUIContext, TPtr<IEventManager> pEventManager, TPtr<IWorld> pWorld)
 	{
 		if (mIsInitialized)
 		{
@@ -44,7 +44,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext);
+		mpInputContext = DynamicPtrCast<IDesktopInputContext>(pInputContext);
 		mpImGUIContext = pImGUIContext;
 		mpWorld        = pWorld;
 		mpEventManager = pEventManager;
@@ -119,7 +119,7 @@ namespace TDEngine2
 		return _showEditorWindows(dt);
 	}
 
-	E_RESULT_CODE CEditorsManager::SetWorldInstance(IWorld* pWorld)
+	E_RESULT_CODE CEditorsManager::SetWorldInstance(TPtr<IWorld> pWorld)
 	{
 		if (!pWorld)
 		{
@@ -132,7 +132,7 @@ namespace TDEngine2
 
 		if (mEditorCameraControlSystemId == TSystemId::Invalid)
 		{
-			auto registerResult = mpWorld->RegisterSystem(CreateEditorCameraControlSystem(mpInputContext, this, result), E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY);
+			auto registerResult = mpWorld->RegisterSystem(CreateEditorCameraControlSystem(mpInputContext.Get(), this, result), E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY);
 			if (registerResult.HasError())
 			{
 				return result;
@@ -144,7 +144,7 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CEditorsManager::SetSelectionManager(ISelectionManager* pSelectionManager)
+	E_RESULT_CODE CEditorsManager::SetSelectionManager(TPtr<ISelectionManager> pSelectionManager)
 	{
 		if (!pSelectionManager)
 		{
@@ -153,9 +153,9 @@ namespace TDEngine2
 
 		mpSelectionManager = pSelectionManager;
 
-		mpEventManager->Subscribe(TOnEditorModeEnabled::GetTypeId(), mpSelectionManager);
-		mpEventManager->Subscribe(TOnEditorModeDisabled::GetTypeId(), mpSelectionManager);
-		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), mpSelectionManager);
+		mpEventManager->Subscribe(TOnEditorModeEnabled::GetTypeId(), mpSelectionManager.Get());
+		mpEventManager->Subscribe(TOnEditorModeDisabled::GetTypeId(), mpSelectionManager.Get());
+		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), mpSelectionManager.Get());
 
 		return RC_OK;
 	}
@@ -177,7 +177,7 @@ namespace TDEngine2
 		return (editorIter != mRegisteredEditors.cend()) ? std::get<IEditorWindow*>(*editorIter)->IsVisible() : false;
 	}
 
-	ISelectionManager* CEditorsManager::GetSelectionManager() const
+	TPtr<ISelectionManager> CEditorsManager::GetSelectionManager() const
 	{
 		return mpSelectionManager;
 	}
@@ -202,7 +202,7 @@ namespace TDEngine2
 		return TEventListenerId(GetTypeId());
 	}
 
-	IWorld* CEditorsManager::GetWorldInstance() const
+	TPtr<IWorld> CEditorsManager::GetWorldInstance() const
 	{
 		return mpWorld;
 	}
@@ -261,14 +261,14 @@ namespace TDEngine2
 				continue;
 			}
 
-			pCurrEditorWindow->Draw(mpImGUIContext, dt);
+			pCurrEditorWindow->Draw(mpImGUIContext.Get(), dt);
 		}
 
 		return RC_OK;
 	}
 
 
-	TDE2_API IEditorsManager* CreateEditorsManager(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld, E_RESULT_CODE& result)
+	TDE2_API IEditorsManager* CreateEditorsManager(TPtr<IInputContext> pInputContext, TPtr<IImGUIContext> pImGUIContext, TPtr<IEventManager> pEventManager, TPtr<IWorld> pWorld, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IEditorsManager, CEditorsManager, result, pInputContext, pImGUIContext, pEventManager, pWorld);
 	}

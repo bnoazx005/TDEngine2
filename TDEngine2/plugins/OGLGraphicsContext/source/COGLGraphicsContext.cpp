@@ -32,7 +32,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::Init(IWindowSystem* pWindowSystem)
+	E_RESULT_CODE COGLGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
@@ -54,7 +54,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		/// creating GL context
-		mpGLContextFactory = mGLContextFactoryCallback(pWindowSystem, result);
+		mpGLContextFactory = mGLContextFactoryCallback(pWindowSystem.Get(), result);
 
 		///< Should be called after initialization of GL context factory, because the latter
 		/// can initialize a window object (i.e this feature is used on UNIX platform)
@@ -107,7 +107,7 @@ namespace TDEngine2
 
 		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this);
 
-		if ((result = _initFBO(pWindowSystem)) != RC_OK)
+		if ((result = _initFBO(pWindowSystem.Get())) != RC_OK)
 		{
 			return result;
 		}
@@ -438,7 +438,7 @@ namespace TDEngine2
 		return mpGraphicsObjectManager;
 	}
 
-	IWindowSystem* COGLGraphicsContext::GetWindowSystem() const
+	TPtr<IWindowSystem> COGLGraphicsContext::GetWindowSystem() const
 	{
 		return mpWindowSystem;
 	}
@@ -539,7 +539,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(IWindowSystem* pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
+	TDE2_API IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
 	{
 		COGLGraphicsContext* pGraphicsContextInstance = new (std::nothrow) COGLGraphicsContext(glContextFactoryCallback);
 

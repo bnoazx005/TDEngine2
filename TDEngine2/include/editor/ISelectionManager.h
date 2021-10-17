@@ -26,6 +26,13 @@ namespace TDEngine2
 	class IGraphicsContext;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)
+	TDE2_DECLARE_SCOPED_PTR(IEditorsManager)
+	TDE2_DECLARE_SCOPED_PTR(IWorld)
+
+
 	/*!
 		interface ISelectionManager
 
@@ -49,7 +56,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IEditorsManager* pEditorsManager) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, TPtr<IEditorsManager> pEditorsManager) = 0;
 
 			/*!
 				\brief The method builds so called selection map which is a render target that contains
@@ -88,7 +95,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetWorldInstance(IWorld* pWorld) = 0;
+			TDE2_API virtual E_RESULT_CODE SetWorldInstance(TPtr<IWorld> pWorld) = 0;
 
 			/*!
 				\brief The method returns an identifier of an entity
@@ -100,6 +107,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISelectionManager)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(ISelectionManager)
 
 
 	/*!

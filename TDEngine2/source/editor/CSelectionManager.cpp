@@ -24,7 +24,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSelectionManager::Init(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IEditorsManager* pEditorsManager)
+	E_RESULT_CODE CSelectionManager::Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, TPtr<IEditorsManager> pEditorsManager)
 	{
 		if (mIsInitialized)
 		{
@@ -150,7 +150,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSelectionManager::SetWorldInstance(IWorld* pWorld)
+	E_RESULT_CODE CSelectionManager::SetWorldInstance(TPtr<IWorld> pWorld)
 	{
 		if (!pWorld)
 		{
@@ -182,7 +182,7 @@ namespace TDEngine2
 
 			TOnObjectSelected onObjectSelected;
 			onObjectSelected.mObjectID = mLastSelectedEntityID;
-			onObjectSelected.mpWorld = mpWorld;
+			onObjectSelected.mpWorld = mpWorld.Get();
 
 			mpEventManager->Notify(&onObjectSelected);
 		}
@@ -247,8 +247,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISelectionManager* CreateSelectionManager(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
-													   IEditorsManager* pEditorsManager, E_RESULT_CODE& result)
+	TDE2_API ISelectionManager* CreateSelectionManager(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext,
+														TPtr<IEditorsManager> pEditorsManager, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ISelectionManager, CSelectionManager, result, pResourceManager, pWindowSystem, pGraphicsContext, pEditorsManager);
 	}

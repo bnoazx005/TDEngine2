@@ -247,7 +247,7 @@ namespace TDEngine2
 	{
 		TDE2_EVENT(TOnNewWorldInstanceCreated);
 
-		IWorld* mpWorldInstance;
+		TPtr<IWorld> mpWorldInstance;
 	} TOnNewWorldInstanceCreated, *TOnNewWorldInstanceCreatedPtr;
 
 

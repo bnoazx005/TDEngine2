@@ -24,7 +24,7 @@ namespace TDEngine2
 	class CD3D11GraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
-			friend TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+			friend TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CD3D11GraphicsContext)
 
@@ -36,7 +36,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 
 			/*!
 				\brief The method clears up back buffer with specified color
@@ -355,7 +355,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IWindowSystem
 			*/
 
-			TDE2_API IWindowSystem* GetWindowSystem() const override;
+			TDE2_API TPtr<IWindowSystem> GetWindowSystem() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsContext)
 
@@ -397,7 +397,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
-			IWindowSystem*           mpWindowSystem;
+			TPtr<IWindowSystem>      mpWindowSystem;
 			TPtr<IEventManager>      mpEventManager;
 
 			ID3D11RenderTargetView*  mpRenderTargets[mMaxNumOfRenderTargets];
@@ -411,7 +411,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11GraphicsContext's implementation
 	*/
 
-	TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
 }
 
 #endif

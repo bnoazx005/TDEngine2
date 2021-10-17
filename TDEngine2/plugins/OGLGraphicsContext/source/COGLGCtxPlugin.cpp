@@ -42,7 +42,7 @@ namespace TDEngine2
 		/// \todo Implement callback assigment for other platforms
 #endif
 
-		mpGraphicsContext = TPtr<IGraphicsContext>(CreateOGLGraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>().Get(), pGLContextFactoryCallback, result));
+		mpGraphicsContext = TPtr<IGraphicsContext>(CreateOGLGraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), pGLContextFactoryCallback, result));
 
 		if (result != RC_OK)
 		{

@@ -44,7 +44,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpGraphicsContext = TPtr<IGraphicsContext>(CreateD3D11GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>().Get(), result));
+		mpGraphicsContext = TPtr<IGraphicsContext>(CreateD3D11GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), result));
 
 		if (result != RC_OK)
 		{

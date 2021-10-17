@@ -111,7 +111,7 @@ namespace TDEngine2
 
 			if (pCanvas->DoesInheritSizesFromMainCamera())
 			{
-				IWindowSystem* pWindowSystem = pGraphicsContext->GetWindowSystem();
+				IWindowSystem* pWindowSystem = pGraphicsContext->GetWindowSystem().Get();
 
 				pCanvas->SetWidth(pWindowSystem->GetWidth());
 				pCanvas->SetHeight(pWindowSystem->GetHeight());

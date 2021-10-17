@@ -27,7 +27,7 @@ namespace TDEngine2
 	{
 	}
 	
-	E_RESULT_CODE CD3D11GraphicsContext::Init(IWindowSystem* pWindowSystem)
+	E_RESULT_CODE CD3D11GraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
 	{
 		if (mIsInitialized)
 		{
@@ -77,7 +77,7 @@ namespace TDEngine2
 #endif
 
 		/// create a swap chain
-		E_RESULT_CODE result = _createSwapChain(pWindowSystem, mp3dDevice);
+		E_RESULT_CODE result = _createSwapChain(pWindowSystem.Get(), mp3dDevice);
 
 		if (result != RC_OK)
 		{
@@ -520,7 +520,7 @@ namespace TDEngine2
 		return infoData;
 	}
 
-	IWindowSystem* CD3D11GraphicsContext::GetWindowSystem() const
+	TPtr<IWindowSystem> CD3D11GraphicsContext::GetWindowSystem() const
 	{
 		return mpWindowSystem;
 	}
@@ -658,27 +658,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
 	{
-		CD3D11GraphicsContext* pGraphicsContextInstance = new (std::nothrow) CD3D11GraphicsContext();
-
-		if (!pGraphicsContextInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pGraphicsContextInstance->Init(pWindowSystem);
-
-		if (result != RC_OK)
-		{
-			delete pGraphicsContextInstance;
-
-			pGraphicsContextInstance = nullptr;
-		}
-
-		return dynamic_cast<IGraphicsContext*>(pGraphicsContextInstance);
+		return CREATE_IMPL(IGraphicsContext, CD3D11GraphicsContext, result, pWindowSystem);
 	}
 }
 

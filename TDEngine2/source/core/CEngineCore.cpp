@@ -128,7 +128,7 @@ namespace TDEngine2
 		IEditorsManager* pEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
 		TDE2_ASSERT(pEditorsManager);
 
-		PANIC_ON_FAILURE(pEditorsManager->SetWorldInstance(mpWorldInstance.Get()));
+		PANIC_ON_FAILURE(pEditorsManager->SetWorldInstance(mpWorldInstance));
 #endif
 
 		if (result != RC_OK)

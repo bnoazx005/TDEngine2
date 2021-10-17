@@ -26,6 +26,13 @@ namespace TDEngine2
 	class IEventManager;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IInputContext)
+	TDE2_DECLARE_SCOPED_PTR(IImGUIContext)
+	TDE2_DECLARE_SCOPED_PTR(IEventManager)
+	TDE2_DECLARE_SCOPED_PTR(IWorld)
+	TDE2_DECLARE_SCOPED_PTR(ISelectionManager)
+
+
 	/*!
 		interface IEditorsManager
 
@@ -46,7 +53,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext, IEventManager* pEventManager, IWorld* pWorld = nullptr) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IInputContext> pInputContext, TPtr<IImGUIContext> pImGUIContext, TPtr<IEventManager> pEventManager, TPtr<IWorld> pWorld) = 0;
 
 			/*!
 				\brief The method registers custom editor within the manager
@@ -65,7 +72,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetWorldInstance(IWorld* pWorld) = 0;
+			TDE2_API virtual E_RESULT_CODE SetWorldInstance(TPtr<IWorld> pWorld) = 0;
 
 			/*!
 				\brief The method sets up a pointer to selection manager
@@ -75,7 +82,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetSelectionManager(ISelectionManager* pSelectionManager) = 0;
+			TDE2_API virtual E_RESULT_CODE SetSelectionManager(TPtr<ISelectionManager> pSelectionManager) = 0;
 
 			/*!
 				\brief The method updates the current state of the manager
@@ -99,7 +106,7 @@ namespace TDEngine2
 				\return The method returns a pointer to ISelectionManager that's currently used in the manager
 			*/
 
-			TDE2_API virtual ISelectionManager* GetSelectionManager() const = 0;
+			TDE2_API virtual TPtr<ISelectionManager> GetSelectionManager() const = 0;
 
 			/*!
 				\brief The method returns a pointer to world's instance
@@ -107,12 +114,15 @@ namespace TDEngine2
 				\return The method returns a pointer to world's instance
 			*/
 
-			TDE2_API virtual IWorld* GetWorldInstance() const = 0;
+			TDE2_API virtual TPtr<IWorld> GetWorldInstance() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EDITORS_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEditorsManager)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IEditorsManager)
 
 
 	/*!

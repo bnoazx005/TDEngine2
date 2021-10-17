@@ -452,20 +452,20 @@ namespace TDEngine2
 		auto pInputContext = mpEngineCoreInstance->GetSubsystem<IInputContext>();
 		auto pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
-		IEditorsManager* pEditorsManager = CreateEditorsManager(pInputContext.Get(),
-			mpEngineCoreInstance->GetSubsystem<IImGUIContext>().Get(),
-			mpEventManagerInstance.Get(),
-			mpEngineCoreInstance->GetWorldInstance().Get(),
-			result);
+		TPtr<IEditorsManager> pEditorsManager = TPtr<IEditorsManager>(CreateEditorsManager(pInputContext,
+			mpEngineCoreInstance->GetSubsystem<IImGUIContext>(),
+			mpEventManagerInstance,
+			mpEngineCoreInstance->GetWorldInstance(),
+			result));
 
 		static const USIZE mainThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 
 		auto pDebugUtility = mpGraphicsContextInstance->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManagerInstance.Get(), mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get();
 
-		if (ISelectionManager* pSelectionManager = CreateSelectionManager(mpResourceManagerInstance.Get(), mpWindowSystemInstance.Get(), mpGraphicsContextInstance.Get(), pEditorsManager, result))
+		if (auto pSelectionManager = TPtr<ISelectionManager>(CreateSelectionManager(mpResourceManagerInstance, mpWindowSystemInstance, mpGraphicsContextInstance, pEditorsManager, result)))
 		{
 			result = result | pEditorsManager->SetSelectionManager(pSelectionManager);
-			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager);
+			result = result | mpEngineCoreInstance->GetSubsystem<IRenderer>()->SetSelectionManager(pSelectionManager.Get());
 
 			if (result != RC_OK)
 			{
@@ -473,7 +473,7 @@ namespace TDEngine2
 			}
 		}
 
-		IEditorWindow* pLevelEditorWindow = CreateLevelEditorWindow({ pEditorsManager, pInputContext.Get(), mpWindowSystemInstance.Get(), pDebugUtility, pSceneManager.Get() }, result);
+		IEditorWindow* pLevelEditorWindow = CreateLevelEditorWindow({ pEditorsManager.Get(), pInputContext.Get(), mpWindowSystemInstance.Get(), pDebugUtility, pSceneManager.Get() }, result);
 
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{
@@ -502,7 +502,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<IEditorsManager>(pEditorsManager)));
+		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(pEditorsManager));
 #else
 		return RC_OK;
 #endif

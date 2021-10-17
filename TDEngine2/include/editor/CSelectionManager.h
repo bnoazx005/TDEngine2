@@ -30,8 +30,8 @@ namespace TDEngine2
 		\return A pointer to CSelectionManager's implementation
 	*/
 
-	TDE2_API ISelectionManager* CreateSelectionManager(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, 
-													   IEditorsManager* pEditorsManager, E_RESULT_CODE& result);
+	TDE2_API ISelectionManager* CreateSelectionManager(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, 
+													   TPtr<IEditorsManager> pEditorsManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -43,7 +43,7 @@ namespace TDEngine2
 	class CSelectionManager : public CBaseObject, public ISelectionManager
 	{
 		public:
-			friend TDE2_API ISelectionManager* CreateSelectionManager(IResourceManager*, IWindowSystem*, IGraphicsContext*, IEditorsManager*, E_RESULT_CODE& result);
+			friend TDE2_API ISelectionManager* CreateSelectionManager(TPtr<IResourceManager>, TPtr<IWindowSystem>, TPtr<IGraphicsContext>, TPtr<IEditorsManager>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CSelectionManager)
 
@@ -58,7 +58,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IEditorsManager* pEditorsManager) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, TPtr<IEditorsManager> pEditorsManager) override;
 
 			/*!
 				\brief The method builds so called selection map which is a render target that contains
@@ -107,7 +107,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetWorldInstance(IWorld* pWorld) override;
+			TDE2_API E_RESULT_CODE SetWorldInstance(TPtr<IWorld> pWorld) override;
 
 			/*!
 				\brief The method returns an identifier of a listener
@@ -133,17 +133,17 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			IResourceManager* mpResourceManager;
+			TPtr<IResourceManager> mpResourceManager;
 
-			IEditorsManager*  mpEditorsManager;
+			TPtr<IEditorsManager>  mpEditorsManager;
 
-			IWindowSystem*    mpWindowSystem;
+			TPtr<IWindowSystem>    mpWindowSystem;
 
-			IGraphicsContext* mpGraphicsContext;
+			TPtr<IGraphicsContext> mpGraphicsContext;
 
 			TPtr<IEventManager> mpEventManager;
 
-			IWorld*           mpWorld;
+			TPtr<IWorld>           mpWorld;
 
 			TSystemId         mObjectSelectionSystemId;
 

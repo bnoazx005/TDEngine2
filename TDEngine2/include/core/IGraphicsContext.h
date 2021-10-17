@@ -24,6 +24,9 @@ namespace TDEngine2
 	class IDepthBufferTarget;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
+
+
 	/*!
 		enum class E_PRIMITIVE_TOPOLOGY_TYPE
 
@@ -75,7 +78,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IWindowSystem* pWindowSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) = 0;
 
 			/*!
 				\brief The method clears up back buffer with specified color
@@ -369,7 +372,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IWindowSystem
 			*/
 
-			TDE2_API virtual IWindowSystem* GetWindowSystem() const = 0;
+			TDE2_API virtual TPtr<IWindowSystem> GetWindowSystem() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_GRAPHICS_CONTEXT; }
 		protected:
