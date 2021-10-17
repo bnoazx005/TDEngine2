@@ -7,13 +7,13 @@
 #pragma once
 
 
-#include "./../../utils/Config.h"
+#include "../../utils/Config.h"
 
 
 #if defined (TDE2_USE_WINPLATFORM)
 
-#include "./../../core/CBaseObject.h"
-#include "./../../utils/ITimer.h"
+#include "../../core/CBaseObject.h"
+#include "../../utils/ITimer.h"
 #include <Windows.h>
 
 

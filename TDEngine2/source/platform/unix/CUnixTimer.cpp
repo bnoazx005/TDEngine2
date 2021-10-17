@@ -1,4 +1,4 @@
-#include "./../../../include/platform/unix/CUnixTimer.h"
+#include "../../../include/platform/unix/CUnixTimer.h"
 #include <memory>
 #include <cstring>
 
@@ -25,21 +25,6 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-
-	E_RESULT_CODE CUnixTimer::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = false;
-
-		delete this;
-
-		return RC_OK;
-	}
-
 
 	void CUnixTimer::Start()
 	{
@@ -75,25 +60,7 @@ namespace TDEngine2
 
 	ITimer* CreateUnixTimer(E_RESULT_CODE& result)
 	{
-		CUnixTimer* pTimer = new (std::nothrow) CUnixTimer();
-
-		if (!pTimer)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTimer->Init();
-
-		if (result != RC_OK)
-		{
-			delete pTimer;
-
-			pTimer = nullptr;
-		}
-
-		return dynamic_cast<ITimer*>(pTimer);
+		return CREATE_IMPL(ITimer, CUnixTimer, result);
 	}
 }
 

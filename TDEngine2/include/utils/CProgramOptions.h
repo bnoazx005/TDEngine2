@@ -89,7 +89,7 @@ namespace TDEngine2
 					return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 				}
 
-				return Wrench::TOkValue<T>(it->mValue.As<T>());
+				return Wrench::TOkValue<T>(it->mValue.template As<T>());
 			}
 
 			template <typename T>

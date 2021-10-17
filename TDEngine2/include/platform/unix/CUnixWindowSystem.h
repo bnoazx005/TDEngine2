@@ -7,28 +7,36 @@
 #pragma once
 
 
-#include "./../../utils/Config.h"
-#include "./../../utils/Utils.h"
-#include "./../../core/Event.h"
+#include "../../utils/Config.h"
+#include "../../utils/Utils.h"
+#include "../../core/Event.h"
 #include <vector>
 #include <functional>
 
 #if defined(TDE2_USE_UNIXPLATFORM)
 
 
-#include "./../../core/IWindowSystem.h"
+#include "../../core/IWindowSystem.h"
+#include "../../core/CBaseObject.h"
 #include <X11/Xutil.h>
 
 
 namespace TDEngine2
 {
+	class IEventManager;
+
+	TDE2_DECLARE_SCOPED_PTR(IEventManager)
+	TDE2_DECLARE_SCOPED_PTR(IDLLManager)
+	TDE2_DECLARE_SCOPED_PTR(ITimer)
+
+
 	/*!
 		\brief A factory function for creation objects of CUnixWindowSystem type
 
 		\return A pointer to CUnixWindowSystem's implementation
 	*/
 
-	TDE2_API IWindowSystem* CreateUnixWindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
+	TDE2_API IWindowSystem* CreateUnixWindowSystem(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
 
 	/*!
 		class CUnixWindowSystem
@@ -36,7 +44,7 @@ namespace TDEngine2
 		\brief The class provides methods for a window system, which works under a UNIX platform
 	*/
 
-	class CUnixWindowSystem : public IWindowSystem, public IEventHandler
+	class CUnixWindowSystem : public IWindowSystem, public IEventHandler, public CBaseObject
 	{
 		public:
 			/*!
@@ -45,7 +53,7 @@ namespace TDEngine2
 				\return A pointer to CUnixWindowSystem's implementation
 			*/
 
-			friend TDE2_API IWindowSystem* CreateUnixWindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result);
+			friend TDE2_API IWindowSystem* CreateUnixWindowSystem(TPtr<IEventManager>, const std::string&, U32, U32, U32, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CUnixWindowSystem)
 
@@ -67,15 +75,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags = 0x0) override;
 
 			/*!
 				\brief The method processes a window's update (executing messages, redraw content)
@@ -166,7 +166,7 @@ namespace TDEngine2
 				\returns The method returns a pointer to a in-engine timer
 			*/
 
-			TDE2_API ITimer* GetTimer() const override;
+			TDE2_API TPtr<ITimer> GetTimer() const override;
 
 			/*!
 				\brief The method returns a window's title
@@ -190,7 +190,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IDLLManager's implementation
 			*/
 
-			TDE2_API IDLLManager* GetDLLManagerInstance() const override;
+			TDE2_API TPtr<IDLLManager> GetDLLManagerInstance() const override;
 
 			/*!
 				\brief The method returns a pointer to IEventManager implementation
@@ -198,7 +198,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IEventManager implementation
 			*/
 
-			TDE2_API IEventManager* GetEventManager() const override;
+			TDE2_API TPtr<IEventManager> GetEventManager() const override;
 
 			/*!
 				\brief The method receives a given event and processes it
@@ -265,6 +265,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createWindow();
 
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+
 			TDE2_API void _processEvents();
 
 			TDE2_API void _sendWindowResizedEvent(U32 width, U32 height);
@@ -292,18 +294,16 @@ namespace TDEngine2
 			U32                       mWindowYPos;
 
 			std::string               mWindowName;
-
-			bool                      mIsInitialized;
-			
+						
 			TWindowSystemInternalData mInternalDataObject;
 			
-			ITimer*                   mpTimer;
+			TPtr<ITimer>              mpTimer;
 
-			IDLLManager*              mpDLLManager;
+			TPtr<IDLLManager>         mpDLLManager;
 
 			volatile bool             mIsRunning;
 
-			IEventManager*            mpEventManager;
+			TPtr<IEventManager>       mpEventManager;
 	};
 }
 

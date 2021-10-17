@@ -1,5 +1,5 @@
-#include "./../../../include/platform/unix/CUnixDLLManager.h"
-#include "./../../../include/utils/CFileLogger.h"
+#include "../../../include/platform/unix/CUnixDLLManager.h"
+#include "../../../include/utils/CFileLogger.h"
 
 
 #if defined (TDE2_USE_UNIXPLATFORM)
@@ -28,7 +28,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CUnixDLLManager::Free()
+	E_RESULT_CODE CUnixDLLManager::_onFreeInternal()
 	{
 		if (!mIsInitialized)
 		{
@@ -41,10 +41,6 @@ namespace TDEngine2
 		{
 			return result;
 		}
-
-		delete this;
-
-		mIsInitialized = false;
 
 		LOG_MESSAGE("[UNIX DLL Manager] The UNIX DLL manager was successfully destroyed");
 
@@ -219,25 +215,7 @@ namespace TDEngine2
 
 	TDE2_API IDLLManager* CreateUnixDLLManager(E_RESULT_CODE& result)
 	{
-		CUnixDLLManager* pDLLManagerInstance = new (std::nothrow) CUnixDLLManager();
-
-		if (!pDLLManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pDLLManagerInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pDLLManagerInstance;
-
-			pDLLManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<IDLLManager*>(pDLLManagerInstance);
+		return CREATE_IMPL(IDLLManager, CUnixDLLManager, result);
 	}
 }
 

@@ -33,7 +33,7 @@ namespace TDEngine2
 		\return A pointer to CWorld's implementation
 	*/
 
-	TDE2_API IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result);
+	TDE2_API IWorld* CreateWorld(TPtr<IEventManager> pEventManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -46,7 +46,7 @@ namespace TDEngine2
 	class CWorld : public CBaseObject, public IWorld
 	{
 		public:
-			friend TDE2_API IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result);
+			friend TDE2_API IWorld* CreateWorld(TPtr<IEventManager>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes a world's instance
@@ -56,7 +56,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IEventManager* pEventManager) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IEventManager> pEventManager) override;
 			
 			/*!
 				\brief The method creates a new instance of CEntity
@@ -221,19 +221,19 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			CEntityManager*    mpEntityManager;
+			CEntityManager*     mpEntityManager;
 
-			IComponentManager* mpComponentManager;
+			IComponentManager*  mpComponentManager;
 
-			ISystemManager*    mpSystemManager;
+			ISystemManager*     mpSystemManager;
 
-			IEventManager*     mpEventManager;
+			TPtr<IEventManager> mpEventManager;
 
-			IRaycastContext*   mpRaycastContext;
+			IRaycastContext*    mpRaycastContext;
 
-			F32                mTimeScaleFactor;
+			F32                 mTimeScaleFactor;
 
-			mutable std::mutex mMutex;
+			mutable std::mutex  mMutex;
 	};
 
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.5] 2021-10-17
+
+### Fixed 
+
+- A bucnh of Unix related classes were fixed due to last refactoring
+
 ## [0.5.4] 2021-10-16
 
 ### Changed

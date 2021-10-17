@@ -64,24 +64,6 @@ namespace TDEngine2
 
 	TDE2_API IFileSystem* CreateUnixFileSystem(E_RESULT_CODE& result)
 	{
-		CUnixFileSystem* pFileSystemInstance = new (std::nothrow) CUnixFileSystem();
-
-		if (!pFileSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pFileSystemInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pFileSystemInstance;
-
-			pFileSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<IFileSystem*>(pFileSystemInstance);
+		return CREATE_IMPL(IFileSystem, CUnixFileSystem, result);
 	}
 }

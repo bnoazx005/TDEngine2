@@ -517,7 +517,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IWorld* pWorldInstance = CreateWorld(mpWindowSystemInstance->GetEventManager().Get(), result);
+		IWorld* pWorldInstance = CreateWorld(mpWindowSystemInstance->GetEventManager(), result);
 		if (RC_OK != result)
 		{
 			return result;

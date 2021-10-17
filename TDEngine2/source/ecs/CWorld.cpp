@@ -17,7 +17,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CWorld::Init(IEventManager* pEventManager)
+	E_RESULT_CODE CWorld::Init(TPtr<IEventManager> pEventManager)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -42,14 +42,14 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpEntityManager = CreateEntityManager(pEventManager, mpComponentManager, result);
+		mpEntityManager = CreateEntityManager(pEventManager.Get(), mpComponentManager, result);
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 		
-		mpSystemManager = CreateSystemManager(this, pEventManager, result);
+		mpSystemManager = CreateSystemManager(this, pEventManager.Get(), result);
 
 		if (result != RC_OK)
 		{
@@ -222,7 +222,7 @@ namespace TDEngine2
 	}
 	
 
-	IWorld* CreateWorld(IEventManager* pEventManager, E_RESULT_CODE& result)
+	IWorld* CreateWorld(TPtr<IEventManager> pEventManager, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IWorld, CWorld, result, pEventManager);
 	}

@@ -28,33 +28,19 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpInputContext = CreateUnixInputContext(pEngineCore->GetSubsystem<IWindowSystem>(), result);
+		mpInputContext = TPtr<IInputContext>(CreateUnixInputContext(pEngineCore->GetSubsystem<IWindowSystem>(), result));
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		if ((result = mpEngineCoreInstance->RegisterSubsystem(mpInputContext)) != RC_OK)
+		if ((result = mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpInputContext))) != RC_OK)
 		{
 			return result;
 		}
 		
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CUnixInputCtxPlugin::Free()
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		delete this;
-
-		mIsInitialized = false;
 
 		return RC_OK;
 	}

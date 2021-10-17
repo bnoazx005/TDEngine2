@@ -12,11 +12,11 @@
 namespace TDEngine2
 {
 	CUnixWindowSystem::CUnixWindowSystem() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
-	E_RESULT_CODE CUnixWindowSystem::Init(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags)
+	E_RESULT_CODE CUnixWindowSystem::Init(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags)
 	{
 		if (mIsInitialized)
 		{
@@ -78,20 +78,10 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CUnixWindowSystem::Free()
+	E_RESULT_CODE CUnixWindowSystem::_onFreeInternal()
 	{
-		if (!mIsInitialized)
-		{
-			return RC_OK;
-		}
-
 		XDestroyWindow(mpDisplayHandler, mWindowHandler);
-
 		XCloseDisplay(mpDisplayHandler);
-
-		mIsInitialized = false;
-
-		delete this;
 
 		LOG_MESSAGE("[UNIX Window System] The window system was successfully destroyed");
 
@@ -226,7 +216,7 @@ namespace TDEngine2
 		return mHeight;
 	}
 
-	ITimer* CUnixWindowSystem::GetTimer() const
+	TPtr<ITimer> CUnixWindowSystem::GetTimer() const
 	{
 		return mpTimer;
 	}
@@ -241,12 +231,12 @@ namespace TDEngine2
 		return mSetupFlags;
 	}
 
-	IDLLManager* CUnixWindowSystem::GetDLLManagerInstance() const
+	TPtr<IDLLManager> CUnixWindowSystem::GetDLLManagerInstance() const
 	{
 		return mpDLLManager;
 	}
 
-	IEventManager* CUnixWindowSystem::GetEventManager() const
+	TPtr<IEventManager> CUnixWindowSystem::GetEventManager() const
 	{
 		return mpEventManager;
 	}			
@@ -421,27 +411,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IWindowSystem* CreateUnixWindowSystem(IEventManager* pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
+	TDE2_API IWindowSystem* CreateUnixWindowSystem(TPtr<IEventManager> pEventManager, const std::string& name, U32 width, U32 height, U32 flags, E_RESULT_CODE& result)
 	{
-		CUnixWindowSystem* pWindowSystemInstance = new (std::nothrow) CUnixWindowSystem();
-
-		if (!pWindowSystemInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pWindowSystemInstance->Init(pEventManager, name, width, height, flags);
-
-		if (result != RC_OK)
-		{
-			delete pWindowSystemInstance;
-
-			pWindowSystemInstance = nullptr;
-		}
-
-		return dynamic_cast<IWindowSystem*>(pWindowSystemInstance);
+		return CREATE_IMPL(IWindowSystem, CUnixWindowSystem, result, pEventManager, name, width, height, flags);
 	}
 }
 

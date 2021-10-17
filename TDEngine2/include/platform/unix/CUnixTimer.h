@@ -7,13 +7,13 @@
 #pragma once
 
 
-#include "./../../utils/Config.h"
+#include "../../utils/Config.h"
 
 
 #if defined (TDE2_USE_UNIXPLATFORM)
 
-#include "./../../core/CBaseObject.h"
-#include "./../../utils/ITimer.h"
+#include "../../core/CBaseObject.h"
+#include "../../utils/ITimer.h"
 #include <sys/time.h>
 
 
@@ -46,14 +46,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method starts a timer

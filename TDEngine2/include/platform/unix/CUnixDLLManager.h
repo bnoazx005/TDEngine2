@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../../core/IDLLManager.h"
-#include "./../../core/CBaseObject.h"
+#include "../../core/IDLLManager.h"
+#include "../../core/CBaseObject.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -49,14 +49,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method frees all memory occupied by the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Free() override;
 
 			/*!
 				\brief The method loads specified library into the memory and returns its handler
@@ -109,6 +101,9 @@ namespace TDEngine2
 			TDE2_API void* GetSymbol(const TDynamicLibraryHandler& libraryHandler, const std::string& symbol) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUnixDLLManager)
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+
 		protected:
 			TDynLibHandlersMap                mHandlersTable;
 			TDynLibArray                      mLoadedLibraries;

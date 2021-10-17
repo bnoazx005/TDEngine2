@@ -8,6 +8,7 @@
 
 
 #include <core/IInputContext.h>
+#include <core/CBaseObject.h>
 #include <utils/Utils.h>
 
 
@@ -53,7 +54,7 @@ namespace TDEngine2
 		on Xlib API
 	*/
 
-	class CUnixInputContext : public IDesktopInputContext
+	class CUnixInputContext : public IDesktopInputContext, public CBaseObject
 	{
 		public:
 			friend TDE2_API IInputContext* CreateUnixInputContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
