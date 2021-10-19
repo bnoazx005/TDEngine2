@@ -19,8 +19,8 @@
 #include <utils/CGradientColor.h>
 #include <math/MathUtils.h>
 #include <math/TQuaternion.h>
-#include "./../deps/imgui-1.72/imgui.h"
-#include "./../deps/imgui-1.72/ImGuizmo.h"
+#include "../deps/imgui-1.72/imgui.h"
+#include "../deps/imgui-1.72/ImGuizmo.h"
 #include <vector>
 #include <cstring>
 #define DEFER_IMPLEMENTATION
@@ -30,33 +30,32 @@
 namespace TDEngine2
 {
 	CImGUIContext::CImGUIContext():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
-	E_RESULT_CODE CImGUIContext::Init(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
-									  IResourceManager* pResourceManager, IInputContext* pInputContext)
+	E_RESULT_CODE CImGUIContext::Init(const TImGUIContextInitParams& params)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pWindowSystem ||
-			!pGraphicsObjectManager ||
-			!pResourceManager ||
-			!pRenderer ||
-			!pInputContext)
+		if (!params.mpWindowSystem ||
+			!params.mpGraphicsObjectManager ||
+			!params.mpResourceManager ||
+			!params.mpRenderer ||
+			!params.mpInputContext)
 		{
 			return RC_INVALID_ARGS;	
 		}
 		
-		mpWindowSystem          = pWindowSystem;
-		mpGraphicsContext       = pGraphicsObjectManager->GetGraphicsContext();
-		mpGraphicsObjectManager = pGraphicsObjectManager;
-		mpResourceManager       = pResourceManager;
-		mpInputContext          = pInputContext;
-		mpEditorUIRenderQueue	= pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG);
+		mpWindowSystem          = params.mpWindowSystem;
+		mpGraphicsContext       = params.mpGraphicsObjectManager->GetGraphicsContext();
+		mpGraphicsObjectManager = params.mpGraphicsObjectManager;
+		mpResourceManager       = params.mpResourceManager;
+		mpInputContext          = params.mpInputContext;
+		mpEditorUIRenderQueue	= params.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG);
 
 		if (!mpGraphicsContext) // \note the really strange case, but if it's happened we should check for it
 		{
@@ -127,7 +126,7 @@ namespace TDEngine2
 		TRectU32&& windowRect = mpWindowSystem->GetClientRect();
 		mpIOContext->DisplaySize = ImVec2(static_cast<F32>(windowRect.width), static_cast<F32>(windowRect.height));
 
-		_updateInputState(*mpIOContext, mpInputContext);
+		_updateInputState(*mpIOContext, mpInputContext.Get());
 
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
@@ -885,7 +884,7 @@ namespace TDEngine2
 		io.Fonts->AddFontDefault();
 
 		// \note Initialize graphical binding
-		if ((result = _initGraphicsResources(io, mpGraphicsContext, mpGraphicsObjectManager, mpResourceManager)) != RC_OK)
+		if ((result = _initGraphicsResources(io, mpGraphicsContext, mpGraphicsObjectManager, mpResourceManager.Get())) != RC_OK)
 		{
 			return result;
 		}
@@ -897,7 +896,7 @@ namespace TDEngine2
 
 	void CImGUIContext::_updateInputState(ImGuiIO& io, IInputContext* pInputContext)
 	{
-		IDesktopInputContext* pDesktopInputCtx = dynamic_cast<IDesktopInputContext*>(mpInputContext);
+		IDesktopInputContext* pDesktopInputCtx = dynamic_cast<IDesktopInputContext*>(mpInputContext.Get());
 
 		assert(pDesktopInputCtx);
 
@@ -1338,27 +1337,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
-											   IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result)
+	TDE2_API IImGUIContext* CreateImGUIContext(const TImGUIContextInitParams& params, E_RESULT_CODE& result)
 	{
-		CImGUIContext* pImGUIContextInstance = new (std::nothrow) CImGUIContext();
-
-		if (!pImGUIContextInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return pImGUIContextInstance;
-		}
-
-		result = pImGUIContextInstance->Init(pWindowSystem, pRenderer, pGraphicsObjectManager, pResourceManager, pInputContext);
-
-		if (result != RC_OK)
-		{
-			delete pImGUIContextInstance;
-
-			pImGUIContextInstance = nullptr;
-		}
-
-		return dynamic_cast<IImGUIContext*>(pImGUIContextInstance);
+		return CREATE_IMPL(IImGUIContext, CImGUIContext, result, params);
 	}
 }

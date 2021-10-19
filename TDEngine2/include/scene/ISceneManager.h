@@ -24,6 +24,10 @@ namespace TDEngine2
 	enum class TSceneId : U32;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
+	TDE2_DECLARE_SCOPED_PTR(IWorld)
+
+
 	/*!
 		struct TSceneManagerSettings
 
@@ -64,7 +68,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings) = 0;
 
 			/*!
 				\brief The method loads a scene based on path to that
@@ -123,7 +127,7 @@ namespace TDEngine2
 				\return The method returns a pointer to instance of IWorld
 			*/
 
-			TDE2_API virtual IWorld* GetWorld() const = 0;
+			TDE2_API virtual TPtr<IWorld> GetWorld() const = 0;
 
 			/*!
 				\return The method returns an array of currently loaded chunks

@@ -31,8 +31,16 @@ namespace TDEngine2
 	struct TQuaternion;
 	union TMatrix4;
 	class CGradientColor;
+	class IGraphicsContext;
 
 	enum class E_GIZMO_TYPE : U8;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)
+	TDE2_DECLARE_SCOPED_PTR(IInputContext)
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+	TDE2_DECLARE_SCOPED_PTR(IRenderer)
 
 
 	/*!
@@ -66,6 +74,16 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE ConfigureForUnixPlatform(const CUnixWindowSystem* pWindowSystem) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IImGUIContextVisitor)
+	};
+
+
+	struct TImGUIContextInitParams
+	{
+		TPtr<IWindowSystem>     mpWindowSystem;
+		TPtr<IRenderer>         mpRenderer;
+		IGraphicsObjectManager* mpGraphicsObjectManager;
+		TPtr<IResourceManager>  mpResourceManager;
+		TPtr<IInputContext>     mpInputContext;
 	};
 
 
@@ -113,17 +131,10 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of a context
 
-				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
-				\param[in, out] pRenderer A pointer to IRenderer implementation
-				\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
-				\param[in, out] pResourceManager A pointer to IResourceManager implementation
-				\param[in, out] pInputContext A pointer to IInputContext implementation
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
-												IResourceManager* pResourceManager, IInputContext* pInputContext) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(const TImGUIContextInitParams& params) = 0;
 
 			/*!
 				\brief The method begins to populate immediage GUI state. Any UI element should be drawn during

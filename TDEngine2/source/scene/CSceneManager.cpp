@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSceneManager::Init(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings)
+	E_RESULT_CODE CSceneManager::Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -72,7 +72,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
+		IScene* pScene = TDEngine2::CreateScene(mpWorld.Get(), sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
 		if (RC_OK != result || !pScene)
 		{
@@ -137,7 +137,7 @@ namespace TDEngine2
 
 			E_RESULT_CODE result = RC_OK;
 
-			IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
+			IScene* pScene = TDEngine2::CreateScene(mpWorld.Get(), sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
 			if (RC_OK != result || !pScene)
 			{
@@ -226,7 +226,7 @@ namespace TDEngine2
 		return static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter));
 	}
 
-	IWorld* CSceneManager::GetWorld() const
+	TPtr<IWorld> CSceneManager::GetWorld() const
 	{
 		return mpWorld;
 	}
@@ -242,7 +242,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		IScene* pScene = TDEngine2::CreateScene(mpWorld, name, Wrench::StringUtils::GetEmptyStr(), mpScenes.empty(), result);
+		IScene* pScene = TDEngine2::CreateScene(mpWorld.Get(), name, Wrench::StringUtils::GetEmptyStr(), mpScenes.empty(), result);
 
 		if (RC_OK != result)
 		{
@@ -308,7 +308,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISceneManager* CreateSceneManager(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings, E_RESULT_CODE& result)
+	TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ISceneManager, CSceneManager, result, pFileSystem, pWorld, settings);
 	}

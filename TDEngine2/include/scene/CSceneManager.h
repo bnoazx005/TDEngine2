@@ -26,13 +26,13 @@ namespace TDEngine2
 		\return A pointer to CFileInputStream's implementation
 	*/
 
-	TDE2_API ISceneManager* CreateSceneManager(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings, E_RESULT_CODE& result);
+	TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings, E_RESULT_CODE& result);
 
 
 	class CSceneManager : public CBaseObject, public ISceneManager
 	{
 		public:
-			friend TDE2_API ISceneManager* CreateSceneManager(IFileSystem*, IWorld*, const TSceneManagerSettings&, E_RESULT_CODE&);
+			friend TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem>, TPtr<IWorld>, const TSceneManagerSettings&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes the internal state of the object
@@ -44,7 +44,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem, IWorld* pWorld, const TSceneManagerSettings& settings) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings) override;
 
 			/*!
 				\brief The method loads a scene based on path to that
@@ -111,7 +111,7 @@ namespace TDEngine2
 				\return The method returns a pointer to instance of IWorld
 			*/
 
-			TDE2_API IWorld* GetWorld() const override;
+			TDE2_API TPtr<IWorld> GetWorld() const override;
 
 			/*!
 				\return The method returns an array of currently loaded chunks
@@ -133,8 +133,8 @@ namespace TDEngine2
 		protected:
 			mutable std::mutex mMutex;
 
-			IFileSystem* mpFileSystem;
-			IWorld* mpWorld;
+			TPtr<IFileSystem>  mpFileSystem;
+			TPtr<IWorld>       mpWorld;
 
 			TSceneManagerSettings mSettings;
 

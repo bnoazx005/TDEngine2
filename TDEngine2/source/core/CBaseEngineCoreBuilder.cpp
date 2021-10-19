@@ -524,7 +524,7 @@ namespace TDEngine2
 		}
 
 		// \todo load settings from  settings
-		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance.Get(), pWorldInstance, {}, result));
+		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance, TPtr<IWorld>(pWorldInstance), {}, result));
 		if (result != RC_OK)
 		{
 			return result;

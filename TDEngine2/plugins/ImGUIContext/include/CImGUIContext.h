@@ -35,19 +35,13 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CImGUIContext's type
 
-		\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
-		\param[in, out] pRenderer A pointer to IRenderer implementation
-		\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
-		\param[in, out] pResourceManager A pointer to IResourceManager implementation
-		\param[in, out] pInputContext A pointer to IInputContext implementation
-
+		\param[in, out] params A bunch of parameters to initialize the context
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CImGUIContext's implementation
 	*/
 
-	TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
-											   IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
+	TDE2_API IImGUIContext* CreateImGUIContext(const TImGUIContextInitParams& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -59,8 +53,7 @@ namespace TDEngine2
 	class CImGUIContext : public IImGUIContext, public CBaseObject
 	{
 		public:
-			friend TDE2_API IImGUIContext* CreateImGUIContext(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
-															  IResourceManager* pResourceManager, IInputContext* pInputContext, E_RESULT_CODE& result);
+			friend TDE2_API IImGUIContext* CreateImGUIContext(const TImGUIContextInitParams&, E_RESULT_CODE&);
 		public:
 			typedef std::stack<ImDrawList*> TDrawListsStack;
 			typedef std::vector<TResourceId> TResourceHandlesArray;
@@ -69,17 +62,10 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of a context
 
-				\param[in, out] pWindowSystem A pointer to IWindowSystem implementation
-				\param[in, out] pRenderer A pointer to IRenderer implementation
-				\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
-				\param[in, out] pResourceManager A pointer to IResourceManager implementation
-				\param[in, out] pInputContext A pointer to IInputContext implementation
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IWindowSystem* pWindowSystem, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager,
-										IResourceManager* pResourceManager, IInputContext* pInputContext) override;
+			TDE2_API E_RESULT_CODE Init(const TImGUIContextInitParams& params) override;
 
 			/*!
 				\brief The method configures the immediate GUI context for WIN32 platform
@@ -639,17 +625,15 @@ namespace TDEngine2
 			TDE2_API void _drawGradientColorPreview(const std::string& text, CGradientColor& color, const TVector2& sizes);
 			TDE2_API void _drawGradientColorEditor(CGradientColor& color, const TVector2& windowSizes);
 		protected:
-			std::atomic_bool        mIsInitialized;
-
-			IWindowSystem*          mpWindowSystem;
+			TPtr<IWindowSystem>     mpWindowSystem;
 
 			IGraphicsContext*       mpGraphicsContext;
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
-			IResourceManager*       mpResourceManager;
+			TPtr<IResourceManager>  mpResourceManager;
 
-			IInputContext*          mpInputContext;
+			TPtr<IInputContext>     mpInputContext;
 
 			ImGuiIO*                mpIOContext;
 
