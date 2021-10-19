@@ -384,5 +384,5 @@ namespace TDEngine2
 	}
 
 
-	TDE2_DECLARE_SCOPED_PTR_INLINED(IFileSystem)
+	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
 }

@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../IEngineSubsystem.h"
-#include "./../../utils/Types.h"
-#include "./../../utils/Utils.h"
+#include "../IEngineSubsystem.h"
+#include "../../utils/Types.h"
+#include "../../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -125,5 +125,5 @@ namespace TDEngine2
 	};
 
 
-	TDE2_DECLARE_SCOPED_PTR_INLINED(IMemoryManager)
+	TDE2_DECLARE_SCOPED_PTR(IMemoryManager)
 }

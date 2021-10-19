@@ -301,5 +301,5 @@ namespace TDEngine2
 	};
 
 
-	TDE2_DECLARE_SCOPED_PTR_INLINED(IResourceManager);
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager);
 }

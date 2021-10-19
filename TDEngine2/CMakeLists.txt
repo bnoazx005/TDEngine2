@@ -440,6 +440,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CU8String.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CGradientColor.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CProgramOptions.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/ScopedPtrDefinitions.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse/argparse.c"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector2.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector3.cpp"

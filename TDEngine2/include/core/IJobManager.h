@@ -129,5 +129,5 @@ namespace TDEngine2
 	};
 
 
-	TDE2_DECLARE_SCOPED_PTR_INLINED(IJobManager)
+	TDE2_DECLARE_SCOPED_PTR(IJobManager)
 }
