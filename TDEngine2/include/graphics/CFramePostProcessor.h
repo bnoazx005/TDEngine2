@@ -22,6 +22,9 @@ namespace TDEngine2
 	class IRenderTarget;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+
+
 	/*!
 		\brief A factory function for creation objects of CFramePostProcessor's type
 
@@ -115,7 +118,7 @@ namespace TDEngine2
 
 			IVertexDeclaration*           mpVertexFormatDeclaration;
 
-			IResourceManager*             mpResourceManager;
+			TPtr<IResourceManager>        mpResourceManager;
 
 			IWindowSystem*                mpWindowSystem;
 

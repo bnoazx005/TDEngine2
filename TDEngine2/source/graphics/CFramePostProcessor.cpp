@@ -236,7 +236,7 @@ namespace TDEngine2
 
 		if (drawImmediately)
 		{
-			pDrawCommand->Submit(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties);
+			pDrawCommand->Submit(mpGraphicsContext, mpResourceManager.Get(), mpGlobalShaderProperties);
 		}
 	}
 

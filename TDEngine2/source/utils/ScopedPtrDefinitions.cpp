@@ -7,6 +7,7 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/IPluginManager.h"
 #include "../../include/core/memory/IMemoryManager.h"
+#include "../../include/core/memory/IAllocator.h"
 
 
 namespace TDEngine2
@@ -19,4 +20,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IJobManager)
 	TDE2_DEFINE_SCOPED_PTR(IPluginManager)
 	TDE2_DEFINE_SCOPED_PTR(IMemoryManager)
+	TDE2_DEFINE_SCOPED_PTR(IAllocator)
 }

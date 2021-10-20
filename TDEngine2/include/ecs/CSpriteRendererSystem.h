@@ -11,10 +11,10 @@
 #include <vector>
 #include <tuple>
 #include <unordered_map>
-#include "./../math/TMatrix4.h"
-#include "./../math/TVector2.h"
-#include "./../utils/Color.h"
-#include "./../utils/CContainers.h"
+#include "../math/TMatrix4.h"
+#include "../math/TVector2.h"
+#include "../utils/Color.h"
+#include "../utils/CContainers.h"
 
 
 namespace TDEngine2
@@ -30,6 +30,9 @@ namespace TDEngine2
 	class IRenderer;
 	class IResourceManager;
 	class IAllocator;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 
 
 	/*!
@@ -135,7 +138,7 @@ namespace TDEngine2
 
 			IRenderer*                  mpRenderer;
 
-			IResourceManager*           mpResourceManager;
+			TPtr<IResourceManager>      mpResourceManager;
 
 			CRenderQueue*               mpRenderQueue;
 

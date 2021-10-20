@@ -23,20 +23,12 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CForwardRenderer's type
 
-		\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-
-		\param[in, out] pGraphicsContext A pointer to IResourceManager implementation
-
-		\param[in, out] pTempAllocator A pointer to IAllocator object which will be used
-		for temporary allocations
-
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CForwardRenderer's implementation
 	*/
 
-	TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, 
-											  IFramePostProcessor* pFramePostProcessor, E_RESULT_CODE& result);
+	TDE2_API IRenderer* CreateForwardRenderer(const TRendererInitParams& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -48,26 +40,15 @@ namespace TDEngine2
 	class CForwardRenderer : public IRenderer, public CBaseObject
 	{
 		public:
-			friend TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, 
-															 IFramePostProcessor* pFramePostProcessor, E_RESULT_CODE& result);
+			friend TDE2_API IRenderer* CreateForwardRenderer(const TRendererInitParams&, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a renderer
 
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-
-				\param[in, out] pGraphicsContext A pointer to IResourceManager implementation
-
-				\param[in, out] pTempAllocator A pointer to IAllocator object which will be used
-				for temporary allocations
-
-				\param[in, out] pFramePostProcessor A pointer to IFramePostProcessor implementation
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator,
-										IFramePostProcessor* pFramePostProcessor) override;
+			TDE2_API E_RESULT_CODE Init(const TRendererInitParams& params) override;
 			
 			/*!
 				\brief The method sends all accumulated commands into GPU driver
@@ -144,7 +125,7 @@ namespace TDEngine2
 				the renderer
 			*/
 
-			TDE2_API IResourceManager* GetResourceManager() const override;
+			TDE2_API TPtr<IResourceManager> GetResourceManager() const override;
 
 			/*!
 				\return The method returns a pointer to an object which holds global shader uniforms
@@ -160,17 +141,15 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			bool                     mIsInitialized;
+			TPtr<IGraphicsContext>   mpGraphicsContext;
 							         
-			IGraphicsContext*        mpGraphicsContext;
-							         
-			IResourceManager*        mpResourceManager;
+			TPtr<IResourceManager>   mpResourceManager;
 							         
 			const ICamera*           mpMainCamera;
 							         
 			CRenderQueue*            mpRenderQueues[NumOfRenderQueuesGroup];
 							         
-			IAllocator*              mpTempAllocator;
+			TPtr<IAllocator>         mpTempAllocator;
 
 			IGlobalShaderProperties* mpGlobalShaderProperties;
 

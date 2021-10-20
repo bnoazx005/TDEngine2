@@ -32,6 +32,9 @@ namespace TDEngine2
 	enum class TEntityId : U32;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+
+
 	/*!
 		\brief A factory function for creation objects of CParticlesSimulationSystem's type.
 
@@ -120,7 +123,7 @@ namespace TDEngine2
 		protected:
 			IRenderer*              mpRenderer;
 
-			IResourceManager*       mpResourceManager;
+			TPtr<IResourceManager>  mpResourceManager;
 
 			CRenderQueue*           mpRenderQueue;
 

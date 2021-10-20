@@ -22,27 +22,26 @@
 namespace TDEngine2
 {
 	CForwardRenderer::CForwardRenderer():
-		mIsInitialized(false), mpMainCamera(nullptr), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr), mpFramePostProcessor(nullptr)
+		CBaseObject(), mpMainCamera(nullptr), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr), mpFramePostProcessor(nullptr)
 	{
 	}
 
-	E_RESULT_CODE CForwardRenderer::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator,
-										 IFramePostProcessor* pFramePostProcessor)
+	E_RESULT_CODE CForwardRenderer::Init(const TRendererInitParams& params)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pTempAllocator || !pGraphicsContext || !pResourceManager)
+		if (!params.mpTempAllocator || !params.mpGraphicsContext || !params.mpResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpGraphicsContext    = pGraphicsContext;
-		mpResourceManager    = pResourceManager;
-		mpTempAllocator      = pTempAllocator;
-		mpFramePostProcessor = pFramePostProcessor;
+		mpGraphicsContext    = params.mpGraphicsContext;
+		mpResourceManager    = params.mpResourceManager;
+		mpTempAllocator      = params.mpTempAllocator;
+		mpFramePostProcessor = params.mpFramePostProcessor;
 
 		E_RESULT_CODE result = RC_OK;
 		
@@ -54,7 +53,7 @@ namespace TDEngine2
 		
 		for (U8 i = 0; i < NumOfRenderQueuesGroup; ++i)
 		{
-			pCurrMemoryBlock = pTempAllocator->Allocate(PerRenderQueueMemoryBlockSize, __alignof(U8));
+			pCurrMemoryBlock = mpTempAllocator->Allocate(PerRenderQueueMemoryBlockSize, __alignof(U8));
 
 			pCurrAllocator = CreateLinearAllocator(PerRenderQueueMemoryBlockSize, static_cast<U8*>(pCurrMemoryBlock), result);
 
@@ -76,7 +75,7 @@ namespace TDEngine2
 																											  append(")"));
 		}
 
-		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
 		mpGlobalShaderProperties = CreateGlobalShaderProperties(pGraphicsObjectManager, result);
 
@@ -88,7 +87,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(pResourceManager, this);
+		auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(mpResourceManager.Get(), this);
 
 		if (debugUtilityResult.HasError())
 		{
@@ -320,7 +319,7 @@ namespace TDEngine2
 		return mpRenderQueues[static_cast<U8>(queueType)];
 	}
 
-	IResourceManager* CForwardRenderer::GetResourceManager() const
+	TPtr<IResourceManager> CForwardRenderer::GetResourceManager() const
 	{
 		return mpResourceManager;
 	}
@@ -350,7 +349,7 @@ namespace TDEngine2
 				break;
 			}
 
-			pCurrDrawCommand->Submit(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties);
+			pCurrDrawCommand->Submit(mpGraphicsContext.Get(), mpResourceManager.Get(), mpGlobalShaderProperties);
 		}
 	}
 
@@ -381,9 +380,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IRenderer* CreateForwardRenderer(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator, 
-											  IFramePostProcessor* pFramePostProcessor, E_RESULT_CODE& result)
+	TDE2_API IRenderer* CreateForwardRenderer(const TRendererInitParams& params, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IRenderer, CForwardRenderer, result, pGraphicsContext, pResourceManager, pTempAllocator, pFramePostProcessor);
+		return CREATE_IMPL(IRenderer, CForwardRenderer, result, params);
 	}
 }

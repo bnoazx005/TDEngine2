@@ -24,6 +24,9 @@ namespace TDEngine2
 	struct TLightingShaderData;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+
+
 	/*!
 		\brief A factory function for creation objects of CLightingSystem's type.
 
@@ -92,7 +95,7 @@ namespace TDEngine2
 
 			IGraphicsContext*       mpGraphicsContext;
 
-			IResourceManager*       mpResourceManager;
+			TPtr<IResourceManager>  mpResourceManager;
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 

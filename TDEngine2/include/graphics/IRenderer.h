@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Utils.h"
-#include "./../utils/Types.h"
-#include "./../core/IEngineSubsystem.h"
+#include "../utils/Utils.h"
+#include "../utils/Types.h"
+#include "../core/IEngineSubsystem.h"
 
 
 namespace TDEngine2
@@ -23,6 +23,11 @@ namespace TDEngine2
 	class ISelectionManager;
 	struct TLightingShaderData;
 	class IGlobalShaderProperties;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+	TDE2_DECLARE_SCOPED_PTR(IAllocator)
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -54,6 +59,15 @@ namespace TDEngine2
 	};
 
 
+	struct TRendererInitParams
+	{
+		TPtr<IGraphicsContext> mpGraphicsContext;
+		TPtr<IResourceManager> mpResourceManager;
+		TPtr<IAllocator>       mpTempAllocator;
+		IFramePostProcessor*   mpFramePostProcessor;
+	};
+
+
 	/*!
 		interface IRenderer
 
@@ -66,20 +80,10 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of a renderer
 				
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-
-				\param[in, out] pResourceManager A pointer to IResourceManager implementation
-
-				\param[in, out] pTempAllocator A pointer to IAllocator object which will be used
-				for temporary allocations
-
-				\param[in, out] pFramePostProcessor A pointer to IFramePostProcessor implementation
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IAllocator* pTempAllocator,
-												IFramePostProcessor* pFramePostProcessor) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(const TRendererInitParams& params) = 0;
 			
 			/*!
 				\brief The method sends all accumulated commands into GPU driver
@@ -145,7 +149,7 @@ namespace TDEngine2
 				the renderer
 			*/
 
-			TDE2_API virtual IResourceManager* GetResourceManager() const = 0;
+			TDE2_API virtual TPtr<IResourceManager> GetResourceManager() const = 0;
 
 			/*!
 				\return The method returns a pointer to an object which holds global shader uniforms

@@ -225,8 +225,8 @@ namespace TDEngine2
 		{
 			if (auto pEntity = pWorld->FindEntity(currEntity))
 			{
-				drawIndex = ProcessStaticMeshCasterEntity({ pEntity, mpResourceManager, mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, mpShadowPassRenderQueue });
-				drawIndex = ProcessSkinnedMeshCasterEntity({ pEntity, mpResourceManager, mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, mpShadowPassRenderQueue });
+				drawIndex = ProcessStaticMeshCasterEntity({ pEntity, mpResourceManager.Get(), mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, mpShadowPassRenderQueue });
+				drawIndex = ProcessSkinnedMeshCasterEntity({ pEntity, mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, mpShadowPassRenderQueue });
 			}
 		}
 

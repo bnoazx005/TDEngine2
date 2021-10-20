@@ -31,6 +31,9 @@ namespace TDEngine2
 	class ICamera;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+
+
 	/*!
 		\brief A factory function for creation objects of CStaticMeshRendererSystem's type.
 
@@ -114,7 +117,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
-			IResourceManager*       mpResourceManager;
+			TPtr<IResourceManager>  mpResourceManager;
 
 			CRenderQueue*           mpOpaqueRenderGroup;
 			CRenderQueue*           mpTransparentRenderGroup;

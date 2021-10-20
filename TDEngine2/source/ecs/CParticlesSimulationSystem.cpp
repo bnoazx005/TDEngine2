@@ -111,7 +111,7 @@ namespace TDEngine2
 		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
 		mpCameraEntity = !cameras.empty() ? pWorld->FindEntity(cameras.front()) : nullptr;
 
-		mUsedMaterials = GetUsedMaterials(mParticleEmitters, pWorld, mpResourceManager);
+		mUsedMaterials = GetUsedMaterials(mParticleEmitters, pWorld, mpResourceManager.Get());
 
 		for (IVertexBuffer*& pCurrVertexBuffer : mpParticlesInstancesBuffers)
 		{

@@ -29,6 +29,9 @@ namespace TDEngine2
 	enum class TMaterialInstanceId : U32;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+
+
 	/*!
 		\brief A factory function for creation objects of CUIElementsRenderSystem's type.
 
@@ -100,7 +103,7 @@ namespace TDEngine2
 
 			CRenderQueue*                   mpUIElementsRenderGroup;
 
-			IResourceManager*               mpResourceManager;
+			TPtr<IResourceManager>          mpResourceManager;
 
 			IVertexDeclaration*             mpDefaultUIVertexDecl;
 			IVertexDeclaration*             mpDefaultFontVertexDecl;

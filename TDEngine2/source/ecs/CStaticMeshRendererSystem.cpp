@@ -88,7 +88,7 @@ namespace TDEngine2
 
 		// \note first pass (construct an array of materials)
 		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
-		_collectUsedMaterials(mProcessingEntities, mpResourceManager, mCurrMaterialsArray);
+		_collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
 
 		auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.cbegin(), mCurrMaterialsArray.cend(), [](const IMaterial* pCurrMaterial)
 		{

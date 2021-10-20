@@ -93,7 +93,7 @@ namespace TDEngine2
 
 		// \note first pass (construct an array of materials)
 		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
-		_collectUsedMaterials(mProcessingEntities, mpResourceManager, mCurrMaterialsArray);
+		_collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
 
 		auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.begin(), mCurrMaterialsArray.end(), [](IMaterial* pCurrMaterial)
 		{
@@ -274,7 +274,7 @@ namespace TDEngine2
 
 			if (pSkinnedMeshContainer->ShouldShowDebugSkeleton())
 			{
-				TDE2_ASSERT(RC_OK == ShowSkeletonDebugHierarchy(mpGraphicsObjectManager, mpResourceManager, mpRenderer, currAnimationPose, skeletonResourceId));
+				TDE2_ASSERT(RC_OK == ShowSkeletonDebugHierarchy(mpGraphicsObjectManager, mpResourceManager.Get(), mpRenderer, currAnimationPose, skeletonResourceId));
 			}
 
 			pCastedMaterial->SetVariableForInstance(materialInstance, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));

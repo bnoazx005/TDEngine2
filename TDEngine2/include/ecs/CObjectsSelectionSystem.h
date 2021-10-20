@@ -28,6 +28,9 @@ namespace TDEngine2
 	class IMaterial;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+
+
 	/*!
 		\brief A factory function for creation objects of CObjectsSelectionSystem's type.
 
@@ -103,7 +106,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
-			IResourceManager*       mpResourceManager;
+			TPtr<IResourceManager>  mpResourceManager;
 
 			CRenderQueue*           mpEditorOnlyRenderQueue;
 			CRenderQueue*           mpDebugRenderQueue;
