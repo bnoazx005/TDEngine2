@@ -552,7 +552,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		// \todo Replace magic constant 
-		ISaveManager* pSaveManager = CreateSaveManager({ mpFileSystemInstance.Get(), "." }, result);
+		ISaveManager* pSaveManager = CreateSaveManager({ mpFileSystemInstance, "." }, result);
 		if (RC_OK != result)
 		{
 			return result;

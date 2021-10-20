@@ -112,7 +112,7 @@ namespace TDEngine2
 		protected:
 			mutable std::mutex mMutex;
 
-			IFileSystem* mpFileSystem;
+			TPtr<IFileSystem> mpFileSystem;
 
 			std::unordered_map<TSaveDataId, ISaveData*> mpSaves;
 	};

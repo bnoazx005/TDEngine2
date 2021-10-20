@@ -22,6 +22,9 @@ namespace TDEngine2
 	class IFileSystem;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
+
+
 	/*!
 		interface ISaveData
 	*/
@@ -52,7 +55,7 @@ namespace TDEngine2
 
 	typedef struct TSaveManagerParametersDesc
 	{
-		IFileSystem* mpFileSystem;
+		TPtr<IFileSystem> mpFileSystem;
 
 		std::string mUserDataDirectoryPath;
 	} TSaveManagerParametersDesc, *TSaveManagerParametersDescPtr;
