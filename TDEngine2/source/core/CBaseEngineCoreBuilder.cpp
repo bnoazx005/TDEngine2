@@ -517,14 +517,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IWorld* pWorldInstance = CreateWorld(mpWindowSystemInstance->GetEventManager(), result);
+		auto pWorldInstance = TPtr<IWorld>(CreateWorld(mpWindowSystemInstance->GetEventManager(), result));
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
 		// \todo load settings from  settings
-		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance, TPtr<IWorld>(pWorldInstance), {}, result));
+		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance, pWorldInstance, {}, result));
 		if (result != RC_OK)
 		{
 			return result;

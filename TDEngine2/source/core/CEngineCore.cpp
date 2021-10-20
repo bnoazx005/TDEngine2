@@ -159,7 +159,7 @@ namespace TDEngine2
 
 		if (IPluginManager* pPluginManager = _getSubsystemAs<IPluginManager>(EST_PLUGIN_MANAGER))
 		{
-			pPluginManager->RegisterECSComponents(TPtr<IWorld>(mpWorldInstance));
+			pPluginManager->RegisterECSComponents(mpWorldInstance);
 		}
 
 		mpInternalTimer = pWindowSystem->GetTimer();
@@ -454,7 +454,7 @@ namespace TDEngine2
 		// \note Send event that a new world was created
 		{
 			TOnNewWorldInstanceCreated onNewWorldInstanceCreated;
-			onNewWorldInstanceCreated.mpWorldInstance = pWorldInstance.Get();
+			onNewWorldInstanceCreated.mpWorldInstance = pWorldInstance;
 
 			pEventManager->Notify(&onNewWorldInstanceCreated);
 		}
