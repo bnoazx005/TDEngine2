@@ -23,6 +23,10 @@ namespace TDEngine2
 	class IFileSystem;
 	class IResourceManager;
 
+	
+	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+
 
 	/*!
 		interface ILocalizationManager
@@ -44,7 +48,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, TPtr<IResourceManager> pResourceManager, const CProjectSettings::TLocalizationSettings& settings) = 0;
 
 			/*!
 				\brief The method loads given locale's data into the manager

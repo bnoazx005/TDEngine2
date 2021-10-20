@@ -30,13 +30,13 @@ namespace TDEngine2
 		\return A pointer to CLocalizationManager's implementation
 	*/
 
-	TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings, E_RESULT_CODE& result);
+	TDE2_API ILocalizationManager* CreateLocalizationManager(TPtr<IFileSystem> pFileSystem, TPtr<IResourceManager> pResourceManager, const CProjectSettings::TLocalizationSettings& settings, E_RESULT_CODE& result);
 
 
 	class CLocalizationManager : public CBaseObject, public ILocalizationManager
 	{
 		public:
-			friend TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem*, IResourceManager*, const CProjectSettings::TLocalizationSettings&, E_RESULT_CODE&);
+			friend TDE2_API ILocalizationManager* CreateLocalizationManager(TPtr<IFileSystem>, TPtr<IResourceManager>, const CProjectSettings::TLocalizationSettings&, E_RESULT_CODE&);
 
 		public:
 			struct TLocaleInfoEntity
@@ -60,7 +60,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, TPtr<IResourceManager> pResourceManager, const CProjectSettings::TLocalizationSettings& settings) override;
 
 			/*!
 				\brief The method loads given locale's data into the manager
@@ -130,9 +130,9 @@ namespace TDEngine2
 		protected:
 			mutable std::mutex mMutex;
 
-			IFileSystem* mpFileSystem;
+			TPtr<IFileSystem> mpFileSystem;
 
-			IResourceManager* mpResourceManager;
+			TPtr<IResourceManager> mpResourceManager;
 
 			std::string mConfigFilePath;
 

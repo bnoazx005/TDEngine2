@@ -15,7 +15,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLocalizationManager::Init(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings)
+	E_RESULT_CODE CLocalizationManager::Init(TPtr<IFileSystem> pFileSystem, TPtr<IResourceManager> pResourceManager, const CProjectSettings::TLocalizationSettings& settings)
 	{
 		if (mIsInitialized)
 		{
@@ -184,7 +184,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ILocalizationManager* CreateLocalizationManager(IFileSystem* pFileSystem, IResourceManager* pResourceManager, const CProjectSettings::TLocalizationSettings& settings, E_RESULT_CODE& result)
+	TDE2_API ILocalizationManager* CreateLocalizationManager(TPtr<IFileSystem> pFileSystem, TPtr<IResourceManager> pResourceManager, const CProjectSettings::TLocalizationSettings& settings, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ILocalizationManager, CLocalizationManager, result, pFileSystem, pResourceManager, settings);
 	}
