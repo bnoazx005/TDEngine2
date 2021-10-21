@@ -511,31 +511,15 @@ namespace TDEngine2
 
 		LOG_MESSAGE("[Engine Core] Clean up the subsystems registry...");
 
-		/// \note these two subsystems should be destroyed in last moment and in coresponding order
-		auto latestFreedSubsystems = { EST_GRAPHICS_CONTEXT, EST_PLUGIN_MANAGER, EST_FILE_SYSTEM, EST_MEMORY_MANAGER, EST_WINDOW, EST_EVENT_MANAGER };
-
-		auto shouldSkipSubsystem = [&latestFreedSubsystems](const TPtr<IEngineSubsystem> pCurrSubsystem)
-		{
-			return std::find_if(latestFreedSubsystems.begin(), latestFreedSubsystems.end(), [&pCurrSubsystem](E_ENGINE_SUBSYSTEM_TYPE type)
-			{
-				return pCurrSubsystem->GetType() == type;
-			}) != latestFreedSubsystems.end();
-		};
-
 		/// frees memory from all subsystems
 		for (auto pCurrSubsystem : mSubsystems)
 		{
-			if (!pCurrSubsystem || shouldSkipSubsystem(pCurrSubsystem))
+			if (!pCurrSubsystem)
 			{
 				continue;
 			}
 
 			result = _unregisterSubsystem(pCurrSubsystem->GetType());
-		}
-
-		for (auto currSubsystemType : latestFreedSubsystems)
-		{
-			result = _unregisterSubsystem(currSubsystemType);
 		}
 
 		return result;
