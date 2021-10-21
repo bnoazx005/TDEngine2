@@ -75,6 +75,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, USIZE usedSize) override;
 
+			TDE2_API E_RESULT_CODE RegisterBaseObject() override;
+			TDE2_API E_RESULT_CODE UnregisterBaseObject() override;
+
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
 				The only instance will be created per program's lifetime. 
@@ -87,12 +90,18 @@ namespace TDEngine2
 			const TProfilerStatisticsData& GetStatistics() const;
 
 			TDE2_API USIZE GetTotalMemoryAvailable() const override;
+
+			TDE2_API U32 GetLiveObjectsCount() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryProfiler);
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		private:
 			TProfilerStatisticsData mBlocksInfoRegistry;
 
 			USIZE mTotalMemorySize;
+
+			U32 mLivingObjectsCount;
 	};
 
 

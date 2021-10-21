@@ -164,7 +164,12 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, USIZE usedSize) = 0;
 
+			TDE2_API virtual E_RESULT_CODE RegisterBaseObject() = 0;
+			TDE2_API virtual E_RESULT_CODE UnregisterBaseObject() = 0;
+
 			TDE2_API virtual USIZE GetTotalMemoryAvailable() const = 0;
+
+			TDE2_API virtual U32 GetLiveObjectsCount() const = 0;
 
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMemoryProfiler);

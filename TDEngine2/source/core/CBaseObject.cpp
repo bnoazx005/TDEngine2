@@ -1,4 +1,7 @@
 #include "../../include/core/CBaseObject.h"
+#if TDE2_EDITORS_ENABLED
+#include "../../include/editor/CMemoryProfiler.h"
+#endif
 
 
 namespace TDEngine2
@@ -42,6 +45,19 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CBaseObject::_onFreeInternal()
 	{
+#if TDE2_EDITORS_ENABLED
+		CMemoryProfiler::Get()->UnregisterBaseObject();
+#endif
+
 		return RC_OK;
 	}
+
+#if TDE2_EDITORS_ENABLED
+	
+	void CBaseObject::RegisterObjectInProfiler()
+	{
+		CMemoryProfiler::Get()->RegisterBaseObject();
+	}
+
+#endif
 }

@@ -6,7 +6,7 @@
 namespace TDEngine2
 {
 	CMemoryProfiler::CMemoryProfiler() :
-		CBaseObject()
+		CBaseObject(), mLivingObjectsCount(0)
 	{
 	}
 
@@ -52,6 +52,23 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CMemoryProfiler::RegisterBaseObject()
+	{
+		++mLivingObjectsCount;
+		return RC_OK;
+	}
+		
+	E_RESULT_CODE CMemoryProfiler::UnregisterBaseObject()
+	{
+		if (!mLivingObjectsCount)
+		{
+			return RC_FAIL;
+		}
+
+		--mLivingObjectsCount;
+		return RC_OK;
+	}
+
 	const CMemoryProfiler::TProfilerStatisticsData& CMemoryProfiler::GetStatistics() const
 	{
 		return mBlocksInfoRegistry;
@@ -60,6 +77,16 @@ namespace TDEngine2
 	USIZE CMemoryProfiler::GetTotalMemoryAvailable() const
 	{
 		return mTotalMemorySize;
+	}
+
+	U32 CMemoryProfiler::GetLiveObjectsCount() const
+	{
+		return mLivingObjectsCount;
+	}
+
+	E_RESULT_CODE CMemoryProfiler::_onFreeInternal()
+	{
+		return RC_OK;
 	}
 
 

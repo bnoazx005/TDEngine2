@@ -44,6 +44,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetRefCount() const override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API static void RegisterObjectInProfiler();
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)
 

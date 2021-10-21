@@ -120,7 +120,15 @@ namespace TDEngine2
 	}
 
 
-#define CREATE_IMPL(InterfaceType, ConcreteType, ...) CreateImpl<InterfaceType, ConcreteType>([] { return new ConcreteType(); }, [](ConcreteType*& pPtr) { delete pPtr; }, __VA_ARGS__)
+#if TDE2_EDITORS_ENABLED
+	#define TDE2_REGISTER_BASE_OBJECT(Type) do { Type::RegisterObjectInProfiler(); } while(false)
+#else
+	#define TDE2_REGISTER_BASE_OBJECT(Type) do { } while(false)
+#endif
+
+
+#define CREATE_IMPL(InterfaceType, ConcreteType, ...) \
+	CreateImpl<InterfaceType, ConcreteType>([] { TDE2_REGISTER_BASE_OBJECT(ConcreteType); return new ConcreteType(); }, [](ConcreteType*& pPtr) { delete pPtr; }, __VA_ARGS__)
 
 
 	template <typename T> 

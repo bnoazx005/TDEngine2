@@ -97,6 +97,11 @@ namespace TDEngine2
 			}
 
 			result = result | _cleanUpSubsystems();
+
+#if TDE2_EDITORS_ENABLED
+			U32 livingObjectsCount = CMemoryProfiler::Get()->GetLiveObjectsCount();
+			TDE2_ASSERT(!livingObjectsCount);
+#endif
 		}
 
 		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
