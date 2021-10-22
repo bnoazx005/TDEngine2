@@ -37,6 +37,15 @@ namespace TDEngine2
 
 			typedef std::unordered_map<std::string, TGlobalMemoryBlockInfo> TProfilerStatisticsData;
 
+
+			typedef struct TBaseObjectAllocInfo
+			{
+				std::string mTypeIdStr;
+				U32Ptr mAddress;
+			} TBaseObjectAllocInfo, *TBaseObjectAllocInfoPtr;
+
+			typedef std::unordered_map<U32Ptr, TBaseObjectAllocInfo> TBaseObjectsRegistry;
+
 		public:
 			/*!
 				\brief The method stars to record current frame's statistics. The method should be called only once per frame
@@ -75,8 +84,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, USIZE usedSize) override;
 
-			TDE2_API E_RESULT_CODE RegisterBaseObject() override;
-			TDE2_API E_RESULT_CODE UnregisterBaseObject() override;
+			TDE2_API E_RESULT_CODE RegisterBaseObject(const std::string& typeId, U32Ptr address) override;
+			TDE2_API E_RESULT_CODE UnregisterBaseObject(U32Ptr address) override;
+
+			TDE2_API void DumpInfo() override;
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
@@ -95,13 +106,15 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryProfiler);
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void _onBeforeMemoryRelease();
+#endif
 		private:
 			TProfilerStatisticsData mBlocksInfoRegistry;
 
 			USIZE mTotalMemorySize;
 
-			U32 mLivingObjectsCount;
+			TBaseObjectsRegistry mLivingBaseObjectsTable;
 	};
 
 

@@ -1,4 +1,6 @@
 #include "../../include/editor/CMemoryProfiler.h"
+#include "../../include/utils/CFileLogger.h"
+#include "stringUtils.hpp"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -6,7 +8,7 @@
 namespace TDEngine2
 {
 	CMemoryProfiler::CMemoryProfiler() :
-		CBaseObject(), mLivingObjectsCount(0)
+		CBaseObject()
 	{
 	}
 
@@ -52,21 +54,38 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMemoryProfiler::RegisterBaseObject()
+	E_RESULT_CODE CMemoryProfiler::RegisterBaseObject(const std::string& typeId, U32Ptr address)
 	{
-		++mLivingObjectsCount;
+		auto& entity = mLivingBaseObjectsTable[address];
+
+		entity.mTypeIdStr = typeId;
+		entity.mAddress = address;
+
 		return RC_OK;
 	}
 		
-	E_RESULT_CODE CMemoryProfiler::UnregisterBaseObject()
+	E_RESULT_CODE CMemoryProfiler::UnregisterBaseObject(U32Ptr address)
 	{
-		if (!mLivingObjectsCount)
+		auto it = mLivingBaseObjectsTable.find(address);
+
+		if (it == mLivingBaseObjectsTable.cend())
 		{
 			return RC_FAIL;
 		}
 
-		--mLivingObjectsCount;
+		mLivingBaseObjectsTable.erase(it);
+
 		return RC_OK;
+	}
+
+	void CMemoryProfiler::DumpInfo()
+	{
+		LOG_MESSAGE(Wrench::StringUtils::Format("\n[Memory Profiler] Amount of leaked objects: {0}", mLivingBaseObjectsTable.size()));
+
+		for (auto&& entity : mLivingBaseObjectsTable)
+		{
+			LOG_MESSAGE(Wrench::StringUtils::Format("[Memory Profiler] Object <{0}> at {1}", entity.second.mTypeIdStr, entity.first));
+		}
 	}
 
 	const CMemoryProfiler::TProfilerStatisticsData& CMemoryProfiler::GetStatistics() const
@@ -81,12 +100,11 @@ namespace TDEngine2
 
 	U32 CMemoryProfiler::GetLiveObjectsCount() const
 	{
-		return mLivingObjectsCount;
+		return static_cast<U32>(mLivingBaseObjectsTable.size());
 	}
 
-	E_RESULT_CODE CMemoryProfiler::_onFreeInternal()
+	void CMemoryProfiler::_onBeforeMemoryRelease()
 	{
-		return RC_OK;
 	}
 
 

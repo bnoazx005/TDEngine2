@@ -22,6 +22,15 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+#if TDE2_EDITORS_ENABLED
+
+	void CFileLogger::_onBeforeMemoryRelease()
+	{
+	}
+
+#endif
+
+
 	void CFileLogger::LogMessage(const std::string& message)
 	{
 		_logMessageByType(LMT_MESSAGE, message);

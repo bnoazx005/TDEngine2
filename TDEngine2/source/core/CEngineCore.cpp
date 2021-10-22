@@ -94,12 +94,17 @@ namespace TDEngine2
 			if (mpWorldInstance)
 			{
 				result = result | mpWorldInstance->OnBeforeFree();
+				mpWorldInstance = nullptr;
 			}
+
+			/// \note Unregister all engine listeners before cleaning up subsystems
+			mEngineListeners.clear();
 
 			result = result | _cleanUpSubsystems();
 
 #if TDE2_EDITORS_ENABLED
 			U32 livingObjectsCount = CMemoryProfiler::Get()->GetLiveObjectsCount();
+			CMemoryProfiler::Get()->DumpInfo();
 			TDE2_ASSERT(!livingObjectsCount);
 #endif
 		}

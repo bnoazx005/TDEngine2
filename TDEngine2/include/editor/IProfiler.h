@@ -164,8 +164,10 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, USIZE usedSize) = 0;
 
-			TDE2_API virtual E_RESULT_CODE RegisterBaseObject() = 0;
-			TDE2_API virtual E_RESULT_CODE UnregisterBaseObject() = 0;
+			TDE2_API virtual E_RESULT_CODE RegisterBaseObject(const std::string& typeId, U32Ptr address) = 0;
+			TDE2_API virtual E_RESULT_CODE UnregisterBaseObject(U32Ptr address) = 0;
+
+			TDE2_API virtual void DumpInfo() = 0;
 
 			TDE2_API virtual USIZE GetTotalMemoryAvailable() const = 0;
 

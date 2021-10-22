@@ -49,6 +49,10 @@ namespace TDEngine2
 			TDE2_API void _logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message);
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void _onBeforeMemoryRelease();
+#endif
 		protected:
 			std::ofstream      mOutputLog;
 

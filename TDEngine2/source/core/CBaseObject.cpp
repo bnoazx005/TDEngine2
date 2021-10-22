@@ -29,6 +29,10 @@ namespace TDEngine2
 
 		if (!mRefCounter)
 		{
+#if TDE2_EDITORS_ENABLED
+			_onBeforeMemoryRelease();
+#endif
+
 			result = _onFreeInternal();
 
 			mIsInitialized = false;
@@ -45,18 +49,21 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CBaseObject::_onFreeInternal()
 	{
-#if TDE2_EDITORS_ENABLED
-		CMemoryProfiler::Get()->UnregisterBaseObject();
-#endif
-
 		return RC_OK;
 	}
 
 #if TDE2_EDITORS_ENABLED
 	
-	void CBaseObject::RegisterObjectInProfiler()
+	void CBaseObject::RegisterObjectInProfiler(const std::string& id, U32Ptr address)
 	{
-		CMemoryProfiler::Get()->RegisterBaseObject();
+		CMemoryProfiler::Get()->RegisterBaseObject(id, address);
+	}
+
+	void CBaseObject::_onBeforeMemoryRelease()
+	{
+#if TDE2_EDITORS_ENABLED
+		CMemoryProfiler::Get()->UnregisterBaseObject(reinterpret_cast<U32Ptr>(this));
+#endif
 	}
 
 #endif

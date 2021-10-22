@@ -46,12 +46,16 @@ namespace TDEngine2
 			TDE2_API U32 GetRefCount() const override;
 
 #if TDE2_EDITORS_ENABLED
-			TDE2_API static void RegisterObjectInProfiler();
+			TDE2_API static void RegisterObjectInProfiler(const std::string& id, U32Ptr address);
 #endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)
 
 			TDE2_API virtual E_RESULT_CODE _onFreeInternal();
+			
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void _onBeforeMemoryRelease();
+#endif
 		protected:
 			std::atomic_uint32_t mRefCounter;
 
