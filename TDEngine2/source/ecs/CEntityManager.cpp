@@ -38,7 +38,20 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::_onFreeInternal()
 	{
-		return DestroyAllImmediately();
+		E_RESULT_CODE result = DestroyAllImmediately();
+
+		/// \note Remove all reserved entities
+		while (!mDestroyedEntities.empty())
+		{
+			if (CEntity* pReservedEntity = mDestroyedEntities.front())
+			{
+				pReservedEntity->Free();
+			}
+
+			mDestroyedEntities.pop_front();
+		}
+
+		return result;
 	}
 
 	CEntity* CEntityManager::Create()
@@ -240,9 +253,7 @@ namespace TDEngine2
 
 		onEntityRemoved.mRemovedEntityId = id;
 
-		result = pEntity->Free();
-
-		if (result != RC_OK)
+		if (RC_OK != (result = pEntity->Free())) /// \note Release the memory 
 		{
 			return result;
 		}

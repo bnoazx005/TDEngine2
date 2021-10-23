@@ -137,7 +137,16 @@ namespace TDEngine2
 			return result;
 		}*/
 
-		return mpFramePostProcessor->Free();
+		E_RESULT_CODE result = mpFramePostProcessor->Free();
+
+		//result = result | mpGlobalShaderProperties->Free();
+
+		for (U8 i = 0; i < NumOfRenderQueuesGroup; ++i)
+		{
+			result = result | (mpRenderQueues[i] ? mpRenderQueues[i]->Free() : RC_FAIL);
+		}
+
+		return result;
 	}
 
 	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)

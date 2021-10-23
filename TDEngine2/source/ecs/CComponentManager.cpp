@@ -53,7 +53,36 @@ namespace TDEngine2
 
 	E_RESULT_CODE CComponentManager::_onFreeInternal()
 	{
-		return _unregisterBuiltinComponentFactories();
+		E_RESULT_CODE result = RC_OK;
+
+		/// \note Remove all active components
+		for (auto&& currComponentsGroup : mActiveComponents)
+		{
+			for (IComponent* pCurrComponent : currComponentsGroup)
+			{
+				if (!pCurrComponent)
+				{
+					continue;
+				}
+
+				result = result | pCurrComponent->Free();
+			}
+		}
+
+		/// \note Remove reserved ones
+		for (IComponent* pReservedComponent : mDestroyedComponents)
+		{
+			if (!pReservedComponent)
+			{
+				continue;
+			}
+
+			pReservedComponent->Free();
+		}
+
+		result = result | _unregisterBuiltinComponentFactories();
+
+		return result;
 	}
 
 	IComponent* CComponentManager::CreateComponent(TEntityId entityId, TypeId componentTypeId)
