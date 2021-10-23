@@ -524,7 +524,7 @@ namespace TDEngine2
 		LOG_MESSAGE("[Engine Core] Clean up the subsystems registry...");
 
 		/// frees memory from all subsystems
-		for (auto pCurrSubsystem : mSubsystems)
+		for (auto&& pCurrSubsystem : mSubsystems)
 		{
 			if (!pCurrSubsystem)
 			{

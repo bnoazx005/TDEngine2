@@ -137,7 +137,7 @@ namespace TDEngine2
 			return result;
 		}*/
 
-		return RC_OK;
+		return mpFramePostProcessor->Free();
 	}
 
 	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
