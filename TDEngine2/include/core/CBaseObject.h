@@ -46,7 +46,7 @@ namespace TDEngine2
 			TDE2_API U32 GetRefCount() const override;
 
 #if TDE2_EDITORS_ENABLED
-			TDE2_API static void RegisterObjectInProfiler(const std::string& id, U32Ptr address);
+			TDE2_API virtual void RegisterObjectInProfiler(const std::string& id);
 #endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)

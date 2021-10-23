@@ -12,7 +12,7 @@
 namespace TDEngine2
 {
 	CMemoryManager::CMemoryManager():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

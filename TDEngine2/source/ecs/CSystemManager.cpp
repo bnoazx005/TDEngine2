@@ -168,6 +168,16 @@ namespace TDEngine2
 			result = result | _internalUnregisterSystemImmediately(mpActiveSystems.front().mSystemId);
 		}
 
+		while (!mpDeactivatedSystems.empty())
+		{
+			if (auto pSystem = mpDeactivatedSystems.front().mpSystem)
+			{
+				pSystem->Free();
+			}
+
+			mpDeactivatedSystems.pop_front();
+		}
+
 		return result;
 	}
 
@@ -196,14 +206,20 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		ISystem* pCurrSystem = nullptr;
-
-		for (auto currSystemDesc : mpActiveSystems)
+		auto&& preDestroySystem = [this](auto&& container)
 		{
-			pCurrSystem = currSystemDesc.mpSystem;
+			ISystem* pCurrSystem = nullptr;
 
-			pCurrSystem->OnDestroy();
-		}
+			for (auto currSystemDesc : container)
+			{
+				pCurrSystem = currSystemDesc.mpSystem;
+
+				pCurrSystem->OnDestroy();
+			}
+		};
+
+		preDestroySystem(mpActiveSystems);
+		preDestroySystem(mpDeactivatedSystems);
 
 		return RC_OK;
 	}

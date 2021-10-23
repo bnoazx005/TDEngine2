@@ -104,8 +104,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			bool                       mIsInitialized;
-
 			U8*                        mpGlobalMemoryBlock;
 
 			IAllocator*                mpGlobalAllocator;

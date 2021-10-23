@@ -97,6 +97,8 @@ namespace TDEngine2
 				mpWorldInstance = nullptr;
 			}
 
+			mpInternalTimer = nullptr;
+
 			/// \note Unregister all engine listeners before cleaning up subsystems
 			mEngineListeners.clear();
 

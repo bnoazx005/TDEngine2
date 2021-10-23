@@ -53,10 +53,10 @@ namespace TDEngine2
 	}
 
 #if TDE2_EDITORS_ENABLED
-	
-	void CBaseObject::RegisterObjectInProfiler(const std::string& id, U32Ptr address)
+
+	void CBaseObject::RegisterObjectInProfiler(const std::string& id)
 	{
-		CMemoryProfiler::Get()->RegisterBaseObject(id, address);
+		CMemoryProfiler::Get()->RegisterBaseObject(id, reinterpret_cast<U32Ptr>(this));
 	}
 
 	void CBaseObject::_onBeforeMemoryRelease()

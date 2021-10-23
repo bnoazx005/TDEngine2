@@ -121,9 +121,9 @@ namespace TDEngine2
 
 
 #if TDE2_EDITORS_ENABLED
-#define TDE2_REGISTER_BASE_OBJECT(Type, address) do { Type::RegisterObjectInProfiler(#Type, reinterpret_cast<U32Ptr>(address)); } while(false)
+#define TDE2_REGISTER_BASE_OBJECT(Type, pPtr) do { if (pPtr) pPtr->RegisterObjectInProfiler(#Type); } while(false)
 #else
-	#define TDE2_REGISTER_BASE_OBJECT(Type, address) do { } while(false)
+	#define TDE2_REGISTER_BASE_OBJECT(Type, pPtr) do { } while(false)
 #endif
 
 
