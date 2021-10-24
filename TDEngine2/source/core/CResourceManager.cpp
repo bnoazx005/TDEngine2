@@ -482,17 +482,19 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CResourceManager::_unregisterAllFactories()
+
+	template <typename T>
+	static E_RESULT_CODE UnregisterContainerEntities(CResourceContainer<T*>& container)
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		for (USIZE i = 0; i < mRegisteredResourceFactories.GetSize(); ++i)
+		for (USIZE i = 0; i < container.GetSize(); ++i)
 		{
-			if (auto resourceFactoryEntity = mRegisteredResourceFactories[i])
+			if (auto containerElement = container[i])
 			{
-				if (auto pCurrFactory = resourceFactoryEntity.Get())
+				if (auto pCurrEntity = containerElement.Get())
 				{
-					pCurrFactory->Free();
+					result = result | pCurrEntity->Free();
 				}
 			}
 		}
@@ -500,10 +502,15 @@ namespace TDEngine2
 		return result;
 	}
 
+
+	E_RESULT_CODE CResourceManager::_unregisterAllFactories()
+	{
+		return UnregisterContainerEntities(mRegisteredResourceFactories);
+	}
+
 	E_RESULT_CODE CResourceManager::_unregisterAllLoaders()
 	{
-		E_RESULT_CODE result = RC_OK;
-		return result;
+		return UnregisterContainerEntities(mRegisteredResourceLoaders);
 	}
 
 
