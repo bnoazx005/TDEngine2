@@ -87,6 +87,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_DECLARE_SCOPED_PTR(IComponentFactory)
+
+
 	/*!
 		interface ITransformFactory
 

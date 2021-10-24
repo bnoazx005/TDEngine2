@@ -46,7 +46,7 @@ namespace TDEngine2
 				an identifier of the registred factory
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RegisterFactory(const IComponentFactory* pFactory) = 0;
+			TDE2_API virtual E_RESULT_CODE RegisterFactory(TPtr<IComponentFactory> pFactory) = 0;
 
 			/*!
 				\brief The method unregisters a component factory with the specified identifier

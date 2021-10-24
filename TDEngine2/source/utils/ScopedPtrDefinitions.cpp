@@ -10,6 +10,7 @@
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
+#include "../../include/ecs/IComponentManager.h"
 
 
 namespace TDEngine2
@@ -28,4 +29,6 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IStream)
 	TDE2_DEFINE_SCOPED_PTR(IInputStream)
 	TDE2_DEFINE_SCOPED_PTR(IOutputStream)
+	TDE2_DEFINE_SCOPED_PTR(IComponentManager)
+	TDE2_DEFINE_SCOPED_PTR(IComponentFactory)
 }

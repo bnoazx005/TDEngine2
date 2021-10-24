@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <functional>
 #include <memory>
-#include "./../utils/Utils.h"
+#include "../utils/Utils.h"
 #include "IComponent.h"
 
 
@@ -22,6 +22,9 @@ namespace TDEngine2
 {
 	class IComponent;
 	class IComponentFactory;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IComponentFactory)
 
 
 	/*!
@@ -44,7 +47,7 @@ namespace TDEngine2
 
 			typedef std::unordered_map<TypeId, U32>                                TComponentFactoriesMap;
 
-			typedef std::vector<const IComponentFactory*>                          TComponentFactoriesArray;
+			typedef std::vector<TPtr<IComponentFactory>>                          TComponentFactoriesArray;
 
 			typedef std::list<U32>                                                 TFreeEntitiesRegistry;
 
@@ -67,7 +70,7 @@ namespace TDEngine2
 				an identifier of the registred factory
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterFactory(const IComponentFactory* pFactory) override;
+			TDE2_API E_RESULT_CODE RegisterFactory(TPtr<IComponentFactory> pFactory) override;
 
 			TDE2_API IComponent* CreateComponent(TEntityId entityId, TypeId componentTypeId) override;
 

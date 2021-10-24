@@ -256,7 +256,7 @@ namespace TDEngine2
 		return components;
 	}
 
-	E_RESULT_CODE CComponentManager::RegisterFactory(const IComponentFactory* pFactory)
+	E_RESULT_CODE CComponentManager::RegisterFactory(TPtr<IComponentFactory> pFactory)
 	{
 		if (!mIsInitialized)
 		{
@@ -335,7 +335,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		const IComponentFactory* pComponentFactory = mComponentFactories[(*factoryIdIter).second];
+		auto pComponentFactory = mComponentFactories[(*factoryIdIter).second];
 
 		//pNewComponent = pComponentFactory->Create(std::make_unique);  /// \todo implement arguments passing
 		pNewComponent = pComponentFactory->CreateDefault({});
@@ -418,11 +418,9 @@ namespace TDEngine2
 			//etc
 		};
 
-		IComponentFactory* pCurrFactory = nullptr;
-
 		for (auto pCurrFactoryCallback : builtinComponentFactories)
 		{
-			IComponentFactory* pCurrFactory = pCurrFactoryCallback(result);
+			TPtr<IComponentFactory> pCurrFactory = TPtr<IComponentFactory>(pCurrFactoryCallback(result));
 
 			if (result != RC_OK)
 			{
