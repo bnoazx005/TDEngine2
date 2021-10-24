@@ -20,6 +20,7 @@ namespace TDEngine2
 	struct TBaseAllocatorParams;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IAllocator)
 	TDE2_DECLARE_SCOPED_PTR(IAllocatorFactory)
 	
 
@@ -87,9 +88,9 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API
 #if _HAS_CXX17
-			std::enable_if_t<std::is_base_of_v<IAllocator, T>, IAllocator*>
+			std::enable_if_t<std::is_base_of_v<IAllocator, T>, TPtr<IAllocator>>
 #else
-			typename std::enable_if<std::is_base_of<IAllocator, T>::value, IAllocator*>::type
+			typename std::enable_if<std::is_base_of<IAllocator, T>::value, TPtr<IAllocator>>::type
 #endif
 			CreateAllocator(const TBaseAllocatorParams& params, const C8* userName)
 			{
@@ -124,7 +125,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _unregisterFactory(TypeId factoryTypeId) = 0;
 
-			TDE2_API virtual IAllocator* _createAllocator(TypeId allocatorType, const TBaseAllocatorParams& params, const C8* userName) = 0;
+			TDE2_API virtual TPtr<IAllocator> _createAllocator(TypeId allocatorType, const TBaseAllocatorParams& params, const C8* userName) = 0;
 	};
 
 

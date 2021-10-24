@@ -100,13 +100,13 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _unregisterFactory(TypeId factoryTypeId) override;
 
-			TDE2_API IAllocator* _createAllocator(TypeId allocatorTypeId, const TBaseAllocatorParams& params, const C8* userName) override;
+			TDE2_API TPtr<IAllocator> _createAllocator(TypeId allocatorTypeId, const TBaseAllocatorParams& params, const C8* userName) override;
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			U8*                        mpGlobalMemoryBlock;
 
-			IAllocator*                mpGlobalAllocator;
+			TPtr<IAllocator>           mpGlobalAllocator;
 
 			TMemoryBlocksTable         mAllocatedBlocks;
 

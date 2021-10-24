@@ -7,7 +7,7 @@
 #pragma once
 
 
-#include "./../core/CBaseObject.h"
+#include "../core/CBaseObject.h"
 #include "IRaycastContext.h"
 
 
@@ -17,6 +17,9 @@ namespace TDEngine2
 	class CPhysics3DSystem;
 	class IMemoryManager;
 	class IAllocator;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IAllocator)
 
 
 	/*!
@@ -108,7 +111,7 @@ namespace TDEngine2
 			static constexpr U32 mMaxRaycastsPerFrame   = 16384;
 			static constexpr U32 mRaycastResultTypeSize = sizeof(TRaycastResult);
 
-			IAllocator*          mpAllocator;
+			TPtr<IAllocator>     mpAllocator;
 
 			CPhysics2DSystem*    mp2DPhysicsSystem;
 			CPhysics3DSystem*    mp3DPhysicsSystem;

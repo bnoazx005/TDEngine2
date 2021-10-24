@@ -226,6 +226,11 @@ namespace TDEngine2
 		return mCommandsBuffer.empty();
 	}
 
+	E_RESULT_CODE CRenderQueue::_onFreeInternal()
+	{
+		return mpTempAllocator->Free();
+	}
+
 	CRenderQueue::CRenderQueueIterator CRenderQueue::GetIterator()
 	{
 		return CRenderQueueIterator(mCommandsBuffer);

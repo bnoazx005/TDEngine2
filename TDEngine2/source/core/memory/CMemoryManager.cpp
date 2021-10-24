@@ -52,13 +52,7 @@ namespace TDEngine2
 	{
 		_checkUpMemoryLeaks();
 
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = mpGlobalAllocator->Free()) != RC_OK)
-		{
-			return result;
-		}
-
+		mpGlobalAllocator = nullptr;
 		delete[] mpGlobalMemoryBlock;
 
 		LOG_MESSAGE("[Memory manager] The memory manager was successfully finalized");
@@ -182,13 +176,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	IAllocator* CMemoryManager::_createAllocator(TypeId allocatorTypeId, const TBaseAllocatorParams& params, const C8* userName)
+	TPtr<IAllocator> CMemoryManager::_createAllocator(TypeId allocatorTypeId, const TBaseAllocatorParams& params, const C8* userName)
 	{
 		auto pAllocatorFactory = mAllocatorFactories[allocatorTypeId];
 
 		if (!pAllocatorFactory)
 		{
-			return nullptr;
+			return TPtr<IAllocator>(nullptr);
 		}
 
 		U8* pNewMemoryBlock = static_cast<U8*>(Allocate(params.mMemoryBlockSize, userName));
@@ -204,7 +198,7 @@ namespace TDEngine2
 		}
 #endif
 
-		return result.Get();
+		return TPtr<IAllocator>(result.Get());
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CMemoryManager::GetType() const

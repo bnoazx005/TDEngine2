@@ -33,6 +33,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+	TDE2_DECLARE_SCOPED_PTR(IAllocator)
 
 
 	/*!
@@ -49,7 +50,7 @@ namespace TDEngine2
 		\return A pointer to CSpriteRendererSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateSpriteRendererSystem(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateSpriteRendererSystem(TPtr<IAllocator> allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -61,7 +62,7 @@ namespace TDEngine2
 	class CSpriteRendererSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateSpriteRendererSystem(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateSpriteRendererSystem(TPtr<IAllocator>, IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 		protected:
 			typedef struct TSpriteVertex
 			{
@@ -101,7 +102,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager);
+			TDE2_API E_RESULT_CODE Init(TPtr<IAllocator> allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager);
 
 			/*!
 				\brief The method inject components array into a system
@@ -130,7 +131,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			IAllocator*                 mpTempAllocator;
+			TPtr<IAllocator>            mpTempAllocator;
 
 			std::vector<CTransform*>    mTransforms;
 

@@ -618,6 +618,18 @@ namespace TDEngine2
 		return mpEngineCoreInstance;
 	}
 
+#if TDE2_EDITORS_ENABLED
+
+	void CBaseEngineCoreBuilder::RegisterObjectInProfiler(const std::string& id)
+	{
+	}
+		
+	void CBaseEngineCoreBuilder::OnBeforeMemoryRelease()
+	{
+	}
+
+#endif
+
 	E_RESULT_CODE CBaseEngineCoreBuilder::_mountDirectories(E_GRAPHICS_CONTEXT_GAPI_TYPE type)
 	{
 		E_RESULT_CODE result = RC_OK;

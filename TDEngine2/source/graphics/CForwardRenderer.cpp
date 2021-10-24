@@ -62,6 +62,7 @@ namespace TDEngine2
 				return result;
 			}
 
+			/// \note this CRenderQueue's instance now owns this allocator
 			mpRenderQueues[i] = CreateRenderQueue(pCurrAllocator, result);
 
 			if (result != RC_OK)

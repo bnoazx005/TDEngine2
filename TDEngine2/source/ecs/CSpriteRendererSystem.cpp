@@ -25,7 +25,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSpriteRendererSystem::Init(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
+	E_RESULT_CODE CSpriteRendererSystem::Init(TPtr<IAllocator> allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
 		if (mIsInitialized)
 		{
@@ -37,7 +37,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpTempAllocator = &allocator;
+		mpTempAllocator = allocator;
 
 		mpRenderer = pRenderer;
 
@@ -165,7 +165,7 @@ namespace TDEngine2
 
 			if (!currBatchEntry.mpInstancesData)
 			{
-				currBatchEntry.mpInstancesData = new CDynamicArray<TSpriteInstanceData>(*mpTempAllocator, 100);
+				currBatchEntry.mpInstancesData = new CDynamicArray<TSpriteInstanceData>(*mpTempAllocator.Get(), 100);
 			}
 
 			currBatchEntry.mpInstancesData->PushBack({ Transpose(pCurrTransform->GetLocalToWorldTransform()), pCurrSprite->GetColor() });
@@ -233,7 +233,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISystem* CreateSpriteRendererSystem(IAllocator& allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateSpriteRendererSystem(TPtr<IAllocator> allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ISystem, CSpriteRendererSystem, result, allocator, pRenderer, pGraphicsObjectManager);
 	}

@@ -307,6 +307,8 @@ namespace TDEngine2
 			TDE2_API CRenderQueueIterator GetIterator();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRenderQueue)
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TCommandsArray mCommandsBuffer;
 
