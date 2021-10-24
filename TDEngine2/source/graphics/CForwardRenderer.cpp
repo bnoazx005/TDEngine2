@@ -123,24 +123,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CForwardRenderer::_onFreeInternal()
 	{
-		/*!
-			\bug The piece of code below throws an exception because of corrupted memory.
-			
-			\note I guess the reason of this is the renderer should be freed before any other subsystem.
-			In other words all buffers are released by IGraphicsObjectManager automatically, so
-			we don't really need to call Free method by ourselves
-
-			\todo Think we should introduce a priority of deleting for IEngineSubsystem implementations
-		*/
-
-		/*if ((result = mpGlobalShaderProperties->Free()) != RC_OK)
-		{
-			return result;
-		}*/
-
 		E_RESULT_CODE result = mpFramePostProcessor->Free();
 
-		//result = result | mpGlobalShaderProperties->Free();
+		result = result | mpGlobalShaderProperties->Free();
 
 		for (U8 i = 0; i < NumOfRenderQueuesGroup; ++i)
 		{
