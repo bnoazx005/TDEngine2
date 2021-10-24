@@ -47,15 +47,12 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 			TDE2_API virtual void RegisterObjectInProfiler(const std::string& id);
+			TDE2_API virtual void OnBeforeMemoryRelease();
 #endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseObject)
 
 			TDE2_API virtual E_RESULT_CODE _onFreeInternal();
-			
-#if TDE2_EDITORS_ENABLED
-			TDE2_API virtual void _onBeforeMemoryRelease();
-#endif
 		protected:
 			std::atomic_uint32_t mRefCounter;
 

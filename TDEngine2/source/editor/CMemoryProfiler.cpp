@@ -125,10 +125,11 @@ namespace TDEngine2
 		return static_cast<U32>(mLivingBaseObjectsTable.size());
 	}
 
-	void CMemoryProfiler::_onBeforeMemoryRelease()
+#if TDE2_EDITORS_ENABLED
+	void CMemoryProfiler::OnBeforeMemoryRelease()
 	{
 	}
-
+#endif
 
 	TDE2_API TPtr<CMemoryProfiler> CMemoryProfiler::Get()
 	{

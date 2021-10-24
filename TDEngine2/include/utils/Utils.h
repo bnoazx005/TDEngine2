@@ -121,14 +121,18 @@ namespace TDEngine2
 
 
 #if TDE2_EDITORS_ENABLED
-#define TDE2_REGISTER_BASE_OBJECT(Type, pPtr) do { if (pPtr) pPtr->RegisterObjectInProfiler(#Type); } while(false)
+	#define TDE2_REGISTER_BASE_OBJECT(Type, pPtr) do { if (pPtr) pPtr->RegisterObjectInProfiler(#Type); } while(false)
+	#define TDE2_UNREGISTER_BASE_OBJECT(pPtr) do { if (pPtr) pPtr->OnBeforeMemoryRelease(); } while(false)
 #else
 	#define TDE2_REGISTER_BASE_OBJECT(Type, pPtr) do { } while(false)
+	#define TDE2_UNREGISTER_BASE_OBJECT(pPtr) do { } while(false)
 #endif
 
 
-#define CREATE_IMPL(InterfaceType, ConcreteType, ...) \
-	CreateImpl<InterfaceType, ConcreteType>([] { auto pPtr = new ConcreteType(); TDE2_REGISTER_BASE_OBJECT(ConcreteType, pPtr); return pPtr; }, [](ConcreteType*& pPtr) { delete pPtr; }, __VA_ARGS__)
+#define CREATE_IMPL(InterfaceType, ConcreteType, ...)																	\
+	CreateImpl<InterfaceType, ConcreteType>(																			\
+					[] { auto pPtr = new ConcreteType(); TDE2_REGISTER_BASE_OBJECT(ConcreteType, pPtr); return pPtr; },	\
+					[](ConcreteType*& pPtr) { TDE2_UNREGISTER_BASE_OBJECT(pPtr); delete pPtr; }, __VA_ARGS__)
 
 
 	template <typename T> 

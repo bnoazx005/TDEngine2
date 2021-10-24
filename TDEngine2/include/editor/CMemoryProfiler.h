@@ -104,12 +104,13 @@ namespace TDEngine2
 			TDE2_API USIZE GetTotalMemoryAvailable() const override;
 
 			TDE2_API U32 GetLiveObjectsCount() const override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void OnBeforeMemoryRelease();
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMemoryProfiler);
 
-#if TDE2_EDITORS_ENABLED
-			TDE2_API virtual void _onBeforeMemoryRelease();
-#endif
 		private:
 			TProfilerStatisticsData mBlocksInfoRegistry;
 

@@ -41,6 +41,10 @@ namespace TDEngine2
 			TDE2_API void LogError(const std::string& message) override;
 
 			TDE2_API void LogWarning(const std::string& message) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void OnBeforeMemoryRelease();
+#endif
 		protected:
 			TDE2_API CFileLogger() = default;
 			TDE2_API CFileLogger(const CFileLogger& builder) = delete;

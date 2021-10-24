@@ -30,7 +30,7 @@ namespace TDEngine2
 		if (!mRefCounter)
 		{
 #if TDE2_EDITORS_ENABLED
-			_onBeforeMemoryRelease();
+			OnBeforeMemoryRelease();
 #endif
 
 			result = _onFreeInternal();
@@ -59,7 +59,7 @@ namespace TDEngine2
 		CMemoryProfiler::Get()->RegisterBaseObject(id, reinterpret_cast<U32Ptr>(this));
 	}
 
-	void CBaseObject::_onBeforeMemoryRelease()
+	void CBaseObject::OnBeforeMemoryRelease()
 	{
 #if TDE2_EDITORS_ENABLED
 		CMemoryProfiler::Get()->UnregisterBaseObject(reinterpret_cast<U32Ptr>(this));

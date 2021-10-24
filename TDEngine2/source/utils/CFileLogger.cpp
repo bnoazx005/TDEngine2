@@ -61,6 +61,10 @@ namespace TDEngine2
 		_logMessageByType(LMT_WARNING, message);
 	}
 
+	void CFileLogger::OnBeforeMemoryRelease()
+	{
+	}
+
 	void CFileLogger::_logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
