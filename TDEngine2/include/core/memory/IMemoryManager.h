@@ -18,6 +18,9 @@ namespace TDEngine2
 	class IAllocatorFactory;
 
 	struct TBaseAllocatorParams;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IAllocatorFactory)
 	
 
 	/*!
@@ -51,7 +54,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RegisterFactory(const IAllocatorFactory* pAllocatorFactory) = 0;
+			TDE2_API virtual E_RESULT_CODE RegisterFactory(TPtr<IAllocatorFactory> pAllocatorFactory) = 0;
 			
 			/*!
 				\brief The method unregisters a factory of a given type

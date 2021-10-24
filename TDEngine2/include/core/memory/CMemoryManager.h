@@ -42,7 +42,7 @@ namespace TDEngine2
 		public:
 			typedef std::vector<std::tuple<const C8*, void*>> TMemoryBlocksTable;
 
-			typedef std::unordered_map<TypeId, const IAllocatorFactory*> TAllocatorFactoryHashTable;
+			typedef std::unordered_map<TypeId, TPtr<IAllocatorFactory>> TAllocatorFactoryHashTable;
 		public:
 			/*!
 				\brief The method initializes an internal state of an allocator
@@ -62,7 +62,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterFactory(const IAllocatorFactory* pAllocatorFactory) override;
+			TDE2_API E_RESULT_CODE RegisterFactory(TPtr<IAllocatorFactory> pAllocatorFactory) override;
 
 			/*!
 				\brief The method allocates a new piece of memory from the global storage

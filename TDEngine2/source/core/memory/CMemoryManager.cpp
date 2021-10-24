@@ -66,22 +66,20 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CMemoryManager::RegisterFactory(const IAllocatorFactory* pAllocatorFactory)
+	E_RESULT_CODE CMemoryManager::RegisterFactory(TPtr<IAllocatorFactory> pAllocatorFactory)
 	{
 		if (!pAllocatorFactory)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		TypeId allocatorType = pAllocatorFactory->GetAllocatorType();
+		const TypeId allocatorType = pAllocatorFactory->GetAllocatorType();
 
-		const IAllocatorFactory* pFactoryIter = mAllocatorFactories[allocatorType];
-
-		E_RESULT_CODE result = RC_OK;
-
-		if (pFactoryIter) /// if there is already attached factory, firstly we should unregister it
+		if (mAllocatorFactories.find(allocatorType) != mAllocatorFactories.cend()) /// if there is already attached factory, firstly we should unregister it
 		{
-			if ((result = _unregisterFactory(allocatorType)) != RC_OK)
+			E_RESULT_CODE result = RC_OK;
+
+			if (RC_OK != (result = _unregisterFactory(allocatorType)))
 			{
 				return result;
 			}
@@ -186,7 +184,7 @@ namespace TDEngine2
 
 	IAllocator* CMemoryManager::_createAllocator(TypeId allocatorTypeId, const TBaseAllocatorParams& params, const C8* userName)
 	{
-		const IAllocatorFactory* pAllocatorFactory = mAllocatorFactories[allocatorTypeId];
+		auto pAllocatorFactory = mAllocatorFactories[allocatorTypeId];
 
 		if (!pAllocatorFactory)
 		{

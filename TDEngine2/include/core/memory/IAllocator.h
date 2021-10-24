@@ -159,4 +159,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAllocatorFactory)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(IAllocatorFactory)
 }

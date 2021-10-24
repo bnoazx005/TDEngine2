@@ -371,11 +371,11 @@ namespace TDEngine2
 			CreatePoolAllocatorFactory
 		};
 
-		IAllocatorFactory* pAllocatorFactory = nullptr;
+		TPtr<IAllocatorFactory> pAllocatorFactory;
 
 		for (auto currFactoryCallback : allocatorFactoriesCallback)
 		{
-			pAllocatorFactory = currFactoryCallback(result);
+			pAllocatorFactory = TPtr<IAllocatorFactory>(currFactoryCallback(result));
 
 			if (result != RC_OK)
 			{
