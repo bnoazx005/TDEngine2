@@ -49,11 +49,11 @@ namespace TDEngine2
 		protected:
 			typedef std::unordered_map<TypeId, TResourceLoaderId>   TResourceLoadersMap;
 			
-			typedef CResourceContainer<const IResourceLoader*>      TResourceLoadersContainer;
+			typedef CResourceContainer<IResourceLoader*>            TResourceLoadersContainer;
 
 			typedef std::unordered_map<TypeId, TResourceFactoryId>  TResourceFactoriesMap;
 			
-			typedef CResourceContainer<const IResourceFactory*>     TResourceFactoriesContainer;
+			typedef CResourceContainer<IResourceFactory*>           TResourceFactoriesContainer;
 
 			typedef std::unordered_map<std::string, TResourceId>    TResourcesMap;
 
@@ -82,7 +82,7 @@ namespace TDEngine2
 				an identifier of the registred loader
 			*/
 
-			TDE2_API TResult<TResourceLoaderId> RegisterLoader(const IResourceLoader* pResourceLoader) override;
+			TDE2_API TResult<TResourceLoaderId> RegisterLoader(IResourceLoader* pResourceLoader) override;
 
 			/*!
 				\brief The method unregisters a resource loader with the specified identifier
@@ -103,7 +103,7 @@ namespace TDEngine2
 				an identifier of the registred factory
 			*/
 
-			TDE2_API TResult<TResourceFactoryId> RegisterFactory(const IResourceFactory* pResourceFactory) override;
+			TDE2_API TResult<TResourceFactoryId> RegisterFactory(IResourceFactory* pResourceFactory) override;
 
 			/*!
 				\brief The method unregisters a resource factory with the specified identifier
@@ -217,6 +217,9 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
 			TDE2_API E_RESULT_CODE _unloadAllResources();
+
+			TDE2_API E_RESULT_CODE _unregisterAllFactories();
+			TDE2_API E_RESULT_CODE _unregisterAllLoaders();
 		protected:
 			std::atomic_bool            mIsInitialized;
 

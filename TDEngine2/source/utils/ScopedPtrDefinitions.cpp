@@ -11,6 +11,7 @@
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/ecs/IComponentManager.h"
+#include "../../include/graphics/IMaterial.h"
 
 
 namespace TDEngine2
@@ -31,4 +32,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IOutputStream)
 	TDE2_DEFINE_SCOPED_PTR(IComponentManager)
 	TDE2_DEFINE_SCOPED_PTR(IComponentFactory)
+	TDE2_DEFINE_SCOPED_PTR(IMaterialInstance)
 }

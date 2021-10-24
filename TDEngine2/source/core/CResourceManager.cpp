@@ -37,10 +37,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::_onFreeInternal()
 	{
-		return _unloadAllResources();
+		E_RESULT_CODE result = _unloadAllResources();
+
+		result = result | _unregisterAllFactories();
+		result = result | _unregisterAllLoaders();
+
+		return result;
 	}
 
-	TResult<TResourceLoaderId> CResourceManager::RegisterLoader(const IResourceLoader* pResourceLoader)
+	TResult<TResourceLoaderId> CResourceManager::RegisterLoader(IResourceLoader* pResourceLoader)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -79,7 +84,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 		
-		TResult<const IResourceLoader*> result = mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderId) - 1];
+		TResult<IResourceLoader*> result = mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderId) - 1];
 
 		if (result.HasError())
 		{
@@ -95,7 +100,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TResult<TResourceFactoryId> CResourceManager::RegisterFactory(const IResourceFactory* pResourceFactory)
+	TResult<TResourceFactoryId> CResourceManager::RegisterFactory(IResourceFactory* pResourceFactory)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		
@@ -136,7 +141,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		TResult<const IResourceFactory*> result = mRegisteredResourceFactories[index - 1];
+		TResult<IResourceFactory*> result = mRegisteredResourceFactories[index - 1];
 
 		if (result.HasError())
 		{
@@ -474,6 +479,30 @@ namespace TDEngine2
 
 		mResources.RemoveAll();
 
+		return result;
+	}
+
+	E_RESULT_CODE CResourceManager::_unregisterAllFactories()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		for (USIZE i = 0; i < mRegisteredResourceFactories.GetSize(); ++i)
+		{
+			if (auto resourceFactoryEntity = mRegisteredResourceFactories[i])
+			{
+				if (auto pCurrFactory = resourceFactoryEntity.Get())
+				{
+					pCurrFactory->Free();
+				}
+			}
+		}
+
+		return result;
+	}
+
+	E_RESULT_CODE CResourceManager::_unregisterAllLoaders()
+	{
+		E_RESULT_CODE result = RC_OK;
 		return result;
 	}
 

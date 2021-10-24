@@ -129,7 +129,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto registerLoader = [](IResourceManager* pResourceManager, const IResourceLoader* pLoader) -> E_RESULT_CODE
+		auto registerLoader = [](IResourceManager* pResourceManager, IResourceLoader* pLoader) -> E_RESULT_CODE
 		{
 			auto registerResult = pResourceManager->RegisterLoader(pLoader);
 

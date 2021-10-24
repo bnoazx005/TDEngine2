@@ -64,7 +64,7 @@ namespace TDEngine2
 				an identifier of the registred loader
 			*/
 
-			TDE2_API virtual TResult<TResourceLoaderId> RegisterLoader(const IResourceLoader* pResourceLoader) = 0;
+			TDE2_API virtual TResult<TResourceLoaderId> RegisterLoader(IResourceLoader* pResourceLoader) = 0;
 
 			/*!
 				\brief The method unregisters a resource loader with the specified identifier
@@ -143,7 +143,7 @@ namespace TDEngine2
 				an identifier of the registred factory
 			*/
 
-			TDE2_API virtual TResult<TResourceFactoryId> RegisterFactory(const IResourceFactory* pResourceFactory) = 0;
+			TDE2_API virtual TResult<TResourceFactoryId> RegisterFactory(IResourceFactory* pResourceFactory) = 0;
 
 			/*!
 				\brief The method unregisters a resource factory with the specified identifier

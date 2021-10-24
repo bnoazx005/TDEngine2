@@ -169,11 +169,11 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
-	IMaterialInstance* CBaseMaterial::CreateInstance()
+	TPtr<IMaterialInstance> CBaseMaterial::CreateInstance()
 	{
 		if (!mIsInitialized)
 		{
-			return nullptr;
+			return TPtr<IMaterialInstance>(nullptr);
 		}
 
 		if (auto newInstanceResult = _allocateNewInstance())
@@ -206,7 +206,7 @@ namespace TDEngine2
 			return mpInstancesArray[static_cast<U32>(instanceId)].Get();
 		}
 
-		return nullptr;
+		return TPtr<IMaterialInstance>(nullptr);
 	}
 
 	E_RESULT_CODE CBaseMaterial::Load(IArchiveReader* pReader)
@@ -639,7 +639,7 @@ namespace TDEngine2
 		return mTag;
 	}
 
-	TResult<IMaterialInstance*> CBaseMaterial::GetMaterialInstance(TMaterialInstanceId instanceId) const
+	TResult<TPtr<IMaterialInstance>> CBaseMaterial::GetMaterialInstance(TMaterialInstanceId instanceId) const
 	{
 		return mpInstancesArray[static_cast<U32>(instanceId)];
 	}
@@ -666,18 +666,18 @@ namespace TDEngine2
 		return (textureResourceIt == it->second.cend()) ? nullptr : textureResourceIt->second;
 	}
 
-	TResult<IMaterialInstance*> CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
+	TResult<TPtr<IMaterialInstance>> CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
 	{
 		E_RESULT_CODE result = RC_FAIL;
 
-		IMaterialInstance* pNewMaterialInstance = CreateInstance();
+		auto pNewMaterialInstance = CreateInstance();
 
 		if (!pNewMaterialInstance || (result = _setVariableForInstance(pNewMaterialInstance->GetInstanceId(), name, pValue, size)) != RC_OK)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<IMaterialInstance*>(pNewMaterialInstance);
+		return Wrench::TOkValue<TPtr<IMaterialInstance>>(pNewMaterialInstance);
 	}
 
 	E_RESULT_CODE CBaseMaterial::_setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
@@ -749,9 +749,9 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TMaterialInstanceId instanceId = static_cast<TMaterialInstanceId>(mpInstancesArray.Add(nullptr));
+		TMaterialInstanceId instanceId = static_cast<TMaterialInstanceId>(mpInstancesArray.Add(TPtr<IMaterialInstance>(nullptr)));
 
-		IMaterialInstance* pNewMaterialInstance = CreateBaseMaterialInstance(this, instanceId, result);
+		auto pNewMaterialInstance = TPtr<IMaterialInstance>(CreateBaseMaterialInstance(this, instanceId, result));
 
 		if ((result != RC_OK) || (result = mpInstancesArray.ReplaceAt(static_cast<U32>(instanceId), pNewMaterialInstance)) != RC_OK)
 		{

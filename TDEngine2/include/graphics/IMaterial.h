@@ -25,6 +25,9 @@ namespace TDEngine2
 	class IMaterialInstance;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IMaterialInstance)
+
+
 	TDE2_DECLARE_HANDLE_TYPE(TMaterialInstanceId)
 
 	constexpr TMaterialInstanceId DefaultMaterialInstanceId = TMaterialInstanceId(0);
@@ -95,7 +98,7 @@ namespace TDEngine2
 				\return A pointer to IMaterialInstance implementation which represents a new instance of this material
 			*/
 
-			TDE2_API virtual IMaterialInstance* CreateInstance() = 0;
+			TDE2_API virtual TPtr<IMaterialInstance> CreateInstance() = 0;
 
 			/*!
 				\brief The method assigns a shader object with a given name to the material
@@ -166,7 +169,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API TResult<IMaterialInstance*> SetVariable(const std::string& name, const T& value)
+			TDE2_API TResult<TPtr<IMaterialInstance>> SetVariable(const std::string& name, const T& value)
 			{
 				// \todo add validation of an input type
 
@@ -333,7 +336,7 @@ namespace TDEngine2
 				\return The method returns either a pointer to IMaterialInstance or an error code
 			*/
 
-			TDE2_API virtual TResult<IMaterialInstance*> GetMaterialInstance(TMaterialInstanceId instanceId) const = 0;
+			TDE2_API virtual TResult<TPtr<IMaterialInstance>> GetMaterialInstance(TMaterialInstanceId instanceId) const = 0;
 
 			/*!
 				\param[in] id An identifier of a texture (Empty literal will return first (main) texture)
@@ -345,7 +348,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
 
-			TDE2_API virtual TResult<IMaterialInstance*> _setVariable(const std::string& name, const void* pValue, U32 size) = 0;
+			TDE2_API virtual TResult<TPtr<IMaterialInstance>> _setVariable(const std::string& name, const void* pValue, U32 size) = 0;
 			TDE2_API virtual E_RESULT_CODE _setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) = 0;
 	};
 
@@ -421,4 +424,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) = 0;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(IMaterialInstance)
 }

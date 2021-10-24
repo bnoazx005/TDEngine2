@@ -26,6 +26,9 @@ namespace TDEngine2
 	class IGraphicsObjectManager;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IMaterialInstance)
+
+
 	/*!
 		\brief A factory function for creation objects of CBaseMaterial's type
 
@@ -86,7 +89,7 @@ namespace TDEngine2
 
 			typedef std::unordered_map<U32, std::tuple<U32, USIZE>>                    TUserUniformsHashTable;
 
-			typedef CResourceContainer<IMaterialInstance*>                             TMaterialInstancesArray;
+			typedef CResourceContainer<TPtr<IMaterialInstance>>                        TMaterialInstancesArray;
 
 			typedef std::array<TUserUniformBufferData, MaxNumberOfUserConstantBuffers> TUserUniformsArray;
 
@@ -146,7 +149,7 @@ namespace TDEngine2
 				\return A pointer to IMaterialInstance implementation which represents a new instance of this material
 			*/
 
-			TDE2_API IMaterialInstance* CreateInstance() override;
+			TDE2_API TPtr<IMaterialInstance> CreateInstance() override;
 
 			/*!
 				\brief The method assigns a shader object with a given name to the material
@@ -359,7 +362,7 @@ namespace TDEngine2
 				\return The method returns either a pointer to IMaterialInstance or an error code
 			*/
 
-			TDE2_API TResult<IMaterialInstance*> GetMaterialInstance(TMaterialInstanceId instanceId) const override;
+			TDE2_API TResult<TPtr<IMaterialInstance>> GetMaterialInstance(TMaterialInstanceId instanceId) const override;
 
 			/*!
 				\param[in] id An identifier of a texture (Empty literal will return first (main) texture)
@@ -371,7 +374,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 
-			TDE2_API TResult<IMaterialInstance*> _setVariable(const std::string& name, const void* pValue, U32 size) override;
+			TDE2_API TResult<TPtr<IMaterialInstance>> _setVariable(const std::string& name, const void* pValue, U32 size) override;
 			TDE2_API E_RESULT_CODE _setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
 
 			TDE2_API E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
