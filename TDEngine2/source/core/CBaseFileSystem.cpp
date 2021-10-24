@@ -41,7 +41,10 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseFileSystem::_onFreeInternal()
 	{
+		mMountedStorages.clear();
+
 		LOG_MESSAGE("[File System] The file system  was successfully destroyed");
+
 		return RC_OK;
 	}
 
@@ -144,20 +147,8 @@ namespace TDEngine2
 			{
 				LOG_WARNING(Wrench::StringUtils::Format("[File System] Replace existing mounted storage with a new one (mount path: {0})", unifiedAliasPath));
 
-				// \note Remove previous storage
-				IMountableStorage* pExistedStorage = iter->mpStorage;
-				TDE2_ASSERT(pExistedStorage);
-
-				if (pExistedStorage)
-				{
-					if (RC_OK != (result = pExistedStorage->Free()))
-					{
-						return result;
-					}
-				}
-
 				// \note Register the new one
-				iter->mpStorage = pStorage;
+				iter->mpStorage = TPtr<IMountableStorage>(pStorage);
 
 				return RC_OK;
 			}
@@ -165,7 +156,7 @@ namespace TDEngine2
 			// \note Insert a new mounting storage based on its priority, type and path's order
 			if (mMountedStorages.empty())
 			{
-				mMountedStorages.push_back(TMountedStorageInfo { pStorage, aliasPath });
+				mMountedStorages.push_back(TMountedStorageInfo { TPtr<IMountableStorage>(pStorage), aliasPath });
 			}
 			else
 			{
@@ -175,7 +166,7 @@ namespace TDEngine2
 				{
 					if (iter->mpStorage->GetPriority() >= (pStorage->GetPriority() + realtivePriority))
 					{
-						mMountedStorages.insert(iter, TMountedStorageInfo { pStorage, aliasPath });
+						mMountedStorages.insert(iter, TMountedStorageInfo { TPtr<IMountableStorage>(pStorage), aliasPath });
 						isInserted = true;
 						break;
 					}
@@ -183,7 +174,7 @@ namespace TDEngine2
 
 				if (!isInserted)
 				{
-					mMountedStorages.push_back(TMountedStorageInfo { pStorage, aliasPath });
+					mMountedStorages.push_back(TMountedStorageInfo { TPtr<IMountableStorage>(pStorage), aliasPath });
 				}
 			}
 		}

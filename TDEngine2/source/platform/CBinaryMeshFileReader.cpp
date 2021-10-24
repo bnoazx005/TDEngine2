@@ -491,7 +491,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateBinaryMeshFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateBinaryMeshFileReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CBinaryMeshFileReader* pFileInstance = new (std::nothrow) CBinaryMeshFileReader();
 

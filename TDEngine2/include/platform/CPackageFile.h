@@ -54,7 +54,7 @@ namespace TDEngine2
 		\return A pointer to CPackageFileReader's implementation
 	*/
 
-	TDE2_API IFile* CreatePackageFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreatePackageFileReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -66,7 +66,7 @@ namespace TDEngine2
 	class CPackageFileReader : public CBinaryFileReader, public IPackageFileReader
 	{
 		public:
-			friend TDE2_API IFile* CreatePackageFileReader(IMountableStorage*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreatePackageFileReader(IMountableStorage*, TPtr<IStream>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CPackageFileReader)
 
@@ -95,7 +95,7 @@ namespace TDEngine2
 		\return A pointer to CPackageFileWriter's implementation
 	*/
 
-	TDE2_API IFile* CreatePackageFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreatePackageFileWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -107,7 +107,7 @@ namespace TDEngine2
 	class CPackageFileWriter : public CBinaryFileWriter, public IPackageFileWriter
 	{
 		public:
-			friend TDE2_API IFile* CreatePackageFileWriter(IMountableStorage*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreatePackageFileWriter(IMountableStorage*, TPtr<IStream>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CPackageFileWriter)
 

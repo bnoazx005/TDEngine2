@@ -88,7 +88,7 @@ namespace TDEngine2
 		std::string currParamName;
 		std::string currValueName;
 
-		IInputStream* pInputStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+		TPtr<IInputStream> pInputStream = DynamicPtrCast<IInputStream>(mpStreamImpl);
 
 		while (!mpStreamImpl->IsEndOfStream())
 		{
@@ -156,7 +156,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateConfigFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateConfigFileReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CConfigFileReader* pFileInstance = new (std::nothrow) CConfigFileReader();
 

@@ -22,7 +22,7 @@ namespace TDEngine2
 		\return A pointer to CTextFileReader's implementation
 	*/
 
-	TDE2_API IFile* CreateTextFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateTextFileReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -34,7 +34,7 @@ namespace TDEngine2
 	class CTextFileReader: public ITextFileReader, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateTextFileReader(IMountableStorage*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreateTextFileReader(IMountableStorage*, TPtr<IStream>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CTextFileReader)
 

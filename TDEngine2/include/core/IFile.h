@@ -26,6 +26,9 @@ namespace TDEngine2
 	class IStream;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IStream)
+
+
 	/*!
 		interface IFile
 
@@ -44,7 +47,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Open(IMountableStorage* pStorage, IStream* pStream) = 0;
+			TDE2_API virtual E_RESULT_CODE Open(IMountableStorage* pStorage, TPtr<IStream> pStream) = 0;
 
 			/*!
 				\brief The method increment a value of the internal reference counter. You can ignore 
@@ -97,7 +100,7 @@ namespace TDEngine2
 
 			TDE2_API virtual bool IsParentThread() const = 0;
 
-			TDE2_API virtual IStream* GetStream() const = 0;
+			TDE2_API virtual TPtr<IStream> GetStream() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFile)
 	};

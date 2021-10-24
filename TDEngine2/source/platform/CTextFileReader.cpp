@@ -35,14 +35,14 @@ namespace TDEngine2
 	{
 		if (!mpCachedInputStream)
 		{
-			mpCachedInputStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+			mpCachedInputStream = dynamic_cast<IInputStream*>(mpStreamImpl.Get());
 		}
 
 		return mpCachedInputStream;
 	}
 
 
-	IFile* CreateTextFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateTextFileReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CTextFileReader* pFileInstance = new (std::nothrow) CTextFileReader();
 

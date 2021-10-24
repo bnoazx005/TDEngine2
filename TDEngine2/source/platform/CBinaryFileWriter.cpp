@@ -104,14 +104,14 @@ namespace TDEngine2
 	{
 		if (!mpCachedOutputStream)
 		{
-			mpCachedOutputStream = dynamic_cast<IOutputStream*>(mpStreamImpl);
+			mpCachedOutputStream = dynamic_cast<IOutputStream*>(mpStreamImpl.Get());
 		}
 
 		return mpCachedOutputStream;
 	}
 
 
-	IFile* CreateBinaryFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateBinaryFileWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CBinaryFileWriter* pFileInstance = new (std::nothrow) CBinaryFileWriter();
 

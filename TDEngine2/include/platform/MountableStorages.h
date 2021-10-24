@@ -23,6 +23,9 @@ namespace TDEngine2
 	class IStream;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IStream)
+
+
 	enum class E_FILE_FACTORY_TYPE : U8;
 
 
@@ -91,6 +94,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_DECLARE_SCOPED_PTR(IMountableStorage)
+
+
 	class CBaseMountableStorage : public CBaseObject, public IMountableStorage
 	{
 		public:
@@ -126,7 +132,7 @@ namespace TDEngine2
 			TDE2_API TFileEntryId _registerFileEntry(IFile* pFileEntry);
 
 			TDE2_API virtual void _createNewFile(const std::string& path) = 0;
-			TDE2_API virtual TResult<IStream*> _createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const = 0;
+			TDE2_API virtual TResult<TPtr<IStream>> _createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const = 0;
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
@@ -181,7 +187,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysicalFilesStorage)
 
 			TDE2_API void _createNewFile(const std::string& path) override;
-			TDE2_API TResult<IStream*> _createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const override;
+			TDE2_API TResult<TPtr<IStream>> _createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const override;
 		protected:
 	};
 
@@ -223,7 +229,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPackageFilesStorage)
 
 			TDE2_API void _createNewFile(const std::string& path) override;
-			TDE2_API TResult<IStream*> _createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const override;
+			TDE2_API TResult<TPtr<IStream>> _createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const override;
 		protected:
 			TFileEntryId mPackageFileHandle;
 

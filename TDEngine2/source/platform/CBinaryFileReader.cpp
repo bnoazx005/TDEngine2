@@ -110,14 +110,14 @@ namespace TDEngine2
 	{
 		if (!mpCachedInputStream)
 		{
-			mpCachedInputStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+			mpCachedInputStream = dynamic_cast<IInputStream*>(mpStreamImpl.Get());
 		}
 
 		return mpCachedInputStream;
 	}
 
 
-	IFile* CreateBinaryFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateBinaryFileReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CBinaryFileReader* pFileInstance = new (std::nothrow) CBinaryFileReader();
 

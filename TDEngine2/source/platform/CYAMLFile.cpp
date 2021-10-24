@@ -21,7 +21,7 @@ namespace TDEngine2
 		return _internalSerialize(object);
 	}
 
-	E_RESULT_CODE CYAMLFileWriter::Open(IMountableStorage* pStorage, IStream* pStream)
+	E_RESULT_CODE CYAMLFileWriter::Open(IMountableStorage* pStorage, TPtr<IStream> pStream)
 	{
 		E_RESULT_CODE result = CBaseFile::Open(pStorage, pStream);
 		if (result != RC_OK)
@@ -174,7 +174,7 @@ namespace TDEngine2
 			Yaml::Serialize(object, formattedOutput);
 
 			mpStreamImpl->SetPosition(std::ios::beg);
-			dynamic_cast<IOutputStream*>(mpStreamImpl)->Write(formattedOutput.c_str(), formattedOutput.length());
+			DynamicPtrCast<IOutputStream>(mpStreamImpl)->Write(formattedOutput.c_str(), formattedOutput.length());
 		}
 		catch (const Yaml::Exception e)
 		{
@@ -207,7 +207,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateYAMLFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateYAMLFileWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CYAMLFileWriter* pFileInstance = new (std::nothrow) CYAMLFileWriter();
 
@@ -247,7 +247,7 @@ namespace TDEngine2
 		return _internalDeserialize(outputObject);
 	}
 
-	E_RESULT_CODE CYAMLFileReader::Open(IMountableStorage* pStorage, IStream* pStream)
+	E_RESULT_CODE CYAMLFileReader::Open(IMountableStorage* pStorage, TPtr<IStream> pStream)
 	{
 		E_RESULT_CODE result = CBaseFile::Open(pStorage, pStream);
 		if (result != RC_OK)
@@ -399,7 +399,7 @@ namespace TDEngine2
 		// \parse it using mini-yaml library
 		try
 		{
-			Yaml::Parse(outputObject, dynamic_cast<IInputStream*>(mpStreamImpl)->ReadToEnd());
+			Yaml::Parse(outputObject, DynamicPtrCast<IInputStream>(mpStreamImpl)->ReadToEnd());
 		}
 		catch (Yaml::Exception e)
 		{
@@ -429,7 +429,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateYAMLFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateYAMLFileReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CYAMLFileReader* pFileInstance = new (std::nothrow) CYAMLFileReader();
 

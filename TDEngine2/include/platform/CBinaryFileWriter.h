@@ -21,7 +21,7 @@ namespace TDEngine2
 		\return A pointer to CBinaryFileWriter's implementation
 	*/
 
-	TDE2_API IFile* CreateBinaryFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateBinaryFileWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -33,7 +33,7 @@ namespace TDEngine2
 	class CBinaryFileWriter : public virtual IBinaryFileWriter, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateBinaryFileWriter(IMountableStorage*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreateBinaryFileWriter(IMountableStorage*, TPtr<IStream>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CBinaryFileWriter)
 

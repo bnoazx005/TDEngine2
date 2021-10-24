@@ -21,6 +21,9 @@ namespace TDEngine2
 	class IMountableStorage;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IMountableStorage)
+
+
 	/*!
 		class CBaseFileSystem
 
@@ -32,7 +35,7 @@ namespace TDEngine2
 		protected:
 			struct TMountedStorageInfo
 			{
-				IMountableStorage* mpStorage;
+				TPtr<IMountableStorage> mpStorage;
 				std::string mAliasPath;
 			};
 

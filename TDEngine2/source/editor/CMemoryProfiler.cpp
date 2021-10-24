@@ -1,6 +1,8 @@
 #include "../../include/editor/CMemoryProfiler.h"
 #include "../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
+#include "backward.hpp"
+#include <sstream>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -54,12 +56,32 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static std::string GetStackTrace() {
+		std::ostringstream ss;
+
+		backward::StackTrace stackTrace;
+		backward::TraceResolver resolver;
+		stackTrace.load_here();
+		resolver.load_stacktrace(stackTrace);
+
+		for (std::size_t i = 0; i < stackTrace.size(); ++i) {
+			const backward::ResolvedTrace trace = resolver.resolve(stackTrace[i]);
+
+			ss << "#" << i << " at " << trace.object_function << "\n";
+		}
+
+		return ss.str();
+	}
+
+
 	E_RESULT_CODE CMemoryProfiler::RegisterBaseObject(const std::string& typeId, U32Ptr address)
 	{
 		auto& entity = mLivingBaseObjectsTable[address];
 
 		entity.mTypeIdStr = typeId;
 		entity.mAddress = address;
+		entity.mAllocationStacktrace = std::move(GetStackTrace());
 
 		return RC_OK;
 	}
@@ -84,7 +106,7 @@ namespace TDEngine2
 
 		for (auto&& entity : mLivingBaseObjectsTable)
 		{
-			LOG_MESSAGE(Wrench::StringUtils::Format("[Memory Profiler] Object <{0}> at {1}", entity.second.mTypeIdStr, entity.first));
+			LOG_MESSAGE(Wrench::StringUtils::Format("[Memory Profiler] Object <{0}> at {1},\nstacktrace:{2}\n", entity.second.mTypeIdStr, entity.first, entity.second.mAllocationStacktrace));
 		}
 	}
 

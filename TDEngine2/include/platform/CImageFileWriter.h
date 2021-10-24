@@ -20,7 +20,7 @@ namespace TDEngine2
 		\return A pointer to CImageFileWriter's implementation
 	*/
 
-	TDE2_API IFile* CreateImageFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateImageFileWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -40,7 +40,7 @@ namespace TDEngine2
 				HDR,
 			};
 		public:
-			friend TDE2_API IFile* CreateImageFileWriter(IMountableStorage*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreateImageFileWriter(IMountableStorage*, TPtr<IStream>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CImageFileWriter)
 

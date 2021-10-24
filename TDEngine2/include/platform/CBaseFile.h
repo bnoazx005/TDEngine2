@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../core/IFile.h"
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../core/IFile.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 #include <fstream>
 #include <atomic>
 #include <mutex>
@@ -38,7 +38,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, IStream* pStream) override;
+			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, TPtr<IStream> pStream) override;
 
 			/*!
 				\brief The method increment a value of the internal reference counter. You can ignore
@@ -91,23 +91,23 @@ namespace TDEngine2
 
 			TDE2_API bool IsParentThread() const override;
 
-			TDE2_API IStream* GetStream() const override;
+			TDE2_API TPtr<IStream> GetStream() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFile)
 
 			TDE2_API virtual E_RESULT_CODE _onInit();
 			TDE2_API virtual E_RESULT_CODE _onFree() = 0;
 		protected:
-			IStream*             mpStreamImpl;
+			TPtr<IStream>      mpStreamImpl;
 
-			std::atomic<U32>     mRefCounter;
+			std::atomic<U32>   mRefCounter;
 
-			std::string          mName;
+			std::string        mName;
 
-			IMountableStorage*   mpStorage;
+			IMountableStorage* mpStorage;
 
-			mutable std::mutex   mMutex;
+			mutable std::mutex mMutex;
 
-			std::thread::id      mCreatorThreadId;
+			std::thread::id    mCreatorThreadId;
 	};
 }

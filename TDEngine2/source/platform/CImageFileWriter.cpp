@@ -109,7 +109,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateImageFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateImageFileWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CImageFileWriter* pFileInstance = new (std::nothrow) CImageFileWriter();
 

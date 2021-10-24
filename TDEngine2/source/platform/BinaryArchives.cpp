@@ -43,7 +43,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBinaryArchiveWriter::Open(IMountableStorage* pStorage, IStream* pStream)
+	E_RESULT_CODE CBinaryArchiveWriter::Open(IMountableStorage* pStorage, TPtr<IStream> pStream)
 	{
 		E_RESULT_CODE result = CBaseFile::Open(pStorage, pStream);
 		if (result != RC_OK)
@@ -53,7 +53,7 @@ namespace TDEngine2
 
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		mpCachedOutputStream = dynamic_cast<IOutputStream*>(mpStreamImpl);
+		mpCachedOutputStream = dynamic_cast<IOutputStream*>(mpStreamImpl.Get());
 		if (!mpCachedOutputStream)
 		{
 			return RC_FAIL;
@@ -188,7 +188,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateBinaryArchiveWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateBinaryArchiveWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CBinaryArchiveWriter* pFileInstance = new (std::nothrow) CBinaryArchiveWriter();
 
@@ -233,7 +233,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBinaryArchiveReader::Open(IMountableStorage* pStorage, IStream* pStream)
+	E_RESULT_CODE CBinaryArchiveReader::Open(IMountableStorage* pStorage, TPtr<IStream> pStream)
 	{
 		E_RESULT_CODE result = CBaseFile::Open(pStorage, pStream);
 		if (result != RC_OK)
@@ -243,7 +243,7 @@ namespace TDEngine2
 
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		mpCachedInputStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+		mpCachedInputStream = dynamic_cast<IInputStream*>(mpStreamImpl.Get());
 		if (!mpCachedInputStream)
 		{
 			return RC_FAIL;
@@ -574,7 +574,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreateBinaryArchiveReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreateBinaryArchiveReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CBinaryArchiveReader* pFileInstance = new (std::nothrow) CBinaryArchiveReader();
 

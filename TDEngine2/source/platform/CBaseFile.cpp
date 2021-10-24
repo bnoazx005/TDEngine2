@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseFile::Open(IMountableStorage* pStorage, IStream* pStream)
+	E_RESULT_CODE CBaseFile::Open(IMountableStorage* pStorage, TPtr<IStream> pStream)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -63,10 +63,7 @@ namespace TDEngine2
 				return result;
 			}
 
-			if (mpStreamImpl)
-			{
-				result = result | mpStreamImpl->Free();
-			}
+			mpStreamImpl = nullptr;
 
 			if ((result = mpStorage->CloseFile(mName)) != RC_OK)
 			{
@@ -115,7 +112,7 @@ namespace TDEngine2
 		return mCreatorThreadId == std::this_thread::get_id();
 	}
 
-	IStream* CBaseFile::GetStream() const
+	TPtr<IStream> CBaseFile::GetStream() const
 	{
 		return mpStreamImpl;
 	}

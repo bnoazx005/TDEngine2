@@ -24,6 +24,9 @@ namespace TDEngine2
 	class IMountableStorage;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IStream)
+
+
 	enum class E_FILE_FACTORY_TYPE : U8
 	{
 		READER = 0x1,
@@ -33,7 +36,7 @@ namespace TDEngine2
 
 	struct TFileFactory
 	{
-		typedef IFile* (*TCreateFileCallback)(IMountableStorage*, IStream*, E_RESULT_CODE&);
+		typedef IFile* (*TCreateFileCallback)(IMountableStorage*, TPtr<IStream>, E_RESULT_CODE&);
 
 		TCreateFileCallback mCallback;
 		E_FILE_FACTORY_TYPE mFileType;

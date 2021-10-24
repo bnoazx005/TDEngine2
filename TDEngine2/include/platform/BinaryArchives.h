@@ -51,7 +51,7 @@ namespace TDEngine2
 		\return A pointer to CBinaryArchiveWriter's implementation
 	*/
 
-	TDE2_API IFile* CreateBinaryArchiveWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateBinaryArchiveWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -81,7 +81,7 @@ namespace TDEngine2
 	class CBinaryArchiveWriter : public IBinaryArchiveWriter, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateBinaryArchiveWriter(IMountableStorage*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreateBinaryArchiveWriter(IMountableStorage*, TPtr<IStream>, E_RESULT_CODE&);
 
 		public:
 			TDE2_REGISTER_TYPE(CBinaryArchiveWriter)
@@ -95,7 +95,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, IStream* pStream) override;
+			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, TPtr<IStream> pStream) override;
 
 			/*!
 				\brief The method enters into object's scope with given identifier
@@ -166,7 +166,7 @@ namespace TDEngine2
 		\return A pointer to CBinaryArchiveReader's implementation
 	*/
 
-	TDE2_API IFile* CreateBinaryArchiveReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result);
+	TDE2_API IFile* CreateBinaryArchiveReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result);
 
 
 	/*!
@@ -178,7 +178,7 @@ namespace TDEngine2
 	class CBinaryArchiveReader : public IBinaryArchiveReader, public CBaseFile
 	{
 		public:
-			friend TDE2_API IFile* CreateBinaryArchiveReader(IMountableStorage*, IStream*, E_RESULT_CODE&);
+			friend TDE2_API IFile* CreateBinaryArchiveReader(IMountableStorage*, TPtr<IStream>, E_RESULT_CODE&);
 
 		public:
 			TDE2_REGISTER_TYPE(CBinaryArchiveReader)
@@ -192,7 +192,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, IStream* pStream) override;
+			TDE2_API E_RESULT_CODE Open(IMountableStorage* pStorage, TPtr<IStream> pStream) override;
 
 			/*!
 				\brief The method enters into object's scope with given identifier

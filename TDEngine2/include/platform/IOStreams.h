@@ -58,6 +58,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_DECLARE_SCOPED_PTR(IStream)
+
+
 	class IInputStream: public virtual IStream
 	{
 		public:
@@ -92,6 +95,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_DECLARE_SCOPED_PTR(IInputStream)
+
+
 	class IOutputStream: public virtual IStream
 	{
 		public:
@@ -111,6 +117,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IOutputStream)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(IOutputStream)
 
 
 	/*!

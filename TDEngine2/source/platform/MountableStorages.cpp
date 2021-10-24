@@ -237,7 +237,7 @@ namespace TDEngine2
 		newFileInstance.close();
 	}
 
-	TResult<IStream*> CPhysicalFilesStorage::_createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const
+	TResult<TPtr<IStream>> CPhysicalFilesStorage::_createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const
 	{
 		E_RESULT_CODE result = RC_OK;
 		
@@ -248,7 +248,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<IStream*>(pStream);
+		return Wrench::TOkValue<TPtr<IStream>>(TPtr<IStream>(pStream));
 	}
 
 	IMountableStorage* CreatePhysicalFilesStorage(IFileSystem* pFileSystem, const std::string& path, E_RESULT_CODE& result)
@@ -321,7 +321,7 @@ namespace TDEngine2
 		TDE2_UNIMPLEMENTED();
 	}
 
-	TResult<IStream*> CPackageFilesStorage::_createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const
+	TResult<TPtr<IStream>> CPackageFilesStorage::_createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -338,7 +338,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<IStream*>(pStream);
+		return Wrench::TOkValue<TPtr<IStream>>(TPtr<IStream>(pStream));
 	}
 
 

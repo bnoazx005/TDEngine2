@@ -41,6 +41,7 @@ namespace TDEngine2
 			typedef struct TBaseObjectAllocInfo
 			{
 				std::string mTypeIdStr;
+				std::string mAllocationStacktrace;
 				U32Ptr mAddress;
 			} TBaseObjectAllocInfo, *TBaseObjectAllocInfoPtr;
 

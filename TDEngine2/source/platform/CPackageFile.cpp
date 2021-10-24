@@ -31,7 +31,7 @@ namespace TDEngine2
 		std::vector<U8> dataBuffer;
 		dataBuffer.resize(static_cast<size_t>(iter->mDataBlockSize));
 
-		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+		TPtr<IInputStream> pStream = DynamicPtrCast<IInputStream>(mpStreamImpl);
 		
 		TSizeType prevPosition = pStream->GetPosition();
 		{
@@ -64,14 +64,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPackageFileReader::_readPackageHeader()
 	{
-		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+		TPtr<IInputStream> pStream = DynamicPtrCast<IInputStream>(mpStreamImpl);
 
 		return pStream->Read(&mCurrHeader, sizeof(mCurrHeader));
 	}
 
 	E_RESULT_CODE CPackageFileReader::_readFilesTableDescription()
 	{
-		IInputStream* pStream = dynamic_cast<IInputStream*>(mpStreamImpl);
+		TPtr<IInputStream> pStream = DynamicPtrCast<IInputStream>(mpStreamImpl);
 
 		E_RESULT_CODE result = pStream->SetPosition(static_cast<U32>(mCurrHeader.mFilesTableOffset));
 
@@ -95,7 +95,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreatePackageFileReader(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreatePackageFileReader(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CPackageFileReader* pFileInstance = new (std::nothrow) CPackageFileReader();
 
@@ -156,7 +156,7 @@ namespace TDEngine2
 		fileInfo.mDataBlockOffset = GetPosition();
 
 		// Copy file's data into the package
-		if (auto pStream = dynamic_cast<IInputStream*>(file.GetStream()))
+		if (auto pStream = DynamicPtrCast<IInputStream>(file.GetStream()))
 		{
 			E_RESULT_CODE result = RC_OK;
 
@@ -180,7 +180,7 @@ namespace TDEngine2
 			}
 
 			// Write into the package
-			if (auto pPackageStream = dynamic_cast<IOutputStream*>(mpStreamImpl))
+			if (auto pPackageStream = DynamicPtrCast<IOutputStream>(mpStreamImpl))
 			{
 				if (RC_OK != (result = pPackageStream->Write(static_cast<const void*>(&buffer[0]), buffer.size())))
 				{
@@ -198,7 +198,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPackageFileWriter::_writePackageHeader()
 	{
-		IOutputStream* pStream = dynamic_cast<IOutputStream*>(mpStreamImpl);
+		auto pStream = DynamicPtrCast<IOutputStream>(mpStreamImpl);
 
 		TSizeType prevPosition = pStream->GetPosition();
 
@@ -212,7 +212,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPackageFileWriter::_writeFilesTableDescription()
 	{
-		IOutputStream* pStream = dynamic_cast<IOutputStream*>(mpStreamImpl);
+		auto pStream = DynamicPtrCast<IOutputStream>(mpStreamImpl);
 
 		mCurrHeader.mFilesTableOffset = pStream->GetPosition();
 
@@ -236,7 +236,7 @@ namespace TDEngine2
 	}
 
 
-	IFile* CreatePackageFileWriter(IMountableStorage* pStorage, IStream* pStream, E_RESULT_CODE& result)
+	IFile* CreatePackageFileWriter(IMountableStorage* pStorage, TPtr<IStream> pStream, E_RESULT_CODE& result)
 	{
 		CPackageFileWriter* pFileInstance = new (std::nothrow) CPackageFileWriter();
 
