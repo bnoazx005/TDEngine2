@@ -7,10 +7,10 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Config.h"
-#include "./../core/IBaseObject.h"
-#include "./../math/TVector3.h"
+#include "../utils/Types.h"
+#include "../utils/Config.h"
+#include "../core/IBaseObject.h"
+#include "../math/TVector3.h"
 
 
 namespace TDEngine2
@@ -89,4 +89,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRaycastContext)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(IRaycastContext)
 }

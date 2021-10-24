@@ -144,7 +144,7 @@ namespace TDEngine2
 		return mpSystemManager->ClearSystemsRegistry();
 	}
 
-	E_RESULT_CODE CWorld::RegisterRaycastContext(IRaycastContext* pRaycastContext)
+	E_RESULT_CODE CWorld::RegisterRaycastContext(TPtr<IRaycastContext> pRaycastContext)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -182,7 +182,7 @@ namespace TDEngine2
 		mpRaycastContext->Reset();
 	}
 
-	IRaycastContext* CWorld::GetRaycastContext() const
+	TPtr<IRaycastContext> CWorld::GetRaycastContext() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 

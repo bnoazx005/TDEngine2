@@ -458,7 +458,7 @@ namespace TDEngine2
 																dynamic_cast<CPhysics3DSystem*>(builtinSystems.back()), 
 																result);
 
-		if ((result != RC_OK) || (result = pWorldInstance->RegisterRaycastContext(pRaycastContextInstance)) != RC_OK)
+		if ((result != RC_OK) || (result = pWorldInstance->RegisterRaycastContext(TPtr<IRaycastContext>(pRaycastContextInstance))) != RC_OK)
 		{
 			return result;
 		}

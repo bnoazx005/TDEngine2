@@ -27,6 +27,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
+	TDE2_DECLARE_SCOPED_PTR(IRaycastContext)
 
 
 	/*!
@@ -253,7 +254,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RegisterRaycastContext(IRaycastContext* pRaycastContext) = 0;
+			TDE2_API virtual E_RESULT_CODE RegisterRaycastContext(TPtr<IRaycastContext> pRaycastContext) = 0;
 
 			/*!
 				\brief The method sets up time scale factor which impacts on update cycles of all entities and systems
@@ -279,7 +280,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IRaycastContext
 			*/
 
-			TDE2_API virtual IRaycastContext* GetRaycastContext() const = 0;
+			TDE2_API virtual TPtr<IRaycastContext> GetRaycastContext() const = 0;
 
 			TDE2_API virtual F32 GetTimeScaleFactor() const = 0;
 		protected:

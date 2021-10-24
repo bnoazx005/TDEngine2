@@ -167,7 +167,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterRaycastContext(IRaycastContext* pRaycastContext) override;
+			TDE2_API E_RESULT_CODE RegisterRaycastContext(TPtr<IRaycastContext> pRaycastContext) override;
 
 			/*!
 				\brief The method seeks out an entity and either return it or return nullptr
@@ -203,7 +203,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IRaycastContext
 			*/
 
-			TDE2_API IRaycastContext* GetRaycastContext() const override;
+			TDE2_API TPtr<IRaycastContext> GetRaycastContext() const override;
 
 			TDE2_API F32 GetTimeScaleFactor() const override;
 		protected:
@@ -221,19 +221,19 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			CEntityManager*     mpEntityManager;
+			CEntityManager*       mpEntityManager;
 
-			IComponentManager*  mpComponentManager;
+			IComponentManager*    mpComponentManager;
 
-			ISystemManager*     mpSystemManager;
+			ISystemManager*       mpSystemManager;
 
-			TPtr<IEventManager> mpEventManager;
+			TPtr<IEventManager>   mpEventManager;
 
-			IRaycastContext*    mpRaycastContext;
+			TPtr<IRaycastContext> mpRaycastContext;
 
-			F32                 mTimeScaleFactor;
+			F32                   mTimeScaleFactor;
 
-			mutable std::mutex  mMutex;
+			mutable std::mutex    mMutex;
 	};
 
 
