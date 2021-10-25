@@ -523,15 +523,21 @@ namespace TDEngine2
 
 		LOG_MESSAGE("[Engine Core] Clean up the subsystems registry...");
 
-		/// frees memory from all subsystems
-		for (auto&& pCurrSubsystem : mSubsystems)
-		{
-			if (!pCurrSubsystem)
-			{
-				continue;
-			}
+		auto pPluginManager = _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE::EST_PLUGIN_MANAGER); /// \note The plugin manager should be released at last moment
 
-			result = _unregisterSubsystem(pCurrSubsystem->GetType());
+		{
+			auto pGraphicsContext = _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT);
+
+			/// frees memory from all subsystems
+			for (auto&& pCurrSubsystem : mSubsystems)
+			{
+				if (!pCurrSubsystem)
+				{
+					continue;
+				}
+
+				result = _unregisterSubsystem(pCurrSubsystem->GetType());
+			}
 		}
 
 		return result;

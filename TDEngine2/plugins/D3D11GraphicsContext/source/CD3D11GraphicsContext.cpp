@@ -1,9 +1,9 @@
-#include "./../include/CD3D11GraphicsContext.h"
-#include "./../include/CD3D11Utils.h"
-#include "./../include/CD3D11GraphicsObjectManager.h"
-#include "./../include/CD3D11Mappings.h"
-#include "./../include/CD3D11RenderTarget.h"
-#include "./../include/CD3D11DepthBufferTarget.h"
+#include "../include/CD3D11GraphicsContext.h"
+#include "../include/CD3D11Utils.h"
+#include "../include/CD3D11GraphicsObjectManager.h"
+#include "../include/CD3D11Mappings.h"
+#include "../include/CD3D11RenderTarget.h"
+#include "../include/CD3D11DepthBufferTarget.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #define DEFER_IMPLEMENTATION
@@ -23,7 +23,7 @@
 namespace TDEngine2
 {
 	CD3D11GraphicsContext::CD3D11GraphicsContext() :
-		mIsInitialized(false), mpCurrDepthStencilView(nullptr)
+		CBaseObject(), mpCurrDepthStencilView(nullptr)
 	{
 	}
 	

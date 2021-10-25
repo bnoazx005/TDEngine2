@@ -375,7 +375,6 @@ namespace TDEngine2
 			ID3D11Device*            mp3dDevice;
 			ID3D11DeviceContext*     mp3dDeviceContext;
 			TGraphicsCtxInternalData mInternalDataObject;
-			bool                     mIsInitialized;
 
 			IDXGISwapChain*          mpSwapChain;
 

@@ -24,7 +24,7 @@
 namespace TDEngine2
 {
 	COGLGraphicsContext::COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback):
-		mIsInitialized(false), mGLContextFactoryCallback(glContextFactoryCallback)
+		CBaseObject(), mGLContextFactoryCallback(glContextFactoryCallback)
 	{
 	}
 

@@ -381,7 +381,6 @@ namespace TDEngine2
 			constexpr static U8             mMaxNumOfRenderTargets = 8;
 
 			TGraphicsCtxInternalData        mInternalDataObject;
-			bool                            mIsInitialized;
 			IOGLContextFactory*             mpGLContextFactory;
 			TCreateGLContextFactoryCallback mGLContextFactoryCallback;
 			TWindowSystemInternalData       mWindowInternalData;
