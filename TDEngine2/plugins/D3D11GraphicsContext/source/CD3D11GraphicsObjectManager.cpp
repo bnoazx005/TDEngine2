@@ -181,6 +181,14 @@ namespace TDEngine2
 		p3dDevice = mpGraphicsContext->GetInternalData().mD3D11.mp3dDevice;
 #endif
 
+		const U32 hash = ComputeStateDescHash(depthStencilDesc);
+		
+		auto it = mDepthStencilStatesTable.find(hash);
+		if (it != mDepthStencilStatesTable.cend())
+		{
+			return Wrench::TOkValue<TDepthStencilStateId>(it->second);
+		}
+
 		ID3D11DepthStencilState* pDepthStencilState = nullptr;
 
 		D3D11_DEPTH_STENCIL_DESC internalStateDesc;
@@ -204,7 +212,11 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return Wrench::TOkValue<TDepthStencilStateId>(TDepthStencilStateId(mpDepthStencilStatesArray.Add(pDepthStencilState)));
+		const TDepthStencilStateId handle = TDepthStencilStateId(mpDepthStencilStatesArray.Add(pDepthStencilState));
+
+		mDepthStencilStatesTable.emplace(ComputeStateDescHash(depthStencilDesc), handle);
+
+		return Wrench::TOkValue<TDepthStencilStateId>(handle);
 	}
 
 	TResult<TRasterizerStateId> CD3D11GraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
@@ -216,6 +228,14 @@ namespace TDEngine2
 #else
 		p3dDevice = mpGraphicsContext->GetInternalData().mD3D11.mp3dDevice;
 #endif
+
+		const U32 hashValue = ComputeStateDescHash(rasterizerStateDesc);
+
+		auto it = mRasterizerStatesTable.find(hashValue);
+		if (it != mRasterizerStatesTable.cend())
+		{
+			return Wrench::TOkValue<TRasterizerStateId>(it->second);
+		}
 
 		ID3D11RasterizerState* pRasterizerState = nullptr;
 
@@ -234,7 +254,10 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return Wrench::TOkValue<TRasterizerStateId>(TRasterizerStateId(mpRasterizerStatesArray.Add(pRasterizerState)));
+		const TRasterizerStateId handle = TRasterizerStateId(mpRasterizerStatesArray.Add(pRasterizerState));
+		mRasterizerStatesTable.emplace(ComputeStateDescHash(rasterizerStateDesc), handle);
+
+		return Wrench::TOkValue<TRasterizerStateId>(handle);
 	}
 
 	TResult<ID3D11SamplerState*> CD3D11GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const

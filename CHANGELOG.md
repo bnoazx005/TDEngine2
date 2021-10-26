@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.6] 2021-10-26
+
+### Changed
+
+- The storage of depth-stencil and rasterizer states was optimized in CD3D11GraphicsObjectsManager
+
 ## [0.5.5] 2021-10-17
 
 ### Fixed 

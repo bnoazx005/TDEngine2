@@ -45,6 +45,9 @@ namespace TDEngine2
 			typedef CResourceContainer<ID3D11BlendState*>        TBlendStatesArray;
 			typedef CResourceContainer<ID3D11DepthStencilState*> TDepthStencilStatesArray;
 			typedef CResourceContainer<ID3D11RasterizerState*>   TRasterizerStatesArray;
+			template <typename T> using                          TStateHashesTable = std::unordered_map<U32, T>;
+			typedef TStateHashesTable<TDepthStencilStateId>      TDepthStencilStatesTable;
+			typedef TStateHashesTable<TRasterizerStateId>        TRasterizerStatesTable;
 		public:
 			/*!
 				\brief The method is a factory for creation objects of IVertexBuffer's type
@@ -216,7 +219,9 @@ namespace TDEngine2
 			TTextureSamplersArray    mpTextureSamplersArray;
 			TBlendStatesArray        mpBlendStates;
 			TDepthStencilStatesArray mpDepthStencilStatesArray;
-			TRasterizerStatesArray   mpRasterizerStatesArray;
+			TRasterizerStatesArray   mpRasterizerStatesArray; 
+			TDepthStencilStatesTable mDepthStencilStatesTable;
+			TRasterizerStatesTable   mRasterizerStatesTable;
 	};
 }
 

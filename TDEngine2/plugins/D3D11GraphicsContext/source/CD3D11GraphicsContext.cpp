@@ -139,8 +139,8 @@ namespace TDEngine2
 
 		if (mp3dDeviceContext)
 		{
-			mp3dDeviceContext->ClearState();
 			mp3dDeviceContext->Flush();
+			mp3dDeviceContext->ClearState();
 		}
 
 		result = result | mpGraphicsObjectManager->Free();
@@ -347,6 +347,7 @@ namespace TDEngine2
 		}
 
 		ID3D11DepthStencilState* pDepthStencilState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
+
 		// \todo replace 0xff with second argument for the method
 		mp3dDeviceContext->OMSetDepthStencilState(pDepthStencilState, 0xFF);
 	}

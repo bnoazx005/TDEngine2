@@ -377,6 +377,18 @@ namespace TDEngine2
 	}
 
 
+	template <> TDE2_API U32 ComputeStateDescHash<TRasterizerStateDesc>(const TRasterizerStateDesc& object)
+	{
+		return static_cast<U32>(object.mCullMode) |
+			(static_cast<U32>(object.mIsDepthClippingEnabled) << 1) |
+			(static_cast<U32>(object.mIsFrontCCWEnabled) << 2) |
+			(static_cast<U32>(object.mIsScissorTestEnabled) << 3) |
+			(static_cast<U32>(object.mIsWireframeModeEnabled) << 4) |
+			(static_cast<U16>(object.mDepthBias * 1000.0f) << 18) |
+			(static_cast<U16>(object.mMaxDepthBias * 1000.0f) << 5);
+	}
+
+
 	static std::string GetStackTrace() {
 		std::ostringstream ss;
 

@@ -767,6 +767,7 @@ namespace TDEngine2
 	template <> TDE2_API U32 ComputeStateDescHash<TBlendStateDesc>(const TBlendStateDesc& object);
 	template <> TDE2_API U32 ComputeStateDescHash<TDepthStencilStateDesc>(const TDepthStencilStateDesc& object);
 	template <> TDE2_API U32 ComputeStateDescHash<TTextureSamplerDesc>(const TTextureSamplerDesc& object);
+	template <> TDE2_API U32 ComputeStateDescHash<TRasterizerStateDesc>(const TRasterizerStateDesc& object);
 
 
 	/*!
