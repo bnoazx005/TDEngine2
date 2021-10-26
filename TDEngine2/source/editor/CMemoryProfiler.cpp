@@ -81,7 +81,10 @@ namespace TDEngine2
 
 		entity.mTypeIdStr = typeId;
 		entity.mAddress = address;
+
+#if TDE2_MEM_PROFILER_BASE_OBJECT_SAVE_STACKTRACE
 		entity.mAllocationStacktrace = std::move(GetStackTrace());
+#endif
 
 		return RC_OK;
 	}
@@ -106,7 +109,11 @@ namespace TDEngine2
 
 		for (auto&& entity : mLivingBaseObjectsTable)
 		{
+#if TDE2_MEM_PROFILER_BASE_OBJECT_SAVE_STACKTRACE
 			LOG_MESSAGE(Wrench::StringUtils::Format("[Memory Profiler] Object <{0}> at {1},\nstacktrace:{2}\n", entity.second.mTypeIdStr, entity.first, entity.second.mAllocationStacktrace));
+#else
+			LOG_MESSAGE(Wrench::StringUtils::Format("[Memory Profiler] Object <{0}> at {1}\n", entity.second.mTypeIdStr, entity.first));
+#endif
 		}
 	}
 
