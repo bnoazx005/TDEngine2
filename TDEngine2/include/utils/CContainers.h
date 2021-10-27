@@ -9,8 +9,7 @@
 
 #include "Config.h"
 #include "Types.h"
-#include "./../core/memory/IAllocator.h"
-#include <cassert>
+#include "../core/memory/IAllocator.h"
 #include <cstring>
 
 
@@ -96,7 +95,7 @@ namespace TDEngine2
 	template <typename T>
 	const typename CStaticArray<T>::Type& CStaticArray<T>::operator[](SizeType index) const
 	{
-		assert(index >= 0 && index < mSize);
+		TDE2_ASSERT(index >= 0 && index < mSize);
 
 		return mpBuffer[index];
 	}
@@ -104,7 +103,7 @@ namespace TDEngine2
 	template <typename T>
 	typename CStaticArray<T>::Type& CStaticArray<T>::operator[](SizeType index)
 	{
-		assert(index >= 0 && index < mSize);
+		TDE2_ASSERT(index >= 0 && index < mSize);
 
 		return mpBuffer[index];
 	}
@@ -200,7 +199,7 @@ namespace TDEngine2
 	{
 		_destroyElements(mpBuffer, mSize); /// \note call destructors for all elements
 
-		assert(mpAllocator->Deallocate(mpBuffer) == RC_OK);
+		TDE2_ASSERT(mpAllocator->Deallocate(mpBuffer) == RC_OK);
 	}
 
 	template <typename T>
@@ -235,7 +234,7 @@ namespace TDEngine2
 	template <typename T>
 	const typename CDynamicArray<T>::Type& CDynamicArray<T>::operator[](SizeType index) const
 	{
-		assert(index >= 0 && index < mSize);
+		TDE2_ASSERT(index >= 0 && index < mSize);
 
 		return mpBuffer[index];
 	}
@@ -243,7 +242,7 @@ namespace TDEngine2
 	template <typename T>
 	typename CDynamicArray<T>::Type& CDynamicArray<T>::operator[](SizeType index)
 	{
-		assert(index >= 0 && index < mSize);
+		TDE2_ASSERT(index >= 0 && index < mSize);
 
 		return mpBuffer[index];
 	}
@@ -299,7 +298,7 @@ namespace TDEngine2
 	{
 		mCapacity = (mCapacity < 8) ? 8 : (2 * mCapacity + 8);
 		
-		assert(mpAllocator->Deallocate(mpBuffer) == RC_OK);
+		TDE2_ASSERT(mpAllocator->Deallocate(mpBuffer) == RC_OK);
 
 		Type* pNewBuffer = static_cast<Type*>(mpAllocator->Allocate(static_cast<U32>(mCapacity * sizeof(T)), __alignof(T)));
 

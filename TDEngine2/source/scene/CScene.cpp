@@ -20,7 +20,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CScene::Init(IWorld* pWorld, const std::string& id, const std::string& scenePath, bool isMainScene)
+	E_RESULT_CODE CScene::Init(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -136,7 +136,7 @@ namespace TDEngine2
 		{
 			if (CEntity* pEntity = mpWorld->FindEntity(currEntityId))
 			{
-				result = result | pEntity->PostLoad(mpWorld, entitiesIdsMap);
+				result = result | pEntity->PostLoad(mpWorld.Get(), entitiesIdsMap);
 
 				TDE2_ASSERT(RC_OK == result);
 			}
@@ -337,7 +337,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IScene* CreateScene(IWorld* pWorld, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result)
+	TDE2_API IScene* CreateScene(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IScene, CScene, result, pWorld, id, scenePath, isMainScene);
 	}

@@ -26,13 +26,13 @@ namespace TDEngine2
 		\return A pointer to CScene's implementation
 	*/
 
-	TDE2_API IScene* CreateScene(IWorld* pWorld, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result);
+	TDE2_API IScene* CreateScene(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result);
 
 
 	class CScene: public CBaseObject, public IScene
 	{
 		public:
-			friend TDE2_API IScene* CreateScene(IWorld*, const std::string&, const std::string&, bool, E_RESULT_CODE&);
+			friend TDE2_API IScene* CreateScene(TPtr<IWorld>, const std::string&, const std::string&, bool, E_RESULT_CODE&);
 		public:
 			typedef std::vector<TEntityId> TEntitiesRegistry;
 		public:
@@ -47,7 +47,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IWorld* pWorld, const std::string& id, const std::string& scenePath, bool isMainScene) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene) override;
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -155,7 +155,7 @@ namespace TDEngine2
 
 			mutable std::mutex mMutex;
 
-			IWorld* mpWorld;
+			TPtr<IWorld> mpWorld;
 
 			std::string mName;
 			std::string mPath;

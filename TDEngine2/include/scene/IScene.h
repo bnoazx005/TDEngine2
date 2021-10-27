@@ -27,6 +27,9 @@ namespace TDEngine2
 	constexpr TSceneId MainScene = TSceneId(0);
 
 
+	TDE2_DECLARE_SCOPED_PTR(IWorld)
+
+
 	/*!
 		interface IScene
 
@@ -47,7 +50,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IWorld* pWorld, const std::string& id, const std::string& scenePath, bool isMainScene) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene) = 0;
 
 			/*!
 				\brief The method creates a new entity which belongs to the scene

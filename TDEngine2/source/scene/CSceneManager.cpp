@@ -72,7 +72,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IScene* pScene = TDEngine2::CreateScene(mpWorld.Get(), sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
+		IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
 		if (RC_OK != result || !pScene)
 		{
@@ -137,7 +137,7 @@ namespace TDEngine2
 
 			E_RESULT_CODE result = RC_OK;
 
-			IScene* pScene = TDEngine2::CreateScene(mpWorld.Get(), sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
+			IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
 			if (RC_OK != result || !pScene)
 			{
@@ -242,7 +242,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		IScene* pScene = TDEngine2::CreateScene(mpWorld.Get(), name, Wrench::StringUtils::GetEmptyStr(), mpScenes.empty(), result);
+		IScene* pScene = TDEngine2::CreateScene(mpWorld, name, Wrench::StringUtils::GetEmptyStr(), mpScenes.empty(), result);
 
 		if (RC_OK != result)
 		{
