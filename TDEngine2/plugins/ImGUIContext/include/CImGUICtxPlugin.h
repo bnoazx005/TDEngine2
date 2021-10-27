@@ -54,8 +54,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUICtxPlugin)
 		protected:
-			IEngineCore*   mpEngineCoreInstance;
-
-			TPtr<IImGUIContext> mpImGUIContext;
+			IEngineCore* mpEngineCoreInstance;
 	};
 }

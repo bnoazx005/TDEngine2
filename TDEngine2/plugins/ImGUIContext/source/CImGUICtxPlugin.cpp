@@ -32,13 +32,13 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpImGUIContext = TPtr<IImGUIContext>(CreateImGUIContext({ pEngineCore->GetSubsystem<IWindowSystem>(),
+		TPtr<IImGUIContext> pImGUIContext = TPtr<IImGUIContext>(CreateImGUIContext({ pEngineCore->GetSubsystem<IWindowSystem>(),
 											pEngineCore->GetSubsystem<IRenderer>(),
 											pEngineCore->GetSubsystem<IGraphicsContext>()->GetGraphicsObjectManager(),
 											pEngineCore->GetSubsystem<IResourceManager>(),
 											pEngineCore->GetSubsystem<IInputContext>() }, result));
 
-		if ((result != RC_OK) || ((result = mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpImGUIContext))) != RC_OK))
+		if ((result != RC_OK) || ((result = mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(pImGUIContext))) != RC_OK))
 		{
 			return result;
 		}
