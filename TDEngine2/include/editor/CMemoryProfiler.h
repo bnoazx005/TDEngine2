@@ -11,6 +11,7 @@
 #include "../core/CBaseObject.h"
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -117,6 +118,8 @@ namespace TDEngine2
 			USIZE mTotalMemorySize;
 
 			TBaseObjectsRegistry mLivingBaseObjectsTable;
+
+			mutable std::mutex mMutex;
 	};
 
 

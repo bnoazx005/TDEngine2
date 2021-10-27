@@ -77,6 +77,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CMemoryProfiler::RegisterBaseObject(const std::string& typeId, U32Ptr address)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		auto& entity = mLivingBaseObjectsTable[address];
 
 		entity.mTypeIdStr = typeId;
@@ -91,6 +93,8 @@ namespace TDEngine2
 		
 	E_RESULT_CODE CMemoryProfiler::UnregisterBaseObject(U32Ptr address)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		auto it = mLivingBaseObjectsTable.find(address);
 
 		if (it == mLivingBaseObjectsTable.cend())

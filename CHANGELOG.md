@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.6] 2021-10-26
 
+### Fixed 
+
+- CD3D11GraphicsContext now doesn't assert in SafeReleaseCOM invocations.
+
 ### Changed
 
-- The storage of depth-stencil and rasterizer states was optimized in CD3D11GraphicsObjectsManager
+- The storage of depth-stencil and rasterizer states was optimized in CD3D11GraphicsObjectsManager.
+- CMemoryProfiler's instance is thread-safe now.
 
 ## [0.5.5] 2021-10-17
 
