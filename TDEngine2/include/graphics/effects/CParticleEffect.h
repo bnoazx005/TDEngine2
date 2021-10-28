@@ -259,7 +259,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _saveVelocityData(IArchiveWriter* pWriter, const TParticleVelocityParameter& colorData);
 			TDE2_API TResult<TParticleVelocityParameter> _loadVelocityData(IArchiveReader* pReader);
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			F32                               mDuration;
 

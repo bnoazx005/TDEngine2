@@ -907,7 +907,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<TParticleVelocityParameter>(velocityData);
 	}
 
-	const IResourceLoader* CParticleEffect::_getResourceLoader()
+	const TPtr<IResourceLoader> CParticleEffect::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IParticleEffect>();
 	}

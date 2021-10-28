@@ -133,7 +133,7 @@ namespace TDEngine2
 		return { 0.0f, 0.0f, 1.0f, 1.0f };
 	}
 
-	const IResourceLoader* CBaseCubemapTexture::_getResourceLoader()
+	const TPtr<IResourceLoader> CBaseCubemapTexture::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ICubemapTexture>();
 	}

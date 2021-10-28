@@ -271,7 +271,7 @@ namespace TDEngine2
 		return static_cast<U32>(mpTracks.size());
 	}
 
-	const IResourceLoader* CAnimationClip::_getResourceLoader()
+	const TPtr<IResourceLoader> CAnimationClip::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IAnimationClip>();
 	}

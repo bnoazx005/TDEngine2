@@ -33,6 +33,8 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IJobManager)
+	TDE2_DECLARE_SCOPED_PTR(IResourceFactory)
+	TDE2_DECLARE_SCOPED_PTR(IResourceLoader)
 
 
 	/*!
@@ -257,7 +259,7 @@ namespace TDEngine2
 			*/
 			
 			template <typename T>
-			TDE2_API const IResourceLoader* GetResourceLoader() const
+			TDE2_API const TPtr<IResourceLoader> GetResourceLoader() const
 			{
 				return _getResourceLoader(T::GetTypeId());
 			}
@@ -295,7 +297,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
 
-			TDE2_API virtual const IResourceLoader* _getResourceLoader(TypeId resourceTypeId) const = 0;
+			TDE2_API virtual const TPtr<IResourceLoader> _getResourceLoader(TypeId resourceTypeId) const = 0;
 
 			TDE2_API virtual std::vector<std::string> _getResourcesListByType(TypeId resourceTypeId) const = 0;
 	};

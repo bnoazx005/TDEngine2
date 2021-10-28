@@ -615,7 +615,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<TResourceId>(subTextureHandle);
 	}
 
-	const IResourceLoader* CTextureAtlas::_getResourceLoader()
+	const TPtr<IResourceLoader> CTextureAtlas::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ITextureAtlas>();
 	}

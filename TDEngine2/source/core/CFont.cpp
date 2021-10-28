@@ -335,7 +335,7 @@ namespace TDEngine2
 		return mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle)->GetTexture();
 	}
 
-	const IResourceLoader* CFont::_getResourceLoader()
+	const TPtr<IResourceLoader> CFont::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IFont>();
 	}

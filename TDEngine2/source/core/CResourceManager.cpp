@@ -37,12 +37,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::_onFreeInternal()
 	{
-		E_RESULT_CODE result = _unloadAllResources();
-
-		result = result | _unregisterAllFactories();
-		result = result | _unregisterAllLoaders();
-
-		return result;
+		return _unloadAllResources();
 	}
 
 	TResult<TResourceLoaderId> CResourceManager::RegisterLoader(IResourceLoader* pResourceLoader)
@@ -64,7 +59,7 @@ namespace TDEngine2
 			return Wrench::TOkValue<TResourceLoaderId>(existingDuplicateId);
 		}
 
-		existingDuplicateId = TResourceLoaderId(mRegisteredResourceLoaders.Add(pResourceLoader) + 1);
+		existingDuplicateId = TResourceLoaderId(mRegisteredResourceLoaders.Add(TPtr<IResourceLoader>(pResourceLoader)) + 1);
 		mResourceLoadersMap[resourceTypeId] = existingDuplicateId;
 
 		return Wrench::TOkValue<TResourceLoaderId>(existingDuplicateId);
@@ -84,14 +79,14 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 		
-		TResult<IResourceLoader*> result = mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderId) - 1];
+		auto result = mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderId) - 1];
 
 		if (result.HasError())
 		{
 			return result.GetError();
 		}
 
-		const IResourceLoader* pResourceLoader = result.Get();
+		auto pResourceLoader = result.Get();
 
 		mRegisteredResourceLoaders.RemoveAt(static_cast<U32>(resourceLoaderId));
 
@@ -119,7 +114,7 @@ namespace TDEngine2
 			return Wrench::TOkValue<TResourceFactoryId>(existingDuplicateId);
 		}
 		
-		existingDuplicateId = TResourceFactoryId(mRegisteredResourceFactories.Add(pResourceFactory) + 1);
+		existingDuplicateId = TResourceFactoryId(mRegisteredResourceFactories.Add(TPtr<IResourceFactory>(pResourceFactory)) + 1);
 		mResourceFactoriesMap[resourceTypeId] = existingDuplicateId;
 
 		return Wrench::TOkValue<TResourceFactoryId>(existingDuplicateId);
@@ -141,14 +136,14 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		TResult<IResourceFactory*> result = mRegisteredResourceFactories[index - 1];
+		auto result = mRegisteredResourceFactories[index - 1];
 
 		if (result.HasError())
 		{
 			return result.GetError();
 		}
 
-		const IResourceFactory* pResourceFactory = result.Get();
+		auto pResourceFactory = result.Get();
 
 		mRegisteredResourceFactories.RemoveAt(index - 1);
 
@@ -292,7 +287,7 @@ namespace TDEngine2
 		}
 
 		/// \note Create a new resource and load it	
-		const IResourceFactory* pResourceFactory = _getResourceFactory(factoryTypeId);
+		auto&& pResourceFactory = _getResourceFactory(factoryTypeId);
 		if (!pResourceFactory)
 		{
 			return TResourceId::Invalid;
@@ -329,7 +324,7 @@ namespace TDEngine2
 			return TResourceId::Invalid;
 		}
 
-		const IResourceFactory* pResourceFactory = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1].Get();
+		auto&& pResourceFactory = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1].Get();
 		
 		IResource* pResource = nullptr;
 				
@@ -391,30 +386,30 @@ namespace TDEngine2
 		return result;
 	}
 	
-	const IResourceLoader* CResourceManager::_getResourceLoader(TypeId resourceTypeId) const
+	const TPtr<IResourceLoader> CResourceManager::_getResourceLoader(TypeId resourceTypeId) const
 	{
 		auto resourceLoaderIdIter = mResourceLoadersMap.find(resourceTypeId);
 
 		if (resourceLoaderIdIter == mResourceLoadersMap.cend())
 		{
-			return nullptr;
+			return TPtr<IResourceLoader>(nullptr);
 		}
 
-		return mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderIdIter->second) - 1].GetOrDefault(nullptr);
+		return mRegisteredResourceLoaders[static_cast<U32>(resourceLoaderIdIter->second) - 1].GetOrDefault(TPtr<IResourceLoader>(nullptr));
 	}
 
-	const IResourceFactory* CResourceManager::_getResourceFactory(TypeId resourceTypeId) const
+	const TPtr<IResourceFactory> CResourceManager::_getResourceFactory(TypeId resourceTypeId) const
 	{
 		auto factoryIdIter = mResourceFactoriesMap.find(resourceTypeId);
 
-		auto getFactoryInternal = [&factoryIdIter, this]() -> const IResourceFactory*
+		auto getFactoryInternal = [&factoryIdIter, this]() -> TPtr<IResourceFactory>
 		{
 			if (auto getFactoryResult = mRegisteredResourceFactories[static_cast<U32>((*factoryIdIter).second) - 1])
 			{
 				return getFactoryResult.Get();
 			}
 
-			return nullptr;
+			return TPtr<IResourceFactory>(nullptr);
 		};
 
 		if (factoryIdIter == mResourceFactoriesMap.cend())
@@ -434,7 +429,7 @@ namespace TDEngine2
 				}
 			}
 
-			return nullptr;
+			return TPtr<IResourceFactory>(nullptr);
 		}
 
 		return getFactoryInternal();
@@ -480,37 +475,6 @@ namespace TDEngine2
 		mResources.RemoveAll();
 
 		return result;
-	}
-
-
-	template <typename T>
-	static E_RESULT_CODE UnregisterContainerEntities(CResourceContainer<T*>& container)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		for (USIZE i = 0; i < container.GetSize(); ++i)
-		{
-			if (auto containerElement = container[i])
-			{
-				if (auto pCurrEntity = containerElement.Get())
-				{
-					result = result | pCurrEntity->Free();
-				}
-			}
-		}
-
-		return result;
-	}
-
-
-	E_RESULT_CODE CResourceManager::_unregisterAllFactories()
-	{
-		return UnregisterContainerEntities(mRegisteredResourceFactories);
-	}
-
-	E_RESULT_CODE CResourceManager::_unregisterAllLoaders()
-	{
-		return UnregisterContainerEntities(mRegisteredResourceLoaders);
 	}
 
 

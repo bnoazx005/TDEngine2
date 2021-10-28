@@ -219,7 +219,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	const IResourceLoader* CBaseShader::_getResourceLoader()
+	const TPtr<IResourceLoader> CBaseShader::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IShader>();
 	}

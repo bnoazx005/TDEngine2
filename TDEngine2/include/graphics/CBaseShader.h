@@ -118,7 +118,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData);
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			IGraphicsContext*             mpGraphicsContext;
 

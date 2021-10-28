@@ -189,7 +189,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationClip)
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 
 			TDE2_API TAnimationTrackId _createTrackInternal(TypeId typeId, const std::string& name) override;
 

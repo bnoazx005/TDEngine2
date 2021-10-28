@@ -383,7 +383,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _initDefaultInstance(const TShaderCompilerOutput& metadata);
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			static constexpr U16     mVersionTag = 0x1;
 

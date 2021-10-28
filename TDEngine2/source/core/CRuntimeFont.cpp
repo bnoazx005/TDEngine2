@@ -191,7 +191,7 @@ namespace TDEngine2
 		return pFontCacheTexture->Bake();
 	}
 
-	const IResourceLoader* CRuntimeFont::_getResourceLoader()
+	const TPtr<IResourceLoader> CRuntimeFont::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IRuntimeFont>();
 	}

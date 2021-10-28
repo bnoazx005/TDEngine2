@@ -185,7 +185,7 @@ namespace TDEngine2
 		return mColorGradingParameters;
 	}
 
-	const IResourceLoader* CBasePostProcessingProfile::_getResourceLoader()
+	const TPtr<IResourceLoader> CBasePostProcessingProfile::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IPostProcessingProfile>();
 	}

@@ -86,7 +86,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFMODAudioClip)
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			IAudioContext* mpAudioContext;
 

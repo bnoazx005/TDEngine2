@@ -68,7 +68,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _initPositionOnlyVertexBuffer() override;
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 
 			TDE2_API bool _hasJointWeightsInternal() const;
 			TDE2_API bool _hasJointIndicesInternal() const;

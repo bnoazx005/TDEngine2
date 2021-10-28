@@ -27,7 +27,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<ITexture2D>();
+		auto&& pResourceLoader = mpResourceManager->GetResourceLoader<ITexture2D>();
 
 		if (!pResourceLoader)
 		{

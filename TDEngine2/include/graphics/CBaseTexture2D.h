@@ -131,7 +131,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																		 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) = 0;
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			IGraphicsContext*   mpGraphicsContext;
 

@@ -9,7 +9,7 @@
 
 #include "IResource.h"
 #include "CBaseObject.h"
-#include "./../utils/Utils.h"
+#include "../utils/Utils.h"
 #include "IResourceManager.h"
 #include "IResourceLoader.h"
 #include <mutex>
@@ -101,7 +101,7 @@ namespace TDEngine2
 
 			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name);
 
-			TDE2_API virtual const IResourceLoader* _getResourceLoader() = 0;
+			TDE2_API virtual const TPtr<IResourceLoader> _getResourceLoader() = 0;
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:

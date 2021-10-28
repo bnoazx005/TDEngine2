@@ -21,7 +21,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<IDepthBufferTarget>();
+		auto&& pResourceLoader = mpResourceManager->GetResourceLoader<IDepthBufferTarget>();
 
 		if (!pResourceLoader)
 		{

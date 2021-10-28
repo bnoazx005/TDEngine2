@@ -305,7 +305,7 @@ namespace TDEngine2
 		}
 	}
 
-	const IResourceLoader* CSkeleton::_getResourceLoader()
+	const TPtr<IResourceLoader> CSkeleton::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ISkeleton>();
 	}

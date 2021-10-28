@@ -20,7 +20,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		const IResourceLoader* pResourceLoader = mpResourceManager->GetResourceLoader<IRenderTarget>();
+		auto&& pResourceLoader = mpResourceManager->GetResourceLoader<IRenderTarget>();
 
 		if (!pResourceLoader)
 		{

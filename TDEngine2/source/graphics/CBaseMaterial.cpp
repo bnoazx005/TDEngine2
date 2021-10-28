@@ -785,7 +785,7 @@ namespace TDEngine2
 		return result;
 	}
 
-	const IResourceLoader* CBaseMaterial::_getResourceLoader()
+	const TPtr<IResourceLoader> CBaseMaterial::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IMaterial>();
 	}

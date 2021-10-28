@@ -273,7 +273,7 @@ namespace TDEngine2
 
 			TDE2_API TResult<TResourceId> _createSubTexture(const std::string& id, const TRectI32& rect);
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			IGraphicsContext*      mpGraphicsContext;
 

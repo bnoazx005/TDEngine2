@@ -75,7 +75,7 @@ namespace TDEngine2
 		return mDictionary;
 	}
 
-	const IResourceLoader* CLocalizationPackage::_getResourceLoader()
+	const TPtr<IResourceLoader> CLocalizationPackage::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ILocalizationPackage>();
 	}

@@ -155,7 +155,7 @@ namespace TDEngine2
 		return result.IsOk() ? result.Get() : TTextureSamplerId::Invalid;
 	}
 
-	const IResourceLoader* CAtlasSubTexture::_getResourceLoader()
+	const TPtr<IResourceLoader> CAtlasSubTexture::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IAtlasSubTexture>();
 	}

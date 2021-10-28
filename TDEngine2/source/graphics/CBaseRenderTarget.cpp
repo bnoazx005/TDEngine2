@@ -92,7 +92,7 @@ namespace TDEngine2
 		return { 0.0f, 0.0f, 1.0f, 1.0f };
 	}
 
-	const IResourceLoader* CBaseRenderTarget::_getResourceLoader()
+	const TPtr<IResourceLoader> CBaseRenderTarget::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IRenderTarget>();
 	}

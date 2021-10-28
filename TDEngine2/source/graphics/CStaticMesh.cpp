@@ -77,7 +77,7 @@ namespace TDEngine2
 		return pReader->LoadStaticMesh(this);
 	}
 
-	const IResourceLoader* CStaticMesh::_getResourceLoader()
+	const TPtr<IResourceLoader> CStaticMesh::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IStaticMesh>();
 	}

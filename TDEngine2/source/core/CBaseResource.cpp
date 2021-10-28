@@ -15,7 +15,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		const IResourceLoader* pResourceLoader = _getResourceLoader();
+		auto pResourceLoader = _getResourceLoader();
 
 		if (!pResourceLoader)
 		{

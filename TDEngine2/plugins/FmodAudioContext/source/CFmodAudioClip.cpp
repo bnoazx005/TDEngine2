@@ -61,7 +61,7 @@ namespace TDEngine2
 		return mpSoundHandle;
 	}
 
-	const IResourceLoader* CFMODAudioClip::_getResourceLoader()
+	const TPtr<IResourceLoader> CFMODAudioClip::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IAudioSource>();
 	}

@@ -109,7 +109,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _updateFontTextureCache(ITextureAtlas* pFontCacheTexture);
 
-			TDE2_API const IResourceLoader* _getResourceLoader() override;
+			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			std::unordered_set<U8C> mCachedGlyphs;
 

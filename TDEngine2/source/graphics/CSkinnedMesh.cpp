@@ -158,7 +158,7 @@ namespace TDEngine2
 	}
 
 
-	const IResourceLoader* CSkinnedMesh::_getResourceLoader()
+	const TPtr<IResourceLoader> CSkinnedMesh::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ISkinnedMesh>();
 	}
