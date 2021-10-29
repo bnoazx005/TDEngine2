@@ -193,7 +193,7 @@ namespace TDEngine2
 				pCurrBatchInstancesBuffer->Unmap();
 			}
 
-			IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(currBatchEntry.mMaterialHandle);
+			TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(currBatchEntry.mMaterialHandle);
 			ITexture* pMainTexture = pMaterial->GetTextureResource(Wrench::StringUtils::GetEmptyStr());
 
 			pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before

@@ -17,7 +17,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	if (IMaterial* pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material")))
+	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material"));
+	if (pFontMaterial)
 	{
 		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<ITextureAtlas>("atlas.info")))
 		{

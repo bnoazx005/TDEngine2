@@ -32,6 +32,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+	TDE2_DECLARE_SCOPED_PTR(IMaterial)
 
 
 	/*!
@@ -68,7 +69,7 @@ namespace TDEngine2
 			} TMeshBuffersEntry, *TMeshBuffersEntryPtr;
 
 			typedef std::vector<std::tuple<CTransform*, CStaticMeshContainer*>> TEntitiesArray;
-			typedef std::vector<IMaterial*>                                     TMaterialsArray;
+			typedef std::vector<TPtr<IMaterial>>                                TMaterialsArray;
 			typedef std::vector<TMeshBuffersEntry>                              TMeshBuffersMap;
 		public:
 			TDE2_SYSTEM(CStaticMeshRendererSystem);
@@ -108,7 +109,7 @@ namespace TDEngine2
 
 			TDE2_API void _collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials);
 
-			TDE2_API void _populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial,
+			TDE2_API void _populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, TPtr<IMaterial> pCurrMaterial,
 												  const ICamera* pCamera);
 
 			TDE2_API U32 _computeMeshCommandHash(TResourceId materialId, F32 distanceToCamera);

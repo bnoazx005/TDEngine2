@@ -93,10 +93,10 @@ namespace TDEngine2
 		TResourceId meshResourceHandle = pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
 		TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
 
-		if (IStaticMesh* pStaticMeshResource = pResourceManager->GetResource<IStaticMesh>(meshResourceHandle))
+		if (auto pStaticMeshResource = pResourceManager->GetResource<IStaticMesh>(meshResourceHandle))
 		{
 			/// \note Skip rest steps if the resource isn't loaded yet
-			if (IResource* pResource = pResourceManager->GetResource<IResource>(meshResourceHandle))
+			if (auto pResource = pResourceManager->GetResource(meshResourceHandle))
 			{
 				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState())
 				{
@@ -138,10 +138,10 @@ namespace TDEngine2
 		TResourceId meshResourceHandle = pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName());
 		TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
 
-		if (ISkinnedMesh* pSkinnedMeshResource = pResourceManager->GetResource<ISkinnedMesh>(meshResourceHandle))
+		if (auto pSkinnedMeshResource = pResourceManager->GetResource<ISkinnedMesh>(meshResourceHandle))
 		{
 			/// \note Skip rest steps if the resource isn't loaded yet
-			if (IResource* pResource = pResourceManager->GetResource<IResource>(meshResourceHandle))
+			if (auto pResource = pResourceManager->GetResource(meshResourceHandle))
 			{
 				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState())
 				{
@@ -152,7 +152,7 @@ namespace TDEngine2
 			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
 			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
 
-			if (IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(params.mMaterialId))
+			if (auto pMaterial = pResourceManager->GetResource<IMaterial>(params.mMaterialId))
 			{
 				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(params.mMaterialId)->GetState())
 				{
@@ -241,7 +241,7 @@ namespace TDEngine2
 				{
 					if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
 					{
-						pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture);
+						pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture.Get());
 					}
 				}
 			}

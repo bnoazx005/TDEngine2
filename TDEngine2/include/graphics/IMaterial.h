@@ -353,6 +353,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_DECLARE_SCOPED_PTR(IMaterial)
+
+
 	class IMaterialLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*> {};
 	class IMaterialFactory : public IGenericResourceFactory<IResourceManager*, IGraphicsContext*> {};
 

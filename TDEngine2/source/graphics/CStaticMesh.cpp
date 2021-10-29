@@ -89,7 +89,7 @@ namespace TDEngine2
 
 		auto meshGenerationRoutine = std::function<void()>([pCubeMeshResource, pJobManager]
 		{
-			auto addVertex = [](IStaticMesh* pMesh, const TVector4& pos, const TVector2& texcoords, const TVector4& normal, const TVector4& tangent)
+			auto addVertex = [](auto&& pMesh, const TVector4& pos, const TVector2& texcoords, const TVector4& normal, const TVector4& tangent)
 			{
 				pMesh->AddPosition(pos);
 				pMesh->AddTexCoord0(texcoords);
@@ -161,18 +161,18 @@ namespace TDEngine2
 			});
 		});
 
-		if (auto pResource = dynamic_cast<IResource*>(pCubeMeshResource))
+		if (auto pResource = dynamic_cast<IResource*>(pCubeMeshResource.Get()))
 		{
 			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 			{
 				meshGenerationRoutine();
-				return pCubeMeshResource;
+				return pCubeMeshResource.Get();
 			}
 		}
 
 		pJobManager->SubmitJob(meshGenerationRoutine);
 
-		return pCubeMeshResource;
+		return pCubeMeshResource.Get();
 	}
 
 	IStaticMesh* CStaticMesh::CreatePlane(IResourceManager* pResourceManager, IJobManager* pJobManager)
@@ -223,18 +223,18 @@ namespace TDEngine2
 			});
 		});
 
-		if (auto pResource = dynamic_cast<IResource*>(pPlaneMeshResource))
+		if (auto pResource = dynamic_cast<IResource*>(pPlaneMeshResource.Get()))
 		{
 			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 			{
 				meshGenerationRoutine();
-				return pPlaneMeshResource;
+				return pPlaneMeshResource.Get();
 			}
 		}
 
 		pJobManager->SubmitJob(meshGenerationRoutine);
 
-		return pPlaneMeshResource;
+		return pPlaneMeshResource.Get();
 	}
 
 	IStaticMesh* CStaticMesh::CreateSphere(IResourceManager* pResourceManager, IJobManager* pJobManager)
@@ -310,18 +310,18 @@ namespace TDEngine2
 			});
 		});
 
-		if (auto pResource = dynamic_cast<IResource*>(pSphereMeshResource))
+		if (auto pResource = dynamic_cast<IResource*>(pSphereMeshResource.Get()))
 		{
 			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 			{
 				meshGenerationRoutine();
-				return pSphereMeshResource;
+				return pSphereMeshResource.Get();
 			}
 		}
 
 		pJobManager->SubmitJob(meshGenerationRoutine);
 
-		return pSphereMeshResource;
+		return pSphereMeshResource.Get();
 	}
 
 

@@ -99,9 +99,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		IRenderTarget* pCurrRenderTarget = nullptr;
-		IRenderTarget* pTempRenderTarget = nullptr;
-		IRenderTarget* pBloomRenderTarget = nullptr;
+		TPtr<IRenderTarget> pCurrRenderTarget;
+		TPtr<IRenderTarget> pTempRenderTarget;
+		TPtr<IRenderTarget> pBloomRenderTarget;
 
 		const U32 width = mpWindowSystem->GetWidth();
 		const U32 height = mpWindowSystem->GetHeight();
@@ -124,12 +124,12 @@ namespace TDEngine2
 
 			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
 			{
-				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
+				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget.Get());
 			
 				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<ITexture2D>(colorGradingParameters.mLookUpTextureId)))
 				{
 					//pColorLUT->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
-					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT);
+					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT.Get());
 				}
 			}
 
@@ -153,12 +153,12 @@ namespace TDEngine2
 
 			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
 			{
-				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget);
+				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget.Get());
 
 				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<ITexture2D>(colorGradingParameters.mLookUpTextureId)))
 				{
 					//pColorLUT->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
-					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT);
+					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT.Get());
 				}
 			}
 
@@ -172,7 +172,7 @@ namespace TDEngine2
 		}
 
 		{
-			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);
+			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
 			mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget, TColor32F{});
 			onRenderFrameCallback();
 			mpGraphicsContext->BindRenderTarget(0, nullptr);
@@ -196,19 +196,19 @@ namespace TDEngine2
 				pBlurMaterial->SetVariableForInstance<U32>(DefaultMaterialInstanceId, "samplesCount", bloomParameters.mSamplesCount);
 			}
 
-			_renderTargetToTarget(pCurrRenderTarget, nullptr, pBloomRenderTarget, mBloomFilterMaterialHandle); // Bloom pass
+			_renderTargetToTarget(pCurrRenderTarget.Get(), nullptr, pBloomRenderTarget.Get(), mBloomFilterMaterialHandle); // Bloom pass
 
 			// \todo Implement this stages
-			_renderTargetToTarget(pBloomRenderTarget, nullptr, pTempRenderTarget, mGaussianBlurMaterialHandle); // Horizontal Blur pass
+			_renderTargetToTarget(pBloomRenderTarget.Get(), nullptr, pTempRenderTarget.Get(), mGaussianBlurMaterialHandle); // Horizontal Blur pass
 
 			if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
 			{
 				pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", blurParams + vertBlurRotation);
 			}
 
-			_renderTargetToTarget(pTempRenderTarget, nullptr, pBloomRenderTarget, mGaussianBlurMaterialHandle); // Vertical Blur pass
-			_renderTargetToTarget(pCurrRenderTarget, pBloomRenderTarget, pTempRenderTarget, mBloomFinalPassMaterialHandle); // Compose
-			_renderTargetToTarget(pTempRenderTarget, nullptr, pCurrRenderTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
+			_renderTargetToTarget(pTempRenderTarget.Get(), nullptr, pBloomRenderTarget.Get(), mGaussianBlurMaterialHandle); // Vertical Blur pass
+			_renderTargetToTarget(pCurrRenderTarget.Get(), pBloomRenderTarget.Get(), pTempRenderTarget.Get(), mBloomFinalPassMaterialHandle); // Compose
+			_renderTargetToTarget(pTempRenderTarget.Get(), nullptr, pCurrRenderTarget.Get(), mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
 
 			mpOverlayRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 		}

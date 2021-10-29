@@ -181,7 +181,7 @@ namespace TDEngine2
 				return;
 			}
 
-			IAnimationClip* pAnimationClip = mpResourceManager->GetResource<IAnimationClip>(pAnimationContainer->GetAnimationClipResourceId());
+			TPtr<IAnimationClip> pAnimationClip = mpResourceManager->GetResource<IAnimationClip>(pAnimationContainer->GetAnimationClipResourceId());
 
 			const bool isLooping = pAnimationClip->GetWrapMode() == E_ANIMATION_WRAP_MODE_TYPE::LOOP;
 

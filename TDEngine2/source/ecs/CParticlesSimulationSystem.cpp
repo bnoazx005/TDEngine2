@@ -21,11 +21,11 @@
 
 namespace TDEngine2
 {
-	static std::vector<IMaterial*> GetUsedMaterials(const std::vector<TEntityId>& entities, IWorld* pWorld, IResourceManager* pResourceManager)
+	static std::vector<TPtr<IMaterial>> GetUsedMaterials(const std::vector<TEntityId>& entities, IWorld* pWorld, IResourceManager* pResourceManager)
 	{
-		std::vector<IMaterial*> usedMaterials;
+		std::vector<TPtr<IMaterial>> usedMaterials;
 
-		IMaterial* pCurrMaterial = nullptr;
+		TPtr<IMaterial> pCurrMaterial;
 
 		for (TEntityId currParticleEntity : entities)
 		{
@@ -40,7 +40,7 @@ namespace TDEngine2
 						pParticlesEmitter->SetParticleEffectHandle(particleEffectResourceHandle);
 					}
 
-					IParticleEffect* pParticleEffect = pResourceManager->GetResource<IParticleEffect>(particleEffectResourceHandle);
+					TPtr<IParticleEffect> pParticleEffect = pResourceManager->GetResource<IParticleEffect>(particleEffectResourceHandle);
 
 					const TResourceId materialHandle = pResourceManager->Load<IMaterial>(pParticleEffect->GetMaterialName());
 					if (TResourceId::Invalid == materialHandle)
@@ -142,7 +142,7 @@ namespace TDEngine2
 
 			if (CParticleEmitter* pEmitterComponent = pCurrEntity->GetComponent<CParticleEmitter>())
 			{
-				IParticleEffect* pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
+				auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
 				
 				const size_t particlesCount = static_cast<size_t>(pCurrEffectResource->GetMaxParticlesCount());
 
@@ -167,9 +167,9 @@ namespace TDEngine2
 		_simulateParticles(pWorld, dt);
 
 		// \note Render particles 
-		for (IMaterial* pCurrMaterial : mUsedMaterials)
+		for (auto&& pCurrMaterial : mUsedMaterials)
 		{
-			_populateCommandsBuffer(mParticleEmitters, pWorld, mpRenderQueue, pCurrMaterial, pCameraComponent);
+			_populateCommandsBuffer(mParticleEmitters, pWorld, mpRenderQueue, pCurrMaterial.Get(), pCameraComponent);
 		}
 	}
 
@@ -241,7 +241,7 @@ namespace TDEngine2
 			{
 				if (CParticleEmitter* pParticlesEmitter = pCurrEntity->GetComponent<CParticleEmitter>())
 				{
-					IParticleEffect* pParticleEffect = mpResourceManager->GetResource<IParticleEffect>(pParticlesEmitter->GetParticleEffectHandle());
+					auto pParticleEffect = mpResourceManager->GetResource<IParticleEffect>(pParticlesEmitter->GetParticleEffectHandle());
 					if (!pParticleEffect)
 					{
 						continue;
@@ -319,7 +319,7 @@ namespace TDEngine2
 
 			if (CParticleEmitter* pEmitterComponent = pCurrEntity->GetComponent<CParticleEmitter>())
 			{
-				IParticleEffect* pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
+				auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
 
 				auto& particles = mParticles[i];
 

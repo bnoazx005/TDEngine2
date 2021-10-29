@@ -265,7 +265,7 @@ namespace TDEngine2
 				MAKE_COMMAND(
 					mpEditorHistory, 
 					STRINGIFY_COMMAND(mpCurrParticleEffect->SetSharedEmitter), 
-					CreateEmitterByTypeId(mpCurrParticleEffect, std::get<TypeId>(emittersInfo[newTypeIndex])), 
+					CreateEmitterByTypeId(mpCurrParticleEffect.Get(), std::get<TypeId>(emittersInfo[newTypeIndex])), 
 					pSharedEmitter);
 			}
 

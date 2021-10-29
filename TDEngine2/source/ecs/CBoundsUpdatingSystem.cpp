@@ -113,7 +113,7 @@ namespace TDEngine2
 				return;
 			}
 
-			if (IStaticMesh* pStaticMesh = pResourceManager->GetResource<IStaticMesh>(meshId))
+			if (auto pStaticMesh = pResourceManager->GetResource<IStaticMesh>(meshId))
 			{
 				auto&& vertices = pStaticMesh->GetPositionsArray();
 
@@ -152,7 +152,7 @@ namespace TDEngine2
 				return;
 			}
 
-			if (ISkinnedMesh* pSkinnedMesh = pResourceManager->GetResource<ISkinnedMesh>(meshId))
+			if (auto pSkinnedMesh = pResourceManager->GetResource<ISkinnedMesh>(meshId))
 			{
 				if (CTransform* pTransform = pEntity->GetComponent<CTransform>())
 				{

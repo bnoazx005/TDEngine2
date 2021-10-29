@@ -1068,7 +1068,7 @@ namespace TDEngine2
 
 		U32 batchId = 0x0;
 
-		IMaterial* pMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mDefaultEditorMaterialHandle));
+		TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultEditorMaterialHandle);
 
 		for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
 		{
@@ -1086,9 +1086,9 @@ namespace TDEngine2
 					mUsingMaterials.emplace(static_cast<U32>(textureHandle), pMaterial->CreateInstance()->GetInstanceId());
 				}
 				
-				ITexture* pTexture = mpResourceManager->GetResource<ITexture>(textureHandle);
+				TPtr<ITexture> pTexture = mpResourceManager->GetResource<ITexture>(textureHandle);
 
-				pMaterial->SetTextureResource("Texture", pTexture, mUsingMaterials[textureHandleHash]);
+				pMaterial->SetTextureResource("Texture", pTexture.Get(), mUsingMaterials[textureHandleHash]);
 
 				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId));
 

@@ -35,6 +35,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IJobManager)
 	TDE2_DECLARE_SCOPED_PTR(IResourceFactory)
 	TDE2_DECLARE_SCOPED_PTR(IResourceLoader)
+	TDE2_DECLARE_SCOPED_PTR(IResource)
 
 
 	/*!
@@ -236,7 +237,7 @@ namespace TDEngine2
 				\return The method returns a raw pointer to a resource based on specified handler
 			*/
 
-			TDE2_API virtual IResource* GetResource(const TResourceId& handle) const = 0;
+			TDE2_API virtual TPtr<IResource> GetResource(const TResourceId& handle) const = 0;
 		
 			template <typename T>
 #if 0 /// \todo Fix this concept 
@@ -247,9 +248,9 @@ namespace TDEngine2
 			typename std::enable_if<std::is_base_of<IResource, T>::value, T*>::type
 #endif
 #endif 
-			T* GetResource(const TResourceId& handle) const
+			TPtr<T> GetResource(const TResourceId& handle) const
 			{
-				return dynamic_cast<T*>(GetResource(handle));
+				return DynamicPtrCast<T>(GetResource(handle));
 			}
 
 			/*!

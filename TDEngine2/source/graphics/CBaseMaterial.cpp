@@ -311,7 +311,7 @@ namespace TDEngine2
 					std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
 
 					TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
-					if (SetTextureResource(slotId, mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load(textureId, textureTypeId)), instanceId) != RC_OK)
+					if (SetTextureResource(slotId, mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load(textureId, textureTypeId)).Get(), instanceId) != RC_OK)
 					{
 						LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
 						result = result | RC_FAIL;
@@ -469,7 +469,7 @@ namespace TDEngine2
 
 	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
 	{
-		IShader* pShaderInstance = dynamic_cast<IShader*>(mpResourceManager->GetResource(mShaderHandle));
+		auto pShaderInstance = mpResourceManager->GetResource<IShader>(mShaderHandle);
 
 		if (!pShaderInstance || (instanceId == TMaterialInstanceId::Invalid))
 		{
@@ -791,7 +791,7 @@ namespace TDEngine2
 	}
 
 
-	bool CBaseMaterial::AlphaBasedMaterialComparator(const IMaterial* pLeft, const IMaterial* pRight)
+	bool CBaseMaterial::AlphaBasedMaterialComparator(TPtr<IMaterial> pLeft, const TPtr<IMaterial> pRight)
 	{
 		return (!pLeft || pRight->IsTransparent()) || (pRight && !pLeft->IsTransparent());
 	}

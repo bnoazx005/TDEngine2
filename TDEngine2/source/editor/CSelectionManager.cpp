@@ -64,10 +64,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
 	{
-		IRenderTarget* pCurrRenderTarget   = dynamic_cast<IRenderTarget*>(mpResourceManager->GetResource(mSelectionGeometryBufferHandle));
-		ITexture2D* pReadableRTCopyTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResource(mReadableSelectionBufferHandle));
+		TPtr<IRenderTarget> pCurrRenderTarget   = mpResourceManager->GetResource<IRenderTarget>(mSelectionGeometryBufferHandle);
 
-		mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget);
+		mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
 
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
 		mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget, TColor32F(0.0f, 0.0f, 0.0f, 0.0f));
@@ -77,6 +76,7 @@ namespace TDEngine2
 			onDrawVisibleObjectsCallback();
 		}
 
+		ITexture2D* pReadableRTCopyTexture = mpResourceManager->GetResource<ITexture2D>(mReadableSelectionBufferHandle).Get();
 		pCurrRenderTarget->Blit(pReadableRTCopyTexture);
 
 		mpGraphicsContext->BindRenderTarget(0, nullptr);
@@ -89,7 +89,8 @@ namespace TDEngine2
 		I32 x = std::lround(position.x);
 		I32 y = std::lround(position.y) + mWindowHeaderHeight;
 
-		if (auto pSelectionTexture = dynamic_cast<ITexture2D*>(mpResourceManager->GetResource(mReadableSelectionBufferHandle)))
+		auto pSelectionTexture = mpResourceManager->GetResource<ITexture2D>(mReadableSelectionBufferHandle);
+		if (pSelectionTexture)
 		{
 			if (!mpGraphicsContext->GetContextInfo().mIsTextureYCoordInverted)
 			{
@@ -206,7 +207,8 @@ namespace TDEngine2
 
 		if (TResourceId::Invalid != mSelectionGeometryBufferHandle)
 		{
-			if (CBaseRenderTarget* pRenderTarget = mpResourceManager->GetResource<CBaseRenderTarget>(mSelectionGeometryBufferHandle))
+			auto pRenderTarget = mpResourceManager->GetResource<CBaseRenderTarget>(mSelectionGeometryBufferHandle);
+			if (pRenderTarget)
 			{
 				// \note Should recreate the render target
 				if (pRenderTarget->GetWidth() != width || pRenderTarget->GetHeight() != height)

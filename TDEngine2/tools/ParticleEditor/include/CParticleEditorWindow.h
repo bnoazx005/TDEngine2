@@ -101,7 +101,7 @@ namespace TDEngine2
 
 			CScopedPtr<IEditorActionsHistory> mpEditorHistory;
 
-			IParticleEffect* mpCurrParticleEffect;
+			TPtr<IParticleEffect> mpCurrParticleEffect;
 
 			static std::vector<std::string> mEmittersTypesIds;
 			static std::vector<std::string> mColorTypesIds;

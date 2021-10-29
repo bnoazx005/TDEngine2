@@ -282,9 +282,9 @@ namespace TDEngine2
 
 		static const std::string skyboxMaterialName = "DefaultSkybox.material";
 
-		if (IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Create<IMaterial>(skyboxMaterialName, skyboxMatParams)))
+		if (auto pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Create<IMaterial>(skyboxMaterialName, skyboxMatParams)))
 		{
-			pMaterial->SetTextureResource("SkyboxTexture", pResourceManager->GetResource<ICubemapTexture>(pResourceManager->Load<ICubemapTexture>(skyboxTexture)));
+			pMaterial->SetTextureResource("SkyboxTexture", pResourceManager->GetResource<ICubemapTexture>(pResourceManager->Load<ICubemapTexture>(skyboxTexture)).Get());
 			pMaterial->SetGeometrySubGroupTag(E_GEOMETRY_SUBGROUP_TAGS::SKYBOX);
 		}		
 		

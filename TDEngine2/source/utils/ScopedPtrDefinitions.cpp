@@ -10,6 +10,7 @@
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/core/IResourceFactory.h"
 #include "../../include/core/IResourceLoader.h"
+#include "../../include/core/IResource.h"
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/ecs/IComponentManager.h"
@@ -39,4 +40,6 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IRaycastContext)
 	TDE2_DEFINE_SCOPED_PTR(IResourceFactory)
 	TDE2_DEFINE_SCOPED_PTR(IResourceLoader)
+	TDE2_DEFINE_SCOPED_PTR(IMaterial)
+	TDE2_DEFINE_SCOPED_PTR(IResource)
 }

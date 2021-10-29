@@ -51,7 +51,7 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Preview Window", isEnabled, params))
 		{
-			if (ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle))
+			if (auto pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle))
 			{
 				if (IResource* pTextureResource = dynamic_cast<IResource*>(pAtlasTexture->GetTexture()))
 				{

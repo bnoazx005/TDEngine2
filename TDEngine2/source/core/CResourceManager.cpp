@@ -37,7 +37,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::_onFreeInternal()
 	{
-		return _unloadAllResources();
+		return RC_OK;
 	}
 
 	TResult<TResourceLoaderId> CResourceManager::RegisterLoader(IResourceLoader* pResourceLoader)
@@ -88,7 +88,7 @@ namespace TDEngine2
 
 		auto pResourceLoader = result.Get();
 
-		mRegisteredResourceLoaders.RemoveAt(static_cast<U32>(resourceLoaderId));
+		mRegisteredResourceLoaders.ReplaceAt(static_cast<U32>(resourceLoaderId), TPtr<IResourceLoader>(nullptr));
 
 		mResourceLoadersMap.erase(pResourceLoader->GetResourceTypeId()); // an id of a resource's type, which is processed with this loader
 
@@ -145,7 +145,7 @@ namespace TDEngine2
 
 		auto pResourceFactory = result.Get();
 
-		mRegisteredResourceFactories.RemoveAt(index - 1);
+		mRegisteredResourceFactories.ReplaceAt(index - 1, TPtr<IResourceFactory>(nullptr));
 
 		mResourceFactoriesMap.erase(pResourceFactory->GetResourceTypeId()); // an id of a resource's type, which is processed with this factory
 
@@ -217,7 +217,7 @@ namespace TDEngine2
 		return EST_RESOURCE_MANAGER;
 	}
 
-	IResource* CResourceManager::GetResource(const TResourceId& handle) const
+	TPtr<IResource> CResourceManager::GetResource(const TResourceId& handle) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -265,7 +265,7 @@ namespace TDEngine2
 				return TResourceId::Invalid;
 			}
 
-			IResource* pResource = getResourceResult.Get();
+			auto&& pResource = getResourceResult.Get();
 			TDE2_ASSERT(pResource);
 
 			if (pResource)
@@ -300,7 +300,7 @@ namespace TDEngine2
 
 		IResource* pResource = pResourceFactory->CreateDefault(name, loadingParameters);
 
-		const TResourceId resourceId = TResourceId(mResources.Add(pResource));
+		const TResourceId resourceId = TResourceId(mResources.Add(TPtr<IResource>(pResource)));
 
 		mResourcesMap[name] = resourceId;
 
@@ -331,7 +331,7 @@ namespace TDEngine2
 		/// \todo move it to a background thread
 		pResource = pResourceFactory->Create(name, params);
 		
-		resourceId = TResourceId(mResources.Add(pResource));
+		resourceId = TResourceId(mResources.Add(TPtr<IResource>(pResource)));
 
 		mResourcesMap[name] = resourceId;
 
@@ -340,21 +340,21 @@ namespace TDEngine2
 		return resourceId;
 	}
 
-	IResource* CResourceManager::_getResourceInternal(const TResourceId& handle) const
+	TPtr<IResource> CResourceManager::_getResourceInternal(const TResourceId& handle) const
 	{
 		if (handle == TResourceId::Invalid)
 		{
-			return nullptr;
+			return TPtr<IResource>(nullptr);
 		}
 
 		const U32 resourceId = static_cast<U32>(handle);
 
 		if (resourceId >= mResources.GetSize())
 		{
-			return nullptr;
+			return TPtr<IResource>(nullptr);
 		}
 
-		return mResources[resourceId].GetOrDefault(nullptr);
+		return mResources[resourceId].GetOrDefault(TPtr<IResource>(nullptr));
 	}
 
 	E_RESULT_CODE CResourceManager::ReleaseResource(const TResourceId& id)
@@ -368,20 +368,15 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IResource* pResource = _getResourceInternal(id);
+		auto pResource = _getResourceInternal(id);
 
 		if (!pResource /*|| (E_RESOURCE_STATE_TYPE::RST_DESTROYING != pResource->GetState())*/) /// \note A resource should be marked as DESTROYING to allow its deletion from the registry
 		{
 			return RC_FAIL;
 		}
 
-		result = result | mResources.RemoveAt(static_cast<U32>(id));
+		result = result | mResources.ReplaceAt(static_cast<U32>(id), TPtr<IResource>(nullptr));
 		mResourcesMap.erase(mResourcesMap.find(pResource->GetName()));
-
-		if (pResource)
-		{
-			result = pResource->Free();
-		}
 
 		return result;
 	}
@@ -443,7 +438,7 @@ namespace TDEngine2
 		{
 			if (auto getResourceResult = mResources[i])
 			{
-				const IResource* pResource = getResourceResult.Get();
+				auto&& pResource = getResourceResult.Get();
 
 				if (pResource && (resourceTypeId == pResource->GetResourceTypeId()))
 				{
@@ -453,28 +448,6 @@ namespace TDEngine2
 		}
 
 		return resourcesList;
-	}
-
-	E_RESULT_CODE CResourceManager::_unloadAllResources()
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IResource* pCurrResource = nullptr;
-
-		for (U32 i = 0; i < mResources.GetSize(); ++i)
-		{
-			if (auto resourceItem = mResources[i])
-			{
-				if (pCurrResource = resourceItem.Get())
-				{
-					result = result | pCurrResource->Free();
-				}
-			}
-		}
-
-		mResources.RemoveAll();
-
-		return result;
 	}
 
 

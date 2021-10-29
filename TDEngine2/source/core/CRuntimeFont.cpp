@@ -66,14 +66,14 @@ namespace TDEngine2
 		if (mIsDirty)
 		{
 			/// update font texture's cache
-			if (IResource* pFontCacheTexture = mpResourceManager->GetResource(mFontTextureAtlasHandle))
+			if (TPtr<IResource> pFontCacheTexture = mpResourceManager->GetResource(mFontTextureAtlasHandle))
 			{
 				pFontCacheTexture->Reset();
 			}
 			
-			if (ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle))
+			if (TPtr<ITextureAtlas> pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle))
 			{
-				E_RESULT_CODE result = _updateFontTextureCache(pTextureAtlas);
+				E_RESULT_CODE result = _updateFontTextureCache(pTextureAtlas.Get());
 				TDE2_ASSERT(RC_OK == result);
 			}
 

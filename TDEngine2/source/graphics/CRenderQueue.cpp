@@ -26,11 +26,11 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
+		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
-		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
+		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
+		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader.Get());
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -55,21 +55,21 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
+		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 		if (!pMaterial)
 		{
 			TDE2_ASSERT(false);
 			return RC_FAIL;
 		}
 
-		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
+		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 		if (!pAttachedShader)
 		{
 			TDE2_ASSERT(false);
 			return RC_FAIL;
 		}
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader);
+		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader.Get());
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -96,11 +96,11 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		IMaterial* pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
+		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
-		IShader* pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
+		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader);
+		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader.Get());
 
 		pMaterial->Bind(mMaterialInstanceId);
 

@@ -617,6 +617,7 @@ namespace TDEngine2
 	}
 
 
+
 	/*!
 		\brief The helper function is a custom,fast implementation of dynamic_cast
 		operator which is based upon type_traits and static_cast. The main advantage over
@@ -748,6 +749,13 @@ namespace TDEngine2
 		TDE2_ASSERT(dynamic_cast<T*>(pPtr));
 
 		return CScopedPtr<T>(dynamic_cast<T*>(pPtr));
+	}
+
+
+	template <typename T>
+	CScopedPtr<T> GetValidPtrOrDefault(CScopedPtr<T> ptr, CScopedPtr<T> defaultPtr)
+	{
+		return ptr ? ptr : defaultPtr;
 	}
 
 

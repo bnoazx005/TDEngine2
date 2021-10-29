@@ -64,7 +64,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			ISkeleton* pSkeleton = mpResourceManager->GetResource<ISkeleton>(skeletonResourceId);
+			auto pSkeleton = mpResourceManager->GetResource<ISkeleton>(skeletonResourceId);
 
 			CMeshAnimatorComponent* pMeshAnimator = pEntity->GetComponent<CMeshAnimatorComponent>();
 			auto& updatedJointsPose = pMeshAnimator->GetCurrAnimationPose();

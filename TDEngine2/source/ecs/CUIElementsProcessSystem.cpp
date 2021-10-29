@@ -173,7 +173,7 @@ namespace TDEngine2
 			TDE2_ASSERT(RC_OK == result);
 		}
 
-		ITexture* pImageSprite = pResourceManager->GetResource<ITexture>(pImageData->GetImageResourceId());
+		auto pImageSprite = pResourceManager->GetResource<ITexture>(pImageData->GetImageResourceId());
 		if (!pImageSprite)
 		{
 			return;
@@ -227,7 +227,7 @@ namespace TDEngine2
 			TDE2_ASSERT(RC_OK == result);
 		}
 
-		IFont* pFont = pResourceManager->GetResource<IFont>(pLabelData->GetFontResourceHandle());
+		auto pFont = pResourceManager->GetResource<IFont>(pLabelData->GetFontResourceHandle());
 
 		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
 		

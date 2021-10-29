@@ -74,7 +74,7 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Preview Window", isEnabled, params))
 		{
-			if (ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle))
+			if (auto pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle))
 			{
 				IResource* pTextureResource = dynamic_cast<IResource*>(pAtlasTexture->GetTexture());
 				mpImGUIContext->Image(pTextureResource->GetId(), TVector2(mpImGUIContext->GetWindowWidth() - 40.0f, mpImGUIContext->GetWindowHeight() - 40.0f));
@@ -86,7 +86,7 @@ namespace TDEngine2
 
 	void CEditorWindow::_drawTexturesList()
 	{
-		ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
+		auto pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
 		if (!pAtlasTexture)
 		{
 			return;
@@ -126,7 +126,7 @@ namespace TDEngine2
 			{ "Textures", "*.*" }
 		};
 
-		ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
+		auto pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
 
 		if (auto openFileResult = mpWindowSystem->ShowOpenFileDialog(filters))
 		{
@@ -138,7 +138,7 @@ namespace TDEngine2
 
 	void CEditorWindow::_removeTextureFromAtlasEventHandler()
 	{
-		ITextureAtlas* pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
+		auto pAtlasTexture = mpResourceManager->GetResource<ITextureAtlas>(mAtlasResourceHandle);
 		if (!pAtlasTexture)
 		{
 			TDE2_ASSERT(false);

@@ -12,6 +12,7 @@
 #include "../core/IResourceLoader.h"
 #include "../core/IResourceFactory.h"
 #include "../core/Serialization.h"
+#include "../core/IBaseObject.h"
 #include "../math/TVector2.h"
 #include "../math/TVector4.h"
 #include "../math/TRect.h"
@@ -88,7 +89,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a font resource
 	*/
 
-	class IFont: public ISerializable
+	class IFont: public ISerializable, public virtual IBaseObject
 	{
 		public:
 			typedef std::vector<TVector4> TTextVertices;

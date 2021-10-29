@@ -190,18 +190,18 @@ namespace TDEngine2
 			const TResourceId currMaterialId = isTextMesh ? mDefaultFontMaterialId : mDefaultUIMaterialId;
 			const TResourceId currTextureId = pMeshData->GetTextureResourceId();
 
-			IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(currMaterialId);
+			auto pMaterial = mpResourceManager->GetResource<IMaterial>(currMaterialId);
 
 			if (mUsingMaterials.find(currTextureId) == mUsingMaterials.cend()) // \note create a new instance if it doesn't exist yet
 			{
 				mUsingMaterials.emplace(currTextureId, pMaterial->CreateInstance()->GetInstanceId());
 			}
 
-			ITexture* pTexture = mpResourceManager->GetResource<ITexture>(currTextureId);
+			auto pTexture = mpResourceManager->GetResource<ITexture>(currTextureId);
 
 			const TMaterialInstanceId currMaterialInstance = mUsingMaterials[currTextureId];
 
-			pMaterial->SetTextureResource("Texture", pTexture, currMaterialInstance);
+			pMaterial->SetTextureResource("Texture", pTexture.Get(), currMaterialInstance);
 
 			auto&& vertices = pMeshData->GetVertices();
 			auto&& indices = pMeshData->GetIndices();

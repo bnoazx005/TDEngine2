@@ -335,7 +335,7 @@ namespace TDEngine2
 				return RC_FILE_NOT_FOUND;
 			}
 
-			pFramePostProcessor->SetProcessingProfile(mpResourceManagerInstance->GetResource<IPostProcessingProfile>(defaultProfileResourceId));
+			pFramePostProcessor->SetProcessingProfile(mpResourceManagerInstance->GetResource<IPostProcessingProfile>(defaultProfileResourceId).Get());
 		}
 
 		if ((result = pRenderer->SetFramePostProcessor(pFramePostProcessor)) != RC_OK)

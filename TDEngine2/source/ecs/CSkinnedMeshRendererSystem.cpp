@@ -95,19 +95,19 @@ namespace TDEngine2
 		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
 		_collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
 
-		auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.begin(), mCurrMaterialsArray.end(), [](IMaterial* pCurrMaterial)
+		auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.begin(), mCurrMaterialsArray.end(), [](auto&& pCurrMaterial)
 		{
 			return pCurrMaterial->IsTransparent();
 		});
 
 		// \note construct commands for opaque geometry
-		std::for_each(mCurrMaterialsArray.begin(), firstTransparentMatIter, [this, pCameraComponent](IMaterial* pCurrMaterial)
+		std::for_each(mCurrMaterialsArray.begin(), firstTransparentMatIter, [this, pCameraComponent](auto&& pCurrMaterial)
 		{
 			_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, pCurrMaterial, pCameraComponent);
 		});
 
 		// \note construct commands for transparent geometry
-		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.end(), [this, pCameraComponent](IMaterial* pCurrMaterial)
+		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.end(), [this, pCameraComponent](auto&& pCurrMaterial)
 		{
 			_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, pCurrMaterial, pCameraComponent);
 		});
@@ -119,7 +119,7 @@ namespace TDEngine2
 
 		ISkinnedMeshContainer* pCurrSkinnedMeshContainer = nullptr;
 
-		IMaterial* pCurrMaterial = nullptr;
+		TPtr<IMaterial> pCurrMaterial;
 
 		for (auto& iter : entities)
 		{
@@ -157,7 +157,7 @@ namespace TDEngine2
 
 		IDebugUtility* pDebugUtility = retrievePtrResult.Get();
 
-		ISkeleton* pSkeleton = pResourceManager->GetResource<ISkeleton>(skeletonId);
+		TPtr<ISkeleton> pSkeleton = pResourceManager->GetResource<ISkeleton>(skeletonId);
 		if (!pSkeleton)
 		{
 			return RC_FAIL;
@@ -182,12 +182,12 @@ namespace TDEngine2
 	}
 
 
-	void CSkinnedMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, IMaterial* pCurrMaterial,
+	void CSkinnedMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, TPtr<IMaterial> pCurrMaterial,
 															const ICamera* pCamera)
 	{
 		auto iter = entities.begin();
 
-		auto&& pCastedMaterial = dynamic_cast<CBaseMaterial*>(pCurrMaterial);
+		auto&& pCastedMaterial = DynamicPtrCast<CBaseMaterial>(pCurrMaterial);
 		const std::string& currMaterialName = pCastedMaterial->GetName();
 		TDE2_ASSERT(pCastedMaterial);
 

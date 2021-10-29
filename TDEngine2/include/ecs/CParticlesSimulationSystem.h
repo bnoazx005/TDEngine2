@@ -33,6 +33,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+	TDE2_DECLARE_SCOPED_PTR(IMaterial)
 
 
 	/*!
@@ -145,7 +146,7 @@ namespace TDEngine2
 
 			std::vector<U32>        mActiveParticlesCount;
 
-			std::vector<IMaterial*> mUsedMaterials;
+			std::vector<TPtr<IMaterial>> mUsedMaterials;
 
 			std::vector<IVertexBuffer*> mpParticlesInstancesBuffers;
 

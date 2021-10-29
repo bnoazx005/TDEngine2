@@ -119,7 +119,7 @@ static E_RESULT_CODE SaveToFile(IFileSystem* pFileSystem, IResourceManager* pRes
 
 	if (auto pAtlasTexture = pResourceManager->GetResource<ITextureAtlas>(resourceId))
 	{
-		return CTextureAtlas::Serialize(pFileSystem, pAtlasTexture, destFilePath);
+		return CTextureAtlas::Serialize(pFileSystem, pAtlasTexture.Get(), destFilePath);
 	}
 
 	return RC_FAIL;
@@ -146,7 +146,7 @@ void CUtilityListener::_drawMainMenu()
 			{
 				if (auto openFileResult = OpenFromFile(mpWindowSystem.Get(), pFileSystem, mpResourceManager.Get(), FileExtensionsFilter, [this](auto&& path)
 				{
-					if (IResource* pAtlas = mpResourceManager->GetResource<IResource>(mCurrEditableAtlasId))
+					if (auto pAtlas = mpResourceManager->GetResource<IResource>(mCurrEditableAtlasId))
 					{
 						pAtlas->Unload();
 					}
@@ -167,7 +167,7 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Save As...", "SHIFT+CTRL+S", [this, pFileSystem]
 			{
-				if (ITextureAtlas* pAtlas = mpResourceManager->GetResource<ITextureAtlas>(mCurrEditableAtlasId))
+				if (auto pAtlas = mpResourceManager->GetResource<ITextureAtlas>(mCurrEditableAtlasId))
 				{
 					pAtlas->Bake();
 				}
@@ -185,7 +185,7 @@ void CUtilityListener::_drawMainMenu()
 		imguiContext.MenuGroup("View", [this, pFileSystem](IImGUIContext& imguiContext)
 		{
 			imguiContext.MenuItem("Refresh", "F5", [this] { 
-				if (ITextureAtlas* pAtlas = mpResourceManager->GetResource<ITextureAtlas>(mCurrEditableAtlasId))
+				if (auto pAtlas = mpResourceManager->GetResource<ITextureAtlas>(mCurrEditableAtlasId))
 				{
 					pAtlas->Bake();
 				}
@@ -273,7 +273,7 @@ E_RESULT_CODE CUtilityListener::_processInNonGraphicalMode()
 		return RC_FAIL;
 	}
 
-	ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(textureAtlasHandle);
+	auto pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(textureAtlasHandle);
 
 	E_RESULT_CODE result = RC_OK;
 
@@ -299,7 +299,7 @@ E_RESULT_CODE CUtilityListener::_processInNonGraphicalMode()
 	}
 
 	/// \note Serialize into the file
-	return CTextureAtlas::Serialize(mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get(), pTextureAtlas, mOptions.mOutputFilename);
+	return CTextureAtlas::Serialize(mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get(), pTextureAtlas.Get(), mOptions.mOutputFilename);
 }
 
 

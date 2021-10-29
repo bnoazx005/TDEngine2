@@ -47,19 +47,19 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IResourceManager* CreateResourceManager(TPtr<IJobManager>, E_RESULT_CODE&);
 		protected:
-			typedef std::unordered_map<TypeId, TResourceLoaderId>   TResourceLoadersMap;
+			typedef std::unordered_map<TypeId, TResourceLoaderId>         TResourceLoadersMap;
 			
-			typedef CResourceContainer<TPtr<IResourceLoader>>       TResourceLoadersContainer;
+			typedef CResourceContainer<TPtr<IResourceLoader>>             TResourceLoadersContainer;
 
-			typedef std::unordered_map<TypeId, TResourceFactoryId>  TResourceFactoriesMap;
+			typedef std::unordered_map<TypeId, TResourceFactoryId>        TResourceFactoriesMap;
 			
-			typedef CResourceContainer<TPtr<IResourceFactory>>      TResourceFactoriesContainer;
+			typedef CResourceContainer<TPtr<IResourceFactory>>            TResourceFactoriesContainer;
 
-			typedef std::unordered_map<std::string, TResourceId>    TResourcesMap;
+			typedef std::unordered_map<std::string, TResourceId>          TResourcesMap;
 
-			typedef CResourceContainer<IResource*>                  TResourcesContainer;
+			typedef CResourceContainer<TPtr<IResource>>                   TResourcesContainer;
 
-			typedef std::vector<std::tuple<TypeId, TypeId>>         TResourceTypesAliasesMap;
+			typedef std::vector<std::tuple<TypeId, TypeId>>               TResourceTypesAliasesMap;
 
 			typedef std::unordered_map<TypeId, E_RESOURCE_LOADING_POLICY> TResourceTypesPoliciesMap;
 		public:
@@ -186,7 +186,7 @@ namespace TDEngine2
 				\return The method returns a raw pointer to a resource based on specified handler
 			*/
 
-			TDE2_API IResource* GetResource(const TResourceId& handle) const override;
+			TDE2_API TPtr<IResource> GetResource(const TResourceId& handle) const override;
 
 			/*!
 				\brief The method returns an identifier of a resource with a given name. If there is no
@@ -207,7 +207,7 @@ namespace TDEngine2
 
 			TDE2_API TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
 			
-			TDE2_API IResource* _getResourceInternal(const TResourceId& handle) const;
+			TDE2_API TPtr<IResource> _getResourceInternal(const TResourceId& handle) const;
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader(TypeId resourceTypeId) const override;
 			TDE2_API const TPtr<IResourceFactory> _getResourceFactory(TypeId resourceTypeId) const;
@@ -215,8 +215,6 @@ namespace TDEngine2
 			TDE2_API std::vector<std::string> _getResourcesListByType(TypeId resourceTypeId) const override;
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
-
-			TDE2_API E_RESULT_CODE _unloadAllResources();
 		protected:
 			std::atomic_bool            mIsInitialized;
 

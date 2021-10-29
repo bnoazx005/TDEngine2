@@ -77,7 +77,7 @@ namespace TDEngine2
 			static const std::string        mAddPropertyWindowId;
 
 			TResourceId                     mCurrAnimationResourceHandle;
-			IAnimationClip*                 mpCurrAnimationClip;
+			TPtr<IAnimationClip>            mpCurrAnimationClip;
 
 			TEntityId                       mCurrAnimatedEntity;
 

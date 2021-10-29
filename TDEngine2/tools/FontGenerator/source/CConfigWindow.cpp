@@ -80,7 +80,7 @@ namespace TDEngine2
 
 		if (auto pAtlasTexture = pResourceManager->GetResource<ITextureAtlas>(atlasResourceId))
 		{
-			return CTextureAtlas::Serialize(pFileSystem, pAtlasTexture, destAtlasFilePath);
+			return CTextureAtlas::Serialize(pFileSystem, pAtlasTexture.Get(), destAtlasFilePath);
 		}
 
 		return RC_FAIL;
@@ -156,7 +156,7 @@ namespace TDEngine2
 			{
 				if (auto openFileResult = OpenFromFile(mpWindowSystem, mpFileSystem, mpResourceManager, FileExtensionsFilter, [this](auto&& path)
 				{
-					if (IResource* pAtlas = mpResourceManager->GetResource<IResource>(mFontResourceId))
+					if (auto pAtlas = mpResourceManager->GetResource<IResource>(mFontResourceId))
 					{
 						pAtlas->Unload();
 					}
@@ -454,8 +454,8 @@ namespace TDEngine2
 
 		GenerateFontTexture(
 			{
-				mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasId),
-				mpResourceManager->GetResource<IFont>(mFontResourceId),
+				mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasId).Get(),
+				mpResourceManager->GetResource<IFont>(mFontResourceId).Get(),
 				&font,
 				mFontAlphabet,
 				{

@@ -215,7 +215,7 @@ namespace TDEngine2
 
 	CFont::TTextMeshData CFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
 	{
-		ITextureAtlas* pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
+		TPtr<ITextureAtlas> pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
 		if (!pTextureAtlas)
 		{
 			return { {}, ZeroVector2 };

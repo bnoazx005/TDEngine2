@@ -354,7 +354,7 @@ namespace TDEngine2
 				\return The function returns true if the pair is ordered correctly
 			*/
 
-			TDE2_API static bool AlphaBasedMaterialComparator(const IMaterial* pLeft, const IMaterial* pRight);
+			TDE2_API static bool AlphaBasedMaterialComparator(TPtr<IMaterial> pLeft, TPtr<IMaterial> pRight);
 
 			/*!
 				\brief The method returns either a pointer to IMaterialInstance or an error code

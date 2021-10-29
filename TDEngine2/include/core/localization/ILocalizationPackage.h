@@ -10,6 +10,7 @@
 #include "../../utils/Types.h"
 #include "../../utils/Utils.h"
 #include "../../core/Serialization.h"
+#include "../../core/IBaseObject.h"
 #include "../../core/IResourceLoader.h"
 #include "../../core/IResourceFactory.h"
 #include <unordered_map>
@@ -27,7 +28,7 @@ namespace TDEngine2
 		\brief The interface describes functionality of a localization package's resource
 	*/
 
-	class ILocalizationPackage: public ISerializable
+	class ILocalizationPackage: public ISerializable, public virtual IBaseObject
 	{
 		public:
 			typedef std::unordered_map<std::string, std::string> TDictionary;

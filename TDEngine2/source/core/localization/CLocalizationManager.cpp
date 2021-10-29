@@ -148,13 +148,13 @@ namespace TDEngine2
 		if (IJobManager* pJobManager = mpFileSystem->GetJobManager())
 		{
 			pJobManager->SubmitJob(std::function<void()>([this]() {
-				if (IResource* pResource = mpResourceManager->GetResource<IResource>(mCurrLocalePackageId))
+				if (TPtr<IResource> pResource = mpResourceManager->GetResource<IResource>(mCurrLocalePackageId))
 				{
 					while (pResource->GetState() != E_RESOURCE_STATE_TYPE::RST_LOADED) {}
 
 					{
 						std::lock_guard<std::mutex> lock(mMutex);
-						if (ILocalizationPackage* pPackageResource = dynamic_cast<ILocalizationPackage*>(pResource))
+						if (TPtr<ILocalizationPackage> pPackageResource = DynamicPtrCast<ILocalizationPackage>(pResource))
 						{
 							auto&& data = pPackageResource->GetDictionaryData();
 

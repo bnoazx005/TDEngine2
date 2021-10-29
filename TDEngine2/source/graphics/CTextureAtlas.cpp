@@ -139,13 +139,13 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		ITexture2D* pTextureResource = mpResourceManager->GetResource<ITexture2D>(textureHandle);
+		auto pTextureResource = mpResourceManager->GetResource<ITexture2D>(textureHandle);
 		if (!pTextureResource)
 		{
 			return RC_FAIL;
 		}
 
-		const std::string textureName = dynamic_cast<IResource*>(pTextureResource)->GetName();
+		const std::string textureName = dynamic_cast<IResource*>(pTextureResource.Get())->GetName();
 
 		/// \note check whether the texture's data is already within the atlas or not
 		if (std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&textureName](const TTextureAtlasEntry& entry) { return entry.mName == textureName; }) != mPendingData.cend() ||
@@ -157,7 +157,7 @@ namespace TDEngine2
 		/// \note add a new entry
 		TRectI32 textureRect{ 0, 0, static_cast<I32>(pTextureResource->GetWidth()), static_cast<I32>(pTextureResource->GetHeight()) };
 
-		TTextureAtlasEntry rootEntry{ textureName, textureRect, pTextureResource };
+		TTextureAtlasEntry rootEntry{ textureName, textureRect, pTextureResource.Get() };
 
 		mPendingData.push_back(rootEntry);
 
@@ -209,7 +209,7 @@ namespace TDEngine2
 			return (leftRect.width > rightRect.width) && (leftRect.height > rightRect.height);
 		});
 		
-		ITexture2D* pAtlasInternalTexture = mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle);
+		auto pAtlasInternalTexture = mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle);
 
 		/// \note while there is enough space within the atlas pack next entry
 		TAtlasAreaEntry root;
@@ -360,7 +360,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		ITexture2D* pAtlasInternalTexture = mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle);
+		auto pAtlasInternalTexture = mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle);
 
 		/// \note save texture atlas into an image file
 		/// \todo for now we save all atlases as png files, but it should be replaced with general solution
@@ -489,7 +489,7 @@ namespace TDEngine2
 		mTextureResourceHandle = mpResourceManager->Load<ITexture2D>(mName + "_Tex.png", E_RESOURCE_LOADING_POLICY::SYNCED);
 
 		/// \todo ansynchronously update sizes of the atlas when the texture has been loaded
-		_updateAtlasSizes(mpResourceManager->GetResource(mTextureResourceHandle));
+		_updateAtlasSizes(mpResourceManager->GetResource(mTextureResourceHandle).Get());
 
 		if ((result = pReader->BeginGroup("textures_list")) != RC_OK)
 		{
@@ -547,7 +547,7 @@ namespace TDEngine2
 
 	ITexture2D* CTextureAtlas::GetTexture() const
 	{
-		return mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle);
+		return mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle).Get();
 	}
 
 	TResult<TRectI32> CTextureAtlas::GetTextureRect(const std::string& textureName) const
@@ -610,7 +610,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		mpSubTextures.push_back(mpResourceManager->GetResource<IAtlasSubTexture>(subTextureHandle));
+		mpSubTextures.push_back(mpResourceManager->GetResource<IAtlasSubTexture>(subTextureHandle).Get());
 
 		return Wrench::TOkValue<TResourceId>(subTextureHandle);
 	}

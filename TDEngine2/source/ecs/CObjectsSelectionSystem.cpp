@@ -238,7 +238,7 @@ namespace TDEngine2
 		
 		// Skip skybox geometry
 		// \todo Reimplement this later with CSkyboxComponent
-		if (IMaterial* pMeshMainMaterial = dynamic_cast<IMaterial*>(mpResourceManager->GetResource(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName()))))
+		if (TPtr<IMaterial> pMeshMainMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
 		{
 			if (pMeshMainMaterial->GetGeometrySubGroupTag() == E_GEOMETRY_SUBGROUP_TAGS::SKYBOX)
 			{
@@ -246,7 +246,7 @@ namespace TDEngine2
 			}
 		}
 
-		if (IStaticMesh* pStaticMeshResource = dynamic_cast<IStaticMesh*>(mpResourceManager->GetResource(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName()))))
+		if (TPtr<IStaticMesh> pStaticMeshResource = mpResourceManager->GetResource< IStaticMesh>(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName())))
 		{
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 			{
@@ -269,12 +269,12 @@ namespace TDEngine2
 		CSkinnedMeshContainer* pSkinnedMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
 		
-		if (ISkinnedMesh* pSkinnedMeshResource = mpResourceManager->GetResource<ISkinnedMesh>(mpResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName())))
+		if (TPtr<ISkinnedMesh> pSkinnedMeshResource = mpResourceManager->GetResource<ISkinnedMesh>(mpResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName())))
 		{
 			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
 			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
 
-			if (IMaterial* pMaterial = mpResourceManager->GetResource<IMaterial>(materialHandle))
+			if (TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(materialHandle))
 			{
 				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
 				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));

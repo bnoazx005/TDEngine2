@@ -56,7 +56,7 @@ namespace TDEngine2
 		mpGraphicsContext->BindTextureSampler(slot, mCurrTextureSamplerHandle);
 
 		/// \note Bind the source texture
-		if (ITextureAtlas* pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
+		if (auto pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
 		{
 			if (ITexture2D* pTexture = pOwnerAtlas->GetTexture())
 			{
@@ -88,7 +88,7 @@ namespace TDEngine2
 
 	U32 CAtlasSubTexture::GetWidth() const
 	{
-		if (ITextureAtlas* pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
+		if (auto pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
 		{
 			if (ITexture2D* pTexture = pOwnerAtlas->GetTexture())
 			{
@@ -101,7 +101,7 @@ namespace TDEngine2
 
 	U32 CAtlasSubTexture::GetHeight() const
 	{
-		if (ITextureAtlas* pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
+		if (auto pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
 		{
 			if (ITexture2D* pTexture = pOwnerAtlas->GetTexture())
 			{
@@ -114,7 +114,7 @@ namespace TDEngine2
 
 	E_FORMAT_TYPE CAtlasSubTexture::GetFormat() const
 	{
-		if (ITextureAtlas* pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
+		if (auto pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
 		{
 			if (ITexture2D* pTexture = pOwnerAtlas->GetTexture())
 			{
@@ -127,7 +127,7 @@ namespace TDEngine2
 
 	TRectF32 CAtlasSubTexture::GetNormalizedTextureRect() const
 	{
-		if (ITextureAtlas* pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
+		if (auto pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))
 		{
 			if (ITexture2D* pTexture = pOwnerAtlas->GetTexture())
 			{

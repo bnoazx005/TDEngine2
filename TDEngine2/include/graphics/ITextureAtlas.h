@@ -35,7 +35,7 @@ namespace TDEngine2
 		\brief The interface describes a common functionality of a texture atlases
 	*/
 
-	class ITextureAtlas: public ISerializable
+	class ITextureAtlas: public ISerializable, public virtual IBaseObject
 	{
 		public:
 			TDE2_REGISTER_TYPE(ITextureAtlas);

@@ -576,7 +576,7 @@ namespace TDEngine2
 			const TVector2 currPosition = tracksOrigin + TVector2(0.0f, currVerticalPosition);
 			
 			mpImGUIContext->DrawLine(currPosition, currPosition + TVector2(frameWidth, 0.0f), TColor32F(0.1f, 0.1f, 0.1f, 1.0f), visibleTrackHeight);
-			HandleTrackOperations({ mpImGUIContext, mpCurrAnimationClip, trackId, currPosition, trackHeight, frameWidth, pixelsPerSecond });
+			HandleTrackOperations({ mpImGUIContext, mpCurrAnimationClip.Get(), trackId, currPosition, trackHeight, frameWidth, pixelsPerSecond });
 
 			/// \note Draw all control points here
 			auto&& samples = pTrack->GetSamples();
@@ -586,7 +586,7 @@ namespace TDEngine2
 				const TVector2 keyPosition = TVector2(currTime * pixelsPerSecond, 0.0f) + currPosition;
 
 				mpImGUIContext->DrawCircle(keyPosition, 4.0f, true, TColorUtils::mWhite);
-				HandleKeySampleOperations(mpImGUIContext, mpCurrAnimationClip, trackId, pTrack->GetKeyHandleByTime(currTime), currPosition, keyPosition, 16.0f, frameWidth, pixelsPerSecond);
+				HandleKeySampleOperations(mpImGUIContext, mpCurrAnimationClip.Get(), trackId, pTrack->GetKeyHandleByTime(currTime), currPosition, keyPosition, 16.0f, frameWidth, pixelsPerSecond);
 			}
 
 			currVerticalPosition += trackHeight;
@@ -727,7 +727,7 @@ namespace TDEngine2
 				if (TypeId::Invalid != mNewTrackTypeId && !mCurrSelectedPropertyBinding.empty())
 				{
 					/// \note Create a new track based on property's type id and property binding's value
-					E_RESULT_CODE result = CreateTrack(mpCurrAnimationClip, mNewTrackTypeId, mCurrSelectedPropertyBinding);
+					E_RESULT_CODE result = CreateTrack(mpCurrAnimationClip.Get(), mNewTrackTypeId, mCurrSelectedPropertyBinding);
 					TDE2_ASSERT(RC_OK == result);
 
 					mUsedPropertyBindings.insert(mCurrSelectedPropertyBinding);
