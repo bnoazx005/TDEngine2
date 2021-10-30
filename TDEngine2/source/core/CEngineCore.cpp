@@ -218,7 +218,6 @@ namespace TDEngine2
 	E_RESULT_CODE CEngineCore::UnregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-
 		return _unregisterSubsystem(subsystemType);
 	}
 
@@ -290,14 +289,7 @@ namespace TDEngine2
 
 	TPtr<IEngineSubsystem> CEngineCore::_getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const
 	{
-		if (type == EST_UNKNOWN)
-		{
-			return TPtr<IEngineSubsystem>(nullptr);
-		}
-
-		//std::lock_guard<std::mutex> lock(mMutex);
-
-		return mSubsystems[type];
+		return (EST_UNKNOWN == type) ? TPtr<IEngineSubsystem>(nullptr) : mSubsystems[type];
 	}
 
 	void CEngineCore::_onFrameUpdateCallback()
@@ -414,6 +406,9 @@ namespace TDEngine2
 			pDebugUtility = debugUtilityResult.Get();
 		}
 
+		ISystem* p2dPhysics = nullptr;
+		ISystem* p3dPhysics = nullptr;
+
 		std::vector<ISystem*> builtinSystems
 		{
 			CreateTransformSystem(pGraphicsContext, result),
@@ -433,9 +428,8 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
 #endif
-			// \note should be always latest in the list
-			CreatePhysics2DSystem(pEventManager, result),
-			CreatePhysics3DSystem(pEventManager, result),
+			(p2dPhysics = CreatePhysics2DSystem(pEventManager, result)),
+			(p3dPhysics = CreatePhysics3DSystem(pEventManager, result)),
 		};
 
 		for (ISystem* pCurrSystem : builtinSystems)
@@ -454,8 +448,8 @@ namespace TDEngine2
 		}
 
 		auto pRaycastContextInstance = CreateBaseRaycastContext(_getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER),
-																dynamic_cast<CPhysics2DSystem*>(*(builtinSystems.end() - 2)), 
-																dynamic_cast<CPhysics3DSystem*>(builtinSystems.back()), 
+																dynamic_cast<CPhysics2DSystem*>(p2dPhysics), 
+																dynamic_cast<CPhysics3DSystem*>(p3dPhysics), 
 																result);
 
 		if ((result != RC_OK) || (result = pWorldInstance->RegisterRaycastContext(TPtr<IRaycastContext>(pRaycastContextInstance))) != RC_OK)

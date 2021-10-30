@@ -198,7 +198,5 @@ namespace TDEngine2
 			TPtr<IResourceManager> mpResourceManagerInstance;
 
 			TPtr<IEventManager> mpEventManagerInstance;
-
-			IImGUIContext*    mpImGUIContext;
 	};
 }

@@ -72,8 +72,13 @@
 namespace TDEngine2
 {
 	CBaseEngineCoreBuilder::CBaseEngineCoreBuilder() :
-		CBaseObject(), mpEngineCoreInstance(nullptr), mpWindowSystemInstance(nullptr), mpJobManagerInstance(nullptr),
-		mpPluginManagerInstance(nullptr), mpGraphicsContextInstance(nullptr), mpResourceManagerInstance(nullptr)
+		CBaseObject(), 
+		mpEngineCoreInstance(nullptr),
+		mpWindowSystemInstance(nullptr),
+		mpJobManagerInstance(nullptr),
+		mpPluginManagerInstance(nullptr),
+		mpGraphicsContextInstance(nullptr),
+		mpResourceManagerInstance(nullptr)
 	{
 	}
 
@@ -88,29 +93,29 @@ namespace TDEngine2
 
 		switch (type)
 		{
-#if defined(TDE2_USE_WINPLATFORM)
-		case GCGT_DIRECT3D11:																	/// try to create D3D11 Graphics context
-			if ((result = mpPluginManagerInstance->LoadPlugin("D3D11GraphicsContext")) != RC_OK)
-			{
-				return result;
-			}
-			break;
-#endif
-		case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
-#if defined (TDE2_USE_WINPLATFORM)
-			result = mpPluginManagerInstance->LoadPlugin("GLGraphicsContext");
-#elif defined (TDE2_USE_UNIXPLATFORM)
-			result = mpPluginManagerInstance->LoadPlugin("./GLGraphicsContext");
-#else
-#endif
+	#if defined(TDE2_USE_WINPLATFORM)
+			case GCGT_DIRECT3D11:																	/// try to create D3D11 Graphics context
+				if ((result = mpPluginManagerInstance->LoadPlugin("D3D11GraphicsContext")) != RC_OK)
+				{
+					return result;
+				}
+				break;
+	#endif
+			case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
+	#if defined (TDE2_USE_WINPLATFORM)
+				result = mpPluginManagerInstance->LoadPlugin("GLGraphicsContext");
+	#elif defined (TDE2_USE_UNIXPLATFORM)
+				result = mpPluginManagerInstance->LoadPlugin("./GLGraphicsContext");
+	#else
+	#endif
 
-			if (result != RC_OK)
-			{
-				return result;
-			}
-			break;
-		default:
-			return RC_FAIL;
+				if (result != RC_OK)
+				{
+					return result;
+				}
+				break;
+			default:
+				return RC_FAIL;
 		}
 
 		mpGraphicsContextInstance = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>();
@@ -142,8 +147,8 @@ namespace TDEngine2
 				return result;
 			}
 			break;
-		default:
-			return RC_FAIL;
+			default:
+				return RC_FAIL;
 		}
 
 		return RC_OK;

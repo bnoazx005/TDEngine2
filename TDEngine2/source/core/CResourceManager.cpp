@@ -10,7 +10,7 @@
 namespace TDEngine2
 {
 	CResourceManager::CResourceManager():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
