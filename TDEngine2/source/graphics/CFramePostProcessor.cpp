@@ -173,7 +173,7 @@ namespace TDEngine2
 
 		{
 			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
-			mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget, TColor32F{});
+			mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F{});
 			onRenderFrameCallback();
 			mpGraphicsContext->BindRenderTarget(0, nullptr);
 		}

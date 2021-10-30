@@ -721,6 +721,9 @@ namespace TDEngine2
 			const T* Get() const { return mpPtr; }
 
 			operator bool() const { return (mpPtr != nullptr); }
+
+			bool operator== (const CScopedPtr<T>& other) const { return mpPtr == other.mpPtr; }
+			bool operator!= (const CScopedPtr<T>& other) const { return mpPtr != other.mpPtr; }
 		private:
 			void _swap(CScopedPtr<T>& left, CScopedPtr<T>& right)
 			{
@@ -741,6 +744,11 @@ namespace TDEngine2
 	CScopedPtr<T> DynamicPtrCast(CScopedPtr<U> ptr) 
 	{ 
 		U* pPtr = ptr.Get(); 
+		if (!pPtr) 
+		{ 
+			return CScopedPtr<T>(nullptr); 
+		}
+
 		if (pPtr)
 		{
 			pPtr->AddRef();
@@ -752,11 +760,7 @@ namespace TDEngine2
 	}
 
 
-	template <typename T>
-	CScopedPtr<T> GetValidPtrOrDefault(CScopedPtr<T> ptr, CScopedPtr<T> defaultPtr)
-	{
-		return ptr ? ptr : defaultPtr;
-	}
+	template <typename T> CScopedPtr<T> GetValidPtrOrDefault(CScopedPtr<T> ptr, CScopedPtr<T> defaultPtr) { return ptr ? ptr : defaultPtr; }
 
 
 	/*!
