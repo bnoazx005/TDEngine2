@@ -372,8 +372,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	}
 
-	mpResourceManager->Load<IAudioSource>("test.mp3");
-
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
 	
 	auto s = mpFileSystem->GetUserDirectory();

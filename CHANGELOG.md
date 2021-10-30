@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.8] 2021-10-30
+
+### Changed
+
+- All resources are now wrapped with **CScopedPtr** when returned from the resource manager
+
+### Fixed 
+
+- The loading of default instances was fixed for all types of resources when the specified ones cannot be loaded
+
 ## [0.5.7] 2021-10-28
 
 ### Changed

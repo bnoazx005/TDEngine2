@@ -64,12 +64,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
 	{
-		TPtr<IRenderTarget> pCurrRenderTarget   = mpResourceManager->GetResource<IRenderTarget>(mSelectionGeometryBufferHandle);
+		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mSelectionGeometryBufferHandle);
 
 		mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
 
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
-		mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget, TColor32F(0.0f, 0.0f, 0.0f, 0.0f));
+		mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F(0.0f, 0.0f, 0.0f, 0.0f));
 
 		if (onDrawVisibleObjectsCallback)
 		{

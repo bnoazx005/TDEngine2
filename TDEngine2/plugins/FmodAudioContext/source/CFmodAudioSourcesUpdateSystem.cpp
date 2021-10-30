@@ -99,7 +99,10 @@ namespace TDEngine2
 				if (auto pClipResource = mpResourceManager->GetResource<CFMODAudioClip>(audioResourceId))
 				{
 					FMOD_RESULT result = pCoreSystem->playSound(pClipResource->GetInternalHandle(), nullptr, pAudioSource->IsPaused(), &pNewChannel);
-					TDE2_ASSERT(FMOD_OK == result);
+					if (FMOD_OK != result)
+					{
+						continue;
+					}
 
 					mpActiveChannels.insert({ currEntityId, pNewChannel });
 

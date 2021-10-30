@@ -85,6 +85,11 @@ namespace TDEngine2
 			{ "SkinnedShadowPass", E_DEFAULT_SHADER_TYPE::DST_SHADOW_SKINNED_PASS },
 		};
 
+		if (shaderNameToTypeMapping.find(name) == shaderNameToTypeMapping.cend())
+		{
+			return E_DEFAULT_SHADER_TYPE::DST_BASIC;
+		}
+
 		return shaderNameToTypeMapping.at(name);
 	}
 
