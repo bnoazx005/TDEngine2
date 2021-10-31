@@ -17,6 +17,7 @@ namespace TDEngine2
 			static const std::string mApplicationIdKey;
 			static const std::string mMaxThreadsCountKey;
 			static const std::string mMemoryAllocationSizeKey;
+			static const std::string mFlagsKey;
 		};
 
 		struct TGraphicsSettingsKeys
@@ -47,6 +48,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey = "application_id";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey = "max_worker_threads_count";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMemoryAllocationSizeKey = "total_preallocated_memory_size";
+	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey = "flags";
 
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey = "gapi_type";
 
@@ -79,6 +81,7 @@ namespace TDEngine2
 			mCommonSettings.mApplicationName = pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey);
 			mCommonSettings.mMaxNumOfWorkerThreads = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey);
 			mCommonSettings.mTotalPreallocatedMemorySize = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMemoryAllocationSizeKey);
+			mCommonSettings.mFlags = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey);
 		}
 		result = result | pFileReader->EndGroup();
 

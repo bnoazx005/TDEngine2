@@ -40,7 +40,5 @@ namespace TDEngine2
 		public:
 			I32 mWindowWidth = 800;
 			I32 mWindowHeight = 600;
-
-			U32 mFlags = static_cast<U32>(P_RESIZEABLE | P_ZBUFFER_ENABLED);
 	};
 }

@@ -6,6 +6,7 @@ common_settings:
   application_id: SandboxGame
   max_worker_threads_count: 4
   total_preallocated_memory_size: 134217728‬
+  flags : 20 # RESIZEABLE | ZBUFFER
 
 graphics_settings:
   gapi_type: GCGT_DIRECT3D11

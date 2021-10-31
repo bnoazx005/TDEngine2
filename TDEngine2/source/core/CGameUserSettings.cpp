@@ -18,7 +18,6 @@ namespace TDEngine2
 
 		mWindowWidth  = pConfigFileReader->GetInt("main", "width", 640);
 		mWindowHeight = pConfigFileReader->GetInt("main", "height", 480);
-		mFlags        = pConfigFileReader->GetInt("main", "flags", 0x0);
 
 		return RC_OK;
 	}

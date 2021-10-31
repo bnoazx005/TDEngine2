@@ -576,7 +576,7 @@ namespace TDEngine2
 			CProjectSettings::Get()->mCommonSettings.mApplicationName, 
 			CGameUserSettings::Get()->mWindowWidth, 
 			CGameUserSettings::Get()->mWindowHeight,
-			CGameUserSettings::Get()->mFlags));
+			CProjectSettings::Get()->mCommonSettings.mFlags));
 
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));

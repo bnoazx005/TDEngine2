@@ -57,6 +57,8 @@ namespace TDEngine2
 				U32 mTotalPreallocatedMemorySize = DefaultGlobalMemoryBlockSize;
 
 				std::string mApplicationName;
+
+				U32 mFlags = static_cast<U32>(P_RESIZEABLE | P_ZBUFFER_ENABLED);
 			} mCommonSettings;
 
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.9] 2021-10-31
+
+### Changed
+
+- **CGameUserSettings::mFlags** was moved into **CProjectSettings** class
+
 ## [0.5.8] 2021-10-30
 
 ### Changed

@@ -41,8 +41,9 @@ namespace TDEngine2
 	/*!
 		interface IResourceManager
 
-		\brief The manager describes a functionality of a resource manager,
-		that is used within the engine
+		\brief The manager contains collection of all used resources. Despite all the resource types
+		implements their own reference counters the manager do it in its own fashion to prevent
+		inefficient loadings/unloadings of them.
 	*/
 
 	class IResourceManager : public IEngineSubsystem
