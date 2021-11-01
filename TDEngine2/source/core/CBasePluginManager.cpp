@@ -20,7 +20,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBasePluginManager::Init(TPtr<IEngineCore> pEngineCore)
+	E_RESULT_CODE CBasePluginManager::Init(IEngineCore* pEngineCore)
 	{
 		if (mIsInitialized)
 		{
@@ -108,7 +108,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		IPlugin* pLoadedPlugin = pCreatePluginCallback(mpEngineCore.Get(), result);
+		IPlugin* pLoadedPlugin = pCreatePluginCallback(mpEngineCore, result);
 
 		if (result != RC_OK)
 		{
@@ -189,7 +189,7 @@ namespace TDEngine2
 		{
 			if (auto pECSPlugin = dynamic_cast<IECSPlugin*>(currPlugin.second.Get()))
 			{
-				result = result | pECSPlugin->OnRegister(mpEngineCore.Get(), pWorld.Get());
+				result = result | pECSPlugin->OnRegister(mpEngineCore, pWorld.Get());
 			}
 		}
 
@@ -202,7 +202,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IPluginManager* CreateBasePluginManager(TPtr<IEngineCore> pEngineCore, E_RESULT_CODE& result)
+	TDE2_API IPluginManager* CreateBasePluginManager(IEngineCore* pEngineCore, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IPluginManager, CBasePluginManager, result, pEngineCore);
 	}

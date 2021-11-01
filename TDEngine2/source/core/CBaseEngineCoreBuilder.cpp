@@ -286,7 +286,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WINPLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
-		mpPluginManagerInstance = TPtr<IPluginManager>(CreateBasePluginManager(mpEngineCoreInstance, result));
+		mpPluginManagerInstance = TPtr<IPluginManager>(CreateBasePluginManager(mpEngineCoreInstance.Get(), result));
 #else
 #endif
 

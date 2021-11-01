@@ -32,7 +32,7 @@ namespace TDEngine2
 		\return A pointer to CBasePluginManager's implementation
 	*/
 
-	TDE2_API IPluginManager* CreateBasePluginManager(TPtr<IEngineCore> pEngineCore, E_RESULT_CODE& result);
+	TDE2_API IPluginManager* CreateBasePluginManager(IEngineCore* pEngineCore, E_RESULT_CODE& result);
 
 
 	/*!
@@ -44,7 +44,7 @@ namespace TDEngine2
 	class CBasePluginManager : public IPluginManager, public CBaseObject
 	{
 		public:
-			friend TDE2_API IPluginManager* CreateBasePluginManager(TPtr<IEngineCore>, E_RESULT_CODE&);
+			friend TDE2_API IPluginManager* CreateBasePluginManager(IEngineCore*, E_RESULT_CODE&);
 		protected:
 			typedef std::unordered_map<std::string, TPtr<IPlugin>> TPluginsMap;
 		public:
@@ -56,7 +56,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IEngineCore> pEngineCore) override;
+			TDE2_API E_RESULT_CODE Init(IEngineCore* pEngineCore) override;
 
 			/*!
 				\brief The method load a specified plugin
@@ -108,7 +108,7 @@ namespace TDEngine2
 		protected:
 			TPluginsMap        mLoadedPlugins;
 
-			TPtr<IEngineCore>  mpEngineCore;
+			IEngineCore*       mpEngineCore;
 
 			TPtr<IDLLManager>  mpDLLManager;
 
