@@ -158,14 +158,6 @@ namespace TDEngine2
 			TDE2_API U32 GetFlags() const override;
 
 			/*!
-				\brief The method returns a pointer to IDLLManager's implementation
-
-				\return The method returns a pointer to IDLLManager's implementation
-			*/
-
-			TDE2_API TPtr<IDLLManager> GetDLLManagerInstance() const override;
-
-			/*!
 				\brief The method returns a pointer to IEventManager implementation
 
 				\return The method returns a pointer to IEventManager implementation
@@ -260,8 +252,6 @@ namespace TDEngine2
 			TWin32InternalWindowData mInternalDataObject;
 
 			TPtr<ITimer>             mpTimer;
-
-			TPtr<IDLLManager>        mpDLLManager;
 
 			TPtr<IEventManager>      mpEventManager;
 	};

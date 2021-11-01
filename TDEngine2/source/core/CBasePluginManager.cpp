@@ -5,6 +5,12 @@
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/ecs/IWorld.h"
+#if defined (TDE2_USE_WINPLATFORM)		
+#include "../../include/platform/win32/CWin32DLLManager.h"
+#elif defined (TDE2_USE_UNIXPLATFORM)
+#include "../../include/platform/unix/CUnixDLLManager.h"
+#else
+#endif
 
 
 namespace TDEngine2
@@ -28,13 +34,14 @@ namespace TDEngine2
 
 		mpEngineCore = pEngineCore;
 
-		auto pWindowSystem = pEngineCore->GetSubsystem<IWindowSystem>();
-		if (!pWindowSystem)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
 
-		mpDLLManager = pWindowSystem->GetDLLManagerInstance();
+#if defined (TDE2_USE_WINPLATFORM)																/// Win32 Platform
+		mpDLLManager = TPtr<IDLLManager>(CreateWin32DLLManager(result));
+#elif defined (TDE2_USE_UNIXPLATFORM)
+		mpDLLManager = TPtr<IDLLManager>(CreateUnixDLLManager(result));
+#else
+#endif
 
 		if (!mpDLLManager)
 		{

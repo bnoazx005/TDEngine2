@@ -26,7 +26,6 @@ namespace TDEngine2
 	class IEventManager;
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
-	TDE2_DECLARE_SCOPED_PTR(IDLLManager)
 	TDE2_DECLARE_SCOPED_PTR(ITimer)
 
 
@@ -185,14 +184,6 @@ namespace TDEngine2
 			TDE2_API U32 GetFlags() const override;
 
 			/*!
-				\brief The method returns a pointer to IDLLManager's implementation
-
-				\return The method returns a pointer to IDLLManager's implementation
-			*/
-
-			TDE2_API TPtr<IDLLManager> GetDLLManagerInstance() const override;
-
-			/*!
 				\brief The method returns a pointer to IEventManager implementation
 
 				\return The method returns a pointer to IEventManager implementation
@@ -298,8 +289,6 @@ namespace TDEngine2
 			TWindowSystemInternalData mInternalDataObject;
 			
 			TPtr<ITimer>              mpTimer;
-
-			TPtr<IDLLManager>         mpDLLManager;
 
 			volatile bool             mIsRunning;
 

@@ -153,4 +153,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TPtr<IEngineSubsystem> _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const = 0;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(IEngineCore)
 }

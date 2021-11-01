@@ -66,14 +66,8 @@ namespace TDEngine2
 			return result;
 		}
 
-		/// CUnix2DLLManager's initialization
-		mpDLLManager = CreateUnixDLLManager(result);
+		mIsInitialized = true;
 
-		if (result != RC_OK)
-		{
-			return result;
-		}
-		
 		return RC_OK;
 	}
 
@@ -229,11 +223,6 @@ namespace TDEngine2
 	U32 CUnixWindowSystem::GetFlags() const
 	{
 		return mSetupFlags;
-	}
-
-	TPtr<IDLLManager> CUnixWindowSystem::GetDLLManagerInstance() const
-	{
-		return mpDLLManager;
 	}
 
 	TPtr<IEventManager> CUnixWindowSystem::GetEventManager() const

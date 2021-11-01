@@ -278,7 +278,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WINPLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
-		mpPluginManagerInstance = TPtr<IPluginManager>(CreateBasePluginManager(TPtr<IEngineCore>(mpEngineCoreInstance), result));
+		mpPluginManagerInstance = TPtr<IPluginManager>(CreateBasePluginManager(mpEngineCoreInstance, result));
 #else
 #endif
 
@@ -560,10 +560,12 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<ISaveManager>(pSaveManager)));
 	}
 
-	IEngineCore* CBaseEngineCoreBuilder::GetEngineCore()
+	TPtr<IEngineCore> CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
 		PANIC_ON_FAILURE(_initEngineSettings());
+
+		const bool isWindowModeEnabled = !(static_cast<E_PARAMETERS>(CProjectSettings::Get()->mCommonSettings.mFlags) & E_PARAMETERS::P_WINDOWLESS_MODE);
 
 		PANIC_ON_FAILURE(_mountDirectories(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));
 
@@ -573,15 +575,15 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configureResourceManager());
 
 		PANIC_ON_FAILURE(_configureWindowSystem(
-			CProjectSettings::Get()->mCommonSettings.mApplicationName, 
-			CGameUserSettings::Get()->mWindowWidth, 
+			CProjectSettings::Get()->mCommonSettings.mApplicationName,
+			CGameUserSettings::Get()->mWindowWidth,
 			CGameUserSettings::Get()->mWindowHeight,
 			CProjectSettings::Get()->mCommonSettings.mFlags));
 
 		PANIC_ON_FAILURE(_configurePluginManager());
-		PANIC_ON_FAILURE(_configureGraphicsContext(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));
-		PANIC_ON_FAILURE(_configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioContextType));
-		PANIC_ON_FAILURE(_configureInputContext());
+		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureGraphicsContext(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType)); }
+		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioContextType)); }
+		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureInputContext()); }
 		PANIC_ON_FAILURE(_configureSceneManager());
 
 		mpFileSystemInstance->SetJobManager(mpJobManagerInstance.Get());
@@ -599,6 +601,7 @@ namespace TDEngine2
 			mpFileSystemInstance = nullptr;
 			mpResourceManagerInstance = nullptr;
 			mpEventManagerInstance = nullptr;
+			mpEngineCoreInstance = nullptr;
 		});
 
 		if (result != RC_OK)
@@ -610,9 +613,13 @@ namespace TDEngine2
 
 		PANIC_ON_FAILURE(_configureLocalizationManager());
 		PANIC_ON_FAILURE(_configureSaveManager());
-		PANIC_ON_FAILURE(_configureRenderer());
-		PANIC_ON_FAILURE(_configureImGUIContext());
-		PANIC_ON_FAILURE(_configureEditorsManager());
+		
+		if (isWindowModeEnabled)
+		{
+			PANIC_ON_FAILURE(_configureRenderer());
+			PANIC_ON_FAILURE(_configureImGUIContext());
+			PANIC_ON_FAILURE(_configureEditorsManager());
+		}
 
 		return mpEngineCoreInstance;
 	}

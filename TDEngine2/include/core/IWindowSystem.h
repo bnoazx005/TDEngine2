@@ -21,13 +21,11 @@
 namespace TDEngine2
 {
 	class ITimer;
-	class IDLLManager;
 	class IEventManager;
 	class IImGUIContextVisitor;
 
 
 	TDE2_DECLARE_SCOPED_PTR(ITimer);
-	TDE2_DECLARE_SCOPED_PTR(IDLLManager);
 	TDE2_DECLARE_SCOPED_PTR(IEventManager);
 
 
@@ -181,14 +179,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetFlags() const = 0;
-
-			/*!
-				\brief The method returns a pointer to IDLLManager's implementation
-
-				\return The method returns a pointer to IDLLManager's implementation
-			*/
-
-			TDE2_API virtual TPtr<IDLLManager> GetDLLManagerInstance() const = 0;
 
 			/*!
 				\brief The method returns a pointer to IEventManager implementation

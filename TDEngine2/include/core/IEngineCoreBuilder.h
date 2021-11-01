@@ -18,6 +18,9 @@ namespace TDEngine2
 	class IEngineCore;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IEngineCore)
+
+
 	typedef IEngineCore* (*TCreateEngineCoreCallback)(E_RESULT_CODE& result); /// A callback type of IEngineCore's factory function 
 
 
@@ -37,7 +40,7 @@ namespace TDEngine2
 				\return The method returns a configured instances of an engine core
 			*/
 
-			TDE2_API virtual IEngineCore* GetEngineCore() = 0;
+			TDE2_API virtual TPtr<IEngineCore> GetEngineCore() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEngineCoreBuilder)
 

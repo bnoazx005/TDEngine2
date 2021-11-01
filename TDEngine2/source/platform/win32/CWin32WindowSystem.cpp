@@ -195,15 +195,6 @@ namespace TDEngine2
 			return result;
 		}
 
-		/// CWin32DLLManager's initialization
-
-		mpDLLManager = TPtr<IDLLManager>(CreateWin32DLLManager(result));
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
 		mIsInitialized = true;
 		
 		return RC_OK;
@@ -319,11 +310,6 @@ namespace TDEngine2
 	U32 CWin32WindowSystem::GetFlags() const
 	{
 		return mSetupFlags;
-	}
-
-	TPtr<IDLLManager> CWin32WindowSystem::GetDLLManagerInstance() const
-	{
-		return mpDLLManager;
 	}
 
 	TPtr<IEventManager> CWin32WindowSystem::GetEventManager() const

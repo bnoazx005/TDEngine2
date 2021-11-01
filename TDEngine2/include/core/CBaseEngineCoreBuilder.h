@@ -48,7 +48,7 @@ namespace TDEngine2
 				\return The method returns a configured instances of an engine core
 			*/
 
-			TDE2_API IEngineCore* GetEngineCore() override;
+			TDE2_API TPtr<IEngineCore> GetEngineCore() override;
 
 #if TDE2_EDITORS_ENABLED
 			TDE2_API void RegisterObjectInProfiler(const std::string& id) override;
@@ -181,7 +181,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _initEngineSettings() = 0;
 		protected:
-			IEngineCore*      mpEngineCoreInstance;
+			TPtr<IEngineCore> mpEngineCoreInstance;
 
 			TPtr<IWindowSystem> mpWindowSystemInstance;
 

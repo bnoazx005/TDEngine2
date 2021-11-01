@@ -6,6 +6,7 @@
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/IPluginManager.h"
+#include "../../include/core/IEngineCore.h"
 #include "../../include/core/memory/IMemoryManager.h"
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/core/IResourceFactory.h"
@@ -42,4 +43,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IResourceLoader)
 	TDE2_DEFINE_SCOPED_PTR(IMaterial)
 	TDE2_DEFINE_SCOPED_PTR(IResource)
+	TDE2_DEFINE_SCOPED_PTR(IEngineCore)
 }

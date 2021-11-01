@@ -19,6 +19,9 @@ namespace TDEngine2
 	class IDLLManager;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IDLLManager)
+
+
 	/*!
 		\brief A factory function for creation objects of CBasePluginManager's type
 
