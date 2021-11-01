@@ -270,6 +270,7 @@
 #include "platform/MountableStorages.h"
 #include "platform/CPackageFile.h"
 #include "platform/BinaryArchives.h"
+#include "platform/CProxyWindowSystem.h"
 
 ///utils
 #include "utils/Types.h"

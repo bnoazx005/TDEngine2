@@ -25,6 +25,7 @@
 #include "../../include/platform/win32/CWin32FileSystem.h"
 #include "../../include/platform/unix/CUnixWindowSystem.h"
 #include "../../include/platform/unix/CUnixFileSystem.h"
+#include "../../include/platform/CProxyWindowSystem.h"
 #include "../../include/platform/CTextFileReader.h"
 #include "../../include/platform/CConfigFileReader.h"
 #include "../../include/platform/CBinaryFileReader.h"
@@ -165,12 +166,19 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
+		if (flags & E_PARAMETERS::P_WINDOWLESS_MODE)
+		{
+			mpWindowSystemInstance = TPtr<IWindowSystem>(CreateProxyWindowSystem(mpEventManagerInstance, name, width, height, flags, result));
+		}
+		else
+		{
 #if defined (TDE2_USE_WINPLATFORM)																/// Win32 Platform
-		mpWindowSystemInstance = TPtr<IWindowSystem>(CreateWin32WindowSystem(mpEventManagerInstance, name, width, height, flags, result));
+			mpWindowSystemInstance = TPtr<IWindowSystem>(CreateWin32WindowSystem(mpEventManagerInstance, name, width, height, flags, result));
 #elif defined (TDE2_USE_UNIXPLATFORM)
-		mpWindowSystemInstance = TPtr<IWindowSystem>(CreateUnixWindowSystem(mpEventManagerInstance, name, width, height, flags, result));
+			mpWindowSystemInstance = TPtr<IWindowSystem>(CreateUnixWindowSystem(mpEventManagerInstance, name, width, height, flags, result));
 #else
 #endif
+		}
 
 		if (result != RC_OK)
 		{
