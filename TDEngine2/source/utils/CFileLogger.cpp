@@ -5,7 +5,8 @@
 
 namespace TDEngine2
 {
-	CFileLogger::CFileLogger(const std::string& path)
+	CFileLogger::CFileLogger(const std::string& path):
+		mIsOutputEnabled(true)
 	{
 		mOutputLog.open(path.c_str());
 	}
@@ -30,6 +31,10 @@ namespace TDEngine2
 
 #endif
 
+	void CFileLogger::SetOutputEnabled(bool value)
+	{
+		mIsOutputEnabled = value;
+	}
 
 	void CFileLogger::LogMessage(const std::string& message)
 	{
@@ -69,7 +74,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!mOutputLog.is_open())
+		if (!mOutputLog.is_open() || !mIsOutputEnabled)
 		{
 			return;
 		}

@@ -24,6 +24,8 @@ namespace TDEngine2
 		public:
 			TDE2_API virtual ~ILogger() = default;
 
+			TDE2_API virtual void SetOutputEnabled(bool value) = 0;
+
 			TDE2_API virtual void LogMessage(const std::string& message) = 0;
 
 			TDE2_API virtual void LogStatus(const std::string& message, const std::string& status, C8 delimiter, U16 delimitersCount) = 0;

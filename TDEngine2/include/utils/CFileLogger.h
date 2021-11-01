@@ -34,6 +34,8 @@ namespace TDEngine2
 			TDE2_API CFileLogger(const std::string& path);
 			TDE2_API virtual ~CFileLogger() = default;
 
+			TDE2_API void SetOutputEnabled(bool value) override;
+
 			TDE2_API void LogMessage(const std::string& message) override;
 
 			TDE2_API void LogStatus(const std::string& message, const std::string& status, C8 delimiter, U16 delimitersCount);
@@ -59,6 +61,8 @@ namespace TDEngine2
 #endif
 		protected:
 			std::ofstream      mOutputLog;
+
+			bool               mIsOutputEnabled;
 
 			mutable std::mutex mMutex;
 	};
