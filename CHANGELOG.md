@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.11] 2021-11-06
+
+### Changed 
+
+- **tde2_introspector** utility was updated 
+
 ## [0.5.10] 2021-11-01
 
 ### Changed
