@@ -34,6 +34,11 @@ namespace TDEngine2
 
 		pMaterial->Bind(mMaterialInstanceId);
 
+		if (pMaterial->IsScissorTestEnabled())
+		{
+			pGraphicsContext->SetScissorRect(mScissorRect);
+		}
+
 		if (mpVertexBuffer)
 		{
 			mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
@@ -73,6 +78,11 @@ namespace TDEngine2
 
 		pMaterial->Bind(mMaterialInstanceId);
 
+		if (pMaterial->IsScissorTestEnabled())
+		{
+			pGraphicsContext->SetScissorRect(mScissorRect);
+		}
+
 		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
 		mpIndexBuffer->Bind(0);
 
@@ -103,6 +113,11 @@ namespace TDEngine2
 		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader.Get());
 
 		pMaterial->Bind(mMaterialInstanceId);
+
+		if (pMaterial->IsScissorTestEnabled())
+		{
+			pGraphicsContext->SetScissorRect(mScissorRect);
+		}
 
 		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
 		mpInstancingBuffer->Bind(1, 0, mpVertexDeclaration->GetStrideSize(1));

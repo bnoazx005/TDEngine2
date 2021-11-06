@@ -158,7 +158,7 @@ namespace TDEngine2
 				\param[in] scissorRect A rectangle for scissor test
 			*/
 
-			TDE2_API virtual void SetScissorRect(const TRectF32& scissorRect) = 0;
+			TDE2_API virtual void SetScissorRect(const TRectU32& scissorRect) = 0;
 
 			/*!
 				\brief The method computes a perspective projection matrix specific for a graphics context

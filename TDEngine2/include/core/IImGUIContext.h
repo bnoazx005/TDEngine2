@@ -127,6 +127,8 @@ namespace TDEngine2
 				bool mIsBackgroundEnabled = true;
 			} TPlotGridParams, *TPlotGridParamsPtr;
 
+			typedef std::function<void()> TImGUIContextAction;
+
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
@@ -143,7 +145,7 @@ namespace TDEngine2
 				\param[in] dt Time elapsed from last frame was rendered
 			*/
 
-			TDE2_API virtual void BeginFrame(float dt) = 0;
+			TDE2_API virtual void BeginFrame(F32 dt) = 0;
 
 			/*!
 				\brief The method flushes current state and send all the data onto GPU to render it
@@ -190,7 +192,7 @@ namespace TDEngine2
 				\return The method returns true if the button was pressed, false in other cases
 			*/
 
-			TDE2_API virtual bool Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked = {}, bool makeInvisible = false,
+			TDE2_API virtual bool Button(const std::string& text, const TVector2& sizes, const TImGUIContextAction& onClicked = {}, bool makeInvisible = false,
 										 bool allowOverlapping = false) = 0;
 
 			/*!
@@ -216,7 +218,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void IntSlider(const std::string& text, I32& value, I32 minValue, I32 maxValue, 
-											const std::function<void()>& onValueChanged = {}) = 0;
+											const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a slider for floating point values. If a value's changed onValueChanged
@@ -230,7 +232,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void FloatSlider(const std::string& text, F32& value, F32 minValue, F32 maxValue,
-											  const std::function<void()>& onValueChanged = {}) = 0;
+											  const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a float field which is a text box specialized for float single precision numbers
@@ -240,7 +242,7 @@ namespace TDEngine2
 				\param[in] onValueChanged A callback that is called when the value of the field has changed
 			*/
 
-			TDE2_API virtual void FloatField(const std::string& text, F32& value, const std::function<void()>& onValueChanged = {}) = 0;
+			TDE2_API virtual void FloatField(const std::string& text, F32& value, const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a integer field which is a text box specialized for integral numbers
@@ -250,7 +252,7 @@ namespace TDEngine2
 				\param[in] onValueChanged A callback that is called when the value of the field has changed
 			*/
 
-			TDE2_API virtual void IntField(const std::string& text, I32& value, const std::function<void()>& onValueChanged = {}) = 0;
+			TDE2_API virtual void IntField(const std::string& text, I32& value, const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a text box
@@ -260,7 +262,7 @@ namespace TDEngine2
 				\param[in] onValueChanged A callback that is called when the value of the field has changed
 			*/
 
-			TDE2_API virtual void TextField(const std::string& text, std::string& value, const std::function<void()>& onValueChanged = {}) = 0;
+			TDE2_API virtual void TextField(const std::string& text, std::string& value, const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a field for TVector2 type
@@ -270,7 +272,7 @@ namespace TDEngine2
 				\param[in] onValueChanged A callback that is called when the value of the slider has changed
 			*/
 
-			TDE2_API virtual void Vector2Field(const std::string& text, TVector2& value, const std::function<void()>& onValueChanged = {}) = 0;
+			TDE2_API virtual void Vector2Field(const std::string& text, TVector2& value, const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a field for TVector3 type
@@ -281,7 +283,7 @@ namespace TDEngine2
 			*/
 
 
-			TDE2_API virtual void Vector3Field(const std::string& text, TVector3& value, const std::function<void()>& onValueChanged = {}) = 0;
+			TDE2_API virtual void Vector3Field(const std::string& text, TVector3& value, const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a field for TVector4 type
@@ -291,7 +293,7 @@ namespace TDEngine2
 				\param[in] onValueChanged A callback that is called when the value of the slider has changed
 			*/
 
-			TDE2_API virtual void Vector4Field(const std::string& text, TVector4& value, const std::function<void()>& onValueChanged = {}) = 0;
+			TDE2_API virtual void Vector4Field(const std::string& text, TVector4& value, const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method displays a color picker for common RGBA color type 
@@ -301,9 +303,9 @@ namespace TDEngine2
 				\param[in] onValueChanged A callback that is called when the value of the slider has changed
 			*/
 
-			TDE2_API virtual void ColorPickerField(const std::string& text, TColor32F& color, const std::function<void()>& onValueChanged = {}) = 0;
+			TDE2_API virtual void ColorPickerField(const std::string& text, TColor32F& color, const TImGUIContextAction& onValueChanged = {}) = 0;
 
-			TDE2_API virtual void GradientColorPicker(const std::string& text, CGradientColor& color, const std::function<void()>& onValueChanged = {}) = 0;
+			TDE2_API virtual void GradientColorPicker(const std::string& text, CGradientColor& color, const TImGUIContextAction& onValueChanged = {}) = 0;
 
 			/*!
 				\brief The method creates a main menu on top of the screen
@@ -340,7 +342,7 @@ namespace TDEngine2
 				\return The method returns true when a user clicks over the menu item
 			*/
 
-			TDE2_API virtual bool MenuItem(const std::string& name, const std::string& shortcut, const std::function<void()>& onClicked = {}) = 0;
+			TDE2_API virtual bool MenuItem(const std::string& name, const std::string& shortcut, const TImGUIContextAction& onClicked = {}) = 0;
 
 			/*!
 				\brief The method creates a histogram
@@ -480,8 +482,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool CollapsingHeader(const std::string& id, bool isOpened, bool isSelected = false, 
-												   const std::function<void()>& itemClicked = nullptr, 
-												   const std::function<void()>& contentAction = nullptr) = 0;
+												   const TImGUIContextAction& itemClicked = nullptr, 
+												   const TImGUIContextAction& contentAction = nullptr) = 0;
 
 			/*!
 				\brief The method creates a new window on the screen. Every call after this one
@@ -562,9 +564,9 @@ namespace TDEngine2
 				\brief The method changes width of items that are called within action callbacks
 			*/
 
-			TDE2_API virtual void SetItemWidth(F32 width, const std::function<void()>& action = {}) = 0;
+			TDE2_API virtual void SetItemWidth(F32 width, const TImGUIContextAction& action = {}) = 0;
 
-			TDE2_API virtual void DisplayIDGroup(I32 id, const std::function<void()>& idGroupCallback = {}) = 0;
+			TDE2_API virtual void DisplayIDGroup(I32 id, const TImGUIContextAction& idGroupCallback = {}) = 0;
 
 			/*!
 				\brief The method provides implementation of drag & drop source
@@ -572,7 +574,7 @@ namespace TDEngine2
 				\param[in] action A callback in which all the stuff for register should be executed
 			*/
 
-			TDE2_API virtual void RegisterDragAndDropSource(const std::function<void()>& action = nullptr) = 0;
+			TDE2_API virtual void RegisterDragAndDropSource(const TImGUIContextAction& action = nullptr) = 0;
 
 			/*!
 				\brief The method provides implementation of drag & drop target
@@ -580,7 +582,7 @@ namespace TDEngine2
 				\param[in] action A callback in which all the stuff for register should be executed
 			*/
 
-			TDE2_API virtual void RegisterDragAndDropTarget(const std::function<void()>& action = nullptr) = 0;
+			TDE2_API virtual void RegisterDragAndDropTarget(const TImGUIContextAction& action = nullptr) = 0;
 
 			template <typename T>
 			TDE2_API void SetDragAndDropData(const std::string& id, const T& data)

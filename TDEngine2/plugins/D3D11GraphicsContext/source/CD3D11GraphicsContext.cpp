@@ -255,7 +255,7 @@ namespace TDEngine2
 		mp3dDeviceContext->RSSetViewports(1, &viewport);
 	}
 	
-	void CD3D11GraphicsContext::SetScissorRect(const TRectF32& scissorRect)
+	void CD3D11GraphicsContext::SetScissorRect(const TRectU32& scissorRect)
 	{
 		D3D11_RECT internalScissorRect;
 

@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.11] 2021-11-06
 
+### Added
+
+- A new method **IsScissorTestEnabled()** was added for **IMaterial** interface
+
 ### Changed 
 
-- **tde2_introspector** utility was updated 
-- **ImGUIContext** now uses Dear ImGUI of 1.85 version
+- **tde2_introspector** utility was updated.
+- **ImGUIContext** now uses Dear ImGUI of 1.85 version.
+- The API of **IGraphicsContext** was changed. The signature of **SetScissorRect** method was changed from (const TRectF32&) onto (const TRectU32&).
 
 ## [0.5.10] 2021-11-01
 

@@ -1,4 +1,6 @@
-#include "./../include/CImGUIContext.h"
+#include "../include/CImGUIContext.h"
+#include "../deps/imgui-1.85/imgui.h"
+#include "../deps/imgui-1.85/ImGuizmo.h"
 #include <utils/Types.h>
 #include <core/IWindowSystem.h>
 #include <core/IGraphicsContext.h>
@@ -19,8 +21,6 @@
 #include <utils/CGradientColor.h>
 #include <math/MathUtils.h>
 #include <math/TQuaternion.h>
-#include "../deps/imgui-1.85/imgui.h"
-#include "../deps/imgui-1.85/ImGuizmo.h"
 #include <vector>
 #include <cstring>
 #define DEFER_IMPLEMENTATION
@@ -113,7 +113,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CImGUIContext::BeginFrame(float dt)
+	void CImGUIContext::BeginFrame(F32 dt)
 	{
 		if (!mpIOContext)
 		{
@@ -130,6 +130,7 @@ namespace TDEngine2
 
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
+		ImGui::ShowDemoWindow();
 
 		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
 
@@ -170,7 +171,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked, bool makeInvisible, bool allowOverlapping)
+	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const TImGUIContextAction& onClicked, bool makeInvisible, bool allowOverlapping)
 	{
 		const bool result = makeInvisible ? ImGui::InvisibleButton(text.c_str(), sizes) : ImGui::Button(text.c_str(), sizes);
 
@@ -198,7 +199,7 @@ namespace TDEngine2
 	}
 
 	void CImGUIContext::IntSlider(const std::string& text, I32& value, I32 minValue, I32 maxValue,
-								  const std::function<void()>& onValueChanged)
+								  const TImGUIContextAction& onValueChanged)
 	{		
 		if (ImGui::SliderInt(text.c_str(), &value, minValue, maxValue) && onValueChanged)
 		{
@@ -209,7 +210,7 @@ namespace TDEngine2
 	}
 
 	void CImGUIContext::FloatSlider(const std::string& text, F32& value, F32 minValue, F32 maxValue,
-									const std::function<void()>& onValueChanged)
+									const TImGUIContextAction& onValueChanged)
 	{
 		if (ImGui::SliderFloat(text.c_str(), &value, minValue, maxValue) && onValueChanged)
 		{
@@ -219,7 +220,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::FloatField(const std::string& text, F32& value, const std::function<void()>& onValueChanged)
+	void CImGUIContext::FloatField(const std::string& text, F32& value, const TImGUIContextAction& onValueChanged)
 	{
 		if (ImGui::InputFloat(text.c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue) && onValueChanged)
 		{
@@ -229,7 +230,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::IntField(const std::string& text, I32& value, const std::function<void()>& onValueChanged)
+	void CImGUIContext::IntField(const std::string& text, I32& value, const TImGUIContextAction& onValueChanged)
 	{
 		if (ImGui::InputInt(text.c_str(), &value, 1, 100, onValueChanged ? ImGuiInputTextFlags_EnterReturnsTrue : 0x0) && onValueChanged)
 		{
@@ -239,7 +240,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::TextField(const std::string& text, std::string& value, const std::function<void()>& onValueChanged)
+	void CImGUIContext::TextField(const std::string& text, std::string& value, const TImGUIContextAction& onValueChanged)
 	{
 		C8 buffer[512];
 		memcpy(buffer, value.c_str(), sizeof(buffer));
@@ -256,7 +257,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::Vector2Field(const std::string& text, TVector2& value, const std::function<void()>& onValueChanged)
+	void CImGUIContext::Vector2Field(const std::string& text, TVector2& value, const TImGUIContextAction& onValueChanged)
 	{
 		F32 rawValue[2] { value.x, value.y };
 
@@ -269,7 +270,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::Vector3Field(const std::string& text, TVector3& value, const std::function<void()>& onValueChanged)
+	void CImGUIContext::Vector3Field(const std::string& text, TVector3& value, const TImGUIContextAction& onValueChanged)
 	{
 		F32 rawValue[3] { value.x, value.y, value.z };
 		
@@ -282,7 +283,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::Vector4Field(const std::string& text, TVector4& value, const std::function<void()>& onValueChanged)
+	void CImGUIContext::Vector4Field(const std::string& text, TVector4& value, const TImGUIContextAction& onValueChanged)
 	{
 		F32 rawValue[4]{ value.x, value.y, value.z, value.w };
 
@@ -295,7 +296,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::ColorPickerField(const std::string& text, TColor32F& color, const std::function<void()>& onValueChanged)
+	void CImGUIContext::ColorPickerField(const std::string& text, TColor32F& color, const TImGUIContextAction& onValueChanged)
 	{
 		F32 rawValue[4]{ color.r, color.g, color.b, color.a };
 
@@ -308,7 +309,7 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::GradientColorPicker(const std::string& text, CGradientColor& color, const std::function<void()>& onValueChanged)
+	void CImGUIContext::GradientColorPicker(const std::string& text, CGradientColor& color, const TImGUIContextAction& onValueChanged)
 	{
 		constexpr F32 gradientColorPickerHeight = 25.0f;
 
@@ -373,7 +374,7 @@ namespace TDEngine2
 		}
 	}
 	
-	bool CImGUIContext::MenuItem(const std::string& name, const std::string& shortcut, const std::function<void()>& onClicked)
+	bool CImGUIContext::MenuItem(const std::string& name, const std::string& shortcut, const TImGUIContextAction& onClicked)
 	{
 		if (ImGui::MenuItem(name.c_str(), shortcut.c_str()))
 		{
@@ -565,7 +566,7 @@ namespace TDEngine2
 		EndChildWindow();
 	}
 
-	void CImGUIContext::DisplayIDGroup(I32 id, const std::function<void()>& idGroupCallback)
+	void CImGUIContext::DisplayIDGroup(I32 id, const TImGUIContextAction& idGroupCallback)
 	{
 		ImGui::PushID(id);
 
@@ -624,7 +625,7 @@ namespace TDEngine2
 		ImGui::TreePop();
 	}
 
-	bool CImGUIContext::CollapsingHeader(const std::string& id, bool isOpened, bool isSelected, const std::function<void()>& itemClicked, const std::function<void()>& contentAction)
+	bool CImGUIContext::CollapsingHeader(const std::string& id, bool isOpened, bool isSelected, const TImGUIContextAction& itemClicked, const TImGUIContextAction& contentAction)
 	{
 		if (!ImGui::CollapsingHeader(id.c_str(), ImGuiTreeNodeFlags_DefaultOpen | (isSelected ? ImGuiTreeNodeFlags_Selected : 0x0)))
 		{
@@ -758,7 +759,7 @@ namespace TDEngine2
 		ImGui::SetCursorScreenPos(pos);
 	}
 
-	void CImGUIContext::SetItemWidth(F32 width, const std::function<void()>& action)
+	void CImGUIContext::SetItemWidth(F32 width, const TImGUIContextAction& action)
 	{
 		ImGui::PushItemWidth(width);
 
@@ -770,7 +771,7 @@ namespace TDEngine2
 		ImGui::PopItemWidth();
 	}
 
-	void CImGUIContext::RegisterDragAndDropSource(const std::function<void()>& action)
+	void CImGUIContext::RegisterDragAndDropSource(const TImGUIContextAction& action)
 	{
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
@@ -783,7 +784,7 @@ namespace TDEngine2
 		}
 	}
 
-	void CImGUIContext::RegisterDragAndDropTarget(const std::function<void()>& action)
+	void CImGUIContext::RegisterDragAndDropTarget(const TImGUIContextAction& action)
 	{
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -970,6 +971,9 @@ namespace TDEngine2
 		blendingParams.mScrAlphaValue  = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
 		blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
 
+		auto& rasterizerParams = editorUIMaterialParams.mRasterizerParams;
+		rasterizerParams.mIsScissorTestEnabled = true;
+
 		mDefaultEditorMaterialHandle = pResourceManager->Create<IMaterial>("DefaultEditorUIMaterial.material", editorUIMaterialParams);
 
 		// \note Create a font texture
@@ -1105,22 +1109,17 @@ namespace TDEngine2
 				pCurrDrawCommand->mStartVertex             = pCurrCommand->VtxOffset + currVertexOffset;
 				pCurrDrawCommand->mMaterialInstanceId      = mUsingMaterials[textureHandleHash];
 
+				const TVector2 clipMin(pCurrCommand->ClipRect.x - clipRect.x, pCurrCommand->ClipRect.y - clipRect.y);
+				const TVector2 clipMax(pCurrCommand->ClipRect.z - clipRect.x, pCurrCommand->ClipRect.w - clipRect.y);
+				
+				if (clipMax.x < clipMin.x || clipMax.y < clipMin.y)
+				{
+					continue;
+				}
+
+				pCurrDrawCommand->mScissorRect = TRectU32(static_cast<U32>(clipMin.x), static_cast<U32>(clipMin.y), static_cast<U32>(clipMax.x), static_cast<U32>(clipMax.y));
+
 				++batchId;
-				//if (pCurrCommand->UserCallback != NULL)
-				//{
-				//	// User callback, registered via ImDrawList::AddCallback()
-				//	// (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
-				//	if (pCurrCommand->UserCallback == ImDrawCallback_ResetRenderState)
-				//		ImGui_ImplDX11_SetupRenderState(draw_data, ctx);
-				//	else
-				//		pCurrCommand->UserCallback(cmd_list, pCurrCommand);
-				//}
-				//else
-				//{
-				//	// Apply scissor/clipping rectangle
-				//	const D3D11_RECT r = { (LONG)(pCurrCommand->ClipRect.x - clip_off.x), (LONG)(pCurrCommand->ClipRect.y - clip_off.y), (LONG)(pCurrCommand->ClipRect.z - clip_off.x), (LONG)(pCurrCommand->ClipRect.w - clip_off.y) };
-				//	ctx->RSSetScissorRects(1, &r);
-				//}
 			}
 
 			currIndexOffset  += pCommandList->IdxBuffer.Size;

@@ -214,7 +214,7 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height)));
 	}
 	
-	void COGLGraphicsContext::SetScissorRect(const TRectF32& scissorRect)
+	void COGLGraphicsContext::SetScissorRect(const TRectU32& scissorRect)
 	{
 		GL_SAFE_VOID_CALL(glScissor(static_cast<GLint>(scissorRect.x), static_cast<GLint>(scissorRect.y), static_cast<GLsizei>(scissorRect.width), static_cast<GLsizei>(scissorRect.height)));
 	}

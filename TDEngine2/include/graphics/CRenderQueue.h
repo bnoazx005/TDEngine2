@@ -61,6 +61,8 @@ namespace TDEngine2
 		TMaterialInstanceId       mMaterialInstanceId = DefaultMaterialInstanceId;
 
 		TPerObjectShaderData      mObjectData;
+
+		TRectU32                  mScissorRect; ///< \note The assignment is executed only if the corresponding test is enabled for used material
 	} TRenderCommand, *TRenderCommandPtr;
 
 

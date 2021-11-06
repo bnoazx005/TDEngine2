@@ -666,6 +666,11 @@ namespace TDEngine2
 		return (textureResourceIt == it->second.cend()) ? nullptr : textureResourceIt->second;
 	}
 
+	bool CBaseMaterial::IsScissorTestEnabled() const
+	{
+		return mRasterizerStateParams.mIsScissorTestEnabled;
+	}
+
 	TResult<TPtr<IMaterialInstance>> CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
 	{
 		E_RESULT_CODE result = RC_FAIL;
