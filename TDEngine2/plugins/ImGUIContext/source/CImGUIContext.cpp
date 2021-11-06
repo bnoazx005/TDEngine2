@@ -19,8 +19,8 @@
 #include <utils/CGradientColor.h>
 #include <math/MathUtils.h>
 #include <math/TQuaternion.h>
-#include "../deps/imgui-1.72/imgui.h"
-#include "../deps/imgui-1.72/ImGuizmo.h"
+#include "../deps/imgui-1.85/imgui.h"
+#include "../deps/imgui-1.85/ImGuizmo.h"
 #include <vector>
 #include <cstring>
 #define DEFER_IMPLEMENTATION
@@ -172,23 +172,21 @@ namespace TDEngine2
 
 	bool CImGUIContext::Button(const std::string& text, const TVector2& sizes, const std::function<void()>& onClicked, bool makeInvisible, bool allowOverlapping)
 	{
-		if ((makeInvisible ? ImGui::InvisibleButton : ImGui::Button)(text.c_str(), ImVec2(sizes.x, sizes.y)))
+		const bool result = makeInvisible ? ImGui::InvisibleButton(text.c_str(), sizes) : ImGui::Button(text.c_str(), sizes);
+
+		if (result && onClicked)
 		{
-			if (onClicked)
-			{
-				onClicked();
-			}
-
-			ImGui::SetItemAllowOverlap();
-			_prepareLayout();
-
-			return true;
+			onClicked();
 		}
 
-		ImGui::SetItemAllowOverlap();
+		if (allowOverlapping) 
+		{
+			ImGui::SetItemAllowOverlap();
+		}
+
 		_prepareLayout();
 
-		return false;
+		return result;
 	}
 
 	bool CImGUIContext::Checkbox(const std::string& text, bool& isSelected)
@@ -1304,7 +1302,7 @@ namespace TDEngine2
 					return;
 				}
 
-				if (ImGui::IsItemActive() && ImGui::IsMouseDragging())
+				if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 				{
 					dragVector = ImGui::GetIO().MouseDelta.x;
 				}

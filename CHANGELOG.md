@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed 
 
 - **tde2_introspector** utility was updated 
+- **ImGUIContext** now uses Dear ImGUI of 1.85 version
 
 ## [0.5.10] 2021-11-01
 

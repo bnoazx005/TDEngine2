@@ -15,22 +15,26 @@ endif ()
 set(IMGUI_CONTEXT_LIBRARY_NAME "ImGUIContext")
 
 
+set(CURR_DEAR_IMGUI "imgui-1.85")
+
+
 set(IMGUI_CTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CImGUICtxPlugin.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CImGUIContext.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_internal.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/ImGuizmo.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/imgui.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/imgui_internal.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/ImGuizmo.h"
 	)
 
 set(IMGUI_CTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CImGUICtxPlugin.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CImGUIContext.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_widgets.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_draw.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/imgui_demo.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/ImGuizmo.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/imgui.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/imgui_widgets.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/imgui_tables.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/imgui_draw.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/imgui_demo.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/ImGuizmo.cpp"
 	)
 
 source_group("includes" FILES ${IMGUI_CTX_HEADERS})
@@ -57,7 +61,7 @@ add_library(${IMGUI_CONTEXT_LIBRARY_NAME} SHARED ${IMGUI_CTX_SOURCES} ${IMGUI_CT
 #set up TDEngine2 headers
 target_include_directories(${IMGUI_CONTEXT_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
 #set up imGUI headers
-target_include_directories(${IMGUI_CONTEXT_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/imgui-1.72/")
+target_include_directories(${IMGUI_CONTEXT_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/${CURR_DEAR_IMGUI}/")
 
 # disable the <libname>_EXPORTS
 set_target_properties(${IMGUI_CONTEXT_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
