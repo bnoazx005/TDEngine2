@@ -312,20 +312,9 @@ namespace TDEngine2
 	{
 		constexpr F32 gradientColorPickerHeight = 25.0f;
 
-		const TVector2 cursorPos = GetCursorScreenPos();
-		const TVector2 sizes { GetWindowWidth() - 50.0f, gradientColorPickerHeight };
-
-		_drawGradientColorPreview(text, color, sizes);
-
-		ImGui::SetCursorScreenPos(cursorPos);
-		ImGui::PushID(rand());
-		ImGui::InvisibleButton("", sizes);
-		ImGui::PopID();
-
-		// \note Open full editor if a user clicks over a preview
-		if (ImGui::IsItemClicked())
+		if (_drawGradientColorPreview(text, color, { GetWindowWidth(), gradientColorPickerHeight })) // \note Open full editor if a user clicks over a preview
 		{
-			mIsGradientColorEditorOpened = true;
+			mIsGradientColorEditorOpened = !mIsGradientColorEditorOpened;
 		}
 
 		if (mIsGradientColorEditorOpened)
@@ -1194,7 +1183,7 @@ namespace TDEngine2
 		return ImGui::AcceptDragDropPayload(id.c_str());
 	}
 
-	void CImGUIContext::_drawGradientColorPreview(const std::string& text, CGradientColor& color, const TVector2& sizes)
+	bool CImGUIContext::_drawGradientColorPreview(const std::string& text, CGradientColor& color, const TVector2& sizes)
 	{
 		const U32 packedWhiteColor = PackABGRColor32F(TColorUtils::mWhite);
 
@@ -1203,12 +1192,14 @@ namespace TDEngine2
 			BeginHorizontal();
 			Label(text);
 
-			TVector2 cursorPos = GetCursorScreenPos();
+			const TVector2 cursorPos = GetCursorScreenPos();
 
-			const F32 maxWidth = GetWindowWidth() - cursorPos.x;
+			const F32 width = GetWindowWidth();
 			const F32 height = GetWindowHeight();
 
-			_getCurrActiveDrawList()->AddRectFilled(cursorPos, cursorPos + TVector2(maxWidth, height), packedWhiteColor);
+			auto pDrawList = _getCurrActiveDrawList();
+
+			pDrawList->AddRectFilled(cursorPos, cursorPos + TVector2(width, height), packedWhiteColor);
 
 			for (auto it = color.begin(); it != color.end() - 1; ++it)
 			{
@@ -1221,13 +1212,15 @@ namespace TDEngine2
 				const F32 currColorTime = std::get<F32>(currColorSample);
 				const F32 nextColorTime = std::get<F32>(nextColorSample);
 
-				_getCurrActiveDrawList()->AddRectFilledMultiColor(cursorPos + RightVector2 * (currColorTime * maxWidth), cursorPos + TVector2(nextColorTime * maxWidth, height), leftColor, rightColor, rightColor, leftColor);
+				pDrawList->AddRectFilledMultiColor(cursorPos + TVector2(currColorTime * width, 0.0f), cursorPos + TVector2(nextColorTime * width, height), leftColor, rightColor, rightColor, leftColor);
 			}
 
 			EndHorizontal();
 		}
 
 		EndChildWindow();
+
+		return ImGui::IsItemClicked();
 	}
 
 	void CImGUIContext::_drawGradientColorEditor(CGradientColor& color, const TVector2& windowSizes)

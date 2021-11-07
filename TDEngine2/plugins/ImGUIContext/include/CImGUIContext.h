@@ -622,7 +622,8 @@ namespace TDEngine2
 			TDE2_API void _setDragAndDropData(const std::string& id, const void* pData, U32 size) override;
 			TDE2_API const void* _getDragAndDropData(const std::string& id) const override;
 
-			TDE2_API void _drawGradientColorPreview(const std::string& text, CGradientColor& color, const TVector2& sizes);
+			/// The method returns true if a user clicks over a preview button, false in other cases
+			TDE2_API bool _drawGradientColorPreview(const std::string& text, CGradientColor& color, const TVector2& sizes);
 			TDE2_API void _drawGradientColorEditor(CGradientColor& color, const TVector2& windowSizes);
 		protected:
 			TPtr<IWindowSystem>     mpWindowSystem;
