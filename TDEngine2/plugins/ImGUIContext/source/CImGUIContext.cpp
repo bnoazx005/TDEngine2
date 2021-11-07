@@ -130,7 +130,6 @@ namespace TDEngine2
 
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
-		ImGui::ShowDemoWindow();
 
 		ImGuizmo::SetRect(0, 0, mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
 
@@ -893,6 +892,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	
+	static constexpr USIZE VertexBufferChunkSize = 8192 * sizeof(ImDrawVert);
+	static constexpr USIZE IndexBufferChunkSize = 65536 * sizeof(U16);
+
+
 	void CImGUIContext::_updateInputState(ImGuiIO& io, IInputContext* pInputContext)
 	{
 		IDesktopInputContext* pDesktopInputCtx = dynamic_cast<IDesktopInputContext*>(mpInputContext.Get());
@@ -942,7 +946,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto vertexBufferResult = pGraphicsManager->CreateVertexBuffer(BUT_DYNAMIC, 8192 * sizeof(ImDrawVert), nullptr);
+		auto vertexBufferResult = pGraphicsManager->CreateVertexBuffer(BUT_DYNAMIC, VertexBufferChunkSize, nullptr);
 		if (vertexBufferResult.HasError())
 		{
 			return vertexBufferResult.GetError();
@@ -950,7 +954,7 @@ namespace TDEngine2
 
 		mpVertexBuffer = vertexBufferResult.Get();
 
-		auto indexBufferResult = pGraphicsManager->CreateIndexBuffer(BUT_DYNAMIC, IFT_INDEX16, 65536 * sizeof(U16), nullptr);
+		auto indexBufferResult = pGraphicsManager->CreateIndexBuffer(BUT_DYNAMIC, IFT_INDEX16, IndexBufferChunkSize, nullptr);
 		if (indexBufferResult.HasError())
 		{
 			return indexBufferResult.GetError();
@@ -1042,6 +1046,16 @@ namespace TDEngine2
 				
 				pCurrVertexPtr += pCommandList->VtxBuffer.Size;
 				pCurrIndexPtr  += pCommandList->IdxBuffer.Size;
+			}
+
+			if (vertices.size() > mpVertexBuffer->GetSize() / sizeof(ImDrawVert))
+			{
+				mpVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, mpVertexBuffer->GetSize() + VertexBufferChunkSize, nullptr).Get();
+			}
+
+			if (indices.size() > mpIndexBuffer->GetSize() / sizeof(ImDrawIdx))
+			{
+				mpIndexBuffer = mpGraphicsObjectManager->CreateIndexBuffer(E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, E_INDEX_FORMAT_TYPE::IFT_INDEX16, mpIndexBuffer->GetSize() + IndexBufferChunkSize, nullptr).Get();
 			}
 
 			if (!vertices.empty())

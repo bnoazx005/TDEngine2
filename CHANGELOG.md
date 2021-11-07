@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.12] 2021-11-07
+
+### Added
+
+- The growing of vertex/index buffers was added in dear imgui's code
+
 ## [0.5.11] 2021-11-06
 
 ### Added
