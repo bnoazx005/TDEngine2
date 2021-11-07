@@ -78,7 +78,7 @@ namespace TDEngine2
 				void Clear();
 			} TPhysicsObjectsData;
 
-			__declspec(align(16)) struct TEntitiesMotionState : public btMotionState
+			struct alignas(16) TEntitiesMotionState : public btMotionState
 			{
 				btTransform mGraphicsWorldTrans;
 				btTransform mCenterOfMassOffset;
