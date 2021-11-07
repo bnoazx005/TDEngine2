@@ -216,7 +216,14 @@ namespace TDEngine2
 	
 	void COGLGraphicsContext::SetScissorRect(const TRectU32& scissorRect)
 	{
-		GL_SAFE_VOID_CALL(glScissor(static_cast<GLint>(scissorRect.x), static_cast<GLint>(scissorRect.y), static_cast<GLsizei>(scissorRect.width), static_cast<GLsizei>(scissorRect.height)));
+		auto&& clientRect = mpWindowSystem->GetClientRect();
+
+		/// convert from D3D like viewport to GL (Y axis is inverted)
+		GL_SAFE_VOID_CALL(
+			glScissor(static_cast<GLint>(scissorRect.x),
+				static_cast<GLint>(clientRect.height - (scissorRect.y + scissorRect.height)),
+				static_cast<GLsizei>(scissorRect.width),
+				static_cast<GLsizei>(scissorRect.height)));
 	}
 
 	TMatrix4 COGLGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)

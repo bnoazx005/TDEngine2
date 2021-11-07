@@ -1117,7 +1117,11 @@ namespace TDEngine2
 					continue;
 				}
 
-				pCurrDrawCommand->mScissorRect = TRectU32(static_cast<U32>(clipMin.x), static_cast<U32>(clipMin.y), static_cast<U32>(clipMax.x), static_cast<U32>(clipMax.y));
+				pCurrDrawCommand->mScissorRect = TRectU32(
+					static_cast<U32>(clipMin.x), 
+					static_cast<U32>(clipMin.y), 
+					static_cast<U32>(CMathUtils::Abs(clipMax.x - clipMin.x)), 
+					static_cast<U32>(CMathUtils::Abs(clipMax.y - clipMin.y)));
 
 				++batchId;
 			}

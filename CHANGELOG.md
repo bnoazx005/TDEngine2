@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ImGUIContext** now uses Dear ImGUI of 1.85 version.
 - The API of **IGraphicsContext** was changed. The signature of **SetScissorRect** method was changed from (const TRectF32&) onto (const TRectU32&).
 
+### Fixed
+
+- The implemenation of **COGLGraphicsContext::SetScissorRect** was updated to be consistent when GAPI is switched.
+
 ## [0.5.10] 2021-11-01
 
 ### Changed
