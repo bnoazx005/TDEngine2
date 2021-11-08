@@ -599,6 +599,8 @@ namespace TDEngine2
 
 			TDE2_API TVector2 GetScrollPosition() const override;
 
+			TDE2_API ImDrawList* GetCurrActiveDrawList() const;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUIContext)
 
@@ -617,14 +619,9 @@ namespace TDEngine2
 
 			TDE2_API void _prepareLayout();
 
-			TDE2_API ImDrawList* _getCurrActiveDrawList() const;
-
 			TDE2_API void _setDragAndDropData(const std::string& id, const void* pData, U32 size) override;
 			TDE2_API const void* _getDragAndDropData(const std::string& id) const override;
 
-			/// The method returns true if a user clicks over a preview button, false in other cases
-			TDE2_API bool _drawGradientColorPreview(const std::string& text, CGradientColor& color, const TVector2& sizes);
-			TDE2_API void _drawGradientColorEditor(CGradientColor& color, const TVector2& windowSizes);
 		protected:
 			TPtr<IWindowSystem>     mpWindowSystem;
 

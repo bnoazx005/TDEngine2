@@ -166,7 +166,7 @@ namespace TDEngine2
 
 	void CImGUIContext::Label(const std::string& text, const TVector2& pos, const TColor32F& color)
 	{
-		_getCurrActiveDrawList()->AddText(pos, PackColor32F(color), &text.front(), &text.front() + text.length());
+		GetCurrActiveDrawList()->AddText(pos, PackColor32F(color), &text.front(), &text.front() + text.length());
 		_prepareLayout();
 	}
 
@@ -308,18 +308,175 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
+	   
+	static void DrawGradientColorRamp(CImGUIContext* pImGUIContext, CGradientColor& color, const TRectF32& rect)
+	{
+		const U32 packedWhiteColor = PackABGRColor32F(TColorUtils::mWhite);
+
+		auto pDrawList = pImGUIContext->GetCurrActiveDrawList();
+
+		const TVector2 origin = rect.GetLeftBottom();
+		const TVector2 sizes = rect.GetSizes();
+
+		pDrawList->AddRectFilled(origin, origin + sizes, packedWhiteColor);
+
+		for (auto it = color.begin(); it != color.end() - 1; ++it)
+		{
+			const auto& currColorSample = *it;
+			const auto& nextColorSample = *(it + 1);
+
+			const U32 leftColor = PackABGRColor32F(std::get<TColor32F>(currColorSample));
+			const U32 rightColor = PackABGRColor32F(std::get<TColor32F>(nextColorSample));
+
+			const F32 currColorTime = std::get<F32>(currColorSample);
+			const F32 nextColorTime = std::get<F32>(nextColorSample);
+
+			pDrawList->AddRectFilledMultiColor(origin + TVector2(currColorTime * sizes.x, 0.0f), origin + TVector2(nextColorTime * sizes.x, sizes.y), leftColor, rightColor, rightColor, leftColor);
+		}
+	}
+
+	/// The method returns true if a user clicks over a preview button, false in other cases
+	static bool DrawGradientColorPreview(CImGUIContext* pImGUIContext, const std::string& text, CGradientColor& color, const TVector2& sizes)
+	{
+		if (pImGUIContext->BeginChildWindow(text, sizes))
+		{
+			pImGUIContext->BeginHorizontal();
+			pImGUIContext->Label(text);
+
+			const TVector2 cursorPos = pImGUIContext->GetCursorScreenPos();
+			DrawGradientColorRamp(pImGUIContext, color, { cursorPos.x, cursorPos.y, pImGUIContext->GetWindowWidth(), pImGUIContext->GetWindowHeight() });
+
+			pImGUIContext->EndHorizontal();
+		}
+
+		pImGUIContext->EndChildWindow();
+
+		return ImGui::IsItemClicked();
+	}
+
+	static void DrawGradientColorMarkers(CImGUIContext* pImGUIContext, CGradientColor& color, const TRectF32& rect, const TVector2& markerSizes)
+	{
+		enum class E_GRADIENT_COLOR_WINDOW_PROPS : U32
+		{
+			SELECTED_MARKER_INDEX = 0x42f,
+		};
+
+		TVector2 origin = rect.GetLeftBottom();
+		const TVector2 sizes = rect.GetSizes();
+
+		origin = origin + TVector2(0.0f, 1.2f * sizes.y);
+
+		auto pWindowStorage = ImGui::GetStateStorage();
+
+		U32 selectedMarkerIndex = static_cast<U32>(pWindowStorage->GetInt(static_cast<ImGuiID>(E_GRADIENT_COLOR_WINDOW_PROPS::SELECTED_MARKER_INDEX)));
+
+		TVector2 dragVector;
+
+		/// \note Create an area for creation of new points
+		if (ImGui::IsMouseDoubleClicked(0))
+		{
+			const float t = (ImGui::GetMousePos().x - origin.x) / sizes.x;
+			color.AddPoint({ t, color.Sample(t) }); /// \note For a new point use interpolated color's value 
+		}
+
+		auto pDrawList = pImGUIContext->GetCurrActiveDrawList();
+
+		for (auto it = color.begin(); it != color.end(); ++it)
+		{
+			const auto& currColorSample = *it;
+
+			const TVector2 pos = origin + TVector2(std::get<F32>(currColorSample) * sizes.x, 0.0f);
+
+			pDrawList->AddTriangleFilled(pos, pos + TVector2(10.0f), pos + TVector2(-10.0f, 10.0f), PackABGRColor32F(TColorUtils::mWhite));
+
+			ImGui::SetCursorScreenPos(pos - TVector2(markerSizes.x * 0.5f, 0.0f));
+			ImGui::PushID(static_cast<I32>(std::distance(color.begin(), it)));
+			ImGui::InvisibleButton("", markerSizes);
+			ImGui::PopID();
+
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			{
+				selectedMarkerIndex = static_cast<U32>(std::distance(color.begin(), it));
+			}
+
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) // \note Provide deletion of points by right mouse click
+			{
+				color.RemovePoint(static_cast<U32>(std::distance(color.begin(), it)));
+				return;
+			}
+
+			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+			{
+				dragVector = ImGui::GetIO().MouseDelta.x;
+			}
+
+			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			{
+				color.SortPoints();
+			}
+		}
+
+		F32 currEditableColor[4];
+
+		auto colorSample = color.GetPoint(selectedMarkerIndex);
+
+		TColor32F& selectedMarkerColor = std::get<TColor32F>(*colorSample);
+
+		currEditableColor[0] = selectedMarkerColor.r;
+		currEditableColor[1] = selectedMarkerColor.g;
+		currEditableColor[2] = selectedMarkerColor.b;
+		currEditableColor[3] = selectedMarkerColor.a;
+
+		/// \note Draw color picker
+		pImGUIContext->SetCursorScreenPos(origin + TVector2(0.0f, 25.0f));
+		ImGui::ColorEdit4("##editableColor", currEditableColor, ImGuiInputTextFlags_EnterReturnsTrue);
+
+		color.SetColor(selectedMarkerIndex, std::get<F32>(*colorSample) + dragVector.x / sizes.x, TColor32F{ currEditableColor });
+
+		pWindowStorage->SetInt(static_cast<U32>(E_GRADIENT_COLOR_WINDOW_PROPS::SELECTED_MARKER_INDEX), selectedMarkerIndex);
+	}
+
+	static bool DrawGradientColorEditor(CImGUIContext* pImGUIContext, CGradientColor& color, const TVector2& windowSizes, bool isOpened)
+	{
+		constexpr F32 pickerHeight = 50.0f;
+		const TVector2 markerSizes{ 20.0f, 20.0f };
+
+		const IImGUIContext::TWindowParams params
+		{
+			windowSizes,
+			windowSizes,
+			windowSizes
+		};
+
+		if (pImGUIContext->BeginWindow("GradientColorEditor", isOpened, params))
+		{
+			pImGUIContext->SetCursorScreenPos(pImGUIContext->GetCursorScreenPos() + TVector2(5.0f, 0.0f));
+			TVector2 cursorPos = pImGUIContext->GetCursorScreenPos();
+
+			const TRectF32 pickerRect { cursorPos.x, cursorPos.y, pImGUIContext->GetWindowWidth() - 25.0f, pickerHeight };
+
+			DrawGradientColorRamp(pImGUIContext, color, pickerRect);
+			DrawGradientColorMarkers(pImGUIContext, color, pickerRect, markerSizes);
+
+			pImGUIContext->EndWindow();
+		}
+
+		return isOpened;
+	}
+
+
 	void CImGUIContext::GradientColorPicker(const std::string& text, CGradientColor& color, const TImGUIContextAction& onValueChanged)
 	{
 		constexpr F32 gradientColorPickerHeight = 25.0f;
 
-		if (_drawGradientColorPreview(text, color, { GetWindowWidth(), gradientColorPickerHeight })) // \note Open full editor if a user clicks over a preview
+		if (DrawGradientColorPreview(this, text, color, { GetWindowWidth(), gradientColorPickerHeight })) // \note Open full editor if a user clicks over a preview
 		{
 			mIsGradientColorEditorOpened = !mIsGradientColorEditorOpened;
 		}
 
 		if (mIsGradientColorEditorOpened)
 		{
-			_drawGradientColorEditor(color, TVector2(350.0f, 150.0f));
+			mIsGradientColorEditorOpened = DrawGradientColorEditor(this, color, TVector2(350.0f, 150.0f), mIsGradientColorEditorOpened);
 		}
 	}
 
@@ -411,50 +568,50 @@ namespace TDEngine2
 
 	void CImGUIContext::DrawLine(const TVector2& start, const TVector2& end, const TColor32F& color, F32 thickness)
 	{
-		_getCurrActiveDrawList()->AddLine(start, end, PackABGRColor32F(color), thickness);
+		GetCurrActiveDrawList()->AddLine(start, end, PackABGRColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawCubicBezier(const TVector2& p0, const TVector2& t0, const TVector2& p1, const TVector2& t1, const TColor32F& color, F32 thickness)
 	{
-		_getCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackABGRColor32F(color), thickness);
+		GetCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackABGRColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color, bool isFilled, F32 thickness)
 	{
 		if (isFilled)
 		{
-			_getCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackABGRColor32F(color));
+			GetCurrActiveDrawList()->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackABGRColor32F(color));
 			return;
 		}
 
-		_getCurrActiveDrawList()->AddRect(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackABGRColor32F(color), 0.0f, 15, thickness);
+		GetCurrActiveDrawList()->AddRect(ImVec2(rect.x, rect.y), ImVec2(rect.x + rect.width, rect.y + rect.height), PackABGRColor32F(color), 0.0f, 15, thickness);
 	}
 
 	void CImGUIContext::DrawCircle(const TVector2& center, F32 radius, bool isFilled, const TColor32F& color, F32 thickness)
 	{
 		if (isFilled)
 		{
-			_getCurrActiveDrawList()->AddCircleFilled(center, radius, PackABGRColor32F(color), 12);
+			GetCurrActiveDrawList()->AddCircleFilled(center, radius, PackABGRColor32F(color), 12);
 			return;
 		}
 
-		_getCurrActiveDrawList()->AddCircle(center, radius, PackABGRColor32F(color), 12, thickness);
+		GetCurrActiveDrawList()->AddCircle(center, radius, PackABGRColor32F(color), 12, thickness);
 	}
 
 	void CImGUIContext::DrawTriangle(const TVector2& p0, const TVector2& p1, const TVector2& p2, const TColor32F& color, bool isFilled, F32 thickness)
 	{
 		if (isFilled)
 		{
-			_getCurrActiveDrawList()->AddTriangleFilled(p0, p1, p2, PackABGRColor32F(color));
+			GetCurrActiveDrawList()->AddTriangleFilled(p0, p1, p2, PackABGRColor32F(color));
 			return;
 		}
 		
-		_getCurrActiveDrawList()->AddTriangle(p0, p1, p2, PackABGRColor32F(color), thickness);
+		GetCurrActiveDrawList()->AddTriangle(p0, p1, p2, PackABGRColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawText(const TVector2& pos, const TColor32F& color, const std::string& text)
 	{
-		_getCurrActiveDrawList()->AddText(pos, PackABGRColor32F(color), text.c_str());
+		GetCurrActiveDrawList()->AddText(pos, PackABGRColor32F(color), text.c_str());
 	}
 
 	bool CImGUIContext::DrawGizmo(E_GIZMO_TYPE type, const TMatrix4& view, const TMatrix4& proj, const TMatrix4& transform,
@@ -1167,7 +1324,7 @@ namespace TDEngine2
 		}
 	}
 
-	ImDrawList* CImGUIContext::_getCurrActiveDrawList() const
+	ImDrawList* CImGUIContext::GetCurrActiveDrawList() const
 	{
 		TDE2_ASSERT(!mpDrawListsContext.empty());
 		return mpDrawListsContext.top();
@@ -1181,167 +1338,6 @@ namespace TDEngine2
 	const void* CImGUIContext::_getDragAndDropData(const std::string& id) const
 	{
 		return ImGui::AcceptDragDropPayload(id.c_str());
-	}
-
-	bool CImGUIContext::_drawGradientColorPreview(const std::string& text, CGradientColor& color, const TVector2& sizes)
-	{
-		const U32 packedWhiteColor = PackABGRColor32F(TColorUtils::mWhite);
-
-		if (BeginChildWindow(text, sizes))
-		{
-			BeginHorizontal();
-			Label(text);
-
-			const TVector2 cursorPos = GetCursorScreenPos();
-
-			const F32 width = GetWindowWidth();
-			const F32 height = GetWindowHeight();
-
-			auto pDrawList = _getCurrActiveDrawList();
-
-			pDrawList->AddRectFilled(cursorPos, cursorPos + TVector2(width, height), packedWhiteColor);
-
-			for (auto it = color.begin(); it != color.end() - 1; ++it)
-			{
-				const auto& currColorSample = *it;
-				const auto& nextColorSample = *(it + 1);
-
-				const U32 leftColor = PackABGRColor32F(std::get<TColor32F>(currColorSample));
-				const U32 rightColor = PackABGRColor32F(std::get<TColor32F>(nextColorSample));
-
-				const F32 currColorTime = std::get<F32>(currColorSample);
-				const F32 nextColorTime = std::get<F32>(nextColorSample);
-
-				pDrawList->AddRectFilledMultiColor(cursorPos + TVector2(currColorTime * width, 0.0f), cursorPos + TVector2(nextColorTime * width, height), leftColor, rightColor, rightColor, leftColor);
-			}
-
-			EndHorizontal();
-		}
-
-		EndChildWindow();
-
-		return ImGui::IsItemClicked();
-	}
-
-	void CImGUIContext::_drawGradientColorEditor(CGradientColor& color, const TVector2& windowSizes)
-	{
-		const U32 packedWhiteColor = PackABGRColor32F(TColorUtils::mWhite);
-
-		constexpr F32 pickerHeight = 50.0f;
-
-		const IImGUIContext::TWindowParams params
-		{
-			windowSizes,
-			windowSizes,
-			windowSizes
-		};
-
-		enum class E_GRADIENT_COLOR_WINDOW_PROPS : U32
-		{
-			SELECTED_MARKER_INDEX = 0x42f
-		};
-		
-		const TVector2 markerSizes { 20.0f, 20.0f };
-
-		if (BeginWindow("GradientColorEditor", mIsGradientColorEditorOpened, params))
-		{
-			defer([this] { EndWindow(); });
-
-			SetCursorScreenPos(GetCursorScreenPos() + TVector2(5.0f, 0.0f));
-			TVector2 cursorPos = GetCursorScreenPos();
-
-			const F32 maxWidth = GetWindowWidth() - 25.0f;
-
-			_getCurrActiveDrawList()->AddRectFilled(cursorPos, cursorPos + TVector2(maxWidth, pickerHeight), packedWhiteColor);
-
-			for (auto it = color.begin(); it != color.end() - 1; ++it)
-			{
-				const auto& currColorSample = *it;
-				const auto& nextColorSample = *(it + 1);
-
-				const U32 leftColor = PackABGRColor32F(std::get<TColor32F>(currColorSample));
-				const U32 rightColor = PackABGRColor32F(std::get<TColor32F>(nextColorSample));
-
-				const F32 currColorTime = std::get<F32>(currColorSample);
-				const F32 nextColorTime = std::get<F32>(nextColorSample);
-
-				_getCurrActiveDrawList()->AddRectFilledMultiColor(
-					cursorPos + RightVector2 * (currColorTime * maxWidth),
-					cursorPos + TVector2(nextColorTime * maxWidth, pickerHeight),
-					leftColor, rightColor, rightColor, leftColor);
-			}
-
-			/// \note Draw markers here
-			cursorPos = cursorPos + TVector2(0.0f, 1.2f * pickerHeight);
-
-			auto pWindowStorage = ImGui::GetStateStorage();
-
-			U32 selectedMarkerIndex = static_cast<U32>(pWindowStorage->GetInt(static_cast<U32>(E_GRADIENT_COLOR_WINDOW_PROPS::SELECTED_MARKER_INDEX)));
-
-			TVector2 dragVector;
-
-			/// \note Create an area for creation of new points
-			if (ImGui::IsMouseDoubleClicked(0))
-			{
-				color.AddPoint({ (ImGui::GetMousePos().x - cursorPos.x) / maxWidth, TColorUtils::mWhite });
-			}
-
-			for (auto it = color.begin(); it != color.end(); ++it)
-			{
-				const auto& currColorSample = *it;
-
-				const F32 currColorTime = std::get<F32>(currColorSample);
-
-				const TVector2 pos = cursorPos + RightVector2 * (currColorTime * maxWidth);
-
-				_getCurrActiveDrawList()->AddTriangleFilled(pos, pos + TVector2(-10.0f, 10.0f), pos + TVector2(10.0f, 10.0f), packedWhiteColor);
-
-				ImGui::SetCursorScreenPos(pos - TVector2(markerSizes.x, 0.0f));
-				ImGui::PushID(static_cast<I32>(std::distance(color.begin(), it)));
-				ImGui::InvisibleButton("", markerSizes);
-				ImGui::PopID();
-
-				if (ImGui::IsItemClicked())
-				{
-					selectedMarkerIndex = static_cast<U32>(std::distance(color.begin(), it));
-				}
-
-				if (ImGui::IsItemClicked(1)) // \note Provide deletion of points by right mouse click
-				{
-					color.RemovePoint(static_cast<U32>(std::distance(color.begin(), it)));
-					return;
-				}
-
-				if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
-				{
-					dragVector = ImGui::GetIO().MouseDelta.x;
-				}
-
-				if (ImGui::IsMouseReleased(0))
-				{
-					color.SortPoints();
-				}
-			}
-
-			F32 currEditableColor[4];
-
-			auto colorSample = color.GetPoint(selectedMarkerIndex);
-
-			TColor32F& selectedMarkerColor = std::get<TColor32F>(*colorSample);
-
-			currEditableColor[0] = selectedMarkerColor.r;
-			currEditableColor[1] = selectedMarkerColor.g;
-			currEditableColor[2] = selectedMarkerColor.b;
-			currEditableColor[3] = selectedMarkerColor.a;
-
-			/// \note Draw color picker
-			SetCursorScreenPos(cursorPos + TVector2(0.0f, 25.0f)); 
-			ImGui::ColorEdit4("##editableColor", currEditableColor, ImGuiInputTextFlags_EnterReturnsTrue);
-
-			color.SetColor(selectedMarkerIndex, std::get<F32>(*colorSample) + dragVector.x / maxWidth, TColor32F{ currEditableColor });
-
-			pWindowStorage->SetInt(static_cast<U32>(E_GRADIENT_COLOR_WINDOW_PROPS::SELECTED_MARKER_INDEX), selectedMarkerIndex);
-		}
 	}
 
 
