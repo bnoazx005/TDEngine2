@@ -78,7 +78,9 @@ namespace TDEngine2
 				void Clear();
 			} TPhysicsObjectsData;
 
-			struct alignas(16) TEntitiesMotionState : public btMotionState
+			/// \fixme Replace this directive with alignas when corresponding functionality will be supported in tde2_introspector
+#pragma pack(push, 16)
+			struct /*alignas(16) */TEntitiesMotionState : public btMotionState
 			{
 				btTransform mGraphicsWorldTrans;
 				btTransform mCenterOfMassOffset;
@@ -95,6 +97,8 @@ namespace TDEngine2
 				TDE2_API void getWorldTransform(btTransform & centerOfMassWorldTrans) const override;
 				TDE2_API void setWorldTransform(const btTransform& centerOfMassWorldTrans) override;
 			};
+
+#pragma pack(pop)
 
 			typedef std::function<void(const TRaycastResult&)> TOnRaycastHitCallback;
 		public:
