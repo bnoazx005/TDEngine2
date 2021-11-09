@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The growing of vertex/index buffers was added in dear imgui's code
 
+### Fixed
+
+- **CImGUIContext::GradientColorPicker**'s implementation was refactored.
+
 ## [0.5.11] 2021-11-06
 
 ### Added

@@ -401,7 +401,16 @@ namespace TDEngine2
 
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) // \note Provide deletion of points by right mouse click
 			{
-				color.RemovePoint(static_cast<U32>(std::distance(color.begin(), it)));
+				const U32 deletedMarkerIndex = static_cast<U32>(std::distance(color.begin(), it));
+				color.RemovePoint(deletedMarkerIndex);
+
+				if (selectedMarkerIndex == deletedMarkerIndex)
+				{
+					--selectedMarkerIndex;
+				}
+
+				pWindowStorage->SetInt(static_cast<U32>(E_GRADIENT_COLOR_WINDOW_PROPS::SELECTED_MARKER_INDEX), selectedMarkerIndex);
+
 				return;
 			}
 
