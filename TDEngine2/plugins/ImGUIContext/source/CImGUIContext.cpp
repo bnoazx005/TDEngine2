@@ -25,6 +25,8 @@
 #include <cstring>
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
+#define META_IMPLEMENTATION
+#include "metadata.h"
 
 
 namespace TDEngine2
@@ -67,7 +69,9 @@ namespace TDEngine2
 		ImGui::CreateContext();
 
 		mpIOContext = &ImGui::GetIO();
-		// \todo fill in information about a platform and a renderer
+
+		static std::string backendId = Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::ToString(mpGraphicsContext->GetContextInfo().mGapiType);
+		mpIOContext->BackendRendererName = backendId.c_str();
 
 		E_RESULT_CODE result = _initInternalImGUIContext(*mpIOContext);
 		if (result != RC_OK)
@@ -1072,23 +1076,12 @@ namespace TDEngine2
 			io.MouseDown[buttonId] = pDesktopInputCtx->IsMouseButton(buttonId);
 		}
 
-		for (U16 keyCode = static_cast<U16>(E_KEYCODES::KC_ESCAPE); keyCode != static_cast<U16>(E_KEYCODES::KC_NONE); ++keyCode)
+#if TDE2_EDITORS_ENABLED
+		pDesktopInputCtx->SetOnCharInputCallback([this, &io](U8C characterCode)
 		{
-			E_KEYCODES internalKeyCode = static_cast<E_KEYCODES>(keyCode);
-
-			if (/*((keyCode >= static_cast<U16>(E_KEYCODES::KC_A) && keyCode <= static_cast<U16>(E_KEYCODES::KC_Z)) ||
-				(keyCode >= static_cast<U16>(E_KEYCODES::KC_ALPHA0) && keyCode <=static_cast<U16>(E_KEYCODES::KC_ALPHA9))) &&*/
-				pDesktopInputCtx->IsKeyPressed(internalKeyCode) 
-				&& keyCode != static_cast<U16>(E_KEYCODES::KC_BACKSPACE)
-				&& keyCode != static_cast<U16>(E_KEYCODES::KC_RETURN))
-			{
-				U8C charCode = KeyCodeToUTF8Char(internalKeyCode);
-				io.AddInputCharactersUTF8(reinterpret_cast<C8*>(&charCode));
-				continue;
-			}
-
-			io.KeysDown[keyCode] = pDesktopInputCtx->IsKey(internalKeyCode);
-		}
+			io.AddInputCharactersUTF8(reinterpret_cast<const C8*>(&characterCode));
+		});
+#endif
 
 		io.MouseWheel += CMathUtils::Clamp(-1.0f, 1.0f, pDesktopInputCtx->GetMouseShiftVec().z);
 		// \todo Implement support of gamepads

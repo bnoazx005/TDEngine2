@@ -4,6 +4,7 @@
 #include "../../../include/utils/CFileLogger.h"
 #include "../../../include/core/IEventManager.h"
 #include "../../../include/core/IImGUIContext.h"
+#include "../../../include/core/IInputContext.h"
 #include <string>
 
 
@@ -47,6 +48,8 @@ namespace TDEngine2
 
 		};
 
+		TOnCharInputEvent onCharInputEvent;
+
 		switch (uMsg)
 		{
 			case WM_DESTROY:
@@ -77,7 +80,8 @@ namespace TDEngine2
 				pEventManager->Notify(&onMovedEvent);
 				break;
 			case WM_CHAR:
-				LOG_MESSAGE("TTTTT");
+				onCharInputEvent.mCharCode = static_cast<U32>(wParam);
+				pEventManager->Notify(&onCharInputEvent);
 				break;
 			default:
 				return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -235,8 +239,6 @@ namespace TDEngine2
 		{
 			while (PeekMessage(&currMessage, 0, 0, 0, PM_REMOVE))
 			{
-				LOG_MESSAGE(std::to_string(currMessage.message));
-
 				if (WM_QUIT == currMessage.message)
 				{
 					isRunning = false;

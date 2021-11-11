@@ -10,6 +10,7 @@
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
 #include "IEngineSubsystem.h"
+#include "Event.h"
 #include "../math/TVector2.h"
 #include "../math/TVector3.h"
 #include "../utils/CU8String.h"
@@ -23,6 +24,28 @@ namespace TDEngine2
 
 	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
 	TDE2_DECLARE_SCOPED_PTR(IGamepad)
+
+
+#if TDE2_EDITORS_ENABLED
+
+	/*!
+		struct TOnCharInputEvent
+
+		\brief The type is used to inform listeners about some character is entered using a keyboard.
+		The only purpose is to provide correct input for editors. Not used in game runtime code
+	*/
+
+	typedef struct TOnCharInputEvent : TBaseEvent
+	{
+		virtual ~TOnCharInputEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnCharInputEvent)
+		REGISTER_EVENT_TYPE(TOnCharInputEvent)
+
+		U32 mCharCode = 0x0;
+	} TOnCharInputEvent, *TOnCharInputEventPtr;
+
+#endif
 
 
 	/*!
@@ -144,6 +167,8 @@ namespace TDEngine2
 	class IDesktopInputContext: public IInputContext
 	{
 		public:
+			typedef std::function<void(U8C)> TOnCharActionCallback;
+		public:
 			/*!
 				\brief The method polls input devices and checks up has some key been pressed
 
@@ -191,6 +216,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool IsMouseButtonUnpressed(U8 button) = 0;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void SetOnCharInputCallback(const TOnCharActionCallback& onEventAction) = 0;
+#endif
 
 			/*!
 				\brief The method returns a position of a cursor

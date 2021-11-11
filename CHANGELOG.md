@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The main loop in **CWin32WindowSystem** was updated.
 - **CKeyboard** in **WindowsInputContext** now uses non-exclusive acquiring mode.
+- The implementation of getting keyboard's input was fixed and improved in **CImGUIContext**.
 
 ## [0.5.12] 2021-11-07
 

@@ -1,5 +1,7 @@
 #include "../include/CWindowsInputContext.h"
 #include <core/IWindowSystem.h>
+#include <core/IEventManager.h>
+#include <core/Event.h>
 #include "../include/CKeyboard.h"
 #include "../include/CMouse.h"
 #include "../include/CGamepad.h"
@@ -54,6 +56,13 @@ namespace TDEngine2
 				return result;
 			}
 		}
+
+#if TDE2_EDITORS_ENABLED /// This subscription is needed only with editor mode's enabled
+		if (auto pEventManager = pWindowSystem->GetEventManager())
+		{
+			pEventManager->Subscribe(TOnCharInputEvent::GetTypeId(), this);
+		}
+#endif
 
 		mIsInitialized = true;
 
@@ -117,6 +126,25 @@ namespace TDEngine2
 		return mpMouseDevice->IsButtonUnpressed(button);
 	}
 
+	E_RESULT_CODE CWindowsInputContext::OnEvent(const TBaseEvent* pEvent)
+	{
+#if TDE2_EDITORS_ENABLED
+		if (mOnCharInputCallback)
+		{
+			if (auto pInputEvent = dynamic_cast<const TOnCharInputEvent*>(pEvent))
+			{
+				mOnCharInputCallback(pInputEvent->mCharCode);
+			}
+		}
+#endif
+		return RC_OK;
+	}
+
+	TEventListenerId CWindowsInputContext::GetListenerId() const
+	{
+		return static_cast<TEventListenerId>(TDE2_TYPE_ID(CWindowsInputContext));
+	}
+
 	TVector3 CWindowsInputContext::GetMousePosition() const
 	{
 		return mpMouseDevice->GetMousePosition();
@@ -151,6 +179,15 @@ namespace TDEngine2
 
 		return mpGamepads[gamepadId];
 	}
+
+#if TDE2_EDITORS_ENABLED
+
+	void CWindowsInputContext::SetOnCharInputCallback(const TOnCharActionCallback& onEventAction)
+	{
+		mOnCharInputCallback = onEventAction;
+	}
+
+#endif
 
 	E_RESULT_CODE CWindowsInputContext::_createInputInternalHandler(HINSTANCE windowHandler)
 	{

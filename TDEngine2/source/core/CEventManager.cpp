@@ -1,12 +1,12 @@
-#include "./../../include/core/CEventManager.h"
-#include "./../../include/core/Event.h"
+#include "../../include/core/CEventManager.h"
+#include "../../include/core/Event.h"
 #include <algorithm>
 
 
 namespace TDEngine2
 {
 	CEventManager::CEventManager():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
