@@ -76,6 +76,9 @@ namespace TDEngine2
 
 				pEventManager->Notify(&onMovedEvent);
 				break;
+			case WM_CHAR:
+				LOG_MESSAGE("TTTTT");
+				break;
 			default:
 				return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
@@ -226,17 +229,27 @@ namespace TDEngine2
 
 		memset(&currMessage, 0, sizeof(currMessage));
 
-		while (currMessage.message != WM_QUIT)
+		bool isRunning = true;
+
+		while (isRunning)
 		{
-			if (PeekMessage(&currMessage, 0, 0, 0, PM_REMOVE))
+			while (PeekMessage(&currMessage, 0, 0, 0, PM_REMOVE))
 			{
+				LOG_MESSAGE(std::to_string(currMessage.message));
+
+				if (WM_QUIT == currMessage.message)
+				{
+					isRunning = false;
+				}
+
 				TranslateMessage(&currMessage);
 				DispatchMessage(&currMessage);
 			}
-			else
-			{
-				mpTimer->Tick();
 
+			mpTimer->Tick();
+
+			if (onFrameUpdate)
+			{
 				onFrameUpdate();
 			}
 		}

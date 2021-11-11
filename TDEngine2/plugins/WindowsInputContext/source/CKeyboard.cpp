@@ -23,7 +23,7 @@ namespace TDEngine2
 		}
 
 		/// \todo Replace DISCL_EXCLUSIVE | DISCL_FOREGROUND with a proper set up
-		if (FAILED(mpInputDevice->SetCooperativeLevel(params.mWindowHandler, DISCL_EXCLUSIVE | DISCL_FOREGROUND)))
+		if (FAILED(mpInputDevice->SetCooperativeLevel(params.mWindowHandler, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND)))
 		{
 			return RC_FAIL;
 		}

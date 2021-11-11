@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.13] 2021-11-11
+
+### Fixed
+
+- The main loop in **CWin32WindowSystem** was updated.
+- **CKeyboard** in **WindowsInputContext** now uses non-exclusive acquiring mode.
+
 ## [0.5.12] 2021-11-07
 
 ### Added
