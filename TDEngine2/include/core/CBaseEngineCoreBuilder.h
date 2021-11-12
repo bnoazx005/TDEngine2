@@ -57,7 +57,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseEngineCoreBuilder)
 
-			TDE2_API E_RESULT_CODE _registerBuiltinInfrastructure();
+			TDE2_API E_RESULT_CODE _registerBuiltinInfrastructure(bool isWindowModeEnabled);
 
 			/*!
 				\brief The method tries to configure graphics context based on specified parameters

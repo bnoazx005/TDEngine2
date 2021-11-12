@@ -611,7 +611,7 @@ namespace TDEngine2
 		mpFileSystemInstance->SetJobManager(mpJobManagerInstance.Get());
 		LOG_MESSAGE(std::string("[ConfigFIleEngineCoreBuilder] Async file I/O operations status: ").append(mpFileSystemInstance->IsStreamingEnabled() ? "enabled" : "disabled"));
 
-		E_RESULT_CODE result = _registerBuiltinInfrastructure();
+		E_RESULT_CODE result = _registerBuiltinInfrastructure(isWindowModeEnabled);
 
 		defer([this] /// \note Should release this refs to provide correct release of the memory when the app will be terminated
 		{
@@ -705,7 +705,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseEngineCoreBuilder::_registerBuiltinInfrastructure()
+	E_RESULT_CODE CBaseEngineCoreBuilder::_registerBuiltinInfrastructure(bool isWindowModeEnabled)
 	{
 		if (!mpResourceManagerInstance)
 		{
@@ -737,17 +737,18 @@ namespace TDEngine2
 		using ResourceLoaderFactoryFunctor = std::function<IResourceLoader*(IResourceManager*, IGraphicsContext*, IFileSystem*, E_RESULT_CODE&)>;
 		using ResourceFactoryFactoryFunctor = std::function<IResourceFactory*(IResourceManager*, IGraphicsContext*, E_RESULT_CODE&)>;
 
-		std::tuple<ResourceLoaderFactoryFunctor, ResourceFactoryFactoryFunctor> builtinResourcesConstructorsTable[]
+		/// The third parameter defines whether the resource needs window mode or not
+		std::tuple<ResourceLoaderFactoryFunctor, ResourceFactoryFactoryFunctor, bool> builtinResourcesConstructorsTable[]
 		{
-			{ CreateBaseMaterialLoader, CreateBaseMaterialFactory },
-			{ CreateTextureAtlasLoader, CreateTextureAtlasFactory },
-			{ CreateAtlasSubTextureLoader, CreateAtlasSubTextureFactory },
-			{ CreateStaticMeshLoader, CreateStaticMeshFactory },
-			{ CreateSkinnedMeshLoader, CreateSkinnedMeshFactory },
-			{ CreateBasePostProcessingProfileLoader, CreateBasePostProcessingProfileFactory },
-			{ CreateAnimationClipLoader, CreateAnimationClipFactory },
-			{ CreateParticleEffectLoader, CreateParticleEffectFactory },
-			{ CreateSkeletonLoader, CreateSkeletonFactory },
+			{ CreateBaseMaterialLoader, CreateBaseMaterialFactory, true },
+			{ CreateTextureAtlasLoader, CreateTextureAtlasFactory, true },
+			{ CreateAtlasSubTextureLoader, CreateAtlasSubTextureFactory, true },
+			{ CreateStaticMeshLoader, CreateStaticMeshFactory, true },
+			{ CreateSkinnedMeshLoader, CreateSkinnedMeshFactory, true },
+			{ CreateBasePostProcessingProfileLoader, CreateBasePostProcessingProfileFactory, false },
+			{ CreateAnimationClipLoader, CreateAnimationClipFactory, false },
+			{ CreateParticleEffectLoader, CreateParticleEffectFactory, true },
+			{ CreateSkeletonLoader, CreateSkeletonFactory, false },
 		};
 
 		/// create material loader
@@ -758,6 +759,11 @@ namespace TDEngine2
 
 		for (auto&& currResourceConstructors : builtinResourcesConstructorsTable)
 		{
+			if (std::get<bool>(currResourceConstructors) != isWindowModeEnabled)
+			{
+				continue;
+			}
+
 			pResourceLoader = std::get<ResourceLoaderFactoryFunctor>(currResourceConstructors)(mpResourceManagerInstance.Get(), mpGraphicsContextInstance.Get(), mpFileSystemInstance.Get(), result);
 
 			if (result != RC_OK)

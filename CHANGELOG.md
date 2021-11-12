@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new proxy type **CProxyGraphicsContext** was introduced to provide a null graphics context for the console mode.
 
+### Fixed 
+
+- **tde2_mesh_converter** utility's logic was fixed to correctly support work in console mode.
+
 ## [0.5.13] 2021-11-11
 
 ### Fixed
