@@ -59,6 +59,7 @@
 #include "core/Meta.h"
 #include "core/CGameUserSettings.h"
 #include "core/CProjectSettings.h"
+#include "core/CProxyGraphicsContext.h"
 
 /// game
 #include "game/ISaveManager.h"

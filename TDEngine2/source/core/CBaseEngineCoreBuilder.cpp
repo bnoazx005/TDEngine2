@@ -20,6 +20,7 @@
 #include "../../include/core/localization/CLocalizationPackage.h"
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/core/CProjectSettings.h"
+#include "../../include/core/CProxyGraphicsContext.h"
 #include "../../include/game/CSaveManager.h"
 #include "../../include/platform/win32/CWin32WindowSystem.h"
 #include "../../include/platform/win32/CWin32FileSystem.h"
@@ -115,6 +116,17 @@ namespace TDEngine2
 					return result;
 				}
 				break;
+			
+			case GCGT_UNKNOWN: 
+				mpGraphicsContextInstance = CreateProxyGraphicsContext(mpWindowSystemInstance, result);
+				if (RC_OK != result)
+				{
+					return result;
+				}
+
+				result = mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpGraphicsContextInstance));
+				return result;
+
 			default:
 				return RC_FAIL;
 		}
@@ -589,9 +601,11 @@ namespace TDEngine2
 			CProjectSettings::Get()->mCommonSettings.mFlags));
 
 		PANIC_ON_FAILURE(_configurePluginManager());
-		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureGraphicsContext(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType)); }
+		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType : E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_UNKNOWN));
+		
 		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioContextType)); }
 		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureInputContext()); }
+		
 		PANIC_ON_FAILURE(_configureSceneManager());
 
 		mpFileSystemInstance->SetJobManager(mpJobManagerInstance.Get());

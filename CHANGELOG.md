@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.14] 2021-11-12
+
+### Added
+
+- A new proxy type **CProxyGraphicsContext** was introduced to provide a null graphics context for the console mode.
+
 ## [0.5.13] 2021-11-11
 
 ### Fixed
