@@ -322,12 +322,12 @@ namespace TDEngine2
 		
 		const TVector3 basisVertices[]
 		{
-			position + TVector3(0.0f, radius, 0.0f),
-			position - TVector3(0.0f, radius, 0.0f),
-			position + TVector3(radius, 0.0f, 0.0f),
-			position - TVector3(radius, 0.0f, 0.0f),
-			position + TVector3(0.0f, 0.0f, radius),
-			position - TVector3(0.0f, 0.0f, radius),
+			TVector3(0.0f, radius, 0.0f),
+			-TVector3(0.0f, radius, 0.0f),
+			TVector3(radius, 0.0f, 0.0f),
+			-TVector3(radius, 0.0f, 0.0f),
+			TVector3(0.0f, 0.0f, radius),
+			-TVector3(0.0f, 0.0f, radius),
 		};
 
 		std::vector<TVector3> vertices;
@@ -373,9 +373,9 @@ namespace TDEngine2
 			auto&& v1 = vertices[i + 1];
 			auto&& v2 = vertices[i + 2];
 
-			v0 = Normalize(v0 - position) * radius;
-			v1 = Normalize(v1 - position) * radius;
-			v2 = Normalize(v2 - position) * radius;
+			v0 = Normalize(v0) * radius + position;
+			v1 = Normalize(v1) * radius + position;
+			v2 = Normalize(v2) * radius + position;
 
 			drawTriangle(mLinesDataBuffer, v0, v1, v2, color);
 		}

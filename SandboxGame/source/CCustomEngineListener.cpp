@@ -502,6 +502,9 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	
 	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get();
 	
+	pDebugUtility->DrawSphere(TVector3(10.0f, 0.0f, 0.0f), 5.0f, TColorUtils::mGreen);
+	pDebugUtility->DrawSphere(TVector3(-10.0f, 10.0f, 0.0f), 5.0f, TColorUtils::mMagenta);
+
 	// rotate the cube
 #if 0
 	auto pEntity = mpWorld->FindEntity(mpWorld->FindEntitiesWithComponents<CStaticMeshContainer>()[0]);

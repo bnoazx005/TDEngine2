@@ -759,7 +759,7 @@ namespace TDEngine2
 
 		for (auto&& currResourceConstructors : builtinResourcesConstructorsTable)
 		{
-			if (std::get<bool>(currResourceConstructors) != isWindowModeEnabled)
+			if (!isWindowModeEnabled && std::get<bool>(currResourceConstructors) != isWindowModeEnabled)
 			{
 				continue;
 			}
