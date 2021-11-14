@@ -135,6 +135,11 @@ namespace TDEngine2
 	{
         return TPtr<IGamepad>(nullptr);
 	}
+
+	void CUnixInputContext::SetOnCharInputCallback(const TOnCharActionCallback& onEventAction)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
 	
 	U8 CUnixInputContext::_toKeycode(E_KEYCODES keyCode)
 	{
