@@ -22,15 +22,15 @@ namespace TDEngine2
 		mRect(rect),
 		mIsRawData(true)
 	{
-		mData.mRawTexture = texture;
+		mData = texture;
 	}
 	
-	CTextureAtlas::TTextureAtlasEntry::TTextureAtlasEntry(const std::string& name, const TRectI32& rect, ITexture2D* pTexture) :
+	CTextureAtlas::TTextureAtlasEntry::TTextureAtlasEntry(const std::string& name, const TRectI32& rect, TPtr<ITexture2D> pTexture) :
 		mName(name),
 		mRect(rect),
 		mIsRawData(false)
 	{
-		mData.mpTexture = pTexture;
+		mData = pTexture;
 	}
 
 
@@ -157,7 +157,7 @@ namespace TDEngine2
 		/// \note add a new entry
 		TRectI32 textureRect{ 0, 0, static_cast<I32>(pTextureResource->GetWidth()), static_cast<I32>(pTextureResource->GetHeight()) };
 
-		TTextureAtlasEntry rootEntry{ textureName, textureRect, pTextureResource.Get() };
+		TTextureAtlasEntry rootEntry{ textureName, textureRect, pTextureResource };
 
 		mPendingData.push_back(rootEntry);
 
@@ -335,14 +335,14 @@ namespace TDEngine2
 
 			if (!pCurrTextureEntry->mIsRawData)
 			{
-				auto&& textureData = pCurrTextureEntry->mData.mpTexture->GetInternalData();
+				auto&& textureData = pCurrTextureEntry->mData.As<TPtr<ITexture2D>>()->GetInternalData();
 
 				E_RESULT_CODE result = pAtlasInternalTexture->WriteData(textureRect, &textureData.front());
 				TDE2_ASSERT(result == RC_OK);
 			}
 			else
 			{
-				E_RESULT_CODE result = pAtlasInternalTexture->WriteData(textureRect, pCurrTextureEntry->mData.mRawTexture.mpData);
+				E_RESULT_CODE result = pAtlasInternalTexture->WriteData(textureRect, pCurrTextureEntry->mData.As<TTextureAtlasEntry::TRawTextureData>().mpData);
 				TDE2_ASSERT(result == RC_OK);
 			}
 
@@ -640,7 +640,7 @@ namespace TDEngine2
 	*/
 
 	CTextureAtlasLoader::CTextureAtlasLoader() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
@@ -699,7 +699,7 @@ namespace TDEngine2
 	*/
 
 	CTextureAtlasFactory::CTextureAtlasFactory() :
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 

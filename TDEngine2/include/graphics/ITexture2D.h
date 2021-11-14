@@ -127,6 +127,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_DECLARE_SCOPED_PTR(ITexture2D)
+
+
 	class ITexture2DLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*> {};
 	class ITexture2DFactory : public IGenericResourceFactory<IResourceManager*, IGraphicsContext*> {};
 }

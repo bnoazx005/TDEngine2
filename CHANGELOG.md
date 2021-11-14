@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.18] 2021-11-14
+
+### Changed
+
+- **CTextureAtlas** now uses **CScopedPtr\<T\>** to store references to resources.
+
 ## [0.5.17] 2021-11-14
 
 ### Added

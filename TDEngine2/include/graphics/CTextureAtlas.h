@@ -8,8 +8,9 @@
 
 
 #include "ITextureAtlas.h"
-#include "./../core/CBaseResource.h"
-#include "./../math/TRect.h"
+#include "../core/CBaseResource.h"
+#include "../math/TRect.h"
+#include "variant.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -23,6 +24,9 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class ITexture2D;
 	class IAtlasSubTexture;
+
+
+	TDE2_DECLARE_SCOPED_PTR(ITexture2D)
 
 
 	/*!
@@ -87,7 +91,7 @@ namespace TDEngine2
 				};
 
 				TDE2_API TTextureAtlasEntry(const std::string& name, const TRectI32& rect, const TRawTextureData& texture);
-				TDE2_API TTextureAtlasEntry(const std::string& name, const TRectI32& rect, ITexture2D* pTexture);
+				TDE2_API TTextureAtlasEntry(const std::string& name, const TRectI32& rect, TPtr<ITexture2D> pTexture);
 
 				std::string mName;
 						    
@@ -95,12 +99,7 @@ namespace TDEngine2
 						    
 				bool        mIsRawData = false; ///< true means that mpData points to some object that's derived from CBaseTexture2D
 						    
-				union 
-				{
-					TRawTextureData mRawTexture;
-
-					ITexture2D*     mpTexture;
-				} mData;
+				Wrench::Variant<TRawTextureData, TPtr<ITexture2D>> mData;
 			};
 
 			struct TAtlasAreaEntry
@@ -358,8 +357,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextureAtlasLoader)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IFileSystem*      mpFileSystem;
@@ -442,8 +439,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextureAtlasFactory)
 		protected:
-			bool              mIsInitialized;
-
 			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;
