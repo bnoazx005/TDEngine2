@@ -145,11 +145,7 @@ namespace TDEngine2
 
 		if (pCurrRenderTarget && (pCurrRenderTarget->GetWidth() != width || pCurrRenderTarget->GetHeight() != height))
 		{
-			mpResourceManager->ReleaseResource(mRenderTargetHandle);
-
-			mRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled);
-			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
-			pCurrRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
+			pCurrRenderTarget->Resize(width, height);
 
 			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
 			{
@@ -166,7 +162,7 @@ namespace TDEngine2
 			pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
 			pBloomRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 
-			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled);
+			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled, false);
 			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 			pTempRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
 		}

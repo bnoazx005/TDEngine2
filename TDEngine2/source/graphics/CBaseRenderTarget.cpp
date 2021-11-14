@@ -51,6 +51,19 @@ namespace TDEngine2
 		mpGraphicsContext->BindTextureSampler(slot, mCurrTextureSamplerHandle);
 	}
 
+	E_RESULT_CODE CBaseRenderTarget::Resize(U32 width, U32 height)
+	{
+		E_RESULT_CODE result = Reset();
+		mIsInitialized = true;
+
+		mWidth  = width;
+		mHeight = height;
+
+		result = result | _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat, mNumOfMipLevels, mNumOfSamples, mSamplingQuality);
+
+		return result;
+	}
+
 	void CBaseRenderTarget::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
 	{
 		mTextureSamplerParams.mUAddressMode = mode;
@@ -68,7 +81,7 @@ namespace TDEngine2
 
 	void CBaseRenderTarget::SetFilterType(const E_FILTER_TYPE& type)
 	{
-		TDE2_UNIMPLEMENTED();
+		//TDE2_UNIMPLEMENTED();
 		//mTextureSamplerParams.
 	}
 

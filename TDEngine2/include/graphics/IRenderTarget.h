@@ -8,8 +8,8 @@
 
 
 #include "ITexture2D.h"
-#include "./../core/IResourceLoader.h"
-#include "./../core/IResourceFactory.h"
+#include "../core/IResourceLoader.h"
+#include "../core/IResourceFactory.h"
 #include <string>
 
 
@@ -58,6 +58,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Blit(ITexture2D*& pDestTexture) = 0;
+
+			/*!
+				\brief The method allows to resize internal resources that corresponds to the given render target
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Resize(U32 width, U32 height) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRenderTarget)
 	};

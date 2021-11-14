@@ -451,6 +451,8 @@ namespace TDEngine2
 			mp3dDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 			mp3dDeviceContext->ClearState();
 
+			const bool isDefaultDepthBufferInUse = mpCurrDepthStencilView == mpDefaultDepthStencilView;
+
 			SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpBackBufferView, true);
 			SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer, true);
 			SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView, true);
@@ -473,6 +475,13 @@ namespace TDEngine2
 			TDE2_ASSERT(mpBackBufferView && mpDefaultDepthStencilView);
 
 			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpDefaultDepthStencilView);
+
+			if (isDefaultDepthBufferInUse)
+			{
+				mpCurrDepthStencilView = mpDefaultDepthStencilView;
+			}
+
+			mpPrevDepthStencilView = nullptr;
 		}
 
 		SetViewport(0.0f, 0.0f, static_cast<F32>(width), static_cast<F32>(height), 0.0f, 1.0f);

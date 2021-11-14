@@ -51,6 +51,12 @@ namespace TDEngine2
 			TDE2_API void Bind(U32 slot) override;
 
 			/*!
+				\brief The method allows to resize internal resources that corresponds to the given render target
+			*/
+
+			TDE2_API E_RESULT_CODE Resize(U32 width, U32 height) override;
+
+			/*!
 				\brief The method sets up wrapping mode for U axis
 			*/
 

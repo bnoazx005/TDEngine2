@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.17] 2021-11-14
+
+### Added
+
+- The API of **IRenderTarget** was extended with a new public method **Resize(U32, U32)**.
+
+### Fixed
+
+- (Fixed issue #44) The bad memory access exception was fixed for the case a window was resized under D3D11 graphics context.
+
 ## [0.5.16] 2021-11-13
 
 ### Changed
