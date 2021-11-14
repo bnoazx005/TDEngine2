@@ -98,7 +98,7 @@ namespace TDEngine2
 		mTextureSamplerParams.mWAddressMode = mode;
 	}
 
-	void CBaseCubemapTexture::SetFilterType(const E_FILTER_TYPE& type)
+	void CBaseCubemapTexture::SetFilterType(const E_TEXTURE_FILTER_TYPE& type)
 	{
 		TDE2_UNIMPLEMENTED();
 		//mTextureSamplerParams.

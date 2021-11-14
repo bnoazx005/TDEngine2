@@ -583,12 +583,12 @@ namespace TDEngine2
 
 
 	/*!
-		enum class E_FILTER_TYPE
+		enum class E_TEXTURE_FILTER_TYPE
 
 		\brief The enumeration contains all available types of sampler's filters
 	*/
 
-	enum class E_FILTER_TYPE : U8
+	enum class E_TEXTURE_FILTER_TYPE : U8
 	{
 		FT_POINT,
 		FT_BILINEAR,
@@ -605,9 +605,9 @@ namespace TDEngine2
 
 	typedef struct TTextureSamplerDesc
 	{
-		U32                 mFilterFlags = ((U32)E_FILTER_TYPE::FT_BILINEAR << 16) |
-										   ((U32)E_FILTER_TYPE::FT_BILINEAR << 8) |
-										   (U32)E_FILTER_TYPE::FT_BILINEAR;
+		U32                 mFilterFlags = ((U32)E_TEXTURE_FILTER_TYPE::FT_BILINEAR << 16) |
+										   ((U32)E_TEXTURE_FILTER_TYPE::FT_BILINEAR << 8) |
+										   (U32)E_TEXTURE_FILTER_TYPE::FT_BILINEAR;
 
 		E_ADDRESS_MODE_TYPE mUAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
 		E_ADDRESS_MODE_TYPE mVAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;

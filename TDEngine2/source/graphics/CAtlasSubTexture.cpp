@@ -80,7 +80,7 @@ namespace TDEngine2
 		mTextureSamplerParams.mWAddressMode = mode;
 	}
 
-	void CAtlasSubTexture::SetFilterType(const E_FILTER_TYPE& type)
+	void CAtlasSubTexture::SetFilterType(const E_TEXTURE_FILTER_TYPE& type)
 	{
 		TDE2_UNIMPLEMENTED();
 		//mTextureSamplerParams.

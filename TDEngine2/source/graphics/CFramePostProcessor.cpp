@@ -160,11 +160,11 @@ namespace TDEngine2
 
 			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, isHDREnabled, false);
 			pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
-			pBloomRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
+			pBloomRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
 			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled, false);
 			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
-			pTempRenderTarget->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
+			pTempRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 		}
 
 		{

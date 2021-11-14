@@ -55,7 +55,7 @@ namespace TDEngine2
 				\brief The method sets up a type of filtering read samples from the texture
 			*/
 
-			TDE2_API virtual void SetFilterType(const E_FILTER_TYPE& type) = 0;
+			TDE2_API virtual void SetFilterType(const E_TEXTURE_FILTER_TYPE& type) = 0;
 
 			/*!
 				\brief The method returns a width of a texture
