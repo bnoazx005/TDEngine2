@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.19] 2021-11-15
+
+### Added
+
+- The configuration of texture's filtering type was implemented.
+
 ## [0.5.18] 2021-11-14
 
 ### Changed

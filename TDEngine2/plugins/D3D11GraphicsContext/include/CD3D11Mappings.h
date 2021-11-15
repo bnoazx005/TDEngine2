@@ -150,7 +150,7 @@ namespace TDEngine2
 				\return A D3D11 specific filter's type
 			*/
 
-			TDE2_API static D3D11_FILTER GetFilterType(U32 filterValue);
+			TDE2_API static D3D11_FILTER GetFilterType(E_TEXTURE_FILTER_TYPE filterValue);
 
 			/*!
 				\brief The function maps an internal address mode's type into Direct3D11 specific one

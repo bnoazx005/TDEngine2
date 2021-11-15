@@ -99,7 +99,7 @@ namespace TDEngine2
 		samplerDescInfo.AddressU = CD3D11Mappings::GetTextureAddressMode(samplerDesc.mUAddressMode);
 		samplerDescInfo.AddressV = CD3D11Mappings::GetTextureAddressMode(samplerDesc.mVAddressMode);
 		samplerDescInfo.AddressW = CD3D11Mappings::GetTextureAddressMode(samplerDesc.mWAddressMode);
-		samplerDescInfo.Filter   = CD3D11Mappings::GetFilterType(samplerDesc.mFilterFlags);
+		samplerDescInfo.Filter   = CD3D11Mappings::GetFilterType(samplerDesc.mFilteringType);
 		samplerDescInfo.MaxLOD   = D3D11_FLOAT32_MAX;
 
 		ID3D11Device* p3dDevice = nullptr;

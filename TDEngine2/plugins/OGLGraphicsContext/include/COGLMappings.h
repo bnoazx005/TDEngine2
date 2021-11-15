@@ -150,11 +150,12 @@ namespace TDEngine2
 				\brief The function maps an internal minification filter's value into OpenGL specific one
 
 				\param[in] filterValue An internal value which represents a filter's type
+				\param[in] useMipMaps The flag determines whether mip-mapping is used or when filtering happens
 
 				\return A OpenGL specific filter's type
 			*/
 
-			TDE2_API static GLint GetMinFilterType(U32 filterValue);
+			TDE2_API static GLint GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps = true);
 
 			/*!
 				\brief The function maps an internal magnification filter's value into OpenGL specific one
@@ -164,7 +165,7 @@ namespace TDEngine2
 				\return A OpenGL specific filter's type
 			*/
 
-			TDE2_API static GLint GetMagFilterType(U32 filterValue);
+			TDE2_API static GLint GetMagFilterType(E_TEXTURE_FILTER_TYPE filterValue);
 
 			/*!
 				\brief The function maps an internal address mode's type into OpenGL specific one

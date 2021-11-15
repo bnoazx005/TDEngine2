@@ -81,8 +81,7 @@ namespace TDEngine2
 
 	void CBaseRenderTarget::SetFilterType(const E_TEXTURE_FILTER_TYPE& type)
 	{
-		//TDE2_UNIMPLEMENTED();
-		//mTextureSamplerParams.
+		mTextureSamplerParams.mFilteringType = type;
 	}
 
 	U32 CBaseRenderTarget::GetWidth() const

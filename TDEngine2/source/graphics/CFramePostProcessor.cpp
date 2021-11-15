@@ -137,6 +137,9 @@ namespace TDEngine2
 
 			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled, false);
 			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+
+			pCurrRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+			pTempRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 		}
 
 		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle));
@@ -145,6 +148,7 @@ namespace TDEngine2
 
 		if (pCurrRenderTarget && (pCurrRenderTarget->GetWidth() != width || pCurrRenderTarget->GetHeight() != height))
 		{
+			pCurrRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 			pCurrRenderTarget->Resize(width, height);
 
 			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
@@ -178,6 +182,8 @@ namespace TDEngine2
 
 		if (bloomParameters.mIsEnabled)
 		{
+			pBloomRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
 			if (auto pBloomMaterial = mpResourceManager->GetResource<IMaterial>(mBloomFilterMaterialHandle))
 			{
 				pBloomMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "threshold", bloomParameters.mThreshold);

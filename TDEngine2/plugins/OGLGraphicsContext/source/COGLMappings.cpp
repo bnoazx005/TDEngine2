@@ -528,99 +528,40 @@ namespace TDEngine2
 		return 0;
 	}
 
-	GLint COGLMappings::GetMinFilterType(U32 filterValue)
+	GLint COGLMappings::GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps)
 	{
-		E_TEXTURE_FILTER_TYPE minFilterType = static_cast<E_TEXTURE_FILTER_TYPE>(filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIN_MASK));
-		E_TEXTURE_FILTER_TYPE mipFilterType = static_cast<E_TEXTURE_FILTER_TYPE>(filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIP_MASK));
-
-		if (mipFilterType == E_TEXTURE_FILTER_TYPE::FT_UNUSED)
+		switch (filterValue)
 		{
-			switch (minFilterType)
-			{
-				case E_TEXTURE_FILTER_TYPE::FT_POINT:
-					return GL_NEAREST;
-				case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-					return GL_LINEAR;
-				case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
-					return 0x0;
-				default:
-					return GL_NEAREST;
-			}
-		}
+			case E_TEXTURE_FILTER_TYPE::FT_POINT:
+				return useMipMaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
 
-		switch (minFilterType)
-		{
 			case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-				switch (mipFilterType)
-				{
-					case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-						return GL_LINEAR_MIPMAP_LINEAR;
-					case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
-						return 0x0;
-					default:
-						return GL_LINEAR_MIPMAP_NEAREST;
-				}
-			case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
-				return 0x0;
-			default:
-				switch (mipFilterType)
-				{
-					case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-						return GL_NEAREST_MIPMAP_LINEAR;
-					case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
-						return 0x0;
-					default:
-						return GL_NEAREST_MIPMAP_NEAREST;
-				}
+				return useMipMaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR;
+
+			case E_TEXTURE_FILTER_TYPE::FT_TRILINEAR:
+				return GL_LINEAR_MIPMAP_LINEAR;
+
+			case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC:
+				return GL_LINEAR_MIPMAP_LINEAR;
 		}
 
 		return GL_NEAREST;
 	}
 
-	GLint COGLMappings::GetMagFilterType(U32 filterValue)
+	GLint COGLMappings::GetMagFilterType(E_TEXTURE_FILTER_TYPE filterValue)
 	{
-		E_TEXTURE_FILTER_TYPE magFilterType = static_cast<E_TEXTURE_FILTER_TYPE>(filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MAG_MASK));
-		E_TEXTURE_FILTER_TYPE mipFilterType = static_cast<E_TEXTURE_FILTER_TYPE>(filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIP_MASK));
-
-		if (mipFilterType == E_TEXTURE_FILTER_TYPE::FT_UNUSED)
+		switch (filterValue)
 		{
-			switch (magFilterType)
-			{
-				case E_TEXTURE_FILTER_TYPE::FT_POINT:
-					return GL_NEAREST;
-				case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-					return GL_LINEAR;
-				case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
-					return 0x0;
-				default:
-					return GL_NEAREST;
-			}
-		}
+			case E_TEXTURE_FILTER_TYPE::FT_POINT:
+				return GL_NEAREST;
 
-		switch (magFilterType)
-		{
 			case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-				switch (mipFilterType)
-				{
-					case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-						return GL_LINEAR_MIPMAP_LINEAR;
-					case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
-						return 0x0;
-					default:
-						return GL_LINEAR_MIPMAP_NEAREST;
-				}
-			case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
-				return 0x0;
-			default:
-				switch (mipFilterType)
-				{
-					case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-						return GL_NEAREST_MIPMAP_LINEAR;
-					case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC: /// \todo anisotropic filter has not been implemented yet
-						return 0x0;
-					default:
-						return GL_NEAREST_MIPMAP_NEAREST;
-				}
+			case E_TEXTURE_FILTER_TYPE::FT_TRILINEAR:
+				return GL_LINEAR;
+
+			case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC:
+				TDE2_UNIMPLEMENTED();
+				return 0;
 		}
 
 		return GL_NEAREST;

@@ -107,8 +107,7 @@ namespace TDEngine2
 
 	void CBaseTexture2D::SetFilterType(const E_TEXTURE_FILTER_TYPE& type)
 	{
-		TDE2_UNIMPLEMENTED();
-		//mTextureSamplerParams.
+		mTextureSamplerParams.mFilteringType = type;
 	}
 
 	U32 CBaseTexture2D::GetWidth() const

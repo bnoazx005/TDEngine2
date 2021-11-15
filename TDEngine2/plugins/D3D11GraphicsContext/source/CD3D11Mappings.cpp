@@ -1,4 +1,4 @@
-#include "./../include/CD3D11Mappings.h"
+#include "../include/CD3D11Mappings.h"
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -463,40 +463,21 @@ namespace TDEngine2
 		return DXGI_FORMAT_UNKNOWN;
 	}
 
-	D3D11_FILTER CD3D11Mappings::GetFilterType(U32 filterValue)
-	{
-		U32 minFilterType = (filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIN_MASK));
-		U32 magFilterType = (filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MAG_MASK));
-		U32 mipFilterType = (filterValue & static_cast<U32>(E_FILTER_FLAGS_MASKS::FFM_FILTER_MIP_MASK));
-		
-		if (minFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_POINT) && magFilterType == minFilterType && mipFilterType == minFilterType)
+	D3D11_FILTER CD3D11Mappings::GetFilterType(E_TEXTURE_FILTER_TYPE filterValue)
+	{		
+		switch (filterValue)
 		{
-			return D3D11_FILTER_MIN_MAG_MIP_POINT;
-		}
+			case E_TEXTURE_FILTER_TYPE::FT_POINT:
+				return D3D11_FILTER_MIN_MAG_MIP_POINT;
+				
+			case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
+				return D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 
-		if (minFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_POINT) && magFilterType == minFilterType && mipFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_BILINEAR))
-		{
-			return D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-		}
-		
-		if (minFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_POINT) && magFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_BILINEAR) && mipFilterType == magFilterType)
-		{
-			return D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
-		}
+			case E_TEXTURE_FILTER_TYPE::FT_TRILINEAR:
+				return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
-		if (minFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_BILINEAR) && magFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_POINT) && mipFilterType == magFilterType)
-		{
-			return D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
-		}
-
-		if (minFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_BILINEAR) && magFilterType == minFilterType && mipFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_POINT))
-		{
-			return D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-		}
-
-		if (minFilterType == static_cast<U32>(E_TEXTURE_FILTER_TYPE::FT_BILINEAR) && magFilterType == minFilterType && mipFilterType == minFilterType)
-		{
-			return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC:
+				return D3D11_FILTER_ANISOTROPIC;
 		}
 		
 		return D3D11_FILTER_MIN_MAG_MIP_POINT; /// point filter is used by default
