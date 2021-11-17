@@ -11,6 +11,7 @@
 #include "../../include/graphics/animation/AnimationTracks.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/MathUtils.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 #include <cmath>
 
@@ -128,6 +129,8 @@ namespace TDEngine2
 
 	void CAnimationSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CAnimationSystem::Update");
+
 		CEntity* pCurrEntity = nullptr;
 
 		auto tryStopAnimation = [this](CAnimationContainerComponent* pAnimationContainer, TEntityId sourceId)

@@ -4,6 +4,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -73,6 +74,8 @@ namespace TDEngine2
 
 	void CTransformSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CTransformSystem::Update");
+
 		for (TEntityId currEntity : mTransformEntities)
 		{
 			if (CEntity* pEntity = pWorld->FindEntity(currEntity))

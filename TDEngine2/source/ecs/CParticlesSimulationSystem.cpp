@@ -14,6 +14,7 @@
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/IVertexBuffer.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -154,6 +155,8 @@ namespace TDEngine2
 
 	void CParticlesSimulationSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CParticlesSimulationSystem::Update");
+
 		if (!mpCameraEntity)
 		{
 			LOG_WARNING("[CParticlesSimulationSystem] An entity with Camera component attached to that wasn't found");

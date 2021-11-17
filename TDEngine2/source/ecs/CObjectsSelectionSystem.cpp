@@ -19,6 +19,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/ecs/EditorComponents.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -91,6 +92,8 @@ namespace TDEngine2
 
 	void CObjectsSelectionSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CObjectsSelectionSystem::Update");
+
 		// \note Test all objects for visibility
 		ICamera* pEditorCameraComponent = _getEditorCamera(pWorld, mCameraEntityId);
 

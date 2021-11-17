@@ -8,6 +8,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/graphics/IRenderer.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -89,6 +90,8 @@ namespace TDEngine2
 
 	void CCameraSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CCameraSystem::Update");
+
 		CTransform* pCurrTransform = nullptr;
 
 		CBaseCamera* pCurrCamera = nullptr;
