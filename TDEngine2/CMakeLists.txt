@@ -10,6 +10,7 @@ option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
 option(IS_TOOLS_BUILDING_ENABLED "The option shows whether engine's toolset should be built or not" ON)
 option(USE_EXTERNAL_BULLET_LIBRARY "The options determines whether bullet from deps/ directory or system one will be used" OFF)
+option(OPTICK_PROFILER_ENABLED "The option enables/disables usage of optick as a main profiler" ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
@@ -526,6 +527,16 @@ add_subdirectory(deps)
 
 
 add_library(${TDENGINE2_LIBRARY_NAME} SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS} ${TDENGINE2_CGEN_HEADER})
+
+
+if (OPTICK_PROFILER_ENABLED)
+	add_definitions(-DOPTICK_EXPORT)
+	add_subdirectory(deps/optick)	
+	
+	target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/optick/include")
+	target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC OptickCore)
+endif ()
+
 
 if (UNIX)
 	# disable lib prefix

@@ -14,6 +14,7 @@
 #include <stack>
 #include <thread>
 #include <unordered_map>
+#include "optick.h"
 
 
 namespace TDEngine2
@@ -163,5 +164,7 @@ namespace TDEngine2
 	};
 
 
-#define TDE2_PROFILER_SCOPE(Name) CProfilerScope scope##__LINE__(Name)
+#define TDE2_PROFILER_SCOPE(Name)				\
+	OPTICK_EVENT();								\
+	CProfilerScope scope##__LINE__(Name)		
 }

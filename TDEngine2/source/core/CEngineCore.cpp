@@ -50,6 +50,7 @@
 #include <cstring>
 #include <algorithm>
 #include "deferOperation.hpp"
+#include "optick.h"
 
 
 namespace TDEngine2
@@ -297,6 +298,8 @@ namespace TDEngine2
 #if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
 		CPerfProfiler::Get()->BeginFrame();
 		CMemoryProfiler::Get()->BeginFrame();
+
+		OPTICK_FRAME("MainThread");
 #endif
 
 		if (mpInputContext)
