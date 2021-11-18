@@ -164,6 +164,11 @@ namespace TDEngine2
 		return mIsPaused;
 	}
 
+	CAnimationContainerComponent::TPropertiesTable& CAnimationContainerComponent::GetCachedPropertiesTable()
+	{
+		return mCachedProperties;
+	}
+
 	const std::string& CAnimationContainerComponent::GetAnimationClipId() const
 	{
 		return mAnimationClipId;

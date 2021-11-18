@@ -140,6 +140,8 @@ namespace TDEngine2
 				_notifyOnAnimationEvent(sourceId, TAnimationEvents::mOnFinished);
 				pAnimationContainer->SetPlayingFlag(false);
 			
+				pAnimationContainer->GetCachedPropertiesTable().clear();
+
 				return true;
 			}
 
@@ -199,8 +201,10 @@ namespace TDEngine2
 				pAnimationContainer->SetStoppedFlag(true);
 			}
 
+			auto& cachedProperties = pAnimationContainer->GetCachedPropertiesTable();
+
 			// \note Apply values for each animation track
-			pAnimationClip->ForEachTrack([pWorld, pCurrEntity, currTime, this](TAnimationTrackId trackId, IAnimationTrack* pTrack)
+			pAnimationClip->ForEachTrack([pWorld, pCurrEntity, currTime, this, pAnimationContainer, &cachedProperties](TAnimationTrackId trackId, IAnimationTrack* pTrack)
 			{
 				if (pTrack->GetTrackTypeId() == CEventAnimationTrack::GetTypeId()) // \note Event track's processed separately
 				{
@@ -212,7 +216,15 @@ namespace TDEngine2
 					return true;
 				}
 
-				IPropertyWrapperPtr animableProperty{ ResolveBinding(pWorld, pCurrEntity, pTrack->GetPropertyBinding()) };
+				const U32 propertyBindingStrHash = ComputeHash(pTrack->GetPropertyBinding().c_str());
+
+				auto&& it = cachedProperties.find(propertyBindingStrHash);
+				if (it == cachedProperties.cend() || !it->second)
+				{
+					cachedProperties[propertyBindingStrHash] = ResolveBinding(pWorld, pCurrEntity, pTrack->GetPropertyBinding());
+				}
+
+				IPropertyWrapperPtr& animableProperty = cachedProperties[propertyBindingStrHash];
 				if (!animableProperty) // \note It's pretty normal case when you can't resolve binding, because, for instance, an entity may not have some component or child entity
 				{
 					return true;

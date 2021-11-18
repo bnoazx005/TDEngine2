@@ -9,6 +9,8 @@
 
 #include "../../ecs/CBaseComponent.h"
 #include "../../ecs/IComponentFactory.h"
+#include "../../core/Meta.h"
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -45,6 +47,10 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IComponent* CreateAnimationContainerComponent(E_RESULT_CODE&);
+
+		public:
+			typedef std::unordered_map<U32, IPropertyWrapperPtr> TPropertiesTable;
+
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CAnimationContainerComponent)
 
@@ -97,6 +103,8 @@ namespace TDEngine2
 			TDE2_API bool IsStopped() const;
 			TDE2_API bool IsPaused() const;
 
+			TDE2_API TPropertiesTable& GetCachedPropertiesTable();
+
 			TDE2_API const std::string& GetAnimationClipId() const;
 
 			/*!
@@ -120,6 +128,8 @@ namespace TDEngine2
 			F32 mDuration;
 
 			TResourceId mAnimationClipResourceId = TResourceId::Invalid;
+
+			TPropertiesTable mCachedProperties;
 	};
 
 
