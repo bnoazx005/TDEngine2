@@ -62,7 +62,7 @@ namespace TDEngine2
 		protected:
 			std::ofstream      mOutputLog;
 
-			bool               mIsOutputEnabled;
+			std::atomic_bool   mIsOutputEnabled;
 
 			mutable std::mutex mMutex;
 	};

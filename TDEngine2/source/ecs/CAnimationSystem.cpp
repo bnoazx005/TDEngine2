@@ -36,6 +36,8 @@ namespace TDEngine2
 
 	static IPropertyWrapperPtr ResolveBinding(IWorld* pWorld, CEntity* pEntity, const std::string& name)
 	{
+		TDE2_PROFILER_SCOPE("ResolveBinding, binding: " + name);
+
 		std::string binding = Wrench::StringUtils::RemoveAllWhitespaces(name);
 
 		std::string::size_type pos = 0;

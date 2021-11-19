@@ -43,6 +43,8 @@ namespace TDEngine2
 
 	void CFileLogger::LogStatus(const std::string& message, const std::string& status, C8 delimiter, U16 delimitersCount)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		mOutputLog << message << " ";
 		std::cout << message << " ";
 
