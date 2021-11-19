@@ -11,6 +11,7 @@ namespace TDEngine2
 		static const std::string mGraphicsSettingsGroupId;
 		static const std::string mAudioSettingsGroupId;
 		static const std::string mLocalizationSettingsGroupId;
+		static const std::string mWorldSettingsGroupId;
 
 		struct TCommonSettingsKeys
 		{
@@ -38,12 +39,18 @@ namespace TDEngine2
 			static const std::string mLocaleIdKey;
 			static const std::string mLocalePackagePathKey;
 		};
+
+		struct TWorldSettingsKeys
+		{
+			static const std::string mBoundsUpdateIntervalKey;
+		};
 	};
 
 	const std::string TProjectSettingsArchiveKeys::mCommonSettingsGroupId = "common_settings";
 	const std::string TProjectSettingsArchiveKeys::mGraphicsSettingsGroupId = "graphics_settings";
 	const std::string TProjectSettingsArchiveKeys::mAudioSettingsGroupId = "audio_settings";
 	const std::string TProjectSettingsArchiveKeys::mLocalizationSettingsGroupId = "localization_settings";
+	const std::string TProjectSettingsArchiveKeys::mWorldSettingsGroupId = "world_settings";
 
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey = "application_id";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey = "max_worker_threads_count";
@@ -59,6 +66,8 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mLocaleInfoGroupId = "locale_info";
 	const std::string TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mLocaleIdKey = "id";
 	const std::string TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mLocalePackagePathKey = "package_path";
+
+	const std::string TProjectSettingsArchiveKeys::TWorldSettingsKeys::mBoundsUpdateIntervalKey = "object_bounds_interval";
 
 
 	CProjectSettings::CProjectSettings():

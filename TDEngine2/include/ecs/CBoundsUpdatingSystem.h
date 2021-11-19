@@ -99,5 +99,7 @@ namespace TDEngine2
 			IDebugUtility*    mpDebugUtility;
 
 			ISceneManager*    mpSceneManager;
+
+			F32               mCurrTimer = 0.0f;
 	};
 }

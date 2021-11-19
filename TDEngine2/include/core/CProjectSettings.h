@@ -74,5 +74,11 @@ namespace TDEngine2
 				std::vector<TLocaleInfo> mRegisteredLocales;
 				std::string mCurrActiveLocaleId;
 			} mLocalizationSettings;
+
+
+			struct TWorldSettings
+			{
+				F32 mEntitiesBoundsUpdateInterval = 0.5f;
+			} mWorldSettings;
 	};
 }
