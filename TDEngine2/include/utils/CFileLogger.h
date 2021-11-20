@@ -10,6 +10,7 @@
 #include "../core/CBaseObject.h"
 #include <fstream>
 #include <mutex>
+#include <vector>
 
 
 namespace TDEngine2
@@ -30,9 +31,19 @@ namespace TDEngine2
 				LMT_WARNING,
 				LMT_ERROR,
 			};
+
+			struct TLogQueue
+			{
+				std::condition_variable  mQueueCondition;
+				std::mutex               mMutex;
+				std::vector<std::string> mMessages;
+			};
+
 		public:
 			TDE2_API CFileLogger(const std::string& path);
 			TDE2_API virtual ~CFileLogger() = default;
+
+			TDE2_API E_RESULT_CODE Init() override;
 
 			TDE2_API void SetOutputEnabled(bool value) override;
 
@@ -59,12 +70,18 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 			TDE2_API virtual void _onBeforeMemoryRelease();
 #endif
+
+			TDE2_API void _writeMessageInternal(const std::string& message);
+
 		protected:
 			std::ofstream      mOutputLog;
 
 			std::atomic_bool   mIsOutputEnabled;
+			std::atomic_bool   mIsRunning;
 
 			mutable std::mutex mMutex;
+
+			mutable TLogQueue  mLogContext;
 	};
 
 

@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.19] 2021-11-17
+## [0.5.19] 2021-11-20
 
 ### Added
 
 - The configuration of texture's filtering type was implemented.
 
 - **Optick** profiler was integrated into the engine's core.
+
+### Changed
+
+- **CFileLogger** was rewritten in asynchronous manner. Now it uses its own thread to write logs.
 
 ## [0.5.18] 2021-11-14
 

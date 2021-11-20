@@ -141,7 +141,7 @@ namespace TDEngine2
 
 		auto&& iter = samples.begin();
 
-		while (!samples.empty() && (iter != samples.cend()))
+		while (!samples.empty() && (iter != samples.end()))
 		{
 			ITimeProfiler::TSampleRecord sample = *iter;
 
