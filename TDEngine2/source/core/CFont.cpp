@@ -1,11 +1,12 @@
-#include "./../../include/core/CFont.h"
-#include "./../../include/core/IResourceManager.h"
-#include "./../../include/core/IFileSystem.h"
-#include "./../../include/platform/CYAMLFile.h"
-#include "./../../include/graphics/CTextureAtlas.h"
-#include "./../../include/utils/CU8String.h"
-#include "./../../include/graphics/IDebugUtility.h"
+#include "../../include/core/CFont.h"
+#include "../../include/core/IResourceManager.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/platform/CYAMLFile.h"
+#include "../../include/graphics/CTextureAtlas.h"
+#include "../../include/utils/CU8String.h"
+#include "../../include/graphics/IDebugUtility.h"
 #include "../../include/math/MathUtils.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <cstring>
 
 
@@ -215,13 +216,15 @@ namespace TDEngine2
 
 	CFont::TTextMeshData CFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
 	{
+		TDE2_PROFILER_SCOPE("CFont::GenerateMesh");
+
 		TPtr<ITextureAtlas> pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
 		if (!pTextureAtlas)
 		{
 			return { {}, ZeroVector2 };
 		}
 
-		const TRectF32 bounds = params.mBounds;
+		const TRectF32& bounds = params.mBounds;
 		const F32 scale = params.mScale;
 
 		TRectF32 normalizedUVs;

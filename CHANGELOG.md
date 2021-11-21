@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **CFileLogger** was rewritten in asynchronous manner. Now it uses its own thread to write logs.
 
+- **CUIElementsProcessSystem** was optimized. Now elements are updated only if their layout's changed.
+
 ## [0.5.18] 2021-11-14
 
 ### Changed

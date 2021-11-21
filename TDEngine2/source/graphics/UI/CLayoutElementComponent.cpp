@@ -67,6 +67,11 @@ namespace TDEngine2
 		mCanvasEntityId = canvasEntityId;
 	}
 
+	void CLayoutElement::SetDirty(bool value)
+	{
+		mIsDirty = value;
+	}
+
 	E_RESULT_CODE CLayoutElement::SetMinAnchor(const TVector2& value)
 	{
 		if (value.x > 1.0 || value.x < 0.0)
@@ -150,6 +155,11 @@ namespace TDEngine2
 	TEntityId CLayoutElement::GetOwnerCanvasId() const
 	{
 		return mCanvasEntityId;
+	}
+
+	bool CLayoutElement::IsDirty() const
+	{
+		return mIsDirty;
 	}
 
 

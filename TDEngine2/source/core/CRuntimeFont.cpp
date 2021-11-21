@@ -7,6 +7,7 @@
 #include "../../include/utils/CU8String.h"
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/math/MathUtils.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <cstring>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "../../deps/stb/stb_truetype.h"
@@ -50,6 +51,8 @@ namespace TDEngine2
 
 	CFont::TTextMeshData CRuntimeFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
 	{
+		TDE2_PROFILER_SCOPE("CRuntimeFont::GenerateMesh");
+
 		for (U32 i = 0; i < text.Length(); ++i)
 		{
 			auto codePoint = text.At(i);

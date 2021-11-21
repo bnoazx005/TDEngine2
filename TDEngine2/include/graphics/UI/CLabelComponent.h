@@ -81,6 +81,8 @@ namespace TDEngine2
 
 			TDE2_API void SetOverflowPolicyType(E_TEXT_OVERFLOW_POLICY value);
 
+			TDE2_API void ResetDirtyFlag();
+
 			TDE2_API const std::string& GetText() const;
 
 			TDE2_API const std::string& GetFontId() const;
@@ -91,11 +93,14 @@ namespace TDEngine2
 
 			TDE2_API E_TEXT_OVERFLOW_POLICY GetOverflowPolicyType() const;
 
+			TDE2_API bool IsDirty() const;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLabel)
 
 		protected:
 			std::string mText;
+			std::string mPrevText;
 			std::string mFontResourceId;
 
 			E_FONT_ALIGN_POLICY mAlignType;

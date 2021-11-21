@@ -22,7 +22,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mText = "New Text";
+		mText           = "New Text";
+		mPrevText       = Wrench::StringUtils::GetEmptyStr();
 		mFontResourceId = Wrench::StringUtils::GetEmptyStr();
 
 		mAlignType = E_FONT_ALIGN_POLICY::CENTER;
@@ -56,6 +57,7 @@ namespace TDEngine2
 
 	void CLabel::SetText(const std::string& text)
 	{
+		mPrevText = mText;
 		mText = text;
 	}
 
@@ -93,6 +95,11 @@ namespace TDEngine2
 		mOverflowPolicyType = value;
 	}
 
+	void CLabel::ResetDirtyFlag()
+	{
+		mPrevText = mText;
+	}
+
 	const std::string& CLabel::GetText() const
 	{
 		return mText;
@@ -116,6 +123,11 @@ namespace TDEngine2
 	E_TEXT_OVERFLOW_POLICY CLabel::GetOverflowPolicyType() const
 	{
 		return mOverflowPolicyType;
+	}
+
+	bool CLabel::IsDirty() const
+	{
+		return mPrevText != mText;
 	}
 
 

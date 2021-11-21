@@ -89,6 +89,8 @@ namespace TDEngine2
 
 			TDE2_API void SetOwnerCanvasId(TEntityId canvasEntityId);
 
+			TDE2_API void SetDirty(bool value);
+
 			TDE2_API const TVector2& GetMinAnchor() const;
 			TDE2_API const TVector2& GetMaxAnchor() const;
 
@@ -102,6 +104,8 @@ namespace TDEngine2
 			TDE2_API const TRectF32& GetParentWorldRect() const;
 
 			TDE2_API TEntityId GetOwnerCanvasId() const;
+
+			TDE2_API bool IsDirty() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLayoutElement)
 		protected:
@@ -118,6 +122,8 @@ namespace TDEngine2
 			TRectF32 mParentWorldRect;
 
 			TEntityId mCanvasEntityId;
+
+			bool      mIsDirty;
 	};
 
 

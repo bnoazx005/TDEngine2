@@ -21,6 +21,8 @@ namespace TDEngine2
 {
 	static void UpdateLayoutElementData(IWorld* pWorld, CEntity* pEntity)
 	{
+		TDE2_PROFILER_SCOPE("UpdateLayoutElementData");
+
 		CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
 
@@ -94,6 +96,11 @@ namespace TDEngine2
 		pLayoutElement->SetParentWorldRect(parentWorldRect);
 
 		const TVector2 position = worldRect.GetLeftBottom() + originShift;
+
+		pLayoutElement->SetDirty(
+			(pTransform->GetPosition() != TVector3(position.x, position.y, 0.0f)) || 
+			(worldRect != pLayoutElement->GetWorldRect()));
+
 		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));
 	}
 
@@ -124,6 +131,8 @@ namespace TDEngine2
 
 	static TEntityId FindParentCanvasEntityId(IWorld* pWorld, CEntity* pEntity)
 	{
+		TDE2_PROFILER_SCOPE("FindParentCanvasEntityId");
+
 		CEntity* pCurrEntity = pEntity;
 
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
@@ -179,6 +188,12 @@ namespace TDEngine2
 			return;
 		}
 
+		const bool isDirty = pLayoutData->IsDirty(); /// \todo Add dirty flag of ImageComponent
+		if (!isDirty)
+		{
+			return;
+		}
+
 		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
 
 		auto&& worldRect = pLayoutData->GetWorldRect();
@@ -209,7 +224,7 @@ namespace TDEngine2
 	}
 
 
-	static void ComputeTextMeshData(IResourceManager* pResourceManager, IWorld* pWorld, TEntityId id)
+	static inline void ComputeTextMeshData(IResourceManager* pResourceManager, IWorld* pWorld, TEntityId id)
 	{
 		CEntity* pEntity = pWorld->FindEntity(id);
 		if (!pEntity)
@@ -228,6 +243,12 @@ namespace TDEngine2
 		}
 
 		auto pFont = pResourceManager->GetResource<IFont>(pLabelData->GetFontResourceHandle());
+
+		const bool isDirty = pLayoutData->IsDirty() || pLabelData->IsDirty();
+		if (!isDirty)
+		{
+			return;
+		}
 
 		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
 		
@@ -251,6 +272,9 @@ namespace TDEngine2
 
 		pUIElementMeshData->SetTextureResourceId(dynamic_cast<IResource*>(pFont->GetTexture())->GetId()); /// \todo Replace dynamic_cast with proper method in IFont
 		pUIElementMeshData->SetTextMeshFlag(true);
+
+		pLabelData->ResetDirtyFlag();
+		pLayoutData->SetDirty(false);
 	}
 
 
@@ -355,6 +379,51 @@ namespace TDEngine2
 		mLabelsEntities = pWorld->FindEntitiesWithComponents<CLayoutElement, CLabel>();
 	}
 
+
+	static inline void UpdateLayoutElements(const CUIElementsProcessSystem::TEntitiesArray& layoutElementsEntities, IWorld* pWorld)
+	{
+		TDE2_PROFILER_SCOPE("UpdateLayoutElements");
+
+		CEntity* pEntity = nullptr;
+
+		for (TEntityId currEntity : layoutElementsEntities)
+		{
+			pEntity = pWorld->FindEntity(currEntity);
+			UpdateLayoutElementData(pWorld, pEntity);
+
+			if (auto pLayoutElement = pEntity->GetComponent<CLayoutElement>())
+			{
+				if (TEntityId::Invalid != pLayoutElement->GetOwnerCanvasId())
+				{
+					continue;
+				}
+
+				pLayoutElement->SetOwnerCanvasId(FindParentCanvasEntityId(pWorld, pEntity));
+			}
+		}
+	}
+
+	static inline void ComputeImagesMeshes(const CUIElementsProcessSystem::TEntitiesArray& entities, IResourceManager* pResourceManager, IWorld* pWorld)
+	{
+		TDE2_PROFILER_SCOPE("ComputeImagesMeshes");
+
+		for (TEntityId currEntity : entities)
+		{
+			ComputeImageMeshData(pResourceManager, pWorld, currEntity);
+		}
+	}
+	
+	static inline void ComputeLabelsMeshes(const CUIElementsProcessSystem::TEntitiesArray& entities, IResourceManager* pResourceManager, IWorld* pWorld)
+	{
+		TDE2_PROFILER_SCOPE("ComputeLabelsMeshes");
+
+		for (TEntityId currEntity : entities)
+		{
+			ComputeTextMeshData(pResourceManager, pWorld, currEntity);
+		}
+	}
+
+
 	void CUIElementsProcessSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CUIElementsProcessSystem::Update");
@@ -370,29 +439,10 @@ namespace TDEngine2
 			UpdateLayoutElementData(pWorld, pEntity); 
 		}
 
-		/// \note Process LayoutElement entities
-		for (TEntityId currEntity : mLayoutElementsEntities)
-		{
-			pEntity = pWorld->FindEntity(currEntity);
-			UpdateLayoutElementData(pWorld, pEntity);
-			
-			if (auto pLayoutElement = pEntity->GetComponent<CLayoutElement>())
-			{
-				pLayoutElement->SetOwnerCanvasId(FindParentCanvasEntityId(pWorld, pEntity));
-			}
-		}
+		UpdateLayoutElements(mLayoutElementsEntities, pWorld); /// \note Process LayoutElement entities
 
-		/// \note Compute meshes for Images
-		for (TEntityId currEntity : mImagesEntities)
-		{
-			ComputeImageMeshData(mpResourceManager, pWorld, currEntity);
-		}
-
-		/// \note Compute meshes for Labels
-		for (TEntityId currEntity : mLabelsEntities)
-		{
-			ComputeTextMeshData(mpResourceManager, pWorld, currEntity);
-		}
+		ComputeImagesMeshes(mImagesEntities, mpResourceManager, pWorld);
+		ComputeLabelsMeshes(mLabelsEntities, mpResourceManager, pWorld);
 	}
 
 
