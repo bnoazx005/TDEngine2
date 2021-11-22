@@ -90,6 +90,7 @@ namespace TDEngine2
 			TDE2_API void SetOwnerCanvasId(TEntityId canvasEntityId);
 
 			TDE2_API void SetDirty(bool value);
+			
 
 			TDE2_API const TVector2& GetMinAnchor() const;
 			TDE2_API const TVector2& GetMaxAnchor() const;

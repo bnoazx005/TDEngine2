@@ -21,6 +21,7 @@ namespace TDEngine2
 		}
 
 		mCanvasEntityId = TEntityId::Invalid;
+		mIsDirty = true;
 
 		mIsInitialized = true;
 

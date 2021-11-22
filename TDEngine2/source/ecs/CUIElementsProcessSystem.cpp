@@ -24,11 +24,17 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("UpdateLayoutElementData");
 
 		CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
+		if (!pLayoutElement->IsDirty())
+		{
+			return;
+		}
+
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
 
 		if (pEntity->HasComponent<CCanvas>())
 		{
 			CCanvas* pCanvas = pEntity->GetComponent<CCanvas>();
+			
 			const TVector2 canvasSizes{ static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()) };
 
 			const TVector2 leftBottom = pLayoutElement->GetMinOffset() + Scale(pLayoutElement->GetMinAnchor(), canvasSizes);
@@ -37,6 +43,9 @@ namespace TDEngine2
 			const TVector2 rectSizes = rightTop - leftBottom;
 			const TVector3 position = pTransform->GetPosition();
 
+			TRectF32 rect { position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y };
+
+			pLayoutElement->SetDirty(rect != pLayoutElement->GetWorldRect());
 			pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });
 
 			return;
@@ -59,6 +68,11 @@ namespace TDEngine2
 		if (!pParentLayoutElement)
 		{
 			TDE2_ASSERT(false);
+			return;
+		}
+
+		if (!pParentLayoutElement->IsDirty())
+		{
 			return;
 		}
 
@@ -105,7 +119,8 @@ namespace TDEngine2
 	}
 
 
-	static void UpdateCanvasData(IGraphicsContext* pGraphicsContext, IWorld* pWorld, CEntity* pEntity)
+	// \note The function returns false if update isn't needed
+	static bool UpdateCanvasData(IGraphicsContext* pGraphicsContext, IWorld* pWorld, CEntity* pEntity)
 	{
 		TDE2_ASSERT(pEntity->HasComponent<CCanvas>());
 
@@ -113,7 +128,7 @@ namespace TDEngine2
 		{
 			if (!pCanvas->IsDirty())
 			{
-				return;
+				return false;
 			}
 
 			if (pCanvas->DoesInheritSizesFromMainCamera())
@@ -127,6 +142,8 @@ namespace TDEngine2
 			/// \note The canvas's origin is a left-bottom corner
 			pCanvas->SetProjMatrix(pGraphicsContext->CalcOrthographicMatrix(0.0f, static_cast<F32>(pCanvas->GetHeight()), static_cast<F32>(pCanvas->GetWidth()), 0.0f, 0.0f, 1.0f, true));
 		}
+
+		return true;
 	}
 
 	static TEntityId FindParentCanvasEntityId(IWorld* pWorld, CEntity* pEntity)
@@ -435,8 +452,10 @@ namespace TDEngine2
 		{
 			pEntity = pWorld->FindEntity(currEntity);
 
-			UpdateCanvasData(mpGraphicsContext, pWorld, pEntity);
-			UpdateLayoutElementData(pWorld, pEntity); 
+			if (UpdateCanvasData(mpGraphicsContext, pWorld, pEntity))
+			{
+				UpdateLayoutElementData(pWorld, pEntity);
+			}
 		}
 
 		UpdateLayoutElements(mLayoutElementsEntities, pWorld); /// \note Process LayoutElement entities

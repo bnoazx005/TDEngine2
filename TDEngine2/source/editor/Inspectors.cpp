@@ -773,6 +773,7 @@ namespace TDEngine2
 		if (imguiContext.CollapsingHeader("Layout Element", true))
 		{
 			CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
+			layoutElement.SetDirty(true);
 
 			DrawLayoutElementHandles(editorContext, layoutElement);
 
