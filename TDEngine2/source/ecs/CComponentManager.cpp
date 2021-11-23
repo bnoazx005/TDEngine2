@@ -30,6 +30,7 @@
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/editor/ecs/EditorComponents.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -363,6 +364,8 @@ namespace TDEngine2
 
 	IComponent* CComponentManager::_getComponent(TypeId componentTypeId, TEntityId entityId)
 	{
+		//TDE2_PROFILER_SCOPE("GetComponentInternal");
+
 		U32 instanceHashValue = mComponentEntityMap[componentTypeId][entityId];
 		
 		if (!instanceHashValue || (mComponentsHashTable.find(componentTypeId) == mComponentsHashTable.cend()))

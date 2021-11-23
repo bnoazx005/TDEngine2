@@ -54,7 +54,7 @@ namespace TDEngine2
 	class CUIElementsRenderSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateUIElementsRenderSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateUIElementsRenderSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 		public:
 			typedef std::unordered_map<TResourceId, TMaterialInstanceId> TMaterialsMap;
 		public:
@@ -97,7 +97,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _updateGPUBuffers();
 		protected:
-			static constexpr U32 mMaxVerticesCount = 1 << 14;
+			static constexpr U32            mMaxVerticesCount = 1 << 14;
 
 			IGraphicsObjectManager*         mpGraphicsObjectManager;
 
@@ -113,14 +113,14 @@ namespace TDEngine2
 			
 			CScopedPtr<IGraphicsLayersInfo> mpGraphicsLayers;
 
-			std::vector<TEntityId>          mUIElementsEntities;
+			TEntitiesArray                  mUIElementsEntities;
 
-			std::vector<TUIElementsVertex> mVertices, mIntermediateVertsBuffer;
-			std::vector<U16>               mIndices, mIntermediateIndexBuffer;
+			std::vector<TUIElementsVertex>  mVertices, mIntermediateVertsBuffer;
+			std::vector<U16>                mIndices, mIntermediateIndexBuffer;
 
-			IVertexBuffer*                 mpVertexBuffer;
-			IIndexBuffer*                  mpIndexBuffer;
+			IVertexBuffer*                  mpVertexBuffer;
+			IIndexBuffer*                   mpIndexBuffer;
 
-			TMaterialsMap                  mUsingMaterials;
+			TMaterialsMap                   mUsingMaterials;
 	};
 }

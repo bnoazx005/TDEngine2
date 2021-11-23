@@ -239,7 +239,7 @@ namespace TDEngine2
 				auto pivot = rect.GetLeftBottom() + pLayoutElement->GetPivot() * rect.GetSizes();
 
 				auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
-				TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) *ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
+				TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
 
 				pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix() * localObjectTransform);
 				pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
@@ -280,9 +280,9 @@ namespace TDEngine2
 		TMaterialParameters editorUIMaterialParams{ "DefaultEditorUI", true, { false, false }, { E_CULL_MODE::BACK } };
 
 		auto& blendingParams = editorUIMaterialParams.mBlendingParams;
-		blendingParams.mScrValue = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
-		blendingParams.mDestValue = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
-		blendingParams.mScrAlphaValue = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
+		blendingParams.mScrValue       = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
+		blendingParams.mDestValue      = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
+		blendingParams.mScrAlphaValue  = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
 		blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
 
 		mDefaultUIMaterialId = mpResourceManager->Create<IMaterial>("DefaultInGameUI.material", editorUIMaterialParams);
@@ -298,7 +298,6 @@ namespace TDEngine2
 		mpDefaultFontVertexDecl = createFontVertDeclResult.Get();
 
 		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		//mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
 		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
 		/// \note Create vertex buffer and index one
