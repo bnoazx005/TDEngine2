@@ -1076,6 +1076,18 @@ namespace TDEngine2
 			io.MouseDown[buttonId] = pDesktopInputCtx->IsMouseButton(buttonId);
 		}
 
+		for (U16 keyCode = static_cast<U16>(E_KEYCODES::KC_ESCAPE); keyCode != static_cast<U16>(E_KEYCODES::KC_NONE); ++keyCode)
+		{
+			const E_KEYCODES internalKeyCode = static_cast<E_KEYCODES>(keyCode);
+			
+			if (IsAlphaNumericKeyCode(internalKeyCode))
+			{
+				continue;
+			}
+
+			io.KeysDown[keyCode] = pDesktopInputCtx->IsKey(internalKeyCode);
+		}
+
 #if TDE2_EDITORS_ENABLED
 		pDesktopInputCtx->SetOnCharInputCallback([this, &io](U8C characterCode)
 		{

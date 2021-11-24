@@ -105,6 +105,8 @@ namespace TDEngine2
 
 	TDE2_API U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode);
 
+	TDE2_API bool IsAlphaNumericKeyCode(const E_KEYCODES& keyCode);
+
 
 	/*!
 		enum class E_GAMEPAD_BUTTONS

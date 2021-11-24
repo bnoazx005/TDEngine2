@@ -246,4 +246,12 @@ namespace TDEngine2
 
 		return convertedKeyCode;
 	}
+
+
+	bool IsAlphaNumericKeyCode(const E_KEYCODES& keyCode)
+	{
+		return (keyCode >= E_KEYCODES::KC_A && keyCode <= E_KEYCODES::KC_Z) ||
+			(keyCode >= E_KEYCODES::KC_ALPHA0 && keyCode <= E_KEYCODES::KC_NUMPAD9) ||
+			(keyCode >= E_KEYCODES::KC_EXCLAIM && keyCode <= E_KEYCODES::KC_TILDE);
+	}
 }
