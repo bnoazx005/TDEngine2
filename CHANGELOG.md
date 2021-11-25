@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.20] 2021-11-24
+## [0.5.20] 2021-11-25
 
 ### Fixed
 
-- The input was fixed for ImGUI's interfaces
+- The input was fixed for ImGUI's interfaces.
+
+- (Fixed issue #72) Processing of window's resize was fixed under **CWin32WindowSystem**.
 
 ## [0.5.19] 2021-11-23
 
