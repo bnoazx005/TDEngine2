@@ -57,6 +57,54 @@ namespace TDEngine2
 		mMainThreadID = mainThreadID;
 	}
 
+
+	static bool DrawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const ITimeProfiler::TSampleRecord& currSample, 
+								ITimeProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId, F32 verticalSpacingSize, F32 intervalHeight)
+	{
+		const F32 scale = 1000.0f * pixelsPerMillisecond;
+
+		TVector2 pos = initPosition + TVector2(scale * currSample.mStartTime, currTrackId * (intervalHeight + verticalSpacingSize));
+		const TRectF32 sampleRect = TRectF32{ 0.0f, 0.0f, currSample.mDuration * scale, intervalHeight } +pos;
+
+		DrawRectWithText(imguiContext, currSample.mName, sampleRect, { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+		{
+			const TVector2 prevPosition = imguiContext.GetCursorScreenPos();
+			imguiContext.SetCursorScreenPos(pos);
+
+			if (sampleRect.width > 0.0f && sampleRect.height > 0.0f)
+			{
+				imguiContext.Button(Wrench::StringUtils::Format("##{0}", currSample.mName), sampleRect.GetSizes(), nullptr, true);
+				imguiContext.Tooltip(Wrench::StringUtils::Format("{0} : {1} ms", currSample.mName, currSample.mDuration * 1000.0f));
+			}
+
+			imguiContext.SetCursorScreenPos(prevPosition);
+		}
+
+		auto iter = samples.begin();
+
+		while (!samples.empty() && (iter != samples.end()))
+		{
+			ITimeProfiler::TSampleRecord sample = *iter;
+
+			if (!CMathUtils::IsInInclusiveRange(1000.0f * currSample.mStartTime, (currSample.mStartTime + currSample.mDuration) * 1000.0f, sample.mStartTime * 1000.0f))
+			{
+				++iter;
+				continue;
+			}
+
+			iter = samples.erase(iter);
+
+			if (DrawIntervalsTree(imguiContext, initPosition, sample, samples, pixelsPerMillisecond, currTrackId + 1, verticalSpacingSize, intervalHeight))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
 	void CTimeProfilerEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -104,7 +152,7 @@ namespace TDEngine2
 						ITimeProfiler::TSampleRecord currSample = samplesQueue.front();
 						samplesQueue.erase(samplesQueue.cbegin());
 
-						_drawIntervalsTree(*mpImGUIContext,  cursorPos, currSample, samplesQueue, (mpImGUIContext->GetWindowWidth() - 15.0f) / framesStats[0], 1);
+						DrawIntervalsTree(*mpImGUIContext,  cursorPos, currSample, samplesQueue, (mpImGUIContext->GetWindowWidth() - 15.0f) / framesStats[0], 1, mSpacingSizes.y, mIntervalRectHeight);
 					}
 				}
 			}
@@ -114,47 +162,6 @@ namespace TDEngine2
 		mpImGUIContext->EndWindow();
 
 		mIsVisible = isEnabled;
-	}
-
-	void CTimeProfilerEditorWindow::_drawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const ITimeProfiler::TSampleRecord& currSample,
-												   ITimeProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId)
-	{
-		const F32 scale = 1000.0f * pixelsPerMillisecond;
-
-		TVector2 pos = initPosition + TVector2(scale * currSample.mStartTime, currTrackId * (mIntervalRectHeight + mSpacingSizes.y));
-		const TRectF32 sampleRect = TRectF32{ 0.0f, 0.0f, currSample.mDuration * scale, mIntervalRectHeight } + pos;
-
-		DrawRectWithText(imguiContext, currSample.mName, sampleRect, { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-
-		{
-			const TVector2 prevPosition = imguiContext.GetCursorScreenPos();
-			imguiContext.SetCursorScreenPos(pos);
-
-			if (sampleRect.width > 0.0f && sampleRect.height > 0.0f)
-			{
-				imguiContext.Button(Wrench::StringUtils::Format("##{0}", currSample.mName), sampleRect.GetSizes(), nullptr, true);
-				imguiContext.Tooltip(Wrench::StringUtils::Format("{0} : {1} ms", currSample.mName, currSample.mDuration * 1000.0f));
-			}
-
-			imguiContext.SetCursorScreenPos(prevPosition);
-		}
-
-		auto&& iter = samples.begin();
-
-		while (!samples.empty() && (iter != samples.end()))
-		{
-			ITimeProfiler::TSampleRecord sample = *iter;
-
-			if (!CMathUtils::IsInInclusiveRange(1000.0f * currSample.mStartTime, (currSample.mStartTime + currSample.mDuration) * 1000.0f, sample.mStartTime * 1000.0f))
-			{
-				++iter;
-				continue;
-			}
-			
-			iter = samples.erase(iter);
-
-			_drawIntervalsTree(imguiContext, initPosition, sample, samples, pixelsPerMillisecond, currTrackId + 1);
-		}
 	}
 
 

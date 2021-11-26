@@ -47,7 +47,7 @@ namespace TDEngine2
 
 			typedef std::unordered_map<TypeId, U32>                                TComponentFactoriesMap;
 
-			typedef std::vector<TPtr<IComponentFactory>>                          TComponentFactoriesArray;
+			typedef std::vector<TPtr<IComponentFactory>>                           TComponentFactoriesArray;
 
 			typedef std::list<U32>                                                 TFreeEntitiesRegistry;
 

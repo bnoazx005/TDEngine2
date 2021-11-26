@@ -364,18 +364,18 @@ namespace TDEngine2
 
 	IComponent* CComponentManager::_getComponent(TypeId componentTypeId, TEntityId entityId)
 	{
-		//TDE2_PROFILER_SCOPE("GetComponentInternal");
-
-		U32 instanceHashValue = mComponentEntityMap[componentTypeId][entityId];
+		TDE2_PROFILER_SCOPE("CComponentManager::_getComponent");
 		
-		if (!instanceHashValue || (mComponentsHashTable.find(componentTypeId) == mComponentsHashTable.cend()))
+		const U32 instanceHashValue = mComponentEntityMap[componentTypeId][entityId];
+
+		auto&& it = mComponentsHashTable.find(componentTypeId);
+
+		if (!instanceHashValue || (it == mComponentsHashTable.cend()))
 		{
 			return nullptr;
-		}
+		}		
 
-		U32 componentTypeHashValue = mComponentsHashTable[componentTypeId];
-
-		return mActiveComponents[componentTypeHashValue][instanceHashValue - 1];
+		return mActiveComponents[it->second][instanceHashValue - 1];
 	}
 
 	E_RESULT_CODE CComponentManager::_registerBuiltinComponentFactories()

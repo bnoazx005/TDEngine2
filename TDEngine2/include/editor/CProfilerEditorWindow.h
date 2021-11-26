@@ -67,10 +67,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void _onDraw() override;
-
+/*
 			TDE2_API void _drawIntervalsTree(IImGUIContext& imguiContext, const TVector2& initPosition, const ITimeProfiler::TSampleRecord& currSample, 
 											 ITimeProfiler::TSamplesArray& samples, F32 pixelsPerMillisecond, I16 currTrackId = 0);
-
+*/
 		protected:
 			static const U16 mBufferSize = 128;
 
