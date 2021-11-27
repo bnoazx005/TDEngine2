@@ -346,7 +346,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		IFramePostProcessor* pFramePostProcessor = CreateFramePostProcessor({ pRenderer, mpGraphicsContextInstance->GetGraphicsObjectManager(), mpWindowSystemInstance.Get() }, result);
+		auto pFramePostProcessor = TPtr<IFramePostProcessor>(CreateFramePostProcessor({ pRenderer, mpGraphicsContextInstance->GetGraphicsObjectManager(), mpWindowSystemInstance.Get() }, result));
 		if (result != RC_OK)
 		{
 			return result;

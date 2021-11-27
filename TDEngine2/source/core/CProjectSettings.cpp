@@ -24,6 +24,12 @@ namespace TDEngine2
 		struct TGraphicsSettingsKeys
 		{
 			static const std::string mGraphicsTypeKey;
+			static const std::string mRendererSettingsGroupKey;
+
+			struct TRendererSettingsKeys
+			{
+				static const std::string mShadowMapSizesKey;
+			};
 		};
 
 		struct TAudioSettingsKeys
@@ -58,6 +64,8 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey = "flags";
 
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey = "gapi_type";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey = "renderer_settings";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mShadowMapSizesKey = "shadow_maps_size";
 
 	const std::string TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey = "api_type";
 
@@ -98,6 +106,13 @@ namespace TDEngine2
 		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mGraphicsSettingsGroupId);
 		{
 			mGraphicsSettings.mGraphicsContextType = Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::FromString(pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey));
+		
+			/// \note Shadow maps settings
+			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey);
+			{
+				mGraphicsSettings.mRendererSettings.mShadowMapSizes = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mShadowMapSizesKey);
+			}
+			result = result | pFileReader->EndGroup();
 		}
 		result = result | pFileReader->EndGroup();
 

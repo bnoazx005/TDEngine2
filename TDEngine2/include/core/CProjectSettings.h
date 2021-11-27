@@ -44,6 +44,11 @@ namespace TDEngine2
 			struct
 			{
 				E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType = E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11;
+
+				struct
+				{
+					U32 mShadowMapSizes = 512;
+				} mRendererSettings;
 			} mGraphicsSettings;
 
 			struct

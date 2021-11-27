@@ -36,7 +36,7 @@ namespace TDEngine2
 		}
 
 		mpResourceManager = desc.mpRenderer->GetResourceManager();
-		mpGlobalShaderProperties = desc.mpRenderer->GetGlobalShaderProperties();
+		mpGlobalShaderProperties = desc.mpRenderer->GetGlobalShaderProperties().Get();
 
 		mpOverlayRenderQueue              = desc.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
 		mpWindowSystem                    = desc.mpWindowSystem;

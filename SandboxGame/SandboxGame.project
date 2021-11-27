@@ -10,6 +10,8 @@ common_settings:
 
 graphics_settings:
   gapi_type: GCGT_DIRECT3D11
+  renderer_settings:
+    shadow_maps_size: 1024
 
 audio_settings:
   api_type: FMOD

@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Config.h"
-#include "./../utils/Types.h"
-#include "./../core/IBaseObject.h"
+#include "../utils/Config.h"
+#include "../utils/Types.h"
+#include "../core/IBaseObject.h"
 #include <functional>
 
 
@@ -90,4 +90,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFramePostProcessor)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(IFramePostProcessor)
 }

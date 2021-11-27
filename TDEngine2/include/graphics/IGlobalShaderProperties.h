@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../core/IBaseObject.h"
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../core/IBaseObject.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -53,4 +53,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGlobalShaderProperties)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties)
 }

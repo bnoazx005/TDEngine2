@@ -20,6 +20,10 @@ namespace TDEngine2
 	class IDebugUtility;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties);
+	TDE2_DECLARE_SCOPED_PTR(CRenderQueue);
+
+
 	/*!
 		\brief A factory function for creation objects of CForwardRenderer's type
 
@@ -40,7 +44,7 @@ namespace TDEngine2
 	class CForwardRenderer : public IRenderer, public CBaseObject
 	{
 		public:
-			friend TDE2_API IRenderer* CreateForwardRenderer(const TRendererInitParams&, E_RESULT_CODE& result);
+			friend TDE2_API IRenderer* CreateForwardRenderer(const TRendererInitParams&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a renderer
@@ -77,7 +81,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetFramePostProcessor(IFramePostProcessor* pFramePostProcessor) override;
+			TDE2_API E_RESULT_CODE SetFramePostProcessor(TPtr<IFramePostProcessor> pFramePostProcessor) override;
 
 			/*!
 				\brief The method stores given data that will be passed into the shaders to compute lighting and shadows
@@ -115,7 +119,7 @@ namespace TDEngine2
 				\return The method returns a pointer to CRenderQueue which contains objects of specific group
 			*/
 
-			TDE2_API CRenderQueue* GetRenderQueue(E_RENDER_QUEUE_GROUP queueType) const override;
+			TDE2_API CRenderQueue* GetRenderQueue(E_RENDER_QUEUE_GROUP queueType) override;
 
 			/*!
 				\brief The method returns a pointer to an instance of IResourceManager which is attached to
@@ -131,39 +135,34 @@ namespace TDEngine2
 				\return The method returns a pointer to an object which holds global shader uniforms
 			*/
 
-			TDE2_API IGlobalShaderProperties* GetGlobalShaderProperties() const override;
+			TDE2_API TPtr<IGlobalShaderProperties> GetGlobalShaderProperties() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CForwardRenderer)
 
-			TDE2_API void _submitToDraw(CRenderQueue* pRenderQueue, U32 upperRenderIndexLimit);
+			TDE2_API void _submitToDraw(TPtr<CRenderQueue> pRenderQueue, U32 upperRenderIndexLimit);
 
 			TDE2_API void _prepareFrame(F32 currTime, F32 deltaTime);
-
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			TPtr<IGraphicsContext>   mpGraphicsContext;
+			TPtr<IGraphicsContext>        mpGraphicsContext;
 							         
-			TPtr<IResourceManager>   mpResourceManager;
+			TPtr<IResourceManager>        mpResourceManager;
 							         
-			const ICamera*           mpMainCamera;
+			const ICamera*                mpMainCamera;
 							         
-			CRenderQueue*            mpRenderQueues[NumOfRenderQueuesGroup];
+			TPtr<CRenderQueue>            mpRenderQueues[NumOfRenderQueuesGroup];
 							         
-			TPtr<IAllocator>         mpTempAllocator;
+			TPtr<IAllocator>              mpTempAllocator;
 
-			IGlobalShaderProperties* mpGlobalShaderProperties;
+			TPtr<IGlobalShaderProperties> mpGlobalShaderProperties;
 
-			IDebugUtility*           mpDebugUtility;
+			IDebugUtility*                mpDebugUtility;
 
-			IFramePostProcessor*     mpFramePostProcessor;
+			TPtr<IFramePostProcessor>     mpFramePostProcessor;
 
-			ISelectionManager*       mpSelectionManager;
+			ISelectionManager*            mpSelectionManager;
 
-			TLightingShaderData      mLightingData;
+			TLightingShaderData           mLightingData;
 
-			TResourceId              mShadowMapHandle;
-
-			U32                      mShadowMapWidth;
-			U32                      mShadowMapHeight;
+			TResourceId                   mShadowMapHandle;
 	};
 }

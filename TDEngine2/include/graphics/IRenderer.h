@@ -28,6 +28,8 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 	TDE2_DECLARE_SCOPED_PTR(IAllocator)
+	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties)
+	TDE2_DECLARE_SCOPED_PTR(IFramePostProcessor)
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -112,7 +114,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetFramePostProcessor(IFramePostProcessor* pFramePostProcessor) = 0;
+			TDE2_API virtual E_RESULT_CODE SetFramePostProcessor(TPtr<IFramePostProcessor> pFramePostProcessor) = 0;
 
 			/*!
 				\brief The method sets up a pointer to selection manager
@@ -142,7 +144,7 @@ namespace TDEngine2
 				\return The method returns a pointer to CRenderQueue which contains objects of specific group
 			*/
 
-			TDE2_API virtual CRenderQueue* GetRenderQueue(E_RENDER_QUEUE_GROUP queueType) const = 0;
+			TDE2_API virtual CRenderQueue* GetRenderQueue(E_RENDER_QUEUE_GROUP queueType) = 0;
 
 			/*!
 				\brief The method returns a pointer to an instance of IResourceManager which is attached to
@@ -155,7 +157,7 @@ namespace TDEngine2
 				\return The method returns a pointer to an object which holds global shader uniforms
 			*/
 
-			TDE2_API virtual IGlobalShaderProperties* GetGlobalShaderProperties() const = 0;
+			TDE2_API virtual TPtr<IGlobalShaderProperties> GetGlobalShaderProperties() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_RENDERER; }
 		protected:

@@ -316,4 +316,7 @@ namespace TDEngine2
 
 			IAllocator*    mpTempAllocator;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(CRenderQueue)
 }
