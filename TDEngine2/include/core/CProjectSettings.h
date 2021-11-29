@@ -47,7 +47,8 @@ namespace TDEngine2
 
 				struct
 				{
-					U32 mShadowMapSizes = 512;
+					U32  mShadowMapSizes = 512;
+					bool mIsShadowMappingEnabled = true;
 				} mRendererSettings;
 			} mGraphicsSettings;
 

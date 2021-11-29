@@ -139,8 +139,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CForwardRenderer)
 
-			TDE2_API void _submitToDraw(TPtr<CRenderQueue> pRenderQueue, U32 upperRenderIndexLimit);
-
 			TDE2_API void _prepareFrame(F32 currTime, F32 deltaTime);
 		protected:
 			TPtr<IGraphicsContext>        mpGraphicsContext;
@@ -162,7 +160,5 @@ namespace TDEngine2
 			ISelectionManager*            mpSelectionManager;
 
 			TLightingShaderData           mLightingData;
-
-			TResourceId                   mShadowMapHandle;
 	};
 }

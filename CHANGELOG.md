@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.20] 2021-11-27
+## [0.5.20] 2021-11-29
+
+### Added
+
+- Shadow mapping's configuration was implemented for the forward renderer
 
 ### Fixed
 

@@ -45,8 +45,9 @@ namespace TDEngine2
 		TPointLightData mPointLights[MaxPointLightsCount];
 
 		U32             mPointLightsCount;
+		U32             mIsShadowMappingEnabled;
 
-		U32             mPadding[3];
+		U32             mPadding[2];
 	};
 
 	/*!

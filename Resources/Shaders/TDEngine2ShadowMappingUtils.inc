@@ -97,7 +97,7 @@ float ComputeShadowFactor(float4 lightSpaceFragPos, float bias)
 	projectedPos.x = 0.5 * projectedPos.x + 0.5;
 	projectedPos.y = -0.5 * projectedPos.y + 0.5;
 
-	return ((projectedPos.z - bias) > TEX2D(DirectionalShadowMapTexture, projectedPos.xy) ? 0.9 : 0.0);
+	return lerp(1.0, (projectedPos.z - bias) > TEX2D(DirectionalShadowMapTexture, projectedPos.xy) ? 0.9 : 0.0, ShadowMapsEnabled);
 }
 
 
@@ -107,7 +107,7 @@ float ComputeShadowFactorPCF(uint samplesCount, float4 lightSpaceFragPos, float 
 
 	float3 projectedPos = lightSpaceFragPos.xyz / lightSpaceFragPos.w;
 
-	if (projectedPos.z > 1.0)
+	if (projectedPos.z > 1.0 || !ShadowMapsEnabled)
 	{
 		return 0.0;
 	}

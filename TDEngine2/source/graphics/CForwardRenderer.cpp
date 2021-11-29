@@ -27,6 +27,37 @@ namespace TDEngine2
 	{
 	}
 
+
+	static TResult<TResourceId> GetOrCreateShadowMap(TPtr<IResourceManager> pResourceManager)
+	{
+		const U32 shadowMapSizes = CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mShadowMapSizes;
+		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
+
+		const TTexture2DParameters shadowMapParams{ shadowMapSizes, shadowMapSizes, FT_D32, 1, 1, 0 };
+
+		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("ShadowMap", shadowMapParams);
+		if (shadowMapHandle == TResourceId::Invalid)
+		{
+			TDE2_ASSERT(false);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		if (auto pShadowMapBuffer = pResourceManager->GetResource<IDepthBufferTarget>(shadowMapHandle))
+		{
+			pShadowMapBuffer->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pShadowMapBuffer->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+
+			if (pShadowMapBuffer->GetWidth() != shadowMapSizes)
+			{
+				LOG_MESSAGE(Wrench::StringUtils::Format("[CForwardRenderer] The shadow map sizes has been changed, from {0}x{0} to {1}x{1}", pShadowMapBuffer->GetWidth(), shadowMapSizes));
+				pShadowMapBuffer->Resize(shadowMapSizes, shadowMapSizes);
+			}
+		}
+
+		return Wrench::TOkValue<TResourceId>(shadowMapHandle);
+	}
+
+
 	E_RESULT_CODE CForwardRenderer::Init(const TRendererInitParams& params)
 	{
 		if (mIsInitialized)
@@ -95,28 +126,93 @@ namespace TDEngine2
 
 		mpDebugUtility = debugUtilityResult.Get();
 
-		const U32 shadowMapSizes = CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mShadowMapSizes;
-		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
-
-		TTexture2DParameters shadowMapParams{ shadowMapSizes, shadowMapSizes, FT_D32, 1, 1, 0 };
-
-		mShadowMapHandle = mpResourceManager->Create<IDepthBufferTarget>("ShadowMap", shadowMapParams);
-		if (mShadowMapHandle == TResourceId::Invalid)
+		if (CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled)
 		{
-			TDE2_ASSERT(false);
-			return RC_FAIL;
-		}
-
-		if (auto pShadowMapBuffer = mpResourceManager->GetResource<IDepthBufferTarget>(mShadowMapHandle))
-		{
-			pShadowMapBuffer->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
-			pShadowMapBuffer->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			GetOrCreateShadowMap(mpResourceManager).Get(); /// \note Create a shadow map's texture before any Update will be executed
 		}
 
 		mIsInitialized = true;
 
 		return RC_OK;
 	}
+
+
+	static inline void SubmitCommandsToDraw(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
+									TPtr<CRenderQueue> pRenderQueue, U32 upperRenderIndexLimit)
+	{
+		CRenderQueue::CRenderQueueIterator iter = pRenderQueue->GetIterator();
+
+		TRenderCommand* pCurrDrawCommand = nullptr;
+
+		while (iter.HasNext())
+		{
+			pCurrDrawCommand = *(iter++);
+
+			if (!pCurrDrawCommand)
+			{
+				continue;
+			}
+
+			if (iter.GetIndex() >= upperRenderIndexLimit)
+			{
+				break;
+			}
+
+			pCurrDrawCommand->Submit(pGraphicsContext.Get(), pResourceManager.Get(), pGlobalShaderProperties.Get());
+		}
+	}
+
+
+	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
+									TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)())
+	{
+		pCommandsBuffer->Sort();
+		SubmitCommandsToDraw(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCommandsBuffer, upperRenderIndexLimit);
+
+		if (shouldClearBuffers)
+		{
+			pCommandsBuffer->Clear();
+		}
+	};
+
+
+	static E_RESULT_CODE ProcessShadowPass(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
+										TPtr<CRenderQueue> pShadowCastersRenderGroup)
+	{
+		if (!pShadowCastersRenderGroup)
+		{
+			LOG_ERROR("[ForwardRenderer] Invalid \"Shadow Pass\" commands buffer was found");
+			return RC_FAIL;
+		}
+
+		TDE2_PROFILER_SCOPE("Renderer::RenderShadows");
+
+		const TResourceId shadowMapHandle = GetOrCreateShadowMap(pResourceManager).Get();
+
+		if (!pShadowCastersRenderGroup->IsEmpty())
+		{
+			const F32 shadowMapSizes = static_cast<F32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mShadowMapSizes);
+
+			pGraphicsContext->SetViewport(0.0f, 0.0f, shadowMapSizes, shadowMapSizes, 0.0f, 1.0f);
+			{
+				pGraphicsContext->BindDepthBufferTarget(pResourceManager->GetResource<IDepthBufferTarget>(shadowMapHandle).Get(), true);
+
+				pGraphicsContext->ClearDepthBuffer(1.0f);
+
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pShadowCastersRenderGroup, true);
+
+				pGraphicsContext->BindDepthBufferTarget(nullptr);
+			}
+
+			if (auto pWindowSystem = pGraphicsContext->GetWindowSystem())
+			{
+				pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pWindowSystem->GetWidth()), static_cast<F32>(pWindowSystem->GetHeight()), 0.0f, 1.0f);
+			}
+		}
+
+		return RC_OK;
+	}
+
 
 	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
 	{
@@ -129,18 +225,7 @@ namespace TDEngine2
 
 		_prepareFrame(currTime, deltaTime);
 
-		auto executeCommands = [this](TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)())
-		{
-			pCommandsBuffer->Sort();
-			_submitToDraw(pCommandsBuffer, upperRenderIndexLimit);
-
-			if (shouldClearBuffers)
-			{
-				pCommandsBuffer->Clear();
-			}
-		};
-
-		auto renderAllGroups = [this, &executeCommands](bool shouldClearBuffers = true)
+		auto renderAllGroups = [this](bool shouldClearBuffers = true)
 		{
 			const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
 			const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
@@ -158,7 +243,8 @@ namespace TDEngine2
 
 				const bool isOverlayCommandBuffer = (static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
 
-				executeCommands(pCurrCommandBuffer, shouldClearBuffers, isOverlayCommandBuffer ? static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS) : (std::numeric_limits<U32>::max)());
+				ExecuteDrawCommands(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, pCurrCommandBuffer, shouldClearBuffers, 
+					isOverlayCommandBuffer ? static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS) : (std::numeric_limits<U32>::max)());
 			}
 		};
 
@@ -169,9 +255,9 @@ namespace TDEngine2
 
 			if (!pCurrCommandBuffer->IsEmpty() && mpSelectionManager)
 			{
-				if (mpSelectionManager->BuildSelectionMap([this, &executeCommands, pCurrCommandBuffer]
+				if (mpSelectionManager->BuildSelectionMap([this, pCurrCommandBuffer]
 				{
-					executeCommands(pCurrCommandBuffer, true);
+					ExecuteDrawCommands(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, pCurrCommandBuffer, true);
 					return RC_OK;
 				}) != RC_OK)
 				{
@@ -186,38 +272,11 @@ namespace TDEngine2
 		}
 #endif
 
-		// \note Shadow pass
-		if (auto pShadowRenderQueue = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)])
+		if (CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled)
 		{
-			TDE2_PROFILER_SCOPE("Renderer::RenderShadows");
-
-			if (!pShadowRenderQueue->IsEmpty())
-			{
-				const F32 shadowMapSizes = static_cast<F32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mShadowMapSizes);
-
-				mpGraphicsContext->SetViewport(0.0f, 0.0f, shadowMapSizes, shadowMapSizes, 0.0f, 1.0f);
-				{
-					mpGraphicsContext->BindDepthBufferTarget(dynamic_cast<IDepthBufferTarget*>(mpResourceManager->GetResource(mShadowMapHandle).Get()), true);
-
-					mpGraphicsContext->ClearDepthBuffer(1.0f);
-
-					executeCommands(pShadowRenderQueue, true);
-
-					mpGraphicsContext->BindDepthBufferTarget(nullptr);
-				}
-
-				if (auto pWindowSystem = mpGraphicsContext->GetWindowSystem())
-				{
-					mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pWindowSystem->GetWidth()), static_cast<F32>(pWindowSystem->GetHeight()), 0.0f, 1.0f);
-				}
-			}			
+			ProcessShadowPass(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]);
 		}
-		else
-		{
-			LOG_ERROR("[ForwardRenderer] Invalid \"Shadow Pass\" commands buffer was found");
-			return RC_FAIL;
-		}
-
+		
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
 
 		mpFramePostProcessor->Render([&renderAllGroups] 
@@ -239,7 +298,7 @@ namespace TDEngine2
 
 			mpGraphicsContext->ClearDepthBuffer(1.0f);
 
-			executeCommands(pCurrCommandBuffer, true);
+			ExecuteDrawCommands(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, pCurrCommandBuffer, true);
 		}
 
 		mpGraphicsContext->Present();
@@ -307,30 +366,6 @@ namespace TDEngine2
 	TPtr<IGlobalShaderProperties> CForwardRenderer::GetGlobalShaderProperties() const
 	{
 		return mpGlobalShaderProperties;
-	}
-
-	void CForwardRenderer::_submitToDraw(TPtr<CRenderQueue> pRenderQueue, U32 upperRenderIndexLimit)
-	{
-		CRenderQueue::CRenderQueueIterator iter = pRenderQueue->GetIterator();
-
-		TRenderCommand* pCurrDrawCommand = nullptr;
-
-		while (iter.HasNext())
-		{
-			pCurrDrawCommand = *(iter++);
-
-			if (!pCurrDrawCommand)
-			{
-				continue;
-			}
-
-			if (iter.GetIndex() >= upperRenderIndexLimit)
-			{
-				break;
-			}
-
-			pCurrDrawCommand->Submit(mpGraphicsContext.Get(), mpResourceManager.Get(), mpGlobalShaderProperties.Get());
-		}
 	}
 
 	void CForwardRenderer::_prepareFrame(F32 currTime, F32 deltaTime)

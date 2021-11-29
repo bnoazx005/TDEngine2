@@ -15,6 +15,7 @@
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/CProjectSettings.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
@@ -206,10 +207,11 @@ namespace TDEngine2
 				{
 					CTransform* pLightTransform = pEntity->GetComponent<CTransform>();
 
-					lightingData.mSunLightDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
-					lightingData.mSunLightPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
-					lightingData.mSunLightColor     = pSunLight->GetColor();
-					lightingData.mSunLightMatrix    = _constructSunLightMatrix(pEntity);
+					lightingData.mSunLightDirection      = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
+					lightingData.mSunLightPosition       = TVector4(pLightTransform->GetPosition(), 1.0f);
+					lightingData.mSunLightColor          = pSunLight->GetColor();
+					lightingData.mSunLightMatrix         = _constructSunLightMatrix(pEntity);
+					lightingData.mIsShadowMappingEnabled = static_cast<U32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled);
 				}
 			}
 		}
@@ -233,18 +235,21 @@ namespace TDEngine2
 			}
 		}
 
-		auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("ShadowMap"));
-
-		// \note Inject shadow map buffer into materials 
-		for (TEntityId currEntity : mShadowReceiverEntities)
+		if (CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled)
 		{
-			if (auto pEntity = pWorld->FindEntity(currEntity))
+			auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("ShadowMap"));
+
+			// \note Inject shadow map buffer into materials 
+			for (TEntityId currEntity : mShadowReceiverEntities)
 			{
-				if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
+				if (auto pEntity = pWorld->FindEntity(currEntity))
 				{
-					if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
+					if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
 					{
-						pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture.Get());
+						if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
+						{
+							pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture.Get());
+						}
 					}
 				}
 			}
