@@ -214,6 +214,95 @@ namespace TDEngine2
 	}
 
 
+#if TDE2_EDITORS_ENABLED
+
+	static E_RESULT_CODE ProcessEditorSelectionBuffer(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
+													ISelectionManager* pSelectionManager, TPtr<CRenderQueue> pRenderGroup)
+	{
+		if (!pRenderGroup)
+		{
+			LOG_ERROR("[ForwardRenderer] Invalid \"Editor Only\" commands buffer was found");
+			return RC_FAIL;
+		}
+
+		TDE2_PROFILER_SCOPE("Renderer::RenderSelectionBuffer");
+
+		if (!pRenderGroup->IsEmpty() && pSelectionManager)
+		{
+			if (pSelectionManager->BuildSelectionMap([&, pRenderGroup]
+			{
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderGroup, true);
+				return RC_OK;
+			}) != RC_OK)
+			{
+				TDE2_ASSERT(false);
+			}
+		}
+
+		return RC_OK;
+	}
+
+#endif
+
+
+	static inline E_RESULT_CODE RenderMainPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
+										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[])
+	{
+		pGraphicsContext->ClearDepthBuffer(1.0f);
+
+		pFramePostProcessor->Render([&]
+		{
+			TDE2_PROFILER_SCOPE("Renderer::RenderAll");
+
+			const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
+			const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
+
+			TPtr<CRenderQueue> pCurrCommandBuffer;
+
+			for (U8 currGroup = firstGroupId; currGroup <= lastGroupId; ++currGroup)
+			{
+				pCurrCommandBuffer = pRenderQueues[currGroup];
+
+				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
+				{
+					continue;
+				}
+
+				const bool isOverlayCommandBuffer = (static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
+
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCurrCommandBuffer, true,
+					isOverlayCommandBuffer ? static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS) : (std::numeric_limits<U32>::max)());
+			}
+		});
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE RenderOverlayAndPostEffects(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
+													TPtr<CRenderQueue> pRenderGroup)
+	{
+		if (!pRenderGroup)
+		{
+			LOG_ERROR("[ForwardRenderer] Invalid \"Overlays\" commands buffer was found");
+			return RC_INVALID_ARGS;
+		}
+
+		TDE2_PROFILER_SCOPE("Renderer::UI");
+
+		if (pRenderGroup->IsEmpty())
+		{
+			return RC_FAIL;
+		}
+
+		pGraphicsContext->ClearDepthBuffer(1.0f);
+
+		ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderGroup, true);
+
+		return RC_OK;
+	}
+
+
 	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::Draw");
@@ -225,51 +314,8 @@ namespace TDEngine2
 
 		_prepareFrame(currTime, deltaTime);
 
-		auto renderAllGroups = [this](bool shouldClearBuffers = true)
-		{
-			const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
-			const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
-
-			TPtr<CRenderQueue> pCurrCommandBuffer;
-
-			for (U8 currGroup = firstGroupId; currGroup <= lastGroupId; ++currGroup)
-			{
-				pCurrCommandBuffer = mpRenderQueues[currGroup];
-
-				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
-				{
-					continue;
-				}
-
-				const bool isOverlayCommandBuffer = (static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
-
-				ExecuteDrawCommands(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, pCurrCommandBuffer, shouldClearBuffers, 
-					isOverlayCommandBuffer ? static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS) : (std::numeric_limits<U32>::max)());
-			}
-		};
-
 #if TDE2_EDITORS_ENABLED
-		if (auto pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)])
-		{
-			TDE2_PROFILER_SCOPE("Renderer::RenderSelectionBuffer");
-
-			if (!pCurrCommandBuffer->IsEmpty() && mpSelectionManager)
-			{
-				if (mpSelectionManager->BuildSelectionMap([this, pCurrCommandBuffer]
-				{
-					ExecuteDrawCommands(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, pCurrCommandBuffer, true);
-					return RC_OK;
-				}) != RC_OK)
-				{
-					TDE2_ASSERT(false);
-				}
-			}			
-		}
-		else
-		{
-			LOG_ERROR("[ForwardRenderer] Invalid \"Editor Only\" commands buffer was found");
-			return RC_FAIL;
-		}
+		ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
 #endif
 
 		if (CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled)
@@ -277,29 +323,8 @@ namespace TDEngine2
 			ProcessShadowPass(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]);
 		}
 		
-		mpGraphicsContext->ClearDepthBuffer(1.0f);
-
-		mpFramePostProcessor->Render([&renderAllGroups] 
-		{
-			TDE2_PROFILER_SCOPE("Renderer::RenderAll");
-			renderAllGroups(true); 
-		});
-
-		// \note draw UI meshes and screen-space effects
-		{
-			TDE2_PROFILER_SCOPE("Renderer::UI");
-
-			auto pCurrCommandBuffer = mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)];
-			if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
-			{
-				LOG_ERROR("[ForwardRenderer] Invalid \"Overlays\" commands buffer was found");
-				return RC_FAIL;
-			}
-
-			mpGraphicsContext->ClearDepthBuffer(1.0f);
-
-			ExecuteDrawCommands(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, pCurrCommandBuffer, true);
-		}
+		RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues);
+		RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)]);
 
 		mpGraphicsContext->Present();
 

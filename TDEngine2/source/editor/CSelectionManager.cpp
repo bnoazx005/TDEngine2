@@ -64,6 +64,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
 	{
+		if (!mpEditorsManager->IsEditorModeEnabled())
+		{
+			return RC_OK;
+		}
+
 		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mSelectionGeometryBufferHandle);
 
 		mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
