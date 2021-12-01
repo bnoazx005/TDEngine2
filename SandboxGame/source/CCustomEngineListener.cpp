@@ -83,8 +83,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pPlaneEntity = mpWorld->CreateEntity();
 	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
-	pPlaneMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
+	pPlaneMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterialWithParallax.material");
 	pPlaneMeshContainer->SetMeshName("Plane");
+	if (auto pTransform = pPlaneEntity->GetComponent<CTransform>())
+	{
+		pTransform->SetPosition(TVector3(0.0f, 1.5f, 0.0f));
+	}
 #endif
 
 #if 0

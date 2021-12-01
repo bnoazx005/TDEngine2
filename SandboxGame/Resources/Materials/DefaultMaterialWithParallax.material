@@ -1,0 +1,39 @@
+blend_state: 
+  dest_alpha: ZERO
+  dest_color: ZERO
+  op_alpha_type: ADD
+  op_type: ADD
+  src_alpha: ONE
+  src_color: ONE
+depth_stencil_state: 
+  depth_cmp_func: LESS
+  depth_test_enabled: 1
+  depth_write_enabled: 1
+  stencil_read_mask: 255
+  stencil_test_enabled: 0
+  stencil_write_mask: 255
+meta: 
+  resource_type: material
+  version_tag: 1
+rasterizer_state: 
+  cull_mode: NONE
+  depth_bias: 0.000000
+  depth_clipping_enabled: 0
+  front_CCW_mode: 0
+  max_depth_bias: 0.000000
+  scissor_test_enabled: 0
+  wireframe_mode: 0
+shader_id: Shaders/Default/DefaultShader.shader
+textures: 
+  - instance_id: 0
+    texture_bindings: 
+      - slot_id: AlbedoMap
+        texture_id: ProjectTextures/stones_albedo.png
+        texture_type_id: 4159152309
+      - slot_id: NormalMap
+        texture_id: ProjectTextures/stones_normals.png
+        texture_type_id: 4159152309
+      - slot_id: PropertiesMap
+        texture_id: ProjectTextures/stones_properties.tga
+        texture_type_id: 4159152309
+transparency_enabled: 0

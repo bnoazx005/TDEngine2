@@ -798,7 +798,8 @@ namespace TDEngine2
 
 	bool CBaseMaterial::AlphaBasedMaterialComparator(TPtr<IMaterial> pLeft, const TPtr<IMaterial> pRight)
 	{
-		return (!pLeft || pRight->IsTransparent()) || (pRight && !pLeft->IsTransparent());
+		//return (!pLeft || pRight->IsTransparent()) || (pRight && !pLeft->IsTransparent());
+		return (pLeft && pRight && !pLeft->IsTransparent() && pRight->IsTransparent());
 	}
 
 
