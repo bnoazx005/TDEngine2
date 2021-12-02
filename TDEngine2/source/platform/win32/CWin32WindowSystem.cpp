@@ -35,6 +35,11 @@ namespace TDEngine2
 
 		auto onSendResizeWindowEvent = [&pEventManager](U32 width, U32 height)
 		{
+			if (width < 1 || height < 1)
+			{
+				return;
+			}
+
 			TOnWindowResized onResizedEvent;
 
 			onResizedEvent.mWidth = width;
