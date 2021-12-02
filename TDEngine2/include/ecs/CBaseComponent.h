@@ -8,9 +8,9 @@
 
 
 #include "IComponent.h"
-#include "./../core/CBaseObject.h"
-#include "./../core/Event.h"
-#include "./../ecs/IComponentFactory.h"
+#include "../core/CBaseObject.h"
+#include "../core/Event.h"
+#include "../ecs/IComponentFactory.h"
 #include <vector>
 
 
@@ -350,4 +350,5 @@ namespace TDEngine2
 																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
 																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
 																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
+
 }

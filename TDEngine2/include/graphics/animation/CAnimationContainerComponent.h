@@ -133,25 +133,7 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		interface IAnimationContainerComponentFactory
-
-		\brief The interface represents a functionality of a factory of IAnimationContainerComponent objects
-	*/
-
-	class IAnimationContainerComponentFactory : public IComponentFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a factory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationContainerComponentFactory)
-	};
+	class IAnimationContainerComponentFactory: public IGenericComponentFactory<> {};
 
 
 	/*!

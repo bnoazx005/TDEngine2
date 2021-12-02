@@ -188,4 +188,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITransform)
 	};
+
+
+	class ITransformFactory : public IGenericComponentFactory<> {};
 }

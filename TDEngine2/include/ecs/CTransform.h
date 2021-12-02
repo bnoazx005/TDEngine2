@@ -293,7 +293,7 @@ namespace TDEngine2
 	class CTransformFactory: public ITransformFactory, public CBaseObject
 	{
 		public:
-			friend TDE2_API IComponentFactory* CreateTransformFactory(E_RESULT_CODE& result);
+			friend TDE2_API IComponentFactory* CreateTransformFactory(E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a factory

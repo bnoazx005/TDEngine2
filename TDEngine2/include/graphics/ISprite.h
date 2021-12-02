@@ -7,11 +7,11 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../ecs/IComponentFactory.h"
-#include "./../graphics/IRenderable.h"
-#include "./../utils/Color.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../ecs/IComponentFactory.h"
+#include "../graphics/IRenderable.h"
+#include "../utils/Color.h"
 #include <string>
 
 
@@ -73,22 +73,5 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		interface ISpriteFactory
-
-		\brief The interface represents a functionality of a factory of ISprite objects
-	*/
-
-	class ISpriteFactory : public IComponentFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a factory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
-		protected:
-	};
+	class ISpriteFactory: public IGenericComponentFactory<> {};
 }

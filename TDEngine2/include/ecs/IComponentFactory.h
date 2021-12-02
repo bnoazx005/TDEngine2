@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../core/IBaseObject.h"
-#include "./../math/TVector3.h"
-#include "./../math/TQuaternion.h"
+#include "../core/IBaseObject.h"
+#include "../math/TVector3.h"
+#include "../math/TQuaternion.h"
 
 
 namespace TDEngine2
@@ -91,21 +91,33 @@ namespace TDEngine2
 
 
 	/*!
-		interface ITransformFactory
-
-		\brief The interface represents a functionality of a factory of ITransform objects
+		\brief The template is used to declare interfaces of factories for concrete component types
 	*/
 
-	class ITransformFactory : public IComponentFactory
+	template <typename... TInitArgs>
+	class IGenericComponentFactory : public IComponentFactory
 	{
 		public:
 			/*!
-				\brief The method initializes an internal state of a factory
-				
+				\brief The method initializes an inner state of an object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(TInitArgs... args) = 0;
+	};
+
+
+	template <>
+	class IGenericComponentFactory<> : public IComponentFactory
+	{
+		public:
+			/*!
+				\brief The method initializes an inner state of an object
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init() = 0;
-		protected:
 	};
 }
