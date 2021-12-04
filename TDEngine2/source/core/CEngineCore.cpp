@@ -160,6 +160,17 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+#if TDE2_EDITORS_ENABLED
+		/// \note Create an editor camera
+		if (ISceneManager* pSceneManager = _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER))
+		{
+			if (auto pMainScene = pSceneManager->GetScene(MainScene).Get())
+			{
+				pMainScene->CreateEditorCamera(static_cast<F32>(pWindowSystem->GetWidth() / pWindowSystem->GetHeight()), 0.5f * CMathConstants::Pi);
+			}
+		}
+#endif
+
 		/// \todo This is not critical error, but for now I leave it as is
 		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem,
 			_getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT),

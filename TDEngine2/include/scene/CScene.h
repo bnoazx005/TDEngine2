@@ -125,6 +125,12 @@ namespace TDEngine2
 
 			TDE2_API CEntity* CreateSkybox(IResourceManager* pResourceManager, const std::string& skyboxTexture) override;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API CEntity* CreateEditorCamera(F32 aspect, F32 fov) override;
+#endif
+
+			TDE2_API CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params) override;
+
 			/*!
 				\brief The method iterates over each entity which is linked to current scene
 

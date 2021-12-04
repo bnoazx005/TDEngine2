@@ -230,4 +230,112 @@ namespace TDEngine2
 		protected:
 			std::array<TPlaneF32, 6> mPlanes;
 	};
+
+
+	/*!
+		\brief A factory function for creation objects of CFrustum's type
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CFrustum's implementation
+	*/
+
+	TDE2_API class CCamerasContextComponent* CreateCamerasContextComponent(E_RESULT_CODE& result);
+
+
+	/*!
+		class CCamerasContextComponent
+
+		\brief The class is a storage for all the data that's relative with game cameras including editor one.
+		The component is a signleton and the world contains the only one instance of it
+	*/
+
+	class CCamerasContextComponent : public CBaseComponent
+	{
+		public:
+			friend TDE2_API CCamerasContextComponent* CreateCamerasContextComponent(E_RESULT_CODE&);
+			public:
+				TDE2_REGISTER_COMPONENT_TYPE(CCamerasContextComponent)
+
+				/*!
+					\brief The method initializes an internal state of a factory
+
+					\return RC_OK if everything went ok, or some other code, which describes an error
+				*/
+
+				TDE2_API E_RESULT_CODE Init();
+			protected:
+				DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCamerasContextComponent)
+			public:
+				TEntityId mActiveCameraEntityId = TEntityId::Invalid;
+	};
+
+
+	/*!
+		\brief A factory function for creation objects of CCamerasContextFactory's type.
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CCamerasContextFactory's implementation
+	*/
+
+	TDE2_API IComponentFactory* CreateCamerasContextFactory(E_RESULT_CODE& result);
+
+
+	/*!
+		class CCamerasContextFactory
+
+		\brief The interface represents a functionality of a factory of ICamerasContext objects
+	*/
+
+	class CCamerasContextFactory : public IGenericComponentFactory<>, public CBaseObject
+	{
+		public:
+			friend TDE2_API IComponentFactory* CreateCamerasContextFactory(E_RESULT_CODE& result);
+		public:
+			/*!
+				\brief The method initializes an internal state of a factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init() override;
+
+			/*!
+				\brief The method creates a new instance of a component based on passed parameters
+
+				\param[in] pParams An object that contains parameters that are needed for the component's creation
+
+				\return A pointer to a new instance of IComponent type
+			*/
+
+			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;
+
+			/*!
+				\brief The method creates a new instance of a component based on passed parameters
+
+				\param[in] pParams An object that contains parameters that are needed for the component's creation
+
+				\return A pointer to a new instance of IComponent type
+			*/
+
+			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;
+
+			/*!
+				\brief The method returns an identifier of a component's type, which
+				the factory serves
+
+				\return The method returns an identifier of a component's type, which
+				the factory serves
+			*/
+
+			TDE2_API TypeId GetComponentTypeId() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCamerasContextFactory)
+	};
+
+
+#if TDE2_EDITORS_ENABLED
+	TDE2_DECLARE_FLAG_COMPONENT(EditorCamera)
+#endif
 }

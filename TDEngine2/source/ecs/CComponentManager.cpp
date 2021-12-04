@@ -388,6 +388,7 @@ namespace TDEngine2
 			CreateQuadSpriteFactory,
 			CreatePerspectiveCameraFactory,
 			CreateOrthoCameraFactory,
+			CreateCamerasContextFactory,
 			CreateBoxCollisionObject2DFactory,
 			CreateCircleCollisionObject2DFactory,
 			CreateTrigger2DFactory,
@@ -417,6 +418,7 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
+			CreateEditorCameraFactory,
 #endif
 			//etc
 		};
@@ -449,6 +451,7 @@ namespace TDEngine2
 			CQuadSprite::GetTypeId(),
 			CPerspectiveCamera::GetTypeId(),
 			COrthoCamera::GetTypeId(),
+			CCamerasContextComponent::GetTypeId(),
 			CBoxCollisionObject2D::GetTypeId(),
 			CCircleCollisionObject2D::GetTypeId(),
 			CTrigger2D::GetTypeId(),
@@ -478,6 +481,7 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 			CSelectedEntityComponent::GetTypeId(),
 			CSceneInfoComponent::GetTypeId(),
+			CEditorCamera::GetTypeId(),
 #endif
 			//etc
 		};

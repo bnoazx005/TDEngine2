@@ -25,6 +25,7 @@ namespace TDEngine2
 	
 	typedef struct TBaseComponentParameters
 	{
+		TDE2_API virtual ~TBaseComponentParameters() = default;
 	} TBaseComponentParameters, *TBaseComponentParametersPtr;
 
 

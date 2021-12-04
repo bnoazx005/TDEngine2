@@ -20,6 +20,10 @@ namespace TDEngine2
 	class IWorld;
 	class IResourceManager;
 	class CEntity;
+	struct TBaseCameraParameters;
+
+
+	enum class E_CAMERA_PROJECTION_TYPE : U8;
 
 
 	TDE2_DECLARE_HANDLE_TYPE(TSceneId);
@@ -107,6 +111,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual CEntity* CreateSkybox(IResourceManager* pResourceManager, const std::string& skyboxTexture) = 0;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual CEntity* CreateEditorCamera(F32 aspect, F32 fov) = 0;
+#endif
+
+			TDE2_API virtual CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params) = 0;
 
 			/*!
 				\brief The method iterates over each entity which is linked to current scene

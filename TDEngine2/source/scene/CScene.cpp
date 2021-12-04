@@ -10,6 +10,9 @@
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/CBaseCubemapTexture.h"
+#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/graphics/COrthoCamera.h"
 #include <unordered_map>
 
 
@@ -295,6 +298,62 @@ namespace TDEngine2
 		}
 
 		return pSkyboxEntity;
+	}
+
+#if TDE2_EDITORS_ENABLED
+
+	CEntity* CScene::CreateEditorCamera(F32 aspect, F32 fov)
+	{
+		CEntity* pEditorCameraEntity = mpWorld->CreateEntity("EditorCamera");
+
+		if (auto pCamera = pEditorCameraEntity->AddComponent<CPerspectiveCamera>())
+		{
+			pCamera->SetAspect(aspect);
+			pCamera->SetFOV(fov);
+		}		
+
+		pEditorCameraEntity->AddComponent<CEditorCamera>();
+
+		return pEditorCameraEntity;
+	}
+
+#endif
+
+	CEntity* CScene::CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params)
+	{
+		CEntity* pCameraEntity = mpWorld->CreateEntity(id);
+
+		switch (cameraType)
+		{
+			case E_CAMERA_PROJECTION_TYPE::PERSPECTIVE:
+				if (auto pCamera = pCameraEntity->AddComponent<CPerspectiveCamera>())
+				{
+					auto&& perspectiveCameraParams = dynamic_cast<const TPerspectiveCameraParameters&>(params);
+
+					pCamera->SetAspect(perspectiveCameraParams.mAspect);
+					pCamera->SetFOV(perspectiveCameraParams.mFOV);
+					pCamera->SetNearPlane(perspectiveCameraParams.mZNear);
+					pCamera->SetFarPlane(perspectiveCameraParams.mZFar);
+				}
+
+				return pCameraEntity;
+
+			case E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC:
+				if (auto pCamera = pCameraEntity->AddComponent<COrthoCamera>())
+				{
+					auto&& orthoCameraParams = dynamic_cast<const TOrthoCameraParameters&>(params);
+
+					pCamera->SetWidth(orthoCameraParams.mViewportWidth);
+					pCamera->SetHeight(orthoCameraParams.mViewportHeight);
+					pCamera->SetNearPlane(orthoCameraParams.mZNear);
+					pCamera->SetFarPlane(orthoCameraParams.mZFar);
+				}
+
+				return pCameraEntity;
+		}
+
+		TDE2_UNREACHABLE();
+		return nullptr;
 	}
 
 	void CScene::ForEachEntity(const std::function<void(CEntity*)>& action)

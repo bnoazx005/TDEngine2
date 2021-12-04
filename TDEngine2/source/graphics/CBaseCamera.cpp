@@ -235,4 +235,98 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IFrustum, CFrustum, result);
 	}
+
+
+	/*!
+		\brief CCamerasContextComponent's definition
+	*/
+
+	CCamerasContextComponent::CCamerasContextComponent():
+		CBaseComponent()
+	{
+	}
+
+	E_RESULT_CODE CCamerasContextComponent::Init()
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	TDE2_API CCamerasContextComponent* CreateCamerasContextComponent(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CCamerasContextComponent, CCamerasContextComponent, result);
+	}
+
+
+	/*!
+		\brief CCamerasContextFactory's definition
+	*/
+
+	CCamerasContextFactory::CCamerasContextFactory() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CCamerasContextFactory::Init()
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	IComponent* CCamerasContextFactory::Create(const TBaseComponentParameters* pParams) const
+	{
+		if (!pParams)
+		{
+			return nullptr;
+		}
+
+		const TCamerasContextParameters* cameraParams = static_cast<const TCamerasContextParameters*>(pParams);
+
+		E_RESULT_CODE result = RC_OK;
+
+		if (auto pCamerasContext = CreateCamerasContextComponent(result))
+		{
+			pCamerasContext->mActiveCameraEntityId = cameraParams->mActiveCameraEntityId;
+
+			return pCamerasContext;
+		}
+
+		return nullptr;
+	}
+
+	IComponent* CCamerasContextFactory::CreateDefault(const TBaseComponentParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+		
+		return CreateCamerasContextComponent(result);
+	}
+
+	TypeId CCamerasContextFactory::GetComponentTypeId() const
+	{
+		return CCamerasContextComponent::GetTypeId();
+	}
+
+
+	IComponentFactory* CreateCamerasContextFactory(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IComponentFactory, CCamerasContextFactory, result);
+	}
+
+
+
+#if TDE2_EDITORS_ENABLED
+	TDE2_DEFINE_FLAG_COMPONENT(EditorCamera)
+#endif
 }

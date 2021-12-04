@@ -392,4 +392,10 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFrustum);
 	};
+
+
+	typedef struct TCamerasContextParameters : public TBaseComponentParameters
+	{
+		TEntityId mActiveCameraEntityId;
+	} TCamerasContextParameters, *TCamerasContextParametersPtr;
 }
