@@ -7,7 +7,7 @@
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/ecs/CTransform.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -68,23 +68,19 @@ namespace TDEngine2
 
 			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CStaticMeshContainer>() });
 		}
-
-		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
-		mpCameraEntity = !cameras.empty() ? pWorld->FindEntity(cameras.front()) : nullptr;
 	}
 
 	void CStaticMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::Update");
 
-		if (!mpCameraEntity)
+		ICamera* pCameraComponent = GetCurrentActiveCamera(pWorld);
+		TDE2_ASSERT(pCameraComponent);
+		if (!pCameraComponent)
 		{
 			LOG_WARNING("[CStaticMeshRendererSystem] An entity with Camera component attached to that wasn't found");
 			return;
 		}
-
-		ICamera* pCameraComponent = GetValidPtrOrDefault<ICamera*>(mpCameraEntity->GetComponent<CPerspectiveCamera>(), mpCameraEntity->GetComponent<COrthoCamera>());
-		TDE2_ASSERT(pCameraComponent);
 
 		// \note first pass (construct an array of materials)
 		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |

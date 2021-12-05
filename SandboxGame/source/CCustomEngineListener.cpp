@@ -52,13 +52,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto collider = pTriggerEntity->AddComponent<CBoxCollisionObject2D>();
 	collider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
 	pTriggerEntity->AddComponent<CTrigger2D>();
-		
-	mpCameraEntity = mpWorld->CreateEntity("Camera");
-	auto pCamera = mpCameraEntity->AddComponent<CPerspectiveCamera>();	
-	pCamera->SetAspect(static_cast<F32>(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight()));
-	pCamera->SetFOV(0.5f * CMathConstants::Pi);
-
-	mpCameraEntity->AddComponent<CAudioListenerComponent>();
 
 	//mpResourceManager->Load<IStaticMesh>("hq.mesh");
 
@@ -111,6 +104,28 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	// TEMP CODE
 	{
 		ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>().Get();
+
+		if (auto pMainScene = pSceneManager->GetScene(MainScene).Get())
+		{
+			TPerspectiveCameraParameters cameraParams;
+			cameraParams.mAspect = static_cast<F32>(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight());
+			cameraParams.mFOV    = 0.5f * CMathConstants::Pi;
+			cameraParams.mZNear  = 0.1f;
+			cameraParams.mZFar   = 1000.0f;
+
+			if (auto pCameraEntity = pMainScene->CreateCamera("MainCamera", E_CAMERA_PROJECTION_TYPE::PERSPECTIVE, cameraParams))
+			{
+				pCameraEntity->AddComponent<CAudioListenerComponent>();
+
+				if (auto pCamerasContextEntity = mpWorld->FindEntity(mpWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>()))
+				{
+					if (auto pCamerasContext = pCamerasContextEntity->GetComponent<CCamerasContextComponent>())
+					{
+						pCamerasContext->SetActiveCameraEntity(pCameraEntity->GetId());
+					}
+				}
+			}
+		}
 
 #if 0
 		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene.scene", true))
@@ -480,8 +495,6 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	}	
 #endif
 
-	CTransform* pCameraTransform = mpCameraEntity->GetComponent<CTransform>();
-	
 	if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE))
 	{
 		return mpEngineCoreInstance->Quit();

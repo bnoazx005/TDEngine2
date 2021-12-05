@@ -265,4 +265,6 @@ namespace TDEngine2
 	*/
 
 	TDE2_API E_RESULT_CODE GroupEntities(IWorld* pWorld, TEntityId parentEntity, TEntityId childEntity);
+
+	TDE2_API class ICamera* GetCurrentActiveCamera(IWorld* pWorld);
 }

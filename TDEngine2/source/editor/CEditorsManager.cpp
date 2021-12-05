@@ -6,9 +6,11 @@
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/editor/ecs/CEditorCameraControlSystem.h"
 #include "../../include/ecs/CWorld.h"
+#include "../../include/ecs/CEntity.h"
 #include "../../include/editor/ISelectionManager.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/graphics/CBaseCamera.h"
 #include "stringUtils.hpp"
 #include <algorithm>
 
@@ -101,6 +103,32 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static void SetEditorCameraActive(TPtr<IWorld> pWorld, bool enabled)
+	{
+		CEntity* pCameraEntity = pWorld->FindEntity(pWorld->FindEntitiesWithComponents<CEditorCamera>().front());
+		if (!pCameraEntity)
+		{
+			return;
+		}
+
+		if (auto pCamerasContextEntity = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>()))
+		{
+			if (auto pCamerasContext = pCamerasContextEntity->GetComponent<CCamerasContextComponent>())
+			{
+				if (enabled)
+				{
+					pCamerasContext->SetActiveCameraEntity(pCameraEntity->GetId());
+				}
+				else
+				{
+					pCamerasContext->RestorePreviousCameraEntity();
+				}
+			}
+		}
+	}
+
+
 	E_RESULT_CODE CEditorsManager::Update(F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("EditorsManager::Update");
@@ -114,6 +142,8 @@ namespace TDEngine2
 
 			TBaseEvent* pEvent = mIsVisible ? dynamic_cast<TBaseEvent*>(&onEditorEnabledEvent) : dynamic_cast<TBaseEvent*>(&onEditorDisabledEvent);
 			mpEventManager->Notify(pEvent);
+
+			SetEditorCameraActive(mpWorld, mIsVisible);
 		}
 
 		return _showEditorWindows(dt);

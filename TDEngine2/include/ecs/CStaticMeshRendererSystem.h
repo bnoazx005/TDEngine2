@@ -126,7 +126,5 @@ namespace TDEngine2
 			TMaterialsArray         mCurrMaterialsArray;
 
 			TMeshBuffersMap         mMeshBuffersMap;
-
-			CEntity*                mpCameraEntity;
 	};
 }

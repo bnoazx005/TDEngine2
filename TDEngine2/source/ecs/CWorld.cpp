@@ -7,6 +7,9 @@
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/physics/IRaycastContext.h"
+#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/graphics/COrthoCamera.h"
 #include "../../include/ecs/CTransform.h"
 
 
@@ -291,5 +294,21 @@ namespace TDEngine2
 		pParentEntity->GetComponent<CTransform>()->AttachChild(childEntity);
 
 		return RC_OK;
+	}
+
+	ICamera* GetCurrentActiveCamera(IWorld* pWorld)
+	{
+		if (CEntity* pCamerasContextEntity = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>()))
+		{
+			if (auto pCamerasContext = pCamerasContextEntity->GetComponent<CCamerasContextComponent>())
+			{
+				if (auto pCameraEntity = pWorld->FindEntity(pCamerasContext->GetActiveCameraEntityId()))
+				{
+					return GetValidPtrOrDefault<ICamera*>(pCameraEntity->GetComponent<CPerspectiveCamera>(), pCameraEntity->GetComponent<COrthoCamera>());
+				}
+			}
+		}
+
+		return nullptr;
 	}
 }

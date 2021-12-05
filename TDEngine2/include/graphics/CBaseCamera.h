@@ -264,10 +264,16 @@ namespace TDEngine2
 				*/
 
 				TDE2_API E_RESULT_CODE Init();
+
+				TDE2_API void SetActiveCameraEntity(TEntityId entityId);
+				TDE2_API E_RESULT_CODE RestorePreviousCameraEntity();
+
+				TDE2_API TEntityId GetActiveCameraEntityId() const;
 			protected:
 				DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCamerasContextComponent)
-			public:
+			private:
 				TEntityId mActiveCameraEntityId = TEntityId::Invalid;
+				TEntityId mPrevCameraEntityId = TEntityId::Invalid;
 	};
 
 

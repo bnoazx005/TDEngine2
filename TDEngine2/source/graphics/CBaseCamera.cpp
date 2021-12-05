@@ -262,6 +262,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CCamerasContextComponent::SetActiveCameraEntity(TEntityId entityId)
+	{
+		mPrevCameraEntityId = mActiveCameraEntityId;
+		mActiveCameraEntityId = entityId;
+	}
+
+	E_RESULT_CODE CCamerasContextComponent::RestorePreviousCameraEntity()
+	{
+		if (TEntityId::Invalid == mPrevCameraEntityId)
+		{
+			return RC_FAIL;
+		}
+
+		mActiveCameraEntityId = mPrevCameraEntityId;
+		mPrevCameraEntityId = TEntityId::Invalid;
+
+		return RC_OK;
+	}
+
+	TEntityId CCamerasContextComponent::GetActiveCameraEntityId() const
+	{
+		return mActiveCameraEntityId;
+	}
+
 	TDE2_API CCamerasContextComponent* CreateCamerasContextComponent(E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(CCamerasContextComponent, CCamerasContextComponent, result);
@@ -302,7 +326,7 @@ namespace TDEngine2
 
 		if (auto pCamerasContext = CreateCamerasContextComponent(result))
 		{
-			pCamerasContext->mActiveCameraEntityId = cameraParams->mActiveCameraEntityId;
+			pCamerasContext->SetActiveCameraEntity(cameraParams->mActiveCameraEntityId);
 
 			return pCamerasContext;
 		}

@@ -73,7 +73,5 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 
 		TDEngine2::TPtr<TDEngine2::IWorld>  mpWorld;
 		
-		TDEngine2::CEntity*                 mpCameraEntity;
-
 		TDEngine2::IDesktopInputContext*    mpInputContext;
 };
