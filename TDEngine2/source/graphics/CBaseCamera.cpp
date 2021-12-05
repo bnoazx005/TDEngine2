@@ -1,6 +1,7 @@
 #include "../../include/graphics/CBaseCamera.h"
 #include "../../include/math/TAABB.h"
 #include "../../include/utils/Utils.h"
+#include "../../include/ecs/CComponentManager.h"
 #include <array>
 #include "deferOperation.hpp"
 
@@ -240,6 +241,9 @@ namespace TDEngine2
 	/*!
 		\brief CCamerasContextComponent's definition
 	*/
+
+
+	TDE2_REGISTER_UNIQUE_COMPONENT(CCamerasContextComponent);
 
 	CCamerasContextComponent::CCamerasContextComponent():
 		CBaseComponent()

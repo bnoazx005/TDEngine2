@@ -224,6 +224,15 @@ namespace TDEngine2
 			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TypeId>& types) = 0;
 
 			/*!
+				\param[in] types An array that contains types identifiers that an entity should have. Note that the method
+				isn't responsible for creating a new instances of unqiue components.
+				
+				\return The method returns an entity which holds a unique component
+			*/
+
+			TDE2_API virtual TEntityId FindEntityWithUniqueComponent(TypeId typeId) = 0;
+
+			/*!
 				\brief The method returns a pointer to a component of specified type T
 
 				\return The method returns a pointer to a component of specified type T, or nullptr if there is no

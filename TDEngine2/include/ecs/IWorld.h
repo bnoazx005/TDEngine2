@@ -245,6 +245,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual CEntity* FindEntity(TEntityId entityId) const = 0;
+
+			template <typename TComponentType>
+			TDE2_API TEntityId FindEntityWithUniqueComponent()
+			{
+				return _findEntityWithUniqueComponent(TComponentType::GetTypeId());
+			}
 			
 			/*!
 				\brief The method registers given raycasting context within the world's instance
@@ -293,6 +299,8 @@ namespace TDEngine2
 			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TypeId>& types) = 0;
 
 			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TypeId>& types) = 0;
+
+			TDE2_API virtual TEntityId _findEntityWithUniqueComponent(TypeId typeId) = 0;
 
 			TDE2_API virtual TSystemId _findSystem(TypeId typeId) = 0;
 	};

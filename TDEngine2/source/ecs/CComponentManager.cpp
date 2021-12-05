@@ -35,6 +35,8 @@
 
 namespace TDEngine2
 {
+	std::unordered_set<TypeId> CComponentManager::mUniqueComponentTypesRegistry;
+
 	CComponentManager::CComponentManager() :
 		CBaseObject()
 	{
@@ -149,6 +151,15 @@ namespace TDEngine2
 
 		mActiveComponents[componentHashValue][targetEntityComponentHash - 1] = nullptr;
 		
+		if (_isUniqueComponent(componentTypeId))
+		{
+			auto it = mUniqueComponentsRegistry.find(componentTypeId);
+			if (it != mUniqueComponentsRegistry.cend())
+			{
+				mUniqueComponentsRegistry.erase(it);
+			}
+		}
+
 		// mark handlers as invalid
 		mEntityComponentMap[entityId].erase(componentTypeId);
 		mComponentEntityMap[componentTypeId].erase(entityId);
@@ -226,7 +237,16 @@ namespace TDEngine2
 			}
 
 			mActiveComponents[componentTypeHashValue][hashValue] = nullptr;
-			
+
+			if (_isUniqueComponent(componentType))
+			{
+				auto it = mUniqueComponentsRegistry.find(componentType);
+				if (it != mUniqueComponentsRegistry.cend())
+				{
+					mUniqueComponentsRegistry.erase(it);
+				}
+			}
+
 			// mark handlers as invalid
 			mEntityComponentMap[entityId].erase(componentType);
 			mComponentEntityMap[componentType].erase(entityId);
@@ -329,6 +349,15 @@ namespace TDEngine2
 			return pNewComponent;
 		}
 
+		/// \note If there is already an entity with the corresponding component
+		const bool isUniqueComponentType = _isUniqueComponent(componentTypeId);
+
+		if (isUniqueComponentType && TEntityId::Invalid != FindEntityWithUniqueComponent(componentTypeId))
+		{
+			TDE2_UNREACHABLE();
+			return nullptr;
+		}
+
 		TComponentFactoriesMap::const_iterator factoryIdIter = mComponentFactoriesMap.find(componentTypeId);
 
 		if (factoryIdIter == mComponentFactoriesMap.cend())
@@ -358,6 +387,11 @@ namespace TDEngine2
 
 		mComponentEntityMap[componentTypeId][entityId] = hash;
 		mEntityComponentMap[entityId][componentTypeId] = hash;
+
+		if (isUniqueComponentType)
+		{
+			mUniqueComponentsRegistry[componentTypeId] = entityId;
+		}
 
 		return pNewComponent;
 	}
@@ -594,6 +628,34 @@ namespace TDEngine2
 		}
 
 		return std::move(filter);
+	}
+
+	TEntityId CComponentManager::FindEntityWithUniqueComponent(TypeId typeId)
+	{
+		if (mUniqueComponentsRegistry.empty())
+		{
+			return TEntityId::Invalid;
+		}
+
+		auto it = mUniqueComponentsRegistry.find(typeId);
+		return (it == mUniqueComponentsRegistry.cend()) ? TEntityId::Invalid : it->second;
+	}
+
+	E_RESULT_CODE CComponentManager::RegisterUniqueComponentType(TypeId typeId)
+	{
+		if (mUniqueComponentTypesRegistry.find(typeId) != mUniqueComponentTypesRegistry.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mUniqueComponentTypesRegistry.emplace(typeId);
+
+		return RC_OK;
+	}
+
+	bool CComponentManager::_isUniqueComponent(TypeId componentTypeId) const
+	{
+		return mUniqueComponentTypesRegistry.find(componentTypeId) != mUniqueComponentTypesRegistry.cend();
 	}
 
 	IComponentManager* CreateComponentManager(E_RESULT_CODE& result)

@@ -16,7 +16,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	}
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
-
+	
 	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material"));
 	if (pFontMaterial)
 	{

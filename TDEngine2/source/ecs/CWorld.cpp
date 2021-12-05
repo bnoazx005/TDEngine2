@@ -216,6 +216,28 @@ namespace TDEngine2
 		return mpComponentManager->FindEntitiesWithAny(types);
 	}
 
+	TEntityId CWorld::_findEntityWithUniqueComponent(TypeId typeId)
+	{
+		TEntityId entityId = mpComponentManager->FindEntityWithUniqueComponent(typeId);
+		if (TEntityId::Invalid == entityId) /// \note Create a new instance because it doesn't exist yet
+		{
+			CEntity* pNewEntity = mpEntityManager->Create();
+			if (!pNewEntity)
+			{
+				return TEntityId::Invalid;
+			}
+
+			entityId = pNewEntity->GetId();
+
+			auto pComponent = mpComponentManager->CreateComponent(entityId, typeId);
+			TDE2_ASSERT(pComponent);
+
+			return entityId;
+		}
+
+		return entityId;
+	}
+
 	TSystemId CWorld::_findSystem(TypeId typeId)
 	{
 		return mpSystemManager->FindSystem(typeId);

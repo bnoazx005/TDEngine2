@@ -219,6 +219,8 @@ namespace TDEngine2
 
 			TDE2_API TSystemId _findSystem(TypeId typeId) override;
 
+			TDE2_API TEntityId _findEntityWithUniqueComponent(TypeId typeId) override;
+
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			CEntityManager*       mpEntityManager;

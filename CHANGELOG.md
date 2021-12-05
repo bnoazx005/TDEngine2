@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.21] 2021-12-01
 
+### Added
 
+- Now **IWorld** supports unique components which can be assumed as singletons replacement.
 
 ## [0.5.20] 2021-11-30
 

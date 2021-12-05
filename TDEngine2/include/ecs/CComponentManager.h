@@ -9,12 +9,13 @@
 
 #include "./../core/CBaseObject.h"
 #include "./../ecs/IComponentManager.h"
+#include "../utils/Utils.h"
 #include <vector>
 #include <list>
+#include <unordered_set>
 #include <unordered_map>
 #include <functional>
 #include <memory>
-#include "../utils/Utils.h"
 #include "IComponent.h"
 
 
@@ -52,6 +53,8 @@ namespace TDEngine2
 			typedef std::list<U32>                                                 TFreeEntitiesRegistry;
 
 			typedef std::vector<std::vector<IComponent*>>                          TComponentsMatrix;
+
+			typedef std::unordered_map<TypeId, TEntityId>                          TUniqueComponentsTable;
 		public:
 			/*!
 				\brief The method initializes a component manager's instance
@@ -141,6 +144,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TypeId>& types) override;
+
+			/*!
+				\param[in] types An array that contains types identifiers that an entity should have. Note that the method
+				isn't responsible for creating a new instances of unqiue components.
+
+				\return The method returns an entity which holds a unique component
+			*/
+
+			TDE2_API TEntityId FindEntityWithUniqueComponent(TypeId typeId) override;
+
+			TDE2_API static E_RESULT_CODE RegisterUniqueComponentType(TypeId typeId);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
 
@@ -164,9 +178,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _unregisterBuiltinComponentFactories();
 
 			TDE2_API bool _hasComponent(TypeId componentTypeId, TEntityId entityId) override;
+			TDE2_API bool _isUniqueComponent(TypeId componentTypeId) const;
 			
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
+			static std::unordered_set<TypeId> mUniqueComponentTypesRegistry;
+
 			TComponentEntityMap      mComponentEntityMap;
 
 			TEntityComponentMap      mEntityComponentMap;
@@ -182,6 +199,8 @@ namespace TDEngine2
 			TComponentFactoriesArray mComponentFactories; 
 			
 			TFreeEntitiesRegistry    mFreeComponentFactoriesRegistry;
+
+			TUniqueComponentsTable   mUniqueComponentsRegistry;
 	};
 
 
@@ -192,4 +211,23 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IComponentManager* CreateComponentManager(E_RESULT_CODE& result);
+
+
+	/*!
+		\brief The struct is used to register unique components at program's start up.
+		Use this in *.cpp files only to prevent pollution of a global static scope
+	*/
+
+	template <typename TComponentType>
+	struct TUniqueComponentRecorder
+	{
+		TUniqueComponentRecorder()
+		{
+			CComponentManager::RegisterUniqueComponentType(TComponentType::GetTypeId());
+		}
+	};
+
+
+#define TDE2_REGISTER_UNIQUE_COMPONENT(TComponentType) \
+	static TUniqueComponentRecorder<TComponentType> ComponentTypeRecorder_ ## TComponentType;
 }
