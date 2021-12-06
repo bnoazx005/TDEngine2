@@ -9,7 +9,7 @@
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/graphics/IDebugUtility.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -231,9 +231,9 @@ namespace TDEngine2
 		{
 			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetLocalToWorldTransform());
 			
-			auto&& camera = _getCameraEntity();
+			auto&& pCamera = GetCurrentActiveCamera(mpSceneManager->GetWorld().Get());
 
-			mpImGUIContext->DrawGizmo(mCurrManipulatorType, Transpose(camera.GetViewMatrix()), Transpose(camera.GetProjMatrix()), matrix, 
+			mpImGUIContext->DrawGizmo(mCurrManipulatorType, Transpose(pCamera->GetViewMatrix()), Transpose(pCamera->GetProjMatrix()), matrix,
 				[pSelectedEntity, this, pWorld](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
 			{
 				if (mShouldRecordHistory)
@@ -344,20 +344,6 @@ namespace TDEngine2
 		}
 
 		return false;
-	}
-
-	ICamera& CLevelEditorWindow::_getCameraEntity()
-	{
-		auto pWorld = mpEditorsManager->GetWorldInstance();
-
-		if (mCameraEntityId == TEntityId::Invalid)
-		{
-			mCameraEntityId = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>().front();
-		}
-
-		CEntity* pCameraEntity = pWorld->FindEntity(mCameraEntityId);
-
-		return *GetValidPtrOrDefault<CBaseCamera*>(pCameraEntity->GetComponent<CPerspectiveCamera>(), pCameraEntity->GetComponent<COrthoCamera>());
 	}
 
 	ISelectionManager* CLevelEditorWindow::_getSelectionManager()

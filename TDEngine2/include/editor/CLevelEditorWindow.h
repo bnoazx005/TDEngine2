@@ -123,8 +123,6 @@ namespace TDEngine2
 			TDE2_API bool _onDrawObjectInspector();
 			TDE2_API bool _onDrawSceneInspector();
 
-			TDE2_API ICamera& _getCameraEntity();
-
 			TDE2_API ISelectionManager* _getSelectionManager();
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;

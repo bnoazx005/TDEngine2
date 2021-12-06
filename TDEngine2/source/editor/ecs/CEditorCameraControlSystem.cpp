@@ -2,6 +2,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/graphics/CBaseCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/core/IInputContext.h"
@@ -40,7 +41,7 @@ namespace TDEngine2
 
 	void CEditorCameraControlSystem::InjectBindings(IWorld* pWorld)
 	{
-		mCameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
+		mCameras = pWorld->FindEntitiesWithAny<CEditorCamera>();
 	}
 
 	void CEditorCameraControlSystem::Update(IWorld* pWorld, F32 dt)

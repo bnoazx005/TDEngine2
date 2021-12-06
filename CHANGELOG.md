@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now **IWorld** supports unique components which can be assumed as singletons replacement.
 
+- Add implementation of separate editor's camera
+
+### Fixed
+
+- The behaviour within developer's mode was fixed.
+
 ## [0.5.20] 2021-11-30
 
 ### Added

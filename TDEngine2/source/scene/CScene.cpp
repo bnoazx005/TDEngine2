@@ -321,7 +321,7 @@ namespace TDEngine2
 
 	CEntity* CScene::CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params)
 	{
-		CEntity* pCameraEntity = mpWorld->CreateEntity(id);
+		CEntity* pCameraEntity = CreateEntity(id);
 
 		switch (cameraType)
 		{

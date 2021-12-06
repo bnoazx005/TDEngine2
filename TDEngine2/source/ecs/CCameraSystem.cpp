@@ -1,5 +1,6 @@
 #include "../../include/ecs/CCameraSystem.h"
 #include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/graphics/CBaseCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -81,11 +82,6 @@ namespace TDEngine2
 
 			mCameras.push_back(pCurrEntity->GetComponent<COrthoCamera>());
 		}
-
-		if (!mCameras.empty())	/// the first camera in the array is marked as main by default
-		{
-			SetMainCamera(mCameras.front());
-		}
 	}
 
 	void CCameraSystem::Update(IWorld* pWorld, F32 dt)
@@ -98,7 +94,6 @@ namespace TDEngine2
 
 		const F32 graphicsCtxPositiveZAxisDirection = mpGraphicsContext->GetPositiveZAxisDirection();
 		const F32 ndcZmin = mpGraphicsContext->GetContextInfo().mNDCBox.min.z;
-
 
 		for (U32 i = 0; i < mCameras.size(); ++i)
 		{
@@ -120,6 +115,8 @@ namespace TDEngine2
 			pCurrCamera->SetViewProjMatrix(pCurrCamera->GetProjMatrix() * pCurrCamera->GetViewMatrix(), ndcZmin);
 			pCurrCamera->SetPosition(pCurrTransform->GetPosition());
 		}
+
+		SetMainCamera(GetCurrentActiveCamera(pWorld));
 	}
 
 	E_RESULT_CODE CCameraSystem::ComputePerspectiveProjection(IPerspectiveCamera* pCamera) const
