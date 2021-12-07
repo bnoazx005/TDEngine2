@@ -66,8 +66,7 @@ namespace TDEngine2
 			TDE2_ASSERT(pCurrTransform);
 
 			const TMatrix4& camera2World = Transpose(pCurrTransform->GetLocalToWorldTransform());
-			//LOG_MESSAGE(camera2World.ToString());
-
+			
 			TVector3 forward = Normalize(TVector3(camera2World.m[0][2], camera2World.m[1][2], camera2World.m[2][2]));
 			TVector3 right   = Normalize(TVector3(camera2World.m[0][0], camera2World.m[1][0], camera2World.m[2][0]));
 

@@ -3,6 +3,7 @@
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/CBaseCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CStaticMesh.h"
@@ -86,7 +87,7 @@ namespace TDEngine2
 	{
 		mProcessingEntities = pWorld->FindEntitiesWithAny<CTransform, CStaticMeshContainer, CSkinnedMeshContainer, CQuadSprite>();
 
-		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
+		const auto& cameras = pWorld->FindEntitiesWithAny<CEditorCamera>();
 		mCameraEntityId = !cameras.empty() ? cameras.front() : TEntityId::Invalid;
 	}
 
@@ -249,7 +250,13 @@ namespace TDEngine2
 			}
 		}
 
-		if (TPtr<IStaticMesh> pStaticMeshResource = mpResourceManager->GetResource< IStaticMesh>(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName())))
+		auto&& pMeshResource = mpResourceManager->GetResource<IResource>(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName()));
+		if (E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
+		{
+			return;
+		}
+
+		if (TPtr<IStaticMesh> pStaticMeshResource = DynamicPtrCast<IStaticMesh>(pMeshResource))
 		{
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 			{
@@ -271,8 +278,14 @@ namespace TDEngine2
 	{
 		CSkinnedMeshContainer* pSkinnedMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
 		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+
+		auto&& pMeshResource = mpResourceManager->GetResource<IResource>(mpResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName()));
+		if (E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
+		{
+			return;
+		}
 		
-		if (TPtr<ISkinnedMesh> pSkinnedMeshResource = mpResourceManager->GetResource<ISkinnedMesh>(mpResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName())))
+		if (TPtr<ISkinnedMesh> pSkinnedMeshResource = DynamicPtrCast<ISkinnedMesh>(pMeshResource))
 		{
 			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
 			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
