@@ -86,15 +86,17 @@ namespace TDEngine2
 
 			TDE2_API void _processCameraRotation(IDesktopInputContext& inputContext, CTransform& currTransform);
 		protected:
+			static constexpr F32  mEditorCameraSensitivity = 0.01f;
+			static constexpr F32  mDefaultEditorCameraSpeed = 5.0f;
+			static constexpr F32  mIncreasedEditorCameraSpeed = 15.0f;
+
 			TCameraEntitiesArray  mCameras;
 
 			IDesktopInputContext* mpInputContext;
 
 			IEditorsManager*      mpEditorManager;
 
-			TVector3              mLastClickedPosition;
 			TVector3              mCurrRotation;
-			TVector3              mCurrDeltaRotation;
 	};
 }
 

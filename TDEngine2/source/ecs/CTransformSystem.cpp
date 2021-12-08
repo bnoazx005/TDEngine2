@@ -4,6 +4,8 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/graphics/COrthoCamera.h"
 #include "../../include/editor/CPerfProfiler.h"
 
 
@@ -92,9 +94,14 @@ namespace TDEngine2
 				auto scale = pTransform->GetScale();
 				scale.z *= mpGraphicsContext->GetPositiveZAxisDirection();
 
-				TMatrix4 localToWorldMatrix = (TranslationMatrix(pTransform->GetPosition()) *
-												RotationMatrix(pTransform->GetRotation())) *
-												ScaleMatrix(scale);
+				const TMatrix4 translationMatrix = TranslationMatrix(pTransform->GetPosition());
+				const TMatrix4 rotationMatrix    = RotationMatrix(pTransform->GetRotation());
+
+				/// \note For transforms of cameras the order of multiplication is different
+				TMatrix4 translateRotateMatrix =
+					(pEntity->HasComponent<CPerspectiveCamera>() || pEntity->HasComponent<COrthoCamera>()) ? rotationMatrix * translationMatrix : translationMatrix * rotationMatrix;
+
+				TMatrix4 localToWorldMatrix = translateRotateMatrix * ScaleMatrix(scale);
 
 				/// \note Implement parent-to-child relationship's update
 				

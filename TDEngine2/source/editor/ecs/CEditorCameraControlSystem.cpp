@@ -34,6 +34,8 @@ namespace TDEngine2
 		mpInputContext  = dynamic_cast<IDesktopInputContext*>(pInputContext);
 		mpEditorManager = pEditorManager;
 
+		mCurrRotation = ZeroVector3;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -55,6 +57,8 @@ namespace TDEngine2
 
 		CTransform* pCurrTransform = nullptr;
 
+		const F32 cameraSpeed = (mpInputContext->IsKey(E_KEYCODES::KC_LSHIFT) || mpInputContext->IsKey(E_KEYCODES::KC_RSHIFT)) ? mIncreasedEditorCameraSpeed : mDefaultEditorCameraSpeed;
+
 		for (TEntityId currCameraEntityId : mCameras)
 		{
 			if (!(pCurrEntity = pWorld->FindEntity(currCameraEntityId)))
@@ -67,15 +71,15 @@ namespace TDEngine2
 
 			const TMatrix4& camera2World = Transpose(pCurrTransform->GetLocalToWorldTransform());
 			
-			TVector3 forward = Normalize(TVector3(camera2World.m[0][2], camera2World.m[1][2], camera2World.m[2][2]));
-			TVector3 right   = Normalize(TVector3(camera2World.m[0][0], camera2World.m[1][0], camera2World.m[2][0]));
+			const TVector3 forward = Normalize(TVector3(camera2World.m[0][2], camera2World.m[1][2], camera2World.m[2][2]));
+			const TVector3 right   = Normalize(TVector3(camera2World.m[0][0], camera2World.m[1][0], camera2World.m[2][0]));
 
 			const std::tuple<E_KEYCODES, F32, TVector3> controls[4]
 			{
-				{ E_KEYCODES::KC_W, dt * 5.0f, forward },
-				{ E_KEYCODES::KC_S, -dt * 5.0f, forward },
-				{ E_KEYCODES::KC_D, dt * 5.0f, right },
-				{ E_KEYCODES::KC_A, -dt * 5.0f, right },
+				{ E_KEYCODES::KC_W, dt * cameraSpeed, forward },
+				{ E_KEYCODES::KC_S, -dt * cameraSpeed, forward },
+				{ E_KEYCODES::KC_D, dt * cameraSpeed, right },
+				{ E_KEYCODES::KC_A, -dt * cameraSpeed, right },
 			};
 
 			for (auto&& currControl : controls)
@@ -92,26 +96,16 @@ namespace TDEngine2
 
 	void CEditorCameraControlSystem::_processCameraRotation(IDesktopInputContext& inputContext, CTransform& currTransform)
 	{
-		if (inputContext.IsMouseButtonPressed(1))
+		if (!inputContext.IsMouseButton(1))
 		{
-			mLastClickedPosition = inputContext.GetMousePosition();
+			return;
 		}
 
-		if (inputContext.IsMouseButton(1))
-		{
-			TVector3 currMousePosition = inputContext.GetMousePosition();
-			TVector3 deltaVec = (currMousePosition - mLastClickedPosition) * 0.01f;
+		const TVector3 currMousePosition = inputContext.GetMouseShiftVec();
+		mCurrRotation.x -= mEditorCameraSensitivity * currMousePosition.y;
+		mCurrRotation.y -= mEditorCameraSensitivity * currMousePosition.x;
 
-			mCurrDeltaRotation = TVector3(deltaVec.y, deltaVec.x, 0.0f);
-			mCurrRotation = mCurrDeltaRotation;
-
-			currTransform.SetRotation(mCurrDeltaRotation);
-		}
-
-		if (inputContext.IsMouseButtonUnpressed(1))
-		{
-			LOG_MESSAGE(mCurrRotation.ToString());
-		}
+		currTransform.SetRotation(mCurrRotation);
 	}
 
 

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.21] 2021-12-07
+## [0.5.21] 2021-12-08
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The behaviour within developer's mode was fixed.
 
 - The dereferencing of nullptr within CObjectSelectionSystem was fixed when the developer's menu is invoked too soon after the start up
+
+- The implementation of editor's camera was fixed and refactored
 
 ## [0.5.20] 2021-11-30
 
