@@ -351,4 +351,74 @@ namespace TDEngine2
 																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
 																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
 
+	
+
+	/*!
+		\brief The template is used to declare concrete component factories
+	*/
+
+	template <typename TComponentType, typename TComponentParamsType>
+	class CBaseComponentFactory: public IGenericComponentFactory<>, public CBaseObject
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of a factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init() override
+			{
+				if (mIsInitialized)
+				{
+					return RC_FAIL;
+				}
+
+				mIsInitialized = true;
+
+				return RC_OK;
+			}
+
+			/*!
+				\brief The method creates a new instance of a component based on passed parameters
+
+				\param[in] pParams An object that contains parameters that are needed for the component's creation
+
+				\return A pointer to a new instance of IComponent type
+			*/
+
+			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override
+			{
+				if (IComponent* pComponent = CreateDefault())
+				{
+					SetupComponent(dynamic_cast<TComponentType*>(pComponent), *dynamic_cast<const TComponentParamsType*>(pParams));
+				}
+
+				return nullptr;
+			}
+
+			TDE2_API virtual E_RESULT_CODE SetupComponent(TComponentType* pComponent, const TComponentParamsType&) const = 0;
+
+			/*!
+				\brief The method returns an identifier of a component's type, which
+				the factory serves
+
+				\return The method returns an identifier of a component's type, which
+				the factory serves
+			*/
+
+			TDE2_API TypeId GetComponentTypeId() const override
+			{
+				return TComponentType::GetTypeId();
+			}
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponentFactory)
+	};
+
+
+	template <typename TComponentType, typename TComponentParamsType>
+	CBaseComponentFactory<TComponentType, TComponentParamsType>::CBaseComponentFactory():
+		CBaseObject()
+	{
+	}
 }

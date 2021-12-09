@@ -29,16 +29,10 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of a transform
 
-				\param[in] position A global position of an object
-
-				\param[in] rotation A global rotation of an object
-
-				\param[in] scale A global scale of an object
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(const TVector3& position, const TQuaternion& rotation, const TVector3& scale) = 0;
+			TDE2_API virtual E_RESULT_CODE Init() = 0;
 
 			/*!
 				\brief The method resets all values of this transform

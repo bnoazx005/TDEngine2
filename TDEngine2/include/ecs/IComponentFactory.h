@@ -37,11 +37,11 @@ namespace TDEngine2
 
 	typedef struct TTransformParameters: public TBaseComponentParameters
 	{
-		TVector3    mPosition;
+		TVector3    mPosition = ZeroVector3;
 
-		TQuaternion mRotation;
+		TQuaternion mRotation = UnitQuaternion;
 
-		TVector3    mScale;
+		TVector3    mScale    = TVector3(1.0f);
 	} TTransformParameters;
 
 
@@ -65,14 +65,11 @@ namespace TDEngine2
 			TDE2_API virtual IComponent* Create(const TBaseComponentParameters* pParams) const = 0;
 
 			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
+				\brief The method creates a new instance of a component with default parameters
 				\return A pointer to a new instance of IComponent type
 			*/
 
-			TDE2_API virtual IComponent* CreateDefault(const TBaseComponentParameters& params) const = 0;
+			TDE2_API virtual IComponent* CreateDefault() const = 0;
 
 			/*!
 				\brief The method returns an identifier of a component's type, which

@@ -11,18 +11,16 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CTransform::Init(const TVector3& position, const TQuaternion& rotation, const TVector3& scale)
+	E_RESULT_CODE CTransform::Init()
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		mPosition = position;
-
-		mRotation = rotation;
-
-		mScale = scale;
+		mPosition = ZeroVector3;
+		mRotation = UnitQuaternion;
+		mScale    = TVector3(1.0f);
 		
 		mIsInitialized = true;
 
@@ -341,53 +339,39 @@ namespace TDEngine2
 	}
 
 
-	IComponent* CreateTransform(const TVector3& position, const TQuaternion& rotation, const TVector3& scale, E_RESULT_CODE& result)
+	IComponent* CreateTransform(E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IComponent, CTransform, result, position, rotation, scale);
+		return CREATE_IMPL(IComponent, CTransform, result);
 	}
 
 
-	CTransformFactory::CTransformFactory():
-		CBaseObject()
+	/*!
+		\brief CTransformFactory's definition
+	*/
+	
+	CTransformFactory::CTransformFactory() :
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CTransformFactory::Init()
+	IComponent* CTransformFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreateTransform(result);
+	}
+
+	E_RESULT_CODE CTransformFactory::SetupComponent(CTransform* pComponent, const TTransformParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetPosition(params.mPosition);
+		pComponent->SetRotation(params.mRotation);
+		pComponent->SetScale(params.mScale);
 
 		return RC_OK;
-	}
-
-	IComponent* CTransformFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TTransformParameters* transformParams = static_cast<const TTransformParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateTransform(transformParams->mPosition, transformParams->mRotation, transformParams->mScale, result);
-	}
-
-	IComponent* CTransformFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateTransform(ZeroVector3, UnitQuaternion, TVector3(1.0f, 1.0f, 1.0f), result);
-	}
-
-	TypeId CTransformFactory::GetComponentTypeId() const
-	{
-		return CTransform::GetTypeId();
 	}
 
 
@@ -395,4 +379,5 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IComponentFactory, CTransformFactory, result);
 	}
+
 }

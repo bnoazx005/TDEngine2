@@ -18,15 +18,12 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CTransform's type.
 
-		\param[in] position A global position of an object
-		\param[in] rotation A global rotation of an object
-		\param[in] scale A global scale of an object
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to IComponent's implementation
 	*/
 
-	TDE2_API IComponent* CreateTransform(const TVector3& position, const TQuaternion& rotation, const TVector3& scale, E_RESULT_CODE& result);
+	TDE2_API IComponent* CreateTransform(E_RESULT_CODE& result);
 
 
 	/*!
@@ -40,23 +37,17 @@ namespace TDEngine2
 	class CTransform: public ITransform, public CBaseComponent
 	{
 		public:
-			friend TDE2_API IComponent* CreateTransform(const TVector3& position, const TQuaternion& rotation, const TVector3& scale, E_RESULT_CODE& result);
+			friend TDE2_API IComponent* CreateTransform(E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CTransform)
 
 			/*!
 				\brief The method initializes an internal state of a transform
 
-				\param[in] position A global position of an object
-
-				\param[in] rotation A global rotation of an object
-
-				\param[in] scale A global scale of an object
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(const TVector3& position, const TQuaternion& rotation, const TVector3& scale) override;
+			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -284,54 +275,14 @@ namespace TDEngine2
 	TDE2_API IComponentFactory* CreateTransformFactory(E_RESULT_CODE& result);
 
 
-	/*!
-		class CTransformFactory
-
-		\brief The class is factory facility to create a new objects of CTransform type
-	*/
-
-	class CTransformFactory: public ITransformFactory, public CBaseObject
+	class CTransformFactory: public CBaseComponentFactory<CTransform, TTransformParameters>
 	{
 		public:
 			friend TDE2_API IComponentFactory* CreateTransformFactory(E_RESULT_CODE&);
+
 		public:
-			/*!
-				\brief The method initializes an internal state of a factory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
-				\return A pointer to a new instance of IComponent type
-			*/
-
-			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;
-
-			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
-				\return A pointer to a new instance of IComponent type
-			*/
-
-			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;
-
-			/*!
-				\brief The method returns an identifier of a component's type, which
-				the factory serves
-
-				\return The method returns an identifier of a component's type, which
-				the factory serves
-			*/
-
-			TDE2_API TypeId GetComponentTypeId() const override;
+			TDE2_API IComponent* CreateDefault() const override;
+			TDE2_API E_RESULT_CODE SetupComponent(CTransform* pComponent, const TTransformParameters& params) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransformFactory)
 	};
