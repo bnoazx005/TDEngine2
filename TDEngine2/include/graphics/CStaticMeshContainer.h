@@ -8,7 +8,7 @@
 
 
 #include "IStaticMeshContainer.h"
-#include "./../ecs/CBaseComponent.h"
+#include "../ecs/CBaseComponent.h"
 
 
 namespace TDEngine2
@@ -37,14 +37,6 @@ namespace TDEngine2
 			friend TDE2_API IComponent* CreateStaticMeshContainer(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CStaticMeshContainer)
-
-			/*!
-				\brief The method initializes an internal state of a quad sprite
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -137,66 +129,5 @@ namespace TDEngine2
 	} TStaticMeshContainerParameters;
 
 
-	/*!
-		\brief A factory function for creation objects of CStaticMeshContainerFactory's type.
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CStaticMeshContainerFactory's implementation
-	*/
-
-	TDE2_API IComponentFactory* CreateStaticMeshContainerFactory(E_RESULT_CODE& result);
-
-
-	/*!
-		class CStaticMeshContainerFactory
-
-		\brief The class is factory facility to create a new objects of CStaticMeshContainer type
-	*/
-
-	class CStaticMeshContainerFactory : public IStaticMeshContainerFactory, public CBaseObject
-	{
-		public:
-			friend TDE2_API IComponentFactory* CreateStaticMeshContainerFactory(E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method initializes an internal state of a factory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
-				\return A pointer to a new instance of IComponent type
-			*/
-
-			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;
-
-			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
-				\return A pointer to a new instance of IComponent type
-			*/
-
-			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;
-
-			/*!
-				\brief The method returns an identifier of a component's type, which
-				the factory serves
-
-				\return The method returns an identifier of a component's type, which
-				the factory serves
-			*/
-
-			TDE2_API TypeId GetComponentTypeId() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMeshContainerFactory)
-	};
+	TDE2_DECLARE_COMPONENT_FACTORY(StaticMeshContainer, TStaticMeshContainerParameters);
 }

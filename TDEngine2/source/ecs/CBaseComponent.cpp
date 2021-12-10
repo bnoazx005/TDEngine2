@@ -12,6 +12,18 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CBaseComponent::Init()
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CBaseComponent::Load(IArchiveReader* pReader)
 	{
 		return RC_OK;

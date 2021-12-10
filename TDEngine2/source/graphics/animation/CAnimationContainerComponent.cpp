@@ -8,18 +8,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CAnimationContainerComponent::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CAnimationContainerComponent::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -191,47 +179,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CAnimationContainerComponentFactory's definition
+	*/
+
 	CAnimationContainerComponentFactory::CAnimationContainerComponentFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CAnimationContainerComponentFactory::Init()
+	IComponent* CAnimationContainerComponentFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateAnimationContainerComponent(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CAnimationContainerComponentFactory::SetupComponent(CAnimationContainerComponent* pComponent, const TAnimationContainerComponentParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CAnimationContainerComponentFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TAnimationContainerComponentParameters* pSunLightParams = static_cast<const TAnimationContainerComponentParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateAnimationContainerComponent(result);
-	}
-
-	IComponent* CAnimationContainerComponentFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateAnimationContainerComponent(result);
-	}
-
-	TypeId CAnimationContainerComponentFactory::GetComponentTypeId() const
-	{
-		return CAnimationContainerComponent::GetTypeId();
 	}
 
 

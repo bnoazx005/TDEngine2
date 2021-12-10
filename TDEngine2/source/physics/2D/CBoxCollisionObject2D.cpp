@@ -80,47 +80,32 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CBoxCollisionObject2DFactory's definition
+	*/
+
 	CBoxCollisionObject2DFactory::CBoxCollisionObject2DFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CBoxCollisionObject2DFactory::Init()
+	IComponent* CBoxCollisionObject2DFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreateBoxCollisionObject2D(result);
+	}
+
+	E_RESULT_CODE CBoxCollisionObject2DFactory::SetupComponent(CBoxCollisionObject2D* pComponent, const TBoxCollisionObject2DParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetWidth(params.mWidth);
+		pComponent->SetHeight(params.mHeight);
 
 		return RC_OK;
-	}
-
-	IComponent* CBoxCollisionObject2DFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TBoxCollisionObject2DParameters* box2DCollisionParams = static_cast<const TBoxCollisionObject2DParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateBoxCollisionObject2D(result);
-	}
-
-	IComponent* CBoxCollisionObject2DFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateBoxCollisionObject2D(result);
-	}
-
-	TypeId CBoxCollisionObject2DFactory::GetComponentTypeId() const
-	{
-		return CBoxCollisionObject2D::GetTypeId();
 	}
 
 

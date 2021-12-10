@@ -91,47 +91,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CQuadSpriteFactory's definition
+	*/
+
 	CQuadSpriteFactory::CQuadSpriteFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CQuadSpriteFactory::Init()
+	IComponent* CQuadSpriteFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateQuadSprite(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CQuadSpriteFactory::SetupComponent(CQuadSprite* pComponent, const TQuadSpriteParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CQuadSpriteFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TQuadSpriteParameters* transformParams = static_cast<const TQuadSpriteParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateQuadSprite(result);
-	}
-
-	IComponent* CQuadSpriteFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateQuadSprite(result);
-	}
-
-	TypeId CQuadSpriteFactory::GetComponentTypeId() const
-	{
-		return CQuadSprite::GetTypeId();
 	}
 
 

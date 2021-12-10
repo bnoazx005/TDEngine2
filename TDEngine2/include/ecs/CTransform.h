@@ -42,14 +42,6 @@ namespace TDEngine2
 			TDE2_REGISTER_COMPONENT_TYPE(CTransform)
 
 			/*!
-				\brief The method initializes an internal state of a transform
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
 				\brief The method deserializes object's state from given reader
 
 				\param[in, out] pReader An input stream of data that contains information about the object
@@ -264,26 +256,5 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		\brief A factory function for creation objects of CTransformFactory's type.
-		
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CTransformFactory's implementation
-	*/
-
-	TDE2_API IComponentFactory* CreateTransformFactory(E_RESULT_CODE& result);
-
-
-	class CTransformFactory: public CBaseComponentFactory<CTransform, TTransformParameters>
-	{
-		public:
-			friend TDE2_API IComponentFactory* CreateTransformFactory(E_RESULT_CODE&);
-
-		public:
-			TDE2_API IComponent* CreateDefault() const override;
-			TDE2_API E_RESULT_CODE SetupComponent(CTransform* pComponent, const TTransformParameters& params) const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransformFactory)
-	};
+	TDE2_DECLARE_COMPONENT_FACTORY(Transform, TTransformParameters);
 }

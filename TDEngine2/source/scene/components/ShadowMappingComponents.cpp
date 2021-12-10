@@ -72,54 +72,31 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CShadowCasterComponentFactory's definition
+	*/
+
 	CShadowCasterComponentFactory::CShadowCasterComponentFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CShadowCasterComponentFactory::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IComponent* CShadowCasterComponentFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		CShadowCasterComponent* pShadowCaster = dynamic_cast<CShadowCasterComponent*>(CreateShadowCasterComponent(result));
-		if (pShadowCaster)
-		{
-			if (const TShadowCasterComponentParameters* params = static_cast<const TShadowCasterComponentParameters*>(pParams))
-			{
-				pShadowCaster->SetTransparentFlag(params->mIsTransparent);
-			}
-		}
-
-		return pShadowCaster;
-	}
-
-	IComponent* CShadowCasterComponentFactory::CreateDefault(const TBaseComponentParameters& params) const
+	IComponent* CShadowCasterComponentFactory::CreateDefault() const
 	{
 		E_RESULT_CODE result = RC_OK;
-
 		return CreateShadowCasterComponent(result);
 	}
 
-	TypeId CShadowCasterComponentFactory::GetComponentTypeId() const
+	E_RESULT_CODE CShadowCasterComponentFactory::SetupComponent(CShadowCasterComponent* pComponent, const TShadowCasterComponentParameters& params) const
 	{
-		return CShadowCasterComponent::GetTypeId();
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pComponent->SetTransparentFlag(params.mIsTransparent);
+
+		return RC_OK;
 	}
 
 

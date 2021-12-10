@@ -8,9 +8,9 @@
 
 
 #include "ICollisionObject2D.h"
-#include "./../../ecs/CBaseComponent.h"
-#include "./../../ecs/IComponentFactory.h"
-#include "./../../math/TMatrix4.h"
+#include "../../ecs/CBaseComponent.h"
+#include "../../ecs/IComponentFactory.h"
+#include "../../math/TMatrix4.h"
 
 
 namespace TDEngine2
@@ -26,14 +26,6 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CBaseCollisionObject2D)
-
-			/*!
-				\brief The method initializes an internal state of a component
-				
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
 
 			/*!
 				\brief The method resets all values of this transform

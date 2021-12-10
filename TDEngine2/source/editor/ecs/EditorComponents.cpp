@@ -18,19 +18,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSceneInfoComponent::Init(const std::string& id)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mSceneId = id;
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CSceneInfoComponent::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -68,53 +55,37 @@ namespace TDEngine2
 	}
 
 
-	IComponent* CreateSceneInfoComponent(const std::string& id, E_RESULT_CODE& result)
+	IComponent* CreateSceneInfoComponent(E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IComponent, CSceneInfoComponent, result, id);
+		return CREATE_IMPL(IComponent, CSceneInfoComponent, result);
 	}
 
+
+	/*!
+		\brief CSceneInfoComponentFactory's definition
+	*/
 
 	CSceneInfoComponentFactory::CSceneInfoComponentFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CSceneInfoComponentFactory::Init()
+	IComponent* CSceneInfoComponentFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreateSceneInfoComponent(result);
+	}
+
+	E_RESULT_CODE CSceneInfoComponentFactory::SetupComponent(CSceneInfoComponent* pComponent, const TSceneInfoComponentParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetSceneId(params.mSceneId);
 
 		return RC_OK;
-	}
-
-	IComponent* CSceneInfoComponentFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TSceneInfoComponentParameters* params = static_cast<const TSceneInfoComponentParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateSceneInfoComponent(params->mSceneId, result);
-	}
-
-	IComponent* CSceneInfoComponentFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateSceneInfoComponent(Wrench::StringUtils::GetEmptyStr(), result);
-	}
-
-	TypeId CSceneInfoComponentFactory::GetComponentTypeId() const
-	{
-		return CSceneInfoComponent::GetTypeId();
 	}
 
 

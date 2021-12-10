@@ -12,24 +12,8 @@ namespace TDEngine2
 
 
 	CParticleEmitter::CParticleEmitter() :
-		CBaseComponent()
+		CBaseComponent(), mIsPlaying(false), mParticleEffectId(TResourceId::Invalid)
 	{
-	}
-
-	E_RESULT_CODE CParticleEmitter::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsPlaying = false;
-
-		mParticleEffectId = TResourceId::Invalid;
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CParticleEmitter::Load(IArchiveReader* pReader)
@@ -107,47 +91,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CParticleEmitterFactory's definition
+	*/
+
 	CParticleEmitterFactory::CParticleEmitterFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CParticleEmitterFactory::Init()
+	IComponent* CParticleEmitterFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateParticleEmitter(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CParticleEmitterFactory::SetupComponent(CParticleEmitter* pComponent, const TParticleEmitterParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CParticleEmitterFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TParticleEmitterParameters* params = static_cast<const TParticleEmitterParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateParticleEmitter(result);
-	}
-
-	IComponent* CParticleEmitterFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateParticleEmitter(result);
-	}
-
-	TypeId CParticleEmitterFactory::GetComponentTypeId() const
-	{
-		return CParticleEmitter::GetTypeId();
 	}
 
 

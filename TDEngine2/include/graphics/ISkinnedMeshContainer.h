@@ -30,14 +30,6 @@ namespace TDEngine2
 	{
 		public:
 			/*!
-				\brief The method initializes an internal state of a component
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
-
-			/*!
 				\brief The method sets up an identifier fo a material that will be used for the mesh's instance
 
 				\param[in] materialName A string that contains material's name
@@ -102,7 +94,4 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISkinnedMeshContainer)
 	};
-
-
-	class ISkinnedMeshContainerFactory: public IGenericComponentFactory<> {};
 }

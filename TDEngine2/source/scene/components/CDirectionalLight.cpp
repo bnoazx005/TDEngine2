@@ -8,18 +8,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CDirectionalLight::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CDirectionalLight::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -67,47 +55,32 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CDirectionalLightFactory's definition
+	*/
+
 	CDirectionalLightFactory::CDirectionalLightFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CDirectionalLightFactory::Init()
+	IComponent* CDirectionalLightFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreateDirectionalLight(result);
+	}
+
+	E_RESULT_CODE CDirectionalLightFactory::SetupComponent(CDirectionalLight* pComponent, const TDirectionalLightParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetColor(params.mColor);
+		pComponent->SetIntensity(params.mIntensity);
 
 		return RC_OK;
-	}
-
-	IComponent* CDirectionalLightFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TDirectionalLightParameters* pSunLightParams = static_cast<const TDirectionalLightParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateDirectionalLight(result);
-	}
-
-	IComponent* CDirectionalLightFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateDirectionalLight(result);
-	}
-
-	TypeId CDirectionalLightFactory::GetComponentTypeId() const
-	{
-		return CDirectionalLight::GetTypeId();
 	}
 
 

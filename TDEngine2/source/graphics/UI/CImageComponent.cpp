@@ -9,23 +9,8 @@ namespace TDEngine2
 
 
 	CImage::CImage() :
-		CBaseComponent()
+		CBaseComponent(), mImageResourceId(TResourceId::Invalid), mImageSpriteId(Wrench::StringUtils::GetEmptyStr())
 	{
-	}
-
-	E_RESULT_CODE CImage::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mImageResourceId = TResourceId::Invalid;
-		mImageSpriteId = Wrench::StringUtils::GetEmptyStr();
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CImage::Load(IArchiveReader* pReader)
@@ -89,47 +74,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CImageFactory's definition
+	*/
+
 	CImageFactory::CImageFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CImageFactory::Init()
+	IComponent* CImageFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateImage(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CImageFactory::SetupComponent(CImage* pComponent, const TImageParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CImageFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TImageParameters* params = static_cast<const TImageParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateImage(result);
-	}
-
-	IComponent* CImageFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateImage(result);
-	}
-
-	TypeId CImageFactory::GetComponentTypeId() const
-	{
-		return CImage::GetTypeId();
 	}
 
 

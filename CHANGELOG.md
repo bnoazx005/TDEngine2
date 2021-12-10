@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.22] 2021-12-09
 
+### Changed
 
+- The implementation of component factories was totally refactored to simplify creation of new ones.
 
 ## [0.5.21] 2021-12-08
 

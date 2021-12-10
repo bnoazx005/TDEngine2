@@ -9,23 +9,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CPerspectiveCamera::Init(F32 fov, F32 aspect, F32 zn, F32 zf)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mFOV         = fov;
-		mAspectRatio = aspect;
-		mZNear       = zn;
-		mZFar        = zf;
-
-		mIsInitialized = true;
-
-		return _initInternal();
-	}
-
 	E_RESULT_CODE CPerspectiveCamera::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -94,54 +77,40 @@ namespace TDEngine2
 	}
 
 
-	IComponent* CreatePerspectiveCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result)
+	IComponent* CreatePerspectiveCamera(E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IComponent, CPerspectiveCamera, result, fov, aspect, zn, zf);
+		return CREATE_IMPL(IComponent, CPerspectiveCamera, result);
 	}
 
+
+	/*!
+		\brief CPerspectiveCameraFactory's definition
+	*/
 
 	CPerspectiveCameraFactory::CPerspectiveCameraFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CPerspectiveCameraFactory::Init()
+	IComponent* CPerspectiveCameraFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreatePerspectiveCamera(result);
+	}
+
+	E_RESULT_CODE CPerspectiveCameraFactory::SetupComponent(CPerspectiveCamera* pComponent, const TPerspectiveCameraParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetFOV(params.mFOV);
+		pComponent->SetAspect(params.mAspect);
+		pComponent->SetNearPlane(params.mZNear);
+		pComponent->SetFarPlane(params.mZFar);
 
 		return RC_OK;
-	}
-
-	IComponent* CPerspectiveCameraFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TPerspectiveCameraParameters* cameraParams = static_cast<const TPerspectiveCameraParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreatePerspectiveCamera(cameraParams->mFOV, cameraParams->mAspect, cameraParams->mZNear, cameraParams->mZFar, result);
-	}
-
-	IComponent* CPerspectiveCameraFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-		
-		/// \todo replace 3.14 with Pi contants in MathUtils.h
-		return CreatePerspectiveCamera(3.14f * 0.5f, 1.0f, 1.0f, 1000.0f, result);
-	}
-
-	TypeId CPerspectiveCameraFactory::GetComponentTypeId() const
-	{
-		return CPerspectiveCamera::GetTypeId();
 	}
 
 

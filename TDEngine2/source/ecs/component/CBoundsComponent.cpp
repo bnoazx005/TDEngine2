@@ -8,18 +8,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBoundsComponent::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	void CBoundsComponent::SetBounds(const TAABB& aabbBounds)
 	{
 		mBounds = aabbBounds;
@@ -68,54 +56,31 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CBoundsComponentFactory's definition
+	*/
+
 	CBoundsComponentFactory::CBoundsComponentFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CBoundsComponentFactory::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IComponent* CBoundsComponentFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		CBoundsComponent* pBounds = dynamic_cast<CBoundsComponent*>(CreateBoundsComponent(result));
-		if (pBounds)
-		{
-			if (const TBoundsComponentParameters* params = static_cast<const TBoundsComponentParameters*>(pParams))
-			{
-				pBounds->SetBounds(params->mBounds);
-			}
-		}
-
-		return pBounds;
-	}
-
-	IComponent* CBoundsComponentFactory::CreateDefault(const TBaseComponentParameters& params) const
+	IComponent* CBoundsComponentFactory::CreateDefault() const
 	{
 		E_RESULT_CODE result = RC_OK;
-
 		return CreateBoundsComponent(result);
 	}
 
-	TypeId CBoundsComponentFactory::GetComponentTypeId() const
+	E_RESULT_CODE CBoundsComponentFactory::SetupComponent(CBoundsComponent* pComponent, const TBoundsComponentParameters& params) const
 	{
-		return CBoundsComponent::GetTypeId();
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pComponent->SetBounds(params.mBounds);
+
+		return RC_OK;
 	}
 
 

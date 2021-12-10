@@ -33,6 +33,14 @@ namespace TDEngine2
 			typedef std::unordered_map<TEntityId, TEntityId> TEntitiesMapper;
 		public:
 			/*!
+				\brief The method initializes an internal state of an object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init() = 0;
+
+			/*!
 				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
 				make them correctly corresponds to saved state
 

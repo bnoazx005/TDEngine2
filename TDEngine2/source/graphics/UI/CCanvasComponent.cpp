@@ -9,21 +9,8 @@ namespace TDEngine2
 
 
 	CCanvas::CCanvas() :
-		CBaseComponent()
+		CBaseComponent(), mIsDirty(true)
 	{
-	}
-
-	E_RESULT_CODE CCanvas::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsDirty = true;
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CCanvas::Load(IArchiveReader* pReader)
@@ -101,47 +88,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CCanvasFactory's definition
+	*/
+
 	CCanvasFactory::CCanvasFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CCanvasFactory::Init()
+	IComponent* CCanvasFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateCanvas(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CCanvasFactory::SetupComponent(CCanvas* pComponent, const TCanvasParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CCanvasFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TCanvasParameters* params = static_cast<const TCanvasParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateCanvas(result);
-	}
-
-	IComponent* CCanvasFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateCanvas(result);
-	}
-
-	TypeId CCanvasFactory::GetComponentTypeId() const
-	{
-		return CCanvas::GetTypeId();
 	}
 
 

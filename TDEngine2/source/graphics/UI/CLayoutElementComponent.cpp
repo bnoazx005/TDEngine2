@@ -9,23 +9,8 @@ namespace TDEngine2
 
 
 	CLayoutElement::CLayoutElement() :
-		CBaseComponent()
+		CBaseComponent(), mCanvasEntityId(TEntityId::Invalid), mIsDirty(true)
 	{
-	}
-
-	E_RESULT_CODE CLayoutElement::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mCanvasEntityId = TEntityId::Invalid;
-		mIsDirty = true;
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::Load(IArchiveReader* pReader)
@@ -170,47 +155,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CLayoutElementFactory's definition
+	*/
+
 	CLayoutElementFactory::CLayoutElementFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CLayoutElementFactory::Init()
+	IComponent* CLayoutElementFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateLayoutElement(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CLayoutElementFactory::SetupComponent(CLayoutElement* pComponent, const TLayoutElementParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CLayoutElementFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TLayoutElementParameters* params = static_cast<const TLayoutElementParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateLayoutElement(result);
-	}
-
-	IComponent* CLayoutElementFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateLayoutElement(result);
-	}
-
-	TypeId CLayoutElementFactory::GetComponentTypeId() const
-	{
-		return CLayoutElement::GetTypeId();
 	}
 
 

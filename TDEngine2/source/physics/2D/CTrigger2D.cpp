@@ -8,18 +8,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CTrigger2D::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CTrigger2D::Load(IArchiveReader* pReader)
 	{
 		return CBaseComponent::Load(pReader);
@@ -48,47 +36,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CTrigger2DFactory's definition
+	*/
+
 	CTrigger2DFactory::CTrigger2DFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CTrigger2DFactory::Init()
+	IComponent* CTrigger2DFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreateTrigger2D(result);
+	}
+
+	E_RESULT_CODE CTrigger2DFactory::SetupComponent(CTrigger2D* pComponent, const TTrigger2DParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
-
-		mIsInitialized = true;
-
+		
 		return RC_OK;
-	}
-
-	IComponent* CTrigger2DFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		//const TCircleCollisionObject2DParameters* box2DCollisionParams = static_cast<const TCircleCollisionObject2DParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateTrigger2D(result);
-	}
-
-	IComponent* CTrigger2DFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateTrigger2D(result);
-	}
-
-	TypeId CTrigger2DFactory::GetComponentTypeId() const
-	{
-		return CTrigger2D::GetTypeId();
 	}
 
 

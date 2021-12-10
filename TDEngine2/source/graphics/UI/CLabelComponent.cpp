@@ -11,28 +11,13 @@ namespace TDEngine2
 
 
 	CLabel::CLabel() :
-		CBaseComponent()
+		CBaseComponent(), 
+		mText("New Text"), 
+		mPrevText(Wrench::StringUtils::GetEmptyStr()),
+		mFontResourceId(Wrench::StringUtils::GetEmptyStr()), 
+		mAlignType(E_FONT_ALIGN_POLICY::CENTER),
+		mFontResourceHandle(TResourceId::Invalid)
 	{
-	}
-
-	E_RESULT_CODE CLabel::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mText           = "New Text";
-		mPrevText       = Wrench::StringUtils::GetEmptyStr();
-		mFontResourceId = Wrench::StringUtils::GetEmptyStr();
-
-		mAlignType = E_FONT_ALIGN_POLICY::CENTER;
-
-		mFontResourceHandle = TResourceId::Invalid;
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CLabel::Load(IArchiveReader* pReader)
@@ -137,47 +122,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CLabelFactory's definition
+	*/
+
 	CLabelFactory::CLabelFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CLabelFactory::Init()
+	IComponent* CLabelFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateLabel(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CLabelFactory::SetupComponent(CLabel* pComponent, const TLabelParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CLabelFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TLabelParameters* params = static_cast<const TLabelParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateLabel(result);
-	}
-
-	IComponent* CLabelFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateLabel(result);
-	}
-
-	TypeId CLabelFactory::GetComponentTypeId() const
-	{
-		return CLabel::GetTypeId();
 	}
 
 

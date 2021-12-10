@@ -367,8 +367,7 @@ namespace TDEngine2
 
 		auto pComponentFactory = mComponentFactories[(*factoryIdIter).second];
 
-		//pNewComponent = pComponentFactory->Create(std::make_unique);  /// \todo implement arguments passing
-		pNewComponent = pComponentFactory->CreateDefault({});
+		pNewComponent = pComponentFactory->CreateDefault();
 		
 		auto componentTypeHashIter = mComponentsHashTable.find(componentTypeId);
 
@@ -422,7 +421,7 @@ namespace TDEngine2
 			CreateQuadSpriteFactory,
 			CreatePerspectiveCameraFactory,
 			CreateOrthoCameraFactory,
-			CreateCamerasContextFactory,
+			CreateCamerasContextComponentFactory,
 			CreateBoxCollisionObject2DFactory,
 			CreateCircleCollisionObject2DFactory,
 			CreateTrigger2DFactory,

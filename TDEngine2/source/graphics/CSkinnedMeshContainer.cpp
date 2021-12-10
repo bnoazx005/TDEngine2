@@ -13,20 +13,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSkinnedMeshContainer::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mMaterialInstanceId = TMaterialInstanceId::Invalid;
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CSkinnedMeshContainer::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -131,47 +117,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CSkinnedMeshContainerFactory's definition
+	*/
+
 	CSkinnedMeshContainerFactory::CSkinnedMeshContainerFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CSkinnedMeshContainerFactory::Init()
+	IComponent* CSkinnedMeshContainerFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateSkinnedMeshContainer(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CSkinnedMeshContainerFactory::SetupComponent(CSkinnedMeshContainer* pComponent, const TSkinnedMeshContainerParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CSkinnedMeshContainerFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TSkinnedMeshContainerParameters* transformParams = static_cast<const TSkinnedMeshContainerParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateSkinnedMeshContainer(result);
-	}
-
-	IComponent* CSkinnedMeshContainerFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateSkinnedMeshContainer(result);
-	}
-
-	TypeId CSkinnedMeshContainerFactory::GetComponentTypeId() const
-	{
-		return CSkinnedMeshContainer::GetTypeId();
 	}
 
 

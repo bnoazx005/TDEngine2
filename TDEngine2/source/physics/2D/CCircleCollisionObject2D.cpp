@@ -68,47 +68,31 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CCircleCollisionObject2DFactory's definition
+	*/
+
 	CCircleCollisionObject2DFactory::CCircleCollisionObject2DFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CCircleCollisionObject2DFactory::Init()
+	IComponent* CCircleCollisionObject2DFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreateCircleCollisionObject2D(result);
+	}
+
+	E_RESULT_CODE CCircleCollisionObject2DFactory::SetupComponent(CCircleCollisionObject2D* pComponent, const TCircleCollisionObject2DParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetRadius(params.mRadius);
 
 		return RC_OK;
-	}
-
-	IComponent* CCircleCollisionObject2DFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TCircleCollisionObject2DParameters* box2DCollisionParams = static_cast<const TCircleCollisionObject2DParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateCircleCollisionObject2D(result);
-	}
-
-	IComponent* CCircleCollisionObject2DFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateCircleCollisionObject2D(result);
-	}
-
-	TypeId CCircleCollisionObject2DFactory::GetComponentTypeId() const
-	{
-		return CCircleCollisionObject2D::GetTypeId();
 	}
 
 

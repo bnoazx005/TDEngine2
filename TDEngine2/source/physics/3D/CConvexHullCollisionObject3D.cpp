@@ -73,54 +73,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CConvexHullCollisionObject3DFactory's definition
+	*/
+
 	CConvexHullCollisionObject3DFactory::CConvexHullCollisionObject3DFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CConvexHullCollisionObject3DFactory::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IComponent* CConvexHullCollisionObject3DFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TConvexHullCollisionObject3DParameters* box3DCollisionParams = static_cast<const TConvexHullCollisionObject3DParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		if (CConvexHullCollisionObject3D* pConvexHullCollisionObject = dynamic_cast<CConvexHullCollisionObject3D*>(CreateConvexHullCollisionObject3D(result)))
-		{
-		//	pConvexHullCollisionObject->SetSizes(box3DCollisionParams->mExtents);
-
-			return pConvexHullCollisionObject;
-		}
-
-		return nullptr;
-	}
-
-	IComponent* CConvexHullCollisionObject3DFactory::CreateDefault(const TBaseComponentParameters& params) const
+	IComponent* CConvexHullCollisionObject3DFactory::CreateDefault() const
 	{
 		E_RESULT_CODE result = RC_OK;
-
 		return CreateConvexHullCollisionObject3D(result);
 	}
 
-	TypeId CConvexHullCollisionObject3DFactory::GetComponentTypeId() const
+	E_RESULT_CODE CConvexHullCollisionObject3DFactory::SetupComponent(CConvexHullCollisionObject3D* pComponent, const TConvexHullCollisionObject3DParameters& params) const
 	{
-		return CConvexHullCollisionObject3D::GetTypeId();
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return RC_OK;
 	}
 
 

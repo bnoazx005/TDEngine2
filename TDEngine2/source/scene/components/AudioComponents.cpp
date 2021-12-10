@@ -11,18 +11,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CAudioSourceComponent::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CAudioSourceComponent::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -158,61 +146,38 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CAudioSourceComponentFactory's definition
+	*/
+
 	CAudioSourceComponentFactory::CAudioSourceComponentFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CAudioSourceComponentFactory::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IComponent* CAudioSourceComponentFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		CAudioSourceComponent* pAudioSource = dynamic_cast<CAudioSourceComponent*>(CreateAudioSourceComponent(result));
-		if (pAudioSource)
-		{
-			if (const TAudioSourceComponentParameters* params = static_cast<const TAudioSourceComponentParameters*>(pParams))
-			{
-				pAudioSource->SetAudioClipId(params->mAudioClipId);
-				
-				pAudioSource->SetMuted(params->mIsMuted);
-				pAudioSource->SetLooped(params->mIsLooped);
-				pAudioSource->SetPaused(params->mIsPaused);
-
-				pAudioSource->SetVolume(params->mVolume);
-				pAudioSource->SetPanning(params->mPanning);
-			}
-		}
-
-		return pAudioSource;
-	}
-
-	IComponent* CAudioSourceComponentFactory::CreateDefault(const TBaseComponentParameters& params) const
+	IComponent* CAudioSourceComponentFactory::CreateDefault() const
 	{
 		E_RESULT_CODE result = RC_OK;
-
 		return CreateAudioSourceComponent(result);
 	}
 
-	TypeId CAudioSourceComponentFactory::GetComponentTypeId() const
+	E_RESULT_CODE CAudioSourceComponentFactory::SetupComponent(CAudioSourceComponent* pComponent, const TAudioSourceComponentParameters& params) const
 	{
-		return CAudioSourceComponent::GetTypeId();
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pComponent->SetAudioClipId(params.mAudioClipId);
+
+		pComponent->SetMuted(params.mIsMuted);
+		pComponent->SetLooped(params.mIsLooped);
+		pComponent->SetPaused(params.mIsPaused);
+
+		pComponent->SetVolume(params.mVolume);
+		pComponent->SetPanning(params.mPanning);
+
+		return RC_OK;
 	}
 
 

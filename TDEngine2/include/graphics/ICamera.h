@@ -12,6 +12,7 @@
 #include "../ecs/IComponentFactory.h"
 #include "../math/TVector3.h"
 #include "../math/TMatrix4.h"
+#include "../math/MathUtils.h"
 #include "../core/IBaseObject.h"
 
 
@@ -29,9 +30,9 @@ namespace TDEngine2
 
 	typedef struct TBaseCameraParameters : public TBaseComponentParameters
 	{
-		F32 mZNear;
+		F32 mZNear = 0.1f;
 
-		F32 mZFar;
+		F32 mZFar = 1000.0f;
 	} TBaseCameraParameters;
 
 
@@ -199,22 +200,6 @@ namespace TDEngine2
 	{
 		public:
 			/*!
-				\brief The method initializes an internal state of a camera
-
-				\param[in] width A camera's width
-
-				\param[in] height A camera's height
-
-				\param[in] zn Z value of a near clip plane
-
-				\param[in] zf Z value of a far clip plane
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(F32 width, F32 height, F32 zn, F32 zf) = 0;
-
-			/*!
 				\brief The method specifies a camera viewport's width
 				
 				\param[in] width A camera's width
@@ -258,9 +243,9 @@ namespace TDEngine2
 
 	typedef struct TPerspectiveCameraParameters : public TBaseCameraParameters
 	{
-		F32 mFOV;
+		F32 mFOV = CMathConstants::Pi * 0.5f;
 
-		F32 mAspect;
+		F32 mAspect = 1.0f;
 	} TPerspectiveCameraParameters;
 
 
@@ -273,22 +258,6 @@ namespace TDEngine2
 	class IPerspectiveCamera : public virtual ICamera
 	{
 		public:
-			/*!
-				\brief The method initializes an internal state of a camera
-
-				\param[in] fov A field of view of a camera
-
-				\param[in] aspect A screen's aspect ratio
-
-				\param[in] zn Z value of a near clip plane
-
-				\param[in] zf Z value of a far clip plane
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(F32 fov, F32 aspect, F32 zn, F32 zf) = 0;
-
 			/*!
 				\brief The method sets up a field of view of a camera
 

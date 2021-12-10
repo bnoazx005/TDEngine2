@@ -8,18 +8,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CStaticMeshContainer::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CStaticMeshContainer::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -89,47 +77,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CStaticMeshContainerFactory's definition
+	*/
+
 	CStaticMeshContainerFactory::CStaticMeshContainerFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CStaticMeshContainerFactory::Init()
+	IComponent* CStaticMeshContainerFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateStaticMeshContainer(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CStaticMeshContainerFactory::SetupComponent(CStaticMeshContainer* pComponent, const TStaticMeshContainerParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CStaticMeshContainerFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TStaticMeshContainerParameters* transformParams = static_cast<const TStaticMeshContainerParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateStaticMeshContainer(result);
-	}
-
-	IComponent* CStaticMeshContainerFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateStaticMeshContainer(result);
-	}
-
-	TypeId CStaticMeshContainerFactory::GetComponentTypeId() const
-	{
-		return CStaticMeshContainer::GetTypeId();
 	}
 
 

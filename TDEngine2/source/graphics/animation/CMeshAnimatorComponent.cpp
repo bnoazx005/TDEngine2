@@ -211,47 +211,30 @@ namespace TDEngine2
 	}
 
 
+
+	/*!
+		\brief CMeshAnimatorComponentFactory's definition
+	*/
+
 	CMeshAnimatorComponentFactory::CMeshAnimatorComponentFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CMeshAnimatorComponentFactory::Init()
+	IComponent* CMeshAnimatorComponentFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateMeshAnimatorComponent(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CMeshAnimatorComponentFactory::SetupComponent(CMeshAnimatorComponent* pComponent, const TMeshAnimatorComponentParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CMeshAnimatorComponentFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TMeshAnimatorComponentParameters* pAnimatorParams = static_cast<const TMeshAnimatorComponentParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateMeshAnimatorComponent(result);
-	}
-
-	IComponent* CMeshAnimatorComponentFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateMeshAnimatorComponent(result);
-	}
-
-	TypeId CMeshAnimatorComponentFactory::GetComponentTypeId() const
-	{
-		return CMeshAnimatorComponent::GetTypeId();
 	}
 
 

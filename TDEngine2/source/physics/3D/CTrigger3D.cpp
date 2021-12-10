@@ -8,18 +8,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CTrigger3D::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CTrigger3D::Load(IArchiveReader* pReader)
 	{
 		return CBaseComponent::Load(pReader);
@@ -48,47 +36,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CTrigger3DFactory's definition
+	*/
+
 	CTrigger3DFactory::CTrigger3DFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CTrigger3DFactory::Init()
+	IComponent* CTrigger3DFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateTrigger3D(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CTrigger3DFactory::SetupComponent(CTrigger3D* pComponent, const TTrigger3DParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CTrigger3DFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		//const TCircleCollisionObject3DParameters* box3DCollisionParams = static_cast<const TCircleCollisionObject3DParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateTrigger3D(result);
-	}
-
-	IComponent* CTrigger3DFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateTrigger3D(result);
-	}
-
-	TypeId CTrigger3DFactory::GetComponentTypeId() const
-	{
-		return CTrigger3D::GetTypeId();
 	}
 
 

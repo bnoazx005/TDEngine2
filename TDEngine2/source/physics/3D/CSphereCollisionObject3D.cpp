@@ -61,54 +61,31 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CSphereCollisionObject3DFactory's definition
+	*/
+
 	CSphereCollisionObject3DFactory::CSphereCollisionObject3DFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CSphereCollisionObject3DFactory::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IComponent* CSphereCollisionObject3DFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TSphereCollisionObject3DParameters* sphereCollisionParams = static_cast<const TSphereCollisionObject3DParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		if (CSphereCollisionObject3D* pSphereCollisionObject = dynamic_cast<CSphereCollisionObject3D*>(CreateSphereCollisionObject3D(result)))
-		{
-			pSphereCollisionObject->SetRadius(sphereCollisionParams->mRadius);
-
-			return pSphereCollisionObject;
-		}
-
-		return nullptr;
-	}
-
-	IComponent* CSphereCollisionObject3DFactory::CreateDefault(const TBaseComponentParameters& params) const
+	IComponent* CSphereCollisionObject3DFactory::CreateDefault() const
 	{
 		E_RESULT_CODE result = RC_OK;
-
 		return CreateSphereCollisionObject3D(result);
 	}
 
-	TypeId CSphereCollisionObject3DFactory::GetComponentTypeId() const
+	E_RESULT_CODE CSphereCollisionObject3DFactory::SetupComponent(CSphereCollisionObject3D* pComponent, const TSphereCollisionObject3DParameters& params) const
 	{
-		return CSphereCollisionObject3D::GetTypeId();
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pComponent->SetRadius(params.mRadius);
+
+		return RC_OK;
 	}
 
 

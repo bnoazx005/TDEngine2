@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../ICollisionObject.h"
-#include "./../../ecs/IComponentFactory.h"
+#include "../ICollisionObject.h"
+#include "../../ecs/IComponentFactory.h"
 #include <functional>
 #include "Box2D.h"
 
@@ -28,14 +28,6 @@ namespace TDEngine2
 	class ICollisionObject2D: public ICollisionObject
 	{
 		public:
-			/*!
-				\brief The method initializes an internal state of a component
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
-
 			/*!
 				\brief The method returns a rvalue reference to internal representation of a collision 
 				shape that is used by Box2D physics engine

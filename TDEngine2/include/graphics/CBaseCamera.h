@@ -132,8 +132,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCamera)
 
-			TDE2_API E_RESULT_CODE _initInternal();
-
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			F32       mZNear;
@@ -257,14 +255,6 @@ namespace TDEngine2
 			public:
 				TDE2_REGISTER_COMPONENT_TYPE(CCamerasContextComponent)
 
-				/*!
-					\brief The method initializes an internal state of a factory
-
-					\return RC_OK if everything went ok, or some other code, which describes an error
-				*/
-
-				TDE2_API E_RESULT_CODE Init();
-
 				TDE2_API void SetActiveCameraEntity(TEntityId entityId);
 				TDE2_API E_RESULT_CODE RestorePreviousCameraEntity();
 
@@ -277,68 +267,7 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		\brief A factory function for creation objects of CCamerasContextFactory's type.
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CCamerasContextFactory's implementation
-	*/
-
-	TDE2_API IComponentFactory* CreateCamerasContextFactory(E_RESULT_CODE& result);
-
-
-	/*!
-		class CCamerasContextFactory
-
-		\brief The interface represents a functionality of a factory of ICamerasContext objects
-	*/
-
-	class CCamerasContextFactory : public IGenericComponentFactory<>, public CBaseObject
-	{
-		public:
-			friend TDE2_API IComponentFactory* CreateCamerasContextFactory(E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method initializes an internal state of a factory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
-				\return A pointer to a new instance of IComponent type
-			*/
-
-			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;
-
-			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
-				\return A pointer to a new instance of IComponent type
-			*/
-
-			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;
-
-			/*!
-				\brief The method returns an identifier of a component's type, which
-				the factory serves
-
-				\return The method returns an identifier of a component's type, which
-				the factory serves
-			*/
-
-			TDE2_API TypeId GetComponentTypeId() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCamerasContextFactory)
-	};
+	TDE2_DECLARE_COMPONENT_FACTORY(CamerasContextComponent, TCamerasContextParameters);
 
 
 #if TDE2_EDITORS_ENABLED

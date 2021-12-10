@@ -9,23 +9,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COrthoCamera::Init(F32 width, F32 height, F32 zn, F32 zf)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mWidth  = width;
-		mHeight = height;
-		mZNear  = zn;
-		mZFar   = zf;
-
-		mIsInitialized = true;
-
-		return _initInternal();
-	}
-
 	E_RESULT_CODE COrthoCamera::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -94,54 +77,40 @@ namespace TDEngine2
 	}
 
 
-	IComponent* CreateOrthoCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result)
+	IComponent* CreateOrthoCamera(E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IComponent, COrthoCamera, result, fov, aspect, zn, zf);
+		return CREATE_IMPL(IComponent, COrthoCamera, result);
 	}
 
+
+	/*!
+		\brief COrthoCameraFactory's definition
+	*/
 
 	COrthoCameraFactory::COrthoCameraFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE COrthoCameraFactory::Init()
+	IComponent* COrthoCameraFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreateOrthoCamera(result);
+	}
+
+	E_RESULT_CODE COrthoCameraFactory::SetupComponent(COrthoCamera* pComponent, const TOrthoCameraParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetWidth(params.mViewportWidth);
+		pComponent->SetHeight(params.mViewportHeight);
+		pComponent->SetNearPlane(params.mZNear);
+		pComponent->SetFarPlane(params.mZFar);
 
 		return RC_OK;
-	}
-
-	IComponent* COrthoCameraFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TOrthoCameraParameters* cameraParams = static_cast<const TOrthoCameraParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateOrthoCamera(cameraParams->mViewportWidth, cameraParams->mViewportHeight, cameraParams->mZNear, cameraParams->mZFar, result);
-	}
-
-	IComponent* COrthoCameraFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		/// \todo refactor this fragment
-		return CreateOrthoCamera(8.0f, 5.0f, 1.0f, 1000.0f, result);
-	}
-
-	TypeId COrthoCameraFactory::GetComponentTypeId() const
-	{
-		return COrthoCamera::GetTypeId();
 	}
 
 

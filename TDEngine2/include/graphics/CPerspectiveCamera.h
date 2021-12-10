@@ -15,21 +15,13 @@ namespace TDEngine2
 {
 	/*!
 		\brief A factory function for creation objects of CPerspectiveCamera's type
-
-		\param[in] fov A field of view of a camera
-
-		\param[in] aspect A screen's aspect ratio
-
-		\param[in] zn Z value of a near clip plane
-
-		\param[in] zf Z value of a far clip plane
-
+		
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CPerspectiveCamera's implementation
 	*/
 
-	TDE2_API IComponent* CreatePerspectiveCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result);
+	TDE2_API IComponent* CreatePerspectiveCamera(E_RESULT_CODE& result);
 
 
 	/*!
@@ -41,25 +33,9 @@ namespace TDEngine2
 	class CPerspectiveCamera : public CBaseCamera, public IPerspectiveCamera
 	{
 		public:
-			friend TDE2_API IComponent* CreatePerspectiveCamera(F32 fov, F32 aspect, F32 zn, F32 zf, E_RESULT_CODE& result);
+			friend TDE2_API IComponent* CreatePerspectiveCamera(E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CPerspectiveCamera)
-
-			/*!
-				\brief The method initializes an internal state of a camera
-
-				\param[in] fov A field of view of a camera
-
-				\param[in] aspect A screen's aspect ratio
-
-				\param[in] zn Z value of a near clip plane
-
-				\param[in] zf Z value of a far clip plane
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(F32 fov, F32 aspect, F32 zn, F32 zf) override;
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -140,66 +116,5 @@ namespace TDEngine2
 	};
 
 
-	/*!
-		\brief A factory function for creation objects of CPerspectiveCameraFactory's type.
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CPerspectiveCameraFactory's implementation
-	*/
-
-	TDE2_API IComponentFactory* CreatePerspectiveCameraFactory(E_RESULT_CODE& result);
-
-
-	/*!
-		class CPerspectiveCameraFactory
-
-		\brief The interface represents a functionality of a factory of IPerspectiveCamera objects
-	*/
-
-	class CPerspectiveCameraFactory : public ICameraFactory, public CBaseObject
-	{
-		public:
-			friend TDE2_API IComponentFactory* CreatePerspectiveCameraFactory(E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method initializes an internal state of a factory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
-				\return A pointer to a new instance of IComponent type
-			*/
-
-			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;
-
-			/*!
-				\brief The method creates a new instance of a component based on passed parameters
-
-				\param[in] pParams An object that contains parameters that are needed for the component's creation
-
-				\return A pointer to a new instance of IComponent type
-			*/
-
-			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;
-
-			/*!
-				\brief The method returns an identifier of a component's type, which
-				the factory serves
-
-				\return The method returns an identifier of a component's type, which
-				the factory serves
-			*/
-
-			TDE2_API TypeId GetComponentTypeId() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPerspectiveCameraFactory)
-	};
+	TDE2_DECLARE_COMPONENT_FACTORY(PerspectiveCamera, TPerspectiveCameraParameters);
 }

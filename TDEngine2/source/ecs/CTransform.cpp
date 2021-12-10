@@ -7,24 +7,13 @@
 namespace TDEngine2
 {
 	CTransform::CTransform() :
-		CBaseComponent(), mLocalToWorldMatrix(IdentityMatrix4), mHasChanged(true)
+		CBaseComponent(), 
+		mLocalToWorldMatrix(IdentityMatrix4), 
+		mHasChanged(true),
+		mPosition(ZeroVector3),
+		mRotation(UnitQuaternion),
+		mScale(1.0f)
 	{
-	}
-
-	E_RESULT_CODE CTransform::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mPosition = ZeroVector3;
-		mRotation = UnitQuaternion;
-		mScale    = TVector3(1.0f);
-		
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CTransform::Load(IArchiveReader* pReader)

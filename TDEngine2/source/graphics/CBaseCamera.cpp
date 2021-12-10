@@ -51,6 +51,12 @@ namespace TDEngine2
 		mViewProjMatrix    = viewProjMatrix;
 		mInvViewProjMatrix = Inverse(viewProjMatrix);
 
+		if (!mpCameraFrustum)
+		{
+			E_RESULT_CODE result = RC_OK;
+			mpCameraFrustum = CreateFrustum(result);
+		}
+
 		if (mpCameraFrustum)
 		{
 			TDE2_ASSERT(mpCameraFrustum->ComputeBounds(mInvViewProjMatrix, zNDCMin) == RC_OK);
@@ -100,21 +106,6 @@ namespace TDEngine2
 	IFrustum* CBaseCamera::GetFrustum() const
 	{
 		return mpCameraFrustum;
-	}
-
-	E_RESULT_CODE CBaseCamera::_initInternal()
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		mpCameraFrustum = CreateFrustum(result);
-
-		if (result != RC_OK)
-		{
-			mIsInitialized = false;
-			return result;
-		}
-
-		return RC_OK;
 	}
 
 	
@@ -250,18 +241,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CCamerasContextComponent::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	void CCamerasContextComponent::SetActiveCameraEntity(TEntityId entityId)
 	{
 		mPrevCameraEntityId = mActiveCameraEntityId;
@@ -293,65 +272,37 @@ namespace TDEngine2
 
 
 	/*!
-		\brief CCamerasContextFactory's definition
+		\brief CCamerasContextCameraFactory's definition
 	*/
 
-	CCamerasContextFactory::CCamerasContextFactory() :
-		CBaseObject()
+	CCamerasContextComponentFactory::CCamerasContextComponentFactory() :
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CCamerasContextFactory::Init()
+	IComponent* CCamerasContextComponentFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreateCamerasContextComponent(result);
+	}
+
+	E_RESULT_CODE CCamerasContextComponentFactory::SetupComponent(CCamerasContextComponent* pComponent, const TCamerasContextParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetActiveCameraEntity(params.mActiveCameraEntityId);
 
 		return RC_OK;
 	}
 
-	IComponent* CCamerasContextFactory::Create(const TBaseComponentParameters* pParams) const
+
+	IComponentFactory* CreateCamerasContextComponentFactory(E_RESULT_CODE& result)
 	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TCamerasContextParameters* cameraParams = static_cast<const TCamerasContextParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		if (auto pCamerasContext = CreateCamerasContextComponent(result))
-		{
-			pCamerasContext->SetActiveCameraEntity(cameraParams->mActiveCameraEntityId);
-
-			return pCamerasContext;
-		}
-
-		return nullptr;
+		return CREATE_IMPL(IComponentFactory, CCamerasContextComponentFactory, result);
 	}
-
-	IComponent* CCamerasContextFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-		
-		return CreateCamerasContextComponent(result);
-	}
-
-	TypeId CCamerasContextFactory::GetComponentTypeId() const
-	{
-		return CCamerasContextComponent::GetTypeId();
-	}
-
-
-	IComponentFactory* CreateCamerasContextFactory(E_RESULT_CODE& result)
-	{
-		return CREATE_IMPL(IComponentFactory, CCamerasContextFactory, result);
-	}
-
 
 
 #if TDE2_EDITORS_ENABLED

@@ -9,23 +9,8 @@ namespace TDEngine2
 
 
 	CInputReceiver::CInputReceiver() :
-		CBaseComponent()
+		CBaseComponent(), mIsClicked(false), mIsIgnoreInput(false)
 	{
-	}
-
-	E_RESULT_CODE CInputReceiver::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsClicked = false;
-		mIsIgnoreInput = false;
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CInputReceiver::Load(IArchiveReader* pReader)
@@ -75,47 +60,29 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CInputReceiverFactory's definition
+	*/
+
 	CInputReceiverFactory::CInputReceiverFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CInputReceiverFactory::Init()
+	IComponent* CInputReceiverFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
+		E_RESULT_CODE result = RC_OK;
+		return CreateInputReceiver(result);
+	}
 
-		mIsInitialized = true;
+	E_RESULT_CODE CInputReceiverFactory::SetupComponent(CInputReceiver* pComponent, const TInputReceiverParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
 
 		return RC_OK;
-	}
-
-	IComponent* CInputReceiverFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TInputReceiverParameters* params = static_cast<const TInputReceiverParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateInputReceiver(result);
-	}
-
-	IComponent* CInputReceiverFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreateInputReceiver(result);
-	}
-
-	TypeId CInputReceiverFactory::GetComponentTypeId() const
-	{
-		return CInputReceiver::GetTypeId();
 	}
 
 

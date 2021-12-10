@@ -72,54 +72,31 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CBoxCollisionObject3DFactory's definition
+	*/
+
 	CBoxCollisionObject3DFactory::CBoxCollisionObject3DFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CBoxCollisionObject3DFactory::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IComponent* CBoxCollisionObject3DFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TBoxCollisionObject3DParameters* box3DCollisionParams = static_cast<const TBoxCollisionObject3DParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		if (CBoxCollisionObject3D* pBoxCollisionObject = dynamic_cast<CBoxCollisionObject3D*>(CreateBoxCollisionObject3D(result)))
-		{
-			pBoxCollisionObject->SetSizes(box3DCollisionParams->mExtents);
-
-			return pBoxCollisionObject;
-		}
-
-		return nullptr;
-	}
-
-	IComponent* CBoxCollisionObject3DFactory::CreateDefault(const TBaseComponentParameters& params) const
+	IComponent* CBoxCollisionObject3DFactory::CreateDefault() const
 	{
 		E_RESULT_CODE result = RC_OK;
-
 		return CreateBoxCollisionObject3D(result);
 	}
 
-	TypeId CBoxCollisionObject3DFactory::GetComponentTypeId() const
+	E_RESULT_CODE CBoxCollisionObject3DFactory::SetupComponent(CBoxCollisionObject3D* pComponent, const TBoxCollisionObject3DParameters& params) const
 	{
-		return CBoxCollisionObject3D::GetTypeId();
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pComponent->SetSizes(params.mExtents);
+
+		return RC_OK;
 	}
 
 

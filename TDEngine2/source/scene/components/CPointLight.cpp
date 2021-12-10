@@ -8,18 +8,6 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CPointLight::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
 	E_RESULT_CODE CPointLight::Load(IArchiveReader* pReader)
 	{
 		if (!pReader)
@@ -73,47 +61,33 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CPointLightFactory's definition
+	*/
+
 	CPointLightFactory::CPointLightFactory() :
-		CBaseObject()
+		CBaseComponentFactory()
 	{
 	}
 
-	E_RESULT_CODE CPointLightFactory::Init()
+	IComponent* CPointLightFactory::CreateDefault() const
 	{
-		if (mIsInitialized)
+		E_RESULT_CODE result = RC_OK;
+		return CreatePointLight(result);
+	}
+
+	E_RESULT_CODE CPointLightFactory::SetupComponent(CPointLight* pComponent, const TPointLightParameters& params) const
+	{
+		if (!pComponent)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
-		mIsInitialized = true;
+		pComponent->SetColor(params.mColor);
+		pComponent->SetIntensity(params.mIntensity);
+		pComponent->SetRange(params.mRange);
 
 		return RC_OK;
-	}
-
-	IComponent* CPointLightFactory::Create(const TBaseComponentParameters* pParams) const
-	{
-		if (!pParams)
-		{
-			return nullptr;
-		}
-
-		const TPointLightParameters* pPointLightParams = static_cast<const TPointLightParameters*>(pParams);
-
-		E_RESULT_CODE result = RC_OK;
-
-		return CreatePointLight(result);
-	}
-
-	IComponent* CPointLightFactory::CreateDefault(const TBaseComponentParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return CreatePointLight(result);
-	}
-
-	TypeId CPointLightFactory::GetComponentTypeId() const
-	{
-		return CPointLight::GetTypeId();
 	}
 
 

@@ -38,6 +38,14 @@ namespace TDEngine2
 			TDE2_REGISTER_TYPE(CBaseComponent)
 
 			/*!
+				\brief The method initializes an internal state of an object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init() override;
+
+			/*!
 				\brief The method deserializes object's state from given reader
 
 				\param[in, out] pReader An input stream of data that contains information about the object
@@ -229,130 +237,6 @@ namespace TDEngine2
 #define TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName)	Create ## ComponentName ## Factory
 	
 
-#define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)	\
-	TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE& result);															\
-																															\
-	class ComponentName : public CBaseComponent																				\
-	{																														\
-		public:																												\
-			friend TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE&);													\
-			TDE2_REGISTER_COMPONENT_TYPE(ComponentName)																		\
-																															\
-			TDE2_API E_RESULT_CODE Init();																					\
-																															\
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;													\
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;													\
-		protected:																											\
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)															\
-	};																														\
-																															\
-	TDE2_API IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE&);													\
-																															\
-	class ComponentFactoryName : public IComponentFactory, public CBaseObject												\
-	{																														\
-		public:																												\
-			friend TDE2_API IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE& result);								\
-		public:																												\
-			TDE2_API E_RESULT_CODE Init();																					\
-																															\
-			TDE2_API IComponent* Create(const TBaseComponentParameters* pParams) const override;							\
-			TDE2_API IComponent* CreateDefault(const TBaseComponentParameters& params) const override;						\
-			TDE2_API TypeId GetComponentTypeId() const override;															\
-		protected:																											\
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentFactoryName)													\
-	};
-
-/*!
-	\brief The macro is used to define so called component-flag which just marks an entity and doesn't
-	contain any data
-*/
-
-#define TDE2_DECLARE_FLAG_COMPONENT(ComponentName) TDE2_DECLARE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),				\
-																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
-																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
-																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
-
-	/*!
-		\brief The macro is used to define all methods which were declared using TDE2_DECLARE_FLAG_COMPONENT.
-		Note that the macro should be invoked only within *.cpp files to avoid circular dependencies
-	*/
-
-#define TDE2_DEFINE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)								\
-	ComponentName::ComponentName() : CBaseComponent() { }																								\
-																																						\
-	E_RESULT_CODE ComponentName::Init()																													\
-	{ 																																					\
-		mIsInitialized = true;																															\
-		return RC_OK;																																	\
-	}																																					\
-																																						\
-	E_RESULT_CODE ComponentName::Load(IArchiveReader* pReader)																							\
-	{																																					\
-		return CBaseComponent::Load(pReader);																											\
-	}																																					\
-																																						\
-	E_RESULT_CODE ComponentName::Save(IArchiveWriter* pWriter)																							\
-	{																																					\
-		if (!pWriter)																																	\
-		{																																				\
-			return RC_FAIL;																																\
-		}																																				\
-																																						\
-		pWriter->BeginGroup("component");																												\
-		pWriter->SetUInt32("type_id", static_cast<U32>(ComponentName::GetTypeId()));																	\
-		pWriter->EndGroup();																															\
-																																						\
-		return RC_OK;																																	\
-	}																																					\
-																																						\
-	IComponent* ComponentFuncName(E_RESULT_CODE& result)																								\
-	{																																					\
-		return CREATE_IMPL(IComponent, ComponentName, result);																							\
-	}																																					\
-																																						\
-	ComponentFactoryName::ComponentFactoryName() :	CBaseObject() { }																					\
-																																						\
-	E_RESULT_CODE ComponentFactoryName::Init()																											\
-	{ 																																					\
-		mIsInitialized = true;																															\
-		return RC_OK;																																	\
-	}																																					\
-																																						\
-	IComponent* ComponentFactoryName::Create(const TBaseComponentParameters* pParams) const																\
-	{																																					\
-		if (!pParams)																																	\
-		{																																				\
-			return nullptr;																																\
-		}																																				\
-																																						\
-		E_RESULT_CODE result = RC_OK;																													\
-		return ComponentFuncName(result);																												\
-	}																																					\
-																																						\
-	IComponent* ComponentFactoryName::CreateDefault(const TBaseComponentParameters& params) const														\
-	{																																					\
-		E_RESULT_CODE result = RC_OK;																													\
-		return ComponentFuncName(result);																												\
-	}																																					\
-																																						\
-	TypeId ComponentFactoryName::GetComponentTypeId() const																								\
-	{																																					\
-		return ComponentName::GetTypeId();																												\
-	}																																					\
-																																						\
-	IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE& result)																					\
-	{																																					\
-		return CREATE_IMPL(IComponentFactory, ComponentFactoryName, result);																			\
-	}
-
-
-#define TDE2_DEFINE_FLAG_COMPONENT(ComponentName) TDE2_DEFINE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),					\
-																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
-																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
-																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
-
-	
-
 	/*!
 		\brief The template is used to declare concrete component factories
 	*/
@@ -421,4 +305,127 @@ namespace TDEngine2
 		CBaseObject()
 	{
 	}
+
+
+#define TDE2_DECLARE_COMPONENT_FACTORY_IMPL(ComponentName, ComponentParamsType, ComponentFactoryName, ComponentFactoryFunctor)		\
+	TDE2_API IComponentFactory* ComponentFactoryFunctor(E_RESULT_CODE& result);							\
+																																	\
+	class ComponentFactoryName : public CBaseComponentFactory<ComponentName, ComponentParamsType>									\
+	{																																\
+		public:																														\
+			friend TDE2_API IComponentFactory* ComponentFactoryFunctor(E_RESULT_CODE&);												\
+																																	\
+			TDE2_API IComponent* CreateDefault() const override;																	\
+			TDE2_API E_RESULT_CODE SetupComponent(ComponentName* pComponent, const ComponentParamsType& params) const override;		\
+		protected:																													\
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentFactoryName)															\
+	}
+
+#define TDE2_DECLARE_COMPONENT_FACTORY(ComponentName, ComponentParamsType) \
+	TDE2_DECLARE_COMPONENT_FACTORY_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName), ComponentParamsType, TDE2_COMPONENT_FACTORY_NAME(ComponentName), TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
+
+
+	/*!
+		\brief Macros to declare component flags
+	*/
+
+
+#define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)			\
+	TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE& result);																	\
+																																	\
+	class ComponentName : public CBaseComponent																						\
+	{																																\
+		public:																														\
+			friend TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE&);															\
+			TDE2_REGISTER_COMPONENT_TYPE(ComponentName)																				\
+																																	\
+			TDE2_API E_RESULT_CODE Init();																							\
+																																	\
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;															\
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;															\
+		protected:																													\
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)																	\
+	};																																\
+																																	\
+	TDE2_DECLARE_COMPONENT_FACTORY_IMPL(ComponentName, TBaseComponentParameters, ComponentFactoryName, ComponentFactoryFuncName);
+
+	/*!
+		\brief The macro is used to define so called component-flag which just marks an entity and doesn't
+		contain any data
+	*/
+
+#define TDE2_DECLARE_FLAG_COMPONENT(ComponentName) TDE2_DECLARE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),				\
+																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
+																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
+																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
+
+	/*!
+		\brief The macro is used to define all methods which were declared using TDE2_DECLARE_FLAG_COMPONENT.
+		Note that the macro should be invoked only within *.cpp files to avoid circular dependencies
+	*/
+
+#define TDE2_DEFINE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)								\
+	ComponentName::ComponentName() : CBaseComponent() { }																								\
+																																						\
+	E_RESULT_CODE ComponentName::Init()																													\
+	{ 																																					\
+		mIsInitialized = true;																															\
+		return RC_OK;																																	\
+	}																																					\
+																																						\
+	E_RESULT_CODE ComponentName::Load(IArchiveReader* pReader)																							\
+	{																																					\
+		return CBaseComponent::Load(pReader);																											\
+	}																																					\
+																																						\
+	E_RESULT_CODE ComponentName::Save(IArchiveWriter* pWriter)																							\
+	{																																					\
+		if (!pWriter)																																	\
+		{																																				\
+			return RC_FAIL;																																\
+		}																																				\
+																																						\
+		pWriter->BeginGroup("component");																												\
+		pWriter->SetUInt32("type_id", static_cast<U32>(ComponentName::GetTypeId()));																	\
+		pWriter->EndGroup();																															\
+																																						\
+		return RC_OK;																																	\
+	}																																					\
+																																						\
+	IComponent* ComponentFuncName(E_RESULT_CODE& result)																								\
+	{																																					\
+		return CREATE_IMPL(IComponent, ComponentName, result);																							\
+	}																																					\
+																																						\
+	ComponentFactoryName::ComponentFactoryName(): CBaseComponentFactory() { }																			\
+																																						\
+	IComponent* ComponentFactoryName::CreateDefault() const																								\
+	{																																					\
+		E_RESULT_CODE result = RC_OK;																													\
+		return ComponentFuncName(result);																												\
+	}																																					\
+																																						\
+	E_RESULT_CODE ComponentFactoryName::SetupComponent(ComponentName* pComponent, const TBaseComponentParameters& params) const							\
+	{																																					\
+		if (!pComponent)																																\
+		{																																				\
+			return RC_INVALID_ARGS;																														\
+		}																																				\
+																																						\
+		return RC_OK;																																	\
+	}																																					\
+																																						\
+	IComponentFactory* ComponentFactoryFuncName(E_RESULT_CODE& result)																					\
+	{																																					\
+		return CREATE_IMPL(IComponentFactory, ComponentFactoryName, result);																			\
+	}																					
+
+
+#define TDE2_DEFINE_FLAG_COMPONENT(ComponentName) TDE2_DEFINE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),					\
+																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
+																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
+																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
+
+
+
 }

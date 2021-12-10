@@ -27,14 +27,6 @@ namespace TDEngine2
 	{
 		public:
 			/*!
-				\brief The method initializes an internal state of a transform
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
-
-			/*!
 				\brief The method resets all values of this transform
 			*/
 
