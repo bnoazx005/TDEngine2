@@ -529,7 +529,7 @@ add_subdirectory(deps)
 add_library(${TDENGINE2_LIBRARY_NAME} SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS} ${TDENGINE2_CGEN_HEADER})
 
 
-if (OPTICK_PROFILER_ENABLED)
+if (OPTICK_PROFILER_ENABLED AND MSVC)
 	add_definitions(-DOPTICK_EXPORT)
 	add_subdirectory(deps/optick)	
 	

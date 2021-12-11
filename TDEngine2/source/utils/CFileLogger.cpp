@@ -26,7 +26,9 @@ namespace TDEngine2
 		/// \note Main logger's thread
 		std::thread([this] 
 		{
+#ifdef TDE2_USE_WINPLATFORM
 			OPTICK_THREAD("FileLoggerThread");
+#endif
 
 			while (true)
 			{

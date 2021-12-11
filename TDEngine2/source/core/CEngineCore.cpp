@@ -50,7 +50,9 @@
 #include <cstring>
 #include <algorithm>
 #include "deferOperation.hpp"
-#include "optick.h"
+#ifdef TDE2_USEWINPLATFORM
+	#include "optick.h"
+#endif
 
 
 namespace TDEngine2
@@ -310,7 +312,9 @@ namespace TDEngine2
 		CPerfProfiler::Get()->BeginFrame();
 		CMemoryProfiler::Get()->BeginFrame();
 
-		OPTICK_FRAME("MainThread");
+	#ifdef TDE2_USE_WINPLATFORM
+			OPTICK_FRAME("MainThread");
+	#endif
 #endif
 
 		if (mpInputContext)

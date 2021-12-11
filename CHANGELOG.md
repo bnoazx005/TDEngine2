@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.22] 2021-12-09
+## [0.5.23] 2021-12-11
+
+
+
+## [0.5.22] 2021-12-01
 
 ### Changed
 
 - The implementation of component factories was totally refactored to simplify creation of new ones.
+
+### Fixed
+
+- Optick is now available only under MSVC compiler.
 
 ## [0.5.21] 2021-12-08
 
