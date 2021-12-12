@@ -9,7 +9,9 @@
 namespace TDEngine2
 {
 	CBaseCamera::CBaseCamera():
-		CBaseComponent()
+		CBaseComponent(),
+		mZNear(0.1f),
+		mZFar(1000.f)
 	{
 	}
 

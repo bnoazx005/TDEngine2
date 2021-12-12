@@ -44,44 +44,7 @@ namespace TDEngine2
 
 	void CCameraSystem::InjectBindings(IWorld* pWorld)
 	{
-		std::vector<TEntityId> perspectiveCameras  = pWorld->FindEntitiesWithComponents<CTransform, CPerspectiveCamera>();
-		std::vector<TEntityId> orthographicCameras = pWorld->FindEntitiesWithComponents<CTransform, COrthoCamera>();
-
-		mCamerasTransforms.clear();
-
-		mCameras.clear();
-
-		CEntity* pCurrEntity = nullptr;
-
-		/// \todo refactor and clean up this code after refactoring Typing system
-		for (auto iter = perspectiveCameras.begin(); iter != perspectiveCameras.end(); ++iter)
-		{
-			pCurrEntity = pWorld->FindEntity(*iter);
-
-			if (!pCurrEntity)
-			{
-				continue;
-			}
-
-			mCamerasTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
-
-			mCameras.push_back(pCurrEntity->GetComponent<CPerspectiveCamera>());
-		}
-
-		/// \todo refactor and clean up this code after refactoring Typing system
-		for (auto iter = orthographicCameras.begin(); iter != orthographicCameras.end(); ++iter)
-		{
-			pCurrEntity = pWorld->FindEntity(*iter);
-
-			if (!pCurrEntity)
-			{
-				continue;
-			}
-
-			mCamerasTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
-
-			mCameras.push_back(pCurrEntity->GetComponent<COrthoCamera>());
-		}
+		mCamerasEntities = pWorld->FindEntitiesWithAny<COrthoCamera, CPerspectiveCamera>();
 	}
 
 	void CCameraSystem::Update(IWorld* pWorld, F32 dt)
@@ -95,11 +58,23 @@ namespace TDEngine2
 		const F32 graphicsCtxPositiveZAxisDirection = mpGraphicsContext->GetPositiveZAxisDirection();
 		const F32 ndcZmin = mpGraphicsContext->GetContextInfo().mNDCBox.min.z;
 
-		for (U32 i = 0; i < mCameras.size(); ++i)
-		{
-			pCurrCamera = mCameras[i];
+		CEntity* pCurrEntity = nullptr;
 
-			pCurrTransform = mCamerasTransforms[i];
+		for (TEntityId currEntityId : mCamerasEntities)
+		{
+			pCurrEntity = pWorld->FindEntity(currEntityId);
+			if (!pCurrEntity)
+			{
+				continue;
+			}
+
+			pCurrCamera = pCurrEntity->GetComponent<CPerspectiveCamera>();
+			if (!pCurrCamera)
+			{
+				pCurrCamera = pCurrEntity->GetComponent<COrthoCamera>();
+			}
+
+			pCurrTransform = pCurrEntity->GetComponent<CTransform>();
 
 			TMatrix4 viewMatrix = pCurrTransform->GetLocalToWorldTransform();
 

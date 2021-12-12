@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../core/CBaseObject.h"
-#include "./../ecs/IComponentManager.h"
+#include "../core/CBaseObject.h"
+#include "../ecs/IComponentManager.h"
 #include "../utils/Utils.h"
 #include <vector>
 #include <list>

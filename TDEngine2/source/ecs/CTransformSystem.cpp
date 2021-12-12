@@ -74,6 +74,19 @@ namespace TDEngine2
 		}
 	}
 
+
+	static bool HasParentEntityTransformChanged(IWorld* pWorld, TEntityId id)
+	{
+		if (CEntity* pEntity = pWorld->FindEntity(id))
+		{
+			CTransform* pTransform = pEntity->GetComponent<CTransform>();
+			return pTransform->HasChanged();
+		}
+
+		return false;
+	}
+
+
 	void CTransformSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CTransformSystem::Update");
@@ -86,7 +99,7 @@ namespace TDEngine2
 
 				const TEntityId parentEntityId = pTransform->GetParent();
 
-				if (!pTransform->HasChanged() && !_hasParentEntityTransformChanged(pWorld, parentEntityId))
+				if (!pTransform->HasChanged() && !HasParentEntityTransformChanged(pWorld, parentEntityId))
 				{
 					continue;
 				}
@@ -133,17 +146,6 @@ namespace TDEngine2
 				pTransform->SetDirtyFlag(false);
 			}
 		}
-	}
-
-	bool CTransformSystem::_hasParentEntityTransformChanged(IWorld* pWorld, TEntityId id)
-	{
-		if (CEntity* pEntity = pWorld->FindEntity(id))
-		{
-			CTransform* pTransform = pEntity->GetComponent<CTransform>();
-			return pTransform->HasChanged();
-		}
-
-		return false;
 	}
 
 

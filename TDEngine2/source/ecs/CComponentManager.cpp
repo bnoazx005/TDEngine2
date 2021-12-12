@@ -478,60 +478,17 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TypeId builtinComponentTypes[] =
+		for (auto&& pCurrFactory : mComponentFactories)
 		{
-			CTransform::GetTypeId(),
-			CQuadSprite::GetTypeId(),
-			CPerspectiveCamera::GetTypeId(),
-			COrthoCamera::GetTypeId(),
-			CCamerasContextComponent::GetTypeId(),
-			CBoxCollisionObject2D::GetTypeId(),
-			CCircleCollisionObject2D::GetTypeId(),
-			CTrigger2D::GetTypeId(),
-			CMeshAnimatorComponent::GetTypeId(),
-			CStaticMeshContainer::GetTypeId(),
-			CSkinnedMeshContainer::GetTypeId(),
-			CBoxCollisionObject3D::GetTypeId(),
-			CSphereCollisionObject3D::GetTypeId(),
-			CConvexHullCollisionObject3D::GetTypeId(),
-			CTrigger3D::GetTypeId(),
-			CBoundsComponent::GetTypeId(),
-			CDirectionalLight::GetTypeId(),
-			CPointLight::GetTypeId(),
-			CShadowCasterComponent::GetTypeId(),
-			CShadowReceiverComponent::GetTypeId(),
-			CAudioListenerComponent::GetTypeId(),
-			CAudioSourceComponent::GetTypeId(),
-			CAnimationContainerComponent::GetTypeId(),
-			CSkyboxComponent::GetTypeId(),
-			CParticleEmitter::GetTypeId(),
-			CLayoutElement::GetTypeId(),
-			CCanvas::GetTypeId(),
-			CUIElementMeshData::GetTypeId(),
-			CImage::GetTypeId(),
-			CInputReceiver::GetTypeId(),
-			CLabel::GetTypeId(),
-#if TDE2_EDITORS_ENABLED
-			CSelectedEntityComponent::GetTypeId(),
-			CSceneInfoComponent::GetTypeId(),
-			CEditorCamera::GetTypeId(),
-#endif
-			//etc
-		};
-
-		IComponentFactory* pCurrFactory = nullptr;
-
-		for (TypeId currComponentType : builtinComponentTypes)
-		{
-			result = _unregisterFactory(currComponentType);
-
-			if (result != RC_OK)
+			if (!pCurrFactory)
 			{
-				return result;
+				continue;
 			}
+
+			result = result | _unregisterFactory(pCurrFactory->GetComponentTypeId());
 		}
 
-		return RC_OK;
+		return result;
 	}
 
 	bool CComponentManager::_hasComponent(TypeId componentTypeId, TEntityId entityId)

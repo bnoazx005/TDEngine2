@@ -38,7 +38,7 @@ namespace TDEngine2
 	class CTransformSystem: public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateTransformSystem(IGraphicsContext*, E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateTransformSystem(IGraphicsContext*, E_RESULT_CODE&);
 		public:
 			TDE2_SYSTEM(CTransformSystem);
 
@@ -72,10 +72,8 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransformSystem)
-
-			TDE2_API static bool _hasParentEntityTransformChanged(IWorld* pWorld, TEntityId id);
 		protected:
-			std::vector<TEntityId> mTransformEntities;
+			TEntitiesArray    mTransformEntities;
 
 			IGraphicsContext* mpGraphicsContext;
 	};
