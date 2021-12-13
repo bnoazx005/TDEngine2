@@ -99,7 +99,6 @@ namespace TDEngine2
 		EST_JOB_MANAGER,				/// A subsystem represents a thread pool
 		EST_PLUGIN_MANAGER,				/// A subsystem represents a plugin manager
 		EST_EVENT_MANAGER,				/// A subsystem provides a centralized event bus
-		EST_MEMORY_MANAGER,				/// A subsystem represents a global memory manager
 		EST_RENDERER,					/// A subsystem represents a renderer
 		EST_INPUT_CONTEXT,				/// A subsystem represents a low-level input system
 		EST_IMGUI_CONTEXT,				/// A subsystem represents an immediate mode GUI system

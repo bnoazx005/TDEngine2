@@ -114,17 +114,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _configureEventManager() = 0;
 
 			/*!
-				\brief The method trie tot configure a memory manager
-
-				\param[in] totalMemorySize A size in bytes of a global memory block that
-				will be allocated
-
-				\return The method trie tot configure a memory manager
-			*/
-
-			TDE2_API virtual E_RESULT_CODE _configureMemoryManager(U32 totalMemorySize) = 0;
-
-			/*!
 				\brief The method tries to configure a renderer
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

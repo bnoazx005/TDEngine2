@@ -24,7 +24,6 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IRenderer;
 	class IWorld;
-	class IMemoryManager;
 	class IEventManager;
 	class IImGUIContext;
 	class ISceneManager;
@@ -159,7 +158,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 
 			TDE2_API E_RESULT_CODE _registerBuiltinSystems(TPtr<IWorld> pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
-														   IRenderer* pRenderer, IMemoryManager* pMemoryManager, IEventManager* pEventManager);
+														   IRenderer* pRenderer, IEventManager* pEventManager);
 
 			TDE2_API E_RESULT_CODE _cleanUpSubsystems();
 

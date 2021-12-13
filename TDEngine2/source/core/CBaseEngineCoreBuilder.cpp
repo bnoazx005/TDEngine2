@@ -11,7 +11,6 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/CFont.h"
 #include "../../include/core/CRuntimeFont.h"
-#include "../../include/core/memory/CMemoryManager.h"
 #include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/core/memory/CPoolAllocator.h"
 #include "../../include/core/memory/CStackAllocator.h"
@@ -331,14 +330,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureRenderer()
 	{
-		if (!mIsInitialized || !mpMemoryManagerInstance || !mpGraphicsContextInstance || !mpResourceManagerInstance)
+		if (!mIsInitialized || !mpGraphicsContextInstance || !mpResourceManagerInstance)
 		{
 			return RC_FAIL;
 		}
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto pAllocator = TPtr<IAllocator>(mpMemoryManagerInstance->CreateAllocator<CStackAllocator>(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize, "Renderer"));
+		/// \todo Replace it with a memory arena's implementation
+		static std::unique_ptr<U8[]> pMemoryBlock = std::make_unique<U8[]>(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize);
+
+		auto pAllocator = TPtr<IAllocator>(CreateStackAllocator(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize, pMemoryBlock.get(), result));
 
 		IRenderer* pRenderer = CreateForwardRenderer({ mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, nullptr }, result);
 		if (result != RC_OK)
@@ -369,51 +371,6 @@ namespace TDEngine2
 		}
 
 		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<IRenderer>(pRenderer)));
-	}
-
-	E_RESULT_CODE CBaseEngineCoreBuilder::_configureMemoryManager(U32 totalMemorySize)
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		mpMemoryManagerInstance = TPtr<IMemoryManager>(CreateMemoryManager(totalMemorySize, result));
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		/// register built in factories
-
-		auto allocatorFactoriesCallback =
-		{
-			CreateLinearAllocatorFactory,
-			CreateStackAllocatorFactory,
-			CreatePoolAllocatorFactory
-		};
-
-		TPtr<IAllocatorFactory> pAllocatorFactory;
-
-		for (auto currFactoryCallback : allocatorFactoriesCallback)
-		{
-			pAllocatorFactory = TPtr<IAllocatorFactory>(currFactoryCallback(result));
-
-			if (result != RC_OK)
-			{
-				return result;
-			}
-
-			if ((result = mpMemoryManagerInstance->RegisterFactory(pAllocatorFactory)) != RC_OK)
-			{
-				return result;
-			}
-		}
-
-		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpMemoryManagerInstance));
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureInputContext()
@@ -590,7 +547,6 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_mountDirectories(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));
 
 		PANIC_ON_FAILURE(_configureJobManager(CProjectSettings::Get()->mCommonSettings.mMaxNumOfWorkerThreads));
-		PANIC_ON_FAILURE(_configureMemoryManager(CProjectSettings::Get()->mCommonSettings.mTotalPreallocatedMemorySize));
 		PANIC_ON_FAILURE(_configureEventManager());
 		PANIC_ON_FAILURE(_configureResourceManager());
 
@@ -618,7 +574,6 @@ namespace TDEngine2
 			mpWindowSystemInstance = nullptr;
 			mpJobManagerInstance = nullptr;
 			mpPluginManagerInstance = nullptr;
-			mpMemoryManagerInstance = nullptr;
 			mpGraphicsContextInstance = nullptr;
 			mpFileSystemInstance = nullptr;
 			mpResourceManagerInstance = nullptr;

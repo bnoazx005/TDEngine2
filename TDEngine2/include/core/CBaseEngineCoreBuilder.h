@@ -15,7 +15,6 @@ namespace TDEngine2
 	class IWindowSystem;
 	class IJobManager;
 	class IPluginManager;
-	class IMemoryManager;
 	class IGraphicsContext;
 	class IFileSystem;
 	class IResourceManager;
@@ -30,7 +29,6 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager);
 	TDE2_DECLARE_SCOPED_PTR(IJobManager);
 	TDE2_DECLARE_SCOPED_PTR(IPluginManager);
-	TDE2_DECLARE_SCOPED_PTR(IMemoryManager);
 
 
 	/*!
@@ -129,17 +127,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _configureEventManager() override;
 
 			/*!
-				\brief The method trie tot configure a memory manager
-
-				\param[in] totalMemorySize A size in bytes of a global memory block that
-				will be allocated
-
-				\return The method trie tot configure a memory manager
-			*/
-
-			TDE2_API E_RESULT_CODE _configureMemoryManager(U32 totalMemorySize) override;
-
-			/*!
 				\brief The method tries to configure a renderer
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -188,8 +175,6 @@ namespace TDEngine2
 			TPtr<IJobManager> mpJobManagerInstance;
 
 			TPtr<IPluginManager> mpPluginManagerInstance;
-
-			TPtr<IMemoryManager> mpMemoryManagerInstance;
 
 			TPtr<IGraphicsContext> mpGraphicsContextInstance;
 

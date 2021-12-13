@@ -2,7 +2,6 @@
 #include "../../include/ecs/CPhysics2DSystem.h"
 #include "../../include/ecs/CPhysics3DSystem.h"
 #include "../../include/core/memory/CPoolAllocator.h"
-#include "../../include/core/memory/IMemoryManager.h"
 
 
 namespace TDEngine2
@@ -12,25 +11,24 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseRaycastContext::Init(IMemoryManager* pMemoryManager, CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem)
+	E_RESULT_CODE CBaseRaycastContext::Init(CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pMemoryManager || !p2DPhysicsSystem || !p3DPhysicsSystem)
+		if (!p2DPhysicsSystem || !p3DPhysicsSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpAllocator = pMemoryManager->CreateAllocator<CPoolAllocator>(TPoolAllocatorParams 
-																	  { 
-																			mMaxRaycastsPerFrame * mRaycastResultTypeSize,
-																			mRaycastResultTypeSize,
-																			__alignof(TRaycastResult) 
-																	  }, 
-																	  "raycasts_allocator");
+		/// \todo Replace it with a memory arena's implementation
+		mpMemoryBlock = std::make_unique<U8[]>(mMaxRaycastsPerFrame * mRaycastResultTypeSize);
+
+		E_RESULT_CODE result = RC_OK;
+
+		mpAllocator = CreatePoolAllocator(mRaycastResultTypeSize, __alignof(TRaycastResult), mMaxRaycastsPerFrame * mRaycastResultTypeSize, mpMemoryBlock.get(), result);
 
 		mp2DPhysicsSystem = p2DPhysicsSystem;
 		mp3DPhysicsSystem = p3DPhysicsSystem;
@@ -78,8 +76,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IRaycastContext* CreateBaseRaycastContext(IMemoryManager* pMemoryManager, CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result)
+	TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IRaycastContext, CBaseRaycastContext, result, pMemoryManager, p2DPhysicsSystem, p3DPhysicsSystem);
+		return CREATE_IMPL(IRaycastContext, CBaseRaycastContext, result, p2DPhysicsSystem, p3DPhysicsSystem);
 	}
 }

@@ -9,13 +9,13 @@
 
 #include "../core/CBaseObject.h"
 #include "IRaycastContext.h"
+#include <memory>
 
 
 namespace TDEngine2
 {
 	class CPhysics2DSystem;
 	class CPhysics3DSystem;
-	class IMemoryManager;
 	class IAllocator;
 
 
@@ -25,7 +25,6 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CBaseRaycastContext's type.
 
-		\param[in] pMemoryManager A pointer to IMemoryManager implementation
 		\param[in, out] p2DPhysicsSystem A pointer to 2D physics system's implementation
 		\param[in, out] p3DPhysicsSystem A pointer to 3D physics system's implementation
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -33,7 +32,7 @@ namespace TDEngine2
 		\return A pointer to CBaseRaycastContext's implementation
 	*/
 
-	TDE2_API IRaycastContext* CreateBaseRaycastContext(IMemoryManager* pMemoryManager, CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result);
+	TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -45,19 +44,19 @@ namespace TDEngine2
 	class CBaseRaycastContext : public CBaseObject, public IRaycastContext
 	{
 		public:
-			friend TDE2_API IRaycastContext* CreateBaseRaycastContext(IMemoryManager* pMemoryManager, CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result);
+			friend TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem*, CPhysics3DSystem*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
 
-				\param[in] pMemoryManager A pointer to IMemoryManager implementation
+				\param[in, out] pAllocator A pointer to IAllocator implementation
 				\param[in, out] p2DPhysicsSystem A pointer to 2D physics system's implementation
 				\param[in, out] p3DPhysicsSystem A pointer to 3D physics system's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IMemoryManager* pMemoryManager, CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem);
+			TDE2_API E_RESULT_CODE Init(CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem);
 
 			/*!
 				\brief The method casts a ray into a scene and returns closest object which is intersected by that.
@@ -108,12 +107,14 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseRaycastContext)
 		protected:
-			static constexpr U32 mMaxRaycastsPerFrame   = 16384;
-			static constexpr U32 mRaycastResultTypeSize = sizeof(TRaycastResult);
+			static constexpr U32  mMaxRaycastsPerFrame   = 16384;
+			static constexpr U32  mRaycastResultTypeSize = sizeof(TRaycastResult);
 
-			TPtr<IAllocator>     mpAllocator;
+			TPtr<IAllocator>      mpAllocator;
 
-			CPhysics2DSystem*    mp2DPhysicsSystem;
-			CPhysics3DSystem*    mp3DPhysicsSystem;
+			std::unique_ptr<U8[]> mpMemoryBlock;
+
+			CPhysics2DSystem*     mp2DPhysicsSystem;
+			CPhysics3DSystem*     mp3DPhysicsSystem;
 	};
 }

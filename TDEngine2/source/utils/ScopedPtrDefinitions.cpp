@@ -7,7 +7,6 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/IPluginManager.h"
 #include "../../include/core/IEngineCore.h"
-#include "../../include/core/memory/IMemoryManager.h"
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/core/IResourceFactory.h"
 #include "../../include/core/IResourceLoader.h"
@@ -32,7 +31,6 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IWindowSystem)
 	TDE2_DEFINE_SCOPED_PTR(IJobManager)
 	TDE2_DEFINE_SCOPED_PTR(IPluginManager)
-	TDE2_DEFINE_SCOPED_PTR(IMemoryManager)
 	TDE2_DEFINE_SCOPED_PTR(IAllocator)
 	TDE2_DEFINE_SCOPED_PTR(IAllocatorFactory)
 	TDE2_DEFINE_SCOPED_PTR(IMountableStorage)

@@ -8,7 +8,6 @@
 #include "../../include/core/IDLLManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IInputContext.h"
-#include "../../include/core/memory/IMemoryManager.h"
 #include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IResourceManager.h"
@@ -176,8 +175,7 @@ namespace TDEngine2
 		/// \todo This is not critical error, but for now I leave it as is
 		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem,
 			_getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT),
-			_getSubsystemAs<IRenderer>(EST_RENDERER),
-			_getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER),
+			_getSubsystemAs<IRenderer>(EST_RENDERER), 
 			_getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))) != RC_OK)
 		{
 			return result;
@@ -410,7 +408,7 @@ namespace TDEngine2
 	/// \todo Refactor the method
 
 	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(TPtr<IWorld> pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
-													   IRenderer* pRenderer, IMemoryManager* pMemoryManager, IEventManager* pEventManager)
+													   IRenderer* pRenderer, IEventManager* pEventManager)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 		IResourceManager* pResourceManager = _getSubsystemAs<IResourceManager>(EST_RESOURCE_MANAGER);
@@ -427,12 +425,15 @@ namespace TDEngine2
 		ISystem* p2dPhysics = nullptr;
 		ISystem* p3dPhysics = nullptr;
 
+		/// \todo Replace it with a memory arena's implementation
+		static std::unique_ptr<U8[]> pRendererMemoryBlock = std::make_unique<U8[]>(5 * SpriteInstanceDataBufferSize);
+
 		std::vector<ISystem*> builtinSystems
 		{
 			CreateTransformSystem(pGraphicsContext, result),
 			CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), result),
 			CreateBoundsUpdatingSystem(pResourceManager, pDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
-			CreateSpriteRendererSystem(pMemoryManager->CreateAllocator<CLinearAllocator>(5 * SpriteInstanceDataBufferSize, "sprites_batch_data"),
+			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, pRendererMemoryBlock.get(), result)),
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
@@ -465,8 +466,7 @@ namespace TDEngine2
 			}
 		}
 
-		auto pRaycastContextInstance = CreateBaseRaycastContext(_getSubsystemAs<IMemoryManager>(EST_MEMORY_MANAGER),
-																dynamic_cast<CPhysics2DSystem*>(p2dPhysics), 
+		auto pRaycastContextInstance = CreateBaseRaycastContext(dynamic_cast<CPhysics2DSystem*>(p2dPhysics), 
 																dynamic_cast<CPhysics3DSystem*>(p3dPhysics), 
 																result);
 
