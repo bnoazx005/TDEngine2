@@ -81,40 +81,4 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IAllocator, CStackAllocator, result, totalMemorySize, pMemoryBlock);
 	}
-
-
-	CStackAllocatorFactory::CStackAllocatorFactory() :
-		CBaseAllocatorFactory()
-	{
-	}
-
-	TResult<IAllocator*> CStackAllocatorFactory::Create(U8* pMemoryBlock, const TBaseAllocatorParams& params) const
-	{
-		if (!pMemoryBlock)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		IAllocator* pAllocator = CreateStackAllocator(params.mMemoryBlockSize, pMemoryBlock, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		return Wrench::TOkValue<IAllocator*>(pAllocator);
-	}
-	
-	TypeId CStackAllocatorFactory::GetAllocatorType() const
-	{
-		return CStackAllocator::GetTypeId();
-	}
-
-
-	TDE2_API IAllocatorFactory* CreateStackAllocatorFactory(E_RESULT_CODE& result)
-	{
-		return CREATE_IMPL(IAllocatorFactory, CStackAllocatorFactory, result);
-	}
 }

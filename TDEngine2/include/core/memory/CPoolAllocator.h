@@ -42,7 +42,7 @@ namespace TDEngine2
 	class CPoolAllocator : public CBaseAllocator
 	{
 		public:
-			friend TDE2_API IAllocator* CreatePoolAllocator(USIZE objectSize, USIZE objectAlignment, USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
+			friend TDE2_API IAllocator* CreatePoolAllocator(USIZE, USIZE, USIZE, U8*, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CPoolAllocator)
 
@@ -117,50 +117,4 @@ namespace TDEngine2
 		USIZE mPerObjectSize;
 		USIZE mObjectAlignment;
 	} TPoolAllocatorParams, *TPoolAllocatorParamsPtr;
-
-
-	/*!
-		\brief A factory function for creation objects of CPoolAllocatorFactory's type
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CPoolAllocatorFactory's implementation
-	*/
-
-	TDE2_API IAllocatorFactory* CreatePoolAllocatorFactory(E_RESULT_CODE& result);
-
-
-	/*!
-		class CPoolAllocatorFactory
-
-		\brief The class is an implementation of IAllocatorFactory for CPoolAllocator
-		type
-	*/
-
-	class CPoolAllocatorFactory : public CBaseAllocatorFactory
-	{
-		public:
-			friend TDE2_API IAllocatorFactory* CreatePoolAllocatorFactory(E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method creates a new instance of an allocator with a given parameters
-
-				\param[in, out] pMemoryBlock A pointer to a block of memory
-				\param[in] params Parameters that are used for initialization of the allocator's instance
-
-				\return Either a pointer to a new created IAllocator or an error code
-			*/
-
-			TDE2_API TResult<IAllocator*> Create(U8* pMemoryBlock, const TBaseAllocatorParams& params) const override;
-
-			/*!
-				\brief The method returns a type of an allocator that are created by the factory
-
-				\return The method returns a type of an allocator that are created by the factory
-			*/
-
-			TDE2_API TypeId GetAllocatorType() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPoolAllocatorFactory)
-	};
 }

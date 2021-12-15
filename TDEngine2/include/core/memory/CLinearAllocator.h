@@ -1,7 +1,7 @@
 /*!
-\file CBaseAllocator.h
-\date 31.10.2018
-\authors Kasimov Ildar
+	\file CBaseAllocator.h
+	\date 31.10.2018
+	\authors Kasimov Ildar
 */
 
 #pragma once
@@ -40,7 +40,7 @@ namespace TDEngine2
 	class CLinearAllocator : public CBaseAllocator
 	{
 		public:
-			friend TDE2_API IAllocator* CreateLinearAllocator(USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
+			friend TDE2_API IAllocator* CreateLinearAllocator(USIZE, U8*, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CLinearAllocator)
 
@@ -90,51 +90,5 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLinearAllocator)
 		protected:
 			void* mpCurrPos;
-	};
-
-	
-	/*!
-		\brief A factory function for creation objects of CLinearAllocatorFactory's type
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CLinearAllocatorFactory's implementation
-	*/
-
-	TDE2_API IAllocatorFactory* CreateLinearAllocatorFactory(E_RESULT_CODE& result);
-
-
-	/*!
-		class CLinearAllocatorFactory
-
-		\brief The class is an implementation of IAllocatorFactory for CLinearAllocator
-		type
-	*/
-
-	class CLinearAllocatorFactory : public CBaseAllocatorFactory
-	{
-		public:
-			friend TDE2_API IAllocatorFactory* CreateLinearAllocatorFactory(E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method creates a new instance of an allocator with a given parameters
-
-				\param[in, out] pMemoryBlock A pointer to a block of memory
-				\param[in] params Parameters that are used for initialization of the allocator's instance
-
-				\return Either a pointer to a new created IAllocator or an error code
-			*/
-
-			TDE2_API TResult<IAllocator*> Create(U8* pMemoryBlock, const TBaseAllocatorParams& params) const override;
-
-			/*!
-				\brief The method returns a type of an allocator that are created by the factory
-
-				\return The method returns a type of an allocator that are created by the factory
-			*/
-
-			TDE2_API TypeId GetAllocatorType() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLinearAllocatorFactory)
 	};
 }
