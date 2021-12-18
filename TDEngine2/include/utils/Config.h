@@ -68,9 +68,7 @@ namespace TDEngine2
 	constexpr float FloatEpsilon = 1e-3f;
 
 	///< Memory manager configuration
-	constexpr size_t DefaultGlobalMemoryBlockSize = 1024 * 1024 * 512; /// 512 MiB
-
-	constexpr size_t PerRenderQueueMemoryBlockSize = 1024 * 1024 * 4;  /// 4 MiB
+	constexpr size_t PerRenderQueueMemoryBlockSize = 1024 * 1024 * 2;  /// 2 MiB
 
 	/// Renderer's configuration
 	constexpr unsigned int PreCreatedNumOfVertexBuffers = 5;

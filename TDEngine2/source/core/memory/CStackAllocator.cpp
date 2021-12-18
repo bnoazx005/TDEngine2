@@ -9,44 +9,26 @@ namespace TDEngine2
 
 
 	CStackAllocator::CStackAllocator() :
-		CBaseAllocator(), mpCurrPos(nullptr)
+		CBaseAllocator()
 	{
-	}
-
-	E_RESULT_CODE CStackAllocator::Init(TSizeType totalMemorySize, U8* pMemoryBlock)
-	{
-		E_RESULT_CODE result = CBaseAllocator::Init(totalMemorySize, pMemoryBlock);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mpCurrPos = mpMemoryBlock;
-		
-		return RC_OK;
 	}
 
 	void* CStackAllocator::Allocate(TSizeType size, U8 alignment)
 	{
-		U8 padding = CBaseAllocator::GetPaddingWithHeader(mpCurrPos, alignment, mHeaderSize);
+		const U8 padding = CBaseAllocator::GetPaddingWithHeader(_getCurrFitBlock(size)->mpCurrPointer, alignment, mHeaderSize);
 
-		if (mUsedMemorySize + padding + size > mTotalMemorySize)
-		{
-			return nullptr;
-		}
+		auto pCurrBlock = _getCurrFitBlock(size + padding); /// \note Check the second time according to computed padding
 
-		U32Ptr alignedAddress = reinterpret_cast<U32Ptr>(mpCurrPos) + padding;
+		U32Ptr alignedAddress = reinterpret_cast<U32Ptr>(pCurrBlock->mpCurrPointer) + padding;
 
 		TAllocHeaderPtr pAllocHeader = (TAllocHeaderPtr)(alignedAddress - mHeaderSize);
 
 		pAllocHeader->mPadding = padding;
 
-		mpCurrPos = reinterpret_cast<void*>(alignedAddress + size);
+		pCurrBlock->mpCurrPointer = reinterpret_cast<void*>(alignedAddress + size);
+		pCurrBlock->mUsedMemorySize += (padding + size);
 
-		mUsedMemorySize += (padding + size);
-
-		TDE2_UPDATE_MEMORY_BLOCK_INFO(mName, mUsedMemorySize);
+		TDE2_UPDATE_MEMORY_BLOCK_INFO(mName, GetUsedMemorySize());
 
 		++mAllocationsCount;
 
@@ -60,11 +42,17 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		auto pOwningMemoryRegion = _findOwnerBlock(pObjectPtr);
+		if (!pOwningMemoryRegion)
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
+
 		TAllocHeaderPtr allocHeader = (TAllocHeaderPtr)(reinterpret_cast<U32Ptr>(pObjectPtr) - static_cast<U32Ptr>(mHeaderSize));
 
-		mUsedMemorySize -= allocHeader->mPadding + (reinterpret_cast<U32Ptr>(mpCurrPos) - reinterpret_cast<U32Ptr>(pObjectPtr));
-
-		mpCurrPos = reinterpret_cast<void*>(reinterpret_cast<U32Ptr>(pObjectPtr) - static_cast<U32Ptr>(allocHeader->mPadding));
+		pOwningMemoryRegion->mUsedMemorySize -= allocHeader->mPadding + (reinterpret_cast<U32Ptr>(pOwningMemoryRegion->mpCurrPointer) - reinterpret_cast<U32Ptr>(pObjectPtr));
+		pOwningMemoryRegion->mpCurrPointer = reinterpret_cast<void*>(reinterpret_cast<U32Ptr>(pObjectPtr) - static_cast<U32Ptr>(allocHeader->mPadding));
 
 		--mAllocationsCount;
 
@@ -77,8 +65,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IAllocator* CreateStackAllocator(USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
+	TDE2_API IAllocator* CreateStackAllocator(USIZE pageSize, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IAllocator, CStackAllocator, result, totalMemorySize, pMemoryBlock);
+		return CREATE_IMPL(IAllocator, CStackAllocator, result, pageSize);
 	}
 }

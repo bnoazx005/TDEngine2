@@ -12,22 +12,20 @@ namespace TDEngine2
 
 	CPoolAllocator::CPoolAllocator():
 		CBaseAllocator(), mObjectSize(0), mObjectAlignment(0),
-		mppNextFreeBlock(nullptr)
+		mppNextFreeBlock(nullptr), mUsedMemorySize(0)
 	{
 	}
 
-	E_RESULT_CODE CPoolAllocator::Init(TSizeType objectSize, TSizeType objectAlignment, TSizeType totalMemorySize, U8* pMemoryBlock)
+	E_RESULT_CODE CPoolAllocator::Init(TSizeType objectSize, TSizeType objectAlignment, TSizeType pageSize)
 	{
-		E_RESULT_CODE result = CBaseAllocator::Init(totalMemorySize, pMemoryBlock);
-
+		E_RESULT_CODE result = CBaseAllocator::Init(pageSize);
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		mObjectSize = objectSize;
-
 		mObjectAlignment = objectAlignment;
+		mObjectSize      = objectSize;
 
 		return Clear();
 	}
@@ -36,7 +34,15 @@ namespace TDEngine2
 	{
 		if (!mppNextFreeBlock)
 		{
-			return nullptr;
+			auto pLastCreatedBlock = _getLastBlockEntity();
+			auto pNewBlock = _allocateNewBlock(pLastCreatedBlock);
+
+			_clearMemoryRegion(pNewBlock);
+
+			/// \note Stitch both blocks together
+			*pLastCreatedBlock->mpLastAllowedPointer = pNewBlock->mpCurrPointer;
+
+			mppNextFreeBlock = reinterpret_cast<void**>(reinterpret_cast<U32Ptr>(pNewBlock->mpRegion.get()) + static_cast<U32Ptr>(mObjectAlignment));
 		}
 
 		void* pObjectPtr = mppNextFreeBlock;
@@ -72,27 +78,68 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPoolAllocator::Clear()
 	{
-		U8 padding = CBaseAllocator::GetPadding(mpMemoryBlock, static_cast<U8>(mObjectAlignment));
+		TMemoryBlockEntity* pCurrBlockEntity = mpRootBlock.get();
 
-		mppNextFreeBlock = reinterpret_cast<void**>(reinterpret_cast<U32Ptr>(mpMemoryBlock) + static_cast<U32Ptr>(mObjectAlignment));
-
-		U32 numOfObjects = static_cast<U32>((mTotalMemorySize - padding) / mObjectSize);
-
-		void** pCurrBlock = mppNextFreeBlock;
-
-		for (U32 i = 0; i < numOfObjects - 1; ++i)
+		while (pCurrBlockEntity)
 		{
-			*pCurrBlock = reinterpret_cast<void*>(reinterpret_cast<U32Ptr>(pCurrBlock) + mObjectSize);
+			_clearMemoryRegion(pCurrBlockEntity);
 
-			pCurrBlock = reinterpret_cast<void**>(*pCurrBlock);
+			pCurrBlockEntity = pCurrBlockEntity->mpNextBlock ? pCurrBlockEntity->mpNextBlock.get() : nullptr;
 		}
+
+		/// \note Stitch all memory regions together
+		{
+			pCurrBlockEntity = mpRootBlock.get();
+
+			while (pCurrBlockEntity)
+			{
+				TMemoryBlockEntity* pNextBlockEntity = pCurrBlockEntity->mpNextBlock ? pCurrBlockEntity->mpNextBlock.get() : nullptr;
+				if (!pNextBlockEntity)
+				{
+					break;
+				}
+
+				*pCurrBlockEntity->mpLastAllowedPointer = pNextBlockEntity->mpCurrPointer;
+				pCurrBlockEntity = pNextBlockEntity;
+			}
+		}
+
+		mppNextFreeBlock = reinterpret_cast<void**>(reinterpret_cast<U32Ptr>(mpRootBlock->mpRegion.get()) + static_cast<U32Ptr>(mObjectAlignment));
+		mUsedMemorySize = 0;
 
 		return RC_OK;
 	}
 
-
-	TDE2_API IAllocator* CreatePoolAllocator(USIZE objectSize, USIZE objectAlignment, USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
+	CPoolAllocator::TSizeType CPoolAllocator::GetUsedMemorySize() const
 	{
-		return CREATE_IMPL(IAllocator, CPoolAllocator, result, objectSize, objectAlignment, totalMemorySize, pMemoryBlock);
+		return mUsedMemorySize;
+	}
+
+	void CPoolAllocator::_clearMemoryRegion(TMemoryBlockEntity*& pRegion)
+	{
+		void* pMemoryBlock = reinterpret_cast<void*>(pRegion->mpRegion.get());
+
+		const U8 padding = CBaseAllocator::GetPadding(pMemoryBlock, static_cast<U8>(mObjectAlignment));
+
+		void** pCurrBlock = reinterpret_cast<void**>(reinterpret_cast<U32Ptr>(pMemoryBlock) + static_cast<U32Ptr>(mObjectAlignment));
+
+		pRegion->mpCurrPointer = pCurrBlock;
+
+		for (U32 i = 0; i < static_cast<U32>((mPageSize - padding) / mObjectSize) - 1; ++i)
+		{
+			*pCurrBlock = reinterpret_cast<void*>(reinterpret_cast<U32Ptr>(pCurrBlock) + mObjectSize);
+			pCurrBlock = reinterpret_cast<void**>(*pCurrBlock);
+		}
+
+		pRegion->mpLastAllowedPointer = pCurrBlock;
+		pRegion->mUsedMemorySize = 0;
+
+		*pCurrBlock = nullptr;
+	}
+
+
+	TDE2_API IAllocator* CreatePoolAllocator(USIZE objectSize, USIZE objectAlignment, USIZE pageSize, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IAllocator, CPoolAllocator, result, objectSize, objectAlignment, pageSize);
 	}
 }

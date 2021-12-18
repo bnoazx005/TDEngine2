@@ -65,15 +65,16 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!params.mpTempAllocator || !params.mpGraphicsContext || !params.mpResourceManager)
+		if (!params.mAllocatorFactoryFunctor || !params.mpGraphicsContext || !params.mpResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpGraphicsContext    = params.mpGraphicsContext;
 		mpResourceManager    = params.mpResourceManager;
-		mpTempAllocator      = params.mpTempAllocator;
 		mpFramePostProcessor = params.mpFramePostProcessor;
+
+		auto allocatorFactory = params.mAllocatorFactoryFunctor;
 
 		E_RESULT_CODE result = RC_OK;
 		
@@ -83,9 +84,7 @@ namespace TDEngine2
 
 		for (U8 i = 0; i < NumOfRenderQueuesGroup; ++i)
 		{
-			pCurrMemoryBlock = mpTempAllocator->Allocate(PerRenderQueueMemoryBlockSize, __alignof(U8));
-
-			pCurrAllocator = CreateLinearAllocator(PerRenderQueueMemoryBlockSize, static_cast<U8*>(pCurrMemoryBlock), result);
+			pCurrAllocator = allocatorFactory(PerRenderQueueMemoryBlockSize, result);
 
 			if (result != RC_OK)
 			{

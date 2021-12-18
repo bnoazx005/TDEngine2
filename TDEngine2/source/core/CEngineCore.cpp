@@ -425,15 +425,12 @@ namespace TDEngine2
 		ISystem* p2dPhysics = nullptr;
 		ISystem* p3dPhysics = nullptr;
 
-		/// \todo Replace it with a memory arena's implementation
-		static std::unique_ptr<U8[]> pRendererMemoryBlock = std::make_unique<U8[]>(5 * SpriteInstanceDataBufferSize);
-
 		std::vector<ISystem*> builtinSystems
 		{
 			CreateTransformSystem(pGraphicsContext, result),
 			CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), result),
 			CreateBoundsUpdatingSystem(pResourceManager, pDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
-			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, pRendererMemoryBlock.get(), result)),
+			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, result)),
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),

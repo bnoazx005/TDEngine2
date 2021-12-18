@@ -16,16 +16,15 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CStackAllocator's type.
 
-		\param[in] totalMemorySize A value determines a size of a memory block
-
-		\param[in, out] pMemoryBlock A pointer to a memory block
+		\param[in] pageSize The value determines an initial size of memory that's allowed to the allocator. Also it defines
+		a size of newly allocated page when there is no enough space
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CStackAllocator's implementation
 	*/
 
-	TDE2_API IAllocator* CreateStackAllocator(USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
+	TDE2_API IAllocator* CreateStackAllocator(USIZE pageSize, E_RESULT_CODE& result);
 
 
 	/*!
@@ -39,7 +38,7 @@ namespace TDEngine2
 	class CStackAllocator : public CBaseAllocator
 	{
 		public:
-			friend TDE2_API IAllocator* CreateStackAllocator(USIZE, U8*, E_RESULT_CODE&);
+			friend TDE2_API IAllocator* CreateStackAllocator(USIZE, E_RESULT_CODE&);
 		protected:
 			typedef struct TAllocHeader
 			{
@@ -47,18 +46,6 @@ namespace TDEngine2
 			} TAllocHeader, *TAllocHeaderPtr;
 		public:
 			TDE2_REGISTER_TYPE(CStackAllocator)
-
-			/*!
-				\brief The method initializes an internal state of an allocator
-
-				\param[in] totalMemorySize A value determines a size of a memory block
-
-				\param[in, out] pMemoryBlock A pointer to a memory block
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(TSizeType totalMemorySize, U8* pMemoryBlock) override;
 
 			/*!
 				\brief The method allocates a new piece of memory of specified size,

@@ -337,12 +337,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		/// \todo Replace it with a memory arena's implementation
-		static std::unique_ptr<U8[]> pMemoryBlock = std::make_unique<U8[]>(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize);
-
-		auto pAllocator = TPtr<IAllocator>(CreateStackAllocator(static_cast<U32>(NumOfRenderQueuesGroup + 1) * PerRenderQueueMemoryBlockSize, pMemoryBlock.get(), result));
-
-		IRenderer* pRenderer = CreateForwardRenderer({ mpGraphicsContextInstance, mpResourceManagerInstance, pAllocator, nullptr }, result);
+		IRenderer* pRenderer = CreateForwardRenderer({ mpGraphicsContextInstance, mpResourceManagerInstance, CreateLinearAllocator, nullptr }, result);
 		if (result != RC_OK)
 		{
 			return result;

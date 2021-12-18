@@ -23,12 +23,14 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		/// \todo Replace it with a memory arena's implementation
-		mpMemoryBlock = std::make_unique<U8[]>(mMaxRaycastsPerFrame * mRaycastResultTypeSize);
-
 		E_RESULT_CODE result = RC_OK;
 
-		mpAllocator = CreatePoolAllocator(mRaycastResultTypeSize, __alignof(TRaycastResult), mMaxRaycastsPerFrame * mRaycastResultTypeSize, mpMemoryBlock.get(), result);
+		mpAllocator = CreatePoolAllocator(mRaycastResultTypeSize, __alignof(TRaycastResult), mMaxRaycastsPerFrame * mRaycastResultTypeSize, result);
+
+		if (RC_OK != result)
+		{
+			return result;
+		}
 
 		mp2DPhysicsSystem = p2DPhysicsSystem;
 		mp3DPhysicsSystem = p3DPhysicsSystem;

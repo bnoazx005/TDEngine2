@@ -16,16 +16,15 @@ namespace TDEngine2
 	/*!
 		\brief A factory function for creation objects of CLinearAllocator's type.
 
-		\param[in] totalMemorySize A value determines a size of a memory block
-
-		\param[in, out] pMemoryBlock A pointer to a memory block
+		\param[in] pageSize The value determines an initial size of memory that's allowed to the allocator. Also it defines
+		a size of newly allocated page when there is no enough space
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CLinearAllocator's implementation
 	*/
 
-	TDE2_API IAllocator* CreateLinearAllocator(USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
+	TDE2_API IAllocator* CreateLinearAllocator(USIZE pageSize, E_RESULT_CODE& result);
 
 
 	/*!
@@ -40,21 +39,9 @@ namespace TDEngine2
 	class CLinearAllocator : public CBaseAllocator
 	{
 		public:
-			friend TDE2_API IAllocator* CreateLinearAllocator(USIZE, U8*, E_RESULT_CODE&);
+			friend TDE2_API IAllocator* CreateLinearAllocator(USIZE, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CLinearAllocator)
-
-			/*!
-				\brief The method initializes an internal state of an allocator
-
-				\param[in] totalMemorySize A value determines a size of a memory block
-
-				\param[in, out] pMemoryBlock A pointer to a memory block
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(TSizeType totalMemorySize, U8* pMemoryBlock) override;
 
 			/*!
 				\brief The method allocates a new piece of memory of specified size,
@@ -88,7 +75,5 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Clear() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLinearAllocator)
-		protected:
-			void* mpCurrPos;
 	};
 }

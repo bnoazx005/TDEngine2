@@ -8,7 +8,7 @@
 
 
 #include "CBaseAllocator.h"
-#include "./../../utils/Utils.h"
+#include "../../utils/Utils.h"
 
 
 namespace TDEngine2
@@ -20,16 +20,15 @@ namespace TDEngine2
 
 		\param[in] objectAlignment An alignment of an object within a pool
 
-		\param[in] totalMemorySize A value determines a size of a memory block
-
-		\param[in, out] pMemoryBlock A pointer to a memory block
+		\param[in] pageSize The value determines an initial size of memory that's allowed to the allocator. Also it defines
+		a size of newly allocated page when there is no enough space
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CPoolAllocator's implementation
 	*/
 
-	TDE2_API IAllocator* CreatePoolAllocator(USIZE objectSize, USIZE objectAlignment, USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result);
+	TDE2_API IAllocator* CreatePoolAllocator(USIZE objectSize, USIZE objectAlignment, USIZE pageSize, E_RESULT_CODE& result);
 
 
 	/*!
@@ -42,7 +41,7 @@ namespace TDEngine2
 	class CPoolAllocator : public CBaseAllocator
 	{
 		public:
-			friend TDE2_API IAllocator* CreatePoolAllocator(USIZE, USIZE, USIZE, U8*, E_RESULT_CODE&);
+			friend TDE2_API IAllocator* CreatePoolAllocator(USIZE, USIZE, USIZE, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CPoolAllocator)
 
@@ -53,14 +52,13 @@ namespace TDEngine2
 
 				\param[in] objectAlignment An alignment of an object within a pool
 
-				\param[in] totalMemorySize A value determines a size of a memory block
-
-				\param[in, out] pMemoryBlock A pointer to a memory block
+				\param[in] pageSize The value determines an initial size of memory that's allowed to the allocator. Also it defines
+				a size of newly allocated page when there is no enough space
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TSizeType objectSize, TSizeType objectAlignment, TSizeType totalMemorySize, U8* pMemoryBlock);
+			TDE2_API E_RESULT_CODE Init(TSizeType objectSize, TSizeType objectAlignment, TSizeType pageSize);
 
 			/*!
 				\brief The method allocates a new piece of memory of specified size,
@@ -92,11 +90,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Clear() override;
+
+			/*!
+				\brief The method returns a size of used memory
+
+				\return The method returns a size of used memory
+			*/
+
+			TDE2_API TSizeType GetUsedMemorySize() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPoolAllocator)
+
+			TDE2_API void _clearMemoryRegion(TMemoryBlockEntity*& pRegion);
 		protected:
 			TSizeType mObjectSize;
 			TSizeType mObjectAlignment;
+			TSizeType mUsedMemorySize;
 
 			void** mppNextFreeBlock;
 	};

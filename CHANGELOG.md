@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.23] 2021-12-11
+## [0.5.23] 2021-12-18
 
 ### Changed
+
+- Implementation of memory allocators was highly refactored.
 
 - The common implementation of the memory manager as a subsystem was excluded. Now local usage of allocators and
 memory arenas is more preffered way.

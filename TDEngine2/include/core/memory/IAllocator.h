@@ -27,14 +27,13 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an internal state of an allocator
 
-				\param[in] totalMemorySize A value determines a size of a memory block
-
-				\param[in, out] pMemoryBlock A pointer to a memory block
+				\param[in] pageSize The value determines an initial size of memory that's allowed to the allocator. Also it defines
+				a size of newly allocated page when there is no enough space
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(TSizeType totalMemorySize, U8* pMemoryBlock) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TSizeType pageSize) = 0;
 
 			/*!
 				\brief The method allocates a new piece of memory of specified size,

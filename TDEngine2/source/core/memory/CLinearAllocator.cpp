@@ -8,46 +8,25 @@
 namespace TDEngine2
 {
 	CLinearAllocator::CLinearAllocator():
-		CBaseAllocator(), mpCurrPos(nullptr)
+		CBaseAllocator()
 	{
-	}
-
-	E_RESULT_CODE CLinearAllocator::Init(TSizeType totalMemorySize, U8* pMemoryBlock)
-	{
-		E_RESULT_CODE result = CBaseAllocator::Init(totalMemorySize, pMemoryBlock);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mpCurrPos = mpMemoryBlock;
-
-		return RC_OK;
 	}
 
 	void* CLinearAllocator::Allocate(TSizeType size, U8 alignment)
 	{
-		U8 padding = CBaseAllocator::GetPadding(mpCurrPos, alignment);
+		const U8 padding = CBaseAllocator::GetPadding(_getCurrFitBlock(size)->mpCurrPointer, alignment);
 
-		if (mUsedMemorySize + padding + size > mTotalMemorySize)
-		{
-			TDE2_ASSERT(false);
-			return nullptr;
-		}
+		auto pCurrBlock = _getCurrFitBlock(size + padding); /// \note Check the second time according to computed padding
 
-		U32Ptr alignedAddress = reinterpret_cast<U32Ptr>(mpCurrPos) + padding;
+		U32Ptr alignedAddress = reinterpret_cast<U32Ptr>(pCurrBlock->mpCurrPointer) + padding;
+		TDE2_ASSERT(alignedAddress);
 
-		mpCurrPos = reinterpret_cast<void*>(alignedAddress + size);
+		pCurrBlock->mpCurrPointer = reinterpret_cast<void*>(alignedAddress + size);
+		pCurrBlock->mUsedMemorySize += (padding + size);
 
-		mUsedMemorySize += (padding + size);
-
-		TDE2_UPDATE_MEMORY_BLOCK_INFO(mName, mUsedMemorySize);
-
+		TDE2_UPDATE_MEMORY_BLOCK_INFO(mName, GetUsedMemorySize());
 		++mAllocationsCount;
 
-		//LOG_MESSAGE(Wrench::StringUtils::Format("alloc count: {0}; used memory : {1}, stashed memory : {2}", mAllocationsCount, mUsedMemorySize, mTotalMemorySize - mUsedMemorySize));
-		
 		return reinterpret_cast<void*>(alignedAddress);
 	}
 
@@ -58,18 +37,26 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLinearAllocator::Clear()
 	{
-		mUsedMemorySize = 0;
-
 		mAllocationsCount = 0;
 
-		mpCurrPos = mpMemoryBlock;
+		TMemoryBlockEntity* pCurrBlock = mpRootBlock.get();
+
+		U32 usedMemorySize = 0;
+
+		while (pCurrBlock->mpNextBlock)
+		{
+			pCurrBlock->mUsedMemorySize = 0;
+			pCurrBlock->mpCurrPointer = reinterpret_cast<void*>(pCurrBlock->mpRegion.get());
+
+			pCurrBlock = pCurrBlock->mpNextBlock.get();
+		}
 
 		return RC_OK;
 	}
 
 
-	TDE2_API IAllocator* CreateLinearAllocator(USIZE totalMemorySize, U8* pMemoryBlock, E_RESULT_CODE& result)
+	TDE2_API IAllocator* CreateLinearAllocator(USIZE pageSize, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IAllocator, CLinearAllocator, result, totalMemorySize, pMemoryBlock);
+		return CREATE_IMPL(IAllocator, CLinearAllocator, result, pageSize);
 	}
 }

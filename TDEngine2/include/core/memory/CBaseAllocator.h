@@ -9,10 +9,13 @@
 
 #include "../CBaseObject.h"
 #include "IAllocator.h"
+#include <memory>
 
 
 namespace TDEngine2
 {
+	typedef IAllocator* (*TAllocatorFactoryFunctor)(USIZE, E_RESULT_CODE&);
+
 	/*!
 		class CBaseAllocator
 
@@ -25,18 +28,27 @@ namespace TDEngine2
 
 	class CBaseAllocator : public CBaseObject, public IAllocator
 	{
+		protected:
+			struct TMemoryBlockEntity
+			{
+				TSizeType                           mUsedMemorySize = 0;
+				void*                               mpCurrPointer = nullptr;
+				void**                              mpLastAllowedPointer = nullptr;
+				std::unique_ptr<U8[]>               mpRegion = nullptr;
+
+				std::unique_ptr<TMemoryBlockEntity> mpNextBlock = nullptr;
+			};
 		public:
 			/*!
 				\brief The method initializes an internal state of an allocator
 
-				\param[in] totalMemorySize A value determines a size of a memory block
-
-				\param[in, out] pMemoryBlock A pointer to a memory block
+				\param[in] pageSize The value determines an initial size of memory that's allowed to the allocator. Also it defines
+				a size of newly allocated page when there is no enough space
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TSizeType totalMemorySize, U8* pMemoryBlock) override;
+			TDE2_API E_RESULT_CODE Init(TSizeType pageSize) override;
 
 			/*!
 				\brief The method allocates a new piece of memory of specified size,
@@ -141,16 +153,22 @@ namespace TDEngine2
 			TDE2_API static U8 GetPaddingWithHeader(void* pAddress, U8 alignment, U8 headerSize);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAllocator)
-		protected:
-			TSizeType mTotalMemorySize;
-			TSizeType mUsedMemorySize;
-			
-			U32 mAllocationsCount;
 
-			U8* mpMemoryBlock;
+			TDE2_API TMemoryBlockEntity* _getCurrFitBlock(TSizeType allocationSize);
+			TDE2_API TMemoryBlockEntity* _findOwnerBlock(void* pObjectPtr);
+			TDE2_API TMemoryBlockEntity* _allocateNewBlock(TMemoryBlockEntity* pPrevBlockEntity = nullptr);
+
+			TDE2_API TMemoryBlockEntity* _getLastBlockEntity() const;
+
+		protected:
+			std::unique_ptr<TMemoryBlockEntity> mpRootBlock;
+			
+			TSizeType                           mPageSize;
+			
+			U32                                 mAllocationsCount;
 
 #if TDE2_EDITORS_ENABLED
-			std::string mName;
+			std::string                         mName;
 #endif
 	};
 
@@ -169,25 +187,4 @@ namespace TDEngine2
 	*/
 
 	TDE2_API void* AllocateMemory(IAllocator* pAllocator, USIZE size, USIZE alignment);
-
-
-	/*!
-		class CBaseAllocatorFactory
-
-		\brief The abstract class is used to derive new types of allocators' factories
-	*/
-
-	class CBaseAllocatorFactory : public CBaseObject, public IAllocatorFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of an allocator factory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAllocatorFactory)
-	};
 }

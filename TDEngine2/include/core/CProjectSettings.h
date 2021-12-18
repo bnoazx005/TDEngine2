@@ -60,7 +60,6 @@ namespace TDEngine2
 			struct
 			{
 				U32 mMaxNumOfWorkerThreads = std::thread::hardware_concurrency() - 1;
-				U32 mTotalPreallocatedMemorySize = DefaultGlobalMemoryBlockSize;
 
 				std::string mApplicationName;
 

@@ -1,4 +1,4 @@
-#include "./../../../include/core/memory/CBaseAllocator.h"
+#include "../../../include/core/memory/CBaseAllocator.h"
 #include <cstring>
 
 
@@ -10,28 +10,31 @@ namespace TDEngine2
 	}
 
 	CBaseAllocator::CBaseAllocator():
-		CBaseObject(), mTotalMemorySize(0), mUsedMemorySize(0),
-		mAllocationsCount(0), mpMemoryBlock(nullptr)
+		CBaseObject(), 
+		mAllocationsCount(0)
 	{
 	}
 
-	E_RESULT_CODE CBaseAllocator::Init(TSizeType totalMemorySize, U8* pMemoryBlock)
+	E_RESULT_CODE CBaseAllocator::Init(TSizeType pageSize)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pMemoryBlock)
+		if (!pageSize)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mTotalMemorySize = totalMemorySize;
+		mPageSize = pageSize;
 
-		mpMemoryBlock = pMemoryBlock;
+		mpRootBlock = std::make_unique<TMemoryBlockEntity>();
 
-		memset(mpMemoryBlock, 0, mTotalMemorySize);
+		mpRootBlock->mpRegion        = std::make_unique<U8[]>(mPageSize);
+		mpRootBlock->mpCurrPointer   = reinterpret_cast<void*>(mpRootBlock->mpRegion.get());
+		mpRootBlock->mpNextBlock     = nullptr;
+		mpRootBlock->mUsedMemorySize = 0;
 
 		mIsInitialized = true;
 
@@ -49,12 +52,42 @@ namespace TDEngine2
 
 	CBaseAllocator::TSizeType CBaseAllocator::GetTotalMemorySize() const
 	{
-		return mTotalMemorySize;
+		if (!mpRootBlock)
+		{
+			return 0;
+		}
+
+		const TMemoryBlockEntity* pCurrBlock = mpRootBlock.get();
+
+		U32 totalMemorySize = 1;
+
+		while (pCurrBlock->mpNextBlock)
+		{
+			pCurrBlock = pCurrBlock->mpNextBlock.get();
+			++totalMemorySize;
+		} 
+
+		return totalMemorySize * mPageSize;
 	}
 
 	CBaseAllocator::TSizeType CBaseAllocator::GetUsedMemorySize() const
 	{
-		return mUsedMemorySize;
+		if (!mpRootBlock)
+		{
+			return 0;
+		}
+
+		const TMemoryBlockEntity* pCurrBlock = mpRootBlock.get();
+
+		TSizeType usedMemorySize = 0;
+
+		while (pCurrBlock->mpNextBlock)
+		{
+			usedMemorySize += pCurrBlock->mUsedMemorySize;
+			pCurrBlock = pCurrBlock->mpNextBlock.get();
+		}
+
+		return usedMemorySize;
 	}
 
 	U32 CBaseAllocator::GetAllocationsCount() const
@@ -93,6 +126,77 @@ namespace TDEngine2
 		return padding;
 	}
 
+	CBaseAllocator::TMemoryBlockEntity* CBaseAllocator::_getCurrFitBlock(TSizeType allocationSize)
+	{
+		auto pCurrBlock = mpRootBlock.get();
+		auto pPrevBlock = pCurrBlock;
+
+		while (pCurrBlock)
+		{
+			if (pCurrBlock->mUsedMemorySize + allocationSize <= mPageSize)
+			{
+				break;
+			}
+
+			pPrevBlock = pCurrBlock;
+			pCurrBlock = pCurrBlock->mpNextBlock ? pCurrBlock->mpNextBlock.get() : nullptr;
+		}
+
+		if (!pCurrBlock) /// \note Create a new block because all are filled up or there are no ones
+		{
+			return _allocateNewBlock(pPrevBlock);
+		}
+
+		return pCurrBlock;
+	}
+
+	CBaseAllocator::TMemoryBlockEntity* CBaseAllocator::_allocateNewBlock(TMemoryBlockEntity* pPrevBlockEntity)
+	{
+		auto pNewBlockEntity = std::make_unique<TMemoryBlockEntity>();
+
+		pNewBlockEntity->mpRegion        = std::make_unique<U8[]>(mPageSize);
+		pNewBlockEntity->mpCurrPointer   = reinterpret_cast<void*>(pNewBlockEntity->mpRegion.get());
+		pNewBlockEntity->mUsedMemorySize = 0;
+		pNewBlockEntity->mpNextBlock     = nullptr;
+
+		pPrevBlockEntity->mpNextBlock = std::move(pNewBlockEntity);
+
+		return pPrevBlockEntity->mpNextBlock.get();
+	}
+
+	CBaseAllocator::TMemoryBlockEntity* CBaseAllocator::_findOwnerBlock(void* pObjectPtr)
+	{
+		TMemoryBlockEntity* pCurrBlock = mpRootBlock.get();
+
+		while (pCurrBlock->mpNextBlock)
+		{
+			const U32Ptr regionBegin = reinterpret_cast<U32Ptr>(pCurrBlock->mpRegion.get());
+			const U32Ptr regionEnd   = regionBegin + mPageSize;
+
+			const U32Ptr objectPtr = reinterpret_cast<U32Ptr>(pObjectPtr);
+
+			if (objectPtr >= regionBegin && objectPtr < regionEnd)
+			{
+				return pCurrBlock;
+			}
+
+			pCurrBlock = pCurrBlock->mpNextBlock.get();
+		}
+
+		return nullptr;
+	}
+
+	CBaseAllocator::TMemoryBlockEntity* CBaseAllocator::_getLastBlockEntity() const
+	{
+		TMemoryBlockEntity* pCurrBlock = mpRootBlock.get();
+
+		while (pCurrBlock->mpNextBlock)
+		{
+			pCurrBlock = pCurrBlock->mpNextBlock.get();
+		}
+
+		return pCurrBlock;
+	}
 
 	TDE2_API void* AllocateMemory(IAllocator* pAllocator, USIZE size, USIZE alignment)
 	{
@@ -102,23 +206,5 @@ namespace TDEngine2
 		}
 
 		return pAllocator->Allocate(size, static_cast<U8>(alignment));
-	}
-
-
-	CBaseAllocatorFactory::CBaseAllocatorFactory():
-		CBaseObject()
-	{
-	}
-
-	E_RESULT_CODE CBaseAllocatorFactory::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 }

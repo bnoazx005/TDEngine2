@@ -61,12 +61,15 @@ namespace TDEngine2
 	};
 
 
+	typedef IAllocator* (*TAllocatorFactoryFunctor)(USIZE, E_RESULT_CODE&);
+
+
 	struct TRendererInitParams
 	{
-		TPtr<IGraphicsContext> mpGraphicsContext;
-		TPtr<IResourceManager> mpResourceManager;
-		TPtr<IAllocator>       mpTempAllocator;
-		IFramePostProcessor*   mpFramePostProcessor;
+		TPtr<IGraphicsContext>   mpGraphicsContext;
+		TPtr<IResourceManager>   mpResourceManager;
+		TAllocatorFactoryFunctor mAllocatorFactoryFunctor;
+		IFramePostProcessor*     mpFramePostProcessor;
 	};
 
 
