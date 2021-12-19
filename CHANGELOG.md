@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Optick** library is not linked statically.
+
 - Implementation of memory allocators was highly refactored.
 
 - The common implementation of the memory manager as a subsystem was excluded. Now local usage of allocators and
