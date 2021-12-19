@@ -33,6 +33,7 @@ add_subdirectory(lib/Catch2)
 set(HEADERS )
 
 set(SOURCES
+	"${CMAKE_CURRENT_SOURCE_DIR}/core/AllocatorsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CGraphicsLayersInfoTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CFrustumTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CAnimationCurveTests.cpp"

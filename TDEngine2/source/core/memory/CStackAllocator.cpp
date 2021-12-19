@@ -15,6 +15,11 @@ namespace TDEngine2
 
 	void* CStackAllocator::Allocate(TSizeType size, U8 alignment)
 	{
+		if (!_isAllocationPossible(size))
+		{
+			return nullptr;
+		}
+
 		const U8 padding = CBaseAllocator::GetPaddingWithHeader(_getCurrFitBlock(size)->mpCurrPointer, alignment, mHeaderSize);
 
 		auto pCurrBlock = _getCurrFitBlock(size + padding); /// \note Check the second time according to computed padding

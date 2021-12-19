@@ -32,6 +32,11 @@ namespace TDEngine2
 
 	void* CPoolAllocator::Allocate(TSizeType size, U8 alignment)
 	{
+		if (size != mObjectSize || !_isAllocationPossible(size))
+		{
+			return nullptr;
+		}
+
 		if (!mppNextFreeBlock)
 		{
 			auto pLastCreatedBlock = _getLastBlockEntity();

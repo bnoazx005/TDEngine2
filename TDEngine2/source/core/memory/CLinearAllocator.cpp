@@ -14,6 +14,12 @@ namespace TDEngine2
 
 	void* CLinearAllocator::Allocate(TSizeType size, U8 alignment)
 	{
+		if (!_isAllocationPossible(size))
+		{
+			 /// \note Can't allocate contiguous block of size greater than our pages
+			return nullptr;
+		}
+
 		const U8 padding = CBaseAllocator::GetPadding(_getCurrFitBlock(size)->mpCurrPointer, alignment);
 
 		auto pCurrBlock = _getCurrFitBlock(size + padding); /// \note Check the second time according to computed padding
@@ -41,14 +47,12 @@ namespace TDEngine2
 
 		TMemoryBlockEntity* pCurrBlock = mpRootBlock.get();
 
-		U32 usedMemorySize = 0;
-
-		while (pCurrBlock->mpNextBlock)
+		while (pCurrBlock)
 		{
 			pCurrBlock->mUsedMemorySize = 0;
 			pCurrBlock->mpCurrPointer = reinterpret_cast<void*>(pCurrBlock->mpRegion.get());
 
-			pCurrBlock = pCurrBlock->mpNextBlock.get();
+			pCurrBlock = pCurrBlock->mpNextBlock ? pCurrBlock->mpNextBlock.get() : nullptr;
 		}
 
 		return RC_OK;

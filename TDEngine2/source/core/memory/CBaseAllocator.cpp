@@ -81,7 +81,7 @@ namespace TDEngine2
 
 		TSizeType usedMemorySize = 0;
 
-		while (pCurrBlock->mpNextBlock)
+		while (pCurrBlock)
 		{
 			usedMemorySize += pCurrBlock->mUsedMemorySize;
 			pCurrBlock = pCurrBlock->mpNextBlock.get();
@@ -97,11 +97,14 @@ namespace TDEngine2
 
 	TDE2_API void* CBaseAllocator::GetAlignedAddress(void* pAddress, U8 alignment)
 	{
+		TDE2_ASSERT(alignment);
 		return reinterpret_cast<void*>((reinterpret_cast<U32Ptr>(pAddress) + static_cast<U32Ptr>(alignment - 1)) & static_cast<U32Ptr>(~(alignment - 1)));
 	}
 
 	TDE2_API U8 CBaseAllocator::GetPadding(void* pAddress, U8 alignment)
 	{
+		TDE2_ASSERT(alignment);
+
 		U8 padding = alignment - (reinterpret_cast<U32Ptr>(pAddress) & static_cast<U32Ptr>(alignment - 1));
 
 		return padding == alignment ? 0 : padding;
@@ -168,7 +171,7 @@ namespace TDEngine2
 	{
 		TMemoryBlockEntity* pCurrBlock = mpRootBlock.get();
 
-		while (pCurrBlock->mpNextBlock)
+		while (pCurrBlock)
 		{
 			const U32Ptr regionBegin = reinterpret_cast<U32Ptr>(pCurrBlock->mpRegion.get());
 			const U32Ptr regionEnd   = regionBegin + mPageSize;
@@ -180,7 +183,7 @@ namespace TDEngine2
 				return pCurrBlock;
 			}
 
-			pCurrBlock = pCurrBlock->mpNextBlock.get();
+			pCurrBlock = pCurrBlock->mpNextBlock ? pCurrBlock->mpNextBlock.get() : nullptr;
 		}
 
 		return nullptr;
@@ -196,6 +199,11 @@ namespace TDEngine2
 		}
 
 		return pCurrBlock;
+	}
+
+	bool CBaseAllocator::_isAllocationPossible(TSizeType allocationSize) const
+	{
+		return allocationSize <= mPageSize;
 	}
 
 	TDE2_API void* AllocateMemory(IAllocator* pAllocator, USIZE size, USIZE alignment)

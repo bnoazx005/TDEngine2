@@ -160,6 +160,9 @@ namespace TDEngine2
 
 			TDE2_API TMemoryBlockEntity* _getLastBlockEntity() const;
 
+			/// \brief The method returns false if allocationSize is greater than mPageSize
+			TDE2_API bool _isAllocationPossible(TSizeType allocationSize) const;
+
 		protected:
 			std::unique_ptr<TMemoryBlockEntity> mpRootBlock;
 			
