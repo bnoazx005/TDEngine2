@@ -126,4 +126,53 @@ namespace TDEngine2
 		USIZE mPerObjectSize;
 		USIZE mObjectAlignment;
 	} TPoolAllocatorParams, *TPoolAllocatorParamsPtr;
+
+
+	/*!
+		\brief Derive your type from this below to provide custom pool allocator for it
+	*/
+
+	template <typename T, USIZE allocatorPageSize = 4096>
+	class CPoolMemoryAllocPolicy
+	{
+		public:
+			TDE2_API static void* operator new(std::size_t size, const std::nothrow_t&) { return _allocateImpl(size_t); }
+			TDE2_API static void* operator new[](std::size_t size, const std::nothrow_t&) { return _allocateImpl(size_t); }
+
+			TDE2_API static void operator delete(void* pPtr) noexcept { _deallocateImpl(pPtr); }
+			TDE2_API static void operator delete[](void* pPtr) noexcept { _deallocateImpl(pPtr); }
+		private:
+			TDE2_API static void* _allocateImpl(std::size_t size)
+			{
+				if (auto pAllocator = _getAllocator())
+				{
+					return pAllocator->Allocate(size, alignof(T));
+				}
+
+				return nullptr;
+			}
+
+			TDE2_API static void _deallocateImpl(void* pPtr) noexcept
+			{
+				if (auto pAllocator = _getAllocator())
+				{
+					pAllocator->Deallocate(pPtr);
+				}
+			}
+
+			TDE2_API TPtr<IAllocator> _getAllocator()
+			{
+				if (!mpTypeAllocator)
+				{
+					E_RESULT_CODE result = RC_OK;
+					mpTypeAllocator = CreatePoolAllocator(sizeof(T), alignof(T), allocatorPageSize, result);
+				}
+
+				return mpTypeAllocator;
+			}
+		private:
+			static TPtr<IAllocator> mpTypeAllocator;
+	};
+
+	template <typename T, USIZE allocatorPageSize> TPtr<IAllocator> CPoolMemoryAllocPolicy<T, allocatorPageSize>::mpTypeAllocator = TPtr<IAllocator>(nullptr);
 }
