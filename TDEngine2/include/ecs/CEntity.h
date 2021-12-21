@@ -9,6 +9,7 @@
 
 #include "../core/CBaseObject.h"
 #include "../core/Event.h"
+#include "../core/memory/CPoolAllocator.h"
 #include "../utils/Utils.h"
 #include "../core/Serialization.h"
 #include "CEntityManager.h"
@@ -29,7 +30,7 @@ namespace TDEngine2
 		components.
 	*/
 
-	class CEntity : public CBaseObject, public ISerializable
+	class CEntity : public CBaseObject, public ISerializable, public CPoolMemoryAllocPolicy<CEntity, 1 << 20>
 	{
 		public:
 			friend TDE2_API CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result);

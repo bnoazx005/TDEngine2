@@ -10,6 +10,7 @@
 #include "CBaseComponent.h"
 #include "ITransform.h"
 #include "IComponentFactory.h"
+#include "../core/memory/CPoolAllocator.h"
 #include "../math/TMatrix4.h"
 
 
@@ -34,7 +35,7 @@ namespace TDEngine2
 		an object
 	*/
 
-	class CTransform: public ITransform, public CBaseComponent
+	class CTransform: public ITransform, public CBaseComponent, public CPoolMemoryAllocPolicy<CTransform, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateTransform(E_RESULT_CODE&);

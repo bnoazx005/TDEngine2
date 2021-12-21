@@ -33,7 +33,7 @@ namespace TDEngine2
 		\brief The class is a main element that determines sizes of UI's field
 	*/
 
-	class CCanvas : public CBaseComponent
+	class CCanvas : public CBaseComponent, public CPoolMemoryAllocPolicy<CCanvas, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateCanvas(E_RESULT_CODE& result);

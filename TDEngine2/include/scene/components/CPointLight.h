@@ -30,7 +30,7 @@ namespace TDEngine2
 		\brief The class represents omni directional light source 
 	*/
 
-	class CPointLight : public CBaseLight, public IPointLight
+	class CPointLight : public CBaseLight, public IPointLight, public CPoolMemoryAllocPolicy<CPointLight, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreatePointLight(E_RESULT_CODE&);

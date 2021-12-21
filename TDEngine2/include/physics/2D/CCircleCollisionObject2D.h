@@ -30,7 +30,7 @@ namespace TDEngine2
 		which is controlled by Circle2D physics engine
 	*/
 
-	class CCircleCollisionObject2D : public CBaseCollisionObject2D
+	class CCircleCollisionObject2D : public CBaseCollisionObject2D, public CPoolMemoryAllocPolicy<CCircleCollisionObject2D, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateCircleCollisionObject2D(E_RESULT_CODE& result);

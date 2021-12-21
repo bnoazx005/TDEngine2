@@ -30,7 +30,7 @@ namespace TDEngine2
 		\brief The class represents a camera which uses a perspective projection
 	*/
 
-	class CPerspectiveCamera : public CBaseCamera, public IPerspectiveCamera
+	class CPerspectiveCamera : public CBaseCamera, public IPerspectiveCamera, public CPoolMemoryAllocPolicy<CPerspectiveCamera, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreatePerspectiveCamera(E_RESULT_CODE&);

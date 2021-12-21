@@ -35,7 +35,7 @@ namespace TDEngine2
 		The best usage example is a button
 	*/
 
-	class CInputReceiver : public CBaseComponent
+	class CInputReceiver : public CBaseComponent, public CPoolMemoryAllocPolicy<CInputReceiver, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateInputReceiver(E_RESULT_CODE& result);

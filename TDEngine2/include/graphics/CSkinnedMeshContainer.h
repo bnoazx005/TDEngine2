@@ -30,7 +30,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a container for 3d animated meshes
 	*/
 
-	class CSkinnedMeshContainer : public ISkinnedMeshContainer, public CBaseComponent
+	class CSkinnedMeshContainer : public ISkinnedMeshContainer, public CBaseComponent, public CPoolMemoryAllocPolicy<CSkinnedMeshContainer, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateSkinnedMeshContainer(E_RESULT_CODE& result);

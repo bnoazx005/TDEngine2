@@ -136,11 +136,13 @@ namespace TDEngine2
 	class CPoolMemoryAllocPolicy
 	{
 		public:
-			TDE2_API static void* operator new(std::size_t size, const std::nothrow_t&) { return _allocateImpl(size_t); }
-			TDE2_API static void* operator new[](std::size_t size, const std::nothrow_t&) { return _allocateImpl(size_t); }
+			TDE2_API static void* operator new(std::size_t size, const std::nothrow_t&) { return _allocateImpl(size); }
+			TDE2_API static void* operator new[](std::size_t size, const std::nothrow_t&) { return _allocateImpl(size); }
 
-			TDE2_API static void operator delete(void* pPtr) noexcept { _deallocateImpl(pPtr); }
-			TDE2_API static void operator delete[](void* pPtr) noexcept { _deallocateImpl(pPtr); }
+			TDE2_API static void operator delete(void* pPtr, const std::nothrow_t&) { _deallocateImpl(pPtr); }
+			TDE2_API static void operator delete[](void* pPtr, const std::nothrow_t&) { _deallocateImpl(pPtr); }
+			TDE2_API static void operator delete(void* pPtr) { _deallocateImpl(pPtr); }
+			TDE2_API static void operator delete[](void* pPtr) { _deallocateImpl(pPtr); }
 		private:
 			TDE2_API static void* _allocateImpl(std::size_t size)
 			{
@@ -160,12 +162,12 @@ namespace TDEngine2
 				}
 			}
 
-			TDE2_API TPtr<IAllocator> _getAllocator()
+			TDE2_API static TPtr<IAllocator> _getAllocator() noexcept
 			{
 				if (!mpTypeAllocator)
 				{
 					E_RESULT_CODE result = RC_OK;
-					mpTypeAllocator = CreatePoolAllocator(sizeof(T), alignof(T), allocatorPageSize, result);
+					mpTypeAllocator = TPtr<IAllocator>(CreatePoolAllocator(sizeof(T), alignof(T), allocatorPageSize, result));
 				}
 
 				return mpTypeAllocator;

@@ -30,7 +30,7 @@ namespace TDEngine2
 		\brief The class represents directed light source which is an analogue of sun light 
 	*/
 
-	class CDirectionalLight : public CBaseLight, public IDirectionalLight
+	class CDirectionalLight : public CBaseLight, public IDirectionalLight, public CPoolMemoryAllocPolicy<CDirectionalLight, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateDirectionalLight(E_RESULT_CODE&);

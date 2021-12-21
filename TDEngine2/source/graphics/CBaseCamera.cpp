@@ -11,7 +11,8 @@ namespace TDEngine2
 	CBaseCamera::CBaseCamera():
 		CBaseComponent(),
 		mZNear(0.1f),
-		mZFar(1000.f)
+		mZFar(1000.f),
+		mpCameraFrustum(nullptr)
 	{
 	}
 

@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include "../../core/memory/CPoolAllocator.h"
 #include "../../ecs/CBaseComponent.h"
 #include "../../math/TAABB.h"
 
@@ -30,7 +31,7 @@ namespace TDEngine2
 		\brief The class represents a component that stores information about object's boundaries
 	*/
 
-	class CBoundsComponent: public CBaseComponent
+	class CBoundsComponent: public CBaseComponent, public CPoolMemoryAllocPolicy<CBoundsComponent, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateBoundsComponent(E_RESULT_CODE&);

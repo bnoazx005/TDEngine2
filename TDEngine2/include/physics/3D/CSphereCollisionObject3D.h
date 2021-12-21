@@ -31,7 +31,7 @@ namespace TDEngine2
 		which is controlled by Bullet3 physics engine
 	*/
 
-	class CSphereCollisionObject3D : public CBaseCollisionObject3D
+	class CSphereCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CSphereCollisionObject3D, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateSphereCollisionObject3D(E_RESULT_CODE& result);

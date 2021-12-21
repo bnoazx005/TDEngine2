@@ -36,7 +36,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of UI element that represents labels
 	*/
 
-	class CLabel : public CBaseComponent
+	class CLabel : public CBaseComponent, public CPoolMemoryAllocPolicy<CLabel, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateLabel(E_RESULT_CODE& result);

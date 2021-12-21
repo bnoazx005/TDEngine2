@@ -40,7 +40,7 @@ namespace TDEngine2
 		But if they're matched at some axis minOffset contains position of a rectangle's pivot in coordinates relative to parent's rectangle.
 	*/
 
-	class CLayoutElement : public CBaseComponent
+	class CLayoutElement : public CBaseComponent, public CPoolMemoryAllocPolicy<CLayoutElement, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateLayoutElement(E_RESULT_CODE& result);

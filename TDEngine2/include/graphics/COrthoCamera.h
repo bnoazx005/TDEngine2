@@ -30,7 +30,7 @@ namespace TDEngine2
 		\brief The class represents a camera which uses an orthographic projection
 	*/
 
-	class COrthoCamera : public CBaseCamera, public IOrthoCamera
+	class COrthoCamera : public CBaseCamera, public IOrthoCamera, public CPoolMemoryAllocPolicy<COrthoCamera, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateOrthoCamera(E_RESULT_CODE&);

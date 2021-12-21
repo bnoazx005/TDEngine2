@@ -34,7 +34,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of UI element that represents an image. The entity is one of fundamental parts of UI.
 	*/
 
-	class CImage : public CBaseComponent
+	class CImage : public CBaseComponent, public CPoolMemoryAllocPolicy<CImage, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateImage(E_RESULT_CODE& result);

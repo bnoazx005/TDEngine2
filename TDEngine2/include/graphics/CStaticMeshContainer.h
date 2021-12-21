@@ -31,7 +31,7 @@ namespace TDEngine2
 		that stores a reference to a mesh resource, a material and other things
 	*/
 
-	class CStaticMeshContainer : public IStaticMeshContainer, public CBaseComponent
+	class CStaticMeshContainer : public IStaticMeshContainer, public CBaseComponent, public CPoolMemoryAllocPolicy<CStaticMeshContainer, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateStaticMeshContainer(E_RESULT_CODE& result);

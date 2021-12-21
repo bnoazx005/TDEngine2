@@ -31,7 +31,7 @@ namespace TDEngine2
 		By now only in plans only quad sprites support
 	*/
 
-	class CQuadSprite: public ISprite, public CBaseComponent
+	class CQuadSprite: public ISprite, public CBaseComponent, public CPoolMemoryAllocPolicy<CQuadSprite, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateQuadSprite(E_RESULT_CODE& result);

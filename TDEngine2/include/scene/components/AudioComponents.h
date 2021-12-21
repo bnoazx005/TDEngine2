@@ -52,7 +52,7 @@ namespace TDEngine2
 		\brief The class represents a component of a 3D audio source 
 	*/
 
-	class CAudioSourceComponent : public CBaseComponent
+	class CAudioSourceComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CAudioSourceComponent, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateAudioSourceComponent(E_RESULT_CODE&);

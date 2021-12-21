@@ -30,7 +30,7 @@ namespace TDEngine2
 		which is controlled by Box2D physics engine
 	*/
 
-	class CBoxCollisionObject2D : public CBaseCollisionObject2D
+	class CBoxCollisionObject2D : public CBaseCollisionObject2D, public CPoolMemoryAllocPolicy<CBoxCollisionObject2D, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateBoxCollisionObject2D(E_RESULT_CODE& result);

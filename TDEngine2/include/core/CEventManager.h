@@ -101,8 +101,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createNewListenersGroup(TypeId eventTypeId);
 		protected:
-			bool                mIsInitialized;
-
 			TListenersMap       mListenersMap;
 
 			TListenersMatrix    mListeners;

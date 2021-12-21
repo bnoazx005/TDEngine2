@@ -29,7 +29,7 @@ namespace TDEngine2
 		\brief The class represents a component that marks the object as a shadows caster
 	*/
 
-	class CShadowCasterComponent : public CBaseComponent
+	class CShadowCasterComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CShadowCasterComponent, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateShadowCasterComponent(E_RESULT_CODE&);

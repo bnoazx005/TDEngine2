@@ -10,6 +10,7 @@
 #include "../../ecs/CBaseComponent.h"
 #include "../../ecs/IComponentFactory.h"
 #include "../../core/Meta.h"
+#include "../../core/memory/CPoolAllocator.h"
 #include <unordered_map>
 
 
@@ -43,7 +44,7 @@ namespace TDEngine2
 		\brief The class represents directed light source which is an analogue of sun light
 	*/
 
-	class CAnimationContainerComponent : public CBaseComponent
+	class CAnimationContainerComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CAnimationContainerComponent, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateAnimationContainerComponent(E_RESULT_CODE&);

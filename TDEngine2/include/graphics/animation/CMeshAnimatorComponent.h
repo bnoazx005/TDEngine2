@@ -7,6 +7,7 @@
 #pragma once
 
 
+#include "../../core/memory/CPoolAllocator.h"
 #include "../../ecs/CBaseComponent.h"
 #include "../../ecs/IComponentFactory.h"
 #include "../../math/TMatrix4.h"
@@ -46,7 +47,7 @@ namespace TDEngine2
 		\brief The class represents animator system for skinned meshes
 	*/
 
-	class CMeshAnimatorComponent : public CBaseComponent
+	class CMeshAnimatorComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CMeshAnimatorComponent, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateMeshAnimatorComponent(E_RESULT_CODE&);

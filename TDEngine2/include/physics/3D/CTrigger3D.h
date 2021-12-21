@@ -31,7 +31,7 @@ namespace TDEngine2
 		\brief The class implements a functionality of a 3D trigger
 	*/
 
-	class CTrigger3D : public ITrigger3D, public CBaseComponent
+	class CTrigger3D : public ITrigger3D, public CBaseComponent, public CPoolMemoryAllocPolicy<CTrigger3D, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateTrigger3D(E_RESULT_CODE& result);

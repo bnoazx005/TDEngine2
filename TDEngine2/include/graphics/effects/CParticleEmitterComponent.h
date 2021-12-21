@@ -32,7 +32,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a particle system component
 	*/
 
-	class CParticleEmitter : public CBaseComponent
+	class CParticleEmitter : public CBaseComponent, public CPoolMemoryAllocPolicy<CParticleEmitter, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateParticleEmitter(E_RESULT_CODE& result);

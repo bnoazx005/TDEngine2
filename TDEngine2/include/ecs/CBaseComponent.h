@@ -10,6 +10,7 @@
 #include "IComponent.h"
 #include "../core/CBaseObject.h"
 #include "../core/Event.h"
+#include "../core/memory/CPoolAllocator.h"
 #include "../ecs/IComponentFactory.h"
 #include <vector>
 
@@ -333,7 +334,7 @@ namespace TDEngine2
 #define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)			\
 	TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE& result);																	\
 																																	\
-	class ComponentName : public CBaseComponent																						\
+	class ComponentName : public CBaseComponent, public CPoolMemoryAllocPolicy<ComponentName, 1 << 10>								\
 	{																																\
 		public:																														\
 			friend TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE&);															\

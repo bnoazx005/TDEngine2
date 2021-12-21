@@ -42,7 +42,7 @@ namespace TDEngine2
 		class CUIElementMeshData
 	*/
 
-	class CUIElementMeshData : public CBaseComponent
+	class CUIElementMeshData : public CBaseComponent, public CPoolMemoryAllocPolicy<CUIElementMeshData, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateUIElementMeshData(E_RESULT_CODE& result);

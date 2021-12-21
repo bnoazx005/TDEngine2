@@ -32,7 +32,7 @@ namespace TDEngine2
 		The main goal is to more accurate approximation of triangle meshes
 	*/
 
-	class CConvexHullCollisionObject3D : public CBaseCollisionObject3D
+	class CConvexHullCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CConvexHullCollisionObject3D, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateConvexHullCollisionObject3D(E_RESULT_CODE& result);

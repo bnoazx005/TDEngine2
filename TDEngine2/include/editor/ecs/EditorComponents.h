@@ -8,6 +8,7 @@
 
 
 #include "../../utils/Types.h"
+#include "../../core/memory/CPoolAllocator.h"
 #include "../../ecs/CBaseComponent.h"
 #include <vector>
 
@@ -32,7 +33,7 @@ namespace TDEngine2
 	TDE2_API IComponent* CreateSceneInfoComponent(E_RESULT_CODE& result);
 
 
-	class CSceneInfoComponent : public CBaseComponent
+	class CSceneInfoComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CSceneInfoComponent, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateSceneInfoComponent(E_RESULT_CODE&);
