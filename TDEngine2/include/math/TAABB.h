@@ -52,6 +52,8 @@ namespace TDEngine2
 
 		TDE2_API TAABB& operator= (const TAABB& aabb) = default;
 		TDE2_API TAABB& operator= (TAABB&& aabb) = default;
+
+		TDE2_API F32 GetVolume() const;
 	};
 
 

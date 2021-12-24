@@ -147,4 +147,25 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IAllocator, CPoolAllocator, result, objectSize, objectAlignment, pageSize);
 	}
+
+
+	/*!
+		\brief CPoolAllocatorsRegistry's definition
+	*/
+
+	static std::vector<TPtr<IAllocator>> TypesPoolAllocators;
+
+	IAllocator* CPoolAllocatorsRegistry::GetAllocator(USIZE objectSize, USIZE objectAlignment, USIZE pageSize)
+	{
+		E_RESULT_CODE result = RC_OK;
+		TypesPoolAllocators.push_back(TPtr<IAllocator>(CreatePoolAllocator(objectSize, objectAlignment, pageSize, result)));
+		TDE2_ASSERT(RC_OK == result);
+
+		return TypesPoolAllocators.back().Get();
+	}
+
+	void CPoolAllocatorsRegistry::ClearAllAllocators()
+	{
+		TypesPoolAllocators.clear();
+	}
 }

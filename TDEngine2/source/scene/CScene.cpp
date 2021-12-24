@@ -2,6 +2,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
@@ -358,6 +359,7 @@ namespace TDEngine2
 
 	void CScene::ForEachEntity(const std::function<void(CEntity*)>& action)
 	{
+		TDE2_PROFILER_SCOPE("CScene::ForEachEntity");
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (!action)

@@ -235,6 +235,30 @@ namespace TDEngine2
 		return TEventListenerId(GetTypeId());
 	}
 
+	void CSystemManager::ForEachSystem(const std::function<void(TSystemId systemId, const ISystem* const pSystem)> action) const
+	{
+		TDE2_ASSERT(action);
+		if (!action)
+		{
+			return;
+		}
+
+		for (auto&& currSystem : mpActiveSystems)
+		{
+			action(currSystem.mSystemId, currSystem.mpSystem);
+		}
+
+		for (auto&& currSystem : mpDeactivatedSystems)
+		{
+			action(currSystem.mSystemId, currSystem.mpSystem);
+		}
+	}
+
+	bool CSystemManager::IsSystemActive(TSystemId systemId) const
+	{
+		return std::find_if(mpActiveSystems.cbegin(), mpActiveSystems.cend(), [systemId](auto&& systemInfoEntity) { return systemId == systemInfoEntity.mSystemId; }) != mpActiveSystems.cend();
+	}
+
 	E_RESULT_CODE CSystemManager::_internalUnregisterSystem(TSystemId systemId)
 	{
 		if (systemId == TSystemId::Invalid)

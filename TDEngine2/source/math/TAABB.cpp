@@ -20,6 +20,13 @@ namespace TDEngine2
 		this->max = TVector3(center.x + halfHeight, center.y + halfHeight, center.z + halfDepth);
 	}
 
+	F32 TAABB::GetVolume() const
+	{
+		auto&& diag = max - min;
+		return CMathUtils::Abs(diag.x * diag.y * diag.z);
+	}
+
+
 	bool ContainsPoint(const TAABB& aabb, const TVector3& point)
 	{
 		const TVector3& min = aabb.min;

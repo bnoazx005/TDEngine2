@@ -2,6 +2,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/core/IEventManager.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -179,6 +180,8 @@ namespace TDEngine2
 
 	CEntity* CEntityManager::GetEntity(TEntityId entityId) const
 	{
+		TDE2_PROFILER_SCOPE("CEntityManager::GetEntity");
+
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		TEntitiesHashTable::const_iterator entityIter = mEntitiesHashTable.find(entityId);

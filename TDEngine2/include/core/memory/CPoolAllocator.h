@@ -129,6 +129,18 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The static class that is used by CPoolMemoryAllocPolicy to retrive their allocators
+	*/
+
+	class CPoolAllocatorsRegistry
+	{
+		public:
+			TDE2_API static IAllocator* GetAllocator(USIZE objectSize, USIZE objectAlignment, USIZE pageSize);
+			TDE2_API static void ClearAllAllocators();
+	};
+
+
+	/*!
 		\brief Derive your type from this below to provide custom pool allocator for it
 	*/
 
@@ -162,19 +174,18 @@ namespace TDEngine2
 				}
 			}
 
-			TDE2_API static TPtr<IAllocator> _getAllocator() noexcept
+			TDE2_API static IAllocator* _getAllocator() noexcept
 			{
 				if (!mpTypeAllocator)
 				{
-					E_RESULT_CODE result = RC_OK;
-					mpTypeAllocator = TPtr<IAllocator>(CreatePoolAllocator(sizeof(T), alignof(T), allocatorPageSize, result));
+					mpTypeAllocator = CPoolAllocatorsRegistry::GetAllocator(sizeof(T), alignof(T), allocatorPageSize);
 				}
 
 				return mpTypeAllocator;
 			}
 		private:
-			static TPtr<IAllocator> mpTypeAllocator;
+			static IAllocator* mpTypeAllocator;
 	};
 
-	template <typename T, USIZE allocatorPageSize> TPtr<IAllocator> CPoolMemoryAllocPolicy<T, allocatorPageSize>::mpTypeAllocator = TPtr<IAllocator>(nullptr);
+	template <typename T, USIZE allocatorPageSize> IAllocator* CPoolMemoryAllocPolicy<T, allocatorPageSize>::mpTypeAllocator = nullptr;
 }

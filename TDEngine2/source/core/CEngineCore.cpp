@@ -106,6 +106,8 @@ namespace TDEngine2
 
 			result = result | _cleanUpSubsystems();
 
+			CPoolAllocatorsRegistry::ClearAllAllocators();
+
 #if TDE2_EDITORS_ENABLED
 			U32 livingObjectsCount = CMemoryProfiler::Get()->GetLiveObjectsCount();
 			CMemoryProfiler::Get()->DumpInfo();

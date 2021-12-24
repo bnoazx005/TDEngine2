@@ -83,6 +83,9 @@ namespace TDEngine2
 			pReservedComponent->Free();
 		}
 
+		mActiveComponents.clear();
+		mDestroyedComponents.clear();
+
 		result = result | _unregisterBuiltinComponentFactories();
 
 		return result;

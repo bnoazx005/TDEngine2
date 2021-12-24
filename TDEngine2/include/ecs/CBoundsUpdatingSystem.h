@@ -90,9 +90,7 @@ namespace TDEngine2
 			TEntitiesArray    mStaticMeshesEntities;
 			TEntitiesArray    mSkinnedMeshesEntities;
 			TEntitiesArray    mSpritesEntities;
-#if TDE2_EDITORS_ENABLED
 			TEntitiesArray    mScenesBoundariesEntities;
-#endif
 
 			IResourceManager* mpResourceManager;
 

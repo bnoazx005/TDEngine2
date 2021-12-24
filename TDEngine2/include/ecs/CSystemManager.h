@@ -193,6 +193,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TSystemId FindSystem(TypeId systemTypeId) override;
+
+			TDE2_API void ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action = nullptr) const override;
+
+			TDE2_API bool IsSystemActive(TSystemId systemId) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSystemManager)
 

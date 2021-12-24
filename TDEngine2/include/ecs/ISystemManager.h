@@ -156,6 +156,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TSystemId FindSystem(TypeId systemTypeId) = 0;
+
+			/*!
+				\brief The method allows to iterate over all registered systems including deactivated ones
+			*/
+
+			TDE2_API virtual void ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action = nullptr) const = 0;
+
+			TDE2_API virtual bool IsSystemActive(TSystemId systemId) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystemManager)
 	};

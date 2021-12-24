@@ -55,14 +55,14 @@ namespace TDEngine2
 		mSkinnedMeshesEntities = pWorld->FindEntitiesWithComponents<CSkinnedMeshContainer>();
 		mSpritesEntities       = pWorld->FindEntitiesWithComponents<CQuadSprite>();
 
-#if TDE2_EDITORS_ENABLED
 		mScenesBoundariesEntities = pWorld->FindEntitiesWithComponents<CSceneInfoComponent>();
-#endif
 	}
 
 
 	static void ProcessEntities(IDebugUtility* pDebugUtility, IWorld* pWorld, const std::vector<TEntityId>& entities, bool isUpdateNeeded, const std::function<void(CEntity*)>& processCallback)
 	{
+		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::ProcessEntities");
+
 		CEntity* pEntity = nullptr;
 
 		for (TEntityId currEntity : entities)
@@ -248,14 +248,11 @@ namespace TDEngine2
 		ProcessEntities(mpDebugUtility, pWorld, mSkinnedMeshesEntities, isUpdateNeeded, [this](CEntity* pEntity) { ComputeSkinnedMeshBounds(mpResourceManager, pEntity); });
 		ProcessEntities(mpDebugUtility, pWorld, mSpritesEntities, isUpdateNeeded, std::bind(&ComputeSpritesBounds, std::placeholders::_1));
 
-#if TDE2_EDITORS_ENABLED
 		_processScenesEntities(pWorld);
-#endif
 
 		mCurrTimer += dt;
 	}
 
-#if TDE2_EDITORS_ENABLED
 	void CBoundsUpdatingSystem::_processScenesEntities(IWorld* pWorld)
 	{
 		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::_processScenesEntities");
@@ -302,7 +299,6 @@ namespace TDEngine2
 			}
 		}
 	}
-#endif
 
 	TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result)
 	{
