@@ -22,7 +22,7 @@ namespace TDEngine2
 		TDE2_API TypeId GetSystemType() const override			\
 		{														\
 			return Type::GetTypeId();							\
-		}
+		}								
 
 	/*!
 		\brief The macro is used to simplify system body's definition

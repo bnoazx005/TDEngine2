@@ -91,11 +91,17 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CTransformSystem::Update");
 
+		static std::vector<CTransform*> pCachedTransforms;
+		pCachedTransforms.clear();
+
+		const F32 zAxisDirection = mpGraphicsContext->GetPositiveZAxisDirection();
+
 		for (TEntityId currEntity : mTransformEntities)
 		{
 			if (CEntity* pEntity = pWorld->FindEntity(currEntity))
 			{
 				CTransform* pTransform = pEntity->GetComponent<CTransform>();
+				pCachedTransforms.push_back(pTransform);
 
 				const TEntityId parentEntityId = pTransform->GetParent();
 
@@ -104,9 +110,6 @@ namespace TDEngine2
 					continue;
 				}
 
-				auto scale = pTransform->GetScale();
-				scale.z *= mpGraphicsContext->GetPositiveZAxisDirection();
-
 				const TMatrix4 translationMatrix = TranslationMatrix(pTransform->GetPosition());
 				const TMatrix4 rotationMatrix    = RotationMatrix(pTransform->GetRotation());
 
@@ -114,7 +117,7 @@ namespace TDEngine2
 				TMatrix4 translateRotateMatrix =
 					(pEntity->HasComponent<CPerspectiveCamera>() || pEntity->HasComponent<COrthoCamera>()) ? rotationMatrix * translationMatrix : translationMatrix * rotationMatrix;
 
-				TMatrix4 localToWorldMatrix = translateRotateMatrix * ScaleMatrix(scale);
+				TMatrix4 localToWorldMatrix = translateRotateMatrix * ScaleMatrix(pTransform->GetScale() * zAxisDirection);
 
 				/// \note Implement parent-to-child relationship's update
 				
@@ -138,12 +141,11 @@ namespace TDEngine2
 		}
 
 		// \note Reset dirty flag for all transforms
-		for (TEntityId currEntity : mTransformEntities)
+		for (CTransform* pCurrTransform : pCachedTransforms)
 		{
-			if (CEntity* pEntity = pWorld->FindEntity(currEntity))
+			if (pCurrTransform)
 			{
-				CTransform* pTransform = pEntity->GetComponent<CTransform>();
-				pTransform->SetDirtyFlag(false);
+				pCurrTransform->SetDirtyFlag(false);
 			}
 		}
 	}

@@ -496,6 +496,8 @@ namespace TDEngine2
 
 	bool CComponentManager::_hasComponent(TypeId componentTypeId, TEntityId entityId)
 	{
+		TDE2_PROFILER_SCOPE("CComponentManager::_hasComponent");
+
 		U32 instanceHashValue = mComponentEntityMap[componentTypeId][entityId];
 
 		return instanceHashValue && (mComponentsHashTable.find(componentTypeId) != mComponentsHashTable.cend());

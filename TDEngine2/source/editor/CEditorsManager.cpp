@@ -26,6 +26,7 @@ namespace TDEngine2
 		{ E_EDITOR_TYPE::LEVEL_EDITOR, "Level Editor" },
 		{ E_EDITOR_TYPE::DEV_CONSOLE, "Console" },
 		{ E_EDITOR_TYPE::RENDER_TARGET_VIEWER, "RTs Viewer" },
+		{ E_EDITOR_TYPE::PROJECT_SETTINGS_EDITOR, "Project Settings" },
 	};
 
 
