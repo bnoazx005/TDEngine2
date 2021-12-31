@@ -180,6 +180,12 @@ namespace TDEngine2
 			TDE2_API CEntity* FindEntity(TEntityId entityId) const override;
 
 			/*!
+				\brief The method allows to iterate over all registered systems including deactivated ones
+			*/
+
+			TDE2_API void ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action = nullptr) const override;
+
+			/*!
 				\brief The method sets up time scale factor which impacts on update cycles of all entities and systems
 
 				\param[in] scaleFactor Could be positive, negative and zero value. The latter means some kind of pause

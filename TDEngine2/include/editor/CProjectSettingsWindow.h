@@ -8,12 +8,20 @@
 
 
 #include "IEditorWindow.h"
+#include "../core/Event.h"
 
 
 #if TDE2_EDITORS_ENABLED
 
 namespace TDEngine2
 {
+	class IEventManager;
+	class IWorld;
+
+	TDE2_DECLARE_SCOPED_PTR(IEventManager)
+	TDE2_DECLARE_SCOPED_PTR(IWorld)
+
+
 	/*!
 		\brief A factory function for creation objects of CProjectSettingsWindow's type
 
@@ -22,7 +30,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateProjectSettingsWindow(E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateProjectSettingsWindow(TPtr<IEventManager> pEventManager, E_RESULT_CODE& result);
 
 	/*!
 		class CCProjectSettingsWindow
@@ -30,18 +38,38 @@ namespace TDEngine2
 		\brief The class is an implementation of a window that allows to change ECS subsystem settings
 	*/
 
-	class CProjectSettingsWindow : public CBaseEditorWindow
+	class CProjectSettingsWindow : public CBaseEditorWindow, public IEventHandler
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateProjectSettingsWindow(E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateProjectSettingsWindow(TPtr<IEventManager>, E_RESULT_CODE&);
 		public:
+			TDE2_REGISTER_TYPE(CProjectSettingsWindow)
+
 			/*!
 				\brief The method initializes internal state of the editor
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init();
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IEventManager> pEventManager);
+
+			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProjectSettingsWindow)
 
@@ -52,6 +80,7 @@ namespace TDEngine2
 
 			TDE2_API void _onDraw() override;
 		protected:
+			TPtr<IWorld> mpWorld;
 	};
 }
 

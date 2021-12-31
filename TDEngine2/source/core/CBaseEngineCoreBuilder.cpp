@@ -460,7 +460,7 @@ namespace TDEngine2
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), pLevelEditorWindow },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance.Get(), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROJECT_SETTINGS_EDITOR), CreateProjectSettingsWindow(result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROJECT_SETTINGS_EDITOR), CreateProjectSettingsWindow(mpEventManagerInstance, result) },
 		};
 
 		dynamic_cast<CTimeProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);

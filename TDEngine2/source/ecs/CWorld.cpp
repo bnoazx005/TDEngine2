@@ -168,6 +168,11 @@ namespace TDEngine2
 		return mpEntityManager->GetEntity(entityId);
 	}
 
+	void CWorld::ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action) const
+	{
+		mpSystemManager->ForEachSystem(action);
+	}
+
 	void CWorld::SetTimeScaleFactor(F32 scaleFactor)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

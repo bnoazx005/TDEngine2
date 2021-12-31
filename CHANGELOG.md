@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.24] 2021-12-19
+## [0.5.24] 2021-12-31
 
 ### Added
 
 - The API of **ISystemManager** was extended with new public methods **ForEachSystems** that allows to iterate over systems and **IsSystemActive**.
 
 - The API of **ISystem** was extended with new public methods **IsActive**, **OnActivated** and **OnDeactivated**.
+
+- A new editor window was added for changing project's settings on the fly. For now it supports to enable/disable game systems.
 
 ### Changed
 

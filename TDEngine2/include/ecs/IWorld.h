@@ -168,6 +168,13 @@ namespace TDEngine2
 			{
 				return _findSystem(T::GetTypeId());
 			}
+			
+			/*!
+				\brief The method allows to iterate over all registered systems including deactivated ones
+			*/
+
+			TDE2_API virtual void ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action = nullptr) const = 0;
+
 
 			/*!
 				\brief The method returns a one way iterator to an array of components of specified type

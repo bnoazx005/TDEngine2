@@ -9,6 +9,7 @@
 
 #include "../core/IBaseObject.h"
 #include "../utils/Utils.h"
+#include <string>
 
 
 namespace TDEngine2
@@ -18,11 +19,17 @@ namespace TDEngine2
 		system's type retrieving
 	*/
 
-	#define REGISTER_SYSTEM_TYPE(Type)							\
-		TDE2_API TypeId GetSystemType() const override			\
-		{														\
-			return Type::GetTypeId();							\
-		}								
+	#define REGISTER_SYSTEM_TYPE(Type)								\
+		TDE2_API TypeId GetSystemType() const override				\
+		{															\
+			return Type::GetTypeId();								\
+		}															\
+																	\
+		TDE2_API const std::string& GetName() const override		\
+		{															\
+			static const std::string systemName(#Type);				\
+			return systemName;										\
+		}
 
 	/*!
 		\brief The macro is used to simplify system body's definition
@@ -83,6 +90,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool IsActive() const = 0;
+
+			TDE2_API virtual const std::string& GetName() const = 0;
 
 			/*!
 				\brief The method returns system type's identifier
