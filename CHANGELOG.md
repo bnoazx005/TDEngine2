@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **ISystemManager** was extended with new public methods **ForEachSystems** that allows to iterate over systems and **IsSystemActive**.
 
+- The API of **ISystem** was extended with new public methods **IsActive**, **OnActivated** and **OnDeactivated**.
+
 ### Changed
 
 - Now all components use their own pool allocators.

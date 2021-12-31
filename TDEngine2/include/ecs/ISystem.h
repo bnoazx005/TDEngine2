@@ -75,6 +75,15 @@ namespace TDEngine2
 
 			TDE2_API virtual void OnDestroy() = 0;
 
+			TDE2_API virtual void OnActivated() = 0;
+			TDE2_API virtual void OnDeactivated() = 0;
+
+			/*!
+				\brief The method returns true if the system is registered and active
+			*/
+
+			TDE2_API virtual bool IsActive() const = 0;
+
 			/*!
 				\brief The method returns system type's identifier
 				

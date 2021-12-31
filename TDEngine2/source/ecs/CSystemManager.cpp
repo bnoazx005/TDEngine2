@@ -114,6 +114,7 @@ namespace TDEngine2
 
 		if (ISystem* pSystem = targetSystemIter->mpSystem)
 		{
+			pSystem->OnActivated();
 			pSystem->InjectBindings(mpWorld);
 		}
 
@@ -135,6 +136,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		if (ISystem* pSystem = targetSystemIter->mpSystem)
+		{
+			pSystem->OnDeactivated();
+		}
+
 		mpDeactivatedSystems.emplace_back(*targetSystemIter);
 		mpActiveSystems.erase(targetSystemIter);
 
@@ -152,6 +158,7 @@ namespace TDEngine2
 			pCurrSystem = currSystemDesc.mpSystem;
 
 			pCurrSystem->OnInit();
+			pCurrSystem->OnActivated();
 		}
 
 		return RC_OK;
@@ -214,6 +221,7 @@ namespace TDEngine2
 			{
 				pCurrSystem = currSystemDesc.mpSystem;
 
+				pCurrSystem->OnDeactivated();
 				pCurrSystem->OnDestroy();
 			}
 		};

@@ -350,6 +350,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CUIElementsRenderSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CUIEventsSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CMeshAnimatorUpdatingSystem.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CBaseSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/components/ShadowMappingComponents.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/components/CBaseLight.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/components/CDirectionalLight.cpp"
