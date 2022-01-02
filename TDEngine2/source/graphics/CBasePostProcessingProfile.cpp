@@ -7,6 +7,7 @@ namespace TDEngine2
 {
 	struct TPostProcessingProfileIdentifiers
 	{
+		static const std::string mIsPostProcessingEnabledId;
 		static const std::string mBloomGroupParameters;
 		static const std::string mColorGradingGroupParameters;
 		static const std::string mToneMappingGroupParameters;
@@ -30,6 +31,8 @@ namespace TDEngine2
 			static const std::string mExposureId;
 		};
 	};
+
+	const std::string TPostProcessingProfileIdentifiers::mIsPostProcessingEnabledId = "post_processing_enabled";
 
 	const std::string TPostProcessingProfileIdentifiers::mBloomGroupParameters = "bloom_parameters";
 	const std::string TPostProcessingProfileIdentifiers::mColorGradingGroupParameters = "color_grading_params";
@@ -105,6 +108,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mIsPostProcessingEnabled = pReader->GetBool(TPostProcessingProfileIdentifiers::mIsPostProcessingEnabledId);
+
 		// \note Bloom parameters
 		pReader->BeginGroup(TPostProcessingProfileIdentifiers::mBloomGroupParameters);
 		{
@@ -140,6 +145,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		pWriter->SetBool(TPostProcessingProfileIdentifiers::mIsPostProcessingEnabledId, mIsPostProcessingEnabled);
 
 		// \note Bloom parameters
 		pWriter->BeginGroup(TPostProcessingProfileIdentifiers::mBloomGroupParameters);
@@ -183,6 +190,11 @@ namespace TDEngine2
 	const TPostProcessingProfileParameters::TColorGradingParameters& CBasePostProcessingProfile::GetColorGradingParameters() const
 	{
 		return mColorGradingParameters;
+	}
+
+	bool CBasePostProcessingProfile::IsPostProcessingEnabled() const
+	{
+		return mIsPostProcessingEnabled;
 	}
 
 	const TPtr<IResourceLoader> CBasePostProcessingProfile::_getResourceLoader()

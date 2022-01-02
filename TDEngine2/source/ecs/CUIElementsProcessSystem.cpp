@@ -51,12 +51,6 @@ namespace TDEngine2
 			return;
 		}
 
-		if (TEntityId::Invalid == pTransform->GetParent())
-		{
-			TDE2_ASSERT(false);
-			return;
-		}
-
 		CEntity* pParentEntity = pWorld->FindEntity(pTransform->GetParent());
 		if (!pParentEntity)
 		{
@@ -76,7 +70,7 @@ namespace TDEngine2
 			return;
 		}
 
-		auto parentWorldRect = pParentLayoutElement->GetWorldRect();
+		const auto& parentWorldRect = pParentLayoutElement->GetWorldRect();
 
 		const TVector2 parentLBRect = parentWorldRect.GetLeftBottom();
 		const TVector2 parentRectSize = parentWorldRect.GetSizes();

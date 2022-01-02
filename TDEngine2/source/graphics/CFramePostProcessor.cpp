@@ -22,7 +22,6 @@ namespace TDEngine2
 	{
 	}
 
-
 	E_RESULT_CODE CFramePostProcessor::Init(const TFramePostProcessorParameters& desc)
 	{
 		if (mIsInitialized)
@@ -85,11 +84,10 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFramePostProcessor::PreRender()
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
-	}
+
+	static const std::string FrontFrameTextureUniformId = "FrameTexture";
+	static const std::string BackFrameTextureUniformId = "FrameTexture1";
+
 
 	E_RESULT_CODE CFramePostProcessor::Render(const TRenderFrameCallback& onRenderFrameCallback)
 	{
@@ -98,10 +96,6 @@ namespace TDEngine2
 			LOG_WARNING("[FramePostProcessor] Render method was got empty \"onRenderFrameCallback\" argument");
 			return RC_INVALID_ARGS;
 		}
-
-		TPtr<IRenderTarget> pCurrRenderTarget;
-		TPtr<IRenderTarget> pTempRenderTarget;
-		TPtr<IRenderTarget> pBloomRenderTarget;
 
 		const U32 width = mpWindowSystem->GetWidth();
 		const U32 height = mpWindowSystem->GetHeight();
@@ -117,59 +111,11 @@ namespace TDEngine2
 			pToneMappingMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "colorGradingParams", TVector4(colorGradingParameters.mIsEnabled ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f));
 		}
 
-		if (mRenderTargetHandle == TResourceId::Invalid)
-		{
-			mRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled);
-			pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		_prepareRenderTargetsChain(width, height, isHDREnabled);
 
-			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
-			{
-				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget.Get());
-			
-				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<ITexture2D>(colorGradingParameters.mLookUpTextureId)))
-				{
-					//pColorLUT->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
-					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT.Get());
-				}
-			}
-
-			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, isHDREnabled, false);
-
-			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled, false);
-			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
-
-			pCurrRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-			pTempRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-		}
-
-		pCurrRenderTarget = GetValidPtrOrDefault(pCurrRenderTarget, mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle));
-		pBloomRenderTarget = GetValidPtrOrDefault(pBloomRenderTarget, mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle));
-		pTempRenderTarget = GetValidPtrOrDefault(pTempRenderTarget, mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle));
-
-		if (pCurrRenderTarget && (pCurrRenderTarget->GetWidth() != width || pCurrRenderTarget->GetHeight() != height))
-		{
-			pCurrRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-			pCurrRenderTarget->Resize(width, height);
-
-			if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
-			{
-				pToneMappingMaterial->SetTextureResource("FrameTexture", pCurrRenderTarget.Get());
-
-				if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<ITexture2D>(colorGradingParameters.mLookUpTextureId)))
-				{
-					//pColorLUT->SetFilterType(E_FILTER_TYPE::FT_BILINEAR);
-					pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT.Get());
-				}
-			}
-
-			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, isHDREnabled, false);
-			pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
-			pBloomRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-
-			mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDREnabled, false);
-			pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
-			pTempRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-		}
+		TPtr<IRenderTarget> pCurrRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		TPtr<IRenderTarget> pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
+		TPtr<IRenderTarget> pTempRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 
 		{
 			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
@@ -178,52 +124,121 @@ namespace TDEngine2
 			mpGraphicsContext->BindRenderTarget(0, nullptr);
 		}
 
-		const auto& bloomParameters = mpCurrPostProcessingProfile->GetBloomParameters();
-
-		if (bloomParameters.mIsEnabled)
-		{
-			pBloomRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-
-			if (auto pBloomMaterial = mpResourceManager->GetResource<IMaterial>(mBloomFilterMaterialHandle))
-			{
-				pBloomMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "threshold", bloomParameters.mThreshold);
-			}
-
-			const TVector4 blurParams { bloomParameters.mSmoothness, 0.0, 1.0f / static_cast<F32>(width), 1.0f / static_cast<F32>(height) };
-			const TVector4 vertBlurRotation { 0.0f, CMathConstants::Pi * 0.5f, 0.0f, 0.0f };
-
-			if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
-			{
-				pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", blurParams);
-				pBlurMaterial->SetVariableForInstance<U32>(DefaultMaterialInstanceId, "samplesCount", bloomParameters.mSamplesCount);
-			}
-
-			_renderTargetToTarget(pCurrRenderTarget.Get(), nullptr, pBloomRenderTarget.Get(), mBloomFilterMaterialHandle); // Bloom pass
-
-			// \todo Implement this stages
-			_renderTargetToTarget(pBloomRenderTarget.Get(), nullptr, pTempRenderTarget.Get(), mGaussianBlurMaterialHandle); // Horizontal Blur pass
-
-			if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
-			{
-				pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", blurParams + vertBlurRotation);
-			}
-
-			_renderTargetToTarget(pTempRenderTarget.Get(), nullptr, pBloomRenderTarget.Get(), mGaussianBlurMaterialHandle); // Vertical Blur pass
-			_renderTargetToTarget(pCurrRenderTarget.Get(), pBloomRenderTarget.Get(), pTempRenderTarget.Get(), mBloomFinalPassMaterialHandle); // Compose
-			_renderTargetToTarget(pTempRenderTarget.Get(), nullptr, pCurrRenderTarget.Get(), mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
-
-			mpOverlayRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
-		}
-
+		_processBloomPass(pCurrRenderTarget, pTempRenderTarget, pBloomRenderTarget);
 		_submitFullScreenTriangle(mpOverlayRenderQueue, mToneMappingPassMaterialHandle);
 
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFramePostProcessor::PostRender()
+	void CFramePostProcessor::_prepareRenderTargetsChain(U32 width, U32 height, bool isHDRSupport)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		if (TResourceId::Invalid != mRenderTargetHandle)
+		{
+			if (auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle))
+			{
+				if (pCurrRenderTarget && (pCurrRenderTarget->GetWidth() != width || pCurrRenderTarget->GetHeight() != height))
+				{
+					_resizeRenderTargetsChain(width, height);
+				}
+			}
+
+			return;
+		}
+
+		mRenderTargetHandle = _getRenderTarget(width, height, isHDRSupport);
+		mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDRSupport, false);
+
+		auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		auto pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+
+		pCurrRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+		pTempRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+		const bool isPostProcessingEnabled = mpCurrPostProcessingProfile->IsPostProcessingEnabled();
+
+		if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
+		{
+			pToneMappingMaterial->SetTextureResource(FrontFrameTextureUniformId, pCurrRenderTarget.Get());
+
+			/// \note If the color grading's pass was enabled assign its look up texture (assume that it has linear sampling)
+			{
+				const auto& colorGradingParameters = mpCurrPostProcessingProfile->GetColorGradingParameters();
+
+				if (isPostProcessingEnabled && colorGradingParameters.mIsEnabled)
+				{
+					if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<ITexture2D>(colorGradingParameters.mLookUpTextureId)))
+					{
+						pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT.Get());
+					}
+				}
+			}
+		}
+
+		if (isPostProcessingEnabled && mpCurrPostProcessingProfile->GetBloomParameters().mIsEnabled)
+		{
+			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, isHDRSupport, false);
+
+			if (auto pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle))
+			{
+				pBloomRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+			}
+		}
+	}
+
+	void CFramePostProcessor::_resizeRenderTargetsChain(U32 width, U32 height)
+	{
+		const std::array<TResourceId, 3> renderTargetHandles
+		{
+			mRenderTargetHandle,
+			mBloomRenderTargetHandle,
+			mTemporaryRenderTargetHandle
+		};
+
+		for (const TResourceId& currTargetHandle : renderTargetHandles)
+		{
+			if (auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(currTargetHandle))
+			{
+				pCurrRenderTarget->Resize(width, height);
+			}
+		}
+	}
+
+	void CFramePostProcessor::_processBloomPass(TPtr<IRenderTarget> pFrontTarget, TPtr<IRenderTarget> pBackTarget, TPtr<IRenderTarget> pBloomTarget)
+	{
+		const auto& bloomParameters = mpCurrPostProcessingProfile->GetBloomParameters();
+
+		if (!mpCurrPostProcessingProfile->IsPostProcessingEnabled() || !bloomParameters.mIsEnabled)
+		{
+			return;
+		}
+
+		if (auto pBloomMaterial = mpResourceManager->GetResource<IMaterial>(mBloomFilterMaterialHandle))
+		{
+			pBloomMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "threshold", bloomParameters.mThreshold);
+		}
+
+		const TVector4 blurParams{ bloomParameters.mSmoothness, 0.0, 1.0f / static_cast<F32>(pFrontTarget->GetWidth()), 1.0f / static_cast<F32>(pFrontTarget->GetHeight()) };
+		const TVector4 vertBlurRotation{ 0.0f, CMathConstants::Pi * 0.5f, 0.0f, 0.0f };
+
+		if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
+		{
+			pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", blurParams);
+			pBlurMaterial->SetVariableForInstance<U32>(DefaultMaterialInstanceId, "samplesCount", bloomParameters.mSamplesCount);
+		}
+
+		_renderTargetToTarget(pFrontTarget, nullptr, pBloomTarget, mBloomFilterMaterialHandle); // Bloom pass
+		_renderTargetToTarget(pBloomTarget, nullptr, pBackTarget, mGaussianBlurMaterialHandle); // Horizontal Blur pass
+
+		if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
+		{
+			pBlurMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "blurParams", blurParams + vertBlurRotation);
+		}
+
+		_renderTargetToTarget(pBackTarget, nullptr, pBloomTarget, mGaussianBlurMaterialHandle); // Vertical Blur pass
+		_renderTargetToTarget(pFrontTarget, pBloomTarget, pBackTarget, mBloomFinalPassMaterialHandle); // Compose
+		_renderTargetToTarget(pBackTarget, nullptr, pFrontTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
+
+		mpOverlayRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 	}
 
 	void CFramePostProcessor::_submitFullScreenTriangle(CRenderQueue* pRenderQueue, TResourceId materialHandle, bool drawImmediately)
@@ -241,20 +256,20 @@ namespace TDEngine2
 			pDrawCommand->Submit(mpGraphicsContext, mpResourceManager.Get(), mpGlobalShaderProperties);
 		}
 	}
-
-	void CFramePostProcessor::_renderTargetToTarget(IRenderTarget* pSource, IRenderTarget* pExtraSource, IRenderTarget* pDest, TResourceId materialHandle)
+	 
+	void CFramePostProcessor::_renderTargetToTarget(TPtr<IRenderTarget> pSource, TPtr<IRenderTarget> pExtraSource, TPtr<IRenderTarget> pDest, TResourceId materialHandle)
 	{
 		mpGraphicsContext->SetDepthBufferEnabled(false);
-		mpGraphicsContext->BindRenderTarget(0, pDest);
+		mpGraphicsContext->BindRenderTarget(0, pDest.Get());
 		mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pDest->GetWidth()), static_cast<F32>(pDest->GetHeight()), 0.0f, 1.0f);
 
 		if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(materialHandle))
 		{
-			pMaterial->SetTextureResource("FrameTexture", pSource);
+			pMaterial->SetTextureResource(FrontFrameTextureUniformId, pSource.Get());
 
 			if (pExtraSource)
 			{
-				pMaterial->SetTextureResource("FrameTexture1", pExtraSource);
+				pMaterial->SetTextureResource(BackFrameTextureUniformId, pExtraSource.Get());
 			}
 		}
 
@@ -267,9 +282,15 @@ namespace TDEngine2
 
 	TResourceId CFramePostProcessor::_getRenderTarget(U32 width, U32 height, bool isHDRSupport, bool isMainTarget)
 	{
+		static const std::string renderTartetIdentifiers[2]
+		{
+			"MainRenderTarget",
+			"SecondaryRenderTarget"
+		};
+
 		static U32 counter = 0;
 
-		const std::string renderTargetName = isMainTarget ? "MainRenderTarget" : "SecondaryRenderTarget" + std::to_string(counter++);
+		const std::string renderTargetName = isMainTarget ? renderTartetIdentifiers[0] : renderTartetIdentifiers[1] + std::to_string(counter++);
 
 		return mpResourceManager->Create<IRenderTarget>(renderTargetName, TTexture2DParameters{ width, height, isHDRSupport ? FT_FLOAT4 : FT_NORM_UBYTE4, 1, 1, 0 });
 	}

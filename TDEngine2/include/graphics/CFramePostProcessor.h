@@ -69,14 +69,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetProcessingProfile(const IPostProcessingProfile* pProfileResource) override;
 
 			/*!
-				\brief The method implements all the logic that should be done before the actual frame'll be drawn
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE PreRender() override;
-
-			/*!
 				\brief The method implements all the logic that should be done when all geometry is rendered and
 				post processing effects are applied
 
@@ -86,19 +78,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback) override;
-
-			/*!
-				\brief The method implements all the logic that should be done after the actual frame'll be drawn
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE PostRender() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePostProcessor)
 
 			TDE2_API void _submitFullScreenTriangle(CRenderQueue* pRenderQueue, TResourceId materialHandle, bool drawImmediately = false);
-			TDE2_API void _renderTargetToTarget(IRenderTarget* pSource, IRenderTarget* pExtraSource, IRenderTarget* pDest, TResourceId materialHandle);
+			TDE2_API void _renderTargetToTarget(TPtr<IRenderTarget> pSource, TPtr<IRenderTarget> pExtraSource, TPtr<IRenderTarget> pDest, TResourceId materialHandle);
+
+			TDE2_API void _prepareRenderTargetsChain(U32 width, U32 height, bool isHDRSupport = false);
+			TDE2_API void _resizeRenderTargetsChain(U32 width, U32 height);
+
+			TDE2_API void _processBloomPass(TPtr<IRenderTarget> pFrontTarget, TPtr<IRenderTarget> pBackTarget, TPtr<IRenderTarget> pBloomTarget);
 
 			TDE2_API TResourceId _getRenderTarget(U32 width, U32 height, bool isHDRSupport = false, bool isMainTarget = true);
 		protected:

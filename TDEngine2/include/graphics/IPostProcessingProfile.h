@@ -47,7 +47,7 @@ namespace TDEngine2
 			F32 mExposure = 2.5f;
 		} TToneMappingParameters, *TToneMappingParametersPtr;
 
-
+		bool mIsEnabled = true;
 	} TPostProcessingProfileParameters, *TPostProcessingProfileParametersPtr;
 
 
@@ -102,6 +102,8 @@ namespace TDEngine2
 			TDE2_API virtual const TPostProcessingProfileParameters::TToneMappingParameters& GetToneMappingParameters() const = 0;
 			TDE2_API virtual const TPostProcessingProfileParameters::TBloomParameters& GetBloomParameters() const = 0;
 			TDE2_API virtual const TPostProcessingProfileParameters::TColorGradingParameters& GetColorGradingParameters() const = 0;
+
+			TDE2_API virtual bool IsPostProcessingEnabled() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPostProcessingProfile)
 	};

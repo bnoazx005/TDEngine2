@@ -8,7 +8,7 @@
 
 
 #include "IPostProcessingProfile.h"
-#include "./../core/CBaseResource.h"
+#include "../core/CBaseResource.h"
 
 
 namespace TDEngine2
@@ -142,6 +142,7 @@ namespace TDEngine2
 			TDE2_API const TPostProcessingProfileParameters::TBloomParameters& GetBloomParameters() const override;
 			TDE2_API const TPostProcessingProfileParameters::TColorGradingParameters& GetColorGradingParameters() const override;
 
+			TDE2_API bool IsPostProcessingEnabled() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePostProcessingProfile)
 
@@ -154,6 +155,8 @@ namespace TDEngine2
 			TPostProcessingProfileParameters::TBloomParameters mBloomParameters;
 
 			TPostProcessingProfileParameters::TColorGradingParameters mColorGradingParameters;
+
+			bool mIsPostProcessingEnabled;
 	};
 
 

@@ -83,9 +83,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoundsUpdatingSystem)
 
-#if TDE2_EDITORS_ENABLED
 			TDE2_API void _processScenesEntities(IWorld* pWorld);
-#endif
 		protected:
 			TEntitiesArray    mStaticMeshesEntities;
 			TEntitiesArray    mSkinnedMeshesEntities;
