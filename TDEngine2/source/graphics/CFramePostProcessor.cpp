@@ -176,7 +176,9 @@ namespace TDEngine2
 
 		if (isPostProcessingEnabled && mpCurrPostProcessingProfile->GetBloomParameters().mIsEnabled)
 		{
-			mBloomRenderTargetHandle = _getRenderTarget(width / 2, height / 2, isHDRSupport, false);
+			const U16 downsampleCoeff = 1 << (TPostProcessingProfileParameters::TBloomParameters::mMaxQuality - mpCurrPostProcessingProfile->GetBloomParameters().mQuality + 1);
+
+			mBloomRenderTargetHandle = _getRenderTarget(width / downsampleCoeff, height / downsampleCoeff, isHDRSupport, false);
 
 			if (auto pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle))
 			{

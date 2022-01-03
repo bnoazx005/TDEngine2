@@ -29,10 +29,14 @@ namespace TDEngine2
 	
 		typedef struct TBloomParameters
 		{
+			static constexpr U16 mMinQuality = 1;
+			static constexpr U16 mMaxQuality = 3;
+
 			bool mIsEnabled = false;
 			F32 mThreshold = 1.5f;
 			F32 mSmoothness = 1.2f; // \note The same as Gaussian blur's scale
 			U32 mSamplesCount = 16;
+			U16 mQuality = mMaxQuality; /// \note The less value the lower quality of bloom's effect
 		} TBloomParameters, *TBloomParametersPtr;
 
 		typedef struct TColorGradingParameters

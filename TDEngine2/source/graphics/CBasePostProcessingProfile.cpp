@@ -1,6 +1,7 @@
 #include "../../include/graphics/CBasePostProcessingProfile.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/platform/CYAMLFile.h"
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -19,6 +20,7 @@ namespace TDEngine2
 			static const std::string mThresholdId;
 			static const std::string mSmoothnessId;
 			static const std::string mSamplesCountId;
+			static const std::string mQualityId;
 		};
 
 		struct TColorGradingParameters
@@ -42,6 +44,7 @@ namespace TDEngine2
 	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mThresholdId = "threshold";
 	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mSmoothnessId = "smoothness";
 	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mSamplesCountId = "samples_count";
+	const std::string TPostProcessingProfileIdentifiers::TBloomParameters::mQualityId = "quality";
 
 	const std::string TPostProcessingProfileIdentifiers::TColorGradingParameters::mColorLookUpTextureId = "color_lut_id";
 
@@ -117,6 +120,9 @@ namespace TDEngine2
 			mBloomParameters.mThreshold = pReader->GetFloat(TPostProcessingProfileIdentifiers::TBloomParameters::mThresholdId);
 			mBloomParameters.mSmoothness = pReader->GetFloat(TPostProcessingProfileIdentifiers::TBloomParameters::mSmoothnessId);
 			mBloomParameters.mSamplesCount = pReader->GetUInt32(TPostProcessingProfileIdentifiers::TBloomParameters::mSamplesCountId);
+			mBloomParameters.mQuality = std::max<U16>(TPostProcessingProfileParameters::TBloomParameters::mMinQuality, 
+											std::min<U16>(TPostProcessingProfileParameters::TBloomParameters::mMaxQuality, 
+															pReader->GetUInt16(TPostProcessingProfileIdentifiers::TBloomParameters::mQualityId)));
 		}
 		pReader->EndGroup();
 
@@ -155,6 +161,10 @@ namespace TDEngine2
 			pWriter->SetFloat(TPostProcessingProfileIdentifiers::TBloomParameters::mThresholdId, mBloomParameters.mThreshold);
 			pWriter->SetFloat(TPostProcessingProfileIdentifiers::TBloomParameters::mSmoothnessId, mBloomParameters.mSmoothness);
 			pWriter->SetUInt32(TPostProcessingProfileIdentifiers::TBloomParameters::mSamplesCountId, mBloomParameters.mSamplesCount);
+
+			pWriter->SetUInt16(TPostProcessingProfileIdentifiers::TBloomParameters::mQualityId, 
+				std::max<U16>(TPostProcessingProfileParameters::TBloomParameters::mMinQuality,
+					std::min<U16>(TPostProcessingProfileParameters::TBloomParameters::mMaxQuality, mBloomParameters.mQuality)));
 		}
 		pWriter->EndGroup();
 
