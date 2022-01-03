@@ -1,0 +1,13 @@
+post_processing_enabled: true
+bloom_parameters: 
+  enabled: 1
+  samples_count: 3
+  smoothness: "1.5"
+  threshold: "1.5"
+  quality: 3
+color_grading_params:
+  enabled: 1
+  color_lut_id: "Resources/Textures/LUTs/ColorLUT.png"
+tone_mapping_parameters:
+  enabled: 1
+  exposure: 2.5

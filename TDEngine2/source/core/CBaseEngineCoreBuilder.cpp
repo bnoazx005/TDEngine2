@@ -352,7 +352,7 @@ namespace TDEngine2
 
 		if (pFramePostProcessor)
 		{
-			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("default-profile.camera_profile");
+			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("DefaultConfigs/default-profile.camera_profile");
 			if (TResourceId::Invalid == defaultProfileResourceId)
 			{
 				return RC_FILE_NOT_FOUND;
@@ -626,6 +626,7 @@ namespace TDEngine2
 
 		static const std::string baseShadersPath = baseResourcesPath + "Shaders/";
 		static const std::string baseMaterialsPath = baseResourcesPath + "Materials/";
+		static const std::string baseConfigsPath = baseResourcesPath + "Configs/";
 
 		std::string baseDefaultShadersPath = baseShadersPath + "Default";
 		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
@@ -646,6 +647,7 @@ namespace TDEngine2
 		}
 
 		if ((RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseResourcesPath, "Resources/"))) || 
+			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseConfigsPath, "DefaultConfigs/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseMaterialsPath, "DefaultMaterials/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(basePostEffectsShadersPath, "Shaders/PostEffects/"))) ||

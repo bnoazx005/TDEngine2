@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.25] 2022-01-03
 
+### Added
+
+- Now **default-profile.camera_profile** is a part of common resources and can be loaded via _DefaultConfigs/default-profile.camera_profile_ identifier.
+
+- Also all configuration assets are available using the following _DefaultConfigs/_ virtual path.
+
 ### Changed 
 
 - The implementation of **CFramePostProcessor** was refactored and cleaned up
