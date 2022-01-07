@@ -134,7 +134,7 @@ namespace TDEngine2
 		}
 
 		mInternalStream.seekg(0, std::ios::end);
-		TSizeType length = mInternalStream.tellg();
+		TSizeType length = static_cast<TSizeType>(mInternalStream.tellg());
 
 		mInternalStream.clear();   // \note Since ignore will have set eof.
 		mInternalStream.seekg(0, std::ios_base::beg);

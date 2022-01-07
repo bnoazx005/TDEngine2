@@ -14,6 +14,7 @@
 namespace TDEngine2
 {
 	class CTransform;
+	class CBoundsComponent;
 	class IGraphicsContext;
 
 
@@ -39,6 +40,14 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateTransformSystem(IGraphicsContext*, E_RESULT_CODE&);
+		public:
+			struct TSystemContext
+			{
+				std::vector<CTransform*>       mpTransforms;
+				std::vector<CBoundsComponent*> mpBounds;
+				std::vector<U32>               mParentsHashTable;
+				std::vector<bool>              mHasCameras;
+			};
 		public:
 			TDE2_SYSTEM(CTransformSystem);
 
@@ -73,7 +82,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransformSystem)
 		protected:
-			TEntitiesArray    mTransformEntities;
+			TSystemContext    mComponentsContext;
 
 			IGraphicsContext* mpGraphicsContext;
 	};
