@@ -815,4 +815,17 @@ namespace TDEngine2
 
 		callback();
 	}
+
+
+	template <typename... TArgs> 
+	struct TContainsType 
+	{
+		static constexpr bool mValue = false;
+	};
+
+	template <typename TGivenType, typename TCurrentType, typename... TArgs>
+	struct TContainsType<TGivenType, TCurrentType, TArgs...> 
+	{
+		static constexpr bool mValue = std::is_same<TGivenType, TCurrentType>::value || TContainsType<TGivenType, TArgs...>::mValue;
+	};
 }

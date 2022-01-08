@@ -10,10 +10,13 @@
 #include "../core/IBaseObject.h"
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
+#include "CEntity.h"
 #include "CBaseComponent.h"
 #include <functional>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <stack>
 
 
 namespace TDEngine2
@@ -24,10 +27,29 @@ namespace TDEngine2
 	class IComponentIterator;
 	class IEventManager;
 	class IRaycastContext;
+	class CTransform;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
 	TDE2_DECLARE_SCOPED_PTR(IRaycastContext)
+
+
+	/*!
+		struct TComponentsQueryLocalSlice
+
+		\brief The type is used to retrieve local independent copy of a part of components arrays. It can be used
+		to speed up iteration over them than same GetComponent<> invokations.
+	*/
+
+
+	template <typename... TArgs>
+	struct TComponentsQueryLocalSlice
+	{
+		static constexpr USIZE             mInvalidParentIndex = (std::numeric_limits<USIZE>::max)();
+
+		std::vector<USIZE>                 mParentsToChildMapping; ///< Contains indices of parents for each element of a components array
+		std::tuple<std::vector<TArgs*>...> mComponentsSlice;
+	};
 
 
 	/*!
@@ -258,6 +280,60 @@ namespace TDEngine2
 			{
 				return _findEntityWithUniqueComponent(TComponentType::GetTypeId());
 			}
+
+			template <typename... TArgs>
+			TDE2_API TComponentsQueryLocalSlice<TArgs...> CreateLocalComponentsSlice()
+			{
+				std::vector<TEntityId> entities = FindEntitiesWithComponents<TArgs...>();
+				
+				TComponentsQueryLocalSlice<TArgs...> result;
+
+				if (TContainsType<CTransform, TArgs...>::mValue) /// \note For CTransform we should sort all entities that parents should preceede their children
+				{
+					/// \note Fill up relationships table to sort entities based on their dependencies 
+					std::unordered_map<TEntityId, std::vector<TEntityId>> parentToChildRelations;
+
+					for (TEntityId currEntityId : entities)
+					{
+						if (CEntity* pEntity = FindEntity(currEntityId))
+						{
+							parentToChildRelations[pEntity->GetComponent<CTransform>()->GetParent()].push_back(pEntity->GetId());
+						}
+					}
+
+					entities.clear();
+
+					std::stack<std::tuple<TEntityId, USIZE>> entitiesToProcess;
+
+					for (TEntityId currEntityId : parentToChildRelations[TEntityId::Invalid])
+					{
+						entitiesToProcess.push({ currEntityId, TComponentsQueryLocalSlice<TArgs...>::mInvalidParentIndex });
+					}
+
+					TEntityId currEntityId;
+					USIZE currParentElementIndex = 0;
+
+					while (!entitiesToProcess.empty())
+					{
+						std::tie(currEntityId, currParentElementIndex) = entitiesToProcess.top();
+						entitiesToProcess.pop();
+
+						result.mParentsToChildMapping.push_back(currParentElementIndex);
+						entities.push_back(currEntityId);
+
+						const USIZE parentIndex = entities.size() - 1;
+
+						for (TEntityId currEntityId : parentToChildRelations[currEntityId])
+						{
+							entitiesToProcess.push({ currEntityId, parentIndex });
+						}
+					}
+				}
+				
+				result.mComponentsSlice = std::make_tuple(_getComponentsOfTypeFromEntities<TArgs>(entities)...);
+
+				return std::move(result);
+			}
 			
 			/*!
 				\brief The method registers given raycasting context within the world's instance
@@ -310,6 +386,25 @@ namespace TDEngine2
 			TDE2_API virtual TEntityId _findEntityWithUniqueComponent(TypeId typeId) = 0;
 
 			TDE2_API virtual TSystemId _findSystem(TypeId typeId) = 0;
+
+			template <typename TComponentType>
+			TDE2_API std::vector<TComponentType*> _getComponentsOfTypeFromEntities(const std::vector<TEntityId>& entities)
+			{
+				std::vector<TComponentType*> components;
+
+				for (TEntityId currEntityId : entities)
+				{
+					if (auto&& pEntity = FindEntity(currEntityId))
+					{
+						if (TComponentType* pComponent = pEntity->GetComponent<TComponentType>())
+						{
+							components.push_back(pComponent);
+						}
+					}
+				}
+
+				return std::move(components);
+			}
 	};
 
 

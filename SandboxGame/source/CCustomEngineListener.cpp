@@ -54,6 +54,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pTriggerEntity->AddComponent<CTrigger2D>();
 
 	//mpResourceManager->Load<IStaticMesh>("hq.mesh");
+	mpWorld->CreateLocalComponentsSlice<CTransform, CLabel>();
 
 #if 1 /// Create a static mesh
 	auto pMeshEntity = mpWorld->CreateEntity();
