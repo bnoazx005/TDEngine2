@@ -15,9 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Also all configuration assets are available using the following _DefaultConfigs/_ virtual path.
 
+- **CreateComponentsLocalSlice** was added into API of **IWorld**.
+
 ### Changed 
 
 - The implementation of **CFramePostProcessor** was refactored and cleaned up
+
+### Fixed
+
+- The performance of builtin systems was improved due to move to cache friendly code in their code.
 
 ## [0.5.24] 2021-12-31
 

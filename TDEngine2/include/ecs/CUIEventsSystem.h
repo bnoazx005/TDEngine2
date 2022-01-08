@@ -15,6 +15,9 @@ namespace TDEngine2
 {
 	class IInputContext;
 	class IDesktopInputContext;
+	class CTransform;
+	class CInputReceiver;
+	class CLayoutElement;
 
 
 	/*!
@@ -39,6 +42,13 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateUIEventsSystem(IInputContext*, E_RESULT_CODE&);
+		public:
+			struct TSystemContext
+			{
+				std::vector<CTransform*>     mpTransforms;
+				std::vector<CLayoutElement*> mpLayoutElements;
+				std::vector<CInputReceiver*> mpInputReceivers;
+			};
 		public:
 			TDE2_SYSTEM(CUIEventsSystem);
 
@@ -73,8 +83,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIEventsSystem)
 		protected:
-			TEntitiesArray mInputReceivers;
-			
+			TSystemContext mContext;
+
 			IInputContext* mpInputContext; 
 			IDesktopInputContext* mpDesktopInputContext;
 	};

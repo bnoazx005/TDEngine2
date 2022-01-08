@@ -69,7 +69,13 @@ namespace TDEngine2
 
 	void CUIEventsSystem::InjectBindings(IWorld* pWorld)
 	{
-		mInputReceivers.clear();
+		auto& transforms     = mContext.mpTransforms;
+		auto& layoutElements = mContext.mpLayoutElements;
+		auto& inputReceivers = mContext.mpInputReceivers;
+
+		transforms.clear();
+		layoutElements.clear();
+		inputReceivers.clear();
 
 		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
 		const TEntityId mainCanvasEntityId = FindEntityWithMainCanvas(pWorld);
@@ -101,7 +107,9 @@ namespace TDEngine2
 			{
 				if (!pInputReceiver->IsIgnoreInputFlag())
 				{
-					mInputReceivers.emplace_back(currEntityId);
+					inputReceivers.push_back(pInputReceiver);
+					transforms.push_back(pEntity->GetComponent<CTransform>());
+					layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
 				}
 			}
 
@@ -119,8 +127,6 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CUIEventsSystem::Update");
 
-		CEntity* pEntity = nullptr;
-
 		CInputReceiver* pInputReceiver = nullptr;
 		CLayoutElement* pLayoutElement = nullptr;
 		CTransform* pTransform = nullptr;
@@ -128,14 +134,16 @@ namespace TDEngine2
 		const TVector3 mousePosition3d = mpDesktopInputContext->GetMousePosition();
 		const TVector2 mousePosition { mousePosition3d.x, mousePosition3d.y };
 
+		auto& transforms     = mContext.mpTransforms;
+		auto& layoutElements = mContext.mpLayoutElements;
+		auto& inputReceivers = mContext.mpInputReceivers;
+
 		/// \note Update is executed in order of existing hierarchy of elements
-		for (auto&& currEntityId : mInputReceivers)
-		{
-			pEntity = pWorld->FindEntity(currEntityId);
-		
-			pTransform = pEntity->GetComponent<CTransform>();
-			pInputReceiver = pEntity->GetComponent<CInputReceiver>();
-			pLayoutElement = pEntity->GetComponent<CLayoutElement>();
+		for (USIZE i = 0; i < transforms.size(); ++i)
+		{		
+			pTransform     = transforms[i];
+			pInputReceiver = inputReceivers[i];
+			pLayoutElement = layoutElements[i];
 
 			if (pInputReceiver->IsIgnoreInputFlag())
 			{
