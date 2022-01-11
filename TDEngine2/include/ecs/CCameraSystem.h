@@ -50,6 +50,13 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateCameraSystem(const IWindowSystem*, IGraphicsContext*, IRenderer*, E_RESULT_CODE&);
+
+		public:
+			struct TSystemContext
+			{
+				std::vector<CBaseCamera*> mpCameras;
+				std::vector<CTransform*>  mpTransforms;
+			};
 		public:
 			TDE2_SYSTEM(CCameraSystem);
 
@@ -126,7 +133,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCameraSystem)
 		protected:
-			TEntitiesArray       mCamerasEntities;
+			TSystemContext       mCamerasContext;
 
 			IGraphicsContext*    mpGraphicsContext;
 

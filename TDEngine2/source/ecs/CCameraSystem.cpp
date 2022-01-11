@@ -44,7 +44,25 @@ namespace TDEngine2
 
 	void CCameraSystem::InjectBindings(IWorld* pWorld)
 	{
-		mCamerasEntities = pWorld->FindEntitiesWithAny<COrthoCamera, CPerspectiveCamera>();
+		auto&& entities = pWorld->FindEntitiesWithAny<COrthoCamera, CPerspectiveCamera>();
+
+		auto& cameras = mCamerasContext.mpCameras;
+		auto& transforms = mCamerasContext.mpTransforms;
+
+		cameras.clear();
+		transforms.clear();
+
+		for (auto currEntityId : entities)
+		{
+			if (auto pCurrEntity = pWorld->FindEntity(currEntityId))
+			{
+				CBaseCamera* pCamera = pCurrEntity->GetComponent<CPerspectiveCamera>();
+				pCamera = pCamera ? pCamera : pCurrEntity->GetComponent<COrthoCamera>();
+
+				cameras.push_back(pCamera);
+				transforms.push_back(pCurrEntity->GetComponent<CTransform>());
+			}
+		}
 	}
 
 	void CCameraSystem::Update(IWorld* pWorld, F32 dt)
@@ -60,21 +78,10 @@ namespace TDEngine2
 
 		CEntity* pCurrEntity = nullptr;
 
-		for (TEntityId currEntityId : mCamerasEntities)
+		for (USIZE i = 0; i < mCamerasContext.mpCameras.size(); ++i)
 		{
-			pCurrEntity = pWorld->FindEntity(currEntityId);
-			if (!pCurrEntity)
-			{
-				continue;
-			}
-
-			pCurrCamera = pCurrEntity->GetComponent<CPerspectiveCamera>();
-			if (!pCurrCamera)
-			{
-				pCurrCamera = pCurrEntity->GetComponent<COrthoCamera>();
-			}
-
-			pCurrTransform = pCurrEntity->GetComponent<CTransform>();
+			pCurrCamera = mCamerasContext.mpCameras[i];
+			pCurrTransform = mCamerasContext.mpTransforms[i];
 
 			TMatrix4 viewMatrix = pCurrTransform->GetLocalToWorldTransform();
 
