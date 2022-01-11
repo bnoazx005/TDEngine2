@@ -180,6 +180,11 @@ namespace TDEngine2
 			if (!pCanvasEntity || (pCanvasEntity->GetId() != pLayoutElement->GetOwnerCanvasId()))
 			{
 				pCanvasEntity = pWorld->FindEntity(pLayoutElement->GetOwnerCanvasId());
+				if (!pCanvasEntity)
+				{
+					return;
+				}
+
 				pCurrCanvas = pCanvasEntity->GetComponent<CCanvas>();
 			}
 

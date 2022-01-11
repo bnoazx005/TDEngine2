@@ -15,6 +15,12 @@ namespace TDEngine2
 {
 	class IGraphicsContext;
 	class IResourceManager;
+	class CUIElementMeshData;
+	class CLayoutElement;
+	class CTransform;
+	class CImage;
+	class CLabel;
+	class CCanvas;
 
 
 	/*!
@@ -40,6 +46,30 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext*, IResourceManager*, E_RESULT_CODE&);
+		public:
+			template <typename TComponentType>
+			struct TUIRenderableElementsContext
+			{
+				std::vector<TComponentType*>     mpRenderables;
+				std::vector<CLayoutElement*>     mpLayoutElements;
+				std::vector<CUIElementMeshData*> mpUIMeshes;
+				std::vector<CTransform*>         mpTransforms;
+			};
+
+			struct TCanvasesContext
+			{
+				std::vector<CCanvas*>        mpCanvases;
+				std::vector<CLayoutElement*> mpLayoutElements;
+				std::vector<CTransform*>     mpTransforms;
+			};
+
+			struct TLayoutElementsContext
+			{
+				std::vector<CLayoutElement*> mpLayoutElements;
+				std::vector<CTransform*>     mpTransforms;
+				std::vector<USIZE>           mChildToParentTable;
+				std::vector<TEntityId>       mEntities;
+			};
 		public:
 			TDE2_SYSTEM(CUIElementsProcessSystem);
 
@@ -75,10 +105,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementsProcessSystem)
 		protected:
-			TEntitiesArray mLayoutElementsEntities; ///< \note All elements are sorted in order that parent elements precede their children
-			TEntitiesArray mCanvasEntities;
-			TEntitiesArray mImagesEntities;
-			TEntitiesArray mLabelsEntities;
+			TLayoutElementsContext mLayoutElementsContext;
+			TCanvasesContext mCanvasesContext;
+
+			TUIRenderableElementsContext<CImage> mImagesContext;
+			TUIRenderableElementsContext<CLabel> mLabelsContext;
 
 			IGraphicsContext*      mpGraphicsContext;
 

@@ -19,46 +19,24 @@
 
 namespace TDEngine2
 {
-	static void UpdateLayoutElementData(IWorld* pWorld, CEntity* pEntity)
+	static void UpdateLayoutElementData(IWorld* pWorld, CUIElementsProcessSystem::TLayoutElementsContext& layoutElementsContext, USIZE id)
 	{
 		TDE2_PROFILER_SCOPE("UpdateLayoutElementData");
 
-		CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
+		CLayoutElement* pLayoutElement = layoutElementsContext.mpLayoutElements[id];
 		if (!pLayoutElement->IsDirty())
 		{
 			return;
 		}
 
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+		CTransform* pTransform = layoutElementsContext.mpTransforms[id];
 
-		if (pEntity->HasComponent<CCanvas>())
+		if (layoutElementsContext.mChildToParentTable[id] == TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex)
 		{
-			CCanvas* pCanvas = pEntity->GetComponent<CCanvas>();
-			
-			const TVector2 canvasSizes{ static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()) };
-
-			const TVector2 leftBottom = pLayoutElement->GetMinOffset() + Scale(pLayoutElement->GetMinAnchor(), canvasSizes);
-			const TVector2 rightTop = pLayoutElement->GetMaxOffset() + Scale(pLayoutElement->GetMaxAnchor(), canvasSizes);
-
-			const TVector2 rectSizes = rightTop - leftBottom;
-			const TVector3 position = pTransform->GetPosition();
-
-			TRectF32 rect { position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y };
-
-			pLayoutElement->SetDirty(rect != pLayoutElement->GetWorldRect());
-			pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });
-
 			return;
 		}
 
-		CEntity* pParentEntity = pWorld->FindEntity(pTransform->GetParent());
-		if (!pParentEntity)
-		{
-			TDE2_ASSERT(false);
-			return;
-		}
-
-		CLayoutElement* pParentLayoutElement = pParentEntity->GetComponent<CLayoutElement>();
+		CLayoutElement* pParentLayoutElement = layoutElementsContext.mpLayoutElements[layoutElementsContext.mChildToParentTable[id]];
 		if (!pParentLayoutElement)
 		{
 			TDE2_ASSERT(false);
@@ -113,12 +91,46 @@ namespace TDEngine2
 	}
 
 
-	// \note The function returns false if update isn't needed
-	static bool UpdateCanvasData(IGraphicsContext* pGraphicsContext, IWorld* pWorld, CEntity* pEntity)
+	static void UpdateCanvasLayoutElementData(IWorld* pWorld, CUIElementsProcessSystem::TCanvasesContext& canvasesContext, USIZE id)
 	{
-		TDE2_ASSERT(pEntity->HasComponent<CCanvas>());
+		TDE2_PROFILER_SCOPE("UpdateLayoutElementData");
 
-		if (CCanvas* pCanvas = pEntity->GetComponent<CCanvas>())
+		CLayoutElement* pLayoutElement = canvasesContext.mpLayoutElements[id];
+		if (!pLayoutElement->IsDirty())
+		{
+			return;
+		}
+
+		CTransform* pTransform = canvasesContext.mpTransforms[id];
+		CCanvas* pCanvas = canvasesContext.mpCanvases[id];
+
+		if (!pCanvas)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		const TVector2 canvasSizes{ static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()) };
+
+		const TVector2 leftBottom = pLayoutElement->GetMinOffset() + Scale(pLayoutElement->GetMinAnchor(), canvasSizes);
+		const TVector2 rightTop = pLayoutElement->GetMaxOffset() + Scale(pLayoutElement->GetMaxAnchor(), canvasSizes);
+
+		const TVector2 rectSizes = rightTop - leftBottom;
+		const TVector3 position = pTransform->GetPosition();
+
+		TRectF32 rect{ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y };
+
+		pLayoutElement->SetDirty(rect != pLayoutElement->GetWorldRect());
+		pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });
+	}
+
+
+	// \note The function returns false if update isn't needed
+	static bool UpdateCanvasData(IGraphicsContext* pGraphicsContext, CUIElementsProcessSystem::TCanvasesContext& canvasesContext, USIZE id)
+	{
+		TDE2_ASSERT(canvasesContext.mpCanvases.size() > id);
+
+		if (CCanvas* pCanvas = canvasesContext.mpCanvases[id])
 		{
 			if (!pCanvas->IsDirty())
 			{
@@ -161,30 +173,10 @@ namespace TDEngine2
 	}
 
 
-	static CUIElementMeshData* GetUIElementsMeshData(CEntity* pEntity)
+	static void ComputeImageMeshData(IResourceManager* pResourceManager, const CUIElementsProcessSystem::TUIRenderableElementsContext<CImage>& imagesContext, USIZE index)
 	{
-		if (!pEntity->HasComponent<CUIElementMeshData>())
-		{
-			pEntity->AddComponent<CUIElementMeshData>();
-		}
-
-		auto pUIElementMeshData = pEntity->GetComponent<CUIElementMeshData>();
-		pUIElementMeshData->ResetMesh();
-
-		return pUIElementMeshData;
-	}
-
-
-	static void ComputeImageMeshData(IResourceManager* pResourceManager, IWorld* pWorld, TEntityId id)
-	{
-		CEntity* pEntity = pWorld->FindEntity(id);
-		if (!pEntity)
-		{
-			return;
-		}
-
-		CLayoutElement* pLayoutData = pEntity->GetComponent<CLayoutElement>();
-		CImage* pImageData = pEntity->GetComponent<CImage>();
+		CLayoutElement* pLayoutData = imagesContext.mpLayoutElements[index];
+		CImage* pImageData = imagesContext.mpRenderables[index];
 
 		/// \note Load image's asset if it's not done yet
 		if (TResourceId::Invalid == pImageData->GetImageResourceId())
@@ -205,11 +197,12 @@ namespace TDEngine2
 			return;
 		}
 
-		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
+		auto pUIElementMeshData = imagesContext.mpUIMeshes[index];
+		pUIElementMeshData->ResetMesh();
 
 		auto&& worldRect = pLayoutData->GetWorldRect();
 
-		auto pTransform = pEntity->GetComponent<CTransform>();
+		auto pTransform = imagesContext.mpTransforms[index];
 		auto pivot = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutData->GetPivot();
 		auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
 
@@ -235,16 +228,10 @@ namespace TDEngine2
 	}
 
 
-	static inline void ComputeTextMeshData(IResourceManager* pResourceManager, IWorld* pWorld, TEntityId id)
+	static inline void ComputeTextMeshData(IResourceManager* pResourceManager, const CUIElementsProcessSystem::TUIRenderableElementsContext<CLabel>& labelsContext, USIZE id)
 	{
-		CEntity* pEntity = pWorld->FindEntity(id);
-		if (!pEntity)
-		{
-			return;
-		}
-
-		CLayoutElement* pLayoutData = pEntity->GetComponent<CLayoutElement>();
-		CLabel* pLabelData = pEntity->GetComponent<CLabel>();
+		CLayoutElement* pLayoutData = labelsContext.mpLayoutElements[id];
+		CLabel* pLabelData = labelsContext.mpRenderables[id];
 
 		/// \note Load font data if it's not loaded yet
 		if (TResourceId::Invalid == pLabelData->GetFontResourceHandle())
@@ -261,7 +248,8 @@ namespace TDEngine2
 			return;
 		}
 
-		auto pUIElementMeshData = GetUIElementsMeshData(pEntity);
+		auto pUIElementMeshData = labelsContext.mpUIMeshes[id];
+		pUIElementMeshData->ResetMesh();
 		
 		/// \note Transfer vertices from pFont->GenerateMesh into UIMeshData component
 		auto&& textMeshVertsData = pFont->GenerateMesh({ pLayoutData->GetWorldRect(), 1.0f, pLabelData->GetOverflowPolicyType(), pLabelData->GetAlignType() }, CU8String(pLabelData->GetText()));
@@ -315,122 +303,219 @@ namespace TDEngine2
 	}
 
 
-	static void SortLayoutElementEntities(IWorld* pWorld, std::vector<TEntityId>& entities)
+	static void SortLayoutElementEntities(IWorld* pWorld, CUIElementsProcessSystem::TLayoutElementsContext& layoutElementsContext)
 	{
-		auto&& layoutElementsEntities = pWorld->FindEntitiesWithComponents<CTransform, CLayoutElement>();
-		if (layoutElementsEntities.empty())
+		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CLayoutElement>();
+		if (entities.empty())
 		{
 			return;
 		}
 
-		entities.clear();
+		/// \note For CTransform we should sort all entities that parents should preceede their children
+		/// \note Fill up relationships table to sort entities based on their dependencies 
+		std::unordered_map<TEntityId, std::vector<TEntityId>> parentToChildRelations;
 
-		std::unordered_map<TEntityId, U32> parentEntitiesTable;
+		std::vector<std::tuple<TEntityId, TEntityId, USIZE>> parentEntities;
 
-		// \note Sort all entities in the following order that every parent should precede its children
-
-		for (TEntityId currEntityId : layoutElementsEntities)
+		for (TEntityId currEntityId : entities)
 		{
 			if (CEntity* pEntity = pWorld->FindEntity(currEntityId))
+			{
+				const TEntityId parentId = pEntity->GetComponent<CTransform>()->GetParent();
+
+				if (std::find(entities.cbegin(), entities.cend(), parentId) == entities.cend()) /// \note Mark this entity as root
+				{
+					parentEntities.push_back({ currEntityId, parentId, parentEntities.size() });					
+				}
+
+				parentToChildRelations[parentId].push_back(pEntity->GetId());
+			}
+		}
+
+		entities.clear();
+
+		layoutElementsContext.mChildToParentTable.clear();
+		layoutElementsContext.mEntities.clear();
+
+		std::stack<std::tuple<TEntityId, USIZE>> entitiesToProcess;
+
+		for (auto currEntityPair : parentEntities)
+		{
+			entitiesToProcess.push({ std::get<0>(currEntityPair), std::get<USIZE>(currEntityPair) });
+			entitiesToProcess.push({ std::get<1>(currEntityPair), TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex });
+		}
+
+		TEntityId currEntityId;
+		USIZE currParentElementIndex = 0;
+
+		while (!entitiesToProcess.empty())
+		{
+			std::tie(currEntityId, currParentElementIndex) = entitiesToProcess.top();
+			entitiesToProcess.pop();
+
+#if 0
+			if (auto pEntity = pWorld->FindEntity(currEntityId))
 			{
 				if (pEntity->HasComponent<CCanvas>())
 				{
 					continue; // skip entities with CCanvas component their will be processed before any LayoutElement ones
 				}
+			}
+#endif
 
-				CTransform* pTransform = pEntity->GetComponent<CTransform>();
+			layoutElementsContext.mChildToParentTable.push_back(currParentElementIndex);
+			layoutElementsContext.mEntities.push_back(currEntityId);
+			entities.push_back(currEntityId);
 
-				if (TEntityId::Invalid == pTransform->GetParent())
-				{
-					entities.push_back(currEntityId);
-					parentEntitiesTable[currEntityId] = static_cast<U32>(entities.size());
-					continue;
-				}
+			if (currParentElementIndex == TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex)
+			{
+				continue;
+			}
 
-				const TEntityId parentId = pTransform->GetParent();
+			const USIZE parentIndex = entities.size() - 1;
 
-				auto it = parentEntitiesTable.find(parentId);
-				if (it == parentEntitiesTable.cend())
-				{
-					entities.push_back(currEntityId);
-					parentEntitiesTable[currEntityId] = static_cast<U32>(entities.size());
-
-					continue;
-				}
-
-				entities.insert(entities.cbegin() + it->second, currEntityId);
+			for (TEntityId currEntityId : parentToChildRelations[currEntityId])
+			{
+				entitiesToProcess.push({ currEntityId, parentIndex });
 			}
 		}
+
+		auto& transforms     = layoutElementsContext.mpTransforms;
+		auto& layoutElements = layoutElementsContext.mpLayoutElements;
+
+		transforms.clear();
+		layoutElements.clear();
+
+		for (auto currEntityId : entities)
+		{
+			if (auto pCurrEntity = pWorld->FindEntity(currEntityId))
+			{
+				transforms.push_back(pCurrEntity->GetComponent<CTransform>());
+				layoutElements.push_back(pCurrEntity->GetComponent<CLayoutElement>());
+			}
+		}
+	}
+
+
+	template <typename T>
+	static CUIElementsProcessSystem::TUIRenderableElementsContext<T> CreateUIRenderableContext(IWorld* pWorld)
+	{
+		auto&& entities = pWorld->FindEntitiesWithComponents<CLayoutElement, T>();
+
+		CUIElementsProcessSystem::TUIRenderableElementsContext<T> result;
+
+		for (auto&& currEntityId : entities)
+		{
+			if (auto pEntity = pWorld->FindEntity(currEntityId))
+			{
+				result.mpTransforms.push_back(pEntity->GetComponent<CTransform>());
+				result.mpRenderables.push_back(pEntity->GetComponent<T>());
+				result.mpLayoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
+				result.mpUIMeshes.push_back(pEntity->HasComponent<CUIElementMeshData>() ? pEntity->GetComponent<CUIElementMeshData>() : pEntity->AddComponent<CUIElementMeshData>());
+			}
+		}
+
+		return std::move(result);
 	}
 
 
 	void CUIElementsProcessSystem::InjectBindings(IWorld* pWorld)
 	{
-		SortLayoutElementEntities(pWorld, mLayoutElementsEntities);
+		SortLayoutElementEntities(pWorld, mLayoutElementsContext);
 
-		mCanvasEntities = pWorld->FindEntitiesWithComponents<CTransform, CCanvas>();
-
-		/// \note Add LayoutElement for each Canvas
-		for (TEntityId currEntity : mCanvasEntities)
 		{
-			CEntity* pEntity = pWorld->FindEntity(currEntity);
-			if (pEntity->HasComponent<CLayoutElement>())
-			{
-				continue;
-			}
+			auto&& transforms     = mCanvasesContext.mpTransforms;
+			auto&& layoutElements = mCanvasesContext.mpLayoutElements;
+			auto&& canvases       = mCanvasesContext.mpCanvases;
 
-			CLayoutElement* pLayoutElement = pEntity->AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
-			pLayoutElement->SetMinAnchor(ZeroVector2);
-			pLayoutElement->SetMaxAnchor(TVector2(1.0f));
-			pLayoutElement->SetMinOffset(ZeroVector2);
-			pLayoutElement->SetMaxOffset(ZeroVector2);
+			canvases.clear();
+			layoutElements.clear();
+			transforms.clear();
+
+			auto&& canvasEntities = pWorld->FindEntitiesWithComponents<CTransform, CCanvas>();
+
+			auto checkAndAssignLayoutElements = [this](TEntityId id, CLayoutElement* pLayoutElement)
+			{
+				auto it = std::find(mLayoutElementsContext.mEntities.begin(), mLayoutElementsContext.mEntities.end(), id);
+				if (it == mLayoutElementsContext.mEntities.end())
+				{
+					return;
+				}
+
+				/// \note We've found an entity try to assign pLayoutElement instance into its corresponding slot
+				mLayoutElementsContext.mpLayoutElements[std::distance(mLayoutElementsContext.mEntities.begin(), it)] = pLayoutElement;
+			};
+
+			/// \note Add LayoutElement for each Canvas
+			for (TEntityId currEntity : canvasEntities)
+			{
+				CEntity* pEntity = pWorld->FindEntity(currEntity);
+				
+				transforms.push_back(pEntity->GetComponent<CTransform>());
+				canvases.push_back(pEntity->GetComponent<CCanvas>());
+				
+				if (pEntity->HasComponent<CLayoutElement>())
+				{
+					layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
+					checkAndAssignLayoutElements(currEntity, pEntity->GetComponent<CLayoutElement>());
+
+					continue;
+				}
+
+				CLayoutElement* pLayoutElement = pEntity->AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(ZeroVector2);
+
+				layoutElements.push_back(pLayoutElement);
+
+				checkAndAssignLayoutElements(currEntity, pLayoutElement);
+			}
 		}
 
-		mImagesEntities = pWorld->FindEntitiesWithComponents<CLayoutElement, CImage>();
-		mLabelsEntities = pWorld->FindEntitiesWithComponents<CLayoutElement, CLabel>();
+		mImagesContext = CreateUIRenderableContext<CImage>(pWorld);
+		mLabelsContext = CreateUIRenderableContext<CLabel>(pWorld);
 	}
 
 
-	static inline void UpdateLayoutElements(const CUIElementsProcessSystem::TEntitiesArray& layoutElementsEntities, IWorld* pWorld)
+	static inline void UpdateLayoutElements(CUIElementsProcessSystem::TLayoutElementsContext& layoutElementsContext, IWorld* pWorld)
 	{
 		TDE2_PROFILER_SCOPE("UpdateLayoutElements");
 
-		CEntity* pEntity = nullptr;
-
-		for (TEntityId currEntity : layoutElementsEntities)
+		for (USIZE i = 0; i < layoutElementsContext.mpTransforms.size(); ++i)
 		{
-			pEntity = pWorld->FindEntity(currEntity);
-			UpdateLayoutElementData(pWorld, pEntity);
+			UpdateLayoutElementData(pWorld, layoutElementsContext, i);
 
-			if (auto pLayoutElement = pEntity->GetComponent<CLayoutElement>())
+			if (auto pLayoutElement = layoutElementsContext.mpLayoutElements[i])
 			{
 				if (TEntityId::Invalid != pLayoutElement->GetOwnerCanvasId())
 				{
 					continue;
 				}
 
-				pLayoutElement->SetOwnerCanvasId(FindParentCanvasEntityId(pWorld, pEntity));
+				pLayoutElement->SetOwnerCanvasId(FindParentCanvasEntityId(pWorld, pWorld->FindEntity(layoutElementsContext.mEntities[i])));
 			}
 		}
 	}
 
-	static inline void ComputeImagesMeshes(const CUIElementsProcessSystem::TEntitiesArray& entities, IResourceManager* pResourceManager, IWorld* pWorld)
+	static inline void ComputeImagesMeshes(const CUIElementsProcessSystem::TUIRenderableElementsContext<CImage>& imagesContext, IResourceManager* pResourceManager)
 	{
 		TDE2_PROFILER_SCOPE("ComputeImagesMeshes");
 
-		for (TEntityId currEntity : entities)
+		for (USIZE i = 0; i < imagesContext.mpTransforms.size(); ++i)
 		{
-			ComputeImageMeshData(pResourceManager, pWorld, currEntity);
+			ComputeImageMeshData(pResourceManager, imagesContext, i);
 		}
 	}
 	
-	static inline void ComputeLabelsMeshes(const CUIElementsProcessSystem::TEntitiesArray& entities, IResourceManager* pResourceManager, IWorld* pWorld)
+	static inline void ComputeLabelsMeshes(const CUIElementsProcessSystem::TUIRenderableElementsContext<CLabel>& labelsContext, IResourceManager* pResourceManager)
 	{
 		TDE2_PROFILER_SCOPE("ComputeLabelsMeshes");
 
-		for (TEntityId currEntity : entities)
+		for (USIZE i = 0; i < labelsContext.mpTransforms.size(); ++i)
 		{
-			ComputeTextMeshData(pResourceManager, pWorld, currEntity);
+			ComputeTextMeshData(pResourceManager, labelsContext, i);
 		}
 	}
 
@@ -439,23 +524,19 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CUIElementsProcessSystem::Update");
 
-		CEntity* pEntity = nullptr;
-
 		/// \note Update canvas entities
-		for (TEntityId currEntity : mCanvasEntities)
+		for (USIZE i = 0; i < mCanvasesContext.mpTransforms.size(); ++i)
 		{
-			pEntity = pWorld->FindEntity(currEntity);
-
-			if (UpdateCanvasData(mpGraphicsContext, pWorld, pEntity))
+			if (UpdateCanvasData(mpGraphicsContext, mCanvasesContext, i))
 			{
-				UpdateLayoutElementData(pWorld, pEntity);
+				UpdateCanvasLayoutElementData(pWorld, mCanvasesContext, i);
 			}
 		}
 
-		UpdateLayoutElements(mLayoutElementsEntities, pWorld); /// \note Process LayoutElement entities
+		UpdateLayoutElements(mLayoutElementsContext, pWorld); /// \note Process LayoutElement entities
 
-		ComputeImagesMeshes(mImagesEntities, mpResourceManager, pWorld);
-		ComputeLabelsMeshes(mLabelsEntities, mpResourceManager, pWorld);
+		ComputeImagesMeshes(mImagesContext, mpResourceManager);
+		ComputeLabelsMeshes(mLabelsContext, mpResourceManager);
 	}
 
 
