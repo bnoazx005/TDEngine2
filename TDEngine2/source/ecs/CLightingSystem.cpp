@@ -60,17 +60,20 @@ namespace TDEngine2
 
 	void CLightingSystem::InjectBindings(IWorld* pWorld)
 	{
-		mDirectionalLightsEntities = pWorld->FindEntitiesWithComponents<CDirectionalLight>();
-		mPointLightsEntities       = pWorld->FindEntitiesWithComponents<CPointLight>();
+		mDirectionalLightsContext = pWorld->CreateLocalComponentsSlice<CDirectionalLight, CTransform>();
+		mPointLightsContext       = pWorld->CreateLocalComponentsSlice<CPointLight, CTransform>();
+		
+		mStaticShadowCastersContext  = pWorld->CreateLocalComponentsSlice<CShadowCasterComponent, CStaticMeshContainer, CTransform>();
+		mSkinnedShadowCastersContext = pWorld->CreateLocalComponentsSlice<CShadowCasterComponent, CSkinnedMeshContainer, CTransform>();
 
-		mShadowCasterEntities      = pWorld->FindEntitiesWithComponents<CShadowCasterComponent>();
+		mStaticShadowReceiversContext = pWorld->CreateLocalComponentsSlice<CShadowReceiverComponent, CStaticMeshContainer>();
+
 		mShadowReceiverEntities    = pWorld->FindEntitiesWithComponents<CShadowReceiverComponent>();
 	}
 
 
 	struct TProcessParams
 	{
-		CEntity*            mpEntity;
 		IResourceManager*   mpResourceManager;
 		IVertexDeclaration* mpVertexDeclaration;
 		TResourceId         mMaterialId;
@@ -79,18 +82,20 @@ namespace TDEngine2
 	};
 
 
-	static U32 ProcessStaticMeshCasterEntity(const TProcessParams& params)
+	static U32 ProcessStaticMeshCasterEntity(const TProcessParams& params, CLightingSystem::TStaticShadowCastersContext& staticShadowCasters, USIZE id)
 	{
 		IResourceManager* pResourceManager = params.mpResourceManager;
-		CEntity* pEntity = params.mpEntity;
 
-		CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>();
+		auto&& staticMeshContainers = std::get<std::vector<CStaticMeshContainer*>>(staticShadowCasters.mComponentsSlice);
+		auto&& transforms = std::get<std::vector<CTransform*>>(staticShadowCasters.mComponentsSlice);
+
+		CStaticMeshContainer* pStaticMeshContainer = staticMeshContainers[id];
 		if (!pStaticMeshContainer)
 		{
 			return params.mDrawIndex;
 		}
 
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+		CTransform* pTransform = transforms[id];
 
 		TResourceId meshResourceHandle = pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
 		TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
@@ -114,7 +119,7 @@ namespace TDEngine2
 				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(pEntity->GetId());
+				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(id);
 				pDrawCommand->mStartIndex = 0;
 				pDrawCommand->mStartVertex = 0;
 				pDrawCommand->mNumOfIndices = pStaticMeshResource->GetFacesCount() * 3;
@@ -124,18 +129,20 @@ namespace TDEngine2
 		return params.mDrawIndex + 1;
 	}
 
-	static U32 ProcessSkinnedMeshCasterEntity(const TProcessParams& params)
+	static U32 ProcessSkinnedMeshCasterEntity(const TProcessParams& params, CLightingSystem::TSkinnedShadowCastersContext& skinnedShadowCasters, USIZE id)
 	{
 		IResourceManager* pResourceManager = params.mpResourceManager;
-		CEntity* pEntity = params.mpEntity;
 
-		CSkinnedMeshContainer* pSkinnedMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
+		auto&& skinnedMeshContainers = std::get<std::vector<CSkinnedMeshContainer*>>(skinnedShadowCasters.mComponentsSlice);
+		auto&& transforms = std::get<std::vector<CTransform*>>(skinnedShadowCasters.mComponentsSlice);
+
+		CSkinnedMeshContainer* pSkinnedMeshContainer = skinnedMeshContainers[id];
 		if (!pSkinnedMeshContainer)
 		{
 			return params.mDrawIndex;
 		}
 
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
+		CTransform* pTransform = transforms[id];
 
 		TResourceId meshResourceHandle = pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName());
 		TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
@@ -173,7 +180,7 @@ namespace TDEngine2
 				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(pEntity->GetId());
+				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(id);
 				pDrawCommand->mStartIndex = 0;
 				pDrawCommand->mStartVertex = 0;
 				pDrawCommand->mNumOfIndices = static_cast<U32>(pSkinnedMeshResource->GetIndices().size());
@@ -184,39 +191,93 @@ namespace TDEngine2
 	}
 
 
-	void CLightingSystem::Update(IWorld* pWorld, F32 dt)
+	static TMatrix4 ConstructSunLightMatrix(IGraphicsContext* pGraphicsContext, CTransform* pLightTransform)
 	{
-		TDE2_PROFILER_SCOPE("CLightingSystem::Update");
+		if (!pLightTransform)
+		{
+			TDE2_ASSERT(false);
+			return IdentityMatrix4;
+		}
 
-		TDE2_ASSERT(mDirectionalLightsEntities.size() <= 1); // \note For now only single sun light source is supported
-		TDE2_ASSERT(mpRenderer);
+		const F32 handedness = pGraphicsContext->GetPositiveZAxisDirection();
 
-		if (mDirectionalLightsEntities.empty())
+		TMatrix4 viewMatrix = LookAt(handedness * pLightTransform->GetPosition(), UpVector3, ZeroVector3, -handedness);
+
+		const F32 halfSize = 10.0f;
+
+		TMatrix4 projMatrix = pGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 1000.0f); // \todo Refactor
+
+		return Transpose(Mul(projMatrix, viewMatrix));
+	}
+
+
+	static void ProcessDirectionalLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, CLightingSystem::TDirLightsContext& directionalLightsContext)
+	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessDirectionalLights");
+
+		const auto& transforms = std::get<std::vector<CTransform*>>(directionalLightsContext.mComponentsSlice);
+		const auto& dirLights = std::get<std::vector<CDirectionalLight*>>(directionalLightsContext.mComponentsSlice);
+
+		TDE2_ASSERT(transforms.size() <= 1); // \note For now only single sun light source is supported
+
+		if (transforms.empty())
 		{
 			return;
 		}
 
-		TLightingShaderData lightingData;
+		CDirectionalLight* pCurrLight = nullptr;
+		CTransform* pLightTransform = nullptr;
 
 		// \note Prepare lighting data
-		for (TEntityId currEntity : mDirectionalLightsEntities)
+		for (USIZE i = 0; i < transforms.size(); ++i)
 		{
-			if (auto pEntity = pWorld->FindEntity(currEntity))
-			{
-				if (auto pSunLight = pEntity->GetComponent<CDirectionalLight>())
-				{
-					CTransform* pLightTransform = pEntity->GetComponent<CTransform>();
+			pLightTransform = transforms[i];
+			pCurrLight = dirLights[i];
 
-					lightingData.mSunLightDirection      = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
-					lightingData.mSunLightPosition       = TVector4(pLightTransform->GetPosition(), 1.0f);
-					lightingData.mSunLightColor          = pSunLight->GetColor();
-					lightingData.mSunLightMatrix         = _constructSunLightMatrix(pEntity);
-					lightingData.mIsShadowMappingEnabled = static_cast<U32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled);
-				}
-			}
+			lightingData.mSunLightDirection      = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
+			lightingData.mSunLightPosition       = TVector4(pLightTransform->GetPosition(), 1.0f);
+			lightingData.mSunLightColor          = pCurrLight->GetColor();
+			lightingData.mSunLightMatrix         = ConstructSunLightMatrix(pGraphicsContext, pLightTransform);
+			lightingData.mIsShadowMappingEnabled = static_cast<U32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled);
 		}
+	}
 
-		_processPointLights(pWorld, lightingData);
+
+	static void ProcessPointLights(TLightingShaderData& lightingData, CLightingSystem::TPointLightsContext& pointLightsContext)
+	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessPointLights");
+
+		const auto& transforms = std::get<std::vector<CTransform*>>(pointLightsContext.mComponentsSlice);
+		const auto& lights = std::get<std::vector<CPointLight*>>(pointLightsContext.mComponentsSlice);
+
+		lightingData.mPointLightsCount = std::min<U32>(MaxPointLightsCount, static_cast<U32>(lights.size()));
+
+		auto& pointLights = lightingData.mPointLights;
+
+		for (USIZE i = 0; i < transforms.size(); ++i)
+		{
+			auto& currPointLight = pointLights[i];
+
+			CTransform* pLightTransform = transforms[i];
+			CPointLight* pLight = lights[i];
+
+			currPointLight.mPosition = TVector4(pLightTransform->GetPosition(), 1.0f);
+			currPointLight.mColor = pLight->GetColor();
+			currPointLight.mIntensity = pLight->GetIntensity();
+			currPointLight.mRange = pLight->GetRange();
+		}
+	}
+
+
+	void CLightingSystem::Update(IWorld* pWorld, F32 dt)
+	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::Update");
+		TDE2_ASSERT(mpRenderer);
+
+		TLightingShaderData lightingData;
+
+		ProcessDirectionalLights(mpGraphicsContext, lightingData, mDirectionalLightsContext);
+		ProcessPointLights(lightingData, mPointLightsContext);
 
 		if (mpRenderer)
 		{
@@ -226,30 +287,36 @@ namespace TDEngine2
 		U32 drawIndex = 0;
 
 		// \note Prepare commands for the renderer
-		for (TEntityId currEntity : mShadowCasterEntities)
 		{
-			if (auto pEntity = pWorld->FindEntity(currEntity))
+			TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowCasters");
+
+			for (USIZE i = 0; i < mStaticShadowCastersContext.mComponentsCount; ++i)
 			{
-				drawIndex = ProcessStaticMeshCasterEntity({ pEntity, mpResourceManager.Get(), mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, mpShadowPassRenderQueue });
-				drawIndex = ProcessSkinnedMeshCasterEntity({ pEntity, mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, mpShadowPassRenderQueue });
+				drawIndex = ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, mpShadowPassRenderQueue }, mStaticShadowCastersContext, i);
+			}
+
+			for (USIZE i = 0; i < mSkinnedShadowCastersContext.mComponentsCount; ++i)
+			{
+				drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, mpShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
 			}
 		}
 
 		if (CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled)
 		{
+			TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowReceivers");
+
 			auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("ShadowMap"));
 
+			auto&& staticMeshContainers = std::get<std::vector<CStaticMeshContainer*>>(mStaticShadowReceiversContext.mComponentsSlice);
+
 			// \note Inject shadow map buffer into materials 
-			for (TEntityId currEntity : mShadowReceiverEntities)
+			for (USIZE i = 0; i < mStaticShadowReceiversContext.mComponentsCount; ++i)
 			{
-				if (auto pEntity = pWorld->FindEntity(currEntity))
+				if (CStaticMeshContainer* pStaticMeshContainer = staticMeshContainers[i])
 				{
-					if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
+					if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
 					{
-						if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
-						{
-							pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture.Get());
-						}
+						pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture.Get());
 					}
 				}
 			}
@@ -297,56 +364,6 @@ namespace TDEngine2
 		mShadowPassSkinnedMaterialHandle = mpResourceManager->Create<IMaterial>("ShadowPassSkinnedMaterial.material", shadowPassSkinnedMaterialParams);
 
 		return (mShadowPassMaterialHandle != TResourceId::Invalid && mpShadowPassRenderQueue && mpShadowVertDecl) ? RC_OK : RC_FAIL;
-	}
-
-	TMatrix4 CLightingSystem::_constructSunLightMatrix(CEntity* pEntity) const
-	{
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
-		if (!pTransform)
-		{
-			TDE2_ASSERT(false);
-			return IdentityMatrix4;
-		}
-
-		const F32 handedness = mpGraphicsContext->GetPositiveZAxisDirection();
-
-		TMatrix4 viewMatrix = LookAt(handedness * pTransform->GetPosition(), UpVector3, ZeroVector3, -handedness);
-		
-		const F32 halfSize = 10.0f;
-
-		TMatrix4 projMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 1000.0f); // \todo Refactor
-
-		return Transpose(Mul(projMatrix, viewMatrix));
-	}
-
-	void CLightingSystem::_processPointLights(IWorld* pWorld, TLightingShaderData& lightingData)
-	{
-		CEntity* pEntity = nullptr;
-
-		lightingData.mPointLightsCount = std::min<U32>(MaxPointLightsCount, static_cast<U32>(mPointLightsEntities.size()));
-
-		auto& pointLights = lightingData.mPointLights;
-
-		for (U32 i = 0; i < static_cast<U32>(mPointLightsEntities.size()); ++i)
-		{
-			pEntity = pWorld->FindEntity(mPointLightsEntities[i]);
-			if (!pEntity)
-			{
-				continue;
-			}
-
-			auto& currPointLight = pointLights[i];
-
-			if (auto pLight = pEntity->GetComponent<CPointLight>())
-			{
-				CTransform* pLightTransform = pEntity->GetComponent<CTransform>();
-
-				currPointLight.mPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
-				currPointLight.mColor     = pLight->GetColor();
-				currPointLight.mIntensity = pLight->GetIntensity();
-				currPointLight.mRange     = pLight->GetRange();
-			}
-		}
 	}
 
 

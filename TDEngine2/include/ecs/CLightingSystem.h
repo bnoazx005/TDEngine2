@@ -9,6 +9,7 @@
 
 #include "CBaseSystem.h"
 #include "../math/TMatrix4.h"
+#include "../ecs/IWorld.h"
 #include <vector>
 
 
@@ -22,7 +23,13 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class CEntity;
 	struct TLightingShaderData;
-
+	class CDirectionalLight;
+	class CPointLight;
+	class CTransform;
+	class CShadowCasterComponent;
+	class CShadowReceiverComponent;
+	class CStaticMeshContainer;
+	class CSkinnedMeshContainer;
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 
@@ -50,6 +57,12 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateLightingSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE& result);
+		public:
+			typedef TComponentsQueryLocalSlice<CDirectionalLight, CTransform>                             TDirLightsContext;
+			typedef TComponentsQueryLocalSlice<CPointLight, CTransform>                                   TPointLightsContext;
+			typedef TComponentsQueryLocalSlice<CShadowCasterComponent, CStaticMeshContainer, CTransform>  TStaticShadowCastersContext;
+			typedef TComponentsQueryLocalSlice<CShadowReceiverComponent, CStaticMeshContainer>            TStaticShadowReceiverContext;
+			typedef TComponentsQueryLocalSlice<CShadowCasterComponent, CSkinnedMeshContainer, CTransform> TSkinnedShadowCastersContext;
 		public:
 			TDE2_SYSTEM(CLightingSystem);
 
@@ -86,31 +99,30 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLightingSystem)
 
 			TDE2_API E_RESULT_CODE _prepareResources();
-
-			TDE2_API TMatrix4 _constructSunLightMatrix(CEntity* pEntity) const;
-
-			TDE2_API void _processPointLights(IWorld* pWorld, TLightingShaderData& lightingData);
 		protected:
-			IRenderer*              mpRenderer;
+			IRenderer*                   mpRenderer;
 
-			IGraphicsContext*       mpGraphicsContext;
+			IGraphicsContext*            mpGraphicsContext;
 
-			TPtr<IResourceManager>  mpResourceManager;
+			TPtr<IResourceManager>       mpResourceManager;
 
-			IGraphicsObjectManager* mpGraphicsObjectManager;
+			IGraphicsObjectManager*      mpGraphicsObjectManager;
 
-			TEntitiesArray          mDirectionalLightsEntities;
-			TEntitiesArray          mPointLightsEntities;
+			TDirLightsContext            mDirectionalLightsContext;
+			TPointLightsContext          mPointLightsContext;
 
-			TEntitiesArray          mShadowCasterEntities;
-			TEntitiesArray          mShadowReceiverEntities;
+			TStaticShadowCastersContext  mStaticShadowCastersContext;
+			TSkinnedShadowCastersContext mSkinnedShadowCastersContext;
 
-			IVertexDeclaration*     mpShadowVertDecl;
-			IVertexDeclaration*     mpSkinnedShadowVertDecl;
+			TStaticShadowReceiverContext mStaticShadowReceiversContext;
+			TEntitiesArray               mShadowReceiverEntities;
 
-			TResourceId             mShadowPassMaterialHandle;
-			TResourceId             mShadowPassSkinnedMaterialHandle;
+			IVertexDeclaration*          mpShadowVertDecl;
+			IVertexDeclaration*          mpSkinnedShadowVertDecl;
 
-			CRenderQueue*           mpShadowPassRenderQueue;
+			TResourceId                  mShadowPassMaterialHandle;
+			TResourceId                  mShadowPassSkinnedMaterialHandle;
+
+			CRenderQueue*                mpShadowPassRenderQueue;
 	};
 }

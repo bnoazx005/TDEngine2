@@ -47,6 +47,8 @@ namespace TDEngine2
 	{
 		static constexpr USIZE             mInvalidParentIndex = (std::numeric_limits<USIZE>::max)();
 
+		USIZE                              mComponentsCount = 0;
+
 		std::vector<USIZE>                 mParentsToChildMapping; ///< Contains indices of parents for each element of a components array
 		std::tuple<std::vector<TArgs*>...> mComponentsSlice;
 	};
@@ -331,6 +333,7 @@ namespace TDEngine2
 				}
 				
 				result.mComponentsSlice = std::make_tuple(_getComponentsOfTypeFromEntities<TArgs>(entities)...);
+				result.mComponentsCount = entities.size();
 
 				return std::move(result);
 			}
