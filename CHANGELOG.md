@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.25] 2022-01-03
+## [0.5.25] 2022-01-13
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed 
 
 - The implementation of **CFramePostProcessor** was refactored and cleaned up
+
+- The common performance of builtin systems was improved.
 
 ### Fixed
 

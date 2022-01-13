@@ -322,6 +322,10 @@ namespace TDEngine2
 			if (CEntity* pEntity = pWorld->FindEntity(currEntityId))
 			{
 				const TEntityId parentId = pEntity->GetComponent<CTransform>()->GetParent();
+				if (TEntityId::Invalid == parentId)
+				{
+					continue;
+				}
 
 				if (std::find(entities.cbegin(), entities.cend(), parentId) == entities.cend()) /// \note Mark this entity as root
 				{
