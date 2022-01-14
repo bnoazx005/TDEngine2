@@ -64,7 +64,13 @@ namespace TDEngine2
 
 	void CUIElementsRenderSystem::InjectBindings(IWorld* pWorld)
 	{
-		mUIElementsEntities.clear();
+		auto& transforms     = mUIElementsContext.mpTransforms;
+		auto& layoutElements = mUIElementsContext.mpLayoutElements;
+		auto& uiMeshData     = mUIElementsContext.mpUIMeshData;
+
+		transforms.clear();
+		layoutElements.clear();
+		uiMeshData.clear();
 
 		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
 		const TEntityId mainCanvasEntityId = FindEntityWithMainCanvas(pWorld);
@@ -94,7 +100,9 @@ namespace TDEngine2
 
 			if (pEntity->HasComponent<CUIElementMeshData>())
 			{
-				mUIElementsEntities.insert(mUIElementsEntities.begin(), currEntityId);
+				transforms.insert(transforms.begin(), pEntity->GetComponent<CTransform>());
+				layoutElements.insert(layoutElements.begin(), pEntity->GetComponent<CLayoutElement>());
+				uiMeshData.insert(uiMeshData.begin(), pEntity->GetComponent<CUIElementMeshData>());
 			}
 
 			if (pTransform = pEntity->GetComponent<CTransform>())
@@ -118,7 +126,6 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CUIElementsRenderSystem::Update");
 
-		CEntity* pEntity = nullptr;
 		CEntity* pCanvasEntity = nullptr;
 
 		CCanvas* pCurrCanvas = nullptr;
@@ -131,18 +138,19 @@ namespace TDEngine2
 		TResourceId prevMaterialId = TResourceId::Invalid;
 		TMaterialInstanceId prevMaterialInstanceId = DefaultMaterialInstanceId;
 
+		auto& transforms     = mUIElementsContext.mpTransforms;
+		auto& layoutElements = mUIElementsContext.mpLayoutElements;
+		auto& uiMeshData     = mUIElementsContext.mpUIMeshData;
 
-		auto shouldBatchBeFlushed = [this, pWorld](const TResourceId currMaterialId, const TMaterialInstanceId currMaterialInstanceId, U32 index)
+		auto shouldBatchBeFlushed = [this, pWorld, &uiMeshData](const TResourceId currMaterialId, const TMaterialInstanceId currMaterialInstanceId, USIZE index)
 		{
-			if (index + 1 >= static_cast<U32>(mUIElementsEntities.size()))
+			if (index + 1 >= uiMeshData.size())
 			{
 				return true;
 			}
 
-			if (CEntity* pEntity = pWorld->FindEntity(mUIElementsEntities[index + 1]))
+			if (CUIElementMeshData* pMeshData = uiMeshData[index + 1])
 			{
-				CUIElementMeshData* pMeshData = pEntity->GetComponent<CUIElementMeshData>();
-
 				const TResourceId nextMaterialId = pMeshData->IsTextMesh() ? mDefaultFontMaterialId : mDefaultUIMaterialId;
 				if (nextMaterialId != currMaterialId)
 				{
@@ -163,18 +171,11 @@ namespace TDEngine2
 			return false;
 		};
 
-
-		for (U32 i = 0; i < mUIElementsEntities.size(); ++i)
+		for (USIZE i = 0; i < layoutElements.size(); ++i)
 		{
-			pEntity = pWorld->FindEntity(mUIElementsEntities[i]);
-			if (!pEntity)
-			{
-				continue;
-			}
-
-			CUIElementMeshData* pMeshData = pEntity->GetComponent<CUIElementMeshData>();
-			CTransform* pTransform = pEntity->GetComponent<CTransform>();
-			CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
+			CUIElementMeshData* pMeshData = uiMeshData[i];
+			CLayoutElement* pLayoutElement = layoutElements[i];
+			CTransform* pTransform = transforms[i];
 
 			/// \note Get entity that represents a canvas
 			if (!pCanvasEntity || (pCanvasEntity->GetId() != pLayoutElement->GetOwnerCanvasId()))
@@ -221,7 +222,7 @@ namespace TDEngine2
 			/// \note Flush current buffers when the batch is splitted
 			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i))
 			{
-				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(mUIElementsEntities.size() - index));
+				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(layoutElements.size() - index));
 
 				pCurrCommand->mpVertexBuffer = mpVertexBuffer;
 				pCurrCommand->mpIndexBuffer = mpIndexBuffer;

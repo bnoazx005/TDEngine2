@@ -24,6 +24,9 @@ namespace TDEngine2
 	class IGraphicsLayersInfo;
 	class IVertexBuffer;
 	class IIndexBuffer;
+	class CTransform;
+	class CUIElementMeshData;
+	class CLayoutElement;
 
 	enum class TResourceId : U32;
 	enum class TMaterialInstanceId : U32;
@@ -57,6 +60,13 @@ namespace TDEngine2
 			friend TDE2_API ISystem* CreateUIElementsRenderSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 		public:
 			typedef std::unordered_map<TResourceId, TMaterialInstanceId> TMaterialsMap;
+
+			struct TSystemContext
+			{
+				std::vector<CTransform*>         mpTransforms;
+				std::vector<CLayoutElement*>     mpLayoutElements;
+				std::vector<CUIElementMeshData*> mpUIMeshData;
+			};
 		public:
 			TDE2_SYSTEM(CUIElementsRenderSystem);
 
@@ -113,7 +123,7 @@ namespace TDEngine2
 			
 			CScopedPtr<IGraphicsLayersInfo> mpGraphicsLayers;
 
-			TEntitiesArray                  mUIElementsEntities;
+			TSystemContext                  mUIElementsContext;
 
 			std::vector<TUIElementsVertex>  mVertices, mIntermediateVertsBuffer;
 			std::vector<U16>                mIndices, mIntermediateIndexBuffer;
