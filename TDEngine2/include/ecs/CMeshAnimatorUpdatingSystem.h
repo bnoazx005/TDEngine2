@@ -8,11 +8,16 @@
 
 
 #include "CBaseSystem.h"
+#include "IWorld.h"
 
 
 namespace TDEngine2
 {
 	class IResourceManager;
+	class CAnimationContainerComponent;
+	class CSkinnedMeshContainer;
+	class CMeshAnimatorComponent;
+	class CBoundsComponent;
 
 
 	/*!
@@ -72,7 +77,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CMeshAnimatorUpdatingSystem)
 
 		protected:
-			TEntitiesArray mProcessingEntities;
+			TComponentsQueryLocalSlice<CSkinnedMeshContainer, CMeshAnimatorComponent, CAnimationContainerComponent, CBoundsComponent> mEntitiesContext;
 			
 			IResourceManager* mpResourceManager;
 	};

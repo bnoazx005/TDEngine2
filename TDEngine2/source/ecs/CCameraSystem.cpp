@@ -10,6 +10,7 @@
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -48,9 +49,11 @@ namespace TDEngine2
 
 		auto& cameras = mCamerasContext.mpCameras;
 		auto& transforms = mCamerasContext.mpTransforms;
+		auto& ents = mCamerasContext.mEntities;
 
 		cameras.clear();
 		transforms.clear();
+		ents.clear();
 
 		for (auto currEntityId : entities)
 		{
@@ -61,13 +64,21 @@ namespace TDEngine2
 
 				cameras.push_back(pCamera);
 				transforms.push_back(pCurrEntity->GetComponent<CTransform>());
+				ents.push_back(currEntityId);
 			}
+		}
+
+		if (CEntity* pCamerasContextEntity = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>()))
+		{
+			mpCamerasContextComponent = pCamerasContextEntity->GetComponent<CCamerasContextComponent>();
 		}
 	}
 
 	void CCameraSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CCameraSystem::Update");
+
+		TDE2_ASSERT(mpCamerasContextComponent);
 
 		CTransform* pCurrTransform = nullptr;
 
@@ -98,7 +109,9 @@ namespace TDEngine2
 			pCurrCamera->SetPosition(pCurrTransform->GetPosition());
 		}
 
-		SetMainCamera(GetCurrentActiveCamera(pWorld));
+		/// \note Update active camera
+		auto it = std::find(mCamerasContext.mEntities.cbegin(), mCamerasContext.mEntities.cend(), mpCamerasContextComponent->GetActiveCameraEntityId());
+		SetMainCamera(mCamerasContext.mpCameras[std::distance(mCamerasContext.mEntities.cbegin(), it)]);
 	}
 
 	E_RESULT_CODE CCameraSystem::ComputePerspectiveProjection(IPerspectiveCamera* pCamera) const

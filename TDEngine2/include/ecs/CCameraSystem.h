@@ -20,6 +20,7 @@ namespace TDEngine2
 	class IWindowSystem;
 	class CBaseCamera;
 	class CTransform;
+	class CCamerasContextComponent;
 
 
 	/*!
@@ -56,6 +57,7 @@ namespace TDEngine2
 			{
 				std::vector<CBaseCamera*> mpCameras;
 				std::vector<CTransform*>  mpTransforms;
+				std::vector<TEntityId>    mEntities;
 			};
 		public:
 			TDE2_SYSTEM(CCameraSystem);
@@ -133,15 +135,17 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCameraSystem)
 		protected:
-			TSystemContext       mCamerasContext;
+			TSystemContext            mCamerasContext;
 
-			IGraphicsContext*    mpGraphicsContext;
+			IGraphicsContext*         mpGraphicsContext;
 
-			const IWindowSystem* mpWindowSystem;
+			CCamerasContextComponent* mpCamerasContextComponent;
 
-			IRenderer*           mpRenderer;
+			const IWindowSystem*      mpWindowSystem;
 
-			const ICamera*       mpMainCamera;
+			IRenderer*                mpRenderer;
+
+			const ICamera*            mpMainCamera;
 	};
 
 

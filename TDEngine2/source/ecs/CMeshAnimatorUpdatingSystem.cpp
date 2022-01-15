@@ -2,6 +2,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
+#include "../../include/ecs/CTransform.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
@@ -39,24 +40,21 @@ namespace TDEngine2
 
 	void CMeshAnimatorUpdatingSystem::InjectBindings(IWorld* pWorld)
 	{
-		mProcessingEntities = pWorld->FindEntitiesWithComponents<CSkinnedMeshContainer, CMeshAnimatorComponent>();
+		mEntitiesContext = pWorld->CreateLocalComponentsSlice<CSkinnedMeshContainer, CMeshAnimatorComponent, CAnimationContainerComponent, CBoundsComponent>();
 	}
 
 	void CMeshAnimatorUpdatingSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CMeshAnimatorUpdatingSystem::Update");
 
-		CEntity* pEntity = nullptr;
-
-		for (TEntityId currEntityId : mProcessingEntities)
+		auto& skinnedMeshContainers = std::get<std::vector<CSkinnedMeshContainer*>>(mEntitiesContext.mComponentsSlice);
+		auto& animationContainers   = std::get<std::vector<CAnimationContainerComponent*>>(mEntitiesContext.mComponentsSlice);
+		auto& animators             = std::get<std::vector<CMeshAnimatorComponent*>>(mEntitiesContext.mComponentsSlice);
+		auto& bounds                = std::get<std::vector<CBoundsComponent*>>(mEntitiesContext.mComponentsSlice);
+		
+		for (USIZE i = 0; i < mEntitiesContext.mComponentsCount; ++i)
 		{
-			pEntity = pWorld->FindEntity(currEntityId);
-			if (!pEntity)
-			{
-				continue;
-			}
-
-			CSkinnedMeshContainer* pMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
+			CSkinnedMeshContainer* pMeshContainer = skinnedMeshContainers[i];
 			const TResourceId skeletonResourceId = mpResourceManager->Load<ISkeleton>(pMeshContainer->GetSkeletonName());
 
 			if (TResourceId::Invalid == skeletonResourceId)
@@ -66,7 +64,7 @@ namespace TDEngine2
 
 			auto pSkeleton = mpResourceManager->GetResource<ISkeleton>(skeletonResourceId);
 
-			CMeshAnimatorComponent* pMeshAnimator = pEntity->GetComponent<CMeshAnimatorComponent>();
+			CMeshAnimatorComponent* pMeshAnimator = animators[i];
 			auto& updatedJointsPose = pMeshAnimator->GetCurrAnimationPose();
 
 			if (updatedJointsPose.empty())
@@ -87,7 +85,7 @@ namespace TDEngine2
 				});
 			}
 
-			auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>();
+			auto pAnimationContainer = animationContainers[i];
 			if (pAnimationContainer && pAnimationContainer->IsPlaying())
 			{
 				/// \note Update bind transform matrices
@@ -134,7 +132,7 @@ namespace TDEngine2
 				});
 			}
 
-			if (auto pBounds = pEntity->GetComponent<CBoundsComponent>())
+			if (auto pBounds = bounds[i])
 			{
 				pBounds->SetDirty(true);
 			}
