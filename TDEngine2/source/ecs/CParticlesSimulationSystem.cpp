@@ -102,17 +102,31 @@ namespace TDEngine2
 
 	void CParticlesSimulationSystem::InjectBindings(IWorld* pWorld)
 	{
-		mParticleEmitters = pWorld->FindEntitiesWithComponents<CParticleEmitter>();
+		auto&& entities = pWorld->FindEntitiesWithComponents<CParticleEmitter>();
+		
+		auto& particleEmitters = mParticleEmitters.mpParticleEmitters;
+		auto& transforms = mParticleEmitters.mpTransform;
 
-		mParticlesInstancesData.resize(mParticleEmitters.size());
-		mParticles.resize(mParticleEmitters.size());
-		mpParticlesInstancesBuffers.resize(mParticleEmitters.size());
-		mActiveParticlesCount.resize(mParticleEmitters.size());
+		particleEmitters.clear();
+		transforms.clear();
+
+		for (auto currEntityId : entities)
+		{
+			if (auto pEntity = pWorld->FindEntity(currEntityId))
+			{
+				particleEmitters.push_back(pEntity->GetComponent<CParticleEmitter>());
+			}
+		}
+
+		mParticlesInstancesData.resize(particleEmitters.size());
+		mParticles.resize(particleEmitters.size());
+		mpParticlesInstancesBuffers.resize(particleEmitters.size());
+		mActiveParticlesCount.resize(particleEmitters.size());
 
 		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
 		mpCameraEntity = !cameras.empty() ? pWorld->FindEntity(cameras.front()) : nullptr;
 
-		mUsedMaterials = GetUsedMaterials(mParticleEmitters, pWorld, mpResourceManager.Get());
+		mUsedMaterials = GetUsedMaterials(entities, pWorld, mpResourceManager.Get());
 
 		for (IVertexBuffer*& pCurrVertexBuffer : mpParticlesInstancesBuffers)
 		{
@@ -131,17 +145,9 @@ namespace TDEngine2
 		}
 
 		/// \note Initialize arrays
-		CEntity* pCurrEntity = nullptr;
-
-		for (U32 i = 0; i < static_cast<U32>(mParticleEmitters.size()); ++i)
+		for (USIZE i = 0; i < particleEmitters.size(); ++i)
 		{
-			pCurrEntity = pWorld->FindEntity(mParticleEmitters[i]);
-			if (!pCurrEntity)
-			{
-				continue;
-			}
-
-			if (CParticleEmitter* pEmitterComponent = pCurrEntity->GetComponent<CParticleEmitter>())
+			if (CParticleEmitter* pEmitterComponent = particleEmitters[i])
 			{
 				auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
 				
@@ -172,7 +178,7 @@ namespace TDEngine2
 		// \note Render particles 
 		for (auto&& pCurrMaterial : mUsedMaterials)
 		{
-			_populateCommandsBuffer(mParticleEmitters, pWorld, mpRenderQueue, pCurrMaterial.Get(), pCameraComponent);
+			_populateCommandsBuffer(mParticleEmitters, mpRenderQueue, pCurrMaterial.Get(), pCameraComponent);
 		}
 	}
 
@@ -226,7 +232,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CParticlesSimulationSystem::_populateCommandsBuffer(const std::vector<TEntityId>& entities, IWorld* pWorld, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial, const ICamera* pCamera)
+	void CParticlesSimulationSystem::_populateCommandsBuffer(TSystemContext& context, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial, const ICamera* pCamera)
 	{
 		auto&& pCastedMaterial = dynamic_cast<const CBaseMaterial*>(pCurrMaterial);
 		const std::string& currMaterialName = pCastedMaterial->GetName();
@@ -238,51 +244,47 @@ namespace TDEngine2
 		U32 currBufferIndex = 0;
 
 		// \note iterate over all entities with pCurrMaterial attached as main material
-		for (TEntityId currEntity : entities)
+		for (USIZE i = 0; i < context.mpParticleEmitters.size(); ++i)
 		{
-			if (CEntity* pCurrEntity = pWorld->FindEntity(currEntity))
+			CParticleEmitter* pParticlesEmitter = context.mpParticleEmitters[i];
+
+			auto pParticleEffect = mpResourceManager->GetResource<IParticleEffect>(pParticlesEmitter->GetParticleEffectHandle());
+			if (!pParticleEffect)
 			{
-				if (CParticleEmitter* pParticlesEmitter = pCurrEntity->GetComponent<CParticleEmitter>())
-				{
-					auto pParticleEffect = mpResourceManager->GetResource<IParticleEffect>(pParticlesEmitter->GetParticleEffectHandle());
-					if (!pParticleEffect)
-					{
-						continue;
-					}
-
-					const TResourceId materialHandle = mpResourceManager->Load<IMaterial>(pParticleEffect->GetMaterialName());
-					if (TResourceId::Invalid == materialHandle || currMaterialName != pParticleEffect->GetMaterialName())
-					{
-						continue;
-					}
-
-					// \note We've found a particle system which uses pCurrMaterial as a main material, so push command to render it
-					CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
-
-					auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
-
-					const F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
-
-					// \note Create a command for the renderer
-					auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedInstancedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
-																								  _computeRenderCommandHash(currMaterialId, distanceToCamera));
-
-					const bool isLocalSpaceParticles = E_PARTICLE_SIMULATION_SPACE::LOCAL == pParticleEffect->GetSimulationSpaceType();
-
-					pCommand->mpVertexBuffer              = mpParticleQuadVertexBuffer;
-					pCommand->mpIndexBuffer               = mpParticleQuadIndexBuffer;
-					pCommand->mpInstancingBuffer          = mpParticlesInstancesBuffers[currBufferIndex];
-					pCommand->mMaterialHandle             = materialHandle;
-					pCommand->mpVertexDeclaration         = mpParticleVertexDeclaration; 
-					pCommand->mIndicesPerInstance         = 6;
-					pCommand->mNumOfInstances             = mActiveParticlesCount[currBufferIndex];
-					pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-					pCommand->mObjectData.mModelMatrix    = Transpose(isLocalSpaceParticles ? objectTransformMatrix : IdentityMatrix4);
-					pCommand->mObjectData.mInvModelMatrix = Transpose(isLocalSpaceParticles ? Inverse(objectTransformMatrix) : IdentityMatrix4);
-
-					++currBufferIndex;
-				}
+				continue;
 			}
+
+			const TResourceId materialHandle = mpResourceManager->Load<IMaterial>(pParticleEffect->GetMaterialName());
+			if (TResourceId::Invalid == materialHandle || currMaterialName != pParticleEffect->GetMaterialName())
+			{
+				continue;
+			}
+
+			// \note We've found a particle system which uses pCurrMaterial as a main material, so push command to render it
+			CTransform* pTransform = context.mpTransform[i];
+
+			auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
+
+			const F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
+
+			// \note Create a command for the renderer
+			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedInstancedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) +
+				_computeRenderCommandHash(currMaterialId, distanceToCamera));
+
+			const bool isLocalSpaceParticles = E_PARTICLE_SIMULATION_SPACE::LOCAL == pParticleEffect->GetSimulationSpaceType();
+
+			pCommand->mpVertexBuffer = mpParticleQuadVertexBuffer;
+			pCommand->mpIndexBuffer = mpParticleQuadIndexBuffer;
+			pCommand->mpInstancingBuffer = mpParticlesInstancesBuffers[currBufferIndex];
+			pCommand->mMaterialHandle = materialHandle;
+			pCommand->mpVertexDeclaration = mpParticleVertexDeclaration;
+			pCommand->mIndicesPerInstance = 6;
+			pCommand->mNumOfInstances = mActiveParticlesCount[currBufferIndex];
+			pCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCommand->mObjectData.mModelMatrix = Transpose(isLocalSpaceParticles ? objectTransformMatrix : IdentityMatrix4);
+			pCommand->mObjectData.mInvModelMatrix = Transpose(isLocalSpaceParticles ? Inverse(objectTransformMatrix) : IdentityMatrix4);
+
+			++currBufferIndex;
 		}
 	}
 
@@ -309,18 +311,10 @@ namespace TDEngine2
 	{
 		U32 currInstancesBufferIndex = 0;
 
-		CEntity* pCurrEntity = nullptr;
-
 		// \note Do main update logic here
-		for (U32 i = 0; i < static_cast<U32>(mParticleEmitters.size()); ++i)
+		for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
 		{
-			pCurrEntity = pWorld->FindEntity(mParticleEmitters[i]);
-			if (!pCurrEntity)
-			{
-				continue;
-			}
-
-			if (CParticleEmitter* pEmitterComponent = pCurrEntity->GetComponent<CParticleEmitter>())
+			if (CParticleEmitter* pEmitterComponent = mParticleEmitters.mpParticleEmitters[i])
 			{
 				auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
 
@@ -333,7 +327,7 @@ namespace TDEngine2
 
 					if (auto pSharedEmitter = pCurrEffectResource->GetSharedEmitter())
 					{
-						CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
+						CTransform* pTransform = mParticleEmitters.mpTransform[i];
 
 						for (U32 k = 0; k < emissionRate; ++k)
 						{

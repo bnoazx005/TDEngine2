@@ -27,6 +27,8 @@ namespace TDEngine2
 	class CEntity;
 	class IMaterial;
 	class ICamera;
+	class CTransform;
+	class CParticleEmitter;
 	
 
 	enum class TEntityId : U32;
@@ -77,6 +79,13 @@ namespace TDEngine2
 			typedef std::vector<std::vector<TParticleInstanceData>> TParticlesArray;
 			typedef std::vector<std::vector<TParticleInfo>> TParticlesInfoArray;
 
+			typedef std::vector<CParticleEmitter*> TParticleEmmitters;
+
+			struct TSystemContext
+			{
+				std::vector<CTransform*>       mpTransform;
+				std::vector<CParticleEmitter*> mpParticleEmitters;
+			};
 	public:
 			TDE2_SYSTEM(CParticlesSimulationSystem);
 
@@ -117,7 +126,7 @@ namespace TDEngine2
 			
 			TDE2_API void _simulateParticles(IWorld* pWorld, F32 dt);
 
-			TDE2_API void _populateCommandsBuffer(const std::vector<TEntityId>& entities, IWorld* pWorld, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial, const ICamera* pCamera);
+			TDE2_API void _populateCommandsBuffer(TSystemContext& context, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial, const ICamera* pCamera);
 
 			TDE2_API U32 _computeRenderCommandHash(TResourceId materialId, F32 distanceToCamera);
 
@@ -142,7 +151,7 @@ namespace TDEngine2
 
 			TParticlesInfoArray     mParticles;
 
-			std::vector<TEntityId>  mParticleEmitters;
+			TSystemContext          mParticleEmitters;
 
 			std::vector<U32>        mActiveParticlesCount;
 
