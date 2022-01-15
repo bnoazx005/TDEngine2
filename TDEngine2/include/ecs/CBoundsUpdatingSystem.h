@@ -21,6 +21,10 @@ namespace TDEngine2
 	class IDebugUtility;
 	class IResourceManager;
 	class ISceneManager;
+	class CQuadSprite;
+	class CStaticMeshContainer;
+	class CSkinnedMeshContainer;
+	class CBoundsComponent;
 
 
 	/*!
@@ -47,6 +51,19 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager*, IDebugUtility*, ISceneManager*, E_RESULT_CODE&);
+
+		public:
+			template <typename T>
+			struct TSystemContext
+			{
+				std::vector<CBoundsComponent*> mpBounds;
+				std::vector<CTransform*>       mpTransforms;
+				std::vector<T*>                mpElements;
+			};
+
+			typedef TSystemContext<CQuadSprite>           TSpritesBoundsContext;
+			typedef TSystemContext<CStaticMeshContainer>  TStaticMeshesBoundsContext;
+			typedef TSystemContext<CSkinnedMeshContainer> TSkinnedMeshesBoundsContext;
 		public:
 			TDE2_SYSTEM(CBoundsUpdatingSystem);
 
@@ -85,17 +102,18 @@ namespace TDEngine2
 
 			TDE2_API void _processScenesEntities(IWorld* pWorld);
 		protected:
-			TEntitiesArray    mStaticMeshesEntities;
-			TEntitiesArray    mSkinnedMeshesEntities;
-			TEntitiesArray    mSpritesEntities;
-			TEntitiesArray    mScenesBoundariesEntities;
+			TStaticMeshesBoundsContext  mStaticMeshesContext;
+			TSkinnedMeshesBoundsContext mSkinnedMeshesContext;
+			TSpritesBoundsContext       mSpritesContext;
 
-			IResourceManager* mpResourceManager;
+			TEntitiesArray              mScenesBoundariesEntities;
 
-			IDebugUtility*    mpDebugUtility;
+			IResourceManager*           mpResourceManager;
 
-			ISceneManager*    mpSceneManager;
+			IDebugUtility*              mpDebugUtility;
 
-			F32               mCurrTimer = 0.0f;
+			ISceneManager*              mpSceneManager;
+
+			F32                         mCurrTimer = 0.0f;
 	};
 }

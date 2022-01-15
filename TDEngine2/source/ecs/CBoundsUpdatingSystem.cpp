@@ -49,64 +49,48 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	template <typename TContextType, typename TComponentType>
+	static void InitContext(TContextType& context, IWorld* pWorld)
+	{
+		context.mpBounds.clear();
+		context.mpElements.clear();
+		context.mpTransforms.clear();
+
+		for (TEntityId id : pWorld->FindEntitiesWithComponents<TComponentType>())
+		{
+			if (CEntity* pEntity = pWorld->FindEntity(id))
+			{
+				if (!pEntity->HasComponent<CBoundsComponent>())
+				{
+					pEntity->AddComponent<CBoundsComponent>();
+				}
+
+				context.mpBounds.push_back(pEntity->GetComponent<CBoundsComponent>());
+				context.mpTransforms.push_back(pEntity->GetComponent<CTransform>());
+				context.mpElements.push_back(pEntity->GetComponent<TComponentType>());
+			}
+		}
+	}
+
+
 	void CBoundsUpdatingSystem::InjectBindings(IWorld* pWorld)
 	{
-		mStaticMeshesEntities  = pWorld->FindEntitiesWithComponents<CStaticMeshContainer>();
-		mSkinnedMeshesEntities = pWorld->FindEntitiesWithComponents<CSkinnedMeshContainer>();
-		mSpritesEntities       = pWorld->FindEntitiesWithComponents<CQuadSprite>();
+		InitContext<CBoundsUpdatingSystem::TStaticMeshesBoundsContext, CStaticMeshContainer>(mStaticMeshesContext, pWorld);
+		InitContext<CBoundsUpdatingSystem::TSkinnedMeshesBoundsContext, CSkinnedMeshContainer>(mSkinnedMeshesContext, pWorld);
+		InitContext<CBoundsUpdatingSystem::TSpritesBoundsContext, CQuadSprite>(mSpritesContext, pWorld);
 
 		mScenesBoundariesEntities = pWorld->FindEntitiesWithComponents<CSceneInfoComponent>();
 	}
 
 
-	static void ProcessEntities(IDebugUtility* pDebugUtility, IWorld* pWorld, const std::vector<TEntityId>& entities, bool isUpdateNeeded, const std::function<void(CEntity*)>& processCallback)
-	{
-		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::ProcessEntities");
-
-		CEntity* pEntity = nullptr;
-
-		for (TEntityId currEntity : entities)
-		{
-			if (!(pEntity = pWorld->FindEntity(currEntity)))
-			{
-				continue;
-			}
-
-			if (!pEntity->HasComponent<CBoundsComponent>())
-			{
-				pEntity->AddComponent<CBoundsComponent>();
-				return;
-			}
-
-			if (CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>())
-			{
-				if (pDebugUtility)
-				{
-					pDebugUtility->DrawAABB(pBounds->GetBounds(), TColorUtils::mWhite);
-				}
-
-				if (!isUpdateNeeded || !pBounds->IsDirty())
-				{
-					continue;
-				}
-
-				if (processCallback) // \note Compute bounds for the entity
-				{
-					processCallback(pEntity);
-				}
-
-				pBounds->SetDirty(false);
-			}
-		}
-	}
-
-	static void ComputeStaticMeshBounds(IResourceManager* pResourceManager, CEntity* pEntity)
+	static void ComputeStaticMeshBounds(IResourceManager* pResourceManager, CBoundsUpdatingSystem::TStaticMeshesBoundsContext& staticMeshesContext, USIZE id)
 	{
 		TDE2_PROFILER_SCOPE("ComputeStaticMeshBounds");
 
-		CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>();
+		CBoundsComponent* pBounds = staticMeshesContext.mpBounds[id];
 
-		if (CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>())
+		if (CStaticMeshContainer* pStaticMeshContainer = staticMeshesContext.mpElements[id])
 		{
 			const TResourceId meshId = pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
 
@@ -120,7 +104,7 @@ namespace TDEngine2
 			{
 				auto&& vertices = pStaticMesh->GetPositionsArray();
 
-				if (CTransform* pTransform = pEntity->GetComponent<CTransform>())
+				if (CTransform* pTransform = staticMeshesContext.mpTransforms[id])
 				{
 					const TMatrix4& worldMatrix = pTransform->GetLocalToWorldTransform();
 
@@ -141,13 +125,13 @@ namespace TDEngine2
 		}
 	}
 
-	static void ComputeSkinnedMeshBounds(IResourceManager* pResourceManager, CEntity* pEntity)
+	static void ComputeSkinnedMeshBounds(IResourceManager* pResourceManager, CBoundsUpdatingSystem::TSkinnedMeshesBoundsContext& skinnedMeshesContext, USIZE id)
 	{
 		TDE2_PROFILER_SCOPE("ComputeSkinnedMeshBounds");
 
-		CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>();
+		CBoundsComponent* pBounds = skinnedMeshesContext.mpBounds[id];
 
-		if (CSkinnedMeshContainer* pSkinnedMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>())
+		if (CSkinnedMeshContainer* pSkinnedMeshContainer = skinnedMeshesContext.mpElements[id])
 		{
 			const TResourceId meshId = pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName());
 
@@ -159,7 +143,7 @@ namespace TDEngine2
 
 			if (auto pSkinnedMesh = pResourceManager->GetResource<ISkinnedMesh>(meshId))
 			{
-				if (CTransform* pTransform = pEntity->GetComponent<CTransform>())
+				if (CTransform* pTransform = skinnedMeshesContext.mpTransforms[id])
 				{
 					auto&& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
 					auto&& vertices = pSkinnedMesh->GetPositionsArray();
@@ -199,11 +183,40 @@ namespace TDEngine2
 		}
 	}
 
-	static void ComputeSpritesBounds(CEntity* pEntity)
+	template <typename T, typename TFunc>
+	static void ProcessMeshesBounds(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, T& meshesContext, bool isUpdateNeeded, const TFunc& functor)
+	{
+		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::ProcessMeshesBounds");
+
+		auto& bounds = meshesContext.mpBounds;
+
+		for (USIZE i = 0; i < bounds.size(); ++i)
+		{
+			if (CBoundsComponent* pBounds = bounds[i])
+			{
+				if (pDebugUtility)
+				{
+					pDebugUtility->DrawAABB(pBounds->GetBounds(), TColorUtils::mWhite);
+				}
+
+				if (!isUpdateNeeded || !pBounds->IsDirty())
+				{
+					continue;
+				}
+
+				functor(pResourceManager, meshesContext, i);
+
+				pBounds->SetDirty(false);
+			}
+		}
+	}
+
+
+	static void ComputeSpritesBounds(CBoundsUpdatingSystem::TSpritesBoundsContext& spritesContext, USIZE id)
 	{
 		TDE2_PROFILER_SCOPE("ComputeSpritesBounds");
 
-		CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>();
+		CBoundsComponent* pBounds = spritesContext.mpBounds[id];
 
 		static const std::array<TVector4, 4> spriteVerts
 		{
@@ -213,7 +226,7 @@ namespace TDEngine2
 			TVector4 { 0.5f, -0.5f, 0.0f, 1.0f },
 		};
 
-		if (CTransform* pSpriteTransform = pEntity->GetComponent<CTransform>())
+		if (CTransform* pSpriteTransform = spritesContext.mpTransforms[id])
 		{
 			const TMatrix4& worldMatrix = pSpriteTransform->GetLocalToWorldTransform();
 
@@ -232,6 +245,33 @@ namespace TDEngine2
 		}
 	}
 
+	static void ProcessSpritesBounds(IDebugUtility* pDebugUtility, CBoundsUpdatingSystem::TSpritesBoundsContext& spritesContext, bool isUpdateNeeded)
+	{
+		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::ProcessSpritesBounds");
+
+		auto& bounds = spritesContext.mpBounds;
+
+		for (USIZE i = 0; i < bounds.size(); ++i)
+		{
+			if (CBoundsComponent* pBounds = bounds[i])
+			{
+				if (pDebugUtility)
+				{
+					pDebugUtility->DrawAABB(pBounds->GetBounds(), TColorUtils::mWhite);
+				}
+
+				if (!isUpdateNeeded || !pBounds->IsDirty())
+				{
+					continue;
+				}
+
+				ComputeSpritesBounds(spritesContext, i);
+
+				pBounds->SetDirty(false);
+			}
+		}
+	}
+
 
 	void CBoundsUpdatingSystem::Update(IWorld* pWorld, F32 dt)
 	{
@@ -244,11 +284,13 @@ namespace TDEngine2
 
 		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::Update");
 
-		ProcessEntities(mpDebugUtility, pWorld, mStaticMeshesEntities, isUpdateNeeded, [this](CEntity* pEntity) { ComputeStaticMeshBounds(mpResourceManager, pEntity); });
-		ProcessEntities(mpDebugUtility, pWorld, mSkinnedMeshesEntities, isUpdateNeeded, [this](CEntity* pEntity) { ComputeSkinnedMeshBounds(mpResourceManager, pEntity); });
-		ProcessEntities(mpDebugUtility, pWorld, mSpritesEntities, isUpdateNeeded, std::bind(&ComputeSpritesBounds, std::placeholders::_1));
+		ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds);
+		ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds);
+		ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded);
 
+#if 0
 		_processScenesEntities(pWorld);
+#endif
 
 		mCurrTimer += dt;
 	}
