@@ -19,6 +19,7 @@ namespace TDEngine2
 	class IPropertyWrapper;
 	class CEntity;
 	class IWorld;
+	class CAnimationContainerComponent;
 
 
 	/*!
@@ -44,6 +45,12 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateAnimationSystem(IResourceManager*, IEventManager*, E_RESULT_CODE& result);
+		public:
+			struct TSystemContext
+			{
+				std::vector<CAnimationContainerComponent*> mpAnimationContainers;
+				std::vector<TEntityId>                     mEntities;
+			};
 		public:
 			TDE2_SYSTEM(CAnimationSystem);
 
@@ -84,12 +91,12 @@ namespace TDEngine2
 			TDE2_API void _notifyOnAnimationEvent(TEntityId id, const std::string& eventId);
 
 		protected:
-			IResourceManager* mpResourceManager;
-			IEventManager* mpEventManager;
+			IResourceManager*   mpResourceManager;
+			IEventManager*      mpEventManager;
 			
-			std::vector<TEntityId> mAnimatedEntities;
+			TSystemContext      mAnimationContainersContext;
 
 			IPropertyWrapperPtr mEventsHandler;
-			TEntityId mCurrEventProviderId = TEntityId::Invalid;
+			TEntityId           mCurrEventProviderId = TEntityId::Invalid;
 	};
 }

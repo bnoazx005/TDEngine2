@@ -126,14 +126,25 @@ namespace TDEngine2
 
 	void CAnimationSystem::InjectBindings(IWorld* pWorld)
 	{
-		mAnimatedEntities = pWorld->FindEntitiesWithComponents<CAnimationContainerComponent>();
+		mAnimationContainersContext.mpAnimationContainers.clear();
+		mAnimationContainersContext.mEntities.clear();
+
+		for (TEntityId currEntityId : pWorld->FindEntitiesWithComponents<CAnimationContainerComponent>())
+		{
+			if (CEntity* pEntity = pWorld->FindEntity(currEntityId))
+			{
+				if (CAnimationContainerComponent* pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>())
+				{
+					mAnimationContainersContext.mpAnimationContainers.push_back(pAnimationContainer);
+					mAnimationContainersContext.mEntities.push_back(currEntityId);
+				}
+			}
+		}
 	}
 
 	void CAnimationSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CAnimationSystem::Update");
-
-		CEntity* pCurrEntity = nullptr;
 
 		auto tryStopAnimation = [this](CAnimationContainerComponent* pAnimationContainer, TEntityId sourceId)
 		{
@@ -150,15 +161,12 @@ namespace TDEngine2
 			return false;
 		};
 
-		for (TEntityId currEntityId : mAnimatedEntities)
-		{
-			pCurrEntity = pWorld->FindEntity(currEntityId);
-			if (!pCurrEntity)
-			{
-				continue;
-			}
+		auto& animationContainers = mAnimationContainersContext.mpAnimationContainers;
+		auto& entitiesIds = mAnimationContainersContext.mEntities;
 
-			CAnimationContainerComponent* pAnimationContainer = pCurrEntity->GetComponent<CAnimationContainerComponent>();
+		for (USIZE i = 0; i < animationContainers.size(); ++i)
+		{
+			CAnimationContainerComponent* pAnimationContainer = animationContainers[i];
 
 			const bool isStarted = pAnimationContainer->IsStarted();
 			const bool isPlaying = pAnimationContainer->IsPlaying();
@@ -166,7 +174,7 @@ namespace TDEngine2
 
 			if ((!isPlaying && !isStarted) || isPaused)
 			{
-				tryStopAnimation(pAnimationContainer, pCurrEntity->GetId());
+				tryStopAnimation(pAnimationContainer, entitiesIds[i]);
 				continue;
 			}
 
@@ -180,10 +188,10 @@ namespace TDEngine2
 				const TResourceId animationClipId = mpResourceManager->Load<IAnimationClip>(pAnimationContainer->GetAnimationClipId());
 				pAnimationContainer->SetAnimationClipResourceId(animationClipId);
 				
-				_notifyOnAnimationEvent(pCurrEntity->GetId(), TAnimationEvents::mOnStart);
+				_notifyOnAnimationEvent(entitiesIds[i], TAnimationEvents::mOnStart);
 			}
 
-			if (tryStopAnimation(pAnimationContainer, pCurrEntity->GetId()))
+			if (tryStopAnimation(pAnimationContainer, entitiesIds[i]))
 			{				
 				return;
 			}
@@ -206,11 +214,11 @@ namespace TDEngine2
 			auto& cachedProperties = pAnimationContainer->GetCachedPropertiesTable();
 
 			// \note Apply values for each animation track
-			pAnimationClip->ForEachTrack([pWorld, pCurrEntity, currTime, this, pAnimationContainer, &cachedProperties](TAnimationTrackId trackId, IAnimationTrack* pTrack)
+			pAnimationClip->ForEachTrack([pWorld, entityId = entitiesIds[i], currTime, this, pAnimationContainer, &cachedProperties](TAnimationTrackId trackId, IAnimationTrack* pTrack)
 			{
 				if (pTrack->GetTrackTypeId() == CEventAnimationTrack::GetTypeId()) // \note Event track's processed separately
 				{
-					mCurrEventProviderId = pCurrEntity->GetId();
+					mCurrEventProviderId = entityId;
 
 					E_RESULT_CODE result = pTrack->Apply(mEventsHandler.Get(), currTime);
 					TDE2_ASSERT(RC_OK == result);
@@ -223,7 +231,7 @@ namespace TDEngine2
 				auto&& it = cachedProperties.find(propertyBindingStrHash);
 				if (it == cachedProperties.cend() || !it->second)
 				{
-					cachedProperties[propertyBindingStrHash] = ResolveBinding(pWorld, pCurrEntity, pTrack->GetPropertyBinding());
+					cachedProperties[propertyBindingStrHash] = ResolveBinding(pWorld, pWorld->FindEntity(entityId), pTrack->GetPropertyBinding());
 				}
 
 				IPropertyWrapperPtr& animableProperty = cachedProperties[propertyBindingStrHash];

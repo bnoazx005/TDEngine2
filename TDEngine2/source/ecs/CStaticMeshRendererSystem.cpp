@@ -72,7 +72,7 @@ namespace TDEngine2
 
 	void CStaticMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::Update");
+		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::Update");
 
 		ICamera* pCameraComponent = GetCurrentActiveCamera(pWorld);
 		TDE2_ASSERT(pCameraComponent);
