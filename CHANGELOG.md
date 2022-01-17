@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.26] 2022-01-17
+
+### Added
+
+- A new versioning was introduced into engine's CMakeLists.txt and Config.h files.
+
+- A git hook for pre-push was added to automatically update the project version.
+
 ## [0.5.25] 2022-01-16
 
 ### Added

@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.8)
 
-project (TDEngine2 CXX)
+project (TDEngine2 
+	VERSION 0.5.26
+	LANGUAGES CXX)
 
 # The options which are related with plugins are placed here
 option(IS_PLUGIN_BUILDING_ENABLED "The option shows whether plugins should be built or not" ON)
@@ -37,6 +39,10 @@ set(TDENGINE2_CGEN_HEADER "${TDENGINE2_CGEN_OUTPUT_PATH}metadata.h")
 
 message(STATUS "Code generation output: " ${TDENGINE2_CGEN_HEADER})
 #file(WRITE ${TDENGINE2_CGEN_HEADER})
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/Config.h.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/utils/Config.h")
 
 set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/TDEngine2.h"
