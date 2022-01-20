@@ -136,25 +136,6 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryArchiveWriter)
 
 			TDE2_API E_RESULT_CODE _onFree() override;
-
-			TDE2_API E_RESULT_CODE _writeStringInternal(const std::string& value);
-			TDE2_API E_RESULT_CODE _writeTagValue(U32 tag);
-
-			template <typename T>
-			E_RESULT_CODE _writeValue(const std::string& key, const T& value)
-			{
-				E_RESULT_CODE result = _writeStringInternal(key);
-
-				// \note Write tag of the type's value
-				const U32 tag = static_cast<U32>(TArchiveValue::GetValueTag<T>());
-				result = result | _writeInternal(&tag, sizeof(tag));
-
-				result = result | _writeInternal(static_cast<const void*>(&value), sizeof(value));
-
-				return result;
-			}
-
-			TDE2_API E_RESULT_CODE _writeInternal(const void* pValue, U32 size);
 		protected:
 			IOutputStream* mpCachedOutputStream;
 	};

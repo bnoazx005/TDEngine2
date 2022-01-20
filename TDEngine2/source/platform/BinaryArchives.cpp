@@ -24,19 +24,60 @@ namespace TDEngine2
 	template<> constexpr TypeId TArchiveValue::GetValueTag<std::string>() { return TDE2_TYPE_ID(std::string); }
 
 
-	template <>
-	E_RESULT_CODE CBinaryArchiveWriter::_writeValue<std::string>(const std::string& key, const std::string& value)
+	static E_RESULT_CODE WriteStringInternal(IOutputStream* pStream, const std::string& value)
 	{
-		E_RESULT_CODE result = _writeStringInternal(key);
+		if (!pStream)
+		{
+			return RC_FAIL;
+		}
 
-		// \note Write tag of the type's value
-		const U32 tag = static_cast<U32>(TDE2_TYPE_ID(std::string));
-		result = result | mpCachedOutputStream->Write(&tag, sizeof(tag));
+		const USIZE length = SwapBytes(value.length());
+		const C8* pStrBuffer = value.c_str();
 
-		result = result | _writeStringInternal(value);
+		E_RESULT_CODE result = pStream->Write(static_cast<const void*>(&length), sizeof(length));
+		result = result | pStream->Write(static_cast<const void*>(pStrBuffer), sizeof(C8) * length);
 
 		return result;
 	}
+
+
+	static inline E_RESULT_CODE WriteTagValueImpl(IOutputStream* pStream, U32 tag)
+	{
+		tag = SwapBytes(tag);
+
+		return pStream->Write(&tag, sizeof(tag));
+	}
+
+
+	template <typename T>
+	static E_RESULT_CODE WriteValueImpl(IOutputStream* pStream, const std::string& key, const T& value)
+	{
+		E_RESULT_CODE result = WriteStringInternal(pStream, key);
+
+		// \note Write tag of the type's value
+		const U32 tag = SwapBytes(static_cast<U32>(TArchiveValue::GetValueTag<T>()));
+
+		result = result | pStream->Write(&tag, sizeof(tag));
+		result = result | pStream->Write(static_cast<const void*>(&value), sizeof(value));
+
+		return result;
+	}
+
+
+	template <>
+	static E_RESULT_CODE WriteValueImpl<std::string>(IOutputStream* pStream, const std::string& key, const std::string& value)
+	{
+		E_RESULT_CODE result = WriteStringInternal(pStream, key);
+
+		// \note Write tag of the type's value
+		const U32 tag = SwapBytes(static_cast<U32>(TDE2_TYPE_ID(std::string)));
+
+		result = result | pStream->Write(&tag, sizeof(tag));
+		result = result | WriteStringInternal(pStream, value);
+
+		return result;
+	}
+
 
 	CBinaryArchiveWriter::CBinaryArchiveWriter() :
 		CBaseFile()
@@ -68,8 +109,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		result = result | _writeStringInternal(key);
-		result = result | _writeTagValue(TArchiveValue::mBeginBlockTag);
+		result = result | WriteStringInternal(mpCachedOutputStream, key);
+		result = result | WriteTagValueImpl(mpCachedOutputStream, TArchiveValue::mBeginBlockTag);
 
 		return result;
 	}
@@ -78,7 +119,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		_writeTagValue(TArchiveValue::mEndBlockTag);
+		WriteTagValueImpl(mpCachedOutputStream, TArchiveValue::mEndBlockTag);
 
 		return RC_OK;
 	}
@@ -86,105 +127,78 @@ namespace TDEngine2
 	E_RESULT_CODE CBinaryArchiveWriter::SetUInt8(const std::string& key, U8 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<U8>(key, value);
+		return WriteValueImpl<U8>(mpCachedOutputStream, key, value);
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetUInt16(const std::string& key, U16 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<U16>(key, value);
+		return WriteValueImpl<U16>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetUInt32(const std::string& key, U32 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<U32>(key, value);
+		return WriteValueImpl<U32>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetUInt64(const std::string& key, U64 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<U64>(key, value);
+		return WriteValueImpl<U64>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetInt8(const std::string& key, I8 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<I8>(key, value);
+		return WriteValueImpl<I8>(mpCachedOutputStream, key, value);
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetInt16(const std::string& key, I16 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<I16>(key, value);
+		return WriteValueImpl<I16>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetInt32(const std::string& key, I32 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<I32>(key, value);
+		return WriteValueImpl<I32>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetInt64(const std::string& key, I64 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<I64>(key, value);
+		return WriteValueImpl<I64>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetFloat(const std::string& key, F32 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<F32>(key, value);
+		return WriteValueImpl<F32>(mpCachedOutputStream, key, value);
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetDouble(const std::string& key, F64 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<F64>(key, value);
+		return WriteValueImpl<F64>(mpCachedOutputStream, key, value);
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetBool(const std::string& key, bool value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<bool>(key, value);
+		return WriteValueImpl<bool>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetString(const std::string& key, const std::string& value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _writeValue<std::string>(key, value);
+		return WriteValueImpl<std::string>(mpCachedOutputStream, key, value);
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::_onFree()
 	{
-
 		return RC_OK;
-	}
-
-	E_RESULT_CODE CBinaryArchiveWriter::_writeStringInternal(const std::string& value)
-	{
-		if (!mpCachedOutputStream)
-		{
-			return RC_FAIL;
-		}
-
-		const size_t length = value.length();
-		const char* pStrBuffer = value.c_str();
-
-		E_RESULT_CODE result = mpCachedOutputStream->Write(static_cast<const void*>(&length), sizeof(size_t));
-		result = result | mpCachedOutputStream->Write(static_cast<const void*>(pStrBuffer), sizeof(C8) * length);
-
-		return result;
-	}
-
-	TDE2_API E_RESULT_CODE CBinaryArchiveWriter::_writeTagValue(U32 tag)
-	{
-		return mpCachedOutputStream->Write(&tag, sizeof(tag));
-	}
-
-	E_RESULT_CODE CBinaryArchiveWriter::_writeInternal(const void* pValue, U32 size)
-	{
-		return mpCachedOutputStream->Write(pValue, size);
 	}
 
 

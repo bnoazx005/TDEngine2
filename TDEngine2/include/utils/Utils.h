@@ -297,37 +297,57 @@ namespace TDEngine2
 		on the host
 	*/
 
-	TDE2_API E_ENDIAN_TYPE GetHostEndianType();
+	constexpr TDE2_API E_ENDIAN_TYPE GetHostEndianType()
+	{
+		U32 checker = 0x1;
+		return (*((U8*)&checker) == 0x1) ? E_ENDIAN_TYPE::ET_LITTLE_ENDIAN : E_ENDIAN_TYPE::ET_BIG_ENDIAN;
+	}
 
-	/*!
-		\brief The function swaps the order of bytes of a given value, type of which is represented as a word
+	
+	template <typename T>
+	T SwapBytesImpl(T value, std::integral_constant<USIZE, 1>)
+	{
+		return value;
+	}
 
-		\param[in] value Any U16 value
 
-		\return The U16 value with swapped order of bytes
-	*/
+	template <typename T>
+	T SwapBytesImpl(T value, std::integral_constant<USIZE, 2>)
+	{
+		typename std::make_unsigned<T>::type* pValue = reinterpret_cast<typename std::make_unsigned<T>::type*>(&value);
+		return (*pValue & 0x00FF) << 8 | (*pValue & 0xFF00) >> 8;
+	}
 
-	TDE2_API U16 Swap2Bytes(U16 value);
 
-	/*!
-		\brief The function swaps the order of bytes of a given value, type of which is a double word
+	template <typename T>
+	T SwapBytesImpl(T value, std::integral_constant<USIZE, 4>)
+	{
+		typename std::make_unsigned<T>::type* pValue = reinterpret_cast<typename std::make_unsigned<T>::type*>(&value);
+		return (*pValue & 0x000000FF) << 24 | (*pValue & 0x0000FF00) << 8 | (*pValue & 0x00FF0000) >> 8 | (*pValue & 0xFF000000) >> 24;
+	}
 
-		\param[in] value Any U32 value
 
-		\return The U32 value with swapped order of bytes
-	*/
+	template <typename T>
+	T SwapBytesImpl(T value, std::integral_constant<USIZE, 8>)
+	{
+		typename std::make_unsigned<T>::type* pValue = reinterpret_cast<typename std::make_unsigned<T>::type*>(&value);
 
-	TDE2_API U32 Swap4Bytes(U32 value);
+		return (*pValue & 0x00000000000000FF) << 56 |
+			(*pValue & 0x000000000000FF00) << 40 |
+			(*pValue & 0x0000000000FF0000) << 24 |
+			(*pValue & 0x00000000FF000000) << 8 |
+			(*pValue & 0x000000FF00000000) >> 8 |
+			(*pValue & 0x0000FF0000000000) >> 24 |
+			(*pValue & 0x00FF000000000000) >> 40 |
+			(*pValue & 0xFF00000000000000) >> 56;
+	}
 
-	/*!
-		\brief The function swaps the order of bytes of a given value, type of which is a U64
 
-		\param[in] value Any U64 value
-
-		\return The U64 value with swapped order of bytes
-	*/
-
-	TDE2_API U64 Swap8Bytes(U64 value);
+	template<typename T>
+	T SwapBytes(T value) {
+		static_assert(std::is_integral<T>::value, "SwapBytes<T> requires T to be an integral type.");
+		return (E_ENDIAN_TYPE::ET_BIG_ENDIAN == GetHostEndianType()) ? SwapBytesImpl<T>(value, std::integral_constant<size_t, sizeof(T)>()) : value;
+	}
 
 
 	/*!
