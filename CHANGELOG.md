@@ -15,10 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A git hook for pre-push was added to automatically update the project version.
 
+- API of **IBinaryFileReader** was extended with a bunch of new methods **ReadX** that's endian independent
+
 ### Changed
 
 - The functions SwapXBytes were replaced with a template SwapBytes. Now the engine assumes that all numeric data is stored in little endian manner.
 If it's run on big endian machines everything will be swapped into a little endian memory layout.
+
+- Now **CBinaryArchiveWriter** and **CBinaryArchiveReader** are endian independent.
 
 ## [0.5.25] 2022-01-16
 

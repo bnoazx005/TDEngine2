@@ -38,6 +38,21 @@ namespace TDEngine2
 		public:
 			TDE2_REGISTER_TYPE(CBinaryFileReader)
 
+			TDE2_API U8 ReadUInt8() override;
+			TDE2_API U16 ReadUInt16() override;
+			TDE2_API U32 ReadUInt32() override;
+			TDE2_API U64 ReadUInt64() override;
+
+			TDE2_API I8 ReadInt8() override;
+			TDE2_API I16 ReadInt16() override;
+			TDE2_API I32 ReadInt32() override;
+			TDE2_API I64 ReadInt64() override;
+
+			TDE2_API F32 ReadFloat() override;
+			TDE2_API F64 ReadDouble() override;
+
+			TDE2_API bool ReadBool() override;
+
 			/*!
 				\brief The method reads a continuous block of a file of specified size
 				into a given buffer

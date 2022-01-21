@@ -14,6 +14,116 @@ namespace TDEngine2
 	{
 	}
 
+	U8 CBinaryFileReader::ReadUInt8()
+	{
+		U8 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return value;
+	}
+
+	U16 CBinaryFileReader::ReadUInt16()
+	{
+		U16 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	U32 CBinaryFileReader::ReadUInt32()
+	{
+		U32 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	U64 CBinaryFileReader::ReadUInt64()
+	{
+		U64 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	I8 CBinaryFileReader::ReadInt8()
+	{
+		I8 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	I16 CBinaryFileReader::ReadInt16()
+	{
+		I16 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	I32 CBinaryFileReader::ReadInt32()
+	{
+		I32 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	I64 CBinaryFileReader::ReadInt64()
+	{
+		I64 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	F32 CBinaryFileReader::ReadFloat()
+	{
+		F32 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	F64 CBinaryFileReader::ReadDouble()
+	{
+		F64 value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
+	bool CBinaryFileReader::ReadBool()
+	{
+		bool value = 0;
+
+		E_RESULT_CODE result = Read(&value, sizeof(value));
+		TDE2_ASSERT(RC_OK == result);
+
+		return SwapBytes(value);
+	}
+
 	E_RESULT_CODE CBinaryFileReader::Read(void* pBuffer, TSizeType bufferSize)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

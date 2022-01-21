@@ -252,9 +252,25 @@ namespace TDEngine2
 		public:
 			TDE2_REGISTER_TYPE(IBinaryFileReader)
 
+			TDE2_API virtual U8 ReadUInt8() = 0;
+			TDE2_API virtual U16 ReadUInt16() = 0;
+			TDE2_API virtual U32 ReadUInt32() = 0;
+			TDE2_API virtual U64 ReadUInt64() = 0;
+
+			TDE2_API virtual I8 ReadInt8() = 0;
+			TDE2_API virtual I16 ReadInt16() = 0;
+			TDE2_API virtual I32 ReadInt32() = 0;
+			TDE2_API virtual I64 ReadInt64() = 0;
+
+			TDE2_API virtual F32 ReadFloat() = 0;
+			TDE2_API virtual F64 ReadDouble() = 0;
+
+			TDE2_API virtual bool ReadBool() = 0;
+
 			/*!
 				\brief The method reads a continuous block of a file of specified size
-				into a given buffer
+				into a given buffer. Read doesn't take into account endianness of current machine
+				to solve the problem use ReadX() methods
 
 				\param[out] pBuffer A buffer which will keep the read block of a file
 
