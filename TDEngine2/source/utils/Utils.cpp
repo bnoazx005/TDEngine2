@@ -11,6 +11,17 @@
 
 namespace TDEngine2
 {
+	template <> TDE2_API F32 SwapBytes<F32>(F32 value)
+	{
+		return SwapObjectBytes(value);
+	}
+
+	template <> TDE2_API F64 SwapBytes<F64>(F64 value)
+	{
+		return SwapObjectBytes(value);
+	}
+
+
 	TDE2_API U8* SwapObjectBytes(U8* pPtr, U32 size)
 	{
 		std::reverse(pPtr, pPtr + size);

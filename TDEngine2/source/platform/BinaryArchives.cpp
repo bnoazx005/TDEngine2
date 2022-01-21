@@ -175,13 +175,13 @@ namespace TDEngine2
 	E_RESULT_CODE CBinaryArchiveWriter::SetFloat(const std::string& key, F32 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return WriteValueImpl<F32>(mpCachedOutputStream, key, value);
+		return WriteValueImpl<F32>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetDouble(const std::string& key, F64 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return WriteValueImpl<F64>(mpCachedOutputStream, key, value);
+		return WriteValueImpl<F64>(mpCachedOutputStream, key, SwapBytes(value));
 	}
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetBool(const std::string& key, bool value)
@@ -529,6 +529,8 @@ namespace TDEngine2
 
 		_readValue(&length, sizeof(size_t));
 
+		length = SwapBytes(length);
+
 		keyValue.resize(length);
 		_readValue(&keyValue[0], sizeof(C8) * length);
 
@@ -539,6 +541,8 @@ namespace TDEngine2
 	{
 		I64 value = 0x0;
 		_readValue(&value, size);
+
+		value = SwapBytes(value);
 
 		auto pValue = std::make_unique<TArchiveValue>();
 		pValue->mName = key;
@@ -552,6 +556,8 @@ namespace TDEngine2
 		F64 value = 0.0f;
 		_readValue(&value, size);
 
+		value = SwapBytes(value);
+
 		auto pValue = std::make_unique<TArchiveValue>();
 		pValue->mName = key;
 		pValue->mValue = value;
@@ -563,6 +569,8 @@ namespace TDEngine2
 	{
 		bool value = false;
 		_readValue(&value, sizeof(bool));
+
+		value = SwapBytes(value);
 
 		auto pValue = std::make_unique<TArchiveValue>();
 		pValue->mName = key;

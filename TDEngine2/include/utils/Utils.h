@@ -350,6 +350,10 @@ namespace TDEngine2
 	}
 
 
+	template <> TDE2_API F32 SwapBytes<F32>(F32 value);
+	template <> TDE2_API F64 SwapBytes<F64>(F64 value);
+
+
 	/*!
 		\brief The functions swaps the order of bytes for a given object
 	*/
