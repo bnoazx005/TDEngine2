@@ -82,6 +82,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_API CU8String operator"" _U8Str(const C8* pStr, USIZE);
+
+
 	inline U8C StringToUTF8Char(const char* pStr)
 	{
 		return CU8String(pStr).At(0);

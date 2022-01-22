@@ -129,6 +129,12 @@ namespace TDEngine2
 	}
 
 
+	TDE2_API CU8String operator"" _U8Str(const C8* pStr, USIZE)
+	{
+		return CU8String(pStr);
+	}
+
+
 	std::string UTF8CharToString(U8C ch)
 	{
 		std::string str;

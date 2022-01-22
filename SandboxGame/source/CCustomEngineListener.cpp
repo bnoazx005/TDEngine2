@@ -396,11 +396,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	
 	auto s = mpFileSystem->GetUserDirectory();
 
-	if (auto pFile = mpFileSystem->Get<ICsvFileReader>(mpFileSystem->Open<ICsvFileReader>("test.csv").Get()))
-	{
-		auto str = pFile->GetCellValue("Date", 2);
-	}
-
 	return RC_OK;
 }
 
