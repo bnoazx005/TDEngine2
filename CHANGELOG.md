@@ -15,9 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A git hook for pre-push was added to automatically update the project version.
 
-- API of **IBinaryFileReader** was extended with a bunch of new methods **ReadX** that's endian independent
+- API of **IBinaryFileReader** was extended with a bunch of new methods **ReadX** that's endian independent.
 
-- API of **IBinaryFileWriter** was extended with a bunch of new methods **WriteX** that's endian independent
+- API of **IBinaryFileWriter** was extended with a bunch of new methods **WriteX** that's endian independent.
+
+- A new type of file readers was introduced which is **ICsvFileReader**.
 
 ### Changed
 

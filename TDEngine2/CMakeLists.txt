@@ -248,6 +248,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32DLLManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/win32/CWin32FileSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/CTextFileReader.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/CCsvFileReader.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/CConfigFileReader.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/CBaseFile.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/platform/CBinaryFileReader.h"
@@ -433,6 +434,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/unix/CUnixTimer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/unix/CUnixFileSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/CTextFileReader.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/CCsvFileReader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/CConfigFileReader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/CBaseFile.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/platform/CBinaryFileReader.cpp"
@@ -600,6 +602,9 @@ else ()
 		"${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet3/lib/$<CONFIGURATION>/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet3/lib/$<CONFIGURATION>/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif ()
+
+#set up rapidcsv header
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/rapidcsv")
 
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BULLET_INCLUDE_DIR})
 target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BULLET_LIBRARIES})

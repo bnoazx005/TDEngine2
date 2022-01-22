@@ -156,6 +156,23 @@ namespace TDEngine2
 
 
 	/*!
+		interface ICsvFileReader
+
+		\brief The interface describes a functionality of a reader of CSV files 
+	*/
+
+	class ICsvFileReader : public virtual IFileReader
+	{
+		public:
+			TDE2_REGISTER_TYPE(ICsvFileReader)
+
+			TDE2_API virtual std::string GetCellValue(const std::string& colId, U32 rowId) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICsvFileReader)
+	};
+
+
+	/*!
 		interface IConfigFileReader
 
 		\brief The interface describes a functionality of a config file's reader.
