@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.26] 2022-01-17
+## [0.5.26] 2022-01-22
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A git hook for pre-push was added to automatically update the project version.
 
 - API of **IBinaryFileReader** was extended with a bunch of new methods **ReadX** that's endian independent
+
+- API of **IBinaryFileWriter** was extended with a bunch of new methods **WriteX** that's endian independent
 
 ### Changed
 

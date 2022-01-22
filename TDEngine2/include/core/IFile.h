@@ -363,8 +363,24 @@ namespace TDEngine2
 		public:
 			TDE2_REGISTER_TYPE(IBinaryFileWriter)
 
+			TDE2_API virtual E_RESULT_CODE WriteUInt8(U8 value) = 0;
+			TDE2_API virtual E_RESULT_CODE WriteUInt16(U16 value) = 0;
+			TDE2_API virtual E_RESULT_CODE WriteUInt32(U32 value) = 0;
+			TDE2_API virtual E_RESULT_CODE WriteUInt64(U64 value) = 0;
+
+			TDE2_API virtual E_RESULT_CODE WriteInt8(I8 value) = 0;
+			TDE2_API virtual E_RESULT_CODE WriteInt16(I16 value) = 0;
+			TDE2_API virtual E_RESULT_CODE WriteInt32(I32 value) = 0;
+			TDE2_API virtual E_RESULT_CODE WriteInt64(I64 value) = 0;
+
+			TDE2_API virtual E_RESULT_CODE WriteFloat(F32 value) = 0;
+			TDE2_API virtual E_RESULT_CODE WriteDouble(F64 value) = 0;
+
+			TDE2_API virtual E_RESULT_CODE WriteBool(bool value) = 0;
+
 			/*!
-				\brief The method writes data of specified size into a file
+				\brief The method writes data of specified size into a file. If you need endian independent 
+				writings use WriteInt8, WriteUint16, etc
 
 				\param[in] pBuffer A pointer to data's buffer
 

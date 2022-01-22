@@ -13,6 +13,70 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CBinaryFileWriter::WriteUInt8(U8 value)
+	{
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteUInt16(U16 value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteUInt32(U32 value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteUInt64(U64 value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteInt8(I8 value)
+	{
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteInt16(I16 value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteInt32(I32 value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteInt64(I64 value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteFloat(F32 value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteDouble(F64 value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
+	E_RESULT_CODE CBinaryFileWriter::WriteBool(bool value)
+	{
+		value = SwapBytes(value);
+		return Write(&value, sizeof(value));
+	}
+
 	E_RESULT_CODE CBinaryFileWriter::Write(const void* pBuffer, TSizeType bufferSize)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
