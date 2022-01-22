@@ -22,7 +22,11 @@
 remote="$1"
 url="$2"
 
-python ./../utils/git_hooks/bump_version.py
-git commit --amend ./../TDEngine2/CMakeLists.txt 
+python ./utils/git_hooks/bump_version.py
+
+git commit -m "Bump up the version" --no-edit ./TDEngine2/CMakeLists.txt ./TDEngine2/include/utils/
+
+# run a second push with no hooks in the background so that the new commit gets pushed up.
+sleep 1 && git push --no-verify &>/dev/null &
 
 exit 0

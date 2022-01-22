@@ -10,11 +10,15 @@ import re
 def bump_version(match):
 	return match.group(1) + str(int(match.group(4)) + 1)
 
+
+CMAKE_CONFIG_FILENAME = "./TDEngine2/CMakeLists.txt"
+
+
 def main():
 	cmakeConfigData = ""
 
 	# read TDEngine2's CMakeLists.txt
-	with open("../../TDEngine2/CMakeLists.txt") as engineCMakeConfig:
+	with open(CMAKE_CONFIG_FILENAME) as engineCMakeConfig:
 		cmakeConfigData = engineCMakeConfig.read()
 		engineCMakeConfig.close()
 
@@ -22,7 +26,7 @@ def main():
 	cmakeConfigData = re.sub(r'(project\s*\(\s*TDEngine2\s+VERSION\s+(\d+)\.(\d+)\.)(\d+).*?', bump_version, cmakeConfigData)
 
 	# and save file back onto the storage
-	with open("../../TDEngine2/CMakeLists.txt", 'w') as engineCMakeConfig:
+	with open(CMAKE_CONFIG_FILENAME, 'w') as engineCMakeConfig:
 		engineCMakeConfig.write(cmakeConfigData)
 		engineCMakeConfig.close()
 
