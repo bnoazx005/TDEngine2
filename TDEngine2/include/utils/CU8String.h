@@ -33,6 +33,7 @@ namespace TDEngine2
 		public:
 			TDE2_API CU8String();
 			TDE2_API CU8String(const C8* str);
+			TDE2_API CU8String(const wchar_t* wstr);
 			TDE2_API CU8String(const std::string& str);
 			TDE2_API CU8String(const CU8String& str);
 			TDE2_API CU8String(CU8String&& str);

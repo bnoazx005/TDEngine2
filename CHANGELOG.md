@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new type of file readers was introduced which is **ICsvFileReader**.
 
+- **CU8String** now supports construction from **wchar_t**. Also **_U8Str** suffix was introduced for the type.
+
 ### Changed
 
 - The functions SwapXBytes were replaced with a template SwapBytes. Now the engine assumes that all numeric data is stored in little endian manner.

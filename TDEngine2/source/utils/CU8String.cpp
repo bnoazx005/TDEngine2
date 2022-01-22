@@ -17,6 +17,13 @@ namespace TDEngine2
 		memcpy(mpBuffer, str, mCapacity);
 	}
 
+	CU8String::CU8String(const wchar_t* wstr) :
+		mpBuffer(nullptr), mCapacity(wcslen(wstr) * 2), mBufferLength(wcslen(wstr) * 2), mHasChanged(true)
+	{
+		mpBuffer = new C8[mCapacity];
+		wcstombs(mpBuffer, wstr, mCapacity);
+	}
+
 	CU8String::CU8String(const std::string& str) :
 		CU8String(str.c_str())
 	{
