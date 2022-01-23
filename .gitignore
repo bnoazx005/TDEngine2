@@ -32,5 +32,7 @@ CTestTestfile.cmake
 CMakeSettings.json
 metadata.h
 
+TDEngine2/include/utils/Config.h
+
 *.mesh
 *.fbx
