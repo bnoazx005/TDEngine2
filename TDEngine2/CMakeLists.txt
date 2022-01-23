@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 project (TDEngine2 
-	VERSION 0.5.26
+	VERSION 0.5.27
 	LANGUAGES CXX)
 
 # The options which are related with plugins are placed here
