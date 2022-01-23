@@ -16,6 +16,7 @@ TEST_CASE("CU8String Tests")
 		REQUIRE(CU8String(std::string(u8"\u2660+")).Length() == 2);
 		REQUIRE(CU8String(CU8String(u8"\u2660")).Length() == 1);
 		REQUIRE(CU8String(u8"Hello!").Length() == 6);
+		REQUIRE(CU8String(u8"Hello😀!").Length() == 7);
 	}
 
 	SECTION("TestAt_IterateOverString_ReturnCorrectCodePoints")

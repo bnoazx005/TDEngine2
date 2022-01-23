@@ -58,6 +58,8 @@ namespace TDEngine2
 
 			TDE2_API U8C At(TSizeType pos) const;
 
+			TDE2_API std::string ToString() const;
+
 			TDE2_API static U8 GetHighSignificantByte(U8C codePoint);
 
 			/*!

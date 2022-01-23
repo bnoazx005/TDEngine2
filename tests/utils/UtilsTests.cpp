@@ -27,7 +27,7 @@ TEST_CASE("Utils Tests")
 		U16 testValue     = 0x1234;
 		U16 expectedValue = 0x3412;
 
-		REQUIRE(SwapBytes(testValue) == expectedValue);
+		REQUIRE(SwapBytes(testValue) == (E_ENDIAN_TYPE::ET_LITTLE_ENDIAN == GetHostEndianType() ? testValue : expectedValue));
 	}
 
 	SECTION("TestSwapBytes_PassValue_ReturnsValueWithSwappedOrderOfBytes")
@@ -35,7 +35,7 @@ TEST_CASE("Utils Tests")
 		U32 testValue     = 0x12FFFF34;
 		U32 expectedValue = 0x34FFFF12;
 
-		REQUIRE(SwapBytes(testValue) == expectedValue);
+		REQUIRE(SwapBytes(testValue) == (E_ENDIAN_TYPE::ET_LITTLE_ENDIAN == GetHostEndianType() ? testValue : expectedValue));
 	}
 
 	SECTION("TestSwapBytes_PassValue_ReturnsValueWithSwappedOrderOfBytes")
@@ -43,7 +43,7 @@ TEST_CASE("Utils Tests")
 		U64 testValue     = 0x1234567887654321;
 		U64 expectedValue = 0x2143658778563412;
 		
-		REQUIRE(SwapBytes(testValue) == expectedValue);
+		REQUIRE(SwapBytes(testValue) == (E_ENDIAN_TYPE::ET_LITTLE_ENDIAN == GetHostEndianType() ? testValue : expectedValue));
 	}
 
 	SECTION("TestScopedEnumDisjunctionOperator_PassCorrectValue_ReturnsTFE_ALL")

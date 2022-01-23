@@ -76,6 +76,11 @@ namespace TDEngine2
 		return result;
 	}
 
+	std::string CU8String::ToString() const
+	{
+		return std::string(mpBuffer, mBufferLength);
+	}
+
 	U8 CU8String::GetHighSignificantByte(U8C codePoint)
 	{
 		U8 currByte = 0x0;
