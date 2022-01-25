@@ -1,6 +1,15 @@
 #include "../../include/platform/IOStreams.h"
 #include "../../deps/Wrench/source/stringUtils.hpp"
 
+#if _HAS_CXX17
+	#include <filesystem>
+	namespace fs = std::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
+#endif
+
+
 namespace TDEngine2
 {
 	/*!
@@ -19,7 +28,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mInternalStream.open(path);
+		mInternalStream.open(fs::u8path(path));
 		if (!mInternalStream.is_open())
 		{
 			return RC_FILE_NOT_FOUND;
@@ -165,7 +174,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mInternalStream.open(path);
+		mInternalStream.open(fs::u8path(path));
 		mPath = path;
 
 		mIsInitialized = true;
