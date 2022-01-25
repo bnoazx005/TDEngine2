@@ -15,83 +15,87 @@
 
 namespace TDEngine2
 {
-	typedef U32 U8C;
+	enum class TUtf8CodePoint : U32 { Invalid = (std::numeric_limits<U32>::max)() };
 
 
 	/*!
-		\brief The class is an implementation of UTF-8 encoded strings
-		The class is header only
-
-		\todo Add custom allocators instead of new usage
-		\todo Move the definition of the class into CU8String.cpp file
+		\brief The list of functions for work with UTF8 strings. By default it's assumed
+		that base container for storage is std::string. These helpers should replace
+		the previous implementation which was **CU8String**
 	*/
+
 
 	class CU8String
 	{
 		public:
-			typedef USIZE TSizeType;
-		public:
-			TDE2_API CU8String();
-			TDE2_API CU8String(const C8* str);
-			TDE2_API CU8String(const wchar_t* wstr);
-			TDE2_API CU8String(const std::string& str);
-			TDE2_API CU8String(const CU8String& str);
-			TDE2_API CU8String(CU8String&& str);
-			TDE2_API ~CU8String();
-
 			/*!
-				\brief The method returns a length of a string in code points
+				\brief The method moves iterator to next code point and returns current one
 
-				\return The method returns a length of a string in code points
+				\brief[in, out] curr A current iterator that points to a code point
+				\brief[in] endBound A right bound of a string which usually equals to str.end()
+				\brief[out] codePoint Returns current code point
+				
+				\return Returns false if it was last element
 			*/
 
-			TDE2_API TSizeType Length() const;
+			template <typename It>
+			static bool MoveNext(It& curr, It endBound, TUtf8CodePoint& codePoint)
+			{
+				if (curr >= endBound)
+				{
+					return false;
+				}
 
-			/*!
-				\brief The method returns a code point at a given position
+				const U32 codePointLength = GetCodePointLength(*curr);
 
-				\param[in] pos A position at which the code point should be returned
+				if (curr + static_cast<USIZE>(codePointLength) >= endBound)
+				{
+					return false;
+				}
 
-				\return The method returns a code point at a given position, returns an empty
-				string if pos >= str.Length()
-			*/
+				/// \note Extract current code point
+				U32 result = 0x0;
 
-			TDE2_API U8C At(TSizeType pos) const;
+				for (U32 i = 0; i < codePointLength; ++i)
+				{
+					result |= static_cast<U8>(*(curr + static_cast<USIZE>(codePointLength - i - 1)) << (8 * i));
+				}
 
-			TDE2_API std::string ToString() const;
+				/// \note If possible move iterator to next code point
+				curr += static_cast<USIZE>(codePointLength);
+				codePoint = TUtf8CodePoint(result);
 
-			TDE2_API static U8 GetHighSignificantByte(U8C codePoint);
+				return true;
+			}
+
+			template <typename It>
+			static USIZE Length(It begin, It end)
+			{
+				USIZE length = 0;
+
+				for (It it = begin; it != end; it += GetCodePointLength(*it))
+				{
+					++length;
+				}
+
+				return length;
+			}
+
+			TDE2_API static U8 GetHighSignificantByte(TUtf8CodePoint codePoint);
 
 			/*!
 				\brief The method returns a number of bytes which is occupied by the code point
-				with specified high byte
+				based on its high byte
 
 				\param[in] ch A high byte of a code point
 
 				\return A number of bytes which the code point occupies
 			*/
 
-			TDE2_API static U32 GetCharLength(C8 ch);
-		protected:
-			TDE2_API TSizeType _getLength(const C8* pStr, TSizeType size) const;
-			TDE2_API TSizeType _getInternalCharPos(const C8* pStrBuffer, TSizeType bufferSize, TSizeType pos) const;
-		protected:
-			C8*  mpBuffer;
+			TDE2_API static U32 GetCodePointLength(C8 ch);
 
-			TSizeType mCapacity;
-			TSizeType mBufferLength;
+			TDE2_API static std::string UTF8CodePointToString(TUtf8CodePoint cp);
 
-			bool mHasChanged;
+			TDE2_API static std::string WCharArrayToString(const wchar_t* pStr);
 	};
-
-
-	TDE2_API CU8String operator"" _U8Str(const C8* pStr, USIZE);
-
-
-	inline U8C StringToUTF8Char(const char* pStr)
-	{
-		return CU8String(pStr).At(0);
-	}
-
-	TDE2_API std::string UTF8CharToString(U8C ch);
 }

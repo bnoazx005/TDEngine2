@@ -49,7 +49,7 @@ namespace TDEngine2
 		public:
 			friend 	TDE2_API IFont* CreateFontResource(IResourceManager* pResourceManager, const std::string& name, E_RESULT_CODE& result);
 		public:
-			typedef std::unordered_map<U8C, TFontGlyphInfo> TGlyphsMap;
+			typedef std::unordered_map<TUtf8CodePoint, TFontGlyphInfo> TGlyphsMap;
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CFont)
 			TDE2_REGISTER_TYPE(CFont)
@@ -103,7 +103,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info) override;
+			TDE2_API E_RESULT_CODE AddGlyphInfo(TUtf8CodePoint codePoint, const TFontGlyphInfo& info) override;
 
 			/*!
 				\brief The method links a texture atlas resource to current font entity. Notice that
@@ -125,7 +125,7 @@ namespace TDEngine2
 				\return An array of vertices positions, each 4 forms a quad which is a single glyph
 			*/
 
-			TDE2_API TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text) override;
+			TDE2_API TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const std::string& text) override;
 
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font

@@ -43,20 +43,22 @@ namespace TDEngine2
 	}
 
 
-	static bool IsControlCharacter(U8C codePoint)
+	static bool IsControlCharacter(TUtf8CodePoint codePoint)
 	{
-		return codePoint == ' ' || codePoint == '\n';
+		return codePoint == TUtf8CodePoint(' ') || codePoint == TUtf8CodePoint('\n');
 	}
 
 
-	CFont::TTextMeshData CRuntimeFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
+	CFont::TTextMeshData CRuntimeFont::GenerateMesh(const TTextMeshBuildParams& params, const std::string& text)
 	{
 		TDE2_PROFILER_SCOPE("CRuntimeFont::GenerateMesh");
 
-		for (U32 i = 0; i < text.Length(); ++i)
-		{
-			auto codePoint = text.At(i);
+		TUtf8CodePoint codePoint;
 
+		auto&& it = text.cbegin();
+
+		while (CU8String::MoveNext(it, text.cend(), codePoint))
+		{
 			if (mCachedGlyphs.find(codePoint) != mCachedGlyphs.cend() || IsControlCharacter(codePoint))
 			{
 				continue;
@@ -172,18 +174,20 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		// \note Generate SDF glyph data 
-		for (U8C currCodepoint : mCachedGlyphs)
+		for (TUtf8CodePoint currCodepoint : mCachedGlyphs)
 		{
-			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, currCodepoint, 10, 255, 20.0f, &width, &height, &xoff, &yoff); /// \note Replace magic constants
+			const U32 cp = static_cast<U32>(currCodepoint);
 
-			const C8* pStr = reinterpret_cast<const C8*>(&currCodepoint);
+			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, cp, 10, 255, 20.0f, &width, &height, &xoff, &yoff); /// \note Replace magic constants
+
+			const C8* pStr = reinterpret_cast<const C8*>(&cp);
 
 			if (RC_OK != (result = pFontCacheTexture->AddRawTexture(std::string(pStr), width, height, FT_NORM_UBYTE1, pBitmap)))
 			{
 				TDE2_ASSERT(false);
 			}
 
-			stbtt_GetCodepointHMetrics(pFontInfo, currCodepoint, &advance, &leftBearing);
+			stbtt_GetCodepointHMetrics(pFontInfo, cp, &advance, &leftBearing);
 
 			if (RC_OK != (result = AddGlyphInfo(currCodepoint, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance })))
 			{

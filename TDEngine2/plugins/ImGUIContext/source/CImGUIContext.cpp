@@ -1089,7 +1089,7 @@ namespace TDEngine2
 		}
 
 #if TDE2_EDITORS_ENABLED
-		pDesktopInputCtx->SetOnCharInputCallback([this, &io](U8C characterCode)
+		pDesktopInputCtx->SetOnCharInputCallback([this, &io](TUtf8CodePoint characterCode)
 		{
 			io.AddInputCharactersUTF8(reinterpret_cast<const C8*>(&characterCode));
 		});

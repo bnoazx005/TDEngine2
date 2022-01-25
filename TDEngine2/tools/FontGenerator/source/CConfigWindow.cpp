@@ -395,7 +395,7 @@ namespace TDEngine2
 
 			stbtt_GetCodepointHMetrics(pFontInfo, ch, &advance, &leftBearing);
 
-			if (RC_OK != (result = pFontResource->AddGlyphInfo(ch, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance })))
+			if (RC_OK != (result = pFontResource->AddGlyphInfo(TUtf8CodePoint(ch), { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance })))
 			{
 				TDE2_ASSERT(false);
 			}

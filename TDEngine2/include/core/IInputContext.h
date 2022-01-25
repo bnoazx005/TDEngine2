@@ -103,7 +103,7 @@ namespace TDEngine2
 		\return A character in UTF-8 encoding
 	*/
 
-	TDE2_API U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode);
+	TDE2_API TUtf8CodePoint KeyCodeToUTF8Char(const E_KEYCODES& keyCode);
 
 	TDE2_API bool IsAlphaNumericKeyCode(const E_KEYCODES& keyCode);
 
@@ -169,7 +169,7 @@ namespace TDEngine2
 	class IDesktopInputContext: public IInputContext
 	{
 		public:
-			typedef std::function<void(U8C)> TOnCharActionCallback;
+			typedef std::function<void(TUtf8CodePoint)> TOnCharActionCallback;
 		public:
 			/*!
 				\brief The method polls input devices and checks up has some key been pressed

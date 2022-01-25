@@ -4,89 +4,12 @@
 
 namespace TDEngine2
 {
-	CU8String::CU8String() :
-		mpBuffer(nullptr), mCapacity(0), mBufferLength(0), mHasChanged(true)
-	{
-	}
-
-	CU8String::CU8String(const C8* str) :
-		mpBuffer(nullptr), mCapacity(strlen(str)), mBufferLength(strlen(str)), mHasChanged(true)
-	{
-		mpBuffer = new C8[mCapacity];
-
-		memcpy(mpBuffer, str, mCapacity);
-	}
-
-	CU8String::CU8String(const wchar_t* wstr) :
-		mpBuffer(nullptr), mCapacity(wcslen(wstr) * 2), mBufferLength(wcslen(wstr) * 2), mHasChanged(true)
-	{
-		mpBuffer = new C8[mCapacity];
-		wcstombs(mpBuffer, wstr, mCapacity);
-	}
-
-	CU8String::CU8String(const std::string& str) :
-		CU8String(str.c_str())
-	{
-	}
-
-	CU8String::CU8String(const CU8String& str) :
-		mpBuffer(nullptr), mCapacity(str.mCapacity), mBufferLength(str.mBufferLength), mHasChanged(true)
-	{
-		mpBuffer = new C8[mCapacity];
-
-		memcpy(mpBuffer, str.mpBuffer, mCapacity);
-	}
-
-	CU8String::CU8String(CU8String&& str) :
-		mpBuffer(str.mpBuffer), mCapacity(str.mCapacity), mBufferLength(str.mBufferLength), mHasChanged(true)
-	{
-	}
-
-	CU8String::~CU8String()
-	{
-		if (mpBuffer)
-		{
-			delete[] mpBuffer;
-		}
-	}
-
-	CU8String::TSizeType CU8String::Length() const
-	{
-		return _getLength(mpBuffer, mBufferLength);
-	}
-
-	U8C CU8String::At(TSizeType pos) const
-	{
-		TSizeType internalPos = _getInternalCharPos(mpBuffer, mBufferLength, pos);
-
-		if (internalPos >= mBufferLength)
-		{
-			return U8C();
-		}
-
-		U32 codePointLength = GetCharLength(mpBuffer[internalPos]);
-
-		U8C result = 0x0;
-
-		for (U32 i = 0; i < codePointLength; ++i)
-		{
-			result |= (static_cast<U8>(mpBuffer[internalPos + codePointLength - i - 1]) << (8 * i));
-		}
-
-		return result;
-	}
-
-	std::string CU8String::ToString() const
-	{
-		return std::string(mpBuffer, mBufferLength);
-	}
-
-	U8 CU8String::GetHighSignificantByte(U8C codePoint)
+	U8 CU8String::GetHighSignificantByte(TUtf8CodePoint codePoint)
 	{
 		U8 currByte = 0x0;
 		U8 i = 1;
 
-		while (!(currByte = static_cast<U8>(codePoint >> 8 * (4 - i))) && i <= 4)
+		while (!(currByte = static_cast<U8>(static_cast<U32>(codePoint) >> 8 * (4 - i))) && i <= 4)
 		{
 			i += 1;
 		}
@@ -94,7 +17,7 @@ namespace TDEngine2
 		return currByte;
 	}
 
-	U32 CU8String::GetCharLength(C8 ch)
+	U32 CU8String::GetCodePointLength(C8 ch)
 	{
 		if ((ch & 0xE0) == 0xC0)
 		{
@@ -112,65 +35,42 @@ namespace TDEngine2
 		return 1;
 	}
 
-	CU8String::TSizeType CU8String::_getLength(const C8* pStr, TSizeType size) const
-	{
-		U32 length = 0;
-
-		U32 i = 0;
-
-		while (i < size)
-		{
-			i += GetCharLength(pStr[i]);
-
-			++length;
-		}
-
-		return length;
-	}
-
-	CU8String::TSizeType CU8String::_getInternalCharPos(const C8* pStrBuffer, TSizeType bufferSize, TSizeType pos) const
-	{
-		U32 internalPos = 0;
-
-		for (U32 i = 0; i < pos && internalPos < bufferSize; ++i)
-		{
-			internalPos += GetCharLength(pStrBuffer[internalPos]);
-		}
-
-		return internalPos;
-	}
-
-
-	TDE2_API CU8String operator"" _U8Str(const C8* pStr, USIZE)
-	{
-		return CU8String(pStr);
-	}
-
-
-	std::string UTF8CharToString(U8C ch)
+	std::string CU8String::UTF8CodePointToString(TUtf8CodePoint cp)
 	{
 		std::string str;
 
-		if (ch < 0x7F)
+		if (static_cast<C8>(cp) < 0x7F)
 		{
-			str.push_back(static_cast<C8>(ch));
+			str.push_back(static_cast<C8>(cp));
 			return str;
 		}
 
-		U8 bytesCount = CU8String::GetCharLength(CU8String::GetHighSignificantByte(ch));
+		U32 codePointInternal = static_cast<U32>(cp);
 
-		for (U8 i = 0; i < bytesCount; ++i)
+		for (U8 i = 0; i < GetCodePointLength(GetHighSignificantByte(cp)); ++i)
 		{
-			str.insert(str.begin(), ch & 0xFF);
+			str.insert(str.begin(), static_cast<U32>(codePointInternal) & 0xFF);
 
-			ch >>= 8;
+			codePointInternal >>= 8;
 		}
 
 		return str;
 	}
 
+	std::string CU8String::WCharArrayToString(const wchar_t* pStr)
+	{
+		const USIZE maxBytesCount = wcslen(pStr) * sizeof(char32_t);
 
-	TDE2_API U8C KeyCodeToUTF8Char(const E_KEYCODES& keyCode)
+		std::string outputString;
+		outputString.reserve(maxBytesCount);
+
+		wcstombs(&outputString.front(), pStr, maxBytesCount);
+
+		return outputString;
+	}
+
+
+	TDE2_API TUtf8CodePoint KeyCodeToUTF8Char(const E_KEYCODES& keyCode)
 	{
 		constexpr U16 minAlphaValue = static_cast<U16>(E_KEYCODES::KC_ALPHA0);
 		constexpr U16 maxAlphaValue = static_cast<U16>(E_KEYCODES::KC_ALPHA9);
@@ -184,85 +84,85 @@ namespace TDEngine2
 
 		if (convertedKeyCode >= minAlphaValue && convertedKeyCode <= maxAlphaValue)
 		{
-			return '0' + convertedKeyCode - minAlphaValue;
+			return static_cast<TUtf8CodePoint>('0' + convertedKeyCode - minAlphaValue);
 		}
 
 		if (convertedKeyCode >= minCharValue && convertedKeyCode <= maxCharValue)
 		{
-			return 'a' + convertedKeyCode - minCharValue;
+			return static_cast<TUtf8CodePoint>('a' + convertedKeyCode - minCharValue);
 		}
 
 		switch (keyCode)
 		{
 			case E_KEYCODES::KC_SPACE:
-				return ' ';
+				return static_cast<TUtf8CodePoint>(' ');
 			case E_KEYCODES::KC_EXCLAIM:
-				return '!'; 
+				return static_cast<TUtf8CodePoint>('!'); 
 			case E_KEYCODES::KC_AT:
-				return '@';
+				return static_cast<TUtf8CodePoint>('@');
 			case E_KEYCODES::KC_DOUBLE_QUOTE:
-				return '\"'; 
+				return static_cast<TUtf8CodePoint>('\"'); 
 			case E_KEYCODES::KC_HASH:
-				return '#'; 
+				return static_cast<TUtf8CodePoint>('#'); 
 			case E_KEYCODES::KC_DOLLAR:
-				return '$'; 
+				return static_cast<TUtf8CodePoint>('$'); 
 			case E_KEYCODES::KC_PERCENT:
-				return '%'; 
+				return static_cast<TUtf8CodePoint>('%'); 
 			case E_KEYCODES::KC_AMPERSAND:
-				return '&';
+				return static_cast<TUtf8CodePoint>('&');
 			case E_KEYCODES::KC_QUOTE:
-				return '\'';
+				return static_cast<TUtf8CodePoint>('\'');
 			case E_KEYCODES::KC_LPAREN:
-				return '('; 
+				return static_cast<TUtf8CodePoint>('('); 
 			case E_KEYCODES::KC_RPAREN:
-				return ')'; 
+				return static_cast<TUtf8CodePoint>(')'); 
 			case E_KEYCODES::KC_ASTERISK:
-				return '*'; 
+				return static_cast<TUtf8CodePoint>('*'); 
 			case E_KEYCODES::KC_PLUS:
-				return '+'; 
+				return static_cast<TUtf8CodePoint>('+'); 
 			case E_KEYCODES::KC_MINUS:
-				return '-'; 
+				return static_cast<TUtf8CodePoint>('-'); 
 			case E_KEYCODES::KC_EQUALS:
-				return '=';
+				return static_cast<TUtf8CodePoint>('=');
 			case E_KEYCODES::KC_COMMA:
-				return ','; 
+				return static_cast<TUtf8CodePoint>(','); 
 			case E_KEYCODES::KC_PERIOD:
-				return '.'; 
+				return static_cast<TUtf8CodePoint>('.'); 
 			case E_KEYCODES::KC_SLASH:
-				return '/'; 
+				return static_cast<TUtf8CodePoint>('/'); 
 			case E_KEYCODES::KC_BACKSLASH:
-				return '\\'; 
+				return static_cast<TUtf8CodePoint>('\\'); 
 			case E_KEYCODES::KC_COLON:
-				return ':'; 
+				return static_cast<TUtf8CodePoint>(':'); 
 			case E_KEYCODES::KC_SEMICOLON:
-				return ';'; 
+				return static_cast<TUtf8CodePoint>(');'); 
 			case E_KEYCODES::KC_LESS:
-				return '<';
+				return static_cast<TUtf8CodePoint>('<');
 			case E_KEYCODES::KC_GREATER:
-				return '>'; 
+				return static_cast<TUtf8CodePoint>('>'); 
 			case E_KEYCODES::KC_QUESTION:
-				return '?'; 
+				return static_cast<TUtf8CodePoint>('?'); 
 			case E_KEYCODES::KC_LBRACKET:
-				return '['; 
+				return static_cast<TUtf8CodePoint>('['); 
 			case E_KEYCODES::KC_RBRACKET:
-				return ']'; 
+				return static_cast<TUtf8CodePoint>(']'); 
 			case E_KEYCODES::KC_CARET:
-				return '^'; 
+				return static_cast<TUtf8CodePoint>('^'); 
 			case E_KEYCODES::KC_UNDERSCORE:
-				return '_'; 
+				return static_cast<TUtf8CodePoint>('_'); 
 			case E_KEYCODES::KC_BACK_QUOTE:
-				return '\"';
+				return static_cast<TUtf8CodePoint>('\"');
 			case E_KEYCODES::KC_LCURLY_BRACKET:
-				return '{'; 
+				return static_cast<TUtf8CodePoint>('{'); 
 			case E_KEYCODES::KC_RCURLY_BRACKET:
-				return '}'; 
+				return static_cast<TUtf8CodePoint>('}'); 
 			case E_KEYCODES::KC_PIPE:
-				return '|'; 
+				return static_cast<TUtf8CodePoint>('|'); 
 			case E_KEYCODES::KC_TILDE:
-				return '~';
+				return static_cast<TUtf8CodePoint>('~');
 		}
 
-		return convertedKeyCode;
+		return static_cast<TUtf8CodePoint>(convertedKeyCode);
 	}
 
 

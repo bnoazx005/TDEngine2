@@ -98,7 +98,7 @@ namespace TDEngine2
 				\param[in] color A text's color
 			*/
 
-			TDE2_API virtual void DrawText(const TVector2& screenPos, F32 scale, const CU8String& str, const TColor32F& color) = 0;
+			TDE2_API virtual void DrawText(const TVector2& screenPos, F32 scale, const std::string& str, const TColor32F& color) = 0;
 
 			/*!
 				\brief The method draws an axis-aligned cross with specified parameters

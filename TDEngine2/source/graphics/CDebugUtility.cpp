@@ -181,7 +181,7 @@ namespace TDEngine2
 		mLinesDataBuffer.push_back({ { end, 1.0f }, color });
 	}
 
-	void CDebugUtility::DrawText(const TVector2& screenPos, F32 scale, const CU8String& str, const TColor32F& color)
+	void CDebugUtility::DrawText(const TVector2& screenPos, F32 scale, const std::string& str, const TColor32F& color)
 	{
 		if (mSystemFontHandle == TResourceId::Invalid)
 		{

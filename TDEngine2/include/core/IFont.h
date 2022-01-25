@@ -27,7 +27,6 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IFileSystem;
 	class ITexture2D;
-	class CU8String;
 	class IDebugUtility;
 	class IBinaryFileReader;
 
@@ -132,7 +131,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info) = 0;
+			TDE2_API virtual E_RESULT_CODE AddGlyphInfo(TUtf8CodePoint codePoint, const TFontGlyphInfo& info) = 0;
 
 			/*!
 				\brief The method links a texture atlas resource to current font entity. Notice that
@@ -154,7 +153,7 @@ namespace TDEngine2
 				\return An array of vertices positions, each 4 forms a quad which is a single glyph
 			*/
 
-			TDE2_API virtual TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text) = 0;
+			TDE2_API virtual TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const std::string& text) = 0;
 
 			/*!
 				\brief The method returns a pointer to texture atlas that is linked with the font

@@ -133,7 +133,7 @@ namespace TDEngine2
 		{
 			if (auto pInputEvent = dynamic_cast<const TOnCharInputEvent*>(pEvent))
 			{
-				mOnCharInputCallback(pInputEvent->mCharCode);
+				mOnCharInputCallback(static_cast<TUtf8CodePoint>(pInputEvent->mCharCode));
 			}
 		}
 #endif

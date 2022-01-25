@@ -8,48 +8,53 @@ using namespace TDEngine2;
 
 TEST_CASE("CU8String Tests")
 {
-	SECTION("TestConstructor_PassCorrectData_CreatesInstances")
+	SECTION("TestLength_PassCorrectData_ReturnsTheirLengthsInCodePoints")
 	{
-		REQUIRE(CU8String().Length() == 0);
-		REQUIRE(CU8String(u8"\u2660").Length() == 1);
-		REQUIRE(CU8String(std::string(u8"\u2660")).Length() == 1);
-		REQUIRE(CU8String(std::string(u8"\u2660+")).Length() == 2);
-		REQUIRE(CU8String(CU8String(u8"\u2660")).Length() == 1);
-		REQUIRE(CU8String(u8"Hello!").Length() == 6);
-		REQUIRE(CU8String(u8"Hello😀!").Length() == 7);
+		std::vector<std::tuple<std::string, USIZE>> testCases 
+		{
+			{ "", 0 },
+			{ u8"\u2660", 1 },
+			{ u8"\u2660", 1 },
+			{ u8"\u2660+", 2 },
+			{ u8"\u2660", 1 },
+			{ u8"Hello!", 6 },
+			{ u8"Hello😀!", 7 },
+		};
+
+		std::string str;
+		USIZE expectedLength;
+
+		for (auto&& currTest : testCases)
+		{
+			std::tie(str, expectedLength) = currTest;
+
+			REQUIRE(CU8String::Length(str.begin(), str.end()) == expectedLength);
+		}
 	}
 
 	SECTION("TestAt_IterateOverString_ReturnCorrectCodePoints")
 	{
-		CU8String str(u8"8!\u2660");
+		std::string str(u8"8!\u2660");
 		
-		REQUIRE(str.Length() == 3);
+		REQUIRE(CU8String::Length(str.begin(), str.end()) == 3);
 
-		U8C ch;
-
-		for (U32 i = 0; i < str.Length() + 1; ++i)
+		const TUtf8CodePoint expectedCodePoints[3]
 		{
-			ch = str.At(i);
+			static_cast<TUtf8CodePoint>('8'),
+			static_cast<TUtf8CodePoint>('!'),
+			static_cast<TUtf8CodePoint>('\u2660'),
+		};
+
+		USIZE actualCodePointsCount = 0;
+
+		TUtf8CodePoint currCP;
+
+		std::string::iterator it = str.begin();
+
+		while (CU8String::MoveNext(it, str.end(), currCP))
+		{
+			REQUIRE(currCP == expectedCodePoints[static_cast<U32>(std::distance(str.begin(), it) - 1)]);
 		}
 	}
 
-	SECTION("TestAt_TryToGetChatAtIncorrectIndex_ReturnZero")
-	{
-		CU8String str(u8"\u2660");
-
-		REQUIRE(str.Length() == 1);
-		REQUIRE(str.At(0) == StringToUTF8Char(u8"\u2660"));
-	}
-
-	SECTION("TestUTF8CharToString_PassASCIIChar_ReturnsStringWithSingleChar")
-	{
-		REQUIRE(UTF8CharToString('R') == "R");
-	}
-
-	SECTION("TestUTF8CharToString_PassUnicodeOnlyChar_ReturnsStringOfBytes")
-	{
-		auto str = u8"\u2660";
-
-		REQUIRE(UTF8CharToString(StringToUTF8Char(str)) == str);
-	}
 }

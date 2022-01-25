@@ -72,7 +72,7 @@ namespace TDEngine2
 
 		for (auto currMapEntry : mGlyphsMap)
 		{
-			if ((result = pWriter->BeginGroup(std::to_string(currMapEntry.first))) != RC_OK)
+			if ((result = pWriter->BeginGroup(std::to_string(static_cast<U32>(currMapEntry.first)))) != RC_OK)
 			{
 				return result;
 			}
@@ -141,7 +141,7 @@ namespace TDEngine2
 		{
 			std::string key = pReader->GetCurrKey();
 
-			auto& currGlyphMapEntry = mGlyphsMap[std::stoi(key)];
+			auto& currGlyphMapEntry = mGlyphsMap[static_cast<TUtf8CodePoint>(std::stoi(key))];
 
 			if ((result = pReader->BeginGroup(key)) != RC_OK)
 			{
@@ -168,7 +168,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFont::AddGlyphInfo(U8C codePoint, const TFontGlyphInfo& info)
+	E_RESULT_CODE CFont::AddGlyphInfo(TUtf8CodePoint codePoint, const TFontGlyphInfo& info)
 	{
 		if (mGlyphsMap.find(codePoint) != mGlyphsMap.cend())
 		{
@@ -208,13 +208,13 @@ namespace TDEngine2
 		return (E_FONT_ALIGN_POLICY::RIGHT_TOP == type) || (E_FONT_ALIGN_POLICY::LEFT_TOP == type) || (E_FONT_ALIGN_POLICY::CENTER_TOP == type);
 	}
 
-	static bool IsControlCharacter(U8C codePoint)
+	static bool IsControlCharacter(TUtf8CodePoint codePoint)
 	{
-		return codePoint == ' ' || codePoint == '\n';
+		return codePoint == TUtf8CodePoint(' ') || codePoint == TUtf8CodePoint('\n');
 	}
 
 
-	CFont::TTextMeshData CFont::GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text)
+	CFont::TTextMeshData CFont::GenerateMesh(const TTextMeshBuildParams& params, const std::string& text)
 	{
 		TDE2_PROFILER_SCOPE("CFont::GenerateMesh");
 
@@ -229,7 +229,7 @@ namespace TDEngine2
 
 		TRectF32 normalizedUVs;
 
-		U8C currCodePoint = 0x0;
+		TUtf8CodePoint currCodePoint = TUtf8CodePoint::Invalid;
 
 		F32 yOffset = 0.0f;
 
@@ -248,15 +248,15 @@ namespace TDEngine2
 
 		TVector2 currPosition = leftBottomPos;
 
-		for (U32 i = 0; i < text.Length(); ++i)
-		{
-			currCodePoint = text.At(i);
+		auto&& it = text.cbegin();
 
+		while (CU8String::MoveNext(it, text.cend(), currCodePoint))
+		{
 			if (!IsControlCharacter(currCodePoint))
 			{
 				pCurrGlyphInfo = &mGlyphsMap[currCodePoint];
 
-				auto result = pTextureAtlas->GetNormalizedTextureRect(UTF8CharToString(currCodePoint));
+				auto result = pTextureAtlas->GetNormalizedTextureRect(CU8String::UTF8CodePointToString(currCodePoint));
 
 				if (result.HasError())
 				{
@@ -284,12 +284,12 @@ namespace TDEngine2
 			}
 
 			/// \todo Replace 40.0f with proper variable fontHeight or something equivalent to that
-			currPosition = currPosition + TVector2{ scale * ((currCodePoint != ' ') ? pCurrGlyphInfo->mAdvance : 20.0f), (currCodePoint == '\n') ? 40.0f : 0.0f };
+			currPosition = currPosition + TVector2{ scale * ((currCodePoint != TUtf8CodePoint(' ')) ? pCurrGlyphInfo->mAdvance : 20.0f), (currCodePoint == TUtf8CodePoint('\n')) ? 40.0f : 0.0f };
 			
 			/// \note If the text goes out of bounds split it into a few lines
 			if (currPosition.x > (leftBottomPos.x + rectSizes.x))
 			{
-				if ((E_TEXT_OVERFLOW_POLICY::BREAK_ALL == params.mOverflowPolicy) || (E_TEXT_OVERFLOW_POLICY::BREAK_SPACES == params.mOverflowPolicy && (currCodePoint == ' ')))
+				if ((E_TEXT_OVERFLOW_POLICY::BREAK_ALL == params.mOverflowPolicy) || (E_TEXT_OVERFLOW_POLICY::BREAK_SPACES == params.mOverflowPolicy && (currCodePoint == TUtf8CodePoint(' '))))
 				{
 					sizes.x = currPosition.x;
 

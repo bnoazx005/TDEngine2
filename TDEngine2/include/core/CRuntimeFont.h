@@ -80,7 +80,7 @@ namespace TDEngine2
 				\return An array of vertices positions, each 4 forms a quad which is a single glyph
 			*/
 
-			TDE2_API TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const CU8String& text) override;
+			TDE2_API TTextMeshData GenerateMesh(const TTextMeshBuildParams& params, const std::string& text) override;
 
 			/*!
 				\brief The method loads information from truetype font's file
@@ -111,7 +111,7 @@ namespace TDEngine2
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
-			std::unordered_set<U8C> mCachedGlyphs;
+			std::unordered_set<TUtf8CodePoint> mCachedGlyphs;
 
 			mutable bool            mIsDirty = true;
 
