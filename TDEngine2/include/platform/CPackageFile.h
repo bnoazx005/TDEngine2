@@ -27,6 +27,9 @@ namespace TDEngine2
 		    FilesTableDescription
 		Entry1, Entry2, .... EntryN
 
+		Full specification could be found here
+		https://github.com/bnoazx005/TDEngine2/wiki/%5BDraft%5D-Package-file-format-specification
+
 		< end of the file ===============================
 	*/
 
@@ -34,10 +37,10 @@ namespace TDEngine2
 
 	typedef struct TPackageFileHeader
 	{
-		const C8 mTag[4] { "PAK" };
+		TDE2_STATIC_CONSTEXPR C8 mTag[4] { "PAK" };
 
-		const U16 mVersion = 0x100;
-		const U16 mPadding = 0x0;
+		TDE2_STATIC_CONSTEXPR U16 mVersion = 0x100;
+		TDE2_STATIC_CONSTEXPR U16 mPadding = 0x0;
 
 		U32 mEntitiesCount = 0;
 

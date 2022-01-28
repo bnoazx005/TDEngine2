@@ -16,6 +16,8 @@ replaced with strongly typed version called **TUtf8CodePoint**.
 
 - Now **CFileInputStream** and **CFileOuptuStream** support UTF-8 paths.
 
+- The implementations of **CPackageFileReader** and **CPackageFileWriter** were refactored.
+
 ## [0.5.26] 2022-01-22
 
 ### Added

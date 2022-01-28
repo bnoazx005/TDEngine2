@@ -7,6 +7,7 @@
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
 #include <algorithm>
+#include "stringUtils.hpp"
 
 
 namespace TDEngine2
@@ -66,7 +67,35 @@ namespace TDEngine2
 	{
 		TPtr<IInputStream> pStream = DynamicPtrCast<IInputStream>(mpStreamImpl);
 
-		return pStream->Read(&mCurrHeader, sizeof(mCurrHeader));
+		E_RESULT_CODE result = RC_OK;
+
+		C8 tag[4];
+		U16 version, padding;
+
+		result = result | pStream->Read(&tag, sizeof(tag));
+		result = result | pStream->Read(&version, sizeof(version));
+		result = result | pStream->Read(&padding, sizeof(padding));
+
+		version = SwapBytes(version);
+
+		if (strcmp(tag, TPackageFileHeader::mTag) == 0 || version == TPackageFileHeader::mVersion)
+		{
+			LOG_ERROR(Wrench::StringUtils::Format("[CPackageFileReader] Invalid package was found at ({0}", pStream->GetName()));
+			TDE2_ASSERT(false);
+
+			return RC_INVALID_FILE;
+		}
+
+		result = result | pStream->Read(&mCurrHeader.mEntitiesCount, sizeof(mCurrHeader.mEntitiesCount));
+		mCurrHeader.mEntitiesCount = SwapBytes(mCurrHeader.mEntitiesCount);
+
+		result = result | pStream->Read(&mCurrHeader.mFilesTableOffset, sizeof(mCurrHeader.mFilesTableOffset));
+		mCurrHeader.mFilesTableOffset = SwapBytes(mCurrHeader.mFilesTableOffset);
+
+		result = result | pStream->Read(&mCurrHeader.mFilesTableSize, sizeof(mCurrHeader.mFilesTableSize));
+		mCurrHeader.mFilesTableSize = SwapBytes(mCurrHeader.mFilesTableSize);
+
+		return result;
 	}
 
 	E_RESULT_CODE CPackageFileReader::_readFilesTableDescription()
@@ -82,11 +111,14 @@ namespace TDEngine2
 		{
 			result = result | pStream->Read(&filenameLength, sizeof(filenameLength));
 
-			info.mFilename.resize(static_cast<size_t>(filenameLength));
+			info.mFilename.resize(static_cast<size_t>(SwapBytes(filenameLength)));
 			result = result | pStream->Read(&info.mFilename[0], static_cast<U32>(sizeof(C8) * filenameLength));
 
 			result = result | pStream->Read(&info.mDataBlockOffset, sizeof(info.mDataBlockOffset));
+			info.mDataBlockOffset = SwapBytes(info.mDataBlockOffset);
+
 			result = result | pStream->Read(&info.mDataBlockSize, sizeof(info.mDataBlockSize));
+			info.mDataBlockSize = SwapBytes(info.mDataBlockSize);
 
 			mFilesTable.push_back(info);
 		}
@@ -203,7 +235,21 @@ namespace TDEngine2
 		TSizeType prevPosition = pStream->GetPosition();
 
 		E_RESULT_CODE result = pStream->SetPosition(0);
-		result = result | pStream->Write(&mCurrHeader, sizeof(mCurrHeader));
+		result = result | pStream->Write(&mCurrHeader.mTag, sizeof(mCurrHeader.mTag));
+
+		const U16 version = SwapBytes(mCurrHeader.mVersion);
+		result = result | pStream->Write(&version, sizeof(version));
+
+		result = result | pStream->Write(&mCurrHeader.mPadding, sizeof(mCurrHeader.mPadding));
+
+		mCurrHeader.mEntitiesCount = SwapBytes(mCurrHeader.mEntitiesCount);
+		result = result | pStream->Write(&mCurrHeader.mEntitiesCount, sizeof(mCurrHeader.mEntitiesCount));
+
+		mCurrHeader.mFilesTableOffset = SwapBytes(mCurrHeader.mFilesTableOffset);
+		result = result | pStream->Write(&mCurrHeader.mFilesTableOffset, sizeof(mCurrHeader.mFilesTableOffset));
+
+		mCurrHeader.mFilesTableSize = SwapBytes(mCurrHeader.mFilesTableSize);
+		result = result | pStream->Write(&mCurrHeader.mFilesTableSize, sizeof(mCurrHeader.mFilesTableSize));
 
 		pStream->SetPosition(prevPosition);
 
@@ -220,12 +266,15 @@ namespace TDEngine2
 
 		for (auto&& currFileEntryInfo : mFilesTable)
 		{
-			U64 filenameLength = currFileEntryInfo.mFilename.length();
+			U64 filenameLength = SwapBytes(currFileEntryInfo.mFilename.length());
 
 			result = result | pStream->Write(&filenameLength, sizeof(filenameLength));
 			result = result | pStream->Write(&currFileEntryInfo.mFilename[0], static_cast<U32>(filenameLength * sizeof(C8)));
 
+			currFileEntryInfo.mDataBlockOffset = SwapBytes(currFileEntryInfo.mDataBlockOffset);
 			result = result | pStream->Write(&currFileEntryInfo.mDataBlockOffset, sizeof(currFileEntryInfo.mDataBlockOffset));
+			
+			currFileEntryInfo.mDataBlockSize = SwapBytes(currFileEntryInfo.mDataBlockSize);
 			result = result | pStream->Write(&currFileEntryInfo.mDataBlockSize, sizeof(currFileEntryInfo.mDataBlockSize));
 		}
 
