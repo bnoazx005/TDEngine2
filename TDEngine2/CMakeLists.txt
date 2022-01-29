@@ -12,6 +12,7 @@ option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
 option(IS_TOOLS_BUILDING_ENABLED "The option shows whether engine's toolset should be built or not" ON)
 option(USE_EXTERNAL_BULLET_LIBRARY "The options determines whether bullet from deps/ directory or system one will be used" OFF)
+option(USE_EXTERNAL_ZLIB_LIBRARY "The options determines whether zlib from deps/ directory or system one will be used" OFF)
 option(OPTICK_PROFILER_ENABLED "The option enables/disables usage of optick as a main profiler" ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
@@ -609,6 +610,21 @@ target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOU
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BULLET_INCLUDE_DIR})
 target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BULLET_LIBRARIES})
 
+# link zlib
+if (USE_EXTERNAL_ZLIB_LIBRARY)	
+    find_package(ZLIB REQUIRED)
+else ()
+	# use zlib from deps/ directory
+	message(STATUS "Builtin zlib library is being used...")
+
+	set (ZLIB_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib/")
+	set (ZLIB_LIBRARIES 
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib/$<CONFIGURATION>/${CMAKE_STATIC_LIBRARY_PREFIX}zlib${CMAKE_STATIC_LIBRARY_SUFFIX}"
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib/$<CONFIGURATION>/${CMAKE_STATIC_LIBRARY_PREFIX}zlibstatic${CMAKE_STATIC_LIBRARY_SUFFIX}")
+endif ()
+
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
+target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${ZLIB_LIBRARIES})
 
 #build plugins
 if (IS_PLUGIN_BUILDING_ENABLED)

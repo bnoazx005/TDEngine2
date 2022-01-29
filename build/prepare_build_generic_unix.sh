@@ -37,6 +37,30 @@ if [ $? -ne 0 ]; then
 	exit $?
 fi
 
+
+# "Build zlib first"
+
+pushd "../TDEngine2/deps/zlib"
+	cmake -G "$GENERATOR_NAME" -DCMAKE_GENERATOR_PLATFORM=$2 -DCMAKE_BUILD_TYPE=$1 . && cmake --build . --config $1
+
+	# \fixme 
+	TDE2_USE_INSTALLED_ZLIB=ON
+	sudo make install
+	
+	# if [[ $TDE2_INSTALL_BULLET3 ]]; then
+	# 	TDE2_USE_INSTALLED_BULLET=ON
+	# 	sudo make install
+	# else
+	# 	TDE2_USE_INSTALLED_BULLET=OFF
+	# fi
+popd
+
+if [ $? -ne 0 ]; then
+	pause
+	exit $?
+fi
+
+
 # Install FMOD's libraries
 pushd "../TDEngine2/plugins/FmodAudioContext/deps/fmod/lib/unix_libs/"
 
@@ -76,7 +100,7 @@ fi
 sh ./run_codegeneration.sh
 
 
-cmake -G "$GENERATOR_NAME" -DUSE_EXTERNAL_BULLET_LIBRARY=$TDE2_USE_INSTALLED_BULLET -DCMAKE_BUILD_TYPE=$1  .. && cmake --build . --config $1
+cmake -G "$GENERATOR_NAME" -DUSE_EXTERNAL_BULLET_LIBRARY=$TDE2_USE_INSTALLED_BULLET -DUSE_EXTERNAL_ZLIB_LIBRARY=$TDE2_USE_INSTALLED_ZLIB -DCMAKE_BUILD_TYPE=$1  .. && cmake --build . --config $1
 
 if [ $? -ne 0 ]; then
 	pause

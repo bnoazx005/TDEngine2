@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add **zlib** into dependencies directory. Also build scripts were updated due to the new library.
+
 ### Changed
 
 - **CU8String** class is now just a namespace for helper functions to operate with UTF-8 encoded strings. **U8C** alias was

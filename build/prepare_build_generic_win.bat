@@ -30,12 +30,30 @@ if %ERRORLEVEL% neq 0 (
 )
 
 
+rem "Build zlib"
+
+set TDE2_USE_INSTALLED_ZLIB="OFF"
+
+pushd "../TDEngine2/deps/zlib"
+	cmake -G %1 -DCMAKE_BUILD_TYPE=%2 . && cmake --build . --config %2
+
+	if defined TDE2_INSTALL_ZLIB (
+		set TDE2_USE_INSTALLED_ZLIB="ON"
+		cmake install
+	)
+popd
+
+if %ERRORLEVEL% neq 0 (
+	goto finalize
+)
+
+
 call run_codegeneration.bat
 
 
 rem "Build main project"
 
-cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% -DCMAKE_GENERATOR_PLATFORM=%3 -DCMAKE_BUILD_TYPE=%2 .. && cmake --build . --config %2
+cmake -G %1 -DUSE_EXTERNAL_BULLET_LIBRARY=%TDE2_USE_INSTALLED_BULLET% -DUSE_EXTERNAL_ZLIB_LIBRARY=%TDE2_USE_INSTALLED_ZLIB% -DCMAKE_GENERATOR_PLATFORM=%3 -DCMAKE_BUILD_TYPE=%2 .. && cmake --build . --config %2
 
 exit /b 0
 
