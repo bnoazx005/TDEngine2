@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.27] 2022-01-25
 
+### Added
+
 ### Changed
 
 - **CU8String** class is now just a namespace for helper functions to operate with UTF-8 encoded strings. **U8C** alias was
@@ -17,6 +19,8 @@ replaced with strongly typed version called **TUtf8CodePoint**.
 - Now **CFileInputStream** and **CFileOuptuStream** support UTF-8 paths.
 
 - The implementations of **CPackageFileReader** and **CPackageFileWriter** were refactored.
+
+- Now **CFileLogger** adds date and time information for the log.
 
 ## [0.5.26] 2022-01-22
 

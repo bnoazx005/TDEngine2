@@ -4,6 +4,8 @@
 #include <iostream>
 #include <thread>
 #include <condition_variable>
+#include <chrono>
+#include <ctime>
 
 
 namespace TDEngine2
@@ -145,7 +147,13 @@ namespace TDEngine2
 			return;
 		}
 		
-		const std::string outputMessage = messagePrefixesTable.at(messageType) + message;
+		const auto& timePoint = std::chrono::system_clock::now();
+		const std::time_t currTime = std::chrono::system_clock::to_time_t(timePoint);
+
+		C8 tmpTimeStrBuf[100];
+		std::strftime(tmpTimeStrBuf, sizeof(tmpTimeStrBuf), "[%T]", std::localtime(&currTime));
+
+		const std::string outputMessage = messagePrefixesTable.at(messageType) + tmpTimeStrBuf + message;
 
 		/// \note The actual writing to the file is deffered and done in separate thread
 		{
