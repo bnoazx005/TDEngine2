@@ -557,8 +557,10 @@ namespace TDEngine2
 	{
 		std::string mFilename;
 
-		U64 mDataBlockOffset = 0;
-		U64 mDataBlockSize = 0;
+		U64  mDataBlockOffset = 0;
+		U64  mDataBlockSize = 0;
+		U64  mCompressedBlockSize = 0;
+		bool mIsCompressed = false;
 	} TPackageFileEntryInfo, *TPackageFileEntryInfoPtr;
 
 
@@ -570,6 +572,13 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_REGISTER_TYPE(IPackageFileReader)
+
+			/*!
+				\brief The method reads file's data no matter on whether it's compressed or not. It the data was
+				stored in compressed way automatically decompresses it 
+
+				\return The array of decompressed bytes that represent data
+			*/
 
 			TDE2_API virtual std::vector<U8> ReadFileBytes(const std::string& path) = 0;
 
@@ -596,14 +605,14 @@ namespace TDEngine2
 #else
 			typename std::enable_if<std::is_base_of<IFileReader, T>::value, E_RESULT_CODE>::type
 #endif
-			WriteFile(const std::string& path, const T& file)
+			WriteFile(const std::string& path, const T& file, bool useCompression = false)
 			{
-				return _writeFileInternal(T::GetTypeId(), path, dynamic_cast<const IFileReader&>(file));
+				return _writeFileInternal(T::GetTypeId(), path, dynamic_cast<const IFileReader&>(file), useCompression);
 			}
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPackageFileWriter)
 
-			TDE2_API virtual E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file) = 0;
+			TDE2_API virtual E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file, bool useCompression) = 0;
 	};
 
 

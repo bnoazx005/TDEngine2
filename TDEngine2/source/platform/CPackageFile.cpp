@@ -8,6 +8,7 @@
 #include "deferOperation.hpp"
 #include <algorithm>
 #include "stringUtils.hpp"
+#include "zlib.h"
 
 
 namespace TDEngine2
@@ -30,17 +31,33 @@ namespace TDEngine2
 		}
 
 		std::vector<U8> dataBuffer;
-		dataBuffer.resize(static_cast<size_t>(iter->mDataBlockSize));
+		dataBuffer.resize(iter->mIsCompressed ? static_cast<USIZE>(iter->mCompressedBlockSize) : static_cast<USIZE>(iter->mDataBlockSize));
 
 		TPtr<IInputStream> pStream = DynamicPtrCast<IInputStream>(mpStreamImpl);
 		
 		TSizeType prevPosition = pStream->GetPosition();
 		{
 			pStream->SetPosition(static_cast<TSizeType>(iter->mDataBlockOffset));
-			pStream->Read(&dataBuffer[0], static_cast<TSizeType>(iter->mDataBlockSize));
+			pStream->Read(&dataBuffer[0], dataBuffer.size() * sizeof(U8));
 		}
 
 		pStream->SetPosition(prevPosition);
+
+		/// \note Make decompression if the file was archived previously
+		if (iter->mIsCompressed)
+		{
+			std::vector<U8> decompressedBufferBlock;
+			decompressedBufferBlock.resize(static_cast<USIZE>(iter->mDataBlockSize));
+
+			uLongf decompressedDataSize = static_cast<uLongf>(iter->mDataBlockSize);
+
+			if (Z_OK != uncompress(&decompressedBufferBlock.front(), &decompressedDataSize, &dataBuffer.front(), static_cast<uLong>(iter->mCompressedBlockSize)))
+			{
+				return {};
+			}
+
+			return std::move(decompressedBufferBlock);
+		}
 
 		return std::move(dataBuffer);
 	}
@@ -173,7 +190,7 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CPackageFileWriter::_writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file)
+	E_RESULT_CODE CPackageFileWriter::_writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file, bool useCompression)
 	{
 		if (CPackageFileWriter::GetTypeId() == fileTypeId || CPackageFileReader::GetTypeId() == fileTypeId)
 		{
@@ -209,6 +226,26 @@ namespace TDEngine2
 			if (RC_OK != (result = pStream->Read(&buffer[0], buffer.size())))
 			{
 				return result;
+			}
+
+			/// \note Compresss data if useCompression equals to true
+			if (useCompression)
+			{
+				uLong compressedDataBlockSize = compressBound(static_cast<uLong>(buffer.size()));
+
+				std::vector<U8> compressedDataBuffer;
+				compressedDataBuffer.resize(static_cast<USIZE>(compressedDataBlockSize));
+				
+				if (Z_OK != compress(&compressedDataBuffer.front(), &compressedDataBlockSize, &buffer.front(), static_cast<uLong>(fileInfo.mDataBlockSize)))
+				{
+					return RC_FAIL;
+				}
+
+				buffer.resize(static_cast<USIZE>(compressedDataBlockSize));
+				memcpy(&buffer.front(), &compressedDataBuffer.front(), sizeof(U8) * compressedDataBlockSize);
+
+				fileInfo.mCompressedBlockSize = static_cast<U64>(compressedDataBlockSize);
+				fileInfo.mIsCompressed = true;
 			}
 
 			// Write into the package

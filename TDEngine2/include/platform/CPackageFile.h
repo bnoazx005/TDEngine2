@@ -120,7 +120,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _onInit() override;
 			TDE2_API E_RESULT_CODE _onFree() override;
 			
-			TDE2_API E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file) override;
+			TDE2_API E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file, bool useCompression) override;
 
 			TDE2_API E_RESULT_CODE _writePackageHeader();
 			TDE2_API E_RESULT_CODE _writeFilesTableDescription();
