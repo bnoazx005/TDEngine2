@@ -47,6 +47,8 @@ namespace TDEngine2
 
 		std::string mOutputDirname = ".";
 		std::string mOutputFilename = "NewArchive.pak";
+
+		bool mCompressFiles = false;
 	};
 
 
@@ -74,6 +76,8 @@ namespace TDEngine2
 
 		uint64_t mDataBlockOffset = 0;
 		uint64_t mDataBlockSize = 0;
+		uint64_t mCompressedBlockSize = 0;
+		bool     mIsCompressed = false;
 	} TPackageFileEntryInfo, *TPackageFileEntryInfoPtr;
 
 

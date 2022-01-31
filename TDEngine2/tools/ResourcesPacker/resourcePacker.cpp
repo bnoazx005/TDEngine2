@@ -1,5 +1,6 @@
 #include "resourcePacker.h"
 #include "deps/argparse/argparse.h"
+#include "../../deps/zlib/zlib.h"
 #include <unordered_set>
 #include <iostream>
 #include <fstream>
@@ -34,6 +35,7 @@ namespace TDEngine2
 		int suppressLogOutput = 0;
 		int forceMode = 0;
 		int emitFlags = 0;
+		int useCompression = 0;
 
 		const char* pOutputDirectory = nullptr;
 		const char* pOutputFilename = nullptr;
@@ -49,6 +51,7 @@ namespace TDEngine2
 			OPT_STRING(0, "outdir", &pOutputDirectory, "Write output into specified <dirname>"),
 			OPT_STRING('o', "outfile", &pOutputFilename, "Output file's name <filename>"),
 			OPT_BOOLEAN(0, "quiet", &suppressLogOutput, "Enables suppresion of program's output"),
+			OPT_BOOLEAN(0, "compress", &useCompression, "Enables compression of resources"),
 			OPT_END(),
 		};
 
@@ -92,6 +95,8 @@ namespace TDEngine2
 		{
 			utilityOptions.mOutputFilename = pOutputFilename;
 		}
+
+		utilityOptions.mCompressFiles = static_cast<bool>(useCompression);
 
 		return Wrench::TOkValue<TUtilityOptions>(utilityOptions);
 	}
@@ -163,6 +168,8 @@ namespace TDEngine2
 
 			packageFile.write(reinterpret_cast<char*>(&currFileEntry.mDataBlockOffset), sizeof(currFileEntry.mDataBlockOffset));
 			packageFile.write(reinterpret_cast<char*>(&currFileEntry.mDataBlockSize), sizeof(currFileEntry.mDataBlockSize));
+			packageFile.write(reinterpret_cast<char*>(&currFileEntry.mCompressedBlockSize), sizeof(currFileEntry.mCompressedBlockSize));
+			packageFile.write(reinterpret_cast<char*>(&currFileEntry.mIsCompressed), sizeof(currFileEntry.mIsCompressed));
 		}
 
 		return E_ERROR_CODE::OK;
@@ -194,7 +201,8 @@ namespace TDEngine2
 
 		packageFile.seekp(sizeof(TPackageFileHeader)); // \note Skip writing header, make it as last step
 
-		std::vector<char> tempDataBuffer;
+		std::vector<unsigned char> tempDataBuffer;
+		std::vector<unsigned char> compressedDataBuffer;
 
 		// \note Copy files' data into the package's file
 		for (auto&& currFilePath : files)
@@ -210,12 +218,36 @@ namespace TDEngine2
 
 			resourceFile.seekg(0);
 
-			filesTable.push_back(TPackageFileEntryInfo { currFilePath, static_cast<uint64_t>(packageFile.tellp()), static_cast<uint64_t>(dataSize) });
-
 			tempDataBuffer.resize(static_cast<size_t>(dataSize));
-			resourceFile.read(tempDataBuffer.data(), static_cast<std::streamsize>(dataSize));
+			resourceFile.read(reinterpret_cast<char*>(tempDataBuffer.data()), static_cast<std::streamsize>(dataSize));
 
 			resourceFile.close();
+
+			/// \note Compress data
+			uLong compressedDataSize = options.mCompressFiles ? compressBound(static_cast<uLong>(tempDataBuffer.size())) : 0;
+			
+			if (options.mCompressFiles)
+			{
+				compressedDataBuffer.resize(compressedDataSize);
+
+				if (Z_OK != compress(&compressedDataBuffer.front(), &compressedDataSize, &tempDataBuffer.front(), static_cast<uLong>(dataSize)))
+				{
+					continue;
+				}
+			}
+
+			filesTable.push_back(TPackageFileEntryInfo
+				{ 
+					currFilePath, 
+					static_cast<uint64_t>(packageFile.tellp()), 
+					static_cast<uint64_t>(dataSize),
+					static_cast<uint64_t>(compressedDataSize),
+					options.mCompressFiles
+				});
+
+			/// \note Actual write data into the package file
+			packageFile.write(reinterpret_cast<char*>(options.mCompressFiles ? compressedDataBuffer.data() : tempDataBuffer.data()), 
+				options.mCompressFiles ? static_cast<size_t>(compressedDataSize) : static_cast<size_t>(dataSize));
 		}
 
 		TPackageFileHeader header;

@@ -19,7 +19,14 @@
 
 	< end of the file ===============================
 
-	More information can be found within the engine's sources in CPackageFile.h file.
+	More information can be found within the engine's sources in CPackageFile.h file
+	and at link below
+	https://github.com/bnoazx005/TDEngine2/wiki/%5BDraft%5D-Package-file-format-specification
+
+	Beginning from 0.5.x version of the engine the packages support compressed files storage. The compression
+	is implemented via zlib library
+
+	\todo Implement endian independent file IO operations
 */
 
 #include <iostream>

@@ -24,6 +24,8 @@ replaced with strongly typed version called **TUtf8CodePoint**.
 
 - Now **CFileLogger** adds date and time information for the log.
 
+- **tde2_resource_packer** utility was updated to support compressed files within packages.
+
 ## [0.5.26] 2022-01-22
 
 ### Added
