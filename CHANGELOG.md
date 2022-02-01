@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.27] 2022-01-31
+## [0.5.27] 2022-02-01
 
 ### Added
 
 - Add **zlib** into dependencies directory. Also build scripts were updated due to the new library.
+
+- Now **IPackageFileWriter** and **IPackageFileReader** supports compressed files within packages. All conversions are done implicitly.
 
 ### Changed
 

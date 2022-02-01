@@ -396,6 +396,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	
 	auto s = mpFileSystem->GetUserDirectory();
 
+	if (auto pPackage = mpFileSystem->Get<IPackageFileReader>(mpFileSystem->Open<IPackageFileReader>("NewArchive.pak").Get()))
+	{
+		auto data = pPackage->ReadFileBytes("test.txt");
+	}
+
 	return RC_OK;
 }
 

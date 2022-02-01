@@ -95,7 +95,7 @@ namespace TDEngine2
 
 		version = SwapBytes(version);
 
-		if (strcmp(tag, TPackageFileHeader::mTag) == 0 || version == TPackageFileHeader::mVersion)
+		if (strcmp(tag, TPackageFileHeader::mTag) != 0 || version != TPackageFileHeader::mVersion)
 		{
 			LOG_ERROR(Wrench::StringUtils::Format("[CPackageFileReader] Invalid package was found at ({0}", pStream->GetName()));
 			TDE2_ASSERT(false);
@@ -136,6 +136,11 @@ namespace TDEngine2
 
 			result = result | pStream->Read(&info.mDataBlockSize, sizeof(info.mDataBlockSize));
 			info.mDataBlockSize = SwapBytes(info.mDataBlockSize);
+
+			result = result | pStream->Read(&info.mCompressedBlockSize, sizeof(info.mCompressedBlockSize));
+			info.mCompressedBlockSize = SwapBytes(info.mCompressedBlockSize);
+
+			result = result | pStream->Read(&info.mIsCompressed, sizeof(info.mIsCompressed));
 
 			mFilesTable.push_back(info);
 		}
@@ -313,6 +318,11 @@ namespace TDEngine2
 			
 			currFileEntryInfo.mDataBlockSize = SwapBytes(currFileEntryInfo.mDataBlockSize);
 			result = result | pStream->Write(&currFileEntryInfo.mDataBlockSize, sizeof(currFileEntryInfo.mDataBlockSize));
+
+			currFileEntryInfo.mCompressedBlockSize = SwapBytes(currFileEntryInfo.mCompressedBlockSize);
+			result = result | pStream->Write(&currFileEntryInfo.mCompressedBlockSize, sizeof(currFileEntryInfo.mCompressedBlockSize));
+
+			result = result | pStream->Write(&currFileEntryInfo.mIsCompressed, sizeof(currFileEntryInfo.mIsCompressed));
 		}
 
 		mCurrHeader.mFilesTableSize = std::max<U64>(0, static_cast<U64>(pStream->GetPosition()) - mCurrHeader.mFilesTableOffset);

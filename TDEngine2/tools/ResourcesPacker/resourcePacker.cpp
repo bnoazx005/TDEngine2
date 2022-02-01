@@ -152,7 +152,16 @@ namespace TDEngine2
 
 	static E_ERROR_CODE WritePackageHeader(std::ofstream& packageFile, const TPackageFileHeader& headerData) TDE2_NOEXCEPT
 	{
-		packageFile.write(reinterpret_cast<const char*>(&headerData), sizeof(headerData));
+		packageFile.write(reinterpret_cast<const char*>(&headerData.mTag), sizeof(headerData.mTag));
+		packageFile.write(reinterpret_cast<const char*>(&headerData.mVersion), sizeof(headerData.mVersion));
+
+		const uint16_t padding = 0;
+
+		packageFile.write(reinterpret_cast<const char*>(&padding), sizeof(padding));
+
+		packageFile.write(reinterpret_cast<const char*>(&headerData.mEntitiesCount), sizeof(headerData.mEntitiesCount));
+		packageFile.write(reinterpret_cast<const char*>(&headerData.mFilesTableOffset), sizeof(headerData.mFilesTableOffset));
+		packageFile.write(reinterpret_cast<const char*>(&headerData.mFilesTableSize), sizeof(headerData.mFilesTableSize));
 
 		return E_ERROR_CODE::OK;
 	}
