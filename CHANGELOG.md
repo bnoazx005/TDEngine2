@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.28] 2022-02-01
+## [0.5.28] 2022-02-02
 
 ### Changed
 
 - Now a resource can be unloaded and removed from the registry of the resource manager via **CBaseResource::Unload**.
+
+- Fix creation of texture samples under OpenGL GAPI context.
 
 ## [0.5.27] 2022-02-01
 

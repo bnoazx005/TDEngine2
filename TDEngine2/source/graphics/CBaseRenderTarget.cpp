@@ -35,6 +35,8 @@ namespace TDEngine2
 		mSamplingQuality      = params.mSamplingQuality;
 		mTextureSamplerParams = params.mTexSamplerDesc;
 
+		mTextureSamplerParams.mUseMipMaps = mNumOfMipLevels > 1;
+
 		mIsInitialized = true;
 
 		return _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat,

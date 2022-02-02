@@ -610,6 +610,8 @@ namespace TDEngine2
 		E_ADDRESS_MODE_TYPE   mUAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
 		E_ADDRESS_MODE_TYPE   mVAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
 		E_ADDRESS_MODE_TYPE   mWAddressMode = E_ADDRESS_MODE_TYPE::AMT_WRAP;
+
+		bool                  mUseMipMaps = false;
 	} TTextureSamplerDesc, *TTextureSamplerDescPtr;
 
 
