@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.28] 2022-02-01
+
+### Changed
+
+- Now a resource can be unloaded and removed from the registry of the resource manager via **CBaseResource::Unload**.
+
 ## [0.5.27] 2022-02-01
 
 ### Added

@@ -51,12 +51,12 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseResource::Unload()
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return Reset();
+		return mpResourceManager->ReleaseResource(mId);
 	}
 
 	E_RESULT_CODE CBaseResource::_onFreeInternal()
 	{
-		return Unload();
+		return Reset();
 	}
 
 	void CBaseResource::SetState(E_RESOURCE_STATE_TYPE state)
