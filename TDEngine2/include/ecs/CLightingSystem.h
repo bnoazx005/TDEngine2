@@ -62,6 +62,7 @@ namespace TDEngine2
 			typedef TComponentsQueryLocalSlice<CPointLight, CTransform>                                   TPointLightsContext;
 			typedef TComponentsQueryLocalSlice<CShadowCasterComponent, CStaticMeshContainer, CTransform>  TStaticShadowCastersContext;
 			typedef TComponentsQueryLocalSlice<CShadowReceiverComponent, CStaticMeshContainer>            TStaticShadowReceiverContext;
+			typedef TComponentsQueryLocalSlice<CShadowReceiverComponent, CSkinnedMeshContainer>           TSkinnedShadowReceiverContext;
 			typedef TComponentsQueryLocalSlice<CShadowCasterComponent, CSkinnedMeshContainer, CTransform> TSkinnedShadowCastersContext;
 		public:
 			TDE2_SYSTEM(CLightingSystem);
@@ -115,7 +116,7 @@ namespace TDEngine2
 			TSkinnedShadowCastersContext mSkinnedShadowCastersContext;
 
 			TStaticShadowReceiverContext mStaticShadowReceiversContext;
-			TEntitiesArray               mShadowReceiverEntities;
+			TSkinnedShadowReceiverContext mSkinnedShadowReceiversContext;
 
 			IVertexDeclaration*          mpShadowVertDecl;
 			IVertexDeclaration*          mpSkinnedShadowVertDecl;

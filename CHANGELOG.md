@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now renderer's output under both D3D and GL graphics context looks the same and consistent.
 
+- Receiving shadows by skinned meshes was fixed.
+
 ## [0.5.27] 2022-02-01
 
 ### Added

@@ -67,8 +67,7 @@ namespace TDEngine2
 		mSkinnedShadowCastersContext = pWorld->CreateLocalComponentsSlice<CShadowCasterComponent, CSkinnedMeshContainer, CTransform>();
 
 		mStaticShadowReceiversContext = pWorld->CreateLocalComponentsSlice<CShadowReceiverComponent, CStaticMeshContainer>();
-
-		mShadowReceiverEntities    = pWorld->FindEntitiesWithComponents<CShadowReceiverComponent>();
+		mSkinnedShadowReceiversContext = pWorld->CreateLocalComponentsSlice<CShadowReceiverComponent, CSkinnedMeshContainer>();
 	}
 
 
@@ -269,6 +268,23 @@ namespace TDEngine2
 	}
 
 
+	template <typename TRenderable>
+	static void ProcessShadowReceivers(TPtr<IResourceManager> pResourceManager, const std::vector<TRenderable*> shadowReceivers, TPtr<ITexture> pShadowMapTexture)
+	{
+		// \note Inject shadow map buffer into materials 
+		for (USIZE i = 0; i < shadowReceivers.size(); ++i)
+		{
+			if (TRenderable* pMeshContainer = shadowReceivers[i])
+			{
+				if (auto pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>(pMeshContainer->GetMaterialName())))
+				{
+					pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture.Get());
+				}
+			}
+		}
+	}
+
+
 	void CLightingSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::Update");
@@ -307,19 +323,8 @@ namespace TDEngine2
 
 			auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("ShadowMap"));
 
-			auto&& staticMeshContainers = std::get<std::vector<CStaticMeshContainer*>>(mStaticShadowReceiversContext.mComponentsSlice);
-
-			// \note Inject shadow map buffer into materials 
-			for (USIZE i = 0; i < mStaticShadowReceiversContext.mComponentsCount; ++i)
-			{
-				if (CStaticMeshContainer* pStaticMeshContainer = staticMeshContainers[i])
-				{
-					if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
-					{
-						pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture.Get());
-					}
-				}
-			}
+			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CStaticMeshContainer*>>(mStaticShadowReceiversContext.mComponentsSlice), pShadowMapTexture);
+			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CSkinnedMeshContainer*>>(mSkinnedShadowReceiversContext.mComponentsSlice), pShadowMapTexture);
 		}
 	}
 
