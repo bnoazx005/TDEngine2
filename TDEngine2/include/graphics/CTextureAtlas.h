@@ -80,7 +80,7 @@ namespace TDEngine2
 															  const TTexture2DParameters& params, E_RESULT_CODE& result);
 			friend TDE2_API ITextureAtlas* CreateTextureAtlas(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 															  E_RESULT_CODE& result);
-		protected:
+		public:
 			struct TTextureAtlasEntry
 			{
 				struct TRawTextureData
@@ -186,10 +186,12 @@ namespace TDEngine2
 				You should call it after all textures added into the atlas. True will be returned
 				in case when there is no enough space for packing all textures
 
+				\param[in] entitiesOrder Determines how the entities will be ordered before they will be added into the atlas
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Bake() override;
+			TDE2_API E_RESULT_CODE Bake(E_TEXTURE_ATLAS_ENTITY_ORDER entitiesOrder = E_TEXTURE_ATLAS_ENTITY_ORDER::SIZE) override;
 
 			/*!
 				\brief The method deserializes object's state from given reader

@@ -195,7 +195,7 @@ namespace TDEngine2
 			}
 		}
 
-		return pFontCacheTexture->Bake();
+		return pFontCacheTexture->Bake(ITextureAtlas::E_TEXTURE_ATLAS_ENTITY_ORDER::ID);
 	}
 
 	const TPtr<IResourceLoader> CRuntimeFont::_getResourceLoader()

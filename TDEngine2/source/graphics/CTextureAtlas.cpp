@@ -193,7 +193,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CTextureAtlas::Bake()
+
+	static bool TextureEntitiesComparatorBySize(const CTextureAtlas::TTextureAtlasEntry& left, const CTextureAtlas::TTextureAtlasEntry& right)
+	{
+		TRectI32 leftRect = left.mRect;
+		TRectI32 rightRect = right.mRect;
+
+		return (leftRect.width > rightRect.width) && (leftRect.height > rightRect.height);
+	}
+
+	static bool TextureEntitiesComparatorById(const CTextureAtlas::TTextureAtlasEntry& left, const CTextureAtlas::TTextureAtlasEntry& right)
+	{
+		return left.mName > right.mName;
+	}
+
+
+	E_RESULT_CODE CTextureAtlas::Bake(E_TEXTURE_ATLAS_ENTITY_ORDER entitiesOrder)
 	{
 		if (!mIsInitialized)
 		{
@@ -201,13 +216,7 @@ namespace TDEngine2
 		}
 
 		/// \note sort all entries by their sizes
-		std::sort(mPendingData.begin(), mPendingData.end(), [](const TTextureAtlasEntry& left, const TTextureAtlasEntry& right)
-		{
-			TRectI32 leftRect  = left.mRect;
-			TRectI32 rightRect = right.mRect;
-
-			return (leftRect.width > rightRect.width) && (leftRect.height > rightRect.height);
-		});
+		std::sort(mPendingData.begin(), mPendingData.end(), E_TEXTURE_ATLAS_ENTITY_ORDER::SIZE == entitiesOrder ? TextureEntitiesComparatorBySize : TextureEntitiesComparatorById);
 		
 		auto pAtlasInternalTexture = mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle);
 

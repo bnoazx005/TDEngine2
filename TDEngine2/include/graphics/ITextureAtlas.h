@@ -38,6 +38,12 @@ namespace TDEngine2
 	class ITextureAtlas: public ISerializable, public virtual IBaseObject
 	{
 		public:
+			enum class E_TEXTURE_ATLAS_ENTITY_ORDER : U8
+			{
+				SIZE, ///< When ITextureAtlas::Bake is called all entities will be sorted from biggest textures to little ones
+				ID,   ///< Entities will be added into the texture atlas by lexicographical order of their identifiers
+			};
+		public:
 			TDE2_REGISTER_TYPE(ITextureAtlas);
 
 			/*!
@@ -103,10 +109,12 @@ namespace TDEngine2
 				You should call it after all textures added into the atlas. True will be returned
 				in case when there is no enough space for packing all textures
 
+				\param[in] entitiesOrder Determines how the entities will be ordered before they will be added into the atlas
+
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Bake() = 0;
+			TDE2_API virtual E_RESULT_CODE Bake(E_TEXTURE_ATLAS_ENTITY_ORDER entitiesOrder = E_TEXTURE_ATLAS_ENTITY_ORDER::SIZE) = 0;
 
 			/*!
 				\brief The method returns a pointer to texture that is used with texture atlas
