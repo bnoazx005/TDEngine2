@@ -167,11 +167,6 @@ void CUtilityListener::_drawMainMenu()
 
 			imguiContext.MenuItem("Save As...", "SHIFT+CTRL+S", [this, pFileSystem]
 			{
-				if (auto pAtlas = mpResourceManager->GetResource<ITextureAtlas>(mCurrEditableAtlasId))
-				{
-					pAtlas->Bake();
-				}
-
 				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
 					mLastSavedPath = saveFileDialogResult.Get();
@@ -180,16 +175,6 @@ void CUtilityListener::_drawMainMenu()
 			});
 
 			imguiContext.MenuItem("Quit", "Ctrl+Q", [this] { mpEngineCoreInstance->Quit(); });
-		});
-
-		imguiContext.MenuGroup("View", [this, pFileSystem](IImGUIContext& imguiContext)
-		{
-			imguiContext.MenuItem("Refresh", "F5", [this] { 
-				if (auto pAtlas = mpResourceManager->GetResource<ITextureAtlas>(mCurrEditableAtlasId))
-				{
-					pAtlas->Bake();
-				}
-			});
 		});
 	});
 
@@ -292,11 +277,6 @@ E_RESULT_CODE CUtilityListener::_processInNonGraphicalMode()
 
 		pTextureAtlas->AddTexture(mpResourceManager->Load<ITexture2D>(processedTexturePath));
 	}	
-
-	if (RC_OK != (result = pTextureAtlas->Bake()))
-	{
-		return result;
-	}
 
 	/// \note Serialize into the file
 	return CTextureAtlas::Serialize(mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get(), pTextureAtlas.Get(), mOptions.mOutputFilename);

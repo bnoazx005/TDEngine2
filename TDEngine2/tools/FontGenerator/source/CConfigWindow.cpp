@@ -4,6 +4,8 @@
 #include <string>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
+#define STB_RECT_PACK_IMPLEMENTATION
+#include "../../deps/stb/stb_rect_pack.h"
 #include <memory>
 
 
@@ -400,8 +402,6 @@ namespace TDEngine2
 				TDE2_ASSERT(false);
 			}
 		}
-
-		pTexAtlas->Bake();
 	}
 
 

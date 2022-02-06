@@ -131,7 +131,6 @@ namespace TDEngine2
 		if (auto openFileResult = mpWindowSystem->ShowOpenFileDialog(filters))
 		{
 			pAtlasTexture->AddTexture(mpResourceManager->Load<ITexture2D>(openFileResult.Get(), E_RESOURCE_LOADING_POLICY::SYNCED));
-			pAtlasTexture->Bake();
 			return;
 		}
 	}
@@ -154,8 +153,6 @@ namespace TDEngine2
 		}
 
 		E_RESULT_CODE result = pAtlasTexture->RemoveTexture(texturesItems[mCurrSelectedTextureItem]);
-		result = result | pAtlasTexture->Bake();
-
 		TDE2_ASSERT(RC_OK == result);
 	}
 

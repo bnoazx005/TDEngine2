@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.28] 2022-02-03
+## [0.5.28] 2022-02-06
+
+### Added
+
+- A new library **stb_rect_pack** was added into the dependencies directory.
 
 ### Changed
 
@@ -15,11 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix creation of texture samples under OpenGL GAPI context.
 
+- The implementation of **CTextureAtlas** was refactored and now it's updated on the fly.
+
 ### Fixed
 
 - Now renderer's output under both D3D and GL graphics context looks the same and consistent.
 
 - Receiving shadows by skinned meshes was fixed.
+
+- The generation of texture atlas for glyphs in CRuntimeFont was fixed. Now it's constrained with lexicographical order.
 
 ## [0.5.27] 2022-02-01
 

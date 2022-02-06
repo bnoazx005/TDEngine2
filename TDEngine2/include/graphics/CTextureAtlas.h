@@ -10,6 +10,7 @@
 #include "ITextureAtlas.h"
 #include "../core/CBaseResource.h"
 #include "../math/TRect.h"
+#include "../../deps/stb/stb_rect_pack.h"
 #include "variant.hpp"
 #include <string>
 #include <unordered_map>
@@ -118,7 +119,12 @@ namespace TDEngine2
 
 			typedef std::unordered_map<std::string, TRectI32> TAtlasRegistry;
 
-			typedef std::vector<IAtlasSubTexture*>             TAtlasSubTexturesArray;
+			typedef std::vector<IAtlasSubTexture*>            TAtlasSubTexturesArray;
+
+			typedef std::vector<stbrp_node>                   TAtlasNodesArray;
+
+			typedef std::unique_ptr<stbrp_context>            TAtlasContextPtr;
+
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CTextureAtlas)
 			TDE2_REGISTER_TYPE(CTextureAtlas)
@@ -180,18 +186,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE AddTexture(TResourceId textureHandle) override;
 
 			TDE2_API E_RESULT_CODE RemoveTexture(const std::string& name) override;
-
-			/*!
-				\brief The method finalizes the process of packing textures into the atlas.
-				You should call it after all textures added into the atlas. True will be returned
-				in case when there is no enough space for packing all textures
-
-				\param[in] entitiesOrder Determines how the entities will be ordered before they will be added into the atlas
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Bake(E_TEXTURE_ATLAS_ENTITY_ORDER entitiesOrder = E_TEXTURE_ATLAS_ENTITY_ORDER::SIZE) override;
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -275,12 +269,19 @@ namespace TDEngine2
 			TDE2_API TResult<TResourceId> _createSubTexture(const std::string& id, const TRectI32& rect);
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+
+			/// The context is lazy evaluated entity, so always use the method to access it
+			stbrp_context& _getAtlasEntitiesContext();
+
+			E_RESULT_CODE _addNewEntityToAtlas(TTextureAtlasEntry&& entity);
 		protected:
 			IGraphicsContext*      mpGraphicsContext;
 
 			TResourceId            mTextureResourceHandle;
 
-			TPendingDataArray      mPendingData;
+			TAtlasContextPtr       mpAtlasRectsContext;
+			
+			TAtlasNodesArray       mAtlasNodes;
 
 			TAtlasRegistry         mAtlasEntities;
 			

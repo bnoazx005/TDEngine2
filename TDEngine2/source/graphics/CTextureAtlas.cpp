@@ -9,7 +9,8 @@
 #include "../../include/platform/CYAMLFile.h"
 #include "stringUtils.hpp"
 #include "deferOperation.hpp"
-#include <cassert>
+#define STB_RECT_PACK_IMPLEMENTATION
+#include "../../deps/stb/stb_rect_pack.h"
 #include <algorithm>
 #include <stack>
 #include <cmath>
@@ -93,10 +94,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTextureAtlas::Reset()
 	{
-		mPendingData.clear();
 		mAtlasEntities.clear();
-
-		/// \todo
+		mpAtlasRectsContext = nullptr;
 
 		return RC_OK;
 	}
@@ -114,10 +113,7 @@ namespace TDEngine2
 		}
 
 		/// \note check whether the texture's data is already within the atlas or not
-		if (std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&name](const TTextureAtlasEntry& entry)
-		{
-			return entry.mName == name;
-		}) != mPendingData.cend())
+		if (mAtlasEntities.find(name) != mAtlasEntities.cend())
 		{
 			return RC_FAIL;
 		}
@@ -125,11 +121,7 @@ namespace TDEngine2
 		/// \note add a new entry
 		TRectI32 textureRect { 0, 0, static_cast<I32>(width), static_cast<I32>(height) };
 
-		TTextureAtlasEntry rootEntry { name, textureRect, { pData, format } };
-
-		mPendingData.push_back(rootEntry);
-
-		return RC_OK;
+		return _addNewEntityToAtlas(TTextureAtlasEntry{ name, textureRect, { pData, format } });
 	}
 
 	E_RESULT_CODE CTextureAtlas::AddTexture(TResourceId textureHandle)
@@ -148,8 +140,7 @@ namespace TDEngine2
 		const std::string textureName = dynamic_cast<IResource*>(pTextureResource.Get())->GetName();
 
 		/// \note check whether the texture's data is already within the atlas or not
-		if (std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&textureName](const TTextureAtlasEntry& entry) { return entry.mName == textureName; }) != mPendingData.cend() ||
-		    mAtlasEntities.find(textureName) != mAtlasEntities.cend())
+		if (mAtlasEntities.find(textureName) != mAtlasEntities.cend())
 		{
 			return RC_FAIL;
 		}
@@ -157,11 +148,7 @@ namespace TDEngine2
 		/// \note add a new entry
 		TRectI32 textureRect{ 0, 0, static_cast<I32>(pTextureResource->GetWidth()), static_cast<I32>(pTextureResource->GetHeight()) };
 
-		TTextureAtlasEntry rootEntry{ textureName, textureRect, pTextureResource };
-
-		mPendingData.push_back(rootEntry);
-
-		return RC_OK;
+		return _addNewEntityToAtlas(TTextureAtlasEntry{ textureName, textureRect, pTextureResource });
 	}
 
 	E_RESULT_CODE CTextureAtlas::RemoveTexture(const std::string& name)
@@ -171,195 +158,15 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		auto it = std::find_if(mPendingData.cbegin(), mPendingData.cend(), [&name](const TTextureAtlasEntry& entry) { return entry.mName == name; });
-		if (it == mPendingData.cend())
+		auto it = mAtlasEntities.find(name);
+		
+		if (it != mAtlasEntities.cend())
 		{
-			if (mAtlasEntities.find(name) == mAtlasEntities.cend())
-			{
-				return RC_FAIL;
-			}
-
-			mAtlasEntities.erase(name);
+			mAtlasEntities.erase(it);
 			return RC_OK;
 		}
 
-		mPendingData.erase(it);
-
-		if (mAtlasEntities.find(name) != mAtlasEntities.cend())
-		{
-			mAtlasEntities.erase(name);
-		}
-
-		return RC_OK;
-	}
-
-
-	static bool TextureEntitiesComparatorBySize(const CTextureAtlas::TTextureAtlasEntry& left, const CTextureAtlas::TTextureAtlasEntry& right)
-	{
-		TRectI32 leftRect = left.mRect;
-		TRectI32 rightRect = right.mRect;
-
-		return (leftRect.width > rightRect.width) && (leftRect.height > rightRect.height);
-	}
-
-	static bool TextureEntitiesComparatorById(const CTextureAtlas::TTextureAtlasEntry& left, const CTextureAtlas::TTextureAtlasEntry& right)
-	{
-		return left.mName > right.mName;
-	}
-
-
-	E_RESULT_CODE CTextureAtlas::Bake(E_TEXTURE_ATLAS_ENTITY_ORDER entitiesOrder)
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		/// \note sort all entries by their sizes
-		std::sort(mPendingData.begin(), mPendingData.end(), E_TEXTURE_ATLAS_ENTITY_ORDER::SIZE == entitiesOrder ? TextureEntitiesComparatorBySize : TextureEntitiesComparatorById);
-		
-		auto pAtlasInternalTexture = mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle);
-
-		/// \note while there is enough space within the atlas pack next entry
-		TAtlasAreaEntry root;
-		root.mBounds = {0, 0, static_cast<I32>(pAtlasInternalTexture->GetWidth()), static_cast<I32>(pAtlasInternalTexture->GetHeight())};
-		
-		std::stack<TAtlasAreaEntry*> areasToCheck;		
-
-		TAtlasAreaEntry* pCurrSubdivisionEntry = nullptr;
-		
-		auto dataIter = mPendingData.cbegin();
-
-		TRectI32 firstRect, secondRect, thirdRect;
-
-		bool hasInsertionFailed = false;
-
-		auto calcMetric = [](const TRectI32& textureSizes, const TRectI32& areaSizes) -> F32
-		{
-			F32 dx = fabs(static_cast<F32>(areaSizes.width - textureSizes.width));
-			F32 dy = fabs(static_cast<F32>(areaSizes.height - textureSizes.height));
-
-			return sqrt(dx * dx + dy * dy);
-		};
-
-		while (dataIter != mPendingData.cend())
-		{
-			areasToCheck.push(&root);
-
-			while (!areasToCheck.empty())
-			{
-				hasInsertionFailed = false;
-
-				pCurrSubdivisionEntry = areasToCheck.top();
-				areasToCheck.pop();
-
-				/// \note traverse down to leaves, 'cause the rect is already filled up
-				if (pCurrSubdivisionEntry->mTextureEntryId < (std::numeric_limits<U32>::max)())
-				{
-					auto pLeftChild  = pCurrSubdivisionEntry->mpLeft.get();
-					auto pRightChild = pCurrSubdivisionEntry->mpRight.get();
-
-					/// \note choose the branch based on minimal error between its sizes and sizes of an inserted texture
-					F32 leftChildMetric  = calcMetric(dataIter->mRect, pLeftChild->mBounds);
-					F32 rightChildMetric = calcMetric(dataIter->mRect, pRightChild->mBounds);
-
-					areasToCheck.push(leftChildMetric < rightChildMetric ? pRightChild : pLeftChild);
-					areasToCheck.push(leftChildMetric < rightChildMetric ? pLeftChild : pRightChild);
-
-					continue;
-				}
-
-				/// \note if current texture fits into the area, fill it up
-				if (pCurrSubdivisionEntry->mBounds.width >= dataIter->mRect.width &&
-					pCurrSubdivisionEntry->mBounds.height >= dataIter->mRect.height)
-				{
-					pCurrSubdivisionEntry->mTextureEntryId = static_cast<U32>(std::distance(mPendingData.cbegin(), dataIter));
-
-					F32 dx = static_cast<F32>(pCurrSubdivisionEntry->mBounds.width - dataIter->mRect.width);
-					F32 dy = static_cast<F32>(pCurrSubdivisionEntry->mBounds.height - dataIter->mRect.height);
-
-					bool isVerticalSlice = (dx > dy) || fabs(dx - dy) < 1e-3f;
-
-					/// \note divide the area into sub areas based on filled space
-					std::tie(firstRect, secondRect) = SplitRectWithLine(pCurrSubdivisionEntry->mBounds,
-																		isVerticalSlice ? TVector2(static_cast<F32>(dataIter->mRect.width), 0.0f) : TVector2(0.0f, static_cast<F32>(dataIter->mRect.height)),
-																		isVerticalSlice);
-					
-					std::tie(thirdRect, firstRect) = SplitRectWithLine(firstRect,
-																	   !isVerticalSlice ? TVector2(static_cast<F32>(dataIter->mRect.width), 0.0f) : TVector2(0.0f, static_cast<F32>(dataIter->mRect.height)),
-																	   !isVerticalSlice);
-
-					pCurrSubdivisionEntry->mpLeft  = std::make_unique<TAtlasAreaEntry>();
-					pCurrSubdivisionEntry->mpLeft->mBounds = firstRect;
-
-					pCurrSubdivisionEntry->mpRight = std::make_unique<TAtlasAreaEntry>();
-					pCurrSubdivisionEntry->mpRight->mBounds = secondRect;
-
-					++dataIter;
-
-					break;
-				}
-
-				hasInsertionFailed = true;
-			}
-
-			/// \note there is no enough free space in texture atlas anymore
-			if (areasToCheck.empty() && hasInsertionFailed)
-			{
-				break;
-			}
-
-			/// \note clean up the stack
-			while (!areasToCheck.empty())
-			{
-				areasToCheck.pop();
-			}
-		}
-
-		/// \note write down all data into atlas's texture
-		areasToCheck.push(&root);
-
-		TTextureAtlasEntry* pCurrTextureEntry = nullptr;
-
-		TRectI32 textureRect;
-
-		while (!areasToCheck.empty())
-		{
-			pCurrSubdivisionEntry = areasToCheck.top();
-			areasToCheck.pop();
-
-			if (!pCurrSubdivisionEntry || pCurrSubdivisionEntry->mTextureEntryId == (std::numeric_limits<U32>::max)())
-			{
-				continue;
-			}
-
-			pCurrTextureEntry = &mPendingData[pCurrSubdivisionEntry->mTextureEntryId];
-
-			textureRect = { pCurrSubdivisionEntry->mBounds.x,
-							pCurrSubdivisionEntry->mBounds.y,
-							pCurrTextureEntry->mRect.width,
-							pCurrTextureEntry->mRect.height };
-
-			mAtlasEntities[pCurrTextureEntry->mName] = textureRect;
-
-			if (!pCurrTextureEntry->mIsRawData)
-			{
-				auto&& textureData = pCurrTextureEntry->mData.As<TPtr<ITexture2D>>()->GetInternalData();
-
-				E_RESULT_CODE result = pAtlasInternalTexture->WriteData(textureRect, &textureData.front());
-				TDE2_ASSERT(result == RC_OK);
-			}
-			else
-			{
-				E_RESULT_CODE result = pAtlasInternalTexture->WriteData(textureRect, pCurrTextureEntry->mData.As<TTextureAtlasEntry::TRawTextureData>().mpData);
-				TDE2_ASSERT(result == RC_OK);
-			}
-
-			areasToCheck.push(pCurrSubdivisionEntry->mpLeft.get());
-			areasToCheck.push(pCurrSubdivisionEntry->mpRight.get());
-		}		
-
-		return hasInsertionFailed ? RC_FAIL : RC_OK;
+		return RC_FAIL;
 	}
 
 	E_RESULT_CODE CTextureAtlas::Save(IArchiveWriter* pWriter)
@@ -627,6 +434,67 @@ namespace TDEngine2
 	const TPtr<IResourceLoader> CTextureAtlas::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ITextureAtlas>();
+	}
+
+	stbrp_context& CTextureAtlas::_getAtlasEntitiesContext()
+	{
+		/// \note Recreate the context also in the case when the size of the atlas was changed
+		if (!mpAtlasRectsContext || (mpAtlasRectsContext && (mpAtlasRectsContext->width != mWidth || mpAtlasRectsContext->height != mHeight)))
+		{
+			mpAtlasRectsContext = std::make_unique<stbrp_context>();
+
+			mAtlasNodes.resize(mWidth + 1); 
+
+			stbrp_init_target(mpAtlasRectsContext.get(), mWidth, mHeight, &mAtlasNodes.front(), static_cast<I32>(mAtlasNodes.size()));
+		}
+
+		TDE2_ASSERT(mpAtlasRectsContext);
+		return *mpAtlasRectsContext.get();
+	}
+
+	E_RESULT_CODE CTextureAtlas::_addNewEntityToAtlas(TTextureAtlasEntry&& entity)
+	{
+		stbrp_rect rect;
+		rect.w  = entity.mRect.width;
+		rect.h  = entity.mRect.height;
+		
+		auto& context = _getAtlasEntitiesContext();
+
+		/// \note Update rects packing with a new entity
+		if (!stbrp_pack_rects(&context, &rect, 1))
+		{
+			return RC_FAIL;
+		}
+
+		TDE2_ASSERT(rect.was_packed);
+
+		TRectI32 textureRect;
+		textureRect.x = rect.x;
+		textureRect.y = rect.y;
+		textureRect.width = rect.w;
+		textureRect.height = rect.h;
+
+		mAtlasEntities[entity.mName] = textureRect;
+
+		E_RESULT_CODE result = RC_OK;
+
+		/// \note Write data into the 
+		if (auto pAtlasInternalTexture = mpResourceManager->GetResource<ITexture2D>(mTextureResourceHandle))
+		{
+			if (!entity.mIsRawData)
+			{
+				auto&& textureData = entity.mData.As<TPtr<ITexture2D>>()->GetInternalData();
+				result = pAtlasInternalTexture->WriteData(textureRect, &textureData.front());
+			}
+			else
+			{
+				result = pAtlasInternalTexture->WriteData(textureRect, entity.mData.As<TTextureAtlasEntry::TRawTextureData>().mpData);
+			}
+		}
+
+		TDE2_ASSERT(result == RC_OK);
+
+		return result;
 	}
 
 
