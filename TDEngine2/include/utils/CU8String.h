@@ -48,7 +48,7 @@ namespace TDEngine2
 
 				const U32 codePointLength = GetCodePointLength(*curr);
 
-				if (curr + static_cast<USIZE>(codePointLength) >= endBound)
+				if (curr + static_cast<USIZE>(codePointLength) > endBound)
 				{
 					return false;
 				}
@@ -64,7 +64,7 @@ namespace TDEngine2
 				/// \note If possible move iterator to next code point
 				curr += static_cast<USIZE>(codePointLength);
 				codePoint = TUtf8CodePoint(result);
-
+				
 				return true;
 			}
 
@@ -93,6 +93,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static U32 GetCodePointLength(C8 ch);
+
+			TDE2_API static TUtf8CodePoint StringToUTF8CodePoint(std::string&& str);
 
 			TDE2_API static std::string UTF8CodePointToString(TUtf8CodePoint cp);
 

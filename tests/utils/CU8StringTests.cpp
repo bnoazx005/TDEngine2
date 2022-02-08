@@ -36,13 +36,15 @@ TEST_CASE("CU8String Tests")
 	{
 		std::string str(u8"8!\u2660");
 		
-		REQUIRE(CU8String::Length(str.begin(), str.end()) == 3);
+		static constexpr USIZE expectedCodePointsCount = 3;
+
+		REQUIRE(CU8String::Length(str.begin(), str.end()) == expectedCodePointsCount);
 
 		const TUtf8CodePoint expectedCodePoints[3]
 		{
 			static_cast<TUtf8CodePoint>('8'),
 			static_cast<TUtf8CodePoint>('!'),
-			static_cast<TUtf8CodePoint>('\u2660'),
+			CU8String::StringToUTF8CodePoint(u8"\u2660"),
 		};
 
 		USIZE actualCodePointsCount = 0;
@@ -53,8 +55,10 @@ TEST_CASE("CU8String Tests")
 
 		while (CU8String::MoveNext(it, str.end(), currCP))
 		{
-			REQUIRE(currCP == expectedCodePoints[static_cast<U32>(std::distance(str.begin(), it) - 1)]);
+			REQUIRE(currCP == expectedCodePoints[actualCodePointsCount++]);
 		}
+
+		REQUIRE(actualCodePointsCount == expectedCodePointsCount);
 	}
 
 }

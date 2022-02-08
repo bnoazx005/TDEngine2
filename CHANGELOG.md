@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.29] 2022-02-07
+
+### Changed
+
+- Now **zlib** library is linked statically.
+
+### Fixed
+
+- The implementation of **CU8String::MoveNext** was fixed.
+
 ## [0.5.28] 2022-02-06
 
 ### Added

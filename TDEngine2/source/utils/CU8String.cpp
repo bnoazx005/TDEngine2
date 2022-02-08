@@ -35,6 +35,21 @@ namespace TDEngine2
 		return 1;
 	}
 
+	TUtf8CodePoint CU8String::StringToUTF8CodePoint(std::string&& str)
+	{
+		TUtf8CodePoint cp = TUtf8CodePoint::Invalid;
+
+		auto&& it = str.begin();
+
+		if (CU8String::MoveNext(it, str.end(), cp)) {} 
+		else
+		{
+			TDE2_ASSERT(false);
+		}
+
+		return cp;
+	}
+
 	std::string CU8String::UTF8CodePointToString(TUtf8CodePoint cp)
 	{
 		std::string str;
