@@ -242,7 +242,7 @@ namespace TDEngine2
 
 		auto pFont = pResourceManager->GetResource<IFont>(pLabelData->GetFontResourceHandle());
 
-		const bool isDirty = pLayoutData->IsDirty() || pLabelData->IsDirty();
+		const bool isDirty = pLayoutData->IsDirty() || pLabelData->IsDirty() || (pLabelData->GetFontDataVersionId() != pFont->GetDataVersionNumber());
 		if (!isDirty)
 		{
 			return;
@@ -272,6 +272,7 @@ namespace TDEngine2
 		pUIElementMeshData->SetTextureResourceId(dynamic_cast<IResource*>(pFont->GetTexture())->GetId()); /// \todo Replace dynamic_cast with proper method in IFont
 		pUIElementMeshData->SetTextMeshFlag(true);
 
+		pLabelData->SetFontDataVersionId(pFont->GetDataVersionNumber());
 		pLabelData->ResetDirtyFlag();
 		pLayoutData->SetDirty(false);
 	}

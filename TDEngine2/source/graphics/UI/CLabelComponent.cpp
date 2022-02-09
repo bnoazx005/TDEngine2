@@ -80,6 +80,11 @@ namespace TDEngine2
 		mOverflowPolicyType = value;
 	}
 
+	void CLabel::SetFontDataVersionId(U32 value)
+	{
+		mFontDataVersionId = value;
+	}
+
 	void CLabel::ResetDirtyFlag()
 	{
 		mPrevText = mText;
@@ -108,6 +113,11 @@ namespace TDEngine2
 	E_TEXT_OVERFLOW_POLICY CLabel::GetOverflowPolicyType() const
 	{
 		return mOverflowPolicyType;
+	}
+
+	U32 CLabel::GetFontDataVersionId() const
+	{
+		return mFontDataVersionId;
 	}
 
 	bool CLabel::IsDirty() const

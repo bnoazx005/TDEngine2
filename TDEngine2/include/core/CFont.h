@@ -135,6 +135,12 @@ namespace TDEngine2
 
 			TDE2_API ITexture2D* GetTexture() const override;
 
+			/*!
+				\return The method returns a number of data's revision
+			*/
+
+			TDE2_API U32 GetDataVersionNumber() const override;
+
 			TDE2_API static TVector2 GetPositionFromAlignType(E_FONT_ALIGN_POLICY type);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFont)

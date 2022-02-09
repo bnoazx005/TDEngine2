@@ -103,6 +103,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API ITexture2D* GetTexture() const override;
+
+			/*!
+				\return The method returns a number of data's revision
+			*/
+
+			TDE2_API U32 GetDataVersionNumber() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CRuntimeFont)
 			virtual ~CRuntimeFont(); /// \note declare own destructor because of incomplete type as argument of std::unique_ptr
@@ -121,6 +127,8 @@ namespace TDEngine2
 
 			F32                     mFontHeight;
 			F32                     mFontInternalScale;
+
+			U32                     mDataVersionId = 0;
 	};
 
 

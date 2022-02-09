@@ -148,8 +148,15 @@ namespace TDEngine2
 		return CFont::GetTexture();
 	}
 
+	U32 CRuntimeFont::GetDataVersionNumber() const
+	{
+		return mDataVersionId;
+	}
+
 	E_RESULT_CODE CRuntimeFont::_updateFontTextureCache(ITextureAtlas* pFontCacheTexture)
 	{
+		++mDataVersionId;
+
 		mGlyphsMap.clear();
 
 		I32 width, height, xoff, yoff;

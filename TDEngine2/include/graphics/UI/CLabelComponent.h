@@ -73,6 +73,8 @@ namespace TDEngine2
 
 			TDE2_API void SetOverflowPolicyType(E_TEXT_OVERFLOW_POLICY value);
 
+			TDE2_API void SetFontDataVersionId(U32 value);
+
 			TDE2_API void ResetDirtyFlag();
 
 			TDE2_API const std::string& GetText() const;
@@ -84,6 +86,8 @@ namespace TDEngine2
 			TDE2_API E_FONT_ALIGN_POLICY GetAlignType() const;
 
 			TDE2_API E_TEXT_OVERFLOW_POLICY GetOverflowPolicyType() const;
+
+			TDE2_API U32 GetFontDataVersionId() const;
 
 			TDE2_API bool IsDirty() const;
 
@@ -100,6 +104,8 @@ namespace TDEngine2
 			E_TEXT_OVERFLOW_POLICY mOverflowPolicyType;
 
 			TResourceId mFontResourceHandle;
+
+			U32         mFontDataVersionId = 0;
 	};
 
 

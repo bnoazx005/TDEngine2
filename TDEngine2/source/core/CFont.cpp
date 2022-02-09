@@ -343,6 +343,11 @@ namespace TDEngine2
 		return mpResourceManager->GetResourceLoader<IFont>();
 	}
 
+	U32 CFont::GetDataVersionNumber() const
+	{
+		return 0x1;
+	}
+
 
 	TVector2 CFont::GetPositionFromAlignType(E_FONT_ALIGN_POLICY type)
 	{

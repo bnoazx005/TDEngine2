@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.29] 2022-02-07
+## [0.5.29] 2022-02-09
+
+### Added
+
+- The API of **IFont** was extended with a new public method GetDataVersionNumber.
 
 ### Changed
 

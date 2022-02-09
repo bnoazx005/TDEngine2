@@ -162,6 +162,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual ITexture2D* GetTexture() const = 0;
+
+			/*!
+				\return The method returns a number of data's revision
+			*/
+
+			TDE2_API virtual U32 GetDataVersionNumber() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFont)
 	};
