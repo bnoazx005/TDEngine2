@@ -36,16 +36,19 @@ namespace TDEngine2
 	void CLayoutElement::SetWorldRect(const TRectF32& rect)
 	{
 		mWorldRect = rect;
+		mIsDirty = true;
 	}
 
 	void CLayoutElement::SetAnchorWorldRect(const TRectF32& rect)
 	{
 		mAnchorWorldRect = rect;
+		mIsDirty = true;
 	}
 
 	void CLayoutElement::SetParentWorldRect(const TRectF32& rect)
 	{
 		mParentWorldRect = rect;
+		mIsDirty = true;
 	}
 
 	void CLayoutElement::SetOwnerCanvasId(TEntityId canvasEntityId)
@@ -66,6 +69,8 @@ namespace TDEngine2
 		}
 
 		mMinAnchor = value;
+		mIsDirty = true;
+
 		return RC_OK;
 	}
 
@@ -77,24 +82,32 @@ namespace TDEngine2
 		}
 
 		mMaxAnchor = value;
+		mIsDirty = true;
+
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetMinOffset(const TVector2& value)
 	{
 		mMinOffset = value;
+		mIsDirty = true;
+
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetMaxOffset(const TVector2& value)
 	{
 		mMaxOffset = value;
+		mIsDirty = true;
+
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetPivot(const TVector2& value)
 	{
 		mPivot = value;
+		mIsDirty = true;
+
 		return RC_OK;
 	}
 

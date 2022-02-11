@@ -24,11 +24,6 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("UpdateLayoutElementData");
 
 		CLayoutElement* pLayoutElement = layoutElementsContext.mpLayoutElements[id];
-		if (!pLayoutElement->IsDirty())
-		{
-			return;
-		}
-
 		CTransform* pTransform = layoutElementsContext.mpTransforms[id];
 
 		if (layoutElementsContext.mChildToParentTable[id] == TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex)
@@ -43,7 +38,7 @@ namespace TDEngine2
 			return;
 		}
 
-		if (!pParentLayoutElement->IsDirty())
+		if (!pLayoutElement->IsDirty() && !pParentLayoutElement->IsDirty())
 		{
 			return;
 		}
@@ -77,15 +72,11 @@ namespace TDEngine2
 
 		const TVector2 originShift = worldRect.GetSizes() * pLayoutElement->GetPivot();
 
+		const TVector2 position = worldRect.GetLeftBottom() + originShift;
+
 		pLayoutElement->SetWorldRect(worldRect);
 		pLayoutElement->SetAnchorWorldRect({ lbWorldPoint, rtWorldPoint });
 		pLayoutElement->SetParentWorldRect(parentWorldRect);
-
-		const TVector2 position = worldRect.GetLeftBottom() + originShift;
-
-		pLayoutElement->SetDirty(
-			(pTransform->GetPosition() != TVector3(position.x, position.y, 0.0f)) || 
-			(worldRect != pLayoutElement->GetWorldRect()));
 
 		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));
 	}
@@ -118,9 +109,6 @@ namespace TDEngine2
 		const TVector2 rectSizes = rightTop - leftBottom;
 		const TVector3 position = pTransform->GetPosition();
 
-		TRectF32 rect{ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y };
-
-		pLayoutElement->SetDirty(rect != pLayoutElement->GetWorldRect());
 		pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });
 	}
 
@@ -311,6 +299,17 @@ namespace TDEngine2
 		{
 			return;
 		}
+
+		/// \note There are could be entities which are canvases. So firstly we should remove them from the array
+		entities.erase(std::remove_if(entities.begin(), entities.end(), [pWorld](TEntityId entityId)
+		{
+			if (CEntity* pEntity = pWorld->FindEntity(entityId))
+			{
+				return pEntity->HasComponent<CCanvas>();
+			}
+
+			return false;
+		}), entities.end());
 
 		/// \note For CTransform we should sort all entities that parents should preceede their children
 		/// \note Fill up relationships table to sort entities based on their dependencies 
@@ -504,6 +503,35 @@ namespace TDEngine2
 		}
 	}
 
+
+	static inline void DiscardDirtyFlagOfLayoutElements(CUIElementsProcessSystem::TLayoutElementsContext& layoutElementsContext)
+	{
+		TDE2_PROFILER_SCOPE("DiscardDirtyFlagOfLayoutElements");
+
+		for (USIZE i = 0; i < layoutElementsContext.mpTransforms.size(); ++i)
+		{
+			if (auto pLayoutElement = layoutElementsContext.mpLayoutElements[i])
+			{
+				pLayoutElement->SetDirty(false);
+			}
+		}
+	}
+
+
+	static inline void DiscardDirtyFlagOfCanvases(CUIElementsProcessSystem::TCanvasesContext& canvasesContext)
+	{
+		TDE2_PROFILER_SCOPE("DiscardDirtyFlagOfCanvases");
+
+		for (USIZE i = 0; i < canvasesContext.mpLayoutElements.size(); ++i)
+		{
+			if (auto pLayoutElement = canvasesContext.mpLayoutElements[i])
+			{
+				pLayoutElement->SetDirty(false);
+			}
+		}
+	}
+
+
 	static inline void ComputeImagesMeshes(const CUIElementsProcessSystem::TUIRenderableElementsContext<CImage>& imagesContext, IResourceManager* pResourceManager)
 	{
 		TDE2_PROFILER_SCOPE("ComputeImagesMeshes");
@@ -513,6 +541,7 @@ namespace TDEngine2
 			ComputeImageMeshData(pResourceManager, imagesContext, i);
 		}
 	}
+
 	
 	static inline void ComputeLabelsMeshes(const CUIElementsProcessSystem::TUIRenderableElementsContext<CLabel>& labelsContext, IResourceManager* pResourceManager)
 	{
@@ -542,6 +571,9 @@ namespace TDEngine2
 
 		ComputeImagesMeshes(mImagesContext, mpResourceManager);
 		ComputeLabelsMeshes(mLabelsContext, mpResourceManager);
+
+		DiscardDirtyFlagOfLayoutElements(mLayoutElementsContext);
+		DiscardDirtyFlagOfCanvases(mCanvasesContext);
 	}
 
 

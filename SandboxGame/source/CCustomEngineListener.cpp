@@ -270,6 +270,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						pLayoutElement->SetPivot(TVector2(0.5f));
 					}
 
+#if 0
 					if (auto pEntity = pScene->CreateEntity("Text0"))
 					{
 						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
@@ -287,6 +288,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
+#endif
 
 					if (auto pEntity = pScene->CreateEntity("UIElement"))
 					{
@@ -309,6 +311,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
 
+#if 0
 					if (auto pEntity = pScene->CreateEntity("UIElement2"))
 					{
 						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
@@ -349,6 +352,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
+#endif
 
 					GroupEntities(mpWorld.Get(), pCanvasEntity->GetId(), pParentEntity->GetId());
 				}				
