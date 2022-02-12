@@ -19,6 +19,7 @@ namespace TDEngine2
 	class CLayoutElement;
 	class CTransform;
 	class CImage;
+	class C9SliceImage;
 	class CLabel;
 	class CCanvas;
 
@@ -105,14 +106,15 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementsProcessSystem)
 		protected:
-			TLayoutElementsContext mLayoutElementsContext;
-			TCanvasesContext mCanvasesContext;
+			TLayoutElementsContext                     mLayoutElementsContext;
+			TCanvasesContext                           mCanvasesContext;
 
-			TUIRenderableElementsContext<CImage> mImagesContext;
-			TUIRenderableElementsContext<CLabel> mLabelsContext;
+			TUIRenderableElementsContext<CImage>       mImagesContext;
+			TUIRenderableElementsContext<C9SliceImage> mSlicedImagesContext;
+			TUIRenderableElementsContext<CLabel>       mLabelsContext;
 
-			IGraphicsContext*      mpGraphicsContext;
+			IGraphicsContext*                          mpGraphicsContext;
 
-			IResourceManager*      mpResourceManager;
+			IResourceManager*                          mpResourceManager;
 	};
 }

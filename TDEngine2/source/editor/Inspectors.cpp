@@ -15,6 +15,7 @@
 #include "../../include/graphics/UI/CImageComponent.h"
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
+#include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
@@ -64,6 +65,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CImage::GetTypeId(), DrawImageGUI);
 		result = result | editor.RegisterInspector(CInputReceiver::GetTypeId(), DrawInputReceiverGUI);
 		result = result | editor.RegisterInspector(CLabel::GetTypeId(), DrawLabelGUI);
+		result = result | editor.RegisterInspector(C9SliceImage::GetTypeId(), Draw9SliceImageGUI);
 		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
 
 		/// 2D Physics
@@ -1026,6 +1028,81 @@ namespace TDEngine2
 
 				label.SetOverflowPolicyType(static_cast<E_TEXT_OVERFLOW_POLICY>(currTextOverflowType));
 
+				imguiContext.EndHorizontal();
+			}
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::Draw9SliceImageGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("9SliceImage", true))
+		{
+			C9SliceImage& slicedImage = dynamic_cast<C9SliceImage&>(component);
+
+			const F32 previewSizes = imguiContext.GetWindowWidth() * 0.7f;
+
+			imguiContext.Label("Image Preview:");
+			
+			const TVector2 cursorPos = imguiContext.GetCursorScreenPos();
+
+			imguiContext.Image(slicedImage.GetImageResourceId(), TVector2(previewSizes));
+			imguiContext.DrawRect(TRectF32(cursorPos.x, cursorPos.y, previewSizes, previewSizes), TColorUtils::mRed, false);
+
+			/// \note Draw handles
+			{
+				const TVector2 leftXSlicerStart = cursorPos + TVector2(previewSizes * slicedImage.GetLeftXSlicer(), 0.0f);
+				imguiContext.DrawLine(leftXSlicerStart, leftXSlicerStart + TVector2(0.0f, previewSizes), TColorUtils::mGreen);
+
+				const TVector2 rightXSlicerStart = cursorPos + TVector2(previewSizes * slicedImage.GetRightXSlicer(), 0.0f);
+				imguiContext.DrawLine(rightXSlicerStart, rightXSlicerStart + TVector2(0.0f, previewSizes), TColorUtils::mGreen);
+
+				const TVector2 bottomYSlicerStart = cursorPos + TVector2(0.0f, previewSizes * (1.0f - slicedImage.GetBottomYSlicer()));
+				imguiContext.DrawLine(bottomYSlicerStart, bottomYSlicerStart + TVector2(previewSizes, 0.0f), TColorUtils::mGreen);
+
+				const TVector2 topYSlicerStart = cursorPos + TVector2(0.0f, previewSizes * (1.0f - slicedImage.GetTopYSlicer()));
+				imguiContext.DrawLine(topYSlicerStart, topYSlicerStart + TVector2(previewSizes, 0.0f), TColorUtils::mGreen);
+			}			
+
+			/// \note left x slicer's slider
+			{
+				F32 xStart = slicedImage.GetLeftXSlicer();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Left X: ");
+				imguiContext.FloatSlider("##xStart", xStart, 0.0f, 1.0f, [&xStart, &slicedImage] { slicedImage.SetLeftXSlicer(xStart); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note right x slicer's slider
+			{
+				F32 xEnd = slicedImage.GetRightXSlicer();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Right X: ");
+				imguiContext.FloatSlider("##xEnd", xEnd, 0.0f, 1.0f, [&xEnd, &slicedImage] { slicedImage.SetRightXSlicer(xEnd); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note bottom y slicer's slider
+			{
+				F32 yStart = slicedImage.GetBottomYSlicer();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Bottom Y: ");
+				imguiContext.FloatSlider("##yStart", yStart, 0.0f, 1.0f, [&yStart, &slicedImage] { slicedImage.SetBottomYSlicer(yStart); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note top y slicer's slider
+			{
+				F32 yEnd = slicedImage.GetTopYSlicer();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Top Y: ");
+				imguiContext.FloatSlider("##yEnd", yEnd, 0.0f, 1.0f, [&yEnd, &slicedImage] { slicedImage.SetTopYSlicer(yEnd); });
 				imguiContext.EndHorizontal();
 			}
 		}

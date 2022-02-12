@@ -5,6 +5,7 @@
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CImageComponent.h"
+#include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/ITexture2D.h"
@@ -213,6 +214,99 @@ namespace TDEngine2
 		}
 
 		pUIElementMeshData->SetTextureResourceId(pImageData->GetImageResourceId());
+	}
+
+
+	static void Compute9SliceImageMeshData(IResourceManager* pResourceManager, const CUIElementsProcessSystem::TUIRenderableElementsContext<C9SliceImage>& slicedImagesContext, USIZE index)
+	{
+		CLayoutElement* pLayoutData    = slicedImagesContext.mpLayoutElements[index];
+		C9SliceImage* pSlicedImageData = slicedImagesContext.mpRenderables[index];
+
+		/// \note Load image's asset if it's not done yet
+		if (TResourceId::Invalid == pSlicedImageData->GetImageResourceId())
+		{
+			E_RESULT_CODE result = pSlicedImageData->SetImageResourceId(pResourceManager->Load<ITexture2D>(pSlicedImageData->GetImageId()));
+			TDE2_ASSERT(RC_OK == result);
+		}
+
+		auto pImageSprite = pResourceManager->GetResource<ITexture>(pSlicedImageData->GetImageResourceId());
+		if (!pImageSprite)
+		{
+			return;
+		}
+
+		const bool isDirty = pLayoutData->IsDirty(); /// \todo Add dirty flag of 9SliceImage
+		if (!isDirty)
+		{
+			return;
+		}
+
+		auto pUIElementMeshData = slicedImagesContext.mpUIMeshes[index];
+		pUIElementMeshData->ResetMesh();
+
+		auto&& worldRect = pLayoutData->GetWorldRect();
+
+		auto pTransform = slicedImagesContext.mpTransforms[index];
+		auto pivot = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutData->GetPivot();
+		auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
+
+		const TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
+
+		auto&& lbPoint = localObjectTransform * worldRect.GetLeftBottom();
+		auto&& rtPoint = localObjectTransform * worldRect.GetRightTop();
+
+		const std::array<F32, 4> horizontalRectCoords
+		{
+			lbPoint.x, CMathUtils::Lerp(lbPoint.x, rtPoint.x, pSlicedImageData->GetLeftXSlicer()), CMathUtils::Lerp(lbPoint.x, rtPoint.x, pSlicedImageData->GetRightXSlicer()), rtPoint.x
+		};
+
+		const std::array<F32, 4> verticalRectCoords
+		{
+			lbPoint.y, CMathUtils::Lerp(lbPoint.y, rtPoint.y, pSlicedImageData->GetBottomYSlicer()), CMathUtils::Lerp(lbPoint.y, rtPoint.y, pSlicedImageData->GetTopYSlicer()), rtPoint.y
+		};
+
+		auto&& uvCoordsRect = pImageSprite->GetNormalizedTextureRect();
+		auto&& topRightUvCoords = uvCoordsRect.GetRightTop();
+
+		const std::array<F32, 4> horizontalUvCoords
+		{
+			uvCoordsRect.x, 
+			CMathUtils::Lerp(uvCoordsRect.x, topRightUvCoords.x, pSlicedImageData->GetLeftXSlicer()), 
+			CMathUtils::Lerp(uvCoordsRect.x, topRightUvCoords.x, pSlicedImageData->GetRightXSlicer()),
+			topRightUvCoords.x
+		};
+
+		/// \note v texture coordinates are stored in inverted order
+		const std::array<F32, 4> verticalUvCoords
+		{
+			topRightUvCoords.y,
+			CMathUtils::Lerp(uvCoordsRect.y, topRightUvCoords.y, pSlicedImageData->GetTopYSlicer()),
+			CMathUtils::Lerp(uvCoordsRect.y, topRightUvCoords.y, pSlicedImageData->GetBottomYSlicer()),
+			uvCoordsRect.y,
+		};
+
+		/// \todo Add support of specifying color data
+		for (USIZE i = 0; i < 4; ++i)
+		{
+			for (USIZE j = 0; j < 4; ++j)
+			{
+				pUIElementMeshData->AddVertex({ TVector4(horizontalRectCoords[j], verticalRectCoords[i], horizontalUvCoords[j], verticalUvCoords[i]), TColorUtils::mWhite });
+			}
+		}
+
+		/// \note Generate indices data
+		for (U16 k = 0; k < 9; ++k)
+		{
+			pUIElementMeshData->AddIndex((k / 3) + k);
+			pUIElementMeshData->AddIndex((k / 3) + k + 5);
+			pUIElementMeshData->AddIndex((k / 3) + k + 1);
+
+			pUIElementMeshData->AddIndex((k / 3) + k);
+			pUIElementMeshData->AddIndex((k / 3) + k + 4);
+			pUIElementMeshData->AddIndex((k / 3) + k + 5);
+		}
+
+		pUIElementMeshData->SetTextureResourceId(pSlicedImageData->GetImageResourceId());
 	}
 
 
@@ -478,8 +572,9 @@ namespace TDEngine2
 			}
 		}
 
-		mImagesContext = CreateUIRenderableContext<CImage>(pWorld);
-		mLabelsContext = CreateUIRenderableContext<CLabel>(pWorld);
+		mImagesContext       = CreateUIRenderableContext<CImage>(pWorld);
+		mSlicedImagesContext = CreateUIRenderableContext<C9SliceImage>(pWorld);
+		mLabelsContext       = CreateUIRenderableContext<CLabel>(pWorld);
 	}
 
 
@@ -542,6 +637,17 @@ namespace TDEngine2
 		}
 	}
 
+
+	static inline void ComputeSlicedImagesMeshes(const CUIElementsProcessSystem::TUIRenderableElementsContext<C9SliceImage>& slicedImagesContext, IResourceManager* pResourceManager)
+	{
+		TDE2_PROFILER_SCOPE("ComputeSlicedImagesMeshes");
+
+		for (USIZE i = 0; i < slicedImagesContext.mpTransforms.size(); ++i)
+		{
+			Compute9SliceImageMeshData(pResourceManager, slicedImagesContext, i);
+		}
+	}
+
 	
 	static inline void ComputeLabelsMeshes(const CUIElementsProcessSystem::TUIRenderableElementsContext<CLabel>& labelsContext, IResourceManager* pResourceManager)
 	{
@@ -570,6 +676,7 @@ namespace TDEngine2
 		UpdateLayoutElements(mLayoutElementsContext, pWorld); /// \note Process LayoutElement entities
 
 		ComputeImagesMeshes(mImagesContext, mpResourceManager);
+		ComputeSlicedImagesMeshes(mSlicedImagesContext, mpResourceManager);
 		ComputeLabelsMeshes(mLabelsContext, mpResourceManager);
 
 		DiscardDirtyFlagOfLayoutElements(mLayoutElementsContext);

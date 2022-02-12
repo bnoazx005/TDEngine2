@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.29] 2022-02-09
+## [0.5.29] 2022-02-13
 
 ### Added
 
 - The API of **IFont** was extended with a new public method GetDataVersionNumber.
+
+- A new component which is **9SliceImage** was added into the engine.
 
 ### Changed
 

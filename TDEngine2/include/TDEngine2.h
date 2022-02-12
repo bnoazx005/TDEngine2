@@ -178,6 +178,7 @@
 #include "graphics/UI/CImageComponent.h"
 #include "graphics/UI/CInputReceiverComponent.h"
 #include "graphics/UI/CLabelComponent.h"
+#include "graphics/UI/C9SliceImageComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"
