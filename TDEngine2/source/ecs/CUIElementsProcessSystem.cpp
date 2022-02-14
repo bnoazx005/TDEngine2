@@ -255,15 +255,10 @@ namespace TDEngine2
 		auto&& lbPoint = localObjectTransform * worldRect.GetLeftBottom();
 		auto&& rtPoint = localObjectTransform * worldRect.GetRightTop();
 
-		const std::array<F32, 4> horizontalRectCoords
-		{
-			lbPoint.x, CMathUtils::Lerp(lbPoint.x, rtPoint.x, pSlicedImageData->GetLeftXSlicer()), CMathUtils::Lerp(lbPoint.x, rtPoint.x, pSlicedImageData->GetRightXSlicer()), rtPoint.x
-		};
+		const F32 relativeMargin = pSlicedImageData->GetRelativeBorderSize();
 
-		const std::array<F32, 4> verticalRectCoords
-		{
-			lbPoint.y, CMathUtils::Lerp(lbPoint.y, rtPoint.y, pSlicedImageData->GetBottomYSlicer()), CMathUtils::Lerp(lbPoint.y, rtPoint.y, pSlicedImageData->GetTopYSlicer()), rtPoint.y
-		};
+		const std::array<F32, 4> horizontalRectCoords {	lbPoint.x, CMathUtils::Lerp(lbPoint.x, rtPoint.x, relativeMargin), CMathUtils::Lerp(lbPoint.x, rtPoint.x, 1.0f - relativeMargin), rtPoint.x	};
+		const std::array<F32, 4> verticalRectCoords	{ lbPoint.y, CMathUtils::Lerp(lbPoint.y, rtPoint.y, relativeMargin), CMathUtils::Lerp(lbPoint.y, rtPoint.y, 1.0f - relativeMargin), rtPoint.y };
 
 		auto&& uvCoordsRect = pImageSprite->GetNormalizedTextureRect();
 		auto&& topRightUvCoords = uvCoordsRect.GetRightTop();

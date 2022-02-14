@@ -1042,6 +1042,16 @@ namespace TDEngine2
 		{
 			C9SliceImage& slicedImage = dynamic_cast<C9SliceImage&>(component);
 
+			/// \note Margin field
+			{
+				F32 marginValue = slicedImage.GetRelativeBorderSize();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Relative Margin: ");
+				imguiContext.FloatSlider("##margin", marginValue, 0.0f, 0.5f, [&marginValue, &slicedImage] { slicedImage.SetRelativeBorderSize(marginValue); });
+				imguiContext.EndHorizontal();
+			}
+
 			const F32 previewSizes = imguiContext.GetWindowWidth() * 0.7f;
 
 			imguiContext.Label("Image Preview:");

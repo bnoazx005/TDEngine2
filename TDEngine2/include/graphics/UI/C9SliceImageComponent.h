@@ -69,6 +69,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetBottomYSlicer(F32 value);
 			TDE2_API E_RESULT_CODE SetTopYSlicer(F32 value);
 
+			/*!
+				\brief The method sets up border size of the image's mesh
+
+				\param[in] value The parameter lies in range between of 0 and 0.5
+			*/
+
+			TDE2_API E_RESULT_CODE SetRelativeBorderSize(F32 value);
+
 			TDE2_API const std::string& GetImageId() const;
 			TDE2_API TResourceId GetImageResourceId() const;
 
@@ -76,6 +84,8 @@ namespace TDEngine2
 			TDE2_API F32 GetRightXSlicer() const;
 			TDE2_API F32 GetBottomYSlicer() const;
 			TDE2_API F32 GetTopYSlicer() const;
+
+			TDE2_API F32 GetRelativeBorderSize() const;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(C9SliceImage)
@@ -85,6 +95,8 @@ namespace TDEngine2
 
 			F32         mXStart = 0.0f, mXEnd = 1.0f;
 			F32         mYStart = 0.0f, mYEnd = 1.0f;
+
+			F32         mRelativeBorderSize = 0.1f;
 	};
 
 

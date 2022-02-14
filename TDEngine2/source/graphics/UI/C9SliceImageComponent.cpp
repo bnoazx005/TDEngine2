@@ -85,6 +85,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE C9SliceImage::SetRelativeBorderSize(F32 value)
+	{
+		mRelativeBorderSize = value;
+		return RC_OK;
+	}
+
 	const std::string& C9SliceImage::GetImageId() const
 	{
 		return mImageSpriteId;
@@ -113,6 +119,11 @@ namespace TDEngine2
 	F32 C9SliceImage::GetTopYSlicer() const
 	{
 		return mYEnd;
+	}
+
+	F32 C9SliceImage::GetRelativeBorderSize() const
+	{
+		return mRelativeBorderSize;
 	}
 
 	IComponent* Create9SliceImage(E_RESULT_CODE& result)
