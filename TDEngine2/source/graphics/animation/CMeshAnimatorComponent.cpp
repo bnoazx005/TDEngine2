@@ -49,7 +49,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-
+		mIsDirty = true;
 
 		return RC_OK;
 	}

@@ -3,6 +3,17 @@
 
 namespace TDEngine2
 {
+	struct TAnimationContainerArchiveKeys
+	{
+		static const std::string mAnimationClipKeyId;
+		static const std::string mAnimationDurationKeyId;
+	};
+
+
+	const std::string TAnimationContainerArchiveKeys::mAnimationClipKeyId = "clip_id";
+	const std::string TAnimationContainerArchiveKeys::mAnimationDurationKeyId = "clip_duration";
+
+
 	CAnimationContainerComponent::CAnimationContainerComponent() :
 		CBaseComponent(), mCurrTime(0.0f)
 	{
@@ -14,8 +25,15 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+		
+		mAnimationClipId = pReader->GetString(TAnimationContainerArchiveKeys::mAnimationClipKeyId);
+		mDuration = pReader->GetFloat(TAnimationContainerArchiveKeys::mAnimationDurationKeyId);
 
+		mCurrTime = 0.0f;
 
+		mIsPlaying = false;
+		mIsStarted = false;
+		mIsStopped = true;
 
 		return RC_OK;
 	}
@@ -30,6 +48,9 @@ namespace TDEngine2
 		pWriter->BeginGroup("component");
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CAnimationContainerComponent::GetTypeId()));
+
+			pWriter->SetString(TAnimationContainerArchiveKeys::mAnimationClipKeyId, mAnimationClipId);
+			pWriter->SetFloat(TAnimationContainerArchiveKeys::mAnimationDurationKeyId, mDuration);
 			
 		}
 		pWriter->EndGroup();

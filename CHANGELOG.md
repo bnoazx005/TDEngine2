@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new component which is **9SliceImage** was added into the engine.
 
 - Load/Save methods of **C9SliceImage**, **CLayoutElement**, **CLabel**, **CCanvas**, **CImage**, **CInputReceiver** got their implementations.
+- Load/Save methods of **CAnimationContainerComponent**, **CMeshAnimatorComponent** got their implementations.
 
 ### Changed
 
