@@ -3,15 +3,34 @@
 
 namespace TDEngine2
 {
-	struct T9SliceImageArchiveKeys
-	{
-	};
-
-
 	C9SliceImage::C9SliceImage() :
 		CBaseComponent(), mImageResourceId(TResourceId::Invalid), mImageSpriteId(Wrench::StringUtils::GetEmptyStr())
 	{
 	}
+
+
+	struct T9SliceImageArchiveKeys
+	{
+		static const std::string mSpriteIdKey;
+
+		static const std::string mLeftSliceKey;
+		static const std::string mRightSliceKey;
+		static const std::string mBottomSliceKey;
+		static const std::string mTopSliceKey;
+
+		static const std::string mMarginKey;
+	};
+
+
+	const std::string T9SliceImageArchiveKeys::mSpriteIdKey = "sprite_id";
+
+	const std::string T9SliceImageArchiveKeys::mLeftSliceKey = "left_slice";
+	const std::string T9SliceImageArchiveKeys::mRightSliceKey = "right_slice";
+	const std::string T9SliceImageArchiveKeys::mBottomSliceKey = "bottom_slice";
+	const std::string T9SliceImageArchiveKeys::mTopSliceKey = "top_slice";
+
+	const std::string T9SliceImageArchiveKeys::mMarginKey = "margin";
+
 
 	E_RESULT_CODE C9SliceImage::Load(IArchiveReader* pReader)
 	{
@@ -19,8 +38,15 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-		
-		/// \todo Implement C9SliceImage::Load
+
+		mImageSpriteId = pReader->GetString(T9SliceImageArchiveKeys::mSpriteIdKey);
+
+		mRelativeBorderSize = CMathUtils::Clamp(0.0f, 0.5f, pReader->GetFloat(T9SliceImageArchiveKeys::mMarginKey));
+
+		mXStart = pReader->GetFloat(T9SliceImageArchiveKeys::mLeftSliceKey);
+		mXEnd   = pReader->GetFloat(T9SliceImageArchiveKeys::mRightSliceKey);
+		mYStart = pReader->GetFloat(T9SliceImageArchiveKeys::mBottomSliceKey);
+		mYEnd   = pReader->GetFloat(T9SliceImageArchiveKeys::mTopSliceKey);
 
 		return RC_OK;
 	}
@@ -32,7 +58,20 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		/// \todo Implement C9SliceImage::Save
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(C9SliceImage::GetTypeId()));
+
+			pWriter->SetString(T9SliceImageArchiveKeys::mSpriteIdKey, mImageSpriteId);
+
+			pWriter->SetFloat(T9SliceImageArchiveKeys::mMarginKey, CMathUtils::Clamp(0.0f, 0.5f, mRelativeBorderSize));
+
+			pWriter->SetFloat(T9SliceImageArchiveKeys::mLeftSliceKey, mXStart);
+			pWriter->SetFloat(T9SliceImageArchiveKeys::mRightSliceKey, mXEnd);
+			pWriter->SetFloat(T9SliceImageArchiveKeys::mBottomSliceKey, mYStart);
+			pWriter->SetFloat(T9SliceImageArchiveKeys::mTopSliceKey, mYEnd);
+		}
+		pWriter->EndGroup();
 
 		return RC_OK;
 	}

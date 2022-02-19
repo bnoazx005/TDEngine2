@@ -5,7 +5,17 @@ namespace TDEngine2
 {
 	struct TCanvasArchiveKeys
 	{
+		static const std::string mWidthKeyId;
+		static const std::string mHeightKeyId;
+
+		static const std::string mInheritSizesFromMainCameraKeyId;
 	};
+
+
+	const std::string TCanvasArchiveKeys::mWidthKeyId = "width";
+	const std::string TCanvasArchiveKeys::mHeightKeyId = "height";
+
+	const std::string TCanvasArchiveKeys::mInheritSizesFromMainCameraKeyId = "inherit_camera_sizes";
 
 
 	CCanvas::CCanvas() :
@@ -19,7 +29,14 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		mWidth  = pReader->GetUInt32(TCanvasArchiveKeys::mWidthKeyId);
+		mHeight = pReader->GetUInt32(TCanvasArchiveKeys::mHeightKeyId);
+
+		mInheritsSizesFromMainCamera = pReader->GetBool(TCanvasArchiveKeys::mInheritSizesFromMainCameraKeyId);
 		
+		mIsDirty = true;
+
 		return RC_OK;
 	}
 
@@ -29,6 +46,17 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CCanvas::GetTypeId()));
+
+			pWriter->SetUInt32(TCanvasArchiveKeys::mWidthKeyId, mWidth);
+			pWriter->SetUInt32(TCanvasArchiveKeys::mHeightKeyId, mHeight);
+
+			pWriter->SetBool(TCanvasArchiveKeys::mInheritSizesFromMainCameraKeyId, mInheritsSizesFromMainCamera);
+		}
+		pWriter->EndGroup();
 
 		return RC_OK;
 	}

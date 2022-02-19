@@ -1,5 +1,6 @@
 #include "../../../include/graphics/UI/CLabelComponent.h"
 #include "../../../include/core/CFont.h"
+#include "../../../include/metadata.h"
 #include <stringUtils.hpp>
 
 
@@ -7,7 +8,19 @@ namespace TDEngine2
 {
 	struct TLabelArchiveKeys
 	{
+		static const std::string mTextKeyId;
+		static const std::string mFontKeyId;
+
+		static const std::string mAlignTextKeyId;
+		static const std::string mOverflowPolicyKeyId;
 	};
+
+
+	const std::string TLabelArchiveKeys::mTextKeyId = "text";
+	const std::string TLabelArchiveKeys::mFontKeyId = "font";
+
+	const std::string TLabelArchiveKeys::mAlignTextKeyId = "align_type";
+	const std::string TLabelArchiveKeys::mOverflowPolicyKeyId = "overflow_policy_type";
 
 
 	CLabel::CLabel() :
@@ -26,6 +39,12 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		mText = pReader->GetString(TLabelArchiveKeys::mTextKeyId);
+		mFontResourceId = pReader->GetString(TLabelArchiveKeys::mFontKeyId);
+
+		mAlignType = Meta::EnumTrait<E_FONT_ALIGN_POLICY>::FromString(pReader->GetString(TLabelArchiveKeys::mAlignTextKeyId));
+		mOverflowPolicyType = Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::FromString(pReader->GetString(TLabelArchiveKeys::mOverflowPolicyKeyId));
 		
 		return RC_OK;
 	}
@@ -36,6 +55,18 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CLabel::GetTypeId()));
+
+			pWriter->SetString(TLabelArchiveKeys::mTextKeyId, mText);
+			pWriter->SetString(TLabelArchiveKeys::mFontKeyId, mFontResourceId);
+			
+			pWriter->SetString(TLabelArchiveKeys::mAlignTextKeyId, Meta::EnumTrait<E_FONT_ALIGN_POLICY>::ToString(mAlignType));
+			pWriter->SetString(TLabelArchiveKeys::mOverflowPolicyKeyId, Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::ToString(mOverflowPolicyType));
+		}
+		pWriter->EndGroup();
 		
 		return RC_OK;
 	}

@@ -409,6 +409,18 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				}
 			}
 #endif
+
+			if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene2.scene", true))
+			{
+				if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
+				{
+					if (auto pScene = pSceneManager->GetScene(pSceneManager->GetSceneId("Test")).Get())
+					{
+						pScene->Save(pFileWriter);
+						pFileWriter->Close();
+					}
+				}
+			}
 		});
 
 #endif

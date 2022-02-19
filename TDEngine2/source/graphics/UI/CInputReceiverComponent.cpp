@@ -5,7 +5,11 @@ namespace TDEngine2
 {
 	struct TInputReceiverArchiveKeys
 	{
+		static const std::string mIgnoreInputKeyId;
 	};
+
+
+	const std::string TInputReceiverArchiveKeys::mIgnoreInputKeyId = "ignore_input";
 
 
 	CInputReceiver::CInputReceiver() :
@@ -19,6 +23,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		mIsIgnoreInput = pReader->GetBool(TInputReceiverArchiveKeys::mIgnoreInputKeyId);
 		
 		return RC_OK;
 	}
@@ -29,7 +35,15 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-		
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CInputReceiver::GetTypeId()));
+
+			pWriter->SetBool(TInputReceiverArchiveKeys::mIgnoreInputKeyId, mIsIgnoreInput);
+		}
+		pWriter->EndGroup();
+
 		return RC_OK;
 	}
 

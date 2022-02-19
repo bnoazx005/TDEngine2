@@ -5,7 +5,11 @@ namespace TDEngine2
 {
 	struct TImageArchiveKeys
 	{
+		static const std::string mSpriteKeyId;
 	};
+
+
+	const std::string TImageArchiveKeys::mSpriteKeyId = "sprite_id";
 
 
 	CImage::CImage() :
@@ -19,7 +23,9 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-		
+
+		mImageSpriteId = pReader->GetString(TImageArchiveKeys::mSpriteKeyId);
+
 		return RC_OK;
 	}
 
@@ -29,6 +35,15 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CImage::GetTypeId()));
+
+			pWriter->SetString(TImageArchiveKeys::mSpriteKeyId, mImageSpriteId);
+		}
+		pWriter->EndGroup();
+
 		
 		return RC_OK;
 	}

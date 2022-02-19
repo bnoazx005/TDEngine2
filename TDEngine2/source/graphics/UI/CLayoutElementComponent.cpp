@@ -5,7 +5,23 @@ namespace TDEngine2
 {
 	struct TLayoutElementArchiveKeys
 	{
+		static const std::string mMinAnchorKeyId;
+		static const std::string mMaxAnchorKeyId;
+		
+		static const std::string mMinOffsetKeyId;
+		static const std::string mMaxOffsetKeyId;
+		
+		static const std::string mPivotKeyId;
 	};
+
+
+	const std::string TLayoutElementArchiveKeys::mMinAnchorKeyId = "min_anchor";
+	const std::string TLayoutElementArchiveKeys::mMaxAnchorKeyId = "max_anchor";
+
+	const std::string TLayoutElementArchiveKeys::mMinOffsetKeyId = "min_offset";
+	const std::string TLayoutElementArchiveKeys::mMaxOffsetKeyId = "max_offset";
+
+	const std::string TLayoutElementArchiveKeys::mPivotKeyId = "pivot";
 
 
 	CLayoutElement::CLayoutElement() :
@@ -19,6 +35,46 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		/// \note Anchors
+		pReader->BeginGroup(TLayoutElementArchiveKeys::mMinAnchorKeyId);
+		if (auto value = LoadVector2(pReader))
+		{
+			mMinAnchor = value.Get();
+		}
+		pReader->EndGroup();
+
+		pReader->BeginGroup(TLayoutElementArchiveKeys::mMaxAnchorKeyId);
+		if (auto value = LoadVector2(pReader))
+		{
+			mMaxAnchor = value.Get();
+		}
+		pReader->EndGroup();
+
+		/// \note Offsets
+		pReader->BeginGroup(TLayoutElementArchiveKeys::mMinOffsetKeyId);
+		if (auto value = LoadVector2(pReader))
+		{
+			mMinOffset = value.Get();
+		}
+		pReader->EndGroup();
+
+		pReader->BeginGroup(TLayoutElementArchiveKeys::mMaxOffsetKeyId);
+		if (auto value = LoadVector2(pReader))
+		{
+			mMaxOffset = value.Get();
+		}
+		pReader->EndGroup();
+
+		/// \note Pivot
+		pReader->BeginGroup(TLayoutElementArchiveKeys::mPivotKeyId);
+		if (auto value = LoadVector2(pReader))
+		{
+			mPivot = value.Get();
+		}
+		pReader->EndGroup();
+
+		mIsDirty = true;
 		
 		return RC_OK;
 	}
@@ -29,6 +85,35 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CLayoutElement::GetTypeId()));
+
+			/// \note Anchors
+			pWriter->BeginGroup(TLayoutElementArchiveKeys::mMinAnchorKeyId, false);
+			SaveVector2(pWriter, mMinAnchor);
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TLayoutElementArchiveKeys::mMaxAnchorKeyId, false);
+			SaveVector2(pWriter, mMaxAnchor);
+			pWriter->EndGroup();
+
+			/// \note Offsets
+			pWriter->BeginGroup(TLayoutElementArchiveKeys::mMinOffsetKeyId, false);
+			SaveVector2(pWriter, mMinOffset);
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TLayoutElementArchiveKeys::mMaxOffsetKeyId, false);
+			SaveVector2(pWriter, mMaxOffset);
+			pWriter->EndGroup();
+
+			/// \note Pivot
+			pWriter->BeginGroup(TLayoutElementArchiveKeys::mPivotKeyId, false);
+			SaveVector2(pWriter, mPivot);
+			pWriter->EndGroup();
+		}
+		pWriter->EndGroup();
 
 		return RC_OK;
 	}
