@@ -365,6 +365,9 @@ namespace TDEngine2
 	{
 		if (Length(lightingData.mSunLightDirection) < 1e-3f)
 		{
+			LOG_ERROR("[ForwardRenderer] Sun light's direction could not be a zero vector");
+			TDE2_ASSERT(false);
+
 			return RC_INVALID_ARGS;
 		}
 

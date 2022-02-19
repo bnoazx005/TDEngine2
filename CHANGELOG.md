@@ -22,9 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now **zlib** library is linked statically.
 
+- **ISceneManager::LoadSceneAsync**'s onResultCallback parameter now allows nullptr as an input.
+
 ### Fixed
 
 - The implementation of **CU8String::MoveNext** was fixed.
+
+- **CSkinnedMeshContainer::Save** implementation was fixed to support serialization/deserialization of skeleton's identifier.
 
 ## [0.5.28] 2022-02-06
 

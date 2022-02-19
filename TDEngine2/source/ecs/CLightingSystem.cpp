@@ -221,6 +221,13 @@ namespace TDEngine2
 
 		if (transforms.empty())
 		{
+			LOG_WARNING("[LightingSystem] There is no a directional light source. Use default sun light's direction");
+
+			lightingData.mIsShadowMappingEnabled = false;
+			lightingData.mSunLightDirection      = Normalize(TVector4(-0.5f, -0.5f, 0.0f, 0.0f));
+			lightingData.mSunLightPosition       = Normalize(TVector4(0.0f, 10.0f, 0.0f, 1.0f));
+			lightingData.mSunLightColor          = TColorUtils::mWhite;
+
 			return;
 		}
 

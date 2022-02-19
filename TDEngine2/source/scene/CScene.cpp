@@ -84,7 +84,6 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-
 		mName = pReader->GetString("name");
 		if (mAssetVersionId != pReader->GetUInt32("version"))
 		{

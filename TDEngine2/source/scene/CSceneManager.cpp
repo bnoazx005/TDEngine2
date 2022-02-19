@@ -106,15 +106,14 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!onResultCallback)
-		{
-			return;
-		}
-
 		IJobManager* pJobManager = mpFileSystem->GetJobManager();
 		if (!pJobManager)
 		{
-			onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS));
+			if (onResultCallback)
+			{
+				onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS));
+			}
+
 			return;
 		}
 
@@ -124,7 +123,7 @@ namespace TDEngine2
 
 			// \note If there is loaded scene then just return its handle
 			auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&scenePath](const IScene* pScene) { return pScene->GetScenePath() == scenePath; });
-			if (iter != mpScenes.cend())
+			if (onResultCallback && iter != mpScenes.cend())
 			{
 				/// \note This callback should be executed in the main thread
 				pJobManager->ExecuteInMainThread([onResultCallback, sceneId = static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter))] 
@@ -139,7 +138,7 @@ namespace TDEngine2
 
 			IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
-			if (RC_OK != result || !pScene)
+			if (onResultCallback && (RC_OK != result || !pScene))
 			{
 				/// \note This callback should be executed in the main thread
 				pJobManager->ExecuteInMainThread([onResultCallback, result] { onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(result)); });
@@ -162,7 +161,7 @@ namespace TDEngine2
 				}
 			}
 
-			if (RC_OK != result)
+			if (onResultCallback && RC_OK != result)
 			{
 				/// \note This callback should be executed in the main thread
 				pJobManager->ExecuteInMainThread([onResultCallback, result] { onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(result)); });
@@ -171,7 +170,15 @@ namespace TDEngine2
 			}
 
 			/// \note This callback should be executed in the main thread
-			pJobManager->ExecuteInMainThread([onResultCallback, this, sceneName, pScene] { onResultCallback(_registerSceneInternal(sceneName, pScene)); });
+			pJobManager->ExecuteInMainThread([onResultCallback, this, sceneName, pScene] 
+			{ 
+				auto result = _registerSceneInternal(sceneName, pScene);
+
+				if (onResultCallback)
+				{
+					onResultCallback(result);
+				}
+			});
 		}));
 	}
 

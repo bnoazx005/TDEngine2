@@ -221,7 +221,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
-#if 1 // note Test hierarchy of entities
+#if 0 // note Test hierarchy of entities
 		pSceneManager->LoadSceneAsync("TestScene.scene", [pSceneManager, this](auto)
 		{
 			int x = 0;
@@ -236,8 +236,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				GroupEntities(mpWorld.Get(), pSpriteGroup->GetId(), id);
 			}
 
-			auto c1 = mpWorld->CreateEntity("Child1")->GetId();
-			auto c2 = mpWorld->CreateEntity("Child2")->GetId();
+			auto c1 = pScene->CreateEntity("Child1")->GetId();
+			auto c2 = pScene->CreateEntity("Child2")->GetId();
 
 			GroupEntities(mpWorld.Get(), c1, c2);
 			GroupEntities(mpWorld.Get(), pSpriteGroup->GetId(), c1);
@@ -422,7 +422,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				}
 			}
 		});
-
+#else
+		pSceneManager->LoadSceneAsync("TestScene2.scene", nullptr);
 #endif
 
 	}

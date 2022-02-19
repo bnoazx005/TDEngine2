@@ -8,6 +8,19 @@ namespace TDEngine2
 	const std::string CSkinnedMeshContainer::mJointsCountUniformVariableId = "mUsedJointsCount";
 
 
+	struct TSkinnedMeshContainerArchiveKeys
+	{
+		static const std::string mMeshKeyId;
+		static const std::string mMaterialKeyId;
+		static const std::string mSkeletonKeyId;
+	};
+
+
+	const std::string TSkinnedMeshContainerArchiveKeys::mMeshKeyId = "mesh";
+	const std::string TSkinnedMeshContainerArchiveKeys::mMaterialKeyId = "material";
+	const std::string TSkinnedMeshContainerArchiveKeys::mSkeletonKeyId = "skeleton";
+
+
 	CSkinnedMeshContainer::CSkinnedMeshContainer():
 		CBaseComponent(), mMaterialName(), mMeshName()
 	{
@@ -20,8 +33,9 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mMaterialName = pReader->GetString("material");
-		mMeshName = pReader->GetString("mesh");
+		mMaterialName = pReader->GetString(TSkinnedMeshContainerArchiveKeys::mMaterialKeyId);
+		mMeshName = pReader->GetString(TSkinnedMeshContainerArchiveKeys::mMeshKeyId);
+		mSkeletonName = pReader->GetString(TSkinnedMeshContainerArchiveKeys::mSkeletonKeyId);
 
 		return RC_OK;
 	}
@@ -37,8 +51,9 @@ namespace TDEngine2
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CSkinnedMeshContainer::GetTypeId()));
 
-			pWriter->SetString("material", mMaterialName);
-			pWriter->SetString("mesh", mMeshName);
+			pWriter->SetString(TSkinnedMeshContainerArchiveKeys::mMaterialKeyId, mMaterialName);
+			pWriter->SetString(TSkinnedMeshContainerArchiveKeys::mMeshKeyId, mMeshName);
+			pWriter->SetString(TSkinnedMeshContainerArchiveKeys::mSkeletonKeyId, mSkeletonName);
 		}
 		pWriter->EndGroup();
 
