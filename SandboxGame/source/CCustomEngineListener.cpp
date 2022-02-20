@@ -26,24 +26,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 	}
 
-	for (I32 i = 0; i < 0; ++i)
-	{
-		auto pEntity = mpWorld->CreateEntity();
-
-		if (auto pTransform = pEntity->GetComponent<CTransform>())
-		{
-			pTransform->SetPosition(pTransform->GetPosition() + RandVector3({ -2.0f, 0.0f, 0.0f }, { 5.0f, 5.0f, 10.0f }));
-		}
-
-		if (auto pSprite = pEntity->AddComponent<CQuadSprite>())
-		{
-			pSprite->SetMaterialName("ProjectMaterials/NewMaterial.material");
-			pSprite->SetColor(RandColor());
-		}
-
-		//auto pBoxCollision = pEntity->AddComponent<CBoxCollisionObject2D>();
-	}
-
 	// \note create a trigger
 	auto pTriggerEntity = mpWorld->CreateEntity();
 	auto pTransform = pTriggerEntity->GetComponent<CTransform>();
@@ -410,7 +392,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}
 #endif
 
-			if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene2.scene", true))
+			/*if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene2.scene", true))
 			{
 				if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
 				{
@@ -420,7 +402,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						pFileWriter->Close();
 					}
 				}
-			}
+			}*/
 		});
 #else
 		pSceneManager->LoadSceneAsync("TestScene2.scene", nullptr);

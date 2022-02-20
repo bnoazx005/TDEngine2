@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.29] 2022-02-18
+## [0.5.29] 2022-02-20
 
 ### Added
 
@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Load/Save methods of **C9SliceImage**, **CLayoutElement**, **CLabel**, **CCanvas**, **CImage**, **CInputReceiver** got their implementations.
 - Load/Save methods of **CAnimationContainerComponent**, **CMeshAnimatorComponent** got their implementations.
+
+- The identifier of a default skybox's material now can be configured from the project settings.
 
 ### Changed
 

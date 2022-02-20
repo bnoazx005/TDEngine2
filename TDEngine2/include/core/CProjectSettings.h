@@ -50,6 +50,8 @@ namespace TDEngine2
 					U32  mShadowMapSizes = 512;
 					bool mIsShadowMappingEnabled = true;
 				} mRendererSettings;
+
+				std::string mDefaultSkyboxMaterial = "DefaultMaterials/DefaultSkybox.material";
 			} mGraphicsSettings;
 
 			struct

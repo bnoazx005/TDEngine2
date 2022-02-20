@@ -24,6 +24,7 @@ namespace TDEngine2
 		{
 			static const std::string mGraphicsTypeKey;
 			static const std::string mRendererSettingsGroupKey;
+			static const std::string mDefaultSkyboxMaterialKey;
 
 			struct TRendererSettingsKeys
 			{
@@ -64,6 +65,7 @@ namespace TDEngine2
 
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey = "gapi_type";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey = "renderer_settings";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mDefaultSkyboxMaterialKey = "default_skybox_mat_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mShadowMapSizesKey = "shadow_maps_size";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mIsShadowMapEnabledKey = "shadow_maps_enabled";
 
@@ -105,7 +107,13 @@ namespace TDEngine2
 		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mGraphicsSettingsGroupId);
 		{
 			mGraphicsSettings.mGraphicsContextType = Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::FromString(pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey));
-		
+			
+			const auto& skyboxMaterialId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mDefaultSkyboxMaterialKey);
+			if (!skyboxMaterialId.empty())
+			{
+				mGraphicsSettings.mDefaultSkyboxMaterial = skyboxMaterialId;
+			}
+
 			/// \note Shadow maps settings
 			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey);
 			{

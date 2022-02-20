@@ -22,6 +22,8 @@ namespace TDEngine2
 	{
 		static const std::string mShaderIdKey;
 		static const std::string mTransparencyKey;
+
+		static const std::string mGeometryTagKey;
 		
 		static const std::string mBlendStateGroup;
 
@@ -84,6 +86,7 @@ namespace TDEngine2
 	const std::string TMaterialArchiveKeys::mShaderIdKey     = "shader_id";
 	const std::string TMaterialArchiveKeys::mTransparencyKey = "transparency_enabled";
 	const std::string TMaterialArchiveKeys::mBlendStateGroup = "blend_state";
+	const std::string TMaterialArchiveKeys::mGeometryTagKey  = "geom_tag";
 
 	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey       = "src_color";
 	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey      = "dest_color";
@@ -231,6 +234,7 @@ namespace TDEngine2
 
 		SetShader(pReader->GetString(TMaterialArchiveKeys::mShaderIdKey));
 		SetTransparentState(pReader->GetBool(TMaterialArchiveKeys::mTransparencyKey));
+		SetGeometrySubGroupTag(Meta::EnumTrait<E_GEOMETRY_SUBGROUP_TAGS>::FromString(pReader->GetString(TMaterialArchiveKeys::mGeometryTagKey)));
 
 		processGroup(TMaterialArchiveKeys::mBlendStateGroup, [pReader, this]
 		{
@@ -311,7 +315,7 @@ namespace TDEngine2
 					std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
 
 					TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
-					if (SetTextureResource(slotId, mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load(textureId, textureTypeId)).Get(), instanceId) != RC_OK)
+					if (SetTextureResource(slotId, mpResourceManager->GetResource<ITexture>(mpResourceManager->Load(textureId, textureTypeId)).Get(), instanceId) != RC_OK)
 					{
 						LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
 						result = result | RC_FAIL;
@@ -348,6 +352,7 @@ namespace TDEngine2
 
 		pWriter->SetString(TMaterialArchiveKeys::mShaderIdKey, mpResourceManager->GetResource(mShaderHandle)->GetName());
 		pWriter->SetBool(TMaterialArchiveKeys::mTransparencyKey, mBlendStateParams.mIsEnabled);
+		pWriter->SetString(TMaterialArchiveKeys::mGeometryTagKey, Meta::EnumTrait<E_GEOMETRY_SUBGROUP_TAGS>::ToString(mTag));
 
 		pWriter->BeginGroup(TMaterialArchiveKeys::mBlendStateGroup);
 		{

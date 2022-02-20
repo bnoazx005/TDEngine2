@@ -24,7 +24,7 @@ namespace TDEngine2
 	class CBaseCubemapTexture : public ICubemapTexture, public CBaseResource
 	{
 		public:
-			TDE2_REGISTER_RESOURCE_TYPE(CBaseCubemapTexture)
+			TDE2_REGISTER_RESOURCE_TYPE(ICubemapTexture)
 			TDE2_REGISTER_TYPE(CBaseCubemapTexture)
 
 			/*!

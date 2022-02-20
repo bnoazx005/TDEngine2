@@ -14,6 +14,7 @@
 #include "../../include/graphics/CBaseCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
+#include "../../include/core/CProjectSettings.h"
 #include <unordered_map>
 
 
@@ -275,25 +276,9 @@ namespace TDEngine2
 
 		pSkyboxEntity->AddComponent<CSkyboxComponent>();
 
-		/// \todo Replace all magic constants with proper named values
-		TMaterialParameters skyboxMatParams
-		{
-			"Shaders/Default/DefaultSkyboxShader.shader", true,
-			{ true, true, E_COMPARISON_FUNC::LESS_EQUAL},
-			{ E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, true, false }
-		};
-
-		static const std::string skyboxMaterialName = "DefaultSkybox.material";
-
-		if (auto pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Create<IMaterial>(skyboxMaterialName, skyboxMatParams)))
-		{
-			pMaterial->SetTextureResource("SkyboxTexture", pResourceManager->GetResource<ICubemapTexture>(pResourceManager->Load<ICubemapTexture>(skyboxTexture)).Get());
-			pMaterial->SetGeometrySubGroupTag(E_GEOMETRY_SUBGROUP_TAGS::SKYBOX);
-		}		
-		
 		if (auto pStaticMeshContainer = pSkyboxEntity->AddComponent<CStaticMeshContainer>())
 		{
-			pStaticMeshContainer->SetMaterialName(skyboxMaterialName);
+			pStaticMeshContainer->SetMaterialName(CProjectSettings::Get()->mGraphicsSettings.mDefaultSkyboxMaterial);
 			pStaticMeshContainer->SetMeshName("Cube");
 		}
 

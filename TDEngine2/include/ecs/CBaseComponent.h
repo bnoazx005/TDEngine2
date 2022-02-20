@@ -344,6 +344,8 @@ namespace TDEngine2
 																																	\
 			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;															\
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;															\
+																																	\
+			TDE2_API const std::string& GetTypeName() const override;																\
 		protected:																													\
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)																	\
 	};																																\
@@ -391,6 +393,12 @@ namespace TDEngine2
 		pWriter->EndGroup();																															\
 																																						\
 		return RC_OK;																																	\
+	}																																					\
+																																						\
+	const std::string& ComponentName::GetTypeName() const																								\
+	{																																					\
+		static const std::string componentName(#ComponentName);																							\
+		return componentName;																															\
 	}																																					\
 																																						\
 	IComponent* ComponentFuncName(E_RESULT_CODE& result)																								\
