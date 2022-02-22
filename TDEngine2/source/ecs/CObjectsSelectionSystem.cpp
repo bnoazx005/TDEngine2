@@ -83,9 +83,137 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	template <typename T>
+	static CObjectsSelectionSystem::TSystemContext<T> CreateContext(IWorld* pWorld)
+	{
+		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform, T>();
+
+		CObjectsSelectionSystem::TSystemContext<T> result;
+
+		for (auto&& currEntityId : entities)
+		{
+			if (auto pEntity = pWorld->FindEntity(currEntityId))
+			{
+				result.mpTransforms.push_back(pEntity->GetComponent<CTransform>());
+				result.mpRenderables.push_back(pEntity->GetComponent<T>());
+				result.mHasSelectedEntityComponent.push_back(pEntity->HasComponent<CSelectedEntityComponent>());
+				result.mEntityIds.push_back(currEntityId);
+			}
+		}
+
+		return std::move(result);
+	}
+
+
+	static void ProcessStaticMeshEntity(CObjectsSelectionSystem::TSystemContext<CStaticMeshContainer>& context, TPtr<IResourceManager> pResourceManager, IVertexDeclaration* pVertDecl,
+										U32 drawIndex, CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle)
+	{
+		CStaticMeshContainer* pStaticMeshContainer = context.mpRenderables[index];
+		CTransform* pTransform = context.mpTransforms[index];
+
+		// Skip skybox geometry
+		// \todo Reimplement this later with CSkyboxComponent
+		if (TPtr<IMaterial> pMeshMainMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
+		{
+			if (pMeshMainMaterial->GetGeometrySubGroupTag() == E_GEOMETRY_SUBGROUP_TAGS::SKYBOX)
+			{
+				return;
+			}
+		}
+
+		auto&& pMeshResource = pResourceManager->GetResource<IResource>(pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName()));
+		if (E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
+		{
+			return;
+		}
+
+		if (TPtr<IStaticMesh> pStaticMeshResource = DynamicPtrCast<IStaticMesh>(pMeshResource))
+		{
+			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
+			{
+				pDrawCommand->mpVertexBuffer = pStaticMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mpIndexBuffer = pStaticMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mMaterialHandle = materialHandle;
+				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mpVertexDeclaration = pVertDecl;
+				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
+				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
+				pDrawCommand->mStartIndex = 0;
+				pDrawCommand->mStartVertex = 0;
+				pDrawCommand->mNumOfIndices = pStaticMeshResource->GetFacesCount() * 3;
+			}
+		}
+	}
+
+
+	static void ProcessSkinnedMeshEntity(CObjectsSelectionSystem::TSystemContext<CSkinnedMeshContainer>& context, TPtr<IResourceManager> pResourceManager, IVertexDeclaration* pVertDecl, 
+										U32 drawIndex, CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle)
+	{
+		CSkinnedMeshContainer* pSkinnedMeshContainer = context.mpRenderables[index];
+		CTransform* pTransform = context.mpTransforms[index];
+
+		auto&& pMeshResource = pResourceManager->GetResource<IResource>(pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName()));
+		if (E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
+		{
+			return;
+		}
+
+		if (TPtr<ISkinnedMesh> pSkinnedMeshResource = DynamicPtrCast<ISkinnedMesh>(pMeshResource))
+		{
+			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
+			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
+			if (TPtr<IMaterial> pMaterial = pResourceManager->GetResource<IMaterial>(materialHandle))
+			{
+				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
+			}
+
+			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
+			{
+				pDrawCommand->mpVertexBuffer = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mpIndexBuffer = pSkinnedMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mMaterialHandle = materialHandle;
+				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mpVertexDeclaration = pVertDecl;
+				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
+				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
+				pDrawCommand->mStartIndex = 0;
+				pDrawCommand->mStartVertex = 0;
+				pDrawCommand->mNumOfIndices = static_cast<U32>(pSkinnedMeshResource->GetIndices().size());
+			}
+		}
+	}
+
+
+	static void ProcessSpriteEntity(CObjectsSelectionSystem::TSystemContext<CQuadSprite>& context, TPtr<IResourceManager> pResourceManager, IVertexDeclaration* pVertDecl, 
+									IVertexBuffer* pVertBuffer, IIndexBuffer* pIndexBuffer, U32 drawIndex, CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle)
+	{
+		CQuadSprite* pSpriteComponent = context.mpRenderables[index];
+		CTransform* pTransform = context.mpTransforms[index];
+
+		if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
+		{
+			pDrawCommand->mpVertexBuffer = pVertBuffer;
+			pDrawCommand->mpIndexBuffer = pIndexBuffer;
+			pDrawCommand->mMaterialHandle = materialHandle;
+			pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pDrawCommand->mpVertexDeclaration = pVertDecl;
+			pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
+			pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
+			pDrawCommand->mStartIndex = 0;
+			pDrawCommand->mStartVertex = 0;
+			pDrawCommand->mNumOfIndices = 6;
+		}
+	}
+
+
 	void CObjectsSelectionSystem::InjectBindings(IWorld* pWorld)
 	{
-		mProcessingEntities = pWorld->FindEntitiesWithAny<CTransform, CStaticMeshContainer, CSkinnedMeshContainer, CQuadSprite>();
+		mStaticMeshesContext  = CreateContext<CStaticMeshContainer>(pWorld);
+		mSkinnedMeshesContext = CreateContext<CSkinnedMeshContainer>(pWorld);
+		mSpritesContext       = CreateContext<CQuadSprite>(pWorld);
 
 		const auto& cameras = pWorld->FindEntitiesWithAny<CEditorCamera>();
 		mCameraEntityId = !cameras.empty() ? cameras.front() : TEntityId::Invalid;
@@ -106,49 +234,43 @@ namespace TDEngine2
 			}
 		*/
 
-		CEntity* pCurrEntity = nullptr;
-
 		U32 commandIndex = 0;
 
-		for (TEntityId currEntityId : mProcessingEntities)
+		/// \note Static meshes
+		for (USIZE i = 0; i < static_cast<U32>(mStaticMeshesContext.mpRenderables.size()); ++i)
 		{
-			pCurrEntity = pWorld->FindEntity(currEntityId);
-			if (!pCurrEntity)
+			ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, mpSelectionVertDecl, commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
+
+			if (mStaticMeshesContext.mHasSelectedEntityComponent[i])
 			{
-				continue;
+				ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, mpSelectionVertDecl, static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE),
+										mpDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
 			}
+		}
 
-			if (pCurrEntity->HasComponent<CStaticMeshContainer>())
+		/// \note Skinned meshes
+		for (USIZE i = 0; i < static_cast<U32>(mSkinnedMeshesContext.mpRenderables.size()); ++i)
+		{
+			ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, mpSelectionSkinnedVertDecl, commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionSkinnedMaterialHandle);
+
+			if (mSkinnedMeshesContext.mHasSelectedEntityComponent[i])
 			{
-				_processStaticMeshEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mSelectionMaterialHandle);
-
-				if (pCurrEntity->HasComponent<CSelectedEntityComponent>())
-				{
-					_processStaticMeshEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mSelectionOutlineMaterialHandle);
-				}
+				ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, mpSelectionSkinnedVertDecl, static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE),
+					mpDebugRenderQueue, i, mSelectionSkinnedOutlineMaterialHandle);
 			}
+		}
 
-			if (pCurrEntity->HasComponent<CSkinnedMeshContainer>())
+		/// \note Quad sprites
+		for (USIZE i = 0; i < static_cast<U32>(mSpritesContext.mpRenderables.size()); ++i)
+		{
+			ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mpSpritesVertexBuffer, mpSpritesIndexBuffer,
+				commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
+
+			if (mSpritesContext.mHasSelectedEntityComponent[i])
 			{
-				_processSkinnedMeshEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mSelectionSkinnedMaterialHandle);
-
-				if (pCurrEntity->HasComponent<CSelectedEntityComponent>())
-				{
-					_processSkinnedMeshEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mSelectionSkinnedOutlineMaterialHandle);
-				}
+				ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mpSpritesVertexBuffer, mpSpritesIndexBuffer,
+					static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
 			}
-			
-			if (pCurrEntity->HasComponent<CQuadSprite>())
-			{
-				_processSpriteEntity(commandIndex, mpEditorOnlyRenderQueue, pCurrEntity, mSelectionMaterialHandle);
-
-				if (pCurrEntity->HasComponent<CSelectedEntityComponent>())
-				{
-					_processSpriteEntity(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, pCurrEntity, mSelectionOutlineMaterialHandle);
-				}
-			}
-			
-			++commandIndex;
 		}
 	}
 
@@ -233,103 +355,6 @@ namespace TDEngine2
 		mSelectionSkinnedOutlineMaterialHandle = mpResourceManager->Create<IMaterial>("SelectionSkinnedOutlineMaterial.material", selectionSkinnedOutlineMaterialParams);
 
 		return (mSelectionMaterialHandle != TResourceId::Invalid && mSelectionOutlineMaterialHandle != TResourceId::Invalid) ? RC_OK : RC_FAIL;
-	}
-
-	void CObjectsSelectionSystem::_processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle)
-	{
-		CStaticMeshContainer* pStaticMeshContainer = pEntity->GetComponent<CStaticMeshContainer>();
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
-		
-		// Skip skybox geometry
-		// \todo Reimplement this later with CSkyboxComponent
-		if (TPtr<IMaterial> pMeshMainMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
-		{
-			if (pMeshMainMaterial->GetGeometrySubGroupTag() == E_GEOMETRY_SUBGROUP_TAGS::SKYBOX)
-			{
-				return;
-			}
-		}
-
-		auto&& pMeshResource = mpResourceManager->GetResource<IResource>(mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName()));
-		if (E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
-		{
-			return;
-		}
-
-		if (TPtr<IStaticMesh> pStaticMeshResource = DynamicPtrCast<IStaticMesh>(pMeshResource))
-		{
-			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
-			{
-				pDrawCommand->mpVertexBuffer           = pStaticMeshResource->GetPositionOnlyVertexBuffer();
-				pDrawCommand->mpIndexBuffer            = pStaticMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mMaterialHandle          = materialHandle;
-				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
-				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
-				pDrawCommand->mStartIndex              = 0;
-				pDrawCommand->mStartVertex             = 0;
-				pDrawCommand->mNumOfIndices            = pStaticMeshResource->GetFacesCount() * 3;
-			}
-		}
-	}
-
-	void CObjectsSelectionSystem::_processSkinnedMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle)
-	{
-		CSkinnedMeshContainer* pSkinnedMeshContainer = pEntity->GetComponent<CSkinnedMeshContainer>();
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
-
-		auto&& pMeshResource = mpResourceManager->GetResource<IResource>(mpResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName()));
-		if (E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
-		{
-			return;
-		}
-		
-		if (TPtr<ISkinnedMesh> pSkinnedMeshResource = DynamicPtrCast<ISkinnedMesh>(pMeshResource))
-		{
-			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
-			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
-
-			if (TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(materialHandle))
-			{
-				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
-				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
-			}
-
-			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
-			{
-				pDrawCommand->mpVertexBuffer           = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
-				pDrawCommand->mpIndexBuffer            = pSkinnedMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mMaterialHandle          = materialHandle;
-				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pDrawCommand->mpVertexDeclaration      = mpSelectionSkinnedVertDecl;
-				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
-				pDrawCommand->mStartIndex              = 0;
-				pDrawCommand->mStartVertex             = 0;
-				pDrawCommand->mNumOfIndices            = static_cast<U32>(pSkinnedMeshResource->GetIndices().size());
-			}
-		}
-	}
-
-	void CObjectsSelectionSystem::_processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle)
-	{
-		CQuadSprite* pSpriteComponent = pEntity->GetComponent<CQuadSprite>();
-		CTransform* pTransform = pEntity->GetComponent<CTransform>();
-
-		if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
-		{
-			pDrawCommand->mpVertexBuffer           = mpSpritesVertexBuffer;
-			pDrawCommand->mpIndexBuffer            = mpSpritesIndexBuffer;
-			pDrawCommand->mMaterialHandle          = materialHandle;
-			pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawCommand->mpVertexDeclaration      = mpSelectionVertDecl;
-			pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-			pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(pEntity->GetId());
-			pDrawCommand->mStartIndex              = 0;
-			pDrawCommand->mStartVertex             = 0;
-			pDrawCommand->mNumOfIndices            = 6;
-		}
 	}
 
 	ICamera* CObjectsSelectionSystem::_getEditorCamera(IWorld* pWorld, TEntityId cameraEntityId)

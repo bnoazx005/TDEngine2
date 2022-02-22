@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.30] 2022-02-21
+
+### Added
+
+### Changed
+
+- **CObjectSelectionSystem**'s implementation was optimized.
+
+### Fixed
+
 ## [0.5.29] 2022-02-20
 
 ### Added

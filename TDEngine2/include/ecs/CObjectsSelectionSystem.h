@@ -26,6 +26,9 @@ namespace TDEngine2
 	class IVertexBuffer;
 	class IIndexBuffer;
 	class IMaterial;
+	class CStaticMeshContainer;
+	class CSkinnedMeshContainer;
+	class CQuadSprite;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -56,7 +59,18 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ISystem* CreateObjectsSelectionSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 		public:
-			typedef std::vector<TEntityId> TEntitiesArray;
+			template <typename T>
+			struct TSystemContext
+			{
+				std::vector<T*>          mpRenderables;
+				std::vector<CTransform*> mpTransforms;
+				std::vector<bool>        mHasSelectedEntityComponent;
+				std::vector<TEntityId>   mEntityIds;
+			};
+
+			typedef TSystemContext<CStaticMeshContainer>  TStaticMeshesContext;
+			typedef TSystemContext<CSkinnedMeshContainer> TSkinnedMeshesContext;
+			typedef TSystemContext<CQuadSprite>           TSpritesMeshesContext;
 		public:
 			TDE2_SYSTEM(CObjectsSelectionSystem);
 
@@ -96,13 +110,13 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _initSpriteBuffers();
 			TDE2_API E_RESULT_CODE _initSelectionMaterials();
 
-			TDE2_API void _processStaticMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle);
-			TDE2_API void _processSkinnedMeshEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle);
 			TDE2_API void _processSpriteEntity(U32 drawIndex, CRenderQueue* pCommandBuffer, CEntity* pEntity, TResourceId materialHandle);
 
 			TDE2_API ICamera* _getEditorCamera(IWorld* pWorld, TEntityId cameraEntityId);
 		protected:
-			TEntitiesArray          mProcessingEntities;
+			TStaticMeshesContext    mStaticMeshesContext;
+			TSkinnedMeshesContext   mSkinnedMeshesContext;
+			TSpritesMeshesContext   mSpritesContext;
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
