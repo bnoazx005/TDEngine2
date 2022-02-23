@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The support of selection of UI elements in the developer mode was added. 
+
 ### Changed
 
 - **CObjectSelectionSystem**'s implementation was optimized.

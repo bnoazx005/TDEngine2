@@ -37,10 +37,18 @@ namespace TDEngine2
 	{
 		mVertices.clear();
 		mIndices.clear();
+
+		mMinBounds = TVector2((std::numeric_limits<F32>::max)());
+		mMaxBounds = TVector2(-(std::numeric_limits<F32>::max)());
 	}
 
 	void CUIElementMeshData::AddVertex(const TUIElementsVertex& vertex)
 	{
+		const auto& pos = vertex.mPosUV;
+
+		mMinBounds = TVector2(CMathUtils::Min(pos.x, mMinBounds.x), CMathUtils::Min(pos.y, mMinBounds.y));
+		mMaxBounds = TVector2(CMathUtils::Max(pos.x, mMaxBounds.x), CMathUtils::Max(pos.y, mMaxBounds.y));
+
 		mVertices.emplace_back(vertex);
 	}
 
@@ -74,6 +82,16 @@ namespace TDEngine2
 	const CUIElementMeshData::TIndexArray& CUIElementMeshData::GetIndices() const
 	{
 		return mIndices;
+	}
+
+	const TVector2& CUIElementMeshData::GetMinBound() const
+	{
+		return mMinBounds;
+	}
+
+	const TVector2& CUIElementMeshData::GetMaxBound() const
+	{
+		return mMaxBounds;
 	}
 
 	bool CUIElementMeshData::IsTextMesh() const

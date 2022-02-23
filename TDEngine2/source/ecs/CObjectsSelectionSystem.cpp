@@ -14,6 +14,7 @@
 #include "../../include/graphics/IVertexBuffer.h"
 #include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/graphics/CBaseMaterial.h"
+#include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
@@ -77,6 +78,8 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		mpUIElementsVertexBuffer = nullptr;
 
 		mIsInitialized = true;
 
@@ -209,11 +212,44 @@ namespace TDEngine2
 	}
 
 
+	static void ProcessUIElementEntity(std::vector<TVector4>& vertsOutput, CObjectsSelectionSystem::TSystemContext<CUIElementMeshData>& context, TPtr<IResourceManager> pResourceManager, 
+									IVertexDeclaration* pVertDecl, IVertexBuffer*& pVertBuffer, IIndexBuffer*& pIndexBuffer, U32 drawIndex, 
+									CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle, USIZE& vertexBufferOffset)
+	{
+		CUIElementMeshData* pUIMeshData = context.mpRenderables[index];
+
+		const auto& minBound = pUIMeshData->GetMinBound();
+		const auto& maxBound = pUIMeshData->GetMaxBound();
+
+		vertsOutput.push_back(TVector4(minBound.x, minBound.y, 1.0f, 1.0f));
+		vertsOutput.push_back(TVector4(maxBound.x, minBound.y, 1.0f, 1.0f));
+		vertsOutput.push_back(TVector4(minBound.x, maxBound.y, 1.0f, 1.0f));
+		vertsOutput.push_back(TVector4(maxBound.x, maxBound.y, 1.0f, 1.0f));
+
+		if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
+		{
+			pDrawCommand->mpVertexBuffer = pVertBuffer;
+			pDrawCommand->mpIndexBuffer = pIndexBuffer;
+			pDrawCommand->mMaterialHandle = materialHandle;
+			pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pDrawCommand->mpVertexDeclaration = pVertDecl;
+			pDrawCommand->mObjectData.mModelMatrix = IdentityMatrix4;
+			pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
+			pDrawCommand->mStartIndex = 0;
+			pDrawCommand->mStartVertex = static_cast<U32>(vertexBufferOffset);
+			pDrawCommand->mNumOfIndices = 6;
+		}
+
+		vertexBufferOffset += 4;
+	}
+
+
 	void CObjectsSelectionSystem::InjectBindings(IWorld* pWorld)
 	{
 		mStaticMeshesContext  = CreateContext<CStaticMeshContainer>(pWorld);
 		mSkinnedMeshesContext = CreateContext<CSkinnedMeshContainer>(pWorld);
 		mSpritesContext       = CreateContext<CQuadSprite>(pWorld);
+		mUIElementsContext    = CreateContext<CUIElementMeshData>(pWorld);
 
 		const auto& cameras = pWorld->FindEntitiesWithAny<CEditorCamera>();
 		mCameraEntityId = !cameras.empty() ? cameras.front() : TEntityId::Invalid;
@@ -271,6 +307,48 @@ namespace TDEngine2
 				ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mpSpritesVertexBuffer, mpSpritesIndexBuffer,
 					static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
 			}
+		}
+
+		/// \note UI elements 
+		{
+			static constexpr USIZE MaxVerticesCount = 1024;
+			static constexpr USIZE VertexBufferDefaultSize = sizeof(TVector4) * MaxVerticesCount;
+
+			/// \note If there is no a created vertex buffer or we go out of space extend/create it
+			if (!mpUIElementsVertexBuffer || (mpUIElementsVertexBuffer && mpUIElementsVertexBuffer->GetUsedSize() >= mpUIElementsVertexBuffer->GetSize()))
+			{
+				if (!mpUIElementsVertexBuffer)
+				{
+					mpUIElementsVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, VertexBufferDefaultSize, nullptr).Get();
+				}
+
+				mpUIElementsVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, mpUIElementsVertexBuffer->GetSize() + VertexBufferDefaultSize, nullptr).Get();
+			}
+
+			mUIElementsVertexBufferCurrOffset = 0;
+
+			static std::vector<TVector4> uiElementsVerts;
+
+			uiElementsVerts.clear();
+
+			for (USIZE i = 0; i < static_cast<U32>(mUIElementsContext.mpRenderables.size()); ++i)
+			{
+				/// \note Use sprites' index buffer because ui elements are just quads too
+				ProcessUIElementEntity(uiElementsVerts, mUIElementsContext, mpResourceManager, mpSelectionVertDecl, mpUIElementsVertexBuffer, mpSpritesIndexBuffer,
+					commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle, mUIElementsVertexBufferCurrOffset);
+
+				if (mSpritesContext.mHasSelectedEntityComponent[i])
+				{
+					ProcessUIElementEntity(uiElementsVerts, mUIElementsContext, mpResourceManager, mpSelectionVertDecl, mpUIElementsVertexBuffer, mpSpritesIndexBuffer,
+						static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, i, mSelectionOutlineMaterialHandle, mUIElementsVertexBufferCurrOffset);
+				}
+			}
+
+			E_RESULT_CODE result = mpUIElementsVertexBuffer->Map(BMT_WRITE_DISCARD);
+			TDE2_ASSERT(RC_OK == result);
+
+			mpUIElementsVertexBuffer->Write(uiElementsVerts.data(), sizeof(TVector4) * uiElementsVerts.size());
+			mpUIElementsVertexBuffer->Unmap();
 		}
 	}
 

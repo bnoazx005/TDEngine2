@@ -84,6 +84,9 @@ namespace TDEngine2
 			TDE2_API const TVertexArray& GetVertices() const;
 			TDE2_API const TIndexArray& GetIndices() const;
 
+			TDE2_API const TVector2& GetMinBound() const;
+			TDE2_API const TVector2& GetMaxBound() const;
+
 			TDE2_API TResourceId GetTextureResourceId() const;
 
 			TDE2_API bool IsTextMesh() const;
@@ -92,6 +95,9 @@ namespace TDEngine2
 		protected:
 			TVertexArray mVertices;
 			TIndexArray  mIndices;
+
+			TVector2     mMinBounds;
+			TVector2     mMaxBounds;
 
 			bool mIsFontMesh;
 

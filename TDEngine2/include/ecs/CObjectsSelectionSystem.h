@@ -29,6 +29,7 @@ namespace TDEngine2
 	class CStaticMeshContainer;
 	class CSkinnedMeshContainer;
 	class CQuadSprite;
+	class CUIElementMeshData;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -71,6 +72,7 @@ namespace TDEngine2
 			typedef TSystemContext<CStaticMeshContainer>  TStaticMeshesContext;
 			typedef TSystemContext<CSkinnedMeshContainer> TSkinnedMeshesContext;
 			typedef TSystemContext<CQuadSprite>           TSpritesMeshesContext;
+			typedef TSystemContext<CUIElementMeshData>    TUIElementsContext;
 		public:
 			TDE2_SYSTEM(CObjectsSelectionSystem);
 
@@ -117,6 +119,7 @@ namespace TDEngine2
 			TStaticMeshesContext    mStaticMeshesContext;
 			TSkinnedMeshesContext   mSkinnedMeshesContext;
 			TSpritesMeshesContext   mSpritesContext;
+			TUIElementsContext      mUIElementsContext;
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
@@ -133,11 +136,15 @@ namespace TDEngine2
 			IVertexBuffer*          mpSpritesVertexBuffer;
 			IIndexBuffer*           mpSpritesIndexBuffer;
 
+			IVertexBuffer*          mpUIElementsVertexBuffer;
+
 			TResourceId             mSelectionMaterialHandle;
 			TResourceId             mSelectionSkinnedMaterialHandle;
 
 			TResourceId             mSelectionOutlineMaterialHandle;
 			TResourceId             mSelectionSkinnedOutlineMaterialHandle;
+
+			USIZE                   mUIElementsVertexBufferCurrOffset = 0;
 	};
 }
 
