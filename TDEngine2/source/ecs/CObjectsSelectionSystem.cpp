@@ -15,6 +15,8 @@
 #include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
+#include "../../include/graphics/UI/CLayoutElementComponent.h"
+#include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
@@ -100,6 +102,28 @@ namespace TDEngine2
 			{
 				result.mpTransforms.push_back(pEntity->GetComponent<CTransform>());
 				result.mpRenderables.push_back(pEntity->GetComponent<T>());
+				result.mHasSelectedEntityComponent.push_back(pEntity->HasComponent<CSelectedEntityComponent>());
+				result.mEntityIds.push_back(currEntityId);
+			}
+		}
+
+		return std::move(result);
+	}
+
+
+	static CObjectsSelectionSystem::TUIElementsContext CreateUIElementsContext(IWorld* pWorld)
+	{
+		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform, CLayoutElement, CUIElementMeshData>();
+
+		CObjectsSelectionSystem::TUIElementsContext result;
+
+		for (auto&& currEntityId : entities)
+		{
+			if (auto pEntity = pWorld->FindEntity(currEntityId))
+			{
+				result.mpTransforms.push_back(pEntity->GetComponent<CTransform>());
+				result.mpRenderables.push_back(pEntity->GetComponent<CUIElementMeshData>());
+				result.mLayoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
 				result.mHasSelectedEntityComponent.push_back(pEntity->HasComponent<CSelectedEntityComponent>());
 				result.mEntityIds.push_back(currEntityId);
 			}
@@ -212,11 +236,13 @@ namespace TDEngine2
 	}
 
 
-	static void ProcessUIElementEntity(std::vector<TVector4>& vertsOutput, CObjectsSelectionSystem::TSystemContext<CUIElementMeshData>& context, TPtr<IResourceManager> pResourceManager, 
+	static void ProcessUIElementEntity(IWorld* pWorld, std::vector<TVector4>& vertsOutput, CObjectsSelectionSystem::TUIElementsContext& context, TPtr<IResourceManager> pResourceManager, 
 									IVertexDeclaration* pVertDecl, IVertexBuffer*& pVertBuffer, IIndexBuffer*& pIndexBuffer, U32 drawIndex, 
 									CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle, USIZE& vertexBufferOffset)
 	{
 		CUIElementMeshData* pUIMeshData = context.mpRenderables[index];
+		CLayoutElement* pLayoutElement  = context.mLayoutElements[index];
+		CTransform* pTransform          = context.mpTransforms[index];
 
 		const auto& minBound = pUIMeshData->GetMinBound();
 		const auto& maxBound = pUIMeshData->GetMaxBound();
@@ -225,6 +251,9 @@ namespace TDEngine2
 		vertsOutput.push_back(TVector4(maxBound.x, minBound.y, 1.0f, 1.0f));
 		vertsOutput.push_back(TVector4(minBound.x, maxBound.y, 1.0f, 1.0f));
 		vertsOutput.push_back(TVector4(maxBound.x, maxBound.y, 1.0f, 1.0f));
+
+		CEntity* pCanvasEntity = pWorld->FindEntity(pLayoutElement->GetOwnerCanvasId());
+		CCanvas* pCanvasData = pCanvasEntity ? pCanvasEntity->GetComponent<CCanvas>() : nullptr;
 
 		if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 		{
@@ -238,6 +267,14 @@ namespace TDEngine2
 			pDrawCommand->mStartIndex = 0;
 			pDrawCommand->mStartVertex = static_cast<U32>(vertexBufferOffset);
 			pDrawCommand->mNumOfIndices = 6;
+
+			auto&& rect = pLayoutElement->GetWorldRect();
+			auto pivot = rect.GetLeftBottom() + pLayoutElement->GetPivot() * rect.GetSizes();
+
+			auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
+			TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
+
+			pDrawCommand->mObjectData.mModelMatrix = Transpose((pCanvasData ? pCanvasData->GetProjMatrix() : IdentityMatrix4) * localObjectTransform);
 		}
 
 		vertexBufferOffset += 4;
@@ -249,7 +286,7 @@ namespace TDEngine2
 		mStaticMeshesContext  = CreateContext<CStaticMeshContainer>(pWorld);
 		mSkinnedMeshesContext = CreateContext<CSkinnedMeshContainer>(pWorld);
 		mSpritesContext       = CreateContext<CQuadSprite>(pWorld);
-		mUIElementsContext    = CreateContext<CUIElementMeshData>(pWorld);
+		mUIElementsContext    = CreateUIElementsContext(pWorld);
 
 		const auto& cameras = pWorld->FindEntitiesWithAny<CEditorCamera>();
 		mCameraEntityId = !cameras.empty() ? cameras.front() : TEntityId::Invalid;
@@ -334,14 +371,8 @@ namespace TDEngine2
 			for (USIZE i = 0; i < static_cast<U32>(mUIElementsContext.mpRenderables.size()); ++i)
 			{
 				/// \note Use sprites' index buffer because ui elements are just quads too
-				ProcessUIElementEntity(uiElementsVerts, mUIElementsContext, mpResourceManager, mpSelectionVertDecl, mpUIElementsVertexBuffer, mpSpritesIndexBuffer,
-					commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle, mUIElementsVertexBufferCurrOffset);
-
-				if (mSpritesContext.mHasSelectedEntityComponent[i])
-				{
-					ProcessUIElementEntity(uiElementsVerts, mUIElementsContext, mpResourceManager, mpSelectionVertDecl, mpUIElementsVertexBuffer, mpSpritesIndexBuffer,
-						static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, i, mSelectionOutlineMaterialHandle, mUIElementsVertexBufferCurrOffset);
-				}
+				ProcessUIElementEntity(pWorld, uiElementsVerts, mUIElementsContext, mpResourceManager, mpSelectionVertDecl, mpUIElementsVertexBuffer, mpSpritesIndexBuffer,
+									commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionUIMaterialHandle, mUIElementsVertexBufferCurrOffset);
 			}
 
 			E_RESULT_CODE result = mpUIElementsVertexBuffer->Map(BMT_WRITE_DISCARD);
@@ -423,12 +454,14 @@ namespace TDEngine2
 	{
 		const static TMaterialParameters selectionMaterialParams        = CreateSelectionMaterialParams("Selection");
 		const static TMaterialParameters selectionSkinnedMaterialParams = CreateSelectionMaterialParams("SelectionSkinned");
+		const static TMaterialParameters selectionUIMaterialParams      = CreateSelectionMaterialParams("SelectionUI");
 
 		const static TMaterialParameters selectionOutlineMaterialParams        = CreateSelectionOutlineMaterialParams("SelectionOutline");
 		const static TMaterialParameters selectionSkinnedOutlineMaterialParams = CreateSelectionOutlineMaterialParams("SelectionSkinnedOutline");
 
 		mSelectionMaterialHandle               = mpResourceManager->Create<IMaterial>("SelectionMaterial.material", selectionMaterialParams);
 		mSelectionSkinnedMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionSkinnedMaterial.material", selectionSkinnedMaterialParams);
+		mSelectionUIMaterialHandle             = mpResourceManager->Create<IMaterial>("SelectionUIMaterial.material", selectionUIMaterialParams);
 		mSelectionOutlineMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
 		mSelectionSkinnedOutlineMaterialHandle = mpResourceManager->Create<IMaterial>("SelectionSkinnedOutlineMaterial.material", selectionSkinnedOutlineMaterialParams);
 

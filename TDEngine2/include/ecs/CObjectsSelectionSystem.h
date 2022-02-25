@@ -30,6 +30,7 @@ namespace TDEngine2
 	class CSkinnedMeshContainer;
 	class CQuadSprite;
 	class CUIElementMeshData;
+	class CLayoutElement;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -69,10 +70,15 @@ namespace TDEngine2
 				std::vector<TEntityId>   mEntityIds;
 			};
 
+			struct TUIElementsSystemContext : TSystemContext<CUIElementMeshData>
+			{
+				std::vector<CLayoutElement*> mLayoutElements;
+			};
+
 			typedef TSystemContext<CStaticMeshContainer>  TStaticMeshesContext;
 			typedef TSystemContext<CSkinnedMeshContainer> TSkinnedMeshesContext;
 			typedef TSystemContext<CQuadSprite>           TSpritesMeshesContext;
-			typedef TSystemContext<CUIElementMeshData>    TUIElementsContext;
+			typedef TUIElementsSystemContext              TUIElementsContext;
 		public:
 			TDE2_SYSTEM(CObjectsSelectionSystem);
 
@@ -140,6 +146,7 @@ namespace TDEngine2
 
 			TResourceId             mSelectionMaterialHandle;
 			TResourceId             mSelectionSkinnedMaterialHandle;
+			TResourceId             mSelectionUIMaterialHandle;
 
 			TResourceId             mSelectionOutlineMaterialHandle;
 			TResourceId             mSelectionSkinnedOutlineMaterialHandle;
