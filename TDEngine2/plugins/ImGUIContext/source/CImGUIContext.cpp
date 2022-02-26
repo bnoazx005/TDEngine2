@@ -1015,6 +1015,11 @@ namespace TDEngine2
 		return mpIOContext->MousePos;
 	}
 
+	TVector2 CImGUIContext::GetInvertedMousePosition() const
+	{
+		return TVector2(mpIOContext->MousePos.x, -(mpIOContext->MousePos.y - mpIOContext->DisplaySize.y));
+	}
+
 	TVector2 CImGUIContext::GetScrollPosition() const
 	{
 		return TVector2(ImGui::GetScrollX(), ImGui::GetScrollY());

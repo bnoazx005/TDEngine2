@@ -596,6 +596,7 @@ namespace TDEngine2
 			TDE2_API TVector2 GetMouseDragDelta(U8 buttonId) const override;
 
 			TDE2_API TVector2 GetMousePosition() const override;
+			TDE2_API TVector2 GetInvertedMousePosition() const override;
 
 			TDE2_API TVector2 GetScrollPosition() const override;
 

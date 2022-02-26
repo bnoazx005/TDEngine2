@@ -463,6 +463,32 @@ namespace TDEngine2
 	}
 
 
+	static void DrawLayoutElementPivot(IImGUIContext& imguiContext, CLayoutElement& layoutElement, F32 handleRadius, const TRectF32& worldRect, F32 canvasHeight)
+	{
+		imguiContext.DisplayIDGroup(1, [&imguiContext, handleRadius, worldRect, canvasHeight, &layoutElement]
+		{
+			auto&& pivot = layoutElement.GetPivot();
+
+			TVector2 worldPosition{ worldRect.GetLeftBottom() + worldRect.GetSizes() * pivot };
+			worldPosition.y = canvasHeight - worldPosition.y;
+
+			imguiContext.SetCursorScreenPos(worldPosition - TVector2(5.0f * handleRadius));
+
+			imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
+			imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
+
+			imguiContext.Button("##Pivot", TVector2(10.0f * handleRadius), nullptr, true);
+
+			/// \note Move layoutElement's pivot
+			if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+			{
+				auto&& mousePosition = PointToNormalizedCoords(worldRect, imguiContext.GetInvertedMousePosition(), false);
+				layoutElement.SetPivot(TVector2(mousePosition.x, mousePosition.y));
+			}
+		});
+	}
+
+
 	static void DrawLayoutElementHandles(const TEditorContext& editorContext, CLayoutElement& layoutElement)
 	{
 		enum class E_ANCHOR_TYPE : U8
@@ -503,29 +529,8 @@ namespace TDEngine2
 		{
 			auto worldRect = layoutElement.GetWorldRect();
 
-			/// \note Draw a pivot
-			imguiContext.DisplayIDGroup(1, [&imguiContext, handleRadius, worldRect, canvasHeight, &layoutElement]
-			{
-				auto&& pivot = layoutElement.GetPivot();
-
-				TVector2 worldPosition{ worldRect.GetLeftBottom() + worldRect.GetSizes() * pivot };
-				worldPosition.y = canvasHeight - worldPosition.y;
-
-				imguiContext.SetCursorScreenPos(worldPosition - TVector2(5.0f * handleRadius));
-
-				imguiContext.DrawCircle(worldPosition, handleRadius, true, TColorUtils::mWhite);
-				imguiContext.DrawCircle(worldPosition, 2.0f * handleRadius, false, TColorUtils::mWhite, 2.5f);
-
-				imguiContext.Button("##Pivot", TVector2(10.0f * handleRadius), nullptr, true);
-
-				/// \note Move layoutElement's pivot
-				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
-				{
-					auto&& mousePosition = PointToNormalizedCoords(worldRect, imguiContext.GetMousePosition(), false);
-					layoutElement.SetPivot(TVector2(mousePosition.x, 1.0f - mousePosition.y));
-				}
-			});
-
+			DrawLayoutElementPivot(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight);
+			
 			/// \note Draw anchors
 			auto parentWorldRect = layoutElement.GetParentWorldRect();
 			auto anchorsRelativeWorldRect = layoutElement.GetAnchorWorldRect();
