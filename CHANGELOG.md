@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The editing of **LayoutElement** anchors and points was fixed.
+
 ## [0.5.29] 2022-02-20
 
 ### Added

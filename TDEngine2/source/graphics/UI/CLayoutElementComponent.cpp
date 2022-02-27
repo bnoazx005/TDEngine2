@@ -166,7 +166,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mMaxAnchor = value;
+		mMaxAnchor = TVector2(CMathUtils::Max(mMinAnchor.x, value.x), CMathUtils::Max(mMinAnchor.y, value.y));
 		mIsDirty = true;
 
 		return RC_OK;
