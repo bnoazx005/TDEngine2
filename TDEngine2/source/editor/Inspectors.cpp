@@ -374,7 +374,7 @@ namespace TDEngine2
 	}
 
 
-	static void SetPositionForLayoutElement(CLayoutElement& layoutElement, const TVector2& position)
+	static void SetPositionForLayoutElement(IImGUIContext& imguiContext, CLayoutElement& layoutElement)
 	{
 		auto parentWorldRect = layoutElement.GetParentWorldRect();
 
@@ -395,7 +395,8 @@ namespace TDEngine2
 			rtWorldPoint + maxOffsetSign * layoutElement.GetMaxOffset() /// \todo Is this a correct way to implement that?
 		};
 
-		TVector2 delta = position - rect.GetLeftBottom() - rect.GetSizes() * layoutElement.GetPivot();
+		TVector2 delta = imguiContext.GetMouseDragDelta(0);
+		delta.y = -delta.y;
 
 		layoutElement.SetMinOffset(layoutElement.GetMinOffset() + delta);
 
@@ -489,7 +490,7 @@ namespace TDEngine2
 	}
 
 
-	static void DrawLayoutElementHandles(const TEditorContext& editorContext, CLayoutElement& layoutElement)
+	static TRectF32 DrawLayoutElementAnchors(IImGUIContext& imguiContext, CLayoutElement& layoutElement, F32 handleRadius, const TVector2& anchorSizes, const TRectF32& worldRect, F32 canvasHeight)
 	{
 		enum class E_ANCHOR_TYPE : U8
 		{
@@ -499,7 +500,115 @@ namespace TDEngine2
 			LEFT_TOP,
 		};
 
+		/// \note Draw anchors
+		auto parentWorldRect = layoutElement.GetParentWorldRect();
+		auto anchorsRelativeWorldRect = layoutElement.GetAnchorWorldRect();
 
+		auto&& anchorsRectPoints = anchorsRelativeWorldRect.GetPoints();
+
+		static const std::array<TVector2, 4> anchorRectsOffsets{ TVector2(-5.0f * handleRadius, 0.0f), ZeroVector2, TVector2(0.0f, -5.0f * handleRadius), TVector2(-5.0f * handleRadius) };
+
+		for (U8 i = 0; i < anchorsRectPoints.size(); ++i)
+		{
+			auto p = anchorsRectPoints[i];
+			p = TVector2(p.x, canvasHeight - p.y); // transform from UI space to screen space
+
+			const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
+			const F32 s1 = (i < 2 ? 1.0f : -1.0f);
+
+			imguiContext.DisplayIDGroup(static_cast<U32>(10 + i), [&imguiContext, &anchorSizes, &parentWorldRect, &layoutElement, s0, s1, p, handleRadius, i]
+			{
+				imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
+
+				imguiContext.SetCursorScreenPos(p + anchorRectsOffsets[i]);
+				imguiContext.Button(Wrench::StringUtils::GetEmptyStr(), TVector2(5.0f * handleRadius), nullptr, true);
+
+				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+				{
+					auto normalizedAnchorPos = PointToNormalizedCoords(parentWorldRect, imguiContext.GetInvertedMousePosition());
+					
+					auto&& minAnchor = layoutElement.GetMinAnchor();
+					auto&& maxAnchor = layoutElement.GetMaxAnchor();
+					
+					switch (static_cast<E_ANCHOR_TYPE>(i))
+					{
+						case E_ANCHOR_TYPE::LEFT_BOTTOM:
+							layoutElement.SetMinAnchor(normalizedAnchorPos);
+							break;
+						case E_ANCHOR_TYPE::RIGHT_BOTTOM:
+							layoutElement.SetMinAnchor(TVector2(minAnchor.x, normalizedAnchorPos.y));
+							layoutElement.SetMaxAnchor(TVector2(normalizedAnchorPos.x, maxAnchor.y));
+							break;
+						case E_ANCHOR_TYPE::RIGHT_TOP:
+							layoutElement.SetMaxAnchor(normalizedAnchorPos);
+							break;
+						case E_ANCHOR_TYPE::LEFT_TOP:
+							layoutElement.SetMinAnchor(TVector2(normalizedAnchorPos.x, minAnchor.y));
+							layoutElement.SetMaxAnchor(TVector2(maxAnchor.x, normalizedAnchorPos.y));
+							break;
+						default:
+							TDE2_UNREACHABLE();
+							break;
+					}
+				}
+			});
+		}
+
+		TRectF32 rect = worldRect;
+		rect.y = canvasHeight - (rect.y + rect.height);
+
+		return rect;
+	}
+
+
+	static void DrawLayoutElementFrameHandle(IImGUIContext& imguiContext, CLayoutElement& layoutElement, F32 handleRadius, const TRectF32& worldRect, F32 canvasHeight)
+	{
+		/// \note Draw corner vertices
+		U32 pointIndex = 0;
+
+		for (auto&& currPoint : worldRect.GetPoints())
+		{
+			imguiContext.DisplayIDGroup(3 + pointIndex++, [&imguiContext, &layoutElement, currPoint, handleRadius, canvasHeight, pointIndex]
+			{
+				imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
+
+				imguiContext.SetCursorScreenPos(currPoint - TVector2(5.0f * handleRadius));
+				imguiContext.Button(Wrench::StringUtils::GetEmptyStr(), TVector2(10.0f * handleRadius), nullptr, true);
+
+				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+				{
+					SetRectangleSizesForLayoutElement(layoutElement, -imguiContext.GetMouseDragDelta(0), pointIndex);
+				}
+			});
+		}
+
+		/// \note Draw a rectangle
+		imguiContext.DisplayIDGroup(2, [&imguiContext, &layoutElement, worldRect, canvasHeight]
+		{
+			const TVector2 cursorPos = imguiContext.GetCursorScreenPos();
+
+			imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
+
+			auto&& sizes = worldRect.GetSizes();
+
+			imguiContext.SetCursorScreenPos(worldRect.GetLeftBottom());
+
+			if (sizes.x * sizes.y > 0.0f)
+			{
+				imguiContext.Button("##Rect", sizes, nullptr, true);
+
+				/// \note Move layoutElement if its rectangle selected and are dragged
+				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
+				{
+					SetPositionForLayoutElement(imguiContext, layoutElement);
+				}
+			}
+		});
+	}
+
+
+	static void DrawLayoutElementHandles(const TEditorContext& editorContext, CLayoutElement& layoutElement)
+	{
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
 
 		constexpr F32 handleRadius = 4.0f;
@@ -530,107 +639,8 @@ namespace TDEngine2
 			auto worldRect = layoutElement.GetWorldRect();
 
 			DrawLayoutElementPivot(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight);
-			
-			/// \note Draw anchors
-			auto parentWorldRect = layoutElement.GetParentWorldRect();
-			auto anchorsRelativeWorldRect = layoutElement.GetAnchorWorldRect();
-
-			auto&& anchorsRectPoints = anchorsRelativeWorldRect.GetPoints();
-
-			static const std::array<TVector2, 4> anchorRectsOffsets { TVector2(-5.0f * handleRadius, 0.0f), ZeroVector2, TVector2(0.0f, -5.0f * handleRadius), TVector2(-5.0f * handleRadius) };
-
-			for (U8 i = 0; i < anchorsRectPoints.size(); ++i)
-			{
-				auto p = anchorsRectPoints[i];
-				p = TVector2(p.x, canvasHeight - p.y); // transform from UI space to screen space
-
-				const F32 s0 = (i % 3 == 0 ? -1.0f : 1.0f);
-				const F32 s1 = (i < 2 ? 1.0f : -1.0f);
-
-				imguiContext.DisplayIDGroup(static_cast<U32>(10 + i), [&imguiContext, &parentWorldRect, &layoutElement, s0, s1, p, handleRadius, i]
-				{
-					imguiContext.DrawTriangle(p + TVector2(s0 * anchorSizes.x, s1 * anchorSizes.y), p + TVector2(s0 * anchorSizes.y, s1 * anchorSizes.x), p, TColorUtils::mWhite, false, 1.f);
-
-					imguiContext.SetCursorScreenPos(p + anchorRectsOffsets[i]);
-					imguiContext.Button(Wrench::StringUtils::GetEmptyStr(), TVector2(5.0f * handleRadius), nullptr, false);
-
-					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
-					{
-						auto normalizedAnchorPos = PointToNormalizedCoords(parentWorldRect, imguiContext.GetMousePosition());
-						normalizedAnchorPos.y = 1.0f - normalizedAnchorPos.y;
-
-						auto&& minAnchor = layoutElement.GetMinAnchor();
-						auto&& maxAnchor = layoutElement.GetMaxAnchor();
-
-						switch (static_cast<E_ANCHOR_TYPE>(i))
-						{
-							case E_ANCHOR_TYPE::LEFT_BOTTOM:
-								layoutElement.SetMinAnchor(normalizedAnchorPos);
-								break;
-							case E_ANCHOR_TYPE::RIGHT_BOTTOM:
-								layoutElement.SetMinAnchor(TVector2(minAnchor.x, normalizedAnchorPos.y));
-								layoutElement.SetMaxAnchor(TVector2(normalizedAnchorPos.x, maxAnchor.y));
-								break;
-							case E_ANCHOR_TYPE::RIGHT_TOP:
-								layoutElement.SetMaxAnchor(normalizedAnchorPos);
-								break;
-							case E_ANCHOR_TYPE::LEFT_TOP:
-								layoutElement.SetMinAnchor(TVector2(normalizedAnchorPos.x, minAnchor.y));
-								layoutElement.SetMaxAnchor(TVector2(maxAnchor.x, normalizedAnchorPos.y));
-								break;
-							default:
-								TDE2_UNREACHABLE();
-								break;
-						}
-					}
-				});
-			}
-
-			worldRect.y = canvasHeight - (worldRect.y + worldRect.height);
-
-			/// \note Draw corner vertices
-			U32 pointIndex = 0;
-
-			for (auto&& currPoint : worldRect.GetPoints())
-			{
-				imguiContext.DisplayIDGroup(3 + pointIndex++, [&imguiContext, &layoutElement, currPoint, handleRadius, canvasHeight, pointIndex]
-				{
-					imguiContext.DrawCircle(currPoint, handleRadius, true, TColorUtils::mBlue);
-
-					imguiContext.SetCursorScreenPos(currPoint - TVector2(5.0f * handleRadius));
-					imguiContext.Button(Wrench::StringUtils::GetEmptyStr(), TVector2(10.0f * handleRadius), nullptr, false);
-
-					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
-					{
-						auto delta = imguiContext.GetMousePosition() - currPoint;
-						SetRectangleSizesForLayoutElement(layoutElement, TVector2(delta.x, -delta.y), pointIndex);
-					}
-				});
-			}
-
-			/// \note Draw a rectangle
-			imguiContext.DisplayIDGroup(2, [&imguiContext, &layoutElement, worldRect, canvasHeight]
-			{
-				const TVector2 cursorPos = imguiContext.GetCursorScreenPos();
-
-				imguiContext.DrawRect(worldRect, TColorUtils::mGreen, false, 2.f);
-
-				auto&& sizes = worldRect.GetSizes();
-
-				imguiContext.SetCursorScreenPos(worldRect.GetLeftBottom());
-
-				if (sizes.x * sizes.y > 0.0f)
-				{
-					imguiContext.Button("##Rect", sizes, nullptr, true);
-
-					/// \note Move layoutElement if its rectangle selected and are dragged
-					if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
-					{
-						auto mousePosition = imguiContext.GetMousePosition();
-						SetPositionForLayoutElement(layoutElement, TVector2(mousePosition.x, canvasHeight - mousePosition.y));
-					}
-				}
-			});
+			worldRect = DrawLayoutElementAnchors(imguiContext, layoutElement, handleRadius, anchorSizes, worldRect, canvasHeight);
+			DrawLayoutElementFrameHandle(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight);
 		}
 
 		imguiContext.EndWindow();

@@ -148,7 +148,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLayoutElement::SetMinAnchor(const TVector2& value)
 	{
-		if (value.x > 1.0 || value.x < 0.0)
+		if (value.x > 1.0f || value.x < 0.0f)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -161,7 +161,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLayoutElement::SetMaxAnchor(const TVector2& value)
 	{
-		if (value.x > 1.0 || value.x < 0.0)
+		if (value.x > 1.0f || value.x < 0.0f)
 		{
 			return RC_INVALID_ARGS;
 		}

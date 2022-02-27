@@ -148,6 +148,12 @@ namespace TDEngine2
 		}
 
 		ImGui::Render();
+		
+		for (U8 i = 0; i < static_cast<U8>(ImGuiMouseButton_COUNT); ++i)
+		{
+			ImGui::ResetMouseDragDelta(i);
+		}
+
 		_engineInternalRender(ImGui::GetDrawData(), mpEditorUIRenderQueue);
 	}
 
