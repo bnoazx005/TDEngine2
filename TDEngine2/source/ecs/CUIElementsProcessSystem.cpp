@@ -8,6 +8,7 @@
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
+#include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/ITexture.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -111,6 +112,38 @@ namespace TDEngine2
 		const TVector3 position = pTransform->GetPosition();
 
 		pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });
+	}
+
+
+	// \todo Implement the function
+	static void UpdateGridGroupLayoutElementData(IWorld* pWorld, CUIElementsProcessSystem::TGridGroupsContext& context, USIZE id)
+	{
+		TDE2_PROFILER_SCOPE("UpdateLayoutElementData");
+
+		CLayoutElement* pLayoutElement = context.mpLayoutElements[id];
+		if (!pLayoutElement->IsDirty())
+		{
+			return;
+		}
+
+		CTransform* pTransform = context.mpTransforms[id];
+		/*CCanvas* pCanvas = context.[id];
+
+		if (!pCanvas)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		const TVector2 canvasSizes{ static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()) };
+
+		const TVector2 leftBottom = pLayoutElement->GetMinOffset() + Scale(pLayoutElement->GetMinAnchor(), canvasSizes);
+		const TVector2 rightTop = pLayoutElement->GetMaxOffset() + Scale(pLayoutElement->GetMaxAnchor(), canvasSizes);
+
+		const TVector2 rectSizes = rightTop - leftBottom;
+		const TVector3 position = pTransform->GetPosition();
+
+		pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });*/
 	}
 
 
@@ -512,60 +545,108 @@ namespace TDEngine2
 	}
 
 
+	template <typename TFunc>
+	static CUIElementsProcessSystem::TCanvasesContext CreateCanvasesContext(IWorld* pWorld, TFunc&& inserter)
+	{
+		CUIElementsProcessSystem::TCanvasesContext context;
+
+		auto&& transforms = context.mpTransforms;
+		auto&& layoutElements = context.mpLayoutElements;
+		auto&& canvases = context.mpCanvases;
+
+		auto&& canvasEntities = pWorld->FindEntitiesWithComponents<CTransform, CCanvas>();
+
+		/// \note Add LayoutElement for each Canvas
+		for (TEntityId currEntity : canvasEntities)
+		{
+			CEntity* pEntity = pWorld->FindEntity(currEntity);
+
+			transforms.push_back(pEntity->GetComponent<CTransform>());
+			canvases.push_back(pEntity->GetComponent<CCanvas>());
+
+			if (pEntity->HasComponent<CLayoutElement>())
+			{
+				layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
+				inserter(currEntity, pEntity->GetComponent<CLayoutElement>());
+
+				continue;
+			}
+
+			CLayoutElement* pLayoutElement = pEntity->AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
+			pLayoutElement->SetMinAnchor(ZeroVector2);
+			pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+			pLayoutElement->SetMinOffset(ZeroVector2);
+			pLayoutElement->SetMaxOffset(ZeroVector2);
+
+			layoutElements.push_back(pLayoutElement);
+
+			inserter(currEntity, pLayoutElement);
+		}
+
+		return std::move(context);
+	}
+
+
+	template <typename TFunc>
+	static CUIElementsProcessSystem::TGridGroupsContext CreateGridGroupLayoutsContext(IWorld* pWorld, TFunc&& inserter)
+	{
+		CUIElementsProcessSystem::TGridGroupsContext context;
+
+		auto&& transforms       = context.mpTransforms;
+		auto&& layoutElements   = context.mpLayoutElements;
+		auto&& gridGroupLayouts = context.mpGridGroupLayouts;
+
+		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform, CGridGroupLayout>();
+
+		/// \note Add LayoutElement for each Canvas
+		for (TEntityId currEntity : entities)
+		{
+			CEntity* pEntity = pWorld->FindEntity(currEntity);
+
+			transforms.push_back(pEntity->GetComponent<CTransform>());
+			gridGroupLayouts.push_back(pEntity->GetComponent<CGridGroupLayout>());
+
+			if (pEntity->HasComponent<CLayoutElement>())
+			{
+				layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
+				inserter(currEntity, pEntity->GetComponent<CLayoutElement>());
+
+				continue;
+			}
+
+			CLayoutElement* pLayoutElement = pEntity->AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
+			pLayoutElement->SetMinAnchor(ZeroVector2);
+			pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+			pLayoutElement->SetMinOffset(ZeroVector2);
+			pLayoutElement->SetMaxOffset(ZeroVector2);
+
+			layoutElements.push_back(pLayoutElement);
+
+			inserter(currEntity, pLayoutElement);
+		}
+
+		return std::move(context);
+	}
+
+
 	void CUIElementsProcessSystem::InjectBindings(IWorld* pWorld)
 	{
 		SortLayoutElementEntities(pWorld, mLayoutElementsContext);
 
+		auto checkAndAssignLayoutElements = [this](TEntityId id, CLayoutElement* pLayoutElement)
 		{
-			auto&& transforms     = mCanvasesContext.mpTransforms;
-			auto&& layoutElements = mCanvasesContext.mpLayoutElements;
-			auto&& canvases       = mCanvasesContext.mpCanvases;
-
-			canvases.clear();
-			layoutElements.clear();
-			transforms.clear();
-
-			auto&& canvasEntities = pWorld->FindEntitiesWithComponents<CTransform, CCanvas>();
-
-			auto checkAndAssignLayoutElements = [this](TEntityId id, CLayoutElement* pLayoutElement)
+			auto it = std::find(mLayoutElementsContext.mEntities.begin(), mLayoutElementsContext.mEntities.end(), id);
+			if (it == mLayoutElementsContext.mEntities.end())
 			{
-				auto it = std::find(mLayoutElementsContext.mEntities.begin(), mLayoutElementsContext.mEntities.end(), id);
-				if (it == mLayoutElementsContext.mEntities.end())
-				{
-					return;
-				}
-
-				/// \note We've found an entity try to assign pLayoutElement instance into its corresponding slot
-				mLayoutElementsContext.mpLayoutElements[std::distance(mLayoutElementsContext.mEntities.begin(), it)] = pLayoutElement;
-			};
-
-			/// \note Add LayoutElement for each Canvas
-			for (TEntityId currEntity : canvasEntities)
-			{
-				CEntity* pEntity = pWorld->FindEntity(currEntity);
-				
-				transforms.push_back(pEntity->GetComponent<CTransform>());
-				canvases.push_back(pEntity->GetComponent<CCanvas>());
-				
-				if (pEntity->HasComponent<CLayoutElement>())
-				{
-					layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
-					checkAndAssignLayoutElements(currEntity, pEntity->GetComponent<CLayoutElement>());
-
-					continue;
-				}
-
-				CLayoutElement* pLayoutElement = pEntity->AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
-				pLayoutElement->SetMinAnchor(ZeroVector2);
-				pLayoutElement->SetMaxAnchor(TVector2(1.0f));
-				pLayoutElement->SetMinOffset(ZeroVector2);
-				pLayoutElement->SetMaxOffset(ZeroVector2);
-
-				layoutElements.push_back(pLayoutElement);
-
-				checkAndAssignLayoutElements(currEntity, pLayoutElement);
+				return;
 			}
-		}
+
+			/// \note We've found an entity try to assign pLayoutElement instance into its corresponding slot
+			mLayoutElementsContext.mpLayoutElements[std::distance(mLayoutElementsContext.mEntities.begin(), it)] = pLayoutElement;
+		};
+
+		mCanvasesContext         = CreateCanvasesContext(pWorld, checkAndAssignLayoutElements);
+		mGridGroupLayoutsContext = CreateGridGroupLayoutsContext(pWorld, checkAndAssignLayoutElements);
 
 		mImagesContext       = CreateUIRenderableContext<CImage>(pWorld);
 		mSlicedImagesContext = CreateUIRenderableContext<C9SliceImage>(pWorld);
@@ -590,6 +671,17 @@ namespace TDEngine2
 
 				pLayoutElement->SetOwnerCanvasId(FindParentCanvasEntityId(pWorld, pWorld->FindEntity(layoutElementsContext.mEntities[i])));
 			}
+		}
+	}
+
+
+	static inline void UpdateGridGroupLayoutElements(CUIElementsProcessSystem::TGridGroupsContext& gridGroupsContext, IWorld* pWorld)
+	{
+		TDE2_PROFILER_SCOPE("UpdateGridGroupLayoutElements");
+
+		for (USIZE i = 0; i < gridGroupsContext.mpTransforms.size(); ++i)
+		{
+			UpdateGridGroupLayoutElementData(pWorld, gridGroupsContext, i);
 		}
 	}
 
@@ -667,6 +759,8 @@ namespace TDEngine2
 				UpdateCanvasLayoutElementData(pWorld, mCanvasesContext, i);
 			}
 		}
+
+		UpdateGridGroupLayoutElements(mGridGroupLayoutsContext, pWorld);
 
 		UpdateLayoutElements(mLayoutElementsContext, pWorld); /// \note Process LayoutElement entities
 

@@ -203,7 +203,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
-#if 0 // note Test hierarchy of entities
+#if 1 // note Test hierarchy of entities
 		pSceneManager->LoadSceneAsync("TestScene.scene", [pSceneManager, this](auto)
 		{
 			int x = 0;
@@ -252,6 +252,13 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						pLayoutElement->SetPivot(TVector2(0.5f));
 					}
 
+					if (auto pGridGroup = pParentEntity->AddComponent<CGridGroupLayout>())
+					{
+						pGridGroup->SetCellSize(TVector2(250.0f));
+						pGridGroup->SetSpaceBetweenElements(TVector2(100.0f));
+						pGridGroup->SetColumnsCount(2);
+					}
+
 #if 0
 					if (auto pEntity = pScene->CreateEntity("Text0"))
 					{
@@ -293,7 +300,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
 
-					if (auto pEntity = pScene->CreateEntity("SlicedImage"))
+					if (auto pEntity = pScene->CreateEntity("UIElement2"))
 					{
 						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
 						{
@@ -304,13 +311,17 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
 						}
 
-						if (auto pImage = pEntity->AddComponent<C9SliceImage>())
+						if (auto pImage = pEntity->AddComponent<CImage>())
 						{
-							pImage->SetImageId("button.png");
+							pImage->SetImageId("Tim.tga");
 						}
+
+						pEntity->AddComponent<CInputReceiver>();
 
 						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
+
+					
 
 #if 0
 					if (auto pEntity = pScene->CreateEntity("UIElement2"))

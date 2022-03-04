@@ -17,6 +17,7 @@
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
+#include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
@@ -453,6 +454,7 @@ namespace TDEngine2
 			CreateInputReceiverFactory,
 			CreateLabelFactory,
 			Create9SliceImageFactory,
+			CreateGridGroupLayoutFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,

@@ -179,6 +179,7 @@
 #include "graphics/UI/CInputReceiverComponent.h"
 #include "graphics/UI/CLabelComponent.h"
 #include "graphics/UI/C9SliceImageComponent.h"
+#include "graphics/UI/GroupLayoutComponents.h"
 
 /// audio
 #include "audio/IAudioSource.h"

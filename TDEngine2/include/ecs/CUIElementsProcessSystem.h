@@ -22,6 +22,7 @@ namespace TDEngine2
 	class C9SliceImage;
 	class CLabel;
 	class CCanvas;
+	class CGridGroupLayout;
 
 
 	/*!
@@ -62,6 +63,13 @@ namespace TDEngine2
 				std::vector<CCanvas*>        mpCanvases;
 				std::vector<CLayoutElement*> mpLayoutElements;
 				std::vector<CTransform*>     mpTransforms;
+			};
+
+			struct TGridGroupsContext
+			{
+				std::vector<CGridGroupLayout*> mpGridGroupLayouts;
+				std::vector<CLayoutElement*>   mpLayoutElements;
+				std::vector<CTransform*>       mpTransforms;
 			};
 
 			struct TLayoutElementsContext
@@ -108,6 +116,7 @@ namespace TDEngine2
 		protected:
 			TLayoutElementsContext                     mLayoutElementsContext;
 			TCanvasesContext                           mCanvasesContext;
+			TGridGroupsContext                         mGridGroupLayoutsContext;
 
 			TUIRenderableElementsContext<CImage>       mImagesContext;
 			TUIRenderableElementsContext<C9SliceImage> mSlicedImagesContext;

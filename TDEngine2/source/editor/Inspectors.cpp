@@ -16,6 +16,7 @@
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
+#include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
@@ -66,6 +67,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CInputReceiver::GetTypeId(), DrawInputReceiverGUI);
 		result = result | editor.RegisterInspector(CLabel::GetTypeId(), DrawLabelGUI);
 		result = result | editor.RegisterInspector(C9SliceImage::GetTypeId(), Draw9SliceImageGUI);
+		result = result | editor.RegisterInspector(CGridGroupLayout::GetTypeId(), DrawGridGroupLayoutGUI);
 		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
 
 		/// 2D Physics
@@ -1130,6 +1132,27 @@ namespace TDEngine2
 				imguiContext.FloatSlider("##yEnd", yEnd, 0.0f, 1.0f, [&yEnd, &slicedImage] { slicedImage.SetTopYSlicer(yEnd); });
 				imguiContext.EndHorizontal();
 			}
+		}
+	}
+
+	void CDefeaultInspectorsRegistry::DrawGridGroupLayoutGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+
+		if (imguiContext.CollapsingHeader("Grid Group Layout", true))
+		{
+			CGridGroupLayout& gridGroupLayout = dynamic_cast<CGridGroupLayout&>(editorContext.mComponent);
+
+
+			/*/// \note left x slicer's slider
+			{
+				F32 xStart = slicedImage.GetLeftXSlicer();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Left X: ");
+				imguiContext.FloatSlider("##xStart", xStart, 0.0f, 1.0f, [&xStart, &slicedImage] { slicedImage.SetLeftXSlicer(xStart); });
+				imguiContext.EndHorizontal();
+			}*/
 		}
 	}
 
