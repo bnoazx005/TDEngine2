@@ -683,24 +683,24 @@ namespace TDEngine2
 	};
 
 
-	static const std::array<std::tuple<TVector2, TVector2, TVector2>, LayoutPresetsCount> LayoutAnchorsPresets
+	static const std::array<std::tuple<TVector2, TVector2, TVector2, TVector2>, LayoutPresetsCount> LayoutAnchorsPresets
 	{
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 0.0f, 1.0f }, { 100.0f }),       ///< Top Left
-		std::make_tuple<TVector2, TVector2, TVector2>({ 1.0f }, { 1.0f }, { 100.0f }),                   ///< Top Right
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f }, { 0.0f }, { 100.0f }),                   ///< Bottom Left
-		std::make_tuple<TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f, 0.0f }, { 100.0f }),       ///< Bottom Right
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f, 0.5f }, { 0.0f, 0.5f }, { 100.0f }),       ///< Center Left
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.5f, 1.0f }, { 0.5f, 1.0f }, { 100.0f }),       ///< Center Top
-		std::make_tuple<TVector2, TVector2, TVector2>({ 1.0f, 0.5f }, { 1.0f, 0.5f }, { 100.0f }),       ///< Center Right
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 0.0f }, { 100.0f }),       ///< Center Bottom
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.5f }, { 0.5f }, { 100.0f }),                   ///< Center
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f }, { 0.0f, 1.0f }, { 100.0f, 0.0f }),       ///< Left Wide
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 1.0f }, { 100.0f, 0.0f }), ///< VCenter Wide
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f, 0.5f }, { 1.0f, 0.5f }, { 0.0f, 100.0f }), ///< HCenter Wide
-		std::make_tuple<TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f }, { 100.0f, 0.0f }),       ///< Right Wide
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 1.0f }, { 0.0f, 100.0f }),       ///< Top Wide
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f, 0.0f }, { 0.0f, 100.0f }),       ///< Bottom Wide
-		std::make_tuple<TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f }, { 100.0f }),                   ///< Full Rect
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 0.0f, 1.0f }, { 100.0f }, { 0.0f, -100.0f }),       ///< Top Left
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f }, { 1.0f }, { 100.0f }, { -100.0f }),                   ///< Top Right
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 0.0f }, { 100.0f }, { 0.0f, 0.0f }),                   ///< Bottom Left
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f, 0.0f }, { 100.0f }, { -100.0f, 0.0f }),       ///< Bottom Right
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f, 0.5f }, { 0.0f, 0.5f }, { 100.0f }, { 0.0f, 0.0f }),       ///< Center Left
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.5f, 1.0f }, { 0.5f, 1.0f }, { 100.0f }, { 0.0f, 0.0f }),       ///< Center Top
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f, 0.5f }, { 1.0f, 0.5f }, { 100.0f }, { 0.0f, 0.0f }),       ///< Center Right
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 0.0f }, { 100.0f }, { 0.0f, 0.0f }),       ///< Center Bottom
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.5f }, { 0.5f }, { 100.0f }, { 0.0f, 0.0f }),                   ///< Center
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 0.0f, 1.0f }, { 100.0f, 0.0f }, { 0.0f, 0.0f }),       ///< Left Wide
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.5f, 0.0f }, { 0.5f, 1.0f }, { 100.0f, 0.0f }, { 0.0f, 0.0f }), ///< VCenter Wide
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f, 0.5f }, { 1.0f, 0.5f }, { 0.0f, 100.0f }, { 0.0f, 0.0f }), ///< HCenter Wide
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f }, { 100.0f, 0.0f }, { 0.0f, 0.0f }),       ///< Right Wide
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 1.0f }, { 0.0f, 100.0f }, { 0.0f, 0.0f }),       ///< Top Wide
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f, 0.0f }, { 0.0f, 100.0f }, { 0.0f, 0.0f }),       ///< Bottom Wide
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f }, { 100.0f }, { 0.0f, 0.0f }),                   ///< Full Rect
 	};
 
 
@@ -823,6 +823,7 @@ namespace TDEngine2
 								layoutElement.SetMinAnchor(std::get<0>(anchorsPreset));
 								layoutElement.SetMaxAnchor(std::get<1>(anchorsPreset));
 
+								layoutElement.SetMinOffset(std::get<3>(anchorsPreset));
 								layoutElement.SetMaxOffset(std::get<2>(anchorsPreset));
 
 								imguiContext.CloseCurrentModalWindow();

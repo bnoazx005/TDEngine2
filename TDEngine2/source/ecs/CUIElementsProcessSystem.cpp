@@ -17,6 +17,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IWindowSystem.h"
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -116,9 +117,9 @@ namespace TDEngine2
 
 
 	// \todo Implement the function
-	static void UpdateGridGroupLayoutElementData(IWorld* pWorld, CUIElementsProcessSystem::TGridGroupsContext& context, USIZE id)
+	static void UpdateGridGroupLayoutElementData(IWorld* pWorld, CUIElementsProcessSystem::TGridGroupsContext& context, USIZE id, CUIElementsProcessSystem::TLayoutElementsContext& layoutElements)
 	{
-		TDE2_PROFILER_SCOPE("UpdateLayoutElementData");
+		TDE2_PROFILER_SCOPE("UpdateGridGroupLayoutElementData");
 
 		CLayoutElement* pLayoutElement = context.mpLayoutElements[id];
 		if (!pLayoutElement->IsDirty())
@@ -127,6 +128,53 @@ namespace TDEngine2
 		}
 
 		CTransform* pTransform = context.mpTransforms[id];
+		CGridGroupLayout* pGridGroupLayout = context.mpGridGroupLayouts[id];
+
+		if (!pGridGroupLayout->IsDirty())
+		{
+			return;
+		}
+
+		U32 index = 0;
+		U32 x, y;
+
+		for (TEntityId currChildId : pTransform->GetChildren()) 
+		{
+			auto it = std::find(layoutElements.mEntities.cbegin(), layoutElements.mEntities.cend(), currChildId);
+			if (it == layoutElements.mEntities.cend())
+			{
+				TDE2_UNREACHABLE();
+				continue;
+			}
+
+			CLayoutElement* pChildLayoutElement = layoutElements.mpLayoutElements[std::distance(layoutElements.mEntities.cbegin(), it)];
+			if (!pChildLayoutElement)
+			{
+				TDE2_UNREACHABLE();
+				continue;
+			}
+
+			x = index % pGridGroupLayout->GetColumnsCount();
+			y = index / pGridGroupLayout->GetColumnsCount();
+
+			++index;
+
+			//layoutElements.mEntities[]
+			
+			/*
+			for each row {
+				for each col {
+					compute positions and sizes
+				}
+			}
+		*/
+		}
+
+
+
+
+		
+
 		/*CCanvas* pCanvas = context.[id];
 
 		if (!pCanvas)
@@ -675,38 +723,25 @@ namespace TDEngine2
 	}
 
 
-	static inline void UpdateGridGroupLayoutElements(CUIElementsProcessSystem::TGridGroupsContext& gridGroupsContext, IWorld* pWorld)
+	static inline void UpdateGridGroupLayoutElements(CUIElementsProcessSystem::TGridGroupsContext& gridGroupsContext, CUIElementsProcessSystem::TLayoutElementsContext& layoutElements, IWorld* pWorld)
 	{
 		TDE2_PROFILER_SCOPE("UpdateGridGroupLayoutElements");
 
 		for (USIZE i = 0; i < gridGroupsContext.mpTransforms.size(); ++i)
 		{
-			UpdateGridGroupLayoutElementData(pWorld, gridGroupsContext, i);
+			UpdateGridGroupLayoutElementData(pWorld, gridGroupsContext, i, layoutElements);
 		}
 	}
 
 
-	static inline void DiscardDirtyFlagOfLayoutElements(CUIElementsProcessSystem::TLayoutElementsContext& layoutElementsContext)
+	template <typename T>
+	static inline void DiscardDirtyFlagForElements(T& context)
 	{
-		TDE2_PROFILER_SCOPE("DiscardDirtyFlagOfLayoutElements");
+		TDE2_PROFILER_SCOPE("DiscardDirtyFlagForElements");
 
-		for (USIZE i = 0; i < layoutElementsContext.mpTransforms.size(); ++i)
+		for (USIZE i = 0; i < context.mpLayoutElements.size(); ++i)
 		{
-			if (auto pLayoutElement = layoutElementsContext.mpLayoutElements[i])
-			{
-				pLayoutElement->SetDirty(false);
-			}
-		}
-	}
-
-
-	static inline void DiscardDirtyFlagOfCanvases(CUIElementsProcessSystem::TCanvasesContext& canvasesContext)
-	{
-		TDE2_PROFILER_SCOPE("DiscardDirtyFlagOfCanvases");
-
-		for (USIZE i = 0; i < canvasesContext.mpLayoutElements.size(); ++i)
-		{
-			if (auto pLayoutElement = canvasesContext.mpLayoutElements[i])
+			if (auto pLayoutElement = context.mpLayoutElements[i])
 			{
 				pLayoutElement->SetDirty(false);
 			}
@@ -760,7 +795,7 @@ namespace TDEngine2
 			}
 		}
 
-		UpdateGridGroupLayoutElements(mGridGroupLayoutsContext, pWorld);
+		UpdateGridGroupLayoutElements(mGridGroupLayoutsContext, mLayoutElementsContext, pWorld);
 
 		UpdateLayoutElements(mLayoutElementsContext, pWorld); /// \note Process LayoutElement entities
 
@@ -768,8 +803,8 @@ namespace TDEngine2
 		ComputeSlicedImagesMeshes(mSlicedImagesContext, mpResourceManager);
 		ComputeLabelsMeshes(mLabelsContext, mpResourceManager);
 
-		DiscardDirtyFlagOfLayoutElements(mLayoutElementsContext);
-		DiscardDirtyFlagOfCanvases(mCanvasesContext);
+		DiscardDirtyFlagForElements(mLayoutElementsContext);
+		DiscardDirtyFlagForElements(mCanvasesContext);
 	}
 
 
