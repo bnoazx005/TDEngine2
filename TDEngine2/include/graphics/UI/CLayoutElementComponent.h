@@ -30,6 +30,13 @@ namespace TDEngine2
 	};
 
 
+	/*!
+		\brief The method computes an offset from the left bottom corner of holderRect that should be applied to contentRect to make it aligned
+	*/
+	
+	TDE2_API TVector2 CalcContentRectAlignByType(const TRectF32& holderRect, const TRectF32& contentRect, E_UI_ELEMENT_ALIGNMENT_TYPE alignType);
+
+
 
 	/*!
 		\brief A factory function for creation objects of CLayoutElement's type.

@@ -283,4 +283,37 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IComponentFactory, CLayoutElementFactory, result);
 	}
+
+
+	TDE2_API TVector2 CalcContentRectAlignByType(const TRectF32& holderRect, const TRectF32& contentRect, E_UI_ELEMENT_ALIGNMENT_TYPE alignType)
+	{
+		if (E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT_BOTTOM == alignType)
+		{
+			return ZeroVector2;
+		}
+
+		const TVector2 delta = holderRect.GetLeftBottom() - contentRect.GetLeftBottom();
+		const TVector2 halfDelta = TVector2(0.5f * CMathUtils::Abs(delta.x), 0.5f * CMathUtils::Abs(delta.y));
+
+		switch (alignType)
+		{
+			case E_UI_ELEMENT_ALIGNMENT_TYPE::BOTTOM:
+				return TVector2(halfDelta.x, 0.0f);
+			case E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT:
+				return TVector2(0.0f, halfDelta.y);
+			case E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT_TOP:
+				return TVector2(0.0f, delta.y);
+			case E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT:
+				return TVector2(delta.x, halfDelta.y);
+			case E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT_BOTTOM:
+				return TVector2(delta.x, 0.0f);
+			case E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT_TOP:
+				return delta;
+			case E_UI_ELEMENT_ALIGNMENT_TYPE::TOP:
+				return TVector2(halfDelta.x, delta.y);
+		}
+
+		TDE2_UNREACHABLE();
+		return ZeroVector2;
+	}
 }

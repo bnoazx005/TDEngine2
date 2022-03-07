@@ -725,6 +725,21 @@ namespace TDEngine2
 	}
 
 
+	template <>
+	static inline void DiscardDirtyFlagForElements<CUIElementsProcessSystem::TGridGroupsContext>(CUIElementsProcessSystem::TGridGroupsContext& context)
+	{
+		TDE2_PROFILER_SCOPE("DiscardDirtyFlagForElements");
+
+		for (USIZE i = 0; i < context.mpGridGroupLayouts.size(); ++i)
+		{
+			if (auto pGridLayout = context.mpGridGroupLayouts[i])
+			{
+				pGridLayout->SetDirty(false);
+			}
+		}
+	}
+
+
 	static inline void ComputeImagesMeshes(const CUIElementsProcessSystem::TUIRenderableElementsContext<CImage>& imagesContext, IResourceManager* pResourceManager)
 	{
 		TDE2_PROFILER_SCOPE("ComputeImagesMeshes");
@@ -781,6 +796,7 @@ namespace TDEngine2
 
 		DiscardDirtyFlagForElements(mLayoutElementsContext);
 		DiscardDirtyFlagForElements(mCanvasesContext);
+		DiscardDirtyFlagForElements(mGridGroupLayoutsContext);
 	}
 
 
