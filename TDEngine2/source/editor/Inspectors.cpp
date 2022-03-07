@@ -1144,16 +1144,59 @@ namespace TDEngine2
 		{
 			CGridGroupLayout& gridGroupLayout = dynamic_cast<CGridGroupLayout&>(editorContext.mComponent);
 
-
-			/*/// \note left x slicer's slider
+			/// \note cell size of the grid's element
 			{
-				F32 xStart = slicedImage.GetLeftXSlicer();
+				TVector2 cellSize = gridGroupLayout.GetCellSize();
 
 				imguiContext.BeginHorizontal();
-				imguiContext.Label("Left X: ");
-				imguiContext.FloatSlider("##xStart", xStart, 0.0f, 1.0f, [&xStart, &slicedImage] { slicedImage.SetLeftXSlicer(xStart); });
+				imguiContext.Label("Cell Size: ");
+				imguiContext.Vector2Field("##cellSize", cellSize, [&cellSize, &gridGroupLayout] { gridGroupLayout.SetCellSize(cellSize); });
 				imguiContext.EndHorizontal();
-			}*/
+			}
+
+			/// \note spacing parameters of the grid
+			{
+				TVector2 spacing = gridGroupLayout.GetSpaceBetweenElements();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Spacing: ");
+				imguiContext.Vector2Field("##spacing", spacing, [&spacing, &gridGroupLayout] { gridGroupLayout.SetSpaceBetweenElements(spacing); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note columns count's field
+			{
+				I32 columnsCount = static_cast<I32>(gridGroupLayout.GetColumnsCount());
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Columns Count: ");
+				imguiContext.IntField("##columns", columnsCount, [&columnsCount, &gridGroupLayout] { gridGroupLayout.SetColumnsCount(static_cast<U16>(std::max<I32>(0, columnsCount))); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note align type of grid cells
+			{
+				static std::vector<std::string> alignTypes;
+				if (alignTypes.empty())
+				{
+					for (auto&& currValueInfo : Meta::EnumTrait<E_UI_ELEMENT_ALIGNMENT_TYPE>::GetFields())
+					{
+						alignTypes.push_back(currValueInfo.name);
+					}
+				}
+
+				imguiContext.BeginHorizontal();
+
+				I32 currAlignType = static_cast<I32>(gridGroupLayout.GetElementsAlignType());
+
+				imguiContext.Label("Elements Align");
+				currAlignType = imguiContext.Popup("##CellAlignType", currAlignType, alignTypes);
+
+				gridGroupLayout.SetElementsAlignType(static_cast<E_UI_ELEMENT_ALIGNMENT_TYPE>(currAlignType));
+
+				imguiContext.EndHorizontal();
+			}
+
 		}
 	}
 

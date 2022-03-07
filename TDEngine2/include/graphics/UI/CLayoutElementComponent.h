@@ -17,6 +17,20 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
+	enum class E_UI_ELEMENT_ALIGNMENT_TYPE : U8
+	{
+		LEFT,
+		RIGHT,
+		TOP,
+		BOTTOM,
+		LEFT_TOP,
+		LEFT_BOTTOM,
+		RIGHT_TOP,
+		RIGHT_BOTTOM
+	};
+
+
+
 	/*!
 		\brief A factory function for creation objects of CLayoutElement's type.
 

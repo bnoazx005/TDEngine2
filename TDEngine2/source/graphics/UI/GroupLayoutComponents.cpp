@@ -78,27 +78,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CGridGroupLayout::SetLeftPadding(F32 value)
+	void CGridGroupLayout::SetElementsAlignType(E_UI_ELEMENT_ALIGNMENT_TYPE value)
 	{
-		mLeftPadding = value;
-		SetDirty(true);
-	}
-
-	void CGridGroupLayout::SetRightPadding(F32 value)
-	{
-		mRightPadding = value;
-		SetDirty(true);
-	}
-
-	void CGridGroupLayout::SetTopPadding(F32 value)
-	{
-		mTopPadding = value;
-		SetDirty(true);
-	}
-
-	void CGridGroupLayout::SetBottomPadding(F32 value)
-	{
-		mBottomPadding = value;
+		mAlignType = value;
 		SetDirty(true);
 	}
 
@@ -129,24 +111,9 @@ namespace TDEngine2
 		return mSpaceBetweenElements;
 	}
 
-	F32 CGridGroupLayout::GetLeftPadding() const
+	E_UI_ELEMENT_ALIGNMENT_TYPE CGridGroupLayout::GetElementsAlignType() const
 	{
-		return mLeftPadding;
-	}
-
-	F32 CGridGroupLayout::GetRightPadding() const
-	{
-		return mRightPadding;
-	}
-
-	F32 CGridGroupLayout::GetTopPadding() const
-	{
-		return mTopPadding;
-	}
-
-	F32 CGridGroupLayout::GetBottomPadding() const
-	{
-		return mBottomPadding;
+		return mAlignType;
 	}
 
 	U16 CGridGroupLayout::GetRowsCount() const

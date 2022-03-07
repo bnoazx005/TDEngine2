@@ -13,6 +13,9 @@
 
 namespace TDEngine2
 {
+	enum class E_UI_ELEMENT_ALIGNMENT_TYPE : U8;
+
+
 	/*!
 		\brief A factory function for creation objects of CGridGroupLayout's type.
 
@@ -61,10 +64,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetSpaceBetweenElements(const TVector2& value);
 
-			TDE2_API void SetLeftPadding(F32 value);
-			TDE2_API void SetRightPadding(F32 value);
-			TDE2_API void SetTopPadding(F32 value);
-			TDE2_API void SetBottomPadding(F32 value);
+			TDE2_API void SetElementsAlignType(E_UI_ELEMENT_ALIGNMENT_TYPE value);
 
 			TDE2_API void SetRowsCount(U16 value);
 			TDE2_API void SetColumnsCount(U16 value);
@@ -75,10 +75,7 @@ namespace TDEngine2
 
 			TDE2_API const TVector2& GetSpaceBetweenElements() const;
 
-			TDE2_API F32 GetLeftPadding() const;
-			TDE2_API F32 GetRightPadding() const;
-			TDE2_API F32 GetTopPadding() const;
-			TDE2_API F32 GetBottomPadding() const;
+			TDE2_API E_UI_ELEMENT_ALIGNMENT_TYPE GetElementsAlignType() const;
 
 			TDE2_API U16 GetRowsCount() const;
 			TDE2_API U16 GetColumnsCount() const;
@@ -90,10 +87,7 @@ namespace TDEngine2
 			TVector2 mCellSize;
 			TVector2 mSpaceBetweenElements;
 			
-			F32      mLeftPadding;
-			F32      mRightPadding;
-			F32      mTopPadding;
-			F32      mBottomPadding;
+			E_UI_ELEMENT_ALIGNMENT_TYPE mAlignType;
 
 			U16      mRowsCount = 1;
 			U16      mColsCount = 1;

@@ -116,7 +116,6 @@ namespace TDEngine2
 	}
 
 
-	// \todo Implement the function
 	static void UpdateGridGroupLayoutElementData(IWorld* pWorld, CUIElementsProcessSystem::TGridGroupsContext& context, USIZE id, CUIElementsProcessSystem::TLayoutElementsContext& layoutElements)
 	{
 		TDE2_PROFILER_SCOPE("UpdateGridGroupLayoutElementData");
@@ -137,6 +136,11 @@ namespace TDEngine2
 
 		U32 index = 0;
 		U32 x, y;
+
+		const TVector2& cellSize = pGridGroupLayout->GetCellSize();
+		const TVector2& spacing = pGridGroupLayout->GetSpaceBetweenElements();
+
+		TVector2 origin = ZeroVector2;// (static_cast<F32>(pGridGroupLayout->GetLeftPadding()), -static_cast<F32>(pGridGroupLayout->GetTopPadding()));
 
 		for (TEntityId currChildId : pTransform->GetChildren()) 
 		{
@@ -159,39 +163,11 @@ namespace TDEngine2
 
 			++index;
 
-			//layoutElements.mEntities[]
-			
-			/*
-			for each row {
-				for each col {
-					compute positions and sizes
-				}
-			}
-		*/
+			pChildLayoutElement->SetMinAnchor(TVector2(0.0f, 1.0f));
+			pChildLayoutElement->SetMaxAnchor(TVector2(0.0f, 1.0f));
+			pChildLayoutElement->SetMinOffset(origin + TVector2(x * (cellSize.x + spacing.x), -(cellSize.y + spacing.y) * y - cellSize.y));
+			pChildLayoutElement->SetMaxOffset(cellSize);
 		}
-
-
-
-
-		
-
-		/*CCanvas* pCanvas = context.[id];
-
-		if (!pCanvas)
-		{
-			TDE2_ASSERT(false);
-			return;
-		}
-
-		const TVector2 canvasSizes{ static_cast<F32>(pCanvas->GetWidth()), static_cast<F32>(pCanvas->GetHeight()) };
-
-		const TVector2 leftBottom = pLayoutElement->GetMinOffset() + Scale(pLayoutElement->GetMinAnchor(), canvasSizes);
-		const TVector2 rightTop = pLayoutElement->GetMaxOffset() + Scale(pLayoutElement->GetMaxAnchor(), canvasSizes);
-
-		const TVector2 rectSizes = rightTop - leftBottom;
-		const TVector3 position = pTransform->GetPosition();
-
-		pLayoutElement->SetWorldRect({ position.x - leftBottom.x, position.y - leftBottom.y, rectSizes.x, rectSizes.y });*/
 	}
 
 

@@ -255,7 +255,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					if (auto pGridGroup = pParentEntity->AddComponent<CGridGroupLayout>())
 					{
 						pGridGroup->SetCellSize(TVector2(250.0f));
-						pGridGroup->SetSpaceBetweenElements(TVector2(100.0f));
+						pGridGroup->SetSpaceBetweenElements(TVector2(10.0f));
 						pGridGroup->SetColumnsCount(2);
 					}
 
@@ -301,6 +301,48 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					}
 
 					if (auto pEntity = pScene->CreateEntity("UIElement2"))
+					{
+						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+						{
+							pLayoutElement->SetMinAnchor(TVector2(0.2f));
+							pLayoutElement->SetMaxAnchor(TVector2(0.8f));
+							pLayoutElement->SetPivot(TVector2(0.f));
+
+							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
+						}
+
+						if (auto pImage = pEntity->AddComponent<CImage>())
+						{
+							pImage->SetImageId("Tim.tga");
+						}
+
+						pEntity->AddComponent<CInputReceiver>();
+
+						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
+					}
+
+					if (auto pEntity = pScene->CreateEntity("UIElement3"))
+					{
+						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
+						{
+							pLayoutElement->SetMinAnchor(TVector2(0.2f));
+							pLayoutElement->SetMaxAnchor(TVector2(0.8f));
+							pLayoutElement->SetPivot(TVector2(0.f));
+
+							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
+						}
+
+						if (auto pImage = pEntity->AddComponent<CImage>())
+						{
+							pImage->SetImageId("Tim.tga");
+						}
+
+						pEntity->AddComponent<CInputReceiver>();
+
+						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
+					}
+
+					if (auto pEntity = pScene->CreateEntity("UIElement4"))
 					{
 						if (auto pLayoutElement = pEntity->AddComponent<CLayoutElement>())
 						{
