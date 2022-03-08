@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.31] 2022-03-03
+## [0.5.31] 2022-03-08
 
 ### Added
 
 - A new component which is **GridGroupLayout** was added.
 
 ### Changed
+
+- The build scrips were updated to support Microsoft Visual Studio 2022.
 
 ### Fixed
 

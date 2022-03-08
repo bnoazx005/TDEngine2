@@ -21,7 +21,7 @@ jobs:
             cc: "cl",
             cxx: "cl",
             archiver: "7z a",
-            generators: "Visual Studio 16 2019",
+            generators: "Visual Studio 17 2022",
             platform: "Win64",
             architecture: "x64"
           }
@@ -84,7 +84,7 @@ jobs:
         shell: cmd
         run: |
           cd build
-          prepare_build_generic_win.bat "Visual Studio 16 2019" ${{ matrix.config.build_type }} ${{ matrix.config.architecture }}
+          prepare_build_generic_win.bat ${{ matrix.config.generators }} ${{ matrix.config.build_type }} ${{ matrix.config.architecture }}
 
       - name: Test
         working-directory: build

@@ -1,7 +1,7 @@
 echo off
 
 rem "The script for building the engine and its toolset with CMake and Microsoft Visual Studio" 
-rem "%1 argument is CMake generator name; %2 is buildd configuration"
+rem "%1 argument is CMake generator name; %2 is build configuration"
 
 
 rem "Get all submodules"
