@@ -1,28 +1,21 @@
 #include "../../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../../include/math/MathUtils.h"
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
-	/*struct TGridGroupLayoutArchiveKeys
+	struct TGridGroupLayoutArchiveKeys
 	{
-		static const std::string mMinAnchorKeyId;
-		static const std::string mMaxAnchorKeyId;
-
-		static const std::string mMinOffsetKeyId;
-		static const std::string mMaxOffsetKeyId;
-
-		static const std::string mPivotKeyId;
+		static const std::string mCellSizeKeyId;
+		static const std::string mSpacingKeyId;
+		static const std::string mAlignTypeKeyId;
 	};
 
 
-	const std::string TGridGroupLayoutArchiveKeys::mMinAnchorKeyId = "min_anchor";
-	const std::string TGridGroupLayoutArchiveKeys::mMaxAnchorKeyId = "max_anchor";
-
-	const std::string TGridGroupLayoutArchiveKeys::mMinOffsetKeyId = "min_offset";
-	const std::string TGridGroupLayoutArchiveKeys::mMaxOffsetKeyId = "max_offset";
-
-	const std::string TGridGroupLayoutArchiveKeys::mPivotKeyId = "pivot";*/
+	const std::string TGridGroupLayoutArchiveKeys::mCellSizeKeyId = "cell_size";
+	const std::string TGridGroupLayoutArchiveKeys::mSpacingKeyId = "spacing";
+	const std::string TGridGroupLayoutArchiveKeys::mAlignTypeKeyId = "align_type";
 
 
 	CGridGroupLayout::CGridGroupLayout() :
@@ -37,6 +30,23 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		/// \note Cell size
+		pReader->BeginGroup(TGridGroupLayoutArchiveKeys::mCellSizeKeyId);
+		if (auto value = LoadVector2(pReader))
+		{
+			mCellSize = value.Get();
+		}
+		pReader->EndGroup();
+
+		/// \note Spacing
+		pReader->BeginGroup(TGridGroupLayoutArchiveKeys::mSpacingKeyId);
+		if (auto value = LoadVector2(pReader))
+		{
+			mSpaceBetweenElements = value.Get();
+		}
+		pReader->EndGroup();
+
+		mAlignType = Meta::EnumTrait<E_UI_ELEMENT_ALIGNMENT_TYPE>::FromString(pReader->GetString(TGridGroupLayoutArchiveKeys::mAlignTypeKeyId));
 		
 		return RC_OK;
 	}
@@ -51,6 +61,16 @@ namespace TDEngine2
 		pWriter->BeginGroup("component");
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CGridGroupLayout::GetTypeId()));
+
+			pWriter->BeginGroup(TGridGroupLayoutArchiveKeys::mCellSizeKeyId, false);
+			SaveVector2(pWriter, mCellSize);
+			pWriter->EndGroup();
+
+			pWriter->BeginGroup(TGridGroupLayoutArchiveKeys::mSpacingKeyId, false);
+			SaveVector2(pWriter, mSpaceBetweenElements);
+			pWriter->EndGroup();
+
+			pWriter->SetString(TGridGroupLayoutArchiveKeys::mAlignTypeKeyId, Meta::EnumTrait<E_UI_ELEMENT_ALIGNMENT_TYPE>::ToString(mAlignType));
 		}
 		pWriter->EndGroup();
 
