@@ -121,15 +121,10 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("UpdateGridGroupLayoutElementData");
 
 		CLayoutElement* pLayoutElement = context.mpLayoutElements[id];
-		if (!pLayoutElement->IsDirty())
-		{
-			return;
-		}
-
 		CTransform* pTransform = context.mpTransforms[id];
 		CGridGroupLayout* pGridGroupLayout = context.mpGridGroupLayouts[id];
 
-		if (!pGridGroupLayout->IsDirty())
+		if (!pGridGroupLayout->IsDirty() && !pLayoutElement->IsDirty())
 		{
 			return;
 		}
@@ -140,9 +135,17 @@ namespace TDEngine2
 		const TVector2& cellSize = pGridGroupLayout->GetCellSize();
 		const TVector2& spacing = pGridGroupLayout->GetSpaceBetweenElements();
 
-		TVector2 origin = ZeroVector2;// (static_cast<F32>(pGridGroupLayout->GetLeftPadding()), -static_cast<F32>(pGridGroupLayout->GetTopPadding()));
+		const auto& contentRect = pLayoutElement->GetWorldRect();
 
-		for (TEntityId currChildId : pTransform->GetChildren()) 
+		/// \todo Implement correct alignment of children
+		TVector2 offset = CalcContentRectAlignByType(pLayoutElement->GetParentWorldRect(), contentRect, pGridGroupLayout->GetElementsAlignType());
+		//offset.y = contentRect.height + offset.y;
+
+		const U16 columnsCount = static_cast<U16>(std::roundf(contentRect.width / (cellSize.x + spacing.x)));
+
+		auto&& children = pTransform->GetChildren();
+
+		for (TEntityId currChildId : children)
 		{
 			auto it = std::find(layoutElements.mEntities.cbegin(), layoutElements.mEntities.cend(), currChildId);
 			if (it == layoutElements.mEntities.cend())
@@ -158,15 +161,17 @@ namespace TDEngine2
 				continue;
 			}
 
-			x = index % pGridGroupLayout->GetColumnsCount();
-			y = index / pGridGroupLayout->GetColumnsCount();
+			x = index % columnsCount;
+			y = index / columnsCount;
 
 			++index;
 
 			pChildLayoutElement->SetMinAnchor(TVector2(0.0f, 1.0f));
 			pChildLayoutElement->SetMaxAnchor(TVector2(0.0f, 1.0f));
-			pChildLayoutElement->SetMinOffset(origin + TVector2(x * (cellSize.x + spacing.x), -(cellSize.y + spacing.y) * y - cellSize.y));
+			pChildLayoutElement->SetMinOffset(offset + TVector2(x * (cellSize.x + spacing.x), -(cellSize.y + spacing.y) * y - cellSize.y));
 			pChildLayoutElement->SetMaxOffset(cellSize);
+
+			pChildLayoutElement->SetDirty(true);
 		}
 	}
 
@@ -777,6 +782,11 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CUIElementsProcessSystem::Update");
 
+		if (mLayoutElementsContext.mpLayoutElements.empty())
+		{
+			return;
+		}
+
 		/// \note Update canvas entities
 		for (USIZE i = 0; i < mCanvasesContext.mpTransforms.size(); ++i)
 		{
@@ -786,8 +796,6 @@ namespace TDEngine2
 			}
 		}
 
-		UpdateGridGroupLayoutElements(mGridGroupLayoutsContext, mLayoutElementsContext, pWorld);
-
 		UpdateLayoutElements(mLayoutElementsContext, pWorld); /// \note Process LayoutElement entities
 
 		ComputeImagesMeshes(mImagesContext, mpResourceManager);
@@ -796,6 +804,8 @@ namespace TDEngine2
 
 		DiscardDirtyFlagForElements(mLayoutElementsContext);
 		DiscardDirtyFlagForElements(mCanvasesContext);
+
+		UpdateGridGroupLayoutElements(mGridGroupLayoutsContext, mLayoutElementsContext, pWorld);
 		DiscardDirtyFlagForElements(mGridGroupLayoutsContext);
 	}
 

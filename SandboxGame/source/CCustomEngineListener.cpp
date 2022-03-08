@@ -256,7 +256,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					{
 						pGridGroup->SetCellSize(TVector2(250.0f));
 						pGridGroup->SetSpaceBetweenElements(TVector2(10.0f));
-						pGridGroup->SetColumnsCount(2);
 					}
 
 #if 0

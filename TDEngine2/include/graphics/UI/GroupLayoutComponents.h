@@ -66,9 +66,6 @@ namespace TDEngine2
 
 			TDE2_API void SetElementsAlignType(E_UI_ELEMENT_ALIGNMENT_TYPE value);
 
-			TDE2_API void SetRowsCount(U16 value);
-			TDE2_API void SetColumnsCount(U16 value);
-
 			TDE2_API void SetDirty(bool value);
 
 			TDE2_API const TVector2& GetCellSize() const;
@@ -77,22 +74,16 @@ namespace TDEngine2
 
 			TDE2_API E_UI_ELEMENT_ALIGNMENT_TYPE GetElementsAlignType() const;
 
-			TDE2_API U16 GetRowsCount() const;
-			TDE2_API U16 GetColumnsCount() const;
-
 			TDE2_API bool IsDirty() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGridGroupLayout)
 		protected:
-			TVector2 mCellSize;
-			TVector2 mSpaceBetweenElements;
+			TVector2                    mCellSize;
+			TVector2                    mSpaceBetweenElements;
 			
 			E_UI_ELEMENT_ALIGNMENT_TYPE mAlignType;
 
-			U16      mRowsCount = 1;
-			U16      mColsCount = 1;
-
-			bool     mIsDirty = true;
+			bool                        mIsDirty = true;
 	};
 
 

@@ -84,18 +84,6 @@ namespace TDEngine2
 		SetDirty(true);
 	}
 
-	void CGridGroupLayout::SetRowsCount(U16 value)
-	{
-		mRowsCount = value;
-		SetDirty(true);
-	}
-
-	void CGridGroupLayout::SetColumnsCount(U16 value)
-	{
-		mColsCount = value;
-		SetDirty(true);
-	}
-
 	void CGridGroupLayout::SetDirty(bool value)
 	{
 		mIsDirty = value;
@@ -114,16 +102,6 @@ namespace TDEngine2
 	E_UI_ELEMENT_ALIGNMENT_TYPE CGridGroupLayout::GetElementsAlignType() const
 	{
 		return mAlignType;
-	}
-
-	U16 CGridGroupLayout::GetRowsCount() const
-	{
-		return mRowsCount;
-	}
-
-	U16 CGridGroupLayout::GetColumnsCount() const
-	{
-		return mColsCount;
 	}
 
 	bool CGridGroupLayout::IsDirty() const

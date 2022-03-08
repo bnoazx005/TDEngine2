@@ -1164,16 +1164,6 @@ namespace TDEngine2
 				imguiContext.EndHorizontal();
 			}
 
-			/// \note columns count's field
-			{
-				I32 columnsCount = static_cast<I32>(gridGroupLayout.GetColumnsCount());
-
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Columns Count: ");
-				imguiContext.IntField("##columns", columnsCount, [&columnsCount, &gridGroupLayout] { gridGroupLayout.SetColumnsCount(static_cast<U16>(std::max<I32>(0, columnsCount))); });
-				imguiContext.EndHorizontal();
-			}
-
 			/// \note align type of grid cells
 			{
 				static std::vector<std::string> alignTypes;
