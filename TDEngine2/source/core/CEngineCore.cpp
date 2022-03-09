@@ -122,6 +122,31 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+#if defined TDE2_EDITORS_ENABLED
+
+	static void InitEditorCamera(IWindowSystem* pWindowSystem, ISceneManager* pSceneManager, TPtr<IWorld> pWorld)
+	{
+		if (auto pMainScene = pSceneManager->GetScene(MainScene).Get())
+		{
+			CEntity* pEditorCamera = pMainScene->CreateEditorCamera(static_cast<F32>(pWindowSystem->GetWidth() / pWindowSystem->GetHeight()), 0.5f * CMathConstants::Pi);
+
+			if (auto pCamerasContextEntity = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>()))
+			{
+				if (auto pCamerasContext = pCamerasContextEntity->GetComponent<CCamerasContextComponent>())
+				{
+					if (TEntityId::Invalid == pCamerasContext->GetActiveCameraEntityId())
+					{
+						pCamerasContext->SetActiveCameraEntity(pEditorCamera->GetId());
+					}
+				}
+			}
+		}
+	}
+
+#endif
+
+
 	E_RESULT_CODE CEngineCore::Run()
 	{
 		if (!mIsInitialized)
@@ -164,14 +189,7 @@ namespace TDEngine2
 		}
 
 #if TDE2_EDITORS_ENABLED
-		/// \note Create an editor camera
-		if (ISceneManager* pSceneManager = _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER))
-		{
-			if (auto pMainScene = pSceneManager->GetScene(MainScene).Get())
-			{
-				pMainScene->CreateEditorCamera(static_cast<F32>(pWindowSystem->GetWidth() / pWindowSystem->GetHeight()), 0.5f * CMathConstants::Pi);
-			}
-		}
+		InitEditorCamera(pWindowSystem, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), mpWorldInstance);
 #endif
 
 		/// \todo This is not critical error, but for now I leave it as is

@@ -111,6 +111,11 @@ namespace TDEngine2
 
 		/// \note Update active camera
 		auto it = std::find(mCamerasContext.mEntities.cbegin(), mCamerasContext.mEntities.cend(), mpCamerasContextComponent->GetActiveCameraEntityId());
+		if (it == mCamerasContext.mEntities.cend())
+		{
+			return;
+		}
+
 		SetMainCamera(mCamerasContext.mpCameras[std::distance(mCamerasContext.mEntities.cbegin(), it)]);
 	}
 
