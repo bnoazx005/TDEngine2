@@ -560,23 +560,28 @@ namespace TDEngine2
 
 	void CImGUIContext::VerticalSeparator(F32 initialLeftColumnWidth, const std::function<void(F32)>& leftRegionCallback, const std::function<void(F32)>& rightRegionCallback)
 	{
-		ImGui::Columns(2);
+		if (!ImGui::BeginTable("##vert_separated", 2,  ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp))
+		{
+			return;
+		}
 
-		/// \fixme
-		//ImGui::SetColumnWidth(-1, initialLeftColumnWidth);
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::SetNextItemWidth(initialLeftColumnWidth);
 
 		if (leftRegionCallback)
 		{
-			leftRegionCallback(ImGui::GetColumnWidth());
+			leftRegionCallback(ImGui::GetContentRegionAvail().x);
 		}
 
-		ImGui::NextColumn();
+		ImGui::TableSetColumnIndex(1);
 
 		if (rightRegionCallback)
 		{
-			rightRegionCallback(0.0f);
+			rightRegionCallback(ImGui::GetContentRegionAvail().x);
 		}
 
+		ImGui::EndTable();
 	}
 
 	void CImGUIContext::Histogram(const std::string& name, const F32* pValues, U32 valuesCount, F32 minScale, F32 maxScale,
