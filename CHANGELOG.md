@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.32] 2022-03-10
+## [0.5.32] 2022-03-11
 
 ### Added
 
@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The issue when no camera isn't marked as active was fixed. Now if there is no an active game camera the editor's one is used for that role.
 
 - Behaviour of **CImGUIContext::VerticalSeparator** method was fixed.
+
+### Changed
+
+- **Wrench** extra submodule was removed from dependencies of the engine's toolset. 
 
 ## [0.5.31] 2022-03-08
 

@@ -13,7 +13,6 @@ set(TDE2_RESOURCES_PACKER_NAME "tde2_resources_packer")
 
 set(UTILITY_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse/argparse.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/deps/Wrench/source/result.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/resourcePacker.h"
 	)
 
