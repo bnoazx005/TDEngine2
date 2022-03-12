@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.32] 2022-03-11
+## [0.5.32] 2022-03-12
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Wrench** extra submodule was removed from dependencies of the engine's toolset. 
+
+- **TexturePacker**'s argparse dependency was replaced with internal **CProgramOptions** implementation.
 
 ## [0.5.31] 2022-03-08
 

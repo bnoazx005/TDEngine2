@@ -283,43 +283,46 @@ E_RESULT_CODE CUtilityListener::_processInNonGraphicalMode()
 }
 
 
-constexpr const char* Usage[] =
+constexpr const char* Usage =
 {
-	"TDE2TexturesPacker <input> .. <input> [options]",
-	"where <input> - single texture's path",
-	0
+	"TDE2TexturesPacker <input> .. <input> [options]\n"
+	"where <input> - single texture's path"
 };
+
+
+constexpr const char* VersionArgId = "version";
+constexpr const char* OutputFileArgId = "outfile";
+constexpr const char* BasePathArgId = "base-path";
+constexpr const char* WidthArgId = "width";
+constexpr const char* HeightArgId = "height";
+constexpr const char* FormatArgId = "format";
 
 
 TDEngine2::TResult<TUtilityOptions> ParseOptions(int argc, const char** argv)
 {
-	int showVersion = 0;
+	auto&& pProgramOptions = TDEngine2::CProgramOptions::Get();
 
-	// flags
-	int width = 0, height = 0;
+	pProgramOptions->AddArgument({ 'V', VersionArgId, "Print version info and exit", TProgramOptionsArgument::E_VALUE_TYPE::BOOLEAN, {} });
+	pProgramOptions->AddArgument({ 'o', OutputFileArgId, "Output file's name <filename>", TProgramOptionsArgument::E_VALUE_TYPE::STRING, {} });
+	pProgramOptions->AddArgument({ '\0', BasePathArgId, "A path that will be excluded from input files absolute paths", TProgramOptionsArgument::E_VALUE_TYPE::STRING, {} });
+	pProgramOptions->AddArgument({ 'w', WidthArgId, "Width of the atlas", TProgramOptionsArgument::E_VALUE_TYPE::INTEGER, {} });
+	pProgramOptions->AddArgument({ 'h', HeightArgId, "Height of the atlas", TProgramOptionsArgument::E_VALUE_TYPE::INTEGER, {} });
+	pProgramOptions->AddArgument({ '\0', FormatArgId, "Format of the atlas", TProgramOptionsArgument::E_VALUE_TYPE::STRING, {} });
 
-	const char* pBasePathDirectory = nullptr;
-	const char* pOutputFilename = nullptr;
-	const char* pAtlasFormat = nullptr;
+	E_RESULT_CODE result = pProgramOptions->ParseArgs(
+		{ 
+			argc,
+			argv,
+			"\nThe utility is an archiver of resources which is a part of TDE2 game engine that gathers them together in single peace (package)", 
+			Usage
+		});
 
-	struct argparse_option options[] = {
-		OPT_HELP(),
-		OPT_GROUP("Basic options"),
-		OPT_BOOLEAN('V', "version", &showVersion, "Print version info and exit"),
-		OPT_STRING('o', "outfile", &pOutputFilename, "Output file's name <filename>"),
-		OPT_STRING(0, "base-path", &pBasePathDirectory, "A path that will be excluded from input files absolute paths"),
-		OPT_INTEGER('w', "width", &width, "Width of the atlas"),
-		OPT_INTEGER('h', "height", &height, "Height of the atlas"),
-		OPT_STRING(0, "format", &pAtlasFormat, "Format of the atlas"),
-		OPT_END(),
-	};
+	if (RC_OK != result)
+	{
+		return Wrench::TErrValue<E_RESULT_CODE>(result);
+	}
 
-	struct argparse argparse;
-	argparse_init(&argparse, options, Usage, 0);
-	argparse_describe(&argparse, "\nThe utility is an archiver of resources which is a part of TDE2 game engine that gathers them together in single peace (package)", "\n");
-	argc = argparse_parse(&argparse, argc, argv);
-
-	if (showVersion)
+	if (pProgramOptions->GetValueOrDefault(VersionArgId, false))
 	{
 		std::cout << "TDE2TexturesPacker, version " << ToolVersion.mMajor << "." << ToolVersion.mMinor << std::endl;
 		exit(0);
@@ -335,37 +338,29 @@ TDEngine2::TResult<TUtilityOptions> ParseOptions(int argc, const char** argv)
 
 		for (int i = 0; i < argc; ++i)
 		{
-			sources.push_back(argparse.out[i]);
+			sources.push_back(pProgramOptions->GetPositionalArgValue(i));
 		}
 
 		utilityOptions.mIsDefault = false;
 	}
 
-	if (pOutputFilename)
-	{
-		utilityOptions.mOutputFilename = pOutputFilename;
-	}
+	utilityOptions.mOutputFilename = pProgramOptions->GetValueOrDefault<std::string>(OutputFileArgId, "");
+	utilityOptions.mBasePath       = std::experimental::filesystem::path(pProgramOptions->GetValueOrDefault<std::string>(BasePathArgId, "")).string();
+	utilityOptions.mAtlasWidth     = pProgramOptions->GetValueOrDefault(WidthArgId, 1024);
+	utilityOptions.mAtlasHeight    = pProgramOptions->GetValueOrDefault(HeightArgId, 1024);
+	utilityOptions.mFormatStr      = pProgramOptions->GetValueOrDefault<std::string>(FormatArgId, Meta::EnumTrait<E_FORMAT_TYPE>::ToString(E_FORMAT_TYPE::FT_NORM_UBYTE4));
 
-	if (pBasePathDirectory)
-	{
-		utilityOptions.mBasePath = std::experimental::filesystem::path(pBasePathDirectory).string();
-	}
-
-	if (width < 0)
+	if (utilityOptions.mAtlasWidth < 0)
 	{
 		std::cerr << "Error: width coudn't be less than zero";
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 	}
 
-	if (height < 0)
+	if (utilityOptions.mAtlasHeight < 0)
 	{
 		std::cerr << "Error: height coudn't be less than zero";
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 	}
-
-	utilityOptions.mFormatStr = pAtlasFormat ? pAtlasFormat : Meta::EnumTrait<E_FORMAT_TYPE>::ToString(E_FORMAT_TYPE::FT_NORM_UBYTE4);
-	utilityOptions.mAtlasWidth = static_cast<U32>(width);
-	utilityOptions.mAtlasHeight = static_cast<U32>(height);
 
 	return Wrench::TOkValue<TUtilityOptions>(utilityOptions);
 }

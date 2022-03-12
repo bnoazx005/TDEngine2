@@ -117,4 +117,8 @@ namespace TDEngine2
 
 			bool                         mIsInternalStateInitialized;
 	};
+
+
+	typedef CProgramOptions::TArgumentParams             TProgramOptionsArgument;
+	typedef CProgramOptions::TArgumentParams::TValueType TProgramOptionsArgumentValue;
 }
