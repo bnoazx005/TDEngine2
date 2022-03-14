@@ -14,6 +14,16 @@
 
 namespace TDEngine2
 {
+	class IResourceManager;
+	class IWorld;
+	class IDesktopInputContext;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager);
+	TDE2_DECLARE_SCOPED_PTR(IWorld);
+	TDE2_DECLARE_SCOPED_PTR(IDesktopInputContext);
+
+
 	/*!
 		\brief A factory function for creation objects of CAnimationEditorWindow's type
 
@@ -24,7 +34,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager* pResourceManager, IWorld* pWorld, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateAnimationEditorWindow(TPtr<IResourceManager> pResourceManager, TPtr<IWorld> pWorld, TPtr<IDesktopInputContext> pInputContext, E_RESULT_CODE& result);
 
 	/*!
 		class CAnimationEditorWindow
@@ -35,7 +45,7 @@ namespace TDEngine2
 	class CAnimationEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager*, IWorld*, E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateAnimationEditorWindow(TPtr<IResourceManager>, TPtr<IWorld>, TPtr<IDesktopInputContext>, E_RESULT_CODE&);
 
 		public:
 			/*!
@@ -47,7 +57,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IWorld* pWorld);
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IWorld> pWorld, TPtr<IDesktopInputContext> pInputContext);
 
 			TDE2_API void SetAnimationResourceHandle(TResourceId handle);
 			TDE2_API void SetAnimatedEntityId(TEntityId entity);
@@ -81,8 +91,9 @@ namespace TDEngine2
 
 			TEntityId                       mCurrAnimatedEntity;
 
-			IResourceManager*               mpResourceManager;
-			IWorld*                         mpWorld;
+			TPtr<IResourceManager>          mpResourceManager;
+			TPtr<IWorld>                    mpWorld;
+			TPtr<IDesktopInputContext>      mpInputContext;
 
 			std::string                     mCurrSelectedPropertyBinding;
 			TypeId                          mNewTrackTypeId;

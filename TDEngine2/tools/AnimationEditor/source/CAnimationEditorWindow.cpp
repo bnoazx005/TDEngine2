@@ -11,26 +11,27 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CAnimationEditorWindow::Init(IResourceManager* pResourceManager, IWorld* pWorld)
+	E_RESULT_CODE CAnimationEditorWindow::Init(TPtr<IResourceManager> pResourceManager, TPtr<IWorld> pWorld, TPtr<IDesktopInputContext> pInputContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pResourceManager || !pWorld)
+		if (!pResourceManager || !pWorld || !pInputContext)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpResourceManager = pResourceManager;
 		mpWorld = pWorld;
+		mpInputContext = pInputContext;
 
 		mCurrAnimatedEntity = TEntityId::Invalid;
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpTrackSheetEditor = CreateTrackSheetEditor(result);
+		mpTrackSheetEditor = CreateTrackSheetEditor(pInputContext, result);
 
 		if (RC_OK != result)
 		{
@@ -180,8 +181,10 @@ namespace TDEngine2
 
 	void CAnimationEditorWindow::_drawTimelineEditorGroup()
 	{
+		static F32 verticalSeparatorPos = mpImGUIContext->GetWindowWidth() * 0.3f;
+
 		mpImGUIContext->SetCursorScreenPos(mpImGUIContext->GetCursorScreenPos() + TVector2(0.0f, 10.0f));
-		mpImGUIContext->VerticalSeparator(mpImGUIContext->GetWindowWidth() * 0.3f,
+		mpImGUIContext->VerticalSeparator(verticalSeparatorPos,
 			std::bind(&CAnimationEditorWindow::_drawTracksHierarchy, this, std::placeholders::_1), 
 			std::bind(&CAnimationEditorWindow::_drawTimelineEditor, this, std::placeholders::_1));
 	}
@@ -253,7 +256,7 @@ namespace TDEngine2
 				const std::string& propertyBinding = pTrack->GetPropertyBinding();
 
 				std::string entityName, bindingName;
-				std::tie(entityName, bindingName) = GetTrackInfoFromBinding(mpWorld, mCurrAnimatedEntity, propertyBinding);
+				std::tie(entityName, bindingName) = GetTrackInfoFromBinding(mpWorld.Get(), mCurrAnimatedEntity, propertyBinding);
 
 				if (mUsedPropertyBindings.find(propertyBinding) == mUsedPropertyBindings.cend())
 				{
@@ -749,8 +752,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateAnimationEditorWindow(IResourceManager* pResourceManager, IWorld* pWorld, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateAnimationEditorWindow(TPtr<IResourceManager> pResourceManager, TPtr<IWorld> pWorld, TPtr<IDesktopInputContext> pInputContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CAnimationEditorWindow, result, pResourceManager, pWorld);
+		return CREATE_IMPL(IEditorWindow, CAnimationEditorWindow, result, pResourceManager, pWorld, pInputContext);
 	}
 }

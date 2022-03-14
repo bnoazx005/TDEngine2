@@ -12,18 +12,12 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	auto pWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	// \note Create an editor's camera
-
-	if (CEntity* pCameraEntity = pWorld->CreateEntity("Camera"))
-	{
-		if (auto pCamera = pCameraEntity->AddComponent<CPerspectiveCamera>())
-		{
-			pCamera->SetAspect(mpWindowSystem->GetWidth() / static_cast<F32>(mpWindowSystem->GetHeight()));
-			pCamera->SetFOV(0.5f * CMathConstants::Pi);
-		}
-	}
-
-	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(TDEngine2::CreateAnimationEditorWindow(mpResourceManager.Get(), mpEngineCoreInstance->GetWorldInstance().Get(), result));
+	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(
+			TDEngine2::CreateAnimationEditorWindow(
+				mpResourceManager, 
+				mpEngineCoreInstance->GetWorldInstance(),
+				DynamicPtrCast<IDesktopInputContext>(mpEngineCoreInstance->GetSubsystem<IInputContext>()), 
+				result));
 
 	mCurrEditableEffectId = mpResourceManager->Create<IAnimationClip>("unnamed.animation", TAnimationClipParameters {});
 	mpAnimationEditor->SetAnimationResourceHandle(mCurrEditableEffectId);

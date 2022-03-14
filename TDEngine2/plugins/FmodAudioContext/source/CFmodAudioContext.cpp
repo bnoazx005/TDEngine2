@@ -12,7 +12,7 @@
 namespace TDEngine2
 {
 	CFMODAudioContext::CFMODAudioContext() :
-		mIsInitialized(false), mpSystem(nullptr)
+		CBaseObject(), mpSystem(nullptr)
 	{
 	}
 	

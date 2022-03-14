@@ -87,8 +87,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			std::atomic_bool mIsInitialized;
-			
 			FMOD::Studio::System* mpSystem;
 			FMOD::System* mpCoreSystem;
 

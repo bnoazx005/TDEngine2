@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.32] 2022-03-12
+## [0.5.32] 2022-03-14
 
 ### Added
 
 - Serialization/Deserialization of **GridGroupLayout** component was added.
+
+- Add support of scaling curves in track sheets' editor mode of the animation editor utility.
 
 ### Fixed
 

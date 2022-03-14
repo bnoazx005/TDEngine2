@@ -15,6 +15,10 @@
 namespace TDEngine2
 {
 	class CAnimationCurve;
+	class IDesktopInputContext;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IDesktopInputContext);
 
 
 	/*!
@@ -25,7 +29,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API class CTrackSheetEditor* CreateTrackSheetEditor(E_RESULT_CODE& result);
+	TDE2_API class CTrackSheetEditor* CreateTrackSheetEditor(TPtr<IDesktopInputContext> pInputContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -37,7 +41,7 @@ namespace TDEngine2
 	class CTrackSheetEditor : public CBaseObject, public IAnimationTrackVisitor
 	{
 	public:
-		friend TDE2_API CTrackSheetEditor* CreateTrackSheetEditor(E_RESULT_CODE&);
+		friend TDE2_API CTrackSheetEditor* CreateTrackSheetEditor(TPtr<IDesktopInputContext>, E_RESULT_CODE&);
 
 	public:
 		typedef std::function<void(const CScopedPtr<CAnimationCurve>&)> TCurveBindingCallback;
@@ -61,7 +65,7 @@ namespace TDEngine2
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Init();
+		TDE2_API E_RESULT_CODE Init(TPtr<IDesktopInputContext> pInputContext);
 
 		TDE2_API E_RESULT_CODE Draw(const TVector2& frameSizes);
 
@@ -103,5 +107,9 @@ namespace TDEngine2
 		TAnimationTrackKeyId mCurrSelectedSampleId;
 
 		TActionCallback mPreSerializeAction = nullptr;
+		
+		TPtr<IDesktopInputContext> mpInputContext;
+
+		TVector2 mCurrGridYAxisBounds; ///< x - min, y - max values for y axis of the grid
 	};
 }

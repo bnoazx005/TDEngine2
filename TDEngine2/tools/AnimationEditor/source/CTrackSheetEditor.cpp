@@ -4,6 +4,8 @@
 namespace TDEngine2
 {
 	static const TVector2 DiscreteTrackButtonSize(10.0f, 20.0f);
+	
+	static const F32 GridVerticalOffsetMultiplier = 1e-3f;
 
 	static const std::string KeyOperationsPopupMenuId = "KeyMenuWindow";
 
@@ -14,17 +16,38 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CTrackSheetEditor::Init()
+	E_RESULT_CODE CTrackSheetEditor::Init(TPtr<IDesktopInputContext> pInputContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
+		if (!pInputContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpInputContext = pInputContext;
+
 		mIsInitialized = true;
 
 		return RC_OK;
 	}
+
+
+	static void ProcessInput(IImGUIContext& imguiContext, TPtr<IDesktopInputContext> pInputContext, TVector2& vertGridBounds)
+	{
+		//imguiContext.
+		if (pInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
+		{
+			const F32 scrollDelta = pInputContext->GetMouseShiftVec().z * GridVerticalOffsetMultiplier;
+
+			vertGridBounds.x -= scrollDelta;
+			vertGridBounds.y += scrollDelta;
+		}
+	}
+
 
 	E_RESULT_CODE CTrackSheetEditor::Draw(const TVector2& frameSizes)
 	{
@@ -33,6 +56,8 @@ namespace TDEngine2
 			mOnDrawImpl(frameSizes);
 			mIsEditing = true;
 		}
+
+		ProcessInput(*mpImGUIContext, mpInputContext, mCurrGridYAxisBounds);
 
 		return RC_OK;
 	}
@@ -506,6 +531,8 @@ namespace TDEngine2
 			mPreSerializeAction();
 		}
 
+		mCurrGridYAxisBounds = TVector2((std::numeric_limits<F32>::max)(), -(std::numeric_limits<F32>::max)());
+
 		for (auto& currBindingEntityInfo : mCurvesTable)
 		{
 			auto& bindingInfo = currBindingEntityInfo.second;
@@ -551,8 +578,8 @@ namespace TDEngine2
 
 			TAnimationCurveEditorParams curveParams;
 
-			F32 minY = (std::numeric_limits<F32>::max)();
-			F32 maxY = -minY;
+			F32& minY = mCurrGridYAxisBounds.x;
+			F32& maxY = mCurrGridYAxisBounds.y;
 
 			/// \note Find common boundaries for all curves
 			for (auto&& currCurveBindingInfo : mCurvesTable)
@@ -598,8 +625,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API CTrackSheetEditor* CreateTrackSheetEditor(E_RESULT_CODE& result)
+	TDE2_API CTrackSheetEditor* CreateTrackSheetEditor(TPtr<IDesktopInputContext> pInputContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(CTrackSheetEditor, CTrackSheetEditor, result);
+		return CREATE_IMPL(CTrackSheetEditor, CTrackSheetEditor, result, pInputContext);
 	}
 }
