@@ -53,12 +53,11 @@ namespace TDEngine2
 			auto pos = pImGUIContext->GetCursorScreenPos();
 
 			pImGUIContext->SetCursorScreenPos(p0 - TVector2(handlePointButtonSize * 0.5f));
-			
 			pImGUIContext->Button(Wrench::StringUtils::GetEmptyStr(), TVector2(handlePointButtonSize), {}, true);
 
 			if (!shouldIgnoreInput)
 			{
-				if (pImGUIContext->IsItemActive() && pImGUIContext->IsMouseDragging(0))
+				if (pImGUIContext->IsItemActive())
 				{
 					auto&& mousePos = pImGUIContext->GetMousePosition();
 
@@ -120,7 +119,7 @@ namespace TDEngine2
 			{
 				pImGUIContext->Button("", TVector2(handlePointButtonSize), {}, true);
 
-				if (pImGUIContext->IsItemActive() && pImGUIContext->IsMouseDragging(0))
+				if (pImGUIContext->IsItemActive())
 				{
 					auto&& mousePos = pImGUIContext->GetMousePosition();
 
@@ -197,14 +196,15 @@ namespace TDEngine2
 	}
 
 
-	static void HandleCurveCursor(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, bool shouldIgnoreInput)
+	static void HandleCurveCursor(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, bool shouldIgnoreInput,
+								bool useCustomBounds = false, const TRectF32* pCustomGridBounds = nullptr)
 	{
 		if (!pCurve)
 		{
 			return;
 		}
 
-		const TRectF32& curveBounds = pCurve->GetBounds();
+		const TRectF32& curveBounds = useCustomBounds ? *pCustomGridBounds : pCurve->GetBounds();
 
 		const CAnimationCurveEditorWindow::TCurveTransformParams transformParams{ curveBounds, cursorPos, width, height };
 
@@ -224,7 +224,7 @@ namespace TDEngine2
 				{
 					static const TVector2 defaultControlPoint{ 0.25f * RightVector2 };
 
-					pCurve->AddPoint({ curveMousePos.x, /*curveValue*/ 0.5f, -defaultControlPoint, defaultControlPoint });
+					pCurve->AddPoint({ curveMousePos.x, curveBounds.height < 1e-3f ? 0.5f : curveMousePos.y, -defaultControlPoint, defaultControlPoint });
 				}
 			}
 		}
@@ -291,7 +291,7 @@ namespace TDEngine2
 		{
 			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, params.mOnCurveClickedCallback, shouldIgnoreInput,
 						  params.mUseCustomGridBounds, &params.mGridBounds);
-			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, shouldIgnoreInput);
+			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, shouldIgnoreInput, params.mUseCustomGridBounds, &params.mGridBounds);
 		});
 
 		return RC_OK;

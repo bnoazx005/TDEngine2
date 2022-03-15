@@ -605,7 +605,7 @@ namespace TDEngine2
 				curveParams.mFrameHeight = frameSizes.y;
 				curveParams.mIsGridVisible = !i; /// \note Draw the grid only for the first curve
 				curveParams.mIsBackgroundVisible = false;
-				curveParams.mCurveColor = ((mCurvesTable.size() < 2) ? curveColors[2] : (mCurrSelectedCurveId != currCurveBindingInfo.first ? curveColors[4] : curveColors[i]));
+				curveParams.mCurveColor = ((mCurvesTable.size() < 2) ? curveColors[2] : (mCurrSelectedCurveId != currCurveBindingInfo.first ? curveColors.back() : curveColors[i]));
 				curveParams.mShouldIgnoreInput = mCurrSelectedCurveId != currCurveBindingInfo.first;
 				curveParams.mUseCustomGridBounds = true;
 				curveParams.mGridBounds = gridBounds;
