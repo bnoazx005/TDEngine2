@@ -597,7 +597,7 @@ namespace TDEngine2
 
 	void CImGUIContext::DrawCubicBezier(const TVector2& p0, const TVector2& t0, const TVector2& p1, const TVector2& t1, const TColor32F& color, F32 thickness)
 	{
-		GetCurrActiveDrawList()->AddBezierCurve(p0, t0, t1, p1, PackABGRColor32F(color), thickness);
+		GetCurrActiveDrawList()->AddBezierCubic(p0, t0, t1, p1, PackABGRColor32F(color), thickness);
 	}
 
 	void CImGUIContext::DrawRect(const TRectF32& rect, const TColor32F& color, bool isFilled, F32 thickness)

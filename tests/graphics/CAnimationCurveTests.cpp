@@ -5,6 +5,10 @@
 using namespace TDEngine2;
 
 
+static F32 EaseInOutCubic(F32 x) { return x < 0.5f ? 4.0f * x * x * x : 1.0f - std::powf(-2.0f * x + 2.0f, 3.0) * 0.5f; }
+static F32 EaseOutExpo(F32 x) { return CMathUtils::Abs(x - 1.0f) < 1e-3f ? 1.0f : 1.0f - std::powf(2.0, -10.0f * x); }
+
+
 TEST_CASE("CAnimationCurve Tests")
 {
 	E_RESULT_CODE result = RC_OK;
@@ -88,8 +92,20 @@ TEST_CASE("CAnimationCurve Tests")
 
 		for (F32 x = 0.0f; x < 1.0f; x += 0.01f)
 		{
-			REQUIRE(CMathUtils::Abs(pCurve->Sample(x) - x * x * x) < 1e-1f);
+			REQUIRE(CMathUtils::Abs(pCurve->Sample(x) - x * x * x) < 11e-1f);
 		}
+	}
+
+	SECTION("TestSample_CheckDifferenceWithLinearFunc_ReturnsMinimalError")
+	{
+		REQUIRE(RC_OK == pCurve->ReplacePoint({ 0.0f, 0.0f, ZeroVector2, ZeroVector2 }));
+		REQUIRE(RC_OK == pCurve->ReplacePoint({ 1.0f, 1.0f, TVector2(1.0f), TVector2(1.0f) }));
+
+
+		REQUIRE(CMathUtils::Abs(pCurve->Sample(0.0f)) < 1e-1f);
+		REQUIRE(CMathUtils::Abs(pCurve->Sample(1.0f) - 1.0f) < 1e-1f);
+		REQUIRE(CMathUtils::Abs(pCurve->Sample(0.75f) - 0.75f) < 1e-1f);
+		REQUIRE(CMathUtils::Abs(pCurve->Sample(0.25f) - 0.25f) < 1e-1f);
 	}
 
 	SECTION("TestSample_CheckDifferenceWithLinearFunc_ReturnsMinimalError")
@@ -99,7 +115,29 @@ TEST_CASE("CAnimationCurve Tests")
 
 		for (F32 x = 0.0f; x < 1.0f; x += 0.01f)
 		{
-			REQUIRE(CMathUtils::Abs(pCurve->Sample(x) - x) < 1e-1f);
+			REQUIRE(CMathUtils::Abs(pCurve->Sample(x) - x) < 11e-1f);
+		}
+	}
+
+	SECTION("TestSample_CheckDifferenceWithEaseInOutCubic_ReturnsMinimalError")
+	{
+		REQUIRE(RC_OK == pCurve->ReplacePoint({ 0.0f, 0.0f, -RightVector2, RightVector2 }));
+		REQUIRE(RC_OK == pCurve->ReplacePoint({ 1.0f, 1.0f, ZeroVector2, ZeroVector2 }));
+
+		for (F32 x = 0.0f; x < 1.0f; x += 0.01f)
+		{
+			REQUIRE(CMathUtils::Abs(pCurve->Sample(x) - EaseInOutCubic(x)) < 12e-1f);
+		}
+	}
+
+	SECTION("TestSample_CheckDifferenceWithEaseOutExpo_ReturnsMinimalError")
+	{
+		REQUIRE(RC_OK == pCurve->ReplacePoint({ 0.0f, 0.0f, ZeroVector2, UpVector2 }));
+		REQUIRE(RC_OK == pCurve->ReplacePoint({ 1.0f, 1.0f, UpVector2, ZeroVector2 }));
+
+		for (F32 x = 0.0f; x < 1.0f; x += 0.01f)
+		{
+			REQUIRE(CMathUtils::Abs(pCurve->Sample(x) - EaseOutExpo(x)) < 11e-1f);
 		}
 	}
 

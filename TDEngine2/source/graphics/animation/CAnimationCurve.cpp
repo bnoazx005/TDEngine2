@@ -29,8 +29,8 @@ namespace TDEngine2
 		}
 
 		// \note Use default parameters for the curve with no points
-		pCurve->AddPoint({ bounds.x, bounds.y, -0.5f * RightVector2, 0.5f * RightVector2 });
-		pCurve->AddPoint({ bounds.width + bounds.x, bounds.height + bounds.y, -0.5f * RightVector2, 0.5f * RightVector2 });
+		pCurve->AddPoint({ bounds.x, bounds.y, ZeroVector2, 0.5f * RightVector2 });
+		pCurve->AddPoint({ bounds.width + bounds.x, bounds.height + bounds.y, TVector2(0.5f, bounds.height), ZeroVector2 });
 
 		return RC_OK;
 	}
@@ -234,8 +234,8 @@ namespace TDEngine2
 		const TVector2 secondPoint { nextPoint.mTime, nextPoint.mValue };
 
 		return CMathUtils::CubicBezierInterpolation<TVector2>((trackTime - thisTime) / frameDelta, 
-															  firstPoint, firstPoint + currPoint.mOutTangent,
-															  secondPoint, secondPoint + nextPoint.mInTangent).y;
+															  firstPoint, currPoint.mOutTangent,
+															  secondPoint, nextPoint.mInTangent).y;
 	}
 
 	void CAnimationCurve::UpdateBounds()

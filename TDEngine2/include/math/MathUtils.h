@@ -60,6 +60,14 @@ namespace TDEngine2
 
 				return p0 * (invT * invT * invT) + t0 * (3.0f * invT * invT * t) + t1 * (3.0f * invT * t * t) + p1 * (t * t * t);
 			}
+
+			template <typename T>
+			TDE2_API static inline T CubicHermiteInterpolation(F32 t, const T& p0, const T& s0, const T& p1, const T& s1)
+			{
+				const F32 invT = 1.0f - t;
+
+				return p0 * (invT * invT * (1.0f + 2.0f * t)) + s0 * (invT * invT * t) + p1 * ((3.0f - 2.0f * t) * t * t) + s1 * (t * t * (t - 1.0f));
+			}
 	};
 
 

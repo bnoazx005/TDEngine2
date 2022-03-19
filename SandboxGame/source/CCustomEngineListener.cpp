@@ -478,6 +478,9 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	TDE2_PROFILER_SCOPE("OnUpdate");
 
+	E_RESULT_CODE r = RC_OK;
+	static TPtr<CAnimationCurve> pCurve = TPtr<CAnimationCurve>(CreateAnimationCurve({ 0.0f, 0.0f, 1.0f, 1.0f }, r));
+
 #if 1
 	/// \note ImGUI tests
 	{
@@ -526,6 +529,11 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 			id = imgui->Popup("TestPopup", id, { "First", "Second", "Third" });
 			imgui->Image(mpResourceManager->Load<ITexture2D>("@"), TVector2(128.0f, 128.0f));
+
+			TAnimationCurveEditorParams par;
+			par.mFrameWidth = 200.0f;
+			par.mFrameHeight = 200.0f;
+			CAnimationCurveEditorWindow::DrawCurveEditor(imgui.Get(), par, pCurve.Get());
 
 			static int selection = 1 << 2;
 
