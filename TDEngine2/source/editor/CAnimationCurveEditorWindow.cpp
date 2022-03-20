@@ -21,7 +21,7 @@ namespace TDEngine2
 			cursorPos.x + (p.x - curveBounds.x) / std::max<F32>(1e-3f, curveBounds.width) * width,
 			cursorPos.y + (1.0f - (p.y - curveBounds.y) / std::max<F32>(1e-3f, curveBounds.height)) * height
 		};
-	};
+	}
 
 
 	static TVector2 ApplyScreenToCurveTransform(const CAnimationCurveEditorWindow::TCurveTransformParams& params, const TVector2& p)
@@ -38,7 +38,23 @@ namespace TDEngine2
 			(p.x - cursorPos.x) / width * curveBounds.width + curveBounds.x,
 			(1.0f - (p.y - cursorPos.y) / height) * curveBounds.height + curveBounds.y
 		};
-	};
+	}
+
+
+	static void DrawAnimationCurve(IImGUIContext& imguiContext, CAnimationCurve& curve, const CAnimationCurveEditorWindow::TCurveTransformParams& params,
+									const TColor32F& color, U32 numSegments = 30, F32 thickness = 1.0f)
+	{
+		for (U32 i = 0; i < numSegments; ++i)
+		{
+			const F32 t0 = i / static_cast<F32>(numSegments);
+			const F32 t1 = (i + 1) / static_cast<F32>(numSegments);
+
+			const TVector2 currPoint = ApplyCurveToScreenTransform(params, { t0, curve.Sample(t0) });
+			const TVector2 nextPoint = ApplyCurveToScreenTransform(params, { t1, curve.Sample(t1) });
+
+			imguiContext.DrawLine(currPoint, nextPoint, color, thickness);
+		}
+	}
 
 
 	static bool DrawCurvePoint(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, I32 id, const TVector2& pos, const CAnimationCurveEditorWindow::TCurveTransformParams& invTransformParams,
@@ -67,13 +83,13 @@ namespace TDEngine2
 
 						const TVector2 currPointPos { pPoint->mTime, pPoint->mValue };
 						
-						const TVector2 inTangentOffset = pPoint->mInTangent - currPointPos;
+						const TVector2 inTangentOffset  = pPoint->mInTangent - currPointPos;
 						const TVector2 outTangentOffset = pPoint->mOutTangent - currPointPos;
 
 						pPoint->mTime = curvePointDelta.x;
 						pPoint->mValue = curvePointDelta.y;
-						pPoint->mInTangent = inTangentOffset +curvePointDelta;
-						pPoint->mOutTangent = outTangentOffset +curvePointDelta;
+						pPoint->mInTangent = inTangentOffset + curvePointDelta;
+						pPoint->mOutTangent = outTangentOffset + curvePointDelta;
 					}
 				}
 
@@ -154,6 +170,8 @@ namespace TDEngine2
 
 		const CAnimationCurveEditorWindow::TCurveTransformParams transformParams{ curveBounds, cursorPos, width, height };
 
+		DrawAnimationCurve(*pImGUIContext, *pCurve, transformParams, curveColor, 100, 1.5f);
+
 		for (auto it = pCurve->begin(); it != pCurve->end(); ++it)
 		{
 			auto&& currPoint = *it;
@@ -163,6 +181,7 @@ namespace TDEngine2
 			auto p0 = ApplyCurveToScreenTransform(transformParams, initCurrPos);
 			TVector2 p1, t0, t1;
 
+#if 0
 			if (it != pCurve->end() - 1)
 			{
 				auto&& nextPoint = *(it + 1);
@@ -174,6 +193,7 @@ namespace TDEngine2
 
 				pImGUIContext->DrawCubicBezier(p0, t0, p1, t1, curveColor, 1.5f);
 			}
+#endif
 
 			if (DrawCurvePoint(pImGUIContext, pCurve, static_cast<I32>(std::distance(pCurve->begin(), it)), p0, transformParams, handlePointSize, handlePointButtonSize, onCurveClicked, shouldIgnoreInput))
 			{
