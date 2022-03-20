@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support of scaling curves in track sheets' editor mode of the animation editor utility.
 
+- A pallete of editing channels for TVector2/3 curves was added for AnimationEd utility
+
 ### Fixed
 
 - The issue when no camera isn't marked as active was fixed. Now if there is no an active game camera the editor's one is used for that role.

@@ -224,7 +224,7 @@ namespace TDEngine2
 
 
 	static void HandleCurveCursor(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, bool shouldIgnoreInput,
-								bool useCustomBounds = false, const TRectF32* pCustomGridBounds = nullptr)
+								bool useCustomBounds = false, const TRectF32* pCustomGridBounds = nullptr, const TAnimationCurveEditorParams::TActionCallback& onCurveClicked = {})
 	{
 		if (!pCurve)
 		{
@@ -240,7 +240,7 @@ namespace TDEngine2
 
 		const F32 curveValue = pCurve->Sample(curveMousePos.x);
 
-		if (CMathUtils::Abs(curveValue - curveMousePos.y) < 0.2f)
+		if (CMathUtils::Abs(curveValue - curveMousePos.y) < 0.05f)
 		{
 			// draw a cursor if a user moves it right near a curve
 			pImGUIContext->DrawCircle(ApplyCurveToScreenTransform(transformParams, TVector2(curveMousePos.x, curveValue)), 4.0f, false, TColorUtils::mYellow);
@@ -253,6 +253,11 @@ namespace TDEngine2
 
 					const TVector2 point { curveMousePos.x, curveBounds.height < 1e-3f ? 0.5f : curveMousePos.y };
 					pCurve->AddPoint({ point.x, point.y, point - defaultControlPoint, point + defaultControlPoint });
+				}
+
+				if (onCurveClicked && pImGUIContext->IsMouseClicked(0))
+				{
+					onCurveClicked();
 				}
 			}
 		}
@@ -319,7 +324,7 @@ namespace TDEngine2
 		{
 			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, params.mOnCurveClickedCallback, shouldIgnoreInput,
 						  params.mUseCustomGridBounds, &params.mGridBounds);
-			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, shouldIgnoreInput, params.mUseCustomGridBounds, &params.mGridBounds);
+			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, shouldIgnoreInput, params.mUseCustomGridBounds, &params.mGridBounds, params.mOnCurveClickedCallback);
 		});
 
 		return RC_OK;

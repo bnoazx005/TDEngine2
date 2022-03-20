@@ -49,6 +49,32 @@ namespace TDEngine2
 	}
 
 
+	static void DrawCurvesSelector(CTrackSheetEditor::TCurveBindingsTable& curvesTable, IImGUIContext& imguiContext, std::string& currSelectedCurveId)
+	{
+		bool isOpened = true;
+		
+		static const IImGUIContext::TWindowParams params
+		{
+			ZeroVector2,
+			TVector2(100.0f, 100.0f),
+			TVector2(100.0f, 100.0f),
+		};
+
+		if (imguiContext.BeginWindow("Curves", isOpened, params))
+		{
+			for (auto& currCurve : curvesTable)
+			{
+				if (imguiContext.SelectableItem(currCurve.first, currSelectedCurveId == currCurve.first))
+				{
+					currSelectedCurveId = currCurve.first;
+				}
+			}
+
+			imguiContext.EndWindow();
+		}
+	}
+
+
 	E_RESULT_CODE CTrackSheetEditor::Draw(const TVector2& frameSizes)
 	{
 		if (mOnDrawImpl)
@@ -58,6 +84,7 @@ namespace TDEngine2
 		}
 
 		ProcessInput(*mpImGUIContext, mpInputContext, mCurrGridYAxisBounds);
+		DrawCurvesSelector(mCurvesTable, *mpImGUIContext, mCurrSelectedCurveId);
 
 		return RC_OK;
 	}

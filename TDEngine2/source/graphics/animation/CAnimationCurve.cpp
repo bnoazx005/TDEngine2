@@ -29,8 +29,8 @@ namespace TDEngine2
 		}
 
 		// \note Use default parameters for the curve with no points
-		pCurve->AddPoint({ bounds.x, bounds.y, ZeroVector2, 0.5f * RightVector2 });
-		pCurve->AddPoint({ bounds.width + bounds.x, bounds.height + bounds.y, TVector2(0.5f, bounds.height), ZeroVector2 });
+		pCurve->AddPoint({ bounds.x, bounds.y, ZeroVector2, 0.25f * RightVector2 });
+		pCurve->AddPoint({ bounds.width + bounds.x, bounds.height + bounds.y, TVector2(0.75f, bounds.height), ZeroVector2 });
 
 		return RC_OK;
 	}

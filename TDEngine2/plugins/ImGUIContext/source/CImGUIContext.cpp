@@ -560,28 +560,26 @@ namespace TDEngine2
 
 	void CImGUIContext::VerticalSeparator(F32 initialLeftColumnWidth, const std::function<void(F32)>& leftRegionCallback, const std::function<void(F32)>& rightRegionCallback)
 	{
-		if (!ImGui::BeginTable("##vert_separated", 2,  ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp))
+		if (ImGui::BeginTable("##vert_separated", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp))
 		{
-			return;
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::SetNextItemWidth(initialLeftColumnWidth);
+
+			if (leftRegionCallback)
+			{
+				leftRegionCallback(ImGui::GetContentRegionAvail().x);
+			}
+
+			ImGui::TableSetColumnIndex(1);
+
+			if (rightRegionCallback)
+			{
+				rightRegionCallback(ImGui::GetContentRegionAvail().x);
+			}
+
+			ImGui::EndTable();
 		}
-
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
-		ImGui::SetNextItemWidth(initialLeftColumnWidth);
-
-		if (leftRegionCallback)
-		{
-			leftRegionCallback(ImGui::GetContentRegionAvail().x);
-		}
-
-		ImGui::TableSetColumnIndex(1);
-
-		if (rightRegionCallback)
-		{
-			rightRegionCallback(ImGui::GetContentRegionAvail().x);
-		}
-
-		ImGui::EndTable();
 	}
 
 	void CImGUIContext::Histogram(const std::string& name, const F32* pValues, U32 valuesCount, F32 minScale, F32 maxScale,
