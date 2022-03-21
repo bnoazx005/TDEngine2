@@ -55,6 +55,7 @@ namespace TDEngine2
 				}
 
 				mpTrackOwnerAnimation = pTrackOwner;
+				mInterpolationMode = E_ANIMATION_INTERPOLATION_MODE_TYPE::LINEAR;
 
 				mIsInitialized = true;
 
