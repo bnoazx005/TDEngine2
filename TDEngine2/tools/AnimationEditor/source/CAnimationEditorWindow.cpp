@@ -1,4 +1,5 @@
 #include "../include/CAnimationEditorWindow.h"
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
@@ -245,6 +246,18 @@ namespace TDEngine2
 	}
 
 
+	static void DisplaySetSampleModeMenuGroup(IImGUIContext& imguiContext, IAnimationTrack* pTrack)
+	{
+		imguiContext.MenuGroup("Sample Mode", [pTrack](IImGUIContext& imgui)
+		{
+			for (auto&& enumField : Meta::EnumTrait<E_ANIMATION_INTERPOLATION_MODE_TYPE>::GetFields())
+			{
+				imgui.MenuItem(enumField.name, Wrench::StringUtils::GetEmptyStr(), [pTrack, value = enumField.value]{ pTrack->SetInterpolationMode(value); });
+			}
+		});
+	}
+
+
 	void CAnimationEditorWindow::_drawTracksHierarchy(F32 blockWidth)
 	{
 		mpImGUIContext->SetCursorScreenPos(mpImGUIContext->GetCursorScreenPos() + TVector2(0.0f, 25.0f));
@@ -284,7 +297,7 @@ namespace TDEngine2
 				/// \todo Remove the selected track
 				if (mSelectedTrackId == trackId)
 				{
-					mpImGUIContext->DisplayContextMenu("TracksOperations", [this, trackId, propertyBinding](IImGUIContext& imguiContext)
+					mpImGUIContext->DisplayContextMenu("TracksOperations", [this, trackId, propertyBinding, pTrack](IImGUIContext& imguiContext)
 					{
 						imguiContext.MenuItem("Remove Track", "Del", [this, trackId, propertyBinding]
 						{
@@ -298,6 +311,8 @@ namespace TDEngine2
 
 							mSelectedTrackId = TAnimationTrackId::Invalid;
 						});
+
+						DisplaySetSampleModeMenuGroup(imguiContext, pTrack);
 					});
 
 					if (TAnimationTrackId::Invalid == mSelectedTrackId)

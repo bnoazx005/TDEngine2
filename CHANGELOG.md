@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.33] 2022-03-21
 
+### Added
+
+- Add support of sampling modes' switching for animation tracks via its context menu. 
+
 ### Fixed
 
 - (Fixed issue #74) Initialization of animation tracks was fixed.
