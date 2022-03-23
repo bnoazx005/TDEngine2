@@ -116,7 +116,14 @@ namespace TDEngine2
 		F32 x = vec2.x;
 		F32 y = vec2.y;
 
-		F32 invLength = 1.0f / sqrtf(x * x + y * y);
+		const F32 sqrLength = x * x + y * y;
+
+		if (sqrLength < 1e-3f)
+		{
+			return ZeroVector2;
+		}
+
+		F32 invLength = 1.0f / sqrtf(sqrLength);
 
 		return TVector2(x * invLength, y * invLength);
 	}

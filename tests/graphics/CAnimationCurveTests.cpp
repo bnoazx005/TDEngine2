@@ -99,7 +99,7 @@ TEST_CASE("CAnimationCurve Tests")
 	SECTION("TestSample_CheckDifferenceWithLinearFunc_ReturnsMinimalError")
 	{
 		REQUIRE(RC_OK == pCurve->ReplacePoint({ 0.0f, 0.0f, ZeroVector2, ZeroVector2 }));
-		REQUIRE(RC_OK == pCurve->ReplacePoint({ 1.0f, 1.0f, TVector2(1.0f), TVector2(1.0f) }));
+		REQUIRE(RC_OK == pCurve->ReplacePoint({ 1.0f, 1.0f, ZeroVector2, ZeroVector2 }));
 
 
 		REQUIRE(CMathUtils::Abs(pCurve->Sample(0.0f)) < 1e-1f);

@@ -47,7 +47,6 @@ namespace TDEngine2
 				F32 mTime;
 				F32 mValue;
 
-				/// \note Actually these are not tangent vectors but control points that form a Bezier curve's shape
 				TVector2 mInTangent;
 				TVector2 mOutTangent;
 			} TKeyFrame;

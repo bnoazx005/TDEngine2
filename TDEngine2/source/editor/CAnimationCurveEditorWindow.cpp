@@ -81,15 +81,8 @@ namespace TDEngine2
 					{
 						const TVector2& curvePointDelta = ApplyScreenToCurveTransform(invTransformParams, mousePos);
 
-						const TVector2 currPointPos { pPoint->mTime, pPoint->mValue };
-						
-						const TVector2 inTangentOffset  = pPoint->mInTangent - currPointPos;
-						const TVector2 outTangentOffset = pPoint->mOutTangent - currPointPos;
-
 						pPoint->mTime = curvePointDelta.x;
 						pPoint->mValue = curvePointDelta.y;
-						pPoint->mInTangent = inTangentOffset + curvePointDelta;
-						pPoint->mOutTangent = outTangentOffset + curvePointDelta;
 					}
 				}
 
@@ -181,20 +174,6 @@ namespace TDEngine2
 			auto p0 = ApplyCurveToScreenTransform(transformParams, initCurrPos);
 			TVector2 p1, t0, t1;
 
-#if 0
-			if (it != pCurve->end() - 1)
-			{
-				auto&& nextPoint = *(it + 1);
-				const TVector2& initNextPos{ nextPoint.mTime, nextPoint.mValue };
-
-				p1 = ApplyCurveToScreenTransform(transformParams, initNextPos);
-				t0 = ApplyCurveToScreenTransform(transformParams, currPoint.mOutTangent);
-				t1 = ApplyCurveToScreenTransform(transformParams, nextPoint.mInTangent);
-
-				pImGUIContext->DrawCubicBezier(p0, t0, p1, t1, curveColor, 1.5f);
-			}
-#endif
-
 			if (DrawCurvePoint(pImGUIContext, pCurve, static_cast<I32>(std::distance(pCurve->begin(), it)), p0, transformParams, handlePointSize, handlePointButtonSize, onCurveClicked, shouldIgnoreInput))
 			{
 				break; /// \note Break the iteration because we've removed the point 
@@ -202,20 +181,20 @@ namespace TDEngine2
 
 			if (it < pCurve->end() - 1)
 			{
-				t0 = ApplyCurveToScreenTransform(transformParams, currPoint.mOutTangent);
+				t0 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mOutTangent);
 
 				t0 = DrawControlPoint(pImGUIContext, controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t0, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
-				t0 = ApplyScreenToCurveTransform(transformParams, p0 + t0);
+				t0 = ApplyScreenToCurveTransform(transformParams, p0 + t0) - initCurrPos;
 
 				currPoint.mOutTangent = t0;
 			}
 
 			if (it > pCurve->begin())
 			{
-				t1 = ApplyCurveToScreenTransform(transformParams,  currPoint.mInTangent);
+				t1 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mInTangent);
 
 				t1 = DrawControlPoint(pImGUIContext, 2 * controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t1, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
-				t1 = ApplyScreenToCurveTransform(transformParams, p0 + t1);
+				t1 = ApplyScreenToCurveTransform(transformParams, p0 + t1) - initCurrPos;
 
 				currPoint.mInTangent = t1;
 			}
@@ -252,7 +231,7 @@ namespace TDEngine2
 					static const TVector2 defaultControlPoint{ 0.25f * RightVector2 };
 
 					const TVector2 point { curveMousePos.x, curveBounds.height < 1e-3f ? 0.5f : curveMousePos.y };
-					pCurve->AddPoint({ point.x, point.y, point - defaultControlPoint, point + defaultControlPoint });
+					pCurve->AddPoint({ point.x, point.y, -defaultControlPoint, defaultControlPoint });
 				}
 
 				if (onCurveClicked && pImGUIContext->IsMouseClicked(0))
