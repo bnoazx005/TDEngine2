@@ -30,6 +30,7 @@ namespace TDEngine2
 		bool            mIsGridVisible = false;
 		bool            mIsBackgroundVisible = false;
 		bool            mUseCustomGridBounds = false;
+		bool            mIsTangentControlsEnabled = true;
 
 		bool            mShouldIgnoreInput = false;
 

@@ -41,7 +41,7 @@ namespace TDEngine2
 	}
 
 
-	static void DrawAnimationCurve(IImGUIContext& imguiContext, CAnimationCurve& curve, const CAnimationCurveEditorWindow::TCurveTransformParams& params,
+	static void DrawCubicAnimationCurve(IImGUIContext& imguiContext, CAnimationCurve& curve, const CAnimationCurveEditorWindow::TCurveTransformParams& params,
 									const TColor32F& color, U32 numSegments = 30, F32 thickness = 1.0f)
 	{
 		for (U32 i = 0; i < numSegments; ++i)
@@ -51,6 +51,21 @@ namespace TDEngine2
 
 			const TVector2 currPoint = ApplyCurveToScreenTransform(params, { t0, curve.Sample(t0) });
 			const TVector2 nextPoint = ApplyCurveToScreenTransform(params, { t1, curve.Sample(t1) });
+
+			imguiContext.DrawLine(currPoint, nextPoint, color, thickness);
+		}
+	}
+
+	static void DrawLinearAnimationCurve(IImGUIContext& imguiContext, CAnimationCurve& curve, const CAnimationCurveEditorWindow::TCurveTransformParams& params,
+										const TColor32F& color, U32 numSegments = 30, F32 thickness = 1.0f)
+	{
+		for (auto it = curve.begin(); it != curve.end() - 1; ++it)
+		{
+			auto&& currPointFrame = *it;
+			auto&& nextPointFrame = *(it + 1);
+
+			const TVector2 currPoint = ApplyCurveToScreenTransform(params, { currPointFrame.mTime, currPointFrame.mValue });
+			const TVector2 nextPoint = ApplyCurveToScreenTransform(params, { nextPointFrame.mTime, nextPointFrame.mValue });
 
 			imguiContext.DrawLine(currPoint, nextPoint, color, thickness);
 		}
@@ -151,8 +166,8 @@ namespace TDEngine2
 	}
 
 	static void DrawCurveLine(IImGUIContext* pImGUIContext, CAnimationCurve* pCurve, F32 width, F32 height, const TVector2& cursorPos, I32 controlPointsOffset,
-							  const TColor32F& curveColor, F32 handlePointSize, F32 handlePointButtonSize, const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, bool shouldIgnoreInput,
-							  bool useCustomBounds = false, const TRectF32* pCustomGridBounds = nullptr)
+							  const TColor32F& curveColor, F32 handlePointSize, F32 handlePointButtonSize, const TAnimationCurveEditorParams::TActionCallback& onCurveClicked, 
+							  bool shouldIgnoreInput, bool isTangentControlsEnabled = true, bool useCustomBounds = false, const TRectF32* pCustomGridBounds = nullptr)
 	{
 		if (!pCurve)
 		{
@@ -163,7 +178,7 @@ namespace TDEngine2
 
 		const CAnimationCurveEditorWindow::TCurveTransformParams transformParams{ curveBounds, cursorPos, width, height };
 
-		DrawAnimationCurve(*pImGUIContext, *pCurve, transformParams, curveColor, 100, 1.5f);
+		(isTangentControlsEnabled ? DrawCubicAnimationCurve : DrawLinearAnimationCurve)(*pImGUIContext, *pCurve, transformParams, curveColor, 100, 1.5f);
 
 		for (auto it = pCurve->begin(); it != pCurve->end(); ++it)
 		{
@@ -179,24 +194,27 @@ namespace TDEngine2
 				break; /// \note Break the iteration because we've removed the point 
 			}
 
-			if (it < pCurve->end() - 1)
+			if (isTangentControlsEnabled)
 			{
-				t0 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mOutTangent);
+				if (it < pCurve->end() - 1)
+				{
+					t0 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mOutTangent);
 
-				t0 = DrawControlPoint(pImGUIContext, controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t0, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
-				t0 = ApplyScreenToCurveTransform(transformParams, p0 + t0) - initCurrPos;
+					t0 = DrawControlPoint(pImGUIContext, controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t0, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
+					t0 = ApplyScreenToCurveTransform(transformParams, p0 + t0) - initCurrPos;
 
-				currPoint.mOutTangent = t0;
-			}
+					currPoint.mOutTangent = t0;
+				}
 
-			if (it > pCurve->begin())
-			{
-				t1 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mInTangent);
+				if (it > pCurve->begin())
+				{
+					t1 = ApplyCurveToScreenTransform(transformParams, initCurrPos + currPoint.mInTangent);
 
-				t1 = DrawControlPoint(pImGUIContext, 2 * controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t1, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
-				t1 = ApplyScreenToCurveTransform(transformParams, p0 + t1) - initCurrPos;
+					t1 = DrawControlPoint(pImGUIContext, 2 * controlPointsOffset + static_cast<I32>(std::distance(pCurve->begin(), it)), p0, t1, transformParams, handlePointSize, handlePointButtonSize, shouldIgnoreInput);
+					t1 = ApplyScreenToCurveTransform(transformParams, p0 + t1) - initCurrPos;
 
-				currPoint.mInTangent = t1;
+					currPoint.mInTangent = t1;
+				}
 			}
 		}
 	}
@@ -301,8 +319,8 @@ namespace TDEngine2
 
 		pImGUIContext->DrawPlotGrid("Plot", gridParams, [=, curveColor = gridParams.mCurveColor, shouldIgnoreInput = params.mShouldIgnoreInput](auto&& pos)
 		{
-			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, params.mOnCurveClickedCallback, shouldIgnoreInput,
-						  params.mUseCustomGridBounds, &params.mGridBounds);
+			DrawCurveLine(pImGUIContext, pCurve, width, height, pos, mControlPointsOffset, curveColor, mHandlePointSize, mHandlePointButtonSize, params.mOnCurveClickedCallback, 
+						  shouldIgnoreInput, params.mIsTangentControlsEnabled, params.mUseCustomGridBounds, &params.mGridBounds);
 			HandleCurveCursor(pImGUIContext, pCurve, width, height, pos, shouldIgnoreInput, params.mUseCustomGridBounds, &params.mGridBounds, params.mOnCurveClickedCallback);
 		});
 

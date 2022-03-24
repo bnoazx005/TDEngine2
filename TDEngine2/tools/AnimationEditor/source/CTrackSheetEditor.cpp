@@ -189,7 +189,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, [](const TVector2KeyFrame& value, F32& outValue) { outValue = value.mValue.y; return (value.mUsedChannels & 0x2); }),
 			GenerateSerializePointsCallback(pTrack, [](TVector2KeyFrame& dest, F32 value) { dest.mUsedChannels |= 0x2; dest.mValue.y = value; }) });
 
-		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration(), pTrack);
 
 		mPreSerializeAction = GeneratePreSerializeCallback(mCurvesTable, pTrack);
 
@@ -221,7 +221,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, [](const TVector3KeyFrame& value, F32& outValue) { outValue = value.mValue.z; return (value.mUsedChannels & 0x4); }),
 			GenerateSerializePointsCallback(pTrack, [](TVector3KeyFrame& dest, F32 value) { dest.mUsedChannels |= 0x4; dest.mValue.z = value; }) });
 
-		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration(), pTrack);
 
 		mPreSerializeAction = GeneratePreSerializeCallback(mCurvesTable, pTrack);
 
@@ -257,7 +257,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, [](const TQuaternionKeyFrame& value, F32& outValue) { outValue = value.mValue.w; return (value.mUsedChannels & 0x8); }),
 			GenerateSerializePointsCallback(pTrack, [](TQuaternionKeyFrame& dest, F32 value) { dest.mUsedChannels |= 0x8; dest.mValue.w = value; }) });
 
-		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration(), pTrack);
 
 		mPreSerializeAction = GeneratePreSerializeCallback(mCurvesTable, pTrack);
 
@@ -293,7 +293,7 @@ namespace TDEngine2
 			GenerateInitCurveCallback(pTrack, [](const TColorKeyFrame& value, F32& outValue) { outValue = value.mValue.a; return (value.mUsedChannels & 0x8); }),
 			GenerateSerializePointsCallback(pTrack, [](TColorKeyFrame& dest, F32 value) { dest.mUsedChannels |= 0x8; dest.mValue.a = value; }) });
 
-		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration(), pTrack);
 
 		mPreSerializeAction = GeneratePreSerializeCallback(mCurvesTable, pTrack);
 
@@ -321,7 +321,7 @@ namespace TDEngine2
 
 		mPreSerializeAction = GeneratePreSerializeCallback(mCurvesTable, pTrack);
 
-		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration());
+		mOnDrawImpl = _generateDrawCallback(pTrack->GetOwner()->GetDuration(), pTrack);
 
 		_initCurvesState();
 
@@ -588,9 +588,9 @@ namespace TDEngine2
 		}
 	}
 
-	CTrackSheetEditor::TCurveDrawCallback CTrackSheetEditor::_generateDrawCallback(F32 trackDuration)
+	CTrackSheetEditor::TCurveDrawCallback CTrackSheetEditor::_generateDrawCallback(F32 trackDuration, IAnimationTrack* pTrack)
 	{
-		return [this, trackDuration](const TVector2& frameSizes)
+		return [this, trackDuration, pTrack](const TVector2& frameSizes)
 		{
 			U8 i = 0;
 
@@ -636,6 +636,7 @@ namespace TDEngine2
 				curveParams.mShouldIgnoreInput = mCurrSelectedCurveId != currCurveBindingInfo.first;
 				curveParams.mUseCustomGridBounds = true;
 				curveParams.mGridBounds = gridBounds;
+				curveParams.mIsTangentControlsEnabled = pTrack ? (pTrack->GetInterpolationMode() == E_ANIMATION_INTERPOLATION_MODE_TYPE::CUBIC) : false;
 				curveParams.mOnCurveClickedCallback = [id = currCurveBindingInfo.first, this]
 				{
 					mCurrSelectedCurveId = id;
