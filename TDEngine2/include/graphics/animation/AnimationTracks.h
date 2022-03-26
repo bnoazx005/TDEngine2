@@ -16,16 +16,33 @@
 
 namespace TDEngine2
 {
-	template <typename T, typename TBitsetType = U8>
+	template <typename T, U32 componentsCount, typename TBitsetType = U8>
 	struct TGenericKeyFrame
 	{
-		F32         mTime;
-		T           mValue;
-		TBitsetType mUsedChannels;
+		TDE2_API TGenericKeyFrame() = default;
+		TDE2_API TGenericKeyFrame(F32 time, T value) : mTime(time), mValue(value) {}
+
+		F32          mTime;
+		T            mValue;
+		TBitsetType  mUsedChannels;
 	};
 
 
-	typedef TGenericKeyFrame<TVector2> TVector2KeyFrame, *TVector2KeyFramePtr;
+	template <typename T, U32 componentsCount, typename TBitsetType = U8>
+	struct TSplineKeyFrame: TGenericKeyFrame<T, componentsCount, TBitsetType>
+	{
+		TDE2_API TSplineKeyFrame() = default;
+		TDE2_API TSplineKeyFrame(F32 time, T value): TGenericKeyFrame<T, componentsCount, TBitsetType>(time, value) {}
+
+		typedef std::array<TVector2, componentsCount> TSlopesArray;
+
+		TSlopesArray mInTangents;
+		TSlopesArray mOutTangents;
+	};
+
+
+
+	typedef TSplineKeyFrame<TVector2, 2> TVector2KeyFrame, *TVector2KeyFramePtr;
 
 
 	/*!
@@ -61,12 +78,13 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) override;
 
 			TDE2_API TVector2KeyFrame _lerpKeyFrames(const TVector2KeyFrame& left, const TVector2KeyFrame& right, F32 t) const override;
+			TDE2_API TVector2KeyFrame _cubicInterpolation(const TVector2KeyFrame& left, const TVector2KeyFrame& right, F32 t, F32 frameDelta) const override;
 		protected:
 
 	};
 
 
-	typedef TGenericKeyFrame<TVector3> TVector3KeyFrame, *TVector3KeyFramePtr;
+	typedef TSplineKeyFrame<TVector3, 3> TVector3KeyFrame, *TVector3KeyFramePtr;
 
 
 	/*!
@@ -102,6 +120,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) override;
 
 			TDE2_API TVector3KeyFrame _lerpKeyFrames(const TVector3KeyFrame& left, const TVector3KeyFrame& right, F32 t) const override;
+			TDE2_API TVector3KeyFrame _cubicInterpolation(const TVector3KeyFrame& left, const TVector3KeyFrame& right, F32 t, F32 frameDelta) const override;
 		protected:
 
 	};
@@ -112,7 +131,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef TGenericKeyFrame<TQuaternion> TQuaternionKeyFrame, *TQuaternionKeyFramePtr;
+	typedef TSplineKeyFrame<TQuaternion, 4> TQuaternionKeyFrame, *TQuaternionKeyFramePtr;
 
 
 	/*!
@@ -148,6 +167,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) override;
 
 			TDE2_API TQuaternionKeyFrame _lerpKeyFrames(const TQuaternionKeyFrame& left, const TQuaternionKeyFrame& right, F32 t) const override;
+			TDE2_API TQuaternionKeyFrame _cubicInterpolation(const TQuaternionKeyFrame& left, const TQuaternionKeyFrame& right, F32 t, F32 frameDelta) const override;
 		protected:
 
 	};
@@ -158,7 +178,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef TGenericKeyFrame<TColor32F> TColorKeyFrame, *TColorKeyFramePtr;
+	typedef TSplineKeyFrame<TColor32F, 4> TColorKeyFrame, *TColorKeyFramePtr;
 
 
 	/*!
@@ -194,6 +214,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) override;
 
 			TDE2_API TColorKeyFrame _lerpKeyFrames(const TColorKeyFrame& left, const TColorKeyFrame& right, F32 t) const override;
+			TDE2_API TColorKeyFrame _cubicInterpolation(const TColorKeyFrame& left, const TColorKeyFrame& right, F32 t, F32 frameDelta) const override;
 		protected:
 
 	};
@@ -204,7 +225,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef TGenericKeyFrame<bool> TBooleanKeyFrame, *TBooleanKeyFramePtr;
+	typedef TGenericKeyFrame<bool, 1> TBooleanKeyFrame, *TBooleanKeyFramePtr;
 
 
 	/*!
@@ -240,6 +261,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) override;
 
 			TDE2_API TBooleanKeyFrame _lerpKeyFrames(const TBooleanKeyFrame& left, const TBooleanKeyFrame& right, F32 t) const override;
+			TDE2_API TBooleanKeyFrame _cubicInterpolation(const TBooleanKeyFrame& left, const TBooleanKeyFrame& right, F32 t, F32 frameDelta) const override;
 		protected:
 	};
 
@@ -249,7 +271,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef TGenericKeyFrame<F32> TFloatKeyFrame, *TFloatKeyFramePtr;
+	typedef TSplineKeyFrame<F32, 1> TFloatKeyFrame, *TFloatKeyFramePtr;
 
 
 	/*!
@@ -285,6 +307,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) override;
 
 			TDE2_API TFloatKeyFrame _lerpKeyFrames(const TFloatKeyFrame& left, const TFloatKeyFrame& right, F32 t) const override;
+			TDE2_API TFloatKeyFrame _cubicInterpolation(const TFloatKeyFrame& left, const TFloatKeyFrame& right, F32 t, F32 frameDelta) const override;
 		protected:
 	};
 
@@ -294,7 +317,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef TGenericKeyFrame<I32> TIntegerKeyFrame, *TIntegerKeyFramePtr;
+	typedef TGenericKeyFrame<I32, 1> TIntegerKeyFrame, *TIntegerKeyFramePtr;
 
 
 	/*!
@@ -330,6 +353,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) override;
 
 			TDE2_API TIntegerKeyFrame _lerpKeyFrames(const TIntegerKeyFrame& left, const TIntegerKeyFrame& right, F32 t) const override;
+			TDE2_API TIntegerKeyFrame _cubicInterpolation(const TIntegerKeyFrame& left, const TIntegerKeyFrame& right, F32 t, F32 frameDelta) const override;
 		protected:
 	};
 
@@ -339,7 +363,7 @@ namespace TDEngine2
 	*/
 
 
-	typedef TGenericKeyFrame<std::string> TEventKeyFrame, *TEventKeyFramePtr;
+	typedef TGenericKeyFrame<std::string, 1> TEventKeyFrame, *TEventKeyFramePtr;
 
 
 	/*!
@@ -375,6 +399,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) override;
 
 			TDE2_API TEventKeyFrame _lerpKeyFrames(const TEventKeyFrame& left, const TEventKeyFrame& right, F32 t) const override;
+			TDE2_API TEventKeyFrame _cubicInterpolation(const TEventKeyFrame& left, const TEventKeyFrame& right, F32 t, F32 frameDelta) const override;
 		protected:
 	};
 }

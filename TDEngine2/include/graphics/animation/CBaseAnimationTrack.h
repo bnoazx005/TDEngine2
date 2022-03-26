@@ -55,7 +55,7 @@ namespace TDEngine2
 				}
 
 				mpTrackOwnerAnimation = pTrackOwner;
-				mInterpolationMode = E_ANIMATION_INTERPOLATION_MODE_TYPE::LINEAR;
+				mInterpolationMode = E_ANIMATION_INTERPOLATION_MODE_TYPE::CUBIC;
 
 				mIsInitialized = true;
 
@@ -169,7 +169,12 @@ namespace TDEngine2
 
 				const U32 index = static_cast<U32>(std::distance(mKeys.begin(), it));
 
-				mKeys.insert(it, { time, {}, pChannelsUsageMask ? *pChannelsUsageMask : static_cast<U8>(0xFF) });
+				TKeyFrameType newFrameValue;
+
+				newFrameValue.mTime = time;
+				newFrameValue.mUsedChannels = pChannelsUsageMask ? *pChannelsUsageMask : static_cast<U8>(0xFF);
+
+				mKeys.insert(it, std::move(newFrameValue));
 
 				// \note refresh handles
 				for (auto& currHandleEntity : mKeysHandlesMap)
@@ -365,6 +370,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader) = 0;
 
 			TDE2_API virtual TKeyFrameType _lerpKeyFrames(const TKeyFrameType& left, const TKeyFrameType& right, F32 t) const = 0;
+			TDE2_API virtual TKeyFrameType _cubicInterpolation(const TKeyFrameType& left, const TKeyFrameType& right, F32 t, F32 frameDelta) const = 0;
 
 			/*!
 				\brief The method returns an index of a key in the array that's time lesser than given
@@ -475,8 +481,7 @@ namespace TDEngine2
 						return _sampleLinear(time);
 					
 					case E_ANIMATION_INTERPOLATION_MODE_TYPE::CUBIC:
-						TDE2_UNIMPLEMENTED();
-						return TKeyFrameType();
+						return _sampleCubic(time);
 				}
 
 				TDE2_UNREACHABLE();
@@ -494,12 +499,14 @@ namespace TDEngine2
 				return mKeys[index];
 			}
 
-			TDE2_API TKeyFrameType _sampleLinear(F32 time) const
+			TDE2_API std::tuple<TKeyFrameType, TKeyFrameType, F32, F32> _getInterpolationData(F32 time) const
 			{
+				static const auto InvalidData = std::make_tuple(TKeyFrameType(), TKeyFrameType(), time, 0.0f);
+
 				const I32 index = _getFrameIndexByTime(time);
 				if (index < 0 || index >= static_cast<I32>(mKeys.size()) - 1)
 				{
-					return TKeyFrameType();
+					return InvalidData;
 				}
 
 				const I32 nextIndex = index + 1;
@@ -511,12 +518,32 @@ namespace TDEngine2
 
 				if (CMathUtils::IsLessOrEqual(frameDelta, 0.0f))
 				{
-					return TKeyFrameType();
+					return InvalidData;
 				}
 
 				const F32 t = (trackTime - thisTime) / frameDelta;
 
-				return _lerpKeyFrames(mKeys[index], mKeys[nextIndex], t);
+				return { mKeys[index], mKeys[nextIndex], t, frameDelta };
+			}
+
+			TDE2_API TKeyFrameType _sampleLinear(F32 time) const
+			{
+				F32 frameDelta, t;
+				TKeyFrameType currKey, nextKey;
+
+				std::tie(currKey, nextKey, t, frameDelta) = _getInterpolationData(time);
+
+				return _lerpKeyFrames(currKey, nextKey, t);
+			}
+
+			TDE2_API TKeyFrameType _sampleCubic(F32 time) const
+			{
+				F32 frameDelta, t;
+				TKeyFrameType currKey, nextKey;
+
+				std::tie(currKey, nextKey, t, frameDelta) = _getInterpolationData(time);
+
+				return _cubicInterpolation(currKey, nextKey, t, frameDelta);
 			}
 		protected:
 			static const std::string mNameKeyId;

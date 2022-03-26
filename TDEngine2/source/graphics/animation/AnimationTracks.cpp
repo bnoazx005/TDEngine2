@@ -1,5 +1,6 @@
 #include "../../include/graphics/animation/AnimationTracks.h"
 #include "../../include/core/Meta.h"
+#include "../../include/utils/Utils.h"
 
 
 namespace TDEngine2
@@ -61,6 +62,18 @@ namespace TDEngine2
 	TVector2KeyFrame CVector2AnimationTrack::_lerpKeyFrames(const TVector2KeyFrame& left, const TVector2KeyFrame& right, F32 t) const
 	{
 		return { CMathUtils::Lerp(left.mTime, right.mTime, t), left.mValue * t + right.mValue * (1.0f - t) };
+	}
+
+	TVector2KeyFrame CVector2AnimationTrack::_cubicInterpolation(const TVector2KeyFrame& left, const TVector2KeyFrame& right, F32 t, F32 frameDelta) const
+	{
+		return 
+		{ 
+			CMathUtils::Lerp(left.mTime, right.mTime, t), 
+			{
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.x, left.mOutTangents[0].y, right.mValue.x, right.mInTangents[0].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.y, left.mOutTangents[1].y, right.mValue.y, right.mInTangents[1].y)
+			}
+		};
 	}
 
 
@@ -127,6 +140,19 @@ namespace TDEngine2
 	TVector3KeyFrame CVector3AnimationTrack::_lerpKeyFrames(const TVector3KeyFrame& left, const TVector3KeyFrame& right, F32 t) const
 	{
 		return { CMathUtils::Lerp(left.mTime, right.mTime, t), Lerp(left.mValue, right.mValue, t) };
+	}
+
+	TVector3KeyFrame CVector3AnimationTrack::_cubicInterpolation(const TVector3KeyFrame& left, const TVector3KeyFrame& right, F32 t, F32 frameDelta) const
+	{
+		return
+		{
+			CMathUtils::Lerp(left.mTime, right.mTime, t),
+			{
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.x, left.mOutTangents[0].y, right.mValue.x, right.mInTangents[0].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.y, left.mOutTangents[1].y, right.mValue.y, right.mInTangents[1].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.z, left.mOutTangents[2].y, right.mValue.z, right.mInTangents[2].y),
+			}
+		};
 	}
 
 
@@ -196,6 +222,20 @@ namespace TDEngine2
 		return { CMathUtils::Lerp(left.mTime, right.mTime, t), Slerp(left.mValue, right.mValue, t) };
 	}
 
+	TQuaternionKeyFrame CQuaternionAnimationTrack::_cubicInterpolation(const TQuaternionKeyFrame& left, const TQuaternionKeyFrame& right, F32 t, F32 frameDelta) const
+	{
+		return
+		{
+			CMathUtils::Lerp(left.mTime, right.mTime, t),
+			{
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.x, left.mOutTangents[0].y, right.mValue.x, right.mInTangents[0].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.y, left.mOutTangents[1].y, right.mValue.y, right.mInTangents[1].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.z, left.mOutTangents[2].y, right.mValue.z, right.mInTangents[2].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.w, left.mOutTangents[3].y, right.mValue.w, right.mInTangents[3].y),
+			}
+		};
+	}
+
 
 	TDE2_API IAnimationTrack* CreateQuaternionAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result)
 	{
@@ -262,6 +302,17 @@ namespace TDEngine2
 		return { CMathUtils::Lerp(left.mTime, right.mTime, t), left.mValue/* * t + right.mValue * (1.0 - t)*/ };
 	}
 
+	TColorKeyFrame CColorAnimationTrack::_cubicInterpolation(const TColorKeyFrame& left, const TColorKeyFrame& right, F32 t, F32 frameDelta) const
+	{
+		TDE2_UNIMPLEMENTED();
+
+		return
+		{
+			CMathUtils::Lerp(left.mTime, right.mTime, t),
+			TColorUtils::mBlack //CMathUtils::CubicHermiteInterpolation<TColor>(t, left.mValue, left.mOutTangent * frameDelta, right.mValue, Normalize(right.mInTangent) * frameDelta)
+		};
+	}
+
 
 	TDE2_API IAnimationTrack* CreateColorAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result)
 	{
@@ -309,6 +360,17 @@ namespace TDEngine2
 	TBooleanKeyFrame CBooleanAnimationTrack::_lerpKeyFrames(const TBooleanKeyFrame& left, const TBooleanKeyFrame& right, F32 t) const
 	{
 		return { CMathUtils::Lerp(left.mTime, right.mTime, t), CMathUtils::Lerp(left.mValue, left.mValue, t) };
+	}
+
+	TBooleanKeyFrame CBooleanAnimationTrack::_cubicInterpolation(const TBooleanKeyFrame& left, const TBooleanKeyFrame& right, F32 t, F32 frameDelta) const
+	{
+		TDE2_UNREACHABLE();
+
+		return
+		{
+			CMathUtils::Lerp(left.mTime, right.mTime, t),
+			false
+		};
 	}
 
 
@@ -360,6 +422,16 @@ namespace TDEngine2
 		return { CMathUtils::Lerp(left.mTime, right.mTime, t), CMathUtils::Lerp(left.mValue, left.mValue, t) };
 	}
 
+	TFloatKeyFrame CFloatAnimationTrack::_cubicInterpolation(const TFloatKeyFrame& left, const TFloatKeyFrame& right, F32 t, F32 frameDelta) const
+	{
+		TDE2_UNIMPLEMENTED();
+		return
+		{
+			CMathUtils::Lerp(left.mTime, right.mTime, t),
+			0.0f//CMathUtils::CubicHermiteInterpolation<F32>(t, left.mValue, left.mOutTangent * frameDelta, right.mValue, Normalize(right.mInTangent) * frameDelta)
+		};
+	}
+
 
 	TDE2_API IAnimationTrack* CreateFloatAnimationTrack(IAnimationClip* pOwner, E_RESULT_CODE& result)
 	{
@@ -407,6 +479,16 @@ namespace TDEngine2
 	TIntegerKeyFrame CIntegerAnimationTrack::_lerpKeyFrames(const TIntegerKeyFrame& left, const TIntegerKeyFrame& right, F32 t) const
 	{
 		return { CMathUtils::Lerp(left.mTime, right.mTime, t), CMathUtils::Lerp(left.mValue, left.mValue, t) };
+	}
+
+	TIntegerKeyFrame CIntegerAnimationTrack::_cubicInterpolation(const TIntegerKeyFrame& left, const TIntegerKeyFrame& right, F32 t, F32 frameDelta) const
+	{
+		TDE2_UNREACHABLE();
+		return
+		{
+			CMathUtils::Lerp(left.mTime, right.mTime, t),
+			0 //CMathUtils::CubicHermiteInterpolation<F32>(t, left.mValue, left.mOutTangent * frameDelta, right.mValue, Normalize(right.mInTangent) * frameDelta)
+		};
 	}
 
 
@@ -477,6 +559,16 @@ namespace TDEngine2
 		}
 
 		return TEventKeyFrame();
+	}
+
+	TEventKeyFrame CEventAnimationTrack::_cubicInterpolation(const TEventKeyFrame& left, const TEventKeyFrame& right, F32 t, F32 frameDelta) const
+	{
+		TDE2_UNREACHABLE();
+		return
+		{
+			CMathUtils::Lerp(left.mTime, right.mTime, t),
+			"" //CMathUtils::CubicHermiteInterpolation<F32>(t, left.mValue, left.mOutTangent * frameDelta, right.mValue, Normalize(right.mInTangent) * frameDelta)
+		};
 	}
 
 

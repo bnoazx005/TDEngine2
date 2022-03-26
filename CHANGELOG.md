@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.33] 2022-03-24
+## [0.5.33] 2022-03-26
 
 ### Added
 
 - Add support of sampling modes' switching for animation tracks via its context menu. 
 
 - Add support of switching between sampling modes in curve's editor.
+
+- An experimental implementation of a cubic interpolation mode was added into animation tracks.
 
 ### Fixed
 
