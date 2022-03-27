@@ -428,7 +428,7 @@ namespace TDEngine2
 		return
 		{
 			CMathUtils::Lerp(left.mTime, right.mTime, t),
-			0.0f//CMathUtils::CubicHermiteInterpolation<F32>(t, left.mValue, left.mOutTangent * frameDelta, right.mValue, Normalize(right.mInTangent) * frameDelta)
+			CMathUtils::CubicHermiteInterpolation(t, left.mValue, left.mOutTangents[0].y, right.mValue, right.mInTangents[0].y),
 		};
 	}
 

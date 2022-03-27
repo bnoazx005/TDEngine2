@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.33] 2022-03-26
+## [0.5.33] 2022-03-27
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support of switching between sampling modes in curve's editor.
 
 - An experimental implementation of a cubic interpolation mode was added into animation tracks.
+
+- The API of **TColor<T>** was extended with new operators overloadings.
 
 ### Fixed
 

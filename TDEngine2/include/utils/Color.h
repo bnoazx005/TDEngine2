@@ -9,6 +9,7 @@
 #include "Types.h"
 #include "Utils.h"
 #include "../core/Serialization.h"
+#include "../math/MathUtils.h"
 
 
 namespace TDEngine2
@@ -47,6 +48,41 @@ namespace TDEngine2
 
 
 	typedef TColor<F32> TColor32F;
+
+
+	template <typename T>
+	TColor<T> operator+ (const TColor<T>& lcolor, const TColor<T>& rcolor)
+	{
+		return TColor<T>(lcolor.r + rcolor.r, lcolor.g + rcolor.g, lcolor.b + rcolor.b, lcolor.a + rcolor.a);
+	}
+	
+	template <>
+	inline TColor<F32> operator+ <F32>(const TColor<F32>& lcolor, const TColor<F32>& rcolor)
+	{
+		return TColor<F32>(
+			CMathUtils::Clamp01(lcolor.r + rcolor.r), 
+			CMathUtils::Clamp01(lcolor.g + rcolor.g), 
+			CMathUtils::Clamp01(lcolor.b + rcolor.b), 
+			CMathUtils::Clamp01(lcolor.a + rcolor.a));
+	}
+
+	template <typename T>
+	TColor<T> operator* (const TColor<T>& lcolor, const TColor<T>& rcolor)
+	{
+		return TColor<T>(lcolor.r * rcolor.r, lcolor.g * rcolor.g, lcolor.b * rcolor.b, lcolor.a * rcolor.a);
+	}
+
+	template <typename T>
+	TColor<T> operator* (const TColor<T>& color, const T& value)
+	{
+		return TColor<T>(color.r * value, color.g * value, color.b * value, color.a * value);
+	}
+
+	template <typename T>
+	TColor<T> operator* (const T& value, const TColor<T>& color)
+	{
+		return TColor<T>(color.r * value, color.g * value, color.b * value, color.a * value);
+	}
 
 
 	struct TColorUtils
