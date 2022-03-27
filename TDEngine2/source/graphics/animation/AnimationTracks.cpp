@@ -309,7 +309,12 @@ namespace TDEngine2
 		return
 		{
 			CMathUtils::Lerp(left.mTime, right.mTime, t),
-			TColorUtils::mBlack //CMathUtils::CubicHermiteInterpolation<TColor>(t, left.mValue, left.mOutTangent * frameDelta, right.mValue, Normalize(right.mInTangent) * frameDelta)
+			{
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.r, left.mOutTangents[0].y, right.mValue.r, right.mInTangents[0].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.g, left.mOutTangents[1].y, right.mValue.g, right.mInTangents[1].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.b, left.mOutTangents[2].y, right.mValue.b, right.mInTangents[2].y),
+				CMathUtils::CubicHermiteInterpolation(t, left.mValue.a, left.mOutTangents[3].y, right.mValue.a, right.mInTangents[3].y)
+			}
 		};
 	}
 
