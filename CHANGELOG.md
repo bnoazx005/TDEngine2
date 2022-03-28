@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.33] 2022-03-27
+## [0.5.33] 2022-03-28
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - (Fixed issue #74) Initialization of animation tracks was fixed.
+
+- The incorrect restore of CYAMLArchiveWriter's state was fixed when an array is written.
 
 ### Changed
 

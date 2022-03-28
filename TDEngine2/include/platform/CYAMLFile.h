@@ -233,6 +233,12 @@ namespace TDEngine2
 
 				return (*_getCurrScope())[key].As<T>();
 			}
+
+			template <typename T>
+			T _getContentAsOrDefault(const std::string& key, const T& defaultValue)
+			{
+				return (key.empty()) ? defaultValue : (*_getCurrScope())[key].As<T>(defaultValue);
+			}
 		protected:
 			Yaml::Node*     mpRootNode;
 

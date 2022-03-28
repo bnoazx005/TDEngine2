@@ -72,6 +72,7 @@ namespace TDEngine2
 
 		mpScopesIndexers.pop();
 		mpContext.pop();
+		mArrayContext.pop();
 
 		return RC_OK;
 	}
@@ -355,7 +356,7 @@ namespace TDEngine2
 	F32 CYAMLFileReader::GetFloat(const std::string& key)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<F32>(key);
+		return _getContentAsOrDefault<F32>(key, 0.0f);
 	}
 
 	F64 CYAMLFileReader::GetDouble(const std::string& key)
