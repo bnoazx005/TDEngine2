@@ -1,10 +1,123 @@
 #include "../../include/graphics/animation/AnimationTracks.h"
 #include "../../include/core/Meta.h"
 #include "../../include/utils/Utils.h"
+#include <numeric>
 
 
 namespace TDEngine2
 {
+	static const std::string InTangentsKeyId = "in_tangents";
+	static const std::string SingleInTangentKeyId = "in_tangent";
+	static const std::string OutTangentsKeyId = "out_tangents";
+	static const std::string SingleOutTangentKeyId = "out_tangent";
+
+
+	template <typename TKeyFrameType>
+	static E_RESULT_CODE SerializeTangents(IArchiveWriter* pWriter, const TKeyFrameType& value)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		if (std::accumulate(value.mInTangents.cbegin(), value.mInTangents.cend(), 0.0f, [](auto&& left, auto&& right) { return left + right.x + right.y; }) > 0.0f)
+		{
+			result = pWriter->BeginGroup(InTangentsKeyId, true);
+
+			/// \note Write down input tangents
+			for (auto&& currInTangent : value.mInTangents)
+			{
+				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr(), false);
+				{
+					result = result | pWriter->BeginGroup(SingleInTangentKeyId, false);
+					result = result | SaveVector2(pWriter, currInTangent);
+					result = result | pWriter->EndGroup();
+				}
+				result = result | pWriter->EndGroup();
+			}
+
+			result = result | pWriter->EndGroup();
+		}
+
+		if (std::accumulate(value.mOutTangents.cbegin(), value.mOutTangents.cend(), 0.0f, [](auto&& left, auto&& right) { return left + right.x + right.y; }) > 0.0f)
+		{
+			/// \note Write down output tangents
+			result = result | pWriter->BeginGroup(OutTangentsKeyId, true);
+
+			for (auto&& currOutTangent : value.mOutTangents)
+			{
+				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr(), false);
+				{
+					result = result | pWriter->BeginGroup(SingleOutTangentKeyId, false);
+					result = result | SaveVector2(pWriter, currOutTangent);
+					result = result | pWriter->EndGroup();
+				}
+				result = result | pWriter->EndGroup();
+			}
+
+			result = result | pWriter->EndGroup();
+		}
+
+		return result;
+	}
+
+
+	template <typename TKeyFrameType>
+	static E_RESULT_CODE DeserializeTangents(IArchiveReader* pReader, TKeyFrameType& value)
+	{
+		E_RESULT_CODE result = pReader->BeginGroup(InTangentsKeyId);
+
+		/// \note Read input tangents
+		for (TVector2& currInTangent : value.mInTangents)
+		{
+			result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+			{
+				result = result | pReader->BeginGroup(SingleInTangentKeyId);
+				{
+					auto loadResult = LoadVector2(pReader);
+					if (loadResult.HasError())
+					{
+						return loadResult.GetError();
+					}
+					else
+					{
+						currInTangent = loadResult.Get();
+					}
+				}
+				result = result | pReader->EndGroup();
+			}
+			result = result | pReader->EndGroup();
+		}
+
+		result = result | pReader->EndGroup();
+
+		/// \note Write down output tangents
+		result = result | pReader->BeginGroup(OutTangentsKeyId);
+
+		for (TVector2& currOutTangent : value.mOutTangents)
+		{
+			result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+			{
+				result = result | pReader->BeginGroup(SingleOutTangentKeyId);
+				{
+					auto loadResult = LoadVector2(pReader);
+					if (loadResult.HasError())
+					{
+						return loadResult.GetError();
+					}
+					else
+					{
+						currOutTangent = loadResult.Get();
+					}
+				}
+				result = result | pReader->EndGroup();
+			}
+			result = result | pReader->EndGroup();
+		}
+
+		result = result | pReader->EndGroup();
+
+		return RC_OK;
+	}
+
+
 	/*!
 		\brief CVector2AnimationTrack's definition
 	*/
@@ -35,13 +148,15 @@ namespace TDEngine2
 		result = result | SaveVector2(pWriter, value.mValue);
 		result = result | pWriter->EndGroup();
 
+		result = result | SerializeTangents(pWriter, value);
+
 		return result;
 	}
 
 	E_RESULT_CODE CVector2AnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
 	{
 		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
-
+		
 		pReader->BeginGroup("value");
 
 		auto loadResult = LoadVector2(pReader);
@@ -56,7 +171,7 @@ namespace TDEngine2
 
 		pReader->EndGroup();
 
-		return RC_OK;
+		return DeserializeTangents(pReader, frameValue);
 	}
 
 	TVector2KeyFrame CVector2AnimationTrack::_lerpKeyFrames(const TVector2KeyFrame& left, const TVector2KeyFrame& right, F32 t) const
@@ -113,6 +228,8 @@ namespace TDEngine2
 		result = result | SaveVector3(pWriter, value.mValue);
 		result = result | pWriter->EndGroup();
 
+		result = result | SerializeTangents(pWriter, value);
+
 		return result;
 	}
 
@@ -134,7 +251,7 @@ namespace TDEngine2
 
 		pReader->EndGroup();
 
-		return RC_OK;
+		return DeserializeTangents(pReader, frameValue);
 	}
 
 	TVector3KeyFrame CVector3AnimationTrack::_lerpKeyFrames(const TVector3KeyFrame& left, const TVector3KeyFrame& right, F32 t) const
@@ -193,6 +310,8 @@ namespace TDEngine2
 		result = result | SaveQuaternion(pWriter, value.mValue);
 		result = result | pWriter->EndGroup();
 
+		result = result | SerializeTangents(pWriter, value);
+
 		return result;
 	}
 
@@ -214,7 +333,7 @@ namespace TDEngine2
 
 		pReader->EndGroup();
 
-		return RC_OK;
+		return DeserializeTangents(pReader, frameValue);
 	}
 
 	TQuaternionKeyFrame CQuaternionAnimationTrack::_lerpKeyFrames(const TQuaternionKeyFrame& left, const TQuaternionKeyFrame& right, F32 t) const
@@ -273,6 +392,8 @@ namespace TDEngine2
 		result = result | SaveColor32F(pWriter, value.mValue);
 		result = result | pWriter->EndGroup();
 
+		result = result | SerializeTangents(pWriter, value);
+
 		return result;
 	}
 
@@ -294,7 +415,7 @@ namespace TDEngine2
 
 		pReader->EndGroup();
 
-		return RC_OK;
+		return DeserializeTangents(pReader, frameValue);
 	}
 
 	TColorKeyFrame CColorAnimationTrack::_lerpKeyFrames(const TColorKeyFrame& left, const TColorKeyFrame& right, F32 t) const
@@ -411,7 +532,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFloatAnimationTrack::_saveKeyFrameValue(const TFloatKeyFrame& value, IArchiveWriter* pWriter)
 	{
-		return pWriter->SetFloat("value", value.mValue);
+		return pWriter->SetFloat("value", value.mValue) | SerializeTangents(pWriter, value);
 	}
 
 	E_RESULT_CODE CFloatAnimationTrack::_loadKeyFrameValue(TAnimationTrackKeyId keyHandle, IArchiveReader* pReader)
@@ -419,7 +540,7 @@ namespace TDEngine2
 		auto& frameValue = mKeys[mKeysHandlesMap[keyHandle]];
 		frameValue.mValue = pReader->GetFloat("value");
 
-		return RC_OK;
+		return DeserializeTangents(pReader, frameValue);
 	}
 
 	TFloatKeyFrame CFloatAnimationTrack::_lerpKeyFrames(const TFloatKeyFrame& left, const TFloatKeyFrame& right, F32 t) const

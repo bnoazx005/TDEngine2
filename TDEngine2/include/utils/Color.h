@@ -180,10 +180,16 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		pWriter->SetFloat("r", object.r);
-		pWriter->SetFloat("g", object.g);
-		pWriter->SetFloat("b", object.b);
-		pWriter->SetFloat("a", object.a);
+		bool anyWritten = false;
+
+		if (std::fabsf(object.g) > 1e-3f) { pWriter->SetFloat("g", object.g); anyWritten = true; }
+		if (std::fabsf(object.b) > 1e-3f) { pWriter->SetFloat("b", object.b); anyWritten = true; }
+		if (std::fabsf(object.a) > 1e-3f) { pWriter->SetFloat("a", object.a); anyWritten = true; }
+
+		if (!anyWritten || (anyWritten && std::fabsf(object.r) > 1e-3f))
+		{
+			pWriter->SetFloat("r", object.r); /// \note Always write at least x component to prevent the bug of serialization in the Yaml library
+		}
 
 		return RC_OK;
 	}

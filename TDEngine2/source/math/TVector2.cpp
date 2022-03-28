@@ -1,4 +1,4 @@
-#include "./../../include/math/TVector2.h"
+#include "../../include/math/TVector2.h"
 #include <cmath>
 
 
@@ -174,8 +174,18 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		pWriter->SetFloat("x", object.x);
-		pWriter->SetFloat("y", object.y);
+		bool anyWritten = false;
+
+		if (std::fabsf(object.y) > 1e-3f)
+		{
+			pWriter->SetFloat("y", object.y); 
+			anyWritten = true;
+		}
+
+		if (!anyWritten || (anyWritten && std::fabsf(object.x) > 1e-3f))
+		{
+			pWriter->SetFloat("x", object.x); /// \note Always write at least x component to prevent the bug of serialization in the Yaml library
+		}
 
 		return RC_OK;
 	}
