@@ -89,9 +89,7 @@ namespace TDEngine2
 					{
 						pReader->BeginGroup("key");
 						{
-							U8 usedChannels = pReader->GetUInt8("used_channels_mask");
-							usedChannels = usedChannels ? usedChannels : static_cast<U8>(0xFF);
-
+							U8 usedChannels = pReader->GetUInt8("used_channels_mask", mDefaultUsedChannelsValue);
 							_loadKeyFrameValue(CreateKey(pReader->GetFloat("time"), &usedChannels), pReader);
 						}
 						pReader->EndGroup();
@@ -132,7 +130,11 @@ namespace TDEngine2
 						pWriter->BeginGroup("key");
 
 						pWriter->SetFloat("time", currKey.mTime);
-						pWriter->SetUInt8("used_channels_mask", currKey.mUsedChannels);
+
+						if (currKey.mUsedChannels != mDefaultUsedChannelsValue)
+						{
+							pWriter->SetUInt8("used_channels_mask", currKey.mUsedChannels);
+						}
 						_saveKeyFrameValue(currKey, pWriter); // \note Write down the value
 
 						pWriter->EndGroup();
@@ -546,6 +548,8 @@ namespace TDEngine2
 				return _cubicInterpolation(currKey, nextKey, t, frameDelta);
 			}
 		protected:
+			static constexpr U8 mDefaultUsedChannelsValue = 0xFF;
+
 			static const std::string mNameKeyId;
 			static const std::string mBindingKeyId;
 			static const std::string mInterpolationModeKeyId;
