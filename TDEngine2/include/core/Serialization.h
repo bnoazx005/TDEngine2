@@ -90,22 +90,22 @@ namespace TDEngine2
 
 			TDE2_API virtual bool HasNextItem() const = 0;
 
-			TDE2_API virtual U8 GetUInt8(const std::string& key) = 0;
-			TDE2_API virtual U16 GetUInt16(const std::string& key) = 0;
-			TDE2_API virtual U32 GetUInt32(const std::string& key) = 0;
-			TDE2_API virtual U64 GetUInt64(const std::string& key) = 0;
+			TDE2_API virtual U8 GetUInt8(const std::string& key, U8 defaultValue = 0) = 0;
+			TDE2_API virtual U16 GetUInt16(const std::string& key, U16 defaultValue = 0) = 0;
+			TDE2_API virtual U32 GetUInt32(const std::string& key, U32 defaultValue = 0) = 0;
+			TDE2_API virtual U64 GetUInt64(const std::string& key, U64 defaultValue = 0) = 0;
 
-			TDE2_API virtual I8 GetInt8(const std::string& key) = 0;
-			TDE2_API virtual I16 GetInt16(const std::string& key) = 0;
-			TDE2_API virtual I32 GetInt32(const std::string& key) = 0;
-			TDE2_API virtual I64 GetInt64(const std::string& key) = 0;
+			TDE2_API virtual I8 GetInt8(const std::string& key, I8 defaultValue = 0) = 0;
+			TDE2_API virtual I16 GetInt16(const std::string& key, I16 defaultValue = 0) = 0;
+			TDE2_API virtual I32 GetInt32(const std::string& key, I32 defaultValue = 0) = 0;
+			TDE2_API virtual I64 GetInt64(const std::string& key, I64 defaultValue = 0) = 0;
 
-			TDE2_API virtual F32 GetFloat(const std::string& key) = 0;
-			TDE2_API virtual F64 GetDouble(const std::string& key) = 0;
+			TDE2_API virtual F32 GetFloat(const std::string& key, F32 defaultValue = 0.0f) = 0;
+			TDE2_API virtual F64 GetDouble(const std::string& key, F64 defaultValue = 0.0) = 0;
 
-			TDE2_API virtual bool GetBool(const std::string& key) = 0;
+			TDE2_API virtual bool GetBool(const std::string& key, bool defaultValue = false) = 0;
 
-			TDE2_API virtual std::string GetString(const std::string& key) = 0;
+			TDE2_API virtual std::string GetString(const std::string& key, const std::string& defaultValue = "") = 0;
 
 			/*!
 				\brief The method returns an identifier of current active node

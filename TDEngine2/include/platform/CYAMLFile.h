@@ -191,23 +191,23 @@ namespace TDEngine2
 
 			TDE2_API bool HasNextItem() const override;
 
-			TDE2_API U8 GetUInt8(const std::string& key) override;
-			TDE2_API U16 GetUInt16(const std::string& key) override;
-			TDE2_API U32 GetUInt32(const std::string& key) override;
-			TDE2_API U64 GetUInt64(const std::string& key) override;
+			TDE2_API U8 GetUInt8(const std::string& key, U8 defaultValue = 0) override;
+			TDE2_API U16 GetUInt16(const std::string& key, U16 defaultValue = 0) override;
+			TDE2_API U32 GetUInt32(const std::string& key, U32 defaultValue = 0) override;
+			TDE2_API U64 GetUInt64(const std::string& key, U64 defaultValue = 0) override;
 
-			TDE2_API I8 GetInt8(const std::string& key) override;
-			TDE2_API I16 GetInt16(const std::string& key) override;
-			TDE2_API I32 GetInt32(const std::string& key) override;
-			TDE2_API I64 GetInt64(const std::string& key) override;
+			TDE2_API I8 GetInt8(const std::string& key, I8 defaultValue = 0) override;
+			TDE2_API I16 GetInt16(const std::string& key, I16 defaultValue = 0) override;
+			TDE2_API I32 GetInt32(const std::string& key, I32 defaultValue = 0) override;
+			TDE2_API I64 GetInt64(const std::string& key, I64 defaultValue = 0) override;
 
-			TDE2_API F32 GetFloat(const std::string& key) override;
-			TDE2_API F64 GetDouble(const std::string& key) override;
+			TDE2_API F32 GetFloat(const std::string& key, F32 defaultValue = 0.0f) override;
+			TDE2_API F64 GetDouble(const std::string& key, F64 defaultValue = 0.0) override;
 
-			TDE2_API bool GetBool(const std::string& key) override;
+			TDE2_API bool GetBool(const std::string& key, bool defaultValue = false) override;
 
-			TDE2_API std::string GetString(const std::string& key) override;
-			
+			TDE2_API std::string GetString(const std::string& key, const std::string& defaultValue = "") override;
+
 			/*!
 				\brief The method returns an identifier of current active node
 				\return The method returns an identifier of current active node

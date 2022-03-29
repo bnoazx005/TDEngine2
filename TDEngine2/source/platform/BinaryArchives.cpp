@@ -311,76 +311,76 @@ namespace TDEngine2
 		return (mCurrElementIndex + 1) <= static_cast<U32>(mpCurrNode ? mpCurrNode->mpChildren.size() : 0);
 	}
 
-	U8 CBinaryArchiveReader::GetUInt8(const std::string& key)
+	U8 CBinaryArchiveReader::GetUInt8(const std::string& key, U8 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<U8>(key, 0);
+		return _getContentAsOrDefault<U8>(key, defaultValue);
 	}
 
-	U16 CBinaryArchiveReader::GetUInt16(const std::string& key)
+	U16 CBinaryArchiveReader::GetUInt16(const std::string& key, U16 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<U16>(key, 0);
+		return _getContentAsOrDefault<U16>(key, defaultValue);
 	}
 
-	U32 CBinaryArchiveReader::GetUInt32(const std::string& key)
+	U32 CBinaryArchiveReader::GetUInt32(const std::string& key, U32 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<U32>(key, 0);
+		return _getContentAsOrDefault<U32>(key, defaultValue);
 	}
 
-	U64 CBinaryArchiveReader::GetUInt64(const std::string& key)
+	U64 CBinaryArchiveReader::GetUInt64(const std::string& key, U64 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<U64>(key, 0);
+		return _getContentAsOrDefault<U64>(key, defaultValue);
 	}
 
-	I8 CBinaryArchiveReader::GetInt8(const std::string& key)
+	I8 CBinaryArchiveReader::GetInt8(const std::string& key, I8 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<I8>(key, 0);
+		return _getContentAsOrDefault<I8>(key, defaultValue);
 	}
 
-	I16 CBinaryArchiveReader::GetInt16(const std::string& key)
+	I16 CBinaryArchiveReader::GetInt16(const std::string& key, I16 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<I16>(key, 0);
+		return _getContentAsOrDefault<I16>(key, defaultValue);
 	}
 
-	I32 CBinaryArchiveReader::GetInt32(const std::string& key)
+	I32 CBinaryArchiveReader::GetInt32(const std::string& key, I32 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<I32>(key, 0);
+		return _getContentAsOrDefault<I32>(key, defaultValue);
 	}
 
-	I64 CBinaryArchiveReader::GetInt64(const std::string& key)
+	I64 CBinaryArchiveReader::GetInt64(const std::string& key, I64 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<I64>(key, 0);
+		return _getContentAsOrDefault<I64>(key, defaultValue);
 	}
 
-	F32 CBinaryArchiveReader::GetFloat(const std::string& key)
+	F32 CBinaryArchiveReader::GetFloat(const std::string& key, F32 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<F32>(key, 0.0f);
+		return _getContentAsOrDefault<F32>(key, defaultValue);
 	}
 
-	F64 CBinaryArchiveReader::GetDouble(const std::string& key)
+	F64 CBinaryArchiveReader::GetDouble(const std::string& key, F64 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<F64>(key, 0.0);
+		return _getContentAsOrDefault<F64>(key, defaultValue);
 	}
 
-	bool CBinaryArchiveReader::GetBool(const std::string& key)
+	bool CBinaryArchiveReader::GetBool(const std::string& key, bool defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<bool>(key, false);
+		return _getContentAsOrDefault<bool>(key, defaultValue);
 	}
 
-	std::string CBinaryArchiveReader::GetString(const std::string& key)
+	std::string CBinaryArchiveReader::GetString(const std::string& key, const std::string& defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<std::string>(key, Wrench::StringUtils::GetEmptyStr());
+		return _getContentAsOrDefault<std::string>(key, defaultValue);
 	}
 
 	std::string CBinaryArchiveReader::GetCurrKey() const

@@ -305,76 +305,76 @@ namespace TDEngine2
 		return (mCurrElementIndex + 1 <= _getCurrScope()->Size());
 	}
 
-	U8 CYAMLFileReader::GetUInt8(const std::string& key)
+	U8 CYAMLFileReader::GetUInt8(const std::string& key, U8 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return static_cast<U8>(_getContentAs<U16>(key));
+		return static_cast<U8>(_getContentAsOrDefault<U16>(key, defaultValue));
 	}
 
-	U16 CYAMLFileReader::GetUInt16(const std::string& key)
+	U16 CYAMLFileReader::GetUInt16(const std::string& key, U16 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<U16>(key);
+		return _getContentAsOrDefault<U16>(key, defaultValue);
 	}
 
-	U32 CYAMLFileReader::GetUInt32(const std::string& key)
+	U32 CYAMLFileReader::GetUInt32(const std::string& key, U32 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<U32>(key);
+		return _getContentAsOrDefault<U32>(key, defaultValue);
 	}
 
-	U64 CYAMLFileReader::GetUInt64(const std::string& key)
+	U64 CYAMLFileReader::GetUInt64(const std::string& key, U64 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<U64>(key);
+		return _getContentAsOrDefault<U64>(key, defaultValue);
 	}
 
-	I8 CYAMLFileReader::GetInt8(const std::string& key)
+	I8 CYAMLFileReader::GetInt8(const std::string& key, I8 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<I8>(key);
+		return _getContentAsOrDefault<I8>(key, defaultValue);
 	}
 
-	I16 CYAMLFileReader::GetInt16(const std::string& key)
+	I16 CYAMLFileReader::GetInt16(const std::string& key, I16 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<I16>(key);
+		return _getContentAsOrDefault<I16>(key, defaultValue);
 	}
 
-	I32 CYAMLFileReader::GetInt32(const std::string& key)
+	I32 CYAMLFileReader::GetInt32(const std::string& key, I32 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<I32>(key);
+		return _getContentAsOrDefault<I32>(key, defaultValue);
 	}
 
-	I64 CYAMLFileReader::GetInt64(const std::string& key)
+	I64 CYAMLFileReader::GetInt64(const std::string& key, I64 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<I64>(key);
+		return _getContentAsOrDefault<I64>(key, defaultValue);
 	}
 
-	F32 CYAMLFileReader::GetFloat(const std::string& key)
+	F32 CYAMLFileReader::GetFloat(const std::string& key, F32 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAsOrDefault<F32>(key, 0.0f);
+		return _getContentAsOrDefault<F32>(key, defaultValue);
 	}
 
-	F64 CYAMLFileReader::GetDouble(const std::string& key)
+	F64 CYAMLFileReader::GetDouble(const std::string& key, F64 defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<F64>(key);
+		return _getContentAsOrDefault<F64>(key, defaultValue);
 	}
 
-	bool CYAMLFileReader::GetBool(const std::string& key)
+	bool CYAMLFileReader::GetBool(const std::string& key, bool defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<bool>(key);
+		return _getContentAsOrDefault<bool>(key, defaultValue);
 	}
 
-	std::string CYAMLFileReader::GetString(const std::string& key)
+	std::string CYAMLFileReader::GetString(const std::string& key, const std::string& defaultValue)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _getContentAs<std::string>(key);
+		return _getContentAsOrDefault<std::string>(key, defaultValue);
 	}
 
 	std::string CYAMLFileReader::GetCurrKey() const
