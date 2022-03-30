@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (Fixed issue #75) Rendering of animation curves was fixed.
 
+- (Fixed issue #76) Assertion caused by TDEAnimationEd was fixed.
+
 ### Changed
 
 - Now **CAnimationCurve**'s track uses tangents instead of control points to change its curvature.

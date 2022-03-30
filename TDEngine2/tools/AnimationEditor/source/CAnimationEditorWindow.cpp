@@ -149,7 +149,7 @@ namespace TDEngine2
 
 						mpCurrAnimationClip->SetDuration(duration);
 
-						if (CMathUtils::Abs(duration - mLastClipDuration) > FloatEpsilon)
+						if ((CMathUtils::Abs(duration - mLastClipDuration) > FloatEpsilon) && (TAnimationTrackId::Invalid != mSelectedTrackId))
 						{
 							if (auto pTrack = mpCurrAnimationClip->GetTrack<IAnimationTrack>(mSelectedTrackId))
 							{
