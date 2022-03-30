@@ -1225,11 +1225,13 @@ namespace TDEngine2
 			if (vertices.size() > mpVertexBuffer->GetSize() / sizeof(ImDrawVert))
 			{
 				mpVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, mpVertexBuffer->GetSize() + VertexBufferChunkSize, nullptr).Get();
+				mpVertexBuffer->Map(BMT_WRITE_DISCARD);
 			}
 
 			if (indices.size() > mpIndexBuffer->GetSize() / sizeof(ImDrawIdx))
 			{
 				mpIndexBuffer = mpGraphicsObjectManager->CreateIndexBuffer(E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, E_INDEX_FORMAT_TYPE::IFT_INDEX16, mpIndexBuffer->GetSize() + IndexBufferChunkSize, nullptr).Get();
+				mpIndexBuffer->Map(BMT_WRITE_DISCARD);
 			}
 
 			if (!vertices.empty())
