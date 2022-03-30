@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The incorrect restore of CYAMLArchiveWriter's state was fixed when an array is written.
 
+- The GPU memory access failure in CImGUIContext plugin when buffers are reallocated was fixed. 
+
+- (Fixed issue #75) Rendering of animation curves was fixed.
+
 ### Changed
 
 - Now **CAnimationCurve**'s track uses tangents instead of control points to change its curvature.

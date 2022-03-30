@@ -44,15 +44,17 @@ namespace TDEngine2
 	static void DrawCubicAnimationCurve(IImGUIContext& imguiContext, CAnimationCurve& curve, const CAnimationCurveEditorWindow::TCurveTransformParams& params,
 									const TColor32F& color, U32 numSegments = 30, F32 thickness = 1.0f)
 	{
-		for (U32 i = 0; i < numSegments; ++i)
+		const F32 delta = params.mCurveBounds.width / static_cast<F32>(numSegments);
+
+		TVector2 prevPoint = ApplyCurveToScreenTransform(params, { 0.0f, curve.Sample(0.0f) });
+
+		for (F32 t = 0; t < params.mCurveBounds.width; t += delta)
 		{
-			const F32 t0 = i / static_cast<F32>(numSegments);
-			const F32 t1 = (i + 1) / static_cast<F32>(numSegments);
+			const TVector2 currPoint = ApplyCurveToScreenTransform(params, { t, curve.Sample(t) });
 
-			const TVector2 currPoint = ApplyCurveToScreenTransform(params, { t0, curve.Sample(t0) });
-			const TVector2 nextPoint = ApplyCurveToScreenTransform(params, { t1, curve.Sample(t1) });
+			imguiContext.DrawLine(prevPoint, currPoint, color, thickness);
 
-			imguiContext.DrawLine(currPoint, nextPoint, color, thickness);
+			prevPoint = currPoint;
 		}
 	}
 
