@@ -127,4 +127,20 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IIntrospectable)
 	};
+
+
+	class IWorld;
+	class CEntity;
+
+	/*!
+	*	
+	*	\brief The method resolved given binding path looking downwards entity's hierarchy
+	
+		The format of input binding is 
+		Entity_1 / ... / Entity_N.ComponentName.property
+
+	* 
+	*/ 
+
+	TDE2_API IPropertyWrapperPtr ResolveBinding(IWorld* pWorld, CEntity* pEntity, const std::string& path);
 }

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.34] 2022-03-31
+
 ## [0.5.33] 2022-03-30
 
 ### Added
@@ -36,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now **CAnimationCurve**'s track uses tangents instead of control points to change its curvature.
 
 - API of **IArchiveReader** was updated to support default values for getters.
+
+- **ResolveBinding** was exposed to be a part of public API.
 
 ## [0.5.32] 2022-03-16
 
