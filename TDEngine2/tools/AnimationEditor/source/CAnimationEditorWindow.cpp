@@ -7,6 +7,103 @@ namespace TDEngine2
 	const std::string CAnimationEditorWindow::mAddPropertyWindowId = "Add Property ...";
 
 
+	/*!
+		\brief The class is used to visit concrete types of tracks to record a new value into them
+	*/
+
+	class CPropertyValueCapture : public CBaseObject, public IAnimationTrackVisitor
+	{
+		public:
+			friend TDE2_API IAnimationTrackVisitor* CreatePropertyValueCapture(E_RESULT_CODE&);
+
+		public:
+			TDE2_API E_RESULT_CODE Init()
+			{
+				if (mIsInitialized)
+				{
+					return RC_FAIL;
+				}
+
+				mIsInitialized = true;
+
+				return RC_OK;
+			}
+
+			TDE2_API void SetData(F32 time, IPropertyWrapperPtr value)
+			{
+				mTime = time;
+				mpValue = value;
+			}
+
+			TDE2_API E_RESULT_CODE VisitVector2Track(class CVector2AnimationTrack* pTrack) override
+			{
+				CreateAndAssignValue<TVector2>(pTrack, mTime, mpValue);
+				return RC_OK;
+			}
+
+			TDE2_API E_RESULT_CODE VisitVector3Track(class CVector3AnimationTrack* pTrack) override
+			{
+				CreateAndAssignValue<TVector3>(pTrack, mTime, mpValue);
+				return RC_OK;
+			}
+
+			TDE2_API E_RESULT_CODE VisitQuaternionTrack(class CQuaternionAnimationTrack* pTrack) override
+			{
+				CreateAndAssignValue<TQuaternion>(pTrack, mTime, mpValue);
+				return RC_OK;
+			}
+
+			TDE2_API E_RESULT_CODE VisitColorTrack(class CColorAnimationTrack* pTrack) override
+			{
+				CreateAndAssignValue<TColor32F>(pTrack, mTime, mpValue);
+				return RC_OK;
+			}
+
+			TDE2_API E_RESULT_CODE VisitFloatTrack(class CFloatAnimationTrack* pTrack) override
+			{
+				CreateAndAssignValue<F32>(pTrack, mTime, mpValue);
+				return RC_OK;
+			}
+
+			TDE2_API E_RESULT_CODE VisitIntegerTrack(class CIntegerAnimationTrack* pTrack) override
+			{
+				CreateAndAssignValue<I32>(pTrack, mTime, mpValue);
+				return RC_OK;
+			}
+
+			TDE2_API E_RESULT_CODE VisitBooleanTrack(class CBooleanAnimationTrack* pTrack) override
+			{
+				CreateAndAssignValue<bool>(pTrack, mTime, mpValue);
+				return RC_OK;
+			}
+
+			TDE2_API E_RESULT_CODE VisitEventTrack(class CEventAnimationTrack* pTrack) override
+			{
+				return RC_OK;
+			}
+
+			template <typename TValueType, typename TTrackType>
+			static void CreateAndAssignValue(TTrackType* pTrack, F32 time, const IPropertyWrapperPtr& pPropertyWrapper)
+			{
+				if (auto pKeyFrame = pTrack->GetKey(pTrack->CreateKey(time)))
+				{
+					pKeyFrame->mValue = pPropertyWrapper->Get<TValueType>();
+				}
+			}
+		private:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(CPropertyValueCapture)
+		private:
+			IPropertyWrapperPtr mpValue = nullptr;
+			F32                 mTime = 0.0f;
+	};
+
+
+	TDE2_API IAnimationTrackVisitor* CreatePropertyValueCapture(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IAnimationTrackVisitor, CPropertyValueCapture, result);
+	}
+
+
 	CAnimationEditorWindow::CAnimationEditorWindow() :
 		CBaseEditorWindow()
 	{
@@ -38,6 +135,8 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		mpPropertyCapturer = TPtr<IAnimationTrackVisitor>(CreatePropertyValueCapture(result));
 
 		mIsInitialized = true;
 		mIsVisible = true;
@@ -96,7 +195,7 @@ namespace TDEngine2
 				}
 			}
 
-			mpImGUIContext->Button("*##Record", buttonSize);
+			mpImGUIContext->Button("*##Record", buttonSize, std::bind(&CAnimationEditorWindow::_onAddKeyframeButtonHandler, this));
 
 			auto rewindAnimationFunctor = [this](float timeStep)
 			{
@@ -764,6 +863,48 @@ namespace TDEngine2
 		mpImGUIContext->EndHorizontal();
 
 		mpImGUIContext->EndModalWindow();
+	}
+
+	void CAnimationEditorWindow::_onAddKeyframeButtonHandler()
+	{
+		if (!mpCurrAnimationClip || mpCurrAnimationClip->GetTracksCount() < 1)
+		{
+			return;
+		}
+		
+		CEntity* pEntity = mpWorld->FindEntity(mCurrAnimatedEntity);
+		if (!pEntity)
+		{
+			return;
+		}
+
+		const F32 currTime = _getCurrAnimationClipTime();
+		
+		mpCurrAnimationClip->ForEachTrack([this, pEntity, currTime](TAnimationTrackId trackId, IAnimationTrack* pTrack)
+		{
+			if (auto pCapturer = DynamicPtrCast<CPropertyValueCapture, IAnimationTrackVisitor>(mpPropertyCapturer))
+			{
+				pCapturer->SetData(currTime, ResolveBinding(mpWorld.Get(), pEntity, pTrack->GetPropertyBinding()));
+			}
+
+			pTrack->AssignTrackForEditing(mpPropertyCapturer.Get());
+
+			return true;
+		});
+	}
+
+	F32 CAnimationEditorWindow::_getCurrAnimationClipTime() const
+	{
+		if (auto pEntity = mpWorld->FindEntity(mCurrAnimatedEntity))
+		{
+			if (auto pAnimationContainer = pEntity->GetComponent<CAnimationContainerComponent>())
+			{
+				return pAnimationContainer->GetTime();
+			}
+		}
+
+		TDE2_UNREACHABLE();
+		return 0.0f;
 	}
 
 

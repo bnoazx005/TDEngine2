@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.34] 2022-03-31
 
+### Added
+
+- Support of capturing entity's state was added for all existing type of tracks in TDEAnimationEd. 
+
 ## [0.5.33] 2022-03-30
 
 ### Added

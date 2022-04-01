@@ -122,5 +122,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IAnimationTrackVisitor)
 	};
 
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IAnimationTrackVisitor)
+
 #endif
 }

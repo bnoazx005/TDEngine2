@@ -10,7 +10,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 {
 	TDEngine2::E_RESULT_CODE result = RC_OK;
 
-	auto pWorld = mpEngineCoreInstance->GetWorldInstance();
+	auto pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>();
 
 	mpAnimationEditor = dynamic_cast<CAnimationEditorWindow*>(
 			TDEngine2::CreateAnimationEditorWindow(
@@ -21,24 +21,6 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	mCurrEditableEffectId = mpResourceManager->Create<IAnimationClip>("unnamed.animation", TAnimationClipParameters {});
 	mpAnimationEditor->SetAnimationResourceHandle(mCurrEditableEffectId);
-
-	if (auto pEntity = pWorld->CreateEntity())
-	{
-		mpAnimationEditor->SetAnimatedEntityId(pEntity->GetId());
-
-		if (auto pTransform = pEntity->GetComponent<CTransform>())
-		{
-			auto props = pTransform->GetAllProperties();
-
-			auto pos = pTransform->GetProperty("position");
-			pos->Set(ForwardVector3);
-		}
-
-		if (auto pAnimationContainer = pEntity->AddComponent<CAnimationContainerComponent>())
-		{
-			pAnimationContainer->SetAnimationClipId("unnamed.animation");
-		}
-	}
 
 #if 0
 	TAnimationClipParameters clip;
@@ -83,9 +65,10 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 				{
 					if (auto pAnimationComponent = pEntity->AddComponent<CAnimationContainerComponent>())
 					{
-						pAnimationComponent->SetAnimationClipId("Animation2.animation");
+						pAnimationComponent->SetAnimationClipId("unnamed.animation");
 					}
 
+					mpAnimationEditor->SetAnimatedEntityId(pEntity->GetId());
 					mpEditableEntity = pEntity;
 				}
 			}

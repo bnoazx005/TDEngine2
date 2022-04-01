@@ -17,11 +17,13 @@ namespace TDEngine2
 	class IResourceManager;
 	class IWorld;
 	class IDesktopInputContext;
+	class IAnimationTrackVisitor;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager);
 	TDE2_DECLARE_SCOPED_PTR(IWorld);
 	TDE2_DECLARE_SCOPED_PTR(IDesktopInputContext);
+	TDE2_DECLARE_SCOPED_PTR(IAnimationTrackVisitor);
 
 
 	/*!
@@ -82,6 +84,9 @@ namespace TDEngine2
 			TDE2_API void _drawPropertyBindingsWindow();
 
 			TDE2_API void _onAddEventsTrackButtonHandler();
+			TDE2_API void _onAddKeyframeButtonHandler();
+
+			TDE2_API F32 _getCurrAnimationClipTime() const;
 
 		protected:
 			static const std::string        mAddPropertyWindowId;
@@ -110,6 +115,9 @@ namespace TDEngine2
 			CScopedPtr<CTrackSheetEditor>   mpTrackSheetEditor;
 
 			F32                             mLastClipDuration = -1.0f;
+
+
+			TPtr<IAnimationTrackVisitor>    mpPropertyCapturer;
 	};
 
 
