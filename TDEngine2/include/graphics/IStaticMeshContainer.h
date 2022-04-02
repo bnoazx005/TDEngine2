@@ -43,6 +43,12 @@ namespace TDEngine2
 			TDE2_API virtual void SetMeshName(const std::string& meshName) = 0;
 
 			/*!
+				\brief The method specifies sub-mesh identifier if it's empty the whole mesh is renderer with single material
+			*/
+
+			TDE2_API virtual void SetSubMeshId(const std::string& meshName) = 0;
+
+			/*!
 				\brief The method sets up an internal handle which points to pair 
 				vertex and index buffers within system that renders static meshes
 
@@ -67,6 +73,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const std::string& GetMeshName() const = 0;
+
+			TDE2_API virtual const std::string& GetSubMeshId() const = 0;
 
 			/*!
 				\brief The method returns an internal handle which points to pair 

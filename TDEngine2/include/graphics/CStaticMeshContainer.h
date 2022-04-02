@@ -77,6 +77,12 @@ namespace TDEngine2
 			TDE2_API void SetMeshName(const std::string& meshName) override;
 
 			/*!
+				\brief The method specifies sub-mesh identifier if it's empty the whole mesh is renderer with single material
+			*/
+
+			TDE2_API void SetSubMeshId(const std::string& meshName) override;
+
+			/*!
 				\brief The method sets up an internal handle which points to pair
 				vertex and index buffers within system that renders static meshes
 
@@ -102,6 +108,8 @@ namespace TDEngine2
 
 			TDE2_API const std::string& GetMeshName() const override;
 
+			TDE2_API const std::string& GetSubMeshId() const override;
+
 			/*!
 				\brief The method returns an internal handle which points to pair
 				vertex and index buffers within system that renders static meshes
@@ -113,6 +121,7 @@ namespace TDEngine2
 		protected:
 			std::string mMaterialName;
 			std::string mMeshName; /// \todo replace with GUID or something like that
+			std::string mSubMeshId = Wrench::StringUtils::GetEmptyStr(); ///< If the field's value is empty the whole mesh will be rendered with same material
 
 			U32         mSystemBuffersHandle = static_cast<U32>(-1);
 	};

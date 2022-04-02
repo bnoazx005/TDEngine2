@@ -187,9 +187,35 @@ namespace TDEngine2
 		{
 			CStaticMeshContainer& meshContainer = dynamic_cast<CStaticMeshContainer&>(component);
 
-			imguiContext.Label(meshContainer.GetMeshName());
-			imguiContext.Label(meshContainer.GetMaterialName());
-			// \todo Implement this drawer
+			/// \note Mesh identifier
+			{
+				std::string meshId = meshContainer.GetMeshName();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Mesh Id:");
+				imguiContext.TextField("##MeshId", meshId, [&meshId, &meshContainer] { meshContainer.SetMeshName(meshId); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note Sub-mesh idenfitier
+			{
+				std::string subMeshId = meshContainer.GetSubMeshId();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Sub-mesh Id:");
+				imguiContext.TextField("##SubMeshId", subMeshId, [&subMeshId, &meshContainer] { meshContainer.SetSubMeshId(subMeshId); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note Material
+			{
+				std::string materialId = meshContainer.GetMaterialName();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Material Id:");
+				imguiContext.TextField("##MaterialId", materialId, [&materialId, &meshContainer] { meshContainer.SetMaterialName(materialId); });
+				imguiContext.EndHorizontal();
+			}
 		}
 	}
 

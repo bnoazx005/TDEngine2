@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.35] 2022-04-02
+
+### Added
+
+- Support of **sub-mesh-id** property was added into **CStaticMeshContainer** component.
+
 ## [0.5.34] 2022-03-31
 
 ### Added

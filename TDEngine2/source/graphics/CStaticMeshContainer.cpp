@@ -17,6 +17,7 @@ namespace TDEngine2
 
 		mMaterialName = pReader->GetString("material");
 		mMeshName = pReader->GetString("mesh");
+		mSubMeshId = pReader->GetString("sub_mesh_id");
 
 		return RC_OK;
 	}
@@ -34,6 +35,7 @@ namespace TDEngine2
 
 			pWriter->SetString("material", mMaterialName);
 			pWriter->SetString("mesh", mMeshName);
+			pWriter->SetString("sub_mesh_id", mSubMeshId);
 		}
 		pWriter->EndGroup();
 
@@ -50,6 +52,11 @@ namespace TDEngine2
 		mMeshName = meshName;
 	}
 
+	void CStaticMeshContainer::SetSubMeshId(const std::string& meshName)
+	{
+		mSubMeshId = meshName;
+	}
+
 	void CStaticMeshContainer::SetSystemBuffersHandle(U32 handle)
 	{
 		mSystemBuffersHandle = handle;
@@ -63,6 +70,11 @@ namespace TDEngine2
 	const std::string& CStaticMeshContainer::GetMeshName() const
 	{
 		return mMeshName;
+	}
+
+	const std::string& CStaticMeshContainer::GetSubMeshId() const
+	{
+		return mSubMeshId;
 	}
 
 	U32 CStaticMeshContainer::GetSystemBuffersHandle() const
