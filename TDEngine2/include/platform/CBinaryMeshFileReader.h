@@ -39,7 +39,7 @@ namespace TDEngine2
 			{
 				C8  mTag[4];
 				U32 mVersion;
-				U32 mSceneDescOffset;
+				U32 mMeshesCount;
 				U32 mPadding;
 			} TMeshFileHeader, *TMeshFileHeaderPtr;
 
@@ -67,7 +67,7 @@ namespace TDEngine2
 
 			TDE2_API TResult<TMeshFileHeader> _readMeshFileHeader();
 
-			TDE2_API E_RESULT_CODE _readGeometryBlock(IMesh*& pMesh);
+			TDE2_API E_RESULT_CODE _readSubmeshes(IMesh*& pMesh);
 
 			TDE2_API bool _readMeshEntryBlock(IMesh*& pMesh);
 			TDE2_API TResult<TMeshEntityHeader> _readMeshEntryHeader();

@@ -2,12 +2,13 @@
 #include "../../include/graphics/IMesh.h"
 #include "../../include/graphics/ISkeleton.h"
 #include "../../include/platform/IOStreams.h"
+#include "../../include/utils/CFileLogger.h"
 #include <cstring>
 
 
 namespace TDEngine2
 {
-	const U32 CBinaryMeshFileReader::mMeshVersion = 0x00010000; // 00.01.0000 
+	const U32 CBinaryMeshFileReader::mMeshVersion = 0x00030000; // 00.03.0000 
 
 
 	CBinaryMeshFileReader::CBinaryMeshFileReader() :
@@ -23,21 +24,7 @@ namespace TDEngine2
 			return headerResult.GetError();
 		}
 
-		E_RESULT_CODE result = RC_OK;
-		
-		if ((result = _readGeometryBlock(pDestMesh)) != RC_OK)
-		{
-			return result;
-		}
-
-#if 0
-		if ((result = _readSceneDescBlock(pDestMesh, headerResult.Get().mSceneDescOffset)) != RC_OK)
-		{
-			return result;
-		}
-#endif
-
-		return RC_OK;
+		return _readSubmeshes(pDestMesh);
 	}
 
 	E_RESULT_CODE CBinaryMeshFileReader::LoadStaticMesh(IStaticMesh* const& pMesh)
@@ -184,7 +171,13 @@ namespace TDEngine2
 		TMeshFileHeader header;
 
 		E_RESULT_CODE result = Read(&header, sizeof(header));
-		result = result | ((strcmp(header.mTag, "MESH") != 0 || header.mVersion != mMeshVersion) ? RC_INVALID_FILE : RC_OK);
+		result = result | ((strcmp(header.mTag, "MESH") != 0) ? RC_INVALID_FILE : RC_OK);
+
+		if (header.mVersion < mMeshVersion)
+		{
+			LOG_WARNING(Wrench::StringUtils::Format("[CBinaryMeshFileReader] The version of the file {0} is older than current {1}. The migration is needed", header.mVersion, mMeshVersion));
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_FILE);
+		}
 
 		if (result != RC_OK)
 		{
@@ -194,7 +187,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<TMeshFileHeader>(header);
 	}
 
-	E_RESULT_CODE CBinaryMeshFileReader::_readGeometryBlock(IMesh*& pMesh)
+	E_RESULT_CODE CBinaryMeshFileReader::_readSubmeshes(IMesh*& pMesh)
 	{
 		E_RESULT_CODE result = SetPosition(16);
 

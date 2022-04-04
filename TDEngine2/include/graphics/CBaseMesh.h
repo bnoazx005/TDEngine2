@@ -135,6 +135,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API U32 GetFacesCount() const override;
+
+			/*!
+				\return The method returns an array of all submeshes that're available for the resource
+			*/
+
+			TDE2_API const std::vector<std::string> GetSubmeshesIdentifiers() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMesh)
 
@@ -149,23 +155,25 @@ namespace TDEngine2
 			TDE2_API bool _hasTexCoords0Internal() const;
 
 		protected:
-			IGraphicsObjectManager* mpGraphicsObjectManager;
+			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
-			TPositionsArray         mPositions;
+			TPositionsArray          mPositions;
 
-			TVertexColorArray       mVertexColors;
+			TVertexColorArray        mVertexColors;
 
-			TNormalsArray           mNormals;
+			TNormalsArray            mNormals;
 			
-			TTangentsArray          mTangents;
+			TTangentsArray           mTangents;
 
-			TTexcoordsArray         mTexcoords0;
+			TTexcoordsArray          mTexcoords0;
 
-			TIndicesArray           mIndices;
+			TIndicesArray            mIndices;
 
-			IVertexBuffer*          mpSharedVertexBuffer;
-			IVertexBuffer*          mpPositionOnlyVertexBuffer;
+			IVertexBuffer*           mpSharedVertexBuffer;
+			IVertexBuffer*           mpPositionOnlyVertexBuffer;
 
-			IIndexBuffer*           mpSharedIndexBuffer;
+			IIndexBuffer*            mpSharedIndexBuffer;
+
+			std::vector<std::string> mSubMeshesIdentifiers;
 	};
 }

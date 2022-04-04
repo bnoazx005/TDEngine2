@@ -30,6 +30,9 @@ namespace TDEngine2
 	};
 
 
+	static constexpr USIZE FileHeaderSize = 16;
+
+
 	TResult<TUtilityOptions> ParseOptions(int argc, const char** argv) TDE2_NOEXCEPT
 	{
 		int showVersion = 0;
@@ -203,11 +206,14 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE ReadSkeletonData(IEngineCore* pEngineCore, const CScopedPtr<CSkeleton>& pSkeleton, const std::string& filePath, const TUtilityOptions& options, const aiScene* pScene) TDE2_NOEXCEPT
+	static E_RESULT_CODE ReadSkeletonData(IEngineCore* pEngineCore, const CScopedPtr<CSkeleton>& pSkeleton, const std::string& filePath, const TUtilityOptions& options, 
+										const aiScene* pScene, bool& hasAnimationData) TDE2_NOEXCEPT
 	{
 		const aiBone* pCurrBone = nullptr;
 
 		E_RESULT_CODE result = RC_OK;
+
+		hasAnimationData = false;
 
 		if (RC_OK != result)
 		{
@@ -262,6 +268,13 @@ namespace TDEngine2
 				nodesToVisit.push(pCurrNode->mChildren[i]);
 			}
 		}
+
+		if (pSkeleton->GetJointsCount() < 1) /// \note If there are no joints just skip the serialization step
+		{
+			return RC_OK;
+		}
+
+		hasAnimationData = true;
 
 		/// \note Generate links between joints
 		pSkeleton->ForEachJoint([pSkeleton, &jointLinksInfo](TJoint* pJoint)
@@ -505,6 +518,8 @@ namespace TDEngine2
 		typedef std::vector<U32> TJointIndicesArray;
 
 		std::string                     mName;
+		I32                             mParentId = -1;
+
 		std::vector<TVector4>           mVertices;
 		std::vector<TVector4>           mNormals;
 		std::vector<TVector4>           mTangents;
@@ -629,22 +644,22 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE WriteFileHeader(IBinaryFileWriter* pMeshFileWriter, U64 offset)
+	static E_RESULT_CODE WriteFileHeader(IBinaryFileWriter* pMeshFileWriter, U32 meshesCount)
 	{
-		const U8 Version[4] = { 0, 0, 1, 0 }; /// \todo Move to header 
+		const U8 Version[4] = { 0, 0, 3, 0 }; /// \todo Move to header 
 
 		E_RESULT_CODE result = pMeshFileWriter->SetPosition(0);
 
 		result = result | pMeshFileWriter->Write("MESH", 4);
 		result = result | pMeshFileWriter->Write(Version, sizeof(Version));
-		result = result | pMeshFileWriter->Write(&offset, sizeof(U32));
-		result = result | pMeshFileWriter->Write(&offset, sizeof(U32)); /// \note write any data here just for padding
+		result = result | pMeshFileWriter->Write(&meshesCount, sizeof(U32));
+		result = result | pMeshFileWriter->Write(&meshesCount, sizeof(U32)); /// \note write any data here just for padding
 
 		return result;
 	}
 
 
-	static E_RESULT_CODE WriteSingleMeshBlock(IBinaryFileWriter* pMeshFileWriter, U16 meshId, const TMeshDataEntity& meshEntity, const TUtilityOptions& options)
+	static E_RESULT_CODE WriteSingleMeshBlock(IBinaryFileWriter* pMeshFileWriter, const TMeshDataEntity& meshEntity, const TUtilityOptions& options)
 	{
 		const U16 MeshBlockTag             = 0x4D48;
 		const U16 MeshVerticesBlockTag     = 0x01CD;
@@ -657,15 +672,19 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
+		C8 meshId[64]{ '\0' };
+		strcpy_s(meshId, sizeof(meshId) / sizeof(meshId[0]), meshEntity.mName.data());
+
 		result = result | pMeshFileWriter->Write(&MeshBlockTag, sizeof(MeshBlockTag));
-		result = result | pMeshFileWriter->Write(&meshId, sizeof(meshId));
+		result = result | pMeshFileWriter->Write(meshId, sizeof(meshId));
 
 		const U32 vertexCount = static_cast<U32>(meshEntity.mVertices.size());
 		const U32 facesCount  = static_cast<U32>(meshEntity.mFaces.size());
 
 		result = result | pMeshFileWriter->Write(&vertexCount, sizeof(vertexCount));
 		result = result | pMeshFileWriter->Write(&facesCount, sizeof(facesCount));
-		result = result | pMeshFileWriter->Write(&vertexCount, sizeof(vertexCount)); /// \note Unused
+
+		result = result | pMeshFileWriter->Write(&meshEntity.mParentId, sizeof(meshEntity.mParentId)); /// \node child-parent relationship's index
 
 		/// \note Write vertices
 		result = result | pMeshFileWriter->Write(&MeshVerticesBlockTag, sizeof(MeshVerticesBlockTag));
@@ -768,42 +787,35 @@ namespace TDEngine2
 
 
 	/// returns offset to the end of the block or an error code
-	static E_RESULT_CODE WriteGeometryBlock(IBinaryFileWriter* pMeshFileWriter, const std::vector<TMeshDataEntity>& meshes, const TUtilityOptions& options)
+	static E_RESULT_CODE WriteMeshesData(IBinaryFileWriter* pMeshFileWriter, const std::vector<TMeshDataEntity>& meshes, const TUtilityOptions& options)
 	{
-		const U16 GeometryBlockTag = 0x2F;
-
-		E_RESULT_CODE result = pMeshFileWriter->SetPosition(16);
+		E_RESULT_CODE result = pMeshFileWriter->SetPosition(FileHeaderSize);
 		
-		result = result | pMeshFileWriter->Write(&GeometryBlockTag, sizeof(GeometryBlockTag));
-
-		const U16 meshesCount = static_cast<U16>(meshes.size());
-
-		result = result | pMeshFileWriter->Write(&meshesCount, sizeof(meshesCount));
-
-		for (U16 i = 0; i < meshesCount; ++i)
+		for (const TMeshDataEntity& currMeshEntity : meshes)
 		{
-			result = result | WriteSingleMeshBlock(pMeshFileWriter, i, meshes[i], options);
+			result = result | WriteSingleMeshBlock(pMeshFileWriter, currMeshEntity, options);
 		}
 
 		return result;
 	}
 
 
-	typedef std::tuple<std::string, U16, U16> TSceneObjectInfo;
-
-
-	static std::vector<TSceneObjectInfo> GetObjectsList(const aiScene* pScene, const std::vector<TMeshDataEntity>& meshes)
+	static void ProcessHierarchyTable(const aiScene* pScene, std::vector<TMeshDataEntity>& meshes)
 	{
-		std::vector<std::tuple<std::string, U16, U16>> objects;
-
 		std::queue<aiNode*> nodesToVisit;
 		nodesToVisit.emplace(pScene->mRootNode);
+
+		std::stack<I32> parents;
+		parents.push(-1);
 
 		/// \note Traverse the scene's hierarchy
 		while (!nodesToVisit.empty())
 		{
 			aiNode* pCurrNode = nodesToVisit.front();
 			nodesToVisit.pop();
+
+			I32 parentId = parents.top();
+			parents.pop();
 
 			for (U32 i = 0; i < pCurrNode->mNumMeshes; ++i)
 			{
@@ -814,61 +826,18 @@ namespace TDEngine2
 					continue;
 				}
 
-				auto meshIt = std::find_if(meshes.cbegin(), meshes.cend(), [meshId = pMesh->mName.C_Str()](const TMeshDataEntity& entity) { return meshId == entity.mName; });
-				auto parentIt = std::find_if(objects.cbegin(), objects.cend(), [nameId = pCurrNode->mParent->mName.C_Str()](auto&& entity) { return nameId == std::get<std::string>(entity); });
+				auto meshIt = std::find_if(meshes.begin(), meshes.end(), [meshId = pMesh->mName.C_Str()](const TMeshDataEntity& entity) { return meshId == entity.mName; });
+				meshIt->mParentId = parentId;
 
-				objects.emplace_back(pCurrNode->mName.C_Str(), 
-									(parentIt == objects.cend()) ? (std::numeric_limits<U16>::max)() : static_cast<U16>(std::distance(objects.cbegin(), parentIt)), ///< Parent id
-									(meshIt == meshes.cend()) ? (std::numeric_limits<U16>::max)() : static_cast<U16>(std::distance(meshes.cbegin(), meshIt))); /// Mesh id
+				parentId = static_cast<I32>(std::distance(meshes.begin(), meshIt));
 			}
 
 			for (U32 i = 0; i < pCurrNode->mNumChildren; ++i)
 			{
 				nodesToVisit.push(pCurrNode->mChildren[i]);
+				parents.push(parentId);
 			}
 		}
-
-		return objects;
-	}
-
-
-	static E_RESULT_CODE WriteSingleObjectInfo(IBinaryFileWriter* pMeshFileWriter, U16 objectId, const TSceneObjectInfo& objectInfo)
-	{
-		const U16 ObjectInfoBlockTag = 0xF0CD;
-
-		E_RESULT_CODE result = pMeshFileWriter->Write(&ObjectInfoBlockTag, sizeof(ObjectInfoBlockTag));
-
-		auto&& objectName = std::get<std::string>(objectInfo);
-
-		result = result | pMeshFileWriter->Write(objectName.c_str(), sizeof(C8) * static_cast<U32>(objectName.length()));
-
-		const U16 objectDataBlock[3] { objectId, std::get<1>(objectInfo), std::get<2>(objectInfo) }; /// objectId, parentId, meshId
-
-		result = result | pMeshFileWriter->Write(objectDataBlock, sizeof(objectDataBlock));
-
-		return RC_OK;
-	}
-
-
-	static E_RESULT_CODE WriteSceneDescInfo(IBinaryFileWriter* pMeshFileWriter, const aiScene* pScene, const std::vector<TMeshDataEntity>& meshes, U64 offset, const TUtilityOptions& options)
-	{
-		const U16 SceneDescBlockTag = 0x12;
-
-		auto&& objects = GetObjectsList(pScene, meshes);
-
-		E_RESULT_CODE result = pMeshFileWriter->SetPosition(static_cast<U32>(offset));
-		result = result | pMeshFileWriter->Write(&SceneDescBlockTag, sizeof(SceneDescBlockTag));
-
-		const U16 objectsCount = static_cast<U16>(objects.size());
-
-		result = result | pMeshFileWriter->Write(&objectsCount, sizeof(objectsCount));
-
-		for (U16 i = 0; i < objectsCount; ++i)
-		{
-			result = result | WriteSingleObjectInfo(pMeshFileWriter, i, objects[i]);
-		}
-
-		return RC_OK;
 	}
 
 
@@ -884,16 +853,16 @@ namespace TDEngine2
 
 			if (IBinaryFileWriter* pMeshFileWriter = pFileSystem->Get<IBinaryFileWriter>(meshFileResult.Get()))
 			{
-				E_RESULT_CODE result = WriteGeometryBlock(pMeshFileWriter, meshes, options);
+				E_RESULT_CODE result = WriteMeshesData(pMeshFileWriter, meshes, options);
 				if (RC_OK != result)
 				{
 					return result;
 				}
 
-				const U64 offset = static_cast<U64>(pMeshFileWriter->GetPosition());
-
-				WriteFileHeader(pMeshFileWriter, offset); // 16 is size of the header
-				WriteSceneDescInfo(pMeshFileWriter, pScene, meshes, offset, options);
+				if (RC_OK != (result = WriteFileHeader(pMeshFileWriter, static_cast<U32>(meshes.size()))))
+				{
+					return result;
+				}
 
 				pMeshFileWriter->Close();
 			}
@@ -920,12 +889,14 @@ namespace TDEngine2
 			dynamic_cast<CSkeleton*>(CreateSkeleton(pEngineCore->GetSubsystem<IResourceManager>().Get(), pEngineCore->GetSubsystem<IGraphicsContext>().Get(), "NewSkeleton.skeleton", result))
 		};
 
-		if (RC_OK != (result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene)))
+		bool hasAnimationData = false;
+
+		if (RC_OK != (result = ReadSkeletonData(pEngineCore, pSkeleton, filePath, options, pScene, hasAnimationData)))
 		{
 			return result;
 		}
 
-		if (RC_OK != (result = ReadAnimationsData(pEngineCore, filePath, options, pScene)))
+		if (hasAnimationData && RC_OK != (result = ReadAnimationsData(pEngineCore, filePath, options, pScene)))
 		{
 			return result;
 		}
@@ -949,6 +920,8 @@ namespace TDEngine2
 			meshes.emplace_back(ReadMeshData(pScene, pMesh, pSkeleton, baseIndex, options));
 			baseIndex += pMesh->mNumVertices;
 		}
+
+		ProcessHierarchyTable(pScene, meshes);
 
 		TUtilityOptions updatedOptions = options;
 		updatedOptions.mIndexFormat = (baseIndex < 0xFFFF) ? sizeof(U16) : sizeof(U32);

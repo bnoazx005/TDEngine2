@@ -167,6 +167,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IIndexBuffer* GetSharedIndexBuffer() const = 0;
+
+			/*!
+				\return The method returns an array of all submeshes that're available for the resource
+			*/
+
+			TDE2_API virtual const std::vector<std::string> GetSubmeshesIdentifiers() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMesh)
 	};

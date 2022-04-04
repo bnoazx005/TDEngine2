@@ -194,6 +194,11 @@ namespace TDEngine2
 		return mpSharedIndexBuffer;
 	}
 
+	const std::vector<std::string> CBaseMesh::GetSubmeshesIdentifiers() const
+	{
+		return mSubMeshesIdentifiers;
+	}
+
 	std::vector<U8> CBaseMesh::_getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const
 	{
 		std::vector<U8> indicesBytesArray(static_cast<U32>(indexFormat) * mIndices.size());
