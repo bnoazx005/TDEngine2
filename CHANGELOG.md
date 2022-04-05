@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.35] 2022-04-04
+## [0.5.35] 2022-04-05
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - A new iteration of binary mesh format was introduced.
+
+- Current implementation of **CBinaryMeshFileReader** was reimplemented to support newer version of meshes.
 
 ## [0.5.34] 2022-03-31
 

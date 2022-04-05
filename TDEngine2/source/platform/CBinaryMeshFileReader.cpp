@@ -24,7 +24,7 @@ namespace TDEngine2
 			return headerResult.GetError();
 		}
 
-		return _readSubmeshes(pDestMesh);
+		return _readSubmeshes(pDestMesh, headerResult.Get());
 	}
 
 	E_RESULT_CODE CBinaryMeshFileReader::LoadStaticMesh(IStaticMesh* const& pMesh)
@@ -33,17 +33,19 @@ namespace TDEngine2
 
 		U16 tag = 0x0;
 
-		U16 objectId = 0;
+		I32 parentId = 0;
 		U32 vertexCount = 0;
 		U32 facesCount = 0;
 
-		auto readHeaderResult = _readMeshEntryHeader();
+		std::string subMeshId;
+
+		auto readHeaderResult = _readSubMeshEntryHeader();
 		if (readHeaderResult.HasError())
 		{
 			return readHeaderResult.GetError();
 		}
 
-		std::tie(objectId, vertexCount, facesCount) = readHeaderResult.Get();
+		std::tie(parentId, vertexCount, facesCount, subMeshId) = readHeaderResult.Get();
 
 		IMesh* pBaseMesh = dynamic_cast<IMesh*>(pMesh);
 
@@ -61,17 +63,19 @@ namespace TDEngine2
 
 		U16 tag = 0x0;
 
-		U16 objectId = 0;
+		I32 parentId = 0;
 		U32 vertexCount = 0;
 		U32 facesCount = 0;
 
-		auto readHeaderResult = _readMeshEntryHeader();
+		std::string subMeshId;
+
+		auto readHeaderResult = _readSubMeshEntryHeader();
 		if (readHeaderResult.HasError())
 		{
 			return readHeaderResult.GetError();
 		}
 
-		std::tie(objectId, vertexCount, facesCount) = readHeaderResult.Get();
+		std::tie(parentId, vertexCount, facesCount, subMeshId) = readHeaderResult.Get();
 
 		IMesh* pBaseMesh = dynamic_cast<IMesh*>(pMesh);
 
@@ -187,25 +191,11 @@ namespace TDEngine2
 		return Wrench::TOkValue<TMeshFileHeader>(header);
 	}
 
-	E_RESULT_CODE CBinaryMeshFileReader::_readSubmeshes(IMesh*& pMesh)
+	E_RESULT_CODE CBinaryMeshFileReader::_readSubmeshes(IMesh*& pMesh, const TMeshFileHeader& header)
 	{
-		E_RESULT_CODE result = SetPosition(16);
+		E_RESULT_CODE result = SetPosition(sizeof(TMeshFileHeader));
 
-		U16 tag = 0, meshesCount = 0;
-
-		if (RC_OK != (result = Read(&tag, sizeof(U16))))
-		{
-			return result;
-		}
-
-		TDE2_ASSERT(tag == 0x2F);
-
-		if (RC_OK != (result = Read(&meshesCount, sizeof(meshesCount))))
-		{
-			return result;
-		}
-
-		for (U16 i = 0; i < meshesCount; ++i)
+		for (U16 i = 0; i < header.mMeshesCount; ++i)
 		{
 			result = result | pMesh->Accept(this);
 		}
@@ -304,7 +294,7 @@ namespace TDEngine2
 #endif
 	}
 
-	TResult<CBinaryMeshFileReader::TMeshEntityHeader> CBinaryMeshFileReader::_readMeshEntryHeader()
+	TResult<CBinaryMeshFileReader::TMeshEntityHeader> CBinaryMeshFileReader::_readSubMeshEntryHeader()
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -320,8 +310,9 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		U16 objectId = 0x0;
-		if ((result = Read(&objectId, 2)) != RC_OK)
+		C8 meshId[64];
+
+		if ((result = Read(&meshId, sizeof(meshId))) != RC_OK)
 		{
 			TDE2_ASSERT(false);
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
@@ -342,14 +333,14 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		U32 padding = 0x0;
-		if ((result = Read(&padding, sizeof(U32))) != RC_OK)
+		I32 parentId = 0x0;
+		if ((result = Read(&parentId, sizeof(parentId))) != RC_OK)
 		{
 			TDE2_ASSERT(false);
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<TMeshEntityHeader>({ objectId, vertexCount, facesCount });
+		return Wrench::TOkValue<TMeshEntityHeader>({ parentId, vertexCount, facesCount, { meshId } });
 	}
 	
 	E_RESULT_CODE CBinaryMeshFileReader::_readCommonMeshVertexData(IMesh*& pMesh, U32 vertexCount, U32 facesCount)

@@ -737,7 +737,7 @@ namespace TDEngine2
 		}
 
 		/// \note Write joints weights (optional)
-		if (!options.mShouldSkipJoints)
+		if (!options.mShouldSkipJoints && !meshEntity.mJointWeights.empty())
 		{
 			result = result | pMeshFileWriter->Write(&MeshJointWeightsBlockTag, sizeof(MeshJointWeightsBlockTag));
 
