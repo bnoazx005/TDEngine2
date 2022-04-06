@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A typo in meshConverter.cpp was fixed. Indices count was written instead of faces' amount.
 
+- (Fixed issue #77) The incorrect invocation of memcpy was fixed in **CImGUIContext::TextField**.
+
 ## [0.5.34] 2022-03-31
 
 ### Added

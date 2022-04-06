@@ -569,11 +569,11 @@ namespace TDEngine2
 			{
 				std::string eventId = pTrack->GetKey(mCurrSelectedSampleId)->mValue;
 
-				mpImGUIContext->TextField("Event Id:", eventId, [this, &eventId, pTrack]
+				mpImGUIContext->TextField("Event Id:", eventId, [this, pTrack](auto&& value)
 				{
 					if (auto pKeySample = pTrack->GetKey(mCurrSelectedSampleId))
 					{
-						pKeySample->mValue = eventId;
+						pKeySample->mValue = value;
 					}
 
 					mCurrSelectedSampleId = TAnimationTrackKeyId::Invalid;

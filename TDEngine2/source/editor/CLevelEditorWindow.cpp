@@ -390,7 +390,7 @@ namespace TDEngine2
 		{
 			std::string entityName = pSelectedEntity->GetName();
 
-			mpImGUIContext->TextField("##entityId", entityName, [&entityName, pSelectedEntity] { pSelectedEntity->SetName(entityName); });
+			mpImGUIContext->TextField("##entityId", entityName, [pSelectedEntity](auto&& value){ pSelectedEntity->SetName(value); });
 			mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
 		}
 		mpImGUIContext->EndHorizontal();

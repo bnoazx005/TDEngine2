@@ -564,9 +564,9 @@ namespace TDEngine2
 
 			mpImGUIContext->BeginHorizontal();
 			mpImGUIContext->Label("Material Id: ");
-			mpImGUIContext->TextField("##MaterialId", materialName, [this, &materialName] 
+			mpImGUIContext->TextField("##MaterialId", materialName, [this](auto&& value)
 			{
-				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetMaterialName), materialName, mpCurrParticleEffect->GetMaterialName());
+				MAKE_COMMAND(mpEditorHistory, STRINGIFY_COMMAND(mpCurrParticleEffect->SetMaterialName), value, mpCurrParticleEffect->GetMaterialName());
 			});
 
 			mpImGUIContext->EndHorizontal();

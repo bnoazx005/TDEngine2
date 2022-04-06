@@ -122,7 +122,7 @@ namespace TDEngine2
 				// Draw input field and send button
 				mpImGUIContext->BeginHorizontal();
 				{
-					mpImGUIContext->TextField(Wrench::StringUtils::GetEmptyStr(), mCurrInputBuffer, processCommand);
+					mpImGUIContext->TextField(Wrench::StringUtils::GetEmptyStr(), mCurrInputBuffer, [processCommand](auto&&) { processCommand(); });
 					mpImGUIContext->Button("Run", { 100.0f, 20.0f }, processCommand);
 				}
 				mpImGUIContext->EndHorizontal();

@@ -193,7 +193,7 @@ namespace TDEngine2
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Mesh Id:");
-				imguiContext.TextField("##MeshId", meshId, [&meshId, &meshContainer] { meshContainer.SetMeshName(meshId); });
+				imguiContext.TextField("##MeshId", meshId, [&meshContainer](auto&& value) { meshContainer.SetMeshName(value); });
 				imguiContext.EndHorizontal();
 			}
 
@@ -220,10 +220,17 @@ namespace TDEngine2
 			/// \note Material
 			{
 				std::string materialId = meshContainer.GetMaterialName();
+				std::string prevMaterialid = materialId;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Material Id:");
-				imguiContext.TextField("##MaterialId", materialId, [&materialId, &meshContainer] { meshContainer.SetMaterialName(materialId); });
+				imguiContext.TextField("##MaterialId", materialId);
+
+				if (prevMaterialid != materialId)
+				{
+					meshContainer.SetMaterialName(materialId);
+				}
+
 				imguiContext.EndHorizontal();
 			}
 		}
@@ -244,7 +251,7 @@ namespace TDEngine2
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Mesh Id:");
-				imguiContext.TextField("##MeshId", meshId, [&meshId, &meshContainer] { meshContainer.SetMeshName(meshId); });
+				imguiContext.TextField("##MeshId", meshId, [&meshContainer](auto&& value) { meshContainer.SetMeshName(value); });
 				imguiContext.EndHorizontal();
 			}
 
@@ -274,7 +281,7 @@ namespace TDEngine2
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Material Id:");
-				imguiContext.TextField("##MaterialId", materialId, [&materialId, &meshContainer] { meshContainer.SetMaterialName(materialId); });
+				imguiContext.TextField("##MaterialId", materialId, [&meshContainer](auto&& value) { meshContainer.SetMaterialName(value); });
 				imguiContext.EndHorizontal();
 			}
 
@@ -284,7 +291,7 @@ namespace TDEngine2
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Skeleton Id:");
-				imguiContext.TextField("##SkeletonId", skeletonid, [&skeletonid, &meshContainer] { meshContainer.SetSkeletonName(skeletonid); });
+				imguiContext.TextField("##SkeletonId", skeletonid, [&meshContainer](auto&& value) { meshContainer.SetSkeletonName(value); });
 				imguiContext.EndHorizontal();
 			}
 		}
@@ -1056,7 +1063,7 @@ namespace TDEngine2
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Text");
-				imguiContext.TextField("##Text", text, [&text, &label] { label.SetText(text); });
+				imguiContext.TextField("##Text", text, [&label](auto&& value) { label.SetText(value); });
 				imguiContext.EndHorizontal();
 			}
 
@@ -1073,7 +1080,7 @@ namespace TDEngine2
 					imguiContext.Label("Font Resource");
 					imguiContext.SetItemWidth(imguiContext.GetWindowWidth() * 0.5f, [&imguiContext, &fontId, &label]
 					{
-						imguiContext.TextField("##FontId", fontId, [&fontId, &label] { label.SetFontId(fontId); });
+						imguiContext.TextField("##FontId", fontId, [&label](auto&& value) { label.SetFontId(value); });
 					});
 					imguiContext.EndHorizontal();
 				}

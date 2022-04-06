@@ -128,6 +128,7 @@ namespace TDEngine2
 			} TPlotGridParams, *TPlotGridParamsPtr;
 
 			typedef std::function<void()> TImGUIContextAction;
+			template <typename T> using TImGUIContextParamAction = std::function<void(const T&)>;
 
 		public:
 			/*!
@@ -262,7 +263,7 @@ namespace TDEngine2
 				\param[in] onValueChanged A callback that is called when the value of the field has changed
 			*/
 
-			TDE2_API virtual void TextField(const std::string& text, std::string& value, const TImGUIContextAction& onValueChanged = {}) = 0;
+			TDE2_API virtual bool TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged = nullptr) = 0;
 
 			/*!
 				\brief The method creates a field for TVector2 type

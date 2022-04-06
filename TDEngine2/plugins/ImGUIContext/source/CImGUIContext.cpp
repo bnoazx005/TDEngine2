@@ -249,21 +249,23 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	void CImGUIContext::TextField(const std::string& text, std::string& value, const TImGUIContextAction& onValueChanged)
+	bool CImGUIContext::TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged)
 	{
-		C8 buffer[512];
-		memcpy(buffer, value.c_str(), sizeof(buffer));
+		C8 buffer[512]{ '\0' };
+		memcpy(buffer, value.c_str(), value.size());
 
-		bool hasValueChanged = ImGui::InputText(text.c_str(), buffer, sizeof(buffer), onValueChanged ? ImGuiInputTextFlags_EnterReturnsTrue : 0x0);
+		bool hasValueChanged = ImGui::InputText(text.c_str(), buffer, sizeof(buffer), onValueChanged ? ImGuiInputTextFlags_EnterReturnsTrue : ImGuiInputTextFlags_None);
 
 		value.assign(buffer);
 
 		if (hasValueChanged && onValueChanged)
 		{
-			onValueChanged();
+			onValueChanged(value);
 		}
 
 		_prepareLayout();
+
+		return hasValueChanged;
 	}
 
 	void CImGUIContext::Vector2Field(const std::string& text, TVector2& value, const TImGUIContextAction& onValueChanged)

@@ -218,7 +218,7 @@ namespace TDEngine2
 				\param[in] onValueChanged A callback that is called when the value of the field has changed
 			*/
 
-			TDE2_API void TextField(const std::string& text, std::string& value, const TImGUIContextAction& onValueChanged = {}) override;
+			TDE2_API bool TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged = nullptr) override;
 
 			/*!
 				\brief The method creates a field for TVector2 type
