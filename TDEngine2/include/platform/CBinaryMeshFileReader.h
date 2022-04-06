@@ -69,7 +69,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _readSubmeshes(IMesh*& pMesh, const TMeshFileHeader& header);
 
-			TDE2_API bool _readMeshEntryBlock(IMesh*& pMesh);
 			TDE2_API TResult<TMeshEntityHeader> _readSubMeshEntryHeader();
 			TDE2_API E_RESULT_CODE _readCommonMeshVertexData(IMesh*& pMesh, U32 vertexCount, U32 facesCount);
 			TDE2_API E_RESULT_CODE _readMeshFacesData(IMesh*& pMesh, U32 facesCount);

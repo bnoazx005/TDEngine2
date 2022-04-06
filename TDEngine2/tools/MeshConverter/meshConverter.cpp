@@ -679,7 +679,7 @@ namespace TDEngine2
 		result = result | pMeshFileWriter->Write(meshId, sizeof(meshId));
 
 		const U32 vertexCount = static_cast<U32>(meshEntity.mVertices.size());
-		const U32 facesCount  = static_cast<U32>(meshEntity.mFaces.size());
+		const U32 facesCount  = static_cast<U32>(meshEntity.mFaces.size()) / 3;
 
 		result = result | pMeshFileWriter->Write(&vertexCount, sizeof(vertexCount));
 		result = result | pMeshFileWriter->Write(&facesCount, sizeof(facesCount));

@@ -47,6 +47,8 @@ namespace TDEngine2
 
 		std::tie(parentId, vertexCount, facesCount, subMeshId) = readHeaderResult.Get();
 
+		pMesh->AddSubMeshInfo(subMeshId, {pMesh->GetFacesCount() * 3, facesCount * 3});
+
 		IMesh* pBaseMesh = dynamic_cast<IMesh*>(pMesh);
 
 		if (RC_OK != (result = _readCommonMeshVertexData(pBaseMesh, vertexCount, facesCount)))
@@ -201,97 +203,6 @@ namespace TDEngine2
 		}
 
 		return result;
-	}
-
-	bool CBinaryMeshFileReader::_readMeshEntryBlock(IMesh*& pMesh)
-	{
-		return false;
-#if 0
-		E_RESULT_CODE result = RC_OK;
-
-		U16 tag = 0x0;
-		
-		U16 objectId    = 0;
-		U32 vertexCount = 0;
-		U32 facesCount  = 0;
-
-		auto readHeaderResult = _readMeshEntryHeader();
-		if (readHeaderResult.HasError())
-		{
-			return false;
-		}
-
-		std::tie(objectId, vertexCount, facesCount) = readHeaderResult.Get();
-		
-		if (RC_OK != (result = _readCommonMeshVertexData(pMesh, vertexCount, facesCount)))
-		{
-			return result;
-		}
-
-#if 0
-		if (0xA401 == tag) /// \note Read joint weights (this is an optional step)
-		{
-			std::array<F32, mMaxJointsCountPerVertex> tmpJointsWeights;
-			U16 jointsCount = 0;
-
-			for (U32 i = 0; i < vertexCount; ++i)
-			{
-				result = result | Read(&jointsCount, sizeof(U16));
-
-				if (!jointsCount || jointsCount > mMaxJointsCountPerVertex)
-				{
-					TDE2_ASSERT(false);
-					continue;
-				}
-
-				for (U16 k = 0; k < jointsCount; ++k)
-				{
-					result = result | Read(&tmpJointsWeights[k], sizeof(F32));
-				}
-
-				//pStaticMesh->AddNormal(TVector4(vecData.x, vecData.y, vecData.z, 0.0f));
-			}
-
-			/// \note Read faces or joint indices
-			if ((result = Read(&tag, sizeof(U16))) != RC_OK)
-			{
-				TDE2_ASSERT(false);
-				return false;
-			}
-		}
-
-		if (0xA502 == tag) /// \note Read joint indices (this is an optional step)
-		{
-			std::array<U16, mMaxJointsCountPerVertex> tmpJointsIndices;
-			U16 jointsCount = 0;
-
-			for (U32 i = 0; i < vertexCount; ++i)
-			{
-				result = result | Read(&jointsCount, sizeof(U16));
-
-				if (!jointsCount || jointsCount > mMaxJointsCountPerVertex)
-				{
-					TDE2_ASSERT(false);
-					continue;
-				}
-
-				for (U16 k = 0; k < jointsCount; ++k)
-				{
-					result = result | Read(&tmpJointsIndices[k], sizeof(U16));
-				}
-			}
-
-			/// \note Read faces tag
-			if ((result = Read(&tag, sizeof(U16))) != RC_OK)
-			{
-				TDE2_ASSERT(false);
-				return false;
-			}
-		}
-#endif
-
-		return _readMeshFacesData(pMesh, facesCount);
-#endif
 	}
 
 	TResult<CBinaryMeshFileReader::TMeshEntityHeader> CBinaryMeshFileReader::_readSubMeshEntryHeader()
@@ -455,7 +366,7 @@ namespace TDEngine2
 
 		U32 faceIndices[3];
 
-		for (U32 i = 0; i < facesCount / 3; ++i)
+		for (U32 i = 0; i < facesCount; ++i)
 		{
 			memset(faceIndices, 0, sizeof(faceIndices));
 
