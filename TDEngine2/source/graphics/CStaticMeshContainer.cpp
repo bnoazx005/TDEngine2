@@ -19,6 +19,8 @@ namespace TDEngine2
 		mMeshName = pReader->GetString("mesh");
 		mSubMeshId = pReader->GetString("sub_mesh_id");
 
+		mIsDirty = true;
+
 		return RC_OK;
 	}
 
@@ -50,17 +52,38 @@ namespace TDEngine2
 	void CStaticMeshContainer::SetMeshName(const std::string& meshName)
 	{
 		mMeshName = meshName;
+		mIsDirty = true;
 	}
 
 	void CStaticMeshContainer::SetSubMeshId(const std::string& meshName)
 	{
 		mSubMeshId = meshName;
+		mIsDirty = true;
+	}
+
+	void CStaticMeshContainer::SetSubMeshRenderInfo(const TSubMeshRenderInfo& info)
+	{
+		mSubMeshInfo = info;
 	}
 
 	void CStaticMeshContainer::SetSystemBuffersHandle(U32 handle)
 	{
 		mSystemBuffersHandle = handle;
 	}
+
+	void CStaticMeshContainer::SetDirty(bool value)
+	{
+		mIsDirty = value;
+	}
+
+#if TDE2_EDITORS_ENABLED
+
+	void CStaticMeshContainer::AddSubmeshIdentifier(const std::string& submeshId)
+	{
+		mSubmeshesIdentifiers.push_back(submeshId);
+	}
+
+#endif
 
 	const std::string& CStaticMeshContainer::GetMaterialName() const
 	{
@@ -77,10 +100,29 @@ namespace TDEngine2
 		return mSubMeshId;
 	}
 
+	const TSubMeshRenderInfo& CStaticMeshContainer::GetSubMeshInfo() const
+	{
+		return mSubMeshInfo;
+	}
+
 	U32 CStaticMeshContainer::GetSystemBuffersHandle() const
 	{
 		return mSystemBuffersHandle;
 	}
+
+	bool CStaticMeshContainer::IsDirty() const
+	{
+		return mIsDirty;
+	}
+
+#if TDE2_EDITORS_ENABLED
+
+	const std::vector<std::string>& CStaticMeshContainer::GetSubmeshesIdentifiers() const
+	{
+		return mSubmeshesIdentifiers;
+	}
+
+#endif
 
 
 	IComponent* CreateStaticMeshContainer(E_RESULT_CODE& result)

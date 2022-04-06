@@ -58,6 +58,11 @@ namespace TDEngine2
 
 		mpSharedIndexBuffer = indexBufferResult.Get();
 
+		{
+			mSubMeshesIdentifiers.emplace_back(Wrench::StringUtils::GetEmptyStr());
+			mSubMeshesInfo.push_back({ 0, static_cast<U32>(mIndices.size()) });
+		}
+
 		SetState(E_RESOURCE_STATE_TYPE::RST_LOADED);
 
 		return RC_OK;
@@ -105,6 +110,16 @@ namespace TDEngine2
 		mIndices.push_back(face[0]);
 		mIndices.push_back(face[1]);
 		mIndices.push_back(face[2]);
+	}
+
+	void CBaseMesh::AddSubMeshInfo(const std::string& subMeshId, const TSubMeshRenderInfo& info)
+	{
+		TDE2_ASSERT(!subMeshId.empty());
+
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		mSubMeshesIdentifiers.emplace_back(subMeshId);
+		mSubMeshesInfo.emplace_back(info);
 	}
 
 	const CBaseMesh::TPositionsArray& CBaseMesh::GetPositionsArray() const
@@ -177,6 +192,16 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return static_cast<U32>(mIndices.size()) / 3;
+	}
+
+	const TSubMeshRenderInfo& CBaseMesh::GetSubmeshInfo(const std::string& subMeshId) const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		static TSubMeshRenderInfo invalid;
+
+		auto it = std::find(mSubMeshesIdentifiers.cbegin(), mSubMeshesIdentifiers.cend(), subMeshId);
+		return it == mSubMeshesIdentifiers.cend() ? invalid : mSubMeshesInfo[std::distance(mSubMeshesIdentifiers.cbegin(), it)];
 	}
 
 	IVertexBuffer* CBaseMesh::GetSharedVertexBuffer() const

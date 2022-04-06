@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support of **sub-mesh-id** property was added into **CStaticMeshContainer** component.
 
+- The rendering of sub-meshes for static meshes was implemented.
+
 ### Changed
 
 - A new iteration of binary mesh format was introduced.

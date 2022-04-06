@@ -199,11 +199,21 @@ namespace TDEngine2
 
 			/// \note Sub-mesh idenfitier
 			{
+				auto&& submeshes = meshContainer.GetSubmeshesIdentifiers();
+
 				std::string subMeshId = meshContainer.GetSubMeshId();
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Sub-mesh Id:");
-				imguiContext.TextField("##SubMeshId", subMeshId, [&subMeshId, &meshContainer] { meshContainer.SetSubMeshId(subMeshId); });
+
+				const I32 index = static_cast<I32>(std::distance(submeshes.cbegin(), std::find(submeshes.cbegin(), submeshes.cend(), subMeshId)));
+				std::string newResult = submeshes[imguiContext.Popup("##SubMeshId", index, submeshes)];
+
+				if (newResult != subMeshId) /// \note Update sub-mesh identifier
+				{
+					meshContainer.SetSubMeshId(newResult);
+				}
+
 				imguiContext.EndHorizontal();
 			}
 

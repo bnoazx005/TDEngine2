@@ -25,6 +25,9 @@ namespace TDEngine2
 	class CBaseMesh: public virtual IMesh, public CBaseResource
 	{
 		public:
+			typedef std::vector<std::string> TIdentifiersArray;
+			typedef std::vector<TSubMeshRenderInfo> TSubmeshesInfoArray;
+		public:
 			TDE2_API E_RESULT_CODE PostLoad() override;
 
 			/*!
@@ -83,6 +86,8 @@ namespace TDEngine2
 
 			TDE2_API void AddFace(const U32 face[3]) override;
 
+			TDE2_API void AddSubMeshInfo(const std::string& subMeshId, const TSubMeshRenderInfo& info) override;
+
 			TDE2_API const TPositionsArray& GetPositionsArray() const override;
 			TDE2_API const TVertexColorArray& GetColorsArray() const override;
 			TDE2_API const TNormalsArray& GetNormalsArray() const override;
@@ -136,6 +141,8 @@ namespace TDEngine2
 
 			TDE2_API U32 GetFacesCount() const override;
 
+			TDE2_API const TSubMeshRenderInfo& GetSubmeshInfo(const std::string& subMeshId) const override;
+
 			/*!
 				\return The method returns an array of all submeshes that're available for the resource
 			*/
@@ -174,6 +181,8 @@ namespace TDEngine2
 
 			IIndexBuffer*            mpSharedIndexBuffer;
 
-			std::vector<std::string> mSubMeshesIdentifiers;
+			TIdentifiersArray        mSubMeshesIdentifiers;
+			TSubmeshesInfoArray      mSubMeshesInfo;
+
 	};
 }

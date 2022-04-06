@@ -192,7 +192,22 @@ namespace TDEngine2
 				{
 					pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_TANGENT });
 				}
+
+#if TDE2_EDITORS_ENABLED
+				for (auto&& currSubmeshId : pSharedMeshResource->GetSubmeshesIdentifiers())
+				{
+					pStaticMeshContainer->AddSubmeshIdentifier(currSubmeshId);
+				}
+#endif
 			}
+
+			if (pStaticMeshContainer->IsDirty())
+			{
+				pStaticMeshContainer->SetSubMeshRenderInfo(pSharedMeshResource->GetSubmeshInfo(pStaticMeshContainer->GetSubMeshId()));
+				pStaticMeshContainer->SetDirty(false);
+			}
+
+			const TSubMeshRenderInfo& subMeshInfo = pStaticMeshContainer->GetSubMeshInfo();
 
 			auto meshBuffersEntry = mMeshBuffersMap[pStaticMeshContainer->GetSystemBuffersHandle()];
 
@@ -208,7 +223,8 @@ namespace TDEngine2
 			pCommand->mpIndexBuffer               = pSharedMeshResource->GetSharedIndexBuffer();
 			pCommand->mMaterialHandle             = mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName());
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
-			pCommand->mNumOfIndices               = static_cast<U32>(pSharedMeshResource->GetIndices().size());
+			pCommand->mStartIndex                 = subMeshInfo.mStartIndex;
+			pCommand->mNumOfIndices               = subMeshInfo.mIndicesCount;
 			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
 			pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));

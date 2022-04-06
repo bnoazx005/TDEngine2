@@ -155,6 +155,8 @@ namespace TDEngine2
 			return;
 		}
 
+		auto&& subMeshInfo = pStaticMeshContainer->GetSubMeshInfo();
+
 		if (TPtr<IStaticMesh> pStaticMeshResource = DynamicPtrCast<IStaticMesh>(pMeshResource))
 		{
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
@@ -166,9 +168,9 @@ namespace TDEngine2
 				pDrawCommand->mpVertexDeclaration = pVertDecl;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
-				pDrawCommand->mStartIndex = 0;
+				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
+				pDrawCommand->mNumOfIndices = subMeshInfo.mIndicesCount;
 				pDrawCommand->mStartVertex = 0;
-				pDrawCommand->mNumOfIndices = pStaticMeshResource->GetFacesCount() * 3;
 			}
 		}
 	}

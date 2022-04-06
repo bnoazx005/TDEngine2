@@ -41,6 +41,14 @@ namespace TDEngine2
 	} TMeshParameters, *TMeshParametersPtr;
 
 
+
+	typedef struct TSubMeshRenderInfo
+	{
+		U32 mStartIndex;
+		U32 mIndicesCount;
+	} TSubMeshRenderInfo, * TSubMeshRenderInfoPtr;
+
+
 	/*!
 		interface IMesh
 
@@ -107,6 +115,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void AddFace(const U32 face[3]) = 0;
 
+			TDE2_API virtual void AddSubMeshInfo(const std::string& subMeshId, const TSubMeshRenderInfo& info) = 0;
+
 			TDE2_API virtual const TPositionsArray& GetPositionsArray() const = 0;
 			TDE2_API virtual const TVertexColorArray& GetColorsArray() const = 0;
 			TDE2_API virtual const TNormalsArray& GetNormalsArray() const = 0;
@@ -167,6 +177,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual IIndexBuffer* GetSharedIndexBuffer() const = 0;
+
+			TDE2_API virtual const TSubMeshRenderInfo& GetSubmeshInfo(const std::string& subMeshId) const = 0;
 
 			/*!
 				\return The method returns an array of all submeshes that're available for the resource
