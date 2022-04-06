@@ -110,6 +110,8 @@ namespace TDEngine2
 				}
 			}
 
+			auto&& subMeshInfo = pStaticMeshContainer->GetSubMeshInfo();
+
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
 				pDrawCommand->mpVertexBuffer = pStaticMeshResource->GetPositionOnlyVertexBuffer();
@@ -119,9 +121,9 @@ namespace TDEngine2
 				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(id);
-				pDrawCommand->mStartIndex = 0;
+				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
 				pDrawCommand->mStartVertex = 0;
-				pDrawCommand->mNumOfIndices = pStaticMeshResource->GetFacesCount() * 3;
+				pDrawCommand->mNumOfIndices = subMeshInfo.mIndicesCount;
 			}
 		}
 
@@ -171,6 +173,8 @@ namespace TDEngine2
 				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
 			}
 
+			auto&& subMeshInfo = pSkinnedMeshContainer->GetSubMeshInfo();
+
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
 				pDrawCommand->mpVertexBuffer = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
@@ -180,9 +184,9 @@ namespace TDEngine2
 				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(id);
-				pDrawCommand->mStartIndex = 0;
+				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
 				pDrawCommand->mStartVertex = 0;
-				pDrawCommand->mNumOfIndices = static_cast<U32>(pSkinnedMeshResource->GetIndices().size());
+				pDrawCommand->mNumOfIndices = subMeshInfo.mIndicesCount;
 			}
 		}
 

@@ -17,6 +17,7 @@
 
 namespace TDEngine2
 {
+	struct TSubMeshRenderInfo;
 	enum class TMaterialInstanceId : U32;
 
 
@@ -62,6 +63,20 @@ namespace TDEngine2
 			TDE2_API virtual void SetShowDebugSkeleton(bool value) = 0;
 
 			/*!
+				\brief The method specifies sub-mesh identifier if it's empty the whole mesh is renderer with single material
+			*/
+
+			TDE2_API virtual void SetSubMeshId(const std::string& meshName) = 0;
+
+			TDE2_API virtual void SetSubMeshRenderInfo(const TSubMeshRenderInfo& info) = 0;
+
+			TDE2_API virtual void SetDirty(bool value) = 0;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void AddSubmeshIdentifier(const std::string& submeshId) = 0;
+#endif
+
+			/*!
 				\brief The method returns an identifier of used material
 
 				\return The method returns an identifier of used material
@@ -77,6 +92,8 @@ namespace TDEngine2
 
 			TDE2_API virtual const std::string& GetMeshName() const = 0;
 
+			TDE2_API virtual const std::string& GetSubMeshId() const = 0;
+
 			TDE2_API virtual const std::string& GetSkeletonName() const = 0;
 
 			TDE2_API virtual TMaterialInstanceId GetMaterialInstanceHandle() const = 0;
@@ -87,6 +104,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetSystemBuffersHandle() const = 0;
+
+			TDE2_API virtual const TSubMeshRenderInfo& GetSubMeshInfo() const = 0;
+
+			TDE2_API virtual bool IsDirty() const = 0;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual const std::vector<std::string>& GetSubmeshesIdentifiers() const = 0;
+#endif
 
 			TDE2_API virtual std::vector<TMatrix4>& GetCurrentAnimationPose() = 0;
 

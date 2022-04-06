@@ -246,7 +246,22 @@ namespace TDEngine2
 				{
 					pVertexDecl->AddElement({ FT_UINT4, 0, VEST_JOINT_INDICES });
 				}
+
+#if TDE2_EDITORS_ENABLED
+				for (auto&& currSubmeshId : pSharedMeshResource->GetSubmeshesIdentifiers())
+				{
+					pSkinnedMeshContainer->AddSubmeshIdentifier(currSubmeshId);
+				}
+#endif
 			}
+
+			if (pSkinnedMeshContainer->IsDirty())
+			{
+				pSkinnedMeshContainer->SetSubMeshRenderInfo(pSharedMeshResource->GetSubmeshInfo(pSkinnedMeshContainer->GetSubMeshId()));
+				pSkinnedMeshContainer->SetDirty(false);
+			}
+
+			const TSubMeshRenderInfo& subMeshInfo = pSkinnedMeshContainer->GetSubMeshInfo();
 
 			auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
 			U32 jointsCount = static_cast<U32>(currAnimationPose.size());
@@ -293,7 +308,8 @@ namespace TDEngine2
 			pCommand->mMaterialHandle             = currMaterialId;
 			pCommand->mMaterialInstanceId         = materialInstance;
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
-			pCommand->mNumOfIndices               = static_cast<U32>(pSharedMeshResource->GetIndices().size());
+			pCommand->mNumOfIndices               = subMeshInfo.mIndicesCount;
+			pCommand->mStartIndex                 = subMeshInfo.mStartIndex;
 			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
 			pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));

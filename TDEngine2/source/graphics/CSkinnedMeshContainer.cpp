@@ -68,7 +68,34 @@ namespace TDEngine2
 	void CSkinnedMeshContainer::SetMeshName(const std::string& meshName)
 	{
 		mMeshName = meshName;
+		mIsDirty = true;
 	}
+
+
+	void CSkinnedMeshContainer::SetSubMeshId(const std::string& meshName)
+	{
+		mSubMeshId = meshName;
+		mIsDirty = true;
+	}
+
+	void CSkinnedMeshContainer::SetSubMeshRenderInfo(const TSubMeshRenderInfo& info)
+	{
+		mSubMeshInfo = info;
+	}
+
+	void CSkinnedMeshContainer::SetDirty(bool value)
+	{
+		mIsDirty = value;
+	}
+
+#if TDE2_EDITORS_ENABLED
+
+	void CSkinnedMeshContainer::AddSubmeshIdentifier(const std::string& submeshId)
+	{
+		mSubmeshesIdentifiers.push_back(submeshId);
+	}
+
+#endif
 
 	void CSkinnedMeshContainer::SetMaterialInstanceHandle(TMaterialInstanceId materialInstanceId)
 	{
@@ -100,6 +127,16 @@ namespace TDEngine2
 		return mMeshName;
 	}
 
+	const std::string& CSkinnedMeshContainer::GetSubMeshId() const
+	{
+		return mSubMeshId;
+	}
+
+	const TSubMeshRenderInfo& CSkinnedMeshContainer::GetSubMeshInfo() const
+	{
+		return mSubMeshInfo;
+	}
+
 	TMaterialInstanceId CSkinnedMeshContainer::GetMaterialInstanceHandle() const
 	{
 		return mMaterialInstanceId;
@@ -124,6 +161,20 @@ namespace TDEngine2
 	{
 		return mShouldShowDebugSkeleton;
 	}
+
+	bool CSkinnedMeshContainer::IsDirty() const
+	{
+		return mIsDirty;
+	}
+
+#if TDE2_EDITORS_ENABLED
+
+	const std::vector<std::string>& CSkinnedMeshContainer::GetSubmeshesIdentifiers() const
+	{
+		return mSubmeshesIdentifiers;
+	}
+
+#endif
 
 
 	IComponent* CreateSkinnedMeshContainer(E_RESULT_CODE& result)

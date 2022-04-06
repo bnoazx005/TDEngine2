@@ -9,6 +9,7 @@
 
 #include "ISkinnedMeshContainer.h"
 #include "../ecs/CBaseComponent.h"
+#include "IMesh.h"
 
 
 namespace TDEngine2
@@ -79,6 +80,20 @@ namespace TDEngine2
 			TDE2_API void SetMeshName(const std::string& meshName) override;
 
 			/*!
+				\brief The method specifies sub-mesh identifier if it's empty the whole mesh is renderer with single material
+			*/
+
+			TDE2_API void SetSubMeshId(const std::string& meshName) override;
+
+			TDE2_API void SetSubMeshRenderInfo(const TSubMeshRenderInfo& info) override;
+
+			TDE2_API void SetDirty(bool value) override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API void AddSubmeshIdentifier(const std::string& submeshId) override;
+#endif
+
+			/*!
 				\brief The method sets up an internal handle which points to pair
 				vertex and index buffers within system that renders static meshes
 
@@ -110,6 +125,10 @@ namespace TDEngine2
 
 			TDE2_API const std::string& GetMeshName() const override;
 
+			TDE2_API const std::string& GetSubMeshId() const override;
+
+			TDE2_API const TSubMeshRenderInfo& GetSubMeshInfo() const override;
+
 			TDE2_API TMaterialInstanceId GetMaterialInstanceHandle() const override;
 
 			/*!
@@ -124,20 +143,35 @@ namespace TDEngine2
 			TDE2_API std::vector<TMatrix4>& GetCurrentAnimationPose() override;
 
 			TDE2_API bool ShouldShowDebugSkeleton() const override;
+
+			TDE2_API bool IsDirty() const override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API const std::vector<std::string>& GetSubmeshesIdentifiers() const override;
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkinnedMeshContainer)
 		protected:
-			std::string mMaterialName;
-			std::string mMeshName; /// \todo replace with GUID or something like that
-			std::string mSkeletonName;
+			std::string              mMaterialName;
+			std::string              mMeshName; /// \todo replace with GUID or something like that
+			std::string              mSkeletonName;			
+			std::string              mSubMeshId = Wrench::StringUtils::GetEmptyStr(); ///< If the field's value is empty the whole mesh will be rendered with same material
 
-			U32         mSystemBuffersHandle = static_cast<U32>(-1);
+			U32                      mSystemBuffersHandle = static_cast<U32>(-1);
 
-			TMaterialInstanceId mMaterialInstanceId;
+			TMaterialInstanceId      mMaterialInstanceId;
 
-			std::vector<TMatrix4> mCurrAnimationPose;
+			std::vector<TMatrix4>    mCurrAnimationPose;
 
-			bool mShouldShowDebugSkeleton = false;
+			bool                     mShouldShowDebugSkeleton = false;
+
+			TSubMeshRenderInfo       mSubMeshInfo;
+
+			bool                     mIsDirty = true;
+
+#if TDE2_EDITORS_ENABLED
+			std::vector<std::string> mSubmeshesIdentifiers;
+#endif
 	};
 
 

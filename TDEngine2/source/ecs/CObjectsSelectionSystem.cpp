@@ -199,6 +199,8 @@ namespace TDEngine2
 				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
 			}
 
+			auto&& subMeshInfo = pSkinnedMeshContainer->GetSubMeshInfo();
+
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 			{
 				pDrawCommand->mpVertexBuffer = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
@@ -208,9 +210,9 @@ namespace TDEngine2
 				pDrawCommand->mpVertexDeclaration = pVertDecl;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
-				pDrawCommand->mStartIndex = 0;
+				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
+				pDrawCommand->mNumOfIndices = subMeshInfo.mIndicesCount;
 				pDrawCommand->mStartVertex = 0;
-				pDrawCommand->mNumOfIndices = static_cast<U32>(pSkinnedMeshResource->GetIndices().size());
 			}
 		}
 	}

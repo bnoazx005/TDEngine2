@@ -238,10 +238,55 @@ namespace TDEngine2
 		{
 			CSkinnedMeshContainer& meshContainer = dynamic_cast<CSkinnedMeshContainer&>(component);
 
-			imguiContext.Label(meshContainer.GetMeshName());
-			imguiContext.Label(meshContainer.GetMaterialName());
-			imguiContext.Label(meshContainer.GetSkeletonName());
-			// \todo Implement this drawer
+			/// \note Mesh identifier
+			{
+				std::string meshId = meshContainer.GetMeshName();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Mesh Id:");
+				imguiContext.TextField("##MeshId", meshId, [&meshId, &meshContainer] { meshContainer.SetMeshName(meshId); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note Sub-mesh idenfitier
+			{
+				auto&& submeshes = meshContainer.GetSubmeshesIdentifiers();
+
+				std::string subMeshId = meshContainer.GetSubMeshId();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Sub-mesh Id:");
+
+				const I32 index = static_cast<I32>(std::distance(submeshes.cbegin(), std::find(submeshes.cbegin(), submeshes.cend(), subMeshId)));
+				std::string newResult = submeshes[imguiContext.Popup("##SubMeshId", index, submeshes)];
+
+				if (newResult != subMeshId) /// \note Update sub-mesh identifier
+				{
+					meshContainer.SetSubMeshId(newResult);
+				}
+
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note Material
+			{
+				std::string materialId = meshContainer.GetMaterialName();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Material Id:");
+				imguiContext.TextField("##MaterialId", materialId, [&materialId, &meshContainer] { meshContainer.SetMaterialName(materialId); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note Skeleton
+			{
+				std::string skeletonid = meshContainer.GetSkeletonName();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Skeleton Id:");
+				imguiContext.TextField("##SkeletonId", skeletonid, [&skeletonid, &meshContainer] { meshContainer.SetSkeletonName(skeletonid); });
+				imguiContext.EndHorizontal();
+			}
 		}
 	}
 
