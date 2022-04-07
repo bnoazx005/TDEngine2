@@ -31,6 +31,7 @@ namespace TDEngine2
 
 
 	static constexpr USIZE FileHeaderSize = 16;
+	static constexpr const C8 LODInstanceSuffix[] = "_LOD";
 
 
 	TResult<TUtilityOptions> ParseOptions(int argc, const char** argv) TDE2_NOEXCEPT
@@ -875,8 +876,8 @@ namespace TDEngine2
 	static E_RESULT_CODE ProcessSingleMeshFile(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options) TDE2_NOEXCEPT
 	{
 		Assimp::Importer importer;
-		
-		const aiScene *pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_PopulateArmatureData);
+
+		const aiScene* pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_PopulateArmatureData);
 		if (!pScene)
 		{
 			return RC_FAIL;
@@ -901,22 +902,26 @@ namespace TDEngine2
 			return result;
 		}
 
-		//std::queue<const aiMesh*> meshesQueue; \note It's not used for now
-
-		const aiMesh* pMesh = nullptr;
-
-		std::vector<TMeshDataEntity> meshes;
-
-		U32 baseIndex = 0;
+		std::vector<const aiMesh*> sceneInternalMeshes;
 
 		for (U32 i = 0; i < pScene->mNumMeshes; ++i)
 		{
-			pMesh = pScene->mMeshes[i];
+			auto pMesh = pScene->mMeshes[i];
 			if (!pMesh)
 			{
 				continue;
 			}
 
+			/// \note Sort all internal meshes to move all LOD instances to the end of the file
+			auto it = std::find_if(sceneInternalMeshes.begin(), sceneInternalMeshes.end(), [](const aiMesh* pMesh) { return strstr(pMesh->mName.C_Str(), LODInstanceSuffix); });
+			sceneInternalMeshes.insert(it, pMesh);
+		}
+
+		std::vector<TMeshDataEntity> meshes;
+		U32 baseIndex = 0;
+
+		for (auto&& pMesh : sceneInternalMeshes)
+		{
 			meshes.emplace_back(ReadMeshData(pScene, pMesh, pSkeleton, baseIndex, options));
 			baseIndex += pMesh->mNumVertices;
 		}
