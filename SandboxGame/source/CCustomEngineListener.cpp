@@ -48,6 +48,15 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
 	pMeshContainer->SetMeshName("scene.mesh");
+	
+#if 0 // LODs test
+	pMeshContainer->SetMeshName("LOD_test.mesh");
+	if (auto lodStrategy = pMeshEntity->AddComponent<CLODStrategyComponent>())
+	{
+		lodStrategy->AddLODInstance({ 5.0f, "LOD_test.mesh", "Cube", "ProjectMaterials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
+		lodStrategy->AddLODInstance({ 10.0f, "LOD_test.mesh", "Cube_LOD", "ProjectMaterials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
+	}
+#endif
 #if 0
 	auto collision = pMeshEntity->AddComponent<CBoxCollisionObject3D>();
 	collision->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);

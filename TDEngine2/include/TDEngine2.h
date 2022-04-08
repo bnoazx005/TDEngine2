@@ -98,6 +98,7 @@
 #include "ecs/CUIEventsSystem.h"
 #include "ecs/CMeshAnimatorUpdatingSystem.h"
 #include "ecs/components/CBoundsComponent.h"
+#include "ecs/CLODMeshSwitchSystem.h"
 
 ///graphics
 #include "graphics/IBuffer.h"
@@ -246,6 +247,7 @@
 #include "scene/components/CDirectionalLight.h"
 #include "scene/components/CPointLight.h"
 #include "scene/components/AudioComponents.h"
+#include "scene/components/CLODStrategyComponent.h"
 #include "scene/ISceneManager.h"
 #include "scene/CSceneManager.h"
 #include "scene/IScene.h"

@@ -30,6 +30,7 @@
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/AudioComponents.h"
+#include "../../include/scene/components/CLODStrategyComponent.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
@@ -85,7 +86,9 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CAudioListenerComponent::GetTypeId(), DrawAudioListenerGUI);
 		result = result | editor.RegisterInspector(CAudioSourceComponent::GetTypeId(), DrawAudioSourceGUI);
 
+		/// Scenes
 		result = result | editor.RegisterInspector(CSelectedEntityComponent::GetTypeId(), [](auto) { /* Do nothing for hidden components */ });
+		result = result | editor.RegisterInspector(CLODStrategyComponent::GetTypeId(), DrawLODStrategyGUI);
 
 		return result;
 	}
@@ -1403,6 +1406,116 @@ namespace TDEngine2
 
 		if (imguiContext.CollapsingHeader("Audio Listener", true))
 		{
+		}
+	}
+	
+	void CDefeaultInspectorsRegistry::DrawLODStrategyGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		IComponent& component = editorContext.mComponent;
+
+		if (imguiContext.CollapsingHeader("LOD Strategy", true))
+		{
+			CLODStrategyComponent& lodStrategy = dynamic_cast<CLODStrategyComponent&>(component);
+
+			lodStrategy.ForEachInstance([&lodStrategy, &imguiContext](USIZE id, TLODInstanceInfo& lodInfo)
+			{
+				imguiContext.DisplayIDGroup(static_cast<I32>(id), [&lodStrategy, &imguiContext, &lodInfo]
+				{
+					/// Distance of switching
+					{
+						F32 distance = lodInfo.mSwitchDistance;
+
+						imguiContext.BeginHorizontal();
+						imguiContext.Label("Switch Distance: ");
+						imguiContext.FloatField("##SwitchDistance", distance, [&lodStrategy, &distance, &lodInfo]
+						{ 
+							if (distance != lodInfo.mSwitchDistance)
+							{
+								lodInfo.mSwitchDistance = distance;
+								lodStrategy.Sort();
+							}
+
+						});
+						imguiContext.EndHorizontal();
+					}
+
+					/// \note Mesh identifier
+					{
+						bool isMeshParamActive = (lodInfo.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID) == E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID;
+
+						imguiContext.BeginHorizontal();
+						imguiContext.Checkbox("##IsMeshParamActive", isMeshParamActive);
+						imguiContext.Label("Mesh Id:");
+						imguiContext.TextField("##MeshId", lodInfo.mMeshId);
+						imguiContext.EndHorizontal();
+
+						if (isMeshParamActive)
+						{
+							lodInfo.mActiveParams = lodInfo.mActiveParams | E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID;
+						}
+						else
+						{
+							lodInfo.mActiveParams = static_cast<E_LOD_INSTANCE_ACTIVE_PARAMS>(static_cast<U8>(lodInfo.mActiveParams) & ~static_cast<U8>(E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID));
+						}
+					}
+
+					/// \note Sub-mesh idenfitier
+					{
+						bool isSubmeshParamActive = (lodInfo.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID) == E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID;
+
+						imguiContext.BeginHorizontal();
+						imguiContext.Checkbox("##IsSubMeshParamActive", isSubmeshParamActive);
+						imguiContext.Label("Sub-mesh Id:");
+						imguiContext.TextField("##SubMeshId", lodInfo.mSubMeshId);
+						imguiContext.EndHorizontal();
+
+						if (isSubmeshParamActive)
+						{
+							lodInfo.mActiveParams = lodInfo.mActiveParams | E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID;
+						}
+						else
+						{
+							lodInfo.mActiveParams = static_cast<E_LOD_INSTANCE_ACTIVE_PARAMS>(static_cast<U8>(lodInfo.mActiveParams) & ~static_cast<U8>(E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID));
+						}
+					}
+
+					/// \note Material
+					{
+						bool isMaterialParamActive = (lodInfo.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID) == E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID;
+
+						imguiContext.BeginHorizontal();
+						imguiContext.Checkbox("##IsMaterialParamActive", isMaterialParamActive);
+						imguiContext.Label("Material Id:");
+						imguiContext.TextField("##MaterialId", lodInfo.mMaterialId);
+						imguiContext.EndHorizontal();
+
+						if (isMaterialParamActive)
+						{
+							lodInfo.mActiveParams = lodInfo.mActiveParams | E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID;
+						}
+						else
+						{
+							lodInfo.mActiveParams = static_cast<E_LOD_INSTANCE_ACTIVE_PARAMS>(static_cast<U8>(lodInfo.mActiveParams) & ~static_cast<U8>(E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID));
+						}
+					}
+				});
+
+				if (imguiContext.Button(Wrench::StringUtils::Format("Remove LOD {0}", id), TVector2(imguiContext.GetWindowWidth() * 0.45f, 20.0f)))
+				{
+					E_RESULT_CODE result = lodStrategy.RemoveLODInstance(static_cast<U32>(id));
+					TDE2_ASSERT(RC_OK == result);
+					
+					return false; /// Interrupt the iteration loop to prevent corruption of the iterator
+				}
+
+				return true;
+			});
+
+			if (imguiContext.Button("Add LOD", TVector2(imguiContext.GetWindowWidth() * 0.95f, 25.0f)))
+			{
+				lodStrategy.AddLODInstance({});
+			}
 		}
 	}
 }

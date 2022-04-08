@@ -31,6 +31,7 @@
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/AudioComponents.h"
+#include "../../include/scene/components/CLODStrategyComponent.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CPerfProfiler.h"
 
@@ -455,6 +456,7 @@ namespace TDEngine2
 			CreateLabelFactory,
 			Create9SliceImageFactory,
 			CreateGridGroupLayoutFactory,
+			CreateLODStrategyComponentFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,

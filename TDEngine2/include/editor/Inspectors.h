@@ -81,6 +81,9 @@ namespace TDEngine2
 			/// Audio components
 			TDE2_API static void DrawAudioListenerGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawAudioSourceGUI(const TEditorContext& editorContext);
+			
+			/// Scenes components
+			TDE2_API static void DrawLODStrategyGUI(const TEditorContext& editorContext);
 	};
 }
 

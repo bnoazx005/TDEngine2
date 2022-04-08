@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.36] 2022-04-07
+## [0.5.36] 2022-04-08
 
 ### Added
 
 - Implementation of **tde2_mesh_converter** utility was extended to support LODs for meshes.
+
+- A new type of component which is **CLODStrategy** was added. Also corresponding system **CLODMeshSwitchSystem** was defined to control LODs.
 
 ## [0.5.35] 2022-04-06
 
