@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new type of component which is **CLODStrategy** was added. Also corresponding system **CLODMeshSwitchSystem** was defined to control LODs.
 
+### Fixed
+
+- **DefaultShader.shader**'s TBN matrix computation was fixed. 
+
 ## [0.5.35] 2022-04-06
 
 ### Added

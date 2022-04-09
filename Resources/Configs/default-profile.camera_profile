@@ -6,7 +6,7 @@ bloom_parameters:
   threshold: "1.5"
   quality: 3
 color_grading_params:
-  enabled: 1
+  enabled: 0
   color_lut_id: "Resources/Textures/LUTs/ColorLUT.png"
 tone_mapping_parameters:
   enabled: 1

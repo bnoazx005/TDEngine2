@@ -40,7 +40,7 @@ VertexOut mainVS(in VertexIn input)
 	output.mColor    = input.mColor;
 
 	float3 tangent  = mul(transpose(InvModelMat), input.mTangent);
-	float3 binormal = cross(output.mNormal, tangent);
+	float3 binormal = cross(tangent, output.mNormal);
 
 	output.mTBN = transpose(float3x3(tangent, binormal, output.mNormal.xyz));
 
