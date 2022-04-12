@@ -28,12 +28,12 @@ textures:
   - instance_id: 0
     texture_bindings: 
       - slot_id: AlbedoMap
-        texture_id: ProjectTextures/stones_albedo.png
+        texture_id: ProjectTextures/toy_box_diffuse.png
         texture_type_id: 4159152309
       - slot_id: NormalMap
-        texture_id: ProjectTextures/stones_normals.png
+        texture_id: ProjectTextures/toy_box_normal.png
         texture_type_id: 4159152309
       - slot_id: PropertiesMap
-        texture_id: ProjectTextures/stones_properties.tga
+        texture_id: ProjectTextures/toy_box_disp.png
         texture_type_id: 4159152309
 transparency_enabled: 0

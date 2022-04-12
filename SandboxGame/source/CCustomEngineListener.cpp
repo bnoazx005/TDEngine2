@@ -46,7 +46,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
 	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
-	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
+	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterialWithParallax.material");
 	pMeshContainer->SetMeshName("scene.mesh");
 	
 #if 0 // LODs test
@@ -68,7 +68,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pPlaneEntity = mpWorld->CreateEntity();
 	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
-	pPlaneMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterialWithParallax.material");
+	pPlaneMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
 	pPlaneMeshContainer->SetMeshName("Plane");
 	if (auto pTransform = pPlaneEntity->GetComponent<CTransform>())
 	{

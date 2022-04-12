@@ -179,5 +179,45 @@ float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lighti
 	return float4(CalcCookTorranceBRDF(normalize(sunLight.mPosition).xyz, lightingData) /* * sunLight.mColor.rgb*/, sunLight.mColor.a);
 }
 
+	
+	#ifndef TDE2_ENABLE_PARALLAX_MAPPING
+		#define TDE2_ENABLE_PARALLAX_MAPPING 																											\
+		float2 CalcParallaxMappingOffset(float2 uv, float3 viewDir, float3 normal, float heightScale, float minLayers, float maxLayers)					\
+		{																																				\
+			float numLayers = lerp(maxLayers, minLayers, abs(dot(normal, viewDir)));																	\
+																																						\
+			float layerDepth = 1.0 / numLayers;																											\
+			float currLayerDepth = 0.0;																													\
+																																						\
+			float2 deltaUVs = ((viewDir.xy / viewDir.z) * heightScale) / numLayers;																		\
+			float2 outputUV = uv;																														\
+																																						\
+			float currDepth = TEX2D(PropertiesMap, uv).b;																								\
+																																						\
+			for (int i = 0; i < numLayers; ++i)																											\
+			{																																			\
+				if (currLayerDepth > currDepth)																											\
+				{																																		\
+					break;																																\
+				}																																		\
+																																						\
+				outputUV -= deltaUVs;																													\
+				currDepth = TEX2D(PropertiesMap, outputUV).b;																							\
+				currLayerDepth += layerDepth;																											\
+			}																																			\
+																																						\
+			float2 prevUVs = outputUV + deltaUVs;																										\
+																																						\
+			float afterDepth  = currDepth - currLayerDepth;																								\
+			float beforeDepth = TEX2D(PropertiesMap, prevUVs).b - currLayerDepth + layerDepth;															\
+		 																																				\
+			float weight = afterDepth / (afterDepth - beforeDepth);																						\
+			return prevUVs * weight + outputUV * (1.0 - weight);																						\
+		}
+	#endif
+
+	#ifndef TDE2_DISCARD_PIXELS
+		#define TDE2_DISCARD_PIXELS(uv) if (uv.x > 1.0 || uv.y > 1.0 || uv.x < 0.0 || uv.y < 0.0) discard
+	#endif
 
 #endif

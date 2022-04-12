@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.36] 2022-04-08
+## [0.5.36] 2022-04-12
 
 ### Added
 
 - Implementation of **tde2_mesh_converter** utility was extended to support LODs for meshes.
 
 - A new type of component which is **CLODStrategy** was added. Also corresponding system **CLODMeshSwitchSystem** was defined to control LODs.
+
+- The implementation of basic parallax mapping effect was added into **TDEngine2Lighting.inc** shader include file.
 
 ### Fixed
 

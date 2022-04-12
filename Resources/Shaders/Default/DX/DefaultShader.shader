@@ -1,18 +1,20 @@
 #define VERTEX_ENTRY mainVS
 #define PIXEL_ENTRY mainPS
 
+
 #include <TDEngine2Globals.inc>
 
 
 struct VertexOut
 {
-	float4 mPos      : SV_POSITION;
-	float4 mLightPos : POSITION1;
-	float4 mWorldPos : POSITION2;
-	float4 mColor    : COLOR;
-	float2 mUV       : TEXCOORD;
-	float4 mNormal   : NORMAL;
-	float3x3 mTBN    : TEXCOORD1;
+	float4 mPos              : SV_POSITION;
+	float4 mLightPos         : POSITION1;
+	float4 mWorldPos         : POSITION2;
+	float4 mColor            : COLOR;
+	float2 mUV               : TEXCOORD;
+	float4 mNormal           : NORMAL;
+	float3x3 mTangentToWorld : TEXCOORD1;
+	float4 mTangentViewDir   : TEXCOORD4;
 };
 
 
@@ -35,14 +37,18 @@ VertexOut mainVS(in VertexIn input)
 	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), input.mPos);
 	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
 	output.mWorldPos = mul(ModelMat, input.mPos);
-	output.mNormal   = mul(transpose(InvModelMat), input.mNormal);
+	output.mNormal   = normalize(mul(ModelMat, input.mNormal));
 	output.mUV       = input.mUV;
 	output.mColor    = input.mColor;
 
-	float3 tangent  = mul(transpose(InvModelMat), input.mTangent);
-	float3 binormal = cross(tangent, output.mNormal);
+	float3 tangent  = normalize(mul(ModelMat, input.mTangent));
+	float3 binormal = normalize(cross(output.mNormal, tangent));
 
-	output.mTBN = transpose(float3x3(tangent, binormal, output.mNormal.xyz));
+	output.mTangentToWorld = (float3x3(tangent, binormal, output.mNormal.xyz));
+	float3x3 worldToTangentMat = transpose(output.mTangentToWorld);
+
+	float3 view = CameraPosition.xyz - output.mWorldPos.xyz;
+	output.mTangentViewDir = float4(dot(tangent, view), dot(view, binormal), dot(output.mNormal.xyz, view), 0.0);
 
 	return output;
 }
@@ -59,14 +65,20 @@ DECLARE_TEX2D_EX(NormalMap, 2);
 DECLARE_TEX2D_EX(PropertiesMap, 3);
 
 
+TDE2_ENABLE_PARALLAX_MAPPING
+
+
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	float3 normal = mul(input.mTBN, 2.0 * TEX2D(NormalMap, input.mUV).xyz - 1.0);
+	float2 uv = CalcParallaxMappingOffset(input.mUV, normalize(input.mTangentViewDir).xyz, normalize(input.mNormal), 0.2, 8.0, 32.0);
+	TDE2_DISCARD_PIXELS(uv);
+
+	float3 normal = mul(input.mTangentToWorld, 2.0 * TEX2D(NormalMap, uv).xyz - 1.0);
 
 	LightingData lightingData = CreateLightingData(input.mWorldPos, float4(normal, 0.0), 
 												   normalize(CameraPosition - input.mWorldPos), 
-												   GammaToLinear(TEX2D(AlbedoMap, input.mUV)),
-												   TEX2D(PropertiesMap, input.mUV));
+												   GammaToLinear(TEX2D(AlbedoMap, uv)),
+												   TEX2D(PropertiesMap, uv));
 
 	float4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, float4(1.0, 1.0, 1.0, 1.0)), lightingData);
 
