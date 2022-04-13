@@ -44,8 +44,7 @@ VertexOut mainVS(in VertexIn input)
 	float3 tangent  = normalize(mul(ModelMat, input.mTangent));
 	float3 binormal = normalize(cross(output.mNormal, tangent));
 
-	output.mTangentToWorld = (float3x3(tangent, binormal, output.mNormal.xyz));
-	float3x3 worldToTangentMat = transpose(output.mTangentToWorld);
+	output.mTangentToWorld = transpose(float3x3(tangent, binormal, output.mNormal.xyz));
 
 	float3 view = CameraPosition.xyz - output.mWorldPos.xyz;
 	output.mTangentViewDir = float4(dot(tangent, view), dot(view, binormal), dot(output.mNormal.xyz, view), 0.0);
@@ -68,9 +67,14 @@ DECLARE_TEX2D_EX(PropertiesMap, 3);
 TDE2_ENABLE_PARALLAX_MAPPING
 
 
+CBUFFER_SECTION_EX(ShaderParameters, 4)
+	float parallaxMappingEnabled;
+CBUFFER_ENDSECTION
+
+
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	float2 uv = CalcParallaxMappingOffset(input.mUV, normalize(input.mTangentViewDir).xyz, normalize(input.mNormal), 0.2, 8.0, 32.0);
+	float2 uv = lerp(input.mUV, CalcParallaxMappingOffset(input.mUV, normalize(input.mTangentViewDir).xyz, normalize(input.mNormal), 0.2, 8.0, 32.0), parallaxMappingEnabled);
 	TDE2_DISCARD_PIXELS(uv);
 
 	float3 normal = mul(input.mTangentToWorld, 2.0 * TEX2D(NormalMap, uv).xyz - 1.0);

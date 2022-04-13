@@ -26,6 +26,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 	}
 
+	if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("ProjectMaterials/DefaultMaterialWithParallax.material")))
+	{
+		pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "parallaxMappingEnabled", 1.0f);
+	}
+
 	// \note create a trigger
 	auto pTriggerEntity = mpWorld->CreateEntity();
 	auto pTransform = pTriggerEntity->GetComponent<CTransform>();
@@ -44,9 +49,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto sr = pMeshEntity->AddComponent<CShadowReceiverComponent>();
 	auto bounds = pMeshEntity->AddComponent<CBoundsComponent>();
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
-	pMeshTransform->SetPosition({ 0.0f, 0.0f, 2.0f });
+	pMeshTransform->SetPosition({ 0.0f, -0.2f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
-	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterialWithParallax.material");
+	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
 	pMeshContainer->SetMeshName("scene.mesh");
 	
 #if 0 // LODs test
