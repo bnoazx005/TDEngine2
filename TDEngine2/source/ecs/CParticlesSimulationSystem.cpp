@@ -115,6 +115,7 @@ namespace TDEngine2
 			if (auto pEntity = pWorld->FindEntity(currEntityId))
 			{
 				particleEmitters.push_back(pEntity->GetComponent<CParticleEmitter>());
+				transforms.push_back(pEntity->GetComponent<CTransform>());
 			}
 		}
 

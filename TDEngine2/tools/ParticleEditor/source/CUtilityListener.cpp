@@ -69,6 +69,8 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 {
 	mpParticleEditor->Draw(mpEngineCoreInstance->GetSubsystem<IImGUIContext>().Get(), dt);
 
+	DrawEditorGrid(mpGraphicsContext->GetGraphicsObjectManager()->CreateDebugUtility(mpResourceManager.Get(), mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get(), 10, 10);
+
 	_drawMainMenu();
 	_drawTimeControlBar();
 

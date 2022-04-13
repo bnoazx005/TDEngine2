@@ -206,6 +206,7 @@
 #include "editor/CMemoryProfiler.h"
 #include "editor/CAnimationCurveEditorWindow.h"
 #include "editor/CProjectSettingsWindow.h"
+#include "editor/EditorUtils.h"
 
 ///math
 #include "math/TVector2.h"

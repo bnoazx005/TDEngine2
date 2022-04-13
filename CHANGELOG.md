@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.37] 2022-04-14
+
+### Changed
+
+- **DrawGrid** function was moved into common editor utilities which is **EditorUtils.h**.
+
 ## [0.5.36] 2022-04-13
 
 ### Added
