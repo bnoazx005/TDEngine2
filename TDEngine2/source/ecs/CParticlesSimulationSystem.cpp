@@ -290,14 +290,15 @@ namespace TDEngine2
 	}
 
 
-	static U32 GetFirstDeadParticleIndex(const std::vector<TParticleInfo>& particles)
+	static U32 GetFirstDeadParticleIndex(std::vector<TParticleInfo>& particles, bool isLoopedModeEnabled)
 	{
 		U32 index = 0;
 
-		for (const TParticleInfo& currParticle : particles)
+		for (TParticleInfo& currParticle : particles)
 		{
-			if (CMathUtils::IsGreatOrEqual(currParticle.mAge, currParticle.mLifeTime, 1e-3f))
+			if (CMathUtils::IsGreatOrEqual(currParticle.mAge, currParticle.mLifeTime, 1e-3f) && (isLoopedModeEnabled || (!isLoopedModeEnabled && !currParticle.mHasBeenUsed)))
 			{
+				currParticle.mHasBeenUsed = true;
 				return index;
 			}
 
@@ -332,7 +333,7 @@ namespace TDEngine2
 
 						for (U32 k = 0; k < emissionRate; ++k)
 						{
-							const U32 firstDeadParticleIndex = GetFirstDeadParticleIndex(particles);
+							const U32 firstDeadParticleIndex = GetFirstDeadParticleIndex(particles, pCurrEffectResource->IsLoopModeActive());
 							if (firstDeadParticleIndex >= particles.size())
 							{
 								break; /// \note We're reach out of free particles 

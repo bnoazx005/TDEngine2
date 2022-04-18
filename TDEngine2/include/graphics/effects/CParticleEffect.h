@@ -291,7 +291,7 @@ namespace TDEngine2
 
 			F32                               mRotationPerFrame;
 
-			TVector3                          mForcePerFrame;
+			TVector3                          mForcePerFrame = ZeroVector3;
 
 			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
 	};

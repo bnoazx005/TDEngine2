@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.37] 2022-04-14
+## [0.5.37] 2022-04-18
+
+### Added
+
+- **CParticleEmitter** component now supports a non-looped playback mode.
 
 ### Changed
 

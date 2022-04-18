@@ -25,5 +25,6 @@ namespace TDEngine2
 		F32       mAge = (std::numeric_limits<F32>::max)();
 		F32       mLifeTime;
 		F32       mRotation;
+		bool      mHasBeenUsed = false;
 	} TParticleInfo, *TParticleInfoPtr;
 }
