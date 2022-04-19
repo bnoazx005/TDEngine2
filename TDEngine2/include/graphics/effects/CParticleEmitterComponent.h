@@ -70,6 +70,11 @@ namespace TDEngine2
 			TDE2_API const std::string& GetParticleEffectId() const;
 
 			TDE2_API TResourceId GetParticleEffectHandle() const;
+
+#if TDE2_EDITORS_ENABLED
+			bool mResetStateOnNextFrame = false;
+#endif
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEmitter)
 		protected:

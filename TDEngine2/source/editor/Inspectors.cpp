@@ -407,6 +407,8 @@ namespace TDEngine2
 
 	void CDefeaultInspectorsRegistry::DrawParticleEmitterGUI(const TEditorContext& editorContext)
 	{
+		const TVector2 buttonSizes(100.0f, 25.0f);
+
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
 		IComponent& component = editorContext.mComponent;
 
@@ -414,7 +416,21 @@ namespace TDEngine2
 		{
 			CParticleEmitter& particleEmitter = dynamic_cast<CParticleEmitter&>(component);
 
-			// \todo Implement this drawer
+			/// \note particle effect's identifier
+			{
+				std::string particleEffectId = particleEmitter.GetParticleEffectId();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Effect Id:");
+				imguiContext.TextField("##EffectId", particleEffectId, [&particleEmitter](auto&& value) { particleEmitter.SetParticleEffect(value); });
+				imguiContext.EndHorizontal();
+			}
+
+			// \note Stop
+			imguiContext.Button("Reset", buttonSizes, [&particleEmitter]
+			{
+				particleEmitter.mResetStateOnNextFrame = true;
+			});
 		}
 	}
 
