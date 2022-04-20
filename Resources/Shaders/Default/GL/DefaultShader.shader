@@ -19,6 +19,7 @@ out vec4 VertOutWorldPos;
 out vec2 VertOutUV;
 out vec4 VertOutNormal;
 out mat3 VertOutTBN;
+out vec3 OutTangentViewDir;
 
 
 void main(void)
@@ -33,9 +34,12 @@ void main(void)
 	VertOutUV = inUV;
 
 	float3 tangent  = (transpose(InvModelMat) * inTangent).xyz;
-	float3 binormal = cross(VertOutNormal.xyz, tangent);
+	float3 binormal = normalize(cross(VertOutNormal.xyz, tangent));
 
-	VertOutTBN = transpose(mat3(tangent, binormal, VertOutNormal.xyz));
+	VertOutTBN = mat3(tangent, binormal, VertOutNormal.xyz);
+
+	float3 view = CameraPosition.xyz - VertOutWorldPos.xyz;
+	OutTangentViewDir = float3(dot(tangent, view), dot(view, binormal), dot(VertOutNormal.xyz, view));
 }
 
 #endprogram
@@ -56,18 +60,30 @@ in vec4 VertOutWorldPos;
 in vec2 VertOutUV;
 in vec4 VertOutNormal;
 in mat3 VertOutTBN;
+in vec3 OutTangentViewDir;
 
 out vec4 FragColor;
 
+
+TDE2_ENABLE_PARALLAX_MAPPING
+
+
+CBUFFER_SECTION_EX(ShaderParameters, 4)
+	float parallaxMappingEnabled;
+CBUFFER_ENDSECTION
+
+
 void main(void)
 {
-	// \fixme Normal mapping doesn't look correctly
-	vec3 normal = VertOutTBN * (2.0 * TEX2D(NormalMap, VertOutUV).xyz - 1.0);
+	float2 uv = mix(VertOutUV, CalcParallaxMappingOffset(VertOutUV, normalize(OutTangentViewDir), normalize(VertOutNormal).xyz, 0.2, 8.0, 32.0), parallaxMappingEnabled);
+	TDE2_DISCARD_PIXELS(uv);
 
-	LightingData lightingData = CreateLightingData(VertOutWorldPos, vec4(VertOutNormal.xyz, 0.0), 
+	vec3 normal = VertOutTBN * (2.0 * TEX2D(NormalMap, uv).xyz - 1.0);
+
+	LightingData lightingData = CreateLightingData(VertOutWorldPos, vec4(normal, 0.0), 
 												   normalize(CameraPosition - VertOutWorldPos), 
-												   GammaToLinear(TEX2D(AlbedoMap, VertOutUV)),
-												   TEX2D(PropertiesMap, VertOutUV));
+												   GammaToLinear(TEX2D(AlbedoMap, uv)),
+												   TEX2D(PropertiesMap, uv));
 
 	vec4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, vec4(1.0)), lightingData);
 

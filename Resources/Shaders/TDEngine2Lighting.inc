@@ -38,7 +38,7 @@ float PointLightGetAttenuation(in PointLightData pointLight, in float4 pos)
 {
 	float distance = length(pointLight.mPosition - pos);
 
-	return 1.0 / (distance * distance); //* min(1, max(distance - pointLight.mMaxRange, 0.0));
+	return 1.0 / (distance * distance + 0.00001); //* min(1, max(distance - pointLight.mMaxRange, 0.0));
 }
 
 
@@ -166,7 +166,7 @@ float3 CalcCookTorranceBRDF(float3 lightDir, in LightingData lightingData)
 
 float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData lightingData)
 {
-	float3 lightDir = normalize(pointLight.mPosition.xyz - lightingData.mPosition.xyz);
+	float3 lightDir = normalize(pointLight.mPosition - lightingData.mPosition).xyz;
 
 	float3 radiance = pointLight.mColor.rgb * PointLightGetAttenuation(pointLight, lightingData.mPosition);
 
@@ -181,39 +181,48 @@ float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lighti
 
 	
 	#ifndef TDE2_ENABLE_PARALLAX_MAPPING
-		#define TDE2_ENABLE_PARALLAX_MAPPING 																											\
-		float2 CalcParallaxMappingOffset(float2 uv, float3 viewDir, float3 normal, float heightScale, float minLayers, float maxLayers)					\
-		{																																				\
-			float numLayers = lerp(maxLayers, minLayers, abs(dot(normal, viewDir)));																	\
-																																						\
-			float layerDepth = 1.0 / numLayers;																											\
-			float currLayerDepth = 0.0;																													\
-																																						\
-			float2 deltaUVs = ((viewDir.xy / viewDir.z) * heightScale) / numLayers;																		\
-			float2 outputUV = uv;																														\
-																																						\
-			float currDepth = TEX2D(PropertiesMap, uv).b;																								\
-																																						\
-			for (int i = 0; i < numLayers; ++i)																											\
-			{																																			\
-				if (currLayerDepth > currDepth)																											\
-				{																																		\
-					break;																																\
-				}																																		\
-																																						\
-				outputUV -= deltaUVs;																													\
-				currDepth = TEX2D(PropertiesMap, outputUV).b;																							\
-				currLayerDepth += layerDepth;																											\
-			}																																			\
-																																						\
-			float2 prevUVs = outputUV + deltaUVs;																										\
-																																						\
-			float afterDepth  = currDepth - currLayerDepth;																								\
-			float beforeDepth = TEX2D(PropertiesMap, prevUVs).b - currLayerDepth + layerDepth;															\
-		 																																				\
-			float weight = afterDepth / (afterDepth - beforeDepth);																						\
-			return prevUVs * weight + outputUV * (1.0 - weight);																						\
-		}
+
+		#if TDE2_HLSL_SHADER
+			#define TDE2_LERP lerp
+		#else
+			#define TDE2_LERP mix
+		#endif
+
+		#define TDE2_ENABLE_PARALLAX_MAPPING 																												\
+			float2 CalcParallaxMappingOffset(float2 uv, float3 viewDir, float3 normal, float heightScale, float minLayers, float maxLayers)					\
+			{																																				\
+				float numLayers = TDE2_LERP(maxLayers, minLayers, abs(dot(normal, viewDir)));																\
+																																							\
+				float layerDepth = 1.0 / numLayers;																											\
+				float currLayerDepth = 0.0;																													\
+																																							\
+				float2 deltaUVs = ((viewDir.xy / viewDir.z) * heightScale) / numLayers;																		\
+				float2 outputUV = uv;																														\
+																																							\
+				float currDepth = TEX2D(PropertiesMap, uv).b;																								\
+																																							\
+				for (int i = 0; i < numLayers; ++i)																											\
+				{																																			\
+					if (currLayerDepth > currDepth)																											\
+					{																																		\
+						break;																																\
+					}																																		\
+																																							\
+					outputUV -= deltaUVs;																													\
+					currDepth = TEX2D(PropertiesMap, outputUV).b;																							\
+					currLayerDepth += layerDepth;																											\
+				}																																			\
+																																							\
+				float2 prevUVs = outputUV + deltaUVs;																										\
+																																							\
+				float afterDepth  = currDepth - currLayerDepth;																								\
+				float beforeDepth = TEX2D(PropertiesMap, prevUVs).b - currLayerDepth + layerDepth;															\
+			 																																				\
+				float weight = afterDepth / (afterDepth - beforeDepth);																						\
+				return prevUVs * weight + outputUV * (1.0 - weight);																						\
+			}
+
+
 	#endif
 
 	#ifndef TDE2_DISCARD_PIXELS

@@ -37,11 +37,11 @@ VertexOut mainVS(in VertexIn input)
 	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), input.mPos);
 	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
 	output.mWorldPos = mul(ModelMat, input.mPos);
-	output.mNormal   = normalize(mul(ModelMat, input.mNormal));
+	output.mNormal   = normalize(mul(transpose(InvModelMat), input.mNormal));
 	output.mUV       = input.mUV;
 	output.mColor    = input.mColor;
 
-	float3 tangent  = normalize(mul(ModelMat, input.mTangent));
+	float3 tangent  = normalize(mul(transpose(InvModelMat), input.mTangent));
 	float3 binormal = normalize(cross(output.mNormal, tangent));
 
 	output.mTangentToWorld = transpose(float3x3(tangent, binormal, output.mNormal.xyz));

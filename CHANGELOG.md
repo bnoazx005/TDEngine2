@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.38] 2022-04-19
+
+### Fixed
+
+- Some fixes were introduced for GLSL built-in shaders.
+
 ## [0.5.37] 2022-04-19
 
 ### Added
