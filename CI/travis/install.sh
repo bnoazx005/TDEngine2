@@ -9,7 +9,7 @@ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
 
 sudo apt-get install -qq unzip
 
-sudo apt-get install -qq build-essential xorg-dev libc++-dev
+sudo apt-get install -qq build-essential xorg-dev libc++-dev zlib1g-dev minizip
 
 sudo apt-get install -qq clang-10 lld-10 libclang-common-10-dev libclang-10-dev libclang1-10 
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 1000

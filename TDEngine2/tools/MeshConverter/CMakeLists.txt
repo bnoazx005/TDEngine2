@@ -67,7 +67,10 @@ set (ASSIMP_BUILD_OBJ_IMPORTER TRUE)
 set (ASSIMP_BUILD_FBX_IMPORTER TRUE)
 set (ASSIMP_BUILD_COLLADA_IMPORTER TRUE)
 
+set (ZLIB_FOUND_PREV ${ZLIB_FOUND}) # A hack that allows to build assimp as a submodule without errors 
+set (ZLIB_FOUND 0)
 add_subdirectory(deps/assimp)
+set (ZLIB_FOUND ${ZLIB_FOUND_PREV})
 
 
 add_executable(${TDE2_MESH_CONVERTER_NAME} ${UTILITY_SOURCES} ${UTILITY_HEADERS})

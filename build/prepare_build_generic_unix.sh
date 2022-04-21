@@ -3,6 +3,13 @@
 # "The script for building the engine and its toolset with CMake under UNIX platforms" 
 echo off
 
+
+function pause {
+	echo "Press any key to continue..."
+	read
+}
+
+
 # "Get all submodules"
 git submodule update --recursive --init
 
@@ -100,7 +107,7 @@ fi
 sh ./run_codegeneration.sh
 
 
-cmake -G "$GENERATOR_NAME" -DUSE_EXTERNAL_BULLET_LIBRARY=$TDE2_USE_INSTALLED_BULLET -DUSE_EXTERNAL_ZLIB_LIBRARY=$TDE2_USE_INSTALLED_ZLIB -DCMAKE_BUILD_TYPE=$1  .. && cmake --build . --config $1
+cmake -G "$GENERATOR_NAME" -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DUSE_EXTERNAL_BULLET_LIBRARY=$TDE2_USE_INSTALLED_BULLET -DUSE_EXTERNAL_ZLIB_LIBRARY=$TDE2_USE_INSTALLED_ZLIB -DCMAKE_BUILD_TYPE=$1  .. && cmake --build . --config $1
 
 if [ $? -ne 0 ]; then
 	pause

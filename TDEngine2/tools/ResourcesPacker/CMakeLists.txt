@@ -62,8 +62,9 @@ endif (UNIX)
 add_executable(${TDE2_RESOURCES_PACKER_NAME} ${UTILITY_SOURCES} ${UTILITY_HEADERS})
 
 target_include_directories(${TDE2_RESOURCES_PACKER_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(${TDE2_RESOURCES_PACKER_NAME} PUBLIC ${ZLIB_LIBRARIES})
 
 if (UNIX)
-	target_link_libraries(${TDE2_RESOURCES_PACKER_NAME} pthread stdc++fs)
+	target_link_libraries(${TDE2_RESOURCES_PACKER_NAME} PUBLIC ${ZLIB_LIBRARIES} pthread stdc++fs)
+else()
+	target_link_libraries(${TDE2_RESOURCES_PACKER_NAME} PUBLIC ${ZLIB_LIBRARIES})
 endif()

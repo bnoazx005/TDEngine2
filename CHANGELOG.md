@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Some fixes were introduced for GLSL built-in shaders.
 
+- Fix issues in CMakeLists.txt of **TDE2ResourcePacker** utility.
+
+- Update **install.sh** file. Add zlib's dependencies installation command.
+
 ## [0.5.37] 2022-04-19
 
 ### Added
