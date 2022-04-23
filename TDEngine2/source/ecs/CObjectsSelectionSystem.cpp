@@ -100,9 +100,9 @@ namespace TDEngine2
 		{
 			if (auto pEntity = pWorld->FindEntity(currEntityId))
 			{
-				result.mpTransforms.push_back(pEntity->GetComponent<CTransform>());
-				result.mpRenderables.push_back(pEntity->GetComponent<T>());
-				result.mHasSelectedEntityComponent.push_back(pEntity->HasComponent<CSelectedEntityComponent>());
+				result.mpTransforms.push_back(pEntity->template GetComponent<CTransform>());
+				result.mpRenderables.push_back(pEntity->template GetComponent<T>());
+				result.mHasSelectedEntityComponent.push_back(pEntity->template HasComponent<CSelectedEntityComponent>());
 				result.mEntityIds.push_back(currEntityId);
 			}
 		}
@@ -121,10 +121,10 @@ namespace TDEngine2
 		{
 			if (auto pEntity = pWorld->FindEntity(currEntityId))
 			{
-				result.mpTransforms.push_back(pEntity->GetComponent<CTransform>());
-				result.mpRenderables.push_back(pEntity->GetComponent<CUIElementMeshData>());
-				result.mLayoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
-				result.mHasSelectedEntityComponent.push_back(pEntity->HasComponent<CSelectedEntityComponent>());
+				result.mpTransforms.push_back(pEntity->template GetComponent<CTransform>());
+				result.mpRenderables.push_back(pEntity->template GetComponent<CUIElementMeshData>());
+				result.mLayoutElements.push_back(pEntity->template GetComponent<CLayoutElement>());
+				result.mHasSelectedEntityComponent.push_back(pEntity->template HasComponent<CSelectedEntityComponent>());
 				result.mEntityIds.push_back(currEntityId);
 			}
 		}

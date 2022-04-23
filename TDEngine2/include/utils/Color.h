@@ -10,6 +10,7 @@
 #include "Utils.h"
 #include "../core/Serialization.h"
 #include "../math/MathUtils.h"
+#include <cmath>
 
 
 namespace TDEngine2
@@ -182,11 +183,11 @@ namespace TDEngine2
 
 		bool anyWritten = false;
 
-		if (std::fabsf(object.g) > 1e-3f) { pWriter->SetFloat("g", object.g); anyWritten = true; }
-		if (std::fabsf(object.b) > 1e-3f) { pWriter->SetFloat("b", object.b); anyWritten = true; }
-		if (std::fabsf(object.a) > 1e-3f) { pWriter->SetFloat("a", object.a); anyWritten = true; }
+		if (std::fabs(object.g) > 1e-3f) { pWriter->SetFloat("g", object.g); anyWritten = true; }
+		if (std::fabs(object.b) > 1e-3f) { pWriter->SetFloat("b", object.b); anyWritten = true; }
+		if (std::fabs(object.a) > 1e-3f) { pWriter->SetFloat("a", object.a); anyWritten = true; }
 
-		if (!anyWritten || (anyWritten && std::fabsf(object.r) > 1e-3f))
+		if (!anyWritten || (anyWritten && std::fabs(object.r) > 1e-3f))
 		{
 			pWriter->SetFloat("r", object.r); /// \note Always write at least x component to prevent the bug of serialization in the Yaml library
 		}

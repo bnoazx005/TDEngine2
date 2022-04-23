@@ -99,10 +99,10 @@ namespace TDEngine2
 
 	bool operator== (const TVector4& lvec4, const TVector4& rvec4)
 	{
-		if (fabsf(lvec4.x - rvec4.x) <= FloatEpsilon &&
-			fabsf(lvec4.y - rvec4.y) <= FloatEpsilon &&
-			fabsf(lvec4.z - rvec4.z) <= FloatEpsilon &&
-			fabsf(lvec4.w - rvec4.w) <= FloatEpsilon)
+		if (fabs(lvec4.x - rvec4.x) <= FloatEpsilon &&
+			fabs(lvec4.y - rvec4.y) <= FloatEpsilon &&
+			fabs(lvec4.z - rvec4.z) <= FloatEpsilon &&
+			fabs(lvec4.w - rvec4.w) <= FloatEpsilon)
 		{
 			return true;
 		}
@@ -112,10 +112,10 @@ namespace TDEngine2
 
 	bool operator!= (const TVector4& lvec4, const TVector4& rvec4)
 	{
-		if (fabsf(lvec4.x - rvec4.x) > FloatEpsilon ||
-			fabsf(lvec4.y - rvec4.y) > FloatEpsilon ||
-			fabsf(lvec4.z - rvec4.z) > FloatEpsilon ||
-			fabsf(lvec4.w - rvec4.w) > FloatEpsilon)
+		if (fabs(lvec4.x - rvec4.x) > FloatEpsilon ||
+			fabs(lvec4.y - rvec4.y) > FloatEpsilon ||
+			fabs(lvec4.z - rvec4.z) > FloatEpsilon ||
+			fabs(lvec4.w - rvec4.w) > FloatEpsilon)
 		{
 			return true;
 		}

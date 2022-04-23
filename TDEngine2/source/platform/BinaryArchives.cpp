@@ -65,7 +65,7 @@ namespace TDEngine2
 
 
 	template <>
-	static E_RESULT_CODE WriteValueImpl<std::string>(IOutputStream* pStream, const std::string& key, const std::string& value)
+	E_RESULT_CODE WriteValueImpl<std::string>(IOutputStream* pStream, const std::string& key, const std::string& value)
 	{
 		E_RESULT_CODE result = WriteStringInternal(pStream, key);
 

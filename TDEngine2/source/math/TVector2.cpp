@@ -86,8 +86,8 @@ namespace TDEngine2
 
 	bool operator== (const TVector2& lvec2, const TVector2& rvec2)
 	{
-		if (fabsf(lvec2.x - rvec2.x) <= FloatEpsilon &&
-			fabsf(lvec2.y - rvec2.y) <= FloatEpsilon)
+		if (fabs(lvec2.x - rvec2.x) <= FloatEpsilon &&
+			fabs(lvec2.y - rvec2.y) <= FloatEpsilon)
 		{
 			return true;
 		}
@@ -97,8 +97,8 @@ namespace TDEngine2
 
 	bool operator!= (const TVector2& lvec2, const TVector2& rvec2)
 	{
-		if (fabsf(lvec2.x - rvec2.x) > FloatEpsilon ||
-			fabsf(lvec2.y - rvec2.y) > FloatEpsilon)
+		if (fabs(lvec2.x - rvec2.x) > FloatEpsilon ||
+			fabs(lvec2.y - rvec2.y) > FloatEpsilon)
 		{
 			return true;
 		}
@@ -176,13 +176,13 @@ namespace TDEngine2
 
 		bool anyWritten = false;
 
-		if (std::fabsf(object.y) > 1e-3f)
+		if (std::fabs(object.y) > 1e-3f)
 		{
 			pWriter->SetFloat("y", object.y); 
 			anyWritten = true;
 		}
 
-		if (!anyWritten || (anyWritten && std::fabsf(object.x) > 1e-3f))
+		if (!anyWritten || (anyWritten && std::fabs(object.x) > 1e-3f))
 		{
 			pWriter->SetFloat("x", object.x); /// \note Always write at least x component to prevent the bug of serialization in the Yaml library
 		}

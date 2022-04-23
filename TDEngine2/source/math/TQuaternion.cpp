@@ -200,7 +200,7 @@ namespace TDEngine2
 	{
 		const TMatrix4 m = RotationMatrix(q);
 
-		const bool test = fabsf(m.m[0][2]) < 0.99f;
+		const bool test = fabs(m.m[0][2]) < 0.99f;
 
 		return TVector3(test ? atan2f(-m.m[1][2], m.m[2][2]) : atan2f(m.m[2][1], m.m[1][1]),
 						asinf(CMathUtils::Clamp(-1.0f, 1.0f, m.m[0][2])),
@@ -234,11 +234,11 @@ namespace TDEngine2
 
 		bool anyWritten = false;
 
-		if (std::fabsf(object.y) > 1e-3f) { pWriter->SetFloat("y", object.y); anyWritten = true; }
-		if (std::fabsf(object.z) > 1e-3f) { pWriter->SetFloat("z", object.z); anyWritten = true; }
-		if (std::fabsf(object.w) > 1e-3f) { pWriter->SetFloat("w", object.w); anyWritten = true; }
+		if (std::fabs(object.y) > 1e-3f) { pWriter->SetFloat("y", object.y); anyWritten = true; }
+		if (std::fabs(object.z) > 1e-3f) { pWriter->SetFloat("z", object.z); anyWritten = true; }
+		if (std::fabs(object.w) > 1e-3f) { pWriter->SetFloat("w", object.w); anyWritten = true; }
 
-		if (!anyWritten || (anyWritten && std::fabsf(object.x) > 1e-3f))
+		if (!anyWritten || (anyWritten && std::fabs(object.x) > 1e-3f))
 		{
 			pWriter->SetFloat("x", object.x);  /// \note Always write at least x component to prevent the bug of serialization in the Yaml library
 		}

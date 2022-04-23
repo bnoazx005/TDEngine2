@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include <cstring>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

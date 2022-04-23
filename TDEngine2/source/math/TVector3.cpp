@@ -101,9 +101,9 @@ namespace TDEngine2
 
 	bool operator== (const TVector3& lvec3, const TVector3& rvec3)
 	{
-		if (fabsf(lvec3.x - rvec3.x) < FloatEpsilon &&
-			fabsf(lvec3.y - rvec3.y) < FloatEpsilon &&
-			fabsf(lvec3.z - rvec3.z) < FloatEpsilon)
+		if (fabs(lvec3.x - rvec3.x) < FloatEpsilon &&
+			fabs(lvec3.y - rvec3.y) < FloatEpsilon &&
+			fabs(lvec3.z - rvec3.z) < FloatEpsilon)
 		{
 			return true;
 		}
@@ -113,9 +113,9 @@ namespace TDEngine2
 
 	bool operator!= (const TVector3& lvec3, const TVector3& rvec3)
 	{
-		if (fabsf(lvec3.x - rvec3.x) > FloatEpsilon ||
-			fabsf(lvec3.y - rvec3.y) > FloatEpsilon ||
-			fabsf(lvec3.z - rvec3.z) > FloatEpsilon)
+		if (fabs(lvec3.x - rvec3.x) > FloatEpsilon ||
+			fabs(lvec3.y - rvec3.y) > FloatEpsilon ||
+			fabs(lvec3.z - rvec3.z) > FloatEpsilon)
 		{
 			return true;
 		}
@@ -222,19 +222,19 @@ namespace TDEngine2
 
 		bool anyWritten = false;
 		
-		if (std::fabsf(object.y) > 1e-3f)
+		if (std::fabs(object.y) > 1e-3f)
 		{
 			pWriter->SetFloat("y", object.y);
 			anyWritten = true;
 		}
 
-		if (std::fabsf(object.z) > 1e-3f)
+		if (std::fabs(object.z) > 1e-3f)
 		{
 			pWriter->SetFloat("z", object.z);
 			anyWritten = true;
 		}
 
-		if (!anyWritten || (anyWritten && std::fabsf(object.x) > 1e-3f))
+		if (!anyWritten || (anyWritten && std::fabs(object.x) > 1e-3f))
 		{
 			pWriter->SetFloat("x", object.x); /// \note Always write at least x component to prevent the bug of serialization in the Yaml library
 		}

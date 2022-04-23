@@ -563,10 +563,10 @@ namespace TDEngine2
 		{
 			if (auto pEntity = pWorld->FindEntity(currEntityId))
 			{
-				result.mpTransforms.push_back(pEntity->GetComponent<CTransform>());
-				result.mpRenderables.push_back(pEntity->GetComponent<T>());
-				result.mpLayoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
-				result.mpUIMeshes.push_back(pEntity->HasComponent<CUIElementMeshData>() ? pEntity->GetComponent<CUIElementMeshData>() : pEntity->AddComponent<CUIElementMeshData>());
+				result.mpTransforms.push_back(pEntity->template GetComponent<CTransform>());
+				result.mpRenderables.push_back(pEntity->template GetComponent<T>());
+				result.mpLayoutElements.push_back(pEntity->template GetComponent<CLayoutElement>());
+				result.mpUIMeshes.push_back(pEntity->template HasComponent<CUIElementMeshData>() ? pEntity->template GetComponent<CUIElementMeshData>() : pEntity->template AddComponent<CUIElementMeshData>());
 			}
 		}
 
@@ -590,18 +590,18 @@ namespace TDEngine2
 		{
 			CEntity* pEntity = pWorld->FindEntity(currEntity);
 
-			transforms.push_back(pEntity->GetComponent<CTransform>());
-			canvases.push_back(pEntity->GetComponent<CCanvas>());
+			transforms.push_back(pEntity->template GetComponent<CTransform>());
+			canvases.push_back(pEntity->template GetComponent<CCanvas>());
 
 			if (pEntity->HasComponent<CLayoutElement>())
 			{
-				layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
-				inserter(currEntity, pEntity->GetComponent<CLayoutElement>());
+				layoutElements.push_back(pEntity->template GetComponent<CLayoutElement>());
+				inserter(currEntity, pEntity->template GetComponent<CLayoutElement>());
 
 				continue;
 			}
 
-			CLayoutElement* pLayoutElement = pEntity->AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
+			CLayoutElement* pLayoutElement = pEntity->template AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
 			pLayoutElement->SetMinAnchor(ZeroVector2);
 			pLayoutElement->SetMaxAnchor(TVector2(1.0f));
 			pLayoutElement->SetMinOffset(ZeroVector2);
@@ -632,18 +632,18 @@ namespace TDEngine2
 		{
 			CEntity* pEntity = pWorld->FindEntity(currEntity);
 
-			transforms.push_back(pEntity->GetComponent<CTransform>());
-			gridGroupLayouts.push_back(pEntity->GetComponent<CGridGroupLayout>());
+			transforms.push_back(pEntity->template GetComponent<CTransform>());
+			gridGroupLayouts.push_back(pEntity->template GetComponent<CGridGroupLayout>());
 
 			if (pEntity->HasComponent<CLayoutElement>())
 			{
-				layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
-				inserter(currEntity, pEntity->GetComponent<CLayoutElement>());
+				layoutElements.push_back(pEntity->template GetComponent<CLayoutElement>());
+				inserter(currEntity, pEntity->template GetComponent<CLayoutElement>());
 
 				continue;
 			}
 
-			CLayoutElement* pLayoutElement = pEntity->AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
+			CLayoutElement* pLayoutElement = pEntity->template AddComponent<CLayoutElement>(); /// \note use both anchors that're stretched
 			pLayoutElement->SetMinAnchor(ZeroVector2);
 			pLayoutElement->SetMaxAnchor(TVector2(1.0f));
 			pLayoutElement->SetMinOffset(ZeroVector2);
@@ -731,7 +731,7 @@ namespace TDEngine2
 
 
 	template <>
-	static inline void DiscardDirtyFlagForElements<CUIElementsProcessSystem::TGridGroupsContext>(CUIElementsProcessSystem::TGridGroupsContext& context)
+	void DiscardDirtyFlagForElements<CUIElementsProcessSystem::TGridGroupsContext>(CUIElementsProcessSystem::TGridGroupsContext& context)
 	{
 		TDE2_PROFILER_SCOPE("DiscardDirtyFlagForElements");
 
