@@ -675,7 +675,12 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		C8 meshId[64]{ '\0' };
+
+#ifdef TDE2_USE_WINPLATFORM
 		strcpy_s(meshId, sizeof(meshId) / sizeof(meshId[0]), meshEntity.mName.data());
+#else
+		strcpy(meshId, meshEntity.mName.data());
+#endif
 
 		result = result | pMeshFileWriter->Write(&MeshBlockTag, sizeof(MeshBlockTag));
 		result = result | pMeshFileWriter->Write(meshId, sizeof(meshId));
