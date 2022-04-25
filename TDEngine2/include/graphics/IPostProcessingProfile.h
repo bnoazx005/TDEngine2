@@ -29,8 +29,8 @@ namespace TDEngine2
 	
 		typedef struct TBloomParameters
 		{
-			static constexpr U16 mMinQuality = 1;
-			static constexpr U16 mMaxQuality = 3;
+			TDE2_API TDE2_STATIC_CONSTEXPR U16 mMinQuality = 1;
+			TDE2_API TDE2_STATIC_CONSTEXPR U16 mMaxQuality = 3;
 
 			bool mIsEnabled = false;
 			F32 mThreshold = 1.5f;

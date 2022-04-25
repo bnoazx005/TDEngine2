@@ -113,5 +113,8 @@ TEST_CASE("File System Tests")
 		}
 	}
 
-	dynamic_cast<IEngineSubsystem*>(pFileSystem)->Free();
+	if (pFileSystem)
+	{
+		pFileSystem->Free();
+	}
 }

@@ -577,7 +577,7 @@ namespace TDEngine2
 #define TDE2_UNREACHABLE()													\
 	do {																	\
 		std::cerr << "Unreachable code was executed" << std::endl;			\
-		debug_break();														\
+		AssertImpl();														\
 	}																		\
 	while (0)
 

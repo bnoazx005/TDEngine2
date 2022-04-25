@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.38] 2022-04-19
+## [0.5.38] 2022-04-25
 
 ### Fixed
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix issues in CMakeLists.txt of **TDE2ResourcePacker** utility.
 
 - Update **install.sh** file. Add zlib's dependencies installation command.
+
+- Fix compilation under UNIX with gcc toolchain.
 
 ## [0.5.37] 2022-04-19
 

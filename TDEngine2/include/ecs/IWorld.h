@@ -45,12 +45,12 @@ namespace TDEngine2
 	template <typename... TArgs>
 	struct TComponentsQueryLocalSlice
 	{
-		static constexpr USIZE             mInvalidParentIndex = (std::numeric_limits<USIZE>::max)();
+		TDE2_API TDE2_STATIC_CONSTEXPR USIZE mInvalidParentIndex = (std::numeric_limits<USIZE>::max)();
 
-		USIZE                              mComponentsCount = 0;
+		USIZE                                mComponentsCount = 0;
 
-		std::vector<USIZE>                 mParentsToChildMapping; ///< Contains indices of parents for each element of a components array
-		std::tuple<std::vector<TArgs*>...> mComponentsSlice;
+		std::vector<USIZE>                   mParentsToChildMapping; ///< Contains indices of parents for each element of a components array
+		std::tuple<std::vector<TArgs*>...>   mComponentsSlice;
 	};
 
 
