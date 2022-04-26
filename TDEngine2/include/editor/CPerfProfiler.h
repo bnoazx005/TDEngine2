@@ -167,12 +167,19 @@ namespace TDEngine2
 	};
 
 
+#if TDE2_BUILTIN_PERF_PROFILER_ENABLED
+	#define TDE2_BUILTIN_PROFILER_EVENT(Name) CProfilerScope scope##__LINE__(Name)	
+#else
+	#define TDE2_BUILTIN_PROFILER_EVENT(Name) 
+#endif
+
+
 #ifdef TDE2_USE_WINPLATFORM
 	#define TDE2_PROFILER_SCOPE(Name)				\
 		OPTICK_EVENT(#Name);						\
-		CProfilerScope scope##__LINE__(Name)	
+		TDE2_BUILTIN_PROFILER_EVENT(Name)	
 #else
 	#define TDE2_PROFILER_SCOPE(Name)				\
-		CProfilerScope scope##__LINE__(Name)	
+		TDE2_BUILTIN_PROFILER_EVENT(Name)	
 #endif
 }

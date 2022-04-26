@@ -565,7 +565,7 @@ namespace TDEngine2
 #define TDE2_UNIMPLEMENTED()												\
 	do {																	\
 		std::cerr << "The feature is not implemented yet" << std::endl;		\
-		abort();															\
+		AssertImpl();														\
 	}																		\
 	while (0)
 

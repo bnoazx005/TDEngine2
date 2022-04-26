@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.38] 2022-04-25
+## [0.5.38] 2022-04-26
 
 ### Fixed
 
@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update **install.sh** file. Add zlib's dependencies installation command.
 
 - Fix compilation under UNIX with gcc toolchain.
+
+### Changed
+
+- A new config macro was introduced which is **TDE2_BUILTIN_PERF_PROFILER_ENABLED**. **CPerfProfiler** is now disabled by default.
 
 ## [0.5.37] 2022-04-19
 
