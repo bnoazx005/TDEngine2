@@ -103,6 +103,10 @@ namespace TDEngine2
 					return result;
 				}
 				break;
+	#elif defined(TDE2_USE_UNIXPLATFORM)
+			case GCGT_DIRECT3D11:
+				TDE2_UNREACHABLE();
+				break;
 	#endif
 			case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
 	#if defined (TDE2_USE_WINPLATFORM)
@@ -129,6 +133,7 @@ namespace TDEngine2
 				return result;
 
 			default:
+				TDE2_UNREACHABLE();
 				return RC_FAIL;
 		}
 

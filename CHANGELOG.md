@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new config macro was introduced which is **TDE2_BUILTIN_PERF_PROFILER_ENABLED**. **CPerfProfiler** is now disabled by default.
 
+- **AssertImpl** was reimplemented to support messages output.
+
 ## [0.5.37] 2022-04-19
 
 ### Added

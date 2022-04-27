@@ -389,8 +389,13 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API void AssertImpl()
+	TDE2_API void AssertImpl(const C8* message, const C8* file, I32 line)
 	{
+		if (message)
+		{
+			LOG_ERROR(Wrench::StringUtils::Format("{0}, {1}:{2}", message, file, line));
+		}
+
 		LOG_ERROR(GetStackTrace());
 		debug_break();
 	}

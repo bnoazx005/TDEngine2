@@ -557,16 +557,18 @@ namespace TDEngine2
 	};
 
 
+	TDE2_API void AssertImpl(const C8* message, const C8* file, I32 line);
+
+
 	/*!
 		\brief The following macro is used to mark some features as unimplemented. The invocations
 		of the macro will cause interruption of execution's process
 	*/
 
-#define TDE2_UNIMPLEMENTED()												\
-	do {																	\
-		std::cerr << "The feature is not implemented yet" << std::endl;		\
-		AssertImpl();														\
-	}																		\
+#define TDE2_UNIMPLEMENTED()													\
+	do {																		\
+		AssertImpl("The feature is not implemented yet", __FILE__, __LINE__);	\
+	}																			\
 	while (0)
 
 
@@ -576,8 +578,7 @@ namespace TDEngine2
 
 #define TDE2_UNREACHABLE()													\
 	do {																	\
-		std::cerr << "Unreachable code was executed" << std::endl;			\
-		AssertImpl();														\
+		AssertImpl("Unreachable code was executed", __FILE__, __LINE__);	\
 	}																		\
 	while (0)
 
@@ -661,10 +662,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API void AssertImpl();
-
 #if defined (TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-	#define TDE2_ASSERT(expression) do { if (!(expression)) { AssertImpl(); } } while(0)
+	#define TDE2_ASSERT(expression) do { if (!(expression)) { AssertImpl(nullptr, nullptr, -1); } } while(0)
 #else
 	#define TDE2_ASSERT(expression) 
 #endif
