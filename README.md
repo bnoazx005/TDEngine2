@@ -2,10 +2,7 @@
 
 TDEngine 2 is a cross-platform game engine.
 
-| Platform (Compiler) | Build status  |
-|--|--|
-| Win32 (Visual Studio 2017) |[![Build status](https://ci.appveyor.com/api/projects/status/dyp34r05yfxii09m?svg=true)](https://ci.appveyor.com/project/bnoazx005/tdengine2) |
-| UNIX (g++ / clang) |[![Build Status](https://travis-ci.org/bnoazx005/TDEngine2.svg?branch=master)](https://travis-ci.org/bnoazx005/TDEngine2) |
+Build status (for all platforms): [![TDEngine2 SDK Build](https://github.com/bnoazx005/TDEngine2/actions/workflows/main.yml/badge.svg)](https://github.com/bnoazx005/TDEngine2/actions/workflows/main.yml)
 
 
 ## Table of contents
@@ -26,13 +23,7 @@ TDEngine 2 is a cross-platform game engine.
 
 * Android OS support;
 
-* 2D and 3D graphics support via Direct3D 11 and OpenGL 3.3 (with extensions) GAPIs;
-
 * Effective memory management (in future);
-
-* Extensibility, Modularity and plugins support;
-
-* Toolset (including resource editor, scene editor, exporters and etc) (in future).
 
 ***
 
@@ -48,9 +39,11 @@ TDEngine 2 is a cross-platform game engine.
 
 * 3D static and skinned meshes rendering with different configurable materials;
 
-* Support of particle effects, animations with custom editors
+* Support of particle effects, animations with custom editors;
 
-* Scene management with support of asynchronous loading of scenes and assets
+* Scene management with support of asynchronous loading of scenes and assets;
+
+* Toolchain that includes mesh converter, packages/fonts/atlases/particles editors;
 
 ***
 
@@ -62,7 +55,7 @@ platforms.
 
 #### Visual Studio (Win32)<a name="vs-win32"></a>
 
-For now we support only Visual Studio 2017 and higher versions.
+For now we support Visual Studio 2017 and higher versions.
 
 To build all the projects use scripts that were specially prepared for that tasks. For Windows users there are
 two batch scripts **prepare_build_generic_win.bat** and **prepare_build_vs2017_win32.bat**. The first one is common 
