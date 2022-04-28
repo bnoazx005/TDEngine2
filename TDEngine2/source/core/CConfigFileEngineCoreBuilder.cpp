@@ -50,28 +50,48 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TFileEntryId configFileHandle = mpFileSystemInstance->Open<IConfigFileReader>(mGameUserSettingsFilepath, false).Get();
+		/// \note Load application settings
+		auto loadConfigFileResult = mpFileSystemInstance->Open<IConfigFileReader>(mGameUserSettingsFilepath, false);
 
-		/// \note Read user's settings
-		if (IConfigFileReader* pConfigFileReader = mpFileSystemInstance->Get<IConfigFileReader>(configFileHandle))
+		if (loadConfigFileResult.IsOk())
 		{
-			if (RC_OK != (result = CGameUserSettings::Get()->Init(pConfigFileReader)))
-			{
-				return result;
-			}
+			TFileEntryId configFileHandle = loadConfigFileResult.Get();
 
-			pConfigFileReader->Close();
+			/// \note Read user's settings
+			if (IConfigFileReader* pConfigFileReader = mpFileSystemInstance->Get<IConfigFileReader>(configFileHandle))
+			{
+				if (RC_OK != (result = CGameUserSettings::Get()->Init(pConfigFileReader)))
+				{
+					return result;
+				}
+
+				pConfigFileReader->Close();
+			}
+		}
+		else
+		{
+			LOG_WARNING(Wrench::StringUtils::Format("[CConfigFileEngineCoreBuilder] The config file {0} wasn't found, use default settings instead...", mGameUserSettingsFilepath));
 		}
 
-		TFileEntryId projectSettingsFileHandle = mpFileSystemInstance->Open<IYAMLFileReader>(mProjectConfigFilepath, false).Get();
-
-		/// \note Read project's settings
-		if (IArchiveReader* pProjectSettingsReader = mpFileSystemInstance->Get<IYAMLFileReader>(projectSettingsFileHandle))
+		/// \note Load project settings
+		auto loadProjectSettingsResult = mpFileSystemInstance->Open<IYAMLFileReader>(mProjectConfigFilepath, false);
+		
+		if (loadProjectSettingsResult.IsOk())
 		{
-			if (RC_OK != (result = CProjectSettings::Get()->Init(pProjectSettingsReader)))
+			TFileEntryId projectSettingsFileHandle = loadProjectSettingsResult.Get();
+
+			/// \note Read project's settings
+			if (IArchiveReader* pProjectSettingsReader = mpFileSystemInstance->Get<IYAMLFileReader>(projectSettingsFileHandle))
 			{
-				return result;
+				if (RC_OK != (result = CProjectSettings::Get()->Init(pProjectSettingsReader)))
+				{
+					return result;
+				}
 			}
+		}
+		else
+		{
+			LOG_WARNING(Wrench::StringUtils::Format("[CConfigFileEngineCoreBuilder] The project config file {0} wasn't found, use default settings instead...", mProjectConfigFilepath));
 		}
 
 		return RC_OK;

@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **AssertImpl** was reimplemented to support messages output.
 
+- (Fixed issue #81) Now all applications can use default parameters if there is no configuration file at working directory.
+
 ## [0.5.37] 2022-04-19
 
 ### Added

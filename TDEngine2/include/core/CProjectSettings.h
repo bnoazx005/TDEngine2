@@ -43,7 +43,11 @@ namespace TDEngine2
 		public:
 			struct
 			{
+#if defined(TDE2_USE_UNIXPLATFORM)
+				E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType = E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X;
+#else
 				E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType = E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11;
+#endif
 
 				struct
 				{

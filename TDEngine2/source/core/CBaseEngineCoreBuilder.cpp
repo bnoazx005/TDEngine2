@@ -163,6 +163,7 @@ namespace TDEngine2
 
 			if (result != RC_OK)
 			{
+				LOG_ERROR("[CBaseEngineCoreBuilder] FmodAudioContext's loading failed. Audio components won't be available at runtime");
 				return result;
 			}
 			break;
@@ -563,7 +564,7 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType : E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_UNKNOWN));
 		
-		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioContextType)); }
+		if (isWindowModeEnabled) { _configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioContextType); }
 		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureInputContext()); }
 		
 		PANIC_ON_FAILURE(_configureSceneManager());
