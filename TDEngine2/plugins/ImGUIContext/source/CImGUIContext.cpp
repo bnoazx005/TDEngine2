@@ -111,8 +111,10 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+#if defined(TDE2_USE_UNIXPLATFORM)
 		mpIOContext->BackendPlatformName = "UnixPlatform";
-		TDE2_UNIMPLEMENTED();
+
+#endif
 
 		return RC_OK;
 	}

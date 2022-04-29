@@ -69,7 +69,7 @@ fi
 
 
 # Install FMOD's libraries
-pushd "../TDEngine2/plugins/FmodAudioContext/deps/fmod/lib/unix_libs/"
+#pushd "../TDEngine2/plugins/FmodAudioContext/deps/fmod/lib/linux/"
 
 # sudo dpkg -i fmodstudio.deb
 
@@ -78,14 +78,21 @@ pushd "../TDEngine2/plugins/FmodAudioContext/deps/fmod/lib/unix_libs/"
 # 	goto finalize
 # fi
 
-sudo cp api/core/lib/x86_64/* /usr/lib/
+#tar -xzf fmodstudioapi20206linux.tar.gz
 
-if [ $? -ne 0 ]; then
-	pause
-	exit $?
-fi
+#sudo cp ./fmodstudioapi20206linux/api/core/lib/x86_64/*so /usr/local/lib/
+#sudo cp ./fmodstudioapi20206linux/api/studio/lib/x86_64/*so /usr/local/lib/
+#sudo cp ./fmodstudioapi20206linux/api/fsbank/lib/x86_64/*so /usr/local/lib/
 
-popd
+#rm -r fmodstudioapi20206linux
+#rm fmodstudioapi20206linux.tar.gz
+
+#if [ $? -ne 0 ]; then
+#	pause
+#	exit $?
+#fi
+
+#popd
 
 if [ $? -ne 0 ]; then
 	pause
@@ -107,7 +114,7 @@ fi
 sh ./run_codegeneration.sh
 
 
-cmake -G "$GENERATOR_NAME" -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DUSE_EXTERNAL_BULLET_LIBRARY=$TDE2_USE_INSTALLED_BULLET -DUSE_EXTERNAL_ZLIB_LIBRARY=$TDE2_USE_INSTALLED_ZLIB -DCMAKE_BUILD_TYPE=$1  .. && cmake --build . --config $1
+cmake -G "$GENERATOR_NAME" -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DBUILD_FMOD_AUDIO_CTX_PLUGIN=OFF -DUSE_EXTERNAL_BULLET_LIBRARY=$TDE2_USE_INSTALLED_BULLET -DUSE_EXTERNAL_ZLIB_LIBRARY=$TDE2_USE_INSTALLED_ZLIB -DCMAKE_BUILD_TYPE=$1  .. && cmake --build . --config $1
 
 if [ $? -ne 0 ]; then
 	pause

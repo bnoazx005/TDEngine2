@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.38] 2022-04-26
+## [0.5.39] 2022-04-29
+
+### Fixed
+
+- **FMOD** libraries for UNIX were removed from ~FMODAudioContext~ plugin's directory. **FMODAudioContext** plugin's compilation is disabled now for UNIX platforms.
+You should build it manually with installed FMOD libraries earlier.
+
+## [0.5.38] 2022-04-28
 
 ### Fixed
 
