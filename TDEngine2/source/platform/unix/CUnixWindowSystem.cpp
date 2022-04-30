@@ -102,9 +102,7 @@ namespace TDEngine2
 		}
 
 		XSelectInput(mpDisplayHandler, mWindowHandler, StructureNotifyMask | KeyPressMask | KeyReleaseMask);
-
 		XClearWindow(mpDisplayHandler, mWindowHandler);	// clear the window
-
 		XMapWindow(mpDisplayHandler, mWindowHandler); // and display it
 
 		_setFullscreenMode(mSetupFlags & P_FULLSCREEN);
@@ -269,8 +267,10 @@ namespace TDEngine2
 
 	TRectU32 CUnixWindowSystem::GetClientRect() const
 	{
-		TDE2_UNIMPLEMENTED();
-		return { 0, 0, 0, 0 };
+		XWindowAttributes windowAttributes;
+		XGetWindowAttributes(mpDisplayHandler, mRootWindowHandler, &windowAttributes);
+
+		return { static_cast<U32>(windowAttributes.x), static_cast<U32>(windowAttributes.y), windowAttributes.width, windowAttributes.height };
 	}
 
 #if TDE2_EDITORS_ENABLED

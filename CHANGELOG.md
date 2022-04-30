@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.39] 2022-04-29
+## [0.5.39] 2022-04-30
 
 ### Fixed
 
@@ -17,6 +17,8 @@ You should build it manually with installed FMOD libraries earlier.
 ### Added
 
 - **CUnixFileSystem::GetUserDirectory** and **CUnixFileSystem::GetApplicationDataPath** have got their implementations.
+
+- **CUnixWindowSystem::GetClientRect**'s got implementation.
 
 ## [0.5.38] 2022-04-28
 
