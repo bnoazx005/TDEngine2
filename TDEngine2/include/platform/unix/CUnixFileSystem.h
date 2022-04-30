@@ -48,6 +48,9 @@ namespace TDEngine2
 			TDE2_API const C8& GetAltPathSeparatorChar() const override;
 
 			/*!
+				\brief Under Linux the method returns path to /var/lib/appname directory. If there is no
+				specified directory creates one
+
 				\return The method returns a path to application data directory
 			*/
 

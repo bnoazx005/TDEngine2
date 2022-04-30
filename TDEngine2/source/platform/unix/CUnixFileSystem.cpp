@@ -1,8 +1,16 @@
 #include "./../../../include/platform/unix/CUnixFileSystem.h"
 #include "./../../../include/core/IFile.h"
 #include "./../../../include/platform/CTextFileReader.h"
+#include "../../../include/core/CProjectSettings.h"
 #include "stringUtils.hpp"
 #include <algorithm>
+#include <ctype.h>
+
+#if defined(TDE2_USE_UNIXPLATFORM)
+#include <unistd.h>
+#include <sys/stat.h>
+#endif
+
 #if _HAS_CXX17
 #include <filesystem>
 #else
@@ -25,14 +33,25 @@ namespace TDEngine2
 
 	std::string CUnixFileSystem::GetApplicationDataPath() const
 	{
-		TDE2_UNIMPLEMENTED();
+		std::string appIdentifier = CProjectSettings::Get()->mCommonSettings.mApplicationName;
+		std::transform(appIdentifier.begin(), appIdentifier.end(), appIdentifier.begin(), [](C8 c) { return std::tolower(c); });
+
+		std::string appDataDirectoryStr = Wrench::StringUtils::Format("/var/lib/{0}/", appIdentifier);
+
+#if defined(TDE2_USE_UNIXPLATFORM)
+		I32 status = mkdir(appDataDirectoryStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#else
 		return Wrench::StringUtils::GetEmptyStr();
+#endif
 	}
 
 	std::string CUnixFileSystem::GetUserDirectory() const
 	{
-		TDE2_UNIMPLEMENTED();
+#if defined(TDE2_USE_UNIXPLATFORM)
+		return std::string(getenv("HOME"));
+#else
 		return Wrench::StringUtils::GetEmptyStr();
+#endif
 	}
 
 	

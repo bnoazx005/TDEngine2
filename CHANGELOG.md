@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **FMOD** libraries for UNIX were removed from ~FMODAudioContext~ plugin's directory. **FMODAudioContext** plugin's compilation is disabled now for UNIX platforms.
 You should build it manually with installed FMOD libraries earlier.
 
+### Added
+
+- **CUnixFileSystem::GetUserDirectory** and **CUnixFileSystem::GetApplicationDataPath** have got their implementations.
+
 ## [0.5.38] 2022-04-28
 
 ### Fixed
