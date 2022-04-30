@@ -14,8 +14,10 @@ Build status (for all platforms): [![TDEngine2 SDK Build](https://github.com/bno
     ### 3.1 [Visual Studio (Win32)](#vs-win32)
 
     ### 3.2 [Make Utility (UNIX)](#make-unix)
-    
-4. ### [Getting Started](#getting-started)
+ 
+4. ### [Dependencies](#dependencies)
+
+5. ### [Getting Started](#getting-started)
 
 ***
 
@@ -72,6 +74,16 @@ After execution all binaries and libraries will be available under /bin/%CONFIGU
 
 #### Make utility (UNIX)<a name="make-unix"></a>
 
+**IMPORTANT NOTE!** Starting from 0.5.39 version of the engine FMOD's binaries for UNIX platforms is excluded. This also means that **FMODAudioContext**'s compilation is disabled by default for now. So if you already have installed FMOD binaries you can turn this back on via fixing **prepare_build_generic_unix.sh** file.
+```console
+# replace this argument
+-DBUILD_FMOD_AUDIO_CTX_PLUGIN=OFF
+# with this one
+-DBUILD_FMOD_AUDIO_CTX_PLUGIN=ON
+```
+
+To install FMOD libraries you can follow instructions in great article for Debian OS https://wiki.debian.org/FMOD. For Ubuntu it works the same but be sure you copy correct versions of the binaries.
+
 Under UNIX platform you have an option to build the project using make utility. As described above you
 need firstly generate Makefile with CMake. The process looks the same, but another CMake's generator
 is used:
@@ -92,6 +104,12 @@ _**\<\<Build Type\>\>**_ argument can equal either to **Debug** or **Release**.
 Note. There are a few requirements for successfull compilation of the engine under UNIX. The first is
 a support of GLX 1.4. It could be done if you have proprietary video drivers installed on your system.
 So your video card should support at least OpenGL 3.0. The second is installed X11 and GLEW libraries.
+
+***
+
+### Dependencies<a name="dependencies"></a>
+
+* 
 
 ***
 
