@@ -83,4 +83,8 @@ if (MSVC)
 	target_link_libraries(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC ${FMOD_CORE_LIBS} ${FMOD_STUDIO_LIBS})
 endif()
 
+if (UNIX)
+	target_link_libraries(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC fmod fmodstudio)
+endif()
+
 target_include_directories(${FMOD_AUDIO_CONTEXT_LIBRARY_NAME} PUBLIC "${FMOD_INCLUDES_DIRECTORY}core/" "${FMOD_INCLUDES_DIRECTORY}studio/")
