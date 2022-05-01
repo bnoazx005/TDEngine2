@@ -109,7 +109,35 @@ So your video card should support at least OpenGL 3.0. The second is installed X
 
 ### Dependencies<a name="dependencies"></a>
 
-* 
+* Argparse (https://github.com/cofyc/argparse)
+
+* Backward-cpp (https://github.com/bombela/backward-cpp)
+
+* Box2D (https://github.com/erincatto)
+
+* Bullet3 (https://github.com/bulletphysics/bullet3)
+
+* Debugbreak (https://github.com/scottt/debugbreak)
+
+* GLEW (http://glew.sourceforge.net/)
+
+* Dear ImGUI (https://github.com/ocornut/imgui)
+
+* Optick (https://github.com/bombomby/optick)
+
+* Rapidcsv (https://github.com/d99kris/rapidcsv)
+
+* STB libraries (https://github.com/nothings/stb)
+
+* tcpp (https://github.com/bnoazx005/tcpp)
+
+* Wrench (https://github.com/bnoazx005/wrench)
+
+* mini-yaml (https://github.com/jimmiebergmann/mini-yaml)
+
+* zlib (https://zlib.net/)
+
+* Assimp (used only by tde2_mesh_converter utility) (https://github.com/assimp/assimp)
 
 ***
 
