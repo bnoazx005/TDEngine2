@@ -6,6 +6,9 @@
 using namespace TDEngine2;
 
 
+static const std::string DefaultSpriteId = "ProjectTextures/DefaultSprite.tga";
+
+
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
@@ -52,14 +55,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pMeshTransform->SetPosition({ 0.0f, -0.2f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
 	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
-	pMeshContainer->SetMeshName("scene.mesh");
+	pMeshContainer->SetMeshName("ProjectModels/scene.mesh");
 	
 #if 0 // LODs test
-	pMeshContainer->SetMeshName("LOD_test.mesh");
+	pMeshContainer->SetMeshName("ProjectModels/LOD_test.mesh");
 	if (auto lodStrategy = pMeshEntity->AddComponent<CLODStrategyComponent>())
 	{
-		lodStrategy->AddLODInstance({ 5.0f, "LOD_test.mesh", "Cube", "ProjectMaterials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
-		lodStrategy->AddLODInstance({ 10.0f, "LOD_test.mesh", "Cube_LOD", "ProjectMaterials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
+		lodStrategy->AddLODInstance({ 5.0f, "ProjectModels/LOD_test.mesh", "Cube", "ProjectMaterials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
+		lodStrategy->AddLODInstance({ 10.0f, "ProjectModels/LOD_test.mesh", "Cube_LOD", "ProjectMaterials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
 	}
 #endif
 #if 0
@@ -125,7 +128,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 
 #if 0
-		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene.scene", true))
+		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("ProjectScenes/TestScene.scene", true))
 		{
 			if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
 			{
@@ -162,7 +165,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 #if 0 // TEST_CODE for binary archive writer
-		if (auto result = mpFileSystem->Open<IBinaryArchiveWriter>("TestArchive.bin", true))
+		if (auto result = mpFileSystem->Open<IBinaryArchiveWriter>("Misc/TestArchive.bin", true))
 		{
 			if (IBinaryArchiveWriter* pArchiveWriter = mpFileSystem->Get<IBinaryArchiveWriter>(result.Get()))
 			{
@@ -189,7 +192,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 #if 0 // TEST_CODE for binary archive reader
-		if (auto result = mpFileSystem->Open<IBinaryArchiveReader>("TestArchive.bin", true))
+		if (auto result = mpFileSystem->Open<IBinaryArchiveReader>("Misc/TestArchive.bin", true))
 		{
 			if (IBinaryArchiveReader* pArchiveReader = mpFileSystem->Get<IBinaryArchiveReader>(result.Get()))
 			{
@@ -218,7 +221,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 #if 1 // note Test hierarchy of entities
-		pSceneManager->LoadSceneAsync("TestScene.scene", [pSceneManager, this](auto)
+		pSceneManager->LoadSceneAsync("ProjectScenes/TestScene.scene", [pSceneManager, this](auto)
 		{
 			int x = 0;
 
@@ -240,7 +243,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			if (auto pAnimationContainer = pSpriteGroup->AddComponent<CAnimationContainerComponent>())
 			{
-				pAnimationContainer->SetAnimationClipId("Animation2.animation");
+				pAnimationContainer->SetAnimationClipId("ProjectAnimations/Animation2.animation");
 			}
 
 			pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
@@ -303,9 +306,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
 						}
 
-						if (auto pImage = pEntity->AddComponent<CImage>())
+						if (auto pImage = pEntity->AddComponent<C9SliceImage>())
 						{
-							pImage->SetImageId("Tim.tga");
+							pImage->SetLeftXSlicer(0.25f);
+							pImage->SetRightXSlicer(0.75f);
+							pImage->SetBottomYSlicer(0.25f);
+							pImage->SetTopYSlicer(0.75f);
+
+							pImage->SetImageId(DefaultSpriteId);
 						}
 
 						pEntity->AddComponent<CInputReceiver>();
@@ -324,9 +332,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
 						}
 
-						if (auto pImage = pEntity->AddComponent<CImage>())
+						if (auto pImage = pEntity->AddComponent<C9SliceImage>())
 						{
-							pImage->SetImageId("Tim.tga");
+							pImage->SetLeftXSlicer(0.25f);
+							pImage->SetRightXSlicer(0.75f);
+							pImage->SetBottomYSlicer(0.25f);
+							pImage->SetTopYSlicer(0.75f);
+
+							pImage->SetImageId(DefaultSpriteId);
 						}
 
 						pEntity->AddComponent<CInputReceiver>();
@@ -345,9 +358,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
 						}
 
-						if (auto pImage = pEntity->AddComponent<CImage>())
+						if (auto pImage = pEntity->AddComponent<C9SliceImage>())
 						{
-							pImage->SetImageId("Tim.tga");
+							pImage->SetLeftXSlicer(0.25f);
+							pImage->SetRightXSlicer(0.75f);
+							pImage->SetBottomYSlicer(0.25f);
+							pImage->SetTopYSlicer(0.75f);
+
+							pImage->SetImageId(DefaultSpriteId);
 						}
 
 						pEntity->AddComponent<CInputReceiver>();
@@ -366,9 +384,14 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 							//pLayoutElement->SetMaxOffset(TVector2(150.0f));
 						}
 
-						if (auto pImage = pEntity->AddComponent<CImage>())
+						if (auto pImage = pEntity->AddComponent<C9SliceImage>())
 						{
-							pImage->SetImageId("Tim.tga");
+							pImage->SetLeftXSlicer(0.25f);
+							pImage->SetRightXSlicer(0.75f);
+							pImage->SetBottomYSlicer(0.25f);
+							pImage->SetTopYSlicer(0.75f);
+
+							pImage->SetImageId(DefaultSpriteId);
 						}
 
 						pEntity->AddComponent<CInputReceiver>();
@@ -392,7 +415,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 						if (auto pImage = pEntity->AddComponent<CImage>())
 						{
-							pImage->SetImageId("Tim.tga");
+							pImage->SetImageId(ButtonTextureId);
 						}
 
 						pEntity->AddComponent<CInputReceiver>();
@@ -442,7 +465,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 				if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
 				{
-					const std::string meshName = "TestAnim2";
+					const std::string meshName = "ProjectModels/TestAnim2";
 
 					pMeshContainer->SetMaterialName("ProjectMaterials/DefaultSkinningMaterial.material");
 					pMeshContainer->SetMeshName(meshName + ".mesh");
@@ -471,7 +494,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}*/
 		});
 #else
-		pSceneManager->LoadSceneAsync("TestScene2.scene", nullptr);
+		pSceneManager->LoadSceneAsync("ProjectScenes/TestScene2.scene", nullptr);
 #endif
 
 	}
@@ -480,7 +503,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	
 	auto s = mpFileSystem->GetUserDirectory();
 
-	if (auto pPackage = mpFileSystem->Get<IPackageFileReader>(mpFileSystem->Open<IPackageFileReader>("NewArchive.pak").Get()))
+	if (auto pPackage = mpFileSystem->Get<IPackageFileReader>(mpFileSystem->Open<IPackageFileReader>("Misc/NewArchive.pak").Get()))
 	{
 		auto data = pPackage->ReadFileBytes("test.txt");
 	}
@@ -659,6 +682,10 @@ E_RESULT_CODE CCustomEngineListener::_mountResourcesDirectories()
 	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Shaders/" + shaderLangSubdirectory, "ProjectShaders/");
 	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Materials/", "ProjectMaterials/");
 	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Textures/", "ProjectTextures/");
+	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Scenes/", "ProjectScenes/");
+	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Models/", "ProjectModels/");
+	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Misc/", "Misc/");
+	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Animations/", "ProjectAnimations/");
 
 	return result;
 }

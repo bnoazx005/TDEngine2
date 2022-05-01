@@ -1,0 +1,296 @@
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 5.000000
+              y: 10.000000
+              z: 0.000000
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            type_id: 114296622
+      id: 16
+      name: DirectionalLight
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 4.131809
+              y: 3.633381
+              z: 9.559008
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 0.000000
+              r: 0.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 17
+      name: Entity0
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 1.775475
+              y: 0.711692
+              z: 4.620808
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 1.000000
+              r: 0.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 18
+      name: Entity1
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 4.035676
+              y: 1.048006
+              z: 7.796564
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 0.000000
+              g: 1.000000
+              r: 0.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 19
+      name: Entity2
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 4.977569
+              y: 4.998474
+              z: 6.114994
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 0.000000
+              g: 0.000000
+              r: 1.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 20
+      name: Entity3
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: "-0.136509"
+              y: 1.486404
+              z: 8.401441
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 0.000000
+              g: 1.000000
+              r: 0.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 21
+      name: Entity4
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 0.631062
+              y: 0.463118
+              z: 6.772058
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 0.000000
+              g: 1.000000
+              r: 0.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 22
+      name: Entity5
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: "-1.938475"
+              y: 4.593951
+              z: 2.758873
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 1.000000
+              r: 1.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 23
+      name: Entity6
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 2.115360
+              y: 3.455916
+              z: 8.376110
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 0.000000
+              r: 1.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 24
+      name: Entity7
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 1.394574
+              y: 1.026795
+              z: 7.437361
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 0.000000
+              g: 1.000000
+              r: 1.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 25
+      name: Entity8
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 1.205725
+              y: 4.745781
+              z: 7.444380
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 1.000000
+              b: 0.000000
+              g: 1.000000
+              r: 1.000000
+            material: ProjectMaterials/NewMaterial.material
+            type_id: 3076350794
+      id: 26
+      name: Entity9
+name: Test
+scene_properties: 
+  is_main: 0
+version: 0

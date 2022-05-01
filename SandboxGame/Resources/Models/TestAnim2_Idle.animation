@@ -1,0 +1,424 @@
+duration: 10.000000
+meta: 
+  "resource-type": "animation-clip"
+  "version-tag": 1
+tracks: 
+  - track: 
+      interpolation_mode: 1
+      keys: 
+        - key: 
+            time: 0.000000
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 1.111111
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 2.222222
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 3.333333
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 4.444445
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 5.555555
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 6.666667
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 7.777778
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 8.888889
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+        - key: 
+            time: 10.000000
+            value: 
+              x: "-0.009714"
+              y: 0.638265
+      name: track_pos_1
+      property_binding: mesh_animator.joint_Bone001.position
+      type_id: 2733792739
+  - track: 
+      interpolation_mode: 1
+      keys: 
+        - key: 
+            time: 0.000000
+            value: 
+              w: 0.923999
+              z: 0.382395
+        - key: 
+            time: 1.111111
+            value: 
+              w: 0.917293
+              z: 0.398213
+        - key: 
+            time: 2.222222
+            value: 
+              w: 0.889831
+              z: 0.456290
+        - key: 
+            time: 3.333333
+            value: 
+              w: 0.831591
+              z: 0.555388
+        - key: 
+            time: 4.444445
+            value: 
+              w: 0.760163
+              z: 0.649732
+        - key: 
+            time: 5.555555
+            value: 
+              w: 0.724847
+              z: 0.688910
+        - key: 
+            time: 6.666667
+            value: 
+              w: 0.760908
+              z: 0.648860
+        - key: 
+            time: 7.777778
+            value: 
+              w: 0.828831
+              z: 0.559498
+        - key: 
+            time: 8.888889
+            value: 
+              w: 0.876109
+              z: 0.482113
+        - key: 
+            time: 10.000000
+            value: 
+              w: 0.891388
+              z: 0.453241
+      name: track_rot_1
+      property_binding: mesh_animator.joint_Bone001.rotation
+      type_id: 3736494403
+  - track: 
+      interpolation_mode: 1
+      keys: 
+        - key: 
+            time: 0.000000
+            value: 
+              x: 1.018250
+        - key: 
+            time: 1.111111
+            value: 
+              x: 1.018251
+        - key: 
+            time: 2.222222
+            value: 
+              x: 1.018250
+        - key: 
+            time: 3.333333
+            value: 
+              x: 1.018250
+        - key: 
+            time: 4.444445
+            value: 
+              x: 1.018251
+        - key: 
+            time: 5.555555
+            value: 
+              x: 1.018250
+        - key: 
+            time: 6.666667
+            value: 
+              x: 1.018250
+        - key: 
+            time: 7.777778
+            value: 
+              x: 1.018250
+        - key: 
+            time: 8.888889
+            value: 
+              x: 1.018250
+        - key: 
+            time: 10.000000
+            value: 
+              x: 1.018250
+      name: track_pos_2
+      property_binding: mesh_animator.joint_Bone002.position
+      type_id: 2733792739
+  - track: 
+      interpolation_mode: 1
+      keys: 
+        - key: 
+            time: 0.000000
+            value: 
+              w: 0.689412
+              z: 0.724369
+        - key: 
+            time: 1.111111
+            value: 
+              w: 0.661389
+              z: 0.750043
+        - key: 
+            time: 2.222222
+            value: 
+              w: 0.609994
+              z: 0.792406
+        - key: 
+            time: 3.333333
+            value: 
+              w: 0.583158
+              z: 0.812359
+        - key: 
+            time: 4.444445
+            value: 
+              w: 0.593095
+              z: 0.805132
+        - key: 
+            time: 5.555555
+            value: 
+              w: 0.605900
+              z: 0.795541
+        - key: 
+            time: 6.666667
+            value: 
+              w: 0.601188
+              z: 0.799108
+        - key: 
+            time: 7.777778
+            value: 
+              w: 0.615396
+              z: 0.788218
+        - key: 
+            time: 8.888889
+            value: 
+              w: 0.675458
+              z: 0.737398
+        - key: 
+            time: 10.000000
+            value: 
+              w: 0.754239
+              z: 0.656600
+      name: track_rot_2
+      property_binding: mesh_animator.joint_Bone002.rotation
+      type_id: 3736494403
+  - track: 
+      interpolation_mode: 1
+      keys: 
+        - key: 
+            time: 0.000000
+            value: 
+              x: 0.986815
+        - key: 
+            time: 1.111111
+            value: 
+              x: 0.986815
+        - key: 
+            time: 2.222222
+            value: 
+              x: 0.986815
+        - key: 
+            time: 3.333333
+            value: 
+              x: 0.986815
+        - key: 
+            time: 4.444445
+            value: 
+              x: 0.986815
+        - key: 
+            time: 5.555555
+            value: 
+              x: 0.986815
+        - key: 
+            time: 6.666667
+            value: 
+              x: 0.986815
+        - key: 
+            time: 7.777778
+            value: 
+              x: 0.986815
+        - key: 
+            time: 8.888889
+            value: 
+              x: 0.986815
+        - key: 
+            time: 10.000000
+            value: 
+              x: 0.986815
+      name: track_pos_3
+      property_binding: mesh_animator.joint_Bone003.position
+      type_id: 2733792739
+  - track: 
+      interpolation_mode: 1
+      keys: 
+        - key: 
+            time: 0.000000
+            value: 
+              w: 1.000000
+        - key: 
+            time: 1.111111
+            value: 
+              w: 1.000000
+        - key: 
+            time: 2.222222
+            value: 
+              w: 1.000000
+        - key: 
+            time: 3.333333
+            value: 
+              w: 1.000000
+        - key: 
+            time: 4.444445
+            value: 
+              w: 1.000000
+        - key: 
+            time: 5.555555
+            value: 
+              w: 1.000000
+        - key: 
+            time: 6.666667
+            value: 
+              w: 1.000000
+        - key: 
+            time: 7.777778
+            value: 
+              w: 1.000000
+        - key: 
+            time: 8.888889
+            value: 
+              w: 1.000000
+        - key: 
+            time: 10.000000
+            value: 
+              w: 1.000000
+      name: track_rot_3
+      property_binding: mesh_animator.joint_Bone003.rotation
+      type_id: 3736494403
+  - track: 
+      interpolation_mode: 1
+      keys: 
+        - key: 
+            time: 0.000000
+            value: 
+              x: "-0.020268"
+              y: 2.020741
+        - key: 
+            time: 1.111111
+            value: 
+              x: "-0.113988"
+              y: 1.960510
+        - key: 
+            time: 2.222222
+            value: 
+              x: "-0.337474"
+              y: 1.816885
+        - key: 
+            time: 3.333333
+            value: 
+              x: "-0.604214"
+              y: 1.645460
+        - key: 
+            time: 4.444445
+            value: 
+              x: "-0.827700"
+              y: 1.501835
+        - key: 
+            time: 5.555555
+            value: 
+              x: "-0.921420"
+              y: 1.441605
+        - key: 
+            time: 6.666667
+            value: 
+              x: "-0.828342"
+              y: 1.523449
+        - key: 
+            time: 7.777778
+            value: 
+              x: "-0.606387"
+              y: 1.718616
+        - key: 
+            time: 8.888889
+            value: 
+              x: "-0.341473"
+              y: 1.951557
+        - key: 
+            time: 10.000000
+            value: 
+              x: "-0.119518"
+              y: 2.146724
+      name: track_pos_4
+      property_binding: mesh_animator.joint_IK Chain001.position
+      type_id: 2733792739
+  - track: 
+      interpolation_mode: 1
+      keys: 
+        - key: 
+            time: 0.000000
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 1.111111
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 2.222222
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 3.333333
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 4.444445
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 5.555555
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 6.666667
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 7.777778
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 8.888889
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+        - key: 
+            time: 10.000000
+            value: 
+              w: 0.707107
+              x: "-0.707107"
+      name: track_rot_4
+      property_binding: mesh_animator.joint_IK Chain001.rotation
+      type_id: 3736494403
+"wrap-mode": LOOP

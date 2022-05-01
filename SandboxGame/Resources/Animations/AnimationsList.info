@@ -1,0 +1,22 @@
+meta: 
+  "resource-type": "animations-import-info"
+  "version-tag": 1
+entities: 
+    - filepath : "TestAnim4.fbx"
+      animations:
+        - id : "TestAnim4_Idle.animation"
+          start: 0
+          end: 505
+          looped: true
+    - filepath: "TestAnim2.fbx"
+      animations:
+        - id : "TestAnim2_Idle.animation"
+          start: 0
+          end: 10
+          looped: true
+    - filepath: "TestAnim3.fbx"
+      animations:
+        - id : "TestAnim3_Idle.animation"
+          start: 0
+          end: 10
+          looped: true
