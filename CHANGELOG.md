@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.39] 2022-05-01
+## [0.5.39] 2022-05-02
 
 ### Fixed
 
@@ -21,6 +21,8 @@ You should build it manually with installed FMOD libraries earlier.
 - **CUnixWindowSystem::GetClientRect**'s got implementation.
 
 - Default resources for SandboxGame project.
+
+- The implementation of **CUnixWindowSystem::SaveFileDialog** and **CUnixWindowSystem::OpenFileDialog**.
 
 ## [0.5.38] 2022-04-28
 

@@ -5,9 +5,14 @@
 #include "../../../include/core/IEventManager.h"
 #include "../../../include/core/IImGUIContext.h"
 #include <cstring>
+#include <tuple>
 
 
 #if defined (TDE2_USE_UNIXPLATFORM)
+
+#include <sys/types>
+#include <unistd.h>
+
 
 namespace TDEngine2
 {
@@ -275,14 +280,94 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 
+	static TResult<std::tuple<std::string, I32>> ExecuteCommand(const std::string& command)
+	{
+		constexpr USIZE BufferSize = 256;
+		C8 buffer[BufferSize];
+
+		FILE* pPipe = popen(command.c_str(), "r");
+		if (!pPipe)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		std::string output;
+
+		while (!feof(pPipe))
+		{
+			// use buffer to read and add to result
+			if (fgets(buffer, BufferSize, pPipe))
+			{
+				output += buffer;
+			}
+		}
+
+		const I32 exitCode = pclose(pPipe);
+
+		return Wrench::TOkValue(std::tuple<std::string, I32>(output, exitCode));
+	}
+
+
+	static bool IsZenitySupported()
+	{
+		if (auto result = ExecuteCommand("which zenity"))
+		{
+			return std::get<I32>(result.Get());
+		}
+
+		return false;
+	}
+
+	static bool IsKDialogSupported()
+	{
+		if (auto result = ExecuteCommand("which kdialog"))
+		{
+			return std::get<I32>(result.Get());
+		}
+
+		return false;
+	}
+
+
+	static std::string GetFilterStr(const std::vector<std::tuple<std::string, std::string>>& filters)
+	{
+		// \fixme This doesn't work
+		return "";
+	}
+
+
 	TResult<std::string> CUnixWindowSystem::ShowOpenFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)
 	{
+		if (IsZenitySupported()) /// GNOME based dialog
+		{
+			/// filter in format filter (desc) | filter2 (desc) ... |
+			return Wrench::TOkValue("zenity --file-selection");
+		}
+
+		if (IsKDialogSupported()) /// KDE based dialog
+		{
+			/// filter in format filter (desc) | filter2 (desc) ... |
+			return Wrench::TOkValue("kdialog --getopenfilename . " + GetFilterStr(filters));
+		}
+
 		TDE2_UNIMPLEMENTED();
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
 	}
 
 	TResult<std::string> CUnixWindowSystem::ShowSaveFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)
 	{
+		if (IsZenitySupported()) /// GNOME based dialog
+		{
+			/// filter in format filter (desc) | filter2 (desc) ... |
+			return Wrench::TOkValue("zenity --file-selection --save");
+		}
+
+		if (IsKDialogSupported()) /// KDE based dialog
+		{
+			/// filter in format filter (desc) | filter2 (desc) ... |
+			return Wrench::TOkValue("kdialog --getsavefilename . " + GetFilterStr(filters));
+		}
+
 		TDE2_UNIMPLEMENTED();
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
 	}
