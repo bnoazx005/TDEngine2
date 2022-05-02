@@ -24,6 +24,8 @@ You should build it manually with installed FMOD libraries earlier.
 
 - The implementation of **CUnixWindowSystem::SaveFileDialog** and **CUnixWindowSystem::OpenFileDialog**.
 
+- **CUnixInputContext::SetOnCharInputCallback**'s got implementation.
+
 ## [0.5.38] 2022-04-28
 
 ### Fixed

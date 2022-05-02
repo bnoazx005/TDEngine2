@@ -9,6 +9,7 @@
 
 #include <core/IInputContext.h>
 #include <core/CBaseObject.h>
+#include <core/Event.h>
 #include <utils/Utils.h>
 
 
@@ -54,7 +55,7 @@ namespace TDEngine2
 		on Xlib API
 	*/
 
-	class CUnixInputContext : public IDesktopInputContext, public CBaseObject
+	class CUnixInputContext : public IDesktopInputContext, public CBaseObject, public IEventHandler
 	{
 		public:
 			friend TDE2_API IInputContext* CreateUnixInputContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
@@ -124,6 +125,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool IsMouseButtonUnpressed(U8 button) override;
+
+			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const override;
 
 			/*!
 				\brief The method returns a position of a cursor
@@ -214,6 +233,10 @@ namespace TDEngine2
 			U32                 mPrevMouseState;
 
 			U32                 mCurrMouseState;
+
+#if TDE2_EDITORS_ENABLED
+			TOnCharActionCallback mOnCharInputCallback;
+#endif
 	};
 }
 

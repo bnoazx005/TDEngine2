@@ -304,7 +304,7 @@ namespace TDEngine2
 
 		const I32 exitCode = pclose(pPipe);
 
-		return Wrench::TOkValue<std::tuple<std::string, I32>(std::tuple<std::string, I32>(output, exitCode));
+		return Wrench::TOkValue<std::tuple<std::string, I32>>(std::tuple<std::string, I32>(output, exitCode));
 	}
 
 
