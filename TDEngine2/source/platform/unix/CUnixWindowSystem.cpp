@@ -10,7 +10,7 @@
 
 #if defined (TDE2_USE_UNIXPLATFORM)
 
-#include <sys/types>
+#include <sys/types.h>
 #include <unistd.h>
 
 
@@ -304,7 +304,7 @@ namespace TDEngine2
 
 		const I32 exitCode = pclose(pPipe);
 
-		return Wrench::TOkValue(std::tuple<std::string, I32>(output, exitCode));
+		return Wrench::TOkValue<std::tuple<std::string, I32>(std::tuple<std::string, I32>(output, exitCode));
 	}
 
 
@@ -312,7 +312,7 @@ namespace TDEngine2
 	{
 		if (auto result = ExecuteCommand("which zenity"))
 		{
-			return std::get<I32>(result.Get());
+			return std::get<I32>(result.Get()) == 0;
 		}
 
 		return false;
@@ -322,7 +322,7 @@ namespace TDEngine2
 	{
 		if (auto result = ExecuteCommand("which kdialog"))
 		{
-			return std::get<I32>(result.Get());
+			return std::get<I32>(result.Get()) == 0;
 		}
 
 		return false;
@@ -341,13 +341,23 @@ namespace TDEngine2
 		if (IsZenitySupported()) /// GNOME based dialog
 		{
 			/// filter in format filter (desc) | filter2 (desc) ... |
-			return Wrench::TOkValue("zenity --file-selection");
+			if (auto result = ExecuteCommand("zenity --file-selection"))
+			{
+				return Wrench::TOkValue<std::string>(std::get<std::string>(result.Get()));
+			}
+
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		if (IsKDialogSupported()) /// KDE based dialog
 		{
 			/// filter in format filter (desc) | filter2 (desc) ... |
-			return Wrench::TOkValue("kdialog --getopenfilename . " + GetFilterStr(filters));
+			if (auto result = ExecuteCommand("kdialog --getopenfilename . " + GetFilterStr(filters)))
+			{
+				return Wrench::TOkValue<std::string>(std::get<std::string>(result.Get()));
+			}
+
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		TDE2_UNIMPLEMENTED();
@@ -359,13 +369,23 @@ namespace TDEngine2
 		if (IsZenitySupported()) /// GNOME based dialog
 		{
 			/// filter in format filter (desc) | filter2 (desc) ... |
-			return Wrench::TOkValue("zenity --file-selection --save");
+			if (auto result = ExecuteCommand("zenity --file-selection --save"))
+			{
+				return Wrench::TOkValue<std::string>(std::get<std::string>(result.Get()));
+			}
+
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		if (IsKDialogSupported()) /// KDE based dialog
 		{
 			/// filter in format filter (desc) | filter2 (desc) ... |
-			return Wrench::TOkValue("kdialog --getsavefilename . " + GetFilterStr(filters));
+			if (auto result = ExecuteCommand("kdialog --getsavefilename . " + GetFilterStr(filters)))
+			{
+				return Wrench::TOkValue<std::string>(std::get<std::string>(result.Get()));
+			}
+
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		TDE2_UNIMPLEMENTED();
