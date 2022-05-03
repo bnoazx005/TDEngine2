@@ -16,6 +16,8 @@ You should build it manually with installed FMOD libraries earlier.
 
 - An invalid order of timer's tick was fixed for **CUnixTimer**.
 
+- The invalid implementation of **CUnixWindowSystem::GetClientRect** was fixed.
+
 ### Added
 
 - **CUnixFileSystem::GetUserDirectory** and **CUnixFileSystem::GetApplicationDataPath** have got their implementations.

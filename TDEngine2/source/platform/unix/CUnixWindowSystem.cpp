@@ -276,7 +276,7 @@ namespace TDEngine2
 	TRectU32 CUnixWindowSystem::GetClientRect() const
 	{
 		XWindowAttributes windowAttributes;
-		XGetWindowAttributes(mpDisplayHandler, mRootWindowHandler, &windowAttributes);
+		XGetWindowAttributes(mpDisplayHandler, mWindowHandler, &windowAttributes);
 
 		return { static_cast<U32>(windowAttributes.x), static_cast<U32>(windowAttributes.y), windowAttributes.width, windowAttributes.height };
 	}
