@@ -121,9 +121,12 @@ namespace TDEngine2
 		{
 			_processEvents();
 
-			onFrameUpdate();
-
 			mpTimer->Tick();
+
+			if (onFrameUpdate)
+			{
+				onFrameUpdate();
+			}
 		}
 
 		LOG_MESSAGE("[UNIX Window System] The main loop's execution was interrupted");

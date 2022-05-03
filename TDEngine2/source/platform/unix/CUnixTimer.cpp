@@ -21,6 +21,9 @@ namespace TDEngine2
 		
 		mDeltaTime = 0.0f;
 
+		gettimeofday(&mCurrTime, NULL);
+		memcpy(&mPrevTime, &mCurrTime, sizeof(mCurrTime));
+
 		mIsInitialized = true;
 
 		return RC_OK;

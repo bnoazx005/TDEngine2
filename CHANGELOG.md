@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.39] 2022-05-02
+## [0.5.39] 2022-05-03
 
 ### Fixed
 
 - **FMOD** libraries for UNIX were removed from ~FMODAudioContext~ plugin's directory. **FMODAudioContext** plugin's compilation is disabled now for UNIX platforms.
 You should build it manually with installed FMOD libraries earlier.
+
+- An invalid order of timer's tick was fixed for **CUnixTimer**.
 
 ### Added
 
