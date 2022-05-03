@@ -44,6 +44,9 @@ namespace TDEngine2
 
 		mpEventManager = pEventManager;
 
+		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this); 
+		mpEventManager->Subscribe(TOnWindowMoved::GetTypeId(), this);
+
 		mpDisplayHandler = XOpenDisplay(nullptr);
 
 		if (!mpDisplayHandler)
