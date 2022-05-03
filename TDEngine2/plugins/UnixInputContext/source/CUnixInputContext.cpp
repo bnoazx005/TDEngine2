@@ -1,5 +1,6 @@
 #include "../include/CUnixInputContext.h"
 #include <core/IWindowSystem.h>
+#include <core/IEventManager.h>
 #include <platform/unix/CUnixWindowSystem.h>
 #include <cstring>
 
