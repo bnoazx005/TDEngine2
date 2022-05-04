@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.39] 2022-05-03
+## [0.5.39] 2022-05-04
 
 ### Fixed
 
@@ -17,6 +17,8 @@ You should build it manually with installed FMOD libraries earlier.
 - An invalid order of timer's tick was fixed for **CUnixTimer**.
 
 - The invalid implementation of **CUnixWindowSystem::GetClientRect** was fixed.
+
+- Incorrect processing of window resizing was fixed for GLGraphicsContext.
 
 ### Added
 

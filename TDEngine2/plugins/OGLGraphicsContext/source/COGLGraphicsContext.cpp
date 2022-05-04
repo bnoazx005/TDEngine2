@@ -466,6 +466,21 @@ namespace TDEngine2
 
 		SetViewport(0.0f, 0.0f, static_cast<F32>(pOnWindowResizedEvent->mWidth), static_cast<F32>(pOnWindowResizedEvent->mHeight), 0.0f, 1.0f);
 
+		GL_SAFE_CALL(glDeleteRenderbuffers(1, &mMainDepthStencilRenderbuffer)); /// Remove previously created depth-stencil buffer
+		GL_SAFE_CALL(glGenRenderbuffers(1, &mMainDepthStencilRenderbuffer));
+
+		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
+		GL_SAFE_VOID_CALL(glBindRenderbuffer(GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
+		{
+			defer([] { glBindRenderbuffer(GL_RENDERBUFFER, 0); glBindFramebuffer(GL_FRAMEBUFFER, 0); });
+
+			/// \note Create a new depth-stencil with new sizes
+			GL_SAFE_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pOnWindowResizedEvent->mWidth, pOnWindowResizedEvent->mHeight));
+			GL_SAFE_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
+
+			TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
+		}
+
 		return RC_OK;
 	}
 
@@ -526,8 +541,8 @@ namespace TDEngine2
 
 		GL_SAFE_CALL(glGenRenderbuffers(1, &mMainDepthStencilRenderbuffer));
 
-		GL_SAFE_VOID_CALL(glBindRenderbuffer(GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
+		GL_SAFE_VOID_CALL(glBindRenderbuffer(GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
 		{
 			LOG_MESSAGE(Wrench::StringUtils::Format("[COGLGraphicsContext] SRGB framebuffer status, enabled: {0}", creationFlags & P_HARDWARE_GAMMA_CORRECTION));
 			GL_SAFE_CALL(((creationFlags & P_HARDWARE_GAMMA_CORRECTION) ? glEnable : glDisable)(GL_FRAMEBUFFER_SRGB));
