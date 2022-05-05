@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.40] 2022-05-04
+
+### Fixed
+
+### Added
+
+- The implementation of **CUnixInputContext::GetNormalizedMousePosition** was added.
+
+### Changed
+
 ## [0.5.39] 2022-05-04
 
 ### Fixed

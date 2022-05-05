@@ -137,9 +137,13 @@ namespace TDEngine2
 
 	TVector2 CUnixInputContext::GetNormalizedMousePosition() const
 	{
-		TDE2_UNIMPLEMENTED();
-		TVector3 pos = GetMousePosition();
-		return TVector2(pos.x, pos.y);
+		const TRectU32 windowClientRect = mpWindowSystem->GetClientRect();
+		const TVector3 pos = GetMousePosition();
+
+		const F32 width = static_cast<F32>(windowClientRect.width);
+		const F32 height = static_cast<F32>(windowClientRect.height);
+
+		return { CMathUtils::Clamp(-1.0f, 1.0f, 2.0f * pos.x / width - 1.0f), CMathUtils::Clamp(-1.0f, 1.0f, 2.0f * pos.y / height - 1.0f) };
 	}
 
 	TVector3 CUnixInputContext::GetMouseShiftVec() const
