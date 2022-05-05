@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- (Fixed issue #82) The incorrect mapping of mouse buttons under UNIX was fixed for **CUnixInputContext**.
+
 ### Added
 
 - The implementation of **CUnixInputContext::GetNormalizedMousePosition** was added.

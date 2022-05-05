@@ -432,7 +432,14 @@ namespace TDEngine2
 	
 	bool CUnixInputContext::_isButtonPressed(U32 buttonsMask, U8 buttonId)
 	{
-		return buttonsMask & (Button1Mask << buttonId);
+		static const U8 buttonsMappings[8] /// \todo Replace with MaxMouseButtons
+		{
+			0, // left mouse button to 0, mask equals to 272
+			2, // right mouse button to 2, mask equals to 1040
+			1, // middle mouse button to 1, mask equals to 548
+		};
+
+		return buttonsMask & (1 << (9 + buttonsMappings[buttonId]));
 	}
 
 
