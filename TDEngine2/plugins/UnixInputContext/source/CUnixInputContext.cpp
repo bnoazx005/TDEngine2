@@ -439,7 +439,7 @@ namespace TDEngine2
 			1, // middle mouse button to 1, mask equals to 548
 		};
 
-		return buttonsMask & (1 << (9 + buttonsMappings[buttonId]));
+		return buttonsMask & (1 << (8 + buttonsMappings[buttonId]));
 	}
 
 

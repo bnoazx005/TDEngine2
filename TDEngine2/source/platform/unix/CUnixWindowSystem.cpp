@@ -4,6 +4,7 @@
 #include "../../../include/utils/CFileLogger.h"
 #include "../../../include/core/IEventManager.h"
 #include "../../../include/core/IImGUIContext.h"
+#include "../../../include/core/IInputContext.h"
 #include "../../../include/utils/CU8String.h"
 #include <cstring>
 #include <tuple>
@@ -104,7 +105,7 @@ namespace TDEngine2
 		
 		for (auto&& currLocaleStr : locales)
 		{
-			xim = XOpenIM(dpy, 0, 0, 0);
+			xim = XOpenIM(pDisplay, 0, 0, 0);
 			if (xim)
 			{
 				break;
@@ -451,7 +452,7 @@ namespace TDEngine2
 		TOnCharInputEvent onCharInputEvent;
 		onCharInputEvent.mCharCode = static_cast<U32>(codePoint);
 
-		mpEventManager->Notify(&onCharInputEvent);
+		pEventManager->Notify(&onCharInputEvent);
 	}
 
 
@@ -460,6 +461,8 @@ namespace TDEngine2
 		XEvent currEvent;
 		
 		XConfigureEvent configureEvent;
+
+		Status status;
 
 		C8 tempTextBuf[255];
 		I32 charactersCount = 0;
@@ -479,8 +482,13 @@ namespace TDEngine2
 					break;
 
 				case KeyPress:
-					charactersCount = Xutf8LookupString(mInputContext, &currEvent.xkey, tempTextBuf, sizeof(tempTextBuf), nullptr, nullptr);
-					SendOnCharInputEvent(mpEventManager, CU8String::StringToUTF8CodePoint(std::string(tempTextBuf, charactersCount)));
+					charactersCount = Xutf8LookupString(mInputContext, &currEvent.xkey, tempTextBuf, sizeof(tempTextBuf), nullptr, &status);
+
+					if (status == XLookupChars)
+					{
+						SendOnCharInputEvent(mpEventManager, CU8String::StringToUTF8CodePoint(std::string(tempTextBuf, charactersCount)));
+					}
+
 					break;
 
 				case DestroyNotify:
