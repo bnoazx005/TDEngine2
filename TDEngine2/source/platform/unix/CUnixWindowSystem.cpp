@@ -4,6 +4,7 @@
 #include "../../../include/utils/CFileLogger.h"
 #include "../../../include/core/IEventManager.h"
 #include "../../../include/core/IImGUIContext.h"
+#include "../../../include/utils/CU8String.h"
 #include <cstring>
 #include <tuple>
 
@@ -90,6 +91,33 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static XIC CreateInternalInputContext(Display* pDisplay, Window windowHandle)
+	{
+		static const std::array<std::string, 2> locales
+		{
+			Wrench::StringUtils::GetEmptyStr(), 
+			"@im=none",
+		};
+
+		XIM xim;
+		
+		for (auto&& currLocaleStr : locales)
+		{
+			xim = XOpenIM(dpy, 0, 0, 0);
+			if (xim)
+			{
+				break;
+			}
+		}
+
+		XIC xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, windowHandle, XNFocusWindow, windowHandle, nullptr);
+		XSetICFocus(xic);
+
+		return xic;
+	}
+
+
 	bool CUnixWindowSystem::Run(const std::function<void()>& onFrameUpdate)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -112,6 +140,8 @@ namespace TDEngine2
 		XSelectInput(mpDisplayHandler, mWindowHandler, StructureNotifyMask | KeyPressMask | KeyReleaseMask);
 		XClearWindow(mpDisplayHandler, mWindowHandler);	// clear the window
 		XMapWindow(mpDisplayHandler, mWindowHandler); // and display it
+
+		mInputContext = CreateInternalInputContext(mpDisplayHandler, mWindowHandler);
 
 		_setFullscreenMode(mSetupFlags & P_FULLSCREEN);
 
@@ -415,11 +445,24 @@ namespace TDEngine2
 		return SetTitle(mWindowName);
 	}
 
+
+	static void SendOnCharInputEvent(TPtr<IEventManager> pEventManager, TUtf8CodePoint codePoint)
+	{
+		TOnCharInputEvent onCharInputEvent;
+		onCharInputEvent.mCharCode = static_cast<U32>(codePoint);
+
+		mpEventManager->Notify(&onCharInputEvent);
+	}
+
+
 	void CUnixWindowSystem::_processEvents()
 	{
 		XEvent currEvent;
 		
 		XConfigureEvent configureEvent;
+
+		C8 tempTextBuf[255];
+		I32 charactersCount = 0;
 
 		while (XPending(mpDisplayHandler) > 0)
 		{
@@ -434,6 +477,12 @@ namespace TDEngine2
 					_sendWindowResizedEvent(configureEvent.width, configureEvent.height);
 					
 					break;
+
+				case KeyPress:
+					charactersCount = Xutf8LookupString(mInputContext, &currEvent.xkey, tempTextBuf, sizeof(tempTextBuf), nullptr, nullptr);
+					SendOnCharInputEvent(mpEventManager, CU8String::StringToUTF8CodePoint(std::string(tempTextBuf, charactersCount)));
+					break;
+
 				case DestroyNotify:
 					mIsRunning = false;
 					break;

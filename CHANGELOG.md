@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The implementation of **CUnixInputContext::GetNormalizedMousePosition** was added.
 
+- Processing of **TOnCharInputEvent** was added for **CUnixWindowSystem**.
+
 ### Changed
 
 ## [0.5.39] 2022-05-04

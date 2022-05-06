@@ -274,6 +274,8 @@ namespace TDEngine2
 
 			Window                    mWindowHandler;
 
+			XIC                       mInputContext;
+
 			U32                       mWidth;
 			
 			U32                       mHeight;
