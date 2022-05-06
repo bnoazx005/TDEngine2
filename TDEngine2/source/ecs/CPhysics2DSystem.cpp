@@ -68,6 +68,17 @@ namespace TDEngine2
 	{
 		auto&& interactiveEntities = pWorld->FindEntitiesWithAny<CBoxCollisionObject2D, CCircleCollisionObject2D, CTrigger2D>();
 		
+		/// Remove all bodies from the world's instance
+		for (auto pCurrBody : mCollidersData.mBodies)
+		{
+			if (!pCurrBody)
+			{
+				continue;
+			}
+
+			mpWorldInstance->DestroyBody(pCurrBody);
+		}
+
 		mHandles2EntitiesMap.clear();
 		mCollidersData.Clear();
 
@@ -108,7 +119,6 @@ namespace TDEngine2
 			pCurrBody->SetUserData(pCurrEntity);
 
 			mCollidersData.mBodies.push_back(pCurrBody);
-
 		}
 	}
 
