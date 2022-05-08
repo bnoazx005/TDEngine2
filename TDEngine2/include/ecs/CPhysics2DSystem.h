@@ -125,7 +125,7 @@ namespace TDEngine2
 
 					TDE2_API TEntityId GetEntityId() const;
 				private:
-					b2Body* mpBody;
+					b2Body* mpBody = nullptr;
 			};
 		public:
 			TDE2_SYSTEM(CPhysics2DSystem);

@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.40] 2022-05-04
+## [0.5.40] 2022-05-08
 
 ### Fixed
 
 - (Fixed issue #82) The incorrect mapping of mouse buttons under UNIX was fixed for **CUnixInputContext**.
 
 - The implementation of **CPhysics2DSystem::InjectBindings** was fixed.
+
+- Segmentation fault caused by **IRaycastContext::Raycast2DClosest** was fixed.
 
 ### Added
 

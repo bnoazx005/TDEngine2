@@ -338,7 +338,7 @@ namespace TDEngine2
 
 	bool CPhysics2DSystem::CPointOverlapCallback::ReportFixture(b2Fixture* pFixture)
 	{
-		mpBody = pFixture->GetBody();
+		mpBody = pFixture ? pFixture->GetBody() : nullptr;
 		return false;
 	}
 
