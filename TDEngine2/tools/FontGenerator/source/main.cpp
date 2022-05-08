@@ -14,7 +14,7 @@ I32 main(I32 argc, C8** argv)
 {
 	E_RESULT_CODE result = RC_OK;
 
-	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder({ }, result));
+	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder({ CreateEngineCore, "TDE2FontGen.project" }, result));
 
 	if (result != RC_OK)
 	{

@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Segmentation fault caused by **IRaycastContext::Raycast2DClosest** was fixed.
 
+- Utilities configurations were fixed.
+
 ### Added
 
 - The implementation of **CUnixInputContext::GetNormalizedMousePosition** was added.

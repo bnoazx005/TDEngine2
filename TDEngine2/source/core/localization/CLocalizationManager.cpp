@@ -42,7 +42,10 @@ namespace TDEngine2
 		}
 
 		// \note We load default locale, but if it's failed nothing bad happens. We just return empty string for any given key until some locale will be reloaded
-		_loadLocaleResources(mCurrSelectedLocaleId);
+		if (TLocaleId::Invalid != mCurrSelectedLocaleId)
+		{
+			_loadLocaleResources(mCurrSelectedLocaleId);
+		}
 
 		mIsInitialized = true;
 
@@ -119,7 +122,7 @@ namespace TDEngine2
 		}
 
 		mCurrSelectedLocaleId = _getLocaleHashInternal(settings.mCurrActiveLocaleId);
-		TDE2_ASSERT(TLocaleId::Invalid != mCurrSelectedLocaleId);
+		//TDE2_ASSERT(TLocaleId::Invalid != mCurrSelectedLocaleId);
 
 		return RC_OK;
 	}

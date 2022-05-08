@@ -20,7 +20,7 @@ I32 main(I32 argc, const C8** argv)
 		return parseOptionsResult.GetError();
 	}
 
-	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder({}, result));
+	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder({ CreateEngineCore, "TDE2TexturesPacker.project" }, result));
 
 	if (result != RC_OK)
 	{
