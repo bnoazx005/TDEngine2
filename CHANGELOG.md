@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Now LUT texture for color grading post-effect is loaded into the shader even if it's not used. This was done to fix some graphical issues under GL graphics context.
+
 ## [0.5.39] 2022-05-04
 
 ### Fixed

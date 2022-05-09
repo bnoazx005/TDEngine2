@@ -562,9 +562,7 @@ namespace TDEngine2
 						vec4 color = TEX2D(FrameTexture, VertOutUV);
 						vec3 mappedColor = mix(color.rgb, 1 - exp(-color.rgb * toneMappingParams.y), toneMappingParams.x);
 						
-						mappedColor = mix(mappedColor, ApplyGrading(mappedColor), colorGradingParams.x);
-
-						FragColor = vec4(mappedColor/*LinearToGamma(mappedColor)*/, color.a); // disabled because of SRGB back buffer
+						FragColor = vec4(mix(mappedColor, ApplyGrading(mappedColor), colorGradingParams.x)/*LinearToGamma(mappedColor)*/, color.a); // disabled because of SRGB back buffer
 					}
 
 					#endprogram

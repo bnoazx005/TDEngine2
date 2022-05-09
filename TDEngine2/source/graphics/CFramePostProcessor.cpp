@@ -164,7 +164,7 @@ namespace TDEngine2
 			{
 				const auto& colorGradingParameters = mpCurrPostProcessingProfile->GetColorGradingParameters();
 
-				if (isPostProcessingEnabled && colorGradingParameters.mIsEnabled)
+				if (isPostProcessingEnabled/* && colorGradingParameters.mIsEnabled*/)
 				{
 					if (auto pColorLUT = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<ITexture2D>(colorGradingParameters.mLookUpTextureId)))
 					{
