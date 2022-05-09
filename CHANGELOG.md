@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.40] 2022-05-08
+## [0.5.40] 2022-05-09
 
 ### Fixed
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Segmentation fault caused by **IRaycastContext::Raycast2DClosest** was fixed.
 
 - Utilities configurations were fixed.
+
+- Invalid deletion of GL shader program's handle was fixed.
 
 ### Added
 

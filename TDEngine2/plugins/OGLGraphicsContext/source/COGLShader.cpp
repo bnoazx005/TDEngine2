@@ -21,7 +21,7 @@ namespace TDEngine2
 
 		if (mShaderHandler)
 		{
-			GL_SAFE_CALL(glDeleteShader(mShaderHandler));
+			GL_SAFE_CALL(glDeleteProgram(mShaderHandler));
 		}
 
 		E_RESULT_CODE result = RC_OK;
