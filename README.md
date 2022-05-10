@@ -25,8 +25,6 @@ Build status (for all platforms): [![TDEngine2 SDK Build](https://github.com/bno
 
 * Android OS support;
 
-* Effective memory management (in future);
-
 ***
 
 ### Current Features:<a name="current-features"></a>
@@ -52,7 +50,7 @@ Build status (for all platforms): [![TDEngine2 SDK Build](https://github.com/bno
 ### How to Build<a name="how-to-build"></a>
 
 The project actively uses CMake for the building process. So firstly, you should be sure you have 
-CMake tools of 2.8 version or higher to continue. At the moment the engine supports Win32 and UNIX 
+CMake tools of 3.8 version or higher to continue. At the moment the engine supports Win32 and UNIX 
 platforms.
 
 #### Visual Studio (Win32)<a name="vs-win32"></a>
@@ -65,8 +63,12 @@ pipeline for any version of Visual Studio or a build type.
 
 ```console
 prepare_build_generic_win.bat "<<Generator name>>" "<<Build Type>>"
+
 :: or use this one to generate debug for VS2017
 prepare_build_vs2017_win32.bat
+
+:: or use this one to generate debug for VS2022
+prepare_build_vs2022_win32.bat
 ```
 
 Both arguments for the script is one of allowed by CMake tool. _**\<\<Build Type\>\>**_ could be **Debug** or **Release** values.
@@ -147,31 +149,24 @@ The simplest application that creates an empty window consists of the following 
 ```cpp
 #include <TDEngine2.h>
 
-#if defined (TDE2_USE_WIN32PLATFORM)
-    #pragma comment(lib, "TDEngine2.lib")
-#endif
-
 using namespace TDEngine2;
-
 
 int main(int argc, char** argv)
 {
     E_RESULT_CODE result = RC_OK;
     
-    IEngineCoreBuilder* pEngineCoreBuilder = CreateConfigFileEngineCoreBuilder(CreateEngineCore, "settings.cfg", result);
+    auto pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder({ CreateEngineCore, "Default.project" }, result));
 
     if (result != RC_OK)
     {
         return -1;
     }
 
-    IEngineCore* pEngineCore = pEngineCoreBuilder->GetEngineCore();
-
-    pEngineCoreBuilder->Free();
-    
-    pEngineCore->Run();
-    
-    pEngineCore->Free();
+    if (auto pEngineCore = TPtr<IEngineCore>(pEngineCoreBuilder->GetEngineCore()))
+    {
+        pEngineCore->RegisterListener(std::make_unique<CCustomEngineListener>());
+        pEngineCore->Run();
+    } 
 
     return 0;
 }

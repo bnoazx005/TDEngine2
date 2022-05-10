@@ -7,6 +7,338 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] 2022-05-10
+
+
+## [0.6.0] 2022-05-10
+
+### Added
+
+- The implementation of **CUnixInputContext::GetNormalizedMousePosition** was added.
+
+- Processing of **TOnCharInputEvent** was added for **CUnixWindowSystem**.
+
+- **CUnixFileSystem::GetUserDirectory** and **CUnixFileSystem::GetApplicationDataPath** have got their implementations.
+
+- **CUnixWindowSystem::GetClientRect**'s got implementation.
+
+- Default resources for SandboxGame project.
+
+- The implementation of **CUnixWindowSystem::SaveFileDialog** and **CUnixWindowSystem::OpenFileDialog**.
+
+- **CUnixInputContext::SetOnCharInputCallback**'s got implementation.
+
+- **CParticleEmitter** component now supports a non-looped playback mode.
+
+- The inspector for **CParticleEmitter** was implemented.
+
+- Implementation of **tde2_mesh_converter** utility was extended to support LODs for meshes.
+
+- A new type of component which is **CLODStrategy** was added. Also corresponding system **CLODMeshSwitchSystem** was defined to control LODs.
+
+- The implementation of basic parallax mapping effect was added into **TDEngine2Lighting.inc** shader include file.
+
+- Support of **sub-mesh-id** property was added into **CStaticMeshContainer** component.
+
+- The rendering of sub-meshes for static and skinned meshes was implemented.
+
+- Support of capturing entity's state was added for all existing type of tracks in TDEAnimationEd. 
+
+- Add support of sampling modes' switching for animation tracks via its context menu. 
+
+- Add support of switching between sampling modes in curve's editor.
+
+- An experimental implementation of a cubic interpolation mode was added into animation tracks.
+
+- The API of **TColor<T>** was extended with new operators overloadings.
+
+- Serialization/Deserialization of **GridGroupLayout** component was added.
+
+- Add support of scaling curves in track sheets' editor mode of the animation editor utility.
+
+- A pallete of editing channels for TVector2/3 curves was added for AnimationEd utility
+
+- A new component which is **GridGroupLayout** was added.
+
+- The support of selection of UI elements in the developer mode was added. 
+
+- The API of **IFont** was extended with a new public method GetDataVersionNumber.
+
+- A new component which is **9SliceImage** was added into the engine.
+
+- Load/Save methods of **C9SliceImage**, **CLayoutElement**, **CLabel**, **CCanvas**, **CImage**, **CInputReceiver** got their implementations.
+- Load/Save methods of **CAnimationContainerComponent**, **CMeshAnimatorComponent** got their implementations.
+
+- The identifier of a default skybox's material now can be configured from the project settings.
+
+- A new library **stb_rect_pack** was added into the dependencies directory.
+
+- Add **zlib** into dependencies directory. Also build scripts were updated due to the new library.
+
+- Now **IPackageFileWriter** and **IPackageFileReader** supports compressed files within packages. All conversions are done implicitly.
+
+- A new versioning was introduced into engine's CMakeLists.txt and Config.h files.
+
+- A git hook for pre-push was added to automatically update the project version.
+
+- API of **IBinaryFileReader** was extended with a bunch of new methods **ReadX** that's endian independent.
+
+- API of **IBinaryFileWriter** was extended with a bunch of new methods **WriteX** that's endian independent.
+
+- A new type of file readers was introduced which is **ICsvFileReader**.
+
+- **CU8String** now supports construction from **wchar_t**. Also **_U8Str** suffix was introduced for the type.
+
+- Now **default-profile.camera_profile** is a part of common resources and can be loaded via _DefaultConfigs/default-profile.camera_profile_ identifier.
+
+- Also all configuration assets are available using the following _DefaultConfigs/_ virtual path.
+
+- **CreateComponentsLocalSlice** was added into API of **IWorld**.
+
+- The API of **ISystemManager** was extended with new public methods **ForEachSystems** that allows to iterate over systems and **IsSystemActive**.
+
+- The API of **ISystem** was extended with new public methods **IsActive**, **OnActivated** and **OnDeactivated**.
+
+- A new editor window was added for changing project's settings on the fly. For now it supports to enable/disable game systems.
+
+- Now **IWorld** supports unique components which can be assumed as singletons replacement.
+
+- Add implementation of separate editor's camera
+
+- Shadow mapping's configuration was implemented for the forward renderer
+
+- The configuration of texture's filtering type was implemented.
+
+- **Optick** profiler was integrated into the engine's core.
+
+- The API of **IRenderTarget** was extended with a new public method **Resize(U32, U32)**.
+
+- A new proxy type **CProxyGraphicsContext** was introduced to provide a null graphics context for the console mode.
+
+- The growing of vertex/index buffers was added in dear imgui's code
+
+- A new method **IsScissorTestEnabled()** was added for **IMaterial** interface
+
+- A new implementation **CProxyWindowSystem** was added
+
+- Silent mode was added for **CFileLogger**
+
+- Two new types **CGameUserSettings** and **CProjectSettings** were introduced
+
+- A new type to process input program's console arguments was introduced which is **CProgramOptions**
+
+### Fixed 
+
+- (Fixed issue #82) The incorrect mapping of mouse buttons under UNIX was fixed for **CUnixInputContext**.
+
+- The implementation of **CPhysics2DSystem::InjectBindings** was fixed.
+
+- Segmentation fault caused by **IRaycastContext::Raycast2DClosest** was fixed.
+
+- Utilities configurations were fixed.
+
+- Invalid deletion of GL shader program's handle was fixed.
+
+- (Fixed issue #83) Incorrect initialization of textures storage in **COGLShader** class was fixed.
+
+- **FMOD** libraries for UNIX were removed from ~FMODAudioContext~ plugin's directory. **FMODAudioContext** plugin's compilation is disabled now for UNIX platforms.
+You should build it manually with installed FMOD libraries earlier.
+
+- An invalid order of timer's tick was fixed for **CUnixTimer**.
+
+- The invalid implementation of **CUnixWindowSystem::GetClientRect** was fixed.
+
+- Incorrect processing of window resizing was fixed for GLGraphicsContext.
+
+- Some fixes were introduced for GLSL built-in shaders.
+
+- Fix issues in CMakeLists.txt of **TDE2ResourcePacker** utility.
+
+- Update **install.sh** file. Add zlib's dependencies installation command.
+
+- Fix compilation under UNIX with gcc toolchain.
+
+- **DefaultShader.shader**'s TBN matrix computation was fixed. 
+
+- A typo in meshConverter.cpp was fixed. Indices count was written instead of faces' amount.
+
+- (Fixed issue #77) The incorrect invocation of memcpy was fixed in **CImGUIContext::TextField**.
+
+- (Fixed issue #74) Initialization of animation tracks was fixed.
+
+- The incorrect restore of CYAMLArchiveWriter's state was fixed when an array is written.
+
+- The GPU memory access failure in CImGUIContext plugin when buffers are reallocated was fixed. 
+
+- (Fixed issue #75) Rendering of animation curves was fixed.
+
+- (Fixed issue #76) Assertion caused by TDEAnimationEd was fixed.
+
+- The issue when no camera isn't marked as active was fixed. Now if there is no an active game camera the editor's one is used for that role.
+
+- Behaviour of **CImGUIContext::VerticalSeparator** method was fixed.
+
+- Animation curve's points modification was refactored to improve UX.
+
+- The editing of **LayoutElement** anchors and points was fixed.
+
+- The implementation of **CU8String::MoveNext** was fixed.
+
+- **CSkinnedMeshContainer::Save** implementation was fixed to support serialization/deserialization of skeleton's identifier.
+
+- Now renderer's output under both D3D and GL graphics context looks the same and consistent.
+
+- Receiving shadows by skinned meshes was fixed.
+
+- The generation of texture atlas for glyphs in CRuntimeFont was fixed. Now it's constrained with lexicographical order.
+
+- The performance of builtin systems was improved due to move to cache friendly code in their code.
+
+- Optick is now available only under MSVC compiler.
+
+- The behaviour within developer's mode was fixed.
+
+- The dereferencing of nullptr within CObjectSelectionSystem was fixed when the developer's menu is invoked too soon after the start up
+
+- The implementation of editor's camera was fixed and refactored
+
+- The input was fixed for ImGUI's interfaces.
+
+- (Fixed issue #72) Processing of window's resize was fixed under **CWin32WindowSystem**.
+
+- (Fixed issue #44) The bad memory access exception was fixed for the case a window was resized under D3D11 graphics context.
+
+- (Fixed issue #65) The work of IDebugUtility::DrawSphere was fixed to correctly position spheres
+
+- **tde2_mesh_converter** utility's logic was fixed to correctly support work in console mode.
+
+- The main loop in **CWin32WindowSystem** was updated.
+
+- **CKeyboard** in **WindowsInputContext** now uses non-exclusive acquiring mode.
+
+- The implementation of getting keyboard's input was fixed and improved in **CImGUIContext**.
+
+- **CImGUIContext::GradientColorPicker**'s implementation was refactored.
+
+- The implemenation of **COGLGraphicsContext::SetScissorRect** was updated to be consistent when GAPI is switched.
+
+- The loading of default instances was fixed for all types of resources when the specified ones cannot be loaded
+
+- CD3D11GraphicsContext now doesn't assert in SafeReleaseCOM invocations.
+
+- A bunch of Unix related classes were fixed due to last refactoring
+
+### Changed
+
+- Now LUT texture for color grading post-effect is loaded into the shader even if it's not used. This was done to fix some graphical issues under GL graphics context.
+
+- A new config macro was introduced which is **TDE2_BUILTIN_PERF_PROFILER_ENABLED**. **CPerfProfiler** is now disabled by default.
+
+- **AssertImpl** was reimplemented to support messages output.
+
+- (Fixed issue #81) Now all applications can use default parameters if there is no configuration file at working directory.
+
+- **DrawGrid** function was moved into common editor utilities which is **EditorUtils.h**.
+
+- A new iteration of binary mesh format was introduced.
+
+- Current implementation of **CBinaryMeshFileReader** was reimplemented to support newer version of meshes.
+
+- Now **CAnimationCurve**'s track uses tangents instead of control points to change its curvature.
+
+- API of **IArchiveReader** was updated to support default values for getters.
+
+- **ResolveBinding** was exposed to be a part of public API.
+
+- **Wrench** extra submodule was removed from dependencies of the engine's toolset. 
+
+- **TexturePacker**'s argparse dependency was replaced with internal **CProgramOptions** implementation.
+
+- The build scrips were updated to support Microsoft Visual Studio 2022.
+
+- **CObjectSelectionSystem**'s implementation was optimized.
+
+- Now **zlib** library is linked statically.
+
+- **ISceneManager::LoadSceneAsync**'s onResultCallback parameter now allows nullptr as an input.
+
+- Now a resource can be unloaded and removed from the registry of the resource manager via **CBaseResource::Unload**.
+
+- Fix creation of texture samples under OpenGL GAPI context.
+
+- The implementation of **CTextureAtlas** was refactored and now it's updated on the fly.
+
+- **CU8String** class is now just a namespace for helper functions to operate with UTF-8 encoded strings. **U8C** alias was
+replaced with strongly typed version called **TUtf8CodePoint**.
+
+- Now **CFileInputStream** and **CFileOuptuStream** support UTF-8 paths.
+
+- The implementations of **CPackageFileReader** and **CPackageFileWriter** were refactored.
+
+- Now **CFileLogger** adds date and time information for the log.
+
+- **tde2_resource_packer** utility was updated to support compressed files within packages.
+
+- The functions SwapXBytes were replaced with a template SwapBytes. Now the engine assumes that all numeric data is stored in little endian manner.
+If it's run on big endian machines everything will be swapped into a little endian memory layout.
+
+- Now **CBinaryArchiveWriter** and **CBinaryArchiveReader** are endian independent.
+
+- The implementation of **CFramePostProcessor** was refactored and cleaned up
+
+- The common performance of builtin systems was improved.
+
+- The update of bounds for scene's instances was temporary disabled.
+
+- Now all components use their own pool allocators.
+
+- **Optick** library is not linked statically.
+
+- Implementation of memory allocators was highly refactored.
+
+- The common implementation of the memory manager as a subsystem was excluded. Now local usage of allocators and
+memory arenas is more preffered way.
+
+- The implementation of component factories was totally refactored to simplify creation of new ones.
+
+- **CFileLogger** was rewritten in asynchronous manner. Now it uses its own thread to write logs.
+
+- **CUIElementsProcessSystem** was optimized. Now elements are updated only if their layout's changed.
+
+- **CTextureAtlas** now uses **CScopedPtr\<T\>** to store references to resources.
+
+- **tde2_introspector** utility was updated to a new version.
+
+- **ImGUIContext** now uses Dear ImGUI of 1.85 version.
+
+- The API of **IGraphicsContext** was changed. The signature of **SetScissorRect** method was changed from (const TRectF32&) onto (const TRectU32&).
+
+- **IDLLManager** moved from **IWindowSystem** into **IPluginManager** ownership
+
+- **CGameUserSettings::mFlags** was moved into **CProjectSettings** class
+
+- All resources are now wrapped with **CScopedPtr** when returned from the resource manager
+
+- **CResourceManager** is migrated onto CScopedPtr usage.
+
+- The storage of depth-stencil and rasterizer states was optimized in CD3D11GraphicsObjectsManager.
+
+- CMemoryProfiler's instance is thread-safe now.
+
+- Breaking changes. Now the engine and its toolset is targeted for x64 platforms. x86 isn't supported from this moment.
+
+- Now settings are splitted into application specific and project ones
+
+- The localization manager now reads its settings from **CProjectSettings**
+
+- The logger now uses the smart pointer to control its lifetime
+
+- **CDeferOperation** class is replaced with **Wrench::TDeferOperation**
+
+- GraphicsContextTypeToString(E_GRAPHICS_CONTEXT_GAPI_TYPE) and StringToGraphicsContextType(const std::string&) were removed
+
+***
+
 ## [0.5.40] 2022-05-10
 
 ### Fixed
@@ -594,6 +926,8 @@ memory arenas is more preffered way.
 - Support of skinned meshes
 
 ### Fixed
+
+***
 
 ## [0.4.22] - 2020-10-08
 
