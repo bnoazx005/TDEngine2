@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.40] 2022-05-09
+## [0.5.40] 2022-05-10
 
 ### Fixed
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Utilities configurations were fixed.
 
 - Invalid deletion of GL shader program's handle was fixed.
+
+- (Fixed issue #83) Incorrect initialization of textures storage in **COGLShader** class was fixed.
 
 ### Added
 

@@ -232,6 +232,8 @@ namespace TDEngine2
 
 		const C8* currName;
 
+		mpTextures.resize(shaderResourcesMap.size() + 1);
+
 		for (auto currShaderResourceInfo : shaderResourcesMap)
 		{
 			currName = currShaderResourceInfo.first.c_str();
@@ -246,8 +248,6 @@ namespace TDEngine2
 			mTexturesHashTable[currName] = currShaderResourceInfo.second.mSlot;
 
 			GL_SAFE_CALL(glUniform1i(currSlotIndex, currShaderResourceInfo.second.mSlot));
-
-			mpTextures.resize(currShaderResourceInfo.second.mSlot + 1);
 
 			mpTextures[currShaderResourceInfo.second.mSlot] = nullptr;
 		}
