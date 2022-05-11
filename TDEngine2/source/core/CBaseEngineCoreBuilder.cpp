@@ -542,6 +542,84 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<ISaveManager>(pSaveManager)));
 	}
 
+
+	static E_RESULT_CODE MountDirectories(const TPtr<IFileSystem> pFileSystem, E_GRAPHICS_CONTEXT_GAPI_TYPE type)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		static const std::string hlslSubDirectory = "/DX/";
+		static const std::string glslSubDirectory = "/GL/";
+
+#if TDE2_PRODUCTION_MODE
+		static const std::string baseResourcesPath = "../../Resources/";
+#else
+		static const std::string baseResourcesPath = "../../Resources/";
+		TDE2_UNIMPLEMENTED();
+#endif
+
+		static const std::string baseShadersPath   = baseResourcesPath + "Shaders/";
+		static const std::string baseMaterialsPath = baseResourcesPath + "Materials/";
+		static const std::string baseConfigsPath   = baseResourcesPath + "Configs/";
+		static const std::string baseFontsPath   = baseResourcesPath + "Fonts/";
+
+		std::string baseDefaultShadersPath     = baseShadersPath + "Default";
+		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
+
+		switch (type)
+		{
+			case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11:
+				baseDefaultShadersPath.append(hlslSubDirectory);
+				basePostEffectsShadersPath.append(hlslSubDirectory);
+				break;
+			case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X:
+				baseDefaultShadersPath.append(glslSubDirectory);
+				basePostEffectsShadersPath.append(glslSubDirectory);
+				break;
+			default:
+				TDE2_UNREACHABLE();
+				break;
+		}
+
+		/// \note Register built-in application's paths
+		if ((RC_OK != (result = pFileSystem->MountPhysicalPath(baseResourcesPath, "Resources/"))) ||
+			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseConfigsPath, "DefaultConfigs/"))) ||
+			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseMaterialsPath, "DefaultMaterials/"))) ||
+			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseFontsPath, "DefaultFonts/"))) ||
+			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
+			(RC_OK != (result = pFileSystem->MountPhysicalPath(basePostEffectsShadersPath, "Shaders/PostEffects/"))) ||
+			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseShadersPath, "Shaders/", 1))))
+		{
+			return result;
+		}
+
+		/// \note Register user's defined aliases for paths
+		for (auto&& currUserMountDirectory : CProjectSettings::Get()->mCommonSettings.mAdditionalMountedDirectories)
+		{
+			if (currUserMountDirectory.mPath.find("Shaders") != std::string::npos) /// \note For shaders directories add graphics context subdirectory to end
+			{
+				const bool pathEndsWithSeparator = Wrench::StringUtils::EndsWith(currUserMountDirectory.mPath, "/");
+
+				switch (type)
+				{
+					case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11:
+						currUserMountDirectory.mPath.append(pathEndsWithSeparator ? hlslSubDirectory.substr(1) : hlslSubDirectory);
+						break;
+					case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X:
+						currUserMountDirectory.mPath.append(pathEndsWithSeparator ? glslSubDirectory.substr(1) : glslSubDirectory);
+						break;
+					default:
+						TDE2_UNREACHABLE();
+						break;
+				}
+			}
+
+			result = result | pFileSystem->MountPhysicalPath(currUserMountDirectory.mPath, currUserMountDirectory.mAlias);
+		}
+
+		return result;
+	}
+
+
 	TPtr<IEngineCore> CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
@@ -549,7 +627,7 @@ namespace TDEngine2
 
 		const bool isWindowModeEnabled = !(static_cast<E_PARAMETERS>(CProjectSettings::Get()->mCommonSettings.mFlags) & E_PARAMETERS::P_WINDOWLESS_MODE);
 
-		PANIC_ON_FAILURE(_mountDirectories(CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));
+		PANIC_ON_FAILURE(MountDirectories(mpFileSystemInstance, CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));
 
 		PANIC_ON_FAILURE(_configureJobManager(CProjectSettings::Get()->mCommonSettings.mMaxNumOfWorkerThreads));
 		PANIC_ON_FAILURE(_configureEventManager());
@@ -617,57 +695,6 @@ namespace TDEngine2
 	}
 
 #endif
-
-	E_RESULT_CODE CBaseEngineCoreBuilder::_mountDirectories(E_GRAPHICS_CONTEXT_GAPI_TYPE type)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		static const std::string hslsSubDirectory = "/DX/";
-		static const std::string gslsSubDirectory = "/GL/";
-
-#if TDE2_PRODUCTION_MODE
-		static const std::string baseResourcesPath = "../../Resources/";
-#else
-		static const std::string baseResourcesPath = "../../Resources/";
-		TDE2_UNIMPLEMENTED();
-#endif
-
-		static const std::string baseShadersPath = baseResourcesPath + "Shaders/";
-		static const std::string baseMaterialsPath = baseResourcesPath + "Materials/";
-		static const std::string baseConfigsPath = baseResourcesPath + "Configs/";
-		static const std::string baseFontsPath = baseResourcesPath + "Fonts/";
-
-		std::string baseDefaultShadersPath = baseShadersPath + "Default";
-		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
-
-		switch (type)
-		{
-			case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11:
-				baseDefaultShadersPath.append(hslsSubDirectory);
-				basePostEffectsShadersPath.append(hslsSubDirectory);
-				break;
-			case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X:
-				baseDefaultShadersPath.append(gslsSubDirectory);
-				basePostEffectsShadersPath.append(gslsSubDirectory);
-				break;
-			default:
-				TDE2_UNREACHABLE();
-				break;
-		}
-
-		if ((RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseResourcesPath, "Resources/"))) || 
-			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseConfigsPath, "DefaultConfigs/"))) ||
-			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseMaterialsPath, "DefaultMaterials/"))) ||
-			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseFontsPath, "DefaultFonts/"))) ||
-			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
-			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(basePostEffectsShadersPath, "Shaders/PostEffects/"))) ||
-			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseShadersPath, "Shaders/", 1))))
-		{
-			return result;
-		}
-
-		return RC_OK;
-	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_registerBuiltinInfrastructure(bool isWindowModeEnabled)
 	{

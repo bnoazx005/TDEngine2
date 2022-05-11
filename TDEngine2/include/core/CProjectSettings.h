@@ -63,13 +63,21 @@ namespace TDEngine2
 				E_AUDIO_CONTEXT_API_TYPE mAudioContextType = E_AUDIO_CONTEXT_API_TYPE::FMOD;
 			} mAudioSettings;
 
-			struct
+			struct TCommonSettings
 			{
+				struct TFilesystemPathAlias
+				{
+					std::string mAlias;
+					std::string mPath;
+				};
+
 				U32 mMaxNumOfWorkerThreads = std::thread::hardware_concurrency() - 1;
 
 				std::string mApplicationName;
 
 				U32 mFlags = static_cast<U32>(P_RESIZEABLE | P_ZBUFFER_ENABLED);
+
+				std::vector<TFilesystemPathAlias> mAdditionalMountedDirectories;
 			} mCommonSettings;
 
 

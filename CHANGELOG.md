@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.1] 2022-05-12
 
+### Added
+
+- Mounting of user's defined directories via **CProjectSettings** was added into the engine.
+
 ### Changed
 
 - "Arial" font was replaced with "OpenSans" one.

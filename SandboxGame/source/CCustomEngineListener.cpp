@@ -13,11 +13,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
-	if (RC_OK != (result = _mountResourcesDirectories()))
-	{
-		return result;
-	}
-
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
 	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material"));
@@ -671,21 +666,4 @@ void CCustomEngineListener::SetEngineInstance(IEngineCore* pEngineCore)
 	mpFileSystem      = mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get();
 
 	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
-}
-
-E_RESULT_CODE CCustomEngineListener::_mountResourcesDirectories()
-{
-	E_RESULT_CODE result = RC_OK;
-
-	const std::string shaderLangSubdirectory = (mpGraphicsContext->GetContextInfo().mGapiType == E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X) ? "GL/" : "DX/";
-
-	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Shaders/" + shaderLangSubdirectory, "ProjectShaders/");
-	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Materials/", "ProjectMaterials/");
-	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Textures/", "ProjectTextures/");
-	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Scenes/", "ProjectScenes/");
-	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Models/", "ProjectModels/");
-	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Misc/", "Misc/");
-	result = result | mpFileSystem->MountPhysicalPath("../../SandboxGame/Resources/Animations/", "ProjectAnimations/");
-
-	return result;
 }

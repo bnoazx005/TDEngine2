@@ -18,6 +18,13 @@ namespace TDEngine2
 			static const std::string mApplicationIdKey;
 			static const std::string mMaxThreadsCountKey;
 			static const std::string mFlagsKey;
+			static const std::string mAdditionalMountedDirectoriesKey;
+
+			struct TFilepathAliasArchiveKeys
+			{
+				static const std::string mPathKey;
+				static const std::string mAliasKey;
+			};
 		};
 
 		struct TGraphicsSettingsKeys
@@ -62,6 +69,9 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey = "application_id";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey = "max_worker_threads_count";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey = "flags";
+	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mAdditionalMountedDirectoriesKey = "additional_mounted_dirs";
+	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mAliasKey = "alias";
+	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mPathKey = "path";
 
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey = "gapi_type";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey = "renderer_settings";
@@ -85,70 +95,97 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CProjectSettings::Init(IArchiveReader* pFileReader)
-	{
-		if (!pFileReader)
-		{
-			return RC_INVALID_ARGS;
-		}
 
+	static E_RESULT_CODE LoadCommonSettings(IArchiveReader* pFileReader, CProjectSettings& projectSettings)
+	{
 		E_RESULT_CODE result = RC_OK;
 
-		/// \note Core settings
+		auto& commonSettings = projectSettings.mCommonSettings;
+
 		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mCommonSettingsGroupId);
 		{
-			mCommonSettings.mApplicationName = pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey);
-			mCommonSettings.mMaxNumOfWorkerThreads = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey);
-			mCommonSettings.mFlags = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey);
-		}
-		result = result | pFileReader->EndGroup();
+			commonSettings.mApplicationName = pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey);
+			commonSettings.mMaxNumOfWorkerThreads = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey);
+			commonSettings.mFlags = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey);
 
-		/// \note Graphics settings
-		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mGraphicsSettingsGroupId);
-		{
-			mGraphicsSettings.mGraphicsContextType = Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::FromString(pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey));
-			
-			const auto& skyboxMaterialId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mDefaultSkyboxMaterialKey);
-			if (!skyboxMaterialId.empty())
+			/// \note Read user's defined directories
+			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mAdditionalMountedDirectoriesKey);
 			{
-				mGraphicsSettings.mDefaultSkyboxMaterial = skyboxMaterialId;
-			}
+				while (pFileReader->HasNextItem())
+				{
+					pFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					
+					CProjectSettings::TCommonSettings::TFilesystemPathAlias aliasInfo;
 
-			/// \note Shadow maps settings
-			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey);
-			{
-				mGraphicsSettings.mRendererSettings.mShadowMapSizes = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mShadowMapSizesKey);
-				mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mIsShadowMapEnabledKey);
+					aliasInfo.mAlias = pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mAliasKey);
+					aliasInfo.mPath  = pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mPathKey);
+
+					commonSettings.mAdditionalMountedDirectories.emplace_back(aliasInfo);
+					
+					pFileReader->EndGroup();
+				}
 			}
 			result = result | pFileReader->EndGroup();
 		}
 		result = result | pFileReader->EndGroup();
 
-		/// \note Audio setiings
-		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mAudioSettingsGroupId);
+		return result;
+	}
+
+
+	static E_RESULT_CODE LoadGraphicsSettings(IArchiveReader* pFileReader, CProjectSettings& projectSettings)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto& graphicsSettings = projectSettings.mGraphicsSettings;
+
+		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mGraphicsSettingsGroupId);
 		{
-			 mAudioSettings.mAudioContextType = Meta::EnumTrait<E_AUDIO_CONTEXT_API_TYPE>::FromString(pFileReader->GetString(TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey));
+			graphicsSettings.mGraphicsContextType = Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::FromString(pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey));
+
+			const auto& skyboxMaterialId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mDefaultSkyboxMaterialKey);
+			if (!skyboxMaterialId.empty())
+			{
+				graphicsSettings.mDefaultSkyboxMaterial = skyboxMaterialId;
+			}
+
+			/// \note Shadow maps settings
+			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey);
+			{
+				graphicsSettings.mRendererSettings.mShadowMapSizes = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mShadowMapSizesKey);
+				graphicsSettings.mRendererSettings.mIsShadowMappingEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mIsShadowMapEnabledKey);
+			}
+			result = result | pFileReader->EndGroup();
 		}
 		result = result | pFileReader->EndGroup();
 
-		/// \note Localization settings
+		return result;
+	}
+
+
+	static E_RESULT_CODE LoadLocaleSettings(IArchiveReader* pFileReader, CProjectSettings& projectSettings)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto& localizationSettings = projectSettings.mLocalizationSettings;
+
 		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mLocalizationSettingsGroupId);
 		{
 			pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mRegisteredLocalesKey);
 			{
-				TLocalizationSettings::TLocaleInfo info;
+				CProjectSettings::TLocalizationSettings::TLocaleInfo info;
 
-				auto& registeredLocales = mLocalizationSettings.mRegisteredLocales;
+				auto& registeredLocales = localizationSettings.mRegisteredLocales;
 
 				while (pFileReader->HasNextItem())
 				{
 					pFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 					{
 						pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mLocaleInfoGroupId);
-						
-						info.mName = pFileReader->GetString(TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mLocaleIdKey);
+
+						info.mName        = pFileReader->GetString(TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mLocaleIdKey);
 						info.mPackagePath = pFileReader->GetString(TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mLocalePackagePathKey);
-						info.mId = static_cast<TLocaleId>(registeredLocales.size());
+						info.mId          = static_cast<TLocaleId>(registeredLocales.size());
 
 						registeredLocales.emplace_back(info);
 
@@ -159,10 +196,44 @@ namespace TDEngine2
 			}
 			pFileReader->EndGroup();
 
-			mLocalizationSettings.mCurrActiveLocaleId = pFileReader->GetString(TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mCurrActiveLocaleKey);
+			localizationSettings.mCurrActiveLocaleId = pFileReader->GetString(TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mCurrActiveLocaleKey);
 		}
 		result = result | pFileReader->EndGroup();
 
+		return result;
+	}
+
+
+	static E_RESULT_CODE LoadAudioSettings(IArchiveReader* pFileReader, CProjectSettings& projectSettings)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto& audioSettings = projectSettings.mAudioSettings;
+
+		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mAudioSettingsGroupId);
+		{
+			audioSettings.mAudioContextType = Meta::EnumTrait<E_AUDIO_CONTEXT_API_TYPE>::FromString(pFileReader->GetString(TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey));
+		}
+		result = result | pFileReader->EndGroup();
+
+		return result;
+	}
+
+
+	E_RESULT_CODE CProjectSettings::Init(IArchiveReader* pFileReader)
+	{
+		if (!pFileReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		result = result | LoadCommonSettings(pFileReader, *this);	
+		result = result | LoadGraphicsSettings(pFileReader, *this);	
+		result = result | LoadAudioSettings(pFileReader, *this);	
+		result = result | LoadLocaleSettings(pFileReader, *this);
+		
 		return RC_OK;
 	}
 
