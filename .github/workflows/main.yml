@@ -97,6 +97,7 @@ jobs:
           ctest -C ${{ matrix.config.build_type }} --output-on-failure
 
       - name: Pack
+        if: contains( ${{ github.ref }}, 'master' )
         shell: bash
         working-directory: build
         run: |
@@ -104,7 +105,7 @@ jobs:
           ${{ matrix.config.archiver }} ${{ matrix.config.artifact }} bin/${{ matrix.config.build_type }}/ Resources/ SandboxGame/ README.md LICENSE CHANGELOG.md TDEngine2/
 
       - name: Deploy
-        if: contains( ${{ github.head_ref }}, 'master' )
+        if: contains( ${{ github.ref }}, 'master' )
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -116,6 +117,7 @@ jobs:
           prerelease: false
 
       - name: Upload Archive
+        if: contains( ${{ github.ref }}, 'master' )
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
