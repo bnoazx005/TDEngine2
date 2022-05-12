@@ -11,7 +11,7 @@ Build status (for all platforms): [![TDEngine2 SDK Build](https://github.com/bno
 2. ### [Current Features](#current-features)
 3. ### [How to Build](#how-to-build)
 
-    ### 3.1 [Visual Studio (Win32)](#vs-win32)
+    ### 3.1 [Visual Studio (Win64)](#vs-win64)
 
     ### 3.2 [Make Utility (UNIX)](#make-unix)
  
@@ -50,25 +50,27 @@ Build status (for all platforms): [![TDEngine2 SDK Build](https://github.com/bno
 ### How to Build<a name="how-to-build"></a>
 
 The project actively uses CMake for the building process. So firstly, you should be sure you have 
-CMake tools of 3.8 version or higher to continue. At the moment the engine supports Win32 and UNIX 
+CMake tools of 3.8 version or higher to continue. At the moment the engine supports Win64 and UNIX 
 platforms.
 
-#### Visual Studio (Win32)<a name="vs-win32"></a>
+**IMPORTANT NOTE!** After you get compiled binaries (precompiled from "Releases" or did it yourself) you also need to prepare resources. This step could be done with **tde2_mesh_converter** utility.
+
+#### Visual Studio (Win64)<a name="vs-win64"></a>
 
 For now we support Visual Studio 2017 and higher versions.
 
 To build all the projects use scripts that were specially prepared for that tasks. For Windows users there are
-two batch scripts **prepare_build_generic_win.bat** and **prepare_build_vs2017_win32.bat**. The first one is common 
+two batch scripts **prepare_build_generic_win.bat** and **prepare_build_vs2017_win64.bat**. The first one is common 
 pipeline for any version of Visual Studio or a build type.
 
 ```console
 prepare_build_generic_win.bat "<<Generator name>>" "<<Build Type>>"
 
 :: or use this one to generate debug for VS2017
-prepare_build_vs2017_win32.bat
+prepare_build_vs2017_win64.bat
 
 :: or use this one to generate debug for VS2022
-prepare_build_vs2022_win32.bat
+prepare_build_vs2022_win64.bat
 ```
 
 Both arguments for the script is one of allowed by CMake tool. _**\<\<Build Type\>\>**_ could be **Debug** or **Release** values.
