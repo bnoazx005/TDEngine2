@@ -28,12 +28,12 @@ textures:
   - instance_id: 0
     texture_bindings: 
       - slot_id: AlbedoMap
-        texture_id: ProjectTextures/rust_albedo.png
+        texture_id: ProjectResources/Textures/rust_albedo.png
         texture_type_id: 4159152309
       - slot_id: NormalMap
-        texture_id: ProjectTextures/rust_normals.png
+        texture_id: ProjectResources/Textures/rust_normals.png
         texture_type_id: 4159152309
       - slot_id: PropertiesMap
-        texture_id: ProjectTextures/rust_properties.tga
+        texture_id: ProjectResources/Textures/rust_properties.tga
         texture_type_id: 4159152309
 transparency_enabled: 0

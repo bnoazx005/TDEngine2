@@ -43,7 +43,7 @@ entities:
               b: 1.000000
               g: 0.000000
               r: 0.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 9
       name: Entity0
@@ -70,7 +70,7 @@ entities:
               b: 1.000000
               g: 1.000000
               r: 0.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 10
       name: Entity1
@@ -97,7 +97,7 @@ entities:
               b: 0.000000
               g: 1.000000
               r: 0.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 11
       name: Entity2
@@ -124,7 +124,7 @@ entities:
               b: 0.000000
               g: 0.000000
               r: 1.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 12
       name: Entity3
@@ -151,7 +151,7 @@ entities:
               b: 0.000000
               g: 1.000000
               r: 0.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 13
       name: Entity4
@@ -178,7 +178,7 @@ entities:
               b: 0.000000
               g: 1.000000
               r: 0.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 14
       name: Entity5
@@ -205,7 +205,7 @@ entities:
               b: 1.000000
               g: 1.000000
               r: 1.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 15
       name: Entity6
@@ -232,7 +232,7 @@ entities:
               b: 1.000000
               g: 0.000000
               r: 1.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 16
       name: Entity7
@@ -259,7 +259,7 @@ entities:
               b: 0.000000
               g: 1.000000
               r: 1.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 17
       name: Entity8
@@ -286,7 +286,7 @@ entities:
               b: 0.000000
               g: 1.000000
               r: 1.000000
-            material: ProjectMaterials/NewMaterial.material
+            material: ProjectResources/Materials/NewMaterial.material
             type_id: 3076350794
       id: 18
       name: Entity9
@@ -385,7 +385,7 @@ entities:
         - component: 
             type_id: 1576149979
         - component: 
-            material: DefaultMaterials/DefaultSkybox.material
+            material: Resources/Materials/DefaultSkybox.material
             mesh: Cube
             type_id: 780504096
       id: 22
@@ -588,7 +588,7 @@ entities:
         - component: 
             type_id: 2065867446
         - component: 
-            material: ProjectMaterials/DefaultSkinningMaterial.material
+            material: ProjectResources/Materials/DefaultSkinningMaterial.material
             mesh: TestAnim2.mesh
             skeleton: TestAnim2.skeleton
             type_id: 344418980

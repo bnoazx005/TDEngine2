@@ -360,7 +360,7 @@ namespace TDEngine2
 
 		if (pFramePostProcessor)
 		{
-			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("DefaultConfigs/default-profile.camera_profile");
+			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("Resources/Configs/default-profile.camera_profile");
 			if (TResourceId::Invalid == defaultProfileResourceId)
 			{
 				return RC_FILE_NOT_FOUND;
@@ -559,8 +559,6 @@ namespace TDEngine2
 
 		static const std::string baseShadersPath   = baseResourcesPath + "Shaders/";
 		static const std::string baseMaterialsPath = baseResourcesPath + "Materials/";
-		static const std::string baseConfigsPath   = baseResourcesPath + "Configs/";
-		static const std::string baseFontsPath   = baseResourcesPath + "Fonts/";
 
 		std::string baseDefaultShadersPath     = baseShadersPath + "Default";
 		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
@@ -582,9 +580,6 @@ namespace TDEngine2
 
 		/// \note Register built-in application's paths
 		if ((RC_OK != (result = pFileSystem->MountPhysicalPath(baseResourcesPath, "Resources/"))) ||
-			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseConfigsPath, "DefaultConfigs/"))) ||
-			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseMaterialsPath, "DefaultMaterials/"))) ||
-			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseFontsPath, "DefaultFonts/"))) ||
 			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
 			(RC_OK != (result = pFileSystem->MountPhysicalPath(basePostEffectsShadersPath, "Shaders/PostEffects/"))) ||
 			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseShadersPath, "Shaders/", 1))))
@@ -839,7 +834,7 @@ namespace TDEngine2
 
 		/// \todo Move this into another place later
 		TRuntimeFontParameters fontParams;
-		fontParams.mTrueTypeFontFilePath = "DefaultFonts/OpenSans-Regular.ttf";
+		fontParams.mTrueTypeFontFilePath = "Resources/Fonts/OpenSans-Regular.ttf";
 
 		mpResourceManagerInstance->Create<IRuntimeFont>("OpenSans.font", fontParams);
 

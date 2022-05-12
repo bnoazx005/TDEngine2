@@ -55,7 +55,7 @@ namespace TDEngine2
 					bool mIsShadowMappingEnabled = true;
 				} mRendererSettings;
 
-				std::string mDefaultSkyboxMaterial = "DefaultMaterials/DefaultSkybox.material";
+				std::string mDefaultSkyboxMaterial = "Resources/Materials/DefaultSkybox.material";
 			} mGraphicsSettings;
 
 			struct

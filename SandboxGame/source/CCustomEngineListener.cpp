@@ -6,7 +6,7 @@
 using namespace TDEngine2;
 
 
-static const std::string DefaultSpriteId = "ProjectTextures/DefaultSprite.tga";
+static const std::string DefaultSpriteId = "ProjectResources/Textures/DefaultSprite.tga";
 
 
 E_RESULT_CODE CCustomEngineListener::OnStart()
@@ -15,7 +15,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 	
-	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultMaterials/DebugTextMaterial.material"));
+	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("Resources/Materials/DebugTextMaterial.material"));
 	if (pFontMaterial)
 	{
 		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<ITextureAtlas>("atlas.info")))
@@ -24,7 +24,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 	}
 
-	if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("ProjectMaterials/DefaultMaterialWithParallax.material")))
+	if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("ProjectResources/Materials/DefaultMaterialWithParallax.material")))
 	{
 		pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "parallaxMappingEnabled", 1.0f);
 	}
@@ -49,15 +49,15 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pMeshTransform = pMeshEntity->GetComponent<CTransform>();
 	pMeshTransform->SetPosition({ 0.0f, -0.2f, 2.0f });
 	auto pMeshContainer = pMeshEntity->AddComponent<CStaticMeshContainer>();
-	pMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
-	pMeshContainer->SetMeshName("ProjectModels/scene.mesh");
+	pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
+	pMeshContainer->SetMeshName("ProjectResources/Models/scene.mesh");
 	
 #if 0 // LODs test
-	pMeshContainer->SetMeshName("ProjectModels/LOD_test.mesh");
+	pMeshContainer->SetMeshName("ProjectResources/Models/LOD_test.mesh");
 	if (auto lodStrategy = pMeshEntity->AddComponent<CLODStrategyComponent>())
 	{
-		lodStrategy->AddLODInstance({ 5.0f, "ProjectModels/LOD_test.mesh", "Cube", "ProjectMaterials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
-		lodStrategy->AddLODInstance({ 10.0f, "ProjectModels/LOD_test.mesh", "Cube_LOD", "ProjectMaterials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
+		lodStrategy->AddLODInstance({ 5.0f, "ProjectResources/Models/LOD_test.mesh", "Cube", "ProjectResources/Materials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
+		lodStrategy->AddLODInstance({ 10.0f, "ProjectResources/Models/LOD_test.mesh", "Cube_LOD", "ProjectResources/Materials/DefaultMaterial.material", E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID });
 	}
 #endif
 #if 0
@@ -71,7 +71,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	auto pPlaneEntity = mpWorld->CreateEntity();
 	auto sr2 = pPlaneEntity->AddComponent<CShadowReceiverComponent>();
 	auto pPlaneMeshContainer = pPlaneEntity->AddComponent<CStaticMeshContainer>();
-	pPlaneMeshContainer->SetMaterialName("ProjectMaterials/DefaultMaterial.material");
+	pPlaneMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
 	pPlaneMeshContainer->SetMeshName("Plane");
 	if (auto pTransform = pPlaneEntity->GetComponent<CTransform>())
 	{
@@ -123,7 +123,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 
 #if 0
-		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("ProjectScenes/TestScene.scene", true))
+		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("ProjectResources/Scenes/TestScene.scene", true))
 		{
 			if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
 			{
@@ -160,7 +160,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 #if 0 // TEST_CODE for binary archive writer
-		if (auto result = mpFileSystem->Open<IBinaryArchiveWriter>("Misc/TestArchive.bin", true))
+		if (auto result = mpFileSystem->Open<IBinaryArchiveWriter>("ProjectResources/Misc/TestArchive.bin", true))
 		{
 			if (IBinaryArchiveWriter* pArchiveWriter = mpFileSystem->Get<IBinaryArchiveWriter>(result.Get()))
 			{
@@ -187,7 +187,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 #if 0 // TEST_CODE for binary archive reader
-		if (auto result = mpFileSystem->Open<IBinaryArchiveReader>("Misc/TestArchive.bin", true))
+		if (auto result = mpFileSystem->Open<IBinaryArchiveReader>("ProjectResources/Misc/TestArchive.bin", true))
 		{
 			if (IBinaryArchiveReader* pArchiveReader = mpFileSystem->Get<IBinaryArchiveReader>(result.Get()))
 			{
@@ -216,7 +216,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 #if 1 // note Test hierarchy of entities
-		pSceneManager->LoadSceneAsync("ProjectScenes/TestScene.scene", [pSceneManager, this](auto)
+		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestScene.scene", [pSceneManager, this](auto)
 		{
 			int x = 0;
 
@@ -238,7 +238,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			if (auto pAnimationContainer = pSpriteGroup->AddComponent<CAnimationContainerComponent>())
 			{
-				pAnimationContainer->SetAnimationClipId("ProjectAnimations/Animation2.animation");
+				pAnimationContainer->SetAnimationClipId("ProjectResources/Animations/Animation2.animation");
 			}
 
 			pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
@@ -460,9 +460,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 				if (auto pMeshContainer = pAnimatedMeshEntity->AddComponent<CSkinnedMeshContainer>())
 				{
-					const std::string meshName = "ProjectModels/TestAnim2";
+					const std::string meshName = "ProjectResources/Models/TestAnim2";
 
-					pMeshContainer->SetMaterialName("ProjectMaterials/DefaultSkinningMaterial.material");
+					pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultSkinningMaterial.material");
 					pMeshContainer->SetMeshName(meshName + ".mesh");
 					pMeshContainer->SetSkeletonName(meshName + ".skeleton");
 					pMeshContainer->SetShowDebugSkeleton(true);
@@ -489,7 +489,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}*/
 		});
 #else
-		pSceneManager->LoadSceneAsync("ProjectScenes/TestScene2.scene", nullptr);
+		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestScene2.scene", nullptr);
 #endif
 
 	}
@@ -498,7 +498,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	
 	auto s = mpFileSystem->GetUserDirectory();
 
-	if (auto pPackage = mpFileSystem->Get<IPackageFileReader>(mpFileSystem->Open<IPackageFileReader>("Misc/NewArchive.pak").Get()))
+	if (auto pPackage = mpFileSystem->Get<IPackageFileReader>(mpFileSystem->Open<IPackageFileReader>("ProjectResources/Misc/NewArchive.pak").Get()))
 	{
 		auto data = pPackage->ReadFileBytes("test.txt");
 	}

@@ -292,7 +292,7 @@ namespace TDEngine2
 		blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
 
 		mDefaultUIMaterialId = mpResourceManager->Create<IMaterial>("DefaultInGameUI.material", editorUIMaterialParams);
-		mDefaultFontMaterialId = mpResourceManager->Load<IMaterial>("DefaultMaterials/UI/DefaultTextMaterial.material");
+		mDefaultFontMaterialId = mpResourceManager->Load<IMaterial>("Resources/Materials/UI/DefaultTextMaterial.material");
 
 		/// \note Create a default vertex declaration for fonts
 		auto createFontVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();
