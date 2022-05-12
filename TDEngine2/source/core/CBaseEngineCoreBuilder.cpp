@@ -635,6 +635,7 @@ namespace TDEngine2
 		static const std::string baseShadersPath = baseResourcesPath + "Shaders/";
 		static const std::string baseMaterialsPath = baseResourcesPath + "Materials/";
 		static const std::string baseConfigsPath = baseResourcesPath + "Configs/";
+		static const std::string baseFontsPath = baseResourcesPath + "Fonts/";
 
 		std::string baseDefaultShadersPath = baseShadersPath + "Default";
 		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
@@ -657,6 +658,7 @@ namespace TDEngine2
 		if ((RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseResourcesPath, "Resources/"))) || 
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseConfigsPath, "DefaultConfigs/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseMaterialsPath, "DefaultMaterials/"))) ||
+			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseFontsPath, "DefaultFonts/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(basePostEffectsShadersPath, "Shaders/PostEffects/"))) ||
 			(RC_OK != (result = mpFileSystemInstance->MountPhysicalPath(baseShadersPath, "Shaders/", 1))))
@@ -810,9 +812,9 @@ namespace TDEngine2
 
 		/// \todo Move this into another place later
 		TRuntimeFontParameters fontParams;
-		fontParams.mTrueTypeFontFilePath = "arial.ttf";
+		fontParams.mTrueTypeFontFilePath = "DefaultFonts/OpenSans-Regular.ttf";
 
-		mpResourceManagerInstance->Create<IRuntimeFont>("Arial.font", fontParams);
+		mpResourceManagerInstance->Create<IRuntimeFont>("OpenSans.font", fontParams);
 
 		return RC_OK;
 	}

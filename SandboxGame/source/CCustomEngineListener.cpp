@@ -288,7 +288,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						if (auto pLabel = pEntity->AddComponent<CLabel>())
 						{
 							pLabel->SetAlignType(E_FONT_ALIGN_POLICY::RIGHT_BOTTOM);
-							pLabel->SetFontId("Arial.font");
+							pLabel->SetFontId("OpenSans.font");
 						}
 
 						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
@@ -436,7 +436,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						{
 							pLabel->SetAlignType(E_FONT_ALIGN_POLICY::CENTER);
 							pLabel->SetOverflowPolicyType(E_TEXT_OVERFLOW_POLICY::BREAK_ALL);
-							pLabel->SetFontId("Arial.font");
+							pLabel->SetFontId("OpenSans.font");
 							pLabel->SetText("TTTTTTTTTTTTTTTTTTTTTTTT");
 						}
 

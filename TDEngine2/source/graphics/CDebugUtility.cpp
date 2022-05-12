@@ -57,7 +57,7 @@ namespace TDEngine2
 
 		mpLinesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr).Get();
 
-		mSystemFontHandle = mpResourceManager->Load<IFont>("Arial.font"); /// \note load system font, which is "Arial" font
+		mSystemFontHandle = mpResourceManager->Load<IFont>("OpenSans.font"); /// \note load system font, which is "OpenSans" font
 
 		mpTextVertDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 		mpTextVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
@@ -185,7 +185,7 @@ namespace TDEngine2
 	{
 		if (mSystemFontHandle == TResourceId::Invalid)
 		{
-			mSystemFontHandle = mpResourceManager->Load<IFont>("Arial.font");
+			mSystemFontHandle = mpResourceManager->Load<IFont>("OpenSans.font");
 		}
 
 		auto pSystemFontResource = mpResourceManager->GetResource<IFont>(mSystemFontHandle);
