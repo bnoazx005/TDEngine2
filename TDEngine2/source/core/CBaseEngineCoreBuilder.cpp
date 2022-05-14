@@ -64,6 +64,7 @@
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/animation/CAnimationClip.h"
 #include "../../include/scene/CSceneManager.h"
+#include "../../include/scene/CPrefabsManifest.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CTransform.h"
 #include "deferOperation.hpp"
@@ -772,24 +773,44 @@ namespace TDEngine2
 			}
 		}
 
-		/// \note register font's resource type
-		pResourceLoader = CreateFontLoader(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), result);
+		/// Register another resources which use another signatures of their factory methods
+		using ResourceLoaderFactoryFunctor2 = std::function<IResourceLoader* (IResourceManager*, IFileSystem*, E_RESULT_CODE&)>;
+		using ResourceFactoryFactoryFunctor2 = std::function<IResourceFactory* (IResourceManager*, E_RESULT_CODE&)>;
 
-		if (result != RC_OK)
+		std::tuple<ResourceLoaderFactoryFunctor2, ResourceFactoryFactoryFunctor2, bool> builtinResourcesConstructorsTable2[]
 		{
-			return result;
-		}
+			{ CreateFontLoader, CreateFontFactory, true },
+			{ CreateLocalizationPackageLoader, CreateLocalizationPackageFactory, true },
+			{ CreatePrefabsManifestLoader, CreatePrefabsManifestFactory, false },
+		};
 
-		pResourceFactory = CreateFontFactory(mpResourceManagerInstance.Get(), result);
-
-		if (result != RC_OK)
+		for (auto&& currResourceConstructors : builtinResourcesConstructorsTable2)
 		{
-			return result;
-		}
+			if (!isWindowModeEnabled && std::get<bool>(currResourceConstructors) != isWindowModeEnabled)
+			{
+				continue;
+			}
 
-		if ((result = registerResourceType(mpResourceManagerInstance.Get(), pResourceLoader, pResourceFactory)) != RC_OK)
-		{
-			return result;
+			pResourceLoader = std::get<ResourceLoaderFactoryFunctor2>(currResourceConstructors)(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), result);
+
+			if (result != RC_OK)
+			{
+				return result;
+			}
+
+			/// create a factory
+			pResourceFactory = std::get<ResourceFactoryFactoryFunctor2>(currResourceConstructors)(mpResourceManagerInstance.Get(), result);
+
+			if (result != RC_OK)
+			{
+				return result;
+			}
+
+			/// \note register a resource type
+			if ((result = registerResourceType(mpResourceManagerInstance.Get(), pResourceLoader, pResourceFactory)) != RC_OK)
+			{
+				return result;
+			}
 		}
 
 		/// \note register runtime font's resource type
@@ -801,26 +822,6 @@ namespace TDEngine2
 		}
 
 		pResourceFactory = CreateRuntimeFontFactory(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if ((result = registerResourceType(mpResourceManagerInstance.Get(), pResourceLoader, pResourceFactory)) != RC_OK)
-		{
-			return result;
-		}
-
-		/// \note register localization package's resource type
-		pResourceLoader = CreateLocalizationPackageLoader(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), result);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		pResourceFactory = CreateLocalizationPackageFactory(mpResourceManagerInstance.Get(), result);
 
 		if (result != RC_OK)
 		{

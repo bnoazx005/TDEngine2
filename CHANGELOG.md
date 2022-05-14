@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.2] 2022-05-12
+## [0.6.2] 2022-05-14
 
 ### Added
+
+* A new type of a resource was added which is **CPrefabsManifest**.
 
 ### Changed
 

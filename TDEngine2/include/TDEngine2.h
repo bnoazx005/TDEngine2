@@ -253,6 +253,10 @@
 #include "scene/CSceneManager.h"
 #include "scene/IScene.h"
 #include "scene/CScene.h"
+#include "scene/IPrefabsRegistry.h"
+#include "scene/IPrefabsManifest.h"
+#include "scene/CPrefabsRegistry.h"
+#include "scene/CPrefabsManifest.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"
