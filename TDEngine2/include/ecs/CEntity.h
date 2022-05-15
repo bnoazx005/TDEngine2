@@ -30,7 +30,7 @@ namespace TDEngine2
 		components.
 	*/
 
-	class CEntity : public CBaseObject, public ISerializable, public CPoolMemoryAllocPolicy<CEntity, 1 << 20>
+	class CEntity : public CBaseObject, public ISerializable, public CPoolMemoryAllocPolicy<CEntity, 1 << 20>, public INonAllocCloneable<CEntity>
 	{
 		public:
 			friend TDE2_API CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result);
@@ -75,6 +75,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE PostLoad(IWorld* pWorld, const std::unordered_map<TEntityId, TEntityId>& entitiesIdentifiersRemapper);
+
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			TDE2_API E_RESULT_CODE Clone(CEntity*& pDestObject) const override;
 
 			/*!
 				\brief The methods set up an identifier for an entity.

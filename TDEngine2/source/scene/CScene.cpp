@@ -91,7 +91,7 @@ namespace TDEngine2
 			LOG_WARNING("[Scene] The version of the scene's asset differs from the engine's one. Loading may unexpectedly fail...");
 		}
 
-		// \note Write down the properties
+		// \note Read the properties
 		pReader->BeginGroup("scene_properties");
 		{
 			mIsMainScene = pReader->GetBool("is_main");
@@ -100,7 +100,7 @@ namespace TDEngine2
 
 		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
 
-		// \note Write down entities
+		// \note Read entities
 		pReader->BeginGroup("entities");
 		{
 			while (pReader->HasNextItem())

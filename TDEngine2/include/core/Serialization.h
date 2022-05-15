@@ -167,4 +167,43 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IArchiveWriter);
 	};
+
+
+	template <typename T>
+	class ICloneable
+	{
+		public:
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+			*/
+
+			TDE2_API virtual TPtr<T> Clone() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICloneable);
+	};
+
+
+	/*!
+		interface INonAllocCloneable
+
+		\brief The main difference from ICloneable that's the current one doesn't present functionality of 
+		allocation a memory for the target object and just copies all the data from current to specified instance
+	*/
+
+	template <typename T>
+	class INonAllocCloneable
+	{
+		public:
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Clone(T*& pDestObject) const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(INonAllocCloneable);
+	};
 }

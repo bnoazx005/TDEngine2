@@ -132,6 +132,28 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+	
+	E_RESULT_CODE CTransform::Clone(IComponent*& pDestObject) const
+	{
+		if (CTransform* pDestComponent = dynamic_cast<CTransform*>(pDestObject))
+		{
+			pDestComponent->mPosition = mPosition;
+			pDestComponent->mRotation = mRotation;
+			pDestComponent->mScale = mScale;
+			pDestComponent->mParentEntityId = mParentEntityId;
+			pDestComponent->mOwnerId = mOwnerId;
+
+			pDestComponent->mLocalToWorldMatrix = mLocalToWorldMatrix;
+			pDestComponent->mWorldToLocalMatrix = mWorldToLocalMatrix;
+			pDestComponent->mHasChanged = mHasChanged;
+
+			std::copy(mChildrenEntities.begin(), mChildrenEntities.end(), std::back_inserter(pDestComponent->mChildrenEntities));
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
 
 	void CTransform::Reset()
 	{

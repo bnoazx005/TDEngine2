@@ -27,7 +27,7 @@ namespace TDEngine2
 		\note The interface is empty by now
 	*/
 
-	class IComponent: public virtual IBaseObject, public ISerializable, public IIntrospectable
+	class IComponent: public virtual IBaseObject, public ISerializable, public IIntrospectable, public INonAllocCloneable<IComponent>
 	{
 		public:
 			typedef std::unordered_map<TEntityId, TEntityId> TEntitiesMapper;

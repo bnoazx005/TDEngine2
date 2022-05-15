@@ -11,9 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* A new type of a resource was added which is **CPrefabsManifest**.
+- A new type of a resource was added which is **CPrefabsManifest**.
 
-* Minimalistic implementation of prefabs' instantiation logic was introduced.
+- Minimalistic implementation of prefabs' instantiation logic was introduced.
+
+- Two new interfaces **ICloneable** and **INonAllocCloneable** were added to support deep copying of objects.
 
 ### Changed
 

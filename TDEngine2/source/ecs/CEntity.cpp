@@ -120,6 +120,23 @@ namespace TDEngine2
 		return result;
 	}
 
+	E_RESULT_CODE CEntity::Clone(CEntity*& pDestObject) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		const TEntityId destEntityId = pDestObject->GetId();
+
+		for (IComponent* pComponent : GetComponents())
+		{
+			if (auto pComponentCopy = mpEntityManager->AddComponent(destEntityId, pComponent->GetComponentTypeId()))
+			{
+				pComponent->Clone(pComponentCopy);
+			}
+		}
+
+		return result;
+	}
+
 	void CEntity::SetId(TEntityId id)
 	{
 		mId = id;
