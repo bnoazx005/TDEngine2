@@ -379,6 +379,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/CSceneManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/CScene.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/CPrefabsManifest.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/CPrefabsRegistry.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseShader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseShaderLoader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CQuadSprite.cpp"

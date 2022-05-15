@@ -2,5 +2,5 @@ meta:
   resource_type: prefabs_manifest
   version_tag: 1
 collection:
-  - prefab_id: fdfd
-    path: fdfdf
+  - prefab_id: TestPrefab
+    path: ProjectResources/Prefabs/TestPrefab.prefab

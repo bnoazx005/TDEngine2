@@ -254,4 +254,7 @@ namespace TDEngine2
 	{
 		return mpComponentManager->HasComponent<T>(id);
 	}
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(CEntityManager)
 }

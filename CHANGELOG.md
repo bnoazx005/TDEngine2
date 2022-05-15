@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * A new type of a resource was added which is **CPrefabsManifest**.
 
+* Minimalistic implementation of prefabs' instantiation logic was introduced.
+
 ### Changed
 
 - Remove redundant default and project file paths mountings.

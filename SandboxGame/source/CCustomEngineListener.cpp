@@ -503,6 +503,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		auto data = pPackage->ReadFileBytes("test.txt");
 	}
 
+	mpResourceManager->Load<IPrefabsManifest>("ProjectResources/PrefabsCollection.manifest");
+
+	auto pPrefabsRegistry = CreatePrefabsRegistry(mpEngineCoreInstance->GetSubsystem<IResourceManager>(), mpEngineCoreInstance->GetSubsystem<IFileSystem>(), mpWorld, result);
+	auto pEntity = pPrefabsRegistry->Spawn("TestPrefab");
+
 	return RC_OK;
 }
 

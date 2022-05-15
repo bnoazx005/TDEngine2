@@ -277,4 +277,7 @@ namespace TDEngine2
 
 			TDE2_API virtual bool _hasComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IComponentManager)
 }
