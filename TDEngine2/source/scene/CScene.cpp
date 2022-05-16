@@ -140,7 +140,7 @@ namespace TDEngine2
 		{
 			if (CEntity* pEntity = mpWorld->FindEntity(currEntityId))
 			{
-				result = result | pEntity->PostLoad(mpWorld.Get(), entitiesIdsMap);
+				result = result | pEntity->PostLoad(mpWorld->GetEntityManager(), entitiesIdsMap);
 
 				TDE2_ASSERT(RC_OK == result);
 			}

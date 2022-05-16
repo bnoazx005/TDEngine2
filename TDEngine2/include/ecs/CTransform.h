@@ -66,13 +66,13 @@ namespace TDEngine2
 				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
 				make them correctly corresponds to saved state
 
-				\param[in, out] pWorld A pointer to game world
+				\param[in, out] pEntityManager A pointer to entities manager
 				\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE PostLoad(IWorld* pWorld, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
+			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
 
 			/*!
 				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
@@ -255,7 +255,7 @@ namespace TDEngine2
 			TVector3    mScale;
 
 			TEntityId   mParentEntityId = TEntityId::Invalid;
-			TEntityId   mOwnerId = TEntityId::Invalid;
+			TEntityId   mOwnerId = TEntityId::Invalid; /// mOwnerId contains id of the entity itself
 
 			TMatrix4    mLocalToWorldMatrix;
 			TMatrix4    mWorldToLocalMatrix;

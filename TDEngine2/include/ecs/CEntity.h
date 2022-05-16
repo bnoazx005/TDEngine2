@@ -74,7 +74,7 @@ namespace TDEngine2
 				make them correctly corresponds to saved state
 			*/
 
-			TDE2_API E_RESULT_CODE PostLoad(IWorld* pWorld, const std::unordered_map<TEntityId, TEntityId>& entitiesIdentifiersRemapper);
+			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const std::unordered_map<TEntityId, TEntityId>& entitiesIdentifiersRemapper);
 
 			/*!
 				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.

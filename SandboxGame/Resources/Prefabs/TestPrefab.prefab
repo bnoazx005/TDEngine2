@@ -1,0 +1,63 @@
+entities:
+  - entity: 
+        components: 
+          - component: 
+              position: 
+                x: 4.131809
+                y: 3.633381
+                z: 9.559008
+              rotation: 
+                w: 1.000000
+                x: 0.000000
+                y: 0.000000
+                z: 0.000000
+              scale: 
+                x: 1.000000
+                y: 1.000000
+                z: 1.000000
+              Children:
+                - child_id: 18
+                - child_id: 19
+              type_id: 3864726948
+        id: 17
+        name: Entity0
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 1.775475
+              y: 0.711692
+              z: 4.620808
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            parent_id: 17
+            type_id: 3864726948
+      id: 18
+      name: Entity1
+  - entity: 
+      components: 
+        - component: 
+            position: 
+              x: 4.035676
+              y: 1.048006
+              z: 7.796564
+            rotation: 
+              w: 1.000000
+              x: 0.000000
+              y: 0.000000
+              z: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            parent_id: 17
+            type_id: 3864726948
+      id: 19
+      name: Entity2

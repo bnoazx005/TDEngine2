@@ -211,6 +211,8 @@ namespace TDEngine2
 
 			TDE2_API TPtr<IRaycastContext> GetRaycastContext() const override;
 
+			TDE2_API CEntityManager* GetEntityManager() const override;
+
 			TDE2_API F32 GetTimeScaleFactor() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWorld)

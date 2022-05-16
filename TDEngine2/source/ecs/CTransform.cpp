@@ -97,15 +97,17 @@ namespace TDEngine2
 				}
 			}
 			pWriter->EndGroup();
+
+			pWriter->SetUInt32("parent_id", static_cast<U32>(mParentEntityId));
 		}
 		pWriter->EndGroup();
 
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CTransform::PostLoad(IWorld* pWorld, const TEntitiesMapper& entitiesIdentifiersRemapper)
+	E_RESULT_CODE CTransform::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
-		if (!pWorld)
+		if (!pEntityManager)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -121,7 +123,7 @@ namespace TDEngine2
 
 			currChildId = it->second;
 
-			if (CEntity* pChildEntity = pWorld->FindEntity(currChildId))
+			if (CEntity* pChildEntity = pEntityManager->GetEntity(currChildId))
 			{
 				if (auto pTransform = pChildEntity->GetComponent<CTransform>())
 				{

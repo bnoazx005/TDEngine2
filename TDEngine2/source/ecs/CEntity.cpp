@@ -108,13 +108,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEntity::PostLoad(IWorld* pWorld, const std::unordered_map<TEntityId, TEntityId>& entitiesIdentifiersRemapper)
+	E_RESULT_CODE CEntity::PostLoad(CEntityManager* pEntityManager, const std::unordered_map<TEntityId, TEntityId>& entitiesIdentifiersRemapper)
 	{
 		E_RESULT_CODE result = RC_OK;
 
 		for (IComponent* pComponent : GetComponents())
 		{
-			result = result | pComponent->PostLoad(pWorld, entitiesIdentifiersRemapper);
+			result = result | pComponent->PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 		}
 
 		return result;

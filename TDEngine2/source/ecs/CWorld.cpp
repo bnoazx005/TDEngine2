@@ -197,6 +197,13 @@ namespace TDEngine2
 		return mpRaycastContext;
 	}
 
+	CEntityManager* CWorld::GetEntityManager() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return mpEntityManager;
+	}
+
 	F32 CWorld::GetTimeScaleFactor() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

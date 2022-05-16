@@ -39,7 +39,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseComponent::PostLoad(IWorld* pWorld, const TEntitiesMapper& entitiesIdentifiersRemapper)
+	E_RESULT_CODE CBaseComponent::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
 		return RC_OK;
 	}

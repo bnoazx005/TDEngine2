@@ -17,6 +17,7 @@
 namespace TDEngine2
 {
 	class IWorld;
+	class CEntityManager;
 
 
 	/*!
@@ -44,11 +45,11 @@ namespace TDEngine2
 				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
 				make them correctly corresponds to saved state
 
-				\param[in, out] pWorld A pointer to game world
+				\param[in, out] pEntityManager A pointer to entities manager
 				\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
 			*/
 
-			TDE2_API virtual E_RESULT_CODE PostLoad(IWorld* pWorld, const TEntitiesMapper& entitiesIdentifiersRemapper) = 0;
+			TDE2_API virtual E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) = 0;
 
 			TDE2_API virtual TypeId GetComponentTypeId() const = 0;
 		protected:

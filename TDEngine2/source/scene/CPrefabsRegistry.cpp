@@ -67,23 +67,28 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE LoadPrefabHierarchy(CEntity* pPrefabRootEntity, IYAMLFileReader* pReader, const TPtr<IWorld>& pWorld)
+	static E_RESULT_CODE LoadPrefabHierarchy(CEntity* pPrefabRootEntity, IYAMLFileReader* pReader, TPtr<CEntityManager>& pEntityManager)
 	{
 		E_RESULT_CODE result = RC_OK;
+
+		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+		std::vector<TEntityId> createdEntities;
+
+		createdEntities.push_back(pPrefabRootEntity->GetId());
 
 		// \note Read entities
 		result = result | pReader->BeginGroup("entities");
 		{
 			while (pReader->HasNextItem())
 			{
-				CEntity* pNewEntity = pWorld->CreateEntity();
+				CEntity* pNewEntity = pEntityManager->Create();
+				createdEntities.push_back(pNewEntity->GetId());
 
 				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
 					result = result | pReader->BeginGroup("entity");
 					{
-						// \todo Implement remapping of entity's identifiers
-					//	entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id")), pNewEntity->GetId());
+						entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id")), pNewEntity->GetId());
 					}
 					result = result | pReader->EndGroup();
 
@@ -96,12 +101,22 @@ namespace TDEngine2
 		}
 		result = result | pReader->EndGroup();
 
+		// \note First time we resolve references within the prefab's hierarchy. The second time we do it when the instance of the prototype is created
+		for (TEntityId currEntityId : createdEntities)
+		{
+			if (CEntity* pEntity = pEntityManager->GetEntity(currEntityId))
+			{
+				result = result | pEntity->PostLoad(pEntityManager.Get(), entitiesIdsMap);
+				TDE2_ASSERT(RC_OK == result);
+			}
+		}
+
 		return result;
 	}
 
 
 	static CEntity* LoadPrefabInfoFromManifest(const TPtr<IResourceManager>& pResourceManager, const TPtr<IFileSystem>& pFileSystem, 
-											const TPtr<CEntityManager>& pEntityManager, const TPtr<IWorld>& pWorld, const std::string& id)
+											TPtr<CEntityManager>& pEntityManager, TPtr<IWorld>& pWorld, const std::string& id)
 	{
 		/// \note Iterate over all CPrefabsManifest resources and try to find the corresponding prefab's path
 		std::string pathToPrefab;
@@ -130,10 +145,8 @@ namespace TDEngine2
 			CEntity* pPrefabEntity = pEntityManager->Create(id); /// \note This will be a root for all entities that's stored in the file
 			TDE2_ASSERT(pPrefabEntity);
 
-			E_RESULT_CODE result = LoadPrefabHierarchy(pPrefabEntity, pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pWorld);
+			E_RESULT_CODE result = LoadPrefabHierarchy(pPrefabEntity, pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pEntityManager);
 			TDE2_ASSERT(RC_OK == result);
-
-			/// \todo Add resolving/remapping of identifiers inside the prefab's hierarchy 
 
 			return pPrefabEntity;
 		}
