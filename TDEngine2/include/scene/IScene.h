@@ -20,6 +20,7 @@ namespace TDEngine2
 	class IWorld;
 	class IResourceManager;
 	class CEntity;
+	class IPrefabsRegistry;
 	struct TBaseCameraParameters;
 
 
@@ -32,6 +33,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IWorld)
+	TDE2_DECLARE_SCOPED_PTR(IPrefabsRegistry)
 
 
 	/*!
@@ -47,6 +49,7 @@ namespace TDEngine2
 				\brief The method initializes the internal state of the object
 
 				\param[in, out] pWorld A pointer to IWorld 
+				\param[in, out] pPrefabsRegistry A pointer to IPrefabsRegistry 
 				\param[in] id A name of a scene, should be globally unique
 				\param[in] scenePath A path to a scene's serialized data
 				\param[in] isMainScene The flag tells whether the scene is main or not. There could be the only one main scene at the game
@@ -54,7 +57,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const std::string& id, const std::string& scenePath, bool isMainScene) = 0;
 
 			/*!
 				\brief The method creates a new entity which belongs to the scene
@@ -117,8 +120,17 @@ namespace TDEngine2
 #endif
 
 			TDE2_API virtual CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params) = 0;
+			
+			/*!
+				\brief The method instantiates a new copy of specified prefab's hierarchy
 
-			TDE2_API virtual CEntity* Spawn(const std::string& prefabId, const CEntity* pParentEntity = nullptr) = 0;
+				\param[in] id An identifier of a prefab which is defined in prefabs collection
+				\param[in, out] pParent A pointer which the new instantiated tree will be attached to
+
+				\return A pointer to a root entity of a prefab's instance
+			*/
+
+			TDE2_API virtual CEntity* Spawn(const std::string& prefabId, CEntity* pParentEntity = nullptr) = 0;
 
 			/*!
 				\brief The method iterates over each entity which is linked to current scene

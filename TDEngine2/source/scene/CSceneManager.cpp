@@ -14,7 +14,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSceneManager::Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings)
+	E_RESULT_CODE CSceneManager::Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const TSceneManagerSettings& settings)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -32,6 +32,7 @@ namespace TDEngine2
 
 		mpFileSystem = pFileSystem;
 		mpWorld = pWorld;
+		mpPrefabsRegistry = pPrefabsRegistry;
 
 		mIsInitialized = true;
 
@@ -72,7 +73,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
+		IScene* pScene = TDEngine2::CreateScene(mpWorld, mpPrefabsRegistry, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
 		if (RC_OK != result || !pScene)
 		{
@@ -136,7 +137,7 @@ namespace TDEngine2
 
 			E_RESULT_CODE result = RC_OK;
 
-			IScene* pScene = TDEngine2::CreateScene(mpWorld, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
+			IScene* pScene = TDEngine2::CreateScene(mpWorld, mpPrefabsRegistry, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
 
 			if (onResultCallback && (RC_OK != result || !pScene))
 			{
@@ -249,7 +250,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		IScene* pScene = TDEngine2::CreateScene(mpWorld, name, Wrench::StringUtils::GetEmptyStr(), mpScenes.empty(), result);
+		IScene* pScene = TDEngine2::CreateScene(mpWorld, mpPrefabsRegistry, name, Wrench::StringUtils::GetEmptyStr(), mpScenes.empty(), result);
 
 		if (RC_OK != result)
 		{
@@ -315,8 +316,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings, E_RESULT_CODE& result)
+	TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const TSceneManagerSettings& settings, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISceneManager, CSceneManager, result, pFileSystem, pWorld, settings);
+		return CREATE_IMPL(ISceneManager, CSceneManager, result, pFileSystem, pWorld, pPrefabsRegistry, settings);
 	}
 }

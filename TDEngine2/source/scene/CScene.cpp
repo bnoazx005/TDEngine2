@@ -6,6 +6,7 @@
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
+#include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CStaticMesh.h"
@@ -25,7 +26,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CScene::Init(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene)
+	E_RESULT_CODE CScene::Init(TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const std::string& id, const std::string& scenePath, bool isMainScene)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -34,12 +35,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!pWorld || id.empty())
+		if (!pWorld || !pPrefabsRegistry || id.empty())
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpWorld = pWorld;
+		mpPrefabsRegistry = pPrefabsRegistry;
 
 		mName = id;
 		mPath = scenePath;
@@ -341,12 +343,12 @@ namespace TDEngine2
 		return nullptr;
 	}
 
-	CEntity* CScene::Spawn(const std::string& prefabId, const CEntity* pParentEntity)
+	CEntity* CScene::Spawn(const std::string& prefabId, CEntity* pParentEntity)
 	{
-		/// \todo mpPrefabRegistry->Spawn(prefabId, pParentEntity)
-		/// \todo Add all entities into mEntities
-		
-		return nullptr;
+		return mpPrefabsRegistry->Spawn(prefabId, pParentEntity, [this](const TEntityId& id)
+		{
+			mEntities.push_back(id);
+		});
 	}
 
 	void CScene::ForEachEntity(const std::function<void(CEntity*)>& action)
@@ -390,8 +392,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IScene* CreateScene(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result)
+	TDE2_API IScene* CreateScene(TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IScene, CScene, result, pWorld, id, scenePath, isMainScene);
+		return CREATE_IMPL(IScene, CScene, result, pWorld, pPrefabsRegistry, id, scenePath, isMainScene);
 	}
 }

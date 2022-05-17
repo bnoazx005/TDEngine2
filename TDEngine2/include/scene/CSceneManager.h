@@ -26,25 +26,26 @@ namespace TDEngine2
 		\return A pointer to CFileInputStream's implementation
 	*/
 
-	TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings, E_RESULT_CODE& result);
+	TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const TSceneManagerSettings& settings, E_RESULT_CODE& result);
 
 
 	class CSceneManager : public CBaseObject, public ISceneManager
 	{
 		public:
-			friend TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem>, TPtr<IWorld>, const TSceneManagerSettings&, E_RESULT_CODE&);
+			friend TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem>, TPtr<IWorld>, TPtr<IPrefabsRegistry>, const TSceneManagerSettings&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes the internal state of the object
 
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
 				\param[in, out] pWorld A pointer to IWorld which is a global game state
+				\param[in, out] pPrefabsRegistry A pointer to IPrefabsRegistry 
 				\param[in] settings Start up settings
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const TSceneManagerSettings& settings) override;
 
 			/*!
 				\brief The method loads a scene based on path to that
@@ -131,13 +132,14 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			mutable std::mutex mMutex;
+			mutable std::mutex     mMutex;
 
-			TPtr<IFileSystem>  mpFileSystem;
-			TPtr<IWorld>       mpWorld;
+			TPtr<IFileSystem>      mpFileSystem;
+			TPtr<IWorld>           mpWorld;
+			TPtr<IPrefabsRegistry> mpPrefabsRegistry;
 
-			TSceneManagerSettings mSettings;
+			TSceneManagerSettings  mSettings;
 
-			TScenesArray mpScenes;
+			TScenesArray           mpScenes;
 	};
 }

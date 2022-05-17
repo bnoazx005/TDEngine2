@@ -39,7 +39,7 @@ namespace TDEngine2
 		\return A pointer to CStaticMeshFactory's implementation
 	*/
 
-	TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(TPtr<IResourceManager> pResourceManager, TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, E_RESULT_CODE& result);
+	TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, E_RESULT_CODE& result);
 
 
 	/*!
@@ -51,7 +51,7 @@ namespace TDEngine2
 	class CPrefabsRegistry : public CBaseObject, public IPrefabsRegistry
 	{
 		public:
-			friend TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(TPtr<IResourceManager>, TPtr<IFileSystem>, TPtr<IWorld>, E_RESULT_CODE&);
+			friend TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager*, IFileSystem*, IWorld*, E_RESULT_CODE&);
 		public:
 			struct TPrefabInfoEntity
 			{
@@ -71,15 +71,15 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld) override;
 
-			TDE2_API CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr) override;
+			TDE2_API CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback & prefabEntityVisitor = nullptr) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabsRegistry)
 		private:
-			TPtr<IResourceManager>  mpResourceManager;
-			TPtr<IFileSystem>       mpFileSystem;
-			TPtr<IWorld>            mpWorld;
+			IResourceManager*       mpResourceManager;
+			IFileSystem*            mpFileSystem;
+			IWorld*                 mpWorld;
 			TPtr<IComponentManager> mpComponentsManager;
 			TPtr<CEntityManager>    mpEntitiesManager;
 			TPtr<IEventManager>     mpProxyEventsManager;

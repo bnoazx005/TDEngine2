@@ -20,12 +20,14 @@ namespace TDEngine2
 	class IScene;
 	class IFileSystem;
 	class IWorld;
+	class IPrefabsRegistry;
 
 	enum class TSceneId : U32;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
 	TDE2_DECLARE_SCOPED_PTR(IWorld)
+	TDE2_DECLARE_SCOPED_PTR(IPrefabsRegistry)
 
 
 	/*!
@@ -63,12 +65,13 @@ namespace TDEngine2
 
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
 				\param[in, out] pWorld A pointer to IWorld which is a global game state
+				\param[in, out] pPrefabsRegistry A pointer to IPrefabsRegistry 
 				\param[in] settings Start up settings
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, const TSceneManagerSettings& settings) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const TSceneManagerSettings& settings) = 0;
 
 			/*!
 				\brief The method loads a scene based on path to that

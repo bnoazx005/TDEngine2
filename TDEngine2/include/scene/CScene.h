@@ -19,6 +19,7 @@ namespace TDEngine2
 		\brief A factory function for creation objects of CScene's type
 
 		\param[in, out] pWorld A pointer to IWorld
+		\param[in, out] pPrefabsRegistry A pointer to IPrefabsRegistry 
 		\param[in] id A name of a scene, should be globally unique
 		\param[in] isMainScene The flag tells whether the scene is main or not
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
@@ -26,13 +27,13 @@ namespace TDEngine2
 		\return A pointer to CScene's implementation
 	*/
 
-	TDE2_API IScene* CreateScene(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result);
+	TDE2_API IScene* CreateScene(TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result);
 
 
 	class CScene: public CBaseObject, public IScene
 	{
 		public:
-			friend TDE2_API IScene* CreateScene(TPtr<IWorld>, const std::string&, const std::string&, bool, E_RESULT_CODE&);
+			friend TDE2_API IScene* CreateScene(TPtr<IWorld>, TPtr<IPrefabsRegistry>, const std::string&, const std::string&, bool, E_RESULT_CODE&);
 		public:
 			typedef std::vector<TEntityId> TEntitiesRegistry;
 		public:
@@ -40,6 +41,7 @@ namespace TDEngine2
 				\brief The method initializes the internal state of the object
 
 				\param[in, out] pWorld A pointer to IWorld
+				\param[in, out] pPrefabsRegistry A pointer to IPrefabsRegistry 
 				\param[in] id A name of a scene, should be globally unique
 				\param[in] scenePath A path to a scene's serialized data
 				\param[in] isMainScene The flag tells whether the scene is main or not
@@ -47,7 +49,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IWorld> pWorld, const std::string& id, const std::string& scenePath, bool isMainScene) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const std::string& id, const std::string& scenePath, bool isMainScene) override;
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -130,8 +132,17 @@ namespace TDEngine2
 #endif
 
 			TDE2_API CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params) override;
+			
+			/*!
+				\brief The method instantiates a new copy of specified prefab's hierarchy
 
-			TDE2_API CEntity* Spawn(const std::string& prefabId, const CEntity* pParentEntity = nullptr) override;
+				\param[in] id An identifier of a prefab which is defined in prefabs collection
+				\param[in, out] pParent A pointer which the new instantiated tree will be attached to
+
+				\return A pointer to a root entity of a prefab's instance
+			*/
+
+			TDE2_API CEntity* Spawn(const std::string& prefabId, CEntity* pParentEntity = nullptr) override;
 
 			/*!
 				\brief The method iterates over each entity which is linked to current scene
@@ -164,6 +175,7 @@ namespace TDEngine2
 			mutable std::mutex mMutex;
 
 			TPtr<IWorld> mpWorld;
+			TPtr<IPrefabsRegistry> mpPrefabsRegistry;
 
 			std::string mName;
 			std::string mPath;

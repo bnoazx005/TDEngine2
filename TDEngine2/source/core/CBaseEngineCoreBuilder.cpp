@@ -65,6 +65,7 @@
 #include "../../include/graphics/animation/CAnimationClip.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/scene/CPrefabsManifest.h"
+#include "../../include/scene/CPrefabsRegistry.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CTransform.h"
 #include "deferOperation.hpp"
@@ -505,8 +506,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
+		auto pWorld = TPtr<IWorld>(CreateWorld(mpWindowSystemInstance->GetEventManager(), result));
+
 		// \todo load settings from  settings
-		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance, TPtr<IWorld>(CreateWorld(mpWindowSystemInstance->GetEventManager(), result)), {}, result));
+		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance, pWorld,
+															TPtr<IPrefabsRegistry>(CreatePrefabsRegistry(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), pWorld.Get(), result)),
+															{}, result));
 		if (result != RC_OK)
 		{
 			return result;

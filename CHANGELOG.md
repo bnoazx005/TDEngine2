@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Two new interfaces **ICloneable** and **INonAllocCloneable** were added to support deep copying of objects.
 
+- The API of IScene was extended with a new public method Spawn.
+
 ### Changed
 
 - Remove redundant default and project file paths mountings.

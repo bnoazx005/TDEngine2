@@ -10,6 +10,7 @@
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
 #include "../core/IBaseObject.h"
+#include <functional>
 
 
 namespace TDEngine2
@@ -44,6 +45,8 @@ namespace TDEngine2
 	class IPrefabsRegistry: public virtual IBaseObject
 	{
 		public:
+			typedef std::function<void(TEntityId)> TEntityCallback;
+		public:
 			/*!
 				\brief The method initializes the internal state of the object
 
@@ -54,10 +57,23 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld) = 0;
 
-			TDE2_API virtual CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr) = 0;
+			/*!
+				\brief The method instantiates a new copy of specified prefab's hierarchy
+
+				\param[in] id An identifier of a prefab which is defined in prefabs collection
+				\param[in, out] pParent A pointer which the new instantiated tree will be attached to
+				\param[in] prefabEntityVisitor A callback that's invoked over each created entity of prefab's isntance
+
+				\return A pointer to a root entity of a prefab's instance
+			*/
+
+			TDE2_API virtual CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback& prefabEntityVisitor = nullptr) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPrefabsRegistry)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IPrefabsRegistry)
 }

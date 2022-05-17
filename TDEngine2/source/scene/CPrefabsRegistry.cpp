@@ -19,7 +19,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CPrefabsRegistry::Init(TPtr<IResourceManager> pResourceManager, TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld)
+	E_RESULT_CODE CPrefabsRegistry::Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld)
 	{
 		if (mIsInitialized)
 		{
@@ -61,7 +61,7 @@ namespace TDEngine2
 	}
 
 
-	static CPrefabsRegistry::TPrefabInfoEntity* TryGetLoadedPrefabEntity(const TPtr<IWorld>& pWorld, CPrefabsRegistry::TPrefabsTable& loadedPrefabsTable, const std::string& id)
+	static CPrefabsRegistry::TPrefabInfoEntity* TryGetLoadedPrefabEntity(IWorld* pWorld, CPrefabsRegistry::TPrefabsTable& loadedPrefabsTable, const std::string& id)
 	{
 		auto&& it = loadedPrefabsTable.find(id);
 		return (it == loadedPrefabsTable.end()) ? nullptr : &it->second;
@@ -127,8 +127,8 @@ namespace TDEngine2
 	}
 
 
-	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabInfoFromManifest(const TPtr<IResourceManager>& pResourceManager, const TPtr<IFileSystem>& pFileSystem,
-																			TPtr<CEntityManager>& pEntityManager, TPtr<IWorld>& pWorld, const std::string& id)
+	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabInfoFromManifest(IResourceManager* pResourceManager, IFileSystem* pFileSystem,
+																			TPtr<CEntityManager>& pEntityManager, IWorld* pWorld, const std::string& id)
 	{
 		/// \note Iterate over all CPrefabsManifest resources and try to find the corresponding prefab's path
 		std::string pathToPrefab;
@@ -161,7 +161,8 @@ namespace TDEngine2
 	}
 
 
-	static CEntity* ClonePrefabHierarchy(const CPrefabsRegistry::TPrefabInfoEntity& prefabInfo, TPtr<CEntityManager>& pEntityManager, TPtr<IWorld>& pWorld)
+	static CEntity* ClonePrefabHierarchy(const CPrefabsRegistry::TPrefabInfoEntity& prefabInfo, TPtr<CEntityManager>& pEntityManager, IWorld* pWorld,
+										const IPrefabsRegistry::TEntityCallback& prefabEntityVisitor)
 	{
 		CEntity* pPrefabInstance = nullptr;
 
@@ -173,6 +174,11 @@ namespace TDEngine2
 			{
 				if (auto pNewEntity = pWorld->CreateEntity(pOriginalEntity->GetName()))
 				{
+					if (prefabEntityVisitor)
+					{
+						prefabEntityVisitor(pNewEntity->GetId());
+					}
+
 					E_RESULT_CODE result = pOriginalEntity->Clone(pNewEntity);
 					TDE2_ASSERT(RC_OK == result);
 
@@ -204,7 +210,7 @@ namespace TDEngine2
 	}
 
 
-	CEntity* CPrefabsRegistry::Spawn(const std::string& id, CEntity* pParent)
+	CEntity* CPrefabsRegistry::Spawn(const std::string& id, CEntity* pParent, const TEntityCallback& prefabEntityVisitor)
 	{
 		auto pPrefabInfo = TryGetLoadedPrefabEntity(mpWorld, mPrefabsToEntityTable, id);
 		if (!pPrefabInfo)
@@ -223,18 +229,18 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		CEntity* pPrefabInstance = ClonePrefabHierarchy(*pPrefabInfo, mpEntitiesManager, mpWorld);
+		CEntity* pPrefabInstance = ClonePrefabHierarchy(*pPrefabInfo, mpEntitiesManager, mpWorld, prefabEntityVisitor);
 		
 		if (pParent)
 		{
-			GroupEntities(mpWorld.Get(), pParent->GetId(), pPrefabInstance->GetId());
+			GroupEntities(mpWorld, pParent->GetId(), pPrefabInstance->GetId());
 		}
 
 		return pPrefabInstance;
 	}
 
 
-	TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(TPtr<IResourceManager> pResourceManager, TPtr<IFileSystem> pFileSystem, TPtr<IWorld> pWorld, E_RESULT_CODE& result)
+	TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IPrefabsRegistry, CPrefabsRegistry, result, pResourceManager, pFileSystem, pWorld);
 	}
