@@ -134,6 +134,8 @@ namespace TDEngine2
 			}
 		}
 
+		pDestObject->SetName(mName);
+
 		return result;
 	}
 

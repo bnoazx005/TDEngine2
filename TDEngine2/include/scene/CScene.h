@@ -131,6 +131,8 @@ namespace TDEngine2
 
 			TDE2_API CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params) override;
 
+			TDE2_API CEntity* Spawn(const std::string& prefabId, const CEntity* pParentEntity = nullptr) override;
+
 			/*!
 				\brief The method iterates over each entity which is linked to current scene
 

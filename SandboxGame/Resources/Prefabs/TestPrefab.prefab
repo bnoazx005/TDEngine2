@@ -18,6 +18,7 @@ entities:
               Children:
                 - child_id: 18
                 - child_id: 19
+              owner_id: 17
               type_id: 3864726948
         id: 17
         name: Entity0
@@ -38,6 +39,7 @@ entities:
               y: 1.000000
               z: 1.000000
             parent_id: 17
+            owner_id: 18
             type_id: 3864726948
       id: 18
       name: Entity1
@@ -58,6 +60,7 @@ entities:
               y: 1.000000
               z: 1.000000
             parent_id: 17
+            owner_id: 18
             type_id: 3864726948
       id: 19
       name: Entity2

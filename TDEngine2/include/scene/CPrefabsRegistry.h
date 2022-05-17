@@ -53,7 +53,13 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(TPtr<IResourceManager>, TPtr<IFileSystem>, TPtr<IWorld>, E_RESULT_CODE&);
 		public:
-			typedef std::unordered_map<std::string, TEntityId> TPrefabsTable;
+			struct TPrefabInfoEntity
+			{
+				TEntityId mRootEntityId = TEntityId::Invalid;
+				std::vector<TEntityId> mRelatedEntities;
+			};
+
+			typedef std::unordered_map<std::string, TPrefabInfoEntity> TPrefabsTable;
 		public:
 			/*!
 				\brief The method initializes the internal state of the object

@@ -341,6 +341,14 @@ namespace TDEngine2
 		return nullptr;
 	}
 
+	CEntity* CScene::Spawn(const std::string& prefabId, const CEntity* pParentEntity)
+	{
+		/// \todo mpPrefabRegistry->Spawn(prefabId, pParentEntity)
+		/// \todo Add all entities into mEntities
+		
+		return nullptr;
+	}
+
 	void CScene::ForEachEntity(const std::function<void(CEntity*)>& action)
 	{
 		TDE2_PROFILER_SCOPE("CScene::ForEachEntity");

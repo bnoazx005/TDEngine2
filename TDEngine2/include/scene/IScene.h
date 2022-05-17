@@ -118,6 +118,8 @@ namespace TDEngine2
 
 			TDE2_API virtual CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params) = 0;
 
+			TDE2_API virtual CEntity* Spawn(const std::string& prefabId, const CEntity* pParentEntity = nullptr) = 0;
+
 			/*!
 				\brief The method iterates over each entity which is linked to current scene
 

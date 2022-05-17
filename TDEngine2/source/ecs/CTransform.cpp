@@ -58,6 +58,9 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+		mParentEntityId = static_cast<TEntityId>(pReader->GetUInt32("parent_id", static_cast<U32>(TEntityId::Invalid)));
+		mOwnerId = static_cast<TEntityId>(pReader->GetUInt32("owner_id", static_cast<U32>(TEntityId::Invalid)));
+
 		return RC_OK;
 	}
 
@@ -99,6 +102,7 @@ namespace TDEngine2
 			pWriter->EndGroup();
 
 			pWriter->SetUInt32("parent_id", static_cast<U32>(mParentEntityId));
+			pWriter->SetUInt32("owner_id", static_cast<U32>(mOwnerId));
 		}
 		pWriter->EndGroup();
 

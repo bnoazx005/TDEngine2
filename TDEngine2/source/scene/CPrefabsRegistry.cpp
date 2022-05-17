@@ -2,10 +2,11 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/CEventManager.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CComponentManager.h"
 #include "../../include/ecs/CEntityManager.h"
+#include "../../include/ecs/CTransform.h"
 #include "../../include/scene/CPrefabsManifest.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
@@ -60,21 +61,21 @@ namespace TDEngine2
 	}
 
 
-	static CEntity* TryGetLoadedPrefabEntity(const TPtr<IWorld>& pWorld, const CPrefabsRegistry::TPrefabsTable& loadedPrefabsTable, const std::string& id)
+	static CPrefabsRegistry::TPrefabInfoEntity* TryGetLoadedPrefabEntity(const TPtr<IWorld>& pWorld, CPrefabsRegistry::TPrefabsTable& loadedPrefabsTable, const std::string& id)
 	{
-		auto it = loadedPrefabsTable.find(id);
-		return (it == loadedPrefabsTable.cend()) ? nullptr : pWorld->FindEntity(it->second);
+		auto&& it = loadedPrefabsTable.find(id);
+		return (it == loadedPrefabsTable.end()) ? nullptr : &it->second;
 	}
 
 
-	static E_RESULT_CODE LoadPrefabHierarchy(CEntity* pPrefabRootEntity, IYAMLFileReader* pReader, TPtr<CEntityManager>& pEntityManager)
+	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabHierarchy(IYAMLFileReader* pReader, TPtr<CEntityManager>& pEntityManager)
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
-		std::vector<TEntityId> createdEntities;
+		CPrefabsRegistry::TPrefabInfoEntity prefabInfo;
 
-		createdEntities.push_back(pPrefabRootEntity->GetId());
+		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+		auto& createdEntities = prefabInfo.mRelatedEntities;
 
 		// \note Read entities
 		result = result | pReader->BeginGroup("entities");
@@ -101,6 +102,8 @@ namespace TDEngine2
 		}
 		result = result | pReader->EndGroup();
 
+		CEntity* pPrefabRootEntity = nullptr;
+
 		// \note First time we resolve references within the prefab's hierarchy. The second time we do it when the instance of the prototype is created
 		for (TEntityId currEntityId : createdEntities)
 		{
@@ -108,15 +111,24 @@ namespace TDEngine2
 			{
 				result = result | pEntity->PostLoad(pEntityManager.Get(), entitiesIdsMap);
 				TDE2_ASSERT(RC_OK == result);
+
+				if (auto pTransform = pEntity->GetComponent<CTransform>())
+				{
+					if (TEntityId::Invalid == pTransform->GetParent())
+					{
+						prefabInfo.mRootEntityId = pEntity->GetId();
+					}
+				}
 			}
 		}
 
-		return result;
+		TDE2_ASSERT(RC_OK == result);
+		return std::move(prefabInfo);
 	}
 
 
-	static CEntity* LoadPrefabInfoFromManifest(const TPtr<IResourceManager>& pResourceManager, const TPtr<IFileSystem>& pFileSystem, 
-											TPtr<CEntityManager>& pEntityManager, TPtr<IWorld>& pWorld, const std::string& id)
+	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabInfoFromManifest(const TPtr<IResourceManager>& pResourceManager, const TPtr<IFileSystem>& pFileSystem,
+																			TPtr<CEntityManager>& pEntityManager, TPtr<IWorld>& pWorld, const std::string& id)
 	{
 		/// \note Iterate over all CPrefabsManifest resources and try to find the corresponding prefab's path
 		std::string pathToPrefab;
@@ -135,35 +147,75 @@ namespace TDEngine2
 
 		if (pathToPrefab.empty())
 		{
-			return nullptr;
+			return {};
 		}
 
 		/// \note If we've found one try to read archive's data
 		/// \todo Make it more dependency free and type agnostic
 		if (TResult<TFileEntryId> prefabFileId = pFileSystem->Open<IYAMLFileReader>(pathToPrefab))
 		{
-			CEntity* pPrefabEntity = pEntityManager->Create(id); /// \note This will be a root for all entities that's stored in the file
-			TDE2_ASSERT(pPrefabEntity);
-
-			E_RESULT_CODE result = LoadPrefabHierarchy(pPrefabEntity, pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pEntityManager);
-			TDE2_ASSERT(RC_OK == result);
-
-			return pPrefabEntity;
+			return std::move(LoadPrefabHierarchy(pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pEntityManager));
 		}
 
-		return nullptr;
+		return {};
+	}
+
+
+	static CEntity* ClonePrefabHierarchy(const CPrefabsRegistry::TPrefabInfoEntity& prefabInfo, TPtr<CEntityManager>& pEntityManager, TPtr<IWorld>& pWorld)
+	{
+		CEntity* pPrefabInstance = nullptr;
+
+		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+
+		for (auto&& currEntityId : prefabInfo.mRelatedEntities)
+		{
+			if (auto pOriginalEntity = pEntityManager->GetEntity(currEntityId))
+			{
+				if (auto pNewEntity = pWorld->CreateEntity(pOriginalEntity->GetName()))
+				{
+					E_RESULT_CODE result = pOriginalEntity->Clone(pNewEntity);
+					TDE2_ASSERT(RC_OK == result);
+
+					if (currEntityId == prefabInfo.mRootEntityId)
+					{
+						pPrefabInstance = pNewEntity;
+					}
+
+					entitiesIdsMap.emplace(pOriginalEntity->GetId(), pNewEntity->GetId());
+				}
+			}
+		}
+
+		TDE2_ASSERT(pPrefabInstance);
+
+		/// \note Run post-clone resolving of internal references
+		E_RESULT_CODE result = RC_OK;
+
+		for (TEntityId currEntityId : prefabInfo.mRelatedEntities)
+		{
+			if (CEntity* pEntity = pEntityManager->GetEntity(currEntityId))
+			{
+				result = result | pEntity->PostLoad(pEntityManager.Get(), entitiesIdsMap);
+				TDE2_ASSERT(RC_OK == result);
+			}
+		}
+
+		return pPrefabInstance;
 	}
 
 
 	CEntity* CPrefabsRegistry::Spawn(const std::string& id, CEntity* pParent)
 	{
-		CEntity* pPrefabEntity = TryGetLoadedPrefabEntity(mpWorld, mPrefabsToEntityTable, id);
-		if (!pPrefabEntity)
+		auto pPrefabInfo = TryGetLoadedPrefabEntity(mpWorld, mPrefabsToEntityTable, id);
+		if (!pPrefabInfo)
 		{
-			pPrefabEntity = LoadPrefabInfoFromManifest(mpResourceManager, mpFileSystem, mpEntitiesManager, mpWorld, id);
+			auto&& loadedPrefabInfo = LoadPrefabInfoFromManifest(mpResourceManager, mpFileSystem, mpEntitiesManager, mpWorld, id);
+			mPrefabsToEntityTable.emplace(id, std::move(loadedPrefabInfo));
+
+			pPrefabInfo = &mPrefabsToEntityTable[id];
 		}
 
-		if (!pPrefabEntity)
+		if (!pPrefabInfo)
 		{
 			LOG_ERROR(Wrench::StringUtils::Format("[CPrefabsRegistry] The prefab {0} couldn't be loaded, there is no information about it in loaded manifests", id));
 			TDE2_ASSERT(false);
@@ -171,14 +223,12 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		/// \note Clone the entity's data into a new one
-		CEntity* pPrefabInstance = mpWorld->CreateEntity(id);
-		TDE2_ASSERT(pPrefabInstance);
-
-		E_RESULT_CODE result = pPrefabEntity->Clone(pPrefabInstance);
-		TDE2_ASSERT(RC_OK == result);
+		CEntity* pPrefabInstance = ClonePrefabHierarchy(*pPrefabInfo, mpEntitiesManager, mpWorld);
 		
-		/// \todo Run post-clone resolving of internal references
+		if (pParent)
+		{
+			GroupEntities(mpWorld.Get(), pParent->GetId(), pPrefabInstance->GetId());
+		}
 
 		return pPrefabInstance;
 	}
