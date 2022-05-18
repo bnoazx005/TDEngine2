@@ -199,9 +199,9 @@ namespace TDEngine2
 
 		for (TEntityId currEntityId : prefabInfo.mRelatedEntities)
 		{
-			if (CEntity* pEntity = pEntityManager->GetEntity(currEntityId))
+			if (CEntity* pEntity = pWorld->FindEntity(entitiesIdsMap[currEntityId]))
 			{
-				result = result | pEntity->PostLoad(pEntityManager.Get(), entitiesIdsMap);
+				result = result | pEntity->PostLoad(pWorld->GetEntityManager(), entitiesIdsMap);
 				TDE2_ASSERT(RC_OK == result);
 			}
 		}

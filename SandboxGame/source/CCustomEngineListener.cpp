@@ -14,7 +14,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	E_RESULT_CODE result = RC_OK;
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
-	
+
+	mpResourceManager->Load<IPrefabsManifest>("ProjectResources/PrefabsCollection.manifest");
+
 	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("Resources/Materials/DebugTextMaterial.material"));
 	if (pFontMaterial)
 	{
@@ -120,6 +122,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					}
 				}
 			}
+
+			pMainScene->Spawn("TestPrefab");
 		}
 
 #if 0
@@ -502,8 +506,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		auto data = pPackage->ReadFileBytes("test.txt");
 	}
-
-	mpResourceManager->Load<IPrefabsManifest>("ProjectResources/PrefabsCollection.manifest");
 
 	return RC_OK;
 }

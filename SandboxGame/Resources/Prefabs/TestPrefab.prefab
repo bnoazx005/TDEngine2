@@ -60,7 +60,7 @@ entities:
               y: 1.000000
               z: 1.000000
             parent_id: 17
-            owner_id: 18
+            owner_id: 19
             type_id: 3864726948
       id: 19
       name: Entity2

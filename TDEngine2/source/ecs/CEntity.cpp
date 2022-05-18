@@ -128,7 +128,7 @@ namespace TDEngine2
 
 		for (IComponent* pComponent : GetComponents())
 		{
-			if (auto pComponentCopy = mpEntityManager->AddComponent(destEntityId, pComponent->GetComponentTypeId()))
+			if (auto pComponentCopy = pDestObject->AddComponent(pComponent->GetComponentTypeId()))
 			{
 				pComponent->Clone(pComponentCopy);
 			}
@@ -152,6 +152,11 @@ namespace TDEngine2
 	void CEntity::Reset()
 	{
 		mId = TEntityId::Invalid;
+	}
+
+	IComponent* CEntity::AddComponent(TypeId componentTypeId)
+	{
+		return mpEntityManager->AddComponent(mId, componentTypeId);
 	}
 
 	std::vector<IComponent*> CEntity::GetComponents() const

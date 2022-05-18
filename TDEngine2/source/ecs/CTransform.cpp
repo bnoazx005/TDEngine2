@@ -116,6 +116,12 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		auto ownerEntityIt = entitiesIdentifiersRemapper.find(mOwnerId);
+		if (ownerEntityIt != entitiesIdentifiersRemapper.cend())
+		{
+			mOwnerId = ownerEntityIt->second;
+		}
+
 		for (TEntityId& currChildId : mChildrenEntities)
 		{
 			auto it = entitiesIdentifiersRemapper.find(currChildId);
