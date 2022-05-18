@@ -76,6 +76,8 @@ namespace TDEngine2
 			TDE2_API CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback & prefabEntityVisitor = nullptr) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabsRegistry)
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		private:
 			IResourceManager*       mpResourceManager;
 			IFileSystem*            mpFileSystem;

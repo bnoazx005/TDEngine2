@@ -5,8 +5,8 @@
 using namespace TDEngine2;
 
 
-static F32 EaseInOutCubic(F32 x) { return x < 0.5f ? 4.0f * x * x * x : 1.0f - std::pow(-2.0f * x + 2.0f, 3.0) * 0.5f; }
-static F32 EaseOutExpo(F32 x) { return CMathUtils::Abs(x - 1.0f) < 1e-3f ? 1.0f : 1.0f - std::pow(2.0, -10.0f * x); }
+static F32 EaseInOutCubic(F32 x) { return x < 0.5f ? 4.0f * x * x * x : 1.0f - std::pow(-2.0f * x + 2.0f, 3.0f) * 0.5f; }
+static F32 EaseOutExpo(F32 x) { return CMathUtils::Abs(x - 1.0f) < 1e-3f ? 1.0f : 1.0f - std::pow(2.0f, -10.0f * x); }
 
 
 TEST_CASE("CAnimationCurve Tests")

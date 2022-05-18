@@ -60,6 +60,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CPrefabsRegistry::_onFreeInternal()
+	{
+		mpEntitiesManager = nullptr;
+		mpProxyEventsManager = nullptr; // \note The order matters because mpEntitiesManager uses raw pointer to mpProxeEventsManager
+
+		return RC_OK;
+	}
+
 
 	static CPrefabsRegistry::TPrefabInfoEntity* TryGetLoadedPrefabEntity(IWorld* pWorld, CPrefabsRegistry::TPrefabsTable& loadedPrefabsTable, const std::string& id)
 	{
