@@ -290,6 +290,9 @@ entities:
             type_id: 3076350794
       id: 26
       name: Entity9
+  - link:
+      prefab_id: TestPrefab
+
 name: Test
 scene_properties: 
   is_main: 0

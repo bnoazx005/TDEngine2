@@ -17,6 +17,7 @@
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/core/CProjectSettings.h"
 #include <unordered_map>
+#include <unordered_set>
 
 
 namespace TDEngine2
@@ -101,28 +102,53 @@ namespace TDEngine2
 		pReader->EndGroup();
 
 		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+		std::unordered_set<TEntityId> nonPrefabEntitiesSet;
 
 		// \note Read entities
 		pReader->BeginGroup("entities");
 		{
 			while (pReader->HasNextItem())
 			{
-				CEntity* pNewEntity = mpWorld->CreateEntity();
-
 				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
+					TEntityId entityId = TEntityId::Invalid;
+
+					pReader->BeginGroup("entity"); /// \note Read id first, it's a tag which data block we should read next
+					{
+						entityId = static_cast<TEntityId>(pReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid)));
+					}
+					pReader->EndGroup();
+
+					if (TEntityId::Invalid == entityId) /// \note If the entityId is empty then try to read prefab
+					{
+						pReader->BeginGroup("link");
+						{
+							auto pInstance = Spawn(
+								pReader->GetString("prefab_id"),
+								mpWorld->FindEntity(static_cast<TEntityId>(pReader->GetUInt32("parent_id", static_cast<U32>(TEntityId::Invalid)))));
+
+							TDE2_ASSERT(pInstance);
+						}
+						pReader->EndGroup();
+
+						continue;
+					}
+
+					CEntity* pNewEntity = mpWorld->CreateEntity();
+
 					pReader->BeginGroup("entity");
 					{
 						// \todo Implement remapping of entity's identifiers
-						entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id")), pNewEntity->GetId());
+						entitiesIdsMap.emplace(entityId, pNewEntity->GetId());
+						nonPrefabEntitiesSet.emplace(pNewEntity->GetId());
 					}
 					pReader->EndGroup();
 
 					pNewEntity->Load(pReader);
+
+					mEntities.push_back(pNewEntity->GetId());
 				}
 				pReader->EndGroup();
-
-				mEntities.push_back(pNewEntity->GetId());
 			}
 		}
 		pReader->EndGroup();
@@ -140,6 +166,11 @@ namespace TDEngine2
 
 		for (TEntityId currEntityId : mEntities)
 		{
+			if (nonPrefabEntitiesSet.find(currEntityId) == nonPrefabEntitiesSet.cend())
+			{
+				continue; // \note If there is no information about the entity's identifier that means it's a prefab. It's been already resolved so there is no need for post-process step
+			}
+
 			if (CEntity* pEntity = mpWorld->FindEntity(currEntityId))
 			{
 				result = result | pEntity->PostLoad(mpWorld->GetEntityManager(), entitiesIdsMap);
@@ -345,6 +376,8 @@ namespace TDEngine2
 
 	CEntity* CScene::Spawn(const std::string& prefabId, CEntity* pParentEntity)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		return mpPrefabsRegistry->Spawn(prefabId, pParentEntity, [this](const TEntityId& id)
 		{
 			mEntities.push_back(id);

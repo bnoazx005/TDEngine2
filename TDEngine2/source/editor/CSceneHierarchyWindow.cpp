@@ -102,9 +102,11 @@ namespace TDEngine2
 
 						const bool isLeafEntity = pTransform->GetChildren().empty();
 
+						const std::string fieldStr = Wrench::StringUtils::Format("{0}##{1}", pEntity->GetName(), static_cast<U32>(pEntity->GetId()));
+
 						if (isLeafEntity)
 						{
-							if (mpImGUIContext->SelectableItem(pEntity->GetName()))
+							if (mpImGUIContext->SelectableItem(fieldStr))
 							{
 								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
 								mpSelectedScene = nullptr;
@@ -127,7 +129,7 @@ namespace TDEngine2
 						bool isOpened = false;
 						bool isSelected = false;
 
-						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(pEntity->GetName());
+						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr);
 
 						if (isOpened)
 						{

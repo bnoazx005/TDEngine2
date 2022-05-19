@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.3] 2022-05-18
 
+### Added
+
+- Add support of prefab's links within scene's assets.
+
 ### Fixed
 
 - Incorrect destruction of **CPrefabsRegistry**'s instance was fixed. 
