@@ -93,6 +93,92 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IComponentFactory, CSceneInfoComponentFactory, result);
 	}
+
+
+	/*!
+		\brief CPrefabLinkInfoComponent's definition
+	*/
+
+	CPrefabLinkInfoComponent::CPrefabLinkInfoComponent() :
+		CBaseComponent()
+	{
+	}
+
+	E_RESULT_CODE CPrefabLinkInfoComponent::Load(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_FAIL;
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CPrefabLinkInfoComponent::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_FAIL;
+		}
+
+		pWriter->BeginGroup("component");
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(CPrefabLinkInfoComponent::GetTypeId()));
+		}
+		pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
+	void CPrefabLinkInfoComponent::SetPrefabLinkId(const std::string& id)
+	{
+		mPrefabLinkId = id;
+	}
+
+	const std::string& CPrefabLinkInfoComponent::GetPrefabLinkId() const
+	{
+		return mPrefabLinkId;
+	}
+
+
+	IComponent* CreatePrefabLinkInfoComponent(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IComponent, CPrefabLinkInfoComponent, result);
+	}
+
+
+	/*!
+		\brief CPrefabLinkInfoComponentFactory's definition
+	*/
+
+	CPrefabLinkInfoComponentFactory::CPrefabLinkInfoComponentFactory() :
+		CBaseComponentFactory()
+	{
+	}
+
+	IComponent* CPrefabLinkInfoComponentFactory::CreateDefault() const
+	{
+		E_RESULT_CODE result = RC_OK;
+		return CreatePrefabLinkInfoComponent(result);
+	}
+
+	E_RESULT_CODE CPrefabLinkInfoComponentFactory::SetupComponent(CPrefabLinkInfoComponent* pComponent, const TPrefabLinkInfoComponentParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pComponent->SetPrefabLinkId(params.mPrefabLinkId);
+
+		return RC_OK;
+	}
+
+
+	IComponentFactory* CreatePrefabLinkInfoComponentFactory(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IComponentFactory, CPrefabLinkInfoComponentFactory, result);
+	}
 }
 
 #endif

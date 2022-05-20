@@ -460,6 +460,7 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
+			CreatePrefabLinkInfoComponentFactory,
 			CreateEditorCameraFactory,
 #endif
 			//etc

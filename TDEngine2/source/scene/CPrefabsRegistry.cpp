@@ -10,6 +10,7 @@
 #include "../../include/scene/CPrefabsManifest.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/ecs/EditorComponents.h"
 
 
 namespace TDEngine2
@@ -109,8 +110,6 @@ namespace TDEngine2
 			}
 		}
 		result = result | pReader->EndGroup();
-
-		CEntity* pPrefabRootEntity = nullptr;
 
 		// \note First time we resolve references within the prefab's hierarchy. The second time we do it when the instance of the prototype is created
 		for (TEntityId currEntityId : createdEntities)
@@ -238,7 +237,14 @@ namespace TDEngine2
 		}
 
 		CEntity* pPrefabInstance = ClonePrefabHierarchy(*pPrefabInfo, mpEntitiesManager, mpWorld, prefabEntityVisitor);
-		
+
+#if TDE2_EDITORS_ENABLED
+		if (auto pPrefabLinkInfo = pPrefabInstance->AddComponent<CPrefabLinkInfoComponent>())
+		{
+			pPrefabLinkInfo->SetPrefabLinkId(id);
+		}
+#endif
+
 		if (pParent)
 		{
 			GroupEntities(mpWorld, pParent->GetId(), pPrefabInstance->GetId());

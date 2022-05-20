@@ -16,12 +16,29 @@
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/core/CProjectSettings.h"
+#include "../../include/ecs/CTransform.h"
 #include <unordered_map>
 #include <unordered_set>
 
 
 namespace TDEngine2
 {
+	struct TSceneArchiveKeys
+	{
+		static const std::string mPrefabLinkGroupId;
+
+		struct TPrefabLinkGroupKeys
+		{
+			static const std::string mPrefabIdKey;
+			static const std::string mParentIdKey;
+		};
+	};
+
+	const std::string TSceneArchiveKeys::mPrefabLinkGroupId = "link";
+	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey = "prefab_id";
+	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey = "parent_id";
+
+
 	CScene::CScene() :
 		CBaseObject()
 	{
@@ -121,11 +138,12 @@ namespace TDEngine2
 
 					if (TEntityId::Invalid == entityId) /// \note If the entityId is empty then try to read prefab
 					{
-						pReader->BeginGroup("link");
+						pReader->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
 						{
 							auto pInstance = Spawn(
-								pReader->GetString("prefab_id"),
-								mpWorld->FindEntity(static_cast<TEntityId>(pReader->GetUInt32("parent_id", static_cast<U32>(TEntityId::Invalid)))));
+								pReader->GetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey),
+								mpWorld->FindEntity(static_cast<TEntityId>(
+									pReader->GetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(TEntityId::Invalid)))));
 
 							TDE2_ASSERT(pInstance);
 						}
@@ -208,6 +226,25 @@ namespace TDEngine2
 				{
 					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 					{
+#if TDE2_EDITORS_ENABLED
+						if (auto pPrefabLinkInfo = pCurrEntity->GetComponent<CPrefabLinkInfoComponent>())
+						{
+							pWriter->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
+							{
+								pWriter->SetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey, pPrefabLinkInfo->GetPrefabLinkId());
+
+								if (auto pTransform = pCurrEntity->GetComponent<CTransform>())
+								{
+									if (TEntityId::Invalid != pTransform->GetParent())
+									{
+										pWriter->SetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(pTransform->GetParent()));
+									}
+								}
+							}
+							pWriter->EndGroup();
+						}
+#endif
+
 						pCurrEntity->Save(pWriter);
 					}
 					pWriter->EndGroup();
