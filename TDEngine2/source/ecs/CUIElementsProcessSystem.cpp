@@ -445,6 +445,11 @@ namespace TDEngine2
 
 	static void SortLayoutElementEntities(IWorld* pWorld, CUIElementsProcessSystem::TLayoutElementsContext& layoutElementsContext)
 	{
+		layoutElementsContext.mChildToParentTable.clear();
+		layoutElementsContext.mEntities.clear();
+		layoutElementsContext.mpTransforms.clear();
+		layoutElementsContext.mpLayoutElements.clear();
+
 		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CLayoutElement>();
 		if (entities.empty())
 		{
@@ -488,9 +493,6 @@ namespace TDEngine2
 		}
 
 		entities.clear();
-
-		layoutElementsContext.mChildToParentTable.clear();
-		layoutElementsContext.mEntities.clear();
 
 		std::stack<std::tuple<TEntityId, USIZE>> entitiesToProcess;
 

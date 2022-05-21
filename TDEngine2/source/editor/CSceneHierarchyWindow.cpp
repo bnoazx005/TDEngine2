@@ -1,4 +1,5 @@
 #include "../../include/editor/CSceneHierarchyWindow.h"
+#include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/scene/ISceneManager.h"
@@ -8,6 +9,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/editor/CSelectionManager.h"
 #include "../../include/editor/ecs/EditorComponents.h"
+#include <stack>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -40,6 +42,43 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+
+	static const std::string EntityContextMenuId = "EntityOperations";
+
+
+	static void DrawEntityContextMenu(IImGUIContext* pImGUIContext, ISelectionManager* pSelectionManager, TPtr<IWorld> pWorld)
+	{
+		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [pSelectionManager, pWorld](IImGUIContext& imguiContext)
+		{
+			imguiContext.MenuItem("Delete", "Del", [pSelectionManager, pWorld]
+			{
+				std::stack<TEntityId> entitiesToDestroy;
+				entitiesToDestroy.push(pSelectionManager->GetSelectedEntityId());
+
+				while (!entitiesToDestroy.empty())
+				{
+					const TEntityId id = entitiesToDestroy.top();
+					entitiesToDestroy.pop();
+
+					if (CEntity* pEntity = pWorld->FindEntity(id))
+					{
+						if (CTransform* pTransform = pEntity->GetComponent<CTransform>())
+						{
+							for (const TEntityId currChildId : pTransform->GetChildren())
+							{
+								entitiesToDestroy.push(currChildId);
+							}
+						}
+
+						E_RESULT_CODE result = pWorld->Destroy(pEntity);
+						TDE2_ASSERT(RC_OK == result);
+					}
+				}				
+			});
+		});
+	}
+
 
 	void CSceneHierarchyEditorWindow::_onDraw()
 	{
@@ -123,6 +162,11 @@ namespace TDEngine2
 								});
 							}
 
+							if (mpSelectionManager->GetSelectedEntityId() == pEntity->GetId())
+							{
+								DrawEntityContextMenu(mpImGUIContext, mpSelectionManager, pWorld);
+							}
+
 							return;
 						}
 
@@ -150,6 +194,16 @@ namespace TDEngine2
 						{
 							mpSelectionManager->SetSelectedEntity(pEntity->GetId());
 							mpSelectedScene = nullptr;
+						}
+
+						if (mpSelectionManager->GetSelectedEntityId() == pEntity->GetId())
+						{
+							DrawEntityContextMenu(mpImGUIContext, mpSelectionManager, pWorld);
+
+							if (mpImGUIContext->IsMouseClicked(1))
+							{
+								mpImGUIContext->ShowModalWindow(EntityContextMenuId);
+							}
 						}
 					};
 

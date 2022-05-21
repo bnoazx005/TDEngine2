@@ -114,6 +114,7 @@ namespace TDEngine2
 
 		mTransforms.clear();		
 		mSprites.clear();
+		mBatches.clear();
 
 		CEntity* pCurrEntity = nullptr;
 

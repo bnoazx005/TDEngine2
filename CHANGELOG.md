@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.3] 2022-05-2020
+## [0.6.3] 2022-05-21
 
 ### Added
 
 - Add support of prefab's links within scene's assets.
 
 - Add a new component **CPrefabLinkInfoComponent** to store in-editor information about instantiated prefabs. 
+
+- A context menu for hierachy's window was added which for now supports deletion of entities.
 
 ### Fixed
 
