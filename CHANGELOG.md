@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A context menu for hierachy's window was added which for now supports deletion of entities.
 
+- Functionality of creating new entities/loading prefabs was added into the hierarchy's window.
+
 ### Fixed
 
 - Incorrect destruction of **CPrefabsRegistry**'s instance was fixed. 

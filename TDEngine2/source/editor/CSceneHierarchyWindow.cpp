@@ -108,15 +108,27 @@ namespace TDEngine2
 					// \note Display context menu of the scene's header					
 					mpImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("{0}##Context_Menu", sceneName), [&isInvalidState, this, sceneName, pCurrScene](IImGUIContext& imguiContext)
 					{
-						if (pCurrScene->IsMainScene()) // \note The main scene cannot be deleted by a user
+						if (!pCurrScene->IsMainScene()) // \note The main scene cannot be deleted by a user
 						{
-							return;
+							imguiContext.MenuItem("Unload Scene Chunk", Wrench::StringUtils::GetEmptyStr(), [&isInvalidState, this, sceneName]
+							{
+								_unloadSceneOperation(sceneName);
+								isInvalidState = true;
+							});
 						}
 
-						imguiContext.MenuItem("Unload Scene Chunk", Wrench::StringUtils::GetEmptyStr(), [&isInvalidState, this, sceneName]
+						imguiContext.MenuItem("Create New Entity", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
 						{
-							_unloadSceneOperation(sceneName);
-							isInvalidState = true;
+							if (!pCurrScene) 
+							{
+								return;
+							}
+
+							/// \note Also a new created entity becomes selected at the same time
+							if (CEntity* pEntity = pCurrScene->CreateEntity("NewEntity"))
+							{
+								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+							}
 						});
 					});
 
@@ -200,7 +212,7 @@ namespace TDEngine2
 						{
 							DrawEntityContextMenu(mpImGUIContext, mpSelectionManager, pWorld);
 
-							if (mpImGUIContext->IsMouseClicked(1))
+							if (mpImGUIContext->IsMouseClicked(1) && mpImGUIContext->IsItemHovered())
 							{
 								mpImGUIContext->ShowModalWindow(EntityContextMenuId);
 							}
