@@ -70,6 +70,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback& prefabEntityVisitor = nullptr) = 0;
+
+			/*!
+				\brief The method returns an array of prefabs identifier that were declared in already loaded prefabs manifest 
+			*/
+
+			TDE2_API virtual const std::vector<std::string>& GetKnownPrefabsIdentifiers() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPrefabsRegistry)
 	};

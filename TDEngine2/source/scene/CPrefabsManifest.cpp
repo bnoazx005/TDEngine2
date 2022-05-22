@@ -112,6 +112,18 @@ namespace TDEngine2
 		return it == mPrefabsMappingsTable.cend() ? Wrench::StringUtils::GetEmptyStr() : it->second;
 	}
 
+	std::vector<std::string> CPrefabsManifest::GetPrefabsIdentifiers() const
+	{
+		std::vector<std::string> prefabsIdentifiers;
+
+		for (auto&& prefabInfoEntity : mPrefabsMappingsTable)
+		{
+			prefabsIdentifiers.emplace_back(prefabInfoEntity.first);
+		}
+
+		return std::move(prefabsIdentifiers);
+	}
+
 	const TPtr<IResourceLoader> CPrefabsManifest::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IPrefabsManifest>();

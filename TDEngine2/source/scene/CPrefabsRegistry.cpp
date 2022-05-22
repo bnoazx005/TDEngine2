@@ -11,6 +11,7 @@
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/ecs/EditorComponents.h"
+#include <algorithm> 
 
 
 namespace TDEngine2
@@ -251,6 +252,23 @@ namespace TDEngine2
 		}
 
 		return pPrefabInstance;
+	}
+
+	const std::vector<std::string>& CPrefabsRegistry::GetKnownPrefabsIdentifiers() const
+	{
+		static std::vector<std::string> prefabsList;
+		prefabsList.clear();
+
+		for (auto&& currResourceId : mpResourceManager->GetResourcesListByType<CPrefabsManifest>())
+		{
+			if (auto pPrefabsCollection = mpResourceManager->GetResource<IPrefabsManifest>(mpResourceManager->GetResourceId(currResourceId)))
+			{
+				auto&& prefabsIdentifiers = pPrefabsCollection->GetPrefabsIdentifiers();
+				std::copy(prefabsIdentifiers.cbegin(), prefabsIdentifiers.cend(), std::back_inserter(prefabsList));
+			}
+		}
+
+		return prefabsList;
 	}
 
 

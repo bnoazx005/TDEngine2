@@ -132,6 +132,8 @@ namespace TDEngine2
 
 			TDE2_API virtual TPtr<IWorld> GetWorld() const = 0;
 
+			TDE2_API virtual TPtr<IPrefabsRegistry> GetPrefabsRegistry() const = 0;
+
 			/*!
 				\return The method returns an array of currently loaded chunks
 			*/

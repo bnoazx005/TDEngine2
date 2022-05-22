@@ -236,7 +236,14 @@ namespace TDEngine2
 
 	TPtr<IWorld> CSceneManager::GetWorld() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
 		return mpWorld;
+	}
+
+	TPtr<IPrefabsRegistry> CSceneManager::GetPrefabsRegistry() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return mpPrefabsRegistry;
 	}
 
 	const CSceneManager::TScenesArray& CSceneManager::GetLoadedScenes() const

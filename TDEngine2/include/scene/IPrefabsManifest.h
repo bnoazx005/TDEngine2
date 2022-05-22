@@ -63,6 +63,7 @@ namespace TDEngine2
 
 			TDE2_API virtual const std::string& GetPathToPrefabById(const std::string& prefabId) const = 0;
 
+			TDE2_API virtual std::vector<std::string> GetPrefabsIdentifiers() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPrefabsManifest)
 	};

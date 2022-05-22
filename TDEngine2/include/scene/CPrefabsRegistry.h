@@ -74,6 +74,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld) override;
 
 			TDE2_API CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback & prefabEntityVisitor = nullptr) override;
+
+			/*!
+				\brief The method returns an array of prefabs identifier that were declared in already loaded prefabs manifest
+			*/
+
+			TDE2_API const std::vector<std::string>& GetKnownPrefabsIdentifiers() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabsRegistry)
 

@@ -4,6 +4,7 @@
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/IScene.h"
+#include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CTransform.h"
@@ -128,6 +129,22 @@ namespace TDEngine2
 							if (CEntity* pEntity = pCurrScene->CreateEntity("NewEntity"))
 							{
 								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+							}
+						});
+
+						imguiContext.MenuItem("Load Prefab", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
+						{
+							if (!pCurrScene)
+							{
+								return;
+							}
+
+							if (auto pPrefabsRegistry = mpSceneManager->GetPrefabsRegistry())
+							{
+								auto&& prefabsIdentifiers = pPrefabsRegistry->GetKnownPrefabsIdentifiers();
+
+								mpImGUIContext->ShowModalWindow("PrefabSelection");
+
 							}
 						});
 					});

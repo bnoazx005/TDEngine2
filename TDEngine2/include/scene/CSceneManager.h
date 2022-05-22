@@ -114,6 +114,8 @@ namespace TDEngine2
 
 			TDE2_API TPtr<IWorld> GetWorld() const override;
 
+			TDE2_API TPtr<IPrefabsRegistry> GetPrefabsRegistry() const override;
+
 			/*!
 				\return The method returns an array of currently loaded chunks
 			*/
