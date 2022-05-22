@@ -222,7 +222,7 @@ namespace TDEngine2
 
 						if (isLeafEntity)
 						{
-							if (mpImGUIContext->SelectableItem(fieldStr))
+							if (mpImGUIContext->SelectableItem(fieldStr, mpSelectionManager->GetSelectedEntityId() == pEntity->GetId()))
 							{
 								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
 								mpSelectedScene = nullptr;
@@ -250,7 +250,7 @@ namespace TDEngine2
 						bool isOpened = false;
 						bool isSelected = false;
 
-						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr);
+						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, mpSelectionManager->GetSelectedEntityId() == pEntity->GetId());
 
 						if (isOpened)
 						{
