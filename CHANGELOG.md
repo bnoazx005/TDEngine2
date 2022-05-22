@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.3] 2022-05-21
+## [0.6.3] 2022-05-22
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A context menu for hierachy's window was added which for now supports deletion of entities.
 
 - Functionality of creating new entities/loading prefabs was added into the hierarchy's window.
+
+- Linkage of prefab's instances into scenes was added.
 
 ### Fixed
 

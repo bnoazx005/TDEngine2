@@ -46,6 +46,7 @@ namespace TDEngine2
 
 
 	static const std::string EntityContextMenuId = "EntityOperations";
+	static const std::string PrefabsSelectionMenuId = "Select a Prefab...##PrefabsSelectionWindow";
 
 
 	static void DrawEntityContextMenu(IImGUIContext* pImGUIContext, ISelectionManager* pSelectionManager, TPtr<IWorld> pWorld)
@@ -79,6 +80,9 @@ namespace TDEngine2
 			});
 		});
 	}
+
+
+	static std::function<bool()> DrawPrefabsSelectionWindow = nullptr;
 
 
 	void CSceneHierarchyEditorWindow::_onDraw()
@@ -139,12 +143,56 @@ namespace TDEngine2
 								return;
 							}
 
+							mSelectedPrefabIndex = 0;
+
 							if (auto pPrefabsRegistry = mpSceneManager->GetPrefabsRegistry())
 							{
 								auto&& prefabsIdentifiers = pPrefabsRegistry->GetKnownPrefabsIdentifiers();
 
-								mpImGUIContext->ShowModalWindow("PrefabSelection");
+								DrawPrefabsSelectionWindow = [this, prefabsIdentifiers, pCurrScene]
+								{
+									bool shouldQuit = false;
 
+									mpImGUIContext->ShowModalWindow(PrefabsSelectionMenuId);
+
+									if (mpImGUIContext->BeginModalWindow(PrefabsSelectionMenuId))
+									{
+										const TVector2 buttonSizes(100.0f, 25.0f);
+
+										mpImGUIContext->BeginHorizontal();
+										{
+											if (mpImGUIContext->BeginChildWindow("##PrefabsList", TVector2(400.0f, 250.0f)))
+											{
+												for (U32 i = 0; i < static_cast<U32>(prefabsIdentifiers.size()); ++i)
+												{
+													if (mpImGUIContext->SelectableItem(prefabsIdentifiers[i], i == mSelectedPrefabIndex))
+													{
+														mSelectedPrefabIndex = i;
+													}
+												}
+
+												mpImGUIContext->EndChildWindow();
+											}
+
+											if (mpImGUIContext->Button("Add", buttonSizes))
+											{
+												pCurrScene->Spawn(prefabsIdentifiers[mSelectedPrefabIndex]);
+												shouldQuit = true;
+											}
+
+											if (mpImGUIContext->Button("Cancel", buttonSizes))
+											{
+												mpImGUIContext->CloseCurrentModalWindow();
+												shouldQuit = true;
+											}
+										}
+										mpImGUIContext->EndHorizontal();
+
+										mpImGUIContext->EndModalWindow();
+									}
+
+									return !shouldQuit;
+								};
 							}
 						});
 					});
@@ -237,6 +285,15 @@ namespace TDEngine2
 					};
 
 					pCurrScene->ForEachEntity(drawEntityHierarchy);
+				}
+			}
+
+			if (DrawPrefabsSelectionWindow)
+			{
+				const bool result = DrawPrefabsSelectionWindow();
+				if (!result)
+				{
+					DrawPrefabsSelectionWindow = nullptr;
 				}
 			}
 

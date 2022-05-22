@@ -78,6 +78,8 @@ namespace TDEngine2
 
 			IScene* mpSelectedScene;
 
+			U32 mSelectedPrefabIndex = 0;
+
 	};
 }
 
