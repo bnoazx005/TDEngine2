@@ -164,6 +164,11 @@ namespace TDEngine2
 		return mpEntityManager->GetComponents(mId);
 	}
 
+	E_RESULT_CODE CEntity::RemoveComponent(TypeId componentTypeId)
+	{
+		return mpEntityManager->RemoveComponent(mId, componentTypeId);
+	}
+
 	E_RESULT_CODE CEntity::RemoveComponents()
 	{
 		return mpEntityManager->RemoveComponents(mId);

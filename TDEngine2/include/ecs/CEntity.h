@@ -130,6 +130,8 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API E_RESULT_CODE RemoveComponent();
 
+			TDE2_API E_RESULT_CODE RemoveComponent(TypeId componentTypeId);
+
 			/*!
 				\brief The method removes all components that are related with the entity
 

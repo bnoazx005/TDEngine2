@@ -38,7 +38,7 @@ namespace TDEngine2
 		\brief The static class provides implementation of built-in components that are allowed within in-game editor
 	*/
 
-	class CDefeaultInspectorsRegistry
+	class CDefaultInspectorsRegistry
 	{
 		public:
 			TDE2_API static E_RESULT_CODE RegisterBuiltinInspectors(CLevelEditorWindow& editor);

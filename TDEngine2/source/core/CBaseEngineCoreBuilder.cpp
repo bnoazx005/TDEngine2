@@ -486,7 +486,7 @@ namespace TDEngine2
 		}
 
 		// \note Register all builtin component's inspectors
-		if (RC_OK != (result = CDefeaultInspectorsRegistry::RegisterBuiltinInspectors(dynamic_cast<CLevelEditorWindow&>(*pLevelEditorWindow))))
+		if (RC_OK != (result = CDefaultInspectorsRegistry::RegisterBuiltinInspectors(dynamic_cast<CLevelEditorWindow&>(*pLevelEditorWindow))))
 		{
 			return result;
 		}

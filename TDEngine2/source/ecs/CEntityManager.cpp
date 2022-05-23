@@ -164,6 +164,22 @@ namespace TDEngine2
 		return pComponentInstance;
 	}
 
+	E_RESULT_CODE CEntityManager::RemoveComponent(TEntityId id, TypeId componentTypeId)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		E_RESULT_CODE result = mpComponentManager->RemoveComponent(componentTypeId, id);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		_notifyOnRemovedComponent(id, componentTypeId);
+
+		return result;
+	}
+
 	E_RESULT_CODE CEntityManager::RemoveComponents(TEntityId id)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

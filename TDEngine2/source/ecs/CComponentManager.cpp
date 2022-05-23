@@ -99,7 +99,7 @@ namespace TDEngine2
 		return _createComponent(componentTypeId, entityId);
 	}
 
-	E_RESULT_CODE CComponentManager::_removeComponent(TypeId componentTypeId, TEntityId entityId)
+	E_RESULT_CODE CComponentManager::RemoveComponent(TypeId componentTypeId, TEntityId entityId)
 	{
 		IComponent* pRemovedComponent = nullptr;
 

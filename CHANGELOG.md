@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+- The existing implementation of components inspectors was refactored. Now they could be removed from their entities.
+
 ### Fixed
 
 - The selection of entities in the hierarchy window was fixed.

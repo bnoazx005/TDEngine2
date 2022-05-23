@@ -45,7 +45,7 @@
 
 namespace TDEngine2
 {
-	E_RESULT_CODE CDefeaultInspectorsRegistry::RegisterBuiltinInspectors(CLevelEditorWindow& editor)
+	E_RESULT_CODE CDefaultInspectorsRegistry::RegisterBuiltinInspectors(CLevelEditorWindow& editor)
 	{
 		E_RESULT_CODE result = editor.RegisterInspector(CTransform::GetTypeId(), DrawTransformGUI);
 		result = result | editor.RegisterInspector(CBoundsComponent::GetTypeId(), DrawBoundsGUI);
@@ -93,14 +93,44 @@ namespace TDEngine2
 		return result;
 	}
 
-	void CDefeaultInspectorsRegistry::DrawTransformGUI(const TEditorContext& editorContext)
+
+	template <typename TFunctionType>
+	void Header(const std::string& headerText, const TEditorContext& editorContext, TFunctionType action)
 	{
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-		IEditorActionsHistory& actionsHistory = editorContext.mActionsHistory;
 
-		if (imguiContext.CollapsingHeader("Transform", true, false))
+		if (imguiContext.CollapsingHeader(headerText, true))
 		{
+			imguiContext.DisplayIDGroup(static_cast<I32>(editorContext.mCurrEntityId), [&imguiContext, &editorContext]
+			{
+				imguiContext.DisplayContextMenu(Wrench::StringUtils::GetEmptyStr(), [&editorContext](IImGUIContext& imgui)
+				{
+					if (CTransform::GetTypeId() != editorContext.mComponent.GetComponentTypeId()) /// CTransform couldn't be removed from any entity
+					{
+						imgui.MenuItem("Remove Component", Wrench::StringUtils::GetEmptyStr(), [&editorContext]
+						{
+							if (auto pEntity = editorContext.mWorld.FindEntity(editorContext.mCurrEntityId))
+							{
+								pEntity->RemoveComponent(editorContext.mComponent.GetComponentTypeId());
+							}
+						});
+					}
+				});
+			});
+
+			action(editorContext);
+		}
+	}
+
+
+	void CDefaultInspectorsRegistry::DrawTransformGUI(const TEditorContext& editorContext)
+	{
+		Header("Transform", editorContext, [](const TEditorContext& editorContext)
+		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+			IEditorActionsHistory& actionsHistory = editorContext.mActionsHistory;
+
 			CTransform& transform = dynamic_cast<CTransform&>(component);
 
 			TVector3 position = transform.GetPosition();
@@ -110,7 +140,7 @@ namespace TDEngine2
 			imguiContext.BeginHorizontal();
 			imguiContext.Label("Position");
 			imguiContext.Vector3Field("##1", position, [&transform, &position, &rotation, &scale, &editorContext, &actionsHistory]
-			{ 
+			{
 				E_RESULT_CODE result = RC_OK;
 
 				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, rotation, scale }, result))
@@ -118,14 +148,14 @@ namespace TDEngine2
 					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}
 
-				transform.SetPosition(position); 
+				transform.SetPosition(position);
 			});
 			imguiContext.EndHorizontal();
 
 			imguiContext.BeginHorizontal();
 			imguiContext.Label("Rotation");
 			imguiContext.Vector3Field("##2", rotation, [&transform, &position, &rotation, &scale, &editorContext, &actionsHistory]
-			{ 
+			{
 				E_RESULT_CODE result = RC_OK;
 
 				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, rotation, scale }, result))
@@ -133,14 +163,14 @@ namespace TDEngine2
 					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}
 
-				transform.SetRotation(TQuaternion(rotation * CMathConstants::Deg2Rad)); 
+				transform.SetRotation(TQuaternion(rotation * CMathConstants::Deg2Rad));
 			});
 			imguiContext.EndHorizontal();
 
 			imguiContext.BeginHorizontal();
 			imguiContext.Label("Scale   ");
 			imguiContext.Vector3Field("##3", scale, [&transform, &position, &rotation, &scale, &editorContext, &actionsHistory]
-			{ 
+			{
 				E_RESULT_CODE result = RC_OK;
 
 				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, rotation, scale }, result))
@@ -151,43 +181,43 @@ namespace TDEngine2
 				transform.SetScale(scale);
 			});
 			imguiContext.EndHorizontal();
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawBoundsGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawBoundsGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Bounds", true))
+		Header("Bounds", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CBoundsComponent& bounds = dynamic_cast<CBoundsComponent&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawQuadSpriteGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawQuadSpriteGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("QuadSprite", true))
+		Header("QuadSprite", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CQuadSprite& sprite = dynamic_cast<CQuadSprite&>(component);
 
 			imguiContext.Label(sprite.GetMaterialName());
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawStaticMeshContainerGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawStaticMeshContainerGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Static Mesh Container", true))
+		Header("Static Mesh Container", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CStaticMeshContainer& meshContainer = dynamic_cast<CStaticMeshContainer&>(component);
 
 			/// \note Mesh identifier
@@ -236,16 +266,16 @@ namespace TDEngine2
 
 				imguiContext.EndHorizontal();
 			}
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawSkinnedMeshContainerGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawSkinnedMeshContainerGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Skinned Mesh Container", true))
+		Header("Skinned Mesh Container", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CSkinnedMeshContainer& meshContainer = dynamic_cast<CSkinnedMeshContainer&>(component);
 
 			/// \note Mesh identifier
@@ -297,69 +327,69 @@ namespace TDEngine2
 				imguiContext.TextField("##SkeletonId", skeletonid, [&meshContainer](auto&& value) { meshContainer.SetSkeletonName(value); });
 				imguiContext.EndHorizontal();
 			}
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawShadowReceiverGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawShadowReceiverGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Shadow Receiver", true))
+		Header("Shadow Receiver", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CShadowReceiverComponent& shadowReceiver = dynamic_cast<CShadowReceiverComponent&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawShadowCasterGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawShadowCasterGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Shadow Caster", true))
+		Header("Shadow Caster", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawDirectionalLightGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawDirectionalLightGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Directional Light", true))
+		Header("Directional Light", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CDirectionalLight& dirLight = dynamic_cast<CDirectionalLight&>(component);
 
 			// \todo Implement this drawer
 			
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawPointLightGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawPointLightGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Point Light", true))
+		Header("Point Light", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CPointLight& pointLight = dynamic_cast<CPointLight&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawAnimationContainerGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawAnimationContainerGUI(const TEditorContext& editorContext)
 	{
-		const TVector2 buttonSizes(100.0f, 25.0f);
-
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Animation Container", true))
+		Header("Animation Container", editorContext, [](const TEditorContext& editorContext)
 		{
+			const TVector2 buttonSizes(100.0f, 25.0f);
+
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CAnimationContainerComponent& animationComponent = dynamic_cast<CAnimationContainerComponent&>(component);
 
 			imguiContext.Label(Wrench::StringUtils::Format("Clip: {0}", animationComponent.GetAnimationClipId()));
@@ -394,26 +424,26 @@ namespace TDEngine2
 				});
 			}
 			imguiContext.EndHorizontal();
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawSkyboxGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawSkyboxGUI(const TEditorContext& editorContext)
 	{
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
 		IComponent& component = editorContext.mComponent;
 
-		if (imguiContext.CollapsingHeader("Skybox", true)) {}
+		Header("Skybox", editorContext, [](const TEditorContext& editorContext) {});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawParticleEmitterGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawParticleEmitterGUI(const TEditorContext& editorContext)
 	{
-		const TVector2 buttonSizes(100.0f, 25.0f);
-
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Particle Emitter", true))
+		Header("Particle Emitter", editorContext, [](const TEditorContext& editorContext)
 		{
+			const TVector2 buttonSizes(100.0f, 25.0f);
+
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CParticleEmitter& particleEmitter = dynamic_cast<CParticleEmitter&>(component);
 
 			/// \note particle effect's identifier
@@ -431,16 +461,16 @@ namespace TDEngine2
 			{
 				particleEmitter.mResetStateOnNextFrame = true;
 			});
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawCanvasGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawCanvasGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Canvas", true))
+		Header("Canvas", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CCanvas& canvas = dynamic_cast<CCanvas&>(component);
 			
 			I32 width = canvas.GetWidth();
@@ -466,20 +496,20 @@ namespace TDEngine2
 			imguiContext.Label("Height");
 			imguiContext.IntField("##Height", height, [&canvas, &height, inheritSizesFlag] { if (inheritSizesFlag) return; canvas.SetHeight(static_cast<U32>(std::max<I32>(0, height))); });
 			imguiContext.EndHorizontal();
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawMeshAnimatorGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawMeshAnimatorGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Mesh Animator", true))
+		Header("Mesh Animator", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CMeshAnimatorComponent& meshAnimator = dynamic_cast<CMeshAnimatorComponent&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
 
@@ -891,13 +921,13 @@ namespace TDEngine2
 	}
 
 
-	void CDefeaultInspectorsRegistry::DrawLayoutElementGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawLayoutElementGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Layout Element", true))
+		Header("Layout Element", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
 			layoutElement.SetDirty(true);
 
@@ -1012,42 +1042,42 @@ namespace TDEngine2
 				imguiContext.Vector2Field("##pivot", pivot, [&pivot, &layoutElement] { layoutElement.SetPivot(pivot); });
 				imguiContext.EndHorizontal();
 			}
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawUIElementMeshDataGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawUIElementMeshDataGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("UI Element Mesh Data", true))
+		Header("UI Element Mesh Data", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			//CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawImageGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawImageGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Image", true))
+		Header("Image", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			//CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawInputReceiverGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawInputReceiverGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Input Receiver", true))
+		Header("Input Receiver", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CInputReceiver& inputReceiver = dynamic_cast<CInputReceiver&>(component);
 
 			{
@@ -1065,16 +1095,16 @@ namespace TDEngine2
 			}
 
 			imguiContext.Label(Wrench::StringUtils::Format("On Pressed: {0}", inputReceiver.IsPressed()));
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawLabelGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawLabelGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Label", true))
+		Header("Label", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CLabel& label = dynamic_cast<CLabel&>(component);
 
 			{
@@ -1155,16 +1185,16 @@ namespace TDEngine2
 
 				imguiContext.EndHorizontal();
 			}
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::Draw9SliceImageGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::Draw9SliceImageGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("9SliceImage", true))
+		Header("9SliceImage", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			C9SliceImage& slicedImage = dynamic_cast<C9SliceImage&>(component);
 
 			/// \note Margin field
@@ -1240,15 +1270,15 @@ namespace TDEngine2
 				imguiContext.FloatSlider("##yEnd", yEnd, 0.0f, 1.0f, [&yEnd, &slicedImage] { slicedImage.SetTopYSlicer(yEnd); });
 				imguiContext.EndHorizontal();
 			}
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawGridGroupLayoutGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawGridGroupLayoutGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-
-		if (imguiContext.CollapsingHeader("Grid Group Layout", true))
+		Header("Grid Group Layout", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+
 			CGridGroupLayout& gridGroupLayout = dynamic_cast<CGridGroupLayout&>(editorContext.mComponent);
 
 			/// \note cell size of the grid's element
@@ -1294,105 +1324,105 @@ namespace TDEngine2
 				imguiContext.EndHorizontal();
 			}
 
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawBoxCollision2DGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawBoxCollision2DGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("BoxCollision2D", true))
+		Header("BoxCollision2D", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CBoxCollisionObject2D& box2Dcollision = dynamic_cast<CBoxCollisionObject2D&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawCircleCollision2DGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawCircleCollision2DGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("CircleCollision2D", true))
+		Header("CircleCollision2D", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CCircleCollisionObject2D& circle2Dcollision = dynamic_cast<CCircleCollisionObject2D&>(component);
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawTrigger2DGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawTrigger2DGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Trigger2D", true))
+		Header("Trigger2D", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CTrigger2D& trigger = dynamic_cast<CTrigger2D&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawBoxCollision3DGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawBoxCollision3DGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("BoxCollision3D", true))
+		Header("BoxCollision3D", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CBaseCollisionObject3D& box3Dcollision = dynamic_cast<CBaseCollisionObject3D&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawSphereCollision3DGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawSphereCollision3DGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("SphereCollision3D", true))
+		Header("SphereCollision3D", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CSphereCollisionObject3D& sphereCollision = dynamic_cast<CSphereCollisionObject3D&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawConvexHullCollision3DGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawConvexHullCollision3DGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("ConvexHullCollision3D", true))
+		Header("ConvexHullCollision3D", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CConvexHullCollisionObject3D& convexHullCollision = dynamic_cast<CConvexHullCollisionObject3D&>(component);
 
 			// \todo Implement this drawer
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawTrigger3DGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawTrigger3DGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Trigger3D", true))
+		Header("Trigger3D", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			// \todo Implement this drawer
-		}
+		});
 	}
 
 
-	void CDefeaultInspectorsRegistry::DrawAudioSourceGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawAudioSourceGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Audio Source", true))
+		Header("Audio Source", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CAudioSourceComponent& audioSource = dynamic_cast<CAudioSourceComponent&>(component);
 
 			imguiContext.Label(audioSource.GetAudioClipId());
@@ -1412,26 +1442,26 @@ namespace TDEngine2
 
 			F32 panning = audioSource.GetPanning();
 			imguiContext.FloatSlider("Panning", panning, -1.0f, 1.0f, [&audioSource, &panning] { audioSource.SetPanning(panning); });
-		}
+		});
 	}
 
-	void CDefeaultInspectorsRegistry::DrawAudioListenerGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawAudioListenerGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("Audio Listener", true))
+		Header("Audio Listener", editorContext, [](const TEditorContext& editorContext)
 		{
-		}
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
+		});
 	}
 	
-	void CDefeaultInspectorsRegistry::DrawLODStrategyGUI(const TEditorContext& editorContext)
+	void CDefaultInspectorsRegistry::DrawLODStrategyGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		IComponent& component = editorContext.mComponent;
-
-		if (imguiContext.CollapsingHeader("LOD Strategy", true))
+		Header("LOD Strategy", editorContext, [](const TEditorContext& editorContext)
 		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
 			CLODStrategyComponent& lodStrategy = dynamic_cast<CLODStrategyComponent&>(component);
 
 			lodStrategy.ForEachInstance([&lodStrategy, &imguiContext](USIZE id, TLODInstanceInfo& lodInfo)
@@ -1532,7 +1562,7 @@ namespace TDEngine2
 			{
 				lodStrategy.AddLODInstance({});
 			}
-		}
+		});
 	}
 }
 

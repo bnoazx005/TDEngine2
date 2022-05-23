@@ -77,6 +77,8 @@ namespace TDEngine2
 
 			TDE2_API IComponent* CreateComponent(TEntityId entityId, TypeId componentTypeId) override;
 
+			TDE2_API E_RESULT_CODE RemoveComponent(TypeId componentTypeId, TEntityId entityId) override;
+
 			/*!
 				\brief The method removes all components that are related with the entity.
 				This method doesn't free the memory that is occupied by components.
@@ -163,8 +165,6 @@ namespace TDEngine2
 			TDE2_API IComponent* _createComponent(TypeId componentTypeId, TEntityId entityId) override;
 
 			TDE2_API IComponent* _getComponent(TypeId componentTypeId, TEntityId entityId) override;
-
-			TDE2_API E_RESULT_CODE _removeComponent(TypeId componentTypeId, TEntityId entityId) override;
 
 			TDE2_API E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) override;
 

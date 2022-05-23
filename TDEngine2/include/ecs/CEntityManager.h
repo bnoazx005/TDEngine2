@@ -149,6 +149,8 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API E_RESULT_CODE RemoveComponent(TEntityId id);
 
+			TDE2_API E_RESULT_CODE RemoveComponent(TEntityId id, TypeId componentTypeId);
+
 			/*!
 				\brief The method removes all components that are related with the entity
 
@@ -231,16 +233,7 @@ namespace TDEngine2
 	template <typename T>
 	TDE2_API E_RESULT_CODE CEntityManager::RemoveComponent(TEntityId id)
 	{
-		E_RESULT_CODE result = mpComponentManager->RemoveComponent<T>(id);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		_notifyOnRemovedComponent(id, T::GetTypeId());
-
-		return result;
+		return RemoveComponent(id, T::GetTypeId());
 	}
 
 	template <typename T>

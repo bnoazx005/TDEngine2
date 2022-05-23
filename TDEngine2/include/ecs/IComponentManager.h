@@ -115,8 +115,10 @@ namespace TDEngine2
 	#endif
 			RemoveComponent(TEntityId id)
 			{
-				return _removeComponent(T::GetTypeId(), id);
+				return RemoveComponent(T::GetTypeId(), id);
 			}
+
+			TDE2_API virtual E_RESULT_CODE RemoveComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 
 			/*!
 				\brief The method removes a component of specified T type and
@@ -270,8 +272,6 @@ namespace TDEngine2
 			TDE2_API virtual IComponent* _createComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 
 			TDE2_API virtual IComponent* _getComponent(TypeId componentTypeId, TEntityId entityId) = 0;
-
-			TDE2_API virtual E_RESULT_CODE _removeComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 
 			TDE2_API virtual E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) = 0;
 
