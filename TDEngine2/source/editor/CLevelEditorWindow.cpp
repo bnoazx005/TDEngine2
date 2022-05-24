@@ -379,15 +379,26 @@ namespace TDEngine2
 	}
 
 
-	static void DisplayAddComponentBar(IImGUIContext* pImGUIContext, CEntity* pEntity)
+	static void DisplayAddComponentBar(IImGUIContext* pImGUIContext, IWorld& world, CEntity* pEntity)
 	{
+		static const std::string addComponentMenu = "AddComponentContextMenu";
+
 		if (pImGUIContext->Button("Add Component", TVector2(pImGUIContext->GetWindowWidth() * 0.95f, 25.0f)))
 		{
-			pImGUIContext->DisplayContextMenu("AddComponentContextMenu", [](IImGUIContext& imguiContext)
-			{
-				//for (auto&& currComponentName : )
-			});
+			pImGUIContext->ShowModalWindow(addComponentMenu);
 		}
+
+		pImGUIContext->DisplayContextMenu(addComponentMenu, [pEntity, &world](IImGUIContext& imguiContext)
+		{
+			for (auto&& currComponentEntity : world.GetRegisteredComponentsIdentifiers())
+			{
+				imguiContext.MenuItem(currComponentEntity.mName, Wrench::StringUtils::GetEmptyStr(), [pEntity, componentType = currComponentEntity.mTypeId]
+					{
+						auto pComponent = pEntity->AddComponent(componentType);
+						TDE2_ASSERT(pComponent);
+					});
+			}
+		});
 	}
 
 
@@ -426,7 +437,7 @@ namespace TDEngine2
 			(iter->second)({ *mpImGUIContext, *pCurrComponent, *mpActionsHistory, *mpEditorsManager->GetWorldInstance().Get(), mSelectedEntityId });
 		}
 
-		DisplayAddComponentBar(mpImGUIContext, pSelectedEntity);
+		DisplayAddComponentBar(mpImGUIContext, *mpEditorsManager->GetWorldInstance().Get(), pSelectedEntity);
 
 		return true;
 	}

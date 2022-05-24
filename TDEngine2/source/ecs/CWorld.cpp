@@ -213,7 +213,7 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 
-	const std::vector<std::string>& CWorld::GetRegisteredComponentsIdentifiers() const
+	const std::vector<TComponentTypeInfo>& CWorld::GetRegisteredComponentsIdentifiers() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mpComponentManager->GetRegisteredComponentsIdentifiers();

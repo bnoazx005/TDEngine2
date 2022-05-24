@@ -262,6 +262,13 @@ namespace TDEngine2
 	template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = ComponentTypeStr; };			
 
 
+	struct TComponentTypeInfo
+	{
+		std::string mName;
+		TypeId      mTypeId;
+	};
+
+
 	/*!
 		\brief The template is used to declare concrete component factories
 	*/

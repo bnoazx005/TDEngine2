@@ -300,7 +300,7 @@ namespace TDEngine2
 		U32 hashValue = 0;
 
 #if TDE2_EDITORS_ENABLED
-		mRegisteredComponentTypes.push_back(pFactory->GetComponentTypeStr());
+		mRegisteredComponentTypes.push_back({ pFactory->GetComponentTypeStr(), componentTypeId });
 #endif
 
 		if (mFreeComponentFactoriesRegistry.empty())
@@ -344,7 +344,11 @@ namespace TDEngine2
 		mComponentFactoriesMap.erase(factoryIter);
 
 #if TDE2_EDITORS_ENABLED
-		auto it = std::find(mRegisteredComponentTypes.cbegin(), mRegisteredComponentTypes.cend(), mComponentFactories[hashValue]->GetComponentTypeStr());
+		auto it = std::find_if(mRegisteredComponentTypes.cbegin(), mRegisteredComponentTypes.cend(), [name = mComponentFactories[hashValue]->GetComponentTypeStr()](auto&& t)
+		{
+			return t.mName == name;
+		});
+
 		if (it != mRegisteredComponentTypes.cend())
 		{
 			mRegisteredComponentTypes.erase(it);
@@ -635,7 +639,7 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 
-	const std::vector<std::string>& CComponentManager::GetRegisteredComponentsIdentifiers() const
+	const std::vector<TComponentTypeInfo>& CComponentManager::GetRegisteredComponentsIdentifiers() const
 	{
 		return mRegisteredComponentTypes;
 	}

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now a list of all registered components identifiers can be retrieved using **IWorld::GetRegisteredComponentsIdentifiers**.
 
+- Functionality of adding new components was implemented.
+
 ### Changed
 
 - The existing implementation of components inspectors was refactored. Now they could be removed from their entities.
