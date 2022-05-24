@@ -385,7 +385,7 @@ namespace TDEngine2
 		{
 			pImGUIContext->DisplayContextMenu("AddComponentContextMenu", [](IImGUIContext& imguiContext)
 			{
-
+				//for (auto&& currComponentName : )
 			});
 		}
 	}

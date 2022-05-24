@@ -157,6 +157,10 @@ namespace TDEngine2
 			TDE2_API TEntityId FindEntityWithUniqueComponent(TypeId typeId) override;
 
 			TDE2_API static E_RESULT_CODE RegisterUniqueComponentType(TypeId typeId);
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API const std::vector<std::string>& GetRegisteredComponentsIdentifiers() const override;
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
 
@@ -201,6 +205,10 @@ namespace TDEngine2
 			TFreeEntitiesRegistry    mFreeComponentFactoriesRegistry;
 
 			TUniqueComponentsTable   mUniqueComponentsRegistry;
+
+#if TDE2_EDITORS_ENABLED
+			std::vector<std::string> mRegisteredComponentTypes;
+#endif
 	};
 
 

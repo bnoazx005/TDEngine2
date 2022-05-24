@@ -363,7 +363,7 @@ namespace TDEngine2
 	*/
 
 
-#define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)							\
+#define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentNameStr, ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)		\
 	TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE& result);																					\
 																																					\
 	class ComponentName : public CBaseComponent, public CPoolMemoryAllocPolicy<ComponentName, 1 << 10>												\
@@ -382,16 +382,16 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)																					\
 	};																																				\
 																																					\
-	TDE2_DECLARE_COMPONENT_FACTORY_IMPL(#ComponentName, ComponentName, TBaseComponentParameters, ComponentFactoryName, ComponentFactoryFuncName);
+	TDE2_DECLARE_COMPONENT_FACTORY_IMPL(ComponentNameStr, ComponentName, TBaseComponentParameters, ComponentFactoryName, ComponentFactoryFuncName);
 
 	/*!
 		\brief The macro is used to define so called component-flag which just marks an entity and doesn't
 		contain any data
 	*/
 
-#define TDE2_DECLARE_FLAG_COMPONENT(ComponentName) TDE2_DECLARE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),				\
-																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
-																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
+#define TDE2_DECLARE_FLAG_COMPONENT(ComponentName) TDE2_DECLARE_FLAG_COMPONENT_IMPL(#ComponentName, TDE2_COMPONENT_CLASS_NAME(ComponentName),				\
+																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),							\
+																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),								\
 																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
 
 	/*!

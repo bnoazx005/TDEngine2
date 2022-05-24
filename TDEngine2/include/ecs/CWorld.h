@@ -214,6 +214,10 @@ namespace TDEngine2
 			TDE2_API CEntityManager* GetEntityManager() const override;
 
 			TDE2_API F32 GetTimeScaleFactor() const override;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API const std::vector<std::string>& GetRegisteredComponentsIdentifiers() const override;
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWorld)
 

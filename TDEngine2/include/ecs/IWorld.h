@@ -377,6 +377,10 @@ namespace TDEngine2
 			TDE2_API virtual CEntityManager* GetEntityManager() const = 0;
 
 			TDE2_API virtual F32 GetTimeScaleFactor() const = 0;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual const std::vector<std::string>& GetRegisteredComponentsIdentifiers() const = 0;
+#endif
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IWorld)
 

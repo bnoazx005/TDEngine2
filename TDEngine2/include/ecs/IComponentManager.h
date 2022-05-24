@@ -264,6 +264,10 @@ namespace TDEngine2
 			{
 				return _hasComponent(T::GetTypeId(), id);
 			}
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual const std::vector<std::string>& GetRegisteredComponentsIdentifiers() const = 0;
+#endif
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComponentManager)
 
