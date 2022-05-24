@@ -378,6 +378,19 @@ namespace TDEngine2
 		mpImGUIContext->EndWindow();
 	}
 
+
+	static void DisplayAddComponentBar(IImGUIContext* pImGUIContext, CEntity* pEntity)
+	{
+		if (pImGUIContext->Button("Add Component", TVector2(pImGUIContext->GetWindowWidth() * 0.95f, 25.0f)))
+		{
+			pImGUIContext->DisplayContextMenu("AddComponentContextMenu", [](IImGUIContext& imguiContext)
+			{
+
+			});
+		}
+	}
+
+
 	bool CLevelEditorWindow::_onDrawObjectInspector()
 	{
 		CEntity* pSelectedEntity = mpEditorsManager->GetWorldInstance()->FindEntity(mSelectedEntityId);
@@ -412,6 +425,8 @@ namespace TDEngine2
 
 			(iter->second)({ *mpImGUIContext, *pCurrComponent, *mpActionsHistory, *mpEditorsManager->GetWorldInstance().Get(), mSelectedEntityId });
 		}
+
+		DisplayAddComponentBar(mpImGUIContext, pSelectedEntity);
 
 		return true;
 	}

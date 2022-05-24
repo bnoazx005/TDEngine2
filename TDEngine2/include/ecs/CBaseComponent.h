@@ -248,6 +248,21 @@ namespace TDEngine2
 	
 
 	/*!
+		\brief The meta-function could be used to stringify component's type 
+	*/
+
+	template<typename T>
+	struct TComponentTypeNameTrait
+	{
+		TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = "UnknownComponent";
+	};
+
+
+#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
+	template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = ComponentTypeStr; };			
+
+
+	/*!
 		\brief The template is used to declare concrete component factories
 	*/
 
@@ -305,6 +320,12 @@ namespace TDEngine2
 			{
 				return TComponentType::GetTypeId();
 			}
+
+			TDE2_API const std::string& GetComponentTypeStr() const override
+			{
+				static const std::string componentTypeIdStr(TComponentTypeNameTrait<TComponentType>::mpValue);
+				return componentTypeIdStr;
+			}
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponentFactory)
 	};
@@ -317,22 +338,24 @@ namespace TDEngine2
 	}
 
 
-#define TDE2_DECLARE_COMPONENT_FACTORY_IMPL(ComponentName, ComponentParamsType, ComponentFactoryName, ComponentFactoryFunctor)		\
-	TDE2_API IComponentFactory* ComponentFactoryFunctor(E_RESULT_CODE& result);							\
-																																	\
-	class ComponentFactoryName : public CBaseComponentFactory<ComponentName, ComponentParamsType>									\
-	{																																\
-		public:																														\
-			friend TDE2_API IComponentFactory* ComponentFactoryFunctor(E_RESULT_CODE&);												\
-																																	\
-			TDE2_API IComponent* CreateDefault() const override;																	\
-			TDE2_API E_RESULT_CODE SetupComponent(ComponentName* pComponent, const ComponentParamsType& params) const override;		\
-		protected:																													\
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentFactoryName)															\
+#define TDE2_DECLARE_COMPONENT_FACTORY_IMPL(ComponentNameStr, ComponentName, ComponentParamsType, ComponentFactoryName, ComponentFactoryFunctor)		\
+	TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentName, ComponentNameStr)																				\
+																																						\
+	TDE2_API IComponentFactory* ComponentFactoryFunctor(E_RESULT_CODE& result);																			\
+																																						\
+	class ComponentFactoryName : public CBaseComponentFactory<ComponentName, ComponentParamsType >														\
+	{																																					\
+		public:																																			\
+			friend TDE2_API IComponentFactory* ComponentFactoryFunctor(E_RESULT_CODE&);																	\
+																																						\
+			TDE2_API IComponent* CreateDefault() const override;																						\
+			TDE2_API E_RESULT_CODE SetupComponent(ComponentName* pComponent, const ComponentParamsType& params) const override;							\
+		protected:																																		\
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentFactoryName)																				\
 	}
 
 #define TDE2_DECLARE_COMPONENT_FACTORY(ComponentName, ComponentParamsType) \
-	TDE2_DECLARE_COMPONENT_FACTORY_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName), ComponentParamsType, TDE2_COMPONENT_FACTORY_NAME(ComponentName), TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
+	TDE2_DECLARE_COMPONENT_FACTORY_IMPL(#ComponentName, TDE2_COMPONENT_CLASS_NAME(ComponentName), ComponentParamsType, TDE2_COMPONENT_FACTORY_NAME(ComponentName), TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
 
 
 	/*!
@@ -340,26 +363,26 @@ namespace TDEngine2
 	*/
 
 
-#define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)			\
-	TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE& result);																	\
-																																	\
-	class ComponentName : public CBaseComponent, public CPoolMemoryAllocPolicy<ComponentName, 1 << 10>								\
-	{																																\
-		public:																														\
-			friend TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE&);															\
-			TDE2_REGISTER_COMPONENT_TYPE(ComponentName)																				\
-																																	\
-			TDE2_API E_RESULT_CODE Init();																							\
-																																	\
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;															\
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;															\
-																																	\
-			TDE2_API const std::string& GetTypeName() const override;																\
-		protected:																													\
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)																	\
-	};																																\
-																																	\
-	TDE2_DECLARE_COMPONENT_FACTORY_IMPL(ComponentName, TBaseComponentParameters, ComponentFactoryName, ComponentFactoryFuncName);
+#define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)							\
+	TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE& result);																					\
+																																					\
+	class ComponentName : public CBaseComponent, public CPoolMemoryAllocPolicy<ComponentName, 1 << 10>												\
+	{																																				\
+		public:																																		\
+			friend TDE2_API IComponent* ComponentFuncName(E_RESULT_CODE&);																			\
+			TDE2_REGISTER_COMPONENT_TYPE(ComponentName)																								\
+																																					\
+			TDE2_API E_RESULT_CODE Init();																											\
+																																					\
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;																			\
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;																			\
+																																					\
+			TDE2_API const std::string& GetTypeName() const override;																				\
+		protected:																																	\
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)																					\
+	};																																				\
+																																					\
+	TDE2_DECLARE_COMPONENT_FACTORY_IMPL(#ComponentName, ComponentName, TBaseComponentParameters, ComponentFactoryName, ComponentFactoryFuncName);
 
 	/*!
 		\brief The macro is used to define so called component-flag which just marks an entity and doesn't

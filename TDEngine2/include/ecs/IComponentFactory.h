@@ -10,6 +10,7 @@
 #include "../core/IBaseObject.h"
 #include "../math/TVector3.h"
 #include "../math/TQuaternion.h"
+#include <string>
 
 
 namespace TDEngine2
@@ -80,6 +81,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TypeId GetComponentTypeId() const = 0;
+
+			TDE2_API virtual const std::string& GetComponentTypeStr() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComponentFactory)
 	};
