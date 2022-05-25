@@ -94,6 +94,10 @@ namespace TDEngine2
 
 			TDE2_API virtual void LoadSceneAsync(const std::string& scenePath, const TLoadSceneCallback& onResultCallback) = 0;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual E_RESULT_CODE SaveSceneChunk(const std::string& path, TSceneId sceneId) = 0;
+#endif
+
 			/*!
 				\brief The method unloads all resources that're related with the given scene
 

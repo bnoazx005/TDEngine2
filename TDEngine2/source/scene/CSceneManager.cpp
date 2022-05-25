@@ -207,6 +207,32 @@ namespace TDEngine2
 		return _createInternal(name);
 	}
 
+#if TDE2_EDITORS_ENABLED
+	
+	E_RESULT_CODE CSceneManager::SaveSceneChunk(const std::string& path, TSceneId sceneId)
+	{
+		auto sceneResult = GetScene(sceneId);
+		if (sceneResult.HasError())
+		{
+			return sceneResult.GetError();
+		}
+
+		auto pScene = sceneResult.Get();
+
+		if (auto result = mpFileSystem->Open<IYAMLFileWriter>(path, true))
+		{
+			if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
+			{
+				pScene->Save(pFileWriter);
+				pFileWriter->Close();
+			}
+		}
+
+		return RC_OK;
+	}
+
+#endif
+
 	TResult<IScene*> CSceneManager::GetScene(TSceneId id) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

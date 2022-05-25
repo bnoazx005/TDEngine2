@@ -87,7 +87,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<TSceneId> CreateScene(const std::string& name) override;
-			
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE SaveSceneChunk(const std::string& path, TSceneId sceneId) override;
+#endif
 			/*!
 				\brief The method is used to retrieve a pointer to a scene by its handle
 

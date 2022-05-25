@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.5] 2022-05-25
+
 ## [0.6.4] 2022-05-25
 
 ### Added
@@ -14,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now a list of all registered components identifiers can be retrieved using **IWorld::GetRegisteredComponentsIdentifiers**.
 
 - Functionality of adding new components was implemented.
+
+- "Save scene chunk" context menu item was added for scene hierarchy's window.
 
 ### Changed
 

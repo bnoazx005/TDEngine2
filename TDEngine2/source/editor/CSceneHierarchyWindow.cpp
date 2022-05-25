@@ -122,6 +122,16 @@ namespace TDEngine2
 							});
 						}
 
+						imguiContext.MenuItem("Save Scene Chunk", Wrench::StringUtils::GetEmptyStr(), [pCurrScene, this]
+						{
+#if TDE2_EDITORS_ENABLED
+							if (auto saveFilepathResult = mpWindowSystem->ShowSaveFileDialog({ { "Scenes", "*.scene" } }))
+							{
+								mpSceneManager->SaveSceneChunk(saveFilepathResult.Get(), mpSceneManager->GetSceneId(pCurrScene->GetName()));
+							}
+#endif
+						});
+
 						imguiContext.MenuItem("Create New Entity", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
 						{
 							if (!pCurrScene) 
