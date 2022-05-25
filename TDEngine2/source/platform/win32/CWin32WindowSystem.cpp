@@ -391,7 +391,6 @@ namespace TDEngine2
 
 	std::string GetFilterStr(const std::vector<std::tuple<std::string, std::string>>& filters)
 	{
-		// "All\0*.*\0Text\0*.TXT\0"
 		std::string output;
 
 		std::string filterName;

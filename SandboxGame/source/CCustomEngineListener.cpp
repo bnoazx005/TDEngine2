@@ -13,12 +13,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
-	mpWindowSystem->ShowOpenFileDialog(
-		{
-			{ "All", "*.*" },
-			{ "Text", "*.TXT" },
-		});
-
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
 	mpResourceManager->Load<IPrefabsManifest>("ProjectResources/PrefabsCollection.manifest");

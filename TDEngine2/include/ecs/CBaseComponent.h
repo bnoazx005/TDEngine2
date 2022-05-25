@@ -254,12 +254,21 @@ namespace TDEngine2
 	template<typename T>
 	struct TComponentTypeNameTrait
 	{
+#if defined(TDE2_USE_WINPLATFORM)
 		TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = "UnknownComponent";
+#else
+		TDE2_API TDE2_STATIC_CONSTEXPR C8* mpValue = "UnknownComponent";
+#endif
 	};
 
 
-#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
-	template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = ComponentTypeStr; };			
+#if defined(TDE2_USE_WINPLATFORM)
+	#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
+		template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = ComponentTypeStr; };	
+#else
+	#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
+			template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR C8* mpValue = ComponentTypeStr; };	
+#endif
 
 
 	struct TComponentTypeInfo
