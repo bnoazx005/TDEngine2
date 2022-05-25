@@ -391,9 +391,7 @@ namespace TDEngine2
 
 	std::string GetFilterStr(const std::vector<std::tuple<std::string, std::string>>& filters)
 	{
-		// \fixme This doesn't work
-		return "";
-#if 0
+		// "All\0*.*\0Text\0*.TXT\0"
 		std::string output;
 
 		std::string filterName;
@@ -416,12 +414,7 @@ namespace TDEngine2
 			output.back() = '\0';
 		}
 
-	//	output.append("-");
-	//	output.back() = '\0';
-	//	output = "Scene\0*.Scene\0\0";
-
 		return output;
-#endif
 	}
 
 	TResult<std::string> CWin32WindowSystem::ShowOpenFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)
@@ -437,7 +430,10 @@ namespace TDEngine2
 		openFileDialogDesc.hwndOwner = mWindowHandler;
 		openFileDialogDesc.lpstrFile = &outputFilepath.front();
 		openFileDialogDesc.nMaxFile = static_cast<DWORD>(outputFilepath.size());
-		openFileDialogDesc.lpstrFilter = GetFilterStr(filters).c_str();
+
+		auto filtersFormattedStr = GetFilterStr(filters);
+		openFileDialogDesc.lpstrFilter = filtersFormattedStr.c_str();
+
 		openFileDialogDesc.nFilterIndex = 1;
 		openFileDialogDesc.lpstrFileTitle = NULL;
 		openFileDialogDesc.nMaxFileTitle = 0;
@@ -454,25 +450,28 @@ namespace TDEngine2
 
 	TResult<std::string> CWin32WindowSystem::ShowSaveFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)
 	{
-		OPENFILENAME openFileDialogDesc;       // common dialog box structure
+		OPENFILENAME saveFileDialogDesc;       // common dialog box structure
 
 		std::array<C8, 255> outputFilepath{ 0 };
 
 		// \note Initialize OPENFILENAME
-		ZeroMemory(&openFileDialogDesc, sizeof(openFileDialogDesc));
-		openFileDialogDesc.lStructSize = sizeof(openFileDialogDesc);
+		ZeroMemory(&saveFileDialogDesc, sizeof(saveFileDialogDesc));
+		saveFileDialogDesc.lStructSize = sizeof(saveFileDialogDesc);
 
-		openFileDialogDesc.hwndOwner = mWindowHandler;
-		openFileDialogDesc.lpstrFile = &outputFilepath.front();
-		openFileDialogDesc.nMaxFile = static_cast<DWORD>(outputFilepath.size());
-		openFileDialogDesc.lpstrFilter = GetFilterStr(filters).c_str();
-		openFileDialogDesc.nFilterIndex = 1;
-		openFileDialogDesc.lpstrFileTitle = NULL;
-		openFileDialogDesc.nMaxFileTitle = 0;
-		openFileDialogDesc.lpstrInitialDir = NULL;
-		openFileDialogDesc.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+		saveFileDialogDesc.hwndOwner = mWindowHandler;
+		saveFileDialogDesc.lpstrFile = &outputFilepath.front();
+		saveFileDialogDesc.nMaxFile = static_cast<DWORD>(outputFilepath.size());
 
-		if (GetSaveFileName(&openFileDialogDesc) == TRUE)
+		auto filtersFormattedStr = GetFilterStr(filters);
+		saveFileDialogDesc.lpstrFilter = filtersFormattedStr.c_str();
+
+		saveFileDialogDesc.nFilterIndex = 1;
+		saveFileDialogDesc.lpstrFileTitle = NULL;
+		saveFileDialogDesc.nMaxFileTitle = 0;
+		saveFileDialogDesc.lpstrInitialDir = NULL;
+		saveFileDialogDesc.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+		if (GetSaveFileName(&saveFileDialogDesc) == TRUE)
 		{
 			return Wrench::TOkValue<std::string>(std::string(&outputFilepath.front()));
 		}

@@ -368,8 +368,23 @@ namespace TDEngine2
 
 	static std::string GetFilterStr(const std::vector<std::tuple<std::string, std::string>>& filters)
 	{
-		// \fixme This doesn't work
-		return "";
+		std::string output;
+
+		std::string filterName;
+		std::string filterPattern;
+
+		for (const auto& currFilter : filters)
+		{
+			std::tie(filterName, filterPattern) = currFilter;
+
+			output
+				.append(filterName)
+				.append("/")
+				.append(filterPattern)
+				.append(" ");
+		}
+
+		return output;
 	}
 
 
@@ -377,7 +392,6 @@ namespace TDEngine2
 	{
 		if (IsZenitySupported()) /// GNOME based dialog
 		{
-			/// filter in format filter (desc) | filter2 (desc) ... |
 			if (auto result = ExecuteCommand("zenity --file-selection"))
 			{
 				return Wrench::TOkValue<std::string>(std::get<std::string>(result.Get()));
@@ -405,7 +419,6 @@ namespace TDEngine2
 	{
 		if (IsZenitySupported()) /// GNOME based dialog
 		{
-			/// filter in format filter (desc) | filter2 (desc) ... |
 			if (auto result = ExecuteCommand("zenity --file-selection --save"))
 			{
 				return Wrench::TOkValue<std::string>(std::get<std::string>(result.Get()));

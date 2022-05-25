@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.4] 2022-05-24
+## [0.6.4] 2022-05-25
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The selection of entities in the hierarchy window was fixed.
+
+- Open/Save file dialog's filters were added for Windows/UNIX platform.
 
 ## [0.6.3] 2022-05-22
 
