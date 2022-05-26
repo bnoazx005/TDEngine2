@@ -621,6 +621,24 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE LoadUserPlugins(TPtr<IPluginManager> pPluginsManager, const std::vector<std::string>& pluginsIdentifiers)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		/// pluginId is a filename of a shared library, *.dll or *.so files
+		for (const std::string& pluginId : pluginsIdentifiers)
+		{
+			result = pPluginsManager->LoadPlugin(pluginId);
+			if (RC_OK != result)
+			{
+				LOG_WARNING(Wrench::StringUtils::Format("[LoadUserPlugins] ({0}) plugin's loading failed", pluginId));
+			}
+		}
+
+		return result;
+	}
+
+
 	TPtr<IEngineCore> CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
@@ -681,6 +699,9 @@ namespace TDEngine2
 			PANIC_ON_FAILURE(_configureImGUIContext());
 			PANIC_ON_FAILURE(_configureEditorsManager());
 		}
+
+		// \note Try to load user defined plugins, if some plugin cannot be bound it's not failure we just won't get some extra functionality 
+		LoadUserPlugins(mpPluginManagerInstance, CProjectSettings::Get()->mCommonSettings.mUserPluginsToLoad);		
 
 		return mpEngineCoreInstance;
 	}

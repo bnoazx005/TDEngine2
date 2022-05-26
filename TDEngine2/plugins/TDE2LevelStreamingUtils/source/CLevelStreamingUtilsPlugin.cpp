@@ -29,13 +29,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CLevelStreamingUtilsPlugin::OnRegister(IEngineCore* pEngineCore, IWorld* pWorld)
+	{
+		return RC_OK;
+	}
+
 	const TPluginInfo& CLevelStreamingUtilsPlugin::GetInfo() const
 	{
 		static const TPluginInfo pluginInfo
 		{
 			"TDE2LevelStreamingUtils",
-			(0 << 16) | 5,
-			(0 << 16) | 5,
+			(0 << 16) | 7,
+			(0 << 16) | 7,
 		};
 
 		return pluginInfo;

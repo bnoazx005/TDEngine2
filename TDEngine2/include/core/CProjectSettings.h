@@ -78,6 +78,7 @@ namespace TDEngine2
 				U32 mFlags = static_cast<U32>(P_RESIZEABLE | P_ZBUFFER_ENABLED);
 
 				std::vector<TFilesystemPathAlias> mAdditionalMountedDirectories;
+				std::vector<std::string> mUserPluginsToLoad;
 			} mCommonSettings;
 
 

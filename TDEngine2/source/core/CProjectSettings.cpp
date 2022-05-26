@@ -19,11 +19,17 @@ namespace TDEngine2
 			static const std::string mMaxThreadsCountKey;
 			static const std::string mFlagsKey;
 			static const std::string mAdditionalMountedDirectoriesKey;
+			static const std::string mUserPluginsArrayKey;
 
 			struct TFilepathAliasArchiveKeys
 			{
 				static const std::string mPathKey;
 				static const std::string mAliasKey;
+			};
+
+			struct TPluginArchiveKeys
+			{
+				static const std::string mId;
 			};
 		};
 
@@ -70,8 +76,10 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey = "max_worker_threads_count";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey = "flags";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mAdditionalMountedDirectoriesKey = "additional_mounted_dirs";
+	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mUserPluginsArrayKey = "user_plugins_list";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mAliasKey = "alias";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mPathKey = "path";
+	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TPluginArchiveKeys::mId = "id";
 
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey = "gapi_type";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey = "renderer_settings";
@@ -122,6 +130,20 @@ namespace TDEngine2
 
 					commonSettings.mAdditionalMountedDirectories.emplace_back(aliasInfo);
 					
+					pFileReader->EndGroup();
+				}
+			}
+			result = result | pFileReader->EndGroup();
+
+			/// \note Read user plugin's identifiers
+			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mUserPluginsArrayKey);
+			{
+				while (pFileReader->HasNextItem())
+				{
+					pFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+
+					commonSettings.mUserPluginsToLoad.push_back(pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::TPluginArchiveKeys::mId));
+
 					pFileReader->EndGroup();
 				}
 			}

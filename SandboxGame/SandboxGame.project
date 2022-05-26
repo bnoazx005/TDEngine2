@@ -12,6 +12,8 @@ common_settings:
       path: ../../SandboxGame/Resources/
     - alias: ProjectShaders/
       path: ../../SandboxGame/Resources/Shaders/
+  user_plugins_list:
+    - id: TDE2LevelStreamingUtils
 
 graphics_settings:
   gapi_type: GCGT_DIRECT3D11

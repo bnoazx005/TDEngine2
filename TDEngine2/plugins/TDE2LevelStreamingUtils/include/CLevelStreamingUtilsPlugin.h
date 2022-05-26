@@ -23,7 +23,7 @@ namespace TDEngine2
 		The current implementation is done in naive way with loading based on bounding volumes.
 	*/
 
-	class CLevelStreamingUtilsPlugin : public CBaseObject, public IPlugin
+	class CLevelStreamingUtilsPlugin : public CBaseObject, public IPlugin, public IECSPlugin
 	{
 		public:
 			friend TDE2_API TDEngine2::IPlugin* TDE2_APIENTRY::CreatePlugin(TDEngine2::IEngineCore*, TDEngine2::E_RESULT_CODE&);
@@ -36,6 +36,17 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 			TDE2_API E_RESULT_CODE Init(IEngineCore* pEngineCore) override;
+
+			/*!
+				\brief The method is called before OnStart method from IEngineListener and after IWorld is fully initialized and ready to run
+
+				\param[in, out] pEngineCore A pointer to IEngineCore's implementation
+				\param[in, out] pWorld A pointer to IWorld's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnRegister(IEngineCore* pEngineCore, IWorld* pWorld) override;
 
 			/*!
 				\brief The method returns an object, which contains all the information
