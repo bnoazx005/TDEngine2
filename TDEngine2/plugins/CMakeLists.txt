@@ -48,3 +48,9 @@ if (BUILD_FMOD_AUDIO_CTX_PLUGIN)
 
 	add_subdirectory(FmodAudioContext)
 endif (BUILD_FMOD_AUDIO_CTX_PLUGIN)
+
+if (BUILD_LEVEL_STREAMING_PLUGIN)
+	message(STATUS "Level streaming plugin's compilation is enabled")
+
+	add_subdirectory(TDE2LevelStreamingUtils)
+endif (BUILD_LEVEL_STREAMING_PLUGIN)
