@@ -17,10 +17,15 @@ set(TDE2_LEVEL_STREAMING_LIBRARY_NAME "TDE2LevelStreamingUtils")
 
 set(TDE2_LEVEL_STREAMING_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CLevelStreamingUtilsPlugin.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CSceneChunksLoadingSystem.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CSceneLoadingTriggerComponent.h"
 	)
 
 set(TDE2_LEVEL_STREAMING_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CLevelStreamingUtilsPlugin.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CSceneChunksLoadingSystem.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CSceneChunksLoadingSystem.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CSceneLoadingTriggerComponent.cpp"
 	)
 
 source_group("includes" FILES ${TDE2_LEVEL_STREAMING_HEADERS})

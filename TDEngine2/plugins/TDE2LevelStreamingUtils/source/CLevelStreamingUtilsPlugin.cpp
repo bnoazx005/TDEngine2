@@ -1,5 +1,8 @@
 #include "../include/CLevelStreamingUtilsPlugin.h"
+#include "../include/CSceneChunksLoadingSystem.h"
 #include <core/IEngineCore.h>
+#include <ecs/IWorld.h>
+#include <scene/ISceneManager.h>
 
 
 namespace TDEngine2
@@ -31,6 +34,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLevelStreamingUtilsPlugin::OnRegister(IEngineCore* pEngineCore, IWorld* pWorld)
 	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto systemRegistrationResult = pWorld->RegisterSystem(CreateSceneChunksLoadingSystem(pEngineCore->GetSubsystem<ISceneManager>().Get(), result));
+		if (systemRegistrationResult.HasError())
+		{
+			return systemRegistrationResult.GetError();
+		}
+
 		return RC_OK;
 	}
 

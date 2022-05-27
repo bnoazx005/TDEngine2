@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.5] 2022-05-26
+## [0.6.5] 2022-05-27
 
 ### Added
 
 - A new plugin **TDE2LevelStreamingUtils** was added to provide utilities (components/system) for basic level streaming based on bounding volumes.
 
 - A new functionality of loading user defined plugins that are defined in project settings was implemented.
+
+- A new system **CSceneChunksLoadingSystem** was added which implements logic of levels streaming.
+
+- A new component which is **CSceneLoadingTriggerComponent** was added.
 
 ## [0.6.4] 2022-05-25
 
