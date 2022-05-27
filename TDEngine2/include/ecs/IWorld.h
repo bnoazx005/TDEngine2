@@ -28,10 +28,12 @@ namespace TDEngine2
 	class IEventManager;
 	class IRaycastContext;
 	class CTransform;
+	class IComponentFactory;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
 	TDE2_DECLARE_SCOPED_PTR(IRaycastContext)
+	TDE2_DECLARE_SCOPED_PTR(IComponentFactory)
 
 
 	/*!
@@ -113,6 +115,27 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE DestroyImmediately(CEntity* pEntity) = 0;
+
+			/*!
+				\brief The method registers specified resource factory within a manager
+
+				\param[in] pFactory A pointer to IComponentFactory's implementation
+
+				\return The method returns an object, which contains a status of method's execution and
+				an identifier of the registred factory
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterComponentFactory(TPtr<IComponentFactory> pFactory) = 0;
+
+			/*!
+				\brief The method unregisters a component factory with the specified identifier
+
+				\param[in] resourceFactoryId An identifier of a component factory
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE UnregisterComponentFactory(TypeId componentTypeId) = 0;
 
 			/*!
 				\brief The method registers specified system

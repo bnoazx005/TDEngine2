@@ -15,7 +15,7 @@
 
 namespace TDEngine2
 {
-	CWorld::CWorld():
+	CWorld::CWorld() :
 		CBaseObject(), mpEventManager(nullptr)
 	{
 	}
@@ -33,11 +33,11 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
-		
+
 		mTimeScaleFactor = 1.0f;
 
 		E_RESULT_CODE result = RC_OK;
-		
+
 		mpComponentManager = CreateComponentManager(result);
 
 		if (result != RC_OK)
@@ -51,7 +51,7 @@ namespace TDEngine2
 		{
 			return result;
 		}
-		
+
 		mpSystemManager = CreateSystemManager(this, pEventManager.Get(), result);
 
 		if (result != RC_OK)
@@ -59,7 +59,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpEventManager   = pEventManager;
+		mpEventManager = pEventManager;
 		mpRaycastContext = nullptr;
 
 		mIsInitialized = true;
@@ -114,7 +114,22 @@ namespace TDEngine2
 
 		return mpEntityManager->DestroyImmediately(pEntity);
 	}
-	
+
+	E_RESULT_CODE CWorld::RegisterComponentFactory(TPtr<IComponentFactory> pFactory)
+	{
+		if (!pFactory)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return mpComponentManager->RegisterFactory(pFactory);
+	}
+
+	E_RESULT_CODE CWorld::UnregisterComponentFactory(TypeId componentTypeId)
+	{
+		return mpComponentManager->UnregisterFactory(componentTypeId);
+	}
+
 	TResult<TSystemId> CWorld::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)
 	{
 		return mpSystemManager->RegisterSystem(pSystem, priority);

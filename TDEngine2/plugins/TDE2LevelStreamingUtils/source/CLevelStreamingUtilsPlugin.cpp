@@ -1,5 +1,6 @@
 #include "../include/CLevelStreamingUtilsPlugin.h"
 #include "../include/CSceneChunksLoadingSystem.h"
+#include "../include/CSceneLoadingTriggerComponent.h"
 #include <core/IEngineCore.h>
 #include <ecs/IWorld.h>
 #include <scene/ISceneManager.h>
@@ -40,6 +41,12 @@ namespace TDEngine2
 		if (systemRegistrationResult.HasError())
 		{
 			return systemRegistrationResult.GetError();
+		}
+
+		result = result | pWorld->RegisterComponentFactory(TPtr<IComponentFactory>(CreateSceneLoadingTriggerComponentFactory(result)));
+		if (RC_OK != result)
+		{
+			return result;
 		}
 
 		return RC_OK;

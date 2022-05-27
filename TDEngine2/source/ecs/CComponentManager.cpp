@@ -325,7 +325,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CComponentManager::_unregisterFactory(TypeId typeId)
+	E_RESULT_CODE CComponentManager::UnregisterFactory(TypeId typeId)
 	{
 		if (typeId == TypeId::Invalid)
 		{
@@ -511,7 +511,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			result = result | _unregisterFactory(pCurrFactory->GetComponentTypeId());
+			result = result | UnregisterFactory(pCurrFactory->GetComponentTypeId());
 		}
 
 		return result;

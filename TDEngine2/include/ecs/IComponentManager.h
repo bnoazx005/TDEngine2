@@ -65,9 +65,10 @@ namespace TDEngine2
 	#endif
 			UnregisterFactory()
 			{
-				return _unregisterFactory(T::GetTypeId());
+				return UnregisterFactory(T::GetTypeId());
 			}
 
+			TDE2_API virtual E_RESULT_CODE UnregisterFactory(TypeId typeId) = 0;
 
 			/*!
 				\brief The method creates a new component and connects it with
@@ -270,8 +271,6 @@ namespace TDEngine2
 #endif
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComponentManager)
-
-			TDE2_API virtual E_RESULT_CODE _unregisterFactory(TypeId typeId) = 0;
 
 			TDE2_API virtual IComponent* _createComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 

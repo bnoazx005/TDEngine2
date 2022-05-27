@@ -75,6 +75,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE RegisterFactory(TPtr<IComponentFactory> pFactory) override;
 
+			TDE2_API E_RESULT_CODE UnregisterFactory(TypeId typeId) override;
+
 			TDE2_API IComponent* CreateComponent(TEntityId entityId, TypeId componentTypeId) override;
 
 			TDE2_API E_RESULT_CODE RemoveComponent(TypeId componentTypeId, TEntityId entityId) override;
@@ -163,8 +165,6 @@ namespace TDEngine2
 #endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CComponentManager)
-
-			TDE2_API E_RESULT_CODE _unregisterFactory(TypeId typeId) override;
 
 			TDE2_API IComponent* _createComponent(TypeId componentTypeId, TEntityId entityId) override;
 
