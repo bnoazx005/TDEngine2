@@ -106,8 +106,6 @@ namespace TDEngine2
 			TSkinnedMeshesBoundsContext mSkinnedMeshesContext;
 			TSpritesBoundsContext       mSpritesContext;
 
-			TEntitiesArray              mScenesBoundariesEntities;
-
 			IResourceManager*           mpResourceManager;
 
 			IDebugUtility*              mpDebugUtility;

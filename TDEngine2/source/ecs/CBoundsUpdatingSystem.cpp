@@ -79,8 +79,6 @@ namespace TDEngine2
 		InitContext<CBoundsUpdatingSystem::TStaticMeshesBoundsContext, CStaticMeshContainer>(mStaticMeshesContext, pWorld);
 		InitContext<CBoundsUpdatingSystem::TSkinnedMeshesBoundsContext, CSkinnedMeshContainer>(mSkinnedMeshesContext, pWorld);
 		InitContext<CBoundsUpdatingSystem::TSpritesBoundsContext, CQuadSprite>(mSpritesContext, pWorld);
-
-		mScenesBoundariesEntities = pWorld->FindEntitiesWithComponents<CSceneInfoComponent>();
 	}
 
 
@@ -288,58 +286,7 @@ namespace TDEngine2
 		ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds);
 		ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded);
 
-#if 0
-		_processScenesEntities(pWorld);
-#endif
-
 		mCurrTimer += dt;
-	}
-
-	void CBoundsUpdatingSystem::_processScenesEntities(IWorld* pWorld)
-	{
-		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::_processScenesEntities");
-
-		CEntity* pEntity = nullptr;
-
-		for (TEntityId currEntity : mScenesBoundariesEntities)
-		{
-			if (!(pEntity = pWorld->FindEntity(currEntity)))
-			{
-				continue;
-			}
-
-			if (!pEntity->HasComponent<CBoundsComponent>())
-			{
-				pEntity->AddComponent<CBoundsComponent>();
-			}
-
-			if (CBoundsComponent* pBounds = pEntity->GetComponent<CBoundsComponent>())
-			{
-				TAABB currBounds = pBounds->GetBounds();
-
-				if (CSceneInfoComponent* pSceneInfo = pEntity->GetComponent<CSceneInfoComponent>())
-				{
-					auto pScene = mpSceneManager->GetScene(mpSceneManager->GetSceneId(pSceneInfo->GetSceneId()));
-					if (pScene.IsOk())
-					{
-						pScene.Get()->ForEachEntity([&currBounds](CEntity* pOtherEntity)
-						{
-							if (CBoundsComponent* pEntityBounds = pOtherEntity->GetComponent<CBoundsComponent>())
-							{
-								currBounds = UnionBoundingBoxes(currBounds, pEntityBounds->GetBounds());
-							}
-						});
-					}
-				}
-
-				pBounds->SetBounds(currBounds);
-
-				if (mpDebugUtility)
-				{
-					mpDebugUtility->DrawAABB(currBounds, { 1.0f, 0.0f, 0.5f, 1.0f });
-				}
-			}
-		}
 	}
 
 	TDE2_API ISystem* CreateBoundsUpdatingSystem(IResourceManager* pResourceManager, IDebugUtility* pDebugUtility, ISceneManager* pSceneManager, E_RESULT_CODE& result)
