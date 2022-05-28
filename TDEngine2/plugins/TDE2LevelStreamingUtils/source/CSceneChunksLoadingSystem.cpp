@@ -35,23 +35,33 @@ namespace TDEngine2
 
 	void CSceneChunksLoadingSystem::InjectBindings(IWorld* pWorld)
 	{
-		mContext.mpBounds.clear();
-
 		auto mpCamerasContext = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>())->GetComponent<CCamerasContextComponent>();
 		mCurrActiveCameraTransform = pWorld->FindEntity(mpCamerasContext->GetActiveCameraEntityId())->GetComponent<CTransform>();
 
 		auto sceneLoadingTriggers = pWorld->FindEntitiesWithComponents<CSceneLoadingTriggerComponent>();
+		if (sceneLoadingTriggers.empty())
+		{
+			return;
+		}
+
 		for (TEntityId currEntityId : sceneLoadingTriggers)
 		{
 			if (auto pEntity = pWorld->FindEntity(currEntityId))
 			{
-				mContext.mpBounds.push_back((pEntity->HasComponent<CBoundsComponent>()) ? pEntity->AddComponent<CBoundsComponent>() : pEntity->GetComponent<CBoundsComponent>());
+				if (!pEntity->HasComponent<CBoundsComponent>())
+				{
+					pEntity->AddComponent<CBoundsComponent>(); // \note This code will add CBoundsComponent for each CSceneLoadingTriggerComponent
+				}
 			}
 		}
+
+		// \note Now we can create local slice of components to work with
+		mContext = pWorld->CreateLocalComponentsSlice<CSceneLoadingTriggerComponent, CBoundsComponent, CTransform>();
 	}
 
 	void CSceneChunksLoadingSystem::Update(IWorld* pWorld, F32 dt)
 	{
+
 	}
 
 

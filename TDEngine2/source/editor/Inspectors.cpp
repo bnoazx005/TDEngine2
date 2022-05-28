@@ -123,6 +123,12 @@ namespace TDEngine2
 	}
 
 
+	void CDefaultInspectorsRegistry::DrawInspectorHeader(const std::string& headerText, const TEditorContext& editorContext, const std::function<void(const TEditorContext&)>& action)
+	{
+		Header(headerText, editorContext, action);
+	}
+
+
 	void CDefaultInspectorsRegistry::DrawTransformGUI(const TEditorContext& editorContext)
 	{
 		Header("Transform", editorContext, [](const TEditorContext& editorContext)

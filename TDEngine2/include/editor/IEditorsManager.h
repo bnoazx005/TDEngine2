@@ -12,6 +12,7 @@
 #include "../core/IEngineSubsystem.h"
 #include "../core/Event.h"
 #include <string>
+#include <functional>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -24,6 +25,7 @@ namespace TDEngine2
 	class IWorld;
 	class ISelectionManager;
 	class IEventManager;
+	struct TEditorContext;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IInputContext)
@@ -41,6 +43,8 @@ namespace TDEngine2
 
 	class IEditorsManager: public IEngineSubsystem
 	{
+		public:
+			typedef std::function<void(const TEditorContext&)> TOnDrawInspectorCallback;
 		public:
 			/*!
 				\brief The method initializes an internal state of main manager for all engine's editors
@@ -65,6 +69,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate = false) = 0;
+
+			/*!
+				\brief The method registers inspector for the given component's type
+				
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterComponentInspector(TypeId componentTypeId, const TOnDrawInspectorCallback& onDrawCallback = nullptr) = 0;
 
 			/*!
 				\brief The method sets up a pointer to IWorld instance

@@ -1,5 +1,6 @@
 #include "../../include/editor/CEditorsManager.h"
 #include "../../include/editor/IEditorWindow.h"
+#include "../../include/editor/Inspectors.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/core/IWindowSystem.h"
@@ -8,6 +9,7 @@
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/editor/ISelectionManager.h"
+#include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/graphics/CBaseCamera.h"
@@ -102,6 +104,28 @@ namespace TDEngine2
 		mRegisteredEditors.emplace_back(commandName, pEditorWindow, isSeparate);
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CEditorsManager::RegisterComponentInspector(TypeId componentTypeId, const TOnDrawInspectorCallback& onDrawCallback)
+	{
+		if (TypeId::Invalid == componentTypeId || !onDrawCallback)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto it = std::find_if(mRegisteredEditors.cbegin(), mRegisteredEditors.cend(), [this](auto&& entry)
+		{
+			return std::get<std::string>(entry) == mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR);
+		});
+
+		TDE2_ASSERT(mRegisteredEditors.cend() != it);
+
+		if (auto pLevelEditor = dynamic_cast<CLevelEditorWindow*>(std::get<IEditorWindow*>(*it)))
+		{
+			return pLevelEditor->RegisterInspector(componentTypeId, onDrawCallback);
+		}
+
+		return RC_FAIL;
 	}
 
 

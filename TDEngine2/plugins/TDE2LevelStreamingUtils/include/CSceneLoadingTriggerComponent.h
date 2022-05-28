@@ -10,6 +10,8 @@
 #include <core/memory/CPoolAllocator.h>
 #include <ecs/CBaseComponent.h>
 #include <math/TAABB.h>
+#include <math/TVector3.h>
+#include <editor/IEditorsManager.h>
 
 
 namespace TDEngine2
@@ -60,11 +62,24 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetScenePath(const std::string& scenePath);
 
+			TDE2_API E_RESULT_CODE SetVolumeOffset(const TVector3& value);
+			TDE2_API E_RESULT_CODE SetVolumeSizes(const TVector3& value);
+
 			TDE2_API const std::string& GetScenePath() const;
+
+			TDE2_API const TVector3& GetVolumeOffset() const;
+			TDE2_API const TVector3& GetVolumeSizes() const;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API static void DrawInspectorGUI(const TEditorContext& context);
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneLoadingTriggerComponent)
 		protected:
 			std::string mScenePath;
+
+			TVector3    mOffset = ZeroVector3;
+			TVector3    mSizes = TVector3(1.0f);
 	};
 
 

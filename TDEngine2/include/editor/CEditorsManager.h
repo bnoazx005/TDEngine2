@@ -90,6 +90,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate = false) override;
 
 			/*!
+				\brief The method registers inspector for the given component's type
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RegisterComponentInspector(TypeId componentTypeId, const TOnDrawInspectorCallback& onDrawCallback = nullptr) override;
+
+			/*!
 				\brief The method sets up a pointer to IWorld instance
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

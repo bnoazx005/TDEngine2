@@ -10,6 +10,7 @@
 #include <utils/Types.h>
 #include <utils/Utils.h>
 #include <ecs/CBaseSystem.h>
+#include <ecs/IWorld.h>
 #include <vector>
 
 
@@ -18,6 +19,7 @@ namespace TDEngine2
 	class ISceneManager;
 	class CTransform;
 	class CBoundsComponent;
+	class CSceneLoadingTriggerComponent;
 
 
 	/*!
@@ -42,11 +44,6 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateSceneChunksLoadingSystem(ISceneManager*, E_RESULT_CODE&);
-		public:
-			struct TSystemContext
-			{
-				std::vector<CBoundsComponent*> mpBounds;
-			};
 		public:
 			TDE2_SYSTEM(CSceneChunksLoadingSystem);
 
@@ -86,6 +83,6 @@ namespace TDEngine2
 
 			CTransform*    mCurrActiveCameraTransform;
 
-			TSystemContext mContext;
+			TComponentsQueryLocalSlice<CSceneLoadingTriggerComponent, CBoundsComponent, CTransform> mContext;
 	};
 }

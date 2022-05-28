@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.5] 2022-05-27
+## [0.6.5] 2022-05-28
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new component which is **CSceneLoadingTriggerComponent** was added.
 
 - The API of **IWorld** was extended with new methods RegisterComponentFactory and UnregisterComponentFactory.
+
+- The API of **IEditorsManager** was extended with a new public method RegisterComponentInspector.
 
 ## [0.6.4] 2022-05-25
 

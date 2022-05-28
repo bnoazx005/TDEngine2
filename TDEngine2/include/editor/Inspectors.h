@@ -9,6 +9,7 @@
 
 #include "../utils/Config.h"
 #include "../utils/Types.h"
+#include <functional>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -84,6 +85,8 @@ namespace TDEngine2
 			
 			/// Scenes components
 			TDE2_API static void DrawLODStrategyGUI(const TEditorContext& editorContext);
+
+			TDE2_API static void DrawInspectorHeader(const std::string& headerText, const TEditorContext& editorContext, const std::function<void(const TEditorContext&)>& action);
 	};
 }
 

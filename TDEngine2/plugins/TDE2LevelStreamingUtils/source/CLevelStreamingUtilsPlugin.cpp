@@ -2,6 +2,9 @@
 #include "../include/CSceneChunksLoadingSystem.h"
 #include "../include/CSceneLoadingTriggerComponent.h"
 #include <core/IEngineCore.h>
+#if TDE2_EDITORS_ENABLED
+#include <editor/IEditorsManager.h>
+#endif
 #include <ecs/IWorld.h>
 #include <scene/ISceneManager.h>
 
@@ -48,6 +51,13 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+#if TDE2_EDITORS_ENABLED
+		if (auto pEditorsManager = pEngineCore->GetSubsystem<IEditorsManager>())
+		{
+			pEditorsManager->RegisterComponentInspector(CSceneLoadingTriggerComponent::GetTypeId(), CSceneLoadingTriggerComponent::DrawInspectorGUI);
+		}
+#endif
 
 		return RC_OK;
 	}
