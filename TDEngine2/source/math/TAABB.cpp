@@ -32,9 +32,9 @@ namespace TDEngine2
 		const TVector3& min = aabb.min;
 		const TVector3& max = aabb.max;
 
-		if (CMathUtils::IsGreatOrEqual(min.x, point.x) && CMathUtils::IsLessOrEqual(max.x, point.x) &&
-			CMathUtils::IsGreatOrEqual(min.y, point.y) && CMathUtils::IsLessOrEqual(max.y, point.y) &&
-			CMathUtils::IsGreatOrEqual(min.z, point.z) && CMathUtils::IsLessOrEqual(max.z, point.z))
+		if (CMathUtils::IsGreatOrEqual(point.x, min.x) && CMathUtils::IsLessOrEqual(point.x, max.x) &&
+			CMathUtils::IsGreatOrEqual(point.y, min.y) && CMathUtils::IsLessOrEqual(point.y, max.y) &&
+			CMathUtils::IsGreatOrEqual(point.z, min.z) && CMathUtils::IsLessOrEqual(point.z, max.z))
 		{
 			return true;
 		}

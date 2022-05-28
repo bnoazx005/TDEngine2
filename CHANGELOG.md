@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IEditorsManager** was extended with a new public method RegisterComponentInspector.
 
+### Fixed
+
+- **ContainsPoint** function was fixed.
+
 ## [0.6.4] 2022-05-25
 
 ### Added
