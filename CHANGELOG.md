@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ContainsPoint** function was fixed.
 
+- The implementation of **CSceneManager::LoadSceneAsync** was fixed for the case when there is no actual scene's data at given filepath.
+
 ## [0.6.4] 2022-05-25
 
 ### Added

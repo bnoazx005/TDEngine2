@@ -82,7 +82,7 @@ namespace TDEngine2
 
 				if (!scenePath.empty())
 				{
-					mpSceneManager->LoadSceneAsync(pSceneLoadingTrigger->GetScenePath(), {});	/// \note Load scene's chunk
+					mpSceneManager->LoadSceneAsync(pSceneLoadingTrigger->GetScenePath(), [](auto) {});	/// \note Load scene's chunk
 				}
 			}
 			else

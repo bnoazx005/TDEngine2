@@ -135,6 +135,13 @@ namespace TDEngine2
 				return;
 			}
 
+			auto openSceneFileResult = mpFileSystem->Open<IYAMLFileReader>(scenePath);
+			if (openSceneFileResult.HasError()) // \note There is no a scene with such identifier
+			{
+				onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(openSceneFileResult.GetError()));
+				return;
+			}
+
 			E_RESULT_CODE result = RC_OK;
 
 			IScene* pScene = TDEngine2::CreateScene(mpWorld, mpPrefabsRegistry, sceneName, scenePath, mpScenes.empty(), result); // \todo Add check up for a main scene flag
@@ -148,7 +155,7 @@ namespace TDEngine2
 			}
 
 			// \note Open scene's file and read its data
-			if (auto openSceneFileResult = mpFileSystem->Open<IYAMLFileReader>(scenePath))
+			if (openSceneFileResult.IsOk())
 			{
 				if (IYAMLFileReader* pSceneReader = mpFileSystem->Get<IYAMLFileReader>(openSceneFileResult.Get()))
 				{
