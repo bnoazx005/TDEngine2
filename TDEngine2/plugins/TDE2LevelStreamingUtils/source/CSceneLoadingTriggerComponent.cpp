@@ -82,6 +82,7 @@ namespace TDEngine2
 		}
 
 		mScenePath = scenePath;
+		mIsDirty = true;
 
 		return RC_OK;
 	}
@@ -89,6 +90,8 @@ namespace TDEngine2
 	E_RESULT_CODE CSceneLoadingTriggerComponent::SetVolumeOffset(const TVector3& value)
 	{
 		mOffset = value;
+		mIsDirty = true;
+
 		return RC_OK;
 	}
 
@@ -101,7 +104,19 @@ namespace TDEngine2
 		}
 
 		mSizes = value;
+		mIsDirty = true;
+
 		return RC_OK;
+	}
+
+	void CSceneLoadingTriggerComponent::SetDirtyFlag(bool value)
+	{
+		mIsDirty = value;
+	}
+	
+	void CSceneLoadingTriggerComponent::SetOverlappingState(bool value)
+	{
+		mOverlappingState = value;
 	}
 
 	const std::string& CSceneLoadingTriggerComponent::GetScenePath() const
@@ -117,6 +132,16 @@ namespace TDEngine2
 	const TVector3& CSceneLoadingTriggerComponent::GetVolumeSizes() const
 	{
 		return mSizes;
+	}
+
+	bool CSceneLoadingTriggerComponent::IsDirty() const
+	{
+		return mIsDirty;
+	}
+
+	bool CSceneLoadingTriggerComponent::GetOverlappingState() const
+	{
+		return mOverlappingState;
 	}
 
 

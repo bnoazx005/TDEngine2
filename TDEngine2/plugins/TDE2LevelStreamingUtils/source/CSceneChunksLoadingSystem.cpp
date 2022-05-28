@@ -6,6 +6,7 @@
 #include <ecs/CTransform.h>
 #include <ecs/components/CBoundsComponent.h>
 #include <graphics/CBaseCamera.h>
+#include <editor/CPerfProfiler.h>
 
 
 namespace TDEngine2
@@ -62,6 +63,8 @@ namespace TDEngine2
 
 	void CSceneChunksLoadingSystem::Update(IWorld* pWorld, F32 dt)
 	{	
+		TDE2_PROFILER_SCOPE("CSceneChunksLoadingSystem::Update");
+
 		auto& sceneLoadingTriggers = std::get<std::vector<CSceneLoadingTriggerComponent*>>(mContext.mComponentsSlice);
 		auto& bounds               = std::get<std::vector<CBoundsComponent*>>(mContext.mComponentsSlice);
 		auto& transforms           = std::get<std::vector<CTransform*>>(mContext.mComponentsSlice);
@@ -73,25 +76,39 @@ namespace TDEngine2
 
 			const TVector3& sizes = pSceneLoadingTrigger->GetVolumeSizes();
 
-			const TAABB boundingVolume(transforms[i]->GetPosition() + pSceneLoadingTrigger->GetVolumeOffset(), sizes.x, sizes.y, sizes.z);
-			bounds[i]->SetBounds(boundingVolume);
+			const TAABB boundingVolume = pSceneLoadingTrigger->IsDirty() ? 
+													TAABB(transforms[i]->GetPosition() + pSceneLoadingTrigger->GetVolumeOffset(), sizes.x, sizes.y, sizes.z) : 
+													bounds[i]->GetBounds();
 
-			if (ContainsPoint(boundingVolume, mCurrActiveCameraTransform->GetPosition()))
+			if (pSceneLoadingTrigger->IsDirty())
+			{
+				bounds[i]->SetBounds(boundingVolume);
+				pSceneLoadingTrigger->SetDirtyFlag(false);
+			}
+
+			const bool prevOverlappingState = pSceneLoadingTrigger->GetOverlappingState();
+			const bool currOverlappingState = ContainsPoint(boundingVolume, mCurrActiveCameraTransform->GetPosition());
+
+			if (currOverlappingState && !prevOverlappingState) // enter the volume
 			{
 				auto&& scenePath = pSceneLoadingTrigger->GetScenePath();
 
 				if (!scenePath.empty())
 				{
-					mpSceneManager->LoadSceneAsync(pSceneLoadingTrigger->GetScenePath(), [](auto) {});	/// \note Load scene's chunk
+					mpSceneManager->LoadSceneAsync(pSceneLoadingTrigger->GetScenePath(), nullptr);	/// \note Load scene's chunk
 				}
+
+				pSceneLoadingTrigger->SetOverlappingState(true);
 			}
-			else
+			else if (prevOverlappingState && !currOverlappingState) // goes out of the volume
 			{				
 				const TSceneId sceneHandle = mpSceneManager->GetSceneId(pSceneLoadingTrigger->GetScenePath());
 				if (TSceneId::Invalid != sceneHandle)
 				{
 					mpSceneManager->UnloadScene(sceneHandle); /// \note Unload it
 				}
+
+				pSceneLoadingTrigger->SetOverlappingState(false);
 			}
 		}
 	}

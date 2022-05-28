@@ -138,7 +138,11 @@ namespace TDEngine2
 			auto openSceneFileResult = mpFileSystem->Open<IYAMLFileReader>(scenePath);
 			if (openSceneFileResult.HasError()) // \note There is no a scene with such identifier
 			{
-				onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(openSceneFileResult.GetError()));
+				if (onResultCallback)
+				{
+					onResultCallback(Wrench::TErrValue<E_RESULT_CODE>(openSceneFileResult.GetError()));
+				}
+
 				return;
 			}
 

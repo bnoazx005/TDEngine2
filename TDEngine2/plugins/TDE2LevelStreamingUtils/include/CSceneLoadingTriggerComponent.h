@@ -65,10 +65,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetVolumeOffset(const TVector3& value);
 			TDE2_API E_RESULT_CODE SetVolumeSizes(const TVector3& value);
 
+			TDE2_API void SetDirtyFlag(bool value);
+			TDE2_API void SetOverlappingState(bool value);
+
 			TDE2_API const std::string& GetScenePath() const;
 
 			TDE2_API const TVector3& GetVolumeOffset() const;
 			TDE2_API const TVector3& GetVolumeSizes() const;
+
+			TDE2_API bool IsDirty() const;
+			TDE2_API bool GetOverlappingState() const;
 
 #if TDE2_EDITORS_ENABLED
 			TDE2_API static void DrawInspectorGUI(const TEditorContext& context);
@@ -80,6 +86,9 @@ namespace TDEngine2
 
 			TVector3    mOffset = ZeroVector3;
 			TVector3    mSizes = TVector3(1.0f);
+
+			bool mIsDirty = true;
+			bool mOverlappingState = false;
 	};
 
 
