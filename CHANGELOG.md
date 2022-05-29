@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The computation of scene's boundaries was removed from **CBoundsUpdatingSystem**. 
 
+### Fixed
+
+- **CImGUIContext::GetDragAndDropData**'s implementation was fixed to return correct results.
+
 ## [0.6.5] 2022-05-28
 
 ### Added

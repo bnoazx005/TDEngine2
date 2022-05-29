@@ -1371,7 +1371,12 @@ namespace TDEngine2
 		
 	const void* CImGUIContext::_getDragAndDropData(const std::string& id) const
 	{
-		return ImGui::AcceptDragDropPayload(id.c_str());
+		if (const ImGuiPayload* pPayloadData = ImGui::AcceptDragDropPayload(id.c_str()))
+		{
+			return pPayloadData->Data;
+		}
+
+		return nullptr;
 	}
 
 

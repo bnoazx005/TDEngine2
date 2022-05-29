@@ -592,9 +592,9 @@ namespace TDEngine2
 			}
 
 			template <typename T>
-			TDE2_API const T& GetDragAndDropData(const std::string& id) const
+			TDE2_API const T* GetDragAndDropData(const std::string& id) const
 			{
-				return *static_cast<const T*>(_getDragAndDropData(id));
+				return static_cast<const T*>(_getDragAndDropData(id));
 			}
 
 			/*!
