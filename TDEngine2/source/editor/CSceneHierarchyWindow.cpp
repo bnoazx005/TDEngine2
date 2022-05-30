@@ -6,7 +6,7 @@
 #include "../../include/scene/IScene.h"
 #include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/ecs/CEntity.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/editor/CSelectionManager.h"
 #include "../../include/editor/ecs/EditorComponents.h"
@@ -85,6 +85,33 @@ namespace TDEngine2
 	static std::function<bool()> DrawPrefabsSelectionWindow = nullptr;
 
 
+	static void ProcessDragAndDropLogic(IImGUIContext* pImGUIContext, TPtr<IWorld> pWorld, TEntityId entityId, bool initializeSource = true)
+	{
+		static const std::string DraggedEntityId = "DRAGGED_ENTITY_ID";
+
+		if (initializeSource)
+		{
+			pImGUIContext->RegisterDragAndDropSource([pImGUIContext, pWorldPtr = pWorld.Get(), entityId]
+				{
+					pImGUIContext->SetDragAndDropData(DraggedEntityId, entityId);
+
+					if (auto pEntity = pWorldPtr->FindEntity(entityId))
+					{
+						pImGUIContext->Label(pEntity->GetName());
+					}
+				});
+		}
+
+		pImGUIContext->RegisterDragAndDropTarget([pImGUIContext, pWorldPtr = pWorld.Get(), entityId]
+		{
+			if (auto pChildEntityId = pImGUIContext->GetDragAndDropData<TEntityId>(DraggedEntityId))
+			{
+				GroupEntities(pWorldPtr, entityId, *pChildEntityId);
+			}
+		});
+	}
+
+
 	void CSceneHierarchyEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -100,8 +127,18 @@ namespace TDEngine2
 
 		bool isInvalidState = false;
 
+		auto pWorld = mpSceneManager->GetWorld();
+
 		if (mpImGUIContext->BeginWindow("Scene Hierarchy", isEnabled, params))
 		{
+			/// \note Draw invisible button for drag & drop dettach functionality
+			{
+				auto currPosition = mpImGUIContext->GetCursorScreenPos();
+				mpImGUIContext->Button("##NullParent", TVector2(mpImGUIContext->GetWindowWidth(), mpImGUIContext->GetWindowHeight()), nullptr, true, true);
+				ProcessDragAndDropLogic(mpImGUIContext, pWorld, TEntityId::Invalid, false);
+				mpImGUIContext->SetCursorScreenPos(currPosition);
+			}
+
 			mpImGUIContext->Button("Load Level Chunk", { mpImGUIContext->GetWindowWidth() - 15.0f, 25.0f }, std::bind(&CSceneHierarchyEditorWindow::_executeLoadLevelChunkOperation, this));
 
 			for (IScene* pCurrScene : mpSceneManager->GetLoadedScenes())
@@ -212,8 +249,6 @@ namespace TDEngine2
 						break;
 					}
 
-					auto pWorld = mpSceneManager->GetWorld();
-
 					TEntityId currParentId = TEntityId::Invalid;
 
 					std::function<void(CEntity*)> drawEntityHierarchy = [this, &drawEntityHierarchy, pWorld, &currParentId](CEntity* pEntity)
@@ -249,6 +284,8 @@ namespace TDEngine2
 								});
 							}
 
+							ProcessDragAndDropLogic(mpImGUIContext, pWorld, pEntity->GetId());
+
 							if (mpSelectionManager->GetSelectedEntityId() == pEntity->GetId())
 							{
 								DrawEntityContextMenu(mpImGUIContext, mpSelectionManager, pWorld);
@@ -261,6 +298,7 @@ namespace TDEngine2
 						bool isSelected = false;
 
 						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, mpSelectionManager->GetSelectedEntityId() == pEntity->GetId());
+						ProcessDragAndDropLogic(mpImGUIContext, pWorld, pEntity->GetId());
 
 						if (isOpened)
 						{
