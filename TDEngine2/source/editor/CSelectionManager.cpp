@@ -50,8 +50,6 @@ namespace TDEngine2
 			return result;
 		}
 
-		mLastSelectedEntityID = TEntityId::Invalid;
-
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -109,10 +107,11 @@ namespace TDEngine2
 
 			SetSelectedEntity(TEntityId(static_cast<U32>(*pPixelData) - 1));
 
-			return mLastSelectedEntityID;
+			return GetSelectedEntityId();
 		}
 		
-		return (mLastSelectedEntityID = TEntityId::Invalid);
+		SetSelectedEntity(TEntityId::Invalid);
+		return TEntityId::Invalid;
 	}
 
 	E_RESULT_CODE CSelectionManager::OnEvent(const TBaseEvent* pEvent)
@@ -176,23 +175,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSelectionManager::SetSelectedEntity(TEntityId id)
 	{
+		return _setSelection(id);
+	}
+
+	E_RESULT_CODE CSelectionManager::AddSelectedEntity(TEntityId id)
+	{
+		return _setSelection(id, false);
+	}
+
+	E_RESULT_CODE CSelectionManager::ClearSelection()
+	{
 		_resetCurrentSelection();
-
-		mLastSelectedEntityID = id;
-
-		// \note mark the entity as selected via adding CSelectedEntityComponent
-		if (CEntity* pSelectedEntity = mpWorld->FindEntity(mLastSelectedEntityID))
-		{
-			auto pSelectedEntityComponent = pSelectedEntity->AddComponent<CSelectedEntityComponent>();
-			TDE2_ASSERT(pSelectedEntityComponent);
-
-			TOnObjectSelected onObjectSelected;
-			onObjectSelected.mObjectID = mLastSelectedEntityID;
-			onObjectSelected.mpWorld = mpWorld.Get();
-
-			mpEventManager->Notify(&onObjectSelected);
-		}
-
 		return RC_OK;
 	}
 
@@ -203,7 +196,17 @@ namespace TDEngine2
 
 	TEntityId CSelectionManager::GetSelectedEntityId() const
 	{
-		return mLastSelectedEntityID;
+		return mSelectedEntities.empty() ? TEntityId::Invalid : mSelectedEntities.back();
+	}
+
+	const std::vector<TEntityId>& CSelectionManager::GetSelectedEntities() const
+	{
+		return mSelectedEntities;
+	}
+
+	bool CSelectionManager::IsEntityBeingSelected(TEntityId id) const
+	{
+		return std::find(mSelectedEntities.cbegin(), mSelectedEntities.cend(), id) != mSelectedEntities.cend();
 	}
 
 	E_RESULT_CODE CSelectionManager::_createRenderTarget(U32 width, U32 height)
@@ -240,17 +243,47 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSelectionManager::_setSelection(TEntityId id, bool resetSelection)
+	{
+		if (resetSelection)
+		{
+			_resetCurrentSelection();
+		}
+
+		mSelectedEntities.push_back(id);
+
+		// \note mark the entity as selected via adding CSelectedEntityComponent
+		if (CEntity* pSelectedEntity = mpWorld->FindEntity(id))
+		{
+			auto pSelectedEntityComponent = pSelectedEntity->AddComponent<CSelectedEntityComponent>();
+			TDE2_ASSERT(pSelectedEntityComponent);
+
+			TOnObjectSelected onObjectSelected;
+			onObjectSelected.mObjectID = id;
+			onObjectSelected.mpWorld = mpWorld.Get();
+
+			mpEventManager->Notify(&onObjectSelected);
+		}
+
+		return RC_OK;
+	}
+
 	void CSelectionManager::_resetCurrentSelection()
 	{
-		if (mLastSelectedEntityID == TEntityId::Invalid)
+		if (mSelectedEntities.empty() || mSelectedEntities.back() == TEntityId::Invalid)
 		{
 			return;
 		}
 
-		if (CEntity* pSelectedEntity = mpWorld->FindEntity(mLastSelectedEntityID))
+		for (TEntityId currSelectedEntity : mSelectedEntities)
 		{
-			PANIC_ON_FAILURE(pSelectedEntity->RemoveComponent<CSelectedEntityComponent>());
+			if (CEntity* pSelectedEntity = mpWorld->FindEntity(currSelectedEntity))
+			{
+				PANIC_ON_FAILURE(pSelectedEntity->RemoveComponent<CSelectedEntityComponent>());
+			}
 		}
+
+		mSelectedEntities.clear();
 	}
 
 

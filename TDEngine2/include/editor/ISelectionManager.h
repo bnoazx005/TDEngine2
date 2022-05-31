@@ -89,6 +89,19 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetSelectedEntity(TEntityId id) = 0;
 
 			/*!
+				\brief The method adds another entity into the selection list. Therefore allows to make
+				multiselection rather than SetSelectedEntity that reset current list and selects only the entity
+
+				\param[in] id An identifier of entity that should be selected
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE AddSelectedEntity(TEntityId id) = 0;
+
+			TDE2_API virtual E_RESULT_CODE ClearSelection() = 0;
+
+			/*!
 				\brief The method sets up a pointer to IWorld instance
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -103,6 +116,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TEntityId GetSelectedEntityId() const = 0;
+
+			TDE2_API virtual const std::vector<TEntityId>& GetSelectedEntities() const = 0;
+
+			/*!
+				\return The method returns true when the given entity identifier was marked as selected sooner and false in other cases
+			*/
+
+			TDE2_API virtual bool IsEntityBeingSelected(TEntityId id) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISelectionManager)
 	};

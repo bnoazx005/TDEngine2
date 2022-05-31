@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.6] 2022-05-30
+## [0.6.6] 2022-05-31
 
 ### Added
 
 - Drag & drop functionality was added for scene hierarchy's window.
+
+- The API of **ISelectionManager** was extended with new public methods AddSelectionEntity, ClearSelection, GetSelectedEntities and IsEntityBeingSelected.
 
 ### Changed
 

@@ -102,6 +102,19 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetSelectedEntity(TEntityId id) override;
 
 			/*!
+				\brief The method adds another entity into the selection list. Therefore allows to make
+				multiselection rather than SetSelectedEntity that reset current list and selects only the entity
+
+				\param[in] id An identifier of entity that should be selected
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE AddSelectedEntity(TEntityId id) override;
+
+			TDE2_API E_RESULT_CODE ClearSelection() override;
+
+			/*!
 				\brief The method sets up a pointer to IWorld instance
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -124,35 +137,44 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TEntityId GetSelectedEntityId() const override;
+
+			TDE2_API const std::vector<TEntityId>& GetSelectedEntities() const;
+
+			/*!
+				\return The method returns true when the given entity identifier was marked as selected sooner and false in other cases
+			*/
+
+			TDE2_API bool IsEntityBeingSelected(TEntityId id) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSelectionManager)
 
 			TDE2_API E_RESULT_CODE _createRenderTarget(U32 width, U32 height);
 
+			TDE2_API E_RESULT_CODE _setSelection(TEntityId id, bool resetSelection = true);
 			TDE2_API void _resetCurrentSelection();
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TPtr<IResourceManager> mpResourceManager;
 
-			IEditorsManager*  mpEditorsManager;
+			IEditorsManager*       mpEditorsManager;
 
 			TPtr<IWindowSystem>    mpWindowSystem;
 
 			TPtr<IGraphicsContext> mpGraphicsContext;
 
-			TPtr<IEventManager> mpEventManager;
+			TPtr<IEventManager>    mpEventManager;
 
 			TPtr<IWorld>           mpWorld;
 
-			TSystemId         mObjectSelectionSystemId;
+			TSystemId              mObjectSelectionSystemId;
 
-			TResourceId       mSelectionGeometryBufferHandle; ///< This is a render target that contains all visible geometry 
-			TResourceId       mReadableSelectionBufferHandle;
+			TResourceId            mSelectionGeometryBufferHandle; ///< This is a render target that contains all visible geometry 
+			TResourceId            mReadableSelectionBufferHandle;
 
-			U32               mWindowHeaderHeight;
+			U32                    mWindowHeaderHeight;
 
-			TEntityId         mLastSelectedEntityID;
+			std::vector<TEntityId> mSelectedEntities;
 	};
 }
 
