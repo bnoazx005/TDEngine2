@@ -2,6 +2,7 @@
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IWindowSystem.h"
+#include "../../include/core/IInputContext.h"
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/scene/IPrefabsRegistry.h"
@@ -22,22 +23,23 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSceneHierarchyEditorWindow::Init(ISceneManager* pSceneManager, IWindowSystem* pWindowSystem, ISelectionManager* pSelectionManager)
+	E_RESULT_CODE CSceneHierarchyEditorWindow::Init(const TSceneHierarchyInitParams& params)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pSceneManager || !pWindowSystem || !pSelectionManager)
+		if (!params.mpSceneManager || !params.mpWindowSystem || !params.mpSelectionManager || !params.mpInputContext)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpSceneManager = pSceneManager;
-		mpWindowSystem = pWindowSystem;
-		mpSelectionManager = pSelectionManager;
-		mpSelectedScene = nullptr;
+		mpSceneManager     = params.mpSceneManager;
+		mpWindowSystem     = params.mpWindowSystem;
+		mpSelectionManager = params.mpSelectionManager;
+		mpInputContext     = params.mpInputContext;
+		mpSelectedScene    = nullptr;
 
 		mIsInitialized = true;
 
@@ -56,7 +58,11 @@ namespace TDEngine2
 			imguiContext.MenuItem("Delete", "Del", [pSelectionManager, pWorld]
 			{
 				std::stack<TEntityId> entitiesToDestroy;
-				entitiesToDestroy.push(pSelectionManager->GetSelectedEntityId());
+
+				for (TEntityId currEntity : pSelectionManager->GetSelectedEntities())
+				{
+					entitiesToDestroy.push(currEntity);
+				}
 
 				while (!entitiesToDestroy.empty())
 				{
@@ -267,9 +273,17 @@ namespace TDEngine2
 
 						if (isLeafEntity)
 						{
-							if (mpImGUIContext->SelectableItem(fieldStr, mpSelectionManager->GetSelectedEntityId() == pEntity->GetId()))
+							if (mpImGUIContext->SelectableItem(fieldStr, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId())))
 							{
-								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+								if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
+								{
+									mpSelectionManager->AddSelectedEntity(pEntity->GetId());
+								}
+								else
+								{
+									mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+								}
+
 								mpSelectedScene = nullptr;
 
 								mpImGUIContext->RegisterDragAndDropSource([this, id = static_cast<I32>(pEntity->GetId())]
@@ -286,6 +300,7 @@ namespace TDEngine2
 
 							ProcessDragAndDropLogic(mpImGUIContext, pWorld, pEntity->GetId());
 
+							/// \note No matter of multiselection display context menu for last selected entity. It'll work for both cases 
 							if (mpSelectionManager->GetSelectedEntityId() == pEntity->GetId())
 							{
 								DrawEntityContextMenu(mpImGUIContext, mpSelectionManager, pWorld);
@@ -297,7 +312,7 @@ namespace TDEngine2
 						bool isOpened = false;
 						bool isSelected = false;
 
-						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, mpSelectionManager->GetSelectedEntityId() == pEntity->GetId());
+						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()));
 						ProcessDragAndDropLogic(mpImGUIContext, pWorld, pEntity->GetId());
 
 						if (isOpened)
@@ -317,18 +332,20 @@ namespace TDEngine2
 
 						if (isSelected)
 						{
-							mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+							if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
+							{
+								mpSelectionManager->AddSelectedEntity(pEntity->GetId());
+							}
+							else
+							{
+								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
+							}
 							mpSelectedScene = nullptr;
 						}
 
-						if (mpSelectionManager->GetSelectedEntityId() == pEntity->GetId())
+						if (mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()))
 						{
 							DrawEntityContextMenu(mpImGUIContext, mpSelectionManager, pWorld);
-
-							if (mpImGUIContext->IsMouseClicked(1) && mpImGUIContext->IsItemHovered())
-							{
-								mpImGUIContext->ShowModalWindow(EntityContextMenuId);
-							}
 						}
 					};
 
@@ -379,9 +396,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateSceneHierarchyEditorWindow(ISceneManager* pSceneManager, IWindowSystem* pWindowSystem, ISelectionManager* pSelectionManager, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateSceneHierarchyEditorWindow(const TSceneHierarchyInitParams& params, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CSceneHierarchyEditorWindow, result, pSceneManager, pWindowSystem, pSelectionManager);
+		return CREATE_IMPL(IEditorWindow, CSceneHierarchyEditorWindow, result, params);
 	}
 }
 

@@ -56,7 +56,13 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(desc.mpSceneManager, desc.mpWindowSystem, _getSelectionManager(), result)) || result != RC_OK)
+		if (!(mpHierarchyWidget = CreateSceneHierarchyEditorWindow(
+			{
+				desc.mpSceneManager, 
+				desc.mpWindowSystem, 
+				_getSelectionManager(),
+				mpInputContext
+			}, result)) || result != RC_OK)
 		{
 			return result;
 		}
@@ -265,82 +271,6 @@ namespace TDEngine2
 					}
 				}
 			});
-			
-#if 0
-			auto&& ray = NormalizedScreenPointToWorldRay(_getCameraEntity(), mpInputContext->GetNormalizedMousePosition());
-
-			TVector3 origin { matrix.m[0][3], matrix.m[1][3], matrix.m[2][3] };
-
-			const TRay3D axes[3]
-			{
-				{ origin, RightVector3 },
-				{ origin, UpVector3 },
-				{ origin, ForwardVector3 }
-			};
-
-			F32 currDistance = 0.0f, t1 = 0.0f, t2 = 0.0f;
-
-			if (!mIsGizmoBeingDragged) // \note change selection only if a user doesn't drag gizmo
-			{
-				mCurrSelectedGizmoAxis = -1;
-
-				for (U8 i = 0; i < 3; ++i)
-				{
-					std::tie(currDistance, t1, t2) = CalcShortestDistanceBetweenLines(axes[i], ray);
-					if (currDistance < 0.1f)
-					{
-						mCurrSelectedGizmoAxis = i;
-					}
-				}
-
-				if (mCurrSelectedGizmoAxis >= 0)
-				{
-					mFirstPosition = axes[mCurrSelectedGizmoAxis](t1);
-				}
-			}
-			else
-			{
-				std::tie(currDistance, t1, t2) = CalcShortestDistanceBetweenLines(axes[mCurrSelectedGizmoAxis], ray);
-			}
-
-			mpDebugUtility->DrawCross(mFirstPosition, 1.5f, { 1.0f, 0.0f, 1.0f, 1.0f });
-			mpDebugUtility->DrawCross(mLastPosition, 1.5f, { 0.0f, 0.0f, 1.0f, 1.0f });
-
-			E_GIZMO_TYPE type = (mCurrSelectedGizmoAxis >= 0 && mIsGizmoBeingDragged) ? (E_GIZMO_TYPE::TRANSLATION_X + mCurrSelectedGizmoAxis) : E_GIZMO_TYPE::TRANSLATION;
-
-			// \todo Implement all types of gizmos here
-			mpDebugUtility->DrawTransformGizmo(type, matrix);
-
-			bool prevState = mIsGizmoBeingDragged;
-
-			if (mCurrSelectedGizmoAxis >= 0 && mCurrSelectedGizmoAxis < (std::numeric_limits<U8>::max)())
-			{
-				if (onGizmoManipulatorCallback && (mIsGizmoBeingDragged = mpInputContext->IsMouseButton(0)))
-				{
-					mLastPosition = axes[mCurrSelectedGizmoAxis](t1);
-
-					if (prevState)
-					{
-						onGizmoManipulatorCallback(mSelectedEntityId, E_GIZMO_EVENT_TYPE::DRAGGED, type, mLastPosition - mFirstPosition);
-					}
-					else
-					{
-						onGizmoManipulatorCallback(mSelectedEntityId, E_GIZMO_EVENT_TYPE::STARTED, type, ZeroVector3);
-					}
-
-					mFirstPosition = mLastPosition;
-				}
-				else if (mpInputContext->IsMouseButtonUnpressed(0))
-				{
-					onGizmoManipulatorCallback(mSelectedEntityId, E_GIZMO_EVENT_TYPE::FINISHED, type, ZeroVector3);
-
-					mIsGizmoBeingDragged = false;
-					mCurrSelectedGizmoAxis = -1;
-				}
-
-				return true;
-			}
-#endif
 		}
 
 		return false;
@@ -404,6 +334,12 @@ namespace TDEngine2
 
 	bool CLevelEditorWindow::_onDrawObjectInspector()
 	{
+		if (mpSelectionManager->GetSelectedEntities().size() > 1)
+		{
+			mpImGUIContext->Label("Multi selection mode doesn't support components editing");
+			return false;
+		}
+
 		CEntity* pSelectedEntity = mpEditorsManager->GetWorldInstance()->FindEntity(mSelectedEntityId);
 		if (!pSelectedEntity)
 		{
