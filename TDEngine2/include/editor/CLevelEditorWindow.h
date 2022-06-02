@@ -140,8 +140,8 @@ namespace TDEngine2
 			ISceneManager*         mpSceneManager;
 
 			TEntityId              mSelectedEntityId = TEntityId::Invalid;
-
 			TEntityId              mCameraEntityId = TEntityId::Invalid;
+			TEntityId              mTemporaryGroupEntityId = TEntityId::Invalid;
 
 			E_GIZMO_TYPE           mCurrManipulatorType;
 

@@ -220,44 +220,61 @@ namespace TDEngine2
 		}		
 	}
 
-	bool CLevelEditorWindow::_onDrawGizmos()
+
+	static TVector3 GetAveragePoint(TPtr<ISelectionManager> pSelectionManager, TPtr<IWorld> pWorld)
 	{
-		if (mSelectedEntityId == TEntityId::Invalid)
+		TVector3 result = ZeroVector3;
+
+		auto&& selectedEntities = pSelectionManager->GetSelectedEntities();
+
+		for (auto&& selectedEntityId : selectedEntities)
 		{
-			return false;
+			auto pSelectedEntity = pWorld->FindEntity(selectedEntityId);
+			if (!pSelectedEntity)
+			{
+				continue;
+			}
+
+			auto pTransform = pSelectedEntity->GetComponent<CTransform>();
+			result = result + pTransform->GetPosition();
 		}
 
-		auto pWorld = mpEditorsManager->GetWorldInstance();
-		if (!pWorld)
-		{
-			return false;
-		}
+		return result * static_cast<F32>(1.0f / static_cast<F32>(selectedEntities.size()));
+	}
 
-		if (auto pSelectedEntity = pWorld->FindEntity(mSelectedEntityId))
+
+	static void DrawGizmoForSingleSelectedEntity(E_GIZMO_TYPE manipulatorType, TPtr<ISelectionManager> pSelectionManager, ISceneManager* pSceneManager, 
+												 IEditorActionsHistory* pActionsHistory, IImGUIContext* pImGUIContext, bool& shouldRecordHistory)
+	{
+		auto pWorld = pSceneManager->GetWorld();
+
+		const TEntityId selectedEntity = pSelectionManager->GetSelectedEntityId();
+
+		if (auto pSelectedEntity = pWorld->FindEntity(selectedEntity))
 		{
 			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetLocalToWorldTransform());
-			
-			auto&& pCamera = GetCurrentActiveCamera(mpSceneManager->GetWorld().Get());
 
-			mpImGUIContext->DrawGizmo(mCurrManipulatorType, Transpose(pCamera->GetViewMatrix()), Transpose(pCamera->GetProjMatrix()), matrix,
-				[pSelectedEntity, this, pWorld](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
+			auto&& pCamera = GetCurrentActiveCamera(pWorld.Get());
+
+			pImGUIContext->DrawGizmo(manipulatorType, Transpose(pCamera->GetViewMatrix()), Transpose(pCamera->GetProjMatrix()), matrix,
+				[=, &shouldRecordHistory, pWorldPtr = pWorld.Get()](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
 			{
-				if (mShouldRecordHistory)
+				if (shouldRecordHistory)
 				{
 					E_RESULT_CODE result = RC_OK;
 
-					if (auto pAction = CreateTransformObjectAction(mpEditorsManager->GetWorldInstance().Get(), mSelectedEntityId, { pos, rot, scale }, result))
+					if (auto pAction = CreateTransformObjectAction(pWorldPtr, selectedEntity, {pos, rot, scale}, result))
 					{
-						PANIC_ON_FAILURE(mpActionsHistory->PushAndExecuteAction(pAction));
-						mpActionsHistory->Dump();
+						PANIC_ON_FAILURE(pActionsHistory->PushAndExecuteAction(pAction));
+						pActionsHistory->Dump();
 					}
 
-					mShouldRecordHistory = false;
+					shouldRecordHistory = false;
 				}
 
 				if (auto pTransform = pSelectedEntity->GetComponent<CTransform>())
 				{
-					switch (mCurrManipulatorType)
+					switch (manipulatorType)
 					{
 						case E_GIZMO_TYPE::TRANSLATION:
 							pTransform->SetPosition(pos);
@@ -272,6 +289,115 @@ namespace TDEngine2
 				}
 			});
 		}
+	}
+
+
+	static void DrawGizmoForMultiSelectedEntities(E_GIZMO_TYPE manipulatorType, TPtr<ISelectionManager> pSelectionManager, ISceneManager* pSceneManager,
+												  IEditorActionsHistory* pActionsHistory, IImGUIContext* pImGUIContext, TEntityId& tempGroupEntityId, 
+												  bool& shouldRecordHistory)
+	{
+		auto pWorld = pSceneManager->GetWorld();
+
+		if (TEntityId::Invalid == tempGroupEntityId)
+		{
+			if (auto pMultiselectionGroupEntity = pWorld->CreateEntity("TEMP_MULTISELECT_GROUP"))
+			{
+				tempGroupEntityId = pMultiselectionGroupEntity->GetId();
+			}
+		}
+
+		auto pGroupEntity = pWorld->FindEntity(tempGroupEntityId);
+		auto pGroupTransform = pGroupEntity->GetComponent<CTransform>();
+
+		pGroupTransform->SetPosition(GetAveragePoint(pSelectionManager, pWorld));
+
+		TMatrix4 matrix = Transpose(pGroupTransform->GetLocalToWorldTransform());
+
+		auto&& pCamera = GetCurrentActiveCamera(pWorld.Get());
+
+		pImGUIContext->DrawGizmo(manipulatorType, Transpose(pCamera->GetViewMatrix()), Transpose(pCamera->GetProjMatrix()), matrix,
+			[=, &shouldRecordHistory, pWorldPtr = pWorld.Get()](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
+		{
+			if (shouldRecordHistory)
+			{
+				E_RESULT_CODE result = RC_OK;
+
+				if (auto pAction = CreateTransformObjectAction(pWorldPtr, tempGroupEntityId, { pos, rot, scale }, result))
+				{
+					PANIC_ON_FAILURE(pActionsHistory->PushAndExecuteAction(pAction));
+					pActionsHistory->Dump();
+				}
+
+				shouldRecordHistory = false;
+			}
+
+			TVector3 deltaShift;
+			TQuaternion deltaRotation;
+
+			if (pGroupTransform)
+			{
+				switch (manipulatorType)
+				{
+					case E_GIZMO_TYPE::TRANSLATION:
+						deltaShift = pos - pGroupTransform->GetPosition();
+						pGroupTransform->SetPosition(pos);
+						break;
+					case E_GIZMO_TYPE::ROTATION:
+						deltaRotation = rot - pGroupTransform->GetRotation();
+						pGroupTransform->SetRotation(rot);
+						break;
+					case E_GIZMO_TYPE::SCALING:
+						deltaShift = scale - pGroupTransform->GetScale();
+						pGroupTransform->SetScale(scale);
+						break;
+				}
+			}
+
+			/// \note Apply delta to all selected entities
+			for (const TEntityId currSelectedId : pSelectionManager->GetSelectedEntities())
+			{
+				auto pSelectedEntity = pWorld->FindEntity(currSelectedId);
+				if (!pSelectedEntity)
+				{
+					continue;
+				}
+
+				if (auto pSelectedEntityTransform = pSelectedEntity->GetComponent<CTransform>())
+				{
+					switch (manipulatorType)
+					{
+						case E_GIZMO_TYPE::TRANSLATION:
+							pSelectedEntityTransform->SetPosition(deltaShift + pSelectedEntityTransform->GetPosition());
+							break;
+						case E_GIZMO_TYPE::ROTATION:
+							pSelectedEntityTransform->SetRotation(deltaRotation + pSelectedEntityTransform->GetRotation());
+							break;
+						case E_GIZMO_TYPE::SCALING:
+							pSelectedEntityTransform->SetScale(deltaShift + pSelectedEntityTransform->GetScale());
+							break;
+					}
+				}
+			}
+		});
+	}
+
+
+	bool CLevelEditorWindow::_onDrawGizmos()
+	{
+		if (mSelectedEntityId == TEntityId::Invalid)
+		{
+			return false;
+		}
+
+		auto&& selectedEntities = mpSelectionManager->GetSelectedEntities();
+
+		if (selectedEntities.size() == 1)
+		{
+			DrawGizmoForSingleSelectedEntity(mCurrManipulatorType, mpSelectionManager, mpSceneManager, mpActionsHistory, mpImGUIContext, mShouldRecordHistory);
+			return false;
+		}
+
+		DrawGizmoForMultiSelectedEntities(mCurrManipulatorType, mpSelectionManager, mpSceneManager, mpActionsHistory, mpImGUIContext, mTemporaryGroupEntityId, mShouldRecordHistory);		
 
 		return false;
 	}

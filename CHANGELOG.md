@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The functionality of multi-selection of nodes in the hierarchy's window was implemented.
 
+- Gizmos manipulations for multiple selected entities was added.
+
 ### Changed
 
 - The computation of scene's boundaries was removed from **CBoundsUpdatingSystem**. 
