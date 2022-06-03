@@ -141,6 +141,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+		
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+			*/
+
+			TDE2_API TPtr<IMaterial> Clone() const override;
 
 			/*!
 				\brief The method creates a new instance of this material. Remember that the material instance is
@@ -388,6 +395,8 @@ namespace TDEngine2
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			static constexpr U16     mVersionTag = 0x1;
+
+			static const std::string mResourceExtension;
 
 			IGraphicsContext*        mpGraphicsContext;
 

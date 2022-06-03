@@ -140,6 +140,9 @@ namespace TDEngine2
 	}
 
 
+	const std::string CBaseMaterial::mResourceExtension = ".material";
+
+
 	CBaseMaterial::CBaseMaterial() :
 		CBaseResource()
 	{
@@ -438,6 +441,35 @@ namespace TDEngine2
 		pWriter->EndGroup();
 
 		return RC_OK;
+	}
+
+	TPtr<IMaterial> CBaseMaterial::Clone() const
+	{
+		const TMaterialParameters params
+		{
+			(TResourceId::Invalid == mShaderHandle) ? Wrench::StringUtils::GetEmptyStr() : mpResourceManager->GetResource<IResource>(mShaderHandle)->GetName(),
+			mBlendStateParams.mIsEnabled,
+			mDepthStencilStateParams,
+			mRasterizerStateParams,
+			mBlendStateParams
+		};
+
+		U16 counter = 1;
+
+		/// \note Find the first available name for the clone
+		/// \todo Implement helper for this purpose inside CResourceManager's implementation
+		const std::string baseIdentifierWithoutExtension = mName.substr(0, mName.find(mResourceExtension));
+		std::string cloneIdentifier = baseIdentifierWithoutExtension + std::to_string(counter) + mResourceExtension;
+
+		while (TResourceId::Invalid != mpResourceManager->GetResourceId(cloneIdentifier))
+		{
+			cloneIdentifier = baseIdentifierWithoutExtension + std::to_string(++counter) + mResourceExtension;
+		}
+
+		const TResourceId clonedMaterialResourceId = mpResourceManager->Create<IMaterial>(cloneIdentifier, params);
+		TDE2_ASSERT(TResourceId::Invalid != clonedMaterialResourceId);
+
+		return (TResourceId::Invalid == clonedMaterialResourceId) ? nullptr : mpResourceManager->GetResource<IMaterial>(clonedMaterialResourceId);
 	}
 
 	void CBaseMaterial::SetShader(const std::string& shaderName)

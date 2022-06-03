@@ -26,6 +26,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 	}
 
+	auto pCloneMaterial = pFontMaterial->Clone();
+
 	if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("ProjectResources/Materials/DefaultMaterialWithParallax.material")))
 	{
 		pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "parallaxMappingEnabled", 1.0f);

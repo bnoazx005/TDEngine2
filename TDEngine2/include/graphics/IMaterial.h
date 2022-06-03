@@ -72,7 +72,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a material
 	*/
 
-	class IMaterial: public ISerializable, public virtual IBaseObject
+	class IMaterial: public ISerializable, public virtual IBaseObject, public ICloneable<IMaterial>
 	{
 		public:
 			TDE2_REGISTER_TYPE(IMaterial);
