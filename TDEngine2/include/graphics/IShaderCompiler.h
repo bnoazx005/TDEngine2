@@ -76,7 +76,8 @@ namespace TDEngine2
 	{
 		std::string mName;
 
-		USIZE       mSize;
+		USIZE       mOffset = 0; ///< \note Stores an offset from the beginning of a uniforms buffer
+		USIZE       mSize   = 0;
 	} TShaderUniformDesc, *TShaderUniformDescPtr;
 
 

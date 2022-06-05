@@ -343,6 +343,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CProjectSettings.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/CProxyGraphicsContext.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/Meta.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/core/Serialization.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/game/CSaveManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/game/CSaveData.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CComponentManager.cpp"

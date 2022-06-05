@@ -514,7 +514,7 @@ namespace TDEngine2
 
 				if (currToken != ";")
 				{
-					uniformProcessor({ std::move(ExtractIdentifier(currToken)), currMemberSize });
+					uniformProcessor({ std::move(ExtractIdentifier(currToken)), totalStructSize - currMemberSize, currMemberSize });
 				}
 			} 
 			while (currToken != ";" && tokenizer.HasNext());

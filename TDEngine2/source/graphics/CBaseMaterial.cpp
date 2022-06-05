@@ -81,6 +81,15 @@ namespace TDEngine2
 			static const std::string mTextureTypeKey;
 			static const std::string mTextureKey;
 		};
+
+		static const std::string mVariablesGroup;
+
+		struct TVariablesPerInstancesKeys
+		{
+			static const std::string mVariableIdKey;
+			static const std::string mValueKey;
+			static const std::string mValueTypeKey;
+		};
 	};
 
 	const std::string TMaterialArchiveKeys::mShaderIdKey     = "shader_id";
@@ -126,6 +135,12 @@ namespace TDEngine2
 	const std::string TMaterialArchiveKeys::TTextureKeys::mSlotKey        = "slot_id";
 	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey = "texture_type_id";
 	const std::string TMaterialArchiveKeys::TTextureKeys::mTextureKey     = "texture_id";
+
+	const std::string TMaterialArchiveKeys::mVariablesGroup = "variables";
+
+	const std::string TMaterialArchiveKeys::TVariablesPerInstancesKeys::mVariableIdKey = "variable_id";
+	const std::string TMaterialArchiveKeys::TVariablesPerInstancesKeys::mValueKey = "value";
+	const std::string TMaterialArchiveKeys::TVariablesPerInstancesKeys::mValueTypeKey = "value_type";
 
 
 	/*!
@@ -436,6 +451,43 @@ namespace TDEngine2
 				pWriter->EndGroup();
 
 				pWriter->EndGroup();
+			}
+		}
+		pWriter->EndGroup();
+
+		auto pShader = mpResourceManager->GetResource<IShader>(mShaderHandle);
+		if (!pShader)
+		{
+			return RC_FAIL;
+		}
+		
+		auto pShaderMetaData = pShader->GetShaderMetaData();
+
+		const auto& pDefaultInstanceBuffers = mpInstancesUserUniformBuffers[DefaultMaterialInstanceId];
+		
+		/// \note Write down variables values (only values for default material's instance are saved)
+		pWriter->BeginGroup(TMaterialArchiveKeys::mVariablesGroup, true);
+		{
+			for (auto&& uniformBufferInfo : pShaderMetaData->mUniformBuffersInfo)
+			{				
+				auto&& uniformBufferData = uniformBufferInfo.second;
+
+				if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (uniformBufferData.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)) /// \note Skip system uniform buffers
+				{
+					continue;
+				}
+
+				for (auto&& currVariable : uniformBufferData.mVariables)
+				{
+					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						pWriter->SetString(TMaterialArchiveKeys::TVariablesPerInstancesKeys::mVariableIdKey, currVariable.mName);
+
+						auto pUniformBufferContent = pDefaultInstanceBuffers[uniformBufferData.mSlot - TotalNumberOfInternalConstantBuffers];
+						//Serialize(pWriter, );
+					}
+					pWriter->EndGroup();
+				}
 			}
 		}
 		pWriter->EndGroup();

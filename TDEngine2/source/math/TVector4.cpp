@@ -175,4 +175,63 @@ namespace TDEngine2
 
 		return TVector4(x, y, z, w);
 	}
+
+
+	TResult<TVector4> LoadVector4(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		TVector4 vec;
+
+		vec.x = pReader->GetFloat("x");
+		vec.y = pReader->GetFloat("y");
+		vec.z = pReader->GetFloat("z");
+		vec.w = pReader->GetFloat("w");
+
+		return Wrench::TOkValue<TVector4>(vec);
+	}
+
+	E_RESULT_CODE SaveVector4(IArchiveWriter* pWriter, const TVector4& object)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		bool anyWritten = false;
+
+		if (std::fabs(object.y) > 1e-3f)
+		{
+			pWriter->SetFloat("y", object.y);
+			anyWritten = true;
+		}
+
+		if (std::fabs(object.z) > 1e-3f)
+		{
+			pWriter->SetFloat("z", object.z);
+			anyWritten = true;
+		}
+
+		if (std::fabs(object.w) > 1e-3f)
+		{
+			pWriter->SetFloat("w", object.w);
+			anyWritten = true;
+		}
+
+		if (!anyWritten || (anyWritten && std::fabs(object.x) > 1e-3f))
+		{
+			pWriter->SetFloat("x", object.x); /// \note Always write at least x component to prevent the bug of serialization in the Yaml library
+		}
+
+		return RC_OK;
+	}
+
+
+	template <> TDE2_API E_RESULT_CODE Serialize<TVector4>(IArchiveWriter* pWriter, TVector4&& value)
+	{
+		return pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId<TVector4>::mValue)) | SaveVector4(pWriter, value);
+	}
 }

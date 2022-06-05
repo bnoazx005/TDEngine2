@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **IMaterial** now is cloneable entity.
 
+- Add a new function **Serialize** with overloadings for mostly used engine types. 
+
 ### Changed 
 
 ### Fixed
