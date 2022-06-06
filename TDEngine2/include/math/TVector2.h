@@ -193,4 +193,7 @@ namespace TDEngine2
 
 
 	template <> struct GetTypeId<TVector2> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(TVector2); };
+
+
+	template <> TDE2_API E_RESULT_CODE Serialize<TVector2>(class IArchiveWriter* pWriter, TVector2 value);
 }

@@ -202,5 +202,5 @@ namespace TDEngine2
 	TDE2_API TResult<TVector4> LoadVector4(IArchiveReader* pReader);
 	TDE2_API E_RESULT_CODE SaveVector4(IArchiveWriter* pWriter, const TVector4& object);
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TVector4>(class IArchiveWriter* pWriter, TVector4&& value);
+	template <> TDE2_API E_RESULT_CODE Serialize<TVector4>(class IArchiveWriter* pWriter, TVector4 value);
 }

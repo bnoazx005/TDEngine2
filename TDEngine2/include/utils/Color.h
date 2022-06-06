@@ -210,7 +210,7 @@ namespace TDEngine2
 	template <> struct GetTypeId<TColor32F> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(TColor32F); };
 
 
-	template <> TDE2_API inline E_RESULT_CODE Serialize<TColor32F>(class IArchiveWriter* pWriter, TColor32F&& value)
+	template <> TDE2_API inline E_RESULT_CODE Serialize<TColor32F>(class IArchiveWriter* pWriter, TColor32F value)
 	{
 		return pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId<TColor32F>::mValue)) | SaveColor32F(pWriter, value);
 	}

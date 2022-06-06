@@ -199,6 +199,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem) override;
+
+			TDE2_API static TypeId GetShaderBuiltInTypeId(const std::string& typeName);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShaderCompiler)
 

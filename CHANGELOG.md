@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.7] 2022-06-03
+## [0.6.7] 2022-06-06
 
 ### Added
 
 - **IMaterial** now is cloneable entity.
 
 - Add a new function **Serialize** with overloadings for mostly used engine types. 
+
+- The serialization of basic shader variables was implemented for **CBaseMaterial** type.
 
 ### Changed 
 

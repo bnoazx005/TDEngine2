@@ -243,7 +243,7 @@ namespace TDEngine2
 	}
 
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TVector3>(IArchiveWriter* pWriter, TVector3&& value)
+	template <> TDE2_API E_RESULT_CODE Serialize<TVector3>(IArchiveWriter* pWriter, TVector3 value)
 	{
 		return pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId<TVector3>::mValue)) | SaveVector3(pWriter, value);
 	}

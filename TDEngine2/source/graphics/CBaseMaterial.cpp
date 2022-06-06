@@ -14,6 +14,7 @@
 #include "../../include/math/MathUtils.h"
 #include "stringUtils.hpp"
 #include <cstring>
+#include <functional>
 
 
 namespace TDEngine2
@@ -141,6 +142,22 @@ namespace TDEngine2
 	const std::string TMaterialArchiveKeys::TVariablesPerInstancesKeys::mVariableIdKey = "variable_id";
 	const std::string TMaterialArchiveKeys::TVariablesPerInstancesKeys::mValueKey = "value";
 	const std::string TMaterialArchiveKeys::TVariablesPerInstancesKeys::mValueTypeKey = "value_type";
+
+
+	/// The map is used to convert a blob object which is a uniform buffer into an underlying type
+	/// All types that appear as keys refer to shaders ones (use CBaseShaderCompiler::GetBuiltinTypeId to convert between in-engine and shader language's types)
+	static const std::unordered_map<TypeId, std::function<E_RESULT_CODE(IArchiveWriter*, const void*)>> TypedSerializers
+	{
+		{ TDE2_TYPE_ID(I32), [](IArchiveWriter* pWriter, const void* pObject) { return Serialize(pWriter, *static_cast<const I32*>(pObject)); }},
+		{ TDE2_TYPE_ID(U32), [](IArchiveWriter* pWriter, const void* pObject) { return Serialize(pWriter, *static_cast<const U32*>(pObject)); }},
+
+		{ TDE2_TYPE_ID(F32), [](IArchiveWriter* pWriter, const void* pObject) { return Serialize(pWriter, *static_cast<const F32*>(pObject)); }},
+		{ TDE2_TYPE_ID(F64), [](IArchiveWriter* pWriter, const void* pObject) { return Serialize(pWriter, *static_cast<const F64*>(pObject)); }},
+
+		{ TDE2_TYPE_ID(TVector2), [](IArchiveWriter* pWriter, const void* pObject) { return Serialize(pWriter, *static_cast<const TVector2*>(pObject)); }},
+		{ TDE2_TYPE_ID(TVector3), [](IArchiveWriter* pWriter, const void* pObject) { return Serialize(pWriter, *static_cast<const TVector3*>(pObject)); }},
+		{ TDE2_TYPE_ID(TVector4), [](IArchiveWriter* pWriter, const void* pObject) { return Serialize(pWriter, *static_cast<const TVector4*>(pObject)); }},
+	};
 
 
 	/*!
@@ -483,8 +500,16 @@ namespace TDEngine2
 					{
 						pWriter->SetString(TMaterialArchiveKeys::TVariablesPerInstancesKeys::mVariableIdKey, currVariable.mName);
 
-						auto pUniformBufferContent = pDefaultInstanceBuffers[uniformBufferData.mSlot - TotalNumberOfInternalConstantBuffers];
-						//Serialize(pWriter, );
+						auto&& pUniformBufferContent = pDefaultInstanceBuffers[uniformBufferData.mSlot - TotalNumberOfInternalConstantBuffers];
+						
+						auto serializerIt = TypedSerializers.find(currVariable.mTypeId);
+						if (serializerIt == TypedSerializers.cend())
+						{
+							TDE2_ASSERT(false);
+							continue;
+						}
+
+						(serializerIt->second)(pWriter, &pUniformBufferContent[currVariable.mOffset]);
 					}
 					pWriter->EndGroup();
 				}

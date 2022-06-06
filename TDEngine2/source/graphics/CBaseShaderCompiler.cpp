@@ -349,6 +349,23 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	TypeId CBaseShaderCompiler::GetShaderBuiltInTypeId(const std::string& typeName)
+	{
+		static const std::unordered_map<std::string, TypeId> typeName2Hash
+		{
+			{ "float", TDE2_TYPE_ID(F32) },
+			{ "double", TDE2_TYPE_ID(F64) },
+			{ "int", TDE2_TYPE_ID(I32) },
+			{ "uint", TDE2_TYPE_ID(U32) },
+			{ "float2", TDE2_TYPE_ID(TVector2) },
+			{ "float3", TDE2_TYPE_ID(TVector3) },
+			{ "float4", TDE2_TYPE_ID(TVector4) },
+		};
+
+		auto it = typeName2Hash.find(typeName);
+		return it == typeName2Hash.cend() ? TypeId::Invalid : it->second;
+	}
+
 	const C8* CBaseShaderCompiler::_getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const
 	{
 		switch (shaderStage)

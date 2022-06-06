@@ -78,6 +78,7 @@ namespace TDEngine2
 
 		USIZE       mOffset = 0; ///< \note Stores an offset from the beginning of a uniforms buffer
 		USIZE       mSize   = 0;
+		TypeId      mTypeId = TypeId::Invalid;
 	} TShaderUniformDesc, *TShaderUniformDescPtr;
 
 

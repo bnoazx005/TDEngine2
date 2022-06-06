@@ -38,6 +38,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
 			{
 				pMaterial->Save(pFileWriter);
+				pFileWriter->Close();
 			}
 		}
 	}
