@@ -26,4 +26,25 @@ namespace TDEngine2
 
 	template <> TDE2_API E_RESULT_CODE Serialize<bool>(IArchiveWriter* pWriter, bool value) { return TDE2_SERIALIZE_IMPL(bool, SetBool, value); }
 	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, std::string value) { return TDE2_SERIALIZE_IMPL(bool, SetString, value); }
+
+	/*!
+		\brief Built in types deserialization helpers
+	*/
+
+	template <> TDE2_API TResult<I8> Deserialize<I8>(IArchiveReader* pReader) { return Wrench::TOkValue<I8>(pReader->GetInt8("value")); }
+	template <> TDE2_API TResult<I16> Deserialize<I16>(IArchiveReader* pReader) { return Wrench::TOkValue<I16>(pReader->GetInt16("value")); }
+	template <> TDE2_API TResult<I32> Deserialize<I32>(IArchiveReader* pReader) { return Wrench::TOkValue<I32>(pReader->GetInt32("value")); }
+	template <> TDE2_API TResult<I64> Deserialize<I64>(IArchiveReader* pReader) { return Wrench::TOkValue<I64>(pReader->GetInt64("value")); }
+
+	template <> TDE2_API TResult<U8> Deserialize<U8>(IArchiveReader* pReader) { return Wrench::TOkValue<U8>(pReader->GetUInt8("value")); }
+	template <> TDE2_API TResult<U16> Deserialize<U16>(IArchiveReader* pReader) { return Wrench::TOkValue<U16>(pReader->GetUInt16("value")); }
+	template <> TDE2_API TResult<U32> Deserialize<U32>(IArchiveReader* pReader) { return Wrench::TOkValue<U32>(pReader->GetUInt32("value")); }
+	template <> TDE2_API TResult<U64> Deserialize<U64>(IArchiveReader* pReader) { return Wrench::TOkValue<U64>(pReader->GetUInt64("value")); }
+
+	template <> TDE2_API TResult<F32> Deserialize<F32>(IArchiveReader* pReader) { return Wrench::TOkValue<F32>(pReader->GetFloat("value")); }
+	template <> TDE2_API TResult<F64> Deserialize<F64>(IArchiveReader* pReader) { return Wrench::TOkValue<F64>(pReader->GetDouble("value")); }
+
+	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader) { return Wrench::TOkValue<bool>(pReader->GetBool("value")); }
+	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader) { return Wrench::TOkValue<std::string>(pReader->GetString("value")); }
+  
 }

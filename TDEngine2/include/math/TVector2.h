@@ -196,4 +196,5 @@ namespace TDEngine2
 
 
 	template <> TDE2_API E_RESULT_CODE Serialize<TVector2>(class IArchiveWriter* pWriter, TVector2 value);
+	template <> TDE2_API TResult<TVector2> Deserialize<TVector2>(IArchiveReader* pReader);
 }

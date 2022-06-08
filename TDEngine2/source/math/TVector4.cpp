@@ -234,4 +234,9 @@ namespace TDEngine2
 	{
 		return pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId<TVector4>::mValue)) | SaveVector4(pWriter, value);
 	}
+
+	template <> TDE2_API TResult<TVector4> Deserialize<TVector4>(IArchiveReader* pReader)
+	{
+		return LoadVector4(pReader);
+	}
 }

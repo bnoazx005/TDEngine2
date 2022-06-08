@@ -195,4 +195,9 @@ namespace TDEngine2
 	{
 		return pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId<TVector2>::mValue)) | SaveVector2(pWriter, value);
 	}
+
+	template <> TDE2_API TResult<TVector2> Deserialize<TVector2>(IArchiveReader* pReader)
+	{
+		return LoadVector2(pReader);
+	}
 }

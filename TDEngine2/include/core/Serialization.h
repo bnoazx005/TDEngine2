@@ -209,6 +209,7 @@ namespace TDEngine2
 
 
 	template <typename T> E_RESULT_CODE Serialize(IArchiveWriter* pWriter, T value) { return RC_FAIL; }
+	template <typename T> TResult<T> Deserialize(IArchiveReader* pReader) { return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL); }
 
 	/*!
 		\brief serialization helpers for built-in types
@@ -229,4 +230,24 @@ namespace TDEngine2
 
 	template <> TDE2_API E_RESULT_CODE Serialize<bool>(IArchiveWriter* pWriter, bool value);
 	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, std::string value);
+
+	/*!
+		\brief deserialization helpers for built-in types
+	*/
+
+	template <> TDE2_API TResult<I8> Deserialize<I8>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<I16> Deserialize<I16>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<I32> Deserialize<I32>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<I64> Deserialize<I64>(IArchiveReader* pReader);
+									   
+	template <> TDE2_API TResult<U8> Deserialize<U8>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<U16> Deserialize<U16>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<U32> Deserialize<U32>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<U64> Deserialize<U64>(IArchiveReader* pReader);
+									   
+	template <> TDE2_API TResult<F32> Deserialize<F32>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<F64> Deserialize<F64>(IArchiveReader* pReader);
+									   
+	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader);
 }

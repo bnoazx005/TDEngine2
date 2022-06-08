@@ -214,4 +214,9 @@ namespace TDEngine2
 	{
 		return pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId<TColor32F>::mValue)) | SaveColor32F(pWriter, value);
 	}
+
+	template <> TDE2_API inline TResult<TColor32F> Deserialize<TColor32F>(IArchiveReader* pReader)
+	{
+		return LoadColor32F(pReader);
+	}
 }
