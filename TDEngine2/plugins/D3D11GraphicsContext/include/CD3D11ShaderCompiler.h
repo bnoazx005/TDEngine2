@@ -81,7 +81,7 @@ namespace TDEngine2
 
 			TDE2_API E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const override;
 
-			TDE2_API USIZE _getBuiltinTypeSize(const std::string& type) const override;
+			TDE2_API USIZE _getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor = nullptr) const override;
 
 			TDE2_API TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const override;
 

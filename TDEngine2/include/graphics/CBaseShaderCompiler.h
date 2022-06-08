@@ -213,7 +213,7 @@ namespace TDEngine2
 			TDE2_API virtual USIZE _getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer,
 														const TUniformVariableFunctor& uniformProcessor = [](auto){}) const;
 
-			TDE2_API virtual USIZE _getBuiltinTypeSize(const std::string& type) const = 0;
+			TDE2_API virtual USIZE _getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor = nullptr) const = 0;
 
 			TDE2_API virtual TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const;
 

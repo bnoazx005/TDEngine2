@@ -245,7 +245,7 @@ namespace TDEngine2
 		return SFL_5_0;
 	}
 	
-	USIZE COGLShaderCompiler::_getBuiltinTypeSize(const std::string& type) const
+	USIZE COGLShaderCompiler::_getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor) const
 	{
 		USIZE pos = type.find_first_of("1234");
 
@@ -255,6 +255,11 @@ namespace TDEngine2
 		{
 			size = (std::max)(1, static_cast<I32>(type[pos]) - static_cast<I32>('0'));
 			assert(size >= 1 && size <= 4);
+		}
+
+		if (typeProcessor)
+		{
+			typeProcessor(type);
 		}
 
 		std::string baseType = type.substr(0, pos);

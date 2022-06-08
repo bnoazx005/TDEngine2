@@ -521,8 +521,10 @@ namespace TDEngine2
 				continue;
 			}
 
+			std::string typeStr;
+
 			/// extract type of a member and compute its padded size
-			USIZE currMemberSize = _getBuiltinTypeSize(currToken);
+			USIZE currMemberSize = _getBuiltinTypeSize(currToken, [&typeStr](auto&& type) { typeStr = type; });
 			totalStructSize += currMemberSize;
 
 			do
@@ -531,7 +533,13 @@ namespace TDEngine2
 
 				if (currToken != ";")
 				{
-					uniformProcessor({ std::move(ExtractIdentifier(currToken)), totalStructSize - currMemberSize, currMemberSize });
+					uniformProcessor(
+						{ 
+							std::move(ExtractIdentifier(currToken)),
+							totalStructSize - currMemberSize,
+							currMemberSize, 
+							CBaseShaderCompiler::GetShaderBuiltInTypeId(typeStr)
+						});
 				}
 			} 
 			while (currToken != ";" && tokenizer.HasNext());

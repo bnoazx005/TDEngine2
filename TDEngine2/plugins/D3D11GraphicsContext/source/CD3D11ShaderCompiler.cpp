@@ -300,7 +300,7 @@ namespace TDEngine2
 		return SFL_5_0;
 	}
 
-	USIZE CD3D11ShaderCompiler::_getBuiltinTypeSize(const std::string& type) const
+	USIZE CD3D11ShaderCompiler::_getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor) const
 	{
 		USIZE pos = type.find_first_of("1234");
 		
