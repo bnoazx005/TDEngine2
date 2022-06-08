@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add new functions **Serialize**, **Deserialize** with overloadings for mostly used engine types. 
 
-- The serialization of basic shader variables was implemented for **CBaseMaterial** type.
+- The serialization/deserialization of basic shader variables was implemented for **CBaseMaterial** type.
 
 ### Changed 
 

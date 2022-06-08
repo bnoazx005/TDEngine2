@@ -41,6 +41,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				pFileWriter->Close();
 			}
 		}
+
+		mpResourceManager->Load<IMaterial>("TTTTT");
 	}
 
 	// \note create a trigger

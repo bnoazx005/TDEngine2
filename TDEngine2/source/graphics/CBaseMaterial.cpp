@@ -160,6 +160,35 @@ namespace TDEngine2
 	};
 
 
+	template <typename T>
+	E_RESULT_CODE LoadAndAssignVariable(IArchiveReader* pReader, IMaterial* pMaterial)
+	{
+		auto&& loadResult = Deserialize<T>(pReader);
+		if (loadResult.HasError())
+		{
+			return loadResult.GetError();
+		}
+
+		auto&& variableValue = loadResult.Get();
+
+		return pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, pReader->GetString(TMaterialArchiveKeys::TVariablesPerInstancesKeys::mVariableIdKey), &variableValue);
+	}
+
+
+	static const std::unordered_map<TypeId, std::function<E_RESULT_CODE(IArchiveReader*, IMaterial*)>> TypedDeserializers
+	{
+		{ TDE2_TYPE_ID(I32), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<I32>(pReader, pMaterial); }},
+		{ TDE2_TYPE_ID(U32), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<U32>(pReader, pMaterial); }},
+
+		{ TDE2_TYPE_ID(F32), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<F32>(pReader, pMaterial); }},
+		{ TDE2_TYPE_ID(F64), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<F64>(pReader, pMaterial); }},
+
+		{ TDE2_TYPE_ID(TVector2), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<TVector2>(pReader, pMaterial); }},
+		{ TDE2_TYPE_ID(TVector3), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<TVector3>(pReader, pMaterial); }},
+		{ TDE2_TYPE_ID(TVector4), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<TVector3>(pReader, pMaterial); }},
+	};
+
+
 	/*!
 		\note The declaration of TMaterialParameters is placed at IMaterial.h
 	*/
@@ -360,6 +389,38 @@ namespace TDEngine2
 				}
 
 				pReader->EndGroup();
+
+				if ((result = pReader->EndGroup()) != RC_OK)
+				{
+					return;
+				}
+			}
+		});
+
+		processGroup(TMaterialArchiveKeys::mVariablesGroup, [pReader, this]
+		{
+			E_RESULT_CODE result = RC_OK;
+
+			while (pReader->HasNextItem())
+			{
+				if ((result = pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr())) != RC_OK)
+				{
+					return;
+				}
+
+				const TypeId currVariableTypeId = static_cast<TypeId>(pReader->GetUInt32("type_id"));
+				auto it = TypedDeserializers.find(currVariableTypeId);
+
+				if (it == TypedDeserializers.end())
+				{
+					LOG_ERROR(Wrench::StringUtils::Format("[BaseMateria] Unknown variable type id found, type_id: {0}", static_cast<U32>(currVariableTypeId)));
+					TDE2_ASSERT(false);
+
+					continue;
+				}
+
+				result = (it->second)(pReader, this);
+				TDE2_ASSERT(RC_OK == result);
 
 				if ((result = pReader->EndGroup()) != RC_OK)
 				{
