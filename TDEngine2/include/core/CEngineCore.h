@@ -29,6 +29,10 @@ namespace TDEngine2
 	class ISceneManager;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IWorld)
+	TDE2_DECLARE_SCOPED_PTR(ITimer)
+
+
 	/*!
 		class CEngineCore
 

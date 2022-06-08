@@ -2,9 +2,10 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/platform/CConfigFileReader.h"
-#include "../../include/metadata.h"
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/core/CProjectSettings.h"
+#include "../../include/utils/CFileLogger.h"
+#include "stringUtils.hpp"
 #include <memory>
 #include <thread>
 #include <functional>
