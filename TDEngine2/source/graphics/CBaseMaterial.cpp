@@ -416,6 +416,11 @@ namespace TDEngine2
 					LOG_ERROR(Wrench::StringUtils::Format("[BaseMateria] Unknown variable type id found, type_id: {0}", static_cast<U32>(currVariableTypeId)));
 					TDE2_ASSERT(false);
 
+					if ((result = pReader->EndGroup()) != RC_OK)
+					{
+						return;
+					}
+
 					continue;
 				}
 

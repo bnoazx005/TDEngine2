@@ -31,18 +31,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("ProjectResources/Materials/DefaultMaterialWithParallax.material")))
 	{
 		pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "parallaxMappingEnabled", 1.0f);
-		
-
-		if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TTTTT", true))
-		{
-			if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
-			{
-				pMaterial->Save(pFileWriter);
-				pFileWriter->Close();
-			}
-		}
-
-		mpResourceManager->Load<IMaterial>("TTTTT");
 	}
 
 	// \note create a trigger
