@@ -50,7 +50,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE _configureGraphicsContext(E_GRAPHICS_CONTEXT_GAPI_TYPE type) = 0;
+			TDE2_API virtual E_RESULT_CODE _configureGraphicsContext(const std::string& rendererPluginPath) = 0;
 
 			/*!
 				\brief The method configures an audio context based on type of middleware API
@@ -60,7 +60,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE _configureAudioContext(E_AUDIO_CONTEXT_API_TYPE type) = 0;
+			TDE2_API virtual E_RESULT_CODE _configureAudioContext(const std::string& audioPluginPath) = 0;
 
 			/*!
 				\brief The method tries to configure windows system based on specified parameters

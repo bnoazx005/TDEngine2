@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed 
 
+- Now project settings stores real paths to audio/renderer plugins instead of predefined set of values.
+
 ### Fixed
 
 ## [0.6.6] 2022-06-02

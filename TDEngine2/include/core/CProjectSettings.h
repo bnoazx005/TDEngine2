@@ -44,9 +44,9 @@ namespace TDEngine2
 			struct
 			{
 #if defined(TDE2_USE_UNIXPLATFORM)
-				E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType = E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X;
+				std::string mRendererPluginFilePath = "GLGraphicsContext";
 #else
-				E_GRAPHICS_CONTEXT_GAPI_TYPE mGraphicsContextType = E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11;
+				std::string mRendererPluginFilePath = "D3D11GraphicsContext";
 #endif
 
 				struct
@@ -60,7 +60,7 @@ namespace TDEngine2
 
 			struct
 			{
-				E_AUDIO_CONTEXT_API_TYPE mAudioContextType = E_AUDIO_CONTEXT_API_TYPE::FMOD;
+				std::string mAudioPluginFilePath = "FmodAudioContext";
 			} mAudioSettings;
 
 			struct TCommonSettings

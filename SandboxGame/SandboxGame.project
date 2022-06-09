@@ -13,16 +13,16 @@ common_settings:
     - alias: ProjectShaders/
       path: ../../SandboxGame/Resources/Shaders/
   user_plugins_list:
-    - id: TDE2LevelStreamingUtils
+    - id: ./TDE2LevelStreamingUtils
 
 graphics_settings:
-  gapi_type: GCGT_DIRECT3D11
+  renderer_plugin: ./D3D11GraphicsContext
   renderer_settings:
     shadow_maps_size: 1024
     shadow_maps_enabled: true
 
 audio_settings:
-  api_type: FMOD
+  audio_plugin: ./FmodAudioContext
 
 localization_settings:
   registered_locales:

@@ -87,7 +87,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseEngineCoreBuilder::_configureGraphicsContext(E_GRAPHICS_CONTEXT_GAPI_TYPE type)
+	E_RESULT_CODE CBaseEngineCoreBuilder::_configureGraphicsContext(const std::string& rendererPluginPath)
 	{
 		if (!mIsInitialized || !mpPluginManagerInstance)
 		{
@@ -96,55 +96,31 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		switch (type)
+		if (rendererPluginPath.empty())
 		{
-	#if defined(TDE2_USE_WINPLATFORM)
-			case GCGT_DIRECT3D11:																	/// try to create D3D11 Graphics context
-				if ((result = mpPluginManagerInstance->LoadPlugin("D3D11GraphicsContext")) != RC_OK)
-				{
-					return result;
-				}
-				break;
-	#elif defined(TDE2_USE_UNIXPLATFORM)
-			case GCGT_DIRECT3D11:
-				TDE2_UNREACHABLE();
-				break;
-	#endif
-			case GCGT_OPENGL3X:																		/// try to create OGL 3.X Graphics context
-	#if defined (TDE2_USE_WINPLATFORM)
-				result = mpPluginManagerInstance->LoadPlugin("GLGraphicsContext");
-	#elif defined (TDE2_USE_UNIXPLATFORM)
-				result = mpPluginManagerInstance->LoadPlugin("./GLGraphicsContext");
-	#else
-	#endif
-
-				if (result != RC_OK)
-				{
-					return result;
-				}
-				break;
-			
-			case GCGT_UNKNOWN: 
-				mpGraphicsContextInstance = CreateProxyGraphicsContext(mpWindowSystemInstance, result);
-				if (RC_OK != result)
-				{
-					return result;
-				}
-
-				result = mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpGraphicsContextInstance));
+			mpGraphicsContextInstance = CreateProxyGraphicsContext(mpWindowSystemInstance, result);
+			if (RC_OK != result)
+			{
 				return result;
+			}
 
-			default:
-				TDE2_UNREACHABLE();
-				return RC_FAIL;
+			result = mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpGraphicsContextInstance));
+			return result;
 		}
+
+#if defined (TDE2_USE_WINPLATFORM)
+		result = mpPluginManagerInstance->LoadPlugin(rendererPluginPath);
+#elif defined (TDE2_USE_UNIXPLATFORM)
+		result = mpPluginManagerInstance->LoadPlugin(rendererPluginPath);
+#else
+#endif
 
 		mpGraphicsContextInstance = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>();
 
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseEngineCoreBuilder::_configureAudioContext(E_AUDIO_CONTEXT_API_TYPE type)
+	E_RESULT_CODE CBaseEngineCoreBuilder::_configureAudioContext(const std::string& audioPluginPath)
 	{
 		if (!mIsInitialized || !mpPluginManagerInstance)
 		{
@@ -153,27 +129,19 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		switch (type)
-		{
-			case E_AUDIO_CONTEXT_API_TYPE::FMOD:
 #if defined (TDE2_USE_WINPLATFORM)
-			result = mpPluginManagerInstance->LoadPlugin("FmodAudioContext");
+		result = mpPluginManagerInstance->LoadPlugin(audioPluginPath);
 #elif defined (TDE2_USE_UNIXPLATFORM)
-			result = mpPluginManagerInstance->LoadPlugin("./FmodAudioContext");
+		result = mpPluginManagerInstance->LoadPlugin(audioPluginPath);
 #else
 #endif
-
-			if (result != RC_OK)
-			{
-				LOG_ERROR("[CBaseEngineCoreBuilder] FmodAudioContext's loading failed. Audio components won't be available at runtime");
-				return result;
-			}
-			break;
-			default:
-				return RC_FAIL;
+		if (RC_OK != result)
+		{
+			LOG_ERROR("[CBaseEngineCoreBuilder] FmodAudioContext's loading failed. Audio components won't be available at runtime");
+			return result;
 		}
 
-		return RC_OK;
+		return result;
 	}
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags)
@@ -646,8 +614,6 @@ namespace TDEngine2
 
 		const bool isWindowModeEnabled = !(static_cast<E_PARAMETERS>(CProjectSettings::Get()->mCommonSettings.mFlags) & E_PARAMETERS::P_WINDOWLESS_MODE);
 
-		PANIC_ON_FAILURE(MountDirectories(mpFileSystemInstance, CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType));
-
 		PANIC_ON_FAILURE(_configureJobManager(CProjectSettings::Get()->mCommonSettings.mMaxNumOfWorkerThreads));
 		PANIC_ON_FAILURE(_configureEventManager());
 		PANIC_ON_FAILURE(_configureResourceManager());
@@ -659,9 +625,11 @@ namespace TDEngine2
 			CProjectSettings::Get()->mCommonSettings.mFlags));
 
 		PANIC_ON_FAILURE(_configurePluginManager());
-		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mGraphicsContextType : E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_UNKNOWN));
-		
-		if (isWindowModeEnabled) { _configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioContextType); }
+		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mRendererPluginFilePath : Wrench::StringUtils::GetEmptyStr()));
+
+		PANIC_ON_FAILURE(MountDirectories(mpFileSystemInstance, mpGraphicsContextInstance->GetContextInfo().mGapiType));
+
+		if (isWindowModeEnabled) { _configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioPluginFilePath); }
 		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureInputContext()); }
 		
 		PANIC_ON_FAILURE(_configureSceneManager());
