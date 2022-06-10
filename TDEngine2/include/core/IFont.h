@@ -31,6 +31,7 @@ namespace TDEngine2
 	class IBinaryFileReader;
 
 
+	ENUM_META()
 	enum class E_FONT_ALIGN_POLICY : U16
 	{
 		LEFT_TOP,
@@ -45,6 +46,7 @@ namespace TDEngine2
 	};
 
 
+	ENUM_META()
 	enum class E_TEXT_OVERFLOW_POLICY : U16
 	{
 		NO_BREAK,			///< All the text won't be splitted and is displayed though the single line

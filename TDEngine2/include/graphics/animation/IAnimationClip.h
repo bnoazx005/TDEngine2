@@ -51,6 +51,7 @@ namespace TDEngine2
 		\brief The enumeration defines allowed types of animation playback
 	*/
 
+	ENUM_META()
 	enum class E_ANIMATION_WRAP_MODE_TYPE: U8
 	{
 		PLAY_ONCE,
@@ -58,6 +59,7 @@ namespace TDEngine2
 	};
 
 
+	ENUM_META()
 	enum class E_ANIMATION_INTERPOLATION_MODE_TYPE: U8
 	{
 		CONSTANT,

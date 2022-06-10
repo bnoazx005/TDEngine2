@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now project settings stores real paths to audio/renderer plugins instead of predefined set of values.
 
+- A new version of **tde2_introspector** was added also a tagged-mode enabled to minimize library size.
+
 ### Fixed
 
 ## [0.6.6] 2022-06-02
