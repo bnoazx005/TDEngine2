@@ -1,6 +1,8 @@
 #include "../../../include/graphics/animation/CAnimationClip.h"
 #include "../../../include/core/IResourceManager.h"
 #include "../../../include/core/IGraphicsContext.h"
+#include "../../../include/core/IFileSystem.h"
+#include "../../../include/core/IFile.h"
 #include "../../../include/graphics/animation/IAnimationTrack.h"
 #include "../../../include/graphics/animation/AnimationTracks.h"
 #include "../../../include/metadata.h"

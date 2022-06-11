@@ -20,6 +20,7 @@
 #include "../../include/graphics/IGlobalShaderProperties.h"
 #include "../../include/graphics/IFramePostProcessor.h"
 #include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/IGraphicsLayersInfo.h"
 #include "../../include/scene/IPrefabsRegistry.h"
 
 
@@ -48,6 +49,7 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IEngineCore)
 	TDE2_DEFINE_SCOPED_PTR(ITexture2D)
 	TDE2_DEFINE_SCOPED_PTR(IGlobalShaderProperties)
+	TDE2_DEFINE_SCOPED_PTR(IGraphicsLayersInfo)
 	TDE2_DEFINE_SCOPED_PTR(IFramePostProcessor)
 	TDE2_DEFINE_SCOPED_PTR(CRenderQueue)
 	TDE2_DEFINE_SCOPED_PTR(IPrefabsRegistry)
