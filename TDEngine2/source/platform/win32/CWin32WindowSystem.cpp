@@ -437,7 +437,7 @@ namespace TDEngine2
 		openFileDialogDesc.lpstrFileTitle = NULL;
 		openFileDialogDesc.nMaxFileTitle = 0;
 		openFileDialogDesc.lpstrInitialDir = NULL;
-		openFileDialogDesc.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+		openFileDialogDesc.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 		if (GetOpenFileName(&openFileDialogDesc) == TRUE)
 		{
@@ -468,7 +468,7 @@ namespace TDEngine2
 		saveFileDialogDesc.lpstrFileTitle = NULL;
 		saveFileDialogDesc.nMaxFileTitle = 0;
 		saveFileDialogDesc.lpstrInitialDir = NULL;
-		saveFileDialogDesc.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+		saveFileDialogDesc.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 
 		if (GetSaveFileName(&saveFileDialogDesc) == TRUE)
 		{

@@ -103,7 +103,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	std::string CBaseFileSystem::ResolveVirtualPath(const std::string& path, bool isDirectory) const
+	std::string CBaseFileSystem::ResolveVirtualPath(const std::string& path, bool isDirectory, bool resolveAbsolutePath) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -116,11 +116,12 @@ namespace TDEngine2
 			/// \note Try to open file with current storage, but it could fail
 			if (Wrench::StringUtils::StartsWith(filePath, alias))
 			{
-				return _normalizePathView(_resolveVirtualPathInternal(currMountPointEntry, filePath, isDirectory), isDirectory);
+				auto&& resultPath = _normalizePathView(_resolveVirtualPathInternal(currMountPointEntry, filePath, isDirectory), isDirectory);
+				return resolveAbsolutePath ? fs::absolute(resultPath).string() : resultPath;
 			}
 		}
 
-		return path;
+		return resolveAbsolutePath ? fs::absolute(path).string() : path;
 	}
 
 	std::string CBaseFileSystem::ExtractFilename(const std::string& path) const

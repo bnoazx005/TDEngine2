@@ -103,11 +103,12 @@ namespace TDEngine2
 
 				\param[in] path A virtual path's value
 				\param[in] isDirectory A flat that tells should be given path processed as a directory or its a path to some file
+				\param[in] resolveAbsolutePath Determines whether the path should be relative to current directory or absolute
 
 				\return A string that contains a physical path
 			*/
 
-			TDE2_API virtual std::string ResolveVirtualPath(const std::string& path, bool isDirectory = true) const = 0;
+			TDE2_API virtual std::string ResolveVirtualPath(const std::string& path, bool isDirectory = true, bool resolveAbsolutePath = false) const = 0;
 
 			/*!
 				\brief The method registers a file factory and binds it with a specified type

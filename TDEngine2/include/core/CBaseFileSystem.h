@@ -94,11 +94,12 @@ namespace TDEngine2
 
 				\param[in] path A virtual path's value
 				\param[in] isDirectory A flat that tells should be given path processed as a directory or its a path to some file
+				\param[in] resolveAbsolutePath Determines whether the path should be relative to current directory or absolute
 
 				\return A string that contains a physical path
 			*/
 
-			TDE2_API std::string ResolveVirtualPath(const std::string& path, bool isDirectory = true) const override;
+			TDE2_API std::string ResolveVirtualPath(const std::string& path, bool isDirectory = true, bool resolveAbsolutePath = false) const override;
 
 			/*!
 				\brief The method extrats filename with an extension from a valid given path
