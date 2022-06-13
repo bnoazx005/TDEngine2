@@ -175,6 +175,31 @@ namespace TDEngine2
 	};
 
 
+	static void RenderShadowCasters(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TResourceId shadowMapHandle, const std::function<void()> action)
+	{
+		const F32 shadowMapSizes = static_cast<F32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mShadowMapSizes);
+
+		pGraphicsContext->SetViewport(0.0f, 0.0f, shadowMapSizes, shadowMapSizes, 0.0f, 1.0f);
+		{
+			pGraphicsContext->BindDepthBufferTarget(pResourceManager->GetResource<IDepthBufferTarget>(shadowMapHandle).Get(), true);
+
+			pGraphicsContext->ClearDepthBuffer(1.0f);
+
+			if (action)
+			{
+				action();
+			}
+
+			pGraphicsContext->BindDepthBufferTarget(nullptr);
+		}
+
+		if (auto pWindowSystem = pGraphicsContext->GetWindowSystem())
+		{
+			pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pWindowSystem->GetWidth()), static_cast<F32>(pWindowSystem->GetHeight()), 0.0f, 1.0f);
+		}
+	}
+
+
 	static E_RESULT_CODE ProcessShadowPass(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
 										TPtr<CRenderQueue> pShadowCastersRenderGroup)
 	{
@@ -190,23 +215,14 @@ namespace TDEngine2
 
 		if (!pShadowCastersRenderGroup->IsEmpty())
 		{
-			const F32 shadowMapSizes = static_cast<F32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mShadowMapSizes);
-
-			pGraphicsContext->SetViewport(0.0f, 0.0f, shadowMapSizes, shadowMapSizes, 0.0f, 1.0f);
+			RenderShadowCasters(pGraphicsContext, pResourceManager, shadowMapHandle, [&]
 			{
-				pGraphicsContext->BindDepthBufferTarget(pResourceManager->GetResource<IDepthBufferTarget>(shadowMapHandle).Get(), true);
-
-				pGraphicsContext->ClearDepthBuffer(1.0f);
-
 				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pShadowCastersRenderGroup, true);
-
-				pGraphicsContext->BindDepthBufferTarget(nullptr);
-			}
-
-			if (auto pWindowSystem = pGraphicsContext->GetWindowSystem())
-			{
-				pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pWindowSystem->GetWidth()), static_cast<F32>(pWindowSystem->GetHeight()), 0.0f, 1.0f);
-			}
+			});
+		}
+		else
+		{
+			RenderShadowCasters(pGraphicsContext, pResourceManager, shadowMapHandle, nullptr);
 		}
 
 		return RC_OK;

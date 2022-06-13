@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The implementation of **CEntity::RemoveComponents** was fixed due to prevent deletion of CTransform components
 
+- (Fixed issue #84) Now the shadow map is cleared even if there are no shadow casters in a scene.
+
 ## [0.6.6] 2022-06-02
 
 ### Added
