@@ -266,6 +266,13 @@ namespace TDEngine2
 			auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
 			U32 jointsCount = static_cast<U32>(currAnimationPose.size());
 
+			auto&& skeletonName = pSkinnedMeshContainer->GetSkeletonName();
+			if (skeletonName.empty() || !jointsCount)
+			{
+				++iter;
+				continue;
+			}
+
 			const TResourceId skeletonResourceId = mpResourceManager->Load<ISkeleton>(pSkinnedMeshContainer->GetSkeletonName());
 
 			auto pSkeletonResource = mpResourceManager->GetResource<IResource>(sharedMeshId);

@@ -139,9 +139,15 @@ namespace TDEngine2
 		CStaticMeshContainer* pStaticMeshContainer = context.mpRenderables[index];
 		CTransform* pTransform = context.mpTransforms[index];
 
+		auto&& materialId = pStaticMeshContainer->GetMaterialName();
+		if (materialId.empty())
+		{
+			return;
+		}
+
 		// Skip skybox geometry
 		// \todo Reimplement this later with CSkyboxComponent
-		if (TPtr<IMaterial> pMeshMainMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName())))
+		if (TPtr<IMaterial> pMeshMainMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>(materialId)))
 		{
 			if (pMeshMainMaterial->GetGeometrySubGroupTag() == E_GEOMETRY_SUBGROUP_TAGS::SKYBOX)
 			{
@@ -192,6 +198,11 @@ namespace TDEngine2
 		{
 			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
 			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
+			if (!jointsCount)
+			{
+				return;
+			}
 
 			if (TPtr<IMaterial> pMaterial = pResourceManager->GetResource<IMaterial>(materialHandle))
 			{

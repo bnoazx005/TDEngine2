@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.7] 2022-06-11
+## [0.6.7] 2022-06-12
 
 ### Added
 
@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The draft implementation of **TDEMaterialEd** editor was added.
 
+- **IFileSystem::ResolveVirtualPath**'s got third parameter to retrieve absolute path.
+
 ### Changed 
 
 - Now project settings stores real paths to audio/renderer plugins instead of predefined set of values.
@@ -26,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new version of **tde2_introspector** was added also a tagged-mode enabled to minimize library size.
 
 ### Fixed
+
+- Now **IWindowSystem::OpenFileDialog/SaveFileDialog** don't change current working directory.
 
 ## [0.6.6] 2022-06-02
 

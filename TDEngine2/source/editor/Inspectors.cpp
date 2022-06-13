@@ -239,21 +239,23 @@ namespace TDEngine2
 			/// \note Sub-mesh idenfitier
 			{
 				auto&& submeshes = meshContainer.GetSubmeshesIdentifiers();
-
-				std::string subMeshId = meshContainer.GetSubMeshId();
-
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Sub-mesh Id:");
-
-				const I32 index = static_cast<I32>(std::distance(submeshes.cbegin(), std::find(submeshes.cbegin(), submeshes.cend(), subMeshId)));
-				std::string newResult = submeshes[imguiContext.Popup("##SubMeshId", index, submeshes)];
-
-				if (newResult != subMeshId) /// \note Update sub-mesh identifier
+				if (!submeshes.empty())
 				{
-					meshContainer.SetSubMeshId(newResult);
-				}
+					std::string subMeshId = meshContainer.GetSubMeshId();
 
-				imguiContext.EndHorizontal();
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Sub-mesh Id:");
+
+					const I32 index = static_cast<I32>(std::distance(submeshes.cbegin(), std::find(submeshes.cbegin(), submeshes.cend(), subMeshId)));
+					std::string newResult = submeshes[imguiContext.Popup("##SubMeshId", index, submeshes)];
+
+					if (newResult != subMeshId) /// \note Update sub-mesh identifier
+					{
+						meshContainer.SetSubMeshId(newResult);
+					}
+
+					imguiContext.EndHorizontal();
+				}
 			}
 
 			/// \note Material
