@@ -617,6 +617,8 @@ namespace TDEngine2
 
 	void CBaseMaterial::SetShader(const std::string& shaderName)
 	{
+		mShaderIdStr = shaderName;
+
 		mShaderHandle = mpResourceManager->Load<IShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
 		if (mShaderHandle == TResourceId::Invalid)
 		{
@@ -802,6 +804,11 @@ namespace TDEngine2
 	U32 CBaseMaterial::GetVariableHash(const std::string& name) const
 	{
 		return TDE2_STRING_ID(name.c_str());
+	}
+
+	const std::string& CBaseMaterial::GetShaderId() const
+	{
+		return mShaderIdStr;
 	}
 
 	TResourceId CBaseMaterial::GetShaderHandle() const

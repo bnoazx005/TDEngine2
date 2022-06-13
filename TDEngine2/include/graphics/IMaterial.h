@@ -346,6 +346,8 @@ namespace TDEngine2
 
 			TDE2_API virtual ITexture* GetTextureResource(const std::string& id, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) const = 0;
 
+			TDE2_API virtual const std::string& GetShaderId() const = 0;
+
 			TDE2_API virtual bool IsScissorTestEnabled() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)

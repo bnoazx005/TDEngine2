@@ -333,6 +333,8 @@ namespace TDEngine2
 
 			TDE2_API TResourceId GetShaderHandle() const override;
 
+			TDE2_API const std::string& GetShaderId() const override;
+
 			/*!
 				\brief The method returns true if the material's instance uses alpha blending
 				based transparency
@@ -403,6 +405,8 @@ namespace TDEngine2
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
 			TResourceId              mShaderHandle;
+
+			std::string              mShaderIdStr;
 
 			TMaterialInstancesArray  mpInstancesArray;
 
