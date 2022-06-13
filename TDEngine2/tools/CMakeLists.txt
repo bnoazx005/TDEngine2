@@ -40,5 +40,5 @@ endif (BUILD_MESH_CONVERTER_TOOL)
 
 if (BUILD_MATERIAL_EDITOR_TOOL)
 	message(STATUS "Material editor tool's compilation is enabled")
-	add_subdirectory(MATERIALEditor)
+	add_subdirectory(MaterialEditor)
 endif (BUILD_MATERIAL_EDITOR_TOOL)
