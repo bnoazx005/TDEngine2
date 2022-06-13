@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.7] 2022-06-12
+## [0.6.7] 2022-06-13
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Now **IWindowSystem::OpenFileDialog/SaveFileDialog** don't change current working directory.
+
+- The implementation of **CEntity::RemoveComponents** was fixed due to prevent deletion of CTransform components
 
 ## [0.6.6] 2022-06-02
 
