@@ -7,6 +7,9 @@ common_settings:
   max_worker_threads_count: 4
   total_preallocated_memory_size: 134217728
   flags : 20 # RESIZEABLE | ZBUFFER
+  additional_mounted_dirs:
+    - alias: ProjectResources/
+      path: ../../SandboxGame/Resources/
 
 graphics_settings:
   renderer_plugin: ./D3D11GraphicsContext

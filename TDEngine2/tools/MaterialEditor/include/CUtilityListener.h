@@ -70,9 +70,9 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 		TDEngine2::TPtr<TDEngine2::CMaterialEditorWindow> mpMaterialEditor;
 
-		TDEngine2::TResourceId                            mCurrEditablMaterialId;
+		TDEngine2::TResourceId                            mCurrEditableMaterialId;
 
 		std::string                                       mLastSavedPath;
 
-		TDEngine2::CEntity*                               mpEditableEntity;
+		TDEngine2::TEntityId                              mEditableEntity;
 };

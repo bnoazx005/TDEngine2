@@ -35,9 +35,9 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	mpMaterialEditor = TPtr<CMaterialEditorWindow>(dynamic_cast<CMaterialEditorWindow*>(TDEngine2::CreateMaterialEditorWindow(mpResourceManager.Get(), mpEngineCoreInstance->GetSubsystem<IInputContext>().Get(), result)));
 
 	mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
-	mCurrEditablMaterialId = TResourceId::Invalid;
+	mCurrEditableMaterialId = TResourceId::Invalid;
 
-	mpMaterialEditor->SetMaterialResourceHandle(mCurrEditablMaterialId);
+	mpMaterialEditor->SetMaterialResourceHandle(mCurrEditableMaterialId);
 
 	ISceneManager* pSceneManager = mpEngineCoreInstance->GetSubsystem<ISceneManager>().Get();
 
@@ -46,22 +46,21 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		auto pScene = getSceneResult.Get();
 
 		pScene->CreateSkybox(mpResourceManager.Get(), "Resources/Textures/DefaultSkybox");
-
-		if (auto pMaterialsEntity = pScene->CreateEntity(EditableEntityId))
+		
+		if (auto pLightEntity = pScene->CreateDirectionalLight(TColorUtils::mWhite, 1.0f, TVector3(1.0f, 1.0f, 0.0f)))
 		{
-			if (CTransform* pTransform = pMaterialsEntity->GetComponent<CTransform>())
+			auto pTransform = pLightEntity->GetComponent<CTransform>();
+			pTransform->SetPosition(TVector3(0.0f, 10.0f, 0.0f));
+		}
+
+		if (auto pModelEntity = pScene->CreateEntity(EditableEntityId))
+		{
+			if (CTransform* pTransform = pModelEntity->GetComponent<CTransform>())
 			{
 				pTransform->SetPosition(ForwardVector3 * 2.0f);
 			}
 
-#if 0
-			if (auto pMaterials = pMaterialsEntity->AddComponent<CMaterialEmitter>())
-			{
-				pMaterials->SetMaterialEffect("testMaterials.Materials");
-			}
-#endif
-
-			mpEditableEntity = pMaterialsEntity;
+			mEditableEntity = pModelEntity->GetId();
 		}
 	}
 
@@ -150,6 +149,58 @@ static E_RESULT_CODE SaveToFile(IFileSystem* pFileSystem, IResourceManager* pRes
 }
 
 
+static void TryLoadModel(TPtr<IWindowSystem> pWindowSystem, TPtr<IWorld> pWorld, TEntityId currModelEntity, TPtr<IResource> pMaterial, bool loadSkinnedModel = false)
+{
+	auto openFileResult = pWindowSystem->ShowOpenFileDialog({ { "Meshes", "*.mesh" } });
+	if (openFileResult.HasError())
+	{
+		return;
+	}
+
+	CEntity* pEntity = pWorld->FindEntity(currModelEntity);
+	if (!pEntity)
+	{
+		return;
+	}
+
+	E_RESULT_CODE result = pEntity->RemoveComponents();
+	TDE2_ASSERT(RC_OK == result && pEntity->HasComponent<CTransform>());
+
+	pEntity->AddComponent<CShadowReceiverComponent>();
+	pEntity->AddComponent<CShadowCasterComponent>();
+
+	if (loadSkinnedModel)
+	{
+		auto pMeshContainer = pEntity->AddComponent<CSkinnedMeshContainer>();
+
+		std::string pathToMesh = openFileResult.Get();
+
+		pMeshContainer->SetMeshName(pathToMesh);
+		pMeshContainer->SetMaterialName(pMaterial ? pMaterial->GetName() : Wrench::StringUtils::GetEmptyStr());
+
+		if (Wrench::StringUtils::EndsWith(pathToMesh, ".mesh"))
+		{
+			pathToMesh = Wrench::StringUtils::ReplaceAll(pathToMesh, ".mesh", ".skeleton"); // \todo Replace with constants
+		}
+		else
+		{
+			pathToMesh.append(".skeleton");
+		}
+
+		pMeshContainer->SetSkeletonName(pathToMesh);
+
+		pEntity->AddComponent<CMeshAnimatorComponent>();
+		pEntity->AddComponent<CAnimationContainerComponent>();
+
+		return;
+	}
+
+	auto pMeshContainer = pEntity->AddComponent<CStaticMeshContainer>();
+	pMeshContainer->SetMeshName(openFileResult.Get());
+	pMeshContainer->SetMaterialName(pMaterial ? pMaterial->GetName() : Wrench::StringUtils::GetEmptyStr());
+}
+
+
 void CUtilityListener::_drawMainMenu()
 {
 	auto pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
@@ -159,47 +210,63 @@ void CUtilityListener::_drawMainMenu()
 	{
 		imguiContext.MenuGroup("File", [this, pFileSystem](IImGUIContext& imguiContext)
 		{
-			imguiContext.MenuItem("New Effect", "CTRL+N", [this]
+			imguiContext.MenuItem("New Material", "CTRL+N", [this]
 			{
 				mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
-				// \todo Add reset of the app's state here
+
+				mCurrEditableMaterialId = mpResourceManager->Create<IMaterial>("unnamed.material", TMaterialParameters{ "Default" });
+				mpMaterialEditor->SetMaterialResourceHandle(mCurrEditableMaterialId);
 			});
 
-			imguiContext.MenuItem("Open Effect", "CTRL+O", [this, pFileSystem]
+			imguiContext.MenuItem("Open Material", "CTRL+O", [this, pFileSystem]
 			{
 				if (auto openFileResult = OpenFromFile(mpWindowSystem.Get(), pFileSystem, mpResourceManager.Get()))
 				{
-					mCurrEditablMaterialId = openFileResult.Get();
+					mCurrEditableMaterialId = openFileResult.Get();
+					mpMaterialEditor->SetMaterialResourceHandle(mCurrEditableMaterialId);
 
-#if 0
-					if (auto pMaterials = mpEditableEntity->GetComponent<CMa>())
-					{
-						if (auto pMaterialEffect = mpResourceManager->GetResource<IResource>(mCurrEditablMaterialId))
-						{
-							pMaterials->SetMaterialEffect(pMaterialEffect->GetName());
-						}
-
-						mpMaterialEditor->SetMaterialResourceHandle(mCurrEditablMaterialId);
-					}
-#endif
+					/// \todo Assign material to current active model
 				}
 			});
 
-			imguiContext.MenuItem("Save Effect", "CTRL+S", [this, pFileSystem]
+			imguiContext.MenuItem("Save Material", "CTRL+S", [this, pFileSystem]
 			{
-				SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditablMaterialId, mLastSavedPath);
+				SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableMaterialId, mLastSavedPath);
 			});
 
-			imguiContext.MenuItem("Save Effect As...", "SHIFT+CTRL+S", [this, pFileSystem]
+			imguiContext.MenuItem("Save Material As...", "SHIFT+CTRL+S", [this, pFileSystem]
 			{
 				if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
 					mLastSavedPath = saveFileDialogResult.Get();
-					SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditablMaterialId, mLastSavedPath);
+					SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableMaterialId, mLastSavedPath);
 				}
 			});
 
 			imguiContext.MenuItem("Quit", "Ctrl+Q", [this] { mpEngineCoreInstance->Quit(); });
+		});
+
+		imguiContext.MenuGroup("View", [this](IImGUIContext& imguiContext)
+		{
+			imguiContext.MenuGroup("Load model for tests", [this](IImGUIContext& imgui)
+			{
+				imgui.MenuItem("Load Static Model", Wrench::StringUtils::GetEmptyStr(), [this]
+				{
+					TryLoadModel(mpWindowSystem, 
+						mpEngineCoreInstance->GetSubsystem<ISceneManager>()->GetWorld(), 
+						mEditableEntity, 
+						mpResourceManager->GetResource(mCurrEditableMaterialId));
+				});
+
+				imgui.MenuItem("Load Skinned Model", Wrench::StringUtils::GetEmptyStr(), [this]
+				{
+					TryLoadModel(mpWindowSystem, 
+						mpEngineCoreInstance->GetSubsystem<ISceneManager>()->GetWorld(), 
+						mEditableEntity, 
+						mpResourceManager->GetResource(mCurrEditableMaterialId),
+						true);
+				});
+			});
 		});
 	});
 }
