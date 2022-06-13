@@ -39,6 +39,7 @@ namespace TDEngine2
 		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform, CAudioListenerComponent>();
 		if (entities.empty())
 		{
+			LOG_ERROR("[AudioListenerUpdateSystem] Missing an audio listener entity");
 			return;
 		}
 
@@ -52,7 +53,6 @@ namespace TDEngine2
 		CEntity* pListenerEntity = pWorld->FindEntity(mMainListenerEntityId);
 		if (!pListenerEntity)
 		{
-			LOG_ERROR(Wrench::StringUtils::Format("[AudioListenerUpdateSystem] Missing entity, entity_id: {0}", static_cast<U32>(mMainListenerEntityId)));
 			return;
 		}
 
