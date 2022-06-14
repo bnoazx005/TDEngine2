@@ -75,6 +75,11 @@ namespace TDEngine2
 	class IMaterial: public ISerializable, public virtual IBaseObject, public ICloneable<IMaterial>
 	{
 		public:
+#if TDE2_EDITORS_ENABLED
+			typedef std::function<void(const std::string&, ITexture*)> TTextureResourceVisitAction;
+			typedef std::function<void(const std::string&, TypeId, const void*, USIZE)> TVariableVisitAction;
+#endif
+		public:
 			TDE2_REGISTER_TYPE(IMaterial);
 
 			/*!
@@ -345,6 +350,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual ITexture* GetTextureResource(const std::string& id, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) const = 0;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void ForEachTextureSlot(const TTextureResourceVisitAction& action) = 0;
+
+			TDE2_API virtual void ForEachVariable(const TVariableVisitAction& action) = 0;
+#endif
 
 			TDE2_API virtual const std::string& GetShaderId() const = 0;
 

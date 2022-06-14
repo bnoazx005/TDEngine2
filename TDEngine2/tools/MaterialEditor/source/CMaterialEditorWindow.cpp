@@ -76,6 +76,54 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static void DrawTexturesSlotsGroup(IImGUIContext& imguiContext, TPtr<IMaterial> pMaterial)
+	{
+		if (!imguiContext.CollapsingHeader("Textures Slots", true, false))
+		{
+			return;
+		}
+
+		pMaterial->ForEachTextureSlot([&imguiContext](const std::string& slotName, ITexture* pTextureResource)
+		{
+			IResource* pResource = dynamic_cast<IResource*>(pTextureResource);
+
+			if (std::get<0>(imguiContext.BeginTreeNode(slotName)))
+			{
+				std::string textureResourceStr = pResource ? pResource->GetName() : Wrench::StringUtils::GetEmptyStr();
+
+				imguiContext.BeginHorizontal();
+				{
+					imguiContext.Label("Path:");
+					imguiContext.TextField(Wrench::StringUtils::Format("##{0}_path", slotName), textureResourceStr, [](auto&& value)
+					{
+						/// \note Try to load a texture and if it's successfull assign it to the slot
+					});
+				}
+				imguiContext.EndHorizontal();
+
+				/// \note Texture's preview
+				imguiContext.Image(pResource->GetId(), TVector2(imguiContext.GetWindowWidth() * 0.25f), pTextureResource->GetNormalizedTextureRect());
+
+				imguiContext.EndTreeNode();
+			}
+		});
+	}
+
+	static void DrawVariablesGroup(IImGUIContext& imguiContext, TPtr<IMaterial> pMaterial)
+	{
+		if (!imguiContext.CollapsingHeader("Variables", true, false))
+		{
+			return;
+		}
+
+		pMaterial->ForEachVariable([&imguiContext](const std::string& variableId, TypeId typeId, const void* pData, USIZE size)
+		{
+			imguiContext.Label(variableId);
+		});
+	}
+
+
 	void CMaterialEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -94,7 +142,18 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Material Editor", isEnabled, params))
 		{
+			std::string shaderId = mpCurrMaterial->GetShaderId();
 			
+			mpImGUIContext->BeginHorizontal();
+			mpImGUIContext->Label("Shader: ");
+			mpImGUIContext->TextField("##Shader", shaderId, [this](auto&& value)
+			{
+				mpCurrMaterial->SetShader(value);
+			});
+			mpImGUIContext->EndHorizontal();
+
+			DrawTexturesSlotsGroup(*mpImGUIContext, mpCurrMaterial);
+			DrawVariablesGroup(*mpImGUIContext, mpCurrMaterial);
 		}
 
 		mpImGUIContext->EndWindow();

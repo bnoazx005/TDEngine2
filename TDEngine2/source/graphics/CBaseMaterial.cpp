@@ -858,6 +858,57 @@ namespace TDEngine2
 		return mRasterizerStateParams.mIsScissorTestEnabled;
 	}
 
+#if TDE2_EDITORS_ENABLED
+	
+	void CBaseMaterial::ForEachTextureSlot(const TTextureResourceVisitAction& action)
+	{
+		if (!action)
+		{
+			return;
+		}
+
+		auto& textures = mInstancesAssignedTextures[DefaultMaterialInstanceId];
+
+		for (auto&& currTextureSlotEntity : textures)
+		{
+			action(currTextureSlotEntity.first, currTextureSlotEntity.second);
+		}
+	}
+
+	void CBaseMaterial::ForEachVariable(const TVariableVisitAction& action)
+	{
+		if (!action)
+		{
+			return;
+		}
+		
+		auto pShaderResource = mpResourceManager->GetResource<IShader>(mShaderHandle);
+		if (!pShaderResource)
+		{
+			return;
+		}
+
+		auto& pDefaultInstanceBuffers = mpInstancesUserUniformBuffers[DefaultMaterialInstanceId];
+
+		auto&& shaderMeta = pShaderResource->GetShaderMetaData();
+		for (auto&& currUniformBufferInfo : shaderMeta->mUniformBuffersInfo)
+		{
+			if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL & currUniformBufferInfo.second.mFlags))
+			{
+				continue;
+			}
+
+			auto&& pUniformBufferContent = pDefaultInstanceBuffers[currUniformBufferInfo.second.mSlot - TotalNumberOfInternalConstantBuffers];
+
+			for (auto&& currVariableInfo : currUniformBufferInfo.second.mVariables)
+			{
+				action(currVariableInfo.mName, currVariableInfo.mTypeId, &pUniformBufferContent[currVariableInfo.mOffset], currVariableInfo.mSize);
+			}
+		}
+	}
+
+#endif
+
 	TResult<TPtr<IMaterialInstance>> CBaseMaterial::_setVariable(const std::string& name, const void* pValue, U32 size)
 	{
 		E_RESULT_CODE result = RC_FAIL;

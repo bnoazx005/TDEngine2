@@ -381,6 +381,12 @@ namespace TDEngine2
 
 			TDE2_API ITexture* GetTextureResource(const std::string& id, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) const override;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API void ForEachTextureSlot(const TTextureResourceVisitAction& action) override;
+			
+			TDE2_API void ForEachVariable(const TVariableVisitAction& action) override;
+#endif
+
 			TDE2_API bool IsScissorTestEnabled() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)

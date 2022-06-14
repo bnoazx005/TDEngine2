@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **IFileSystem::ResolveVirtualPath**'s got third parameter to retrieve absolute path.
 
+- A new utility for materials editing was added which is called **TDE2MaterialEd**.
+
 ### Changed 
 
 - Now project settings stores real paths to audio/renderer plugins instead of predefined set of values.
