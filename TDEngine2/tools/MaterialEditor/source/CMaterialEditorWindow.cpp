@@ -110,6 +110,77 @@ namespace TDEngine2
 		});
 	}
 
+
+	static const std::unordered_map<TypeId, std::function<void(IImGUIContext&, TPtr<IMaterial>, const std::string&, const void*)>> PropertyDrawers
+	{
+		{ 
+			TDE2_TYPE_ID(F32), 
+			[](IImGUIContext& imgui, TPtr<IMaterial> pMaterial, const std::string& variableId, const void* pData)
+			{
+				F32 value = *static_cast<const F32*>(pData);
+
+				imgui.FloatField(Wrench::StringUtils::Format("##{0}", variableId), value, [pMaterial, &variableId, &value]
+				{
+					pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, variableId, value);
+				});
+			}
+		},
+
+		{
+			TDE2_TYPE_ID(TVector2),
+			[](IImGUIContext& imgui, TPtr<IMaterial> pMaterial, const std::string& variableId, const void* pData)
+			{
+				TVector2 value = *static_cast<const TVector2*>(pData);
+
+				imgui.Vector2Field(Wrench::StringUtils::Format("##{0}", variableId), value, [pMaterial, &variableId, &value]
+				{
+					pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, variableId, value);
+				});
+			}
+		},
+
+		{
+			TDE2_TYPE_ID(TVector3),
+			[](IImGUIContext& imgui, TPtr<IMaterial> pMaterial, const std::string& variableId, const void* pData)
+			{
+				TVector3 value = *static_cast<const TVector3*>(pData);
+
+				imgui.Vector3Field(Wrench::StringUtils::Format("##{0}", variableId), value, [pMaterial, &variableId, &value]
+				{
+					pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, variableId, value);
+				});
+			}
+		},
+
+		{
+			TDE2_TYPE_ID(TVector4),
+			[](IImGUIContext& imgui, TPtr<IMaterial> pMaterial, const std::string& variableId, const void* pData)
+			{
+				TVector4 value = *static_cast<const TVector4*>(pData);
+
+				imgui.Vector4Field(Wrench::StringUtils::Format("##{0}", variableId), value, [pMaterial, &variableId, &value]
+				{
+					pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, variableId, value);
+				});
+			}
+		},
+
+		/*{
+			TDE2_TYPE_ID(TColor32F),
+			[](IImGUIContext& imgui, TPtr<IMaterial> pMaterial, const std::string& variableId, const void* pData)
+			{
+				TColor32F value = *static_cast<const TColor32F*>(pData);
+
+				imgui.ColorPickerField(Wrench::StringUtils::Format("##{0}", variableId), value, [pMaterial, &variableId, &value]
+				{
+					pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, variableId, value);
+				});
+			}
+		},*/
+	};
+
+
+
 	static void DrawVariablesGroup(IImGUIContext& imguiContext, TPtr<IMaterial> pMaterial)
 	{
 		if (!imguiContext.CollapsingHeader("Variables", true, false))
@@ -117,9 +188,18 @@ namespace TDEngine2
 			return;
 		}
 
-		pMaterial->ForEachVariable([&imguiContext](const std::string& variableId, TypeId typeId, const void* pData, USIZE size)
+		pMaterial->ForEachVariable([&imguiContext, pMaterial](const std::string& variableId, TypeId typeId, const void* pData, USIZE size)
 		{
+			imguiContext.BeginHorizontal();
 			imguiContext.Label(variableId);
+
+			auto it = PropertyDrawers.find(typeId);
+			if (it != PropertyDrawers.cend())
+			{
+				(it->second)(imguiContext, pMaterial, variableId, pData);
+			}
+
+			imguiContext.EndHorizontal();
 		});
 	}
 
