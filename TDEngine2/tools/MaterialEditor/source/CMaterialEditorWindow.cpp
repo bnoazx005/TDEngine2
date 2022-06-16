@@ -127,6 +127,19 @@ namespace TDEngine2
 		},
 
 		{
+			TDE2_TYPE_ID(U32),
+			[](IImGUIContext& imgui, TPtr<IMaterial> pMaterial, const std::string& variableId, const void* pData)
+			{
+				I32 value = *static_cast<const I32*>(pData);
+
+				imgui.IntField(Wrench::StringUtils::Format("##{0}", variableId), value, [pMaterial, &variableId, &value]
+				{
+					pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, variableId, value < 0 ? 0 : value);
+				});
+			}
+		},
+
+		{
 			TDE2_TYPE_ID(TVector2),
 			[](IImGUIContext& imgui, TPtr<IMaterial> pMaterial, const std::string& variableId, const void* pData)
 			{

@@ -310,6 +310,11 @@ namespace TDEngine2
 		
 		USIZE currPos = 0;
 
+		if (typeProcessor)
+		{
+			typeProcessor(baseType);
+		}
+
 		while ((pos = type.find_first_of("1234", currPos)) != std::string::npos)
 		{
 			switch (type[pos])

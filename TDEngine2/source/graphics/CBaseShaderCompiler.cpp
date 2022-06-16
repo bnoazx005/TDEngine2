@@ -357,6 +357,7 @@ namespace TDEngine2
 			{ "double", TDE2_TYPE_ID(F64) },
 			{ "int", TDE2_TYPE_ID(I32) },
 			{ "uint", TDE2_TYPE_ID(U32) },
+			{ "dword", TDE2_TYPE_ID(U32) },
 			{ "float2", TDE2_TYPE_ID(TVector2) },
 			{ "float3", TDE2_TYPE_ID(TVector3) },
 			{ "float4", TDE2_TYPE_ID(TVector4) },
