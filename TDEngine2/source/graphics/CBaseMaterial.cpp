@@ -974,12 +974,9 @@ namespace TDEngine2
 
 			defaultInstanceUserUniforms[slotIndex].resize(currUniformBufferDesc.mSize);
 
-			USIZE variableBytesOffset = 0;
-
 			for (const auto& currVariableDesc : currUniformBufferDesc.mVariables)
 			{
-				mUserVariablesHashTable[TDE2_STRING_ID(currVariableDesc.mName.c_str())] = { slotIndex, variableBytesOffset };
-				variableBytesOffset += currVariableDesc.mSize;
+				mUserVariablesHashTable[TDE2_STRING_ID(currVariableDesc.mName.c_str())] = { slotIndex, currVariableDesc.mOffset };
 			}
 		}		
 

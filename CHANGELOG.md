@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.7] 2022-06-13
+## [0.6.7] 2022-06-16
 
 ### Added
 
@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The implementation of **CEntity::RemoveComponents** was fixed due to prevent deletion of CTransform components
 
 - (Fixed issue #84) Now the shadow map is cleared even if there are no shadow casters in a scene.
+
+- An incorrect offsets computation for material variables was fixed. 
 
 ## [0.6.6] 2022-06-02
 
