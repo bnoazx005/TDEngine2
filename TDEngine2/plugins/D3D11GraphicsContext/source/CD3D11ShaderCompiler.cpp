@@ -166,10 +166,12 @@ namespace TDEngine2
 						{
 							pUniformType->GetDesc(&shaderVariableTypeDesc);
 							variableDesc.mTypeId = CBaseShaderCompiler::GetShaderBuiltInTypeId(shaderVariableTypeDesc.Name);
+							variableDesc.mIsArray = static_cast<bool>(shaderVariableTypeDesc.Elements);
 						}
 
 						variableDesc.mSize = std::max<USIZE>(variableDesc.mSize, static_cast<USIZE>(shaderVariableInfoDesc.Size));
 						variableDesc.mOffset = shaderVariableInfoDesc.StartOffset;
+
 					}
 				}
 			}

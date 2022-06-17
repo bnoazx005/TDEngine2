@@ -24,6 +24,8 @@ namespace TDEngine2
 	class ITexture;
 	class IMaterialInstance;
 
+	struct TShaderUniformDesc;
+
 
 	TDE2_DECLARE_SCOPED_PTR(IMaterialInstance)
 
@@ -77,7 +79,7 @@ namespace TDEngine2
 		public:
 #if TDE2_EDITORS_ENABLED
 			typedef std::function<void(const std::string&, ITexture*)> TTextureResourceVisitAction;
-			typedef std::function<void(const std::string&, TypeId, const void*, USIZE)> TVariableVisitAction;
+			typedef std::function<void(const TShaderUniformDesc&, const void*)> TVariableVisitAction;
 #endif
 		public:
 			TDE2_REGISTER_TYPE(IMaterial);

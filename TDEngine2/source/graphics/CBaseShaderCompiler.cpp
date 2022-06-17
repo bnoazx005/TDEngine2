@@ -361,6 +361,9 @@ namespace TDEngine2
 			{ "float2", TDE2_TYPE_ID(TVector2) },
 			{ "float3", TDE2_TYPE_ID(TVector3) },
 			{ "float4", TDE2_TYPE_ID(TVector4) },
+			{ "vec2", TDE2_TYPE_ID(TVector2) },
+			{ "vec3", TDE2_TYPE_ID(TVector3) },
+			{ "vec4", TDE2_TYPE_ID(TVector4) },
 		};
 
 		auto it = typeName2Hash.find(typeName);

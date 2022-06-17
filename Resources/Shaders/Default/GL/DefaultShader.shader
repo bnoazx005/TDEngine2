@@ -70,6 +70,7 @@ TDE2_ENABLE_PARALLAX_MAPPING
 
 CBUFFER_SECTION_EX(ShaderParameters, 4)
 	float parallaxMappingEnabled;
+	float4 tttt;
 CBUFFER_ENDSECTION
 
 

@@ -201,15 +201,20 @@ namespace TDEngine2
 			return;
 		}
 
-		pMaterial->ForEachVariable([&imguiContext, pMaterial](const std::string& variableId, TypeId typeId, const void* pData, USIZE size)
+		pMaterial->ForEachVariable([&imguiContext, pMaterial](const TShaderUniformDesc& variableInfo, const void* pData)
 		{
-			imguiContext.BeginHorizontal();
-			imguiContext.Label(variableId);
+			if (variableInfo.mIsArray)
+			{
+				return; /// \note Arrays preview isn't supported for now
+			}
 
-			auto it = PropertyDrawers.find(typeId);
+			imguiContext.BeginHorizontal();
+			imguiContext.Label(variableInfo.mName);
+
+			auto it = PropertyDrawers.find(variableInfo.mTypeId);
 			if (it != PropertyDrawers.cend())
 			{
-				(it->second)(imguiContext, pMaterial, variableId, pData);
+				(it->second)(imguiContext, pMaterial, variableInfo.mName, pData);
 			}
 
 			imguiContext.EndHorizontal();

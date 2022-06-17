@@ -902,7 +902,7 @@ namespace TDEngine2
 
 			for (auto&& currVariableInfo : currUniformBufferInfo.second.mVariables)
 			{
-				action(currVariableInfo.mName, currVariableInfo.mTypeId, &pUniformBufferContent[currVariableInfo.mOffset], currVariableInfo.mSize);
+				action(currVariableInfo, &pUniformBufferContent[currVariableInfo.mOffset]);
 			}
 		}
 	}
