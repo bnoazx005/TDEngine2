@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.8] 2022-06-21
+
+### Added
+
+-  The basic draft implementation of a resources build manifest was added.
+
+### Changed
+
+### Fixed
+
 ## [0.6.7] 2022-06-17
 
 ### Added

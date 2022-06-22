@@ -207,6 +207,7 @@
 #include "editor/CAnimationCurveEditorWindow.h"
 #include "editor/CProjectSettingsWindow.h"
 #include "editor/EditorUtils.h"
+#include "editor/CResourcesBuildManifest.h"
 
 ///math
 #include "math/TVector2.h"
