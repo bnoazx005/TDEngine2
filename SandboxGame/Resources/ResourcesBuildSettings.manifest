@@ -1,0 +1,42 @@
+meta: 
+  resource_type: resources_build_manifest
+  version_tag: 1
+resources_collection: 
+  - resource_info: 
+      animation_clips: 
+        - animation_info: 
+            end_range: 10
+            is_looped: 1
+            output_animation_clip_path: ./Animations/TestAnim2_Idle.animation
+            start_range: 0
+      import_tangents: 1
+      is_skinned_mesh: 1
+      path: ./Models/TestAnim2.FBX
+      type_id: 3247291626
+  - resource_info: 
+      animation_clips: 
+        - animation_info: 
+            end_range: 505
+            is_looped: 1
+            output_animation_clip_path: ./Animations/TestAnim4_Idle.animation
+            start_range: 0
+      import_tangents: 1
+      is_skinned_mesh: 1
+      path: ./Models/TestAnim4.FBX
+      type_id: 3247291626
+  - resource_info: 
+      import_tangents: 1
+      is_skinned_mesh: 0
+      path: ./Models/scene.obj
+      type_id: 3247291626
+  - resource_info: 
+      animation_clips: 
+        - animation_info: 
+            end_range: 10
+            is_looped: 1
+            output_animation_clip_path: ./Animations/TestAnim3_Idle.animation
+            start_range: 0
+      import_tangents: 1
+      is_skinned_mesh: 1
+      path: ./Models/TestAnim3.FBX
+      type_id: 3247291626

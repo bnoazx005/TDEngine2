@@ -22,9 +22,29 @@ namespace TDEngine2
 	class CResourcesBuildManifest;
 
 
-	typedef struct TResourceBuildInfo
+	typedef struct TResourceBuildInfo: ISerializable
 	{
 		TDE2_API virtual ~TResourceBuildInfo() = default;
+
+		/*!
+			\brief The method deserializes object's state from given reader
+
+			\param[in, out] pReader An input stream of data that contains information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+		/*!
+			\brief The method serializes object's state into given stream
+
+			\param[in, out] pWriter An output stream of data that writes information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 		std::string mRelativePathToResource;
 	} TResourceBuildInfo, *TResourceBuildInfoPtr;
@@ -32,8 +52,38 @@ namespace TDEngine2
 
 	typedef struct TMeshResourceBuildInfo: TResourceBuildInfo
 	{
-		bool isSkinned = false;
-		bool needComputeTangents = true;
+		/*!
+			\brief The method deserializes object's state from given reader
+
+			\param[in, out] pReader An input stream of data that contains information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+		/*!
+			\brief The method serializes object's state into given stream
+
+			\param[in, out] pWriter An output stream of data that writes information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+		struct TAnimationClipImportInfo
+		{
+			std::string mOutputAnimationPath;
+			bool mIsLooped;
+			U32 mStartRange = 0;
+			U32 mEndRange = 0;
+		};
+
+		bool mIsSkinned = false;
+		bool mImportTangents = true;
+
+		std::vector<TAnimationClipImportInfo> mAnimations;
 	} TMeshResourceBuildInfo, *TMeshResourceBuildInfoPtr;
 
 
