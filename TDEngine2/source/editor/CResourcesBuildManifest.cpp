@@ -180,6 +180,27 @@ namespace TDEngine2
 
 
 	/*!
+		\brief TTexture2DResourceBuildInfo's definition
+	*/
+
+	E_RESULT_CODE TTexture2DResourceBuildInfo::Load(IArchiveReader* pReader)
+	{
+		E_RESULT_CODE result = TResourceBuildInfo::Load(pReader);
+
+		return result;
+	}
+
+	E_RESULT_CODE TTexture2DResourceBuildInfo::Save(IArchiveWriter* pWriter)
+	{
+		E_RESULT_CODE result = TResourceBuildInfo::Save(pWriter);
+
+		result = result | pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TTexture2DResourceBuildInfo)));
+
+		return result;
+	}
+
+
+	/*!
 		\brief CResourcesBuildManifest's definition
 	*/
 
@@ -268,7 +289,31 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpResourcesBuildConfigs.push_back(std::move(pResourceInfo));
+		const std::string& id = pResourceInfo->mRelativePathToResource;
+
+		auto it = std::find_if(mpResourcesBuildConfigs.begin(), mpResourcesBuildConfigs.end(), [&id](auto&& entity) { return entity->mRelativePathToResource == id; });
+		if (it == mpResourcesBuildConfigs.end())
+		{
+			mpResourcesBuildConfigs.push_back(std::move(pResourceInfo));
+			return RC_OK;
+		}
+
+		*it = std::move(pResourceInfo);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CResourcesBuildManifest::ForEachRegisteredResource(const std::function<bool(const TResourceBuildInfo&)>& action)
+	{
+		if (!action)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		for (auto&& pCurrResourceInfo : mpResourcesBuildConfigs)
+		{
+			action(*pCurrResourceInfo);
+		}
 
 		return RC_OK;
 	}

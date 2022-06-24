@@ -13,6 +13,7 @@
 #include "../core/CBaseObject.h"
 #include <memory>
 #include <vector>
+#include <functional>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -87,6 +88,30 @@ namespace TDEngine2
 	} TMeshResourceBuildInfo, *TMeshResourceBuildInfoPtr;
 
 
+	typedef struct TTexture2DResourceBuildInfo : TResourceBuildInfo
+	{
+		/*!
+			\brief The method deserializes object's state from given reader
+
+			\param[in, out] pReader An input stream of data that contains information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+		/*!
+			\brief The method serializes object's state into given stream
+
+			\param[in, out] pWriter An output stream of data that writes information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+	} TTexture2DResourceBuildInfo, *TTexture2DResourceBuildInfoPtr;
+
 
 	/*!
 		\brief A factory function for creation objects of CResourcesBuildManifest's type
@@ -139,7 +164,16 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			/*!
+				\brief The method registers an information for the resource. It there already exists 
+				a resource with the same path it's overriden
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
 			TDE2_API E_RESULT_CODE AddResourceBuildInfo(std::unique_ptr<TResourceBuildInfo> pResourceInfo);
+
+			TDE2_API E_RESULT_CODE ForEachRegisteredResource(const std::function<bool(const TResourceBuildInfo&)>& action = nullptr);
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourcesBuildManifest)
 		private:
