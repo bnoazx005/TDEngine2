@@ -1,0 +1,136 @@
+#include "../include/CUtilityListener.h"
+#include "../../include/metadata.h"
+#include "../deps/argparse/argparse.h"
+#include <functional>
+
+#if _HAS_CXX17
+	#include <filesystem>
+	namespace fs = std::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
+#endif
+
+using namespace TDEngine2;
+
+
+E_RESULT_CODE CUtilityListener::OnStart()
+{
+	E_RESULT_CODE result = RC_OK;
+
+	mpEditorWindow = dynamic_cast<CEditorWindow*>(TDEngine2::CreateEditorWindow(mpResourceManager.Get(), mpEngineCoreInstance->GetSubsystem<IInputContext>().Get(), mpWindowSystem.Get(), result));
+	
+	return RC_OK;
+}
+
+
+const std::vector<std::tuple<std::string, std::string>> FileExtensionsFilter
+{
+	{ "Resources Manifest", "*.manifest" }
+};
+
+
+static TResult<TPtr<CResourcesBuildManifest>> OpenFromFile(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem)
+{
+	if (!pWindowSystem || !pFileSystem)
+	{
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+	}
+
+	auto filePathResult = pWindowSystem->ShowOpenFileDialog(FileExtensionsFilter);
+	if (filePathResult.HasError())
+	{
+		return Wrench::TErrValue<E_RESULT_CODE>(filePathResult.GetError());
+	}
+
+	E_RESULT_CODE result = RC_OK;
+
+	TPtr<CResourcesBuildManifest> pResourcesManifest = TPtr<CResourcesBuildManifest>(CreateResourcesBuildManifest(result));
+	TDE2_ASSERT(RC_OK == result);
+
+	if (pResourcesManifest)
+	{
+		auto openFileResult = pFileSystem->Open<IYAMLFileReader>(filePathResult.Get());
+		if (openFileResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(openFileResult.GetError());
+		}
+
+		result = pResourcesManifest->Load(pFileSystem->Get<IYAMLFileReader>(openFileResult.Get()));
+		TDE2_ASSERT(RC_OK == result);
+
+		pResourcesManifest->SetBaseResourcesPath(fs::path(filePathResult.Get()).parent_path().string());
+	}
+
+	return Wrench::TOkValue<TPtr<CResourcesBuildManifest>>(pResourcesManifest);
+}
+
+
+static void DrawMainMenu(IEngineCore* pEngineCore, TPtr<IWindowSystem> pWindowSystem, TPtr<IImGUIContext> pImGUIContext, TPtr<IFileSystem> pFileSystem, TPtr<CResourcesBuildManifest>& pManifest)
+{
+	pImGUIContext->DisplayMainMenu([pFileSystem, pEngineCore, pWindowSystem, &pManifest](IImGUIContext& imguiContext)
+	{
+		imguiContext.MenuGroup("File", [pFileSystem, pEngineCore, pWindowSystem, &pManifest](IImGUIContext& imguiContext)
+		{
+			imguiContext.MenuItem("Open Resources Manifest", "CTRL+O", [pFileSystem, pWindowSystem, &pManifest]
+			{
+				if (auto manifestResult = OpenFromFile(pWindowSystem, pFileSystem))
+				{
+					pManifest = std::move(manifestResult.Get());
+				}
+			});
+
+			imguiContext.MenuItem("Save Manifest", "CTRL+S", [pFileSystem]
+			{
+				//SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableEffectId, mLastSavedPath);
+			});
+
+			imguiContext.MenuItem("Save Manifest As...", "SHIFT+CTRL+S", [pFileSystem]
+			{
+				/*if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
+				{
+					mLastSavedPath = saveFileDialogResult.Get();
+					SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableEffectId, mLastSavedPath);
+				}*/
+			});
+
+			imguiContext.MenuItem("Quit", "Ctrl+Q", [pEngineCore] { pEngineCore->Quit(); });
+		});
+	});
+}
+
+
+E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
+{
+	auto&& pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
+	auto&& pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
+	auto&& pWindowSystem = mpEngineCoreInstance->GetSubsystem<IWindowSystem>();
+
+	DrawMainMenu(mpEngineCoreInstance, pWindowSystem, pImGUIContext, pFileSystem, mpCurrOpenedResourcesManifest);
+
+	mpEditorWindow->Draw(pImGUIContext.Get(), dt);
+	mpEditorWindow->SetResourcesManifest(mpCurrOpenedResourcesManifest);
+
+	return RC_OK;
+}
+
+E_RESULT_CODE CUtilityListener::OnFree()
+{
+	return RC_OK;
+}
+
+void CUtilityListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCore)
+{
+	if (!pEngineCore)
+	{
+		return;
+	}
+
+	mpEngineCoreInstance = pEngineCore;
+
+	mpGraphicsContext = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>();
+
+	mpWindowSystem = mpEngineCoreInstance->GetSubsystem<IWindowSystem>();
+
+	mpResourceManager = mpEngineCoreInstance->GetSubsystem<IResourceManager>();
+}

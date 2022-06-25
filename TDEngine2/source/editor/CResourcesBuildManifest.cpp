@@ -223,6 +223,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourcesBuildManifest::Load(IArchiveReader* pReader)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pReader)
 		{
 			return RC_INVALID_ARGS;
@@ -250,6 +252,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourcesBuildManifest::Save(IArchiveWriter* pWriter)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pWriter)
 		{
 			return RC_INVALID_ARGS;
@@ -284,6 +288,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourcesBuildManifest::AddResourceBuildInfo(std::unique_ptr<TResourceBuildInfo> pResourceInfo)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!pResourceInfo)
 		{
 			return RC_INVALID_ARGS;
@@ -305,6 +311,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourcesBuildManifest::ForEachRegisteredResource(const std::function<bool(const TResourceBuildInfo&)>& action)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!action)
 		{
 			return RC_INVALID_ARGS;
@@ -316,6 +324,20 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CResourcesBuildManifest::SetBaseResourcesPath(const std::string& value)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mBaseFilePath = value;
+
+		return RC_OK;
+	}
+
+	const std::string& CResourcesBuildManifest::GetBaseResourcesPath() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return mBaseFilePath;
 	}
 
 

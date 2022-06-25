@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -  The basic draft implementation of a resources build manifest was added.
 
+- A new utility which is **TDE2ResourcesEd** was added.
+
 ### Changed
 
 ### Fixed

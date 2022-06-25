@@ -14,6 +14,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <mutex>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -174,12 +175,20 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE AddResourceBuildInfo(std::unique_ptr<TResourceBuildInfo> pResourceInfo);
 
 			TDE2_API E_RESULT_CODE ForEachRegisteredResource(const std::function<bool(const TResourceBuildInfo&)>& action = nullptr);
+
+			TDE2_API E_RESULT_CODE SetBaseResourcesPath(const std::string& value);
+
+			TDE2_API const std::string& GetBaseResourcesPath() const;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourcesBuildManifest)
 		private:
-			static constexpr U16    mVersionTag = 0x1;
+			mutable std::mutex                               mMutex;
+
+			static constexpr U16                             mVersionTag = 0x1;
 
 			std::vector<std::unique_ptr<TResourceBuildInfo>> mpResourcesBuildConfigs;
+
+			std::string                                      mBaseFilePath; 
 	};
 }
 

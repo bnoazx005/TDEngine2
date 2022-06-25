@@ -1,0 +1,18 @@
+meta: 
+  "resource-type": "project-settings"
+  "version-tag": 1
+
+common_settings:
+  application_id: TDE2ResourcesEditor
+  max_worker_threads_count: 4
+  total_preallocated_memory_size: 134217728
+  flags : 20 # RESIZEABLE | ZBUFFER
+
+graphics_settings:
+  renderer_plugin: ./D3D11GraphicsContext
+  renderer_settings:
+    shadow_maps_size: 1024
+    shadow_maps_enabled: true
+
+audio_settings:
+  audio_plugin: ./FmodAudioContext
