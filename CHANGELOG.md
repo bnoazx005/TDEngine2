@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Horizontal layout alignment was fixed for images and selectable items.
+
 ## [0.6.7] 2022-06-17
 
 ### Added
