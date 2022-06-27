@@ -548,7 +548,14 @@ namespace TDEngine2
 				basePostEffectsShadersPath.append(glslSubDirectory);
 				break;
 			default:
-				TDE2_UNREACHABLE();
+				if (static_cast<E_PARAMETERS>(CProjectSettings::Get()->mCommonSettings.mFlags) & E_PARAMETERS::P_WINDOWLESS_MODE)
+				{
+				}
+				else
+				{
+					TDE2_UNREACHABLE();
+				}
+
 				break;
 		}
 

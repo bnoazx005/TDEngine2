@@ -26,6 +26,8 @@ namespace TDEngine2
 
 	typedef struct TResourceBuildInfo: ISerializable
 	{
+		TDE2_REGISTER_VIRTUAL_TYPE_EX(TResourceBuildInfo, GetResourceTypeId)
+
 		TDE2_API virtual ~TResourceBuildInfo() = default;
 
 		/*!
@@ -54,6 +56,9 @@ namespace TDEngine2
 
 	typedef struct TMeshResourceBuildInfo: TResourceBuildInfo
 	{
+		TDE2_REGISTER_TYPE(TMeshResourceBuildInfo)
+		TDE2_REGISTER_VIRTUAL_TYPE_EX(TMeshResourceBuildInfo, GetResourceTypeId)
+
 		/*!
 			\brief The method deserializes object's state from given reader
 
@@ -91,6 +96,9 @@ namespace TDEngine2
 
 	typedef struct TTexture2DResourceBuildInfo : TResourceBuildInfo
 	{
+		TDE2_REGISTER_TYPE(TTexture2DResourceBuildInfo)
+		TDE2_REGISTER_VIRTUAL_TYPE_EX(TTexture2DResourceBuildInfo, GetResourceTypeId)
+
 		/*!
 			\brief The method deserializes object's state from given reader
 
@@ -111,6 +119,10 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+		E_TEXTURE_FILTER_TYPE mFilteringType = E_TEXTURE_FILTER_TYPE::FT_BILINEAR;
+		E_ADDRESS_MODE_TYPE   mAddressMode = E_ADDRESS_MODE_TYPE::AMT_CLAMP;
+
+		bool                  mGenerateMipMaps = true;
 	} TTexture2DResourceBuildInfo, *TTexture2DResourceBuildInfoPtr;
 
 
@@ -136,6 +148,8 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API CResourcesBuildManifest* CreateResourcesBuildManifest(E_RESULT_CODE&);
+		public:
+			typedef std::function<bool(const TResourceBuildInfo&)> TResourceInfoVisitFunctior;
 		public:
 			/*!
 				\brief The method initializes internal state of the object
@@ -174,13 +188,22 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE AddResourceBuildInfo(std::unique_ptr<TResourceBuildInfo> pResourceInfo);
 
-			TDE2_API E_RESULT_CODE ForEachRegisteredResource(const std::function<bool(const TResourceBuildInfo&)>& action = nullptr);
+			TDE2_API E_RESULT_CODE ForEachRegisteredResource(const TResourceInfoVisitFunctior& action = nullptr);
+
+			template <typename T>
+			E_RESULT_CODE ForEachRegisteredResource(const TResourceInfoVisitFunctior& action = nullptr)
+			{
+				std::lock_guard<std::mutex> lock(mMutex);
+				return _forEachTypedResource(T::GetTypeId(), action);
+			}
 
 			TDE2_API E_RESULT_CODE SetBaseResourcesPath(const std::string& value);
 
 			TDE2_API const std::string& GetBaseResourcesPath() const;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourcesBuildManifest)
+
+			TDE2_API E_RESULT_CODE _forEachTypedResource(TypeId resourceTypeId, const TResourceInfoVisitFunctior& action = nullptr);
 		private:
 			mutable std::mutex                               mMutex;
 

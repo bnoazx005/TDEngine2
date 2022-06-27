@@ -571,7 +571,7 @@ namespace TDEngine2
 		\brief The enumeration contains all available types of addressing modes
 	*/
 
-	enum class E_ADDRESS_MODE_TYPE
+	ENUM_META() enum class E_ADDRESS_MODE_TYPE
 	{
 		AMT_BORDER,
 		AMT_CLAMP,
@@ -594,7 +594,7 @@ namespace TDEngine2
 		\brief The enumeration contains all available types of sampler's filters
 	*/
 
-	enum class E_TEXTURE_FILTER_TYPE : U8
+	ENUM_META() enum class E_TEXTURE_FILTER_TYPE : U8
 	{
 		FT_POINT,
 		FT_BILINEAR,

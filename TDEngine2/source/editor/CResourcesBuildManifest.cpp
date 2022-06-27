@@ -1,6 +1,7 @@
 #include "../../include/editor/CResourcesBuildManifest.h"
 #include <functional>
 #include "stringUtils.hpp"
+#include "../../include/metadata.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -55,11 +56,25 @@ namespace TDEngine2
 	const std::string TMeshResourceBuildInfoArchiveKeys::TAnimationImportKeys::mEndRangeKeyId = "end_range";
 
 
+	struct TTexture2DResourceBuildInfoArchiveKeys
+	{
+		static const std::string mFilterTypeKeyId;
+		static const std::string mAddressModeKeyId;
+		static const std::string mGenerateMipMapsKeyId;
+	};
+
+
+	const std::string TTexture2DResourceBuildInfoArchiveKeys::mFilterTypeKeyId = "filter_type";
+	const std::string TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId = "address_mode";
+	const std::string TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId = "mipmaps_generation";
+
+
 	static std::unique_ptr<TResourceBuildInfo> Deserialize(IArchiveReader* pReader)
 	{
 		static const std::unordered_map<TypeId, std::function<std::unique_ptr<TResourceBuildInfo>()>> factories
 		{
 			{ TDE2_TYPE_ID(TMeshResourceBuildInfo), []() { return std::make_unique<TMeshResourceBuildInfo>(); } },
+			{ TDE2_TYPE_ID(TTexture2DResourceBuildInfo), []() { return std::make_unique<TTexture2DResourceBuildInfo>(); } },
 		};
 
 		auto it = factories.find(TypeId(pReader->GetUInt32("type_id")));
@@ -187,6 +202,10 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = TResourceBuildInfo::Load(pReader);
 
+		mFilteringType = Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::FromString(pReader->GetString(TTexture2DResourceBuildInfoArchiveKeys::mFilterTypeKeyId));
+		mAddressMode = Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::FromString(pReader->GetString(TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId));
+		mGenerateMipMaps = pReader->GetBool(TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId);
+
 		return result;
 	}
 
@@ -195,6 +214,10 @@ namespace TDEngine2
 		E_RESULT_CODE result = TResourceBuildInfo::Save(pWriter);
 
 		result = result | pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TTexture2DResourceBuildInfo)));
+
+		result = result | pWriter->SetString(TTexture2DResourceBuildInfoArchiveKeys::mFilterTypeKeyId, Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::ToString(mFilteringType));
+		result = result | pWriter->SetString(TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId, Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::ToString(mAddressMode));
+		result = result | pWriter->SetBool(TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId, mGenerateMipMaps);
 
 		return result;
 	}
@@ -320,7 +343,10 @@ namespace TDEngine2
 
 		for (auto&& pCurrResourceInfo : mpResourcesBuildConfigs)
 		{
-			action(*pCurrResourceInfo);
+			if (!action(*pCurrResourceInfo))
+			{
+				return RC_OK;
+			}
 		}
 
 		return RC_OK;
@@ -338,6 +364,29 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mBaseFilePath;
+	}
+
+	E_RESULT_CODE CResourcesBuildManifest::_forEachTypedResource(TypeId resourceTypeId, const TResourceInfoVisitFunctior& action)
+	{
+		if (!action)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		for (auto&& pCurrResourceInfo : mpResourcesBuildConfigs)
+		{
+			if (pCurrResourceInfo->GetResourceTypeId() != resourceTypeId)
+			{
+				continue;
+			}
+
+			if (!action(*pCurrResourceInfo))
+			{
+				return RC_OK;
+			}
+		}
+
+		return RC_OK;
 	}
 
 
