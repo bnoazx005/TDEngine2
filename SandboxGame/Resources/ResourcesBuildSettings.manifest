@@ -7,7 +7,7 @@ resources_collection:
         - animation_info: 
             end_range: 10
             is_looped: 1
-            output_animation_clip_path: ./Animations/TestAnim2_Idle.animation
+            output_animation_clip_path: ./Models/TestAnim2_Idle.animation
             start_range: 0
       import_tangents: 1
       is_skinned_mesh: 1
@@ -18,7 +18,7 @@ resources_collection:
         - animation_info: 
             end_range: 505
             is_looped: 1
-            output_animation_clip_path: ./Animations/TestAnim4_Idle.animation
+            output_animation_clip_path: ./Models/TestAnim4_Idle.animation
             start_range: 0
       import_tangents: 1
       is_skinned_mesh: 1
@@ -34,7 +34,7 @@ resources_collection:
         - animation_info: 
             end_range: 10
             is_looped: 1
-            output_animation_clip_path: ./Animations/TestAnim3_Idle.animation
+            output_animation_clip_path: ./Models/TestAnim3_Idle.animation
             start_range: 0
       import_tangents: 1
       is_skinned_mesh: 1

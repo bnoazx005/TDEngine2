@@ -25,8 +25,8 @@ namespace TDEngine2
 
 	constexpr const char* Usage[] =
 	{
-		"tde2_mesh_converter <input> .. <input> [options]",
-		"where <input> - single file path or directory",
+		"tde2_mesh_converter <input> .. <input> [options]\nwhere <input> - single file path or directory",
+		"\nExample:\nRun tde2_mesh_converter --resources_manifest \"path_to_manifest\" \nto run bucketed mode and convert all registered mesh files",
 		0
 	};
 
@@ -49,6 +49,7 @@ namespace TDEngine2
 		const char* pOutputDirectory = nullptr;
 		const char* pOutputFilename = nullptr;
 		const char* pAnimationsInfoFilename = nullptr;
+		const char* pResourcesManifestFilepath = nullptr;
 
 		struct argparse_option options[] = {
 			OPT_HELP(),
@@ -57,6 +58,7 @@ namespace TDEngine2
 			OPT_STRING(0, "outdir", &pOutputDirectory, "Write output into specified <dirname>"),
 			OPT_STRING('o', "output", &pOutputFilename, "Output file's name <filename>"),
 			OPT_STRING(0, "anim_import_info", &pOutputFilename, "A file which contains information about imported animations"),
+			OPT_STRING(0, "resources_manifest", &pResourcesManifestFilepath, "A path to a manifest with build configurations of resources (if resources_manifest is used the bucket mode is enabled)"),
 			OPT_BOOLEAN(0, "quiet", &suppressLogOutput, "Enables suppresion of program's output"),
 			OPT_BOOLEAN('D', "debug", &debugMode, "Enables debug output of the utility"),
 			OPT_BOOLEAN(0, "skip_normals", &skipNormals, "If defined object\'s normals will be skipped"),
@@ -90,7 +92,7 @@ namespace TDEngine2
 			}
 		}
 
-		if (utilityOptions.mInputFiles.empty())
+		if (utilityOptions.mInputFiles.empty() && !pResourcesManifestFilepath)
 		{
 			std::cerr << "Error: no input found\n";
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
@@ -111,9 +113,15 @@ namespace TDEngine2
 			utilityOptions.mAnimationImportInfoFilename = pAnimationsInfoFilename;
 		}
 
-		utilityOptions.mShouldSkipNormals  = static_cast<bool>(skipNormals);
-		utilityOptions.mShouldSkipTangents = static_cast<bool>(skipTangents);
-		utilityOptions.mShouldSkipJoints   = static_cast<bool>(skipJoints);
+		if (pResourcesManifestFilepath)
+		{
+			utilityOptions.mResourcesBuildManifestFilename = pResourcesManifestFilepath;
+		}
+
+		utilityOptions.mShouldSkipNormals   = static_cast<bool>(skipNormals);
+		utilityOptions.mShouldSkipTangents  = static_cast<bool>(skipTangents);
+		utilityOptions.mShouldSkipJoints    = static_cast<bool>(skipJoints);
+		utilityOptions.mIsBucketModeEnabled = pResourcesManifestFilepath && utilityOptions.mInputFiles.empty();
 
 		return Wrench::TOkValue<TUtilityOptions>(utilityOptions);
 	}
@@ -392,17 +400,69 @@ namespace TDEngine2
 	}
 
 	
+	static TResult<TAnimationsInfoTable> GenerateAnimationsInfoFromResourcesManifest(IEngineCore* pEngineCore, const TUtilityOptions& options)
+	{
+		auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
+
+		auto pResourcesManifest = LoadResourcesBuildManifest(pFileSystem, options.mResourcesBuildManifestFilename);
+		if (!pResourcesManifest)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FILE_NOT_FOUND);
+		}
+
+		const std::string& basePath = pResourcesManifest->GetBaseResourcesPath();
+
+		TAnimationsInfoTable infoTable;
+
+		pResourcesManifest->ForEachRegisteredResource<TMeshResourceBuildInfo>([&basePath, &infoTable, pEngineCore, pFileSystem](const TResourceBuildInfo& resourceInfo)
+		{
+			const TMeshResourceBuildInfo& meshInfo = dynamic_cast<const TMeshResourceBuildInfo&>(resourceInfo);
+			
+			std::vector<TAnimationClipInfo> importInfo;
+
+			for (auto&& animationClipInfo : meshInfo.mAnimations)
+			{
+				TAnimationClipInfo clipInfo;
+				clipInfo.mName       = pFileSystem->CombinePath(basePath, animationClipInfo.mOutputAnimationPath);
+				clipInfo.mIsLooped   = animationClipInfo.mIsLooped;
+				clipInfo.mStartFrame = animationClipInfo.mStartRange;
+				clipInfo.mEndFrame   = animationClipInfo.mEndRange;
+
+				importInfo.emplace_back(clipInfo);
+			}
+
+			infoTable.emplace(pFileSystem->CombinePath(basePath, meshInfo.mRelativePathToResource), importInfo);
+
+			return true;
+		});
+
+		return Wrench::TOkValue<TAnimationsInfoTable>(infoTable);
+	}
+
+
+	static TResult<TAnimationsInfoTable> ReadAnimationsInfoTable(IEngineCore* pEngineCore, const TUtilityOptions& options)
+	{
+		if (options.mIsBucketModeEnabled)
+		{
+			return GenerateAnimationsInfoFromResourcesManifest(pEngineCore, options);
+		}
+
+		return ReadAnimationsInfoTable(pEngineCore, options.mAnimationImportInfoFilename);
+	}
+
+
+
 	static E_RESULT_CODE ReadAnimationsData(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options, const aiScene* pScene) TDE2_NOEXCEPT
 	{
 		auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
 
-		auto fileImportInfoDataResult = ReadAnimationsInfoTable(pEngineCore, options.mAnimationImportInfoFilename);
-		if (fileImportInfoDataResult.HasError())
+		auto animationsInfoTableResult = ReadAnimationsInfoTable(pEngineCore, options);
+		if (animationsInfoTableResult.HasError())
 		{
-			return fileImportInfoDataResult.GetError();
+			return animationsInfoTableResult.GetError();
 		}
 
-		TAnimationsInfoTable animationsInfo = fileImportInfoDataResult.Get();
+		TAnimationsInfoTable animationsInfo = animationsInfoTableResult.Get();
 
 		const aiAnimation* pCurrAnimation = nullptr;
 		const aiNodeAnim* pCurrChannel = nullptr;
@@ -939,7 +999,7 @@ namespace TDEngine2
 
 		auto&& originalPath = fs::path(filePath);
 
-		if (RC_OK != (result = SaveMeshFile(pEngineCore, pScene, std::move(meshes), originalPath.parent_path().string() + originalPath.filename().replace_extension("mesh").string(), updatedOptions)))
+		if (RC_OK != (result = SaveMeshFile(pEngineCore, pScene, std::move(meshes), (originalPath.parent_path() / originalPath.filename().replace_extension("mesh")).string(), updatedOptions)))
 		{
 			return result;
 		}
@@ -948,10 +1008,48 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE ProcessMeshFilesWithResourcesManifest(IEngineCore* pEngineCore, const std::string& resourcesManifestFilepath) TDE2_NOEXCEPT
+	{
+		auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
+
+		auto pResourcesManifest = LoadResourcesBuildManifest(pFileSystem, resourcesManifestFilepath);
+		if (!pResourcesManifest)
+		{
+			return RC_FILE_NOT_FOUND;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		const std::string& basePath = pResourcesManifest->GetBaseResourcesPath();
+
+		pResourcesManifest->ForEachRegisteredResource<TMeshResourceBuildInfo>([&result, &basePath, pEngineCore, pFileSystem, &resourcesManifestFilepath](const TResourceBuildInfo& resourceInfo)
+		{
+			const TMeshResourceBuildInfo& meshInfo = dynamic_cast<const TMeshResourceBuildInfo&>(resourceInfo);
+
+			TUtilityOptions options;
+			options.mResourcesBuildManifestFilename = resourcesManifestFilepath;
+			options.mShouldSkipNormals   = !meshInfo.mImportTangents;
+			options.mShouldSkipTangents  = !meshInfo.mImportTangents;
+			options.mShouldSkipJoints    = !meshInfo.mIsSkinned;
+			options.mIsBucketModeEnabled = true;
+
+			result = result | ProcessSingleMeshFile(pEngineCore, pFileSystem->CombinePath(basePath, resourceInfo.mRelativePathToResource), options);
+			return true;
+		});
+
+		return result;
+	}
+
+
 	E_RESULT_CODE ProcessMeshFiles(IEngineCore* pEngineCore, std::vector<std::string>&& files, const TUtilityOptions& options) TDE2_NOEXCEPT
 	{
 		if (files.empty())
 		{
+			if (options.mIsBucketModeEnabled)
+			{
+				return ProcessMeshFilesWithResourcesManifest(pEngineCore, options.mResourcesBuildManifestFilename);
+			}
+
 			return RC_INVALID_ARGS;
 		}
 

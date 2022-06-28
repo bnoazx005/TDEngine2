@@ -22,6 +22,10 @@
 namespace TDEngine2
 {
 	class CResourcesBuildManifest;
+	class IFileSystem;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
 
 
 	typedef struct TResourceBuildInfo: ISerializable
@@ -135,6 +139,9 @@ namespace TDEngine2
 	*/
 
 	TDE2_API CResourcesBuildManifest* CreateResourcesBuildManifest(E_RESULT_CODE& result);
+
+
+	TDE2_API TPtr<CResourcesBuildManifest> LoadResourcesBuildManifest(TPtr<IFileSystem> pFileSystem, const std::string& path);
 
 
 	/*!

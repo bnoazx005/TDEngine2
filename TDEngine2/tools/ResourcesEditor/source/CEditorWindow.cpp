@@ -85,7 +85,10 @@ namespace TDEngine2
 					return;
 				}
 
+				pImGUIContext->BeginHorizontal();
+				pImGUIContext->Image(TResourceId::Invalid, TVector2(15.0f));
 				pImGUIContext->SelectableItem(currItemId);
+				pImGUIContext->EndHorizontal();
 			};
 
 			for (auto& currDirectory : fs::directory_iterator(baseResourcesPath))

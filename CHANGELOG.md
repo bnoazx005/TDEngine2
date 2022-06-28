@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **tde2_mesh_converter** now supports batched conversion based on resources manifest's information.
+
 ### Fixed
 
 - Horizontal layout alignment was fixed for images and selectable items.

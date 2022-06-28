@@ -1,7 +1,17 @@
 #include "../../include/editor/CResourcesBuildManifest.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IFile.h"
 #include <functional>
 #include "stringUtils.hpp"
 #include "../../include/metadata.h"
+
+#if _HAS_CXX17
+#include <filesystem>
+namespace fs = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#endif
 
 
 #if TDE2_EDITORS_ENABLED
@@ -393,6 +403,36 @@ namespace TDEngine2
 	TDE2_API CResourcesBuildManifest* CreateResourcesBuildManifest(E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(CResourcesBuildManifest, CResourcesBuildManifest, result);
+	}
+
+
+	TDE2_API TPtr<CResourcesBuildManifest> LoadResourcesBuildManifest(TPtr<IFileSystem> pFileSystem, const std::string& path)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<CResourcesBuildManifest> pResourcesManifest = TPtr<CResourcesBuildManifest>(CreateResourcesBuildManifest(result));
+		TDE2_ASSERT(RC_OK == result);
+
+		if (pResourcesManifest)
+		{
+			auto openFileResult = pFileSystem->Open<IYAMLFileReader>(path);
+			if (openFileResult.HasError())
+			{
+				return nullptr;
+			}
+
+			if (auto pArchiveReader = pFileSystem->Get<IYAMLFileReader>(openFileResult.Get()))
+			{
+				result = pResourcesManifest->Load(pArchiveReader);
+				TDE2_ASSERT(RC_OK == result);
+
+				pResourcesManifest->SetBaseResourcesPath(fs::path(path).parent_path().string());
+
+				pArchiveReader->Close();
+			}
+		}
+
+		return pResourcesManifest;
 	}
 }
 
