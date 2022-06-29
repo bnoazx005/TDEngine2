@@ -62,4 +62,6 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::CScopedPtr<TDEngine2::CEditorWindow> mpEditorWindow;
 
 		TDEngine2::TPtr<TDEngine2::CResourcesBuildManifest> mpCurrOpenedResourcesManifest;
+
+		std::string mLastSavedPath;
 };

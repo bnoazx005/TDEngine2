@@ -30,7 +30,7 @@ const std::vector<std::tuple<std::string, std::string>> FileExtensionsFilter
 };
 
 
-static TResult<TPtr<CResourcesBuildManifest>> OpenFromFile(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem)
+static TResult<TPtr<CResourcesBuildManifest>> OpenFromFile(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, std::string& filePath)
 {
 	if (!pWindowSystem || !pFileSystem)
 	{
@@ -50,7 +50,9 @@ static TResult<TPtr<CResourcesBuildManifest>> OpenFromFile(TPtr<IWindowSystem> p
 
 	if (pResourcesManifest)
 	{
-		auto openFileResult = pFileSystem->Open<IYAMLFileReader>(filePathResult.Get());
+		filePath = filePathResult.Get();
+
+		auto openFileResult = pFileSystem->Open<IYAMLFileReader>(filePath);
 		if (openFileResult.HasError())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(openFileResult.GetError());
@@ -59,39 +61,68 @@ static TResult<TPtr<CResourcesBuildManifest>> OpenFromFile(TPtr<IWindowSystem> p
 		result = pResourcesManifest->Load(pFileSystem->Get<IYAMLFileReader>(openFileResult.Get()));
 		TDE2_ASSERT(RC_OK == result);
 
-		pResourcesManifest->SetBaseResourcesPath(fs::path(filePathResult.Get()).parent_path().string());
+		pResourcesManifest->SetBaseResourcesPath(fs::path(filePath).parent_path().string());
 	}
 
 	return Wrench::TOkValue<TPtr<CResourcesBuildManifest>>(pResourcesManifest);
 }
 
 
-static void DrawMainMenu(IEngineCore* pEngineCore, TPtr<IWindowSystem> pWindowSystem, TPtr<IImGUIContext> pImGUIContext, TPtr<IFileSystem> pFileSystem, TPtr<CResourcesBuildManifest>& pManifest)
+static E_RESULT_CODE SaveToFile(TPtr<IFileSystem> pFileSystem, const TPtr<CResourcesBuildManifest>& pResourcesManifest, const std::string& destFilePath)
 {
-	pImGUIContext->DisplayMainMenu([pFileSystem, pEngineCore, pWindowSystem, &pManifest](IImGUIContext& imguiContext)
+	if (destFilePath.empty() || !pFileSystem || !pResourcesManifest)
 	{
-		imguiContext.MenuGroup("File", [pFileSystem, pEngineCore, pWindowSystem, &pManifest](IImGUIContext& imguiContext)
+		return RC_INVALID_ARGS;
+	}
+
+	E_RESULT_CODE result = RC_OK;
+
+	if (auto openFileResult = pFileSystem->Open<IYAMLFileWriter>(destFilePath, true))
+	{
+		if (auto pFileWriter = pFileSystem->Get<IYAMLFileWriter>(openFileResult.Get()))
 		{
-			imguiContext.MenuItem("Open Resources Manifest", "CTRL+O", [pFileSystem, pWindowSystem, &pManifest]
+			if (RC_OK != (result = pResourcesManifest->Save(pFileWriter)))
 			{
-				if (auto manifestResult = OpenFromFile(pWindowSystem, pFileSystem))
+				return result;
+			}
+
+			if (RC_OK != (result = pFileWriter->Close()))
+			{
+				return result;
+			}
+		}
+	}
+
+	return RC_OK;
+}
+
+
+static void DrawMainMenu(IEngineCore* pEngineCore, TPtr<IWindowSystem> pWindowSystem, TPtr<IImGUIContext> pImGUIContext, TPtr<IFileSystem> pFileSystem, TPtr<CResourcesBuildManifest>& pManifest, std::string& outputSavePath)
+{
+	pImGUIContext->DisplayMainMenu([pFileSystem, pEngineCore, pWindowSystem, &pManifest, &outputSavePath](IImGUIContext& imguiContext)
+	{
+		imguiContext.MenuGroup("File", [pFileSystem, pEngineCore, pWindowSystem, &pManifest, &outputSavePath](IImGUIContext& imguiContext)
+		{
+			imguiContext.MenuItem("Open Resources Manifest", "CTRL+O", [pFileSystem, pWindowSystem, &pManifest, &outputSavePath]
+			{
+				if (auto manifestResult = OpenFromFile(pWindowSystem, pFileSystem, outputSavePath))
 				{
 					pManifest = std::move(manifestResult.Get());
 				}
 			});
 
-			imguiContext.MenuItem("Save Manifest", "CTRL+S", [pFileSystem]
+			imguiContext.MenuItem("Save Manifest", "CTRL+S", [pFileSystem, &pManifest, &outputSavePath]
 			{
-				//SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableEffectId, mLastSavedPath);
+				SaveToFile(pFileSystem, pManifest, outputSavePath);
 			});
 
-			imguiContext.MenuItem("Save Manifest As...", "SHIFT+CTRL+S", [pFileSystem]
+			imguiContext.MenuItem("Save Manifest As...", "SHIFT+CTRL+S", [pWindowSystem, pFileSystem, &pManifest, &outputSavePath]
 			{
-				/*if (auto saveFileDialogResult = mpWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
+				if (auto saveFileDialogResult = pWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
 				{
-					mLastSavedPath = saveFileDialogResult.Get();
-					SaveToFile(pFileSystem, mpResourceManager.Get(), mCurrEditableEffectId, mLastSavedPath);
-				}*/
+					outputSavePath = saveFileDialogResult.Get();
+					SaveToFile(pFileSystem, pManifest, outputSavePath);
+				}
 			});
 
 			imguiContext.MenuItem("Quit", "Ctrl+Q", [pEngineCore] { pEngineCore->Quit(); });
@@ -106,7 +137,7 @@ E_RESULT_CODE CUtilityListener::OnUpdate(const float& dt)
 	auto&& pFileSystem = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
 	auto&& pWindowSystem = mpEngineCoreInstance->GetSubsystem<IWindowSystem>();
 
-	DrawMainMenu(mpEngineCoreInstance, pWindowSystem, pImGUIContext, pFileSystem, mpCurrOpenedResourcesManifest);
+	DrawMainMenu(mpEngineCoreInstance, pWindowSystem, pImGUIContext, pFileSystem, mpCurrOpenedResourcesManifest, mLastSavedPath);
 
 	mpEditorWindow->Draw(pImGUIContext.Get(), dt);
 	mpEditorWindow->SetResourcesManifest(mpCurrOpenedResourcesManifest);
