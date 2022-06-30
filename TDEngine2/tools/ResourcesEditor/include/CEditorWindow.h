@@ -64,5 +64,7 @@ namespace TDEngine2
 			IDesktopInputContext*         mpInputContext;
 			IWindowSystem*                mpWindowSystem;
 			TPtr<CResourcesBuildManifest> mpResourcesManifest;
+
+			TResourceId                   mIconsTextureHandle = TResourceId::Invalid;
 	};
 }

@@ -793,7 +793,10 @@ namespace TDEngine2
 
 	std::tuple<bool, bool> CImGUIContext::BeginTreeNode(const std::string& id, bool isSelected)
 	{
-		return { ImGui::TreeNodeEx(id.c_str(), isSelected ? ImGuiTreeNodeFlags_Selected : 0x0), ImGui::IsItemClicked() };
+		auto&& result = std::tuple<bool, bool>{ ImGui::TreeNodeEx(id.c_str(), isSelected ? ImGuiTreeNodeFlags_Selected : 0x0), ImGui::IsItemClicked() };
+		_prepareLayout();
+
+		return result;
 	}
 
 	void CImGUIContext::EndTreeNode()

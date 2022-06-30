@@ -35,6 +35,8 @@ namespace TDEngine2
 		mpInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext);
 		mpWindowSystem = pWindowSystem;
 
+		mIconsTextureHandle = pResourceManager->Load<ITexture2D>("Resources/Editor/icons.png");
+
 		mIsInitialized = true;
 		mIsVisible = true;
 
@@ -47,8 +49,44 @@ namespace TDEngine2
 	}
 
 
-	static void DrawResourcesBrowserPanel(TPtr<CResourcesBuildManifest>& pResourcesManifest, IWindowSystem* pWindowSystem, IImGUIContext* pImGUIContext, bool isEnabled)
+	enum class E_PAYLOAD_TYPE : U8
 	{
+		UNKNOWN_RESOURCE,
+		REGISTERED_RESOURCE,
+		DIRECTORY
+	};
+
+
+	static const std::string DRAG_DROP_ITEM_PATH = "drag_drop_resource_path";
+	static const std::string DRAG_DROP_ITEM_TYPE = "drag_drop_payload_type";
+
+
+	struct TDrawResourcesBrowserParams
+	{
+		TPtr<CResourcesBuildManifest> mpResourcesManifest;
+		IWindowSystem*                mpWindowSystem;
+		IImGUIContext*                mpImGUIContext;
+		bool                          mIsEnabled;
+		TResourceId                   mIconsTextureAtlasHandle;
+	};
+
+
+	static const std::unordered_map<E_PAYLOAD_TYPE, TRectF32> ResourceTypeIcons
+	{
+		{ E_PAYLOAD_TYPE::DIRECTORY, TRectF32(0.66f, 0.0f, 1.0f, 1.0f) },
+		{ E_PAYLOAD_TYPE::REGISTERED_RESOURCE, TRectF32(0.33f, 0.0f, 0.66f, 1.0f) },
+		{ E_PAYLOAD_TYPE::UNKNOWN_RESOURCE, TRectF32(0.0f, 0.0f, 0.33f, 1.0f) },
+	};
+
+	static constexpr F32 IconsSizes = 15.0f;
+
+
+	static void DrawResourcesBrowserPanel(const TDrawResourcesBrowserParams& panelParams)
+	{
+		auto pImGUIContext = panelParams.mpImGUIContext;
+		auto pWindowSystem = panelParams.mpWindowSystem;
+		auto&& pResourcesManifest = panelParams.mpResourcesManifest;
+
 		const IImGUIContext::TWindowParams params
 		{
 			ZeroVector2,
@@ -58,6 +96,8 @@ namespace TDEngine2
 
 		const std::string& baseResourcesPath = pResourcesManifest ? pResourcesManifest->GetBaseResourcesPath() : Wrench::StringUtils::GetEmptyStr();
 
+		bool isEnabled = panelParams.mIsEnabled;
+
 		if (pImGUIContext->BeginWindow("Resources Hierarchy", isEnabled, params))
 		{
 			if (baseResourcesPath.empty())
@@ -66,14 +106,19 @@ namespace TDEngine2
 				return;
 			}
 
-			std::function<void(const fs::path&)> displayPathElement = [&displayPathElement, &baseResourcesPath, pImGUIContext, &pResourcesManifest](const fs::path& currPath)
+			std::function<void(const fs::path&)> displayPathElement = [&displayPathElement, &baseResourcesPath, pImGUIContext, &pResourcesManifest, iconsHandle = panelParams.mIconsTextureAtlasHandle](const fs::path& currPath)
 			{
 				std::string currItemId = currPath.filename().string();
 
 				if (fs::is_directory(currPath))
 				{
-					if (std::get<0>(pImGUIContext->BeginTreeNode(currItemId)))
-					{
+					pImGUIContext->BeginHorizontal();
+					pImGUIContext->Image(iconsHandle, TVector2(IconsSizes), ResourceTypeIcons.at(E_PAYLOAD_TYPE::DIRECTORY));
+					const bool isDirectoryUnwrapped = std::get<0>(pImGUIContext->BeginTreeNode(currItemId));
+					pImGUIContext->EndHorizontal();
+
+					if (isDirectoryUnwrapped)
+					{						
 						for (auto& currDirectory : fs::directory_iterator(currPath))
 						{
 							displayPathElement(currDirectory);
@@ -82,13 +127,41 @@ namespace TDEngine2
 						pImGUIContext->EndTreeNode();
 					}
 
+					pImGUIContext->RegisterDragAndDropTarget([pImGUIContext]
+					{
+						const C8* pResourcePath = pImGUIContext->GetDragAndDropData<C8>(DRAG_DROP_ITEM_PATH);
+						const E_PAYLOAD_TYPE* pPayloadType = pImGUIContext->GetDragAndDropData<E_PAYLOAD_TYPE>(DRAG_DROP_ITEM_TYPE);
+						
+						if (!pResourcePath || !pPayloadType)
+						{
+							return;
+						}
+
+						switch (*pPayloadType)
+						{
+							case E_PAYLOAD_TYPE::REGISTERED_RESOURCE:
+							case E_PAYLOAD_TYPE::UNKNOWN_RESOURCE:
+								break;
+							case E_PAYLOAD_TYPE::DIRECTORY:
+								break;
+						}
+					});
+
 					return;
 				}
 
 				pImGUIContext->BeginHorizontal();
-				pImGUIContext->Image(TResourceId::Invalid, TVector2(15.0f));
+				pImGUIContext->Image(iconsHandle, TVector2(IconsSizes), ResourceTypeIcons.at(E_PAYLOAD_TYPE::UNKNOWN_RESOURCE));
 				pImGUIContext->SelectableItem(currItemId);
 				pImGUIContext->EndHorizontal();
+
+				pImGUIContext->RegisterDragAndDropSource([pImGUIContext, currItemId, fullPathStr = currPath.string()]
+				{
+					pImGUIContext->SetDragAndDropData(DRAG_DROP_ITEM_PATH, fullPathStr);
+					pImGUIContext->SetDragAndDropData(DRAG_DROP_ITEM_TYPE, E_PAYLOAD_TYPE::UNKNOWN_RESOURCE);
+
+					pImGUIContext->Label(currItemId);
+				});
 			};
 
 			for (auto& currDirectory : fs::directory_iterator(baseResourcesPath))
@@ -105,7 +178,7 @@ namespace TDEngine2
 	{
 		bool isEnabled = mIsVisible;
 
-		DrawResourcesBrowserPanel(mpResourcesManifest, mpWindowSystem, mpImGUIContext, mIsVisible);
+		DrawResourcesBrowserPanel({ mpResourcesManifest, mpWindowSystem, mpImGUIContext, mIsVisible, mIconsTextureHandle });
 
 		mIsVisible = isEnabled;
 	}
