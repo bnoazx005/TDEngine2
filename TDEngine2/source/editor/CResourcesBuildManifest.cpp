@@ -2,6 +2,7 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IFile.h"
 #include <functional>
+#include <algorithm>
 #include "stringUtils.hpp"
 #include "../../include/metadata.h"
 
@@ -342,6 +343,29 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CResourcesBuildManifest::RemoveResourceBuildInfo(const std::string& relativePath)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		auto it = std::find_if(mpResourcesBuildConfigs.begin(), mpResourcesBuildConfigs.end(), [&relativePath](auto&& entity) { return entity->mRelativePathToResource == relativePath; });
+		if (it == mpResourcesBuildConfigs.end())
+		{
+			return RC_FAIL;
+		}
+
+		mpResourcesBuildConfigs.erase(it);
+
+		return RC_OK;
+	}
+
+	TResourceBuildInfo* CResourcesBuildManifest::FindResourceBuildInfo(const std::string& relativePath)
+	{
+		const std::string path = Wrench::StringUtils::ReplaceAll(relativePath, mBaseFilePath, ".");
+
+		auto&& it = std::find_if(mpResourcesBuildConfigs.begin(), mpResourcesBuildConfigs.end(), [&path](auto&& pInfo) { return fs::path(pInfo->mRelativePathToResource).string() == path; });
+		return it == mpResourcesBuildConfigs.end() ? nullptr : it->get();
+	}
+
 	E_RESULT_CODE CResourcesBuildManifest::ForEachRegisteredResource(const std::function<bool(const TResourceBuildInfo&)>& action)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -433,6 +457,30 @@ namespace TDEngine2
 		}
 
 		return pResourcesManifest;
+	}
+
+
+	TDE2_API std::unique_ptr<TResourceBuildInfo> CreateResourceBuildInfoForFilePath(const std::string& path)
+	{
+		std::string resourceFileExtension;
+		std::transform(path.cbegin(), path.cend(), std::back_inserter(resourceFileExtension), [](auto&& ch) { return std::tolower(ch); });
+
+		if (Wrench::StringUtils::EndsWith(resourceFileExtension, "fbx") ||
+			Wrench::StringUtils::EndsWith(resourceFileExtension, "obj") || 
+			Wrench::StringUtils::EndsWith(resourceFileExtension, "dae"))
+		{
+			return std::make_unique<TMeshResourceBuildInfo>();
+		}
+
+		if (Wrench::StringUtils::EndsWith(resourceFileExtension, "png") ||
+			Wrench::StringUtils::EndsWith(resourceFileExtension, "jpg") ||
+			Wrench::StringUtils::EndsWith(resourceFileExtension, "tga"))
+		{
+			return std::make_unique<TTexture2DResourceBuildInfo>();
+		}
+
+		TDE2_UNREACHABLE();
+		return nullptr;
 	}
 }
 

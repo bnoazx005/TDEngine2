@@ -195,6 +195,18 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE AddResourceBuildInfo(std::unique_ptr<TResourceBuildInfo> pResourceInfo);
 
+			/*!
+				\brief The method unregisters resource and removes its information from the manifest
+
+				\param[in] relativePath Exact relative path to the resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RemoveResourceBuildInfo(const std::string& relativePath);
+
+			TDE2_API TResourceBuildInfo* FindResourceBuildInfo(const std::string& relativePath);
+			
 			TDE2_API E_RESULT_CODE ForEachRegisteredResource(const TResourceInfoVisitFunctior& action = nullptr);
 
 			template <typename T>
@@ -220,6 +232,13 @@ namespace TDEngine2
 
 			std::string                                      mBaseFilePath; 
 	};
+
+
+	/*!
+		\brief The function is used to create concrete type of an information's entity based on file's extension
+	*/
+
+	TDE2_API std::unique_ptr<TResourceBuildInfo> CreateResourceBuildInfoForFilePath(const std::string& path);
 }
 
 #endif

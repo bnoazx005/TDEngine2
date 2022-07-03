@@ -22,7 +22,7 @@ resources_collection:
             start_range: 0
       import_tangents: 1
       is_skinned_mesh: 1
-      path: ./Models/TestAnim4.FBX
+      path: ./Models/TestAnim4.fbx
       type_id: 3247291626
   - resource_info: 
       import_tangents: 1
