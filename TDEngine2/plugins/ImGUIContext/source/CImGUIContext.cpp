@@ -791,6 +791,15 @@ namespace TDEngine2
 		return result;
 	}
 
+	bool CImGUIContext::SelectableItem(const std::string& id, const TColor32F& color, bool isSelected, bool shouldClosePopup)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, color.a));
+		const bool result = SelectableItem(id, isSelected, shouldClosePopup);
+		ImGui::PopStyleColor();
+
+		return result;
+	}
+
 	std::tuple<bool, bool> CImGUIContext::BeginTreeNode(const std::string& id, bool isSelected)
 	{
 		auto&& result = std::tuple<bool, bool>{ ImGui::TreeNodeEx(id.c_str(), isSelected ? ImGuiTreeNodeFlags_Selected : 0x0), ImGui::IsItemClicked() };

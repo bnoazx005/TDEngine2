@@ -414,6 +414,8 @@ namespace TDEngine2
 
 			TDE2_API bool SelectableItem(const std::string& id, bool isSelected, bool shouldClosePopup) override;
 
+			TDE2_API bool SelectableItem(const std::string& id, const TColor32F& color, bool isSelected = false, bool shouldClosePopup = true) override;
+
 			/*!
 				\brief The method display tree's element. Always should be called in pair with EndTreeNode at end
 
