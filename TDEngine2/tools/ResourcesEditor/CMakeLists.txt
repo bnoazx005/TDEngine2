@@ -18,11 +18,13 @@ set(TDE2_RES_EDITOR_UTILITY_NAME "TDE2ResourcesEd")
 set(UTILITY_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CUtilityListener.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CEditorWindow.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CResourceInfoSelectionManager.h"
 	)
 
 set(UTILITY_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CUtilityListener.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CEditorWindow.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CResourceInfoSelectionManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp"
 	)
 

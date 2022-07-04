@@ -2,6 +2,8 @@
 #include <tuple>
 #include <vector>
 #include <string>
+#define DEFER_IMPLEMENTATION
+#include "deferOperation.hpp"
 
 #if _HAS_CXX17
 #include <filesystem>
@@ -37,6 +39,9 @@ namespace TDEngine2
 
 		mIconsTextureHandle = pResourceManager->Load<ITexture2D>("Resources/Editor/icons.png");
 
+		mpSelectionManager = std::make_unique<CResourceInfoSelectionManager>();
+		TDE2_ASSERT(mpSelectionManager);
+
 		mIsInitialized = true;
 		mIsVisible = true;
 
@@ -63,11 +68,13 @@ namespace TDEngine2
 
 	struct TDrawResourcesBrowserParams
 	{
-		TPtr<CResourcesBuildManifest> mpResourcesManifest;
-		IWindowSystem*                mpWindowSystem;
-		IImGUIContext*                mpImGUIContext;
-		bool                          mIsEnabled;
-		TResourceId                   mIconsTextureAtlasHandle;
+		TPtr<CResourcesBuildManifest>  mpResourcesManifest;
+		IWindowSystem*                 mpWindowSystem;
+		IImGUIContext*                 mpImGUIContext;
+		CResourceInfoSelectionManager* mpSelectionManager;
+		IDesktopInputContext*          mpInputContext;
+		bool                           mIsEnabled;
+		TResourceId                    mIconsTextureAtlasHandle;
 	};
 
 
@@ -113,7 +120,7 @@ namespace TDEngine2
 				});
 			}
 
-			imgui.MenuItem("Delete", Wrench::StringUtils::GetEmptyStr(), [&id]
+			imgui.MenuItem("Delete", Wrench::StringUtils::GetEmptyStr(), [&id, &pResourcesManifest]
 			{
 				/// TODO
 			});
@@ -134,9 +141,11 @@ namespace TDEngine2
 
 	static void DrawResourcesBrowserPanel(const TDrawResourcesBrowserParams& panelParams)
 	{
-		auto pImGUIContext = panelParams.mpImGUIContext;
-		auto pWindowSystem = panelParams.mpWindowSystem;
+		auto pImGUIContext        = panelParams.mpImGUIContext;
+		auto pWindowSystem        = panelParams.mpWindowSystem;
 		auto&& pResourcesManifest = panelParams.mpResourcesManifest;
+		auto pSelectionManager    = panelParams.mpSelectionManager;
+		auto pInputContext        = panelParams.mpInputContext;
 
 		const IImGUIContext::TWindowParams params
 		{
@@ -149,24 +158,39 @@ namespace TDEngine2
 
 		bool isEnabled = panelParams.mIsEnabled;
 
+		defer([pImGUIContext] { pImGUIContext->EndWindow(); });
+
 		if (pImGUIContext->BeginWindow("Resources Hierarchy", isEnabled, params))
 		{
 			if (baseResourcesPath.empty())
 			{
-				pImGUIContext->EndWindow();
 				return;
 			}
 
-			std::function<void(const fs::path&)> displayPathElement = [&displayPathElement, &baseResourcesPath, pImGUIContext, &pResourcesManifest, iconsHandle = panelParams.mIconsTextureAtlasHandle](const fs::path& currPath)
+			std::function<void(const fs::path&)> displayPathElement = [=, &displayPathElement, &baseResourcesPath, &pResourcesManifest, iconsHandle = panelParams.mIconsTextureAtlasHandle](const fs::path& currPath)
 			{
 				std::string currItemId = currPath.filename().string();
 
 				if (fs::is_directory(currPath))
 				{
+					bool isDirectoryUnwrapped, isDirectorySelected;
+
 					pImGUIContext->BeginHorizontal();
 					pImGUIContext->Image(iconsHandle, TVector2(IconsSizes), ResourceTypeIcons.at(E_PAYLOAD_TYPE::DIRECTORY));
-					const bool isDirectoryUnwrapped = std::get<0>(pImGUIContext->BeginTreeNode(currItemId));
+					std::tie(isDirectoryUnwrapped, isDirectorySelected) = pImGUIContext->BeginTreeNode(currItemId, pSelectionManager->IsSelected(currPath.string()));
 					pImGUIContext->EndHorizontal();
+
+					if (isDirectorySelected)
+					{
+						if (pInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
+						{
+							pSelectionManager->AddSelection(currPath.string());
+						}
+						else
+						{
+							pSelectionManager->SetSelection(currPath.string());
+						}
+					}
 
 					if (isDirectoryUnwrapped)
 					{						
@@ -206,7 +230,21 @@ namespace TDEngine2
 
 				pImGUIContext->BeginHorizontal();
 				pImGUIContext->Image(iconsHandle, TVector2(IconsSizes), ResourceTypeIcons.at(resourceType));
-				pImGUIContext->SelectableItem(currItemId, E_PAYLOAD_TYPE::REGISTERED_RESOURCE == resourceType ? TColorUtils::mGreen : TColorUtils::mWhite);
+				
+				if (pImGUIContext->SelectableItem(currItemId, 
+												E_PAYLOAD_TYPE::REGISTERED_RESOURCE == resourceType ? TColorUtils::mGreen : TColorUtils::mWhite, 
+												pSelectionManager->IsSelected(currPath.string())))
+				{
+					if (pInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
+					{
+						pSelectionManager->AddSelection(currPath.string());
+					}
+					else
+					{
+						pSelectionManager->SetSelection(currPath.string());
+					}
+				}
+				
 				pImGUIContext->EndHorizontal();
 
 				DrawResourceContextMenu(currPath.string(), pImGUIContext, pResourcesManifest, pResourceInfo);
@@ -225,16 +263,98 @@ namespace TDEngine2
 				displayPathElement(currDirectory);				
 			}
 		}
-
-		pImGUIContext->EndWindow();
 	}
+
+
+	static void DrawMeshResourceInfoInspector(IImGUIContext& imgui, TResourceBuildInfo* pResourceInfo)
+	{
+		TMeshResourceBuildInfo* pMeshInfo = dynamic_cast<TMeshResourceBuildInfo*>(pResourceInfo);
+		if (!pMeshInfo)
+		{
+			return;
+		}
+
+		imgui.Label("MESH INFO");
+	}
+
+
+	static void DrawTexture2DResourceInfoInspector(IImGUIContext& imgui, TResourceBuildInfo* pResourceInfo)
+	{
+		TTexture2DResourceBuildInfo* pTex2DInfo = dynamic_cast<TTexture2DResourceBuildInfo*>(pResourceInfo);
+		if (!pTex2DInfo)
+		{
+			return;
+		}
+
+		imgui.Label("TEX2D INFO");
+	}
+
+
+	struct TDrawResourceInspectorParams
+	{
+		TResourceBuildInfo* mpCurrEditingResource;
+		IWindowSystem*      mpWindowSystem;
+		IImGUIContext*      mpImGUIContext;
+		bool                mIsEnabled;
+	};
+
+
+	static void DrawResourceInspectorPanel(const TDrawResourceInspectorParams& panelParams)
+	{
+		auto pImGUIContext = panelParams.mpImGUIContext;
+		auto pWindowSystem = panelParams.mpWindowSystem;
+
+		const IImGUIContext::TWindowParams params
+		{
+			ZeroVector2,
+			TVector2(400.0f, 400.0f),
+			TVector2(pWindowSystem->GetWidth() * 0.6f, static_cast<F32>(pWindowSystem->GetHeight())),
+		};
+
+		bool isEnabled = panelParams.mIsEnabled;
+
+		static const std::unordered_map<TypeId, std::function<void(IImGUIContext&, TResourceBuildInfo*)>> inspectorDrawersTable
+		{
+			{ TDE2_TYPE_ID(TMeshResourceBuildInfo), DrawMeshResourceInfoInspector },
+			{ TDE2_TYPE_ID(TTexture2DResourceBuildInfo), DrawTexture2DResourceInfoInspector },
+		};
+
+		defer([pImGUIContext] { pImGUIContext->EndWindow(); });
+
+		if (pImGUIContext->BeginWindow("Resource Inspector", isEnabled, params))
+		{
+			auto pResourceInfo = panelParams.mpCurrEditingResource;
+			if (!pResourceInfo)
+			{
+				return;
+			}
+
+			auto drawerIt = inspectorDrawersTable.find(pResourceInfo->GetResourceTypeId());
+			if (drawerIt == inspectorDrawersTable.cend())
+			{
+				return;
+			}
+
+			(drawerIt->second)(*pImGUIContext, pResourceInfo);
+		}
+	};
 
 
 	void CEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
 
-		DrawResourcesBrowserPanel({ mpResourcesManifest, mpWindowSystem, mpImGUIContext, mIsVisible, mIconsTextureHandle });
+		DrawResourcesBrowserPanel({ mpResourcesManifest, mpWindowSystem, mpImGUIContext, mpSelectionManager.get(), mpInputContext, mIsVisible, mIconsTextureHandle });
+		
+		auto&& selectedElements = mpSelectionManager->GetSelectedEntities();
+
+		DrawResourceInspectorPanel(
+			{ 
+				selectedElements.size() > 1 ? nullptr : mpResourcesManifest->FindResourceBuildInfo(selectedElements.front()), 
+				mpWindowSystem, 
+				mpImGUIContext, 
+				mIsVisible
+			});
 
 		mIsVisible = isEnabled;
 	}

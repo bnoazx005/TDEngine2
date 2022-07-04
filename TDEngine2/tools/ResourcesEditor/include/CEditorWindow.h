@@ -10,6 +10,7 @@
 #include <TDEngine2.h>
 #include <string>
 #include <vector>
+#include "../include/CResourceInfoSelectionManager.h"
 
 
 namespace TDEngine2
@@ -60,11 +61,13 @@ namespace TDEngine2
 			TDE2_API void _onDraw() override;
 
 		protected:
-			IResourceManager*             mpResourceManager;
-			IDesktopInputContext*         mpInputContext;
-			IWindowSystem*                mpWindowSystem;
-			TPtr<CResourcesBuildManifest> mpResourcesManifest;
+			IResourceManager*                         mpResourceManager;
+			IDesktopInputContext*                     mpInputContext;
+			IWindowSystem*                            mpWindowSystem;
+			TPtr<CResourcesBuildManifest>             mpResourcesManifest;
 
-			TResourceId                   mIconsTextureHandle = TResourceId::Invalid;
+			TResourceId                               mIconsTextureHandle = TResourceId::Invalid;
+
+			CResourceInfoSelectionManager::TUniquePtr mpSelectionManager = nullptr;
 	};
 }
