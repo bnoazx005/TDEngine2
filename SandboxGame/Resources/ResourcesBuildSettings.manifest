@@ -40,3 +40,15 @@ resources_collection:
       is_skinned_mesh: 1
       path: ./Models/TestAnim3.FBX
       type_id: 3247291626
+  - resource_info: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      mipmaps_generation: 1
+      path: .\Textures\bricks2.jpg
+      type_id: 1584570564
+  - resource_info: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      mipmaps_generation: 1
+      path: .\Textures\DefaultSprite.tga
+      type_id: 1584570564

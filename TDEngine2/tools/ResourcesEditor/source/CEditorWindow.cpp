@@ -4,6 +4,7 @@
 #include <string>
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
+#include "../include/metadata.h"
 
 #if _HAS_CXX17
 #include <filesystem>
@@ -359,7 +360,64 @@ namespace TDEngine2
 			return;
 		}
 
-		imgui.Label("TEX2D INFO");
+		imgui.Label("Texture Properties");
+
+		static std::vector<std::string> filterTypes;
+		
+		if (filterTypes.empty())
+		{
+			for (auto&& enumFieldInfo : Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::GetFields())
+			{
+				filterTypes.push_back(enumFieldInfo.name);
+			}
+		}
+
+		static std::vector<std::string> addressModes;
+		
+		if (addressModes.empty())
+		{
+			for (auto&& enumFieldInfo : Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::GetFields())
+			{
+				addressModes.push_back(enumFieldInfo.name);
+			}
+		}
+
+		/// \note Filter type
+		{
+			I32 currFilterType = static_cast<I32>(pTex2DInfo->mFilteringType);
+
+			imgui.BeginHorizontal();
+			imgui.Label("Filter Type: ");
+			I32 newFilterType = imgui.Popup("##filterType", currFilterType, filterTypes);
+
+			if (currFilterType != newFilterType)
+			{
+				pTex2DInfo->mFilteringType = static_cast<E_TEXTURE_FILTER_TYPE>(newFilterType);
+			}
+
+			imgui.EndHorizontal();
+		}
+
+		/// \note Address mode 
+		{
+			I32 currAddressModeType = static_cast<I32>(pTex2DInfo->mAddressMode);
+
+			imgui.BeginHorizontal();
+			imgui.Label("Address Mode: ");
+			I32 newAddressModeType = imgui.Popup("##addressMode", currAddressModeType, addressModes);
+
+			if (currAddressModeType != newAddressModeType)
+			{
+				pTex2DInfo->mAddressMode = static_cast<E_ADDRESS_MODE_TYPE>(newAddressModeType);
+			}
+
+			imgui.EndHorizontal();
+		}
+
+		imgui.BeginHorizontal();
+		imgui.Label("Use Mip-Mapping");
+		imgui.Checkbox("##mip-mapping", pTex2DInfo->mGenerateMipMaps);
+		imgui.EndHorizontal();
 	}
 
 
