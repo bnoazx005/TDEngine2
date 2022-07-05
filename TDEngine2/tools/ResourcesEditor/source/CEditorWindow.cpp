@@ -274,7 +274,80 @@ namespace TDEngine2
 			return;
 		}
 
-		imgui.Label("MESH INFO");
+		imgui.Label("Mesh Properties: ");
+
+		/// \note Tangents's import information
+		imgui.BeginHorizontal();
+		imgui.Label("Import Tangents/Normals");
+		imgui.Checkbox("##import_tangents", pMeshInfo->mImportTangents);
+		imgui.EndHorizontal();
+
+		imgui.BeginHorizontal();
+		imgui.Label("Skinned Mesh");
+		imgui.Checkbox("##skinned_mesh", pMeshInfo->mIsSkinned);
+		imgui.EndHorizontal();
+
+		if (pMeshInfo->mIsSkinned)
+		{
+			if (imgui.CollapsingHeader("Animation Clips", true))
+			{
+				if (imgui.Button("Add New Item", TVector2(imgui.GetWindowWidth() * 0.3f, 25.0f)))
+				{
+					pMeshInfo->mAnimations.push_back({});
+				}
+
+				bool shouldInterruptLoop = false;
+				U32 index = 0;
+
+				for (auto&& currAnimationClip : pMeshInfo->mAnimations)
+				{
+					imgui.DisplayIDGroup(index, [&imgui, &currAnimationClip, &shouldInterruptLoop, index, pMeshInfo]
+					{
+						if (std::get<0>(imgui.BeginTreeNode("Clip Info", false)))
+						{
+							imgui.BeginHorizontal();
+							imgui.Label("Output clip path:");
+							imgui.TextField("##outputPath", currAnimationClip.mOutputAnimationPath);
+							imgui.EndHorizontal();
+
+							I32 startRange = static_cast<I32>(currAnimationClip.mStartRange);
+
+							imgui.BeginHorizontal();
+							imgui.Label("Start Keyframe: ");
+							imgui.IntField("##startRange", startRange, [&currAnimationClip, &startRange] { currAnimationClip.mStartRange = static_cast<U32>(startRange); });
+							imgui.EndHorizontal();
+
+							I32 endRange = static_cast<I32>(currAnimationClip.mEndRange);
+
+							imgui.BeginHorizontal();
+							imgui.Label("End Keyframe: ");
+							imgui.IntField("##endRange", endRange, [&currAnimationClip, &endRange] { currAnimationClip.mEndRange = static_cast<U32>(endRange); });
+							imgui.EndHorizontal();
+
+							imgui.BeginHorizontal();
+							imgui.Label("Looped: ");
+							imgui.Checkbox("##looped", currAnimationClip.mIsLooped);
+							imgui.EndHorizontal();
+
+							if (imgui.Button("Remove Item", TVector2(imgui.GetWindowWidth() * 0.3f, 25.0f)))
+							{
+								pMeshInfo->mAnimations.erase(pMeshInfo->mAnimations.begin() + index);
+								shouldInterruptLoop = true;
+							}
+
+							imgui.EndTreeNode();
+						}
+					});
+
+					++index;
+
+					if (shouldInterruptLoop)
+					{
+						break;
+					}
+				}
+			}
+		}
 	}
 
 
@@ -350,7 +423,7 @@ namespace TDEngine2
 
 		DrawResourceInspectorPanel(
 			{ 
-				selectedElements.size() > 1 ? nullptr : mpResourcesManifest->FindResourceBuildInfo(selectedElements.front()), 
+				selectedElements.size() == 1 ? mpResourcesManifest->FindResourceBuildInfo(selectedElements.front()) : nullptr, 
 				mpWindowSystem, 
 				mpImGUIContext, 
 				mIsVisible
