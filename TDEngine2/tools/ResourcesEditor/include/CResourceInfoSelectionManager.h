@@ -37,6 +37,7 @@ namespace TDEngine2
 			bool IsSelected(const TSelectableItem& path) const;
 
 			const TSelectableItems& GetSelectedEntities() const;
+			USIZE GetSelectedItemsCount() const;
 		private:
 			TSelectableItems   mSelection;	
 

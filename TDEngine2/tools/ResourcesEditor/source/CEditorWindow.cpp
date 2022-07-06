@@ -89,54 +89,87 @@ namespace TDEngine2
 	static constexpr F32 IconsSizes = 15.0f;
 
 
-	static void DrawResourceContextMenu(const std::string& id, IImGUIContext* pImGUIContext, TPtr<CResourcesBuildManifest> pResourcesManifest, TResourceBuildInfo* pResourceInfo = nullptr)
+	static void UnregisterResources(TPtr<CResourcesBuildManifest> pResourcesManifest, CResourceInfoSelectionManager* pSelectionManager)
 	{
-		pImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("##{0}", id), [&id, pResourceInfo, &pResourcesManifest](IImGUIContext& imgui)
+		for (auto&& currSelectedItemPath : pSelectionManager->GetSelectedEntities())
+		{
+			if (fs::is_directory(currSelectedItemPath))
+			{
+				continue; /// \note Don't process directories 
+			}
+
+			if (auto pResourceInfo = pResourcesManifest->FindResourceBuildInfo(currSelectedItemPath))
+			{
+				E_RESULT_CODE result = pResourcesManifest->RemoveResourceBuildInfo(pResourceInfo->mRelativePathToResource);
+				TDE2_ASSERT(RC_OK == result);
+			}
+		}
+	}
+
+
+	static void DrawItemContextMenu(const std::string& id, IImGUIContext* pImGUIContext, TPtr<CResourcesBuildManifest> pResourcesManifest, 
+									CResourceInfoSelectionManager* pSelectionManager, TResourceBuildInfo* pResourceInfo = nullptr)
+	{
+		pImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("##{0}", id), [&id, pResourceInfo, &pResourcesManifest, pSelectionManager](IImGUIContext& imgui)
 		{
 			if (pResourceInfo)
 			{
-				imgui.MenuItem("Unregister Resource", Wrench::StringUtils::GetEmptyStr(), [&imgui, &pResourcesManifest, &id]()
+				imgui.MenuItem("Unregister Resource", Wrench::StringUtils::GetEmptyStr(), [&pResourcesManifest, pSelectionManager]()
 				{
-					if (auto pResourceInfo = pResourcesManifest->FindResourceBuildInfo(id))
+					UnregisterResources(pResourcesManifest, pSelectionManager);
+				});
+			}
+			else if (!fs::is_directory(id))
+			{
+				imgui.MenuItem("Register Resource", Wrench::StringUtils::GetEmptyStr(), [&id, &pResourcesManifest, pSelectionManager]
+				{
+					for (auto&& currSelectedItemPath : pSelectionManager->GetSelectedEntities())
 					{
-						E_RESULT_CODE result = pResourcesManifest->RemoveResourceBuildInfo(pResourceInfo->mRelativePathToResource);
+						if (fs::is_directory(currSelectedItemPath))
+						{
+							continue; /// \note Don't process directories 
+						}
+
+						auto pResourceInfo = CreateResourceBuildInfoForFilePath(currSelectedItemPath);
+						if (!pResourceInfo)
+						{
+							TDE2_ASSERT(false);
+							continue;
+						}
+
+						pResourceInfo->mRelativePathToResource = Wrench::StringUtils::ReplaceAll(currSelectedItemPath, pResourcesManifest->GetBaseResourcesPath(), ".");
+
+						E_RESULT_CODE result = pResourcesManifest->AddResourceBuildInfo(std::move(pResourceInfo));
 						TDE2_ASSERT(RC_OK == result);
 					}
 				});
 			}
-			else
+
+			imgui.MenuItem("Delete", Wrench::StringUtils::GetEmptyStr(), [&id, &pResourcesManifest, pSelectionManager]
 			{
-				imgui.MenuItem("Register Resource", Wrench::StringUtils::GetEmptyStr(), [&id, &pResourcesManifest]
+				for (auto&& currSelectedItemPath : pSelectionManager->GetSelectedEntities())
 				{
-					auto pResourceInfo = CreateResourceBuildInfoForFilePath(id);
-					if (!pResourceInfo)
+					if (fs::is_directory(currSelectedItemPath))
 					{
-						return;
+						fs::remove_all(currSelectedItemPath);
+						continue;
 					}
 
-					pResourceInfo->mRelativePathToResource = Wrench::StringUtils::ReplaceAll(id, pResourcesManifest->GetBaseResourcesPath(), ".");
+					fs::remove(currSelectedItemPath);
+				}
 
-					E_RESULT_CODE result = pResourcesManifest->AddResourceBuildInfo(std::move(pResourceInfo));
-					TDE2_ASSERT(RC_OK == result);
+				UnregisterResources(pResourcesManifest, pSelectionManager);
+				pSelectionManager->ResetSelection();
+			});
+
+			if (pSelectionManager->GetSelectedItemsCount() < 2)
+			{
+				imgui.MenuItem("Rename", Wrench::StringUtils::GetEmptyStr(), [&id]
+				{
+					/// TODO
 				});
 			}
-
-			imgui.MenuItem("Delete", Wrench::StringUtils::GetEmptyStr(), [&id, &pResourcesManifest]
-			{
-				/// TODO
-			});
-
-			imgui.MenuItem("Rename", Wrench::StringUtils::GetEmptyStr(), [&id]
-			{
-				/// TODO
-			});
 		});
-	}
-
-
-	static void DrawDirectoryContextMenu(const std::string& id, IImGUIContext* pImGUIContext, TPtr<CResourcesBuildManifest> pResourcesManifest, TResourceBuildInfo* pResourceInfo = nullptr)
-	{
-
 	}
 
 
@@ -180,6 +213,8 @@ namespace TDEngine2
 					pImGUIContext->Image(iconsHandle, TVector2(IconsSizes), ResourceTypeIcons.at(E_PAYLOAD_TYPE::DIRECTORY));
 					std::tie(isDirectoryUnwrapped, isDirectorySelected) = pImGUIContext->BeginTreeNode(currItemId, pSelectionManager->IsSelected(currPath.string()));
 					pImGUIContext->EndHorizontal();
+
+					DrawItemContextMenu(currPath.string(), pImGUIContext, pResourcesManifest, pSelectionManager);
 
 					if (isDirectorySelected)
 					{
@@ -248,14 +283,23 @@ namespace TDEngine2
 				
 				pImGUIContext->EndHorizontal();
 
-				DrawResourceContextMenu(currPath.string(), pImGUIContext, pResourcesManifest, pResourceInfo);
+				DrawItemContextMenu(currPath.string(), pImGUIContext, pResourcesManifest, pSelectionManager, pResourceInfo);
 
-				pImGUIContext->RegisterDragAndDropSource([pImGUIContext, currItemId, fullPathStr = currPath.string()]
+				pImGUIContext->RegisterDragAndDropSource([pImGUIContext, currItemId, pSelectionManager, fullPathStr = currPath.string()]
 				{
 					pImGUIContext->SetDragAndDropData(DRAG_DROP_ITEM_PATH, fullPathStr);
 					pImGUIContext->SetDragAndDropData(DRAG_DROP_ITEM_TYPE, E_PAYLOAD_TYPE::UNKNOWN_RESOURCE);
 
-					pImGUIContext->Label(currItemId);
+					if (pSelectionManager->GetSelectedItemsCount() < 1)
+					{
+						pImGUIContext->Label(currItemId);
+						return;
+					}
+
+					for (auto&& currSelectedItemPath : pSelectionManager->GetSelectedEntities())
+					{
+						pImGUIContext->Label(fs::path(currSelectedItemPath).filename().string());
+					}
 				});
 			};
 

@@ -35,4 +35,10 @@ namespace TDEngine2
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mSelection;
 	}
+
+	USIZE CResourceInfoSelectionManager::GetSelectedItemsCount() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return mSelection.size();
+	}
 }
