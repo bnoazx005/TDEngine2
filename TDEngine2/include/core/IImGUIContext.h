@@ -592,12 +592,6 @@ namespace TDEngine2
 				_setDragAndDropData(id, static_cast<const void*>(&data), sizeof(T));
 			}
 
-			template <>
-			TDE2_API void SetDragAndDropData<std::string>(const std::string& id, const std::string& data)
-			{
-				_setDragAndDropData(id, data.c_str(), static_cast<U32>(data.size() * sizeof(std::string::value_type)));
-			}
-
 			template <typename T>
 			TDE2_API const T* GetDragAndDropData(const std::string& id) const
 			{
@@ -671,6 +665,12 @@ namespace TDEngine2
 			TDE2_API virtual void _setDragAndDropData(const std::string& id, const void* pData, U32 size) = 0;
 			TDE2_API virtual const void* _getDragAndDropData(const std::string& id) const = 0;
 	};
+
+
+	template <> inline void IImGUIContext::SetDragAndDropData<std::string>(const std::string& id, const std::string& data)
+	{
+		_setDragAndDropData(id, data.c_str(), static_cast<U32>(data.size() * sizeof(std::string::value_type)));
+	}
 
 
 	TDE2_DECLARE_SCOPED_PTR_INLINED(IImGUIContext)
