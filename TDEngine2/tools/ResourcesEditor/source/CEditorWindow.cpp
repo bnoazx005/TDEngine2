@@ -64,7 +64,6 @@ namespace TDEngine2
 
 
 	static const std::string DRAG_DROP_ITEM_PATH = "drag_drop_resource_path";
-	static const std::string DRAG_DROP_ITEM_TYPE = "drag_drop_payload_type";
 
 
 	struct TDrawResourcesBrowserParams
@@ -173,6 +172,51 @@ namespace TDEngine2
 	}
 
 
+	static void ProcessDragDropSource(const std::string& id, const std::string& fullPathStr, IImGUIContext* pImGUIContext, CResourceInfoSelectionManager* pSelectionManager)
+	{
+		pImGUIContext->RegisterDragAndDropSource([pImGUIContext, id, fullPathStr, pSelectionManager]
+		{
+			pImGUIContext->SetDragAndDropData(DRAG_DROP_ITEM_PATH, fullPathStr);
+
+			if (pSelectionManager->GetSelectedItemsCount() < 1)
+			{
+				pImGUIContext->Label(id);
+				return;
+			}
+
+			for (auto&& currSelectedItemPath : pSelectionManager->GetSelectedEntities())
+			{
+				pImGUIContext->Label(fs::path(currSelectedItemPath).filename().string());
+			}
+		});
+	}
+
+
+	static void ProcessDragDropTarget(const std::string& targetDirectoryPath, IImGUIContext* pImGUIContext, CResourceInfoSelectionManager* pSelectionManager)
+	{
+		pImGUIContext->RegisterDragAndDropTarget([=]
+		{
+			const C8* pResourcePath = pImGUIContext->GetDragAndDropData<C8>(DRAG_DROP_ITEM_PATH);
+
+			if (!pResourcePath)
+			{
+				return;
+			}
+
+			if (pSelectionManager->GetSelectedItemsCount() < 1)
+			{
+				/// \note Copy the only item into the directory
+				return;
+			}
+
+			/// \note Copy all selected items into the directory
+			for (auto&& currSelectedItemPath : pSelectionManager->GetSelectedEntities())
+			{
+			}
+		});
+	}
+
+
 	static void DrawResourcesBrowserPanel(const TDrawResourcesBrowserParams& panelParams)
 	{
 		auto pImGUIContext        = panelParams.mpImGUIContext;
@@ -215,6 +259,7 @@ namespace TDEngine2
 					pImGUIContext->EndHorizontal();
 
 					DrawItemContextMenu(currPath.string(), pImGUIContext, pResourcesManifest, pSelectionManager);
+					ProcessDragDropSource(currItemId, currPath.string(), pImGUIContext, pSelectionManager);
 
 					if (isDirectorySelected)
 					{
@@ -238,25 +283,7 @@ namespace TDEngine2
 						pImGUIContext->EndTreeNode();
 					}
 
-					pImGUIContext->RegisterDragAndDropTarget([pImGUIContext]
-					{
-						const C8* pResourcePath = pImGUIContext->GetDragAndDropData<C8>(DRAG_DROP_ITEM_PATH);
-						const E_PAYLOAD_TYPE* pPayloadType = pImGUIContext->GetDragAndDropData<E_PAYLOAD_TYPE>(DRAG_DROP_ITEM_TYPE);
-						
-						if (!pResourcePath || !pPayloadType)
-						{
-							return;
-						}
-
-						switch (*pPayloadType)
-						{
-							case E_PAYLOAD_TYPE::REGISTERED_RESOURCE:
-							case E_PAYLOAD_TYPE::UNKNOWN_RESOURCE:
-								break;
-							case E_PAYLOAD_TYPE::DIRECTORY:
-								break;
-						}
-					});
+					ProcessDragDropTarget(currPath.string(), pImGUIContext, pSelectionManager);
 
 					return;
 				}
@@ -284,23 +311,7 @@ namespace TDEngine2
 				pImGUIContext->EndHorizontal();
 
 				DrawItemContextMenu(currPath.string(), pImGUIContext, pResourcesManifest, pSelectionManager, pResourceInfo);
-
-				pImGUIContext->RegisterDragAndDropSource([pImGUIContext, currItemId, pSelectionManager, fullPathStr = currPath.string()]
-				{
-					pImGUIContext->SetDragAndDropData(DRAG_DROP_ITEM_PATH, fullPathStr);
-					pImGUIContext->SetDragAndDropData(DRAG_DROP_ITEM_TYPE, E_PAYLOAD_TYPE::UNKNOWN_RESOURCE);
-
-					if (pSelectionManager->GetSelectedItemsCount() < 1)
-					{
-						pImGUIContext->Label(currItemId);
-						return;
-					}
-
-					for (auto&& currSelectedItemPath : pSelectionManager->GetSelectedEntities())
-					{
-						pImGUIContext->Label(fs::path(currSelectedItemPath).filename().string());
-					}
-				});
+				ProcessDragDropSource(currItemId, currPath.string(), pImGUIContext, pSelectionManager);
 			};
 
 			for (auto& currDirectory : fs::directory_iterator(baseResourcesPath))
