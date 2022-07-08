@@ -192,7 +192,7 @@ namespace TDEngine2
 	}
 
 
-	static void ProcessDragDropTarget(const std::string& targetDirectoryPath, IImGUIContext* pImGUIContext, CResourceInfoSelectionManager* pSelectionManager)
+	static void ProcessDragDropTarget(const std::string& targetDirectoryPath, TPtr<CResourcesBuildManifest> pResourcesManifest, IImGUIContext* pImGUIContext, CResourceInfoSelectionManager* pSelectionManager)
 	{
 		pImGUIContext->RegisterDragAndDropTarget([=]
 		{
@@ -209,9 +209,26 @@ namespace TDEngine2
 				return;
 			}
 
+			auto&& targetDirectory = fs::path(targetDirectoryPath);
+
 			/// \note Copy all selected items into the directory
 			for (auto&& currSelectedItemPath : pSelectionManager->GetSelectedEntities())
 			{
+				auto&& newPath = targetDirectory / fs::path(currSelectedItemPath).filename();
+
+				if (newPath == currSelectedItemPath)
+				{
+					continue;
+				}
+
+				fs::rename(currSelectedItemPath, newPath);
+				fs::remove(currSelectedItemPath);
+
+				/// Update resources manifest's path if the item was registered
+				if (auto pResourceInfo = pResourcesManifest->FindResourceBuildInfo(currSelectedItemPath))
+				{
+					pResourceInfo->mRelativePathToResource = Wrench::StringUtils::ReplaceAll(newPath.string(), pResourcesManifest->GetBaseResourcesPath(), ".");
+				}
 			}
 		});
 	}
@@ -283,7 +300,7 @@ namespace TDEngine2
 						pImGUIContext->EndTreeNode();
 					}
 
-					ProcessDragDropTarget(currPath.string(), pImGUIContext, pSelectionManager);
+					ProcessDragDropTarget(currPath.string(), pResourcesManifest, pImGUIContext, pSelectionManager);
 
 					return;
 				}
