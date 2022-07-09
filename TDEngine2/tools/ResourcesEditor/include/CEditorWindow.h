@@ -23,7 +23,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem, IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -35,7 +35,7 @@ namespace TDEngine2
 	class CEditorWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager*, IInputContext*, IWindowSystem*, E_RESULT_CODE&);
+			friend TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager*, IInputContext*, IWindowSystem*, IFileSystem*, E_RESULT_CODE&);
 
 		public:
 			/*!
@@ -46,7 +46,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem);
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem, IFileSystem* pFileSystem);
 
 			TDE2_API void SetResourcesManifest(TPtr<CResourcesBuildManifest> pResourcesManifest);
 
@@ -64,6 +64,7 @@ namespace TDEngine2
 			IResourceManager*                         mpResourceManager;
 			IDesktopInputContext*                     mpInputContext;
 			IWindowSystem*                            mpWindowSystem;
+			IFileSystem*                              mpFileSystem;
 			TPtr<CResourcesBuildManifest>             mpResourcesManifest;
 
 			TResourceId                               mIconsTextureHandle = TResourceId::Invalid;

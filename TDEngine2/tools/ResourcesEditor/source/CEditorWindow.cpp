@@ -22,14 +22,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CEditorWindow::Init(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem)
+	E_RESULT_CODE CEditorWindow::Init(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem, IFileSystem* pFileSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
 
-		if (!pResourceManager || !pWindowSystem || !pInputContext)
+		if (!pResourceManager || !pWindowSystem || !pInputContext || !pFileSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -37,6 +37,7 @@ namespace TDEngine2
 		mpResourceManager = pResourceManager;
 		mpInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext);
 		mpWindowSystem = pWindowSystem;
+		mpFileSystem = pFileSystem;
 
 		mIconsTextureHandle = pResourceManager->Load<ITexture2D>("Resources/Editor/icons.png");
 
@@ -71,6 +72,8 @@ namespace TDEngine2
 		TPtr<CResourcesBuildManifest>  mpResourcesManifest;
 		IWindowSystem*                 mpWindowSystem;
 		IImGUIContext*                 mpImGUIContext;
+		IResourceManager*              mpResourceManager;
+		IFileSystem*                   mpFileSystem;
 		CResourceInfoSelectionManager* mpSelectionManager;
 		IDesktopInputContext*          mpInputContext;
 		bool                           mIsEnabled;
@@ -86,6 +89,12 @@ namespace TDEngine2
 	};
 
 	static constexpr F32 IconsSizes = 15.0f;
+
+
+	static const std::vector<std::tuple<std::string, std::string, std::function<TResourceId(IResourceManager*)>>> MenuItem2ResourcesFactories
+	{
+		{ "New Material", "NewMaterial{0}.material", [](IResourceManager* pResourceManager) { return pResourceManager->Load<IMaterial>("Resources/Materials/DefaultMaterial.material"); }}
+	};
 
 
 	static void UnregisterResources(TPtr<CResourcesBuildManifest> pResourcesManifest, CResourceInfoSelectionManager* pSelectionManager)
@@ -106,10 +115,27 @@ namespace TDEngine2
 	}
 
 
-	static void DrawItemContextMenu(const std::string& id, IImGUIContext* pImGUIContext, TPtr<CResourcesBuildManifest> pResourcesManifest, 
-									CResourceInfoSelectionManager* pSelectionManager, TResourceBuildInfo* pResourceInfo = nullptr)
+	struct TItemContextMenuParams
 	{
-		pImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("##{0}", id), [&id, pResourceInfo, &pResourcesManifest, pSelectionManager](IImGUIContext& imgui)
+		IImGUIContext*                 mpImGUIContext;
+		TPtr<CResourcesBuildManifest>  mpResourcesManifest; 
+		CResourceInfoSelectionManager* mpSelectionManager;
+		IResourceManager*              mpResourceManager;
+		TResourceBuildInfo*            mpResourceInfo = nullptr;
+		IFileSystem*                   mpFileSystem;
+	};
+
+
+	static void DrawItemContextMenu(const std::string& id, const TItemContextMenuParams& params)
+	{
+		auto&& pResourcesManifest = params.mpResourcesManifest;
+		auto&& pImGUIContext      = params.mpImGUIContext;
+		auto&& pResourceInfo      = params.mpResourceInfo;
+		auto&& pSelectionManager  = params.mpSelectionManager;
+		auto&& pResourceManager   = params.mpResourceManager;
+		auto&& pFileSystem        = params.mpFileSystem;
+
+		pImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("##{0}", id), [=, &id, &pResourcesManifest](IImGUIContext& imgui)
 		{
 			if (pResourceInfo)
 			{
@@ -140,6 +166,57 @@ namespace TDEngine2
 
 						E_RESULT_CODE result = pResourcesManifest->AddResourceBuildInfo(std::move(pResourceInfo));
 						TDE2_ASSERT(RC_OK == result);
+					}
+				});
+			}
+
+			if (fs::is_directory(id))
+			{
+				imgui.MenuGroup("Create New Resource", [pResourceManager, pFileSystem, &id](IImGUIContext& imguiContext)
+				{
+					for (auto&& currMenuItem : MenuItem2ResourcesFactories)
+					{
+						imguiContext.MenuItem(std::get<0>(currMenuItem), Wrench::StringUtils::GetEmptyStr(), [&currMenuItem, pResourceManager, pFileSystem, &id]
+						{
+							const TResourceId createdResourceId = std::get<2>(currMenuItem)(pResourceManager);
+							if (TResourceId::Invalid == createdResourceId)
+							{
+								TDE2_ASSERT(false);
+								return;
+							}
+
+							auto&& pResource = pResourceManager->GetResource(createdResourceId);
+							if (!pResource)
+							{
+								TDE2_ASSERT(false);
+								return;
+							}
+
+							/// \note Find the first unused name for the file 
+							/// \todo Replace with a utility function
+							std::string newFilePath;
+							U32 index = 0;
+							
+							do
+							{
+								newFilePath = pFileSystem->CombinePath(id, Wrench::StringUtils::Format(std::get<1>(currMenuItem), index++));
+							} 
+							while (pFileSystem->FileExists(newFilePath));
+
+							if (auto openFileResult = pFileSystem->Open<IYAMLFileWriter>(newFilePath, true))
+							{
+								if (auto pFileWriter = pFileSystem->Get<IYAMLFileWriter>(openFileResult.Get()))
+								{
+									if (auto pSerializableResource = dynamic_cast<ISerializable*>(pResource.Get()))
+									{
+										E_RESULT_CODE result = pSerializableResource->Save(pFileWriter);
+										TDE2_ASSERT(RC_OK == result);
+									}
+
+									pFileWriter->Close();
+								}
+							}							
+						});
 					}
 				});
 			}
@@ -218,7 +295,7 @@ namespace TDEngine2
 
 				if (newPath == currSelectedItemPath)
 				{
-					continue;
+					continue; /// \note Skip the same paths
 				}
 
 				fs::rename(currSelectedItemPath, newPath);
@@ -241,6 +318,8 @@ namespace TDEngine2
 		auto&& pResourcesManifest = panelParams.mpResourcesManifest;
 		auto pSelectionManager    = panelParams.mpSelectionManager;
 		auto pInputContext        = panelParams.mpInputContext;
+		auto pResourcesManager    = panelParams.mpResourceManager;
+		auto pFileSystem          = panelParams.mpFileSystem;
 
 		const IImGUIContext::TWindowParams params
 		{
@@ -275,7 +354,7 @@ namespace TDEngine2
 					std::tie(isDirectoryUnwrapped, isDirectorySelected) = pImGUIContext->BeginTreeNode(currItemId, pSelectionManager->IsSelected(currPath.string()));
 					pImGUIContext->EndHorizontal();
 
-					DrawItemContextMenu(currPath.string(), pImGUIContext, pResourcesManifest, pSelectionManager);
+					DrawItemContextMenu(currPath.string(), { pImGUIContext, pResourcesManifest, pSelectionManager, pResourcesManager, nullptr, pFileSystem });
 					ProcessDragDropSource(currItemId, currPath.string(), pImGUIContext, pSelectionManager);
 
 					if (isDirectorySelected)
@@ -311,9 +390,16 @@ namespace TDEngine2
 				pImGUIContext->BeginHorizontal();
 				pImGUIContext->Image(iconsHandle, TVector2(IconsSizes), ResourceTypeIcons.at(resourceType));
 				
-				if (pImGUIContext->SelectableItem(currItemId, 
-												E_PAYLOAD_TYPE::REGISTERED_RESOURCE == resourceType ? TColorUtils::mGreen : TColorUtils::mWhite, 
-												pSelectionManager->IsSelected(currPath.string())))
+				const bool isItemSelected = pImGUIContext->SelectableItem(currItemId,
+																	E_PAYLOAD_TYPE::REGISTERED_RESOURCE == resourceType ? TColorUtils::mGreen : TColorUtils::mWhite,
+																	pSelectionManager->IsSelected(currPath.string()));
+
+				if (pImGUIContext->IsMouseDoubleClicked(0))
+				{
+					TDE2_ASSERT(false);
+				}
+
+				if (isItemSelected)
 				{
 					if (pInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
 					{
@@ -327,7 +413,7 @@ namespace TDEngine2
 				
 				pImGUIContext->EndHorizontal();
 
-				DrawItemContextMenu(currPath.string(), pImGUIContext, pResourcesManifest, pSelectionManager, pResourceInfo);
+				DrawItemContextMenu(currPath.string(), { pImGUIContext, pResourcesManifest, pSelectionManager, pResourcesManager, pResourceInfo, pFileSystem });
 				ProcessDragDropSource(currItemId, currPath.string(), pImGUIContext, pSelectionManager);
 			};
 
@@ -547,7 +633,18 @@ namespace TDEngine2
 	{
 		bool isEnabled = mIsVisible;
 
-		DrawResourcesBrowserPanel({ mpResourcesManifest, mpWindowSystem, mpImGUIContext, mpSelectionManager.get(), mpInputContext, mIsVisible, mIconsTextureHandle });
+		DrawResourcesBrowserPanel(
+			{ 
+				mpResourcesManifest, 
+				mpWindowSystem, 
+				mpImGUIContext, 
+				mpResourceManager, 
+				mpFileSystem,
+				mpSelectionManager.get(), 
+				mpInputContext, 
+				mIsVisible, 
+				mIconsTextureHandle 
+			});
 		
 		auto&& selectedElements = mpSelectionManager->GetSelectedEntities();
 
@@ -563,8 +660,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateEditorWindow(IResourceManager* pResourceManager, IInputContext* pInputContext, IWindowSystem* pWindowSystem, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CEditorWindow, result, pResourceManager, pInputContext, pWindowSystem);
+		return CREATE_IMPL(IEditorWindow, CEditorWindow, result, pResourceManager, pInputContext, pWindowSystem, pFileSystem);
 	}
 }

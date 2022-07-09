@@ -18,7 +18,12 @@ E_RESULT_CODE CUtilityListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
-	mpEditorWindow = dynamic_cast<CEditorWindow*>(TDEngine2::CreateEditorWindow(mpResourceManager.Get(), mpEngineCoreInstance->GetSubsystem<IInputContext>().Get(), mpWindowSystem.Get(), result));
+	mpEditorWindow = dynamic_cast<CEditorWindow*>(CreateEditorWindow(
+														mpResourceManager.Get(), 
+														mpEngineCoreInstance->GetSubsystem<IInputContext>().Get(), 
+														mpWindowSystem.Get(),
+														mpEngineCoreInstance->GetSubsystem<IFileSystem>().Get(), 
+														result));
 	
 	return RC_OK;
 }
