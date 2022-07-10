@@ -251,7 +251,8 @@ namespace TDEngine2
 		_prepareLayout();
 	}
 
-	bool CImGUIContext::TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged)
+	bool CImGUIContext::TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged, 
+								const TImGUIContextAction& onCancel, bool setFocus)
 	{
 		C8 buffer[512]{ '\0' };
 		memcpy(buffer, value.c_str(), value.size());
@@ -263,9 +264,25 @@ namespace TDEngine2
 		if (hasValueChanged && onValueChanged)
 		{
 			onValueChanged(value);
+
+			if (setFocus)
+			{
+				ImGui::SetKeyboardFocusHere(-1);
+			}
+		}
+
+		if (onCancel && ImGui::IsItemDeactivated() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+		{
+			onCancel();
 		}
 
 		_prepareLayout();
+
+		if (setFocus)
+		{
+			ImGui::SetItemDefaultFocus();
+			ImGui::SetKeyboardFocusHere();
+		}
 
 		return hasValueChanged;
 	}

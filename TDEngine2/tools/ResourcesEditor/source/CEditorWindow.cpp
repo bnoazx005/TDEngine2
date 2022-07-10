@@ -77,6 +77,7 @@ namespace TDEngine2
 		CResourceInfoSelectionManager* mpSelectionManager;
 		IDesktopInputContext*          mpInputContext;
 		bool                           mIsEnabled;
+		bool*                          mIsRenamingModeEnabled = nullptr;
 		TResourceId                    mIconsTextureAtlasHandle;
 	};
 
@@ -123,17 +124,19 @@ namespace TDEngine2
 		IResourceManager*              mpResourceManager;
 		TResourceBuildInfo*            mpResourceInfo = nullptr;
 		IFileSystem*                   mpFileSystem;
+		bool*                          mIsRenamingModeEnabled = nullptr;
 	};
 
 
 	static void DrawItemContextMenu(const std::string& id, const TItemContextMenuParams& params)
 	{
-		auto&& pResourcesManifest = params.mpResourcesManifest;
-		auto&& pImGUIContext      = params.mpImGUIContext;
-		auto&& pResourceInfo      = params.mpResourceInfo;
-		auto&& pSelectionManager  = params.mpSelectionManager;
-		auto&& pResourceManager   = params.mpResourceManager;
-		auto&& pFileSystem        = params.mpFileSystem;
+		auto&& pResourcesManifest    = params.mpResourcesManifest;
+		auto&& pImGUIContext         = params.mpImGUIContext;
+		auto&& pResourceInfo         = params.mpResourceInfo;
+		auto&& pSelectionManager     = params.mpSelectionManager;
+		auto&& pResourceManager      = params.mpResourceManager;
+		auto&& pFileSystem           = params.mpFileSystem;
+		bool* pIsRenamingModeEnabled = params.mIsRenamingModeEnabled;
 
 		pImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("##{0}", id), [=, &id, &pResourcesManifest](IImGUIContext& imgui)
 		{
@@ -240,9 +243,14 @@ namespace TDEngine2
 
 			if (pSelectionManager->GetSelectedItemsCount() < 2)
 			{
-				imgui.MenuItem("Rename", Wrench::StringUtils::GetEmptyStr(), [&id]
+				imgui.MenuItem("Rename", Wrench::StringUtils::GetEmptyStr(), [&id, pIsRenamingModeEnabled, pSelectionManager]
 				{
-					/// TODO
+					if (pIsRenamingModeEnabled)
+					{
+						*pIsRenamingModeEnabled = true;
+					}
+
+					pSelectionManager->SetSelection(id);
 				});
 			}
 		});
@@ -311,15 +319,64 @@ namespace TDEngine2
 	}
 
 
+	static void ResetFileRenaming(CResourceInfoSelectionManager* pSelectionManager, bool* pIsRenamingEnabled)
+	{
+		if (pIsRenamingEnabled && *pIsRenamingEnabled)
+		{
+			*pIsRenamingEnabled = false;
+		}
+
+		if (pSelectionManager)
+		{
+			pSelectionManager->ResetSelection();
+		}
+	}
+
+
+	static bool DrawRenameModeOrDefaultAction(IImGUIContext* pImGUIContext, const fs::path& currPath, IFileSystem* pFileSystem, CResourceInfoSelectionManager* pSelectionManager, 
+											bool* pIsRenamingEnabled, const std::function<void()>& defaultAction = nullptr)
+	{
+		if (pIsRenamingEnabled && *pIsRenamingEnabled && pSelectionManager->IsSelected(currPath.string()))
+		{
+			std::string editableValue = currPath.filename().string();
+			pImGUIContext->TextField("##rename_field", editableValue,
+				[pFileSystem, pSelectionManager, pIsRenamingEnabled, currPath](auto&& newValue) /// \note Update file's name if it's possible
+			{
+				if (!pFileSystem->IsPathValid(newValue))
+				{
+					ResetFileRenaming(pSelectionManager, pIsRenamingEnabled);
+					return;
+				}
+
+				auto&& newPath = currPath.parent_path() / newValue;
+				fs::rename(currPath, newPath);
+			},
+				[pIsRenamingEnabled, pSelectionManager] /// \note Cancel action
+			{
+				ResetFileRenaming(pSelectionManager, pIsRenamingEnabled);
+			}, true);
+
+			return true;
+		}
+		else if (defaultAction)
+		{
+			defaultAction();
+		}
+
+		return false;
+	}
+
+
 	static void DrawResourcesBrowserPanel(const TDrawResourcesBrowserParams& panelParams)
 	{
-		auto pImGUIContext        = panelParams.mpImGUIContext;
-		auto pWindowSystem        = panelParams.mpWindowSystem;
-		auto&& pResourcesManifest = panelParams.mpResourcesManifest;
-		auto pSelectionManager    = panelParams.mpSelectionManager;
-		auto pInputContext        = panelParams.mpInputContext;
-		auto pResourcesManager    = panelParams.mpResourceManager;
-		auto pFileSystem          = panelParams.mpFileSystem;
+		auto pImGUIContext           = panelParams.mpImGUIContext;
+		auto pWindowSystem           = panelParams.mpWindowSystem;
+		auto&& pResourcesManifest    = panelParams.mpResourcesManifest;
+		auto pSelectionManager       = panelParams.mpSelectionManager;
+		auto pInputContext           = panelParams.mpInputContext;
+		auto pResourcesManager       = panelParams.mpResourceManager;
+		auto pFileSystem             = panelParams.mpFileSystem;
+		bool* pIsRenamingModeEnabled = panelParams.mIsRenamingModeEnabled;
 
 		const IImGUIContext::TWindowParams params
 		{
@@ -351,14 +408,23 @@ namespace TDEngine2
 
 					pImGUIContext->BeginHorizontal();
 					pImGUIContext->Image(iconsHandle, TVector2(IconsSizes), ResourceTypeIcons.at(E_PAYLOAD_TYPE::DIRECTORY));
+
+					const bool isRenamingEnabled = DrawRenameModeOrDefaultAction(pImGUIContext, currPath, pFileSystem, pSelectionManager, pIsRenamingModeEnabled);
+					if (isRenamingEnabled)
+					{
+						currItemId = "##directory_hidden_name";
+					}
+
 					std::tie(isDirectoryUnwrapped, isDirectorySelected) = pImGUIContext->BeginTreeNode(currItemId, pSelectionManager->IsSelected(currPath.string()));
 					pImGUIContext->EndHorizontal();
 
-					DrawItemContextMenu(currPath.string(), { pImGUIContext, pResourcesManifest, pSelectionManager, pResourcesManager, nullptr, pFileSystem });
+					DrawItemContextMenu(currPath.string(), { pImGUIContext, pResourcesManifest, pSelectionManager, pResourcesManager, nullptr, pFileSystem, pIsRenamingModeEnabled });
 					ProcessDragDropSource(currItemId, currPath.string(), pImGUIContext, pSelectionManager);
 
 					if (isDirectorySelected)
 					{
+						ResetFileRenaming(pSelectionManager, pIsRenamingModeEnabled);
+
 						if (pInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
 						{
 							pSelectionManager->AddSelection(currPath.string());
@@ -390,17 +456,31 @@ namespace TDEngine2
 				pImGUIContext->BeginHorizontal();
 				pImGUIContext->Image(iconsHandle, TVector2(IconsSizes), ResourceTypeIcons.at(resourceType));
 				
-				const bool isItemSelected = pImGUIContext->SelectableItem(currItemId,
+				const TVector2 originalCursorPosition = pImGUIContext->GetCursorScreenPos();
+
+				bool isItemSelected = false;
+
+				DrawRenameModeOrDefaultAction(pImGUIContext, currPath, pFileSystem, pSelectionManager, pIsRenamingModeEnabled, 
+					[pImGUIContext, &isItemSelected, &currItemId, resourceType, pSelectionManager, currPath]
+					{
+						isItemSelected = pImGUIContext->SelectableItem(currItemId,
 																	E_PAYLOAD_TYPE::REGISTERED_RESOURCE == resourceType ? TColorUtils::mGreen : TColorUtils::mWhite,
 																	pSelectionManager->IsSelected(currPath.string()));
+					});
 
 				if (pImGUIContext->IsMouseDoubleClicked(0))
 				{
-					TDE2_ASSERT(false);
+					if (pIsRenamingModeEnabled)
+					{
+						*pIsRenamingModeEnabled = true;
+						pSelectionManager->SetSelection(currPath.string());
+					}
 				}
 
 				if (isItemSelected)
 				{
+					ResetFileRenaming(nullptr, pIsRenamingModeEnabled);
+
 					if (pInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
 					{
 						pSelectionManager->AddSelection(currPath.string());
@@ -413,7 +493,7 @@ namespace TDEngine2
 				
 				pImGUIContext->EndHorizontal();
 
-				DrawItemContextMenu(currPath.string(), { pImGUIContext, pResourcesManifest, pSelectionManager, pResourcesManager, pResourceInfo, pFileSystem });
+				DrawItemContextMenu(currPath.string(), { pImGUIContext, pResourcesManifest, pSelectionManager, pResourcesManager, pResourceInfo, pFileSystem, pIsRenamingModeEnabled });
 				ProcessDragDropSource(currItemId, currPath.string(), pImGUIContext, pSelectionManager);
 			};
 
@@ -643,6 +723,7 @@ namespace TDEngine2
 				mpSelectionManager.get(), 
 				mpInputContext, 
 				mIsVisible, 
+				&mIsRenamingEnabled,
 				mIconsTextureHandle 
 			});
 		

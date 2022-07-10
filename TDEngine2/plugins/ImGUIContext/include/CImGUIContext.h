@@ -216,9 +216,11 @@ namespace TDEngine2
 				\param[in] text A text that will be displayed with this text box
 				\param[in] value The current and output value for the text box
 				\param[in] onValueChanged A callback that is called when the value of the field has changed
+				\param[in] setFocus Determines whether or not the focus of a keyboard is set
 			*/
 
-			TDE2_API bool TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged = nullptr) override;
+			TDE2_API bool TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged = nullptr, 
+									const TImGUIContextAction& onCancel = nullptr, bool setFocus = false) override;
 
 			/*!
 				\brief The method creates a field for TVector2 type

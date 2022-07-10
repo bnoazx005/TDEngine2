@@ -70,5 +70,7 @@ namespace TDEngine2
 			TResourceId                               mIconsTextureHandle = TResourceId::Invalid;
 
 			CResourceInfoSelectionManager::TUniquePtr mpSelectionManager = nullptr;
+
+			bool                                      mIsRenamingEnabled = false;
 	};
 }
