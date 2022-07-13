@@ -58,6 +58,8 @@
 #include "core/CGameUserSettings.h"
 #include "core/CProjectSettings.h"
 #include "core/CProxyGraphicsContext.h"
+#include "core/IResourcesRuntimeManifest.h"
+#include "core/CResourcesRuntimeManifest.h"
 
 /// game
 #include "game/ISaveManager.h"

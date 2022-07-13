@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.8] 2022-07-10
+## [0.6.8] 2022-07-13
 
 ### Added
 
 -  The basic draft implementation of a resources build manifest was added.
 
 - A new utility which is **TDE2ResourcesEd** was added.
+
+- A new interface **IResourcesRuntimeManifest** and an implementation **CResourcesRuntimeManifest** were added into the project.
 
 ### Changed
 
