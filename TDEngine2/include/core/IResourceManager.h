@@ -20,6 +20,7 @@ namespace TDEngine2
 	class IResourceLoader;
 	class IJobManager;
 	class IResourceFactory;
+	class IResourcesRuntimeManifest;
 
 	struct TBaseResourceParameters;
 
@@ -36,6 +37,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IResourceFactory)
 	TDE2_DECLARE_SCOPED_PTR(IResourceLoader)
 	TDE2_DECLARE_SCOPED_PTR(IResource)
+	TDE2_DECLARE_SCOPED_PTR(IResourcesRuntimeManifest)
 
 
 	/*!
@@ -53,11 +55,12 @@ namespace TDEngine2
 				\brief The method initializes an inner state of a resource manager
 				
 				\param[in] pJobManager A pointer to IJobManager's implementation
+				\param[in] pResourcesRuntimeManifest A pointer to IResourcesRuntimeManifest's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(TPtr<IJobManager> pJobManager) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IJobManager> pJobManager, TPtr<IResourcesRuntimeManifest> pResourcesRuntimeManifest) = 0;
 
 			/*!
 				\brief The method registers specified resource loader within a manager

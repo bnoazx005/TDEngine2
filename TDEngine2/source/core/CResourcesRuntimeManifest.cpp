@@ -1,10 +1,52 @@
 #include "../../include/core/CResourcesRuntimeManifest.h"
 #include "../../include/core/IResourceFactory.h"
+#include "../../include/graphics/CBaseTexture2D.h"
+#include "stringUtils.hpp"
 #include <algorithm>
 
 
 namespace TDEngine2
 {
+	struct TResourcesRuntimeManifestArchiveKeys
+	{
+		static const std::string mResourcesMetaCollectionKeyId;
+		static const std::string mSingleResourceKeyId;
+		static const std::string mResourceIdKeyId;
+	};
+
+
+	const std::string TResourcesRuntimeManifestArchiveKeys::mResourcesMetaCollectionKeyId = "resources_meta_collection";
+	const std::string TResourcesRuntimeManifestArchiveKeys::mSingleResourceKeyId = "resource_meta";
+	const std::string TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId = "id";
+
+
+	static std::unique_ptr<TBaseResourceParameters> Deserialize(IArchiveReader* pReader)
+	{
+		static const std::unordered_map<TypeId, std::function<std::unique_ptr<TBaseResourceParameters>()>> factories
+		{
+			{ TDE2_TYPE_ID(TTexture2DParameters), []() { return std::make_unique<TTexture2DParameters>(); } },
+		};
+
+		auto it = factories.find(TypeId(pReader->GetUInt32("type_id")));
+		if (it == factories.cend())
+		{
+			return nullptr;
+		}
+
+		auto pInfoPtr = std::move(it->second());
+		if (!pInfoPtr)
+		{
+			return nullptr;
+		}
+
+		E_RESULT_CODE result = pInfoPtr->Load(pReader);
+		TDE2_ASSERT(RC_OK == result);
+
+		return std::move(pInfoPtr);
+	}
+
+
+
 	CResourcesRuntimeManifest::CResourcesRuntimeManifest() :
 		CBaseObject()
 	{
@@ -31,22 +73,24 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		//E_RESULT_CODE result = pReader->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mResourcesCollectionKeyId);
+		E_RESULT_CODE result = pReader->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mResourcesMetaCollectionKeyId);
 
-		//while (pReader->HasNextItem())
-		//{
-		//	result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-		//	{
-		//		result = result | pReader->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mSingleResourceKeyId);
+		mpResourcesMetaInfos.clear();
 
-		//		mpResourcesRuntimeConfigs.emplace_back(Deserialize(pReader));
+		while (pReader->HasNextItem())
+		{
+			result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+			{
+				result = result | pReader->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mSingleResourceKeyId);
 
-		//		result = result | pReader->EndGroup();
-		//	}
-		//	result = result | pReader->EndGroup();
-		//}
+				mpResourcesMetaInfos[pReader->GetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId)] = std::move(Deserialize(pReader));
 
-		//result = result | pReader->EndGroup();
+				result = result | pReader->EndGroup();
+			}
+			result = result | pReader->EndGroup();
+		}
+
+		result = result | pReader->EndGroup();
 
 		return RC_OK;
 	}
@@ -69,20 +113,21 @@ namespace TDEngine2
 		}
 		result = result | pWriter->EndGroup();
 
-		/*result = result | pWriter->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mResourcesCollectionKeyId, true);
+		result = result | pWriter->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mResourcesMetaCollectionKeyId, true);
 
-		for (auto&& pCurrResourceConfig : mpResourcesRuntimeConfigs)
+		for (auto&& pCurrResourceConfig : mpResourcesMetaInfos)
 		{
 			result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr(), false);
 			{
 				result = result | pWriter->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mSingleResourceKeyId, false);
-				result = result | pCurrResourceConfig->Save(pWriter);
+				result = result | pWriter->SetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId, pCurrResourceConfig.first);
+				result = result | pCurrResourceConfig.second->Save(pWriter);
 				result = result | pWriter->EndGroup();
 			}
 			result = result | pWriter->EndGroup();
 		}
 
-		result = result | pWriter->EndGroup();*/
+		result = result | pWriter->EndGroup();
 
 		return RC_OK;
 	}

@@ -1,8 +1,29 @@
 #include "./../../include/core/CBaseResource.h"
+#include "../../include/core/IResourceFactory.h"
 
 
 namespace TDEngine2
 {
+	/*!
+		\brief TBaseResourceParameters's definition
+	*/
+
+	E_RESULT_CODE TBaseResourceParameters::Load(IArchiveReader* pReader)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE TBaseResourceParameters::Save(IArchiveWriter* pWriter)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+
+	/*!
+		\brief CBaseResource's definition 
+	*/
+
+
 	CBaseResource::CBaseResource() :
 		CBaseObject(), mId(TResourceId::Invalid), mState(E_RESOURCE_STATE_TYPE::RST_PENDING), mLoadingPolicy(E_RESOURCE_LOADING_POLICY::SYNCED)
 	{

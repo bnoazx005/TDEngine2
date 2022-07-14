@@ -3,6 +3,7 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/IResourceFactory.h"
 #include "../../include/core/IResource.h"
+#include "../../include/core/IResourcesRuntimeManifest.h"
 #include <memory>
 #include <algorithm>
 
@@ -14,7 +15,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CResourceManager::Init(TPtr<IJobManager> pJobManager)
+	E_RESULT_CODE CResourceManager::Init(TPtr<IJobManager> pJobManager, TPtr<IResourcesRuntimeManifest> pResourcesRuntimeManifest)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -29,6 +30,7 @@ namespace TDEngine2
 		}
 
 		mpJobManager = pJobManager;
+		mpResourcesRuntimeManifest = pResourcesRuntimeManifest;
 
 		mIsInitialized = true;
 
@@ -451,8 +453,8 @@ namespace TDEngine2
 	}
 
 
-	IResourceManager* CreateResourceManager(TPtr<IJobManager> pJobManager, E_RESULT_CODE& result)
+	IResourceManager* CreateResourceManager(TPtr<IJobManager> pJobManager, TPtr<IResourcesRuntimeManifest> pResourcesRuntimeManifest, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IResourceManager, CResourceManager, result, pJobManager);
+		return CREATE_IMPL(IResourceManager, CResourceManager, result, pJobManager, pResourcesRuntimeManifest);
 	}
 }

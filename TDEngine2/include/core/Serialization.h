@@ -48,8 +48,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Save(IArchiveWriter* pWriter) = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISerializable);
 	};
 
 

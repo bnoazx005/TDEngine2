@@ -8,6 +8,7 @@
 
 
 #include "IBaseObject.h"
+#include "Serialization.h"
 #include "./../utils/Types.h"
 #include "./../utils/Utils.h"
 #include <string>
@@ -28,9 +29,29 @@ namespace TDEngine2
 		Also the struct contains common parameters for all resources
 	*/
 
-	typedef struct TBaseResourceParameters
+	typedef struct TBaseResourceParameters: ISerializable
 	{
 		TDE2_API virtual ~TBaseResourceParameters() = default;
+
+		/*!
+			\brief The method deserializes object's state from given reader
+
+			\param[in, out] pReader An input stream of data that contains information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+		/*!
+			\brief The method serializes object's state into given stream
+
+			\param[in, out] pWriter An output stream of data that writes information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 		E_RESOURCE_LOADING_POLICY mLoadingPolicy = E_RESOURCE_LOADING_POLICY::SYNCED;
 	} TBaseResourceParameters, *TBaseResourceParametersPtr;

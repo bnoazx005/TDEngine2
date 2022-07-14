@@ -27,13 +27,14 @@ namespace TDEngine2
 		\brief A factory function for creation objects of CResourceManager's type.
 
 		\param[in] pJobManager A pointer to IJobManager's implementation
+				\param[in] pResourcesRuntimeManifest A pointer to IResourcesRuntimeManifest's implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CResourceManager's implementation
 	*/
 
-	TDE2_API IResourceManager* CreateResourceManager(TPtr<IJobManager> pJobManager, E_RESULT_CODE& result);
+	TDE2_API IResourceManager* CreateResourceManager(TPtr<IJobManager> pJobManager, TPtr<IResourcesRuntimeManifest> pResourcesRuntimeManifest, E_RESULT_CODE& result);
 
 
 	/*!
@@ -45,7 +46,7 @@ namespace TDEngine2
 	class CResourceManager : public IResourceManager, public CBaseObject
 	{
 		public:
-			friend TDE2_API IResourceManager* CreateResourceManager(TPtr<IJobManager>, E_RESULT_CODE&);
+			friend TDE2_API IResourceManager* CreateResourceManager(TPtr<IJobManager>, TPtr<IResourcesRuntimeManifest>, E_RESULT_CODE&);
 		protected:
 			typedef std::unordered_map<TypeId, TResourceLoaderId>         TResourceLoadersMap;
 			
@@ -67,11 +68,12 @@ namespace TDEngine2
 				\brief The method initializes an inner state of a resource manager
 
 				\param[in] pJobManager A pointer to IJobManager's implementation
+				\param[in] pResourcesRuntimeManifest A pointer to IResourcesRuntimeManifest's implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IJobManager> pJobManager) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IJobManager> pJobManager, TPtr<IResourcesRuntimeManifest> pResourcesRuntimeManifest) override;
 
 			/*!
 				\brief The method registers specified resource loader within a manager
@@ -216,24 +218,26 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			TResourceLoadersMap         mResourceLoadersMap;
+			TResourceLoadersMap             mResourceLoadersMap;
 
-			TResourceLoadersContainer   mRegisteredResourceLoaders;
+			TResourceLoadersContainer       mRegisteredResourceLoaders;
 
-			TResourceFactoriesMap       mResourceFactoriesMap;
+			TResourceFactoriesMap           mResourceFactoriesMap;
 
-			TResourceFactoriesContainer mRegisteredResourceFactories;
+			TResourceFactoriesContainer     mRegisteredResourceFactories;
 
-			TResourcesMap               mResourcesMap;
+			TResourcesMap                   mResourcesMap;
 
-			TResourcesContainer         mResources;
+			TResourcesContainer             mResources;
 
-			TResourceTypesAliasesMap    mResourceTypesAliases;
+			TResourceTypesAliasesMap        mResourceTypesAliases;
 
-			TResourceTypesPoliciesMap   mResourceTypesPoliciesRegistry;
+			TResourceTypesPoliciesMap       mResourceTypesPoliciesRegistry;
 
-			TPtr<IJobManager>           mpJobManager;
+			TPtr<IJobManager>               mpJobManager;
 
-			mutable std::mutex          mMutex;
+			TPtr<IResourcesRuntimeManifest> mpResourcesRuntimeManifest;
+
+			mutable std::mutex              mMutex;
 	};
 }

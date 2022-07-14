@@ -20,6 +20,7 @@
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/core/CProxyGraphicsContext.h"
+#include "../../include/core/CResourcesRuntimeManifest.h"
 #include "../../include/game/CSaveManager.h"
 #include "../../include/platform/win32/CWin32WindowSystem.h"
 #include "../../include/platform/win32/CWin32FileSystem.h"
@@ -223,7 +224,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpResourceManagerInstance = TPtr<IResourceManager>(CreateResourceManager(mpJobManagerInstance, result));
+		auto&& pResourcesManifest = TPtr<IResourcesRuntimeManifest>(CreateResourcesRuntimeManifest(result));
+		if (RC_OK != result)
+		{
+			LOG_ERROR("[CBaseEngineCoreBuilder] Coudn't load resources runtime manifest");
+			return result;
+		}
+
+		mpResourceManagerInstance = TPtr<IResourceManager>(CreateResourceManager(mpJobManagerInstance, pResourcesManifest, result));
 
 		if (result != RC_OK)
 		{
