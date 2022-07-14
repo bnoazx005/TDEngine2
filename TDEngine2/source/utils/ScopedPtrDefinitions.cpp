@@ -11,6 +11,7 @@
 #include "../../include/core/IResourceFactory.h"
 #include "../../include/core/IResourceLoader.h"
 #include "../../include/core/IResource.h"
+#include "../../include/core/IResourcesRuntimeManifest.h"
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/ecs/IComponentManager.h"
@@ -53,4 +54,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IFramePostProcessor)
 	TDE2_DEFINE_SCOPED_PTR(CRenderQueue)
 	TDE2_DEFINE_SCOPED_PTR(IPrefabsRegistry)
+	TDE2_DEFINE_SCOPED_PTR(IResourcesRuntimeManifest)
 }

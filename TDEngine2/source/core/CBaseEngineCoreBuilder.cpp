@@ -215,6 +215,35 @@ namespace TDEngine2
 		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpFileSystemInstance));
 	}
 
+
+	static TPtr<IResourcesRuntimeManifest> LoadResourcesRuntimeManifest(TPtr<IFileSystem> pFileSystem, const std::string& manifestFilepath)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto&& pResourcesManifest = TPtr<IResourcesRuntimeManifest>(CreateResourcesRuntimeManifest(result));
+		if (RC_OK != result)
+		{
+			LOG_ERROR("[CBaseEngineCoreBuilder] Coudn't load resources runtime manifest");
+			return nullptr;
+		}
+
+		auto openManifestFileResult = pFileSystem->Open<IYAMLFileReader>(manifestFilepath);
+		if (openManifestFileResult.HasError())
+		{
+			LOG_ERROR(Wrench::StringUtils::Format("[CBaseEngineCoreBuilder] Coudn't find a manifest at filepath: {0}", manifestFilepath));
+			return nullptr;
+		}
+
+		if (IYAMLFileReader* pManifestFile = pFileSystem->Get<IYAMLFileReader>(openManifestFileResult.Get()))
+		{
+			pResourcesManifest->Load(pManifestFile);
+			pManifestFile->Close();
+		}
+
+		return pResourcesManifest;
+	}
+
+
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureResourceManager()
 	{
 		if (!mIsInitialized || !mpJobManagerInstance || !mpFileSystemInstance)
@@ -224,14 +253,10 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto&& pResourcesManifest = TPtr<IResourcesRuntimeManifest>(CreateResourcesRuntimeManifest(result));
-		if (RC_OK != result)
-		{
-			LOG_ERROR("[CBaseEngineCoreBuilder] Coudn't load resources runtime manifest");
-			return result;
-		}
-
-		mpResourceManagerInstance = TPtr<IResourceManager>(CreateResourceManager(mpJobManagerInstance, pResourcesManifest, result));
+		mpResourceManagerInstance = TPtr<IResourceManager>(CreateResourceManager(
+													mpJobManagerInstance, 
+													LoadResourcesRuntimeManifest(mpFileSystemInstance, CProjectSettings::Get()->mCommonSettings.mPathToResourcesRuntimeManifest), 
+													result));
 
 		if (result != RC_OK)
 		{
@@ -525,7 +550,43 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE MountDirectories(const TPtr<IFileSystem> pFileSystem, E_GRAPHICS_CONTEXT_GAPI_TYPE type)
+	/*!
+		\brief The function loads all user-defined directories and Resources/ alias. All the GAPI dependent stuffs are mounted later
+	*/
+
+	static E_RESULT_CODE MountMainDirectories(const TPtr<IFileSystem> pFileSystem)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+#if TDE2_PRODUCTION_MODE
+		static const std::string baseResourcesPath = "../../Resources/";
+#else
+		static const std::string baseResourcesPath = "../../Resources/";
+		TDE2_UNIMPLEMENTED();
+#endif
+
+		/// \note Register built-in application's paths
+		if (RC_OK != (result = pFileSystem->MountPhysicalPath(baseResourcesPath, "Resources/")))
+		{
+			return result;
+		}
+
+		/// \note Register user's defined aliases for paths
+		for (auto&& currUserMountDirectory : CProjectSettings::Get()->mCommonSettings.mAdditionalMountedDirectories)
+		{
+			if (currUserMountDirectory.mPath.find("Shaders") != std::string::npos) /// \note For shaders directories add graphics context subdirectory to end
+			{
+				continue;
+			}
+
+			result = result | pFileSystem->MountPhysicalPath(currUserMountDirectory.mPath, currUserMountDirectory.mAlias);
+		}
+
+		return result;
+	}
+
+
+	static E_RESULT_CODE MountGraphicsDirectories(const TPtr<IFileSystem> pFileSystem, E_GRAPHICS_CONTEXT_GAPI_TYPE type)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -540,7 +601,6 @@ namespace TDEngine2
 #endif
 
 		static const std::string baseShadersPath   = baseResourcesPath + "Shaders/";
-		static const std::string baseMaterialsPath = baseResourcesPath + "Materials/";
 
 		std::string baseDefaultShadersPath     = baseShadersPath + "Default";
 		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
@@ -568,33 +628,34 @@ namespace TDEngine2
 		}
 
 		/// \note Register built-in application's paths
-		if ((RC_OK != (result = pFileSystem->MountPhysicalPath(baseResourcesPath, "Resources/"))) ||
-			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
+		if ((RC_OK != (result = pFileSystem->MountPhysicalPath(baseDefaultShadersPath, "Shaders/Default/"))) ||
 			(RC_OK != (result = pFileSystem->MountPhysicalPath(basePostEffectsShadersPath, "Shaders/PostEffects/"))) ||
 			(RC_OK != (result = pFileSystem->MountPhysicalPath(baseShadersPath, "Shaders/", 1))))
 		{
 			return result;
 		}
 
-		/// \note Register user's defined aliases for paths
+		/// \note Register user's defined aliases for paths (graphics only)
 		for (auto&& currUserMountDirectory : CProjectSettings::Get()->mCommonSettings.mAdditionalMountedDirectories)
 		{
-			if (currUserMountDirectory.mPath.find("Shaders") != std::string::npos) /// \note For shaders directories add graphics context subdirectory to end
+			if (currUserMountDirectory.mPath.find("Shaders") == std::string::npos) /// \note At this stage register only graphics related paths
 			{
-				const bool pathEndsWithSeparator = Wrench::StringUtils::EndsWith(currUserMountDirectory.mPath, "/");
+				continue;
+			}
 
-				switch (type)
-				{
-					case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11:
-						currUserMountDirectory.mPath.append(pathEndsWithSeparator ? hlslSubDirectory.substr(1) : hlslSubDirectory);
-						break;
-					case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X:
-						currUserMountDirectory.mPath.append(pathEndsWithSeparator ? glslSubDirectory.substr(1) : glslSubDirectory);
-						break;
-					default:
-						TDE2_UNREACHABLE();
-						break;
-				}
+			const bool pathEndsWithSeparator = Wrench::StringUtils::EndsWith(currUserMountDirectory.mPath, "/");
+
+			switch (type)
+			{
+				case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11:
+					currUserMountDirectory.mPath.append(pathEndsWithSeparator ? hlslSubDirectory.substr(1) : hlslSubDirectory);
+					break;
+				case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X:
+					currUserMountDirectory.mPath.append(pathEndsWithSeparator ? glslSubDirectory.substr(1) : glslSubDirectory);
+					break;
+				default:
+					TDE2_UNREACHABLE();
+					break;
 			}
 
 			result = result | pFileSystem->MountPhysicalPath(currUserMountDirectory.mPath, currUserMountDirectory.mAlias);
@@ -627,6 +688,8 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configureFileSystem());
 		PANIC_ON_FAILURE(_initEngineSettings());
 
+		PANIC_ON_FAILURE(MountMainDirectories(mpFileSystemInstance));
+
 		const bool isWindowModeEnabled = !(static_cast<E_PARAMETERS>(CProjectSettings::Get()->mCommonSettings.mFlags) & E_PARAMETERS::P_WINDOWLESS_MODE);
 
 		PANIC_ON_FAILURE(_configureJobManager(CProjectSettings::Get()->mCommonSettings.mMaxNumOfWorkerThreads));
@@ -642,7 +705,7 @@ namespace TDEngine2
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mRendererPluginFilePath : Wrench::StringUtils::GetEmptyStr()));
 
-		PANIC_ON_FAILURE(MountDirectories(mpFileSystemInstance, mpGraphicsContextInstance->GetContextInfo().mGapiType));
+		PANIC_ON_FAILURE(MountGraphicsDirectories(mpFileSystemInstance, mpGraphicsContextInstance->GetContextInfo().mGapiType));
 
 		if (isWindowModeEnabled) { _configureAudioContext(CProjectSettings::Get()->mAudioSettings.mAudioPluginFilePath); }
 		if (isWindowModeEnabled) { PANIC_ON_FAILURE(_configureInputContext()); }

@@ -20,6 +20,7 @@ namespace TDEngine2
 			static const std::string mFlagsKey;
 			static const std::string mAdditionalMountedDirectoriesKey;
 			static const std::string mUserPluginsArrayKey;
+			static const std::string mResourcesRuntimeManifestPathKeyId;
 
 			struct TFilepathAliasArchiveKeys
 			{
@@ -77,6 +78,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey = "flags";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mAdditionalMountedDirectoriesKey = "additional_mounted_dirs";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mUserPluginsArrayKey = "user_plugins_list";
+	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mResourcesRuntimeManifestPathKeyId = "resources_runtime_manifest_path";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mAliasKey = "alias";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mPathKey = "path";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TPluginArchiveKeys::mId = "id";
@@ -115,6 +117,10 @@ namespace TDEngine2
 			commonSettings.mApplicationName = pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey);
 			commonSettings.mMaxNumOfWorkerThreads = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey);
 			commonSettings.mFlags = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mFlagsKey);
+
+			commonSettings.mPathToResourcesRuntimeManifest = pFileReader->GetString(
+																	TProjectSettingsArchiveKeys::TCommonSettingsKeys::mResourcesRuntimeManifestPathKeyId, 
+																	commonSettings.mPathToResourcesRuntimeManifest);
 
 			/// \note Read user's defined directories
 			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mAdditionalMountedDirectoriesKey);

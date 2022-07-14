@@ -108,7 +108,7 @@ namespace TDEngine2
 
 		result = result | pWriter->BeginGroup("meta");
 		{
-			result = result | pWriter->SetString("resource_type", "resources_Runtime_manifest");
+			result = result | pWriter->SetString("resource_type", "resources_runtime_manifest");
 			result = result | pWriter->SetUInt16("version_tag", mVersionTag);
 		}
 		result = result | pWriter->EndGroup();

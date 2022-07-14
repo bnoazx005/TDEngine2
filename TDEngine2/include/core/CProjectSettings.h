@@ -79,6 +79,8 @@ namespace TDEngine2
 
 				std::vector<TFilesystemPathAlias> mAdditionalMountedDirectories;
 				std::vector<std::string> mUserPluginsToLoad;
+
+				std::string mPathToResourcesRuntimeManifest = "ProjectResources/ResourcesRuntimeMeta.manifest";
 			} mCommonSettings;
 
 

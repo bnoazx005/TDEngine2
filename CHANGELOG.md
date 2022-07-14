@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **tde2_mesh_converter** now supports batched conversion based on resources manifest's information.
 
+- **MountDirectories** function in CBaseEngineCoreBuilder.cpp was splitted into two stages.
+
 ### Fixed
 
 - Horizontal layout alignment was fixed for images and selectable items.
