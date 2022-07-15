@@ -73,9 +73,10 @@ static TResult<TPtr<CResourcesBuildManifest>> OpenFromFile(TPtr<IWindowSystem> p
 }
 
 
-static E_RESULT_CODE SaveToFile(TPtr<IFileSystem> pFileSystem, const TPtr<CResourcesBuildManifest>& pResourcesManifest, const std::string& destFilePath)
+template <typename T>
+static E_RESULT_CODE SaveToFile(TPtr<IFileSystem> pFileSystem, const TPtr<T>& pObject, const std::string& destFilePath)
 {
-	if (destFilePath.empty() || !pFileSystem || !pResourcesManifest)
+	if (destFilePath.empty() || !pFileSystem || !pObject)
 	{
 		return RC_INVALID_ARGS;
 	}
@@ -86,7 +87,7 @@ static E_RESULT_CODE SaveToFile(TPtr<IFileSystem> pFileSystem, const TPtr<CResou
 	{
 		if (auto pFileWriter = pFileSystem->Get<IYAMLFileWriter>(openFileResult.Get()))
 		{
-			if (RC_OK != (result = pResourcesManifest->Save(pFileWriter)))
+			if (RC_OK != (result = pObject->Save(pFileWriter)))
 			{
 				return result;
 			}
@@ -99,6 +100,36 @@ static E_RESULT_CODE SaveToFile(TPtr<IFileSystem> pFileSystem, const TPtr<CResou
 	}
 
 	return RC_OK;
+}
+
+
+static std::unique_ptr<TTexture2DParameters> CreateTexture2DRuntimeParamsFromMetaInfo(const TTexture2DResourceBuildInfo& textureInfo)
+{
+	std::unique_ptr<TTexture2DParameters> pTextureRuntimeParams = std::make_unique<TTexture2DParameters>();
+
+	pTextureRuntimeParams->mTexSamplerDesc.mFilteringType = textureInfo.mFilteringType;
+	pTextureRuntimeParams->mTexSamplerDesc.mUAddressMode = textureInfo.mAddressMode;
+	pTextureRuntimeParams->mTexSamplerDesc.mVAddressMode = textureInfo.mAddressMode;
+	pTextureRuntimeParams->mTexSamplerDesc.mWAddressMode = textureInfo.mAddressMode;
+
+	return std::move(pTextureRuntimeParams);
+}
+
+
+static TPtr<IResourcesRuntimeManifest> PrepareRuntimeManifest(TPtr<CResourcesBuildManifest>& pManifest)
+{
+	E_RESULT_CODE result = RC_OK;
+
+	TPtr<IResourcesRuntimeManifest> pRuntimeManifest = TPtr<IResourcesRuntimeManifest>(CreateResourcesRuntimeManifest(result));
+	TDE2_ASSERT(pRuntimeManifest);
+
+	pManifest->ForEachRegisteredResource<TTexture2DResourceBuildInfo>([&pRuntimeManifest](const TResourceBuildInfo& info)
+	{
+		pRuntimeManifest->AddResourceMeta(info.mRelativePathToResource, CreateTexture2DRuntimeParamsFromMetaInfo(dynamic_cast<const TTexture2DResourceBuildInfo&>(info)));
+		return true;
+	});
+
+	return pRuntimeManifest;
 }
 
 
@@ -131,6 +162,17 @@ static void DrawMainMenu(IEngineCore* pEngineCore, TPtr<IWindowSystem> pWindowSy
 			});
 
 			imguiContext.MenuItem("Quit", "Ctrl+Q", [pEngineCore] { pEngineCore->Quit(); });
+		});
+
+		imguiContext.MenuGroup("Build", [pFileSystem, &pManifest, pWindowSystem](IImGUIContext& imguiContext)
+		{
+			imguiContext.MenuItem("Export to Runtime Manifest", Wrench::StringUtils::GetEmptyStr(), [pFileSystem, &pManifest, pWindowSystem]
+			{
+				if (auto saveFileDialogResult = pWindowSystem->ShowSaveFileDialog(FileExtensionsFilter))
+				{
+					SaveToFile(pFileSystem, PrepareRuntimeManifest(pManifest), saveFileDialogResult.Get());
+				}
+			});
 		});
 	});
 }

@@ -39,6 +39,26 @@ namespace TDEngine2
 		*/
 
 		TDE2_API TTexture2DParameters(U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount = 1, U32 samplesCount = 1, U32 samplingQuality = 0);
+		
+		/*!
+			\brief The method deserializes object's state from given reader
+
+			\param[in, out] pReader An input stream of data that contains information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+		/*!
+			\brief The method serializes object's state into given stream
+
+			\param[in, out] pWriter An output stream of data that writes information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 		U32                 mWidth;
 

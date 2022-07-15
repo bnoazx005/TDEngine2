@@ -4,6 +4,7 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IJobManager.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/metadata.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <string>
@@ -12,6 +13,14 @@
 
 namespace TDEngine2
 {
+	struct TTextureParametersArchiveKeys
+	{
+		static const std::string mFilterTypeKeyId;
+	};
+
+	const std::string TTextureParametersArchiveKeys::mFilterTypeKeyId = "filter_type";
+
+
 	/*!
 		\note The declaration of TTexture2DParameters is placed at ITexture2D.h
 	*/
@@ -21,6 +30,25 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE TTexture2DParameters::Load(IArchiveReader* pReader)
+	{
+		mTexSamplerDesc.mFilteringType = Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::FromString(pReader->GetString(TTextureParametersArchiveKeys::mFilterTypeKeyId));
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE TTexture2DParameters::Save(IArchiveWriter* pWriter)
+	{
+		pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TTexture2DParameters)));
+		pWriter->SetString(TTextureParametersArchiveKeys::mFilterTypeKeyId, Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::ToString(mTexSamplerDesc.mFilteringType));
+
+		return RC_OK;
+	}
+
+
+	/*!
+		\brief CBaseTexture2D's definition
+	*/
 
 	CBaseTexture2D::CBaseTexture2D() :
 		CBaseResource(), mTextureSamplerParams()
