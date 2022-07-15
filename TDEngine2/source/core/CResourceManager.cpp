@@ -249,6 +249,12 @@ namespace TDEngine2
 		return _loadResource(typeId, name, loadingPolicy);
 	}
 
+	const TBaseResourceParameters* CResourceManager::GetResourceMeta(const std::string& name) const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return mpResourcesRuntimeManifest ? mpResourcesRuntimeManifest->GetResourceMeta(name) : nullptr;
+	}
+
 	TResourceId CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
 		return _loadResourceWithResourceProviderInfo(resourceTypeId, resourceTypeId, resourceTypeId, name, loadingPolicy);

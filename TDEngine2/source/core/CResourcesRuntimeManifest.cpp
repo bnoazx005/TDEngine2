@@ -166,10 +166,10 @@ namespace TDEngine2
 		auto it = mpResourcesMetaInfos.find(resourceId);
 		if (it == mpResourcesMetaInfos.cend())
 		{
-			return it->second.get();
+			return nullptr;
 		}
 
-		return nullptr;
+		return it->second.get();
 	}
 
 

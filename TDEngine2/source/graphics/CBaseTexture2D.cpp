@@ -237,8 +237,15 @@ namespace TDEngine2
 				/// create new internal texture
 				ITexture2D* pTextureResource = dynamic_cast<ITexture2D*>(pResource);
 
+				const TTexture2DParameters* pTextureMetaInfo = dynamic_cast<const TTexture2DParameters*>(mpResourceManager->GetResourceMeta(pResource->GetName()));
+				TTexture2DParameters textureParams = pTextureMetaInfo ? *pTextureMetaInfo : TTexture2DParameters { static_cast<U32>(width), static_cast<U32>(height), internalFormat, 1, 1, 0 };
+
+				textureParams.mWidth  = static_cast<U32>(width);
+				textureParams.mHeight = static_cast<U32>(height);
+				textureParams.mFormat = internalFormat;
+
 				/// \todo replace magic constants with proper computations
-				result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), { static_cast<U32>(width), static_cast<U32>(height), internalFormat, 1, 1, 0 });
+				result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), textureParams);
 
 				if (RC_OK != result)
 				{

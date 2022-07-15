@@ -201,6 +201,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResourceId GetResourceId(const std::string& name) const override;
+
+			TDE2_API const TBaseResourceParameters* GetResourceMeta(const std::string& name) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceManager)
 
