@@ -3,10 +3,38 @@ meta:
   version_tag: 1
 resources_meta_collection: 
   - resource_meta: 
+      address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
-      id: .\Textures\bricks2.jpg
+      id: ./Textures/bricks2.jpg
+      mips_count: 0
+      mips_enabled: 0
       type_id: 308810324
   - resource_meta: 
+      address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
-      id: .\Textures\DefaultSprite.tga
+      id: ./Textures/rust_normals.png
+      mips_count: 0
+      mips_enabled: 0
       type_id: 308810324
+  - resource_meta: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      id: ./Textures/DefaultSprite.tga
+      mips_count: 0
+      mips_enabled: 0
+      type_id: 308810324
+  - resource_meta: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      id: ./Textures/rust_albedo.png
+      mips_count: 0
+      mips_enabled: 0
+      type_id: 308810324
+  - resource_meta: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      id: ./Textures/rust_properties.tga
+      mips_count: 0
+      mips_enabled: 0
+      type_id: 308810324
+

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IFileSystem** was extended with a new public method GetParentPath.
 
+- Now textures could be configured during development process and loaded without any code with defined parameters that come from the runtime manifest.
+
 ### Changed
 
 ### Fixed

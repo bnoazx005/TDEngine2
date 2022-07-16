@@ -113,6 +113,9 @@ static std::unique_ptr<TTexture2DParameters> CreateTexture2DRuntimeParamsFromMet
 	pTextureRuntimeParams->mTexSamplerDesc.mVAddressMode = textureInfo.mAddressMode;
 	pTextureRuntimeParams->mTexSamplerDesc.mWAddressMode = textureInfo.mAddressMode;
 
+	pTextureRuntimeParams->mTexSamplerDesc.mUseMipMaps = textureInfo.mGenerateMipMaps;
+	pTextureRuntimeParams->mNumOfMipLevels = 1; /// \fixme Replace with corresponding parameter
+
 	return std::move(pTextureRuntimeParams);
 }
 

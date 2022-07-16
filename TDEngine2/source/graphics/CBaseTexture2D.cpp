@@ -16,9 +16,17 @@ namespace TDEngine2
 	struct TTextureParametersArchiveKeys
 	{
 		static const std::string mFilterTypeKeyId;
+		static const std::string mAddressModeKeyId;
+		static const std::string mMipMapsEnabledKeyId;
+		static const std::string mMipMapsCountKeyId;
+		static const std::string mSamplesCountKeyId;
 	};
 
 	const std::string TTextureParametersArchiveKeys::mFilterTypeKeyId = "filter_type";
+	const std::string TTextureParametersArchiveKeys::mAddressModeKeyId = "address_mode";
+	const std::string TTextureParametersArchiveKeys::mMipMapsEnabledKeyId = "mips_enabled";
+	const std::string TTextureParametersArchiveKeys::mMipMapsCountKeyId = "mips_count";
+	const std::string TTextureParametersArchiveKeys::mSamplesCountKeyId = "samples_count";
 
 
 	/*!
@@ -33,6 +41,15 @@ namespace TDEngine2
 	E_RESULT_CODE TTexture2DParameters::Load(IArchiveReader* pReader)
 	{
 		mTexSamplerDesc.mFilteringType = Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::FromString(pReader->GetString(TTextureParametersArchiveKeys::mFilterTypeKeyId));
+		
+		mTexSamplerDesc.mUAddressMode = Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::FromString(pReader->GetString(TTextureParametersArchiveKeys::mAddressModeKeyId));
+		mTexSamplerDesc.mVAddressMode = mTexSamplerDesc.mUAddressMode;
+		mTexSamplerDesc.mWAddressMode = mTexSamplerDesc.mUAddressMode;
+
+		mTexSamplerDesc.mUseMipMaps = pReader->GetBool(TTextureParametersArchiveKeys::mMipMapsEnabledKeyId, true);
+		mNumOfMipLevels = mTexSamplerDesc.mUseMipMaps ? pReader->GetUInt32(TTextureParametersArchiveKeys::mMipMapsCountKeyId, 1) : 1;
+
+		mNumOfSamples = pReader->GetUInt32(TTextureParametersArchiveKeys::mSamplesCountKeyId, 1);
 
 		return RC_OK;
 	}
@@ -40,7 +57,14 @@ namespace TDEngine2
 	E_RESULT_CODE TTexture2DParameters::Save(IArchiveWriter* pWriter)
 	{
 		pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TTexture2DParameters)));
+
 		pWriter->SetString(TTextureParametersArchiveKeys::mFilterTypeKeyId, Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::ToString(mTexSamplerDesc.mFilteringType));
+		pWriter->SetString(TTextureParametersArchiveKeys::mAddressModeKeyId, Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::ToString(mTexSamplerDesc.mUAddressMode));
+		
+		pWriter->SetBool(TTextureParametersArchiveKeys::mMipMapsEnabledKeyId, mTexSamplerDesc.mUseMipMaps);
+		pWriter->SetUInt32(TTextureParametersArchiveKeys::mMipMapsCountKeyId, mNumOfMipLevels);
+		
+		pWriter->SetUInt32(TTextureParametersArchiveKeys::mSamplesCountKeyId, mNumOfSamples);
 
 		return RC_OK;
 	}
@@ -123,21 +147,25 @@ namespace TDEngine2
 	void CBaseTexture2D::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
 	{
 		mTextureSamplerParams.mUAddressMode = mode;
+		mCurrTextureSamplerHandle = TTextureSamplerId::Invalid; /// \note Reset current sampler to update it in Bind method later
 	}
 
 	void CBaseTexture2D::SetVWrapMode(const E_ADDRESS_MODE_TYPE& mode)
 	{
 		mTextureSamplerParams.mVAddressMode = mode;
+		mCurrTextureSamplerHandle = TTextureSamplerId::Invalid; /// \note Reset current sampler to update it in Bind method later
 	}
 
 	void CBaseTexture2D::SetWWrapMode(const E_ADDRESS_MODE_TYPE& mode)
 	{
 		mTextureSamplerParams.mWAddressMode = mode;
+		mCurrTextureSamplerHandle = TTextureSamplerId::Invalid; /// \note Reset current sampler to update it in Bind method later
 	}
 
 	void CBaseTexture2D::SetFilterType(const E_TEXTURE_FILTER_TYPE& type)
 	{
 		mTextureSamplerParams.mFilteringType = type;
+		mCurrTextureSamplerHandle = TTextureSamplerId::Invalid; /// \note Reset current sampler to update it in Bind method later
 	}
 
 	U32 CBaseTexture2D::GetWidth() const
@@ -290,6 +318,16 @@ namespace TDEngine2
 				}
 
 				pResource->SetState(E_RESOURCE_STATE_TYPE::RST_LOADED);
+
+				/// \note Update parameters of the texture
+				if (pTextureMetaInfo)
+				{
+					pTextureResource->SetUWrapMode(textureParams.mTexSamplerDesc.mUAddressMode);
+					pTextureResource->SetVWrapMode(textureParams.mTexSamplerDesc.mVAddressMode);
+					pTextureResource->SetWWrapMode(textureParams.mTexSamplerDesc.mWAddressMode);
+
+					pTextureResource->SetFilterType(textureParams.mTexSamplerDesc.mFilteringType);
+				}
 
 				stbi_image_free(pTextureData);
 			});
