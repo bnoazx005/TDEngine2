@@ -83,7 +83,10 @@ namespace TDEngine2
 			{
 				result = result | pReader->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mSingleResourceKeyId);
 
-				mpResourcesMetaInfos[pReader->GetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId)] = std::move(Deserialize(pReader));
+				auto&& resourcePath = pReader->GetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId);
+				resourcePath = mBaseResourcesPathPrefix + (Wrench::StringUtils::StartsWith(resourcePath, ".") ? resourcePath.substr(1) : resourcePath);
+
+				mpResourcesMetaInfos[resourcePath] = std::move(Deserialize(pReader));
 
 				result = result | pReader->EndGroup();
 			}
@@ -149,6 +152,14 @@ namespace TDEngine2
 		}
 
 		it->second = std::move(pResourceMeta);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CResourcesRuntimeManifest::SetBaseResourcesPath(const std::string& value)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mBaseResourcesPathPrefix = value;
 
 		return RC_OK;
 	}

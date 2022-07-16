@@ -67,6 +67,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE AddResourceMeta(const std::string& resourceId, std::unique_ptr<TBaseResourceParameters> pResourceMeta) override;
 
+			TDE2_API E_RESULT_CODE SetBaseResourcesPath(const std::string& value) override;
+
 			/*!
 				\return The method returns true if there is configuration for the given resource's identifier
 			*/
@@ -78,10 +80,12 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourcesRuntimeManifest)
 
 		private:
-			mutable std::mutex                                    mMutex;
+			mutable std::mutex                                                        mMutex;
 
-			static constexpr U16                                  mVersionTag = 0x1;
+			static constexpr U16                                                      mVersionTag = 0x1;
 
 			std::unordered_map<std::string, std::unique_ptr<TBaseResourceParameters>> mpResourcesMetaInfos;
+
+			std::string                                                               mBaseResourcesPathPrefix;
 	};
 }

@@ -1,0 +1,12 @@
+meta: 
+  resource_type: resources_runtime_manifest
+  version_tag: 1
+resources_meta_collection: 
+  - resource_meta: 
+      filter_type: FT_BILINEAR
+      id: .\Textures\bricks2.jpg
+      type_id: 308810324
+  - resource_meta: 
+      filter_type: FT_BILINEAR
+      id: .\Textures\DefaultSprite.tga
+      type_id: 308810324

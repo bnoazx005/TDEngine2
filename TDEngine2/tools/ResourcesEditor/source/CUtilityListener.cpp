@@ -108,6 +108,7 @@ static std::unique_ptr<TTexture2DParameters> CreateTexture2DRuntimeParamsFromMet
 	std::unique_ptr<TTexture2DParameters> pTextureRuntimeParams = std::make_unique<TTexture2DParameters>();
 
 	pTextureRuntimeParams->mTexSamplerDesc.mFilteringType = textureInfo.mFilteringType;
+
 	pTextureRuntimeParams->mTexSamplerDesc.mUAddressMode = textureInfo.mAddressMode;
 	pTextureRuntimeParams->mTexSamplerDesc.mVAddressMode = textureInfo.mAddressMode;
 	pTextureRuntimeParams->mTexSamplerDesc.mWAddressMode = textureInfo.mAddressMode;

@@ -236,6 +236,7 @@ namespace TDEngine2
 
 		if (IYAMLFileReader* pManifestFile = pFileSystem->Get<IYAMLFileReader>(openManifestFileResult.Get()))
 		{
+			pResourcesManifest->SetBaseResourcesPath(pFileSystem->GetParentPath(manifestFilepath));
 			pResourcesManifest->Load(pManifestFile);
 			pManifestFile->Close();
 		}

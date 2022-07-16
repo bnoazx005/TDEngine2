@@ -37,6 +37,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE AddResourceMeta(const std::string& resourceId, std::unique_ptr<TBaseResourceParameters> pResourceMeta) = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetBaseResourcesPath(const std::string& value) = 0;
+
 			/*!
 				\return The method returns true if there is configuration for the given resource's identifier
 			*/
