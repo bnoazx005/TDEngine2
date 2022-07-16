@@ -309,6 +309,11 @@ namespace TDEngine2
 #endif
 	}
 
+	std::string CBaseFileSystem::GetParentPath(const std::string& path) const
+	{
+		return fs::path(path).parent_path().string();
+	}
+
 	std::string CBaseFileSystem::CombinePath(const std::string& left, const std::string& right) const
 	{
 		std::string resultPath = _normalizePathView(left, true);

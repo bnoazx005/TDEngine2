@@ -206,6 +206,8 @@ namespace TDEngine2
 
 			TDE2_API virtual std::string GetUserDirectory() const = 0;
 
+			TDE2_API virtual std::string GetParentPath(const std::string& path) const = 0;
+
 			/*!
 				\brief The method returns a pointer of a file by its handle
 
