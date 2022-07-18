@@ -81,7 +81,22 @@ namespace TDEngine2
 				return Wrench::TErrValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
 			}
 
-			pResult->mPSByteCode = std::move(geometryShaderOutput.Get());
+			pResult->mGSByteCode = std::move(geometryShaderOutput.Get());
+		}
+
+		if (_isShaderStageEnabled(SST_COMPUTE, shaderMetadata))
+		{
+			/// \todo Add verification
+			
+			/// try to compile a compute shader
+			TResult<std::vector<U8>> computeShaderOutput = _compileShaderStage(SST_COMPUTE, preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
+
+			if (computeShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(computeShaderOutput.GetError());
+			}
+
+			pResult->mCSByteCode = std::move(computeShaderOutput.Get());
 		}
 
 		pResult->mUniformBuffersInfo  = std::move(shaderMetadata.mUniformBuffers);
@@ -109,6 +124,9 @@ namespace TDEngine2
 				break;
 			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
 				entryPointName = shaderMetadata.mGeometryShaderEntrypointName;
+				break;
+			case E_SHADER_STAGE_TYPE::SST_COMPUTE:
+				entryPointName = shaderMetadata.mComputeShaderEntrypointName;
 				break;
 		}
 
@@ -402,25 +420,7 @@ namespace TDEngine2
 
 	TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		CD3D11ShaderCompiler* pShaderCompilerInstance = new (std::nothrow) CD3D11ShaderCompiler();
-
-		if (!pShaderCompilerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pShaderCompilerInstance->Init(pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pShaderCompilerInstance;
-
-			pShaderCompilerInstance = nullptr;
-		}
-
-		return pShaderCompilerInstance;
+		return CREATE_IMPL(IShaderCompiler, CD3D11ShaderCompiler, result, pFileSystem);
 	}
 }
 

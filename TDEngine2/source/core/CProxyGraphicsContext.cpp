@@ -110,6 +110,11 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE, E_INDEX_FORMAT_TYPE, U32, U32, U32, U32, U32)");
 	}
 
+	void CProxyGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] DispatchCompute(U32, U32, U32)");
+	}
+
 	void CProxyGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] BindTextureSampler( U32, TTextureSamplerId)");

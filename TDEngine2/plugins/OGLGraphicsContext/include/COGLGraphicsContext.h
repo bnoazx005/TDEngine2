@@ -233,6 +233,16 @@ namespace TDEngine2
 
 			TDE2_API void DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 											   U32 startInstance, U32 indicesPerInstance, U32 numOfInstances) override;
+			
+			/*!
+				\brief The method invokes a computation kernel over a given threads grid. A compute shader should be bound to the device first
+
+				\param[in] groupsCountX A number of groups over X axis
+				\param[in] groupsCountY A number of groups over Y axis
+				\param[in] groupsCountZ A number of groups over Z axis
+			*/
+
+			TDE2_API void DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ) override;
 
 			/*!
 				\brief The method binds a given texture sampler to a specified slot

@@ -15,6 +15,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
+	mpResourceManager->Load<IShader>("ProjectShaders/TestCompute.cshader");
 	mpResourceManager->Load<IPrefabsManifest>("ProjectResources/PrefabsCollection.manifest");
 
 	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("Resources/Materials/DebugTextMaterial.material"));

@@ -31,6 +31,8 @@ namespace TDEngine2
 		std::vector<U8> mPSByteCode;
 
 		std::vector<U8> mGSByteCode;
+
+		std::vector<U8> mCSByteCode;
 	} TD3D11ShaderCompilerOutput, *TD3D11ShaderCompilerOutputPtr;
 
 

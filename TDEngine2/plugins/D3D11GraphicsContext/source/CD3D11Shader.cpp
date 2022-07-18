@@ -15,7 +15,7 @@
 namespace TDEngine2
 {
 	CD3D11Shader::CD3D11Shader() :
-		CBaseShader(), mp3dDeviceContext(nullptr), mpVertexShader(nullptr), mpPixelShader(nullptr), mpGeometryShader(nullptr)
+		CBaseShader(), mp3dDeviceContext(nullptr), mpVertexShader(nullptr), mpPixelShader(nullptr), mpGeometryShader(nullptr), mpComputeShader(nullptr)
 	{
 	}
 	
@@ -27,7 +27,8 @@ namespace TDEngine2
 
 		if ((result = SafeReleaseCOMPtr<ID3D11VertexShader>(&mpVertexShader)) != RC_OK		||
 			(result = SafeReleaseCOMPtr<ID3D11PixelShader>(&mpPixelShader)) != RC_OK		||
-			(result = SafeReleaseCOMPtr<ID3D11GeometryShader>(&mpGeometryShader)) != RC_OK)
+			(result = SafeReleaseCOMPtr<ID3D11GeometryShader>(&mpGeometryShader)) != RC_OK        ||
+			(result = SafeReleaseCOMPtr<ID3D11ComputeShader>(&mpComputeShader)) != RC_OK)
 		{
 			return result;
 		}
@@ -72,6 +73,11 @@ namespace TDEngine2
 		{
 			mp3dDeviceContext->GSSetShader(mpGeometryShader, nullptr, 0);
 		}
+
+		if (mpComputeShader)
+		{
+			mp3dDeviceContext->CSSetShader(mpComputeShader, nullptr, 0);
+		}
 	}
 
 	void CD3D11Shader::Unbind()
@@ -92,11 +98,13 @@ namespace TDEngine2
 		
 		USIZE bytecodeSize = pD3D11ShaderCompilerData->mVSByteCode.size();
 
-		mVertexShaderBytecode.mpBytecode = new U8[bytecodeSize];
-		
+		mVertexShaderBytecode.mpBytecode = new U8[bytecodeSize];		
 		mVertexShaderBytecode.mLength = bytecodeSize;
 
-		memcpy(mVertexShaderBytecode.mpBytecode, &pD3D11ShaderCompilerData->mVSByteCode[0], bytecodeSize * sizeof(U8));
+		if (bytecodeSize > 0)
+		{
+			memcpy(mVertexShaderBytecode.mpBytecode, &pD3D11ShaderCompilerData->mVSByteCode[0], bytecodeSize * sizeof(U8));
+		}
 		
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
 
@@ -137,6 +145,17 @@ namespace TDEngine2
 		if (bytecodeSize > 0)
 		{
 			if (FAILED(p3dDevice->CreateGeometryShader(&pD3D11ShaderCompilerData->mGSByteCode[0], bytecodeSize, nullptr, &mpGeometryShader)))
+			{
+				return RC_FAIL;
+			}
+		}
+
+		/// create a compute shader
+		bytecodeSize = pD3D11ShaderCompilerData->mCSByteCode.size();
+
+		if (bytecodeSize > 0)
+		{
+			if (FAILED(p3dDevice->CreateComputeShader(&pD3D11ShaderCompilerData->mCSByteCode[0], bytecodeSize, nullptr, &mpComputeShader)))
 			{
 				return RC_FAIL;
 			}

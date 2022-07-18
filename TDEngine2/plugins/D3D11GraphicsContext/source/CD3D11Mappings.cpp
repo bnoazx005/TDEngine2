@@ -320,6 +320,9 @@ namespace TDEngine2
 			case SST_GEOMETRY:
 				result = "gs_";
 				break;
+			case SST_COMPUTE:
+				result = "cs_";
+				break;
 		}
 
 		switch (version)

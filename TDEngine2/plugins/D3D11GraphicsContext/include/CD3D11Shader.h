@@ -109,6 +109,8 @@ namespace TDEngine2
 
 			ID3D11GeometryShader* mpGeometryShader;
 
+			ID3D11ComputeShader*  mpComputeShader;
+
 			TShaderBytecodeDesc   mVertexShaderBytecode;
 	};
 

@@ -32,6 +32,8 @@ namespace TDEngine2
 		GLuint mFragmentShaderHandler;
 
 		GLuint mGeometryShaderHandler;
+
+		GLuint mComputeShaderHandler;
 	} TOGLShaderCompilerOutput, *TOGLShaderCompilerOutputPtr;
 	
 

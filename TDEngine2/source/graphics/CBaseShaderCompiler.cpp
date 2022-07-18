@@ -300,6 +300,8 @@ namespace TDEngine2
 				return "pixel";
 			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
 				return "geometry";
+			case E_SHADER_STAGE_TYPE::SST_COMPUTE:
+				return "compute";
 		}
 
 		return "unknown";
@@ -312,6 +314,7 @@ namespace TDEngine2
 			{ "vertex", E_SHADER_STAGE_TYPE::SST_VERTEX },
 			{ "pixel", E_SHADER_STAGE_TYPE::SST_PIXEL },
 			{ "geometry", E_SHADER_STAGE_TYPE::SST_GEOMETRY },
+			{ "compute", E_SHADER_STAGE_TYPE::SST_COMPUTE },
 		};
 
 		auto iter = shadersStages.find(stageType);
@@ -321,7 +324,7 @@ namespace TDEngine2
 
 	U32 CBaseShaderCompiler::mMaxStepsCount = 1000;
 
-	const C8* CBaseShaderCompiler::mEntryPointsDefineNames[3] = { "VERTEX_ENTRY", "PIXEL_ENTRY", "GEOMETRY_ENTRY" };
+	const C8* CBaseShaderCompiler::mEntryPointsDefineNames[MaxNumOfShaderStages] = { "VERTEX_ENTRY", "PIXEL_ENTRY", "GEOMETRY_ENTRY", "COMPUTE_ENTRY" };
 
 	const C8* CBaseShaderCompiler::mTargetVersionDefineName = "TARGET";		
 
@@ -380,6 +383,8 @@ namespace TDEngine2
 				return "PIXEL";
 			case SST_GEOMETRY:
 				return "GEOMETRY";
+			case SST_COMPUTE:
+				return "COMPUTE";
 		}
 
 		return nullptr;
@@ -402,6 +407,7 @@ namespace TDEngine2
 		extractedMetadata.mVertexShaderEntrypointName   = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_VERTEX]].mValue;
 		extractedMetadata.mPixelShaderEntrypointName    = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_PIXEL]].mValue;
 		extractedMetadata.mGeometryShaderEntrypointName = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_GEOMETRY]].mValue;
+		extractedMetadata.mComputeShaderEntrypointName  = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_COMPUTE]].mValue;
 
 		///\todo implement convertation of a version string into E_SHADER_TARGET_VERSION enum's value
 		extractedMetadata.mFeatureLevel = _getTargetVersionFromStr(extractedMetadata.mDefines[mTargetVersionDefineName].mValue);

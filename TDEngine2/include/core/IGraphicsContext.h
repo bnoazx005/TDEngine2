@@ -266,6 +266,16 @@ namespace TDEngine2
 													   U32 startInstance, U32 indicesPerInstance, U32 numOfInstances) = 0;
 
 			/*!
+				\brief The method invokes a computation kernel over a given threads grid. A compute shader should be bound to the device first
+
+				\param[in] groupsCountX A number of groups over X axis
+				\param[in] groupsCountY A number of groups over Y axis
+				\param[in] groupsCountZ A number of groups over Z axis
+			*/
+
+			TDE2_API virtual void DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ) = 0;
+
+			/*!
 				\brief The method binds a given texture sampler to a specified slot
 
 				\param[in] slot An input slot's index

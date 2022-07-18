@@ -258,6 +258,11 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glDrawElementsInstanced(COGLMappings::GetPrimitiveTopology(topology), indicesPerInstance, COGLMappings::GetIndexFormat(indexFormatType), 0, numOfInstances));
 	}
 
+	void COGLGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
+	{
+		GL_SAFE_VOID_CALL(glDispatchCompute(groupsCountX, groupsCountY, groupsCountZ));
+	}
+
 	void COGLGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
 		if (samplerId == TTextureSamplerId::Invalid)

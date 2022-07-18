@@ -306,6 +306,11 @@ namespace TDEngine2
 		mp3dDeviceContext->DrawIndexedInstanced(indicesPerInstance, numOfInstances, startIndex, baseVertex, startInstance);
 	}
 
+	void CD3D11GraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
+	{
+		mp3dDeviceContext->Dispatch(groupsCountX, groupsCountY, groupsCountZ);
+	}
+
 	void CD3D11GraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
 		if (samplerId == TTextureSamplerId::Invalid)

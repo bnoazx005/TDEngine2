@@ -176,6 +176,7 @@ namespace TDEngine2
 				std::string             mVertexShaderEntrypointName;
 				std::string             mPixelShaderEntrypointName;
 				std::string             mGeometryShaderEntrypointName;
+				std::string             mComputeShaderEntrypointName;
 
 				E_SHADER_FEATURE_LEVEL  mFeatureLevel;
 
@@ -229,7 +230,7 @@ namespace TDEngine2
 		protected:
 			static U32       mMaxStepsCount; ///< The value is used within _removeComments to bound a maximum number of steps of an automata
 
-			static const C8* mEntryPointsDefineNames[3];
+			static const C8* mEntryPointsDefineNames[MaxNumOfShaderStages];
 
 			static const C8* mTargetVersionDefineName;
 

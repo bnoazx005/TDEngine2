@@ -81,6 +81,21 @@ namespace TDEngine2
 			pResult->mGeometryShaderHandler = geometryShaderOutput.Get();
 		}
 
+		if (_isShaderStageEnabled(SST_COMPUTE, shaderMetadata))
+		{
+			/// \todo Add verification
+
+			/// try to compile a compute shader
+			TResult<GLuint> computeShaderOutput = _compileShaderStage(SST_COMPUTE, preprocessedSource, shaderMetadata);
+
+			if (computeShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(computeShaderOutput.GetError());
+			}
+
+			pResult->mComputeShaderHandler = computeShaderOutput.Get();
+		}
+
 		pResult->mUniformBuffersInfo  = std::move(shaderMetadata.mUniformBuffers);
 		pResult->mShaderResourcesInfo = std::move(shaderMetadata.mShaderResources);
 		
@@ -339,24 +354,6 @@ namespace TDEngine2
 
 	TDE2_API IShaderCompiler* CreateOGLShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		COGLShaderCompiler* pShaderCompilerInstance = new (std::nothrow) COGLShaderCompiler();
-
-		if (!pShaderCompilerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pShaderCompilerInstance->Init(pFileSystem);
-
-		if (result != RC_OK)
-		{
-			delete pShaderCompilerInstance;
-
-			pShaderCompilerInstance = nullptr;
-		}
-
-		return pShaderCompilerInstance;
+		return CREATE_IMPL(IShaderCompiler, COGLShaderCompiler, result, pFileSystem);
 	}
 }

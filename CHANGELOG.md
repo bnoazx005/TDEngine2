@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.9] 2022-07-16
+## [0.6.9] 2022-07-18
 
 ### Added
 
 - The API of **IFileSystem** was extended with a new public method GetParentPath.
 
 - Now textures could be configured during development process and loaded without any code with defined parameters that come from the runtime manifest.
+
+- A new type of a shader was introduced which is a compute shader.
+
+- The API of **IGraphicsContext** was extended with a new public method DispatchCompute.
 
 ### Changed
 

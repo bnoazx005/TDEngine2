@@ -67,6 +67,11 @@ namespace TDEngine2
 			GL_SAFE_CALL(glAttachShader(mShaderHandler, pOGLShaderCompilerData->mGeometryShaderHandler));
 		}
 
+		if (pOGLShaderCompilerData->mComputeShaderHandler)
+		{
+			GL_SAFE_CALL(glAttachShader(mShaderHandler, pOGLShaderCompilerData->mComputeShaderHandler));
+		}
+
 		GL_SAFE_CALL(glLinkProgram(mShaderHandler));
 
 		I32 isLinked = 0;
@@ -103,6 +108,11 @@ namespace TDEngine2
 			{
 				GL_SAFE_CALL(glDeleteShader(pOGLShaderCompilerData->mGeometryShaderHandler));
 			}
+
+			if (pOGLShaderCompilerData->mComputeShaderHandler)
+			{
+				GL_SAFE_CALL(glDeleteShader(pOGLShaderCompilerData->mComputeShaderHandler));
+			}
 		}
 
 		if (pOGLShaderCompilerData->mVertexShaderHandler)
@@ -118,6 +128,11 @@ namespace TDEngine2
 		if (pOGLShaderCompilerData->mGeometryShaderHandler)
 		{
 			GL_SAFE_CALL(glDetachShader(mShaderHandler, pOGLShaderCompilerData->mGeometryShaderHandler));
+		}
+
+		if (pOGLShaderCompilerData->mComputeShaderHandler)
+		{
+			GL_SAFE_CALL(glDetachShader(mShaderHandler, pOGLShaderCompilerData->mComputeShaderHandler));
 		}
 		
 		return _createUniformBuffers(pCompilerData);
