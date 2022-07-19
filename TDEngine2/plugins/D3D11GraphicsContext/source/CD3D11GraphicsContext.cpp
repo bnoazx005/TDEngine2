@@ -318,6 +318,7 @@ namespace TDEngine2
 			mp3dDeviceContext->VSSetSamplers(slot, 1, nullptr);
 			mp3dDeviceContext->PSSetSamplers(slot, 1, nullptr);
 			mp3dDeviceContext->GSSetSamplers(slot, 1, nullptr);
+			mp3dDeviceContext->CSSetSamplers(slot, 1, nullptr);
 
 			return;
 		}
@@ -327,6 +328,7 @@ namespace TDEngine2
 		mp3dDeviceContext->VSSetSamplers(slot, 1, &pSamplerState);
 		mp3dDeviceContext->PSSetSamplers(slot, 1, &pSamplerState);
 		mp3dDeviceContext->GSSetSamplers(slot, 1, &pSamplerState);
+		mp3dDeviceContext->CSSetSamplers(slot, 1, &pSamplerState);
 	}
 
 	void CD3D11GraphicsContext::BindBlendState(TBlendStateId blendStateId)

@@ -214,25 +214,7 @@ namespace TDEngine2
 
 	TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
-		CD3D11Shader* pShaderInstance = new (std::nothrow) CD3D11Shader();
-
-		if (!pShaderInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pShaderInstance->Init(pResourceManager, pGraphicsContext, name);
-
-		if (result != RC_OK)
-		{
-			delete pShaderInstance;
-
-			pShaderInstance = nullptr;
-		}
-
-		return pShaderInstance;
+		return CREATE_IMPL(IShader, CD3D11Shader, result, pResourceManager, pGraphicsContext, name);
 	}
 
 
@@ -282,25 +264,7 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		CD3D11ShaderFactory* pShaderFactoryInstance = new (std::nothrow) CD3D11ShaderFactory();
-
-		if (!pShaderFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pShaderFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pShaderFactoryInstance;
-
-			pShaderFactoryInstance = nullptr;
-		}
-
-		return pShaderFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, CD3D11ShaderFactory, result, pResourceManager, pGraphicsContext);
 	}
 }
 

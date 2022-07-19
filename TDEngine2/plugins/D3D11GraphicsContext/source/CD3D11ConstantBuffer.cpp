@@ -73,6 +73,7 @@ namespace TDEngine2
 		mp3dDeviceContext->VSSetConstantBuffers(slot, 1, &pInternalBuffer);
 		mp3dDeviceContext->PSSetConstantBuffers(slot, 1, &pInternalBuffer);
 		mp3dDeviceContext->GSSetConstantBuffers(slot, 1, &pInternalBuffer);
+		mp3dDeviceContext->CSSetConstantBuffers(slot, 1, &pInternalBuffer);
 
 		mCurrUsedSlot = slot;
 	}
