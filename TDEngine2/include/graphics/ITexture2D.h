@@ -73,6 +73,8 @@ namespace TDEngine2
 		U32                 mSamplingQuality;
 
 		TTextureSamplerDesc mTexSamplerDesc;
+
+		bool                mIsWriteable = false; ///< The field is used to make a texture writeable in a compute shader
 	} TTexture2DParameters, *TTexture2DParametersPtr;
 
 

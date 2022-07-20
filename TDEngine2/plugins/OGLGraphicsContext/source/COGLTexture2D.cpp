@@ -101,7 +101,7 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE COGLTexture2D::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-		U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
+																U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable)
 	{
 		GL_SAFE_CALL(glGenTextures(1, &mTextureHandler));
 

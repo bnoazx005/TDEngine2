@@ -1,8 +1,8 @@
-#include "./../include/CD3D11RenderTarget.h"
-#include "./../include/CD3D11GraphicsContext.h"
-#include "./../include/CD3D11Mappings.h"
-#include "./../include/CD3D11Utils.h"
-#include "./../include/CD3D11Texture2D.h"
+#include "../include/CD3D11RenderTarget.h"
+#include "../include/CD3D11GraphicsContext.h"
+#include "../include/CD3D11Mappings.h"
+#include "../include/CD3D11Utils.h"
+#include "../include/CD3D11Texture2D.h"
 #include <graphics/ITexture2D.h>
 #include <cstring>
 

@@ -125,13 +125,14 @@ namespace TDEngine2
 		mNumOfSamples         = params.mNumOfSamples;
 		mSamplingQuality      = params.mSamplingQuality;
 		mTextureSamplerParams = params.mTexSamplerDesc;
+		mIsRandomlyWriteable  = params.mIsWriteable;
 
 		mTextureSamplerParams.mUseMipMaps = mNumOfMipLevels > 1;
 
 		mIsInitialized = true;
 
 		return _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat, 
-											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality); /// create a texture's object within video memory using GAPI
+											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality, mIsRandomlyWriteable); /// create a texture's object within video memory using GAPI
 	}
 
 	void CBaseTexture2D::Bind(U32 slot)

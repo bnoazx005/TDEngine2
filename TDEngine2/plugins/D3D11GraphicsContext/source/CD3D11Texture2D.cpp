@@ -23,6 +23,12 @@ namespace TDEngine2
 		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->PSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);
+		mp3dDeviceContext->CSSetShaderResources(slot, 1, &mpShaderTextureView);
+
+		if (mIsRandomlyWriteable)
+		{
+			mp3dDeviceContext->CSGetUnorderedAccessViews(slot, 1, &mpUavTextureView);
+		}
 	}
 
 	E_RESULT_CODE CD3D11Texture2D::Reset()
@@ -106,10 +112,31 @@ namespace TDEngine2
 		return mpTexture;
 	}
 
-	E_RESULT_CODE CD3D11Texture2D::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
+
+	static TResult<ID3D11UnorderedAccessView*> CreateUnorderedAccessView(ID3D11Texture2D* pTexture, ID3D11Device* p3dDevice, E_FORMAT_TYPE format)
 	{
-		auto textureResult = _createD3D11TextureResource(pGraphicsContext, width, height, format, mipLevelsCount, samplesCount, samplingQuality);
+		D3D11_UNORDERED_ACCESS_VIEW_DESC viewDesc = {};
+
+		viewDesc.Format = CD3D11Mappings::GetDXGIFormat(format);
+		viewDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+
+		viewDesc.Texture2D.MipSlice = 0;
+
+		ID3D11UnorderedAccessView* pView = nullptr;
+
+		if (FAILED(p3dDevice->CreateUnorderedAccessView(pTexture, &viewDesc, &pView)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<ID3D11UnorderedAccessView*>(pView);
+	}
+
+
+	E_RESULT_CODE CD3D11Texture2D::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
+																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable)
+	{
+		auto textureResult = _createD3D11TextureResource(pGraphicsContext, width, height, format, mipLevelsCount, samplesCount, samplingQuality, isWriteable);
 
 		if (textureResult.HasError())
 		{
@@ -118,12 +145,25 @@ namespace TDEngine2
 
 		mpTexture = textureResult.Get();
 
-		return _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);
+		E_RESULT_CODE result = _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);
+
+		if (isWriteable)
+		{
+			auto uavResourceViewResult = CreateUnorderedAccessView(mpTexture, mp3dDevice, mFormat);
+			if (uavResourceViewResult.HasError())
+			{
+				return uavResourceViewResult.GetError() | result;
+			}
+
+			mpUavTextureView = uavResourceViewResult.Get();
+		}
+
+		return result;
 	}
 
 	TResult<ID3D11Texture2D*> CD3D11Texture2D::_createD3D11TextureResource(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																		   U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality,
-																		   U32 accessType)
+																		   U32 accessType, bool isWriteable)
 	{
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
 
@@ -153,6 +193,11 @@ namespace TDEngine2
 		textureDesc.BindFlags          = isCPUAccessible ? 0x0 : D3D11_BIND_SHADER_RESOURCE; /// default binding type for simple 2d textures
 		textureDesc.CPUAccessFlags     = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 		textureDesc.Usage              = isCPUAccessible ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
+
+		if (isWriteable) /// \note If the texture is marked as writeable we make it UAV resource too
+		{
+			textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+		}
 
 		ID3D11Texture2D* pTexture = nullptr;
 
