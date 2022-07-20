@@ -90,6 +90,11 @@ namespace TDEngine2
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
 		GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_2D, 0, COGLMappings::GetInternalFormat(format), width, height, 0, COGLMappings::GetPixelDataFormat(format), GL_UNSIGNED_BYTE, nullptr));
 
+		if (isWriteable)
+		{
+			TDE2_UNIMPLEMENTED();
+		}
+
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		return RC_OK;

@@ -115,6 +115,11 @@ namespace TDEngine2
 		GL_SAFE_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextureHandler, 0));
 		GL_SAFE_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0));
 
+		if (isWriteable)
+		{
+			TDE2_UNIMPLEMENTED();
+		}
+
 		GL_SAFE_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 		return RC_OK;
