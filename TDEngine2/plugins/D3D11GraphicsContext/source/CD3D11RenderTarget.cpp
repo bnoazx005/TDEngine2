@@ -12,7 +12,7 @@
 namespace TDEngine2
 {
 	CD3D11RenderTarget::CD3D11RenderTarget() :
-		CBaseRenderTarget(), mpRenderTexture(nullptr), mpShaderTextureView(nullptr), mpRenderTargetView(nullptr)
+		CBaseRenderTarget(), mpRenderTexture(nullptr), mpShaderTextureView(nullptr), mpRenderTargetView(nullptr), mpUavTextureView(nullptr)
 	{
 	}
 
@@ -46,7 +46,8 @@ namespace TDEngine2
 
 		if ((result = SafeReleaseCOMPtr<ID3D11Texture2D>(&mpRenderTexture)) != RC_OK ||
 			(result = SafeReleaseCOMPtr<ID3D11ShaderResourceView>(&mpShaderTextureView)) != RC_OK ||
-			(result = SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpRenderTargetView)) != RC_OK)
+			(result = SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpRenderTargetView)) != RC_OK ||
+			(result = SafeReleaseCOMPtr<ID3D11UnorderedAccessView>(&mpUavTextureView)) != RC_OK)
 		{
 			return result;
 		}
@@ -61,6 +62,12 @@ namespace TDEngine2
 		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->PSSetShaderResources(slot, 1, &mpShaderTextureView);
 		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);
+		mp3dDeviceContext->CSSetShaderResources(slot, 1, &mpShaderTextureView);
+
+		if (mIsRandomlyWriteable)
+		{
+			mp3dDeviceContext->CSSetUnorderedAccessViews(slot, 1, &mpUavTextureView, nullptr);
+		}
 	}
 
 	E_RESULT_CODE CD3D11RenderTarget::Blit(ITexture2D*& pDestTexture)
@@ -95,8 +102,29 @@ namespace TDEngine2
 		return mpRenderTargetView;
 	}
 
+
+	static TResult<ID3D11UnorderedAccessView*> CreateUnorderedAccessView(ID3D11Texture2D* pTexture, ID3D11Device* p3dDevice, E_FORMAT_TYPE format)
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC viewDesc = {};
+
+		viewDesc.Format = CD3D11Mappings::GetDXGIFormat(format);
+		viewDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+
+		viewDesc.Texture2D.MipSlice = 0;
+
+		ID3D11UnorderedAccessView* pView = nullptr;
+
+		if (FAILED(p3dDevice->CreateUnorderedAccessView(pTexture, &viewDesc, &pView)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<ID3D11UnorderedAccessView*>(pView);
+	}
+
+
 	E_RESULT_CODE CD3D11RenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																	U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality)
+																	U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable)
 	{
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
 
@@ -125,6 +153,11 @@ namespace TDEngine2
 		textureDesc.CPUAccessFlags     = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 		textureDesc.Usage              = D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
 
+		if (isWriteable)
+		{
+			textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+		}
+
 		/// create blank texture with specified parameters
 		if (FAILED(mp3dDevice->CreateTexture2D(&textureDesc, nullptr, &mpRenderTexture))) /// \todo Implement HRESULT -> E_RESULT_CODE converter function
 		{
@@ -138,6 +171,17 @@ namespace TDEngine2
 			mIsInitialized = false;
 
 			return result;
+		}
+
+		if (isWriteable)
+		{
+			auto uavResourceCreationResult = CreateUnorderedAccessView(mpRenderTexture, mp3dDevice, mFormat);
+			if (uavResourceCreationResult.HasError())
+			{
+				return uavResourceCreationResult.GetError();
+			}
+
+			mpUavTextureView = uavResourceCreationResult.Get();
 		}
 
 		return _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);

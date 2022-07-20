@@ -95,7 +95,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLDepthBufferTarget)
 
 			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-				U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) override;
+				U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable) override;
 
 		protected:
 			GLuint mDepthBufferHandle;

@@ -104,21 +104,23 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11DepthBufferTarget)
 
 			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) override;
+																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable) override;
 
 			TDE2_API E_RESULT_CODE _createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount);
 
 			TDE2_API E_RESULT_CODE _createDepthBufferTargetView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format);
 		protected:
-			ID3D11Device*             mp3dDevice;
+			ID3D11Device*              mp3dDevice;
 
-			ID3D11DeviceContext*      mp3dDeviceContext;
+			ID3D11DeviceContext*       mp3dDeviceContext;
 
-			ID3D11Texture2D*          mpDepthBufferTexture;
+			ID3D11Texture2D*           mpDepthBufferTexture;
 
-			ID3D11ShaderResourceView* mpShaderTextureView;
+			ID3D11ShaderResourceView*  mpShaderTextureView;
 
-			ID3D11DepthStencilView*   mpDepthBufferTargetView;
+			ID3D11DepthStencilView*    mpDepthBufferTargetView;
+
+			ID3D11UnorderedAccessView* mpUavDepthBufferView;
 	};
 
 

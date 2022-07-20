@@ -27,7 +27,7 @@ namespace TDEngine2
 
 		if (mIsRandomlyWriteable)
 		{
-			mp3dDeviceContext->CSGetUnorderedAccessViews(slot, 1, &mpUavTextureView);
+			mp3dDeviceContext->CSSetUnorderedAccessViews(slot, 1, &mpUavTextureView, nullptr);
 		}
 	}
 

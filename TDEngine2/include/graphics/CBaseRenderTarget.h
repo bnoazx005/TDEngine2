@@ -8,7 +8,7 @@
 
 
 #include "IRenderTarget.h"
-#include "./../core/CBaseResource.h"
+#include "../core/CBaseResource.h"
 
 
 namespace TDEngine2
@@ -113,7 +113,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseRenderTarget)
 
 			TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																		 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) = 0;
+																		 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable) = 0;
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
@@ -134,6 +134,8 @@ namespace TDEngine2
 			TTextureSamplerDesc mTextureSamplerParams;
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
+
+			bool                mIsRandomlyWriteable = false;
 	};
 
 

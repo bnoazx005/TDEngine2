@@ -34,13 +34,14 @@ namespace TDEngine2
 		mNumOfSamples         = params.mNumOfSamples;
 		mSamplingQuality      = params.mSamplingQuality;
 		mTextureSamplerParams = params.mTexSamplerDesc;
+		mIsRandomlyWriteable  = params.mIsWriteable; 
 
 		mTextureSamplerParams.mUseMipMaps = mNumOfMipLevels > 1;
 
 		mIsInitialized = true;
 
 		return _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat,
-											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality); /// create a texture's object within video memory using GAPI
+											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality, mIsRandomlyWriteable); /// create a texture's object within video memory using GAPI
 	}
 
 	void CBaseRenderTarget::Bind(U32 slot)
@@ -61,7 +62,7 @@ namespace TDEngine2
 		mWidth  = width;
 		mHeight = height;
 
-		result = result | _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat, mNumOfMipLevels, mNumOfSamples, mSamplingQuality);
+		result = result | _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat, mNumOfMipLevels, mNumOfSamples, mSamplingQuality, mIsRandomlyWriteable);
 
 		return result;
 	}
