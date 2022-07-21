@@ -383,10 +383,12 @@ namespace TDEngine2
 		if (!slot && !pRenderTarget)
 		{
 			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
+
 			return;
 		}
 
 		mpRenderTargets[slot] = dynamic_cast<CD3D11RenderTarget*>(pRenderTarget)->GetRenderTargetView();
+		pRenderTarget->UnbindFromShader();
 		
 		mCurrNumOfActiveRenderTargets = std::max<U8>(mCurrNumOfActiveRenderTargets, slot + 1);
 

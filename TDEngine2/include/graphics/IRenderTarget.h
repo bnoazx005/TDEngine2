@@ -59,6 +59,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Blit(ITexture2D*& pDestTexture) = 0;
 
+			TDE2_API virtual void UnbindFromShader() = 0;
+
 			/*!
 				\brief The method allows to resize internal resources that corresponds to the given render target
 			*/

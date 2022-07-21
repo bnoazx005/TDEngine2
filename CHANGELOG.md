@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.9] 2022-07-18
+## [0.6.9] 2022-07-21
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+
+- Warnings caused with render targets simultaneously used as SRV/RTV in D3D11 mode was fixed.
 
 ## [0.6.8] 2022-07-15
 

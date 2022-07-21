@@ -56,6 +56,8 @@ namespace TDEngine2
 
 			TDE2_API void Bind(U32 slot) override;
 
+			TDE2_API void UnbindFromShader() override;
+
 			/*!
 				\brief The method loads resource data into memory
 

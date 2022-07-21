@@ -70,6 +70,22 @@ namespace TDEngine2
 		}
 	}
 
+	void CD3D11DepthBufferTarget::UnbindFromShader()
+	{
+		ID3D11ShaderResourceView* pNullSRV = nullptr;
+		ID3D11UnorderedAccessView* pNullUAV = nullptr;
+
+		mp3dDeviceContext->VSSetShaderResources(mLastBindingSlot, 1, &pNullSRV);
+		mp3dDeviceContext->PSSetShaderResources(mLastBindingSlot, 1, &pNullSRV);
+		mp3dDeviceContext->GSSetShaderResources(mLastBindingSlot, 1, &pNullSRV);
+		mp3dDeviceContext->CSSetShaderResources(mLastBindingSlot, 1, &pNullSRV);
+
+		if (mIsRandomlyWriteable)
+		{
+			mp3dDeviceContext->CSSetUnorderedAccessViews(mLastBindingSlot, 1, &pNullUAV, nullptr);
+		}
+	}
+
 	E_RESULT_CODE CD3D11DepthBufferTarget::Blit(ITexture2D*& pDestTexture)
 	{
 		if (!pDestTexture)

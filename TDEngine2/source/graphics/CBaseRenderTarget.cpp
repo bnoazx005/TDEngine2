@@ -52,6 +52,8 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext->BindTextureSampler(slot, mCurrTextureSamplerHandle);
+
+		mLastBindingSlot = slot;
 	}
 
 	E_RESULT_CODE CBaseRenderTarget::Resize(U32 width, U32 height)

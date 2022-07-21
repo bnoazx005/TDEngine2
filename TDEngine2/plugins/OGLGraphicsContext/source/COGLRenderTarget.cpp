@@ -55,6 +55,12 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
 		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
 	}
+
+	void COGLRenderTarget::UnbindFromShader()
+	{
+		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + mLastBindingSlot));
+		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+	}
 	
 	E_RESULT_CODE COGLRenderTarget::Blit(ITexture2D*& pDestTexture)
 	{

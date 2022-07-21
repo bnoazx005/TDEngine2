@@ -131,6 +131,8 @@ namespace TDEngine2
 
 			U32                 mSamplingQuality;
 
+			U32                 mLastBindingSlot = 0;
+
 			TTextureSamplerDesc mTextureSamplerParams;
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
