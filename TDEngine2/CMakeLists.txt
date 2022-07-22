@@ -213,6 +213,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CAtlasSubTexture.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ISkeleton.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CSkeleton.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IStructuredBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/animation/IAnimationClip.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/animation/CAnimationClip.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/animation/IAnimationTrack.h"

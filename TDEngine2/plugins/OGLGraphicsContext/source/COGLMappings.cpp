@@ -172,6 +172,8 @@ namespace TDEngine2
 				return GL_FRAGMENT_SHADER;
 			case SST_GEOMETRY:
 				return GL_GEOMETRY_SHADER;
+			case SST_COMPUTE:
+				return GL_COMPUTE_SHADER;
 		}
 
 		return 0;
