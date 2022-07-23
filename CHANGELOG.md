@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A base resources path that was a hardcoded value now is stored in project settings file.
 
+- The signature of CD3D11Buffer::Init was changed. Now it takes a structure of parameters of **TBufferInitParams** type.
+
 ### Fixed
 
 - Warnings caused with render targets simultaneously used as SRV/RTV in D3D11 mode was fixed.

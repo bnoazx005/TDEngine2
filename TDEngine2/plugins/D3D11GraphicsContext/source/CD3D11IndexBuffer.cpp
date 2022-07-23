@@ -26,7 +26,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpBufferImpl = CreateD3D11Buffer(pGraphicsContext, usageType, BT_INDEX_BUFFER, totalBufferSize, pDataPtr, result);
+		mpBufferImpl = CreateD3D11Buffer({ pGraphicsContext, usageType, E_BUFFER_TYPE::BT_INDEX_BUFFER, totalBufferSize, pDataPtr }, result);
 
 		if (result != RC_OK)
 		{

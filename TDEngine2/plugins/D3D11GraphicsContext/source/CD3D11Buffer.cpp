@@ -1,6 +1,6 @@
-#include "./../include/CD3D11Buffer.h"
-#include "./../include/CD3D11Mappings.h"
-#include "./../include/CD3D11Utils.h"
+#include "../include/CD3D11Buffer.h"
+#include "../include/CD3D11Mappings.h"
+#include "../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -14,13 +14,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11Buffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, USIZE totalBufferSize,
-		const void* pDataPtr)
+	E_RESULT_CODE CD3D11Buffer::Init(const TInitBufferParams& params)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
 
 		TD3D11CtxInternalData internalD3D11Data;
 
@@ -37,12 +38,12 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mBufferSize = totalBufferSize;
+		mBufferSize = params.mTotalBufferSize;
 		mUsedBytesSize = 0;
 
-		mBufferUsageType = usageType;
+		mBufferUsageType = params.mUsageType;
 
-		mBufferType = bufferType;
+		mBufferType = params.mBufferType;
 
 		D3D11_BUFFER_DESC bufferDesc;
 
@@ -52,19 +53,22 @@ namespace TDEngine2
 
 		switch (mBufferType)
 		{
-			case BT_VERTEX_BUFFER:
+			case E_BUFFER_TYPE::BT_VERTEX_BUFFER:
 				bufferCreationFlags = D3D11_BIND_VERTEX_BUFFER;
 				break;
-			case BT_INDEX_BUFFER:
+			case E_BUFFER_TYPE::BT_INDEX_BUFFER:
 				bufferCreationFlags = D3D11_BIND_INDEX_BUFFER;
 				break;
-			case BT_CONSTANT_BUFFER:
+			case E_BUFFER_TYPE::BT_CONSTANT_BUFFER:
 				bufferCreationFlags = D3D11_BIND_CONSTANT_BUFFER;
+				break;
+			case E_BUFFER_TYPE::BT_STRUCTURED_BUFFER:
+				//bufferCreationFlags = D3D11_BIND_STR
 				break;
 		}
 
 		bufferDesc.BindFlags = bufferCreationFlags;
-		bufferDesc.ByteWidth = static_cast<U32>(totalBufferSize);
+		bufferDesc.ByteWidth = static_cast<U32>(mBufferSize);
 		bufferDesc.CPUAccessFlags = CD3D11Mappings::GetAccessFlags(mBufferUsageType);
 		bufferDesc.Usage = CD3D11Mappings::GetUsageType(mBufferUsageType);
 
@@ -72,11 +76,11 @@ namespace TDEngine2
 
 		memset(&bufferData, 0, sizeof(bufferData));
 
-		bufferData.pSysMem = pDataPtr;
+		bufferData.pSysMem = params.mpDataPtr;
 
 		ID3D11Device* p3dDevice = internalD3D11Data.mp3dDevice;
 
-		if (FAILED(p3dDevice->CreateBuffer(&bufferDesc, (pDataPtr ? &bufferData : nullptr), &mpBufferInstance)))
+		if (FAILED(p3dDevice->CreateBuffer(&bufferDesc, (params.mpDataPtr ? &bufferData : nullptr), &mpBufferInstance)))
 		{
 			return RC_FAIL;
 		}
@@ -182,10 +186,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
-										USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+	TDE2_API IBuffer* CreateD3D11Buffer(const TInitBufferParams& params, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IBuffer, CD3D11Buffer, result, pGraphicsContext, usageType, bufferType, totalBufferSize, pDataPtr);
+		return CREATE_IMPL(IBuffer, CD3D11Buffer, result, params);
 	}
 }
 

@@ -16,15 +16,34 @@
 
 namespace TDEngine2
 {
+	enum class E_STRUCTURED_BUFFER_TYPE : U32;
+
+
 	/*!
 		\brief The enumeration contains all possible types, how CD3D11Buffer can be used
 	*/
 
-	enum E_BUFFER_TYPE
+	enum class E_BUFFER_TYPE : U8
 	{
 		BT_VERTEX_BUFFER,			///< A buffer will be used as vertex buffer
 		BT_INDEX_BUFFER,			///< A buffer will be used as index buffer
-		BT_CONSTANT_BUFFER			///< A buffer will be used as constant buffer
+		BT_CONSTANT_BUFFER,			///< A buffer will be used as constant buffer
+		BT_STRUCTURED_BUFFER,
+	};
+
+
+	struct TInitBufferParams
+	{
+		IGraphicsContext*        mpGraphicsContext;
+		E_BUFFER_USAGE_TYPE      mUsageType;
+		E_BUFFER_TYPE            mBufferType;
+		USIZE                    mTotalBufferSize;
+		const void*              mpDataPtr = nullptr;
+		USIZE                    mDataSize = 0;
+		/// Structured buffers part
+		bool                     mIsUnorderedAccessResource = false;
+		USIZE                    mElementStrideSize = 0;
+		E_STRUCTURED_BUFFER_TYPE mStructuredBufferType;
 	};
 
 
@@ -38,22 +57,15 @@ namespace TDEngine2
 	class CD3D11Buffer : public CBaseObject, public IBuffer
 	{
 		public:
-			friend TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext*, E_BUFFER_USAGE_TYPE, E_BUFFER_TYPE, USIZE, const void*, E_RESULT_CODE&);
+			friend TDE2_API IBuffer* CreateD3D11Buffer(const TInitBufferParams& params, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
 
-				\param[in] pGraphicsContext A pointer to implementation of IGraphicsContext interface
-				\param[in] usageType A usage type of a buffer
-				\param[in] bufferType A type of a buffer
-				\param[in] totalBufferSize Total size of a buffer
-				\param[in] pDataPtr A pointer to data that will initialize a buffer
-
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, USIZE totalBufferSize, 
-										const void* pDataPtr);
+			TDE2_API E_RESULT_CODE Init(const TInitBufferParams& params);
 
 			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
@@ -152,8 +164,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11GraphicsContext's implementation
 	*/
 
-	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType,
-										USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result);
+	TDE2_API IBuffer* CreateD3D11Buffer(const TInitBufferParams& params, E_RESULT_CODE& result);
 }
 
 #endif
