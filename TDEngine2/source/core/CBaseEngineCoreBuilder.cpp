@@ -559,15 +559,8 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-#if TDE2_PRODUCTION_MODE
-		static const std::string baseResourcesPath = "../../Resources/";
-#else
-		static const std::string baseResourcesPath = "../../Resources/";
-		TDE2_UNIMPLEMENTED();
-#endif
-
 		/// \note Register built-in application's paths
-		if (RC_OK != (result = pFileSystem->MountPhysicalPath(baseResourcesPath, "Resources/")))
+		if (RC_OK != (result = pFileSystem->MountPhysicalPath(CProjectSettings::Get()->mCommonSettings.mBaseResourcesPath, "Resources/")))
 		{
 			return result;
 		}
@@ -594,14 +587,7 @@ namespace TDEngine2
 		static const std::string hlslSubDirectory = "/DX/";
 		static const std::string glslSubDirectory = "/GL/";
 
-#if TDE2_PRODUCTION_MODE
-		static const std::string baseResourcesPath = "../../Resources/";
-#else
-		static const std::string baseResourcesPath = "../../Resources/";
-		TDE2_UNIMPLEMENTED();
-#endif
-
-		static const std::string baseShadersPath   = baseResourcesPath + "Shaders/";
+		static const std::string baseShadersPath   = CProjectSettings::Get()->mCommonSettings.mBaseResourcesPath + "Shaders/";
 
 		std::string baseDefaultShadersPath     = baseShadersPath + "Default";
 		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";

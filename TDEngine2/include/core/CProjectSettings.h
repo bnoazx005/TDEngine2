@@ -81,6 +81,7 @@ namespace TDEngine2
 				std::vector<std::string> mUserPluginsToLoad;
 
 				std::string mPathToResourcesRuntimeManifest = "ProjectResources/ResourcesRuntimeMeta.manifest";
+				std::string mBaseResourcesPath = "../../Resources/";
 			} mCommonSettings;
 
 

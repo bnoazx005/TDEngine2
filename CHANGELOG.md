@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.9] 2022-07-22
+## [0.6.9] 2022-07-23
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IGraphicsContext** was extended with a new public method DispatchCompute.
 
 ### Changed
+
+- A base resources path that was a hardcoded value now is stored in project settings file.
 
 ### Fixed
 
