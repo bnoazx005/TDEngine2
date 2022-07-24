@@ -63,7 +63,7 @@ namespace TDEngine2
 				bufferCreationFlags = D3D11_BIND_CONSTANT_BUFFER;
 				break;
 			case E_BUFFER_TYPE::BT_STRUCTURED_BUFFER:
-				//bufferCreationFlags = D3D11_BIND_STR
+				bufferCreationFlags = params.mIsUnorderedAccessResource ? D3D11_BIND_UNORDERED_ACCESS : D3D11_BIND_SHADER_RESOURCE;
 				break;
 		}
 
@@ -71,6 +71,12 @@ namespace TDEngine2
 		bufferDesc.ByteWidth = static_cast<U32>(mBufferSize);
 		bufferDesc.CPUAccessFlags = CD3D11Mappings::GetAccessFlags(mBufferUsageType);
 		bufferDesc.Usage = CD3D11Mappings::GetUsageType(mBufferUsageType);
+		
+		if (E_BUFFER_TYPE::BT_STRUCTURED_BUFFER == mBufferType)
+		{
+			bufferDesc.StructureByteStride = static_cast<UINT>(params.mElementStrideSize);
+			bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+		}
 
 		D3D11_SUBRESOURCE_DATA bufferData;
 

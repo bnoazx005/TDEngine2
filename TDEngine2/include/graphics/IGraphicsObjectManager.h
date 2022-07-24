@@ -20,11 +20,13 @@ namespace TDEngine2
 {
 	class IVertexBuffer;
 	class IConstantBuffer;
+	class IStructuredBuffer;
 	class IGraphicsContext;
 	class IVertexDeclaration;
 	class IDebugUtility;
 	class IRenderer;
 	class IResourceManager;
+	struct TStructuredBuffersInitParams;
 
 
 	/*!
@@ -116,6 +118,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<IConstantBuffer*> CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr) = 0;
+
+			/*!
+				\brief The method is a factory for creation of structured buffers objects
+
+				\return The result object that contains either a pointer to a structured buffer or an error code
+			*/
+
+			TDE2_API virtual TResult<IStructuredBuffer*> CreateStructuredBuffer(const TStructuredBuffersInitParams& params) = 0;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type

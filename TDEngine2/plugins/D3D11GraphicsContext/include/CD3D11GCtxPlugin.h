@@ -21,6 +21,7 @@
 #include "CD3D11RenderTarget.h"
 #include "CD3D11CubemapTexture.h"
 #include "CD3D11DepthBufferTarget.h"
+#include "CD3D11StructuredBuffer.h"
 
 
 #include <core/CBaseObject.h>

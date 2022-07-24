@@ -2,10 +2,12 @@
 #include "./../include/CD3D11VertexBuffer.h"
 #include "./../include/CD3D11IndexBuffer.h"
 #include "./../include/CD3D11ConstantBuffer.h"
+#include "./../include/CD3D11StructuredBuffer.h"
 #include "./../include/CD3D11VertexDeclaration.h"
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
+#include <graphics/IStructuredBuffer.h>
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -64,6 +66,22 @@ namespace TDEngine2
 		_insertBuffer(pNewConstantBuffer);
 
 		return Wrench::TOkValue<IConstantBuffer*>(pNewConstantBuffer);
+	}
+
+	TResult<IStructuredBuffer*> CD3D11GraphicsObjectManager::CreateStructuredBuffer(const TStructuredBuffersInitParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		IStructuredBuffer* pNewStructuredBuffer = CreateD3D11StructuredBuffer(params, result);
+
+		if (result != RC_OK)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		_insertBuffer(pNewStructuredBuffer);
+
+		return Wrench::TOkValue<IStructuredBuffer*>(pNewStructuredBuffer);
 	}
 	
 	TResult<IVertexDeclaration*> CD3D11GraphicsObjectManager::CreateVertexDeclaration()

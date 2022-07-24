@@ -91,6 +91,14 @@ namespace TDEngine2
 			TDE2_API TResult<IConstantBuffer*> CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr) override;
 
 			/*!
+				\brief The method is a factory for creation of structured buffers objects
+
+				\return The result object that contains either a pointer to a structured buffer or an error code
+			*/
+
+			TDE2_API TResult<IStructuredBuffer*> CreateStructuredBuffer(const TStructuredBuffersInitParams& params) override;
+
+			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
 
 				\return The result object contains either a pointer to IVertexDeclaration or an error code

@@ -15,6 +15,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
+	auto pBufferPtr = mpGraphicsObjectManager->CreateStructuredBuffer({ mpGraphicsContext, E_STRUCTURED_BUFFER_TYPE::DEFAULT, E_BUFFER_USAGE_TYPE::BUT_DEFAULT, 30, sizeof(TVector2), false }).Get();
+
 	mpResourceManager->Load<IShader>("ProjectShaders/TestCompute.cshader");
 	mpResourceManager->Load<IPrefabsManifest>("ProjectResources/PrefabsCollection.manifest");
 

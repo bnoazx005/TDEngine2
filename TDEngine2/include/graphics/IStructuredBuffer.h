@@ -19,8 +19,21 @@ namespace TDEngine2
 	enum class E_STRUCTURED_BUFFER_TYPE : U32
 	{
 		DEFAULT,
-		APPEND,
+		APPENDABLE,
 		CONSUMED,
+	};
+
+
+	struct TStructuredBuffersInitParams
+	{
+		IGraphicsContext*        mpGraphicsContext;
+		E_STRUCTURED_BUFFER_TYPE mBufferType;				///< A type of a structured buffer (refers to different operations set in a shader)
+		E_BUFFER_USAGE_TYPE      mUsageType;
+		U32                      mElementsCount;			///< A maximum capacity of the buffer in elements
+		USIZE                    mElementStride;			///< A number of bytes that's occupied by a single element
+		bool                     mIsWriteable;				///< A flag that determines whether the buffer can be used as an output in a shader
+		void*                    mpInitialData = nullptr;	///< A pointer to data that will initialize a buffer
+		USIZE                    mInitialDataSize = 0;		///< A size of pInitialData
 	};
 
 
@@ -33,8 +46,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, E_STRUCTURED_BUFFER_TYPE bufferType, E_BUFFER_USAGE_TYPE usageType,
-												U32 elementsCount, U32 elementStride, bool isWriteable) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(const TStructuredBuffersInitParams& params) = 0;
 
 			/*!
 				\brief The method binds current buffer to a pipeline
@@ -44,8 +56,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void Bind(U32 slot) = 0;
 
-			TDE2_API virtual U32 GetStrideSize() const = 0;
+			TDE2_API virtual USIZE GetStrideSize() const = 0;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(IStructuredBuffer)
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IStructuredBuffer)
 	};
 }
