@@ -2,6 +2,7 @@
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
+#include <graphics/IStructuredBuffer.h>
 #include <memory>
 
 
@@ -75,7 +76,19 @@ namespace TDEngine2
 		if (E_BUFFER_TYPE::BT_STRUCTURED_BUFFER == mBufferType)
 		{
 			bufferDesc.StructureByteStride = static_cast<UINT>(params.mElementStrideSize);
-			bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+
+			switch (params.mStructuredBufferType)
+			{
+				case E_STRUCTURED_BUFFER_TYPE::DEFAULT:
+					bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+					break;
+				case E_STRUCTURED_BUFFER_TYPE::RAW:
+					bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+					break;
+				default:
+					TDE2_UNIMPLEMENTED();
+					break;
+			}
 		}
 
 		D3D11_SUBRESOURCE_DATA bufferData;

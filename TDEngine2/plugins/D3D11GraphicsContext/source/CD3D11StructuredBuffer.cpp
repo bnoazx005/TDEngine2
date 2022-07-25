@@ -10,15 +10,26 @@
 namespace TDEngine2
 {
 
-	static TResult<ID3D11UnorderedAccessView*> CreateUnorderedAccessView(ID3D11Buffer* pBuffer, ID3D11Device* p3dDevice, U32 numElements)
+	static TResult<ID3D11UnorderedAccessView*> CreateUnorderedAccessView(ID3D11Buffer* pBuffer, ID3D11Device* p3dDevice, E_STRUCTURED_BUFFER_TYPE type, U32 numElements)
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC viewDesc = {};
 
-		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+		viewDesc.Format = (E_STRUCTURED_BUFFER_TYPE::DEFAULT == type) ? DXGI_FORMAT_UNKNOWN : DXGI_FORMAT_R32_TYPELESS;
 		viewDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 
 		viewDesc.Buffer.FirstElement = 0;
 		viewDesc.Buffer.Flags = 0;
+
+		switch (type)
+		{
+			case E_STRUCTURED_BUFFER_TYPE::RAW:
+				viewDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+				break;
+			case E_STRUCTURED_BUFFER_TYPE::APPENDABLE:
+				viewDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND;
+				break;
+		}
+
 		viewDesc.Buffer.NumElements = numElements;
 
 		ID3D11UnorderedAccessView* pView = nullptr;
@@ -32,15 +43,15 @@ namespace TDEngine2
 	}
 
 
-	static TResult<ID3D11ShaderResourceView*> CreateShaderResourceView(ID3D11Buffer* pBuffer, ID3D11Device* p3dDevice, U32 numElements)
+	static TResult<ID3D11ShaderResourceView*> CreateShaderResourceView(ID3D11Buffer* pBuffer, ID3D11Device* p3dDevice, E_STRUCTURED_BUFFER_TYPE type, U32 numElements)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc = {};
 
-		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+		viewDesc.Format = (E_STRUCTURED_BUFFER_TYPE::DEFAULT == type) ? DXGI_FORMAT_UNKNOWN : DXGI_FORMAT_R32_TYPELESS;
 		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 		
 		viewDesc.BufferEx.FirstElement = 0;
-		viewDesc.BufferEx.Flags = 0;
+		viewDesc.BufferEx.Flags = (E_STRUCTURED_BUFFER_TYPE::RAW == type) ? D3D11_BUFFEREX_SRV_FLAG_RAW : 0;
 		viewDesc.BufferEx.NumElements = numElements;
 
 		ID3D11ShaderResourceView* pView = nullptr;
@@ -100,7 +111,7 @@ namespace TDEngine2
 
 		auto pInternalBufferD3D11 = mpBufferImpl->GetInternalData().mpD3D11Buffer; 
 
-		auto createSRVResult = CreateShaderResourceView(pInternalBufferD3D11, internalD3D11Data.mp3dDevice, params.mElementsCount);
+		auto createSRVResult = CreateShaderResourceView(pInternalBufferD3D11, internalD3D11Data.mp3dDevice, params.mBufferType, params.mElementsCount);
 		if (createSRVResult.HasError())
 		{
 			return createSRVResult.GetError();
@@ -110,7 +121,7 @@ namespace TDEngine2
 
 		if (params.mIsWriteable) /// \note If the buffer is writeable create UAV view
 		{
-			auto createUAVResult = CreateUnorderedAccessView(pInternalBufferD3D11, internalD3D11Data.mp3dDevice, params.mElementsCount);
+			auto createUAVResult = CreateUnorderedAccessView(pInternalBufferD3D11, internalD3D11Data.mp3dDevice, params.mBufferType, params.mElementsCount);
 			if (createUAVResult.HasError())
 			{
 				return createUAVResult.GetError();

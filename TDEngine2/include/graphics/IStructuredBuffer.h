@@ -18,9 +18,9 @@ namespace TDEngine2
 
 	enum class E_STRUCTURED_BUFFER_TYPE : U32
 	{
-		DEFAULT,
+		DEFAULT,			///< [RW]StructuredBuffer for D3D, SSBO for GL
+		RAW,				///< [RW]ByteAddressBuffer for D3D
 		APPENDABLE,
-		CONSUMED,
 	};
 
 
