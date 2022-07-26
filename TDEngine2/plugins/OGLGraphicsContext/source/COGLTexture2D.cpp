@@ -126,6 +126,12 @@ namespace TDEngine2
 			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 		}
 
+		if (isWriteable)
+		{
+			/// \todo Refactor this later
+			GL_SAFE_CALL(glBindImageTexture(0, mTextureHandler, 0, GL_FALSE, 0, GL_READ_WRITE, COGLMappings::GetInternalFormat(format)));
+		}
+
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		return RC_OK;
@@ -134,49 +140,13 @@ namespace TDEngine2
 
 	TDE2_API ITexture2D* CreateOGLTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
-		COGLTexture2D* pTexture2DInstance = new (std::nothrow) COGLTexture2D();
-
-		if (!pTexture2DInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTexture2DInstance->Init(pResourceManager, pGraphicsContext, name);
-
-		if (result != RC_OK)
-		{
-			delete pTexture2DInstance;
-
-			pTexture2DInstance = nullptr;
-		}
-
-		return pTexture2DInstance;
+		return CREATE_IMPL(ITexture2D, COGLTexture2D, result, pResourceManager, pGraphicsContext, name);
 	}
 
 	TDE2_API ITexture2D* CreateOGLTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 											const TTexture2DParameters& params, E_RESULT_CODE& result)
 	{
-		COGLTexture2D* pTexture2DInstance = new (std::nothrow) COGLTexture2D();
-
-		if (!pTexture2DInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTexture2DInstance->Init(pResourceManager, pGraphicsContext, name, params);
-
-		if (result != RC_OK)
-		{
-			delete pTexture2DInstance;
-
-			pTexture2DInstance = nullptr;
-		}
-
-		return pTexture2DInstance;
+		return CREATE_IMPL(ITexture2D, COGLTexture2D, result, pResourceManager, pGraphicsContext, name, params);
 	}
 
 
@@ -236,24 +206,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateOGLTexture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		COGLTexture2DFactory* pTexture2DFactoryInstance = new (std::nothrow) COGLTexture2DFactory();
-
-		if (!pTexture2DFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTexture2DFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pTexture2DFactoryInstance;
-
-			pTexture2DFactoryInstance = nullptr;
-		}
-
-		return pTexture2DFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, COGLTexture2DFactory, result, pResourceManager, pGraphicsContext);
 	}
 }
