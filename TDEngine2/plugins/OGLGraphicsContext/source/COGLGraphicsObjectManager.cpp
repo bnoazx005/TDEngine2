@@ -2,6 +2,7 @@
 #include "./../include/COGLVertexBuffer.h"
 #include "./../include/COGLIndexBuffer.h"
 #include "./../include/COGLConstantBuffer.h"
+#include "./../include/COGLStructuredBuffer.h"
 #include "./../include/COGLVertexDeclaration.h"
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLUtils.h"
@@ -66,8 +67,18 @@ namespace TDEngine2
 
 	TResult<IStructuredBuffer*> COGLGraphicsObjectManager::CreateStructuredBuffer(const TStructuredBuffersInitParams& params)
 	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TOkValue<IStructuredBuffer*>(nullptr);
+		E_RESULT_CODE result = RC_OK;
+
+		IStructuredBuffer* pNewStructuredBuffer = CreateOGLStructuredBuffer(params, result);
+
+		if (result != RC_OK)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		_insertBuffer(pNewStructuredBuffer);
+
+		return Wrench::TOkValue<IStructuredBuffer*>(pNewStructuredBuffer);
 	}
 
 	TResult<IVertexDeclaration*> COGLGraphicsObjectManager::CreateVertexDeclaration()
