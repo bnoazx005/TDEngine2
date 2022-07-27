@@ -43,6 +43,37 @@ namespace TDEngine2
 		BMT_DEFAULT = BMT_WRITE_DISCARD	///< Default type of an access is BMT_WRITE_DISCARD
 	};
 
+
+	/*!
+		\brief The enumeration contains all possible types, how COGLBuffer can be used
+	*/
+
+	enum class E_BUFFER_TYPE : U32
+	{
+		BT_VERTEX_BUFFER,			///< A buffer will be used as vertex buffer
+		BT_INDEX_BUFFER,			///< A buffer will be used as index buffer
+		BT_CONSTANT_BUFFER,			///< A buffer will be used as uniforms buffer object
+		BT_STRUCTURED_BUFFER,
+	};
+
+
+	enum class E_STRUCTURED_BUFFER_TYPE : U32;
+
+
+	struct TInitBufferParams
+	{
+		IGraphicsContext*        mpGraphicsContext;
+		E_BUFFER_USAGE_TYPE      mUsageType;
+		E_BUFFER_TYPE            mBufferType;
+		USIZE                    mTotalBufferSize;
+		const void*              mpDataPtr = nullptr;
+		USIZE                    mDataSize = 0;
+		/// Structured buffers part
+		bool                     mIsUnorderedAccessResource = false;
+		USIZE                    mElementStrideSize = 0;
+		E_STRUCTURED_BUFFER_TYPE mStructuredBufferType;
+	};
+
 	
 	/*!
 		interface IBuffer

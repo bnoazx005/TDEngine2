@@ -16,37 +16,6 @@
 
 namespace TDEngine2
 {
-	enum class E_STRUCTURED_BUFFER_TYPE : U32;
-
-
-	/*!
-		\brief The enumeration contains all possible types, how CD3D11Buffer can be used
-	*/
-
-	enum class E_BUFFER_TYPE : U8
-	{
-		BT_VERTEX_BUFFER,			///< A buffer will be used as vertex buffer
-		BT_INDEX_BUFFER,			///< A buffer will be used as index buffer
-		BT_CONSTANT_BUFFER,			///< A buffer will be used as constant buffer
-		BT_STRUCTURED_BUFFER,
-	};
-
-
-	struct TInitBufferParams
-	{
-		IGraphicsContext*        mpGraphicsContext;
-		E_BUFFER_USAGE_TYPE      mUsageType;
-		E_BUFFER_TYPE            mBufferType;
-		USIZE                    mTotalBufferSize;
-		const void*              mpDataPtr = nullptr;
-		USIZE                    mDataSize = 0;
-		/// Structured buffers part
-		bool                     mIsUnorderedAccessResource = false;
-		USIZE                    mElementStrideSize = 0;
-		E_STRUCTURED_BUFFER_TYPE mStructuredBufferType;
-	};
-
-
 	/*!
 		class CD3D11Buffer
 

@@ -24,7 +24,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpBufferImpl = CreateOGLBuffer(pGraphicsContext, usageType, COGLBuffer::BT_INDEX_BUFFER, totalBufferSize, pDataPtr, result);
+		mpBufferImpl = CreateOGLBuffer({ pGraphicsContext, usageType, E_BUFFER_TYPE::BT_INDEX_BUFFER, totalBufferSize, pDataPtr }, result);
 
 		if (result != RC_OK)
 		{

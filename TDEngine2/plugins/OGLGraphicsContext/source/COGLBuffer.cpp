@@ -13,26 +13,26 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLBuffer::Init(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, E_BUFFER_TYPE bufferType, USIZE totalBufferSize, const void* pDataPtr)
+	E_RESULT_CODE COGLBuffer::Init(const TInitBufferParams& params)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		mBufferSize = totalBufferSize;
+		mBufferSize = params.mTotalBufferSize;
 		mUsedBytesSize = 0;
 
-		mBufferUsageType = usageType;
+		mBufferUsageType = params.mUsageType;
 
-		mBufferType = bufferType;
+		mBufferType = params.mBufferType;
 
 		GL_SAFE_CALL(glGenBuffers(1, &mBufferHandler));
 
-		GLenum glInternalBufferType = _getBufferType(bufferType);
+		GLenum glInternalBufferType = _getBufferType(mBufferType);
 
 		GL_SAFE_CALL(glBindBuffer(glInternalBufferType, mBufferHandler));
-		GL_SAFE_CALL(glBufferData(glInternalBufferType, totalBufferSize, pDataPtr, COGLMappings::GetUsageType(usageType)));
+		GL_SAFE_CALL(glBufferData(glInternalBufferType, mBufferSize, params.mpDataPtr, COGLMappings::GetUsageType(mBufferUsageType)));
 		GL_SAFE_CALL(glBindBuffer(glInternalBufferType, 0));
 
 		mBufferInternalData.mGLBuffer = mBufferHandler;
@@ -115,21 +115,22 @@ namespace TDEngine2
 	{
 		switch (type)
 		{
-			case BT_VERTEX_BUFFER:
+			case E_BUFFER_TYPE::BT_VERTEX_BUFFER:
 				return GL_ARRAY_BUFFER;
-			case BT_INDEX_BUFFER:
+			case E_BUFFER_TYPE::BT_INDEX_BUFFER:
 				return GL_ELEMENT_ARRAY_BUFFER;
-			case BT_CONSTANT_BUFFER:
+			case E_BUFFER_TYPE::BT_CONSTANT_BUFFER:
 				return GL_UNIFORM_BUFFER;
+			case E_BUFFER_TYPE::BT_STRUCTURED_BUFFER:
+				return GL_SHADER_STORAGE_BUFFER;
 		}
 
 		return 0;
 	}
 
 
-	TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext* pGraphicsContext, E_BUFFER_USAGE_TYPE usageType, COGLBuffer::E_BUFFER_TYPE bufferType,
-		USIZE totalBufferSize, const void* pDataPtr, E_RESULT_CODE& result)
+	TDE2_API IBuffer* CreateOGLBuffer(const TInitBufferParams& params, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IBuffer, COGLBuffer, result, pGraphicsContext, usageType, bufferType, totalBufferSize, pDataPtr);
+		return CREATE_IMPL(IBuffer, COGLBuffer, result, params);
 	}
 }

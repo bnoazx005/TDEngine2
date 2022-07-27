@@ -77,6 +77,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mStructuredElementStride = params.mElementStride;
+
 		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
 
 		E_RESULT_CODE result = RC_OK;

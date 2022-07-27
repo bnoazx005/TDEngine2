@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.9] 2022-07-26
+## [0.6.9] 2022-07-27
 
 ### Added
 
@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A base resources path that was a hardcoded value now is stored in project settings file.
 
-- The signature of CD3D11Buffer::Init was changed. Now it takes a structure of parameters of **TBufferInitParams** type.
+- The signatures of CD3D11Buffer::Init and COGLBuffer::Init was changed. Now it takes a structure of parameters of **TBufferInitParams** type.
 
 ### Fixed
 
