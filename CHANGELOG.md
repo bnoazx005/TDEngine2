@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.9] 2022-07-27
+## [0.6.9] 2022-07-29
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new type of a shader was introduced which is a compute shader.
 
 - The API of **IGraphicsContext** was extended with a new public method DispatchCompute.
+
+- Add support of usage of structured buffers as shaders resources.
 
 ### Changed
 

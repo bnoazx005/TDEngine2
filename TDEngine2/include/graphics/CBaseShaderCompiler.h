@@ -34,7 +34,7 @@ namespace TDEngine2
 		public:
 			TDE2_API CTokenizer(const std::string& str, 
 								const std::string& delims = "\n\r\t ", 
-								const std::string& specDelims = "{}(),;:");
+								const std::string& specDelims = "<>{}(),;:");
 
 			TDE2_API CTokenizer(const CTokenizer& tokenizer);
 			TDE2_API CTokenizer(CTokenizer&& tokenizer);

@@ -28,7 +28,7 @@ namespace TDEngine2
 	class CBaseShader: public IShader, public CBaseResource
 	{
 		public:
-			typedef std::unordered_map<std::string, U8> TTexturesHashTable;
+			typedef std::unordered_map<std::string, U8> TResourcesHashTable;
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CBaseShader)
 			TDE2_REGISTER_TYPE(CBaseShader)
@@ -100,6 +100,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) override;
 
 			/*!
+				\brief The method assings a given structured buffer to a given resource's name
+
+				\param[in] resourceName A name of a resource within a shader's code
+				\param[in, out] pBuffer A pointer to IStructuredBuffer implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetStructuredBufferResource(const std::string& resourceName, IStructuredBuffer* pBuffer) override;
+
+			/*!
 				\brief The method returns an additional information about the shader
 
 				\return A pointer to the type that contains all the information about internal uniform buffers and
@@ -117,19 +128,22 @@ namespace TDEngine2
 			TDE2_API virtual void _bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer) = 0;
 
 			TDE2_API virtual E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData);
+			TDE2_API virtual E_RESULT_CODE _createStructuredBuffersHashTable(const TShaderCompilerOutput* pCompilerData);
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
-			IGraphicsContext*             mpGraphicsContext;
+			IGraphicsContext*               mpGraphicsContext;
 
-			std::string                   mSourceCode;
+			std::string                     mSourceCode;
 
-			std::vector<IConstantBuffer*> mUniformBuffers;
+			std::vector<IConstantBuffer*>   mUniformBuffers;
 
-			TTexturesHashTable            mTexturesHashTable;
+			TResourcesHashTable             mTexturesHashTable;
+			TResourcesHashTable             mStructuredBuffersHashTable;
 
-			std::vector<ITexture*>        mpTextures;
+			std::vector<ITexture*>          mpTextures;
+			std::vector<IStructuredBuffer*> mpBuffers;
 
-			TShaderCompilerOutput*        mpShaderMeta;
+			TShaderCompilerOutput*          mpShaderMeta;
 	};
 }

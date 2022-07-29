@@ -390,6 +390,15 @@ namespace TDEngine2
 				continue;
 			}
 
+			/// skip template parameters
+			if (E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType)
+			{
+				while (currToken != ">")
+				{
+					currToken = tokenizer.GetNextToken();
+				}
+			}
+
 			/// found a shader resource
 			currToken = tokenizer.GetNextToken();
 
@@ -409,6 +418,10 @@ namespace TDEngine2
 			{ "Texture2D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D },
 			{ "Texture2DArray", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY },
 			{ "Texture3D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D },
+			{ "TextureCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
+			{ "RWTexture2D", E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D },
+			{ "StructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER },
+			{ "RWStructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
 			{ "TextureCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
 		};
 

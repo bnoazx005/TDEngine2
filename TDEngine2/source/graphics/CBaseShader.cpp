@@ -1,6 +1,7 @@
 #include "../../include/graphics/CBaseShader.h"
 #include "../../include/graphics/IShaderCompiler.h"
 #include "../../include/graphics/IConstantBuffer.h"
+#include "../../include/graphics/IStructuredBuffer.h"
 #include "../../include/graphics/ITexture.h"
 
 
@@ -72,10 +73,8 @@ namespace TDEngine2
 			return result;
 		}
 
-		if ((result = _createTexturesHashTable(mpShaderMeta)) != RC_OK)
-		{
-			return result;
-		}
+		result = result | _createTexturesHashTable(mpShaderMeta);
+		result = result | _createTexturesHashTable(mpShaderMeta);
 
 		if (result != RC_OK)
 		{
@@ -124,6 +123,7 @@ namespace TDEngine2
 	{
 		ITexture* pCurrTexture = nullptr;
 
+		/// \note Bind textures
 		for (U32 i = 0; i < mpTextures.size(); ++i)
 		{
 			pCurrTexture = mpTextures[i];
@@ -134,6 +134,21 @@ namespace TDEngine2
 			}
 
 			pCurrTexture->Bind(i);
+		}
+
+		/// \note Binds structured buffers
+		IStructuredBuffer* pCurrBuffer = nullptr;
+
+		for (U32 i = 0; i < mpBuffers.size(); ++i)
+		{
+			pCurrBuffer = mpBuffers[i];
+
+			if (!pCurrBuffer)
+			{
+				continue;
+			}
+
+			pCurrBuffer->Bind(i);
 		}
 
 		U8 currUserBufferId = 0;
@@ -151,13 +166,30 @@ namespace TDEngine2
 		}
 
 		auto hashIter = mTexturesHashTable.find(resourceName);
-
 		if (hashIter == mTexturesHashTable.cend())
 		{
 			return RC_FAIL;
 		}
 
 		mpTextures[hashIter->second] = pTexture;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseShader::SetStructuredBufferResource(const std::string& resourceName, IStructuredBuffer* pBuffer)
+	{
+		if (resourceName.empty() || !pBuffer)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto hashIter = mStructuredBuffersHashTable.find(resourceName);
+		if (hashIter == mStructuredBuffersHashTable.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mpBuffers[hashIter->second] = pBuffer;
 
 		return RC_OK;
 	}
@@ -214,6 +246,31 @@ namespace TDEngine2
 			mpTextures.resize(currSlotIndex + 1);
 
 			mpTextures[currSlotIndex] = nullptr;
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseShader::_createStructuredBuffersHashTable(const TShaderCompilerOutput* pCompilerData)
+	{
+		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
+
+		if (shaderResourcesMap.empty())
+		{
+			return RC_OK;
+		}
+
+		U8 currSlotIndex = 0;
+
+		for (auto currShaderResourceInfo : shaderResourcesMap)
+		{
+			currSlotIndex = currShaderResourceInfo.second.mSlot;
+
+			mStructuredBuffersHashTable[currShaderResourceInfo.first] = currSlotIndex;
+
+			mpBuffers.resize(currSlotIndex + 1);
+
+			mpBuffers[currSlotIndex] = nullptr;
 		}
 
 		return RC_OK;

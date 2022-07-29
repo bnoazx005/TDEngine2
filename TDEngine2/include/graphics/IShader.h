@@ -20,6 +20,7 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IShaderCompiler;
 	class ITexture;
+	class IStructuredBuffer;
 
 	struct TShaderCompilerOutput;
 
@@ -100,6 +101,17 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture) = 0;
+
+			/*!
+				\brief The method assings a given structured buffer to a given resource's name
+
+				\param[in] resourceName A name of a resource within a shader's code
+				\param[in, out] pBuffer A pointer to IStructuredBuffer implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetStructuredBufferResource(const std::string& resourceName, IStructuredBuffer* pBuffer) = 0;
 
 			/*!
 				\brief The method returns an additional information about the shader
