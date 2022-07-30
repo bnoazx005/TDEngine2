@@ -344,6 +344,9 @@ namespace TDEngine2
 			{ "samplerCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
 			{ "isamplerCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
 			{ "usamplerCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
+			{ "image2D", E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D },
+			{ "buffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
+			{ "buffer", E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER },
 		};
 
 		auto result = shaderResourcesMap.find(token);
