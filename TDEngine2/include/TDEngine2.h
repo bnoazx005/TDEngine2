@@ -60,6 +60,7 @@
 #include "core/CProxyGraphicsContext.h"
 #include "core/IResourcesRuntimeManifest.h"
 #include "core/CResourcesRuntimeManifest.h"
+#include "core/EntryPoint.h"
 
 /// game
 #include "game/ISaveManager.h"

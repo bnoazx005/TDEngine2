@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.10] 2022-07-30
+
+### Added
+
+- Now the engine provides an implementation of application's entry point which is stay same for most projects
+
+### Changed
+
+### Fixed
+
 ## [0.6.9] 2022-07-30
 
 ### Added

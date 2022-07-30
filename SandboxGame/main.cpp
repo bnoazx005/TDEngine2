@@ -1,31 +1,8 @@
-#include <iostream>
-#include "include/CCustomEngineListener.h"
+#define TDE2_DEFINE_ENTRY_POINT
 #include <TDEngine2.h>
-#include <thread>
-
-#if defined (TDE2_USE_WINPLATFORM)
-	#pragma comment(lib, "TDEngine2.lib")
-#endif
-
-using namespace TDEngine2;
+#include "include/CCustomEngineListener.h"
 
 
-int main(int argc, char** argv)
-{
-	E_RESULT_CODE result = RC_OK;
-	
-	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder({ CreateEngineCore, "SandboxGame.project" }, result));
+extern std::string GetProjectSettingsFilePath() { return "SandboxGame.project"; }
 
-	if (result != RC_OK)
-	{
-		return -1;
-	}
-
-	TPtr<IEngineCore> pEngineCore = TPtr<IEngineCore>(pEngineCoreBuilder->GetEngineCore());
-
-	pEngineCore->RegisterListener(std::make_unique<CCustomEngineListener>());
-
-	pEngineCore->Run();
-
-	return 0;
-}
+extern std::unique_ptr<TDEngine2::IEngineListener> GetEngineListener() { return std::make_unique<CCustomEngineListener>(); }

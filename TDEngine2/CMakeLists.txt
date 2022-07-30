@@ -101,6 +101,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CProxyGraphicsContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/IResourcesRuntimeManifest.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/CResourcesRuntimeManifest.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/core/EntryPoint.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/game/ISaveManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/game/CSaveManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/game/CSaveData.h"
