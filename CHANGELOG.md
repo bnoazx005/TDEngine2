@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.10] 2022-07-30
+## [0.6.10] 2022-07-31
 
 ### Added
 
 - Now the engine provides an implementation of application's entry point which is stay same for most projects
+
+- A helper script for generation of new projects was added.
 
 ### Changed
 
