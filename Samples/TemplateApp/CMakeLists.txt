@@ -15,8 +15,13 @@ endif ()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # attach TDEngine2
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../TDEngine2/include")
-link_directories("${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/TDEngine2/include")
+link_directories("${CMAKE_CURRENT_SOURCE_DIR}/bin")
+
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/main.cpp.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
 
 set(HEADERS
