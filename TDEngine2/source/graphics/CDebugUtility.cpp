@@ -22,8 +22,8 @@
 namespace TDEngine2
 {
 	// \todo Remove these decls and replace them with some options in settings file
-	const std::string CDebugUtility::mDefaultDebugMaterialName = "Resources/Materials/DebugMaterial.material";
-	const std::string CDebugUtility::mTextMaterialName         = "Resources/Materials/DebugTextMaterial.material";
+	const std::string CDebugUtility::mDefaultDebugMaterialName = "DefaultResources/Materials/DebugMaterial.material";
+	const std::string CDebugUtility::mTextMaterialName         = "DefaultResources/Materials/DebugTextMaterial.material";
 
 	const U32 CDebugUtility::mMaxLinesVerticesCount = 65536;
 

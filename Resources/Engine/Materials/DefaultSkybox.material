@@ -39,6 +39,6 @@ textures:
   - instance_id: 0
     texture_bindings: 
       - slot_id: SkyboxTexture
-        texture_id: Resources/Textures/DefaultSkybox
+        texture_id: DefaultResources/Textures/DefaultSkybox
         texture_type_id: 3127180348
 transparency_enabled: 0

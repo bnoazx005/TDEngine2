@@ -59,7 +59,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 		{
 			if (auto pScene = sceneResult.Get())
 			{
-				pScene->CreateSkybox(mpResourceManager.Get(), "Resources/Textures/DefaultSkybox");
+				pScene->CreateSkybox(mpResourceManager.Get(), "DefaultResources/Textures/DefaultSkybox");
 
 				if (CEntity* pEntity = pScene->CreateEntity("AnimableEntity"))
 				{

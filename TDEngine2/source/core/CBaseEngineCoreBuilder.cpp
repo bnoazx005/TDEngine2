@@ -364,7 +364,7 @@ namespace TDEngine2
 
 		if (pFramePostProcessor)
 		{
-			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("Resources/Configs/default-profile.camera_profile");
+			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("DefaultResources/Configs/default-profile.camera_profile");
 			if (TResourceId::Invalid == defaultProfileResourceId)
 			{
 				return RC_FILE_NOT_FOUND;
@@ -560,7 +560,8 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		/// \note Register built-in application's paths
-		if (RC_OK != (result = pFileSystem->MountPhysicalPath(CProjectSettings::Get()->mCommonSettings.mBaseResourcesPath, "Resources/")))
+		if ((RC_OK != (result = pFileSystem->MountPhysicalPath(CProjectSettings::Get()->mCommonSettings.mBaseResourcesPath, "Resources/"))) ||
+			(RC_OK != (result = pFileSystem->MountPhysicalPath(pFileSystem->CombinePath(CProjectSettings::Get()->mCommonSettings.mBaseResourcesPath, "Engine/"), "DefaultResources/"))))
 		{
 			return result;
 		}
@@ -587,7 +588,7 @@ namespace TDEngine2
 		static const std::string hlslSubDirectory = "/DX/";
 		static const std::string glslSubDirectory = "/GL/";
 
-		static const std::string baseShadersPath   = CProjectSettings::Get()->mCommonSettings.mBaseResourcesPath + "Shaders/";
+		static const std::string baseShadersPath   = pFileSystem->CombinePath(pFileSystem->CombinePath(CProjectSettings::Get()->mCommonSettings.mBaseResourcesPath, "Engine/"), "Shaders/");
 
 		std::string baseDefaultShadersPath     = baseShadersPath + "Default";
 		std::string basePostEffectsShadersPath = baseShadersPath + "PostEffects";
@@ -894,7 +895,7 @@ namespace TDEngine2
 
 		/// \todo Move this into another place later
 		TRuntimeFontParameters fontParams;
-		fontParams.mTrueTypeFontFilePath = "Resources/Fonts/OpenSans-Regular.ttf";
+		fontParams.mTrueTypeFontFilePath = "DefaultResources/Fonts/OpenSans-Regular.ttf";
 
 		mpResourceManagerInstance->Create<IRuntimeFont>("OpenSans.font", fontParams);
 

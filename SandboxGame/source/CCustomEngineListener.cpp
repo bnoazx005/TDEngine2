@@ -22,7 +22,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpResourceManager->Load<IPrefabsManifest>("ProjectResources/PrefabsCollection.manifest");
 
-	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("Resources/Materials/DebugTextMaterial.material"));
+	auto pFontMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>("DefaultResources/Materials/DebugTextMaterial.material"));
 	if (pFontMaterial)
 	{
 		if (auto pFontAtlas = mpResourceManager->GetResource<ITextureAtlas>(mpResourceManager->Load<ITextureAtlas>("atlas.info")))
@@ -252,7 +252,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				pAnimationContainer->SetAnimationClipId("ProjectResources/Animations/Animation2.animation");
 			}
 
-			pScene->CreateSkybox(mpResourceManager, "Resources/Textures/DefaultSkybox");
+			pScene->CreateSkybox(mpResourceManager, "DefaultResources/Textures/DefaultSkybox");
 			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
 
 #if 1 /// Test UI layout

@@ -385,7 +385,7 @@ entities:
         - component: 
             type_id: 1576149979
         - component: 
-            material: Resources/Materials/DefaultSkybox.material
+            material: DefaultResources/Materials/DefaultSkybox.material
             mesh: Cube
             type_id: 780504096
       id: 22

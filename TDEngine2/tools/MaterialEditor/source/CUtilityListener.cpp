@@ -45,7 +45,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	{
 		auto pScene = getSceneResult.Get();
 
-		pScene->CreateSkybox(mpResourceManager.Get(), "Resources/Textures/DefaultSkybox");
+		pScene->CreateSkybox(mpResourceManager.Get(), "DefaultResources/Textures/DefaultSkybox");
 		
 		if (auto pLightEntity = pScene->CreateDirectionalLight(TColorUtils::mWhite, 1.0f, TVector3(1.0f, 1.0f, 0.0f)))
 		{
