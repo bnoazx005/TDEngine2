@@ -11,14 +11,25 @@ import shutil
 
 
 def copy_resources_dir(target_directory):
-	shutil.copytree("../Resources/", os.path.join(target_directory, "Resources/"))
+	resourcesDir = os.path.join(target_directory, "Resources/")
+
+	if os.path.exists(resourcesDir):
+		shutil.rmtree(resourcesDir)
+
+	shutil.copytree("../Resources/", resourcesDir)
 
 
 def copy_libraries(target_directory):
 	destBinariesDirectory = os.path.join(target_directory, "bin/")
 
+	if not os.path.exists(destBinariesDirectory):
+		os.makedirs(destBinariesDirectory)
+
 	for file in glob.glob("../bin/Debug/*.dll"):
 		shutil.copy(file, destBinariesDirectory)
+
+	if os.path.exists(os.path.join(target_directory, "TDEngine2/include/")):
+		shutil.rmtree(os.path.join(target_directory, "TDEngine2/include/"))
 
 	shutil.copytree("../TDEngine2/include/", os.path.join(target_directory, "TDEngine2/include/"))
 
@@ -39,10 +50,18 @@ def generate_project_files(project_name, target_directory):
 	with open(targetCmakeFile, 'w') as f:
 	  f.write(filedata)
 
+	paths = [
+		"include/", "source/"
+	]
+
 	#copy sources
+	for currPath in paths:		
+		if os.path.exists(os.path.join(target_directory, currPath)):
+			shutil.rmtree(os.path.join(target_directory, currPath))
+
+		shutil.copytree(os.path.join("../Samples/TemplateApp/", currPath), os.path.join(target_directory, currPath))
+
 	shutil.copyfile("../Samples/TemplateApp/main.cpp.in", os.path.join(target_directory, "main.cpp.in"))
-	shutil.copytree("../Samples/TemplateApp/include/", os.path.join(target_directory, "include/"))
-	shutil.copytree("../Samples/TemplateApp/source/", os.path.join(target_directory, "source/"))
 
 
 
