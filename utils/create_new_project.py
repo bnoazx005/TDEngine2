@@ -8,6 +8,7 @@
 import sys, os, glob
 import yaml
 import shutil
+from pathlib import Path
 
 
 def copy_resources_dir(target_directory):
@@ -28,10 +29,24 @@ def copy_libraries(target_directory):
 	for file in glob.glob("../bin/Debug/*.dll"):
 		shutil.copy(file, destBinariesDirectory)
 
+	for file in glob.glob("../bin/Debug/*.lib"):
+		shutil.copy(file, destBinariesDirectory)
+
 	if os.path.exists(os.path.join(target_directory, "TDEngine2/include/")):
 		shutil.rmtree(os.path.join(target_directory, "TDEngine2/include/"))
 
 	shutil.copytree("../TDEngine2/include/", os.path.join(target_directory, "TDEngine2/include/"))
+
+	# copy plugins' includes
+	pluginsDirectory = os.path.join(target_directory, "TDEngine2/plugins")
+	
+	if os.path.exists(pluginsDirectory):
+		shutil.rmtree(pluginsDirectory)
+
+	for filePath in Path("../TDEngine2/plugins/").glob("*/include"):
+		destPath = os.path.join(pluginsDirectory, Path(filePath).relative_to("../TDEngine2/plugins/"))
+
+		shutil.copytree(filePath, destPath)
 
 
 def generate_project_files(project_name, target_directory):
