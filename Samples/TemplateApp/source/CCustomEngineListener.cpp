@@ -1,4 +1,4 @@
-#include "./../include/CCustomEngineListener.h"
+#include "../include/CCustomEngineListener.h"
 #include <TDEngine2.h>
 #include <iostream>
 
@@ -35,6 +35,4 @@ void CCustomEngineListener::SetEngineInstance(IEngineCore* pEngineCore)
 	mpResourceManager = mpEngineCoreInstance->GetSubsystem<IResourceManager>();
 	mpInputContext    = mpEngineCoreInstance->GetSubsystem<IDesktopInputContext>();
 	mpFileSystem      = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
-
-	mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 }

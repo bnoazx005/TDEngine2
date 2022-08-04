@@ -7,6 +7,7 @@ common_settings:
   max_worker_threads_count: 4
   total_preallocated_memory_size: 134217728‬
   flags : 20 # RESIZEABLE | ZBUFFER
+  base_resources_path: "../Resources/"
 
 graphics_settings:
   gapi_type: GCGT_DIRECT3D11

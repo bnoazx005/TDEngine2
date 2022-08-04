@@ -3,6 +3,6 @@
 #include "include/CCustomEngineListener.h"
 
 
-extern std::string GetProjectSettingsFilePath() { return "@EXECUTABLE_NAME@"; }
+extern std::string GetProjectSettingsFilePath() { return "@EXECUTABLE_NAME@.project"; }
 
 extern std::unique_ptr<TDEngine2::IEngineListener> GetEngineListener() { return std::make_unique<CCustomEngineListener>(); }

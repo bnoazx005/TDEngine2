@@ -35,7 +35,11 @@ def copy_libraries(target_directory):
 	if os.path.exists(os.path.join(target_directory, "TDEngine2/include/")):
 		shutil.rmtree(os.path.join(target_directory, "TDEngine2/include/"))
 
+	if os.path.exists(os.path.join(target_directory, "TDEngine2/deps/")):
+		shutil.rmtree(os.path.join(target_directory, "TDEngine2/deps/"))
+
 	shutil.copytree("../TDEngine2/include/", os.path.join(target_directory, "TDEngine2/include/"))
+	shutil.copytree("../TDEngine2/deps/", os.path.join(target_directory, "TDEngine2/deps/"))
 
 	# copy plugins' includes
 	pluginsDirectory = os.path.join(target_directory, "TDEngine2/plugins")
@@ -103,7 +107,8 @@ def generate_project_settings(project_name, target_directory):
 			"user_plugins_list" : [ {
 				"id" : "./TDE2LevelStreamingUtils"
 			}
-			]
+			],
+			"base_resources_path" : "../Resources/"
 		},
 
 		"graphics_settings" : {

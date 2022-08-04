@@ -1,5 +1,6 @@
 #include "../../include/utils/Utils.h"
 #include "../../include/utils/CFileLogger.h"
+#include "debugbreak.h"
 #include "backward.hpp"
 #define STR_UTILS_IMPLEMENTATION
 #include "stringUtils.hpp"

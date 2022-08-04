@@ -42,17 +42,17 @@ class CCustomEngineListener: public TDEngine2::IEngineListener
 
 		void SetEngineInstance(TDEngine2::IEngineCore* pEngineCore) override;
 	protected:
-		TDEngine2::IEngineCore*             mpEngineCoreInstance;
+		TDEngine2::IEngineCore*                             mpEngineCoreInstance;
 
-		TDEngine2::IGraphicsContext*        mpGraphicsContext;
+		TDEngine2::TPtr<TDEngine2::IGraphicsContext>        mpGraphicsContext;
 
-		TDEngine2::IWindowSystem*           mpWindowSystem;
+		TDEngine2::TPtr<TDEngine2::IWindowSystem>           mpWindowSystem;
 
-		TDEngine2::IResourceManager*        mpResourceManager;
+		TDEngine2::TPtr<TDEngine2::IResourceManager>        mpResourceManager;
 
-		TDEngine2::IFileSystem*             mpFileSystem;
+		TDEngine2::TPtr<TDEngine2::IFileSystem>             mpFileSystem;
 
-		TDEngine2::IWorld*                  mpWorld;
+		TDEngine2::TPtr<TDEngine2::IWorld>                  mpWorld;
 		
-		TDEngine2::IDesktopInputContext*    mpInputContext;
+		TDEngine2::TPtr<TDEngine2::IDesktopInputContext>    mpInputContext;
 };
