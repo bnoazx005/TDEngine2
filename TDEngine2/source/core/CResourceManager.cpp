@@ -4,6 +4,7 @@
 #include "../../include/core/IResourceFactory.h"
 #include "../../include/core/IResource.h"
 #include "../../include/core/IResourcesRuntimeManifest.h"
+#include "../../include/utils/CFileLogger.h"
 #include <memory>
 #include <algorithm>
 
@@ -257,6 +258,12 @@ namespace TDEngine2
 
 	TResourceId CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
+		if (name.empty())
+		{
+			LOG_ERROR("[Resource Manager] Empty name is not allowed as a resource's identifier");
+			return TResourceId::Invalid;
+		}
+
 		return _loadResourceWithResourceProviderInfo(resourceTypeId, resourceTypeId, resourceTypeId, name, loadingPolicy);
 	}
 

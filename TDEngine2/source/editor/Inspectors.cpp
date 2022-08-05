@@ -306,7 +306,7 @@ namespace TDEngine2
 				imguiContext.Label("Sub-mesh Id:");
 
 				const I32 index = static_cast<I32>(std::distance(submeshes.cbegin(), std::find(submeshes.cbegin(), submeshes.cend(), subMeshId)));
-				std::string newResult = submeshes[imguiContext.Popup("##SubMeshId", index, submeshes)];
+				std::string newResult = submeshes.empty() ? Wrench::StringUtils::GetEmptyStr() : submeshes[imguiContext.Popup("##SubMeshId", index, submeshes)];
 
 				if (newResult != subMeshId) /// \note Update sub-mesh identifier
 				{

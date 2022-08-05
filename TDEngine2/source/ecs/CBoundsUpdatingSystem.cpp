@@ -93,7 +93,7 @@ namespace TDEngine2
 			const TResourceId meshId = pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
 
 			/// \note Skip meshes that's not been loaded yet
-			if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(meshId)->GetState())
+			if ((TResourceId::Invalid == meshId) || E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(meshId)->GetState())
 			{
 				return;
 			}
@@ -134,7 +134,7 @@ namespace TDEngine2
 			const TResourceId meshId = pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName());
 
 			/// \note Skip meshes that's not been loaded yet
-			if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(meshId)->GetState())
+			if ((TResourceId::Invalid == meshId) || E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(meshId)->GetState())
 			{
 				return;
 			}

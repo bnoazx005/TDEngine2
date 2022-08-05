@@ -189,7 +189,7 @@ namespace TDEngine2
 		CTransform* pTransform = context.mpTransforms[index];
 
 		auto&& pMeshResource = pResourceManager->GetResource<IResource>(pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName()));
-		if (E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
+		if (!pMeshResource || E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
 		{
 			return;
 		}

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.10] 2022-08-03
+## [0.6.10] 2022-08-05
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+
+- (Fixed issue #86) Now a new added StaticMeshComponent or SkinnedMeshComponent don't make an application crash.
 
 ## [0.6.9] 2022-07-30
 
