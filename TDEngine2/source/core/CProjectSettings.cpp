@@ -12,6 +12,7 @@ namespace TDEngine2
 		static const std::string mAudioSettingsGroupId;
 		static const std::string mLocalizationSettingsGroupId;
 		static const std::string mWorldSettingsGroupId;
+		static const std::string mSceneManagerSettingsGroupId;
 
 		struct TCommonSettingsKeys
 		{
@@ -66,6 +67,11 @@ namespace TDEngine2
 		{
 			static const std::string mBoundsUpdateIntervalKey;
 		};
+
+		struct TSceneManagerSettingsKeys
+		{
+			static const std::string mMainLevelPathKey;
+		};
 	};
 
 	const std::string TProjectSettingsArchiveKeys::mCommonSettingsGroupId = "common_settings";
@@ -73,6 +79,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::mAudioSettingsGroupId = "audio_settings";
 	const std::string TProjectSettingsArchiveKeys::mLocalizationSettingsGroupId = "localization_settings";
 	const std::string TProjectSettingsArchiveKeys::mWorldSettingsGroupId = "world_settings";
+	const std::string TProjectSettingsArchiveKeys::mSceneManagerSettingsGroupId = "scenes_settings";
 
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey = "application_id";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey = "max_worker_threads_count";
@@ -100,6 +107,8 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mLocalePackagePathKey = "package_path";
 
 	const std::string TProjectSettingsArchiveKeys::TWorldSettingsKeys::mBoundsUpdateIntervalKey = "object_bounds_interval";
+
+	const std::string TProjectSettingsArchiveKeys::TSceneManagerSettingsKeys::mMainLevelPathKey = "main_scene_path";
 
 
 	CProjectSettings::CProjectSettings():
@@ -253,6 +262,22 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE LoadScenesSettings(IArchiveReader* pFileReader, CProjectSettings& projectSettings)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto& scenesSettings = projectSettings.mScenesSettings;
+
+		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mSceneManagerSettingsGroupId);
+		{
+			scenesSettings.mMainLevelScenePath = pFileReader->GetString(TProjectSettingsArchiveKeys::TSceneManagerSettingsKeys::mMainLevelPathKey, scenesSettings.mMainLevelScenePath);
+		}
+		result = result | pFileReader->EndGroup();
+
+		return result;
+	}
+
+
 	E_RESULT_CODE CProjectSettings::Init(IArchiveReader* pFileReader)
 	{
 		if (!pFileReader)
@@ -266,6 +291,7 @@ namespace TDEngine2
 		result = result | LoadGraphicsSettings(pFileReader, *this);	
 		result = result | LoadAudioSettings(pFileReader, *this);	
 		result = result | LoadLocaleSettings(pFileReader, *this);
+		result = result | LoadScenesSettings(pFileReader, *this);
 		
 		return RC_OK;
 	}

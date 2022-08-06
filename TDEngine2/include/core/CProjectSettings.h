@@ -103,5 +103,11 @@ namespace TDEngine2
 			{
 				F32 mEntitiesBoundsUpdateInterval = 0.5f;
 			} mWorldSettings;
+
+
+			struct TSceneManagerSettings
+			{
+				std::string mMainLevelScenePath = "MainScene.scene";
+			} mScenesSettings;
 	};
 }
