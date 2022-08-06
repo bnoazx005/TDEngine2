@@ -19,6 +19,11 @@ namespace TDEngine2
 		mMeshName = pReader->GetString("mesh");
 		mSubMeshId = pReader->GetString("sub_mesh_id");
 
+		if (mSubMeshId == "\n" || mSubMeshId == "\r")
+		{
+			mSubMeshId = Wrench::StringUtils::GetEmptyStr();
+		}
+
 		mIsDirty = true;
 
 		return RC_OK;
