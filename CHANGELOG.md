@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.10] 2022-08-05
+## [0.6.10] 2022-08-06
 
 ### Added
 
@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - (Fixed issue #86) Now a new added StaticMeshComponent or SkinnedMeshComponent don't make an application crash.
+
+- (Fixed issue #88) Deserializing of StaticMeshContainer's state was fixed.
+
+- (Fixed issue #87) Now a user can specify and load any scene as persistent without any problem. If the given one isn't exist a new default is created instead.
 
 ## [0.6.9] 2022-07-30
 

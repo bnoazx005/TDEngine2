@@ -337,26 +337,33 @@ namespace TDEngine2
 
 	TDE2_API E_RESULT_CODE CSceneManager::_onPostInit()
 	{
+		auto createEmptyMainScene = [this](const std::string& scenePath) 
+		{
+			const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
+
+			// \create a new empty scene		
+			auto mainSceneCreationResult = _createInternal(sceneName);
+			if (mainSceneCreationResult.HasError())
+			{
+				return mainSceneCreationResult.GetError();
+			}
+
+			return RC_OK;
+		};
+
 		// \note Load main scene in synchronous fashion
 		if (auto openSceneFileResult = mpFileSystem->Open<IYAMLFileReader>(mSettings.mMainScenePath)) // \note File exists, so we load it
 		{
 			auto mainSceneLoadingResult = _loadSceneInternal(mSettings.mMainScenePath);
 			if (mainSceneLoadingResult.HasError())
-			{
-				return mainSceneLoadingResult.GetError();
+			{				
+				return createEmptyMainScene(mSettings.mMainScenePath); /// \note Create a default empty scene and mark that as persistent
 			}
+
+			return RC_OK;
 		}
 
-		const std::string& sceneName = mpFileSystem->ExtractFilename(mSettings.mMainScenePath);
-		
-		// \create a new empty scene		
-		auto mainSceneCreationResult = _createInternal(sceneName);
-		if (mainSceneCreationResult.HasError())
-		{
-			return mainSceneCreationResult.GetError();
-		}
-
-		return RC_OK;
+		return createEmptyMainScene(mSettings.mMainScenePath);
 	}
 
 
