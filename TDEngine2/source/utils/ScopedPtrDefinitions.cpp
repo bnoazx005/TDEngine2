@@ -12,6 +12,7 @@
 #include "../../include/core/IResourceLoader.h"
 #include "../../include/core/IResource.h"
 #include "../../include/core/IResourcesRuntimeManifest.h"
+#include "../../include/core/IGameModesManager.h"
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/ecs/IComponentManager.h"
@@ -55,4 +56,6 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(CRenderQueue)
 	TDE2_DEFINE_SCOPED_PTR(IPrefabsRegistry)
 	TDE2_DEFINE_SCOPED_PTR(IResourcesRuntimeManifest)
+	TDE2_DEFINE_SCOPED_PTR(IGameMode)
+	TDE2_DEFINE_SCOPED_PTR(IGameModesManager)
 }

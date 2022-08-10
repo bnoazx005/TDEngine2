@@ -112,7 +112,8 @@ namespace TDEngine2
 		EST_SCENE_MANAGER,				/// A subsystem that operates with scenes (load, unload them)
 		EST_LOCALIZATION_MANAGER,		/// A subsystem that implements a manager of locales
 		EST_SAVE_MANAGER,				/// A subsystem that provides work with game saves
-		EST_AUDIO_CONTEXT,				///
+		EST_AUDIO_CONTEXT,				/// 
+		EST_GAME_MODES_MANAGER,			/// 
 		EST_UNKNOWN						/// Unused value, but can be helpful if some user wants to know the amount of available subsystems
 	};
 

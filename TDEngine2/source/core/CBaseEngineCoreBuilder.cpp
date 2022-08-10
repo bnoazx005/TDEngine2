@@ -21,6 +21,7 @@
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/core/CProxyGraphicsContext.h"
 #include "../../include/core/CResourcesRuntimeManifest.h"
+#include "../../include/core/CGameModesManager.h"
 #include "../../include/game/CSaveManager.h"
 #include "../../include/platform/win32/CWin32WindowSystem.h"
 #include "../../include/platform/win32/CWin32FileSystem.h"
@@ -671,6 +672,22 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE ConfigureGameModesManager(TPtr<IEngineCore> pEngineCore)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pSubsystem = TPtr<IEngineSubsystem>(CreateGameModesManager(result));
+		if (!pSubsystem || RC_OK != result)
+		{
+			return result;
+		}
+
+		/// \todo Set a default game mode
+
+		return pEngineCore->RegisterSubsystem(pSubsystem);
+	}
+
+
 	TPtr<IEngineCore> CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		PANIC_ON_FAILURE(_configureFileSystem());
@@ -733,6 +750,8 @@ namespace TDEngine2
 			PANIC_ON_FAILURE(_configureImGUIContext());
 			PANIC_ON_FAILURE(_configureEditorsManager());
 		}
+
+		PANIC_ON_FAILURE(ConfigureGameModesManager(mpEngineCoreInstance));
 
 		// \note Try to load user defined plugins, if some plugin cannot be bound it's not failure we just won't get some extra functionality 
 		LoadUserPlugins(mpPluginManagerInstance, CProjectSettings::Get()->mCommonSettings.mUserPluginsToLoad);		

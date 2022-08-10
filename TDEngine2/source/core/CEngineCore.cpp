@@ -14,6 +14,7 @@
 #include "../../include/core/IAudioContext.h"
 #include "../../include/core/IPluginManager.h"
 #include "../../include/core/IJobManager.h"
+#include "../../include/core/IGameModesManager.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CSpriteRendererSystem.h"
 #include "../../include/ecs/CTransformSystem.h"
@@ -345,6 +346,11 @@ namespace TDEngine2
 		}
 
 		_onNotifyEngineListeners(EET_ONUPDATE);
+
+		if (auto pGameModesManager = _getSubsystemAs<IGameModesManager>(EST_GAME_MODES_MANAGER))
+		{
+			pGameModesManager->Update(mpInternalTimer->GetDeltaTime());
+		}
 
 		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
 		{

@@ -61,6 +61,8 @@
 #include "core/IResourcesRuntimeManifest.h"
 #include "core/CResourcesRuntimeManifest.h"
 #include "core/EntryPoint.h"
+#include "core/IGameModesManager.h"
+#include "core/CGameModesManager.h"
 
 /// game
 #include "game/ISaveManager.h"
