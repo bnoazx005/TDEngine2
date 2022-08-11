@@ -676,15 +676,17 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		auto pSubsystem = TPtr<IEngineSubsystem>(CreateGameModesManager(result));
+		auto pSubsystem = TPtr<IGameModesManager>(CreateGameModesManager(result));
 		if (!pSubsystem || RC_OK != result)
 		{
 			return result;
 		}
 
-		/// \todo Set a default game mode
+		/// \note Set the default game mode
+		result = result | pSubsystem->SwitchMode(CBaseGameMode::mDefaultGameMode);
+		TDE2_ASSERT(RC_OK == result);
 
-		return pEngineCore->RegisterSubsystem(pSubsystem);
+		return pEngineCore->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(pSubsystem));
 	}
 
 

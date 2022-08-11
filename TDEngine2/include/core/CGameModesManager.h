@@ -10,6 +10,7 @@
 #include "IGameModesManager.h"
 #include "CBaseObject.h"
 #include <stack>
+#include <string>
 
 
 namespace TDEngine2
@@ -69,5 +70,45 @@ namespace TDEngine2
 			TDE2_API TPtr<IGameMode> _getCurrentGameMode();
 		protected:
 			std::stack<TPtr<IGameMode>> mModesContext;
+	};
+
+
+	/*!
+		class CBaseGameMode
+
+		\brief The class is a base for all user-defined game mdoes
+	*/
+
+	class CBaseGameMode : public IGameMode, public CBaseObject
+	{
+		public:
+			static TPtr<IGameMode> mDefaultGameMode;
+
+		public:
+			TDE2_API E_RESULT_CODE Init() override;
+
+			/*!
+				\brief The method is invoked when game modes manager activates the state
+			*/
+
+			TDE2_API void OnEnter() override;
+
+			/*!
+				\brief The method is invoked when a game modes manager is switcher to a new state from the current one
+			*/
+
+			TDE2_API void OnExit() override;
+
+			/*!
+				\brief The method is invoked at least once per frame when the current mode is active
+			*/
+
+			TDE2_API void Update(F32 dt) override;
+		protected:
+			TDE2_API explicit CBaseGameMode(const std::string& name);
+
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGameMode)
+		protected:
+			std::string mName;
 	};
 }
