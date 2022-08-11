@@ -75,23 +75,13 @@ namespace TDEngine2
 	CBaseGameMode::CBaseGameMode(const std::string& name) :
 		CBaseObject(), mName(name)
 	{
+		mIsInitialized = true;
 	}
 
 	CBaseGameMode::CBaseGameMode() :
 		CBaseObject(), mName("Default Mode")
 	{
-	}
-
-	E_RESULT_CODE CBaseGameMode::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
 		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	void CBaseGameMode::OnEnter() 
@@ -105,6 +95,37 @@ namespace TDEngine2
 	}
 
 	void CBaseGameMode::Update(F32 dt)
+	{
+
+	}
+
+
+	/*!
+		\brief CSplashScreenGameMode's definition
+	*/
+
+	TPtr<IGameMode> CSplashScreenGameMode::Instance()
+	{
+		static TPtr<IGameMode> pInstance = TPtr<IGameMode>(new CSplashScreenGameMode);
+		return pInstance;
+	}
+
+	CSplashScreenGameMode::CSplashScreenGameMode():
+		CBaseGameMode("SplashScreenMode")
+	{
+	}
+
+	void CSplashScreenGameMode::OnEnter()
+	{
+		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseGameMode] Invoke OnEnter, mode: \"{0}\"", mName));
+	}
+
+	void CSplashScreenGameMode::OnExit()
+	{
+		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseGameMode] Invoke OnExit, mode: \"{0}\"", mName));
+	}
+
+	void CSplashScreenGameMode::Update(F32 dt)
 	{
 
 	}

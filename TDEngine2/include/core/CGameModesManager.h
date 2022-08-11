@@ -76,7 +76,8 @@ namespace TDEngine2
 	/*!
 		class CBaseGameMode
 
-		\brief The class is a base for all user-defined game mdoes
+		\brief The class is a base for all user-defined game modes.
+		Assume that all game modes are singletons to simplify work with them
 	*/
 
 	class CBaseGameMode : public IGameMode, public CBaseObject
@@ -85,8 +86,6 @@ namespace TDEngine2
 			static TPtr<IGameMode> mDefaultGameMode;
 
 		public:
-			TDE2_API E_RESULT_CODE Init() override;
-
 			/*!
 				\brief The method is invoked when game modes manager activates the state
 			*/
@@ -110,5 +109,38 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGameMode)
 		protected:
 			std::string mName;
+	};
+
+
+	/*!
+		class CSplashScreenGameMode
+
+		\brief The class represents a mode which is active when application is launched
+	*/
+
+	class CSplashScreenGameMode : public CBaseGameMode
+	{
+		public:
+			TDE2_API static TPtr<IGameMode> Instance();
+
+			/*!
+				\brief The method is invoked when game modes manager activates the state
+			*/
+
+			TDE2_API void OnEnter() override;
+
+			/*!
+				\brief The method is invoked when a game modes manager is switcher to a new state from the current one
+			*/
+
+			TDE2_API void OnExit() override;
+
+			/*!
+				\brief The method is invoked at least once per frame when the current mode is active
+			*/
+
+			TDE2_API void Update(F32 dt) override;
+		private:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenGameMode)
 	};
 }
