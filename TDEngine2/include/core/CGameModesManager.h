@@ -50,6 +50,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SwitchMode(TPtr<IGameMode> pNewMode) override;
 
 			/*!
+				\brief The method extracts current active mode and activates the previous one if it exists
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE PopMode() override;
+
+			/*!
 				\brief The method is invoked at least once per frame
 			*/
 
@@ -81,7 +89,7 @@ namespace TDEngine2
 		\return A pointer to CBaseGameMode's implementation
 	*/
 
-	TDE2_API IGameMode* CreateBaseGameMode(E_RESULT_CODE& result);
+	TDE2_API IGameMode* CreateBaseGameMode(IGameModesManager* pOwner, E_RESULT_CODE& result);
 
 
 	/*!
@@ -93,10 +101,10 @@ namespace TDEngine2
 	class CBaseGameMode : public IGameMode, public CBaseObject
 	{
 		public:
-			friend TDE2_API IGameMode* CreateBaseGameMode(E_RESULT_CODE&);
+			friend TDE2_API IGameMode* CreateBaseGameMode(IGameModesManager* pOwner, E_RESULT_CODE&);
 
 		public:
-			TDE2_API E_RESULT_CODE Init() override;
+			TDE2_API E_RESULT_CODE Init(IGameModesManager* pOwner) override;
 
 			/*!
 				\brief The method is invoked when game modes manager activates the state
@@ -120,7 +128,8 @@ namespace TDEngine2
 
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGameMode)
 		protected:
-			std::string mName;
+			IGameModesManager* mpOwner;
+			std::string        mName;
 	};
 
 
@@ -132,7 +141,7 @@ namespace TDEngine2
 		\return A pointer to CBaseGameMode's implementation
 	*/
 
-	TDE2_API IGameMode* CreateSplashScreenGameMode(E_RESULT_CODE& result);
+	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, E_RESULT_CODE& result);
 
 
 	/*!
@@ -144,7 +153,7 @@ namespace TDEngine2
 	class CSplashScreenGameMode : public CBaseGameMode
 	{
 		public:
-			friend TDE2_API IGameMode* CreateSplashScreenGameMode(E_RESULT_CODE& result);
+			friend TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method is invoked when game modes manager activates the state

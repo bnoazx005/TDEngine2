@@ -41,6 +41,27 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CGameModesManager::PopMode()
+	{
+		auto pCurrActiveMode = _getCurrentGameMode();
+		if (!pCurrActiveMode)
+		{
+			return RC_FAIL;
+		}
+
+		pCurrActiveMode->OnExit();
+		mModesContext.pop();
+
+		/// \note Extract the latter mode if it exists
+		pCurrActiveMode = _getCurrentGameMode();
+		if (pCurrActiveMode)
+		{
+			pCurrActiveMode->OnEnter();
+		}
+
+		return RC_OK;
+	}
+
 	void CGameModesManager::Update(F32 dt)
 	{
 		if (auto pCurrMode = _getCurrentGameMode())
@@ -80,12 +101,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseGameMode::Init()
+	E_RESULT_CODE CBaseGameMode::Init(IGameModesManager* pOwner)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		if (!pOwner)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpOwner = pOwner;
 
 		mIsInitialized = true;
 
@@ -108,9 +136,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGameMode* CreateBaseGameMode(E_RESULT_CODE& result)
+	TDE2_API IGameMode* CreateBaseGameMode(IGameModesManager* pOwner, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGameMode, CBaseGameMode, result);
+		return CREATE_IMPL(IGameMode, CBaseGameMode, result, pOwner);
 	}
 
 
@@ -139,8 +167,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGameMode* CreateSplashScreenGameMode(E_RESULT_CODE& result)
+	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGameMode, CSplashScreenGameMode, result);
+		return CREATE_IMPL(IGameMode, CSplashScreenGameMode, result, pOwner);
 	}
 }

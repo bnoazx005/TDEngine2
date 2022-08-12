@@ -13,6 +13,9 @@
 
 namespace TDEngine2
 {
+	class IGameModesManager;
+
+
 	/*!
 		\brief The interface represents a state of a game and should provide
 		update logic for that
@@ -21,7 +24,7 @@ namespace TDEngine2
 	class IGameMode: public virtual IBaseObject
 	{
 		public:
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IGameModesManager* pOwner) = 0;
 
 			/*!
 				\brief The method is invoked when game modes manager activates the state
@@ -64,6 +67,14 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init() = 0;
 
 			TDE2_API virtual E_RESULT_CODE SwitchMode(TPtr<IGameMode> pNewMode) = 0;
+
+			/*!
+				\brief The method extracts current active mode and activates the previous one if it exists
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE PopMode() = 0;
 
 			/*!
 				\brief The method is invoked at least once per frame

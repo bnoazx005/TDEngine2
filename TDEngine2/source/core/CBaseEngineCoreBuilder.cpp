@@ -683,7 +683,7 @@ namespace TDEngine2
 		}
 
 		/// \note Set the default game mode
-		result = result | pSubsystem->SwitchMode(TPtr<IGameMode>(CreateBaseGameMode(result)));
+		result = result | pSubsystem->SwitchMode(TPtr<IGameMode>(CreateBaseGameMode(pSubsystem.Get(), result)));
 		TDE2_ASSERT(RC_OK == result);
 
 		return pEngineCore->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(pSubsystem));
