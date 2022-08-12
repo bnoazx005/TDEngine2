@@ -70,18 +70,26 @@ namespace TDEngine2
 		\brief CBaseGameMode's definition
 	*/
 
-	TPtr<IGameMode> CBaseGameMode::mDefaultGameMode = TPtr<IGameMode>(new CBaseGameMode);
-
 	CBaseGameMode::CBaseGameMode(const std::string& name) :
 		CBaseObject(), mName(name)
 	{
-		mIsInitialized = true;
 	}
 
 	CBaseGameMode::CBaseGameMode() :
 		CBaseObject(), mName("Default Mode")
 	{
+	}
+
+	E_RESULT_CODE CBaseGameMode::Init()
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
 		mIsInitialized = true;
+
+		return RC_OK;
 	}
 
 	void CBaseGameMode::OnEnter() 
@@ -100,15 +108,15 @@ namespace TDEngine2
 	}
 
 
+	TDE2_API IGameMode* CreateBaseGameMode(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IGameMode, CBaseGameMode, result);
+	}
+
+
 	/*!
 		\brief CSplashScreenGameMode's definition
 	*/
-
-	TPtr<IGameMode> CSplashScreenGameMode::Instance()
-	{
-		static TPtr<IGameMode> pInstance = TPtr<IGameMode>(new CSplashScreenGameMode);
-		return pInstance;
-	}
 
 	CSplashScreenGameMode::CSplashScreenGameMode():
 		CBaseGameMode("SplashScreenMode")
@@ -128,5 +136,11 @@ namespace TDEngine2
 	void CSplashScreenGameMode::Update(F32 dt)
 	{
 
+	}
+
+
+	TDE2_API IGameMode* CreateSplashScreenGameMode(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IGameMode, CSplashScreenGameMode, result);
 	}
 }

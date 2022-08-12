@@ -21,6 +21,8 @@ namespace TDEngine2
 	class IGameMode: public virtual IBaseObject
 	{
 		public:
+			TDE2_API virtual E_RESULT_CODE Init() = 0;
+
 			/*!
 				\brief The method is invoked when game modes manager activates the state
 			*/

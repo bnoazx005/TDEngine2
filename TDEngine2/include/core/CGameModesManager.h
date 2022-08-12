@@ -74,18 +74,30 @@ namespace TDEngine2
 
 
 	/*!
+		\brief A factory function for creation objects of CBaseGameMode's type.
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CBaseGameMode's implementation
+	*/
+
+	TDE2_API IGameMode* CreateBaseGameMode(E_RESULT_CODE& result);
+
+
+	/*!
 		class CBaseGameMode
 
-		\brief The class is a base for all user-defined game modes.
-		Assume that all game modes are singletons to simplify work with them
+		\brief The class is a base for all user-defined game modes
 	*/
 
 	class CBaseGameMode : public IGameMode, public CBaseObject
 	{
 		public:
-			static TPtr<IGameMode> mDefaultGameMode;
+			friend TDE2_API IGameMode* CreateBaseGameMode(E_RESULT_CODE&);
 
 		public:
+			TDE2_API E_RESULT_CODE Init() override;
+
 			/*!
 				\brief The method is invoked when game modes manager activates the state
 			*/
@@ -113,6 +125,17 @@ namespace TDEngine2
 
 
 	/*!
+		\brief A factory function for creation objects of CBaseGameMode's type.
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CBaseGameMode's implementation
+	*/
+
+	TDE2_API IGameMode* CreateSplashScreenGameMode(E_RESULT_CODE& result);
+
+
+	/*!
 		class CSplashScreenGameMode
 
 		\brief The class represents a mode which is active when application is launched
@@ -121,8 +144,8 @@ namespace TDEngine2
 	class CSplashScreenGameMode : public CBaseGameMode
 	{
 		public:
-			TDE2_API static TPtr<IGameMode> Instance();
-
+			friend TDE2_API IGameMode* CreateSplashScreenGameMode(E_RESULT_CODE& result);
+		public:
 			/*!
 				\brief The method is invoked when game modes manager activates the state
 			*/
