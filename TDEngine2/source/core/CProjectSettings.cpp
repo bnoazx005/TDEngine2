@@ -23,6 +23,7 @@ namespace TDEngine2
 			static const std::string mUserPluginsArrayKey;
 			static const std::string mResourcesRuntimeManifestPathKeyId;
 			static const std::string mBaseResourcesPathKeyId;
+			static const std::string mDefaultPrefabsManifestPathKeyId;
 
 			struct TFilepathAliasArchiveKeys
 			{
@@ -88,6 +89,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mUserPluginsArrayKey = "user_plugins_list";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mResourcesRuntimeManifestPathKeyId = "resources_runtime_manifest_path";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mBaseResourcesPathKeyId = "base_resources_path";
+	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mDefaultPrefabsManifestPathKeyId = "default_prefabs_manifest_path";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mAliasKey = "alias";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mPathKey = "path";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TPluginArchiveKeys::mId = "id";
@@ -135,6 +137,9 @@ namespace TDEngine2
 
 			commonSettings.mBaseResourcesPath = pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mBaseResourcesPathKeyId, 
 																		commonSettings.mBaseResourcesPath);
+
+			commonSettings.mPathToDefaultPrefabsManifest = pFileReader->GetString(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mDefaultPrefabsManifestPathKeyId,
+																					commonSettings.mPathToDefaultPrefabsManifest);
 
 			/// \note Read user's defined directories
 			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TCommonSettingsKeys::mAdditionalMountedDirectoriesKey);

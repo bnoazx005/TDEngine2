@@ -148,4 +148,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISceneManager)
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(ISceneManager)
 }

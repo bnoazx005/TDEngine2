@@ -1,5 +1,7 @@
 #include "../../include/core/CGameModesManager.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/math/MathUtils.h"
+#include "../../include/scene/ISceneManager.h"
 #include "stringUtils.hpp"
 
 
@@ -33,6 +35,20 @@ namespace TDEngine2
 		{
 			pPrevMode->OnExit();
 			mModesContext.pop();
+		}
+
+		mModesContext.emplace(pNewMode);
+		mModesContext.top()->OnEnter();
+
+		return RC_OK;
+	}
+
+
+	E_RESULT_CODE CGameModesManager::PushMode(TPtr<IGameMode> pNewMode)
+	{
+		if (!pNewMode)
+		{
+			return RC_INVALID_ARGS;
 		}
 
 		mModesContext.emplace(pNewMode);
@@ -154,6 +170,9 @@ namespace TDEngine2
 	void CSplashScreenGameMode::OnEnter()
 	{
 		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseGameMode] Invoke OnEnter, mode: \"{0}\"", mName));
+		mCurrTime = 0.0f;
+
+		/// \todo Load splash screen's scene
 	}
 
 	void CSplashScreenGameMode::OnExit()
@@ -163,12 +182,27 @@ namespace TDEngine2
 
 	void CSplashScreenGameMode::Update(F32 dt)
 	{
+		mCurrTime += dt;
 
+		if (CMathUtils::IsGreatOrEqual(mCurrTime, mShowDuration))
+		{
+			E_RESULT_CODE result = mpOwner->PopMode();
+			TDE2_ASSERT(RC_OK == result);
+
+			return;
+		}
 	}
 
 
-	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, E_RESULT_CODE& result)
+	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, TPtr<ISceneManager> pSceneManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGameMode, CSplashScreenGameMode, result, pOwner);
+		if (auto pMode = CREATE_IMPL(CSplashScreenGameMode, CSplashScreenGameMode, result, pOwner))
+		{
+			pMode->mpSceneManager = pSceneManager;
+
+			return dynamic_cast<IGameMode*>(pMode);
+		}
+
+		return nullptr;
 	}
 }

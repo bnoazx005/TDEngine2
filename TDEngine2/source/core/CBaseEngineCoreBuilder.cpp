@@ -686,6 +686,10 @@ namespace TDEngine2
 		result = result | pSubsystem->SwitchMode(TPtr<IGameMode>(CreateBaseGameMode(pSubsystem.Get(), result)));
 		TDE2_ASSERT(RC_OK == result);
 
+		/// \note Register the splash screen
+		result = result | pSubsystem->PushMode(TPtr<IGameMode>(CreateSplashScreenGameMode(pSubsystem.Get(), pEngineCore->GetSubsystem<ISceneManager>(), result)));
+		TDE2_ASSERT(RC_OK == result);
+
 		return pEngineCore->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(pSubsystem));
 	}
 
@@ -919,6 +923,9 @@ namespace TDEngine2
 		fontParams.mTrueTypeFontFilePath = "DefaultResources/Fonts/OpenSans-Regular.ttf";
 
 		mpResourceManagerInstance->Create<IRuntimeFont>("OpenSans.font", fontParams);
+
+		/// \note Load default prefabs collection
+		mpResourceManagerInstance->Load<IPrefabsManifest>(CProjectSettings::Get()->mCommonSettings.mPathToDefaultPrefabsManifest);
 
 		return RC_OK;
 	}

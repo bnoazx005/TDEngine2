@@ -69,6 +69,14 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SwitchMode(TPtr<IGameMode> pNewMode) = 0;
 
 			/*!
+				\brief The method places a new mode over the existing one and allows to back to that later instead of SwitchMode
+				which replaces the mode
+			 
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE PushMode(TPtr<IGameMode> pNewMode) = 0;
+			/*!
 				\brief The method extracts current active mode and activates the previous one if it exists
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

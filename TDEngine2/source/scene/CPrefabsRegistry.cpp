@@ -155,6 +155,9 @@ namespace TDEngine2
 
 		if (pathToPrefab.empty())
 		{
+			LOG_ERROR("[CPrefabsRegistry] No loaded prefabs manifest");
+			TDE2_ASSERT(false);
+
 			return {};
 		}
 

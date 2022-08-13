@@ -50,6 +50,15 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SwitchMode(TPtr<IGameMode> pNewMode) override;
 
 			/*!
+				\brief The method places a new mode over the existing one and allows to back to that later instead of SwitchMode
+				which replaces the mode
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE PushMode(TPtr<IGameMode> pNewMode) override;
+
+			/*!
 				\brief The method extracts current active mode and activates the previous one if it exists
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
@@ -133,6 +142,9 @@ namespace TDEngine2
 	};
 
 
+	class ISceneManager;
+
+
 	/*!
 		\brief A factory function for creation objects of CBaseGameMode's type.
 
@@ -141,7 +153,7 @@ namespace TDEngine2
 		\return A pointer to CBaseGameMode's implementation
 	*/
 
-	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, E_RESULT_CODE& result);
+	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, TPtr<ISceneManager> pSceneManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -153,7 +165,7 @@ namespace TDEngine2
 	class CSplashScreenGameMode : public CBaseGameMode
 	{
 		public:
-			friend TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, E_RESULT_CODE& result);
+			friend TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager*, TPtr<ISceneManager>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method is invoked when game modes manager activates the state
@@ -174,5 +186,13 @@ namespace TDEngine2
 			TDE2_API void Update(F32 dt) override;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenGameMode)
+		private:
+			TPtr<ISceneManager> mpSceneManager;
+
+			F32                 mShowDuration = 1.0f;
+			F32                 mCurrTime = 0.0f;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR(ISceneManager)
 }

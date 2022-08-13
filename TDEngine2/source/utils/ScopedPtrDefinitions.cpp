@@ -24,6 +24,7 @@
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IGraphicsLayersInfo.h"
 #include "../../include/scene/IPrefabsRegistry.h"
+#include "../../include/scene/ISceneManager.h"
 
 
 namespace TDEngine2
@@ -58,4 +59,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IResourcesRuntimeManifest)
 	TDE2_DEFINE_SCOPED_PTR(IGameMode)
 	TDE2_DEFINE_SCOPED_PTR(IGameModesManager)
+	TDE2_DEFINE_SCOPED_PTR(ISceneManager)
 }

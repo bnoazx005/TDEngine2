@@ -82,6 +82,8 @@ namespace TDEngine2
 
 				std::string mPathToResourcesRuntimeManifest = "ProjectResources/ResourcesRuntimeMeta.manifest";
 				std::string mBaseResourcesPath = "../../Resources/";
+
+				std::string mPathToDefaultPrefabsManifest = "ProjectResources/PrefabsCollection.manifest";
 			} mCommonSettings;
 
 
