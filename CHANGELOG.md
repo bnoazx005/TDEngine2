@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (Fixed issue #87) Now a user can specify and load any scene as persistent without any problem. If the given one isn't exist a new default is created instead.
 
+- A crash caused by ObjectSelectionSystem was fixed when a user tried to enter a material's name for a new created StaticMeshContainer component.
+
 ## [0.6.9] 2022-07-30
 
 ### Added

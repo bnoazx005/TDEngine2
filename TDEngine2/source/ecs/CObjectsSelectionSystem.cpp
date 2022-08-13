@@ -156,7 +156,7 @@ namespace TDEngine2
 		}
 
 		auto&& pMeshResource = pResourceManager->GetResource<IResource>(pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName()));
-		if (E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
+		if (!pMeshResource || E_RESOURCE_STATE_TYPE::RST_LOADED != pMeshResource->GetState())
 		{
 			return;
 		}
