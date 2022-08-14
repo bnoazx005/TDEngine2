@@ -90,5 +90,5 @@ namespace TDEngine2
 	};
 
 
-	TDE2_API TEntityId FindEntityWithMainCanvas(IWorld* pWorld);
+	TDE2_API std::vector<TEntityId> FindMainCanvases(IWorld* pWorld);
 }

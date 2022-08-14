@@ -173,6 +173,7 @@ namespace TDEngine2
 		mCurrTime = 0.0f;
 
 		/// \todo Load splash screen's scene
+		//mpSceneManager->LoadScene("ProjectResources/Scenes/SplashScreen.scene");
 	}
 
 	void CSplashScreenGameMode::OnExit()

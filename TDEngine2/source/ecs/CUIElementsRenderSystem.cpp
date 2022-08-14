@@ -73,43 +73,40 @@ namespace TDEngine2
 		uiMeshData.clear();
 
 		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
-		const TEntityId mainCanvasEntityId = FindEntityWithMainCanvas(pWorld);
-		if (TEntityId::Invalid == mainCanvasEntityId)
+		for (TEntityId currCanvasEntity : FindMainCanvases(pWorld))
 		{
-			return;
-		}
+			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 
-		CTransform* pTransform = pWorld->FindEntity(mainCanvasEntityId)->GetComponent<CTransform>();
+			/// \note Sort all entities based on computed priority (children're first)
+			std::stack<TEntityId> entitiesToVisit;
 
-		/// \note Sort all entities based on computed priority (children're first)
-		std::stack<TEntityId> entitiesToVisit;
-
-		for (TEntityId id : pTransform->GetChildren())
-		{
-			entitiesToVisit.push(id);
-		}
-
-		CEntity* pEntity = nullptr;
-
-		while (!entitiesToVisit.empty())
-		{
-			const TEntityId currEntityId = entitiesToVisit.top();
-			entitiesToVisit.pop();
-
-			pEntity = pWorld->FindEntity(currEntityId);
-
-			if (pEntity->HasComponent<CUIElementMeshData>())
+			for (TEntityId id : pTransform->GetChildren())
 			{
-				transforms.insert(transforms.begin(), pEntity->GetComponent<CTransform>());
-				layoutElements.insert(layoutElements.begin(), pEntity->GetComponent<CLayoutElement>());
-				uiMeshData.insert(uiMeshData.begin(), pEntity->GetComponent<CUIElementMeshData>());
+				entitiesToVisit.push(id);
 			}
 
-			if (pTransform = pEntity->GetComponent<CTransform>())
+			CEntity* pEntity = nullptr;
+
+			while (!entitiesToVisit.empty())
 			{
-				for (TEntityId id : pTransform->GetChildren())
+				const TEntityId currEntityId = entitiesToVisit.top();
+				entitiesToVisit.pop();
+
+				pEntity = pWorld->FindEntity(currEntityId);
+
+				if (pEntity->HasComponent<CUIElementMeshData>())
 				{
-					entitiesToVisit.push(id);
+					transforms.insert(transforms.begin(), pEntity->GetComponent<CTransform>());
+					layoutElements.insert(layoutElements.begin(), pEntity->GetComponent<CLayoutElement>());
+					uiMeshData.insert(uiMeshData.begin(), pEntity->GetComponent<CUIElementMeshData>());
+				}
+
+				if (pTransform = pEntity->GetComponent<CTransform>())
+				{
+					for (TEntityId id : pTransform->GetChildren())
+					{
+						entitiesToVisit.push(id);
+					}
 				}
 			}
 		}

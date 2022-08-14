@@ -38,11 +38,11 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API TEntityId FindEntityWithMainCanvas(IWorld* pWorld)
+	TDE2_API std::vector<TEntityId> FindMainCanvases(IWorld* pWorld)
 	{
-		auto&& canvases = pWorld->FindEntitiesWithComponents<CCanvas>();
+		std::vector<TEntityId> output;
 
-		for (TEntityId currEntityId : canvases)
+		for (TEntityId currEntityId : pWorld->FindEntitiesWithComponents<CCanvas>())
 		{
 			CEntity* pEntity = pWorld->FindEntity(currEntityId);
 
@@ -50,20 +50,20 @@ namespace TDEngine2
 			{
 				if (TEntityId::Invalid == pTransform->GetParent())
 				{
-					return currEntityId;
+					output.push_back(currEntityId);
 				}
 
 				if (CEntity* pParentEntity = pWorld->FindEntity(pTransform->GetParent()))
 				{
 					if (!pParentEntity->HasComponent<CLayoutElement>())
 					{
-						return currEntityId;
+						output.push_back(currEntityId);
 					}
 				}
 			}
 		}
 
-		return TEntityId::Invalid;
+		return output;
 	}
 
 
@@ -78,46 +78,43 @@ namespace TDEngine2
 		inputReceivers.clear();
 
 		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
-		const TEntityId mainCanvasEntityId = FindEntityWithMainCanvas(pWorld);
-		if (TEntityId::Invalid == mainCanvasEntityId)
+		for (TEntityId currCanvasEntity : FindMainCanvases(pWorld))
 		{
-			return;
-		}
+			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 
-		CTransform* pTransform = pWorld->FindEntity(mainCanvasEntityId)->GetComponent<CTransform>();
+			/// \note Sort all entities based on computed priority (children're first)
+			std::stack<TEntityId> entitiesToVisit;
 
-		/// \note Sort all entities based on computed priority (children're first)
-		std::stack<TEntityId> entitiesToVisit;
-
-		for (TEntityId id : pTransform->GetChildren())
-		{
-			entitiesToVisit.push(id);
-		}
-
-		CEntity* pEntity = nullptr;
-
-		while (!entitiesToVisit.empty())
-		{
-			const TEntityId currEntityId = entitiesToVisit.top();
-			entitiesToVisit.pop();
-
-			pEntity = pWorld->FindEntity(currEntityId);
-
-			if (auto pInputReceiver = pEntity->GetComponent<CInputReceiver>())
+			for (TEntityId id : pTransform->GetChildren())
 			{
-				if (!pInputReceiver->IsIgnoreInputFlag())
-				{
-					inputReceivers.push_back(pInputReceiver);
-					transforms.push_back(pEntity->GetComponent<CTransform>());
-					layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
-				}
+				entitiesToVisit.push(id);
 			}
 
-			if (pTransform = pEntity->GetComponent<CTransform>())
+			CEntity* pEntity = nullptr;
+
+			while (!entitiesToVisit.empty())
 			{
-				for (TEntityId id : pTransform->GetChildren())
+				const TEntityId currEntityId = entitiesToVisit.top();
+				entitiesToVisit.pop();
+
+				pEntity = pWorld->FindEntity(currEntityId);
+
+				if (auto pInputReceiver = pEntity->GetComponent<CInputReceiver>())
 				{
-					entitiesToVisit.push(id);
+					if (!pInputReceiver->IsIgnoreInputFlag())
+					{
+						inputReceivers.push_back(pInputReceiver);
+						transforms.push_back(pEntity->GetComponent<CTransform>());
+						layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
+					}
+				}
+
+				if (pTransform = pEntity->GetComponent<CTransform>())
+				{
+					for (TEntityId id : pTransform->GetChildren())
+					{
+						entitiesToVisit.push(id);
+					}
 				}
 			}
 		}

@@ -405,7 +405,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 						GroupEntities(mpWorld.Get(), pParentEntity->GetId(), pEntity->GetId());
 					}
 
-					
+
+					pSceneManager->LoadScene("ProjectResources/Scenes/SplashScreen.scene");
 
 #if 0
 					if (auto pEntity = pScene->CreateEntity("UIElement2"))

@@ -1,0 +1,250 @@
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 31
+            owner_id: 30
+            parent_id: 4294967295
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            height: 768
+            inherit_camera_sizes: 0
+            type_id: 3433087876
+            width: 1024
+        - component: 
+            max_anchor: 
+              x: 1.000000
+              y: 1.000000
+            max_offset: 
+              x: 0.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 0.000000
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+      id: 30
+      name: Canvas
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 32
+              - child_id: 33
+              - child_id: 34
+              - child_id: 35
+            owner_id: 31
+            parent_id: 30
+            position: 
+              x: 256.000000
+              y: 384.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              x: 0.500000
+              y: 1.000000
+            max_offset: 
+              x: 0.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 0.000000
+            pivot: 
+              x: 0.500000
+              y: 0.500000
+            type_id: 2172495824
+        - component: 
+            align_type: LEFT
+            cell_size: 
+              x: 250.000000
+              y: 250.000000
+            spacing: 
+              x: 10.000000
+              y: 10.000000
+            type_id: 4085334425
+      id: 31
+      name: RootUI
+  - entity: 
+      components: 
+        - component: 
+            owner_id: 32
+            parent_id: 31
+            position: 
+              y: 518.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            ignore_input: 0
+            type_id: 751163885
+        - component: 
+            max_anchor: 
+              y: 1.000000
+            max_offset: 
+              x: 250.000000
+              y: 250.000000
+            min_anchor: 
+              y: 1.000000
+            min_offset: 
+              y: "-250.000000"
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+        - component: 
+            bottom_slice: 0.250000
+            left_slice: 0.250000
+            margin: 0.100000
+            right_slice: 0.750000
+            sprite_id: ProjectResources/Textures/DefaultSprite.tga
+            top_slice: 0.750000
+            type_id: 3937045844
+      id: 32
+      name: UIElement
+  - entity: 
+      components: 
+        - component: 
+            owner_id: 33
+            parent_id: 31
+            position: 
+              x: 260.000000
+              y: 518.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            ignore_input: 0
+            type_id: 751163885
+        - component: 
+            max_anchor: 
+              y: 1.000000
+            max_offset: 
+              x: 250.000000
+              y: 250.000000
+            min_anchor: 
+              y: 1.000000
+            min_offset: 
+              x: 260.000000
+              y: "-250.000000"
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+        - component: 
+            bottom_slice: 0.250000
+            left_slice: 0.250000
+            margin: 0.100000
+            right_slice: 0.750000
+            sprite_id: ProjectResources/Textures/DefaultSprite.tga
+            top_slice: 0.750000
+            type_id: 3937045844
+      id: 33
+      name: UIElement2
+  - entity: 
+      components: 
+        - component: 
+            owner_id: 34
+            parent_id: 31
+            position: 
+              y: 258.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            ignore_input: 0
+            type_id: 751163885
+        - component: 
+            max_anchor: 
+              y: 1.000000
+            max_offset: 
+              x: 250.000000
+              y: 250.000000
+            min_anchor: 
+              y: 1.000000
+            min_offset: 
+              y: "-510.000000"
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+        - component: 
+            bottom_slice: 0.250000
+            left_slice: 0.250000
+            margin: 0.100000
+            right_slice: 0.750000
+            sprite_id: ProjectResources/Textures/DefaultSprite.tga
+            top_slice: 0.750000
+            type_id: 3937045844
+      id: 34
+      name: UIElement3
+  - entity: 
+      components: 
+        - component: 
+            owner_id: 35
+            parent_id: 31
+            position: 
+              x: 260.000000
+              y: 258.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            ignore_input: 0
+            type_id: 751163885
+        - component: 
+            max_anchor: 
+              y: 1.000000
+            max_offset: 
+              x: 250.000000
+              y: 250.000000
+            min_anchor: 
+              y: 1.000000
+            min_offset: 
+              x: 260.000000
+              y: "-510.000000"
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+        - component: 
+            bottom_slice: 0.250000
+            left_slice: 0.250000
+            margin: 0.100000
+            right_slice: 0.750000
+            sprite_id: ProjectResources/Textures/DefaultSprite.tga
+            top_slice: 0.750000
+            type_id: 3937045844
+      id: 35
+      name: UIElement4
+name: SplashScreen
+scene_properties: 
+  is_main: 0
+version: 0

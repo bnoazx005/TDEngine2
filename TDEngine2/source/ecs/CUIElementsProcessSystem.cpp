@@ -155,7 +155,7 @@ namespace TDEngine2
 			}
 
 			CLayoutElement* pChildLayoutElement = layoutElements.mpLayoutElements[std::distance(layoutElements.mEntities.cbegin(), it)];
-			if (!pChildLayoutElement)
+			if (!pChildLayoutElement || !columnsCount)
 			{
 				TDE2_UNREACHABLE();
 				continue;
@@ -494,46 +494,36 @@ namespace TDEngine2
 
 		entities.clear();
 
+		TEntityId currEntityId;
+		USIZE currParentElementIndex = 0;
+
 		std::stack<std::tuple<TEntityId, USIZE>> entitiesToProcess;
 
 		for (auto currEntityPair : parentEntities)
 		{
-			entitiesToProcess.push({ std::get<0>(currEntityPair), std::get<USIZE>(currEntityPair) });
+			entitiesToProcess.push({ std::get<0>(currEntityPair), entities.size() });
 			entitiesToProcess.push({ std::get<1>(currEntityPair), TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex });
-		}
 
-		TEntityId currEntityId;
-		USIZE currParentElementIndex = 0;
-
-		while (!entitiesToProcess.empty())
-		{
-			std::tie(currEntityId, currParentElementIndex) = entitiesToProcess.top();
-			entitiesToProcess.pop();
-
-#if 0
-			if (auto pEntity = pWorld->FindEntity(currEntityId))
+			while (!entitiesToProcess.empty())
 			{
-				if (pEntity->HasComponent<CCanvas>())
+				std::tie(currEntityId, currParentElementIndex) = entitiesToProcess.top();
+				entitiesToProcess.pop();
+
+				layoutElementsContext.mChildToParentTable.push_back(currParentElementIndex);
+				layoutElementsContext.mEntities.push_back(currEntityId);
+				entities.push_back(currEntityId);
+
+				if (currParentElementIndex == TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex)
 				{
-					continue; // skip entities with CCanvas component their will be processed before any LayoutElement ones
+					continue;
 				}
-			}
-#endif
 
-			layoutElementsContext.mChildToParentTable.push_back(currParentElementIndex);
-			layoutElementsContext.mEntities.push_back(currEntityId);
-			entities.push_back(currEntityId);
+				const USIZE parentIndex = entities.size() - 1;
 
-			if (currParentElementIndex == TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex)
-			{
-				continue;
-			}
-
-			const USIZE parentIndex = entities.size() - 1;
-
-			for (TEntityId currEntityId : parentToChildRelations[currEntityId])
-			{
-				entitiesToProcess.push({ currEntityId, parentIndex });
+				for (TEntityId currEntityId : parentToChildRelations[currEntityId])
+				{
+					entitiesToProcess.push({ currEntityId, parentIndex });
+				}
 			}
 		}
 
