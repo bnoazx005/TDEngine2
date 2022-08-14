@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new type of a subsystem which provides a way to switch between game modes was introduced.
 
+- Now Image component supports changing of its color 
+
 ### Changed
 
 ### Fixed

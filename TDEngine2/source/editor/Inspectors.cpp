@@ -1075,7 +1075,26 @@ namespace TDEngine2
 
 			//CLayoutElement& layoutElement = dynamic_cast<CLayoutElement&>(component);
 
-			// \todo Implement this drawer
+			CImage& image = dynamic_cast<CImage&>(component);
+
+			/// \note Sprite identifier
+			{
+				std::string imageId = image.GetImageId();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Sprite: ");
+				imguiContext.TextField("##ImageId", imageId, [&image](auto&& value) { image.SetImageId(value); });
+				imguiContext.EndHorizontal();
+			}
+
+			{
+				TColor32F color = image.GetColor();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Color: ");
+				imguiContext.ColorPickerField("##ImageId", color, [&image, &color]() { image.SetColor(color); });
+				imguiContext.EndHorizontal();
+			}
 		});
 	}
 

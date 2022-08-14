@@ -243,7 +243,7 @@ namespace TDEngine2
 		}
 
 		const bool isDirty = pLayoutData->IsDirty(); /// \todo Add dirty flag of ImageComponent
-		if (!isDirty)
+		if (!isDirty && !pImageData->IsDirty())
 		{
 			return;
 		}
@@ -263,10 +263,10 @@ namespace TDEngine2
 		auto&& rtPoint = localObjectTransform * worldRect.GetRightTop();
 
 		/// \todo Add support of specifying color data
-		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, lbPoint.y, 0.0f, 1.0f), TColorUtils::mWhite });
-		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, rtPoint.y, 0.0f, 0.0f), TColorUtils::mWhite });
-		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, lbPoint.y, 1.0f, 1.0f), TColorUtils::mWhite });
-		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, rtPoint.y, 1.0f, 0.0f), TColorUtils::mWhite });
+		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, lbPoint.y, 0.0f, 1.0f), pImageData->GetColor() });
+		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, rtPoint.y, 0.0f, 0.0f), pImageData->GetColor() });
+		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, lbPoint.y, 1.0f, 1.0f), pImageData->GetColor() });
+		pUIElementMeshData->AddVertex({ TVector4(rtPoint.x, rtPoint.y, 1.0f, 0.0f), pImageData->GetColor() });
 
 		static const std::array<U16, 6> indices { 0, 1, 2, 2, 1, 3 }; /// \note standard CW ordered 2 triangles that form a quad
 
@@ -276,6 +276,8 @@ namespace TDEngine2
 		}
 
 		pUIElementMeshData->SetTextureResourceId(pImageData->GetImageResourceId());
+
+		pImageData->SetDirtyFlag(false);
 	}
 
 

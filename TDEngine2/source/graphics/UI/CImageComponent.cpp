@@ -6,14 +6,17 @@ namespace TDEngine2
 	struct TImageArchiveKeys
 	{
 		static const std::string mSpriteKeyId;
+		static const std::string mColorKeyId;
 	};
 
 
 	const std::string TImageArchiveKeys::mSpriteKeyId = "sprite_id";
+	const std::string TImageArchiveKeys::mColorKeyId = "color";
 
 
 	CImage::CImage() : /// \todo Replace with global configurable constant
-		CBaseComponent(), mImageResourceId(TResourceId::Invalid), mImageSpriteId("DefaultResources/Textures/DefaultUIWhite_Sprite.png")
+		CBaseComponent(), mImageResourceId(TResourceId::Invalid), mImageSpriteId("DefaultResources/Textures/DefaultUIWhite_Sprite.png"),
+		mColor(TColorUtils::mWhite), mIsDirty(true)
 	{
 	}
 
@@ -25,6 +28,15 @@ namespace TDEngine2
 		}
 
 		mImageSpriteId = pReader->GetString(TImageArchiveKeys::mSpriteKeyId);
+
+		pReader->BeginGroup(TImageArchiveKeys::mColorKeyId);
+		
+		if (auto colorLoadResult = LoadColor32F(pReader))
+		{
+			mColor = colorLoadResult.Get();
+		}
+
+		pReader->EndGroup();
 
 		return RC_OK;
 	}
@@ -41,6 +53,10 @@ namespace TDEngine2
 			pWriter->SetUInt32("type_id", static_cast<U32>(CImage::GetTypeId()));
 
 			pWriter->SetString(TImageArchiveKeys::mSpriteKeyId, mImageSpriteId);
+
+			pWriter->BeginGroup(TImageArchiveKeys::mColorKeyId);
+			SaveColor32F(pWriter, mColor);
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
 
@@ -56,6 +72,7 @@ namespace TDEngine2
 		}
 
 		mImageSpriteId = id;
+		mIsDirty = true;
 
 		return RC_OK;
 	}
@@ -68,8 +85,20 @@ namespace TDEngine2
 		}
 
 		mImageResourceId = resourceId;
+		mIsDirty = true;
 
 		return RC_OK;
+	}
+
+	void CImage::SetColor(const TColor32F& value)
+	{
+		mColor = value;
+		mIsDirty = true;
+	}
+
+	void CImage::SetDirtyFlag(bool value)
+	{
+		mIsDirty = value;
 	}
 
 	const std::string& CImage::GetImageId() const
@@ -80,6 +109,16 @@ namespace TDEngine2
 	TResourceId CImage::GetImageResourceId() const
 	{
 		return mImageResourceId;
+	}
+
+	const TColor32F& CImage::GetColor() const
+	{
+		return mColor;
+	}
+
+	bool CImage::IsDirty() const
+	{
+		return mIsDirty;
 	}
 
 

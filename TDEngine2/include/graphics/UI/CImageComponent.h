@@ -10,6 +10,7 @@
 #include "../../ecs/CBaseComponent.h"
 #include "../../math/TVector2.h"
 #include "../../math/TRect.h"
+#include "../../utils/Color.h"
 
 
 namespace TDEngine2
@@ -63,15 +64,25 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetImageId(const std::string& id);
 			TDE2_API E_RESULT_CODE SetImageResourceId(TResourceId resourceId);
+			
+			TDE2_API void SetColor(const TColor32F& value);
+
+			TDE2_API void SetDirtyFlag(bool value);
 
 			TDE2_API const std::string& GetImageId() const;
 			TDE2_API TResourceId GetImageResourceId() const;
+
+			TDE2_API const TColor32F& GetColor() const;
+
+			TDE2_API bool IsDirty() const;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImage)
 		protected:
 			std::string mImageSpriteId;
 			TResourceId mImageResourceId;
+			TColor32F   mColor;
+			bool        mIsDirty;
 	};
 
 
