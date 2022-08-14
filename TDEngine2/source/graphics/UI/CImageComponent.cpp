@@ -12,8 +12,8 @@ namespace TDEngine2
 	const std::string TImageArchiveKeys::mSpriteKeyId = "sprite_id";
 
 
-	CImage::CImage() :
-		CBaseComponent(), mImageResourceId(TResourceId::Invalid), mImageSpriteId(Wrench::StringUtils::GetEmptyStr())
+	CImage::CImage() : /// \todo Replace with global configurable constant
+		CBaseComponent(), mImageResourceId(TResourceId::Invalid), mImageSpriteId("DefaultResources/Textures/DefaultUIWhite_Sprite.png")
 	{
 	}
 

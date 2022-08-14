@@ -2,6 +2,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/MathUtils.h"
 #include "../../include/scene/ISceneManager.h"
+#include "../../include/scene/IScene.h"
 #include "stringUtils.hpp"
 
 
@@ -163,7 +164,7 @@ namespace TDEngine2
 	*/
 
 	CSplashScreenGameMode::CSplashScreenGameMode():
-		CBaseGameMode("SplashScreenMode")
+		CBaseGameMode("SplashScreenMode"), mSplashScreenSceneHandle(TSceneId::Invalid)
 	{
 	}
 
@@ -173,12 +174,18 @@ namespace TDEngine2
 		mCurrTime = 0.0f;
 
 		/// \todo Load splash screen's scene
-		//mpSceneManager->LoadScene("ProjectResources/Scenes/SplashScreen.scene");
+		if (auto loadSceneResult = mpSceneManager->LoadScene("ProjectResources/Scenes/SplashScreen.scene"))
+		{
+			mSplashScreenSceneHandle = loadSceneResult.Get();
+		}
 	}
 
 	void CSplashScreenGameMode::OnExit()
 	{
 		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseGameMode] Invoke OnExit, mode: \"{0}\"", mName));
+		
+		E_RESULT_CODE result = mpSceneManager->UnloadScene(mSplashScreenSceneHandle);
+		TDE2_ASSERT(RC_OK == result);
 	}
 
 	void CSplashScreenGameMode::Update(F32 dt)

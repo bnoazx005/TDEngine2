@@ -15,6 +15,9 @@
 
 namespace TDEngine2
 {
+	enum class TSceneId : U32;
+
+
 	/*!
 		\brief A factory function for creation objects of CGameModesManager's type.
 		
@@ -189,8 +192,10 @@ namespace TDEngine2
 		private:
 			TPtr<ISceneManager> mpSceneManager;
 
-			F32                 mShowDuration = 1.0f;
+			F32                 mShowDuration = 4.0f;
 			F32                 mCurrTime = 0.0f;
+
+			TSceneId            mSplashScreenSceneHandle;
 	};
 
 
