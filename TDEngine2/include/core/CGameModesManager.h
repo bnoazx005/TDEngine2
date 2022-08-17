@@ -148,6 +148,12 @@ namespace TDEngine2
 	class ISceneManager;
 
 
+	typedef struct TSplashScreenModeParams
+	{
+		F32 mShowDuration = 4.0f;
+	} TSplashScreenModeParams, *TSplashScreenModeParamsPtr;
+
+
 	/*!
 		\brief A factory function for creation objects of CBaseGameMode's type.
 
@@ -156,7 +162,7 @@ namespace TDEngine2
 		\return A pointer to CBaseGameMode's implementation
 	*/
 
-	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, TPtr<ISceneManager> pSceneManager, E_RESULT_CODE& result);
+	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, TPtr<ISceneManager> pSceneManager, const TSplashScreenModeParams& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -168,7 +174,7 @@ namespace TDEngine2
 	class CSplashScreenGameMode : public CBaseGameMode
 	{
 		public:
-			friend TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager*, TPtr<ISceneManager>, E_RESULT_CODE&);
+			friend TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager*, TPtr<ISceneManager>, const TSplashScreenModeParams& params, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method is invoked when game modes manager activates the state

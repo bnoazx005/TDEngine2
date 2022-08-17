@@ -202,11 +202,12 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, TPtr<ISceneManager> pSceneManager, E_RESULT_CODE& result)
+	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, TPtr<ISceneManager> pSceneManager, const TSplashScreenModeParams& params, E_RESULT_CODE& result)
 	{
 		if (auto pMode = CREATE_IMPL(CSplashScreenGameMode, CSplashScreenGameMode, result, pOwner))
 		{
 			pMode->mpSceneManager = pSceneManager;
+			pMode->mShowDuration = params.mShowDuration;
 
 			return dynamic_cast<IGameMode*>(pMode);
 		}

@@ -111,5 +111,12 @@ namespace TDEngine2
 			{
 				std::string mMainLevelScenePath = "MainScene.scene";
 			} mScenesSettings;
+
+
+			struct TSplashScreenSettings
+			{
+				bool mIsEnabled = false;
+				F32  mShowDuration = 4.0f;
+			} mSplashScreenSettings;
 	};
 }

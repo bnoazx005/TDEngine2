@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.10] 2022-08-14
+## [0.6.10] 2022-08-17
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new type of a subsystem which provides a way to switch between game modes was introduced.
 
 - Now Image component supports changing of its color 
+
+- The configuration of the splash screen was added.
 
 ### Changed
 

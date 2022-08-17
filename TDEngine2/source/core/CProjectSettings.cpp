@@ -13,6 +13,7 @@ namespace TDEngine2
 		static const std::string mLocalizationSettingsGroupId;
 		static const std::string mWorldSettingsGroupId;
 		static const std::string mSceneManagerSettingsGroupId;
+		static const std::string mSplashScreenSettingsGroupId;
 
 		struct TCommonSettingsKeys
 		{
@@ -73,7 +74,14 @@ namespace TDEngine2
 		{
 			static const std::string mMainLevelPathKey;
 		};
+
+		struct TSplashScreenSettingsKeys
+		{
+			static const std::string mIsEnabledKey;
+			static const std::string mShowDurationKey;
+		};
 	};
+
 
 	const std::string TProjectSettingsArchiveKeys::mCommonSettingsGroupId = "common_settings";
 	const std::string TProjectSettingsArchiveKeys::mGraphicsSettingsGroupId = "graphics_settings";
@@ -81,6 +89,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::mLocalizationSettingsGroupId = "localization_settings";
 	const std::string TProjectSettingsArchiveKeys::mWorldSettingsGroupId = "world_settings";
 	const std::string TProjectSettingsArchiveKeys::mSceneManagerSettingsGroupId = "scenes_settings";
+	const std::string TProjectSettingsArchiveKeys::mSplashScreenSettingsGroupId = "splash_screen_settings";
 
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey = "application_id";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey = "max_worker_threads_count";
@@ -111,6 +120,9 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TWorldSettingsKeys::mBoundsUpdateIntervalKey = "object_bounds_interval";
 
 	const std::string TProjectSettingsArchiveKeys::TSceneManagerSettingsKeys::mMainLevelPathKey = "main_scene_path";
+
+	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsEnabledKey = "enabled";
+	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mShowDurationKey = "show_duration";
 
 
 	CProjectSettings::CProjectSettings():
@@ -283,6 +295,23 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE LoadSplashScreenSettings(IArchiveReader* pFileReader, CProjectSettings& projectSettings)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto& settings = projectSettings.mSplashScreenSettings;
+
+		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mSplashScreenSettingsGroupId);
+		{
+			settings.mIsEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsEnabledKey, settings.mIsEnabled);
+			settings.mShowDuration = pFileReader->GetFloat(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mShowDurationKey, settings.mShowDuration);
+		}
+		result = result | pFileReader->EndGroup();
+
+		return result;
+	}
+
+
 	E_RESULT_CODE CProjectSettings::Init(IArchiveReader* pFileReader)
 	{
 		if (!pFileReader)
@@ -297,6 +326,7 @@ namespace TDEngine2
 		result = result | LoadAudioSettings(pFileReader, *this);	
 		result = result | LoadLocaleSettings(pFileReader, *this);
 		result = result | LoadScenesSettings(pFileReader, *this);
+		result = result | LoadSplashScreenSettings(pFileReader, *this);
 		
 		return RC_OK;
 	}

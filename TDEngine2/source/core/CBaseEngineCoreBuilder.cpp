@@ -686,9 +686,18 @@ namespace TDEngine2
 		result = result | pSubsystem->SwitchMode(TPtr<IGameMode>(CreateBaseGameMode(pSubsystem.Get(), result)));
 		TDE2_ASSERT(RC_OK == result);
 
-		/// \note Register the splash screen
-		result = result | pSubsystem->PushMode(TPtr<IGameMode>(CreateSplashScreenGameMode(pSubsystem.Get(), pEngineCore->GetSubsystem<ISceneManager>(), result)));
-		TDE2_ASSERT(RC_OK == result);
+		/// \note Register the splash screen if it's enabled
+		if (CProjectSettings::Get()->mSplashScreenSettings.mIsEnabled)
+		{
+			result = result | pSubsystem->PushMode(TPtr<IGameMode>(CreateSplashScreenGameMode(
+																		pSubsystem.Get(),
+																		pEngineCore->GetSubsystem<ISceneManager>(),
+																		{
+																			CProjectSettings::Get()->mSplashScreenSettings.mShowDuration
+																		},
+																		result)));
+			TDE2_ASSERT(RC_OK == result);
+		}
 
 		return pEngineCore->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(pSubsystem));
 	}
