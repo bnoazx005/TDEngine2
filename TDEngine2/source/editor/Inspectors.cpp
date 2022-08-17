@@ -19,6 +19,8 @@
 #include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
+#include "../../include/graphics/CPerspectiveCamera.h"
+#include "../../include/graphics/COrthoCamera.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -70,6 +72,8 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(C9SliceImage::GetTypeId(), Draw9SliceImageGUI);
 		result = result | editor.RegisterInspector(CGridGroupLayout::GetTypeId(), DrawGridGroupLayoutGUI);
 		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
+		result = result | editor.RegisterInspector(CPerspectiveCamera::GetTypeId(), DrawPerspectiveCameraGUI);
+		result = result | editor.RegisterInspector(COrthoCamera::GetTypeId(), DrawOrthographicCameraGUI);
 
 		/// 2D Physics
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
@@ -517,6 +521,100 @@ namespace TDEngine2
 			CMeshAnimatorComponent& meshAnimator = dynamic_cast<CMeshAnimatorComponent&>(component);
 
 			// \todo Implement this drawer
+		});
+	}
+
+
+	static void DrawBaseCameraGUI(const TEditorContext& editorContext)
+	{
+		IImGUIContext& imguiContext = editorContext.mImGUIContext;
+		CBaseCamera& camera = dynamic_cast<CBaseCamera&>(editorContext.mComponent);
+
+		/// \note ZNear
+		{
+			F32 zNear = camera.GetNearPlane();
+
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Near Plane: ");
+			imguiContext.FloatField("##ZNear", zNear, [&camera, &zNear] { camera.SetNearPlane(zNear); });
+			imguiContext.EndHorizontal();
+		}
+
+		/// \note ZFar
+		{
+			F32 zFar = camera.GetFarPlane();
+
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Far Plane: ");
+			imguiContext.FloatField("##ZFar", zFar, [&camera, &zFar] { camera.SetFarPlane(zFar); });
+			imguiContext.EndHorizontal();
+		}
+	}
+
+
+	void CDefaultInspectorsRegistry::DrawPerspectiveCameraGUI(const TEditorContext& editorContext)
+	{
+		Header("Perspective Camera", editorContext, [](const TEditorContext& editorContext)
+		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
+			CPerspectiveCamera& camera = dynamic_cast<CPerspectiveCamera&>(component);
+			
+			/// \note Fov
+			{
+				F32 fov = camera.GetFOV() * CMathConstants::Rad2Deg;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Field of View: ");
+				imguiContext.FloatField("##FOV", fov, [&camera, &fov] { camera.SetFOV(fov * CMathConstants::Deg2Rad); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note Aspect
+			{
+				F32 aspect = camera.GetAspect();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Aspect: ");
+				imguiContext.FloatField("##Aspect", aspect, [&camera, &aspect] { camera.SetAspect(aspect); });
+				imguiContext.EndHorizontal();
+			}
+
+			DrawBaseCameraGUI(editorContext);
+		});
+	}
+
+	void CDefaultInspectorsRegistry::DrawOrthographicCameraGUI(const TEditorContext& editorContext)
+	{
+		Header("Orthographic Camera", editorContext, [](const TEditorContext& editorContext)
+		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
+			COrthoCamera& camera = dynamic_cast<COrthoCamera&>(component);
+
+			/// \note Width
+			{
+				F32 width = camera.GetWidth();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Width: ");
+				imguiContext.FloatField("##Width", width, [&camera, &width] { camera.SetWidth(width); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note Height
+			{
+				F32 height = camera.GetHeight();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Height: ");
+				imguiContext.FloatField("##Height", height, [&camera, &height] { camera.SetHeight(height); });
+				imguiContext.EndHorizontal();
+			}
+
+			DrawBaseCameraGUI(editorContext);
 		});
 	}
 
