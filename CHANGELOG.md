@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.11] 2022-08-28
+
+### Added
+
+### Changed
+
+- **TComponentTypeNameTrait** meta-function was moved to the global namespace to allow declarations of new components in namespaces that're different than **TDEngine2** one.
+
+- The latter statement infers another change which is the macro **TDE2_DECLARE_FLAG_COMPONENT** can be used within any namespace.
+
+### Fixed
+
 ## [0.6.10] 2022-08-17
 
 ### Added

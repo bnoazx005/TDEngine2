@@ -224,3 +224,14 @@ TEST_CASE("CScopedPtr Tests")
 		REQUIRE((hasBeenTestCounterDestroyed && hasBeenHolderDestroyed));
 	}
 }
+
+
+/*!
+	\brief The code below tests macros for declaring tag-components within an independent namespace
+*/
+
+namespace Test
+{
+	TDE2_DECLARE_FLAG_COMPONENT(Tag)
+	TDE2_DEFINE_FLAG_COMPONENT(Tag)
+}

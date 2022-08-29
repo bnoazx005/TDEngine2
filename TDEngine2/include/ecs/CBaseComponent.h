@@ -33,10 +33,10 @@ namespace TDEngine2
 		The following statement is needed to implement proper registration of component's type
 	*/
 
-	class CBaseComponent: public IComponent, public CBaseObject
+	class CBaseComponent : public IComponent, public CBaseObject
 	{
-		public:
-			TDE2_REGISTER_TYPE(CBaseComponent)
+	public:
+		TDE2_REGISTER_TYPE(CBaseComponent)
 
 			/*!
 				\brief The method initializes an internal state of an object
@@ -46,64 +46,64 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init() override;
 
-			/*!
-				\brief The method deserializes object's state from given reader
+		/*!
+			\brief The method deserializes object's state from given reader
 
-				\param[in, out] pReader An input stream of data that contains information about the object
+			\param[in, out] pReader An input stream of data that contains information about the object
 
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
 
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+		TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
 
-			/*!
-				\brief The method serializes object's state into given stream
+		/*!
+			\brief The method serializes object's state into given stream
 
-				\param[in, out] pWriter An output stream of data that writes information about the object
+			\param[in, out] pWriter An output stream of data that writes information about the object
 
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
 
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-		
-			/*!
-				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
-				make them correctly corresponds to saved state
+		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-				\param[in, out] pEntityManager A pointer to entities manager
-				\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
-			*/
+		/*!
+			\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
+			make them correctly corresponds to saved state
 
-			TDE2_API virtual E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
+			\param[in, out] pEntityManager A pointer to entities manager
+			\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
+		*/
 
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
+		TDE2_API virtual E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
 
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
+		/*!
+			\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+			The original state of the object stays the same
 
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
+			\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+		*/
 
-			/*!
-				\return The method returns type name (lowercase is preffered)
-			*/
+		TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
-			TDE2_API const std::string& GetTypeName() const override;
+		/*!
+			\return The method returns type name (lowercase is preffered)
+		*/
 
-			/*!
-				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
-			*/
+		TDE2_API const std::string& GetTypeName() const override;
 
-			TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override;
+		/*!
+			\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
+		*/
 
-			/*!
-				\brief The method returns an array of properties names that are available for usage
-			*/
+		TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override;
 
-			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponent)
+		/*!
+			\brief The method returns an array of properties names that are available for usage
+		*/
+
+		TDE2_API const std::vector<std::string>& GetAllProperties() const override;
+	protected:
+		DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponent)
 	};
 
 
@@ -115,87 +115,87 @@ namespace TDEngine2
 
 	class CComponentIterator
 	{
-		protected:
-			typedef std::vector<IComponent*> TComponentsArray;
-		public:
-			static CComponentIterator mInvalidIterator;
-		public:
-			/*!
-				\brief The constructor creates a correct iterator using begin and end iterators of a collection
-				and index that specifies an initial offset from the beginning
+	protected:
+		typedef std::vector<IComponent*> TComponentsArray;
+	public:
+		static CComponentIterator mInvalidIterator;
+	public:
+		/*!
+			\brief The constructor creates a correct iterator using begin and end iterators of a collection
+			and index that specifies an initial offset from the beginning
 
-				\param[in, out] components An array of components
+			\param[in, out] components An array of components
 
-				\param[in] index An offset from a beginning of a collection where a result iterator
-				will be placed at
-			*/
+			\param[in] index An offset from a beginning of a collection where a result iterator
+			will be placed at
+		*/
 
-			TDE2_API CComponentIterator(TComponentsArray& components, U32 index);
+		TDE2_API CComponentIterator(TComponentsArray& components, U32 index);
 
-			TDE2_API ~CComponentIterator();
+		TDE2_API ~CComponentIterator();
 
-			/*!
-				\brief The method increments current iterator so it point to next
-				entity within a collection
+		/*!
+			\brief The method increments current iterator so it point to next
+			entity within a collection
 
-				\return A reference to an iterator to next entity within a collection
-			*/
+			\return A reference to an iterator to next entity within a collection
+		*/
 
-			TDE2_API CComponentIterator& Next();
+		TDE2_API CComponentIterator& Next();
 
-			/*!
-				\brief The method is a predicate that is true if there is at least one
-				entity next to the current position of the iterator
+		/*!
+			\brief The method is a predicate that is true if there is at least one
+			entity next to the current position of the iterator
 
-				\return The method returns true if there is at least one
-				entity next to the current position of the iterator
-			*/
+			\return The method returns true if there is at least one
+			entity next to the current position of the iterator
+		*/
 
-			TDE2_API bool HasNext() const;
+		TDE2_API bool HasNext() const;
 
-			/*!
-				\brief The method resets current state of the iterator to the beginnning of
-				a collection
-			*/
+		/*!
+			\brief The method resets current state of the iterator to the beginnning of
+			a collection
+		*/
 
-			TDE2_API void Reset();
+		TDE2_API void Reset();
 
-			/*!
-				\brief The method returns an entity that is pointed by the iterator
+		/*!
+			\brief The method returns an entity that is pointed by the iterator
 
-				\return  The method returns a pointer to specific IComponent that is pointed by the iterator
-			*/
+			\return  The method returns a pointer to specific IComponent that is pointed by the iterator
+		*/
 
-			TDE2_API IComponent* Get() const;
+		TDE2_API IComponent* Get() const;
 
-			/*!
-				\brief The method returns an entity that is pointed by the iterator
+		/*!
+			\brief The method returns an entity that is pointed by the iterator
 
-				\return  The method returns a pointer to specific IComponent that is pointed by the iterator
-			*/
+			\return  The method returns a pointer to specific IComponent that is pointed by the iterator
+		*/
 
-			TDE2_API IComponent* operator* () const;
+		TDE2_API IComponent* operator* () const;
 
-			/*!
-				\brief The method increments current iterator so it point to next
-				entity within a collection
+		/*!
+			\brief The method increments current iterator so it point to next
+			entity within a collection
 
-				\return A reference to an iterator to next entity within a collection
-			*/
+			\return A reference to an iterator to next entity within a collection
+		*/
 
-			TDE2_API CComponentIterator& operator++ ();
+		TDE2_API CComponentIterator& operator++ ();
 
-			TDE2_API bool operator== (const CComponentIterator& iter) const;
+		TDE2_API bool operator== (const CComponentIterator& iter) const;
 
-			TDE2_API bool operator!= (const CComponentIterator& iter) const;
-		protected:
-			TDE2_API CComponentIterator();
-		protected:
-			TComponentsArray::iterator mBegin;
+		TDE2_API bool operator!= (const CComponentIterator& iter) const;
+	protected:
+		TDE2_API CComponentIterator();
+	protected:
+		TComponentsArray::iterator mBegin;
 
-			TComponentsArray::iterator mEnd;
+		TComponentsArray::iterator mEnd;
 
-			U32                        mCurrIndex;
+		U32                        mCurrIndex;
 	};
 
 
@@ -206,18 +206,18 @@ namespace TDEngine2
 		when a new component was created
 	*/
 
-	typedef struct TOnComponentCreatedEvent: TBaseEvent
+	typedef struct TOnComponentCreatedEvent : TBaseEvent
 	{
 		virtual ~TOnComponentCreatedEvent() = default;
 
 		TDE2_REGISTER_TYPE(TOnComponentCreatedEvent)
 
-		REGISTER_EVENT_TYPE(TOnComponentCreatedEvent)
-			
-		TEntityId mEntityId;
+			REGISTER_EVENT_TYPE(TOnComponentCreatedEvent)
+
+			TEntityId mEntityId;
 
 		TypeId    mCreatedComponentTypeId;
-	} TOnComponentCreatedEvent, *TOnComponentCreatedEventPtr;
+	} TOnComponentCreatedEvent, * TOnComponentCreatedEventPtr;
 
 
 	/*!
@@ -233,41 +233,46 @@ namespace TDEngine2
 
 		TDE2_REGISTER_TYPE(TOnComponentRemovedEvent)
 
-		REGISTER_EVENT_TYPE(TOnComponentRemovedEvent)
-		
-		TEntityId mEntityId;
+			REGISTER_EVENT_TYPE(TOnComponentRemovedEvent)
+
+			TEntityId mEntityId;
 
 		TypeId    mRemovedComponentTypeId;
-	} TOnComponentRemovedEvent, *TOnComponentRemovedEventPtr;
+	} TOnComponentRemovedEvent, * TOnComponentRemovedEventPtr;
 
 
 #define TDE2_COMPONENT_CLASS_NAME(ComponentName)			C ## ComponentName
 #define TDE2_COMPONENT_FUNCTION_NAME(ComponentName)			Create ## ComponentName
 #define TDE2_COMPONENT_FACTORY_NAME(ComponentName)			C ## ComponentName ## Factory
 #define TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName)	Create ## ComponentName ## Factory
-	
+
+}
 
 	/*!
 		\brief The meta-function could be used to stringify component's type 
+		The entity is placed in the global namespace to prevent 'error C2888 (MSVC)' when a user declares its own components in another namespace
 	*/
 
 	template<typename T>
 	struct TComponentTypeNameTrait
 	{
 #if defined(TDE2_USE_WINPLATFORM)
-		TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = "UnknownComponent";
+		TDE2_API TDE2_STATIC_CONSTEXPR const TDEngine2::C8* mpValue = "UnknownComponent";
 #else
-		TDE2_API TDE2_STATIC_CONSTEXPR C8* mpValue = "UnknownComponent";
+		TDE2_API TDE2_STATIC_CONSTEXPR TDEngine2::C8* mpValue = "UnknownComponent";
 #endif
 	};
 
 
+namespace TDEngine2
+{
+
 #if defined(TDE2_USE_WINPLATFORM)
 	#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
-		template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = ComponentTypeStr; };	
+		template <> struct ::TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR const C8* mpValue = ComponentTypeStr; };	
 #else
 	#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
-			template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR C8* mpValue = ComponentTypeStr; };	
+			template <> struct ::TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR C8* mpValue = ComponentTypeStr; };	
 #endif
 
 
