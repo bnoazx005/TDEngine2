@@ -128,8 +128,8 @@ namespace TDEngine2
 #endif
 
 
-#define CREATE_IMPL(InterfaceType, ConcreteType, ...)																	\
-	CreateImpl<InterfaceType, ConcreteType>(																			\
+#define CREATE_IMPL(InterfaceType, ConcreteType, ...)																					\
+	::TDEngine2::CreateImpl<InterfaceType, ConcreteType>(																				\
 					[] { auto pPtr = new(std::nothrow) ConcreteType(); TDE2_REGISTER_BASE_OBJECT(ConcreteType, pPtr); return pPtr; },	\
 					[](ConcreteType*& pPtr) { TDE2_UNREGISTER_BASE_OBJECT(pPtr); delete pPtr; }, __VA_ARGS__)
 
@@ -226,18 +226,18 @@ namespace TDEngine2
 #define TDE2_TYPE_ID(Type)												\
 		__pragma(warning(push))											\
 		__pragma(warning(disable:4307))									\
-		TypeId(ComputeHash(#Type))										\
+		::TDEngine2::TypeId(::TDEngine2::ComputeHash(#Type))			\
 		__pragma(warning(pop))											
 
 
-	#define TDE2_REGISTER_TYPE(Type)										\
-		static TypeId GetTypeId()											\
-		{																	\
-			__pragma(warning(push))											\
-			__pragma(warning(disable:4307))									\
-			static constexpr TypeId typeId = TypeId(ComputeHash(#Type));	\
-			__pragma(warning(pop))											\
-			return typeId;													\
+	#define TDE2_REGISTER_TYPE(Type)																			\
+		static ::TDEngine2::TypeId GetTypeId()																	\
+		{																										\
+			__pragma(warning(push))																				\
+			__pragma(warning(disable:4307))																		\
+			static constexpr ::TDEngine2::TypeId typeId = ::TDEngine2::TypeId(::TDEngine2::ComputeHash(#Type));	\
+			__pragma(warning(pop))																				\
+			return typeId;																						\
 		}
 
 
@@ -245,14 +245,14 @@ namespace TDEngine2
 	TDE2_REGISTER_TYPE(Type)												\
 	TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, GetComponentTypeId)
 
-	#define TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, MethodName)					\
-		virtual TypeId MethodName() const									\
-		{																	\
-			__pragma(warning(push))											\
-			__pragma(warning(disable:4307))									\
-			static constexpr TypeId typeId = TypeId(ComputeHash(#Type));	\
-			__pragma(warning(pop))											\
-			return typeId;													\
+	#define TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, MethodName)														\
+		virtual ::TDEngine2::TypeId MethodName() const															\
+		{																										\
+			__pragma(warning(push))																				\
+			__pragma(warning(disable:4307))																		\
+			static constexpr ::TDEngine2::TypeId typeId = ::TDEngine2::TypeId(::TDEngine2::ComputeHash(#Type));	\
+			__pragma(warning(pop))																				\
+			return typeId;																						\
 		}
 #else
 	#define TDE2_TYPE_ID(Type) TypeId(ComputeHash(#Type))	

@@ -52,6 +52,7 @@ set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/CContainersTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/CGradientColorTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/CProgramOptionsTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/utils/MacrosTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
 source_group("includes" FILES ${HEADERS})
