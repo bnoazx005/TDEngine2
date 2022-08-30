@@ -20,7 +20,7 @@ namespace TDEngine2
 	*/
 
 	#define REGISTER_SYSTEM_TYPE(Type)								\
-		TDE2_API TypeId GetSystemType() const override				\
+		TDE2_API ::TDEngine2::TypeId GetSystemType() const override	\
 		{															\
 			return Type::GetTypeId();								\
 		}															\

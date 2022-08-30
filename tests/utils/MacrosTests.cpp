@@ -13,11 +13,23 @@ namespace Test
 		virtual TDEngine2::TypeId GetComponentTypeId() = 0;
 	};
 
-	struct ConcreteFoo : IFoo
+	struct CConcreteFoo : IFoo
 	{
-		TDE2_REGISTER_COMPONENT_TYPE(ConcreteFoo);
+		TDE2_REGISTER_COMPONENT_TYPE(CConcreteFoo);
 	};
 	
+
+	struct IFooSystem
+	{
+		virtual TDEngine2::TypeId GetSystemType() const = 0;
+		virtual const std::string& GetName() const = 0;
+	};
+
+
+	struct CConcreteSystem: IFooSystem
+	{
+		TDE2_SYSTEM(CConcreteSystem)
+	};
 
 
 	/*!

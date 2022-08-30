@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The latter statement infers another change which is the macro **TDE2_DECLARE_FLAG_COMPONENT** can be used within any namespace.
 
-- Now the following macros **TDE2_TYPE_ID, TDE2_REGISTER_TYPE, TDE2_REGISTER_COMPONENT_TYPE** can be used within any namespace.
+- Now the following macros **TDE2_TYPE_ID, TDE2_REGISTER_TYPE, TDE2_REGISTER_COMPONENT_TYPE, TDE2_SYSTEM** can be used within any namespace.
 
 ### Fixed
 
