@@ -272,7 +272,7 @@ namespace TDEngine2
 		template <> struct ::TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR const TDEngine2::C8* mpValue = ComponentTypeStr; };	
 #else
 	#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
-		template <> struct ::TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR TDEngine2::C8* mpValue = ComponentTypeStr; };	
+		template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR TDEngine2::C8* mpValue = ComponentTypeStr; };	
 #endif
 
 
