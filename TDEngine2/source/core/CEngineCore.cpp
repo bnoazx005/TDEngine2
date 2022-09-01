@@ -83,7 +83,7 @@ namespace TDEngine2
 
 		memset(mSubsystems, 0, sizeof(mSubsystems));
 
-		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
+		LOG_MESSAGE("[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core starts to work...");
 		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
 
@@ -217,7 +217,8 @@ namespace TDEngine2
 		mpInputContext = _getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT);
 		mpEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
 
-		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
+		LOG_MESSAGE("");
+		LOG_MESSAGE("[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core begins to execute the main loop...");
 		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
 
