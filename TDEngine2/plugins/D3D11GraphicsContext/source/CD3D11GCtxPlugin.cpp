@@ -143,7 +143,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IShaderCompiler* pShaderCompilerInstance = CreateD3D11ShaderCompiler(pFileSystem, result);
+		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateD3D11ShaderCompiler(pFileSystem, result));
 
 		if (result != RC_OK)
 		{

@@ -52,6 +52,9 @@ namespace TDEngine2
 	class IShaderCompiler;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IShaderCompiler)
+
+
 	/*!
 		\brief The template is used to declare interfaces of loaders for concrete resources types
 	*/
@@ -76,5 +79,5 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a shaders loader
 	*/
 
-	class IShaderLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*, const IShaderCompiler*> {};
+	class IShaderLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*, TPtr<IShaderCompiler>> {};
 }

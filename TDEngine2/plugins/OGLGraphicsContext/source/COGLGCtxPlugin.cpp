@@ -148,7 +148,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 		
-		IShaderCompiler* pShaderCompilerInstance = CreateOGLShaderCompiler(pFileSystem, result);
+		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateOGLShaderCompiler(pFileSystem, result));
 
 		if (result != RC_OK)
 		{

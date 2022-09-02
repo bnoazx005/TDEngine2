@@ -121,6 +121,8 @@ namespace TDEngine2
 			TDE2_API USIZE GetStrideSize() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11StructuredBuffer)
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			ID3D11DeviceContext*       mp3dDeviceContext;
 						

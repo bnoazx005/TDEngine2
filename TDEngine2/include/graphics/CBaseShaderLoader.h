@@ -18,6 +18,9 @@ namespace TDEngine2
 	class IShaderCompiler;
 
 
+	TDE2_DECLARE_SCOPED_PTR(IShaderCompiler)
+
+
 	/*!
 		\brief A factory function for creation objects of CBaseShaderLoader's type
 
@@ -35,7 +38,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-													 const IShaderCompiler* pShaderCompiler, E_RESULT_CODE& result);
+													 TPtr<IShaderCompiler> pShaderCompiler, E_RESULT_CODE& result);
 
 
 	/*!
@@ -48,7 +51,7 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-																	const IShaderCompiler* pShaderCompiler, E_RESULT_CODE& result);
+																	TPtr<IShaderCompiler> pShaderCompiler, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an inner state of an object
@@ -65,7 +68,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-										const IShaderCompiler* pShaderCompiler) override;
+										TPtr<IShaderCompiler> pShaderCompiler) override;
 
 			/*!
 				\brief The method loads data into the specified resource based on its
@@ -90,12 +93,12 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShaderLoader)
 		protected:
-			IResourceManager*       mpResourceManager;
+			IResourceManager*      mpResourceManager;
 
-			IFileSystem*            mpFileSystem;
+			IFileSystem*           mpFileSystem;
 
-			IGraphicsContext*       mpGraphicsContext;
+			IGraphicsContext*      mpGraphicsContext;
 
-			const IShaderCompiler*  mpShaderCompiler;
+			TPtr<IShaderCompiler>  mpShaderCompiler;
 	};
 }

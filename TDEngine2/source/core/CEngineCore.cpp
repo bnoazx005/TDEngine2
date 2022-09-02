@@ -120,7 +120,7 @@ namespace TDEngine2
 #endif
 		}
 
-		LOG_MESSAGE("\n[Engine Core] >>>=================================================");
+		LOG_MESSAGE("[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core was successfully finalized");
 		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
 

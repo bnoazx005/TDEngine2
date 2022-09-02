@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Memory leaks caused by **IShaderCompiler** and **IStructuredBuffer** instances were fixed.
+
 ## [0.6.10] 2022-08-17
 
 ### Added

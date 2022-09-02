@@ -19,7 +19,7 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE CBaseShaderLoader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-										  const IShaderCompiler* pShaderCompiler)
+										  TPtr<IShaderCompiler> pShaderCompiler)
 	{
 		if (mIsInitialized)
 		{
@@ -70,7 +70,7 @@ namespace TDEngine2
 			E_DEFAULT_SHADER_TYPE shaderType = CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(pResource->GetName());
 
 			/// \note can't load file with the shader, so load default one
-			return pShader->Compile(mpShaderCompiler, mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
+			return pShader->Compile(mpShaderCompiler.Get(), mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
 		}
 
 		ITextFileReader* pShaderFileReader = dynamic_cast<ITextFileReader*>(mpFileSystem->Get<ITextFileReader>(shaderFileId.Get()));
@@ -83,14 +83,14 @@ namespace TDEngine2
 		}
 
 		/// parse it and compile needed variant
-		if ((result = pShader->Compile(mpShaderCompiler, shaderSourceCode)) != RC_OK)
+		if ((result = pShader->Compile(mpShaderCompiler.Get(), shaderSourceCode)) != RC_OK)
 		{
 			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(pResource->GetName()).append("), load default one instead..."));
 
 			E_DEFAULT_SHADER_TYPE shaderType = CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(pResource->GetName());
 
 			/// \note can't load file with the shader, so load default one
-			return pShader->Compile(mpShaderCompiler, mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
+			return pShader->Compile(mpShaderCompiler.Get(), mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
 		}
 
 		return result;
@@ -103,7 +103,7 @@ namespace TDEngine2
 
 
 	TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext,IFileSystem* pFileSystem, 
-													 const IShaderCompiler* pShaderCompiler, E_RESULT_CODE& result)
+													 TPtr<IShaderCompiler> pShaderCompiler, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IResourceLoader, CBaseShaderLoader, result, pResourceManager, pGraphicsContext, pFileSystem, pShaderCompiler);
 	}

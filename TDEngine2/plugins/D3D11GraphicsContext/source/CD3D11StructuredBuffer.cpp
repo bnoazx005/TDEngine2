@@ -1,6 +1,7 @@
 #include "../include/CD3D11StructuredBuffer.h"
 #include "../include/CD3D11Buffer.h"
 #include "../include/CD3D11Mappings.h"
+#include "../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 
@@ -188,6 +189,11 @@ namespace TDEngine2
 	USIZE CD3D11StructuredBuffer::GetStrideSize() const
 	{
 		return mStructuredElementStride;
+	}
+
+	E_RESULT_CODE CD3D11StructuredBuffer::_onFreeInternal()
+	{
+		return SafeReleaseCOMPtr<ID3D11ShaderResourceView>(&mpShaderResourceView) | SafeReleaseCOMPtr<ID3D11UnorderedAccessView>(&mpUavResourceView);
 	}
 
 
