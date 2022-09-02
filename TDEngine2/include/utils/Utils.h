@@ -216,6 +216,14 @@ namespace TDEngine2
 	template <typename T> struct GetTypeId { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TypeId::Invalid; };
 
 
+#define TDE2_REGISTER_CLASS_ID(ClassType)					\
+	static const std::string& GetClassId()					\
+	{														\
+		static const std::string classId = #ClassType;		\
+		return classId;										\
+	}
+
+
 	/*!
 		\brief The macro is used to provide type counting mechanism
 
@@ -238,7 +246,8 @@ namespace TDEngine2
 			static constexpr ::TDEngine2::TypeId typeId = ::TDEngine2::TypeId(::TDEngine2::ComputeHash(#Type));	\
 			__pragma(warning(pop))																				\
 			return typeId;																						\
-		}
+		}																										\
+		TDE2_REGISTER_CLASS_ID(Type)
 
 
 #define TDE2_REGISTER_COMPONENT_TYPE(Type)									\
@@ -255,25 +264,26 @@ namespace TDEngine2
 			return typeId;																						\
 		}
 #else
-	#define TDE2_TYPE_ID(Type) TypeId(ComputeHash(#Type))	
+	#define TDE2_TYPE_ID(Type) ::TDEngine2::TypeId(::TDEngine2::ComputeHash(#Type))	
 
-	#define TDE2_REGISTER_TYPE(Type)										\
-		static TypeId GetTypeId()											\
-		{																	\
-			static constexpr TypeId typeId = TypeId(ComputeHash(#Type));	\
-			return typeId;													\
-		}
+	#define TDE2_REGISTER_TYPE(Type)																			\
+		static ::TDEngine2::TypeId GetTypeId()																	\
+		{																										\
+			static constexpr ::TDEngine2::TypeId typeId = ::TDEngine2::TypeId(::TDEngine2::ComputeHash(#Type));	\
+			return typeId;																						\
+		}																										\
+		TDE2_REGISTER_CLASS_ID(Type)
 
 
 #define TDE2_REGISTER_COMPONENT_TYPE(Type)									\
 		TDE2_REGISTER_TYPE(Type)											\
 		TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, GetComponentTypeId)
 
-#define TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, MethodName)						\
-		virtual TypeId MethodName() const									\
-		{																	\
-			static constexpr TypeId typeId = TypeId(ComputeHash(#Type));	\
-			return typeId;													\
+#define TDE2_REGISTER_VIRTUAL_TYPE_EX(Type, MethodName)															\
+		virtual ::TDEngine2::TypeId MethodName() const															\
+		{																										\
+			static constexpr ::TDEngine2::TypeId typeId = ::TDEngine2::TypeId(::TDEngine2::ComputeHash(#Type));	\
+			return typeId;																						\
 		}
 #endif
 

@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.11] 2022-09-01
+## [0.6.11] 2022-09-02
 
 ### Added
 
 ### Changed
 
-- **TComponentTypeNameTrait** meta-function was moved to the global namespace to allow declarations of new components in namespaces that're different than **TDEngine2** one.
+- **TComponentTypeNameTrait** meta-function was removed and replaced with BaseComponent::GetClassId() static method which has same functionality.
 
 - The latter statement infers another change which is the macro **TDE2_DECLARE_FLAG_COMPONENT** can be used within any namespace.
 

@@ -38,13 +38,13 @@ namespace TDEngine2
 	public:
 		TDE2_REGISTER_TYPE(CBaseComponent)
 
-			/*!
-				\brief The method initializes an internal state of an object
+		/*!
+			\brief The method initializes an internal state of an object
 
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
 
-			TDE2_API E_RESULT_CODE Init() override;
+		TDE2_API E_RESULT_CODE Init() override;
 
 		/*!
 			\brief The method deserializes object's state from given reader
@@ -246,35 +246,6 @@ namespace TDEngine2
 #define TDE2_COMPONENT_FACTORY_NAME(ComponentName)			C ## ComponentName ## Factory
 #define TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName)	Create ## ComponentName ## Factory
 
-}
-
-	/*!
-		\brief The meta-function could be used to stringify component's type 
-		The entity is placed in the global namespace to prevent 'error C2888 (MSVC)' when a user declares its own components in another namespace
-	*/
-
-	template<typename T>
-	struct TComponentTypeNameTrait
-	{
-#if defined(TDE2_USE_WINPLATFORM)
-		TDE2_API TDE2_STATIC_CONSTEXPR const TDEngine2::C8* mpValue = "UnknownComponent";
-#else
-		TDE2_API TDE2_STATIC_CONSTEXPR TDEngine2::C8* mpValue = "UnknownComponent";
-#endif
-	};
-
-
-namespace TDEngine2
-{
-
-#if defined(TDE2_USE_WINPLATFORM)
-	#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
-		template <> struct ::TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR const TDEngine2::C8* mpValue = ComponentTypeStr; };	
-#else
-	#define TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentType, ComponentTypeStr)															\
-		template <> struct TComponentTypeNameTrait<ComponentType> { TDE2_API TDE2_STATIC_CONSTEXPR TDEngine2::C8* mpValue = ComponentTypeStr; };	
-#endif
-
 
 	struct TComponentTypeInfo
 	{
@@ -344,8 +315,7 @@ namespace TDEngine2
 
 			TDE2_API const std::string& GetComponentTypeStr() const override
 			{
-				static const std::string componentTypeIdStr(TComponentTypeNameTrait<TComponentType>::mpValue);
-				return componentTypeIdStr;
+				return TComponentType::GetClassId();
 			}
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponentFactory)
@@ -360,8 +330,6 @@ namespace TDEngine2
 
 
 #define TDE2_DECLARE_COMPONENT_FACTORY_IMPL(ComponentNameStr, ComponentName, ComponentParamsType, ComponentFactoryName, ComponentFactoryFunctor)		\
-	TDE2_DECLARE_COMPONENT_TYPE_STR_TRAIT(ComponentName, ComponentNameStr)																				\
-																																						\
 	TDE2_API ::TDEngine2::IComponentFactory* ComponentFactoryFunctor(::TDEngine2::E_RESULT_CODE& result);												\
 																																						\
 	class ComponentFactoryName : public ::TDEngine2::CBaseComponentFactory<ComponentName, ComponentParamsType>											\
