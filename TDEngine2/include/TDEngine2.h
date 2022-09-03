@@ -191,6 +191,9 @@
 /// audio
 #include "audio/IAudioSource.h"
 
+/// autotests
+#include "autotests/CTestContext.h"
+
 ///editor
 #include "editor/IProfiler.h"
 #include "editor/CPerfProfiler.h"

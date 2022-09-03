@@ -131,6 +131,7 @@ namespace TDEngine2
 			TMatrix4 translateRotateMatrix = hasCameras[i] ? rotationMatrix * translationMatrix : translationMatrix * rotationMatrix;
 
 			TMatrix4 localToWorldMatrix = translateRotateMatrix * ScaleMatrix(pTransform->GetScale() * zAxisDirection);
+			const TMatrix4 localTransform = localToWorldMatrix;
 
 			/// \note Implement parent-to-child relationship's update
 			if (InvalidParentIndex != parentsTable[i])
@@ -138,7 +139,7 @@ namespace TDEngine2
 				localToWorldMatrix = transforms[parentsTable[i]]->GetLocalToWorldTransform() * localToWorldMatrix;
 			}
 
-			pTransform->SetTransform(localToWorldMatrix);
+			pTransform->SetTransform(localToWorldMatrix, localTransform);
 
 			if (auto pBounds = bounds[i])
 			{

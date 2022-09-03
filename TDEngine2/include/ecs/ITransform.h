@@ -70,7 +70,7 @@ namespace TDEngine2
 				\param[in] transform matrix 4x4 that specifies local to world transformation
 			*/
 
-			TDE2_API virtual void SetTransform(const TMatrix4& transform) = 0;
+			TDE2_API virtual void SetTransform(const TMatrix4& local2World, const TMatrix4& child2Parent) = 0;
 
 			TDE2_API virtual E_RESULT_CODE AttachChild(TEntityId childEntityId) = 0;
 
@@ -139,6 +139,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TMatrix4& GetWorldToLocalTransform() const = 0;
+
+			TDE2_API virtual const TMatrix4& GetChildToParentTransform() const = 0;
 
 			/*!
 				\brief The method returns a basis vector which corresponds to Z axis in local space of the object

@@ -206,10 +206,12 @@ namespace TDEngine2
 		mHasChanged = true;
 	}
 
-	void CTransform::SetTransform(const TMatrix4& transform)
+	void CTransform::SetTransform(const TMatrix4& local2World, const TMatrix4& child2Parent)
 	{
-		mLocalToWorldMatrix = transform;
-		mWorldToLocalMatrix = Inverse(transform);
+		mLocalToWorldMatrix = local2World;
+		mWorldToLocalMatrix = Inverse(local2World);
+
+		mChild2ParentMatrix = child2Parent;
 	}
 
 	E_RESULT_CODE CTransform::AttachChild(TEntityId childEntityId)
@@ -251,6 +253,8 @@ namespace TDEngine2
 	E_RESULT_CODE CTransform::SetParent(TEntityId parentEntityId)
 	{
 		mParentEntityId = parentEntityId;
+		mHasChanged = true;
+
 		return RC_OK;
 	}
 
@@ -304,6 +308,11 @@ namespace TDEngine2
 	const TMatrix4& CTransform::GetWorldToLocalTransform() const
 	{
 		return mWorldToLocalMatrix;
+	}
+
+	const TMatrix4& CTransform::GetChildToParentTransform() const
+	{
+		return mChild2ParentMatrix;
 	}
 	
 	TVector3 CTransform::GetForwardVector() const
