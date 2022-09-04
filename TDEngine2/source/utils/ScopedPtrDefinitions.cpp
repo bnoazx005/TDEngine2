@@ -26,6 +26,8 @@
 #include "../../include/graphics/IShaderCompiler.h"
 #include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/scene/ISceneManager.h"
+#include "../../include/autotests/ITestCase.h"
+#include "../../include/autotests/ITestFixture.h"
 
 
 namespace TDEngine2
@@ -62,4 +64,6 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IGameModesManager)
 	TDE2_DEFINE_SCOPED_PTR(ISceneManager)
 	TDE2_DEFINE_SCOPED_PTR(IShaderCompiler)
+	TDE2_DEFINE_SCOPED_PTR(ITestFixture)
+	TDE2_DEFINE_SCOPED_PTR(ITestCase)
 }

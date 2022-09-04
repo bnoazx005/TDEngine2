@@ -193,6 +193,10 @@
 
 /// autotests
 #include "autotests/CTestContext.h"
+#include "autotests/ITestFixture.h"
+#include "autotests/ITestCase.h"
+#include "autotests/CBaseTestCase.h"
+#include "autotests/CBaseTestFixture.h"
 
 ///editor
 #include "editor/IProfiler.h"

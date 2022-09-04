@@ -512,6 +512,31 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		auto data = pPackage->ReadFileBytes("test.txt");
 	}
 
+#if 1
+	if (auto&& pTestContext = CTestContext::Get())
+	{
+		/// \note Define the execution environment
+		pTestContext->Init({ mpEngineCoreInstance->GetSubsystem<IFileSystem>() });
+		
+		/// \note Create a new test fixture which is a set of individual test cases. It could be loaded from YAML file or prepared manually
+		auto pTestFixture = TPtr<ITestFixture>(CreateBaseTestFixture("TestFixtureName", result));
+
+		/// \note AddTestCase manually or call Load(IArchiveReader) and load them from file
+		auto pTestCase = TPtr<ITestCase>(CreateBaseTestCase(result));
+
+		/// \note 
+		pTestCase->ExecuteAction([] {  });
+		pTestCase->Wait(1.0f);
+		pTestCase->ExecuteAction([] { CTestContext::Get()->Assert(true, true); });
+
+		pTestFixture->AddTestCase("TestCaseName", pTestCase);
+
+		pTestContext->AddTestFixture(pTestFixture);
+		
+		pTestContext->RunAllTests();
+	}
+#endif
+
 	return RC_OK;
 }
 
