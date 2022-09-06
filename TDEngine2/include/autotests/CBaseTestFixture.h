@@ -53,6 +53,10 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(const std::string& name) override;
 
 			TDE2_API E_RESULT_CODE AddTestCase(const std::string& name, TPtr<ITestCase> pTestCase) override;
+
+			TDE2_API void Update(F32 dt) override;
+
+			TDE2_API bool IsFinished() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTestFixture)
 		protected:

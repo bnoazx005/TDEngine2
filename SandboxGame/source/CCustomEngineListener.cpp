@@ -525,9 +525,17 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		auto pTestCase = TPtr<ITestCase>(CreateBaseTestCase(result));
 
 		/// \note 
-		pTestCase->ExecuteAction([] {  });
-		pTestCase->Wait(1.0f);
-		pTestCase->ExecuteAction([] { CTestContext::Get()->Assert(true, true); });
+		pTestCase->ExecuteAction([] 
+		{
+			TDE2_ASSERT(false);
+		});
+
+		pTestCase->Wait(2.0f);
+		pTestCase->ExecuteAction([] 
+		{
+			TDE2_ASSERT(false);
+			CTestContext::Get()->Assert(true, true); 
+		});
 
 		pTestFixture->AddTestCase("TestCaseName", pTestCase);
 
@@ -651,6 +659,8 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 			pAudioSource->SetAudioClipId("test.mp3");
 		}
 	}
+
+	CTestContext::Get()->Update(dt);
 	
 	//if (mpInputContext->IsMouseButtonPressed(0))
 	//{

@@ -37,6 +37,10 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(const std::string& name) = 0;
 
 			TDE2_API virtual E_RESULT_CODE AddTestCase(const std::string& name, TPtr<ITestCase> pTestCase) = 0;
+
+			TDE2_API virtual void Update(F32 dt) = 0;
+
+			TDE2_API virtual bool IsFinished() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITestFixture)
 	};

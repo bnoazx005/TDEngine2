@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.11] 2022-09-04
+## [0.6.11] 2022-09-06
 
 ### Added
+
+- The implementation of simple auto-tseting system was introduced.
 
 ### Changed
 

@@ -1,4 +1,5 @@
 #include "../../include/autotests/CBaseTestFixture.h"
+#include "../../include/autotests/ITestCase.h"
 
 
 namespace TDEngine2
@@ -10,7 +11,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseTestFixture::Init(const std::string& name)
 	{
-		if (!mIsInitialized)
+		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
@@ -29,7 +30,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseTestFixture::AddTestCase(const std::string& name, TPtr<ITestCase> pTestCase)
 	{
-		if (!name.empty() || !pTestCase)
+		if (name.empty() || !pTestCase)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -37,6 +38,32 @@ namespace TDEngine2
 		mTestCases.emplace_back(name, pTestCase);
 
 		return RC_OK;
+	}
+
+	void CBaseTestFixture::Update(F32 dt)
+	{
+		if (mTestCases.empty())
+		{
+			return;
+		}
+
+		TPtr<ITestCase> pCurrTestCase = nullptr;
+		std::string currTestCaseName;
+
+		std::tie(currTestCaseName, pCurrTestCase) = mTestCases.front();
+
+		if (!pCurrTestCase->IsFinished())
+		{
+			pCurrTestCase->Update(dt);
+			return;
+		}
+
+		mTestCases.erase(mTestCases.cbegin());
+	}
+
+	bool CBaseTestFixture::IsFinished() const
+	{
+		return mTestCases.empty();
 	}
 
 

@@ -34,6 +34,10 @@ namespace TDEngine2
 			TDE2_API virtual void ExecuteAction(const std::function<void()>& action = nullptr) = 0;
 
 			TDE2_API virtual void Wait(F32 delay) = 0;
+
+			TDE2_API virtual void Update(F32 dt) = 0;
+
+			TDE2_API virtual bool IsFinished() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITestCase)
 	};

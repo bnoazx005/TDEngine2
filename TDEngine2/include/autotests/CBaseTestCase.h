@@ -9,10 +9,15 @@
 
 #include "ITestCase.h"
 #include "../core/CBaseObject.h"
+#include <vector>
+#include <memory>
 
 
 namespace TDEngine2
 {
+	class ITestAction;
+
+
 	/*!
 		\brief A factory function for creation objects of CBaseTestCase's type.
 
@@ -46,8 +51,14 @@ namespace TDEngine2
 			TDE2_API void ExecuteAction(const std::function<void()>& action = nullptr) override;
 
 			TDE2_API void Wait(F32 delay) override;
+
+			TDE2_API void Update(F32 dt) override;
+
+			TDE2_API bool IsFinished() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTestCase)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CBaseTestCase)
+			~CBaseTestCase() override;
 		protected:
+			std::vector<std::unique_ptr<ITestAction>> mActions;
 	};
 }

@@ -1,4 +1,5 @@
 #include "../../include/autotests/CTestContext.h"
+#include "../../include/autotests/ITestFixture.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -50,7 +51,34 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTestContext::RunAllTests()
 	{
+		if (mIsRunning)
+		{
+			return RC_FAIL;
+		}
+
+		mIsRunning = true;
+
 		return RC_OK;
+	}
+
+	void CTestContext::Update(F32 dt)
+	{
+		if (!mIsRunning)
+		{
+			return;
+		}
+
+		TPtr<ITestFixture> pCurrFixture = mTestFixtures.front();
+
+		if (!pCurrFixture->IsFinished())
+		{
+			pCurrFixture->Update(dt);
+			return;
+		}
+
+		mTestFixtures.erase(mTestFixtures.cbegin());
+
+		mIsRunning = !mTestFixtures.empty();
 	}
 
 

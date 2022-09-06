@@ -53,6 +53,8 @@ namespace TDEngine2
 			
 			TDE2_API E_RESULT_CODE Assert(bool actual, bool expected);
 
+			TDE2_API void Update(F32 dt);
+
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
 				The only instance will be created per program's lifetime.
@@ -70,6 +72,8 @@ namespace TDEngine2
 			std::unordered_map<std::string, TTestResultsTable> mTestResults; ///< The key is a test fixture's name, the table contains test cases execution's results
 			
 			std::vector<TPtr<ITestFixture>>                    mTestFixtures;
+
+			bool                                               mIsRunning = false;
 	};
 }
 
