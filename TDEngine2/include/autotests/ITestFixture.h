@@ -9,6 +9,7 @@
 
 #include "../utils/Types.h"
 #include "../core/IBaseObject.h"
+#include <functional>
 
 
 namespace TDEngine2
@@ -28,6 +29,8 @@ namespace TDEngine2
 	class ITestFixture : public virtual IBaseObject
 	{
 		public:
+			typedef std::function<void()> TActionCallback;
+		public:
 			/*!
 				\brief The method initializes an initial state of an object
 
@@ -37,6 +40,9 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(const std::string& name) = 0;
 
 			TDE2_API virtual E_RESULT_CODE AddTestCase(const std::string& name, TPtr<ITestCase> pTestCase) = 0;
+
+			TDE2_API virtual void SetOnSetUpAction(const TActionCallback& action = nullptr) = 0;
+			TDE2_API virtual void SetOnTearDownAction(const TActionCallback& action = nullptr) = 0;
 
 			TDE2_API virtual void Update(F32 dt) = 0;
 

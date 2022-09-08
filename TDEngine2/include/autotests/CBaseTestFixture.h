@@ -54,6 +54,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE AddTestCase(const std::string& name, TPtr<ITestCase> pTestCase) override;
 
+			TDE2_API void SetOnSetUpAction(const TActionCallback& action = nullptr) override;
+			TDE2_API void SetOnTearDownAction(const TActionCallback& action = nullptr) override;
+
 			TDE2_API void Update(F32 dt) override;
 
 			TDE2_API bool IsFinished() const override;
@@ -63,5 +66,8 @@ namespace TDEngine2
 			std::string mName;
 
 			std::vector<std::tuple<std::string, TPtr<ITestCase>>> mTestCases;
+
+			TActionCallback mSetUpCallback = nullptr;
+			TActionCallback mTearDownCallback = nullptr;
 	};
 }

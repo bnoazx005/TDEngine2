@@ -116,6 +116,8 @@ namespace TDEngine2
 
 		mActions.clear();
 
+		mIsStarted = false;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -138,6 +140,8 @@ namespace TDEngine2
 			return;
 		}
 
+		mIsStarted = true;
+
 		ITestAction* pAction = mActions.front().get();
 		if (!pAction->IsFinished())
 		{
@@ -146,6 +150,11 @@ namespace TDEngine2
 		}
 
 		mActions.erase(mActions.cbegin());
+	}
+
+	bool CBaseTestCase::IsStarted() const
+	{
+		return mIsStarted;
 	}
 
 	bool CBaseTestCase::IsFinished() const

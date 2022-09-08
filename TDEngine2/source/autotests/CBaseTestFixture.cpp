@@ -1,5 +1,6 @@
 #include "../../include/autotests/CBaseTestFixture.h"
 #include "../../include/autotests/ITestCase.h"
+#include "../../include/autotests/CTestContext.h"
 
 
 namespace TDEngine2
@@ -40,6 +41,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CBaseTestFixture::SetOnSetUpAction(const TActionCallback& action)
+	{
+		mSetUpCallback = action;
+	}
+
+	void CBaseTestFixture::SetOnTearDownAction(const TActionCallback& action)
+	{
+		mTearDownCallback = action;
+	}
+
 	void CBaseTestFixture::Update(F32 dt)
 	{
 		if (mTestCases.empty())
@@ -52,12 +63,39 @@ namespace TDEngine2
 
 		std::tie(currTestCaseName, pCurrTestCase) = mTestCases.front();
 
-		if (!pCurrTestCase->IsFinished())
+		try
 		{
-			pCurrTestCase->Update(dt);
+			if (mSetUpCallback && !pCurrTestCase->IsStarted())
+			{
+				mSetUpCallback();
+			}
+
+			if (!pCurrTestCase->IsFinished())
+			{
+				pCurrTestCase->Update(dt);
+				return;
+			}
+
+			if (mTearDownCallback)
+			{
+				mTearDownCallback();
+			}
+		}
+		catch (...)
+		{
+			if (mTearDownCallback)
+			{
+				mTearDownCallback();
+			}
+
+			mTestCases.erase(mTestCases.cbegin());
+
+			CTestContext::Get()->AddTestResult(mName, currTestCaseName, false);
+
 			return;
 		}
 
+		CTestContext::Get()->AddTestResult(mName, currTestCaseName, true);
 		mTestCases.erase(mTestCases.cbegin());
 	}
 

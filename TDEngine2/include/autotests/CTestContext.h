@@ -50,6 +50,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE AddTestFixture(TPtr<ITestFixture> pFixture);
 
 			TDE2_API E_RESULT_CODE RunAllTests();
+
+			TDE2_API void AddTestResult(const std::string& testFixtureName, const std::string& testCaseName, bool hasPassed);
 			
 			TDE2_API E_RESULT_CODE Assert(bool actual, bool expected);
 
@@ -74,6 +76,10 @@ namespace TDEngine2
 			std::vector<TPtr<ITestFixture>>                    mTestFixtures;
 
 			bool                                               mIsRunning = false;
+
+			U32                                                mTotalTestsCount = 0;
+			U32                                                mPassedTestsCount = 0;
+			U32                                                mFailedTestsCount = 0;
 	};
 }
 

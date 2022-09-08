@@ -42,9 +42,28 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CTestContext::AddTestResult(const std::string& testFixtureName, const std::string& testCaseName, bool hasPassed)
+	{
+		++mTotalTestsCount;
+
+		mTestResults[testFixtureName][testCaseName] = hasPassed;
+
+		if (hasPassed)
+		{
+			++mPassedTestsCount;
+		}
+		else
+		{
+			++mFailedTestsCount;
+		}
+	}
+
 	E_RESULT_CODE CTestContext::Assert(bool actual, bool expected)
 	{
-		
+		if (actual != expected)
+		{
+			throw std::exception("[CTestContext] Assertion failed");
+		}
 
 		return RC_OK;
 	}
@@ -57,6 +76,10 @@ namespace TDEngine2
 		}
 
 		mIsRunning = true;
+
+		mTotalTestsCount = 0;
+		mPassedTestsCount = 0;
+		mFailedTestsCount = 0;
 
 		return RC_OK;
 	}

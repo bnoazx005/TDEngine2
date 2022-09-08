@@ -54,11 +54,14 @@ namespace TDEngine2
 
 			TDE2_API void Update(F32 dt) override;
 
+			TDE2_API bool IsStarted() const override;
+
 			TDE2_API bool IsFinished() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CBaseTestCase)
 			~CBaseTestCase() override;
 		protected:
 			std::vector<std::unique_ptr<ITestAction>> mActions;
+			bool                                      mIsStarted = false;
 	};
 }

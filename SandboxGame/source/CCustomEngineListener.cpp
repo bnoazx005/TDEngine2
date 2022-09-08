@@ -527,17 +527,24 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		/// \note 
 		pTestCase->ExecuteAction([] 
 		{
-			TDE2_ASSERT(false);
+			CTestContext::Get()->Assert(false, true);
 		});
 
 		pTestCase->Wait(2.0f);
 		pTestCase->ExecuteAction([] 
 		{
-			TDE2_ASSERT(false);
 			CTestContext::Get()->Assert(true, true); 
 		});
 
+		auto pTestCase2 = TPtr<ITestCase>(CreateBaseTestCase(result));
+
+		/// \note 
+		pTestCase2->ExecuteAction([]
+		{
+		});
+
 		pTestFixture->AddTestCase("TestCaseName", pTestCase);
+		pTestFixture->AddTestCase("TestCaseNam2e", pTestCase2);
 
 		pTestContext->AddTestFixture(pTestFixture);
 		
