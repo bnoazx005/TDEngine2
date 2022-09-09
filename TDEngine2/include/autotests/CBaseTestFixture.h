@@ -14,6 +14,11 @@
 #include <tuple>
 
 
+#if TDE2_EDITORS_ENABLED
+
+#include <exception>
+
+
 namespace TDEngine2
 {
 	class ITestCase;
@@ -70,4 +75,18 @@ namespace TDEngine2
 			TActionCallback mSetUpCallback = nullptr;
 			TActionCallback mTearDownCallback = nullptr;
 	};
+
+
+	class CAssertException : public std::exception 
+	{
+		public:
+			TDE2_API CAssertException(const std::string& message, const std::string& filename, U32 line);
+
+		public:
+			std::string mMessage;
+			std::string mFilename;
+			U32         mLine;
+	};
 }
+
+#endif

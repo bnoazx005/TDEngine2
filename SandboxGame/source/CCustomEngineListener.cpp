@@ -527,13 +527,13 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		/// \note 
 		pTestCase->ExecuteAction([] 
 		{
-			CTestContext::Get()->Assert(false, true);
+			TDE2_TEST_IS_TRUE(CMathUtils::Abs(2.0f - 0.0f) < 0.0f);
 		});
 
 		pTestCase->Wait(2.0f);
 		pTestCase->ExecuteAction([] 
 		{
-			CTestContext::Get()->Assert(true, true); 
+			TDE2_TEST_IS_TRUE(true);
 		});
 
 		auto pTestCase2 = TPtr<ITestCase>(CreateBaseTestCase(result));

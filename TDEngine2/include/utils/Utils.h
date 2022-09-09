@@ -860,4 +860,7 @@ namespace TDEngine2
 	{
 		static constexpr bool mValue = std::is_same<TGivenType, TCurrentType>::value || TContainsType<TGivenType, TArgs...>::mValue;
 	};
+
+	#define TDE2_STRINGIFY_IMPL(value) #value
+	#define TDE2_STRINGIFY(...) TDE2_STRINGIFY_IMPL(__VA_ARGS__)
 }

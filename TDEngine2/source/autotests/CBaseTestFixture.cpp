@@ -1,10 +1,23 @@
 #include "../../include/autotests/CBaseTestFixture.h"
 #include "../../include/autotests/ITestCase.h"
 #include "../../include/autotests/CTestContext.h"
+#include "stringUtils.hpp"
 
+
+#if TDE2_EDITORS_ENABLED
 
 namespace TDEngine2
 {
+	CAssertException::CAssertException(const std::string& message, const std::string& filename, U32 line):
+		std::exception(message.c_str()), mMessage(message), mFilename(filename), mLine(line)
+	{
+	}
+
+
+	/*!
+		CBaseTestFixture's definition
+	*/
+
 	CBaseTestFixture::CBaseTestFixture() :
 		CBaseObject()
 	{
@@ -81,7 +94,7 @@ namespace TDEngine2
 				mTearDownCallback();
 			}
 		}
-		catch (...)
+		catch (const CAssertException& e)
 		{
 			if (mTearDownCallback)
 			{
@@ -90,12 +103,12 @@ namespace TDEngine2
 
 			mTestCases.erase(mTestCases.cbegin());
 
-			CTestContext::Get()->AddTestResult(mName, currTestCaseName, false);
+			CTestContext::Get()->AddTestResult(mName, currTestCaseName, { e.mMessage, e.mFilename, e.mLine, false });
 
 			return;
 		}
 
-		CTestContext::Get()->AddTestResult(mName, currTestCaseName, true);
+		CTestContext::Get()->AddTestResult(mName, currTestCaseName, { Wrench::StringUtils::GetEmptyStr(), Wrench::StringUtils::GetEmptyStr(), 0, true });
 		mTestCases.erase(mTestCases.cbegin());
 	}
 
@@ -110,3 +123,5 @@ namespace TDEngine2
 		return CREATE_IMPL(ITestFixture, CBaseTestFixture, result, name);
 	}
 }
+
+#endif

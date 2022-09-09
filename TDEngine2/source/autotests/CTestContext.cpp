@@ -1,5 +1,5 @@
 #include "../../include/autotests/CTestContext.h"
-#include "../../include/autotests/ITestFixture.h"
+#include "../../include/autotests/CBaseTestFixture.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -42,13 +42,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CTestContext::AddTestResult(const std::string& testFixtureName, const std::string& testCaseName, bool hasPassed)
+	void CTestContext::AddTestResult(const std::string& testFixtureName, const std::string& testCaseName, const TTestResultEntity& result)
 	{
 		++mTotalTestsCount;
 
-		mTestResults[testFixtureName][testCaseName] = hasPassed;
+		mTestResults[testFixtureName].insert({ testCaseName, result });
 
-		if (hasPassed)
+		if (result.mHasPassed)
 		{
 			++mPassedTestsCount;
 		}
@@ -58,11 +58,11 @@ namespace TDEngine2
 		}
 	}
 
-	E_RESULT_CODE CTestContext::Assert(bool actual, bool expected)
+	E_RESULT_CODE CTestContext::Assert(const std::string& message, bool actual, bool expected, const std::string& filename, U32 line)
 	{
 		if (actual != expected)
 		{
-			throw std::exception("[CTestContext] Assertion failed");
+			throw CAssertException(message, filename, line);
 		}
 
 		return RC_OK;

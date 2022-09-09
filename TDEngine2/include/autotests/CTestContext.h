@@ -33,6 +33,15 @@ namespace TDEngine2
 	} TTestContextConfig, *TTestContextConfigPtr;
 
 
+#if TDE2_DEBUG_MODE
+	#define TDE2_TEST_IS_TRUE(...) do { TDEngine2::CTestContext::Get()->Assert(TDE2_STRINGIFY(__VA_ARGS__), __VA_ARGS__, true, __FILE__, __LINE__); } while (false)
+	#define TDE2_TEST_IS_FALSE(...) do { TDEngine2::CTestContext::Get()->Assert(TDE2_STRINGIFY(__VA_ARGS__), __VA_ARGS__, false, __FILE__, __LINE__); } while (false)
+#else
+	#define TDE2_TEST_IS_TRUE(...) (void)0
+	#define TDE2_TEST_IS_FALSE(...) (void)0
+#endif
+
+
 	/*!
 		class CTestContext
 
@@ -43,7 +52,15 @@ namespace TDEngine2
 	class CTestContext: public CBaseObject
 	{
 		public:
-			typedef std::unordered_map<std::string, bool> TTestResultsTable;
+			struct TTestResultEntity
+			{
+				std::string mMessage;
+				std::string mFilename;
+				U32         mLine = 0;
+				bool        mHasPassed = false;
+			};
+
+			typedef std::unordered_map<std::string, TTestResultEntity> TTestResultsTable;
 		public:
 			TDE2_API E_RESULT_CODE Init(const TTestContextConfig& config);
 
@@ -51,9 +68,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE RunAllTests();
 
-			TDE2_API void AddTestResult(const std::string& testFixtureName, const std::string& testCaseName, bool hasPassed);
+			TDE2_API void AddTestResult(const std::string& testFixtureName, const std::string& testCaseName, const TTestResultEntity& result);
 			
-			TDE2_API E_RESULT_CODE Assert(bool actual, bool expected);
+			TDE2_API E_RESULT_CODE Assert(const std::string& message, bool actual, bool expected, const std::string& filename = "", U32 line = 0);
 
 			TDE2_API void Update(F32 dt);
 
