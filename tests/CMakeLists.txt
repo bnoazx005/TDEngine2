@@ -26,6 +26,10 @@ endif ()
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../TDEngine2/include")
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/../bin")
 
+
+add_subdirectory(TDE2TestsRunner)
+
+
 # include Catch2
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/lib/Catch2/contrib/")
 add_subdirectory(lib/Catch2)

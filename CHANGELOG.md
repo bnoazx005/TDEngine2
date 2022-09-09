@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The implementation of simple auto-testing system was introduced.
 
+- A new project TDE2TestsRunner which is an environment for engine's autotests was added.
+
 ### Changed
 
 - **TComponentTypeNameTrait** meta-function was removed and replaced with BaseComponent::GetClassId() static method which has same functionality.

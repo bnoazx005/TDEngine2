@@ -1,0 +1,27 @@
+meta: 
+  "resource-type": "project-settings"
+  "version-tag": 1
+
+common_settings:
+  application_id: TDE2TestsRunner
+  max_worker_threads_count: 4
+  total_preallocated_memory_size: 134217728‬
+  flags : 20 # RESIZEABLE | ZBUFFER
+  base_resources_path: "../../Resources/"
+
+graphics_settings:
+  gapi_type: GCGT_DIRECT3D11
+
+audio_settings:
+  api_type: FMOD
+
+localization_settings:
+  registered_locales:
+    - locale_info:
+        id: ru
+        package_path: ru_text.localization
+    - locale_info:
+        id: en
+        package_path: ffffff
+
+  current_locale: ru
