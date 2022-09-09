@@ -863,4 +863,7 @@ namespace TDEngine2
 
 	#define TDE2_STRINGIFY_IMPL(value) #value
 	#define TDE2_STRINGIFY(...) TDE2_STRINGIFY_IMPL(__VA_ARGS__)
+
+	#define TDE2_CONCAT_IMPL(A, B) A ## B
+	#define TDE2_CONCAT(A, B) TDE2_CONCAT_IMPL(A, B)
 }
