@@ -516,7 +516,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	if (auto&& pTestContext = CTestContext::Get())
 	{
 		/// \note Define the execution environment
-		pTestContext->Init({ mpEngineCoreInstance->GetSubsystem<IFileSystem>() });
+		pTestContext->Init({ mpEngineCoreInstance });
 		
 		/// \note Create a new test fixture which is a set of individual test cases. It could be loaded from YAML file or prepared manually
 		auto pTestFixture = TPtr<ITestFixture>(CreateBaseTestFixture("TestFixtureName", result));

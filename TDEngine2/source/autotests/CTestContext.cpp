@@ -18,13 +18,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!config.mpFileSystem)
+		if (!config.mpEngineCore)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpFileSystem = config.mpFileSystem;
-
+		mpEngineCore = config.mpEngineCore;
+		
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -56,6 +56,16 @@ namespace TDEngine2
 		{
 			++mFailedTestsCount;
 		}
+	}
+
+	E_RESULT_CODE CTestContext::WriteTestResults(TPtr<ITestResultReporter> pReporter)
+	{
+		if (!pReporter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CTestContext::Assert(const std::string& message, bool actual, bool expected, const std::string& filename, U32 line)
@@ -109,6 +119,11 @@ namespace TDEngine2
 	{
 		static TPtr<CTestContext> pInstance = TPtr<CTestContext>(new CTestContext);
 		return pInstance;
+	}
+
+	IEngineCore* CTestContext::GetEngineCore() const
+	{
+		return mpEngineCore;
 	}
 }
 

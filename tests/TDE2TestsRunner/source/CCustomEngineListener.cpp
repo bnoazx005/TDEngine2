@@ -8,6 +8,7 @@ using namespace TDEngine2;
 
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
+	CTestContext::Get()->Init({ mpEngineCoreInstance });
 	CTestContext::Get()->RunAllTests();
 
 	return RC_OK;

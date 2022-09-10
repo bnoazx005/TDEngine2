@@ -20,16 +20,18 @@ namespace TDEngine2
 {
 	class IFileSystem;
 	class ITestFixture;
+	class IEngineCore;
+	class ITestResultReporter;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem);
 	TDE2_DECLARE_SCOPED_PTR(ITestFixture);
+	TDE2_DECLARE_SCOPED_PTR(ITestResultReporter);
 
 
 	typedef struct TTestContextConfig
 	{
-		TPtr<IFileSystem> mpFileSystem;
-		std::string       mTestReportFilePath = "TestResults.txt";
+		IEngineCore* mpEngineCore;
 	} TTestContextConfig, *TTestContextConfigPtr;
 
 
@@ -100,6 +102,8 @@ namespace TDEngine2
 
 			TDE2_API void AddTestResult(const std::string& testFixtureName, const std::string& testCaseName, const TTestResultEntity& result);
 			
+			TDE2_API E_RESULT_CODE WriteTestResults(TPtr<ITestResultReporter> pReporter);
+
 			TDE2_API E_RESULT_CODE Assert(const std::string& message, bool actual, bool expected, const std::string& filename = "", U32 line = 0);
 
 			TDE2_API void Update(F32 dt);
@@ -112,11 +116,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static TPtr<CTestContext> Get();
+
+			TDE2_API IEngineCore* GetEngineCore() const;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTestContext);
 
 		private:
-			TPtr<IFileSystem>                                  mpFileSystem;
+			IEngineCore*                                       mpEngineCore;
 
 			std::unordered_map<std::string, TTestResultsTable> mTestResults; ///< The key is a test fixture's name, the table contains test cases execution's results
 			
