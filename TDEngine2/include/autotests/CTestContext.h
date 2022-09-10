@@ -21,12 +21,12 @@ namespace TDEngine2
 	class IFileSystem;
 	class ITestFixture;
 	class IEngineCore;
-	class ITestResultReporter;
+	class ITestResultsReporter;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem);
 	TDE2_DECLARE_SCOPED_PTR(ITestFixture);
-	TDE2_DECLARE_SCOPED_PTR(ITestResultReporter);
+	TDE2_DECLARE_SCOPED_PTR(ITestResultsReporter);
 
 
 	typedef struct TTestContextConfig
@@ -74,6 +74,15 @@ namespace TDEngine2
 #endif
 
 
+	struct TTestResultEntity
+	{
+		std::string mMessage;
+		std::string mFilename;
+		U32         mLine = 0;
+		bool        mHasPassed = false;
+	};
+
+
 	/*!
 		class CTestContext
 
@@ -84,14 +93,6 @@ namespace TDEngine2
 	class CTestContext: public CBaseObject
 	{
 		public:
-			struct TTestResultEntity
-			{
-				std::string mMessage;
-				std::string mFilename;
-				U32         mLine = 0;
-				bool        mHasPassed = false;
-			};
-
 			typedef std::unordered_map<std::string, TTestResultEntity> TTestResultsTable;
 		public:
 			TDE2_API E_RESULT_CODE Init(const TTestContextConfig& config);
@@ -102,7 +103,7 @@ namespace TDEngine2
 
 			TDE2_API void AddTestResult(const std::string& testFixtureName, const std::string& testCaseName, const TTestResultEntity& result);
 			
-			TDE2_API E_RESULT_CODE WriteTestResults(TPtr<ITestResultReporter> pReporter);
+			TDE2_API E_RESULT_CODE WriteTestResults(TPtr<ITestResultsReporter> pReporter);
 
 			TDE2_API E_RESULT_CODE Assert(const std::string& message, bool actual, bool expected, const std::string& filename = "", U32 line = 0);
 

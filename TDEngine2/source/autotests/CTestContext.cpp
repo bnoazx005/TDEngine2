@@ -1,11 +1,15 @@
 #include "../../include/autotests/CTestContext.h"
 #include "../../include/autotests/CBaseTestFixture.h"
+#include "../../include/autotests/ITestResultsReporter.h"
 
 
 #if TDE2_EDITORS_ENABLED
 
 namespace TDEngine2
 {
+	TDE2_DEFINE_SCOPED_PTR(ITestResultsReporter)
+
+
 	CTestContext::CTestContext():
 		CBaseObject()
 	{
@@ -58,12 +62,14 @@ namespace TDEngine2
 		}
 	}
 
-	E_RESULT_CODE CTestContext::WriteTestResults(TPtr<ITestResultReporter> pReporter)
+	E_RESULT_CODE CTestContext::WriteTestResults(TPtr<ITestResultsReporter> pReporter)
 	{
 		if (!pReporter)
 		{
 			return RC_INVALID_ARGS;
 		}
+
+
 
 		return RC_OK;
 	}

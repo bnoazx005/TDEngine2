@@ -125,8 +125,6 @@ namespace TDEngine2
 		interface ITextFileReader
 
 		\brief The interface describes a functionality of a text file's reader
-
-		\todo UTF-8 and UTF-16 support is needed
 	*/
 
 	class ITextFileReader : public virtual IFileReader
