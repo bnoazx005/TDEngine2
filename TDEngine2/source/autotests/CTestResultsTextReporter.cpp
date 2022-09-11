@@ -66,7 +66,7 @@ namespace TDEngine2
 
 		mActiveTestFixtureName = testFixtureName;
 
-		LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), Wrench::StringUtils::Format("* {0} Test Fixture:", mActiveTestFixtureName));
+		LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), Wrench::StringUtils::Format("* \"{0}\" Test Fixture:", mActiveTestFixtureName));
 		
 		return RC_OK;
 	}
@@ -90,7 +90,7 @@ namespace TDEngine2
 
 		LogMessage(
 			mpFileSystem->Get<ITextFileWriter>(mFileHandler), 
-			Wrench::StringUtils::Format("\t* {0}..........................................{1}", testCaseName, testResult.mHasPassed ? "OK" : "FAILED"));
+			Wrench::StringUtils::Format("\t* {0} .......................................... {1}", testCaseName, testResult.mHasPassed ? "OK" : "FAILED"));
 
 		if (!testResult.mHasPassed)
 		{

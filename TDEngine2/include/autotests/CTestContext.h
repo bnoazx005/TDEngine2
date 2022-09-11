@@ -60,7 +60,7 @@ namespace TDEngine2
 		E_RESULT_CODE ResultVariableName = RC_OK;															\
 		TPtr<ITestCase> TestCaseVariableName = TPtr<ITestCase>(CreateBaseTestCase(ResultVariableName));		\
 		pTestFixture->AddTestCase(Name, TestCaseVariableName);												\
-		if (auto pTestCase = TestCaseVariableName)
+		if (TPtr<ITestCase> pTestCase = TestCaseVariableName)
 
 	#define TDE2_TEST_CASE(Name) TDE2_TEST_CASE_IMPL(Name, TDE2_CONCAT(pTestCase, __COUNTER__), TDE2_CONCAT(result, __COUNTER__))
 
