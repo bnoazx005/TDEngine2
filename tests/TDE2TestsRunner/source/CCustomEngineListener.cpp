@@ -23,6 +23,16 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 
 E_RESULT_CODE CCustomEngineListener::OnFree()
 {
+	E_RESULT_CODE result = RC_OK;
+	
+	auto pTestResultsReporter = TPtr<ITestResultsReporter>(CreateTestResultsTextReporter(mpFileSystem, "TestResults.txt", result));
+	if (!pTestResultsReporter || RC_OK != result)
+	{
+		return result;
+	}
+
+	CTestContext::Get()->WriteTestResults(pTestResultsReporter);
+
 	return RC_OK;
 }
 

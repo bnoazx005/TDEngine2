@@ -11,6 +11,7 @@
 #include "../core/IBaseObject.h"
 #include <string>
 
+
 namespace TDEngine2
 {
 	class IFileSystem;
@@ -37,7 +38,10 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, const std::string& filename) = 0;
 
-			TDE2_API virtual void WriteTestResult(const TTestResultEntity& testResult) = 0;
+			TDE2_API virtual E_RESULT_CODE EnterTestFixtureSection(const std::string& testFixtureName) = 0;
+			TDE2_API virtual E_RESULT_CODE ExitTestFixtureSection() = 0;
+
+			TDE2_API virtual void WriteTestResult(const std::string& testCaseName, const TTestResultEntity& testResult) = 0;
 
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITestResultsReporter)

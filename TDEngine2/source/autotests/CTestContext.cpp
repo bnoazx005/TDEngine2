@@ -69,8 +69,18 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		for (auto&& currTestFixtureEntry : mTestResults)
+		{
+			pReporter->EnterTestFixtureSection(currTestFixtureEntry.first);
 
+			for (auto&& currTestResult : currTestFixtureEntry.second)
+			{
+				pReporter->WriteTestResult(currTestResult.first, currTestResult.second);
+			}
 
+			pReporter->ExitTestFixtureSection();
+		}
+		
 		return RC_OK;
 	}
 

@@ -1,12 +1,21 @@
 #include "../../include/autotests/CTestResultsTextReporter.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IFile.h"
+#include "../../include/utils/CFileLogger.h"
+#include "../../include/autotests/CTestContext.h"
+#include "stringUtils.hpp"
 
 
 #if TDE2_EDITORS_ENABLED
 
 namespace TDEngine2
 {
+	static void LogMessage(const std::string& str)
+	{
+		LOG_ERROR(str);
+	}
+
+
 	CTestResultsTextReporter::CTestResultsTextReporter() :
 		CBaseObject()
 	{
@@ -26,7 +35,7 @@ namespace TDEngine2
 
 		mpFileSystem = pFileSystem;
 
-		auto openFileResult = pFileSystem->Open<ITextFileWriter>(filename, true);
+		auto openFileResult = pFileSystem->Open<ITextFileReader>(filename, true);
 		if (openFileResult.HasError())
 		{
 			return openFileResult.GetError();
@@ -34,16 +43,58 @@ namespace TDEngine2
 
 		mFileHandler = openFileResult.Get();
 
+		LogMessage("Auto tests results:");
+
 		mIsInitialized = true;
 
 		return RC_OK;
 	}
 
-	void CTestResultsTextReporter::WriteTestResult(const TTestResultEntity& testResult)
+	E_RESULT_CODE CTestResultsTextReporter::EnterTestFixtureSection(const std::string& testFixtureName)
 	{
-		if (auto pFile = mpFileSystem->Get<ITextFileReader>(mFileHandler))
+		if (testFixtureName.empty())
 		{
-			pFile->
+			return RC_INVALID_ARGS;
+		}
+
+		if (!mActiveTestFixtureName.empty())
+		{
+			TDE2_ASSERT(false); /// \note Non-empty field means that we've met unbalanced calls of Enter/ExitFixtureScetion
+			return RC_FAIL;
+		}
+
+		mActiveTestFixtureName = testFixtureName;
+
+		LogMessage(Wrench::StringUtils::Format("{0} Test Fixture:", mActiveTestFixtureName));
+		
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CTestResultsTextReporter::ExitTestFixtureSection()
+	{
+		if (mActiveTestFixtureName.empty())
+		{
+			TDE2_ASSERT(false); /// \note The empty field means that someone tries to call ExitTestFixtureSection without calling EnterTestFixtureSection
+			return RC_FAIL;
+		}
+
+		mActiveTestFixtureName = Wrench::StringUtils::GetEmptyStr();
+
+		return RC_OK;
+	}
+
+	void CTestResultsTextReporter::WriteTestResult(const std::string& testCaseName, const TTestResultEntity& testResult)
+	{
+		++mTotalTestsCount;
+
+		LogMessage(Wrench::StringUtils::Format("\t{0}..........................................{1}", testCaseName, testResult.mHasPassed ? "OK" : "FAILED"));
+
+		if (!testResult.mHasPassed)
+		{
+			LogMessage(Wrench::StringUtils::Format("Test case's failed:\nMessage: {0}\nat file: {1}:{2}\n",
+						testResult.mMessage, testResult.mFilename, testResult.mLine));
+			
+			/// \todo Add writing down to the file
 		}
 	}
 

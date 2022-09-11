@@ -174,8 +174,6 @@ namespace TDEngine2
 		interface IConfigFileReader
 
 		\brief The interface describes a functionality of a config file's reader.
-
-		\todo UTF-8 and UTF-16 support is needed
 	*/
 
 	class IConfigFileReader : public virtual IFileReader

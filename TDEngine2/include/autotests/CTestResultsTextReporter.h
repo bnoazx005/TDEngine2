@@ -49,7 +49,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, const std::string& filename) override;
 
-			TDE2_API void WriteTestResult(const TTestResultEntity& testResult) override;
+			TDE2_API E_RESULT_CODE EnterTestFixtureSection(const std::string& testFixtureName) override;
+			TDE2_API E_RESULT_CODE ExitTestFixtureSection() override;
+
+			TDE2_API void WriteTestResult(const std::string& testCaseName, const TTestResultEntity& testResult) override;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTestResultsTextReporter)
@@ -59,6 +62,10 @@ namespace TDEngine2
 			TPtr<IFileSystem> mpFileSystem;
 
 			TFileEntryId mFileHandler;
+
+			std::string mActiveTestFixtureName;
+
+			U32 mTotalTestsCount = 0;
 	};
 }
 

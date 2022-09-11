@@ -198,6 +198,7 @@
 #include "autotests/CBaseTestCase.h"
 #include "autotests/CBaseTestFixture.h"
 #include "autotests/ITestResultsReporter.h"
+#include "autotests/CTestResultsTextReporter.h"
 
 ///editor
 #include "editor/IProfiler.h"
