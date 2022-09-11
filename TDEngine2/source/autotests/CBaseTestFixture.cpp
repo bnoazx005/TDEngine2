@@ -9,7 +9,7 @@
 namespace TDEngine2
 {
 	CAssertException::CAssertException(const std::string& message, const std::string& filename, U32 line):
-		std::exception(message.c_str()), mMessage(message), mFilename(filename), mLine(line)
+		std::exception(), mMessage(message), mFilename(filename), mLine(line)
 	{
 	}
 
