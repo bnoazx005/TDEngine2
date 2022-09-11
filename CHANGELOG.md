@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.11] 2022-09-09
+## [0.6.11] 2022-09-11
 
 ### Added
 
 - The implementation of simple auto-testing system was introduced.
 
 - A new project TDE2TestsRunner which is an environment for engine's autotests was added.
+
+- A new type of file's writer was added which is **CTextFileWriter** type.
 
 ### Changed
 

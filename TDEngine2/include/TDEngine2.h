@@ -280,6 +280,7 @@
 #include "platform/win32/CWin32DLLManager.h"
 #include "platform/win32/CWin32FileSystem.h"
 #include "platform/CTextFileReader.h"
+#include "platform/CTextFileWriter.h"
 #include "platform/CCsvFileReader.h"
 #include "platform/unix/CUnixWindowSystem.h"
 #include "platform/unix/CUnixDLLManager.h"

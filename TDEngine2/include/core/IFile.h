@@ -361,6 +361,30 @@ namespace TDEngine2
 
 
 	/*!
+		interface ITextFileWriter
+
+		\brief The interface describes a functionality of a text file's writer
+	*/
+
+	class ITextFileWriter : public virtual IFileWriter
+	{
+		public:
+			TDE2_REGISTER_TYPE(ITextFileWriter)
+
+			/*!
+				\brief The method writes a given line and moves the file cursor to a new line
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE WriteLine(const std::string& value) = 0;
+
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITextFileWriter)
+	};
+
+
+	/*!
 		interface IBinaryFileWriter
 
 		\brief The interface represents a functionality of binary file writer

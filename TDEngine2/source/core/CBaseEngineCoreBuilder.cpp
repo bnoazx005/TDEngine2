@@ -29,6 +29,7 @@
 #include "../../include/platform/unix/CUnixFileSystem.h"
 #include "../../include/platform/CProxyWindowSystem.h"
 #include "../../include/platform/CTextFileReader.h"
+#include "../../include/platform/CTextFileWriter.h"
 #include "../../include/platform/CCsvFileReader.h"
 #include "../../include/platform/CConfigFileReader.h"
 #include "../../include/platform/CBinaryFileReader.h"
@@ -197,6 +198,7 @@ namespace TDEngine2
 
 		/// register known file types factories
 		if (((result = mpFileSystemInstance->RegisterFileFactory<ITextFileReader>({ CreateTextFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<ITextFileWriter>({ CreateTextFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<ICsvFileReader>({ CreateCsvFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IConfigFileReader>({ CreateConfigFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileReader>({ CreateBinaryFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||

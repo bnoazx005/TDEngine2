@@ -10,8 +10,9 @@
 
 namespace TDEngine2
 {
-	static void LogMessage(const std::string& str)
+	static void LogMessage(ITextFileWriter* pFileWriter, const std::string& str)
 	{
+		pFileWriter->WriteLine(str);
 		LOG_ERROR(str);
 	}
 
@@ -35,7 +36,7 @@ namespace TDEngine2
 
 		mpFileSystem = pFileSystem;
 
-		auto openFileResult = pFileSystem->Open<ITextFileReader>(filename, true);
+		auto openFileResult = pFileSystem->Open<ITextFileWriter>(filename, true);
 		if (openFileResult.HasError())
 		{
 			return openFileResult.GetError();
@@ -43,7 +44,7 @@ namespace TDEngine2
 
 		mFileHandler = openFileResult.Get();
 
-		LogMessage("Auto tests results:");
+		LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), "Auto tests results:\n");
 
 		mIsInitialized = true;
 
@@ -65,7 +66,7 @@ namespace TDEngine2
 
 		mActiveTestFixtureName = testFixtureName;
 
-		LogMessage(Wrench::StringUtils::Format("{0} Test Fixture:", mActiveTestFixtureName));
+		LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), Wrench::StringUtils::Format("* {0} Test Fixture:", mActiveTestFixtureName));
 		
 		return RC_OK;
 	}
@@ -87,20 +88,20 @@ namespace TDEngine2
 	{
 		++mTotalTestsCount;
 
-		LogMessage(Wrench::StringUtils::Format("\t{0}..........................................{1}", testCaseName, testResult.mHasPassed ? "OK" : "FAILED"));
+		LogMessage(
+			mpFileSystem->Get<ITextFileWriter>(mFileHandler), 
+			Wrench::StringUtils::Format("\t* {0}..........................................{1}", testCaseName, testResult.mHasPassed ? "OK" : "FAILED"));
 
 		if (!testResult.mHasPassed)
 		{
-			LogMessage(Wrench::StringUtils::Format("Test case's failed:\nMessage: {0}\nat file: {1}:{2}\n",
-						testResult.mMessage, testResult.mFilename, testResult.mLine));
-			
-			/// \todo Add writing down to the file
+			LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), 
+				Wrench::StringUtils::Format("Test case's failed:\nMessage: {0}\nat file: {1}:{2}\n", testResult.mMessage, testResult.mFilename, testResult.mLine));
 		}
 	}
 
 	E_RESULT_CODE CTestResultsTextReporter::_onFreeInternal()
 	{
-		if (auto pFile = mpFileSystem->Get<ITextFileReader>(mFileHandler))
+		if (auto pFile = mpFileSystem->Get<ITextFileWriter>(mFileHandler))
 		{
 			return pFile->Close();
 		}
