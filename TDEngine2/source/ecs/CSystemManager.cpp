@@ -40,6 +40,7 @@ namespace TDEngine2
 		mpEventManager->Subscribe(TOnEntityRemovedEvent::GetTypeId(), this);
 		mpEventManager->Subscribe(TOnComponentCreatedEvent::GetTypeId(), this);
 		mpEventManager->Subscribe(TOnComponentRemovedEvent::GetTypeId(), this);
+		mpEventManager->Subscribe(TOnHierarchyChangedEvent::GetTypeId(), this);
 		
 		mIsDirty = true;
 

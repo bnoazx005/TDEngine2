@@ -88,6 +88,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetDirtyFlag(bool value) = 0;
 
+			TDE2_API virtual void SetHierarchyChangedFlag(bool value) = 0;
+
 			TDE2_API virtual E_RESULT_CODE SetOwnerId(TEntityId id) = 0;
 
 			TDE2_API virtual TEntityId GetOwnerId() const = 0;
@@ -173,6 +175,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool HasChanged() const = 0;
+
+			TDE2_API virtual bool HasHierarchyChanged() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITransform)
 	};

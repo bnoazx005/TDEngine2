@@ -124,6 +124,17 @@ namespace TDEngine2
 				continue;
 			}
 
+			if (pTransform->HasHierarchyChanged())
+			{
+				const TMatrix4 parent2Child = InvalidParentIndex != parentsTable[i] ? Inverse(transforms[parentsTable[i]]->GetChildToParentTransform()) : IdentityMatrix4;
+
+				pTransform->SetPosition(parent2Child * pTransform->GetPosition());
+				//pTransform->SetRotation(parent2Child * pTransform->GetRotation());
+				pTransform->SetScale(parent2Child * pTransform->GetScale());
+
+				pTransform->SetHierarchyChangedFlag(false);
+			}
+			
 			const TMatrix4 translationMatrix = TranslationMatrix(pTransform->GetPosition());
 			const TMatrix4 rotationMatrix = RotationMatrix(pTransform->GetRotation());
 

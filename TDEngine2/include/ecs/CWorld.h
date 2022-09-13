@@ -190,6 +190,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE RegisterRaycastContext(TPtr<IRaycastContext> pRaycastContext) override;
 
+			TDE2_API E_RESULT_CODE NotifyOnHierarchyChanged(TEntityId parentEntityId, TEntityId childEntityId) override;
+
 			/*!
 				\brief The method seeks out an entity and either return it or return nullptr
 

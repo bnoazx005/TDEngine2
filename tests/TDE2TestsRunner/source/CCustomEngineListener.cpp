@@ -18,6 +18,11 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	CTestContext::Get()->Update(dt);
 
+	if (CTestContext::Get()->IsFinished())
+	{
+		mpEngineCoreInstance->Quit();
+	}
+
 	return RC_OK;
 }
 

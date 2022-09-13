@@ -176,6 +176,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CWorld::NotifyOnHierarchyChanged(TEntityId parentEntityId, TEntityId childEntityId)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (TEntityId::Invalid == parentEntityId || TEntityId::Invalid == childEntityId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TOnHierarchyChangedEvent onHierarchyChangedEvent;
+		onHierarchyChangedEvent.mParentEntityId = parentEntityId;
+		onHierarchyChangedEvent.mChildEntityId = childEntityId;
+
+		return mpEventManager->Notify(&onHierarchyChangedEvent);
+	}
+
 	CEntity* CWorld::FindEntity(TEntityId entityId) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -330,7 +346,7 @@ namespace TDEngine2
 
 		pParentEntity->GetComponent<CTransform>()->AttachChild(childEntity);
 
-		return RC_OK;
+		return pWorld->NotifyOnHierarchyChanged(parentEntity, childEntity);
 	}
 
 	ICamera* GetCurrentActiveCamera(IWorld* pWorld)

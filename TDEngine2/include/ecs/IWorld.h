@@ -8,6 +8,7 @@
 
 
 #include "../core/IBaseObject.h"
+#include "../core/Event.h"
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
 #include "CEntity.h"
@@ -54,6 +55,24 @@ namespace TDEngine2
 		std::vector<USIZE>                   mParentsToChildMapping; ///< Contains indices of parents for each element of a components array
 		std::tuple<std::vector<TArgs*>...>   mComponentsSlice;
 	};
+
+
+	/*!
+		struct TOnHierarchyChangedEvent
+
+		\brief The structure represents an event which occurs when two or more entities change their relationships
+	*/
+
+	typedef struct TOnHierarchyChangedEvent : TBaseEvent
+	{
+		virtual ~TOnHierarchyChangedEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnHierarchyChangedEvent)
+		REGISTER_EVENT_TYPE(TOnHierarchyChangedEvent)
+
+		TEntityId mParentEntityId;
+		TEntityId mChildEntityId;
+	} TOnHierarchyChangedEvent, *TOnHierarchyChangedEventPtr;
 
 
 	/*!
@@ -370,6 +389,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE RegisterRaycastContext(TPtr<IRaycastContext> pRaycastContext) = 0;
+
+			TDE2_API virtual E_RESULT_CODE NotifyOnHierarchyChanged(TEntityId parentEntityId, TEntityId childEntityId) = 0;
 
 			/*!
 				\brief The method sets up time scale factor which impacts on update cycles of all entities and systems

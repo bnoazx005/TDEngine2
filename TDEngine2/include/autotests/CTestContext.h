@@ -119,6 +119,8 @@ namespace TDEngine2
 			TDE2_API static TPtr<CTestContext> Get();
 
 			TDE2_API IEngineCore* GetEngineCore() const;
+
+			TDE2_API bool IsFinished() const;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTestContext);
 

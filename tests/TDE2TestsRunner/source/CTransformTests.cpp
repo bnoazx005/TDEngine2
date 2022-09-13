@@ -75,6 +75,29 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		static CTransform* pParentTransform = nullptr;
 		static CTransform* pChildTransform = nullptr;
 
+		/// \note Create a child first specially to guarantee that CTransformSystem will have correct order of components
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			CEntity* pChildEntity = pMainScene->CreateEntity("Child");
+
+			TDE2_TEST_IS_TRUE(pChildEntity);
+
+			pChildTransform = pChildEntity->GetComponent<CTransform>();
+
+			TDE2_TEST_IS_TRUE(pChildTransform);
+		});
+
+		/// Wait for a few mseconds to allow CTransformSystem compute new values
+		pTestCase->Wait(0.05f);
+
 		pTestCase->ExecuteAction([&]
 		{
 			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
@@ -86,22 +109,27 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 			TDE2_TEST_IS_TRUE(pMainScene);
 
 			CEntity* pParentEntity = pMainScene->CreateEntity("Parent");
-			CEntity* pChildEntity = pMainScene->CreateEntity("Child");
 
-			TDE2_TEST_IS_TRUE(pParentEntity && pChildEntity);
+			TDE2_TEST_IS_TRUE(pParentEntity);
 
 			pParentTransform = pParentEntity->GetComponent<CTransform>();
-			pChildTransform = pChildEntity->GetComponent<CTransform>();
 
-			TDE2_TEST_IS_TRUE(pParentTransform && pChildTransform);
+			TDE2_TEST_IS_TRUE(pParentTransform);
 
 			pParentTransform->SetScale(TVector3(0.5f));
-
-			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pParentEntity->GetId(), pChildEntity->GetId()));
 		});
 
 		/// Wait for a few mseconds to allow CTransformSystem compute new values
 		pTestCase->Wait(0.05f);
+
+		pTestCase->ExecuteAction([&] {
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pParentTransform->GetOwnerId(), pChildTransform->GetOwnerId()));
+		});
 
 		pTestCase->ExecuteAction([&]
 		{

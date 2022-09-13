@@ -130,6 +130,10 @@ namespace TDEngine2
 		mIsRunning = !mTestFixtures.empty();
 	}
 
+	bool CTestContext::IsFinished() const
+	{
+		return !mIsRunning && mTestFixtures.empty();
+	}
 
 	TPtr<CTestContext> CTestContext::Get()
 	{

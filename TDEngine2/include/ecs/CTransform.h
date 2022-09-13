@@ -145,6 +145,8 @@ namespace TDEngine2
 
 			TDE2_API void SetDirtyFlag(bool value) override;
 
+			TDE2_API void SetHierarchyChangedFlag(bool value);
+
 			TDE2_API E_RESULT_CODE SetOwnerId(TEntityId id) override;
 
 			TDE2_API TEntityId GetOwnerId() const override;
@@ -230,6 +232,8 @@ namespace TDEngine2
 
 			TDE2_API bool HasChanged() const override;
 
+			TDE2_API bool HasHierarchyChanged() const;
+
 			/*!
 				\return The method returns type name (lowercase is preffered)
 			*/
@@ -264,6 +268,7 @@ namespace TDEngine2
 			TMatrix4    mChild2ParentMatrix;
 
 			bool        mHasChanged;
+			bool        mHasHierarchyChanged;
 
 			std::vector<TEntityId> mChildrenEntities;
 	};

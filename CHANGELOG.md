@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.11] 2022-09-11
+## [0.6.11] 2022-09-13
 
 ### Added
 
@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Memory leaks caused by **IShaderCompiler** and **IStructuredBuffer** instances were fixed.
+
+- The incorrect work of **CTransformSystem** was fixed.
 
 ## [0.6.10] 2022-08-17
 
