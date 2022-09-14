@@ -143,9 +143,13 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetParent(TEntityId parentEntityId) override;
 
-			TDE2_API void SetDirtyFlag(bool value) override;
+			/*!
+				\brief The method used to control whether the parent's changed or not. Don't use it directly
+			*/
 
-			TDE2_API void SetHierarchyChangedFlag(bool value);
+			TDE2_API void SetHierarchyChangedFlag(TEntityId parentEntityId) override;
+
+			TDE2_API void SetDirtyFlag(bool value) override;
 
 			TDE2_API E_RESULT_CODE SetOwnerId(TEntityId id) override;
 
@@ -156,6 +160,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TEntityId GetParent() const override;
+
+			TDE2_API TEntityId GetPrevParent() const override;
 
 			TDE2_API const std::vector<TEntityId>& GetChildren() const override;
 
@@ -261,6 +267,8 @@ namespace TDEngine2
 			TVector3    mScale;
 
 			TEntityId   mParentEntityId = TEntityId::Invalid;
+			TEntityId   mPrevParentEntityId = TEntityId::Invalid;
+
 			TEntityId   mOwnerId = TEntityId::Invalid; /// mOwnerId contains id of the entity itself
 
 			TMatrix4    mLocalToWorldMatrix;
@@ -268,7 +276,6 @@ namespace TDEngine2
 			TMatrix4    mChild2ParentMatrix;
 
 			bool        mHasChanged;
-			bool        mHasHierarchyChanged;
 
 			std::vector<TEntityId> mChildrenEntities;
 	};

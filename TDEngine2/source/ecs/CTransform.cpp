@@ -10,7 +10,6 @@ namespace TDEngine2
 		CBaseComponent(), 
 		mLocalToWorldMatrix(IdentityMatrix4), 
 		mHasChanged(true),
-		mHasHierarchyChanged(true),
 		mPosition(ZeroVector3),
 		mRotation(UnitQuaternion),
 		mScale(1.0f)
@@ -62,7 +61,7 @@ namespace TDEngine2
 		mParentEntityId = static_cast<TEntityId>(pReader->GetUInt32("parent_id", static_cast<U32>(TEntityId::Invalid)));
 		mOwnerId = static_cast<TEntityId>(pReader->GetUInt32("owner_id", static_cast<U32>(TEntityId::Invalid)));
 		
-		mHasHierarchyChanged = true;
+		mPrevParentEntityId = TEntityId::Invalid;
 
 		return RC_OK;
 	}
@@ -257,19 +256,18 @@ namespace TDEngine2
 	{
 		mParentEntityId = parentEntityId;
 		mHasChanged = true;
-		mHasHierarchyChanged = true;
 
 		return RC_OK;
+	}
+
+	void CTransform::SetHierarchyChangedFlag(TEntityId parentEntityId)
+	{
+		mPrevParentEntityId = parentEntityId;
 	}
 
 	void CTransform::SetDirtyFlag(bool value)
 	{
 		mHasChanged = value;
-	}
-
-	void CTransform::SetHierarchyChangedFlag(bool value)
-	{
-		mHasHierarchyChanged = value;
 	}
 
 	E_RESULT_CODE CTransform::SetOwnerId(TEntityId id)
@@ -286,6 +284,11 @@ namespace TDEngine2
 	TEntityId CTransform::GetParent() const
 	{
 		return mParentEntityId;
+	}
+
+	TEntityId CTransform::GetPrevParent() const
+	{
+		return mPrevParentEntityId;
 	}
 
 	const std::vector<TEntityId>& CTransform::GetChildren() const
@@ -349,7 +352,7 @@ namespace TDEngine2
 
 	bool CTransform::HasHierarchyChanged() const
 	{
-		return mHasHierarchyChanged;
+		return mPrevParentEntityId != mParentEntityId;
 	}
 
 	const std::string& CTransform::GetTypeName() const

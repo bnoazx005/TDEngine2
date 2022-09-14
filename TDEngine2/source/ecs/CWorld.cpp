@@ -180,7 +180,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (TEntityId::Invalid == parentEntityId || TEntityId::Invalid == childEntityId)
+		if (TEntityId::Invalid == childEntityId)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -335,7 +335,7 @@ namespace TDEngine2
 
 		if (TEntityId::Invalid == parentEntity)
 		{
-			return RC_OK;
+			return pWorld->NotifyOnHierarchyChanged(parentEntity, childEntity);
 		}
 
 		CEntity* pParentEntity = pWorld->FindEntity(parentEntity);

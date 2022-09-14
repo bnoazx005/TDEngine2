@@ -27,6 +27,8 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 			TDE2_TEST_IS_TRUE(pTransform->GetPosition() == ZeroVector3);
 			TDE2_TEST_IS_TRUE(pTransform->GetRotation() == UnitQuaternion);
 			TDE2_TEST_IS_TRUE(pTransform->GetScale() == TVector3(1.0f));
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pNewEntity->GetId()));
 		});
 	}
 
@@ -67,6 +69,19 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 			TDE2_TEST_IS_TRUE(pTransform->GetPosition() == randPosition);
 			TDE2_TEST_IS_TRUE(pTransform->GetRotation() == TQuaternion(rotationAngles));
 			TDE2_TEST_IS_TRUE(ToEulerAngles(pTransform->GetRotation()) == rotationAngles);
+		});
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pTransform->GetOwnerId()));
 		});
 	}
 
@@ -137,6 +152,113 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 
 			TDE2_TEST_IS_TRUE(pParentTransform->GetScale() == TVector3(0.5f));
 			TDE2_TEST_IS_TRUE(pChildTransform->GetScale() == TVector3(2.0f));
+		});
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pParentTransform->GetOwnerId()));
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pChildTransform->GetOwnerId()));
+		});
+	}
+
+	TDE2_TEST_CASE("TestGroupEntities_GroupTwoEntitiesAndThenUngroupThem_AllTransformsShouldBeInStateThatWasInitialOne")
+	{
+		static CTransform* pParentTransform = nullptr;
+		static CTransform* pChildTransform = nullptr;
+
+		static const TVector3 parentPosition = TVector3(5.0f, 0.0f, 0.0f);
+		static const TVector3 childPosition = TVector3(10.0f, -5.0f, 0.0f);
+
+		/// \note Create a child first specially to guarantee that CTransformSystem will have correct order of components
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			CEntity* pParentEntity = pMainScene->CreateEntity("Parent");
+			CEntity* pChildEntity = pMainScene->CreateEntity("Child");
+
+			TDE2_TEST_IS_TRUE(pParentEntity && pChildEntity);
+
+			pParentTransform = pParentEntity->GetComponent<CTransform>();
+			pChildTransform = pChildEntity->GetComponent<CTransform>();
+
+			TDE2_TEST_IS_TRUE(pParentTransform && pChildTransform);
+
+			pParentTransform->SetScale(TVector3(0.5f));
+			pParentTransform->SetPosition(parentPosition);
+			pChildTransform->SetPosition(childPosition);
+		});
+
+		/// Wait for a few mseconds to allow CTransformSystem compute new values
+		pTestCase->Wait(0.01f);
+		
+		pTestCase->ExecuteAction([&] { /// Group two entities
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pParentTransform->GetOwnerId(), pChildTransform->GetOwnerId()));
+		});
+
+		/// Wait for a few mseconds to allow CTransformSystem compute new values
+		pTestCase->Wait(0.01f);
+
+		pTestCase->ExecuteAction([&] { /// Ungroup these entities
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			TDE2_TEST_IS_TRUE(pParentTransform->GetScale() == TVector3(0.5f));
+			TDE2_TEST_IS_TRUE(pChildTransform->GetScale() == TVector3(2.0f));
+
+			TDE2_TEST_IS_TRUE(pParentTransform->GetPosition() == parentPosition);
+			TDE2_TEST_IS_TRUE(pChildTransform->GetPosition() == 2.0f * (childPosition - parentPosition));
+
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), TEntityId::Invalid, pChildTransform->GetOwnerId()));
+		});
+
+		/// Wait for a few mseconds to allow CTransformSystem compute new values
+		pTestCase->Wait(0.01f);
+
+		pTestCase->ExecuteAction([&]
+		{
+			TDE2_TEST_IS_TRUE(pParentTransform && pChildTransform);
+
+			TDE2_TEST_IS_TRUE(pParentTransform->GetScale() == TVector3(0.5f));
+			TDE2_TEST_IS_TRUE(pChildTransform->GetScale() == TVector3(1.0f));
+
+			TDE2_TEST_IS_TRUE(pParentTransform->GetPosition() == parentPosition);
+			TDE2_TEST_IS_TRUE(pChildTransform->GetPosition() == childPosition);
+		});
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pParentTransform->GetOwnerId()));
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pChildTransform->GetOwnerId()));
 		});
 	}
 }

@@ -86,9 +86,13 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SetParent(TEntityId parentEntityId) = 0;
 
-			TDE2_API virtual void SetDirtyFlag(bool value) = 0;
+			/*!
+				\brief The method used to control whether the parent's changed or not. Don't use it directly
+			*/
 
-			TDE2_API virtual void SetHierarchyChangedFlag(bool value) = 0;
+			TDE2_API virtual void SetHierarchyChangedFlag(TEntityId parentEntityId) = 0;
+
+			TDE2_API virtual void SetDirtyFlag(bool value) = 0;
 
 			TDE2_API virtual E_RESULT_CODE SetOwnerId(TEntityId id) = 0;
 
@@ -99,6 +103,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TEntityId GetParent() const = 0;
+
+			TDE2_API virtual TEntityId GetPrevParent() const = 0;
 
 			TDE2_API virtual const std::vector<TEntityId>& GetChildren() const = 0;
 

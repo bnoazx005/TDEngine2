@@ -104,6 +104,13 @@ namespace TDEngine2
 	}
 
 
+	static CTransform* GetTransformFromContextByEntityId(const std::vector<CTransform*>& transforms, TEntityId id)
+	{
+		auto it = std::find_if(transforms.cbegin(), transforms.cend(), [id](auto&& t) { return t->GetOwnerId() == id; });
+		return it == transforms.cend() ? nullptr : *it;
+	}
+
+
 	void CTransformSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CTransformSystem::Update");
@@ -126,13 +133,26 @@ namespace TDEngine2
 
 			if (pTransform->HasHierarchyChanged())
 			{
-				const TMatrix4 parent2Child = InvalidParentIndex != parentsTable[i] ? Inverse(transforms[parentsTable[i]]->GetChildToParentTransform()) : IdentityMatrix4;
+				if (InvalidParentIndex != parentsTable[i])
+				{
+					auto pParentTransform = transforms[parentsTable[i]];
+					const TMatrix4& parent2Child = Inverse(pParentTransform->GetChildToParentTransform());
 
-				pTransform->SetPosition(parent2Child * pTransform->GetPosition());
-				//pTransform->SetRotation(parent2Child * pTransform->GetRotation());
-				pTransform->SetScale(parent2Child * pTransform->GetScale());
+					pTransform->SetPosition(parent2Child * pTransform->GetPosition());
+					pTransform->SetRotation(pParentTransform->GetRotation() * pTransform->GetRotation());
+					pTransform->SetScale(parent2Child * TVector4(pTransform->GetScale(), 0.0f));
+				}
+				else if (TEntityId::Invalid != pTransform->GetPrevParent())
+				{
+					auto pParentTransform = GetTransformFromContextByEntityId(transforms, pTransform->GetPrevParent());
+					const TMatrix4& child2Parent = pParentTransform->GetChildToParentTransform();
 
-				pTransform->SetHierarchyChangedFlag(false);
+					pTransform->SetPosition(child2Parent * pTransform->GetPosition());
+					pTransform->SetRotation(pParentTransform->GetRotation() * pTransform->GetRotation());
+					pTransform->SetScale(child2Parent * TVector4(pTransform->GetScale(), 0.0f));
+				}
+
+				pTransform->SetHierarchyChangedFlag(pTransform->GetParent());
 			}
 			
 			const TMatrix4 translationMatrix = TranslationMatrix(pTransform->GetPosition());
