@@ -62,7 +62,7 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		});
 
 		/// Wait for a few mseconds to allow CTransformSystem compute new values
-		pTestCase->Wait(0.05f);
+		pTestCase->WaitForNextFrame();
 
 		pTestCase->ExecuteAction([&]
 		{
@@ -111,7 +111,7 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		});
 
 		/// Wait for a few mseconds to allow CTransformSystem compute new values
-		pTestCase->Wait(0.05f);
+		pTestCase->WaitForNextFrame();
 
 		pTestCase->ExecuteAction([&]
 		{
@@ -135,7 +135,7 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		});
 
 		/// Wait for a few mseconds to allow CTransformSystem compute new values
-		pTestCase->Wait(0.05f);
+		pTestCase->WaitForNextFrame();
 
 		pTestCase->ExecuteAction([&] {
 			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
@@ -204,7 +204,7 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		});
 
 		/// Wait for a few mseconds to allow CTransformSystem compute new values
-		pTestCase->Wait(0.01f);
+		pTestCase->WaitForNextFrame();
 		
 		pTestCase->ExecuteAction([&] { /// Group two entities
 			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
@@ -216,7 +216,7 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		});
 
 		/// Wait for a few mseconds to allow CTransformSystem compute new values
-		pTestCase->Wait(0.01f);
+		pTestCase->WaitForNextFrame();
 
 		pTestCase->ExecuteAction([&] { /// Ungroup these entities
 			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
@@ -234,7 +234,7 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		});
 
 		/// Wait for a few mseconds to allow CTransformSystem compute new values
-		pTestCase->Wait(0.01f);
+		pTestCase->WaitForNextFrame();
 
 		pTestCase->ExecuteAction([&]
 		{

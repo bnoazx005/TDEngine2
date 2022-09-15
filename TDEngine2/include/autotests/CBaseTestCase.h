@@ -52,6 +52,8 @@ namespace TDEngine2
 
 			TDE2_API void Wait(F32 delay) override;
 
+			TDE2_API void WaitForNextFrame() override;
+
 			TDE2_API void Update(F32 dt) override;
 
 			TDE2_API bool IsStarted() const override;

@@ -94,6 +94,38 @@ namespace TDEngine2
 	};
 
 
+	class CWaitForNextFrameAction : public ITestAction
+	{
+		public:
+			TDE2_API CWaitForNextFrameAction()
+			{
+			}
+
+			TDE2_API ~CWaitForNextFrameAction() override
+			{
+			}
+
+			TDE2_API void Execute() override
+			{
+			}
+
+			TDE2_API void Update(F32 dt) override
+			{
+				mIsFinished = mCounter;
+				++mCounter;
+			}
+
+			TDE2_API bool IsFinished() const override
+			{
+				return mIsFinished;
+			}
+		private:
+			U32 mCounter = 0;
+
+			bool mIsFinished = false;
+	};
+
+
 	/*!
 		\brief CBaseTestCase's definition
 	*/
@@ -131,6 +163,11 @@ namespace TDEngine2
 	void CBaseTestCase::Wait(F32 delay)
 	{
 		mActions.emplace_back(std::make_unique<CWaitAction>(delay));
+	}
+
+	void CBaseTestCase::WaitForNextFrame()
+	{
+		mActions.emplace_back(std::make_unique<CWaitForNextFrameAction>());
 	}
 
 	void CBaseTestCase::Update(F32 dt)
