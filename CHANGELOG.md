@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new type of file's writer was added which is **CTextFileWriter** type.
 
+- A new proxy type for the input context was introduced.
+
 ### Changed
 
 - **TComponentTypeNameTrait** meta-function was removed and replaced with BaseComponent::GetClassId() static method which has same functionality.

@@ -63,6 +63,7 @@
 #include "core/EntryPoint.h"
 #include "core/IGameModesManager.h"
 #include "core/CGameModesManager.h"
+#include "core/CProxyInputContext.h"
 
 /// game
 #include "game/ISaveManager.h"
